@@ -34,7 +34,7 @@ img {
 }
 
 *:focus {outline: none;}
-
+.bold { font-weight: bold;}
 #wrapper {
 	text-align: left;
 }
