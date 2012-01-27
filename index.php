@@ -22,11 +22,7 @@ echo $start_div; ?>
 </center>
 </td></tr></table>
 <? echo $separator; ?>
-<!--<center>
-<a href="http://www.FreezingMoon.org" onMouseOver="document.FM.src='http://www.FreezingMoon.org/images/Freezing Moon.png';" onMouseOut="document.FM.src='http://www.FreezingMoon.org/images/Freezing Moon desaturated.png';" target="_blank"> 
-<img src="http://www.FreezingMoon.org/images/Freezing Moon desaturated.png" name="FM" style="width:30%;" title="Developed by Freezing Moon"></a><br>
-<span>- presents -</span></center>-->
 <p style="text-align:justify; margin-right:4px;">
-<span class="bold">Ancient Beast</span> combines turn based strategy with role-playing elements along with mini-games of other genres. It is based on an exciting dark fantasy universe infused with mythology, featuring 7 distinctive realms containing a wide variety of creatures to master or defeat, each with it's own unique and exciting set of skills, upgrades and evolutions that are brought to life by nicely crafted prerendered 3d graphics.
+<span class="bold">Ancient Beast</span> is a video game that combines turn based strategy and role-playing along with mini-games of other genres. It is based on an exciting dark fantasy universe infused with mythology, featuring 7 distinctive realms containing a wide variety of creatures for you to master or defeat, each with it's own unique and exciting set of skills, upgrades and evolutions, all brought to life by nicely crafted prerendered 3d graphics.
 </p>
 <? echo $end_div . $the_end; ?>
