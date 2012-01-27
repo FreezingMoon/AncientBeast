@@ -37,8 +37,8 @@ $(document).ready(function(){
 });
 </script>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<meta name="description" content="Free Fantasy online RPG">
-<meta name="keywords" content="free, foss, games, blender, 3d, animation, tutorials, multiplayer, online, TBS, RPG, adventure, fun, open source, ubuntu, linux, download, torrent, homm, disciples, cross platform, tactics, arena">
+<meta name="description" content="Fantasy TBS RPG">
+<meta name="keywords" content="free, foss, games, blender, 3d, animation, online, TBS, RPG, adventure, fun, open source, ubuntu, linux, homm, disciples, cross platform, multiplayer, tactics, arena">
 <meta name="author" content="Dread Knight"><? if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
 </head>
 <body>
