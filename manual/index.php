@@ -125,6 +125,7 @@ They're above everyone else. Literally at least.
 Hundred of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.
 </p>
 <center><a name="Sloth"><img src="../font/S.png" title="Sloth"><br><b>Sloth</b></a></center>
+<img src="../realms/sloth.jpg" title="Sloth">
 <p>
 They don't bother doing much besides survival.
 </p>
