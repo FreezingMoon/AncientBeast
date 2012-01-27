@@ -44,7 +44,6 @@ Ancient Beast is developed using web programming languages such as HTML 5 and ja
 A game development company announces it's next generation game: using a matter rearranger device, the players would be able to summon real creatures that would fight eachother to the death, in a turn based fashion. Hundreds of thousands of game packages get shipped all around the world after the official release and becomes a huge success, having millions of players in no time.<br><br>
 A few months after the release, the game's firmware gets updated with a new feature that allows players to unsummon creatures. Unfortunetly, the patch wasn't properly tested, therefor it contained a major glitch, allowing the players to unsummon more than just their creatures: anything alive, with exception of players. Therefor the glitch was exploited more and more by fanatic players which used live stock such as animals or other human beings, including defeated players, in order to refuel their matter capsules required for summoning and keep on playing.<br><br>
 The game never received a fix, which led to global chaos: play or be played.
-<!--The matter rearranger device, called Summoner's Cube, uses Matter Capsules that contain various materials which get printed with the help of laser rays, into various creatures based on voxel 3d models stored on game cards.<br>-->
 </p>
 <? echo $separator; ?>
 <a name="gameplay">IV. <b><u>Gameplay</u></b></a>
@@ -77,7 +76,7 @@ Settlements can act as respawn points for players, also they can help training o
 <table style="margin-left:auto; margin-right:auto; text-align:center; width:600px;"><tr>
 	<td><a href="#Avarice"><img src="../font/A.png" title="Avarice"><br><b>Avarice</b></a></td>
 	<td><a href="#Envy"><img src="../font/E.png" title="Envy"><br><b>Envy</b></a></td>
-	<td><a href="#Gluttony"><img src="../font/G.png" title="Glottony"><br><b>Gluttony</b></a></td>
+	<td><a href="#Gluttony"><img src="../font/G.png" title="Gluttony"><br><b>Gluttony</b></a></td>
 	<td><a href="#Lust"><img src="../font/L.png" title="Lust"><br><b>Lust</b></a></td>
 	<td><a href="#Pride"><img src="../font/P.png" title="Pride"><br><b>Pride</b></a></td>
 	<td><a href="#Sloth"><img src="../font/S.png" title="Sloth"><br><b>Sloth</b></a></td>
@@ -86,6 +85,7 @@ Settlements can act as respawn points for players, also they can help training o
 </tr></table>
 <br>
 <center><a name="Avarice"><img src="../font/A.png" title="Avarice"><br><b>Avarice</b></a></center>
+<img src="../realms/avarice.jpg" title="Avarice">
 <p>
 They like to aquire all sorts of useless things and riches by all means possible.
 </p>
@@ -93,6 +93,7 @@ They like to aquire all sorts of useless things and riches by all means possible
 Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.
 </p>
 <center><a name="Envy"><img src="../font/E.png" title="Envy"><br><b>Envy</b></a></center>
+<img src="../realms/envy.jpg" title="Envy">
 <p>
 The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.
 </p>
@@ -100,6 +101,7 @@ The creatures living in this realm always feel rather insecure about themselves 
 It's located to the West side and it mainly consists of deserts and cannyons.
 </p>
 <center><a name="Gluttony"><img src="../font/G.png" title="Gluttony"><br><b>Gluttony</b></a></center>
+<img src="../realms/gluttony.jpg" title="Gluttony">
 <p>
 Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.
 </p>
@@ -107,6 +109,7 @@ Overcrowded place where all sorts of beasts and plants eat each other as soon as
 In the east side, where the jungles are really tall and wilde, not even the sun's waves don't go through. Beware of the vegetation as well and don't pet any animals!
 </p>
 <center><a name="Lust"><img src="../font/L.png" title="Lust"><br><b>Lust</b></a></center>
+<img src="../realms/lust.jpg" title="Lust">
 <p>
 All the creatures around here suffer from pyromancy and have burning desire to incinerate everything within reach and turn to ashes.
 </p>
@@ -114,6 +117,7 @@ All the creatures around here suffer from pyromancy and have burning desire to i
 North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.
 </p>
 <center><a name="Pride"><img src="../font/P.png" title="Pride"><br><b>Pride</b></a></center>
+<img src="../realms/pride.jpg" title="Pride">
 <p>
 They're above everyone else. Literally at least.
 </p>
@@ -128,6 +132,7 @@ They don't bother doing much besides survival.
 South area. This place is all water. Since it's so cold over here, large portions of water are constantly frozen and covered with snow, serving as home for some of the creatures.
 </p>
 <center><a name="Wrath"><img src="../font/W.png" title="Wrath"><br><b>Wrath</b></a></center>
+<img src="../realms/wrath.jpg" title="Wrath">
 <p>
 The beasts from this realm enjoy killing and inflicting suffering on others.
 </p>

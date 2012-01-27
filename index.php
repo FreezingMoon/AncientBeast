@@ -1,7 +1,7 @@
 <? $page_title = "Ancient Beast";
 include("header.php");
 echo $start_div;
-$realms = array('envy', 'gluttony', 'greed', 'lust', 'pride', 'sloth', 'wrath');
+$realms = array('avarice', 'envy', 'gluttony', 'lust', 'pride', 'sloth', 'wrath');
 $random_realm = array_rand($realms);
 echo "<table style=\"background: url('/realms/$realms[$random_realm].jpg') no-repeat center top; height: 400px;\">"; ?>
 <tr><td width=25%><center>
