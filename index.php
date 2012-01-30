@@ -15,9 +15,9 @@ echo "<table style=\"background: url('/realms/$realms[$random_realm].jpg') no-re
 </center></td><td width=50%><center>
 <iframe width="480" height="360" src="http://www.youtube.com/embed/KBS03PBHtqQ?rel=0" frameborder="0" allowfullscreen></iframe></center>
 </td><td width=25%><center>
-	<a href='http://www.facebook.com/AncientBeast' target='_blank'><img src='/images/facebook.png' class='lighten'></a><br><br><br><br><br>
-	<a href='http://twitter.com/AncientBeast' target='_blank'><img src='/images/twitter.png' class='lighten'></a><br><br><br><br><br>
-	<a href='http://feeds.feedburner.com/AncientBeast' target='_blank'><img src='/images/rss.png' class='lighten'></a>
+	<a href='http://www.facebook.com/AncientBeast' target='_blank' class='lighten'><img src='/images/facebook.png' class='lighten'></a><br><br><br><br><br>
+	<a href='http://twitter.com/AncientBeast' target='_blank' class='lighten'><img src='/images/twitter.png' class='lighten'></a><br><br><br><br><br>
+	<a href='http://feeds.feedburner.com/AncientBeast' target='_blank' class='lighten'><img src='/images/rss.png' class='lighten'></a>
 </center></td></tr></table>
 <? echo $separator; ?>
 <p style="text-align:justify; margin-right:4px;">
