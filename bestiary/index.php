@@ -1,4 +1,4 @@
-<? $page_title = "Ancient Beast - Bestiary";
+<?php $page_title = "Ancient Beast - Bestiary";
 include("../header.php");
 include("/connect.php");
 echo "$start_div<div style='text-align:center; position:absolute;' id='▣'>";

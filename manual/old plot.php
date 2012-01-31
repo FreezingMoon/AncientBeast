@@ -1,4 +1,4 @@
-<?
+<?php
 $page_title = "Ancient Beast - Manual";
 $style = "
 .iconz {
@@ -16,7 +16,7 @@ echo $start_div; ?>
 	<td><a href='#factions'><img src='factions.png' class='menu'><br><b>Factions</b></a></td>
 	<td><a href='#license'><img src='license.png' class='menu'><br><b>License</b></a></td>
 </tr></table></nav>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <article>
 <a name="info">I. <b><u>Info</u></b></a>
 <p>
@@ -25,7 +25,7 @@ echo $start_div; ?>
 <p>
 Ancient Beast is developed using web programming languages such as HTML 5 and javascript/jquery in order to be playable right from any modern browser on pretty much any operating system and hardware, without having to download and install any plugins. It was carefuly designed to be easy to learn and fun.
 </p>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <a name="demands">II. <b><u>Demands</u></b></a>
 <ul>
 <li>a modern browser with HTML 5 support and Javascript enabled</li>
@@ -38,12 +38,12 @@ Ancient Beast is developed using web programming languages such as HTML 5 and ja
 <li>200mb HDD for cache (optional)</li>
 <li>stereo speakers (optional)</li>
 </ul>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <a name="plot">III. <b><u>Plot</u></b></a>
 <p>It's the year 2666. In the last centuries, technology advanced exponentially up to the point that pretty much everyone had a fair chance at playing God. With the help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, anyone could build it's own weapon factory or genetic laboratory right in his own garrage or backyard. Having mechanic parts or genetic modifications turned from a fashion into a lifestyle.
 Despite their combined efforts, the world's governments couldn't prevent regular people having so much power in their hands and now the remaining humans became obnoxious creatures that most are unable to even speak, fighting each other for supremacy or survival. Which will be the last one standing?
 </p>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <a name="gameplay">IV. <b><u>Gameplay</u></b></a>
 <p>
 In order to play Ancient Beast, besides meeting the minimum requirements, you'll also needed a <a href="http://www.freezingmoon.org/account" target="_blank"><b>FreezingMoon</b></a> account. After logging in with your account, you'll have to pick a server, choose a faction (sin) and name your hero.
@@ -63,7 +63,7 @@ Settlements can act as respawn points for players, also they can help training o
 <p>
 //talk about heroes, skills, creatures, items, castles, combat, resources
 </p>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <a name="factions">V. <b><u>Factions</u></b></a>
 <p>
 //talk about how the world has been structured/divided
@@ -131,7 +131,7 @@ The beasts from this realm enjoy killing and inflicting suffering on others.
 <p>
 Underwold. Back in the day there used to be underground secret facilities that where used for God forbidden experiments regarding genetics and bio weapons.
 </p>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <a name="license">VI. <b><u>License</u><b></a>
 <p>
 Ancient Beast name is copyrighted by Valentin Anastase.
@@ -146,5 +146,5 @@ The codebase or parts of it can be reused or redistributed, provided you credit 
 <b>Disclaimer!</b> The Freezing Moon Foundation has a certain amount of financial interest in the project in order to ensure it's proper course and evolution. Despite having it's awesome sides, game development is none the less a very slow, demanding and painfull process.
 </p>
 </article>
-<? echo $end_div . $the_end; ?>
+<?php echo $end_div . $the_end; ?>
 

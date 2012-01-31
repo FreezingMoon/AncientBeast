@@ -1,4 +1,4 @@
-<? $ab_progress = "SELECT * FROM ab_progress WHERE id = $ab_id";
+<?php $ab_progress = "SELECT * FROM ab_progress WHERE id = $ab_id";
 $result = mysql_query($ab_progress);
 while ($row = mysql_fetch_assoc($result)) {
 	$sum = array_sum($row);

@@ -71,7 +71,7 @@ A:active {text-decoration: none; color: #979797;}
 A:hover {text-decoration: none; color: #e6e6e6; cursor: pointer;}
 
 .summon {
-	background: url(bestiary/images/search_box.png) no-repeat;
+	background: url('/bestiary/images/search_box.png') no-repeat;
 	border: 0px;
 	padding-left: 5px;
 	width: 160px;

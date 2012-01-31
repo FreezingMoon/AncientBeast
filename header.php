@@ -1,10 +1,10 @@
-<? if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
+<?php if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
 <!doctype html>
 <html>
 <head>
-<? } ?>
+<?php } ?>
 <!--set page title-->
-<title><?
+<title><?php
 if (isset($page_title)) {
 	echo $page_title;
 }
@@ -12,7 +12,7 @@ else {
 	echo "Ancient Beast";
 }?></title>
 <link rel="stylesheet" href="/stylesheet.css">
-<?
+<?php
 if (isset($style)) {
 	echo "<style>$style</style>";
 }
@@ -39,10 +39,10 @@ $(document).ready(function(){
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <meta name="description" content="Fantasy TBS RPG">
 <meta name="keywords" content="free, foss, games, blender, 3d, animation, online, TBS, RPG, adventure, fun, open source, ubuntu, linux, homm, disciples, cross platform, multiplayer, tactics, arena">
-<meta name="author" content="Dread Knight"><? if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
+<meta name="author" content="Dread Knight"><?php if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
 </head>
 <body>
-<?
+<?php
 include_once("analytics.php");
 include_once("connect.php");
 $start_div = "<div class='frame_upper'></div><div class='frame_middle'>";
@@ -54,10 +54,10 @@ $the_end = "</body></html>";
 <header id="header">
 <div style="margin-top: -15px; margin-bottom: 50px;"><a href="http://www.AncientBeast.com"><img src="/images/AncientBeast.png" alt="Ancient Beast"></a>
 <!--navigation menu-->
-<? include_once("menu/index.php") ?>
+<?php include_once("menu/index.php") ?>
 </div>
 </header>
 
 <!--main area-->
 <div id="wrapper">
-<? } ?>
+<?php } ?>

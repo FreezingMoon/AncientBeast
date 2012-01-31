@@ -1,5 +1,5 @@
 
-<? $page_title = "Ancient Beast - Gallery";
+<?php $page_title = "Ancient Beast - Gallery";
 include("../header.php"); ?>
 <script>
 	!window.jQuery && document.write('<script src="http://ancientbeast.com/gallery/jquery-1.4.3.min.js"><\/script>');
@@ -17,7 +17,7 @@ include("../header.php"); ?>
 			});
 });
 </script>
-<?
+<?php
 echo $start_div;
 $images = scandir("artwork");
 $x = 0;

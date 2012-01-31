@@ -1,4 +1,4 @@
-<? $page_title = "Page Not Found";
+<?php $page_title = "Page Not Found";
 include("../header.php");
 echo $start_div . "<center>"; 
 include("top_ad.php");

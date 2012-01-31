@@ -1,4 +1,4 @@
-<? include_once("../connect.php");
+<?php include_once("../connect.php");
 include("../ico/index.php");
 $sins = array('a'=>'Avarice','e'=>'Envy','g'=>'Gluttony','l'=>'Lust','p'=>'Pride','s'=>'Sloth','w'=>'Wrath'); ?>
 <style>
@@ -37,7 +37,7 @@ $sins = array('a'=>'Avarice','e'=>'Envy','g'=>'Gluttony','l'=>'Lust','p'=>'Pride
 	text-align: center;
 }
 </style>
-<? $max_result = mysql_query('select max(id) as max_id from ab_creatures');
+<?php $max_result = mysql_query('select max(id) as max_id from ab_creatures');
 $max_id = mysql_result($max_result, 0, 0);
 if (!isset($ab_id)) {
 	$ab_id = (isset($_GET['id'])) ? mysql_real_escape_string($_GET['id']) : 1;

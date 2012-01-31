@@ -1,4 +1,4 @@
-<?
+<?php
 $page_title = "Ancient Beast - Manual";
 $style = "
 .iconz {
@@ -16,7 +16,7 @@ echo $start_div; ?>
 	<td><a href='#factions'><img src='factions.png' class='menu'><br><b>Factions</b></a></td>
 	<td><a href='#license'><img src='license.png' class='menu'><br><b>License</b></a></td>
 </tr></table></nav>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <article>
 <a name="info">I. <b><u>Info</u></b></a>
 <p>
@@ -25,7 +25,7 @@ echo $start_div; ?>
 <p>
 Ancient Beast is developed using web programming languages such as HTML 5 and javascript/jquery in order to be playable right from any modern browser on pretty much any operating system and hardware, without having to download and install any plugins. It was carefuly designed to be easy to learn and fun.
 </p>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <a name="demands">II. <b><u>Demands</u></b></a>
 <ul>
 <li>a modern browser with HTML 5 support and Javascript enabled</li>
@@ -38,14 +38,14 @@ Ancient Beast is developed using web programming languages such as HTML 5 and ja
 <li>200mb HDD for cache (optional)</li>
 <li>stereo speakers (optional)</li>
 </ul>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <a name="plot">III. <b><u>Plot</u></b></a>
 <p><b>Chapter 1: Death Row</b><br><br>
 A game development company announces it's next generation game: using a matter rearranger device, the players would be able to summon real creatures that would fight eachother to the death, in a turn based fashion. Hundreds of thousands of game packages get shipped all around the world after the official release and becomes a huge success, having millions of players in no time.<br><br>
 A few months after the release, the game's firmware gets updated with a new feature that allows players to unsummon creatures. Unfortunetly, the patch wasn't properly tested, therefor it contained a major glitch, allowing the players to unsummon more than just their creatures: anything alive, with exception of players. Therefor the glitch was exploited more and more by fanatic players which used live stock such as animals or other human beings, including defeated players, in order to refuel their matter capsules required for summoning and keep on playing.<br><br>
 The game never received a fix, which led to global chaos: play or be played.
 </p>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <a name="gameplay">IV. <b><u>Gameplay</u></b></a>
 <p>
 In order to play Ancient Beast, besides meeting the minimum requirements, you'll also needed a <a href="http://www.freezingmoon.org/account" target="_blank"><b>FreezingMoon</b></a> account. After logging in with your account, you'll have to pick a server, choose a faction (sin) and name your hero.
@@ -65,7 +65,7 @@ Settlements can act as respawn points for players, also they can help training o
 <p>
 //talk about heroes, skills, creatures, items, castles, combat, resources
 </p>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <a name="factions">V. <b><u>Factions</u></b></a>
 <p>
 //talk about how the world has been structured/divided
@@ -140,7 +140,7 @@ The beasts from this realm enjoy killing and inflicting suffering on others.
 <p>
 Underwold. Back in the day there used to be underground secret facilities that where used for God forbidden experiments regarding genetics and bio weapons.
 </p>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <a name="license">VI. <b><u>License</u><b></a>
 <p>
 Ancient Beast name is copyrighted by Valentin Anastase.
@@ -155,5 +155,5 @@ The codebase or parts of it can be reused or redistributed, provided you credit 
 <b>Disclaimer!</b> The Freezing Moon Foundation has a certain amount of financial interest in the project in order to ensure it's proper course and evolution. Despite having it's awesome sides, game development is none the less a very slow, demanding and painfull process.
 </p>
 </article>
-<? echo $end_div . $the_end; ?>
+<?php echo $end_div . $the_end; ?>
 

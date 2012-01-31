@@ -1,4 +1,4 @@
-<? $page_title = "Ancient Beast";
+<?php $page_title = "Ancient Beast";
 include("header.php");
 echo $start_div;
 $realms = array('avarice', 'envy', 'gluttony', 'lust', 'pride', 'sloth', 'wrath');
@@ -19,8 +19,8 @@ echo "<table style=\"background: url('/realms/$realms[$random_realm].jpg') no-re
 	<a href='http://twitter.com/AncientBeast' target='_blank' class='lighten'><img src='/images/twitter.png' class='lighten'></a><br><br><br><br><br>
 	<a href='http://feeds.feedburner.com/AncientBeast' target='_blank' class='lighten'><img src='/images/rss.png' class='lighten'></a>
 </center></td></tr></table>
-<? echo $separator; ?>
+<?php echo $separator; ?>
 <p style="text-align:justify; margin-right:4px;">
 <span class="bold">Ancient Beast</span> is a video game that combines turn based strategy and role-playing along with mini-games of other genres. It is based on an exciting dark fantasy universe infused with mythology, featuring 7 distinctive realms containing a wide variety of creatures for you to master or defeat, each with it's own unique and exciting set of skills, upgrades and evolutions, all brought to life by nicely crafted prerendered 3d graphics.
 </p>
-<? echo $end_div . $the_end; ?>
+<?php echo $end_div . $the_end; ?>

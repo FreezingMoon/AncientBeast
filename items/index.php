@@ -44,6 +44,6 @@ window.onload = function() {
 }
 </script>
 
-<?
+<?php
 mysql_free_result($result);
 echo $end_div . $the_end; ?>

@@ -1,4 +1,4 @@
-<?
+<?php
 include("../header.php");
 include("../connect.php");
 include_once("../utils/time_ago.php");
