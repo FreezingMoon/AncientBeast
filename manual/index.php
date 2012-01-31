@@ -40,10 +40,9 @@ Ancient Beast is developed using web programming languages such as HTML 5 and ja
 </ul>
 <?php echo $separator; ?>
 <a name="plot">III. <b><u>Plot</u></b></a>
-<p><b>Chapter 1: Death Row</b><br><br>
-A game development company announces it's next generation game: using a matter rearranger device, the players would be able to summon real creatures that would fight eachother to the death, in a turn based fashion. Hundreds of thousands of game packages get shipped all around the world after the official release and becomes a huge success, having millions of players in no time.<br><br>
-A few months after the release, the game's firmware gets updated with a new feature that allows players to unsummon creatures. Unfortunetly, the patch wasn't properly tested, therefor it contained a major glitch, allowing the players to unsummon more than just their creatures: anything alive, with exception of players. Therefor the glitch was exploited more and more by fanatic players which used live stock such as animals or other human beings, including defeated players, in order to refuel their matter capsules required for summoning and keep on playing.<br><br>
-The game never received a fix, which led to global chaos: play or be played.
+<p><b>Chapter 1: Death Pact</b><br><br>
+It is said that nothing is forever.
+After several decades of rotting in the ground and becoming mere skeletons, you and others have been brought once more into existance, but this time not by a human, but by Death itself, being offered to become it's replacement. Do you accept?
 </p>
 <?php echo $separator; ?>
 <a name="gameplay">IV. <b><u>Gameplay</u></b></a>
