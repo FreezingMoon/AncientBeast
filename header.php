@@ -1,4 +1,6 @@
-<?php if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
+<?php
+include_once("global.php");
+if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
 <!doctype html>
 <html>
 <head>
@@ -11,7 +13,7 @@ if (isset($page_title)) {
 else {
 	echo "Ancient Beast";
 }?></title>
-<link rel="stylesheet" href="/stylesheet.css">
+<link rel="stylesheet" href="<?php echo $WorkingDir; ?>stylesheet.css">
 <?php
 if (isset($style)) {
 	echo "<style>$style</style>";
@@ -24,8 +26,8 @@ if (isset($stylesheet)) {
 <!--jquery-->
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <!--pixastic-->
-<script type="text/javascript" src="/utils/pixastic.js"></script>
-<script type="text/javascript" src="/utils/lighten.js"></script>
+<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/pixastic.js"></script>
+<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/lighten.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
 	$('.lighten').each(function(){
@@ -44,7 +46,6 @@ $(document).ready(function(){
 <body>
 <?php
 include_once("analytics.php");
-include_once("connect.php");
 $start_div = "<div class='frame_upper'></div><div class='frame_middle'>";
 $end_div = "</div><div class='frame_lower'></div>";
 $separator = $end_div . $start_div;
@@ -52,7 +53,7 @@ $the_end = "</body></html>";
 ?>
 <!--banner-->
 <header id="header">
-<div style="margin-top: -15px; margin-bottom: 50px;"><a href="http://www.AncientBeast.com"><img src="/images/AncientBeast.png" alt="Ancient Beast"></a>
+<div style="margin-top: -15px; margin-bottom: 50px;"><a href="<?php echo $WorkingDir; ?>"><img src="<?php echo $WorkingDir; ?>images/AncientBeast.png" alt="Ancient Beast"></a>
 <!--navigation menu-->
 <?php include_once("menu/index.php") ?>
 </div>

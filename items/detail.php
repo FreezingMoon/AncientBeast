@@ -1,5 +1,5 @@
 <?php
-include("../connect.php");
+include("../global.php");
 include("../ico/index.php");
 $detail = "SELECT * from ab_items WHERE id='" . $_POST['id'] . "'";
 $result = mysql_query($detail) or die(mysql_error());

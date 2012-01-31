@@ -1,6 +1,6 @@
 <?php
 include("../header.php");
-include("../connect.php");
+include("../global.php");
 include_once("../utils/time_ago.php");
 $updates = "SELECT * from ab_updates ORDER BY id DESC";
 $result = mysql_query($updates) or die(mysql_error());

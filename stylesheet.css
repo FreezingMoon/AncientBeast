@@ -5,8 +5,8 @@ body {
 	color: #979797;
 	font-size: 16px;
 	font-family: 'Lucida Grande', Verdana, Arial, Sans-Serif;
-	background: url('/images/header.png') no-repeat center top,
-		black url('/images/bg.jpg') repeat;
+	background: url('images/header.png') no-repeat center top,
+		black url('images/bg.jpg') repeat;
 	text-shadow: black 0.1em 0.1em 0.2em;
 	overflow-x: hidden;
 }
@@ -41,7 +41,7 @@ img {
 
 .frame_upper {
 	margin: 0;
-	background-image: url('/images/main_upper.png');
+	background-image: url('images/main_upper.png');
 	background-repeat: no-repeat;
 	height: 20px;
 	overflow: hidden;
@@ -50,7 +50,7 @@ img {
 
 .frame_middle {
 	overflow: hidden;
-	background-image: url('/images/main_middle.png');
+	background-image: url('images/main_middle.png');
 	background-repeat: repeat-y;
 	margin: 0;
 	padding: 0px 30px;
@@ -71,7 +71,7 @@ A:active {text-decoration: none; color: #979797;}
 A:hover {text-decoration: none; color: #e6e6e6; cursor: pointer;}
 
 .summon {
-	background: url('/bestiary/images/search_box.png') no-repeat;
+	background: url('bestiary/images/search_box.png') no-repeat;
 	border: 0px;
 	padding-left: 5px;
 	width: 160px;
@@ -105,7 +105,7 @@ a.rollover:hover > img {
 	padding: 15px;
 	-moz-border-radius: 15px;
 	border-radius: 15px;
-	background: rgba(0, 0, 0, 0.9) url(images/loading.gif) no-repeat 50% 50%;
+	background: rgba(0, 0, 0, 0.9) url('images/loading.gif') no-repeat 50% 50%;
 	border: 3px solid grey;
 }
 .tmask {
@@ -125,7 +125,7 @@ a.rollover:hover > img {
 	width: 30px;
 	height: 30px;
 	cursor: pointer;
-	background: url(images/close.png) no-repeat;
+	background: url('images/close.png') no-repeat;
 }
 .tclose:hover {background-position:0 -30px}
 

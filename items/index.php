@@ -12,11 +12,11 @@ $style = "
 	vertical-align: top;
 }";
 include("../header.php");
-include("../connect.php");
+include("../global.php");
 echo $start_div;
 include("filters.php");
 ?>
-<script type="text/javascript" src="/utils/tinybox.js"></script>
+<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
 <?php
 
 $items = "SELECT * from ab_items ORDER BY type, value";
