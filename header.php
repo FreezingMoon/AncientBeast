@@ -33,7 +33,9 @@ $(document).ready(function(){
 	$('.lighten').each(function(){
 		$(this).mouseover(function() {
 			var c = Pixastic.process($('img', this).get(0), "lighten", {amount:0.4});
-			$(this).mouseout(function(){ Pixastic.revert(c); });
+			$(c).mouseout(function(){
+                Pixastic.revert(c);
+            });
 		});
 	});
 });
