@@ -48,7 +48,7 @@ if (!isset($ab_id)) {
 $ab_creatures = "SELECT * FROM ab_creatures WHERE id = $ab_id";
 $ab_stats = "SELECT * FROM ab_stats WHERE id = $ab_id";
 $ab_abilities = "SELECT * FROM ab_abilities WHERE id = $ab_id";
-$ab_resistances = "SELECT * FROM ab_resistances WHERE id = $ab_id";
+$ab_masteries = "SELECT * FROM ab_masteries WHERE id = $ab_id";
 $result = mysql_query($ab_creatures);
 echo "<table width=860px border=0><th class='card'>"; 
 while ($row = mysql_fetch_assoc($result)) {
@@ -76,7 +76,7 @@ echo "</tr></table>";
 mysql_free_result($result);
 echo "<table class='section'><tr class='numbers'>";
 echo "<th>" . PIERCE_ICON . "</th><th>" . SLASH_ICON . "</th><th>" . CRUSH_ICON . "</th><th>" . SHOCK_ICON . "</th><th>" . BURN_ICON . "</th><th>" . FROST_ICON . "</th><th>" . POISON_ICON . "</th><th>" . MENTAL_ICON . "</th><th>" . SONIC_ICON . "</th></tr><tr class='numbers'>";
-$result = mysql_query($ab_resistances);
+$result = mysql_query($ab_masteries);
 while ($row = mysql_fetch_assoc($result)) {
 	foreach ($row as $key => $x) {
 		if($key == 'id') continue;
