@@ -41,7 +41,7 @@ Ancient Beast is developed using web programming languages such as HTML 5 and ja
 <?php echo $separator; ?>
 <a name="plot">III. <b><u>Plot</u></b></a>
 <p><b>Chapter 1: Death Pact</b><br><br>
-It's the year 2666. In the last centuries, technology advanced exponentially up to the point that pretty much everyone had a fair chance at playing God. With the help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, anyone could build it's own weapon factory or genetic laboratory right in his own garrage or backyard. Having mechanic parts or genetic modifications turned from a fashion into a lifestyle.
+It's the year 2653. In the last centuries, technology advanced exponentially up to the point that pretty much everyone had a fair chance at playing God. With the help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, anyone could build it's own weapon factory or genetic laboratory right in his own garrage or backyard. Having mechanic parts or genetic modifications turned from a fashion into a lifestyle.<br>
 Despite their combined efforts, the world's governments couldn't prevent regular people having so much power in their hands and now the remaining humans became obnoxious creatures that most are unable to even speak, fighting each other for supremacy or survival. Which will be the last one standing?
 </p>
 <?php echo $separator; ?>
