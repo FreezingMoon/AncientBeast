@@ -152,7 +152,7 @@ Artwork and audio can redistributed, shared and reused, as long as they're not i
 The codebase or parts of it can be reused or redistributed, provided you credit the project and/or foundation (GPL license).
 </p>
 <p>
-<b>Disclaimer!</b> The Freezing Moon Foundation has a certain amount of financial interest in the project in order to ensure it's proper course and evolution. Despite having it's awesome sides, game development is none the less a very slow, demanding and painfull process.
+<b>Disclaimer!</b> The Freezing Moon Foundation has a certain amount of financial interest in the project in order to ensure it's proper course and evolution. Despite having it's awesome sides, game development is none the less a very slow, demanding and painfull creative process. Respect!
 </p>
 </article>
 <?php echo $end_div . $the_end; ?>
