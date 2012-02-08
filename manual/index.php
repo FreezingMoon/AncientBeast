@@ -41,9 +41,9 @@ Ancient Beast is developed using web programming languages such as HTML 5 and ja
 <?php echo $separator; ?>
 <a name="plot">III. <b><u>Plot</u></b></a>
 <p>
-It's the year 2653. In the last centuries, technology advanced exponentially up to the point that pretty much everyone had a fair chance at playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, anyone could build it's own weapon factory or genetic laboratory right in his own garrage or backyard. Having mechanic parts or genetic modifications turned from a fashion option into a required lifestyle.
+It's the year 2653. In the last centuries, technology advanced exponentially up to the point that pretty much everyone had a fair chance at playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, anyone could build it's own weapon factory or genetic laboratory right in his own garrage or backyard. Having mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
 </p><p>
-Despite their combined efforts, the world's governments couldn't prevent regular people having so much power in their hands and now most of the remaining humans became obnoxious creatures that are unable to even speak, always fighting each other for supremacy or survival. It seems we're all fucking doomed!
+Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield; split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strongest will survive.
 </p>
 <?php echo $separator; ?>
 <a name="gameplay">IV. <b><u>Gameplay</u></b></a>
