@@ -8,13 +8,13 @@ $style = "
 ";
 include("../header.php");
 echo $start_div; ?>
-<nav><table style='text-align:center; font-size:18px; font-weight:bold; margin:0; padding:0; margin-left: auto; margin-right: auto;'><tr>
-	<td><a href='#info'><img src='info.png' class='menu'><br><b>Info</b></a></td>
-	<td><a href='#demands'><img src='demands.png' class='menu'><br><b>Demands</b></a></td>
-	<td><a href='#plot'><img src='plot.png' class='menu'><br><b>Plot</b></a></td>
-	<td><a href='#gameplay'><img src='gameplay.png' class='menu'><br><b>Gameplay</b></a></td>
-	<td><a href='#factions'><img src='factions.png' class='menu'><br><b>Factions</b></a></td>
-	<td><a href='#license'><img src='license.png' class='menu'><br><b>License</b></a></td>
+<nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
+<?php
+$sections = array("info", "demands", "plot", "gameplay", "factions", "development", "license");
+foreach ($sections as &$sectionItem) {
+	echo "<td><center><a href='#$sectionItem' class='lighten'><img src='$sectionItem.png' width='120' height='120' style='display:block;'>".ucfirst($sectionItem)."</a></center></td>";
+}
+?>
 </tr></table></nav>
 <?php echo $separator; ?>
 <article>
@@ -73,14 +73,14 @@ Settlements can act as respawn points for players, also they can help training o
 <p>
 //add world schematic depicting the overall theme of each and tagging the sins
 </p>
-<table style="margin-left:auto; margin-right:auto; text-align:center; width:600px;"><tr>
-	<td><a href="#Avarice"><img src="../font/A.png" title="Avarice"><br><b>Avarice</b></a></td>
-	<td><a href="#Envy"><img src="../font/E.png" title="Envy"><br><b>Envy</b></a></td>
-	<td><a href="#Gluttony"><img src="../font/G.png" title="Gluttony"><br><b>Gluttony</b></a></td>
-	<td><a href="#Lust"><img src="../font/L.png" title="Lust"><br><b>Lust</b></a></td>
-	<td><a href="#Pride"><img src="../font/P.png" title="Pride"><br><b>Pride</b></a></td>
-	<td><a href="#Sloth"><img src="../font/S.png" title="Sloth"><br><b>Sloth</b></a></td>
-	<td><a href="#Wrath"><img src="../font/W.png" title="Wrath"><br><b>Wrath</b></a></td>
+<table style="margin-left:auto; font-weight:bold; margin-right:auto; text-align:center; width:600px;"><tr>
+	<td><a href="#Avarice"><img src="../font/A.png" title="Avarice"><br>Avarice</a></td>
+	<td><a href="#Envy"><img src="../font/E.png" title="Envy"><br>Envy</a></td>
+	<td><a href="#Gluttony"><img src="../font/G.png" title="Gluttony"><br>Gluttony</a></td>
+	<td><a href="#Lust"><img src="../font/L.png" title="Lust"><br>Lust</a></td>
+	<td><a href="#Pride"><img src="../font/P.png" title="Pride"><br>Pride</a></td>
+	<td><a href="#Sloth"><img src="../font/S.png" title="Sloth"><br>Sloth</a></td>
+	<td><a href="#Wrath"><img src="../font/W.png" title="Wrath"><br>Wrath</a></td>
 
 </tr></table>
 <br>
@@ -141,7 +141,47 @@ The beasts from this realm enjoy killing and inflicting suffering on others.
 Underwold. Back in the day there used to be underground secret facilities that where used for God forbidden experiments regarding genetics and bio weapons.
 </p>
 <?php echo $separator; ?>
-<a name="license">VI. <b><u>License</u><b></a>
+<a name="development">VI. <b><u>Development</u></b></a>
+<br>
+<br>
+<b>Pipeline</b>
+<p>
+The project is developed with the use of free open source cross platform applications and freeware services.
+<a href="http://wuala.com" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's files.
+<a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as structures and creatures and their animations, which are prerendered into sprites and sprite-sheets as well as for other tasks.
+<a href="http://mypaint.intilinux.com" target="_blank"><b>My Paint</b></a> along with <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> are being used for icons, concept art, texturing and the creation of some of the battle grounds.
+<a href="http://al.chemy.org" target="_blank"><b>Alchemy</b></a> can be a very useful tool for finding inspiration when creating creature artwork.
+</p>
+<table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
+<?php
+$tools = array("wuala"=>"http://wuala.com", "blender"=>"http://blender.org", "gimp"=>"http://gimp.org", "mypaint"=>"http://mypaint.intilinux.com", "alchemy"=>"http://al.chemy.org");
+foreach ($tools as $toolName => $toolLink) {
+	echo "<td><a href='$toolLink' target='_blank' class='lighten'><img src='$toolName.png' style='display:block;'>".ucfirst($toolName)."</a></td>";
+}
+?>
+</tr></table>
+<br>
+<b>Sprite sheets</b>
+<br>
+<p>
+For putting together sprite sheets, you can use <a href="http://www.ImageMagick.org" target="_blank"><b>ImageMagick</b></a>, a CLI tool that allows for various operations. If you're not familiar with command line interfaces, no worries, bellow you can see how easy it is by following an example. There are also several GUI's for ImageMagick, but they won't be covered in this documentation.<br>
+On the official website you can find binaries for most popular operating systems, except Ubuntu linux distro. Chances are that if you're using Ubuntu, ImageMagick is already installed, if not, you can easly download and install the tool from the Software Center or from Terminal, using the following command:
+</p>
+<code>sudo apt-get install imagemagick</code>
+<br>
+<p>
+The operation for putting together sprite sheets using ImageMagick is called "Montage". If we are to render an animation in blender, the PNG format is needed for the output, with the ARGB option enabled. Blender will output a series of images, having the filenames from <i>0001.png</i>, up to the last frame number, which is calculated by: frame range * fps.
+</p>
+<code>montage * -tile x8 -geometry 256x256+0+0 -background None -quality 100 output.png</code>
+<br>
+<p>
+The game is best played at a HD resolution of 1920x1080, in case your screen uses a lower resolution, the game should accomodate by rescaling. Battlegrounds and other screens that are not made out of tiles will be created at the same HD resolution.
+</p>
+<p>
+//transparent background or unique color; write about resolution for sprites and levels
+</p>
+<?php echo $separator; ?>
+<a name="license">VII. <b><u>License</u><b></a>
 <p>
 Ancient Beast name is copyrighted by Valentin Anastase.
 </p>
