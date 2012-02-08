@@ -55,6 +55,7 @@ Each game server only hosts a defined number of players that will play an unique
 Players will use their hero in order to explore the game world and collect resources or fight foes. Fights take place in a special combat screen, which has some similarities with a chess game: combatants start of on opposite sides and get to control other creatures besides their heroes (in case they have one), also, the combat is based on a square grid and each combatant takes turns to make a move.
 A combat arena has about 12x10 square tiles.
 </p>
+<img src="combat.jpg" style="width:100%;">
 <p>
 Creatures and heroes that die in battle remain dead and usually leave a corpse or some remains behind, that can be used for their ressurection or for other purposes.
 </p>
@@ -146,7 +147,7 @@ Underwold. Back in the day there used to be underground secret facilities that w
 <p>
 The project is developed with the use of free open source cross platform applications and freeware services.
 <a href="http://wuala.com" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's assets and sources, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b> handles the code part and stores the final assets.
-<a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as structures and creatures and their animations, which are prerendered into sprites and sprite-sheets as well as for other tasks.
+<a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as structures and creatures and their animations, which are prerendered into sprites and sprite-sheets as well as for other tasks.<br>
 <a href="http://mypaint.intilinux.com" target="_blank"><b>My Paint</b></a> along with <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> are being used for icons, concept art, texturing and the creation of some of the battle grounds.
 <a href="http://al.chemy.org" target="_blank"><b>Alchemy</b></a> can be a very useful tool for finding inspiration when creating creature artwork.
 </p>
