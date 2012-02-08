@@ -70,21 +70,19 @@ Settlements can act as respawn points for players, also they can help training o
 <p>
 //talk about how the world has been structured/divided
 </p>
-<p>
-//add world schematic depicting the overall theme of each and tagging the sins
-</p>
-<table style="margin-left:auto; font-weight:bold; margin-right:auto; text-align:center; width:600px;"><tr>
-	<td><a href="#Avarice"><img src="../font/A.png" title="Avarice"><br>Avarice</a></td>
-	<td><a href="#Envy"><img src="../font/E.png" title="Envy"><br>Envy</a></td>
-	<td><a href="#Gluttony"><img src="../font/G.png" title="Gluttony"><br>Gluttony</a></td>
-	<td><a href="#Lust"><img src="../font/L.png" title="Lust"><br>Lust</a></td>
-	<td><a href="#Pride"><img src="../font/P.png" title="Pride"><br>Pride</a></td>
-	<td><a href="#Sloth"><img src="../font/S.png" title="Sloth"><br>Sloth</a></td>
-	<td><a href="#Wrath"><img src="../font/W.png" title="Wrath"><br>Wrath</a></td>
-
-</tr></table>
+<div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
+<img id="Image-Maps_1201202072202332" src="http://ancientbeast.com/manual/sins.png" usemap="#Image-Maps_1201202072202332" border="0" width="506" height="527" alt="" />
+<map id="_Image-Maps_1201202072202332" name="Image-Maps_1201202072202332">
+<area shape="poly" coords="203,176,301,175,351,260,302,348,199,349,151,261" href="http://ancientbeast.com/manual/#Avarice" alt="Avarice" title="Avarice">
+<area shape="poly" coords="354,88,453,86,505,175,454,261,355,258,304,173" href="http://ancientbeast.com/manual/#Envy" alt="Envy" title="Envy">
+<area shape="poly" coords="51,265,149,262,203,350,149,436,50,436,0,349" href="http://ancientbeast.com/manual/#Gluttony" alt="Gluttony" title="Gluttony">
+<area shape="poly" coords="353,261,454,262,505,350,453,435,352,440,304,349" href="http://ancientbeast.com/manual/#Lust" alt="Lust" title="Lust">
+<area shape="poly" coords="201,2,302,2,352,87,302,173,203,171,153,88" href="http://ancientbeast.com/manual/#Pride" alt="Pride" title="Pride">
+<area shape="poly" coords="50,89,152,90,202,174,150,258,51,262,0,175" href="http://ancientbeast.com/manual/#Sloth" alt="Sloth" title="Sloth">
+<area shape="poly" coords="201,350,301,350,355,437,301,524,203,524,152,436" href="http://ancientbeast.com/manual/#Wrath" alt="Wrath" title="Wrath">
+</map></div>
 <br>
-<center><a name="Avarice"><img src="../font/A.png" title="Avarice"><br><b>Avarice</b></a></center>
+<center><a name="Avarice"><img src="../font/A.png" title="Avarice"><b>varice</b></a></center>
 <img src="../realms/avarice.jpg" title="Avarice">
 <p>
 They like to aquire all sorts of useless things and riches by all means possible.
@@ -92,7 +90,7 @@ They like to aquire all sorts of useless things and riches by all means possible
 <p>
 Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.
 </p>
-<center><a name="Envy"><img src="../font/E.png" title="Envy"><br><b>Envy</b></a></center>
+<center><a name="Envy"><img src="../font/E.png" title="Envy"><b>nvy</b></a></center>
 <img src="../realms/envy.jpg" title="Envy">
 <p>
 The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.
@@ -100,7 +98,7 @@ The creatures living in this realm always feel rather insecure about themselves 
 <p>
 It's located to the West side and it mainly consists of deserts and cannyons.
 </p>
-<center><a name="Gluttony"><img src="../font/G.png" title="Gluttony"><br><b>Gluttony</b></a></center>
+<center><a name="Gluttony"><img src="../font/G.png" title="Gluttony"><b>luttony</b></a></center>
 <img src="../realms/gluttony.jpg" title="Gluttony">
 <p>
 Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.
@@ -108,7 +106,7 @@ Overcrowded place where all sorts of beasts and plants eat each other as soon as
 <p>
 In the east side, where the jungles are really tall and wilde, not even the sun's waves don't go through. Beware of the vegetation as well and don't pet any animals!
 </p>
-<center><a name="Lust"><img src="../font/L.png" title="Lust"><br><b>Lust</b></a></center>
+<center><a name="Lust"><img src="../font/L.png" title="Lust"><b>ust</b></a></center>
 <img src="../realms/lust.jpg" title="Lust">
 <p>
 All the creatures around here suffer from pyromancy and have burning desire to incinerate everything within reach and turn to ashes.
@@ -116,7 +114,7 @@ All the creatures around here suffer from pyromancy and have burning desire to i
 <p>
 North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.
 </p>
-<center><a name="Pride"><img src="../font/P.png" title="Pride"><br><b>Pride</b></a></center>
+<center><a name="Pride"><img src="../font/P.png" title="Pride"><b>ride</b></a></center>
 <img src="../realms/pride.jpg" title="Pride">
 <p>
 They're above everyone else. Literally at least.
@@ -124,7 +122,7 @@ They're above everyone else. Literally at least.
 <p>
 Hundred of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.
 </p>
-<center><a name="Sloth"><img src="../font/S.png" title="Sloth"><br><b>Sloth</b></a></center>
+<center><a name="Sloth"><img src="../font/S.png" title="Sloth"><b>loth</b></a></center>
 <img src="../realms/sloth.jpg" title="Sloth">
 <p>
 They don't bother doing much besides survival.
@@ -132,7 +130,7 @@ They don't bother doing much besides survival.
 <p>
 South area. This place is all water. Since it's so cold over here, large portions of water are constantly frozen and covered with snow, serving as home for some of the creatures.
 </p>
-<center><a name="Wrath"><img src="../font/W.png" title="Wrath"><br><b>Wrath</b></a></center>
+<center><a name="Wrath"><img src="../font/W.png" title="Wrath"><b>rath</b></a></center>
 <img src="../realms/wrath.jpg" title="Wrath">
 <p>
 The beasts from this realm enjoy killing and inflicting suffering on others.
