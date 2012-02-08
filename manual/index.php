@@ -71,15 +71,15 @@ Settlements can act as respawn points for players, also they can help training o
 //talk about how the world has been structured/divided
 </p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
-<img id="Image-Maps_1201202072202332" src="http://ancientbeast.com/manual/sins.png" usemap="#Image-Maps_1201202072202332" border="0" width="506" height="527" alt="" />
-<map id="_Image-Maps_1201202072202332" name="Image-Maps_1201202072202332">
-<area shape="poly" coords="203,176,301,175,351,260,302,348,199,349,151,261" href="http://ancientbeast.com/manual/#Avarice" alt="Avarice" title="Avarice">
-<area shape="poly" coords="354,88,453,86,505,175,454,261,355,258,304,173" href="http://ancientbeast.com/manual/#Envy" alt="Envy" title="Envy">
-<area shape="poly" coords="51,265,149,262,203,350,149,436,50,436,0,349" href="http://ancientbeast.com/manual/#Gluttony" alt="Gluttony" title="Gluttony">
-<area shape="poly" coords="353,261,454,262,505,350,453,435,352,440,304,349" href="http://ancientbeast.com/manual/#Lust" alt="Lust" title="Lust">
-<area shape="poly" coords="201,2,302,2,352,87,302,173,203,171,153,88" href="http://ancientbeast.com/manual/#Pride" alt="Pride" title="Pride">
-<area shape="poly" coords="50,89,152,90,202,174,150,258,51,262,0,175" href="http://ancientbeast.com/manual/#Sloth" alt="Sloth" title="Sloth">
-<area shape="poly" coords="201,350,301,350,355,437,301,524,203,524,152,436" href="http://ancientbeast.com/manual/#Wrath" alt="Wrath" title="Wrath">
+<img id="sins" src="sins.png" usemap="#sins" border="0" width="506" height="527">
+<map id="_sins" name="sins">
+<area shape="poly" coords="203,176,301,175,351,260,302,348,199,349,151,261" href="#Avarice" title="Avarice">
+<area shape="poly" coords="354,88,453,86,505,175,454,261,355,258,304,173" href="#Envy" title="Envy">
+<area shape="poly" coords="51,265,149,262,203,350,149,436,50,436,0,349" href="#Gluttony" title="Gluttony">
+<area shape="poly" coords="353,261,454,262,505,350,453,435,352,440,304,349" href="#Lust" title="Lust">
+<area shape="poly" coords="201,2,302,2,352,87,302,173,203,171,153,88" href="#Pride" title="Pride">
+<area shape="poly" coords="50,89,152,90,202,174,150,258,51,262,0,175" href="#Sloth" title="Sloth">
+<area shape="poly" coords="201,350,301,350,355,437,301,524,203,524,152,436" href="#Wrath" title="Wrath">
 </map></div>
 <br>
 <center><a name="Avarice"><img src="../font/A.png" title="Avarice"><b>varice</b></a></center>
