@@ -56,6 +56,17 @@ Players will use their hero in order to explore the game world and collect resou
 A combat arena has about 12x10 square tiles.
 </p>
 <img src="combat.jpg" style="width:100%;">
+<img src="combat ui.png" style="width:100%;">
+<p>
+1. Options menu - displays the info cards of your party, allowing you to summon/unsummon creatures and also provides combat options<br>
+2. Creature queue - estimated order of creatures, the one at the right being the active one<br>
+3. Status bar - displays combat and chat logs (expands on click), it also shows information about things<br>
+4. Creature abilities - displays the abilities of the active creature, which can require targeting or confirmation<br>
+5. Skip turn - allows you to skip the turn of the your current active creature
+</p>
+<p>
+You share 30 seconds of idle time in an inversely proportional way with your opponent.
+</p>
 <p>
 Creatures and heroes that die in battle remain dead and usually leave a corpse or some remains behind, that can be used for their ressurection or for other purposes.
 </p>
@@ -195,4 +206,3 @@ The codebase or parts of it can be reused or redistributed, provided you credit 
 </p>
 </article>
 <?php echo $end_div . $the_end; ?>
-
