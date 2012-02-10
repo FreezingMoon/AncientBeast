@@ -10,7 +10,7 @@ include("../header.php");
 echo $start_div; ?>
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$sections = array("info", "demands", "plot", "gameplay", "factions", "development", "license");
+$sections = array("info", "demands", "plot", "gameplay", "locations", "development", "license");
 foreach ($sections as &$sectionItem) {
 	echo "<td><center><a href='#$sectionItem' class='lighten'><img src='$sectionItem.png' width='120' height='120' style='display:block;'>".ucfirst($sectionItem)."</a></center></td>";
 }
@@ -48,39 +48,40 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 <?php echo $separator; ?>
 <a name="gameplay">IV. <b><u>Gameplay</u></b></a>
 <p>
-In order to play Ancient Beast, besides meeting the minimum requirements, you'll also needed a <a href="http://www.freezingmoon.org/account" target="_blank"><b>FreezingMoon</b></a> account. After logging in with your account, you'll have to pick a server, choose a faction (sin) and name your hero.
-Each game server only hosts a defined number of players that will play an unique game world for a limited period of time, depending on victory conditions.
-</p>
-<p>
-Players will use their hero in order to explore the game world and collect resources or fight foes. Fights take place in a special combat screen, which has some similarities with a chess game: combatants start of on opposite sides and get to control other creatures besides their heroes (in case they have one), also, the combat is based on a square grid and each combatant takes turns to make a move.
-A combat arena has about 12x10 square tiles.
+In order to play Ancient Beast, you'll needed a <a href="http://www.freezingmoon.org/account" target="_blank"><b>FreezingMoon</b></a> account. After logging in, you'll be offered a level 1 creature to get you started and you'll have access to the adventure map, which has 49 locations you can fight at. When you go to a location, you're shown other players already there, which you can challenge or accept challenges from. Fights take place between two sides, up to five players each, the challenger party being showed at the left side of the combat field, which is 18x11 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to buy creatures, items, outfits and avatars.
 </p>
 <img src="combat.jpg" style="width:100%;">
-<img src="combat ui.png" style="width:100%;">
+<table width=100%><tr style="text-align:center; vertical-align:top;">
+	<td width=30%><b>Creature slots</b><br>Based on your summoning points, you can summon and control up to 7 creatures</td>
+	<td width=40%><b>Status bar</b><br>Displays combat and chat logs and also shows information about things</td>
+	<td width=30%><b>Creature abilities</b><br>Displays the abilities of the active creature, the last one allowing you to skip turn</td>
+</tr></table>
 <p>
-1. Options menu - displays the info cards of your party, allowing you to summon/unsummon creatures and also provides combat options<br>
-2. Creature queue - estimated order of creatures, the one at the right being the active one<br>
-3. Status bar - displays combat and chat logs (expands on click), it also shows information about things<br>
-4. Creature abilities - displays the abilities of the active creature, which can require targeting or confirmation<br>
-5. Skip turn - allows you to skip the turn of the your current active creature
+Players are represented on the combat field by skeletons and can be customized by purchasing outfits, which can influence the stats of their summoned creatures.
+Players can level up by gaining experience on the combat field, gaining 7 more summoning points each level and being able to summon more or better creatures. A creature costs 7 summoning points times the level of the creature.<br>
+When fighting others of lower levels, you can temporarely drop levels in order to balance the fight.
 </p>
 <p>
-You share 30 seconds of idle time in an inversely proportional way with your opponent.
+After engaging in combat, players are taken to the battle field where both parties take turns to summon up to seven creatures each. One creature is required, if player can and chooses to summon more later one, by doing so he'll lose the turn of the current creature, but he can have the advantage of summoning more suitable creatures based on the situation of the combat.
 </p>
 <p>
-Creatures and heroes that die in battle remain dead and usually leave a corpse or some remains behind, that can be used for their ressurection or for other purposes.
-</p>
-<p>
-Resources can be used for crafting, trading, evolving creatures or building a settlement.
-Settlements can act as respawn points for players, also they can help training or evolving creatures, assists with resurrection of creatures or even provide creatures and lots of other things.
-</p>
-<p>
-//talk about heroes, skills, creatures, items, castles, combat, resources
+<b>Health:</b> A raw number representing the amount of damage a creature can take until it dies.<br>
+<b>Regrowth:</b> Amount of health which gets restored to the creature every round.<br>
+<b>Fatigue:</b> While a creature is bellow this amount of health, it's becomes fatigued and unable to move.<br>
+<b>Energy:</b> Doing any action, including moving, drains energy from the creature.<br>
+<b>Meditation:</b> Creature gains back this amount of energy points every round.<br>
+<b>Delay:</b> Creatures with smaller delay always get to act first.<br>
+<b>Offense:</b> Influences the damage output of attacks.<br>
+<b>Defense:</b> Protects the creature by reducing incoming damage.<br>
+<b>Inventory:</b> Each creature can equip up to 6 items, which have an impact on it's stats and/or masteries.<br>
+Each item requires a certain number of available inventory points in order to be equiped, therefore some creatures are more item dependant than others.<br>
+<b>Masteries</b> can have an impact on the effectiveness of the creature's abilities and can also help reduce incoming damage and even protect the creature from harmfull effects.
 </p>
 <?php echo $separator; ?>
-<a name="factions">V. <b><u>Factions</u></b></a>
+<a name="locations">V. <b><u>Locations</u></b></a>
 <p>
-//talk about how the world has been structured/divided
+The world has been divided into equal regions, one for each of the deadly sins which suit it's inhabitants the most.
+Every region has 7 locations where combat can take place.
 </p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
 <img id="sins" src="sins.png" usemap="#sins" border="0" width="506" height="527">
@@ -188,7 +189,7 @@ The operation for putting together sprite sheets using ImageMagick is called "Mo
 The game is best played at a HD resolution of 1920x1080, in case your screen uses a lower resolution, the game should accomodate by rescaling. Battlegrounds and other screens that are not made out of tiles will be created at the same HD resolution.
 </p>
 <p>
-//transparent background or unique color; write about resolution for sprites and levels
+Multiplayer will be done with <a href="http://en.wikipedia.org/wiki/WebSocket">WebSocket</a> or using IRC server.
 </p>
 <?php echo $separator; ?>
 <a name="license">VII. <b><u>License</u><b></a>
