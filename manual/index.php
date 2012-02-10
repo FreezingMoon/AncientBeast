@@ -58,8 +58,8 @@ In order to play Ancient Beast, you'll needed a <a href="http://www.freezingmoon
 </tr></table>
 <p>
 Players are represented on the combat field by skeletons and can be customized by purchasing outfits, which can influence the stats of their summoned creatures.
-Players can level up by gaining experience on the combat field, gaining 7 more summoning points each level and being able to summon more or better creatures. A creature costs 7 summoning points times the level of the creature.<br>
-When fighting others of lower levels, you can temporarely drop levels in order to balance the fight.
+Players can level up by gaining experience on the combat field, gaining 1 more summoning points each level, being able to summon more or better creatures. To summon a creature, it takes 1 summoning point times the level of the creature.
+When fighting others of lower levels, you will temporarely drop levels in order to balance the fight.
 </p>
 <p>
 After engaging in combat, players are taken to the battle field where both parties take turns to summon up to seven creatures each. One creature is required, if player can and chooses to summon more later one, by doing so he'll lose the turn of the current creature, but he can have the advantage of summoning more suitable creatures based on the situation of the combat.
