@@ -1,6 +1,6 @@
 <?php
 require_once("../global.php");
-$page_title = "Freezing Moon - Bitcoin";
+$page_title = "Ancient Beast - Bitcoin";
 $style = "
 .title {
 	font-size: 24px;
@@ -21,7 +21,4 @@ echo $start_div; ?>
 <br><br>
 <div>The above miner or the one from <a href="http://www.bitcoinplus.com/generate?for=2306158">this page</a> will generate bitcoins for us using your computer.</div>
 </div>
-<?php
-echo $end_div;
-echo $the_end;
-?>
+<?php echo $end_div . $the_end; ?>

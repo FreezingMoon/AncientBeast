@@ -11,7 +11,7 @@ echo "<table style=\"background: url('{$WorkingDir}realms/{$realms[$random_realm
 		<input type="image" src="<?php echo $WorkingDir; ?>images/paypal.png"  name="submit" alt="PayPal - The safer, easier way to pay online!">
 		<img alt=""  src="https://www.paypal.com/en_US/i/scr/pixel.gif" style="width: 1px; height: 1px; display:none;"></form><br><br><br><br>
 	<a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a><br><br><br><br><br>
-	<script type="text/javascript" src="http://apis.google.com/js/plusone.js"></script><g:plusone size="tall"></g:plusone>
+	<a href="bitcoin"><img src="<?php echo $WorkingDir; ?>bitcoin/Bitcoin.png"></a>
 </center></td><td width=50%><center>
 <iframe width="480" height="360" src="http://www.youtube.com/embed/KBS03PBHtqQ?rel=0" frameborder="0" allowfullscreen></iframe></center>
 </td><td width=25%><center>
