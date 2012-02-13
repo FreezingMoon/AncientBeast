@@ -52,14 +52,13 @@ In order to play Ancient Beast, you'll needed a <a href="http://www.freezingmoon
 </p>
 <img src="combat.jpg" style="width:100%;">
 <table width=100%><tr style="text-align:center; vertical-align:top;">
-	<td width=30%><b>Creature slots</b><br>Based on your summoning points, you can summon and control up to 7 creatures</td>
+	<td width=30%><b>Creature slots</b><br>Based on your mana points, you can summon and control up to 7 creatures</td>
 	<td width=40%><b>Status bar</b><br>Displays combat and chat logs and also shows information about things</td>
 	<td width=30%><b>Creature abilities</b><br>Displays the abilities of the active creature, the last one allowing you to skip turn</td>
 </tr></table>
 <p>
 Players are represented on the combat field by skeletons and can be customized by purchasing outfits, which can influence the stats of their summoned creatures.
-Players can level up by gaining experience on the combat field, gaining 1 more summoning points each level, being able to summon more or better creatures. In order to summon a creature you own, it takes a number of summoning points equal to the creature's level.
-When fighting players of lower levels, you will temporarely drop levels in order to balance the fight.
+Players can level up by gaining experience on the combat field, gaining 1 more mana point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of mana points equal to the creature's level. Summoning a creature multiple times duplicates it's equiped items and raises it's required mana points by 1 each time for the duration of the combat. When fighting players of lower levels, you will temporarely lose mana points in order to balance the fight.
 </p>
 <p>
 After engaging in combat, players are taken to the battle field where both parties take turns to summon up to seven creatures each. One creature is required, if player can and chooses to summon more later one, by doing so he'll lose the turn of the current creature, but he can have the advantage of summoning more suitable creatures based on the situation of the combat.
