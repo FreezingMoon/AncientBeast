@@ -20,10 +20,11 @@ foreach ($sections as &$sectionItem) {
 <article>
 <a name="info">I. <b><u>Info</u></b></a>
 <p>
-<b>Ancient Beast</b>, commonly abreviated <b>AB</b>, is an online multiplayer game, a hybrid combining turn based strategy with role-playing elements, based on an exciting dark fantasy universe infused with mythology, featuring 7 distinctive realms containing a wide variety of creatures to master or defeat, each with it's own unique and exciting set of skills and upgrades, all brought to life by nicely crafted rendered 3d graphics.
+<b>Ancient Beast</b>, is a 2D turn based strategy game played online against other people, featuring 7 distinctive realms that contain a wide variety of creatures to master or defeat, each with it's own unique and exciting set of skills and abilities, all brought to life by nicely crafted cg graphics.
 </p>
 <p>
-Ancient Beast is developed using web programming languages such as HTML 5 and javascript/jquery in order to be playable right from any modern browser on pretty much any operating system and hardware, without having to download and install any plugins. It was carefuly designed to be easy to learn and fun.
+Ancient Beast is free open source and it's developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community) using web coding languages such as HTML, PHP and javascript in order to be playable right from modern browsers on pretty much any operating system and hardware, without having to download and install any plugins.<br>
+It was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
 <?php echo $separator; ?>
 <a name="demands">II. <b><u>Demands</u></b></a>
