@@ -1,5 +1,5 @@
 <?php
-include_once("global.php");
+require_once("global.php");
 if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
 <!doctype html>
 <html>
@@ -41,8 +41,8 @@ $(document).ready(function(){
 });
 </script>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<meta name="description" content="Fantasy TBS RPG">
-<meta name="keywords" content="free, foss, games, blender, 3d, animation, online, TBS, RPG, adventure, fun, open source, ubuntu, linux, homm, disciples, cross platform, multiplayer, tactics, arena">
+<meta name="description" content="Turn Based Strategy Game Played Online Against Other People. Master your beasts!">
+<meta name="keywords" content="game, online, TBS, RPG, strategy, arena, free, foss, open source, 2d, animation">
 <meta name="author" content="Dread Knight"><?php if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
 </head>
 <body>
