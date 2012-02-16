@@ -192,18 +192,14 @@ The game is best played at a HD resolution of 1920x1080, in case your screen use
 Multiplayer will be done with <a href="http://en.wikipedia.org/wiki/WebSocket">WebSocket</a> or using IRC server.
 </p>
 <?php echo $separator; ?>
-<a name="license">VII. <b><u>License</u><b></a>
-<p>
-Ancient Beast name is copyrighted by Valentin Anastase.
-</p>
-<p>
-Artwork and audio can redistributed, shared and reused, as long as they're not intended for any commercial purpose, provided you credit the project, foundation and/or author provided (creative commons license: attribution, share alike, non commercial).
-</p>
-<p>
-The codebase or parts of it can be reused or redistributed, provided you credit the project and/or foundation (GPL license).
-</p>
-<p>
-<b>Disclaimer!</b> The Freezing Moon Foundation has a certain amount of financial interest in the project in order to ensure it's proper course and evolution. Despite having it's awesome sides, game development is none the less a very slow, demanding and painfull creative process. Respect!
-</p>
+<a name="license">VII. <b><u>License</u></b></a><br>
+<br>
+<table border=1><tr>
+<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
+</tr><tr>
+<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="cc-by-sa.png"></a></td><td>Artwork and audio can be remixed and shared under the same license, provided you credit the project, foundation and/or author provided.</td>
+</tr><tr>
+<td><a href="http://www.gnu.org/licenses/gpl-3.0.html" target="_blank"><img src="gpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
+</tr></table>
 </article>
 <?php echo $end_div . $the_end; ?>
