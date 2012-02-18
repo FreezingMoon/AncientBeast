@@ -7,15 +7,6 @@ function Arena() {
 	this.columns = 18;
 }
 
-//TODO move somewhere else
-window.requestAnimFrame = (function () {
-	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
-	function (callback, element) {
-		window.setTimeout(callback, 1000 / 60);
-	};
-})();
-
-
 Arena.prototype.init = function() {
     var _this = this;
     // Generate Renderers
@@ -34,7 +25,6 @@ Arena.prototype.init = function() {
 		}, 100);
 	});
     
-        
     // Genrate tiles
     this.tileType = this.generateHexTile();
 /*    $.each(this.tileType, function() {

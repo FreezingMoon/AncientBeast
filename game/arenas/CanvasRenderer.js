@@ -7,7 +7,7 @@ CanvasRenderer.prototype = new Renderer(); // inherit
 
 CanvasRenderer.prototype.clear = function() {
     this.context.setTransform(1, 0, 0, 1, 0, 0);
-	this.context.clearRect(0, 0, gameWidth, gameHeight);
+	this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
 }
 
 CanvasRenderer.prototype.translate = function(translation) {
@@ -56,7 +56,7 @@ CanvasRenderer.prototype.setColor = function(color) {
 }
 
 CanvasRenderer.prototype.setLineWidth = function(lineWidth) {
-    this.context.lineWidth = screenSpace(lineWidth);
+    this.context.lineWidth = this.screenSpace(lineWidth);
 }
 
 CanvasRenderer.prototype.save = function() {
@@ -79,9 +79,9 @@ CanvasRenderer.prototype.resizeCanvas = function(size, isWidth) {
 	this.pixelsPerUnit  = this.gameWidth / this.unitsPerRow;
 	
 	$(this.canvas).css({
-		"width": gameWidth + "px",
-		"height": gameHeight + "px",
-		"margin": (gameHeight / -2) + "px 0px 0px " + (gameWidth / -2) + "px",
+		"width": this.gameWidth + "px",
+		"height": this.gameHeight + "px",
+		"margin": (this.gameHeight / -2) + "px 0px 0px " + (this.gameWidth / -2) + "px",
 	});
 	$(this.canvas)[0].getContext("2d").canvas.width  = this.gameWidth;
 	$(this.canvas)[0].getContext("2d").canvas.height = this.gameHeight;
