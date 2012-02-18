@@ -7,7 +7,7 @@ echo "<table style=\"background: url('{$WorkingDir}realms/{$realms[$random_realm
 <tr><td width=25%><center>
 		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 		<input type="hidden" name="cmd" value="_s-xclick">
-		<input type="hidden" name="hosted_button_id" value="FU5PCMX33AVJE">
+		<input type="hidden" name="hosted_button_id" value="XXXPC6NDXBNTW">
 		<input type="image" src="<?php echo $WorkingDir; ?>images/paypal.png"  name="submit" alt="PayPal - The safer, easier way to pay online!">
 		<img alt=""  src="https://www.paypal.com/en_US/i/scr/pixel.gif" style="width: 1px; height: 1px; display:none;"></form><br><br><br><br>
 	<a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a><br><br><br><br><br>
