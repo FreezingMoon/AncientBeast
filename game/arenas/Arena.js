@@ -37,18 +37,18 @@ Arena.prototype.init = function() {
         
     // Genrate tiles
     this.tileType = this.generateHexTile();
-    $.each(this.tileType, function() {
+/*    $.each(this.tileType, function() {
         _this.tileWidth  < this.x ? _this.tileWidth  = this.x : 0;
         _this.tileHeight < this.y ? _this.tileHeight = this.y : 0;
     });
-    
+  */  
     // Request draw
 	window.requestAnimFrame(function () {
 		_this.drawAll(_this.drawArena, _this.arenaRenderer.canvas);
 	}, _this.arenaRenderer.canvas);
 	
 	window.requestAnimFrame(function () {
-		drawAll(_this.drawTiles, _this.tilesRenderer.canvas);
+		_this.drawAll(_this.drawTiles, _this.tilesRenderer.canvas);
 	}, _this.tilesRenderer.canvas);
 	return true;
 }
@@ -77,18 +77,29 @@ Arena.prototype.drawTiles = function() {
     var xSpaceing = this.tileWidth;
     var ySpaceing = this.tileHeight;
     
-    var offset = new Vertex(0.5, 0.5);
-    var separation = new Vertex(0.85, 1.02);
-	var width = screenSpace(1.0);
-	var height = screenSpace(0.68);
+//    var offset = new Vertex(2, 0.5);
+    var separation = new Vertex(1.02, 0.85);
+	var width = 1.0;
+	var height = 0.68;
     
+    this.tilesRenderer.setColor("#739141");
+    this.tilesRenderer.setLineWidth(0.004);
+    this.tilesRenderer.save();
+    this.tilesRenderer.scale(new Vertex(1, 0.45));
+    this.tilesRenderer.translate(new Vertex(0, 14.5));
     for (var y=0; y < this.rows; ++y) { 
         for (var x=0; x < this.columns; ++x) {
-            this.tileRenderer.save();
-            this.tileRenderer.translate(offset.x + x * speration.x, offset.y + y * speration.y);
-            this.tileRenderer.restore();
+            this.tilesRenderer.save();
+//    		offset = new Vertex((gameWidth -(this.columns * separation.x + 0.5) * width) / 2, 4);
+            offset = new Vertex(y % 2 == 0 ? width : width/2, 0);
+            
+            this.tilesRenderer.translate(new Vertex(offset.x + x * separation.x, offset.y + y * separation.y));
+            this.tilesRenderer.drawLine(this.generateHexTile()); //TODO generate only once
+            this.tilesRenderer.restore();
         }
     }
+    
+    this.tilesRenderer.restore();
 }
 
 Arena.prototype.generateHexTile = function() {

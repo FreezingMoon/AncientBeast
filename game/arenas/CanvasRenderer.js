@@ -10,6 +10,17 @@ CanvasRenderer.prototype.clear = function() {
 	this.context.clearRect(0, 0, gameWidth, gameHeight);
 }
 
+CanvasRenderer.prototype.translate = function(translation) {
+    translation = translation.toScreenSpace(this);
+    this.context.translate(translation.x, translation.y);
+}
+
+CanvasRenderer.prototype.scale = function(scale) {
+//    scale = scale.toScreenSpace(this);
+    this.context.scale(scale.x, scale.y);
+}
+
+
 CanvasRenderer.prototype.drawLine = function(vertices) {
     this.context.beginPath();
     if (vertices.length >= 1) {
@@ -17,12 +28,15 @@ CanvasRenderer.prototype.drawLine = function(vertices) {
         vertices[0] = vertices[0].toScreenSpace(this);
 	    this.context.moveTo(vertices[0].x, vertices[0].y);
 	    
-	    for (var i = 1; i < polygon.length; i++) {
+	    for (var i = 1; i < vertices.length; i++) {
 	        vertices[i] = vertices[i].toScreenSpace(this);
 		    this.context.lineTo(vertices[i].x, vertices[i].y);
 	    }
     }
 	this.context.closePath();
+	this.context.stroke();
+
+	
 }
 
 CanvasRenderer.prototype.drawImage = function(destOffset, destSize, srcOffset, srcSize) {
@@ -38,11 +52,11 @@ CanvasRenderer.prototype.drawImage = function(destOffset, destSize, srcOffset, s
 
 
 CanvasRenderer.prototype.setColor = function(color) {
-    this.context.strokeStyle = "#739141";
+    this.context.strokeStyle = color;
 }
 
 CanvasRenderer.prototype.setLineWidth = function(lineWidth) {
-    this.context.lineWidth = screenSpace(lineWidth) * width;
+    this.context.lineWidth = screenSpace(lineWidth);
 }
 
 CanvasRenderer.prototype.save = function() {
