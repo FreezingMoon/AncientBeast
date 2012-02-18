@@ -29,7 +29,6 @@ var unitsPerColumn;
 var pixelsPerUnit;
 
 /* Other values */
-var arena = new Arena();
 var menu;
 var items;
 var mouseX;
@@ -105,15 +104,14 @@ function init() {
 		clearTimeout(windowResizeTimeout);
 		windowResizeTimeout = setTimeout("windowResize();", 100);
 	});
-    /*
+	
 	requestAnimFrame(function () {
 		drawAll(drawMenu, $("#menu")[0]);
 	}, $("#menu")[0]);
 	requestAnimFrame(function () {
 		drawAll(drawItems, $("#items")[0]);
 	}, $("#items")[0]);
-	*/
-	arena.init();
+	
 	return true;
 }
 function drawAll(f, e) {
