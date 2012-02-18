@@ -9,6 +9,7 @@ function Renderer() {
     this.pixelsPerUnit = 0;
 }
 
+//TODO move texture loading stuff into TextureCache.js
 // callback(error:bool, image:Image)
 Renderer.prototype.fetchTexture = function(url, callback) {
     var _this = this;
