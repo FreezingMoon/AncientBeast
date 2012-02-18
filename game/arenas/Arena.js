@@ -58,9 +58,10 @@ Arena.prototype.drawAll = function(f, element) {
     }, element);
 }
 Arena.prototype.drawArena = function() {
+    var backgroundSize = new Vertex(this.arenaRenderer.unitsPerRow, this.arenaRenderer.unitsPerColumn);
     this.arenaRenderer.clear();
     this.arenaRenderer.bindTexture("arenas/forest.jpg");
-    this.arenaRenderer.drawImage(new Vertex(0, 0), new Vertex(20, 20), new Vertex(0,0), new Vertex(1920, 1080));
+    this.arenaRenderer.drawImage(new Vertex(0, 0), backgroundSize, new Vertex(0,0), new Vertex(1920, 1080));
 }
 
 Arena.prototype.drawTiles = function() {
@@ -75,8 +76,8 @@ Arena.prototype.drawTiles = function() {
     this.tilesRenderer.setColor("#739141");
     this.tilesRenderer.setLineWidth(0.004);
     this.tilesRenderer.save();
-    this.tilesRenderer.scale(new Vertex(1, 0.45));
-    this.tilesRenderer.translate(new Vertex(0, 14.5));
+    this.tilesRenderer.scale(new Vertex(width,height));
+    this.tilesRenderer.translate(new Vertex(0, 6));
     for (var y=0; y < this.rows; ++y) { 
         for (var x=0; x < this.columns; ++x) {
             this.tilesRenderer.save();
