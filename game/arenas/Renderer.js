@@ -32,8 +32,11 @@ Renderer.prototype.fetchTexture = function(url, callback) {
     image.src = url;
 }
 
-Renderer.prototype.screenSpace = function(input) {
-    return input * this.pixelsPerUnit;
+Renderer.prototype.screenSpace = function(unitInput) {
+    return unitInput * this.pixelsPerUnit;
+}
+Renderer.prototype.unitSpace = function(pixelInput) {
+    return pixelInput / this.pixelsPerUnit;
 }
 
 Renderer.prototype.bindTexture = function(url) {
