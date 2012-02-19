@@ -3,7 +3,7 @@ function Arena() {
     this.tileType = null;
     this.tilesRenderer = null;
     this.arenaRenderer = null;
-	this.rows = 12;
+	this.rows = 11;
 	this.columns = 18;
 }
 
@@ -32,6 +32,8 @@ Arena.prototype.init = function() {
         _this.tileHeight < this.y ? _this.tileHeight = this.y : 0;
     });
   */  
+  
+  
     // Request draw
 	window.requestAnimFrame(function () {
 		_this.drawAll(_this.drawArena, _this.arenaRenderer.canvas);
@@ -68,16 +70,16 @@ Arena.prototype.drawTiles = function() {
     var xSpaceing = this.tileWidth;
     var ySpaceing = this.tileHeight;
     
-//    var offset = new Vertex(2, 0.5);
-    var separation = new Vertex(1.02, 0.85);
-	var width = 1.0;
-	var height = 0.68;
+    var offset = new Vertex(2, 0.5);
+    var separation = new Vertex(1.00, 0.85);
+	var width = 0.96;
+	var height = 0.6;
     
     this.tilesRenderer.setColor("#739141");
     this.tilesRenderer.setLineWidth(0.004);
     this.tilesRenderer.save();
     this.tilesRenderer.scale(new Vertex(width,height));
-    this.tilesRenderer.translate(new Vertex(0, 6));
+    this.tilesRenderer.translate(new Vertex(0.7, 6.3));
     for (var y=0; y < this.rows; ++y) { 
         for (var x=0; x < this.columns; ++x) {
             this.tilesRenderer.save();
