@@ -20,7 +20,6 @@ CanvasRenderer.prototype.scale = function(scale) {
     this.context.scale(scale.x, scale.y);
 }
 
-
 CanvasRenderer.prototype.drawLine = function(vertices) {
     this.context.beginPath();
     if (vertices.length >= 1) {
@@ -35,8 +34,11 @@ CanvasRenderer.prototype.drawLine = function(vertices) {
     }
 	this.context.closePath();
 	this.context.stroke();
+}
 
-	
+CanvasRenderer.prototype.drawPolygon = function(vertices) {
+    this.drawLine(vertices);
+    this.context.fill();
 }
 
 CanvasRenderer.prototype.drawImage = function(destOffset, destSize, srcOffset, srcSize) {
@@ -52,6 +54,7 @@ CanvasRenderer.prototype.drawImage = function(destOffset, destSize, srcOffset, s
 
 
 CanvasRenderer.prototype.setColor = function(color) {
+    this.context.fillStyle = color;
     this.context.strokeStyle = color;
 }
 

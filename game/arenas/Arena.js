@@ -5,12 +5,12 @@ function Arena() {
     this.arenaRenderer = null;
 	this.rows = 11;
 	this.columns = 18;
-	this.activeTile = 0;
+	this.activeTile = -1;
 	this.mouse = new Vertex();
-	this.tilesTranslation = new Vertex(0, 3.7);
+	this.tilesTranslation = new Vertex(0.4, 3.8);
     this.tileSeparation = new Vertex(1.00, 0.85);
-	this.tileWidth = 1;
-	this.tileHeight = 0.6;
+	this.tileWidth = 0.99;
+	this.tileHeight = 0.69;
 	this.tilesScale = new Vertex(this.tileWidth,this.tileHeight);
 	
 }
@@ -23,7 +23,7 @@ Arena.prototype.init = function() {
     this.tilesRenderer.resizeToWindow();
     this.arenaRenderer.resizeToWindow();
     // TODO use callback to do a loading screen
-    this.arenaRenderer.fetchTexture("arenas/forest.jpg"); 
+    //this.arenaRenderer.fetchTexture("arenas/forest.jpg"); 
     
     // resize events
     $(window).resize(function () {
@@ -65,15 +65,14 @@ Arena.prototype.init = function() {
             $(_this.tilesRenderer.canvas).addClass("cursorPointer");
             
             var translatedMouse = _this.mouse.substract(_this.tilesTranslation);
-
     	    var activeRow = Math.floor(translatedMouse.y / rowHeight) % _this.rows;
-
-	        var offsetX = activeRow % 2 == 0 ? _this.tileWidth : _this.tileWidth/2;
-	        var activeColumn = Math.floor((translatedMouse.x-offsetX) / _this.tileWidth) % _this.columns;
+	        var offsetX = activeRow % 2 == 0 ? columnWidth : columnWidth/2;
+	        var activeColumn = Math.floor((translatedMouse.x-offsetX) / columnWidth) % _this.columns;
 
     	    _this.activeTile = activeRow* _this.columns + activeColumn;
     	    console.log(activeRow +","+ activeColumn);
         } else {
+            _this.activeTile = -1;
             $(_this.tilesRenderer.canvas).removeClass("cursorPointer");
         }
 	});
@@ -114,7 +113,7 @@ Arena.prototype.drawTiles = function() {
     var offset;
     
     this.tilesRenderer.clear();
-    this.tilesRenderer.setColor("#739141");
+    this.tilesRenderer.setColor("#739141"); 
     this.tilesRenderer.setLineWidth(0.04);
     this.tilesRenderer.save();
     this.tilesRenderer.translate(this.tilesTranslation);
@@ -124,14 +123,19 @@ Arena.prototype.drawTiles = function() {
             this.tilesRenderer.save();
             offset = new Vertex(y % 2 == 0 ? this.tileWidth : this.tileWidth/2, 0);
             var translate = new Vertex(offset.x + x * this.tileSeparation.x, offset.y + y * this.tileSeparation.y);
-            
+            this.tilesRenderer.translate(translate);            
+
+
             if (y*this.columns + x == this.activeTile) {
-                this.tilesRenderer.setColor("#FA9141");
-                this.tilesRenderer.setLineWidth(0.1);
+                this.tilesRenderer.setColor("rgba(250, 145, 65, 0.2)");
+                this.tilesRenderer.setLineWidth(0.0);
+                this.tilesRenderer.drawPolygon(this.generateHexTile()); //TODO generate only once
+                this.tilesRenderer.setLineWidth(0.04);
+                this.tilesRenderer.setColor("#739141"); 
             }
-            
-            this.tilesRenderer.translate(translate);
             this.tilesRenderer.drawLine(this.generateHexTile()); //TODO generate only once
+
+
             this.tilesRenderer.restore();
         }
     }
