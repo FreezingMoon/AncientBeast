@@ -2,6 +2,7 @@ function Renderer() {
     this.aspectRatio = 16 / 9;
     this.textures = new Array();
     this.boundTexture = null;
+    this.boundTextureName = "";
     this.gameWidth = 0;
     this.gameHeight = 0;
     this.unitsPerColumn = 20;
@@ -36,9 +37,14 @@ Renderer.prototype.screenSpace = function(input) {
 }
 
 Renderer.prototype.bindTexture = function(url) {
+    if (this.boundTextureName == url) {
+        return;
+    }
+    
     var texture = this.textures[url];
     if (texture) {
         this.boundTexture = texture;
+        this.boundTextureName = url;
     } else {
         this.fetchTexture(url);
         console.log("warning: image("+url+") was not loaded, yet. Please load it before you use it")
