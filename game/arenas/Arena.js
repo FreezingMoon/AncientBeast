@@ -5,6 +5,14 @@ function Arena() {
     this.arenaRenderer = null;
 	this.rows = 11;
 	this.columns = 18;
+	this.activeTile = 0;
+	this.mouse = new Vertex();
+	this.tilesTranslation = new Vertex(0, 3.7);
+    this.tileSeparation = new Vertex(1.00, 0.85);
+	this.tileWidth = 1;
+	this.tileHeight = 0.6;
+	this.tilesScale = new Vertex(this.tileWidth,this.tileHeight);
+	
 }
 
 Arena.prototype.init = function() {
@@ -33,6 +41,37 @@ Arena.prototype.init = function() {
     });
   */  
   
+    // Mouse events
+    $(this.tilesRenderer.canvas).click(function(e) {
+        _this.mouse = new Vertex(e.offsetX, e.offsetY);
+	    _this.mouse = _this.mouse.toUnitSpace(_this.tilesRenderer);
+	    console.log(_this.mouse);
+    })
+    
+	$(this.tilesRenderer.canvas).mousemove(function(e){
+	    _this.mouse = new Vertex(e.offsetX, e.offsetY);
+	    _this.mouse = _this.mouse.toUnitSpace(_this.tilesRenderer);
+
+
+        var rowHeight = (_this.tilesScale.y*_this.tileSeparation.y);
+        var columnWidth = (_this.tilesScale.x*_this.tileSeparation.x)	    
+	    
+        if (_this.mouse.x > _this.tilesTranslation.x && 
+            _this.mouse.y > _this.tilesTranslation.y &&
+            _this.mouse.x < _this.tilesTranslation.x + columnWidth*(_this.columns+1) &&
+            _this.mouse.y < _this.tilesTranslation.y + rowHeight*_this.rows ) {
+            
+            var translatedMouse = _this.mouse.substract(_this.tilesTranslation);
+
+    	    var activeRow = Math.floor(translatedMouse.y / rowHeight) % _this.rows;
+
+	        var offsetX = activeRow % 2 == 0 ? _this.tileWidth : _this.tileWidth/2;
+	        var activeColumn = Math.floor((translatedMouse.x-offsetX) / _this.tileWidth) % _this.columns;
+
+    	    _this.activeTile = activeRow* _this.columns + activeColumn;
+    	    console.log(activeRow +","+ activeColumn);
+        }
+	});
   
     // Request draw
 	window.requestAnimFrame(function () {
@@ -67,26 +106,26 @@ Arena.prototype.drawArena = function() {
 }
 
 Arena.prototype.drawTiles = function() {
-    var xSpaceing = this.tileWidth;
-    var ySpaceing = this.tileHeight;
+    var offset;
     
-    var offset = new Vertex(2, 0.5);
-    var separation = new Vertex(1.00, 0.85);
-	var width = 0.96;
-	var height = 0.6;
-    
+    this.tilesRenderer.clear();
     this.tilesRenderer.setColor("#739141");
-    this.tilesRenderer.setLineWidth(0.004);
+    this.tilesRenderer.setLineWidth(0.04);
     this.tilesRenderer.save();
-    this.tilesRenderer.scale(new Vertex(width,height));
-    this.tilesRenderer.translate(new Vertex(0.7, 6.3));
+    this.tilesRenderer.translate(this.tilesTranslation);
+    this.tilesRenderer.scale(this.tilesScale);
     for (var y=0; y < this.rows; ++y) { 
         for (var x=0; x < this.columns; ++x) {
             this.tilesRenderer.save();
-//    		offset = new Vertex((gameWidth -(this.columns * separation.x + 0.5) * width) / 2, 4);
-            offset = new Vertex(y % 2 == 0 ? width : width/2, 0);
+            offset = new Vertex(y % 2 == 0 ? this.tileWidth : this.tileWidth/2, 0);
+            var translate = new Vertex(offset.x + x * this.tileSeparation.x, offset.y + y * this.tileSeparation.y);
             
-            this.tilesRenderer.translate(new Vertex(offset.x + x * separation.x, offset.y + y * separation.y));
+            if (y*this.columns + x == this.activeTile) {
+                this.tilesRenderer.setColor("#FA9141");
+                this.tilesRenderer.setLineWidth(0.1);
+            }
+            
+            this.tilesRenderer.translate(translate);
             this.tilesRenderer.drawLine(this.generateHexTile()); //TODO generate only once
             this.tilesRenderer.restore();
         }
