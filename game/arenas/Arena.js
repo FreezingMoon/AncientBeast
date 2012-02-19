@@ -61,7 +61,7 @@ Arena.prototype.init = function() {
             _this.mouse.x < _this.tilesTranslation.x + columnWidth*(_this.columns+1) &&
             _this.mouse.y < _this.tilesTranslation.y + rowHeight*_this.rows ) {
             
-            _this.tilesRenderer.canvas.style.cursor='pointer';
+            $(_this.tilesRenderer.canvas).addClass("cursorPointer");
             
             var translatedMouse = _this.mouse.substract(_this.tilesTranslation);
 
@@ -73,7 +73,7 @@ Arena.prototype.init = function() {
     	    _this.activeTile = activeRow* _this.columns + activeColumn;
     	    console.log(activeRow +","+ activeColumn);
         } else {
-            _this.tilesRenderer.canvas.style.cursor='';
+            $(_this.tilesRenderer.canvas).removeClass("cursorPointer");
         }
 	});
   
