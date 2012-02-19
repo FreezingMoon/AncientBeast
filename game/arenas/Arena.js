@@ -62,14 +62,21 @@ Arena.prototype.init = function() {
             _this.mouse.x < _this.tilesTranslation.x + columnWidth*(_this.columns+1) &&
             _this.mouse.y < _this.tilesTranslation.y + rowHeight*_this.rows ) {
             
-            $(_this.tilesRenderer.canvas).addClass("cursorPointer");
-            
             var translatedMouse = _this.mouse.substract(_this.tilesTranslation);
     	    var activeRow = Math.floor(translatedMouse.y / rowHeight) % _this.rows;
 	        var offsetX = activeRow % 2 == 0 ? columnWidth : columnWidth/2;
 	        var activeColumn = Math.floor((translatedMouse.x-offsetX) / columnWidth) % _this.columns;
+            
+            // ignore if past the offset
+            if ((activeRow % 2 == 0 && translatedMouse.x < columnWidth) ||
+                (activeRow % 2 != 0 && translatedMouse.x-offsetX > columnWidth*_this.columns)) {
+        	    _this.activeTile = -1;
+                $(_this.tilesRenderer.canvas).removeClass("cursorPointer");
+            } else {
+        	    _this.activeTile = activeRow* _this.columns + activeColumn;
+                $(_this.tilesRenderer.canvas).addClass("cursorPointer");
+            }
 
-    	    _this.activeTile = activeRow* _this.columns + activeColumn;
     	    console.log(activeRow +","+ activeColumn);
         } else {
             _this.activeTile = -1;
