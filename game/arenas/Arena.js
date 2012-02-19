@@ -61,6 +61,8 @@ Arena.prototype.init = function() {
             _this.mouse.x < _this.tilesTranslation.x + columnWidth*(_this.columns+1) &&
             _this.mouse.y < _this.tilesTranslation.y + rowHeight*_this.rows ) {
             
+            _this.tilesRenderer.canvas.style.cursor='pointer';
+            
             var translatedMouse = _this.mouse.substract(_this.tilesTranslation);
 
     	    var activeRow = Math.floor(translatedMouse.y / rowHeight) % _this.rows;
@@ -70,6 +72,8 @@ Arena.prototype.init = function() {
 
     	    _this.activeTile = activeRow* _this.columns + activeColumn;
     	    console.log(activeRow +","+ activeColumn);
+        } else {
+            _this.tilesRenderer.canvas.style.cursor='';
         }
 	});
   
