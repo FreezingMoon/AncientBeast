@@ -1,5 +1,5 @@
 function Application() {
-
+    this.cursorOffset = new Vertex(32, -2);
 	$("#message").remove();
 	$("canvas").each(function() {
 		$(this).css({"display": "block"});
