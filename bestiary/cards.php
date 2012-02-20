@@ -52,7 +52,7 @@ $ab_masteries = "SELECT * FROM ab_masteries WHERE id = $ab_id";
 $result = mysql_query($ab_creatures);
 echo "<table width=860px border=0><th class='card'>"; 
 while ($row = mysql_fetch_assoc($result)) {
-	echo "<table class='section'><tr class='beast'><td width='20%'><img src='{$WorkingDir}font/" . $row["sin"] . ".png' title='" . $sins[$row["sin"]] . "'> " . $row["level"] . "</td><td>" . strtoupper($row["name"]) . "<td width='20%'>" . $row["size"] . " <img src='{$WorkingDir}font/S.png' title='Size'></td></tr></table>";
+	echo "<table class='section'><tr class='beast'><td width='20%'>" . $row["sin"] . $row["lvl"] . "</td><td>" . strtoupper($row["name"]) . "<td width='20%'>" . $row["hex"] . "H</td></tr></table>";
 	echo "<div class=\"section\" style=\"border: 0px; background:url('{$WorkingDir}creatures/" . $row["id"] . "/artwork.jpg'); width:400px; height:400px;\"><img src=\"AB.png\" style=\"position:relative; top:365px; left:180px;\"></div>";
 	echo "<div class='section' style='text-align: center; width: 390px; padding: 5px 0px;'>" . $row["description"] . "</div>";
 } mysql_free_result($result);
