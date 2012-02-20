@@ -64,12 +64,12 @@ Arena.prototype.init = function() {
             
             var translatedMouse = _this.mouse.substract(_this.tilesTranslation);
     	    var activeRow = Math.floor(translatedMouse.y / rowHeight) % _this.rows;
-	        var offsetX = activeRow % 2 == 0 ? columnWidth : columnWidth/2;
-	        var activeColumn = Math.floor((translatedMouse.x-offsetX) / columnWidth) % _this.columns;
-            
+	        var offsetX = activeRow % 2 == 0 ? 0 : columnWidth/2;
+	        var activeColumn = Math.floor((translatedMouse.x-offsetX) / columnWidth) % (_this.columns+1);
+	        
             // ignore if past the offset
             if ((activeRow % 2 == 0 && translatedMouse.x < columnWidth) ||
-                (activeRow % 2 != 0 && translatedMouse.x-offsetX > columnWidth*_this.columns)) {
+                (activeRow % 2 != 0 && translatedMouse.x-offsetX > columnWidth*_this.columns) || activeColumn == -1) {
         	    _this.activeTile = -1;
                 $(_this.tilesRenderer.canvas).removeClass("cursorPointer");
             } else {
