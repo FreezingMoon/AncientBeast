@@ -95,7 +95,7 @@ Every region has 7 locations where combat can take place.
 <area shape="poly" coords="201,350,301,350,355,437,301,524,203,524,152,436" href="#Wrath" title="Wrath">
 </map></div>
 <br>
-<center><a name="Avarice"><img src="../font/A.png" title="Avarice"><b>varice</b></a></center>
+<center><a name="Avarice"><b>Avarice</b></a></center>
 <img src="../realms/avarice.jpg" title="Avarice">
 <p>
 They like to aquire all sorts of useless things and riches by all means possible.
@@ -103,7 +103,7 @@ They like to aquire all sorts of useless things and riches by all means possible
 <p>
 Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.
 </p>
-<center><a name="Envy"><img src="../font/E.png" title="Envy"><b>nvy</b></a></center>
+<center><b>Envy</b></a></center>
 <img src="../realms/envy.jpg" title="Envy">
 <p>
 The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.
@@ -111,7 +111,7 @@ The creatures living in this realm always feel rather insecure about themselves 
 <p>
 It's located to the West side and it mainly consists of deserts and cannyons.
 </p>
-<center><a name="Gluttony"><img src="../font/G.png" title="Gluttony"><b>luttony</b></a></center>
+<center><a name="Gluttony"><b>Gluttony</b></a></center>
 <img src="../realms/gluttony.jpg" title="Gluttony">
 <p>
 Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.
@@ -119,7 +119,7 @@ Overcrowded place where all sorts of beasts and plants eat each other as soon as
 <p>
 In the east side, where the jungles are really tall and wilde, not even the sun's waves don't go through. Beware of the vegetation as well and don't pet any animals!
 </p>
-<center><a name="Lust"><img src="../font/L.png" title="Lust"><b>ust</b></a></center>
+<center><a name="Lust"><b>Lust</b></a></center>
 <img src="../realms/lust.jpg" title="Lust">
 <p>
 All the creatures around here suffer from pyromancy and have burning desire to incinerate everything within reach and turn to ashes.
@@ -127,7 +127,7 @@ All the creatures around here suffer from pyromancy and have burning desire to i
 <p>
 North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.
 </p>
-<center><a name="Pride"><img src="../font/P.png" title="Pride"><b>ride</b></a></center>
+<center><a name="Pride"><b>Pride</b></a></center>
 <img src="../realms/pride.jpg" title="Pride">
 <p>
 They're above everyone else. Literally at least.
@@ -135,7 +135,7 @@ They're above everyone else. Literally at least.
 <p>
 Hundred of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.
 </p>
-<center><a name="Sloth"><img src="../font/S.png" title="Sloth"><b>loth</b></a></center>
+<center><a name="Sloth"><b>Sloth</b></a></center>
 <img src="../realms/sloth.jpg" title="Sloth">
 <p>
 They don't bother doing much besides survival.
@@ -143,7 +143,7 @@ They don't bother doing much besides survival.
 <p>
 South area. This place is all water. Since it's so cold over here, large portions of water are constantly frozen and covered with snow, serving as home for some of the creatures.
 </p>
-<center><a name="Wrath"><img src="../font/W.png" title="Wrath"><b>rath</b></a></center>
+<center><a name="Wrath"><b>Wrath</b></a></center>
 <img src="../realms/wrath.jpg" title="Wrath">
 <p>
 The beasts from this realm enjoy killing and inflicting suffering on others.
