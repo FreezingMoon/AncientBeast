@@ -52,7 +52,6 @@ Arena.prototype.init = function() {
 		_this.mouse = _this.mouse.add(window.app.cursorOffset);
 		_this.mouse = _this.mouse.toUnitSpace(_this.tilesRenderer);
 
-
 		var rowHeight = (_this.tilesScale.y*_this.tileSeparation.y);
 		var columnWidth = (_this.tilesScale.x*_this.tileSeparation.x)		
 		
@@ -68,7 +67,7 @@ Arena.prototype.init = function() {
 			
 			// ignore if past the offset
 			if ((activeRow % 2 == 0 && translatedMouse.x < columnWidth) ||
-				(activeRow % 2 != 0 && translatedMouse.x-offsetX > columnWidth*_this.columns)) {
+				(activeRow % 2 != 0 && translatedMouse.x-offsetX > columnWidth*_this.columns || activeColumn == -1)) {
 				_this.activeTile = -1;
 				$(_this.tilesRenderer.canvas).removeClass("cursorPointer");
 			} else {
