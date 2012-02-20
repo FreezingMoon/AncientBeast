@@ -1,73 +1,73 @@
 function CanvasRenderer(canvas) {
-    Renderer.prototype.constructor.call(this); // call super consturctor
-    this.canvas  = canvas;
-    this.context = canvas.getContext("2d");
+	Renderer.prototype.constructor.call(this); // call super consturctor
+	this.canvas  = canvas;
+	this.context = canvas.getContext("2d");
 }
 CanvasRenderer.prototype = new Renderer(); // inherit
 
 CanvasRenderer.prototype.clear = function() {
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
+	this.context.setTransform(1, 0, 0, 1, 0, 0);
 	this.context.clearRect(0, 0, this.gameWidth, this.gameHeight);
 }
 
 CanvasRenderer.prototype.translate = function(translation) {
-    translation = translation.toScreenSpace(this);
-    this.context.translate(translation.x, translation.y);
+	translation = translation.toScreenSpace(this);
+	this.context.translate(translation.x, translation.y);
 }
 
 CanvasRenderer.prototype.scale = function(scale) {
-//    scale = scale.toScreenSpace(this);
-    this.context.scale(scale.x, scale.y);
+//	scale = scale.toScreenSpace(this);
+	this.context.scale(scale.x, scale.y);
 }
 
 CanvasRenderer.prototype.drawLine = function(vertices) {
-    this.context.beginPath();
-    if (vertices.length >= 1) {
-    
-        vertices[0] = vertices[0].toScreenSpace(this);
-	    this.context.moveTo(vertices[0].x, vertices[0].y);
-	    
-	    for (var i = 1; i < vertices.length; i++) {
-	        vertices[i] = vertices[i].toScreenSpace(this);
-		    this.context.lineTo(vertices[i].x, vertices[i].y);
-	    }
-    }
+	this.context.beginPath();
+	if (vertices.length >= 1) {
+
+		var v = vertices[0].toScreenSpace(this);
+		this.context.moveTo(v.x, v.y);
+		
+		for (var i = 1; i < vertices.length; i++) {
+			v = vertices[i].toScreenSpace(this);
+			this.context.lineTo(v.x, v.y);
+		}
+	}
 	this.context.closePath();
 	this.context.stroke();
 }
 
 CanvasRenderer.prototype.drawPolygon = function(vertices) {
-    this.drawLine(vertices);
-    this.context.fill();
+	this.drawLine(vertices);
+	this.context.fill();
 }
 
 CanvasRenderer.prototype.drawImage = function(destOffset, destSize, srcOffset, srcSize) {
-    if (this.boundTexture) {
-        destOffset = destOffset.toScreenSpace(this);
-        destSize   = destSize.toScreenSpace(this);
-//        srcOffset  = srcOffset.toScreenSpace(this);
-//        srcSize    = srcSize.toScreenSpace(this);
-        this.context.drawImage(this.boundTexture, srcOffset.x, srcOffset.y,
-            srcSize.x, srcSize.y, destOffset.x, destOffset.y, destSize.x, destSize.y);
-    }
+	if (this.boundTexture) {
+		destOffset = destOffset.toScreenSpace(this);
+		destSize   = destSize.toScreenSpace(this);
+//		srcOffset  = srcOffset.toScreenSpace(this);
+//		srcSize	= srcSize.toScreenSpace(this);
+		this.context.drawImage(this.boundTexture, srcOffset.x, srcOffset.y,
+			srcSize.x, srcSize.y, destOffset.x, destOffset.y, destSize.x, destSize.y);
+	}
 }
 
 
 CanvasRenderer.prototype.setColor = function(color) {
-    this.context.fillStyle = color;
-    this.context.strokeStyle = color;
+	this.context.fillStyle = color;
+	this.context.strokeStyle = color;
 }
 
 CanvasRenderer.prototype.setLineWidth = function(lineWidth) {
-    this.context.lineWidth = this.screenSpace(lineWidth);
+	this.context.lineWidth = this.screenSpace(lineWidth);
 }
 
 CanvasRenderer.prototype.save = function() {
-    this.context.save();
+	this.context.save();
 }
 
 CanvasRenderer.prototype.restore = function() {
-    this.context.restore();
+	this.context.restore();
 }
 
 CanvasRenderer.prototype.resizeCanvas = function(size, isWidth) {

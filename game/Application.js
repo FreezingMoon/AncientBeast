@@ -1,5 +1,5 @@
 function Application() {
-    this.cursorOffset = new Vertex(32, -2);
+	this.cursorOffset = new Vertex(32, -2);
 	$("#message").remove();
 	$("canvas").each(function() {
 		$(this).css({"display": "block"});
@@ -14,16 +14,12 @@ function Application() {
 		clearTimeout(windowResizeTimeout);
 		windowResizeTimeout = setTimeout("windowResize();", 100);
 	});
-    */
-    this.arena = new Arena();
-    this.arena.init();
+	*/
+	this.arena = new Arena();
+	this.arena.init();
 }
 
 /* Utils */
-function degToRad(input) {
-	return input / (180 / Math.PI);
-}
-
 window.requestAnimFrame = (function () {
 	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
 	function (callback, element) {
@@ -33,5 +29,5 @@ window.requestAnimFrame = (function () {
 
 /* Events */
 $(document).ready(function () {
-    window.app = new Application();
+	window.app = new Application();
 });
