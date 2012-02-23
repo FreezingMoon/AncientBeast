@@ -70,12 +70,15 @@ After engaging in combat, players are taken to the battle field where both parti
 <b>Fatigue:</b> While a creature is bellow this amount of health, it's becomes fatigued and unable to move.<br>
 <b>Energy:</b> Doing any action, including moving, drains energy from the creature.<br>
 <b>Meditation:</b> Creature gains back this amount of energy points every round.<br>
-<b>Delay:</b> Creatures with smaller delay always get to act first.<br>
+<b>Delay:</b> Creatures with smaller delay get to act first in a round.<br>
 <b>Offense:</b> Influences the damage output of attacks.<br>
 <b>Defense:</b> Protects the creature by reducing incoming damage.<br>
 <b>Inventory:</b> Each creature can equip up to 6 items, which have an impact on it's stats and/or masteries.<br>
 Each item requires a certain number of available inventory points in order to be equiped, therefore some creatures are more item dependant than others.<br>
 <b>Masteries</b> can have an impact on the effectiveness of the creature's abilities and can also help reduce incoming damage and even protect the creature from harmfull effects.
+</p>
+<p>
+A synergy bonus to offense, defense and masteries is provided if all summoned creatures are of the same level or alignment. Bonus requires at least 2 creatures and it multiplies by their number.
 </p>
 <?php echo $separator; ?>
 <a name="locations">V. <b><u>Locations</u></b></a>
@@ -189,7 +192,7 @@ The operation for putting together sprite sheets using ImageMagick is called "Mo
 The game is best played at a HD resolution of 1920x1080, in case your screen uses a lower resolution, the game should accomodate by rescaling. Battlegrounds and other screens that are not made out of tiles will be created at the same HD resolution.
 </p>
 <p>
-Multiplayer will be done with <a href="http://en.wikipedia.org/wiki/WebSocket">WebSocket</a> or using IRC server.
+Multiplayer will be done either with MySQL, <a href="http://en.wikipedia.org/wiki/WebSocket">WebSocket</a> or using an IRC server.
 </p>
 <?php echo $separator; ?>
 <a name="license">VII. <b><u>License</u></b></a><br>
