@@ -22,23 +22,16 @@ img {
 	margin: 15px auto 0 auto;
 	padding: 0px;
 }
-
 .center {
 	margin-left: auto!important;
 	margin-right: auto!important;
 	text-align: center!important;
 }
-
 .lighten {
 	display: block;
 }
-
 *:focus {outline: none;}
-.bold { font-weight: bold;}
-#wrapper {
-	text-align: left;
-}
-
+#wrapper {text-align: left;}
 .frame_upper {
 	margin: 0;
 	background-image: url('images/main_upper.png');
@@ -47,7 +40,6 @@ img {
 	overflow: hidden;
 	padding: 0;
 }
-
 .frame_middle {
 	overflow: hidden;
 	background-image: url('images/main_middle.png');
@@ -56,7 +48,6 @@ img {
 	padding: 0px 30px;
 	position: relative;
 }
-
 .frame_lower {
 	margin: 0;
 	background-image: url('images/main_lower.png');
@@ -64,7 +55,6 @@ img {
 	height: 20px;
 	margin-bottom: 10px;
 }
-
 A:link {text-decoration: none; color: #979797;}
 A:visited {text-decoration: none; color: #979797;}
 A:active {text-decoration: none; color: #979797;}
@@ -81,7 +71,6 @@ A:hover {text-decoration: none; color: #e6e6e6; cursor: pointer;}
 	text-shadow: black 0.1em 0.1em 0.2em;
 	float: left;
 }
-
 .odd {background:rgba(200, 200, 200, 0.1)}
 .even {background:rgba(200, 200, 200, 0.2)}
 .highlight:hover {background:rgba(200, 200, 200, 0.3)}
