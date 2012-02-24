@@ -3,7 +3,7 @@ function Arena() {
 	this.tileType = null;
 	this.tilesRenderer = null;
 	this.arenaRenderer = null;
-	this.rows = 11;
+	this.rows = 12;
 	this.columns = 18;
 	this.activeTile = -1;
 	this.mouse = new Vertex();
