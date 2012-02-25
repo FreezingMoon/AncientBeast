@@ -52,11 +52,6 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 In order to play Ancient Beast, you'll needed a <a href="http://www.freezingmoon.org/account" target="_blank"><b>FreezingMoon</b></a> account. After logging in, you'll be offered a level 1 creature to get you started and you'll have access to the adventure map, which has 49 locations you can fight at. When you go to a location, you're shown other players already there, which you can challenge or accept challenges from. Fights take place between two sides, up to five players each, the challenger party being showed at the left side of the combat field, which is 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to buy creatures, items, outfits and avatars.
 </p>
 <img src="combat.jpg" style="width:100%;">
-<table width=100%><tr style="text-align:center; vertical-align:top;">
-	<td width=30%><b>Creature slots</b><br>Based on your mana points, you can summon and control up to 7 creatures</td>
-	<td width=40%><b>Status bar</b><br>Displays combat and chat logs and also shows information about things</td>
-	<td width=30%><b>Creature abilities</b><br>Displays the abilities of the active creature, the last one allowing you to skip turn</td>
-</tr></table>
 <p>
 Players are represented on the combat field by skeletons and can be customized by purchasing outfits, which can influence the stats of their summoned creatures.
 Players can level up by gaining experience on the combat field, gaining 1 more mana point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of mana points equal to the creature's level. Summoning a creature multiple times duplicates it's equiped items and raises it's required mana points by 1 each time for the duration of the combat. When fighting players of lower levels, you will temporarely lose mana points in order to balance the fight.
