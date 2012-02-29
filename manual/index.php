@@ -5,7 +5,9 @@ $style = "
 	width: 110px;
 	height: 110px;
 }
-";
+.bigger {
+	font-size: 28px;
+}";
 include("../header.php");
 echo $start_div; ?>
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
@@ -93,62 +95,15 @@ Every region has 7 locations where combat can take place.
 <area shape="poly" coords="201,350,301,350,355,437,301,524,203,524,152,436" href="#Wrath" title="Wrath">
 </map></div>
 <br>
-<center><a name="Avarice"><b>Avarice</b></a></center>
-<img src="../realms/avarice.jpg" title="Avarice">
-<p>
-They like to aquire all sorts of useless things and riches by all means possible.
-</p>
-<p>
-Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.
-</p>
-<center><b>Envy</b></a></center>
-<img src="../realms/envy.jpg" title="Envy">
-<p>
-The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.
-</p>
-<p>
-It's located to the West side and it mainly consists of deserts and cannyons.
-</p>
-<center><a name="Gluttony"><b>Gluttony</b></a></center>
-<img src="../realms/gluttony.jpg" title="Gluttony">
-<p>
-Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.
-</p>
-<p>
-In the east side, where the jungles are really tall and wilde, not even the sun's waves don't go through. Beware of the vegetation as well and don't pet any animals!
-</p>
-<center><a name="Lust"><b>Lust</b></a></center>
-<img src="../realms/lust.jpg" title="Lust">
-<p>
-All the creatures around here suffer from pyromancy and have burning desire to incinerate everything within reach and turn to ashes.
-</p>
-<p>
-North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.
-</p>
-<center><a name="Pride"><b>Pride</b></a></center>
-<img src="../realms/pride.jpg" title="Pride">
-<p>
-They're above everyone else. Literally at least.
-</p>
-<p>
-Hundred of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.
-</p>
-<center><a name="Sloth"><b>Sloth</b></a></center>
-<img src="../realms/sloth.jpg" title="Sloth">
-<p>
-They don't bother doing much besides survival.
-</p>
-<p>
-South area. This place is all water. Since it's so cold over here, large portions of water are constantly frozen and covered with snow, serving as home for some of the creatures.
-</p>
-<center><a name="Wrath"><b>Wrath</b></a></center>
-<img src="../realms/wrath.jpg" title="Wrath">
-<p>
-The beasts from this realm enjoy killing and inflicting suffering on others.
-</p>
-<p>
-Underwold. Back in the day there used to be underground secret facilities that where used for God forbidden experiments regarding genetics and bio weapons.
-</p>
+<div style="width:890px; font-weight:bold;">
+<div style="background:url(../realms/avarice.jpg) no-repeat; height:400px; text-align:center;"><a name="Avarice" class="bigger">Avarice</a><p>They like to aquire all sorts of useless things and riches by all means possible.<br>Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</p></div>
+<div style="background:url(../realms/envy.jpg) no-repeat; height:400px; text-align:center;"><a name="Envy" class="bigger">Envy</a><p>The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>It's located to the West side and it mainly consists of deserts and cannyons.</p></div>
+<div style="background:url(../realms/gluttony.jpg) no-repeat; height:400px; text-align:center;"><a name="Gluttony" class="bigger">Gluttony</a><p>Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>In the east side, where the jungles are really tall and wilde, not even the sun's waves don't go through. Beware of the vegetation as well and don't pet any animals!</p></div>
+<div style="background:url(../realms/lust.jpg) no-repeat; height:400px; text-align:center;"><a name="Lust" class="bigger">Lust</a><p>All the creatures around here suffer from pyromancy and have burning desire to incinerate everything within reach and turn to ashes.<br>North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</p></div>
+<div style="background:url(../realms/pride.jpg) no-repeat; height:400px; text-align:center;"><a name="Pride" class="bigger">Pride</a><p>They're above everyone else. Literally at least.<br>Hundred of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div>
+<div style="background:url(../realms/sloth.jpg) no-repeat; height:400px; text-align:center;"><a name="Sloth" class="bigger">Sloth</a><p>They don't bother doing much besides survival.<br>South area. This place is all water. Since it's so cold over here, large portions of water are constantly frozen and covered with snow, serving as home for some of the creatures.</p></div>
+<div style="background:url(../realms/wrath.jpg) no-repeat; height:400px; text-align:center;"><a name="Wrath" class="bigger">Wrath</a><p>The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underwold. Back in the day there used to be underground secret facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
+</div>
 <?php echo $separator; ?>
 <a name="development">VI. <b><u>Development</u></b></a>
 <br>
