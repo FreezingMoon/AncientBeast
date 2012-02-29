@@ -32,7 +32,7 @@ It was carefuly designed to be easy to learn, fun to play and hard to master. We
 <a name="demands">II. <b><u>Demands</u></b></a>
 <ul>
 <li>internet connection</li>
-<li>a <a href="www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and Javascript enabled</li>
+<li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and Javascript enabled</li>
 <li>500mhz Processor</li>
 <li>256mb RAM</li>
 <li>200mb HDD</li>
@@ -40,7 +40,7 @@ It was carefuly designed to be easy to learn, fun to play and hard to master. We
 <li>128mb Video Card</li>
 <li>stereo speakers (optional)</li>
 </ul>
-<p>Best played at HD resolution (1920x1080) using <a href="www.google.com/chrome" target="_blank">Google Chrome</a>.</p>
+<p>Best played at HD resolution (1920x1080) using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.</p>
 <?php echo $separator; ?>
 <a name="plot">III. <b><u>Plot</u></b></a>
 <p>
