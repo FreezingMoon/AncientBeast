@@ -31,16 +31,16 @@ It was carefuly designed to be easy to learn, fun to play and hard to master. We
 <?php echo $separator; ?>
 <a name="demands">II. <b><u>Demands</u></b></a>
 <ul>
-<li>a modern browser with HTML 5 support and Javascript enabled</li>
+<li>internet connection</li>
+<li>a <a href="www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and Javascript enabled</li>
 <li>500mhz Processor</li>
 <li>256mb RAM</li>
-<li>128mb Video Card with HD capability (recommended)</li>
-<li>HD display (recommended)</li>
-<li>controller (keyboard and/or mouse, gamepad or multi touch screen)</li>
-<li>broadband internet connection (required)</li>
-<li>200mb HDD for cache (optional)</li>
+<li>200mb HDD</li>
+<li>controller (keyboard, mouse, gamepad, touch screen, smartphone or tablet)</li>
+<li>128mb Video Card</li>
 <li>stereo speakers (optional)</li>
 </ul>
+<p>Best played at HD resolution (1920x1080) using <a href="www.google.com/chrome" target="_blank">Google Chrome</a>.</p>
 <?php echo $separator; ?>
 <a name="plot">III. <b><u>Plot</u></b></a>
 <p>
