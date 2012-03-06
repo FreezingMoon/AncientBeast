@@ -10,13 +10,20 @@
 <script type="text/javascript" src="arenas/CanvasRenderer.js"></script>
 <script type="text/javascript" src="arenas/Arena.js"></script>
 <style type="text/css">
-canvas {
+#container {
+	display: none;
 	margin: 0px;
 	padding: 0px;
-	display: none;
-	position: absolute;
 	left: 50%;
 	top: 50%;
+	position: absolute;
+}
+canvas {
+	margin: 32px;
+	padding: 0px;
+	position: absolute;
+	width: 100%
+	height: 100%;
 }
 #message {
 	color: black;
@@ -32,6 +39,47 @@ canvas {
 	left: 50%;
 	opacity: 0.65;
 }
+.shadow {
+	opacity: 0.9;
+	position: absolute;
+	z-index: 0;
+}
+#shadow-top {
+	background: transparent url("shadow-top.png") repeat;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 32px;
+}
+#shadow-left {
+	background: transparent url("shadow-left.png") repeat;
+	top: 0px;
+	left: 0px;
+	width: 32px;
+	height: 100%;
+}
+#shadow-right {
+	background: transparent url("shadow-left.png") repeat;
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	-ms-transform: rotate(180deg);
+	-o-transform: rotate(180deg);
+	top: 0px;
+	right: 0px;
+	width: 32px;
+	height: 100%;
+}
+#shadow-bottom {
+	background: transparent url("shadow-top.png") repeat;
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	-ms-transform: rotate(180deg);
+	-o-transform: rotate(180deg);
+	bottom: 0px;
+	left: 0px;
+	width: 100%;
+	height: 32px;
+}
 .cursorPointer:hover{cursor:url("cursor/pointer.png"), auto;}
 body {
 	background: black url('../images/bg.jpg') repeat;
@@ -39,15 +87,32 @@ body {
 	padding: 0px;
 	overflow: hidden;
 }
-html {cursor:url("cursor/default.png"), default;}
+#body {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0px;
+	top: 0px;
+	margin: 0px;
+	padding: 0px;
+	cursor: url("cursor/default.png"), default;
+}
 a:hover {cursor:url("cursor/pointer.png"), auto;}
 </style>
 </head>
 <body>
-	<canvas id="tiles" style="z-index: 3;"></canvas>
-	<canvas id="arena" style="z-index: 2;"></canvas>
-	<canvas id="menu" style="z-index: 1;"></canvas>
-	<canvas id="items" style="z-index: 2;"></canvas>
-	<div id="message">Your browser either does not support <strong>HTML5 canvas</strong> or <strong>Javascript</strong>.<br><br>Please use another browser or enable Javascript.</div>
+	<div id="body">
+		<div id="container">
+			<canvas id="tiles" style="z-index: 3;"></canvas>
+			<canvas id="arena" style="z-index: 2;"></canvas>
+			<canvas id="menu" style="z-index: 1;"></canvas>
+			<canvas id="items" style="z-index: 2;"></canvas>
+			<div class="shadow" id="shadow-top"></div>
+			<div class="shadow" id="shadow-right"></div>
+			<div class="shadow" id="shadow-bottom"></div>
+			<div class="shadow" id="shadow-left"></div>
+		</div>
+		<div id="message">Your browser either does not support <strong>HTML5 canvas</strong> or <strong>Javascript</strong>.<br><br>Please use another browser or enable Javascript.</div>
+	</div>
 </body>
 </html>

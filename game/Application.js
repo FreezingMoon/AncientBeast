@@ -1,9 +1,7 @@
 function Application() {
 	this.cursorOffset = new Vertex(32, -2);
 	$("#message").remove();
-	$("canvas").each(function() {
-		$(this).css({"display": "block"});
-	});
+	$("#container").css({"display": "block"});
 	/*
 	$(window).mousemove(function(e){
 		mouseX = e.clientX - ($(window).width() - gameWidth) / 2;

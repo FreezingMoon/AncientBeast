@@ -81,10 +81,10 @@ CanvasRenderer.prototype.resizeCanvas = function(size, isWidth) {
 	this.unitsPerColumn = this.unitsPerRow / this.gameWidth * this.gameHeight;
 	this.pixelsPerUnit  = this.gameWidth / this.unitsPerRow;
 	
-	$(this.canvas).css({
-		"width": this.gameWidth + "px",
-		"height": this.gameHeight + "px",
-		"margin": (this.gameHeight / -2) + "px 0px 0px " + (this.gameWidth / -2) + "px",
+	$(this.canvas).parent().css({
+		"width": (this.gameWidth + 64) + "px",
+		"height": (this.gameHeight + 64) + "px",
+		"margin": ((this.gameHeight + 64) / -2) + "px 0px 0px " + ((this.gameWidth + 64) / -2) + "px",
 	});
 	$(this.canvas)[0].getContext("2d").canvas.width  = this.gameWidth;
 	$(this.canvas)[0].getContext("2d").canvas.height = this.gameHeight;
