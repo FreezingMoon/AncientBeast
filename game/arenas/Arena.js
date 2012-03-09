@@ -47,7 +47,7 @@ Arena.prototype.init = function() {
 		console.log(_this.mouse);
 	})
 	
-	$(this.tilesRenderer.canvas).mousemove(function(e){
+	$(window).on("mousemove", function(e){
 		_this.mouse = new Vertex(e.pageX - $(_this.tilesRenderer.canvas).offset().left, e.pageY - $(_this.tilesRenderer.canvas).offset().top);
 		_this.mouse = _this.mouse.add(window.app.cursorOffset);
 		_this.mouse = _this.mouse.toUnitSpace(_this.tilesRenderer);
@@ -75,7 +75,7 @@ Arena.prototype.init = function() {
 				$(_this.tilesRenderer.canvas).addClass("cursorPointer");
 			}
 
-			console.log(activeRow +","+ activeColumn);
+			//console.log(activeRow +","+ activeColumn);
 		} else {
 			_this.activeTile = -1;
 			$(_this.tilesRenderer.canvas).removeClass("cursorPointer");

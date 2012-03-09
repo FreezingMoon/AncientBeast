@@ -10,6 +10,9 @@
 <script type="text/javascript" src="arenas/CanvasRenderer.js"></script>
 <script type="text/javascript" src="arenas/Arena.js"></script>
 <style type="text/css">
+* {
+	cursor: url("blank.png"), default;
+}
 #container {
 	display: none;
 	margin: 0px;
@@ -65,6 +68,21 @@ canvas {
 	background: -o-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
 	background: -ms-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
 }
+.cursor {
+	background-image: url("cursor.png");
+	background-repeat: no-repeat;
+	height: 64px;
+	width: 320px;
+	clip: rect(0px, 64px, 64px, 0px);
+	position: absolute;
+	overflow: hidden;
+}
+#cursor-back {
+	z-index: 98;
+}
+#cursor-fore {
+	z-index: 99;
+}
 #shadow-top {
 	top: 0px;
 }
@@ -87,39 +105,32 @@ canvas {
 #shadow-left {
 	left: 0px;
 }
-.cursorPointer:hover{cursor:url("cursor/pointer.png"), auto;}
 body {
 	background: black url('../images/bg.jpg') repeat;
 	margin: 0px;
 	padding: 0px;
 	overflow: hidden;
+	-webkit-user-select: none;
+	-ms-user-select: none
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 }
-#body {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	left: 0px;
-	top: 0px;
-	margin: 0px;
-	padding: 0px;
-	cursor: url("cursor/default.png"), default;
-}
-a:hover {cursor:url("cursor/pointer.png"), auto;}
 </style>
 </head>
 <body>
-	<div id="body">
-		<div id="container">
-			<canvas id="tiles" style="z-index: 3;"></canvas>
-			<canvas id="arena" style="z-index: 2;"></canvas>
-			<canvas id="menu" style="z-index: 1;"></canvas>
-			<canvas id="items" style="z-index: 2;"></canvas>
-			<div class="shadow-horizontal" id="shadow-top"></div>
-			<div class="shadow-vertical" id="shadow-right"></div>
-			<div class="shadow-horizontal" id="shadow-bottom"></div>
-			<div class="shadow-vertical" id="shadow-left"></div>
-		</div>
-		<div id="message">Your browser either does not support <strong>HTML5 canvas</strong> or <strong>Javascript</strong>.<br><br>Please use another browser or enable Javascript.</div>
+	<div class="cursor" id="cursor-fore"></div>
+	<div class="cursor" id="cursor-back"></div>
+	<div id="container">
+		<canvas id="tiles" style="z-index: 3;"></canvas>
+		<canvas id="arena" style="z-index: 2;"></canvas>
+		<canvas id="menu" style="z-index: 1;"></canvas>
+		<canvas id="items" style="z-index: 2;"></canvas>
+		<div class="shadow-horizontal" id="shadow-top"></div>
+		<div class="shadow-vertical" id="shadow-right"></div>
+		<div class="shadow-horizontal" id="shadow-bottom"></div>
+		<div class="shadow-vertical" id="shadow-left"></div>
 	</div>
+	<div id="message">Your browser either does not support <strong>HTML5 canvas</strong> or <strong>Javascript</strong>.<br><br>Please use another browser or enable Javascript.</div>
 </body>
 </html>
