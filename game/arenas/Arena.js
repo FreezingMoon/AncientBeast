@@ -49,7 +49,6 @@ Arena.prototype.init = function() {
 	
 	$(window).on("mousemove", function(e){
 		_this.mouse = new Vertex(e.pageX - $(_this.tilesRenderer.canvas).offset().left, e.pageY - $(_this.tilesRenderer.canvas).offset().top);
-		_this.mouse = _this.mouse.add(window.app.cursorOffset);
 		_this.mouse = _this.mouse.toUnitSpace(_this.tilesRenderer);
 
 		var rowHeight = (_this.tilesScale.y*_this.tileSeparation.y);

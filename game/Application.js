@@ -56,11 +56,11 @@ Application.prototype.bindMouse = function() {
 		
 		$("#cursor-fore").css({
 			"opacity": 0.0,
-			"left": _this.mouse.x - foreMargin,
+			"left": _this.mouse.x - foreMargin - _this.cursorOffset.x,
 			"clip": "rect(0px," + (foreMargin + frameWidth) + "px," + frameHeight + "px," + foreMargin + "px)",
 		});
 		$("#cursor-back").css({
-			"left": _this.mouse.x - backMargin,
+			"left": _this.mouse.x - backMargin - _this.cursorOffset.x,
 			"clip": "rect(0px," + (backMargin + frameWidth) + "px," + frameHeight + "px," + backMargin + "px)",
 			"opacity": 1.0,
 		});
@@ -88,9 +88,9 @@ Application.prototype.bindMouse = function() {
 		/* Any element with the class cursorPointer will have a 'pointer' cursor
 		   More cursor types can be added later */
 		_this.mouse = new Vertex(e.clientX, e.clientY);
-		$(".cursor").css("top", _this.mouse.y);
-		$("#cursor-fore").css("left", _this.mouse.x - $("#cursor-fore").attr("cropLeft"));
-		$("#cursor-back").css("left", _this.mouse.x - $("#cursor-back").attr("cropLeft"));
+		$(".cursor").css("top", _this.mouse.y - _this.cursorOffset.y);
+		$("#cursor-fore").css("left", _this.mouse.x - $("#cursor-fore").attr("cropLeft") - _this.cursorOffset.x);
+		$("#cursor-back").css("left", _this.mouse.x - $("#cursor-back").attr("cropLeft") - _this.cursorOffset.x);
 		
 		var isPointer = false;
 		
@@ -98,8 +98,8 @@ Application.prototype.bindMouse = function() {
 			var offset = $(this).offset();
 			var upper = new Vertex(offset.left, offset.top);
 			var lower = new Vertex(offset.left + $(this).width(), offset.top + $(this).height());
-			if((_this.mouse.x + _this.cursorOffset.x) >= upper.x && (_this.mouse.x + _this.cursorOffset.x) <= lower.x &&
-					(_this.mouse.y + _this.cursorOffset.y) >= upper.y && (_this.mouse.y + _this.cursorOffset.y) <= lower.y) {
+			if(_this.mouse.x >= upper.x && _this.mouse.x <= lower.x &&
+					_this.mouse.y >= upper.y && _this.mouse.y <= lower.y) {
 				isPointer = true;
 				return false;
 			}
