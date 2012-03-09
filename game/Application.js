@@ -15,7 +15,7 @@ function Application() {
 Application.prototype.bindMouse = function() {
 	var _this = this;
 	
-	var timePerFrame = 100;
+	var timePerFrame = 50;
 	var numberOfFrames = 5;
 	var frameWidth = 64;
 	var frameHeight = 64;
