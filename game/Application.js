@@ -1,46 +1,75 @@
 function Application() {
+	$("#message").remove();
+	$("#container").css("display", "block");
+
 	this.mouse = new Vertex();
 	this.cursorOffset = new Vertex(32, -2);
 	this.cursorFrame = 0;
 	this.cursorIsPointer = false;
-	$("#message").remove();
-	$("#container").css({"display": "block"});
 
 	this.arena = new Arena();
 	this.arena.init();
 }
+
+/* This handles the custom animated mouse pointer */
 Application.prototype.bindMouse = function() {
 	var _this = this;
-	var frameLen = 150; // In milliseconds
+	
+	var timePerFrame = 150;
+	var numberOfFrames = 5;
+	var frameWidth = 64;
+	var frameHeight = 64;
 	$("#cursor-fore").attr("cropLeft", 0);
 	$("#cursor-back").attr("cropLeft", 0);
+	$(".cursor").css({
+		"width": frameWidth * numberOfFrames,
+		"height": frameHeight,
+		"clip": "rect(0px," + frameWidth + "px," + frameHeight + "px,0px)"
+	});
+	$("*").css({
+		"cursor": "url('blank.png'), default",
+		"-webkit-user-select": "none",
+		"-ms-user-select": "none",
+		"-moz-user-select": "none",
+		"-o-user-select": "none",
+		"user-select": "none",
+	});
+	
 	function beginAnimation(isFirst) {
 		if(!isFirst) {
-			if(_this.cursorFrame >= 4) {
-				_this.cursorFrame = 4;
+			if(_this.cursorFrame >= numberOfFrames - 1) {
+				_this.cursorFrame = numberOfFrames - 1;
+				$("#cursor-back").css("opacity", 0.0);
+				$("#cursor-fore").css("opacity", 1.0);
 				return;
 			}
 			if(_this.cursorFrame <= 0) {
 				_this.cursorFrame = 0;
+				$("#cursor-back").css("opacity", 0.0);
+				$("#cursor-fore").css("opacity", 1.0);
 				return;
 			}
 		}
-		var backMargin = _this.cursorFrame * 64;
-		var foreMargin = foreMargin = (_this.cursorIsPointer ? _this.cursorFrame + 1 : _this.cursorFrame - 1) * 64;
+		
+		var backMargin = _this.cursorFrame * frameWidth;
+		var foreMargin = foreMargin = (_this.cursorIsPointer ? _this.cursorFrame + 1 : _this.cursorFrame - 1) * frameWidth;
+		
 		$("#cursor-fore").css({
 			"opacity": 0.0,
 			"left": _this.mouse.x - foreMargin,
-			"clip": "rect(0px," + (foreMargin + 64) + "px,64px," + (foreMargin) + "px)",
+			"clip": "rect(0px," + (foreMargin + frameWidth) + "px," + frameHeight + "px," + foreMargin + "px)",
 		});
 		$("#cursor-back").css({
 			"left": _this.mouse.x - backMargin,
-			"clip": "rect(0px," + (backMargin + 64) + "px,64px," + (backMargin) + "px)",
+			"clip": "rect(0px," + (backMargin + frameWidth) + "px," + frameHeight + "px," + backMargin + "px)",
 			"opacity": 1.0,
 		});
+		
 		$("#cursor-fore").attr("cropLeft", foreMargin);
 		$("#cursor-back").attr("cropLeft", backMargin);
 		
-		$("#cursor-fore").animate({"opacity": 1.0}, {duration: frameLen,
+		$("#cursor-fore").animate({"opacity": 1.0}, {
+			duration: timePerFrame,
 			complete: function() {
 				if(_this.cursorIsPointer) {
 					_this.cursorFrame++;
@@ -51,18 +80,20 @@ Application.prototype.bindMouse = function() {
 			},
 			step: function(now) {
 				$("#cursor-back").css("opacity", 1.5 - now);
-			}});
+			}
+		});
 	}
 	
-	/* This handles the custom mouse pointer */
 	$(window).on("mousemove", function(e) {
 		/* Any element with the class cursorPointer will have a 'pointer' cursor
 		   More cursor types can be added later */
 		_this.mouse = new Vertex(e.clientX, e.clientY);
-		$(".cursor").css({"top": _this.mouse.y});
-		$("#cursor-fore").css({"left": _this.mouse.x - $("#cursor-fore").attr("cropLeft")});
-		$("#cursor-back").css({"left": _this.mouse.x - $("#cursor-back").attr("cropLeft")});
+		$(".cursor").css("top", _this.mouse.y);
+		$("#cursor-fore").css("left", _this.mouse.x - $("#cursor-fore").attr("cropLeft"));
+		$("#cursor-back").css("left", _this.mouse.x - $("#cursor-back").attr("cropLeft"));
+		
 		var isPointer = false;
+		
 		$(".cursorPointer").each(function(i) {
 			var offset = $(this).offset();
 			var upper = new Vertex(offset.left, offset.top);
@@ -73,6 +104,7 @@ Application.prototype.bindMouse = function() {
 				return false;
 			}
 		});
+		
 		if(_this.cursorIsPointer != isPointer) {
 			$(".cursor").stop(true);
 			_this.cursorIsPointer = isPointer;
