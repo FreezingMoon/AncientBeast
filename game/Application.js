@@ -14,25 +14,19 @@ Application.prototype.bindMouse = function() {
 	var frameLen = 150; // In milliseconds
 	$("#cursor-fore").attr("cropLeft", 0);
 	$("#cursor-back").attr("cropLeft", 0);
-	function beginAnimation(first) {
-		if(!first) {
-			if(_this.cursorFrame > 4) {
+	function beginAnimation(isFirst) {
+		if(!isFirst) {
+			if(_this.cursorFrame >= 4) {
 				_this.cursorFrame = 4;
 				return;
 			}
-			if(_this.cursorFrame < 0) {
+			if(_this.cursorFrame <= 0) {
 				_this.cursorFrame = 0;
 				return;
 			}
 		}
 		var backMargin = _this.cursorFrame * 64;
-		var foreMargin = 0;
-		if(_this.cursorFrame == 0)
-			foreMargin = 0;
-		else if(_this.cursorFrame == 4)
-			foreMargin = 256;
-		else
-			foreMargin = (_this.cursorIsPointer ? _this.cursorFrame + 1 : _this.cursorFrame - 1) * 64;
+		var foreMargin = foreMargin = (_this.cursorIsPointer ? _this.cursorFrame + 1 : _this.cursorFrame - 1) * 64;
 		$("#cursor-fore").css({
 			"opacity": 0.0,
 			"left": _this.mouse.x - foreMargin,
