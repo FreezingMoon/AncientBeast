@@ -52,7 +52,7 @@ Application.prototype.bindMouse = function() {
 		}
 		
 		var backMargin = _this.cursorFrame * frameWidth;
-		var foreMargin = foreMargin = (_this.cursorIsPointer ? _this.cursorFrame + 1 : _this.cursorFrame - 1) * frameWidth;
+		var foreMargin = (_this.cursorIsPointer ? _this.cursorFrame + 1 : _this.cursorFrame - 1) * frameWidth;
 		
 		$("#cursor-fore").css({
 			"opacity": 0.0,
