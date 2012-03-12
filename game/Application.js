@@ -27,7 +27,7 @@ Application.prototype.bindMouse = function() {
 		"clip": "rect(0px," + frameWidth + "px," + frameHeight + "px,0px)"
 	});
 	$("*").css({
-		"cursor": "url('blank.cur'), default",
+		"cursor": "url('../images/blank.cur'), default",
 		"-webkit-user-select": "none",
 		"-ms-user-select": "none",
 		"-moz-user-select": "none",

@@ -57,7 +57,7 @@ $the_end = "</body></html>";
 <header id="header">
 <div style="margin-top: -15px; margin-bottom: 50px;"><a href="<?php echo $WorkingDir; ?>"><img src="<?php echo $WorkingDir; ?>images/AncientBeast.png" alt="Ancient Beast"></a>
 <!--navigation menu-->
-<?php include_once("menu/index.php") ?>
+<?php include_once("navigation/index.php") ?>
 </div>
 </header>
 
