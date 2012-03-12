@@ -26,7 +26,7 @@ echo "<table width=100%><tr>";
 while ($row = mysql_fetch_assoc($result)) {
 	$i++;
 	$location = "location.href= 'http://www.AncientBeast.com/items'";
-	echo "<td class=\"item\"><a href=\"#id=" . $row['id'] . "\" class=\"lighten\" onclick=\"TINY.box.show({url:'detail.php',post:'id=" . $row['id'] . "',width:500,height:180,topsplit:4,close:true,mask:false});\"><img src=\"" . $row['name'] . ".png\" class=\"smaller lighten\"><br>" . $row['name'] . "</a></td>";
+	echo "<td class=\"item\"><a href=\"#id=" . $row['id'] . "\" class=\"lighten\" onclick=\"TINY.box.show({url:'details.php',post:'id=" . $row['id'] . "',width:500,height:180,topsplit:4,close:true,mask:false});\"><img src=\"" . $row['name'] . ".png\" class=\"smaller lighten\"><br>" . $row['name'] . "</a></td>";
 	//make new table rows
 	if (($i % 7) == 0)
 		echo "</tr><tr>";
