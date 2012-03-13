@@ -53,7 +53,7 @@ $result = mysql_query($ab_creatures);
 echo "<table width=860px border=0><th class='card'>"; 
 while ($row = mysql_fetch_assoc($result)) {
 	echo "<table class='section'><tr class='beast'><td width='20%'>" . $row["sin"] . $row["lvl"] . "</td><td>" . strtoupper($row["name"]) . "<td width='20%'>" . $row["hex"] . "H</td></tr></table>";
-	echo "<div class=\"section\" style=\"border: 0px; background:url('/creatures/" . $row["name"] . "/artwork.jpg'); width:400px; height:400px;\"><img src=\"AB.png\" style=\"position:relative; top:365px; left:180px;\"></div>";
+	echo "<div class=\"section\" style=\"border: 0px; background:url('/creatures/" . $row["id"] . "/artwork.jpg'); width:400px; height:400px;\"><img src=\"AB.png\" style=\"position:relative; top:365px; left:180px;\"></div>";
 	echo "<div class='section' style='text-align: center; width: 390px; padding: 5px 0px;'>" . $row["description"] . "</div>";
 } mysql_free_result($result);
 echo "</th><th class='card'><table class='section'><tr class='numbers'><th>" . HEALTH_ICON . "</th><th>" . REGROWTH_ICON . "</th><th>" . FATIGUE_ICON . "</th><th>" . ENERGY_ICON . "</th><th>" . MEDITATION_ICON . "</th><th>" . DELAY_ICON . "</th><th>" . OFFENSE_ICON . "</th><th>" . DEFENSE_ICON . "</th><th>" . INVENTORY_ICON . "</th></tr><tr class='numbers'>";
@@ -66,8 +66,8 @@ while ($row = mysql_fetch_assoc($result)) {
 } mysql_free_result($result);
 $result = mysql_query($ab_abilities);
 function ability($x) {
-	global $row;
-	echo "<td style=\"background-image: url('contour.png'), url('/creatures/".$row["name"]."/$x.jpg'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;\"></td>";
+	global $ab_id, $row;
+	echo "<td style=\"background-image: url('contour.png'), url('/creatures/$ab_id/$x.jpg'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;\"></td>";
 	echo "<td><u>" . $row[$x] . "</u><br>" . $row["$x info"] . "</td></tr>";
 } echo "<table style='margin-top:-10px; margin-bottom:-10px;' class='section abilities'><tr>";
 $abilities = array("passive", "weak", "medium", "strong");
