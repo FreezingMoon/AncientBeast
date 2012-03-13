@@ -51,7 +51,7 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 <?php echo $separator; ?>
 <a name="gameplay">IV. <b><u>Gameplay</u></b></a>
 <p>
-In order to play Ancient Beast, you'll needed a <a href="http://www.freezingmoon.org/account" target="_blank"><b>FreezingMoon</b></a> account. After logging in, you'll be offered a level 1 creature to get you started and you'll have access to the adventure map, which has 49 locations you can fight at. When you go to a location, you're shown other players already there, which you can challenge or accept challenges from. Fights take place between two sides, up to five players each, the challenger party being showed at the left side of the combat field, which is 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to buy creatures, items, outfits and avatars.
+In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started and you'll have access to the adventure map, which has 49 locations you can fight at. When you go to a location, you're shown other players already there, which you can challenge or accept challenges from. Fights take place between two sides, up to five players each, the challenger party being showed at the left side of the combat field, which is 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to buy creatures, items, outfits and avatars.
 </p>
 <img src="combat.jpg" style="width:100%;">
 <p>
