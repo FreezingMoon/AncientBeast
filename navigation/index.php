@@ -2,7 +2,7 @@
 <?php
 $menu = array("manual", "bestiary", "items", "game", "chat", "gallery");
 foreach ($menu as &$menuItem) {
-	echo "<td><a href='/$menuItem' id='$menuItem' class='lighten'><img src='/navigation/$menuItem.png' width='100' height='100' style='display:block;'>".ucfirst($menuItem)."</a></td>";
+	echo "<td><a href='" . $WorkingDir . "$menuItem' id='$menuItem' class='lighten'><img src='" . $WorkingDir . "navigation/$menuItem.png' width='100' height='100' style='display:block;'>".ucfirst($menuItem)."</a></td>";
 }
 ?>
 </tr></table></nav>
