@@ -67,7 +67,7 @@ while ($row = mysql_fetch_assoc($result)) {
 $result = mysql_query($ab_abilities);
 function ability($x) {
 	global $ab_id, $row, $WorkingDir;
-	echo "<td style=\"background-image: url('contour.png'), url('" . $WorkingDir . "/creatures/$ab_id/$x.jpg'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;\"></td>";
+	echo "<td style=\"background-image: url('contour.png'), url('" . $WorkingDir . "/creatures/$ab_id/$x.png'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;\"></td>";
 	echo "<td><u>" . $row[$x] . "</u><br>" . $row["$x info"] . "</td></tr>";
 } echo "<table style='margin-top:-10px; margin-bottom:-10px;' class='section abilities'><tr>";
 $abilities = array("passive", "weak", "medium", "strong");
