@@ -23,7 +23,7 @@ $items = "SELECT * from ab_items ORDER BY type, value";
 $result = mysql_query($items) or die(mysql_error());
 
 echo "<table width=100%><tr>";
-+$i = 0;
+$i = 0;
 while ($row = mysql_fetch_assoc($result)) {
 	$i++;
 	$location = "location.href= 'http://www.AncientBeast.com/items'";
@@ -40,7 +40,7 @@ echo "</tr></table>"; ?>
 window.onload = function() {
     if (/[\#&]id=(\d+)/.test(location.hash)) {
         var id = parseInt(RegExp.$1);
-	TINY.box.show({url:'detail.php',post:'id='+id,width:500,height:180,topsplit:4,close:true,mask:false});
+	TINY.box.show({url:'details.php',post:'id='+id,width:500,height:180,topsplit:4,close:true,mask:false});
     }
 }
 </script>
