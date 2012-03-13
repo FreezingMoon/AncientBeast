@@ -23,6 +23,7 @@ $items = "SELECT * from ab_items ORDER BY type, value";
 $result = mysql_query($items) or die(mysql_error());
 
 echo "<table width=100%><tr>";
++$i = 0;
 while ($row = mysql_fetch_assoc($result)) {
 	$i++;
 	$location = "location.href= 'http://www.AncientBeast.com/items'";
