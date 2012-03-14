@@ -19,7 +19,7 @@ include("filters.php");
 <script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
 <?php
 
-$items = "SELECT * from ab_items ORDER BY type, value";
+$items = "SELECT * FROM ab_items ORDER BY type, value";
 $result = mysql_query($items) or die(mysql_error());
 
 echo "<table width=100%><tr>";
