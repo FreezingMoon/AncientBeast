@@ -65,9 +65,11 @@ while ($row = mysql_fetch_assoc($result)) {
 	} echo "</tr></table>";
 } mysql_free_result($result);
 $result = mysql_query($ab_abilities);
+$y=0;
 function ability($x) {
-	global $ab_id, $row, $WorkingDir;
-	echo "<td style=\"background-image: url('contour.png'), url('" . $WorkingDir . "creatures/$ab_id/$x.png'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;\"></td>";
+	global $ab_id, $row, $WorkingDir, $y;
+	echo "<td style=\"background-image: url('contour.png'), url('" . $WorkingDir . "creatures/$ab_id/$y.svg'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;\"></td>";
+	$y++;
 	echo "<td><u>" . $row[$x] . "</u><br>" . $row["$x info"] . "</td></tr>";
 } echo "<table style='margin-top:-10px; margin-bottom:-10px;' class='section abilities'><tr>";
 $abilities = array("passive", "weak", "medium", "strong");
