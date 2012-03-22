@@ -1,8 +1,8 @@
 <?php
 include("../global.php");
 include("../ico/index.php");
-$detail = "SELECT * from ab_items WHERE id='" . $_POST['id'] . "'";
-$result = mysql_query($detail) or die(mysql_error());
+$details = "SELECT * from ab_items WHERE id='" . $_POST['id'] . "'";
+$result = mysql_query($details) or die(mysql_error());
 $stats = array('health', 'regrowth', 'fatigue', 'energy', 'meditation', 'delay', 'offense', 'defense', 'inventory');
 $masteries = array('pierce', 'slash', 'crush', 'shock', 'burn', 'frost', 'poison', 'mental', 'sonic');
 while ($row = mysql_fetch_assoc($result)) {
