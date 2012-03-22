@@ -1,6 +1,5 @@
 <?php include_once("../global.php");
-include("../ico/index.php");
-$sins = array('A'=>'Avarice','E'=>'Envy','G'=>'Gluttony','L'=>'Lust','P'=>'Pride','S'=>'Sloth','W'=>'Wrath'); ?>
+include("../ico/index.php"); ?>
 <style>
 .card {
 	width: 430px;
