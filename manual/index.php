@@ -44,7 +44,7 @@ It was carefuly designed to be easy to learn, fun to play and hard to master. We
 <?php echo $separator; ?>
 <a name="plot">III. <b><u>Plot</u></b></a>
 <p>
-It's the year 2653. In the last centuries, technology advanced exponentially up to the point that pretty much everyone had a fair chance at playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, anyone could build it's own weapon factory or genetic laboratory right in his own garrage or backyard. Having mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
+It's the year 2653. In the last centuries, technology advanced exponentially up to the point that pretty much everyone had a fair chance at playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, anyone could build it's own weapon factory or genetic laboratory right in his own garage or backyard. Having mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
 </p><p>
 Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield; split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strongest will survive.
 </p>
