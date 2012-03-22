@@ -2,7 +2,7 @@ body {
 	text-align: center;
 	margin: 0 auto;
 	width: 950px;
-	color: #979797;
+	color: #b7b7b7;
 	font-size: 16px;
 	font-family: 'Lucida Grande', Verdana, Arial, Sans-Serif;
 	background: url('images/header.png') no-repeat center top,
@@ -55,9 +55,9 @@ img {
 	height: 20px;
 	margin-bottom: 10px;
 }
-A:link {text-decoration: none; color: #979797;}
-A:visited {text-decoration: none; color: #979797;}
-A:active {text-decoration: none; color: #979797;}
+A:link {text-decoration: none; color: #b7b7b7;}
+A:visited {text-decoration: none; color: #b7b7b7;}
+A:active {text-decoration: none; color: #b7b7b7;}
 A:hover {text-decoration: none; color: #e6e6e6; cursor: pointer;}
 
 .summon {
