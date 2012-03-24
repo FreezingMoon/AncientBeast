@@ -21,6 +21,6 @@ echo "<table style=\"background: url('{$WorkingDir}realms/{$realms[$random_realm
 </center></td></tr></table>
 <?php echo $separator; ?>
 <p style="text-align:justify; margin-right:4px;">
-<b>Ancient Beast</b>, is a 2D turn based strategy game played online against other people, featuring 7 distinctive realms that contain a wide variety of creatures to master or defeat, each with it's own unique and exciting set of skills and abilities, all brought to life by nicely crafted cg graphics.
+<b>Ancient Beast</b>, is a 2D browser turn based strategy game played online against other people, featuring 7 distinctive realms that contain a wide variety of creatures to master or defeat, each with its own unique and exciting set of skills and abilities, all brought to life by nicely crafted cg graphics. Master your beasts!
 </p>
 <?php echo $end_div . $the_end; ?>
