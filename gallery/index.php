@@ -1,9 +1,6 @@
-
 <?php $page_title = "Ancient Beast - Gallery";
 include("../header.php"); ?>
-<script>
-	!window.jQuery && document.write('<script src="http://ancientbeast.com/gallery/jquery-1.4.3.min.js"><\/script>');
-</script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script type="text/javascript" src="http://ancientbeast.com/gallery/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
 <script type="text/javascript" src="http://ancientbeast.com/gallery/fancybox/jquery.easing-1.3.pack.js"></script>
 <script type="text/javascript" src="http://ancientbeast.com/gallery/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
@@ -18,15 +15,11 @@ include("../header.php"); ?>
 });
 </script>
 <?php
-echo $start_div;
+echo $start_div . "<center>";
 $images = scandir("artwork");
-$x = 0;
-echo "<table style='margin-left:-18px;'><tr>";
 foreach($images as $image) {
 	if($image == "." || $image == "..") continue;
 	$title = substr($image, 0, -4); 
-	echo "<td height=128 width=128 style='text-align:center;'><a rel='pop' href='artwork/$image' title='$title'><img style='max-height:128px; max-width:128px;' src='artwork/$image' title='$title'></a></td>";
-	$x++;
-	if($x % 7 == 0) echo "</tr><tr>";
-} echo "</tr></table>$end_div" . $the_end; ?>
+	echo "<a style='text-align:center;' rel='pop' href='artwork/$image' title='$title'><img style='height:200px; margin:5px;' src='artwork/$image' title='$title'></a>";
+} echo "</center>" . $end_div . $the_end; ?>
 
