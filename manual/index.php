@@ -22,22 +22,22 @@ foreach ($sections as &$sectionItem) {
 <article>
 <a name="info">I. <b><u>Info</u></b></a>
 <p>
-<b>Ancient Beast</b>, is a 2D turn based strategy game played online against other people, featuring 7 distinctive realms that contain a wide variety of creatures to master or defeat, each with it's own unique and exciting set of skills and abilities, all brought to life by nicely crafted cg graphics.
+<b>Ancient Beast</b> is a 2D turn based strategy game played online against other people, which features 7 distinctive realms. Each realm has its own unique creatures to master and defeat, and each creature has its own special skills and abilities. This is all brought to life with beautifully crafted CG graphics.
 </p>
 <p>
-Ancient Beast is free open source and it's developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community) using web coding languages such as HTML, PHP and javascript in order to be playable right from modern browsers on pretty much any operating system and hardware, without having to download and install any plugins.<br>
+Ancient Beast is free, open source and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need to download plugins.<br>
 It was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
 <?php echo $separator; ?>
 <a name="demands">II. <b><u>Demands</u></b></a>
 <ul>
 <li>internet connection</li>
-<li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and Javascript enabled</li>
-<li>500mhz Processor</li>
-<li>256mb RAM</li>
-<li>200mb HDD</li>
+<li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and JavaScript enabled</li>
+<li>500MHz Processor</li>
+<li>256MB RAM</li>
+<li>200MB HDD</li>
 <li>controller (keyboard, mouse, gamepad, touch screen, smartphone or tablet)</li>
-<li>128mb Video Card</li>
+<li>64MB Video Card</li>
 <li>stereo speakers (optional)</li>
 </ul>
 <p>Best played at HD resolution (1920x1080) using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.</p>
@@ -98,11 +98,11 @@ Every region has 7 locations where combat can take place.
 <div style="width:890px; font-weight:bold;">
 <div style="background:url(../realms/avarice.jpg) no-repeat; height:400px; text-align:center;"><a name="Avarice" class="bigger">Avarice</a><p>They like to aquire all sorts of useless things and riches by all means possible.<br>Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</p></div>
 <div style="background:url(../realms/envy.jpg) no-repeat; height:400px; text-align:center;"><a name="Envy" class="bigger">Envy</a><p>The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>It's located to the West side and it mainly consists of deserts and cannyons.</p></div>
-<div style="background:url(../realms/gluttony.jpg) no-repeat; height:400px; text-align:center;"><a name="Gluttony" class="bigger">Gluttony</a><p>Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>In the east side, where the jungles are really tall and wilde, not even the sun's waves don't go through. Beware of the vegetation as well and don't pet any animals!</p></div>
-<div style="background:url(../realms/lust.jpg) no-repeat; height:400px; text-align:center;"><a name="Lust" class="bigger">Lust</a><p>All the creatures around here suffer from pyromancy and have burning desire to incinerate everything within reach and turn to ashes.<br>North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</p></div>
-<div style="background:url(../realms/pride.jpg) no-repeat; height:400px; text-align:center;"><a name="Pride" class="bigger">Pride</a><p>They're above everyone else. Literally at least.<br>Hundred of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div>
-<div style="background:url(../realms/sloth.jpg) no-repeat; height:400px; text-align:center;"><a name="Sloth" class="bigger">Sloth</a><p>They don't bother doing much besides survival.<br>South area. This place is all water. Since it's so cold over here, large portions of water are constantly frozen and covered with snow, serving as home for some of the creatures.</p></div>
-<div style="background:url(../realms/wrath.jpg) no-repeat; height:400px; text-align:center;"><a name="Wrath" class="bigger">Wrath</a><p>The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underwold. Back in the day there used to be underground secret facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
+<div style="background:url(../realms/gluttony.jpg) no-repeat; height:400px; text-align:center;"><a name="Gluttony" class="bigger">Gluttony</a><p>Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>In the east side, where the jungles are really tall and wilde, not even the sun's waves go through. Beware of the vegetation as well and don't pet any animals!</p></div>
+<div style="background:url(../realms/lust.jpg) no-repeat; height:400px; text-align:center;"><a name="Lust" class="bigger">Lust</a><p>All the creatures around here suffer from pyromancy and have a burning desire to incinerate everything within reach and turn to ashes.<br>North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</p></div>
+<div style="background:url(../realms/pride.jpg) no-repeat; height:400px; text-align:center;"><a name="Pride" class="bigger">Pride</a><p>They're above everyone else. Literally at least.<br>Hundreds of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div>
+<div style="background:url(../realms/sloth.jpg) no-repeat; height:400px; text-align:center;"><a name="Sloth" class="bigger">Sloth</a><p>They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div>
+<div style="background:url(../realms/wrath.jpg) no-repeat; height:400px; text-align:center;"><a name="Wrath" class="bigger">Wrath</a><p>The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underwold. Back in the day there used to be secret underground facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
 </div>
 <?php echo $separator; ?>
 <a name="development">VI. <b><u>Development</u></b></a>
