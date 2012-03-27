@@ -22,7 +22,7 @@ Arena.prototype.init = function() {
 	this.tilesRenderer.resizeToWindow();
 	this.arenaRenderer.resizeToWindow();
 	// TODO use callback to do a loading screen
-	//this.arenaRenderer.fetchTexture("../locations/forest.jpg"); 
+	//this.arenaRenderer.fetchTexture("/forest/bg.jpg"); 
 	
 	// resize events
 	$(window).resize(function () {
@@ -109,7 +109,7 @@ Arena.prototype.drawAll = function(f, element) {
 Arena.prototype.drawArena = function() {
 	var backgroundSize = new Vertex(this.arenaRenderer.unitsPerRow, this.arenaRenderer.unitsPerColumn);
 	this.arenaRenderer.clear();
-	this.arenaRenderer.bindTexture("../locations/forest.jpg");
+	this.arenaRenderer.bindTexture("/forest/bg.jpg");
 	this.arenaRenderer.drawImage(new Vertex(0, 0), backgroundSize, new Vertex(0,0), new Vertex(1920, 1080));
 }
 
