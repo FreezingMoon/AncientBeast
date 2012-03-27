@@ -12,7 +12,7 @@ include("../header.php");
 echo $start_div; ?>
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$sections = array("info", "demands", "plot", "gameplay", "locations", "development", "license");
+$sections = array("info", "demands", "plot", "gameplay", "realms", "development", "license");
 foreach ($sections as &$sectionItem) {
 	echo "<td><center><a href='#$sectionItem' class='lighten'><img src='$sectionItem.png' width='120' height='120' style='display:block;'>".ucfirst($sectionItem)."</a></center></td>";
 }
@@ -51,7 +51,7 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 <?php echo $separator; ?>
 <a name="gameplay">IV. <b><u>Gameplay</u></b></a>
 <p>
-In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started and you'll have access to the adventure map, which has 49 locations you can fight at. When you go to a location, you're shown other players already there, which you can challenge or accept challenges from. Fights take place between two sides, up to five players each, the challenger party being showed at the left side of the combat field, which is 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to buy creatures, items, outfits and avatars.
+In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between two sides, up to five players each, the challenger party being showed at the left side of the combat field, which is 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to buy creatures, items, outfits and avatars.
 </p>
 <img src="combat.jpg" style="width:100%;">
 <p>
@@ -78,10 +78,9 @@ Each item requires a certain number of available inventory points in order to be
 A synergy bonus to offense, defense and masteries is provided if all summoned creatures are of the same level or alignment. Bonus requires at least 2 creatures and it multiplies by their number.
 </p>
 <?php echo $separator; ?>
-<a name="locations">V. <b><u>Locations</u></b></a>
+<a name="realms">V. <b><u>realms</u></b></a>
 <p>
 The world has been divided into equal regions, one for each of the deadly sins which suit it's inhabitants the most.
-Every region has 7 locations where combat can take place.
 </p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
 <img id="sins" src="sins.png" usemap="#sins" border="0" width="506" height="527">
