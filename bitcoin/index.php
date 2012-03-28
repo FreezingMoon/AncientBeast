@@ -1,6 +1,4 @@
-<?php
-require_once("../global.php");
-$page_title = "Ancient Beast - Bitcoin";
+<?php $page_title = "Ancient Beast - Bitcoin";
 $style = "
 .title {
 	font-size: 24px;
