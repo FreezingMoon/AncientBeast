@@ -18,6 +18,8 @@ $style = "
 }";
 include("header.php");
 echo $start_div;
+echo "<center><b>This indie free open source game project is currently in pre-alpha stage. Please help by donating!</b></center>";
+echo $separator;
 $realms = array('avarice', 'envy', 'gluttony', 'lust', 'pride', 'sloth', 'wrath');
 $random_realm = array_rand($realms);
 echo "<table style=\"background: url('{$WorkingDir}realms/{$realms[$random_realm]}.jpg') no-repeat center top; height: 400px;\">"; ?>
