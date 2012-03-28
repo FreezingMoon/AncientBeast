@@ -1,5 +1,5 @@
 <?php
-require_once("global.php");
+require_once("config.php");
 if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
 <!doctype html>
 <html>
