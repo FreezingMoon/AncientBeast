@@ -1,6 +1,6 @@
 <?php $page_title = "Ancient Beast - Bestiary";
 include("../header.php");
-include("../global.php");
+include("../config.php");
 ?>
 <script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
 <?php

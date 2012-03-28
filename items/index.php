@@ -12,7 +12,7 @@ $style = "
 	vertical-align: top;
 }";
 include("../header.php");
-include("../global.php");
+include("../config.php");
 echo $start_div;
 include("filters.php");
 ?>

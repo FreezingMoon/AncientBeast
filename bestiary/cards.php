@@ -1,4 +1,4 @@
-<?php include_once("../global.php");
+<?php include_once("../config.php");
 include("../ico/index.php"); ?>
 <style>
 .card {
