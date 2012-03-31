@@ -33,8 +33,8 @@ $(document).ready(function(){
 	$('.lighten').each(function(){
 		$(this).mouseenter(function() {
 			var c = Pixastic.process($('img', this).get(0), "lighten", {amount:0.4});
-			$(c).mouseleave(function() {
-                Pixastic.revert(this);
+			$(this).mouseleave(function() {
+                Pixastic.revert(c);
 			});
 		});
 	});
