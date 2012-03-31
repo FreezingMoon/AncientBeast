@@ -30,8 +30,8 @@ $creatures = "SELECT * FROM ab_creatures ORDER BY sin, lvl";
 $result = mysql_query($creatures) or die(mysql_error());
 while ($row = mysql_fetch_assoc($result)) {
 	echo "
-<div class=\"lighten\" style=\"background:url('" . $WorkingDir . "creatures/" . $row["id"] . "/avatar.jpg'); background-size: 100%; display: inline-block; margin-bottom:-3px; cursor: pointer;\" onclick=\"showId(" . $row['id'] . ");\">
-	<img style=\"display: block;\" src=\"frame.png\" alt=\"frame\">
+<div class=\"lighten\" style=\"background:url('{$WorkingDir}creatures/{$row["id"]}/avatar.jpg'); background-size: 100%; display: inline-block; margin-bottom:-3px; cursor: pointer;\" onclick=\"showId({$row['id']});\">
+	<img style=\"display: block;\" src=\"{$WorkingDir}bestiary/frame.png\" alt=\"frame\">
 </div>";
 }
 mysql_free_result($result);

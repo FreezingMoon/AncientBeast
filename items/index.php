@@ -49,7 +49,7 @@ while ($row = mysql_fetch_assoc($result)) {
 	echo "
 <td class=\"item\">
 	<span style=\"cursor: pointer;\" class=\"lighten\" onclick=\"showId({$row['id']});\">
-	<img class=\"smaller\" src=\"{$row['name']}.png\" style=\"display: block;\">
+	<img class=\"smaller\" src=\"{$WorkingDir}items/{$row['name']}.png\" style=\"display: block;\">
 	<br>
 	{$row['name']}
 	</span>
