@@ -34,7 +34,7 @@ $(document).ready(function(){
 		$(this).mouseenter(function() {
 			var c = Pixastic.process($('img', this).get(0), "lighten", {amount:0.4});
 			$(this).mouseleave(function() {
-                Pixastic.revert(c);
+				Pixastic.revert(c);
 			});
 		});
 	});
@@ -48,10 +48,16 @@ $(document).ready(function(){
 <body>
 <?php
 include_once("analytics.php");
-$start_div = "<div class='frame_upper'></div><div class='frame_middle'>";
-$end_div = "</div><div class='frame_lower'></div>";
+$start_div = "<div class='frame_upper'></div>
+<div class='frame_middle'>";
+$end_div = "
+</div>
+<div class='frame_lower'></div>";
 $separator = $end_div . $start_div;
-$the_end = "</body></html>";
+$the_end = "
+</div>
+</body>
+</html>";
 ?>
 <!--banner-->
 <header id="header">

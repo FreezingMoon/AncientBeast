@@ -112,7 +112,7 @@ A synergy bonus to offense, defense and masteries is provided if all summoned cr
 The world has been divided into equal regions, one for each of the deadly sins which suit it's inhabitants the most.
 </p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
-<img id="sins" src="/realms/index.png" usemap="#sins" border="0" width="506" height="527">
+<img id="sins" src="<?php echo $WorkingDir; ?>realms/index.png" usemap="#sins" border="0" width="506" height="527">
 <map id="_sins" name="sins">
 <area shape="poly" coords="203,176,301,175,351,260,302,348,199,349,151,261" href="#Avarice" title="Avarice">
 <area shape="poly" coords="354,88,453,86,505,175,454,261,355,258,304,173" href="#Envy" title="Envy">
@@ -183,4 +183,4 @@ Multiplayer will be done either with MySQL, <a href="http://en.wikipedia.org/wik
 <td><a href="http://www.gnu.org/licenses/gpl-3.0.html" target="_blank"><img src="images/gpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
 </tr></table>
 </article>
-<?php echo $end_div . $the_end; ?>
+<?php echo "{$end_div}{$the_end}"; ?>

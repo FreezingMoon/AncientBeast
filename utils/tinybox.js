@@ -44,9 +44,9 @@ TINY.box=function(){
 						if(x.readyState==4&&x.status==200){p.style.backgroundImage=''; TINY.box.psh(x.responseText,a,w,h)}
 					};
 					if(k){
-    	            	x.open('POST',c,true); x.setRequestHeader('Content-type','application/x-www-form-urlencoded'); x.send(k)
+						x.open('POST',c,true); x.setRequestHeader('Content-type','application/x-www-form-urlencoded'); x.send(k)
 					}else{
-       	         		x.open('GET',c,true); x.send(null)
+	   			 		x.open('GET',c,true); x.send(null)
 					}
 				}
 			}else{

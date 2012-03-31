@@ -10,5 +10,5 @@ $style = "
 }";
 include("../header.php");
 echo $start_div;
-echo "<center>Coming soon!</center>";
-echo $end_div . $the_end; ?>
+echo "<center>Coming soon!</center>{$end_div}{$the_end}";
+?>

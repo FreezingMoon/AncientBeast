@@ -15,19 +15,25 @@ function showId(id) {
 	history.replaceState("", "", basePage + "#id=" + id);
 }
 window.onload = function() {
-    if (/[\#&]id=(\d+)/.test(location.hash)) {
-        var id = parseInt(RegExp.$1);
+	if (/[\#&]id=(\d+)/.test(location.hash)) {
+		var id = parseInt(RegExp.$1);
 		showId(id);
-    }
+	}
 }
 </script>
 
 <?php
-echo "$start_div<div style='text-align:center; margin-left:-6px;'>";
+echo
+"$start_div
+<div style='text-align:center; margin-left:-6px;'>";
 $creatures = "SELECT * FROM ab_creatures ORDER BY sin, lvl";
 $result = mysql_query($creatures) or die(mysql_error());
 while ($row = mysql_fetch_assoc($result)) {
-	echo "<div class=\"lighten\" style=\"background:url('" . $WorkingDir . "creatures/" . $row["id"] . "/avatar.jpg'); background-size: 100%; display: inline-block; margin-bottom:-3px; cursor: pointer;\" onclick=\"showId(" . $row['id'] . ");\"><img style=\"display: block;\" src=\"frame.png\"></div>";
+	echo "
+<div class=\"lighten\" style=\"background:url('" . $WorkingDir . "creatures/" . $row["id"] . "/avatar.jpg'); background-size: 100%; display: inline-block; margin-bottom:-3px; cursor: pointer;\" onclick=\"showId(" . $row['id'] . ");\">
+	<img style=\"display: block;\" src=\"frame.png\" alt=\"frame\">
+</div>";
 }
 mysql_free_result($result);
-echo "</div>$end_div" . $the_end; ?>
+echo "
+</div>{$end_div}{$the_end}"; ?>

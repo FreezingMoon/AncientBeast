@@ -29,10 +29,10 @@ function showId(id) {
 	history.replaceState("", "", basePage + "#id=" + id);
 }
 window.onload = function() {
-    if (/[\#&]id=(\d+)/.test(location.hash)) {
-        var id = parseInt(RegExp.$1);
+	if (/[\#&]id=(\d+)/.test(location.hash)) {
+		var id = parseInt(RegExp.$1);
 		showId(id);
-    }
+	}
 }
 </script>
 <?php
@@ -40,17 +40,29 @@ window.onload = function() {
 $items = "SELECT * FROM ab_items ORDER BY type, value";
 $result = mysql_query($items) or die(mysql_error());
 
-echo "<table width=100%><tr>";
+echo
+"<table width=100%>
+<tr>";
 $i = 0;
 while ($row = mysql_fetch_assoc($result)) {
 	$i++;
-	$location = "location.href= 'http://www.AncientBeast.com/items'";
-	echo "<td class=\"item\"><span style=\"cursor: pointer;\" class=\"lighten\" onclick=\"showId(" . $row['id'] . ");\"><img class=\"smaller\" src=\"" . $row['name'] . ".png\" style=\"display: block;\"><br>" . $row['name'] . "</span></td>";
+	echo "
+<td class=\"item\">
+	<span style=\"cursor: pointer;\" class=\"lighten\" onclick=\"showId({$row['id']});\">
+	<img class=\"smaller\" src=\"{$row['name']}.png\" style=\"display: block;\">
+	<br>
+	{$row['name']}
+	</span>
+</td>";
 	//make new table rows
 	if (($i % 7) == 0)
-		echo "</tr><tr>";
+		echo "
+</tr>
+<tr>";
 }
 //TODO: arrange icons on incomplete rows nicely
-echo "</tr></table>";
+echo "
+</tr>
+</table>{$end_div}{$the_end}";
 mysql_free_result($result);
-echo $end_div . $the_end; ?>
+?>
