@@ -4,7 +4,7 @@ TINY.box=function(){
 	var j,m,b,g,v,p=0;
 	return{
 		show:function(o){
-			v={opacity:70,close:1,animate:1,fixed:1,mask:1,maskid:'',boxid:'',topsplit:2,url:0,post:0,height:0,width:0,html:0,iframe:0};
+			v={opacity:70,close:1,animate:1,fixed:1,mask:1,maskid:'',boxid:'',topsplit:2,url:0,post:0,height:0,width:0,html:0,iframe:0,callback:function(tclose){}};
 			for(s in o){v[s]=o[s]}
 			if(!p){
 				j=document.createElement('div'); j.className='tbox';
@@ -63,7 +63,7 @@ TINY.box=function(){
 				b.style.display='none'
 			}
 			p.style.width=x; p.style.height=y;
-			this.size(w,h,a)
+			this.size(w,h,a);
 		},
 		esc:function(e){e=e||window.event; if(e.keyCode==27){TINY.box.hide()}},
 		hide:function(){TINY.box.alpha(j,-1,0,3); document.onkeypress=null; if(v.closejs){v.closejs()}},
@@ -110,6 +110,7 @@ TINY.box=function(){
 				p.style.width=w+'px'; p.style.height=h+'px'; b.style.display=''; this.pos();
 				if(v.openjs){v.openjs()}
 			}
+			v.callback(g);
 		},
 		ts:function(w,wd,h,hd){
 			var cw=parseInt(p.style.width), ch=parseInt(p.style.height);

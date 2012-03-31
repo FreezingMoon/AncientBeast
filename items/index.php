@@ -17,6 +17,24 @@ echo $start_div;
 include("filters.php");
 ?>
 <script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
+<!--show details of the linked item-->
+<script type="text/javascript">
+var basePage = window.location.href.replace( /#.*/, "");
+function showId(id) {
+	TINY.box.show({url:'details.php',post:'id='+id,width:500,height:180,topsplit:4,close:true,mask:false,callback:function(b){
+		$(b).click(function() {
+			history.replaceState("", "", basePage);
+		});
+	}});
+	history.replaceState("", "", basePage + "#id=" + id);
+}
+window.onload = function() {
+    if (/[\#&]id=(\d+)/.test(location.hash)) {
+        var id = parseInt(RegExp.$1);
+		showId(id);
+    }
+}
+</script>
 <?php
 
 $items = "SELECT * FROM ab_items ORDER BY type, value";
@@ -27,24 +45,12 @@ $i = 0;
 while ($row = mysql_fetch_assoc($result)) {
 	$i++;
 	$location = "location.href= 'http://www.AncientBeast.com/items'";
-	echo "<td class=\"item\"><a href=\"#id=" . $row['id'] . "\" class=\"lighten\" onclick=\"TINY.box.show({url:'details.php',post:'id=" . $row['id'] . "',width:500,height:180,topsplit:4,close:true,mask:false});\"><img src=\"" . $row['name'] . ".png\" class=\"smaller lighten\"><br>" . $row['name'] . "</a></td>";
+	echo "<td class=\"item\"><span style=\"cursor: pointer;\" class=\"lighten\" onclick=\"showId(" . $row['id'] . ");\"><img class=\"smaller\" src=\"" . $row['name'] . ".png\" style=\"display: block;\"><br>" . $row['name'] . "</span></td>";
 	//make new table rows
 	if (($i % 7) == 0)
 		echo "</tr><tr>";
 }
 //TODO: arrange icons on incomplete rows nicely
-echo "</tr></table>"; ?>
-
-<!--show details of the linked item-->
-<script type="text/javascript">
-window.onload = function() {
-    if (/[\#&]id=(\d+)/.test(location.hash)) {
-        var id = parseInt(RegExp.$1);
-	TINY.box.show({url:'details.php',post:'id='+id,width:500,height:180,topsplit:4,close:true,mask:false});
-    }
-}
-</script>
-
-<?php
+echo "</tr></table>";
 mysql_free_result($result);
 echo $end_div . $the_end; ?>

@@ -1,5 +1,3 @@
-<?php include_once("../config.php");
-include("../ico/index.php"); ?>
 <style>
 .card {
 	width: 430px;

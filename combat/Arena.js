@@ -109,7 +109,7 @@ Arena.prototype.drawAll = function(f, element) {
 Arena.prototype.drawArena = function() {
 	var backgroundSize = new Vertex(this.arenaRenderer.unitsPerRow, this.arenaRenderer.unitsPerColumn);
 	this.arenaRenderer.clear();
-	this.arenaRenderer.bindTexture("/forest/bg.jpg");
+	this.arenaRenderer.bindTexture("../combat/forest/bg.jpg");
 	this.arenaRenderer.drawImage(new Vertex(0, 0), backgroundSize, new Vertex(0,0), new Vertex(1920, 1080));
 }
 

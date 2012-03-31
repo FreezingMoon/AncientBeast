@@ -31,11 +31,11 @@ if (isset($stylesheet)) {
 <script type="text/javascript">
 $(document).ready(function(){
 	$('.lighten').each(function(){
-		$(this).mouseover(function() {
+		$(this).mouseenter(function() {
 			var c = Pixastic.process($('img', this).get(0), "lighten", {amount:0.4});
-			$(c).mouseout(function(){
-                Pixastic.revert(c);
-            });
+			$(c).mouseleave(function() {
+                Pixastic.revert(this);
+			});
 		});
 	});
 });
