@@ -1,6 +1,7 @@
 <?php $page_title = "Ancient Beast - Bestiary";
-include("../header.php");
-include("../config.php");
+require_once("../header.php");
+require_once("../config.php");
+require_once("../ico/script.php");
 ?>
 <script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
 <!--show details of the linked item-->

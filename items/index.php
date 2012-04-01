@@ -11,10 +11,10 @@ $style = "
 	width: 14%;
 	vertical-align: top;
 }";
-include("../header.php");
-include("../config.php");
+require_once("../header.php");
+require_once("../config.php");
 echo $start_div;
-include("filters.php");
+require_once("filters.php");
 ?>
 <script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
 <!--show details of the linked item-->

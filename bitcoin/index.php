@@ -4,7 +4,7 @@ $style = "
 	font-size: 24px;
 	font-family: Charlemagnestd;
 }";
-include("../header.php");
+require_once("../header.php");
 echo $start_div; ?>
 <p class="center">
 <iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p>

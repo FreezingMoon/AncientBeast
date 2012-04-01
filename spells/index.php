@@ -8,7 +8,7 @@ $style = "
 .bigger {
 	font-size: 28px;
 }";
-include("../header.php");
+require_once("../header.php");
 echo $start_div;
 echo "<center>Coming soon!</center>{$end_div}{$the_end}";
 ?>

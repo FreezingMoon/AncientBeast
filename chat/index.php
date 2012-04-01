@@ -1,5 +1,5 @@
 <?php $page_title = "Ancient Beast - Chat";
-include("../header.php");
+require_once("../header.php");
 echo $start_div; ?>
 <span style="text-align: center; display: block; font-weight:bold;">
 <p><a href="mailto:DreadKnight@FreezingMoon.org" target="_blank">You might need to wait some time to get a response so consider sending us an <u>e-mail</u> instead.</p></a></span>

@@ -16,7 +16,7 @@ $style = "
 	background: rgba(0,0,0,0.5);
 	padding: 15px 0px;
 }";
-include("header.php");
+require_once("header.php");
 echo $start_div;
 echo "<center><b>This indie free open source game project is currently in pre-alpha stage. Please help by donating!</b></center>";
 echo $separator;

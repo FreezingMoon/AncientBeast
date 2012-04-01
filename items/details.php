@@ -1,6 +1,6 @@
 <?php
-include("../config.php");
-include("../ico/index.php");
+require_once("../config.php");
+require_once("../ico/index.php");
 $details = "SELECT * from ab_items WHERE id='" . $_POST['id'] . "'";
 $result = mysql_query($details) or die(mysql_error());
 $stats = array('health', 'regrowth', 'fatigue', 'energy', 'meditation', 'delay', 'offense', 'defense', 'inventory');
