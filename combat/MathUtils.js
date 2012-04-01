@@ -1,15 +1,18 @@
 function MathUtils() { }
 
-MathUtils.generateShape = function(segments) {
-	var step = Math.PI * 2 / segments;
-	var rad90 = Math.PI / 2;
-	var scaleX = 2 - (Math.cos(Math.round(segments * 0.25) * step - rad90) - Math.cos(Math.round(segments * 0.75) * step - rad90)) / 2;
-	var scaleY = 2 - (Math.sin(Math.round(segments * 0.50) * step - rad90) - Math.sin(-rad90)) / 2;
-	var out = new Array(segments);
-	for (var i = 0; i < segments; i++) {
-		out[i] = new Vertex();
-		out[i].x = Math.cos(i * step - rad90) / 2 * scaleX + 0.5;
-		out[i].y = Math.sin(i * step - rad90) / 2 * scaleY + 0.5;
+MathUtils.generateTessellatingHexagon = function() {
+	var vertexList = new Array(6);
+	var angleStep = Math.PI * 2 / 6;
+	var quarterCircle = Math.PI * 0.5;
+	
+	var scaleX = 1 / Math.cos(angleStep - quarterCircle);
+	for(var i = 0; i < 6; i++) {
+		var x = (Math.cos(i * angleStep - quarterCircle) * scaleX + 1) * 0.5;
+		var y = (Math.sin(i * angleStep - quarterCircle) + 1) * 0.5;
+		vertexList[i] = new Vertex(x, y);
 	}
-	return out;
+	return {
+		vertices: vertexList,
+		tile: new Vertex(vertexList[2].x, vertexList[2].y)
+	};
 }
