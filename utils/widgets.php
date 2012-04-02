@@ -1,5 +1,5 @@
 <?php $page_title = "Ancient Beast - Widgets";
-include("header.php");
+require_once("header.php");
 echo $start_div;
 ?>
 <table style='clear:both;'><tr>

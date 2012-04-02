@@ -1,5 +1,5 @@
 <?php $page_title = "Ancient Beast - Gallery";
-include("../header.php"); ?>
+require_once("../header.php"); ?>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo $WorkingDir; ?>gallery/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
 <script type="text/javascript" src="<?php echo $WorkingDir; ?>gallery/fancybox/jquery.easing-1.3.pack.js"></script>

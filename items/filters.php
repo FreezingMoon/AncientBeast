@@ -1,5 +1,5 @@
 <?php
-include("../ico/index.php");
+require_once("../ico/script.php");
 echo "<table width=100%><tr>";
 echo "<th>" . PIERCE_ICON . "</th>";
 echo "<th>" . SLASH_ICON . "</th>";
