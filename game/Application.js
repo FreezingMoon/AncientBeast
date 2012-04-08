@@ -2,8 +2,8 @@ function Application() {
 	$("#message").remove();
 	$("#container").css("display", "block");
 
-	this.mouse = new Vertex();
-	this.cursorOffset = new Vertex(25, 3);
+	this.mouse = new Vector2D();
+	this.cursorOffset = new Vector2D(25, 3);
 	this.cursorFrame = 0;
 	this.cursorIsPointer = false;
 
@@ -87,7 +87,7 @@ Application.prototype.bindMouse = function() {
 	$(window).on("mousemove", function(e) {
 		/* Any element with the class cursorPointer will have a 'pointer' cursor
 		   More cursor types can be added later */
-		_this.mouse = new Vertex(e.clientX, e.clientY);
+		_this.mouse = new Vector2D(e.clientX, e.clientY);
 		$(".cursor").css("top", _this.mouse.y - _this.cursorOffset.y);
 		$("#cursor-fore").css("left", _this.mouse.x - $("#cursor-fore").attr("cropLeft") - _this.cursorOffset.x);
 		$("#cursor-back").css("left", _this.mouse.x - $("#cursor-back").attr("cropLeft") - _this.cursorOffset.x);
@@ -96,8 +96,8 @@ Application.prototype.bindMouse = function() {
 		
 		$(".cursorPointer").each(function(i) {
 			var offset = $(this).offset();
-			var upper = new Vertex(offset.left, offset.top);
-			var lower = new Vertex(offset.left + $(this).width(), offset.top + $(this).height());
+			var upper = new Vector2D(offset.left, offset.top);
+			var lower = new Vector2D(offset.left + $(this).width(), offset.top + $(this).height());
 			if(_this.mouse.x >= upper.x && _this.mouse.x <= lower.x &&
 					_this.mouse.y >= upper.y && _this.mouse.y <= lower.y) {
 				isPointer = true;

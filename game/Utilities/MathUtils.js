@@ -9,10 +9,10 @@ MathUtils.generateTessellatingHexagon = function() {
 	for(var i = 0; i < 6; i++) {
 		var x = (Math.cos(i * angleStep - quarterCircle) * scaleX + 1) * 0.5;
 		var y = (Math.sin(i * angleStep - quarterCircle) + 1) * 0.5;
-		vertexList[i] = new Vertex(x, y);
+		vertexList[i] = new Vector2D(x, y);
 	}
 	return {
 		vertices: vertexList,
-		tile: new Vertex(vertexList[2].x, vertexList[2].y)
+		tile: new Vector2D(vertexList[2].x, vertexList[2].y)
 	};
 }

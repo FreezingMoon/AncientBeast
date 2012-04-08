@@ -5,11 +5,11 @@ function Arena() {
 	this.rows = 12;
 	this.columns = 18;
 	this.activeTile = -1;
-	this.mouse = new Vertex();
+	this.mouse = new Vector2D();
 	this.tileShape = new Array(6);
-	this.tileSeparation = new Vertex();
-	this.tilesSize = new Vertex(1.0, 0.7);
-	this.tilesTranslation = new Vertex(0.3, 4.5);
+	this.tileSeparation = new Vector2D();
+	this.tilesSize = new Vector2D(1.0, 0.7);
+	this.tilesTranslation = new Vector2D(0.3, 4.5);
 }
 
 Arena.prototype.init = function() {
@@ -37,13 +37,13 @@ Arena.prototype.init = function() {
   
 	// Mouse events
 	$(this.tilesRenderer.canvas).click(function(e) {
-		_this.mouse = new Vertex(e.offsetX, e.offsetY);
+		_this.mouse = new Vector2D(e.offsetX, e.offsetY);
 		_this.mouse = _this.mouse.toUnitSpace(_this.tilesRenderer);
 		console.log(_this.mouse);
 	})
 	
 	$(window).on("mousemove", function(e){
-		_this.mouse = new Vertex(e.pageX - $(_this.tilesRenderer.canvas).offset().left, e.pageY - $(_this.tilesRenderer.canvas).offset().top);
+		_this.mouse = new Vector2D(e.pageX - $(_this.tilesRenderer.canvas).offset().left, e.pageY - $(_this.tilesRenderer.canvas).offset().top);
 		_this.mouse = _this.mouse.toUnitSpace(_this.tilesRenderer);
 
 		var rowHeight = (_this.tilesSize.y*_this.tileSeparation.y);
@@ -102,10 +102,10 @@ Arena.prototype.drawAll = function(f, element) {
 	}, element);
 }
 Arena.prototype.drawArena = function() {
-	var backgroundSize = new Vertex(this.arenaRenderer.unitsPerRow, this.arenaRenderer.unitsPerColumn);
+	var backgroundSize = new Vector2D(this.arenaRenderer.unitsPerRow, this.arenaRenderer.unitsPerColumn);
 	this.arenaRenderer.clear();
 	this.arenaRenderer.bindTexture("../combat/forest/bg.jpg");
-	this.arenaRenderer.drawImage(new Vertex(0, 0), backgroundSize, new Vertex(0,0), new Vertex(1920, 1080));
+	this.arenaRenderer.drawImage(new Vector2D(0, 0), backgroundSize, new Vector2D(0,0), new Vector2D(1920, 1080));
 }
 
 Arena.prototype.drawTiles = function() {
@@ -120,8 +120,8 @@ Arena.prototype.drawTiles = function() {
 	for (var y=0; y < this.rows; ++y) { 
 		for (var x=0; x < this.columns; ++x) {
 			this.tilesRenderer.save();
-			offset = new Vertex(y % 2 == 0 ? this.tilesSize.x : this.tilesSize.x * 0.5, 0);
-			var translate = new Vertex(offset.x + x * this.tileSeparation.x, offset.y + y * this.tileSeparation.y);
+			offset = new Vector2D(y % 2 == 0 ? this.tilesSize.x : this.tilesSize.x * 0.5, 0);
+			var translate = new Vector2D(offset.x + x * this.tileSeparation.x, offset.y + y * this.tileSeparation.y);
 			this.tilesRenderer.translate(translate);		
 
 			if (y*this.columns + x == this.activeTile) {
