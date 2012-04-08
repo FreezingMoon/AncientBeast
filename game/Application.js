@@ -3,7 +3,7 @@ function Application() {
 	$("#container").css("display", "block");
 
 	this.mouse = new Vertex();
-	this.cursorOffset = new Vertex(32, -2);
+	this.cursorOffset = new Vertex(25, 3);
 	this.cursorFrame = 0;
 	this.cursorIsPointer = false;
 
