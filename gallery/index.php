@@ -30,9 +30,8 @@ $images = scandir("artwork");
 $i = 0;
 foreach($images as $image) {
 	if($image == "." || $image == "..") continue;
-	$hover = substr($image, 0, -4); 
-	$title = str_replace(' by', '<br>by', $hover);
-	echo "<a id='img{$i}' style='text-align:center;' rel='pop' href='artwork/$image' title='$title'><img style='height:200px; margin:5px;' src='artwork/$image' title='$hover'></a>";
+	$title = substr($image, 0, -4); 
+	echo "<a id='img{$i}' style='text-align:center;' rel='pop' href='artwork/$image' title='$title'><img style='height:200px; margin:5px;' src='artwork/$image' title='$title'></a>";
 	$i++;
 } echo "</center>{$end_div}{$the_end}"; ?>
 
