@@ -2,7 +2,7 @@
 require_once("../header.php");
 require_once("../config.php");
 ?>
-<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
+<script type="application/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
 <?php
 echo "$start_div<div style='text-align:center; margin-left:-6px;'>";
 $spells = "SELECT * FROM ab_spells";
@@ -15,7 +15,7 @@ while ($row = mysql_fetch_assoc($result)) {
 ?>
 
 <!--show details of the linked item-->
-<script type="text/javascript">
+<script type="application/javascript">
 var basePage = window.location.href.replace( /#.*/, "");
 function showId(id) {
 	TINY.box.show({url:'details.php',post:'id='+id,width:440,height:550,topsplit:2,close:true,callback:function(b){

@@ -3,7 +3,7 @@ require_once(dirname(__FILE__) . "/index.php");
 ?>
 
 <!--roll over image script-->
-<script type="text/javascript">
+<script type="application/javascript">
 var icons = new Array("<?php echo implode($icons, "\", \""); ?>");
 for(var x in icons) {
 	window["normal_" + icons[x]] = '../ico/' + icons[x] + '.png';

@@ -22,13 +22,13 @@ if (isset($stylesheet)) {
 	echo "<link rel='stylesheet' href='$stylesheet'>";
 } ?>
 <!--flattr-->
-<script type="text/javascript" src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
+<script type="application/javascript" src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
 <!--jquery-->
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <!--pixastic-->
-<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/pixastic.js"></script>
-<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/lighten.js"></script>
-<script type="text/javascript">
+<script type="application/javascript" src="<?php echo $WorkingDir; ?>utils/pixastic.js"></script>
+<script type="application/javascript" src="<?php echo $WorkingDir; ?>utils/lighten.js"></script>
+<script type="application/javascript">
 $(document).ready(function(){
 	$('.lighten').each(function(){
 		$(this).mouseenter(function() {
