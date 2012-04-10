@@ -1,10 +1,10 @@
 <?php $page_title = "Ancient Beast - Gallery";
 require_once("../header.php"); ?>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $WorkingDir; ?>gallery/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="text/javascript" src="<?php echo $WorkingDir; ?>gallery/fancybox/jquery.easing-1.3.pack.js"></script>
-<script type="text/javascript" src="<?php echo $WorkingDir; ?>gallery/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
-<link rel="stylesheet" href="<?php echo $WorkingDir; ?>gallery/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen" />
+<script type="text/javascript" src="jquery.fancybox-1.3.4.pack.js"></script>
+<script type="text/javascript" src="jquery.easing-1.3.pack.js"></script>
+<script type="text/javascript" src="jquery.mousewheel-3.0.4.pack.js"></script>
+<link rel="stylesheet" href="jquery.fancybox-1.3.4.css" type="text/css" media="screen" />
 <script type="text/javascript">
 $(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");
@@ -26,12 +26,12 @@ $(document).ready(function() {
 </script>
 <?php
 echo $start_div . "<center>";
-$images = scandir("artwork");
+$images = scandir("../artwork");
 $i = 0;
 foreach($images as $image) {
 	if($image == "." || $image == "..") continue;
 	$title = substr($image, 0, -4); 
-	echo "<a id='img{$i}' style='text-align:center;' rel='pop' href='artwork/$image' title='$title'><img style='height:200px; margin:5px;' src='artwork/$image' title='$title'></a>";
+	echo "<a id='img{$i}' style='text-align:center;' rel='pop' href='../artwork/$image' title='$title'><img style='height:200px; margin:5px;' src='../artwork/$image' title='$title'></a>";
 	$i++;
 } echo "</center>{$end_div}{$the_end}"; ?>
 
