@@ -3,7 +3,7 @@ require_once("../config.php");
 require_once("../ico/index.php");
 $details = "SELECT * from ab_items WHERE id='" . $_POST['id'] . "'";
 $result = mysql_query($details) or die(mysql_error());
-$stats = array('health', 'regrowth', 'fatigue', 'energy', 'meditation', 'delay', 'offense', 'defense', 'inventory');
+$stats = array('health', 'regrowth', 'fatigue', 'energy', 'meditation', 'delay', 'offense', 'defense', 'movement');
 $masteries = array('pierce', 'slash', 'crush', 'shock', 'burn', 'frost', 'poison', 'mental', 'sonic');
 while ($row = mysql_fetch_assoc($result)) {
 	echo "<center><table style=\"text-align: center;\"><tr><td><img src=\"" . $row['name'] . ".png\"><br><strong>" . $row['name'] . "</strong></td><td>";
@@ -16,7 +16,7 @@ while ($row = mysql_fetch_assoc($result)) {
 	echo "<td>" . DELAY_ICON . "</td>";
 	echo "<td>" . OFFENSE_ICON . "</td>";
 	echo "<td>" . DEFENSE_ICON . "</td>";
-	echo "<td>" . INVENTORY_ICON . "</td>";
+	echo "<td>" . MOVEMENT_ICON . "</td>";
 	echo "</tr><tr>";
 	foreach ($stats as $x)
 		echo "<td>" . $row[$x] . "</td>";
