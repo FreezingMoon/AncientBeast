@@ -3,9 +3,9 @@ require_once("../header.php");
 require_once("../config.php");
 require_once("../ico/script.php");
 ?>
-<script type="application/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
+<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
 <!--show details of the linked item-->
-<script type="application/javascript">
+<script type="text/javascript">
 var basePage = window.location.href.replace( /#.*/, "");
 function showId(id) {
 	TINY.box.show({url:'details.php',post:'id='+id,width:880,height:650,topsplit:2,close:true,callback:function(b){

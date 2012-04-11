@@ -16,9 +16,9 @@ require_once("../config.php");
 echo $start_div;
 require_once("filters.php");
 ?>
-<script type="application/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
+<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/tinybox.js"></script>
 <!--show details of the linked item-->
-<script type="application/javascript">
+<script type="text/javascript">
 var basePage = window.location.href.replace( /#.*/, "");
 function showId(id) {
 	TINY.box.show({url:'details.php',post:'id='+id,width:500,height:180,topsplit:4,close:true,mask:false,callback:function(b){

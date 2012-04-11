@@ -53,7 +53,7 @@ while ($row = mysql_fetch_assoc($result)) {
 	echo "<div class=\"section\" style=\"border: 0px; background:url('" . $WorkingDir . "creatures/$ab_id/artwork.jpg'); width:400px; height:400px;\"><img src=\"AB.png\" style=\"position:relative; top:365px; left:180px;\"></div>";
 	echo "<div class='section' style='text-align: center; width: 390px; padding: 5px 0px;'>" . $row["description"] . "</div>";
 } mysql_free_result($result);
-echo "</th><th class='card'><table class='section'><tr class='numbers'><th>" . HEALTH_ICON . "</th><th>" . REGROWTH_ICON . "</th><th>" . FATIGUE_ICON . "</th><th>" . ENERGY_ICON . "</th><th>" . MEDITATION_ICON . "</th><th>" . DELAY_ICON . "</th><th>" . OFFENSE_ICON . "</th><th>" . DEFENSE_ICON . "</th><th>" . INVENTORY_ICON . "</th></tr><tr class='numbers'>";
+echo "</th><th class='card'><table class='section'><tr class='numbers'><th>" . HEALTH_ICON . "</th><th>" . REGROWTH_ICON . "</th><th>" . FATIGUE_ICON . "</th><th>" . ENERGY_ICON . "</th><th>" . MEDITATION_ICON . "</th><th>" . DELAY_ICON . "</th><th>" . OFFENSE_ICON . "</th><th>" . DEFENSE_ICON . "</th><th>" . MOVEMENT_ICON . "</th></tr><tr class='numbers'>";
 $result = mysql_query($ab_stats);
 while ($row = mysql_fetch_assoc($result)) {
 	foreach ($row as $key => $x) {

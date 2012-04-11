@@ -18,7 +18,7 @@ echo "<th>" . MEDITATION_ICON . "</th>";
 echo "<th>" . DELAY_ICON . "</th>";
 echo "<th>" . OFFENSE_ICON . "</th>";
 echo "<th>" . DEFENSE_ICON . "</th>";
-echo "<th>" . INVENTORY_ICON . "</th>";
+echo "<th>" . MOVEMENT_ICON . "</th>";
 echo "</tr></table>";
 echo $separator;
 ?>
