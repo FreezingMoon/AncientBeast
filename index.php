@@ -141,12 +141,11 @@ The world has been divided into equal regions, one for each of the deadly sins w
 The project is developed with the use of free open source cross platform applications and freeware services.
 <a href="http://wuala.com" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's assets and sources, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group.<br>
 <a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as structures and creatures and their animations, which are prerendered into sprites and sprite-sheets as well as for other tasks.<br>
-<a href="http://mypaint.intilinux.com" target="_blank"><b>My Paint</b></a> along with <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> are being used for icons, concept art, texturing and the creation of some of the battle grounds.
-<a href="http://al.chemy.org" target="_blank"><b>Alchemy</b></a> can be a very useful tool for finding inspiration when creating creature artwork.
-</p>
+<a href="http://krita.org" target="_blank"><b>Krita</b></a>, <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> and <a href="http://mypaint.intilinux.com" target="_blank"><b>MyPaint</b></a> are useful for creating items and concept art, while 
+<a href="http://inkscape.org" target="_blank"><b>Inkscape</b> is useful for creating vector icons for abilities.</p>
 <table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$tools = array("github"=>"https://github.com/FreezingMoon/AncientBeast", "wuala"=>"http://www.wuala.com/AncientBeast/", "deviantart"=>"http://Ancient-Beast.deviantart.com", "blender"=>"http://blender.org", "gimp"=>"http://gimp.org", "mypaint"=>"http://mypaint.intilinux.com", "alchemy"=>"http://al.chemy.org");
+$tools = array("github"=>"https://github.com/FreezingMoon/AncientBeast", "wuala"=>"http://www.wuala.com/AncientBeast/", "deviantart"=>"http://Ancient-Beast.deviantart.com", "blender"=>"http://blender.org", "krita"=>"http://krita.org", "gimp"=>"http://gimp.org", "mypaint"=>"http://mypaint.intilinux.com", "inkscape"=>"http://inkscape.org");
 foreach ($tools as $toolName => $toolLink) {
 	echo "<td><a href='$toolLink' target='_blank' class='lighten'><img src='menu/$toolName.png' style='display:block; width:99px; height99px;'>".ucfirst($toolName)."</a></td>";
 }
