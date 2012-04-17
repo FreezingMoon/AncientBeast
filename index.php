@@ -109,7 +109,7 @@ A synergy bonus to offense, defense and masteries is provided if all summoned cr
 <?php echo $separator; ?>
 <a name="realms">V. <b><u>Realms</u></b></a>
 <p>
-The world has been divided into equal regions, one for each of the deadly sins which suit it's inhabitants the most.
+The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.
 </p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
 <img id="sins" src="<?php echo $WorkingDir; ?>realms/index.png" usemap="#sins" border="0" width="506" height="527">
