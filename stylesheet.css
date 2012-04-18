@@ -32,25 +32,25 @@ img {
 }
 *:focus {outline: none;}
 #wrapper {text-align: left;}
-.frame_upper {
+.div_top {
 	margin: 0;
-	background-image: url('images/main_upper.png');
+	background-image: url('images/div_top.png');
 	background-repeat: no-repeat;
 	height: 20px;
 	overflow: hidden;
 	padding: 0;
 }
-.frame_middle {
+.div_center {
 	overflow: hidden;
-	background-image: url('images/main_middle.png');
+	background-image: url('images/div_center.png');
 	background-repeat: repeat-y;
 	margin: 0;
 	padding: 0px 30px;
 	position: relative;
 }
-.frame_lower {
+.div_bottom {
 	margin: 0;
-	background-image: url('images/main_lower.png');
+	background-image: url('images/div_bottom.png');
 	background-repeat: no-repeat;
 	height: 20px;
 	margin-bottom: 10px;

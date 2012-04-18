@@ -22,13 +22,13 @@ if (isset($stylesheet)) {
 	echo "<link rel='stylesheet' href='$stylesheet'>";
 } ?>
 <!--flattr-->
-<script type="application/javascript" src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
+<script type="text/javascript" src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
 <!--jquery-->
-<script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <!--pixastic-->
-<script type="application/javascript" src="<?php echo $WorkingDir; ?>utils/pixastic.js"></script>
-<script type="application/javascript" src="<?php echo $WorkingDir; ?>utils/lighten.js"></script>
-<script type="application/javascript">
+<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/pixastic.js"></script>
+<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/lighten.js"></script>
+<script type="text/javascript">
 $(document).ready(function(){
 	$('.lighten').each(function(){
 		$(this).mouseenter(function() {
@@ -48,11 +48,11 @@ $(document).ready(function(){
 <body>
 <?php
 include_once("analytics.php");
-$start_div = "<div class='frame_upper'></div>
-<div class='frame_middle'>";
+$start_div = "<div class='div_top'></div>
+<div class='div_center'>";
 $end_div = "
 </div>
-<div class='frame_lower'></div>";
+<div class='div_bottom'></div>";
 $separator = $end_div . $start_div;
 $the_end = "
 </div>
