@@ -50,7 +50,7 @@ foreach ($sections as &$sectionItem) {
 </tr></table></nav>
 <?php echo $separator; ?>
 <article>
-<a name="info">I. <b><u>Info</u></b></a>
+<a name="info" href="#info">I. <b><u>Info</u></b></a>
 <p>
 <b>Ancient Beast</b> is a 2D turn based strategy game played online against other people, featuring a wide variery of spells, items and creatures to aquire and put to good use in order to defeat your opponents.
 </p>
@@ -59,7 +59,7 @@ Ancient Beast is free, open source and developed by <a href="http://www.Freezing
 It was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
 <?php echo $separator; ?>
-<a name="demands">II. <b><u>Demands</u></b></a>
+<a name="demands" href="#demands">II. <b><u>Demands</u></b></a>
 <ul>
 <li>internet connection</li>
 <li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and JavaScript enabled</li>
@@ -72,14 +72,19 @@ It was carefuly designed to be easy to learn, fun to play and hard to master. We
 <p>Best played at HD resolution (1920x1080), with stereo speakers, using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.<br>
 While playing on a smartphone, it is highly recommended using a stylus.</p>
 <?php echo $separator; ?>
-<a name="plot">III. <b><u>Plot</u></b></a>
+<a name="plot" href="#plot">III. <b><u>Plot</u></b></a>
 <p>
-It's the year 2653. In the last centuries, technology advanced exponentially up to the point that pretty much everyone had a fair chance at playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, anyone could build it's own weapon factory or genetic laboratory right in his own garage or backyard. Having mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
+It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
 </p><p>
-Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield; split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strongest will survive.
-</p>
+Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield; split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strong will survive.
+</p><br><p><center>
+<audio controls="controls">
+	<source src="plot.ogg" type="audio/ogg" />
+Your browser does not support the audio element.
+</audio>
+</center></p>
 <?php echo $separator; ?>
-<a name="gameplay">IV. <b><u>Gameplay</u></b></a>
+<a name="gameplay" href="#gameplay">IV. <b><u>Gameplay</u></b></a>
 <p>
 In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to unlock spells, items and more creatures.
 </p>
@@ -107,7 +112,7 @@ After engaging in combat, players are taken to the battle field where both parti
 A synergy bonus to offense, defense and masteries is provided if all summoned creatures are of the same level or alignment. Bonus requires at least 2 creatures and it multiplies by their number.
 </p>
 <?php echo $separator; ?>
-<a name="realms">V. <b><u>Realms</u></b></a>
+<a name="realms" href="#realms">V. <b><u>Realms</u></b></a>
 <p>
 The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.
 </p>
@@ -133,7 +138,7 @@ The world has been divided into 7 regions, one for each of the deadly sins that 
 <div class="realms" style="background:url('realms/wrath.jpg') no-repeat;"><a name="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underwold. Back in the day there used to be secret underground facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
 </div>
 <?php echo $separator; ?>
-<a name="development">VI. <b><u>Development</u></b></a>
+<a name="development" href="#development">VI. <b><u>Development</u></b></a>
 <br>
 <br>
 <b>Pipeline</b>
@@ -172,7 +177,7 @@ The game is best played at a HD resolution of 1920x1080, in case your screen use
 Multiplayer will be done either with MySQL, <a href="http://en.wikipedia.org/wiki/WebSocket">WebSocket</a> or using an IRC server.
 </p>
 <?php echo $separator; ?>
-<a name="license">VII. <b><u>License</u></b></a><br>
+<a name="license" href="#license">VII. <b><u>License</u></b></a><br>
 <br>
 <table border=1><tr>
 <td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>

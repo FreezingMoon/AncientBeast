@@ -1,5 +1,4 @@
-<?php
-require_once("../ico/script.php");
+<?php require_once("../ico/script.php");
 echo "<table width=100%><tr>";
 echo "<th>" . PIERCE_ICON . "</th>";
 echo "<th>" . SLASH_ICON . "</th>";
@@ -20,5 +19,4 @@ echo "<th>" . OFFENSE_ICON . "</th>";
 echo "<th>" . DEFENSE_ICON . "</th>";
 echo "<th>" . MOVEMENT_ICON . "</th>";
 echo "</tr></table>";
-echo $separator;
-?>
+echo $separator; ?>
