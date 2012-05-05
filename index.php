@@ -99,7 +99,7 @@ After engaging in combat, players are taken to the battle field where both parti
 <p>
 <b>Health:</b> A raw number representing the amount of damage a creature can take until it dies.<br>
 <b>Regrowth:</b> Amount of health which gets restored to the creature every round.<br>
-<b>Fatigue:</b> While a creature is bellow this amount of health, it becomes fatigued and unable to act.<br>
+<b>Fatigue:</b> While a creature is below this amount of health, it becomes fatigued and unable to act.<br>
 <b>Energy:</b> Doing any action, including moving, drains energy from the creature.<br>
 <b>Meditation:</b> Creature gains back this amount of energy points every round.<br>
 <b>Delay:</b> Creatures with smaller delay get to act first in a round.<br>
@@ -160,7 +160,7 @@ foreach ($tools as $toolName => $toolLink) {
 <b>Sprite sheets</b>
 <br>
 <p>
-For putting together sprite sheets, you can use <a href="http://www.ImageMagick.org" target="_blank"><b>ImageMagick</b></a>, a CLI tool that allows for various operations. If you're not familiar with command line interfaces, no worries, bellow you can see how easy it is by following an example. There are also several GUI's for ImageMagick, but they won't be covered in this documentation.<br>
+For putting together sprite sheets, you can use <a href="http://www.ImageMagick.org" target="_blank"><b>ImageMagick</b></a>, a CLI tool that allows for various operations. If you're not familiar with command line interfaces, no worries, below you can see how easy it is by following an example. There are also several GUI's for ImageMagick, but they won't be covered in this documentation.<br>
 On the official website you can find binaries for most popular operating systems, except Ubuntu linux distro. Chances are that if you're using Ubuntu, ImageMagick is already installed, if not, you can easly download and install the tool from the Software Center or from Terminal, using the following command:
 </p>
 <code>sudo apt-get install imagemagick</code>
