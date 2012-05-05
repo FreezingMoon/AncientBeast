@@ -76,7 +76,7 @@ function cards($id) {
 	echo "<table class='section'><tr class='numbers'><th>" . PIERCE_ICON .
 	     "</th><th>" . SLASH_ICON . "</th><th>" . CRUSH_ICON . "</th><th>" . SHOCK_ICON .
 	     "</th><th>" . BURN_ICON . "</th><th>" . FROST_ICON . "</th><th>" . POISON_ICON .
-	     "</th><th>" . MENTAL_ICON . "</th><th>" . SONIC_ICON . "</th></tr><tr class='numbers'>";
+	     "</th><th>" . SONIC_ICON . "</th><th>" . MENTAL_ICON . "</th></tr><tr class='numbers'>";
 	$result = mysql_query($ab_masteries);
 	while ($row = mysql_fetch_assoc($result)) {
 		foreach ($row as $key => $x) {

@@ -58,8 +58,8 @@ while ($row = mysql_fetch_assoc($result)) {
 	echo "<td>" . BURN_ICON . "</td>";
 	echo "<td>" . FROST_ICON . "</td>";
 	echo "<td>" . POISON_ICON . "</td>";
-	echo "<td>" . MENTAL_ICON . "</td>";
 	echo "<td>" . SONIC_ICON . "</td>";
+	echo "<td>" . MENTAL_ICON . "</td>";
 	echo "</tr><tr>";
 	foreach ($stats as $x) echo "<td>{$row[$x]}</td>";
 	foreach ($masteries as $x) echo "<td>{$row[$x]}</td>";
