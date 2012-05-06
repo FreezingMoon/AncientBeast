@@ -52,7 +52,7 @@ foreach ($sections as &$sectionItem) {
 <article>
 <a name="info" href="#info">I. <b><u>Info</u></b></a>
 <p>
-<b>Ancient Beast</b> is a 2D turn based strategy game played online against other people, featuring a wide variery of spells, items and creatures to aquire and put to good use in order to defeat your opponents.
+<b>Ancient Beast</b> is a 2D turn based strategy game played online against other people, featuring a wide variery of items and creatures to aquire and put to good use in order to defeat your opponents.
 </p>
 <p>
 Ancient Beast is free, open source and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins. This is all brought to life with beautifully crafted CG graphics.<br>
@@ -86,7 +86,7 @@ Your browser does not support the audio element.
 <?php echo $separator; ?>
 <a name="gameplay" href="#gameplay">IV. <b><u>Gameplay</u></b></a>
 <p>
-In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to unlock spells, items and more creatures.
+In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items and more creatures.
 </p>
 <img src="images/combat.jpg" style="width:100%;">
 <p>
@@ -160,21 +160,19 @@ foreach ($tools as $toolName => $toolLink) {
 <b>Sprite sheets</b>
 <br>
 <p>
-For putting together sprite sheets, you can use <a href="http://www.ImageMagick.org" target="_blank"><b>ImageMagick</b></a>, a CLI tool that allows for various operations. If you're not familiar with command line interfaces, no worries, below you can see how easy it is by following an example. There are also several GUI's for ImageMagick, but they won't be covered in this documentation.<br>
-On the official website you can find binaries for most popular operating systems, except Ubuntu linux distro. Chances are that if you're using Ubuntu, ImageMagick is already installed, if not, you can easly download and install the tool from the Software Center or from Terminal, using the following command:
+For putting sprites together into sprite sheets, you can use the <a href="http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Render/Spritify" target="_blank"><b>Spritify</b></a> blender addon, which has <a href="http://www.ImageMagick.org" target="_blank"><b>ImageMagick</b></a> as a dependency.<br>
+You can download ImageMagick binaries for most popular operating systems from it's website. In case you're using Ubuntu, chances are that ImageMagick is already installed, if not, you can easly download and install the tool from the Software Center or by using a Terminal with the following command:
 </p>
 <code>sudo apt-get install imagemagick</code>
 <br>
 <p>
-The operation for putting together sprite sheets using ImageMagick is called "Montage". If we are to render an animation in blender, the PNG format is needed for the output, with the ARGB option enabled. Blender will output a series of images, having the filenames from <i>0001.png</i>, up to the last frame number, which is calculated by: frame range * fps.
+The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexes occupied), with an 1:1 aspect ratio.
 </p>
-<code>montage * -tile x8 -geometry 256x256+0+0 -background None -quality 100 output.png</code>
-<br>
 <p>
 The game is best played at a HD resolution of 1920x1080, in case your screen uses a lower resolution, the game should accomodate by rescaling. Battlegrounds and other screens that are not made out of tiles will be created at the same HD resolution.
 </p>
 <p>
-Multiplayer will be done either with MySQL, <a href="http://en.wikipedia.org/wiki/WebSocket">WebSocket</a> or using an IRC server.
+Multiplayer functions by making AJAX calls to a MySQL table every second.
 </p>
 <?php echo $separator; ?>
 <a name="license" href="#license">VII. <b><u>License</u></b></a><br>
