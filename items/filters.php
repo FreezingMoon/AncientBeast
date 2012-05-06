@@ -1,22 +1,14 @@
 <?php require_once("../ico/script.php");
+
+$ICON_LIST = array( HEALTH_ICON, REGROWTH_ICON, FATIGUE_ICON, ENERGY_ICON, MEDITATION_ICON, DELAY_ICON, OFFENSE_ICON, DEFENSE_ICON, MOVEMENT_ICON, PIERCE_ICON, SLASH_ICON, CRUSH_ICON, SHOCK_ICON, BURN_ICON, FROST_ICON, POISON_ICON, SONIC_ICON, MENTAL_ICON);
+
+// To see that it prints out all of the values...
 echo "<table width=100%><tr>";
-echo "<th>" . PIERCE_ICON . "</th>";
-echo "<th>" . SLASH_ICON . "</th>";
-echo "<th>" . CRUSH_ICON . "</th>";
-echo "<th>" . SHOCK_ICON . "</th>";
-echo "<th>" . BURN_ICON . "</th>";
-echo "<th>" . FROST_ICON . "</th>";
-echo "<th>" . POISON_ICON . "</th>";
-echo "<th>" . SONIC_ICON . "</th>";
-echo "<th>" . MENTAL_ICON . "</th>";
-echo "<th>" . HEALTH_ICON . "</th>";
-echo "<th>" . REGROWTH_ICON . "</th>";
-echo "<th>" . FATIGUE_ICON . "</th>";
-echo "<th>" . ENERGY_ICON . "</th>";
-echo "<th>" . MEDITATION_ICON . "</th>";
-echo "<th>" . DELAY_ICON . "</th>";
-echo "<th>" . OFFENSE_ICON . "</th>";
-echo "<th>" . DEFENSE_ICON . "</th>";
-echo "<th>" . MOVEMENT_ICON . "</th>";
+
+for($i = 9; $i<count($ICON_LIST); $i++)
+	{echo "<th>" . $ICON_LIST[$i] . "</th>";}
+for($i = 0; $i<9; $i++)
+	{echo "<th>" . $ICON_LIST[$i] . "</th>";}
 echo "</tr></table>";
 echo $separator; ?>
+
