@@ -12,7 +12,6 @@ $style = "
 }
 .transparency {
 	opacity:0.1;
-	filter:alpha(opacity=10); /* For IE8 and earlier */
 }";
 require_once("../header.php");
 require_once("../config.php");
@@ -44,7 +43,7 @@ require_once("filters.php");?>
 	while ($row = mysql_fetch_assoc($result)) {
 		echo "{$start_div}<table width=100% style=\"text-align: center;\">";
 		echo "<tr><td style=\"width: 132px;\"><a name=\"{$row['id']}\" href=\"#grid\"><img src=\"{$WorkingDir}items/icons/{$row['name']}.png\"></a></td>";
-		echo "<td><table width=100% style=\"font-size: 24px; text-align: center;\"><tr>";
+		echo "<td><table width=100% style=\"font-size: 24px; text-align: left;\"><tr>";
 		echo "<td width=40%><a href=\"#{$row['id']}\">{$row['name']}</a></td>";
 		echo "<td width=20%><a href=\"#\">{$row['value']}<img src=\"{$WorkingDir}items/coins.png\"></a></td>";
 		echo "<td width=20%><a href=\"#\">Gift<img src=\"{$WorkingDir}items/gift.png\"></a></td>";
