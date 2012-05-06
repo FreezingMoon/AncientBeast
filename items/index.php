@@ -1,8 +1,6 @@
 <?php $page_title = "Ancient Beast - Items";
 $style = "
-.smaller {
-	width: 115px;
-	height: 115px;
+.fix {
 	margin-bottom: -15px;
 }
 .item {
@@ -25,10 +23,10 @@ $i = 0;
 while ($row = mysql_fetch_assoc($result)) {
 	$i++;
 	echo "<td class=\"item\"><span style=\"cursor: pointer;\" class=\"lighten\"><a href=\"#{$row['id']}\">
-	<img class=\"smaller\" src=\"{$WorkingDir}items/icons/{$row['name']}.png\" style=\"display: block;\"><br>
+	<img class=\"fix\" src=\"{$WorkingDir}items/icons/{$row['name']}.png\" style=\"display: block;\"><br>
 	{$row['name']}</a></span></td>";
 	//make new table rows
-	if (($i % 7) == 0) echo "</tr><tr>";
+	if (($i % 6) == 0) echo "</tr><tr>";
 }
 
 echo "</tr></table></a>{$end_div}";
