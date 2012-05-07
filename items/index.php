@@ -31,7 +31,7 @@ while ($row = mysql_fetch_assoc($result)) {
 
 echo "</tr></table></a>{$end_div}";
 $result = mysql_query($items) or die(mysql_error());
-$stats = array('health', 'regrowth', 'fatigue', 'energy', 'meditation', 'delay', 'offense', 'defense', 'movement', 'pierce', 'slash', 'crush', 'shock', 'burn', 'frost', 'poison', 'mental', 'sonic');
+$stats = array('health', 'regrowth', 'fatigue', 'energy', 'meditation', 'delay', 'offense', 'defense', 'movement', 'pierce', 'slash', 'crush', 'shock', 'burn', 'frost', 'poison', 'sonic', 'mental');
 while ($row = mysql_fetch_assoc($result)) {
 	echo "{$start_div}<table width=100% style=\"text-align: center;\">";
 	echo "<tr><td style=\"width: 132px;\"><a name=\"{$row['id']}\" href=\"#grid\"><img src=\"{$WorkingDir}items/icons/{$row['name']}.png\"></a></td>";
