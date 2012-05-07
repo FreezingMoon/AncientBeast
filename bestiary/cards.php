@@ -43,11 +43,12 @@ function ability($x, &$y, $ab_id, $row) {
 }
 function cards($id) {
 	global $WorkingDir;
+	$ICON_LIST = array( HEALTH_ICON, REGROWTH_ICON, FATIGUE_ICON, ENERGY_ICON, MEDITATION_ICON, DELAY_ICON, OFFENSE_ICON, DEFENSE_ICON, MOVEMENT_ICON, PIERCE_ICON, SLASH_ICON, CRUSH_ICON, SHOCK_ICON, BURN_ICON, FROST_ICON, POISON_ICON, SONIC_ICON, MENTAL_ICON);
+	$stats = array('health', 'regrowth', 'fatigue', 'energy', 'meditation', 'delay', 'offense', 'defense', 'movement', 'pierce', 'slash', 'crush', 'shock', 'burn', 'frost', 'poison', 'sonic', 'mental');
 	$ab_id = mysql_real_escape_string($id);
 	$ab_creatures = "SELECT * FROM ab_creatures WHERE id = '$ab_id'";
 	$ab_stats = "SELECT * FROM ab_stats WHERE id = '$ab_id'";
 	$ab_abilities = "SELECT * FROM ab_abilities WHERE id = '$ab_id'";
-	$ab_masteries = "SELECT * FROM ab_masteries WHERE id = '$ab_id'";
 	$result = mysql_query($ab_creatures);
 	echo "<table width=860px border=0><th class='card'>"; 
 	while ($row = mysql_fetch_assoc($result)) {
@@ -55,10 +56,9 @@ function cards($id) {
 		echo "<a href=\"#grid\"><div class=\"section\" style=\"border: 0px; background:url('{$WorkingDir}creatures/$ab_id/artwork.jpg'); width:400px; height:400px;\"><img src=\"AB.png\" style=\"position:relative; top:365px; left:180px;\"></div></a>";
 		echo "<div class='section' style='text-align: center; width: 390px; padding: 5px 0px;'>{$row['description']}</div>";
 	} mysql_free_result($result);
-	echo "</th><th class='card'><table class='section'><tr class='numbers'><th>" . HEALTH_ICON .
-	     "</th><th>" . REGROWTH_ICON . "</th><th>" . FATIGUE_ICON . "</th><th>" . ENERGY_ICON .
-	     "</th><th>" . MEDITATION_ICON . "</th><th>" . DELAY_ICON . "</th><th>" . OFFENSE_ICON .
-	     "</th><th>" . DEFENSE_ICON . "</th><th>" . MOVEMENT_ICON . "</th></tr><tr class='numbers'>";
+	echo "</th><th class='card'><table class='section'><tr class='numbers'>";
+	for($i = 0; $i<9; $i++) echo "<th>{$ICON_LIST[$i]}</th>";
+	echo "</tr><tr class='numbers'>";
 	$result = mysql_query($ab_stats);
 	while ($row = mysql_fetch_assoc($result)) {
 		foreach ($row as $key => $x) {
@@ -73,11 +73,10 @@ function cards($id) {
 	while ($row = mysql_fetch_assoc($result)) foreach ($abilities as $x) ability($x, $y, $ab_id, $row);
 	echo "</tr></table>";
 	mysql_free_result($result);
-	echo "<table class='section'><tr class='numbers'><th>" . PIERCE_ICON .
-	     "</th><th>" . SLASH_ICON . "</th><th>" . CRUSH_ICON . "</th><th>" . SHOCK_ICON .
-	     "</th><th>" . BURN_ICON . "</th><th>" . FROST_ICON . "</th><th>" . POISON_ICON .
-	     "</th><th>" . SONIC_ICON . "</th><th>" . MENTAL_ICON . "</th></tr><tr class='numbers'>";
-	$result = mysql_query($ab_masteries);
+	echo "<table class='section'><tr class='numbers'>";
+	for($i = 9; $i<18; $i++) echo "<th>{$ICON_LIST[$i]}</th>";
+	echo "</tr><tr class='numbers'>";
+	$result = mysql_query($ab_stats);
 	while ($row = mysql_fetch_assoc($result)) {
 		foreach ($row as $key => $x) {
 			if($key == 'id') continue;
