@@ -44,7 +44,6 @@ while ($row = mysql_fetch_assoc($result)) {
 	foreach ($stats as $x) if($row[$x]) echo '<td>'.$row[$x].'</td>';
 	echo '</tr></table></td></tr></table></a>'.$end_div;
 }
-//not logged; not enough gold (donate and get rewarded?); purchase; owned(purchase as gift for friend?);
 
 echo $start_div;
 mysql_free_result($result);
