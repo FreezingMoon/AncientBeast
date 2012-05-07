@@ -42,9 +42,9 @@ while ($row = mysql_fetch_assoc($result)) {
 	echo "<td width=20%><a href=\"#\">Purchase<img src=\"{$WorkingDir}items/purchase.png\"></a></td>";
 	//echo "<td width=20%>Equip<img src=\"{$WorkingDir}items/equip.png\"></td>";
 	echo "</tr></table>";
-	echo "<br><table style=\"text-align: center;\"><tr>";
+	echo "<br><table style=\"text-align:center;\"><tr>";
 	//TODO: implement influence sorting: usort($array, function($a, $b) { return strnatcmp(abs($a), abs($b); });
-	for($i = 0; $i<count($ICON_LIST); $i++) if($row[$stats[$i]]) echo "<th>{$ICON_LIST[$i]}</th>";
+	for($i = 0; $i<count($ICON_LIST); $i++) if($row[$stats[$i]]) echo "<th style=\"padding:4px;\">{$ICON_LIST[$i]}</th>";
 	echo "</tr><tr>";
 	foreach ($stats as $x) if($row[$x]) echo "<td>{$row[$x]}</td>";
 	foreach ($masteries as $x) if($row[$x]) echo "<td>{$row[$x]}</td>";
