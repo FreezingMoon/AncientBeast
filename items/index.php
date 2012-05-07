@@ -42,7 +42,6 @@ while ($row = mysql_fetch_assoc($result)) {
 	for($i = 0; $i<18; $i++) if($row[$stats[$i]]) echo '<th style="padding:4px;">'.$ICON_LIST[$i].'</th>';
 	echo '</tr><tr>';
 	foreach ($stats as $x) if($row[$x]) echo '<td>'.$row[$x].'</td>';
-	foreach ($masteries as $x) if($row[$x]) echo '<td>'.$row[$x].'</td>';
 	echo '</tr></table></td></tr></table></a>'.$end_div;
 }
 //not logged; not enough gold (donate and get rewarded?); purchase; owned(purchase as gift for friend?);
