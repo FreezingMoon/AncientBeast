@@ -8,7 +8,7 @@ require_once("progress/index.php");
 <script type="text/javascript" src="<?php echo $site_root; ?>utils/tinybox.js"></script>
 <?php
 start_segment();
-echo "<div style='text-align:center; margin-left:-6px;'><a id='grid'></a>";
+echo "<a id='grid'></a><div style='text-align:center; margin-left:-6px;'>";
 $creatures = "SELECT * FROM ab_creatures ORDER BY sin, lvl";
 $rows = db_query($creatures);
 foreach ($rows as $r) { ?>

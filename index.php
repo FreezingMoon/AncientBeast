@@ -23,7 +23,7 @@ separate_segment();
 $realms = array('avarice', 'envy', 'gluttony', 'lust', 'pride', 'sloth', 'wrath');
 $random_realm = array_rand($realms);
 echo "<table style=\"background: url('{$site_root}realms/{$realms[$random_realm]}.jpg') no-repeat center top; height: 400px;\">"; ?>
-<tr><td width=25%><center>
+<tr><td style="width: 25%;"><center>
 		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 		<input type="hidden" name="cmd" value="_s-xclick">
 		<input type="hidden" name="hosted_button_id" value="XXXPC6NDXBNTW">
@@ -31,9 +31,9 @@ echo "<table style=\"background: url('{$site_root}realms/{$realms[$random_realm]
 		<img alt=""  src="https://www.paypal.com/en_US/i/scr/pixel.gif" style="width: 1px; height: 1px; display:none;"></form><br><br><br><br>
 	<a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a><br><br><br><br><br>
 	<a href="bitcoin"><img src="<?php echo $site_root; ?>bitcoin/Bitcoin.png"></a>
-</center></td><td width=50%><center>
+</center></td><td style="width: 50%;"><center>
 <iframe width="480" height="360" src="http://www.youtube.com/embed/KBS03PBHtqQ?rel=0" frameborder="0" allowfullscreen></iframe></center>
-</td><td width=25%><center>
+</td><td style="width: 25%;"><center>
 	<a href='http://www.facebook.com/AncientBeast' target='_blank' class='lighten'><img src='<?php echo $site_root; ?>images/facebook.png' class='lighten'></a><br><br><br><br><br>
 	<a href='http://twitter.com/AncientBeast' target='_blank' class='lighten'><img src='<?php echo $site_root; ?>images/twitter.png' class='lighten'></a><br><br><br><br><br>
 	<a href='http://feeds.feedburner.com/AncientBeast' target='_blank' class='lighten'><img src='<?php echo $site_root; ?>images/rss.png' class='lighten'></a>

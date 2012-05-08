@@ -59,9 +59,9 @@ function cards($id) {
 	foreach ($rows as $r) { ?>
 		<table class='section'>
 			<tr class='beast'>
-				<td width='20%'><?php echo $r['sin'] . $r['lvl']; ?></td>
+				<td style='width: 20%;'><?php echo $r['sin'] . $r['lvl']; ?></td>
 				<td><a href="#<?php echo $r['id']; ?>" id="<?php echo $r['id']; ?>"><?php echo strtoupper($r['name']); ?></a></td>
-				<td width='20%'><?php echo $r['hex']; ?>H</td>
+				<td style='width: 20%;'><?php echo $r['hex']; ?>H</td>
 			</tr>
 		</table>
 		<a href="#grid">
