@@ -4,10 +4,10 @@
 $site_root = "/";
 
 // Database information is stored here
-$db_info = [
+$db_info = array(
 	"host"     => "127.0.0.1",
 	"username" => "root",
 	"password" => "example",
 	"database" => "ancientbeast",
-];
+);
 ?>
