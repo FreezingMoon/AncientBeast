@@ -90,7 +90,7 @@ In order to play Ancient Beast, you'll needed to register an account. After logg
 </p>
 <img src="images/combat.jpg" style="width:100%;">
 <p>
-Players are represented on the combat field by skeletons and can be customized by purchasing outfits, which can influence the stats of their summoned creatures.
+Players are represented on the combat field by Dark Priests and can be customized by purchasing outfits, which can influence the stats of their summoned creatures.
 Players can level up by gaining experience on the combat field, gaining 1 more mana point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of mana points equal to the creature's level. Summoning a creature multiple times duplicates it's equiped items and raises it's required mana points by 1 each time for the duration of the combat. When fighting players of lower levels, you will temporarely lose mana points in order to balance the fight.
 </p>
 <p>
