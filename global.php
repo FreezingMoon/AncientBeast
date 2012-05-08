@@ -1,4 +1,5 @@
 <?php
+// Utility
 if(!file_exists(dirname(__FILE__) . "/config.php"))
 	die("config.php not found, please rename config.php.in to config.php");
 require_once("config.php");
