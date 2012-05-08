@@ -1,10 +1,9 @@
 <?php
 $stats = db_query("SELECT column_name FROM information_schema.columns WHERE table_name = 'ab_stats' AND column_name != 'id'");
-foreach ($stats as $k => $s)
-	foreach ($s as $v)
-		$stats[$k] = $v;
-
-foreach ($stats as $x) define(strtoupper($x) . '_ICON', '<img src="../ico/'.$x.'.png" title="'.ucfirst($x).'" onMouseOver="swap(this,\'mouseover_'.$x.'\')" onMouseOut="swap(this,\'normal_'.$x.'\')">'."\n"); ?>
+foreach ($stats as $key => $x) {
+	foreach ($x as $v) $stats[$key] = $v;
+	define(strtoupper($stats[$key]) . '_ICON', '<img src="../ico/' . $stats[$key] . '.png" title="' . ucfirst($stats[$key]) . '" onMouseOver="swap(this,\'mouseover_' . $stats[$key] . '\')" onMouseOut="swap(this,\'normal_' . $stats[$key] . '\')">'."\n");
+} ?>
 <!--roll over image script-->
 <script type="text/javascript">
 var icons = new Array("<?php echo implode($stats, "\", \""); ?>");
