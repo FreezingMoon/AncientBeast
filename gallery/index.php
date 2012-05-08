@@ -25,7 +25,8 @@ $(document).ready(function() {
 });
 </script>
 <?php
-echo $start_div . "<center>";
+start_segment();
+echo "<center>";
 $images = scandir("../artwork");
 $i = 0;
 foreach($images as $image) {
@@ -33,5 +34,7 @@ foreach($images as $image) {
 	$title = substr($image, 0, -4); 
 	echo "<a id='img{$i}' style='text-align:center;' rel='pop' href='../artwork/$image' title='$title'><img style='height:200px; margin:5px;' src='../artwork/$image' title='$title'></a>";
 	$i++;
-} echo "</center>{$end_div}{$the_end}"; ?>
-
+} echo "</center>";
+end_segment();
+end_page();
+?>

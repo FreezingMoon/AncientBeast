@@ -1,5 +1,6 @@
 <?php $page_title = "Ancient Beast - Game";
 require_once("../header.php");
+<<<<<<< HEAD
 require_once("../config.php");
 echo $start_div;
 echo "<center>Under HEAVY development!</center>";
@@ -16,3 +17,17 @@ echo "tournament (entry fee, estimated prize and status)";
 //TODO: tutorial? self played demo? replays? (if not signed in)
 //owned creatures/items? (profile, including stats); show purchase suggestions near price range
 echo $end_div.$the_end; ?>
+=======
+require_once("../global.php");
+start_segment();
+echo "<center>Coming Soon!</center>";
+//tutorial?
+//casual mode (50 mana, stack of creatures and spells from a sin, no items, low exp and gold)
+//ladder (rankings, full exp and gold)
+//tournament sign-up and status
+//equiped items widget
+//owned creatures/spells/items? (profile, including stats)
+end_segment();
+end_page();
+?>
+>>>>>>> 91c5acc89e39831851c50788a02b3ed6e1ae5b57

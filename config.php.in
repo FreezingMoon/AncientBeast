@@ -1,0 +1,13 @@
+<?php
+// Directory of site relative to root, ending with a forward slash
+// Eg: $site_root = "/" or $site_root = "/ancientbeast/"
+$site_root = "/";
+
+// Database information is stored here
+$db_info = [
+	"host"     => "127.0.0.1",
+	"username" => "root",
+	"password" => "example",
+	"database" => "ancientbeast",
+];
+?>

@@ -17,28 +17,28 @@ $style = "
 	padding: 15px 0px;
 }";
 require_once("header.php");
-echo $start_div;
+start_segment();
 echo "<center><b>This indie free open source game project is currently in pre-alpha stage. Please help by donating!</b></center>";
-echo $separator;
+separate_segment();
 $realms = array('avarice', 'envy', 'gluttony', 'lust', 'pride', 'sloth', 'wrath');
 $random_realm = array_rand($realms);
-echo "<table style=\"background: url('{$WorkingDir}realms/{$realms[$random_realm]}.jpg') no-repeat center top; height: 400px;\">"; ?>
+echo "<table style=\"background: url('{$site_root}realms/{$realms[$random_realm]}.jpg') no-repeat center top; height: 400px;\">"; ?>
 <tr><td width=25%><center>
 		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 		<input type="hidden" name="cmd" value="_s-xclick">
 		<input type="hidden" name="hosted_button_id" value="XXXPC6NDXBNTW">
-		<input type="image" src="<?php echo $WorkingDir; ?>images/paypal.png"  name="submit" alt="PayPal - The safer, easier way to pay online!">
+		<input type="image" src="<?php echo $site_root; ?>images/paypal.png"  name="submit" alt="PayPal - The safer, easier way to pay online!">
 		<img alt=""  src="https://www.paypal.com/en_US/i/scr/pixel.gif" style="width: 1px; height: 1px; display:none;"></form><br><br><br><br>
 	<a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a><br><br><br><br><br>
-	<a href="bitcoin"><img src="<?php echo $WorkingDir; ?>bitcoin/Bitcoin.png"></a>
+	<a href="bitcoin"><img src="<?php echo $site_root; ?>bitcoin/Bitcoin.png"></a>
 </center></td><td width=50%><center>
 <iframe width="480" height="360" src="http://www.youtube.com/embed/KBS03PBHtqQ?rel=0" frameborder="0" allowfullscreen></iframe></center>
 </td><td width=25%><center>
-	<a href='http://www.facebook.com/AncientBeast' target='_blank' class='lighten'><img src='<?php echo $WorkingDir; ?>images/facebook.png' class='lighten'></a><br><br><br><br><br>
-	<a href='http://twitter.com/AncientBeast' target='_blank' class='lighten'><img src='<?php echo $WorkingDir; ?>images/twitter.png' class='lighten'></a><br><br><br><br><br>
-	<a href='http://feeds.feedburner.com/AncientBeast' target='_blank' class='lighten'><img src='<?php echo $WorkingDir; ?>images/rss.png' class='lighten'></a>
+	<a href='http://www.facebook.com/AncientBeast' target='_blank' class='lighten'><img src='<?php echo $site_root; ?>images/facebook.png' class='lighten'></a><br><br><br><br><br>
+	<a href='http://twitter.com/AncientBeast' target='_blank' class='lighten'><img src='<?php echo $site_root; ?>images/twitter.png' class='lighten'></a><br><br><br><br><br>
+	<a href='http://feeds.feedburner.com/AncientBeast' target='_blank' class='lighten'><img src='<?php echo $site_root; ?>images/rss.png' class='lighten'></a>
 </center></td></tr></table>
-<?php echo $separator; ?>
+<?php separate_segment(); ?>
 
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
@@ -48,7 +48,7 @@ foreach ($sections as &$sectionItem) {
 }
 ?>
 </tr></table></nav>
-<?php echo $separator; ?>
+<?php separate_segment(); ?>
 <article>
 <a name="info" href="#info">I. <b><u>Info</u></b></a>
 <p>
@@ -58,7 +58,7 @@ foreach ($sections as &$sectionItem) {
 Ancient Beast is free, open source and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins. This is all brought to life with beautifully crafted CG graphics.<br>
 It was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
-<?php echo $separator; ?>
+<?php separate_segment(); ?>
 <a name="demands" href="#demands">II. <b><u>Demands</u></b></a>
 <ul>
 <li>internet connection</li>
@@ -71,7 +71,7 @@ It was carefuly designed to be easy to learn, fun to play and hard to master. We
 </ul>
 <p>Best played at HD resolution (1920x1080), with stereo speakers, using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.<br>
 While playing on a smartphone, it is highly recommended using a stylus.</p>
-<?php echo $separator; ?>
+<?php separate_segment(); ?>
 <a name="plot" href="#plot">III. <b><u>Plot</u></b></a>
 <p>
 It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
@@ -83,7 +83,7 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 Your browser does not support the audio element.
 </audio>
 </center></p>
-<?php echo $separator; ?>
+<?php separate_segment(); ?>
 <a name="gameplay" href="#gameplay">IV. <b><u>Gameplay</u></b></a>
 <p>
 In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items and more creatures.
@@ -111,13 +111,13 @@ After engaging in combat, players are taken to the battle field where both parti
 <p>
 A synergy bonus to offense, defense and masteries is provided if all summoned creatures are of the same level or alignment. Bonus requires at least 2 creatures and it multiplies by their number.
 </p>
-<?php echo $separator; ?>
+<?php separate_segment(); ?>
 <a name="realms" href="#realms">V. <b><u>Realms</u></b></a>
 <p>
 The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.
 </p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
-<img id="sins" src="<?php echo $WorkingDir; ?>realms/index.png" usemap="#sins" border="0" width="506" height="527">
+<img id="sins" src="<?php echo $site_root; ?>realms/index.png" usemap="#sins" border="0" width="506" height="527">
 <map id="_sins" name="sins">
 <area shape="poly" coords="203,176,301,175,351,260,302,348,199,349,151,261" href="#Avarice" title="Avarice">
 <area shape="poly" coords="354,88,453,86,505,175,454,261,355,258,304,173" href="#Envy" title="Envy">
@@ -137,7 +137,7 @@ The world has been divided into 7 regions, one for each of the deadly sins that 
 <div class="realms" style="background:url('realms/sloth.jpg') no-repeat;"><a name="Sloth" class="bigger">Sloth</a><p class="contrast">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div>
 <div class="realms" style="background:url('realms/wrath.jpg') no-repeat;"><a name="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underwold. Back in the day there used to be secret underground facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
 </div>
-<?php echo $separator; ?>
+<?php separate_segment(); ?>
 <a name="development" href="#development">VI. <b><u>Development</u></b></a>
 <br>
 <br>
@@ -174,7 +174,7 @@ The game is best played at a HD resolution of 1920x1080, in case your screen use
 <p>
 Multiplayer functions by making AJAX calls to a MySQL table every second.
 </p>
-<?php echo $separator; ?>
+<?php separate_segment(); ?>
 <a name="license" href="#license">VII. <b><u>License</u></b></a><br>
 <br>
 <table border=1><tr>
@@ -185,4 +185,7 @@ Multiplayer functions by making AJAX calls to a MySQL table every second.
 <td><a href="http://www.gnu.org/licenses/gpl-3.0.html" target="_blank"><img src="images/gpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
 </tr></table>
 </article>
-<?php echo "{$end_div}{$the_end}"; ?>
+<?php
+end_segment();
+end_page();
+?>

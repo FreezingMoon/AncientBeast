@@ -1,6 +1,6 @@
 <?php $page_title = "Ancient Beast - Widgets";
 require_once("header.php");
-echo $start_div;
+start_segment();
 ?>
 <table style='clear:both;'><tr>
 <td><iframe width='292' height='420' src='http://tools.flattr.net/widgets/thing.html?thing=126547'></iframe></td>
@@ -13,4 +13,7 @@ echo $start_div;
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 <td><div class='fb-like-box' data-href='http://www.facebook.com/AncientBeast' data-width='292' data-show-faces='true' data-stream='true' data-header='true'></div></td></tr></table>
-<?php echo "{$end_div}{$the_end}"; ?>
+<?php
+end_segment();
+end_page();
+?>
