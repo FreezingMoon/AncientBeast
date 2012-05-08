@@ -1,10 +1,9 @@
 <?php
-require_once("config.php");
-if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
+require_once("global.php");
+?>
 <!doctype html>
 <html>
 <head>
-<?php } ?>
 <!--set page title-->
 <title><?php
 if (isset($page_title)) {
@@ -13,7 +12,7 @@ if (isset($page_title)) {
 else {
 	echo "Ancient Beast";
 }?></title>
-<link rel="stylesheet" href="<?php echo $WorkingDir; ?>stylesheet.css">
+<link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <?php
 if (isset($style)) {
 	echo "<style>$style</style>";
@@ -26,8 +25,8 @@ if (isset($stylesheet)) {
 <!--jquery-->
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <!--pixastic-->
-<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/pixastic.js"></script>
-<script type="text/javascript" src="<?php echo $WorkingDir; ?>utils/lighten.js"></script>
+<script type="text/javascript" src="<?php echo $site_root; ?>utils/pixastic.js"></script>
+<script type="text/javascript" src="<?php echo $site_root; ?>utils/lighten.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
 	$('.lighten').each(function(){
@@ -43,25 +42,15 @@ $(document).ready(function(){
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <meta name="description" content="Turn Based Strategy Game Played Online Against Other People. Master your beasts!">
 <meta name="keywords" content="game, online, TBS, RPG, strategy, arena, free, foss, open source, 2d, animation">
-<meta name="author" content="Dread Knight"><?php if(!(isset($_GET["head"]) && ($_GET["head"] == "1"))) { ?>
+<meta name="author" content="Dread Knight">
 </head>
 <body>
 <?php
 include_once("analytics.php");
-$start_div = "<div class='div_top'></div>
-<div class='div_center'>";
-$end_div = "
-</div>
-<div class='div_bottom'></div>";
-$separator = $end_div . $start_div;
-$the_end = "
-</div>
-</body>
-</html>";
 ?>
 <!--banner-->
 <header id="header">
-<div style="margin-top: -15px; margin-bottom: 50px;"><a href="<?php echo $WorkingDir; ?>"><img src="<?php echo $WorkingDir; ?>images/AncientBeast.png" alt="Ancient Beast"></a>
+<div style="margin-top: -15px; margin-bottom: 50px;"><a href="<?php echo $site_root; ?>"><img src="<?php echo $site_root; ?>images/AncientBeast.png" alt="Ancient Beast"></a>
 <!--navigation menu-->
 <?php include_once("menu/index.php") ?>
 </div>
@@ -69,4 +58,3 @@ $the_end = "
 
 <!--main area-->
 <div id="wrapper">
-<?php } ?>
