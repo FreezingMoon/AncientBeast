@@ -1,7 +1,7 @@
 <?php $page_title = "Ancient Beast - Bestiary";
 require_once("../header.php");
 require_once("../config.php");
-require_once("../ico/script.php");
+require_once("../ico/index.php");
 require_once("cards.php");
 require_once("progress/index.php");
 ?>
