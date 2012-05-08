@@ -4,6 +4,10 @@ require_once("global.php");
 <!doctype html>
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta name="description" content="Turn Based Strategy Game Played Online Against Other People. Master your beasts!">
+<meta name="keywords" content="game, online, TBS, RPG, strategy, arena, free, foss, open source, 2d, animation">
+<meta name="author" content="Dread Knight">
 <!--set page title-->
 <title><?php
 if (isset($page_title)) {
@@ -39,10 +43,6 @@ $(document).ready(function(){
 	});
 });
 </script>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<meta name="description" content="Turn Based Strategy Game Played Online Against Other People. Master your beasts!">
-<meta name="keywords" content="game, online, TBS, RPG, strategy, arena, free, foss, open source, 2d, animation">
-<meta name="author" content="Dread Knight">
 </head>
 <body>
 <?php
