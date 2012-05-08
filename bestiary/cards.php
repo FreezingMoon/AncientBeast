@@ -37,9 +37,11 @@
 <?php
 function ability($x, &$y, $ab_id, $row) {
 	global $site_root; ?>
-		<td style="background-image: url('contour.png'), url('<?php echo "{$site_root}creatures/$ab_id/$y.svg"; ?>'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;"></td>
-		<td><u><?php echo $row[$x]; ?></u><br><?php echo $row["$x info"]; ?></td>
-	</tr><?php
+		<tr>
+			<td style="background-image: url('contour.png'), url('<?php echo "{$site_root}creatures/$ab_id/$y.svg"; ?>'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;"></td>
+			<td><u><?php echo $row[$x]; ?></u><br><?php echo $row["$x info"]; ?></td>
+		</tr>
+	<?php
 	$y++;
 }
 function cards($id) {
@@ -52,12 +54,13 @@ function cards($id) {
 	$ab_abilities = "SELECT * FROM ab_abilities WHERE id = '$ab_id'";
 	$rows = db_query($ab_creatures); ?>
 	<table style="860px" border="0">
+		<tr>
 		<th class="card"><?php
 	foreach ($rows as $r) { ?>
 		<table class='section'>
 			<tr class='beast'>
 				<td width='20%'><?php echo $r['sin'] . $r['lvl']; ?></td>
-				<td><a href="#<?php echo $r['id']; ?>"><?php echo strtoupper($r['name']); ?></a></td>
+				<td><a href="#<?php echo $r['id']; ?>" id="<?php echo $r['id']; ?>"><?php echo strtoupper($r['name']); ?></a></td>
 				<td width='20%'><?php echo $r['hex']; ?>H</td>
 			</tr>
 		</table>
@@ -82,14 +85,13 @@ function cards($id) {
 				</tr>
 			</table><?php } ?>
 			<table style='margin-top:-10px; margin-bottom:-10px;' class='section abilities'>
-				<tr><?php
+				<?php
 	$abilities = array("passive", "weak", "medium", "strong");
 	$y = 0;
 	$rows = db_query($ab_abilities);
 	foreach ($rows as $r)
 		foreach ($abilities as $x)
 			ability($x, $y, $ab_id, $r); ?>
-				</tr>
 			</table>
 			<table class='section'>
 				<tr class='numbers'><?php
@@ -105,5 +107,6 @@ function cards($id) {
 				</tr>
 			</table><?php } ?>
 		</th>
+		</tr>
 	</table><?php
 }?>
