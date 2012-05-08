@@ -42,10 +42,10 @@ function db_query($query) {
 
 	$r = mysql_query($query);
 	if($r === false) return false;
-	if(mysql_num_rows($r) > 0){
+	if(mysql_num_rows($r) > 0) {
 		$o = array();
 		$i = 0;
-		while ($row = @mysql_fetch_assoc($r)){
+		while ($row = @mysql_fetch_assoc($r)) {
 			$o[$i] = array();
 			foreach($row as $k => $v)
 				$o[$i][$k] = $v;
@@ -77,6 +77,4 @@ function end_page() { ?>
 	</html>
 <?php
 }
-
-$stats = array('health', 'regrowth', 'fatigue', 'energy', 'meditation', 'delay', 'offense', 'defense', 'movement', 'pierce', 'slash', 'crush', 'shock', 'burn', 'frost', 'poison', 'sonic', 'mental');
 ?>
