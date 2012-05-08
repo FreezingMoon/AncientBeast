@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://cdn.craftycomponents.com/crafty-dev.js"></script>
+<script type="text/javascript">
+$(function(){
+Crafty.init()
+    
+Crafty.scene("main", function() {
+    Crafty.modules('http://cdn.craftycomponents.com', {
+        Joystick: "dev"
+    }, function() {
+        var stick = Crafty.e("2D, DOM, Image").attr({
+            x: 55,
+            y: 55,
+            w: 50,
+            h: 50,
+            z: 1
+        }).image("http://cdn1.iconfinder.com/data/icons/function_icon_set/circle_green.png");
+
+        var track = Crafty.e("2D, DOM, Image, Joystick, Text").attr({
+            x: 50,
+            y: 50,
+            w: 64,
+            h: 64       }).image("http://cdn1.iconfinder.com/data/icons/softwaredemo/PNG/64x64/Circle_Grey.png").text('joystick')
+            .joystick(stick,{mouseSupport: true, range: 20 });
+
+        var movedBox = Crafty.e("2D, DOM, Color, Keyboard, Multiway, Text").attr({
+            x: 150,
+            y: 150,
+            w: 50,
+            h: 50
+        }).color('red').text('object')
+        .multiway(5, {UP_ARROW: -90, DOWN_ARROW: 90, RIGHT_ARROW: 0, LEFT_ARROW: 180});
+});
+
+})
+Crafty.scene("main");
+
+});
+</script>
+</head>
+</html>
