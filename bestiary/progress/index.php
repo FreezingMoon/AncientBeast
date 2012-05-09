@@ -12,6 +12,6 @@ function progress($id) {
 			if($key == 'id') continue;
 			$title = ucfirst($key) . ": $value% complete";
 			echo "<img src='progress/$value.png' title='$title'>";
-		} echo "<img src='progress/$rounded_total.png' title='Total: $total% completed' border=0></div>";
+		} echo "<img src='progress/$rounded_total.png' title='Total: $total% completed'></div>";
 	}
 } ?>
