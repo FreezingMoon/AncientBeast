@@ -53,7 +53,7 @@ function cards($id) {
 	$ab_stats2 = "SELECT pierce, slash,    crush,   shock,  burn,       frost, poison,  sonic,   mental   FROM ab_stats WHERE id = '$ab_id'";
 	$ab_abilities = "SELECT * FROM ab_abilities WHERE id = '$ab_id'";
 	$rows = db_query($ab_creatures); ?>
-	<table style="860px" border="0">
+	<table style="width: 860px;">
 		<tr>
 		<th class="card"><?php
 	foreach ($rows as $r) { ?>
