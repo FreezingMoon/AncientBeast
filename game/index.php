@@ -2,7 +2,7 @@
 require_once("../header.php");
 require_once("../global.php");
 start_segment(); ?>
-<center>Under HEAVY development!</center>;
+<center>Under HEAVY development!</center><?php
 separate_segment(); ?>
 casual mode (fixed lvl 50, full stack of creatures from a sin, low exp and gold, no items)<?php
 separate_segment(); ?>
