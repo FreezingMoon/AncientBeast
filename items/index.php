@@ -16,37 +16,56 @@ $ICON_LIST = array(HEALTH_ICON, REGROWTH_ICON, FATIGUE_ICON, ENERGY_ICON, MEDITA
 $items = 'SELECT * FROM ab_items ORDER BY type, value';
 $rows = db_query($items);
 
-start_segment();
-echo "<table style='width: 100%;'><tr>";
-foreach($ICON_LIST as $x) echo "<th>{$x}</th>";
-echo "</tr></table>";
-separate_segment();
+start_segment(); ?>
+<table style='width: 100%;'><tr><?php
+foreach($ICON_LIST as $x)
+	echo "<th>{$x}</th>"; ?>
+</tr></table><?php
+separate_segment(); ?>
 
-echo '<a id="grid"></a><table style="width: 100%;"><tr>';
+<a id="grid"></a>
+<table style="width: 100%;">
+<tr>
+<?php
 $i = 0;
 foreach ($rows as $r) {
-	$i++;
-	echo "<td class=\"item\"><span style=\"cursor: pointer;\" class=\"lighten\"><a href=\"#{$r['id']}\"><img class=\"fix\" src=\"{$site_root}items/icons/" . rawurlencode($r['name']) . ".png\" style=\"display: block;\"><br>{$r['name']}</a></span></td>";
-	if (($i % 6) == 0) echo '</tr><tr>';
-}
-echo "</tr></table></a>";
+	$i++; ?>
+	<td class="item">
+		<span style="cursor: pointer;" class="lighten">
+		<a href="#<?php echo $r['id']; ?>"><img class="fix" src="<?php echo "{$site_root}items/icons/" . rawurlencode($r['name']) . ".png"; ?>" style="display: block;"><br><?php echo $r['name'];?></a>
+		</span>
+	</td><?php
+	if (($i % 6) == 0 && $i != count($rows)) echo "</tr><tr>";
+} ?>
+</tr>
+</table><?php
 end_segment();
 
 $rows = db_query($items);
 foreach ($rows as $r) {
-	start_segment();
-	echo "<table style='width: 100%; text-align:center;'>";
-	echo "<tr><td style=\"width: 132px;\"><a name=\"{$r['id']}\" href=\"#grid\"><img src=\"{$site_root}items/icons/" . rawurlencode($r['name']) . ".png\"></a></td>";
-	echo "<td><table style='width: 100%; font-size:24px; text-align:left;'><tr>";
-	echo "<td style='width: 40%;'><a href='#{$r['id']}'>{$r['name']}</a></td>";
-	echo "<td style='width: 20%;'><a href='#'>{$r['value']}<img src='{$site_root}items/coins.png'></a></td>";
-	echo "<td style='width: 20%;'><a href='#'>Gift<img src='{$site_root}items/gift.png'></a></td>";
-	echo "<td style='width: 20%;'><a href='#'>Purchase<img src='{$site_root}items/purchase.png'></a></td>";
-	echo "</tr></table><br><table style='text-align:center;'><tr>";
-	for($i = 0; $i<18; $i++) if($r[$stats[$i]]) echo "<th style='padding:4px;'>{$ICON_LIST[$i]}</th>";
-	echo "</tr><tr>";
-	foreach ($stats as $x) if($r[$x]) echo "<td>{$r[$x]}</td>";
-	echo "</tr></table></td></tr></table>";
+	start_segment(); ?>
+	<table style="width: 100%; text-align:center;">
+	<tr><td style="width: 132px;"><a name="<?php echo $r['id']; ?>" href="#grid"><img src="<?php echo "{$site_root}items/icons/" . rawurlencode($r['name']) . ".png"; ?>"></a></td>
+	<td><table style="width: 100%; font-size:24px; text-align:left;">
+	<tr>
+	<td style="width: 40%;"><a href="#<?php echo $r['id']; ?>"><?php echo $r['name']; ?></a></td>
+	<td style="width: 20%;"><a href="#"><?php echo $r['value']; ?><img src="<?php echo "{$site_root}items/coins.png"; ?>"></a></td>
+	<td style="width: 20%;"><a href="#">Gift<img src="<?php echo "{$site_root}items/gift.png"; ?>"></a></td>
+	<td style="width: 20%;"><a href="#">Purchase<img src="<?php echo "{$site_root}items/purchase.png" ?>"></a></td>
+	</tr>
+	</table><br>
+	<table style="text-align:center;">
+	<tr><?php
+	for($i = 0; $i<18; $i++)
+		if($r[$stats[$i]])
+			echo "<th style='padding:4px;'>{$ICON_LIST[$i]}</th>"; ?>
+	</tr>
+	<tr><?php
+	foreach ($stats as $x) if($r[$x]) echo "<td>{$r[$x]}</td>"; ?>
+	</tr>
+	</table>
+	</tr>
+	</table><?php
 	end_segment();
 }
 

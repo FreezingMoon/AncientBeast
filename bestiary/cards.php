@@ -57,26 +57,26 @@ function cards($id) {
 		<tr>
 		<th class="card"><?php
 	foreach ($rows as $r) { ?>
-		<table class='section'>
-			<tr class='beast'>
-				<td style='width: 20%;'><?php echo $r['sin'] . $r['lvl']; ?></td>
+		<table class="section">
+			<tr class="beast">
+				<td style="width: 20%;"><?php echo $r['sin'] . $r['lvl']; ?></td>
 				<td><a href="#<?php echo $r['id']; ?>" id="<?php echo $r['id']; ?>"><?php echo strtoupper($r['name']); ?></a></td>
-				<td style='width: 20%;'><?php echo $r['hex']; ?>H</td>
+				<td style="width: 20%;"><?php echo $r['hex']; ?>H</td>
 			</tr>
 		</table>
 		<a href="#grid">
 			<div class="section" style="border: 0px; background:url('<?php echo "{$site_root}creatures/$ab_id/artwork.jpg" ?>'); width:400px; height:400px;"><img src="AB.png" style="position:relative; top:365px; left:180px;"></div>
 		</a>
-		<div class='section' style='text-align: center; width: 390px; padding: 5px 0px;'><?php echo $r['description']; ?></div><?php
+		<div class="section" style="text-align: center; width: 390px; padding: 5px 0px;"><?php echo $r['description']; ?></div><?php
 	} ?>
 		</th>
-		<th class='card'>
-			<table class='section'>
-				<tr class='numbers'><?php
+		<th class="card">
+			<table class="section">
+				<tr class="numbers"><?php
 	for($i = 0; $i<9; $i++) { ?>
 					<th><?php echo $ICON_LIST[$i]; ?></th><?php } ?>
 				</tr>
-				<tr class='numbers'><?php
+				<tr class="numbers"><?php
 	$rows = db_query($ab_stats);
 	foreach ($rows as $r) {
 		foreach ($r as $key => $x) {
@@ -84,7 +84,7 @@ function cards($id) {
 					<td><?php echo $x; ?></td><?php } ?>
 				</tr>
 			</table><?php } ?>
-			<table style='margin-top:-10px; margin-bottom:-10px;' class='section abilities'>
+			<table style="margin-top:-10px; margin-bottom:-10px;" class="section abilities">
 				<?php
 	$abilities = array("passive", "weak", "medium", "strong");
 	$y = 0;
@@ -93,12 +93,12 @@ function cards($id) {
 		foreach ($abilities as $x)
 			ability($x, $y, $ab_id, $r); ?>
 			</table>
-			<table class='section'>
-				<tr class='numbers'><?php
+			<table class="section">
+				<tr class="numbers"><?php
 	for($i = 9; $i<18; $i++) { ?>
 					<th><?php echo $ICON_LIST[$i]; ?></th><?php } ?>
 				</tr>
-				<tr class='numbers'><?php
+				<tr class="numbers"><?php
 	$rows = db_query($ab_stats2);
 	foreach ($rows as $r) {
 		foreach ($r as $key => $x) {

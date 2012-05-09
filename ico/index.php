@@ -5,7 +5,7 @@ foreach ($stats as $key => $x) {
 	define(strtoupper($stats[$key]) . '_ICON', '<img src="../ico/' . $stats[$key] . '.png" title="' . ucfirst($stats[$key]) . '" onMouseOver="swap(this,\'mouseover_' . $stats[$key] . '\')" onMouseOut="swap(this,\'normal_' . $stats[$key] . '\')">'."\n");
 } ?>
 <!--roll over image script-->
-<script type="text/javascript">
+<script type="application/javascript">
 var icons = new Array("<?php echo implode($stats, "\", \""); ?>");
 for(var x in icons) {
 	window["normal_" + icons[x]] = '../ico/' + icons[x] + '.png';

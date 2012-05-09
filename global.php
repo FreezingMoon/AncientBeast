@@ -58,13 +58,13 @@ function db_query($query) {
 
 // Page generation
 function start_segment() { ?>
-	<div class='div_top'></div>
-	<div class='div_center'>
+	<div class="div_top"></div>
+	<div class="div_center">
 <?php
 }
 function end_segment() { ?>
 	</div>
-	<div class='div_bottom'></div>
+	<div class="div_bottom"></div>
 <?php
 }
 function separate_segment() {
