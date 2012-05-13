@@ -21,22 +21,22 @@ function magnitudesort($a, $b)
     return (abs($a) < abs($b)) ? -1 : 1;
 }
 
-//Associated array to link to the array keys of the reordered columns
-$ICON_LIST = array('health'=>HEALTH_ICON, 'regrowth'=>REGROWTH_ICON, 'fatigue'=>FATIGUE_ICON, 'energy'=>ENERGY_ICON, 'meditation'=>MEDITATION_ICON, 'delay'=>DELAY_ICON, 'offense'=>OFFENSE_ICON, 'defense'=>DEFENSE_ICON, 'movement'=>MOVEMENT_ICON, 'pierce'=>PIERCE_ICON, 'slash'=>SLASH_ICON, 'crush'=>CRUSH_ICON, 'shock'=>SHOCK_ICON, 'burn'=>BURN_ICON, 'frost'=>FROST_ICON, 'poison'=>POISON_ICON, 'sonic'=>SONIC_ICON, 'mental'=>MENTAL_ICON);
-
 //Get the SQL query order 
-function getSQLorder(){
-	if($_GET['filter'])
-		return "WHERE ".$_GET['filter']." IS NOT NULL ORDER BY ABS(".$_GET['filter'].") DESC";
-	else
+function getSQLorder() {
+	global $stats;
+	if(!isset($_GET['filter']) || !in_array($_GET['filter'], array_keys($stats), true))
 		return 'ORDER BY type, value DESC';
+	else {
+		$f = mysql_real_escape_string($_GET['filter']);
+		return "WHERE $f IS NOT NULL ORDER BY ABS($f) DESC";
+	}
 }
 
 //Query MYSQL
 $order = getSQLorder();
 $items = 'SELECT id, name, value, type FROM ab_items '.$order;
 $rows = db_query($items);
-$statquery = 'SELECT '.join(', ', $stats).' FROM ab_items '.$order;
+$statquery = 'SELECT '.implode(', ', array_keys($stats)).' FROM ab_items '.$order;
 $itemstats = db_query($statquery);
 
 //Sort stats and package items
@@ -52,8 +52,8 @@ for($r=0;$r<count($itemstats);$r++){
 //Print filters/icons
 start_segment();
 echo "<table style='width: 100%;'><tr>";
-for($i=0; $i<count($ICON_LIST); $i++) 
-	echo "<th><a href='{$site_root}items/index.php?filter={$stats[$i]}'>".$ICON_LIST[$stats[$i]]."</a></th>";
+foreach($stats as $k => $x) 
+	echo "<th><a href='{$site_root}items/index.php?filter=$k'>$x</a></th>";
 echo "</tr></table>";
 
 separate_segment();
@@ -84,7 +84,7 @@ foreach ($rows as $r) {
 	//ICONS from $rows[$r]['keys']
  	for ($i=0; $i <count($r['keys']); $i++) {
 		if($r['stats'][$r['keys'][$i]])
-			echo "<th style='padding:4px;'>".$ICON_LIST[$r['keys'][$i]]."</th>";
+			echo "<th style='padding:4px;'>".$stats[$r['keys'][$i]]."</th>";
   }
   echo "</tr><tr>";
 

@@ -2,7 +2,9 @@
 $stats = db_query("SELECT column_name FROM information_schema.columns WHERE table_name = 'ab_stats' AND column_name != 'id'");
 foreach ($stats as $key => $x) {
 	foreach ($x as $v) $stats[$key] = $v;
-	define(strtoupper($stats[$key]) . '_ICON', '<img src="../ico/' . $stats[$key] . '.png" title="' . ucfirst($stats[$key]) . '" onMouseOver="swap(this,\'mouseover_' . $stats[$key] . '\')" onMouseOut="swap(this,\'normal_' . $stats[$key] . '\')">'."\n");
+	$stats[$stats[$key]] = '<img src="../ico/' . $stats[$key] . '.png" title="' . ucfirst($stats[$key]) . '" onMouseOver="swap(this,\'mouseover_' . $stats[$key] . '\')" onMouseOut="swap(this,\'normal_' . $stats[$key] . '\')">'."\n";
+	define(strtoupper($stats[$key]) . '_ICON', $stats[$stats[$key]]);
+	unset($stats[$key]);
 } ?>
 <!--roll over image script-->
 <script type="application/javascript">
