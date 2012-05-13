@@ -69,6 +69,7 @@ Arena.prototype.drawAll = function(f, element) {
 		_this.drawAll(f);
 	}, element);
 }
+
 Arena.prototype.drawArena = function() {
 	var backgroundSize = new Vector2D(this.arenaRenderer.unitsPerRow, this.arenaRenderer.unitsPerColumn);
 	this.arenaRenderer.clear();
@@ -81,35 +82,6 @@ Arena.prototype.drawTiles = function() {
 	
 	this.tilesRenderer.clear();
 	this.tileMap.draw(this.tilesRenderer);
-/*
-	this.tilesRenderer.setColor("#739141"); 
-	this.tilesRenderer.setLineWidth(0.04);
-	this.tilesRenderer.save();
-	this.tilesRenderer.translate(this.tilesTranslation);
-	this.tilesRenderer.scale(this.tilesSize);
-	for (var y=0; y < this.rows; ++y) { 
-		for (var x=0; x < this.columns; ++x) {
-			this.tilesRenderer.save();
-			offset = new Vector2D(y % 2 == 0 ? this.tilesSize.x : this.tilesSize.x * 0.5, 0);
-			var translate = new Vector2D(offset.x + x * this.tileSeparation.x, offset.y + y * this.tileSeparation.y);
-			this.tilesRenderer.translate(translate);
-
-			if (y*this.columns + x == this.activeTile) {
-				this.tilesRenderer.setColor("rgba(250, 145, 65, 0.2)");
-				this.tilesRenderer.setLineWidth(0.0);
-				this.tilesRenderer.drawPolygon(this.tileShape);
-				this.tilesRenderer.setLineWidth(0.04);
-				this.tilesRenderer.setColor("#739141");
-			}
-			this.tilesRenderer.drawLine(this.tileShape);
-
-
-			this.tilesRenderer.restore();
-		}
-	}
-	
-	this.tilesRenderer.restore();
-	*/
 }
 
 Arena.prototype.draw = function() {
