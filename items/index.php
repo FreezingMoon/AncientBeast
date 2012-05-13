@@ -26,7 +26,6 @@ $ICON_LIST = array('health'=>HEALTH_ICON, 'regrowth'=>REGROWTH_ICON, 'fatigue'=>
 
 //Get the SQL query order 
 function getSQLorder(){
-//EXAMPLE: http://71.180.82.125/git/AncientBeast/items/index.php?filter=defense
 	if($_GET['filter'])
 		return "WHERE ".$_GET['filter']." IS NOT NULL ORDER BY ABS(".$_GET['filter'].") DESC";
 	else
@@ -64,7 +63,7 @@ echo '<a id="grid"></a><table style="width: 100%;"><tr>';
 $i = 0;
 foreach ($rows as $r) {
 	$i++;
-	echo "<td class=\"item\"><span style=\"cursor: pointer;\" class=\"lighten\"><a href=\"#{$r['id']}\"><img class=\"fix\" src=\"{$site_root}items/icons/" . rawurlencode($r['name']) . ".png\" style=\"display: block;\"><br>{$r['name']}</a></span></td>";
+	echo "<td class=\"item\"><span style=\"cursor: pointer;\" class=\"lighten\"><a href=\"#{$r['id']}\"><center><img class=\"fix\" src=\"{$site_root}items/icons/" . rawurlencode($r['name']) . ".png\" style=\"display:block;\"></center><br>{$r['name']}</a></span></td>";
 	if (($i % 6) == 0) echo '</tr><tr>';
 }
 echo "</tr></table></a>";
