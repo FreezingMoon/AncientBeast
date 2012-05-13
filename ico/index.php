@@ -8,7 +8,9 @@ foreach ($stats as $key => $x) {
 } ?>
 <!--roll over image script-->
 <script type="application/javascript">
-var icons = new Array("<?php echo implode($stats, "\", \""); ?>");
+var icons = new Array(
+	"<?php echo implode(array_keys($stats), "\",\n\t\""); ?>"
+);
 for(var x in icons) {
 	window["normal_" + icons[x]] = '../ico/' + icons[x] + '.png';
 	window["mouseover_" + icons[x]] = '../ico/' + icons[x] + '.gif';
