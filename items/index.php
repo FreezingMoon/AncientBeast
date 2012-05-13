@@ -26,7 +26,7 @@ $ICON_LIST = array('health'=>HEALTH_ICON, 'regrowth'=>REGROWTH_ICON, 'fatigue'=>
 
 //Get the SQL query order 
 function getSQLorder(){
-//EXAMPLE: http://71.180.82.125/git/AncientBeast/items/index.php?filter=defense
+//EXAMPLE: git/AncientBeast/items/index.php?filter=defense
 	if($_GET['filter'])
 		return "WHERE ".$_GET['filter']." IS NOT NULL ORDER BY ABS(".$_GET['filter'].") DESC";
 	else
