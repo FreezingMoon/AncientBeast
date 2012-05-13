@@ -29,11 +29,6 @@ Arena.prototype.init = function() {
 		}, 100);
 	});
 	
-	// Genrate tiles
-	var hexagon = MathUtils.generateTessellatingHexagon();
-	this.tileSeparation = hexagon.tile;
-	this.tileShape = hexagon.vertices;
-  
 	// Mouse events
 	$(this.tilesRenderer.canvas).click(function(e) {
 		_this.mouse = new Vector2D(e.offsetX, e.offsetY);
