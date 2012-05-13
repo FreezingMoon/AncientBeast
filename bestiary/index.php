@@ -1,9 +1,9 @@
 <?php $page_title = "Ancient Beast - Bestiary";
 require_once("../header.php");
-require_once("../global.php");
+//require_once("../global.php");
 require_once("../ico/index.php");
 require_once("cards.php");
-require_once("progress/index.php");
+require_once("progress.php");
 ?>
 <script type="application/javascript" src="<?php echo $site_root; ?>utils/tinybox.js"></script>
 <?php

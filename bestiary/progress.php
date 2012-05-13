@@ -7,11 +7,11 @@ function progress($id) {
 		$sum = array_sum($r);
 		$total = ($sum - $r['id']) / 10;
 		$rounded_total = 10 * round ($total/10) ;
-		echo "<div style='width:825px; background-image:url(progress/widget.png);'>";
+		echo "<div style='width:825px; background-image:url(progress.png);'>";
 		foreach($r as $key => $value) { 
 			if($key == 'id') continue;
 			$title = ucfirst($key) . ": $value% complete";
-			echo "<img src='progress/$value.png' title='$title'>";
+			echo "<img src='$value.png' title='$title'>";
 		} echo "<img src='progress/$rounded_total.png' title='Total: $total% completed'></div>";
 	}
 } ?>
