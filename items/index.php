@@ -10,7 +10,7 @@ $style = "
 }";
 require_once("../header.php");
 require_once("../global.php");
-require_once("../ico/index.php");
+require_once("../stats/index.php");
 
 //Sorts the arrays by absolute value
 function magnitudesort($a, $b)
@@ -49,7 +49,7 @@ for($r=0;$r<count($itemstats);$r++){
 }
 
 
-//Print filters/icons
+//Show filters
 start_segment();
 echo "<table style='width: 100%;'><tr>";
 foreach($stats as $k => $x) 
