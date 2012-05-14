@@ -36,9 +36,9 @@
 </style>
 <?php
 function ability($x, &$y, $ab_id, $row) {
-	global $site_root; ?>
+	global $site_root;?>
 		<tr>
-			<td style="background-image: url('contour.png'), url('<?php echo "{$site_root}creatures/$ab_id/$y.svg"; ?>'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;"></td>
+			<td style="background-image: url('contour.png'), url('<?php echo "{$site_root}bestiary/{$row['name']}/$y.svg"; ?>'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;"></td>
 			<td><u><?php echo $row[$x]; ?></u><br><?php echo $row["$x info"]; ?></td>
 		</tr>
 	<?php
@@ -65,7 +65,7 @@ function cards($id) {
 			</tr>
 		</table>
 		<a href="#grid">
-			<div class="section" style="border: 0px; background:url('<?php echo "{$site_root}creatures/$ab_id/artwork.jpg" ?>'); width:400px; height:400px;"><img src="AB.png" style="position:relative; top:365px; left:180px;"></div>
+			<div class="section" style="border: 0px; background:url('<?php echo "{$site_root}bestiary/{$row['name']}/artwork.jpg" ?>'); width:400px; height:400px;"><img src="AB.png" style="position:relative; top:365px; left:180px;"></div>
 		</a>
 		<div class="section" style="text-align: center; width: 390px; padding: 5px 0px;"><?php echo $r['description']; ?></div><?php
 	} ?>
