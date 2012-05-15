@@ -91,15 +91,15 @@ Your browser does not support the audio element.
 <?php separate_segment(); ?>
 <a id="gameplay" href="#gameplay">IV. <b><u>Gameplay</u></b></a>
 <p>
-In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items and more creatures.
+In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
 </p>
 <img src="images/combat.jpg" style="width:100%;">
 <p>
-Players are represented on the combat field by Dark Priests and can be customized by purchasing outfits, which can influence the stats of their summoned creatures.
-Players can level up by gaining experience on the combat field, gaining 1 more mana point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of mana points equal to the creature's level. Summoning a creature multiple times duplicates it's equiped items and raises it's required mana points by 1 each time for the duration of the combat. When fighting players of lower levels, you will temporarely lose mana points in order to balance the fight.
+Players are represented on the combat field by Dark Priests. The stats of summoned creatures can be improved by purchasing items.
+Players can level up by gaining experience on the combat field, gaining 1 more mana point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of mana points equal to the creature's level. Summoning a creature multiple times will raise it's required mana points by 1 each time for the duration of the combat. When fighting players of lower levels, you will temporarely lose mana points in order to balance the fight.
 </p>
 <p>
-After engaging in combat, players are taken to the battle field where both parties take turns to summon up to seven creatures each. One creature is required, if player can and chooses to summon more later one, by doing so he'll lose the turn of the current creature, but he can have the advantage of summoning more suitable creatures based on the situation of the combat.
+After engaging in combat, players are taken to the battle field where both parties take turns to summon or control creatures. Each player needs to have at least one creature on the battlefield at all times, otherwise he loses the fight. When summoning, the player loses the turn of the current creature. Summoned creatures suffer from summoning sickness, meaning they won't be able to act in the current round.
 </p>
 <p>
 <b>Health:</b> A raw number representing the amount of damage a creature can take until it dies.<br>
@@ -114,7 +114,7 @@ After engaging in combat, players are taken to the battle field where both parti
 <b>Masteries</b> can have an impact on the effectiveness of the creature's abilities and can also help reduce incoming damage and even protect the creature from harmfull effects.
 </p>
 <p>
-A synergy bonus to offense, defense and masteries is provided if all summoned creatures are of the same level or alignment. Bonus requires at least 2 creatures and it multiplies by their number.
+A synergy bonus to offense, defense and movement is provided if all summoned creatures are of the same level or alignment. Bonus requires at least 2 creatures and it's multiplied by their number.
 </p>
 <?php separate_segment(); ?>
 <a id="realms" href="#realms">V. <b><u>Realms</u></b></a>
