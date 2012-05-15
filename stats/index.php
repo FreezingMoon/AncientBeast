@@ -9,9 +9,10 @@ foreach ($stats as $key => $x) {
 
 $counter = 0; //make it so $stats[0] = 'health'
 foreach ($stats as $x) {
-	$stats[$counter] = $x;
+	$stats2[$counter] = $x;
 	$counter++;
 }
+
 ?>
 <!--roll over image script-->
 <script type="application/javascript">

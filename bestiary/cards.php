@@ -35,6 +35,7 @@
 }
 </style>
 <?php
+
 function ability($x, &$y, $ab_name, $row) {
 	global $site_root;
 	echo "<td style=\"background-image: url('contour.png'), url('{$site_root}bestiary/$ab_name/$y.svg'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;\"></td>";
@@ -44,7 +45,7 @@ function ability($x, &$y, $ab_name, $row) {
 
 function cards($id) { //Print a card
 	global $site_root;
-	global $stats;
+	global $stats2;
 
 	$ab_id = mysql_real_escape_string($id);
 	$ab_creatures = "SELECT * FROM ab_creatures WHERE id = '$ab_id'";
@@ -71,7 +72,7 @@ function cards($id) { //Print a card
 	
 	//Display ICONS
 	echo "</th><th class='card'><table class='section'><tr class='numbers'>";
-	for($i = 0; $i<9; $i++) echo "<th>{$stats[$i]}</th>";
+	for($i = 0; $i<9; $i++) echo "<th>{$stats2[$i]}</th>";
 	echo "</tr><tr class='numbers'>";
 	
 	//Display numbers
@@ -91,7 +92,7 @@ function cards($id) { //Print a card
 	
 	//ICONS
 	echo "<table class='section'><tr class='numbers'>";
-	for($i = 9; $i<18; $i++) echo "<th>{$stats[$i]}</th>";
+	for($i = 9; $i<18; $i++) echo "<th>{$stats2[$i]}</th>";
 		echo "</tr><tr class='numbers'>";
 	
 	//Numbers
