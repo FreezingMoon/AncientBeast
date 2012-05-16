@@ -16,9 +16,12 @@ Arena.prototype.init = function() {
 	this.arenaRenderer = new CanvasRenderer($("#arena")[0]);
 	this.tilesRenderer.resizeToWindow();
 	this.arenaRenderer.resizeToWindow();
+	
+    this.testCreature = new Creature(this.tileMap.getTileAtIndex(23), this.tilesRenderer);
+	    
 	// TODO use callback to do a loading screen
 	this.arenaRenderer.fetchTexture("../locations/forest/bg.jpg", function() {
-    	_this.drawArena();
+    	_this.drawBackground();
 	}); 
 	
 	// resize events
@@ -46,6 +49,7 @@ Arena.prototype.init = function() {
 	window.requestAnimFrame(function () {
 		_this.drawAll(_this.drawTiles, _this.tilesRenderer.canvas);
 	}, _this.tilesRenderer.canvas);
+	
 	return true;
 }
 
@@ -53,7 +57,7 @@ Arena.prototype.onResize = function() {
 	console.log("resizeing");
 	this.tilesRenderer.resizeToWindow();
 	this.arenaRenderer.resizeToWindow();
-	this.drawArena();
+	this.drawBackground();
 }
 
 Arena.prototype.drawAll = function(f, element) {
@@ -65,7 +69,7 @@ Arena.prototype.drawAll = function(f, element) {
 	}, element);
 }
 
-Arena.prototype.drawArena = function() {
+Arena.prototype.drawBackground = function() {
 	var backgroundSize = new Vector2D(this.arenaRenderer.unitsPerRow, this.arenaRenderer.unitsPerColumn);
 	this.arenaRenderer.clear();
 	this.arenaRenderer.bindTexture("../locations/forest/bg.jpg");
@@ -73,10 +77,9 @@ Arena.prototype.drawArena = function() {
 }
 
 Arena.prototype.drawTiles = function() {
-	var offset;
-	
 	this.tilesRenderer.clear();
 	this.tileMap.draw(this.tilesRenderer);
+	this.testCreature.draw(this.tilesRenderer);
 }
 
 Arena.prototype.draw = function() {
