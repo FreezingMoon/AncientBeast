@@ -47,26 +47,6 @@ TileMap.prototype.getTilePosition = function(tile) {
 	position.x = position.x + offsetX;
 	position = position.add(this.tilesTranslation);
 	position = position.multiply(this.tilesSize);
-/*
-    var position = new Vector2D(this.tilesTranslation.x, this.tilesTranslation.y);
-    var tileIndex2D = this.getTileIndex2D(tile);
-    var offset = new Vector2D(tileIndex2D.y % 2 == 0 ? this.tilesSize.x : this.tilesSize.x * 0.5, 0);
-    position = position.add(offset);
-    var seperationOffset = new Vector2D(tileIndex2D.x * this.tileSeparation.x, tileIndex2D.y * this.tileSeparation.y);
-    position = position.add(seperationOffset);
-    position = position.multiply(this.tilesSize);
-*/
-/*
-    var position = new Vector2D(this.tilesTranslation.x, this.tilesTranslation.y);
-    var tileIndex2D = this.getTileIndex2D(tile);
-    var offset = new Vector2D(tileIndex2D.y % 2 == 0 ? this.tilesSize.x : this.tilesSize.x * 0.5, 0);
-	var translate = new Vector2D(offset.x + tileIndex2D.x * this.tileSeparation.x,
-	                             offset.y + tileIndex2D.y * this.tileSeparation.y);
-    translate = translate.add(this.tilesTranslation);
-
-	position = position.add(translate);
-	position = position.multiply(this.tilesSize);
-*/
     return position;
 }
 
