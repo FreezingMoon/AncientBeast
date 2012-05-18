@@ -7,6 +7,7 @@ function Arena() {
 	this.activeTile = -1;
 	this.mouse = new Vector2D();
 	this.tileMap = new TileMap();
+	this.selectedCreature = null;
 }
 
 Arena.prototype.init = function() {
@@ -33,10 +34,17 @@ Arena.prototype.init = function() {
 	});
 	
 	// Mouse events
-	$(this.tilesRenderer.canvas).click(function(e) {
+	$(window).on("click", function(e) {
 		_this.mouse = new Vector2D(e.offsetX, e.offsetY);
 		_this.mouse = _this.mouse.toUnitSpace(_this.tilesRenderer);
 		console.log(_this.mouse);
+		if (_this.tileMap.activeTile != null) {
+		    if (_this.selectedCreature == null) {
+        		_this.selectedCreature = _this.tileMap.activeTile.creature;
+    		} else {
+    		    _this.selectedCreature.setAtTile(_this.tileMap.activeTile);
+    		}
+		} 
 	})
 	
 	$(window).on("mousemove", function(e){
