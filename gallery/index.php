@@ -36,5 +36,8 @@ foreach($images as $image) {
 	$i++;
 } echo "</center>";
 end_segment();
+start_segment();
+	include("../utils/disqus.php");
+end_segment();
 end_page();
 ?>

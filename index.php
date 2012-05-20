@@ -23,7 +23,7 @@ start_segment(); ?>
 separate_segment();
 $realms = array('avarice', 'envy', 'gluttony', 'lust', 'pride', 'sloth', 'wrath');
 $random_realm = array_rand($realms); ?>
-<table style="background: url('<?php echo "{$site_root}realms/{$realms[$random_realm]}.jpg"; ?>') no-repeat center top; height: 400px;">
+<table style="background: url('<?php echo "{$site_root}images/realms/{$realms[$random_realm]}.jpg"; ?>') no-repeat center top; height: 400px;">
 <tr><td style="width: 25%;"><center>
 		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 		<input type="hidden" name="cmd" value="_s-xclick">
@@ -45,7 +45,7 @@ $random_realm = array_rand($realms); ?>
 <?php
 $sections = array("info", "demands", "plot", "gameplay", "realms", "development", "license");
 foreach ($sections as &$sectionItem) {
-	echo "<td><center><a href='#$sectionItem' class='lighten'><img src='menu/$sectionItem.png' width='120' height='120' style='display:block;'>".ucfirst($sectionItem)."</a></center></td>";
+	echo "<td><center><a href='#$sectionItem' class='lighten'><img src='images/icons/$sectionItem.png' width='120' height='120' style='display:block;'>".ucfirst($sectionItem)."</a></center></td>";
 }
 ?>
 </tr></table></nav>
@@ -91,15 +91,15 @@ Your browser does not support the audio element.
 <?php separate_segment(); ?>
 <a id="gameplay" href="#gameplay">IV. <b><u>Gameplay</u></b></a>
 <p>
-In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items and more creatures.
+In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
 </p>
 <img src="images/combat.jpg" style="width:100%;">
 <p>
-Players are represented on the combat field by Dark Priests and can be customized by purchasing outfits, which can influence the stats of their summoned creatures.
-Players can level up by gaining experience on the combat field, gaining 1 more mana point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of mana points equal to the creature's level. Summoning a creature multiple times duplicates it's equiped items and raises it's required mana points by 1 each time for the duration of the combat. When fighting players of lower levels, you will temporarely lose mana points in order to balance the fight.
+Players are represented on the combat field by Dark Priests. The stats of summoned creatures can be improved by purchasing items.
+Players can level up by gaining experience on the combat field, gaining 1 more mana point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of mana points equal to the creature's level. Summoning a creature multiple times will raise it's required mana points by 1 each time for the duration of the combat. When fighting players of lower levels, you will temporarely lose mana points in order to balance the fight.
 </p>
 <p>
-After engaging in combat, players are taken to the battle field where both parties take turns to summon up to seven creatures each. One creature is required, if player can and chooses to summon more later one, by doing so he'll lose the turn of the current creature, but he can have the advantage of summoning more suitable creatures based on the situation of the combat.
+After engaging in combat, players are taken to the battle field where both parties take turns to summon or control creatures. Each player needs to have at least one creature on the battlefield at all times, otherwise he loses the fight. When summoning, the player loses the turn of the current creature. Summoned creatures suffer from summoning sickness, meaning they won't be able to act in the current round.
 </p>
 <p>
 <b>Health:</b> A raw number representing the amount of damage a creature can take until it dies.<br>
@@ -114,7 +114,7 @@ After engaging in combat, players are taken to the battle field where both parti
 <b>Masteries</b> can have an impact on the effectiveness of the creature's abilities and can also help reduce incoming damage and even protect the creature from harmfull effects.
 </p>
 <p>
-A synergy bonus to offense, defense and masteries is provided if all summoned creatures are of the same level or alignment. Bonus requires at least 2 creatures and it multiplies by their number.
+A synergy bonus to offense, defense and movement is provided if all summoned creatures are of the same level or alignment. Bonus requires at least 2 creatures and it's multiplied by their number.
 </p>
 <?php separate_segment(); ?>
 <a id="realms" href="#realms">V. <b><u>Realms</u></b></a>
@@ -122,7 +122,7 @@ A synergy bonus to offense, defense and masteries is provided if all summoned cr
 The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.
 </p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
-<img id="_sins" src="<?php echo $site_root; ?>realms/index.png" usemap="#sins" width="506" height="527">
+<img id="_sins" src="<?php echo $site_root; ?>images/realms/index.png" usemap="#sins" width="506" height="527">
 <map id="sins" name="sins">
 <area shape="poly" coords="203,176,301,175,351,260,302,348,199,349,151,261" href="#Avarice" title="Avarice">
 <area shape="poly" coords="354,88,453,86,505,175,454,261,355,258,304,173" href="#Envy" title="Envy">
@@ -134,13 +134,13 @@ The world has been divided into 7 regions, one for each of the deadly sins that 
 </map></div>
 <br>
 <div style="width:890px; font-weight:bold;">
-<div class="realms" style="background:url('realms/avarice.jpg') no-repeat;"><a id="Avarice" class="bigger">Avarice</a><p class="contrast">They like to aquire all sorts of useless things and riches by all means possible.<br>Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</p></div>
-<div class="realms" style="background:url('realms/envy.jpg') no-repeat;"><a id="Envy" class="bigger">Envy</a><p class="contrast">The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>It's located to the West side and it mainly consists of deserts and cannyons.</p></div>
-<div class="realms" style="background:url('realms/gluttony.jpg') no-repeat;"><a id="Gluttony" class="bigger">Gluttony</a><p class="contrast">Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>In the east side, where the jungles are really tall and wilde, not even the sun's waves go through. Beware of the vegetation as well and don't pet any animals!</p></div>
-<div class="realms" style="background:url('realms/lust.jpg') no-repeat;"><a id="Lust" class="bigger">Lust</a><p class="contrast">The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</p></div>
-<div class="realms" style="background:url('realms/pride.jpg') no-repeat;"><a id="Pride" class="bigger">Pride</a><p class="contrast">They're above everyone else. Literally at least.<br>Hundreds of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div>
-<div class="realms" style="background:url('realms/sloth.jpg') no-repeat;"><a id="Sloth" class="bigger">Sloth</a><p class="contrast">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div>
-<div class="realms" style="background:url('realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underwold. Back in the day there used to be secret underground facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
+<div class="realms" style="background:url('images/realms/avarice.jpg') no-repeat;"><a id="Avarice" class="bigger">Avarice</a><p class="contrast">They like to aquire all sorts of useless things and riches by all means possible.<br>Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</p></div>
+<div class="realms" style="background:url('images/realms/envy.jpg') no-repeat;"><a id="Envy" class="bigger">Envy</a><p class="contrast">The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>It's located to the West side and it mainly consists of deserts and cannyons.</p></div>
+<div class="realms" style="background:url('images/realms/gluttony.jpg') no-repeat;"><a id="Gluttony" class="bigger">Gluttony</a><p class="contrast">Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>In the east side, where the jungles are really tall and wilde, not even the sun's waves go through. Beware of the vegetation as well and don't pet any animals!</p></div>
+<div class="realms" style="background:url('images/realms/lust.jpg') no-repeat;"><a id="Lust" class="bigger">Lust</a><p class="contrast">The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</p></div>
+<div class="realms" style="background:url('images/realms/pride.jpg') no-repeat;"><a id="Pride" class="bigger">Pride</a><p class="contrast">They're above everyone else. Literally at least.<br>Hundreds of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div>
+<div class="realms" style="background:url('images/realms/sloth.jpg') no-repeat;"><a id="Sloth" class="bigger">Sloth</a><p class="contrast">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div>
+<div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underwold. Back in the day there used to be secret underground facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
 </div>
 <?php separate_segment(); ?>
 <a id="development" href="#development">VI. <b><u>Development</u></b></a>
@@ -157,7 +157,7 @@ The project is developed with the use of free open source cross platform applica
 <?php
 $tools = array("github"=>"https://github.com/FreezingMoon/AncientBeast", "wuala"=>"http://www.wuala.com/AncientBeast/", "deviantart"=>"http://Ancient-Beast.deviantart.com", "blender"=>"http://blender.org", "krita"=>"http://krita.org", "gimp"=>"http://gimp.org", "mypaint"=>"http://mypaint.intilinux.com", "inkscape"=>"http://inkscape.org");
 foreach ($tools as $toolName => $toolLink) {
-	echo "<td><a href='$toolLink' target='_blank' class='lighten'><img src='menu/$toolName.png' style='display:block; width:99px; height99px;'>".ucfirst($toolName)."</a></td>";
+	echo "<td><a href='$toolLink' target='_blank' class='lighten'><img src='images/icons/$toolName.png' style='display:block; width:99px; height99px;'>".ucfirst($toolName)."</a></td>";
 }
 ?>
 </tr></table>
