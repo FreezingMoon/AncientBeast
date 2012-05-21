@@ -12,14 +12,14 @@ function Creature(centerTile, renderer) {
     
     // TODO move into Sprite class
     this.position = Vector2D(0,0);
-    this.size = new Vector2D(4,2.5); //TODO set size relative to tileSize
+    this.size = new Vector2D(3,2.3); //TODO set size relative to tileSize
     this.texturePosition = new Vector2D(0,0);
-    this.textureSize = new Vector2D(600, 460);
+    this.textureSize = new Vector2D(275, 211);
     this.footOffset = new Vector2D(0.8, 0); //TODO set as pixel and convert
 //    this.footPosition.toUnitSpace(renderer); 
     
-    this.image = "creatures/Magma-Spawn-carboard.png";
-    renderer.fetchTexture("creatures/Magma-Spawn-carboard.png", this.onReady);
+    this.image = "../bestiary/Magma Spawn/cardboard.png";
+    renderer.fetchTexture("../bestiary/Magma Spawn/cardboard.png", this.onReady);
       
     this.setAtTile(centerTile); //TODO add a check if is free
 }
@@ -27,7 +27,7 @@ function Creature(centerTile, renderer) {
 Creature.prototype = new Drawable();
 
 Creature.prototype.draw = function(renderer) {
-    renderer.bindTexture("creatures/Magma-Spawn-carboard.png");
+    renderer.bindTexture("../bestiary/Magma Spawn/cardboard.png");
     renderer.drawImage(this.position, this.size, this.texturePosition, this.textureSize);
 }
 
