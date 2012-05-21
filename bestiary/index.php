@@ -5,9 +5,9 @@ require_once("../stats/index.php");
 require_once("cards.php");
 require_once("progress.php");
 
-echo '<script type="text/javascript" src="<?php echo $site_root; ?>utils/tinybox.js"></script>';
-	$creatures = "SELECT * FROM ab_creatures ORDER BY sin, lvl";
-	$creature_results = db_query($creatures);
+//echo "<script type="text/javascript" src={$site_root}utils/tinybox.js"></script>";
+$creatures = "SELECT * FROM ab_creatures ORDER BY sin, lvl";
+$creature_results = db_query($creatures);
 
 start_segment();
 	echo "<div style='text-align:center; margin-left:-6px;'><a name='grid'>";
@@ -27,7 +27,7 @@ end_segment();
 	}
 
 start_segment();
-	include("../utils/disqus.php");
+include("../utils/disqus.php");
 end_segment();
 
 end_page();
