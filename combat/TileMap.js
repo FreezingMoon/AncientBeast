@@ -1,9 +1,11 @@
 function TileMap(columns, rows) {
-
+	// Scale of TileMap
 	this.tilesSize = new Vector2D(1.0, 0.7);
-	this.tilesTranslation = new Vector2D(0.3, 4.5);
-    this.columns = columns || 18;
-    this.rows = rows || 12;
+	// Location of TileMap
+	this.tilesTranslation = new Vector2D(0.3, 4.1);
+
+    this.columns = columns || 2;
+    this.rows = rows || 2;
     this.activeTile = null;
 
     var hexagon = MathUtils.generateTessellatingHexagon();

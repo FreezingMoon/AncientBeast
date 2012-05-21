@@ -2,19 +2,17 @@ function Arena() {
 	this.tiles = new Array();
 	this.tilesRenderer = null;
 	this.arenaRenderer = null;
-	this.rows = 12;
-	this.columns = 18;
 	this.activeTile = -1;
 	this.mouse = new Vector2D();
-	this.tileMap = new TileMap();
+	this.tileMap = new TileMap(16, 10);
 	this.selectedCreature = null;
 }
 
 Arena.prototype.init = function() {
 	var _this = this;
 	// Generate Renderers
-	this.tilesRenderer = new CanvasRenderer($("#tiles")[0]);
-	this.arenaRenderer = new CanvasRenderer($("#arena")[0]);
+	this.tilesRenderer = new CanvasRenderer($("#tiles")[0], 18);
+	this.arenaRenderer = new CanvasRenderer($("#arena")[0], 18);
 	this.tilesRenderer.resizeToWindow();
 	this.arenaRenderer.resizeToWindow();
 	

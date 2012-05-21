@@ -1,13 +1,13 @@
-function Renderer() {
+function Renderer(unitsPerRow) {
 	this.aspectRatio = 16 / 9;
 	this.textures = new Array();
 	this.boundTexture = null;
 	this.boundTextureName = "";
-	this.gameWidth = 0;
-	this.gameHeight = 0;
-	this.unitsPerColumn = 20;
-	this.unitsPerRow = 20;
-	this.pixelsPerUnit = 0;
+	this.gameWidth = 16;
+	this.gameHeight = 9;
+	this.unitsPerRow = unitsPerRow || 20;
+	this.unitsPerColumn = this.unitsPerRow / this.gameWidth * this.gameHeight;
+	this.pixelsPerUnit  = this.gameWidth / this.unitsPerRow;
 }
 
 //TODO move texture loading stuff into TextureCache.js

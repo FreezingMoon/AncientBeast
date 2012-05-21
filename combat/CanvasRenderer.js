@@ -1,5 +1,5 @@
-function CanvasRenderer(canvas) {
-	Renderer.prototype.constructor.call(this); // call super consturctor
+function CanvasRenderer(canvas, unitsPerRow) {
+	Renderer.prototype.constructor.call(this, unitsPerRow); // call super consturctor
 	this.canvas  = canvas;
 	this.context = canvas.getContext("2d");
 }
