@@ -19,19 +19,16 @@ $style = "
 ";
 require_once("header.php");
 start_segment(); ?>
-<center><b>This indie free open source game project is currently in pre-alpha stage. Please help by donating!</b></center><?php
+<center><a href="/donate"><b>This indie free open source game project is currently in pre-alpha stage. Please help by donating!</b></a></center>
+<?php
 separate_segment();
 $realms = array('avarice', 'envy', 'gluttony', 'lust', 'pride', 'sloth', 'wrath');
 $random_realm = array_rand($realms); ?>
 <table style="background: url('<?php echo "{$site_root}images/realms/{$realms[$random_realm]}.jpg"; ?>') no-repeat center top; height: 400px;">
 <tr><td style="width: 25%;"><center>
-		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-		<input type="hidden" name="cmd" value="_s-xclick">
-		<input type="hidden" name="hosted_button_id" value="XXXPC6NDXBNTW">
-		<input type="image" src="<?php echo $site_root; ?>images/paypal.png"  name="submit" alt="PayPal - The safer, easier way to pay online!">
-		<img alt=""  src="https://www.paypal.com/en_US/i/scr/pixel.gif" style="width: 1px; height: 1px; display:none;"></form><br><br><br><br>
-	<a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a><br><br><br><br><br>
-	<a href="bitcoin"><img src="<?php echo $site_root; ?>bitcoin/Bitcoin.png"></a>
+	<a href="/donate"><img src="<?php echo $site_root; ?>donate/paypal.png"></a><br><br><br><br>
+	<a href="/donate/#bitcoin"><img src="<?php echo $site_root; ?>donate/Bitcoin.png"></a><br><br><br><br><br>
+	<a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a>
 </center></td><td style="width: 50%;"><center>
 <iframe width="480" height="360" src="http://www.youtube.com/embed/KBS03PBHtqQ?rel=0" frameborder="0" allowfullscreen></iframe></center>
 </td><td style="width: 25%;"><center>
@@ -43,7 +40,7 @@ $random_realm = array_rand($realms); ?>
 
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$sections = array("info", "demands", "plot", "gameplay", "realms", "development", "license");
+$sections = array("info", "license", "plot", "gameplay", "realms", "development", "demands");
 foreach ($sections as &$sectionItem) {
 	echo "<td><center><a href='#$sectionItem' class='lighten'><img src='images/icons/$sectionItem.png' width='120' height='120' style='display:block;'>".ucfirst($sectionItem)."</a></center></td>";
 }
@@ -52,29 +49,25 @@ foreach ($sections as &$sectionItem) {
 <?php end_segment(); ?>
 <article>
 <?php start_segment(); ?>
-<a id="info" href="#info">I. <b><u>Info</u></b></a>
+<h3><a id="info" href="#info"><center><b>Info</b></center></a></h3>
 <p>
-<b>Ancient Beast</b> is a 2D turn based strategy game played online against other people, featuring a wide variery of items and creatures to aquire and put to good use in order to defeat your opponents.
+<b>Ancient Beast</b> is a turn based strategy game played online against other people, featuring a wide variery of items and creatures to aquire and put to good use in order to defeat your opponents.
 </p>
 <p>
 Ancient Beast is free, open source and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins. This is all brought to life with beautifully crafted CG graphics.<br>
 It was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
 <?php separate_segment(); ?>
-<a id="demands" href="#demands">II. <b><u>Demands</u></b></a>
-<ul>
-<li>internet connection</li>
-<li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and JavaScript enabled</li>
-<li>500 MHz Processor</li>
-<li>256 MB RAM</li>
-<li>200 MB HDD</li>
-<li>64 MB Video Card</li>
-<li>controller (keyboard, mouse, gamepad, touch screen, smartphone or tablet)</li>
-</ul>
-<p>Best played at HD resolution (1920x1080), with stereo speakers, using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.<br>
-While playing on a smartphone, it is highly recommended using a stylus.</p>
+<h3><a id="license" href="#license"><center><b>License</b></center></a></h3>
+<table border="1"><tr>
+<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
+</tr><tr>
+<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png"></a></td><td>Artwork and audio can be remixed and shared under the same license, provided you credit the project, foundation and/or author provided.</td>
+</tr><tr>
+<td><a href="http://www.gnu.org/licenses/gpl-3.0.html" target="_blank"><img src="images/gpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
+</tr></table>
 <?php separate_segment(); ?>
-<a id="plot" href="#plot">III. <b><u>Plot</u></b></a>
+<h3><a id="plot" href="#plot"><center><b>Plot</center></b></a></h3>
 <p>
 It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
 </p>
@@ -89,7 +82,7 @@ Your browser does not support the audio element.
 </audio>
 </p></center>
 <?php separate_segment(); ?>
-<a id="gameplay" href="#gameplay">IV. <b><u>Gameplay</u></b></a>
+<h3><a id="gameplay" href="#gameplay"><center><b>Gameplay</b></center></a></h3>
 <p>
 In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
 </p>
@@ -117,7 +110,7 @@ After engaging in combat, players are taken to the battle field where both parti
 A synergy bonus to offense, defense and movement is provided if all summoned creatures are of the same level or alignment. Bonus requires at least 2 creatures and it's multiplied by their number.
 </p>
 <?php separate_segment(); ?>
-<a id="realms" href="#realms">V. <b><u>Realms</u></b></a>
+<h3><a id="realms" href="#realms"><center><b>Realms</b></center></a></h3>
 <p>
 The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.
 </p>
@@ -140,10 +133,10 @@ The world has been divided into 7 regions, one for each of the deadly sins that 
 <div class="realms" style="background:url('images/realms/lust.jpg') no-repeat;"><a id="Lust" class="bigger">Lust</a><p class="contrast">The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</p></div>
 <div class="realms" style="background:url('images/realms/pride.jpg') no-repeat;"><a id="Pride" class="bigger">Pride</a><p class="contrast">They're above everyone else. Literally at least.<br>Hundreds of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div>
 <div class="realms" style="background:url('images/realms/sloth.jpg') no-repeat;"><a id="Sloth" class="bigger">Sloth</a><p class="contrast">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div>
-<div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underwold. Back in the day there used to be secret underground facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
+<div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
 </div>
 <?php separate_segment(); ?>
-<a id="development" href="#development">VI. <b><u>Development</u></b></a>
+<h3><a id="development" href="#development"><center><b>Development</b></center></a></h3>
 <br>
 <br>
 <b>Pipeline</b>
@@ -180,15 +173,18 @@ The game is best played at a HD resolution of 1920x1080, in case your screen use
 Multiplayer functions by making AJAX calls to a MySQL table every second.
 </p>
 <?php separate_segment(); ?>
-<a id="license" href="#license">VII. <b><u>License</u></b></a><br>
-<br>
-<table border="1"><tr>
-<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
-</tr><tr>
-<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png"></a></td><td>Artwork and audio can be remixed and shared under the same license, provided you credit the project, foundation and/or author provided.</td>
-</tr><tr>
-<td><a href="http://www.gnu.org/licenses/gpl-3.0.html" target="_blank"><img src="images/gpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
-</tr></table>
+<h3><a id="demands" href="#demands"><center><b>Demands</b></center></a></h3>
+<ul>
+<li>internet connection</li>
+<li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and JavaScript enabled</li>
+<li>500 MHz Processor</li>
+<li>256 MB RAM</li>
+<li>200 MB HDD</li>
+<li>64 MB Video Card</li>
+<li>controller (keyboard, mouse, gamepad, touch screen, smartphone or tablet)</li>
+</ul>
+<p>Best played at HD resolution (1920x1080), with stereo speakers, using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.<br>
+While playing on a smartphone, it is highly recommended using a stylus.</p>
 <?php end_segment(); ?>
 </article>
 <?php end_page(); ?>
