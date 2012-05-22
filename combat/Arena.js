@@ -15,14 +15,14 @@ Arena.prototype.init = function() {
 	this.arenaRenderer = new CanvasRenderer($("#arena")[0], 17);
 	this.tilesRenderer.resizeToWindow();
 	this.arenaRenderer.resizeToWindow();
-	
-    this.testCreature = new Creature(this.tileMap.getTileAtIndex(23), this.tilesRenderer);
-	    
+
+	this.testCreature = new Creature(this.tileMap.getTileAtIndex2D(new Vector2D(10, 2)), this.tilesRenderer);
+
 	// TODO use callback to do a loading screen
 	this.arenaRenderer.fetchTexture("../locations/forest/bg.jpg", function() {
-    	_this.drawBackground();
+		_this.drawBackground();
 	}); 
-	
+
 	// resize events
 	$(window).resize(function () {
 		clearTimeout(_this.windowResizeTimeout);
@@ -30,32 +30,32 @@ Arena.prototype.init = function() {
 			_this.onResize(); 
 		}, 100);
 	});
-	
+
 	// Mouse events
 	$(window).on("click", function(e) {
 		_this.mouse = new Vector2D(e.offsetX, e.offsetY);
 		_this.mouse = _this.mouse.toUnitSpace(_this.tilesRenderer);
 		console.log(_this.mouse);
 		if (_this.tileMap.activeTile != null) {
-		    if (_this.selectedCreature == null) {
-        		_this.selectedCreature = _this.tileMap.activeTile.creature;
-    		} else {
-    		    _this.selectedCreature.setAtTile(_this.tileMap.activeTile);
-    		}
+			if (_this.selectedCreature == null) {
+				_this.selectedCreature = _this.tileMap.activeTile.creature;
+			} else {
+				_this.selectedCreature.setAtTile(_this.tileMap.activeTile);
+			}
 		} 
 	})
-	
+
 	$(window).on("mousemove", function(e){
-    	_this.mouse = new Vector2D(e.pageX - $(_this.tilesRenderer.canvas).offset().left,
-	                               e.pageY - $(_this.tilesRenderer.canvas).offset().top);
+		_this.mouse = new Vector2D(e.pageX - $(_this.tilesRenderer.canvas).offset().left,
+								   e.pageY - $(_this.tilesRenderer.canvas).offset().top);
 		_this.mouse = _this.mouse.toUnitSpace(_this.tilesRenderer);
 		_this.tileMap.onMouseMove(_this.tilesRenderer, _this.mouse);
 	});
-  
+
 	window.requestAnimFrame(function () {
 		_this.drawAll(_this.drawTiles, _this.tilesRenderer.canvas);
 	}, _this.tilesRenderer.canvas);
-	
+
 	return true;
 }
 
@@ -68,7 +68,7 @@ Arena.prototype.onResize = function() {
 
 Arena.prototype.drawAll = function(f, element) {
 	var _this = this;
-	
+
 	f.call(this);
 	window.requestAnimFrame(function () {
 		_this.drawAll(f);
@@ -89,5 +89,5 @@ Arena.prototype.drawTiles = function() {
 }
 
 Arena.prototype.draw = function() {
-	
+
 }

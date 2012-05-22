@@ -26,7 +26,7 @@ CanvasRenderer.prototype.drawLine = function(vertices) {
 
 		var v = vertices[0].toScreenSpace(this);
 		this.context.moveTo(v.x, v.y);
-		
+
 		for (var i = 1; i < vertices.length; i++) {
 			v = vertices[i].toScreenSpace(this);
 			this.context.lineTo(v.x, v.y);
@@ -80,7 +80,7 @@ CanvasRenderer.prototype.resizeCanvas = function(size, isWidth) {
 	}
 	this.unitsPerColumn = this.unitsPerRow / this.gameWidth * this.gameHeight;
 	this.pixelsPerUnit  = this.gameWidth / this.unitsPerRow;
-	
+
 	$(this.canvas).parent().css({
 		"width": (this.gameWidth + 64) + "px",
 		"height": (this.gameHeight + 64) + "px",

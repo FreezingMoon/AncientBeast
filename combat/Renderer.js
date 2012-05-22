@@ -6,7 +6,7 @@ function Renderer(unitsPerRow) {
 	this.gameWidth = 16;
 	this.gameHeight = 9;
 	this.unitsPerRow = unitsPerRow || 20;
-	this.unitsPerColumn = this.unitsPerRow / this.gameWidth * this.gameHeight;
+	this.unitsPerColumn = this.unitsPerRow / this.aspectRatio;
 	this.pixelsPerUnit  = this.gameWidth / this.unitsPerRow;
 }
 
