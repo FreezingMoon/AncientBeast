@@ -11,8 +11,8 @@ function Arena() {
 Arena.prototype.init = function() {
 	var _this = this;
 	// Generate Renderers
-	this.tilesRenderer = new CanvasRenderer($("#tiles")[0], 18);
-	this.arenaRenderer = new CanvasRenderer($("#arena")[0], 18);
+	this.tilesRenderer = new CanvasRenderer($("#tiles")[0], 17);
+	this.arenaRenderer = new CanvasRenderer($("#arena")[0], 17);
 	this.tilesRenderer.resizeToWindow();
 	this.arenaRenderer.resizeToWindow();
 	

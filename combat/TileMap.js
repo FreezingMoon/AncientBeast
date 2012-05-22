@@ -1,8 +1,8 @@
 function TileMap(columns, rows) {
 	// Scale of TileMap
-	this.tilesSize = new Vector2D(1.0, 0.7);
+	this.tilesSize = new Vector2D(1.0, 0.75);
 	// Location of TileMap
-	this.tilesTranslation = new Vector2D(0.3, 4.1);
+	this.tilesTranslation = new Vector2D(0.25, 3.5);
 
     this.columns = columns || 2;
     this.rows = rows || 2;
@@ -27,7 +27,7 @@ TileMap.prototype.draw = function(renderer) {
 	for (var y=0; y < this.rows; ++y) { 
 		for (var x=0; x < this.columns; ++x) {
 			renderer.save();
-			var offset = new Vector2D(y % 2 == 0 ? this.tilesSize.x : this.tilesSize.x * 0.5, 0);
+			var offset = new Vector2D(y % 2 == 0 ? this.tilesSize.x * 0.5 : 0, 0);
 			var translate = new Vector2D(offset.x + x * this.tileSeparation.x, offset.y + y * this.tileSeparation.y);
 			renderer.translate(translate);		
 
@@ -45,7 +45,7 @@ TileMap.prototype.getTilePosition = function(tile) {
 	var columnWidth = (this.tilesSize.x*this.tileSeparation.x);
     var tileIndex2D = this.getTileIndex2D(tile);
 	var position = new Vector2D(tileIndex2D.x * columnWidth, tileIndex2D.y * rowHeight);
-	var offsetX = tileIndex2D.y % 2 == 0 ? columnWidth : columnWidth/2;
+	var offsetX = tileIndex2D.y % 2 == 0 ? columnWidth * 0.5 : 0;
 	position.x = position.x + offsetX;
 	position = position.add(this.tilesTranslation);
 	position = position.multiply(this.tilesSize);
@@ -142,7 +142,7 @@ TileMap.prototype.getActiveTile = function(renderer, mouse) {
 		
 		var translatedMouse = mouse.substract(this.tilesTranslation);
 		var activeRow = Math.floor(translatedMouse.y / rowHeight) % this.rows;
-		var offsetX = activeRow % 2 == 0 ? columnWidth : columnWidth/2;
+		var offsetX = activeRow % 2 == 0 ? columnWidth * 0.5 : 0;
 		var activeColumn = Math.floor((translatedMouse.x-offsetX) / columnWidth) % this.columns;
 		
 		// ignore if past the offset
