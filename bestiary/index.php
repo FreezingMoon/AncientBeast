@@ -12,7 +12,7 @@ $creature_results = db_query($creatures);
 start_segment();
 	echo "<div style='text-align:center; margin-left:-6px;'><a name='grid'>";
 	foreach ($creature_results as $r) {
-		echo "<div class='lighten' style=\"background:url('{$site_root}bestiary/{$r["name"]}/avatar.jpg'); background-size: 100%; display: inline-block; margin-bottom:-3px; cursor: pointer;\"><a href='#{$r["name"]}'><img style='display: block;' src='{$site_root}bestiary/frame.png' alt='frame'></a></div>";
+		echo "<div class='lighten' style=\"background:url('{$site_root}bestiary/{$r["name"]}/avatar.jpg'); background-size: 100%; display: inline-block; margin-bottom:-3px; cursor: pointer;\"><a href='#{$r["id"]}'><img style='display: block;' src='{$site_root}bestiary/frame.png' alt='frame'></a></div>";
 	}
 	echo "</a></div>";
 end_segment();
