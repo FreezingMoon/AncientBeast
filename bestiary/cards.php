@@ -64,8 +64,10 @@ function cards($id) { //Print a card
   //Card entry
 	echo "<table width=860px border=0><th class='card'>"; 
 	foreach ($ab_creatures_results as $r) {
-	  $ab_name = $r['name'];
-		echo "<table class='section'><tr class='beast'><td width='20%'>{$r['sin']}{$r['lvl']}</td><td><a href='#{$r['id']}'>".strtoupper($r['name'])."</a><td width='20%'>{$r['hex']}H</td></tr></table>";
+		$ab_name = $r['name'];
+		$spaceless = str_replace(" ", "_", $ab_name);
+		echo "<center><a name=\"$spaceless\">";
+		echo "<table class='section'><tr class='beast'><td width='20%'>{$r['sin']}{$r['lvl']}</td><td><a href='#{$spaceless}'>".strtoupper($r['name'])."</a><td width='20%'>{$r['hex']}H</td></tr></table>";
 		echo "<a href=\"#grid\"><div class=\"section\" style=\"border: 0px; background:url('{$site_root}bestiary/{$r['name']}/artwork.jpg'); width:400px; height:400px;\"><img src=\"AB.png\" style=\"position:relative; top:365px; left:180px;\"></div></a>";
 		echo "<div class='section' style='text-align: center; width: 390px; padding: 5px 0px;'>{$r['description']}</div>";
 	}
@@ -101,5 +103,6 @@ function cards($id) { //Print a card
 	}
 	echo "</tr></table>";
 	echo "</th></table>";
+	echo "</a></center>";
 }
 ?>
