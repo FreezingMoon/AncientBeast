@@ -89,7 +89,8 @@ In order to play Ancient Beast, you'll needed to register an account. After logg
 <img src="images/combat.jpg" style="width:100%;">
 <p>
 Players are represented on the combat field by Dark Priests. The stats of summoned creatures can be improved by purchasing items.
-Players can level up by gaining experience on the combat field, gaining 1 more mana point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of mana points equal to the creature's level. Summoning a creature multiple times will raise it's required mana points by 1 each time for the duration of the combat. When fighting players of lower levels, you will temporarely lose mana points in order to balance the fight.
+Players can level up by gaining experience on the combat field, gaining 1 more mana point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of mana points equal to the creature's level plus the number of hexagons it occupies. Summoning a creature multiple times will raise it's required mana points by 1 each time for the duration of the combat.<br>
+When fighting players of lower levels, you will temporarely lose mana points in order to balance the fight.
 </p>
 <p>
 After engaging in combat, players are taken to the battle field where both parties take turns to summon or control creatures. Each player needs to have at least one creature on the battlefield at all times, otherwise he loses the fight. When summoning, the player loses the turn of the current creature. Summoned creatures suffer from summoning sickness, meaning they won't be able to act in the current round.
