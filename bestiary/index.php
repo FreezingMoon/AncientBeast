@@ -19,7 +19,7 @@ end_segment();
 
 	foreach ($creature_results as $r) {
 		start_segment();
-			echo "<center><a name=\"{$r["name"]}\">";
+			echo "<center><a name=\"{$r["id"]}\">";
 			cards($r["id"]);
 			progress($r["id"]);
 			echo "</a></center>";
