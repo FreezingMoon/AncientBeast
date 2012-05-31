@@ -6,7 +6,7 @@ require_once("global.php");
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <meta name="description" content="Turn Based Strategy Game Played Online Against Other People. Master your beasts!">
-<meta name="keywords" content="game, online, multiplayer, TBS, PvP, RPG, strategy, combat, arena, free, foss, open source, 2d, animation, chess, creatures, beasts, bitcoin, bets">
+<meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, RPG, strategy, combat, arena, free, foss, open source, animation, card, chess, creatures, bitcoin, bets">
 <meta name="author" content="Dread Knight">
 <!--set page title-->
 <title><?php

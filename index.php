@@ -1,4 +1,4 @@
-<?php $page_title = "Ancient Beast";
+<?php $page_title = "Ancient Beast - Turn Based Strategy Game Played Online Against Other People. Master your beasts!";
 $style = "
 .iconz {
 	width: 110px;
