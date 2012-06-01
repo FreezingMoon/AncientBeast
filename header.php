@@ -1,6 +1,4 @@
-<?php
-require_once("global.php");
-?>
+<?php require_once("global.php"); ?>
 <!doctype html>
 <html>
 <head>
@@ -14,7 +12,7 @@ if (isset($page_title)) {
 	echo $page_title;
 }
 else {
-	echo "Ancient Beast";
+	echo "Ancient Beast - Turn Based Strategy Game Played Online Against Other People. Master your beasts!";
 }?></title>
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <?php

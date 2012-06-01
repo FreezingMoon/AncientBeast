@@ -1,5 +1,4 @@
-<?php $page_title = "Ancient Beast - Turn Based Strategy Game Played Online Against Other People. Master your beasts!";
-$style = "
+<?php $style = "
 .iconz {
 	width: 110px;
 	height: 110px;
@@ -15,8 +14,7 @@ $style = "
 .contrast {
 	background: rgba(0,0,0,0.5);
 	padding: 15px 0px;
-}
-";
+}";
 require_once("header.php");
 start_segment(); ?>
 <center><a href="/donate"><b>This indie free open source game project is currently in pre-alpha stage. Please help by donating!</b></a></center>
