@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <meta name="google-site-verification" content="uNVUkWjGPKwXaFK-BkOowVezLve8a8rjbM_ew1UHiZg">
 <meta name="description" content="Turn Based Strategy Game Played Online Against Other People. Master your beasts!">
-<meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, RPG, strategy, combat, arena, free, foss, open source, animation, card, chess, creatures, bitcoin, bets">
+<meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, strategy, combat, arena, free, foss, open source, card, chess, creatures, bitcoin, bets">
 <meta name="author" content="Dread Knight">
 <!--set page title-->
 <title><?php
@@ -13,7 +13,7 @@ if (isset($page_title)) {
 	echo $page_title;
 }
 else {
-	echo "Ancient Beast - Turn Based Strategy Game Played Online Against Other People. Master your beasts!";
+	echo "Ancient Beast - Online PvP TBS";
 }?></title>
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <?php
