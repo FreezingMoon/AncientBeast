@@ -3,6 +3,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta name="google-site-verification" content="uNVUkWjGPKwXaFK-BkOowVezLve8a8rjbM_ew1UHiZg">
 <meta name="description" content="Turn Based Strategy Game Played Online Against Other People. Master your beasts!">
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, RPG, strategy, combat, arena, free, foss, open source, animation, card, chess, creatures, bitcoin, bets">
 <meta name="author" content="Dread Knight">
@@ -41,11 +42,21 @@ $(document).ready(function(){
 	});
 });
 </script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2840181-5']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
 </head>
 <body>
-<?php
-include_once("analytics.php");
-?>
 <!--banner-->
 <header id="header">
 <div style="margin-top: -15px; margin-bottom: 50px;"><a href="<?php echo $site_root; ?>"><img src="<?php echo $site_root; ?>images/AncientBeast.png" alt="Ancient Beast"></a>
