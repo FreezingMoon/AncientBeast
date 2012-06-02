@@ -13,7 +13,7 @@ if (isset($page_title)) {
 	echo $page_title;
 }
 else {
-	echo "Ancient Beast - Online PvP TBS";
+	echo "AncientBeast - Online PvP TBS Game";
 }?></title>
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <?php
