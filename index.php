@@ -24,7 +24,7 @@ $realms = array('avarice', 'envy', 'gluttony', 'lust', 'pride', 'sloth', 'wrath'
 $random_realm = array_rand($realms); ?>
 <table style="background: url('<?php echo "{$site_root}images/realms/{$realms[$random_realm]}.jpg"; ?>') no-repeat center top; height: 400px;">
 <tr><td style="width: 25%;"><center>
-	<a href="/donate"><img src="<?php echo $site_root; ?>donate/paypal.png"></a><br><br><br><br>
+	<a href="/donate"><img src="<?php echo $site_root; ?>donate/paypal.gif"></a><br><br><br><br>
 	<a href="/donate/#bitcoin"><img src="<?php echo $site_root; ?>donate/Bitcoin.png"></a><br><br><br><br><br>
 	<a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a>
 </center></td><td style="width: 50%;"><center>
