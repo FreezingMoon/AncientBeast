@@ -22,7 +22,7 @@ end_segment();
 	foreach ($creature_results as $r) {
 		start_segment();
 		cards($r["id"]);
-		progress($r["id"]);
+		progress($r["id"], $r["name"]);
 		end_segment();
 	}
 
