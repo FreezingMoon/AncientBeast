@@ -6,12 +6,100 @@ $style = "
 }";
 require_once("../header.php");
 start_segment(); ?>
-in progress
+<table width=100%><tr><td style="text-align:center;" width=25%>
+
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="XXXPC6NDXBNTW">
-<input type="image" src="<?php echo $site_root; ?>donate/paypal.png"  name="submit" alt="PayPal - The safer, easier way to pay online!">
-<img alt=""  src="https://www.paypal.com/en_US/i/scr/pixel.gif" style="width: 1px; height: 1px; display:none;"></form>
+<input type="image" src="/donate/dollar.png" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="XXXPC6NDXBNTW">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+</td><td style="margin-left:auto; margin-right:auto; text-align:center;" width=25%>
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="YDCXZ5QA5XH62">
+<table>
+<tr><td><input type="hidden" name="on0" value=""></td></tr><tr><td><select name="os0">
+	<option value="Lvl 1">Lvl 1: $5.00 USD - monthly</option>
+	<option value="Lvl 2">Lvl 2: $10.00 USD - monthly</option>
+	<option value="Lvl 3">Lvl 3: $15.00 USD - monthly</option>
+	<option value="Lvl 4">Lvl 4: $20.00 USD - monthly</option>
+	<option value="Lvl 5">Lvl 5: $25.00 USD - monthly</option>
+	<option value="Lvl 6">Lvl 6: $30.00 USD - monthly</option>
+	<option value="Lvl 7">Lvl 7: $35.00 USD - monthly</option>
+	<option value="Lvl 8">Lvl 8: $40.00 USD - monthly</option>
+	<option value="Lvl 9">Lvl 9: $45.00 USD - monthly</option>
+	<option value="Lvl 10">Lvl 10: $50.00 USD - monthly</option>
+</select> </td></tr>
+<tr><td><input type="hidden" name="on1" value="Do you want to be credited?">Want to be credited?</td></tr><tr><td><select name="os1">
+	<option value="Yes, please!">Yes, please!</option>
+	<option value="I don't care.">I don't care.</option>
+	<option value="Anonymous!">Anonymous!</option>
+</select> </td></tr>
+<tr><td><input type="hidden" name="on2" value="What's your website?">What's your website?</td></tr><tr><td><input type="text" name="os2" maxlength="200"></td></tr>
+</table>
+<input type="hidden" name="currency_code" value="USD">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_subscribe_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+</td><td style="margin-left:auto; margin-right:auto; text-align:center;" width=25%>
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="N3D2HD7HUGX38">
+<input type="image" src="/donate/euro.png" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="N3D2HD7HUGX38">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+</td><td style="margin-left:auto; margin-right:auto; text-align:center;" width=25%>
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="9X7URD3Y7DTLC">
+<table>
+<tr><td><input type="hidden" name="on0" value=""></td></tr><tr><td><select name="os0">
+	<option value="Lvl 1">Lvl 1: €5.00 EUR - monthly</option>
+	<option value="Lvl 2">Lvl 2: €10.00 EUR - monthly</option>
+	<option value="Lvl 3">Lvl 3: €15.00 EUR - monthly</option>
+	<option value="Lvl 4">Lvl 4: €20.00 EUR - monthly</option>
+	<option value="Lvl 5">Lvl 5: €25.00 EUR - monthly</option>
+	<option value="Lvl 6">Lvl 6: €30.00 EUR - monthly</option>
+	<option value="Lvl 7">Lvl 7: €35.00 EUR - monthly</option>
+	<option value="Lvl 8">Lvl 8: €40.00 EUR - monthly</option>
+	<option value="Lvl 9">Lvl 9: €45.00 EUR - monthly</option>
+	<option value="Lvl 10">Lvl 10: €50.00 EUR - monthly</option>
+</select> </td></tr>
+<tr><td><input type="hidden" name="on1" value="Want to be credited?">Want to be credited?</td></tr><tr><td><select name="os1">
+	<option value="Yes, please!">Yes, please!</option>
+	<option value="I don't care.">I don't care.</option>
+	<option value="Anonymous!">Anonymous!</option>
+</select> </td></tr>
+<tr><td><input type="hidden" name="on2" value="What's your website?">What's your website?</td></tr><tr><td><input type="text" name="os2" maxlength="200"></td></tr>
+</table>
+<input type="hidden" name="currency_code" value="EUR">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_subscribe_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+
+</td></tr></table>
 <!--
 - pp donate button
 - montly donation button
