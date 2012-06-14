@@ -29,18 +29,15 @@ start_segment(); ?>
 <input type="hidden" name="hosted_button_id" value="YDCXZ5QA5XH62">
 <table>
 <tr><td><input type="hidden" name="on0" value=""></td></tr><tr><td><select name="os0">
-	<option value="Lvl 1">Lvl 1: $5.00 USD - monthly</option>
-	<option value="Lvl 2">Lvl 2: $10.00 USD - monthly</option>
-	<option value="Lvl 3">Lvl 3: $15.00 USD - monthly</option>
-	<option value="Lvl 4">Lvl 4: $20.00 USD - monthly</option>
-	<option value="Lvl 5">Lvl 5: $25.00 USD - monthly</option>
-	<option value="Lvl 6">Lvl 6: $30.00 USD - monthly</option>
-	<option value="Lvl 7">Lvl 7: $35.00 USD - monthly</option>
-	<option value="Lvl 8">Lvl 8: $40.00 USD - monthly</option>
-	<option value="Lvl 9">Lvl 9: $45.00 USD - monthly</option>
-	<option value="Lvl 10">Lvl 10: $50.00 USD - monthly</option>
+	<option value="Avarice">Avarice: $2.00 USD - monthly</option>
+	<option value="Envy">Envy: $5.00 USD - monthly</option>
+	<option value="Gluttony">Gluttony: $10.00 USD - monthly</option>
+	<option value="Lust">Lust: $20.00 USD - monthly</option>
+	<option value="Pride">Pride: $50.00 USD - monthly</option>
+	<option value="Sloth">Sloth: $80.00 USD - monthly</option>
+	<option value="Wrath">Wrath: $100.00 USD - monthly</option>
 </select> </td></tr>
-<tr><td><input type="hidden" name="on1" value="Do you want to be credited?">Want to be credited?</td></tr><tr><td><select name="os1">
+<tr><td><input type="hidden" name="on1" value="Want to be credited?">Want to be credited?</td></tr><tr><td><select name="os1">
 	<option value="Yes, please!">Yes, please!</option>
 	<option value="I don't care.">I don't care.</option>
 	<option value="Anonymous!">Anonymous!</option>
@@ -75,16 +72,13 @@ start_segment(); ?>
 <input type="hidden" name="hosted_button_id" value="9X7URD3Y7DTLC">
 <table>
 <tr><td><input type="hidden" name="on0" value=""></td></tr><tr><td><select name="os0">
-	<option value="Lvl 1">Lvl 1: €5.00 EUR - monthly</option>
-	<option value="Lvl 2">Lvl 2: €10.00 EUR - monthly</option>
-	<option value="Lvl 3">Lvl 3: €15.00 EUR - monthly</option>
-	<option value="Lvl 4">Lvl 4: €20.00 EUR - monthly</option>
-	<option value="Lvl 5">Lvl 5: €25.00 EUR - monthly</option>
-	<option value="Lvl 6">Lvl 6: €30.00 EUR - monthly</option>
-	<option value="Lvl 7">Lvl 7: €35.00 EUR - monthly</option>
-	<option value="Lvl 8">Lvl 8: €40.00 EUR - monthly</option>
-	<option value="Lvl 9">Lvl 9: €45.00 EUR - monthly</option>
-	<option value="Lvl 10">Lvl 10: €50.00 EUR - monthly</option>
+	<option value="Avarice">Avarice: €2.00 EUR - monthly</option>
+	<option value="Envy">Envy: €5.00 EUR - monthly</option>
+	<option value="Gluttony">Gluttony: €10.00 EUR - monthly</option>
+	<option value="Lust">Lust: €20.00 EUR - monthly</option>
+	<option value="Pride">Pride: €50.00 EUR - monthly</option>
+	<option value="Sloth">Sloth: €80.00 EUR - monthly</option>
+	<option value="Wrath">Wrath: €100.00 EUR - monthly</option>
 </select> </td></tr>
 <tr><td><input type="hidden" name="on1" value="Want to be credited?">Want to be credited?</td></tr><tr><td><select name="os1">
 	<option value="Yes, please!">Yes, please!</option>
@@ -97,7 +91,6 @@ start_segment(); ?>
 <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_subscribe_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>
-
 
 </td></tr></table>
 <!--
