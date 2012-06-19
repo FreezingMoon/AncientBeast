@@ -61,7 +61,7 @@ function cards($id) { //Print a card
 			$counter++;
 		}
 	
-  //Card entry
+	//Card entry
 	echo "<table width=860px border=0><th class='card'>"; 
 	foreach ($ab_creatures_results as $r) {
 		$ab_name = $r['name'];
