@@ -6,6 +6,7 @@ $style = "
 }";
 require_once("../header.php");
 start_segment(); ?>
+<a id="now"></a>
 <table width=100%><tr><td style="text-align:center;" width=25%>
 
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
@@ -39,7 +40,6 @@ start_segment(); ?>
 </select> </td></tr>
 <tr><td><input type="hidden" name="on1" value="Want to be credited?">Want to be credited?</td></tr><tr><td><select name="os1">
 	<option value="Yes, please!">Yes, please!</option>
-	<option value="I don't care.">I don't care.</option>
 	<option value="Anonymous!">Anonymous!</option>
 </select> </td></tr>
 <tr><td><input type="hidden" name="on2" value="What's your website?">What's your website?</td></tr><tr><td><input type="text" name="os2" maxlength="200"></td></tr>
@@ -82,7 +82,6 @@ start_segment(); ?>
 </select> </td></tr>
 <tr><td><input type="hidden" name="on1" value="Want to be credited?">Want to be credited?</td></tr><tr><td><select name="os1">
 	<option value="Yes, please!">Yes, please!</option>
-	<option value="I don't care.">I don't care.</option>
 	<option value="Anonymous!">Anonymous!</option>
 </select> </td></tr>
 <tr><td><input type="hidden" name="on2" value="What's your website?">What's your website?</td></tr><tr><td><input type="text" name="os2" maxlength="200"></td></tr>
@@ -93,21 +92,36 @@ start_segment(); ?>
 </form>
 
 </td></tr></table>
-<!--
-- pp donate button
-- montly donation button
-- flattr button
-- budget (what we need money for)
-- widget with donnors; total/montly amount of $ received
+<? separate_segment();
+//TODO: budget (what we need money for)
+//TODO: sum up multiple donations from same person
+//TODO: replace totals with graph when there will be a few worthy months to display
+//TODO: code total values to be auto generated
 
--->
-<? separate_segment();?>
-<p id="bitcoin" class="center">
+//$dollars = db_query("SELECT SUM(amount) AS total_amount FROM ab_donors WHERE type='$'");
+//$query_data = db_fetch_array($dollars);
+//$total_dollars = (float) $dollars['total_amount'];
+
+echo '<center><table width=100%><tr>
+<td style="text-align:center; width:25%"><u>' . date('F') . '</u><br><b>0$</b></td>
+<td style="text-align:center; width:25%"><u>Total</u><br><b>228$</b></td>
+<td style="text-align:center; width:25%"><u>' . date('F') . '</u><br><b>0€</b></td>
+<td style="text-align:center; width:25%"><u>Total</u><br><b>0€</b></td></tr></table></center>';
+separate_segment();
+
+$donors = 'SELECT * FROM ab_donors WHERE anonymous IS NULL ORDER BY amount DESC';
+$rows = db_query($donors);
+
+echo '<center>';
+foreach ($rows as $r) echo '<a href="' . $r['website'] . '" target="_blank">' . $r['name'] . ' (' . $r['amount'] . $r['type'] . ')</a>, ';
+echo '<a href="#now">Your name here!</a></center>';
+
+separate_segment();?>
+<a id="bitcoin"></a><p class="center">
 <iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p>
 <p class="center">Feel free to send your <a href="http://www.bitcoin.org" style="font-weight: bold;"><img src="bitcoin.ico"> bitcoin</a> donation over at:</p>
 <p class="center" style="font-weight: bold;"><a href="http://blockexplorer.com/address/1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97" target="_blank">1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97</a></p>
 <p class="center">Any amount we receive helps us reaching our goals. We thank you!</p>
-<!-- total/montly amount of bitcoins received -->
 <?php
 end_segment();
 end_page();

@@ -48,7 +48,6 @@ for($r=0;$r<count($itemstats);$r++){
 	$rows[$r]['keys'] = $keys[$r];
 }
 
-
 //Show filters
 start_segment();
 echo "<table style='width: 100%;'><tr>";
