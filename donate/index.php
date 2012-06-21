@@ -5,6 +5,22 @@ $style = "
 	font-family: Charlemagnestd;
 }";
 require_once("../header.php");
+
+$cancel = $_GET["cancel"];
+$success = $_GET["success"];
+
+if (isset($cancel)) {
+start_segment();
+echo '<center><b>It\'s a sad day. You have canceled...</b></center>';
+end_segment();
+}
+
+if (isset($success)) {
+start_segment();
+echo '<center><b>You are AWESOME! :)</b></center>';
+end_segment();
+}
+
 start_segment(); ?>
 <a id="now"></a>
 <table width=100%><tr><td style="text-align:center;" width=25%>
