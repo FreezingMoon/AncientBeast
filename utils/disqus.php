@@ -1,4 +1,4 @@
-<div id="disqus_thread"></div>
+<center><div id="disqus_thread"></div>
 <script type="application/javascript">
 	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
 	var disqus_shortname = 'ancientbeast'; // required: replace example with your forum shortname
@@ -10,4 +10,4 @@
 		dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
  		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 	})();
-</script>
+</script></center>
