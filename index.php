@@ -87,7 +87,7 @@ In order to play Ancient Beast, you'll needed to register an account. After logg
 <img src="images/combat.jpg" style="width:100%;">
 <p>
 Players are represented on the combat field by Dark Priests. The stats of summoned creatures can be improved by purchasing items.
-Players can level up by gaining experience on the combat field, gaining 1 more plasma point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of plasma points equal to the creature's level plus the number of hexagons it occupies. Summoning a creature multiple times will raise it's required plasma points by 1 each time for the duration of the combat.<br>
+Players can level up by gaining experience on the combat field, gaining 1 more plasma point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of plasma points equal to the creature's level plus the number of hexagons it occupies. Summoning a creature multiple times will raise it's plasma cost by 1 point each time for the rest of the match.<br>
 When fighting players of lower levels, you will temporarely lose plasma points in order to balance the fight.
 </p>
 <p>
