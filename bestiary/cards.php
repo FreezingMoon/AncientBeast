@@ -10,7 +10,6 @@
 	cursor: default;
 }
 .beast {
-	font-family: Lucida Grande;
 	font-size: 24px;
 	text-align: center;
 }
@@ -22,7 +21,6 @@
 	text-shadow: black 0.1em 0.1em 0.2em;
 	font-weight: bold;
 	font-size: 16px;
-	font-family: 'Lucida Grande', Verdana, Arial, Sans-Serif;
 }
 .abilities {
 	vertical-align: top;
@@ -67,7 +65,7 @@ function cards($id) { //Print a card
 		$ab_name = $r['name'];
 		$spaceless = str_replace(" ", "_", $ab_name);
 		echo "<center><a name=\"$spaceless\">";
-		echo "<table class='section'><tr class='beast'><td width='20%'>{$r['sin']}{$r['lvl']}</td><td><a href='#{$spaceless}'>".strtoupper($r['name'])."</a><td width='20%'>{$r['hex']}H</td></tr></table>";
+		echo "<table class='section'><tr class='beast'><td width='20%'>{$r['sin']}{$r['lvl']}</td><td><a href='#{$spaceless}'>".$r['name']."</a><td width='20%'>{$r['hex']}H</td></tr></table>";
 		echo "<a href=\"#grid\"><div class=\"section\" style=\"border: 0px; background:url('{$site_root}bestiary/{$r['name']}/artwork.jpg'); width:400px; height:400px;\"><img src=\"AB.png\" style=\"position:relative; top:365px; left:180px;\"></div></a>";
 		echo "<div class='section' style='text-align: center; width: 390px; padding: 5px 0px;'>{$r['description']}</div>";
 	}

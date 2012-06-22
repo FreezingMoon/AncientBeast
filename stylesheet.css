@@ -1,18 +1,15 @@
+@import url(http://fonts.googleapis.com/css?family=Play:400,700);
 body {
+	font-family: 'Play', sans-serif;
 	text-align: center;
 	margin: 0 auto;
 	width: 950px;
 	color: #b7b7b7;
-	font-size: 16px;
-	font-family: 'Lucida Grande', Verdana, Arial, Sans-Serif;
+	font-size: 18px;
 	background: url('images/header.png') no-repeat center top,
 		black url('images/bg.jpg') repeat;
 	text-shadow: black 0.1em 0.1em 0.2em;
 	overflow-x: hidden;
-}
-@font-face {
-	font-family: AncientBeast;
-	src: url('AncientBeast.ttf');
 }
 img {
 	border: none;
