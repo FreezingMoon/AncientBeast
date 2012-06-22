@@ -110,9 +110,7 @@ A synergy bonus to offense, defense and movement is provided if all summoned cre
 </p>
 <?php separate_segment(); ?>
 <h3><a id="realms" href="#realms"><center><b>Realms</b></center></a></h3>
-<p>
-The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.
-</p>
+<p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.</p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
 <img id="_sins" src="<?php echo $site_root; ?>images/realms/index.png" usemap="#sins" width="506" height="527">
 <map id="sins" name="sins">
