@@ -109,27 +109,22 @@ start_segment(); ?>
 
 </td></tr></table>
 <? separate_segment();
-//TODO: budget (what we need money for)
-//TODO: sum up multiple donations from same person
-//TODO: replace totals with graph when there will be a few worthy months to display
-//TODO: code total values to be auto generated
-
-//$dollars = db_query("SELECT SUM(amount) AS total_amount FROM ab_donors WHERE type='$'");
-//$query_data = db_fetch_array($dollars);
-//$total_dollars = (float) $dollars['total_amount'];
-
+$dollars_month = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="$" AND MONTH(date) = MONTH(NOW())');
+$dollars_total = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="$"');
+$euros_month = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="€" AND MONTH(date) = MONTH(NOW())');
+$euros_total = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="€"');
 echo '<center><table width=100%><tr>
-<td style="text-align:center; width:25%"><u>' . date('F') . '</u><br><b>0$</b></td>
-<td style="text-align:center; width:25%"><u>Total</u><br><b>228$</b></td>
-<td style="text-align:center; width:25%"><u>' . date('F') . '</u><br><b>0€</b></td>
-<td style="text-align:center; width:25%"><u>Total</u><br><b>0€</b></td></tr></table></center>';
+<td style="text-align:center; width:25%"><u>' . date('F') . '</u><br><b>$' . $dollars_month[0]['amount'] . ' USD</b></td>
+<td style="text-align:center; width:25%"><u>Total</u><br><b>$' . $dollars_total[0]['amount'] . ' USD</b></td>
+<td style="text-align:center; width:25%"><u>' . date('F') . '</u><br><b>€' . $euros_month[0]['amount'] . ' EUR</b></td>
+<td style="text-align:center; width:25%"><u>Total</u><br><b>€' . $euros_total[0]['amount'] . ' EUR</b></td></tr></table></center>';
 separate_segment();
 
 $donors = 'SELECT * FROM ab_donors WHERE anonymous IS NULL ORDER BY amount DESC';
 $rows = db_query($donors);
 
 echo '<center>';
-foreach ($rows as $r) echo '<a href="' . $r['website'] . '" target="_blank">' . $r['name'] . ' (' . $r['amount'] . $r['type'] . ')</a>, ';
+foreach ($rows as $r) echo '<a href="' . $r['website'] . '" target="_blank">' . $r['name'] . ' (' . $r['type'] . $r['amount'] . ')</a>, ';
 echo '<a href="#now">Your name here!</a></center>';
 
 separate_segment();?>
@@ -137,7 +132,7 @@ separate_segment();?>
 <iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p>
 <p class="center">Feel free to send your <a href="http://www.bitcoin.org" style="font-weight: bold;"><img src="bitcoin.ico"> bitcoin</a> donation over at:</p>
 <p class="center" style="font-weight: bold;"><a href="http://blockexplorer.com/address/1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97" target="_blank">1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97</a></p>
-<p class="center">Any amount we receive helps us reaching our goals. We thank you!</p>
+<p class="center">Any little bit you donate is greatly appreciated and helps further the development of Ancient Beast.</p>
 <?php
 end_segment();
 end_page();
