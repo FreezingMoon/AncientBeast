@@ -1,4 +1,11 @@
 @import url(http://fonts.googleapis.com/css?family=Play:400,700);
+#scroll {
+	display: block;
+	z-index: 999;
+	position: fixed;
+	bottom: 0;
+	left: 96%;
+}
 body {
 	font-family: 'Play', sans-serif;
 	text-align: center;

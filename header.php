@@ -56,7 +56,7 @@ $(document).ready(function(){
 
 </script>
 </head>
-<body>
+<body id="top">
 <!--banner-->
 <header id="header">
 <div style="margin-top: -15px; margin-bottom: 50px;"><a href="<?php echo $site_root; ?>"><img src="<?php echo $site_root; ?>images/AncientBeast.png" alt="Ancient Beast"></a>
@@ -72,4 +72,5 @@ foreach ($menu as &$menuItem) {
 </header>
 
 <!--main area-->
+<div id="scroll"><a href="#top"><img src="<?php echo $site_root; ?>images/AB.gif"><br>Top</a></div>
 <div id="wrapper">
