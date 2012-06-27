@@ -62,7 +62,7 @@ It was carefuly designed to be easy to learn, fun to play and hard to master. We
 </tr><tr>
 <td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png"></a></td><td>Artwork and audio can be remixed and shared under the same license, provided you credit the project, foundation and/or author provided.</td>
 </tr><tr>
-<td><a href="http://www.gnu.org/licenses/gpl-3.0.html" target="_blank"><img src="images/gpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
+<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
 </tr></table>
 <?php separate_segment(); ?>
 <h3><a id="plot" href="#plot"><center><b>Plot</center></b></a></h3>
