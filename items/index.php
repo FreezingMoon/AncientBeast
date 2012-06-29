@@ -1,5 +1,5 @@
-<!--
- * Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
+<?php
+/* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
  * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
  *
  * This file is part of Ancient Beast.
@@ -20,9 +20,9 @@
  * http://www.AncientBeast.com
  * https://github.com/FreezingMoon/AncientBeast
  * DreadKnight@FreezingMoon.org
--->
+ */
 
-<?php $page_title = "Ancient Beast - Items";
+$page_title = "Ancient Beast - Items";
 $style = "
 .fix {
 	margin-bottom: -15px;
