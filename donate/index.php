@@ -133,9 +133,9 @@ start_segment(); ?>
 
 </td></tr></table>
 <? separate_segment();
-$dollars_month = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="$" AND MONTH(date) = MONTH(NOW())');
+$dollars_month = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="$" AND MONTH(date) = MONTH(NOW()) AND YEAR(date) = YEAR(NOW())');
 $dollars_total = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="$"');
-$euros_month = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="€" AND MONTH(date) = MONTH(NOW())');
+$euros_month = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="€" AND MONTH(date) = MONTH(NOW()) AND YEAR(date) = YEAR(NOW())');
 $euros_total = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="€"');
 echo '<center><table width=100%><tr>
 <td style="text-align:center; width:25%"><u>' . date('F') . '</u><br><b>$' . $dollars_month[0]['amount'] . ' USD</b></td>
