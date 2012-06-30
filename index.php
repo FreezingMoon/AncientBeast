@@ -169,7 +169,7 @@ The project is developed with the use of free open source cross platform applica
 <a href="http://inkscape.org" target="_blank"><b>Inkscape</b></a> is useful for creating vector icons for abilities.</p>
 <table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$tools = array("github"=>"https://github.com/FreezingMoon/AncientBeast", "wuala"=>"http://www.wuala.com/AncientBeast/", "deviantart"=>"http://Ancient-Beast.deviantart.com", "blender"=>"http://blender.org", "krita"=>"http://krita.org", "gimp"=>"http://gimp.org", "mypaint"=>"http://mypaint.intilinux.com", "inkscape"=>"http://inkscape.org");
+$tools = array("github"=>"https://github.com/FreezingMoon/AncientBeast", "wuala"=>"http://www.wuala.com/AncientBeast", "deviantart"=>"http://Ancient-Beast.deviantart.com", "blender"=>"http://blender.org", "krita"=>"http://krita.org", "gimp"=>"http://gimp.org", "mypaint"=>"http://mypaint.intilinux.com", "inkscape"=>"http://inkscape.org");
 foreach ($tools as $toolName => $toolLink) {
 	echo "<td><a href='$toolLink' target='_blank' class='lighten'><img src='images/icons/$toolName.png' style='display:block; width:99px; height99px;'>".ucfirst($toolName)."</a></td>";
 }
