@@ -1,1 +1,5 @@
 config.php
+
+# Eclipse project files
+.classpath
+.project
