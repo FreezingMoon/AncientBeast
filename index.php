@@ -46,7 +46,7 @@ $random_realm = array_rand($realms); ?>
 <table style="background: url('<?php echo "{$site_root}images/realms/{$realms[$random_realm]}.jpg"; ?>') no-repeat center top; height: 400px;">
 <tr><td style="width: 25%;"><center>
 	<a href="/donate"><img src="<?php echo $site_root; ?>donate/paypal.gif"></a><br><br><br><br>
-	<a href="/donate/#bitcoin"><img src="<?php echo $site_root; ?>donate/Bitcoin.png"></a><br><br><br><br><br>
+	<a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97"><img src="<?php echo $site_root; ?>donate/Bitcoin.png"></a><br><br><br><br><br>
 	<a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a>
 </center></td><td style="width: 50%;"><center>
 <iframe width="480" height="360" src="http://www.youtube.com/embed/KBS03PBHtqQ?rel=0" frameborder="0" allowfullscreen></iframe></center>
@@ -182,7 +182,7 @@ You can download ImageMagick binaries for most popular operating systems from it
 <code><a href="apt://imagemagick">sudo apt-get install imagemagick</a></code>
 <br>
 <p>
-The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. Creatures should usually be facing towards the right.
+The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. By default, rendered creatures should usually be facing right.
 </p>
 <p>
 The game is best played at a HD resolution of 1920x1080, in case your screen uses a lower resolution, the game should accomodate by rescaling. Battlegrounds and other screens that are not made out of tiles will be created at the same HD resolution.
