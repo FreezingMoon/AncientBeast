@@ -182,7 +182,7 @@ You can download ImageMagick binaries for most popular operating systems from it
 <code><a href="apt://imagemagick">sudo apt-get install imagemagick</a></code>
 <br>
 <p>
-The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio.
+The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. Creatures should usually be facing towards the right.
 </p>
 <p>
 The game is best played at a HD resolution of 1920x1080, in case your screen uses a lower resolution, the game should accomodate by rescaling. Battlegrounds and other screens that are not made out of tiles will be created at the same HD resolution.
