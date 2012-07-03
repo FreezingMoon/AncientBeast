@@ -152,11 +152,11 @@ foreach ($rows as $r) echo '<a href="' . $r['website'] . '" target="_blank">' . 
 echo '<a href="#now">Your name here!</a></center>';
 
 separate_segment();?>
-<a id="bitcoin"></a><p class="center">
-<iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p>
-<p class="center">Feel free to send your <a href="http://www.bitcoin.org" style="font-weight: bold;"><img src="bitcoin.ico"> bitcoin</a> donation over at:</p>
-<p class="center" style="font-weight: bold;"><a href="http://blockexplorer.com/address/1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97" target="_blank">1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97</a></p>
-<p class="center">Any little bit you donate is greatly appreciated and helps further the development of Ancient Beast.</p>
+<a id="bitcoin"></a>
+<p class="center">Feel free to send your <a href="http://www.bitcoin.org" style="font-weight: bold;" target="_blank"><img src="bitcoin.ico"> bitcoin</a> donation over at:</p>
+<p class="center" style="font-weight: bold;"><a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97">1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97</a></p>
+<p class="center"><a href="http://blockexplorer.com/address/1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97" target="_blank">Any little bit you donate is greatly appreciated and helps further the development of Ancient Beast.</a></p><br>
+<p class="center"><iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p>
 <?php
 end_segment();
 end_page();
