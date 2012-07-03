@@ -177,12 +177,12 @@ foreach ($tools as $toolName => $toolLink) {
 <br>
 <p>
 For putting sprites together into sprite sheets, you can use the <a href="http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Render/Spritify" target="_blank"><b>Spritify</b></a> blender addon, which has <a href="http://www.ImageMagick.org" target="_blank"><b>ImageMagick</b></a> as a dependency.<br>
-You can download ImageMagick binaries for most popular operating systems from it's website. In case you're using Ubuntu, chances are that ImageMagick is already installed, if not, you can easly download and install the tool from the Software Center or by using a Terminal with the following command:
+You can download ImageMagick binaries for most popular operating systems from it's website. In case you're using Ubuntu, chances are that ImageMagick is already installed, if not, you can easly download and install the tool from the <a href="apt://imagemagick">Software Center</a> or by using a Terminal with the following command:
 </p>
-<code>sudo apt-get install imagemagick</code>
+<code><a href="apt://imagemagick">sudo apt-get install imagemagick</a></code>
 <br>
 <p>
-The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexes occupied), with an 1:1 aspect ratio.
+The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio.
 </p>
 <p>
 The game is best played at a HD resolution of 1920x1080, in case your screen uses a lower resolution, the game should accomodate by rescaling. Battlegrounds and other screens that are not made out of tiles will be created at the same HD resolution.
