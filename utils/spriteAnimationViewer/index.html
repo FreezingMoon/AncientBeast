@@ -29,24 +29,23 @@
 </head>
 <body>
 
-<canvas id="kanvas" width="500" height="400" onclick="">
-no canvas support
+<canvas id="kanvas" width="500" height="400" onclick="{pauseButtonPressed()}">
+No canvas support.
 </canvas>
 
 <p>
-<button id="pauseButton" onClick="{pauseButtonPressed()}"> pause </button><br>
 <input type="text" id="textField0" value="30">framerate <br>
- <input type="text" id="textField5" value="1">framestep<br>
- <input type="text" id="textField1" value="white">bg color<br>
- <input type="text" id="textField2" value="256">sprite width<br>
- <input type="text" id="textField3" value="256">sprite height<br>
- <input type="text" id="textField10" value="3">offset<br>
- <input type="text" id="textField4" value="24">number of sprites<br>
- <input type="text" id="textField6" value="3">rows<br>
- <input type="text" id="textField7" value="8">columns<br>
-X: <input type="text" id="textField8" value="0"> Y: <input type="text" id="textField9" value="0">
-<br>
-<button id="updateButton" onClick="{updateFields();}"> Change values </button>
+<input type="text" id="textField5" value="1">framestep<br>
+<input type="text" id="textField1" value="white">bg color<br>
+<input type="text" id="textField2" value="256">sprite width<br>
+<input type="text" id="textField3" value="256">sprite height<br>
+<input type="text" id="textField10" value="3">offset<br>
+<input type="text" id="textField4" value="24">number of sprites<br>
+<input type="text" id="textField6" value="3">rows<br>
+<input type="text" id="textField7" value="8">columns<br>
+<input type="text" id="textField8" value="0">X<br>
+<input type="text" id="textField9" value="0">Y<br>
+<button id="updateButton" onClick="{updateFields();}"> Change values </button><button id="pauseButton" onClick="{pauseButtonPressed()}"> pause </button><br>
 </p>
 
 <script id="code" type="text/javascript" src="code.js"></script>
