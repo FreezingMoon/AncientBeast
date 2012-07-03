@@ -40,10 +40,7 @@ $style = "
 	padding: 15px 0px;
 }";
 require_once("header.php");
-start_segment(); ?>
-<center><a href="/donate"><b>This indie free open source game project is currently in pre-alpha stage. Please help by donating!</b></a></center>
-<?php
-separate_segment();
+start_segment();
 $realms = array('avarice', 'envy', 'gluttony', 'lust', 'pride', 'sloth', 'wrath');
 $random_realm = array_rand($realms); ?>
 <table style="background: url('<?php echo "{$site_root}images/realms/{$realms[$random_realm]}.jpg"; ?>') no-repeat center top; height: 400px;">
