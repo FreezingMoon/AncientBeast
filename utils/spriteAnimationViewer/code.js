@@ -26,7 +26,7 @@
 var c;		//canvas object
 var ctx;	//its 2d context for drawing to canvas
 
-var imageFile = "spritesheet2.png"	//the source for spritesheet
+var imageFile = "spritesheet.png"	//the source for spritesheet
 
 var canvasWidth;
 var canvasHeight
