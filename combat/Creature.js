@@ -22,7 +22,7 @@
  */
 
 function Creature(centerTile, renderer) {
-	this.name = "Magma Spwan";
+	this.name = "Magma Spawn";
 	// collision map:
 	// 0 does not collide on this tile
 	// 1 collides on this tile
