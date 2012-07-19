@@ -49,6 +49,8 @@ foreach ($creature_results as $r) {
 }
 
 start_segment();
+echo "<center>Please let us know your top 3 favorite creatures by commenting below. Any other feedback also welcomed!</center>";
+separate_segment();
 include("../utils/disqus.php");
 end_segment();
 end_page(); ?>
