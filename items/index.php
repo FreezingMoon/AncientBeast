@@ -76,7 +76,7 @@ for($r=0;$r<count($itemstats);$r++){
 start_segment();
 echo "<table style='width: 100%;'><tr>";
 foreach($stats as $k => $x) 
-	echo "<th><a href='{$site_root}items/index.php?filter=$k'>$x</a></th>";
+	echo "<th style='text-align:center;'><a href='{$site_root}items/index.php?filter=$k'>$x</a></th>";
 echo "</tr></table>";
 
 separate_segment();
