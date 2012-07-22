@@ -60,23 +60,33 @@ function getSQLorder() {
 $order = getSQLorder();
 $items = 'SELECT id, name, value, type FROM ab_items '.$order;
 $rows = db_query($items);
-$statquery = 'SELECT '.implode(', ', array_keys($stats)).' FROM ab_items '.$order;
-$itemstats = db_query($statquery);
+$statQuery = 'SELECT ' . implode(', ', array_keys($stats)) . ' FROM ab_items ' . $order;
+$itemStats = db_query($statQuery);
+
+$statCount = array_fill(0, count($stats), 0);
+$statCountRows = db_query('SELECT ' . implode(', ', array_keys($stats)) . ' FROM ab_items');
+foreach($statCountRows as $row) {
+	foreach($row as $k => $x) {
+		if($x == 0)
+			continue;
+		$statCount[$k]++;
+	}
+}
 
 //Sort stats and package items
-for($r=0;$r<count($itemstats);$r++){
-	uasort($itemstats[$r], "magnitudesort");
-	$itemstats[$r] = array_reverse($itemstats[$r]);
-	$keys[$r] = array_keys($itemstats[$r]);
-	$rows[$r]['stats'] = $itemstats[$r];
+for($r = 0; $r < count($itemStats); $r++){
+	uasort($itemStats[$r], "magnitudesort");
+	$itemStats[$r] = array_reverse($itemStats[$r]);
+	$keys[$r] = array_keys($itemStats[$r]);
+	$rows[$r]['stats'] = $itemStats[$r];
 	$rows[$r]['keys'] = $keys[$r];
 }
 
 //Show filters
 start_segment();
 echo "<table style='width: 100%;'><tr>";
-foreach($stats as $k => $x) 
-	echo "<th style='text-align:center;'><a href='{$site_root}items/index.php?filter=$k'>$x</a></th>";
+foreach($stats as $k => $x)
+	echo "<th style='text-align:center;'><a href='{$site_root}items/index.php?filter=$k'>$x<br>{$statCount[$k]}</a></th>";
 echo "</tr></table>";
 
 separate_segment();
