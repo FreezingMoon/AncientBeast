@@ -30,7 +30,7 @@ start_segment(); ?>
 end_segment();
 
 start_segment();
-echo "<center>Are you interested in Ancient Beast t-shirts? Black or white? What size? Which creature on it?</center>";
+echo "<center>Are you interested in Ancient Beast t-shirts? Black or white? What size? Which creature imprinted on it?</center>";
 separate_segment();
 include("../utils/disqus.php");
 end_segment();
