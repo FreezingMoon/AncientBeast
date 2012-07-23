@@ -28,5 +28,10 @@ require_once("../global.php");
 start_segment(); ?>
 <center>To be, or not to be, that is the question... - William Shakespeare</center><?php
 end_segment();
-end_page();
-?>
+
+start_segment();
+echo "<center>Are you interested in Ancient Beast t-shirts? Black or white? What size? Which creature on it?</center>";
+separate_segment();
+include("../utils/disqus.php");
+end_segment();
+end_page(); ?>
