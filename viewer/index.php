@@ -32,7 +32,7 @@ start_segment(); ?>
 No canvas support.
 </canvas>
 
-<p>
+<p style="text-align: left;">
 <input type="text" id="textField0" value="30">framerate<br>
 <input type="text" id="textField5" value="1">framestep<br>
 <input type="text" id="textField1" value="white">bg color<br>
