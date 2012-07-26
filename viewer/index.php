@@ -22,25 +22,23 @@
  * DreadKnight@FreezingMoon.org
 -->
 
-<!DOCTYPE html>
-<html>
-<head>
-<title>Sprite animation viewer</title>
-</head>
-<body>
+<?php
+$page_title = "Ancient Beast - Sprite Sheet Animation Viewer";
+require_once("../header.php");
+start_segment(); ?>
 
 <canvas id="kanvas" width="500" height="400" onclick="{pauseButtonPressed()}">
 No canvas support.
 </canvas>
 
 <p>
-<input type="text" id="textField0" value="30">framerate <br>
+<input type="text" id="textField0" value="30">framerate<br>
 <input type="text" id="textField5" value="1">framestep<br>
 <input type="text" id="textField1" value="white">bg color<br>
 <input type="text" id="textField2" value="256">sprite width<br>
 <input type="text" id="textField3" value="256">sprite height<br>
 <input type="text" id="textField10" value="3">offset<br>
-<input type="text" id="textField4" value="24">number of sprites<br>
+<input type="text" id="textField4" value="24">number of frames<br>
 <input type="text" id="textField6" value="3">rows<br>
 <input type="text" id="textField7" value="8">columns<br>
 <input type="text" id="textField8" value="0">X<br>
@@ -52,3 +50,6 @@ No canvas support.
 
 </body>
 </html>
+
+<?php end_segment();
+end_page(); ?>
