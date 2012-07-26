@@ -27,6 +27,7 @@ $page_title = "Ancient Beast - Sprite Sheet Animation Viewer";
 require_once("../header.php");
 start_segment(); ?>
 
+<center>
 <canvas id="kanvas" width="500" height="400" onclick="{pauseButtonPressed()}">
 No canvas support.
 </canvas>
@@ -43,13 +44,10 @@ No canvas support.
 <input type="text" id="textField7" value="8">columns<br>
 <input type="text" id="textField8" value="0">X<br>
 <input type="text" id="textField9" value="0">Y<br>
-<button id="updateButton" onClick="{updateFields();}"> Change values </button><button id="pauseButton" onClick="{pauseButtonPressed()}"> pause </button><br>
+<button id="updateButton" onClick="{updateFields();}"> Update </button><button id="pauseButton" onClick="{pauseButtonPressed()}"> Pause </button><br>
 </p>
+</center>
 
 <script id="code" type="text/javascript" src="code.js"></script>
-
-</body>
-</html>
-
 <?php end_segment();
 end_page(); ?>
