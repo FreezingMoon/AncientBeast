@@ -99,7 +99,7 @@ function end_page() {
 	<center><table style="width:100%"><tr>
 	<td><a href="/donate"><img src="<?php echo $site_root; ?>donate/paypal.gif"></a></td>
 	<td><a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97"><img src="<?php echo $site_root; ?>donate/Bitcoin.png"></a></td>
-	<td><p style="margin-top:4px;"><a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a></p></td>
+	<td><p style="margin-top:-4px;"><a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a></p></td>
 	<td style="width:50%"></td>
 	<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="http://www.FreezingMoon.org/images/FreezingMoon.png" style="width:444px;"></a></td>
 	<td style="width:50%"></td>
