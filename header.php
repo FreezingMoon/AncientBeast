@@ -83,7 +83,7 @@ $(document).ready(function(){
 <body id="top">
 <!--banner-->
 <header id="header">
-<div style="margin-top: -15px; margin-bottom: 50px;"><a href="<?php echo $site_root; ?>"><img src="<?php echo $site_root; ?>images/AncientBeast.png" class="lighten" alt="Ancient Beast"></a>
+<div style="margin-top: -15px; margin-bottom: 50px;"><a href="<?php echo $site_root; ?>" class="lighten"><img src="<?php echo $site_root; ?>images/AncientBeast.png" class="lighten" alt="Ancient Beast"></a>
 <!--navigation menu-->
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
