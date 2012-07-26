@@ -40,21 +40,8 @@ $style = "
 	padding: 15px 0px;
 }";
 require_once("header.php");
-start_segment();
-$realms = array('avarice', 'envy', 'gluttony', 'lust', 'pride', 'sloth', 'wrath');
-$random_realm = array_rand($realms); ?>
-<table style="background: url('<?php echo "{$site_root}images/realms/{$realms[$random_realm]}.jpg"; ?>') no-repeat center top; height: 400px;">
-<tr><td style="width: 25%;"><center>
-	<a href="/donate"><img src="<?php echo $site_root; ?>donate/paypal.gif"></a><br><br><br><br>
-	<a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97"><img src="<?php echo $site_root; ?>donate/Bitcoin.png"></a><br><br><br><br><br>
-	<a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a>
-</center></td><td style="width: 50%;"><center>
-<iframe width="480" height="360" src="http://www.youtube.com/embed/KBS03PBHtqQ?rel=0" frameborder="0" allowfullscreen></iframe></center>
-</td><td style="width: 25%;"><center>
-	<a href="http://www.facebook.com/AncientBeast" target="_blank" class="lighten"><img src="<?php echo $site_root; ?>images/facebook.png" class="lighten"></a><br><br><br>
-	<a href="http://twitter.com/AncientBeast" target="_blank" class="lighten"><img src="<?php echo $site_root; ?>images/twitter.png" class="lighten"></a><br><br><br><br>
-	<a href="http://feeds.feedburner.com/AncientBeast" target="_blank" class="lighten"><img src="<?php echo $site_root; ?>images/rss.png" class="lighten"></a>
-</center></td></tr></table>
+start_segment(); ?>
+<center><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304&amp;hl=ro_RO" frameborder="0" allowfullscreen></iframe></center>
 <?php separate_segment(); ?>
 
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>

@@ -94,7 +94,18 @@ function separate_segment() {
 	end_segment();
 	start_segment();
 }
-function end_page() { ?>
+function end_page() {
+	start_segment(); ?>
+	<center><table><tr>
+	<td><a href="/donate"><img src="<?php echo $site_root; ?>donate/paypal.gif"></a></td>
+	<td><a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97"><img src="<?php echo $site_root; ?>donate/Bitcoin.png"></a></td>
+	<td><a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a></td>
+	<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="http://www.FreezingMoon.org/images/FreezingMoon.png"></a></td>
+	<td><a href="http://www.facebook.com/AncientBeast" target="_blank" class="lighten"><img src="<?php echo $site_root; ?>images/facebook.png" class="lighten"></a></td>
+	<td><a href="http://twitter.com/AncientBeast" target="_blank" class="lighten"><img src="<?php echo $site_root; ?>images/twitter.png" class="lighten"></a></td>
+	<td><a href="http://feeds.feedburner.com/AncientBeast" target="_blank" class="lighten"><img src="<?php echo $site_root; ?>images/rss.png" class="lighten"></a></td>
+	</tr></table></center>
+	<?php end_segment(); ?>
 	</div>
 	</body>
 	</html>
