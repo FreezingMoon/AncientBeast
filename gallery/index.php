@@ -52,6 +52,7 @@ $(document).ready(function() {
 start_segment();
 echo "<center>";
 $images = scandir("../artwork");
+natsort($images);
 $i = 0;
 foreach($images as $image) {
 	if($image == "." || $image == "..") continue;
