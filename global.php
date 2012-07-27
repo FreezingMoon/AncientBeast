@@ -99,13 +99,13 @@ function end_page() {
 	<center><table style="width:100%"><tr>
 	<td><a href="/donate"><img src="../donate/paypal.png"></a></td>
 	<td><a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97"><img src="../donate/bitcoin.png"></a></td>
-	<td><a class="FlattrButton" style="display:none;" href="http://www.AncientBeast.com"></a></td>
+	<td><a class="FlattrButton" style="display:none;" href="http://AncientBeast.com"></a></td>
 	<td style="width:50%"></td>
-	<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="http://www.FreezingMoon.org/images/FreezingMoon.png" style="width:444px;"></a></td>
+	<td><a href="http://FreezingMoon.org" target="_blank"><img src="http://www.FreezingMoon.org/images/FreezingMoon.png" style="width:444px;"></a></td>
 	<td style="width:50%"></td>
-	<td><a href="http://www.facebook.com/AncientBeast" target="_blank" class="lighten"><img src="../images/facebook.png" class="lighten"></a></td>
+	<td><a href="http://facebook.com/AncientBeast" target="_blank" class="lighten"><img src="../images/facebook.png" class="lighten"></a></td>
 	<td><a href="http://twitter.com/AncientBeast" target="_blank" class="lighten"><img src="../images/twitter.png" class="lighten"></a></td>
-	<td><a href="http://feeds.feedburner.com/AncientBeast" target="_blank" class="lighten"><img src="../images/rss.png" class="lighten"></a></td>
+	<td><a href="https://plus.google.com/b/113034814032002995836" target="_blank" class="lighten"><img src="../images/google.png" class="lighten"></a></td>
 	</tr></table></center>
 	<?php end_segment(); ?>
 	</div>
