@@ -105,7 +105,7 @@ function end_page() {
 	<td style="width:50%"></td>
 	<td><a href="http://facebook.com/AncientBeast" target="_blank" class="lighten"><img src="../images/facebook.png" class="lighten"></a></td>
 	<td><a href="http://twitter.com/AncientBeast" target="_blank" class="lighten"><img src="../images/twitter.png" class="lighten"></a></td>
-	<td><a href="https://plus.google.com/b/113034814032002995836" target="_blank" class="lighten"><img src="../images/google.png" class="lighten"></a></td>
+	<td><a href="https://plus.google.com/b/113034814032002995836/" target="_blank" class="lighten"><img src="../images/google.png" class="lighten"></a></td>
 	</tr></table></center>
 	<?php end_segment(); ?>
 	</div>
