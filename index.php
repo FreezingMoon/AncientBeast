@@ -46,7 +46,7 @@ start_segment(); ?>
 
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$sections = array("info", "license", "plot", "gameplay", "realms", "development", "demands");
+$sections = array("info", "plot", "gameplay", "realms", "license", "development", "demands");
 foreach ($sections as &$sectionItem) {
 	echo "<td><center><a href='#$sectionItem' class='lighten'><img src='images/icons/$sectionItem.png' width='120' height='120' style='display:block;'>".ucfirst($sectionItem)."</a></center></td>";
 }
@@ -63,15 +63,6 @@ foreach ($sections as &$sectionItem) {
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins. This is all brought to life with beautifully crafted CG graphics.<br>
 It was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
-<?php separate_segment(); ?>
-<h3><a id="license" href="#license"><center><b>License</b></center></a></h3>
-<table border="1"><tr>
-<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
-</tr><tr>
-<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png"></a></td><td>Artwork and audio can be remixed and shared under the same license, provided you credit the project, foundation and/or author provided.</td>
-</tr><tr>
-<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
-</tr></table>
 <?php separate_segment(); ?>
 <h3><a id="plot" href="#plot"><center><b>Plot</center></b></a></h3>
 <p>
@@ -140,6 +131,15 @@ A synergy bonus to offense, defense and movement is provided if all summoned cre
 <div class="realms" style="background:url('images/realms/sloth.jpg') no-repeat;"><a id="Sloth" class="bigger">Sloth</a><p class="contrast">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div>
 <div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
 </div>
+<?php separate_segment(); ?>
+<h3><a id="license" href="#license"><center><b>License</b></center></a></h3>
+<table border="1"><tr>
+<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
+</tr><tr>
+<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png"></a></td><td>Artwork and audio can be remixed and shared under the same license, provided you credit the project, foundation and/or author provided.</td>
+</tr><tr>
+<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
+</tr></table>
 <?php separate_segment(); ?>
 <h3><a id="development" href="#development"><center><b>Development</b></center></a></h3>
 <br>
