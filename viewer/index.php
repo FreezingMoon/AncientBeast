@@ -44,8 +44,11 @@ No canvas support.
 <input type="text" id="textField7" value="8">columns<br>
 <input type="text" id="textField8" value="0">X<br>
 <input type="text" id="textField9" value="0">Y<br>
-<button id="updateButton" onClick="{updateFields();}"> Update </button><button id="pauseButton" onClick="{pauseButtonPressed()}"> Pause </button><br>
+
+<button id="updateButton" onClick="{updateFields();}"> image url </button>
+<button id="pauseButton" onClick="{pauseButtonPressed()}"> Pause </button><br>
 </p>
+<input type="text" id="textField11" value="example">image url<br>
 </center>
 
 <script id="code" type="text/javascript" src="code.js"></script>
