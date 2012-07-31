@@ -35,19 +35,19 @@ $success = $_GET["success"];
 
 if (isset($cancel)) {
 start_segment();
-echo '<center><b>It\'s a sad day. You have canceled...</b></center>';
+echo '<div align="center"><b>It\'s a sad day. You have canceled...</b></div>';
 end_segment();
 }
 
 if (isset($success)) {
 start_segment();
-echo '<center><b>You are AWESOME! :)</b></center>';
+echo '<div align="center"><b>You are AWESOME! :)</b></div>';
 end_segment();
 }
 
 start_segment(); ?>
 <a id="now"></a>
-<table width=100%><tr><td style="text-align:center;" width=25%>
+<table width=100%><tr><td align="center" width=25%>
 
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
@@ -137,25 +137,26 @@ $dollars_month = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_dono
 $dollars_total = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="$"');
 $euros_month = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="€" AND MONTH(date) = MONTH(NOW()) AND YEAR(date) = YEAR(NOW())');
 $euros_total = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="€"');
-echo '<center><table width=100%><tr>
+echo '<div align="center"><table width=100%><tr>
 <td style="text-align:center; width:25%"><u>' . date('F') . '</u><br><b>$' . $dollars_month[0]['amount'] . ' USD</b></td>
 <td style="text-align:center; width:25%"><u>Total</u><br><b>$' . $dollars_total[0]['amount'] . ' USD</b></td>
 <td style="text-align:center; width:25%"><u>' . date('F') . '</u><br><b>€' . $euros_month[0]['amount'] . ' EUR</b></td>
-<td style="text-align:center; width:25%"><u>Total</u><br><b>€' . $euros_total[0]['amount'] . ' EUR</b></td></tr></table></center>';
-separate_segment();
-
+<td style="text-align:center; width:25%"><u>Total</u><br><b>€' . $euros_total[0]['amount'] . ' EUR</b></td></tr></table></div>';
+separate_segment(); ?>
+<div align="center">Donations are non refundable and being used for project's upkeep, hardware necessities, rewarding existing contributors, commissioning artists and coders, marketing and so on. Donors are rewarded with exciting prizes!</div>
+<?php separate_segment();
 $donors = 'SELECT * FROM ab_donors WHERE anonymous IS NULL ORDER BY amount DESC';
 $rows = db_query($donors);
 
-echo '<center>';
+echo '<div align="center">';
 foreach ($rows as $r) echo '<a href="' . $r['website'] . '" target="_blank">' . $r['name'] . ' (' . $r['type'] . $r['amount'] . ')</a>, ';
-echo '<a href="#now">Your name here!</a></center>';
+echo '<a href="#now">Your name here!</a></div>';
 
 separate_segment();?>
-<p class="center">Feel free to send your <a href="http://www.bitcoin.org" style="font-weight: bold;" target="_blank"><img src="bitcoin.ico"> bitcoin</a> donation over at:</p>
-<p class="center" style="font-weight: bold;"><a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97">1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97</a></p>
-<p class="center"><a href="http://blockexplorer.com/address/1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97" target="_blank">Any little bit you donate is greatly appreciated and helps further the development of Ancient Beast.</a></p><br>
-<p class="center"><iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p>
+<p align="center">Feel free to send your <a href="http://www.bitcoin.org" style="font-weight: bold;" target="_blank"><img src="bitcoin.ico"> bitcoin</a> donation over at:</p>
+<p align="center" style="font-weight: bold;"><a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97">1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97</a></p>
+<p align="center"><a href="http://blockexplorer.com/address/1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97" target="_blank">Any little bit you donate is greatly appreciated and helps further the development of Ancient Beast.</a></p>
+<p align="center"><iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p>
 <?php
 end_segment();
 end_page();
