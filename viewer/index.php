@@ -27,7 +27,7 @@ $page_title = "Ancient Beast - Sprite Sheet Animation Viewer";
 require_once("../header.php");
 start_segment(); ?>
 
-<center>
+<div align="center">
 <canvas id="kanvas" width="500" height="400" onclick="{pauseButtonPressed()}">
 No canvas support.
 </canvas>
@@ -35,7 +35,7 @@ No canvas support.
 <p style="text-align: left;">
 <input type="text" id="textField0" value="30">framerate<br>
 <input type="text" id="textField5" value="1">framestep<br>
-<input type="text" id="textField1" value="white">bg color<br>
+<input type="text" id="textField1" value="transparent">bg color<br>
 <input type="text" id="textField2" value="256">sprite width<br>
 <input type="text" id="textField3" value="256">sprite height<br>
 <input type="text" id="textField10" value="3">offset<br>
@@ -44,10 +44,15 @@ No canvas support.
 <input type="text" id="textField7" value="8">columns<br>
 <input type="text" id="textField8" value="0">X<br>
 <input type="text" id="textField9" value="0">Y<br>
-<button id="updateButton" onClick="{updateFields();}"> Update </button><button id="pauseButton" onClick="{pauseButtonPressed()}"> Pause </button><br>
+
+<button id="updateButton" onClick="{updateFields();}"> update </button>
+<button id="pauseButton" onClick="{pauseButtonPressed()}"> Pause </button><br>
 </p>
-</center>
+<input type="text" id="textField11" value="example">image url<br>
+<button id="updateButton2" onClick="{updateImageSource();}"> update </button>
+</div>
 
 <script id="code" type="text/javascript" src="code.js"></script>
+
 <?php end_segment();
 end_page(); ?>

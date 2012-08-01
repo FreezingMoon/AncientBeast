@@ -1,4 +1,7 @@
-/* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
+/* Spritesheet animation viewer, using HTML5 and javascript
+ * Developed by Henrik Aarnio (hjaarnio) for the Ancient Beast project
+ * 
+ * Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
  * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
  *
  * This file is part of Ancient Beast.
@@ -26,7 +29,8 @@
 var c;		//canvas object
 var ctx;	//its 2d context for drawing to canvas
 
-var imageFile = "spritesheet.png"	//the source for spritesheet
+var imageFile;
+var defaultImageFile = "spritesheet.png"	//the source for default spritesheet
 
 var canvasWidth;
 var canvasHeight
@@ -77,7 +81,7 @@ function init() {	//setting up useful stuff needed; explained where defined
 	
 	playing = true;
 
-	loadImage();
+	updateImageSource();
 
 }
 
@@ -96,8 +100,10 @@ function loop() {	//increase currentFrame
 
 function draw() {	//draws the correct frame to canvas
 	//fill the canvas
+	c.width = c.width;
 	ctx.fillStyle = bgColor;
 	ctx.fillRect(0,0, canvasWidth, canvasHeight)
+	
 	{
 		//calculates the column and row for this frame
 		row = Math.floor(currentFrame / columns);
@@ -164,6 +170,24 @@ function updateFields() {	//duh, updates the values defined in index.html
 	imageX = parseInt(document.getElementById("textField8").value);
 	imageY = parseInt(document.getElementById("textField9").value);
 	offset = parseInt(document.getElementById("textField10").value);
+	changeCanvasSize();
+}
+
+function changeCanvasSize(){
+	if (spriteWidth < 890){
+		c.width = spriteWidth;
+	}else c.width = 890;
+	if (spriteHeight < 890){
+		c.height = spriteHeight;
+	} else c.height = 890;
+}
+
+function updateImageSource(){
+	imageFile = document.getElementById("textField11").value;
+	if (imageFile == "example"){
+		imageFile = defaultImageFile;
+	}
+	loadImage();
 }
 
 function pauseButtonPressed(){
