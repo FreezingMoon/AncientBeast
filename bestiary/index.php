@@ -44,6 +44,7 @@ echo "</a></div>";
 foreach ($creature_results as $r) {
 	start_segment();
 	cards($r["id"]);
+	echo "<br>";
 	progress($r["id"], $r["name"]);
 	end_segment();
 }

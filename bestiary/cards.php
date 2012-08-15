@@ -26,11 +26,7 @@
 .card {
 	width: 430px;
 	height: 550px;
-	background-image: url(card.png);
 	background-repeat: no-repeat;
-	padding: 15px;
-	margin: 0px;
-	vertical-align: top;
 	cursor: default;
 }
 .beast {
@@ -45,6 +41,9 @@
 	text-shadow: black 0.1em 0.1em 0.2em;
 	font-weight: bold;
 	font-size: 16px;
+}
+.contrast {
+	background: rgba(0,0,0,0.5);
 }
 .abilities {
 	vertical-align: top;
@@ -87,15 +86,12 @@ function cards($id) { //Print a card
 	foreach ($ab_creatures_results as $r) {
 		$ab_name = $r['name'];
 		$spaceless = str_replace(" ", "_", $ab_name);
-		$background = "<th class=\"card\" style=\"background-image: url('{$site_root}images/cards/margin.png'), url('{$site_root}images/cards/{$r['sin']}.png');\">";
-		echo "<center><a name=\"$spaceless\"></a><table width=860px border=0>{$background}"; 
-		echo "<table class='section'><tr class='beast'><td width='20%'>{$r['sin']}{$r['lvl']}</td><td><a href='#{$spaceless}'>".$r['name']."</a><td width='20%'>{$r['hex']}H</td></tr></table>";
-		echo "<a href=\"#grid\"><div class=\"section\" style=\"border: 0px; background:url('{$site_root}bestiary/{$r['name']}/artwork.jpg'); border-top:4px solid black; border-bottom:4px solid black; width:400px; height:400px;\"><img src=\"AB.png\" style=\"position:relative; top:365px; left:180px;\"></div></a>";
-		echo "<div class='section' style='text-align: center; width: 390px; padding: 5px 0px;'>{$r['description']}</div>";
+		echo "<center><a name=\"$spaceless\"></a><table border=0><th class=\"card\" style=\"background-image: url('{$site_root}images/cards/margin.png'), url('{$site_root}bestiary/{$r['name']}/artwork.jpg'), url('{$site_root}images/cards/{$r['sin']}.png'); background-position:center;\">"; 
+		echo "<a href=\"#{$spaceless}\"><div class=\"section\" style=\"border: 0px; width:430px; height:550px;\"><table class=\"section contrast\" style=\"border:3px solid black; position:relative; top:370px; left:15px;\"><tr class=\"beast\"><td width=\"20%\">{$r['sin']}{$r['lvl']}</td><td>{$r['name']}<td width=\"20%\">{$r['hex']}H</td></tr></table></div></a>";
 	}
 	
 	//Display ICONS
-	echo "</th>{$background}<table class=\"section\"><tr class=\"numbers\">";
+	echo "</th><th class=\"card\" style=\"background-image: url('{$site_root}images/cards/margin.png'), url('{$site_root}images/cards/{$r['sin']}.png'); padding-left:15px;\"><table class=\"section\"><tr class=\"numbers\">";
 	for($i = 0; $i<9; $i++) echo "<th>{$stats2[$i]}</th>";
 	echo "</tr><tr class='numbers'>";
 	
