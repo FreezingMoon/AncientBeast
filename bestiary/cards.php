@@ -86,8 +86,9 @@ function cards($id) { //Print a card
 	foreach ($ab_creatures_results as $r) {
 		$ab_name = $r['name'];
 		$spaceless = str_replace(" ", "_", $ab_name);
+		$sins = array("A" => "gold", "E" => "orange", "G" => "green", "L" => "red", "P" => "violet", "S" => "blue", "W" => "indigo");
 		echo "<center><a name=\"$spaceless\"></a><table border=0><th class=\"card\" style=\"background-image: url('{$site_root}images/cards/margin.png'), url('{$site_root}bestiary/{$r['name']}/artwork.jpg'), url('{$site_root}images/cards/{$r['sin']}.png'); background-position:center;\">"; 
-		echo "<a href=\"#{$spaceless}\"><div class=\"section\" style=\"border: 0px; width:430px; height:550px;\"><table class=\"section contrast\" style=\"border:3px solid black; position:relative; top:370px; left:15px;\"><tr class=\"beast\"><td width=\"20%\">{$r['sin']}{$r['lvl']}</td><td>{$r['name']}<td width=\"20%\">{$r['hex']}H</td></tr></table></div></a>";
+		echo "<a href=\"#{$spaceless}\"><div class=\"section\" style=\"border: 0px; width:430px; height:550px;\"><table class=\"section contrast\" style=\"border:2px solid {$sins[$r['sin']]}; position:relative; top:370px; left:15px;\"><tr class=\"beast\"><td width=\"20%\">{$r['sin']}{$r['lvl']}</td><td>{$r['name']}<td width=\"20%\">{$r['hex']}H</td></tr></table></div></a>";
 	}
 	
 	//Display ICONS
