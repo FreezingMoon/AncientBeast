@@ -29,10 +29,6 @@
 	background-repeat: no-repeat;
 	cursor: default;
 }
-.beast {
-	font-size: 24px;
-	text-align: center;
-}
 .section {
 	color: #fff;
 	border-style: solid;
@@ -84,12 +80,12 @@ function cards($id) { //Print a card
 		$ab_name = $r['name'];
 		$spaceless = str_replace(" ", "_", $ab_name);
 		$sins = array("A" => "gold", "E" => "orange", "G" => "green", "L" => "red", "P" => "violet", "S" => "blue", "W" => "indigo");
-		echo "<center><a name=\"$spaceless\"></a><table border=0><th class=\"card\" style=\"background-image: url('{$site_root}images/cards/margin.png'), url('{$site_root}bestiary/{$r['name']}/artwork.jpg'), url('{$site_root}images/cards/{$r['sin']}.png'); background-position:center;\">"; 
-		echo "<a href=\"#{$spaceless}\"><div class=\"section\" style=\"border: 0px; width:430px; height:550px;\"><table class=\"section\" style=\"background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge {$sins[$r['sin']]}; position:relative; top:495px; left:15px;\"><tr class=\"beast\"><td width=\"20%\">{$r['sin']}{$r['lvl']}</td><td>{$r['name']}<td width=\"20%\">{$r['hex']}H</td></tr></table></div></a>";
+		echo "<center><a name=\"$spaceless\"></a><table border=0><th class=\"card\" style=\"background-image: url('{$site_root}images/cards/margin.png'), url('{$site_root}bestiary/{$r['name']}/artwork.jpg'), url('{$site_root}images/cards/{$r['sin']}.jpg'); background-position:center;\">";
+		echo "<a href=\"#{$spaceless}\"><div class=\"section\" style=\"border:0px; width:430px; height:550px;\"><table class=\"section\" style=\"background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge {$sins[$r['sin']]}; position:relative; top:495px; left:15px;\"><tr style=\"font-size:24px; text-align:center;\"><td width=\"20%\">{$r['sin']}{$r['lvl']}</td><td>{$r['name']}<td width=\"20%\">{$r['hex']}H</td></tr></table></div></a>";
 	}
 	
 	//Display ICONS
-	echo "</th><th class=\"card\" style=\"background-image: url('{$site_root}images/cards/margin.png'), url('{$site_root}images/cards/{$r['sin']}.png'); padding-left:15px;\"><table class=\"section\"><tr class=\"numbers\">";
+	echo "</th><th class=\"card\" style=\"background-image: url('{$site_root}images/cards/margin.png'), url('{$site_root}images/cards/{$r['sin']}.jpg'); background-position:center;\"><div style=\"padding-left:15px;\"><table class=\"section\"><tr class=\"numbers\">";
 	for($i = 0; $i<9; $i++) echo "<th>{$stats2[$i]}</th>";
 	echo "</tr><tr class='numbers'>";
 	
@@ -117,8 +113,6 @@ function cards($id) { //Print a card
 	for($i = 10; $i<19; $i++) {
 		echo "<td>{$ab_stats_results[0][$i]}</td>";
 	}
-	echo "</tr></table>";
-	echo "</th></table>";
-	echo "</a></center>";
+	echo "</tr></table></div></th></table></center>";
 }
 ?>
