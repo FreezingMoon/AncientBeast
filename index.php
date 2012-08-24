@@ -46,7 +46,7 @@ start_segment(); ?>
 
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$sections = array("info", "plot", "gameplay", "realms", "license", "development", "demands");
+$sections = array("info", "plot", "gameplay", "realms", "demands", "development", "license");
 foreach ($sections as &$sectionItem) {
 	echo "<td><center><a href='#$sectionItem' class='lighten'><img src='images/icons/$sectionItem.png' width='120' height='120' style='display:block;'>".ucfirst($sectionItem)."</a></center></td>";
 }
@@ -85,12 +85,15 @@ In order to play Ancient Beast, you'll needed to register an account. After logg
 </p>
 <img src="images/combat.jpg" style="width:100%;">
 <p>
-Players are represented on the combat field by Dark Priests. The stats of summoned creatures can be improved by purchasing items.
-Players can level up by gaining experience on the combat field, gaining 1 more plasma point each level, being able to summon more and/or better creatures. In order to summon a creature you own, it takes a number of plasma points equal to the creature's level plus the number of hexagons it occupies. Summoning a creature multiple times will raise it's plasma cost by 1 point each time for the rest of the match.<br>
+Players are represented on the combat field by Dark Priests. All creature stats can be improved by purchasing items.
+Players can level up by gaining experience on the combat field, gaining 1 more plasma point each level, being able to materialize more and/or better creatures. In order to materialize a creature you own, it takes a number of plasma points equal to the creature's level plus the number of hexagons it occupies. Any creature owned can be materialized once per combat, provided the player has enough plasma points to do so.<br>
 When fighting players of lower levels, you will temporarely lose plasma points in order to balance the fight.
 </p>
 <p>
-After engaging in combat, players are taken to the battle field where both parties take turns to summon or control creatures. Each player needs to have at least one creature on the battlefield at all times, otherwise he loses the fight. When summoning, the player loses the turn of the current creature. Summoned creatures suffer from summoning sickness, meaning they won't be able to act in the current round.
+After engaging in combat, players are taken to the battle field where both parties take turns to materialize and control creatures. Each player needs to have at least one creature on the battlefield at all times, otherwise he loses the fight. Each player can materialize a creature every round, which usually suffer from materialization sickness, meaning they won't be able to act in the current round.
+</p>
+<p>
+After the first materialized creature, each aditional realm requires a plasma point just for being unlocked.
 </p>
 <p>
 <b>Health:</b> A raw number representing the amount of damage a creature can take until it dies.<br>
@@ -103,9 +106,6 @@ After engaging in combat, players are taken to the battle field where both parti
 <b>Defense:</b> Protects the creature by reducing incoming damage.<br>
 <b>Movement:</b> Each creature can move up to a certain number of hexagons each turn.<br>
 <b>Masteries</b> can have an impact on the effectiveness of the creature's abilities and can also help reduce incoming damage and even protect the creature from harmfull effects.
-</p>
-<p>
-A synergy bonus to offense, defense and movement is provided if all summoned creatures are of the same level or alignment. Bonus requires at least 2 creatures and it's multiplied by their number.
 </p>
 <?php separate_segment(); ?>
 <h3><a id="realms" href="#realms"><center><b>Realms</b></center></a></h3>
@@ -132,52 +132,6 @@ A synergy bonus to offense, defense and movement is provided if all summoned cre
 <div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
 </div>
 <?php separate_segment(); ?>
-<h3><a id="license" href="#license"><center><b>License</b></center></a></h3>
-<table border="1"><tr>
-<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
-</tr><tr>
-<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png"></a></td><td>Artwork and audio can be remixed and shared under the same license, provided you credit the project, foundation and/or author provided.</td>
-</tr><tr>
-<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
-</tr></table>
-<?php separate_segment(); ?>
-<h3><a id="development" href="#development"><center><b>Development</b></center></a></h3>
-<br>
-<br>
-<b>Pipeline</b>
-<p>
-The project is developed with the use of free open source cross platform applications and freeware services.
-<a href="http://www.wuala.com/referral/CGN5J6GH3PBBBHCGKJ3P" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's assets and sources, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group. There is no centralized forum, but you can use the various <a href="http://disqus.com" target="_blank"><b>Disqus</b></a> widgets around the website, our <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>Github issue tracker</b></a> or our <a href="http://forum.freegamedev.net/viewforum.php?f=70" target="_blank"><b>FreeGameDev subforum</b></a>.<br>
-<a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, structures, creatures creatures and their animations, which are rendered into sprites and sprite-sheets as well as for other tasks.<br>
-<a href="http://krita.org" target="_blank"><b>Krita</b></a>, <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> and <a href="http://mypaint.intilinux.com" target="_blank"><b>MyPaint</b></a> are useful for creating items and concept art, while 
-<a href="http://inkscape.org" target="_blank"><b>Inkscape</b></a> is useful for creating vector icons for abilities.</p>
-<table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
-<?php
-$tools = array("github"=>"https://github.com/FreezingMoon/AncientBeast", "wuala"=>"http://www.wuala.com/AncientBeast", "deviantart"=>"http://Ancient-Beast.deviantart.com", "blender"=>"http://blender.org", "krita"=>"http://krita.org", "gimp"=>"http://gimp.org", "mypaint"=>"http://mypaint.intilinux.com", "inkscape"=>"http://inkscape.org");
-foreach ($tools as $toolName => $toolLink) {
-	echo "<td><a href='$toolLink' target='_blank' class='lighten'><img src='images/icons/$toolName.png' style='display:block; width:99px; height99px;'>".ucfirst($toolName)."</a></td>";
-}
-?>
-</tr></table>
-<br>
-<b>Sprite sheets</b>
-<br>
-<p>
-For putting sprites together into sprite sheets, you can use the <a href="http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Render/Spritify" target="_blank"><b>Spritify</b></a> blender addon, which has <a href="http://www.ImageMagick.org" target="_blank"><b>ImageMagick</b></a> as a dependency.<br>
-You can download ImageMagick binaries for most popular operating systems from it's website. In case you're using Ubuntu, chances are that ImageMagick is already installed, if not, you can easly download and install the tool from the <a href="apt://imagemagick">Software Center</a> or by using a Terminal with the following command:
-</p>
-<code><a href="apt://imagemagick">sudo apt-get install imagemagick</a></code>
-<br>
-<p>
-The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. By default, rendered creatures should usually be facing right.
-</p>
-<p>
-The game is best played at a HD resolution of 1920x1080, in case your screen uses a lower resolution, the game should accomodate by rescaling. Battlegrounds and other screens that are not made out of tiles will be created at the same HD resolution.
-</p>
-<p>
-Multiplayer functions by making AJAX calls to a MySQL table every second.
-</p>
-<?php separate_segment(); ?>
 <h3><a id="demands" href="#demands"><center><b>Demands</b></center></a></h3>
 <ul>
 <li>internet connection</li>
@@ -188,8 +142,36 @@ Multiplayer functions by making AJAX calls to a MySQL table every second.
 <li>64 MB Video Card</li>
 <li>controller (keyboard, mouse, gamepad, touch screen, smartphone or tablet)</li>
 </ul>
-<p>Best played at HD resolution (1920x1080), with stereo speakers, using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.<br>
+<p>Best played at Full HD resolution (1920x1080), with stereo speakers, using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.<br>
 While playing on a smartphone, it is highly recommended using a stylus.</p>
+<?php separate_segment(); ?>
+<h3><a id="development" href="#development"><center><b>Development</b></center></a></h3>
+<p>The project is developed with the use of free open source cross platform applications and freeware services.
+<a href="http://www.wuala.com/referral/CGN5J6GH3PBBBHCGKJ3P" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's assets and sources, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group. There is no centralized forum, but you can use the various <a href="http://disqus.com" target="_blank"><b>Disqus</b></a> widgets around the website, our <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>Github issue tracker</b></a> or our <a href="http://forum.freegamedev.net/viewforum.php?f=70" target="_blank"><b>FreeGameDev subforum</b></a>.<br>
+<a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their animations, which are rendered into sprites that are usually made into sprite-sheets as well as for other tasks.<br>
+<a href="http://krita.org" target="_blank"><b>Krita</b></a>, <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> and <a href="http://mypaint.intilinux.com" target="_blank"><b>MyPaint</b></a> are useful for concept art, while <a href="http://inkscape.org" target="_blank"><b>Inkscape</b></a> is useful for creating vector ability icons.</p>
+<table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
+<?php
+$tools = array("github"=>"https://github.com/FreezingMoon/AncientBeast", "wuala"=>"http://www.wuala.com/AncientBeast", "deviantart"=>"http://Ancient-Beast.deviantart.com", "blender"=>"http://blender.org", "krita"=>"http://krita.org", "gimp"=>"http://gimp.org", "mypaint"=>"http://mypaint.intilinux.com", "inkscape"=>"http://inkscape.org");
+foreach ($tools as $toolName => $toolLink) {
+	echo "<td><a href='$toolLink' target='_blank' class='lighten'><img src='images/icons/$toolName.png' style='display:block; width:99px; height99px;'>".ucfirst($toolName)."</a></td>";
+}
+?>
+</tr></table>
+<br>
+<p>
+For putting creature sprites together into sprite sheets, you can use the <a href="http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Render/Spritify" target="_blank"><b>Spritify</b></a> blender addon.<br>
+The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. By default, rendered creatures should usually be facing right.
+</p>
+<?php separate_segment(); ?>
+<h3><a id="license" href="#license"><center><b>License</b></center></a></h3>
+<table border="1"><tr>
+<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
+</tr><tr>
+<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png"></a></td><td>Artwork and audio can be remixed and shared under the same license, provided you credit the project, foundation and/or author provided.</td>
+</tr><tr>
+<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
+</tr></table>
 <?php end_segment(); ?>
 </article>
 <?php end_page(); ?>
