@@ -153,4 +153,11 @@ foreach ($rows as $r) echo '<a href="' . $r['website'] . '" target="_blank">' . 
 echo '<a href="#now">Your name here!</a></div>';
 
 separate_segment();?>
-<p align="center">Feel free to send your <a href="http://www.bitcoin.org" style="font-weight: 
+<p align="center">Feel free to send your <a href="http://www.bitcoin.org" style="font-weight: bold;" target="_blank"><img src="bitcoin.ico"> bitcoin</a> donation over at:</p>
+<p align="center" style="font-weight: bold;"><a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97">1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97</a></p>
+<p align="center"><a href="http://blockexplorer.com/address/1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97" target="_blank">Any little bit you donate is greatly appreciated and helps further the development of Ancient Beast.</a></p>
+<p align="center"><iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p>
+<?php
+end_segment();
+end_page();
+?>
