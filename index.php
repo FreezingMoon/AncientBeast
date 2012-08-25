@@ -60,8 +60,7 @@ foreach ($sections as &$sectionItem) {
 <b>Ancient Beast</b> is a turn based strategy game played online against other people, featuring a wide variety of items and creatures to aquire and put to good use in order to defeat your opponents.
 </p>
 <p>
-Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This is all brought to life with beautifully crafted CG graphics.<br>
-This project was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
+Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This project was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
 <?php separate_segment(); ?>
 <h3><a id="plot" href="#plot"><center><b>Plot</center></b></a></h3>
