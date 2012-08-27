@@ -51,16 +51,16 @@ $(document).ready(function() {
 <?php
 start_segment();
 echo "<center>";
-$images = scandir("../artwork");
+$images = scandir("../images/artwork");
 natsort($images);
 $i = 0;
 foreach($images as $image) {
 	if($image == "." || $image == "..") continue;
 	$title = substr($image, 0, -4); 
-	echo "<a id='img{$i}' style='text-align:center;' rel='pop' href='../artwork/$image' title='$title'><img style='height:200px; margin:5px;' src='../artwork/$image' title='$title'></a>";
+	echo "<a id='img{$i}' style='text-align:center;' rel='pop' href='{$site_root}images/artwork/$image' title='$title'><img style='height:200px; margin:5px;' src='{$site_root}images/artwork/$image' title='$title'></a>";
 	$i++;
 } echo "</center>";
 separate_segment();
-include("../utils/disqus.php");
+include("{$site_root}utils/disqus.php");
 end_segment();
 end_page(); ?>

@@ -39,8 +39,32 @@ $style = "
 	background: rgba(0,0,0,0.5);
 	padding: 15px 0px;
 }";
-require_once("header.php");
-start_segment(); ?>
+require_once("header.php"); ?>
+<script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script type="application/javascript" src="gallery/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+<script type="application/javascript" src="gallery/fancybox/jquery.easing-1.3.pack.js"></script>
+<script type="application/javascript" src="gallery/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
+<link rel="stylesheet" href="gallery/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen" />
+<script type="application/javascript">
+$(document).ready(function() {
+	var basePage = window.location.href.replace(/#.*/, "");
+	$("a[rel=pop]").fancybox({
+		'overlayColor'  : 'black',
+		'transitionIn'	: 'elastic',
+		'transitionOut'	: 'elastic',
+		'onComplete'	: function(array, index) {
+			history.replaceState("", "", basePage + "#id=" + index);
+		},
+		'onClosed'		: function() {
+			history.replaceState("", "", basePage);
+		}
+	});
+	
+	if (/[\#&]id=(\d+)/.test(location.hash))
+		$("#img" + RegExp.$1).trigger("click");
+});
+</script>
+<?php start_segment(); ?>
 <center><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304&amp;hl=ro_RO" frameborder="0" allowfullscreen></iframe></center>
 <?php separate_segment(); ?>
 
@@ -82,7 +106,17 @@ Your browser does not support the audio element.
 <p>
 In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
 </p>
-<img src="images/combat.jpg" style="width:100%;">
+<?php
+echo "<center>";
+$images = scandir("images/combat");
+natsort($images);
+$i = 0;
+foreach($images as $image) {
+	if($image == "." || $image == "..") continue;
+	$title = substr($image, 0, -4); 
+	echo "<a id='img{$i}' style='text-align:center;' rel='pop' href='images/combat/$image' title='$title'><img style='width:280px; margin:5px;' src='images/combat/$image' title='$title'></a>";
+	$i++;
+} echo "</center>";?>
 <p>
 Players are represented on the combat field by Dark Priests. All creature stats can be improved by purchasing items.
 Players can level up by gaining experience on the combat field, gaining 1 more plasma point each level, being able to materialize more and/or better creatures. In order to materialize a creature you own, it takes a number of plasma points equal to the creature's level plus the number of hexagons it occupies. Any creature owned can be materialized once per combat, provided the player has enough plasma points to do so.<br>
