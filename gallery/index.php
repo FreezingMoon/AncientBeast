@@ -61,6 +61,6 @@ foreach($images as $image) {
 	$i++;
 } echo "</center>";
 separate_segment();
-include("{$site_root}utils/disqus.php");
+include("../utils/disqus.php");
 end_segment();
 end_page(); ?>
