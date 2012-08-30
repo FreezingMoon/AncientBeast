@@ -143,7 +143,7 @@ echo '<div align=center><table width=100%><tr>
 <td align=center width=25%><u>' . date('F') . '</u><br><b>€' . $euros_month[0]['amount'] . ' EUR</b></td>
 <td align=center width=25%><u>Total</u><br><b>€' . $euros_total[0]['amount'] . ' EUR</b></td></tr></table></div>';
 separate_segment(); ?>
-<div align=center>Any little bit you donate is greatly appreciated and helps further the development of Ancient Beast.<br>Donations are non refundable and being used for project's upkeep, hardware necessities, rewarding existing contributors, commissioning artists and coders, marketing and so on. Donors are rewarded with exciting prizes!</div>
+<div align=center>Donations are done through <a href="http://Paypal.com" target="_blank"><b>Paypal</b></a> and subscriptions can be canceled anytime, see <a href="http://www.wikihow.com/Cancel-a-Recurring-Payment-in-PayPal" target="_blank"><b>this article</b></a> for more info. Any amount you wish to donate is greatly appreciated and helps further the development of Ancient Beast. Donations are non refundable and are being used for project's upkeep, hardware necessities, rewarding existing contributors, commissioning artists and coders, marketing and so on. Donors are rewarded with exciting prizes!</div>
 <?php separate_segment();
 $donors = 'SELECT * FROM ab_donors WHERE anonymous IS NULL ORDER BY amount DESC';
 $rows = db_query($donors);
