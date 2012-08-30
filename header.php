@@ -99,5 +99,5 @@ foreach ($menu as &$menuItem) {
 <div id="scroll"><a href="#top"><img src="<?php echo $site_root; ?>images/AB.gif"><br>Top</a></div>
 <div id="wrapper">
 <?php start_segment(); ?>
-<center><a href="/donate"><b>This indie free open source game project is currently in pre-alpha stage. Please help by donating!</b></a></center>
+<center><a href="/donate"><b>This indie free open source game project is currently in pre-alpha stage. Click here to help by donating!</b></a></center>
 <?php end_segment(); ?>
