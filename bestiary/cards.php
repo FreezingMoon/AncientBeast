@@ -52,7 +52,7 @@
 
 function ability($x, &$y, $ab_name, $row) {
 	global $site_root;
-	echo "<td style=\"background-image: url('contour.png'), url('{$site_root}bestiary/$ab_name/$y.svg'), url('missing.png'); background-size: 100% 100%; width:99px; height:99px;\"></td>";
+	echo "<td style=\"background-image: url('{$site_root}images/cards/contour.png'), url('{$site_root}bestiary/$ab_name/$y.svg'), url('{$site_root}images/cards/missing.png'); background-size: 100% 100%; width:99px; height:99px;\"></td>";
 	$y++;
 	echo "<td><u>{$row[$x]}</u><br>{$row["$x info"]}</td></tr>";
 }
