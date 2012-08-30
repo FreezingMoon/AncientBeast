@@ -68,9 +68,9 @@ $(document).ready(function() {
 <center><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304&amp;hl=ro_RO" frameborder="0" allowfullscreen></iframe></center>
 <?php separate_segment(); ?>
 
-<nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
+<nav><table width=100% style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$sections = array("info", "plot", "gameplay", "realms", "demands", "development", "license");
+$sections = array("info", "plot", "gameplay", "realms", "requirements", "development", "license");
 foreach ($sections as &$sectionItem) {
 	echo "<td><center><a href='#$sectionItem' class='lighten'><img src='images/icons/$sectionItem.png' width='120' height='120' style='display:block;'>".ucfirst($sectionItem)."</a></center></td>";
 }
@@ -165,7 +165,7 @@ After the first materialized creature, each aditional realm requires a plasma po
 <div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that where used for God forbidden experiments regarding genetics and bio weapons.</p></div>
 </div>
 <?php separate_segment(); ?>
-<h3><a id="demands" href="#demands"><center><b>Demands</b></center></a></h3>
+<h3><a id="requirements" href="#requirements"><center><b>Requirements</b></center></a></h3>
 <ul>
 <li>internet connection</li>
 <li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and JavaScript enabled</li>
