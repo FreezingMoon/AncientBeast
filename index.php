@@ -71,7 +71,15 @@ $(document).ready(function() {
 <!-- TODO: use class, inline css is just wrong -->
 <nav><table width=100% style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$sections = array('info', 'plot', 'gameplay', 'realms', 'requirements', 'development', 'license');
+$sections = array(
+  'info',
+  'plot', 
+  'gameplay', 
+  'realms', 
+  'requirements', 
+  'development', 
+  'license'
+);
 foreach ($sections as &$sectionItem) {
 	echo '<td><center><a href="#' . $sectionItem . '" class="lighten"><img src="images/icons/' . $sectionItem . '.png" width="120" height="120" style="display:block;">' . ucfirst($sectionItem) . '</a></center></td>';
 }
