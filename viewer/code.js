@@ -99,8 +99,13 @@ function loop() {	//increase currentFrame
 }
 
 function draw() {	//draws the correct frame to canvas
-	//fill the canvas
-	c.width = c.width;
+	//clear first
+	ctx.save();
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+	ctx.clearRect(0, 0, c.width, c. height);
+	ctx.restore();
+	
+	//fill the canvas	
 	ctx.fillStyle = bgColor;
 	ctx.fillRect(0,0, canvasWidth, canvasHeight)
 	
