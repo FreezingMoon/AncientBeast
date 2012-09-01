@@ -30,11 +30,14 @@ require_once('cards.php');
 require_once('progress.php');
 $spaceless = str_replace(' ', '_', $r['name']);
 
-$creatures = 'SELECT * FROM ab_creatures WHERE id BETWEEN 1 AND 49 ORDER BY sin, lvl';
+$creatures = 'SELECT * FROM ab_creatures ORDER BY sin, lvl';
 $creature_results = db_query($creatures);
 
 echo '<div style="text-align:center;"><a name="grid">';
 foreach ($creature_results as $r) {
+  if ($r['id'] == 0 || $r['id'] == 50) {
+    continue;
+  }
 	$spaceless = str_replace(' ', '_', $r['name']);
     echo '<div class="lighten" style="background:url(\'' . $site_root . 'bestiary/' . $r['name'] . '/avatar.jpg\'); background-size: 100%; display: inline-block; margin-bottom:-3px; cursor: pointer;"><a href="#' . $spaceless . '"><img style="display: block;" src="' . $site_root . 'images/frame.png" alt="frame"></a></div>'; 
 }
