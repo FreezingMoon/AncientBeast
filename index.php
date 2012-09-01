@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$style = "
+$style = '
 .iconz {
 	width: 110px;
 	height: 110px;
@@ -38,8 +38,9 @@ $style = "
 .contrast {
 	background: rgba(0,0,0,0.5);
 	padding: 15px 0px;
-}";
-require_once("header.php"); ?>
+}';
+require_once('header.php'); 
+?>
 <script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 <script type="application/javascript" src="gallery/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
 <script type="application/javascript" src="gallery/fancybox/jquery.easing-1.3.pack.js"></script>
@@ -67,19 +68,27 @@ $(document).ready(function() {
 <?php start_segment(); ?>
 <center><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304&amp;hl=ro_RO" frameborder="0" allowfullscreen></iframe></center>
 <?php separate_segment(); ?>
-
+<!-- TODO: use class, inline css is just wrong -->
 <nav><table width=100% style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$sections = array("info", "plot", "gameplay", "realms", "requirements", "development", "license");
+$sections = array(
+  'info',
+  'plot', 
+  'gameplay', 
+  'realms', 
+  'requirements', 
+  'development', 
+  'license'
+);
 foreach ($sections as &$sectionItem) {
-	echo "<td><center><a href='#$sectionItem' class='lighten'><img src='images/icons/$sectionItem.png' width='120' height='120' style='display:block;'>".ucfirst($sectionItem)."</a></center></td>";
+	echo '<td><center><a href="#' . $sectionItem . '" class="lighten"><img src="images/icons/' . $sectionItem . '.png" width="120" height="120" style="display:block;">' . ucfirst($sectionItem) . '</a></center></td>';
 }
 ?>
 </tr></table></nav>
 <?php end_segment(); ?>
 <article>
 <?php start_segment(); ?>
-<h3><a id="info" href="#info"><center><b>Info</b></center></a></h3>
+<h3 class="indexheader" id="info"><a href="#info">Info</a></h3>
 <p>
 <b>Ancient Beast</b> is a turn based strategy game played online against other people, featuring a wide variety of items and creatures to aquire and put to good use in order to defeat your opponents.
 </p>
@@ -87,7 +96,7 @@ foreach ($sections as &$sectionItem) {
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This project was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
 <?php separate_segment(); ?>
-<h3><a id="plot" href="#plot"><center><b>Plot</center></b></a></h3>
+<h3 class="indexheader" id="plot"><a href="#plot">Plot</a></h3>
 <p>
 It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
 </p>
@@ -102,21 +111,21 @@ Your browser does not support the audio element.
 </audio>
 </p></center>
 <?php separate_segment(); ?>
-<h3><a id="gameplay" href="#gameplay"><center><b>Gameplay</b></center></a></h3>
+<h3 class="indexheader" id="gameplay"><a href="#gameplay">Gameplay</a></h3>
 <p>
 In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
 </p>
 <?php
-echo "<center>";
-$images = scandir("images/combat");
+echo '<center>';
+$images = scandir('images/combat');
 natsort($images);
 $i = 0;
 foreach($images as $image) {
-	if($image == "." || $image == "..") continue;
+	if($image == '.' || $image == '..') continue;
 	$title = substr($image, 0, -4); 
-	echo "<a id='img{$i}' style='text-align:center;' rel='pop' href='images/combat/$image' title='$title'><img style='width:280px; margin:5px;' src='images/combat/$image' title='$title'></a>";
+	echo '<a id="img' . $i . '" style="text-align:center;" rel="pop" href="images/combat/' . $image . '" title="' . $title . '"><img style="width:280px; margin:5px;" src="images/combat/' . $image .'" title="' . $title . '"></a>';
 	$i++;
-} echo "</center>";?>
+} echo '</center>';?>
 <p>
 Players are represented on the combat field by Dark Priests. All creature stats can be improved by purchasing items.
 Players can level up by gaining experience on the combat field, gaining 1 more plasma point each level, being able to materialize more and/or better creatures. In order to materialize a creature you own, it takes a number of plasma points equal to the creature's level plus the number of hexagons it occupies. Any creature owned can be materialized once per combat, provided the player has enough plasma points to do so.<br>
@@ -141,7 +150,7 @@ After the first materialized creature, each aditional realm requires a plasma po
 <b>Masteries</b> can have an impact on the effectiveness of the creature's abilities and can also help reduce incoming damage and even protect the creature from harmfull effects.
 </p>
 <?php separate_segment(); ?>
-<h3><a id="realms" href="#realms"><center><b>Realms</b></center></a></h3>
+<h3 class="indexheader" id="realms"><a href="#realms">Realms</a></h3>
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.</p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
 <img id="_sins" src="<?php echo $site_root; ?>images/realms/index.png" usemap="#sins" width="506" height="527">
@@ -165,7 +174,8 @@ After the first materialized creature, each aditional realm requires a plasma po
 <div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that were used for God forbidden experiments regarding genetics and bio weapons.</p></div>
 </div>
 <?php separate_segment(); ?>
-<h3><a id="requirements" href="#requirements"><center><b>Requirements</b></center></a></h3>
+<h3 class="indexheader" id="requirements"><a href="#requirements">Requirements</a></h3>
+
 <ul>
 <li>internet connection</li>
 <li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and JavaScript enabled</li>
@@ -178,16 +188,25 @@ After the first materialized creature, each aditional realm requires a plasma po
 <p>Best played at Full HD resolution (1920x1080), with stereo speakers, using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.<br>
 While playing on a smartphone, it is highly recommended using a stylus.</p>
 <?php separate_segment(); ?>
-<h3><a id="development" href="#development"><center><b>Development</b></center></a></h3>
+<h3 class="indexheader" id="development"><a href="#development">Development</a></h3>
 <p>The project is developed with the use of free open source cross platform applications and freeware services.
 <a href="http://www.wuala.com/referral/CGN5J6GH3PBBBHCGKJ3P" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's assets and sources, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group. There is no centralized forum, but you can use the various <a href="http://disqus.com" target="_blank"><b>Disqus</b></a> widgets around the website, our <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>Github issue tracker</b></a> or our <a href="http://forum.freegamedev.net/viewforum.php?f=70" target="_blank"><b>FreeGameDev subforum</b></a>.<br>
 <a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their animations, which are rendered into sprites that are usually made into sprite-sheets as well as for other tasks.<br>
 <a href="http://krita.org" target="_blank"><b>Krita</b></a>, <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> and <a href="http://mypaint.intilinux.com" target="_blank"><b>MyPaint</b></a> are useful for concept art, while <a href="http://inkscape.org" target="_blank"><b>Inkscape</b></a> is useful for creating vector ability icons.</p>
 <table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$tools = array("github"=>"https://github.com/FreezingMoon/AncientBeast", "wuala"=>"http://www.wuala.com/AncientBeast", "deviantart"=>"http://Ancient-Beast.deviantart.com", "blender"=>"http://blender.org", "krita"=>"http://krita.org", "gimp"=>"http://gimp.org", "mypaint"=>"http://mypaint.intilinux.com", "inkscape"=>"http://inkscape.org");
+$tools = array(
+  'github'     => 'https://github.com/FreezingMoon/AncientBeast',
+  'wuala'      => 'http://www.wuala.com/AncientBeast',
+  'deviantart' => 'http://Ancient-Beast.deviantart.com',
+  'blender'    => 'http://blender.org', 
+  'krita'      => 'http://krita.org', 
+  'gimp'       => 'http://gimp.org', 
+  'mypaint'    => 'http://mypaint.intilinux.com', 
+  'inkscape'   => 'http://inkscape.org'
+);
 foreach ($tools as $toolName => $toolLink) {
-	echo "<td><a href='$toolLink' target='_blank' class='lighten'><img src='images/icons/$toolName.png' style='display:block; width:99px; height99px;'>".ucfirst($toolName)."</a></td>";
+	echo '<td><a href="' . $toolLink . '" target="_blank" class="lighten"><img src="images/icons/' . $toolName . '.png" style="display:block; width:99px; height99px;">' . ucfirst($toolName) . '</a></td>';
 }
 ?>
 </tr></table>
@@ -197,7 +216,7 @@ For putting creature sprites together into sprite sheets, you can use the <a hre
 The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. By default, rendered creatures should usually be facing right.
 </p>
 <?php separate_segment(); ?>
-<h3><a id="license" href="#license"><center><b>License</b></center></a></h3>
+<h3 class="indexheader" id="license"><a href="#license">License</a></h3>
 <table border="1"><tr>
 <td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
 </tr><tr>

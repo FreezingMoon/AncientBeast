@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-require_once("global.php"); ?>
+require_once('global.php'); ?>
 <!doctype html>
 <html>
 <head>
@@ -32,21 +32,25 @@ require_once("global.php"); ?>
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, strategy, combat, arena, free, foss, open source, card, chess, creatures, bitcoin, bets">
 <meta name="author" content="Dread Knight">
 <!--set page title-->
-<title><?php
-if (isset($page_title)) {
-	echo $page_title;
-}
-else {
-	echo "AncientBeast - Online PvP TBS Game";
-}?></title>
+<title>
+<?php
+  if (isset($page_title)) {
+	  echo $page_title;
+  }
+  else {
+  	echo "AncientBeast - Online PvP TBS Game";
+  }
+?>
+</title>
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <?php
-if (isset($style)) {
-	echo "<style>$style</style>";
-}
-if (isset($stylesheet)) {
-	echo "<link rel='stylesheet' href='$stylesheet'>";
-} ?>
+  if (isset($style)) {
+  	echo '<style type="text/css">' . $style . '</style>';
+  }
+  if (isset($stylesheet)) {
+	  echo '<link rel="stylesheet" href="' . $stylesheet . '">';
+  } 
+?>
 <!--flattr-->
 <script type="application/javascript" src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
 <!--jquery-->
@@ -87,10 +91,14 @@ $(document).ready(function(){
 <!--navigation menu-->
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-$menu = array("bestiary", "items", "shop", "game", "chat", "gallery");
-foreach ($menu as &$menuItem) {
-	echo "<td><a href='{$site_root}$menuItem' id='$menuItem' class='lighten'><img alt='".ucfirst($menuItem)."' src='{$site_root}images/icons/$menuItem.png' width='100' height='100' style='display:block;'>".ucfirst($menuItem)."</a></td>";
-} ?>
+  $menu = array('bestiary', 'items', 'shop', 'game', 'chat', 'gallery');
+  foreach ($menu as &$menuItem) {
+    echo '<td>
+      <a href="' . $site_root . $menuItem . '" id="' . $menuItem . '" class="lighten">
+      <img alt=" ' . ucfirst($menuItem) . '" src="' . $site_root . 'images/icons/' . $menuItem . '.png" width="100" height="100" style="display:block;">
+      ' . ucfirst($menuItem) . '</a></td>';
+  } 
+?>
 </tr></table></nav>
 </div>
 </header>
