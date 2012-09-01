@@ -76,8 +76,8 @@ function cards($id) { //Print a card
   foreach ($ab_stats_results[0] as $x) {
 		$ab_stats_results[] = $x;
 	}
-	
-	//Card entry
+  
+  //Card entry
 	foreach ($ab_creatures_results as $r) {
 		$ab_name = $r['name'];
 		$spaceless = str_replace(' ', '_', $ab_name);
@@ -124,11 +124,11 @@ function cards($id) { //Print a card
   for($i = 9; $i<18; $i++) {
     echo '<th>' . $stats2[$i] . '</th>';
   }
-		echo '</tr><tr class="numbers">';
-	
-	//Display Numbers
+  echo '</tr><tr class="numbers">';
+
+  //Display Numbers
 	for($i = 10; $i<19; $i++) {
-		echo '<td>' . $ab_stats_results[0][$i] . '</td>';
+		echo '<td>' . $ab_stats_results[$i] . '</td>';
 	}
 	echo '</tr></table></div></th></table></center>';
 }
