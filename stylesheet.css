@@ -151,3 +151,9 @@ a.rollover:hover > img {
 #bluemask {background:#4195aa}
 #frameless {padding:0}
 #frameless .tclose {left:6px}
+
+.indexheader {
+  margin: 0 auto 0 auto;
+  font-weight: bold;
+  text-align: center;
+}
