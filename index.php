@@ -88,7 +88,7 @@ foreach ($sections as &$sectionItem) {
 <?php end_segment(); ?>
 <article>
 <?php start_segment(); ?>
-<h3><a id="info" href="#info"><center><b>Info</b></center></a></h3>
+<h3 class="indexheader" id="info"><a href="#info">Info</a></h3>
 <p>
 <b>Ancient Beast</b> is a turn based strategy game played online against other people, featuring a wide variety of items and creatures to aquire and put to good use in order to defeat your opponents.
 </p>
@@ -96,7 +96,7 @@ foreach ($sections as &$sectionItem) {
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This project was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
 <?php separate_segment(); ?>
-<h3><a id="plot" href="#plot"><center><b>Plot</center></b></a></h3>
+<h3 class="indexheader" id="plot"><a href="#plot">Plot</a></h3>
 <p>
 It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
 </p>
@@ -111,7 +111,7 @@ Your browser does not support the audio element.
 </audio>
 </p></center>
 <?php separate_segment(); ?>
-<h3><a id="gameplay" href="#gameplay"><center><b>Gameplay</b></center></a></h3>
+<h3 class="indexheader" id="gameplay"><a href="#gameplay">Gameplay</a></h3>
 <p>
 In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are 18x12 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
 </p>
@@ -150,7 +150,7 @@ After the first materialized creature, each aditional realm requires a plasma po
 <b>Masteries</b> can have an impact on the effectiveness of the creature's abilities and can also help reduce incoming damage and even protect the creature from harmfull effects.
 </p>
 <?php separate_segment(); ?>
-<h3><a id="realms" href="#realms"><center><b>Realms</b></center></a></h3>
+<h3 class="indexheader" id="realms"><a href="#realms">Realms</a></h3>
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.</p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
 <img id="_sins" src="<?php echo $site_root; ?>images/realms/index.png" usemap="#sins" width="506" height="527">
@@ -174,7 +174,8 @@ After the first materialized creature, each aditional realm requires a plasma po
 <div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger">Wrath</a><p class="contrast">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that were used for God forbidden experiments regarding genetics and bio weapons.</p></div>
 </div>
 <?php separate_segment(); ?>
-<h3><a id="requirements" href="#requirements"><center><b>Requirements</b></center></a></h3>
+<h3 class="indexheader" id="requirements"><a href="#requirements">Requirements</a></h3>
+
 <ul>
 <li>internet connection</li>
 <li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and JavaScript enabled</li>
@@ -187,7 +188,7 @@ After the first materialized creature, each aditional realm requires a plasma po
 <p>Best played at Full HD resolution (1920x1080), with stereo speakers, using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.<br>
 While playing on a smartphone, it is highly recommended using a stylus.</p>
 <?php separate_segment(); ?>
-<h3><a id="development" href="#development"><center><b>Development</b></center></a></h3>
+<h3 class="indexheader" id="development"><a href="#development">Development</a></h3>
 <p>The project is developed with the use of free open source cross platform applications and freeware services.
 <a href="http://www.wuala.com/referral/CGN5J6GH3PBBBHCGKJ3P" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's assets and sources, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group. There is no centralized forum, but you can use the various <a href="http://disqus.com" target="_blank"><b>Disqus</b></a> widgets around the website, our <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>Github issue tracker</b></a> or our <a href="http://forum.freegamedev.net/viewforum.php?f=70" target="_blank"><b>FreeGameDev subforum</b></a>.<br>
 <a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their animations, which are rendered into sprites that are usually made into sprite-sheets as well as for other tasks.<br>
@@ -215,7 +216,7 @@ For putting creature sprites together into sprite sheets, you can use the <a hre
 The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. By default, rendered creatures should usually be facing right.
 </p>
 <?php separate_segment(); ?>
-<h3><a id="license" href="#license"><center><b>License</b></center></a></h3>
+<h3 class="indexheader" id="license"><a href="#license">License</a></h3>
 <table border="1"><tr>
 <td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
 </tr><tr>
