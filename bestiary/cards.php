@@ -103,7 +103,7 @@ function cards($id) { //Print a card
   }
 	echo '</tr><tr class="numbers">';
 	//Display numbers
-	for($i = 1; $i<10; $i++) {
+	for($i = 2; $i<11; $i++) {
     echo '<td>' . $ab_stats_results[$i] . '</td>';
 	}
 	echo '</tr></table>';
@@ -127,7 +127,7 @@ function cards($id) { //Print a card
   echo '</tr><tr class="numbers">';
 
   //Display Numbers
-	for($i = 10; $i<19; $i++) {
+	for($i = 11; $i<20; $i++) {
 		echo '<td>' . $ab_stats_results[$i] . '</td>';
 	}
 	echo '</tr></table></div></th></table></center>';
