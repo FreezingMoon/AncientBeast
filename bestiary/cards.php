@@ -51,15 +51,15 @@
 <?php
 
 function ability($x, &$y, $ab_name, $row) {
-  global $site_root;
-  // ARGH TODO: make this somewhat readable
-  echo '<td style="background-image: url(\'' . $site_root . 'images/cards/contour.png\'), url(\'' . $site_root . 'bestiary/' . $ab_name .'/' . $y . '.svg\'), url(\'' . $site_root . 'images/cards/missing.png\'); background-size: 100% 100%; width:99px; height:99px;\"></td>';
+	global $site_root;
+	// ARGH TODO: make this somewhat readable
+	echo '<td style="background-image: url(\'' . $site_root . 'images/contour.png\'), url(\'' . $site_root . 'bestiary/' . $ab_name .'/' . $y . '.svg\'), url(\'' . $site_root . 'images/missing.png\'); background-size: 100% 100%; width:99px; height:99px;\"></td>';
 	$y++;
 	echo "<td><u>{$row[$x]}</u><br>{$row["$x info"]}</td></tr>";
 }
 
 function cards($id) { //Print a card
-  global $site_root; // from global.php
+	global $site_root; // from global.php
 	global $stats2; // from ???
 
 	$ab_id = mysql_real_escape_string($id);
@@ -72,39 +72,39 @@ function cards($id) { //Print a card
  	$ab_stats_results = db_query($ab_stats);
 
 
-  //make it so $ab_stats_results[0][$i] works for the forloop to retrieve half
-  foreach ($ab_stats_results[0] as $x) {
+	//make it so $ab_stats_results[0][$i] works for the forloop to retrieve half
+	foreach ($ab_stats_results[0] as $x) {
 		$ab_stats_results[] = $x;
 	}
   
-  //Card entry
+	//Card entry
 	foreach ($ab_creatures_results as $r) {
 		$ab_name = $r['name'];
 		$spaceless = str_replace(' ', '_', $ab_name);
-    $sins = array(
-      'A' => 'gold', 
-      'E' => 'orange', 
-      'G' => 'green', 
-      'L' => 'red', 
-      'P' => 'violet', 
-      'S' => 'blue', 
-      'W' => 'indigo', 
-      '-' => 'grey'
-    );
-    echo '<center><a name="' . $spaceless . '"></a><table border=0><th class="card" style="background-image: url(\'' . $site_root .'images/cards/margin.png\'), url(\'' . $site_root .'bestiary/' . $r['name'] .'/artwork.jpg\'), url(\'' . $site_root . 'images/cards/' . $r['sin'] . '.jpg\'); background-position:center;">';
+	$sins = array(
+		'A' => 'gold', 
+		'E' => 'orange', 
+		'G' => 'green', 
+		'L' => 'red', 
+		'P' => 'violet', 
+		'S' => 'blue', 
+		'W' => 'indigo', 
+		'-' => 'grey',
+	);
+	echo '<center><a name="' . $spaceless . '"></a><table border=0><th class="card" style="background-image: url(\'' . $site_root .'images/cards/margin.png\'), url(\'' . $site_root .'bestiary/' . $r['name'] .'/artwork.jpg\'), url(\'' . $site_root . 'images/cards/' . $r['sin'] . '.jpg\'); background-position:center;">';
 
-		echo '<a href="#' . $spaceless .'"><div class="section" style="border:0px; width:430px; height:550px;"><table class="section" style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge ' . $sins[$r['sin']] . '; position:relative; top:495px; left:15px;"><tr style="font-size:24px; text-align:center;"><td width="20%">' . $r['sin'] . $r['lvl'] . '</td><td>' . $r['name'] . '<td width="20%">' . $r['hex'] . 'H</td></tr></table></div></a>';
+	echo '<a href="#' . $spaceless .'"><div class="section" style="border:0px; width:430px; height:550px;"><table class="section" style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge ' . $sins[$r['sin']] . '; position:relative; top:495px; left:15px;"><tr style="font-size:24px; text-align:center;"><td width="20%">' . $r['sin'] . $r['lvl'] . '</td><td>' . $r['name'] . '<td width="20%">' . $r['hex'] . 'H</td></tr></table></div></a>';
 	}
 	
 	//Display ICONS
 	echo '</th><th class="card" style="background-image: url(\'' . $site_root . 'images/cards/margin.png\'), url(\'' . $site_root . 'images/cards/' . $r['sin'] . '.jpg\'); background-position:center;"><div style="padding-left:15px;"><table class="section"><tr class="numbers">';
-  for($i = 0; $i<9; $i++) {
-    echo '<th>' . $stats2[$i] . '</th>';
-  }
+	for($i = 0; $i<9; $i++) {
+		echo '<th>' . $stats2[$i] . '</th>';
+	}
 	echo '</tr><tr class="numbers">';
 	//Display numbers
 	for($i = 2; $i<11; $i++) {
-    echo '<td>' . $ab_stats_results[$i] . '</td>';
+		echo '<td>' . $ab_stats_results[$i] . '</td>';
 	}
 	echo '</tr></table>';
 
@@ -115,18 +115,18 @@ function cards($id) { //Print a card
 	foreach ($ab_abilities_results as $r) {
 		foreach ($abilities as $x) {
       ability($x, $y, $ab_name, $r);
-    }
-  }
+		}
+	}
 	echo '</tr></table>';
 
 	//Display ICONS
 	echo '<table class="section"><tr class="numbers">';
-  for($i = 9; $i<18; $i++) {
-    echo '<th>' . $stats2[$i] . '</th>';
-  }
-  echo '</tr><tr class="numbers">';
+	for($i = 9; $i<18; $i++) {
+		echo '<th>' . $stats2[$i] . '</th>';
+	}
+	echo '</tr><tr class="numbers">';
 
-  //Display Numbers
+	//Display Numbers
 	for($i = 11; $i<20; $i++) {
 		echo '<td>' . $ab_stats_results[$i] . '</td>';
 	}
