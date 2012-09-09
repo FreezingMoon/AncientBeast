@@ -27,11 +27,31 @@ require_once('../header.php');
 require_once('../global.php');
 require_once('../stats/index.php');
 require_once('cards.php');
-require_once('progress.php');
 $spaceless = str_replace(' ', '_', $r['name']);
 
 $creatures = 'SELECT * FROM ab_creatures ORDER BY sin, lvl';
 $creature_results = db_query($creatures);
+
+function progress($id, $ab_name) {
+	$ab_id = mysql_real_escape_string($id);
+	$ab_progress = "SELECT * FROM ab_progress WHERE id = '$ab_id'";
+	$rows = db_query($ab_progress);
+	foreach ($rows as $r) {
+		$sum = array_sum($r);
+		$total = ($sum - $r['id']) / 10;
+		$rounded_total = 10 * round ($total/10) ;
+		echo "<center><div style='width:825px; background-image:url(../images/progress/widget.png);'><a href='http://www.wuala.com/AncientBeast/bestiary/$ab_name' target='_blank'>";
+		foreach($r as $key => $value) {
+			if($key == 'id') continue;
+			$title = ucfirst($key) . ": $value% complete";
+			echo "<img src='../images/progress/$value.png' title='$title'>";
+		} echo "<img src='../images/progress/$rounded_total.png' title='Total: $total% completed'></a></div></center>";
+	}
+}
+
+function call_creature($name) {
+	echo '<br><div align=center><audio controls src="' . $name . '/name.ogg"></audio></div>';
+}
 
 echo '<div style="text-align:center;"><a name="grid">';
 foreach ($creature_results as $r) {
@@ -48,6 +68,7 @@ foreach ($creature_results as $r) {
 	cards($r['id']);
 	echo '<br>';
 	progress($r['id'], $r['name']);
+	call_creature($r['name']);
 	end_segment();
 }
 
