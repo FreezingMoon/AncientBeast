@@ -50,7 +50,7 @@ function progress($id, $ab_name) {
 }
 
 function call_creature($name) {
-	echo '<br><div align=center><audio controls src="' . $name . '/name.ogg"></audio></div>';
+	echo '<br><div align=center><audio controls src="' . $name . '/' . $name . '.ogg"></audio></div>';
 }
 
 echo '<div style="text-align:center;"><a name="grid">';
