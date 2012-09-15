@@ -93,7 +93,7 @@ function cards($id) { //Print a card
 	);
 	echo '<center><a name="' . $spaceless . '"></a><table border=0><th class="card" style="background-image: url(\'' . $site_root .'images/cards/margin.png\'), url(\'' . $site_root .'bestiary/' . $r['name'] .'/artwork.jpg\'), url(\'' . $site_root . 'images/cards/' . $r['sin'] . '.jpg\'); background-position:center;">';
 
-	echo '<a href="#' . $spaceless .'"><div class="section" style="border:0px; width:430px; height:550px;"><table class="section" style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge ' . $sins[$r['sin']] . '; position:relative; top:495px; left:15px;"><tr style="font-size:24px; text-align:center;"><td width="20%">' . $r['sin'] . $r['lvl'] . '</td><td>' . $r['name'] . '<td width="20%">' . $r['hex'] . 'H</td></tr></table></div></a>';
+	echo '<a href="#' . $spaceless .'"><div class="section" style="border:0px; width:430px; height:550px;"><table class="section" style="background:rgba(0,0,0,0.7); border-radius:15px; border:4px ridge ' . $sins[$r['sin']] . '; position:relative; top:495px; left:15px;"><tr style="font-size:24px; text-align:center; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em ' . $sins[$r['sin']] . ';"><td width="20%">' . $r['sin'] . $r['lvl'] . '</td><td>' . $r['name'] . '<td width="20%">' . $r['hex'] . 'H</td></tr></table></div></a>';
 	}
 	
 	//Display ICONS
