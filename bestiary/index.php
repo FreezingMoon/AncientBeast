@@ -54,6 +54,7 @@ function call_creature($name) {
 	echo '<br><div align=center><audio controls src="' . $name . '/' . $spaceless . '.ogg"></audio></div>';
 }
 
+//grid view
 echo '<div style="text-align:center;"><a name="grid">';
 foreach ($creature_results as $r) {
 	if ($r['id'] == 0 || $r['id'] == 50) {
@@ -64,6 +65,7 @@ foreach ($creature_results as $r) {
 }
 echo '</a></div>';
 
+//detailed view
 foreach ($creature_results as $r) {
 	start_segment();
 	cards($r['id']);
