@@ -34,7 +34,7 @@ $style = "
 }";
 require_once("../header.php");
 require_once("../global.php");
-require_once("..images/stats/index.php");
+require_once("../images/stats/index.php");
 
 //Sorts the arrays by absolute value
 function magnitudesort($a, $b)
