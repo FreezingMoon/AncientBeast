@@ -25,7 +25,7 @@
 $page_title = 'Ancient Beast - Bestiary';
 require_once('../header.php');
 require_once('../global.php');
-require_once('../stats/index.php');
+require_once('../images/stats/index.php');
 require_once('cards.php');
 $spaceless = str_replace(' ', '_', $r['name']);
 
