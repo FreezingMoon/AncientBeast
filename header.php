@@ -91,7 +91,7 @@ $(document).ready(function(){
 <!--navigation menu-->
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-  $menu = array('bestiary', 'items', 'shop', 'game', 'chat', 'gallery');
+  $menu = array('bestiary', 'items', 'profile', 'game', 'chat', 'gallery');
   foreach ($menu as &$menuItem) {
     echo '<td>
       <a href="' . $site_root . $menuItem . '" id="' . $menuItem . '" class="lighten">

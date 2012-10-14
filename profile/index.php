@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Ancient Beast - Shop";
+$page_title = "Ancient Beast - Profile";
 require_once("../header.php");
 require_once("../global.php");
 start_segment(); ?>
@@ -30,7 +30,7 @@ start_segment(); ?>
 end_segment();
 
 start_segment();
-echo "<center>Are you interested in Ancient Beast t-shirts? Black or white? What size? Which creature imprinted on it?</center>";
+echo "<center>Here be login options, player stats, friends etc</center>";
 separate_segment();
 include("../utils/disqus.php");
 end_segment();
