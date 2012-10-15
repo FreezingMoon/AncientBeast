@@ -1,0 +1,388 @@
+body{
+	background: white;
+	margin: 0;
+	padding: 0;
+}
+
+#combatframe *{ /*avoid selecting game element*/
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+#combatframe{
+	height: 803px;
+	width: 1920px;
+	background: url('../../locations/forest/bg.jpg');
+	-webkit-perspective: 3000;
+	-webkit-perspective-origin: 50% 50%;
+	-moz-perspective: 3000;
+	-moz-perspective-origin: 50% 50%;
+	padding: 277px 0 0 0;
+	position: absolute;
+	top:0px;
+	left:0px;
+
+	transform-origin:0% 0%;
+	-ms-transform-origin:0% 0%; /* IE 9 */
+	-webkit-transform-origin:0% 0%; /* Safari and Chrome */
+	-moz-transform-origin:0% 0%; /* Firefox */
+	-o-transform-origin:0% 0%; /* Opera */
+}
+
+#grid{
+	width: 90.1em;
+	height: 45em;
+	margin: 50px auto 0 auto;
+	-webkit-transform: rotateX(45deg) ;
+	-moz-transform: rotateX(45deg) ;
+}
+
+#hexsinput, #hexsdisplay, #creatureWrapper{
+	position: relative;
+	top: 0px;
+	left: 0px;
+	/*-webkit-transform: scale(1, .75);
+	-moz-transform: scale(1, .75);
+	-o-transform: scale(1, .75);
+	transform: scale(1, .75);*/
+}
+#hexsdisplay{z-index: 1;}
+#creatureWrapper{z-index: 2;}
+#hexsinput{z-index: 3;}
+
+div.row:nth-child(1){top:0em;}
+div.row:nth-child(2){top:4.868em;} /*--(n-1)*4.868--*/
+div.row:nth-child(3){top:9.736em;} 
+div.row:nth-child(4){top:14.604em;}
+div.row:nth-child(5){top:19.472em;}
+div.row:nth-child(6){top:24.34em;}
+div.row:nth-child(7){top:29.208em;}
+div.row:nth-child(8){top:34.076em;}
+div.row:nth-child(9){top:38.944em;}
+
+.row{position: absolute;}
+
+.even{padding: 0px 2.818em;}
+
+.hex{display: inline-block; position: relative;}
+
+#hexsdisplay{
+	opacity: .6;
+}
+
+.displayhex{
+	position: absolute;
+	display: inline-block;
+	background: url('../grid/hex.png');
+	width: 90px;
+	height: 52px;
+	margin: -36px -10px;
+	padding: 36px 10px;
+	transition: opacity 500ms;
+	-moz-transition: opacity 500ms; /* Firefox 4 */
+	-webkit-transition: opacity 500ms; /* Safari and Chrome */
+	-o-transition: opacity 500ms; /* Opera */
+}
+
+/*even ROW*/
+#hexsdisplay .displayhex:nth-child(32n+1){left:46px;}
+#hexsdisplay .displayhex:nth-child(32n+2){left:136px;}
+#hexsdisplay .displayhex:nth-child(32n+3){left:226px;}
+#hexsdisplay .displayhex:nth-child(32n+4){left:316px;}
+#hexsdisplay .displayhex:nth-child(32n+5){left:406px;}
+#hexsdisplay .displayhex:nth-child(32n+6){left:496px;}
+#hexsdisplay .displayhex:nth-child(32n+7){left:586px;}
+#hexsdisplay .displayhex:nth-child(32n+8){left:676px;}
+#hexsdisplay .displayhex:nth-child(32n+9){left:766px;}
+#hexsdisplay .displayhex:nth-child(32n+10){left:856px;}
+#hexsdisplay .displayhex:nth-child(32n+11){left:946px;}
+#hexsdisplay .displayhex:nth-child(32n+12){left:1036px;}
+#hexsdisplay .displayhex:nth-child(32n+13){left:1126px;}
+#hexsdisplay .displayhex:nth-child(32n+14){left:1216px;}
+#hexsdisplay .displayhex:nth-child(32n+15){left:1306px;}
+#hexsdisplay .displayhex:nth-child(32n+16){display: none;}
+
+/*odd ROW*/
+#hexsdisplay .displayhex:nth-child(32n+17){left:0px;}
+#hexsdisplay .displayhex:nth-child(32n+18){left:90px;}
+#hexsdisplay .displayhex:nth-child(32n+19){left:180px;}
+#hexsdisplay .displayhex:nth-child(32n+20){left:270px;}
+#hexsdisplay .displayhex:nth-child(32n+21){left:360px;}
+#hexsdisplay .displayhex:nth-child(32n+22){left:450px;}
+#hexsdisplay .displayhex:nth-child(32n+23){left:540px;}
+#hexsdisplay .displayhex:nth-child(32n+24){left:630px;}
+#hexsdisplay .displayhex:nth-child(32n+25){left:720px;}
+#hexsdisplay .displayhex:nth-child(32n+26){left:810px;}
+#hexsdisplay .displayhex:nth-child(32n+27){left:900px;}
+#hexsdisplay .displayhex:nth-child(32n+28){left:990px;}
+#hexsdisplay .displayhex:nth-child(32n+29){left:1080px;}
+#hexsdisplay .displayhex:nth-child(32n+30){left:1170px;}
+#hexsdisplay .displayhex:nth-child(32n+31){left:1260px;}
+#hexsdisplay .displayhex:nth-child(32n){left:1350px;}
+
+#hexsdisplay .even_row:nth-child(16n){} //Hide the last hexagon of each even row
+
+#hexsdisplay .row_0{top:0em;}
+#hexsdisplay .row_1{top:4.868em;} /*--(n-1)*4.868--*/
+#hexsdisplay .row_2{top:9.736em;} 
+#hexsdisplay .row_3{top:14.604em;}
+#hexsdisplay .row_4{top:19.472em;}
+#hexsdisplay .row_5{top:24.34em;}
+#hexsdisplay .row_6{top:29.208em;}
+#hexsdisplay .row_7{top:34.076em;}
+#hexsdisplay .row_8{top:38.944em;}
+
+#hexsdisplay .displayhex.not-reachable{
+	opacity: 0;
+}
+
+#hexsinput .hex div,.hex div:before,.hex div:after{
+	position: relative;
+	display: block;
+	color: black;
+	margin: 0;
+	padding:0;
+	top: 0px;
+	left: 0px;
+	width: 90px;
+	height: 52px;
+	z-index: 99;
+	text-align: center;	font-size: 20px; line-height: 20px; /*for debug*/
+	cursor: pointer;
+}
+
+#hexsinput .hex div:before{
+	position: relative;
+	content: "";
+	transform:rotate(-60deg);
+	-ms-transform:rotate(-60deg); /* IE 9 */
+	-moz-transform:rotate(-60deg); /* Firefox */
+	-webkit-transform:rotate(-60deg); /* Safari and Chrome */
+	-o-transform:rotate(-60deg); /* Opera */
+}
+
+#hexsinput .hex div:after{
+	position: absolute;
+	content: "";
+	transform:rotate(60deg);
+	-ms-transform:rotate(60deg); /* IE 9 */
+	-moz-transform:rotate(60deg); /* Firefox */
+	-webkit-transform:rotate(60deg); /* Safari and Chrome */
+	-o-transform:rotate(60deg); /* Opera */
+}
+
+#hexsdisplay .displayhex.hover{ z-index: 8;}
+.adj{background: url("../grid/hex_path.png");  z-index: 5;}
+
+/*--------------------Players------------------*/
+.displayhex.creature{z-index: 6; opacity: 1 !important;}
+/*p0*/
+.displayhex.hover.h_player0{background: url("../grid/hex_hover_p0.png");}
+.displayhex.creature.player0{background: url("../grid/hex_p0.png");}
+/*p1*/
+.displayhex.hover.h_player1{background: url("../grid/hex_hover_p1.png");}
+.displayhex.creature.player1{background: url("../grid/hex_p1.png");}
+/*p2*/
+.displayhex.hover.h_player2{background: url("../grid/hex_hover_p2.png");}
+.displayhex.creature.player2{background: url("../grid/hex_p2.png");}
+/*p3*/
+.displayhex.hover.h_player3{background: url("../grid/hex_hover_p3.png");}
+.displayhex.creature.player3{background: url("../grid/hex_p3.png");}
+
+
+/*------------------Creatures------------------*/
+#grid #creatureWrapper{
+	-webkit-perspective: 3000;
+	-webkit-perspective-origin: 50% 50%;
+}
+
+#creatureWrapper .creature .effects{
+	position: relative;
+	top: 0px;
+	left: 0px;
+}
+
+#creatureWrapper .creature{
+	display: block;
+	background: blue;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	background: url("../../bestiary/Magma Spawn/cardboard.png");
+
+
+	/*Rectify distortion due to grid perspective*/
+	transform: rotateX(-33deg) scale(1,1.8) ;
+	-ms-transform: rotateX(-33deg) scale(1,1.8) ; /* IE 9 */
+	-moz-transform: rotateX(-33deg) scale(1,1.8) ; /* Firefox */
+	-webkit-transform: rotateX(-33deg) scale(1,1.8) ; /* Safari and Chrome */
+	-o-transform: rotateX(-33deg) scale(1,1.8) ; /* Opera */
+
+	transform-origin:65% 100%;
+	-ms-transform-origin:65% 100%; /* IE 9 */
+	-webkit-transform-origin:65% 100%; /* Safari and Chrome */
+	-moz-transform-origin:65% 100%; /* Firefox */
+	-o-transform-origin:65% 100%; /* Opera */
+
+}
+
+#creatureWrapper div.creature.fliped{
+	-webkit-transform: rotateX(-33deg) scale(-.75,1.35);
+	transform-origin:48% 100%;
+	-ms-transform-origin:48% 100%; /* IE 9 */
+	-webkit-transform-origin:48% 100%; /* Safari and Chrome */
+	-moz-transform-origin:48% 100%; /* Firefox */
+	-o-transform-origin:48% 100%; /* Opera */
+}
+
+#creatureWrapper .creature.type_1{
+	width: 275px;
+	height: 201px;
+	margin-top: -153px;
+	padding: 0px 0px 10px;
+	-webkit-transform: rotateX(-33deg) scale(.75,1.35)
+}
+/*-----------------EFFECTS-------------------*/
+
+.damage{
+	font-size: 220%;
+	color: red;
+	font-style: italic;
+	font-weight: bold;
+	text-shadow: 2px 2px 7px  black;
+	display: block;
+	position: absolute;
+	height: 50px;
+	width: 100px;
+	margin-left: -50px;
+	top:0px;
+	left: 50%;
+	text-align: center;
+}
+
+.fliped .damage{ -webkit-transform: scale(-1,1); }
+/*-----------------UI-------------------*/
+#ui{
+	top: 0px;
+	left: 0px;
+	display: block;
+	width: 0px;
+	height: 0px;
+}
+
+#toppanel{
+	position: fixed;
+	top:0px;
+	width: 100%;
+	z-index: 2;
+}
+
+#bottompanel{
+	position: fixed;
+	bottom: 0px;
+	width: 100%;
+	z-index: 2;
+}
+
+#rightpanel{
+	position: absolute;
+	right: 0px;
+}
+#leftpanel{
+	position: absolute;
+	left: 0px;
+}
+
+.button{
+	width:100px;
+	height:100px;
+	background: url('../icons/end.svg');
+	background-size: 100% 100%;
+}
+
+#queuewrapper{display: block; width: 2000px;}
+#queue{
+	width: 600px;
+	background: black;
+	height: 75px;
+	position: absolute;
+	left: 50%;
+	margin-left: -300px;
+	top: 0px;
+	overflow: hidden;
+}
+
+#queue .vignette{
+	display: inline-block;
+	height: 74px;
+	width: 74px;
+	background-image: url("../../bestiary/Magma Spawn/avatar.png");
+	padding: 0px;
+	margin: 1px;
+}
+
+#queue .vignette.p0{background-color: red;}
+#queue .vignette.p1{background-color: yellow;}
+#queue .vignette.p2{background-color: blue;}
+#queue .vignette.p3{background-color: green;}
+
+
+/*---------------TEXTBOX--------------*/
+#textbox{
+	width: 800px;
+	height: 40px;
+	background-color: black;
+	position: absolute;
+	left: 50%;
+	bottom: 0px;
+	margin-left: -400px;
+	overflow-y: scroll;
+	transition: height 500ms;	
+	-moz-transition: height 500ms; /* Firefox 4 */
+	-webkit-transition: height 500ms; /* Safari and Chrome */
+	-o-transition: height 500ms; /* Opera */
+}
+
+#textbox:hover{
+	height: 300px;
+}
+#textbox #textcontent{
+	color: white;
+	padding: 10px;
+	width: 760px;
+}
+
+#textbox #textcontent p{
+	margin: 2px 0 7px;
+}
+
+
+/*---------------ACTIVE CREATURE--------------*/
+#activebox{
+	background-color: black;
+}
+#activebox .vignette{
+	display: block;
+	height: 74px;
+	width: 74px;
+	padding: 13px;
+	background-image: url("../../bestiary/Magma Spawn/avatar.png");
+	background-repeat: no-repeat;
+	background-origin: content-box;
+}
+#activebox .vignette.p0{background-color: red;}
+#activebox .vignette.p1{background-color: yellow;}
+#activebox .vignette.p2{background-color: blue;}
+#activebox .vignette.p3{background-color: green;}
+
+#activebox .ability{
+	display: block;
+	height: 100px;
+	width: 100px;
+	background-image: url("../../bestiary/Magma Spawn/0.svg");
+	background-size: 100% 100%;
+}
