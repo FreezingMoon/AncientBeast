@@ -15,7 +15,8 @@ var HexGrid = Class.create({
 	*	$display : 		Grid container 
 	*	$creatureW : 	Creature Wrapper container
 	*	$inptHexsW : 	Input Hexagons container
-	*	$dispHexsW : 	Current active creature panel (left panel) container
+	*	$dispHexsW : 	Display Hexagons container
+	*	$overHexsW : 	Overlay Hexagons container
 	*	$allInptHex : 	Shortcut to all input hexagons DOM elements (for input events)
 	*	$allDispHex : 	Shortcut to all display hexagons DOM elements (to change style of hexagons)
 	*	
@@ -40,9 +41,11 @@ var HexGrid = Class.create({
 		this.$creatureW 	= $j("#creatureWrapper"); //Creature Wrapper
 		this.$inptHexsW		= $j("#hexsinput"); //Input Hexs Wrapper
 		this.$dispHexsW		= $j("#hexsdisplay"); //Display Hexs Wrapper
+		this.$overHexsW		= $j("#hexsoverlay"); //Display Hexs Wrapper
 
 		this.$allInptHex	= $j("#hexsinput .hex"); //All Input Hexs
 		this.$allDispHex	= $j("#hexsdisplay .displayhex"); //All Display Hexs
+		this.$allOverHex	= $j("#hexsoverlay .displayhex"); //All Display Hexs
 
 		var grid = this; //Escape Jquery namespace
 
@@ -86,6 +89,15 @@ var HexGrid = Class.create({
 	*
 	*/
 	cleanDisplay: function(cssClass){ this.$allDispHex.removeClass(cssClass); },
+
+	cleanOverlay: function(cssClass){ this.$allOverHex.removeClass(cssClass); },
+
+	/*	updateDisplay()
+	* 	
+	*	Update overlay hexs with creature positions
+	*
+	*/
+	updateDisplay: function(){ this.cleanOverlay("creature player0 player1 player2 player3"); this.hexs.each(function(){ this.each(function(){ if( this.creature > 0 ) this.$overlay.addClass("creature player"+G.creatures[this.creature].team); }); });	},
 
 
 	/*	highlightCreatureRange(x, y, distance, size)
@@ -144,6 +156,7 @@ var Hex = Class.create({
 	*
 	*	//Jquery attributes
 	*	$display : 		Hex display element
+	*	$overlay : 		Hex overlay element
 	*	$input : 		Hex input element (bind controls on it)
 	*	
 	*	//Normal attributes
@@ -186,6 +199,7 @@ var Hex = Class.create({
 		this.reachable = true;
 
 		this.$display = $j('#hexsdisplay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object
+		this.$overlay = $j('#hexsoverlay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object
 		this.$input = $j('#hexsinput .hex[x="'+x+'"][y="'+y+'"]'); //Input Jquery object
 		
 		this.displayPos = (y%2 == 0) ? //IF EVEN ROW
