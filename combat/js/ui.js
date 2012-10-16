@@ -36,18 +36,40 @@ var UI = Class.create({
 	},
 
 
-	/*	button()
-	*	
-	* 	TODO
+	/*	updateActiveBox()
+	*
+	*	Update activebox with new current creature's abilities
 	*
 	*/
-	button: function(cssClass,callbackFunction){
+	updateActivebox: function(){
 
+		var $abilitiesButtons = G.UI.$activebox.children("#abilities").children(".ability");
+		$abilitiesButtons.unbind("click");
+
+		this.$activebox.transition({x:"-100px"},function(){//Hide panel	
+
+			//Change active creature vignette
+			G.UI.$activebox.children(".vignette").attr("class","vignette p"+G.activeCreature.team+" type"+G.activeCreature.type);
+
+			//Change abilities buttons
+			$abilitiesButtons.each(function(){
+				var id = $j(this).attr("ability") - 0;
+				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
+				$j(this).children(".desc").text(G.activeCreature.abilities[id].title);
+				$j(this).bind('click', function(e){
+					G.activeCreature.abilities[id].use() 
+				});
+			});
+
+			G.UI.$activebox.transition({x:"0px"}); //Show panel
+		}); 
 	},
+
 
 	nextCreature: function(){
 		this.$queue.children('div.vignette').first().attr("queue","-1").hide(750,function(){ this.remove(); });
 		this.updateQueueDisplay();
+		this.updateActivebox();
 	},
 
 	/*	updateQueueDisplay()
@@ -80,14 +102,14 @@ var UI = Class.create({
 
 			for (var i = 0; i < queue.length; i++) {
 				if($Q[i] == undefined){
-					this.$queue.append('<div queue="'+u+'" creatureid="'+queue[i].id+'" delay="'+queue[i].getDelay()+'" class="vignette p'+queue[i].team+'"></div>');
+					this.$queue.append('<div queue="'+u+'" creatureid="'+queue[i].id+'" delay="'+queue[i].getDelay()+'" class="vignette p'+queue[i].team+" type"+queue[i].type+'"></div>');
 					$vignettes = this.$queue.children('div.vignette');
 					$Q = $vignettes.filter('[queue="'+u+'"]');
 					$Q.filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').hide().show(750);
 				}
 				while( $j($Q[i]).attr("creatureid") != queue[i].id ){
 					if( $j($Q[i]).attr("delay") > queue[i].getDelay() ) {
-						$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" delay="'+queue[i].getDelay()+'" class="vignette p'+queue[i].team+'"></div>');
+						$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" delay="'+queue[i].getDelay()+'" class="vignette p'+queue[i].team+" type"+queue[i].type+'"></div>');
 						this.$queue.children('div.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').hide().show(750);
 					}else{
 						$j($Q[i]).attr("queue","-1").hide(750,function(){
