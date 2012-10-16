@@ -65,7 +65,39 @@ var Game = Class.create({
 		this.$combatFrame = $j("#combatframe");
 
 		for (var i = 0; i < nbrPlayer; i++) {
-			this.players.push(new Player(i,nbrPlayer));
+			var player = new Player(i)
+			this.players.push(player);
+
+			//starting position
+			var pos = {};
+			if(nbrPlayer>2){//If 4 players
+				switch(player.id){
+					case 0: 
+						pos = {x:0	,y:1};
+						break;
+					case 1: 
+						pos = {x:15	,y:1};
+						break;
+					case 2: 
+						pos = {x:0	,y:7};
+						break;
+					case 3: 
+						pos = {x:15	,y:7};
+						break;
+				}
+			}else{//If 2 players
+				switch(player.id){
+					case 0: 
+						pos = {x:0	,y:4};
+						break;
+					case 1: 
+						pos = {x:14	,y:4};
+						break;
+				}
+			}
+
+			player.summon("0",pos); //Summon Dark Priest
+			
 		};
 
 		this.UI = new UI(); //Creating UI not before because certain function requires creature to exists
@@ -77,10 +109,6 @@ var Game = Class.create({
 
 		this.nextCreature();
 
-		// this.resizeField();
-		// $j(window).resize(function(e){
-		// 	 G.resizeField();
-		// });
 	},
 
 
@@ -159,6 +187,40 @@ var Game = Class.create({
 	endTurn: function(){
 		this.activeCreature.deactivate();
 	},
+
+
+	/*	retreiveCre
+	*
+	*	type : 	String : 	Creature type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
+	*
+	*	Query the database for creature stats
+	*
+	*/
+	retreiveCreatureStats: function(type){
+		//TEMPORARY SOLUTION
+		var data = (type=="0")
+		?{
+			name: "Dark Priest",
+			type: "0",
+			size: 1,
+			stats: {
+				health: 999,
+				delay:10,
+				movement:0,
+			},
+		}
+		:{
+			name: "Magma Spawn",
+			type: "L2",
+			size: 3,
+			stats: {
+				health: 10,
+				delay:15,
+				movement:5,
+			},
+		};
+		return data;
+	},
 });
 
 
@@ -176,52 +238,27 @@ var Player = Class.create({
 	*	fliped : 	Boolean : 	Player side of the battlefeild. (affect displayed creature)
 	*
 	*/
-	initialize: function(id,nbrPlayer){
+	initialize: function(id){
 		this.id = id;
 		this.creatures = [];
 		this.plasma = 50;
 		this.fliped = !!(id%2); //Convert odd/even to true/false
-
-		var pos = {};
-		if(nbrPlayer>2){//If 4 players
-			switch(this.id){
-				case 0: 
-					pos = {x:2	,y:1};
-					break;
-				case 1: 
-					pos = {x:15	,y:1};
-					break;
-				case 2: 
-					pos = {x:2	,y:7};
-					break;
-				case 3: 
-					pos = {x:15	,y:7};
-					break;
-			}
-		}else{//If 2 players
-			switch(this.id){
-				case 0: 
-					pos = {x:2	,y:4};
-					break;
-				case 1: 
-					pos = {x:14	,y:4};
-					break;
-			}
-		}
-
-		var DarkPriest = new Creature({
-			name: "Magma spawn",
-			type: 1,
-			x:pos.x,
-			y:pos.y,
-			size:3,
-			stats: {
-				health: 10,
-				delay:10,
-				movement:5,
-			},
-			team:this.id,
-		});
-		this.creatures[DarkPriest.id] = DarkPriest;
 	},
+
+	/*	summon()
+	*
+	*	type : 	String : 	Creature type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
+	*	pos : 	Object : 	Position {x,y}
+	*
+	*/
+	summon: function(type,pos){
+
+		var data = G.retreiveCreatureStats(type);
+
+		data = $j.extend(data,pos,{team:this.id}); //create the full data for creature creation
+		
+		var creature = new Creature(data);
+
+		this.creatures[creature.id] = creature;
+	}
 });
