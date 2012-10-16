@@ -41,7 +41,7 @@ body{
 	-moz-transform: rotateX(45deg) ;
 }
 
-#hexsinput, #hexsdisplay, #creatureWrapper{
+#hexsinput, #hexsdisplay, #creatureWrapper, #hexsoverlay{
 	position: relative;
 	top: 0px;
 	left: 0px;
@@ -50,9 +50,10 @@ body{
 	-o-transform: scale(1, .75);
 	transform: scale(1, .75);*/
 }
-#hexsdisplay{z-index: 1;}
-#creatureWrapper{z-index: 2;}
-#hexsinput{z-index: 3;}
+#hexsdisplay{z-index: 1; opacity: .6;}
+#hexsoverlay{z-index: 2;}
+#creatureWrapper{z-index: 3;}
+#hexsinput{z-index: 4;}
 
 div.row:nth-child(1){top:0em;}
 div.row:nth-child(2){top:4.868em;} /*--(n-1)*4.868--*/
@@ -70,14 +71,10 @@ div.row:nth-child(9){top:38.944em;}
 
 .hex{display: inline-block; position: relative;}
 
-#hexsdisplay{
-	opacity: .6;
-}
-
+#hexsdisplay .displayhex{background: url('../grid/hex.png');}
 .displayhex{
 	position: absolute;
 	display: inline-block;
-	background: url('../grid/hex.png');
 	width: 90px;
 	height: 52px;
 	margin: -36px -10px;
@@ -89,54 +86,54 @@ div.row:nth-child(9){top:38.944em;}
 }
 
 /*even ROW*/
-#hexsdisplay .displayhex:nth-child(32n+1){left:46px;}
-#hexsdisplay .displayhex:nth-child(32n+2){left:136px;}
-#hexsdisplay .displayhex:nth-child(32n+3){left:226px;}
-#hexsdisplay .displayhex:nth-child(32n+4){left:316px;}
-#hexsdisplay .displayhex:nth-child(32n+5){left:406px;}
-#hexsdisplay .displayhex:nth-child(32n+6){left:496px;}
-#hexsdisplay .displayhex:nth-child(32n+7){left:586px;}
-#hexsdisplay .displayhex:nth-child(32n+8){left:676px;}
-#hexsdisplay .displayhex:nth-child(32n+9){left:766px;}
-#hexsdisplay .displayhex:nth-child(32n+10){left:856px;}
-#hexsdisplay .displayhex:nth-child(32n+11){left:946px;}
-#hexsdisplay .displayhex:nth-child(32n+12){left:1036px;}
-#hexsdisplay .displayhex:nth-child(32n+13){left:1126px;}
-#hexsdisplay .displayhex:nth-child(32n+14){left:1216px;}
-#hexsdisplay .displayhex:nth-child(32n+15){left:1306px;}
-#hexsdisplay .displayhex:nth-child(32n+16){display: none;}
+.displayhex:nth-child(32n+1){left:46px;}
+.displayhex:nth-child(32n+2){left:136px;}
+.displayhex:nth-child(32n+3){left:226px;}
+.displayhex:nth-child(32n+4){left:316px;}
+.displayhex:nth-child(32n+5){left:406px;}
+.displayhex:nth-child(32n+6){left:496px;}
+.displayhex:nth-child(32n+7){left:586px;}
+.displayhex:nth-child(32n+8){left:676px;}
+.displayhex:nth-child(32n+9){left:766px;}
+.displayhex:nth-child(32n+10){left:856px;}
+.displayhex:nth-child(32n+11){left:946px;}
+.displayhex:nth-child(32n+12){left:1036px;}
+.displayhex:nth-child(32n+13){left:1126px;}
+.displayhex:nth-child(32n+14){left:1216px;}
+.displayhex:nth-child(32n+15){left:1306px;}
+.displayhex:nth-child(32n+16){display: none;}
 
 /*odd ROW*/
-#hexsdisplay .displayhex:nth-child(32n+17){left:0px;}
-#hexsdisplay .displayhex:nth-child(32n+18){left:90px;}
-#hexsdisplay .displayhex:nth-child(32n+19){left:180px;}
-#hexsdisplay .displayhex:nth-child(32n+20){left:270px;}
-#hexsdisplay .displayhex:nth-child(32n+21){left:360px;}
-#hexsdisplay .displayhex:nth-child(32n+22){left:450px;}
-#hexsdisplay .displayhex:nth-child(32n+23){left:540px;}
-#hexsdisplay .displayhex:nth-child(32n+24){left:630px;}
-#hexsdisplay .displayhex:nth-child(32n+25){left:720px;}
-#hexsdisplay .displayhex:nth-child(32n+26){left:810px;}
-#hexsdisplay .displayhex:nth-child(32n+27){left:900px;}
-#hexsdisplay .displayhex:nth-child(32n+28){left:990px;}
-#hexsdisplay .displayhex:nth-child(32n+29){left:1080px;}
-#hexsdisplay .displayhex:nth-child(32n+30){left:1170px;}
-#hexsdisplay .displayhex:nth-child(32n+31){left:1260px;}
-#hexsdisplay .displayhex:nth-child(32n){left:1350px;}
+.displayhex:nth-child(32n+17){left:0px;}
+.displayhex:nth-child(32n+18){left:90px;}
+.displayhex:nth-child(32n+19){left:180px;}
+.displayhex:nth-child(32n+20){left:270px;}
+.displayhex:nth-child(32n+21){left:360px;}
+.displayhex:nth-child(32n+22){left:450px;}
+.displayhex:nth-child(32n+23){left:540px;}
+.displayhex:nth-child(32n+24){left:630px;}
+.displayhex:nth-child(32n+25){left:720px;}
+.displayhex:nth-child(32n+26){left:810px;}
+.displayhex:nth-child(32n+27){left:900px;}
+.displayhex:nth-child(32n+28){left:990px;}
+.displayhex:nth-child(32n+29){left:1080px;}
+.displayhex:nth-child(32n+30){left:1170px;}
+.displayhex:nth-child(32n+31){left:1260px;}
+.displayhex:nth-child(32n){left:1350px;}
 
-#hexsdisplay .even_row:nth-child(16n){} //Hide the last hexagon of each even row
+#hexsdisplay .even_row:nth-child(16n){display: none;} /*Hide the last hexagon of each even row*/
 
-#hexsdisplay .row_0{top:0em;}
-#hexsdisplay .row_1{top:4.868em;} /*--(n-1)*4.868--*/
-#hexsdisplay .row_2{top:9.736em;} 
-#hexsdisplay .row_3{top:14.604em;}
-#hexsdisplay .row_4{top:19.472em;}
-#hexsdisplay .row_5{top:24.34em;}
-#hexsdisplay .row_6{top:29.208em;}
-#hexsdisplay .row_7{top:34.076em;}
-#hexsdisplay .row_8{top:38.944em;}
+.row_0{top:0em;}
+.row_1{top:4.868em;} /*--(n-1)*4.868--*/
+.row_2{top:9.736em;} 
+.row_3{top:14.604em;}
+.row_4{top:19.472em;}
+.row_5{top:24.34em;}
+.row_6{top:29.208em;}
+.row_7{top:34.076em;}
+.row_8{top:38.944em;}
 
-#hexsdisplay .displayhex.not-reachable{
+.displayhex.not-reachable{
 	opacity: 0;
 }
 
@@ -175,23 +172,23 @@ div.row:nth-child(9){top:38.944em;}
 	-o-transform:rotate(60deg); /* Opera */
 }
 
-#hexsdisplay .displayhex.hover{ z-index: 8;}
-.adj{background: url("../grid/hex_path.png");  z-index: 5;}
+#hexsoverlay .displayhex.hover{ z-index: 8;}
+#hexsdisplay .adj{background: url("../grid/hex_path.png");  z-index: 5;}
 
 /*--------------------Players------------------*/
 .displayhex.creature{z-index: 6; opacity: 1 !important;}
 /*p0*/
-.displayhex.hover.h_player0{background: url("../grid/hex_hover_p0.png");}
-.displayhex.creature.player0{background: url("../grid/hex_p0.png");}
+#hexsoverlay .displayhex.hover.h_player0{background: url("../grid/hex_hover_p0.png");}
+#hexsoverlay .displayhex.creature.player0{background: url("../grid/hex_p0.png");}
 /*p1*/
-.displayhex.hover.h_player1{background: url("../grid/hex_hover_p1.png");}
-.displayhex.creature.player1{background: url("../grid/hex_p1.png");}
+#hexsoverlay .displayhex.hover.h_player1{background: url("../grid/hex_hover_p1.png");}
+#hexsoverlay .displayhex.creature.player1{background: url("../grid/hex_p1.png");}
 /*p2*/
-.displayhex.hover.h_player2{background: url("../grid/hex_hover_p2.png");}
-.displayhex.creature.player2{background: url("../grid/hex_p2.png");}
+#hexsoverlay .displayhex.hover.h_player2{background: url("../grid/hex_hover_p2.png");}
+#hexsoverlay .displayhex.creature.player2{background: url("../grid/hex_p2.png");}
 /*p3*/
-.displayhex.hover.h_player3{background: url("../grid/hex_hover_p3.png");}
-.displayhex.creature.player3{background: url("../grid/hex_p3.png");}
+#hexsoverlay .displayhex.hover.h_player3{background: url("../grid/hex_hover_p3.png");}
+#hexsoverlay .displayhex.creature.player3{background: url("../grid/hex_p3.png");}
 
 
 /*------------------Creatures------------------*/
@@ -212,7 +209,6 @@ div.row:nth-child(9){top:38.944em;}
 	position: absolute;
 	top: 0px;
 	left: 0px;
-	background: url("../../bestiary/Magma Spawn/cardboard.png");
 
 
 	/*Rectify distortion due to grid perspective*/
@@ -222,30 +218,35 @@ div.row:nth-child(9){top:38.944em;}
 	-webkit-transform: rotateX(-33deg) scale(1,1.8) ; /* Safari and Chrome */
 	-o-transform: rotateX(-33deg) scale(1,1.8) ; /* Opera */
 
-	transform-origin:65% 100%;
-	-ms-transform-origin:65% 100%; /* IE 9 */
-	-webkit-transform-origin:65% 100%; /* Safari and Chrome */
-	-moz-transform-origin:65% 100%; /* Firefox */
-	-o-transform-origin:65% 100%; /* Opera */
 
 }
 
-#creatureWrapper div.creature.fliped{
-	-webkit-transform: rotateX(-33deg) scale(-.75,1.35);
-	transform-origin:48% 100%;
-	-ms-transform-origin:48% 100%; /* IE 9 */
-	-webkit-transform-origin:48% 100%; /* Safari and Chrome */
-	-moz-transform-origin:48% 100%; /* Firefox */
-	-o-transform-origin:48% 100%; /* Opera */
-}
-
-#creatureWrapper .creature.type_1{
+/*-----Magma Spawn----*/
+#creatureWrapper .creature.type_L2{ 
 	width: 275px;
 	height: 201px;
 	margin-top: -153px;
 	padding: 0px 0px 10px;
-	-webkit-transform: rotateX(-33deg) scale(.75,1.35)
+
+	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
+	-webkit-transform-origin:65% 100%; /* Safari and Chrome */
+
+	background: url("../../bestiary/Magma Spawn/cardboard.png");
 }
+#creatureWrapper div.creature.fliped.type_L2{ -webkit-transform: rotateX(-33deg) scale(-.75,1.35); -webkit-transform-origin:48% 100%; }
+
+/*-----Dark Priest----*/
+#creatureWrapper .creature.type_0{
+	width: 126px;
+	height: 241px;
+	margin-top: -187px;
+	padding: 0px 0px 0px;
+	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
+	-webkit-transform-origin:27% 100%; /* Safari and Chrome */
+	background: url("../../bestiary/Dark Priest/cardboard.png");
+}
+#creatureWrapper div.creature.fliped.type_0{ -webkit-transform: rotateX(-33deg) scale(-.75,1.35); -webkit-transform-origin:39% 100%; }
+
 /*-----------------EFFECTS-------------------*/
 
 .damage{
@@ -320,15 +321,18 @@ div.row:nth-child(9){top:38.944em;}
 	display: inline-block;
 	height: 74px;
 	width: 74px;
-	background-image: url("../../bestiary/Magma Spawn/avatar.png");
 	padding: 0px;
 	margin: 1px;
+	background-size: 100% 100%;
 }
 
-#queue .vignette.p0{background-color: red;}
-#queue .vignette.p1{background-color: yellow;}
-#queue .vignette.p2{background-color: blue;}
-#queue .vignette.p3{background-color: green;}
+.vignette.typeL2{background-image: url("../../bestiary/Magma Spawn/avatar.png");}
+.vignette.type0{background-image: url("../../bestiary/Dark Priest/avatar.png");}
+
+.vignette.p0{background-color: red;}
+.vignette.p1{background-color: yellow;}
+.vignette.p2{background-color: blue;}
+.vignette.p3{background-color: green;}
 
 
 /*---------------TEXTBOX--------------*/
@@ -364,15 +368,14 @@ div.row:nth-child(9){top:38.944em;}
 /*---------------ACTIVE CREATURE--------------*/
 #activebox{
 	background-color: black;
+	position: relative;
+	left: 0px;
 }
 #activebox .vignette{
 	display: block;
-	height: 74px;
-	width: 74px;
-	padding: 13px;
-	background-image: url("../../bestiary/Magma Spawn/avatar.png");
-	background-repeat: no-repeat;
-	background-origin: content-box;
+	height: 100px;
+	width: 100px;
+	background-size: 100% 100%;
 }
 #activebox .vignette.p0{background-color: red;}
 #activebox .vignette.p1{background-color: yellow;}
@@ -383,6 +386,20 @@ div.row:nth-child(9){top:38.944em;}
 	display: block;
 	height: 100px;
 	width: 100px;
-	background-image: url("../../bestiary/Magma Spawn/0.svg");
 	background-size: 100% 100%;
+	cursor: pointer;
+}
+
+#activebox .ability .desc{
+	position: relative;
+	display: block;
+	height: 100px;
+	width: 0px;
+	left: 100px;
+	color: white;
+	background: black;
+	overflow: hidden;
+}
+#activebox .ability:hover .desc{
+	width: 200px;
 }

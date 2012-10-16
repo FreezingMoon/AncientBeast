@@ -24,6 +24,7 @@ var Creature = Class.create({
 	*	size : 			Integer : 	Creature size in hexs (1,2 or 3)
 	*	type : 			Integer : 	Type of the creature stocked in the database
 	*	team : 			Integer : 	Owner's ID (0,1,2 or 3)
+	*	player : 		Player : 	Player object shortcut
 	*	hexagons :		Array : 	Array containing the hexs where the creature is
 	*
 	* 	dead : 			Boolean : 	True if dead
@@ -54,6 +55,7 @@ var Creature = Class.create({
 
 		//Game
 		this.team 		= obj.team; // = playerID (0,1,2,3)
+		this.player 	= G.players[obj.team];
 		this.dead		= false;
 		this.asWait 	= false;
 
@@ -63,7 +65,10 @@ var Creature = Class.create({
 
 		//Abilities
 		this.abilities 	= [];
-		this.abilities[0] = new Ability(this);//Default Attack abilities for now
+		this.abilities[0] = new Ability(this,0);
+		this.abilities[1] = new Ability(this,1);
+		this.abilities[2] = new Ability(this,2);
+		this.abilities[3] = new Ability(this,3);
 
 		this.updateHex();
 
@@ -107,13 +112,10 @@ var Creature = Class.create({
 
 		var creature = this; //Escape Jquery namespace
 
-		this.abilities[0].used = false;
+		this.abilities.each(function(){ this.used = false; });
 
-		G.UI.$activebox.children(".ability").bind("click",function(){
-			G.log("Player"+(creature.team+1)+"'s "+creature.name+" Attack");
-			creature.abilities[0].activate();
-		});
 
+		//Bind for movement
 		G.grid.$allInptHex.bind('click', function(){
 			var x = $j(this).attr("x")-0;
 			var y = $j(this).attr("y")-0;
@@ -156,7 +158,6 @@ var Creature = Class.create({
 		//Unbind UI and hexs
 		G.grid.$allInptHex.unbind('click');
 		G.grid.$allInptHex.unbind('mouseover');
-		G.UI.$activebox.children(".ability").unbind('click');
 
 		G.nextCreature();
 	},
@@ -187,11 +188,11 @@ var Creature = Class.create({
 	*
 	*/
 	highlightPosition: function(x,y){
-		G.grid.cleanDisplay("hover h_player"+this.team);
+		G.grid.cleanOverlay("hover h_player"+this.team);
 		var pos = this.calcOffset(x,y);
 		if(!G.grid.hexs[pos.y][pos.x].isWalkable(this.size,this.id)) return; //break if not walkable
 		for (var i = 0; i < this.size; i++) {
-			G.grid.hexs[pos.y][pos.x-i].$display.addClass("hover h_player"+this.team);
+			G.grid.hexs[pos.y][pos.x-i].$overlay.addClass("hover h_player"+this.team);
 		}
 	},
 
@@ -204,7 +205,7 @@ var Creature = Class.create({
 	cleanHex: function(){
 		var creature = this; //Escape Jquery namespace
 		this.hexagons.each(function(){ 
-			this.$display.removeClass("creature player"+creature.team); 
+			this.$overlay.removeClass("creature player"+creature.team); 
 			this.creature = 0;
 		})
 		this.hexagons = [];
@@ -223,7 +224,7 @@ var Creature = Class.create({
 		}
 
 		this.hexagons.each(function(){ 
-			this.$display.addClass("creature player"+creature.team);
+			this.$overlay.addClass("creature player"+creature.team);
 			this.creature = creature.id;
 		})
 	},
@@ -240,7 +241,8 @@ var Creature = Class.create({
 	moveTo: function(x,y){
 		G.grid.path = this.calculatePath(x,y);
 
-		G.grid.cleanDisplay("adj hover h_player"+this.team); //Clear path display and creature position preview
+		G.grid.cleanDisplay("adj"); //Clean previous path
+		G.grid.cleanOverlay("hover h_player"+this.team); //Clear path display and creature position preview
 		if( G.grid.path.length == 0 ) return; //Break if empty path
 
 		this.remainingMove -= G.grid.path.length;
@@ -279,6 +281,8 @@ var Creature = Class.create({
 		G.grid.path = this.calculatePath(x,y); //Store path in grid to be able to compare it later
 
 		G.grid.cleanDisplay("adj"); //Clean previous path
+		G.grid.updateDisplay(); //Retrace players creatures
+
 		if( G.grid.path.length == 0 ) return; //Break if empty path
 
 		var creature = this;
@@ -287,6 +291,14 @@ var Creature = Class.create({
 				G.grid.hexs[this.y][this.x-i].$display.addClass("adj"); 
 			};
 		}) //trace path
+
+
+		//highlight final position
+		var last = G.grid.path.last()
+		for (var i = 0; i < creature.size; i++) {
+			G.grid.hexs[last.y][last.x-i].$overlay.addClass("creature player"+creature.team);
+		};
+
 	},
 
 
@@ -413,6 +425,8 @@ var Creature = Class.create({
 		G.queue.removePos(this);
 		G.nextQueue.removePos(this);
 		G.reorderQueue();
+
+		if(G.activeCreature === this){ G.nextCreature(); } //End turn if current active creature die
 
 		//Debug Info
 		G.log("Player"+(this.team+1)+"'s "+this.name+" is dead");

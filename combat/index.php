@@ -15,7 +15,9 @@
 		<script type="text/javascript" src="./js/game.js"></script>
 		<script type="text/javascript" src="./js/ui.js"></script>
 		<script type="text/javascript" src="./js/script.js"></script>
-		
+
+		<script type="text/javascript" src="../bestiary/Magma Spawn/abilities.js"></script>		
+		<script type="text/javascript" src="../bestiary/Dark Priest/abilities.js"></script>		
 	</head>
 	<body>
 		<div id="ui">
@@ -28,7 +30,11 @@
 				<div id="leftpanel">
 					<div id="activebox">
 						<div class="vignette"></div>
-						<div class="ability"></div>
+						<div id="abilities">
+							<div ability="0" class="ability"><div class="desc"></div></div>
+							<div ability="1" class="ability"><div class="desc"></div></div>
+							<div ability="2" class="ability"><div class="desc"></div></div>
+							<div ability="3" class="ability"><div class="desc"></div></div>
 					</div>
 				</div>
 			</div>
@@ -43,21 +49,28 @@
 			<div id="grid">
 				<div id="hexsdisplay">
 					<?php for ($a=0; $a <= 8; $a++) { 
-					if ($a % 2 == 0) {
-						//evenrow
-						//echo '<div class="even row" row="'.$a.'">';
-						for ($i=0; $i <= 15; $i++) {
-							echo '<div class="displayhex even_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+						if ($a % 2 == 0) {
+							for ($i=0; $i <= 15; $i++) {
+								echo '<div class="displayhex even_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+							}
+						}else{
+							for ($i=0; $i <= 15; $i++) { 
+								echo '<div class="displayhex odd_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+							}
 						}
-						//echo '</div>';
-					}else{
-						//oddrow
-						//echo '<div class="odd row" row="'.$a.'">';
-						for ($i=0; $i <= 15; $i++) { 
-							echo '<div class="displayhex odd_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+					} ?>
+				</div>
+				<div id="hexsoverlay">
+					<?php for ($a=0; $a <= 8; $a++) { 
+						if ($a % 2 == 0) {
+							for ($i=0; $i <= 15; $i++) {
+								echo '<div class="displayhex even_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+							}
+						}else{
+							for ($i=0; $i <= 15; $i++) { 
+								echo '<div class="displayhex odd_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+							}
 						}
-						//echo '</div>';
-					}
 					} ?>
 				</div>
 				<div id="creatureWrapper">
