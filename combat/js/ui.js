@@ -10,10 +10,10 @@ var UI = Class.create({
 	*	NOTE : attributes and variables starting with $ are jquery element 
 	*	and jquery function can be called dirrectly from them.
 	*
-	*	$display : 		UI container 
-	*	$queue : 		Queue container
-	*	$textbox : 		Chat and log container
-	*	$activebox : 	Current active creature panel (left panel) container
+	*	$display :		UI container 
+	*	$queue :		Queue container
+	*	$textbox :		Chat and log container
+	*	$activebox :		Current active creature panel (left panel) container
 	*
 	*/
 
