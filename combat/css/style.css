@@ -4,7 +4,7 @@ body{
 	padding: 0;
 }
 
-#combatframe *{ /*avoid selecting game element*/
+#combatframe *{ /*avoid selecting game elements*/
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -237,13 +237,14 @@ div.row:nth-child(9){top:38.944em;}
 
 /*-----Dark Priest----*/
 #creatureWrapper .creature.type_0{
-	width: 126px;
-	height: 241px;
-	margin-top: -200px;
+	width: 145px;
+	height: 268px;
+	margin-top: -220px;
+	margin-left: -10px;
 	padding: 0px 0px 0px;
 	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
 	-webkit-transform-origin:27% 100%; /* Safari and Chrome */
-	background: url("../../bestiary/Dark Priest/cardboard.png");
+	background: url("../../bestiary/Dark Priest/cardboard-red.png");
 }
 #creatureWrapper div.creature.fliped.type_0{ -webkit-transform: rotateX(-33deg) scale(-.75,1.35); -webkit-transform-origin:39% 100%; }
 
@@ -326,13 +327,13 @@ div.row:nth-child(9){top:38.944em;}
 	background-size: 100% 100%;
 }
 
-.vignette.typeL2{background-image: url("../../bestiary/Magma Spawn/avatar.png");}
-.vignette.type0{background-image: url("../../bestiary/Dark Priest/avatar.png");}
+.vignette.typeL2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.type0{background-image: url("../../bestiary/Dark Priest/avatar.jpg");}
 
-.vignette.p0{background-color: red;}
-.vignette.p1{background-color: yellow;}
-.vignette.p2{background-color: blue;}
-.vignette.p3{background-color: green;}
+.vignette.p0{background-image: url("frames/red.png");}
+.vignette.p1{background-image: url("frames/blue.png");}
+.vignette.p2{background-image: url("frames/orange.png");}
+.vignette.p3{background-image: url("frames/green.png");}
 
 
 /*---------------TEXTBOX--------------*/
@@ -377,10 +378,10 @@ div.row:nth-child(9){top:38.944em;}
 	width: 100px;
 	background-size: 100% 100%;
 }
-#activebox .vignette.p0{background-color: red;}
-#activebox .vignette.p1{background-color: yellow;}
-#activebox .vignette.p2{background-color: blue;}
-#activebox .vignette.p3{background-color: green;}
+#activebox .vignette.p0{background-image: url("frames/red.png");}
+#activebox .vignette.p1{background-image: url("frames/blue.png");}
+#activebox .vignette.p2{background-image: url("frames/orange.png");}
+#activebox .vignette.p3{background-image: url("frames/green.png");}
 
 #activebox .ability{
 	display: block;

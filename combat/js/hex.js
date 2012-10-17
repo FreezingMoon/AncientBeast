@@ -411,19 +411,19 @@ var Hex = Class.create({
 	};
 
 
-	/*	orderByDelay()
+	/*	orderByInitiative()
 	*
 	*	Used by game.queue
 	*	TODO need a separate class to not add confusion
 	*
 	*/
-	Array.prototype.orderByDelay = function() {
+	Array.prototype.orderByInitiative = function() {
 		//Bubble sorting
 	    var swapped;
 	    do {
 	        swapped = false;
 	        for (var i=0; i < this.length-1; i++) {
-	            if ( this[i].getDelay() > this[i+1].getDelay() ) {
+	            if ( this[i].getInitiative() > this[i+1].getInitiative() ) {
 	                var temp = this[i];
 	                this[i] = this[i+1];
 	                this[i+1] = temp;

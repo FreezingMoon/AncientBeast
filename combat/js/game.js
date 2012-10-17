@@ -24,8 +24,8 @@ var Game = Class.create({
 	* 	grid : 				Grid : 		Grid object
 	*	UI : 				UI : 		UI object
 	*
-	*	queue : 			Array : 	Current array of Creature ordered by delay
-	*	nextQueue : 		Array : 	Array containing ALL creature ordered by delay
+	*	queue : 			Array : 	Current array of Creature ordered by initiative
+	*	nextQueue : 		Array : 	Array containing ALL creature ordered by initiative
 	*
 	*	//normal attributes
 	*	nbrPlayer : 		Integer : 	Number of player in the game
@@ -150,8 +150,8 @@ var Game = Class.create({
 	*
 	*/
 	reorderQueue: function(){
-		this.queue.orderByDelay();
-		this.nextQueue.orderByDelay();
+		this.queue.orderByInitiative();
+		this.nextQueue.orderByInitiative();
 	},
 
 
@@ -204,8 +204,8 @@ var Game = Class.create({
 			type: "0",
 			size: 1,
 			stats: {
-				health: 999,
-				delay:10,
+				health: 100,
+				initiative:10,
 				movement:0,
 			},
 		}
@@ -215,7 +215,7 @@ var Game = Class.create({
 			size: 3,
 			stats: {
 				health: 10,
-				delay:15,
+				initiative:15,
 				movement:5,
 			},
 		};
@@ -235,7 +235,7 @@ var Player = Class.create({
 	*	id : 		Integer : 	Id of the player 0,1,2 or 3
 	* 	creature : 	Array : 	Array containing players creatures
 	*	plasma : 	Integer : 	Plasma amount for the player
-	*	fliped : 	Boolean : 	Player side of the battlefeild. (affect displayed creature)
+	*	fliped : 	Boolean : 	Player side of the battlefield (affects displayed creature)
 	*
 	*/
 	initialize: function(id){

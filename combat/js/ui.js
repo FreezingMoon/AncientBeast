@@ -102,14 +102,14 @@ var UI = Class.create({
 
 			for (var i = 0; i < queue.length; i++) {
 				if($Q[i] == undefined){
-					this.$queue.append('<div queue="'+u+'" creatureid="'+queue[i].id+'" delay="'+queue[i].getDelay()+'" class="vignette p'+queue[i].team+" type"+queue[i].type+'"></div>');
+					this.$queue.append('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette p'+queue[i].team+" type"+queue[i].type+'"></div>');
 					$vignettes = this.$queue.children('div.vignette');
 					$Q = $vignettes.filter('[queue="'+u+'"]');
 					$Q.filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').hide().show(750);
 				}
 				while( $j($Q[i]).attr("creatureid") != queue[i].id ){
-					if( $j($Q[i]).attr("delay") > queue[i].getDelay() ) {
-						$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" delay="'+queue[i].getDelay()+'" class="vignette p'+queue[i].team+" type"+queue[i].type+'"></div>');
+					if( $j($Q[i]).attr("initiative") > queue[i].getInitiative() ) {
+						$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette p'+queue[i].team+" type"+queue[i].type+'"></div>');
 						this.$queue.children('div.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').hide().show(750);
 					}else{
 						$j($Q[i]).attr("queue","-1").hide(750,function(){

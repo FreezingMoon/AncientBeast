@@ -128,7 +128,7 @@ var Creature = Class.create({
 			}
 
 			if( path.length > creature.remainingMove ){
-				G.log("Not enought move points");
+				G.log("Not enough move points");
 				//rectify the end of the path
 				x = path[creature.remainingMove-1].x;
 				return false;
@@ -342,13 +342,13 @@ var Creature = Class.create({
 	},
 
 
-	/* 	getDelay(dist)
+	/* 	getInitiative(dist)
 	*
-	*	return : 	Integer : 	Delay value to order the queue
+	*	return : 	Integer : 	Initiative value to order the queue
 	*
 	*/
-	getDelay: function(){
-		return this.stats.delay*1000+this.team+this.id; //
+	getInitiative: function(){
+		return this.stats.initiative*1000+this.team+this.id; //
 	},
 
 
