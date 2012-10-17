@@ -25,12 +25,22 @@
 $page_title = "Ancient Beast - Profile";
 require_once("../header.php");
 require_once("../global.php");
-start_segment(); ?>
-<center>To be, or not to be, that is the question... - William Shakespeare</center><?php
-end_segment();
-
 start_segment();
-echo "<center>Here be login options, player stats, friends etc</center>";
+echo "<center>UNDER HEAVY DEVELOPMENT</center>";
+//if not logged in
+separate_segment();
+echo "<center>login options</center>";
+separate_segment();
+echo "<img src='../images/We_Want_YOU.jpg' alt='We Want YOU' title='Sign Up TODAY!'>";
+//if logged in
+separate_segment();
+echo "<center>player stats and awards</center>";
+separate_segment();
+echo "<center>Godlet customization</center>";
+separate_segment();
+echo "<center>buddies</center>";
+separate_segment();
+echo "<center>match history</center>";
 separate_segment();
 include("../utils/disqus.php");
 end_segment();
