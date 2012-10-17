@@ -146,7 +146,7 @@ After the first materialized creature, each aditional realm requires a plasma po
 <b>Fatigue:</b> While a creature is below this amount of health, it becomes fatigued and unable to act.<br>
 <b>Energy:</b> Doing any action, including moving, drains energy from the creature.<br>
 <b>Meditation:</b> Creature gains back this amount of energy points every round.<br>
-<b>Speed:</b> Creatures with higher speed get to act faster each round.<br>
+<b>Initiative:</b> Creatures with higher initiative get to act faster each round.<br>
 <b>Offense:</b> Influences the damage output of attacks.<br>
 <b>Defense:</b> Protects the creature by reducing incoming damage.<br>
 <b>Movement:</b> Each creature can move up to a certain number of hexagons each turn.<br>
