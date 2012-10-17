@@ -16,7 +16,7 @@ body{
 #combatframe{
 	height: 803px;
 	width: 1920px;
-	background: url('../../locations/forest/bg.jpg');
+	background: url('../../locations/Dark_Forest/bg.jpg');
 	-webkit-perspective: 3000;
 	-webkit-perspective-origin: 50% 50%;
 	-moz-perspective: 3000;
