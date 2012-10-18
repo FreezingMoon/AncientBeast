@@ -39,15 +39,16 @@
 					<div id="queuewrapper"></div>
 				</div>
 				<div id="rightpanel">
+					<div id="skip" class="button"></div>
 				</div>
 				<div id="leftpanel">
 					<div id="activebox">
 						<div class="vignette"></div>
 						<div id="abilities">
-							<div ability="0" class="ability"><div class="desc"></div></div>
-							<div ability="1" class="ability"><div class="desc"></div></div>
-							<div ability="2" class="ability"><div class="desc"></div></div>
-							<div ability="3" class="ability"><div class="desc"></div></div>
+							<div ability="0" class="ability button"><div class="desc"></div></div>
+							<div ability="1" class="ability button"><div class="desc"></div></div>
+							<div ability="2" class="ability button"><div class="desc"></div></div>
+							<div ability="3" class="ability button"><div class="desc"></div></div>
 						</div>
 					</div>
 				</div>

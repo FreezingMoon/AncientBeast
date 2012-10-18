@@ -27,7 +27,7 @@ var UI = Class.create({
 		this.$display = $j("#ui");
 		this.$queue = $j("#queuewrapper");
 
-		this.$button = this.$display.children("#toppanel").children("#rightpanel").append('<div class="button"></div>');
+		this.$button = this.$display.children("#toppanel").children("#rightpanel").children("#skip");
 		this.$button.bind('click',function(e){G.endTurn()});
 		
 		this.$textbox = $j("#textbox > #textcontent");
@@ -46,7 +46,7 @@ var UI = Class.create({
 		var $abilitiesButtons = G.UI.$activebox.children("#abilities").children(".ability");
 		$abilitiesButtons.unbind("click");
 
-		this.$activebox.transition({x:"-100px"},function(){//Hide panel	
+		this.$activebox.children("#abilities").transition({x:"-100px"},function(){//Hide panel	
 
 			//Change active creature vignette
 			G.UI.$activebox.children(".vignette").attr("class","vignette p"+G.activeCreature.team+" type"+G.activeCreature.type);
@@ -54,14 +54,14 @@ var UI = Class.create({
 			//Change abilities buttons
 			$abilitiesButtons.each(function(){
 				var id = $j(this).attr("ability") - 0;
-				$j(this).css("background-image","url('../images/contour.png'), url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
+				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
 				$j(this).children(".desc").text(G.activeCreature.abilities[id].title);
 				$j(this).bind('click', function(e){
 					G.activeCreature.abilities[id].use() 
 				});
 			});
 
-			G.UI.$activebox.transition({x:"0px"}); //Show panel
+			G.UI.$activebox.children("#abilities").transition({x:"0px"}); //Show panel
 		}); 
 	},
 
@@ -90,11 +90,11 @@ var UI = Class.create({
 
 		//Prepend Current creature to queue after copying it
 		var completeQueue = G.queue.slice(0);
-		completeQueue.unshift(G.activeCreature);
+		//completeQueue.unshift(G.activeCreature);
 
 		var u = 0;
 		
-		while( $j(this.$queue).children('div.vignette').size() < 10 || 
+		while( $j(this.$queue).children('div.vignette').size() < 12 || 
 			u < $j(this.$queue).children('div.vignette').attr("queue") ){
 			var queue = (u==0)? completeQueue : G.nextQueue ;
 

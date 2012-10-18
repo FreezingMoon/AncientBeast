@@ -302,34 +302,66 @@ div.row:nth-child(9){top:38.944em;}
 .button{
 	width:100px;
 	height:100px;
-	background: url('../../images/contour.png'), url('../icons/end.svg');
+	background-size: 100% 100%;
+	cursor: pointer;
 	background-size: 100% 100%;
 }
 
+.button:before{
+	content: "";
+	display: block;
+	position: absolute;
+	height: 100px;
+	width: 100px;
+	background-size: 100% 100%;
+	background-image: url('../../images/contour.png');
+}
+
+#skip{ background-image: url('../icons/end.svg'); }
+
+/*-------------------Queue-------------------*/
+
 #queuewrapper{display: block; width: 2000px;}
 #queue{
-	width: 600px;
-	background: black;
-	height: 75px;
+	width: 800px;
+	height: 80px;
 	position: absolute;
-	left: 50%;
-	margin-left: -300px;
+	left: 100px;
 	top: 0px;
 	overflow: hidden;
 }
 
 #queue .vignette{
 	display: inline-block;
-	height: 74px;
-	width: 74px;
+	height: 80px;
+	width: 80px;
 	background-size: 100% 100%;
+
+	transition: opacity 500ms;
+	-moz-transition: opacity 500ms; /* Firefox 4 */
+	-webkit-transition: opacity 500ms; /* Safari and Chrome */
+	-o-transition: opacity 500ms; /* Opera */
 }
+
+#queue .vignette:nth-child(1),
+#queue .vignette:nth-child(2),
+#queue .vignette:nth-child(3),
+#queue .vignette:nth-child(4),
+#queue .vignette:nth-child(5),
+#queue .vignette:nth-child(6),
+#queue .vignette:nth-child(7){opacity: 1;}
+#queue .vignette:nth-child(8){opacity: .75;}
+#queue .vignette:nth-child(9){opacity: .5;}
+#queue .vignette:nth-child(10){opacity: .25;}
+#queue .vignette:nth-child(11),
+#queue .vignette:nth-child(12){opacity: 0;}
+
 
 #queue .vignette:after{ 
 	content: "";
 	display: block;
-	height: 74px;
-	width: 74px;
+	height: 80px;
+	width: 80px;
 	background-size: 100% 100%;
 }
 
@@ -384,18 +416,19 @@ div.row:nth-child(9){top:38.944em;}
 	width: 100px;
 	background-size: 100% 100%;
 }
-#activebox .vignette.p0{background-image: url("../frames/red.png");}
-#activebox .vignette.p1{background-image: url("../frames/blue.png");}
-#activebox .vignette.p2{background-image: url("../frames/orange.png");}
-#activebox .vignette.p3{background-image: url("../frames/green.png");}
 
-#activebox .ability{
+#activebox .vignette:after{ 
+	content: "";
 	display: block;
 	height: 100px;
 	width: 100px;
 	background-size: 100% 100%;
-	cursor: pointer;
 }
+
+#activebox .ability{
+	display: block;
+}
+
 #activebox .ability .desc{
 	position: relative;
 	display: block;
@@ -406,6 +439,8 @@ div.row:nth-child(9){top:38.944em;}
 	background: black;
 	overflow: hidden;
 }
+
+
 #activebox .ability:hover .desc{
 	width: 200px;
 }
