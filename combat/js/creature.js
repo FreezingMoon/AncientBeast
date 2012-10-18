@@ -73,7 +73,7 @@ var Creature = Class.create({
 		this.updateHex();
 
 		//Creating Html representation of creature
-		this.$display = G.grid.$creatureW.append('<div id="crea'+this.id +'" class="creature type_'+this.type+'"><div class="effects"></div></div>').children("#crea"+this.id).hide();
+		this.$display = G.grid.$creatureW.append('<div id="crea'+this.id +'" class="creature type_'+this.type+' p'+this.team+'"><div class="effects"></div></div>').children("#crea"+this.id).hide();
 		this.$effects = this.$display.children(".effects");
 
 		this.$display.css(this.hexagons[this.size-1].displayPos); //translate to its real position
@@ -154,6 +154,7 @@ var Creature = Class.create({
 	*/
 	deactivate: function(){
 		G.grid.cleanDisplay("adj hover h_player"+this.team); //In case of skip turn
+		G.grid.updateDisplay(); //Retrace players creatures
 
 		//Unbind UI and hexs
 		G.grid.$allInptHex.unbind('click');
