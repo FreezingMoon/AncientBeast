@@ -48,6 +48,7 @@
 							<div ability="1" class="ability"><div class="desc"></div></div>
 							<div ability="2" class="ability"><div class="desc"></div></div>
 							<div ability="3" class="ability"><div class="desc"></div></div>
+						</div>
 					</div>
 				</div>
 			</div>
