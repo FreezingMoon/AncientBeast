@@ -54,7 +54,7 @@ var UI = Class.create({
 			//Change abilities buttons
 			$abilitiesButtons.each(function(){
 				var id = $j(this).attr("ability") - 0;
-				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
+				$j(this).css("background-image","url('../images/contour.png'), url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
 				$j(this).children(".desc").text(G.activeCreature.abilities[id].title);
 				$j(this).bind('click', function(e){
 					G.activeCreature.abilities[id].use() 

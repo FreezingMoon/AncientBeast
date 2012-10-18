@@ -302,7 +302,7 @@ div.row:nth-child(9){top:38.944em;}
 .button{
 	width:100px;
 	height:100px;
-	background: url('../icons/end.svg');
+	background: url('../../images/contour.png'), url('../icons/end.svg');
 	background-size: 100% 100%;
 }
 
@@ -330,10 +330,10 @@ div.row:nth-child(9){top:38.944em;}
 .vignette.typeL2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
 .vignette.type0{background-image: url("../../bestiary/Dark Priest/avatar.jpg");}
 
-.vignette.p0{background-image: url("frames/red.png");}
-.vignette.p1{background-image: url("frames/blue.png");}
-.vignette.p2{background-image: url("frames/orange.png");}
-.vignette.p3{background-image: url("frames/green.png");}
+.vignette.p0{background-image: url("../frames/red.png");}
+.vignette.p1{background-image: url("../frames/blue.png");}
+.vignette.p2{background-image: url("../frames/orange.png");}
+.vignette.p3{background-image: url("../frames/green.png");}
 
 
 /*---------------TEXTBOX--------------*/
@@ -368,7 +368,7 @@ div.row:nth-child(9){top:38.944em;}
 
 /*---------------ACTIVE CREATURE--------------*/
 #activebox{
-	background-color: black;
+
 	position: relative;
 	left: 0px;
 }
@@ -378,10 +378,10 @@ div.row:nth-child(9){top:38.944em;}
 	width: 100px;
 	background-size: 100% 100%;
 }
-#activebox .vignette.p0{background-image: url("frames/red.png");}
-#activebox .vignette.p1{background-image: url("frames/blue.png");}
-#activebox .vignette.p2{background-image: url("frames/orange.png");}
-#activebox .vignette.p3{background-image: url("frames/green.png");}
+#activebox .vignette.p0{background-image: url("../frames/red.png");}
+#activebox .vignette.p1{background-image: url("../frames/blue.png");}
+#activebox .vignette.p2{background-image: url("../frames/orange.png");}
+#activebox .vignette.p3{background-image: url("../frames/green.png");}
 
 #activebox .ability{
 	display: block;
@@ -390,7 +390,6 @@ div.row:nth-child(9){top:38.944em;}
 	background-size: 100% 100%;
 	cursor: pointer;
 }
-
 #activebox .ability .desc{
 	position: relative;
 	display: block;
