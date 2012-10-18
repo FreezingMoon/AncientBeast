@@ -322,18 +322,24 @@ div.row:nth-child(9){top:38.944em;}
 	display: inline-block;
 	height: 74px;
 	width: 74px;
-	padding: 0px;
-	margin: 1px;
+	background-size: 100% 100%;
+}
+
+#queue .vignette:after{ 
+	content: "";
+	display: block;
+	height: 74px;
+	width: 74px;
 	background-size: 100% 100%;
 }
 
 .vignette.typeL2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
 .vignette.type0{background-image: url("../../bestiary/Dark Priest/avatar.jpg");}
 
-.vignette.p0{background-image: url("../frames/red.png");}
-.vignette.p1{background-image: url("../frames/blue.png");}
-.vignette.p2{background-image: url("../frames/orange.png");}
-.vignette.p3{background-image: url("../frames/green.png");}
+.vignette.p0:after{background-image: url("../frames/red.png");}
+.vignette.p1:after{background-image: url("../frames/blue.png");}
+.vignette.p2:after{background-image: url("../frames/orange.png");}
+.vignette.p3:after{background-image: url("../frames/green.png");}
 
 
 /*---------------TEXTBOX--------------*/
