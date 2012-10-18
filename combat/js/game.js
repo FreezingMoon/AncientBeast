@@ -109,6 +109,27 @@ var Game = Class.create({
 
 		this.nextCreature();
 
+		//Resize event
+		$j(window).resize(function () {
+			//Throttle down to 1 event every 500ms of inactivity
+			clearTimeout(this.windowResizeTimeout);
+			this.windowResizeTimeout = setTimeout(function() { G.onResize(); }, 500);
+		});
+
+	},
+
+
+	/*	onResize()
+	*
+	* 	Resize the combat frame
+	*
+	*/
+	onResize: function(){
+		if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ){
+			this.$combatFrame.transition({ scale: $j(window).height() / 1080  });
+		}else{
+			this.$combatFrame.transition({ scale: $j(window).width() / 1920  });	
+		}
 	},
 
 
