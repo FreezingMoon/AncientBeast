@@ -206,7 +206,7 @@ var Game = Class.create({
 			stats: {
 				health: 100,
 				initiative:10,
-				movement:0,
+				movement:5,
 			},
 		}
 		:{
