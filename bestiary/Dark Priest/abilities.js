@@ -65,6 +65,7 @@ abilities["0"] =[
 		};
 
 		this.creature.player.summon("L2",pos);
+		G.activeCreature.weightAll(); 
 	},
 },
 
