@@ -298,8 +298,8 @@ div.row:nth-child(9){top:38.944em;}
 }
 
 .button{
-	width:85px;
-	height:85px;
+	width:80px;
+	height:80px;
 	background-size: 100% 100%;
 	cursor: pointer;
 	background-size: 100% 100%;
@@ -309,8 +309,8 @@ div.row:nth-child(9){top:38.944em;}
 	content: "";
 	display: block;
 	position: absolute;
-	height: 85px;
-	width: 85px;
+	height: 80px;
+	width: 80px;
 	background-size: 100% 100%;
 	background-image: url('../../images/contour.png');
 }
@@ -430,9 +430,9 @@ div.row:nth-child(9){top:38.944em;}
 #activebox .ability .desc{
 	position: relative;
 	display: block;
-	height: 85px;
+	height: 80px;
 	width: 0px;
-	left: 85px;
+	left: 80px;
 	color: white;
 	background: black;
 	overflow: hidden;
