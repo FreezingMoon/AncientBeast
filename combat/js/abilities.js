@@ -18,12 +18,10 @@ var Ability = Class.create({
 	*
 	*/
 	use: function(){
-		if(this.used == true){ G.log("Ability already used!"); return; }
+		if( this.used == true ){ G.log("Ability already used!"); return; }
+		if( !this.require() ) return;
 
-		G.log("Player"+this.creature.team+"'s "+this.creature.name+" uses "+this.title);
-		this.activate();
-
-		this.used = true; //Should always be here
+		this.query();
 	},
 
 

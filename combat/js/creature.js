@@ -107,43 +107,9 @@ var Creature = Class.create({
 	*/
 	activate: function(){
 		this.remainingMove = this.stats.movement;
-		this.weightAll();
-		this.bindMouseover();
-
-		var creature = this; //Escape Jquery namespace
-
 		this.abilities.each(function(){ this.used = false; });
 
-
-		//Bind for movement
-		G.grid.$allInptHex.bind('click', function(){
-			var x = $j(this).attr("x")-0;
-			var y = $j(this).attr("y")-0;
-			var path = creature.calculatePath(x,y);
-
-			if( path.length == 0 ){ 
-				//G.grid.cleanDisplay("adj");
-				G.debuglog("Empty path during test");
-				return false;
-			}
-
-			if( path.length > creature.remainingMove ){
-				G.log("Not enough move points");
-				//rectify the end of the path
-				x = path[creature.remainingMove-1].x;
-				return false;
-			}
-
-			if( path.last() == G.grid.path.last() ){
-				creature.moveTo(x,y);
-				//if( creature.remainingMove == 0 ){ creature.deactivate(); return;}
-				//creature.bindMouseover();
-				creature.weightAll();
-			}else{
-				creature.tracePath(x,y);
-				creature.highlightPosition(x,y);
-			}
-		});
+		this.queryMove();
 	},
 
 
@@ -156,44 +122,54 @@ var Creature = Class.create({
 		G.grid.cleanDisplay("adj hover h_player"+this.team); //In case of skip turn
 		G.grid.updateDisplay(); //Retrace players creatures
 
-		//Unbind UI and hexs
-		G.grid.$allInptHex.unbind('click');
-		G.grid.$allInptHex.unbind('mouseover');
-
 		G.nextCreature();
 	},
 
 
-	/* 	bindMouseover()
+	/* 	queryMove()
 	*
-	*	Bind mouseover action for reachable hexs
+	*	launch move action query
 	*
 	*/
-	bindMouseover: function(){
-		var creature = this; //Escape Jquery namespace
-		G.grid.$allInptHex.unbind('mouseover');
-		G.grid.$allInptHex.filter(".hex:not(.not-reachable)").bind('mouseover', function(){
-			var x = $j(this).attr("x")-0;
-			var y = $j(this).attr("y")-0;
-			creature.highlightPosition(x,y);
-		});
+	queryMove: function(){
+
+		G.grid.cleanOverlay("creature player"+G.activeCreature.team);
+		G.grid.cleanDisplay("adj");
+		G.grid.updateDisplay(); //Retrace players creatures
+
+		G.grid.queryHexs(
+			G.activeCreature.tracePath,
+			G.activeCreature.previewPosition,
+			function(){ G.log("You can't do this."); },
+			G.activeCreature.moveTo,
+			function(){return true;}, //Optional test return true (no test)
+			null,
+			false, //true for flying creatures
+			false,
+			this.x,this.y,
+			this.remainingMove,
+			this.id,
+			this.size,
+			[]
+		);
 	},
 
 
-	/* 	highlightPosition(x,y)
+	/* 	previewPosition(hex)
 	*
-	*	x : 		Integer : 	Position coordinates
-	*	y : 		Integer : 	Position coordinates
+	*	hex : 	Hex : 	Position
 	*
-	*	Preview the creature position at the given coordinates
+	*	Preview the creature position at the given Hex
 	*
 	*/
-	highlightPosition: function(x,y){
-		G.grid.cleanOverlay("hover h_player"+this.team);
-		var pos = this.calcOffset(x,y);
-		if(!G.grid.hexs[pos.y][pos.x].isWalkable(this.size,this.id)) return; //break if not walkable
-		for (var i = 0; i < this.size; i++) {
-			G.grid.hexs[pos.y][pos.x-i].$overlay.addClass("hover h_player"+this.team);
+	previewPosition: function(hex){
+		var x = hex.x;
+		var y = hex.y;
+		G.grid.cleanOverlay("hover h_player"+G.activeCreature.team);
+		var pos = G.activeCreature.calcOffset(x,y);
+		if(!G.grid.hexs[pos.y][pos.x].isWalkable(G.activeCreature.size,G.activeCreature.id)) return; //break if not walkable
+		for (var i = 0; i < G.activeCreature.size; i++) {
+			G.grid.hexs[pos.y][pos.x-i].$overlay.addClass("hover h_player"+G.activeCreature.team);
 		}
 	},
 
@@ -231,34 +207,35 @@ var Creature = Class.create({
 	},
 
 
-	/* 	moveTo(x,y)
+	/* 	moveTo(hex)
 	*
-	*	x : 		Integer : 	Destination coordinates
-	*	y : 		Integer : 	Destination coordinates
+	*	hex : 	Hex : 	Destination Hex
 	*
 	* 	Move the creature along a calculated path to the given coordinates
 	*
 	*/
-	moveTo: function(x,y){
-		G.grid.path = this.calculatePath(x,y);
+	moveTo: function(hex){
+		var x = hex.x;
+		var y = hex.y;
+		var path = G.activeCreature.calculatePath(x,y);
 
 		G.grid.cleanDisplay("adj"); //Clean previous path
 		G.grid.cleanOverlay("hover h_player"+this.team); //Clear path display and creature position preview
-		if( G.grid.path.length == 0 ) return; //Break if empty path
+		if( path.length == 0 ) return; //Break if empty path
 
-		this.remainingMove -= G.grid.path.length;
+		G.activeCreature.remainingMove -= path.length;
 
-		var creature = this; //Escape Jquery namespace
-		var pos = G.grid.path[G.grid.path.length-1].pos;
+		var creature = G.activeCreature; //Escape Jquery namespace
+		var pos = path[path.length-1].pos;
 
-		this.cleanHex();
-		this.x 		= pos.x - 0;
-		this.y 		= pos.y - 0;
-		this.pos 	= pos;
-		this.updateHex();
+		G.activeCreature.cleanHex();
+		G.activeCreature.x 		= pos.x - 0;
+		G.activeCreature.y 		= pos.y - 0;
+		G.activeCreature.pos 	= pos;
+		G.activeCreature.updateHex();
 
 		//Translate creature with jquery animation
-		G.grid.path.each(function(){
+		path.each(function(){
 			var nextHex = G.grid.hexs[this.y][this.x-creature.size+1];
 			creature.$display.animate(nextHex.displayPos,500,"linear",function(){
 				//Callback function set the proper z-index;
@@ -266,28 +243,29 @@ var Creature = Class.create({
 			});
 		})
 
-		G.grid.path = [];
+		G.activeCreature.queryMove();
 	},
 
 
-	/* 	tracePath(x,y)
+	/* 	tracePath(hex)
 	*
-	*	x : 		Integer : 	Destination coordinates
-	*	y : 		Integer : 	Destination coordinates
+	*	hex : 	Hex : 	Destination Hex
 	*
 	* 	Trace the path from the current possition to the given coordinates
 	*
 	*/
-	tracePath: function(x,y){
-		G.grid.path = this.calculatePath(x,y); //Store path in grid to be able to compare it later
+	tracePath: function(hex){
+		var x = hex.x;
+		var y = hex.y;
+		var path = G.activeCreature.calculatePath(x,y); //Store path in grid to be able to compare it later
 
 		G.grid.cleanDisplay("adj"); //Clean previous path
 		G.grid.updateDisplay(); //Retrace players creatures
 
-		if( G.grid.path.length == 0 ) return; //Break if empty path
+		if( path.length == 0 ) return; //Break if empty path
 
-		var creature = this;
-		G.grid.path.each(function(){ 
+		var creature = G.activeCreature;
+		path.each(function(){ 
 			for (var i = 0; i < creature.size; i++) {
 				G.grid.hexs[this.y][this.x-i].$display.addClass("adj"); 
 			};
@@ -295,7 +273,7 @@ var Creature = Class.create({
 
 
 		//highlight final position
-		var last = G.grid.path.last()
+		var last = path.last()
 		for (var i = 0; i < creature.size; i++) {
 			G.grid.hexs[last.y][last.x-i].$overlay.addClass("creature player"+creature.team);
 		};
@@ -350,16 +328,6 @@ var Creature = Class.create({
 	*/
 	getInitiative: function(){
 		return this.stats.initiative*1000+this.team+this.id; //
-	},
-
-
-	/* 	weightAll(dist)
-	*
-	*	Calculate and display movement range for this creature.
-	*
-	*/
-	weightAll: function(){
-		G.grid.highlightCreatureRange(this.x,this.y,this.remainingMove,this.size,this.id);
 	},
 
 

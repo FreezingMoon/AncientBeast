@@ -21,8 +21,8 @@ var HexGrid = Class.create({
 	*	$allDispHex : 	Shortcut to all display hexagons DOM elements (to change style of hexagons)
 	*	
 	*	//Normal attributes
-	*	hexs : 			Array : 	Contain all hexs in row arrays (hexs[y][x])
-	*	path : 			Array : 	Array of hexagons containing last calculated pathfinding
+	*	hexs : 				Array : 	Contain all hexs in row arrays (hexs[y][x])
+	*	lastClickedtHex : 	Hex : 		Last hex clicked!
 	*
 	*/
 
@@ -33,19 +33,19 @@ var HexGrid = Class.create({
 	*
 	*/
 	initialize: function(){
-		this.hexs 		= new Array(); //Hex Array
-		this.path 		= []; //Array of hexagons containing last calculated pathfinding
+		this.hexs 				= new Array(); //Hex Array
+		this.lastClickedtHex 	= []; //Array of hexagons containing last calculated pathfinding
 
-		this.$display 		= $j("#grid");
+		this.$display 			= $j("#grid");
 		
-		this.$creatureW 	= $j("#creatureWrapper"); //Creature Wrapper
-		this.$inptHexsW		= $j("#hexsinput"); //Input Hexs Wrapper
-		this.$dispHexsW		= $j("#hexsdisplay"); //Display Hexs Wrapper
-		this.$overHexsW		= $j("#hexsoverlay"); //Display Hexs Wrapper
+		this.$creatureW 		= $j("#creatureWrapper"); //Creature Wrapper
+		this.$inptHexsW			= $j("#hexsinput"); //Input Hexs Wrapper
+		this.$dispHexsW			= $j("#hexsdisplay"); //Display Hexs Wrapper
+		this.$overHexsW			= $j("#hexsoverlay"); //Display Hexs Wrapper
 
-		this.$allInptHex	= $j("#hexsinput .hex"); //All Input Hexs
-		this.$allDispHex	= $j("#hexsdisplay .displayhex"); //All Display Hexs
-		this.$allOverHex	= $j("#hexsoverlay .displayhex"); //All Display Hexs
+		this.$allInptHex		= $j("#hexsinput .hex"); //All Input Hexs
+		this.$allDispHex		= $j("#hexsdisplay .displayhex"); //All Display Hexs
+		this.$allOverHex		= $j("#hexsoverlay .displayhex"); //All Display Hexs
 
 		var grid = this; //Escape Jquery namespace
 
@@ -92,52 +92,137 @@ var HexGrid = Class.create({
 
 	cleanOverlay: function(cssClass){ this.$allOverHex.removeClass(cssClass); },
 
+
+	/*	queryHexs(x, y, distance, size)
+	*
+	*	fnOnClick : 	Function : 	Function applied when clicking on one of the available hexs.
+	*	fnOnCancel : 	Function : 	Function applied when clicking everywhere else.
+	*	fnOnMouseover : Function : 	Function applied when overing on one of the available hexs.
+	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
+	*	fnOptTest : 	Function : 	Optional test to apply to hexs
+	* 	args : 			Any : 		Object given to the events function (to easily pass variable for these function)
+	*
+	*	exclude : 		Array : 	Array of hexs to exclude from available hexs.
+	*
+	*	distance : 		Integer : 	Distance from start
+	*	size : 			Integer : 	Size to test if walkable hex
+	*
+	*	x : 			Integer : 	Start coordinates
+	*	y : 			Integer : 	Start coordinates	
+	*
+	*	id : 			Integer : 	Creature ID
+	*
+	*	ignoreObstacle : 	Boolean : 	Ignore obstacle like creatures. (for flying creatures or distant attacks) NOTE : bypassed if includeCreature > 0
+	*	includeCreature : 	Integer : 	Include hexs containing creature: 0 = no , 1 = yes , 2 = only hexs containing creatures
+	*/
+	queryHexs: function(fnOnClick,fnOnMouseover,fnOnCancel,fnOnConfirm,fnOptTest,args,ignoreObstacle,includeCreature,x,y,distance,id,size,exclude){ 
+		
+		this.cleanReachable(); //Clean all precedent blocked hexs
+
+		//Clear previous binds
+		G.grid.$allInptHex.unbind('click');
+		G.grid.$allInptHex.unbind('mouseover');
+
+		if( !ignoreObstacle && (includeCreature==0) ){
+
+			this.cleanPathAttr(true); //Erase all pathfinding datas
+			//Populate distance (hex.g) in hexs by asking an impossible destination to test all hexagons
+			astar.search(G.grid.hexs[y][x],new Hex(-2,-2,null),size,id); 
+
+			//For each hex
+			this.hexs.each(function(){ this.each(function(){
+
+					//Optional test
+					if( !fnOptTest(this,args) ) { this.unsetReachable(); return; }
+
+					//If distance from creature is higher than allowed range or not reacheable
+					if( 
+							(this.g > distance) || //Not reachable
+							(this.g == 0) || //Impossible to reach
+							( !!exclude.findPos(this) ) //In excluded hexs
+				  	  ) 
+					{ 
+						this.unsetReachable(); //Hex IS NOT reachable
+					}
+					else
+					{
+						//in range
+						for (var i = 0; i < size; i++) { //each creature hex
+							if( (this.x-i) >= 0 && (this.x-i) < G.grid.hexs[this.y].length ){ //check if inside row boundaries
+								G.grid.hexs[this.y][this.x-i].setReachable();
+							}
+						};
+					}
+			});	});
+
+		}else{
+
+			this.hexs[y][x].adjacentHex(distance).each(function(){
+
+				//Optional test
+				if( !fnOptTest(this,args) ) { this.unsetReachable(); return; }
+
+				if( ignoreObstacle  && (includeCreature==0) ){
+					//Case of flying creatures
+					if(this.isWalkable(size,id)){
+						for (var i = 0; i < size; i++) { //each creature hex
+							if( (this.x-i) >= 0 && (this.x-i) < G.grid.hexs[this.y].length ){ //check if inside row boundaries
+								G.grid.hexs[this.y][this.x-i].setReachable();
+							}
+						};
+					}
+				} else {
+					switch(includeCreature){
+						case 0:
+							if(this.creature==0) this.setReachable();
+							break;
+						case 1:
+							this.setReachable();
+							break;
+						case 2:
+							if(this.creature>0) this.setReachable();
+							break;
+					}
+				}
+			});
+
+		}
+
+		//ONCLICK
+		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('click', function(){
+			var x = $j(this).attr("x")-0;
+			var y = $j(this).attr("y")-0;
+
+			var clickedtHex = G.grid.hexs[y][x];
+
+			if( clickedtHex != G.grid.lasClickedtHex ){
+				G.grid.lasClickedtHex = clickedtHex;
+				//ONCLICK
+				fnOnClick(clickedtHex,args);
+			}else{
+				//ONCONFIRM
+				fnOnConfirm(clickedtHex,args);
+			}
+		});
+
+		//ONMOUSEOVER
+		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('mouseover', function(){
+			var x = $j(this).attr("x")-0;
+			var y = $j(this).attr("y")-0;
+
+			fnOnMouseover(G.grid.hexs[y][x],args);
+		});
+
+		//ON CANCEL
+		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){	fnOnCancel(args); });
+	},
+
 	/*	updateDisplay()
 	* 	
 	*	Update overlay hexs with creature positions
 	*
 	*/
 	updateDisplay: function(){ this.cleanOverlay("creature player0 player1 player2 player3"); this.hexs.each(function(){ this.each(function(){ if( this.creature > 0 ) this.$overlay.addClass("creature player"+G.creatures[this.creature].team); }); });	},
-
-
-	/*	highlightCreatureRange(x, y, distance, size)
-	*
-	*	x : 		integer : 	Creature coordinates
-	*	y : 		integer : 	Creature coordinates
-	*	distance : 	integer : 	Distance form the creature (Movement range)
-	*	size : 		integer : 	Size of the creature
-	*	id : 		integer : 	ID of the creature
-	*
-	*	Change hexagons in range from the creature position to reachable. See hex.setReachable for more infos.
-	*
-	*/
-	highlightCreatureRange: function(x,y,distance,size,id){
-
-		this.cleanPathAttr(true); //Erase all pathfinding datas
-		this.cleanReachable(); //Clean all precedent blocked hexs
-
-		//Populate distance (hex.g) in hexs by asking an impossible destination to test all hexagons
-		astar.search(G.grid.hexs[y][x],new Hex(-2,-2,null),size,id); 
-
-		//For each hex
-		this.hexs.each(function(){
-			this.each(function(){
-				//If distance from creature is higher than allowed range or not reacheable
-				if( (this.g > distance) || (this.g == 0) ) { 
-					this.unsetReachable(); //Hex IS NOT reachable
-				}else{
-					//in range
-					for (var i = 0; i < size; i++) { //each creature hex
-						if( (this.x-i) >= 0 && (this.x-i) < G.grid.hexs[this.y].length ){ //check if inside row boundaries
-							G.grid.hexs[this.y][this.x-i].setReachable();
-						}
-					};
-				}
-
-			});
-		});
-
-	},
 
 });//End of HexGrid Class
 
@@ -328,6 +413,7 @@ var Hex = Class.create({
 	setReachable: function(){
 		this.reachable = true;
 		this.$display.removeClass("not-reachable");
+		this.$input.removeClass("not-reachable");
 		//TODO change display
 	},
 
@@ -340,6 +426,7 @@ var Hex = Class.create({
 	unsetReachable: function(){
 		this.reachable = false;
 		this.$display.addClass("not-reachable");
+		this.$input.addClass("not-reachable");
 		//TODO change display
 	},
 

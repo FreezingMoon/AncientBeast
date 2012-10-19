@@ -109,22 +109,23 @@ var Game = Class.create({
 
 		this.nextCreature();
 
+		G.resizeCombatFrame(); //Resize while the game start
 		//Resize event
 		$j(window).resize(function () {
 			//Throttle down to 1 event every 500ms of inactivity
 			clearTimeout(this.windowResizeTimeout);
-			this.windowResizeTimeout = setTimeout(function() { G.onResize(); }, 500);
+			this.windowResizeTimeout = setTimeout(function() { G.resizeCombatFrame(); }, 500);
 		});
 
 	},
 
 
-	/*	onResize()
+	/*	resizeCombatFrame()
 	*
 	* 	Resize the combat frame
 	*
 	*/
-	onResize: function(){
+	resizeCombatFrame: function(){
 		if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ){
 			this.$combatFrame.transition({ scale: $j(window).height() / 1080  });
 		}else{
@@ -158,8 +159,8 @@ var Game = Class.create({
 		}
 
 		this.log("Active Creature : Player"+(this.queue[0].team+1)+"'s "+this.queue[0].name);
-		this.queue[0].activate(); //Activate first creature of the queue
 		this.activeCreature = this.queue[0];
+		this.queue[0].activate(); //Activate first creature of the queue
 		this.queue = this.queue.slice(1); //and remove it from the queue
 		this.UI.nextCreature(); //Update UI to match new creature
 	},
@@ -262,7 +263,7 @@ var Player = Class.create({
 	initialize: function(id){
 		this.id = id;
 		this.creatures = [];
-		this.plasma = 50;
+		this.plasma = 10;
 		this.fliped = !!(id%2); //Convert odd/even to true/false
 	},
 
