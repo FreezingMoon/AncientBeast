@@ -291,6 +291,7 @@ div.row:nth-child(9){top:38.944em;}
 #rightpanel{
 	position: absolute;
 	right: 0px;
+	top: 100px;
 }
 #leftpanel{
 	position: absolute;
@@ -300,7 +301,6 @@ div.row:nth-child(9){top:38.944em;}
 .button{
 	width:80px;
 	height:80px;
-	background-size: 100% 100%;
 	cursor: pointer;
 	background-size: 100% 100%;
 }
@@ -315,7 +315,57 @@ div.row:nth-child(9){top:38.944em;}
 	background-image: url('../../images/contour.png');
 }
 
-#skip{ background-image: url('../icons/end.svg'); }
+#end{ background-image: url('../icons/end.svg'); }
+#delay{ background-image: url('../icons/skip.svg'); }
+#toggledash{ z-index: 4; right: 0px !important; position: fixed;	height: 100px; width: 100px; background-image: url('../icons/overview.svg'); }
+#toggledash.button:before{ height: 100px; width: 100px;}
+
+/*-------------------dash-------------------*/
+
+#dash{
+	background: rgba(0,0,0,.85);
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: -100%;
+	z-index: 3;
+	transition: top 250ms;
+	-moz-transition: top 250ms; /* Firefox 4 */
+	-webkit-transition: top 250ms; /* Safari and Chrome */
+	-o-transition: top 250ms; /* Opera */
+}
+
+#dash.active{top:0%;}
+
+#dash #creaturegrid{
+	height: 700px;
+	width: 700px;
+}
+
+#dash #creaturegrid .vignette,
+.vignette div.border,
+.vignette div.overlay{
+	height: 90px;
+	width: 90px;
+	background-size: 100% 100%;
+	position: relative;
+	display: inline-block;
+}
+
+#dash #creaturegrid .vignette div.overlay{	
+	display: block;
+	position: absolute;
+	opacity: .6;
+}
+
+#dash #creaturegrid .vignette div.border{
+	display: block;
+	position: absolute;
+	background-image: url("../../images/frame.png");
+}
+
+#dash #creaturegrid .vignette.dead div.overlay{ background-image: url("../icons/dead.svg"); }
+
 
 /*-------------------Queue-------------------*/
 
@@ -363,7 +413,65 @@ div.row:nth-child(9){top:38.944em;}
 	background-size: 100% 100%;
 }
 
+/*----------------Creatures vignettes---------------*/
+
+.vignette.typeA1{background-image: url("../../bestiary/Swine Thug/avatar.jpg");}
+.vignette.typeA2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeA3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeA4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeA5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeA6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeA7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+
+.vignette.typeE1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeE2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeE3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeE4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeE5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeE6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeE7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+
+.vignette.typeG1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeG2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeG3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeG4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeG5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeG6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeG7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+
+.vignette.typeL1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
 .vignette.typeL2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeL3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeL4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeL5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeL6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeL7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+
+.vignette.typeP1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeP2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeP3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeP4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeP5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeP6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeP7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+
+.vignette.typeS1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeS2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeS3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeS4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeS5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeS6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeS7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+
+.vignette.typeW1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeW2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeW3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeW4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeW5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeW6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeW7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeWS{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+
 .vignette.type0{background-image: url("../../bestiary/Dark Priest/avatar.jpg");}
 
 .vignette.p0:after{background-image: url("../frames/red.png");}
@@ -404,10 +512,10 @@ div.row:nth-child(9){top:38.944em;}
 
 /*---------------ACTIVE CREATURE--------------*/
 #activebox{
-
 	position: relative;
 	left: 0px;
 }
+
 #activebox .vignette{
 	display: block;
 	height: 100px;

@@ -13,7 +13,8 @@ var UI = Class.create({
 	*	$display :		UI container 
 	*	$queue :		Queue container
 	*	$textbox :		Chat and log container
-	*	$activebox :		Current active creature panel (left panel) container
+	*	$activebox :	Current active creature panel (left panel) container
+	*	$dash :		Overview container
 	*
 	*/
 
@@ -26,13 +27,27 @@ var UI = Class.create({
 	initialize: function(){
 		this.$display = $j("#ui");
 		this.$queue = $j("#queuewrapper");
+		this.$dash = $j("#dash");
 
-		this.$button = this.$display.children("#toppanel").children("#rightpanel").children("#skip");
-		this.$button.bind('click',function(e){G.endTurn()});
-		
+		this.$button = $j("#end.button");
+		this.$button.bind('click',function(e){ G.endTurn() });
+
+		this.$button = $j("#toggledash.button");
+		this.$button.bind('click',function(e){ G.UI.toggleDash() });
+
 		this.$textbox = $j("#textbox > #textcontent");
 
 		this.$activebox = $j("#activebox");
+	},
+
+
+	/*	toggleDash()
+	*
+	*	Show the dash and hide some buttons
+	*
+	*/
+	toggleDash: function(){
+		G.UI.$dash.toggleClass("active"); 
 	},
 
 

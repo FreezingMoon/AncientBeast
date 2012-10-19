@@ -34,12 +34,26 @@
 	</head>
 	<body>
 		<div id="ui">
+			<div id="dash">
+				<div id="creaturegrid">
+					<?php
+					$realm = array('A','E','G','S','S','S','S');
+
+					foreach ($realm as $key => $value) {
+						for ($i=1; $i <= 7; $i++) {
+							echo '<div class="vignette type'.$value.$i.' dead"><div class="overlay"></div><div class="border"></div></div>';
+						}
+					} ?>
+				</div>
+			</div>
+			<div id="toggledash" class="button"></div>
 			<div id="toppanel">
 				<div id="queue">
 					<div id="queuewrapper"></div>
 				</div>
 				<div id="rightpanel">
-					<div id="skip" class="button"></div>
+					<div id="end" class="button"></div>
+					<div id="delay" class="button"></div>
 				</div>
 				<div id="leftpanel">
 					<div id="activebox">
