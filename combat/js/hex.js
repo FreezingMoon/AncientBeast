@@ -117,6 +117,8 @@ var HexGrid = Class.create({
 	*/
 	queryHexs: function(fnOnClick,fnOnMouseover,fnOnCancel,fnOnConfirm,fnOptTest,args,ignoreObstacle,includeCreature,x,y,distance,id,size,exclude){ 
 		
+		G.grid.lastClickedtHex = [];
+
 		this.cleanReachable(); //Clean all precedent blocked hexs
 
 		//Clear previous binds
@@ -195,8 +197,8 @@ var HexGrid = Class.create({
 
 			var clickedtHex = G.grid.hexs[y][x];
 
-			if( clickedtHex != G.grid.lasClickedtHex ){
-				G.grid.lasClickedtHex = clickedtHex;
+			if( clickedtHex != G.grid.lastClickedtHex ){
+				G.grid.lastClickedtHex = clickedtHex;
 				//ONCLICK
 				fnOnClick(clickedtHex,args);
 			}else{
