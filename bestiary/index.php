@@ -49,13 +49,8 @@ function progress($id, $ab_name) {
 	}
 }
 
-function call_creature($name) {
-	$spaceless = str_replace(' ', '_', $name);
-	echo '<br><div align=center><audio controls src="' . $name . '/' . $spaceless . '.ogg"></audio></div>';
-}
-
 //grid view
-echo '<div style="text-align:center;"><a name="grid">';
+echo '<div style="text-align:center;"><a id="grid">';
 foreach ($creature_results as $r) {
 	if ($r['id'] == 0 || $r['id'] == 50) {
 		continue;
@@ -72,7 +67,6 @@ foreach ($creature_results as $r) {
 	cards($r['id']);
 	echo '<br>';
 	progress($r['id'], $r['name']);
-	call_creature($r['name']);
 	end_segment();
 }
 

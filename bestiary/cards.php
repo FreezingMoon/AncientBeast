@@ -48,6 +48,12 @@
 	text-align: center;
 }
 </style>
+<script>
+function CallCreature(shout) {
+	var thissound=document.getElementById(shout);
+	thissound.play();
+}
+</script>
 <?php
 
 function ability($x, &$y, $ab_name, $row) {
@@ -81,19 +87,25 @@ function cards($id) { //Print a card
 	foreach ($ab_creatures_results as $r) {
 		$ab_name = $r['name'];
 		$spaceless = str_replace(' ', '_', $ab_name);
-	$sins = array(
-		'A' => 'gold', 
-		'E' => 'orange', 
-		'G' => 'green', 
-		'L' => 'red', 
-		'P' => 'violet', 
-		'S' => 'blue', 
-		'W' => 'indigo', 
-		'-' => 'grey',
-	);
-	echo '<center><table border=0><th class="card" style="background-image: url(\'' . $site_root .'images/cards/margin.png\'), url(\'' . $site_root .'bestiary/' . $r['name'] .'/artwork.jpg\'), url(\'' . $site_root . 'images/cards/' . $r['sin'] . '.jpg\'); background-position:center;">';
+		$sins = array(
+			'A' => 'gold', 
+			'E' => 'orange', 
+			'G' => 'green', 
+			'L' => 'red', 
+			'P' => 'violet', 
+			'S' => 'blue', 
+			'W' => 'indigo', 
+			'-' => 'grey',
+		);
 
-	echo '<a href="#' . $spaceless .'"><div class="section" style="border:0px; width:430px; height:550px;"><div style="position:absolute; margin: 15px 0 0 15px;">' . $r['embed'] . '</div><table class="section" style="background:rgba(0,0,0,0.7); border-radius:15px; border:4px ridge ' . $sins[$r['sin']] . '; position:relative; top:495px; left:15px;"><tr style="font-size:24px; text-align:center; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em ' . $sins[$r['sin']] . ';"><td width="20%">' . $r['sin'] . $r['lvl'] . '</td><td>' . $r['name'] . '<td width="20%">' . $r['hex'] . 'H</td></tr></table></div></a>';
+		echo '<center><table border=0><th class="card" style="background-image: url(\'' . $site_root .'images/cards/margin.png\'), url(\'' . $site_root .'bestiary/' . $ab_name .'/artwork.jpg\'), url(\'' . $site_root . 'images/cards/' . $r['sin'] . '.jpg\'); background-position:center;">';
+
+		echo '<div class="section" style="border:0px; width:430px; height:550px;"><div style="position:absolute; margin: 15px 0 0 15px;">' . $r['embed'] . '</div>';
+		echo '<table class="section" style="background:rgba(0,0,0,0.7); border-radius:15px; border:4px ridge ' . $sins[$r['sin']] . '; position:relative; top:495px; left:15px;">';
+		echo '<tr style="font-size:24px; text-align:center; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em ' . $sins[$r['sin']] . ';">';
+		echo '<td width="20%">' . $r['sin'] . $r['lvl'] . '</td>';
+		echo '<td><audio src="' . $ab_name . '/' . $ab_name . '.ogg" id="' . $ab_name . '_shout" style="display:none;" preload="auto"></audio><a href="#" onClick="CallCreature(\'' . $ab_name . '_shout\');" onmouseover="CallCreature(\'' . $ab_name . '_shout\');">' . $ab_name . '</a></td>';
+		echo '<td width="20%">' . $r['hex'] . 'H</td></tr></table></div>';
 	}
 	
 	//Display ICONS
