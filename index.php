@@ -34,6 +34,8 @@ $style = '
 	height: 400px;
 	text-align: center;
 	padding-top: 10px;
+	width: 890px;
+	font-weight: bold;
 }
 .sins {
 	background-size: 100% 100%;
@@ -69,13 +71,11 @@ $(document).ready(function() {
 });
 </script>
 <?php start_segment(); ?>
-<center><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304&amp;hl=ro_RO" frameborder="0" allowfullscreen></iframe></center>
-<?php separate_segment(); ?>
 <!-- TODO: use class, inline css is just wrong -->
 <nav><table width=100% style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
 $sections = array(
-  'info',
+  'intro',
   'plot', 
   'gameplay', 
   'realms', 
@@ -90,31 +90,30 @@ foreach ($sections as &$sectionItem) {
 </tr></table></nav>
 <?php end_segment(); ?>
 <article>
-<?php start_segment(); ?>
-<h3 class="indexheader" id="info"><a href="#info">Info</a></h3>
+<?php start_segment(intro); ?>
+<center><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304&amp;hl=ro_RO" frameborder="0" allowfullscreen></iframe></center>
+<?php separate_segment(plot); ?>
+<h3 class="indexheader"><a href="#plot">Plot</a></h3>
 <p>
 <b>Ancient Beast</b> is a turn based strategy game played online against other people, featuring a wide variety of items and creatures to aquire and put to good use in order to defeat your opponents.
 </p>
 <p>
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This project was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
-<?php separate_segment(); ?>
-<h3 class="indexheader" id="plot"><a href="#plot">Plot</a></h3>
-<p>
-It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
-</p>
-<p>
-Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield; split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strong will survive.
-</p>
-<br>
 <center><p>
 <audio controls="controls">
 	<source src="plot.ogg" type="audio/ogg">
 Your browser does not support the audio element.
 </audio>
 </p></center>
-<?php separate_segment(); ?>
-<h3 class="indexheader" id="gameplay"><a href="#gameplay">Gameplay</a></h3>
+<p>
+It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
+</p>
+<p>
+Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield; split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strong will survive.
+</p>
+<?php separate_segment(gameplay); ?>
+<h3 class="indexheader"><a href="#gameplay">Gameplay</a></h3>
 <p>
 In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are about 16x9 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
 </p>
@@ -152,8 +151,8 @@ After the first materialized creature, each aditional realm requires a plasma po
 <b>Movement:</b> Each creature can move up to a certain number of hexagons each turn.<br>
 <b>Masteries</b> can have an impact on the effectiveness of the creature's abilities and can also help reduce incoming damage and even protect the creature from harmfull effects.
 </p>
-<?php separate_segment(); ?>
-<h3 class="indexheader" id="realms"><a href="#realms">Realms</a></h3>
+<?php separate_segment(realms); ?>
+<h3 class="indexheader"><a href="#realms">Realms</a></h3>
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.</p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
 <img id="_sins" src="<?php echo $site_root; ?>images/realms/index.png" usemap="#sins" width="506" height="527">
@@ -167,18 +166,16 @@ After the first materialized creature, each aditional realm requires a plasma po
 <area shape="poly" coords="201,350,301,350,355,437,301,524,203,524,152,436" href="#Wrath" title="Wrath">
 </map></div>
 <br>
-<div style="width:890px; font-weight:bold;">
+
 <div class="realms" style="background:url('images/realms/avarice.jpg') no-repeat;"><a id="Avarice" class="bigger" href="#Avarice"><div style="background-image: url('/images/contour.png'), url('/images/sins/A.svg');" class="sins"></div>Avarice</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge gold; padding: 15px 0px;">They like to aquire all sorts of useless things and riches by all means possible.<br>Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</p></div>
 <div class="realms" style="background:url('images/realms/envy.jpg') no-repeat;"><a id="Envy" class="bigger" href="#Envy"><div style="background-image: url('/images/contour.png'), url('/images/sins/E.svg');" class="sins"></div>Envy</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge orange; padding: 15px 0px;">The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>It's located to the West side and it mainly consists of deserts and cannyons.</p></div>
 <div class="realms" style="background:url('images/realms/gluttony.jpg') no-repeat;"><a id="Gluttony" class="bigger" href="#Gluttony"><div style="background-image: url('/images/contour.png'), url('/images/sins/G.svg');" class="sins"></div>Gluttony</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge green; padding: 15px 0px;">Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>In the east side, where the jungles are really tall and wilde, not even the sun's waves go through. Beware of the vegetation as well and don't pet any animals!</p></div>
 <div class="realms" style="background:url('images/realms/lust.jpg') no-repeat;"><a id="Lust" class="bigger" href="#Lust"><div style="background-image: url('/images/contour.png'), url('/images/sins/L.svg');" class="sins"></div>Lust</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge red; padding: 15px 0px;">The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</p></div>
 <div class="realms" style="background:url('images/realms/pride.jpg') no-repeat;"><a id="Pride" class="bigger" href="#Pride"><div style="background-image: url('/images/contour.png'), url('/images/sins/P.svg');" class="sins"></div>Pride</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge violet; padding: 15px 0px;">They're above everyone else. Literally at least.<br>Hundreds of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div>
 <div class="realms" style="background:url('images/realms/sloth.jpg') no-repeat;"><a id="Sloth" class="bigger" href="#Sloth"><div style="background-image: url('/images/contour.png'), url('/images/sins/S.svg');" class="sins"></div>Sloth</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge blue; padding: 15px 0px;">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div>
-<div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger" href="#Wrath"><div style="background-image: url('/images/contour.png'), url('/images/sins/W.svg');" class="sins"></div>Wrath</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge indigo; padding: 15px 0px;">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that were used for God forbidden experiments regarding genetics and bio weapons.</p>
-</div>
-</div>
-<?php separate_segment(); ?>
-<h3 class="indexheader" id="requirements"><a href="#requirements">Requirements</a></h3>
+<div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger" href="#Wrath"><div style="background-image: url('/images/contour.png'), url('/images/sins/W.svg');" class="sins"></div>Wrath</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge indigo; padding: 15px 0px;">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that were used for God forbidden experiments regarding genetics and bio weapons.</p></div>
+<?php separate_segment(requirements); ?>
+<h3 class="indexheader"><a href="#requirements">Requirements</a></h3>
 
 <ul>
 <li>internet connection</li>
@@ -191,8 +188,8 @@ After the first materialized creature, each aditional realm requires a plasma po
 </ul>
 <p>Best played at Full HD resolution (1920x1080), with stereo speakers, using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.<br>
 While playing on a smartphone, it is highly recommended using a stylus.</p>
-<?php separate_segment(); ?>
-<h3 class="indexheader" id="development"><a href="#development">Development</a></h3>
+<?php separate_segment(development); ?>
+<h3 class="indexheader"><a href="#development">Development</a></h3>
 <p>The project is developed with the use of free open source cross platform applications and freeware services.
 <a href="http://www.wuala.com/referral/CGN5J6GH3PBBBHCGKJ3P" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's assets and sources, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group. There is no centralized forum, but you can use the various <a href="http://disqus.com" target="_blank"><b>Disqus</b></a> widgets around the website, our <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>Github issue tracker</b></a> or our <a href="http://forum.freegamedev.net/viewforum.php?f=70" target="_blank"><b>FreeGameDev subforum</b></a>.<br>
 <a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their animations, which are rendered into sprites that are usually made into sprite-sheets as well as for other tasks.<br>
@@ -219,8 +216,8 @@ foreach ($tools as $toolName => $toolLink) {
 For putting creature sprites together into sprite sheets, you can use the <a href="http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Render/Spritify" target="_blank"><b>Spritify</b></a> blender addon.<br>
 The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. By default, rendered creatures should usually be facing right.
 </p>
-<?php separate_segment(); ?>
-<h3 class="indexheader" id="license"><a href="#license">License</a></h3>
+<?php separate_segment(license); ?>
+<h3 class="indexheader"><a href="#license">License</a></h3>
 <table border="1"><tr>
 <td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
 </tr><tr>

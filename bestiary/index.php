@@ -67,7 +67,8 @@ echo '</a></div>';
 
 //detailed view
 foreach ($creature_results as $r) {
-	start_segment();
+	$spaceless = str_replace(' ', '_', $r['name']);
+	start_segment($spaceless);
 	cards($r['id']);
 	echo '<br>';
 	progress($r['id'], $r['name']);

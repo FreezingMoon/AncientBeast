@@ -91,8 +91,8 @@ echo "</tr></table>";
 
 separate_segment();
 
-//print the main short list
-echo '<a id="grid"></a><table style="width: 100%;"><tr>';
+//grid view
+echo '<table style="width: 100%;"><tr>';
 $i = 0;
 foreach ($rows as $r) {
 	$i++;
@@ -102,11 +102,11 @@ foreach ($rows as $r) {
 echo "</tr></table></a>";
 end_segment();
 
-//print each item
+//detailed view
 foreach ($rows as $r) {
-	start_segment();
+	start_segment($r['id']);
 	echo "<table style='width: 100%; text-align:center;'>";
-	echo "<tr><td style=\"width: 132px;\"><a name=\"{$r['id']}\" href=\"#grid\"><img src=\"{$site_root}items/icons/" . rawurlencode($r['name']) . ".png\"></a></td>";
+	echo "<tr><td style=\"width: 132px;\"><a href=\"#{$r['id']}\"><img src=\"{$site_root}items/icons/" . rawurlencode($r['name']) . ".png\"></a></td>";
 	echo "<td><table style='width: 100%; font-size:24px; text-align:left;'><tr>";
 	echo "<td style='width: 40%;'><a href='#{$r['id']}'>{$r['name']}</a></td>";
 	echo "<td style='width: 20%;'><a href='#'>{$r['value']}<img src='{$site_root}items/coins.png'></a></td>";
