@@ -201,7 +201,7 @@ var Creature = Class.create({
 		}
 
 		this.hexagons.each(function(){ 
-			this.$overlay.addClass("creature player"+creature.team);
+			this.$display.addClass("creature player"+creature.team);
 			this.creature = creature.id;
 		})
 	},
@@ -275,7 +275,7 @@ var Creature = Class.create({
 		//highlight final position
 		var last = path.last()
 		for (var i = 0; i < creature.size; i++) {
-			G.grid.hexs[last.y][last.x-i].$overlay.addClass("creature player"+creature.team);
+			G.grid.hexs[last.y][last.x-i].$display.addClass("creature player"+creature.team);
 		};
 
 	},

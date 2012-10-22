@@ -261,7 +261,19 @@ var HexGrid = Class.create({
 	*	Update overlay hexs with creature positions
 	*
 	*/
-	updateDisplay: function(){ this.cleanOverlay("creature player0 player1 player2 player3"); this.hexs.each(function(){ this.each(function(){ if( this.creature > 0 ) this.$overlay.addClass("creature player"+G.creatures[this.creature].team); }); });	},
+	updateDisplay: function(){ 
+		this.cleanDisplay("creature player0 player1 player2 player3"); 
+		this.hexs.each(function(){ this.each(function(){ 
+			if( this.creature > 0 ){
+				if( this.creature == G.activeCreature.id ){
+					this.$overlay.addClass("active creature player"+G.creatures[this.creature].team);
+					this.$display.addClass("creature player"+G.creatures[this.creature].team);
+				}else{
+					this.$display.addClass("creature player"+G.creatures[this.creature].team);
+				}
+			} 
+		}); });	
+	},
 
 });//End of HexGrid Class
 

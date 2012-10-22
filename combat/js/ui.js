@@ -58,9 +58,10 @@ var UI = Class.create({
 	*
 	*/
 	queryCreature: function(fnCallback,optArgs){
-		G.UI.$dash.addClass("active"); //Show dash
-		G.UI.$dash.children("#playertabswrapper").removeClass("active"); //Remove Player Tabs
-		G.UI.changePlayerTab(G.activeCreature.team); //Change to active player grid
+		this.selectedCreature = "";
+		this.$dash.addClass("active"); //Show dash
+		this.$dash.children("#playertabswrapper").removeClass("active"); //Remove Player Tabs
+		this.changePlayerTab(G.activeCreature.team); //Change to active player grid
 
 		this.$grid.children('.vignette:not([class*="locked"])').unbind('click').bind("click",function(){
 			var creatureType = $j(this).attr("creature");
@@ -109,11 +110,19 @@ var UI = Class.create({
 		.addClass("selected"+id);
 
 		this.$grid.children(".vignette") //vignettes class
-		.removeClass("active");
+		.removeClass("active dead queued")
+		.addClass("locked");
 
 		//change creature status
 		G.players[id].availableCreatures.each(function(){
 			G.UI.$grid.children(".vignette[creature='"+this+"']").removeClass("locked");
+		});
+		G.players[id].creatures.each(function(){
+			if(this.dead == true){
+				G.UI.$grid.children(".vignette[creature='"+this.type+"']").addClass("dead");
+			}else{
+				G.UI.$grid.children(".vignette[creature='"+this.type+"']").addClass("queued");
+			}
 		});
 
 		//Bind creature vignette click

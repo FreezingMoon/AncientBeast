@@ -131,7 +131,7 @@ function db_query($query) {
 				</div>
 				<div id="creaturegridwrapper"><?php
 						require_once('../bestiary/grid.php');
-						creatureGrid(false,true);
+						creatureGrid(false);
 						?></div>
 			</div>
 			<div id="toggledash" class="button"></div>

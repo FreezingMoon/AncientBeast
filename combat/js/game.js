@@ -64,11 +64,9 @@ var Game = Class.create({
 		//Get JSON files
 		var i = 0;
 		this.availableCreatures.each(function(){
-			console.log("./creatures_datas/"+this+".json");
 			$j.getJSON("./creatures_datas/"+this+".json", function(data) {
 				G.creatureDatas.push(data);
 				i++;
-				console.log(G.creatureDatas);
 				if(i==G.availableCreatures.length){G.setup(nbrPlayer)}
 			});
 		});
@@ -83,7 +81,6 @@ var Game = Class.create({
 	*
 	*/
 	setup: function(nbrPlayer){
-		console.log(G.creatureDatas);
 		this.nbrPlayer = nbrPlayer; //To be able to access it in the future
 
 		this.grid = new HexGrid();//Creating Hexgrid
@@ -288,6 +285,6 @@ var Player = Class.create({
 		
 		var creature = new Creature(data);
 
-		this.creatures[creature.id] = creature;
+		this.creatures.push(creature);
 	}
 });

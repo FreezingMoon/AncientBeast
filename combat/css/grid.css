@@ -33,10 +33,10 @@
 #creaturegrid .vignette.dead 	div.overlay{ background-image: url("../icons/dead.svg"); }
 #creaturegrid .vignette.locked 	div.overlay{ background-image: url("../icons/locked.svg"); }
 #creaturegrid .vignette.queued 	div.overlay{ background-image: url("../icons/queue.svg");
-	animation: pulse06 750ms infinite alternate;
-	-webkit-animation: pulse06 750ms infinite alternate;
-	-moz-animation: pulse06 750ms infinite alternate;
-	-o-animation: pulse06 750ms infinite alternate;
+	animation: pulse0106 750ms infinite alternate;
+	-webkit-animation: pulse0106 750ms infinite alternate;
+	-moz-animation: pulse0106 750ms infinite alternate;
+	-o-animation: pulse0106 750ms infinite alternate;
 }
 
 

@@ -46,7 +46,7 @@ body{
 	top: 0px;
 	left: 0px;
 }
-#hexsdisplay{z-index: 1; opacity: .6;}
+#hexsdisplay{z-index: 1; opacity: .5;}
 #hexsoverlay{z-index: 2;}
 #creatureWrapper{z-index: 3;}
 #hexsinput{z-index: 4;}
@@ -75,10 +75,10 @@ div.row:nth-child(9){top:38.944em;}
 	height: 52px;
 	margin: -36px -10px;
 	padding: 36px 10px;
-	transition: opacity 500ms;
-	-moz-transition: opacity 500ms; /* Firefox 4 */
-	-webkit-transition: opacity 500ms; /* Safari and Chrome */
-	-o-transition: opacity 500ms; /* Opera */
+	transition: opacity 250ms;
+	-moz-transition: opacity 250ms; /* Firefox 4 */
+	-webkit-transition: opacity 250ms; /* Safari and Chrome */
+	-o-transition: opacity 250ms; /* Opera */
 }
 
 /*even ROW*/
@@ -173,18 +173,30 @@ div.row:nth-child(9){top:38.944em;}
 
 /*--------------------Players------------------*/
 .displayhex.creature{z-index: 6; opacity: 1 !important;}
+
+#hexsoverlay .displayhex.creature.active{
+	animation: pulse0510 500ms infinite alternate;
+	-webkit-animation: pulse0510 500ms infinite alternate;
+	-moz-animation: pulse0510 500ms infinite alternate;
+	-o-animation: pulse0510 500ms infinite alternate;
+}
+
 /*p0*/
 #hexsoverlay .displayhex.hover.h_player0{background: url("../grid/hex_hover_p0.png");}
-#hexsoverlay .displayhex.creature.player0{background: url("../grid/hex_p0.png");}
+#hexsoverlay .displayhex.creature.active.player0,
+#hexsdisplay .displayhex.creature.player0{background: url("../grid/hex_p0.png");}
 /*p1*/
 #hexsoverlay .displayhex.hover.h_player1{background: url("../grid/hex_hover_p1.png");}
-#hexsoverlay .displayhex.creature.player1{background: url("../grid/hex_p1.png");}
+#hexsoverlay .displayhex.creature.active.player1,
+#hexsdisplay .displayhex.creature.player1{background: url("../grid/hex_p1.png");}
 /*p2*/
 #hexsoverlay .displayhex.hover.h_player2{background: url("../grid/hex_hover_p2.png");}
-#hexsoverlay .displayhex.creature.player2{background: url("../grid/hex_p2.png");}
+#hexsoverlay .displayhex.creature.active.player2,
+#hexsdisplay .displayhex.creature.player2{background: url("../grid/hex_p2.png");}
 /*p3*/
 #hexsoverlay .displayhex.hover.h_player3{background: url("../grid/hex_hover_p3.png");}
-#hexsoverlay .displayhex.creature.player3{background: url("../grid/hex_p3.png");}
+#hexsoverlay .displayhex.creature.active.player3,
+#hexsdisplay .displayhex.creature.player3{background: url("../grid/hex_p3.png");}
 
 
 /*------------------Creatures------------------*/
@@ -524,7 +536,13 @@ div.row:nth-child(9){top:38.944em;}
 /*-----------------Animations-------------------*/
 
 /*Pulse between .6 and .1 opacity*/
-@keyframes pulse06 { 0%   {opacity: .1;} 100% {opacity: .6;} }
-@-moz-keyframes pulse06 { 0% {opacity: .1;} 100% {opacity: .6;} }
-@-webkit-keyframes pulse06 { 0% {opacity: .1;} 100% {opacity: .6;} }
-@-o-keyframes pulse06 { 0% {opacity: .1;} 100% {opacity: .6;} }
+@keyframes pulse0106 { 0% {opacity: .1;} 100% {opacity: .6;} }
+@-moz-keyframes pulse0106 { 0% {opacity: .1;} 100% {opacity: .6;} }
+@-webkit-keyframes pulse0106 { 0% {opacity: .1;} 100% {opacity: .6;} }
+@-o-keyframes pulse0106 { 0% {opacity: .1;} 100% {opacity: .6;} }
+
+/*Pulse between .8 and 1 opacity*/
+@keyframes pulse0510 { 0% {opacity: .5;} 100% {opacity: 1;} }
+@-moz-keyframes pulse0510 { 0% {opacity: .5;} 100% {opacity: 1;} }
+@-webkit-keyframes pulse0510 { 0% {opacity: .5;} 100% {opacity: 1;} }
+@-o-keyframes pulse0510 { 0% {opacity: .5;} 100% {opacity: 1;} }

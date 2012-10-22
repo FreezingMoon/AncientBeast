@@ -1,9 +1,7 @@
 <?php
 
-function creatureGrid($creature_results=false,$locked=true)
+function creatureGrid($creature_results=false)
 {
-	$locked = ($locked)? "locked" : "" ;
-
 	//If result is empty do a query
 	if( $creature_results == false ){
 		$creatures = 'SELECT * FROM ab_creatures ORDER BY sin, lvl';
@@ -17,7 +15,7 @@ function creatureGrid($creature_results=false,$locked=true)
 			continue;
 		}
 		$spaceless = str_replace(' ', '_', $r['name']);
-		echo '<a href="#'.$spaceless.'" title="'.$r['name'].'" class="vignette type'.$r['sin'].$r['lvl'].' '.$locked.'" creature="'.$r['sin'].$r['lvl'].'"><div class="overlay"></div><div class="border"></div></a>';
+		echo '<a href="#'.$spaceless.'" title="'.$r['name'].'" class="vignette type'.$r['sin'].$r['lvl'].'" creature="'.$r['sin'].$r['lvl'].'"><div class="overlay"></div><div class="border"></div></a>';
 	} 
 
 	echo '</div>';
