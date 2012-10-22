@@ -185,21 +185,14 @@ var HexGrid = Class.create({
 					var walkable = false;
 
 					for (var i = 0; i < size; i++) {	//try next hexagons to see if it fits
-						if( (this.x-i >= G.grid.hexs[this.y].length) || (this.x-i < 0) ) continue;
-						if(G.grid.hexs[this.y][this.x-i].isWalkable(size,id)){ 
+						if( (this.x+i >= G.grid.hexs[this.y].length) || (this.x+i < 0) ) continue;
+						if(G.grid.hexs[this.y][this.x+i].isWalkable(size,id)){ 
 							walkable = true;
 							break; 
 						}
 					};
 
-					if(walkable){ 
-						//in range
-						for (var i = 0; i < size; i++) { //each creature hex
-							if( (this.x-i) >= 0 && (this.x-i) < G.grid.hexs[this.y].length ){ //check if inside row boundaries
-								badHexs.removePos(G.grid.hexs[this.y][this.x-i]);
-							}
-						};
-					}else{ badHexs.push(this); }
+					if(!walkable){ badHexs.push(this);}
 
 				} else {
 					switch(includeCreature){
@@ -263,6 +256,7 @@ var HexGrid = Class.create({
 	*/
 	updateDisplay: function(){ 
 		this.cleanDisplay("creature player0 player1 player2 player3"); 
+		this.cleanOverlay("creature hover"); 
 		this.hexs.each(function(){ this.each(function(){ 
 			if( this.creature > 0 ){
 				if( this.creature == G.activeCreature.id ){

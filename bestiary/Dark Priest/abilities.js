@@ -65,17 +65,17 @@ abilities["0"] =[
 			return ( G.creatures[hex.creature].team != args.dpriest.team );
 		}
 
-		tracePosition = function(hex,args){
+		fnOnClick = function(hex,args){
 			var crea = G.creatures[hex.creature];
 
 			G.grid.cleanOverlay("creature player0 player1 player2 player3");
-			//G.grid.updateDisplay(); //Retrace players creatures
+			G.grid.updateDisplay(); //Retrace players creatures
 			crea.hexagons.each(function(){
-				this.$overlay.addClass("creature player"+crea.team);
+				this.$overlay.addClass("creature selected player"+crea.team);
 			});
 		};
 
-		previewPosition = function(hex,args){
+		fnOnMouseover = function(hex,args){
 			var crea = G.creatures[hex.creature];
 			
 			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
@@ -86,8 +86,8 @@ abilities["0"] =[
 		};
 
 		G.grid.queryHexs(
-			tracePosition, //OnClick
-			previewPosition, //OnMouseover
+			fnOnClick, //OnClick
+			fnOnMouseover, //OnMouseover
 			function(){G.activeCreature.queryMove()}, //OnCancel
 			ability.activate, //OnConfirm
 			optionalTest, //OptionalTest
@@ -104,16 +104,16 @@ abilities["0"] =[
 
 	//	activate() : 
 	activate : function(hex,args) {
-		var crea = G.creatures[hex.creature];
 		var ability = args.ability;
+		G.log("Player"+ability.creature.team+"'s "+ability.creature.name+" uses "+ability.title);
+
+		var crea = G.creatures[hex.creature];
 
 		crea.die();
 
 		ability.creature.player.plasma -= 5;
 
 		G.activeCreature.queryMove(); 
-
-		G.log("Player"+ability.creature.team+"'s "+ability.creature.name+" uses "+ability.title);
 		ability.used = true; //Should always be here
 	},
 },
@@ -186,11 +186,11 @@ abilities["0"] =[
 				var creature = args.creature;
 				var crea = G.retreiveCreatureStats(creature);
 
-				G.grid.cleanOverlay("creature player"+G.activeCreature.team);
+				G.grid.cleanOverlay("creature selected player"+G.activeCreature.team);
 				G.grid.updateDisplay(); //Retrace players creatures
 				for (var i = 0; i < crea.size; i++) {
 					var a = (dpriest.player.fliped)?-1:1;
-					G.grid.hexs[hex.y][hex.x+a*i].$overlay.addClass("creature player"+G.activeCreature.team);
+					G.grid.hexs[hex.y][hex.x+a*i].$overlay.addClass("creature selected player"+G.activeCreature.team);
 				}
 			};
 
@@ -228,8 +228,10 @@ abilities["0"] =[
 
 	//	activate() : 
 	activate : function(hex,args) {
-		var ability = args.ability;
 		var creature = args.creature;
+		G.log("Player"+ability.creature.team+"'s "+ability.creature.name+" uses "+ability.title);
+
+		var ability = args.ability;
 		var creaStats = G.retreiveCreatureStats(creature);
 
 		var pos = (ability.creature.player.fliped) ? 
@@ -242,7 +244,6 @@ abilities["0"] =[
 
 		G.activeCreature.queryMove(); 
 
-		G.log("Player"+ability.creature.team+"'s "+ability.creature.name+" uses "+ability.title);
 		ability.used = true; //Should always be here
 	},
 },
@@ -262,10 +263,10 @@ abilities["0"] =[
 
 	// 	require() :
 	require : function(){
-		if(this.creature.player.plasma <= 0){
-			G.log("Not enough plasma");
-			return false;
-		}
+		// if(this.creature.player.plasma <= 0){
+		// 	G.log("Not enough plasma");
+		// 	return false;
+		// }
 		return true;
 	},
 
@@ -284,7 +285,7 @@ abilities["0"] =[
 
 			optionalTest = function(hex,args){ return true; }
 
-			tracePosition = function(hex,args){
+			fnOnClick = function(hex,args){
 				var creature = args.creature;
 				var crea = G.retreiveCreatureStats(creature);
 
@@ -303,14 +304,14 @@ abilities["0"] =[
 					}
 				};
 
-				G.grid.cleanOverlay("creature player"+G.activeCreature.team);
+				G.grid.cleanOverlay("creature selected player"+G.activeCreature.team);
 				G.grid.updateDisplay(); //Retrace players creatures
 				for (var i = 0; i < crea.size; i++) {
-					G.grid.hexs[y][x-i].$overlay.addClass("creature player"+G.activeCreature.team);
+					G.grid.hexs[y][x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
 				}
 			};
 
-			previewPosition = function(hex,args){
+			fnOnMouseover = function(hex,args){
 				var creature = args.creature;
 				var crea = G.retreiveCreatureStats(creature);
 
@@ -336,8 +337,8 @@ abilities["0"] =[
 			};
 
 			G.grid.queryHexs(
-				tracePosition, //OnClick
-				previewPosition, //OnMouseover
+				fnOnClick, //OnClick
+				fnOnMouseover, //OnMouseover
 				function(){G.activeCreature.queryMove()}, //OnCancel
 				ability.activate, //OnConfirm
 				optionalTest, //OptionalTest
@@ -358,8 +359,10 @@ abilities["0"] =[
 
 	//	activate() : 
 	activate : function(hex,args) {
-		var ability = args.ability;
 		var creature = args.creature;
+		var ability = args.ability;
+		G.log("Player"+ability.creature.team+"'s "+ability.creature.name+" uses "+ability.title);
+
 		var creaStats = G.retreiveCreatureStats(creature);
 		var dpriest = args.dpriest;
 
@@ -378,9 +381,7 @@ abilities["0"] =[
 			}
 		};
 
-		var pos = (ability.creature.player.fliped) ? 
-		{ x:x+creaStats.size-1,	y:y	}: 
-		{ x:x,	y:y	};
+		var pos = { x:x, y:y };
 
 		ability.creature.player.summon(creature,pos);
 
@@ -388,7 +389,6 @@ abilities["0"] =[
 
 		G.activeCreature.queryMove(); 
 
-		G.log("Player"+ability.creature.team+"'s "+ability.creature.name+" uses "+ability.title);
 		ability.used = true; //Should always be here
 	},
 }

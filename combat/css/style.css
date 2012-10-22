@@ -172,30 +172,35 @@ div.row:nth-child(9){top:38.944em;}
 #hexsdisplay .adj{background: url("../grid/hex_path.png");  z-index: 5;}
 
 /*--------------------Players------------------*/
-.displayhex.creature{z-index: 6; opacity: 1 !important;}
+.displayhex.creature{z-index: 6 !important; opacity: 1 !important;}
 
-#hexsoverlay .displayhex.creature.active{
-	animation: pulse0510 500ms infinite alternate;
-	-webkit-animation: pulse0510 500ms infinite alternate;
-	-moz-animation: pulse0510 500ms infinite alternate;
-	-o-animation: pulse0510 500ms infinite alternate;
+#hexsoverlay .displayhex.creature.active,
+#hexsoverlay .displayhex.creature.selected{
+	animation: pulse0510 750ms infinite alternate;
+	-webkit-animation: pulse0510 750ms infinite alternate;
+	-moz-animation: pulse0510 750ms infinite alternate;
+	-o-animation: pulse0510 750ms infinite alternate;
 }
 
 /*p0*/
 #hexsoverlay .displayhex.hover.h_player0{background: url("../grid/hex_hover_p0.png");}
 #hexsoverlay .displayhex.creature.active.player0,
+#hexsoverlay .displayhex.creature.selected.player0,
 #hexsdisplay .displayhex.creature.player0{background: url("../grid/hex_p0.png");}
 /*p1*/
 #hexsoverlay .displayhex.hover.h_player1{background: url("../grid/hex_hover_p1.png");}
 #hexsoverlay .displayhex.creature.active.player1,
+#hexsoverlay .displayhex.creature.selected.player1,
 #hexsdisplay .displayhex.creature.player1{background: url("../grid/hex_p1.png");}
 /*p2*/
 #hexsoverlay .displayhex.hover.h_player2{background: url("../grid/hex_hover_p2.png");}
 #hexsoverlay .displayhex.creature.active.player2,
+#hexsoverlay .displayhex.creature.selected.player2,
 #hexsdisplay .displayhex.creature.player2{background: url("../grid/hex_p2.png");}
 /*p3*/
 #hexsoverlay .displayhex.hover.h_player3{background: url("../grid/hex_hover_p3.png");}
 #hexsoverlay .displayhex.creature.active.player3,
+#hexsoverlay .displayhex.creature.selected.player3,
 #hexsdisplay .displayhex.creature.player3{background: url("../grid/hex_p3.png");}
 
 

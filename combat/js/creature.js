@@ -259,12 +259,14 @@ var Creature = Class.create({
 		var y = hex.y;
 		var path = G.activeCreature.calculatePath(x,y); //Store path in grid to be able to compare it later
 
+		var creature = G.activeCreature;
+
 		G.grid.cleanDisplay("adj"); //Clean previous path
+		G.grid.cleanOverlay("creature selected player"+creature.team); //Clean previous path
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		if( path.length == 0 ) return; //Break if empty path
 
-		var creature = G.activeCreature;
 		path.each(function(){ 
 			for (var i = 0; i < creature.size; i++) {
 				G.grid.hexs[this.y][this.x-i].$display.addClass("adj"); 
@@ -275,7 +277,7 @@ var Creature = Class.create({
 		//highlight final position
 		var last = path.last()
 		for (var i = 0; i < creature.size; i++) {
-			G.grid.hexs[last.y][last.x-i].$display.addClass("creature player"+creature.team);
+			G.grid.hexs[last.y][last.x-i].$overlay.addClass("creature selected player"+creature.team);
 		};
 
 	},
