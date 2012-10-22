@@ -389,17 +389,7 @@ div.row:nth-child(9){top:38.944em;}
 .selected2 .playertabs.p2{background-color: rgba(255,172,0,0.5);}
 .selected3 .playertabs.p3{background-color: rgba(0,255,0,.5);}
 
-#dash #creaturegrid .vignette,
-.vignette div.border,
-.vignette div.overlay{
-	height: 100px;
-	width: 100px;
-	background-size: 100% 100%;
-	position: relative;
-	display: inline-block;
-}
-
-#dash #creaturegridwrapper{
+#creaturegridwrapper{
 	top: 120px;
 	right: 0px;
 	bottom: 0px;
@@ -409,30 +399,6 @@ div.row:nth-child(9){top:38.944em;}
 	text-align: center;
 	vertical-align: middle;
 }
-
-#dash #creaturegrid .vignette div.overlay{	
-	display: block;
-	position: absolute;
-	opacity: .6;
-}
-
-#dash #creaturegrid .vignette div.border{
-	display: block;
-	position: absolute;
-	background-image: url("../../images/frame.png");
-}
-
-#dash #creaturegrid .vignette.active div.border{background-image: url("../../images/frame_focused.png");}
-
-#dash #creaturegrid .vignette.dead 		div.overlay{ background-image: url("../icons/dead.svg"); }
-#dash #creaturegrid .vignette.locked 	div.overlay{ background-image: url("../icons/locked.svg"); }
-#dash #creaturegrid .vignette.queued 	div.overlay{ background-image: url("../icons/queue.svg");
-animation: pulse06 750ms infinite alternate;
--webkit-animation: pulse06 750ms infinite alternate;
--moz-animation: pulse06 750ms infinite alternate;
--o-animation: pulse06 750ms infinite alternate;
-}
-
 
 
 /*-------------------Queue-------------------*/
@@ -481,71 +447,6 @@ animation: pulse06 750ms infinite alternate;
 	background-size: 100% 100%;
 }
 
-/*----------------Creatures vignettes---------------*/
-
-.vignette.typeA1{background-image: url("../../bestiary/Swine Thug/avatar.jpg");}
-.vignette.typeA2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeA3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeA4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeA5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeA6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeA7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-
-.vignette.typeE1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeE2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeE3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeE4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeE5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeE6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeE7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-
-.vignette.typeG1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeG2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeG3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeG4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeG5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeG6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeG7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-
-.vignette.typeL1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeL2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeL3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeL4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeL5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeL6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeL7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-
-.vignette.typeP1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeP2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeP3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeP4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeP5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeP6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeP7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-
-.vignette.typeS1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeS2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeS3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeS4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeS5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeS6{background-image: url("../../bestiary/Impaler/avatar.jpg");}
-.vignette.typeS7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-
-.vignette.typeW1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeW2{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeW3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeW4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeW5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeW6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeW7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeWS{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-
-.vignette.type0{background-image: url("../../bestiary/Dark Priest/avatar.jpg");}
-
-.vignette.p0:after{background-image: url("../frames/red.png");}
-.vignette.p1:after{background-image: url("../frames/blue.png");}
-.vignette.p2:after{background-image: url("../frames/orange.png");}
-.vignette.p3:after{background-image: url("../frames/green.png");}
 
 
 /*---------------TEXTBOX--------------*/

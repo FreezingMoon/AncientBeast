@@ -43,6 +43,7 @@ require_once('global.php'); ?>
 ?>
 </title>
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
+<link rel="stylesheet" href="<?php echo $site_root; ?>combat/css/grid.css">
 <?php
   if (isset($style)) {
   	echo '<style type="text/css">' . $style . '</style>';

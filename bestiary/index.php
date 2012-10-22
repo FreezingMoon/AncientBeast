@@ -27,6 +27,7 @@ require_once('../header.php');
 require_once('../global.php');
 require_once('../images/stats/index.php');
 require_once('cards.php');
+require_once('grid.php');
 $spaceless = str_replace(' ', '_', $r['name']);
 
 $creatures = 'SELECT * FROM ab_creatures ORDER BY sin, lvl';
@@ -50,15 +51,20 @@ function progress($id, $ab_name) {
 }
 
 //grid view
-echo '<div style="text-align:center;"><a id="grid">';
-foreach ($creature_results as $r) {
-	if ($r['id'] == 0 || $r['id'] == 50) {
-		continue;
-	}
-	$spaceless = str_replace(' ', '_', $r['name']);
-	echo '<div class="lighten" style="background:url(\'' . $site_root . 'bestiary/' . $r['name'] . '/avatar.jpg\'); background-size: 100%; display: inline-block; margin-bottom:-3px; cursor: pointer;"><a href="#' . $spaceless . '"><img style="display: block;" src="' . $site_root . 'images/frame.png"></a></div>'; 
-}
-echo '</a></div>';
+echo '<style type="text/css">
+		#creaturegrid .vignette:hover div.border{background-image: url("'.$site_root.'/images/frame_focused.png");}
+		#creaturegrid .vignette,
+		.vignette div.border,
+		.vignette div.overlay{
+			height: 128px;
+			width: 128px;
+		}
+		#creaturegrid{
+			width: 896px;
+			height: 896px;
+		}
+	</style>';
+creatureGrid($creature_results,false);
 
 //detailed view
 foreach ($creature_results as $r) {
