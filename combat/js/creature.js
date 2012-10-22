@@ -138,10 +138,10 @@ var Creature = Class.create({
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		G.grid.queryHexs(
-			G.activeCreature.tracePath,
-			G.activeCreature.previewPosition,
+			this.tracePath,
+			this.previewPosition,
 			function(){ G.log("You can't do this."); },
-			G.activeCreature.moveTo,
+			this.moveTo,
 			function(){return true;}, //Optional test return true (no test)
 			null,
 			false, //true for flying creatures
@@ -363,15 +363,24 @@ var Creature = Class.create({
 	* 	damage : 		Integer : 	Positive value, amount of damage
 	*
 	*/
-	takeDamage: function(damage){//TODO Implement damage type
+	takeDamage: function(damage,attacker){//TODO Implement damage type
+		var creature = this;
+
 		//Calculation
+		this.abilities.each(function(){
+			if(this.trigger == "onDamage"){
+				if( this.require() ){
+					damage = this.activate(damage,creature,attacker);
+				}
+			}
+		});
 		this.stats.health -= damage;
+
 		//Display
 		var $damage = this.$effects.append('<div class="damage">-'+damage+'</div>').children(".damage");
-		$damage.transition({top:-20,opacity:0},2000,function(){//1sec animation
-			//Then delete damage div
-			$damage.remove();
-		});
+		//Damage animation
+		$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
+
 		G.log("Player"+(this.team+1)+"'s "+this.name+" is hit -"+damage+" health");
 		if(this.stats.health <= 0){ this.die() }
 	},
@@ -388,7 +397,7 @@ var Creature = Class.create({
 
 		//As hex occupation changes, path must be recalculated for the current creature not the dying one
 		this.cleanHex();
-		G.activeCreature.weightAll(); 
+		G.activeCreature.queryMove(); 
 
 		//Queue cleaning
 		G.queue.removePos(this);

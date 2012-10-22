@@ -21,7 +21,7 @@ var Ability = Class.create({
 		if( this.used == true ){ G.log("Ability already used!"); return; }
 		if( !this.require() ) return;
 
-		this.query();
+		return this.query();
 	},
 
 

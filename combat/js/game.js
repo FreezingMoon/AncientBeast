@@ -31,6 +31,7 @@ var Game = Class.create({
 	*	nbrPlayer : 		Integer : 	Number of player in the game
 	*	activeCreature : 	Creature : 	Current active creature object reference
 	*	creaIdCounter : 	Integer : 	Creature ID counter used for creature creation
+	*	creatureDatas : 	Array : 	Array containing all datas for the creatures
 	*
 	*/
 
@@ -47,6 +48,30 @@ var Game = Class.create({
 		this.queue = [];
 		this.nextQueue = []; //next round queue
 		this.creaIdCounter = 1;
+		this.creatureDatas = [];
+		this.availableCreatures = ["0","L2","S6"];
+	},
+
+
+	/*	loadGame()
+	*	
+	* 	Load all required game files
+	*
+	*	TODO : Loading bar or spinner
+	*
+	*/
+	loadGame: function(nbrPlayer){
+		//Get JSON files
+		var i = 0;
+		this.availableCreatures.each(function(){
+			console.log("./creatures_datas/"+this+".json");
+			$j.getJSON("./creatures_datas/"+this+".json", function(data) {
+				G.creatureDatas.push(data);
+				i++;
+				console.log(G.creatureDatas);
+				if(i==G.availableCreatures.length){G.setup(nbrPlayer)}
+			});
+		});
 	},
 
 
@@ -58,6 +83,7 @@ var Game = Class.create({
 	*
 	*/
 	setup: function(nbrPlayer){
+		console.log(G.creatureDatas);
 		this.nbrPlayer = nbrPlayer; //To be able to access it in the future
 
 		this.grid = new HexGrid();//Creating Hexgrid
@@ -219,29 +245,9 @@ var Game = Class.create({
 	*
 	*/
 	retreiveCreatureStats: function(type){
-		//TEMPORARY SOLUTION
-		var data = (type=="0")
-		?{
-			name: "Dark Priest",
-			type: "0",
-			size: 1,
-			stats: {
-				health: 100,
-				initiative:10,
-				movement:5,
-			},
-		}
-		:{
-			name: "Magma Spawn",
-			type: "L2",
-			size: 3,
-			stats: {
-				health: 10,
-				initiative:15,
-				movement:5,
-			},
+		for (var i = this.creatureDatas.length - 1; i >= 0; i--) {
+			if(this.creatureDatas[i].type == type) return this.creatureDatas[i];
 		};
-		return data;
 	},
 });
 
@@ -265,6 +271,7 @@ var Player = Class.create({
 		this.creatures = [];
 		this.plasma = 10;
 		this.fliped = !!(id%2); //Convert odd/even to true/false
+		this.availableCreatures = G.availableCreatures;
 	},
 
 	/*	summon()

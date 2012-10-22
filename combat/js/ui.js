@@ -14,7 +14,11 @@ var UI = Class.create({
 	*	$queue :		Queue container
 	*	$textbox :		Chat and log container
 	*	$activebox :	Current active creature panel (left panel) container
-	*	$dash :		Overview container
+	*	$dash :			Overview container
+	*	$grid :			Creature grid container
+	*
+	*	selectedCreature : 	String : 	ID of the visible creature card
+	*	selectedPlayer : 	Integer : 	ID of the selected player in the dash
 	*
 	*/
 
@@ -28,6 +32,7 @@ var UI = Class.create({
 		this.$display = $j("#ui");
 		this.$queue = $j("#queuewrapper");
 		this.$dash = $j("#dash");
+		this.$grid = $j("#creaturegrid");
 
 		this.$button = $j("#end.button");
 		this.$button.bind('click',function(e){ G.endTurn() });
@@ -38,6 +43,85 @@ var UI = Class.create({
 		this.$textbox = $j("#textbox > #textcontent");
 
 		this.$activebox = $j("#activebox");
+
+		this.selectedCreature = "";
+		this.selectedPlayer = 0;
+	},
+
+
+	/*	queryCreature(fnCallback,optArgs)
+	*	
+	*	fnCallback : 	Function : 	Callback function used like this fnCallback(creatureType,optArgs)
+	*	optArgs : 		Any : 		Optional argument for Callback function
+	*
+	* 	Query a creature in the available creatures of the active player
+	*
+	*/
+	queryCreature: function(fnCallback,optArgs){
+		G.UI.$dash.addClass("active"); //Show dash
+		G.UI.$dash.children("#playertabswrapper").removeClass("active"); //Remove Player Tabs
+		G.UI.changePlayerTab(G.activeCreature.team); //Change to active player grid
+
+		this.$grid.children('.vignette:not([class*="locked"])').unbind('click').bind("click",function(){
+			var creatureType = $j(this).attr("creature");
+			if(creatureType == G.UI.selectedCreature){
+				fnCallback(creatureType,optArgs); //Call the callback function
+				G.UI.$dash.removeClass("active"); //Hide dash
+				G.UI.$grid.children(".vignette").removeClass("active")
+				G.UI.selectedCreature = "";
+			}else{
+				G.UI.showCreature(creatureType,G.UI.selectedPlayer);
+			}
+		});
+	},
+
+
+	/*	showCreature(creatureType,player)
+	*	
+	*	creatureType : 	String : 	Creature type
+	*	player : 		Integer : 	Player ID
+	*
+	* 	Query a creature in the available creatures of the active player
+	*
+	*/
+	showCreature: function(creatureType,player){
+		if(player != G.UI.selectedPlayer){this.changePlayerTab(player);}
+
+		this.$grid.children(".vignette").removeClass("active")
+		.filter("[creature='"+creatureType+"']").addClass("active");
+
+		this.selectedCreature = creatureType;
+		//TODO Show card
+	},
+
+
+	/*	changePlayerTab(id)
+	*
+	*	id : 	Integer : 	player id
+	*
+	*	Change to the specified player tab in the dash
+	*
+	*/
+	changePlayerTab: function(id){
+		this.selectedPlayer = id;
+		this.$dash //Dash class
+		.removeClass("selected0 selected1 selected2 selected3")
+		.addClass("selected"+id);
+
+		this.$grid.children(".vignette") //vignettes class
+		.removeClass("active");
+
+		//change creature status
+		G.players[id].availableCreatures.each(function(){
+			G.UI.$grid.children(".vignette[creature='"+this+"']").removeClass("locked");
+		});
+
+		//Bind creature vignette click
+		this.$grid.children(".vignette").unbind('click').bind("click",function(){
+			var creatureType = $j(this).attr("creature");
+			G.UI.showCreature(creatureType,G.UI.selectedPlayer);
+		});
+
 	},
 
 
@@ -47,7 +131,20 @@ var UI = Class.create({
 	*
 	*/
 	toggleDash: function(){
-		G.UI.$dash.toggleClass("active"); 
+		this.$dash.toggleClass("active");
+		this.$dash.children("#playertabswrapper").addClass("active");
+		this.changePlayerTab(G.activeCreature.team);
+
+		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click',function(e){
+			G.UI.changePlayerTab($j(this).attr("player")-0);
+		});
+
+		//Change player infos
+		for (var i = G.players.length - 1; i >= 0; i--) {
+			$j("#dash .playertabs.p"+i+" .plasma").text("Plasma "+G.players[i].plasma);
+		};
+
+		//TODO Change Dash button to return
 	},
 
 
@@ -70,7 +167,7 @@ var UI = Class.create({
 			$abilitiesButtons.each(function(){
 				var id = $j(this).attr("ability") - 0;
 				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
-				$j(this).children(".desc").text(G.activeCreature.abilities[id].title);
+				$j(this).children(".desc").html(G.activeCreature.abilities[id].title+"<p>"+G.activeCreature.abilities[id].desc+"</p>");
 				$j(this).bind('click', function(e){
 					G.activeCreature.abilities[id].use() 
 				});

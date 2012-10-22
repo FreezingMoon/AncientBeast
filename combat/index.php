@@ -18,6 +18,7 @@
 
 		<script type="text/javascript" src="../bestiary/Magma Spawn/abilities.js"></script>		
 		<script type="text/javascript" src="../bestiary/Dark Priest/abilities.js"></script>
+		<script type="text/javascript" src="../bestiary/Impaler/abilities.js"></script>
 
 		<!--google analytics-->	
 		<script type="text/javascript">
@@ -34,17 +35,27 @@
 	</head>
 	<body>
 		<div id="ui">
-			<div id="dash">
-				<div id="creaturegrid">
-					<?php
-					$realm = array('A','E','G','S','S','S','S');
-
-					foreach ($realm as $key => $value) {
-						for ($i=1; $i <= 7; $i++) {
-							echo '<div class="vignette type'.$value.$i.' dead"><div class="overlay"></div><div class="border"></div></div>';
-						}
-					} ?>
+			<div id="dash" class="selected0">
+				<div id="playertabswrapper" class="numplayer4">
+					<div class="playertabs p0"  player="0">Player1<p class="plasma">Plasma 0</p>
+					</div><div class="playertabs p1" player="1">Player2<p class="plasma">Plasma 0</p>
+					</div><div class="playertabs p2" player="2">Player3<p class="plasma">Plasma 0</p>
+					</div><div class="playertabs p3" player="3">Player4<p class="plasma">Plasma 0</p>
+					</div>
 				</div>
+				<div id="cardwrapper">
+					<div id="card"></div>
+				</div>
+				<div id="creaturegridwrapper">
+					<div id="creaturegrid">
+						<?php
+						$realm = array('A','E','G','L','P','S','W');
+
+						foreach ($realm as $key => $value) {
+							for ($i=1; $i <= 7; $i++) {
+								echo '<div class="vignette type'.$value.$i.' locked" creature="'.$value.$i.'"><div class="overlay"></div><div class="border"></div></div>';
+							}
+						} ?></div></div>
 			</div>
 			<div id="toggledash" class="button"></div>
 			<div id="toppanel">
@@ -59,10 +70,10 @@
 					<div id="activebox">
 						<div class="vignette"></div>
 						<div id="abilities">
-							<div ability="0" class="ability button"><div class="desc"></div></div>
-							<div ability="1" class="ability button"><div class="desc"></div></div>
-							<div ability="2" class="ability button"><div class="desc"></div></div>
-							<div ability="3" class="ability button"><div class="desc"></div></div>
+							<div ability="0" class="ability button"><div class="desc"><p></p></div></div>
+							<div ability="1" class="ability button"><div class="desc"><p></p></div></div>
+							<div ability="2" class="ability button"><div class="desc"><p></p></div></div>
+							<div ability="3" class="ability button"><div class="desc"><p></p></div></div>
 						</div>
 					</div>
 				</div>

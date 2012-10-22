@@ -1,0 +1,11 @@
+{
+	"name" : "Dark Priest",
+	"type" : "0",
+	"size" : 1,
+	"stats" : 
+	{
+		"health" : 100,
+		"initiative" : 10,
+		"movement" : 5
+	}
+}

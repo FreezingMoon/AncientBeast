@@ -159,34 +159,71 @@ var HexGrid = Class.create({
 
 		}else{
 
-			this.hexs[y][x].adjacentHex(distance).each(function(){
+			badHexs = []; //Array with non reachable hexs
+
+			//Tested hexs are all hexs plus the origin hex
+			testedHexs = this.hexs[y][x].adjacentHex(distance);
+			testedHexs.push(this.hexs[y][x]);
+
+			//Remove test hex from badHexs
+			this.hexs.each(function(){this.each(function(){
+				if(!testedHexs.findPos(this)){
+					badHexs.push(this);
+				}
+			})});
+
+			testedHexs.each(function(){
+
+				if( !!exclude.findPos(this) ) { badHexs.push(this); return; }
 
 				//Optional test
-				if( !fnOptTest(this,args) ) { this.unsetReachable(); return; }
+				if( !fnOptTest(this,args) ) { badHexs.push(this); return; }
 
 				if( ignoreObstacle  && (includeCreature==0) ){
+
 					//Case of flying creatures
-					if(this.isWalkable(size,id)){
+					var walkable = false;
+
+					for (var i = 0; i < size; i++) {	//try next hexagons to see if it fits
+						if( (this.x-i >= G.grid.hexs[this.y].length) || (this.x-i < 0) ) continue;
+						if(G.grid.hexs[this.y][this.x-i].isWalkable(size,id)){ 
+							walkable = true;
+							break; 
+						}
+					};
+
+					if(walkable){ 
+						//in range
 						for (var i = 0; i < size; i++) { //each creature hex
 							if( (this.x-i) >= 0 && (this.x-i) < G.grid.hexs[this.y].length ){ //check if inside row boundaries
-								G.grid.hexs[this.y][this.x-i].setReachable();
+								badHexs.removePos(G.grid.hexs[this.y][this.x-i]);
 							}
 						};
-					}
+					}else{ badHexs.push(this); }
+
 				} else {
 					switch(includeCreature){
 						case 0:
-							if(this.creature==0) this.setReachable();
+							if(this.creature==0) badHexs.removePos(this);
+							else badHexs.push(this);
 							break;
 						case 1:
 							this.setReachable();
 							break;
 						case 2:
-							if(this.creature>0) this.setReachable();
+							if(this.creature!=0){
+								badHexs.removePos(this);
+								G.creatures[this.creature].hexagons.each(function(){
+									badHexs.removePos(this);
+								});
+							} else badHexs.push(this);
 							break;
 					}
 				}
+
 			});
+
+			badHexs.each(function(){this.unsetReachable();});
 
 		}
 

@@ -1,0 +1,11 @@
+{
+	"name" : "Magma Spawn",
+	"type" : "L2",
+	"size" : 3,
+	"stats" : 
+	{
+		"health" : 10,
+		"initiative" : 15,
+		"movement" : 5
+	}
+}

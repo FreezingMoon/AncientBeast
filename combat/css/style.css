@@ -221,13 +221,24 @@ div.row:nth-child(9){top:38.944em;}
 	height: 201px;
 	margin-top: -160px;
 	padding: 0px 0px 10px;
-
 	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
 	-webkit-transform-origin:65% 100%; /* Safari and Chrome */
-
 	background: url("../../bestiary/Magma Spawn/cardboard.png");
 }
 #creatureWrapper div.creature.fliped.type_L2{ -webkit-transform: rotateX(-33deg) scale(-.75,1.35); -webkit-transform-origin:48% 100%; }
+
+/*-----Impaler----*/
+#creatureWrapper .creature.type_S6{ 
+	width: 299px;
+	height: 273px;
+	margin-top: -229px;
+	padding: 0px 0px 10px;
+	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
+	-webkit-transform-origin:65% 100%; /* Safari and Chrome */
+	background: url("../../bestiary/Impaler/cardboard.png");
+}
+#creatureWrapper div.creature.fliped.type_S6{ -webkit-transform: rotateX(-33deg) scale(-.75,1.35); -webkit-transform-origin:48% 100%; }
+
 
 /*-----Dark Priest----*/
 #creatureWrapper .creature.type_0{
@@ -340,16 +351,63 @@ div.row:nth-child(9){top:38.944em;}
 #dash #creaturegrid{
 	height: 700px;
 	width: 700px;
+	display: inline-block;
+	top: 0px;
+	bottom: 0px;
 }
+
+#playertabswrapper{ 
+	position: absolute; 
+	top: 0px; 
+	left: 0px; 
+	right: 100px;
+	display: none;
+}
+#playertabswrapper.active{display: block;}
+
+#playertabswrapper .playertabs{
+	height: 92px;
+	width: 25%;
+	display: inline-block;
+	color: white;
+	font-size: 150%;
+	border-top: 4px solid;
+	border-top: 4px solid;
+	text-align: center;
+	cursor: pointer;
+}
+
+#playertabswrapper .playertabs p.plasma{margin: 5px;}
+
+#playertabswrapper .playertabs.p0{border-color: red;}
+#playertabswrapper .playertabs.p1{border-color: blue;}
+#playertabswrapper .playertabs.p2{border-color: orange;}
+#playertabswrapper .playertabs.p3{border-color: green;}
+
+.selected0 .playertabs.p0{background-color: rgba(255,0,0,.5);}
+.selected1 .playertabs.p1{background-color: rgba(0,0,255,.5);}
+.selected2 .playertabs.p2{background-color: rgba(255,172,0,0.5);}
+.selected3 .playertabs.p3{background-color: rgba(0,255,0,.5);}
 
 #dash #creaturegrid .vignette,
 .vignette div.border,
 .vignette div.overlay{
-	height: 90px;
-	width: 90px;
+	height: 100px;
+	width: 100px;
 	background-size: 100% 100%;
 	position: relative;
 	display: inline-block;
+}
+
+#dash #creaturegridwrapper{
+	top: 120px;
+	right: 0px;
+	bottom: 0px;
+	width: 100%;
+	position: absolute;
+	overflow: auto;
+	text-align: center;
+	vertical-align: middle;
 }
 
 #dash #creaturegrid .vignette div.overlay{	
@@ -364,7 +422,17 @@ div.row:nth-child(9){top:38.944em;}
 	background-image: url("../../images/frame.png");
 }
 
-#dash #creaturegrid .vignette.dead div.overlay{ background-image: url("../icons/dead.svg"); }
+#dash #creaturegrid .vignette.active div.border{background-image: url("../../images/frame_focused.png");}
+
+#dash #creaturegrid .vignette.dead 		div.overlay{ background-image: url("../icons/dead.svg"); }
+#dash #creaturegrid .vignette.locked 	div.overlay{ background-image: url("../icons/locked.svg"); }
+#dash #creaturegrid .vignette.queued 	div.overlay{ background-image: url("../icons/queue.svg");
+animation: pulse06 750ms infinite alternate;
+-webkit-animation: pulse06 750ms infinite alternate;
+-moz-animation: pulse06 750ms infinite alternate;
+-o-animation: pulse06 750ms infinite alternate;
+}
+
 
 
 /*-------------------Queue-------------------*/
@@ -460,7 +528,7 @@ div.row:nth-child(9){top:38.944em;}
 .vignette.typeS3{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
 .vignette.typeS4{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
 .vignette.typeS5{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
-.vignette.typeS6{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
+.vignette.typeS6{background-image: url("../../bestiary/Impaler/avatar.jpg");}
 .vignette.typeS7{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
 
 .vignette.typeW1{background-image: url("../../bestiary/Magma Spawn/avatar.jpg");}
@@ -550,3 +618,12 @@ div.row:nth-child(9){top:38.944em;}
 #activebox .ability:hover .desc{
 	width: 200px;
 }
+
+
+/*-----------------Animations-------------------*/
+
+/*Pulse between .6 and .1 opacity*/
+@keyframes pulse06 { 0%   {opacity: .1;} 100% {opacity: .6;} }
+@-moz-keyframes pulse06 { 0% {opacity: .1;} 100% {opacity: .6;} }
+@-webkit-keyframes pulse06 { 0% {opacity: .1;} 100% {opacity: .6;} }
+@-o-keyframes pulse06 { 0% {opacity: .1;} 100% {opacity: .6;} }

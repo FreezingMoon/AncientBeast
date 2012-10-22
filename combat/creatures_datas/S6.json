@@ -1,0 +1,11 @@
+{
+	"name" : "Impaler",
+	"type" : "S6",
+	"size" : 3,
+	"stats" : 
+	{
+		"health" : 50,
+		"initiative" : 25,
+		"movement" : 6
+	}
+}
