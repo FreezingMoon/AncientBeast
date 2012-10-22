@@ -80,7 +80,7 @@ function db_query($query) {
 }
 
 // Page generation
-function start_segment($x) { ?>
+function start_segment($x="") { ?>
 	<div class="div_top" id="<?php echo $x; ?>"></div>
 	<div class="div_center">
 <?php
@@ -90,7 +90,7 @@ function end_segment() { ?>
 	<div class="div_bottom"></div>
 <?php
 }
-function separate_segment($x) {
+function separate_segment($x="") {
 	end_segment();
 	start_segment($x);
 }

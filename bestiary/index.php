@@ -28,7 +28,6 @@ require_once('../global.php');
 require_once('../images/stats/index.php');
 require_once('cards.php');
 require_once('grid.php');
-$spaceless = str_replace(' ', '_', $r['name']);
 
 $creatures = 'SELECT * FROM ab_creatures ORDER BY sin, lvl';
 $creature_results = db_query($creatures);
