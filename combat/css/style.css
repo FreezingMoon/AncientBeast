@@ -222,6 +222,11 @@ div.row:nth-child(9){top:38.944em;}
 	top: 0px;
 	left: 0px;
 
+	transition: opacity 500ms;
+	-moz-transition: opacity 500ms; /* Firefox 4 */
+	-webkit-transition: opacity 500ms; /* Safari and Chrome */
+	-o-transition: opacity 500ms; /* Opera */
+
 	/*Rectify distortion due to grid perspective*/
 	transform: rotateX(-33deg) scale(1,1.8) ;
 	-ms-transform: rotateX(-33deg) scale(1,1.8) ; /* IE 9 */
@@ -231,6 +236,8 @@ div.row:nth-child(9){top:38.944em;}
 
 
 }
+
+.creature.ghosted{opacity: .25;}
 
 /*-----Magma Spawn----*/
 #creatureWrapper .creature.type_L2{ 

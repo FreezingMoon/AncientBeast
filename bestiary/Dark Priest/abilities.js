@@ -229,9 +229,9 @@ abilities["0"] =[
 	//	activate() : 
 	activate : function(hex,args) {
 		var creature = args.creature;
+		var ability = args.ability;
 		G.log("Player"+ability.creature.team+"'s "+ability.creature.name+" uses "+ability.title);
 
-		var ability = args.ability;
 		var creaStats = G.retreiveCreatureStats(creature);
 
 		var pos = (ability.creature.player.fliped) ? 
@@ -263,10 +263,10 @@ abilities["0"] =[
 
 	// 	require() :
 	require : function(){
-		// if(this.creature.player.plasma <= 0){
-		// 	G.log("Not enough plasma");
-		// 	return false;
-		// }
+		if(this.creature.player.plasma <= 0){
+			G.log("Not enough plasma");
+			return false;
+		}
 		return true;
 	},
 

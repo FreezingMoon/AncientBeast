@@ -238,15 +238,34 @@ var HexGrid = Class.create({
 		});
 
 		//ONMOUSEOVER
+		this.$allInptHex.bind('mouseover', function(){ G.grid.xray(G.grid.hexs[$j(this).attr("y")-0][$j(this).attr("x")-0]); }); //Xray
 		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('mouseover', function(){
 			var x = $j(this).attr("x")-0;
 			var y = $j(this).attr("y")-0;
-
 			fnOnMouseover(G.grid.hexs[y][x],args);
 		});
 
 		//ON CANCEL
 		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){	fnOnCancel(args); });
+	},
+
+
+	/*	xray(hex)
+	* 	
+	*	hex : 	Hex : 	Hexagon to emphase
+	*
+	*	If hex contain creature call ghostOverlap for each creature hexs
+	*
+	*/
+	xray: function(hex){
+		//Clear previous ghost
+		G.creatures.each(function(){ 
+			if( this instanceof Creature ) this.$display.removeClass("ghosted"); 
+		});
+
+		if(hex.creature != 0){
+			G.creatures[hex.creature].hexagons.each(function(){ this.ghostOverlap(); });
+		}
 	},
 
 	/*	updateDisplay()
@@ -268,6 +287,22 @@ var HexGrid = Class.create({
 			} 
 		}); });	
 	},
+
+
+	/*	hexExists(y,x)
+	*
+	*	x : 	Integer : 	Coordinates to test
+	*	y : 	Integer : 	Coordinates to test
+	* 	
+	*	Test if hex exists
+	*
+	*/
+	hexExists: function(y,x){
+		if( (y>=0) && (y<this.hexs.length) ){
+			if( (x>=0) && (x<this.hexs[y].length) ) return true;
+		}
+		return false;
+	}
 
 });//End of HexGrid Class
 
@@ -379,6 +414,34 @@ var Hex = Class.create({
 			}
 		};
 		return adjHex;
+	},
+
+
+	/*	ghostOverlap()
+	*
+	*	add ghosted class to creature on hexs behind this hex
+	*
+	*/
+	ghostOverlap: function(){
+		for (var i = 1; i <= 2; i++) {
+			if(this.y%2 == 0){
+				if(i == 1){
+					for (var j = 0; j <= 1; j++) {
+						if(G.grid.hexExists(this.y+i,this.x+j)){if(G.grid.hexs[this.y+i][this.x+j].creature!=0){G.creatures[G.grid.hexs[this.y+i][this.x+j].creature].$display.addClass('ghosted');}}
+					}
+				}else{
+					if(G.grid.hexExists(this.y+i,this.x)){if(G.grid.hexs[this.y+i][this.x].creature!=0) G.creatures[G.grid.hexs[this.y+i][this.x].creature].$display.addClass('ghosted');}
+				}
+			}else{
+				if(i == 1){
+					for (var j = 0; j <= 1; j++) {
+						if(G.grid.hexExists(this.y+i,this.x-j)){if(G.grid.hexs[this.y+i][this.x-j].creature!=0){G.creatures[G.grid.hexs[this.y+i][this.x-j].creature].$display.addClass('ghosted');}}
+					}
+				}else{
+					if(G.grid.hexExists(this.y+i,this.x)){if(G.grid.hexs[this.y+i][this.x].creature!=0) G.creatures[G.grid.hexs[this.y+i][this.x].creature].$display.addClass('ghosted');}
+				}
+			}
+		};
 	},
 
 

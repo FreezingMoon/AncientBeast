@@ -99,7 +99,10 @@
 .vignette.typeW7{background-image: url("../../bestiary/Sarcophag/avatar.jpg");}
 .vignette.typeWS{background-image: url("../../bestiary/Shadow Leech/avatar.jpg");}
 
-.vignette.type0{background-image: url("../../bestiary/Dark Priest/avatar.jpg");}
+.vignette.type0.p0{background-image: url("../../bestiary/Dark Priest/avatar-red.jpg");}
+.vignette.type0.p1{background-image: url("../../bestiary/Dark Priest/avatar-blue.jpg");}
+.vignette.type0.p2{background-image: url("../../bestiary/Dark Priest/avatar-orange.jpg");}
+.vignette.type0.p3{background-image: url("../../bestiary/Dark Priest/avatar-green.jpg");}
 
 .vignette.p0:after{background-image: url("../frames/red.png");}
 .vignette.p1:after{background-image: url("../frames/blue.png");}
