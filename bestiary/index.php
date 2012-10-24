@@ -51,7 +51,7 @@ function progress($id, $ab_name) {
 
 //grid view
 echo '<style type="text/css">
-		#creaturegrid .vignette:hover div.border{background-image: url("'.$site_root.'/images/frame_focused.png");}
+		#creaturegrid .vignette:hover div.border{background-image: url("'.$site_root.'images/frame_focused.png");}
 		#creaturegrid .vignette,
 		.vignette div.border,
 		.vignette div.overlay{
