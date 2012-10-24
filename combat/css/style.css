@@ -331,6 +331,7 @@ div.row:nth-child(9){top:38.944em;}
 #leftpanel{
 	position: absolute;
 	left: 0px;
+	z-index: 0;
 }
 
 .button{
@@ -429,46 +430,44 @@ div.row:nth-child(9){top:38.944em;}
 
 #queuewrapper{display: block; width: 2000px;}
 #queue{
-	width: 800px;
-	height: 80px;
+	width: 820px;
+	height: 100px;
 	position: absolute;
-	left: 100px;
+	left: 0px;
 	top: 0px;
 	overflow: hidden;
+	z-index: 1;
 }
 
-#queue .vignette{
+#queue .queue{
+	vertical-align: top;
+	display: inline-block;
+}
+
+#queue .vignette,
+#queue .vignette:after{
+	vertical-align: top;
 	display: inline-block;
 	height: 80px;
 	width: 80px;
 	background-size: 100% 100%;
 
-	transition: opacity 500ms;
-	-moz-transition: opacity 500ms; /* Firefox 4 */
-	-webkit-transition: opacity 500ms; /* Safari and Chrome */
-	-o-transition: opacity 500ms; /* Opera */
+	transition: width 500ms,height 500ms;
+	-moz-transition: width 500ms,height 500ms; /* Firefox 4 */
+	-webkit-transition: width 500ms,height 500ms; /* Safari and Chrome */
+	-o-transition: width 500ms,height 500ms; /* Opera */
 }
 
-#queue .vignette:nth-child(1),
-#queue .vignette:nth-child(2),
-#queue .vignette:nth-child(3),
-#queue .vignette:nth-child(4),
-#queue .vignette:nth-child(5),
-#queue .vignette:nth-child(6),
-#queue .vignette:nth-child(7){opacity: 1;}
-#queue .vignette:nth-child(8){opacity: .75;}
-#queue .vignette:nth-child(9){opacity: .5;}
-#queue .vignette:nth-child(10){opacity: .25;}
-#queue .vignette:nth-child(11),
-#queue .vignette:nth-child(12){opacity: 0;}
+#queue .vignette.active,#queue .vignette.active:after{
+	height: 100px;
+	width: 100px;
+}
 
+#queue .vignette.hidden,#queue .vignette.hidden:after{width: 0px;}
 
 #queue .vignette:after{ 
 	content: "";
 	display: block;
-	height: 80px;
-	width: 80px;
-	background-size: 100% 100%;
 }
 
 
@@ -507,21 +506,7 @@ div.row:nth-child(9){top:38.944em;}
 #activebox{
 	position: relative;
 	left: 0px;
-}
-
-#activebox .vignette{
-	display: block;
-	height: 100px;
-	width: 100px;
-	background-size: 100% 100%;
-}
-
-#activebox .vignette:after{ 
-	content: "";
-	display: block;
-	height: 100px;
-	width: 100px;
-	background-size: 100% 100%;
+	top: 100px;
 }
 
 #activebox .ability{

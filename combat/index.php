@@ -85,6 +85,7 @@ function db_query($query) {
 		<link rel="stylesheet" type="text/css" href="./css/style.css">
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
 		
 		<script type="text/javascript">
@@ -145,7 +146,6 @@ function db_query($query) {
 				</div>
 				<div id="leftpanel">
 					<div id="activebox">
-						<div class="vignette"></div>
 						<div id="abilities">
 							<div ability="0" class="ability button"><div class="desc"><p></p></div></div>
 							<div ability="1" class="ability button"><div class="desc"><p></p></div></div>

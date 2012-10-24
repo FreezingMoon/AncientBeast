@@ -27,6 +27,8 @@ var Game = Class.create({
 	*	queue : 			Array : 	Current array of Creature ordered by initiative
 	*	nextQueue : 		Array : 	Array containing ALL creature ordered by initiative
 	*
+	*	turn : 				Integer : 	Number of the current turn
+	*
 	*	//normal attributes
 	*	nbrPlayer : 		Integer : 	Number of player in the game
 	*	activeCreature : 	Creature : 	Current active creature object reference
@@ -45,6 +47,7 @@ var Game = Class.create({
 		this.players = [];
 		this.creatures = [];
 		this.activeCreature = undefined;
+		this.turn = 0;
 		this.queue = [];
 		this.nextQueue = []; //next round queue
 		this.creaIdCounter = 1;
@@ -163,7 +166,8 @@ var Game = Class.create({
 	*
 	*/
 	nextRound: function(){
-		this.log("New Round");
+		this.turn++;
+		this.log("Round "+this.turn);
 		this.reorderQueue(); //Precaution
 		this.queue = this.nextQueue.slice(0); //Copy queue
 		this.nextCreature();
@@ -185,7 +189,10 @@ var Game = Class.create({
 		this.activeCreature = this.queue[0];
 		this.queue[0].activate(); //Activate first creature of the queue
 		this.queue = this.queue.slice(1); //and remove it from the queue
-		this.UI.nextCreature(); //Update UI to match new creature
+
+		//Update UI to match new creature
+		this.UI.updateQueueDisplay();
+		this.UI.updateActivebox();
 	},
 
 
@@ -197,6 +204,7 @@ var Game = Class.create({
 	reorderQueue: function(){
 		this.queue.orderByInitiative();
 		this.nextQueue.orderByInitiative();
+		if(G.UI && this.queue.length) G.UI.updateQueueDisplay();
 	},
 
 

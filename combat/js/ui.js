@@ -167,11 +167,7 @@ var UI = Class.create({
 		var $abilitiesButtons = G.UI.$activebox.children("#abilities").children(".ability");
 		$abilitiesButtons.unbind("click");
 
-		this.$activebox.children("#abilities").transition({x:"-100px"},function(){//Hide panel	
-
-			//Change active creature vignette
-			G.UI.$activebox.children(".vignette").attr("class","vignette p"+G.activeCreature.team+" type"+G.activeCreature.type);
-
+		this.$activebox.children("#abilities").clearQueue().transition({y:"-420px"},function(){//Hide panel	
 			//Change abilities buttons
 			$abilitiesButtons.each(function(){
 				var id = $j(this).attr("ability") - 0;
@@ -182,16 +178,10 @@ var UI = Class.create({
 				});
 			});
 
-			G.UI.$activebox.children("#abilities").transition({x:"0px"}); //Show panel
+			G.UI.$activebox.children("#abilities").transition({y:"0px"}); //Show panel
 		}); 
 	},
 
-
-	nextCreature: function(){
-		this.$queue.children('div.vignette').first().attr("queue","-1").hide(750,function(){ this.remove(); });
-		this.updateQueueDisplay();
-		this.updateActivebox();
-	},
 
 	/*	updateQueueDisplay()
 	*	
@@ -200,55 +190,97 @@ var UI = Class.create({
 	*/
 	updateQueueDisplay: function(){ //Ugly as hell need rewrite
 
-		var $vignettes = this.$queue.children('div.vignette');
+		var queueAnimSpeed = 500;
 
-		//QUEUE 0 (ACTIVE)
-		if($vignettes.filter('[queue="0"]').size() == 0){
+		var $vignettes = this.$queue.children('.queue[turn]').children('.vignette');
+		var $queues = this.$queue.children('.queue[turn]');
+
+		if( ($queues.first().attr("turn")-0) < G.turn){ //If first queue turn is lower than game turn 
 			$vignettes.each(function(){
-				$j(this).attr("queue",$j(this).attr("queue")-1);
+				$j(this).attr("queue",$j(this).attr("queue")-1); //decrement vignettes
+			});
+			$queues.each(function(){
+				$j(this).attr("queue",$j(this).attr("queue")-1); //decrement queues
+				if($j(this).attr("queue")-0<0){ 
+					$j(this).children(".vignette").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+					$j(this).transition({opacity:1},queueAnimSpeed,function(){ this.remove(); }); //Let vignette fade and remove ancients queues
+					$j(this).removeAttr("turn");
+				 };
 			});
 		}
 
 		//Prepend Current creature to queue after copying it
 		var completeQueue = G.queue.slice(0);
-		//completeQueue.unshift(G.activeCreature);
+		completeQueue.unshift(G.activeCreature);
 
-		var u = 0;
-		
-		while( $j(this.$queue).children('div.vignette').size() < 12 || 
-			u < $j(this.$queue).children('div.vignette').attr("queue") ){
+		var u = 0;		
+		while( $vignettes.size() < 12 || //While queue does not contain enough vignette OR
+			u < $queues.size() ){ //not all queue has been verified
 			var queue = (u==0)? completeQueue : G.nextQueue ;
 
-			$Q = $vignettes.filter('[queue="'+u+'"]');
+			//Updating
+			var $vignettes = this.$queue.children('.queue[turn]').children('.vignette');
+			var $queues = this.$queue.children('.queue[turn]');
 
-			for (var i = 0; i < queue.length; i++) {
-				if($Q[i] == undefined){
-					this.$queue.append('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette p'+queue[i].team+" type"+queue[i].type+'"></div>');
-					$vignettes = this.$queue.children('div.vignette');
-					$Q = $vignettes.filter('[queue="'+u+'"]');
-					$Q.filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').hide().show(750);
+			if($queues[u] == undefined){ //If queue doenst exists
+				if(u==0){
+					this.$queue.append('<div queue="'+u+'" class="queue" turn="'+(u+G.turn)+'"></div>');
+				}else{
+					$j($queues[u-1]).after('<div queue="'+u+'" class="queue" turn="'+(u+G.turn)+'"></div>');
 				}
-				while( $j($Q[i]).attr("creatureid") != queue[i].id ){
-					if( $j($Q[i]).attr("initiative") > queue[i].getInitiative() ) {
-						$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette p'+queue[i].team+" type"+queue[i].type+'"></div>');
-						this.$queue.children('div.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').hide().show(750);
+				var $queues = this.$queue.children('.queue[turn]');
+			}
+
+			var $Q = $vignettes.filter('[queue="'+u+'"]');
+
+			//For all element of this queue
+			for (var i = 0; i < queue.length; i++) {
+				//If this element doesnot exists
+				if($Q[i] == undefined){
+					if(i==0){
+						$j($queues[u]).append('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"></div>');
 					}else{
-						$j($Q[i]).attr("queue","-1").hide(750,function(){
-							this.remove();	
-						});
+						$j($Q[i-1]).after('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"></div>');
 					}
-					$vignettes = this.$queue.children('div.vignette');
-					$Q = $vignettes.filter('[queue="'+u+'"]');
+					//Updating
+					var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+					var $queues = this.$queue.children('.queue[turn]');
+
+					$Q.filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').removeClass("hidden");
+				}else if(queue[i] == undefined){
+					$j($Q[i]).attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+					//Updating
+					var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+					var $queues = this.$queue.children('.queue[turn]');
+				}else{
+					while( $j($Q[i]).attr("creatureid") != queue[i].id ){
+						if( $j($Q[i]).attr("initiative") > queue[i].getInitiative() ) {
+							$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"></div>');
+							this.$queue.children('.queue').children('.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').removeClass("hidden");
+						}else{
+							$j($Q[i]).attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+						}
+
+						//Updating
+						var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+						var $queues = this.$queue.children('.queue[turn]');
+					}
 				}
 			};
+
+			if( queue.length < $Q.length ){ //If displayed queue is longer compared to real queue
+				for(var i = 0; i < $Q.length - queue.length; i++){
+					//Chop the excess
+					$Q.last().attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+					var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+				}
+			}
+
+			//Set active creature
+			this.$queue.children('.queue[queue="0"]').children('.vignette[queue="0"]').first().addClass("active");
+
 			u++;
 		}
 	},
 
-});
-
-var uiButton = Class.create({
-	initialize: function(cssClass,callbackFunction){
-		//TODO
-	},
 });
