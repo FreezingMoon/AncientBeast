@@ -44,8 +44,8 @@ function progress($id, $ab_name) {
 		foreach($r as $key => $value) {
 			if($key == 'id') continue;
 			$title = ucfirst($key) . ": $value% complete";
-			echo "<img src='../images/progress/$value.png' title='$title'>";
-		} echo "<img src='../images/progress/$rounded_total.png' title='Total: $total% completed'></a></div></center>";
+			echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title'>";
+		} echo "<img src='../images/progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed'></a></div></center>";
 	}
 }
 

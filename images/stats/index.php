@@ -25,7 +25,7 @@
 $stats = db_query("SELECT column_name FROM information_schema.columns WHERE table_name = 'ab_stats' AND column_name != 'id'");
 foreach ($stats as $key => $x) {
 	foreach ($x as $v) $stats[$key] = $v;
-	$stats[$stats[$key]] = '<img src="../images/stats/' . $stats[$key] . '.png" title="' . ucfirst($stats[$key]) . '" onMouseOver="swap(this,\'mouseover_' . $stats[$key] . '\')" onMouseOut="swap(this,\'normal_' . $stats[$key] . '\')">'."\n";
+	$stats[$stats[$key]] = '<img src="../images/stats/' . $stats[$key] . '.png" height="32" width="32" title="' . ucfirst($stats[$key]) . '" onMouseOver="swap(this,\'mouseover_' . $stats[$key] . '\')" onMouseOut="swap(this,\'normal_' . $stats[$key] . '\')">'."\n";
 	define(strtoupper($stats[$key]) . '_ICON', $stats[$stats[$key]]);
 	unset($stats[$key]);
 }
