@@ -119,7 +119,7 @@ var Creature = Class.create({
 	*
 	*/
 	deactivate: function(){
-		G.grid.cleanDisplay("adj hover h_player"+this.team); //In case of skip turn
+		G.grid.cleanDisplay("adj hover h_player0 h_player1 h_player2 h_player3"); //In case of skip turn
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		G.nextCreature();
@@ -140,7 +140,13 @@ var Creature = Class.create({
 		G.grid.queryHexs(
 			this.tracePath,
 			this.previewPosition,
-			function(){ G.log("You can't do this."); },
+			function(){ 
+				G.log("You can't do this."); 
+				G.grid.cleanDisplay("adj"); //In case of skip turn
+				G.grid.cleanOverlay("creature selected hover h_player0 h_player1 h_player2 h_player3");
+				G.grid.updateDisplay(); //Retrace players creatures
+
+			},
 			this.moveTo,
 			function(){return true;}, //Optional test return true (no test)
 			null,
@@ -329,7 +335,7 @@ var Creature = Class.create({
 	*
 	*/
 	getInitiative: function(){
-		return (this.stats.initiative*4+this.team)*1000+this.id; //To avoid 2 identical initiative
+		return (this.stats.initiative*4-this.team)*1000-this.id; //To avoid 2 identical initiative
 	},
 
 

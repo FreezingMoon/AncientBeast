@@ -246,7 +246,7 @@ var HexGrid = Class.create({
 		});
 
 		//ON CANCEL
-		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){	fnOnCancel(args); });
+		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){	G.grid.lastClickedtHex = []; fnOnCancel(args); });
 	},
 
 
@@ -618,7 +618,7 @@ var Hex = Class.create({
 	    do {
 	        swapped = false;
 	        for (var i=0; i < this.length-1; i++) {
-	            if ( this[i].getInitiative() > this[i+1].getInitiative() ) {
+	            if ( this[i].getInitiative() < this[i+1].getInitiative() ) {
 	                var temp = this[i];
 	                this[i] = this[i+1];
 	                this[i+1] = temp;

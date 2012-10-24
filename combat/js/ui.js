@@ -63,7 +63,8 @@ var UI = Class.create({
 		this.$dash.children("#playertabswrapper").removeClass("active"); //Remove Player Tabs
 		this.changePlayerTab(G.activeCreature.team); //Change to active player grid
 
-		this.$grid.children('.vignette:not([class*="locked"])').unbind('click').bind("click",function(){
+		this.$grid.children('.vignette:not([class*="locked"])').unbind('click').bind("click",function(e){
+			e.preventDefault();
 			var creatureType = $j(this).attr("creature");
 			if(creatureType == G.UI.selectedCreature){
 				fnCallback(creatureType,optArgs); //Call the callback function
@@ -126,7 +127,8 @@ var UI = Class.create({
 		});
 
 		//Bind creature vignette click
-		this.$grid.children(".vignette").unbind('click').bind("click",function(){
+		this.$grid.children(".vignette").unbind('click').bind("click",function(e){
+			e.preventDefault();
 			var creatureType = $j(this).attr("creature");
 			G.UI.showCreature(creatureType,G.UI.selectedPlayer);
 		});
@@ -254,7 +256,7 @@ var UI = Class.create({
 					var $queues = this.$queue.children('.queue[turn]');
 				}else{
 					while( $j($Q[i]).attr("creatureid") != queue[i].id ){
-						if( $j($Q[i]).attr("initiative") > queue[i].getInitiative() ) {
+						if( $j($Q[i]).attr("initiative") < queue[i].getInitiative() ) {
 							$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"></div>');
 							this.$queue.children('.queue').children('.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').removeClass("hidden");
 						}else{
@@ -278,6 +280,17 @@ var UI = Class.create({
 
 			//Set active creature
 			this.$queue.children('.queue[queue="0"]').children('.vignette[queue="0"]').first().addClass("active");
+
+			//Add mouseover effect
+			this.$queue.children('.queue').children('.vignette').unbind("mouseover").bind("mouseover",function(){
+				var creaID = $j(this).attr("creatureid")-0;
+				G.creatures.each(function(){
+					if(this instanceof Creature){
+						this.$display.removeClass("ghosted");
+						if(this.id != creaID){ this.$display.addClass("ghosted"); };
+					}
+				});
+			});
 
 			u++;
 		}

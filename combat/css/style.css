@@ -208,6 +208,8 @@ div.row:nth-child(9){top:38.944em;}
 #grid #creatureWrapper{
 	-webkit-perspective: 3000;
 	-webkit-perspective-origin: 50% 50%;
+	-moz-perspective: 3000;
+	-moz-perspective-origin: 50% 50%;
 }
 
 #creatureWrapper .creature .effects{
@@ -246,10 +248,17 @@ div.row:nth-child(9){top:38.944em;}
 	margin-top: -160px;
 	padding: 0px 0px 10px;
 	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
-	-webkit-transform-origin:65% 100%; /* Safari and Chrome */
+	-webkit-transform-origin:65% 100%; 
+	-moz-transform: rotateX(-33deg) scale(.75,1.35);
+	-moz-transform-origin:65% 100%;
 	background: url("../../bestiary/Magma Spawn/cardboard.png");
 }
-#creatureWrapper div.creature.fliped.type_L2{ -webkit-transform: rotateX(-33deg) scale(-.75,1.35); -webkit-transform-origin:48% 100%; }
+#creatureWrapper div.creature.fliped.type_L2{ 
+	-webkit-transform: rotateX(-33deg) scale(-.75,1.35); 
+	-webkit-transform-origin:48% 100%; 
+	-moz-transform: rotateX(-33deg) scale(-.75,1.35); 
+	-moz-transform-origin:48% 100%; 
+}
 
 /*-----Impaler----*/
 #creatureWrapper .creature.type_S6{ 
@@ -258,10 +267,18 @@ div.row:nth-child(9){top:38.944em;}
 	margin-top: -229px;
 	padding: 0px 0px 10px;
 	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
-	-webkit-transform-origin:65% 100%; /* Safari and Chrome */
+	-webkit-transform-origin:65% 100%;
+	-moz-transform: rotateX(-33deg) scale(.75,1.35);
+	-moz-transform-origin:65% 100%;
+
 	background: url("../../bestiary/Impaler/cardboard.png");
 }
-#creatureWrapper div.creature.fliped.type_S6{ -webkit-transform: rotateX(-33deg) scale(-.75,1.35); -webkit-transform-origin:48% 100%; }
+#creatureWrapper div.creature.fliped.type_S6{ 
+	-webkit-transform: rotateX(-33deg) scale(-.75,1.35); 
+	-webkit-transform-origin:48% 100%; 
+	-moz-transform: rotateX(-33deg) scale(-.75,1.35); 
+	-moz-transform-origin:48% 100%; 
+}
 
 
 /*-----Dark Priest----*/
@@ -273,13 +290,20 @@ div.row:nth-child(9){top:38.944em;}
 	padding: 0px 0px 0px;
 	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
 	-webkit-transform-origin:27% 100%; /* Safari and Chrome */
+	-moz-transform: rotateX(-33deg) scale(.75,1.35);
+	-moz-transform-origin:27% 100%; /* Safari and Chrome */
 	background-image: url("../../bestiary/Dark Priest/cardboard-red.png");
 }
 #creatureWrapper .creature.type_0.p0{background-image: url("../../bestiary/Dark Priest/cardboard-red.png");}
 #creatureWrapper .creature.type_0.p1{background-image: url("../../bestiary/Dark Priest/cardboard-blue.png");}
 #creatureWrapper .creature.type_0.p2{background-image: url("../../bestiary/Dark Priest/cardboard-orange.png");}
 #creatureWrapper .creature.type_0.p3{background-image: url("../../bestiary/Dark Priest/cardboard-green.png");}
-#creatureWrapper div.creature.fliped.type_0{ -webkit-transform: rotateX(-33deg) scale(-.75,1.35); -webkit-transform-origin:39% 100%; }
+#creatureWrapper div.creature.fliped.type_0{ 
+	-webkit-transform: rotateX(-33deg) scale(-.75,1.35); 
+	-webkit-transform-origin:39% 100%;
+	-moz-transform: rotateX(-33deg) scale(-.75,1.35); 
+	-moz-transform-origin:39% 100%;
+}
 
 /*-----------------EFFECTS-------------------*/
 
