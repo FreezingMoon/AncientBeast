@@ -2,6 +2,7 @@ body{
 	background: white;
 	margin: 0;
 	padding: 0;
+	font-family: verdana;
 }
 
 #combatframe *{ /*avoid selecting game elements*/
@@ -64,6 +65,7 @@ div.row:nth-child(9){top:38.944em;}
 .row{position: absolute;}
 
 .even{padding: 0px 2.818em;}
+
 
 .hex{display: inline-block; position: relative;}
 
