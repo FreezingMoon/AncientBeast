@@ -290,6 +290,12 @@ var UI = Class.create({
 						if(this.id != creaID){ this.$display.addClass("ghosted"); };
 					}
 				});
+			}).bind("mouseleave",function(){ //On mouseleave cancel effect
+				G.creatures.each(function(){
+					if(this instanceof Creature){
+						this.$display.removeClass("ghosted");
+					}
+				});
 			});
 
 			u++;
