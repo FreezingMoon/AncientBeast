@@ -174,7 +174,7 @@ var UI = Class.create({
 			$abilitiesButtons.each(function(){
 				var id = $j(this).attr("ability") - 0;
 				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
-				$j(this).children(".desc").html("<h1>"+G.activeCreature.abilities[id].title+"</h1><p>"+G.activeCreature.abilities[id].desc+"</p>");
+				$j(this).children(".desc").html(G.activeCreature.abilities[id].title+"<p>"+G.activeCreature.abilities[id].desc+"</p>");
 				$j(this).bind('click', function(e){
 					G.activeCreature.abilities[id].use() 
 				});
