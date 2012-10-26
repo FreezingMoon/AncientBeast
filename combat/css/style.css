@@ -418,12 +418,11 @@ div.row:nth-child(9){top:38.944em;}
 #playertabswrapper.active{display: block;}
 
 #playertabswrapper .playertabs{
-	height: 92px;
+	height: 50px;
 	width: 25%;
 	display: inline-block;
 	color: white;
-	font-size: 150%;
-	border-top: 4px solid;
+	font-size: 14px;
 	border-top: 4px solid;
 	text-align: center;
 	cursor: pointer;
@@ -442,7 +441,7 @@ div.row:nth-child(9){top:38.944em;}
 .selected3 .playertabs.p3{background-color: rgba(0,255,0,.5);}
 
 #creaturegridwrapper{
-	top: 120px;
+	top: 75px;
 	right: 0px;
 	bottom: 0px;
 	width: 100%;
@@ -451,7 +450,6 @@ div.row:nth-child(9){top:38.944em;}
 	text-align: center;
 	vertical-align: middle;
 }
-
 
 /*-------------------Queue-------------------*/
 
@@ -519,6 +517,7 @@ div.row:nth-child(9){top:38.944em;}
 	height: 300px;
 }
 #textbox #textcontent{
+	font-size: 11px;
 	color: white;
 	padding: 10px;
 	width: 760px;
@@ -542,13 +541,19 @@ div.row:nth-child(9){top:38.944em;}
 
 #activebox .ability .desc{
 	position: relative;
+	top: 1px;
 	display: block;
-	height: 80px;
+	height: 76px;
 	width: 0px;
 	left: 80px;
 	color: white;
 	background: black;
 	overflow: hidden;
+}
+
+#activebox .ability:hover .desc{
+	width: 200px;
+	border: 1px #555 solid;
 }
 
 #activebox .ability .desc span {
@@ -557,7 +562,7 @@ div.row:nth-child(9){top:38.944em;}
 	padding: 7px 0 0 7px;
 	font-size: 14px;
 	font-weight: bold;
-	color: #5cf;
+	color: #fff;
 }
 
 #activebox .ability .desc p {
@@ -567,11 +572,6 @@ div.row:nth-child(9){top:38.944em;}
 	color: #aaa;
 
 }
-
-#activebox .ability:hover .desc{
-	width: 200px;
-}
-
 
 /*-----------------Animations-------------------*/
 
