@@ -46,9 +46,9 @@ var UI = Class.create({
 		this.$button = $j("#delay.button");
 		this.$button.bind('click',function(e){ G.delayTurn() });
 
-		//Forfeit Button
-		// this.$button = $j("#end.button");
-		// this.$button.bind('click',function(e){ G.endTurn() });
+		//Surrender Button
+		this.$button = $j("#surrender.button");
+		this.$button.bind('click',function(e){ G.activeCreature.player.surrender() });
 
 		this.$textbox = $j("#textbox > #textcontent");
 
@@ -290,6 +290,7 @@ var UI = Class.create({
 			}
 
 			//Set active creature
+			this.$queue.children('.queue').children('.vignette').filter(".active").removeClass("active"); //Avoid bugs
 			this.$queue.children('.queue[queue="0"]').children('.vignette[queue="0"]').first().addClass("active");
 
 			//Add mouseover effect

@@ -379,6 +379,7 @@ div.row:nth-child(9){top:38.944em;}
 
 #end{ background-image: url('../icons/end.svg'); }
 #delay{ background-image: url('../icons/skip.svg'); }
+#surrender{ background-image: url('../icons/surrender.svg'); }
 #toggledash{ z-index: 4; right: 0px !important; position: fixed;	height: 100px; width: 100px; background-image: url('../icons/overview.svg'); }
 #toggledash.button:before{ height: 100px; width: 100px;}
 

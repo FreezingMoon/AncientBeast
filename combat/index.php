@@ -143,6 +143,7 @@ function db_query($query) {
 				<div id="rightpanel">
 					<div id="end" class="button"></div>
 					<div id="delay" class="button"></div>
+					<div id="surrender" class="button"></div>
 				</div>
 				<div id="leftpanel">
 					<div id="activebox">

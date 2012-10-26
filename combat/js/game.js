@@ -266,7 +266,7 @@ var Game = Class.create({
 	},
 
 
-	/*	retreiveCre
+	/*	retreiveCreatureStats(type)
 	*
 	*	type : 	String : 	Creature type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
 	*
@@ -277,6 +277,16 @@ var Game = Class.create({
 		for (var i = this.creatureDatas.length - 1; i >= 0; i--) {
 			if(this.creatureDatas[i].type == type) return this.creatureDatas[i];
 		};
+	},
+
+
+	/*	endGame()
+	*
+	*	End the game and print stats
+	*
+	*/
+	endGame: function(){
+		alert('Game Over');
 	},
 });
 
@@ -318,5 +328,18 @@ var Player = Class.create({
 		var creature = new Creature(data);
 
 		this.creatures.push(creature);
-	}
+	},
+
+
+	/*	surrender()
+	*
+	*	Ask if the player want to surrender
+	*
+	*/
+	surrender: function(){
+		if(window.confirm("Are you sure you want to surrender?")){
+			G.endGame();
+		}
+	},
+
 });
