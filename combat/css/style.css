@@ -550,6 +550,22 @@ div.row:nth-child(9){top:38.944em;}
 	overflow: hidden;
 }
 
+#activebox .ability .desc span {
+	display: block;
+	margin: 0;
+	padding: 7px 0 0 7px;
+	font-size: 14px;
+	font-weight: bold;
+	color: #5cf;
+}
+
+#activebox .ability .desc p {
+	margin: 0;
+	padding: 5px 7px;
+	font-size: 11px;
+	color: #aaa;
+
+}
 
 #activebox .ability:hover .desc{
 	width: 200px;
