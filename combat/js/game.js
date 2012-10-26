@@ -25,6 +25,7 @@ var Game = Class.create({
 	*	UI : 				UI : 		UI object
 	*
 	*	queue : 			Array : 	Current array of Creature ordered by initiative
+	*	delayQueue : 		Array : 	Array of Creature who has wait during the turn
 	*	nextQueue : 		Array : 	Array containing ALL creature ordered by initiative
 	*
 	*	turn : 				Integer : 	Number of the current turn
@@ -49,6 +50,7 @@ var Game = Class.create({
 		this.activeCreature = undefined;
 		this.turn = 0;
 		this.queue = [];
+		this.delayQueue = [];
 		this.nextQueue = []; //next round queue
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
@@ -170,6 +172,7 @@ var Game = Class.create({
 		this.log("Round "+this.turn);
 		this.reorderQueue(); //Precaution
 		this.queue = this.nextQueue.slice(0); //Copy queue
+		this.delayQueue = [];
 		this.nextCreature();
 	},
 
@@ -181,8 +184,19 @@ var Game = Class.create({
 	*/
 	nextCreature: function(){
 		if(this.queue.length == 0){ //If no creature in queue
-			this.nextRound(); //Go to next Round
-			return; //End function
+			if(this.delayQueue.length > 0){
+				this.log("Active Delayed Creature : Player"+(this.delayQueue[0].team+1)+"'s "+this.delayQueue[0].name);
+				this.activeCreature = this.delayQueue[0]; //Activate first creature of the queue
+				this.delayQueue = this.delayQueue.slice(1); //and remove it from the queue
+
+				//Update UI to match new creature
+				this.UI.updateQueueDisplay();
+				this.UI.updateActivebox();
+				return; //End function
+			}else{
+				this.nextRound(); //Go to next Round
+				return; //End function
+			}
 		}
 
 		this.log("Active Creature : Player"+(this.queue[0].team+1)+"'s "+this.queue[0].name);
@@ -239,6 +253,16 @@ var Game = Class.create({
 	*/
 	endTurn: function(){
 		this.activeCreature.deactivate();
+	},
+
+
+	/*	delayTurn()
+	*
+	* 	Delay the action turn of the current creature
+	*
+	*/
+	delayTurn: function(){
+		this.activeCreature.wait();
 	},
 
 

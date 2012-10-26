@@ -103,8 +103,3 @@
 .vignette.type0.p1{background-image: url("../../bestiary/Dark Priest/avatar-blue.jpg");}
 .vignette.type0.p2{background-image: url("../../bestiary/Dark Priest/avatar-orange.jpg");}
 .vignette.type0.p3{background-image: url("../../bestiary/Dark Priest/avatar-green.jpg");}
-
-.vignette.p0:after{background-image: url("../frames/red.png");}
-.vignette.p1:after{background-image: url("../frames/blue.png");}
-.vignette.p2:after{background-image: url("../frames/orange.png");}
-.vignette.p3:after{background-image: url("../frames/green.png");}

@@ -34,11 +34,21 @@ var UI = Class.create({
 		this.$dash = $j("#dash");
 		this.$grid = $j("#creaturegrid");
 
+		//Dash button
+		this.$button = $j("#toggledash.button");
+		this.$button.bind('click',function(e){ G.UI.toggleDash() });
+
+		//End turn button
 		this.$button = $j("#end.button");
 		this.$button.bind('click',function(e){ G.endTurn() });
 
-		this.$button = $j("#toggledash.button");
-		this.$button.bind('click',function(e){ G.UI.toggleDash() });
+		//Wait Button
+		this.$button = $j("#delay.button");
+		this.$button.bind('click',function(e){ G.delayTurn() });
+
+		//Forfeit Button
+		// this.$button = $j("#end.button");
+		// this.$button.bind('click',function(e){ G.endTurn() });
 
 		this.$textbox = $j("#textbox > #textcontent");
 
@@ -214,6 +224,7 @@ var UI = Class.create({
 		//Prepend Current creature to queue after copying it
 		var completeQueue = G.queue.slice(0);
 		completeQueue.unshift(G.activeCreature);
+		completeQueue = completeQueue.concat(G.delayQueue);
 
 		var u = 0;		
 		while( $vignettes.size() < 12 || //While queue does not contain enough vignette OR
@@ -240,15 +251,15 @@ var UI = Class.create({
 				//If this element doesnot exists
 				if($Q[i] == undefined){
 					if(i==0){
-						$j($queues[u]).append('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"></div>');
+						$j($queues[u]).append('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
 					}else{
-						$j($Q[i-1]).after('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"></div>');
+						$j($Q[i-1]).after('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
 					}
 					//Updating
 					var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
 					var $queues = this.$queue.children('.queue[turn]');
 
-					$Q.filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').removeClass("hidden");
+					$Q.filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').css({width:0}).transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
 				}else if(queue[i] == undefined){
 					$j($Q[i]).attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
 					//Updating
@@ -257,8 +268,8 @@ var UI = Class.create({
 				}else{
 					while( $j($Q[i]).attr("creatureid") != queue[i].id ){
 						if( $j($Q[i]).attr("initiative") < queue[i].getInitiative() ) {
-							$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"></div>');
-							this.$queue.children('.queue').children('.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').removeClass("hidden");
+							$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
+							this.$queue.children('.queue').children('.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').css({width:0}).transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
 						}else{
 							$j($Q[i]).attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
 						}
@@ -282,7 +293,7 @@ var UI = Class.create({
 			this.$queue.children('.queue[queue="0"]').children('.vignette[queue="0"]').first().addClass("active");
 
 			//Add mouseover effect
-			this.$queue.children('.queue').children('.vignette').unbind("mouseover").bind("mouseover",function(){
+			this.$queue.children('.queue').children('.vignette').unbind("mouseover").unbind("mouseleave").bind("mouseover",function(){
 				var creaID = $j(this).attr("creatureid")-0;
 				G.creatures.each(function(){
 					if(this instanceof Creature){

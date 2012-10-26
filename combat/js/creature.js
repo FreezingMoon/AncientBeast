@@ -57,7 +57,7 @@ var Creature = Class.create({
 		this.team 		= obj.team; // = playerID (0,1,2,3)
 		this.player 	= G.players[obj.team];
 		this.dead		= false;
-		this.asWait 	= false;
+		this.hasWait 	= false;
 
 		//Statistics
 		this.stats 		= obj.stats;
@@ -106,25 +106,51 @@ var Creature = Class.create({
 	*
 	*/
 	activate: function(){
-		this.remainingMove = this.stats.movement;
-		this.abilities.each(function(){ this.used = false; });
+		if(!this.hasWait){
+			this.remainingMove = this.stats.movement;
+			this.abilities.each(function(){ this.used = false; });
+		}
 
 		this.queryMove();
 	},
 
 
-	/* 	deactivate()
+	/* 	deactivate(wait)
+	*
+	*	wait : 	Boolean : 	Deactivate while waiting or not
 	*
 	*	Preview the creature position at the given coordinates
 	*
 	*/
-	deactivate: function(){
+	deactivate: function(wait){
+
+		this.hasWait = !!wait;
+
 		G.grid.cleanDisplay("adj hover h_player0 h_player1 h_player2 h_player3"); //In case of skip turn
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		G.nextCreature();
 	},
 
+
+	/* 	wait()
+	*
+	*	Add the creature to the delayQueue
+	*
+	*/
+	wait: function(){
+		if(this.hasWait) return;
+
+		var abilityAvailable = false;
+
+		//If at least one ability has not been used
+		this.abilities.each(function(){	abilityAvailable = abilityAvailable || !this.used; });
+
+		if( this.remainingMove>0 && abilityAvailable ){
+			G.delayQueue.push(this);
+			this.deactivate(true);
+		}
+	},
 
 	/* 	queryMove()
 	*
@@ -335,7 +361,7 @@ var Creature = Class.create({
 	*
 	*/
 	getInitiative: function(){
-		return (this.stats.initiative*4-this.team)*1000-this.id; //To avoid 2 identical initiative
+		return (this.stats.initiative*4-this.team)*1000/(1+this.hasWait)-this.id; //To avoid 2 identical initiative
 	},
 
 
