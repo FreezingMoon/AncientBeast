@@ -58,21 +58,28 @@ var Game = Class.create({
 	},
 
 
-	/*	loadGame()
+	/*	loadGame(setupOpt)
 	*	
+	*	setupOpt : 	Object : 	Setup options from matchmaking menu
+	*
 	* 	Load all required game files
 	*
 	*	TODO : Loading bar or spinner
 	*
 	*/
-	loadGame: function(nbrPlayer){
+	loadGame: function(setupOpt){
+
+		$j("#loader").show();
+
 		//Get JSON files
 		var i = 0;
 		this.availableCreatures.each(function(){
 			$j.getJSON("./creatures_datas/"+this+".json", function(data) {
 				G.creatureDatas.push(data);
 				i++;
-				if(i==G.availableCreatures.length){G.setup(nbrPlayer)}
+				if(i==G.availableCreatures.length){ //If all creature are loaded
+					G.setup(setupOpt.nbrplayer);
+				}
 			});
 		});
 	},
@@ -91,6 +98,11 @@ var Game = Class.create({
 		this.grid = new HexGrid();//Creating Hexgrid
 
 		this.$combatFrame = $j("#combatframe");
+
+		this.$combatFrame.show();
+
+		//Remove loading screen
+		$j("#matchmaking").remove();
 
 		for (var i = 0; i < nbrPlayer; i++) {
 			var player = new Player(i)
@@ -185,24 +197,21 @@ var Game = Class.create({
 	nextCreature: function(){
 		if(this.queue.length == 0){ //If no creature in queue
 			if(this.delayQueue.length > 0){
-				this.log("Active Delayed Creature : Player"+(this.delayQueue[0].team+1)+"'s "+this.delayQueue[0].name);
-				this.activeCreature = this.delayQueue[0]; //Activate first creature of the queue
+				this.activeCreature = this.delayQueue[0]; //set new creature active
 				this.delayQueue = this.delayQueue.slice(1); //and remove it from the queue
-
-				//Update UI to match new creature
-				this.UI.updateQueueDisplay();
-				this.UI.updateActivebox();
-				return; //End function
+				this.debuglog("Delayed Creature");
 			}else{
 				this.nextRound(); //Go to next Round
 				return; //End function
 			}
+		}else{
+			this.activeCreature = this.queue[0]; //set new creature active
+			this.queue = this.queue.slice(1); //and remove it from the queue
 		}
 
-		this.log("Active Creature : Player"+(this.queue[0].team+1)+"'s "+this.queue[0].name);
-		this.activeCreature = this.queue[0];
-		this.queue[0].activate(); //Activate first creature of the queue
-		this.queue = this.queue.slice(1); //and remove it from the queue
+		this.activeCreature.activate();
+
+		this.log("Active Creature : "+this.activeCreature.player.name+"'s "+this.activeCreature.name);
 
 		//Update UI to match new creature
 		this.UI.updateQueueDisplay();
@@ -308,6 +317,7 @@ var Player = Class.create({
 	initialize: function(id){
 		this.id = id;
 		this.creatures = [];
+		this.name = "Player"+id;
 		this.plasma = 10;
 		this.fliped = !!(id%2); //Convert odd/even to true/false
 		this.availableCreatures = G.availableCreatures;

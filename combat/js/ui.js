@@ -56,6 +56,9 @@ var UI = Class.create({
 
 		this.selectedCreature = "";
 		this.selectedPlayer = 0;
+
+		//Show UI
+		this.$display.show();
 	},
 
 

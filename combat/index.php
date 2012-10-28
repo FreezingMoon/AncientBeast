@@ -118,7 +118,20 @@ function db_query($query) {
 		</script>	
 	</head>
 	<body>
-		<div id="ui">
+		<div id="matchmaking">
+			<div id="loader">Loading</div>
+			<div id="gamesetupcontainer">
+				<form id="gamesetup" action="javascript:0;">
+					Players : 
+					<select name="nbrplayer">
+						<option value="2">1vs1</option>
+						<option value="4">2vs2</option>
+					</select><br/>
+					<input type="submit" value="Submit">
+				</form>
+			</div>
+		</div>
+		<div id="ui" style="display:none;">
 			<div id="dash" class="selected0">
 				<div id="playertabswrapper" class="numplayer4">
 					<div class="playertabs p0"  player="0">Player1<p class="plasma">Plasma 0</p>
@@ -163,7 +176,7 @@ function db_query($query) {
 				</div>
 			</div>
 		</div>
-		<div id="combatframe">
+		<div id="combatframe" style="display:none;">
 			<div id="grid">
 				<div id="hexsdisplay">
 					<?php for ($a=0; $a <= 8; $a++) { 
