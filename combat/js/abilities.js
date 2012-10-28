@@ -24,6 +24,18 @@ var Ability = Class.create({
 		return this.query();
 	},
 
+	/* 	end()
+	*
+	*	End the ability. Must be called at the end of each ability function;
+	*
+	*/
+	end: function(){
+		if(this.trigger == "onQuery") G.activeCreature.queryMove();
+
+		G.log(this.creature.player.name+"'s "+this.creature.name+" uses "+this.title);
+		this.used = true; //Should always be here
+	},
+
 
 	/* 	getTargets(hexs)
 	*

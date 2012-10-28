@@ -317,7 +317,7 @@ var Player = Class.create({
 	initialize: function(id){
 		this.id = id;
 		this.creatures = [];
-		this.name = "Player"+id;
+		this.name = "Player"+(id+1);
 		this.plasma = 10;
 		this.fliped = !!(id%2); //Convert odd/even to true/false
 		this.availableCreatures = G.availableCreatures;

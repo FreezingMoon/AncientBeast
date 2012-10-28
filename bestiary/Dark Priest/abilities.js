@@ -28,6 +28,7 @@ abilities["0"] =[
 	//	activate() : 
 	activate : function(damage,target,attacker) {
 		this.creature.player.plasma  -= 1;
+		this.end();
 		return 0; //Return Damage
 	},
 },
@@ -105,16 +106,13 @@ abilities["0"] =[
 	//	activate() : 
 	activate : function(hex,args) {
 		var ability = args.ability;
-		G.log("Player"+ability.creature.team+"'s "+ability.creature.name+" uses "+ability.title);
-
 		var crea = G.creatures[hex.creature];
 
 		crea.die();
 
 		ability.creature.player.plasma -= 5;
 
-		G.activeCreature.queryMove(); 
-		ability.used = true; //Should always be here
+		ability.end();
 	},
 },
 
@@ -230,7 +228,6 @@ abilities["0"] =[
 	activate : function(hex,args) {
 		var creature = args.creature;
 		var ability = args.ability;
-		G.log("Player"+ability.creature.team+"'s "+ability.creature.name+" uses "+ability.title);
 
 		var creaStats = G.retreiveCreatureStats(creature);
 
@@ -242,9 +239,7 @@ abilities["0"] =[
 
 		ability.creature.player.plasma -= 10;
 
-		G.activeCreature.queryMove(); 
-
-		ability.used = true; //Should always be here
+		ability.end();
 	},
 },
 
@@ -361,7 +356,6 @@ abilities["0"] =[
 	activate : function(hex,args) {
 		var creature = args.creature;
 		var ability = args.ability;
-		G.log("Player"+ability.creature.team+"'s "+ability.creature.name+" uses "+ability.title);
 
 		var creaStats = G.retreiveCreatureStats(creature);
 		var dpriest = args.dpriest;
@@ -387,9 +381,7 @@ abilities["0"] =[
 
 		ability.creature.player.plasma -= 10;
 
-		G.activeCreature.queryMove(); 
-
-		ability.used = true; //Should always be here
+		ability.end();
 	},
 }
 
