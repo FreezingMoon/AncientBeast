@@ -182,8 +182,8 @@ var Game = Class.create({
 	nextRound: function(){
 		this.turn++;
 		this.log("Round "+this.turn);
-		this.reorderQueue(); //Precaution
 		this.queue = this.nextQueue.slice(0); //Copy queue
+
 		this.delayQueue = [];
 		this.nextCreature();
 	},
@@ -214,8 +214,8 @@ var Game = Class.create({
 		this.log("Active Creature : "+this.activeCreature.player.name+"'s "+this.activeCreature.name);
 
 		//Update UI to match new creature
-		this.UI.updateQueueDisplay();
 		this.UI.updateActivebox();
+		this.reorderQueue(); //Update UI and Queue order
 	},
 
 
@@ -227,9 +227,10 @@ var Game = Class.create({
 	reorderQueue: function(){
 		this.queue.orderByInitiative();
 		this.nextQueue.orderByInitiative();
-		if(G.UI && this.queue.length) G.UI.updateQueueDisplay();
+		if ( this.UI ) {
+			this.UI.updateQueueDisplay();
+		}
 	},
-
 
 	/*	log(obj)
 	*

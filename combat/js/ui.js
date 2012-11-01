@@ -205,6 +205,8 @@ var UI = Class.create({
 	*/
 	updateQueueDisplay: function(){ //Ugly as hell need rewrite
 
+		if(!G.nextQueue.length || !G.activeCreature ) return false; //Abort to avoid infinite loop
+
 		var queueAnimSpeed = 500;
 
 		var $vignettes = this.$queue.children('.queue[turn]').children('.vignette');
@@ -251,6 +253,7 @@ var UI = Class.create({
 
 			//For all element of this queue
 			for (var i = 0; i < queue.length; i++) {
+
 				//If this element doesnot exists
 				if($Q[i] == undefined){
 					if(i==0){
