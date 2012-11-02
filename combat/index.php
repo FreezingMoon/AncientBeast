@@ -26,6 +26,7 @@
 if(!file_exists(dirname(__FILE__) . "/../config.php"))
 	die("Warning: config.php not found, please edit config.php.in to point to a database and save it as config.php<br>Disclaimer: Since this project is web based, you can use the code and assets along with database.sql to host Ancient Beast yourself for testing and development purposes only! Also, your version should not be indexable by search engines because that can cause harm to the project!");
 require_once("../config.php");
+require_once('../bestiary/cards.php');
 
 // Database
 $db_connection = NULL;
@@ -136,7 +137,7 @@ function db_query($query) {
 		</div>
 		<div id="ui" style="display:none;">
 			<div id="dash" class="selected0">
-				<div id="playertabswrapper" class="numplayer4">
+				<div id="playertabswrapper">
 					<div class="playertabs p0"  player="0">Player1<p class="plasma">Plasma 0</p>
 					</div><div class="playertabs p1" player="1">Player2<p class="plasma">Plasma 0</p>
 					</div><div class="playertabs p2" player="2">Player3<p class="plasma">Plasma 0</p>
@@ -144,7 +145,7 @@ function db_query($query) {
 					</div>
 				</div>
 				<div id="cardwrapper">
-					<div id="card"></div>
+					<div id="card"><?php cards("",0); ?></div>
 				</div>
 				<div id="creaturegridwrapper"><?php
 						require_once('../bestiary/grid.php');

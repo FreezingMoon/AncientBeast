@@ -54,6 +54,8 @@ var UI = Class.create({
 
 		this.$activebox = $j("#activebox");
 
+		this.$dash.children("#playertabswrapper").addClass("numplayer"+G.nbrPlayer);
+
 		this.selectedCreature = "";
 		this.selectedPlayer = 0;
 
@@ -106,7 +108,10 @@ var UI = Class.create({
 		.filter("[creature='"+creatureType+"']").addClass("active");
 
 		this.selectedCreature = creatureType;
+
+		var stats = G.retreiveCreatureStats(creatureType);
 		//TODO Show card
+		this.$dash.children("#cardwrapper").text(stats)
 	},
 
 
