@@ -54,7 +54,7 @@ var Game = Class.create({
 		this.nextQueue = []; //next round queue
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
-		this.availableCreatures = ["0","L2","S1","S6"];
+		this.availableCreatures = ["--","L2","S1","S6"];
 		this.zoomed = false;
 	},
 
@@ -75,7 +75,7 @@ var Game = Class.create({
 		//Get JSON files
 		var i = 0;
 		this.availableCreatures.each(function(){
-			$j.getJSON("./creatures_datas/"+this+".json", function(data) {
+			$j.getJSON("./creatures_datas/datas.php?id="+this, function(data) {
 				G.creatureDatas.push(data);
 				i++;
 				if(i==G.availableCreatures.length){ //If all creature are loaded
@@ -137,7 +137,7 @@ var Game = Class.create({
 				}
 			}
 
-			player.summon("0",pos); //Summon Dark Priest
+			player.summon("--",pos); //Summon Dark Priest
 			
 		};
 

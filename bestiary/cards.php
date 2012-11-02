@@ -31,7 +31,7 @@
 	background-position:center;
 }
 .section.cardborder{
-	background-image: url('<?php echo $site_root; ?>/images/cards/margin.png');
+	background-image: url('<?php echo $site_root; ?>images/cards/margin.png');
 	border:0px; 
 	width:430px; 
 	height:550px;
@@ -82,14 +82,14 @@
 .recto .infos.sinW tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em indigo;}
 
 
-.verso.sin-{ background-image: url('<?php echo $site_root; ?>/images/cards/-.jpg'); }
-.verso.sinA{ background-image: url('<?php echo $site_root; ?>/images/cards/A.jpg'); }
-.verso.sinE{ background-image: url('<?php echo $site_root; ?>/images/cards/E.jpg'); }
-.verso.sinG{ background-image: url('<?php echo $site_root; ?>/images/cards/G.jpg'); }
-.verso.sinL{ background-image: url('<?php echo $site_root; ?>/images/cards/L.jpg'); }
-.verso.sinP{ background-image: url('<?php echo $site_root; ?>/images/cards/P.jpg'); }
-.verso.sinS{ background-image: url('<?php echo $site_root; ?>/images/cards/S.jpg'); }
-.verso.sinW{ background-image: url('<?php echo $site_root; ?>/images/cards/W.jpg'); }
+.verso.sin-{ background-image: url('<?php echo $site_root; ?>images/cards/-.jpg'); }
+.verso.sinA{ background-image: url('<?php echo $site_root; ?>images/cards/A.jpg'); }
+.verso.sinE{ background-image: url('<?php echo $site_root; ?>images/cards/E.jpg'); }
+.verso.sinG{ background-image: url('<?php echo $site_root; ?>images/cards/G.jpg'); }
+.verso.sinL{ background-image: url('<?php echo $site_root; ?>images/cards/L.jpg'); }
+.verso.sinP{ background-image: url('<?php echo $site_root; ?>images/cards/P.jpg'); }
+.verso.sinS{ background-image: url('<?php echo $site_root; ?>images/cards/S.jpg'); }
+.verso.sinW{ background-image: url('<?php echo $site_root; ?>images/cards/W.jpg'); }
 .verso{ background-position:center; margin: 0 0 0 15px; }
 
 .verso .cardborder{
@@ -104,45 +104,45 @@
 	display: inline-block;
 }
 
-.health .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/health.png'); }
-.regrowth .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/regrowth.png'); }
-.fatigue .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/fatigue.png'); }
-.energy .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/energy.png'); }
-.meditation .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/meditation.png'); }
-.initiative	 .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/initiative.png'); }
-.offense .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/offense.png'); }
-.defense .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/defense.png'); }
-.movement .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/movement.png'); }
+.health .icon{ background-image: url('<?php echo $site_root; ?>images/stats/health.png'); }
+.regrowth .icon{ background-image: url('<?php echo $site_root; ?>images/stats/regrowth.png'); }
+.fatigue .icon{ background-image: url('<?php echo $site_root; ?>images/stats/fatigue.png'); }
+.energy .icon{ background-image: url('<?php echo $site_root; ?>images/stats/energy.png'); }
+.meditation .icon{ background-image: url('<?php echo $site_root; ?>images/stats/meditation.png'); }
+.initiative	 .icon{ background-image: url('<?php echo $site_root; ?>images/stats/initiative.png'); }
+.offense .icon{ background-image: url('<?php echo $site_root; ?>images/stats/offense.png'); }
+.defense .icon{ background-image: url('<?php echo $site_root; ?>images/stats/defense.png'); }
+.movement .icon{ background-image: url('<?php echo $site_root; ?>images/stats/movement.png'); }
 
-.pierce .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/pierce.png'); }
-.slash .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/slash.png'); }
-.crush .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/crush.png'); }
-.shock .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/shock.png'); }
-.burn .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/burn.png'); }
-.frost .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/frost.png'); }
-.poison .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/poison.png'); }
-.sonic .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/sonic.png'); }
-.mental .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/mental.png'); }
+.pierce .icon{ background-image: url('<?php echo $site_root; ?>images/stats/pierce.png'); }
+.slash .icon{ background-image: url('<?php echo $site_root; ?>images/stats/slash.png'); }
+.crush .icon{ background-image: url('<?php echo $site_root; ?>images/stats/crush.png'); }
+.shock .icon{ background-image: url('<?php echo $site_root; ?>images/stats/shock.png'); }
+.burn .icon{ background-image: url('<?php echo $site_root; ?>images/stats/burn.png'); }
+.frost .icon{ background-image: url('<?php echo $site_root; ?>images/stats/frost.png'); }
+.poison .icon{ background-image: url('<?php echo $site_root; ?>images/stats/poison.png'); }
+.sonic .icon{ background-image: url('<?php echo $site_root; ?>images/stats/sonic.png'); }
+.mental .icon{ background-image: url('<?php echo $site_root; ?>images/stats/mental.png'); }
 
-.health:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/health.gif'); }
-.regrowth:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/regrowth.gif'); }
-.fatigue:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/fatigue.gif'); }
-.energy:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/energy.gif'); }
-.meditation:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/meditation.gif'); }
-.initiative:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/initiative.gif'); }
-.offense:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/offense.gif'); }
-.defense:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/defense.gif'); }
-.movement:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/movement.gif'); }
+.health:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/health.gif'); }
+.regrowth:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/regrowth.gif'); }
+.fatigue:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/fatigue.gif'); }
+.energy:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/energy.gif'); }
+.meditation:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/meditation.gif'); }
+.initiative:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/initiative.gif'); }
+.offense:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/offense.gif'); }
+.defense:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/defense.gif'); }
+.movement:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/movement.gif'); }
 
-.pierce:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/pierce.gif'); }
-.slash:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/slash.gif'); }
-.crush:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/crush.gif'); }
-.shock:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/shock.gif'); }
-.burn:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/burn.gif'); }
-.frost:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/frost.gif'); }
-.poison:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/poison.gif'); }
-.sonic:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/sonic.gif'); }
-.mental:hover .icon{ background-image: url('<?php echo $site_root; ?>/images/stats/mental.gif'); }
+.pierce:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/pierce.gif'); }
+.slash:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/slash.gif'); }
+.crush:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/crush.gif'); }
+.shock:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/shock.gif'); }
+.burn:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/burn.gif'); }
+.frost:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/frost.gif'); }
+.poison:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/poison.gif'); }
+.sonic:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/sonic.gif'); }
+.mental:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/mental.gif'); }
 
 .abilities {
 	vertical-align: top;
@@ -157,11 +157,11 @@
 	background-size: 100% 100%;
 	width:99px;
 	height:99px;
-	background-image:  url('<?php echo $site_root; ?>/images/missing.png')
+	background-image:  url('<?php echo $site_root; ?>images/missing.png')
 }
 
 .abilities .icon .contour{
-	background-image: url('<?php echo $site_root; ?>/images/contour.png');
+	background-image: url('<?php echo $site_root; ?>images/contour.png');
 }
 
 .numbers {

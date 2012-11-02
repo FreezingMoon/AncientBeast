@@ -318,7 +318,7 @@ div.row:nth-child(9){top:38.944em;}
 
 
 /*-----Dark Priest----*/
-#creatureWrapper .creature.type_0{
+#creatureWrapper .creature.type_--{
 	width: 145px;
 	height: 268px;
 	margin-top: -220px;
@@ -330,11 +330,11 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transform-origin:27% 100%; /* Safari and Chrome */
 	background-image: url("../../bestiary/Dark Priest/cardboard-red.png");
 }
-#creatureWrapper .creature.type_0.p0{background-image: url("../../bestiary/Dark Priest/cardboard-red.png");}
-#creatureWrapper .creature.type_0.p1{background-image: url("../../bestiary/Dark Priest/cardboard-blue.png");}
-#creatureWrapper .creature.type_0.p2{background-image: url("../../bestiary/Dark Priest/cardboard-orange.png");}
-#creatureWrapper .creature.type_0.p3{background-image: url("../../bestiary/Dark Priest/cardboard-green.png");}
-#creatureWrapper div.creature.fliped.type_0{ 
+#creatureWrapper .creature.type_--.p0{background-image: url("../../bestiary/Dark Priest/cardboard-red.png");}
+#creatureWrapper .creature.type_--.p1{background-image: url("../../bestiary/Dark Priest/cardboard-blue.png");}
+#creatureWrapper .creature.type_--.p2{background-image: url("../../bestiary/Dark Priest/cardboard-orange.png");}
+#creatureWrapper .creature.type_--.p3{background-image: url("../../bestiary/Dark Priest/cardboard-green.png");}
+#creatureWrapper div.creature.fliped.type_--{ 
 	-webkit-transform: rotateX(-33deg) scale(-.75,1.35); 
 	-webkit-transform-origin:39% 100%;
 	-moz-transform: rotateX(-33deg) scale(-.75,1.35); 

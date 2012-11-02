@@ -3,7 +3,7 @@
 *	Dark Priest abilities
 *
 */
-abilities["0"] =[
+abilities["--"] =[
 
 // 	First Ability
 {

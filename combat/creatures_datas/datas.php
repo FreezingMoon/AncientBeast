@@ -79,25 +79,31 @@ function db_query($query) {
 	return true;
 }
 
-// $id = ((int)$_GET["id"] == 0)? "--" : (int)$_GET["id"] ;
-
-
-// $ab_stats = "SELECT * FROM ab_stats WHERE id = '$id'";
-// $ab_abilities_results = db_query($ab_abilities);
-
-// print_r($ab_abilities_results);
+$id = ( !is_string($_GET["id"]) )? "--" : $_GET["id"];
 
 global $site_root; // from global.php
-global $stats2; // from ???
 
-$ab_id = mysql_real_escape_string("10");
+$sin = ucfirst(substr($id,0,1));
+$lvl = substr($id,1,1);
 
 $ab_creatures = "SELECT ab_creatures.*, ab_stats.*, ab_abilities.* FROM ab_creatures
 					LEFT JOIN ab_stats ON ab_creatures.id = ab_stats.id
 					LEFT JOIN ab_abilities ON ab_creatures.id = ab_abilities.id
-					WHERE ab_creatures.id = '$ab_id'";
+					WHERE ab_creatures.sin = '$sin' AND ab_creatures.lvl = '$lvl' ";
 
-$ab_creatures_results = db_query($ab_creatures);
+$r = db_query($ab_creatures);
+$r = $r[0];
 
-print_r($ab_creatures_results);
+$datas = array();
+
+$datas["type"] = $sin.$lvl;
+$datas["name"] = $r["name"];
+$datas["size"] = $r["hex"];
+$datas["stats"] = array(
+	'health' => $r["health"],
+	'initiative' => $r["initiative"],
+	'movement' => $r["movement"],
+);
+
+print_r(json_encode($datas));
 ?>

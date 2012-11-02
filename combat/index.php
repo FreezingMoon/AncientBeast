@@ -139,8 +139,8 @@ function db_query($query) {
 			<div id="dash" class="selected0">
 				<div id="playertabswrapper">
 					<div class="playertabs p0"  player="0">Player1<p class="plasma">Plasma 0</p>
-					</div><div class="playertabs p1" player="1">Player2<p class="plasma">Plasma 0</p>
 					</div><div class="playertabs p2" player="2">Player3<p class="plasma">Plasma 0</p>
+					</div><div class="playertabs p1" player="1">Player2<p class="plasma">Plasma 0</p>
 					</div><div class="playertabs p3" player="3">Player4<p class="plasma">Plasma 0</p>
 					</div>
 				</div>
