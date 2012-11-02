@@ -54,7 +54,7 @@ var Game = Class.create({
 		this.nextQueue = []; //next round queue
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
-		this.availableCreatures = ["0","L2","S6"];
+		this.availableCreatures = ["0","L2","S1","S6"];
 		this.zoomed = false;
 	},
 
