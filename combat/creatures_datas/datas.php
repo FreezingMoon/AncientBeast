@@ -23,7 +23,7 @@
  */
 
 // Utility
-if(!file_exists(dirname(__FILE__) . "/../config.php"))
+if(!file_exists(dirname(__FILE__) . "/../../config.php"))
 	die("Warning: config.php not found, please edit config.php.in to point to a database and save it as config.php<br>Disclaimer: Since this project is web based, you can use the code and assets along with database.sql to host Ancient Beast yourself for testing and development purposes only! Also, your version should not be indexable by search engines because that can cause harm to the project!");
 require_once("../../config.php");
 
@@ -87,4 +87,17 @@ function db_query($query) {
 
 // print_r($ab_abilities_results);
 
+global $site_root; // from global.php
+global $stats2; // from ???
+
+$ab_id = mysql_real_escape_string("10");
+
+$ab_creatures = "SELECT ab_creatures.*, ab_stats.*, ab_abilities.* FROM ab_creatures
+					LEFT JOIN ab_stats ON ab_creatures.id = ab_stats.id
+					LEFT JOIN ab_abilities ON ab_creatures.id = ab_abilities.id
+					WHERE ab_creatures.id = '$ab_id'";
+
+$ab_creatures_results = db_query($ab_creatures);
+
+print_r($ab_creatures_results);
 ?>

@@ -431,9 +431,13 @@ div.row:nth-child(9){top:38.944em;}
 }
 #playertabswrapper.active{display: block;}
 
+#playertabswrapper.numplayer2 .playertabs{width: 50%;}
+#playertabswrapper.numplayer2 .playertabs.p2, #playertabswrapper.numplayer2 .playertabs.p3{display: none;}
+
+#playertabswrapper.numplayer4 .playertabs{width: 25%;}
+
 #playertabswrapper .playertabs{
 	height: 50px;
-	width: 25%;
 	display: inline-block;
 	color: white;
 	font-size: 14px;
@@ -458,11 +462,23 @@ div.row:nth-child(9){top:38.944em;}
 	top: 75px;
 	right: 0px;
 	bottom: 0px;
-	width: 100%;
+	width: 50%;
 	position: absolute;
 	overflow: auto;
 	text-align: center;
 	vertical-align: middle;
+}
+
+#cardwrapper{
+	top: 75px;
+	left: 0px;
+	bottom: 0px;
+	width: 50%;
+	position: absolute;
+	overflow: auto;
+	text-align: center;
+	vertical-align: middle;
+	color: white;
 }
 
 /*-------------------Queue-------------------*/

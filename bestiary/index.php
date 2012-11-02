@@ -29,24 +29,33 @@ require_once('../images/stats/index.php');
 require_once('cards.php');
 require_once('grid.php');
 
-$creatures = 'SELECT * FROM ab_creatures ORDER BY sin, lvl';
+$creatures = "SELECT ab_creatures.*, ab_stats.*, ab_abilities.*, ab_progress.* FROM ab_creatures
+				LEFT JOIN ab_stats ON ab_creatures.id = ab_stats.id
+				LEFT JOIN ab_abilities ON ab_creatures.id = ab_abilities.id
+				LEFT JOIN ab_progress ON ab_creatures.id = ab_progress.id
+				ORDER BY ab_creatures.sin , ab_creatures.lvl";
 $creature_results = db_query($creatures);
 
-function progress($id, $ab_name) {
-	$ab_id = mysql_real_escape_string($id);
-	$ab_progress = "SELECT * FROM ab_progress WHERE id = '$ab_id'";
-	$rows = db_query($ab_progress);
-	foreach ($rows as $r) {
-		$sum = array_sum($r);
-		$total = ($sum - $r['id']) / 10;
-		$rounded_total = 10 * round ($total/10) ;
-		echo "<center><div style='width:825px; background-image:url(../images/progress/widget.png);'><a href='http://www.wuala.com/AncientBeast/bestiary/$ab_name' target='_blank'>";
-		foreach($r as $key => $value) {
-			if($key == 'id') continue;
-			$title = ucfirst($key) . ": $value% complete";
-			echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title'>";
-		} echo "<img src='../images/progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed'></a></div></center>";
-	}
+function progress($r) {
+		$sum = 0;
+		echo "
+<center>
+	<div style='width:825px; background-image:url(../images/progress/widget.png);'>
+		<a href='http://www.wuala.com/AncientBeast/bestiary/$ab_name' target='_blank'>";
+			$i = 0;
+			foreach($r as $key => $value) {
+				if($i++ < 32) continue; //Ignore Other keys
+				$sum += $value;
+				$title = ucfirst($key) . ": $value% complete";
+				echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title'>";
+			}
+			$total = $sum / 10;
+			$rounded_total = 10 * round ($total/10) ;
+			echo "<img src='../images/progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed'>
+		</a>
+	</div>
+</center>";
+
 }
 
 //grid view
@@ -69,9 +78,9 @@ creatureGrid($creature_results,false);
 foreach ($creature_results as $r) {
 	$spaceless = str_replace(' ', '_', $r['name']);
 	start_segment($spaceless);
-	cards($r['id']);
+	cards($r);
 	echo '<br>';
-	progress($r['id'], $r['name']);
+	progress($r);
 	end_segment();
 }
 
