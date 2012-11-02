@@ -276,6 +276,26 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transform-origin:48% 100%; 
 }
 
+/*-----Snow Bunny----*/
+#creatureWrapper .creature.type_S1{ 
+	width: 135px;
+	height: 95px;
+	margin-top: 0px;
+	padding: 0px 0px 10px;
+	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
+	-webkit-transform-origin:65% 100%;
+	-moz-transform: rotateX(-33deg) scale(.75,1.35);
+	-moz-transform-origin:65% 100%;
+
+	background: url("../../bestiary/Snow Bunny/cardboard.png");
+}
+#creatureWrapper div.creature.fliped.type_S1{ 
+	-webkit-transform: rotateX(-33deg) scale(-.75,1.35); 
+	-webkit-transform-origin:48% 100%; 
+	-moz-transform: rotateX(-33deg) scale(-.75,1.35); 
+	-moz-transform-origin:48% 100%; 
+}
+
 /*-----Impaler----*/
 #creatureWrapper .creature.type_S6{ 
 	width: 299px;
