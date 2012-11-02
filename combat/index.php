@@ -87,10 +87,13 @@ function db_query($query) {
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
-		
+		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
+		<script type="text/javascript" src="./js/mousewheel.js"></script>
+
 		<script type="text/javascript">
 			var $j = jQuery.noConflict();
 		</script>
+
 		<script src="//ajax.googleapis.com/ajax/libs/prototype/1.7.1.0/prototype.js"></script>
 		<script type="text/javascript" src="./js/hex.js"></script>
 		<script type="text/javascript" src="./js/abilities.js"></script>
@@ -176,54 +179,56 @@ function db_query($query) {
 				</div>
 			</div>
 		</div>
-		<div id="combatframe" style="display:none;">
-			<div id="grid">
-				<div id="hexsdisplay">
+		<div id="combatwrapper">
+			<div id="combatframe" style="display:none;">
+				<div id="grid">
+					<div id="hexsdisplay">
+						<?php for ($a=0; $a <= 8; $a++) { 
+							if ($a % 2 == 0) {
+								for ($i=0; $i <= 15; $i++) {
+									echo '<div class="displayhex even_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+								}
+							}else{
+								for ($i=0; $i <= 15; $i++) { 
+									echo '<div class="displayhex odd_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+								}
+							}
+						} ?>
+					</div>
+					<div id="hexsoverlay">
+						<?php for ($a=0; $a <= 8; $a++) { 
+							if ($a % 2 == 0) {
+								for ($i=0; $i <= 15; $i++) {
+									echo '<div class="displayhex even_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+								}
+							}else{
+								for ($i=0; $i <= 15; $i++) { 
+									echo '<div class="displayhex odd_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+								}
+							}
+						} ?>
+					</div>
+					<div id="creatureWrapper">
+					</div>
+					<div id="hexsinput">
 					<?php for ($a=0; $a <= 8; $a++) { 
 						if ($a % 2 == 0) {
-							for ($i=0; $i <= 15; $i++) {
-								echo '<div class="displayhex even_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+							//evenrow
+							echo '<div class="even row" row="'.$a.'">';
+							for ($i=0; $i <= 14; $i++) { 
+								echo '<div class="hex" x="'.$i.'" y="'.$a.'"><div class="physical"></div></div>';
 							}
+							echo '</div>';
 						}else{
+							//oddrow
+							echo '<div class="odd row" row="'.$a.'">';
 							for ($i=0; $i <= 15; $i++) { 
-								echo '<div class="displayhex odd_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
+								echo '<div class="hex" x="'.$i.'" y="'.$a.'"><div class="physical"></div></div>';
 							}
+							echo '</div>';
 						}
 					} ?>
-				</div>
-				<div id="hexsoverlay">
-					<?php for ($a=0; $a <= 8; $a++) { 
-						if ($a % 2 == 0) {
-							for ($i=0; $i <= 15; $i++) {
-								echo '<div class="displayhex even_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
-							}
-						}else{
-							for ($i=0; $i <= 15; $i++) { 
-								echo '<div class="displayhex odd_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
-							}
-						}
-					} ?>
-				</div>
-				<div id="creatureWrapper">
-				</div>
-				<div id="hexsinput">
-				<?php for ($a=0; $a <= 8; $a++) { 
-					if ($a % 2 == 0) {
-						//evenrow
-						echo '<div class="even row" row="'.$a.'">';
-						for ($i=0; $i <= 14; $i++) { 
-							echo '<div class="hex" x="'.$i.'" y="'.$a.'"><div class="physical"></div></div>';
-						}
-						echo '</div>';
-					}else{
-						//oddrow
-						echo '<div class="odd row" row="'.$a.'">';
-						for ($i=0; $i <= 15; $i++) { 
-							echo '<div class="hex" x="'.$i.'" y="'.$a.'"><div class="physical"></div></div>';
-						}
-						echo '</div>';
-					}
-				} ?>
+					</div>
 				</div>
 			</div>
 		</div>

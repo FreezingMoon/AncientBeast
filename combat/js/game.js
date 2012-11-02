@@ -55,6 +55,7 @@ var Game = Class.create({
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
 		this.availableCreatures = ["0","L2","S6"];
+		this.zoomed = false;
 	},
 
 
@@ -157,6 +158,24 @@ var Game = Class.create({
 			this.windowResizeTimeout = setTimeout(function() { G.resizeCombatFrame(); }, 500);
 		});
 
+		$j("#combatwrapper").kinetic({slowmdown: 0,throttleFPS: 30}); //Allow nice dragging effect
+
+		zooming = false;
+		$j("#combatwrapper").mousewheel(function(event,delta){
+			if(event.originalEvent.wheelDelta > 0){
+				//Positive scrolling
+				G.zoomed = true;
+			}else{
+				//Negative scrolling
+				G.zoomed = false;
+			}
+
+			if(!zooming) G.resizeCombatFrame();
+			zooming = true;
+			//Throttle down to 1 event every 500ms of inactivity
+			clearTimeout(this.windowResizeTimeout);
+			this.windowResizeTimeout = setTimeout(function() { zooming = false; }, 250);
+		});
 	},
 
 
@@ -166,10 +185,14 @@ var Game = Class.create({
 	*
 	*/
 	resizeCombatFrame: function(){
-		if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ){
-			this.$combatFrame.transition({ scale: $j(window).height() / 1080  });
+		if(!this.zoomed){
+			if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ){
+				this.$combatFrame.transition({ scale: $j(window).height() / 1080  });
+			}else{
+				this.$combatFrame.transition({ scale: $j(window).width() / 1920  });	
+			}
 		}else{
-			this.$combatFrame.transition({ scale: $j(window).width() / 1920  });	
+			this.$combatFrame.transition({ scale: 1 });
 		}
 	},
 

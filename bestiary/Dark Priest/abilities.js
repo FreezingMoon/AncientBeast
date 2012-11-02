@@ -155,19 +155,17 @@ abilities["0"] =[
 				var creature = args.creature;
 				var crea = G.retreiveCreatureStats(creature);
 
-				var walkable = true;
-
 				if (dpriest.player.fliped) {
 					if( dpriest.y % 2 == 0 ){
-						if( hex.x > dpriest.x ) walkable = false;
+						var walkable = !( hex.x > dpriest.x );
 					}else{
-						if( hex.x+1 > dpriest.x ) walkable = false;
+						var walkable = !( hex.x+1 > dpriest.x );
 					}
 				}else{
 					if( dpriest.y % 2 == 0 ){
-						if( hex.x <= dpriest.x ) walkable = false;;
+						var walkable = !( hex.x <= dpriest.x+crea.size-1 );
 					}else{
-						if( hex.x+1 <= dpriest.x ) walkable = false;
+						var walkable = !( hex.x+1 <= dpriest.x+crea.size-1 );
 					}
 				}
 
@@ -177,47 +175,49 @@ abilities["0"] =[
 						walkable = walkable && ( !G.grid.hexs[hex.y][hex.x+a*i].blocked && (G.grid.hexs[hex.y][hex.x+a*i].creature==0) );
 					}
 				};
+
 				return walkable;
 			}
 
-			tracePosition = function(hex,args){
-				var creature = args.creature;
-				var crea = G.retreiveCreatureStats(creature);
-
+			fnOnClick = function(hex,args){
+				var crea = G.retreiveCreatureStats(args.creature);
 				G.grid.cleanOverlay("creature selected player"+G.activeCreature.team);
 				G.grid.updateDisplay(); //Retrace players creatures
 				for (var i = 0; i < crea.size; i++) {
 					var a = (dpriest.player.fliped)?-1:1;
-					G.grid.hexs[hex.y][hex.x+a*i].$overlay.addClass("creature selected player"+G.activeCreature.team);
+					G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
 				}
 			};
 
-			previewPosition = function(hex,args){
-				var creature = args.creature;
-				var crea = G.retreiveCreatureStats(creature);
-				
+			fnOnMouseover = function(hex,args){
+				var crea = G.retreiveCreatureStats(args.creature);
 				G.grid.cleanOverlay("hover h_player"+G.activeCreature.team);
 				for (var i = 0; i < crea.size; i++) {
-					var a = (dpriest.player.fliped)?-1:1;
-					G.grid.hexs[hex.y][hex.x+a*i].$overlay.addClass("hover h_player"+G.activeCreature.team);
+					G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("hover h_player"+G.activeCreature.team);
 				}
 			};
 
+			var originx = (!dpriest.player.fliped) ? dpriest.x+crea.size-1 : dpriest.x;
+
+			excludedHexs.push(G.grid.hexs[dpriest.y][originx]);
+
 			G.grid.queryHexs(
-				tracePosition,
-				previewPosition,
-				function(){G.activeCreature.queryMove()},
-				ability.activate,
-				optionalTest,
-				{dpriest:dpriest, creature:creature, ability:ability},
+				fnOnClick, //OnClick
+				fnOnMouseover, //OnMouseover
+				function(){G.activeCreature.queryMove()}, //OnCancel
+				ability.activate, //OnConfirm
+				optionalTest, //OptionalTest
+				{dpriest:dpriest, creature:creature, ability:ability}, //OptionalArgs
 				false, //true for flying creatures
-				false,
-				dpriest.x,dpriest.y,
-				1,
-				0,
-				1,
-				excludedHexs
+				0, //Include creature
+				originx,dpriest.y,//Position
+				1, //Distance
+				0, //Creature ID
+				crea.size, //Size
+				excludedHexs, //Excluding hexs
+				dpriest.player.fliped //Fliped
 			);
+
 		};
 
 		//Ask the creature to summon
@@ -230,10 +230,9 @@ abilities["0"] =[
 		var ability = args.ability;
 
 		var creaStats = G.retreiveCreatureStats(creature);
+		var dpriest = args.dpriest;
 
-		var pos = (ability.creature.player.fliped) ? 
-		{ x:hex.x, y:hex.y } : 
-		{ x:hex.x+creaStats.size-1,	y:hex.y	};
+		var pos = { x:hex.x, y:hex.y };
 
 		ability.creature.player.summon(creature,pos);
 
@@ -278,56 +277,21 @@ abilities["0"] =[
 		queryHex = function(creature,ability){
 			var crea = G.retreiveCreatureStats(creature);
 
-			optionalTest = function(hex,args){ return true; }
-
 			fnOnClick = function(hex,args){
-				var creature = args.creature;
-				var crea = G.retreiveCreatureStats(creature);
-
-				var x = hex.x;
-				var y = hex.y;
-
-				//Offset Pos
-				var offset = (dpriest.player.fliped) ? crea.size-1 : 0 ;
-				var mult = (dpriest.player.fliped) ? 1 : -1 ; //For FLIPED player
-
-				for (var i = 0; i < crea.size; i++) {	//try next hexagons to see if they fits
-					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
-					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(crea.size,crea.id)){ 
-						x += offset-i*mult;
-						break; 
-					}
-				};
-
+				var crea = G.retreiveCreatureStats(args.creature);
 				G.grid.cleanOverlay("creature selected player"+G.activeCreature.team);
 				G.grid.updateDisplay(); //Retrace players creatures
 				for (var i = 0; i < crea.size; i++) {
-					G.grid.hexs[y][x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
+					var a = (dpriest.player.fliped)?-1:1;
+					G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
 				}
 			};
 
 			fnOnMouseover = function(hex,args){
-				var creature = args.creature;
-				var crea = G.retreiveCreatureStats(creature);
-
-				var x = hex.x;
-				var y = hex.y;
-
-				//Offset Pos
-				var offset = (dpriest.player.fliped) ? crea.size-1 : 0 ;
-				var mult = (dpriest.player.fliped) ? 1 : -1 ; //For FLIPED player
-
-				for (var i = 0; i < crea.size; i++) {	//try next hexagons to see if they fits
-					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
-					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(crea.size,crea.id)){ 
-						x += offset-i*mult;
-						break; 
-					}
-				};
-
+				var crea = G.retreiveCreatureStats(args.creature);
 				G.grid.cleanOverlay("hover h_player"+G.activeCreature.team);
 				for (var i = 0; i < crea.size; i++) {
-					G.grid.hexs[y][x-i].$overlay.addClass("hover h_player"+G.activeCreature.team);
+					G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("hover h_player"+G.activeCreature.team);
 				}
 			};
 
@@ -336,7 +300,7 @@ abilities["0"] =[
 				fnOnMouseover, //OnMouseover
 				function(){G.activeCreature.queryMove()}, //OnCancel
 				ability.activate, //OnConfirm
-				optionalTest, //OptionalTest
+				function(){ return true; }, //OptionalTest
 				{dpriest:dpriest, creature:creature, ability:ability}, //OptionalArgs
 				true, //Flying
 				0,	//Include creature
@@ -344,7 +308,8 @@ abilities["0"] =[
 				50, //Distance
 				0, //Creature ID
 				crea.size, //Size
-				dpriest.hexagons //Excluding hexs
+				dpriest.hexagons, //Excluding hexs
+				dpriest.player.fliped //Fliped
 			);
 		};
 
@@ -360,22 +325,7 @@ abilities["0"] =[
 		var creaStats = G.retreiveCreatureStats(creature);
 		var dpriest = args.dpriest;
 
-		var x = hex.x;
-		var y = hex.y;
-
-		//Offset Pos
-		var offset = (dpriest.player.fliped) ? creaStats.size-1 : 0 ;
-		var mult = (dpriest.player.fliped) ? 1 : -1 ; //For FLIPED player
-
-		for (var i = 0; i < creaStats.size; i++) {	//try next hexagons to see if they fits
-			if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
-			if(G.grid.hexs[y][x+offset-i*mult].isWalkable(creaStats.size,creaStats.id)){ 
-				x += offset-i*mult;
-				break; 
-			}
-		};
-
-		var pos = { x:x, y:y };
+		var pos = { x:hex.x, y:hex.y };
 
 		ability.creature.player.summon(creature,pos);
 
