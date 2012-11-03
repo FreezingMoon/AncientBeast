@@ -98,6 +98,8 @@ $datas = array();
 
 $datas["type"] = $sin.$lvl;
 $datas["name"] = $r["name"];
+$datas["lvl"] = $lvl+0;
+$datas["realm"] = $sin;
 $datas["size"] = $r["hex"];
 $datas["stats"] = array(
 	'health' => $r["health"],

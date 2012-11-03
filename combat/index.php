@@ -138,6 +138,7 @@ function db_query($query) {
 		</div>
 		<div id="ui" style="display:none;">
 			<div id="dash" class="selected0">
+				<div id="tooltip"></div>
 				<div id="playertabswrapper">
 					<div class="playertabs p0"  player="0">Player1<p class="plasma">Plasma 0</p>
 					</div><div class="playertabs p2" player="2">Player3<p class="plasma">Plasma 0</p>

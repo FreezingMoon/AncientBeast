@@ -68,26 +68,42 @@ var UI = Class.create({
 	*	
 	*	fnCallback : 	Function : 	Callback function used like this fnCallback(creatureType,optArgs)
 	*	optArgs : 		Any : 		Optional argument for Callback function
+	*	plasma : 	Integer : 	Additional plasma cost. set it to -1 if not a summoning
 	*
 	* 	Query a creature in the available creatures of the active player
 	*
 	*/
-	queryCreature: function(fnCallback,optArgs){
+	queryCreature: function(fnCallback,optArgs,plasma){
 		this.selectedCreature = "";
 		this.$dash.addClass("active"); //Show dash
+		if(!!(plasma+1)) this.$dash.children("#tooltip").text("Choose a creature to summon.").addClass("active"); //Show tooltip
 		this.$dash.children("#playertabswrapper").removeClass("active"); //Remove Player Tabs
 		this.changePlayerTab(G.activeCreature.team); //Change to active player grid
 
 		this.$grid.children('.vignette:not([class*="locked"])').unbind('click').bind("click",function(e){
 			e.preventDefault();
+
 			var creatureType = $j(this).attr("creature");
-			if(creatureType == G.UI.selectedCreature){
-				fnCallback(creatureType,optArgs); //Call the callback function
-				G.UI.$dash.removeClass("active"); //Hide dash
-				G.UI.$grid.children(".vignette").removeClass("active")
-				G.UI.selectedCreature = "";
-			}else{
-				G.UI.showCreature(creatureType,G.UI.selectedPlayer);
+
+			if(!!(plasma+1)){
+				//Plasma cost
+				var lvl = creatureType.substring(1,2)-0;
+				var size = G.retreiveCreatureStats(creatureType).size-0;
+				plasmaCost = lvl+size+(plasma-0);
+
+				if(plasmaCost>G.activeCreature.player.plasma){
+					G.UI.$dash.children("#tooltip").text("Not enough plasma. You need "+plasmaCost+" plasma points to summon this creature.");
+				}else{
+					G.UI.$dash.children("#tooltip").text("Click again to summon this creature at the cost of "+plasmaCost+" plasma points.");
+					if(creatureType == G.UI.selectedCreature){
+						fnCallback(creatureType,optArgs); //Call the callback function
+						G.UI.$dash.removeClass("active"); //Hide dash
+						G.UI.$grid.children(".vignette").removeClass("active")
+						G.UI.selectedCreature = "";
+					}else{
+						G.UI.showCreature(creatureType,G.UI.selectedPlayer);
+					}
+				}
 			}
 		});
 	},
@@ -119,7 +135,7 @@ var UI = Class.create({
 
 			//Recto
 			$j("#card .card.recto").css({"background-image":"url('../bestiary/"+stats.name+"/artwork.jpg')"});
-			$j("#card .card.recto .section.infos").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
+			$j("#card .card.recto .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
 			$j("#card .card.recto .type").text(stats.type);
 			$j("#card .card.recto .name").text(stats.name);
 			$j("#card .card.recto .hexs").text(stats.size+"H");
@@ -131,8 +147,8 @@ var UI = Class.create({
 			$j.each(abilities[stats.type],function(key,value){
 				$ability = $j("#card .card.verso .abilities .ability:eq("+key+")");
 				$ability.children('.icon').css({"background-image":"url('../bestiary/"+stats.name+"/"+key+".svg')"});
-				$ability.children(".wrapper").children(".infos").children("h3").text(value.title);
-				$ability.children(".wrapper").children(".infos").children(".desc").text(value.desc);
+				$ability.children(".wrapper").children(".info").children("h3").text(value.title);
+				$ability.children(".wrapper").children(".info").children(".desc").text(value.desc);
 			});
 
 		}else{
@@ -174,6 +190,11 @@ var UI = Class.create({
 		//Bind creature vignette click
 		this.$grid.children(".vignette").unbind('click').bind("click",function(e){
 			e.preventDefault();
+
+			if($j(this).hasClass("locked")){
+				G.UI.$dash.children("#tooltip").text("Creature locked.");
+			}
+
 			var creatureType = $j(this).attr("creature");
 			G.UI.showCreature(creatureType,G.UI.selectedPlayer);
 		});
@@ -188,6 +209,7 @@ var UI = Class.create({
 	*/
 	toggleDash: function(){
 		this.$dash.toggleClass("active");
+		this.$dash.children("#tooltip").removeClass("active");
 		this.$dash.children("#playertabswrapper").addClass("active");
 		this.changePlayerTab(G.activeCreature.team);
 

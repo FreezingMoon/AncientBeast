@@ -433,6 +433,18 @@ div.row:nth-child(9){top:38.944em;}
 
 #dash.active{top:0%;}
 
+#dash #tooltip{
+	display: block;
+	position: absolute; 
+	top: -100px; 
+	left: 0px; 
+	right: 100px;
+	height: 100px;
+	color: white;
+	text-align: center;
+}
+#dash #tooltip.active{top: 0px;}
+
 #dash #creaturegrid{
 	height: 700px;
 	width: 700px;

@@ -221,7 +221,7 @@ abilities["--"] =[
 		};
 
 		//Ask the creature to summon
-		G.UI.queryCreature(queryHex,this);
+		G.UI.queryCreature(queryHex,this,0);
 	},
 
 	//	activate() : 
@@ -236,7 +236,7 @@ abilities["--"] =[
 
 		ability.creature.player.summon(creature,pos);
 
-		ability.creature.player.plasma -= 10;
+		ability.creature.player.plasma -= (creaStats.size-0)+(creaStats.lvl-0);
 
 		ability.end();
 	},
@@ -314,7 +314,7 @@ abilities["--"] =[
 		};
 
 		//Ask the creature to summon
-		G.UI.queryCreature(queryHex,this);
+		G.UI.queryCreature(queryHex,this,1);
 	},
 
 	//	activate() : 
@@ -329,7 +329,7 @@ abilities["--"] =[
 
 		ability.creature.player.summon(creature,pos);
 
-		ability.creature.player.plasma -= 10;
+		ability.creature.player.plasma -= 1+(creaStats.size-0)+(creaStats.lvl-0);
 
 		ability.end();
 	},
