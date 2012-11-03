@@ -41,6 +41,7 @@
 
 
 /*----------------Creatures vignettes---------------*/
+/*---------------TODO: automate this!---------------*/
 
 .vignette.typeA1{background-image: url("../../bestiary/Swine Thug/avatar.jpg");}
 .vignette.typeA2{background-image: url("../../bestiary/Bounty Hunter/avatar.jpg");}
@@ -93,8 +94,8 @@
 .vignette.typeW1{background-image: url("../../bestiary/Nutcase/avatar.jpg");}
 .vignette.typeW2{background-image: url("../../bestiary/Flesh Cleanser/avatar.jpg");}
 .vignette.typeW3{background-image: url("../../bestiary/Headless/avatar.jpg");}
-.vignette.typeW4{background-image: url("../../bestiary/Horn Head/avatar.jpg");}
-.vignette.typeW5{background-image: url("../../bestiary/Flayed/avatar.jpg");}
+.vignette.typeW4{background-image: url("../../bestiary/Flayed/avatar.jpg");}
+.vignette.typeW5{background-image: url("../../bestiary/Horn Head/avatar.jpg");}
 .vignette.typeW6{background-image: url("../../bestiary/Satyr/avatar.jpg");}
 .vignette.typeW7{background-image: url("../../bestiary/Sarcophag/avatar.jpg");}
 .vignette.typeWS{background-image: url("../../bestiary/Shadow Leech/avatar.jpg");}
