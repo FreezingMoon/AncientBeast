@@ -21,7 +21,7 @@
  * https://github.com/FreezingMoon/AncientBeast
  * DreadKnight@FreezingMoon.org
 -->
-
+<?php require_once("../images/stats/index.php"); ?>
 <style>
 .card table{border: none;}
 

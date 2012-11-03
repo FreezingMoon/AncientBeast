@@ -70,14 +70,3 @@ foreach ($stats as $key => $value) {
 }
 ?>
 </style>
-
-<!--roll over image script-->
-<script type="application/javascript">
-var icons = new Array(
-	"<?php echo implode(array_keys($stats), "\",\n\t\""); ?>"
-);
-for(var x in icons) {
-	window["normal_" + icons[x]] = '../images/stats/' + icons[x] + '.png';
-	window["mouseover_" + icons[x]] = '../images/stats/' + icons[x] + '.gif';
-}
-function swap(element, image) {$(element).attr('src', window[image]);} </script>
