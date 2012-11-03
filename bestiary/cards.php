@@ -53,7 +53,7 @@
 	margin: 15px 0 0 15px;
 }
 
-.recto .infos{
+.recto .info{
 	background: rgba(0,0,0,0.7); 
 	border-radius: 15px; 
 	border: 4px ridge; 
@@ -61,28 +61,28 @@
 	top: 495px; 
 	left: 15px;
 }
-.recto .infos tr{ 
+.recto .info tr{ 
 	font-size: 24px; 
 	text-align: center; 
 	
 }
-.recto .infos.sin-{border-color: grey;}
-.recto .infos.sinA{border-color: gold;}
-.recto .infos.sinE{border-color: orange;}
-.recto .infos.sinG{border-color: green;}
-.recto .infos.sinL{border-color: red;}
-.recto .infos.sinP{border-color: violet;}
-.recto .infos.sinS{border-color: blue;}
-.recto .infos.sinW{border-color: indigo;}
+.recto .info.sin-{border-color: grey;}
+.recto .info.sinA{border-color: gold;}
+.recto .info.sinE{border-color: orange;}
+.recto .info.sinG{border-color: green;}
+.recto .info.sinL{border-color: red;}
+.recto .info.sinP{border-color: violet;}
+.recto .info.sinS{border-color: blue;}
+.recto .info.sinW{border-color: indigo;}
 
-.recto .infos.sin- tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em grey;}
-.recto .infos.sinA tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em gold;}
-.recto .infos.sinE tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em orange;}
-.recto .infos.sinG tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em green;}
-.recto .infos.sinL tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em red;}
-.recto .infos.sinP tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em violet;}
-.recto .infos.sinS tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em blue;}
-.recto .infos.sinW tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em indigo;}
+.recto .info.sin- tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em grey;}
+.recto .info.sinA tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em gold;}
+.recto .info.sinE tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em orange;}
+.recto .info.sinG tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em green;}
+.recto .info.sinL tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em red;}
+.recto .info.sinP tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em violet;}
+.recto .info.sinS tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em blue;}
+.recto .info.sinW tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em indigo;}
 
 
 .verso.sin-{ background-image: url('<?php echo $site_root; ?>images/cards/-.jpg'); }
@@ -112,7 +112,7 @@
 .fatigue .icon{ background-image: url('<?php echo $site_root; ?>images/stats/fatigue.png'); }
 .energy .icon{ background-image: url('<?php echo $site_root; ?>images/stats/energy.png'); }
 .meditation .icon{ background-image: url('<?php echo $site_root; ?>images/stats/meditation.png'); }
-.initiative	 .icon{ background-image: url('<?php echo $site_root; ?>images/stats/initiative.png'); }
+.initiative .icon{ background-image: url('<?php echo $site_root; ?>images/stats/initiative.png'); }
 .offense .icon{ background-image: url('<?php echo $site_root; ?>images/stats/offense.png'); }
 .defense .icon{ background-image: url('<?php echo $site_root; ?>images/stats/defense.png'); }
 .movement .icon{ background-image: url('<?php echo $site_root; ?>images/stats/movement.png'); }
@@ -185,10 +185,9 @@
 	padding-left: 100px;
 }
 
-.abilities .ability .infos{
+.abilities .ability .info{
 	display: inline-block;
 }
-
 
 .numbers {
 	font-size: 12px;
@@ -221,25 +220,26 @@ function cards($r = "", $id = -1) { //Print a card
   
 	//Card entry
 	$spaceless = str_replace(' ', '_', $r['name'] );
+	$CallCreature = 'CallCreature(\'' . $r['name'] . '_shout\');';
 
 	echo '
 <center>
 	<table border=0>
-		<th class="card recto" style="background-image: url(\''.$site_root.'bestiary/'.$r['name'].'/artwork.jpg\');">
-			<a href="#'.$spaceless.'" class="section cardborder">
-				<div class="embed">'.$r['embed'].'</div>
-				<table class="section infos sin'.$r['sin'].'">
+		<th class="card recto" style="background-image: url(\'' . $site_root . 'bestiary/' . $r['name'] . '/artwork.jpg\');">
+			<a href="#' . $spaceless . '" class="section cardborder">
+				<div class="embed">' . $r['embed'] . '</div>
+				<table class="section info sin' . $r['sin'] . '">
 					<tr>
 						<td class="type" width="20%">'.$r['sin'].$r['lvl'].'</td>
-						<td><audio src="'.$r['name'].'/'.$r['name'].'.ogg" id="'.$r['name'].'_shout" style="display:none;" preload="auto"></audio>
-							<a class="name" onClick="CallCreature("' . $r['name'] . '_shout");" >'.$r['name'].'</a>
+						<td><audio src="' . $r['name'] . '/' . $r['name'] . '.ogg" id="' . $r['name'] . '_shout" style="display:none;" preload="auto"></audio>
+							<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '">' . $r['name'] . '</a>
 						</td>
-						<td class="hexs" width="20%">'.$r['hex'].'H</td>
+						<td class="hexs" width="20%">' . $r['hex'] . 'H</td>
 					</tr>
 				</table>
 			</a>
 		</th>
-		<th class="card verso sin'.$r['sin'].'">
+		<th class="card verso sin' . $r['sin'] . '">
 			<div class="section cardborder">
 				<table class="section">
 					<tr class="numbers">';
@@ -248,9 +248,9 @@ function cards($r = "", $id = -1) { //Print a card
 					foreach ($r as $key => $value) {
 					 	if( $i > 5 &&  $i < 15) {
 							echo '
-							<td class="'.$key.'" title="'.ucfirst($key).'">
-								<div class="icon" ></div>
-								<div class="value">'.$value.'</div>
+							<td class="' . $key . '" title="' . ucfirst($key) . '">
+								<div class="icon"></div>
+								<div class="value">' . $value . '</div>
 							</td>';
 						}
 						$i++;
@@ -266,13 +266,13 @@ function cards($r = "", $id = -1) { //Print a card
 				 	# code...
 					echo '
 					<div class="ability">
-						<div class="icon" style="background-image: url(\''.$site_root.'bestiary/'.$r["name"].'/'.$i.'.svg\');">
+						<div class="icon" style="background-image: url(\'' . $site_root . 'bestiary/' . $r["name"] . '/' . $i . '.svg\');">
 							<div class="contour"></div>
 						</div>
 						<div class="wrapper">
-							<div class="infos">
-								<h3>'.$r[$abilities[$i]].'</h3>
-								<span class="desc">'.$r[$abilities[$i]." info"].'</span>
+							<div class="info">
+								<h3>' . $r[$abilities[$i]] . '</h3>
+								<span class="desc">' . $r[$abilities[$i] . " info"] . '</span>
 							</div>
 						</div>
 					</div>';
@@ -286,9 +286,9 @@ function cards($r = "", $id = -1) { //Print a card
 					foreach ($r as $key => $value) {
 					 	if( $i > 14 &&  $i < 24) {
 							echo '
-							<td class="'.$key.'" title="'.ucfirst($key).'">
+							<td class="' . $key . '" title="' . ucfirst($key) . '">
 								<div class="icon" ></div>
-								<div class="value">'.$value.'</div>
+								<div class="value">' . $value . '</div>
 							</td>';
 						}
 						$i++;
