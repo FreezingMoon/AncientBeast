@@ -102,6 +102,8 @@ var UI = Class.create({
 	*
 	*/
 	showCreature: function(creatureType,player){
+		if(!this.$dash.hasClass("active")) this.toggleDash();
+
 		if(player != G.UI.selectedPlayer){this.changePlayerTab(player);}
 
 		this.$grid.children(".vignette").removeClass("active")
@@ -110,8 +112,33 @@ var UI = Class.create({
 		this.selectedCreature = creatureType;
 
 		var stats = G.retreiveCreatureStats(creatureType);
-		//TODO Show card
-		this.$dash.children("#cardwrapper").text(stats)
+
+		//TODO card animation
+		if( $j.inArray(creatureType, G.players[player].availableCreatures)>0 ){
+			//If creature is available
+
+			//Recto
+			$j("#card .card.recto").css({"background-image":"url('../bestiary/"+stats.name+"/artwork.jpg')"});
+			$j("#card .card.recto .section.infos").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
+			$j("#card .card.recto .type").text(stats.type);
+			$j("#card .card.recto .name").text(stats.name);
+			$j("#card .card.recto .hexs").text(stats.size+"H");
+
+			//Verso
+			$j.each(stats.stats,function(key,value){
+				$j("#card .card.verso ."+key+" .value").text(value);
+			});
+			$j.each(abilities[stats.type],function(key,value){
+				$ability = $j("#card .card.verso .abilities .ability:eq("+key+")");
+				$ability.children('.icon').css({"background-image":"url('../bestiary/"+stats.name+"/"+key+".svg')"});
+				$ability.children(".wrapper").children(".infos").children("h3").text(value.title);
+				$ability.children(".wrapper").children(".infos").children(".desc").text(value.desc);
+			});
+
+		}else{
+			//TODO Locked card
+			//$j("#card").text("Locked");
+		}
 	},
 
 
@@ -319,6 +346,9 @@ var UI = Class.create({
 						this.$display.removeClass("ghosted");
 					}
 				});
+			}).bind("click",function(){ //Show dash on click
+				var creaID = $j(this).attr("creatureid")-0;
+				G.UI.showCreature(G.creatures[creaID].type,G.creatures[creaID].team);
 			});
 
 			u++;

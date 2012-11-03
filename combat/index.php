@@ -107,6 +107,7 @@ function db_query($query) {
 		<script type="text/javascript" src="../bestiary/Magma Spawn/abilities.js"></script>		
 		<script type="text/javascript" src="../bestiary/Dark Priest/abilities.js"></script>
 		<script type="text/javascript" src="../bestiary/Impaler/abilities.js"></script>
+		<script type="text/javascript" src="../bestiary/Snow Bunny/abilities.js"></script>
 
 		<!--google analytics-->	
 		<script type="text/javascript">

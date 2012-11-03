@@ -23,6 +23,8 @@
 -->
 
 <style>
+.card table{border: none;}
+
 .card {
 	width: 430px;
 	height: 550px;
@@ -33,7 +35,8 @@
 .section.cardborder{
 	background-image: url('<?php echo $site_root; ?>images/cards/margin.png');
 	border:0px; 
-	width:430px; 
+	width:430px;
+	display: block;
 	height:550px;
 }
 .section {
@@ -147,22 +150,45 @@
 .abilities {
 	vertical-align: top;
 	text-align: left;
-	margin-top:-10px; 
-	margin-bottom:-10px;
+	padding: 0 5px;
+	margin: 0px 0px -5px 0px;
+	border: none;
+	width: 390px;
 }
 
 .abilities h3{ font-size: 16px; margin: 0; text-decoration: underline;}
 
+.abilities .icon{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+
 .abilities .icon,.contour{
+	display: inline-block;
 	background-size: 100% 100%;
-	width:99px;
-	height:99px;
+	width:100px;
+	height:100px;
 	background-image:  url('<?php echo $site_root; ?>images/missing.png')
 }
 
 .abilities .icon .contour{
 	background-image: url('<?php echo $site_root; ?>images/contour.png');
 }
+
+.ability{position: relative;}
+
+.abilities .ability .wrapper{
+	display: table-cell; 
+	vertical-align: middle;
+	height: 100px;
+	padding-left: 100px;
+}
+
+.abilities .ability .infos{
+	display: inline-block;
+}
+
 
 .numbers {
 	font-size: 12px;
@@ -200,18 +226,18 @@ function cards($r = "", $id = -1) { //Print a card
 <center>
 	<table border=0>
 		<th class="card recto" style="background-image: url(\''.$site_root.'bestiary/'.$r['name'].'/artwork.jpg\');">
-			<div class="section cardborder">
+			<a href="#'.$spaceless.'" class="section cardborder">
 				<div class="embed">'.$r['embed'].'</div>
 				<table class="section infos sin'.$r['sin'].'">
 					<tr>
-						<td width="20%">'.$r['sin'].$r['lvl'].'</td>
+						<td class="type" width="20%">'.$r['sin'].$r['lvl'].'</td>
 						<td><audio src="'.$r['name'].'/'.$r['name'].'.ogg" id="'.$r['name'].'_shout" style="display:none;" preload="auto"></audio>
-							<a onClick="CallCreature("' . $r['name'] . '_shout");" >'.$r['name'].'</a>
+							<a class="name" onClick="CallCreature("' . $r['name'] . '_shout");" >'.$r['name'].'</a>
 						</td>
-						<td width="20%">'.$r['hex'].'H</td>
+						<td class="hexs" width="20%">'.$r['hex'].'H</td>
 					</tr>
 				</table>
-			</div>
+			</a>
 		</th>
 		<th class="card verso sin'.$r['sin'].'">
 			<div class="section cardborder">
@@ -232,25 +258,27 @@ function cards($r = "", $id = -1) { //Print a card
 					echo '
 					</tr>
 				</table>
-				<table class="section abilities">';
+				<div class="section abilities">';
 
 			  	//Display Abilities
 				$abilities = array('passive', 'weak', 'medium', 'strong');
 				for ($i=0; $i < 4; $i++) { 
 				 	# code...
 					echo '
-					<tr>
-						<td class="icon" style="background-image: url(\''.$site_root.'bestiary/'.$r["name"].'/'.$i.'.svg\');">
+					<div class="ability">
+						<div class="icon" style="background-image: url(\''.$site_root.'bestiary/'.$r["name"].'/'.$i.'.svg\');">
 							<div class="contour"></div>
-						</td>
-						<td>
-							<h3>'.$r[$abilities[$i]].'</h3>
-							<span class="desc">'.$r[$abilities[$i]." info"].'</span>
-						</td>
-					</tr>';
+						</div>
+						<div class="wrapper">
+							<div class="infos">
+								<h3>'.$r[$abilities[$i]].'</h3>
+								<span class="desc">'.$r[$abilities[$i]." info"].'</span>
+							</div>
+						</div>
+					</div>';
 				}
 				echo '
-				</table>
+				</div>
 				<table class="section">
 					<tr class="numbers">';
 					//Display Masteries Numbers

@@ -278,21 +278,20 @@ div.row:nth-child(9){top:38.944em;}
 
 /*-----Snow Bunny----*/
 #creatureWrapper .creature.type_S1{ 
-	width: 135px;
-	height: 95px;
-	margin-top: 0px;
+	width: 95px;
+	height: 125px;
+	margin-top: -80px;
 	padding: 0px 0px 10px;
-	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
+	-webkit-transform: rotateX(-33deg) scale(1,1.8);
 	-webkit-transform-origin:65% 100%;
-	-moz-transform: rotateX(-33deg) scale(.75,1.35);
+	-moz-transform: rotateX(-33deg) scale(1,1.8);
 	-moz-transform-origin:65% 100%;
-
 	background: url("../../bestiary/Snow Bunny/cardboard.png");
 }
 #creatureWrapper div.creature.fliped.type_S1{ 
-	-webkit-transform: rotateX(-33deg) scale(-.75,1.35); 
+	-webkit-transform: rotateX(-33deg) scale(-1,1.8); 
 	-webkit-transform-origin:48% 100%; 
-	-moz-transform: rotateX(-33deg) scale(-.75,1.35); 
+	-moz-transform: rotateX(-33deg) scale(-1,1.8); 
 	-moz-transform-origin:48% 100%; 
 }
 
@@ -479,8 +478,8 @@ div.row:nth-child(9){top:38.944em;}
 .selected3 .playertabs.p3{background-color: rgba(0,255,0,.5);}
 
 #creaturegridwrapper{
-	top: 75px;
-	right: 0px;
+	top: 100px;
+	left: 0px;
 	bottom: 0px;
 	width: 50%;
 	position: absolute;
@@ -490,8 +489,8 @@ div.row:nth-child(9){top:38.944em;}
 }
 
 #cardwrapper{
-	top: 75px;
-	left: 0px;
+	top: 100px;
+	right: 0px;
 	bottom: 0px;
 	width: 50%;
 	position: absolute;

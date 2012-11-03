@@ -75,7 +75,7 @@ var Game = Class.create({
 		//Get JSON files
 		var i = 0;
 		this.availableCreatures.each(function(){
-			$j.getJSON("./creatures_datas/datas.php?id="+this, function(data) {
+			$j.getJSON("./datas.php?id="+this, function(data) {
 				G.creatureDatas.push(data);
 				i++;
 				if(i==G.availableCreatures.length){ //If all creature are loaded
