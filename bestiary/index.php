@@ -39,24 +39,31 @@ $creature_results = db_query($creatures);
 function progress($r) {
 		$sum = 0;
 		echo "
-<center>
-	<div style='width:825px; background-image:url(../images/progress/widget.png);'>
+
+<div class='center' style='width:825px; background-image:url(../images/progress/widget.png);'>
 		<a href='http://www.wuala.com/AncientBeast/bestiary/".$r["name"]."' target='_blank'>";
-			$i = 0;
-			foreach($r as $key => $value) {
-				if($i++ < 32) continue; //Ignore Other keys
-				$sum += $value;
-				$title = ucfirst($key) . ": $value% complete";
-				echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title'>";
-			}
-			$total = $sum / 10;
-			$rounded_total = 10 * round ($total/10) ;
-			echo "<img src='../images/progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed'>
-		</a>
-	</div>
-</center>";
+		$i = 0;
+		foreach($r as $key => $value) {
+			if($i++ < 32) continue; //Ignore Other keys
+			$sum += $value;
+			$title = ucfirst($key) . ": $value% complete";
+			echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title'>";
+		}
+		$total = $sum / 10;
+		$rounded_total = 10 * round ($total/10) ;
+		echo "<img src='../images/progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed'>
+	</a>
+</div>";
 
 }
+
+//navigation bar
+//TODO
+//start_segment();
+//echo '<nav>Modes: Normal | List | Versus - Log-in to purchase creatures. || You own x out of 50 creatures. - View: 2D/3D - SketchFab gallery</nav>';
+//end_segment();
+//get link php variable
+//if normal, list or versus...
 
 //grid view
 echo '<style type="text/css">
@@ -85,7 +92,7 @@ foreach ($creature_results as $r) {
 }
 
 start_segment();
-echo '<center>Please let us know your top 3 favorite creatures by commenting below. Any other feedback also welcomed!</center>';
+echo '<div class="center">Please let us know your top 3 favorite creatures by commenting below. Any other feedback also welcomed!</div>';
 separate_segment();
 include('../utils/disqus.php');
 end_segment();
