@@ -13,7 +13,7 @@ function creatureGrid($creature_results=false)
 echo '<style type="text/css">';
 
 	foreach ($creature_results as $r) {
-		if ($r['id'] == 0 ) { continue; } //Ignore Darkpreist
+		if ($r['id'] == 0 ) { continue; } //Ignore Dark Priest
 		echo '.vignette.type' .$r['sin'].$r['lvl']. '{background-image: url("' .$site_root. 'bestiary/' .$r["name"]. '/avatar.jpg");}';
 	}
 
@@ -26,7 +26,7 @@ echo '<style type="text/css">';
 	echo '</style><div id="creaturegrid">';
 
 	foreach ($creature_results as $r) {
-		if ($r['id'] == 0 || $r['id'] == 50) { //Ignore Darkpreist and shadow leech
+		if ($r['id'] == 0 || $r['id'] == 50) { //Ignore Dark Priest and Shadow Leech
 			continue;
 		}
 		$spaceless = str_replace(' ', '_', $r['name']);
