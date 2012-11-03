@@ -41,7 +41,7 @@ function progress($r) {
 		echo "
 <center>
 	<div style='width:825px; background-image:url(../images/progress/widget.png);'>
-		<a href='http://www.wuala.com/AncientBeast/bestiary/$ab_name' target='_blank'>";
+		<a href='http://www.wuala.com/AncientBeast/bestiary/".$r["name"]."' target='_blank'>";
 			$i = 0;
 			foreach($r as $key => $value) {
 				if($i++ < 32) continue; //Ignore Other keys
