@@ -30,14 +30,14 @@
 	height: 550px;
 	background-repeat: no-repeat;
 	cursor: default;
-	background-position:center;
+	background-position: center;
 }
 .section.cardborder{
 	background-image: url('<?php echo $site_root; ?>images/cards/margin.png');
-	border:0px; 
-	width:430px;
+	border: 0px; 
+	width: 430px;
 	display: block;
-	height:550px;
+	height: 550px;
 }
 .section {
 	color: #fff;
@@ -49,21 +49,21 @@
 	font-size: 16px;
 }
 .embed{
-	position:absolute; 
+	position: absolute; 
 	margin: 15px 0 0 15px;
 }
 
 .recto .infos{
-	background:rgba(0,0,0,0.7); 
-	border-radius:15px; 
-	border:4px ridge; 
-	position:relative; 
-	top:495px; 
-	left:15px;
+	background: rgba(0,0,0,0.7); 
+	border-radius: 15px; 
+	border: 4px ridge; 
+	position: relative; 
+	top: 495px; 
+	left: 15px;
 }
 .recto .infos tr{ 
-	font-size:24px; 
-	text-align:center; 
+	font-size: 24px; 
+	text-align: center; 
 	
 }
 .recto .infos.sin-{border-color: grey;}
@@ -93,7 +93,7 @@
 .verso.sinP{ background-image: url('<?php echo $site_root; ?>images/cards/P.jpg'); }
 .verso.sinS{ background-image: url('<?php echo $site_root; ?>images/cards/S.jpg'); }
 .verso.sinW{ background-image: url('<?php echo $site_root; ?>images/cards/W.jpg'); }
-.verso{ background-position:center; margin: 0 0 0 15px; }
+.verso{ background-position: center; margin: 0 0 0 15px; }
 
 .verso .cardborder{
 	width: 400px; 
@@ -167,8 +167,8 @@
 .abilities .icon,.contour{
 	display: inline-block;
 	background-size: 100% 100%;
-	width:100px;
-	height:100px;
+	width: 100px;
+	height: 100px;
 	background-image:  url('<?php echo $site_root; ?>images/missing.png')
 }
 
