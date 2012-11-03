@@ -49,9 +49,9 @@ var Creature = Class.create({
 		this.y 			= obj.y - 0;
 		this.pos 		= {x:this.x, y:this.y};
 		this.size 		= obj.size;
-		this.type 		= obj.type; //Wich creature it is
-		this.lvl 		= obj.lvl; //Wich creature it is
-		this.realm 		= obj.realm; //Wich creature it is
+		this.type 		= obj.type; //Which creature it is
+		this.lvl 		= obj.lvl; //Which creature it is
+		this.realm 		= obj.realm; //Which creature it is
 
 
 		this.hexagons 	= [];
