@@ -101,51 +101,7 @@
 	padding: 15px;
 }
 
-.icon{
-	height: 32px;
-	width: 32px;
-	display: inline-block;
-}
 
-.health .icon{ background-image: url('<?php echo $site_root; ?>images/stats/health.png'); }
-.regrowth .icon{ background-image: url('<?php echo $site_root; ?>images/stats/regrowth.png'); }
-.fatigue .icon{ background-image: url('<?php echo $site_root; ?>images/stats/fatigue.png'); }
-.energy .icon{ background-image: url('<?php echo $site_root; ?>images/stats/energy.png'); }
-.meditation .icon{ background-image: url('<?php echo $site_root; ?>images/stats/meditation.png'); }
-.initiative .icon{ background-image: url('<?php echo $site_root; ?>images/stats/initiative.png'); }
-.offense .icon{ background-image: url('<?php echo $site_root; ?>images/stats/offense.png'); }
-.defense .icon{ background-image: url('<?php echo $site_root; ?>images/stats/defense.png'); }
-.movement .icon{ background-image: url('<?php echo $site_root; ?>images/stats/movement.png'); }
-
-.pierce .icon{ background-image: url('<?php echo $site_root; ?>images/stats/pierce.png'); }
-.slash .icon{ background-image: url('<?php echo $site_root; ?>images/stats/slash.png'); }
-.crush .icon{ background-image: url('<?php echo $site_root; ?>images/stats/crush.png'); }
-.shock .icon{ background-image: url('<?php echo $site_root; ?>images/stats/shock.png'); }
-.burn .icon{ background-image: url('<?php echo $site_root; ?>images/stats/burn.png'); }
-.frost .icon{ background-image: url('<?php echo $site_root; ?>images/stats/frost.png'); }
-.poison .icon{ background-image: url('<?php echo $site_root; ?>images/stats/poison.png'); }
-.sonic .icon{ background-image: url('<?php echo $site_root; ?>images/stats/sonic.png'); }
-.mental .icon{ background-image: url('<?php echo $site_root; ?>images/stats/mental.png'); }
-
-.health:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/health.gif'); }
-.regrowth:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/regrowth.gif'); }
-.fatigue:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/fatigue.gif'); }
-.energy:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/energy.gif'); }
-.meditation:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/meditation.gif'); }
-.initiative:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/initiative.gif'); }
-.offense:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/offense.gif'); }
-.defense:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/defense.gif'); }
-.movement:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/movement.gif'); }
-
-.pierce:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/pierce.gif'); }
-.slash:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/slash.gif'); }
-.crush:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/crush.gif'); }
-.shock:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/shock.gif'); }
-.burn:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/burn.gif'); }
-.frost:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/frost.gif'); }
-.poison:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/poison.gif'); }
-.sonic:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/sonic.gif'); }
-.mental:hover .icon{ background-image: url('<?php echo $site_root; ?>images/stats/mental.gif'); }
 
 .abilities {
 	vertical-align: top;
@@ -246,13 +202,7 @@ function cards($r = "", $id = -1) { //Print a card
 					//Display Stats Numbers
 					$i=0;
 					foreach ($r as $key => $value) {
-					 	if( $i > 5 &&  $i < 15) {
-							echo '
-							<td class="' . $key . '" title="' . ucfirst($key) . '">
-								<div class="icon"></div>
-								<div class="value">' . $value . '</div>
-							</td>';
-						}
+					 	if( $i > 5 &&  $i < 15) { displayStat($key,$value); }
 						$i++;
 					}
 					echo '
@@ -284,13 +234,7 @@ function cards($r = "", $id = -1) { //Print a card
 					//Display Masteries Numbers
 					$i=0;
 					foreach ($r as $key => $value) {
-					 	if( $i > 14 &&  $i < 24) {
-							echo '
-							<td class="' . $key . '" title="' . ucfirst($key) . '">
-								<div class="icon" ></div>
-								<div class="value">' . $value . '</div>
-							</td>';
-						}
+					 	if( $i > 14 &&  $i < 24) { displayStat($key,$value); }
 						$i++;
 					}
 					echo '

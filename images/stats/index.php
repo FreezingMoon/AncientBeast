@@ -23,6 +23,7 @@
  */
 
 $stats = db_query("SELECT column_name FROM information_schema.columns WHERE table_name = 'ab_stats' AND column_name != 'id'");
+
 foreach ($stats as $key => $x) {
 	foreach ($x as $v) $stats[$key] = $v;
 	$stats[$stats[$key]] = '<img src="../images/stats/' . $stats[$key] . '.png" height="32" width="32" title="' . ucfirst($stats[$key]) . '" onMouseOver="swap(this,\'mouseover_' . $stats[$key] . '\')" onMouseOut="swap(this,\'normal_' . $stats[$key] . '\')">'."\n";
@@ -36,7 +37,40 @@ foreach ($stats as $x) {
 	$counter++;
 }
 
+function displayStat($type = "health", $value = 0, $link = ""){
+	
+	echo '<td class="stats ' . $type . '" title="' . ucfirst($type) . '">';
+		if($link != "") echo '
+			<a href="' . $link . '">';
+		echo '
+				<div class="icon" ></div>
+				<div class="value">' . $value . '</div>';
+		if($link != "") echo '
+			</a>';
+	echo '</td>';
+}
+
+
 ?>
+<style type="text/css">
+.icon{
+	height: 32px;
+	width: 32px;
+	display: inline-block;
+}
+
+.stats{ text-align: center;}
+
+<?php 
+foreach ($stats as $key => $value) {
+	echo "
+	." .$key. " .icon{ background-image: url('" .$site_root. "images/stats/" .$key. ".png'); }
+	." .$key. ":hover .icon{ background-image: url('" .$site_root. "images/stats/" .$key. ".gif'); }
+	";
+}
+?>
+</style>
+
 <!--roll over image script-->
 <script type="application/javascript">
 var icons = new Array(

@@ -86,7 +86,7 @@ for($r = 0; $r < count($itemStats); $r++){
 start_segment();
 echo "<table style='width: 100%;'><tr>";
 foreach($stats as $k => $x)
-	echo "<th style='text-align:center;'><a href='{$site_root}items/index.php?filter=$k'>$x<br>{$statCount[$k]}</a></th>";
+	displayStat($k,$statCount[$k],"{$site_root}items/index.php?filter=$k");
 echo "</tr></table>";
 
 separate_segment();
@@ -114,18 +114,9 @@ foreach ($rows as $r) {
 	echo "<td style='width: 20%;'><a href='#'>Purchase<img src='{$site_root}items/purchase.png'></a></td>";
 	echo "</tr></table><br><table style='text-align:center;'><tr>";
 
-	//ICONS from $rows[$r]['keys']
- 	for ($i=0; $i <count($r['keys']); $i++) {
-		if($r['stats'][$r['keys'][$i]])
-			echo "<th style='padding:4px;'>".$stats[$r['keys'][$i]]."</th>";
-  }
-  echo "</tr><tr>";
-
-	//stats from $rows[$r]['keys']
- 	for ($i=0; $i <count($r['stats']); $i++) {
-		if($r['stats'][$r['keys'][$i]])
-			echo "<td>".$r['stats'][$r['keys'][$i]]."</td>";
-  }
+	foreach ($r['stats'] as $key => $value) {
+		if($value) displayStat($key,$value);
+	}
 
 	echo "</tr></table></td></tr></table>";
 	end_segment();
@@ -136,3 +127,6 @@ include("../utils/disqus.php");
 end_segment();
 end_page();
 ?>
+<style type="text/css">
+.stats{ padding: 0 4px; }
+</style>
