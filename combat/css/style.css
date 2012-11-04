@@ -413,8 +413,32 @@ div.row:nth-child(9){top:38.944em;}
 #end{ background-image: url('../icons/end.svg'); }
 #delay{ background-image: url('../icons/skip.svg'); }
 #surrender{ background-image: url('../icons/surrender.svg'); }
-#toggledash{ z-index: 4; right: 0px !important; position: fixed;	height: 100px; width: 100px; background-image: url('../icons/overview.svg'); }
-#toggledash.button:before{ height: 100px; width: 100px;}
+#playerbutton{
+	z-index: 2; 
+	right: 0px; 
+	position: fixed; 
+	cursor: pointer; 
+}
+
+#playerinfos{
+	z-index: 2;
+	right: 100px;
+	top: 0px;
+	position: fixed;
+	display: block;
+	height: 74px;
+	width: 150px;
+	background: rgba(0,0,0,.8);
+	border: 1px solid grey;
+	padding: 2px 7px;
+	font-size: 14px;
+	font-weight: bold;
+	color: white;
+	text-align: right;
+}
+
+#playerinfos p{margin: 4px;}
+#playerinfos .name{}
 
 /*-------------------dash-------------------*/
 
@@ -452,6 +476,17 @@ div.row:nth-child(9){top:38.944em;}
 	top: 0px;
 	bottom: 0px;
 }
+
+#dash #return{
+	top: 0px;
+	right: 0px !important; 
+	position: absolute;
+	height: 100px; 
+	width: 100px; 
+	background-image: url('../icons/combat.svg'); 
+}
+
+#return.button:before{ height: 100px; width: 100px;}
 
 #playertabswrapper{ 
 	position: absolute; 
@@ -530,8 +565,8 @@ div.row:nth-child(9){top:38.944em;}
 	display: inline-block;
 }
 
-#queue .vignette,
-#queue .vignette div{
+.vignette,
+.vignette div{
 	overflow: hidden;
 	vertical-align: top;
 	display: inline-block;
@@ -545,7 +580,7 @@ div.row:nth-child(9){top:38.944em;}
 	-o-transition: width 500ms,height 500ms; /* Opera */
 }
 
-#queue .vignette.active,#queue .vignette.active div{
+.vignette.active,.vignette.active div{
 	height: 100px;
 	width: 100px;
 }
@@ -608,7 +643,7 @@ div.row:nth-child(9){top:38.944em;}
 	width: 0px;
 	left: 80px;
 	color: white;
-	background: black;
+	background: rgba(0,0,0,.8);
 	overflow: hidden;
 }
 

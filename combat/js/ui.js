@@ -35,8 +35,7 @@ var UI = Class.create({
 		this.$grid = $j("#creaturegrid");
 
 		//Dash button
-		this.$button = $j("#toggledash.button");
-		this.$button.bind('click',function(e){ G.UI.toggleDash() });
+		$j(".toggledash").bind('click',function(e){ G.UI.toggleDash() });
 
 		//End turn button
 		this.$button = $j("#end.button");
@@ -130,7 +129,7 @@ var UI = Class.create({
 		var stats = G.retreiveCreatureStats(creatureType);
 
 		//TODO card animation
-		if( $j.inArray(creatureType, G.players[player].availableCreatures)>0 ){
+		if( $j.inArray(creatureType, G.players[player].availableCreatures)>0 || creatureType=="--"){
 			//If creature is available
 
 			//Recto
@@ -214,7 +213,7 @@ var UI = Class.create({
 		this.changePlayerTab(G.activeCreature.team);
 
 		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click',function(e){
-			G.UI.changePlayerTab($j(this).attr("player")-0);
+			G.UI.showCreature("--",$j(this).attr("player")-0);
 		});
 
 		//Change player infos
@@ -232,6 +231,11 @@ var UI = Class.create({
 	*
 	*/
 	updateActivebox: function(){
+		$j("#playerbutton").removeClass("p0 p1 p2 p3")
+		.addClass("type-- p"+G.activeCreature.player.id)
+		$j("#playerinfos .name").text(G.activeCreature.player.name);
+		$j("#playerinfos .points span").text(G.activeCreature.player.getScore());
+		$j("#playerinfos .plasma span").text(G.activeCreature.player.plasma);
 
 		var $abilitiesButtons = G.UI.$activebox.children("#abilities").children(".ability");
 		$abilitiesButtons.unbind("click");

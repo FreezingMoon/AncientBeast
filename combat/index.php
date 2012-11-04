@@ -138,6 +138,7 @@ function db_query($query) {
 		</div>
 		<div id="ui" style="display:none;">
 			<div id="dash" class="selected0">
+				<div id="return" class="toggledash button"></div>
 				<div id="tooltip"></div>
 				<div id="playertabswrapper">
 					<div class="playertabs p0"  player="0">Player1<p class="plasma">Plasma 0</p>
@@ -154,10 +155,15 @@ function db_query($query) {
 						creatureGrid(false);
 						?></div>
 			</div>
-			<div id="toggledash" class="button"></div>
 			<div id="toppanel">
 				<div id="queue">
 					<div id="queuewrapper"></div>
+				</div>
+				<div id="playerbutton" class="toggledash vignette active"><div></div></div>
+				<div id="playerinfos">
+					<p class="name"></p>
+					<p class="points"><span></span> Points</p>
+					<p class="plasma"><span></span> Plasma</p>
 				</div>
 				<div id="rightpanel">
 					<div id="end" class="button"></div>

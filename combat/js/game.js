@@ -342,6 +342,7 @@ var Player = Class.create({
 		this.id = id;
 		this.creatures = [];
 		this.name = "Player"+(id+1);
+		this.score = [];
 		this.plasma = 50;
 		this.fliped = !!(id%2); //Convert odd/even to true/false
 		this.availableCreatures = G.availableCreatures;
@@ -374,6 +375,18 @@ var Player = Class.create({
 		if(window.confirm("Are you sure you want to surrender?")){
 			G.endGame();
 		}
+	},
+
+
+	/*	getScore()
+	*
+	*	return : 	Integer : 	The current score of the player
+	*
+	*	Return the total of the score events.
+	*/
+	getScore: function(){
+		var total = 0;
+		return 0;
 	},
 
 });
