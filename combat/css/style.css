@@ -573,6 +573,7 @@ div.row:nth-child(9){top:38.944em;}
 	height: 80px;
 	width: 80px;
 	background-size: 100% 100%;
+	cursor: pointer;
 
 	transition: width 500ms,height 500ms;
 	-moz-transition: width 500ms,height 500ms; /* Firefox 4 */
