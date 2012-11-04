@@ -115,7 +115,7 @@ var HexGrid = Class.create({
 	*	ignoreObstacle : 	Boolean : 	Ignore obstacle like creatures. (for flying creatures or distant attacks) NOTE : bypassed if includeCreature > 0
 	*	includeCreature : 	Integer : 	Include hexs containing creature: 0 = no , 1 = yes , 2 = only hexs containing creatures
 	*/
-	queryHexs: function(fnOnClick,fnOnMouseover,fnOnCancel,fnOnConfirm,fnOptTest,args,ignoreObstacle,includeCreature,x,y,distance,id,size,exclude,fliped){ 
+	queryHexs: function(fnOnClick,fnOnMouseover,fnOnCancel,fnOnConfirm,fnOptTest,args,ignoreObstacle,includeCreature,x,y,distance,id,size,exclude,flipped){ 
 		
 		G.grid.lastClickedtHex = [];
 
@@ -226,8 +226,8 @@ var HexGrid = Class.create({
 			var y = $j(this).attr("y")-0;
 
 			//Offset Pos
-			var offset = (fliped) ? size-1 : 0 ;
-			var mult = (fliped) ? 1 : -1 ; //For FLIPED player
+			var offset = (flipped) ? size-1 : 0 ;
+			var mult = (flipped) ? 1 : -1 ; //For FLIPPED player
 
 			for (var i = 0; i < size; i++) {	//try next hexagons to see if they fits
 				if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
@@ -256,8 +256,8 @@ var HexGrid = Class.create({
 			var y = $j(this).attr("y")-0;
 
 			//Offset Pos
-			var offset = (fliped) ? size-1 : 0 ;
-			var mult = (fliped) ? 1 : -1 ; //For FLIPED player
+			var offset = (flipped) ? size-1 : 0 ;
+			var mult = (flipped) ? 1 : -1 ; //For FLIPPED player
 
 			for (var i = 0; i < size; i++) {	//try next hexagons to see if they fits
 				if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
@@ -266,7 +266,7 @@ var HexGrid = Class.create({
 					break; 
 				}
 			};
-			
+
 			fnOnMouseover(G.grid.hexs[y][x],args);
 		});
 

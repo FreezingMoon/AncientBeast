@@ -81,7 +81,7 @@ var Creature = Class.create({
 
 		this.$display.css(this.hexagons[this.size-1].displayPos); //translate to its real position
 		this.$display.css("z-index",this.y);
-		if(this.team%2 == 1) this.$display.addClass("fliped");
+		if(this.player.flipped) this.$display.addClass("flipped");
 
 
 		//Adding Himself to creature arrays and queue
@@ -167,8 +167,8 @@ var Creature = Class.create({
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		G.grid.queryHexs(
-			this.tracePath,
-			this.previewPosition,
+			function(hex,creature){ creature.tracePath(hex); },
+			function(hex,creature){ creature.previewPosition(hex); },
 			function(){ 
 				G.log("You can't do this."); 
 				G.grid.cleanDisplay("adj"); //In case of skip turn
@@ -176,35 +176,38 @@ var Creature = Class.create({
 				G.grid.updateDisplay(); //Retrace players creatures
 
 			},
-			this.moveTo,
+			function(hex,creature){ creature.moveTo(hex,function(){
+					//Callback
+					G.activeCreature.queryMove();
+				}); 
+			},
 			function(){return true;}, //Optional test return true (no test)
-			null,
+			this, //Optional args
 			false, //true for flying creatures
 			false,
 			this.x,this.y,
 			this.remainingMove,
 			this.id,
 			this.size,
-			[]
+			[],
+			this.player.flipped
 		);
 	},
 
 
 	/* 	previewPosition(hex)
 	*
-	*	hex : 	Hex : 	Position
+	*	hex : 		Hex : 		Position
 	*
 	*	Preview the creature position at the given Hex
 	*
 	*/
 	previewPosition: function(hex){
-		var x = hex.x;
-		var y = hex.y;
-		G.grid.cleanOverlay("hover h_player"+G.activeCreature.team);
-		var pos = G.activeCreature.calcOffset(x,y);
-		if(!G.grid.hexs[pos.y][pos.x].isWalkable(G.activeCreature.size,G.activeCreature.id)) return; //break if not walkable
-		for (var i = 0; i < G.activeCreature.size; i++) {
-			G.grid.hexs[pos.y][pos.x-i].$overlay.addClass("hover h_player"+G.activeCreature.team);
+		var crea = this;
+		G.grid.cleanOverlay("hover h_player"+crea.team);
+		if(!G.grid.hexs[hex.y][hex.x].isWalkable(crea.size,crea.id)) return; //break if not walkable
+		for (var i = 0; i < crea.size; i++) {
+			G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("hover h_player"+crea.team);
 		}
 	},
 
@@ -244,41 +247,79 @@ var Creature = Class.create({
 
 	/* 	moveTo(hex)
 	*
-	*	hex : 	Hex : 	Destination Hex
+	*	hex : 		Hex : 		Destination Hex
+	*	callback : 	Function : 	Callback function called after moving
 	*
 	* 	Move the creature along a calculated path to the given coordinates
 	*
 	*/
-	moveTo: function(hex){
+	moveTo: function(hex,callback){
+		var creature = this;
 		var x = hex.x;
 		var y = hex.y;
-		var path = G.activeCreature.calculatePath(x,y);
+		var path = creature.calculatePath(x,y);
 
 		G.grid.cleanDisplay("adj"); //Clean previous path
 		G.grid.cleanOverlay("hover h_player"+this.team); //Clear path display and creature position preview
 		if( path.length == 0 ) return; //Break if empty path
 
-		G.activeCreature.remainingMove -= path.length;
+		creature.remainingMove -= path.length;
 
-		var creature = G.activeCreature; //Escape Jquery namespace
 		var pos = path[path.length-1].pos;
 
-		G.activeCreature.cleanHex();
-		G.activeCreature.x 		= pos.x - 0;
-		G.activeCreature.y 		= pos.y - 0;
-		G.activeCreature.pos 	= pos;
-		G.activeCreature.updateHex();
+		var currentHex = G.grid.hexs[creature.y][creature.x]; //Used further ahead to determine facing
 
-		//Translate creature with jquery animation
-		path.each(function(){
-			var nextHex = G.grid.hexs[this.y][this.x-creature.size+1];
-			creature.$display.animate(nextHex.displayPos,500,"linear",function(){
-				//Callback function set the proper z-index;
-				creature.$display.css("z-index",nextHex.y);
-			});
+		creature.cleanHex();
+		creature.x 		= pos.x - 0;
+		creature.y 		= pos.y - 0;
+		creature.pos 	= pos;
+		creature.updateHex();
+
+		//Determine facing
+		var nextHex = path[0];
+		if(currentHex.y%2==0){
+			var flipped = ( nextHex.x <= currentHex.x );
+		}else{
+			var flipped = ( nextHex.x+1 <= currentHex.x );
+		}
+		creature.$display.animate({'margin-right':0},0,"linear",function(){ //To stack with other transforms
+			creature.$display.removeClass("flipped");
+			if(flipped) creature.$display.addClass("flipped");
 		})
 
-		G.activeCreature.queryMove();
+		
+		//TODO turn around animation
+
+		//Translate creature with jquery animation
+		var hexId = 0;
+		path.each(function(){
+			var nextPos = G.grid.hexs[this.y][this.x-creature.size+1];
+			var thisHexId = hexId;
+
+			creature.$display.animate(nextPos.displayPos,500,"linear",function(){
+				creature.$display.removeClass("flipped");
+				if( thisHexId < path.length-1 ){
+					//Determine facing
+					currentHex = path[thisHexId];
+					nextHex = path[thisHexId+1];
+					if(currentHex.y%2==0){
+						var flipped = ( nextHex.x <= currentHex.x );
+					}else{
+						var flipped = ( nextHex.x+1 <= currentHex.x );
+					}
+					if(flipped) creature.$display.addClass("flipped");
+				}else{
+					//TODO turn around animation
+					if(creature.player.flipped) creature.$display.addClass("flipped");
+				}
+
+				//Callback function set the proper z-index;
+				creature.$display.css("z-index",nextPos.y);
+			});
+			hexId++;
+		})
+
+		callback();
 	},
 
 
@@ -290,11 +331,11 @@ var Creature = Class.create({
 	*
 	*/
 	tracePath: function(hex){
+		var creature = this;
+
 		var x = hex.x;
 		var y = hex.y;
-		var path = G.activeCreature.calculatePath(x,y); //Store path in grid to be able to compare it later
-
-		var creature = G.activeCreature;
+		var path = creature.calculatePath(x,y); //Store path in grid to be able to compare it later
 
 		G.grid.cleanDisplay("adj"); //Clean previous path
 		G.grid.cleanOverlay("creature selected player"+creature.team); //Clean previous path
@@ -327,9 +368,9 @@ var Creature = Class.create({
 	*
 	*/
 	calculatePath: function(x,y){
-		var pos = this.calcOffset(x,y);
-		x = pos.x;
-		y = pos.y;
+		//var pos = this.calcOffset(x,y);
+		// x = pos.x;
+		// y = pos.y;
 		return astar.search(G.grid.hexs[this.y][this.x],G.grid.hexs[y][x],this.size,this.id); //calculate path
 	},
 
@@ -345,8 +386,8 @@ var Creature = Class.create({
 	*
 	*/
 	calcOffset: function(x,y){
-		var offset = (G.players[this.team].fliped) ? this.size-1 : 0 ;
-		var mult = (G.players[this.team].fliped) ? 1 : -1 ; //For FLIPED player
+		var offset = (G.players[this.team].flipped) ? this.size-1 : 0 ;
+		var mult = (G.players[this.team].flipped) ? 1 : -1 ; //For FLIPPED player
 		for (var i = 0; i < this.size; i++) {	//try next hexagons to see if they fits
 			if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
 			if(G.grid.hexs[y][x+offset-i*mult].isWalkable(this.size,this.id)){ 
@@ -360,11 +401,13 @@ var Creature = Class.create({
 
 	/* 	getInitiative(dist)
 	*
+	*	wait : 		Boolean : 	Take account of the hasWait attribute
+	*
 	*	return : 	Integer : 	Initiative value to order the queue
 	*
 	*/
-	getInitiative: function(){
-		return (this.stats.initiative*4-this.team)*1000/(1+this.hasWait)-this.id; //To avoid 2 identical initiative
+	getInitiative: function(wait){
+		return ((this.stats.initiative*4-this.team)+(1000*!(!!wait*!!this.hasWait)))*1000-this.id; //To avoid 2 identical initiative
 	},
 
 

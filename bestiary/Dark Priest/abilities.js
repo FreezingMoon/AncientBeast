@@ -155,7 +155,7 @@ abilities["--"] =[
 				var creature = args.creature;
 				var crea = G.retreiveCreatureStats(creature);
 
-				if (dpriest.player.fliped) {
+				if (dpriest.player.flipped) {
 					if( dpriest.y % 2 == 0 ){
 						var walkable = !( hex.x > dpriest.x );
 					}else{
@@ -170,7 +170,7 @@ abilities["--"] =[
 				}
 
 				for (var i = 0; i < crea.size; i++) {
-					var a = (dpriest.player.fliped)?-1:1;
+					var a = (dpriest.player.flipped)?-1:1;
 					if( (hex.x+a*i) >= 0 && (hex.x+a*i) < G.grid.hexs[hex.y].length ){ //if hex exists
 						walkable = walkable && ( !G.grid.hexs[hex.y][hex.x+a*i].blocked && (G.grid.hexs[hex.y][hex.x+a*i].creature==0) );
 					}
@@ -184,7 +184,6 @@ abilities["--"] =[
 				G.grid.cleanOverlay("creature selected player"+G.activeCreature.team);
 				G.grid.updateDisplay(); //Retrace players creatures
 				for (var i = 0; i < crea.size; i++) {
-					var a = (dpriest.player.fliped)?-1:1;
 					G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
 				}
 			};
@@ -197,7 +196,7 @@ abilities["--"] =[
 				}
 			};
 
-			var originx = (!dpriest.player.fliped) ? dpriest.x+crea.size-1 : dpriest.x;
+			var originx = (!dpriest.player.flipped) ? dpriest.x+crea.size-1 : dpriest.x;
 
 			excludedHexs.push(G.grid.hexs[dpriest.y][originx]);
 
@@ -215,7 +214,7 @@ abilities["--"] =[
 				0, //Creature ID
 				crea.size, //Size
 				excludedHexs, //Excluding hexs
-				dpriest.player.fliped //Fliped
+				dpriest.player.flipped //Flipped
 			);
 
 		};
@@ -282,7 +281,6 @@ abilities["--"] =[
 				G.grid.cleanOverlay("creature selected player"+G.activeCreature.team);
 				G.grid.updateDisplay(); //Retrace players creatures
 				for (var i = 0; i < crea.size; i++) {
-					var a = (dpriest.player.fliped)?-1:1;
 					G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
 				}
 			};
@@ -309,7 +307,7 @@ abilities["--"] =[
 				0, //Creature ID
 				crea.size, //Size
 				dpriest.hexagons, //Excluding hexs
-				dpriest.player.fliped //Fliped
+				dpriest.player.flipped //Flipped
 			);
 		};
 

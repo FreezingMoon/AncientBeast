@@ -335,7 +335,7 @@ var Player = Class.create({
 	*	id : 		Integer : 	Id of the player 0,1,2 or 3
 	* 	creature : 	Array : 	Array containing players creatures
 	*	plasma : 	Integer : 	Plasma amount for the player
-	*	fliped : 	Boolean : 	Player side of the battlefield (affects displayed creature)
+	*	flipped : 	Boolean : 	Player side of the battlefield (affects displayed creature)
 	*
 	*/
 	initialize: function(id){
@@ -344,7 +344,7 @@ var Player = Class.create({
 		this.name = "Player"+(id+1);
 		this.score = [];
 		this.plasma = 50;
-		this.fliped = !!(id%2); //Convert odd/even to true/false
+		this.flipped = !!(id%2); //Convert odd/even to true/false
 		this.availableCreatures = G.availableCreatures;
 	},
 

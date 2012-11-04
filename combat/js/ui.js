@@ -290,7 +290,8 @@ var UI = Class.create({
 		completeQueue = completeQueue.concat(G.delayQueue);
 
 		var u = 0;		
-		while( $vignettes.size() < 12 || //While queue does not contain enough vignette OR
+		while(	u < 2 || //Only display 2 queues 
+			//$vignettes.size() < 12 || //While queue does not contain enough vignette OR
 			u < $queues.size() ){ //not all queue has been verified
 			var queue = (u==0)? completeQueue : G.nextQueue ;
 
@@ -312,12 +313,14 @@ var UI = Class.create({
 			//For all element of this queue
 			for (var i = 0; i < queue.length; i++) {
 
+				var initiative =  queue[i].getInitiative( (u==0) );
+
 				//If this element doesnot exists
 				if($Q[i] == undefined){
 					if(i==0){
-						$j($queues[u]).append('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
+						$j($queues[u]).append('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
 					}else{
-						$j($Q[i-1]).after('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
+						$j($Q[i-1]).after('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
 					}
 					//Updating
 					var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
@@ -331,8 +334,8 @@ var UI = Class.create({
 					var $queues = this.$queue.children('.queue[turn]');
 				}else{
 					while( $j($Q[i]).attr("creatureid") != queue[i].id ){
-						if( $j($Q[i]).attr("initiative") < queue[i].getInitiative() ) {
-							$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+queue[i].getInitiative()+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
+						if( $j($Q[i]).attr("initiative") < initiative ) {
+							$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
 							this.$queue.children('.queue').children('.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').css({width:0}).transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
 						}else{
 							$j($Q[i]).attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });

@@ -269,7 +269,7 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transform-origin:65% 100%;
 	background: url("../../bestiary/Magma Spawn/cardboard.png");
 }
-#creatureWrapper div.creature.fliped.type_L2{ 
+#creatureWrapper div.creature.flipped.type_L2{ 
 	-webkit-transform: rotateX(-33deg) scale(-.75,1.35); 
 	-webkit-transform-origin:48% 100%; 
 	-moz-transform: rotateX(-33deg) scale(-.75,1.35); 
@@ -288,7 +288,7 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transform-origin:65% 100%;
 	background: url("../../bestiary/Snow Bunny/cardboard.png");
 }
-#creatureWrapper div.creature.fliped.type_S1{ 
+#creatureWrapper div.creature.flipped.type_S1{ 
 	-webkit-transform: rotateX(-33deg) scale(-1,1.8); 
 	-webkit-transform-origin:48% 100%; 
 	-moz-transform: rotateX(-33deg) scale(-1,1.8); 
@@ -308,7 +308,7 @@ div.row:nth-child(9){top:38.944em;}
 
 	background: url("../../bestiary/Impaler/cardboard.png");
 }
-#creatureWrapper div.creature.fliped.type_S6{ 
+#creatureWrapper div.creature.flipped.type_S6{ 
 	-webkit-transform: rotateX(-33deg) scale(-.75,1.35); 
 	-webkit-transform-origin:48% 100%; 
 	-moz-transform: rotateX(-33deg) scale(-.75,1.35); 
@@ -333,7 +333,7 @@ div.row:nth-child(9){top:38.944em;}
 #creatureWrapper .creature.type_--.p1{background-image: url("../../bestiary/Dark Priest/cardboard-blue.png");}
 #creatureWrapper .creature.type_--.p2{background-image: url("../../bestiary/Dark Priest/cardboard-orange.png");}
 #creatureWrapper .creature.type_--.p3{background-image: url("../../bestiary/Dark Priest/cardboard-green.png");}
-#creatureWrapper div.creature.fliped.type_--{ 
+#creatureWrapper div.creature.flipped.type_--{ 
 	-webkit-transform: rotateX(-33deg) scale(-.75,1.35); 
 	-webkit-transform-origin:39% 100%;
 	-moz-transform: rotateX(-33deg) scale(-.75,1.35); 
@@ -358,7 +358,7 @@ div.row:nth-child(9){top:38.944em;}
 	text-align: center;
 }
 
-.fliped .damage{ -webkit-transform: scale(-1,1); }
+.flipped .damage{ -webkit-transform: scale(-1,1); }
 /*-----------------UI-------------------*/
 #ui{
 	top: 0px;
@@ -549,7 +549,7 @@ div.row:nth-child(9){top:38.944em;}
 
 /*-------------------Queue-------------------*/
 
-#queuewrapper{display: block; width: 2000px;}
+#queuewrapper{display: block; width: 4000px;}
 #queue{
 	width: 820px;
 	height: 100px;
