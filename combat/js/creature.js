@@ -61,9 +61,11 @@ var Creature = Class.create({
 		this.player 	= G.players[obj.team];
 		this.dead		= false;
 		this.hasWait 	= false;
+		this.effects 	= [];
 
 		//Statistics
 		this.stats 		= obj.stats;
+		this.health		= obj.stats.health;
 		this.remainingMove	= 0; //Default value recovered each turn
 
 		//Abilities
@@ -129,7 +131,8 @@ var Creature = Class.create({
 
 		this.hasWait = !!wait;
 
-		G.grid.cleanDisplay("adj hover h_player0 h_player1 h_player2 h_player3"); //In case of skip turn
+		G.grid.cleanDisplay("adj"); //In case of skip turn
+		G.grid.cleanOverlay("creature selected hover h_player0 h_player1 h_player2 h_player3");
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		G.nextCreature();
@@ -440,29 +443,30 @@ var Creature = Class.create({
 
 	/* 	takeDamage(damage)
 	*
-	* 	damage : 		Integer : 	Positive value, amount of damage
+	* 	damage : 		Damage : 	Damage object
 	*
 	*/
-	takeDamage: function(damage,attacker){//TODO Implement damage type
-		var creature = this;
+	takeDamage: function(damage){
 
 		//Calculation
 		this.abilities.each(function(){
 			if(this.trigger == "onDamage"){
-				if( this.require() ){
-					damage = this.activate(damage,creature,attacker);
+				if( this.require(damage) ){
+					damage = this.activate(damage);
 				}
 			}
 		});
-		this.stats.health -= damage;
+		
+		damage.apply(this);
 
 		//Display
-		var $damage = this.$effects.append('<div class="damage">-'+damage+'</div>').children(".damage");
+		var nbrDisplayed = (damage.amount) ? "-"+damage.amount : 0;
+		var $damage = this.$effects.append('<div class="damage d'+damage.amount+'">'+nbrDisplayed+'</div>').children(".damage");
 		//Damage animation
 		$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
 
-		G.log("Player"+(this.team+1)+"'s "+this.name+" is hit -"+damage+" health");
-		if(this.stats.health <= 0){ this.die() }
+		G.log(this.player.name+"'s "+this.name+" is hit "+nbrDisplayed+" health");
+		if(this.health <= 0){ this.die() }
 	},
 
 

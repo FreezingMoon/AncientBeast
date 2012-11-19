@@ -92,6 +92,90 @@ var HexGrid = Class.create({
 
 	cleanOverlay: function(cssClass){ this.$allOverHex.removeClass(cssClass); },
 
+	/*
+	*	queryCreature(fnOnConfirm,fnOptTest,team,distance,x,y,id,args)
+	*	
+	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
+	*	fnOptTest : 	Function : 	Optional test to apply to hexs
+	*
+	*	team : 			Integer : 	0 = ennemies, 1 = allies, 2 = same team
+	*	distance : 		Integer : 	Distance from start
+	*
+	*	x : 			Integer : 	Start coordinates
+	*	y : 			Integer : 	Start coordinates
+	*	id : 			Integer : 	Creature ID
+	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
+	*/
+	queryCreature: function(fnOnConfirm,fnOptTest,team,distance,x,y,id,args){
+
+		args.fnOptTest = (!!fnOptTest)? fnOptTest : function(){return true;};
+		args.fnOnConfirm = fnOnConfirm;
+		args.id = id;
+		args.team = team;
+
+		fnOnClick = function(hex,args){
+			var crea = G.creatures[hex.creature];
+
+			G.grid.cleanOverlay("creature player0 player1 player2 player3");
+			G.grid.updateDisplay(); //Retrace players creatures
+			crea.hexagons.each(function(){
+				this.$overlay.addClass("creature selected player"+crea.team);
+			});
+		};
+
+		fnOnMouseover = function(hex,args){
+			var crea = G.creatures[hex.creature];
+			
+			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
+			crea.hexagons.each(function(){
+				this.$overlay.addClass("hover h_player"+crea.team);
+			});
+			
+		};
+
+		optionalTest = function(hex,args){
+			if( hex.creature == 0 ) return false;
+			var result = args.fnOptTest(hex,args);
+			if(result){
+				var crea = G.creatures[args.id];
+				var hexCrea = G.creatures[hex.creature];
+				switch(args,team){
+					case 0 :
+						result = (crea.player.flipped != hexCrea.player.flipped);
+						break;
+					case 1 :
+						result = (crea.player.flipped == hexCrea.player.flipped);
+						break;
+					case 2 :
+						result = (crea.team == hexCrea.team);
+						break;
+				}
+			}
+			return result;
+		}
+
+		excludedHexs = G.creatures[id].hexagons;
+
+		this.queryHexs(
+			fnOnClick, //OnClick
+			fnOnMouseover, //OnMouseover
+			function(){G.activeCreature.queryMove()}, //OnCancel
+			function(hex,args){
+				var target = G.creatures[hex.creature];
+				args.fnOnConfirm(target,args);
+			}, //OnConfirm
+			optionalTest, //OptionalTest
+			args, //OptionalArgs
+			false, //Flying
+			2,	//Include creature
+			x,y, //Position
+			distance, //Distance
+			id, //Creature ID
+			1, //Size
+			excludedHexs //Excluding hexs
+		);
+	},
+
 
 	/*	queryHexs(x, y, distance, size)
 	*
@@ -100,7 +184,7 @@ var HexGrid = Class.create({
 	*	fnOnMouseover : Function : 	Function applied when overing on one of the available hexs.
 	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
 	*	fnOptTest : 	Function : 	Optional test to apply to hexs
-	* 	args : 			Any : 		Object given to the events function (to easily pass variable for these function)
+	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
 	*
 	*	exclude : 		Array : 	Array of hexs to exclude from available hexs.
 	*
@@ -488,13 +572,14 @@ var Hex = Class.create({
 
 	/*	isWalkable(size, id)
 	*
-	*	size : 		Integer : 	Size of the creature
-	*	id : 		Integer : 	ID of the creature
+	*	size : 				Integer : 	Size of the creature
+	*	id : 				Integer : 	ID of the creature
+	* 	ignoreReachable : 	Boolean : 	Take into account the reachable property
 	*
 	*	return : 	Boolean : 	True if this hex is walkable
 	*
 	*/
-	isWalkable: function(size,id){
+	isWalkable: function(size,id,ignoreReachable){
 		var blocked = false;
 		
 		for (var i = 0; i < size; i++) {
@@ -503,7 +588,7 @@ var Hex = Class.create({
 				var hex = G.grid.hexs[this.y][this.x-i];
 				//Verify if blocked. If it's blocked by one attribute, OR statement will keep it status
 				blocked = blocked || hex.blocked ;
-				blocked = blocked || !hex.reachable ;
+				if(!ignoreReachable){ blocked = blocked || !hex.reachable ; }
 				blocked = blocked || ( (hex.creature!=id) && (hex.creature>0) ) ; //Not blocked if this block contains the moving creature
 			}else{
 				//Blocked by grid boundaries

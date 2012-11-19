@@ -17,7 +17,8 @@ abilities["--"] =[
 	desc : "The shield protects from any harm.",
 
 	// 	require() :
-	require : function(){
+	require : function(damage){
+		this.used = false; //Can be triggered as many time
 		if(this.creature.player.plasma <= 0){
 			G.log("Not enough plasma");
 			return false;
@@ -26,10 +27,13 @@ abilities["--"] =[
 	},
 
 	//	activate() : 
-	activate : function(damage,target,attacker) {
+	activate : function(damage) {
 		this.creature.player.plasma  -= 1;
 		this.end();
-		return 0; //Return Damage
+		damage.amount = 0;
+		damage.damageType = {};
+		damage.effect = [];
+		return damage; //Return Damage
 	},
 },
 
@@ -48,10 +52,10 @@ abilities["--"] =[
 
 	// 	require() :
 	require : function(){
-		// if(this.creature.player.plasma <= 0){
-		// 	G.log("Not enough plasma");
-		// 	return false;
-		// }
+		if(this.creature.player.plasma <= 0){
+			G.log("Not enough plasma");
+			return false;
+		}
 		return true;
 	},
 
@@ -63,56 +67,28 @@ abilities["--"] =[
 
 		optionalTest = function(hex,args){
 			if( hex.creature == 0 ) return false;
+			if( G.creatures[hex.creature].type == "--" ) return false; //Avoid selecting other dark priest
 			return ( G.creatures[hex.creature].team != args.dpriest.team );
 		}
 
-		fnOnClick = function(hex,args){
-			var crea = G.creatures[hex.creature];
-
-			G.grid.cleanOverlay("creature player0 player1 player2 player3");
-			G.grid.updateDisplay(); //Retrace players creatures
-			crea.hexagons.each(function(){
-				this.$overlay.addClass("creature selected player"+crea.team);
-			});
-		};
-
-		fnOnMouseover = function(hex,args){
-			var crea = G.creatures[hex.creature];
-			
-			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
-			crea.hexagons.each(function(){
-				this.$overlay.addClass("hover h_player"+crea.team);
-			});
-			
-		};
-
-		G.grid.queryHexs(
-			fnOnClick, //OnClick
-			fnOnMouseover, //OnMouseover
-			function(){G.activeCreature.queryMove()}, //OnCancel
-			ability.activate, //OnConfirm
-			optionalTest, //OptionalTest
-			{dpriest:dpriest, ability:ability}, //OptionalArgs
-			false, //Flying
-			2,	//Include creature
-			dpriest.x,dpriest.y, //Position
+		G.grid.queryCreature(
+			ability.activate, //fnOnConfirm
+			optionalTest,//fnOptTest
+			0, //Team, 0 = ennemies
 			1, //Distance
-			0, //Creature ID
-			1, //Size
-			dpriest.hexagons //Excluding hexs
+			dpriest.x,dpriest.y, //coordinates
+			dpriest.id,
+			{dpriest:dpriest, ability: ability}
 		);
 	},
 
 	//	activate() : 
-	activate : function(hex,args) {
+	activate : function(target,args) {
 		var ability = args.ability;
-		var crea = G.creatures[hex.creature];
-
-		crea.die();
-
-		ability.creature.player.plasma -= 5;
-
 		ability.end();
+		ability.creature.player.plasma -= target.size;
+		G.log(ability.creature.player.name+" uses "+target.size+" plasma point(s) to destroy "+target.name+".");
+		target.die();
 	},
 },
 
