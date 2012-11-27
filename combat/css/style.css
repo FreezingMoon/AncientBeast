@@ -427,7 +427,7 @@ div.row:nth-child(9){top:38.944em;}
 	position: fixed;
 	display: block;
 	height: 74px;
-	width: 150px;
+	width: auto;
 	background: rgba(0,0,0,.8);
 	border: 1px solid grey;
 	padding: 2px 7px;
