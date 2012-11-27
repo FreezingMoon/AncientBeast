@@ -30,8 +30,7 @@ abilities["--"] =[
 	activate : function(damage) {
 		this.creature.player.plasma  -= 1;
 		this.end();
-		damage.amount = 0;
-		damage.damageType = {};
+		damage.damages = {};
 		damage.effect = [];
 		return damage; //Return Damage
 	},
@@ -88,7 +87,7 @@ abilities["--"] =[
 		ability.end();
 		ability.creature.player.plasma -= target.size;
 		G.log(ability.creature.player.name+" uses "+target.size+" plasma point(s) to destroy "+target.name+".");
-		target.die();
+		target.die(ability.creature);
 	},
 },
 

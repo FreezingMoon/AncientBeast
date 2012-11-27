@@ -93,6 +93,211 @@ var HexGrid = Class.create({
 	cleanOverlay: function(cssClass){ this.$allOverHex.removeClass(cssClass); },
 
 	/*
+	*	queryDirection(fnOnConfirm,directions,,team,distance,x,y,id,args)
+	*	
+	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
+	*	fnOptTest : 	Function : 	Optional test to apply to hexs
+	*
+	*	team : 			Integer : 	0 = ennemies, 1 = allies, 2 = same team
+	*	distance : 		Integer : 	Distance from start
+	*
+	*	x : 			Integer : 	Start coordinates
+	*	y : 			Integer : 	Start coordinates
+	*	id : 			Integer : 	Creature ID
+	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
+	*/
+	queryDirection: function(opts){
+
+		var defaultOpt = {
+			fnOnConfirm : function(path,args){ G.activeCreature.queryMove(); },
+			fnOnClick : function(path,args){
+				G.grid.cleanOverlay("creature player0 player1 player2 player3");
+				G.grid.updateDisplay(); //Retrace players creatures	
+				G.grid.cleanDisplay("adj");
+				path.each(function(){
+					if(this.creature!=0){
+						var crea = G.creatures[this.creature];
+						crea.hexagons.each(function(){
+							this.$overlay.addClass("creature selected player"+crea.team);
+						});
+					}
+					this.$display.addClass("adj");
+				});
+			},
+			fnOnMouseover : function(path,args){				
+				G.grid.cleanOverlay("selected hover h_player0 h_player1 h_player2 h_player3");
+				path.each(function(){
+					if(this.creature!=0){
+						var crea = G.creatures[this.creature];
+						crea.hexagons.each(function(){
+							this.$overlay.addClass("hover h_player"+crea.team);
+						});
+					}else{
+						this.$overlay.addClass("hover h_player"+G.activeCreature.team);
+					}
+				});
+			},
+			fnOptTest : function(path,args){ return true;},
+			fnOnCancel : function(path,args){G.activeCreature.queryMove()},
+			team : 0,
+			includeCreature : 0, // 0 : No ; 1 : Ennemies ; 2 : Allies ; 3 : All ;
+			stopOnFirstCreature : false,
+			needCreature : false, //If the direction need creature to be available
+			distance : 5,
+			directions : [true,true,true,true,true,true],
+			x:0,y:0,
+			id : 0,
+			args : {}
+		}
+
+		opts = $j.extend(defaultOpt,opts);
+
+		G.grid.lastClickedtHex = [];
+
+		this.hexs.each(function(){ this.each(function(){ 
+			this.direction = -1;
+			this.unsetReachable(); 
+		}); }); //Block all hexs
+
+		//Clear previous binds
+		G.grid.$allInptHex.unbind('click');
+		G.grid.$allInptHex.unbind('mouseover');
+
+		var dirs = [];
+
+		for (var i = 0; i < 6; i++) {
+			if(!opts.directions[i]) continue; //Skip this direction
+
+			var hexsDirection = [ this.hexs[opts.y][opts.x] ]; //original hex for algo purpose
+			var a = b = 0;
+
+			switch(i){ //Numbered Clockwise
+				case 1 : //Right
+					b = 1;
+					break;
+				case 0 : //Up-Right
+					a = -1;
+					b = 1;
+					break;
+				case 2 : //Down-Right
+					a = 1;
+					b = 1;
+					break;
+				case 4 : //Left
+					b = -1;
+					break;
+				case 5 : //Up-Left
+					a = -1;
+					b = -1;
+					break;
+				case 3 : //Down-Left
+					a = 1;
+					b = -1;
+					break;
+			}
+
+			//Gathering all hex in that direction
+			for (var j = 0; j < opts.distance; j++) {
+				var hex = hexsDirection.last();
+				console.log();
+				if(a==0){
+					if( !this.hexExists(hex.y+a,hex.x+b)) break;
+					hexsDirection.push( this.hexs[hex.y+a][hex.x+b] );
+				}else{
+					if(b>0){
+						if( hex.y%2 == 0 ){
+							if( !this.hexExists(hex.y+a,hex.x+b)) break;
+							hexsDirection.push( this.hexs[hex.y+a][hex.x+b] );
+						}else{
+							if( !this.hexExists(hex.y+a,hex.x)) break;
+							hexsDirection.push( this.hexs[hex.y+a][hex.x] );
+						}
+					}else{
+						if( hex.y%2 == 0 ){
+							if( !this.hexExists(hex.y+a,hex.x)) break;
+							hexsDirection.push( this.hexs[hex.y+a][hex.x] );
+						}else{
+							if( !this.hexExists(hex.y+a,hex.x+b)) break;
+							hexsDirection.push( this.hexs[hex.y+a][hex.x+b] );
+						}
+					}
+				}
+			};
+
+			hexsDirection.shift(); //Remove Original hex
+
+			var hasCreature = false;
+			var valid = true;
+
+			for (var j = 0; j < hexsDirection.length; j++) {
+
+				//Creature test
+				if( (hexsDirection[j].creature != 0) && 
+					(hexsDirection[j].creature != opts.id)){
+					hasCreature = true;
+					if(opts.stopOnFirstCreature){
+						hexsDirection.splice(j+1,99);
+					}
+					if(!opts.includeCreature){
+						//TODO Team detection
+						hexsDirection.splice(j,1);
+						j--;
+						continue; //Skip optTest
+					}
+				}
+
+				//Opt test
+				valid = valid || opts.fnOptTest(hexsDirection[j],args);
+
+				hexsDirection[j].setReachable();
+				hexsDirection[j].direction = i;
+			}
+
+			if(opts.needCreature){
+				//Skip this direction if no creature
+				if(!hasCreature){
+					hexsDirection.each(function(){
+						this.unsetReachable();
+					})
+					continue;
+				}
+			}
+
+			dirs[i] = hexsDirection;
+
+			if(valid){
+				//ONCLICK
+				hexsDirection.each(function(){
+					var index = this.direction;
+
+					this.$input.bind('click', function(){
+						var clickedtHex = dirs[index].last();
+
+						if( clickedtHex != G.grid.lastClickedtHex ){
+							G.grid.lastClickedtHex = clickedtHex;
+							//ONCLICK
+							opts.fnOnClick(dirs[index],opts.args);
+						}else{
+							//ONCONFIRM
+							opts.fnOnConfirm(dirs[index],opts.args);
+						}
+					});
+					//ONMOUSEOVER
+					this.$input.bind('mouseover', function(){
+						opts.fnOnMouseover(dirs[index],opts.args);
+					});
+				})
+			}
+		}//end of for each direction
+
+		//ON CANCEL
+		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){	
+			G.grid.lastClickedtHex = []; 
+			opts.fnOnCancel(opts.args); 
+		});
+	},
+
+	/*
 	*	queryCreature(fnOnConfirm,fnOptTest,team,distance,x,y,id,args)
 	*	
 	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
@@ -471,6 +676,7 @@ var Hex = Class.create({
 		this.blocked = false;
 		this.creature = 0; //0 if no creature; else creature index
 		this.reachable = true;
+		this.direction = -1; //Used for queryDirection
 
 		this.$display = $j('#hexsdisplay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object
 		this.$overlay = $j('#hexsoverlay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object

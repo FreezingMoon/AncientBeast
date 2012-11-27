@@ -34,8 +34,44 @@ abilities["S6"] =[
 	//	Description
 	desc : "A powerful strike with it's javelin-like horn.",
 
+	damages : {
+		pierce : 10
+	},
+
+	// 	require() :
+	require : function(){return true;},
+
+	// 	query() :
+	query : function(){
+		
+		var ability = this;
+		var creature = this.creature;
+
+		G.grid.queryCreature(
+			ability.activate, //fnOnConfirm
+			function(){return true},//fnOptTest
+			0, //Team, 0 = ennemies
+			1, //Distance
+			creature.x,creature.y, //coordinates
+			creature.id,
+			{creature:creature, ability: ability}
+		);
+	},
+
+
 	//	activate() : 
-	activate : function() {
+	activate : function(target,args) {
+		var ability = args.ability;
+		ability.end();
+
+		var damage = new Damage(
+			args.creature, //Attacker
+			"target", //Attack Type
+			ability.damages, //Damage Type
+			1, //Area
+			[]	//Effects
+		)
+		target.takeDamage(damage);
 	},
 },
 

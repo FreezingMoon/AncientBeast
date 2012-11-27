@@ -102,7 +102,7 @@ var Creature = Class.create({
 	*/
 	summon: function(){
 		//TODO Summon effect
-		this.$display.show(1000);
+		this.$display.fadeIn(500);
 	},
 
 	/*	activate()
@@ -179,9 +179,10 @@ var Creature = Class.create({
 				G.grid.updateDisplay(); //Retrace players creatures
 
 			},
-			function(hex,creature){ creature.moveTo(hex,function(){
-					//Callback
-					G.activeCreature.queryMove();
+			function(hex,creature){ creature.moveTo(hex,{
+					callback : function(){
+						G.activeCreature.queryMove();
+					}
 				}); 
 			},
 			function(){return true;}, //Optional test return true (no test)
@@ -251,22 +252,35 @@ var Creature = Class.create({
 	/* 	moveTo(hex)
 	*
 	*	hex : 		Hex : 		Destination Hex
-	*	callback : 	Function : 	Callback function called after moving
+	*	opt : 		Object : 	Optional args object
 	*
 	* 	Move the creature along a calculated path to the given coordinates
 	*
 	*/
-	moveTo: function(hex,callback){
+	moveTo: function(hex,opts){
+		defaultOpt = {
+			callback : function(){return true;},
+			animation : "walk",
+			ignoreMovementPoint : false,
+		}
+
+		opts = $j.extend(defaultOpt,opts);
+
 		var creature = this;
 		var x = hex.x;
 		var y = hex.y;
-		var path = creature.calculatePath(x,y);
+		if(opts.ignoreMovementPoint){
+			var path = [hex];
+		}else{
+			var path = creature.calculatePath(x,y);
+		}
 
 		G.grid.cleanDisplay("adj"); //Clean previous path
 		G.grid.cleanOverlay("hover h_player"+this.team); //Clear path display and creature position preview
+
 		if( path.length == 0 ) return; //Break if empty path
 
-		creature.remainingMove -= path.length;
+		if(!opts.ignoreMovementPoint) creature.remainingMove -= path.length;
 
 		var pos = path[path.length-1].pos;
 
@@ -322,7 +336,7 @@ var Creature = Class.create({
 			hexId++;
 		})
 
-		callback();
+		opts.callback();
 	},
 
 
@@ -371,9 +385,6 @@ var Creature = Class.create({
 	*
 	*/
 	calculatePath: function(x,y){
-		//var pos = this.calcOffset(x,y);
-		// x = pos.x;
-		// y = pos.y;
 		return astar.search(G.grid.hexs[this.y][this.x],G.grid.hexs[y][x],this.size,this.id); //calculate path
 	},
 
@@ -448,7 +459,7 @@ var Creature = Class.create({
 	*/
 	takeDamage: function(damage){
 
-		//Calculation
+		//Passive abilities
 		this.abilities.each(function(){
 			if(this.trigger == "onDamage"){
 				if( this.require(damage) ){
@@ -456,17 +467,31 @@ var Creature = Class.create({
 				}
 			}
 		});
-		
-		damage.apply(this);
 
-		//Display
-		var nbrDisplayed = (damage.amount) ? "-"+damage.amount : 0;
-		var $damage = this.$effects.append('<div class="damage d'+damage.amount+'">'+nbrDisplayed+'</div>').children(".damage");
-		//Damage animation
-		$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
+		//Calculation
+		if(!damage.dodged){
+			var dmgAmount = damage.apply(this);
+			this.health -= dmgAmount;
 
-		G.log(this.player.name+"'s "+this.name+" is hit "+nbrDisplayed+" health");
-		if(this.health <= 0){ this.die() }
+			//Display
+			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
+			var $damage = this.$effects.append('<div class="damage d'+dmgAmount+'">'+nbrDisplayed+'</div>').children(".damage");
+			//Damage animation
+			$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
+
+			G.log(this.player.name+"'s "+this.name+" is hit "+nbrDisplayed+" health");
+
+			//If Health is empty
+			if(this.health <= 0){
+				this.health = 0; //Cap
+				this.die(damage.attacker);
+			}
+		}else{
+			//If dodged
+			G.log(this.player.name+"'s "+this.name+" dodged the attack");
+			var $damage = this.$effects.append('<div class="damage dodged">Dodged</div>').children(".damage");
+			$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
+		}
 	},
 
 
@@ -475,9 +500,12 @@ var Creature = Class.create({
 	*	kill animation. remove creature from queue and from hexs
 	*
 	*/
-	die: function(){//TODO
+	die: function(killer){//TODO
 		this.dead = true;
-		this.$display.hide("fade");
+
+		this.killer = killer.player.id;
+
+		this.$display.fadeOut(500);
 
 		//As hex occupation changes, path must be recalculated for the current creature not the dying one
 		this.cleanHex();

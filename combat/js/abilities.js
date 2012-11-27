@@ -12,12 +12,13 @@ var Ability = Class.create({
 	},
 
 
-	/* 	user()
+	/* 	use()
 	*
 	*	Test and use the ability
 	*
 	*/
 	use: function(){
+		if( this.trigger != "onQuery" ) return;
 		if( !this.require() ) return;
 		if( this.used == true ){ G.log("Ability already used!"); return; }
 		return this.query();
@@ -68,17 +69,18 @@ var Damage = Class.create({
 	/* Constructor(amount,type,effects)
 	*	
 	*	attacker : 		Creature : 	Creature that initiated the damage
-	*	amount : 		Integer : 	Amount of damage to deal with
 	*	type : 			String : 	Can be "target","zone" or "effect"
-	* 	damageType : 	Object : 	Object containing the damage type {frost : 5} for example
+	* 	damages : 		Object : 	Object containing the damage by type {frost : 5} for example
+	*	area : 			Integer : 	Number of hex hit
 	*	effects : 		Array : 	Array containing Effect object to apply to the target
 	*/
-	initialize: function(attacker,amount,type,damageType,effects){
+	initialize: function(attacker,type,damages,area,effects){
 		this.attacker 	= attacker;
-		this.amount 	= amount;
 		this.type 		= type;
-		this.damageType = damageType;
+		this.damages 	= damages;
 		this.effects 	= effects;
+		this.area 		= area;
+		this.dodged 	= false;
 	},
 
 	/* apply(target)
@@ -86,8 +88,17 @@ var Damage = Class.create({
 	*	target : 	Creature : 	Targeted creature
 	*/
 	apply: function(target){
+		var trg = target.stats;
+		var dmg = this;
+		var atk = dmg.attacker.stats;
+		var dmgTotal = 0;
+
 		//DAMAGE CALCULATION
-		target.health -= this.amount;
+		$j.each(this.damages,function(key,value){
+			dmgTotal += Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
+		});
+
+		return dmgTotal;
 	},
 
 });
