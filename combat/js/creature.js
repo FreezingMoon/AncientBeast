@@ -262,6 +262,7 @@ var Creature = Class.create({
 			callback : function(){return true;},
 			animation : "walk",
 			ignoreMovementPoint : false,
+			ignorePath : false,
 		}
 
 		opts = $j.extend(defaultOpt,opts);
@@ -269,7 +270,7 @@ var Creature = Class.create({
 		var creature = this;
 		var x = hex.x;
 		var y = hex.y;
-		if(opts.ignoreMovementPoint){
+		if(opts.ignorePath){
 			var path = [hex];
 		}else{
 			var path = creature.calculatePath(x,y);

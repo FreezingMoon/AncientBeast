@@ -31,15 +31,14 @@ abilities["S1"] =[
 	//	activate() : 
 	activate : function(damage) {
 		var creature = this.creature;
-		var dodge = false;
 		var hexs = creature.adjacentHexs(1);
 		for (var i = hexs.length - 1; i >= 0; i--) {
 			//If hex available dodge the attack
-			if(hexs[i].isWalkable(creature.id,creature.size,true)){ 
+			if(hexs[i].isWalkable(creature.id,creature.size,true)){
 				creature.moveTo(hexs[i],{
 					callback : function(){	G.activeCreature.queryMove(); },
+					ignorePath : true,
 				});
-				dodge = true;
 				damage.dodged = true;
 				break; //Break for loop
 			}
@@ -216,7 +215,8 @@ abilities["S1"] =[
 		};
 
 		crea.moveTo(hex,{
-			ignoreMovementPoint:true,
+			ignoreMovementPoint : true,
+			ignorePath : true,
 			callback : function(){
 				G.activeCreature.queryMove();
 			},
