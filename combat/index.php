@@ -124,7 +124,7 @@ function db_query($query) {
 	</head>
 	<body>
 		<div id="matchmaking">
-			<div id="loader">Loading</div>
+			<div id="loader"><img src="../images/AB.gif">Loading</div>
 			<div id="gamesetupcontainer">
 				<form id="gamesetup" action="javascript:0;">
 					Players : 
