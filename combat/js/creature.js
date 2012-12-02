@@ -114,6 +114,16 @@ var Creature = Class.create({
 		if(!this.hasWait){
 			this.remainingMove = this.stats.movement;
 			this.abilities.each(function(){ this.used = false; });
+
+			//Passive abilities
+			this.abilities.each(function(){
+				if(this.trigger == "onStartPhase"){
+					if( this.require() ){
+						this.activate();
+					}
+				}
+			});
+
 		}
 
 		this.queryMove();

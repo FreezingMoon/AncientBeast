@@ -106,6 +106,126 @@ var HexGrid = Class.create({
 	*	id : 			Integer : 	Creature ID
 	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
 	*/
+	queryArea: function(opts){
+
+		var defaultOpt = {
+			fnOnConfirm : function(area,args){ G.activeCreature.queryMove(); },
+			fnOnClick : function(hex,args){
+				G.grid.cleanOverlay("creature player0 player1 player2 player3");
+				G.grid.updateDisplay(); //Retrace players creatures	
+				G.grid.cleanDisplay("adj");
+
+				var area = hex.adjacentHex(args.radius);
+				area.push(hex);
+
+				area.each(function(){
+					if(this.creature!=0){
+						this.$overlay.addClass("creature selected player"+G.creatures[this.creature].team);
+					}
+					this.$display.addClass("adj");
+				});
+			},
+			fnOnMouseover : function(hex,args){				
+				G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
+
+				var area = hex.adjacentHex(args.radius);
+				area.push(hex);
+
+				area.each(function(){
+					if(this.creature!=0){
+						this.$overlay.addClass("hover h_player"+G.creatures[this.creature].team);
+					}else{
+						this.$overlay.addClass("hover h_player"+G.activeCreature.team);
+					}
+				});
+			},
+			fnOptTest : function(hex,args){ return true;},
+			fnOnCancel : function(area,args){G.activeCreature.queryMove()},
+			distance : 5,
+			radius : 3,
+			x:0,y:0,
+			args : {}
+		}
+
+		var fnConfirm = function(hex,opts){
+			var area = hex.adjacentHex(args.radius);
+			area.push(hex);
+			args.fnOnConfirm(area,opts.args)
+		}
+
+		opts = $j.extend(defaultOpt,opts);
+
+		G.grid.lastClickedtHex = [];
+
+		this.hexs.each(function(){ this.each(function(){ 
+			this.unsetReachable(); 
+		}); }); //Block all hexs
+
+		G.grid.cleanDisplay("adj");
+		G.grid.cleanOverlay("selected hover h_player0 h_player1 h_player2 h_player3");
+
+		//Clear previous binds
+		G.grid.$allInptHex.unbind('click');
+		G.grid.$allInptHex.unbind('mouseover');
+
+		var area = this.hexs[opts.y][opts.x].adjacentHex(opts.distance);
+
+		for (var i = 0; i < area.length; i++) {
+			if(!opts.fnOptTest(area[i],opts.args)){
+				area.splice(i,1);
+				i--;
+			}else{
+				area[i].setReachable();
+			}
+		};
+
+		//ONCLICK
+		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('click', function(){
+			var x = $j(this).attr("x")-0;
+			var y = $j(this).attr("y")-0;
+
+			var clickedtHex = G.grid.hexs[y][x];
+
+			if( clickedtHex != G.grid.lastClickedtHex ){
+				G.grid.lastClickedtHex = clickedtHex;
+				//ONCLICK
+				opts.fnOnClick(clickedtHex,opts);
+			}else{
+				//ONCONFIRM
+				fnConfirm(clickedtHex,opts);
+			}
+		});
+
+		//ONMOUSEOVER
+		this.$allInptHex.filter(".hex.not-reachable").bind('mouseover', function(){
+			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
+		})
+		this.$allInptHex.bind('mouseover', function(){ G.grid.xray(G.grid.hexs[$j(this).attr("y")-0][$j(this).attr("x")-0]); }); //Xray
+		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('mouseover', function(){
+			var x = $j(this).attr("x")-0;
+			var y = $j(this).attr("y")-0;
+			opts.fnOnMouseover(G.grid.hexs[y][x],opts);
+		});
+
+		//ON CANCEL
+		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){	G.grid.lastClickedtHex = []; opts.fnOnCancel(opts.args); });
+
+
+	},
+
+	/*
+	*	queryDirection(fnOnConfirm,directions,,team,distance,x,y,id,args)
+	*	
+	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
+	*	fnOptTest : 	Function : 	Optional test to apply to hexs
+	*
+	*	distance : 		Integer : 	Distance from start
+	*
+	*	x : 			Integer : 	Start coordinates
+	*	y : 			Integer : 	Start coordinates
+	*	id : 			Integer : 	Creature ID
+	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
+	*/
 	queryDirection: function(opts){
 
 		var defaultOpt = {
@@ -125,7 +245,7 @@ var HexGrid = Class.create({
 				});
 			},
 			fnOnMouseover : function(path,args){				
-				G.grid.cleanOverlay("selected hover h_player0 h_player1 h_player2 h_player3");
+				G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
 				path.each(function(){
 					if(this.creature!=0){
 						var crea = G.creatures[this.creature];
@@ -139,14 +259,12 @@ var HexGrid = Class.create({
 			},
 			fnOptTest : function(path,args){ return true;},
 			fnOnCancel : function(path,args){G.activeCreature.queryMove()},
-			team : 0,
 			includeCreature : 0, // 0 : No ; 1 : Ennemies ; 2 : Allies ; 3 : All ;
 			stopOnFirstCreature : false,
 			needCreature : false, //If the direction need creature to be available
 			distance : 5,
 			directions : [true,true,true,true,true,true],
 			x:0,y:0,
-			id : 0,
 			args : {}
 		}
 
@@ -158,6 +276,9 @@ var HexGrid = Class.create({
 			this.direction = -1;
 			this.unsetReachable(); 
 		}); }); //Block all hexs
+
+		G.grid.cleanDisplay("adj");
+		G.grid.cleanOverlay("selected hover h_player0 h_player1 h_player2 h_player3");
 
 		//Clear previous binds
 		G.grid.$allInptHex.unbind('click');
@@ -283,12 +404,18 @@ var HexGrid = Class.create({
 						}
 					});
 					//ONMOUSEOVER
+
 					this.$input.bind('mouseover', function(){
 						opts.fnOnMouseover(dirs[index],opts.args);
 					});
 				})
 			}
 		}//end of for each direction
+
+		this.$allInptHex.bind('mouseover', function(){ G.grid.xray(G.grid.hexs[$j(this).attr("y")-0][$j(this).attr("x")-0]); }); //Xray
+		this.$allInptHex.filter(".hex.not-reachable").bind('mouseover', function(){
+			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
+		})
 
 		//ON CANCEL
 		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){	
@@ -311,40 +438,62 @@ var HexGrid = Class.create({
 	*	id : 			Integer : 	Creature ID
 	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
 	*/
-	queryCreature: function(fnOnConfirm,fnOptTest,team,distance,x,y,id,args){
+	queryCreature: function(args){
 
-		args.fnOptTest = (!!fnOptTest)? fnOptTest : function(){return true;};
-		args.fnOnConfirm = fnOnConfirm;
-		args.id = id;
-		args.team = team;
+		var defaultOpt = {
+			fnOnConfirm : function(target,args){ G.activeCreature.queryMove(); },
+			fnOnClick : function(hex,args){
+				var crea = G.creatures[hex.creature];
 
-		fnOnClick = function(hex,args){
-			var crea = G.creatures[hex.creature];
+				G.grid.cleanOverlay("creature player0 player1 player2 player3");
+				G.grid.updateDisplay(); //Retrace players creatures
+				crea.hexagons.each(function(){
+					this.$overlay.addClass("creature selected player"+crea.team);
+				});
+			},
+			fnOnMouseover : function(hex,args){				
+				var crea = G.creatures[hex.creature];
+				
+				G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
+				crea.hexagons.each(function(){
+					this.$overlay.addClass("hover h_player"+crea.team);
+				});
+			},
+			fnOptTest : function(hex,args){ 
+				if( hex.creature == 0 ) return false;
+				var result = args.fnOptTest(hex,args);
+				if(result){
+					var crea = G.creatures[args.id];
+					var hexCrea = G.creatures[hex.creature];
+					switch(args.team){
+						case 0 :
+							result = (crea.player.flipped != hexCrea.player.flipped);
+							break;
+						case 1 :
+							result = (crea.player.flipped == hexCrea.player.flipped);
+							break;
+						case 2 :
+							result = (crea.team == hexCrea.team);
+							break;
+					}
+				}
+				return result;
+			},
+			fnOnCancel : function(hex,args){G.activeCreature.queryMove()},
+			team : 0,
+			distance : 5,
+			x:0,y:0,
+			id : 0,
+			args : {}
+		}
 
-			G.grid.cleanOverlay("creature player0 player1 player2 player3");
-			G.grid.updateDisplay(); //Retrace players creatures
-			crea.hexagons.each(function(){
-				this.$overlay.addClass("creature selected player"+crea.team);
-			});
-		};
-
-		fnOnMouseover = function(hex,args){
-			var crea = G.creatures[hex.creature];
-			
-			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
-			crea.hexagons.each(function(){
-				this.$overlay.addClass("hover h_player"+crea.team);
-			});
-			
-		};
-
-		optionalTest = function(hex,args){
+		var optionalTest = function(hex,args){
 			if( hex.creature == 0 ) return false;
-			var result = args.fnOptTest(hex,args);
+			var result = args.fnOptTest(hex,args.args);
 			if(result){
 				var crea = G.creatures[args.id];
 				var hexCrea = G.creatures[hex.creature];
-				switch(args,team){
+				switch(args.team){
 					case 0 :
 						result = (crea.player.flipped != hexCrea.player.flipped);
 						break;
@@ -359,23 +508,24 @@ var HexGrid = Class.create({
 			return result;
 		}
 
-		excludedHexs = G.creatures[id].hexagons;
+		args = $j.extend(defaultOpt,args);
+		excludedHexs = G.creatures[args.id].hexagons;
 
 		this.queryHexs(
-			fnOnClick, //OnClick
-			fnOnMouseover, //OnMouseover
-			function(){G.activeCreature.queryMove()}, //OnCancel
+			args.fnOnClick, //OnClick
+			args.fnOnMouseover, //OnMouseover
+			args.fnOnCancel, //OnCancel
 			function(hex,args){
 				var target = G.creatures[hex.creature];
-				args.fnOnConfirm(target,args);
+				args.fnOnConfirm(target,args.args);
 			}, //OnConfirm
 			optionalTest, //OptionalTest
 			args, //OptionalArgs
 			false, //Flying
 			2,	//Include creature
-			x,y, //Position
-			distance, //Distance
-			id, //Creature ID
+			args.x,args.y, //Position
+			args.distance, //Distance
+			args.id, //Creature ID
 			1, //Size
 			excludedHexs //Excluding hexs
 		);
@@ -409,6 +559,9 @@ var HexGrid = Class.create({
 		G.grid.lastClickedtHex = [];
 
 		this.cleanReachable(); //Clean all precedent blocked hexs
+
+		G.grid.cleanDisplay("adj");
+		G.grid.cleanOverlay("selected hover h_player0 h_player1 h_player2 h_player3");
 
 		//Clear previous binds
 		G.grid.$allInptHex.unbind('click');
@@ -539,6 +692,9 @@ var HexGrid = Class.create({
 		});
 
 		//ONMOUSEOVER
+		this.$allInptHex.filter(".hex.not-reachable").bind('mouseover', function(){
+			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
+		})
 		this.$allInptHex.bind('mouseover', function(){ G.grid.xray(G.grid.hexs[$j(this).attr("y")-0][$j(this).attr("x")-0]); }); //Xray
 		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('mouseover', function(){
 			var x = $j(this).attr("x")-0;
