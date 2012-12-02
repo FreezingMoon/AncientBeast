@@ -297,9 +297,9 @@ div.row:nth-child(9){top:38.944em;}
 
 /*-----Impaler----*/
 #creatureWrapper .creature.type_S6{ 
-	width: 299px;
-	height: 273px;
-	margin-top: -229px;
+	width: 300px;
+	height: 274px;
+	margin-top: -230px;
 	padding: 0px 0px 10px;
 	-webkit-transform: rotateX(-33deg) scale(.75,1.35);
 	-webkit-transform-origin:65% 100%;
