@@ -76,15 +76,15 @@ abilities["S1"] =[
 		var ability = this;
 		var snowBunny = this.creature;
 
-		G.grid.queryCreature(
-			ability.activate, //fnOnConfirm
-			function(){return true},//fnOptTest
-			0, //Team, 0 = ennemies
-			1, //Distance
-			snowBunny.x,snowBunny.y, //coordinates
-			snowBunny.id,
-			{snowBunny:snowBunny, ability: ability}
-		);
+		G.grid.queryCreature({
+			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOptTest : function(){return true},//fnOptTest
+			team : 0, //Team, 0 = ennemies
+			distance : 1, //Distance
+			x : snowBunny.x, y : snowBunny.y, //coordinates
+			id : snowBunny.id,
+			args : {snowBunny:snowBunny, ability: ability}
+		});
 	},
 
 
@@ -99,7 +99,7 @@ abilities["S1"] =[
 			ability.damages, //Damage Type
 			1, //Area
 			[]	//Effects
-		)
+		);
 		target.takeDamage(damage);
 	},
 },

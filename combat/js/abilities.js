@@ -46,14 +46,18 @@ var Ability = Class.create({
 	*/
 	getTargets: function(hexs){
 		var targets = [];
-		var targs = []
 		hexs.each(function(){//For each hex
-			if( (this.creature != 0) && !targets[this.creature] ){ //this.creature refers to hex creature not ability one
-				targets[this.creature] = true; //creature has been found
-				targs.push(G.creatures[this.creature]); //add to return array
+			if( (this.creature != 0) ){ //this.creature refers to hex creature not ability one
+				if( targets[this.creature] == undefined ) {
+					targets[this.creature] = {
+						hexsHit : 0,
+						target : G.creatures[this.creature]
+					};
+				}
+				targets[this.creature].hexsHit += 1; //creature has been found
 			}
 		});
-		return targs;
+		return targets;
 	},
 });
 

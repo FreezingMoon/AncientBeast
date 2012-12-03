@@ -70,15 +70,15 @@ abilities["--"] =[
 			return ( G.creatures[hex.creature].team != args.dpriest.team );
 		}
 
-		G.grid.queryCreature(
-			ability.activate, //fnOnConfirm
-			optionalTest,//fnOptTest
-			0, //Team, 0 = ennemies
-			1, //Distance
-			dpriest.x,dpriest.y, //coordinates
-			dpriest.id,
-			{dpriest:dpriest, ability: ability}
-		);
+		G.grid.queryCreature({
+			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOptTest : optionalTest,//fnOptTest
+			team : 0, //Team, 0 = ennemies
+			distance : 1, //Distance
+			x: dpriest.x,y : dpriest.y, //coordinates
+			id : dpriest.id,
+			args : {dpriest:dpriest, ability: ability}
+		});
 	},
 
 	//	activate() : 
