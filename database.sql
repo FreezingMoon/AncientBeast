@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 3.5.1
+-- version 3.5.3
 -- http://www.phpmyadmin.net
 --
--- Host: 127.0.0.1
--- Generation Time: Oct 17, 2012 at 12:24 AM
--- Server version: 5.1.51-community-log
--- PHP Version: 5.2.6
+-- Gazda: 127.0.0.1
+-- Timp de generare: 03 Dec 2012 la 02:45
+-- Versiune server: 5.1.51-community-log
+-- Versiune PHP: 5.2.6
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -16,15 +16,14 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ab_abilities`
+-- Structura de tabel pentru tabelul `ab_abilities`
 --
--- Creation: Jul 12, 2012 at 07:26 AM
--- Last update: Oct 11, 2012 at 12:36 PM
--- Last check: Sep 01, 2012 at 01:17 PM
+-- Creare: 12 Iul 2012 la 07:26
+-- Ultima actualizare: 01 Dec 2012 la 08:06
+-- Ultima verficare: 01 Sep 2012 la 13:17
 --
 
 CREATE TABLE IF NOT EXISTS `ab_abilities` (
@@ -41,17 +40,17 @@ CREATE TABLE IF NOT EXISTS `ab_abilities` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=51 ;
 
 --
--- Dumping data for table `ab_abilities`
+-- Salvarea datelor din tabel `ab_abilities`
 --
 
 INSERT INTO `ab_abilities` (`id`, `passive`, `passive info`, `weak`, `weak info`, `medium`, `medium info`, `strong`, `strong info`) VALUES
 (1, 'Post Mortem', 'Drops a powerful fuse bomb on the ground when dying.', 'Sword Slash', 'Swift attack on a nearby foe.', 'Pistol Shot', 'Medium range shot.', 'Rifle Shot', 'Very powerful long range attack.'),
 (2, 'Backstabber', 'Reduces damage from behind and returns some to melee attackers.', 'Metallic Claws', 'Razor sharp claws help him really shred his foes.', 'Tail Mace', 'Whips out it''s scepter like tail to bluntly punish a distant foe.', 'Brain Power', 'Electro-charges it''s brain functions to shock all nearby foes.'),
-(3, 'Frogger', 'Leaps in straight line over obstacles.', 'Chomp', 'Takes a huge bite out of his foe.', 'Blade Kick', 'Slashes nearby foe using feet claws.', 'Goo Blast', 'Sneezes yucky poisonous goo at a foe, severely weakening it.'),
+(3, 'Frogger', 'Leaps in straight line over obstacles.', 'Chomp', 'Takes a huge bite out of his foe.', 'Blade Kick', 'Slashes nearby foe using feet claws.', 'Goo Blast', 'Sneezes poisonous goo at any inline foe, weakening it with every hit.'),
 (4, 'Infernal Temper', 'Bursts into flames when it''s turn comes, damaging nearby foes.', 'Pulverize', 'Smacks a foe with its heavy hand.', 'Fissure', 'Smashes his fists into the ground, wreaking fierce havoc ahead.', 'Molten Hurl', 'Turns into a molten boulder, bowling itself into first foe in a straight line.'),
-(5, 'Armor Penetration', 'Attacks gradually break through enemy defense.', 'Jab Attack', 'A powerful strike with it''s javelin-like horn.', 'Static Charge', 'Shakes hair to create friction and imbue next attack with lightning.', 'Envenom', 'Makes use of tongue to smear the horn with highly venomous saliva.'),
-(6, 'Cryosauna', 'All foes have their movement reduced and delay increased.', 'Frost Bite', 'Pokes ice teeth into nearby foe.', 'Freon Spray', 'Exhales freezing gas that does more damage as it travels.', 'Glacial Spikes', 'Several spears of ice erupt in the area nearby, impaling foes.'),
-(7, 'Eye of the Fire', 'Strategically teleports to a new location on the combat field.', 'Fiery Claw', 'Scratch and burn a nearby foe.', 'Fire Ball', 'Throws a ball of fire that explodes on impact, damaging up to several foes.', 'Infernal Pyre', 'Increases power of it''s back fire in order to burn all adjacent foes.'),
+(5, 'Armor Penetration', 'Attacks gradually break through enemy defense.', 'Jab Attack', 'Horn attack that does bonus pierce damage based on distance traveled.', 'Static Charge', 'Shakes hair to create friction and imbue next attack with lightning.', 'Envenom', 'Makes use of tongue to smear the horn with highly venomous saliva.'),
+(6, 'Cryosauna', 'Foes have their movement reduced and initiative constantly decreased.', 'Frost Bite', 'Pokes ice teeth into nearby foe.', 'Nitrogen Splash', 'Exhales freezing gas that does more damage as it travels.', 'Glacial Spikes', 'Several spears of ice erupt in the area nearby, impaling all creatures.'),
+(7, 'Eye of the Fire', 'Strategically teleports to a new location on the combat field.', 'Fiery Claw', 'Scratch and burn a nearby foe.', 'Fire Ball', 'Throws a ball of fire that explodes on impact, damaging several creatures.', 'Infernal Pyre', 'Increases power of it''s back fire in order to burn all adjacent creatures.'),
 (8, 'Unstopable', 'Successfully resists first signs of fatigue, being able to carry on.', 'Knuckle Head', 'Smashes ringed head into a foe.', 'Meat Hook', 'Drags a foe, doing bonus damage if it doesn''t have any movement points left.', 'Double Swipe', 'Slashes nearby foes with both claws.'),
 (9, 'Frozen Tower', 'Temporary increases offense and defense by holding the same spot.', 'Icy Talons', 'Scratches nearby foe using claws.', 'Tail Uppercut', 'Sucker punches a near enemy using tail, ignoring most of it''s defense.', 'Icicle Tongue', 'Launches tongue, piercing all foes sitting in front in a straight line.'),
 (10, 'Inner Vision', 'Lack of sight forces the creature to focus on it''s other senses.', 'Tongue Dagger', 'Melee attack on a nearby foe.', 'Sonic Scream', 'Shock waves that travel far.', 'Psychic Blast', 'Focuses the power of mind in order to attack foes from a small region.'),
@@ -63,8 +62,8 @@ INSERT INTO `ab_abilities` (`id`, `passive`, `passive info`, `weak`, `weak info`
 (16, 'Ground Shaker', 'Stomps the ground when walking, increasing the delay of all it''s foes.', 'Lava Splash', 'Hits a near foe with a handful of lava.', 'Volcanic Cannon', 'Fires a flaming boulder projectile at a target foe.', 'Spitfire', 'Erupts with rage, bombarding the battlefield with burning lava.'),
 (17, 'Spiked Fence', 'When dead, enemies walking on it''s corpse get their limbs impaled.', 'Trident Forehead', 'Pokes nearby enemy with it''s large forehead spikes.', 'Trap Jaw', 'Bites nearby foe, crippling it.', 'Circular Saw', 'Travels in a straight line and back, cutting through encountered foes.'),
 (18, 'Pulse of the Maggots', 'Gains one regrowth point for each corpse located on the battlefield.', 'Claw Strike', 'Slashes nearby foe using claws.', 'Fly Swarm', 'Damages and distracts a foe, lowering it''s offense and defense.', 'Shadow Army', 'Allows any dead creature to fight again for it''s life, as a shadow being.'),
-(19, 'Blood Chalice', 'Doing damage restores own health.', 'Slice', 'Claw swipe gesture, slashing a nearby foe.', 'Fatal Attaction', 'Causes a target foe to come close to her, while depleting it''s movement.', 'Tentacle Feet', 'All nearby foes have their movement restrained and take some damage.'),
-(20, 'Power Drain', 'Sucks energy out of melee targets with every hit.', 'Tentacle Grasp', 'Crushes nearby foe.', 'Oil Spill', 'Spits highly inflammable petrol over an area.', 'Chain Lightning', 'Shocks nearby foe, energy arching to all other foes adjacent to it as well.'),
+(19, 'Blood Chalice', 'Doing damage restores own health.', 'Slice', 'Claw swipe gesture, slashing a nearby foe.', 'Fatal Attraction', 'Causes a target foe to come close to her, while depleting it''s movement.', 'Tentacle Feet', 'All nearby foes have their movement restrained and take some damage.'),
+(20, 'Cryosauna', 'Foes have their movement reduced and initiative constantly decreased.', 'Suction cups', 'Crushes a frontal foe while draining a very small amount of it''s energy.', 'Tentacle Grasp', 'Pulls a rather distant inline foe nearby while also crushing it.', 'Frostbite Shower', 'Sprinkles the area in front with liquid nitrogen, doing cold damage.'),
 (21, 'Half Life', 'Can regenerate health up to double.', 'Bone Scythe', 'Slashes nearby foe, causing it to bleed and lose health if moving.', 'Blood Puke', 'Target''s regrowth becomes nulled if it''s a foe or doubles if it''s an ally.', 'Symbiotic Tumor', 'Engulfs body into a meat cocoon for bonus protection and regrowth. '),
 (22, 'Lava Pool', 'When dead, melts into puddle of boiling lava that damages foes.', 'Poked Eye', 'Wings it''s eye at a nearby foe.', 'Iron Shell', 'Solidifies from magma state into iron, greatly increasing resistances.', 'Black Pearl', 'Fires a durable sphere up in to the air, falling on target the next round.'),
 (23, 'Forced Involution', 'When dead, reconfigures itself as a weaker creature, the Magma Spawn.', 'Forked Hand', 'Pierces foe using it''s metallic harpoon shaped fingers.', 'Fire Dump', 'Ignites the ground, the fire expands and contracts over several rounds.', 'Shotgun Blast', 'Blows a handful of shrapnel in a conic area, doing versatile damage.'),
@@ -77,7 +76,7 @@ INSERT INTO `ab_abilities` (`id`, `passive`, `passive info`, `weak`, `weak info`
 (30, 'Offspring', 'Spawns a little hungry eggplant that chases nearest foe and attacks it.', 'Dinner Time', 'Bites a nearby foe.', 'Pony Tail', 'Whips and poisons nearby foes, knocking them back.', 'Snake Tongue', 'Throws tongue at a distant target, having it come back with time.'),
 (31, 'Retaliation', 'Returns favor to frontal attackers, by slashing them with it''s heavy claws.', 'Pummel', 'Severly punches a nearby foe.', 'Frightening Howl', 'Removes positive buffs and reduces offense and defense of nearby foes.', 'Slice and Dice', 'Brutally slashes all frontal foes using it''s extremely sharp claws.'),
 (32, 'No name', 'No description', 'No name', 'No description', 'No name', 'No description', 'No name', 'No description'),
-(33, 'Percussion Spear', 'Attacks cause rear spear strike, which cannot be dodged.', 'Executioner Axe', 'Slashes nearby foe, doing bonus damage based on it''s max health.', 'Dragon Flight', 'Travels to a new location, passing over all obstacles.', 'Breath of Life', 'Brings back to life a dead ally, with health equal to the fatigue stat.'),
+(33, 'Percussion Spear', 'Attacks cause rear spear strike, which cannot be dodged.', 'Executioner Axe', 'Slashes nearby foe, doing bonus damage based on it''s max health.', 'Dragon Flight', 'Travels to a location passing over obstacles with no movement cost.', 'Breath of Life', 'Brings back to life a dead ally, with health equal to the fatigue stat.'),
 (34, 'No name', 'No description', 'No name', 'No description', 'No name', 'No description', 'No name', 'No description'),
 (35, 'Shield Block', 'Uses shield to defend against frontal attacks, greatly reducing damage.', 'No name', 'No description', 'No name', 'No description', 'No name', 'No description'),
 (36, 'No name', 'No description', 'No name', 'No description', 'No name', 'No description', 'No name', 'No description'),
@@ -100,10 +99,10 @@ INSERT INTO `ab_abilities` (`id`, `passive`, `passive info`, `weak`, `weak info`
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ab_creatures`
+-- Structura de tabel pentru tabelul `ab_creatures`
 --
--- Creation: Sep 15, 2012 at 04:43 PM
--- Last update: Oct 04, 2012 at 10:45 AM
+-- Creare: 15 Sep 2012 la 16:43
+-- Ultima actualizare: 01 Dec 2012 la 08:02
 --
 
 CREATE TABLE IF NOT EXISTS `ab_creatures` (
@@ -118,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `ab_creatures` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=51 ;
 
 --
--- Dumping data for table `ab_creatures`
+-- Salvarea datelor din tabel `ab_creatures`
 --
 
 INSERT INTO `ab_creatures` (`id`, `name`, `sin`, `lvl`, `hex`, `embed`) VALUES
@@ -127,9 +126,9 @@ INSERT INTO `ab_creatures` (`id`, `name`, `sin`, `lvl`, `hex`, `embed`) VALUES
 (3, 'Uncle Fungus', 'G', '3', 2, NULL),
 (4, 'Magma Spawn', 'L', '2', 3, NULL),
 (5, 'Impaler', 'S', '6', 3, NULL),
-(6, 'Ice Demon', 'S', '7', 2, NULL),
+(6, 'Ice Demon', 'S', '7', 3, NULL),
 (7, 'Abolished', 'P', '7', 3, NULL),
-(8, 'Horn Head', 'W', '4', 2, '<iframe frameborder="0" height="520" width="400" src="http://skfb.ly/k4j3hfdc0?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe>'),
+(8, 'Horn Head', 'W', '5', 2, '<iframe frameborder="0" height="520" width="400" src="http://skfb.ly/k4j3hfdc0?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe>'),
 (9, 'Nightmare', 'S', '4', 2, NULL),
 (10, 'Troglodyte', 'P', '3', 3, NULL),
 (11, 'Toxic Shroom', 'G', '1', 1, NULL),
@@ -140,9 +139,9 @@ INSERT INTO `ab_creatures` (`id`, `name`, `sin`, `lvl`, `hex`, `embed`) VALUES
 (16, 'Vulcan', 'L', '6', 2, NULL),
 (17, 'Razorback', 'E', '6', 2, NULL),
 (18, 'Sarcophag', 'W', '7', 3, NULL),
-(19, 'Miss Creeper', 'G', '4', 1, '<iframe frameborder="0" height="520" width="400" src="http://skfb.ly/k4ihg2fda?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe>'),
+(19, 'Miss Creeper', 'G', '4', 1, NULL),
 (20, 'Adaptation', 'S', '5', 3, NULL),
-(21, 'Flayed', 'W', '5', 2, NULL),
+(21, 'Flayed', 'W', '4', 2, NULL),
 (22, 'Lava Mollusk', 'L', '1', 1, NULL),
 (23, 'Metal Face', 'L', '4', 3, NULL),
 (24, 'Living Armor', 'A', '6', 2, NULL),
@@ -154,7 +153,7 @@ INSERT INTO `ab_creatures` (`id`, `name`, `sin`, `lvl`, `hex`, `embed`) VALUES
 (30, 'Eggplant', 'G', '5', 2, NULL),
 (31, 'Cyber Hound', 'A', '3', 2, NULL),
 (32, 'Deep Beauty', 'S', '3', 2, NULL),
-(33, 'Golden Wyrm', 'A', '7', 2, NULL),
+(33, 'Golden Wyrm', 'A', '7', 3, NULL),
 (34, 'Bouncer', 'S', '2', 2, NULL),
 (35, 'Greedy Knight', 'A', '4', 1, NULL),
 (36, 'Vertigo', 'E', '4', 1, NULL),
@@ -177,11 +176,11 @@ INSERT INTO `ab_creatures` (`id`, `name`, `sin`, `lvl`, `hex`, `embed`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ab_items`
+-- Structura de tabel pentru tabelul `ab_items`
 --
--- Creation: Apr 11, 2012 at 10:03 PM
--- Last update: Sep 01, 2012 at 01:17 PM
--- Last check: Sep 01, 2012 at 01:17 PM
+-- Creare: 11 Apr 2012 la 22:03
+-- Ultima actualizare: 17 Oct 2012 la 04:46
+-- Ultima verficare: 01 Sep 2012 la 13:17
 --
 
 CREATE TABLE IF NOT EXISTS `ab_items` (
@@ -191,7 +190,7 @@ CREATE TABLE IF NOT EXISTS `ab_items` (
   `value` mediumint(255) NOT NULL,
   `health` tinyint(4) DEFAULT NULL,
   `regrowth` tinyint(4) DEFAULT NULL,
-  `fatigue` tinyint(4) DEFAULT NULL,
+  `endurance` tinyint(4) DEFAULT NULL,
   `energy` tinyint(4) DEFAULT NULL,
   `meditation` tinyint(4) DEFAULT NULL,
   `initiative` tinyint(4) DEFAULT NULL,
@@ -211,10 +210,10 @@ CREATE TABLE IF NOT EXISTS `ab_items` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=25 ;
 
 --
--- Dumping data for table `ab_items`
+-- Salvarea datelor din tabel `ab_items`
 --
 
-INSERT INTO `ab_items` (`id`, `name`, `type`, `value`, `health`, `regrowth`, `fatigue`, `energy`, `meditation`, `initiative`, `offense`, `defense`, `movement`, `pierce`, `slash`, `crush`, `shock`, `burn`, `frost`, `poison`, `sonic`, `mental`) VALUES
+INSERT INTO `ab_items` (`id`, `name`, `type`, `value`, `health`, `regrowth`, `endurance`, `energy`, `meditation`, `initiative`, `offense`, `defense`, `movement`, `pierce`, `slash`, `crush`, `shock`, `burn`, `frost`, `poison`, `sonic`, `mental`) VALUES
 (1, 'Simple dagger', 'dagger', 80, NULL, NULL, NULL, NULL, NULL, NULL, 2, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2, 'Throwing spear', 'spear', 100, NULL, NULL, NULL, NULL, NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (3, 'Throwing blade', 'blade', 120, NULL, NULL, NULL, NULL, NULL, NULL, 4, NULL, NULL, 2, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -222,61 +221,32 @@ INSERT INTO `ab_items` (`id`, `name`, `type`, `value`, `health`, `regrowth`, `fa
 (5, 'Ivy bow', 'bow', 140, NULL, NULL, NULL, NULL, NULL, NULL, 4, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, 6, NULL, NULL),
 (6, 'Blade bow', 'bow', 150, NULL, NULL, NULL, NULL, NULL, NULL, 4, 2, NULL, 3, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (7, 'Crystallized Lightning', 'staff', 400, NULL, NULL, NULL, 3, 2, NULL, 3, NULL, NULL, 1, 1, 1, 5, NULL, NULL, NULL, 3, 3),
-(8, 'Thunderbird feather', 'feather', 160, NULL, NULL, NULL, 5, NULL, -1, NULL, NULL, NULL, NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL),
-(9, 'Phoenix feather', 'feather', 170, NULL, 1, NULL, NULL, 1, -2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 2, 1, NULL, NULL, NULL),
+(8, 'Thunderbird feather', 'feather', 160, NULL, NULL, NULL, 5, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL),
+(9, 'Phoenix feather', 'feather', 170, NULL, 1, NULL, NULL, 1, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 2, 1, NULL, NULL, NULL),
 (10, 'Sting shield', 'shield', 190, NULL, NULL, NULL, NULL, NULL, NULL, 2, 4, NULL, 2, 2, 2, NULL, NULL, NULL, NULL, NULL, NULL),
 (11, 'Bloody Crystal necklace', 'amulet', 300, 30, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(12, 'Blue Sparrow amulet', 'amulet', 5000, NULL, NULL, -5, 10, NULL, -10, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, 2, NULL, NULL, NULL),
+(12, 'Blue Sparrow amulet', 'amulet', 5000, NULL, NULL, 5, 10, NULL, 10, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, 2, NULL, NULL, NULL),
 (13, 'Thunderbird cape', 'cape', 600, NULL, NULL, NULL, 5, NULL, NULL, NULL, 2, NULL, NULL, 1, NULL, 10, NULL, 2, NULL, NULL, 2),
-(14, 'Death''s Touch bow', 'bow', 13000, 99, -1, 10, 99, 99, -10, 50, 99, 99, -5, -5, -5, -5, -5, -5, -5, -5, -5),
-(15, 'Cameleon ring', 'ring', 300, NULL, NULL, NULL, NULL, 5, -5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(14, 'Death''s Touch bow', 'bow', 13000, 99, -1, -10, 99, 99, 10, 50, 99, 99, -5, -5, -5, -5, -5, -5, -5, -5, -5),
+(15, 'Cameleon ring', 'ring', 300, NULL, NULL, NULL, NULL, 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (16, 'Sulfur ring', 'ring', 450, NULL, -3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 5, NULL, NULL, NULL, NULL),
-(17, 'Volcanic Pearl ring', 'ring', 450, NULL, NULL, NULL, NULL, 1, -1, 1, 1, NULL, NULL, NULL, 1, NULL, 2, 1, NULL, 1, NULL),
-(18, 'Spider belt', 'belt', 320, NULL, NULL, -3, NULL, 3, -5, NULL, 3, NULL, 1, 1, NULL, NULL, NULL, NULL, 2, NULL, NULL),
-(19, 'Scout''s Journal', 'misc', 500, 1, 1, -15, 5, 1, -15, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20, 'Deer helmet', 'helmet', 360, 10, NULL, NULL, 5, NULL, -5, 2, 4, NULL, NULL, NULL, 2, NULL, NULL, 1, NULL, NULL, NULL),
+(17, 'Volcanic Pearl ring', 'ring', 450, NULL, NULL, NULL, NULL, 1, 1, 1, 1, NULL, NULL, NULL, 1, NULL, 2, 1, NULL, 1, NULL),
+(18, 'Spider belt', 'belt', 320, NULL, NULL, 3, NULL, 3, 5, NULL, 3, NULL, 1, 1, NULL, NULL, NULL, NULL, 2, NULL, NULL),
+(19, 'Scout''s Journal', 'misc', 500, 1, 1, 15, 5, 1, 15, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(20, 'Deer helmet', 'helmet', 360, 10, NULL, NULL, 5, NULL, 5, 2, 4, NULL, NULL, NULL, 2, NULL, NULL, 1, NULL, NULL, NULL),
 (21, 'Demonic helmet', 'helmet', 555, NULL, NULL, NULL, NULL, NULL, NULL, 5, 5, NULL, 2, 2, 2, NULL, NULL, NULL, NULL, 2, NULL),
 (22, 'Curved axe', 'axe', 1000, NULL, NULL, NULL, NULL, NULL, NULL, 5, 1, NULL, 3, 6, 2, NULL, NULL, NULL, NULL, NULL, NULL),
-(23, 'Leather boots', 'boots', 250, NULL, NULL, NULL, NULL, NULL, -5, NULL, 1, 2, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(23, 'Leather boots', 'boots', 250, NULL, NULL, NULL, NULL, NULL, 5, NULL, 1, 2, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL),
 (24, 'Studded club', 'club', 400, NULL, NULL, NULL, NULL, NULL, NULL, 2, 1, NULL, 2, 1, 3, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ab_players`
+-- Structura de tabel pentru tabelul `ab_progress`
 --
--- Creation: Feb 28, 2012 at 10:00 AM
--- Last update: Sep 01, 2012 at 01:17 PM
--- Last check: Sep 01, 2012 at 01:17 PM
---
-
-CREATE TABLE IF NOT EXISTS `ab_players` (
-  `user` int(10) NOT NULL,
-  `sin` varchar(1) NOT NULL DEFAULT 'r',
-  `lvl` int(3) NOT NULL DEFAULT '1',
-  `exp` int(11) DEFAULT NULL,
-  `creatures` int(11) NOT NULL DEFAULT '1',
-  `items` varchar(30) NOT NULL DEFAULT '(id,loc,pos)',
-  `outfits` varchar(20) NOT NULL,
-  `gold` int(11) DEFAULT NULL,
-  PRIMARY KEY (`user`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `ab_players`
---
-
-INSERT INTO `ab_players` (`user`, `sin`, `lvl`, `exp`, `creatures`, `items`, `outfits`, `gold`) VALUES
-(1, '', 2, 1200, 1, '(1,0,1), (4,0,2)', '[0]', 100);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `ab_progress`
---
--- Creation: Mar 16, 2012 at 02:43 AM
--- Last update: Oct 11, 2012 at 03:30 PM
--- Last check: Sep 01, 2012 at 01:17 PM
+-- Creare: 16 Mar 2012 la 02:43
+-- Ultima actualizare: 01 Dec 2012 la 07:56
+-- Ultima verficare: 01 Sep 2012 la 13:17
 --
 
 CREATE TABLE IF NOT EXISTS `ab_progress` (
@@ -295,22 +265,22 @@ CREATE TABLE IF NOT EXISTS `ab_progress` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=51 ;
 
 --
--- Dumping data for table `ab_progress`
+-- Salvarea datelor din tabel `ab_progress`
 --
 
 INSERT INTO `ab_progress` (`id`, `info`, `artwork`, `icons`, `model`, `unwrap`, `texture`, `rig`, `animation`, `sound`, `coding`) VALUES
 (1, 80, 100, 100, 80, 0, 20, 0, 0, 10, 0),
 (2, 80, 60, 100, 80, 0, 0, 90, 10, 10, 0),
 (3, 80, 80, 100, 70, 0, 0, 50, 0, 10, 0),
-(4, 90, 100, 100, 90, 100, 40, 50, 0, 10, 0),
-(5, 90, 100, 90, 60, 90, 60, 50, 0, 20, 0),
+(4, 90, 100, 100, 100, 100, 100, 100, 20, 10, 30),
+(5, 90, 100, 90, 80, 90, 80, 80, 0, 30, 40),
 (6, 90, 100, 90, 100, 0, 0, 50, 0, 10, 0),
 (7, 80, 70, 100, 80, 0, 0, 50, 0, 10, 0),
 (8, 90, 60, 100, 100, 100, 90, 30, 0, 10, 0),
 (9, 90, 60, 100, 0, 0, 0, 0, 0, 10, 0),
 (10, 80, 100, 100, 100, 100, 100, 100, 10, 10, 0),
 (11, 80, 90, 100, 60, 0, 30, 0, 0, 10, 0),
-(12, 80, 100, 100, 70, 0, 20, 0, 0, 10, 0),
+(12, 80, 100, 100, 70, 0, 20, 0, 0, 10, 60),
 (13, 80, 100, 100, 100, 100, 100, 100, 30, 10, 0),
 (14, 80, 70, 100, 90, 0, 70, 0, 0, 10, 0),
 (15, 70, 70, 100, 50, 0, 20, 0, 0, 10, 0),
@@ -318,24 +288,24 @@ INSERT INTO `ab_progress` (`id`, `info`, `artwork`, `icons`, `model`, `unwrap`, 
 (17, 70, 100, 100, 90, 100, 90, 0, 0, 10, 0),
 (18, 10, 100, 100, 60, 0, 10, 0, 0, 10, 0),
 (19, 80, 100, 100, 100, 100, 100, 100, 0, 10, 0),
-(20, 70, 100, 0, 0, 0, 10, 0, 0, 10, 0),
+(20, 80, 90, 100, 0, 0, 10, 0, 0, 10, 0),
 (21, 70, 80, 100, 0, 0, 10, 0, 0, 10, 0),
 (22, 80, 70, 100, 40, 0, 10, 0, 0, 10, 0),
 (23, 70, 100, 100, 30, 0, 10, 0, 0, 10, 0),
 (24, 80, 90, 100, 20, 0, 10, 0, 0, 10, 0),
-(25, 80, 50, 100, 70, 90, 30, 0, 0, 10, 0),
+(25, 80, 50, 100, 80, 100, 80, 0, 0, 10, 0),
 (26, 40, 80, 80, 0, 0, 10, 0, 0, 10, 0),
 (27, 20, 90, 0, 0, 0, 0, 0, 0, 10, 0),
 (28, 20, 90, 0, 0, 0, 0, 0, 0, 10, 0),
-(29, 80, 100, 100, 0, 0, 0, 0, 0, 10, 0),
+(29, 90, 100, 100, 90, 90, 90, 50, 0, 10, 0),
 (30, 80, 70, 100, 0, 0, 10, 0, 0, 10, 0),
 (31, 40, 80, 100, 60, 0, 0, 0, 0, 10, 0),
 (32, 20, 100, 0, 0, 0, 0, 0, 0, 10, 0),
-(33, 60, 40, 100, 0, 0, 0, 0, 0, 10, 0),
+(33, 90, 90, 100, 20, 0, 10, 0, 0, 10, 0),
 (34, 20, 80, 0, 20, 0, 0, 0, 0, 10, 0),
-(35, 20, 90, 0, 0, 0, 0, 0, 0, 10, 0),
+(35, 50, 90, 0, 0, 0, 0, 0, 0, 10, 0),
 (36, 20, 30, 0, 0, 0, 0, 0, 0, 10, 0),
-(37, 70, 100, 100, 0, 0, 20, 0, 0, 10, 0),
+(37, 80, 100, 100, 0, 0, 20, 0, 0, 10, 0),
 (38, 20, 30, 0, 0, 0, 0, 0, 0, 10, 0),
 (39, 20, 30, 0, 0, 0, 0, 0, 0, 10, 0),
 (40, 10, 40, 0, 0, 0, 0, 0, 0, 10, 0),
@@ -348,24 +318,24 @@ INSERT INTO `ab_progress` (`id`, `info`, `artwork`, `icons`, `model`, `unwrap`, 
 (47, 20, 80, 0, 0, 0, 0, 0, 0, 10, 0),
 (48, 20, 40, 0, 0, 0, 0, 0, 0, 10, 0),
 (49, 20, 60, 0, 0, 0, 0, 0, 0, 10, 0),
-(0, 90, 60, 100, 30, 0, 20, 0, 0, 10, 0),
+(0, 90, 60, 100, 30, 0, 20, 0, 0, 10, 70),
 (50, 80, 80, 100, 0, 0, 10, 0, 0, 10, 0);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ab_stats`
+-- Structura de tabel pentru tabelul `ab_stats`
 --
--- Creation: May 09, 2012 at 04:01 AM
--- Last update: Oct 04, 2012 at 10:40 AM
--- Last check: Sep 01, 2012 at 01:17 PM
+-- Creare: 09 May 2012 la 04:01
+-- Ultima actualizare: 03 Dec 2012 la 05:15
+-- Ultima verficare: 01 Sep 2012 la 13:17
 --
 
 CREATE TABLE IF NOT EXISTS `ab_stats` (
   `id` smallint(4) NOT NULL AUTO_INCREMENT,
   `health` smallint(4) NOT NULL DEFAULT '0',
   `regrowth` smallint(4) NOT NULL DEFAULT '0',
-  `fatigue` smallint(4) NOT NULL DEFAULT '0',
+  `endurance` smallint(4) NOT NULL DEFAULT '0',
   `energy` smallint(4) NOT NULL DEFAULT '0',
   `meditation` smallint(4) NOT NULL DEFAULT '0',
   `initiative` smallint(4) NOT NULL DEFAULT '0',
@@ -387,22 +357,22 @@ CREATE TABLE IF NOT EXISTS `ab_stats` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=51 ;
 
 --
--- Dumping data for table `ab_stats`
+-- Salvarea datelor din tabel `ab_stats`
 --
 
-INSERT INTO `ab_stats` (`id`, `health`, `regrowth`, `fatigue`, `energy`, `meditation`, `initiative`, `offense`, `defense`, `movement`, `pierce`, `slash`, `crush`, `shock`, `burn`, `frost`, `poison`, `sonic`, `mental`) VALUES
-(1, 100, 3, 40, 125, 8, 110, 40, 10, 6, 5, 2, 3, 5, 3, 7, 5, 6, 20),
-(2, 400, 15, 10, 210, 7, 100, 35, 5, 12, 8, 8, 6, 12, 9, 5, 6, 3, 3),
+INSERT INTO `ab_stats` (`id`, `health`, `regrowth`, `endurance`, `energy`, `meditation`, `initiative`, `offense`, `defense`, `movement`, `pierce`, `slash`, `crush`, `shock`, `burn`, `frost`, `poison`, `sonic`, `mental`) VALUES
+(1, 100, 3, 90, 125, 8, 110, 40, 10, 6, 5, 2, 3, 5, 3, 7, 5, 6, 20),
+(2, 400, 15, 50, 210, 7, 100, 35, 5, 7, 8, 8, 6, 12, 9, 5, 6, 3, 3),
 (3, 340, 20, 50, 140, 7, 85, 35, 15, 6, 6, 7, 8, 3, 4, 6, 20, 5, 3),
-(4, 200, 5, 10, 100, 5, 130, 16, 16, 5, 12, 12, 12, 12, 20, 0, 25, 5, 0),
-(5, 420, 15, 60, 140, 10, 110, 40, 15, 10, 5, 2, 4, 20, 3, 20, 20, 6, 15),
-(6, 360, 5, 5, 100, 5, 160, 20, 20, 8, 2, 2, 4, 2, 1, 40, 20, 4, 15),
-(7, 555, 0, 0, 100, 3, 120, 6, 6, 1, 10, 10, 10, 10, 10, 10, 10, 10, 10),
+(4, 260, 4, 80, 90, 3, 80, 15, 15, 5, 12, 12, 12, 12, 20, 0, 25, 5, 0),
+(5, 420, 15, 60, 140, 10, 110, 40, 15, 8, 5, 2, 4, 20, 3, 20, 20, 6, 15),
+(6, 800, 5, 80, 100, 5, 160, 20, 20, 6, 4, 4, 4, 2, 1, 40, 20, 4, 15),
+(7, 666, 0, 66, 100, 3, 120, 6, 6, 1, 10, 10, 10, 10, 10, 10, 10, 10, 10),
 (8, 550, 10, 80, 150, 10, 140, 45, 35, 8, 6, 6, 6, 2, 2, 2, 2, 10, 0),
-(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 4, 3, 2, 1, 10, 5, 5, 15),
+(9, 430, 3, 50, 60, 5, 40, 20, 20, 4, 5, 4, 3, 2, 1, 10, 5, 5, 15),
 (10, 200, 2, 60, 90, 2, 180, 10, 10, 5, 3, 3, 3, 3, 3, 3, 3, 5, 20),
 (11, 100, 1, 60, 80, 5, 140, 3, 5, 4, 2, 2, 4, 1, 2, 5, 4, 1, 5),
-(12, 160, 6, 20, 100, 6, 75, 9, 7, 8, 3, 3, 3, 3, 1, 6, 0, 0, 0),
+(12, 90, 6, 20, 100, 6, 60, 9, 5, 3, 3, 3, 3, 3, 1, 6, 0, 0, 0),
 (13, 130, 5, 60, 70, 4, 130, 2, 4, 4, 2, 2, 2, 2, 2, 2, 4, 3, 1),
 (14, 200, 5, 10, 70, 3, 85, 5, 15, 7, 8, 8, 12, 3, 2, 3, 7, 6, 4),
 (15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -410,7 +380,7 @@ INSERT INTO `ab_stats` (`id`, `health`, `regrowth`, `fatigue`, `energy`, `medita
 (17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (19, 222, 1, 33, 90, 3, 80, 30, 5, 4, 6, 6, 6, 1, 1, 1, 5, 6, 7),
-(20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(20, 550, 5, 60, 50, 4, 60, 40, 5, 4, 5, 7, 6, 8, 1, 35, 5, 15, 10),
 (21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -419,20 +389,20 @@ INSERT INTO `ab_stats` (`id`, `health`, `regrowth`, `fatigue`, `energy`, `medita
 (26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(29, 400, 5, 50, 100, 10, 40, 15, 20, 5, 10, 10, 10, 0, 5, 5, 3, 3, 15),
 (30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(33, 720, 8, 100, 120, 5, 100, 60, 60, 6, 20, 20, 20, 15, 20, 10, 10, 15, 15),
 (34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(35, 450, 5, 100, 70, 2, 100, 30, 30, 6, 9, 9, 9, 0, 5, 5, 0, 0, 10),
 (36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(37, 160, 8, 90, 70, 5, 40, 10, 10, 4, 4, 4, 4, 3, 1, 1, 1, 1, 1),
 (38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(42, 800, 5, 100, 80, 10, 80, 80, 80, 5, 15, 15, 15, 10, 10, 5, 5, 5, 10),
 (43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -440,7 +410,7 @@ INSERT INTO `ab_stats` (`id`, `health`, `regrowth`, `fatigue`, `energy`, `medita
 (47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(0, 100, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(0, 100, 1, 60, 100, 10, 50, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 30),
 (50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
