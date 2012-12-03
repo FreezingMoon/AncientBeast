@@ -142,7 +142,7 @@ After the first materialized creature, each aditional realm requires a plasma po
 <p>
 <b>Health:</b> A raw number representing the amount of damage a creature can take until it dies.<br>
 <b>Regrowth:</b> Amount of health which gets restored to the creature every round.<br>
-<b>Fatigue:</b> While a creature is below this amount of health, it becomes fatigued and unable to act.<br>
+<b>Endurance:</b> If a creature takes over a certain amount of damage in a round, it becomes fatigued, unable to act.<br>
 <b>Energy:</b> Doing any action, including moving, drains energy from the creature.<br>
 <b>Meditation:</b> Creature gains back this amount of energy points every round.<br>
 <b>Initiative:</b> Creatures with higher initiative get to act faster each round.<br>
