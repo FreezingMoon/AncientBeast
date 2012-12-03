@@ -83,6 +83,7 @@ function db_query($query) {
 ?>
 <html>
 	<head>
+		<meta charset='utf-8'> 
 		<link rel="stylesheet" type="text/css" href="./css/style.css">
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -126,6 +127,72 @@ function db_query($query) {
 		<div id="matchmaking">
 			<div id="loader"><img src="../images/AB.gif">Loading</div>
 			<div id="gamesetupcontainer">
+				<div id="players" style="float:left; margin-left:550px;">
+					<div style="margin-left:auto;"><h2>Players</h2></div>
+					<div value="2" style="border:2px solid red;">
+						<div><img src="../bestiary/Dark Priest/avatar-red.jpg"></div>
+						<div style="margin-left:auto; font-weight:strong; padding:5px; background: rgba(0,0,0,.8);">1 versus 1</div>
+						<div><img src="../bestiary/Dark Priest/avatar-blue.jpg"></div>
+					</div>
+					<div style="height:50px;"></div>
+					<div value="4" style=" border:2px solid grey;">
+						<div id="teamA">
+							<div><img src="../bestiary/Dark Priest/avatar-red.jpg"></div>
+							<div><img src="../bestiary/Dark Priest/avatar-orange.jpg"></div>
+						</div>
+					
+						<div style="margin-left:auto; font-weight:strong; padding:5px; background: rgba(0,0,0,.8);">2 versus 2</div>
+
+						<div id="teamB">
+							<div><img src="../bestiary/Dark Priest/avatar-blue.jpg"></div>
+							<div><img src="../bestiary/Dark Priest/avatar-green.jpg"></div>
+						</div>
+					</div>
+				</div>
+
+				<div id="location" style="float:left; margin-left:50px;">
+					<div style="margin-left:auto;"><h2>Location</h2></div>
+					<div style="width:480px; border:2px solid red; margin-left:auto; background: rgba(0,0,0,.8);"><h3>Random</h3></div>
+					<img style="width:480px; border:2px solid grey; background: rgba(0,0,0,.8);" src="../locations/Dark Forest/bg.jpg"><br>
+					<img style="width:480px; border:2px solid grey; background: rgba(0,0,0,.8);" src="../locations/Frozen Skull/bg.jpg"><br>
+					<img style="width:480px; border:2px solid grey; background: rgba(0,0,0,.8);" src="../locations/Shadow Cave/bg.jpg">
+				</div>
+
+				<div id="mode" style="float:left; margin-left:50px;">
+					<div style="margin-left:auto;"><h2>Mode</h2></div>
+					<div style="border:2px solid red; background: rgba(0,0,0,.8);">Full</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">Casual</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">Sinner</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">Trivia</div>
+					<div></div>
+					<div><h2>Plasma</h2></div>
+					<div style="border:2px solid red; background: rgba(0,0,0,.8);">50</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">60</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">70</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">80</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">90</div>
+					<div><h2>Time</h2></div>
+					<div style="border:2px solid red; background: rgba(0,0,0,.8);">5</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">6</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">7</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">8</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
+					<div><h2>Turn</h2></div>
+					<div style="border:2px solid red; background: rgba(0,0,0,.8);">15</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">30</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">45</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">60</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
+					<div><h2>Match</h2></div>
+					<div style="border:2px solid red; background: rgba(0,0,0,.8);">1</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">3</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">5</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">7</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
+					<div><h2>FIGHT</h2></div>
+				</div>
+
+
 				<form id="gamesetup" action="javascript:0;">
 					Players : 
 					<select name="nbrplayer">
@@ -141,10 +208,10 @@ function db_query($query) {
 				<div id="return" class="toggledash button"></div>
 				<div id="tooltip"></div>
 				<div id="playertabswrapper">
-					<div class="playertabs p0"  player="0">Player1<p class="plasma">Plasma 0</p>
-					</div><div class="playertabs p2" player="2">Player3<p class="plasma">Plasma 0</p>
-					</div><div class="playertabs p1" player="1">Player2<p class="plasma">Plasma 0</p>
-					</div><div class="playertabs p3" player="3">Player4<p class="plasma">Plasma 0</p>
+					<div class="playertabs p0"  player="0">Player1<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time">∞ Time</p>
+					</div><div class="playertabs p2" player="2">Player3<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time">∞ Time</p>
+					</div><div class="playertabs p1" player="1">Player2<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time">∞ Time</p>
+					</div><div class="playertabs p3" player="3">Player4<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time">∞ Time</p>
 					</div>
 				</div>
 				<div id="cardwrapper">
@@ -160,10 +227,11 @@ function db_query($query) {
 					<div id="queuewrapper"></div>
 				</div>
 				<div id="playerbutton" class="toggledash vignette active"><div></div></div>
-				<div id="playerinfos">
+				<div id="playerinfos" style="cursor:default;">
 					<p class="name"></p>
 					<p class="points"><span></span> Points</p>
 					<p class="plasma"><span></span> Plasma</p>
+					<p class="time"><span></span>∞ Time</p>
 				</div>
 				<div id="rightpanel">
 					<div id="end" class="button"></div>
@@ -173,7 +241,7 @@ function db_query($query) {
 				<div id="leftpanel">
 					<div id="activebox">
 						<div id="abilities">
-							<div ability="0" class="ability button"><div class="desc"><p></p></div></div>
+							<div ability="0" class="ability button" style="cursor:default;"><div class="desc"><p></p></div></div>
 							<div ability="1" class="ability button"><div class="desc"><p></p></div></div>
 							<div ability="2" class="ability button"><div class="desc"><p></p></div></div>
 							<div ability="3" class="ability button"><div class="desc"><p></p></div></div>

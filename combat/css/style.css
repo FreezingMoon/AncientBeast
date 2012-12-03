@@ -1,8 +1,9 @@
+@import url(http://fonts.googleapis.com/css?family=Play:400,700);
 body{
-	background: white;
+	background: black url('../../images/bg.jpg') repeat;
 	margin: 0;
 	padding: 0;
-	font-family: verdana;
+	font-family: 'Play', sans-serif;
 }
 
 #combatwrapper{
@@ -426,12 +427,12 @@ div.row:nth-child(9){top:38.944em;}
 	top: 0px;
 	position: fixed;
 	display: block;
-	height: 74px;
+	height: 95px;
 	width: auto;
 	background: rgba(0,0,0,.8);
 	border: 2px solid grey;
-	padding: 2px 7px;
-	font-size: 14px;
+	padding: 0px 7px;
+	font-size: 16px;
 	font-weight: bold;
 	color: white;
 	text-align: right;
@@ -503,10 +504,10 @@ div.row:nth-child(9){top:38.944em;}
 #playertabswrapper.numplayer4 .playertabs{width: 25%;}
 
 #playertabswrapper .playertabs{
-	height: 50px;
+	height: 95px;
 	display: inline-block;
 	color: white;
-	font-size: 14px;
+	font-size: 12px;
 	border-top: 4px solid;
 	text-align: center;
 	cursor: pointer;
@@ -695,7 +696,7 @@ div.row:nth-child(9){top:38.944em;}
 	top: 0px;
 	z-index: 99;
 	text-align: center;
-	background-color: black;
+	background: black url('../../images/Reaper.jpg') no-repeat center top;
 	color: white;
 }
 #loader{
