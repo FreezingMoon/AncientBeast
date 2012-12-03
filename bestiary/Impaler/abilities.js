@@ -1,11 +1,11 @@
 /*
 *
-*	Magma Spawn abilities
+*	Impaler abilities
 *
 */
 abilities["S6"] =[
 
-// 	First Ability
+// 	Passive Ability
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -23,7 +23,7 @@ abilities["S6"] =[
 
 
 
-// 	Second Ability
+// 	First Ability
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -32,7 +32,7 @@ abilities["S6"] =[
 	title : "Jab Attack",
 
 	//	Description
-	desc : "A powerful strike with it's javelin-like horn.",
+	desc : "Horn attack that does bonus pierce damage based on distance traveled.",
 
 	damages : {
 		pierce : 10
@@ -77,7 +77,7 @@ abilities["S6"] =[
 
 
 
-// 	Third Ability
+// 	Second Ability
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -95,7 +95,7 @@ abilities["S6"] =[
 
 
 
-// 	Fourth Ability
+// 	Third Ability
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
