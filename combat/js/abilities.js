@@ -117,18 +117,27 @@ var Effect = Class.create({
 	/* Constructor(owner,parent,trigger,effectFn)
 	*	
 	*	owner : 		Creature : 	Creature that casted the effect
-	*	parent : 		Object : 	Creature or Hex the object that possess the effect
+	*	target : 		Object : 	Creature or Hex the object that possess the effect
 	*	trigger : 		String : 	Event that trigger the effect
 	*	effectFn : 		Function : 	Function to trigger
 	*/
-	initialize: function(owner,parent,trigger,effectFn){
-		this.id 		= effectId;
+	initialize: function(name,owner,target,trigger,optArgs){
+		this.id 		= effectId++;
+
+		this.name 		= name;
 		this.owner 		= owner;
-		this.parent 	= parent;
+		this.target 	= target;
 		this.trigger 	= trigger;
-		this.effectFn 	= effectFn;
+
+		var args = $j.extend({
+			//Default Arguments
+			effectFn : function(){},
+			alterations : {}
+		},optArgs);
+
+		$j.extend(this,args);
+
 		G.effects.push(this);
-		effectId++;
 	},
 
 	activate: function(){
@@ -136,8 +145,8 @@ var Effect = Class.create({
 	},
 
 	deleteEffect: function(){
-		var i = this.parent.effects.indexOf(this);
-		this.parent.effects.splice(i,1);
+		var i = this.target.effects.indexOf(this);
+		this.target.effects.splice(i,1);
 		i = G.effects.indexOf(this);
 		G.effects.splice(i,1);
 	},

@@ -61,10 +61,12 @@ var Creature = Class.create({
 		this.player 	= G.players[obj.team];
 		this.dead		= false;
 		this.hasWait 	= false;
+		this.travelDist = 0;
 		this.effects 	= [];
 
 		//Statistics
-		this.stats 		= obj.stats;
+		this.baseStats 	= obj.stats;
+		this.stats 		= $j.extend({},this.baseStats);//Copy
 		this.health		= obj.stats.health;
 		this.remainingMove	= 0; //Default value recovered each turn
 
@@ -111,6 +113,8 @@ var Creature = Class.create({
 	*
 	*/
 	activate: function(){
+		this.travelDist = 0;
+
 		if(!this.hasWait){
 			this.remainingMove = this.stats.movement;
 			this.abilities.each(function(){ this.used = false; });
@@ -187,7 +191,6 @@ var Creature = Class.create({
 				G.grid.cleanDisplay("adj"); //In case of skip turn
 				G.grid.cleanOverlay("creature selected hover h_player0 h_player1 h_player2 h_player3");
 				G.grid.updateDisplay(); //Retrace players creatures
-
 			},
 			function(hex,creature){ creature.moveTo(hex,{
 					callback : function(){
@@ -284,6 +287,7 @@ var Creature = Class.create({
 			var path = [hex];
 		}else{
 			var path = creature.calculatePath(x,y);
+			creature.travelDist = path.length;
 		}
 
 		G.grid.cleanDisplay("adj"); //Clean previous path
@@ -469,6 +473,7 @@ var Creature = Class.create({
 	*
 	*/
 	takeDamage: function(damage){
+		var creature = this;
 
 		//Passive abilities
 		this.abilities.each(function(){
@@ -481,8 +486,15 @@ var Creature = Class.create({
 
 		//Calculation
 		if(!damage.dodged){
+
+			//Damages
 			var dmgAmount = damage.apply(this);
 			this.health -= dmgAmount;
+
+			//Effects
+			damage.effects.each(function(){
+				creature.addEffect(this);
+			})
 
 			//Display
 			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
@@ -505,6 +517,32 @@ var Creature = Class.create({
 		}
 	},
 
+
+	/* 	addEffect(effect)
+	*
+	* 	effect : 		Effect : 	Effect object
+	*
+	*/
+	addEffect: function(effect){
+		this.effects.push(effect);
+		this.updateAlteration();
+		//TODO add visual feeback
+	},
+
+	/* 	updateAlteration()
+	*
+	* 	Update the stats taking into account the effects' alteration
+	*
+	*/
+	updateAlteration: function(){
+		var crea = this;
+		crea.stats = $j.extend({},this.baseStats);//Copy
+		this.effects.each(function(){
+			$j.each(this.alterations,function(key,value){
+				crea.stats[key] += value;
+			})
+		});
+	},
 
 	/*	die()
 	*
