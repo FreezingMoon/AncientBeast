@@ -177,19 +177,19 @@ function db_query($query) {
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">6</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">7</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">8</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);"></div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
 					<div><h2>Turn</h2></div>
 					<div style="border:2px solid red; background: rgba(0,0,0,.8);">15</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">30</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">45</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">60</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);"></div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
 					<div><h2>Match</h2></div>
 					<div style="border:2px solid red; background: rgba(0,0,0,.8);">1</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">3</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">5</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">7</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);"></div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
 					<div><h2>FIGHT</h2></div>
 				</div>
 
