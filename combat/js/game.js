@@ -71,6 +71,14 @@ var Game = Class.create({
 	*/
 	loadGame: function(setupOpt){
 
+		var defaultOpt = {
+			nbrPlayer : 2,
+			timePool : 1*60,
+			turnTimePool : 15,
+		}
+		setupOpt = $j.extend(defaultOpt,setupOpt);
+		$j.extend(this,setupOpt);
+
 		$j("#loader").show();
 
 		//Get JSON files
@@ -80,7 +88,7 @@ var Game = Class.create({
 				G.creatureDatas.push(data);
 				i++;
 				if(i==G.availableCreatures.length){ //If all creature are loaded
-					G.setup(setupOpt.nbrplayer);
+					G.setup(G.nbrPlayer);
 				}
 			});
 		});
@@ -95,12 +103,11 @@ var Game = Class.create({
 	*
 	*/
 	setup: function(nbrPlayer){
-		this.nbrPlayer = nbrPlayer; //To be able to access it in the future
-
 		this.grid = new HexGrid();//Creating Hexgrid
 
-		this.$combatFrame = $j("#combatframe");
+		this.startMatchTime = new Date();
 
+		this.$combatFrame = $j("#combatframe");
 		this.$combatFrame.show();
 
 		//Remove loading screen
@@ -148,6 +155,10 @@ var Game = Class.create({
 
 		this.log("Welcome to Ancient Beast pre-Alpha");
 		this.log("Setting up a "+nbrPlayer+" player match");
+
+		this.timeInterval = setInterval(function(){
+			G.checkTime();
+		},1000);
 
 		this.nextCreature();
 
@@ -256,6 +267,7 @@ var Game = Class.create({
 		}
 	},
 
+
 	/*	log(obj)
 	*
 	*	obj : 	Any : 	Any variable to display in console and game log
@@ -264,20 +276,12 @@ var Game = Class.create({
 	*
 	*/
 	log: function(obj){	
-		console.log(obj); 
-		this.UI.$textbox.append("<p>"+obj+"</p>"); 
+		console.log(obj);
+		var time = new Date(new Date() - this.startMatchTime);
+		
+		this.UI.$textbox.append("<p>"+zfill(time.getHours()-1,2)+":"+zfill(time.getMinutes(),2)+":"+zfill(time.getSeconds(),2)+" "+obj+"</p>"); 
 		this.UI.$textbox.parent().scrollTop(this.UI.$textbox.height());
 	},
-
-
-	/*	log(obj)
-	*
-	*	obj : 	Any : 	Any variable to display in console
-	*
-	* 	Same as log() but only in console
-	*
-	*/
-	debuglog: function(obj){ console.log(obj);},
 
 
 	/*	endTurn()
@@ -297,6 +301,22 @@ var Game = Class.create({
 	*/
 	delayTurn: function(){
 		this.activeCreature.wait();
+	},
+
+
+	/*	checkTime()
+	*	
+	*/
+	checkTime: function(){
+		var date = new Date();
+
+		//Check Match Time
+		if( G.timePool > 0 && (date - G.startMatchTime)/1000 > G.timePool )
+			G.endGame();
+		else if( G.turnTimePool > 0 && (date - G.activeCreature.player.startTime)/1000 > G.turnTimePool )
+			G.nextCreature();
+
+		G.UI.updateTimer();
 	},
 
 
@@ -320,7 +340,9 @@ var Game = Class.create({
 	*
 	*/
 	endGame: function(){
+		clearInterval(this.timeInterval);
 		alert('Game Over');
+		//Add Score Table
 	},
 });
 
@@ -347,6 +369,9 @@ var Player = Class.create({
 		this.plasma = 50;
 		this.flipped = !!(id%2); //Convert odd/even to true/false
 		this.availableCreatures = G.availableCreatures;
+		this.bonusTimePool = 0;
+		this.totalTimePool = G.timePool*1000;
+		this.startTime = new Date();
 	},
 
 	/*	summon()
@@ -391,3 +416,9 @@ var Player = Class.create({
 	},
 
 });
+
+//Zfill like in python
+function zfill(num, size) {
+    var s = "000000000" + num;
+    return s.substr(s.length-size);
+}

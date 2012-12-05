@@ -176,19 +176,19 @@ function db_query($query) {
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">6</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">7</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">8</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);"></div>
 					<div><h2>Turn</h2></div>
 					<div style="border:2px solid red; background: rgba(0,0,0,.8);">15</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">30</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">45</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">60</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);"></div>
 					<div><h2>Match</h2></div>
 					<div style="border:2px solid red; background: rgba(0,0,0,.8);">1</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">3</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">5</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">7</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);"></div>
 					<div><h2>FIGHT</h2></div>
 				</div>
 
@@ -208,10 +208,10 @@ function db_query($query) {
 				<div id="return" class="toggledash button"></div>
 				<div id="tooltip"></div>
 				<div id="playertabswrapper">
-					<div class="playertabs p0"  player="0">Player1<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time">∞ Time</p>
-					</div><div class="playertabs p2" player="2">Player3<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time">∞ Time</p>
-					</div><div class="playertabs p1" player="1">Player2<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time">∞ Time</p>
-					</div><div class="playertabs p3" player="3">Player4<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time">∞ Time</p>
+					<div class="playertabs p0"  player="0">Player1<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time"> Time</p>
+					</div><div class="playertabs p2" player="2">Player3<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time"> Time</p>
+					</div><div class="playertabs p1" player="1">Player2<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time"> Time</p>
+					</div><div class="playertabs p3" player="3">Player4<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time"> Time</p>
 					</div>
 				</div>
 				<div id="cardwrapper">
@@ -231,7 +231,7 @@ function db_query($query) {
 					<p class="name"></p>
 					<p class="points"><span></span> Points</p>
 					<p class="plasma"><span></span> Plasma</p>
-					<p class="time"><span></span>∞ Time</p>
+					<p class="time"><span></span> Time</p>
 				</div>
 				<div id="rightpanel">
 					<div id="end" class="button"></div>

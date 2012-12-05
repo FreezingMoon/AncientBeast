@@ -129,7 +129,7 @@ var Creature = Class.create({
 			});
 
 		}
-
+		this.player.startTime = new Date();
 		this.queryMove();
 	},
 

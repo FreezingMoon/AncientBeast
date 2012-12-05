@@ -256,6 +256,27 @@ var UI = Class.create({
 	},
 
 
+	/*	updateTimer()
+	*	
+	*/
+	updateTimer:function(){
+		var date = new Date();
+		if( G.turnTimePool > 0 ){
+			var remainingTime = G.turnTimePool - Math.round((date - G.activeCreature.player.startTime)/1000);
+			var minutes = Math.floor(remainingTime/60);
+			var seconds = remainingTime-minutes*60;
+			$j("#playerinfos .time span").text(zfill(minutes,2)+":"+zfill(seconds,2))
+			//Time Alert
+			if( remainingTime < G.turnTimePool*.25 ) 
+				$j("#playerinfos .time span").addClass("alert");
+			else
+				$j("#playerinfos .time span").removeClass("alert");
+		}else{
+			$j("#playerinfos .time span").text("∞");
+		}
+	},
+
+
 	/*	updateQueueDisplay()
 	*	
 	* 	Delete and add element to the Queue container based on the game's queues

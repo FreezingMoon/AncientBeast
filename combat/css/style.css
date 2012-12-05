@@ -427,19 +427,21 @@ div.row:nth-child(9){top:38.944em;}
 	top: 0px;
 	position: fixed;
 	display: block;
-	height: 95px;
+	height: 80px;
 	width: auto;
 	background: rgba(0,0,0,.8);
 	border: 2px solid grey;
 	padding: 0px 7px;
-	font-size: 16px;
+	font-size: 12px;
 	font-weight: bold;
 	color: white;
 	text-align: right;
 }
 
 #playerinfos p{margin: 4px;}
-#playerinfos .name{}
+#playerinfos .name{	font-size: 15px; }
+
+.alert{color: red;}
 
 /*-------------------dash-------------------*/
 
