@@ -74,7 +74,7 @@ var Game = Class.create({
 		var defaultOpt = {
 			nbrPlayer : 2,
 			timePool : 1*60,
-			turnTimePool : 15,
+			turnTimePool : 20,
 		}
 		setupOpt = $j.extend(defaultOpt,setupOpt);
 		$j.extend(this,setupOpt);

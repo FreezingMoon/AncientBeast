@@ -179,10 +179,10 @@ function db_query($query) {
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">8</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
 					<div><h2>Turn</h2></div>
-					<div style="border:2px solid red; background: rgba(0,0,0,.8);">15</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">30</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">45</div>
+					<div style="border:2px solid red; background: rgba(0,0,0,.8);">20</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">40</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">60</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">80</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
 					<div><h2>Match</h2></div>
 					<div style="border:2px solid red; background: rgba(0,0,0,.8);">1</div>
