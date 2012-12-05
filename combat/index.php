@@ -164,6 +164,7 @@ function db_query($query) {
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">Casual</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">Sinner</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">Trivia</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">Ranked</div>
 					<div></div>
 					<div><h2>Plasma</h2></div>
 					<div style="border:2px solid red; background: rgba(0,0,0,.8);">50</div>

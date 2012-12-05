@@ -34,7 +34,7 @@ abilities["S6"] =[
 	desc : "Horn attack that does bonus pierce damage based on distance traveled.",
 
 	damages : {
-		pierce : 40
+		pierce : 20
 	},
 
 	// 	require() :
@@ -89,10 +89,10 @@ abilities["S6"] =[
 		//Charge Calculation
 		args.creature.effects.each(function(){
 			if(this.trigger == "impaler_charge"){
-				finalDmg.shock += (finalDmg.shock==0) ? 40 : 5 ;
+				finalDmg.shock += (finalDmg.shock==0) ? 20 : 5 ;
 				this.deleteEffect();
 			}else if(this.trigger == "impaler_envenom"){
-				finalDmg.poison += (finalDmg.poison==0) ? 40 : 5 ;
+				finalDmg.poison += (finalDmg.poison==0) ? 20 : 5 ;
 				this.deleteEffect();
 			}
 		});
