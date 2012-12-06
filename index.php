@@ -221,9 +221,9 @@ The game requires animations to be 30 frames per second. Sprite sheets must have
 <table border="1"><tr>
 <td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
 </tr><tr>
-<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png"></a></td><td>Artwork and audio can be remixed and shared under the same license, provided you credit the project, foundation and/or author provided.</td>
+<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png"></a></td><td>CC-BY-SA 3.0: Artwork and audio can be remixed and shared under the same license, provided you credit and link the project, as well as the author(s) of the respective works.</td>
 </tr><tr>
-<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png"></a></td><td>The codebase or parts of it can be remixed and shared under the same license, provided you credit the project and/or foundation.</td>
+<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png"></a></td><td>AGPL 3.0: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
 </tr></table>
 <?php end_segment(); ?>
 </article>
