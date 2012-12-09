@@ -252,8 +252,15 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transform: rotateX(-33deg) scale(1,1.8) ; /* Firefox */
 	-webkit-transform: rotateX(-33deg) scale(1,1.8) ; /* Safari and Chrome */
 	-o-transform: rotateX(-33deg) scale(1,1.8) ; /* Opera */
+}
 
-
+#creatureWrapper div.creature.flipped{
+	/*Rectify distortion due to grid perspective*/
+	transform: rotateX(-33deg) scale(-1,1.8) ;
+	-ms-transform: rotateX(-33deg) scale(-1,1.8) ; /* IE 9 */
+	-moz-transform: rotateX(-33deg) scale(-1,1.8) ; /* Firefox */
+	-webkit-transform: rotateX(-33deg) scale(-1,1.8) ; /* Safari and Chrome */
+	-o-transform: rotateX(-33deg) scale(-1,1.8) ; /* Opera */
 }
 
 .creature.ghosted{opacity: .25;}
@@ -261,19 +268,16 @@ div.row:nth-child(9){top:38.944em;}
 /*-----Magma Spawn----*/
 #creatureWrapper .creature.type_L2{ 
 	width: 206px;
-	height: 158px;
-	margin-top: -160px;
+	height: 148px;
+	margin-top: -104px;
+	margin-left: 35px;
 	padding: 0px 0px 10px;
-	-webkit-transform: rotateX(-33deg) scale(1,1.18);
 	-webkit-transform-origin:65% 100%; 
-	-moz-transform: rotateX(-33deg) scale(1,1.18);
 	-moz-transform-origin:65% 100%;
 	background: url("../../bestiary/Magma Spawn/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_L2{ 
-	-webkit-transform: rotateX(-33deg) scale(-1,1.18); 
 	-webkit-transform-origin:48% 100%; 
-	-moz-transform: rotateX(-33deg) scale(-1,1.18); 
 	-moz-transform-origin:48% 100%; 
 }
 
@@ -283,36 +287,29 @@ div.row:nth-child(9){top:38.944em;}
 	height: 125px;
 	margin-top: -80px;
 	padding: 0px 0px 10px;
-	-webkit-transform: rotateX(-33deg) scale(1,1.8);
 	-webkit-transform-origin:65% 100%;
-	-moz-transform: rotateX(-33deg) scale(1,1.8);
 	-moz-transform-origin:65% 100%;
 	background: url("../../bestiary/Snow Bunny/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_S1{ 
-	-webkit-transform: rotateX(-33deg) scale(-1,1.8); 
 	-webkit-transform-origin:48% 100%; 
-	-moz-transform: rotateX(-33deg) scale(-1,1.8); 
 	-moz-transform-origin:48% 100%; 
 }
 
 /*-----Impaler----*/
 #creatureWrapper .creature.type_S6{ 
 	width: 225px;
-	height: 212px;
-	margin-top: -230px;
+	height: 202px;
+	margin-top: -163px;
+	margin-left: 28px;
 	padding: 0px 0px 10px;
-	-webkit-transform: rotateX(-33deg) scale(1,1.8);
 	-webkit-transform-origin:65% 100%;
-	-moz-transform: rotateX(-33deg) scale(1,1.18);
 	-moz-transform-origin:65% 100%;
 
 	background: url("../../bestiary/Impaler/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_S6{ 
-	-webkit-transform: rotateX(-33deg) scale(-1,1.18); 
 	-webkit-transform-origin:48% 100%; 
-	-moz-transform: rotateX(-33deg) scale(-1,1.18); 
 	-moz-transform-origin:48% 100%; 
 }
 
@@ -321,12 +318,10 @@ div.row:nth-child(9){top:38.944em;}
 #creatureWrapper .creature.type_--{
 	width: 108px;
 	height: 200px;
-	margin-top: -220px;
-	margin-left: -10px;
+	margin-top: -148px;
+	margin-left: 5px;
 	padding: 0px 0px 0px;
-	-webkit-transform: rotateX(-33deg) scale(1,1.18);
 	-webkit-transform-origin:27% 100%; /* Safari and Chrome */
-	-moz-transform: rotateX(-33deg) scale(1,1.18);
 	-moz-transform-origin:27% 100%; /* Safari and Chrome */
 	background-image: url("../../bestiary/Dark Priest/cardboard-red.png");
 }
@@ -335,9 +330,7 @@ div.row:nth-child(9){top:38.944em;}
 #creatureWrapper .creature.type_--.p2{background-image: url("../../bestiary/Dark Priest/cardboard-orange.png");}
 #creatureWrapper .creature.type_--.p3{background-image: url("../../bestiary/Dark Priest/cardboard-green.png");}
 #creatureWrapper div.creature.flipped.type_--{ 
-	-webkit-transform: rotateX(-33deg) scale(-1,1.18); 
 	-webkit-transform-origin:39% 100%;
-	-moz-transform: rotateX(-33deg) scale(-1,1.18); 
 	-moz-transform-origin:39% 100%;
 }
 
@@ -364,15 +357,15 @@ div.row:nth-child(9){top:38.944em;}
 	display: block;
 	bottom: -50px;
 	right: 35px;
-	width: 70px;
-	height: 30px;
+	width: 50px;
+	height: 20px;
 	border: 2px solid;
 	background: rgba(0,0,0,.5);
 	color: white;
 	font-weight: bold;
-	font-size: 25px;
+	font-size: 17px;
 	text-align: center;
-	line-height: 30px;
+	line-height: 20px;
 }
 
 .creature.p0 .health{border-color: red;}
