@@ -359,7 +359,29 @@ div.row:nth-child(9){top:38.944em;}
 	text-align: center;
 }
 
-.flipped .damage{ -webkit-transform: scale(-1,1); }
+.creature .health{
+	position: absolute;
+	display: block;
+	bottom: -50px;
+	right: 35px;
+	width: 70px;
+	height: 30px;
+	border: 2px solid;
+	background: rgba(0,0,0,.5);
+	color: white;
+	font-weight: bold;
+	font-size: 25px;
+	text-align: center;
+	line-height: 30px;
+}
+
+.creature.p0 .health{border-color: red;}
+.creature.p1 .health{border-color: blue;}
+.creature.p2 .health{border-color: orange;}
+.creature.p3 .health{border-color: green;}
+
+.flipped .damage,.flipped .health{ -webkit-transform: scale(-1,1); }
+
 /*-----------------UI-------------------*/
 #ui{
 	top: 0px;

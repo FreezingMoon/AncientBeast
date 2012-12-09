@@ -60,6 +60,7 @@ var Creature = Class.create({
 		this.team 		= obj.team; // = playerID (0,1,2,3)
 		this.player 	= G.players[obj.team];
 		this.dead		= false;
+		this.killer 	= undefined;
 		this.hasWait 	= false;
 		this.travelDist = 0;
 		this.effects 	= [];
@@ -105,6 +106,7 @@ var Creature = Class.create({
 	summon: function(){
 		//TODO Summon effect
 		this.$display.fadeIn(500);
+		this.$health = this.$display.append('<div class="health">'+this.health+'</div>').children(".health");
 	},
 
 	/*	activate()
@@ -515,6 +517,8 @@ var Creature = Class.create({
 			var $damage = this.$effects.append('<div class="damage dodged">Dodged</div>').children(".damage");
 			$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
 		}
+
+		this.$health.text(this.health);//health display
 	},
 
 
@@ -549,10 +553,23 @@ var Creature = Class.create({
 	*	kill animation. remove creature from queue and from hexs
 	*
 	*/
-	die: function(killer){//TODO
-		this.dead = true;
+	die: function(killer){
+		this.dead = true;		
 
-		this.killer = killer.player.id;
+		this.killer = killer.player;
+
+		if(!G.firstKill) //First Kill
+			this.killer.score.push({type:"firstKill"});
+
+		if(!this.undead){//only if not undead
+			if(this.killer.flipped == this.player.flipped){
+				//TEAM KILL (DENY)
+				this.killer.score.push({type:"teamkill",creature:this});
+			}else{
+				//KILL
+				this.killer.score.push({type:"kill",creature:this});
+			}
+		}
 
 		this.$display.fadeOut(500);
 
@@ -567,6 +584,7 @@ var Creature = Class.create({
 
 		if(G.activeCreature === this){ G.nextCreature(); } //End turn if current active creature die
 
+		G.UI.updateActivebox();
 		//Debug Info
 		G.log("Player"+(this.team+1)+"'s "+this.name+" is dead");
 	},

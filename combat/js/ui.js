@@ -219,6 +219,7 @@ var UI = Class.create({
 		//Change player infos
 		for (var i = G.players.length - 1; i >= 0; i--) {
 			$j("#dash .playertabs.p"+i+" .plasma").text("Plasma "+G.players[i].plasma);
+			$j("#dash .playertabs.p"+i+" .score").text(G.players[i].getScore()+" Score");
 		};
 
 		//TODO Change Dash button to return

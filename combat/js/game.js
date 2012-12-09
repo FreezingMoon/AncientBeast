@@ -57,6 +57,9 @@ var Game = Class.create({
 		this.creatureDatas = [];
 		this.availableCreatures = ["--","L2","S1","S6"];
 		this.zoomed = false;
+
+		//Gameplay
+		this.firstKill = false;
 	},
 
 
@@ -73,8 +76,8 @@ var Game = Class.create({
 
 		var defaultOpt = {
 			nbrPlayer : 2,
-			timePool : 1*60,
-			turnTimePool : 20,
+			timePool : 5*60,
+			turnTimePool : 60,
 		}
 		setupOpt = $j.extend(defaultOpt,setupOpt);
 		$j.extend(this,setupOpt);
@@ -372,6 +375,8 @@ var Player = Class.create({
 		this.bonusTimePool = 0;
 		this.totalTimePool = G.timePool*1000;
 		this.startTime = new Date();
+
+		this.score = [];
 	},
 
 	/*	summon()
@@ -412,7 +417,21 @@ var Player = Class.create({
 	*/
 	getScore: function(){
 		var total = 0;
-		return 0;
+		for(var i = 0; i < this.score.length; i++){
+			var s = this.score[i];
+			switch(s.type){
+				case "firstKill":
+					total += 20;
+					break;
+				case "kill":
+					total += s.creature.lvl*5;
+					break;
+				case "teamkill":
+					total -= s.creature.lvl*5;
+					break;
+			}
+		}
+		return total;
 	},
 
 });
