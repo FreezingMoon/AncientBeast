@@ -1,3 +1,4 @@
+<title>Ancient Beast 0.1</title>
 <?php
 /* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
  * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
