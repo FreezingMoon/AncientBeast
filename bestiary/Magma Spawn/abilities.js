@@ -327,8 +327,9 @@ abilities["L2"] =[
 	activate : function(path,args) {
 		var magmaSpawn = args.magmaSpawn;
 		var ability = args.ability;
-		ability.end();		
+		ability.end();
 
+		path.unshift(G.grid.hexs[magmaSpawn.y][magmaSpawn.x]);
 		var destination = path[path.length-2];
 
 		//Dirty hack, must find a way to handle flipped creature more nicely
