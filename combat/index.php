@@ -127,7 +127,7 @@ function db_query($query) {
 		<div id="matchmaking">
 			<div id="loader"><img src="../images/AB.gif">Loading</div>
 			<div id="gamesetupcontainer">
-				<div id="players" style="float:left; margin-left:550px;">
+<!-- 				<div id="players" style="float:left; margin-left:550px;">
 					<div style="margin-left:auto;"><h2>Players</h2></div>
 					<div value="2" style="border:2px solid red;">
 						<div><img src="../bestiary/Dark Priest/avatar-red.jpg"></div>
@@ -191,7 +191,7 @@ function db_query($query) {
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">7</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
 					<div><h2>FIGHT</h2></div>
-				</div>
+				</div> -->
 
 
 				<form id="gamesetup" action="javascript:0;">
@@ -199,7 +199,43 @@ function db_query($query) {
 					<select name="nbrplayer">
 						<option value="2">1vs1</option>
 						<option value="4">2vs2</option>
+					</select><br/><br/>
+
+					Location : 
+					<select name="background">
+						<option value="Dark Forest">Dark Forest</option>
+						<option value="Frozen Skull">Frozen Skull</option>
+						<option value="Shadow Cave">Shadow Cave</option>
+					</select><br/><br/>
+
+					Plasma : 
+					<select name="plasma">
+						<option value="40">40</option>
+						<option value="50">50</option>
+						<option value="60">60</option>
+						<option value="70">70</option>
+						<option value="80">80</option>
+						<option value="90">90</option>
 					</select><br/>
+
+					Time pool (for each player) : 
+					<select name="time_pool">
+						<option value="5">5 min</option>
+						<option value="6">6 min</option>
+						<option value="7">7 min</option>
+						<option value="8">8 min</option>
+						<option value="0">∞</option>
+					</select><br/>
+
+					Turn time : 
+					<select name="time_turn">
+						<option value="20">20 sec</option>
+						<option value="40">40 sec</option>
+						<option value="60">60 sec</option>
+						<option value="80">80 sec</option>
+						<option value="0">∞</option>
+					</select><br/>
+
 					<input type="submit" value="Submit">
 				</form>
 			</div>

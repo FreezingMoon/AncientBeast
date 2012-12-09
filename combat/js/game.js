@@ -78,6 +78,8 @@ var Game = Class.create({
 			nbrPlayer : 2,
 			timePool : 5*60,
 			turnTimePool : 60,
+			background_image : "Frozen Skull",
+			plasma_amount : 50,
 		}
 		setupOpt = $j.extend(defaultOpt,setupOpt);
 		$j.extend(this,setupOpt);
@@ -107,6 +109,8 @@ var Game = Class.create({
 	*/
 	setup: function(nbrPlayer){
 		this.grid = new HexGrid();//Creating Hexgrid
+
+		$j("#combatframe").css("background-image","url('../locations/"+this.background_image+"/bg.jpg')");
 
 		this.startMatchTime = new Date();
 
@@ -369,7 +373,7 @@ var Player = Class.create({
 		this.creatures = [];
 		this.name = "Player"+(id+1);
 		this.score = [];
-		this.plasma = 50;
+		this.plasma = G.plasma_amount;
 		this.flipped = !!(id%2); //Convert odd/even to true/false
 		this.availableCreatures = G.availableCreatures;
 		this.bonusTimePool = 0;
