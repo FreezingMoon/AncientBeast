@@ -224,7 +224,7 @@ function db_query($query) {
 						<option value="6">6 min</option>
 						<option value="7">7 min</option>
 						<option value="8">8 min</option>
-						<option value="0">∞</option>
+						<!-- <option value="0">∞</option> -->
 					</select><br/>
 
 					Turn time : 
@@ -233,7 +233,7 @@ function db_query($query) {
 						<option value="40">40 sec</option>
 						<option value="60">60 sec</option>
 						<option value="80">80 sec</option>
-						<option value="0">∞</option>
+						<!-- <option value="0">∞</option> -->
 					</select><br/>
 
 					<input type="submit" value="Submit">
@@ -241,6 +241,51 @@ function db_query($query) {
 			</div>
 		</div>
 		<div id="ui" style="display:none;">
+			<div id="endscreen" style="display:none;">
+				<div id="scoreboard">
+					<h1>Match Over</h1>
+					<table id="score">
+						<tbody>
+							<tr class="player_name">
+								<td>Players</td>
+								<td>Player 1</td>
+								<td>Player 2</td>
+								<td>Player 3</td>
+								<td>Player 4</td>
+							</tr>
+							<tr class="firstKill">
+								<td>First blood</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
+							<tr class="kill">
+								<td>Kills</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
+							<tr class="teamkill">
+								<td>Team Kills</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
+							<tr class="total">
+								<td>Total</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
+						</tbody>
+					</table>
+					<p></p>
+				</div>
+			</div>
 			<div id="dash" class="selected0">
 				<div id="return" class="toggledash button"></div>
 				<div id="tooltip"></div>

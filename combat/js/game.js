@@ -348,8 +348,61 @@ var Game = Class.create({
 	*/
 	endGame: function(){
 		clearInterval(this.timeInterval);
-		alert('Game Over');
-		//Add Score Table
+		
+		//Show Score Table
+		$j("#endscreen").show();
+
+		var $table = $j("#endscreen table tbody");
+
+		if(this.nbrPlayer==2){ //If Only 2 players remove the other 2 columns
+			$table.children("tr").children("td:nth-child(even)").remove();
+			var $table = $j("#endscreen table tbody");
+		}
+
+		//FILLING THE BOARD
+		for(var i = 0; i < this.nbrPlayer; i++){ //Each player 
+
+			//change Name
+			$table.children("tr.player_name").children("td:nth-child("+(i+2)+")")
+			.text(this.players[i].name); 
+
+			//count for each type of score
+			var finalScore = {
+				firstKill : 0,
+				kill : 0,
+				teamkill : 0,
+			};
+
+			for(var j = 0; j < this.players[i].score.length; j++){
+
+				var s = this.players[i].score[j];
+				var points = 0;
+				switch(s.type){
+					case "firstKill":
+						points += 20;
+						break;
+					case "kill":
+						points += s.creature.lvl*5;
+						break;
+					case "teamkill":
+						points -= s.creature.lvl*5;
+						break;
+				}
+
+				finalScore[s.type] += points;
+			}
+
+			$j.each(finalScore,function(index,val){
+				var text = (val!=0) ? val : "--" ;
+				$table.children("tr."+index).children("td:nth-child("+(i+2)+")")
+				.text(text);
+			});
+
+			//Total score
+			$table.children("tr.total").children("td:nth-child("+(i+2)+")")
+			.text(this.players[i].getScore());
+		}
+
 	},
 });
 

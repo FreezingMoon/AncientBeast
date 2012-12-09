@@ -894,7 +894,7 @@ var Hex = Class.create({
 	*
 	*/
 	ghostOverlap: function(){
-		for (var i = 1; i <= 2; i++) {
+		for (var i = 1; i <= 3; i++) {
 			if(this.y%2 == 0){
 				if(i == 1){
 					for (var j = 0; j <= 1; j++) {

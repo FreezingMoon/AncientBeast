@@ -131,7 +131,12 @@ var Creature = Class.create({
 			});
 
 		}
-		this.player.startTime = new Date();
+		
+		if(this.player.totalTimePool>0)
+			this.player.startTime = new Date();
+		else
+			G.nextCreature();
+
 		this.queryMove();
 	},
 

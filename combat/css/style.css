@@ -728,3 +728,36 @@ div.row:nth-child(9){top:38.944em;}
 	font-size: 40px;
 	display: none;
 }
+
+/*--------------Scoreboard------------------*/
+
+#endscreen{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	z-index: 100;
+	display: block;
+	background: rgba(0,0,0,.8);
+}
+
+#scoreboard{
+	width: 400px;
+	height: 300px;
+	color: white;
+	margin: 30px auto 0;
+	background: black;
+	border: 2px grey solid;
+}
+
+#scoreboard table{
+	color: white;
+	text-align: center;
+	margin: auto;
+}
+
+
+#scoreboard h1{
+	text-align: center;
+}

@@ -79,7 +79,7 @@ var UI = Class.create({
 		this.$dash.children("#playertabswrapper").removeClass("active"); //Remove Player Tabs
 		this.changePlayerTab(G.activeCreature.team); //Change to active player grid
 
-		this.$grid.children('.vignette:not([class*="locked"])').unbind('click').bind("click",function(e){
+		this.$grid.children('.vignette:not([class*="locked"]):not([class*="queued"]):not([class*="dead"])').unbind('click').bind("click",function(e){
 			e.preventDefault();
 
 			var creatureType = $j(this).attr("creature");
