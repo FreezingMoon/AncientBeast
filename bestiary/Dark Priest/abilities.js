@@ -31,6 +31,7 @@ abilities["--"] =[
 		this.creature.player.plasma  -= 1;
 		this.end();
 		damage.damages = {};
+		damage.status = "Sheilded";
 		damage.effect = [];
 		return damage; //Return Damage
 	},
@@ -87,7 +88,17 @@ abilities["--"] =[
 		ability.end();
 		ability.creature.player.plasma -= target.size;
 		G.log(ability.creature.player.name+" uses "+target.size+" plasma point(s) to destroy "+target.name+".");
-		target.die(ability.creature);
+
+		var damage = new Damage(
+			args.dpriest, //Attacker
+			"target", //Attack Type
+			{}, //Damage Type
+			1, //Area
+			[]	//Effects
+		);
+		damage.status = "Disintegrated";
+
+		target.takeDamage(damage);
 	},
 },
 

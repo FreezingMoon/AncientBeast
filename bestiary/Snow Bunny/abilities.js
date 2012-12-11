@@ -39,7 +39,7 @@ abilities["S1"] =[
 					callback : function(){	G.activeCreature.queryMove(); },
 					ignorePath : true,
 				});
-				damage.dodged = true;
+				damage.status = "Dodged";
 				break; //Break for loop
 			}
 		};

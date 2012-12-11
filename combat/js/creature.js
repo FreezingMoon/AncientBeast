@@ -131,7 +131,7 @@ var Creature = Class.create({
 			});
 
 		}
-		
+
 		if(this.player.totalTimePool>0)
 			this.player.startTime = new Date();
 		else
@@ -191,8 +191,16 @@ var Creature = Class.create({
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		G.grid.queryHexs(
-			function(hex,creature){ creature.tracePath(hex); },
-			function(hex,creature){ creature.previewPosition(hex); },
+			function(hex,creature){ 
+				creature.moveTo(hex,{
+					callback : function(){
+						G.activeCreature.queryMove();
+					}
+				}); 
+			},
+			function(hex,creature){ 
+				creature.tracePath(hex); 
+			},
 			function(){ 
 				G.log("You can't do this."); 
 				G.grid.cleanDisplay("adj"); //In case of skip turn
@@ -492,7 +500,7 @@ var Creature = Class.create({
 		});
 
 		//Calculation
-		if(!damage.dodged){
+		if(damage.status == ""){
 
 			//Damages
 			var dmgAmount = damage.apply(this);
@@ -517,9 +525,21 @@ var Creature = Class.create({
 				this.die(damage.attacker);
 			}
 		}else{
-			//If dodged
-			G.log(this.player.name+"'s "+this.name+" dodged the attack");
-			var $damage = this.$effects.append('<div class="damage dodged">Dodged</div>').children(".damage");
+			if(damage.status == "Dodged"){ //If dodged
+				G.log(this.player.name+"'s "+this.name+" dodged the attack");
+			}
+
+			if(damage.status == "Sheilded"){ //If Sheilded
+				G.log(this.player.name+"'s "+this.name+" sheilded the attack");
+			}
+
+			if(damage.status == "Disintegrated"){ //If Sheilded
+				G.log(this.player.name+"'s "+this.name+" has been disintegrated");
+				this.die(damage.attacker);
+			}
+
+			//Hint
+			var $damage = this.$effects.append('<div class="damage '+damage.status.toLowerCase()+'">'+damage.status+'</div>').children(".damage");
 			$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
 		}
 
@@ -565,6 +585,11 @@ var Creature = Class.create({
 
 		if(!G.firstKill) //First Kill
 			this.killer.score.push({type:"firstKill"});
+
+		if(this.type == "--"){ //IF darkpriest
+			this.killer.score.push({type:"humiliation"});
+			G.endGame();
+		}
 
 		if(!this.undead){//only if not undead
 			if(this.killer.flipped == this.player.flipped){

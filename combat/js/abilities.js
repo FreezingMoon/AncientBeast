@@ -82,9 +82,9 @@ var Damage = Class.create({
 		this.attacker 	= attacker;
 		this.type 		= type;
 		this.damages 	= damages;
+		this.status 	= "";
 		this.effects 	= effects;
 		this.area 		= area;
-		this.dodged 	= false;
 	},
 
 	/* apply(target)
