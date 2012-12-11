@@ -31,7 +31,7 @@ abilities["--"] =[
 		this.creature.player.plasma  -= 1;
 		this.end();
 		damage.damages = {};
-		damage.status = "Sheilded";
+		damage.status = "Shielded";
 		damage.effect = [];
 		return damage; //Return Damage
 	},

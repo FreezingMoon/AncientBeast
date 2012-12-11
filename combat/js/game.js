@@ -461,7 +461,7 @@ var Player = Class.create({
 				case "kill":
 					points += s.creature.lvl*5;
 					break;
-				case "teamkill":
+				case "deny":
 					points -= s.creature.lvl*5;
 					break;
 				case "humiliation":

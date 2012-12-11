@@ -529,11 +529,11 @@ var Creature = Class.create({
 				G.log(this.player.name+"'s "+this.name+" dodged the attack");
 			}
 
-			if(damage.status == "Sheilded"){ //If Sheilded
-				G.log(this.player.name+"'s "+this.name+" sheilded the attack");
+			if(damage.status == "Shielded"){ //If Shielded
+				G.log(this.player.name+"'s "+this.name+" shielded the attack");
 			}
 
-			if(damage.status == "Disintegrated"){ //If Sheilded
+			if(damage.status == "Disintegrated"){ //If Disintegrated
 				G.log(this.player.name+"'s "+this.name+" has been disintegrated");
 				this.die(damage.attacker);
 			}
@@ -594,7 +594,7 @@ var Creature = Class.create({
 		if(!this.undead){//only if not undead
 			if(this.killer.flipped == this.player.flipped){
 				//TEAM KILL (DENY)
-				this.killer.score.push({type:"teamkill",creature:this});
+				this.killer.score.push({type:"deny",creature:this});
 			}else{
 				//KILL
 				this.killer.score.push({type:"kill",creature:this});

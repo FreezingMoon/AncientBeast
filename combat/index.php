@@ -268,8 +268,8 @@ function db_query($query) {
 								<td>--</td>
 								<td>--</td>
 							</tr>
-							<tr class="teamkill">
-								<td>Team Kills</td>
+							<tr class="deny">
+								<td>Denies</td>
 								<td>--</td>
 								<td>--</td>
 								<td>--</td>
