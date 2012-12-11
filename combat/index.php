@@ -274,6 +274,13 @@ function db_query($query) {
 								<td>--</td>
 								<td>--</td>
 							</tr>
+							<tr class="humiliation">
+								<td>Humiliation</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
 							<tr class="total">
 								<td>Total</td>
 								<td>--</td>
@@ -313,7 +320,7 @@ function db_query($query) {
 					<p class="name"></p>
 					<p class="points"><span></span> Points</p>
 					<p class="plasma"><span></span> Plasma</p>
-					<p class="time"><span></span> Time</p>
+					<p class="time"><span>∞</span> Time</p>
 				</div>
 				<div id="rightpanel">
 					<div id="end" class="button"></div>

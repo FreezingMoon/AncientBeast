@@ -366,41 +366,12 @@ var Game = Class.create({
 			$table.children("tr.player_name").children("td:nth-child("+(i+2)+")")
 			.text(this.players[i].name); 
 
-			//count for each type of score
-			var finalScore = {
-				firstKill : 0,
-				kill : 0,
-				teamkill : 0,
-			};
-
-			for(var j = 0; j < this.players[i].score.length; j++){
-
-				var s = this.players[i].score[j];
-				var points = 0;
-				switch(s.type){
-					case "firstKill":
-						points += 20;
-						break;
-					case "kill":
-						points += s.creature.lvl*5;
-						break;
-					case "teamkill":
-						points -= s.creature.lvl*5;
-						break;
-				}
-
-				finalScore[s.type] += points;
-			}
-
-			$j.each(finalScore,function(index,val){
-				var text = (val!=0) ? val : "--" ;
+			//Change score
+			$j.each(this.players[i].getScore(),function(index,val){
+				var text = ( val == 0 && index != "total") ? "--" : val ;
 				$table.children("tr."+index).children("td:nth-child("+(i+2)+")")
 				.text(text);
 			});
-
-			//Total score
-			$table.children("tr.total").children("td:nth-child("+(i+2)+")")
-			.text(this.players[i].getScore());
 		}
 
 	},
@@ -473,22 +444,34 @@ var Player = Class.create({
 	*	Return the total of the score events.
 	*/
 	getScore: function(){
-		var total = 0;
+		var totalScore = {
+			firstKill : 0,
+			kill : 0,
+			teamkill : 0,
+			humiliation : 0,
+			total : 0,
+		};
 		for(var i = 0; i < this.score.length; i++){
 			var s = this.score[i];
+			var points = 0;
 			switch(s.type){
 				case "firstKill":
-					total += 20;
+					points += 20;
 					break;
 				case "kill":
-					total += s.creature.lvl*5;
+					points += s.creature.lvl*5;
 					break;
 				case "teamkill":
-					total -= s.creature.lvl*5;
+					points -= s.creature.lvl*5;
+					break;
+				case "humiliation":
+					points += 50;
 					break;
 			}
+			totalScore[s.type] += points;
+			totalScore.total += points;
 		}
-		return total;
+		return totalScore;
 	},
 
 });
