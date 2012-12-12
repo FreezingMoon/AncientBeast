@@ -221,6 +221,9 @@ function db_query($query) {
 
 					Time pool (for each player) : 
 					<select name="time_pool">
+						<option value="1">1 min</option>
+						<option value="2">2 min</option>
+						<option value="3">3 min</option>
 						<option value="5">5 min</option>
 						<option value="6">6 min</option>
 						<option value="7">7 min</option>
@@ -230,6 +233,7 @@ function db_query($query) {
 
 					Turn time : 
 					<select name="time_turn">
+						<option value="10">10 sec</option>
 						<option value="20">20 sec</option>
 						<option value="40">40 sec</option>
 						<option value="60">60 sec</option>

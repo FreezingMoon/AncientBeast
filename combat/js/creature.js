@@ -132,10 +132,7 @@ var Creature = Class.create({
 
 		}
 
-		if(this.player.totalTimePool>0)
-			this.player.startTime = new Date();
-		else
-			G.nextCreature();
+		this.player.startTime = new Date();
 
 		this.queryMove();
 	},
@@ -155,8 +152,6 @@ var Creature = Class.create({
 		G.grid.cleanDisplay("adj"); //In case of skip turn
 		G.grid.cleanOverlay("creature selected hover h_player0 h_player1 h_player2 h_player3");
 		G.grid.updateDisplay(); //Retrace players creatures
-
-		G.nextCreature();
 	},
 
 
@@ -191,16 +186,8 @@ var Creature = Class.create({
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		G.grid.queryHexs(
-			function(hex,creature){ 
-				creature.moveTo(hex,{
-					callback : function(){
-						G.activeCreature.queryMove();
-					}
-				}); 
-			},
-			function(hex,creature){ 
-				creature.tracePath(hex); 
-			},
+			function(hex,creature){ creature.tracePath(hex); },
+			function(hex,creature){ creature.previewPosition(hex); },
 			function(){ 
 				G.log("You can't do this."); 
 				G.grid.cleanDisplay("adj"); //In case of skip turn

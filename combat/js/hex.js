@@ -189,7 +189,7 @@ var HexGrid = Class.create({
 			if( clickedtHex != G.grid.lastClickedtHex ){
 				G.grid.lastClickedtHex = clickedtHex;
 				//ONCLICK
-				opts.fnOnClick(clickedtHex,opts);
+				fnConfirm(clickedtHex,opts);
 			}else{
 				//ONCONFIRM
 				fnConfirm(clickedtHex,opts);
@@ -204,7 +204,7 @@ var HexGrid = Class.create({
 		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('mouseover', function(){
 			var x = $j(this).attr("x")-0;
 			var y = $j(this).attr("y")-0;
-			opts.fnOnMouseover(G.grid.hexs[y][x],opts);
+			opts.fnOnClick(G.grid.hexs[y][x],opts);
 		});
 
 		//ON CANCEL
@@ -397,7 +397,7 @@ var HexGrid = Class.create({
 						if( clickedtHex != G.grid.lastClickedtHex ){
 							G.grid.lastClickedtHex = clickedtHex;
 							//ONCLICK
-							opts.fnOnClick(dirs[index],opts.args);
+							opts.fnOnConfirm(dirs[index],opts.args);
 						}else{
 							//ONCONFIRM
 							opts.fnOnConfirm(dirs[index],opts.args);
@@ -406,7 +406,7 @@ var HexGrid = Class.create({
 					//ONMOUSEOVER
 
 					this.$input.bind('mouseover', function(){
-						opts.fnOnMouseover(dirs[index],opts.args);
+						opts.fnOnClick(dirs[index],opts.args);
 					});
 				})
 			}
@@ -684,7 +684,7 @@ var HexGrid = Class.create({
 			if( clickedtHex != G.grid.lastClickedtHex ){
 				G.grid.lastClickedtHex = clickedtHex;
 				//ONCLICK
-				fnOnClick(clickedtHex,args);
+				fnOnConfirm(clickedtHex,args);
 			}else{
 				//ONCONFIRM
 				fnOnConfirm(clickedtHex,args);
@@ -712,7 +712,7 @@ var HexGrid = Class.create({
 				}
 			};
 
-			fnOnMouseover(G.grid.hexs[y][x],args);
+			fnOnClick(G.grid.hexs[y][x],args);
 		});
 
 		//ON CANCEL

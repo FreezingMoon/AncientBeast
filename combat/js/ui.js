@@ -262,11 +262,14 @@ var UI = Class.create({
 	*/
 	updateTimer:function(){
 		var date = new Date();
-		if( G.turnTimePool > 0 ){
+
+		//TurnTimePool
+		if( G.turnTimePool >= 0 ){
 			var remainingTime = G.turnTimePool - Math.round((date - G.activeCreature.player.startTime)/1000);
+			remainingTime = Math.min(remainingTime, Math.round( (G.activeCreature.player.totalTimePool-(date - G.activeCreature.player.startTime))/1000) );
 			var minutes = Math.floor(remainingTime/60);
 			var seconds = remainingTime-minutes*60;
-			$j("#playerinfos .time span").text(zfill(minutes,2)+":"+zfill(seconds,2))
+			$j("#playerinfos .time span").text(zfill(minutes,2)+":"+zfill(seconds,2));
 			//Time Alert
 			if( remainingTime < G.turnTimePool*.25 ) 
 				$j("#playerinfos .time span").addClass("alert");
@@ -274,6 +277,19 @@ var UI = Class.create({
 				$j("#playerinfos .time span").removeClass("alert");
 		}else{
 			$j("#playerinfos .time span").text("∞");
+		}
+
+		//TotalTimePool
+		if( G.timePool >= 0 ){
+			G.players.each(function(){
+				var remainingTime = (this.id == G.activeCreature.player.id) ? this.totalTimePool - (date - this.startTime) : this.totalTimePool;
+				remainingTime = Math.min(Math.round(remainingTime/1000),0);
+				var minutes = Math.floor(remainingTime/60);
+				var seconds = remainingTime-minutes*60;
+				$j(".playertabs.p"+this.id+" .time").text("TimePool "+zfill(minutes,2)+":"+zfill(seconds,2));
+			});
+		}else{
+			$j(".playertabs .time").text("TimePool ∞");
 		}
 	},
 

@@ -258,6 +258,8 @@ var Game = Class.create({
 		//Update UI to match new creature
 		this.UI.updateActivebox();
 		this.reorderQueue(); //Update UI and Queue order
+
+		G.checkTime();
 	},
 
 
@@ -297,7 +299,11 @@ var Game = Class.create({
 	*
 	*/
 	endTurn: function(){
-		this.activeCreature.deactivate();
+		var endTurn = new Date();
+		var p = this.activeCreature.player;
+		p.totalTimePool = p.totalTimePool - (endTurn - p.startTime);
+		this.activeCreature.deactivate(false);
+		this.nextCreature();
 	},
 
 
@@ -307,7 +313,11 @@ var Game = Class.create({
 	*
 	*/
 	delayTurn: function(){
+		var endTurn = new Date();
+		var p = this.activeCreature.player;
+		p.totalTimePool = p.totalTimePool - (endTurn - p.startTime);
 		this.activeCreature.wait();
+		this.nextCreature();
 	},
 
 
@@ -316,12 +326,21 @@ var Game = Class.create({
 	*/
 	checkTime: function(){
 		var date = new Date();
+		var p = this.activeCreature.player;
+
+		p.totalTimePool = Math.max(p.totalTimePool,0); //Clamp
+
+		//Check all timepool
+		var playerStillHaveTime = (this.timePool>0) ? false : true ; //So check is always true for infinite time
+		for(var i = 0; i < this.nbrPlayer; i++){ //Each player 
+			playerStillHaveTime = (this.players[i].totalTimePool > 0) || playerStillHaveTime;
+		}
 
 		//Check Match Time
-		if( G.timePool > 0 && (date - G.startMatchTime)/1000 > G.timePool )
+		if( !playerStillHaveTime )
 			G.endGame();
-		else if( G.turnTimePool > 0 && (date - G.activeCreature.player.startTime)/1000 > G.turnTimePool )
-			G.nextCreature();
+		else if( this.turnTimePool > 0 && ( (date - p.startTime)/1000 > this.turnTimePool || p.totalTimePool - (date - p.startTime) < 0 ) )
+			G.endTurn();
 
 		G.UI.updateTimer();
 	},
