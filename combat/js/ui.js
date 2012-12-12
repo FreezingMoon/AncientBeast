@@ -283,7 +283,7 @@ var UI = Class.create({
 		if( G.timePool >= 0 ){
 			G.players.each(function(){
 				var remainingTime = (this.id == G.activeCreature.player.id) ? this.totalTimePool - (date - this.startTime) : this.totalTimePool;
-				remainingTime = Math.min(Math.round(remainingTime/1000),0);
+				remainingTime = Math.max(Math.round(remainingTime/1000),0);
 				var minutes = Math.floor(remainingTime/60);
 				var seconds = remainingTime-minutes*60;
 				$j(".playertabs.p"+this.id+" .time").text("TimePool "+zfill(minutes,2)+":"+zfill(seconds,2));
