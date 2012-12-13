@@ -80,10 +80,14 @@ function db_query($query) {
 }
 
 // Page generation
-function start_segment($x="") { ?>
-	<div class="div_top" id="<?php echo $x; ?>"></div>
-	<div class="div_center">
-<?php
+function start_segment($x="") {
+	if ($x != NULL) {
+		echo "<div class='div_top' id='$x'></div>";
+	}
+	else {
+		echo "<div class='div_top'></div>";
+	}
+	echo "<div class='div_center'>";
 }
 function end_segment() { ?>
 	</div>
@@ -96,17 +100,17 @@ function separate_segment($x="") {
 }
 function end_page() {
 	start_segment(); ?>
-	<center><table style="width:100%"><tr>
-	<td><a href="/donate"><img src="../donate/paypal.png" height="63" width="56"></a></td>
-	<td><a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97"><img src="../donate/bitcoin.png" height="63" width="56"></a></td>
+	<div class="center"><table style="width:100%"><tr>
+	<td><a href="/donate"><img src="../donate/paypal.png" height="63" width="56" alt="paypal"></a></td>
+	<td><a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97"><img src="../donate/bitcoin.png" height="63" width="56" alt="bitcoin"></a></td>
 	<td><a class="FlattrButton" style="display:none;" href="http://AncientBeast.com"></a></td>
 	<td style="width:50%"></td>
-	<td><a href="http://FreezingMoon.org" target="_blank"><img src="../images/Freezing_Moon.png" height="52" width="444""></a></td>
+	<td><a href="http://FreezingMoon.org" target="_blank"><img src="../images/Freezing_Moon.png" height="52" width="444" alt="Freezing Moon"></a></td>
 	<td style="width:50%"></td>
-	<td><a href="http://facebook.com/AncientBeast" target="_blank" class="lighten"><img src="../images/facebook.png" height="64" width="64" class="lighten"></a></td>
-	<td><a href="http://twitter.com/AncientBeast" target="_blank" class="lighten"><img src="../images/twitter.png" height="64" width="64" class="lighten"></a></td>
-	<td><a href="https://plus.google.com/b/113034814032002995836/" target="_blank" class="lighten"><img src="../images/google.png" height="64" width="64" class="lighten"></a></td>
-	</tr></table></center>
+	<td><a href="http://facebook.com/AncientBeast" target="_blank" class="lighten"><img src="../images/facebook.png" height="64" width="64" class="lighten" alt="facebook"></a></td>
+	<td><a href="http://twitter.com/AncientBeast" target="_blank" class="lighten"><img src="../images/twitter.png" height="64" width="64" class="lighten" alt="twitter"></a></td>
+	<td><a href="https://plus.google.com/b/113034814032002995836/" target="_blank" class="lighten"><img src="../images/google.png" height="64" width="64" class="lighten" alt="google"></a></td>
+	</tr></table></div>
 	<?php end_segment(); ?>
 	</div>
 	</body>
