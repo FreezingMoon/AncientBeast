@@ -43,6 +43,16 @@ $style = '
 	width: 128px;
 	height: 128px;
 	margin: auto;
+}
+.sections {
+	width: 100%;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 0;
+	padding: 0;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;"
 }';
 require_once('header.php'); 
 ?>
@@ -72,7 +82,7 @@ $(document).ready(function() {
 </script>
 <?php start_segment(); ?>
 <!-- TODO: use class, inline css is just wrong -->
-<nav><table width=100% style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
+<nav><table class="sections"><tr>
 <?php
 $sections = array(
   'intro',
@@ -84,14 +94,14 @@ $sections = array(
   'license'
 );
 foreach ($sections as &$sectionItem) {
-	echo '<td><center><a href="#' . $sectionItem . '" class="lighten"><img src="images/icons/' . $sectionItem . '.png" width="120" height="120" style="display:block;">' . ucfirst($sectionItem) . '</a></center></td>';
+	echo '<td class="center"><a href="#' . $sectionItem . '" class="lighten"><img src="images/icons/' . $sectionItem . '.png" width="120" height="120" style="display:block;" alt="' . $sectionItem . '">' . ucfirst($sectionItem) . '</a></td>';
 }
 ?>
 </tr></table></nav>
 <?php end_segment(); ?>
 <article>
 <?php start_segment("intro"); ?>
-<center><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304&amp;hl=ro_RO" frameborder="0" allowfullscreen></iframe></center>
+<div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304&amp;hl=ro_RO" style="border:0;"></iframe></div>
 <?php separate_segment("plot"); ?>
 <h3 class="indexheader"><a href="#plot">Plot</a></h3>
 <p>
@@ -100,12 +110,12 @@ foreach ($sections as &$sectionItem) {
 <p>
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This project was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
-<center><p>
+<p class="center">
 <audio controls="controls">
 	<source src="plot.ogg" type="audio/ogg">
 Your browser does not support the audio element.
 </audio>
-</p></center>
+</p>
 <p>
 It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
 </p>
@@ -118,26 +128,24 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are about 16x9 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
 </p>
 <?php
-echo '<center>';
+echo '<div class="center">';
 $images = scandir('images/combat');
 natsort($images);
 $i = 0;
 foreach($images as $image) {
 	if($image == '.' || $image == '..') continue;
-	$title = substr($image, 0, -4); 
-	echo '<a id="img' . $i . '" style="text-align:center;" rel="pop" href="images/combat/' . $image . '" title="' . $title . '"><img style="width:280px; margin:5px;" src="images/combat/' . $image .'" title="' . $title . '"></a>';
+	$title = substr($image, 0, -4);
+	$image = str_replace(' ', '%20', $image);
+	echo '<a id="img' . $i . '" style="text-align:center;" rel="pop" href="images/combat/' . $image . '" title="' . $title . '"><img style="width:280px; margin:5px;" src="images/combat/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 	$i++;
-} echo '</center>';?>
+} echo '</div>';?>
 <p>
 Players are represented on the combat field by Dark Priests. All creature stats can be improved by purchasing items.
 Players can level up by gaining experience on the combat field, gaining 1 more plasma point each level, being able to materialize more and/or better creatures. In order to materialize a creature you own, it takes a number of plasma points equal to the creature's level plus the number of hexagons it occupies. Any creature owned can be materialized once per combat, provided the player has enough plasma points to do so.<br>
 When fighting players of lower levels, you will temporarely lose plasma points in order to balance the fight.
 </p>
 <p>
-After engaging in combat, players are taken to the battle field where both parties take turns to materialize and control creatures. Each player needs to have at least one creature on the battlefield at all times, otherwise he loses the fight. Each player can materialize a creature every round, which usually suffer from materialization sickness, meaning they won't be able to act in the current round.
-</p>
-<p>
-After the first materialized creature, each aditional realm requires a plasma point just for being unlocked.
+After engaging in combat, players are taken to the battle field where both parties take turns to materialize and control creatures. Each player can materialize one or two creatures every round, which usually suffer from materialization sickness, meaning they won't be able to act in the current round.
 </p>
 <p>
 <b>Health:</b> A raw number representing the amount of damage a creature can take until it dies.<br>
@@ -155,15 +163,15 @@ After the first materialized creature, each aditional realm requires a plasma po
 <h3 class="indexheader"><a href="#realms">Realms</a></h3>
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.</p>
 <div style="text-align:center; width:506px; margin-left:auto; margin-right:auto;">
-<img id="_sins" src="<?php echo $site_root; ?>images/realms/index.png" usemap="#sins" width="506" height="527">
+<img id="_sins" src="<?php echo $site_root; ?>images/realms/index.png" usemap="#sins" width="506" height="527" alt="realms">
 <map id="sins" name="sins">
-<area shape="poly" coords="203,176,301,175,351,260,302,348,199,349,151,261" href="#Avarice" title="Avarice">
-<area shape="poly" coords="354,88,453,86,505,175,454,261,355,258,304,173" href="#Envy" title="Envy">
-<area shape="poly" coords="51,265,149,262,203,350,149,436,50,436,0,349" href="#Gluttony" title="Gluttony">
-<area shape="poly" coords="353,261,454,262,505,350,453,435,352,440,304,349" href="#Lust" title="Lust">
-<area shape="poly" coords="201,2,302,2,352,87,302,173,203,171,153,88" href="#Pride" title="Pride">
-<area shape="poly" coords="50,89,152,90,202,174,150,258,51,262,0,175" href="#Sloth" title="Sloth">
-<area shape="poly" coords="201,350,301,350,355,437,301,524,203,524,152,436" href="#Wrath" title="Wrath">
+<area shape="poly" coords="203,176,301,175,351,260,302,348,199,349,151,261" href="#Avarice" title="Avarice" alt="Avarice">
+<area shape="poly" coords="354,88,453,86,505,175,454,261,355,258,304,173" href="#Envy" title="Envy" alt="Envy">
+<area shape="poly" coords="51,265,149,262,203,350,149,436,50,436,0,349" href="#Gluttony" title="Gluttony" alt="Gluttony">
+<area shape="poly" coords="353,261,454,262,505,350,453,435,352,440,304,349" href="#Lust" title="Lust" alt="Lust">
+<area shape="poly" coords="201,2,302,2,352,87,302,173,203,171,153,88" href="#Pride" title="Pride" alt="Pride">
+<area shape="poly" coords="50,89,152,90,202,174,150,258,51,262,0,175" href="#Sloth" title="Sloth" alt="Sloth">
+<area shape="poly" coords="201,350,301,350,355,437,301,524,203,524,152,436" href="#Wrath" title="Wrath" alt="Wrath">
 </map></div>
 <br>
 
@@ -207,7 +215,7 @@ $tools = array(
   'inkscape'   => 'http://inkscape.org'
 );
 foreach ($tools as $toolName => $toolLink) {
-	echo '<td><a href="' . $toolLink . '" target="_blank" class="lighten"><img src="images/icons/' . $toolName . '.png" style="display:block; width:99px; height99px;">' . ucfirst($toolName) . '</a></td>';
+	echo '<td><a href="' . $toolLink . '" target="_blank" class="lighten"><img src="images/icons/' . $toolName . '.png" style="display:block; width:99px; height99px;" alt="' . $toolName . '">' . ucfirst($toolName) . '</a></td>';
 }
 ?>
 </tr></table>
@@ -219,11 +227,11 @@ The game requires animations to be 30 frames per second. Sprite sheets must have
 <?php separate_segment("license"); ?>
 <h3 class="indexheader"><a href="#license">License</a></h3>
 <table border="1"><tr>
-<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
+<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png" alt="Freezing Moon"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
 </tr><tr>
-<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png"></a></td><td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license, provided you credit and link the project, as well as the author(s) of the respective works.</td>
+<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td><td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license, provided you credit and link the project, as well as the author(s) of the respective works.</td>
 </tr><tr>
-<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png"></a></td><td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
+<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png" alt="AGPL 3.0"></a></td><td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
 </tr></table>
 <?php end_segment(); ?>
 </article>
