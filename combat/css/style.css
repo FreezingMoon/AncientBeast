@@ -355,8 +355,8 @@ div.row:nth-child(9){top:38.944em;}
 .creature .health{
 	position: absolute;
 	display: block;
-	bottom: -50px;
-	right: 35px;
+	bottom: -29px;
+	right: 33px;
 	width: 50px;
 	height: 20px;
 	border: 2px solid;
