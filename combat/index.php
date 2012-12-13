@@ -221,6 +221,7 @@ function db_query($query) {
 
 					Time pool (for each player) : 
 					<select name="time_pool">
+						<option value="-1">∞</option>
 						<option value="1">1 min</option>
 						<option value="2">2 min</option>
 						<option value="3">3 min</option>
@@ -228,17 +229,16 @@ function db_query($query) {
 						<option value="6">6 min</option>
 						<option value="7">7 min</option>
 						<option value="8">8 min</option>
-						<!-- <option value="0">∞</option> -->
 					</select><br/>
 
 					Turn time : 
 					<select name="time_turn">
+						<option value="-1">∞</option>
 						<option value="10">10 sec</option>
 						<option value="20">20 sec</option>
 						<option value="40">40 sec</option>
 						<option value="60">60 sec</option>
 						<option value="80">80 sec</option>
-						<!-- <option value="0">∞</option> -->
 					</select><br/>
 
 					<input type="submit" value="Submit">
@@ -302,10 +302,10 @@ function db_query($query) {
 				<div id="return" class="toggledash button"></div>
 				<div id="tooltip"></div>
 				<div id="playertabswrapper">
-					<div class="playertabs p0"  player="0">Player1<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time"> Time</p>
-					</div><div class="playertabs p2" player="2">Player3<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time"> Time</p>
-					</div><div class="playertabs p1" player="1">Player2<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time"> Time</p>
-					</div><div class="playertabs p3" player="3">Player4<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="time"> Time</p>
+					<div class="playertabs p0"  player="0">Player1<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="timepool"> Time</p>
+					</div><div class="playertabs p2" player="2">Player3<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="timepool"> Time</p>
+					</div><div class="playertabs p1" player="1">Player2<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="timepool"> Time</p>
+					</div><div class="playertabs p3" player="3">Player4<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="timepool"> Time</p>
 					</div>
 				</div>
 				<div id="cardwrapper">

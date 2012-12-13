@@ -266,7 +266,8 @@ var UI = Class.create({
 		//TurnTimePool
 		if( G.turnTimePool >= 0 ){
 			var remainingTime = G.turnTimePool - Math.round((date - G.activeCreature.player.startTime)/1000);
-			remainingTime = Math.min(remainingTime, Math.round( (G.activeCreature.player.totalTimePool-(date - G.activeCreature.player.startTime))/1000) );
+			if(G.timePool > 0)
+				remainingTime = Math.min(remainingTime, Math.round( (G.activeCreature.player.totalTimePool-(date - G.activeCreature.player.startTime))/1000) );
 			var minutes = Math.floor(remainingTime/60);
 			var seconds = remainingTime-minutes*60;
 			$j("#playerinfos .time span").text(zfill(minutes,2)+":"+zfill(seconds,2));
@@ -286,10 +287,10 @@ var UI = Class.create({
 				remainingTime = Math.max(Math.round(remainingTime/1000),0);
 				var minutes = Math.floor(remainingTime/60);
 				var seconds = remainingTime-minutes*60;
-				$j(".playertabs.p"+this.id+" .time").text("TimePool "+zfill(minutes,2)+":"+zfill(seconds,2));
+				$j(".playertabs.p"+this.id+" .timepool").text("TimePool "+zfill(minutes,2)+":"+zfill(seconds,2));
 			});
 		}else{
-			$j(".playertabs .time").text("TimePool ∞");
+			$j(".playertabs .timepool").text("TimePool ∞");
 		}
 	},
 

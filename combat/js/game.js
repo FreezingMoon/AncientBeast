@@ -337,10 +337,28 @@ var Game = Class.create({
 		}
 
 		//Check Match Time
-		if( !playerStillHaveTime )
+		if( !playerStillHaveTime ){
 			G.endGame();
-		else if( this.turnTimePool > 0 && ( (date - p.startTime)/1000 > this.turnTimePool || p.totalTimePool - (date - p.startTime) < 0 ) )
-			G.endTurn();
+			return;
+		}
+
+
+		if( this.timePool > 0 && this.turnTimePool > 0 ){
+			if( (date - p.startTime)/1000 > this.turnTimePool || p.totalTimePool - (date - p.startTime) < 0 ){
+				G.endTurn();
+				return;
+			}
+		}else if( this.turnTimePool > 0 ){
+			if( (date - p.startTime)/1000 > this.turnTimePool ){
+				G.endTurn();
+				return;
+			}
+		}else if( this.timePool > 0 ){
+			if( p.totalTimePool - (date - p.startTime) < 0 ){
+				G.endTurn();
+				return;
+			}
+		}
 
 		G.UI.updateTimer();
 	},
