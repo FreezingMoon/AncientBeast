@@ -134,10 +134,7 @@ Players can level up by gaining experience on the combat field, gaining 1 more p
 When fighting players of lower levels, you will temporarely lose plasma points in order to balance the fight.
 </p>
 <p>
-After engaging in combat, players are taken to the battle field where both parties take turns to materialize and control creatures. Each player needs to have at least one creature on the battlefield at all times, otherwise he loses the fight. Each player can materialize a creature every round, which usually suffer from materialization sickness, meaning they won't be able to act in the current round.
-</p>
-<p>
-After the first materialized creature, each aditional realm requires a plasma point just for being unlocked.
+After engaging in combat, players are taken to the battle field where both parties take turns to materialize and control creatures. Each player can materialize one or two creatures every round, which usually suffer from materialization sickness, meaning they won't be able to act in the current round.
 </p>
 <p>
 <b>Health:</b> A raw number representing the amount of damage a creature can take until it dies.<br>
