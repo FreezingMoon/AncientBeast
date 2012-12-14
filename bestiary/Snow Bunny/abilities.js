@@ -18,6 +18,7 @@ abilities["S1"] =[
 
 	// 	require() :
 	require : function(damage){
+		if(this.used) return false; //Prevent Multiple dodge
 		if(damage.type != "target") return false; //Not targeted 
 		if(this.creature.remainingMove <= 0) return false; //Not enough move points
 		var canDodge = false;
