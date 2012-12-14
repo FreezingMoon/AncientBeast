@@ -573,8 +573,10 @@ var Creature = Class.create({
 		this.killer = killer.player;
 		var isDeny = (this.killer.flipped == this.player.flipped);
 
-		if(!G.firstKill && !isDeny) //First Kill
+		if(!G.firstKill && !isDeny){ //First Kill
 			this.killer.score.push({type:"firstKill"});
+			G.firstKill = true;
+		}
 
 		if(this.type == "--"){ //IF darkpriest
 			if(isDeny){
@@ -596,8 +598,6 @@ var Creature = Class.create({
 				this.killer.score.push({type:"kill",creature:this});
 			}
 		}
-
-		G.firstKill = true;
 
 		//Kill animation
 		this.$display.fadeOut(500);
