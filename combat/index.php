@@ -285,6 +285,13 @@ function db_query($query) {
 								<td>--</td>
 								<td>--</td>
 							</tr>
+							<tr class="timebonus">
+								<td>Time Bonus</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
 							<tr class="total">
 								<td>Total</td>
 								<td>--</td>

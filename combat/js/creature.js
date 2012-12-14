@@ -564,22 +564,31 @@ var Creature = Class.create({
 	*
 	*	kill animation. remove creature from queue and from hexs
 	*
+	*	killer : 	Creature : 	Killer of this creature
+	*
 	*/
 	die: function(killer){
 		this.dead = true;		
 
 		this.killer = killer.player;
+		var isDeny = (this.killer.flipped == this.player.flipped);
 
-		if(!G.firstKill) //First Kill
+		if(!G.firstKill && !isDeny) //First Kill
 			this.killer.score.push({type:"firstKill"});
 
 		if(this.type == "--"){ //IF darkpriest
-			this.killer.score.push({type:"humiliation"});
+			if(isDeny){
+				//TEAM KILL (DENY)
+				this.killer.score.push({type:"deny",creature:this});
+			}else{
+				//humiliation
+				this.killer.score.push({type:"humiliation",creature:this});
+			}
 			G.endGame();
 		}
 
 		if(!this.undead){//only if not undead
-			if(this.killer.flipped == this.player.flipped){
+			if(isDeny){
 				//TEAM KILL (DENY)
 				this.killer.score.push({type:"deny",creature:this});
 			}else{

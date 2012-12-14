@@ -385,7 +385,12 @@ var Game = Class.create({
 	*/
 	endGame: function(){
 		clearInterval(this.timeInterval);
-		
+
+		//Calculate The time cost of the end turn
+		var endTurn = new Date();
+		var p = this.activeCreature.player;
+		p.totalTimePool = p.totalTimePool - (endTurn - p.startTime);
+
 		//Show Score Table
 		$j("#endscreen").show();
 
@@ -398,6 +403,10 @@ var Game = Class.create({
 
 		//FILLING THE BOARD
 		for(var i = 0; i < this.nbrPlayer; i++){ //Each player 
+
+			//TimeBonus
+			if(this.timePool > 0)
+				this.players[i].bonusTimePool = Math.round(this.players[i].totalTimePool/1000);
 
 			//change Name
 			$table.children("tr.player_name").children("td:nth-child("+(i+2)+")")
@@ -441,7 +450,7 @@ var Player = Class.create({
 		this.totalTimePool = G.timePool*1000;
 		this.startTime = new Date();
 
-		this.score = [];
+		this.score = [{type:"timebonus"}];
 	},
 
 	/*	summon()
@@ -484,8 +493,9 @@ var Player = Class.create({
 		var totalScore = {
 			firstKill : 0,
 			kill : 0,
-			teamkill : 0,
+			deny : 0,
 			humiliation : 0,
+			timebonus : 0,
 			total : 0,
 		};
 		for(var i = 0; i < this.score.length; i++){
@@ -499,10 +509,13 @@ var Player = Class.create({
 					points += s.creature.lvl*5;
 					break;
 				case "deny":
-					points -= s.creature.lvl*5;
+					points += -1*s.creature.size*5;
 					break;
 				case "humiliation":
 					points += 50;
+					break;
+				case "timebonus":
+					points += Math.round(this.bonusTimePool * .5);
 					break;
 			}
 			totalScore[s.type] += points;
