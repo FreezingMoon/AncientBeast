@@ -79,6 +79,16 @@ echo '<style type="text/css">
 		}
 	</style>';
 creatureGrid($creature_results,false);
+echo "<br>";
+
+//Stats bar
+//TODO: https://github.com/FreezingMoon/AncientBeast/issues/70
+start_segment();
+echo "<table style='width: 100%;'><tr>";
+foreach($stats as $k => $x)
+	displayStat($k,$statCount[$k],"{$site_root}bestiary/index.php?stat=$k");
+echo "</tr></table>";
+end_segment();
 
 //detailed view
 foreach ($creature_results as $r) {
