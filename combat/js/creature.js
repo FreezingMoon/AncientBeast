@@ -597,6 +597,9 @@ var Creature = Class.create({
 			}
 		}
 
+		G.firstKill = true;
+
+		//Kill animation
 		this.$display.fadeOut(500);
 
 		//As hex occupation changes, path must be recalculated for the current creature not the dying one
