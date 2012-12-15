@@ -89,8 +89,8 @@ $sections = array(
   'plot', 
   'gameplay', 
   'realms', 
-  'requirements', 
-  'development', 
+  'tools', 
+  'contribute', 
   'license'
 );
 foreach ($sections as &$sectionItem) {
@@ -182,22 +182,8 @@ After engaging in combat, players are taken to the battle field where both parti
 <div class="realms" style="background:url('images/realms/pride.jpg') no-repeat;"><a id="Pride" class="bigger" href="#Pride"><div style="background-image: url('/images/contour.png'), url('/images/sins/P.svg');" class="sins"></div>Pride</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge violet; padding: 15px 0px;">They're above everyone else. Literally at least.<br>Hundreds of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div>
 <div class="realms" style="background:url('images/realms/sloth.jpg') no-repeat;"><a id="Sloth" class="bigger" href="#Sloth"><div style="background-image: url('/images/contour.png'), url('/images/sins/S.svg');" class="sins"></div>Sloth</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge blue; padding: 15px 0px;">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div>
 <div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat;"><a id="Wrath" class="bigger" href="#Wrath"><div style="background-image: url('/images/contour.png'), url('/images/sins/W.svg');" class="sins"></div>Wrath</a><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge indigo; padding: 15px 0px;">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that were used for God forbidden experiments regarding genetics and bio weapons.</p></div>
-<?php separate_segment("requirements"); ?>
-<h3 class="indexheader"><a href="#requirements">Requirements</a></h3>
-
-<ul>
-<li>internet connection</li>
-<li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and JavaScript enabled</li>
-<li>500 MHz Processor</li>
-<li>256 MB RAM</li>
-<li>200 MB HDD</li>
-<li>64 MB Video Card</li>
-<li>controller (keyboard, mouse, gamepad, touch screen, smartphone or tablet)</li>
-</ul>
-<p>Best played at Full HD resolution (1920x1080), with stereo speakers, using <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a>.<br>
-While playing on a smartphone, it is highly recommended using a stylus.</p>
-<?php separate_segment("development"); ?>
-<h3 class="indexheader"><a href="#development">Development</a></h3>
+<?php separate_segment("tools"); ?>
+<h3 class="indexheader"><a href="#tools">Tools</a></h3>
 <p>The project is developed with the use of free open source cross platform applications and freeware services.
 <a href="http://www.wuala.com/referral/CGN5J6GH3PBBBHCGKJ3P" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's assets and sources, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group. There is no centralized forum, but you can use the various <a href="http://disqus.com" target="_blank"><b>Disqus</b></a> widgets around the website, our <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>Github issue tracker</b></a> or our <a href="http://forum.freegamedev.net/viewforum.php?f=70" target="_blank"><b>FreeGameDev subforum</b></a>.<br>
 <a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their animations, which are rendered into sprites that are usually made into sprite-sheets as well as for other tasks.<br>
@@ -219,7 +205,8 @@ foreach ($tools as $toolName => $toolLink) {
 }
 ?>
 </tr></table>
-<br>
+<?php separate_segment("contribute"); ?>
+<h3 class="indexheader"><a href="#contribute">Contribute</a></h3>
 <p>
 For putting creature sprites together into sprite sheets, you can use the <a href="http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Render/Spritify" target="_blank"><b>Spritify</b></a> blender addon.<br>
 The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. By default, rendered creatures should usually be facing right.
