@@ -257,14 +257,13 @@ var Game = Class.create({
 		}
 
 		this.activeCreature.activate();
+		G.checkTime();
 
 		this.log("Active Creature : "+this.activeCreature.player.name+"'s "+this.activeCreature.name);
 
 		//Update UI to match new creature
 		this.UI.updateActivebox();
 		this.reorderQueue(); //Update UI and Queue order
-
-		G.checkTime();
 	},
 
 
@@ -338,30 +337,30 @@ var Game = Class.create({
 		//Check all timepool
 		var playerStillHaveTime = (this.timePool>0) ? false : true ; //So check is always true for infinite time
 		for(var i = 0; i < this.nbrPlayer; i++){ //Each player 
-
 			playerStillHaveTime = (this.players[i].totalTimePool > 0) || playerStillHaveTime;
 		}
 
 		//Check Match Time
 		if( !playerStillHaveTime ){
-			p.deactivate();
-			G.endTurn();
+			G.endGame();
 			return;
 		}
 
-
-		if( this.timePool > 0 && this.turnTimePool > 0 ){
+		if( this.timePool > 0 && this.turnTimePool > 0 ){ //Turn time and timepool not infinite
 			if( (date - p.startTime)/1000 > this.turnTimePool || p.totalTimePool - (date - p.startTime) < 0 ){
+				if( p.totalTimePool - (date - p.startTime) < 0 )
+					p.deactivate(); //Only if timepool is empty
 				G.endTurn();
 				return;
 			}
-		}else if( this.turnTimePool > 0 ){
+		}else if( this.turnTimePool > 0 ){ //Turn time not infinite
 			if( (date - p.startTime)/1000 > this.turnTimePool ){
 				G.endTurn();
 				return;
 			}
-		}else if( this.timePool > 0 ){
+		}else if( this.timePool > 0 ){ //timepool not infinite
 			if( p.totalTimePool - (date - p.startTime) < 0 ){
+				p.deactivate();
 				G.endTurn();
 				return;
 			}
@@ -415,14 +414,37 @@ var Game = Class.create({
 			if(this.timePool > 0)
 				this.players[i].bonusTimePool = Math.round(this.players[i].totalTimePool/1000);
 
+			//-------Ending bonuses--------//
+			//No surrender
+			if(!this.players[i].hasSurrendered && !this.players[i].hasLost)
+				this.players[i].score.push({type:"nosurrender"});
+			//Surviving Creature Bonus
+			var immortal = true;
+			for(var j = 0; j < this.players[i].creatures.length; j++){
+				if(!this.players[i].creatures[j].dead){
+					if(this.players[i].creatures[j].type != "--")
+						this.players[i].score.push({type:"creaturebonus",creature:this.players[i].creatures[j]});
+					else //Darkpreist Bonus
+						this.players[i].score.push({type:"darkpriestbonus"});
+				}else{
+					immortal = false;
+				}
+			}
+			//Immortal
+			if(immortal && this.players[i].creatures.length > 1) //At least 1 creature summoned
+				this.players[i].score.push({type:"immortal"});
+
+			//----------Display-----------//
+			var colId = (this.nbrPlayer>2) ?( i+2+((i%2)*2-1)*Math.min(1,i%3) ):i+2;
+
 			//change Name
-			$table.children("tr.player_name").children("td:nth-child("+( i+2+((i%2)*2-1)*Math.min(1,i%3) )+")") //Weird expression swap 2nd and 3rd player
+			$table.children("tr.player_name").children("td:nth-child("+colId+")") //Weird expression swap 2nd and 3rd player
 			.text(this.players[i].name); 
 
 			//Change score
 			$j.each(this.players[i].getScore(),function(index,val){
 				var text = ( val == 0 && index != "total") ? "--" : val ;
-				$table.children("tr."+index).children("td:nth-child("+( i+2+((i%2)*2-1)*Math.min(1,i%3) )+")") //Weird expression swap 2nd and 3rd player
+				$table.children("tr."+index).children("td:nth-child("+colId+")") //Weird expression swap 2nd and 3rd player
 				.text(text);
 			});
 		}
@@ -485,6 +507,7 @@ var Player = Class.create({
 		this.flipped = !!(id%2); //Convert odd/even to true/false
 		this.availableCreatures = G.availableCreatures;
 		this.hasLost = false;
+		this.hasSurrendered = false;
 		this.bonusTimePool = 0;
 		this.totalTimePool = G.timePool*1000;
 		this.startTime = new Date();
@@ -526,6 +549,7 @@ var Player = Class.create({
 		}
 
 		if(window.confirm("Are you sure you want to surrender?")){
+			this.hasSurrendered = true;
 			this.deactivate();
 			G.endTurn();
 		}
@@ -544,7 +568,12 @@ var Player = Class.create({
 			kill : 0,
 			deny : 0,
 			humiliation : 0,
+			annihilation : 0,
 			timebonus : 0,
+			nosurrender : 0,
+			creaturebonus : 0,
+			darkpriestbonus : 0,
+			immortal : 0,
 			total : 0,
 		};
 		for(var i = 0; i < this.score.length; i++){
@@ -557,14 +586,29 @@ var Player = Class.create({
 				case "kill":
 					points += s.creature.lvl*5;
 					break;
-				case "deny":
-					points += -1*s.creature.size*5;
-					break;
 				case "humiliation":
 					points += 50;
 					break;
+				case "annihilation":
+					points += 100;
+					break;
+				case "deny":
+					points += -1*s.creature.size*5;
+					break;
 				case "timebonus":
 					points += Math.round(this.bonusTimePool * .5);
+					break;
+				case "nosurrender":
+					points += 25;
+					break;
+				case "creaturebonus":
+					points += s.creature.lvl*5;
+					break;
+				case "darkpriestbonus":
+					points += 50;
+					break;
+				case "immortal":
+					points += 100;
 					break;
 			}
 			totalScore[s.type] += points;
@@ -590,6 +634,19 @@ var Player = Class.create({
 		return true; //If nobody has a better score he's in lead
 	},
 
+
+	/*	isAnnihilated()
+	*
+	*	A player is considered annihilated if all his creatures are dead DP included
+	*/
+	isAnnihilated: function(){
+		var annihilated = (this.creatures.length>1);
+		//annihilated is false if only one creature is not dead
+		for(var i = 0; i < this.creatures.length; i++){
+			annihilated = annihilated && this.creatures[i].dead;
+		}
+		return annihilated;
+	},
 
 	/* deactivate()
 	*

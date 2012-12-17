@@ -271,13 +271,6 @@ function db_query($query) {
 								<td>--</td>
 								<td>--</td>
 							</tr>
-							<tr class="deny">
-								<td>Denies</td>
-								<td>--</td>
-								<td>--</td>
-								<td>--</td>
-								<td>--</td>
-							</tr>
 							<tr class="humiliation">
 								<td>Humiliation</td>
 								<td>--</td>
@@ -285,8 +278,50 @@ function db_query($query) {
 								<td>--</td>
 								<td>--</td>
 							</tr>
+							<tr class="annihilation">
+								<td>Annihilation</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
+							<tr class="deny">
+								<td>Denies</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
 							<tr class="timebonus">
 								<td>Time Bonus</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
+							<tr class="nosurrender">
+								<td>No Surrender</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
+							<tr class="creaturebonus">
+								<td>Survivor Creatures</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
+							<tr class="darkpriestbonus">
+								<td>Survivor DarkPriest</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
+							<tr class="immortal">
+								<td>Immortal</td>
 								<td>--</td>
 								<td>--</td>
 								<td>--</td>

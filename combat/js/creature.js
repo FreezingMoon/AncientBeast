@@ -600,6 +600,11 @@ var Creature = Class.create({
 			}
 		}
 
+		if( this.player.isAnnihilated() ){
+			//ANNIHILATION
+			this.killer.score.push({type:"annihilation",creature:this});
+		}
+
 		//Kill animation
 		this.$display.fadeOut(500);
 
