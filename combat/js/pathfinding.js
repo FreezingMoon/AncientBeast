@@ -7,7 +7,7 @@ var astar = {
 		openList.push(start);
 
 		if(start == end){
-			G.debuglog("Same coordinates");
+			console.log("Same coordinates");
 			return [];
 		}
 			

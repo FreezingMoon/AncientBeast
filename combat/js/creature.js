@@ -586,7 +586,8 @@ var Creature = Class.create({
 				//humiliation
 				this.killer.score.push({type:"humiliation",creature:this});
 			}
-			G.endGame();
+
+			this.player.deactivate();
 		}
 
 		if(!this.undead){//only if not undead
@@ -609,6 +610,7 @@ var Creature = Class.create({
 		//Queue cleaning
 		G.queue.removePos(this);
 		G.nextQueue.removePos(this);
+		G.delayQueue.removePos(this);
 		G.reorderQueue();
 
 		if(G.activeCreature === this){ G.nextCreature(); } //End turn if current active creature die

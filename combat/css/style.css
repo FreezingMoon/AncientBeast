@@ -761,3 +761,9 @@ div.row:nth-child(9){top:38.944em;}
 #scoreboard h1{
 	text-align: center;
 }
+
+#scoreboard p{
+	text-align: center;
+	font-size: 18px;
+	font-weight: bold;
+}

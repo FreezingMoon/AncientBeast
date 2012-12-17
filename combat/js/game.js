@@ -118,7 +118,7 @@ var Game = Class.create({
 		this.$combatFrame.show();
 
 		//Remove loading screen
-		$j("#matchmaking").remove();
+		$j("#matchmaking").hide();
 
 		for (var i = 0; i < nbrPlayer; i++) {
 			var player = new Player(i)
@@ -251,6 +251,11 @@ var Game = Class.create({
 			this.queue = this.queue.slice(1); //and remove it from the queue
 		}
 
+		if(this.activeCreature.player.hasLost){
+			this.nextCreature();
+			return;
+		}
+
 		this.activeCreature.activate();
 
 		this.log("Active Creature : "+this.activeCreature.player.name+"'s "+this.activeCreature.name);
@@ -333,12 +338,14 @@ var Game = Class.create({
 		//Check all timepool
 		var playerStillHaveTime = (this.timePool>0) ? false : true ; //So check is always true for infinite time
 		for(var i = 0; i < this.nbrPlayer; i++){ //Each player 
+
 			playerStillHaveTime = (this.players[i].totalTimePool > 0) || playerStillHaveTime;
 		}
 
 		//Check Match Time
 		if( !playerStillHaveTime ){
-			G.endGame();
+			p.deactivate();
+			G.endTurn();
 			return;
 		}
 
@@ -409,15 +416,46 @@ var Game = Class.create({
 				this.players[i].bonusTimePool = Math.round(this.players[i].totalTimePool/1000);
 
 			//change Name
-			$table.children("tr.player_name").children("td:nth-child("+(i+2)+")")
+			$table.children("tr.player_name").children("td:nth-child("+( i+2+((i%2)*2-1)*Math.min(1,i%3) )+")") //Weird expression swap 2nd and 3rd player
 			.text(this.players[i].name); 
 
 			//Change score
 			$j.each(this.players[i].getScore(),function(index,val){
 				var text = ( val == 0 && index != "total") ? "--" : val ;
-				$table.children("tr."+index).children("td:nth-child("+(i+2)+")")
+				$table.children("tr."+index).children("td:nth-child("+( i+2+((i%2)*2-1)*Math.min(1,i%3) )+")") //Weird expression swap 2nd and 3rd player
 				.text(text);
 			});
+		}
+
+		//Defining winner
+		if(this.nbrPlayer > 2){ //2vs2
+			var score1 = this.players[0].getScore().total + this.players[2].getScore().total;
+			var score2 = this.players[1].getScore().total + this.players[3].getScore().total;
+			
+			if( score1 > score2 ){
+				//Left side wins
+				$j("#endscreen p").text(this.players[0].name+" and "+this.players[2].name+" won the match!");
+			}else if( score1 < score2 ){
+				//Right side wins
+				$j("#endscreen p").text(this.players[1].name+" and "+this.players[3].name+" won the match!");
+			}else if( score1 == score2 ){
+				//Draw
+				$j("#endscreen p").text("Draw!");
+			}
+		}else{ //1vs1
+			var score1 = this.players[0].getScore().total;
+			var score2 = this.players[1].getScore().total;
+
+			if( score1 > score2 ){
+				//Left side wins
+				$j("#endscreen p").text(this.players[0].name+" won the match!");
+			}else if( score1 < score2 ){
+				//Right side wins
+				$j("#endscreen p").text(this.players[1].name+" won the match!");
+			}else if( score1 == score2 ){
+				//Draw
+				$j("#endscreen p").text("Draw!");
+			}
 		}
 
 	},
@@ -446,6 +484,7 @@ var Player = Class.create({
 		this.plasma = G.plasma_amount;
 		this.flipped = !!(id%2); //Convert odd/even to true/false
 		this.availableCreatures = G.availableCreatures;
+		this.hasLost = false;
 		this.bonusTimePool = 0;
 		this.totalTimePool = G.timePool*1000;
 		this.startTime = new Date();
@@ -477,8 +516,18 @@ var Player = Class.create({
 	*
 	*/
 	surrender: function(){
+		if( G.turn < 10 ){
+			alert("You cannot surrender in the first 10 rounds.");
+			return;
+		}
+		if( this.isLeader() ){
+			alert("You cannot surrender while being in lead.");
+			return;
+		}
+
 		if(window.confirm("Are you sure you want to surrender?")){
-			G.endGame();
+			this.deactivate();
+			G.endTurn();
 		}
 	},
 
@@ -524,6 +573,52 @@ var Player = Class.create({
 		return totalScore;
 	},
 
+	/*	isLeader()
+	*
+	*	Test if the player has the greater score.
+	*	Return true if in lead. False if not.
+	*/
+	isLeader: function(){
+
+		for(var i = 0; i < G.nbrPlayer; i++){ //Each player 
+			//If someone has a higher score
+			if(G.players[i].getScore().total > this.getScore().total){
+				return false; //he's not in lead
+			}
+		};
+
+		return true; //If nobody has a better score he's in lead
+	},
+
+
+	/* deactivate()
+	*
+	*	Remove all player's creature from the queue
+	*/
+	deactivate: function(){
+		this.hasLost = true;
+
+		//Remove all player creatures from queues
+		for(var i = 1; i < G.creatures.length; i++){
+			var crea = G.creatures[i];
+			if(crea.player.id == this.id){
+				G.queue.removePos(crea);
+				G.nextQueue.removePos(crea);
+				G.delayQueue.removePos(crea);
+			}
+		}
+		G.reorderQueue();
+
+		//Test if allie darkpriest is dead
+		if( G.nbrPlayer > 2){
+			//2vs2
+			if( G.players[ (this.id+2)%4 ].hasLost )
+				G.endGame();
+		}else{
+			//1vs1
+			G.endGame();
+		}
+	},
 });
 
 //Zfill like in python
