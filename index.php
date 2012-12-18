@@ -91,13 +91,13 @@ $(document).ready(function() {
 <nav><table class="sections"><tr>
 <?php
 $sections = array(
-  'intro',
-  'plot', 
-  'gameplay', 
-  'realms', 
-  'tools', 
-  'contribute', 
-  'license'
+	'intro',
+	'plot',
+	'gameplay',
+	'realms',
+	'tools',
+	'contribute',
+	'license'
 );
 foreach ($sections as &$sectionItem) {
 	echo '<td class="center"><a href="#' . $sectionItem . '" class="lighten"><img src="images/icons/' . $sectionItem . '.png" width="120" height="120" style="display:block;" alt="' . $sectionItem . '">' . ucfirst($sectionItem) . '</a></td>';
@@ -213,14 +213,14 @@ After engaging in combat, players are taken to the battle field where both parti
 <table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
 $tools = array(
-  'github'     => 'https://github.com/FreezingMoon/AncientBeast',
-  'wuala'      => 'http://www.wuala.com/AncientBeast',
-  'deviantart' => 'http://Ancient-Beast.deviantart.com',
-  'blender'    => 'http://blender.org', 
-  'krita'      => 'http://krita.org', 
-  'gimp'       => 'http://gimp.org', 
-  'mypaint'    => 'http://mypaint.intilinux.com', 
-  'inkscape'   => 'http://inkscape.org'
+	'github'     => 'https://github.com/FreezingMoon/AncientBeast',
+	'wuala'      => 'http://www.wuala.com/AncientBeast',
+	'deviantart' => 'http://Ancient-Beast.deviantart.com',
+	'blender'    => 'http://blender.org',
+	'krita'      => 'http://krita.org',
+	'gimp'       => 'http://gimp.org',
+	'mypaint'    => 'http://mypaint.intilinux.com',
+	'inkscape'   => 'http://inkscape.org'
 );
 foreach ($tools as $toolName => $toolLink) {
 	echo '<td><a href="' . $toolLink . '" target="_blank" class="lighten"><img src="images/icons/' . $toolName . '.png" style="display:block; width:99px; height99px;" alt="' . $toolName . '">' . ucfirst($toolName) . '</a></td>';
