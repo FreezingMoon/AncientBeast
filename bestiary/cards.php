@@ -158,9 +158,10 @@ function CallCreature(shout) {
 }
 </script>
 <?php
-function cards($r = "", $id = -1) { //Print a card
+function cards($r = "", $embed = 0, $id = -1) { //Print a card
 	global $site_root; // from global.php
 	global $stats2;
+
 
 	if( $id != -1 || !is_array($r) ){
 		$ab_id = mysql_real_escape_string($id);
@@ -182,9 +183,9 @@ function cards($r = "", $id = -1) { //Print a card
 <center>
 	<table border=0>
 		<th class="card recto" style="background-image: url(\'' . $site_root . 'bestiary/' . $r['name'] . '/artwork.jpg\');">
-			<a href="#' . $spaceless . '" class="section cardborder">
-				<div class="embed">' . $r['embed'] . '</div>
-				<table class="section info sin' . $r['sin'] . '">
+			<a href="#' . $spaceless . '" class="section cardborder">';
+				if ($embed == 1) echo '<div class="embed">' . $r['embed'] . '</div>';
+				echo '<table class="section info sin' . $r['sin'] . '">
 					<tr>
 						<td class="type" width="20%">'.$r['sin'].$r['lvl'].'</td>
 						<td><audio src="' . $r['name'] . '/' . $r['name'] . '.ogg" id="' . $r['name'] . '_shout" style="display:none;" preload="auto"></audio>
