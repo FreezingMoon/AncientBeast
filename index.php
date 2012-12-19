@@ -70,7 +70,7 @@ require_once('header.php');
 <script type="application/javascript">
 $(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");
-	$("a[rel=pop]").fancybox({
+	$("a.pop").fancybox({
 		'overlayColor'  : 'black',
 		'transitionIn'	: 'elastic',
 		'transitionOut'	: 'elastic',
@@ -142,7 +142,7 @@ foreach($images as $image) {
 	if($image == '.' || $image == '..') continue;
 	$title = substr($image, 0, -4);
 	$image = str_replace(' ', '%20', $image);
-	echo '<a id="img' . $i . '" style="text-align:center;" rel="pop" href="images/combat/' . $image . '" title="' . $title . '"><img style="width:280px; margin:5px;" src="images/combat/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+	echo '<a id="img' . $i . '" style="text-align:center;" class="pop" href="images/combat/' . $image . '" title="' . $title . '"><img style="width:280px; margin:5px;" src="images/combat/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 	$i++;
 } echo '</div>';?>
 <p>
