@@ -565,6 +565,21 @@ div.row:nth-child(9){top:38.944em;}
 	color: white;
 }
 
+#summon_buttons{ 
+	width: 860px;
+	margin: auto;
+}
+
+#materialize_button,#energize_button{
+	width: 420px;
+	background: #555;
+	display: inline-block;
+}
+
+#summon_buttons .ability{float: left;}
+#materialize_button .ability{ background-image: url("../../bestiary/Dark%20Priest/2.svg"); }
+#energize_button .ability{ background-image: url("../../bestiary/Dark%20Priest/3.svg"); }
+
 /*-------------------Queue-------------------*/
 
 #queuewrapper{display: block; width: 4000px;}

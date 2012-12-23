@@ -58,6 +58,9 @@ var UI = Class.create({
 		this.selectedCreature = "";
 		this.selectedPlayer = 0;
 
+		//Hide summon Button
+		$j('#summon_buttons').hide();
+
 		//Show UI
 		this.$display.show();
 	},
@@ -149,6 +152,41 @@ var UI = Class.create({
 				$ability.children(".wrapper").children(".info").children("h3").text(value.title);
 				$ability.children(".wrapper").children(".info").children(".desc").text(value.desc);
 			});
+
+			var summonedOrDead = false;
+			G.players[player].creatures.each(function(){
+				if(this.type == creatureType){
+					summonedOrDead = true;
+				}
+			});
+
+			//Summon buttons
+			//Plasma cost
+			if(	!summonedOrDead && 
+				G.activeCreature.player.id==player && 
+				G.activeCreature.type=="--" &&
+				G.activeCreature.abilities[3].used==false )
+			{
+				var lvl = creatureType.substring(1,2)-0;
+				var size = G.retreiveCreatureStats(creatureType).size-0;
+				plasmaCost = lvl+size;
+				$j('#summon_buttons').show();
+				$j('#materialize_button p').text(plasmaCost+" Plasma");
+				$j('#energize_button p').text((plasmaCost+2)+" Plasma");
+
+				//Bind buttons
+				$j('#materialize_button').unbind('click').bind('click',function(e){
+					G.UI.toggleDash();
+					G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
+				});
+				$j('#energize_button').unbind('click').bind('click',function(e){
+					G.UI.toggleDash();
+					G.activeCreature.abilities[3].energize(G.UI.selectedCreature);
+				});
+
+			}else{
+				$j('#summon_buttons').hide();
+			}
 
 		}else{
 			//TODO Locked card

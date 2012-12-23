@@ -351,6 +351,18 @@ function db_query($query) {
 				</div>
 				<div id="cardwrapper">
 					<div id="card"><?php cards("",0); ?></div>
+					<div id="summon_buttons">
+						<div id="materialize_button" class="button">
+							<div class="ability button"></div>
+							<h3>Materialize</h3>
+							<p>0 Plasma</p>
+						</div>
+						<div id="energize_button" class="button">
+							<div class="ability button"></div>
+							<h3>Energize</h3>
+							<p>0 Plasma</p>
+						</div>
+					</div>
 				</div>
 				<div id="creaturegridwrapper"><?php
 						require_once('../bestiary/grid.php');

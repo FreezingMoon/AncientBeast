@@ -99,7 +99,11 @@ var Damage = Class.create({
 
 		//DAMAGE CALCULATION
 		$j.each(this.damages,function(key,value){
-			dmgTotal += Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
+			if(key=="pure"){ //Bypass defense calculation
+				dmgTotal += value;
+			}else{
+				dmgTotal += Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
+			}
 		});
 
 		return dmgTotal;
