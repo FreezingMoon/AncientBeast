@@ -158,7 +158,7 @@ function CallCreature(shout) {
 }
 </script>
 <?php
-function cards($r = "", $embed = 0, $id = -1) { //Print a card
+function cards($r = "", $id = -1, $embed = 0) { //Print a card
 	global $site_root; // from global.php
 	global $stats2;
 

@@ -93,7 +93,7 @@ var HexGrid = Class.create({
 	cleanOverlay: function(cssClass){ this.$allOverHex.removeClass(cssClass); },
 
 	/*
-	*	queryDirection(fnOnConfirm,directions,,team,distance,x,y,id,args)
+	*	queryDirection(fnOnConfirm,directions,team,distance,x,y,id,args)
 	*	
 	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
 	*	fnOptTest : 	Function : 	Optional test to apply to hexs
