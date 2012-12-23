@@ -41,13 +41,13 @@ $style = '
 	width: 127px;
 	height: 127px;
 }
-#container > div {
+.container > div {
     display: none
 }
-#container > div:first-child {
+.container > div:first-child {
     display: block
 }
-#container > div:hover + div {
+.container > div:hover + div {
     display: block
 }
 .sections {
@@ -70,7 +70,7 @@ require_once('header.php');
 <script type="application/javascript">
 $(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");
-	$("a[rel=pop]").fancybox({
+	$("a.pop").fancybox({
 		'overlayColor'  : 'black',
 		'transitionIn'	: 'elastic',
 		'transitionOut'	: 'elastic',
@@ -91,13 +91,13 @@ $(document).ready(function() {
 <nav><table class="sections"><tr>
 <?php
 $sections = array(
-  'intro',
-  'plot', 
-  'gameplay', 
-  'realms', 
-  'tools', 
-  'contribute', 
-  'license'
+	'intro',
+	'plot',
+	'gameplay',
+	'realms',
+	'tools',
+	'contribute',
+	'license'
 );
 foreach ($sections as &$sectionItem) {
 	echo '<td class="center"><a href="#' . $sectionItem . '" class="lighten"><img src="images/icons/' . $sectionItem . '.png" width="120" height="120" style="display:block;" alt="' . $sectionItem . '">' . ucfirst($sectionItem) . '</a></td>';
@@ -142,7 +142,7 @@ foreach($images as $image) {
 	if($image == '.' || $image == '..') continue;
 	$title = substr($image, 0, -4);
 	$image = str_replace(' ', '%20', $image);
-	echo '<a id="img' . $i . '" style="text-align:center;" rel="pop" href="images/combat/' . $image . '" title="' . $title . '"><img style="width:280px; margin:5px;" src="images/combat/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+	echo '<a id="img' . $i . '" style="text-align:center;" class="pop" href="images/combat/' . $image . '" title="' . $title . '"><img style="width:280px; margin:5px;" src="images/combat/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 	$i++;
 } echo '</div>';?>
 <p>
@@ -169,38 +169,38 @@ After engaging in combat, players are taken to the battle field where both parti
 <h3 class="indexheader"><a href="#realms">Realms</a></h3>
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.</p>
 <div style="width:840px; display:table; cursor:pointer;" class="center">
-	<div id="container" style="display:table-cell;"><div><div style="background:url('images/realms/avarice.jpg'); width:127px; height:400px;"></div>
-	<img src="images/sins/A.svg" class="sins"><span class="bigger">Avarice</span></div>
+	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/avarice.jpg'); width:127px; height:400px;"></div>
+	<img src="images/sins/A.svg" class="sins" alt="avarice"><span class="bigger">Avarice</span></div>
 	<div class="realms" style="background:url('images/realms/avarice.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge gold; padding: 15px 0px;">They like to aquire all sorts of useless things and riches by all means possible.<br>
 	Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</p></div></div>
 
-	<div id="container" style="display:table-cell;"><div><div style="background:url('images/realms/envy.jpg') -127px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/E.svg" class="sins"><span class="bigger">Envy</span></div>
+	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/envy.jpg') -127px 0; width:127px; height:400px;"></div>
+	<img src="images/sins/E.svg" class="sins" alt="envy"><span class="bigger">Envy</span></div>
 	<div class="realms" style="background:url('images/realms/envy.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge orange; padding: 15px 0px;">The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>It's located to the West side and it mainly consists of deserts and cannyons.</p></div></div>
 
-	<div id="container" style="display:table-cell;"><div><div style="background:url('images/realms/gluttony.jpg') -254px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/G.svg" class="sins"><span class="bigger">Gluttony</span></div>
+	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/gluttony.jpg') -254px 0; width:127px; height:400px;"></div>
+	<img src="images/sins/G.svg" class="sins" alt="gluttony"><span class="bigger">Gluttony</span></div>
 	<div class="realms" style="background:url('images/realms/gluttony.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge green; padding: 15px 0px;">Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>In the east side, where the jungles are really tall and wilde, not even the sun's waves go through. Beware of the vegetation as well and don't pet any animals!</p></div></div>
 
-	<div id="container" style="display:table-cell;"><div><div style="background:url('images/realms/lust.jpg') -381px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/L.svg" class="sins"><span class="bigger">Lust</span></div>
+	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/lust.jpg') -381px 0; width:127px; height:400px;"></div>
+	<img src="images/sins/L.svg" class="sins" alt="lust"><span class="bigger">Lust</span></div>
 	<div class="realms" style="background:url('images/realms/lust.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge red; padding: 15px 0px;">The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</p></div></div>
 
-	<div id="container" style="display:table-cell;"><div><div style="background:url('images/realms/pride.jpg') -508px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/P.svg" class="sins"><span class="bigger">Pride</span></div>
+	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/pride.jpg') -508px 0; width:127px; height:400px;"></div>
+	<img src="images/sins/P.svg" class="sins" alt="pride"><span class="bigger">Pride</span></div>
 	<div class="realms" style="background:url('images/realms/pride.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge violet; padding: 15px 0px;">They're above everyone else. Literally at least.<br>Hundreds of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div></div>
 
-	<div id="container" style="display:table-cell;"><div><div style="background:url('images/realms/sloth.jpg') -635px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/S.svg" class="sins"><span class="bigger">Sloth</span></div>
+	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/sloth.jpg') -635px 0; width:127px; height:400px;"></div>
+	<img src="images/sins/S.svg" class="sins" alt="sloth"><span class="bigger">Sloth</span></div>
 	<div class="realms" style="background:url('images/realms/sloth.jpg') no-repeat; position:absolute; top:81px; left:31px;"><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge blue; padding: 15px 0px;">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div></div>
 
-	<div id="container" style="display:table-cell;"><div><div style="background:url('images/realms/wrath.jpg') -762px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/W.svg" class="sins"><span class="bigger">Wrath</span></div>
+	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/wrath.jpg') -762px 0; width:127px; height:400px;"></div>
+	<img src="images/sins/W.svg" class="sins" alt="wrath"><span class="bigger">Wrath</span></div>
 	<div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat; position:absolute; top:81px; left:31px;"><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge indigo; padding: 15px 0px;">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that were used for God forbidden experiments regarding genetics and bio weapons.</p></div></div>
 </div>
 
@@ -213,14 +213,14 @@ After engaging in combat, players are taken to the battle field where both parti
 <table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
 $tools = array(
-  'github'     => 'https://github.com/FreezingMoon/AncientBeast',
-  'wuala'      => 'http://www.wuala.com/AncientBeast',
-  'deviantart' => 'http://Ancient-Beast.deviantart.com',
-  'blender'    => 'http://blender.org', 
-  'krita'      => 'http://krita.org', 
-  'gimp'       => 'http://gimp.org', 
-  'mypaint'    => 'http://mypaint.intilinux.com', 
-  'inkscape'   => 'http://inkscape.org'
+	'github'     => 'https://github.com/FreezingMoon/AncientBeast',
+	'wuala'      => 'http://www.wuala.com/AncientBeast',
+	'deviantart' => 'http://Ancient-Beast.deviantart.com',
+	'blender'    => 'http://blender.org',
+	'krita'      => 'http://krita.org',
+	'gimp'       => 'http://gimp.org',
+	'mypaint'    => 'http://mypaint.intilinux.com',
+	'inkscape'   => 'http://inkscape.org'
 );
 foreach ($tools as $toolName => $toolLink) {
 	echo '<td><a href="' . $toolLink . '" target="_blank" class="lighten"><img src="images/icons/' . $toolName . '.png" style="display:block; width:99px; height99px;" alt="' . $toolName . '">' . ucfirst($toolName) . '</a></td>';
@@ -235,13 +235,20 @@ The game requires animations to be 30 frames per second. Sprite sheets must have
 </p>
 <?php separate_segment("license"); ?>
 <h3 class="indexheader"><a href="#license">License</a></h3>
-<table border="1"><tr>
-<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png" alt="Freezing Moon"></a></td><td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
-</tr><tr>
-<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td><td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license, provided you credit and link the project, as well as the author(s) of the respective works.</td>
-</tr><tr>
-<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png" alt="AGPL 3.0"></a></td><td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
-</tr></table>
+<table border="1">
+	<tr>
+		<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png" alt="Freezing Moon"></a></td>
+		<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
+	</tr>
+	<tr>
+		<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td>
+		<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license, provided you credit and link the project, as well as the author(s) of the respective works.</td>
+	</tr>
+	<tr>
+		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png" alt="AGPL 3.0"></a></td>
+		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
+	</tr>
+</table>
 <?php end_segment(); ?>
 </article>
 <?php end_page(); ?>

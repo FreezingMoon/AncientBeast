@@ -38,20 +38,21 @@ $creature_results = db_query($creatures);
 
 function progress($r) {
 		$sum = 0;
+		$spaceless = str_replace(' ', '%20', $r['name'] );
 		echo "
 
-<div class='center' style='width:825px; background-image:url(../images/progress/widget.png);'>
-		<a href='http://www.wuala.com/AncientBeast/bestiary/".$r["name"]."' target='_blank'>";
+		<div class='center' style='width:825px; background-image:url(../images/progress/widget.png);'>
+		<a href='http://www.wuala.com/AncientBeast/bestiary/" . $spaceless . "' target='_blank'>";
 		$i = 0;
 		foreach($r as $key => $value) {
 			if($i++ < 32) continue; //Ignore Other keys
 			$sum += $value;
 			$title = ucfirst($key) . ": $value% complete";
-			echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title'>";
+			echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title' alt='$title'>";
 		}
 		$total = $sum / 10;
 		$rounded_total = 10 * round ($total/10) ;
-		echo "<img src='../images/progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed'>
+		echo "<img src='../images/progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed' alt='$rounded_total'>
 	</a>
 </div>";
 

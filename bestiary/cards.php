@@ -158,9 +158,10 @@ function CallCreature(shout) {
 }
 </script>
 <?php
-function cards($r = "", $id = -1) { //Print a card
+function cards($r = "", $id = -1, $embed = 0) { //Print a card
 	global $site_root; // from global.php
 	global $stats2;
+
 
 	if( $id != -1 || !is_array($r) ){
 		$ab_id = mysql_real_escape_string($id);
@@ -175,22 +176,20 @@ function cards($r = "", $id = -1) { //Print a card
 	}
   
 	//Card entry
-	$spaceless = str_replace(' ', '_', $r['name'] );
-	$CallCreature = 'CallCreature(\'' . $r['name'] . '_shout\');';
+	$spaceless = str_replace(' ', '%20', $r['name'] );
+	$CallCreature = 'CallCreature(\'' . $spaceless . '_shout\');';
 
 	echo '
-<center>
-	<table border=0>
+	<table class="center" border=0>
 		<th class="card recto" style="background-image: url(\'' . $site_root . 'bestiary/' . $r['name'] . '/artwork.jpg\');">
-			<a href="#' . $spaceless . '" class="section cardborder">
-				<div class="embed">' . $r['embed'] . '</div>
-				<table class="section info sin' . $r['sin'] . '">
+			<a href="#' . $spaceless . '" class="section cardborder">';
+				if ($embed == 1) echo '<div class="embed">' . $r['embed'] . '</div>';
+				echo '<table class="section info sin' . $r['sin'] . '">
 					<tr>
-						<td class="type" width="20%">'.$r['sin'].$r['lvl'].'</td>
-						<td><audio src="' . $r['name'] . '/' . $r['name'] . '.ogg" id="' . $r['name'] . '_shout" style="display:none;" preload="auto"></audio>
-							<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '">' . $r['name'] . '</a>
-						</td>
-						<td class="hexs" width="20%">' . $r['hex'] . 'H</td>
+						<td class="type" style="width:20%;">'.$r['sin'].$r['lvl'].'</td>
+						<td><audio src="' . $spaceless . '/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
+						<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '">' . $r['name'] . '</a></td>
+						<td class="hexs" style="width:20%;">' . $r['hex'] . 'H</td>
 					</tr>
 				</table>
 			</a>
@@ -242,7 +241,6 @@ function cards($r = "", $id = -1) { //Print a card
 				</table>
 			</div>
 		</th>
-	</table>
-</center>';
+	</table>';
 }
 ?>
