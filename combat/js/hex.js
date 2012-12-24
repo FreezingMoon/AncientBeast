@@ -694,7 +694,7 @@ var HexGrid = Class.create({
 		//ONMOUSEOVER
 		this.$allInptHex.filter(".hex.not-reachable").bind('mouseover', function(){
 			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
-		})
+		});
 		this.$allInptHex.bind('mouseover', function(){ G.grid.xray(G.grid.hexs[$j(this).attr("y")-0][$j(this).attr("x")-0]); }); //Xray
 		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('mouseover', function(){
 			var x = $j(this).attr("x")-0;
