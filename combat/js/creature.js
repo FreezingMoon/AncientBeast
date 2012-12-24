@@ -90,6 +90,7 @@ var Creature = Class.create({
 
 		//Health indicator
 		this.$health = G.grid.$creatureW.append('<div creature="'+this.id+'" class="health p'+this.team+'">'+this.health+'</div>').children(".health[creature='"+this.id+"']");
+		this.$health.hide();
 
 		//Adding Himself to creature arrays and queue
 		G.creatures[this.id] = this;
@@ -108,9 +109,11 @@ var Creature = Class.create({
 	summon: function(){
 		//TODO Summon effect
 		this.$display.fadeIn(500);
+
 		//reveal and position healh idicator
+		var offsetX = (this.player.flipped) ? this.x - this.size + 1: this.x ;
 		this.$health
-			.css(G.grid.hexs[this.y][this.x].displayPos)
+			.css(G.grid.hexs[this.y][offsetX].displayPos)
 			.css("z-index",this.y)
 			.fadeIn();
 	},
@@ -355,8 +358,9 @@ var Creature = Class.create({
 					//TODO turn around animation
 					if(creature.player.flipped) creature.$display.addClass("flipped");
 					//reveal and position healh idicator
+					var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
 					creature.$health
-						.css(G.grid.hexs[creature.y][creature.x].displayPos)
+						.css(G.grid.hexs[creature.y][offsetX].displayPos)
 						.css("z-index",creature.y)
 						.show();
 				}
