@@ -693,7 +693,19 @@ var HexGrid = Class.create({
 
 		//ONMOUSEOVER
 		this.$allInptHex.filter(".hex.not-reachable").bind('mouseover', function(){
+			var x = $j(this).attr("x")-0;
+			var y = $j(this).attr("y")-0;
+
+			//Overlay
 			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
+			if(G.grid.hexs[y][x].creature>0){
+				var crea = G.creatures[G.grid.hexs[y][x].creature];
+				crea.hexagons.each(function(){
+					this.$overlay.addClass("hover h_player"+crea.team);	
+				});
+			}else{
+				G.grid.hexs[y][x].$overlay.addClass("hover h_player"+G.activeCreature.team);
+			}
 		});
 		this.$allInptHex.bind('mouseover', function(){ G.grid.xray(G.grid.hexs[$j(this).attr("y")-0][$j(this).attr("x")-0]); }); //Xray
 		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('mouseover', function(){
@@ -716,7 +728,18 @@ var HexGrid = Class.create({
 		});
 
 		//ON CANCEL
-		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){	G.grid.lastClickedtHex = []; fnOnCancel(args); });
+		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){
+			var x = $j(this).attr("x")-0;
+			var y = $j(this).attr("y")-0;
+
+			if(G.grid.hexs[y][x].creature>0){
+				var crea = G.creatures[G.grid.hexs[y][x].creature];
+				G.UI.showCreature(crea.type,crea.team);
+			}else{
+				G.grid.lastClickedtHex = []; 
+				fnOnCancel(args); 
+			}
+		});
 	},
 
 
@@ -735,6 +758,8 @@ var HexGrid = Class.create({
 
 		if(hex.creature != 0){
 			G.creatures[hex.creature].hexagons.each(function(){ this.ghostOverlap(); });
+		}else{
+			hex.ghostOverlap();
 		}
 	},
 
