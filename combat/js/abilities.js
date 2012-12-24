@@ -34,6 +34,7 @@ var Ability = Class.create({
 
 		G.log(this.creature.player.name+"'s "+this.creature.name+" uses "+this.title);
 		this.used = true; //Should always be here
+		G.UI.updateActivebox(); //Just in case
 	},
 
 

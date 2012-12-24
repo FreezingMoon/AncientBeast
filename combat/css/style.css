@@ -530,26 +530,28 @@ div.row:nth-child(9){top:38.944em;}
 #playertabswrapper.numplayer4 .playertabs{width: 25%;}
 
 #playertabswrapper .playertabs{
-	height: 95px;
+	height: 100px;
 	display: inline-block;
 	color: white;
 	font-size: 12px;
-	border-top: 4px solid;
-	text-align: center;
+	text-align: left;
 	cursor: pointer;
 }
 
-#playertabswrapper .playertabs p.plasma{margin: 5px;}
+#playertabswrapper .vignette{
+	float: left;
+}
+#playertabswrapper .infos{
+	margin-left: 110px
+}
 
-#playertabswrapper .playertabs.p0{border-color: red;}
-#playertabswrapper .playertabs.p1{border-color: blue;}
-#playertabswrapper .playertabs.p2{border-color: orange;}
-#playertabswrapper .playertabs.p3{border-color: green;}
+#playertabswrapper .playertabs h3{margin: 7px}
+#playertabswrapper .playertabs p{margin: 5px;}
 
-.selected0 .playertabs.p0{background-color: rgba(255,0,0,.5);}
-.selected1 .playertabs.p1{background-color: rgba(0,0,255,.5);}
-.selected2 .playertabs.p2{background-color: rgba(255,172,0,0.5);}
-.selected3 .playertabs.p3{background-color: rgba(0,255,0,.5);}
+.selected0 .playertabs.p0,.selected0 #cardwrapper,.selected0 #creaturegridwrapper{background-color: rgba(255,0,0,.15);}
+.selected1 .playertabs.p1,.selected1 #cardwrapper,.selected1 #creaturegridwrapper{background-color: rgba(0,0,255,.15);}
+.selected2 .playertabs.p2,.selected2 #cardwrapper,.selected2 #creaturegridwrapper{background-color: rgba(255,172,0,0.15);}
+.selected3 .playertabs.p3,.selected3 #cardwrapper,.selected3 #creaturegridwrapper{background-color: rgba(0,255,0,.15);}
 
 #creaturegridwrapper{
 	top: 100px;

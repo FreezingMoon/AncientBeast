@@ -486,6 +486,12 @@ var Player = Class.create({
 		this.id = id;
 		this.creatures = [];
 		this.name = "Player"+(id+1);
+		this.color = 
+		(this.id == 0)? "red"
+		:(this.id == 1)? "blue"
+		:(this.id == 2)? "orange"
+		: "green";
+		this.avatar = "../bestiary/Dark Priest/avatar-"+this.color+".jpg";
 		this.score = [];
 		this.plasma = G.plasma_amount;
 		this.flipped = !!(id%2); //Convert odd/even to true/false
