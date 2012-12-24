@@ -85,6 +85,8 @@ var UI = Class.create({
 
 		//Change player infos
 		for (var i = G.players.length - 1; i >= 0; i--) {
+			$j("#dash .playertabs.p"+i+" .vignette").css("background-image","url('"+G.players[i].avatar+"')");
+			$j("#dash .playertabs.p"+i+" .name").text(G.players[i].name);
 			$j("#dash .playertabs.p"+i+" .plasma").text("Plasma "+G.players[i].plasma);
 			$j("#dash .playertabs.p"+i+" .score").text(G.players[i].getScore().total+" Score");
 		};
@@ -229,8 +231,10 @@ var UI = Class.create({
 	*
 	*/
 	updateActivebox: function(){
-		$j("#playerbutton").removeClass("p0 p1 p2 p3")
-		.addClass("type-- p"+G.activeCreature.player.id)
+		$j("#playerbutton")
+			.removeClass("p0 p1 p2 p3")
+			.addClass("p"+G.activeCreature.player.id)
+			.css("background-image","url('"+G.activeCreature.player.avatar+"')");
 		$j("#playerinfos .name").text(G.activeCreature.player.name);
 		$j("#playerinfos .points span").text(G.activeCreature.player.getScore().total);
 		$j("#playerinfos .plasma span").text(G.activeCreature.player.plasma);

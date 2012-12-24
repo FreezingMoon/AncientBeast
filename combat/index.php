@@ -343,11 +343,18 @@ function db_query($query) {
 				<div id="return" class="toggledash button"></div>
 				<div id="tooltip"></div>
 				<div id="playertabswrapper">
-					<div class="playertabs p0"  player="0">Player1<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="timepool"> Time</p>
-					</div><div class="playertabs p2" player="2">Player3<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="timepool"> Time</p>
-					</div><div class="playertabs p1" player="1">Player2<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="timepool"> Time</p>
-					</div><div class="playertabs p3" player="3">Player4<p class="score">0 Score</p><p class="plasma">0 Plasma</p><p class="timepool"> Time</p>
-					</div>
+					<?php for ($i=0; $i < 4; $i++){
+						echo '<div class="playertabs p'.$i.'"  player="'.$i.'">
+								<div class="vignette active p'.$i.'"><div></div></div>
+								<div class="infos">
+									<h3 class="name"></h3>
+									<p class="score">0 Score</p>
+									<p class="plasma">0 Plasma</p>
+									<p class="timepool"> Time</p>
+								</div>
+							</div>';
+						}
+					php?>
 				</div>
 				<div id="cardwrapper">
 					<div id="card"><?php cards("",0); ?></div>
