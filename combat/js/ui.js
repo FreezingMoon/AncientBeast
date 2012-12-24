@@ -231,6 +231,32 @@ var UI = Class.create({
 	*
 	*/
 	updateActivebox: function(){
+		var $abilitiesButtons = G.UI.$activebox.children("#abilities").children(".ability");
+		$abilitiesButtons.unbind("click");
+
+		this.$activebox.children("#abilities").clearQueue().transition({y:"-420px"},function(){//Hide panel	
+			$j(this).removeClass("p0 p1 p2 p3").addClass("p"+G.activeCreature.player.id);
+			//Change abilities buttons
+			$abilitiesButtons.each(function(){
+				var id = $j(this).attr("ability") - 0;
+				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
+				$j(this).children(".desc").html("<span>"+G.activeCreature.abilities[id].title+"</span><p>"+G.activeCreature.abilities[id].desc+"</p>");
+				$j(this).bind('click', function(e){
+					$j(this)
+					G.activeCreature.abilities[id].use() 
+				});
+			});
+
+			G.UI.$activebox.children("#abilities").transition({y:"0px"}); //Show panel
+		});
+
+		this.updateInfos();
+	},
+
+	/*	updateInfos()
+	*	
+	*/
+	updateInfos:function(){
 		$j("#playerbutton")
 			.removeClass("p0 p1 p2 p3")
 			.addClass("p"+G.activeCreature.player.id)
@@ -238,23 +264,6 @@ var UI = Class.create({
 		$j("#playerinfos .name").text(G.activeCreature.player.name);
 		$j("#playerinfos .points span").text(G.activeCreature.player.getScore().total);
 		$j("#playerinfos .plasma span").text(G.activeCreature.player.plasma);
-
-		var $abilitiesButtons = G.UI.$activebox.children("#abilities").children(".ability");
-		$abilitiesButtons.unbind("click");
-
-		this.$activebox.children("#abilities").clearQueue().transition({y:"-420px"},function(){//Hide panel	
-			//Change abilities buttons
-			$abilitiesButtons.each(function(){
-				var id = $j(this).attr("ability") - 0;
-				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
-				$j(this).children(".desc").html("<span>"+G.activeCreature.abilities[id].title+"</span><p>"+G.activeCreature.abilities[id].desc+"</p>");
-				$j(this).bind('click', function(e){
-					G.activeCreature.abilities[id].use() 
-				});
-			});
-
-			G.UI.$activebox.children("#abilities").transition({y:"0px"}); //Show panel
-		}); 
 	},
 
 

@@ -21,6 +21,8 @@ var Ability = Class.create({
 		if( this.trigger != "onQuery" ) return;
 		if( !this.require() ) return;
 		if( this.used == true ){ G.log("Ability already used!"); return; }
+		$j("#abilities .ability").removeClass("active");
+		$j("#abilities .ability:nth-child("+(this.id+1)+")").addClass("active");
 		return this.query();
 	},
 
@@ -33,8 +35,24 @@ var Ability = Class.create({
 		if(this.trigger == "onQuery") G.activeCreature.queryMove();
 
 		G.log(this.creature.player.name+"'s "+this.creature.name+" uses "+this.title);
-		this.used = true; //Should always be here
-		G.UI.updateActivebox(); //Just in case
+		this.setUsed(true) //Should always be here
+		G.UI.updateInfos(); //Just in case
+	},
+
+
+	/* 	setUsed(val)
+	*	
+	*	val : 	Boolean : 	set the used attriute to the desired value
+	*	
+	*/
+	setUsed: function(val){
+		if(val){
+			this.used = true;
+			$j("#abilities .ability:nth-child("+(this.id+1)+")").addClass("used");
+		}else{
+			this.used = false;
+			$j("#abilities .ability:nth-child("+(this.id+1)+")").removeClass("used");
+		}
 	},
 
 

@@ -18,7 +18,7 @@ abilities["--"] =[
 
 	// 	require() :
 	require : function(damage){
-		this.used = false; //Can be triggered as many time
+		this.setUsed(false); //Can be triggered as many time
 		if(this.creature.player.plasma <= 2){
 			G.log("Not enough plasma");
 			return false;
@@ -52,10 +52,6 @@ abilities["--"] =[
 
 	// 	require() :
 	require : function(){
-		if(this.creature.player.plasma <= 0){
-			G.log("Not enough plasma");
-			return false;
-		}
 		return true;
 	},
 

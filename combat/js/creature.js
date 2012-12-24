@@ -119,7 +119,7 @@ var Creature = Class.create({
 
 		if(!this.hasWait){
 			this.remainingMove = this.stats.movement;
-			this.abilities.each(function(){ this.used = false; });
+			this.abilities.each(function(){ this.setUsed(false); });
 
 			//Passive abilities
 			this.abilities.each(function(){
@@ -180,6 +180,7 @@ var Creature = Class.create({
 	*
 	*/
 	queryMove: function(){
+		$j("#abilities .ability").removeClass("active");
 
 		G.grid.cleanOverlay("creature player"+G.activeCreature.team);
 		G.grid.cleanDisplay("adj");

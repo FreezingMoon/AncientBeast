@@ -435,6 +435,8 @@ div.row:nth-child(9){top:38.944em;}
 	background-image: url('../../images/contour.png');
 }
 
+.button.used:before{ background-image: url('../../images/contour_dimmed.png'); }
+
 #end{ background-image: url('../icons/end.svg'); }
 #delay{ background-image: url('../icons/skip.svg'); }
 #surrender{ background-image: url('../icons/surrender.svg'); }
@@ -632,10 +634,10 @@ div.row:nth-child(9){top:38.944em;}
 
 /*#queue .vignette.hidden,#queue .vignette.hidden div{width: 0px; height: 80px;}*/
 
-.vignette.p0 div{background-image: url("../frames/red.png");}
-.vignette.p1 div{background-image: url("../frames/blue.png");}
-.vignette.p2 div{background-image: url("../frames/orange.png");}
-.vignette.p3 div{background-image: url("../frames/green.png");}
+.vignette.p0 div,#abilities.p0 .ability.active::before{background-image: url("../frames/red.png");}
+.vignette.p1 div,#abilities.p1 .ability.active::before{background-image: url("../frames/blue.png");}
+.vignette.p2 div,#abilities.p2 .ability.active::before{background-image: url("../frames/orange.png");}
+.vignette.p3 div,#abilities.p3 .ability.active::before{background-image: url("../frames/green.png");}
 
 
 /*---------------TEXTBOX--------------*/
