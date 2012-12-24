@@ -11,10 +11,10 @@ abilities["--"] =[
 	trigger : "onDamage",
 
 	//	Title
-	title : "Plasma Shield",
+	title : "Artificial Satellite",
 
 	//	Description
-	desc : "The shield protects from any harm.",
+	desc : "Protects from all harm and also facilitates distant materialization.",
 
 	// 	require() :
 	require : function(damage){
@@ -48,7 +48,7 @@ abilities["--"] =[
 	title : "Electroshock",
 
 	//	Description
-	desc : "Does shock damage to a nearby foe.",
+	desc : "Does shock damage to a nearby foe. Effective versus larger creatures.",
 
 	// 	require() :
 	require : function(){
@@ -179,7 +179,7 @@ abilities["--"] =[
 	title : "Materialize",
 
 	//	Description
-	desc : "Satellite beams down a creature to any specified non-occupied location.",
+	desc : "Summons a creature on the combat field that will serve and obey orders.",
 
 	// 	require() :
 	require : function(){
