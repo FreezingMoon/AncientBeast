@@ -10,6 +10,7 @@ body{
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
+	position: relative;
 }
 
 #combatframe *{ /*avoid selecting game elements*/
@@ -24,6 +25,9 @@ body{
 #combatframe{
 	height: 100%;
 	width: 100%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
 	min-width: 1920px;
 	min-height: 1080px;
 	background: url('../../locations/Dark Forest/bg.jpg');
@@ -44,6 +48,11 @@ body{
 	-webkit-transform-origin:0% 0%; /* Safari and Chrome */
 	-moz-transform-origin:0% 0%; /* Firefox */
 	-o-transform-origin:0% 0%; /* Opera */
+
+	/*Shadow*/
+	-moz-box-shadow: 0px 0px 200px black;
+	-webkit-box-shadow: 0px 0px 200px black;
+	box-shadow: 0px 0px 200px black;
 }
 
 #grid{

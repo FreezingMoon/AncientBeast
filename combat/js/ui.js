@@ -58,56 +58,8 @@ var UI = Class.create({
 		this.selectedCreature = "";
 		this.selectedPlayer = 0;
 
-		//Hide summon Button
-		$j('#summon_buttons').hide();
-
 		//Show UI
 		this.$display.show();
-	},
-
-
-	/*	queryCreature(fnCallback,optArgs)
-	*	
-	*	fnCallback : 	Function : 	Callback function used like this fnCallback(creatureType,optArgs)
-	*	optArgs : 		Any : 		Optional argument for Callback function
-	*	plasma : 	Integer : 	Additional plasma cost. set it to -1 if not a summoning
-	*
-	* 	Query a creature in the available creatures of the active player
-	*
-	*/
-	queryCreature: function(fnCallback,optArgs,plasma){
-		this.selectedCreature = "";
-		this.$dash.addClass("active"); //Show dash
-		if(!!(plasma+1)) this.$dash.children("#tooltip").text("Choose a creature to summon.").addClass("active"); //Show tooltip
-		this.$dash.children("#playertabswrapper").removeClass("active"); //Remove Player Tabs
-		this.changePlayerTab(G.activeCreature.team); //Change to active player grid
-
-		this.$grid.children('.vignette:not([class*="locked"]):not([class*="queued"]):not([class*="dead"])').unbind('click').bind("click",function(e){
-			e.preventDefault();
-
-			var creatureType = $j(this).attr("creature");
-
-			if(!!(plasma+1)){
-				//Plasma cost
-				var lvl = creatureType.substring(1,2)-0;
-				var size = G.retreiveCreatureStats(creatureType).size-0;
-				plasmaCost = lvl+size+(plasma-0);
-
-				if(plasmaCost>G.activeCreature.player.plasma){
-					G.UI.$dash.children("#tooltip").text("Not enough plasma. You need "+plasmaCost+" plasma points to summon this creature.");
-				}else{
-					G.UI.$dash.children("#tooltip").text("Click again to summon this creature at the cost of "+plasmaCost+" plasma points.");
-					if(creatureType == G.UI.selectedCreature){
-						fnCallback(creatureType,optArgs); //Call the callback function
-						G.UI.$dash.removeClass("active"); //Hide dash
-						G.UI.$grid.children(".vignette").removeClass("active")
-						G.UI.selectedCreature = "";
-					}else{
-						G.UI.showCreature(creatureType,G.UI.selectedPlayer);
-					}
-				}
-			}
-		});
 	},
 
 
@@ -120,8 +72,24 @@ var UI = Class.create({
 	*
 	*/
 	showCreature: function(creatureType,player){
-		if(!this.$dash.hasClass("active")) this.toggleDash();
 
+		//Set dash active
+		this.$dash.addClass("active");
+		this.$dash.children("#tooltip").removeClass("active");
+		this.$dash.children("#playertabswrapper").addClass("active");
+		this.changePlayerTab(G.activeCreature.team);
+
+		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click',function(e){
+			G.UI.showCreature("--",$j(this).attr("player")-0);
+		});
+
+		//Change player infos
+		for (var i = G.players.length - 1; i >= 0; i--) {
+			$j("#dash .playertabs.p"+i+" .plasma").text("Plasma "+G.players[i].plasma);
+			$j("#dash .playertabs.p"+i+" .score").text(G.players[i].getScore().total+" Score");
+		};
+
+		//Change to the player tab
 		if(player != G.UI.selectedPlayer){this.changePlayerTab(player);}
 
 		this.$grid.children(".vignette").removeClass("active")
@@ -245,20 +213,11 @@ var UI = Class.create({
 	*
 	*/
 	toggleDash: function(){
-		this.$dash.toggleClass("active");
-		this.$dash.children("#tooltip").removeClass("active");
-		this.$dash.children("#playertabswrapper").addClass("active");
-		this.changePlayerTab(G.activeCreature.team);
-
-		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click',function(e){
-			G.UI.showCreature("--",$j(this).attr("player")-0);
-		});
-
-		//Change player infos
-		for (var i = G.players.length - 1; i >= 0; i--) {
-			$j("#dash .playertabs.p"+i+" .plasma").text("Plasma "+G.players[i].plasma);
-			$j("#dash .playertabs.p"+i+" .score").text(G.players[i].getScore().total+" Score");
-		};
+		if(!this.$dash.hasClass("active")){
+			this.showCreature("--",G.activeCreature.team);
+		}else{
+			this.$dash.removeClass("active");
+		}
 
 		//TODO Change Dash button to return
 	},
