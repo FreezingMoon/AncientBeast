@@ -683,11 +683,14 @@ div.row:nth-child(9){top:38.944em;}
 	position: relative;
 	left: 0px;
 	top: 100px;
-	background: black;
 }
 
 #activebox .ability{
 	display: block;
+}
+
+#abilities{
+	background: black;
 }
 
 .button .desc{

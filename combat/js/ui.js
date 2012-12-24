@@ -88,7 +88,7 @@ var UI = Class.create({
 			$j("#dash .playertabs.p"+i+" .vignette").css("background-image","url('"+G.players[i].avatar+"')");
 			$j("#dash .playertabs.p"+i+" .name").text(G.players[i].name);
 			$j("#dash .playertabs.p"+i+" .plasma").text("Plasma "+G.players[i].plasma);
-			$j("#dash .playertabs.p"+i+" .score").text(G.players[i].getScore().total+" Score");
+			$j("#dash .playertabs.p"+i+" .score").text("Score "+G.players[i].getScore().total);
 		};
 
 		//Change to the player tab
@@ -250,7 +250,7 @@ var UI = Class.create({
 			G.UI.$activebox.children("#abilities").transition({y:"0px"}); //Show panel
 		});
 
-		if(G.turn==1) //Blinking summon button during the 1st round
+		if(G.activeCreature.player.creatures.length==1) //Blinking summon button during the 1st round
 			$abilitiesButtons.filter(":nth-child(4)").addClass("blink");
 
 		this.updateInfos();
