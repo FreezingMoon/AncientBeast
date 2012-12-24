@@ -437,6 +437,13 @@ div.row:nth-child(9){top:38.944em;}
 
 .button.used:before{ background-image: url('../../images/contour_dimmed.png'); }
 
+.button.blink{
+	animation: pulse0510 750ms infinite alternate;
+	-webkit-animation: pulse0510 750ms infinite alternate;
+	-moz-animation: pulse0510 750ms infinite alternate;
+	-o-animation: pulse0510 750ms infinite alternate;
+}
+
 #end{ background-image: url('../icons/end.svg'); }
 #delay{ background-image: url('../icons/skip.svg'); }
 #surrender{ background-image: url('../icons/surrender.svg'); }
@@ -676,6 +683,7 @@ div.row:nth-child(9){top:38.944em;}
 	position: relative;
 	left: 0px;
 	top: 100px;
+	background: black;
 }
 
 #activebox .ability{

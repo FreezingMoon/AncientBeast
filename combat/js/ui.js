@@ -250,6 +250,9 @@ var UI = Class.create({
 			G.UI.$activebox.children("#abilities").transition({y:"0px"}); //Show panel
 		});
 
+		if(G.turn==1) //Blinking summon button during the 1st round
+			$abilitiesButtons.filter(":nth-child(4)").addClass("blink");
+
 		this.updateInfos();
 	},
 

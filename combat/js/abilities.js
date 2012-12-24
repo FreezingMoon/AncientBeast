@@ -48,10 +48,12 @@ var Ability = Class.create({
 	setUsed: function(val){
 		if(val){
 			this.used = true;
-			$j("#abilities .ability:nth-child("+(this.id+1)+")").addClass("used");
+			if(this.creature.id == G.activeCreature.id) //avoid dimmmed passive for current creature
+				$j("#abilities .ability:nth-child("+(this.id+1)+")").addClass("used").removeClass("blink");
 		}else{
 			this.used = false;
-			$j("#abilities .ability:nth-child("+(this.id+1)+")").removeClass("used");
+			if(this.creature.id == G.activeCreature.id) //avoid dimmmed passive for current creature
+				$j("#abilities .ability:nth-child("+(this.id+1)+")").removeClass("used blink");
 		}
 	},
 
