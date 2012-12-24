@@ -240,7 +240,7 @@ function db_query($query) {
 						<option value="80">80 sec</option>
 					</select><br/>
 
-					<input type="submit" value="Submit">
+					<input type="submit" value="START">
 				</form>
 			</div>
 		</div>
