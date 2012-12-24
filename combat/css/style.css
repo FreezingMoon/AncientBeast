@@ -363,11 +363,9 @@ div.row:nth-child(9){top:38.944em;}
 	text-align: center;
 }
 
-.creature .health{
+.health{
 	position: absolute;
 	display: block;
-	bottom: -29px;
-	right: 33px;
 	width: 50px;
 	height: 20px;
 	border: 2px solid;
@@ -377,14 +375,25 @@ div.row:nth-child(9){top:38.944em;}
 	font-size: 17px;
 	text-align: center;
 	line-height: 20px;
+	margin-top: 70px;
+	margin-left: 16px;
+
+	-webkit-transform-origin:100% 100%;
+	-moz-transform-origin:100% 100%;
+
+	transform: rotateX(-33deg) scale(1,1.8) ;
+	-ms-transform: rotateX(-33deg) scale(1,1.8) ; /* IE 9 */
+	-moz-transform: rotateX(-33deg) scale(1,1.8) ; /* Firefox */
+	-webkit-transform: rotateX(-33deg) scale(1,1.8) ; /* Safari and Chrome */
+	-o-transform: rotateX(-33deg) scale(1,1.8) ; /* Opera */
 }
 
-.creature.p0 .health{border-color: red;}
-.creature.p1 .health{border-color: blue;}
-.creature.p2 .health{border-color: orange;}
-.creature.p3 .health{border-color: green;}
+.p0.health{border-color: red;}
+.p1.health{border-color: blue;}
+.p2.health{border-color: orange;}
+.p3.health{border-color: green;}
 
-.flipped .damage,.flipped .health{ -webkit-transform: scale(-1,1); }
+.flipped .damage{ -webkit-transform: scale(-1,1); }
 
 /*-----------------UI-------------------*/
 #ui{
