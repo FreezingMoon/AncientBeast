@@ -388,9 +388,9 @@ function db_query($query) {
 					<p class="time"><span>∞</span> Time</p>
 				</div>
 				<div id="rightpanel">
-					<div id="end" class="button"></div>
-					<div id="delay" class="button"></div>
-					<div id="surrender" class="button"></div>
+					<div id="end" 		class="button"><div class="desc"><span>End turn</span><p>Description</p></div></div>
+					<div id="delay" 	class="button"><div class="desc"><span>Delay</span><p>Description</p></div></div>
+					<div id="surrender" class="button"><div class="desc"><span>Surrender</span><p>Description</p></div></div>
 				</div>
 				<div id="leftpanel">
 					<div id="activebox">
