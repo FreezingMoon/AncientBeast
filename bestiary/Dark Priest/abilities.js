@@ -63,7 +63,6 @@ abilities["--"] =[
 
 		optionalTest = function(hex,args){
 			if( hex.creature == 0 ) return false;
-			if( G.creatures[hex.creature].type == "--" ) return false; //Avoid selecting other dark priest
 			return ( G.creatures[hex.creature].team != args.dpriest.team );
 		}
 
@@ -127,7 +126,6 @@ abilities["--"] =[
 
 		optionalTest = function(hex,args){
 			if( hex.creature == 0 ) return false;
-			if( G.creatures[hex.creature].type == "--" ) return false; //Avoid selecting other dark priest
 			return ( G.creatures[hex.creature].team != args.dpriest.team );
 		}
 
