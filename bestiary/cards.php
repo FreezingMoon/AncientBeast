@@ -177,12 +177,13 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
   
 	//Card entry
 	$spaceless = str_replace(' ', '%20', $r['name'] );
+	$underscore = str_replace(' ', '_', $r['name'] );
 	$CallCreature = 'CallCreature(\'' . $spaceless . '_shout\');';
 
 	echo '
 	<table class="center" border=0>
 		<th class="card recto" style="background-image: url(\'' . $site_root . 'bestiary/' . $r['name'] . '/artwork.jpg\');">
-			<a href="#' . $spaceless . '" class="section cardborder">';
+			<a href="#' . $underscore . '" class="section cardborder">';
 				if ($embed == 1) echo '<div class="embed">' . $r['embed'] . '</div>';
 				echo '<table class="section info sin' . $r['sin'] . '">
 					<tr>

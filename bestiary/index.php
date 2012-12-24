@@ -93,8 +93,8 @@ end_segment();
 
 //detailed view
 foreach ($creature_results as $r) {
-	$spaceless = str_replace(' ', '_', $r['name']);
-	start_segment($spaceless);
+	$underscore = str_replace(' ', '_', $r['name']);
+	start_segment($underscore);
 	cards($r);
 	echo '<br>';
 	progress($r);
