@@ -14,12 +14,105 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="hex.svg"
-   inkscape:export-filename="/var/www/Ancient Beast/combat/hex_not_reachable.png"
+   sodipodi:docname="hex_not_reachable.svg"
+   inkscape:export-filename="/var/www/Ancient Beast/combat/grid/hex_not_reachable.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
-     id="defs4" />
+     id="defs4">
+    <marker
+       inkscape:stockid="DotS"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="DotS"
+       style="overflow:visible">
+      <path
+         id="path4190"
+         d="M -2.5,-1.0 C -2.5,1.7600000 -4.7400000,4.0 -7.5,4.0 C -10.260000,4.0 -12.5,1.7600000 -12.5,-1.0 C -12.5,-3.7600000 -10.260000,-6.0 -7.5,-6.0 C -4.7400000,-6.0 -2.5,-3.7600000 -2.5,-1.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt"
+         transform="scale(0.2) translate(7.4, 1)" />
+    </marker>
+    <marker
+       inkscape:stockid="DiamondS"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="DiamondS"
+       style="overflow:visible">
+      <path
+         id="path4208"
+         d="M 0,-7.0710768 L -7.0710894,0 L 0,7.0710589 L 7.0710462,0 L 0,-7.0710768 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt"
+         transform="scale(0.2)" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       inkscape:stockid="InfiniteLineEnd"
+       id="InfiniteLineEnd"
+       refX="0"
+       refY="0"
+       orient="auto">
+      <g
+         id="g4358"
+         style="fill:#000000">
+        <circle
+           id="circle4360"
+           r="0.8"
+           cy="0"
+           cx="3" />
+        <circle
+           id="circle4362"
+           r="0.8"
+           cy="0"
+           cx="6.5" />
+        <circle
+           id="circle4364"
+           r="0.8"
+           cy="0"
+           cx="10" />
+      </g>
+    </marker>
+    <marker
+       inkscape:stockid="DiamondSstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="DiamondSstart"
+       style="overflow:visible">
+      <path
+         id="path4217"
+         d="M 0,-7.0710768 L -7.0710894,0 L 0,7.0710589 L 7.0710462,0 L 0,-7.0710768 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt"
+         transform="scale(0.2) translate(6,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="SquareL"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="SquareL"
+       style="overflow:visible">
+      <path
+         id="path4193"
+         d="M -5.0,-5.0 L -5.0,5.0 L 5.0,5.0 L 5.0,-5.0 L -5.0,-5.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt"
+         transform="scale(0.8)" />
+    </marker>
+    <marker
+       inkscape:stockid="DotL"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="DotL"
+       style="overflow:visible">
+      <path
+         id="path4184"
+         d="M -2.5,-1.0 C -2.5,1.7600000 -4.7400000,4.0 -7.5,4.0 C -10.260000,4.0 -12.5,1.7600000 -12.5,-1.0 C -12.5,-3.7600000 -10.260000,-6.0 -7.5,-6.0 C -4.7400000,-6.0 -2.5,-3.7600000 -2.5,-1.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt"
+         transform="scale(0.8) translate(7.4, 1)" />
+    </marker>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -27,9 +120,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
-     inkscape:cx="-50.597761"
-     inkscape:cy="99.644148"
+     inkscape:zoom="4"
+     inkscape:cx="51.914618"
+     inkscape:cy="24.107732"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -39,9 +132,9 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:snap-grids="false"
-     inkscape:window-width="1428"
-     inkscape:window-height="889"
-     inkscape:window-x="0"
+     inkscape:window-width="959"
+     inkscape:window-height="1021"
+     inkscape:window-x="960"
      inkscape:window-y="27"
      inkscape:window-maximized="0">
     <inkscape:grid
@@ -99,9 +192,52 @@
      id="layer1"
      transform="translate(0,-928.36217)">
     <path
-       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.27462974000000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 59.110679,992.73211 -4.110658,2.51673 -4.110658,-2.51673 0,-4.73984 4.110658,-2.51673 4.110658,2.51673 z"
-       id="path3020"
-       inkscape:connector-curvature="0" />
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:3,6;stroke-dashoffset:0;marker-end:none;marker-start:none"
+       d="M 10,36 54.990179,10"
+       id="path5734"
+       inkscape:connector-curvature="0"
+       transform="translate(0,928.36217)"
+       inkscape:export-filename="/home/clement/Documents/Git Projects/Ancient Beast/combat/grid/path10167.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3,6;stroke-dashoffset:7.2;marker-start:none;marker-end:none"
+       d="m 100,1016.3622 0,-52.00003"
+       id="path5736"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/clement/Documents/Git Projects/Ancient Beast/combat/grid/path10167.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3, 6;stroke-dashoffset:0;marker-start:none;marker-end:none"
+       d="m 55.043771,1042.3622 44.990179,-25.9751"
+       id="path5738"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/clement/Documents/Git Projects/Ancient Beast/combat/grid/path10167.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path10163"
+       d="M 55.033949,938.44111 100.0457,964.40375"
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3,6;stroke-dashoffset:0;marker-start:none;marker-end:none"
+       inkscape:export-filename="/home/clement/Documents/Git Projects/Ancient Beast/combat/grid/path10167.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path10165"
+       d="m 10,1016.3834 45.033322,26"
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3, 6;stroke-dashoffset:0;marker-start:none;marker-end:none"
+       inkscape:export-filename="/home/clement/Documents/Git Projects/Ancient Beast/combat/grid/path10167.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path10167"
+       d="m 9.979057,1016.4038 1e-7,-51.95023"
+       style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3,6;stroke-dashoffset:7.2;marker-start:none;marker-end:none"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
   </g>
 </svg>

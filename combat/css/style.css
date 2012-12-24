@@ -156,7 +156,8 @@ div.row:nth-child(9){top:38.944em;}
 .row_8{top:38.944em;}
 
 #hexsdisplay .displayhex.not-reachable{
-	background-image: url('../grid/hex_not_reachable.png');
+	background: url('../grid/hex_not_reachable.png');
+	/*opacity: .1;*/
 }
 
 #hexsinput .hex div,.hex div:before,.hex div:after{
