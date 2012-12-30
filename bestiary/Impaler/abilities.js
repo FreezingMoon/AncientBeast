@@ -5,16 +5,10 @@
 */
 abilities["S6"] =[
 
-// 	Passive Ability
+// 	Passive Ability Armor Penetration
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "never", //Just for display purpose the effect is in 2nd Ability
-
-	//	Title
-	title : "Armor Penetration",
-
-	//	Description
-	desc : "Attacks gradually break through enemy defense.",
 
 	// 	require() :
 	require : function(){return true;},
@@ -46,34 +40,16 @@ abilities["S6"] =[
 		var ability = this;
 		var creature = this.creature;
 
-		optionalTest = function(hex,args){
-			var creature = args.creature;
-
-			if (creature.player.flipped) {
-				if( creature.y % 2 == 0 ){
-					var test = ( hex.x < creature.x-creature.size+2 );
-				}else{
-					var test = ( hex.x < creature.x-creature.size+1 );
-				}
-			}else{
-				if( creature.y % 2 == 0 ){
-					var test = ( hex.x > creature.x );
-				}else{
-					var test = ( hex.x > creature.x-1 );
-				}
-			}
-			return test;
-		}
-
-		var x = (creature.player.flipped) ? creature.x-creature.size+1 : creature.x ;
+		var map = [	[0,1,0,0,1],
+					 [1,0,0,0,1], //origin line
+					[0,1,0,0,1]];
 
 		G.grid.queryCreature({
 			fnOnConfirm : ability.activate, //fnOnConfirm
-			fnOptTest : optionalTest,//fnOptTest
 			team : 0, //Team, 0 = ennemies
-			distance : 1, //Distance
-			x : x, y : creature.y, //coordinates
 			id : creature.id,
+			flipped : creature.flipped,
+			hexs : G.grid.getHexMap(creature.x-3,creature.y-1,0,creature.player.flipped,map),
 			args : {creature:creature, ability: ability}
 		});
 	},

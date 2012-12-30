@@ -241,9 +241,8 @@ var UI = Class.create({
 				var id = $j(this).attr("ability") - 0;
 				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
 				$j(this).children(".desc").html("<span>"+G.activeCreature.abilities[id].title+"</span><p>"+G.activeCreature.abilities[id].desc+"</p>");
-				$j(this).bind('click', function(e){
-					$j(this)
-					G.activeCreature.abilities[id].use() 
+				$j(this).bind('click', function(){
+					G.activeCreature.abilities[id].use();
 				});
 			});
 

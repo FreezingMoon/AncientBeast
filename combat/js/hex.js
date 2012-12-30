@@ -62,684 +62,392 @@ var HexGrid = Class.create({
 		});
 	},
 
-
-	/*	cleanPathAttr(includeG)
+	/* 	queryDirection(o)
+	*
+	*	Shortcut to queryChoice with specific directions
 	*	
-	*	includeG : 	Boolean : 	Include hex.g attribute
-	* 	
-	*	Execute hex.cleanPathAttr() function for all the grid. refer to the Hex class for more infos
-	*
+	*	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexs.
+	*	fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
+	*	fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
+	*	team : 				Integer : 	0 = ennemies, 1 = allies, 2 = same team, 3 = both
+	*	requireCreature : 	Boolean : 	Disable a choice if it does not contain a creature matching the team argument
+	* 	args : 				Object : 	Object given to the events function (to easily pass variable for these function)
 	*/
-	cleanPathAttr: function(includeG){ this.hexs.each(function(){ this.each(function(){ this.cleanPathAttr(includeG); }); }); },
-
-
-	/*	cleanReachable()
-	* 	
-	*	Execute hex.setReachable() function for all the grid. refer to the Hex class for more infos
-	*
-	*/
-	cleanReachable: function(){ this.hexs.each(function(){ this.each(function(){ this.setReachable(); }); });	},
-
-
-	/*	cleanDisplay(cssClass)
-	* 	
-	*	cssClass : 	String : 	Class(es) name(s) to remove with jQuery removeClass function
-	*
-	*	Shorcut for $allDispHex.removeClass()
-	*
-	*/
-	cleanDisplay: function(cssClass){ this.$allDispHex.removeClass(cssClass); },
-
-	cleanOverlay: function(cssClass){ this.$allOverHex.removeClass(cssClass); },
-
-	/*
-	*	queryDirection(fnOnConfirm,directions,team,distance,x,y,id,args)
-	*	
-	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
-	*	fnOptTest : 	Function : 	Optional test to apply to hexs
-	*
-	*	team : 			Integer : 	0 = ennemies, 1 = allies, 2 = same team
-	*	distance : 		Integer : 	Distance from start
-	*
-	*	x : 			Integer : 	Start coordinates
-	*	y : 			Integer : 	Start coordinates
-	*	id : 			Integer : 	Creature ID
-	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
-	*/
-	queryArea: function(opts){
-
+	queryDirection: function(o){
 		var defaultOpt = {
-			fnOnConfirm : function(area,args){ G.activeCreature.queryMove(); },
-			fnOnClick : function(hex,args){
-				G.grid.cleanOverlay("creature player0 player1 player2 player3");
-				G.grid.updateDisplay(); //Retrace players creatures	
-				G.grid.cleanDisplay("adj");
-
-				var area = hex.adjacentHex(args.radius);
-				area.push(hex);
-
-				area.each(function(){
-					if(this.creature!=0){
-						this.$overlay.addClass("creature selected player"+G.creatures[this.creature].team);
-					}
-					this.$display.addClass("adj");
-				});
-			},
-			fnOnMouseover : function(hex,args){				
-				G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
-
-				var area = hex.adjacentHex(args.radius);
-				area.push(hex);
-
-				area.each(function(){
-					if(this.creature!=0){
-						this.$overlay.addClass("hover h_player"+G.creatures[this.creature].team);
-					}else{
-						this.$overlay.addClass("hover h_player"+G.activeCreature.team);
-					}
-				});
-			},
-			fnOptTest : function(hex,args){ return true;},
-			fnOnCancel : function(area,args){G.activeCreature.queryMove()},
-			distance : 5,
-			radius : 3,
-			x:0,y:0,
-			args : {}
-		}
-
-		var fnConfirm = function(hex,opts){
-			var area = hex.adjacentHex(args.radius);
-			area.push(hex);
-			args.fnOnConfirm(area,opts.args)
-		}
-
-		opts = $j.extend(defaultOpt,opts);
-
-		G.grid.lastClickedtHex = [];
-
-		this.hexs.each(function(){ this.each(function(){ 
-			this.unsetReachable(); 
-		}); }); //Block all hexs
-
-		G.grid.cleanDisplay("adj");
-		G.grid.cleanOverlay("selected hover h_player0 h_player1 h_player2 h_player3");
-
-		//Clear previous binds
-		G.grid.$allInptHex.unbind('click');
-		G.grid.$allInptHex.unbind('mouseover');
-
-		var area = this.hexs[opts.y][opts.x].adjacentHex(opts.distance);
-
-		for (var i = 0; i < area.length; i++) {
-			if(!opts.fnOptTest(area[i],opts.args)){
-				area.splice(i,1);
-				i--;
-			}else{
-				area[i].setReachable();
-			}
+			team : 0,
+			id : 0,
+			flipped : false,
+			x : 0,
+			y : 0,
+			directions : [1,1,1,1,1,1],
+			includeCrea : true,
+			stopOnCreature : true,
 		};
 
-		//ONCLICK
-		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('click', function(){
-			var x = $j(this).attr("x")-0;
-			var y = $j(this).attr("y")-0;
+		o = $j.extend(defaultOpt,o);
+		
+		var choices = [] 
 
-			var clickedtHex = G.grid.hexs[y][x];
-
-			if( clickedtHex != G.grid.lastClickedtHex ){
-				G.grid.lastClickedtHex = clickedtHex;
-				//ONCLICK
-				fnConfirm(clickedtHex,opts);
-			}else{
-				//ONCONFIRM
-				fnConfirm(clickedtHex,opts);
+		for (var i = 0; i < o.directions.length; i++) {
+			if(!!o.directions[i]){
+				var dir = []
+				switch(i){
+					case 0: //Upright
+						dir = G.grid.getHexMap(o.x,o.y-8,0,o.flipped,diagonalup).reverse();
+						break;
+					case 1: //StraitForward
+						dir = G.grid.getHexMap(o.x,o.y,0,o.flipped,straitrow);
+						break;
+					case 2: //Downright
+						dir = G.grid.getHexMap(o.x,o.y,0,o.flipped,diagonaldown);
+						break;
+					case 3: //Downleft
+						dir = G.grid.getHexMap(o.x,o.y,-4,o.flipped,diagonalup);
+						break;
+					case 4: //StraitBackward
+						dir = G.grid.getHexMap(o.x,o.y,0,!o.flipped,straitrow);
+						break;
+					case 5: //Upleft
+						dir = G.grid.getHexMap(o.x,o.y-8,-4,o.flipped,diagonaldown).reverse();
+						break;
+					default:
+						break;
+				}
+				dir.each(function(){ this.direction = (o.flipped)?5-i:i; });
+				choices.push(dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team));
 			}
-		});
+		};
+		
+		o.choices = choices;	
 
-		//ONMOUSEOVER
-		this.$allInptHex.filter(".hex.not-reachable").bind('mouseover', function(){
-			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
-		})
-		this.$allInptHex.bind('mouseover', function(){ G.grid.xray(G.grid.hexs[$j(this).attr("y")-0][$j(this).attr("x")-0]); }); //Xray
-		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('mouseover', function(){
-			var x = $j(this).attr("x")-0;
-			var y = $j(this).attr("y")-0;
-			opts.fnOnClick(G.grid.hexs[y][x],opts);
-		});
-
-		//ON CANCEL
-		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){	G.grid.lastClickedtHex = []; opts.fnOnCancel(opts.args); });
-
-
+		G.grid.queryChoice(o);
 	},
 
+
 	/*
-	*	queryDirection(fnOnConfirm,directions,,team,distance,x,y,id,args)
+	*	queryChoice(o)
 	*	
-	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
-	*	fnOptTest : 	Function : 	Optional test to apply to hexs
-	*
-	*	distance : 		Integer : 	Distance from start
-	*
-	*	x : 			Integer : 	Start coordinates
-	*	y : 			Integer : 	Start coordinates
-	*	id : 			Integer : 	Creature ID
-	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
+	*	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexs.
+	*	fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
+	*	fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
+	*	team : 				Integer : 	0 = ennemies, 1 = allies, 2 = same team, 3 = both
+	*	requireCreature : 	Boolean : 	Disable a choice if it does not contain a creature matching the team argument
+	* 	args : 				Object : 	Object given to the events function (to easily pass variable for these function)
 	*/
-	queryDirection: function(opts){
-
+	queryChoice: function(o){
 		var defaultOpt = {
-			fnOnConfirm : function(path,args){ G.activeCreature.queryMove(); },
-			fnOnClick : function(path,args){
-				G.grid.cleanOverlay("creature player0 player1 player2 player3");
-				G.grid.updateDisplay(); //Retrace players creatures	
-				G.grid.cleanDisplay("adj");
-				path.each(function(){
-					if(this.creature!=0){
-						var crea = G.creatures[this.creature];
-						crea.hexagons.each(function(){
-							this.$overlay.addClass("creature selected player"+crea.team);
-						});
+			fnOnConfirm : function(choice,args){ G.activeCreature.queryMove(); },
+			fnOnSelect : function(choice,args){
+				choice.each(function(){
+					if(this.creature>0){
+						this.$overlay.addClass("creature selected player"+G.creatures[this.creature].team);	
+					}else{
+						this.$display.addClass("adj");
 					}
-					this.$display.addClass("adj");
+					
 				});
 			},
-			fnOnMouseover : function(path,args){				
-				G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
-				path.each(function(){
-					if(this.creature!=0){
-						var crea = G.creatures[this.creature];
-						crea.hexagons.each(function(){
-							this.$overlay.addClass("hover h_player"+crea.team);
-						});
-					}else{
-						this.$overlay.addClass("hover h_player"+G.activeCreature.team);
+			fnOnCancel : function(hex,args){G.activeCreature.queryMove()},
+			team : 0, 
+			requireCreature : 1,
+			id : 0,
+			args : {},
+			flipped : false,
+			choices : [],
+		};
+
+		o = $j.extend(defaultOpt,o);
+
+		var hexs = [];
+		for (var i = 0; i < o.choices.length; i++) {
+			var validChoice = true;
+
+			if(o.requireCreature){
+				validChoice = false;
+				//Search each hex for a creature that matches the team argument
+				for (var j = 0; j < o.choices[i].length; j++) {
+					if( o.choices[i][j].creature!=0 && o.choices[i][j].creature!=o.id ){
+						var creaSource = G.creatures[o.id];
+						var creaTarget = G.creatures[o.choices[i][j].creature];
+
+						var isAllie = ( creaSource.team%2 == creaTarget.team%2 );
+						switch(o.team){
+							case 0: //Ennemies
+								if(creaSource.team%2!=creaTarget.team%2) validChoice = true;
+								break;
+							case 1: //Allies
+								if(creaSource.team%2==creaTarget.team%2) validChoice = true;
+								break;
+							case 2: //Same team
+								if(creaSource.team==creaTarget.team) validChoice = true;
+								break;
+							case 3: //Both
+								validChoice = true;
+								break;
+						}
 					}
-				});
+				}
+			}
+
+			if(validChoice) hexs = hexs.concat(o.choices[i]);
+		};
+
+		this.queryHexs({
+			fnOnConfirm : function(hex,args){
+				//Determine which set of hexs (choice) the hex is part of
+				for (var i = 0; i < args.opt.choices.length; i++) {
+					for (var j = 0; j < args.opt.choices[i].length; j++) {
+						if(hex.pos==args.opt.choices[i][j].pos){
+							args.opt.fnOnConfirm(args.opt.choices[i],args.opt.args);
+							break;
+						}
+					};
+				};
 			},
-			fnOptTest : function(path,args){ return true;},
-			fnOnCancel : function(path,args){G.activeCreature.queryMove()},
-			includeCreature : 0, // 0 : No ; 1 : Ennemies ; 2 : Allies ; 3 : All ;
-			stopOnFirstCreature : false,
-			needCreature : false, //If the direction need creature to be available
-			distance : 5,
-			directions : [true,true,true,true,true,true],
-			x:0,y:0,
-			args : {}
-		}
-
-		opts = $j.extend(defaultOpt,opts);
-
-		G.grid.lastClickedtHex = [];
-
-		this.hexs.each(function(){ this.each(function(){ 
-			this.direction = -1;
-			this.unsetReachable(); 
-		}); }); //Block all hexs
-
-		G.grid.cleanDisplay("adj");
-		G.grid.cleanOverlay("selected hover h_player0 h_player1 h_player2 h_player3");
-
-		//Clear previous binds
-		G.grid.$allInptHex.unbind('click');
-		G.grid.$allInptHex.unbind('mouseover');
-
-		var dirs = [];
-
-		for (var i = 0; i < 6; i++) {
-			if(!opts.directions[i]) continue; //Skip this direction
-
-			var hexsDirection = [ this.hexs[opts.y][opts.x] ]; //original hex for algo purpose
-			var a = b = 0;
-
-			switch(i){ //Numbered Clockwise
-				case 1 : //Right
-					b = 1;
-					break;
-				case 0 : //Up-Right
-					a = -1;
-					b = 1;
-					break;
-				case 2 : //Down-Right
-					a = 1;
-					b = 1;
-					break;
-				case 4 : //Left
-					b = -1;
-					break;
-				case 5 : //Up-Left
-					a = -1;
-					b = -1;
-					break;
-				case 3 : //Down-Left
-					a = 1;
-					b = -1;
-					break;
-			}
-
-			//Gathering all hex in that direction
-			for (var j = 0; j < opts.distance; j++) {
-				var hex = hexsDirection.last();
-				console.log();
-				if(a==0){
-					if( !this.hexExists(hex.y+a,hex.x+b)) break;
-					hexsDirection.push( this.hexs[hex.y+a][hex.x+b] );
-				}else{
-					if(b>0){
-						if( hex.y%2 == 0 ){
-							if( !this.hexExists(hex.y+a,hex.x+b)) break;
-							hexsDirection.push( this.hexs[hex.y+a][hex.x+b] );
-						}else{
-							if( !this.hexExists(hex.y+a,hex.x)) break;
-							hexsDirection.push( this.hexs[hex.y+a][hex.x] );
+			fnOnSelect : function(hex,args){
+				//Determine which set of hexs (choice) the hex is part of
+				for (var i = 0; i < args.opt.choices.length; i++) {
+					for (var j = 0; j < args.opt.choices[i].length; j++) {
+						if(hex.pos==args.opt.choices[i][j].pos){
+							args.opt.fnOnSelect(args.opt.choices[i],args.opt.args);
+							break;
 						}
-					}else{
-						if( hex.y%2 == 0 ){
-							if( !this.hexExists(hex.y+a,hex.x)) break;
-							hexsDirection.push( this.hexs[hex.y+a][hex.x] );
-						}else{
-							if( !this.hexExists(hex.y+a,hex.x+b)) break;
-							hexsDirection.push( this.hexs[hex.y+a][hex.x+b] );
-						}
-					}
-				}
-			};
-
-			hexsDirection.shift(); //Remove Original hex
-
-			var hasCreature = false;
-			var valid = true;
-
-			for (var j = 0; j < hexsDirection.length; j++) {
-
-				//Creature test
-				if( (hexsDirection[j].creature != 0) && 
-					(hexsDirection[j].creature != opts.id)){
-					hasCreature = true;
-					if(opts.stopOnFirstCreature){
-						hexsDirection.splice(j+1,99);
-					}
-					if(!opts.includeCreature){
-						//TODO Team detection
-						hexsDirection.splice(j,1);
-						j--;
-						continue; //Skip optTest
-					}
-				}
-
-				//Opt test
-				valid = valid || opts.fnOptTest(hexsDirection[j],args);
-
-				hexsDirection[j].setReachable();
-				hexsDirection[j].direction = i;
-			}
-
-			if(opts.needCreature){
-				//Skip this direction if no creature
-				if(!hasCreature){
-					hexsDirection.each(function(){
-						this.unsetReachable();
-					})
-					continue;
-				}
-			}
-
-			dirs[i] = hexsDirection;
-
-			if(valid){
-				//ONCLICK
-				hexsDirection.each(function(){
-					var index = this.direction;
-
-					this.$input.bind('click', function(){
-						var clickedtHex = dirs[index].last();
-
-						if( clickedtHex != G.grid.lastClickedtHex ){
-							G.grid.lastClickedtHex = clickedtHex;
-							//ONCLICK
-							opts.fnOnConfirm(dirs[index],opts.args);
-						}else{
-							//ONCONFIRM
-							opts.fnOnConfirm(dirs[index],opts.args);
-						}
-					});
-					//ONMOUSEOVER
-
-					this.$input.bind('mouseover', function(){
-						opts.fnOnClick(dirs[index],opts.args);
-					});
-				})
-			}
-		}//end of for each direction
-
-		this.$allInptHex.bind('mouseover', function(){ G.grid.xray(G.grid.hexs[$j(this).attr("y")-0][$j(this).attr("x")-0]); }); //Xray
-		this.$allInptHex.filter(".hex.not-reachable").bind('mouseover', function(){
-			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
-		})
-
-		//ON CANCEL
-		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){	
-			G.grid.lastClickedtHex = []; 
-			opts.fnOnCancel(opts.args); 
+					};
+				};
+			},
+			fnOnCancel : o.fnOnCancel,
+			args : {opt : o},
+			hexs : hexs,
+			flipped : o.flipped,
+			hideNonTarget : true,
 		});
 	},
 
-	/*
-	*	queryCreature(fnOnConfirm,fnOptTest,team,distance,x,y,id,args)
-	*	
+	/* 	queryCreature(o)
+	*
+	*	fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexs.
 	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
-	*	fnOptTest : 	Function : 	Optional test to apply to hexs
-	*
-	*	team : 			Integer : 	0 = ennemies, 1 = allies, 2 = same team
-	*	distance : 		Integer : 	Distance from start
-	*
-	*	x : 			Integer : 	Start coordinates
-	*	y : 			Integer : 	Start coordinates
+	*	fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
+	*	team : 			Integer : 	0 = ennemies, 1 = allies, 2 = same team, 3 = both
 	*	id : 			Integer : 	Creature ID
 	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
 	*/
-	queryCreature: function(args){
+	queryCreature: function(o){
 
 		var defaultOpt = {
-			fnOnConfirm : function(target,args){ G.activeCreature.queryMove(); },
-			fnOnClick : function(hex,args){
-				var crea = G.creatures[hex.creature];
-
-				G.grid.cleanOverlay("creature player0 player1 player2 player3");
-				G.grid.updateDisplay(); //Retrace players creatures
+			fnOnConfirm : function(crea,args){ G.activeCreature.queryMove(); },
+			fnOnSelect : function(crea,args){
 				crea.hexagons.each(function(){
 					this.$overlay.addClass("creature selected player"+crea.team);
 				});
 			},
-			fnOnMouseover : function(hex,args){				
-				var crea = G.creatures[hex.creature];
-				
-				G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
-				crea.hexagons.each(function(){
-					this.$overlay.addClass("hover h_player"+crea.team);
-				});
-			},
-			fnOptTest : function(hex,args){ 
-				if( hex.creature == 0 ) return false;
-				var result = args.fnOptTest(hex,args);
-				if(result){
-					var crea = G.creatures[args.id];
-					var hexCrea = G.creatures[hex.creature];
-					switch(args.team){
-						case 0 :
-							result = (crea.player.flipped != hexCrea.player.flipped);
-							break;
-						case 1 :
-							result = (crea.player.flipped == hexCrea.player.flipped);
-							break;
-						case 2 :
-							result = (crea.team == hexCrea.team);
-							break;
-					}
-				}
-				return result;
-			},
 			fnOnCancel : function(hex,args){G.activeCreature.queryMove()},
-			team : 0,
-			distance : 5,
-			x:0,y:0,
+			args : {},
+			hexs : [],
+			flipped : false,
 			id : 0,
-			args : {}
-		}
+			team : 0,
+		};
 
-		var optionalTest = function(hex,args){
-			if( hex.creature == 0 ) return false;
-			var result = args.fnOptTest(hex,args.args);
-			if(result){
-				var crea = G.creatures[args.id];
-				var hexCrea = G.creatures[hex.creature];
-				switch(args.team){
-					case 0 :
-						result = (crea.player.flipped != hexCrea.player.flipped);
+		o = $j.extend(defaultOpt,o);
+
+		//Exclude everything but the creatures
+		o.hexs.filter(function(){
+			if( this.creature!=0 && this.creature!=o.id ){
+				var creaSource = G.creatures[o.id];
+				var creaTarget = G.creatures[this.creature];
+
+				var isAllie = ( creaSource.team%2 == creaTarget.team%2 );
+				switch(o.team){
+					case 0: //Ennemies
+						if(creaSource.team%2!=creaTarget.team%2) return true;
 						break;
-					case 1 :
-						result = (crea.player.flipped == hexCrea.player.flipped);
+					case 1: //Allies
+						if(creaSource.team%2==creaTarget.team%2) return true;
 						break;
-					case 2 :
-						result = (crea.team == hexCrea.team);
+					case 2: //Same team
+						if(creaSource.team==creaTarget.team) return true;
+						break;
+					case 3: //Both
+						return true;
 						break;
 				}
 			}
-			return result;
-		}
+			return false;
+		});
 
-		args = $j.extend(defaultOpt,args);
-		excludedHexs = G.creatures[args.id].hexagons;
+		var extended = [];
+		o.hexs.each(function(){	extended = extended.concat(G.creatures[this.creature].hexagons); });
 
-		this.queryHexs(
-			args.fnOnClick, //OnClick
-			args.fnOnMouseover, //OnMouseover
-			args.fnOnCancel, //OnCancel
-			function(hex,args){
-				var target = G.creatures[hex.creature];
-				args.fnOnConfirm(target,args.args);
-			}, //OnConfirm
-			optionalTest, //OptionalTest
-			args, //OptionalArgs
-			false, //Flying
-			2,	//Include creature
-			args.x,args.y, //Position
-			args.distance, //Distance
-			args.id, //Creature ID
-			1, //Size
-			excludedHexs //Excluding hexs
-		);
+		o.hexs = extended;
+
+		this.queryHexs({
+			fnOnConfirm : function(hex,args){
+				var crea = G.creatures[hex.creature];
+				args.opt.fnOnConfirm(crea,args.opt.args);
+			},
+			fnOnSelect : function(hex,args){
+				var crea = G.creatures[hex.creature];
+				args.opt.fnOnSelect(crea,args.opt.args);
+			},
+			fnOnCancel : o.fnOnCancel,
+			args : {opt : o},
+			hexs : o.hexs,
+			flipped : o.flipped,
+			hideNonTarget : true,
+		});
+
 	},
 
 
 	/*	queryHexs(x, y, distance, size)
 	*
-	*	fnOnClick : 	Function : 	Function applied when clicking on one of the available hexs.
-	*	fnOnCancel : 	Function : 	Function applied when clicking everywhere else.
-	*	fnOnMouseover : Function : 	Function applied when overing on one of the available hexs.
+	*	fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexs.
 	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
-	*	fnOptTest : 	Function : 	Optional test to apply to hexs
+	*	fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
 	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
-	*
-	*	exclude : 		Array : 	Array of hexs to exclude from available hexs.
-	*
-	*	distance : 		Integer : 	Distance from start
-	*	size : 			Integer : 	Size to test if walkable hex
-	*
-	*	x : 			Integer : 	Start coordinates
-	*	y : 			Integer : 	Start coordinates	
-	*
-	*	id : 			Integer : 	Creature ID
-	*
-	*	ignoreObstacle : 	Boolean : 	Ignore obstacle like creatures. (for flying creatures or distant attacks) NOTE : bypassed if includeCreature > 0
-	*	includeCreature : 	Integer : 	Include hexs containing creature: 0 = no , 1 = yes , 2 = only hexs containing creatures
+	*	hexs : 			Array : 	Reachable hexs
 	*/
-	queryHexs: function(fnOnClick,fnOnMouseover,fnOnCancel,fnOnConfirm,fnOptTest,args,ignoreObstacle,includeCreature,x,y,distance,id,size,exclude,flipped){ 
-		
+	queryHexs: function(o){
+
+		var defaultOpt = {
+			fnOnConfirm : function(hex,args){ G.activeCreature.queryMove(); },
+			fnOnSelect : function(hex,args){
+				var crea = G.creatures[hex.creature];
+				crea.hexagons.each(function(){
+					this.$overlay.addClass("creature selected player"+crea.team);
+				});
+			},
+			fnOnCancel : function(hex,args){G.activeCreature.queryMove()},
+			args : {},
+			hexs : [],
+			size : 1,
+			id : 0,
+			flipped : false,
+			hideNonTarget : false,
+		};
+
+		o = $j.extend(defaultOpt,o);
+
 		G.grid.lastClickedtHex = [];
 
-		this.cleanReachable(); //Clean all precedent blocked hexs
 
-		G.grid.cleanDisplay("adj");
-		G.grid.cleanOverlay("selected hover h_player0 h_player1 h_player2 h_player3");
+		//Block all hexs
+		this.forEachHexs(function(){ 
+			this.unsetReachable(); 
+			if(o.hideNonTarget) this.setNotTarget();
+			else this.unsetNotTarget();
+		});
+		//Set reachable the given hexs
+		o.hexs.each(function(){ 
+			this.setReachable();
+			if(o.hideNonTarget) this.unsetNotTarget();
+		});
+
 
 		//Clear previous binds
 		G.grid.$allInptHex.unbind('click');
 		G.grid.$allInptHex.unbind('mouseover');
 
-		if( !ignoreObstacle && (includeCreature==0) ){
-
-			this.cleanPathAttr(true); //Erase all pathfinding datas
-			//Populate distance (hex.g) in hexs by asking an impossible destination to test all hexagons
-			astar.search(G.grid.hexs[y][x],new Hex(-2,-2,null),size,id); 
-
-			//For each hex
-			this.hexs.each(function(){ this.each(function(){
-
-					//Optional test
-					if( !fnOptTest(this,args) ) { this.unsetReachable(); return; }
-
-					//If distance from creature is higher than allowed range or not reacheable
-					if( 
-							(this.g > distance) || //Not reachable
-							(this.g == 0) || //Impossible to reach
-							( !!exclude.findPos(this) ) //In excluded hexs
-				  	  ) 
-					{ 
-						this.unsetReachable(); //Hex IS NOT reachable
-					}
-					else
-					{
-						//in range
-						for (var i = 0; i < size; i++) { //each creature hex
-							if( (this.x-i) >= 0 && (this.x-i) < G.grid.hexs[this.y].length ){ //check if inside row boundaries
-								G.grid.hexs[this.y][this.x-i].setReachable();
-							}
-						};
-					}
-			});	});
-
-		}else{
-
-			badHexs = []; //Array with non reachable hexs
-
-			//Tested hexs are all hexs plus the origin hex
-			testedHexs = this.hexs[y][x].adjacentHex(distance);
-			testedHexs.push(this.hexs[y][x]);
-
-			//Remove test hex from badHexs
-			this.hexs.each(function(){this.each(function(){
-				if(!testedHexs.findPos(this)){
-					badHexs.push(this);
-				}
-			})});
-
-			testedHexs.each(function(){
-
-				if( !!exclude.findPos(this) ) { badHexs.push(this); return; }
-
-				//Optional test
-				if( !fnOptTest(this,args) ) { badHexs.push(this); return; }
-
-				if( ignoreObstacle  && (includeCreature==0) ){
-
-					//Case of flying creatures
-					var walkable = false;
-
-					for (var i = 0; i < size; i++) {	//try next hexagons to see if it fits
-						if( (this.x+i >= G.grid.hexs[this.y].length) || (this.x+i < 0) ) continue;
-						if(G.grid.hexs[this.y][this.x+i].isWalkable(size,id)){ 
-							walkable = true;
-							break; 
-						}
-					};
-
-					if(!walkable){ badHexs.push(this);}
-
-				} else {
-					switch(includeCreature){
-						case 0:
-							if(this.creature==0) badHexs.removePos(this);
-							else badHexs.push(this);
-							break;
-						case 1:
-							this.setReachable();
-							break;
-						case 2:
-							if(this.creature!=0){
-								badHexs.removePos(this);
-								G.creatures[this.creature].hexagons.each(function(){
-									badHexs.removePos(this);
-								});
-							} else badHexs.push(this);
-							break;
-					}
-				}
-
-			});
-
-			badHexs.each(function(){this.unsetReachable();});
-
-		}
 
 		//ONCLICK
-		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('click', function(){
+		this.$allInptHex.bind('click', function(){
 			var x = $j(this).attr("x")-0;
 			var y = $j(this).attr("y")-0;
 
-			//Offset Pos
-			var offset = (flipped) ? size-1 : 0 ;
-			var mult = (flipped) ? 1 : -1 ; //For FLIPPED player
+			var hex = G.grid.hexs[y][x];
 
-			for (var i = 0; i < size; i++) {	//try next hexagons to see if they fits
-				if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
-				if(G.grid.hexs[y][x+offset-i*mult].isWalkable(size,id)){ 
-					x += offset-i*mult;
-					break; 
+			//Clear display and overlay
+			G.grid.updateDisplay();
+
+			//Not reachable hex
+			if( !hex.reachable ){
+				G.grid.lastClickedtHex = []; 
+				if(hex.creature>0){ //If creature
+					var crea = G.creatures[hex.creature];
+					G.UI.showCreature(crea.type,crea.team);
+				}else{ //If nothing
+					o.fnOnCancel(hex,o.args); //ON CANCEL
 				}
-			};
-
-			var clickedtHex = G.grid.hexs[y][x];
-
-			if( clickedtHex != G.grid.lastClickedtHex ){
-				G.grid.lastClickedtHex = clickedtHex;
-				//ONCLICK
-				fnOnConfirm(clickedtHex,args);
-			}else{
-				//ONCONFIRM
-				fnOnConfirm(clickedtHex,args);
 			}
+
+			//Reachable hex
+			else{
+
+				//Offset Pos
+				var offset = (o.flipped) ? o.size-1 : 0 ;
+				var mult = (o.flipped) ? 1 : -1 ; //For FLIPPED player
+
+				for (var i = 0; i < o.size; i++) {	//try next hexagons to see if they fits
+					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
+					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)){ 
+						x += offset-i*mult;
+						break; 
+					}
+				};
+
+				hex = G.grid.hexs[y][x]; //New coords
+				var clickedtHex = hex;
+
+				if( clickedtHex != G.grid.lastClickedtHex ){
+					G.grid.lastClickedtHex = clickedtHex;
+					//ONCLICK
+					o.fnOnConfirm(clickedtHex,o.args);
+				}else{
+					//ONCONFIRM
+					o.fnOnConfirm(clickedtHex,o.args);
+				}
+
+			}
+
 		});
+
 
 		//ONMOUSEOVER
-		this.$allInptHex.filter(".hex.not-reachable").bind('mouseover', function(){
+		this.$allInptHex.bind('mouseover', function(){
 			var x = $j(this).attr("x")-0;
 			var y = $j(this).attr("y")-0;
 
-			//Overlay
-			G.grid.cleanOverlay("hover h_player0 h_player1 h_player2 h_player3");
-			if(G.grid.hexs[y][x].creature>0){
-				var crea = G.creatures[G.grid.hexs[y][x].creature];
-				crea.hexagons.each(function(){
-					this.$overlay.addClass("hover h_player"+crea.team);	
-				});
-			}else{
-				G.grid.hexs[y][x].$overlay.addClass("hover h_player"+G.activeCreature.team);
-			}
-		});
-		this.$allInptHex.bind('mouseover', function(){ G.grid.xray(G.grid.hexs[$j(this).attr("y")-0][$j(this).attr("x")-0]); }); //Xray
-		this.$allInptHex.filter(".hex:not(.not-reachable)").bind('mouseover', function(){
-			var x = $j(this).attr("x")-0;
-			var y = $j(this).attr("y")-0;
+			var hex = G.grid.hexs[y][x];
 
-			//Offset Pos
-			var offset = (flipped) ? size-1 : 0 ;
-			var mult = (flipped) ? 1 : -1 ; //For FLIPPED player
+			//Xray
+			G.grid.xray(hex);
 
-			for (var i = 0; i < size; i++) {	//try next hexagons to see if they fits
-				if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
-				if(G.grid.hexs[y][x+offset-i*mult].isWalkable(size,id)){ 
-					x += offset-i*mult;
-					break; 
+			//Clear display and overlay
+			G.grid.updateDisplay();
+
+			//Not reachable hex
+			if( !hex.reachable ){
+				if(hex.creature>0){ //If creature
+					var crea = G.creatures[hex.creature];
+					crea.hexagons.each(function(){
+						this.$overlay.addClass("hover h_player"+crea.team);	
+					});
+				}else{ //If nothing
+					hex.$overlay.addClass("hover");
 				}
-			};
-
-			fnOnClick(G.grid.hexs[y][x],args);
-		});
-
-		//ON CANCEL
-		this.$allInptHex.filter(".hex.not-reachable").bind('click', function(){
-			var x = $j(this).attr("x")-0;
-			var y = $j(this).attr("y")-0;
-
-			if(G.grid.hexs[y][x].creature>0){
-				var crea = G.creatures[G.grid.hexs[y][x].creature];
-				G.UI.showCreature(crea.type,crea.team);
-			}else{
-				G.grid.lastClickedtHex = []; 
-				fnOnCancel(args); 
 			}
-		});
+
+			//Reachable hex
+			else{
+
+				//Offset Pos
+				var offset = (o.flipped) ? o.size-1 : 0 ;
+				var mult = (o.flipped) ? 1 : -1 ; //For FLIPPED player
+
+				for (var i = 0; i < o.size; i++) {	//try next hexagons to see if they fits
+					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
+					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)){ 
+						x += offset-i*mult;
+						break; 
+					}
+				};
+
+				hex = G.grid.hexs[y][x]; //New coords
+				o.fnOnSelect(hex,o.args);
+			}
+		}); 
 	},
 
 
@@ -769,8 +477,8 @@ var HexGrid = Class.create({
 	*
 	*/
 	updateDisplay: function(){ 
-		this.cleanDisplay("creature player0 player1 player2 player3"); 
-		this.cleanOverlay("creature hover"); 
+		this.cleanDisplay(); 
+		this.cleanOverlay(); 
 		this.hexs.each(function(){ this.each(function(){ 
 			if( this.creature > 0 ){
 				if( this.creature == G.activeCreature.id ){
@@ -797,7 +505,151 @@ var HexGrid = Class.create({
 			if( (x>=0) && (x<this.hexs[y].length) ) return true;
 		}
 		return false;
-	}
+	},
+
+	/* 	getMovementRange(x,y,distance,size,id)
+	*	
+	*	x : 		Integer : 	Start position
+	*	y : 		Integer : 	Start position
+	*	distance : 	Integer : 	Distance from the start position
+	*	size : 		Integer : 	Creature size
+	*	id : 		Integer : 	Creature ID
+	*
+	*	return : 	Array : 	Set of the reachable hexs
+	*/
+	getMovementRange: function(x,y,distance,size,id){
+		//	Populate distance (hex.g) in hexs by asking an impossible 
+		//	destination to test all hexagons
+		this.cleanReachable(); //If not pathfinding will bug
+		this.cleanPathAttr(true); //Erase all pathfinding datas
+		astar.search(G.grid.hexs[y][x],new Hex(-2,-2,null),size,id); 
+
+		//Gather all the reachable hexs
+		var hexs = [];
+		this.forEachHexs(function(){
+			//if not Too far or Impossible to reach
+			if( this.g <= distance && this.g != 0 )
+				hexs.push(G.grid.hexs[this.y][this.x]);
+		});
+		
+		return hexs.extendToLeft(size);
+	},
+
+
+	/* 	getFlyingRange(x,y,distance,size,id)
+	*	
+	*	x : 		Integer : 	Start position
+	*	y : 		Integer : 	Start position
+	*	distance : 	Integer : 	Distance from the start position
+	*	size : 		Integer : 	Creature size
+	*	id : 		Integer : 	Creature ID
+	*
+	*	return : 	Array : 	Set of the reachable hexs
+	*/
+	getFlyingRange: function(x,y,distance,size,id){
+
+		//Gather all the reachable hexs
+		var hexs = this.hexs[y][x].adjacentHex(distance);
+
+		hexs.filter(function(){
+			return this.isWalkable(size,id,true);
+		});
+	
+		return hexs.extendToLeft(size);
+	},
+
+
+	/*	getHexMap(originx,originy,array)
+	*
+	*	array : 	Array : 	2-dimentions Array containing 0 or 1 (boolean)
+	*	originx : 	Integer : 	Position of the array on the grid
+	*	originy : 	Integer : 	Position of the array on the grid
+	* 	offsetx : 	Integer : 	offset flipped for flipped players
+	*	flipped : 	Boolean : 	If player is flipped or not
+	*
+	*	return : 	Array : 	Set of corresponding hexs
+	*/
+	getHexMap: function(originx,originy,offsetx,flipped,array){ //Heavy logic in here
+
+		var array = array.slice(0); //Copy to not modify original
+		originx += (flipped) ? 1-array[0].length-offsetx : -1+offsetx;
+		var hexs = [];
+
+		for (var y = 0; y < array.length; y++) {
+
+			array[y] = array[y].slice(0); //Copy Row
+
+			//Translating to flipped patern
+			if(flipped && y%2!=0){ //Odd rows
+				array[y].push(0);
+			}
+
+			//Translating even to odd row patern
+			array[y].unshift(0);
+			if(originy%2!=0 && y%2!=0){ //Even rows
+				if(flipped) 
+					array[y].pop(); //Remove last element as the array will be parse backward
+				else
+					array[y].splice(0,1); //Remove first element
+			}
+
+			//Gathering hexs
+			for (var x = 0; x < array[y].length; x++) {
+				if( !!array[y][x] ){
+					xfinal = (flipped) ? array[y].length-1-x : x ; //Parse the array backward for flipped player
+					if( this.hexExists(originy+y,originx+xfinal) ){
+						hexs.push(this.hexs[originy+y][originx+xfinal]);
+					}
+				}
+			}
+		}
+
+		return hexs;
+	},
+
+
+	//******************//
+	//Shortcut functions//
+	//******************//
+
+	/*	forEachHexs(f)
+	*	
+	*	f : Function : 	Function to execute
+	* 	
+	*	Execute f for each hexs
+	*/
+	forEachHexs: function(f){ this.hexs.each(function(){ this.each(function(){ f.apply(this); }); }); },
+
+	/*	cleanPathAttr(includeG)
+	*	
+	*	includeG : 	Boolean : 	Include hex.g attribute
+	* 	
+	*	Execute hex.cleanPathAttr() function for all the grid. refer to the Hex class for more infos
+	*/
+	cleanPathAttr: function(includeG){ this.hexs.each(function(){ this.each(function(){ this.cleanPathAttr(includeG); }); }); },
+
+	/*	cleanReachable()
+	* 	
+	*	Execute hex.setReachable() function for all the grid. refer to the Hex class for more infos
+	*/
+	cleanReachable: function(){ this.hexs.each(function(){ this.each(function(){ this.setReachable(); }); });	},
+
+	/*	cleanDisplay(cssClass)
+	* 	
+	*	cssClass : 	String : 	Class(es) name(s) to remove with jQuery removeClass function
+	*
+	*	Shorcut for $allDispHex.removeClass()
+	*/
+	cleanDisplay: function(cssClass){ 
+		if(cssClass === undefined) 
+			cssClass = "adj creature player0 player1 player2 player3";
+		this.$allDispHex.removeClass(cssClass);
+	},
+	cleanOverlay: function(cssClass){
+		if(cssClass === undefined) 
+			cssClass = "creature active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3";
+		this.$allOverHex.removeClass(cssClass);
+	},
 
 });//End of HexGrid Class
 
@@ -1035,6 +887,16 @@ var Hex = Class.create({
 		//TODO change display
 	},
 
+	unsetNotTarget: function(){
+		this.$display.removeClass("hidden");
+		//TODO change display
+	},
+
+	setNotTarget: function(){
+		this.$display.addClass("hidden");
+		//TODO change display
+	},
+
 });//End of Hex Class
 
 
@@ -1093,6 +955,77 @@ var Hex = Class.create({
 	};
 
 
+	/*	filter(f)
+	*	
+	*	f : 		Function : 	Function to apply to each array's entry
+	*
+	*	If f return false remove the element from the array
+	*
+	*/
+	Array.prototype.filter = function(f) {
+		if(!f.apply) return;
+		for(var i=0;i<this.length;i++) {
+			if( !f.apply(this[i], [i, this]) ){
+				this.splice(i,1);
+				i--;
+			}
+		}
+	};
+
+	/*	filterCreature(hexs,reverse,includeCrea,stopOnCreature)
+	*
+	*	includeCrea : 		Boolean : 	Add creature hexs to the array
+	*	stopOnCreature : 	Boolean : 	Cut the array when finding a creature
+	*	id : 				Integer : 	Creature id to remove
+	*
+	*	return : 		Array : 	filtered array
+	*/
+	Array.prototype.filterCreature = function(includeCrea,stopOnCreature,id){
+		var creaHexs = [];
+
+		for (var i = 0; i < this.length; i++) {
+		 	if(this[i].creature>0){
+		 		if(!includeCrea || this[i].creature==id){
+		 			if(this[i].creature==id){
+		 				this.splice(i,1);
+		 				i--;
+		 				continue;	
+		 			}else{
+		 				this.splice(i,1);
+		 				i--;
+		 			}
+		 		}else{
+		 			creaHexs = creaHexs.concat(G.creatures[this[i].creature].hexagons);
+		 		}
+		 		if(stopOnCreature){
+		 			this.splice(i+1,99);
+		 			break;
+		 		}
+		 	}
+		}
+		return this.concat(creaHexs);
+	},
+
+
+	/*	extendToLeft(size)
+	*	
+	*	size : 		Integer : 	Size to extend
+	*
+	*	return : 	Array : 	The hex array with all corresponding hexs at the left
+	*/
+	Array.prototype.extendToLeft = function(size) {
+		var ext = [];
+		for(var i=0;i<this.length;i++) {
+			for (var j = 0; j < size; j++) {
+				//NOTE : This code produce array with doubles.
+				if( G.grid.hexExists(this[i].y,this[i].x-j) )
+					ext.push(G.grid.hexs[this[i].y][this[i].x-j]);
+			}
+		}
+		return ext;
+	};
+
+
 	/*	each()
 	*
 	*	Return the last element of the array
@@ -1124,3 +1057,30 @@ var Hex = Class.create({
 	        }
 	    } while (swapped);
 	};
+
+
+//------------------//
+// USEFUL MATRICES //
+//------------------//
+
+diagonalup = 	 [[ 0,0,0,0,1 ], //origin line
+				 [ 0,0,0,0,1 ],
+				  [ 0,0,0,1,0 ],
+				 [ 0,0,0,1,0 ],
+				  [ 0,0,1,0,0 ],
+				 [ 0,0,1,0,0 ],
+				  [ 0,1,0,0,0 ],
+				 [ 0,1,0,0,0 ],
+				  [ 1,0,0,0,0 ]];
+
+diagonaldown = 	 [[ 1,0,0,0,0 ], //origin line
+				 [ 0,1,0,0,0 ],
+				  [ 0,1,0,0,0 ],
+				 [ 0,0,1,0,0 ],
+				  [ 0,0,1,0,0 ],
+				 [ 0,0,0,1,0 ],
+				  [ 0,0,0,1,0 ],
+				 [ 0,0,0,0,1 ],
+				  [ 0,0,0,0,1 ]];
+
+straitrow = 	[[ 1,1,1, 1,1,1, 1,1,1, 1,1,1, 1,1,1, 1 ]]; //origin line

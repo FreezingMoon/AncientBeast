@@ -5,16 +5,10 @@
 */
 abilities["--"] =[
 
-// 	First Ability
+// 	First Ability Artificial Satellite
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onDamage",
-
-	//	Title
-	title : "Artificial Satellite",
-
-	//	Description
-	desc : "Protects from all harm and also facilitates distant materialization.",
 
 	// 	require() :
 	require : function(damage){
@@ -39,16 +33,10 @@ abilities["--"] =[
 
 
 
-// 	Second Ability
+// 	Second Ability Electroshock
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	//	Title
-	title : "Electroshock",
-
-	//	Description
-	desc : "Does shock damage to a nearby foe. Effective versus larger creatures.",
 
 	// 	require() :
 	require : function(){
@@ -61,18 +49,24 @@ abilities["--"] =[
 		var ability = this;
 		var dpriest = this.creature;
 
-		optionalTest = function(hex,args){
-			if( hex.creature == 0 ) return false;
-			return ( G.creatures[hex.creature].team != args.dpriest.team );
-		}
+		// G.grid.queryDirection({
+		// 	fnOnConfirm : ability.activate, //fnOnConfirm
+		// 	flipped : dpriest.player.flipped,
+		// 	team : 0, //enemies
+		// 	id : dpriest.id,
+		// 	requireCreature : true,
+		// 	x : dpriest.x,
+		// 	y : dpriest.y,
+		// 	directions : [1,1,0,0,0,0],
+		// 	args : {dpriest:dpriest, ability: ability}
+		// });
 
 		G.grid.queryCreature({
 			fnOnConfirm : ability.activate, //fnOnConfirm
-			fnOptTest : optionalTest,//fnOptTest
 			team : 0, //Team, 0 = ennemies
-			distance : 1, //Distance
-			x: dpriest.x,y : dpriest.y, //coordinates
 			id : dpriest.id,
+			flipped : dpriest.player.flipped,
+			hexs : dpriest.hexagons[0].adjacentHex(1),
 			args : {dpriest:dpriest, ability: ability}
 		});
 	},
@@ -98,16 +92,10 @@ abilities["--"] =[
 
 
 
-// 	Third Ability
+// 	Third Ability Disintegration
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	//	Title
-	title : "Disintegration",
-
-	//	Description
-	desc : "Turns any nearby foe into a pile of dust by using plasma in exchange.",
 
 	// 	require() :
 	require : function(){
@@ -124,18 +112,12 @@ abilities["--"] =[
 		var ability = this;
 		var dpriest = this.creature;
 
-		optionalTest = function(hex,args){
-			if( hex.creature == 0 ) return false;
-			return ( G.creatures[hex.creature].team != args.dpriest.team );
-		}
-
 		G.grid.queryCreature({
 			fnOnConfirm : ability.activate, //fnOnConfirm
-			fnOptTest : optionalTest,//fnOptTest
 			team : 0, //Team, 0 = ennemies
-			distance : 1, //Distance
-			x: dpriest.x,y : dpriest.y, //coordinates
 			id : dpriest.id,
+			flipped : dpriest.player.flipped,
+			hexs : dpriest.hexagons[0].adjacentHex(1),
 			args : {dpriest:dpriest, ability: ability}
 		});
 	},
@@ -164,16 +146,10 @@ abilities["--"] =[
 
 
 
-// 	Fourth Ability
+// 	Fourth Ability Materialize
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	//	Title
-	title : "Materialize",
-
-	//	Description
-	desc : "Summons a creature on the combat field that will serve and obey orders.",
 
 	// 	require() :
 	require : function(){
@@ -186,54 +162,36 @@ abilities["--"] =[
 
 	// 	query() :
 	query : function(){
-
-		G.grid.cleanOverlay("creature player"+G.activeCreature.team);
-		G.grid.cleanDisplay("adj");
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		//Ask the creature to summon
 		G.UI.toggleDash();
 	},
 
+	fnOnSelect : function(hex,args){
+		var crea = G.retreiveCreatureStats(args.creature);
+		G.grid.updateDisplay(); //Retrace players creatures
+		for (var i = 0; i < crea.size; i++) {
+			G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
+		}
+	},
 
 	//Callback function to queryCreature
 	energize : function(creature){
 		var dpriest = this.creature;
 		var crea = G.retreiveCreatureStats(creature);
 
-		fnOnClick = function(hex,args){
-			var crea = G.retreiveCreatureStats(args.creature);
-			G.grid.cleanOverlay("creature selected player"+G.activeCreature.team);
-			G.grid.updateDisplay(); //Retrace players creatures
-			for (var i = 0; i < crea.size; i++) {
-				G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
-			}
-		};
+		var spawnRange = G.grid.getFlyingRange(dpriest.x,dpriest.y,50,crea.size,0);
 
-		fnOnMouseover = function(hex,args){
-			var crea = G.retreiveCreatureStats(args.creature);
-			G.grid.cleanOverlay("hover h_player"+G.activeCreature.team);
-			for (var i = 0; i < crea.size; i++) {
-				G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("hover h_player"+G.activeCreature.team);
-			}
-		};
-
-		G.grid.queryHexs(
-			fnOnClick, //OnClick
-			fnOnMouseover, //OnMouseover
-			function(){G.activeCreature.queryMove()}, //OnCancel
-			this.activate, //OnConfirm
-			function(){ return true; }, //OptionalTest
-			{dpriest:dpriest, creature:creature, ability:this, cost:2}, //OptionalArgs
-			true, //Flying
-			0,	//Include creature
-			dpriest.x,dpriest.y, //Position
-			50, //Distance
-			0, //Creature ID
-			crea.size, //Size
-			dpriest.hexagons, //Excluding hexs
-			dpriest.player.flipped //Flipped
-		);
+		G.grid.queryHexs({
+			fnOnSelect : this.fnOnSelect,
+			fnOnCancel : function(){ G.activeCreature.queryMove() },
+			fnOnConfirm : this.activate,
+			args : {dpriest:dpriest, creature:creature, ability:this, cost:2}, //OptionalArgs
+			size : crea.size,
+			flipped : dpriest.player.flipped,
+			hexs : spawnRange,
+		});
 	},
 
 	//Callback function to queryCreature
@@ -242,72 +200,23 @@ abilities["--"] =[
 		var dpriest = this.creature;
 		var excludedHexs = [];
 
-		optionalTest = function(hex,args){
-			var creature = args.creature;
-			var crea = G.retreiveCreatureStats(creature);
+		var spawnRange = dpriest.hexagons[0].adjacentHex(1);
 
-			if (dpriest.player.flipped) {
-				if( dpriest.y % 2 == 0 ){
-					var walkable = !( hex.x > dpriest.x );
-				}else{
-					var walkable = !( hex.x+1 > dpriest.x );
-				}
-			}else{
-				if( dpriest.y % 2 == 0 ){
-					var walkable = !( hex.x <= dpriest.x+crea.size-1 );
-				}else{
-					var walkable = !( hex.x+1 <= dpriest.x+crea.size-1 );
-				}
-			}
+		if( G.grid.hexExists(dpriest.y,dpriest.x+crea.size-1) )
+			spawnRange = spawnRange.concat( G.grid.hexs[dpriest.y][dpriest.x+crea.size-1].adjacentHex(1) );
 
-			for (var i = 0; i < crea.size; i++) {
-				var a = (dpriest.player.flipped)?-1:1;
-				if( (hex.x+a*i) >= 0 && (hex.x+a*i) < G.grid.hexs[hex.y].length ){ //if hex exists
-					walkable = walkable && ( !G.grid.hexs[hex.y][hex.x+a*i].blocked && (G.grid.hexs[hex.y][hex.x+a*i].creature==0) );
-				}
-			};
+		spawnRange.filter(function(){ return this.isWalkable(crea.size,0,true); });
+		spawnRange = spawnRange.extendToLeft(crea.size);
 
-			return walkable;
-		}
-
-		fnOnClick = function(hex,args){
-			var crea = G.retreiveCreatureStats(args.creature);
-			G.grid.cleanOverlay("creature selected player"+G.activeCreature.team);
-			G.grid.updateDisplay(); //Retrace players creatures
-			for (var i = 0; i < crea.size; i++) {
-				G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
-			}
-		};
-
-		fnOnMouseover = function(hex,args){
-			var crea = G.retreiveCreatureStats(args.creature);
-			G.grid.cleanOverlay("hover h_player"+G.activeCreature.team);
-			for (var i = 0; i < crea.size; i++) {
-				G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("hover h_player"+G.activeCreature.team);
-			}
-		};
-
-		var originx = (!dpriest.player.flipped) ? dpriest.x+crea.size-1 : dpriest.x;
-
-		excludedHexs.push(G.grid.hexs[dpriest.y][originx]);
-
-		G.grid.queryHexs(
-			fnOnClick, //OnClick
-			fnOnMouseover, //OnMouseover
-			function(){G.activeCreature.queryMove()}, //OnCancel
-			this.activate, //OnConfirm
-			optionalTest, //OptionalTest
-			{dpriest:dpriest, creature:creature, ability:this, cost:0}, //OptionalArgs
-			false, //true for flying creatures
-			0, //Include creature
-			originx,dpriest.y,//Position
-			1, //Distance
-			0, //Creature ID
-			crea.size, //Size
-			excludedHexs, //Excluding hexs
-			dpriest.player.flipped //Flipped
-		);
-
+		G.grid.queryHexs({
+			fnOnSelect : this.fnOnSelect,
+			fnOnCancel : function(){ G.activeCreature.queryMove() },
+			fnOnConfirm : this.activate,
+			args : {dpriest:dpriest, creature:creature, ability:this, cost:0}, //OptionalArgs
+			size : crea.size,
+			flipped : dpriest.player.flipped,
+			hexs : spawnRange,
+		});
 	},
 
 	//	activate() : 

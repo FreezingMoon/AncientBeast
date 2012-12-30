@@ -5,16 +5,10 @@
 */
 abilities["S1"] =[
 
-// 	First Ability
+// 	First Ability Bunny Hopping
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onDamage",
-
-	//	Title
-	title : "Bunny Hopping",
-
-	//	Description
-	desc : "Avoids basic attack by moving to an available adjacent location.",
 
 	// 	require() :
 	require : function(damage){
@@ -51,16 +45,10 @@ abilities["S1"] =[
 
 
 
-// 	Second Ability
+// 	Second Ability Big Nip
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	//	Title
-	title : "Big Nip",
-
-	//	Description
-	desc : "Dents nearby foe using it's big teeth.",
 
 	damages : {
 		slash : 2,
@@ -79,11 +67,10 @@ abilities["S1"] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : ability.activate, //fnOnConfirm
-			fnOptTest : function(){return true},//fnOptTest
 			team : 0, //Team, 0 = ennemies
-			distance : 1, //Distance
-			x : snowBunny.x, y : snowBunny.y, //coordinates
 			id : snowBunny.id,
+			flipped : snowBunny.player.flipped,
+			hexs : snowBunny.hexagons[0].adjacentHex(1),
 			args : {snowBunny:snowBunny, ability: ability}
 		});
 	},
@@ -107,41 +94,28 @@ abilities["S1"] =[
 
 
 
-// 	Third Ability
+// 	Third Ability Blowing Wind
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	//	Title
-	title : "Blowing Wind",
-
-	//	Description
-	desc : "Pushes an inline creature several hexagons backwards, based on size.",
 
 	// 	require() :
 	require : function(){return true;},
 
 	// 	query() :
 	query : function(){
-		
 		var ability = this;
 		var snowBunny = this.creature;
 
-		var directions = (snowBunny.player.flipped)?
-		[false,false,false,true,true,true]:
-		[true,true,true,false,false,false]; 
-
 		G.grid.queryDirection({
-			fnOnConfirm : ability.activate,
-			team : 0,
-			distance : 99,
-			directions : directions, //Only Front
-			includeCreature : 1,
-			stopOnFirstCreature : true,
-			needCreature : true,
+			fnOnConfirm : ability.activate, //fnOnConfirm
+			flipped : snowBunny.player.flipped,
+			team : 0, //enemies
+			id : snowBunny.id,
+			requireCreature : false,
 			x : snowBunny.x,
 			y : snowBunny.y,
-			id : snowBunny.id,
+			directions : [1,1,1,1,1,1],
 			args : {snowBunny:snowBunny, ability: ability}
 		});
 	},
@@ -150,72 +124,46 @@ abilities["S1"] =[
 	//	activate() : 
 	activate : function(path,args) {
 		var ability = args.ability;
-		ability.end();		
+		ability.end();
 
-		crea = G.creatures[path.last().creature];
-		var dist = 6 - crea.size;
-
-		var direction = path[0].direction;
-		var a = b = 0;
-		switch(direction){ //Numbered Clockwise
-			case 1 : //Right
-				b = 1;
+		var target = G.creatures[path.last().creature];
+		var dist = 6 - target.size;
+		var dir = [];
+		switch( path[0].direction ){
+			case 0: //Upright
+				dir = G.grid.getHexMap(target.x,target.y-8,0,target.flipped,diagonalup).reverse();
 				break;
-			case 0 : //Up-Right
-				a = -1;
-				b = 1;
+			case 1: //StraitForward
+				dir = G.grid.getHexMap(target.x,target.y,0,target.flipped,straitrow);
 				break;
-			case 2 : //Down-Right
-				a = 1;
-				b = 1;
+			case 2: //Downright
+				dir = G.grid.getHexMap(target.x,target.y,0,target.flipped,diagonaldown);
 				break;
-			case 4 : //Left
-				b = -1;
+			case 3: //Downleft
+				dir = G.grid.getHexMap(target.x,target.y,-4,target.flipped,diagonalup);
 				break;
-			case 5 : //Up-Left
-				a = -1;
-				b = -1;
+			case 4: //StraitBackward
+				dir = G.grid.getHexMap(target.x,target.y,0,!target.flipped,straitrow);
 				break;
-			case 3 : //Down-Left
-				a = 1;
-				b = -1;
+			case 5: //Upleft
+				dir = G.grid.getHexMap(target.x,target.y-8,-4,target.flipped,diagonaldown).reverse();
+				break;
+			default:
 				break;
 		}
 
-		//Gathering all hex in that direction
-		var hex = G.grid.hexs[crea.y][crea.x];
-		for (var j = 0; j < dist; j++) {
-			if(a==0){
-				if( !G.grid.hexExists(hex.y+a,hex.x+b)) break;
-				nextPos = G.grid.hexs[hex.y+a][hex.x+b];
-			}else{
-				if(b>0){
-					if( hex.y%2 == 0 ){
-						if( !G.grid.hexExists(hex.y+a,hex.x+b)) break;
-						nextPos = G.grid.hexs[hex.y+a][hex.x+b];
-					}else{
-						if( !G.grid.hexExists(hex.y+a,hex.x)) break;
-						nextPos = G.grid.hexs[hex.y+a][hex.x];
-					}
-				}else{
-					if( hex.y%2 == 0 ){
-						if( !G.grid.hexExists(hex.y+a,hex.x)) break;
-						nextPos = G.grid.hexs[hex.y+a][hex.x];
-					}else{
-						if( !G.grid.hexExists(hex.y+a,hex.x+b)) break;
-						nextPos = G.grid.hexs[hex.y+a][hex.x+b];
-					}
-				}
-			}
+		dir = dir.slice(0,dist-1);
 
-			if(nextPos.isWalkable(crea.size,crea.id,true)){
-				hex = nextPos;
+		var hex = target.hexagons[0];
+		for (var j = 0; j < dir.length; j++) {
+			if(dir[j].isWalkable(target.size,target.id,true)){
+				hex = dir[j];
 			}else{
 				break;
 			}
 		};
 
-		crea.moveTo(hex,{
+		target.moveTo(hex,{
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			callback : function(){
@@ -227,16 +175,10 @@ abilities["S1"] =[
 
 
 
-// 	Fourth Ability
+// 	Fourth Ability Chilling Spit
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	//	Title
-	title : "Chilling Spit",
-
-	//	Description
-	desc : "Spits inline foe with cold saliva. Bonus damage based on distance.",
 
 	damages : {
 		slash : 2,
@@ -253,19 +195,15 @@ abilities["S1"] =[
 		var ability = this;
 		var snowBunny = this.creature;
 
-		var directions = [true,true,true,true,true,true];
-
 		G.grid.queryDirection({
-			fnOnConfirm : ability.activate,
-			team : snowBunny.team,
-			distance : 99,
-			directions : directions,
-			includeCreature : 1, //Only ennemies
-			stopOnFirstCreature : true,
-			needCreature : true,
+			fnOnConfirm : ability.activate, //fnOnConfirm
+			flipped : snowBunny.player.flipped,
+			team : 0, //enemies
+			id : snowBunny.id,
+			requireCreature : true,
 			x : snowBunny.x,
 			y : snowBunny.y,
-			id : snowBunny.id,
+			directions : [1,1,1,1,1,1],
 			args : {snowBunny:snowBunny, ability: ability}
 		});
 	},
@@ -277,10 +215,10 @@ abilities["S1"] =[
 		ability.end();		
 
 		crea = G.creatures[path.last().creature];
-		var dist = path.length;
+		var dist = path.filterCreature(false,false).length;
 
- 		var dmg = $j.extend({},ability.damages);
-
+		//Copy to not alter ability strength
+ 		var dmg = $j.extend({},ability.damages); 
  		dmg.crush += dist; //Add distance to crush damage
 
 		var damage = new Damage(

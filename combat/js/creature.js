@@ -115,7 +115,7 @@ var Creature = Class.create({
 		this.$health
 			.css(G.grid.hexs[this.y][offsetX].displayPos)
 			.css("z-index",this.y)
-			.fadeIn();
+			.fadeIn(500);
 	},
 
 	/*	activate()
@@ -155,11 +155,7 @@ var Creature = Class.create({
 	*
 	*/
 	deactivate: function(wait){
-
 		this.hasWait = !!wait;
-
-		G.grid.cleanDisplay("adj"); //In case of skip turn
-		G.grid.cleanOverlay("creature selected hover h_player0 h_player1 h_player2 h_player3");
 		G.grid.updateDisplay(); //Retrace players creatures
 	},
 
@@ -191,36 +187,26 @@ var Creature = Class.create({
 	queryMove: function(){
 		$j("#abilities .ability").removeClass("active");
 
-		G.grid.cleanOverlay("creature player"+G.activeCreature.team);
-		G.grid.cleanDisplay("adj");
 		G.grid.updateDisplay(); //Retrace players creatures
 
-		G.grid.queryHexs(
-			function(hex,creature){ creature.tracePath(hex); },
-			function(hex,creature){ creature.previewPosition(hex); },
-			function(){ 
+		G.grid.queryHexs({
+			fnOnSelect : function(hex,creature){ creature.tracePath(hex); },
+			fnOnCancel : function(){ 
 				G.log("You can't do this."); 
-				G.grid.cleanDisplay("adj"); //In case of skip turn
-				G.grid.cleanOverlay("creature selected hover h_player0 h_player1 h_player2 h_player3");
 				G.grid.updateDisplay(); //Retrace players creatures
 			},
-			function(hex,creature){ creature.moveTo(hex,{
+			fnOnConfirm : function(hex,creature){ creature.moveTo(hex,{
 					callback : function(){
 						G.activeCreature.queryMove();
 					}
 				}); 
 			},
-			function(){return true;}, //Optional test return true (no test)
-			this, //Optional args
-			false, //true for flying creatures
-			false,
-			this.x,this.y,
-			this.remainingMove,
-			this.id,
-			this.size,
-			[],
-			this.player.flipped
-		);
+			args : this, //Optional args
+			size : this.size,
+			flipped : this.player.flipped,
+			id : this.id,
+			hexs : G.grid.getMovementRange(this.x,this.y,this.remainingMove,this.size,this.id)
+		});
 	},
 
 
@@ -390,8 +376,6 @@ var Creature = Class.create({
 		var y = hex.y;
 		var path = creature.calculatePath(x,y); //Store path in grid to be able to compare it later
 
-		G.grid.cleanDisplay("adj"); //Clean previous path
-		G.grid.cleanOverlay("creature selected player"+creature.team); //Clean previous path
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		if( path.length == 0 ) return; //Break if empty path
@@ -406,7 +390,7 @@ var Creature = Class.create({
 		//highlight final position
 		var last = path.last()
 		for (var i = 0; i < creature.size; i++) {
-			G.grid.hexs[last.y][last.x-i].$overlay.addClass("creature selected player"+creature.team);
+			G.grid.hexs[last.y][last.x-i].$overlay.addClass("creature moveto selected player"+creature.team);
 		};
 
 	},
@@ -490,8 +474,9 @@ var Creature = Class.create({
 
 	/* 	takeDamage(damage)
 	*
-	* 	damage : 		Damage : 	Damage object
+	* 	damage : 	Damage : 	Damage object
 	*
+	*	return : 	Integer : 	1 if killed, 0 if not	
 	*/
 	takeDamage: function(damage){
 		var creature = this;
@@ -525,10 +510,14 @@ var Creature = Class.create({
 
 			G.log(this.player.name+"'s "+this.name+" is hit "+nbrDisplayed+" health");
 
+			//Health display Update
+			this.updateHealth();
+
 			//If Health is empty
 			if(this.health <= 0){
 				this.health = 0; //Cap
 				this.die(damage.attacker);
+				return 1; //Killed
 			}
 		}else{
 			if(damage.status == "Dodged"){ //If dodged
@@ -549,9 +538,13 @@ var Creature = Class.create({
 			$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
 		}
 
-		this.$health.text(this.health);//health display
+		return 0; //Not killed
 	},
 
+
+	updateHealth: function(){
+		this.$health.text(this.health);
+	},
 
 	/* 	addEffect(effect)
 	*
@@ -626,6 +619,7 @@ var Creature = Class.create({
 
 		//Kill animation
 		this.$display.fadeOut(500);
+		this.$health.fadeOut(500);
 
 		//As hex occupation changes, path must be recalculated for the current creature not the dying one
 		this.cleanHex();
