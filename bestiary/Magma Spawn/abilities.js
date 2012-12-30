@@ -116,8 +116,6 @@ abilities["L2"] =[
 					[0,0,1,1],
 					 [0,0,1,0]];
 
-		var x = (magmaSpawn.player.flipped) ? magmaSpawn.x-magmaSpawn.size+1 : magmaSpawn.x ;
-
 		G.grid.queryChoice({
 			fnOnConfirm : ability.activate,
 			team : 3, 
@@ -125,7 +123,10 @@ abilities["L2"] =[
 			id : magmaSpawn.id,
 			args : {creature:magmaSpawn, ability:ability},
 			flipped : magmaSpawn.flipped,
-			choices : [G.grid.getHexMap(x,magmaSpawn.y-2,0,magmaSpawn.player.flipped,map)],
+			choices : [
+				G.grid.getHexMap(magmaSpawn.x,magmaSpawn.y-2,0,false,map),
+				G.grid.getHexMap(magmaSpawn.x-magmaSpawn.size+1,magmaSpawn.y-2,0,true,map)
+			],
 		})
 
 	},
@@ -171,13 +172,12 @@ abilities["L2"] =[
 
 		G.grid.queryDirection({
 			fnOnConfirm : ability.activate, //fnOnConfirm
-			flipped : magmaSpawn.player.flipped,
 			team : 0, //enemies
 			id : magmaSpawn.id,
 			requireCreature : true,
 			x : x,
 			y : magmaSpawn.y,
-			directions : [0,1,0,0,0,0],
+			directions : [0,1,0,0,1,0],
 			args : {magmaSpawn:magmaSpawn, ability: ability}
 		});
 	},
@@ -204,7 +204,7 @@ abilities["L2"] =[
 
 		//Movement
 		var destination = path.filterCreature(false,false).last();
-		var x = (magmaSpawn.player.flipped) ? destination.x+magmaSpawn.size-1 : destination.x ;
+		var x = (destination.direction==4) ? destination.x+magmaSpawn.size-1 : destination.x ;
 		destination = G.grid.hexs[destination.y][x];
 
 		args.magmaSpawn.moveTo(destination,{
