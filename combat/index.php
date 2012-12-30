@@ -271,6 +271,13 @@ function db_query($query) {
 								<td>--</td>
 								<td>--</td>
 							</tr>
+							<tr class="combo">
+								<td>Combos</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+								<td>--</td>
+							</tr>
 							<tr class="humiliation">
 								<td>Humiliation</td>
 								<td>--</td>
@@ -341,7 +348,6 @@ function db_query($query) {
 			</div>
 			<div id="dash" class="selected0">
 				<div id="return" class="toggledash button"></div>
-				<div id="tooltip"></div>
 				<div id="playertabswrapper">
 					<?php for ($i=0; $i < 4; $i++){
 						echo '<div class="playertabs p'.$i.'"  player="'.$i.'">
@@ -356,25 +362,29 @@ function db_query($query) {
 						}
 					php?>
 				</div>
-				<div id="cardwrapper">
-					<div id="card"><?php cards("",0); ?></div>
-					<div id="summon_buttons">
-						<div id="materialize_button" class="button">
-							<div class="ability button"></div>
-							<h3>Materialize</h3>
-							<p>0 Plasma</p>
-						</div>
-						<div id="energize_button" class="button">
-							<div class="ability button"></div>
-							<h3>Energize</h3>
-							<p>0 Plasma</p>
+				<div id="tabwrapper">
+					<div id="cardwrapper">
+						<div id="cardwrapper_inner">
+							<div id="card"><?php cards("",0); ?></div>
+							<div id="summon_buttons">
+								<div id="materialize_button" class="button">
+									<div class="ability button"></div>
+									<h3>Materialize</h3>
+									<p>0 Plasma</p>
+								</div>
+								<div id="energize_button" class="button">
+									<div class="ability button"></div>
+									<h3>Energize</h3>
+									<p>0 Plasma</p>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
-				<div id="creaturegridwrapper"><?php
+					<div id="creaturegridwrapper"><?php
 						require_once('../bestiary/grid.php');
 						creatureGrid(false);
-						?></div>
+					?></div>
+				</div>
 			</div>
 			<div id="toppanel">
 				<div id="queue">

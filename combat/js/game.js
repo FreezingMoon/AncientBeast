@@ -56,6 +56,7 @@ var Game = Class.create({
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
 		this.availableCreatures = ["--","L2","S1","S6"];
+		this.inputMethod = "Mouse";
 
 		//Gameplay
 		this.firstKill = false;
@@ -185,17 +186,23 @@ var Game = Class.create({
 	*/
 	resizeCombatFrame: function(){
 		if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ){
+			// $j("#tabwrapper").css({scale: $j(window).height() / 1080});
 			this.$combatFrame.css({ 
 				scale: $j(window).height() / 1080, 
 				"margin-left": -1920*($j(window).height()/1080)/2, 
 				"margin-top": -1080*($j(window).height()/1080)/2, 
 			});
 		}else{
+			// $j("#tabwrapper").css({scale: $j(window).width() / 1080});
 			this.$combatFrame.css({ 
 				scale: $j(window).width() / 1920, 
 				"margin-left": -1920*($j(window).width()/1920)/2, 
 				"margin-top": -1080*($j(window).width()/1920)/2, 
 			});	
+		}
+
+		if( $j("#cardwrapper").width() < $j("#card").width() ){
+			$j("#cardwrapper_inner").width()
 		}
 	},
 
@@ -287,6 +294,9 @@ var Game = Class.create({
 	*
 	*/
 	endTurn: function(){
+		// if(G.turnThrottle) return;
+		// G.turnThrottle = true
+		// setTimeout(function(){G.turnThrottle=false},300)
 		var endTurn = new Date();
 		var p = this.activeCreature.player;
 		p.totalTimePool = p.totalTimePool - (endTurn - p.startTime);
@@ -301,6 +311,9 @@ var Game = Class.create({
 	*
 	*/
 	delayTurn: function(){
+		// if(G.turnThrottle) return;
+		// G.turnThrottle = true
+		// setTimeout(function(){G.turnThrottle=false},300)
 		var endTurn = new Date();
 		var p = this.activeCreature.player;
 		p.totalTimePool = p.totalTimePool - (endTurn - p.startTime);
@@ -574,6 +587,9 @@ var Player = Class.create({
 					break;
 				case "kill":
 					points += s.creature.lvl*5;
+					break;
+				case "combo":
+					points += s.kills*5;
 					break;
 				case "humiliation":
 					points += 50;

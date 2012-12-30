@@ -156,8 +156,8 @@ div.row:nth-child(9){top:38.944em;}
 .row_8{top:38.944em;}
 
 #hexsdisplay .displayhex.not-reachable{
-	background: url('../grid/hex_not_reachable.png');
-	/*opacity: .1;*/
+	/*background: url('../grid/hex_not_reachable.png');*/
+	opacity: 0;
 }
 
 #hexsinput .hex div,.hex div:before,.hex div:after{
@@ -210,6 +210,7 @@ div.row:nth-child(9){top:38.944em;}
 	-o-animation: pulse0510 750ms infinite alternate;
 }
 
+#hexsoverlay .displayhex.hover{background: url("../grid/hex.png");}
 /*p0*/
 #hexsoverlay .displayhex.hover.h_player0{background: url("../grid/hex_hover_p0.png");}
 #hexsoverlay .displayhex.creature.active.player0,
@@ -231,6 +232,7 @@ div.row:nth-child(9){top:38.944em;}
 #hexsoverlay .displayhex.creature.selected.player3,
 #hexsdisplay .displayhex.creature.player3{background: url("../grid/hex_p3.png");}
 
+#hexsdisplay .displayhex.creature.hidden{ opacity: 0 !important; }
 
 /*------------------Creatures------------------*/
 #grid #creatureWrapper{
@@ -573,8 +575,16 @@ div.row:nth-child(9){top:38.944em;}
 .selected2 .playertabs.p2,.selected2 #cardwrapper,.selected2 #creaturegridwrapper{background-color: rgba(255,172,0,0.15);}
 .selected3 .playertabs.p3,.selected3 #cardwrapper,.selected3 #creaturegridwrapper{background-color: rgba(0,255,0,.15);}
 
-#creaturegridwrapper{
+#tabwrapper{
 	top: 100px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	position: absolute;
+}
+
+#creaturegridwrapper{
+	top: 0px;
 	left: 0px;
 	bottom: 0px;
 	width: 50%;
@@ -585,7 +595,7 @@ div.row:nth-child(9){top:38.944em;}
 }
 
 #cardwrapper{
-	top: 100px;
+	top: 0px;
 	right: 0px;
 	bottom: 0px;
 	width: 50%;
@@ -594,6 +604,11 @@ div.row:nth-child(9){top:38.944em;}
 	text-align: center;
 	vertical-align: middle;
 	color: white;
+}
+
+#card{
+	width: 870px;
+	margin: auto;
 }
 
 #summon_buttons{ 

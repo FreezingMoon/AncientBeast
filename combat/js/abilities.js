@@ -8,7 +8,8 @@ var Ability = Class.create({
 		this.creature = creature;
 		this.used = false;
 		this.id = abilityID;
-		$j.extend(this,abilities[creature.type][abilityID]);
+		var datas = G.retreiveCreatureStats(creature.type);
+		$j.extend(this,abilities[creature.type][abilityID],datas.abilities_infos[abilityID]);
 	},
 
 
@@ -80,6 +81,20 @@ var Ability = Class.create({
 		});
 		return targets;
 	},
+
+	/* 	areaDamages(targets)
+	*
+	*	targets : 	Array : 	Example : target = [{target:crea1,hexsHit:2},{target:crea2,hexsHit:1}]
+	*/
+	areaDamage : function(attacker,type,damages,effects,targets){
+		var multiKill = 0;
+		for (var i = 0; i < targets.length; i++) {
+			if(targets[i]===undefined) continue;
+			dmg = new Damage(attacker,type,damages,targets[i].hexsHit,effects)
+			multiKill += targets[i].target.takeDamage(dmg);
+		};
+		if(multiKill>1)	attacker.player.score.push({type:"combo",kills:multiKill});
+	}
 });
 
 
