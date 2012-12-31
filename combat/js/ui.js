@@ -35,19 +35,28 @@ var UI = Class.create({
 		this.$grid = $j("#creaturegrid");
 
 		//Dash button
-		$j(".toggledash").bind('click',function(e){ G.UI.toggleDash() });
+		$j(".toggledash").bind('click',function(e){ 
+			if(G.freezedInput) return;
+			G.UI.toggleDash();
+		});
 
 		//End turn button
-		this.$button = $j("#end.button");
-		this.$button.bind('click',function(e){ G.endTurn() });
+		$j("#end.button").bind('click',function(e){ 
+			if(G.freezedInput) return;
+			G.endTurn() ;
+		});
 
 		//Wait Button
-		this.$button = $j("#delay.button");
-		this.$button.bind('click',function(e){ G.delayTurn() });
+		$j("#delay.button").bind('click',function(e){ 
+			if(G.freezedInput) return;
+			G.delayTurn(); 
+		});
 
 		//Surrender Button
-		this.$button = $j("#surrender.button");
-		this.$button.bind('click',function(e){ G.activeCreature.player.surrender() });
+		$j("#surrender.button").bind('click',function(e){ 
+			if(G.freezedInput) return;
+			G.activeCreature.player.surrender();
+		});
 
 		this.$textbox = $j("#textbox > #textcontent");
 
@@ -80,6 +89,7 @@ var UI = Class.create({
 		this.changePlayerTab(G.activeCreature.team);
 
 		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click',function(e){
+			if(G.freezedInput) return;
 			G.UI.showCreature("--",$j(this).attr("player")-0);
 		});
 
@@ -105,6 +115,13 @@ var UI = Class.create({
 		if( $j.inArray(creatureType, G.players[player].availableCreatures)>0 || creatureType=="--"){
 			//If creature is available
 
+			//Retreive the summoned creature if it exists
+			var crea = undefined;
+			G.players[player].creatures.each(function(){
+				if(this.type == creatureType)
+					crea = this;
+			});
+
 			//Recto
 			$j("#card .card.recto").css({"background-image":"url('../bestiary/"+stats.name+"/artwork.jpg')"});
 			$j("#card .card.recto .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
@@ -114,13 +131,28 @@ var UI = Class.create({
 
 			//Verso
 			$j.each(stats.stats,function(key,value){
-				$j("#card .card.verso ."+key+" .value").text(value);
+				var $stat = $j("#card .card.verso ."+key+" .value");
+				$stat.removeClass("buff debuff");
+				if(crea){
+					if(key=="health"){
+						$stat.text(crea.health+"/"+value);
+					}else{
+						$stat.text(crea.stats[key]);
+						if(crea.stats[key]>value){ //Buff
+							$stat.addClass("buff");
+						}else if(crea.stats[key]<value){ //Debuff
+							$stat.addClass("debuff");
+						}
+					}
+				}else{
+					$stat.text(value);
+				}
 			});
 			$j.each(abilities[stats.type],function(key,value){
 				$ability = $j("#card .card.verso .abilities .ability:eq("+key+")");
 				$ability.children('.icon').css({"background-image":"url('../bestiary/"+stats.name+"/"+key+".svg')"});
-				$ability.children(".wrapper").children(".info").children("h3").text(value.title);
-				$ability.children(".wrapper").children(".info").children(".desc").text(value.desc);
+				$ability.children(".wrapper").children(".info").children("h3").text(stats.abilities_infos[key].title);
+				$ability.children(".wrapper").children(".info").children(".desc").text(stats.abilities_infos[key].desc);
 			});
 
 			var summonedOrDead = false;
@@ -146,10 +178,12 @@ var UI = Class.create({
 
 				//Bind buttons
 				$j('#materialize_button').unbind('click').bind('click',function(e){
+					if(G.freezedInput) return;
 					G.UI.toggleDash();
 					G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
 				});
 				$j('#energize_button').unbind('click').bind('click',function(e){
+					if(G.freezedInput) return;
 					G.UI.toggleDash();
 					G.activeCreature.abilities[3].energize(G.UI.selectedCreature);
 				});
@@ -197,6 +231,7 @@ var UI = Class.create({
 		//Bind creature vignette click
 		this.$grid.children(".vignette").unbind('click').bind("click",function(e){
 			e.preventDefault();
+			if(G.freezedInput) return;
 
 			if($j(this).hasClass("locked")){
 				G.UI.$dash.children("#tooltip").text("Creature locked.");
@@ -242,6 +277,7 @@ var UI = Class.create({
 				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
 				$j(this).children(".desc").html("<span>"+G.activeCreature.abilities[id].title+"</span><p>"+G.activeCreature.abilities[id].desc+"</p>");
 				$j(this).bind('click', function(){
+					if(G.freezedInput) return;
 					G.activeCreature.abilities[id].use();
 				});
 			});
@@ -413,6 +449,7 @@ var UI = Class.create({
 
 			//Add mouseover effect
 			this.$queue.children('.queue').children('.vignette').unbind("mouseover").unbind("mouseleave").bind("mouseover",function(){
+				if(G.freezedInput) return;
 				var creaID = $j(this).attr("creatureid")-0;
 				G.creatures.each(function(){
 					if(this instanceof Creature){
@@ -421,12 +458,14 @@ var UI = Class.create({
 					}
 				});
 			}).bind("mouseleave",function(){ //On mouseleave cancel effect
+				if(G.freezedInput) return;
 				G.creatures.each(function(){
 					if(this instanceof Creature){
 						this.$display.removeClass("ghosted");
 					}
 				});
 			}).bind("click",function(){ //Show dash on click
+				if(G.freezedInput) return;
 				var creaID = $j(this).attr("creatureid")-0;
 				G.UI.showCreature(G.creatures[creaID].type,G.creatures[creaID].team);
 			});

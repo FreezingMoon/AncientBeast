@@ -55,11 +55,12 @@ var Game = Class.create({
 		this.nextQueue = []; //next round queue
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
-		this.availableCreatures = ["--","L2","S1","S6"];
+		this.availableCreatures = ["--","A1","L2","S1","S6"];
 		this.inputMethod = "Mouse";
 
 		//Gameplay
 		this.firstKill = false;
+		this.freezedInput = false;
 	},
 
 
@@ -108,6 +109,11 @@ var Game = Class.create({
 	*
 	*/
 	setup: function(nbrPlayer){
+		//reseting global counters
+		trapID = 0;
+		effectId = 0;
+		this.creaIdCounter = 1;
+
 		this.grid = new HexGrid();//Creating Hexgrid
 
 		$j("#combatframe").css("background-image","url('../locations/"+this.background_image+"/bg.jpg')");

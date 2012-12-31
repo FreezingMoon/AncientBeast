@@ -191,10 +191,6 @@ var Creature = Class.create({
 
 		G.grid.queryHexs({
 			fnOnSelect : function(hex,creature){ creature.tracePath(hex); },
-			fnOnCancel : function(){ 
-				G.log("You can't do this."); 
-				G.grid.updateDisplay(); //Retrace players creatures
-			},
 			fnOnConfirm : function(hex,creature){ creature.moveTo(hex,{
 					callback : function(){
 						G.activeCreature.queryMove();
@@ -285,29 +281,19 @@ var Creature = Class.create({
 			var path = [hex];
 		}else{
 			var path = creature.calculatePath(x,y);
-			creature.travelDist = path.length;
 		}
-
-		G.grid.cleanDisplay("adj"); //Clean previous path
-		G.grid.cleanOverlay("hover h_player"+this.team); //Clear path display and creature position preview
 
 		if( path.length == 0 ) return; //Break if empty path
 
-		if(!opts.ignoreMovementPoint) creature.remainingMove -= path.length;
-
-		var pos = path[path.length-1].pos;
-
-		var currentHex = G.grid.hexs[creature.y][creature.x]; //Used further ahead to determine facing
+		G.freezedInput = true;
 
 		creature.cleanHex();
-		creature.x 		= pos.x - 0;
-		creature.y 		= pos.y - 0;
-		creature.pos 	= pos;
-		creature.updateHex();
+		G.grid.updateDisplay();
 
 		creature.$health.hide();
 
 		//Determine facing
+		var currentHex = G.grid.hexs[creature.y][creature.x];
 		var nextHex = path[0];
 		if(currentHex.y%2==0){
 			var flipped = ( nextHex.x <= currentHex.x );
@@ -318,21 +304,46 @@ var Creature = Class.create({
 			creature.$display.removeClass("flipped");
 			if(flipped) creature.$display.addClass("flipped");
 		})
-
 		
 		//TODO turn around animation
 
 		//Translate creature with jquery animation
+		creature.travelDist = 0;
+
 		var hexId = 0;
+
 		path.each(function(){
 			var nextPos = G.grid.hexs[this.y][this.x-creature.size+1];
 			var thisHexId = hexId;
 
 			creature.$display.animate(nextPos.displayPos,500,"linear",function(){
 				creature.$display.removeClass("flipped");
-				if( thisHexId < path.length-1 ){
+				currentHex = path[thisHexId];
+
+				creature.x 		= currentHex.x - 0;
+				creature.y 		= currentHex.y - 0;
+				creature.pos 	= currentHex.pos;
+
+				if(!opts.ignoreMovementPoint){
+					creature.travelDist++;
+					creature.remainingMove--;
+					//Trap
+					for (var i = 0; i < creature.size; i++) {
+						if(G.grid.hexExists(currentHex.y,currentHex.x-i))
+							G.grid.hexs[currentHex.y][currentHex.x-i].activateTrap("onStepIn",creature);
+					};
+					//Passive abilities
+					creature.abilities.each(function(){
+						if(this.trigger == "onStepIn"){
+							if( this.require(currentHex) ){
+								damage = this.activate(currentHex);
+							}
+						}
+					});
+				}
+
+				if( thisHexId < path.length-1 && creature.remainingMove > 0 ){
 					//Determine facing
-					currentHex = path[thisHexId];
 					nextHex = path[thisHexId+1];
 					if(currentHex.y%2==0){
 						var flipped = ( nextHex.x <= currentHex.x );
@@ -341,6 +352,11 @@ var Creature = Class.create({
 					}
 					if(flipped) creature.$display.addClass("flipped");
 				}else{
+					creature.$display.clearQueue(); //Stop the creature
+
+					creature.updateHex();
+					G.grid.updateDisplay();
+
 					//TODO turn around animation
 					if(creature.player.flipped) creature.$display.addClass("flipped");
 					//reveal and position healh idicator
@@ -349,6 +365,9 @@ var Creature = Class.create({
 						.css(G.grid.hexs[creature.y][offsetX].displayPos)
 						.css("z-index",creature.y)
 						.show();
+
+					G.freezedInput = false;
+					opts.callback();
 				}
 
 				//Callback function set the proper z-index;
@@ -357,8 +376,6 @@ var Creature = Class.create({
 			});
 			hexId++;
 		})
-
-		opts.callback();
 	},
 
 

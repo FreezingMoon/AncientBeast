@@ -190,7 +190,7 @@ abilities["L2"] =[
 		var ability = args.ability;
 		ability.end();
 
-		//TODO destroy traps
+		path.each(function(){this.destroyTrap();});
 
 		//Damage
 		var target = G.creatures[path.last().creature];
@@ -204,8 +204,12 @@ abilities["L2"] =[
 		target.takeDamage(damage);
 
 		//Movement
-		var destination = path.filterCreature(false,false).last();
-		var x = (destination.direction==4) ? destination.x+magmaSpawn.size-1 : destination.x ;
+		var direction = path.last().direction;
+		var magmaHex = (direction==4) ? magmaSpawn.hexagons[magmaSpawn.size-1] : magmaSpawn.hexagons[0] ;
+		path.filterCreature(false,false);
+		path.unshift(magmaHex); //prevent error on empty path
+		var destination = path.last();
+		var x = (direction==4) ? destination.x+magmaSpawn.size-1 : destination.x ;
 		destination = G.grid.hexs[destination.y][x];
 
 		args.magmaSpawn.moveTo(destination,{

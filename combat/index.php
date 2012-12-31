@@ -106,7 +106,8 @@ function db_query($query) {
 		<script type="text/javascript" src="./js/ui.js"></script>
 		<script type="text/javascript" src="./js/script.js"></script>
 
-		<script type="text/javascript" src="../bestiary/Magma Spawn/abilities.js"></script>		
+		<script type="text/javascript" src="../bestiary/Swine Thug/abilities.js"></script>
+		<script type="text/javascript" src="../bestiary/Magma Spawn/abilities.js"></script>
 		<script type="text/javascript" src="../bestiary/Dark Priest/abilities.js"></script>
 		<script type="text/javascript" src="../bestiary/Impaler/abilities.js"></script>
 		<script type="text/javascript" src="../bestiary/Snow Bunny/abilities.js"></script>
@@ -423,6 +424,8 @@ function db_query($query) {
 		<div id="combatwrapper">
 			<div id="combatframe" style="display:none;">
 				<div id="grid">
+					<div id="trapWrapper">
+					</div>
 					<div id="hexsdisplay">
 						<?php for ($a=0; $a <= 8; $a++) { 
 							if ($a % 2 == 0) {

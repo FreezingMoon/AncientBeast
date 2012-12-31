@@ -66,7 +66,7 @@ body{
 	transform: rotateX(45deg) ;
 }
 
-#hexsinput, #hexsdisplay, #creatureWrapper, #hexsoverlay{
+#hexsinput, #hexsdisplay, #creatureWrapper, #hexsoverlay, #trapWrapper{
 	position: relative;
 	top: 0px;
 	left: 0px;
@@ -326,6 +326,22 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transform-origin:48% 100%; 
 }
 
+/*-----Swine Thug----*/
+#creatureWrapper .creature.type_A1{ 
+	width: 140px;
+	height: 190px;
+	margin-top: -140px;
+	margin-left: -21px;
+	padding: 0px 0px 0px;
+	-webkit-transform-origin:100% 100%;
+	-moz-transform-origin:100% 100%;
+
+	background: url("../../bestiary/Swine Thug/cardboard.png");
+}
+#creatureWrapper div.creature.flipped.type_A1{ 
+	-webkit-transform-origin:46% 100%; 
+	-moz-transform-origin:46% 100%; 
+}
 
 /*-----Dark Priest----*/
 #creatureWrapper .creature.type_--{
@@ -349,7 +365,7 @@ div.row:nth-child(9){top:38.944em;}
 
 /*-----------------EFFECTS-------------------*/
 
-.damage{
+#creatureWrapper .damage{
 	font-size: 220%;
 	color: red;
 	font-style: italic;
@@ -365,7 +381,7 @@ div.row:nth-child(9){top:38.944em;}
 	text-align: center;
 }
 
-.health{
+#creatureWrapper .health{
 	position: absolute;
 	display: block;
 	width: 50px;
@@ -390,12 +406,12 @@ div.row:nth-child(9){top:38.944em;}
 	-o-transform: rotateX(-33deg) scale(1,1.8) ; /* Opera */
 }
 
-.p0.health{border-color: red;}
-.p1.health{border-color: blue;}
-.p2.health{border-color: orange;}
-.p3.health{border-color: green;}
+#creatureWrapper .p0.health{border-color: red;}
+#creatureWrapper .p1.health{border-color: blue;}
+#creatureWrapper .p2.health{border-color: orange;}
+#creatureWrapper .p3.health{border-color: green;}
 
-.flipped .damage{ -webkit-transform: scale(-1,1); }
+#creatureWrapper .flipped .damage{ -webkit-transform: scale(-1,1); }
 
 /*-----------------UI-------------------*/
 #ui{
@@ -626,6 +642,9 @@ div.row:nth-child(9){top:38.944em;}
 #materialize_button .ability{ background-image: url("../../bestiary/Dark%20Priest/2.svg"); }
 #energize_button .ability{ background-image: url("../../bestiary/Dark%20Priest/3.svg"); }
 
+.buff{ color: green; }
+.debuff{ color: red; }
+
 /*-------------------Queue-------------------*/
 
 #queuewrapper{display: block; width: 4000px;}
@@ -836,4 +855,20 @@ div.row:nth-child(9){top:38.944em;}
 	text-align: center;
 	font-size: 18px;
 	font-weight: bold;
+}
+
+/*--------------------TRAPS--------------------*/
+.trap {
+	width: 90px;
+	height: 52px;
+	margin: -36px -10px;
+	padding: 36px 10px;
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+.trap.mud-bath {
+	background: url("../grid/trap_mud.png");
 }

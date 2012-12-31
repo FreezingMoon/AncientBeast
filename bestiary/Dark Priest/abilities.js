@@ -49,18 +49,6 @@ abilities["--"] =[
 		var ability = this;
 		var dpriest = this.creature;
 
-		// G.grid.queryDirection({
-		// 	fnOnConfirm : ability.activate, //fnOnConfirm
-		// 	flipped : dpriest.player.flipped,
-		// 	team : 0, //enemies
-		// 	id : dpriest.id,
-		// 	requireCreature : true,
-		// 	x : dpriest.x,
-		// 	y : dpriest.y,
-		// 	directions : [1,1,0,0,0,0],
-		// 	args : {dpriest:dpriest, ability: ability}
-		// });
-
 		G.grid.queryCreature({
 			fnOnConfirm : ability.activate, //fnOnConfirm
 			team : 0, //Team, 0 = ennemies

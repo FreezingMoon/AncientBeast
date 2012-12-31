@@ -148,7 +148,6 @@ var Damage = Class.create({
 });
 
 
-effectId = 0;
 /*	
 * Effect Class
 */
@@ -157,7 +156,7 @@ var Effect = Class.create({
 	/* Constructor(owner,parent,trigger,effectFn)
 	*	
 	*	owner : 		Creature : 	Creature that casted the effect
-	*	target : 		Object : 	Creature or Hex the object that possess the effect
+	*	target : 		Object : 	Creature or Hex : the object that possess the effect
 	*	trigger : 		String : 	Event that trigger the effect
 	*	effectFn : 		Function : 	Function to trigger
 	*/
@@ -180,8 +179,8 @@ var Effect = Class.create({
 		G.effects.push(this);
 	},
 
-	activate: function(){
-		this.effectFn(this);
+	activate: function(arg){
+		this.effectFn(this,arg);
 	},
 
 	deleteEffect: function(){

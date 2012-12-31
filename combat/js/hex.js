@@ -34,6 +34,7 @@ var HexGrid = Class.create({
 	*/
 	initialize: function(){
 		this.hexs 				= new Array(); //Hex Array
+		this.traps 				= new Array(); //Traps Array
 		this.lastClickedtHex 	= []; //Array of hexagons containing last calculated pathfinding
 
 		this.$display 			= $j("#grid");
@@ -314,10 +315,7 @@ var HexGrid = Class.create({
 		var defaultOpt = {
 			fnOnConfirm : function(hex,args){ G.activeCreature.queryMove(); },
 			fnOnSelect : function(hex,args){
-				var crea = G.creatures[hex.creature];
-				crea.hexagons.each(function(){
-					this.$overlay.addClass("creature selected player"+crea.team);
-				});
+				hex.$overlay.addClass("creature selected player"+G.activeCreature.team);
 			},
 			fnOnCancel : function(hex,args){G.activeCreature.queryMove()},
 			args : {},
@@ -353,6 +351,8 @@ var HexGrid = Class.create({
 
 		//ONCLICK
 		this.$allInptHex.bind('click', function(){
+			if(G.freezedInput) return;
+
 			var x = $j(this).attr("x")-0;
 			var y = $j(this).attr("y")-0;
 
@@ -406,6 +406,8 @@ var HexGrid = Class.create({
 
 		//ONMOUSEOVER
 		this.$allInptHex.bind('mouseover', function(){
+			if(G.freezedInput) return;
+
 			var x = $j(this).attr("x")-0;
 			var y = $j(this).attr("y")-0;
 
@@ -718,6 +720,8 @@ var Hex = Class.create({
 		this.displayPos = (y%2 == 0) ? //IF EVEN ROW
 			{left:46+x*90 ,top:y*78 } : //TRUE
 			{left:x*90 ,top:y*78 } ; //FALSE
+
+		this.trap = undefined;
 	},
 
 
@@ -897,7 +901,66 @@ var Hex = Class.create({
 		//TODO change display
 	},
 
+	//---------TRAP FUNCTION---------//
+
+	createTrap: function(type, effects, owner){
+		if(!!this.trap) this.destroyTrap();
+		this.trap = new Trap(this.x,this.y,type,effects,owner);
+	},
+
+	activateTrap: function(trigger, target){
+		if(!this.trap) return;
+		this.trap.effects.each(function(){
+			if(this.trigger == trigger){
+				G.log("Trap triggered");
+				this.activate(target);
+			}
+		});
+	},
+
+	destroyTrap: function(){
+		if(!this.trap) return;
+		delete G.grid.traps[this.trap.id];
+		this.trap.destroy();
+		delete this.trap;
+	},
+
 });//End of Hex Class
+
+
+/*	Trap Class
+*
+*	Object containing hex informations, positions and DOM elements
+*
+*/
+var Trap = Class.create({
+
+	/*	Constructor(x,y)
+	*	
+	*	x : 			Integer : 	Hex coordinates
+	*	y : 			Integer : 	Hex coordinates
+	*
+	*/
+	initialize: function(x, y, type, effects, owner) {
+		this.hex 		= G.grid.hexs[y][x];
+		this.type 		= type;
+		this.effects 	= effects;
+		this.owner 		= owner;
+
+		//register
+		G.grid.traps.push(this);
+		this.id 		= trapID++;
+		this.hex.trap 	= this;
+
+		this.$display = $j('#trapWrapper').append('<div id="trap'+this.id+'" class="trap '+this.type+'"></div>').children("#trap"+this.id);
+		this.$display.css(this.hex.displayPos);
+	},
+
+	destroy: function(){
+		this.$display.remove();
+	},
+
+});
 
 
 /*	Array Prototypes
