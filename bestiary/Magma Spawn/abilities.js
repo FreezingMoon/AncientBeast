@@ -59,7 +59,8 @@ abilities["L2"] =[
 		var ability = this;
 		var magmaSpawn = this.creature;
 
-		var map = [	[0,1,0,0,1],
+		var map = [	 [0,0,0,0,0],
+					[0,1,0,0,1],
 					 [1,0,0,0,1], //origin line
 					[0,1,0,0,1]];
 
@@ -68,7 +69,7 @@ abilities["L2"] =[
 			team : 0, //Team, 0 = ennemies
 			id : magmaSpawn.id,
 			flipped : magmaSpawn.flipped,
-			hexs : G.grid.getHexMap(magmaSpawn.x-3,magmaSpawn.y-1,0,magmaSpawn.player.flipped,map),
+			hexs : G.grid.getHexMap(magmaSpawn.x-3,magmaSpawn.y-2,0,false,map),
 			args : {creature:magmaSpawn, ability: ability}
 		});
 	},

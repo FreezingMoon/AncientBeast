@@ -40,7 +40,8 @@ abilities["S6"] =[
 		var ability = this;
 		var creature = this.creature;
 
-		var map = [	[0,1,0,0,1],
+		var map = [	 [0,0,0,0,0],
+					[0,1,0,0,1],
 					 [1,0,0,0,1], //origin line
 					[0,1,0,0,1]];
 
@@ -49,7 +50,7 @@ abilities["S6"] =[
 			team : 0, //Team, 0 = ennemies
 			id : creature.id,
 			flipped : creature.flipped,
-			hexs : G.grid.getHexMap(creature.x-3,creature.y-1,0,creature.player.flipped,map),
+			hexs : G.grid.getHexMap(creature.x-3,creature.y-2,0,false,map),
 			args : {creature:creature, ability: ability}
 		});
 	},
