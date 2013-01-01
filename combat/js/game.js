@@ -55,7 +55,7 @@ var Game = Class.create({
 		this.nextQueue = []; //next round queue
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
-		this.availableCreatures = ["--","A1","L2","S1","S6"];
+		this.availableCreatures = ["--","A1","G3","L2","S1","S6"];
 		this.inputMethod = "Mouse";
 
 		//Gameplay

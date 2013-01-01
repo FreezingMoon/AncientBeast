@@ -71,7 +71,7 @@ abilities["A1"] =[
 		ability.end();
 
 		var damage = new Damage(
-			args.creature, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			ability.damages, //Damage Type
 			1, //Area
