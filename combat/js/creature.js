@@ -504,6 +504,9 @@ var Creature = Class.create({
 
 		this.health += amount; 
 
+		//Health display Update
+		this.updateHealth();
+
 		var $healing = this.$effects.append('<div class="healing d'+amount+'">+'+amount+'</div>').children(".healing");
 		//Damage animation
 		$healing.transition({top:-20,opacity:0},2000,function(){ $healing.remove(); });
