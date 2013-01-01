@@ -50,7 +50,7 @@ var Creature = Class.create({
 		this.pos 		= {x:this.x, y:this.y};
 		this.size 		= obj.size;
 		this.type 		= obj.type; //Which creature it is
-		this.lvl 		= obj.lvl; //Which creature it is
+		this.lvl 		= (obj.lvl == "-")?1:obj.lvl; //Which creature it is
 		this.realm 		= obj.realm; //Which creature it is
 
 
@@ -613,10 +613,8 @@ var Creature = Class.create({
 				this.killer.score.push({type:"deny",creature:this});
 			}else{
 				//humiliation
-				this.killer.score.push({type:"humiliation",creature:this});
+				this.killer.score.push({type:"humiliation",player:this.team});
 			}
-
-			this.player.deactivate();
 		}
 
 		if(!this.undead){//only if not undead
@@ -630,9 +628,19 @@ var Creature = Class.create({
 		}
 
 		if( this.player.isAnnihilated() ){
+			//remove humiliation as annihilation is an upgrade
+			for(var i = 0; i < this.killer.score.length; i++){
+				var s = this.killer.score[i];
+				if(s.type == "humiliation"){
+					if(s.player == this.team) this.killer.score.splice(i,1);	
+					break;
+				}
+			}
 			//ANNIHILATION
-			this.killer.score.push({type:"annihilation",creature:this});
+			this.killer.score.push({type:"annihilation",player:this.team});
 		}
+
+		if(this.type == "--") this.player.deactivate(); //Here because of score calculation
 
 		//Kill animation
 		this.$display.fadeOut(500);
