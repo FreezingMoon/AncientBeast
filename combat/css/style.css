@@ -382,7 +382,8 @@ div.row:nth-child(9){top:38.944em;}
 
 /*-----------------EFFECTS-------------------*/
 
-#creatureWrapper .damage{
+#creatureWrapper .damage,
+#creatureWrapper .healing{
 	font-size: 220%;
 	color: red;
 	font-style: italic;
@@ -397,6 +398,7 @@ div.row:nth-child(9){top:38.944em;}
 	left: 50%;
 	text-align: center;
 }
+#creatureWrapper .healing{color: green}
 
 #creatureWrapper .health{
 	position: absolute;
@@ -428,7 +430,14 @@ div.row:nth-child(9){top:38.944em;}
 #creatureWrapper .p2.health{border-color: orange;}
 #creatureWrapper .p3.health{border-color: green;}
 
-#creatureWrapper .flipped .damage{ -webkit-transform: scale(-1,1); }
+#creatureWrapper .flipped .damage,
+#creatureWrapper .flipped .healing{ 
+	-webkit-transform: scale(-1,1); 
+	-ms-transform: scale(-1,1); 
+	-moz-transform: scale(-1,1); 
+	-o-transform: scale(-1,1); 
+	transform: scale(-1,1); 
+}
 
 /*-----------------UI-------------------*/
 #ui{

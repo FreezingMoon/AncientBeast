@@ -130,6 +130,9 @@ var Creature = Class.create({
 			this.remainingMove = this.stats.movement;
 			this.abilities.each(function(){ this.setUsed(false); });
 
+			G.log(this.player.name+"'s "+this.name+" ");
+			this.heal(this.stats.regrowth);
+
 			//Passive abilities
 			this.abilities.each(function(){
 				if(this.trigger == "onStartPhase"){
@@ -138,7 +141,6 @@ var Creature = Class.create({
 					}
 				}
 			});
-
 		}
 
 		this.player.startTime = new Date();
@@ -486,6 +488,27 @@ var Creature = Class.create({
 		}else{
 			return this.hexagons[0].adjacentHex(dist);
 		}
+	},
+
+
+
+	/* 	heal(amount)
+	*
+	* 	amount : 	Damage : 	Amount of health point to restore
+	*/
+	heal: function(amount){
+		if(this.health + amount > this.baseStats.health)
+			amount = this.baseStats.health - this.health; //Cap health point
+
+		if(amount == 0) return;
+
+		this.health += amount; 
+
+		var $healing = this.$effects.append('<div class="healing d'+amount+'">+'+amount+'</div>').children(".healing");
+		//Damage animation
+		$healing.transition({top:-20,opacity:0},2000,function(){ $healing.remove(); });
+
+		G.log(this.player.name+"'s "+this.name+" recovers +"+amount+" health");
 	},
 
 
