@@ -360,6 +360,23 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transform-origin:46% 100%; 
 }
 
+/*-----Chimera----*/
+#creatureWrapper .creature.type_P6{ 
+	width: 300px;
+	height: 220px;
+	margin-top: -158px;
+	margin-left: -14px;
+	padding: 0px 0px 0px;
+	-webkit-transform-origin:100% 100%;
+	-moz-transform-origin:100% 100%;
+
+	background: url("../../bestiary/Chimera/cardboard.png");
+}
+#creatureWrapper div.creature.flipped.type_P6{ 
+	-webkit-transform-origin:49% 100%; 
+	-moz-transform-origin:49% 100%; 
+}
+
 /*-----Dark Priest----*/
 #creatureWrapper .creature.type_--{
 	width: 108px;

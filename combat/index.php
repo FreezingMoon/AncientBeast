@@ -114,6 +114,8 @@ function db_query($query) {
 
 		<script type="text/javascript" src="../bestiary/Uncle Fungus/abilities.js"></script>
 
+		<script type="text/javascript" src="../bestiary/Chimera/abilities.js"></script>
+
 		<script type="text/javascript" src="../bestiary/Snow Bunny/abilities.js"></script>
 		<script type="text/javascript" src="../bestiary/Impaler/abilities.js"></script>
 
