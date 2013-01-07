@@ -131,7 +131,7 @@ function db_query($query) {
 		})();
 		</script>	
 	</head>
-	<body>
+	<body oncontextmenu="return false;">
 		<div id="matchmaking">
 			<div id="loader"><img src="../images/AB.gif">Loading</div>
 			<div id="gamesetupcontainer">
