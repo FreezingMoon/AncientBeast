@@ -83,7 +83,7 @@ abilities["S6"] =[
 			this.creature, //Caster
 			target, //Target
 			"persistant", //Trigger
-			{ alterations : {defense : -1} } //Optional arguments
+			{ alterations : {defense : -2} } //Optional arguments
 		);
 
 		var damage = new Damage(
