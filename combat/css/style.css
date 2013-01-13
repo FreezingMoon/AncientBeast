@@ -279,7 +279,7 @@ div.row:nth-child(9){top:38.944em;}
 .creature.ghosted{opacity: .25;}
 
 /*-----Magma Spawn----*/
-#creatureWrapper .creature.type_L2{ 
+#creatureWrapper .creature.type_4{ 
 	width: 206px;
 	height: 148px;
 	margin-top: -104px;
@@ -289,13 +289,13 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transform-origin:65% 100%;
 	background: url("../../bestiary/Magma Spawn/cardboard.png");
 }
-#creatureWrapper div.creature.flipped.type_L2{ 
+#creatureWrapper div.creature.flipped.type_4{ 
 	-webkit-transform-origin:48% 100%; 
 	-moz-transform-origin:48% 100%; 
 }
 
 /*-----Snow Bunny----*/
-#creatureWrapper .creature.type_S1{ 
+#creatureWrapper .creature.type_12{ 
 	width: 95px;
 	height: 125px;
 	margin-top: -80px;
@@ -304,13 +304,13 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transform-origin:65% 100%;
 	background: url("../../bestiary/Snow Bunny/cardboard.png");
 }
-#creatureWrapper div.creature.flipped.type_S1{ 
+#creatureWrapper div.creature.flipped.type_12{ 
 	-webkit-transform-origin:48% 100%; 
 	-moz-transform-origin:48% 100%; 
 }
 
 /*-----Impaler----*/
-#creatureWrapper .creature.type_S6{ 
+#creatureWrapper .creature.type_5{ 
 	width: 225px;
 	height: 202px;
 	margin-top: -163px;
@@ -321,13 +321,13 @@ div.row:nth-child(9){top:38.944em;}
 
 	background: url("../../bestiary/Impaler/cardboard.png");
 }
-#creatureWrapper div.creature.flipped.type_S6{ 
+#creatureWrapper div.creature.flipped.type_5{ 
 	-webkit-transform-origin:48% 100%; 
 	-moz-transform-origin:48% 100%; 
 }
 
 /*-----Swine Thug----*/
-#creatureWrapper .creature.type_A1{ 
+#creatureWrapper .creature.type_37{ 
 	width: 140px;
 	height: 190px;
 	margin-top: -140px;
@@ -338,13 +338,13 @@ div.row:nth-child(9){top:38.944em;}
 
 	background: url("../../bestiary/Swine Thug/cardboard.png");
 }
-#creatureWrapper div.creature.flipped.type_A1{ 
+#creatureWrapper div.creature.flipped.type_37{ 
 	-webkit-transform-origin:46% 100%; 
 	-moz-transform-origin:46% 100%; 
 }
 
 /*-----Uncle Fungus----*/
-#creatureWrapper .creature.type_G3{ 
+#creatureWrapper .creature.type_3{ 
 	width: 165px;
 	height: 195px;
 	margin-top: -123px;
@@ -355,13 +355,13 @@ div.row:nth-child(9){top:38.944em;}
 
 	background: url("../../bestiary/Uncle Fungus/cardboard.png");
 }
-#creatureWrapper div.creature.flipped.type_G3{ 
+#creatureWrapper div.creature.flipped.type_3{ 
 	-webkit-transform-origin:46% 100%; 
 	-moz-transform-origin:46% 100%; 
 }
 
 /*-----Chimera----*/
-#creatureWrapper .creature.type_P6{ 
+#creatureWrapper .creature.type_45{ 
 	width: 300px;
 	height: 220px;
 	margin-top: -158px;
@@ -372,13 +372,13 @@ div.row:nth-child(9){top:38.944em;}
 
 	background: url("../../bestiary/Chimera/cardboard.png");
 }
-#creatureWrapper div.creature.flipped.type_P6{ 
+#creatureWrapper div.creature.flipped.type_45{ 
 	-webkit-transform-origin:49% 100%; 
 	-moz-transform-origin:49% 100%; 
 }
 
 /*-----Dark Priest----*/
-#creatureWrapper .creature.type_--{
+#creatureWrapper .creature.type_0{
 	width: 108px;
 	height: 200px;
 	margin-top: -148px;
@@ -388,11 +388,11 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transform-origin:27% 100%; /* Safari and Chrome */
 	background-image: url("../../bestiary/Dark Priest/cardboard-red.png");
 }
-#creatureWrapper .creature.type_--.p0{background-image: url("../../bestiary/Dark Priest/cardboard-red.png");}
-#creatureWrapper .creature.type_--.p1{background-image: url("../../bestiary/Dark Priest/cardboard-blue.png");}
-#creatureWrapper .creature.type_--.p2{background-image: url("../../bestiary/Dark Priest/cardboard-orange.png");}
-#creatureWrapper .creature.type_--.p3{background-image: url("../../bestiary/Dark Priest/cardboard-green.png");}
-#creatureWrapper div.creature.flipped.type_--{ 
+#creatureWrapper .creature.type_0.p0{background-image: url("../../bestiary/Dark Priest/cardboard-red.png");}
+#creatureWrapper .creature.type_0.p1{background-image: url("../../bestiary/Dark Priest/cardboard-blue.png");}
+#creatureWrapper .creature.type_0.p2{background-image: url("../../bestiary/Dark Priest/cardboard-orange.png");}
+#creatureWrapper .creature.type_0.p3{background-image: url("../../bestiary/Dark Priest/cardboard-green.png");}
+#creatureWrapper div.creature.flipped.type_0{ 
 	-webkit-transform-origin:39% 100%;
 	-moz-transform-origin:39% 100%;
 }
@@ -400,7 +400,8 @@ div.row:nth-child(9){top:38.944em;}
 /*-----------------EFFECTS-------------------*/
 
 #creatureWrapper .damage,
-#creatureWrapper .healing{
+#creatureWrapper .healing,
+#creatureWrapper .msg_effects{
 	font-size: 220%;
 	color: red;
 	font-style: italic;
@@ -409,13 +410,15 @@ div.row:nth-child(9){top:38.944em;}
 	display: block;
 	position: absolute;
 	height: 50px;
-	width: 100px;
-	margin-left: -50px;
+	width: 500px;
+	margin-left: -250px;
 	top:0px;
 	left: 50%;
 	text-align: center;
+	white-space: nowrap;
 }
-#creatureWrapper .healing{color: green}
+#creatureWrapper .healing{color: green;}
+#creatureWrapper .msg_effects{color: yellow;}
 
 #creatureWrapper .health{
 	position: absolute;
@@ -448,6 +451,7 @@ div.row:nth-child(9){top:38.944em;}
 #creatureWrapper .p3.health{border-color: green;}
 
 #creatureWrapper .flipped .damage,
+#creatureWrapper .flipped .msg_effects,
 #creatureWrapper .flipped .healing{ 
 	-webkit-transform: scale(-1,1); 
 	-ms-transform: scale(-1,1); 

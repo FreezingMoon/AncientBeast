@@ -55,12 +55,50 @@ var Game = Class.create({
 		this.nextQueue = []; //next round queue
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
-		this.availableCreatures = ["--","A1","G3","L2","P6","S1","S6"];
+		this.availableCreatures = [
+			0, //Dark Priest
+			37, //Swine Thug
+			3, //Uncle Fungus
+			4, //Magma Spawn
+			45, //Chimera
+			12, //Snow Bunny
+			5]; //Impaler
 		this.inputMethod = "Mouse";
 
 		//Gameplay
 		this.firstKill = false;
 		this.freezedInput = false;
+
+		$j("#loader").show();
+		$j("#gamesetupcontainer").hide();
+
+		//Get JSON files
+		var i = 0;
+		this.availableCreatures.each(function(){
+			$j.getJSON("./datas.php?id="+this, function(data) {
+				G.creatureDatas.push(data);
+				i++;
+
+				var d=document,
+				h=d.getElementsByTagName('head')[0],
+				s=d.createElement('script');
+				s.type='text/javascript';
+				s.defer=true;
+				s.src='../bestiary/'+data.name+'/abilities.js';
+				h.appendChild(s);
+				//TODO We should wait before this loads up
+
+				//For code compatibility
+				var index = G.availableCreatures.indexOf(data.id);
+				G.availableCreatures[index] = data.type;
+
+				if(i==G.availableCreatures.length){ //If all creature are loaded
+					$j("#loader").hide();
+					$j("#gamesetupcontainer").show();
+				}
+			});
+		});
+
 	},
 
 
@@ -84,20 +122,8 @@ var Game = Class.create({
 		}
 		setupOpt = $j.extend(defaultOpt,setupOpt);
 		$j.extend(this,setupOpt);
-
-		$j("#loader").show();
-
-		//Get JSON files
-		var i = 0;
-		this.availableCreatures.each(function(){
-			$j.getJSON("./datas.php?id="+this, function(data) {
-				G.creatureDatas.push(data);
-				i++;
-				if(i==G.availableCreatures.length){ //If all creature are loaded
-					G.setup(G.nbrPlayer);
-				}
-			});
-		});
+		
+		G.setup(G.nbrPlayer);
 	},
 
 
@@ -238,7 +264,7 @@ var Game = Class.create({
 			if(this.delayQueue.length > 0){
 				this.activeCreature = this.delayQueue[0]; //set new creature active
 				this.delayQueue = this.delayQueue.slice(1); //and remove it from the queue
-				this.debuglog("Delayed Creature");
+				console.log("Delayed Creature");
 			}else{
 				this.nextRound(); //Go to next Round
 				return; //End function
@@ -386,6 +412,16 @@ var Game = Class.create({
 		};
 	},
 
+	/* 	Regex Test for triggers */
+	triggers : {
+		onStepIn : new RegExp('onStepIn', 'i'),
+		onStartPhase : new RegExp('onStartPhase', 'i'),
+		onEndPhase : new RegExp('onEndPhase', 'i'),
+		onMovement : new RegExp('onMovement', 'i'),
+		onQuery : new RegExp('onQuery', 'i'),
+		onDamage : new RegExp('onDamage', 'i'),
+	},
+	
 
 	/*	endGame()
 	*

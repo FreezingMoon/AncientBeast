@@ -79,27 +79,25 @@ function db_query($query) {
 	return true;
 }
 
-$id = ( !is_string($_GET["id"]) )? "--" : $_GET["id"];
+$id = (int)$_GET["id"];
 
 global $site_root; // from global.php
-
-$sin = ucfirst(substr($id,0,1));
-$lvl = substr($id,1,1);
 
 $ab_creatures = "SELECT ab_creatures.*, ab_stats.*, ab_abilities.* FROM ab_creatures
 					LEFT JOIN ab_stats ON ab_creatures.id = ab_stats.id
 					LEFT JOIN ab_abilities ON ab_creatures.id = ab_abilities.id
-					WHERE ab_creatures.sin = '$sin' AND ab_creatures.lvl = '$lvl' ";
+					WHERE ab_creatures.id = '$id' ";
 
 $r = db_query($ab_creatures);
 $r = $r[0];
 
 $datas = array();
 
-$datas["type"] = $sin.$lvl;
+$datas["id"] = (int)$r["id"];
+$datas["type"] = $r["sin"].$r["lvl"];
 $datas["name"] = $r["name"];
-$datas["lvl"] = $lvl;
-$datas["realm"] = $sin;
+$datas["lvl"] = $r["lvl"];;
+$datas["realm"] = $r["sin"];;
 $datas["size"] = (int)$r["hex"];
 $datas["stats"] = array(
 	'health' => (int)$r["health"],

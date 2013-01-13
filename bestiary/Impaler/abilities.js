@@ -3,7 +3,7 @@
 *	Impaler abilities
 *
 */
-abilities["S6"] =[
+abilities[5] =[
 
 // 	Passive Ability Armor Penetration
 {
@@ -16,16 +16,10 @@ abilities["S6"] =[
 
 
 
-// 	First Ability
+// 	First Ability Jab Attack
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	//	Title
-	title : "Jab Attack",
-
-	//	Description
-	desc : "Horn attack that does bonus pierce damage based on distance traveled.",
 
 	damages : {
 		pierce : 20
@@ -99,16 +93,10 @@ abilities["S6"] =[
 
 
 
-// 	Second Ability
+// 	Second Ability Static Charge
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	//	Title
-	title : "Static Charge",
-
-	//	Description
-	desc : "Shakes hair to create friction and imbue next attack with lightning.",
 
 	// 	require() :
 	require : function(){return true;},
@@ -130,16 +118,10 @@ abilities["S6"] =[
 
 
 
-// 	Third Ability
+// 	Third Ability Envenom
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	//	Title
-	title : "Envenom",
-
-	//	Description
-	desc : "Makes use of tongue to smear the horn with highly venomous saliva.",
 
 	// 	require() :
 	require : function(){return true;},

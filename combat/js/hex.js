@@ -238,11 +238,7 @@ var HexGrid = Class.create({
 
 		var defaultOpt = {
 			fnOnConfirm : function(crea,args){ G.activeCreature.queryMove(); },
-			fnOnSelect : function(crea,args){
-				crea.hexagons.each(function(){
-					this.$overlay.addClass("creature selected player"+crea.team);
-				});
-			},
+			fnOnSelect : function(crea,args){ crea.tracePosition({ overlayClass: "creature selected player"+crea.team }); },
 			fnOnCancel : function(hex,args){G.activeCreature.queryMove()},
 			args : {},
 			hexs : [],
@@ -911,7 +907,7 @@ var Hex = Class.create({
 	activateTrap: function(trigger, target){
 		if(!this.trap) return;
 		this.trap.effects.each(function(){
-			if(this.trigger == trigger){
+			if( trigger.test(this.trigger) ){
 				G.log("Trap triggered");
 				this.activate(target);
 			}

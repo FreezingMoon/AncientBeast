@@ -3,7 +3,7 @@
 *	Dark Priest abilities
 *
 */
-abilities["--"] =[
+abilities[0] =[
 
 // 	First Ability Artificial Satellite
 {

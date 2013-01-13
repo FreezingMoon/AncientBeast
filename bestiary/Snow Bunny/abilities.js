@@ -3,7 +3,7 @@
 *	Snow Bunny abilities
 *
 */
-abilities["S1"] =[
+abilities[12] =[
 
 // 	First Ability Bunny Hopping
 {

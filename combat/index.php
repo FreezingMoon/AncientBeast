@@ -106,20 +106,6 @@ function db_query($query) {
 		<script type="text/javascript" src="./js/ui.js"></script>
 		<script type="text/javascript" src="./js/script.js"></script>
 
-		<script type="text/javascript" src="../bestiary/Dark Priest/abilities.js"></script>
-
-		<script type="text/javascript" src="../bestiary/Swine Thug/abilities.js"></script>
-
-		<script type="text/javascript" src="../bestiary/Magma Spawn/abilities.js"></script>
-
-		<script type="text/javascript" src="../bestiary/Uncle Fungus/abilities.js"></script>
-
-		<script type="text/javascript" src="../bestiary/Chimera/abilities.js"></script>
-
-		<script type="text/javascript" src="../bestiary/Snow Bunny/abilities.js"></script>
-		<script type="text/javascript" src="../bestiary/Impaler/abilities.js"></script>
-
-
 		<!--google analytics-->	
 		<script type="text/javascript">
 		var _gaq = _gaq || [];

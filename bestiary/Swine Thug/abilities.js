@@ -3,7 +3,7 @@
 *	Swine Thug abilities
 *
 */
-abilities["A1"] =[
+abilities[37] =[
 
 // 	First Ability  Spa Mud
 {

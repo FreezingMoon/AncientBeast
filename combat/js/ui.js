@@ -148,7 +148,7 @@ var UI = Class.create({
 					$stat.text(value);
 				}
 			});
-			$j.each(abilities[stats.type],function(key,value){
+			$j.each(abilities[stats.id],function(key,value){
 				$ability = $j("#card .card.verso .abilities .ability:eq("+key+")");
 				$ability.children('.icon').css({"background-image":"url('../bestiary/"+stats.name+"/"+key+".svg')"});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.abilities_infos[key].title);

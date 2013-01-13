@@ -3,7 +3,7 @@
 *	Magma Spawn abilities
 *
 */
-abilities["L2"] =[
+abilities[4] =[
 
 // 	First Ability  Infernal Temper
 {

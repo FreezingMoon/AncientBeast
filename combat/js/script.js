@@ -10,6 +10,5 @@ $j(document).ready(function(){
 			turnTimePool : $j('select[name="time_turn"]').val()-0,
 		};
 		G.loadGame(gameconfig);
-		$j("#gamesetupcontainer").remove();
 	});
 });

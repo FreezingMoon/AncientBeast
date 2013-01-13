@@ -9,7 +9,7 @@ var Ability = Class.create({
 		this.used = false;
 		this.id = abilityID;
 		var datas = G.retreiveCreatureStats(creature.type);
-		$j.extend(this,abilities[creature.type][abilityID],datas.abilities_infos[abilityID]);
+		$j.extend(this,abilities[datas.id][abilityID],datas.abilities_infos[abilityID]);
 	},
 
 
@@ -91,7 +91,7 @@ var Ability = Class.create({
 		for (var i = 0; i < targets.length; i++) {
 			if(targets[i]===undefined) continue;
 			dmg = new Damage(attacker,type,damages,targets[i].hexsHit,effects)
-			multiKill += targets[i].target.takeDamage(dmg);
+			multiKill += (targets[i].target.takeDamage(dmg).kill+0);
 		};
 		if(multiKill>1)	attacker.player.score.push({type:"combo",kills:multiKill});
 	}
@@ -131,18 +131,20 @@ var Damage = Class.create({
 		var trg = target.stats;
 		var dmg = this;
 		var atk = dmg.attacker.stats;
-		var dmgTotal = 0;
+		var returnObj = {total:0};
 
 		//DAMAGE CALCULATION
 		$j.each(this.damages,function(key,value){
 			if(key=="pure"){ //Bypass defense calculation
-				dmgTotal += value;
+				var points = value;
 			}else{
-				dmgTotal += Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
+				var points = Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
 			}
+			returnObj[key] = points;
+			returnObj.total += points;
 		});
 
-		return dmgTotal;
+		return returnObj;
 	},
 
 });
@@ -180,6 +182,7 @@ var Effect = Class.create({
 	},
 
 	activate: function(arg){
+		console.log("Effect "+this.name+" triggered");
 		this.effectFn(this,arg);
 	},
 
@@ -188,6 +191,8 @@ var Effect = Class.create({
 		this.target.effects.splice(i,1);
 		i = G.effects.indexOf(this);
 		G.effects.splice(i,1);
+		this.target.updateAlteration();
+		console.log("Effect "+this.name+" deleted");
 	},
 
 });

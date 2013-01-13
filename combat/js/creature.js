@@ -81,7 +81,7 @@ var Creature = Class.create({
 		this.updateHex();
 
 		//Creating Html representation of creature
-		this.$display = G.grid.$creatureW.append('<div id="crea'+this.id +'" class="creature type_'+this.type+' p'+this.team+'"><div class="effects"></div></div>').children("#crea"+this.id).hide();
+		this.$display = G.grid.$creatureW.append('<div id="crea'+this.id +'" class="creature type_'+obj.id+' p'+this.team+'"><div class="effects"></div></div>').children("#crea"+this.id).hide();
 		this.$effects = this.$display.children(".effects");
 
 		this.$display.css(this.hexagons[this.size-1].displayPos); //translate to its real position
@@ -125,20 +125,27 @@ var Creature = Class.create({
 	*/
 	activate: function(){
 		this.travelDist = 0;
+		var crea = this;
 
 		if(!this.hasWait){
 			this.remainingMove = this.stats.movement;
 			this.abilities.each(function(){ this.setUsed(false); });
 
-			G.log(this.player.name+"'s "+this.name+" ");
 			this.heal(this.stats.regrowth);
 
 			//Passive abilities
 			this.abilities.each(function(){
-				if(this.trigger == "onStartPhase"){
+				if( G.triggers.onStartPhase.test(this.trigger) ){
 					if( this.require() ){
-						this.activate();
+						this.activate(crea);
 					}
+				}
+			});
+
+			//Passive effects
+			this.effects.each(function(){
+				if( G.triggers.onStartPhase.test(this.trigger) ){
+					this.activate(crea);
 				}
 			});
 		}
@@ -159,6 +166,15 @@ var Creature = Class.create({
 	deactivate: function(wait){
 		this.hasWait = !!wait;
 		G.grid.updateDisplay(); //Retrace players creatures
+
+		//effects triggers
+		if(!wait){
+			this.effects.each(function(){
+				if( G.triggers.onEndPhase.test(this.trigger) ){
+					this.activate(this);
+				}
+			});
+		}
 	},
 
 
@@ -219,9 +235,7 @@ var Creature = Class.create({
 		var crea = this;
 		G.grid.cleanOverlay("hover h_player"+crea.team);
 		if(!G.grid.hexs[hex.y][hex.x].isWalkable(crea.size,crea.id)) return; //break if not walkable
-		for (var i = 0; i < crea.size; i++) {
-			G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("hover h_player"+crea.team);
-		}
+		crea.tracePosition({ x: hex.x, y: hex.y, overlayClass: "hover h_player"+crea.team });
 	},
 
 
@@ -232,10 +246,7 @@ var Creature = Class.create({
 	*/
 	cleanHex: function(){
 		var creature = this; //Escape Jquery namespace
-		this.hexagons.each(function(){ 
-			this.$overlay.removeClass("creature player"+creature.team); 
-			this.creature = 0;
-		})
+		this.hexagons.each(function(){ this.creature = 0; })
 		this.hexagons = [];
 	},
 
@@ -252,7 +263,6 @@ var Creature = Class.create({
 		}
 
 		this.hexagons.each(function(){ 
-			this.$display.addClass("creature player"+creature.team);
 			this.creature = creature.id;
 		})
 	},
@@ -267,6 +277,7 @@ var Creature = Class.create({
 	*
 	*/
 	moveTo: function(hex,opts){
+
 		defaultOpt = {
 			callback : function(){return true;},
 			animation : "walk",
@@ -322,9 +333,11 @@ var Creature = Class.create({
 				creature.$display.removeClass("flipped");
 				currentHex = path[thisHexId];
 
+				creature.cleanHex();
 				creature.x 		= currentHex.x - 0;
 				creature.y 		= currentHex.y - 0;
 				creature.pos 	= currentHex.pos;
+				creature.updateHex();
 
 				if(!opts.ignoreMovementPoint){
 					creature.travelDist++;
@@ -332,14 +345,22 @@ var Creature = Class.create({
 					//Trap
 					for (var i = 0; i < creature.size; i++) {
 						if(G.grid.hexExists(currentHex.y,currentHex.x-i))
-							G.grid.hexs[currentHex.y][currentHex.x-i].activateTrap("onStepIn",creature);
+							G.grid.hexs[currentHex.y][currentHex.x-i].activateTrap(G.triggers.onStepIn,creature);
 					};
 					//Passive abilities
 					creature.abilities.each(function(){
-						if(this.trigger == "onStepIn"){
+						if( G.triggers.onStepIn.test(this.trigger) ){
 							if( this.require(currentHex) ){
-								damage = this.activate(currentHex);
+								this.activate(currentHex);
 							}
+						}
+					});
+
+					//Passive effects
+					creature.effects.each(function(){
+						if( G.triggers.onStepIn.test(this.trigger) ){
+							console.log(this);
+							this.activate(currentHex);
 						}
 					});
 				}
@@ -356,7 +377,6 @@ var Creature = Class.create({
 				}else{
 					creature.$display.clearQueue(); //Stop the creature
 
-					creature.updateHex();
 					G.grid.updateDisplay();
 
 					//TODO turn around animation
@@ -400,18 +420,35 @@ var Creature = Class.create({
 		if( path.length == 0 ) return; //Break if empty path
 
 		path.each(function(){ 
-			for (var i = 0; i < creature.size; i++) {
-				G.grid.hexs[this.y][this.x-i].$display.addClass("adj"); 
-			};
+			creature.tracePosition({ x: this.x, y: this.y, displayClass: "adj" });
 		}) //trace path
 
 
 		//highlight final position
 		var last = path.last()
-		for (var i = 0; i < creature.size; i++) {
-			G.grid.hexs[last.y][last.x-i].$overlay.addClass("creature moveto selected player"+creature.team);
+
+		creature.tracePosition({ x: last.x, y: last.y, overlayClass: "creature moveto selected player"+creature.team });
+
+	},
+
+
+	tracePosition: function(args){
+		var crea = this;
+
+		var defaultArgs = {
+			x : crea.x,
+			y : crea.y,
+			overlayClass : "",
+			displayClass : "",
 		};
 
+		args = $j.extend(defaultArgs,args);
+
+		for (var i = 0; i < crea.size; i++) {
+			var hex = G.grid.hexs[args.y][args.x-i];
+			hex.$overlay.addClass(args.overlayClass);
+			hex.$display.addClass(args.displayClass);
+		};
 	},
 
 
@@ -519,14 +556,14 @@ var Creature = Class.create({
 	*
 	* 	damage : 	Damage : 	Damage object
 	*
-	*	return : 	Integer : 	1 if killed, 0 if not	
+	*	return : 	Object : 	Contains damages dealed and if creature is killed or not
 	*/
 	takeDamage: function(damage){
 		var creature = this;
 
 		//Passive abilities
 		this.abilities.each(function(){
-			if(this.trigger == "onDamage"){
+			if( G.triggers.onDamage.test(this.trigger) ){
 				if( this.require(damage) ){
 					damage = this.activate(damage);
 				}
@@ -537,7 +574,8 @@ var Creature = Class.create({
 		if(damage.status == ""){
 
 			//Damages
-			var dmgAmount = damage.apply(this);
+			var dmg = damage.apply(this);
+			var dmgAmount = dmg.total;
 			this.health -= dmgAmount;
 
 			//Effects
@@ -560,8 +598,10 @@ var Creature = Class.create({
 			if(this.health <= 0){
 				this.health = 0; //Cap
 				this.die(damage.attacker);
-				return 1; //Killed
+				return {damages:dmg, kill:true}; //Killed
 			}
+
+			return {damages:dmg, kill:false}; //Not Killed
 		}else{
 			if(damage.status == "Dodged"){ //If dodged
 				G.log(this.player.name+"'s "+this.name+" dodged the attack");
@@ -581,7 +621,7 @@ var Creature = Class.create({
 			$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
 		}
 
-		return 0; //Not killed
+		return {kill:false}; //Not killed
 	},
 
 
@@ -598,6 +638,11 @@ var Creature = Class.create({
 		this.effects.push(effect);
 		this.updateAlteration();
 		//TODO add visual feeback
+		var $tooltip = this.$effects.append('<div class="msg_effects">'+effect.name+'</div>').children(".msg_effects");
+		//Damage animation
+		$tooltip.transition({top:-20,opacity:0},2000,function(){ $tooltip.remove(); }); 
+
+		G.log(this.player.name+"'s "+this.name+" is affected by "+effect.name);
 	},
 
 	/* 	updateAlteration()
