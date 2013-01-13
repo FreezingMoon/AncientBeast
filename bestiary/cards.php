@@ -163,7 +163,7 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 	global $stats2;
 
 
-	if( $id != -1 || !is_array($r) ){
+	if( $id != -1 && !is_array($r) ){
 		$ab_id = mysql_real_escape_string($id);
 
 		$ab_creatures = "SELECT ab_creatures.*, ab_stats.*, ab_abilities.* FROM ab_creatures
@@ -184,7 +184,8 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 	<table class="center" border=0>
 		<th class="card recto" style="background-image: url(\'' . $site_root . 'bestiary/' . $r['name'] . '/artwork.jpg\');">
 			<a href="#' . $underscore . '" class="section cardborder">';
-				if ($embed == 1) echo '<div class="embed">' . $r['embed'] . '</div>';
+				//Display 3d creature if option enabled
+				if ($embed == 1) echo '<div class="embed"><iframe frameborder="0" height="520" width="400" src="http://sketchfab.com/embed/' . $r['embed'] . '?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe></div>';
 				echo '<table class="section info sin' . $r['sin'] . '">
 					<tr>
 						<td class="type" style="width:20%;">'.$r['sin'].$r['lvl'].'</td>
