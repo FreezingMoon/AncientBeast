@@ -201,7 +201,7 @@ function db_query($query) {
 
 					Location : 
 					<select name="background">
-						<option value="random">Random location</option>
+						<option value="random">Random Place</option>
 						<option value="Dark Forest">Dark Forest</option>
 						<option value="Frozen Skull">Frozen Skull</option>
 						<option value="Shadow Cave">Shadow Cave</option>
