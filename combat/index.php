@@ -1,4 +1,3 @@
-<title>Ancient Beast 0.1</title>
 <?php
 /* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
  * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
@@ -84,7 +83,10 @@ function db_query($query) {
 ?>
 <html>
 	<head>
-		<meta charset='utf-8'> 
+		<meta charset='utf-8'>
+
+		<title>Ancient Beast 0.1</title>
+
 		<link rel="stylesheet" type="text/css" href="./css/style.css">
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -199,6 +201,7 @@ function db_query($query) {
 
 					Location : 
 					<select name="background">
+						<option value="random">Random location</option>
 						<option value="Dark Forest">Dark Forest</option>
 						<option value="Frozen Skull">Frozen Skull</option>
 						<option value="Shadow Cave">Shadow Cave</option>
