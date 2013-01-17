@@ -192,7 +192,7 @@ function db_query($query) {
 				</div> -->
 
 
-				<form id="gamesetup" action="javascript:0;">
+				<form id="gamesetup">
 					Players : 
 					<select name="nbrplayer">
 						<option value="2">1vs1</option>

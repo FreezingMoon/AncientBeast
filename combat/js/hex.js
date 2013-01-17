@@ -713,9 +713,17 @@ var Hex = Class.create({
 		this.$overlay = $j('#hexsoverlay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object
 		this.$input = $j('#hexsinput .hex[x="'+x+'"][y="'+y+'"]'); //Input Jquery object
 		
-		this.displayPos = (y%2 == 0) ? //IF EVEN ROW
-			{left:46+x*90 ,top:y*78 } : //TRUE
-			{left:x*90 ,top:y*78 } ; //FALSE
+		this.displayPos = {top:y*78};
+		this.displayPos.left = (y%2 == 0) ? 46+x*90 : x*90;
+
+		var ymax = $j("#grid").height();
+		var xmax = $j("#grid").width();
+
+		var xmult = (this.displayPos.left/xmax-.5)*(this.displayPos.top/ymax-.5)*-4;
+		var ymult = Math.pow((this.displayPos.top/ymax)*2,2);
+
+		this.displayPos.left = this.displayPos.left-Math.round(xmult*60);
+		this.displayPos.top = 125+y*78/1.68+Math.round(ymult*21);
 
 		this.trap = undefined;
 	},

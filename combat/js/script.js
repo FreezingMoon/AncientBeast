@@ -15,5 +15,6 @@ $j(document).ready(function(){
 			gameconfig.background_image = $j('select[name="background"] option:nth-child(' + index + ")").attr("value");
 		}
 		G.loadGame(gameconfig);
+		return false; //prevent submit
 	});
 });

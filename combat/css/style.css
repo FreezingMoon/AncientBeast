@@ -32,12 +32,8 @@ body{
 	min-height: 1080px;
 	background: url('../../locations/Dark Forest/bg.jpg');
 	background-repeat: repeat-x repeat-y;
-	-webkit-perspective: 3000px;
-	-webkit-perspective-origin: 50% 50%;
-	-moz-perspective: 3000px;
-	-moz-perspective-origin: 50% 50%;
-	perspective: 3000px;
-	perspective-origin: 50% 50%;
+
+
 	/*padding: 277px 0 0 0;*/
 /*	position: absolute;
 	top:0px;
@@ -50,27 +46,52 @@ body{
 	-o-transform-origin:0% 0%; /* Opera */
 
 	/*Shadow*/
-	-moz-box-shadow: 0px 0px 200px black;
+/*	-moz-box-shadow: 0px 0px 200px black;
 	-webkit-box-shadow: 0px 0px 200px black;
-	box-shadow: 0px 0px 200px black;
+	box-shadow: 0px 0px 200px black; */
 }
 
 #grid{
+
+	-webkit-perspective: 3000px;
+	-webkit-perspective-origin: 50% 50%;
+	-moz-perspective: 3000px;
+	-moz-perspective-origin: 50% 50%;
+	perspective: 3000px;
+	perspective-origin: 50% 50%;
+
 	width: 90.1em;
 	height: 45em;
 	position: relative;
 	top: 327px;
 	margin: 0 auto 0 auto;
+
+}
+
+#hexsinput, #hexsdisplay,#creatureWrapper, #hexsoverlay, #trapWrapper{
+	position: relative;
+	top: 0px;
+	left: 0px;
+
+	transform-origin:45.05em 22.5em;
+	-ms-transform-origin:45.05em 22.5em; /* IE 9 */
+	-webkit-transform-origin:45.05em 22.5em; /* Safari and Chrome */
+	-moz-transform-origin:45.05em 22.5em; /* Firefox */
+	-o-transform-origin:45.05em 22.5em; /* Opera */
+}
+
+#hexsinput, #hexsdisplay, #hexsoverlay, #trapWrapper{
 	-webkit-transform: rotateX(45deg) ;
 	-moz-transform: rotateX(45deg) ;
 	transform: rotateX(45deg) ;
 }
 
-#hexsinput, #hexsdisplay, #creatureWrapper, #hexsoverlay, #trapWrapper{
-	position: relative;
-	top: 0px;
-	left: 0px;
+#creatureWrapper{
+	-webkit-transform: translateZ(-3000px) scale(2,2);
+	-moz-transform: translateZ(-3000px) scale(2,2);
+	transform: translateZ(-3000px) scale(2,2);
 }
+
 #hexsdisplay{z-index: 1; opacity: .5;}
 #hexsoverlay{z-index: 2;}
 #creatureWrapper{z-index: 3;}
@@ -235,12 +256,6 @@ div.row:nth-child(9){top:38.944em;}
 #hexsdisplay .displayhex.creature.hidden{ opacity: 0 !important; }
 
 /*------------------Creatures------------------*/
-#grid #creatureWrapper{
-	-webkit-perspective: 3000px;
-	-webkit-perspective-origin: 50% 50%;
-	-moz-perspective: 3000px;
-	-moz-perspective-origin: 50% 50%;
-}
 
 #creatureWrapper .creature .effects{
 	position: relative;
@@ -258,22 +273,14 @@ div.row:nth-child(9){top:38.944em;}
 	-moz-transition: opacity 500ms; /* Firefox 4 */
 	-webkit-transition: opacity 500ms; /* Safari and Chrome */
 	-o-transition: opacity 500ms; /* Opera */
-
-	/*Rectify distortion due to grid perspective*/
-	transform: rotateX(-33deg) scale(1,1.8) ;
-	-ms-transform: rotateX(-33deg) scale(1,1.8) ; /* IE 9 */
-	-moz-transform: rotateX(-33deg) scale(1,1.8) ; /* Firefox */
-	-webkit-transform: rotateX(-33deg) scale(1,1.8) ; /* Safari and Chrome */
-	-o-transform: rotateX(-33deg) scale(1,1.8) ; /* Opera */
 }
 
 #creatureWrapper div.creature.flipped{
-	/*Rectify distortion due to grid perspective*/
-	transform: rotateX(-33deg) scale(-1,1.8) ;
-	-ms-transform: rotateX(-33deg) scale(-1,1.8) ; /* IE 9 */
-	-moz-transform: rotateX(-33deg) scale(-1,1.8) ; /* Firefox */
-	-webkit-transform: rotateX(-33deg) scale(-1,1.8) ; /* Safari and Chrome */
-	-o-transform: rotateX(-33deg) scale(-1,1.8) ; /* Opera */
+	transform: scale(-1,1) ;
+	-ms-transform: scale(-1,1) ; /* IE 9 */
+	-moz-transform: scale(-1,1) ; /* Firefox */
+	-webkit-transform: scale(-1,1) ; /* Safari and Chrome */
+	-o-transform: scale(-1,1) ; /* Opera */
 }
 
 .creature.ghosted{opacity: .25;}
@@ -282,7 +289,7 @@ div.row:nth-child(9){top:38.944em;}
 #creatureWrapper .creature.type_4{ 
 	width: 206px;
 	height: 148px;
-	margin-top: -104px;
+	margin-top: -124px;
 	margin-left: 35px;
 	padding: 0px 0px 10px;
 	-webkit-transform-origin:65% 100%; 
@@ -298,7 +305,7 @@ div.row:nth-child(9){top:38.944em;}
 #creatureWrapper .creature.type_12{ 
 	width: 95px;
 	height: 125px;
-	margin-top: -80px;
+	margin-top: -100px;
 	padding: 0px 0px 10px;
 	-webkit-transform-origin:65% 100%;
 	-moz-transform-origin:65% 100%;
@@ -313,7 +320,7 @@ div.row:nth-child(9){top:38.944em;}
 #creatureWrapper .creature.type_5{ 
 	width: 225px;
 	height: 202px;
-	margin-top: -163px;
+	margin-top: -181px;
 	margin-left: 28px;
 	padding: 0px 0px 10px;
 	-webkit-transform-origin:65% 100%;
@@ -322,25 +329,25 @@ div.row:nth-child(9){top:38.944em;}
 	background: url("../../bestiary/Impaler/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_5{ 
-	-webkit-transform-origin:48% 100%; 
-	-moz-transform-origin:48% 100%; 
+	-webkit-transform-origin:42% 100%; 
+	-moz-transform-origin:42% 100%; 
 }
 
 /*-----Swine Thug----*/
 #creatureWrapper .creature.type_37{ 
 	width: 140px;
 	height: 190px;
-	margin-top: -140px;
+	margin-top: -150px;
 	margin-left: -21px;
 	padding: 0px 0px 0px;
-	-webkit-transform-origin:100% 100%;
-	-moz-transform-origin:100% 100%;
+	-webkit-transform-origin:39% 100%;
+	-moz-transform-origin:39% 100%;
 
 	background: url("../../bestiary/Swine Thug/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_37{ 
-	-webkit-transform-origin:46% 100%; 
-	-moz-transform-origin:46% 100%; 
+	-webkit-transform-origin:47% 100%; 
+	-moz-transform-origin:47% 100%; 
 }
 
 /*-----Uncle Fungus----*/
@@ -350,42 +357,41 @@ div.row:nth-child(9){top:38.944em;}
 	margin-top: -123px;
 	margin-left: 11px;
 	padding: 0px 0px 0px;
-	-webkit-transform-origin:100% 100%;
-	-moz-transform-origin:100% 100%;
+	-webkit-transform-origin:63% 100%;
+	-moz-transform-origin:63% 100%;
 
 	background: url("../../bestiary/Uncle Fungus/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_3{ 
-	-webkit-transform-origin:46% 100%; 
-	-moz-transform-origin:46% 100%; 
+	-webkit-transform-origin:48% 100%; 
+	-moz-transform-origin:48% 100%; 
 }
 
 /*-----Chimera----*/
 #creatureWrapper .creature.type_45{ 
 	width: 300px;
 	height: 220px;
-	margin-top: -158px;
+	margin-top: -189px;
 	margin-left: -14px;
 	padding: 0px 0px 0px;
-	-webkit-transform-origin:100% 100%;
-	-moz-transform-origin:100% 100%;
+	-webkit-transform-origin:43% 100%;
+	-moz-transform-origin:43% 100%;
 
 	background: url("../../bestiary/Chimera/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_45{ 
-	-webkit-transform-origin:49% 100%; 
-	-moz-transform-origin:49% 100%; 
+	-webkit-transform-origin:50% 100%; 
+	-moz-transform-origin:50% 100%; 
 }
 
 /*-----Dark Priest----*/
 #creatureWrapper .creature.type_0{
 	width: 108px;
 	height: 200px;
-	margin-top: -148px;
-	margin-left: 5px;
+	margin-top: -164px;
 	padding: 0px 0px 0px;
-	-webkit-transform-origin:27% 100%; /* Safari and Chrome */
-	-moz-transform-origin:27% 100%; /* Safari and Chrome */
+	-webkit-transform-origin:-25% 100%; /* Safari and Chrome */
+	-moz-transform-origin:-25% 100%; /* Safari and Chrome */
 	background-image: url("../../bestiary/Dark Priest/cardboard-red.png");
 }
 #creatureWrapper .creature.type_0.p0{background-image: url("../../bestiary/Dark Priest/cardboard-red.png");}
@@ -393,8 +399,8 @@ div.row:nth-child(9){top:38.944em;}
 #creatureWrapper .creature.type_0.p2{background-image: url("../../bestiary/Dark Priest/cardboard-orange.png");}
 #creatureWrapper .creature.type_0.p3{background-image: url("../../bestiary/Dark Priest/cardboard-green.png");}
 #creatureWrapper div.creature.flipped.type_0{ 
-	-webkit-transform-origin:39% 100%;
-	-moz-transform-origin:39% 100%;
+	-webkit-transform-origin:46% 100%;
+	-moz-transform-origin:46% 100%;
 }
 
 /*-----------------EFFECTS-------------------*/
@@ -432,17 +438,8 @@ div.row:nth-child(9){top:38.944em;}
 	font-size: 17px;
 	text-align: center;
 	line-height: 20px;
-	margin-top: 70px;
+	margin-top: 49px;
 	margin-left: 16px;
-
-	-webkit-transform-origin:100% 100%;
-	-moz-transform-origin:100% 100%;
-
-	transform: rotateX(-33deg) scale(1,1.8) ;
-	-ms-transform: rotateX(-33deg) scale(1,1.8) ; /* IE 9 */
-	-moz-transform: rotateX(-33deg) scale(1,1.8) ; /* Firefox */
-	-webkit-transform: rotateX(-33deg) scale(1,1.8) ; /* Safari and Chrome */
-	-o-transform: rotateX(-33deg) scale(1,1.8) ; /* Opera */
 }
 
 #creatureWrapper .p0.health{border-color: red;}
