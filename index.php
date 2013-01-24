@@ -116,7 +116,6 @@ foreach ($sections as &$sectionItem) {
 <p>
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This project was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
-<?php end_segment(); ?>
 <?php separate_segment("plot"); ?>
 <h3 class="indexheader"><a href="#plot">Plot</a></h3>
 <p class="center">
