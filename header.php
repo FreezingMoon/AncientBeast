@@ -87,7 +87,7 @@ _gaq.push(['_trackPageview']);
 <body id="top">
 <!--banner-->
 <header id="header">
-<div style="margin-top: -15px; margin-bottom: 50px;"><a href="<?php echo $site_root; ?>"><img src="<?php echo $site_root; ?>images/AncientBeast.png" height="125" width="555" alt="Ancient Beast"></a>
+<div style="margin-top: -5px; margin-bottom: 50px;"><a href="<?php echo $site_root; ?>"><img src="<?php echo $site_root; ?>images/AncientBeast.png" height="125" width="555" alt="Ancient Beast"></a>
 <!--navigation menu-->
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
@@ -95,7 +95,7 @@ _gaq.push(['_trackPageview']);
   foreach ($menu as &$menuItem) {
     echo '<td>
       <a href="' . $site_root . $menuItem . '" id="' . $menuItem . '" class="lighten">
-      <img alt=" ' . ucfirst($menuItem) . '" src="' . $site_root . 'images/icons/' . $menuItem . '.png" width="100" height="100" style="display:block;">
+      <img alt=" ' . ucfirst($menuItem) . '" src="' . $site_root . 'images/icons/' . $menuItem . '.png" width="90" height="90" style="display:block;">
       ' . ucfirst($menuItem) . '</a></td>';
   } 
 ?>
