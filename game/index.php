@@ -26,7 +26,7 @@ $page_title = "Ancient Beast - Game";
 require_once("../header.php");
 require_once("../global.php");
 start_segment();
-echo "<div class='center'><a href='https://github.com/FreezingMoon/AncientBeast' target='_blank'><b>Under HEAVY development! Click here for issue tracker and github repository.</b></a></div>";
+echo "<div class='center'><a href='https://github.com/FreezingMoon/AncientBeast' target='_blank'><b>This indie game project is under HEAVY development! Click here for issue tracker and github repository.</b></a></div>";
 separate_segment();
 echo "<div class='center'><a href='http://AncientBeast.com/combat' target='_blank'><img src='launcher.jpg' width=890 height=400><h3 style='position:absolute; top:325px; left:100px;'>Launch Developer Preview [HotSeat]</h3></a></div>";
 //separate_segment();

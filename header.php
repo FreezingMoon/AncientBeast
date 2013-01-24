@@ -106,6 +106,3 @@ _gaq.push(['_trackPageview']);
 <!--main area-->
 <div id="scroll"><a href="#top"><img src="<?php echo $site_root; ?>images/AB.gif" height="32" width="32" alt="top"><br>Top</a></div>
 <div id="wrapper">
-<?php start_segment(); ?>
-<div class="center"><a href="/donate"><b>This indie free open source game project is currently in pre-alpha stage. Click here to help by donating!</b></a></div>
-<?php end_segment(); ?>

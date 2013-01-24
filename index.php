@@ -100,22 +100,25 @@ $sections = array(
 	'license'
 );
 foreach ($sections as &$sectionItem) {
-	echo '<td class="center"><a href="#' . $sectionItem . '" class="lighten"><img src="images/icons/' . $sectionItem . '.png" width="120" height="120" style="display:block;" alt="' . $sectionItem . '">' . ucfirst($sectionItem) . '</a></td>';
+	echo '<td class="center"><a href="#' . $sectionItem . '">' . ucfirst($sectionItem) . '</a></td>';
 }
 ?>
 </tr></table></nav>
 <?php end_segment(); ?>
 <article>
-<?php start_segment("intro"); ?>
+<?php start_segment(); ?>
 <div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
-<?php separate_segment("plot"); ?>
-<h3 class="indexheader"><a href="#plot">Plot</a></h3>
+<?php separate_segment("intro"); ?>
+<h3 class="indexheader"><a href="#intro">Intro</a></h3>
 <p>
-<b>Ancient Beast</b> is a turn based strategy game played online against other people, featuring a wide variety of items and creatures to aquire and put to good use in order to defeat your opponents.
+<b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of items and creatures to aquire and put to good use in order to defeat your opponents.
 </p>
 <p>
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This project was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
+<?php end_segment(); ?>
+<?php separate_segment("plot"); ?>
+<h3 class="indexheader"><a href="#plot">Plot</a></h3>
 <p class="center">
 <audio controls="controls">
 	<source src="plot.ogg" type="audio/ogg">
