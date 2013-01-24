@@ -23,10 +23,6 @@
  */
 
 $style = '
-.iconz {
-	width: 110px;
-	height: 110px;
-}
 .bigger {
 	font-size: 28px;
 }
@@ -36,10 +32,6 @@ $style = '
 	padding-top: 10px;
 	width: 890px;
 	font-weight: bold;
-}
-.sins {
-	width: 127px;
-	height: 127px;
 }
 .container > div {
     display: none
@@ -51,6 +43,7 @@ $style = '
     display: block
 }
 .sections {
+	list-style-type: none;
 	width: 100%;
 	font-size: 18px;
 	font-weight: bold;
@@ -58,7 +51,7 @@ $style = '
 	padding: 0;
 	margin-left: auto;
 	margin-right: auto;
-	text-align: center;"
+	text-align: center;
 }';
 require_once('header.php'); 
 ?>
@@ -88,7 +81,7 @@ $(document).ready(function() {
 </script>
 <?php start_segment(); ?>
 <!-- TODO: use class, inline css is just wrong -->
-<nav><table class="sections"><tr>
+<nav><ul class="sections">
 <?php
 $sections = array(
 	'intro',
@@ -100,10 +93,10 @@ $sections = array(
 	'license'
 );
 foreach ($sections as &$sectionItem) {
-	echo '<td class="center"><a href="#' . $sectionItem . '">' . ucfirst($sectionItem) . '</a></td>';
+	echo '<li style="display:inline;"><a href="#' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
 }
 ?>
-</tr></table></nav>
+</ul></nav>
 <?php end_segment(); ?>
 <article>
 <?php start_segment(); ?>
@@ -172,37 +165,37 @@ After engaging in combat, players are taken to the battle field where both parti
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.</p>
 <div style="width:840px; display:table; cursor:pointer;" class="center">
 	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/avarice.jpg'); width:127px; height:400px;"></div>
-	<img src="images/sins/A.svg" class="sins" alt="avarice"><span class="bigger">Avarice</span></div>
+	<span class="bigger">Avarice</span></div>
 	<div class="realms" style="background:url('images/realms/avarice.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge gold; padding: 15px 0px;">They like to aquire all sorts of useless things and riches by all means possible.<br>
 	Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</p></div></div>
 
 	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/envy.jpg') -127px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/E.svg" class="sins" alt="envy"><span class="bigger">Envy</span></div>
+	<span class="bigger">Envy</span></div>
 	<div class="realms" style="background:url('images/realms/envy.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge orange; padding: 15px 0px;">The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>It's located to the West side and it mainly consists of deserts and cannyons.</p></div></div>
 
 	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/gluttony.jpg') -254px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/G.svg" class="sins" alt="gluttony"><span class="bigger">Gluttony</span></div>
+	<span class="bigger">Gluttony</span></div>
 	<div class="realms" style="background:url('images/realms/gluttony.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge green; padding: 15px 0px;">Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>In the east side, where the jungles are really tall and wilde, not even the sun's waves go through. Beware of the vegetation as well and don't pet any animals!</p></div></div>
 
 	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/lust.jpg') -381px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/L.svg" class="sins" alt="lust"><span class="bigger">Lust</span></div>
+	<span class="bigger">Lust</span></div>
 	<div class="realms" style="background:url('images/realms/lust.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge red; padding: 15px 0px;">The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</p></div></div>
 
 	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/pride.jpg') -508px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/P.svg" class="sins" alt="pride"><span class="bigger">Pride</span></div>
+	<span class="bigger">Pride</span></div>
 	<div class="realms" style="background:url('images/realms/pride.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge violet; padding: 15px 0px;">They're above everyone else. Literally at least.<br>Hundreds of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div></div>
 
 	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/sloth.jpg') -635px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/S.svg" class="sins" alt="sloth"><span class="bigger">Sloth</span></div>
+	<span class="bigger">Sloth</span></div>
 	<div class="realms" style="background:url('images/realms/sloth.jpg') no-repeat; position:absolute; top:81px; left:31px;"><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge blue; padding: 15px 0px;">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div></div>
 
 	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/wrath.jpg') -762px 0; width:127px; height:400px;"></div>
-	<img src="images/sins/W.svg" class="sins" alt="wrath"><span class="bigger">Wrath</span></div>
+	<span class="bigger">Wrath</span></div>
 	<div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat; position:absolute; top:81px; left:31px;"><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge indigo; padding: 15px 0px;">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that were used for God forbidden experiments regarding genetics and bio weapons.</p></div></div>
 </div>
 
