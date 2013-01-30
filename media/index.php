@@ -137,7 +137,7 @@ case music:
 		if($file == "." || $file == "..") continue;
 		$title = substr($file, 0, -4);
 		$file = str_replace(' ', '%20', $file);
-		echo '<p>' . $title . '<br><audio controls="controls" preload="none"><source src="music/' . $file . '" type="audio/ogg">' . $error . '</audio></p>';
+		echo '<p><a href="music/' . $file . '" download>' . $title . '</a><br><audio controls="controls" preload="none"><source src="music/' . $file . '" type="audio/ogg">' . $error . '</audio></p>';
 	} echo "</div>";
 }
 
