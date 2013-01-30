@@ -109,7 +109,7 @@ case wallpapers:
 	break;
 
 case fanart:
-	echo '<div class="center">Do you want your drawing to show up in here as well? Then post it in the <a href="#comments"><b>comments</b></a> section below!</div>';
+	echo '<div class="center">Do you want your fan art to show up in here as well? Then post it in the <a href="#comments"><b>comments</b></a> section below!</div>';
 	separate_segment();
 	echo '<div class="center">';
 	$images = scandir("../media/fanart");
