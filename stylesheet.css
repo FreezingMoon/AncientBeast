@@ -85,7 +85,7 @@ img {
 A:link {text-decoration: none; color: #b7b7b7;}
 A:visited {text-decoration: none; color: #b7b7b7;}
 A:active {text-decoration: none; color: #b7b7b7;}
-A:hover {text-decoration: none; color: #e6e6e6; cursor: pointer;}
+A:hover {text-decoration: none; color: #e6e6e6; cursor: pointer; text-shadow: red 0 0 10px;}
 
 .summon {
 	background: url('bestiary/images/search_box.png') no-repeat;

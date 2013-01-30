@@ -52,6 +52,9 @@ $style = '
 	margin-left: auto;
 	margin-right: auto;
 	text-align: center;
+}
+a.FM:hover {
+	text-shadow: blue 0 0 10px;
 }';
 require_once('header.php'); 
 ?>
@@ -107,7 +110,7 @@ foreach ($sections as &$sectionItem) {
 <b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of items and creatures to aquire and put to good use in order to defeat your opponents.
 </p>
 <p>
-Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This project was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
+Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This project was carefuly designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
 <?php separate_segment("plot"); ?>
 <h3 class="indexheader"><a href="#plot">Plot</a></h3>
