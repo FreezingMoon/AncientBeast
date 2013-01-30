@@ -76,7 +76,7 @@ case artwork:
 	$i = 0;
 	foreach($images as $image) {
 		if($image == "." || $image == "..") continue;
-		$title = substr($image, 0, -4); 
+		$title = substr($image, 0, -4);
 		echo '<a id="img' . $i . '" rel="pop" href="artwork/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="artwork/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 		$i++;
 	} echo "</div>";
@@ -89,7 +89,7 @@ case screenshots:
 	$i = 0;
 	foreach($images as $image) {
 		if($image == "." || $image == "..") continue;
-		$title = substr($image, 0, -4); 
+		$title = substr($image, 0, -4);
 		echo '<a id="img' . $i . '" rel="pop" href="screenshots/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 		$i++;
 	} echo "</div>";
@@ -102,7 +102,7 @@ case wallpapers:
 	$i = 0;
 	foreach($images as $image) {
 		if($image == "." || $image == "..") continue;
-		$title = substr($image, 0, -4); 
+		$title = substr($image, 0, -4);
 		echo '<a id="img' . $i . '" rel="pop" href="wallpapers/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="wallpapers/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 		$i++;
 	} echo "</div>";
@@ -115,7 +115,7 @@ case fanart:
 	$i = 0;
 	foreach($images as $image) {
 		if($image == "." || $image == "..") continue;
-		$title = substr($image, 0, -4); 
+		$title = substr($image, 0, -4);
 		echo '<a id="img' . $i . '" rel="pop" href="fanart/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="fanart/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 		$i++;
 	} echo "</div>";
@@ -128,7 +128,17 @@ case videos:
 	break;
 
 case music:
-	echo '<div class="center">Music coming soon!</div>';
+	echo '<div class="center">';
+	$media = scandir("../media/music");
+	natsort($media);
+	$i = 0;
+	$error = 'Your browser does not support the audio element.';
+	foreach($media as $file) {
+		if($file == "." || $file == "..") continue;
+		$title = substr($file, 0, -4);
+		$file = str_replace(' ', '%20', $file);
+		echo '<p>' . $title . '<br><audio controls="controls" preload="none"><source src="music/' . $file . '" type="audio/ogg">' . $error . '</audio></p>';
+	} echo "</div>";
 }
 
 separate_segment();
