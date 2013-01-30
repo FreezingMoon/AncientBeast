@@ -122,7 +122,9 @@ case fanart:
 	break;
 
 case videos:
-	echo '<div class="center">Videos coming soon!</div>';
+	echo '<div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>';
+	separate_segment();
+	echo '<div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>';
 	break;
 
 case music:
