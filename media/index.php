@@ -109,6 +109,8 @@ case wallpapers:
 	break;
 
 case fanart:
+	echo '<div class="center">Do you want your drawing to show up in here as well? Then post it in the <a href="#comments"><b>comments</b></a> section below!</div>';
+	separate_segment();
 	echo '<div class="center">';
 	$images = scandir("../media/fanart");
 	natsort($images);
@@ -141,7 +143,7 @@ case music:
 	} echo "</div>";
 }
 
-separate_segment();
+separate_segment(comments);
 include("../utils/disqus.php");
 end_segment();
 end_page(); ?>
