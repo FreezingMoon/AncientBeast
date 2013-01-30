@@ -115,8 +115,8 @@ abilities[0] =[
 		var ability = args.ability;
 		ability.end();
 
-		var plasmaCost = target.size*2;
-		var damage = {pure: 30+target.baseStats.health-target.health};
+		var plasmaCost = target.size;
+		var damage = {pure: 25+target.baseStats.health-target.health};
 
 		ability.creature.player.plasma -= plasmaCost;
 
