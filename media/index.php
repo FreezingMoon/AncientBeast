@@ -60,23 +60,75 @@ $sections = array(
 	'music'
 );
 foreach ($sections as &$sectionItem) {
-	echo '<li style="display:inline;"><a href="#' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
+	echo '<li style="display:inline;"><a href="?type=' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
 }
 ?>
 </ul></nav>
-<?php end_segment(); ?>
-<?php
-start_segment();
-echo "<div class='center'>";
-$images = scandir("../media/artwork");
-natsort($images);
-$i = 0;
-foreach($images as $image) {
-	if($image == "." || $image == "..") continue;
-	$title = substr($image, 0, -4); 
-	echo "<a id='img{$i}' rel='pop' href='artwork/$image' title='$title'><img class='shadow' style='height:200px; margin:5px;' src='artwork/$image' title='$title'></a>";
-	$i++;
-} echo "</div>";
+<?php separate_segment();
+$type = $_GET['type'];
+if (!isset($type)) $type = 'artwork';
+switch($type)
+{
+case artwork:
+	echo '<div class="center">';
+	$images = scandir("../media/artwork");
+	natsort($images);
+	$i = 0;
+	foreach($images as $image) {
+		if($image == "." || $image == "..") continue;
+		$title = substr($image, 0, -4); 
+		echo '<a id="img' . $i . '" rel="pop" href="artwork/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="artwork/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+		$i++;
+	} echo "</div>";
+	break;
+
+case screenshots:
+	echo '<div class="center">';
+	$images = scandir("../media/screenshots");
+	natsort($images);
+	$i = 0;
+	foreach($images as $image) {
+		if($image == "." || $image == "..") continue;
+		$title = substr($image, 0, -4); 
+		echo '<a id="img' . $i . '" rel="pop" href="screenshots/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+		$i++;
+	} echo "</div>";
+	break;
+
+case wallpapers:
+	echo '<div class="center">';
+	$images = scandir("../media/wallpapers");
+	natsort($images);
+	$i = 0;
+	foreach($images as $image) {
+		if($image == "." || $image == "..") continue;
+		$title = substr($image, 0, -4); 
+		echo '<a id="img' . $i . '" rel="pop" href="wallpapers/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="wallpapers/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+		$i++;
+	} echo "</div>";
+	break;
+
+case fanart:
+	echo '<div class="center">';
+	$images = scandir("../media/fanart");
+	natsort($images);
+	$i = 0;
+	foreach($images as $image) {
+		if($image == "." || $image == "..") continue;
+		$title = substr($image, 0, -4); 
+		echo '<a id="img' . $i . '" rel="pop" href="fanart/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="fanart/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+		$i++;
+	} echo "</div>";
+	break;
+
+case videos:
+	echo '<div class="center">Videos coming soon!</div>';
+	break;
+
+case music:
+	echo '<div class="center">Music coming soon!</div>';
+}
+
 separate_segment();
 include("../utils/disqus.php");
 end_segment();

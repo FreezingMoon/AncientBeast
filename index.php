@@ -48,14 +48,14 @@ a.FM:hover {
 require_once('header.php'); 
 ?>
 <script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script type="application/javascript" src="gallery/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="application/javascript" src="gallery/fancybox/jquery.easing-1.3.pack.js"></script>
-<script type="application/javascript" src="gallery/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
-<link rel="stylesheet" href="gallery/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen" />
+<script type="application/javascript" src="media/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+<script type="application/javascript" src="media/fancybox/jquery.easing-1.3.pack.js"></script>
+<script type="application/javascript" src="media/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
+<link rel="stylesheet" href="media/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
 <script type="application/javascript">
 $(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");
-	$("a.pop").fancybox({
+	$("a[rel=pop]").fancybox({
 		'overlayColor'  : 'black',
 		'transitionIn'	: 'elastic',
 		'transitionOut'	: 'elastic',
@@ -121,14 +121,14 @@ In order to play Ancient Beast, you'll needed to register an account. After logg
 </p>
 <?php
 echo '<div class="center">';
-$images = scandir('images/combat');
+$images = scandir('media/screenshots');
 natsort($images);
 $i = 0;
 foreach($images as $image) {
 	if($image == '.' || $image == '..') continue;
 	$title = substr($image, 0, -4);
 	$image = str_replace(' ', '%20', $image);
-	echo '<a id="img' . $i . '" style="text-align:center;" class="pop" href="images/combat/' . $image . '" title="' . $title . '"><img class="shadow" style="width:280px; margin:5px;" src="images/combat/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+	echo '<a id="img' . $i . '" rel="pop" href="media/screenshots/' . $image . '" title="' . $title . '"><img class="shadow" style="width:280px; margin:5px;" src="media/screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 	$i++;
 } echo '</div>';?>
 <p>
