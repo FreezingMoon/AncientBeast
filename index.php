@@ -54,7 +54,7 @@ $style = '
 	text-align: center;
 }
 a.FM:hover {
-	text-shadow: blue 0 0 10px;
+	text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;
 }';
 require_once('header.php'); 
 ?>
@@ -140,7 +140,7 @@ foreach($images as $image) {
 	if($image == '.' || $image == '..') continue;
 	$title = substr($image, 0, -4);
 	$image = str_replace(' ', '%20', $image);
-	echo '<a id="img' . $i . '" style="text-align:center;" class="pop" href="images/combat/' . $image . '" title="' . $title . '"><img style="width:280px; margin:5px;" src="images/combat/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+	echo '<a id="img' . $i . '" style="text-align:center;" class="pop" href="images/combat/' . $image . '" title="' . $title . '"><img style="width:280px; margin:5px; box-shadow:0px 0px 10px black;" src="images/combat/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 	$i++;
 } echo '</div>';?>
 <p>
@@ -166,42 +166,44 @@ After engaging in combat, players are taken to the battle field where both parti
 <?php separate_segment("realms"); ?>
 <h3 class="indexheader"><a href="#realms">Realms</a></h3>
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.</p>
-<div style="width:840px; display:table; cursor:pointer;" class="center">
-	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/avarice.jpg'); width:127px; height:400px;"></div>
-	<span class="bigger">Avarice</span></div>
+<div style="width:889px; display:table; cursor:pointer; box-shadow:0px 0px 10px black;" class="center">
+	<div class="container" style="display:table-cell;"><div style="background:url('images/realms/avarice.jpg'); width:127px; height:400px;"></div>
 	<div class="realms" style="background:url('images/realms/avarice.jpg') no-repeat; position:absolute; top:81px; left:31px;">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, gold 0 0 10px; color: #e6e6e6;">Avarice</span>
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge gold; padding: 15px 0px;">They like to aquire all sorts of useless things and riches by all means possible.<br>
 	Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</p></div></div>
 
-	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/envy.jpg') -127px 0; width:127px; height:400px;"></div>
-	<span class="bigger">Envy</span></div>
+	<div class="container" style="display:table-cell;"><div style="background:url('images/realms/envy.jpg') -127px 0; width:127px; height:400px;"></div>
 	<div class="realms" style="background:url('images/realms/envy.jpg') no-repeat; position:absolute; top:81px; left:31px;">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, orange 0 0 10px; color: #e6e6e6;">Envy</span>
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge orange; padding: 15px 0px;">The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>It's located to the West side and it mainly consists of deserts and cannyons.</p></div></div>
 
-	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/gluttony.jpg') -254px 0; width:127px; height:400px;"></div>
-	<span class="bigger">Gluttony</span></div>
+	<div class="container" style="display:table-cell;"><div style="background:url('images/realms/gluttony.jpg') -254px 0; width:127px; height:400px;"></div>
 	<div class="realms" style="background:url('images/realms/gluttony.jpg') no-repeat; position:absolute; top:81px; left:31px;">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, green 0 0 10px; color: #e6e6e6;">Gluttony</span>
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge green; padding: 15px 0px;">Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>In the east side, where the jungles are really tall and wilde, not even the sun's waves go through. Beware of the vegetation as well and don't pet any animals!</p></div></div>
 
-	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/lust.jpg') -381px 0; width:127px; height:400px;"></div>
-	<span class="bigger">Lust</span></div>
+	<div class="container" style="display:table-cell;"><div style="background:url('images/realms/lust.jpg') -381px 0; width:127px; height:400px;"></div>
 	<div class="realms" style="background:url('images/realms/lust.jpg') no-repeat; position:absolute; top:81px; left:31px;">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, red 0 0 10px; color: #e6e6e6;">Lust</span>
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge red; padding: 15px 0px;">The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>North side. Volcanoes spread all across this land, which is usually covered by ashes or solid magma, while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</p></div></div>
 
-	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/pride.jpg') -508px 0; width:127px; height:400px;"></div>
-	<span class="bigger">Pride</span></div>
+	<div class="container" style="display:table-cell;"><div style="background:url('images/realms/pride.jpg') -508px 0; width:127px; height:400px;"></div>
 	<div class="realms" style="background:url('images/realms/pride.jpg') no-repeat; position:absolute; top:81px; left:31px;">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, violet 0 0 10px; color: #e6e6e6;">Pride</span>
 	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge violet; padding: 15px 0px;">They're above everyone else. Literally at least.<br>Hundreds of years ago, some of the population, mainly the rich, tried separating themselves from the rest, so they built floating fortresses.</p></div></div>
 
-	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/sloth.jpg') -635px 0; width:127px; height:400px;"></div>
-	<span class="bigger">Sloth</span></div>
-	<div class="realms" style="background:url('images/realms/sloth.jpg') no-repeat; position:absolute; top:81px; left:31px;"><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge blue; padding: 15px 0px;">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div></div>
+	<div class="container" style="display:table-cell;"><div style="background:url('images/realms/sloth.jpg') -635px 0; width:127px; height:400px;"></div>
+	<div class="realms" style="background:url('images/realms/sloth.jpg') no-repeat; position:absolute; top:81px; left:31px;">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px; color: #e6e6e6;">Sloth</span>
+	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge blue; padding: 15px 0px;">They don't bother to do much except survive.<br>This Southern area is mainly water. The low temperature causes most of the water to freeze, providing a home for many of the creatures.</p></div></div>
 
-	<div class="container" style="display:table-cell;"><div><div style="background:url('images/realms/wrath.jpg') -762px 0; width:127px; height:400px;"></div>
-	<span class="bigger">Wrath</span></div>
-	<div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat; position:absolute; top:81px; left:31px;"><p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge indigo; padding: 15px 0px;">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that were used for God forbidden experiments regarding genetics and bio weapons.</p></div></div>
+	<div class="container" style="display:table-cell;"><div style="background:url('images/realms/wrath.jpg') -762px 0; width:127px; height:400px;"></div>
+	<div class="realms" style="background:url('images/realms/wrath.jpg') no-repeat; position:absolute; top:81px; left:31px; width:889px;">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, indigo 0 0 10px; color: #e6e6e6;">Wrath</span>	
+	<p style="background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge indigo; padding: 15px 0px;">The beasts from this realm enjoy killing and inflicting suffering on others.<br>Underworld. Back in the day there used to be secret underground facilities that were used for God forbidden experiments regarding genetics and bio weapons.</p></div></div>
 </div>
-
+<br>
 <?php separate_segment("tools"); ?>
 <h3 class="indexheader"><a href="#tools">Tools</a></h3>
 <p>The project is developed with the use of free open source cross platform applications and freeware services.
