@@ -235,6 +235,7 @@ The game requires animations to be 30 frames per second. Sprite sheets must have
 </p>
 <?php separate_segment("license"); ?>
 <h3 class="indexheader"><a href="#license">License</a></h3>
+<br>
 <table border="1">
 	<tr>
 		<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png" alt="Freezing Moon"></a></td>
