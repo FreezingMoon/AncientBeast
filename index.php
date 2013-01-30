@@ -42,17 +42,6 @@ $style = '
 .container > div:hover + div {
     display: block
 }
-.sections {
-	list-style-type: none;
-	width: 100%;
-	font-size: 18px;
-	font-weight: bold;
-	margin: 0;
-	padding: 0;
-	margin-left: auto;
-	margin-right: auto;
-	text-align: center;
-}
 a.FM:hover {
 	text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;
 }';
@@ -83,7 +72,6 @@ $(document).ready(function() {
 });
 </script>
 <?php start_segment(); ?>
-<!-- TODO: use class, inline css is just wrong -->
 <nav><ul class="sections">
 <?php
 $sections = array(
@@ -140,7 +128,7 @@ foreach($images as $image) {
 	if($image == '.' || $image == '..') continue;
 	$title = substr($image, 0, -4);
 	$image = str_replace(' ', '%20', $image);
-	echo '<a id="img' . $i . '" style="text-align:center;" class="pop" href="images/combat/' . $image . '" title="' . $title . '"><img style="width:280px; margin:5px; box-shadow:0px 0px 10px black;" src="images/combat/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+	echo '<a id="img' . $i . '" style="text-align:center;" class="pop" href="images/combat/' . $image . '" title="' . $title . '"><img class="shadow" style="width:280px; margin:5px;" src="images/combat/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 	$i++;
 } echo '</div>';?>
 <p>
@@ -166,7 +154,7 @@ After engaging in combat, players are taken to the battle field where both parti
 <?php separate_segment("realms"); ?>
 <h3 class="indexheader"><a href="#realms">Realms</a></h3>
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.</p>
-<div style="width:889px; display:table; cursor:pointer; box-shadow:0px 0px 10px black;" class="center">
+<div style="width:889px; display:table; cursor:pointer;" class="center shadow">
 	<div class="container" style="display:table-cell;"><div style="background:url('images/realms/avarice.jpg'); width:127px; height:400px;"></div>
 	<div class="realms" style="background:url('images/realms/avarice.jpg') no-repeat; position:absolute; top:81px; left:31px;">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, gold 0 0 10px; color: #e6e6e6;">Avarice</span>

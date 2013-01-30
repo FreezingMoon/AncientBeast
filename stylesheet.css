@@ -49,6 +49,17 @@ img {
 	margin: 15px auto 0 auto;
 	padding: 0px;
 }
+.sections {
+	list-style-type: none;
+	width: 100%;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 0;
+	padding: 0;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
 .center {
 	margin-left: auto!important;
 	margin-right: auto!important;
@@ -56,6 +67,9 @@ img {
 }
 .lighten {
 	display: block;
+}
+.shadow {
+	box-shadow: 0px 0px 10px black;
 }
 *:focus {outline: none;}
 #wrapper {text-align: left;}
@@ -87,17 +101,6 @@ A:visited {text-decoration: none; color: #b7b7b7;}
 A:active {text-decoration: none; color: #b7b7b7;}
 A:hover {text-decoration: none; color: #e6e6e6; cursor: pointer; text-shadow: black 0.1em 0.1em 0.2em, red 0 0 10px;}
 
-.summon {
-	background: url('bestiary/images/search_box.png') no-repeat;
-	border: 0px;
-	padding-left: 5px;
-	width: 160px;
-	height: 32px;
-	font-size: 18px;
-	color: #9c9c9c;
-	text-shadow: black 0.1em 0.1em 0.2em;
-	float: left;
-}
 .odd {background:rgba(200, 200, 200, 0.1)}
 .even {background:rgba(200, 200, 200, 0.2)}
 .highlight:hover {background:rgba(200, 200, 200, 0.3)}

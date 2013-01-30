@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Ancient Beast - Gallery";
+$page_title = "Ancient Beast - Media";
 require_once("../header.php"); ?>
 <script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 <script type="application/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
@@ -48,16 +48,33 @@ $(document).ready(function() {
 		$("#img" + RegExp.$1).trigger("click");
 });
 </script>
+<?php start_segment(); ?>
+<nav><ul class="sections">
+<?php
+$sections = array(
+	'artwork',
+	'screenshots',
+	'wallpapers',
+	'fanart',
+	'videos',
+	'music'
+);
+foreach ($sections as &$sectionItem) {
+	echo '<li style="display:inline;"><a href="#' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
+}
+?>
+</ul></nav>
+<?php end_segment(); ?>
 <?php
 start_segment();
 echo "<div class='center'>";
-$images = scandir("../images/artwork");
+$images = scandir("../media/artwork");
 natsort($images);
 $i = 0;
 foreach($images as $image) {
 	if($image == "." || $image == "..") continue;
 	$title = substr($image, 0, -4); 
-	echo "<a id='img{$i}' rel='pop' href='{$site_root}images/artwork/$image' title='$title'><img class='shadow' style='height:200px; margin:5px;' src='{$site_root}images/artwork/$image' title='$title'></a>";
+	echo "<a id='img{$i}' rel='pop' href='artwork/$image' title='$title'><img class='shadow' style='height:200px; margin:5px;' src='artwork/$image' title='$title'></a>";
 	$i++;
 } echo "</div>";
 separate_segment();
