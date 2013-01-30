@@ -50,16 +50,16 @@ $(document).ready(function() {
 </script>
 <?php
 start_segment();
-echo "<center>";
+echo "<div class='center'>";
 $images = scandir("../images/artwork");
 natsort($images);
 $i = 0;
 foreach($images as $image) {
 	if($image == "." || $image == "..") continue;
 	$title = substr($image, 0, -4); 
-	echo "<a id='img{$i}' style='text-align:center;' rel='pop' href='{$site_root}images/artwork/$image' title='$title'><img style='height:200px; margin:5px;' src='{$site_root}images/artwork/$image' title='$title'></a>";
+	echo "<a id='img{$i}' rel='pop' href='{$site_root}images/artwork/$image' title='$title'><img class='shadow' style='height:200px; margin:5px;' src='{$site_root}images/artwork/$image' title='$title'></a>";
 	$i++;
-} echo "</center>";
+} echo "</div>";
 separate_segment();
 include("../utils/disqus.php");
 end_segment();
