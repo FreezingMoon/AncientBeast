@@ -37,7 +37,7 @@ abilities[3] =[
 
 						if(!nearFongus){
 							for (var i = 0; i < crea.effects.length; i++) {
-								if(crea.effects[i].name == "Spore Contamination"){
+								if(crea.effects[i].name == "Contanimated"){
 									crea.effects[i].deleteEffect();
 									break;
 								}
