@@ -49,15 +49,7 @@ abilities[3] =[
 				};
 
 				//Spore Contamination
-				// 2 stack
-				var effect1 = new Effect(
-					"Contanimated", //Name
-					creature, //Caster
-					trg, //Target
-					"onStartPhase", //Trigger
-					optArg //Optional arguments
-				);
-				var effect2 = new Effect(
+				var effect = new Effect(
 					"Contanimated", //Name
 					creature, //Caster
 					trg, //Target
@@ -73,9 +65,8 @@ abilities[3] =[
 					}
 				});
 
-				if(validTarget){ //2 stack
-					trg.addEffect(effect1);
-					trg.addEffect(effect2);	
+				if(validTarget){
+					trg.addEffect(effect);
 				}
 			}
 		})
