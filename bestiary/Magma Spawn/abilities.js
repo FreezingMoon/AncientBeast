@@ -5,7 +5,7 @@
 */
 abilities[4] =[
 
-// 	First Ability  Infernal Temper
+// 	Passive Ability: Infernal Temper
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStartPhase",
@@ -40,7 +40,7 @@ abilities[4] =[
 
 
 
-// 	Second Ability Pulverize
+// 	Weak Ability: Pulverize
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -93,13 +93,13 @@ abilities[4] =[
 
 
 
-// 	Third Ability Fissure
+// 	Medium Ability: Fissure
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		burn : 15,
+		burn : 10,
 	},
 
 	// 	require() :
@@ -151,13 +151,13 @@ abilities[4] =[
 
 
 
-// 	Fourth Ability Molten Hurl
+// 	Strong Ability: Molten Hurl
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		crush : 20,
+		crush : 15,
 		burn : 5,
 	},
 
