@@ -121,10 +121,10 @@ $datas["stats"] = array(
 	'mental' => (int)$r["mental"],);
 
 $datas["abilities_infos"] = array(
-	array( 'title' => $r["passive"], 'desc' => $r["passive info"]),
-	array( 'title' => $r["weak"],	 'desc' => $r["weak info"]),
-	array( 'title' => $r["medium"],	 'desc' => $r["medium info"]),
-	array( 'title' => $r["strong"],	 'desc' => $r["strong info"]),
+	array( 'title' => $r["passive"], 'desc' => $r["passive desc"], 'info' => $r["passive info"]),
+	array( 'title' => $r["weak"],	 'desc' => $r["weak desc"], 'info' => $r["weak info"]),
+	array( 'title' => $r["medium"],	 'desc' => $r["medium desc"], 'info' => $r["medium info"]),
+	array( 'title' => $r["strong"],	 'desc' => $r["strong desc"], 'info' => $r["strong info"]),
 );
 
 print_r(json_encode($datas));

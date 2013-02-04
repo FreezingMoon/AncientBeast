@@ -223,6 +223,7 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 						<div class="wrapper">
 							<div class="info">
 								<h3>' . $r[$abilities[$i]] . '</h3>
+								<span class="desc">' . $r[$abilities[$i] . " desc"] . '<br></span>
 								<span class="desc">' . $r[$abilities[$i] . " info"] . '</span>
 							</div>
 						</div>

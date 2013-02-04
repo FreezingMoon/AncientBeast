@@ -41,11 +41,11 @@ function progress($r) {
 		$spaceless = str_replace(' ', '%20', $r['name'] );
 		echo "
 
-		<div class='center' style='width:825px; background-image:url(../images/progress/widget.png);'>
+		<div class='center' style='width:825px; background-image:url(../images/progress/widget.png); background-repeat:no-repeat;'>
 		<a href='http://www.wuala.com/AncientBeast/bestiary/" . $spaceless . "' target='_blank'>";
 		$i = 0;
 		foreach($r as $key => $value) {
-			if($i++ < 32) continue; //Ignore Other keys
+			if($i++ < 36) continue; //Ignore Other keys
 			$sum += $value;
 			$title = ucfirst($key) . ": $value% complete";
 			echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title' alt='$title'>";

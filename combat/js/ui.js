@@ -153,6 +153,7 @@ var UI = Class.create({
 				$ability.children('.icon').css({"background-image":"url('../bestiary/"+stats.name+"/"+key+".svg')"});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.abilities_infos[key].title);
 				$ability.children(".wrapper").children(".info").children(".desc").text(stats.abilities_infos[key].desc);
+				$ability.children(".wrapper").children(".info").children(".desc").text(stats.abilities_infos[key].info);
 			});
 
 			var summonedOrDead = false;
@@ -275,7 +276,7 @@ var UI = Class.create({
 			$abilitiesButtons.each(function(){
 				var id = $j(this).attr("ability") - 0;
 				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
-				$j(this).children(".desc").html("<span>"+G.activeCreature.abilities[id].title+"</span><p>"+G.activeCreature.abilities[id].desc+"</p>");
+				$j(this).children(".desc").html("<span>"+G.activeCreature.abilities[id].title+"</span><p>"+G.activeCreature.abilities[id].desc+"<br>"+G.activeCreature.abilities[id].info+"</p>");
 				$j(this).bind('click', function(){
 					if(G.freezedInput) return;
 					G.activeCreature.abilities[id].use();
