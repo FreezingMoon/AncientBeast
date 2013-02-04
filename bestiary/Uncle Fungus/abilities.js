@@ -27,15 +27,15 @@ abilities[3] =[
 
 				var optArg = { 
 					effectFn : function(effect,crea){
-						var nearFongus = false;
+						var nearFungus = false;
 						crea.adjacentHexs(1).each(function(){
 							if(trg.creature>0){
 								if(G.creatures[trg.creature] === effect.owner)
-									nearFongus = true;
+									nearFungus = true;
 							}
 						});
 
-						if(!nearFongus){
+						if(!nearFungus){
 							for (var i = 0; i < crea.effects.length; i++) {
 								if(crea.effects[i].name == "Contanimated"){
 									crea.effects[i].deleteEffect();
@@ -51,14 +51,14 @@ abilities[3] =[
 				//Spore Contamination
 				// 2 stack
 				var effect1 = new Effect(
-					"Spore Contamination", //Name
+					"Contanimated", //Name
 					creature, //Caster
 					trg, //Target
 					"onStartPhase", //Trigger
 					optArg //Optional arguments
 				);
 				var effect2 = new Effect(
-					"Spore Contamination", //Name
+					"Contanimated", //Name
 					creature, //Caster
 					trg, //Target
 					"onStartPhase", //Trigger
@@ -67,7 +67,7 @@ abilities[3] =[
 
 				var validTarget = true;
 				trg.effects.each(function(){
-					if(this.name == "Spore Contamination"){
+					if(this.name == "Contanimated"){
 						if(this.turn == G.turn)
 							validTarget = false;
 					}
