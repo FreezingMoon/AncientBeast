@@ -5,7 +5,7 @@
 */
 abilities[45] =[
 
-// 	First Ability Duality
+// 	First Ability: Duality
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStartPhase",
@@ -38,7 +38,7 @@ abilities[45] =[
 
 
 
-// 	Second Ability Tooth Fairy
+// 	Second Ability: Tooth Fairy
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -92,13 +92,13 @@ abilities[45] =[
 
 
 
-// 	Third Ability Power Note
+// 	Thirt Ability: Power Note
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		sonic : 25,
+		sonic : 20,
 	},
 
 	// 	require() :
@@ -146,13 +146,13 @@ abilities[45] =[
 
 
 
-// 	Fourth Ability Chain Lightning
+// 	Fourth Ability: Chain Lightning
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		poison : 20,
+		shock : 20,
 	},
 
 	require : function(){

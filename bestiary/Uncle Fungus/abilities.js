@@ -5,7 +5,7 @@
 */
 abilities[3] =[
 
-// 	First Ability Frogger
+// 	First Ability: Frogger
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStepIn onStartPhase",
@@ -75,14 +75,13 @@ abilities[3] =[
 
 
 
-// 	Second Ability Chomp
+// 	Second Ability: Chomp
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
 		pierce : 20,
-		slash : 5,
 	},
 
 	// 	require() :
@@ -133,14 +132,15 @@ abilities[3] =[
 
 
 
-// 	Third Ability Blade Kick
+// 	Third Ability: Blade Kick
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		pierce : 30,
+		pierce : 15,
 		slash : 10,
+		crush : 5,
 	},
 
 	// 	require() :
@@ -182,7 +182,7 @@ abilities[3] =[
 
 		//remove frogger bonus if its found
 		ability.creature.effects.each(function(){
-			if(this.name == "Frogger Bonus"){
+			if(this.name == "Offense Bonus"){
 				this.deleteEffect();
 			}
 		});
@@ -191,14 +191,10 @@ abilities[3] =[
 
 
 
-// 	Fourth Ability Goo Blast
+// 	Fourth Ability: Frogger
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		poison : 20,
-	},
 
 	require : function(){return true;},
 
@@ -250,57 +246,4 @@ abilities[3] =[
 		) );
 	},
 }
-
-// 	Fourth Ability Goo Blast
-// {
-// 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-// 	trigger : "onQuery",
-
-// 	damages : {
-// 		poison : 20,
-// 	},
-
-// 	require : function(){return true;},
-
-// 	// 	query() :
-// 	query : function(){
-// 		var ability = this;
-// 		var uncle = this.creature;
-
-// 		var x = (uncle.player.flipped) ? uncle.x-1 : uncle.x ;
-
-// 		G.grid.queryDirection({
-// 			fnOnConfirm : ability.activate, //fnOnConfirm
-// 			flipped : uncle.player.flipped,
-// 			team : 0, //enemies
-// 			id : uncle.id,
-// 			requireCreature : true,
-// 			x : x,
-// 			y : uncle.y,
-// 			directions : [1,1,1,1,1,1],
-// 			args : {ability: ability}
-// 		});
-// 	},
-
-
-// 	//	activate() : 
-// 	activate : function(path,args) {
-// 		var ability = args.ability;
-// 		ability.end();		
-
-// 		var target = G.creatures[path.last().creature];
-
-// 		var damage = new Damage(
-// 			ability.creature, //Attacker
-// 			"target", //Attack Type
-// 			ability.damages, //Damage Type
-// 			1, //Area
-// 			[new Effect("Goo Blast",ability.creature.player,target,"persistant",{
-// 				alterations : { poison: -1, offense : -1, defense : -1 }
-// 			})]	//Effects
-// 		);
-// 		target.takeDamage(damage);
-// 	},
-// }
-
 ];

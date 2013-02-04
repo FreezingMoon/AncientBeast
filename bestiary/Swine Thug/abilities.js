@@ -5,7 +5,7 @@
 */
 abilities[37] =[
 
-// 	First Ability  Spa Mud
+// 	First Ability: Spa Mud
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStepIn",
@@ -36,7 +36,7 @@ abilities[37] =[
 
 
 
-// 	Second Ability Power Bat
+// 	Second Ability: Power Bat
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -83,13 +83,14 @@ abilities[37] =[
 
 
 
-// 	Third Ability Ground Ball
+// 	Third Ability: Ground Ball
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		burn : 15,
+		crush : 15,
+		burn : 5,
 	},
 
 	// 	require() :
@@ -151,7 +152,7 @@ abilities[37] =[
 
 
 
-// 	Fourth Ability Mud Bath
+// 	Fourth Ability: Mud Bath
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",

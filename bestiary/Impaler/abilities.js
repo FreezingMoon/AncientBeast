@@ -5,7 +5,7 @@
 */
 abilities[5] =[
 
-// 	Passive Ability Armor Penetration
+// 	First Ability: Armor Penetration
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "never", //Just for display purpose the effect is in 2nd Ability
@@ -16,7 +16,7 @@ abilities[5] =[
 
 
 
-// 	First Ability Jab Attack
+// 	Second Ability: Jab Attack
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -93,7 +93,7 @@ abilities[5] =[
 
 
 
-// 	Second Ability Static Charge
+// 	Thirt Ability: Static Charge
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -118,7 +118,7 @@ abilities[5] =[
 
 
 
-// 	Third Ability Envenom
+// 	Fourth Ability: Envenom
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",

@@ -5,7 +5,7 @@
 */
 abilities[12] =[
 
-// 	First Ability Bunny Hopping
+// 	First Ability: Bunny Hopping
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onDamage",
@@ -45,15 +45,15 @@ abilities[12] =[
 
 
 
-// 	Second Ability Big Nip
+// 	Second Ability: Big Nip
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		slash : 2,
-		pierce : 2,
-		crush : 2
+		slash : 3,
+		pierce : 3,
+		crush : 3,
 	},
 
 	// 	require() :
@@ -94,7 +94,7 @@ abilities[12] =[
 
 
 
-// 	Third Ability Blowing Wind
+// 	Third Ability: Blowing Wind
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -175,15 +175,13 @@ abilities[12] =[
 
 
 
-// 	Fourth Ability Chilling Spit
+// 	Fourth Ability: Chilling Spit
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		slash : 2,
-		pierce : 2,
-		crush : 2
+		frost : 20,
 	},
 
 	// 	require() :
