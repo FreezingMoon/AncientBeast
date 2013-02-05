@@ -5,14 +5,14 @@
 */
 abilities[0] =[
 
-// 	First Ability Artificial Satellite
+// 	First Ability: Artificial Satellite
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onDamage",
 
 	// 	require() :
 	require : function(damage){
-		this.setUsed(false); //Can be triggered as many time
+		this.setUsed(false); //Can be triggered as many times
 		if(this.creature.player.plasma <= 2){
 			G.log("Not enough plasma");
 			return false;
@@ -33,7 +33,7 @@ abilities[0] =[
 
 
 
-// 	Second Ability Electroshock
+// 	Second Ability: Electroshock
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -80,7 +80,7 @@ abilities[0] =[
 
 
 
-// 	Third Ability Disintegration
+// 	Third Ability: Disintegration
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -134,7 +134,7 @@ abilities[0] =[
 
 
 
-// 	Fourth Ability Materialize
+// 	Fourth Ability: Materialize
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
