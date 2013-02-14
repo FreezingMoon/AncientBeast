@@ -89,14 +89,11 @@ function start_segment($x="") {
 	}
 	echo "<div class='div_center'>";
 }
-function end_segment() { ?>
-	</div>
-	<div class="div_bottom"></div>
-<?php
+function end_segment() {
+	echo "</div><div class=\"div_bottom\"></div>";
 }
 function separate_segment($x="") {
-	end_segment();
-	start_segment($x);
+	end_segment() . start_segment($x);
 }
 function end_page() {
 	start_segment(); ?>
