@@ -56,10 +56,12 @@ abilities[45] =[
 	query : function(){
 		var chimera = this.creature;
 
-		var map = [	[0,0,0,0],
-				[0,1,0,1],
-				[1,0,0,1], //origin line
-				[0,1,0,1]];
+		var map = [	
+			[0,0,0,0],
+			[0,1,0,1],
+			[1,0,0,1], //origin line
+			[0,1,0,1]
+			];
 
 		G.grid.queryCreature({
 			fnOnConfirm : this.activate, //fnOnConfirm
