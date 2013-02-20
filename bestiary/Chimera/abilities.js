@@ -10,7 +10,7 @@ abilities[45] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStartPhase",
 
-	// 	require() :
+	//	require() :
 	require : function(){
 		return true;
 	},
@@ -38,7 +38,7 @@ abilities[45] =[
 
 
 
-// 	Second Ability: Tooth Fairy
+//	Second Ability: Tooth Fairy
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -47,19 +47,19 @@ abilities[45] =[
 		crush : 20,
 	},
 
-	// 	require() :
+	//	require() :
 	require : function(){
 		return !(this.creature.abilities[0].tokens[0] && this.creature.abilities[0].used);
 	},
 
-	// 	query() :
+	//	query() :
 	query : function(){
 		var chimera = this.creature;
 
-		var map = [	 [0,0,0,0],
-					[0,1,0,1],
-					 [1,0,0,1], //origin line
-					[0,1,0,1]];
+		var map = [	[0,0,0,0],
+				[0,1,0,1],
+				[1,0,0,1], //origin line
+				[0,1,0,1]];
 
 		G.grid.queryCreature({
 			fnOnConfirm : this.activate, //fnOnConfirm
@@ -92,7 +92,7 @@ abilities[45] =[
 
 
 
-// 	Thirt Ability: Power Note
+//	Thirt Ability: Power Note
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -101,12 +101,12 @@ abilities[45] =[
 		sonic : 20,
 	},
 
-	// 	require() :
+	//	require() :
 	require : function(){
 		return !(this.creature.abilities[0].tokens[1] && this.creature.abilities[0].used);
 	},
 
-	// 	query() :
+	//	query() :
 	query : function(){
 		var chimera = this.creature;
 
@@ -146,7 +146,7 @@ abilities[45] =[
 
 
 
-// 	Fourth Ability: Chain Lightning
+//	Fourth Ability: Chain Lightning
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -159,7 +159,7 @@ abilities[45] =[
 		return !(this.creature.abilities[0].tokens[2] && this.creature.abilities[0].used);
 	},
 
-	// 	query() :
+	//	query() :
 	query : function(){
 		var chimera = this.creature;
 
@@ -196,7 +196,7 @@ abilities[45] =[
 				"target", //Attack Type
 				nextdmg, //Damage Type
 				1, //Area
-				[]	//Effects
+				[] //Effects
 			);
 			nextdmg = trg.takeDamage(damage);
 
@@ -210,14 +210,11 @@ abilities[45] =[
 			if(nextTargets.length == 0) break;
 
 			var bestTarget = { stats:{ defense:-99999, shock:-99999 } };
-			for (var j = 0; j < nextTargets.length; j++) {
-				if( nextTargets[j] != undefined ){ //Skip empty id's
-					if( targets.indexOf(nextTargets[j].target.id) == -1 ){
-						if( nextTargets[j].target.stats.shock+nextTargets[j].target.stats.defense 
-							> bestTarget.stats.shock+bestTarget.stats.defense )
-							var bestTarget = nextTargets[j].target;
-					}
-				}
+				for (var j = 0; j < nextTargets.length; j++) {
+					if (typeof nextTargets[j] == "undefined") continue // Skip empty ids.
+					if (targets.indexOf(nextTargets[j].target.id) != -1) continue
+					if (nextTargets[j].target.stats.shock+nextTargets[j].target.stats.defense <= bestTarget.stats.shock+bestTarget.stats.defense) continue
+					var bestTarget = nextTargets[j].target;
 			};
 
 			if( bestTarget instanceof Creature ){
