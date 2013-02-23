@@ -67,7 +67,7 @@ end_segment();
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="YDCXZ5QA5XH62">
-<table>
+<table align=center>
 <tr><td><input type="hidden" name="on0" value=""></td></tr><tr><td><select name="os0">
 	<option value="LVL1">LVL1 : $2 USD - monthly</option>
 	<option value="LVL2">LVL2 : $5 USD - monthly</option>
@@ -109,7 +109,7 @@ end_segment();
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="9X7URD3Y7DTLC">
-<table>
+<table align=center>
 <tr><td><input type="hidden" name="on0" value=""></td></tr><tr><td><select name="os0">
 	<option value="LVL1">LVL1 : €2 EUR - monthly</option>
 	<option value="LVL2">LVL2 : €5 EUR - monthly</option>
