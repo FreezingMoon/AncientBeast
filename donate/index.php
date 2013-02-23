@@ -47,14 +47,14 @@ end_segment();
 <a id="now"></a>
 <div style="padding:20px 0; margin-bottom:10px; background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge gold;">
 <table width=100%><tr><td align=center width=25%>
-
+<!-- $ one time (coin) -->
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="XXXPC6NDXBNTW">
 <input type="image" src="/donate/dollar.png" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>
-
+<!-- $ one time (button) -->
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="XXXPC6NDXBNTW">
@@ -63,23 +63,23 @@ end_segment();
 </form>
 
 </td><td style="text-align:center;" width=25%>
-
+<!-- $ recursive -->
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="YDCXZ5QA5XH62">
-<table align=center>
+<table>
 <tr><td><input type="hidden" name="on0" value=""></td></tr><tr><td><select name="os0">
-	<option value="Avarice">Avarice: $2.00 USD - monthly</option>
-	<option value="Envy">Envy: $5.00 USD - monthly</option>
-	<option value="Gluttony">Gluttony: $10.00 USD - monthly</option>
-	<option value="Lust">Lust: $20.00 USD - monthly</option>
-	<option value="Pride">Pride: $50.00 USD - monthly</option>
-	<option value="Sloth">Sloth: $80.00 USD - monthly</option>
-	<option value="Wrath">Wrath: $100.00 USD - monthly</option>
+	<option value="LVL1">LVL1 : $2 USD - monthly</option>
+	<option value="LVL2">LVL2 : $5 USD - monthly</option>
+	<option value="LVL3">LVL3 : $10 USD - monthly</option>
+	<option value="LVL4">LVL4 : $25 USD - monthly</option>
+	<option value="LVL5">LVL5 : $50 USD - monthly</option>
+	<option value="LVL6">LVL6 : $100 USD - monthly</option>
+	<option value="LVL7">LVL7 : $250 USD - monthly</option>
 </select> </td></tr>
 <tr><td><input type="hidden" name="on1" value="Want to be credited?">Want to be credited?</td></tr><tr><td><select name="os1">
-	<option value="Yes, please!">Yes, please!</option>
-	<option value="Anonymous!">Anonymous!</option>
+	<option value="Yes, please!">Yes, please! </option>
+	<option value="Anonymous!">Anonymous! </option>
 </select> </td></tr>
 <tr><td><input type="hidden" name="on2" value="What's your website?">What's your website?</td></tr><tr><td><input type="text" name="os2" maxlength="200"></td></tr>
 </table>
@@ -89,14 +89,14 @@ end_segment();
 </form>
 
 </td><td style="text-align:center;" width=25%>
-
+<!-- € one time (coin) -->
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="N3D2HD7HUGX38">
 <input type="image" src="/donate/euro.png" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>
-
+<!-- € one time (button) -->
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="N3D2HD7HUGX38">
@@ -105,23 +105,23 @@ end_segment();
 </form>
 
 </td><td style="text-align:center;" width=25%>
-
+<!-- € recursive -->
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="9X7URD3Y7DTLC">
-<table align=center>
+<table>
 <tr><td><input type="hidden" name="on0" value=""></td></tr><tr><td><select name="os0">
-	<option value="Avarice">Avarice: €2.00 EUR - monthly</option>
-	<option value="Envy">Envy: €5.00 EUR - monthly</option>
-	<option value="Gluttony">Gluttony: €10.00 EUR - monthly</option>
-	<option value="Lust">Lust: €20.00 EUR - monthly</option>
-	<option value="Pride">Pride: €50.00 EUR - monthly</option>
-	<option value="Sloth">Sloth: €80.00 EUR - monthly</option>
-	<option value="Wrath">Wrath: €100.00 EUR - monthly</option>
+	<option value="LVL1">LVL1 : €2 EUR - monthly</option>
+	<option value="LVL2">LVL2 : €5 EUR - monthly</option>
+	<option value="LVL3">LVL3 : €10 EUR - monthly</option>
+	<option value="LVL4">LVL4 : €25 EUR - monthly</option>
+	<option value="LVL5">LVL5 : €50 EUR - monthly</option>
+	<option value="LVL6">LVL6 : €100 EUR - monthly</option>
+	<option value="LVL7">LVL7 : €250 EUR - monthly</option>
 </select> </td></tr>
 <tr><td><input type="hidden" name="on1" value="Want to be credited?">Want to be credited?</td></tr><tr><td><select name="os1">
-	<option value="Yes, please!">Yes, please!</option>
-	<option value="Anonymous!">Anonymous!</option>
+	<option value="Yes, please!">Yes, please! </option>
+	<option value="Anonymous!">Anonymous! </option>
 </select> </td></tr>
 <tr><td><input type="hidden" name="on2" value="What's your website?">What's your website?</td></tr><tr><td><input type="text" name="os2" maxlength="200"></td></tr>
 </table>
