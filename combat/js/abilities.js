@@ -4,7 +4,7 @@
 *
 */
 var Ability = Class.create({
-	initialize: function(creature,abilityID){
+	initialize: function(creature,abilityID) {
 		this.creature = creature;
 		this.used = false;
 		this.id = abilityID;
@@ -18,7 +18,7 @@ var Ability = Class.create({
 	*	Test and use the ability
 	*
 	*/
-	use: function(){
+	use: function() {
 		if( this.trigger != "onQuery" ) return;
 		if( !this.require() ) return;
 		if( this.used == true ){ G.log("Ability already used!"); return; }
@@ -32,7 +32,7 @@ var Ability = Class.create({
 	*	End the ability. Must be called at the end of each ability function;
 	*
 	*/
-	end: function(){
+	end: function() {
 		if(this.trigger == "onQuery") G.activeCreature.queryMove();
 
 		G.log(this.creature.player.name+"'s "+this.creature.name+" uses "+this.title);
@@ -46,7 +46,7 @@ var Ability = Class.create({
 	*	val : 	Boolean : 	set the used attriute to the desired value
 	*	
 	*/
-	setUsed: function(val){
+	setUsed: function(val) {
 		if(val){
 			this.used = true;
 			if(this.creature.id == G.activeCreature.id) //avoid dimmed passive for current creature
@@ -66,10 +66,10 @@ var Ability = Class.create({
 	*	return : 	Array : 	Array containing the targets
 	*
 	*/
-	getTargets: function(hexs){
+	getTargets: function(hexs) {
 		var targets = [];
 		hexs.each(function(){//For each hex
-			if( (this.creature != 0) ){ //this.creature refers to hex creature not ability one
+			if( (this.creature != 0) ) { //this.creature refers to hex creature not ability one
 				if( targets[this.creature] == undefined ) {
 					targets[this.creature] = {
 						hexsHit : 0,
@@ -86,7 +86,7 @@ var Ability = Class.create({
 	*
 	*	targets : 	Array : 	Example : target = [{target:crea1,hexsHit:2},{target:crea2,hexsHit:1}]
 	*/
-	areaDamage : function(attacker,type,damages,effects,targets){
+	areaDamage : function(attacker,type,damages,effects,targets) {
 		var multiKill = 0;
 		for (var i = 0; i < targets.length; i++) {
 			if(targets[i]===undefined) continue;
@@ -109,35 +109,35 @@ var Damage = Class.create({
 	/* Constructor(amount,type,effects)
 	*	
 	*	attacker : 		Creature : 	Creature that initiated the damage
-	*	type : 			String : 	Can be "target","zone" or "effect"
+	*	type : 			String : 	Can be "target", "zone" or "effect"
 	* 	damages : 		Object : 	Object containing the damage by type {frost : 5} for example
 	*	area : 			Integer : 	Number of hex hit
 	*	effects : 		Array : 	Array containing Effect object to apply to the target
 	*/
-	initialize: function(attacker,type,damages,area,effects){
+	initialize: function(attacker,type,damages,area,effects) {
 		this.attacker 	= attacker;
-		this.type 		= type;
+		this.type 	= type;
 		this.damages 	= damages;
 		this.status 	= "";
 		this.effects 	= effects;
-		this.area 		= area;
+		this.area 	= area;
 	},
 
 	/* apply(target)
 	*
 	*	target : 	Creature : 	Targeted creature
 	*/
-	apply: function(target){
+	apply: function(target) {
 		var trg = target.stats;
 		var dmg = this;
 		var atk = dmg.attacker.stats;
 		var returnObj = {total:0};
 
 		//DAMAGE CALCULATION
-		$j.each(this.damages,function(key,value){
-			if(key=="pure"){ //Bypass defense calculation
+		$j.each(this.damages,function(key,value) {
+			if(key=="pure") { //Bypass defense calculation
 				var points = value;
-			}else{
+			} else {
 				var points = Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
 			}
 			returnObj[key] = points;

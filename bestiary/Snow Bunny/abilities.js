@@ -181,7 +181,8 @@ abilities[12] =[
 	trigger : "onQuery",
 
 	damages : {
-		frost : 20,
+		crush : 0,
+		frost : 20
 	},
 
 	// 	require() :
