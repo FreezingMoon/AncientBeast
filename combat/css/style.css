@@ -440,7 +440,13 @@ div.row:nth-child(9){top:38.944em;}
 	line-height: 20px;
 	margin-top: 49px;
 	margin-left: 16px;
+	transition: opacity 500ms;
+	-moz-transition: opacity 500ms; /* Firefox 4 */
+	-webkit-transition: opacity 500ms; /* Safari and Chrome */
+	-o-transition: opacity 500ms; /* Opera */
 }
+
+.health.ghosted{opacity: .25;}
 
 #creatureWrapper .p0.health{border-color: red;}
 #creatureWrapper .p1.health{border-color: blue;}
