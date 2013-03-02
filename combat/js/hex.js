@@ -459,7 +459,7 @@ var HexGrid = Class.create({
 	xray: function(hex){
 		//Clear previous ghost
 		G.creatures.each(function(){ 
-			if( this instanceof Creature ) this.$display.removeClass("ghosted"); 
+			if( this instanceof Creature ) this.$display.removeClass("ghosted"); $j(".health.p"+(this.id-1)).removeClass("ghosted");
 		});
 
 		if(hex.creature != 0){
@@ -783,18 +783,42 @@ var Hex = Class.create({
 			if(this.y%2 == 0){
 				if(i == 1){
 					for (var j = 0; j <= 1; j++) {
-						if(G.grid.hexExists(this.y+i,this.x+j)){if(G.grid.hexs[this.y+i][this.x+j].creature!=0){G.creatures[G.grid.hexs[this.y+i][this.x+j].creature].$display.addClass('ghosted');}}
+						if(G.grid.hexExists(this.y+i,this.x+j)){
+							if(G.grid.hexs[this.y+i][this.x+j].creature!=0){
+								var ghosted_creature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
+								ghosted_creature.$display.addClass('ghosted');
+								$j(".health.p"+(ghosted_creature.id-1)).addClass("ghosted");
+							}
+						}
 					}
 				}else{
-					if(G.grid.hexExists(this.y+i,this.x)){if(G.grid.hexs[this.y+i][this.x].creature!=0) G.creatures[G.grid.hexs[this.y+i][this.x].creature].$display.addClass('ghosted');}
+					if(G.grid.hexExists(this.y+i,this.x)){
+						if(G.grid.hexs[this.y+i][this.x].creature!=0){
+							var ghosted_creature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
+							ghosted_creature.$display.addClass('ghosted');
+							$j(".health.p"+(ghosted_creature.id-1)).addClass("ghosted");
+						}
+					}
 				}
 			}else{
 				if(i == 1){
 					for (var j = 0; j <= 1; j++) {
-						if(G.grid.hexExists(this.y+i,this.x-j)){if(G.grid.hexs[this.y+i][this.x-j].creature!=0){G.creatures[G.grid.hexs[this.y+i][this.x-j].creature].$display.addClass('ghosted');}}
+						if(G.grid.hexExists(this.y+i,this.x-j)){
+							if(G.grid.hexs[this.y+i][this.x-j].creature!=0){
+								var ghosted_creature = G.creatures[G.grid.hexs[this.y+i][this.x-j].creature];
+								ghosted_creature.$display.addClass('ghosted');
+								$j(".health.p"+(ghosted_creature.id-1)).addClass("ghosted");
+							}
+						}
 					}
 				}else{
-					if(G.grid.hexExists(this.y+i,this.x)){if(G.grid.hexs[this.y+i][this.x].creature!=0) G.creatures[G.grid.hexs[this.y+i][this.x].creature].$display.addClass('ghosted');}
+					if(G.grid.hexExists(this.y+i,this.x)){
+						if(G.grid.hexs[this.y+i][this.x].creature!=0){
+							var ghosted_creature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
+							ghosted_creature.$display.addClass('ghosted');
+							$j(".health.p"+(ghosted_creature.id-1)).addClass("ghosted");
+						}
+					}
 				}
 			}
 		};
