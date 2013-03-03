@@ -788,18 +788,18 @@ var Hex = Class.create({
 					for (var j = 0; j <= 1; j++) {
 						if(G.grid.hexExists(this.y+i,this.x+j)){
 							if(G.grid.hexs[this.y+i][this.x+j].creature!=0){
-								var ghosted_creature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
-								ghosted_creature.$display.addClass('ghosted');
-								ghosted_creature.$health.addClass("ghosted");
+								var ghostedCreature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
+								ghostedCreature.$display.addClass('ghosted');
+								ghostedCreature.$health.addClass("ghosted");
 							}
 						}
 					}
 				}else{
 					if(G.grid.hexExists(this.y+i,this.x)){
 						if(G.grid.hexs[this.y+i][this.x].creature!=0){
-							var ghosted_creature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
-							ghosted_creature.$display.addClass('ghosted');
-							ghosted_creature.$health.addClass("ghosted");
+							var ghostedCreature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
+							ghostedCreature.$display.addClass('ghosted');
+							ghostedCreature.$health.addClass("ghosted");
 						}
 					}
 				}
@@ -808,18 +808,18 @@ var Hex = Class.create({
 					for (var j = 0; j <= 1; j++) {
 						if(G.grid.hexExists(this.y+i,this.x-j)){
 							if(G.grid.hexs[this.y+i][this.x-j].creature!=0){
-								var ghosted_creature = G.creatures[G.grid.hexs[this.y+i][this.x-j].creature];
-								ghosted_creature.$display.addClass('ghosted');
-								ghosted_creature.$health.addClass("ghosted");
+								var ghostedCreature = G.creatures[G.grid.hexs[this.y+i][this.x-j].creature];
+								ghostedCreature.$display.addClass('ghosted');
+								ghostedCreature.$health.addClass("ghosted");
 							}
 						}
 					}
 				}else{
 					if(G.grid.hexExists(this.y+i,this.x)){
 						if(G.grid.hexs[this.y+i][this.x].creature!=0){
-							var ghosted_creature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
-							ghosted_creature.$display.addClass('ghosted');
-							ghosted_creature.$health.addClass("ghosted");
+							var ghostedCreature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
+							ghostedCreature.$display.addClass('ghosted');
+							ghostedCreature.$health.addClass("ghosted");
 						}
 					}
 				}

@@ -66,6 +66,7 @@ var UI = Class.create({
 
 		this.selectedCreature = "";
 		this.selectedPlayer = 0;
+		this.selectedAbility = -1;
 
 		//Show UI
 		this.$display.show();
@@ -279,7 +280,13 @@ var UI = Class.create({
 				$j(this).children(".desc").html("<span>"+G.activeCreature.abilities[id].title+"</span><p>"+G.activeCreature.abilities[id].desc+"<br>"+G.activeCreature.abilities[id].info+"</p>");
 				$j(this).bind('click', function(){
 					if(G.freezedInput) return;
-					G.activeCreature.abilities[id].use();
+					if(this.selectedAbility!=id){
+						G.activeCreature.abilities[id].use();
+						this.selectedAbility = id;
+					}else{
+						G.activeCreature.queryMove();
+						this.selectedAbility = -1;
+					}
 				});
 			});
 
