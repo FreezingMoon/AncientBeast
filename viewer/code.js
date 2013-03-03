@@ -64,6 +64,9 @@ var columns;
 var imageX;
 var imageY;
 
+//sprite data in json format
+var sprite_json;
+
 
 
 init();
@@ -86,7 +89,7 @@ function init() {	//setting up useful stuff needed; explained where defined
 }
 
 function tick() {	//the basic action done every frame
-	tickingThing = setTimeout("tick()", parseInt(1000 / framerate));
+	tickingThing = window.setTimeout("tick();", parseInt(1000 / framerate));
 	loop();
 	draw();
 }
@@ -175,6 +178,26 @@ function updateFields() {	//duh, updates the values defined in index.html
 	imageX = parseInt(document.getElementById("textField8").value);
 	imageY = parseInt(document.getElementById("textField9").value);
 	offset = parseInt(document.getElementById("textField10").value);
+	
+	sprite_json = JSON.stringify({
+		fps: framerate,
+		bcol: bgColor,
+		sprw: spriteWidth,
+		sprh: spriteHeight,
+		icnt: imageCount,
+		step: framestep,
+		rows: rows,
+		cols: columns,
+		ix: imageX,
+		iy: imageY,
+		off: offset
+	});
+	
+	document.getElementById("JSON_out").value = sprite_json;
+	
+	document.getElementById("download_link").innerHTML = '( <a href="data:application/octet-stream;charset=utf-8;base64,'+Base64.encode(sprite_json)+'">download</a> )';
+	document.getElementById("share_link").innerHTML = '<a href="'+site_root+"viewer/?s="+Base64.encode(sprite_json)+'" target="_blank" >share url</a>';
+	
 	changeCanvasSize();
 }
 

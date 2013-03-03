@@ -32,7 +32,21 @@ start_segment(); ?>
 No canvas support.
 </canvas>
 
-<p style="text-align: left;">
+<style>
+.control_pane {
+	text-align: left;
+	float:left;
+	margin-right:20px;
+}
+
+#download_link {
+	font-size:14px;
+}
+
+</style>
+
+<div id="controls" >
+<p class="control_pane" >
 <input type="text" id="textField0" value="30">framerate<br>
 <input type="text" id="textField5" value="1">framestep<br>
 <input type="text" id="textField1" value="transparent">bg color<br>
@@ -42,15 +56,45 @@ No canvas support.
 <input type="text" id="textField4" value="24">number of frames<br>
 <input type="text" id="textField6" value="3">rows<br>
 <input type="text" id="textField7" value="8">columns<br>
+</p>
+<p class="control_pane" >
 <input type="text" id="textField8" value="0">X<br>
 <input type="text" id="textField9" value="0">Y<br>
-
 <button id="updateButton" onClick="{updateFields();}"> update </button>
-<button id="pauseButton" onClick="{pauseButtonPressed()}"> Pause </button><br>
+<button id="pauseButton" onClick="{pauseButtonPressed()}"> Pause </button><br><br>
+sprite.json <span id="download_link" ></span><br>
+<textarea id="JSON_out" value="" style="max-width:200px;max-height:80px;min-width:200px;min-height:80px;" disabled></textarea>
 </p>
+<p class="control_pane" >
 <input type="text" id="textField11" value="example">image url<br>
-<button id="updateButton2" onClick="{updateImageSource();}"> update </button>
+<button id="updateButton2" onClick="{updateImageSource();}"> update </button><br>
+<span type="text" id="share_link" >share link</span><br>
+</p>
 </div>
+</div>
+
+<script type="text/javascript" src="b64.js"></script>
+<script type="text/javascript" >
+var start_json = "";
+<?php if($_GET['s']){ ?>
+start_json = "<?php echo $_GET['s']; ?>";
+start_json = Base64.decode(start_json);
+start_json = JSON.parse(start_json);
+
+	document.getElementById("textField0").value = start_json.fps;
+	document.getElementById("textField1").value = start_json.bcol;
+	document.getElementById("textField2").value = start_json.sprw;
+	document.getElementById("textField3").value = start_json.sprh;
+	document.getElementById("textField4").value = start_json.icnt;
+	document.getElementById("textField5").value = start_json.step;
+	document.getElementById("textField6").value = start_json.rows;
+	document.getElementById("textField7").value = start_json.cols;
+	document.getElementById("textField8").value = start_json.ix;
+	document.getElementById("textField9").value = start_json.iy;
+	document.getElementById("textField10").value = start_json.off;
+
+<?php } ?>
+</script>
 
 <script id="code" type="text/javascript" src="code.js"></script>
 
