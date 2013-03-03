@@ -153,7 +153,7 @@ After engaging in combat, players are taken to the battle field where both parti
 </p>
 <?php separate_segment("realms"); ?>
 <h3 class="indexheader"><a href="#realms">Realms</a></h3>
-<p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit it's inhabitants the most.</p>
+<p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit its inhabitants the most.</p>
 <div style="width:889px; display:table; cursor:pointer;" class="center shadow">
 	<div class="container" style="display:table-cell;"><div style="background:url('images/realms/avarice.jpg'); width:127px; height:400px;"></div>
 	<div class="realms" style="background:url('images/realms/avarice.jpg') no-repeat; position:absolute; top:81px; left:31px;">
