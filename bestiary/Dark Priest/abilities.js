@@ -154,6 +154,7 @@ abilities[0] =[
 
 		//Ask the creature to summon
 		G.UI.toggleDash();
+		G.UI.materializeToggled = true;
 	},
 
 	fnOnSelect : function(hex,args){
