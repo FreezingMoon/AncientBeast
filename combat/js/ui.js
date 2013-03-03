@@ -455,7 +455,8 @@ var UI = Class.create({
 				G.creatures.each(function(){
 					if(this instanceof Creature){
 						this.$display.removeClass("ghosted");
-						if(this.id != creaID){ this.$display.addClass("ghosted"); };
+						this.$health.removeClass("ghosted");
+						if(this.id != creaID){ this.$display.addClass("ghosted"); this.$health.addClass("ghosted"); };
 					}
 				});
 			}).bind("mouseleave",function(){ //On mouseleave cancel effect
