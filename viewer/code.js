@@ -83,9 +83,6 @@ function init() {	//setting up useful stuff needed; explained where defined
 	updateFields();
 	
 	playing = true;
-
-	updateImageSource();
-
 }
 
 function tick() {	//the basic action done every frame
@@ -195,10 +192,16 @@ function updateFields() {	//duh, updates the values defined in index.html
 	
 	document.getElementById("JSON_out").value = sprite_json;
 	
-	document.getElementById("download_link").innerHTML = '( <a href="data:application/octet-stream;charset=utf-8;base64,'+Base64.encode(sprite_json)+'">download</a> )';
-	document.getElementById("share_link").innerHTML = '<a href="'+site_root+"viewer/?s="+Base64.encode(sprite_json)+'" target="_blank" >share url</a>';
+	document.getElementById("download_link").innerHTML = '<a href="data:application/octet-stream;charset=utf-8;base64,'+Base64.encode(sprite_json)+'">Save</a>';
+	document.getElementById("share_link").innerHTML = '<a href="'+site_root+"viewer/?s="+Base64.encode(sprite_json)+'" target="_blank" >Copy</a>';
 	
 	changeCanvasSize();
+
+	imageFile = document.getElementById("textField11").value;
+	if (imageFile == "sample"){
+		imageFile = defaultImageFile;
+	}
+	loadImage();
 }
 
 function changeCanvasSize(){
@@ -210,20 +213,12 @@ function changeCanvasSize(){
 	} else c.height = 890;
 }
 
-function updateImageSource(){
-	imageFile = document.getElementById("textField11").value;
-	if (imageFile == "example"){
-		imageFile = defaultImageFile;
-	}
-	loadImage();
-}
-
 function pauseButtonPressed(){
 	if(playing){
 		stop();
-		document.getElementById("pauseButton").innerHTML="play";
+		document.getElementById("pauseButton").innerHTML="Play";
 	} else{
 		play();
-		document.getElementById("pauseButton").innerHTML="pause";
+		document.getElementById("pauseButton").innerHTML="Pause";
 	}
 }

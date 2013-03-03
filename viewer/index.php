@@ -28,53 +28,72 @@ require_once("../header.php");
 start_segment(); ?>
 
 <div align="center">
-<canvas id="kanvas" width="500" height="400" onclick="{pauseButtonPressed()}">
+<canvas class="center" id="kanvas" width="500" height="400" onclick="{pauseButtonPressed()}">
 No canvas support.
 </canvas>
-
+</div>
+<?php separate_segment(); ?>
 <style>
 .control_pane {
 	text-align: left;
-	float:left;
-	margin-right:20px;
+	float: left;
+	width: 25%;
 }
+.control_buttons {
+	list-style-type: none;
+	width: 100%;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 0;
+	padding: 0;
+	margin-left: auto;
+	margin-right: auto;
 
-#download_link {
-	font-size:14px;
+	text-align: center;
 }
-
+.control_buttons li {
+	display: inline;
+	padding: 25px;
+}
 </style>
 
-<div id="controls" >
-<p class="control_pane" >
-<input type="text" id="textField0" value="30">framerate<br>
-<input type="text" id="textField5" value="1">framestep<br>
-<input type="text" id="textField1" value="transparent">bg color<br>
-<input type="text" id="textField2" value="256">sprite width<br>
-<input type="text" id="textField3" value="256">sprite height<br>
-<input type="text" id="textField10" value="3">offset<br>
-<input type="text" id="textField4" value="24">number of frames<br>
-<input type="text" id="textField6" value="3">rows<br>
-<input type="text" id="textField7" value="8">columns<br>
+<div align="center">
+<p class="control_pane">
+<input type="text" size="10" id="textField4" value="24"> frame count<br>
+<input type="text" size="10" id="textField0" value="30"> frame rate<br>
+<input type="text" size="10" id="textField5" value="1"> frame step
 </p>
-<p class="control_pane" >
-<input type="text" id="textField8" value="0">X<br>
-<input type="text" id="textField9" value="0">Y<br>
-<button id="updateButton" onClick="{updateFields();}"> update </button>
-<button id="pauseButton" onClick="{pauseButtonPressed()}"> Pause </button><br><br>
-sprite.json <span id="download_link" ></span><br>
-<textarea id="JSON_out" value="" style="max-width:200px;max-height:80px;min-width:200px;min-height:80px;" disabled></textarea>
+
+<p class="control_pane">
+<input type="text" size="10" id="textField2" value="256"> sprite width<br>
+<input type="text" size="10" id="textField3" value="256"> sprite height<br>
+<input type="text" size="10" id="textField10" value="3"> sprite offset
 </p>
-<p class="control_pane" >
-<input type="text" id="textField11" value="example">image url<br>
-<button id="updateButton2" onClick="{updateImageSource();}"> update </button><br>
-<span type="text" id="share_link" >share link</span><br>
+
+<p class="control_pane">
+<input type="text" size="10" id="textField8" value="0"> X offset<br>
+<input type="text" size="10" id="textField9" value="0"> Y offset<br>
+<input type="text" size="10" id="textField1" value="transparent"> bg color
 </p>
-</div>
+
+<p class="control_pane">
+<input type="text" size="10" id="textField6" value="3"> rows<br>
+<input type="text" size="10" id="textField7" value="8"> columns<br>
+<input type="text" size="10" id="textField11" value="sample"> image
+</p>
 </div>
 
+<ul class="control_buttons">
+<li><button id="updateButton" onClick="{updateFields();}"> Update </button></li>
+<li><button id="pauseButton" onClick="{pauseButtonPressed()}"> Pause </button></li>
+<li><button id="share_link"> Copy </button></li>
+<li><button id="download_link"> Save </button></li>
+</ul>
+
+<textarea id="JSON_out" value="" style="display:none;" disabled></textarea>
+
 <script type="text/javascript" src="b64.js"></script>
-<script type="text/javascript" >
+<script type="text/javascript">
 var start_json = "";
 <?php if($_GET['s']){ ?>
 start_json = "<?php echo $_GET['s']; ?>";
@@ -98,5 +117,9 @@ start_json = JSON.parse(start_json);
 
 <script id="code" type="text/javascript" src="code.js"></script>
 
-<?php end_segment();
+<?php separate_segment();
+echo '<div class="center">You can use <a href="https://raw.github.com/Fweeb/blender_spritify/master/spritify.py" target="_blank"><b>Spritify</b></a> <a href="http://blender.org" target="_blank"><b>blender</b></a> <a href="https://github.com/Fweeb/blender_spritify" target="_blank"><b>addon</b></a> to generate sprite sheets. Feel free to share your sprite sheets below.</div>';
+separate_segment();
+include('../utils/disqus.php');
+end_segment();
 end_page(); ?>
