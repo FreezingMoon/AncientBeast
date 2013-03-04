@@ -30,7 +30,7 @@ require_once("config.php");
 ?>
 
 <script type="text/javascript" >
-var site_root = "<?php echo $site_root; ?>";
+var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 </script>
 
 <?php

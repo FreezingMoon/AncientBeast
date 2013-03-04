@@ -79,7 +79,7 @@ No canvas support.
 <p class="control_pane">
 <input type="text" size="10" id="textField6" value="3"> rows<br>
 <input type="text" size="10" id="textField7" value="8"> columns<br>
-<input type="text" size="10" id="textField11" value="http://www.ancientbeast.com/viewer/spritesheet.png"> image
+<input type="text" size="10" id="textField11" value=""> image
 </p>
 </div>
 
@@ -129,6 +129,8 @@ No canvas support.
 //	var bs1 = new BeastSprite("kanvas");
 //	bs1.load_json_b64("eyJmcHMiOjMwLCJiY29sIjoidHJhbnNwYXJlbnQiLCJzcHJ3IjoyNTYsInNwcmgiOjI1NiwiaWNudCI6MjQsInN0ZXAiOjEsInJvd3MiOjMsImNvbHMiOjgsIml4IjowLCJpeSI6MCwib2ZmIjozfQ==");
 //	bs1.play();
+
+document.getElementById("textField11").value = site_root+"viewer/spritesheet.png";
 
 var bs;
 

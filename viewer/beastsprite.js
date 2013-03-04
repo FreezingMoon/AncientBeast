@@ -27,6 +27,8 @@
 
 //defining the global variables, these get values in init function
 
+if(beastsprite_class_loaded==undefined){
+
 var BeastSprite = (function() {
 	
 	var self = this;
@@ -152,26 +154,14 @@ var BeastSprite = (function() {
 		this.imageX = json_string.ix;
 		this.imageY = json_string.iy;
 		this.offset = json_string.off;
-		this.imageFile = json_string.imageFile;
+		this.imageFile = json_string.img;
 		this.update_json();
 	}
-	
+	BeastSprite.prototype.load_json_string = function(json_string){
+		this.load_json(JSON.parse(json_string));
+	}
 	BeastSprite.prototype.load_json_b64 = function(json_string_b64){
-		var json_string = Base64.decode(json_string_b64);
-		this.framerate = json_string.fps;
-		this.bgColor = json_string.bcol;
-		this.spriteWidth = json_string.sprw;
-		this.spriteHeight = json_string.sprh;
-		this.imageCount = json_string.icnt;
-		this.framestep = json_string.step;
-		this.rows = json_string.rows;
-		this.columns = json_string.cols;
-		this.imageX = json_string.ix;
-		this.imageY = json_string.iy;
-		this.offset = json_string.off;
-		this.offset = json_string.off;
-		this.imageFile = json_string.imageFile;
-		this.update_json();
+		this.load_json_string(Base64.decode(json_string_b64));
 	}
 	
 	BeastSprite.prototype.changeCanvasSize = function(){
@@ -205,4 +195,8 @@ var BeastSprite = (function() {
 		
 	return BeastSprite;
 })();
+
+}
+
+var beastsprite_class_loaded = true;
 
