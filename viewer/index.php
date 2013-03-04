@@ -118,7 +118,7 @@ start_json = JSON.parse(start_json);
 <script id="code" type="text/javascript" src="code.js"></script>
 
 <?php separate_segment();
-echo '<div class="center">You can use <a href="https://raw.github.com/Fweeb/blender_spritify/master/spritify.py" target="_blank" download><b>Spritify</b></a> <a href="http://blender.org" target="_blank"><b>blender</b></a> <a href="https://github.com/Fweeb/blender_spritify" target="_blank"><b>addon</b></a> to generate sprite sheets. Feel free to share your sprite sheets below.</div>';
+echo '<div class="center">You can use <a href="https://raw.github.com/Fweeb/blender_spritify/master/spritify.py" target="_blank" download><b>Spritify</b></a> <a href="http://blender.org" target="_blank"><b>blender</b></a> <a href="https://github.com/Fweeb/blender_spritify" target="_blank"><b>addon</b></a> to generate <a href="spritesheet.png" target="_blank"><b>sprite sheets</b></a>. Feel free to share your sprite sheets below.</div>';
 separate_segment();
 include('../utils/disqus.php');
 end_segment();
