@@ -27,7 +27,7 @@ require_once("../header.php");
 start_segment();
 ?>
 <span style="text-align: center; display: block; font-weight:bold;">
-<p><a href="irc://freenode.org/#AncientBeast" target="_blank"><u>Click here</u></a> to connect with your IRC client or use the <a href="#applet"><u>applet below</u></a>. You can <a href="mailto:DreadKnight@FreezingMoon.org" target="_blank"><u>email us</u></a> or <a href="#comment"><u>leave a comment</u></a>.</p></a></span>
+<a href="irc://freenode.org/#AncientBeast" target="_blank"><u>Click here</u></a> to connect with your IRC client or use the <a href="#applet"><u>applet below</u></a>. You can <a href="mailto:DreadKnight@FreezingMoon.org" target="_blank"><u>email us</u></a> or <a href="#comment"><u>leave a comment</u></a>.</a></span>
 <?php
 separate_segment(applet);
 echo "<center><iframe src='http://webchat.freenode.net?channels=AncientBeast' width='99%' height='450'></iframe></center>";
