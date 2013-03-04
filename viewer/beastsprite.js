@@ -180,6 +180,11 @@ var BeastSprite = (function() {
 		this.tempImg.src = this.imageFile;
 		this.tempImg.onload = onload;
 	}
+	
+	BeastSprite.prototype.loadImageURL = function(imgURL, onload){
+		this.imageFile = imgURL;
+		this.loadImage();
+	}
 
 
 	BeastSprite.prototype.play = function(){ //starts the animation

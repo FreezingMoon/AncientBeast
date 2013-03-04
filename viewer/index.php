@@ -55,6 +55,15 @@ No canvas support.
 	display: inline;
 	padding: 25px;
 }
+.data_pane {
+	text-align: center;
+	float: left;
+	width: 50%;
+}
+.data_out {
+	width:400px;
+	height:300px;
+}
 </style>
 
 <div align="center">
@@ -90,7 +99,14 @@ No canvas support.
 <li><button id="download_link"> Save </button></li>
 </ul>
 
-<textarea id="JSON_out" value="" style="display:none;" disabled></textarea>
+<p align="center" class="data_pane">
+sprite json<br>
+<textarea id="JSON_out" value="" class="data_out" disabled></textarea>
+</p>
+<p align="center" class="data_pane">
+sprite embed code<br>
+<textarea id="EMBED_out" value="" class="data_out" disabled></textarea>
+</p>
 
 <script type="text/javascript" src="b64.js"></script>
 <script id="code" type="text/javascript" src="beastsprite.js"></script>
@@ -134,6 +150,18 @@ document.getElementById("textField11").value = site_root+"viewer/spritesheet.png
 
 var bs;
 
+var embed_code_start = $('<div />').html("<?php 
+
+	echo htmlspecialchars('<div class="beastsprite" >\n<script type="text/javascript" src="'.$site_url.'viewer/b64.js"></script>\n<script type="text/javascript" src="'.$site_url.'viewer/beastsprite.js"></script>\n<canvas width="10" height="10" id="sprite_canvas" >canvas not supported</canvas>\n<script type="text/javascript" >\nwindow.onload = function() {\n	var sprite = new BeastSprite("sprite_canvas");\n	sprite.load_json_b64("');
+
+ ?>").text();
+
+var embed_code_end = $('<div />').html("<?php 
+
+	echo htmlspecialchars('");\n	sprite.loadImage(function(){\n		sprite.play();\n	});\n}\n</script>\n</div>');
+
+ ?>").text();
+
 function pauseButtonPressed(){
 	if(bs.playing){
 		bs.stop();
@@ -160,6 +188,7 @@ function updateFields() {	//duh, updates the values defined in index.html
 	
 	bs.update_json();
 	document.getElementById("JSON_out").value = bs.sprite_json;
+	document.getElementById("EMBED_out").value = embed_code_start+Base64.encode(bs.sprite_json)+embed_code_end;
 	
 	document.getElementById("download_link").innerHTML = '<a href="data:application/octet-stream;charset=utf-8;base64,'+Base64.encode(bs.sprite_json)+'">Save</a>';
 	document.getElementById("share_link").innerHTML = '<a href="'+site_root+"viewer/?s="+Base64.encode(bs.sprite_json)+'" target="_blank" >Copy</a>';
