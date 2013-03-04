@@ -67,10 +67,6 @@ var imageY;
 //sprite data in json format
 var sprite_json;
 
-
-
-init();
-
 function init() {	//setting up useful stuff needed; explained where defined
 	c = document.getElementById("kanvas");
 	ctx = c.getContext("2d");
