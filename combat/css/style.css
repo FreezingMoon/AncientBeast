@@ -1,6 +1,6 @@
 @import url(http://fonts.googleapis.com/css?family=Play:400,700);
 body{
-	background: black url('../../images/bg.jpg') repeat;
+	background: black url('../images/skulls.jpg') repeat;
 	margin: 0;
 	padding: 0;
 	font-family: 'Play', sans-serif;
@@ -46,9 +46,9 @@ body{
 	-o-transform-origin:0% 0%; /* Opera */
 
 	/*Shadow*/
-/*	-moz-box-shadow: 0px 0px 200px black;
-	-webkit-box-shadow: 0px 0px 200px black;
-	box-shadow: 0px 0px 200px black; */
+	-moz-box-shadow: 0px 0px 30px black;
+	-webkit-box-shadow: 0px 0px 30px black;
+	box-shadow: 0px 0px 30px black; 
 }
 
 #grid{
