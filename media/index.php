@@ -137,10 +137,20 @@ case music:
 	$error = 'Your browser does not support the audio element.';
 	foreach($media as $file) {
 		if($file == "." || $file == "..") continue;
+		if($i == 0){
+			echo '<audio id="audio" preload="auto" tabindex="0" controls="" ><source src="'.$file.'">'.$error.'</audio>';
+			echo '<ul id="playlist" style="list-style-type: none;padding-left:0px;" >';
+		}
 		$title = substr($file, 0, -4);
 		$file = str_replace(' ', '%20', $file);
-		echo '<p><a href="music/' . $file . '" download>' . $title . '</a><br><audio controls="controls" preload="none"><source src="music/' . $file . '" type="audio/ogg">' . $error . '</audio></p>';
-	} echo "</div>";
+		if($title!=""){
+			echo '<li class="active"><a href="'.$site_url.'media/music/'.$file.'">' . $title . '</a></li>';
+		}
+		$i++;
+	}
+	echo '</ul>';
+	echo "</div>";
+	echo '<script type="text/javascript" src="js/audioplayer.js" ></script>';
 }
 
 separate_segment(comments);
