@@ -516,6 +516,8 @@ div.row:nth-child(9){top:38.944em;}
 
 .button.used:before{ background-image: url('../../images/contour_dimmed.png'); }
 
+.used { cursor:default !important; }
+
 .button.blink{
 	animation: pulse0510 750ms infinite alternate;
 	-webkit-animation: pulse0510 750ms infinite alternate;
