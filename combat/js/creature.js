@@ -81,7 +81,7 @@ var Creature = Class.create({
 		this.updateHex();
 
 		//Creating Html representation of creature
-		this.$display = G.grid.$creatureW.append('<div id="crea'+this.id +'" class="creature type_'+obj.id+' p'+this.team+'"><div class="effects"></div></div>').children("#crea"+this.id).hide();
+		this.$display = G.grid.$creatureW.append('<div id="crea'+this.id +'" class="creature ghosted type_'+obj.id+' p'+this.team+'"><div class="effects"></div></div>').children("#crea"+this.id);
 		this.$effects = this.$display.children(".effects");
 
 		this.$display.css(this.hexagons[this.size-1].displayPos); //translate to its real position
@@ -108,7 +108,8 @@ var Creature = Class.create({
 	*/
 	summon: function(){
 		//TODO Summon effect
-		this.$display.fadeIn(500);
+		this.$display.removeClass("ghosted");
+		$j("#crea_materialize_overlay").remove();
 
 		//reveal and position healh idicator
 		var offsetX = (this.player.flipped) ? this.x - this.size + 1: this.x ;

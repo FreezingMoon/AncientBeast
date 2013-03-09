@@ -205,7 +205,7 @@ abilities[0] =[
 
 		G.grid.queryHexs({
 			fnOnSelect : this.fnOnSelect,
-			fnOnCancel : function(){ G.activeCreature.queryMove(); $j("#crea_materialize_overlay").remove(); },
+			fnOnCancel : function(){ G.activeCreature.queryMove(); },
 			fnOnConfirm : this.activate,
 			args : {dpriest:dpriest, creature:creature, ability:this, cost:0}, //OptionalArgs
 			size : crea.size,
@@ -216,7 +216,6 @@ abilities[0] =[
 
 	//	activate() : 
 	activate : function(hex,args) {
-		$j("#crea_materialize_overlay").remove();
 		var creature = args.creature;
 		var ability = args.ability;
 

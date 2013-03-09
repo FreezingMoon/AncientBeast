@@ -283,6 +283,12 @@ div.row:nth-child(9){top:38.944em;}
 	-o-transform: scale(-1,1) ; /* Opera */
 }
 
+.creature{
+	transition: opacity 500ms;
+	-moz-transition: opacity 500ms; /* Firefox 4 */
+	-webkit-transition: opacity 500ms; /* Safari and Chrome */
+	-o-transition: opacity 500ms; /* Opera */
+}
 .creature.ghosted{opacity: .25;}
 
 /*-----Magma Spawn----*/
