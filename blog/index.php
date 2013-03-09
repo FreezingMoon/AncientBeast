@@ -89,15 +89,21 @@ if ($handle = opendir('entries')) {
 	array_multisort($blog_posts,SORT_DESC);
 }
 
+$page_title = "Ancient Beast - Blog - ";
 
 $published_posts = 0;
 foreach($blog_posts as $post){
-	if(post_published(get_post($post))){
+	$post = get_post($post);
+	$post_vars = $post["post_variables"];
+	
+	if($published_posts>=$offset && $published_posts<$post_count+$offset && $post_count==1){
+		$page_title .= $post_vars["title"];
+	}
+	if(post_published($post)){
 		$published_posts ++;
 	}
 }
 
-$page_title = "Ancient Beast - Blog";
 require_once("../header.php");
 require_once("../global.php");
 
