@@ -1,0 +1,12 @@
+// the name of the file is the date of the post
+// like this: YYYY-MM-DD-II
+// a 4th number (II) can be given at the end to define order to multiple posts on the same date
+// variables are set within the ~ marks
+// status can be either PUBLISHED or DRAFT (I think this is self explanatory)
+// title is obviously the title of the entry
+// after the second ~ mark is the html content of the blog entry
+~
+status:PUBLISHED
+title:New Blog System Implemented
+~
+This new blog system has been implemented so you can keep up to date with news from the Ancient Beast team.
