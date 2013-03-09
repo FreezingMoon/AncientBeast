@@ -161,7 +161,9 @@ abilities[0] =[
 		var crea = G.retreiveCreatureStats(args.creature);
 		G.grid.updateDisplay(); //Retrace players creatures
 		$j("#crea_materialize_overlay").remove();
-		G.grid.$creatureW.append('<div id="crea_materialize_overlay" class="creature type_'+crea.id+' materialize_overlay" ></div>');
+		var flipped_class = "";
+		if(G.activeCreature.player.flipped){ flipped_class = " flipped" }
+		G.grid.$creatureW.append('<div id="crea_materialize_overlay" class="creature type_'+crea.id+' materialize_overlay'+flipped_class+'" ></div>');
 		$j("#crea_materialize_overlay").css(G.grid.hexs[hex.y][hex.x-(crea.size-1)].displayPos);
 		$j("#crea_materialize_overlay").css("z-index", hex.y);
 		for (var i = 0; i < crea.size; i++) {
