@@ -53,9 +53,9 @@ $(document).ready(function() {
 <?php
 $sections = array(
 	'artwork',
+	'fanart',
 	'screenshots',
 	'wallpapers',
-	'fanart',
 	'videos',
 	'music'
 );
