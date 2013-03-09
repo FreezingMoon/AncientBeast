@@ -160,6 +160,10 @@ abilities[0] =[
 	fnOnSelect : function(hex,args){
 		var crea = G.retreiveCreatureStats(args.creature);
 		G.grid.updateDisplay(); //Retrace players creatures
+		$j("#crea_materialize_overlay").remove();
+		G.grid.$creatureW.append('<div id="crea_materialize_overlay" class="creature type_'+crea.id+' materialize_overlay" ></div>');
+		$j("#crea_materialize_overlay").css(G.grid.hexs[hex.y][hex.x-(crea.size-1)].displayPos);
+		$j("#crea_materialize_overlay").css("z-index", hex.y);
 		for (var i = 0; i < crea.size; i++) {
 			G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
 		}
@@ -199,7 +203,7 @@ abilities[0] =[
 
 		G.grid.queryHexs({
 			fnOnSelect : this.fnOnSelect,
-			fnOnCancel : function(){ G.activeCreature.queryMove() },
+			fnOnCancel : function(){ G.activeCreature.queryMove(); $j("#crea_materialize_overlay").remove(); },
 			fnOnConfirm : this.activate,
 			args : {dpriest:dpriest, creature:creature, ability:this, cost:0}, //OptionalArgs
 			size : crea.size,
@@ -210,6 +214,7 @@ abilities[0] =[
 
 	//	activate() : 
 	activate : function(hex,args) {
+		$j("#crea_materialize_overlay").remove();
 		var creature = args.creature;
 		var ability = args.ability;
 

@@ -448,6 +448,10 @@ div.row:nth-child(9){top:38.944em;}
 
 .health.ghosted{opacity: .25;}
 
+.materialize_overlay {
+	opacity: 0.25;
+}
+
 #creatureWrapper .p0.health{border-color: red;}
 #creatureWrapper .p1.health{border-color: blue;}
 #creatureWrapper .p2.health{border-color: orange;}

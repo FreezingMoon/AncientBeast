@@ -162,11 +162,7 @@ a.rollover:hover > img {
 	cursor:pointer;
 }
 
-.blog_archive_list {
-	max-height: 200px;
-	overflow-y:auto;
-	overflow-x:hidden;
-}
+
 
 #error {background:#ff6969; color:#fff; text-shadow:1px 1px #cf5454; border-right:1px solid #000; border-bottom:1px solid #000; padding:0}
 #error .tcontent {padding:10px 14px 11px; border:1px solid #ffb8b8; -moz-border-radius:5px; border-radius:5px}

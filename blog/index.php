@@ -89,7 +89,7 @@ if ($handle = opendir('entries')) {
 	array_multisort($blog_posts,SORT_DESC);
 }
 
-$page_title = "Ancient Beast - Blog - ";
+$page_title = "Ancient Beast - Blog";
 
 $published_posts = 0;
 foreach($blog_posts as $post){
@@ -97,7 +97,7 @@ foreach($blog_posts as $post){
 	$post_vars = $post["post_variables"];
 	
 	if($published_posts>=$offset && $published_posts<$post_count+$offset && $post_count==1){
-		$page_title .= $post_vars["title"];
+		$page_title .= ' - '.$post_vars["title"];
 	}
 	if(post_published($post)){
 		$published_posts ++;

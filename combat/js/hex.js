@@ -353,6 +353,7 @@ var HexGrid = Class.create({
 			var y = $j(this).attr("y")-0;
 
 			var hex = G.grid.hexs[y][x];
+			
 
 			//Clear display and overlay
 			G.grid.updateDisplay();
@@ -417,6 +418,7 @@ var HexGrid = Class.create({
 
 			//Not reachable hex
 			if( !hex.reachable ){
+				$j("#crea_materialize_overlay").remove();
 				if(hex.creature>0){ //If creature
 					var crea = G.creatures[hex.creature];
 					crea.hexagons.each(function(){
@@ -425,23 +427,22 @@ var HexGrid = Class.create({
 				}else{ //If nothing
 					hex.$overlay.addClass("hover");
 				}
-			}
+			}else{ //Reachable hex
 
-			//Reachable hex
-			else{
 
 				//Offset Pos
 				var offset = (o.flipped) ? o.size-1 : 0 ;
 				var mult = (o.flipped) ? 1 : -1 ; //For FLIPPED player
 
-				for (var i = 0; i < o.size; i++) {	//try next hexagons to see if they fits
+				for (var i = 0; i < o.size; i++) {	//try next hexagons to see if they fit
 					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
 					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)){ 
 						x += offset-i*mult;
 						break; 
 					}
 				};
-
+				
+				
 				hex = G.grid.hexs[y][x]; //New coords
 				o.fnOnSelect(hex,o.args);
 			}
