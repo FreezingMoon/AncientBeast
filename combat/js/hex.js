@@ -478,8 +478,25 @@ var HexGrid = Class.create({
 	*	Ghosts hexs with creatures
 	*
 	*/
-	hideCreatureHexs: function(){
-		this.$creatureW.addClass("ghosted");
+	hideCreatureHexs: function(except){
+		G.creatures.each(function(){ 
+			if( this instanceof Creature ){
+				var hide = true;
+				if(except instanceof Creature){
+					if(except.id == this.id){
+						hide = false;
+					}
+				}
+				if(hide){
+					this.$display.addClass("ghosted_hidden");
+					this.$health.addClass("ghosted_hidden");
+					for (var i = 0; i < this.size; i++) {
+						this.hexagons[i].$display.hide();
+						this.hexagons[i].$overlay.hide();
+					}
+				}
+			}
+		});
 	},
 	
 	/*	showCreatureHexs()
@@ -488,7 +505,16 @@ var HexGrid = Class.create({
 	*
 	*/
 	showCreatureHexs: function(){
-		this.$creatureW.removeClass("ghosted");
+		G.creatures.each(function(){ 
+			if( this instanceof Creature ){
+				this.$display.removeClass("ghosted_hidden");
+				this.$health.removeClass("ghosted_hidden");
+				for (var i = 0; i < this.size; i++) {
+					this.hexagons[i].$display.show();
+					this.hexagons[i].$overlay.hide();
+				}
+			}
+		});
 	},
 
 	/*	updateDisplay()

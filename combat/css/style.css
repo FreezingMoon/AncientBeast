@@ -290,6 +290,7 @@ div.row:nth-child(9){top:38.944em;}
 	-o-transition: opacity 500ms; /* Opera */
 }
 .creature.ghosted{opacity: .25;}
+.ghosted_hidden{opacity: .4!important;}
 
 /*-----Magma Spawn----*/
 #creatureWrapper .creature.type_4{ 
@@ -453,10 +454,7 @@ div.row:nth-child(9){top:38.944em;}
 }
 
 .health.ghosted{opacity: .25;}
-
-.materialize_overlay {
-	opacity: 0.25;
-}
+.materialize_overlay {opacity: 0.25;}
 
 #creatureWrapper .p0.health{border-color: red;}
 #creatureWrapper .p1.health{border-color: blue;}

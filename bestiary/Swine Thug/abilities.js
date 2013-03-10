@@ -166,7 +166,7 @@ abilities[37] =[
 		var swine = this.creature;
 
 		var hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
-		G.grid.hideCreatureHex();
+		G.grid.hideCreatureHexs(this.creature);
 		//TODO Filtering corpse hexs
 		hexs.filter(function(){return true;});
 
