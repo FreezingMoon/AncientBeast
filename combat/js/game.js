@@ -245,6 +245,7 @@ var Game = Class.create({
 	*
 	*/
 	nextRound: function(){
+		G.grid.clearHexViewAlterations();
 		this.turn++;
 		this.log("Round "+this.turn);
 		this.queue = this.nextQueue.slice(0); //Copy queue
@@ -329,6 +330,7 @@ var Game = Class.create({
 		// if(G.turnThrottle) return;
 		// G.turnThrottle = true
 		// setTimeout(function(){G.turnThrottle=false},300)
+		G.grid.clearHexViewAlterations();
 		var endTurn = new Date();
 		var p = this.activeCreature.player;
 		p.totalTimePool = p.totalTimePool - (endTurn - p.startTime);

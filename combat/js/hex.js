@@ -516,6 +516,19 @@ var HexGrid = Class.create({
 			}
 		});
 	},
+	
+	/*	clearHexViewAlterations()
+	* 	
+	*	Removes all hex view alterations like hideCreatureHexs used
+	*	Squashes bugs by making sure all view alterations are removed
+	*	on a change of ability/change of turn/etc
+	*	If you make a new hex view alteration call the function to remove
+	*	the alteration in here to ensure it gets cleared at the right time
+	*
+	*/
+	clearHexViewAlterations: function(){
+		showCreatureHexs();
+	},
 
 	/*	updateDisplay()
 	* 	

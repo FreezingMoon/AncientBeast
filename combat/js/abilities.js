@@ -23,6 +23,7 @@ var Ability = Class.create({
 		if( !this.require() ) return;
 		if( this.used == true ){ G.log("Ability already used!"); return; }
 		$j("#abilities .ability").removeClass("active");
+		G.grid.clearHexViewAlterations();
 		$j("#abilities .ability:nth-child("+(this.id+1)+")").addClass("active");
 		return this.query();
 	},

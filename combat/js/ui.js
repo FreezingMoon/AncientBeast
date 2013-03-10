@@ -286,6 +286,7 @@ var UI = Class.create({
 				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
 				$j(this).children(".desc").html("<span>"+G.activeCreature.abilities[id].title+"</span><p>"+G.activeCreature.abilities[id].desc+"<br>"+G.activeCreature.abilities[id].info+"</p>");
 				$j(this).bind('click', function(){
+					G.grid.clearHexViewAlterations();
 					if(G.freezedInput) return;
 					if(G.UI.selectedAbility!=id){
 						G.UI.selectedAbility = id;
