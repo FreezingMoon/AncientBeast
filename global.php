@@ -29,13 +29,6 @@ require_once("config.php");
 
 $site_url = 'http://'.$_SERVER['SERVER_NAME'].$site_root;
 
-?>
-
-<script type="text/javascript" >
-var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
-</script>
-
-<?php
 
 // Database
 $db_connection = NULL;

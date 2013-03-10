@@ -31,8 +31,14 @@ require_once('global.php'); ?>
 <meta name="description" content="Turn Based Strategy Game Played Online Against Other People. Master your beasts!">
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, strategy, combat, arena, free, foss, open source, card, chess, creatures, bitcoin, bets">
 <meta name="author" content="Dread Knight">
+
+<script type="text/javascript" >
+var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
+</script>
+
 <!--set page title-->
 <title>
+
 <?php
   if (isset($page_title)) {
 	  echo $page_title;
