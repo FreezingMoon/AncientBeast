@@ -527,7 +527,7 @@ var HexGrid = Class.create({
 	*
 	*/
 	clearHexViewAlterations: function(){
-		showCreatureHexs();
+		this.showCreatureHexs();
 	},
 
 	/*	updateDisplay()
