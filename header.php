@@ -36,7 +36,7 @@ require_once('global.php'); ?>
 var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 </script>
 
-<link rel=”alternate” type=”application/rss+xml” title=”Ancient Beast Blog (RSS 2.0)” href=”<?php echo $site_url; ?>blog/feed/” />
+<link rel="alternate" type="application/rss+xml" title="Ancient Beast Blog (RSS 2.0)" href="<?php echo $site_url; ?>blog/feed/" />
 
 <!--set page title-->
 <title>
