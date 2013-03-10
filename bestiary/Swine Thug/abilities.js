@@ -166,11 +166,12 @@ abilities[37] =[
 		var swine = this.creature;
 
 		var hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
+		G.grid.hideCreatureHex();
 		//TODO Filtering corpse hexs
 		hexs.filter(function(){return true;});
 
 		G.grid.queryHexs({
-			fnOnCancel : function(){ G.activeCreature.queryMove() },
+			fnOnCancel : function(){ G.activeCreature.queryMove(); G.grid.showCreatureHexs(); },
 			fnOnConfirm : this.activate,
 			args : {ability:this}, //OptionalArgs
 			hexs : hexs,
@@ -180,6 +181,7 @@ abilities[37] =[
 
 	//	activate() : 
 	activate : function(hex,args) {
+		G.grid.showCreatureHexs();
 		var ability = args.ability;
 		ability.end();
 
