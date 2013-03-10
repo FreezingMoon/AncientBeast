@@ -472,24 +472,6 @@ var HexGrid = Class.create({
 			hex.ghostOverlap();
 		}
 	},
-	
-	/*	hideCreatureHexs()
-	* 	
-	*	Ghosts hexs with creatures
-	*
-	*/
-	hideCreatureHexs: function(){
-		this.$creatureW.addClass("ghosted");
-	},
-	
-	/*	showCreatureHexs()
-	* 	
-	*	Unghosts hexs with creatures
-	*
-	*/
-	showCreatureHexs: function(){
-		this.$creatureW.removeClass("ghosted");
-	},
 
 	/*	updateDisplay()
 	* 	
