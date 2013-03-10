@@ -111,7 +111,7 @@ var Creature = Class.create({
 		this.$display.removeClass("ghosted");
 		$j("#crea_materialize_overlay").remove();
 
-		//reveal and position healh idicator
+		//reveal and position health indicator
 		var offsetX = (this.player.flipped) ? this.x - this.size + 1: this.x ;
 		this.$health
 			.css(G.grid.hexs[this.y][offsetX].displayPos)
@@ -267,12 +267,38 @@ var Creature = Class.create({
 			this.creature = creature.id;
 		})
 	},
+	
+	/* 	faceHex(facefrom,faceto)
+	*
+	*	facefrom : 		Hex :		Hex to face from
+	*	faceto : 		Hex :		Hex to face
+	*
+	* 	Face creature at given hex
+	*
+	*/
+	faceHex: function(facefrom,faceto){
+		if(facefrom instanceof Creature){ facefrom = G.grid.hexs[facefrom.y][facefrom.x] }
+		if(facefrom.y%2==0){
+			var flipped = ( faceto.x <= facefrom.x );
+		}else{
+			var flipped = ( faceto.x+1 <= facefrom.x );
+		}
+		if(flipped){ this.$display.addClass("flipped"); }else{ this.$display.removeClass("flipped"); }
+	},
+	
+	/* 	facePlayerDefault()
+	*
+	* 	Face default direction
+	*
+	*/
+	facePlayerDefault: function(){
+		if(this.player.flipped){ this.$display.addClass("flipped"); }else{ this.$display.removeClass("flipped"); }
+	},
 
-
-	/* 	moveTo(hex)
+	/* 	moveTo(hex,opts)
 	*
 	*	hex : 		Hex : 		Destination Hex
-	*	opt : 		Object : 	Optional args object
+	*	opts : 		Object : 	Optional args object
 	*
 	* 	Move the creature along a calculated path to the given coordinates
 	*
@@ -307,17 +333,10 @@ var Creature = Class.create({
 		creature.$health.hide();
 
 		//Determine facing
-		var currentHex = G.grid.hexs[creature.y][creature.x];
-		var nextHex = path[0];
-		if(currentHex.y%2==0){
-			var flipped = ( nextHex.x <= currentHex.x );
-		}else{
-			var flipped = ( nextHex.x+1 <= currentHex.x );
-		}
 		creature.$display.animate({'margin-right':0},0,"linear",function(){ //To stack with other transforms
-			creature.$display.removeClass("flipped");
-			if(flipped) creature.$display.addClass("flipped");
-		})
+			creature.facePlayerDefault();
+			creature.faceHex(creature, path[0]);
+		});
 		
 		//TODO turn around animation
 
@@ -331,7 +350,7 @@ var Creature = Class.create({
 			var thisHexId = hexId;
 
 			creature.$display.animate(nextPos.displayPos,500,"linear",function(){
-				creature.$display.removeClass("flipped");
+				creature.facePlayerDefault(creature);
 				currentHex = path[thisHexId];
 
 				creature.cleanHex();
@@ -368,20 +387,14 @@ var Creature = Class.create({
 
 				if( thisHexId < path.length-1 && creature.remainingMove > 0 ){
 					//Determine facing
-					nextHex = path[thisHexId+1];
-					if(currentHex.y%2==0){
-						var flipped = ( nextHex.x <= currentHex.x );
-					}else{
-						var flipped = ( nextHex.x+1 <= currentHex.x );
-					}
-					if(flipped) creature.$display.addClass("flipped");
+					creature.faceHex(currentHex, path[thisHexId+1]);
 				}else{
 					creature.$display.clearQueue(); //Stop the creature
 
 					G.grid.updateDisplay();
 
 					//TODO turn around animation
-					if(creature.player.flipped) creature.$display.addClass("flipped");
+					creature.facePlayerDefault();
 					//reveal and position healh idicator
 					var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
 					creature.$health

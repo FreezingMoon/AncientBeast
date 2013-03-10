@@ -331,6 +331,7 @@ var Game = Class.create({
 		// G.turnThrottle = true
 		// setTimeout(function(){G.turnThrottle=false},300)
 		G.grid.clearHexViewAlterations();
+		this.activeCreature.facePlayerDefault();
 		var endTurn = new Date();
 		var p = this.activeCreature.player;
 		p.totalTimePool = p.totalTimePool - (endTurn - p.startTime);

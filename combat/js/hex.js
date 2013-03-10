@@ -395,6 +395,8 @@ var HexGrid = Class.create({
 					//ONCONFIRM
 					o.fnOnConfirm(clickedtHex,o.args);
 				}
+				
+				if(G.activeCreature instanceof Creature){ G.activeCreature.faceHex(G.activeCreature,clickedtHex); }
 
 			}
 
@@ -511,7 +513,7 @@ var HexGrid = Class.create({
 				this.$health.removeClass("ghosted_hidden");
 				for (var i = 0; i < this.size; i++) {
 					this.hexagons[i].$display.show();
-					this.hexagons[i].$overlay.hide();
+					this.hexagons[i].$overlay.show();
 				}
 			}
 		});
