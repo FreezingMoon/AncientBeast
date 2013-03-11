@@ -2,10 +2,10 @@
 -- version 3.5.4
 -- http://www.phpmyadmin.net
 --
--- Gazda: 127.0.0.1
--- Timp de generare: 02 Mar 2013 la 17:02
--- Versiune server: 5.1.67-community-log
--- Versiune PHP: 5.2.6
+-- Host: 127.0.0.1
+-- Generation Time: Mar 11, 2013 at 01:45 PM
+-- Server version: 5.1.67-community-log
+-- PHP Version: 5.2.6
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -16,14 +16,10 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
---
--- Baza de date: `C332527_fm`
---
-
 -- --------------------------------------------------------
 
 --
--- Structura de tabel pentru tabelul `ab_abilities`
+-- Table structure for table `ab_abilities`
 --
 
 CREATE TABLE IF NOT EXISTS `ab_abilities` (
@@ -44,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `ab_abilities` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=51 ;
 
 --
--- Salvarea datelor din tabel `ab_abilities`
+-- Dumping data for table `ab_abilities`
 --
 
 INSERT INTO `ab_abilities` (`id`, `passive`, `passive desc`, `passive info`, `weak`, `weak desc`, `weak info`, `medium`, `medium desc`, `medium info`, `strong`, `strong desc`, `strong info`) VALUES
@@ -77,7 +73,7 @@ INSERT INTO `ab_abilities` (`id`, `passive`, `passive desc`, `passive info`, `we
 (27, 'No name', 'No description', '', 'No name', 'No description', 'No info', 'No name', 'No description', 'No info', 'No name', 'No description', 'No info'),
 (28, 'Tankish Build', '20% bonus to masteries and defense.', '', 'Stomp''A''Fool', 'Deals damage to nearby foe.', '25 crush damage', 'Stone Grinder', 'Destroys fatigued one or two hexagon creature or corpse.', 'Does 10 crush damage around.', 'Charcoal Blast', 'Bombards an area with burning coal.', '10 crush to target + 10 burn in area'),
 (29, 'Bad Touch', 'Every three strikes, a melee attacker is turned to gold for several rounds.', '', 'Red Crystal', 'Pokes nearby foe using staff.', 'No info', 'Winged Orb', 'Heals an ally or damages a foe that''s at the target location next round.', 'No info', 'Burning Light', 'Conjures an energy beam that causes multiple burns in a straight line.', 'No info'),
-(30, 'Offspring', 'Spawns a little hungry eggplant that chases nearest foe and attacks it.', '', 'Dinner Time', 'Bites a nearby foe.', 'No info', 'Pony Tail', 'Whips and poisons nearby foes, knocking them back.', 'No info', 'Snake Tongue', 'Throws tongue at a distant target, having it come back with time.', 'No info'),
+(30, 'Kamikaze Offspring', 'Spawns a little hungry eggplant that chases nearest foe and attacks it.', '', 'Dinner Time', 'Bites a nearby foe.', 'No info', 'Pony Tail', 'Whips and poisons nearby foes, knocking them back.', 'No info', 'Snake Tongue', 'Tongue launches at an inline prey and drags it closer based on its size.', '15 poison + 5 pierce per hexagon'),
 (31, 'Retaliation', 'Returns favor to frontal attackers, by slashing them with it''s heavy claws.', '', 'Pummel', 'Severly punches a nearby foe.', 'No info', 'Frightening Howl', 'Removes positive buffs and reduces offense and defense of nearby foes.', 'No info', 'Slice and Dice', 'Brutally slashes all frontal foes using it''s extremely sharp claws.', 'No info'),
 (32, 'No name', 'No description', '', 'No name', 'No description', 'No info', 'No name', 'No description', 'No info', 'No name', 'No description', 'No info'),
 (33, 'Percussion Spear', 'Attacks cause rear spear strike, which cannot be dodged.', '', 'Executioner Axe', 'Slashes nearby foe, doing bonus damage based on it''s max health.', 'No info', 'Dragon Flight', 'Travels to a location passing over obstacles with no movement cost.', 'No info', 'Breath of Life', 'Brings back to life a dead ally, with health equal to the endurance stat.', 'No info'),
@@ -103,7 +99,7 @@ INSERT INTO `ab_abilities` (`id`, `passive`, `passive desc`, `passive info`, `we
 -- --------------------------------------------------------
 
 --
--- Structura de tabel pentru tabelul `ab_creatures`
+-- Table structure for table `ab_creatures`
 --
 
 CREATE TABLE IF NOT EXISTS `ab_creatures` (
@@ -118,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `ab_creatures` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=51 ;
 
 --
--- Salvarea datelor din tabel `ab_creatures`
+-- Dumping data for table `ab_creatures`
 --
 
 INSERT INTO `ab_creatures` (`id`, `name`, `sin`, `lvl`, `hex`, `embed`) VALUES
@@ -177,48 +173,7 @@ INSERT INTO `ab_creatures` (`id`, `name`, `sin`, `lvl`, `hex`, `embed`) VALUES
 -- --------------------------------------------------------
 
 --
--- Structura de tabel pentru tabelul `ab_donors`
---
-
-CREATE TABLE IF NOT EXISTS `ab_donors` (
-  `id` smallint(6) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) NOT NULL,
-  `email` varchar(30) NOT NULL,
-  `website` char(70) DEFAULT NULL,
-  `amount` smallint(6) NOT NULL,
-  `type` char(1) NOT NULL DEFAULT '€',
-  `anonymous` varchar(1) DEFAULT NULL,
-  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
-
---
--- Salvarea datelor din tabel `ab_donors`
---
-
-INSERT INTO `ab_donors` (`id`, `name`, `email`, `website`, `amount`, `type`, `anonymous`, `date`) VALUES
-(1, 'Hein-Pieter van Braam', 'hp@tmm.cx', 'http://opengameart.org/users/tmm', 40, '$', NULL, '2012-05-16 16:43:24'),
-(2, 'Daniel Cohen', 'faemir@faemir.co.uk', 'http://mrfaemir.deviantart.com', 5, '$', NULL, '2010-01-07 23:46:05'),
-(3, 'Adam Dalton', 'septimus_Septim@hotmail.com', 'https://www.facebook.com/Thereal.Software', 20, '$', NULL, '2011-10-17 04:00:00'),
-(4, 'Markus Eliassen', 'WereMakingGames@hotmail.com', 'http://rising-of-chaos.tripod.com/fanpage/index.html', 3, '$', NULL, '2012-02-18 05:00:00'),
-(5, 'gamesandspace', 'zach055@yahoo.com', 'http://www.youtube.com/watch?v=cljNhZKOVXU', 3, '$', NULL, '2012-04-17 04:00:00'),
-(6, 'Kevin Brubeck Unhammer', 'pixiemotio.n@gmail.com', 'http://unhammer.wordpress.com', 50, '$', NULL, '2011-01-23 05:00:00'),
-(7, 'Vanessa Young', 'silver_nessa@hotmail.com', 'https://www.facebook.com/silvernessa', 46, '$', NULL, '2010-01-07 05:00:00'),
-(8, 'Max Mazon', 'feliperules69@gmail.com', 'https://twitter.com/#!/MaxMazon', 1, '$', NULL, '2010-01-06 05:00:00'),
-(9, 'Teo Cazghir', 'teo_volkany@yahoo.com', 'http://teogreengage.blogspot.ro', 50, '$', NULL, '2011-10-20 04:00:00'),
-(10, 'Leif Larsen', 'linuxdk1978@gmail.com', 'https://twitter.com/#!/obiwandk', 10, '$', NULL, '2010-12-06 05:00:00'),
-(11, 'Gheorghe Anastase', 'ganastase@gmail.com', NULL, 250, '€', '', '2012-05-07 04:00:00'),
-(12, 'Gheorghe Anastase', 'ganastase@gmail.com', NULL, 225, '€', '', '2012-06-28 04:00:00'),
-(13, 'Tudorita Anastase', 'ema6710@yahoo.com', NULL, 500, '€', '', '2011-06-01 04:00:00'),
-(14, 'Iwan Gabovitch', 'qubodup@gmail.com', 'http://qubodup.net', 15, '€', NULL, '2012-07-03 22:46:28'),
-(15, 'Gheorghe Anastase', 'ganastase@gmail.com', NULL, 215, '€', '', '2012-08-05 04:00:00'),
-(16, 'Gheorghe Anastase', 'ganastase@gmail.com', NULL, 67, '€', '', '2012-08-17 13:54:56'),
-(17, 'Pandu Aji Wirawan', 'ndundupan@gmail.com', 'http://panduaji.com/', 2, '$', NULL, '2012-11-24 04:06:51');
-
--- --------------------------------------------------------
-
---
--- Structura de tabel pentru tabelul `ab_items`
+-- Table structure for table `ab_items`
 --
 
 CREATE TABLE IF NOT EXISTS `ab_items` (
@@ -248,7 +203,7 @@ CREATE TABLE IF NOT EXISTS `ab_items` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=25 ;
 
 --
--- Salvarea datelor din tabel `ab_items`
+-- Dumping data for table `ab_items`
 --
 
 INSERT INTO `ab_items` (`id`, `name`, `type`, `value`, `health`, `regrowth`, `endurance`, `energy`, `meditation`, `initiative`, `offense`, `defense`, `movement`, `pierce`, `slash`, `crush`, `shock`, `burn`, `frost`, `poison`, `sonic`, `mental`) VALUES
@@ -280,7 +235,7 @@ INSERT INTO `ab_items` (`id`, `name`, `type`, `value`, `health`, `regrowth`, `en
 -- --------------------------------------------------------
 
 --
--- Structura de tabel pentru tabelul `ab_progress`
+-- Table structure for table `ab_progress`
 --
 
 CREATE TABLE IF NOT EXISTS `ab_progress` (
@@ -299,7 +254,7 @@ CREATE TABLE IF NOT EXISTS `ab_progress` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=51 ;
 
 --
--- Salvarea datelor din tabel `ab_progress`
+-- Dumping data for table `ab_progress`
 --
 
 INSERT INTO `ab_progress` (`id`, `info`, `artwork`, `icons`, `model`, `unwrap`, `texture`, `rig`, `animation`, `sound`, `coding`) VALUES
@@ -358,7 +313,7 @@ INSERT INTO `ab_progress` (`id`, `info`, `artwork`, `icons`, `model`, `unwrap`, 
 -- --------------------------------------------------------
 
 --
--- Structura de tabel pentru tabelul `ab_stats`
+-- Table structure for table `ab_stats`
 --
 
 CREATE TABLE IF NOT EXISTS `ab_stats` (
@@ -387,7 +342,7 @@ CREATE TABLE IF NOT EXISTS `ab_stats` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=51 ;
 
 --
--- Salvarea datelor din tabel `ab_stats`
+-- Dumping data for table `ab_stats`
 --
 
 INSERT INTO `ab_stats` (`id`, `health`, `regrowth`, `endurance`, `energy`, `meditation`, `initiative`, `offense`, `defense`, `movement`, `pierce`, `slash`, `crush`, `shock`, `burn`, `frost`, `poison`, `sonic`, `mental`) VALUES
