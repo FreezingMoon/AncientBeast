@@ -198,14 +198,13 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 					//Display Stats Numbers
 					$i=0;
 					foreach ($r["stats"] as $key => $value) {
-					 	if( $i > 5 &&  $i < 15) { displayStat($key,$value); }
+					 	if( $i > 0 &&  $i < 10) { displayStat($key,$value); }
 						$i++;
 					}
 					echo '
 					</tr>
 				</table>
 				<div class="section abilities">';
-
 			  	//Display Abilities
 				for ($i=0; $i < 4; $i++) { 
 				 	# code...
@@ -217,8 +216,8 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 						<div class="wrapper">
 							<div class="info">
 								<h3>' . $r["ability_info"][$i]["title"] . '</h3>
-								<span class="desc">' . $r["ability_info"][$i]["desc"] . '<br></span>
-								<span class="desc">' . $r["ability_info"][$i]["info"] . '</span>
+								<span class="desc" id="desc">' . $r["ability_info"][$i]["desc"] . '</span><br>
+								<span class="desc" id="info">' . $r["ability_info"][$i]["info"] . '</span>
 							</div>
 						</div>
 					</div>';
@@ -230,7 +229,7 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 					//Display Masteries Numbers
 					$i=0;
 					foreach ($r["stats"] as $key => $value) {
-					 	if( $i > 14 &&  $i < 24) { displayStat($key,$value); }
+					 	if( $i > 9 &&  $i < 19) { displayStat($key,$value); }
 						$i++;
 					}
 					echo '
