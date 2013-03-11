@@ -55,6 +55,7 @@ var Game = Class.create({
 		this.nextQueue = []; //next round queue
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
+		this.creatureJSON;
 		this.availableCreatures = [
 			0, //Dark Priest
 			37, //Swine Thug
@@ -73,11 +74,14 @@ var Game = Class.create({
 		$j("#gamesetupcontainer").hide();
 
 		//Get JSON files
-		var i = 0;
-		this.availableCreatures.each(function(){
-			$j.getJSON("./datas.php?id="+this, function(data) {
+		$j.getJSON("../data/creatures.json", function(json_in) {
+			G.creatureJSON = json_in;
+			var i = 0;
+			G.availableCreatures.each(function(){
+				
+				var data = G.creatureJSON[this];
+				
 				G.creatureDatas.push(data);
-				i++;
 
 				var d=document,
 				h=d.getElementsByTagName('head')[0],
@@ -90,15 +94,15 @@ var Game = Class.create({
 
 				//For code compatibility
 				var index = G.availableCreatures.indexOf(data.id);
-				G.availableCreatures[index] = data.type;
-
+				G.availableCreatures[i] = data.type;
+				i++;
+	
 				if(i==G.availableCreatures.length){ //If all creature are loaded
 					$j("#loader").hide();
 					$j("#gamesetupcontainer").show();
 				}
 			});
 		});
-
 	},
 
 

@@ -79,53 +79,10 @@ function db_query($query) {
 	return true;
 }
 
-$id = (int)$_GET["id"];
-
 global $site_root; // from global.php
 
-$ab_creatures = "SELECT ab_creatures.*, ab_stats.*, ab_abilities.* FROM ab_creatures
-					LEFT JOIN ab_stats ON ab_creatures.id = ab_stats.id
-					LEFT JOIN ab_abilities ON ab_creatures.id = ab_abilities.id
-					WHERE ab_creatures.id = '$id' ";
+$ab_creatures = "SELECT * FROM ab_".$_GET["id"];
 
 $r = db_query($ab_creatures);
-$r = $r[0];
-
-$datas = array();
-
-$datas["id"] = (int)$r["id"];
-$datas["type"] = $r["sin"].$r["lvl"];
-$datas["name"] = $r["name"];
-$datas["lvl"] = $r["lvl"];;
-$datas["realm"] = $r["sin"];;
-$datas["size"] = (int)$r["hex"];
-$datas["stats"] = array(
-	'health' => (int)$r["health"],
-	'regrowth' => (int)$r["regrowth"],
-	'endurance' => (int)$r["endurance"],
-	'energy' => (int)$r["energy"],
-	'meditation' => (int)$r["meditation"],
-	'initiative' => (int)$r["initiative"],
-	'offense' => (int)$r["offense"],
-	'defense' => (int)$r["defense"],
-	'movement' => (int)$r["movement"],
-
-	'pierce' => (int)$r["pierce"],
-	'slash' => (int)$r["slash"],
-	'crush' => (int)$r["crush"],
-	'shock' => (int)$r["shock"],
-	'burn' => (int)$r["burn"],
-	'frost' => (int)$r["frost"],
-	'poison' => (int)$r["poison"],
-	'sonic' => (int)$r["sonic"],
-	'mental' => (int)$r["mental"],);
-
-$datas["abilities_infos"] = array(
-	array( 'title' => $r["passive"], 'desc' => $r["passive desc"], 'info' => $r["passive info"]),
-	array( 'title' => $r["weak"],	 'desc' => $r["weak desc"], 'info' => $r["weak info"]),
-	array( 'title' => $r["medium"],	 'desc' => $r["medium desc"], 'info' => $r["medium info"]),
-	array( 'title' => $r["strong"],	 'desc' => $r["strong desc"], 'info' => $r["strong info"]),
-);
-
-print_r(json_encode($datas));
+print_r(json_encode($r));
 ?>
