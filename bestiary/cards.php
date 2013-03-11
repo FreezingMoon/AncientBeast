@@ -166,13 +166,8 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 	if( $id != -1 && !is_array($r) ){
 		$ab_id = mysql_real_escape_string($id);
 
-		$ab_creatures = "SELECT ab_creatures.*, ab_stats.*, ab_abilities.* FROM ab_creatures
-						LEFT JOIN ab_stats ON ab_creatures.id = ab_stats.id
-						LEFT JOIN ab_abilities ON ab_creatures.id = ab_abilities.id
-						WHERE ab_creatures.id = '$ab_id'";
-
-		$r = db_query($ab_creatures);
-		$r = $r[0];
+		$ab_creatures = get_creatures();
+		$r = reset($ab_creatures);
 	}
   
 	//Card entry
@@ -186,23 +181,23 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 			<a href="#' . $underscore . '" class="section cardborder">';
 				//Display 3d creature if option enabled
 				if ($embed == 1) echo '<div class="embed"><iframe frameborder="0" height="520" width="400" src="http://sketchfab.com/embed/' . $r['embed'] . '?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe></div>';
-				echo '<table class="section info sin' . $r['sin'] . '">
+				echo '<table class="section info sin' . $r['realm'] . '">
 					<tr>
-						<td class="type" style="width:20%;">'.$r['sin'].$r['lvl'].'</td>
+						<td class="type" style="width:20%;">'.$r['realm'].$r['lvl'].'</td>
 						<td><audio src="' . $spaceless . '/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
 						<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '">' . $r['name'] . '</a></td>
-						<td class="hexs" style="width:20%;">' . $r['hex'] . 'H</td>
+						<td class="hexs" style="width:20%;">' . $r['size'] . 'H</td>
 					</tr>
 				</table>
 			</a>
 		</th>
-		<th class="card verso sin' . $r['sin'] . '">
+		<th class="card verso sin' . $r['realm'] . '">
 			<div class="section cardborder">
 				<table class="section">
 					<tr class="numbers">';
 					//Display Stats Numbers
 					$i=0;
-					foreach ($r as $key => $value) {
+					foreach ($r["stats"] as $key => $value) {
 					 	if( $i > 5 &&  $i < 15) { displayStat($key,$value); }
 						$i++;
 					}
@@ -212,7 +207,6 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 				<div class="section abilities">';
 
 			  	//Display Abilities
-				$abilities = array('passive', 'weak', 'medium', 'strong');
 				for ($i=0; $i < 4; $i++) { 
 				 	# code...
 					echo '
@@ -222,9 +216,9 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 						</div>
 						<div class="wrapper">
 							<div class="info">
-								<h3>' . $r[$abilities[$i]] . '</h3>
-								<span class="desc">' . $r[$abilities[$i] . " desc"] . '<br></span>
-								<span class="desc">' . $r[$abilities[$i] . " info"] . '</span>
+								<h3>' . $r["ability_info"][$i]["title"] . '</h3>
+								<span class="desc">' . $r["ability_info"][$i]["desc"] . '<br></span>
+								<span class="desc">' . $r["ability_info"][$i]["info"] . '</span>
 							</div>
 						</div>
 					</div>';
@@ -235,7 +229,7 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 					<tr class="numbers">';
 					//Display Masteries Numbers
 					$i=0;
-					foreach ($r as $key => $value) {
+					foreach ($r["stats"] as $key => $value) {
 					 	if( $i > 14 &&  $i < 24) { displayStat($key,$value); }
 						$i++;
 					}

@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `ab_abilities` (
 --
 
 INSERT INTO `ab_abilities` (`id`, `passive`, `passive desc`, `passive info`, `weak`, `weak desc`, `weak info`, `medium`, `medium desc`, `medium info`, `strong`, `strong desc`, `strong info`) VALUES
+(0, 'Artificial Satellite', 'Protects from all harm and also facilitates distant materialization.', '-2 plasma per use', 'Electroshock', 'Does shock damage to a nearby foe. Effective versus larger creatures.', '12 shock damage * creature size', 'Disintegration', 'Does pure damage to a nearby foe. Bonus based on it''s missing health.', '>25 damage; plasma = creature size', 'Materialization', 'Summons a creature on the combat field that will serve and obey orders.', 'plasma = creature size + level (+2)'),
 (1, 'Post Mortem', 'Drops a powerful fuse bomb on the ground when dying.', '', 'Sword Slash', 'Swift attack on a nearby foe.', 'No info', 'Pistol Shot', 'Medium range shot.', 'No info', 'Rifle Shot', 'Very powerful long range attack.', 'No info'),
 (2, 'Backstabber', 'Reduces damage from behind and returns some to melee attackers.', '30% damage reduction and return.', 'Metallic Claws', 'Razor sharp claws help him really shred his foes.', '10 pierce + 10 slash damage.', 'Tail Mace', 'Whips out it''s scepter like tail to bluntly punish a distant foe.', '15 pierce + 15 crush damage.', 'Brain Power', 'Electro-charges it''s brain functions to shock all nearby creatures.', '25 shock damage to adjacent targets.'),
 (3, 'Spore Contamination', 'Nearby foes have their regrowth stat constantly reduced with each round.', '-1 regrowth per stack', 'Chomp', 'Takes a huge bite out of his foe, restoring a minor amount of health.', '20 pierce damage, 1/4 as regrowth', 'Blade Kick', 'Slashes nearby foe using feet claws.', '15 pierce + 10 slash + 5 crush damage', 'Frogger', 'Leaps in straight line over obstacles, gaining bonus offense after landing.', '+30 offense for next hit if not moving'),
@@ -97,7 +98,6 @@ INSERT INTO `ab_abilities` (`id`, `passive`, `passive desc`, `passive info`, `we
 (47, 'Plate Mail', 'No description', '', 'No name', 'No description', 'No info', 'No name', 'No description', 'No info', 'No name', 'No description', 'No info'),
 (48, 'No name', 'No description', '', 'No name', 'No description', 'No info', 'No name', 'No description', 'No info', 'No name', 'No description', 'No info'),
 (49, 'No name', 'No description', '', 'No name', 'No description', 'No info', 'No name', 'No description', 'No info', 'No name', 'No description', 'No info'),
-(0, 'Artificial Satellite', 'Protects from all harm and also facilitates distant materialization.', '-2 plasma per use', 'Electroshock', 'Does shock damage to a nearby foe. Effective versus larger creatures.', '12 shock damage * creature size', 'Disintegration', 'Does pure damage to a nearby foe. Bonus based on it''s missing health.', '>25 damage; plasma = creature size', 'Materialization', 'Summons a creature on the combat field that will serve and obey orders.', 'plasma = creature size + level (+2)'),
 (50, 'Immaterial', 'Passes through obstacles and takes half the damage.', '', 'Hand Jaw', 'Bites nearby foe using it''s ... hand.', 'No info', 'Opression', 'Causes nearby foe to fall into depression and not act for a turn.', 'No info', 'Life and Death', 'Ressurects itself by stealing the life of a fatigued foe, if corpse available.', 'No info');
 
 -- --------------------------------------------------------
@@ -122,6 +122,7 @@ CREATE TABLE IF NOT EXISTS `ab_creatures` (
 --
 
 INSERT INTO `ab_creatures` (`id`, `name`, `sin`, `lvl`, `hex`, `embed`) VALUES
+(0, 'Dark Priest', '-', '-', 1, NULL),
 (1, 'Bounty Hunter', 'A', '2', 1, NULL),
 (2, 'Marauder', 'G', '6', 3, NULL),
 (3, 'Uncle Fungus', 'G', '3', 2, NULL),
@@ -171,7 +172,6 @@ INSERT INTO `ab_creatures` (`id`, `name`, `sin`, `lvl`, `hex`, `embed`) VALUES
 (47, 'Royal Guard', 'P', '5', 3, NULL),
 (48, 'Satyr', 'W', '6', 3, NULL),
 (49, 'Volpyr', 'L', '6', 3, NULL),
-(0, 'Dark Priest', '-', '-', 1, NULL),
 (50, 'Shadow Leech', 'W', 'S', 1, NULL);
 
 -- --------------------------------------------------------
@@ -303,6 +303,7 @@ CREATE TABLE IF NOT EXISTS `ab_progress` (
 --
 
 INSERT INTO `ab_progress` (`id`, `info`, `artwork`, `icons`, `model`, `unwrap`, `texture`, `rig`, `animation`, `sound`, `coding`) VALUES
+(0, 100, 80, 100, 60, 0, 20, 0, 0, 10, 80),
 (1, 80, 100, 100, 80, 0, 20, 0, 0, 10, 0),
 (2, 100, 60, 100, 80, 0, 10, 90, 10, 10, 0),
 (3, 100, 100, 100, 70, 0, 10, 50, 0, 10, 70),
@@ -352,7 +353,6 @@ INSERT INTO `ab_progress` (`id`, `info`, `artwork`, `icons`, `model`, `unwrap`, 
 (47, 20, 80, 0, 0, 0, 0, 0, 0, 10, 0),
 (48, 20, 40, 0, 0, 0, 0, 0, 0, 10, 0),
 (49, 20, 60, 0, 0, 0, 0, 0, 0, 10, 0),
-(0, 100, 80, 100, 60, 0, 20, 0, 0, 10, 80),
 (50, 80, 80, 100, 0, 0, 10, 0, 0, 10, 0);
 
 -- --------------------------------------------------------
@@ -391,6 +391,7 @@ CREATE TABLE IF NOT EXISTS `ab_stats` (
 --
 
 INSERT INTO `ab_stats` (`id`, `health`, `regrowth`, `endurance`, `energy`, `meditation`, `initiative`, `offense`, `defense`, `movement`, `pierce`, `slash`, `crush`, `shock`, `burn`, `frost`, `poison`, `sonic`, `mental`) VALUES
+(0, 100, 1, 60, 100, 10, 50, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 30),
 (1, 140, 4, 50, 125, 8, 110, 40, 10, 6, 5, 2, 3, 5, 3, 7, 5, 6, 20),
 (2, 280, 10, 60, 150, 7, 100, 35, 5, 7, 8, 8, 6, 12, 9, 5, 6, 3, 3),
 (3, 120, 10, 40, 120, 7, 90, 20, 10, 4, 5, 5, 5, 3, 4, 6, 20, 5, 3),
@@ -440,7 +441,6 @@ INSERT INTO `ab_stats` (`id`, `health`, `regrowth`, `endurance`, `energy`, `medi
 (47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (48, 260, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(0, 100, 1, 60, 100, 10, 50, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 30),
 (50, 100, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

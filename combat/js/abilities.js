@@ -9,7 +9,7 @@ var Ability = Class.create({
 		this.used = false;
 		this.id = abilityID;
 		var datas = G.retreiveCreatureStats(creature.type);
-		$j.extend(this,abilities[datas.id][abilityID],datas.abilities_infos[abilityID]);
+		$j.extend(this,abilities[datas.id][abilityID],datas.ability_info[abilityID]);
 	},
 
 

@@ -52,6 +52,7 @@ var Creature = Class.create({
 		this.type 		= obj.type; //Which creature it is
 		this.lvl 		= (obj.lvl == "-")?1:obj.lvl; //Which creature it is
 		this.realm 		= obj.realm; //Which creature it is
+		this.animation		= obj.animation;
 
 
 		this.hexagons 	= [];
@@ -86,7 +87,7 @@ var Creature = Class.create({
 
 		this.$display.css(this.hexagons[this.size-1].displayPos); //translate to its real position
 		this.$display.css("z-index",this.y);
-		if(this.player.flipped) this.$display.addClass("flipped");
+		this.facePlayerDefault();
 
 		//Health indicator
 		this.$health = G.grid.$creatureW.append('<div creature="'+this.id+'" class="health p'+this.team+'">'+this.health+'</div>').children(".health[creature='"+this.id+"']");
@@ -270,14 +271,15 @@ var Creature = Class.create({
 	
 	/* 	faceHex(facefrom,faceto)
 	*
-	*	facefrom : 		Hex :		Hex to face from
-	*	faceto : 		Hex :		Hex to face
+	*	facefrom : 	Hex or Creature :	Hex to face from
+	*	faceto : 	Hex or Creature :	Hex to face
 	*
 	* 	Face creature at given hex
 	*
 	*/
 	faceHex: function(facefrom,faceto){
 		if(facefrom instanceof Creature){ facefrom = G.grid.hexs[facefrom.y][facefrom.x] }
+		if(faceto instanceof Creature){ faceto = G.grid.hexs[faceto.y][faceto.x] }
 		if(facefrom.y%2==0){
 			var flipped = ( faceto.x <= facefrom.x );
 		}else{
@@ -348,14 +350,13 @@ var Creature = Class.create({
 		path.each(function(){
 			var nextPos = G.grid.hexs[this.y][this.x-creature.size+1];
 			var thisHexId = hexId;
-
-			creature.$display.animate(nextPos.displayPos,500,"linear",function(){
+			creature.$display.animate(nextPos.displayPos,parseInt(creature.animation.walk_speed),"linear",function(){
 				creature.facePlayerDefault(creature);
 				currentHex = path[thisHexId];
 
 				creature.cleanHex();
-				creature.x 		= currentHex.x - 0;
-				creature.y 		= currentHex.y - 0;
+				creature.x 	= currentHex.x - 0;
+				creature.y 	= currentHex.y - 0;
 				creature.pos 	= currentHex.pos;
 				creature.updateHex();
 

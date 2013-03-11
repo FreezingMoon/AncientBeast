@@ -29,23 +29,32 @@ require_once('../images/stats/index.php');
 require_once('cards.php');
 require_once('grid.php');
 
-$creatures = "SELECT ab_creatures.*, ab_stats.*, ab_abilities.*, ab_progress.* FROM ab_creatures
-				LEFT JOIN ab_stats ON ab_creatures.id = ab_stats.id
-				LEFT JOIN ab_abilities ON ab_creatures.id = ab_abilities.id
-				LEFT JOIN ab_progress ON ab_creatures.id = ab_progress.id
-				ORDER BY ab_creatures.sin , ab_creatures.lvl";
-$creature_results = db_query($creatures);
+function get_creatures(){
+	$progress_json = json_decode(file_get_contents('../data/progress.json'), true);
+	$creature_json = json_decode(file_get_contents('../data/creatures.json'), true);
+	$creature_results = array();
+	$i = 0;
+	foreach($creature_json as &$creature){
+		$creature["progress"] = $progress_json[$i];
+		$creature_results[$creature["type"]] = $creature;
+		$i++;
+	}
+	ksort($creature_results);
+	return $creature_results;
+}
 
-function progress($r) {
+$creature_results = get_creatures();
+
+function progress($r,$c) {
 		$sum = 0;
-		$spaceless = str_replace(' ', '%20', $r['name'] );
+		$spaceless = str_replace(' ', '%20', $c['name'] );
 		echo "
 
 		<div class='center' style='width:825px; background-image:url(../images/progress/widget.png); background-repeat:no-repeat;'>
 		<a href='http://www.wuala.com/AncientBeast/bestiary/" . $spaceless . "' target='_blank'>";
 		$i = 0;
 		foreach($r as $key => $value) {
-			if($i++ < 36) continue; //Ignore Other keys
+			if($i++ < 1) continue; //Ignore Other keys
 			$sum += $value;
 			$title = ucfirst($key) . ": $value% complete";
 			echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title' alt='$title'>";
@@ -79,21 +88,23 @@ echo '<style type="text/css">
 			height: 896px;
 		}
 	</style>';
-creatureGrid($creature_results,false);
+creatureGrid($creature_results);
 echo "<br>";
 
 //detailed view
+$i = 0;
 foreach ($creature_results as $r) {
 	$underscore = str_replace(' ', '_', $r['name']);
 	start_segment($underscore);
 	cards($r);
 	echo '<br>';
-	progress($r);
+	progress($r["progress"],$r);
 	end_segment();
+	$i++;
 }
 
 start_segment();
-echo '<div class="center">Please let us know your top 3 favorite creatures by commenting below. Any other feedback also welcomed!</div>';
+echo '<div class="center">Please let us know your top 3 favorite creatures by commenting below. Any other feedback also welcome!</div>';
 separate_segment();
 include('../utils/disqus.php');
 end_segment();

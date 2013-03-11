@@ -6,15 +6,14 @@ function creatureGrid($creature_results=false)
 	
 	//If result is empty do a query
 	if( $creature_results == false ){
-		$creatures = 'SELECT * FROM ab_creatures ORDER BY sin, lvl';
-		$creature_results = db_query($creatures);
+		$creature_results = get_creatures();
 	}
 	
 echo '<style type="text/css">';
 
 	foreach ($creature_results as $r) {
 		if ($r['id'] == 0 ) { continue; } //Ignore Dark Priest
-		echo '.vignette.type' .$r['sin'].$r['lvl']. '{background-image: url("' .$site_root. 'bestiary/' .$r["name"]. '/avatar.jpg");}';
+		echo '.vignette.type' .$r['realm'].$r['lvl']. '{background-image: url("' .$site_root. 'bestiary/' .$r["name"]. '/avatar.jpg");}';
 	}
 
 	echo '
@@ -30,7 +29,7 @@ echo '<style type="text/css">';
 			continue;
 		}
 		$underscore = str_replace(' ', '_', $r['name']);
-		echo '<a href="#'.$underscore.'" title="'.$r['name'].'" class="vignette type'.$r['sin'].$r['lvl'].'" creature="'.$r['sin'].$r['lvl'].'"><div class="overlay"></div><div class="border"></div></a>';
+		echo '<a href="#'.$underscore.'" title="'.$r['name'].'" class="vignette type'.$r['realm'].$r['lvl'].'" creature="'.$r['realm'].$r['lvl'].'"><div class="overlay"></div><div class="border"></div></a>';
 	} 
 
 	echo '</div>';

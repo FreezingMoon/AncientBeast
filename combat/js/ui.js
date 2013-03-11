@@ -154,9 +154,9 @@ var UI = Class.create({
 			$j.each(abilities[stats.id],function(key,value){
 				$ability = $j("#card .card.verso .abilities .ability:eq("+key+")");
 				$ability.children('.icon').css({"background-image":"url('../bestiary/"+stats.name+"/"+key+".svg')"});
-				$ability.children(".wrapper").children(".info").children("h3").text(stats.abilities_infos[key].title);
-				$ability.children(".wrapper").children(".info").children(".desc").text(stats.abilities_infos[key].desc);
-				$ability.children(".wrapper").children(".info").children(".desc").text(stats.abilities_infos[key].info);
+				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
+				$ability.children(".wrapper").children(".info").children(".desc").text(stats.ability_info[key].desc);
+				$ability.children(".wrapper").children(".info").children(".desc").text(stats.ability_info[key].info);
 			});
 
 			var summonedOrDead = false;
@@ -222,6 +222,7 @@ var UI = Class.create({
 
 		//change creature status
 		G.players[id].availableCreatures.each(function(){
+			console.log("woot: "+this);
 			G.UI.$grid.children(".vignette[creature='"+this+"']").removeClass("locked");
 		});
 		G.players[id].creatures.each(function(){
