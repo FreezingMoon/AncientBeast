@@ -82,7 +82,6 @@ var Game = Class.create({
 				var data = G.creatureJSON[this];
 				
 				G.creatureDatas.push(data);
-
 				var d=document,
 				h=d.getElementsByTagName('head')[0],
 				s=d.createElement('script');
@@ -116,7 +115,6 @@ var Game = Class.create({
 	*
 	*/
 	loadGame: function(setupOpt){
-
 		var defaultOpt = {
 			nbrPlayer : 2,
 			timePool : 5*60,
@@ -143,7 +141,7 @@ var Game = Class.create({
 		trapID = 0;
 		effectId = 0;
 		this.creaIdCounter = 1;
-
+		
 		this.grid = new HexGrid();//Creating Hexgrid
 
 		$j("#combatframe").css("background-image","url('../locations/"+this.background_image+"/bg.jpg')");
@@ -157,7 +155,7 @@ var Game = Class.create({
 		$j("#matchmaking").hide();
 
 		for (var i = 0; i < nbrPlayer; i++) {
-			var player = new Player(i)
+			var player = new Player(i);
 			this.players.push(player);
 
 			//starting position
@@ -574,13 +572,9 @@ var Player = Class.create({
 	*
 	*/
 	summon: function(type,pos){
-
 		var data = G.retreiveCreatureStats(type);
-
 		data = $j.extend(data,pos,{team:this.id}); //create the full data for creature creation
-		
 		var creature = new Creature(data);
-
 		this.creatures.push(creature);
 	},
 

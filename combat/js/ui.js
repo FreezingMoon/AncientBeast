@@ -222,7 +222,6 @@ var UI = Class.create({
 
 		//change creature status
 		G.players[id].availableCreatures.each(function(){
-			console.log("woot: "+this);
 			G.UI.$grid.children(".vignette[creature='"+this+"']").removeClass("locked");
 		});
 		G.players[id].creatures.each(function(){

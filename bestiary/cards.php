@@ -164,7 +164,7 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 
 
 	if( $id != -1 && !is_array($r) ){
-		$ab_id = mysql_real_escape_string($id);
+		$ab_id = $id;
 
 		$ab_creatures = get_creatures();
 		$r = reset($ab_creatures);

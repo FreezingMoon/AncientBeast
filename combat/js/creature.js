@@ -53,7 +53,7 @@ var Creature = Class.create({
 		this.lvl 		= (obj.lvl == "-")?1:obj.lvl; //Which creature it is
 		this.realm 		= obj.realm; //Which creature it is
 		this.animation		= obj.animation;
-
+		
 
 		this.hexagons 	= [];
 
@@ -65,6 +65,7 @@ var Creature = Class.create({
 		this.hasWait 	= false;
 		this.travelDist = 0;
 		this.effects 	= [];
+		
 
 		//Statistics
 		this.baseStats 	= obj.stats;
@@ -78,9 +79,9 @@ var Creature = Class.create({
 		this.abilities[1] = new Ability(this,1);
 		this.abilities[2] = new Ability(this,2);
 		this.abilities[3] = new Ability(this,3);
-
+		
 		this.updateHex();
-
+		
 		//Creating Html representation of creature
 		this.$display = G.grid.$creatureW.append('<div id="crea'+this.id +'" class="creature ghosted type_'+obj.id+' p'+this.team+'"><div class="effects"></div></div>').children("#crea"+this.id);
 		this.$effects = this.$display.children(".effects");
@@ -92,12 +93,12 @@ var Creature = Class.create({
 		//Health indicator
 		this.$health = G.grid.$creatureW.append('<div creature="'+this.id+'" class="health p'+this.team+'">'+this.health+'</div>').children(".health[creature='"+this.id+"']");
 		this.$health.hide();
-
+		
 		//Adding Himself to creature arrays and queue
 		G.creatures[this.id] = this;
 		G.nextQueue.push(this);
 		G.reorderQueue();
-
+		
 		this.summon();
 	},
 

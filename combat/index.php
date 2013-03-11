@@ -26,59 +26,8 @@
 if(!file_exists(dirname(__FILE__) . "/../config.php"))
 	die("Warning: config.php not found, please edit config.php.in to point to a database and save it as config.php<br>Disclaimer: Since this project is web based, you can use the code and assets along with database.sql to host Ancient Beast yourself for testing and development purposes only! Also, your version should not be indexable by search engines because that can cause harm to the project!");
 require_once("../config.php");
+require_once("../bestiary/functions.php");
 require_once('../bestiary/cards.php');
-
-// Database
-$db_connection = NULL;
-function db_connect() {
-	global $db_connection, $db_info;
-	if(!is_null($db_connection))
-		return false;
-	$db_connection = mysql_connect($db_info["host"], $db_info["username"], $db_info["password"]);
-	if($db_connection === false) {
-		// TODO: redirect/display to static error page
-		die("Server connection issues...");
-		return false;
-	}
-	mysql_select_db($db_info["database"]);
-	mysql_query("SET NAMES 'utf8'");
-	return true;
-}
-function db_execute($query) {
-	global $db_connection;
-	if($db_connection === false)
-		return false;
-	if(is_null($db_connection))
-		if(!db_connect())
-			return false;
-
-	$r = mysql_query($query);
-	if($r === false) return false;
-	return true;
-}
-function db_query($query) {
-	global $db_connection;
-	if($db_connection === false)
-		return false;
-	if(is_null($db_connection))
-		if(!db_connect())
-			return false;
-
-	$r = mysql_query($query);
-	if($r === false) return false;
-	if(mysql_num_rows($r) > 0) {
-		$o = array();
-		$i = 0;
-		while ($row = @mysql_fetch_assoc($r)) {
-			$o[$i] = array();
-			foreach($row as $k => $v)
-				$o[$i][$k] = $v;
-			$i++;
-		}
-		return $o;
-	}
-	return true;
-}
 
 ?>
 <html>
@@ -175,19 +124,19 @@ function db_query($query) {
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">6</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">7</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">8</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">&#8734;</div>
 					<div><h2>Turn</h2></div>
 					<div style="border:2px solid red; background: rgba(0,0,0,.8);">20</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">40</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">60</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">80</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">&#8734;</div>
 					<div><h2>Match</h2></div>
 					<div style="border:2px solid red; background: rgba(0,0,0,.8);">1</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">3</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">5</div>
 					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">7</div>
-					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">∞</div>
+					<div style="border:2px solid grey; background: rgba(0,0,0,.8);">&#8734;</div>
 					<div><h2>FIGHT</h2></div>
 				</div> -->
 
@@ -219,7 +168,7 @@ function db_query($query) {
 
 					Time pool (for each player) : 
 					<select name="time_pool">
-						<option value="-1">∞</option>
+						<option value="-1">&#8734;</option>
 						<option value="1">1 min</option>
 						<option value="2">2 min</option>
 						<option value="3">3 min</option>
@@ -231,7 +180,7 @@ function db_query($query) {
 
 					Turn time : 
 					<select name="time_turn">
-						<option value="-1">∞</option>
+						<option value="-1">&#8734;</option>
 						<option value="20">20 sec</option>
 						<option value="40">40 sec</option>
 						<option value="60">60 sec</option>
@@ -393,7 +342,7 @@ function db_query($query) {
 					<p class="name"></p>
 					<p class="points"><span></span> Points</p>
 					<p class="plasma"><span></span> Plasma</p>
-					<p class="time"><span>∞</span> Time</p>
+					<p class="time"><span>&#8734;</span> Time</p>
 				</div>
 				<div id="rightpanel">
 					<div id="end" 		class="button"><div class="desc"><span>End turn</span><p>Description</p></div></div>
