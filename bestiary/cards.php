@@ -198,7 +198,7 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 					//Display Stats Numbers
 					$i=0;
 					foreach ($r["stats"] as $key => $value) {
-					 	if( $i > 0 &&  $i < 10) { displayStat($key,$value); }
+					 	if( $i >= 0 &&  $i <= 8) { displayStat($key,$value); }
 						$i++;
 					}
 					echo '
@@ -229,7 +229,7 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 					//Display Masteries Numbers
 					$i=0;
 					foreach ($r["stats"] as $key => $value) {
-					 	if( $i > 9 &&  $i < 19) { displayStat($key,$value); }
+					 	if( $i >= 9 &&  $i <= 17) { displayStat($key,$value); }
 						$i++;
 					}
 					echo '
