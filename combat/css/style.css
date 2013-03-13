@@ -690,10 +690,14 @@ div.row:nth-child(9){top:38.944em;}
 #summon_buttons{ 
 	width: 860px;
 	margin: auto;
+	margin-top:10px;
 }
 
-#materialize_button,#energize_button{
-	width: 420px;
+#materialize_button{
+	line-height: 76px;
+	font-size:40px;
+	font-weight:bold;
+	width: 860px;
 	background: #555;
 	display: inline-block;
 }

@@ -492,8 +492,10 @@ var HexGrid = Class.create({
 					this.$display.addClass("ghosted_hidden");
 					this.$health.addClass("ghosted_hidden");
 					for (var i = 0; i < this.size; i++) {
-						this.hexagons[i].$display.hide();
-						this.hexagons[i].$overlay.hide();
+						if(this.hexagons[i]){
+							this.hexagons[i].$display.hide();
+							this.hexagons[i].$overlay.hide();
+						}
 					}
 				}
 			}
@@ -511,8 +513,10 @@ var HexGrid = Class.create({
 				this.$display.removeClass("ghosted_hidden");
 				this.$health.removeClass("ghosted_hidden");
 				for (var i = 0; i < this.size; i++) {
-					this.hexagons[i].$display.show();
-					this.hexagons[i].$overlay.show();
+					if(this.hexagons[i]){
+						this.hexagons[i].$display.show();
+						this.hexagons[i].$overlay.show();
+					}
 				}
 			}
 		});

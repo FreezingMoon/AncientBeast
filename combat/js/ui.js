@@ -178,18 +178,12 @@ var UI = Class.create({
 				plasmaCost = lvl+size;
 				$j('#summon_buttons').show();
 				$j('#materialize_button p').text(plasmaCost+" Plasma");
-				$j('#energize_button p').text((plasmaCost+2)+" Plasma");
 
 				//Bind buttons
 				$j('#materialize_button').unbind('click').bind('click',function(e){
 					if(G.freezedInput) return;
 					G.UI.toggleDash();
 					G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
-				});
-				$j('#energize_button').unbind('click').bind('click',function(e){
-					if(G.freezedInput) return;
-					G.UI.toggleDash();
-					G.activeCreature.abilities[3].energize(G.UI.selectedCreature);
 				});
 
 			}else{
