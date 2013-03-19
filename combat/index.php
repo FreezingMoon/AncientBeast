@@ -317,6 +317,7 @@ require_once('../bestiary/cards.php');
 								<div id="materialize_button" class="button">
 									<div class="ability button"></div>
 									Materialize
+									<div class="ability_satellite button"></div>
 								</div>
 							</div>
 						</div>

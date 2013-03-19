@@ -703,8 +703,9 @@ div.row:nth-child(9){top:38.944em;}
 }
 
 #summon_buttons .ability{float: left;}
+#summon_buttons .ability_satellite{float: right;}
 #materialize_button .ability{ background-image: url("../../bestiary/Dark%20Priest/2.svg"); }
-#energize_button .ability{ background-image: url("../../bestiary/Dark%20Priest/3.svg"); }
+#materialize_button .ability_satellite{ background-image: url("../../bestiary/Dark%20Priest/0.svg"); }
 
 .buff{ color: green; }
 .debuff{ color: red; }
