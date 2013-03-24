@@ -9,11 +9,14 @@ abilities[0] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onDamage",
+	
+	satelliteBeamReach: 5,
+	satelliteBeamCost: 2,
 
 	// 	require() :
 	require : function(damage){
 		this.setUsed(false); //Can be triggered as many times
-		if(this.creature.player.plasma <= 2){
+		if(this.creature.player.plasma <= this.satelliteBeamCost){
 			G.log("Not enough plasma");
 			return false;
 		}
@@ -190,27 +193,37 @@ abilities[0] =[
 	},
 
 	//Callback function to queryCreature
-	materialize : function(creature){
+	materialize : function(creature,satellite){
 		var crea = G.retreiveCreatureStats(creature);
 		var dpriest = this.creature;
 		var excludedHexs = [];
-
+		
 		var spawnRange = dpriest.hexagons[0].adjacentHex(1);
+		var notsat = spawnRange.slice(0);
+		
+		if(satellite){
+			spawnRange = G.grid.getFlyingRange(dpriest.x,dpriest.y,dpriest.abilities[0].satelliteBeamReach,1,0);
+		}
 
-		if( G.grid.hexExists(dpriest.y,dpriest.x+crea.size-1) )
+		if(G.grid.hexExists(dpriest.y,dpriest.x+crea.size-1)){
 			spawnRange = spawnRange.concat( G.grid.hexs[dpriest.y][dpriest.x+crea.size-1].adjacentHex(1) );
+			notsat = notsat.concat( G.grid.hexs[dpriest.y][dpriest.x+crea.size-1].adjacentHex(1) );
+		}
 
 		spawnRange.filter(function(){ return this.isWalkable(crea.size,0,true); });
 		spawnRange = spawnRange.extendToLeft(crea.size);
-
+		
+		notsat.filter(function(){ return this.isWalkable(crea.size,0,true); });
+		notsat = notsat.extendToLeft(crea.size);
+		
 		G.grid.queryHexs({
 			fnOnSelect : this.fnOnSelect,
 			fnOnCancel : function(){ G.activeCreature.queryMove(); },
 			fnOnConfirm : this.activate,
-			args : {dpriest:dpriest, creature:creature, ability:this, cost:0}, //OptionalArgs
+			args : {dpriest:dpriest, creature:creature, ability:this, cost:0, satellite_mat:satellite, not_satellite:notsat}, //OptionalArgs
 			size : crea.size,
 			flipped : dpriest.player.flipped,
-			hexs : spawnRange,
+			hexs : spawnRange
 		});
 	},
 
@@ -223,10 +236,14 @@ abilities[0] =[
 		var dpriest = args.dpriest;
 
 		var pos = { x:hex.x, y:hex.y };
+		var satellitePenalty = 0;
+		if(!G.grid.isHexIn(hex,args.not_satellite)){
+			satellitePenalty = dpriest.abilities[0].satelliteBeamCost;
+		}
 
 		ability.creature.player.summon(creature,pos);
 
-		ability.creature.player.plasma -= args.cost+(creaStats.size-0)+(creaStats.lvl-0);
+		ability.creature.player.plasma -= args.cost+(creaStats.size-0)+(creaStats.lvl-0)+(satellitePenalty-0);
 
 		ability.end();
 	},

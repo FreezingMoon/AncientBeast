@@ -177,13 +177,22 @@ var UI = Class.create({
 				var size = G.retreiveCreatureStats(creatureType).size-0;
 				plasmaCost = lvl+size;
 				$j('#summon_buttons').show();
-				$j('#materialize_button p').text(plasmaCost+" Plasma");
+				var satellite = false;
+				var plasmacostmsg = "nearby for "+plasmaCost+" Plasma";
+				var plasmaCostAnywhere = plasmaCost+G.activeCreature.abilities[0].satelliteBeamCost;
+				$j('#materialize_button .ability_satellite').addClass("summon_button_disabled");
+				if(plasmaCostAnywhere<=G.activeCreature.player.plasma){
+					$j('#materialize_button .ability_satellite').removeClass("summon_button_disabled");
+					plasmacostmsg += " or anywhere for "+plasmaCostAnywhere+" Plasma";
+					satellite = true;
+				}
+				$j('#materialize_button p').text(plasmacostmsg);
 
 				//Bind buttons
 				$j('#materialize_button').unbind('click').bind('click',function(e){
 					if(G.freezedInput) return;
 					G.UI.toggleDash();
-					G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
+					G.activeCreature.abilities[3].materialize(G.UI.selectedCreature,satellite);
 				});
 
 			}else{

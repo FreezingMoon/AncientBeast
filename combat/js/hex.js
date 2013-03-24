@@ -571,6 +571,25 @@ var HexGrid = Class.create({
 		return false;
 	},
 
+	
+	/*	isHexIn(hex,hexArray)
+	*
+	*	hex : 		Hex : 		Hex to look for
+	*	hexarray : 	Array : 	Array of hexes to look for hex in
+	* 	
+	*	Test if hex exists inside array of hexes
+	*
+	*/
+	isHexIn: function(hex,hexArray){
+		for (var i = 0; i < hexArray.length; i++) {
+			if(hexArray[i].x == hex.x && hexArray[i].y == hex.y){
+				return true;
+			}
+		}
+		return false;
+	},
+	
+	
 	/* 	getMovementRange(x,y,distance,size,id)
 	*	
 	*	x : 		Integer : 	Start position

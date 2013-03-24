@@ -57,6 +57,10 @@ body{
 	-webkit-perspective-origin: 50% 50%;
 	-moz-perspective: 3000px;
 	-moz-perspective-origin: 50% 50%;
+	-ms-perspective: 3000px;
+	-ms-perspective-origin: 50% 50%;
+	-o-perspective: 3000px;
+	-o-perspective-origin: 50% 50%;
 	perspective: 3000px;
 	perspective-origin: 50% 50%;
 
@@ -81,15 +85,19 @@ body{
 }
 
 #hexsinput, #hexsdisplay, #hexsoverlay, #trapWrapper{
-	-webkit-transform: rotateX(45deg) ;
-	-moz-transform: rotateX(45deg) ;
-	transform: rotateX(45deg) ;
+	-webkit-transform: rotateX(45deg);
+	-moz-transform: rotateX(45deg);
+	-ms-transform: rotateX(45deg);
+	-o-transform: rotateX(45deg);
+	transform: rotateX(45deg);
 }
 
 #creatureWrapper{
-	-webkit-transform: translateZ(-3000px) scale(2,2);
-	-moz-transform: translateZ(-3000px) scale(2,2);
-	transform: translateZ(-3000px) scale(2,2);
+	-webkit-transform: translateZ(-3000px) scaleX(2) scaleY(2);
+	-moz-transform: translateZ(-3000px) scaleX(2) scaleY(2);
+	-ms-transform: translateZ(-3000px) scaleX(2) scaleY(2);
+	-o-transform: translateZ(-3000px) scaleX(2) scaleY(2);
+	transform: translateZ(-3000px) scaleX(2) scaleY(2);
 }
 
 #hexsdisplay{z-index: 1; opacity: .5;}
@@ -125,6 +133,7 @@ div.row:nth-child(9){top:38.944em;}
 	transition: opacity 250ms;
 	-moz-transition: opacity 250ms; /* Firefox 4 */
 	-webkit-transition: opacity 250ms; /* Safari and Chrome */
+	-ms-transition: opacity 250ms;
 	-o-transition: opacity 250ms; /* Opera */
 }
 
@@ -228,6 +237,7 @@ div.row:nth-child(9){top:38.944em;}
 	animation: pulse0510 750ms infinite alternate;
 	-webkit-animation: pulse0510 750ms infinite alternate;
 	-moz-animation: pulse0510 750ms infinite alternate;
+	-ms-animation: pulse0510 750ms infinite alternate;
 	-o-animation: pulse0510 750ms infinite alternate;
 }
 
@@ -271,6 +281,7 @@ div.row:nth-child(9){top:38.944em;}
 
 	transition: opacity 500ms;
 	-moz-transition: opacity 500ms; /* Firefox 4 */
+	-ms-transition: opacity 500ms;
 	-webkit-transition: opacity 500ms; /* Safari and Chrome */
 	-o-transition: opacity 500ms; /* Opera */
 }
@@ -285,6 +296,7 @@ div.row:nth-child(9){top:38.944em;}
 
 .creature{
 	transition: opacity 500ms;
+	-ms-transition: opacity 500ms;
 	-moz-transition: opacity 500ms; /* Firefox 4 */
 	-webkit-transition: opacity 500ms; /* Safari and Chrome */
 	-o-transition: opacity 500ms; /* Opera */
@@ -301,11 +313,15 @@ div.row:nth-child(9){top:38.944em;}
 	padding: 0px 0px 10px;
 	-webkit-transform-origin:65% 100%; 
 	-moz-transform-origin:65% 100%;
+	-o-transform-origin:65% 100%; 
+	-ms-transform-origin:65% 100%;
 	background: url("../../bestiary/Magma Spawn/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_4{ 
 	-webkit-transform-origin:48% 100%; 
 	-moz-transform-origin:48% 100%; 
+	-ms-transform-origin:48% 100%; 
+	-o-transform-origin:48% 100%; 
 }
 
 /*-----Snow Bunny----*/
@@ -316,11 +332,15 @@ div.row:nth-child(9){top:38.944em;}
 	padding: 0px 0px 10px;
 	-webkit-transform-origin:65% 100%;
 	-moz-transform-origin:65% 100%;
+	-ms-transform-origin:65% 100%;
+	-o-transform-origin:65% 100%;
 	background: url("../../bestiary/Snow Bunny/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_12{ 
 	-webkit-transform-origin:48% 100%; 
 	-moz-transform-origin:48% 100%; 
+	-ms-transform-origin:48% 100%; 
+	-o-transform-origin:48% 100%; 
 }
 
 /*-----Impaler----*/
@@ -332,12 +352,16 @@ div.row:nth-child(9){top:38.944em;}
 	padding: 0px 0px 10px;
 	-webkit-transform-origin:65% 100%;
 	-moz-transform-origin:65% 100%;
+	-ms-transform-origin:65% 100%;
+	-o-transform-origin:65% 100%;
 
 	background: url("../../bestiary/Impaler/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_5{ 
 	-webkit-transform-origin:42% 100%; 
 	-moz-transform-origin:42% 100%; 
+	-ms-transform-origin:42% 100%; 
+	-o-transform-origin:42% 100%; 
 }
 
 /*-----Swine Thug----*/
@@ -349,12 +373,16 @@ div.row:nth-child(9){top:38.944em;}
 	padding: 0px 0px 0px;
 	-webkit-transform-origin:39% 100%;
 	-moz-transform-origin:39% 100%;
+	-ms-transform-origin:39% 100%;
+	-o-transform-origin:39% 100%;
 
 	background: url("../../bestiary/Swine Thug/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_37{ 
 	-webkit-transform-origin:47% 100%; 
 	-moz-transform-origin:47% 100%; 
+	-ms-transform-origin:47% 100%; 
+	-o-transform-origin:47% 100%; 
 }
 
 /*-----Uncle Fungus----*/
@@ -366,6 +394,8 @@ div.row:nth-child(9){top:38.944em;}
 	padding: 0px 0px 0px;
 	-webkit-transform-origin:63% 100%;
 	-moz-transform-origin:63% 100%;
+	-ms-transform-origin:63% 100%;
+	-o-transform-origin:63% 100%;
 
 	background: url("../../bestiary/Uncle Fungus/cardboard.png");
 }
@@ -383,12 +413,16 @@ div.row:nth-child(9){top:38.944em;}
 	padding: 0px 0px 0px;
 	-webkit-transform-origin:43% 100%;
 	-moz-transform-origin:43% 100%;
+	-ms-transform-origin:43% 100%;
+	-o-transform-origin:43% 100%;
 
 	background: url("../../bestiary/Chimera/cardboard.png");
 }
 #creatureWrapper div.creature.flipped.type_45{ 
 	-webkit-transform-origin:50% 100%; 
 	-moz-transform-origin:50% 100%; 
+	-ms-transform-origin:50% 100%; 
+	-o-transform-origin:50% 100%; 
 }
 
 /*-----Dark Priest----*/
@@ -399,6 +433,8 @@ div.row:nth-child(9){top:38.944em;}
 	padding: 0px 0px 0px;
 	-webkit-transform-origin:-25% 100%; /* Safari and Chrome */
 	-moz-transform-origin:-25% 100%; /* Safari and Chrome */
+	-ms-transform-origin:-25% 100%; /* Safari and Chrome */
+	-o-transform-origin:-25% 100%; /* Safari and Chrome */
 	background-image: url("../../bestiary/Dark Priest/cardboard-red.png");
 }
 #creatureWrapper .creature.type_0.p0{background-image: url("../../bestiary/Dark Priest/cardboard-red.png");}
@@ -408,6 +444,8 @@ div.row:nth-child(9){top:38.944em;}
 #creatureWrapper div.creature.flipped.type_0{ 
 	-webkit-transform-origin:46% 100%;
 	-moz-transform-origin:46% 100%;
+	-ms-transform-origin:46% 100%;
+	-o-transform-origin:46% 100%;
 }
 
 /*-----------------EFFECTS-------------------*/
@@ -448,6 +486,7 @@ div.row:nth-child(9){top:38.944em;}
 	margin-top: 49px;
 	margin-left: 16px;
 	transition: opacity 500ms;
+	-ms-transition: opacity 500ms;
 	-moz-transition: opacity 500ms; /* Firefox 4 */
 	-webkit-transition: opacity 500ms; /* Safari and Chrome */
 	-o-transition: opacity 500ms; /* Opera */
@@ -529,6 +568,7 @@ div.row:nth-child(9){top:38.944em;}
 .button.blink{
 	animation: pulse0510 750ms infinite alternate;
 	-webkit-animation: pulse0510 750ms infinite alternate;
+	-ms-animation: pulse0510 750ms infinite alternate;
 	-moz-animation: pulse0510 750ms infinite alternate;
 	-o-animation: pulse0510 750ms infinite alternate;
 }
@@ -575,6 +615,7 @@ div.row:nth-child(9){top:38.944em;}
 	top: -100%;
 	z-index: 3;
 	transition: top 250ms;
+	-ms-transition: top 250ms;
 	-moz-transition: top 250ms; /* Firefox 4 */
 	-webkit-transition: top 250ms; /* Safari and Chrome */
 	-o-transition: top 250ms; /* Opera */
@@ -694,18 +735,28 @@ div.row:nth-child(9){top:38.944em;}
 }
 
 #materialize_button{
-	line-height: 76px;
-	font-size:40px;
+	font-size:24px;
 	font-weight:bold;
 	width: 860px;
 	background: #555;
 	display: inline-block;
 }
 
+#materialize_button p{
+	font-size:16px;
+	margin-top:0px;
+	font-weight:normal;
+}
+
+#materialize_button #button_name{
+	margin-top:15px;
+}
+
 #summon_buttons .ability{float: left;}
 #summon_buttons .ability_satellite{float: right;}
-#materialize_button .ability{ background-image: url("../../bestiary/Dark%20Priest/2.svg"); }
+#materialize_button .ability{ background-image: url("../../bestiary/Dark%20Priest/3.svg"); }
 #materialize_button .ability_satellite{ background-image: url("../../bestiary/Dark%20Priest/0.svg"); }
+.summon_button_disabled{ opacity:0.3; }
 
 .buff{ color: green; }
 .debuff{ color: red; }
@@ -739,6 +790,7 @@ div.row:nth-child(9){top:38.944em;}
 	cursor: pointer;
 
 	transition: width 500ms,height 500ms;
+	-ms-transition: width 500ms,height 500ms;
 	-moz-transition: width 500ms,height 500ms; /* Firefox 4 */
 	-webkit-transition: width 500ms,height 500ms; /* Safari and Chrome */
 	-o-transition: width 500ms,height 500ms; /* Opera */
@@ -768,6 +820,7 @@ div.row:nth-child(9){top:38.944em;}
 	margin-left: -400px;
 	overflow-y: scroll;
 	transition: height 500ms;	
+	-ms-transition: height 500ms;	
 	-moz-transition: height 500ms; /* Firefox 4 */
 	-webkit-transition: height 500ms; /* Safari and Chrome */
 	-o-transition: height 500ms; /* Opera */
