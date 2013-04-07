@@ -155,7 +155,8 @@ echo '<a href="#now">Your name here!</a></div>';
 separate_segment();?>
 <p align=center>Feel free to send your <a href="http://www.bitcoin.org" style="font-weight: bold;" target="_blank"><img src="bitcoin.ico"> bitcoin</a> donation over at:</p>
 <p align=center style="font-weight:bold; width:420px; margin:0 auto; padding:20px 0; background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge gold;">
-<a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97">1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97</a></p>
+<a href="bitcoin://1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97"><img src="QR.png"><br><br>
+1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97</a></p>
 <p align=center><a href="http://blockexplorer.com/address/1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97" target="_blank">We like being transparent, so click <b>here</b> if you wish to see a list with all bitcoin donations.</a></p>
 <p align=center><iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p>
 <?php end_segment(); end_page();?>
