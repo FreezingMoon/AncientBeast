@@ -46,7 +46,9 @@ var Game = Class.create({
 	*/
 	initialize: function(){
 		this.players = [];
+		this.p = this.players; //Convienience
 		this.creatures = [];
+		this.c = this.creatures; //Convienience
 		this.effects = [];
 		this.activeCreature = undefined;
 		this.turn = 0;
@@ -137,6 +139,10 @@ var Game = Class.create({
 	*
 	*/
 	setup: function(nbrPlayer){
+
+		//Rules Variables
+		this.creaLimitNbr = 7; //Psyhelm overload
+
 		//reseting global counters
 		trapID = 0;
 		effectId = 0;
@@ -564,6 +570,18 @@ var Player = Class.create({
 
 		this.score = [{type:"timebonus"}];
 	},
+
+
+	getNbrOfCreatures : function(){
+		var nbr = 0;
+		for(var i = 0; i < this.creatures.length; i++){
+			var crea = this.creatures[i];
+			if( !crea.undead ) nbr++;
+		}
+		console.log(nbr)
+		return nbr;
+	},
+
 
 	/*	summon(type,pos)
 	*

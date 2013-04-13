@@ -148,6 +148,10 @@ abilities[0] =[
 			G.log("Not enough plasma");
 			return false;
 		}
+		if(this.creature.player.getNbrOfCreatures() >= G.creaLimitNbr){
+			G.log("Psyhelm overload : too much creature summoned");
+			return false;
+		}
 		return true;
 	},
 

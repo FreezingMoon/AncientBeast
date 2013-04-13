@@ -168,32 +168,39 @@ var UI = Class.create({
 
 			//Summon buttons
 			//Plasma cost
-			if(	!summonedOrDead && 
+			if(	
+				!summonedOrDead && 
 				G.activeCreature.player.id==player && 
 				G.activeCreature.type=="--" &&
-				G.activeCreature.abilities[3].used==false )
-			{
-				var lvl = creatureType.substring(1,2)-0;
-				var size = G.retreiveCreatureStats(creatureType).size-0;
-				plasmaCost = lvl+size;
-				$j('#summon_buttons').show();
-				var satellite = false;
-				var plasmacostmsg = "nearby for "+plasmaCost+" Plasma";
-				var plasmaCostAnywhere = plasmaCost+G.activeCreature.abilities[0].satelliteBeamCost;
-				$j('#materialize_button .ability_satellite').addClass("summon_button_disabled");
-				if(plasmaCostAnywhere<=G.activeCreature.player.plasma){
-					$j('#materialize_button .ability_satellite').removeClass("summon_button_disabled");
-					plasmacostmsg += " or anywhere for "+plasmaCostAnywhere+" Plasma";
-					satellite = true;
-				}
-				$j('#materialize_button p').text(plasmacostmsg);
+				G.activeCreature.abilities[3].used==false
+			  )
+			{	
+				//psyhelm overload
+				if( G.activeCreature.player.getNbrOfCreatures() >= G.creaLimitNbr ){
+					//TODO : Visual feedback
+				}else{
+					var lvl = creatureType.substring(1,2)-0;
+					var size = G.retreiveCreatureStats(creatureType).size-0;
+					plasmaCost = lvl+size;
+					$j('#summon_buttons').show();
+					var satellite = false;
+					var plasmacostmsg = "nearby for "+plasmaCost+" Plasma";
+					var plasmaCostAnywhere = plasmaCost+G.activeCreature.abilities[0].satelliteBeamCost;
+					$j('#materialize_button .ability_satellite').addClass("summon_button_disabled");
+					if(plasmaCostAnywhere<=G.activeCreature.player.plasma){
+						$j('#materialize_button .ability_satellite').removeClass("summon_button_disabled");
+						plasmacostmsg += " or anywhere for "+plasmaCostAnywhere+" Plasma";
+						satellite = true;
+					}
+					$j('#materialize_button p').text(plasmacostmsg);
 
-				//Bind buttons
-				$j('#materialize_button').unbind('click').bind('click',function(e){
-					if(G.freezedInput) return;
-					G.UI.toggleDash();
-					G.activeCreature.abilities[3].materialize(G.UI.selectedCreature,satellite);
-				});
+					//Bind buttons
+					$j('#materialize_button').unbind('click').bind('click',function(e){
+						if(G.freezedInput) return;
+						G.UI.toggleDash();
+						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature,satellite);
+					});
+				}
 
 			}else{
 				$j('#summon_buttons').hide();
