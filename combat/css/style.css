@@ -52,7 +52,7 @@ body{
 }
 
 #grid{
-
+/*
 	-webkit-perspective: 3000px;
 	-webkit-perspective-origin: 50% 50%;
 	-moz-perspective: 3000px;
@@ -62,7 +62,7 @@ body{
 	-o-perspective: 3000px;
 	-o-perspective-origin: 50% 50%;
 	perspective: 3000px;
-	perspective-origin: 50% 50%;
+	perspective-origin: 50% 50%;*/
 
 	width: 90.1em;
 	height: 45em;
@@ -85,19 +85,11 @@ body{
 }
 
 #hexsinput, #hexsdisplay, #hexsoverlay, #trapWrapper{
-	-webkit-transform: rotateX(45deg);
-	-moz-transform: rotateX(45deg);
-	-ms-transform: rotateX(45deg);
-	-o-transform: rotateX(45deg);
-	transform: rotateX(45deg);
-}
-
-#creatureWrapper{
-	-webkit-transform: translateZ(-3000px) scaleX(2) scaleY(2);
-	-moz-transform: translateZ(-3000px) scaleX(2) scaleY(2);
-	-ms-transform: translateZ(-3000px) scaleX(2) scaleY(2);
-	-o-transform: translateZ(-3000px) scaleX(2) scaleY(2);
-	transform: translateZ(-3000px) scaleX(2) scaleY(2);
+	-webkit-transform: scaleY(0.75);
+	-moz-transform: scaleY(0.75);
+	-ms-transform: scaleY(0.75);
+	-o-transform: scaleY(0.75);
+	transform: scaleY(0.75);
 }
 
 #hexsdisplay{z-index: 1; opacity: .5;}
@@ -105,22 +97,14 @@ body{
 #creatureWrapper{z-index: 3;}
 #hexsinput{z-index: 4;}
 
-div.row:nth-child(1){top:0em;}
-div.row:nth-child(2){top:4.868em;} /*--(n-1)*4.868--*/
-div.row:nth-child(3){top:9.736em;} 
-div.row:nth-child(4){top:14.604em;}
-div.row:nth-child(5){top:19.472em;}
-div.row:nth-child(6){top:24.34em;}
-div.row:nth-child(7){top:29.208em;}
-div.row:nth-child(8){top:34.076em;}
-div.row:nth-child(9){top:38.944em;}
+
 
 .row{position: absolute;}
 
 .even{padding: 0px 2.818em;}
 
 
-.hex{display: inline-block; position: relative;}
+.hex{display: inline-block; position: absolute;}
 
 #hexsdisplay .displayhex{background: url('../grid/hex.png');}
 .displayhex{
@@ -136,54 +120,6 @@ div.row:nth-child(9){top:38.944em;}
 	-ms-transition: opacity 250ms;
 	-o-transition: opacity 250ms; /* Opera */
 }
-
-/*even ROW*/
-.displayhex:nth-child(32n+1){left:46px;}
-.displayhex:nth-child(32n+2){left:136px;}
-.displayhex:nth-child(32n+3){left:226px;}
-.displayhex:nth-child(32n+4){left:316px;}
-.displayhex:nth-child(32n+5){left:406px;}
-.displayhex:nth-child(32n+6){left:496px;}
-.displayhex:nth-child(32n+7){left:586px;}
-.displayhex:nth-child(32n+8){left:676px;}
-.displayhex:nth-child(32n+9){left:766px;}
-.displayhex:nth-child(32n+10){left:856px;}
-.displayhex:nth-child(32n+11){left:946px;}
-.displayhex:nth-child(32n+12){left:1036px;}
-.displayhex:nth-child(32n+13){left:1126px;}
-.displayhex:nth-child(32n+14){left:1216px;}
-.displayhex:nth-child(32n+15){left:1306px;}
-.displayhex:nth-child(32n+16){display: none;}
-
-/*odd ROW*/
-.displayhex:nth-child(32n+17){left:0px;}
-.displayhex:nth-child(32n+18){left:90px;}
-.displayhex:nth-child(32n+19){left:180px;}
-.displayhex:nth-child(32n+20){left:270px;}
-.displayhex:nth-child(32n+21){left:360px;}
-.displayhex:nth-child(32n+22){left:450px;}
-.displayhex:nth-child(32n+23){left:540px;}
-.displayhex:nth-child(32n+24){left:630px;}
-.displayhex:nth-child(32n+25){left:720px;}
-.displayhex:nth-child(32n+26){left:810px;}
-.displayhex:nth-child(32n+27){left:900px;}
-.displayhex:nth-child(32n+28){left:990px;}
-.displayhex:nth-child(32n+29){left:1080px;}
-.displayhex:nth-child(32n+30){left:1170px;}
-.displayhex:nth-child(32n+31){left:1260px;}
-.displayhex:nth-child(32n){left:1350px;}
-
-#hexsdisplay .even_row:nth-child(16n){display: none;} /*Hide the last hexagon of each even row*/
-
-.row_0{top:0em;}
-.row_1{top:4.868em;} /*--(n-1)*4.868--*/
-.row_2{top:9.736em;} 
-.row_3{top:14.604em;}
-.row_4{top:19.472em;}
-.row_5{top:24.34em;}
-.row_6{top:29.208em;}
-.row_7{top:34.076em;}
-.row_8{top:38.944em;}
 
 #hexsdisplay .displayhex.not-reachable{
 	/*background: url('../grid/hex_not_reachable.png');*/

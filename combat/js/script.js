@@ -1,7 +1,8 @@
 $j(document).ready(function(){
 	G = new Game();
 
-	$j("form#gamesetup").submit(function(){
+	$j("form#gamesetup").submit(function(e){
+		e.preventDefault();
 		gameconfig = {
 			nbrPlayer: $j('select[name="nbrplayer"]').val()-0,
 			background_image : $j('select[name="background"]').val(),

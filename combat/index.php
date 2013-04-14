@@ -373,51 +373,12 @@ require_once('../bestiary/cards.php');
 					<div id="trapWrapper">
 					</div>
 					<div id="hexsdisplay">
-						<?php for ($a=0; $a <= 8; $a++) { 
-							if ($a % 2 == 0) {
-								for ($i=0; $i <= 15; $i++) {
-									echo '<div class="displayhex even_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
-								}
-							}else{
-								for ($i=0; $i <= 15; $i++) { 
-									echo '<div class="displayhex odd_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
-								}
-							}
-						} ?>
 					</div>
 					<div id="hexsoverlay">
-						<?php for ($a=0; $a <= 8; $a++) { 
-							if ($a % 2 == 0) {
-								for ($i=0; $i <= 15; $i++) {
-									echo '<div class="displayhex even_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
-								}
-							}else{
-								for ($i=0; $i <= 15; $i++) { 
-									echo '<div class="displayhex odd_row row_'.$a.'" x="'.$i.'" y="'.$a.'"></div>';
-								}
-							}
-						} ?>
 					</div>
 					<div id="creatureWrapper">
 					</div>
 					<div id="hexsinput">
-					<?php for ($a=0; $a <= 8; $a++) { 
-						if ($a % 2 == 0) {
-							//evenrow
-							echo '<div class="even row" row="'.$a.'">';
-							for ($i=0; $i <= 14; $i++) { 
-								echo '<div class="hex" x="'.$i.'" y="'.$a.'"><div class="physical"></div></div>';
-							}
-							echo '</div>';
-						}else{
-							//oddrow
-							echo '<div class="odd row" row="'.$a.'">';
-							for ($i=0; $i <= 15; $i++) { 
-								echo '<div class="hex" x="'.$i.'" y="'.$a.'"><div class="physical"></div></div>';
-							}
-							echo '</div>';
-						}
-					} ?>
 					</div>
 				</div>
 			</div>

@@ -32,7 +32,15 @@ var HexGrid = Class.create({
 	* 	Create attributes and populate JS grid with Hex objects
 	*
 	*/
-	initialize: function(){
+	initialize: function(opts){
+		defaultOpt = {
+			nbrRow  		: 9,
+			nbrHexsPerRow 	: 16,
+			firstRowFull	: false,
+		}
+
+		opts = $j.extend(defaultOpt,opts);
+
 		this.hexs 				= new Array(); //Hex Array
 		this.traps 				= new Array(); //Traps Array
 		this.lastClickedtHex 	= []; //Array of hexagons containing last calculated pathfinding
@@ -44,22 +52,25 @@ var HexGrid = Class.create({
 		this.$dispHexsW			= $j("#hexsdisplay"); //Display Hexs Wrapper
 		this.$overHexsW			= $j("#hexsoverlay"); //Display Hexs Wrapper
 
+		//Populate grid
+		for (var row = 0; row < opts.nbrRow; row++) {
+			this.hexs.push(new Array());
+			for (var hex = 0; hex < opts.nbrHexsPerRow; hex++) {
+				if( hex == opts.nbrHexsPerRow-1 ){
+					if( row % 2 == 0 && !opts.firstRowFull ) continue;
+					if( row % 2 == 1 && opts.firstRowFull ) continue;
+				}
+				this.$dispHexsW.append('<div class="displayhex" x="'+hex+'" y="'+row+'"></div>');
+				this.$overHexsW.append('<div class="displayhex" x="'+hex+'" y="'+row+'"></div>');
+				this.$inptHexsW.append('<div class="hex" x="'+hex+'" y="'+row+'"><div class="physical"></div></div>');
+				this.hexs[row][hex] = new Hex(hex,row);	
+			};
+		};
+
 		this.$allInptHex		= $j("#hexsinput .hex"); //All Input Hexs
 		this.$allDispHex		= $j("#hexsdisplay .displayhex"); //All Display Hexs
 		this.$allOverHex		= $j("#hexsoverlay .displayhex"); //All Display Hexs
 
-		var grid = this; //Escape Jquery namespace
-
-		//Populate grid
-		this.$inptHexsW.children(".row").each(function(){
-			grid.hexs.push(new Array());	//Add a row for each DOM element
-		});
-
-		this.$allInptHex.each(function(){
-			var x = $j(this).attr("x") - 0; // - 0 convert variable to numeric type
-			var y = $j(this).attr("y") - 0;
-			grid.hexs[y][x] = new Hex(x,y,$j(this),grid);
-		});
 	},
 
 	/* 	queryDirection(o)
@@ -797,18 +808,22 @@ var Hex = Class.create({
 		this.$display = $j('#hexsdisplay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object
 		this.$overlay = $j('#hexsoverlay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object
 		this.$input = $j('#hexsinput .hex[x="'+x+'"][y="'+y+'"]'); //Input Jquery object
-		
+
 		this.displayPos = {top:y*78};
 		this.displayPos.left = (y%2 == 0) ? 46+x*90 : x*90;
-
+		
+		this.$display.css(this.displayPos);
+		this.$overlay.css(this.displayPos);
+		this.$input.css(this.displayPos);
+		
 		var ymax = $j("#grid").height();
 		var xmax = $j("#grid").width();
 
-		var xmult = (this.displayPos.left/xmax-.5)*(this.displayPos.top/ymax-.5)*-4;
-		var ymult = Math.pow((this.displayPos.top/ymax)*2,2);
+		// var xmult = (this.displayPos.left/xmax-.5)*(this.displayPos.top/ymax-.5)*-4;
+		var ymult = this.displayPos.top/ymax;
 
-		this.displayPos.left = this.displayPos.left-Math.round(xmult*60);
-		this.displayPos.top = 125+y*78/1.68+Math.round(ymult*21);
+		// this.displayPos.left = this.displayPos.left-Math.round(xmult*60);
+		this.displayPos.top = this.displayPos.top*.75+90;
 
 		this.trap = undefined;
 	},
