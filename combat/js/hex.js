@@ -321,7 +321,7 @@ var HexGrid = Class.create({
 		var defaultOpt = {
 			fnOnConfirm : function(hex,args){ G.activeCreature.queryMove(); },
 			fnOnSelect : function(hex,args){
-				hex.$overlay.addClass("creature selected player"+G.activeCreature.team);
+				hex.overlayVisualState("creature selected player"+G.activeCreature.team);
 			},
 			fnOnCancel : function(hex,args){G.activeCreature.queryMove()},
 			args : {},
@@ -734,15 +734,30 @@ var HexGrid = Class.create({
 	*
 	*	Shorcut for $allDispHex.removeClass()
 	*/
-	cleanDisplay: function(cssClass){ 
-		if(cssClass === undefined) 
-			cssClass = "adj creature player0 player1 player2 player3";
-		this.$allDispHex.removeClass(cssClass);
+	cleanDisplay: function(cssClass){
+		this.forEachHexs(function(){ this.cleanDisplayVisualState(cssClass) });
 	},
 	cleanOverlay: function(cssClass){
-		if(cssClass === undefined) 
-			cssClass = "creature active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3";
-		this.$allOverHex.removeClass(cssClass);
+		this.forEachHexs(function(){ this.cleanOverlayVisualState(cssClass) });
+	},
+
+	/*	previewCreature(creatureData)
+	*
+	*	pos : 			Object : 	Coordinates {x,y}
+	*	creatureData : 	Object : 	Object containing info from the database (G.retreiveCreatureStats)
+	*
+	*	Draw a preview of the creature at the given coordinates
+	*/
+	previewCreature:function(pos,creatureData,player){
+		this.updateDisplay(); //Retrace players creatures
+		$j("#crea_materialize_overlay").remove();
+		var flipped_class = (player.flipped) ? " flipped" : "" ;
+		this.$creatureW.append('<div id="crea_materialize_overlay" class="creature type_'+creatureData.id+' materialize_overlay'+flipped_class+'" ></div>');
+		$j("#crea_materialize_overlay").css(this.hexs[pos.y][pos.x-(creatureData.size-1)].displayPos);
+		$j("#crea_materialize_overlay").css("z-index", pos.y);
+		for (var i = 0; i < creatureData.size; i++) {
+			this.hexs[pos.y][pos.x-i].overlayVisualState("creature selected player"+G.activeCreature.team);
+		}
 	},
 
 });//End of HexGrid Class
@@ -1000,6 +1015,47 @@ var Hex = Class.create({
 		this.$display.removeClass("not-reachable");
 		this.$input.removeClass("not-reachable");
 		//TODO change display
+	},
+
+	/*	overlayVisualState
+	*
+	*	Change the appearance of the overlay hex
+	*
+	*/
+	overlayVisualState: function(classes){
+		classes=(classes)?classes:"";
+		this.$overlay.addClass(classes);
+	},
+
+	/*	displayVisualState
+	*
+	*	Change the appearance of the display hex
+	*
+	*/
+	displayVisualState: function(classes){
+		classes=(classes)?classes:"";
+		this.$display.addClass(classes);
+	},
+
+	/*	cleanOverlayVisualState
+	*
+	*	Clear the appearance of the overlay hex
+	*
+	*/
+	cleanOverlayVisualState: function(classes){
+		classes=(classes!==undefined)?classes:"creature active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3";
+		this.$overlay.removeClass(classes);
+
+	},
+
+	/*	cleanDisplayVisualState
+	*
+	*	Clear the appearance of the display hex
+	*
+	*/
+	cleanDisplayVisualState: function(classes){
+		classes=(classes!==undefined)?classes:"adj hover creature player0 player1 player2 player3";
+		this.$display.removeClass(classes);
 	},
 
 

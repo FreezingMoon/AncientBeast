@@ -676,16 +676,17 @@ body{
 	width: 860px;
 	background: #555;
 	display: inline-block;
+	cursor: pointer;
+}
+
+#materialize_button h3{
+	margin: 5px;
 }
 
 #materialize_button p{
 	font-size:16px;
 	margin-top:0px;
 	font-weight:normal;
-}
-
-#materialize_button #button_name{
-	margin-top:15px;
 }
 
 #summon_buttons .ability{float: left;}

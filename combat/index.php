@@ -318,10 +318,8 @@ require_once('../bestiary/cards.php');
 						<div id="cardwrapper_inner">
 							<div id="card"><?php cards("",0); ?></div>
 							<div id="summon_buttons">
-								<div id="materialize_button" class="button">
-									<div class="ability button"></div>
-									<div class="ability_satellite button"></div>
-									<div id="button_name">Materialize</div>
+								<div id="materialize_button" >
+									<h3>Materialize</h3>
 									<p></p>
 								</div>
 							</div>

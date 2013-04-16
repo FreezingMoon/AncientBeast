@@ -48,9 +48,9 @@ var Creature = Class.create({
 		this.x 			= obj.x - 0;
 		this.y 			= obj.y - 0;
 		this.pos 		= {x:this.x, y:this.y};
-		this.size 		= obj.size;
+		this.size 		= obj.size - 0;
 		this.type 		= obj.type; //Which creature it is
-		this.lvl 		= (obj.lvl == "-")?1:obj.lvl; //Which creature it is
+		this.lvl 		= (obj.lvl == "-")?1:obj.lvl-0; //Which creature it is
 		this.realm 		= obj.realm; //Which creature it is
 		this.animation		= obj.animation;
 		
@@ -462,8 +462,8 @@ var Creature = Class.create({
 
 		for (var i = 0; i < crea.size; i++) {
 			var hex = G.grid.hexs[args.y][args.x-i];
-			hex.$overlay.addClass(args.overlayClass);
-			hex.$display.addClass(args.displayClass);
+			hex.overlayVisualState(args.overlayClass);
+			hex.displayVisualState(args.displayClass);
 		};
 	},
 

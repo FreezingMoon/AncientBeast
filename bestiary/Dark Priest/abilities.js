@@ -9,9 +9,6 @@ abilities[0] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onDamage",
-	
-	satelliteBeamReach: 5,
-	satelliteBeamCost: 2,
 
 	// 	require() :
 	require : function(damage){
@@ -166,65 +163,23 @@ abilities[0] =[
 
 	fnOnSelect : function(hex,args){
 		var crea = G.retreiveCreatureStats(args.creature);
-		G.grid.updateDisplay(); //Retrace players creatures
-		$j("#crea_materialize_overlay").remove();
-		var flipped_class = "";
-		if(G.activeCreature.player.flipped){ flipped_class = " flipped" }
-		G.grid.$creatureW.append('<div id="crea_materialize_overlay" class="creature type_'+crea.id+' materialize_overlay'+flipped_class+'" ></div>');
-		$j("#crea_materialize_overlay").css(G.grid.hexs[hex.y][hex.x-(crea.size-1)].displayPos);
-		$j("#crea_materialize_overlay").css("z-index", hex.y);
-		for (var i = 0; i < crea.size; i++) {
-			G.grid.hexs[hex.y][hex.x-i].$overlay.addClass("creature selected player"+G.activeCreature.team);
-		}
+		G.grid.previewCreature(hex.pos,crea,args.dpriest.player);
 	},
 
 	//Callback function to queryCreature
-	energize : function(creature){
-		var dpriest = this.creature;
-		var crea = G.retreiveCreatureStats(creature);
-
-		var spawnRange = G.grid.getFlyingRange(dpriest.x,dpriest.y,50,crea.size,0);
-
-		G.grid.queryHexs({
-			fnOnSelect : this.fnOnSelect,
-			fnOnCancel : function(){ G.activeCreature.queryMove() },
-			fnOnConfirm : this.activate,
-			args : {dpriest:dpriest, creature:creature, ability:this, cost:2}, //OptionalArgs
-			size : crea.size,
-			flipped : dpriest.player.flipped,
-			hexs : spawnRange,
-		});
-	},
-
-	//Callback function to queryCreature
-	materialize : function(creature,satellite){
+	materialize : function(creature){
 		var crea = G.retreiveCreatureStats(creature);
 		var dpriest = this.creature;
-		var excludedHexs = [];
-		
-		var spawnRange = dpriest.hexagons[0].adjacentHex(1);
-		var notsat = spawnRange.slice(0);
-		
-		if(satellite){
-			spawnRange = G.grid.getFlyingRange(dpriest.x,dpriest.y,dpriest.abilities[0].satelliteBeamReach,1,0);
-		}
 
-		if(G.grid.hexExists(dpriest.y,dpriest.x+crea.size-1)){
-			spawnRange = spawnRange.concat( G.grid.hexs[dpriest.y][dpriest.x+crea.size-1].adjacentHex(1) );
-			notsat = notsat.concat( G.grid.hexs[dpriest.y][dpriest.x+crea.size-1].adjacentHex(1) );
-		}
-
-		spawnRange.filter(function(){ return this.isWalkable(crea.size,0,true); });
-		spawnRange = spawnRange.extendToLeft(crea.size);
-		
-		notsat.filter(function(){ return this.isWalkable(crea.size,0,true); });
-		notsat = notsat.extendToLeft(crea.size);
+		var spawnRange = dpriest.hexagons[0].adjacentHex(6)
+		spawnRange.filter(function(){ return this.isWalkable(crea.size,0,true);	});
+		spawnRange= spawnRange.extendToLeft(crea.size);
 		
 		G.grid.queryHexs({
 			fnOnSelect : this.fnOnSelect,
 			fnOnCancel : function(){ G.activeCreature.queryMove(); },
 			fnOnConfirm : this.activate,
-			args : {dpriest:dpriest, creature:creature, ability:this, cost:0, satellite_mat:satellite, not_satellite:notsat}, //OptionalArgs
+			args : {dpriest:dpriest, creature:creature, ability:this, cost: (crea.size-0)+(crea.lvl-0)}, //OptionalArgs
 			size : crea.size,
 			flipped : dpriest.player.flipped,
 			hexs : spawnRange
@@ -240,14 +195,10 @@ abilities[0] =[
 		var dpriest = args.dpriest;
 
 		var pos = { x:hex.x, y:hex.y };
-		var satellitePenalty = 0;
-		if(!G.grid.isHexIn(hex,args.not_satellite)){
-			satellitePenalty = dpriest.abilities[0].satelliteBeamCost;
-		}
 
 		ability.creature.player.summon(creature,pos);
-
-		ability.creature.player.plasma -= args.cost+(creaStats.size-0)+(creaStats.lvl-0)+(satellitePenalty-0);
+		console.log(args.cost)
+		ability.creature.player.plasma -= args.cost;
 
 		ability.end();
 	},

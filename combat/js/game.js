@@ -58,7 +58,10 @@ var Game = Class.create({
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
 		this.creatureJSON;
-		this.availableCreatures = [
+		this.loadedSrc = 0;
+		this.loadingSrc = 0;
+		this.availableCreatures = [];
+		this.loadedCreatures = [
 			0, //Dark Priest
 			37, //Swine Thug
 			3, //Uncle Fungus
@@ -72,38 +75,6 @@ var Game = Class.create({
 		this.firstKill = false;
 		this.freezedInput = false;
 
-		$j("#loader").show();
-		$j("#gamesetupcontainer").hide();
-
-		//Get JSON files
-		$j.getJSON("../data/creatures.json", function(json_in) {
-			G.creatureJSON = json_in;
-			var i = 0;
-			G.availableCreatures.each(function(){
-				
-				var data = G.creatureJSON[this];
-				
-				G.creatureDatas.push(data);
-				var d=document,
-				h=d.getElementsByTagName('head')[0],
-				s=d.createElement('script');
-				s.type='text/javascript';
-				s.defer=true;
-				s.src='../bestiary/'+data.name+'/abilities.js';
-				h.appendChild(s);
-				//TODO We should wait before this loads up
-
-				//For code compatibility
-				var index = G.availableCreatures.indexOf(data.id);
-				G.availableCreatures[i] = data.type;
-				i++;
-	
-				if(i==G.availableCreatures.length){ //If all creature are loaded
-					$j("#loader").hide();
-					$j("#gamesetupcontainer").show();
-				}
-			});
-		});
 	},
 
 
@@ -126,8 +97,55 @@ var Game = Class.create({
 		}
 		setupOpt = $j.extend(defaultOpt,setupOpt);
 		$j.extend(this,setupOpt);
-		
-		G.setup(G.nbrPlayer);
+
+		G.startLoading();
+
+		dpcolor = ["blue","orange","green","red"];
+
+		this.loadingSrc = (G.loadedCreatures.length-1) * 4 + dpcolor.length*2 + 2;
+
+		//Get JSON files
+		$j.getJSON("../data/creatures.json", function(json_in) {
+			G.creatureJSON = json_in;
+
+			for (var j = 0; j < G.loadedCreatures.length; j++) {
+			
+				var data = G.creatureJSON[G.loadedCreatures[j]];
+				G.creatureDatas.push(data);
+
+				//Loads Creature abilities
+				getScript('../bestiary/'+data.name+'/abilities.js',function(){ G.loadFinish() });
+
+				//Load Sprites
+				getImage('../bestiary/'+data.name+'/artwork.jpg',function(){ G.loadFinish() });
+				if(data.name == "Dark Priest"){
+					for (var i = 0; i < dpcolor.length; i++) {
+						getImage('../bestiary/'+data.name+'/cardboard-'+dpcolor[i]+'.png',function(){ G.loadFinish() });
+						getImage('../bestiary/'+data.name+'/avatar-'+dpcolor[i]+'.jpg',function(){ G.loadFinish() });
+					};
+				}else{
+					getImage('../bestiary/'+data.name+'/cardboard.png',function(){ G.loadFinish() });
+					getImage('../bestiary/'+data.name+'/avatar.jpg',function(){ G.loadFinish() });
+				}
+
+				//For code compatibility
+				G.availableCreatures[j] = data.type;
+			};
+		});
+
+	},
+
+	startLoading: function(){
+		$j("#gamesetupcontainer").hide();
+		$j("#loader").show();
+	},
+
+	loadFinish: function(){
+		this.loadedSrc++;
+		if(this.loadingSrc==this.loadedSrc){
+			$j("#loader").hide();
+			G.setup(G.nbrPlayer);
+		}
 	},
 
 
@@ -578,7 +596,6 @@ var Player = Class.create({
 			var crea = this.creatures[i];
 			if( !crea.undead ) nbr++;
 		}
-		console.log(nbr)
 		return nbr;
 	},
 
@@ -748,4 +765,30 @@ var Player = Class.create({
 function zfill(num, size) {
     var s = "000000000" + num;
     return s.substr(s.length-size);
+}
+
+//Cross Browser script loader
+//From http://stackoverflow.com/a/5853358
+function getScript(url,success){
+	var script = document.createElement('script');
+	script.src = url;
+	var head = document.getElementsByTagName('head')[0];
+	var done = false;
+	script.onload = script.onreadystatechange = function(){
+		if ( !done && (!this.readyState || this.readyState == 'loaded' || this.readyState == 'complete') ) {
+			done = true;
+			success();
+			script.onload = script.onreadystatechange = null;
+			head.removeChild(script);
+		}
+	};
+	head.appendChild(script);
+}
+
+function getImage(url,success){
+	var img = new Image();
+	img.src = url;
+	img.onload = function(){
+		success();
+	};
 }

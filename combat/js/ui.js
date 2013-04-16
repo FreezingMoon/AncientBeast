@@ -174,31 +174,30 @@ var UI = Class.create({
 				G.activeCreature.type=="--" &&
 				G.activeCreature.abilities[3].used==false
 			  )
-			{	
+			{
+				$j('#summon_buttons').show();
+				$j('#materialize_button').unbind('click');
+
+				var lvl = creatureType.substring(1,2)-0;
+				var size = G.retreiveCreatureStats(creatureType).size-0;
+				plasmaCost = lvl+size;
+
 				//psyhelm overload
 				if( G.activeCreature.player.getNbrOfCreatures() >= G.creaLimitNbr ){
-					//TODO : Visual feedback
+					$j('#materialize_button h3').text("Psyhelm overload");
+					$j('#materialize_button p').text("Maximum creatures controlled");
+				}else if(plasmaCost>G.activeCreature.player.plasma){
+					$j('#materialize_button h3').text("Low Plasma");
+					$j('#materialize_button p').text("Not enough plasma to materialize");
 				}else{
-					var lvl = creatureType.substring(1,2)-0;
-					var size = G.retreiveCreatureStats(creatureType).size-0;
-					plasmaCost = lvl+size;
-					$j('#summon_buttons').show();
-					var satellite = false;
-					var plasmacostmsg = "nearby for "+plasmaCost+" Plasma";
-					var plasmaCostAnywhere = plasmaCost+G.activeCreature.abilities[0].satelliteBeamCost;
-					$j('#materialize_button .ability_satellite').addClass("summon_button_disabled");
-					if(plasmaCostAnywhere<=G.activeCreature.player.plasma){
-						$j('#materialize_button .ability_satellite').removeClass("summon_button_disabled");
-						plasmacostmsg += " or anywhere for "+plasmaCostAnywhere+" Plasma";
-						satellite = true;
-					}
-					$j('#materialize_button p').text(plasmacostmsg);
+					$j('#materialize_button h3').text("Materialize");
+					$j('#materialize_button p').text("Summon this Creature for "+plasmaCost+" Plasma");
 
 					//Bind buttons
-					$j('#materialize_button').unbind('click').bind('click',function(e){
+					$j('#materialize_button').bind('click',function(e){
 						if(G.freezedInput) return;
 						G.UI.toggleDash();
-						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature,satellite);
+						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
 					});
 				}
 
