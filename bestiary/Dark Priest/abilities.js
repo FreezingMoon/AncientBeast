@@ -152,13 +152,15 @@ abilities[0] =[
 		return true;
 	},
 
+	summonRange : 6,
+
 	// 	query() :
 	query : function(){
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		//Ask the creature to summon
-		G.UI.toggleDash();
 		G.UI.materializeToggled = true;
+		G.UI.toggleDash();
 	},
 
 	fnOnSelect : function(hex,args){
@@ -171,11 +173,13 @@ abilities[0] =[
 		var crea = G.retreiveCreatureStats(creature);
 		var dpriest = this.creature;
 
-		var spawnRange = dpriest.hexagons[0].adjacentHex(6);
-		var range = dpriest.hexagons[0].adjacentHex(6);
-		spawnRange.filter(function(){ return this.isWalkable(crea.size,0,true);	});
+		G.grid.forEachHexs(function(){ this.unsetReachable(); });
+
+		var spawnRange = dpriest.hexagons[0].adjacentHex(this.summonRange);
+
+		spawnRange.each(function(){ this.setReachable(); });
+		spawnRange.filter(function(){ return this.isWalkable(crea.size,0,false);	});
 		spawnRange = spawnRange.extendToLeft(crea.size);
-		spawnRange.filter(function(){ return !!range.findPos(this); });
 
 		G.grid.queryHexs({
 			fnOnSelect : this.fnOnSelect,

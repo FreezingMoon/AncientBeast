@@ -167,7 +167,6 @@ var UI = Class.create({
 			});
 
 			//Summon buttons
-			//Plasma cost
 			if(	
 				!summonedOrDead && 
 				G.activeCreature.player.id==player && 
@@ -202,7 +201,13 @@ var UI = Class.create({
 				}
 
 			}else{
-				$j('#summon_buttons').hide();
+				if( G.activeCreature.player.id==player &&  this.materializeToggled ){
+					$j('#summon_buttons').show();
+					$j('#materialize_button h3').text("Materialize");
+					$j('#materialize_button p').text("Please select available creature");
+				}else{
+					$j('#summon_buttons').hide();
+				}
 			}
 
 		}else{
@@ -267,11 +272,11 @@ var UI = Class.create({
 			this.showCreature("--",G.activeCreature.team);
 		}else{
 			this.$dash.removeClass("active");
-			if(G.UI.materializeToggled){
-				G.UI.selectedAbility = -1;
+			if(this.materializeToggled){
+				this.selectedAbility = -1;
 				G.activeCreature.queryMove();
 			}
-			G.UI.materializeToggled = false;
+			this.materializeToggled = false;
 		}
 
 		//TODO Change Dash button to return
