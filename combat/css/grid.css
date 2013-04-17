@@ -4,6 +4,9 @@
 	width: 700px;
 	margin: 0px auto;
 	line-height: 0px;
+	background-image:url("../../images/big_frame.png"); 
+	background-size:100%; 
+	padding:27px;
 }
 
 #creaturegrid .vignette,

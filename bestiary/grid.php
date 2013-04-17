@@ -22,7 +22,7 @@ echo '<style type="text/css">';
 	.vignette.type--.p2{background-image: url("' .$site_root. 'bestiary/Dark Priest/avatar-orange.jpg");}
 	.vignette.type--.p3{background-image: url("' .$site_root. 'bestiary/Dark Priest/avatar-green.jpg");}';
 
-	echo '</style><div id="creaturegrid" style="background-image:url(../images/big_frame.png); background-size:100%; padding:27px;">';
+	echo '</style><div id="creaturegrid">';
 
 	foreach ($creature_results as $r) {
 		if ($r['id'] == 0 || $r['id'] == 50) { //Ignore Dark Priest and Shadow Leech

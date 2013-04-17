@@ -577,6 +577,7 @@ body{
 	display: inline-block;
 	top: 0px;
 	bottom: 0px;
+	padding:20px;
 }
 
 #dash #return{
