@@ -171,10 +171,12 @@ abilities[0] =[
 		var crea = G.retreiveCreatureStats(creature);
 		var dpriest = this.creature;
 
-		var spawnRange = dpriest.hexagons[0].adjacentHex(6)
+		var spawnRange = dpriest.hexagons[0].adjacentHex(6);
+		var range = dpriest.hexagons[0].adjacentHex(6);
 		spawnRange.filter(function(){ return this.isWalkable(crea.size,0,true);	});
-		spawnRange= spawnRange.extendToLeft(crea.size);
-		
+		spawnRange = spawnRange.extendToLeft(crea.size);
+		spawnRange.filter(function(){ return !!range.findPos(this); });
+
 		G.grid.queryHexs({
 			fnOnSelect : this.fnOnSelect,
 			fnOnCancel : function(){ G.activeCreature.queryMove(); },
