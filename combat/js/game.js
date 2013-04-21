@@ -60,6 +60,7 @@ var Game = Class.create({
 		this.creatureJSON;
 		this.loadedSrc = 0;
 		this.loadingSrc = 0;
+		this.minimumTurnBeforeSurrender = 10;
 		this.availableCreatures = [];
 		this.loadedCreatures = [
 			0, //Dark Priest
@@ -619,7 +620,7 @@ var Player = Class.create({
 	*
 	*/
 	surrender: function(){
-		if( G.turn < 10 ){
+		if( G.turn < G.minimumTurnBeforeSurrender ){
 			alert("You cannot surrender in the first 10 rounds.");
 			return;
 		}

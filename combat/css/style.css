@@ -497,11 +497,11 @@ body{
 	background-image: url('../../images/contour.png');
 }
 
-.button.used:before{ background-image: url('../../images/contour_dimmed.png'); }
+.button.disabled:before{ background-image: url('../../images/contour_dimmed.png'); }
 
-.used { cursor:default !important; }
+.disabled { cursor:default !important; }
 
-.button.blink{
+.button.glowing{
 	animation: pulse0510 750ms infinite alternate;
 	-webkit-animation: pulse0510 750ms infinite alternate;
 	-ms-animation: pulse0510 750ms infinite alternate;
@@ -734,7 +734,7 @@ body{
 	-o-transition: width 500ms,height 500ms; /* Opera */
 }
 
-.vignette.active,.vignette.active div{
+.vignette.active,.vignette.active div, #playerbutton.vignette div ,#playerbutton.vignette{
 	height: 100px;
 	width: 100px;
 }

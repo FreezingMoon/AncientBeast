@@ -33,34 +33,50 @@ var UI = Class.create({
 		this.$queue = $j("#queuewrapper");
 		this.$dash = $j("#dash");
 		this.$grid = $j("#creaturegrid");
+		this.$textbox = $j("#textbox > #textcontent");
+		this.$activebox = $j("#activebox");
+
+		//Buttons Objects
+		this.buttons = [];
+		this.abilitiesButtons = [];
 
 		//Dash button
-		$j(".toggledash").bind('click',function(e){ 
-			if(G.freezedInput) return;
-			G.UI.toggleDash();
+		this.btnToggleDash = new Button({
+			$button : $j(".toggledash"),
+			click : function(e){G.UI.toggleDash();},
 		});
+		this.buttons.push(this.btnToggleDash);
 
 		//End turn button
-		$j("#end.button").bind('click',function(e){ 
-			if(G.freezedInput) return;
-			G.endTurn() ;
+		this.btnEndTurn = new Button({
+			$button : $j("#end.button"),
+			click : function(e){G.endTurn();},
 		});
+		this.buttons.push(this.btnEndTurn);
 
 		//Wait Button
-		$j("#delay.button").bind('click',function(e){ 
-			if(G.freezedInput) return;
-			G.delayTurn(); 
+		this.btnDelay = new Button({
+			$button : $j("#delay.button"),
+			click : function(e){G.delayTurn();},
 		});
+		this.buttons.push(this.btnDelay);
 
 		//Surrender Button
-		$j("#surrender.button").bind('click',function(e){ 
-			if(G.freezedInput) return;
-			G.activeCreature.player.surrender();
+		this.btnSurrender = new Button({
+			$button : $j("#surrender.button"),
+			click : function(e){G.activeCreature.player.surrender();},
+			state : "disabled",
 		});
+		this.buttons.push(this.btnSurrender);
 
-		this.$textbox = $j("#textbox > #textcontent");
-
-		this.$activebox = $j("#activebox");
+		for (var i = 0; i < 4; i++) {
+			var b = new Button({
+				$button : $j("#abilities .ability:nth-child("+(i+1)+")"),
+				abilityId : i,
+			});
+			this.buttons.push(b);
+			this.abilitiesButtons.push(b);
+		};
 
 		this.$dash.children("#playertabswrapper").addClass("numplayer"+G.nbrPlayer);
 
@@ -167,6 +183,8 @@ var UI = Class.create({
 			});
 
 			//Summon buttons
+			$j('#materialize_button').unbind('click');
+			$j('#summon_buttons').hide();
 			if(	
 				!summonedOrDead && 
 				G.activeCreature.player.id==player && 
@@ -175,8 +193,7 @@ var UI = Class.create({
 			  )
 			{
 				$j('#summon_buttons').show();
-				$j('#materialize_button').unbind('click');
-
+				
 				var lvl = creatureType.substring(1,2)-0;
 				var size = G.retreiveCreatureStats(creatureType).size-0;
 				plasmaCost = lvl+size;
@@ -195,6 +212,8 @@ var UI = Class.create({
 					//Bind buttons
 					$j('#materialize_button').bind('click',function(e){
 						if(G.freezedInput) return;
+						G.UI.materializeToggled = false;
+						G.UI.selectAbility(3);
 						G.UI.toggleDash();
 						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
 					});
@@ -214,6 +233,15 @@ var UI = Class.create({
 			//TODO Locked card
 			//$j("#card").text("Locked");
 		}
+	},
+
+
+	selectAbility: function(i){
+		if( this.selectedAbility > -1 )
+			this.abilitiesButtons[this.selectedAbility].changeState("normal");
+		this.selectedAbility = i;
+		if( i>-1 )
+			this.abilitiesButtons[i].changeState("active");
 	},
 
 
@@ -273,7 +301,7 @@ var UI = Class.create({
 		}else{
 			this.$dash.removeClass("active");
 			if(this.materializeToggled){
-				this.selectedAbility = -1;
+				this.selectAbility(-1);
 				G.activeCreature.queryMove();
 			}
 			this.materializeToggled = false;
@@ -295,30 +323,41 @@ var UI = Class.create({
 		this.$activebox.children("#abilities").clearQueue().transition({y:"-420px"},function(){//Hide panel	
 			$j(this).removeClass("p0 p1 p2 p3").addClass("p"+G.activeCreature.player.id);
 			//Change abilities buttons
-			$abilitiesButtons.each(function(){
-				var id = $j(this).attr("ability") - 0;
-				$j(this).css("background-image","url('../bestiary/"+G.activeCreature.name+"/"+id+".svg')");
-				$j(this).children(".desc").html("<span>"+G.activeCreature.abilities[id].title+"</span><p>"+G.activeCreature.abilities[id].desc+"<br>"+G.activeCreature.abilities[id].info+"</p>");
-				$j(this).bind('click', function(){
+			G.UI.abilitiesButtons.each(function(){
+				var ab = G.activeCreature.abilities[this.abilityId];
+				this.css.normal = {"background-image":"url('../bestiary/"+G.activeCreature.name+"/"+this.abilityId+".svg')"};
+				this.$button.children(".desc").html("<span>"+ab.title+"</span><p>"+ab.desc+"<br>"+ab.info+"</p>");
+				this.click = function(){
 					G.grid.clearHexViewAlterations();
-					if(G.freezedInput) return;
-					if(G.UI.selectedAbility!=id){
-						G.UI.selectedAbility = id;
-						G.activeCreature.abilities[id].use();
+					if(G.UI.selectedAbility!=this.abilityId){
+						//Activate Abilitie
+						G.activeCreature.abilities[this.abilityId].use();
 					}else{
-						G.UI.selectedAbility = -1;
+						//Cancel Abilitie
 						G.activeCreature.queryMove();
 					}
-				});
+				};
+				this.changeState(); //ApplyChanges
 			});
-
 			G.UI.$activebox.children("#abilities").transition({y:"0px"}); //Show panel
 		});
 
 		if(G.activeCreature.player.creatures.length==1) //Blinking summon button during the 1st round
-			$abilitiesButtons.filter(":nth-child(4)").addClass("blink");
+			this.abilitiesButtons[3].changeState("glowing");
 
 		this.updateInfos();
+	},
+
+	checkAbilities : function(){
+		for (var i = 0; i < 4; i++) {
+			var ab = G.activeCreature.abilities[i];
+			var req = (ab.trigger == "onQuery") ? ab.require() : true;
+			if( req && !ab.used){
+				this.abilitiesButtons[i].changeState("normal");
+			}else{
+				this.abilitiesButtons[i].changeState("disabled");
+			}
+		};
 	},
 
 	/*	updateInfos()
@@ -505,4 +544,64 @@ var UI = Class.create({
 		}
 	},
 
+});
+
+var Button = Class.create({
+	/*	Constructor
+	*	
+	* 	Create attributes and default buttons
+	*
+	*/
+	initialize: function(opts){
+
+		defaultOpts = {
+			click : function(){},
+			mouseover : function(){},
+			mouseleave : function(){},
+			clickable : true,
+			state : "normal", // disabled,normal,glowing,selected,active
+			$button : undefined,
+			attributes : {},
+			css : {
+				disabled  	: {},
+				glowing  	: {},
+				selected  	: {},
+				active 		: {},
+				normal 		: {},
+			}
+		};
+
+		opts = $j.extend(defaultOpts,opts);
+		$j.extend(this,opts);
+		this.changeState(this.state);
+	},
+
+
+	changeState : function(state){
+		var btn = this;
+
+		if(!state) state = this.state;
+		this.state = state;
+		this.$button.unbind("click").unbind("mouseover").unbind("mouseleave");
+		if( state != "disabled" ){
+			this.$button.bind("click",function(){
+				if(G.freezedInput || !btn.clickable) return;
+				btn.click();
+			} );
+			this.$button.bind("mouseover",function(){
+				if(G.freezedInput || !btn.clickable) return;
+				btn.mouseover();
+			} );
+			this.$button.bind("mouseleave",function(){
+				if(G.freezedInput || !btn.clickable) return;
+				btn.mouseleave();
+			} );
+		}
+		this.$button.removeClass("disabled glowing selected active")
+		this.$button.css( this.css["normal"] );
+		if( state != "normal" ){
+			this.$button.addClass(state);
+			this.$button.css( this.css[state] );
+		}
+	},
 });

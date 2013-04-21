@@ -10,14 +10,14 @@ abilities[0] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onDamage",
 
+	requirements : {
+		plasma : 1,
+	},
+
 	// 	require() :
 	require : function(damage){
 		this.setUsed(false); //Can be triggered as many times
-		if(this.creature.player.plasma <= this.satelliteBeamCost){
-			G.log("Not enough plasma");
-			return false;
-		}
-		return true;
+		return this.testRequirements();
 	},
 
 	//	activate() : 
@@ -38,9 +38,16 @@ abilities[0] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
+	requirements : {
+		plasma : 1,
+	},
+
 	// 	require() :
 	require : function(){
-		return true;
+		return (
+			this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) &&
+			this.testRequirements()
+		);
 	},
 
 	// 	query() :
@@ -54,7 +61,7 @@ abilities[0] =[
 			team : 0, //Team, 0 = ennemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
-			hexs : dpriest.hexagons[0].adjacentHex(1),
+			hexs : dpriest.adjacentHexs(1),
 			args : {dpriest:dpriest, ability: ability}
 		});
 	},
@@ -87,8 +94,20 @@ abilities[0] =[
 
 	// 	require() :
 	require : function(){
-		if(this.creature.player.plasma <= 0){
-			G.log("Not enough plasma");
+		var range = this.creature.adjacentHexs(1)
+		//At least one target
+		if( !this.atLeastOneTarget(range,"ennemy") ) return false;
+
+		//Search Lowest target cost
+		var lowestCost = 0;
+		var targets = this.getTargets(range);
+
+		targets.each(function(){
+			if( lowestCost < this.size ) lowestCost = this.size;			
+		});
+
+		if(this.creature.player.plasma < lowestCost){
+			// G.log("Not enough plasma");
 			return false;
 		}
 		return true;
@@ -105,7 +124,7 @@ abilities[0] =[
 			team : 0, //Team, 0 = ennemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
-			hexs : dpriest.hexagons[0].adjacentHex(1),
+			hexs : dpriest.adjacentHexs(1),
 			args : {dpriest:dpriest, ability: ability}
 		});
 	},
@@ -142,11 +161,11 @@ abilities[0] =[
 	// 	require() :
 	require : function(){
 		if(this.creature.player.plasma <= 0){
-			G.log("Not enough plasma");
+			// G.log("Not enough plasma");
 			return false;
 		}
 		if(this.creature.player.getNbrOfCreatures() >= G.creaLimitNbr){
-			G.log("Psyhelm overload : too much creature summoned");
+			// G.log("Psyhelm overload : too much creature summoned");
 			return false;
 		}
 		return true;
@@ -203,7 +222,6 @@ abilities[0] =[
 		var pos = { x:hex.x, y:hex.y };
 
 		ability.creature.player.summon(creature,pos);
-		console.log(args.cost)
 		ability.creature.player.plasma -= args.cost;
 
 		ability.end();

@@ -23,8 +23,7 @@ var Ability = Class.create({
 		if( !this.require() ) return;
 		if( this.used == true ){ G.log("Ability already used!"); return; }
 		G.grid.clearHexViewAlterations();
-		$j("#abilities .ability").removeClass("active");
-		$j("#abilities .ability:nth-child("+(this.id+1)+")").addClass("active");
+		G.UI.selectAbility(this.id);
 		return this.query();
 	},
 
@@ -34,8 +33,9 @@ var Ability = Class.create({
 	*
 	*/
 	end: function() {
-		if(this.trigger == "onQuery") G.activeCreature.queryMove();
-
+		if(this.trigger == "onQuery")
+			G.activeCreature.queryMove();
+			
 		G.log(this.creature.player.name+"'s "+this.creature.name+" uses "+this.title);
 		this.setUsed(true) //Should always be here
 		G.UI.updateInfos(); //Just in case
@@ -51,11 +51,11 @@ var Ability = Class.create({
 		if(val){
 			this.used = true;
 			if(this.creature.id == G.activeCreature.id) //avoid dimmed passive for current creature
-				$j("#abilities .ability:nth-child("+(this.id+1)+")").addClass("used").removeClass("blink");
+				G.UI.abilitiesButtons[this.id].changeState("disabled");
 		}else{
 			this.used = false;
 			if(this.creature.id == G.activeCreature.id) //avoid dimmed passive for current creature
-				$j("#abilities .ability:nth-child("+(this.id+1)+")").removeClass("used blink");
+				G.UI.abilitiesButtons[this.id].changeState("normal");
 		}
 	},
 
@@ -95,7 +95,83 @@ var Ability = Class.create({
 			multiKill += (targets[i].target.takeDamage(dmg).kill+0);
 		};
 		if(multiKill>1)	attacker.player.score.push({type:"combo",kills:multiKill});
-	}
+	},
+
+	/* 	atLeastOneTarget(hexs,team)
+	*
+	*	hexs : 		Array : 	set of hex to test
+	*	team : 		String : 	ennemy,ally,both
+	*/
+	atLeastOneTarget : function(hexs,team){
+		var result = false;
+		for (var i = 0; i < hexs.length; i++) {
+			if(hexs[i].creature>0){
+				var crea = G.creatures[hexs[i].creature];
+				switch(team){
+					case "ally":
+						if( this.creature.isAlly(crea.team) ) return true;
+						break;
+					case "ennemy":
+						if( !this.creature.isAlly(crea.team) ) return true;
+						break;
+					case "both":
+						return true;
+						break;
+				}
+			}
+		};
+		return result;
+	},
+
+
+	/* 	testRequirements()
+	*
+	*	test the requirement for this abilities. negatives values mean maximum value of the stat
+	*	For instance : energy = -5 means energy must be lower than 5.
+	*	If one requirement fails it returns false.
+	*/
+	testRequirements : function(){
+		var def = {
+			plasma : 0,
+			stats : {
+				health:0,
+				regrowth:0,
+				endurance:0,
+				energy:0,
+				meditation:0,
+				initiative:0,
+				offense:0,
+				defense:0,
+				movement:0,
+				pierce:0,
+				slash:0,
+				crush:0,
+				shock:0,
+				burn:0,
+				frost:0,
+				poison:0,
+				sonic:0,
+				mental:0,
+			},
+		}
+		
+		var req = $j.extend(def,this.requirements);
+		if(req.plasma > 0 ){
+			if( this.creature.player.plasma < req.plasma ) return false;
+		}else if(req.plasma < 0 ){
+			if( this.creature.player.plasma > -req.plasma ) return false;
+		}
+
+		$j.each(req.stats,function(key,value) {
+			if(value > 0 ){
+				if( this.creature.stats[key] < value ) return false;
+			}else if(value < 0 ){
+				if( this.creature.stats[key] > value ) return false;
+			}
+		});
+
+		return true;
+	},
 });
 
 

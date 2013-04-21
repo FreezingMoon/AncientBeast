@@ -52,7 +52,7 @@ var Creature = Class.create({
 		this.type 		= obj.type; //Which creature it is
 		this.lvl 		= (obj.lvl == "-")?1:obj.lvl-0; //Which creature it is
 		this.realm 		= obj.realm; //Which creature it is
-		this.animation		= obj.animation;
+		this.animation	= obj.animation;
 		
 
 		this.hexagons 	= [];
@@ -68,7 +68,26 @@ var Creature = Class.create({
 		
 
 		//Statistics
-		this.baseStats 	= obj.stats;
+		this.baseStats 	= {
+			health:obj.stats.health-0,
+			regrowth:obj.stats.regrowth-0,
+			endurance:obj.stats.endurance-0,
+			energy:obj.stats.energy-0,
+			meditation:obj.stats.meditation-0,
+			initiative:obj.stats.initiative-0,
+			offense:obj.stats.offense-0,
+			defense:obj.stats.defense-0,
+			movement:obj.stats.movement-0,
+			pierce:obj.stats.pierce-0,
+			slash:obj.stats.slash-0,
+			crush:obj.stats.crush-0,
+			shock:obj.stats.shock-0,
+			burn:obj.stats.burn-0,
+			frost:obj.stats.frost-0,
+			poison:obj.stats.poison-0,
+			sonic:obj.stats.sonic-0,
+			mental:obj.stats.mental-0,
+		},
 		this.stats 		= $j.extend({},this.baseStats);//Copy
 		this.health		= obj.stats.health;
 		this.remainingMove	= 0; //Default value recovered each turn
@@ -151,7 +170,12 @@ var Creature = Class.create({
 					this.activate(crea);
 				}
 			});
+			G.UI.btnDelay.changeState("normal");
+		}else{
+			G.UI.btnDelay.changeState("disabled");
 		}
+
+		if(G.turn >= G.minimumTurnBeforeSurrender){ G.UI.btnSurrender.changeState("normal"); }
 
 		this.player.startTime = new Date();
 
@@ -207,6 +231,8 @@ var Creature = Class.create({
 	*/
 	queryMove: function(){
 		$j("#abilities .ability").removeClass("active");
+		G.UI.selectAbility(-1);
+		G.UI.checkAbilities();
 
 		G.grid.updateDisplay(); //Retrace players creatures
 
@@ -593,6 +619,7 @@ var Creature = Class.create({
 			var dmg = damage.apply(this);
 			var dmgAmount = dmg.total;
 			this.health -= dmgAmount;
+			this.health = (this.health < 0) ? 0 : this.health; //Cap
 
 			//Effects
 			damage.effects.each(function(){
@@ -612,7 +639,6 @@ var Creature = Class.create({
 
 			//If Health is empty
 			if(this.health <= 0){
-				this.health = 0; //Cap
 				this.die(damage.attacker);
 				return {damages:dmg, kill:true}; //Killed
 			}
@@ -749,4 +775,16 @@ var Creature = Class.create({
 		//Debug Info
 		G.log("Player"+(this.team+1)+"'s "+this.name+" is dead");
 	},
+
+
+	/*	isAlly(team)
+	*
+	*	team : 		Integer : 	id of the player
+	*
+	*	return : 	Boolean : 	True if ally and false for ennemies
+	*/
+	isAlly : function(team){
+		return ( team%2 == this.team%2 );
+	},
+
 });
