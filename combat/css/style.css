@@ -511,7 +511,7 @@ body{
 
 #skip{ background-image: url('../icons/skip.svg'); }
 #delay{ background-image: url('../icons/delay.svg'); }
-#flee{ background-image: url('../icons/surrender.svg'); }
+#flee{ background-image: url('../icons/flee.svg'); }
 #playerbutton{
 	z-index: 2; 
 	right: 0px; 
