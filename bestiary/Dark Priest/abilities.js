@@ -44,10 +44,11 @@ abilities[0] =[
 
 	// 	require() :
 	require : function(){
-		return (
-			this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) &&
-			this.testRequirements()
-		);
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return this.testRequirements();
 	},
 
 	// 	query() :
@@ -94,9 +95,13 @@ abilities[0] =[
 
 	// 	require() :
 	require : function(){
-		var range = this.creature.adjacentHexs(1)
+		var range = this.creature.adjacentHexs(1);
+
 		//At least one target
-		if( !this.atLeastOneTarget(range,"ennemy") ) return false;
+		if( !this.atLeastOneTarget(range,"ennemy") ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
 
 		//Search Lowest target cost
 		var lowestCost = 0;
@@ -107,10 +112,11 @@ abilities[0] =[
 		});
 
 		if(this.creature.player.plasma < lowestCost){
-			// G.log("Not enough plasma");
+			this.message = G.msg.abilities.noplasma;
 			return false;
 		}
-		return true;
+
+		return this.testRequirements();
 	},
 
 	// 	query() :
@@ -161,14 +167,14 @@ abilities[0] =[
 	// 	require() :
 	require : function(){
 		if(this.creature.player.plasma <= 0){
-			// G.log("Not enough plasma");
+			this.message = G.msg.abilities.noplasma;
 			return false;
 		}
 		if(this.creature.player.getNbrOfCreatures() >= G.creaLimitNbr){
-			// G.log("Psyhelm overload : too much creature summoned");
+			this.message = G.msg.abilities.nopsy;
 			return false;
 		}
-		return true;
+		return this.testRequirements();
 	},
 
 	summonRange : 6,

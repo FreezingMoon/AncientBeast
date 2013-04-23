@@ -11,7 +11,7 @@ abilities[5] =[
 	trigger : "never", //Just for display purpose the effect is in 2nd Ability
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){return this.testRequirements();},
 },
 
 
@@ -26,7 +26,13 @@ abilities[5] =[
 	},
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){
+		if( !G.grid.getHexMap(this.creature.x-3,this.creature.y-2,0,false,frontnback3hex) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function(){
@@ -34,17 +40,12 @@ abilities[5] =[
 		var ability = this;
 		var creature = this.creature;
 
-		var map = [	 [0,0,0,0,0],
-					[0,1,0,0,1],
-					 [1,0,0,0,1], //origin line
-					[0,1,0,0,1]];
-
 		G.grid.queryCreature({
 			fnOnConfirm : ability.activate, //fnOnConfirm
 			team : 0, //Team, 0 = ennemies
 			id : creature.id,
 			flipped : creature.flipped,
-			hexs : G.grid.getHexMap(creature.x-3,creature.y-2,0,false,map),
+			hexs : G.grid.getHexMap(creature.x-3,creature.y-2,0,false,frontnback3hex),
 			args : {creature:creature, ability: ability}
 		});
 	},
@@ -99,7 +100,7 @@ abilities[5] =[
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){return this.testRequirements();},
 
 	// 	query() :
 	query : function(){
@@ -124,7 +125,7 @@ abilities[5] =[
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){return this.testRequirements();},
 
 	// 	query() :
 	query : function(){

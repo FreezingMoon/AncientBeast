@@ -12,6 +12,7 @@ abilities[12] =[
 
 	// 	require() :
 	require : function(damage){
+		if(damage == undefined) damage = {type:"target"}; //For the test function to work
 		if(this.used) return false; //Prevent Multiple dodge
 		if(damage.type != "target") return false; //Not targeted 
 		if(this.creature.remainingMove <= 0) return false; //Not enough move points
@@ -20,7 +21,8 @@ abilities[12] =[
 		creature.adjacentHexs(1).each(function(){
 			canDodge = canDodge || this.isWalkable(creature.id,creature.size,true);
 		});
-		return canDodge;
+		if(!canDodge) return false;
+		return this.testRequirements();
 	},
 
 	//	activate() : 
@@ -57,7 +59,13 @@ abilities[12] =[
 	},
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function(){
@@ -70,7 +78,7 @@ abilities[12] =[
 			team : 0, //Team, 0 = ennemies
 			id : snowBunny.id,
 			flipped : snowBunny.player.flipped,
-			hexs : snowBunny.hexagons[0].adjacentHex(1),
+			hexs : snowBunny.adjacentHexs(1),
 			args : {snowBunny:snowBunny, ability: ability}
 		});
 	},
@@ -99,8 +107,20 @@ abilities[12] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
+	directions : [1,1,1,1,1,1],
+
 	// 	require() :
-	require : function(){return true;},
+	require : function(){
+		var test = this.testDirection({
+			team : "ennemy",
+			directions : this.directions,
+		});
+		if( !test ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function(){
@@ -115,7 +135,7 @@ abilities[12] =[
 			requireCreature : false,
 			x : snowBunny.x,
 			y : snowBunny.y,
-			directions : [1,1,1,1,1,1],
+			directions : this.directions,
 			args : {snowBunny:snowBunny, ability: ability}
 		});
 	},
@@ -186,7 +206,17 @@ abilities[12] =[
 	},
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){
+		var test = this.testDirection({
+			team : "ennemy",
+			directions : this.directions,
+		});
+		if( !test ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function(){

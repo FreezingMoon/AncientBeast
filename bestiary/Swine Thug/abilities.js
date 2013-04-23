@@ -12,17 +12,21 @@ abilities[37] =[
 
 	// 	require() :
 	require : function(hex){
+		if(hex == undefined) hex = this.creature.hexagons[0];
+		this.message = "";
 		if(hex.trap){
 			if(hex.trap.type == "mud-bath"){ 
 				return true; 
 			}
 		}
 
+		this.message = "Not in a mud bath.";
+
 		this.creature.effects.each(function(){
 			if(this.trigger == "mud-bath")
 				this.deleteEffect();
 		});
-		return false;
+		return this.testRequirements();
 	},
 
 	//	activate() : 
@@ -46,7 +50,11 @@ abilities[37] =[
 	},
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){
+		var haveTarget = this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" );
+		this.message = (haveTarget)?"":G.msg.abilities.notarget;
+		return ( this.testRequirements() && haveTarget );
+	},
 
 	// 	query() :
 	query : function(){
@@ -59,7 +67,7 @@ abilities[37] =[
 			team : 0, //Team, 0 = ennemies
 			id : swine.id,
 			flipped : swine.player.flipped,
-			hexs : swine.hexagons[0].adjacentHex(1),
+			hexs : swine.adjacentHexs(1),
 			args : {ability: ability}
 		});
 	},
@@ -94,7 +102,21 @@ abilities[37] =[
 	},
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){
+		var swine = this.creature;
+		var hexs = G.grid.getHexMap(swine.x,swine.y-2,0,false,bellowrow).concat(
+			G.grid.getHexMap(swine.x,swine.y,0,false,straitrow),
+			G.grid.getHexMap(swine.x,swine.y,0,false,bellowrow),
+			G.grid.getHexMap(swine.x,swine.y-2,0,true,bellowrow),
+			G.grid.getHexMap(swine.x,swine.y,0,true,straitrow),
+			G.grid.getHexMap(swine.x,swine.y,0,true,bellowrow));
+		if( !this.atLeastOneTarget( hexs, "ennemy" ) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+
+		return this.testRequirements();		
+	},
 
 	// 	query() :
 	query : function(){
@@ -102,18 +124,17 @@ abilities[37] =[
 		var ability = this;
 		var swine = this.creature;
 
-		var map = [  [ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ],
-					[ 0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 ]];
+
 
 		var choices = [
 			//Front
-			G.grid.getHexMap(swine.x,swine.y-2,0,false,map),
+			G.grid.getHexMap(swine.x,swine.y-2,0,false,bellowrow),
 			G.grid.getHexMap(swine.x,swine.y,0,false,straitrow),
-			G.grid.getHexMap(swine.x,swine.y,0,false,map),
+			G.grid.getHexMap(swine.x,swine.y,0,false,bellowrow),
 			//Behind
-			G.grid.getHexMap(swine.x,swine.y-2,0,true,map),
+			G.grid.getHexMap(swine.x,swine.y-2,0,true,bellowrow),
 			G.grid.getHexMap(swine.x,swine.y,0,true,straitrow),
-			G.grid.getHexMap(swine.x,swine.y,0,true,map),
+			G.grid.getHexMap(swine.x,swine.y,0,true,bellowrow),
 		];
 
 		choices.each(function(){
@@ -157,7 +178,9 @@ abilities[37] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	require : function(){return true;},
+	require : function(){
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function(){

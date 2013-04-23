@@ -33,12 +33,11 @@ var Ability = Class.create({
 	*
 	*/
 	end: function() {
-		if(this.trigger == "onQuery")
-			G.activeCreature.queryMove();
-			
 		G.log(this.creature.player.name+"'s "+this.creature.name+" uses "+this.title);
 		this.setUsed(true) //Should always be here
 		G.UI.updateInfos(); //Just in case
+		if(this.trigger == "onQuery")
+			G.activeCreature.queryMove();
 	},
 
 
@@ -171,6 +170,53 @@ var Ability = Class.create({
 		});
 
 		return true;
+	},
+
+	testDirection : function(o){
+		var defaultOpt = {
+			team : "ennemy",
+			id : this.creature.id,
+			flipped : this.creature.player.flipped,
+			x : this.creature.x,
+			y : this.creature.y,
+			directions : [1,1,1,1,1,1],
+			includeCrea : true,
+			stopOnCreature : true,
+		};
+
+		o = $j.extend(defaultOpt,o);
+		
+		var choices = [] 
+
+		for (var i = 0; i < o.directions.length; i++) {
+			if(!!o.directions[i]){
+				var dir = []
+				switch(i){
+					case 0: //Upright
+						dir = G.grid.getHexMap(o.x,o.y-8,0,o.flipped,diagonalup).reverse();
+						break;
+					case 1: //StraitForward
+						dir = G.grid.getHexMap(o.x,o.y,0,o.flipped,straitrow);
+						break;
+					case 2: //Downright
+						dir = G.grid.getHexMap(o.x,o.y,0,o.flipped,diagonaldown);
+						break;
+					case 3: //Downleft
+						dir = G.grid.getHexMap(o.x,o.y,-4,o.flipped,diagonalup);
+						break;
+					case 4: //StraitBackward
+						dir = G.grid.getHexMap(o.x,o.y,0,!o.flipped,straitrow);
+						break;
+					case 5: //Upleft
+						dir = G.grid.getHexMap(o.x,o.y-8,-4,o.flipped,diagonaldown).reverse();
+						break;
+					default:
+						break;
+				}
+				choices = choices.concat(dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team));
+			}
+		};
+		return this.atLeastOneTarget(choices,o.team);
 	},
 });
 

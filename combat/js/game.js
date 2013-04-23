@@ -76,6 +76,15 @@ var Game = Class.create({
 		this.firstKill = false;
 		this.freezedInput = false;
 
+		//Msg (TODO External file)
+		this.msg = {
+			abilities : {
+				notarget : "No target available.",
+				noplasma : "Not enough plasma.",
+				nopsy	 : "Psyhelm overload : too much creature summoned",
+				alreadyused : "Ability already used."
+			}
+		}
 	},
 
 

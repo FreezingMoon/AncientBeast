@@ -15,7 +15,7 @@ abilities[4] =[
 	},
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){return this.testRequirements();},
 
 	//	activate() : 
 	activate : function() {
@@ -51,7 +51,13 @@ abilities[4] =[
 	},
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){
+		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3,this.creature.y-2,0,false,frontnback3hex),"ennemy" ) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function(){
@@ -59,17 +65,12 @@ abilities[4] =[
 		var ability = this;
 		var magmaSpawn = this.creature;
 
-		var map = [	 [0,0,0,0,0],
-					[0,1,0,0,1],
-					 [1,0,0,0,1], //origin line
-					[0,1,0,0,1]];
-
 		G.grid.queryCreature({
 			fnOnConfirm : ability.activate, //fnOnConfirm
 			team : 0, //Team, 0 = ennemies
 			id : magmaSpawn.id,
 			flipped : magmaSpawn.flipped,
-			hexs : G.grid.getHexMap(magmaSpawn.x-3,magmaSpawn.y-2,0,false,map),
+			hexs : G.grid.getHexMap(magmaSpawn.x-3,magmaSpawn.y-2,0,false,frontnback3hex),
 			args : {creature:magmaSpawn, ability: ability}
 		});
 	},
@@ -102,20 +103,30 @@ abilities[4] =[
 		burn : 10,
 	},
 
+	map : [	 [0,0,1,0],
+			[0,0,1,1],
+			 [0,1,1,0],//origin line
+			[0,0,1,1],
+			 [0,0,1,0]],
+
 	// 	require() :
-	require : function(){return true;},
+	require : function(){
+		// Require Ennemy
+		// var magmaSpawn = this.creature;
+		// var hexs = G.grid.getHexMap(magmaSpawn.x,magmaSpawn.y-2,0,false,this.map).concat(
+		// 	G.grid.getHexMap(magmaSpawn.x-magmaSpawn.size+1,magmaSpawn.y-2,0,true,this.map));
+		// if( !this.atLeastOneTarget( hexs,"ennemy" ) ){
+		// 	this.message = G.msg.abilities.notarget;
+		// 	return false;
+		// }
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function(){
 		
 		var ability = this;
 		var magmaSpawn = this.creature;
-
-		var map = [	 [0,0,1,0],
-					[0,0,1,1],
-					 [0,1,1,0],//origin line
-					[0,0,1,1],
-					 [0,0,1,0]];
 
 		G.grid.queryChoice({
 			fnOnConfirm : ability.activate,
@@ -125,8 +136,8 @@ abilities[4] =[
 			args : {creature:magmaSpawn, ability:ability},
 			flipped : magmaSpawn.flipped,
 			choices : [
-				G.grid.getHexMap(magmaSpawn.x,magmaSpawn.y-2,0,false,map),
-				G.grid.getHexMap(magmaSpawn.x-magmaSpawn.size+1,magmaSpawn.y-2,0,true,map)
+				G.grid.getHexMap(magmaSpawn.x,magmaSpawn.y-2,0,false,this.map),
+				G.grid.getHexMap(magmaSpawn.x-magmaSpawn.size+1,magmaSpawn.y-2,0,true,this.map)
 			],
 		})
 
@@ -161,7 +172,24 @@ abilities[4] =[
 		burn : 5,
 	},
 
-	require : function(){return true;},
+	directions : [0,1,0,0,1,0],
+
+	require : function(){
+		var magmaSpawn = this.creature;
+		var x = (magmaSpawn.player.flipped) ? magmaSpawn.x-magmaSpawn.size+1 : magmaSpawn.x ;
+
+		var test = this.testDirection({
+			team : "ennemy",
+			x : x,
+			directions : this.directions,
+		});
+
+		if( !test ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function(){
@@ -178,7 +206,7 @@ abilities[4] =[
 			requireCreature : true,
 			x : x,
 			y : magmaSpawn.y,
-			directions : [0,1,0,0,1,0],
+			directions : this.directions,
 			args : {magmaSpawn:magmaSpawn, ability: ability}
 		});
 	},

@@ -49,7 +49,7 @@ var UI = Class.create({
 
 		//End turn button
 		this.btnEndTurn = new Button({
-			$button : $j("#end.button"),
+			$button : $j("#skip.button"),
 			click : function(e){G.endTurn();},
 		});
 		this.buttons.push(this.btnEndTurn);
@@ -63,7 +63,7 @@ var UI = Class.create({
 
 		//Surrender Button
 		this.btnSurrender = new Button({
-			$button : $j("#surrender.button"),
+			$button : $j("#flee.button"),
 			click : function(e){G.activeCreature.player.surrender();},
 			state : "disabled",
 		});
@@ -351,7 +351,9 @@ var UI = Class.create({
 	checkAbilities : function(){
 		for (var i = 0; i < 4; i++) {
 			var ab = G.activeCreature.abilities[i];
-			var req = (ab.trigger == "onQuery") ? ab.require() : true;
+			ab.message = "";
+			var req = ab.require();
+			ab.message = (ab.used) ? G.msg.abilities.alreadyused : ab.message;
 			if( req && !ab.used){
 				this.abilitiesButtons[i].changeState("normal");
 			}else{

@@ -11,7 +11,7 @@ abilities[3] =[
 	trigger : "onStepIn onStartPhase",
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){return this.testRequirements();},
 
 	//	activate() : 
 	activate : function() {
@@ -85,7 +85,14 @@ abilities[3] =[
 	},
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){
+		//At least one target
+		if( !this.atLeastOneTarget(this.creature.adjacentHexs(1),"ennemy") ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function(){
@@ -144,23 +151,26 @@ abilities[3] =[
 	},
 
 	// 	require() :
-	require : function(){return true;},
+	require : function(){
+		var map = G.grid.getHexMap(this.creature.x-2,this.creature.y-2,0,false,frontnback2hex);
+		//At least one target
+		if( !this.atLeastOneTarget(map,"ennemy") ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function(){
 		var uncle = this.creature;
-
-		var map = [	 [0,0,0,0],
-					[0,1,0,1],
-					 [1,0,0,1], //origin line
-					[0,1,0,1]];
 
 		G.grid.queryCreature({
 			fnOnConfirm : this.activate, //fnOnConfirm
 			team : 0, //Team, 0 = ennemies
 			id : uncle.id,
 			flipped : uncle.flipped,
-			hexs : G.grid.getHexMap(uncle.x-2,uncle.y-2,0,false,map),
+			hexs : G.grid.getHexMap(uncle.x-2,uncle.y-2,0,false,frontnback2hex),
 			args : {ability: this}
 		});
 	},
@@ -196,7 +206,7 @@ abilities[3] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	require : function(){return true;},
+	require : function(){return this.testRequirements();},
 
 	// 	query() :
 	query : function(){

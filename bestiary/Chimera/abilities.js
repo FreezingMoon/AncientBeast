@@ -12,7 +12,7 @@ abilities[45] =[
 
 	//	require() :
 	require : function(){
-		return true;
+		return this.testRequirements();
 	},
 
 	//	activate() : 
@@ -25,8 +25,9 @@ abilities[45] =[
 		if(this.tokens[id]){
 			this.end();
 			for (var i = 0; i < this.tokens.length; i++) {
-				this.creature.abilities[i+1].setUsed(this.tokens[i]);
+				this.creature.abilities[i+1].used  = this.tokens[i];
 			};
+			G.UI.checkAbilities();
 		}else{
 			this.tokens[id] = true;
 			this.creature.abilities[id+1].setUsed(false);
@@ -49,26 +50,32 @@ abilities[45] =[
 
 	//	require() :
 	require : function(){
-		return !(this.creature.abilities[0].tokens[0] && this.creature.abilities[0].used);
+		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3,this.creature.y-2,0,false,frontnback3hex),"ennemy" ) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+
+		//Duality
+		if( this.creature.abilities[0].used ){
+			//this.message = "Duality has already been used";
+			//return false;
+		}else{
+			this.setUsed(false);
+		}
+
+		return this.testRequirements();
 	},
 
 	//	query() :
 	query : function(){
 		var chimera = this.creature;
 
-		var map = [	
-			[0,0,0,0],
-			[0,1,0,1],
-			[1,0,0,1], //origin line
-			[0,1,0,1]
-			];
-
 		G.grid.queryCreature({
 			fnOnConfirm : this.activate, //fnOnConfirm
 			team : 0, //Team, 0 = ennemies
 			id : chimera.id,
 			flipped : chimera.flipped,
-			hexs : G.grid.getHexMap(chimera.x-2,chimera.y-2,0,false,map),
+			hexs : G.grid.getHexMap(chimera.x-3,chimera.y-2,0,false,frontnback3hex),
 			args : {ability: this}
 		});
 	},
@@ -103,9 +110,22 @@ abilities[45] =[
 		sonic : 20,
 	},
 
+	directions : [0,1,0,0,0,0],
+
 	//	require() :
 	require : function(){
-		return !(this.creature.abilities[0].tokens[1] && this.creature.abilities[0].used);
+		if( !this.testDirection({ team : "ennemy", directions : this.directions }) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		//Duality
+		if( this.creature.abilities[0].used ){
+			//this.message = "Duality has already been used";
+			//return false;
+		}else{
+			this.setUsed(false);
+		}
+		return this.testRequirements();
 	},
 
 	//	query() :
@@ -120,7 +140,7 @@ abilities[45] =[
 			requireCreature : false,
 			x : chimera.x,
 			y : chimera.y,
-			directions : [0,1,0,0,0,0],
+			directions : this.directions,
 			args : {chimera:chimera, ability: this}
 		});
 	},
@@ -157,8 +177,21 @@ abilities[45] =[
 		shock : 20,
 	},
 
+	directions : [0,1,0,0,0,0],
+	
 	require : function(){
-		return !(this.creature.abilities[0].tokens[2] && this.creature.abilities[0].used);
+		if( !this.testDirection({ team : "ennemy", directions : this.directions }) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		//Duality
+		if( this.creature.abilities[0].used ){
+			//this.message = "Duality has already been used";
+			//return false;
+		}else{
+			this.setUsed(false);
+		}
+		return this.testRequirements();
 	},
 
 	//	query() :
@@ -173,7 +206,7 @@ abilities[45] =[
 			requireCreature : false,
 			x : chimera.x,
 			y : chimera.y,
-			directions : [0,1,0,0,0,0],
+			directions : this.directions,
 			args : {chimera:chimera, ability: this}
 		});
 	},
