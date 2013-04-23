@@ -42,7 +42,6 @@ require_once('../bestiary/cards.php');
 		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
-		<script type="text/javascript" src="./js/mousewheel.js"></script>
 
 		<script type="text/javascript">
 			var $j = jQuery.noConflict();
