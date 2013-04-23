@@ -40,34 +40,34 @@ var UI = Class.create({
 		this.buttons = [];
 		this.abilitiesButtons = [];
 
-		//Dash button
+		//Dash Button
 		this.btnToggleDash = new Button({
 			$button : $j(".toggledash"),
 			click : function(e){G.UI.toggleDash();},
 		});
 		this.buttons.push(this.btnToggleDash);
 
-		//End turn button
-		this.btnEndTurn = new Button({
+		//Skip Turn Button
+		this.btnSkipTurn = new Button({
 			$button : $j("#skip.button"),
-			click : function(e){G.endTurn();},
+			click : function(e){G.skipTurn();},
 		});
-		this.buttons.push(this.btnEndTurn);
+		this.buttons.push(this.btnSkipTurn);
 
-		//Wait Button
+		//Delay Creature Button
 		this.btnDelay = new Button({
 			$button : $j("#delay.button"),
-			click : function(e){G.delayTurn();},
+			click : function(e){G.delayCreature();},
 		});
 		this.buttons.push(this.btnDelay);
 
-		//Surrender Button
-		this.btnSurrender = new Button({
+		//Flee Match Button
+		this.btnFlee = new Button({
 			$button : $j("#flee.button"),
-			click : function(e){G.activeCreature.player.surrender();},
+			click : function(e){G.activeCreature.player.flee();},
 			state : "disabled",
 		});
-		this.buttons.push(this.btnSurrender);
+		this.buttons.push(this.btnFlee);
 
 		for (var i = 0; i < 4; i++) {
 			var b = new Button({

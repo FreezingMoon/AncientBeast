@@ -200,7 +200,7 @@
 		},
 		{
 			"title": "Chomp",
-			"desc": "Takes a huge bite out of his foe,restoring a minor amount of health.",
+			"desc": "Takes a huge bite out of his foe, restoring a minor amount of health.",
 			"info": "20 pierce damage,1/4 as regrowth"
 		},
 		{
@@ -210,7 +210,7 @@
 		},
 		{
 			"title": "Frogger",
-			"desc": "Leaps in straight line over obstacles,gaining bonus offense after landing.",
+			"desc": "Leaps in straight line over obstacles, gaining bonus offense after landing.",
 			"info": "+30 offense for next hit if not moving"
 		}
 	]
@@ -249,7 +249,7 @@
 	"ability_info": [
 		{
 			"title": "Infernal Temper",
-			"desc": "Bursts into flames when it's turn comes,damaging nearby creatures.",
+			"desc": "Bursts into flames when it's turn comes, damaging nearby creatures.",
 			"info": "5 burn damage"
 		},
             {
@@ -259,12 +259,12 @@
             },
             {
                 "title": "Fissure",
-                "desc": "Smashes his fists into the ground,wreaking fierce havoc ahead.",
+                "desc": "Smashes his fists into the ground, wreaking fierce havoc ahead.",
                 "info": "10 burn damage "
             },
             {
                 "title": "Molten Hurl",
-                "desc": "Turns into a molten boulder,bowling itself into first foe in a straight line.",
+                "desc": "Turns into a molten boulder, bowling itself into first foe in a straight line.",
                 "info": "15 crush + 5 burn damage"
             }
         ]
@@ -341,11 +341,11 @@
 			"offense": 20,
 			"defense": 20,
 			"movement": 6,
-			"pierce": 4,
-			"slash": 4,
-			"crush": 4,
-			"shock": 2,
-			"burn": 1,
+			"pierce": 14,
+			"slash": 14,
+			"crush": 14,
+			"shock": 6,
+			"burn": 3,
 			"frost": 40,
 			"poison": 20,
 			"sonic": 4,
@@ -356,24 +356,24 @@
         },
         "ability_info": [
             {
-                "title": "Cryosauna",
+                "title": "Snow Storm",
                 "desc": "Foes have their movement reduced and initiative constantly decreased.",
                 "info": ""
             },
             {
                 "title": "Frost Bite",
-                "desc": "Pokes ice teeth into nearby foe.",
-                "info": "No info"
+                "desc": "Exhales freezing gas that does full damage nearby or half further away.",
+                "info": "20 frost damage nearby or 10 if away."
             },
             {
-                "title": "Nitrogen Splash",
-                "desc": "Exhales freezing gas that does more damage as it travels.",
+                "title": "Frozen Orb",
+                "desc": "Creates an ice sphere and throws it at a target within range, freezing it.",
                 "info": "No info"
             },
             {
                 "title": "Glacial Spikes",
-                "desc": "Several spears of ice erupt in the area nearby,impaling all creatures.",
-                "info": "No info"
+                "desc": "Several spears of ice erupt from its body, impaling all nearby creatures.",
+                "info": "20 frost damage"
             }
         ]
     },
@@ -421,7 +421,7 @@
             },
             {
                 "title": "Fire Ball",
-                "desc": "Throws a ball of fire that explodes on impact,damaging several creatures.",
+                "desc": "Throws a ball of fire that explodes on impact, damaging several creatures.",
                 "info": "20 burn damage"
             },
             {
@@ -465,7 +465,7 @@
         "ability_info": [
             {
                 "title": "Unstoppable",
-                "desc": "Successfully resists first signs of fatigue,being able to carry on.",
+                "desc": "Successfully resists first signs of fatigue, being able to carry on.",
                 "info": ""
             },
             {
@@ -475,7 +475,7 @@
             },
             {
                 "title": "Meat Hook",
-                "desc": "Drags a foe,doing bonus damage if it doesn't have any movement points.",
+                "desc": "Drags a foe, doing bonus damage if it doesn't have any movement points.",
                 "info": "No info"
             },
             {
@@ -529,12 +529,12 @@
             },
             {
                 "title": "Tail Uppercut",
-                "desc": "Sucker punches a near enemy using tail,ignoring most of it's defense.",
+                "desc": "Sucker punches a near enemy using tail, ignoring most of it's defense.",
                 "info": "No info"
             },
             {
                 "title": "Icicle Tongue",
-                "desc": "Launches tongue,piercing all foes sitting in front in a straight line.",
+                "desc": "Launches tongue, piercing all foes sitting in front in a straight line.",
                 "info": "No info"
             }
         ]
@@ -642,7 +642,7 @@
             },
             {
                 "title": "Noxious Cloud",
-                "desc": "Releases several toxic clouds all around,persisting for several rounds.",
+                "desc": "Releases several toxic clouds all around, persisting for several rounds.",
                 "info": "20 adjacent poison damage"
             }
         ]
@@ -691,7 +691,7 @@
             },
             {
                 "title": "Blowing Wind",
-                "desc": "Pushes an inline creature several hexagons backwards,based on size.",
+                "desc": "Pushes an inline creature several hexagons backwards, based on size.",
                 "info": "range = 6 hexagons - creature size"
             },
             {
@@ -735,7 +735,7 @@
         "ability_info": [
             {
                 "title": "Decaying Carcass",
-                "desc": "When dead,it's corpse rots fast and emanates poisonous gases.",
+                "desc": "When dead, it's corpse rots fast and emanates poisonous gases.",
                 "info": ""
             },
             {
@@ -804,7 +804,7 @@
             },
             {
                 "title": "Boom Box",
-                "desc": "Turns belly into a speaker,blasting an inline foe,pushing it back a bit.",
+                "desc": "Turns belly into a speaker, blasting an inline foe, pushing it back a bit.",
                 "info": "No info"
             }
         ]
@@ -843,7 +843,7 @@
         "ability_info": [
             {
                 "title": "Fried Chicken",
-                "desc": "Corpse can be consumed by other creatures,regaining some health.",
+                "desc": "Corpse can be consumed by other creatures, regaining some health.",
                 "info": ""
             },
             {
@@ -897,7 +897,7 @@
         "ability_info": [
             {
                 "title": "Ground Shaker",
-                "desc": "Stomps the ground when walking,increasing the delay of all it's foes.",
+                "desc": "Stomps the ground when walking, increasing the delay of all it's foes.",
                 "info": ""
             },
             {
@@ -912,7 +912,7 @@
             },
             {
                 "title": "Spitfire",
-                "desc": "Erupts with rage,bombarding the battlefield with burning lava.",
+                "desc": "Erupts with rage, bombarding the battlefield with burning lava.",
                 "info": "No info"
             }
         ]
@@ -951,7 +951,7 @@
         "ability_info": [
             {
                 "title": "Spiked Fence",
-                "desc": "When dead,enemies walking on it's corpse get their limbs impaled.",
+                "desc": "When dead, enemies walking on it's corpse get their limbs impaled.",
                 "info": ""
             },
             {
@@ -961,12 +961,12 @@
             },
             {
                 "title": "Trap Jaw",
-                "desc": "Bites nearby foe,crippling it.",
+                "desc": "Bites nearby foe, crippling it.",
                 "info": "No info"
             },
             {
                 "title": "Circular Saw",
-                "desc": "Travels in a straight line and back,cutting through encountered foes.",
+                "desc": "Travels in a straight line and back, cutting through encountered foes.",
                 "info": "No info"
             }
         ]
@@ -1015,12 +1015,12 @@
             },
             {
                 "title": "Fly Swarm",
-                "desc": "Damages and distracts a foe,lowering it's offense and defense.",
+                "desc": "Damages and distracts a foe, lowering it's offense and defense.",
                 "info": "No info"
             },
             {
                 "title": "Shadow Army",
-                "desc": "Allows any dead creature to fight again for it's life,as a shadow being.",
+                "desc": "Allows any dead creature to fight again for it's life, as a shadow being.",
                 "info": "No info"
             }
         ]
@@ -1069,7 +1069,7 @@
             },
             {
                 "title": "Fatal Attraction",
-                "desc": "Causes a target foe to come close to her,while depleting its movement.",
+                "desc": "Causes a target foe to come close to her, while depleting its movement.",
                 "info": "Does not work on summoners."
             },
             {
@@ -1128,7 +1128,7 @@
             },
             {
                 "title": "Frostbite Shower",
-                "desc": "Sprinkles the area in front with liquid nitrogen,doing cold damage.",
+                "desc": "Sprinkles the area in front with liquid nitrogen, doing cold damage.",
                 "info": "No info"
             }
         ]
@@ -1172,7 +1172,7 @@
             },
             {
                 "title": "Bone Scythe",
-                "desc": "Slashes nearby foe,causing it to bleed and lose health if moving.",
+                "desc": "Slashes nearby foe, causing it to bleed and lose health if moving.",
                 "info": "No info"
             },
             {
@@ -1221,7 +1221,7 @@
         "ability_info": [
             {
                 "title": "Lava Pool",
-                "desc": "When dead,melts into puddle of boiling lava that damages foes.",
+                "desc": "When dead, melts into puddle of boiling lava that damages foes.",
                 "info": ""
             },
             {
@@ -1231,12 +1231,12 @@
             },
             {
                 "title": "Iron Shell",
-                "desc": "Solidifies from magma state into iron,greatly increasing resistances.",
+                "desc": "Solidifies from magma state into iron, greatly increasing resistances.",
                 "info": "No info"
             },
             {
                 "title": "Black Pearl",
-                "desc": "Fires a durable sphere up in to the air,falling on target the next round.",
+                "desc": "Fires a durable sphere up in to the air, falling on target the next round.",
                 "info": "No info"
             }
         ]
@@ -1275,7 +1275,7 @@
         "ability_info": [
             {
                 "title": "Forced Involution",
-                "desc": "When dead,reconfigures itself as a weaker creature,the Magma Spawn.",
+                "desc": "When dead, reconfigures itself as a weaker creature, the Magma Spawn.",
                 "info": ""
             },
             {
@@ -1285,12 +1285,12 @@
             },
             {
                 "title": "Fire Dump",
-                "desc": "Ignites the ground,the fire expands and contracts over several rounds.",
+                "desc": "Ignites the ground, the fire expands and contracts over several rounds.",
                 "info": "No info"
             },
             {
                 "title": "Shotgun Blast",
-                "desc": "Blows a handful of shrapnel in a conic area,doing versatile damage.",
+                "desc": "Blows a handful of shrapnel in a conic area, doing versatile damage.",
                 "info": "No info"
             }
         ]
@@ -1334,12 +1334,12 @@
             },
             {
                 "title": "Gauntlet Strike",
-                "desc": "Punches a nearby foe with it's heavy armored hand,leaving quite a mark.",
+                "desc": "Punches a nearby foe with it's heavy armored hand, leaving quite a mark.",
                 "info": "20 crush damage"
             },
             {
                 "title": "Bloody Greed",
-                "desc": "Powerful sword penetrating attack,affecting multiple inline hexagons.",
+                "desc": "Powerful sword penetrating attack, affecting multiple inline hexagons.",
                 "info": "20 pierce + 10 slash damage"
             },
             {
@@ -1388,17 +1388,17 @@
             },
             {
                 "title": "Razorblade",
-                "desc": "Slices a nearby foe,keeping samples.",
+                "desc": "Slices a nearby foe, keeping samples.",
                 "info": "15 slash damage"
             },
             {
                 "title": "Scarecrow",
-                "desc": "Intimidates a nearby foe,making it run away until it meets an allie.",
-                "info": "If already acted,it will run next turn."
+                "desc": "Intimidates a nearby foe, making it run away until it meets an allie.",
+                "info": "If already acted, it will run next turn."
             },
             {
                 "title": "Voodoo Doll",
-                "desc": "Stabs itself,doing mental damage to any of the previously attacked foes.",
+                "desc": "Stabs itself, doing mental damage to any of the previously attacked foes.",
                 "info": "20 mental damage"
             }
         ]
@@ -1452,7 +1452,7 @@
             },
             {
                 "title": "Weed Field",
-                "desc": "Nasty weeds spring allover a region,growing with time.",
+                "desc": "Nasty weeds spring allover a region, growing with time.",
                 "info": "No info"
             }
         ]
@@ -1599,7 +1599,7 @@
         "ability_info": [
             {
                 "title": "Bad Touch",
-                "desc": "Every three strikes,a melee attacker is turned to gold for a whole round.",
+                "desc": "Every three strikes, a melee attacker is turned to gold for a whole round.",
                 "info": ""
             },
             {
@@ -1663,12 +1663,12 @@
             },
             {
                 "title": "Pony Tail",
-                "desc": "Whips and poisons nearby foes,knocking them back.",
+                "desc": "Whips and poisons nearby foes, knocking them back.",
                 "info": "No info"
             },
             {
                 "title": "Snake Tongue",
-                "desc": "Throws tongue at a distant target,having it come back with time.",
+                "desc": "Throws tongue at a distant target, having it come back with time.",
                 "info": "No info"
             }
         ]
@@ -1707,7 +1707,7 @@
         "ability_info": [
             {
                 "title": "Retaliation",
-                "desc": "Returns favor to frontal attackers,by slashing them with it's heavy claws.",
+                "desc": "Returns favor to frontal attackers, by slashing them with it's heavy claws.",
                 "info": ""
             },
             {
@@ -1815,12 +1815,12 @@
         "ability_info": [
             {
                 "title": "Percussion Spear",
-                "desc": "Attacks cause rear spear strike,which cannot be dodged.",
+                "desc": "Attacks cause rear spear strike, which cannot be dodged.",
                 "info": ""
             },
             {
                 "title": "Executioner Axe",
-                "desc": "Slashes nearby foe,doing bonus damage based on it's max health.",
+                "desc": "Slashes nearby foe, doing bonus damage based on it's max health.",
                 "info": "No info"
             },
             {
@@ -1830,7 +1830,7 @@
             },
             {
                 "title": "Life Breath",
-                "desc": "Brings back to life a dead ally for 3 rounds,after which it disintegrates.",
+                "desc": "Brings back to life a dead ally for 3 rounds, after which it disintegrates.",
                 "info": "10 energy x creature level"
             }
         ]
@@ -1923,7 +1923,7 @@
         "ability_info": [
             {
                 "title": "Shield Block",
-                "desc": "Uses shield to defend against frontal attacks,greatly reducing damage.",
+                "desc": "Uses shield to defend against frontal attacks, greatly reducing damage.",
                 "info": ""
             },
             {
@@ -1987,12 +1987,12 @@
             },
             {
                 "title": "Rock Shard",
-                "desc": "Summons obstacle at inline location,doing some damage when erupting.",
+                "desc": "Summons obstacle at inline location, doing some damage when erupting.",
                 "info": "No info"
             },
             {
                 "title": "Furious Twister",
-                "desc": "Summons tornado that travels inline every round,bashing all creatures.",
+                "desc": "Summons tornado that travels inline every round, bashing all creatures.",
                 "info": "No info"
             }
         ]
@@ -2046,7 +2046,7 @@
             },
             {
                 "title": "Mud Bath",
-                "desc": "Orders a pile of mud at a location,slowing foes passing through.",
+                "desc": "Orders a pile of mud at a location, slowing foes passing through.",
                 "info": "-1 movement / hex"
             }
         ]
@@ -2139,7 +2139,7 @@
         "ability_info": [
             {
                 "title": "Maggot Infestation",
-                "desc": "Strikes any rear foe at beginning of turn,infesting it with a parasite.",
+                "desc": "Strikes any rear foe at beginning of turn, infesting it with a parasite.",
                 "info": ""
             },
             {
@@ -2154,7 +2154,7 @@
             },
             {
                 "title": "Worm Strike",
-                "desc": "Grasps a distant foe,pulling itself to it,doing damage based on distance.",
+                "desc": "Grasps a distant foe, pulling itself to it, doing damage based on distance.",
                 "info": "No info"
             }
         ]
@@ -2311,12 +2311,12 @@
 		},
 		{
 			"title": "Mesmerize",
-			"desc": "Does sonic damage to an inline foe,also causing it to skip next turn.",
+			"desc": "Does sonic damage to an inline foe, also causing it to skip next turn.",
 			"info": "No info"
 		},
 		{
 			"title": "Eclipsing Strike",
-			"desc": "Catapults itself at a foe,reaching it and striking it the next round.",
+			"desc": "Catapults itself at a foe, reaching it and striking it the next round.",
 			"info": "No info"
 		}
 	]
@@ -2409,7 +2409,7 @@
 	"ability_info": [
 		{
 			"title": "Feathered",
-			"desc": "Can fly to available locations within movement range,avoiding obstacles.",
+			"desc": "Can fly to available locations within movement range, avoiding obstacles.",
 			"info": ""
 		},
 		{
@@ -2419,7 +2419,7 @@
 		},
 		{
 			"title": "Special Delivery",
-			"desc": "Drops a boulder at the selected location,damaging a creature.",
+			"desc": "Drops a boulder at the selected location, damaging a creature.",
 			"info": "15 crush damage"
 		},
 		{
@@ -2478,7 +2478,7 @@
 		},
 		{
 			"title": "Chain Lightning",
-			"desc": "Releases a lightning bolt that will arch,shocking multiple creatures.",
+			"desc": "Releases a lightning bolt that will arch, shocking multiple creatures.",
 			"info": "20 shock damage"
 		}
 	]
@@ -2630,17 +2630,17 @@
             },
             {
                 "title": "Free Haircut",
-                "desc": "Uses it's horns as a pair of scissors,slashing a nearby foe.",
+                "desc": "Uses it's horns as a pair of scissors, slashing a nearby foe.",
                 "info": "15 slash damage"
             },
             {
                 "title": "Flying Cleaver",
-                "desc": "Jumps over a nearby creature,slicing it with its large abdominal axe.",
+                "desc": "Jumps over a nearby creature, slicing it with its large abdominal axe.",
                 "info": "20 slash damage"
             },
             {
                 "title": "Hoof Strike",
-                "desc": "Bashes rear foe,pushing it back a few hexagons,based on its size.",
+                "desc": "Bashes rear foe, pushing it back a few hexagons, based on its size.",
                 "info": "25 crush damage,up to 3 hexes push"
             }
         ]
@@ -2748,7 +2748,7 @@
             },
             {
                 "title": "Life and Death",
-                "desc": "Ressurects itself by stealing the life of a fatigued foe,if corpse available.",
+                "desc": "Ressurects itself by stealing the life of a fatigued foe, if corpse available.",
                 "info": "No info"
             }
         ]

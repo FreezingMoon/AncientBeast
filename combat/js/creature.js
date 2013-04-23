@@ -175,7 +175,7 @@ var Creature = Class.create({
 			G.UI.btnDelay.changeState("disabled");
 		}
 
-		if(G.turn >= G.minimumTurnBeforeSurrender){ G.UI.btnSurrender.changeState("normal"); }
+		if(G.turn >= G.minimumTurnBeforeFleeing){ G.UI.btnFlee.changeState("normal"); }
 
 		this.player.startTime = new Date();
 
