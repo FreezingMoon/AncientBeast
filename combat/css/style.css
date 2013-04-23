@@ -509,9 +509,9 @@ body{
 	-o-animation: pulse0510 750ms infinite alternate;
 }
 
-#end{ background-image: url('../icons/end.svg'); }
-#delay{ background-image: url('../icons/skip.svg'); }
-#surrender{ background-image: url('../icons/surrender.svg'); }
+#skip{ background-image: url('../icons/skip.svg'); }
+#delay{ background-image: url('../icons/delay.svg'); }
+#flee{ background-image: url('../icons/flee.svg'); }
 #playerbutton{
 	z-index: 2; 
 	right: 0px; 
