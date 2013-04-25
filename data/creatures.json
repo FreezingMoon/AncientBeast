@@ -27,31 +27,37 @@
 			"sonic": 2,
 			"mental": 30
 		},
-	"animation": {
+    	"animation": {
 			"walk_speed": 500
-	},
-	"ability_info": [
-		{
-			"title": "Artificial Satellite",
-			"desc": "Protects from all harm and also facilitates distant materialization.",
-			"info": "-2 plasma per use"
-		},
-		{
-			"title": "Electroshock",
-			"desc": "Does shock damage to a nearby foe. Effective versus larger creatures.",
-			"info": "12 shock damage * creature size"
-		},
-		{
+    	},
+        "display":{
+            "height": 200,
+            "width": 108,
+            "offset-y": -164,
+            "offset-x": 0
+        },
+    	"ability_info": [
+    		{
+    			"title": "Artificial Satellite",
+    			"desc": "Protects from all harm and also facilitates distant materialization.",
+    			"info": "-2 plasma per use"
+    		},
+    		{
+    			"title": "Electroshock",
+    			"desc": "Does shock damage to a nearby foe. Effective versus larger creatures.",
+    			"info": "12 shock damage * creature size"
+    		},
+    		{
 		        "title": "Disintegration",
 		        "desc": "Does pure damage to a nearby foe. Bonus based on it's missing health.",
 		        "info": ">25 damage; plasma = creature size"
-		},
-		{
+    		},
+    		{
 		        "title": "Materialization",
 		        "desc": "Summons a creature on the combat field that will serve and obey orders.",
 		        "info": "plasma = creature size + level"
-		}
-	]
+    		}
+    	]
 	},
 	{
 		"id": 1,
@@ -134,9 +140,9 @@
 			"poison": 6,
 			"sonic": 3,
 			"mental": 3
-	},
-	"animation": {
-		"walk_speed": 500
+    	},
+    	"animation": {
+		  "walk_speed": 500
         },
         "ability_info": [
             {
@@ -187,33 +193,39 @@
 			"frost": 6,
 			"poison": 20,
 			"sonic": 5,
-		"mental": 3
-	},
-	"animation": {
-		"walk_speed": 550
-	},
-	"ability_info": [
-		{
-			"title": "Spore Contamination",
-			"desc": "Nearby foes have their regrowth stat constantly reduced with each round.",
-			"info": "-1 regrowth per stack"
-		},
-		{
-			"title": "Chomp",
-			"desc": "Takes a huge bite out of his foe,restoring a minor amount of health.",
-			"info": "20 pierce damage,1/4 as regrowth"
-		},
-		{
-			"title": "Blade Kick",
-			"desc": "Slashes nearby foe using feet claws.",
-			"info": "15 pierce + 10 slash + 5 crush damage"
-		},
-		{
-			"title": "Frogger",
-			"desc": "Leaps in straight line over obstacles,gaining bonus offense after landing.",
-			"info": "+30 offense for next hit if not moving"
-		}
-	]
+    		"mental": 3
+    	},
+    	"animation": {
+    		"walk_speed": 550
+    	},
+        "display":{
+            "height": 195,
+            "width": 165,
+            "offset-y": -123,
+            "offset-x": 11
+        },
+    	"ability_info": [
+    		{
+    			"title": "Spore Contamination",
+    			"desc": "Nearby foes have their regrowth stat constantly reduced with each round.",
+    			"info": "-1 regrowth per stack"
+    		},
+    		{
+    			"title": "Chomp",
+    			"desc": "Takes a huge bite out of his foe,restoring a minor amount of health.",
+    			"info": "20 pierce damage,1/4 as regrowth"
+    		},
+    		{
+    			"title": "Blade Kick",
+    			"desc": "Slashes nearby foe using feet claws.",
+    			"info": "15 pierce + 10 slash + 5 crush damage"
+    		},
+    		{
+    			"title": "Frogger",
+    			"desc": "Leaps in straight line over obstacles,gaining bonus offense after landing.",
+    			"info": "+30 offense for next hit if not moving"
+    		}
+    	]
 	},
 	{
 		"id": 4,
@@ -241,17 +253,23 @@
 			"frost": 0,
 			"poison": 25,
 			"sonic": 5,
-		"mental": 0
-	},
-	"animation": {
-		"walk_speed": 500
-	},
-	"ability_info": [
-		{
-			"title": "Infernal Temper",
-			"desc": "Bursts into flames when it's turn comes,damaging nearby creatures.",
-			"info": "5 burn damage"
-		},
+    		"mental": 0
+    	},
+    	"animation": {
+    		"walk_speed": 500
+    	},
+        "display":{
+            "height": 158,
+            "width": 206,
+            "offset-y": -124,
+            "offset-x": 35
+        },
+        "ability_info": [
+    		{
+    			"title": "Infernal Temper",
+    			"desc": "Bursts into flames when it's turn comes,damaging nearby creatures.",
+    			"info": "5 burn damage"
+    		},
             {
                 "title": "Pulverize",
                 "desc": "Smacks a foe with its heavy hand.",
@@ -296,32 +314,38 @@
 			"poison": 20,
 			"sonic": 6,
 			"mental": 15
-	},
-	"animation": {
-		"walk_speed": 200
-	},
-	"ability_info": [
-		{
-			"title": "Armor Penetration",
-			"desc": "Attacks gradually break through enemy defense.",
-			"info": ""
-		},
-		{
-			"title": "Jab Attack",
-			"desc": "Horn attack that does bonus pierce damage based on distance traveled.",
-			"info": "No info"
-		},
-		{
-			"title": "Static Charge",
-			"desc": "Shakes hair to create friction and imbue next attack with lightning.",
-			"info": "No info"
-		},
-		{
-			"title": "Envenom",
-			"desc": "Makes use of tongue to smear the horn with highly venomous saliva.",
-			"info": "No info"
-		}
-	]
+    	},
+    	"animation": {
+    		"walk_speed": 200
+    	},
+        "display":{
+            "height": 202,
+            "width": 225,
+            "offset-y": -181,
+            "offset-x": 28
+        },
+    	"ability_info": [
+    		{
+    			"title": "Armor Penetration",
+    			"desc": "Attacks gradually break through enemy defense.",
+    			"info": ""
+    		},
+    		{
+    			"title": "Jab Attack",
+    			"desc": "Horn attack that does bonus pierce damage based on distance traveled.",
+    			"info": "No info"
+    		},
+    		{
+    			"title": "Static Charge",
+    			"desc": "Shakes hair to create friction and imbue next attack with lightning.",
+    			"info": "No info"
+    		},
+    		{
+    			"title": "Envenom",
+    			"desc": "Makes use of tongue to smear the horn with highly venomous saliva.",
+    			"info": "No info"
+    		}
+    	]
 	},
 	{
 		"id": 6,
@@ -678,6 +702,12 @@
         "animation": {
             "walk_speed": 500
         },
+        "display":{
+            "height": 125,
+            "width": 95,
+            "offset-y": -100,
+            "offset-x": 0
+        },
         "ability_info": [
             {
                 "title": "Bunny Hopping",
@@ -785,6 +815,12 @@
         },
         "animation": {
             "walk_speed": 500
+        },
+        "display":{
+            "height": 85,
+            "width": 90,
+            "offset-y": -47,
+            "offset-x": -8
         },
         "ability_info": [
             {
@@ -2028,6 +2064,12 @@
         "animation": {
             "walk_speed": 500
         },
+        "display":{
+            "height": 190,
+            "width": 140,
+            "offset-y": -150,
+            "offset-x": -21
+        },
         "ability_info": [
             {
                 "title": "Spa Mud",
@@ -2456,32 +2498,38 @@
 			"poison": 8,
 			"sonic": 15,
 			"mental": 12
-	},
-	"animation": {
-		"walk_speed": 500
-	},
-	"ability_info": [
-		{
-			"title": "Duality",
-			"desc": "Allows the use of an attack twice.",
-			"info": ""
-		},
-		{
-			"title": "Tooth Fairy",
-			"desc": "Syncs teeth into nearby foe.",
-			"info": "20 crush damage"
-		},
-		{
-			"title": "Power Note",
-			"desc": "Sings a very powerful note to a foe.",
-			"info": "20 sonic damage"
-		},
-		{
-			"title": "Chain Lightning",
-			"desc": "Releases a lightning bolt that will arch,shocking multiple creatures.",
-			"info": "20 shock damage"
-		}
-	]
+    	},
+    	"animation": {
+    		"walk_speed": 500
+    	},
+        "display":{
+            "height": 220,
+            "width": 300,
+            "offset-y": -189,
+            "offset-x": -14
+        },
+    	"ability_info": [
+    		{
+    			"title": "Duality",
+    			"desc": "Allows the use of an attack twice.",
+    			"info": ""
+    		},
+    		{
+    			"title": "Tooth Fairy",
+    			"desc": "Syncs teeth into nearby foe.",
+    			"info": "20 crush damage"
+    		},
+    		{
+    			"title": "Power Note",
+    			"desc": "Sings a very powerful note to a foe.",
+    			"info": "20 sonic damage"
+    		},
+    		{
+    			"title": "Chain Lightning",
+    			"desc": "Releases a lightning bolt that will arch,shocking multiple creatures.",
+    			"info": "20 shock damage"
+    		}
+    	]
 	},
 	{
 		"id": 46,

@@ -53,6 +53,7 @@ var Creature = Class.create({
 		this.lvl 		= (obj.lvl == "-")?1:obj.lvl-0; //Which creature it is
 		this.realm 		= obj.realm; //Which creature it is
 		this.animation	= obj.animation;
+		this.display	= obj.display;
 		
 
 		this.hexagons 	= [];
@@ -102,7 +103,19 @@ var Creature = Class.create({
 		this.updateHex();
 		
 		//Creating Html representation of creature
-		this.$display = G.grid.$creatureW.append('<div id="crea'+this.id +'" class="creature ghosted type_'+obj.id+' p'+this.team+'"><div class="effects"></div></div>').children("#crea"+this.id);
+		this.$display = G.grid.$creatureW.append('<div id="crea'+this.id +'" class="creature ghosted p'+this.team+'"><div class="effects"></div></div>').children("#crea"+this.id);
+		var dp = (this.type!="--") ? ""
+		:(this.team==0)? "-red"
+		:(this.team==1)? "-blue"
+		:(this.team==2)? "-orange" : "-green" ;
+
+		this.$display.css({
+			"background-image" : "url('../bestiary/"+this.name+"/cardboard"+dp+".png')",
+			height : this.display.height,
+			width : this.display.width,
+			"margin-top" : this.display["offset-y"],
+			"margin-left" : (!this.player.flipped) ? this.display["offset-x"] : 90*this.size-this.display.width-this.display["offset-x"],
+		});
 		this.$effects = this.$display.children(".effects");
 
 		this.$display.css(this.hexagons[this.size-1].displayPos); //translate to its real position
