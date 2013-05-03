@@ -42,7 +42,6 @@ require_once('../bestiary/cards.php');
 		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
-		<script type="text/javascript" src="./js/mousewheel.js"></script>
 
 		<script type="text/javascript">
 			var $j = jQuery.noConflict();
@@ -257,8 +256,8 @@ require_once('../bestiary/cards.php');
 								<td>--</td>
 								<td>--</td>
 							</tr>
-							<tr class="nosurrender">
-								<td>No Surrender</td>
+							<tr class="nofleeing">
+								<td>No Fleeing</td>
 								<td>--</td>
 								<td>--</td>
 								<td>--</td>
@@ -345,7 +344,7 @@ require_once('../bestiary/cards.php');
 				<div id="rightpanel">
 					<div id="skip" class="button"><div class="desc"><span><u>S</u>kip Turn</span><p>End the turn of the current creature and proceed with the next one in queue.</p></div></div>
 					<div id="delay" class="button"><div class="desc"><span><u>D</u>elay Creature</span><p>Delayed creatures will act at the end of the current round, if alive and non fatigued.</p></div></div>
-					<div id="flee" class="button"><div class="desc"><span><u>F</u>lee Match</span><p>Give up but only after first 10 rounds.</p></div></div>
+					<div id="flee" class="button"><div class="desc"><span><u>F</u>lee Match</span><p>Give up but only after first 12 rounds.</p></div></div>
 				</div>
 				<div id="leftpanel">
 					<div id="activebox">

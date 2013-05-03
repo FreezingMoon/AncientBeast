@@ -60,7 +60,7 @@ var Game = Class.create({
 		this.creatureJSON;
 		this.loadedSrc = 0;
 		this.loadingSrc = 0;
-		this.minimumTurnBeforeSurrender = 10;
+		this.minimumTurnBeforeFleeing = 12;
 		this.availableCreatures = [];
 		this.loadedCreatures = [
 			0, //Dark Priest
@@ -359,37 +359,37 @@ var Game = Class.create({
 	},
 
 
-	/*	endTurn()
+	/*	skipTurn()
 	*
 	* 	End turn for the current creature
 	*
 	*/
-	endTurn: function(){
+	skipTurn: function(){
 		// if(G.turnThrottle) return;
 		// G.turnThrottle = true
 		// setTimeout(function(){G.turnThrottle=false},300)
 		G.grid.clearHexViewAlterations();
 		this.activeCreature.facePlayerDefault();
-		var endTurn = new Date();
+		var skipTurn = new Date();
 		var p = this.activeCreature.player;
-		p.totalTimePool = p.totalTimePool - (endTurn - p.startTime);
+		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
 		this.activeCreature.deactivate(false);
 		this.nextCreature();
 	},
 
 
-	/*	delayTurn()
+	/*	delayCreature()
 	*
 	* 	Delay the action turn of the current creature
 	*
 	*/
-	delayTurn: function(){
+	delayCreature: function(){
 		// if(G.turnThrottle) return;
 		// G.turnThrottle = true
 		// setTimeout(function(){G.turnThrottle=false},300)
-		var endTurn = new Date();
+		var skipTurn = new Date();
 		var p = this.activeCreature.player;
-		p.totalTimePool = p.totalTimePool - (endTurn - p.startTime);
+		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
 		this.activeCreature.wait();
 		this.nextCreature();
 	},
@@ -420,18 +420,18 @@ var Game = Class.create({
 			if( (date - p.startTime)/1000 > this.turnTimePool || p.totalTimePool - (date - p.startTime) < 0 ){
 				if( p.totalTimePool - (date - p.startTime) < 0 )
 					p.deactivate(); //Only if timepool is empty
-				G.endTurn();
+				G.skipTurn();
 				return;
 			}
 		}else if( this.turnTimePool > 0 ){ //Turn time not infinite
 			if( (date - p.startTime)/1000 > this.turnTimePool ){
-				G.endTurn();
+				G.skipTurn();
 				return;
 			}
 		}else if( this.timePool > 0 ){ //timepool not infinite
 			if( p.totalTimePool - (date - p.startTime) < 0 ){
 				p.deactivate();
-				G.endTurn();
+				G.skipTurn();
 				return;
 			}
 		}
@@ -473,9 +473,9 @@ var Game = Class.create({
 		clearInterval(this.timeInterval);
 
 		//Calculate The time cost of the end turn
-		var endTurn = new Date();
+		var skipTurn = new Date();
 		var p = this.activeCreature.player;
-		p.totalTimePool = p.totalTimePool - (endTurn - p.startTime);
+		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
 
 		//Show Score Table
 		$j("#endscreen").show();
@@ -495,9 +495,9 @@ var Game = Class.create({
 				this.players[i].bonusTimePool = Math.round(this.players[i].totalTimePool/1000);
 
 			//-------Ending bonuses--------//
-			//No surrender
-			if(!this.players[i].hasSurrendered && !this.players[i].hasLost)
-				this.players[i].score.push({type:"nosurrender"});
+			//No fleeing
+			if(!this.players[i].hasFled && !this.players[i].hasLost)
+				this.players[i].score.push({type:"nofleeing"});
 			//Surviving Creature Bonus
 			var immortal = true;
 			for(var j = 0; j < this.players[i].creatures.length; j++){
@@ -593,7 +593,7 @@ var Player = Class.create({
 		this.flipped = !!(id%2); //Convert odd/even to true/false
 		this.availableCreatures = G.availableCreatures;
 		this.hasLost = false;
-		this.hasSurrendered = false;
+		this.hasFleed = false;
 		this.bonusTimePool = 0;
 		this.totalTimePool = G.timePool*1000;
 		this.startTime = new Date();
@@ -625,25 +625,25 @@ var Player = Class.create({
 		this.creatures.push(creature);
 	},
 
-	/*	surrender()
+	/*	flee()
 	*
-	*	Ask if the player want to surrender
+	*	Ask if the player want to flee the match
 	*
 	*/
-	surrender: function(){
-		if( G.turn < G.minimumTurnBeforeSurrender ){
-			alert("You cannot surrender in the first 10 rounds.");
+	flee: function(){
+		if( G.turn < G.minimumTurnBeforeFleeing ){
+			alert("You cannot flee the match in the first 10 rounds.");
 			return;
 		}
 		if( this.isLeader() ){
-			alert("You cannot surrender while being in lead.");
+			alert("You cannot flee the match while being in lead.");
 			return;
 		}
 
-		if(window.confirm("Are you sure you want to surrender?")){
-			this.hasSurrendered = true;
+		if(window.confirm("Are you sure you want to flee the match?")){
+			this.hasFleed = true;
 			this.deactivate();
-			G.endTurn();
+			G.skipTurn();
 		}
 	},
 
@@ -662,7 +662,7 @@ var Player = Class.create({
 			humiliation : 0,
 			annihilation : 0,
 			timebonus : 0,
-			nosurrender : 0,
+			nofleeing : 0,
 			creaturebonus : 0,
 			darkpriestbonus : 0,
 			immortal : 0,
@@ -693,7 +693,7 @@ var Player = Class.create({
 				case "timebonus":
 					points += Math.round(this.bonusTimePool * .5);
 					break;
-				case "nosurrender":
+				case "nofleeing":
 					points += 25;
 					break;
 				case "creaturebonus":
