@@ -1086,12 +1086,13 @@ var Hex = Class.create({
 	createTrap: function(type, effects, owner){
 		if(!!this.trap) this.destroyTrap();
 		this.trap = new Trap(this.x,this.y,type,effects,owner);
+		return this.trap;
 	},
 
 	activateTrap: function(trigger, target){
 		if(!this.trap) return;
 		this.trap.effects.each(function(){
-			if( trigger.test(this.trigger) ){
+			if( trigger.test(this.trigger) &&  this.requireFn() ){
 				G.log("Trap triggered");
 				this.activate(target);
 			}
@@ -1132,12 +1133,32 @@ var Trap = Class.create({
 		this.id 		= trapID++;
 		this.hex.trap 	= this;
 
+		for (var i = this.effects.length - 1; i >= 0; i--) {
+			this.effects[i].trap = this;
+		};
+
 		this.$display = $j('#trapWrapper').append('<div id="trap'+this.id+'" class="trap '+this.type+'"></div>').children("#trap"+this.id);
 		this.$display.css(this.hex.displayPos);
 	},
 
 	destroy: function(){
 		this.$display.remove();
+
+		//unregister
+		G.grid.traps.push(this);
+		this.hex.trap 	= undefined;
+		delete this;
+	},
+
+	hide: function(duration, timer){
+		timer = timer-0; //avoid undefined
+		duration = duration-0; //avoid undefined
+		this.$display.fadeOut(duration);
+	},
+
+	show: function(duration){
+		duration = duration-0; //avoid undefined
+		this.$display.fadeIn(duration);
 	},
 
 });

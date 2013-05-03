@@ -69,7 +69,9 @@ var Game = Class.create({
 			4, //Magma Spawn
 			45, //Chimera
 			12, //Snow Bunny
-			5]; //Impaler
+			5, //Impaler
+			14, //Gumble
+			]; 
 		this.inputMethod = "Mouse";
 
 		//Gameplay

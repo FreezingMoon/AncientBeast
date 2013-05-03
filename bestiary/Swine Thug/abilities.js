@@ -16,7 +16,7 @@ abilities[37] =[
 		this.message = "";
 		if(hex.trap){
 			if(hex.trap.type == "mud-bath"){ 
-				return true; 
+				return this.testRequirements();
 			}
 		}
 
@@ -26,7 +26,7 @@ abilities[37] =[
 			if(this.trigger == "mud-bath")
 				this.deleteEffect();
 		});
-		return this.testRequirements();
+		return false;
 	},
 
 	//	activate() : 
@@ -212,9 +212,13 @@ abilities[37] =[
 
 		var effects = [
 			new Effect(
-				"Slow Down",ability.creature.player,hex,"onStepIn",
-				{ 
-					effectFn: function(effect,crea){ if( crea.type != "A1" ) crea.remainingMove--; },
+				"Slow Down",ability.creature,hex,"onStepIn",
+				{ 	
+					requireFn: function(){ 
+						if(this.trap.hex.creature==0) return false;
+						return G.creatures[this.trap.hex.creature].type != "A1"; 
+					}, 
+					effectFn: function(effect,crea){ crea.remainingMove--; },
 				}
 			),
 		]

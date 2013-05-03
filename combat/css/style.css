@@ -84,7 +84,7 @@ body{
 	-o-transform-origin:45.05em 22.5em; /* Opera */
 }
 
-#hexsinput, #hexsdisplay, #hexsoverlay, #trapWrapper{
+#hexsinput, #hexsdisplay, #hexsoverlay{
 	-webkit-transform: scaleY(0.75);
 	-moz-transform: scaleY(0.75);
 	-ms-transform: scaleY(0.75);
@@ -785,8 +785,18 @@ body{
 	position: absolute;
 	top: 0px;
 	left: 0px;
+	-webkit-transform: scaleY(0.75);
+	-moz-transform: scaleY(0.75);
+	-ms-transform: scaleY(0.75);
+	-o-transform: scaleY(0.75);
+	transform: scaleY(0.75);
+
+	transform-origin:0% 30%;
+	-ms-transform-origin:0% 30%; /* IE 9 */
+	-webkit-transform-origin:0% 30%; /* Safari and Chrome */
+	-moz-transform-origin:0% 30%; /* Firefox */
+	-o-transform-origin:0% 30%; /* Opera */
 }
 
-.trap.mud-bath {
-	background: url("../grid/trap_mud.png");
-}
+.trap.mud-bath { background: url("../grid/trap_mud.png"); }
+.trap.royal-seal { background: url("../grid/royal-seal.png"); }

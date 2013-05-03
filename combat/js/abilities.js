@@ -295,6 +295,7 @@ var Effect = Class.create({
 
 		var args = $j.extend({
 			//Default Arguments
+			requireFn : function(){return true;},
 			effectFn : function(){},
 			alterations : {}
 		},optArgs);
@@ -305,6 +306,7 @@ var Effect = Class.create({
 	},
 
 	activate: function(arg){
+		if( !this.requireFn(arg) ) return false;
 		console.log("Effect "+this.name+" triggered");
 		this.effectFn(this,arg);
 	},

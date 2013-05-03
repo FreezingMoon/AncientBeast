@@ -243,7 +243,7 @@ abilities[12] =[
 		var ability = args.ability;
 		ability.end();		
 
-		crea = G.creatures[path.last().creature];
+		var crea = G.creatures[path.last().creature];
 		var dist = path.filterCreature(false,false).length;
 
 		//Copy to not alter ability strength
