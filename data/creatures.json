@@ -420,6 +420,12 @@
         "animation": {
             "walk_speed": 500
         },
+        "display":{
+            "height": 277,
+            "width": 270,
+            "offset-y": -235,
+            "offset-x": 18
+        },
         "ability_info": [
             {
                 "title": "Eye of the Fire",
@@ -691,7 +697,7 @@
             "walk_speed": 500
         },
         "display":{
-            "height": 125,
+            "height": 135,
             "width": 95,
             "offset-y": -100,
             "offset-x": 0
@@ -2490,6 +2496,12 @@
 	"animation": {
 		"walk_speed": 500
 	},
+    "display":{
+        "height": 220,
+        "width": 300,
+        "offset-y": -183,
+        "offset-x": -12
+    },
 	"ability_info": [
 		{
 			"title": "Duality",
