@@ -406,7 +406,7 @@
             "initiative": 120,
             "offense": 6,
             "defense": 6,
-            "movement": 1,
+            "movement": 3,
             "pierce": 10,
             "slash": 10,
             "crush": 10,
@@ -428,24 +428,24 @@
         },
         "ability_info": [
             {
+                "title": "Infernal Pyre",
+                "desc": "Burns all adjacent creatures whenever taking damage.",
+                "info": "10 burn damage"
+            },
+            {
+                "title": "Fiery Claw",
+                "desc": "Scratches and burns a nearby foe. This attack has extended reach.",
+                "info": "10 slash + 10 burn damage"
+            },
+            {
                 "title": "Eye of the Fire",
                 "desc": "Strategically teleports to a new location on the combat field.",
                 "info": ""
             },
             {
-                "title": "Fiery Claw",
-                "desc": "Scratch and burn a nearby foe.",
-                "info": "10 slash + 10 burn damage"
-            },
-            {
                 "title": "Fire Ball",
                 "desc": "Throws a ball of fire that explodes on impact, damaging several creatures.",
-                "info": "20 burn damage"
-            },
-            {
-                "title": "Infernal Pyre",
-                "desc": "Increases power of it's back fire in order to burn all adjacent creatures.",
-                "info": "30 burn damage"
+                "info": "20 burn in center + 10 burn nearby"
             }
         ]
     },
