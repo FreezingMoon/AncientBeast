@@ -221,7 +221,7 @@ abilities[4] =[
 		path.each(function(){this.destroyTrap();});
 
 		//Damage
-		var target = G.creatures[path.last().creature];
+		var target = path.last().creature;
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type

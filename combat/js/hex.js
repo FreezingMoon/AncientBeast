@@ -94,6 +94,8 @@ var HexGrid = Class.create({
 			directions : [1,1,1,1,1,1],
 			includeCrea : true,
 			stopOnCreature : true,
+			distance : 0,
+			sourceCreature : undefined,
 		};
 
 		o = $j.extend(defaultOpt,o);
@@ -103,28 +105,39 @@ var HexGrid = Class.create({
 		for (var i = 0; i < o.directions.length; i++) {
 			if(!!o.directions[i]){
 				var dir = []
+				var fx = 0
+
+				if( o.sourceCreature instanceof Creature ){
+					if( (!o.sourceCreature.player.flipped && i>2) || (o.sourceCreature.player.flipped && i<3) ){
+						fx =  -1*(o.sourceCreature.size-1);
+					}
+				}
+
 				switch(i){
 					case 0: //Upright
-						dir = G.grid.getHexMap(o.x,o.y-8,0,o.flipped,diagonalup).reverse();
+						dir = G.grid.getHexMap(o.x+fx,o.y-8,0,o.flipped,diagonalup).reverse();
 						break;
 					case 1: //StraitForward
-						dir = G.grid.getHexMap(o.x,o.y,0,o.flipped,straitrow);
+						dir = G.grid.getHexMap(o.x+fx,o.y,0,o.flipped,straitrow);
 						break;
 					case 2: //Downright
-						dir = G.grid.getHexMap(o.x,o.y,0,o.flipped,diagonaldown);
+						dir = G.grid.getHexMap(o.x+fx,o.y,0,o.flipped,diagonaldown);
 						break;
 					case 3: //Downleft
-						dir = G.grid.getHexMap(o.x,o.y,-4,o.flipped,diagonalup);
+						dir = G.grid.getHexMap(o.x+fx,o.y,-4,o.flipped,diagonalup);
 						break;
 					case 4: //StraitBackward
-						dir = G.grid.getHexMap(o.x,o.y,0,!o.flipped,straitrow);
+						dir = G.grid.getHexMap(o.x+fx,o.y,0,!o.flipped,straitrow);
 						break;
 					case 5: //Upleft
-						dir = G.grid.getHexMap(o.x,o.y-8,-4,o.flipped,diagonaldown).reverse();
+						dir = G.grid.getHexMap(o.x+fx,o.y-8,-4,o.flipped,diagonaldown).reverse();
 						break;
 					default:
 						break;
 				}
+
+				if( o.distance > 0 ) dir = dir.slice(0,o.distance+1);
+
 				dir.each(function(){ this.direction = (o.flipped)?5-i:i; });
 				choices.push(dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team));
 			}
@@ -151,8 +164,8 @@ var HexGrid = Class.create({
 			fnOnConfirm : function(choice,args){ G.activeCreature.queryMove(); },
 			fnOnSelect : function(choice,args){
 				choice.each(function(){
-					if(this.creature>0){
-						this.$overlay.addClass("creature selected player"+G.creatures[this.creature].team);	
+					if(this.creature instanceof Creature){
+						this.$overlay.addClass("creature selected player"+this.creature.team);	
 					}else{
 						this.$display.addClass("adj");
 					}
@@ -178,9 +191,9 @@ var HexGrid = Class.create({
 				validChoice = false;
 				//Search each hex for a creature that matches the team argument
 				for (var j = 0; j < o.choices[i].length; j++) {
-					if( o.choices[i][j].creature!=0 && o.choices[i][j].creature!=o.id ){
+					if( o.choices[i][j].creature instanceof Creature && o.choices[i][j].creature!=o.id ){
 						var creaSource = G.creatures[o.id];
-						var creaTarget = G.creatures[o.choices[i][j].creature];
+						var creaTarget = o.choices[i][j].creature;
 
 						var isAllie = ( creaSource.team%2 == creaTarget.team%2 );
 						switch(o.team){
@@ -261,9 +274,9 @@ var HexGrid = Class.create({
 
 		//Exclude everything but the creatures
 		o.hexs.filter(function(){
-			if( this.creature!=0 && this.creature!=o.id ){
+			if( this.creature instanceof Creature && this.creature.id!=o.id ){
 				var creaSource = G.creatures[o.id];
-				var creaTarget = G.creatures[this.creature];
+				var creaTarget = this.creature;
 
 				var isAllie = ( creaSource.team%2 == creaTarget.team%2 );
 				switch(o.team){
@@ -285,17 +298,17 @@ var HexGrid = Class.create({
 		});
 
 		var extended = [];
-		o.hexs.each(function(){	extended = extended.concat(G.creatures[this.creature].hexagons); });
+		o.hexs.each(function(){	extended = extended.concat(this.creature.hexagons); });
 
 		o.hexs = extended;
 
 		this.queryHexs({
 			fnOnConfirm : function(hex,args){
-				var crea = G.creatures[hex.creature];
+				var crea = hex.creature;
 				args.opt.fnOnConfirm(crea,args.opt.args);
 			},
 			fnOnSelect : function(hex,args){
-				var crea = G.creatures[hex.creature];
+				var crea = hex.creature;
 				args.opt.fnOnSelect(crea,args.opt.args);
 			},
 			fnOnCancel : o.fnOnCancel,
@@ -371,8 +384,8 @@ var HexGrid = Class.create({
 			//Not reachable hex
 			if( !hex.reachable ){
 				G.grid.lastClickedtHex = []; 
-				if(hex.creature>0){ //If creature
-					var crea = G.creatures[hex.creature];
+				if(hex.creature instanceof Creature){ //If creature
+					var crea = hex.creature;
 					G.UI.showCreature(crea.type,crea.team);
 				}else{ //If nothing
 					o.fnOnCancel(hex,o.args); //ON CANCEL
@@ -431,8 +444,8 @@ var HexGrid = Class.create({
 			//Not reachable hex
 			if( !hex.reachable ){
 				$j("#crea_materialize_overlay").remove();
-				if(hex.creature>0){ //If creature
-					var crea = G.creatures[hex.creature];
+				if(hex.creature instanceof Creature){ //If creature
+					var crea = hex.creature;
 					crea.hexagons.each(function(){
 						this.$overlay.addClass("hover h_player"+crea.team);	
 					});
@@ -478,8 +491,8 @@ var HexGrid = Class.create({
 			}
 		});
 
-		if(hex.creature != 0){
-			G.creatures[hex.creature].hexagons.each(function(){ this.ghostOverlap(); });
+		if(hex.creature instanceof Creature){
+			hex.creature.hexagons.each(function(){ this.ghostOverlap(); });
 		}else{
 			hex.ghostOverlap();
 		}
@@ -555,12 +568,12 @@ var HexGrid = Class.create({
 		this.cleanDisplay(); 
 		this.cleanOverlay(); 
 		this.hexs.each(function(){ this.each(function(){ 
-			if( this.creature > 0 ){
-				if( this.creature == G.activeCreature.id ){
-					this.$overlay.addClass("active creature player"+G.creatures[this.creature].team);
-					this.$display.addClass("creature player"+G.creatures[this.creature].team);
+			if( this.creature instanceof Creature ){
+				if( this.creature.id == G.activeCreature.id ){
+					this.$overlay.addClass("active creature player"+this.creature.team);
+					this.$display.addClass("creature player"+this.creature.team);
 				}else{
-					this.$display.addClass("creature player"+G.creatures[this.creature].team);
+					this.$display.addClass("creature player"+this.creature.team);
 				}
 			} 
 		}); });	
@@ -643,7 +656,7 @@ var HexGrid = Class.create({
 	getFlyingRange: function(x,y,distance,size,id){
 
 		//Gather all the reachable hexs
-		var hexs = this.hexs[y][x].adjacentHex(distance);
+		var hexs = G.grid.hexs[y][x].adjacentHex(distance);
 
 		hexs.filter(function(){
 			return this.isWalkable(size,id,true);
@@ -760,6 +773,22 @@ var HexGrid = Class.create({
 		}
 	},
 
+	debugHex: function(hexs){
+		$j(".debug").remove();
+		var i = 0;
+		hexs.each(function(){
+			var a = G.grid.$creatureW.append('<div class=".debug" id="debug'+i+'"></div>').children("#debug"+i);
+			a.css({
+				position: 'absolute',
+				width: 20,
+				height: 20,
+				"background-color": 'yellow'
+			});
+			a.css(this.displayPos);
+			i++;
+		});
+	}
+
 });//End of HexGrid Class
 
 
@@ -791,7 +820,7 @@ var Hex = Class.create({
 	*	pathparent : 	Hex : 		Pathfinding parent hex (the one you came from)
 	*
 	*	blocked : 		Boolean : 	Set to true if an obstacle it on it. Restrict movement.
-	*	creature : 		Integer : 	Creature on it, 0 = no creature else creature.ID
+	*	creature : 		Creature : 	Creature object , undefined if empty
 	*	reachable : 	Boolean : 	Set to true if accessible by current action
 	*
 	*	displayPos : 	Object : 	Pos object to position creature with absolute coordinates {left,top}
@@ -816,7 +845,7 @@ var Hex = Class.create({
 		this.pathparent = null; //pathfinding
 
 		this.blocked = false;
-		this.creature = 0; //0 if no creature; else creature index
+		this.creature = undefined; //0 if no creature; else creature index
 		this.reachable = true;
 		this.direction = -1; //Used for queryDirection
 
@@ -899,15 +928,15 @@ var Hex = Class.create({
 				if(i == 1){
 					for (var j = 0; j <= 1; j++) {
 						if(G.grid.hexExists(this.y+i,this.x+j)){
-							if(G.grid.hexs[this.y+i][this.x+j].creature!=0){
-								var ghostedCreature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
+							if(G.grid.hexs[this.y+i][this.x+j].creature instanceof Creature){
+								var ghostedCreature = G.grid.hexs[this.y+i][this.x].creature;
 							}
 						}
 					}
 				}else{
 					if(G.grid.hexExists(this.y+i,this.x)){
-						if(G.grid.hexs[this.y+i][this.x].creature!=0){
-							var ghostedCreature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
+						if(G.grid.hexs[this.y+i][this.x].creature instanceof Creature){
+							var ghostedCreature = G.grid.hexs[this.y+i][this.x].creature;
 						}
 					}
 				}
@@ -915,15 +944,15 @@ var Hex = Class.create({
 				if(i == 1){
 					for (var j = 0; j <= 1; j++) {
 						if(G.grid.hexExists(this.y+i,this.x-j)){
-							if(G.grid.hexs[this.y+i][this.x-j].creature!=0){
-								var ghostedCreature = G.creatures[G.grid.hexs[this.y+i][this.x-j].creature];
+							if(G.grid.hexs[this.y+i][this.x-j].creature instanceof Creature){
+								var ghostedCreature = G.grid.hexs[this.y+i][this.x-j].creature;
 							}
 						}
 					}
 				}else{
 					if(G.grid.hexExists(this.y+i,this.x)){
-						if(G.grid.hexs[this.y+i][this.x].creature!=0){
-							var ghostedCreature = G.creatures[G.grid.hexs[this.y+i][this.x].creature];
+						if(G.grid.hexs[this.y+i][this.x].creature instanceof Creature){
+							var ghostedCreature = G.grid.hexs[this.y+i][this.x].creature;
 						}
 					}
 				}
@@ -971,7 +1000,10 @@ var Hex = Class.create({
 				//Verify if blocked. If it's blocked by one attribute, OR statement will keep it status
 				blocked = blocked || hex.blocked ;
 				if(!ignoreReachable){ blocked = blocked || !hex.reachable ; }
-				blocked = blocked || ( (hex.creature!=id) && (hex.creature>0) ) ; //Not blocked if this block contains the moving creature
+				if(hex.creature instanceof Creature){
+					blocked = blocked || (hex.creature.id != id); //Not blocked if this block contains the moving creature
+				}
+				 
 			}else{
 				//Blocked by grid boundaries
 				blocked = true;
@@ -1248,9 +1280,9 @@ var Trap = Class.create({
 		var creaHexs = [];
 
 		for (var i = 0; i < this.length; i++) {
-		 	if(this[i].creature>0){
-		 		if(!includeCrea || this[i].creature==id){
-		 			if(this[i].creature==id){
+		 	if(this[i].creature instanceof Creature){
+		 		if(!includeCrea || this[i].creature.id==id){
+		 			if(this[i].creature.id==id){
 		 				this.splice(i,1);
 		 				i--;
 		 				continue;	
@@ -1259,7 +1291,7 @@ var Trap = Class.create({
 		 				i--;
 		 			}
 		 		}else{
-		 			creaHexs = creaHexs.concat(G.creatures[this[i].creature].hexagons);
+		 			creaHexs = creaHexs.concat(this[i].creature.hexagons);
 		 		}
 		 		if(stopOnCreature){
 		 			this.splice(i+1,99);

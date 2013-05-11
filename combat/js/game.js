@@ -71,6 +71,7 @@ var Game = Class.create({
 			12, //Snow Bunny
 			5, //Impaler
 			14, //Gumble
+			7, 	//Abolished
 			]; 
 		this.inputMethod = "Mouse";
 
@@ -463,6 +464,13 @@ var Game = Class.create({
 		onDamage : new RegExp('onDamage', 'i'),
 	},
 	
+
+	/* 	Regex Test for damage type */
+	dmgType : {
+		area : new RegExp('area', 'i'),
+		target : new RegExp('target', 'i'),
+		retaliation : new RegExp('retaliation', 'i'),
+	},
 
 	/*	endGame()
 	*

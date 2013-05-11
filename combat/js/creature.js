@@ -242,26 +242,39 @@ var Creature = Class.create({
 	*	launch move action query
 	*
 	*/
-	queryMove: function(){
-		$j("#abilities .ability").removeClass("active");
-		G.UI.selectAbility(-1);
-		G.UI.checkAbilities();
+	queryMove: function(o){
+
+		o = $j.extend({
+			noPath : false,
+			isAbility : false,
+			range : G.grid.getMovementRange(this.x,this.y,this.remainingMove,this.size,this.id),
+			callback : function(hex,args){ 
+				args.creature.moveTo(hex,{
+					callback : function(){ G.activeCreature.queryMove() }
+				}); 
+			},
+		},o);
+
+		if( !o.isAbility ){
+			$j("#abilities .ability").removeClass("active");
+			G.UI.selectAbility(-1);
+			G.UI.checkAbilities();
+		}
 
 		G.grid.updateDisplay(); //Retrace players creatures
 
+		var select = (o.noPath)
+		? function(hex,args){ args.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+args.creature.team }); }
+		: function(hex,args){ args.creature.tracePath(hex); };
+
 		G.grid.queryHexs({
-			fnOnSelect : function(hex,creature){ creature.tracePath(hex); },
-			fnOnConfirm : function(hex,creature){ creature.moveTo(hex,{
-					callback : function(){
-						G.activeCreature.queryMove();
-					}
-				}); 
-			},
-			args : this, //Optional args
+			fnOnSelect : select,
+			fnOnConfirm : o.callback,
+			args : { creature:this, args: o.args }, //Optional args
 			size : this.size,
 			flipped : this.player.flipped,
 			id : this.id,
-			hexs : G.grid.getMovementRange(this.x,this.y,this.remainingMove,this.size,this.id)
+			hexs : o.range
 		});
 	},
 
@@ -288,7 +301,7 @@ var Creature = Class.create({
 	*/
 	cleanHex: function(){
 		var creature = this; //Escape Jquery namespace
-		this.hexagons.each(function(){ this.creature = 0; })
+		this.hexagons.each(function(){ this.creature = undefined; })
 		this.hexagons = [];
 	},
 
@@ -305,7 +318,7 @@ var Creature = Class.create({
 		}
 
 		this.hexagons.each(function(){ 
-			this.creature = creature.id;
+			this.creature = creature;
 		})
 	},
 	
@@ -371,6 +384,7 @@ var Creature = Class.create({
 
 		creature.cleanHex();
 		G.grid.updateDisplay();
+		G.grid.xray( new Hex(0,0) ); //Clean Xray
 
 		creature.$health.hide();
 
@@ -420,7 +434,6 @@ var Creature = Class.create({
 					//Passive effects
 					creature.effects.each(function(){
 						if( G.triggers.onStepIn.test(this.trigger) ){
-							console.log(this);
 							this.activate(currentHex);
 						}
 					});
@@ -599,9 +612,7 @@ var Creature = Class.create({
 		//Health display Update
 		this.updateHealth();
 
-		var $healing = this.$effects.append('<div class="healing d'+amount+'">+'+amount+'</div>').children(".healing");
-		//Damage animation
-		$healing.transition({top:-20,opacity:0},2000,function(){ $healing.remove(); });
+		this.hint(amount,'healing d'+amount);
 
 		G.log(this.player.name+"'s "+this.name+" recovers +"+amount+" health");
 	},
@@ -641,9 +652,7 @@ var Creature = Class.create({
 
 			//Display
 			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
-			var $damage = this.$effects.append('<div class="damage d'+dmgAmount+'">'+nbrDisplayed+'</div>').children(".damage");
-			//Damage animation
-			$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
+			this.hint(nbrDisplayed,'damage d'+dmgAmount);
 
 			G.log(this.player.name+"'s "+this.name+" is hit "+nbrDisplayed+" health");
 
@@ -672,8 +681,7 @@ var Creature = Class.create({
 			}
 
 			//Hint
-			var $damage = this.$effects.append('<div class="damage '+damage.status.toLowerCase()+'">'+damage.status+'</div>').children(".damage");
-			$damage.transition({top:-20,opacity:0},2000,function(){ $damage.remove(); }); 
+			this.hint(damage.status,'damage '+damage.status.toLowerCase());
 		}
 
 		return {kill:false}; //Not killed
@@ -692,12 +700,17 @@ var Creature = Class.create({
 	addEffect: function(effect){
 		this.effects.push(effect);
 		this.updateAlteration();
-		//TODO add visual feeback
-		var $tooltip = this.$effects.append('<div class="msg_effects">'+effect.name+'</div>').children(".msg_effects");
-		//Damage animation
-		$tooltip.transition({top:-20,opacity:0},2000,function(){ $tooltip.remove(); }); 
+
+		this.hint(effect.name,'msg_effects');
 
 		G.log(this.player.name+"'s "+this.name+" is affected by "+effect.name);
+	},
+
+	hint: function(text,cssclass){
+		var id = this.$effects.children().length;
+		var $tooltip = this.$effects.append('<div id="hint'+id+1+'" class="'+cssclass+'">'+text+'</div>').children('#hint'+id+1);
+		$tooltip.css({"margin-left": -250+(this.display.width/2)});
+		$tooltip.transition({opacity:0},2000,function(){ this.remove(); }); 
 	},
 
 	/* 	updateAlteration()

@@ -153,7 +153,7 @@ abilities[45] =[
 
 		ability.creature.abilities[0].abilityTriggered(1);
 
-		crea = G.creatures[path.last().creature];
+		crea = path.last().creature;
 
 		var damage = new Damage(
 			ability.creature, //Attacker
@@ -224,7 +224,8 @@ abilities[45] =[
 		var nextdmg = $j.extend({},ability.damages); 
 
 		for (var i = 0; i < targets.length; i++) {
-			var trg = G.creatures[targets[i]];
+			console.log(targets);
+			var trg = targets[i];
 
 			var damage = new Damage(
 				ability.creature, //Attacker
@@ -245,15 +246,15 @@ abilities[45] =[
 			if(nextTargets.length == 0) break;
 
 			var bestTarget = { stats:{ defense:-99999, shock:-99999 } };
-				for (var j = 0; j < nextTargets.length; j++) {
-					if (typeof nextTargets[j] == "undefined") continue // Skip empty ids.
-					if (targets.indexOf(nextTargets[j].target.id) != -1) continue
-					if (nextTargets[j].target.stats.shock+nextTargets[j].target.stats.defense <= bestTarget.stats.shock+bestTarget.stats.defense) continue
-					var bestTarget = nextTargets[j].target;
+			for (var j = 0; j < nextTargets.length; j++) {
+				if (typeof nextTargets[j] == "undefined") continue // Skip empty ids.
+				if (targets.indexOf(nextTargets[j].target) != -1) continue
+				if (nextTargets[j].target.stats.shock+nextTargets[j].target.stats.defense <= bestTarget.stats.shock+bestTarget.stats.defense) continue
+				var bestTarget = nextTargets[j].target;
 			};
 
 			if( bestTarget instanceof Creature ){
-				targets.push(bestTarget.id);
+				targets.push(bestTarget);
 			}else{
 				break;
 			}

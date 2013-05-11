@@ -69,14 +69,14 @@ var Ability = Class.create({
 	getTargets: function(hexs) {
 		var targets = [];
 		hexs.each(function(){//For each hex
-			if( (this.creature != 0) ) { //this.creature refers to hex creature not ability one
-				if( targets[this.creature] == undefined ) {
-					targets[this.creature] = {
+			if( this.creature instanceof Creature ) {
+				if( targets[this.creature.id] == undefined ) {
+					targets[this.creature.id] = {
 						hexsHit : 0,
-						target : G.creatures[this.creature]
+						target : this.creature
 					};
 				}
-				targets[this.creature].hexsHit += 1; //creature has been found
+				targets[this.creature.id].hexsHit += 1; //creature has been found
 			}
 		});
 		return targets;
@@ -104,8 +104,8 @@ var Ability = Class.create({
 	atLeastOneTarget : function(hexs,team){
 		var result = false;
 		for (var i = 0; i < hexs.length; i++) {
-			if(hexs[i].creature>0){
-				var crea = G.creatures[hexs[i].creature];
+			if(hexs[i].creature instanceof Creature){
+				var crea = hexs[i].creature;
 				switch(team){
 					case "ally":
 						if( this.creature.isAlly(crea.team) ) return true;
@@ -182,41 +182,58 @@ var Ability = Class.create({
 			directions : [1,1,1,1,1,1],
 			includeCrea : true,
 			stopOnCreature : true,
+			distance : 0,
+			sourceCreature : undefined,
 		};
 
 		o = $j.extend(defaultOpt,o);
-		
+
 		var choices = [] 
 
 		for (var i = 0; i < o.directions.length; i++) {
 			if(!!o.directions[i]){
 				var dir = []
+				var fx = 0
+
+				if( o.sourceCreature instanceof Creature ){
+					if( (!o.sourceCreature.player.flipped && i>2) || (o.sourceCreature.player.flipped && i<3) ){
+						fx =  -1*(o.sourceCreature.size-1);
+					}
+				}
+
 				switch(i){
 					case 0: //Upright
-						dir = G.grid.getHexMap(o.x,o.y-8,0,o.flipped,diagonalup).reverse();
+						dir = G.grid.getHexMap(o.x+fx,o.y-8,0,o.flipped,diagonalup).reverse();
 						break;
 					case 1: //StraitForward
-						dir = G.grid.getHexMap(o.x,o.y,0,o.flipped,straitrow);
+						dir = G.grid.getHexMap(o.x+fx,o.y,0,o.flipped,straitrow);
 						break;
 					case 2: //Downright
-						dir = G.grid.getHexMap(o.x,o.y,0,o.flipped,diagonaldown);
+						dir = G.grid.getHexMap(o.x+fx,o.y,0,o.flipped,diagonaldown);
 						break;
 					case 3: //Downleft
-						dir = G.grid.getHexMap(o.x,o.y,-4,o.flipped,diagonalup);
+						dir = G.grid.getHexMap(o.x+fx,o.y,-4,o.flipped,diagonalup);
 						break;
 					case 4: //StraitBackward
-						dir = G.grid.getHexMap(o.x,o.y,0,!o.flipped,straitrow);
+						dir = G.grid.getHexMap(o.x+fx,o.y,0,!o.flipped,straitrow);
 						break;
 					case 5: //Upleft
-						dir = G.grid.getHexMap(o.x,o.y-8,-4,o.flipped,diagonaldown).reverse();
+						dir = G.grid.getHexMap(o.x+fx,o.y-8,-4,o.flipped,diagonaldown).reverse();
 						break;
 					default:
 						break;
 				}
+
+				if( o.distance > 0 ) dir = dir.slice(0,o.distance+1);
+
 				choices = choices.concat(dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team));
 			}
 		};
 		return this.atLeastOneTarget(choices,o.team);
+	},
+
+	dmgIsType :function(type,dmg){
+		return G.dmgType[type].test(dmg.type);
 	},
 });
 

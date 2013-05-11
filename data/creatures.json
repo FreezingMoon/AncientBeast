@@ -193,33 +193,39 @@
 			"frost": 6,
 			"poison": 20,
 			"sonic": 5,
-		"mental": 3
-	},
-	"animation": {
-		"walk_speed": 550
-	},
-	"ability_info": [
-		{
-			"title": "Spore Contamination",
-			"desc": "Nearby foes have their regrowth stat constantly reduced with each round.",
-			"info": "-1 regrowth per stack"
-		},
-		{
-			"title": "Chomp",
-			"desc": "Takes a huge bite out of his foe, restoring a minor amount of health.",
-			"info": "20 pierce damage,1/4 as regrowth"
-		},
-		{
-			"title": "Blade Kick",
-			"desc": "Slashes nearby foe using feet claws.",
-			"info": "15 pierce + 10 slash + 5 crush damage"
-		},
-		{
-			"title": "Frogger",
-			"desc": "Leaps in straight line over obstacles, gaining bonus offense after landing.",
-			"info": "+30 offense for next hit if not moving"
-		}
-	]
+    		"mental": 3
+    	},
+        "display":{
+            "height": 195,
+            "width": 165,
+            "offset-y": -142,
+            "offset-x": 2
+        },
+    	"animation": {
+    		"walk_speed": 550
+    	},
+    	"ability_info": [
+    		{
+    			"title": "Spore Contamination",
+    			"desc": "Nearby foes have their regrowth stat constantly reduced with each round.",
+    			"info": "-1 regrowth per stack"
+    		},
+    		{
+    			"title": "Chomp",
+    			"desc": "Takes a huge bite out of his foe, restoring a minor amount of health.",
+    			"info": "20 pierce damage,1/4 as regrowth"
+    		},
+    		{
+    			"title": "Blade Kick",
+    			"desc": "Slashes nearby foe using feet claws.",
+    			"info": "15 pierce + 10 slash + 5 crush damage"
+    		},
+    		{
+    			"title": "Frogger",
+    			"desc": "Leaps in straight line over obstacles, gaining bonus offense after landing.",
+    			"info": "+30 offense for next hit if not moving"
+    		}
+    	]
 	},
 	{
 		"id": 4,
@@ -252,6 +258,12 @@
 	"animation": {
 		"walk_speed": 500
 	},
+    "display":{
+        "height": 158,
+        "width": 206,
+        "offset-y": -121,
+        "offset-x": 28
+    },
 	"ability_info": [
 		{
 			"title": "Infernal Temper",

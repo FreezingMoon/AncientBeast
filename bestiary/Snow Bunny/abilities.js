@@ -14,7 +14,7 @@ abilities[12] =[
 	require : function(damage){
 		if(damage == undefined) damage = {type:"target"}; //For the test function to work
 		if(this.used) return false; //Prevent Multiple dodge
-		if(damage.type != "target") return false; //Not targeted 
+		if( !this.dmgIsType("target",damage) ) return false; //Not targeted 
 		if(this.creature.remainingMove <= 0) return false; //Not enough move points
 		var canDodge = false;
 		var creature = this.creature;
@@ -132,7 +132,7 @@ abilities[12] =[
 			flipped : snowBunny.player.flipped,
 			team : 0, //enemies
 			id : snowBunny.id,
-			requireCreature : false,
+			requireCreature : true,
 			x : snowBunny.x,
 			y : snowBunny.y,
 			directions : this.directions,
@@ -146,7 +146,7 @@ abilities[12] =[
 		var ability = args.ability;
 		ability.end();
 
-		var target = G.creatures[path.last().creature];
+		var target = path.last().creature;
 		var dist = 6 - target.size;
 		var dir = [];
 		switch( path[0].direction ){
@@ -243,7 +243,7 @@ abilities[12] =[
 		var ability = args.ability;
 		ability.end();		
 
-		var crea = G.creatures[path.last().creature];
+		var crea = path.last().creature;
 		var dist = path.filterCreature(false,false).length;
 
 		//Copy to not alter ability strength

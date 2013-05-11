@@ -158,7 +158,7 @@ abilities[37] =[
 		var ability = args.ability;
 		ability.end();
 
-		var target = G.creatures[path.last().creature];
+		var target = path.last().creature;
 
 		var damage = new Damage(
 			args.creature, //Attacker

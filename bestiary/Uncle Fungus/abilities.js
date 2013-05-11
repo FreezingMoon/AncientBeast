@@ -11,12 +11,21 @@ abilities[3] =[
 	trigger : "onStepIn onStartPhase",
 
 	// 	require() :
-	require : function(){return this.testRequirements();},
+	require : function(){
+		
+
+		return this.testRequirements();
+	},
 
 	//	activate() : 
 	activate : function() {
 		var creature = this.creature;
 		var targets = this.getTargets(this.creature.adjacentHexs(1));
+
+		if( this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
+			this.end();
+			this.setUsed(false); //Infinite triggering
+		}
 
 		targets.each(function(){
 			if( !(this.target instanceof Creature) ) return;
@@ -29,7 +38,7 @@ abilities[3] =[
 					effectFn : function(effect,crea){
 						var nearFungus = false;
 						crea.adjacentHexs(1).each(function(){
-							if(trg.creature>0){
+							if(trg.creature instanceof Creature){
 								if(G.creatures[trg.creature] === effect.owner)
 									nearFungus = true;
 							}

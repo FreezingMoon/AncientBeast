@@ -204,8 +204,8 @@ body{
 /*------------------Creatures------------------*/
 
 #creatureWrapper .creature .effects{
-	position: relative;
-	top: 0px;
+	position: absolute;
+	bottom: 100%;
 	left: 0px;
 }
 
@@ -257,12 +257,10 @@ body{
 	font-weight: bold;
 	text-shadow: 2px 2px 7px  black;
 	display: block;
-	position: absolute;
+	position: relative;
 	height: 50px;
 	width: 500px;
-	margin-left: -250px;
 	top:0px;
-	left: 50%;
 	text-align: center;
 	white-space: nowrap;
 }
