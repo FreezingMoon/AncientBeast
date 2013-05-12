@@ -5,7 +5,7 @@
 */
 abilities[7] =[
 
-// 	First Ability: Eye of the Fire
+// 	First Ability: Greater Pyre
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onDamage",
@@ -107,7 +107,7 @@ abilities[7] =[
 
 
 
-// 	Thirt Ability: Eye of the Fire
+// 	Thirt Ability: Burning Eye
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",

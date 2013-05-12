@@ -436,11 +436,11 @@
             "height": 277,
             "width": 270,
             "offset-y": -235,
-            "offset-x": 18
+            "offset-x": 0
         },
         "ability_info": [
             {
-                "title": "Infernal Pyre",
+                "title": "Greater Pyre",
                 "desc": "Burns all adjacent creatures whenever taking damage.",
                 "info": "10 burn damage"
             },
@@ -450,9 +450,9 @@
                 "info": "10 slash + 10 burn damage"
             },
             {
-                "title": "Eye of the Fire",
+                "title": "Burning Eye",
                 "desc": "Strategically teleports to a new location on the combat field.",
-                "info": ""
+                "info": "Reduces 1 burn stat to nearby foes."
             },
             {
                 "title": "Fire Ball",
