@@ -53,7 +53,7 @@ abilities[3] =[
 							}
 						}
 					},
-					alterations : {regrowth : -1},
+					alterations : {regrowth : -2},
 					turn : G.turn,
 				};
 
@@ -90,7 +90,8 @@ abilities[3] =[
 	trigger : "onQuery",
 
 	damages : {
-		pierce : 20,
+		pierce : 10,
+		slash : 5,
 	},
 
 	// 	require() :
@@ -135,7 +136,23 @@ abilities[3] =[
 			1, //Area
 			[]	//Effects
 		);
-		target.takeDamage(damage);
+
+		var dmg = target.takeDamage(damage);
+
+		//Frogger bonus
+		ability.creature.addEffect( new Effect(
+			"Chomp Regrowth Bonus", //Name
+			ability.creature, //Caster
+			ability.creature, //Target
+			"onStartPhase", //Trigger
+			{	
+				effectFn : function(effect,crea){
+					effect.deleteEffect();
+				},
+				alterations : {regrowth : dmg.damages.total/4}
+			} //Optional arguments
+		) );
+
 
 		//remove frogger bonus if its found
 		ability.creature.effects.each(function(){
@@ -156,7 +173,6 @@ abilities[3] =[
 	damages : {
 		pierce : 15,
 		slash : 10,
-		crush : 5,
 	},
 
 	// 	require() :
