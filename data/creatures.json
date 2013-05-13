@@ -583,7 +583,7 @@
             "endurance": 60,
             "energy": 90,
             "meditation": 2,
-            "initiative": 180,
+            "initiative": 10,
             "offense": 10,
             "defense": 10,
             "movement": 5,
@@ -603,23 +603,23 @@
         "ability_info": [
             {
                 "title": "Inner Vision",
-                "desc": "Lack of sight forces the creature to focus on it's other senses.",
-                "info": ""
+                "desc": "Lack of sight forces the creature to focus on all its other senses.",
+                "info": "+10 initiative for each round alive."
             },
             {
                 "title": "Tongue Dagger",
                 "desc": "Melee attack on a nearby foe.",
-                "info": "No info"
+                "info": "5 pierce + 15 crush damage"
             },
             {
                 "title": "Sonic Scream",
                 "desc": "Shock waves that travel far.",
-                "info": "No info"
+                "info": "20 sonic damage"
             },
             {
                 "title": "Psychic Blast",
                 "desc": "Focuses the power of mind in order to attack foes from a small region.",
-                "info": "No info"
+                "info": "20 mental damage"
             }
         ]
     },
@@ -727,8 +727,8 @@
             },
             {
                 "title": "Blowing Wind",
-                "desc": "Pushes an inline creature several hexagons backwards, based on size.",
-                "info": "range = 6 hexagons - creature size"
+                "desc": "Pushes away any creature for several hexagons, depending on its size.",
+                "info": "range = 5 hexagons - creature size"
             },
             {
                 "title": "Chilling Spit",
@@ -1025,45 +1025,45 @@
             "health": 280,
             "regrowth": 2,
             "endurance": 140,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
+            "energy": 100,
+            "meditation": 5,
+            "initiative": 15,
+            "offense": 15,
+            "defense": 15,
+            "movement": 3,
+            "pierce": 9,
+            "slash": 9,
+            "crush": 9,
+            "shock": 12,
+            "burn": 10,
+            "frost": 8,
+            "poison": 14,
+            "sonic": 10,
+            "mental": 20
         },
         "animation": {
             "walk_speed": 500
         },
         "ability_info": [
             {
-                "title": "Pulse of the Maggots",
+                "title": "Rib Cage",
                 "desc": "Gains one regrowth point for each corpse located on the battlefield.",
                 "info": ""
             },
             {
                 "title": "Claw Strike",
                 "desc": "Slashes nearby foe using claws.",
-                "info": "No info"
+                "info": "25 slash damage"
             },
             {
                 "title": "Fly Swarm",
                 "desc": "Damages and distracts a foe, lowering it's offense and defense.",
-                "info": "No info"
+                "info": "-20 offence and defense for a round."
             },
             {
                 "title": "Shadow Army",
                 "desc": "Allows any dead creature to fight again for it's life, as a shadow being.",
-                "info": "No info"
+                "info": "All shadows vanish if creature dies."
             }
         ]
     },
@@ -2770,40 +2770,40 @@
             "initiative": 25,
             "offense": 5,
             "defense": 5,
-            "movement": 5,
-            "pierce": 5,
-            "slash": 5,
-            "crush": 5,
-            "shock": 5,
-            "burn": 5,
-            "frost": 5,
+            "movement": 4,
+            "pierce": 6,
+            "slash": 6,
+            "crush": 6,
+            "shock": 4,
+            "burn": 4,
+            "frost": 4,
             "poison": 5,
-            "sonic": 5,
-            "mental": 5
+            "sonic": 0,
+            "mental": 10
         },
         "animation": {
             "walk_speed": 600
         },
         "ability_info": [
             {
-                "title": "Immaterial",
-                "desc": "Passes through obstacles and only takes half the incoming damage.",
+                "title": "Ethereal Body",
+                "desc": "Passes through obstacles and only takes half of the incoming damage.",
                 "info": ""
             },
             {
                 "title": "Hand Jaw",
-                "desc": "Bites nearby foe using its... hand.",
-                "info": "No info"
+                "desc": "Bites nearby foe using its... hand. Steals 5 energy points from target.",
+                "info": "12 pierce damage"
             },
             {
-                "title": "Opression",
-                "desc": "Causes nearby foe to fall into depression and not act for a turn.",
-                "info": "No info"
+                "title": "Sorrow Visions",
+                "desc": "Causes a foe within range to fall into depression and not act for one turn.",
+                "info": "10 mind damage"
             },
             {
-                "title": "Life and Death",
-                "desc": "Ressurects itself by stealing the life of a fatigued foe, if corpse available.",
-                "info": "No info"
+                "title": "Sleeping Mummy",
+                "desc": "Meditative state that restores 20 health if not disrupted for a round.",
+                "info": "35 bonus defense while in stance."
             }
         ]
     }
