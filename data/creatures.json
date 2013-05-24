@@ -236,7 +236,7 @@
 		"size": 3,
 		"type": "L2",
 		"stats": {
-			"health": 135,
+			"health": 125,
 			"regrowth": 4,
 			"endurance": 80,
 			"energy": 90,
@@ -266,26 +266,26 @@
     },
 	"ability_info": [
 		{
-			"title": "Infernal Temper",
-			"desc": "Bursts into flames when it's turn comes, damaging nearby creatures.",
-			"info": "5 burn damage"
+			"title": "After Burner",
+			"desc": "Leaves a trail of fire behind, lasting up to one round or until stepped on.",
+			"info": "5 burn damage for each hexagon"
 		},
-            {
-                "title": "Pulverize",
-                "desc": "Smacks a foe with its heavy hand.",
-                "info": "9 crush + 1 burn damage"
-            },
-            {
-                "title": "Fissure",
-                "desc": "Smashes his fists into the ground, wreaking fierce havoc ahead.",
-                "info": "10 burn damage "
-            },
-            {
-                "title": "Molten Hurl",
-                "desc": "Turns into a molten boulder, bowling itself into first foe in a straight line.",
-                "info": "15 crush + 5 burn damage"
-            }
-        ]
+		{
+			"title": "Pulverize",
+			"desc": "Smacks a foe with its heavy hand.",
+			"info": "9 crush + 1 burn damage"
+		},
+		{
+			"title": "Fissure",
+			"desc": "Smashes his fists into the ground, wreaking fierce havoc ahead.",
+			"info": "10 burn damage "
+		},
+		{
+			"title": "Molten Hurl",
+			"desc": "Turns into a molten boulder, bowling itself into first foe in a straight line.",
+			"info": "15 crush + 5 burn damage"
+		}
+	]
 	},
 	{
 		"id": 5,
@@ -772,22 +772,22 @@
             {
                 "title": "Decaying Carcass",
                 "desc": "When dead, it's corpse rots fast and emanates poisonous gases.",
-                "info": ""
+                "info": "5 poison damage, 5 regrowth debuff"
             },
             {
-                "title": "Sink Teeth",
-                "desc": "Bites a nearby foe.",
-                "info": "No info"
+                "title": "Rabid Bite",
+                "desc": "Sink poisonous teeth into nearby foe.",
+                "info": "10 pierce + 10 poison damage"
             },
             {
                 "title": "Bad Breath",
-                "desc": "Stinks up several nearby enemies.",
-                "info": "No info"
+                "desc": "Stinks up several nearby enemies, causing them to move away a hex.",
+                "info": "10 poison damage (double if staying)"
             },
             {
-                "title": "Toxic Bubble",
-                "desc": "Creates a mucus bubble from it's nose and pushes it away.",
-                "info": "No info"
+                "title": "Goo Blast",
+                "desc": "Sneezes contagious toxin on a rather distant foe, spreading on proximity.",
+                "info": "20 poison damage and 5 regrowth debuff that stacks and even spreads."
             }
         ]
     },
@@ -808,7 +808,7 @@
             "initiative": 85,
             "offense": 5,
             "defense": 15,
-            "movement": 7,
+            "movement": 6,
             "pierce": 8,
             "slash": 8,
             "crush": 12,
@@ -830,24 +830,24 @@
         },
         "ability_info": [
             {
-                "title": "Self Flatten",
-                "desc": "Squishes itself in order to avoid a melee attack or allow an ally to pass.",
+                "title": "Gooey Body",
+                "desc": "Recovers lost health from last hit if doing nothing and skipping the turn.",
                 "info": ""
             },
             {
                 "title": "Gummy Mallet",
                 "desc": "Transforms itself into a rubber hammer to strike a nearby foe.",
-                "info": "No info"
+                "info": "10 crush damage"
             },
             {
                 "title": "Royal Seal",
-                "desc": "Sticks chewing gum in place to hinder enemy movement.",
-                "info": "No info"
+                "desc": "Sticks chewing gum in place to hinder enemy movement for a turn.",
+                "info": "Gumble can also leap diagonally to seals within range for 1 movement."
             },
             {
                 "title": "Boom Box",
-                "desc": "Turns belly into a speaker, blasting an inline foe, pushing it back a bit.",
-                "info": "No info"
+                "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
+                "info": "15 sonic damage + 10 crush if melee"
             }
         ]
     },
@@ -949,12 +949,12 @@
             },
             {
                 "title": "Volcanic Cannon",
-                "desc": "Fires a flaming boulder projectile at a target foe.",
-                "info": "No info"
+                "desc": "Fires a flaming boulder projectile at a target location, hitting next round. Land is scorched if it's being empty.",
+                "info": "15 crush + 15 burn damage"
             },
             {
                 "title": "Spitfire",
-                "desc": "Erupts with rage, bombarding the battlefield with burning lava.",
+                "desc": "Erupts with rage, bombarding the battlefield with hot burning lava.",
                 "info": "No info"
             }
         ]
@@ -2747,9 +2747,9 @@
                 "info": "No info"
             },
             {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+                "title": "Unfriendly Fire",
+                "desc": "Ranged fire attack that bounces left and right each time it hits a creature.",
+                "info": "20 burn damage + 5 more per target"
             }
         ]
     },
