@@ -1725,49 +1725,49 @@
         "type": "A3",
         "stats": {
             "health": 190,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
+            "regrowth": 5,
+            "endurance": 70,
+            "energy": 110,
+            "meditation": 3,
+            "initiative": 80,
+            "offense": 15,
+            "defense": 15,
+            "movement": 4,
+            "pierce": 10,
+            "slash": 10,
+            "crush": 10,
+            "shock": 4,
+            "burn": 4,
+            "frost": 7,
+            "poison": 8,
+            "sonic": 4,
+            "mental": 6
         },
         "animation": {
             "walk_speed": 500
         },
         "ability_info": [
-            {
-                "title": "Retaliation",
-                "desc": "Returns favor to frontal attackers, by slashing them with it's heavy claws.",
-                "info": ""
-            },
-            {
-                "title": "Pummel",
-                "desc": "Severly punches a nearby foe.",
-                "info": "No info"
-            },
-            {
-                "title": "Frightening Howl",
-                "desc": "Removes positive buffs and reduces offense and defense of nearby foes.",
-                "info": "No info"
-            },
-            {
-                "title": "Slice and Dice",
-                "desc": "Brutally slashes all frontal foes using it's extremely sharp claws.",
-                "info": "No info"
-            }
-        ]
+		{
+			"title": "Bad Dog",
+			"desc": "Bites any frontal foes that stop by, also retaliates against rear attackers.",
+			"info": "10 pierce damage + 5 crush damage"
+		},
+		{
+			"title": "Metal Hand",
+			"desc": "Injures a nearby foe.",
+			"info": "5 pierce + 5 slash + 5 crush damage"
+		},
+		{
+			"title": "Dead Eye",
+			"desc": "Studies foe within sight and gains bonus offense & defense against it.",
+			"info": "+10 offense & 10 defense against foe"
+		},
+		{
+			"title": "Rocket Launcher",
+			"desc": "Fires up to 3 missiles that travel a fair distance, doing nice damage.",
+			"info": "10 crush + 10 burn damage per rocket"
+		}
+	]
     },
     {
         "id": 32,
@@ -1911,7 +1911,7 @@
         "ability_info": [
             {
                 "title": "Intimidating",
-                "desc": "Nearby foes have their offense and defense reduced for a round.",
+                "desc": "Nearby foes have their offense and defense reduced for a full round.",
                 "info": "-25% offense and defense debuff"
             },
             {
@@ -2050,7 +2050,7 @@
         "stats": {
             "health": 120,
             "regrowth": 5,
-            "endurance": 80,
+            "endurance": 40,
             "energy": 70,
             "meditation": 5,
             "initiative": 40,
