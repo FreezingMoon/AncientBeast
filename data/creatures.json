@@ -236,7 +236,7 @@
 		"size": 3,
 		"type": "L2",
 		"stats": {
-			"health": 135,
+			"health": 125,
 			"regrowth": 4,
 			"endurance": 80,
 			"energy": 90,
@@ -266,26 +266,26 @@
     },
 	"ability_info": [
 		{
-			"title": "Infernal Temper",
-			"desc": "Bursts into flames when it's turn comes, damaging nearby creatures.",
-			"info": "5 burn damage"
+			"title": "After Burner",
+			"desc": "Leaves a trail of fire behind, lasting up to one round or until stepped on.",
+			"info": "5 burn damage for each hexagon"
 		},
-            {
-                "title": "Pulverize",
-                "desc": "Smacks a foe with its heavy hand.",
-                "info": "9 crush + 1 burn damage"
-            },
-            {
-                "title": "Fissure",
-                "desc": "Smashes his fists into the ground, wreaking fierce havoc ahead.",
-                "info": "10 burn damage "
-            },
-            {
-                "title": "Molten Hurl",
-                "desc": "Turns into a molten boulder, bowling itself into first foe in a straight line.",
-                "info": "15 crush + 5 burn damage"
-            }
-        ]
+		{
+			"title": "Pulverize",
+			"desc": "Smacks a foe with its heavy hand.",
+			"info": "9 crush + 1 burn damage"
+		},
+		{
+			"title": "Fissure",
+			"desc": "Smashes his fists into the ground, wreaking fierce havoc ahead.",
+			"info": "10 burn damage "
+		},
+		{
+			"title": "Molten Hurl",
+			"desc": "Turns into a molten boulder, bowling itself into first foe in a straight line.",
+			"info": "15 crush + 5 burn damage"
+		}
+	]
 	},
 	{
 		"id": 5,
@@ -436,11 +436,11 @@
             "height": 277,
             "width": 270,
             "offset-y": -235,
-            "offset-x": 18
+            "offset-x": 0
         },
         "ability_info": [
             {
-                "title": "Infernal Pyre",
+                "title": "Greater Pyre",
                 "desc": "Burns all adjacent creatures whenever taking damage.",
                 "info": "10 burn damage"
             },
@@ -450,9 +450,9 @@
                 "info": "10 slash + 10 burn damage"
             },
             {
-                "title": "Eye of the Fire",
+                "title": "Burning Eye",
                 "desc": "Strategically teleports to a new location on the combat field.",
-                "info": ""
+                "info": "Reduces 1 burn stat to nearby foes."
             },
             {
                 "title": "Fire Ball",
@@ -583,7 +583,7 @@
             "endurance": 60,
             "energy": 90,
             "meditation": 2,
-            "initiative": 180,
+            "initiative": 10,
             "offense": 10,
             "defense": 10,
             "movement": 5,
@@ -603,23 +603,23 @@
         "ability_info": [
             {
                 "title": "Inner Vision",
-                "desc": "Lack of sight forces the creature to focus on it's other senses.",
-                "info": ""
+                "desc": "Lack of sight forces the creature to focus on all its other senses.",
+                "info": "+10 initiative for each round alive."
             },
             {
                 "title": "Tongue Dagger",
                 "desc": "Melee attack on a nearby foe.",
-                "info": "No info"
+                "info": "5 pierce + 15 crush damage"
             },
             {
                 "title": "Sonic Scream",
                 "desc": "Shock waves that travel far.",
-                "info": "No info"
+                "info": "20 sonic damage"
             },
             {
                 "title": "Psychic Blast",
                 "desc": "Focuses the power of mind in order to attack foes from a small region.",
-                "info": "No info"
+                "info": "20 mental damage"
             }
         ]
     },
@@ -727,8 +727,8 @@
             },
             {
                 "title": "Blowing Wind",
-                "desc": "Pushes an inline creature several hexagons backwards, based on size.",
-                "info": "range = 6 hexagons - creature size"
+                "desc": "Pushes away any creature for several hexagons, depending on its size.",
+                "info": "range = 5 hexagons - creature size"
             },
             {
                 "title": "Chilling Spit",
@@ -772,22 +772,22 @@
             {
                 "title": "Decaying Carcass",
                 "desc": "When dead, it's corpse rots fast and emanates poisonous gases.",
-                "info": ""
+                "info": "5 poison damage, 5 regrowth debuff"
             },
             {
-                "title": "Sink Teeth",
-                "desc": "Bites a nearby foe.",
-                "info": "No info"
+                "title": "Rabid Bite",
+                "desc": "Sink poisonous teeth into nearby foe.",
+                "info": "10 pierce + 10 poison damage"
             },
             {
                 "title": "Bad Breath",
-                "desc": "Stinks up several nearby enemies.",
-                "info": "No info"
+                "desc": "Stinks up several nearby enemies, causing them to move away a hex.",
+                "info": "10 poison damage (double if staying)"
             },
             {
-                "title": "Toxic Bubble",
-                "desc": "Creates a mucus bubble from it's nose and pushes it away.",
-                "info": "No info"
+                "title": "Goo Blast",
+                "desc": "Sneezes contagious toxin on a rather distant foe, spreading on proximity.",
+                "info": "20 poison damage and 5 regrowth debuff that stacks and even spreads."
             }
         ]
     },
@@ -808,7 +808,7 @@
             "initiative": 85,
             "offense": 5,
             "defense": 15,
-            "movement": 7,
+            "movement": 6,
             "pierce": 8,
             "slash": 8,
             "crush": 12,
@@ -830,24 +830,24 @@
         },
         "ability_info": [
             {
-                "title": "Self Flatten",
-                "desc": "Squishes itself in order to avoid a melee attack or allow an ally to pass.",
+                "title": "Gooey Body",
+                "desc": "Recovers lost health from last hit if doing nothing and skipping the turn.",
                 "info": ""
             },
             {
                 "title": "Gummy Mallet",
                 "desc": "Transforms itself into a rubber hammer to strike a nearby foe.",
-                "info": "No info"
+                "info": "10 crush damage"
             },
             {
                 "title": "Royal Seal",
-                "desc": "Sticks chewing gum in place to hinder enemy movement.",
-                "info": "No info"
+                "desc": "Sticks chewing gum in place to hinder enemy movement for a turn.",
+                "info": "Gumble can also leap diagonally to seals within range for 1 movement."
             },
             {
                 "title": "Boom Box",
-                "desc": "Turns belly into a speaker, blasting an inline foe, pushing it back a bit.",
-                "info": "No info"
+                "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
+                "info": "15 sonic damage + 10 crush if melee"
             }
         ]
     },
@@ -949,12 +949,12 @@
             },
             {
                 "title": "Volcanic Cannon",
-                "desc": "Fires a flaming boulder projectile at a target foe.",
-                "info": "No info"
+                "desc": "Fires a flaming boulder projectile at a target location, hitting next round. Land is scorched if it's being empty.",
+                "info": "15 crush + 15 burn damage"
             },
             {
                 "title": "Spitfire",
-                "desc": "Erupts with rage, bombarding the battlefield with burning lava.",
+                "desc": "Erupts with rage, bombarding the battlefield with hot burning lava.",
                 "info": "No info"
             }
         ]
@@ -1025,45 +1025,45 @@
             "health": 280,
             "regrowth": 2,
             "endurance": 140,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
+            "energy": 100,
+            "meditation": 5,
+            "initiative": 15,
+            "offense": 15,
+            "defense": 15,
+            "movement": 3,
+            "pierce": 9,
+            "slash": 9,
+            "crush": 9,
+            "shock": 12,
+            "burn": 10,
+            "frost": 8,
+            "poison": 14,
+            "sonic": 10,
+            "mental": 20
         },
         "animation": {
             "walk_speed": 500
         },
         "ability_info": [
             {
-                "title": "Pulse of the Maggots",
+                "title": "Rib Cage",
                 "desc": "Gains one regrowth point for each corpse located on the battlefield.",
                 "info": ""
             },
             {
                 "title": "Claw Strike",
                 "desc": "Slashes nearby foe using claws.",
-                "info": "No info"
+                "info": "25 slash damage"
             },
             {
                 "title": "Fly Swarm",
                 "desc": "Damages and distracts a foe, lowering it's offense and defense.",
-                "info": "No info"
+                "info": "-20 offence and defense for a round."
             },
             {
                 "title": "Shadow Army",
                 "desc": "Allows any dead creature to fight again for it's life, as a shadow being.",
-                "info": "No info"
+                "info": "All shadows vanish if creature dies."
             }
         ]
     },
@@ -1725,49 +1725,49 @@
         "type": "A3",
         "stats": {
             "health": 190,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
+            "regrowth": 5,
+            "endurance": 70,
+            "energy": 110,
+            "meditation": 3,
+            "initiative": 80,
+            "offense": 15,
+            "defense": 15,
+            "movement": 4,
+            "pierce": 10,
+            "slash": 10,
+            "crush": 10,
+            "shock": 4,
+            "burn": 4,
+            "frost": 7,
+            "poison": 8,
+            "sonic": 4,
+            "mental": 6
         },
         "animation": {
             "walk_speed": 500
         },
         "ability_info": [
-            {
-                "title": "Retaliation",
-                "desc": "Returns favor to frontal attackers, by slashing them with it's heavy claws.",
-                "info": ""
-            },
-            {
-                "title": "Pummel",
-                "desc": "Severly punches a nearby foe.",
-                "info": "No info"
-            },
-            {
-                "title": "Frightening Howl",
-                "desc": "Removes positive buffs and reduces offense and defense of nearby foes.",
-                "info": "No info"
-            },
-            {
-                "title": "Slice and Dice",
-                "desc": "Brutally slashes all frontal foes using it's extremely sharp claws.",
-                "info": "No info"
-            }
-        ]
+		{
+			"title": "Bad Dog",
+			"desc": "Bites any frontal foes that stop by, also retaliates against rear attackers.",
+			"info": "10 pierce damage + 5 crush damage"
+		},
+		{
+			"title": "Metal Hand",
+			"desc": "Injures a nearby foe.",
+			"info": "5 pierce + 5 slash + 5 crush damage"
+		},
+		{
+			"title": "Dead Eye",
+			"desc": "Studies foe within sight and gains bonus offense & defense against it.",
+			"info": "+10 offense & 10 defense against foe"
+		},
+		{
+			"title": "Rocket Launcher",
+			"desc": "Fires up to 3 missiles that travel a fair distance, doing nice damage.",
+			"info": "10 crush + 10 burn damage per rocket"
+		}
+	]
     },
     {
         "id": 32,
@@ -1911,7 +1911,7 @@
         "ability_info": [
             {
                 "title": "Intimidating",
-                "desc": "Nearby foes have their offense and defense reduced for a round.",
+                "desc": "Nearby foes have their offense and defense reduced for a full round.",
                 "info": "-25% offense and defense debuff"
             },
             {
@@ -2050,7 +2050,7 @@
         "stats": {
             "health": 120,
             "regrowth": 5,
-            "endurance": 80,
+            "endurance": 40,
             "energy": 70,
             "meditation": 5,
             "initiative": 40,
@@ -2747,9 +2747,9 @@
                 "info": "No info"
             },
             {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+                "title": "Unfriendly Fire",
+                "desc": "Ranged fire attack that bounces left and right each time it hits a creature.",
+                "info": "20 burn damage + 5 more per target"
             }
         ]
     },
@@ -2770,40 +2770,40 @@
             "initiative": 25,
             "offense": 5,
             "defense": 5,
-            "movement": 5,
-            "pierce": 5,
-            "slash": 5,
-            "crush": 5,
-            "shock": 5,
-            "burn": 5,
-            "frost": 5,
+            "movement": 4,
+            "pierce": 6,
+            "slash": 6,
+            "crush": 6,
+            "shock": 4,
+            "burn": 4,
+            "frost": 4,
             "poison": 5,
-            "sonic": 5,
-            "mental": 5
+            "sonic": 0,
+            "mental": 10
         },
         "animation": {
             "walk_speed": 600
         },
         "ability_info": [
             {
-                "title": "Immaterial",
-                "desc": "Passes through obstacles and only takes half the incoming damage.",
+                "title": "Ethereal Body",
+                "desc": "Passes through obstacles and only takes half of the incoming damage.",
                 "info": ""
             },
             {
                 "title": "Hand Jaw",
-                "desc": "Bites nearby foe using its... hand.",
-                "info": "No info"
+                "desc": "Bites nearby foe using its... hand. Steals 5 energy points from target.",
+                "info": "12 pierce damage"
             },
             {
-                "title": "Opression",
-                "desc": "Causes nearby foe to fall into depression and not act for a turn.",
-                "info": "No info"
+                "title": "Sorrow Visions",
+                "desc": "Causes a foe within range to fall into depression and not act for one turn.",
+                "info": "10 mind damage"
             },
             {
-                "title": "Life and Death",
-                "desc": "Ressurects itself by stealing the life of a fatigued foe, if corpse available.",
-                "info": "No info"
+                "title": "Sleeping Mummy",
+                "desc": "Meditative state that restores 20 health if not disrupted for a round.",
+                "info": "35 bonus defense while in stance."
             }
         ]
     }
