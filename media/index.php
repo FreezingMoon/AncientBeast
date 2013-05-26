@@ -103,7 +103,7 @@ case wallpapers:
 	foreach($images as $image) {
 		if($image == "." || $image == "..") continue;
 		$title = substr($image, 0, -4);
-		echo '<a id="img' . $i . '" rel="pop" href="wallpapers/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="wallpapers/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+		echo '<a id="img' . $i . '" rel="pop" href="wallpapers/' . $image . '" title="' . $title . '"><img class="shadow" style="width:435px; margin:5px;" src="wallpapers/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 		$i++;
 	} echo "</div>";
 	break;
