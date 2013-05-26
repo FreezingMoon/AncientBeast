@@ -244,6 +244,17 @@ var Creature = Class.create({
 	*/
 	queryMove: function(o){
 
+		//Once Per Damage Abilities recover
+		G.creatures.each(function(){ 	//For all Creature
+			if(this instanceof Creature){
+				this.abilities.each(function(){
+					if( G.triggers.oncePerDamageChain.test(this.trigger) ){
+						this.setUsed(false);
+					}
+				});
+			}
+		});
+
 		o = $j.extend({
 			noPath : false,
 			isAbility : false,
@@ -382,6 +393,29 @@ var Creature = Class.create({
 
 		G.freezedInput = true;
 
+		var currentHex = creature.hexagons[0];
+
+		//      STEP OUT
+		//Trap
+		creature.hexagons.each(function(){
+			this.activateTrap(G.triggers.onStepOut,creature);
+		});
+		//Passive abilities
+		creature.abilities.each(function(){
+			if( G.triggers.onStepOut.test(this.trigger) ){
+				if( this.require(currentHex) ){
+					this.activate(currentHex);
+				}
+			}
+		});
+
+		//Passive effects
+		creature.effects.each(function(){
+			if( G.triggers.onStepOut.test(this.trigger) ){
+				this.activate(currentHex);
+			}
+		});
+
 		creature.cleanHex();
 		G.grid.updateDisplay();
 		G.grid.xray( new Hex(0,0) ); //Clean Xray
@@ -406,7 +440,7 @@ var Creature = Class.create({
 			var thisHexId = hexId;
 			creature.$display.animate(nextPos.displayPos,parseInt(creature.animation.walk_speed),"linear",function(){
 				creature.facePlayerDefault(creature);
-				currentHex = path[thisHexId];
+				var currentHex = path[thisHexId];
 
 				creature.cleanHex();
 				creature.x 	= currentHex.x - 0;
@@ -417,11 +451,13 @@ var Creature = Class.create({
 				if(!opts.ignoreMovementPoint){
 					creature.travelDist++;
 					creature.remainingMove--;
+
+					//      STEP IN
+
 					//Trap
-					for (var i = 0; i < creature.size; i++) {
-						if(G.grid.hexExists(currentHex.y,currentHex.x-i))
-							G.grid.hexs[currentHex.y][currentHex.x-i].activateTrap(G.triggers.onStepIn,creature);
-					};
+					creature.hexagons.each(function(){
+						this.activateTrap(G.triggers.onStepIn,creature);
+					});
 					//Passive abilities
 					creature.abilities.each(function(){
 						if( G.triggers.onStepIn.test(this.trigger) ){
@@ -442,6 +478,27 @@ var Creature = Class.create({
 				if( thisHexId < path.length-1 && creature.remainingMove > 0 ){
 					//Determine facing
 					creature.faceHex(currentHex, path[thisHexId+1]);
+
+					//      STEP OUT
+					//Trap
+					creature.hexagons.each(function(){
+						this.activateTrap(G.triggers.onStepOut,creature);
+					});
+					//Passive abilities
+					creature.abilities.each(function(){
+						if( G.triggers.onStepOut.test(this.trigger) ){
+							if( this.require(currentHex) ){
+								this.activate(currentHex);
+							}
+						}
+					});
+
+					//Passive effects
+					creature.effects.each(function(){
+						if( G.triggers.onStepOut.test(this.trigger) ){
+							this.activate(currentHex);
+						}
+					});
 				}else{
 					creature.$display.clearQueue(); //Stop the creature
 

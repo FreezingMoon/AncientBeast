@@ -12,11 +12,13 @@ abilities[37] =[
 
 	// 	require() :
 	require : function(hex){
+		if( !this.testRequirements() ) return false;
+
 		if(hex == undefined) hex = this.creature.hexagons[0];
 		this.message = "";
 		if(hex.trap){
 			if(hex.trap.type == "mud-bath"){ 
-				return this.testRequirements();
+				return true;
 			}
 		}
 
@@ -51,9 +53,13 @@ abilities[37] =[
 
 	// 	require() :
 	require : function(){
-		var haveTarget = this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" );
-		this.message = (haveTarget)?"":G.msg.abilities.notarget;
-		return ( this.testRequirements() && haveTarget );
+		if( !this.testRequirements() ) return false;
+
+		if( this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" ) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return true;
 	},
 
 	// 	query() :
@@ -103,6 +109,8 @@ abilities[37] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		var swine = this.creature;
 		var hexs = G.grid.getHexMap(swine.x,swine.y-2,0,false,bellowrow).concat(
 			G.grid.getHexMap(swine.x,swine.y,0,false,straitrow),
@@ -115,7 +123,7 @@ abilities[37] =[
 			return false;
 		}
 
-		return this.testRequirements();		
+		return true;
 	},
 
 	// 	query() :

@@ -363,21 +363,12 @@ var HexGrid = Class.create({
 		});
 
 
-		//Clear previous binds
-		G.grid.$allInptHex.unbind('click');
-		G.grid.$allInptHex.unbind('mouseover');
-
-
 		//ONCLICK
-		this.$allInptHex.bind('click', function(){
-			if(G.freezedInput) return;
-
-			var x = $j(this).attr("x")-0;
-			var y = $j(this).attr("y")-0;
-
-			var hex = G.grid.hexs[y][x];
+		var onConfirmFn = function(){
+			var hex = this;
+			var y = hex.y;
+			var x = hex.x;
 			
-
 			//Clear display and overlay
 			G.grid.updateDisplay();
 
@@ -422,18 +413,14 @@ var HexGrid = Class.create({
 				if(G.activeCreature instanceof Creature){ G.activeCreature.faceHex(G.activeCreature,clickedtHex); }
 
 			}
+		};
 
-		});
-
-
+		
 		//ONMOUSEOVER
-		this.$allInptHex.bind('mouseover', function(){
-			if(G.freezedInput) return;
-
-			var x = $j(this).attr("x")-0;
-			var y = $j(this).attr("y")-0;
-
-			var hex = G.grid.hexs[y][x];
+		var onSelectFn = function(){
+			var hex = this;
+			var y = hex.y;
+			var x = hex.x;
 
 			//Xray
 			G.grid.xray(hex);
@@ -467,11 +454,16 @@ var HexGrid = Class.create({
 					}
 				};
 				
-				
 				hex = G.grid.hexs[y][x]; //New coords
 				o.fnOnSelect(hex,o.args);
 			}
-		}); 
+		};
+
+
+		this.forEachHexs(function(){ 
+			this.onSelectFn	 = onSelectFn;
+			this.onConfirmFn = onConfirmFn;
+		});
 	},
 
 
@@ -868,6 +860,21 @@ var Hex = Class.create({
 
 		// this.displayPos.left = this.displayPos.left-Math.round(xmult*60);
 		this.displayPos.top = this.displayPos.top*.75+90;
+
+		this.onSelectFn = function(){};
+		this.onConfirmFn = function(){};
+
+		this.$input.bind('mouseover', function(){
+			if(G.freezedInput) return;
+			var hex = G.grid.hexs[ $j(this).attr("y")-0 ][ $j(this).attr("x")-0 ];
+			hex.onSelectFn();
+		});
+
+		this.$input.bind('click', function(){
+			if(G.freezedInput) return;
+			var hex = G.grid.hexs[ $j(this).attr("y")-0 ][ $j(this).attr("x")-0 ];
+			hex.onConfirmFn();
+		});
 
 		this.trap = undefined;
 	},

@@ -12,10 +12,13 @@ abilities[14] =[
 
 	// 	require() :
 	require : function(damage){
+		if( !this.testRequirements() ) return false;
+
 		if(damage == undefined) damage = {type:"target"}; //For the test function to work
 		if(this.used) return false; //Prevent Multiple dodge
 		if(damage.type != "target") return false; //Not targeted 
-		return this.testRequirements();
+
+		return true;
 	},
 
 	//	activate() : 
@@ -38,11 +41,14 @@ abilities[14] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		return this.testRequirements();	},
+		return true;
+	},
 
 	// 	query() :
 	query : function(){
@@ -148,6 +154,8 @@ abilities[14] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		var test = this.testDirection({
 			team : "ennemy",
 			directions : this.directions,
@@ -156,7 +164,7 @@ abilities[14] =[
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	// 	query() :

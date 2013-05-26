@@ -27,11 +27,13 @@ abilities[5] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3,this.creature.y-2,0,false,frontnback3hex),"ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	// 	query() :

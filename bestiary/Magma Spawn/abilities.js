@@ -5,10 +5,10 @@
 */
 abilities[4] =[
 
-// 	First Ability: Infernal Temper
+// 	First Ability: After Burner
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onStartPhase",
+	trigger : "onStepOut",
 
 	damages : {
 		burn : 5,
@@ -18,23 +18,23 @@ abilities[4] =[
 	require : function(){return this.testRequirements();},
 
 	//	activate() : 
-	activate : function() {
-		var ability = this;
-		ability.end();
+	activate : function(hex) {
+		var effects = [
+			new Effect(
+				"After Burner",this.creature,hex,"onStepIn",
+				{ 	
+					effectFn: function(effect,crea){ 
+						crea.takeDamage(new Damage( effect.attacker, "effect", {burn:5}, 1,[] )); 
+						this.trap.destroy();
+					},
+					attacker: this.creature
+				}
+			),
+		]
+		if( !this.creature.player.flipped )
+			hex = G.grid.hexs[hex.y][hex.x-this.creature.size+1];
 
-		//Basic Attack all nearby creatures
-		var targets = ability.getTargets(ability.creature.adjacentHexs(1));
-		for(var t in targets) {
-			if(targets[t].target === undefined) break;
-			var damage = new Damage(
-				ability.creature, //Attacker
-				"zone", //Attack Type
-				ability.damages, //Damage Type
-				targets[t].hexsHit, //Area
-				[]	//Effects
-			);
-			targets[t].target.takeDamage(damage);
-		};
+		hex.createTrap("mud-bath",effects,this.creature.player);
 	},
 },
 
@@ -52,11 +52,13 @@ abilities[4] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3,this.creature.y-2,0,false,frontnback3hex),"ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	// 	query() :
@@ -111,6 +113,8 @@ abilities[4] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		// Require Ennemy
 		// var magmaSpawn = this.creature;
 		// var hexs = G.grid.getHexMap(magmaSpawn.x,magmaSpawn.y-2,0,false,this.map).concat(
@@ -119,7 +123,7 @@ abilities[4] =[
 		// 	this.message = G.msg.abilities.notarget;
 		// 	return false;
 		// }
-		return this.testRequirements();
+		return true;
 	},
 
 	// 	query() :
@@ -175,6 +179,8 @@ abilities[4] =[
 	directions : [0,1,0,0,1,0],
 
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		var magmaSpawn = this.creature;
 		var x = (magmaSpawn.player.flipped) ? magmaSpawn.x-magmaSpawn.size+1 : magmaSpawn.x ;
 
@@ -188,7 +194,7 @@ abilities[4] =[
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	// 	query() :

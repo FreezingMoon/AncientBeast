@@ -50,6 +50,8 @@ abilities[45] =[
 
 	//	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3,this.creature.y-2,0,false,frontnback3hex),"ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
@@ -63,7 +65,7 @@ abilities[45] =[
 			this.setUsed(false);
 		}
 
-		return this.testRequirements();
+		return true;
 	},
 
 	//	query() :
@@ -114,6 +116,8 @@ abilities[45] =[
 
 	//	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		if( !this.testDirection({ team : "ennemy", directions : this.directions }) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
@@ -125,7 +129,7 @@ abilities[45] =[
 		}else{
 			this.setUsed(false);
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	//	query() :
@@ -180,6 +184,8 @@ abilities[45] =[
 	directions : [0,1,0,0,0,0],
 	
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		if( !this.testDirection({ team : "ennemy", directions : this.directions }) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
@@ -191,7 +197,7 @@ abilities[45] =[
 		}else{
 			this.setUsed(false);
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	//	query() :

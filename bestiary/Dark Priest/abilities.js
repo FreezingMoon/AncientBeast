@@ -44,11 +44,13 @@ abilities[0] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	// 	query() :
@@ -95,6 +97,8 @@ abilities[0] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		var range = this.creature.adjacentHexs(1);
 
 		//At least one target
@@ -116,7 +120,7 @@ abilities[0] =[
 			return false;
 		}
 
-		return this.testRequirements();
+		return true;
 	},
 
 	// 	query() :
@@ -166,6 +170,8 @@ abilities[0] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		if(this.creature.player.plasma <= 0){
 			this.message = G.msg.abilities.noplasma;
 			return false;
@@ -174,7 +180,7 @@ abilities[0] =[
 			this.message = G.msg.abilities.nopsy;
 			return false;
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	summonRange : 6,

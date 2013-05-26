@@ -457,11 +457,13 @@ var Game = Class.create({
 	/* 	Regex Test for triggers */
 	triggers : {
 		onStepIn : new RegExp('onStepIn', 'i'),
+		onStepOut : new RegExp('onStepOut', 'i'),
 		onStartPhase : new RegExp('onStartPhase', 'i'),
 		onEndPhase : new RegExp('onEndPhase', 'i'),
 		onMovement : new RegExp('onMovement', 'i'),
 		onQuery : new RegExp('onQuery', 'i'),
 		onDamage : new RegExp('onDamage', 'i'),
+		oncePerDamageChain : new RegExp('oncePerDamageChain', 'i'),
 	},
 	
 

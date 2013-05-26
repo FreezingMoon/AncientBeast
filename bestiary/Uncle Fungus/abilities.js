@@ -5,15 +5,13 @@
 */
 abilities[3] =[
 
-// 	First Ability: Frogger
+// 	First Ability: Spore Contamination
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStepIn onStartPhase",
 
 	// 	require() :
 	require : function(){
-		
-
 		return this.testRequirements();
 	},
 
@@ -96,12 +94,14 @@ abilities[3] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		//At least one target
 		if( !this.atLeastOneTarget(this.creature.adjacentHexs(1),"ennemy") ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	// 	query() :
@@ -177,13 +177,15 @@ abilities[3] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
+
 		var map = G.grid.getHexMap(this.creature.x-2,this.creature.y-2,0,false,frontnback2hex);
 		//At least one target
 		if( !this.atLeastOneTarget(map,"ennemy") ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	// 	query() :
@@ -217,7 +219,7 @@ abilities[3] =[
 
 		//remove frogger bonus if its found
 		ability.creature.effects.each(function(){
-			if(this.name == "Offense Bonus"){
+			if(this.name == "Frogger Bonus"){
 				this.deleteEffect();
 			}
 		});

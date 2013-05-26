@@ -8,7 +8,7 @@ abilities[7] =[
 // 	First Ability: Eye of the Fire
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onDamage",
+	trigger : "onDamage oncePerDamageChain",
 
 	damages : {
 		burn : 10
@@ -16,11 +16,10 @@ abilities[7] =[
 
 	// 	require() :
 	require : function(damage){
-		this.setUsed(false); //Infinite triggering
+		if( !this.testRequirements() ) return false;
 		if(damage == undefined) damage = {type:"target"}; //For the test function to work
 		if( this.dmgIsType("retaliation",damage) ) return false;
-
-		return this.testRequirements();
+		return true;
 	},
 
 	//	activate() : 
@@ -55,6 +54,7 @@ abilities[7] =[
 
 	// 	require() :
 	require : function(){
+		if( !this.testRequirements() ) return false;
 		var test = this.testDirection({
 			team : "ennemy",
 			distance : this.distance,
@@ -64,7 +64,7 @@ abilities[7] =[
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		return this.testRequirements();
+		return true;
 	},
 
 	// 	query() :
@@ -203,13 +203,16 @@ abilities[7] =[
 
 		var targets = ability.getTargets(aoe);
 
-		hex.creature.takeDamage(new Damage(
-			args.creature, //Attacker
-			"area", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
-		));
+		if(hex.creature instanceof Creature){
+			hex.creature.takeDamage(new Damage(
+				args.creature, //Attacker
+				"area", //Attack Type
+				ability.damages, //Damage Type
+				1, //Area
+				[]	//Effects
+			));
+		}
+
 
 		ability.areaDamage(
 			args.creature,

@@ -102,7 +102,6 @@ var Ability = Class.create({
 	*	team : 		String : 	ennemy,ally,both
 	*/
 	atLeastOneTarget : function(hexs,team){
-		var result = false;
 		for (var i = 0; i < hexs.length; i++) {
 			if(hexs[i].creature instanceof Creature){
 				var crea = hexs[i].creature;
@@ -119,7 +118,8 @@ var Ability = Class.create({
 				}
 			}
 		};
-		return result;
+		this.message = G.msg.abilities.notarget;
+		return false;
 	},
 
 
