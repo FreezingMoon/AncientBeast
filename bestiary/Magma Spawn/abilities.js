@@ -8,18 +8,34 @@ abilities[4] =[
 // 	First Ability: After Burner
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onStepOut",
-
-	damages : {
-		burn : 5,
-	},
+	trigger : "onStartPhase",
 
 	// 	require() :
 	require : function(){return this.testRequirements();},
 
 	//	activate() : 
-	activate : function(hex) {
-		var effects = [
+	activate : function() {
+		this.creature.hexagons[1].createTrap("mud-bath",[
+			new Effect(
+				"After Burner",this.creature,this.creature.hexagons[1],"onStepIn",
+				{ 	
+					effectFn: function(effect,crea){ 
+						crea.takeDamage(new Damage( effect.attacker, "effect", {burn:5}, 1,[] )); 
+						this.trap.destroy();
+					},
+					attacker: this.creature,
+				}
+			),
+		],this.creature.player);
+
+		var hex;
+		if( this.creature.player.flipped )
+			hex = this.creature.hexagons[0];
+		else
+			hex = this.creature.hexagons[2];
+
+
+		hex.createTrap("mud-bath",[
 			new Effect(
 				"After Burner",this.creature,hex,"onStepIn",
 				{ 	
@@ -30,11 +46,7 @@ abilities[4] =[
 					attacker: this.creature
 				}
 			),
-		]
-		if( !this.creature.player.flipped )
-			hex = G.grid.hexs[hex.y][hex.x-this.creature.size+1];
-
-		hex.createTrap("mud-bath",effects,this.creature.player);
+		],this.creature.player);
 	},
 },
 
