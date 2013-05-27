@@ -15,16 +15,20 @@ abilities[4] =[
 
 	//	activate() : 
 	activate : function() {
+		var effectFn = function(effect,crea){ 
+			crea.takeDamage(new Damage( effect.attacker, "effect", {burn:5}, 1,[] )); 
+			this.trap.destroy();
+		};
+
+		var requireFn = function(){ 
+			if(this.trap.hex.creature==0) return false;
+			return G.creatures[this.trap.hex.creature].type != "L2"; 
+		};
+		
 		this.creature.hexagons[1].createTrap("mud-bath",[
 			new Effect(
 				"After Burner",this.creature,this.creature.hexagons[1],"onStepIn",
-				{ 	
-					effectFn: function(effect,crea){ 
-						crea.takeDamage(new Damage( effect.attacker, "effect", {burn:5}, 1,[] )); 
-						this.trap.destroy();
-					},
-					attacker: this.creature,
-				}
+				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
 			),
 		],this.creature.player);
 
@@ -38,13 +42,7 @@ abilities[4] =[
 		hex.createTrap("mud-bath",[
 			new Effect(
 				"After Burner",this.creature,hex,"onStepIn",
-				{ 	
-					effectFn: function(effect,crea){ 
-						crea.takeDamage(new Damage( effect.attacker, "effect", {burn:5}, 1,[] )); 
-						this.trap.destroy();
-					},
-					attacker: this.creature
-				}
+				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
 			),
 		],this.creature.player);
 	},
