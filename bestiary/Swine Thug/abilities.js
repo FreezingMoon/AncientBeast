@@ -224,7 +224,7 @@ abilities[37] =[
 				{ 	
 					requireFn: function(){ 
 						if(this.trap.hex.creature==0) return false;
-						return G.creatures[this.trap.hex.creature].type != "A1"; 
+						return this.trap.hex.creature.type != "A1"; 
 					}, 
 					effectFn: function(effect,crea){ crea.remainingMove--; },
 				}

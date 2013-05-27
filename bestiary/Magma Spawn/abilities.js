@@ -22,9 +22,9 @@ abilities[4] =[
 
 		var requireFn = function(){ 
 			if(this.trap.hex.creature==0) return false;
-			return G.creatures[this.trap.hex.creature].type != "L2"; 
+			return this.trap.hex.creature.type != "L2"; 
 		};
-		
+
 		this.creature.hexagons[1].createTrap("mud-bath",[
 			new Effect(
 				"After Burner",this.creature,this.creature.hexagons[1],"onStepIn",
