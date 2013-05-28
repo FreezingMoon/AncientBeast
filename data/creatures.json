@@ -266,18 +266,18 @@
     },
 	"ability_info": [
 		{
-			"title": "After Burner",
-			"desc": "Leaves a trail of fire behind, lasting up to one round or until stepped on.",
+			"title": "Scorched Ground",
+			"desc": "Ignites some of the ground under, lasting 1 round or until stepped on.",
 			"info": "5 burn damage for each hexagon"
 		},
 		{
-			"title": "Pulverize",
+			"title": "Pulverize Attack",
 			"desc": "Smacks a foe with its heavy hand.",
 			"info": "9 crush + 1 burn damage"
 		},
 		{
-			"title": "Fissure",
-			"desc": "Smashes his fists into the ground, wreaking fierce havoc ahead.",
+			"title": "Fissure Vent",
+			"desc": "Smashes his fists into the ground, wreaking fierce havoc in area ahead.",
 			"info": "10 burn damage "
 		},
 		{
