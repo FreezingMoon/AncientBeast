@@ -148,7 +148,7 @@ abilities[3] =[
 				effectFn : function(effect,crea){
 					effect.deleteEffect();
 				},
-				alterations : {regrowth : dmg.damages.total/4}
+				alterations : {regrowth : Math.round(dmg.damages.total/4)}
 			} //Optional arguments
 		) );
 
