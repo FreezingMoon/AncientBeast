@@ -82,14 +82,13 @@ abilities[3] =[
 
 
 
-// 	Second Ability: Chomp
+// 	Second Ability: Supper Chomp
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		pierce : 10,
-		slash : 5,
+		pierce : 20,
 	},
 
 	// 	require() :
@@ -108,10 +107,10 @@ abilities[3] =[
 	query : function(){
 		var uncle = this.creature;
 
-		var map = [	 [0,0,0,0],
-					[0,1,0,1],
-					 [1,0,0,1], //origin line
-					[0,1,0,1]];
+		var map = [ 	[0,0,0,0],
+				[0,1,0,1],
+				[1,0,0,1], //origin line
+				[0,1,0,1]];
 
 		G.grid.queryCreature({
 			fnOnConfirm : this.activate, //fnOnConfirm
@@ -141,7 +140,7 @@ abilities[3] =[
 
 		//Frogger bonus
 		ability.creature.addEffect( new Effect(
-			"Chomp Regrowth Bonus", //Name
+			"Regrowth++", //Name
 			ability.creature, //Caster
 			ability.creature, //Target
 			"onStartPhase", //Trigger
@@ -173,6 +172,7 @@ abilities[3] =[
 	damages : {
 		pierce : 15,
 		slash : 10,
+		crush : 5,
 	},
 
 	// 	require() :
@@ -219,7 +219,7 @@ abilities[3] =[
 
 		//remove frogger bonus if its found
 		ability.creature.effects.each(function(){
-			if(this.name == "Frogger Bonus"){
+			if(this.name == "Offense++"){
 				this.deleteEffect();
 			}
 		});
@@ -228,7 +228,7 @@ abilities[3] =[
 
 
 
-// 	Fourth Ability: Frogger
+// 	Fourth Ability: Frogger Leap
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -268,9 +268,9 @@ abilities[3] =[
 			},
 		}); 
 
-		//Frogger bonus
+		//Frogger Leap bonus
 		ability.creature.addEffect( new Effect(
-			"Frogger Bonus", //Name
+			"Offense++", //Name
 			ability.creature, //Caster
 			ability.creature, //Target
 			"onStepIn onEndPhase", //Trigger
