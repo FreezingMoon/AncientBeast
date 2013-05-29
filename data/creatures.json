@@ -2273,47 +2273,47 @@
 		"type": "W2",
 		"stats": {
 			"health": 135,
-			"regrowth": 0,
-			"endurance": 0,
-			"energy": 0,
-			"meditation": 0,
-			"initiative": 0,
-			"offense": 0,
-			"defense": 0,
-			"movement": 0,
-			"pierce": 0,
-			"slash": 0,
-			"crush": 0,
-			"shock": 0,
-			"burn": 0,
-			"frost": 0,
-			"poison": 0,
-			"sonic": 0,
-			"mental": 0
+			"regrowth": 4,
+			"endurance": 15,
+			"energy": 50,
+			"meditation": 2,
+			"initiative": 12,
+			"offense": 4,
+			"defense": 3,
+			"movement": 3,
+			"pierce": 4,
+			"slash": 4,
+			"crush": 4,
+			"shock": 3,
+			"burn": 2,
+			"frost": 2,
+			"poison": 12,
+			"sonic": 3,
+			"mental": 12
 	},
 	"animation": {
-		"walk_speed": 500
+		"walk_speed": 450
 	},
 	"ability_info": [
 		{
-			"title": "No name",
-			"desc": "No description",
-			"info": ""
+			"title": "Death Dealer",
+			"desc": "Gains bonus offense for every kill.",
+			"info": "+10 bonus offense"
 		},
 		{
-			"title": "No name",
-			"desc": "No description",
-			"info": "No info"
+			"title": "Man Trap",
+			"desc": "Bites nearby foe.",
+			"info": "12 pierce damage"
 		},
 		{
-			"title": "No name",
-			"desc": "No description",
-			"info": "No info"
+			"title": "Spinal Tap",
+			"desc": "Strikes nearby foe using back spikes. Target loses some maximum health.",
+			"info": "10 pierce + 10 poison damage"
 		},
 		{
-			"title": "No name",
-			"desc": "No description",
-			"info": "No info"
+			"title": "Skull Bolt",
+			"desc": "Consumes corpse under in order to use it as a high damage projectile.",
+			"info": "40 crush + 10 poison damage"
 		}
 	]
 	},
