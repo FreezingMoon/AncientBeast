@@ -5,7 +5,7 @@
 */
 abilities[45] =[
 
-// 	First Ability: Duality
+// 	First Ability: Cyclic Duality
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStartPhase",

@@ -164,7 +164,65 @@ abilities[3] =[
 
 
 
-// 	Third Ability: Blade Kick
+// 	Third Ability: Frogger Jump
+{
+	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	trigger : "onQuery",
+
+	require : function(){return this.testRequirements();},
+
+	// 	query() :
+	query : function(){
+		var ability = this;
+		var uncle = this.creature;
+
+		var range = G.grid.getFlyingRange(uncle.x,uncle.y,50,uncle.size,uncle.id);
+		range.filter(function(){ return uncle.y == this.y; });
+
+		G.grid.queryHexs({
+			fnOnSelect : function(hex,args){ args.ability.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+args.ability.creature.team }) },
+			fnOnConfirm : this.activate,
+			args : {ability: this}, //Optional args
+			size :  uncle.size,
+			flipped :  uncle.player.flipped,
+			id :  uncle.id,
+			hexs : range,
+		});
+	},
+
+
+	//	activate() : 
+	activate : function(hex,args) {
+		var ability = args.ability;
+		ability.end();
+
+		ability.creature.moveTo(hex,{
+			ignoreMovementPoint : true,
+			ignorePath : true,
+			callback : function(){
+				G.activeCreature.queryMove();
+			},
+		}); 
+
+		//Frogger Leap bonus
+		ability.creature.addEffect( new Effect(
+			"Offense++", //Name
+			ability.creature, //Caster
+			ability.creature, //Target
+			"onStepIn onEndPhase", //Trigger
+			{	
+				effectFn : function(effect,crea){
+					effect.deleteEffect();
+				},
+				alterations : {offense : 30}
+			} //Optional arguments
+		) );
+	},
+},
+
+
+
+// 	Fourth Ability: Blade Kick
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -223,64 +281,6 @@ abilities[3] =[
 				this.deleteEffect();
 			}
 		});
-	},
-},
-
-
-
-// 	Fourth Ability: Frogger Leap
-{
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onQuery",
-
-	require : function(){return this.testRequirements();},
-
-	// 	query() :
-	query : function(){
-		var ability = this;
-		var uncle = this.creature;
-
-		var range = G.grid.getFlyingRange(uncle.x,uncle.y,50,uncle.size,uncle.id);
-		range.filter(function(){ return uncle.y == this.y; });
-
-		G.grid.queryHexs({
-			fnOnSelect : function(hex,args){ args.ability.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+args.ability.creature.team }) },
-			fnOnConfirm : this.activate,
-			args : {ability: this}, //Optional args
-			size :  uncle.size,
-			flipped :  uncle.player.flipped,
-			id :  uncle.id,
-			hexs : range,
-		});
-	},
-
-
-	//	activate() : 
-	activate : function(hex,args) {
-		var ability = args.ability;
-		ability.end();
-
-		ability.creature.moveTo(hex,{
-			ignoreMovementPoint : true,
-			ignorePath : true,
-			callback : function(){
-				G.activeCreature.queryMove();
-			},
-		}); 
-
-		//Frogger Leap bonus
-		ability.creature.addEffect( new Effect(
-			"Offense++", //Name
-			ability.creature, //Caster
-			ability.creature, //Target
-			"onStepIn onEndPhase", //Trigger
-			{	
-				effectFn : function(effect,crea){
-					effect.deleteEffect();
-				},
-				alterations : {offense : 30}
-			} //Optional arguments
-		) );
 	},
 }
 ];

@@ -130,7 +130,7 @@
 			"initiative": 100,
 			"offense": 35,
 			"defense": 5,
-			"movement": 7,
+			"movement": 5,
 			"pierce": 8,
 			"slash": 8,
 			"crush": 6,
@@ -207,7 +207,7 @@
     	"ability_info": [
     		{
     			"title": "Spore Contamination",
-    			"desc": "Nearby foes have their regrowth stat constantly reduced with each round.",
+    			"desc": "Nearby foes have their regrowth stat constantly reduced with each round. Stacks will drop only if not adjacent.",
     			"info": "-1 regrowth per stack"
     		},
     		{
@@ -216,14 +216,14 @@
     			"info": "20 pierce damage,1/4 as regrowth"
     		},
     		{
+    			"title": "Frogger Jump",
+    			"desc": "Leaps in straight line over obstacles, gaining bonus offense after landing.",
+    			"info": "+30 offense for next hit if not moving"
+    		},
+    		{
     			"title": "Blade Kick",
     			"desc": "Slashes nearby foe using feet claws.",
     			"info": "15 pierce + 10 slash + 5 crush damage"
-    		},
-    		{
-    			"title": "Frogger Leap",
-    			"desc": "Jumps in straight line over obstacles, gaining bonus offense after landing.",
-    			"info": "+30 offense for next hit if not moving"
     		}
     	]
 	},
@@ -278,11 +278,11 @@
 		{
 			"title": "Fissure Vent",
 			"desc": "Smashes his fists into the ground, wreaking fierce havoc in area ahead.",
-			"info": "10 burn damage "
+			"info": "10 burn damage over all 8 hexagons"
 		},
 		{
 			"title": "Molten Hurl",
-			"desc": "Turns into a molten boulder, bowling itself into first foe in a straight line.",
+			"desc": "Turns into a molten boulder, bowling itself into first foe in a straight line. Ignores all the traps along the way.",
 			"info": "15 crush + 5 burn damage"
 		}
 	]
@@ -524,7 +524,7 @@
         "size": 2,
         "type": "S4",
         "stats": {
-            "health": 430,
+            "health": 230,
             "regrowth": 3,
             "endurance": 50,
             "energy": 60,
@@ -550,22 +550,22 @@
             {
                 "title": "Frozen Tower",
                 "desc": "Temporary increases offense and defense by holding the same spot.",
-                "info": ""
+                "info": "+5 offense and defense per round"
             },
             {
                 "title": "Icy Talons",
                 "desc": "Scratches nearby foe using claws.",
-                "info": "No info"
+                "info": "15 slash damage"
             },
             {
                 "title": "Tail Uppercut",
-                "desc": "Sucker punches a near enemy using tail, ignoring most of it's defense.",
-                "info": "No info"
+                "desc": "Sucker punches a near enemy using limb, bypassing defensive abilities.",
+                "info": "20 crush damage"
             },
             {
                 "title": "Icicle Tongue",
-                "desc": "Launches tongue, piercing all foes sitting in front in a straight line.",
-                "info": "No info"
+                "desc": "Launches shard that pierces up to several creatures sitting in a line.",
+                "info": "10 pierce damage, up to 6 hexagons"
             }
         ]
     },
@@ -578,7 +578,7 @@
         "size": 3,
         "type": "P3",
         "stats": {
-            "health": 200,
+            "health": 120,
             "regrowth": 2,
             "endurance": 60,
             "energy": 90,
@@ -666,15 +666,16 @@
                 "info": "10 crush damage"
             },
             {
+                "title": "Noxious Cloud",
+                "desc": "Releases several toxic clouds all around, persisting for several rounds.",
+                "info": "15 adjacent poison damage"
+            },
+            {
                 "title": "Tiny Mushroom",
                 "desc": "Drops a shroom that serves as a waypoint or a poisonous trap.",
                 "info": "20 poison damage"
-            },
-            {
-                "title": "Noxious Cloud",
-                "desc": "Releases several toxic clouds all around, persisting for several rounds.",
-                "info": "20 adjacent poison damage"
             }
+
         ]
     },
     {
@@ -723,7 +724,7 @@
             {
                 "title": "Big Nip",
                 "desc": "Dents nearby foe using it's big teeth.",
-                "info": "4 pierce + 4 slash + 2 crush damage"
+                "info": "4 pierce + 4 slash + 4 crush damage"
             },
             {
                 "title": "Blowing Wind",
@@ -732,8 +733,8 @@
             },
             {
                 "title": "Chilling Spit",
-                "desc": "Spits inline foe with cold saliva. Bonus damage based on distance.",
-                "info": "20 frost + 1 crush / hexagon damage"
+                "desc": "Spits diagonal foe with cold saliva. Bonus damage based on distance.",
+                "info": "20 frost + 1 crush damage / hexagon"
             }
         ]
     },
@@ -771,7 +772,7 @@
         "ability_info": [
             {
                 "title": "Decaying Carcass",
-                "desc": "When dead, it's corpse rots fast and emanates poisonous gases.",
+                "desc": "When dead, it's corpse rots fast and emanates deadly poisonous gases.",
                 "info": "5 poison damage, 5 regrowth debuff"
             },
             {
@@ -787,7 +788,7 @@
             {
                 "title": "Goo Blast",
                 "desc": "Sneezes contagious toxin on a rather distant foe, spreading on proximity.",
-                "info": "20 poison damage and 5 regrowth debuff that stacks and even spreads."
+                "info": "15 poison damage and 5 regrowth debuff that stacks and even spreads."
             }
         ]
     },
@@ -968,23 +969,23 @@
         "size": 2,
         "type": "E6",
         "stats": {
-            "health": 0,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
+            "health": 260,
+            "regrowth": 2,
+            "endurance": 80,
+            "energy": 70,
+            "meditation": 2,
+            "initiative": 45,
+            "offense": 15,
+            "defense": 30,
+            "movement": 4,
+            "pierce": 12,
+            "slash": 12,
+            "crush": 12,
+            "shock": 10,
+            "burn": 8,
+            "frost": 8,
+            "poison": 10,
+            "sonic": 8,
             "mental": 0
         },
         "animation": {
@@ -993,23 +994,23 @@
         "ability_info": [
             {
                 "title": "Spiked Fence",
-                "desc": "When dead, enemies walking on it's corpse get their limbs impaled.",
-                "info": ""
+                "desc": "Foes walking on corpse get impaled and receive extra damage when hit.",
+                "info": "5 pierce damage over 3 hexagons"
             },
             {
                 "title": "Trident Forehead",
-                "desc": "Pokes nearby enemy with it's large forehead spikes.",
-                "info": "No info"
+                "desc": "Pokes nearby foe with its forehead spikes.",
+                "info": "18 pierce damage"
             },
             {
                 "title": "Trap Jaw",
-                "desc": "Bites nearby foe, crippling it.",
-                "info": "No info"
+                "desc": "Bites nearby foe, crippling it for 1 movement point for its next turn.",
+                "info": "10 pierce + 10 crush damage"
             },
             {
                 "title": "Circular Saw",
-                "desc": "Travels in a straight line and back, cutting through encountered foes.",
-                "info": "No info"
+                "desc": "Travels in a straight line back and forth, cutting through all creatures.",
+                "info": "20 pierce damage"
             }
         ]
     },
@@ -1053,7 +1054,7 @@
             {
                 "title": "Claw Strike",
                 "desc": "Slashes nearby foe using claws.",
-                "info": "25 slash damage"
+                "info": "30 slash damage"
             },
             {
                 "title": "Fly Swarm",
@@ -1238,24 +1239,24 @@
         "size": 1,
         "type": "L1",
         "stats": {
-            "health": 0,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
+            "health": 85,
+            "regrowth": 1,
+            "endurance": 15,
+            "energy": 60,
+            "meditation": 3,
+            "initiative": 25,
+            "offense": 3,
+            "defense": 5,
+            "movement": 2,
+            "pierce": 5,
+            "slash": 5,
+            "crush": 5,
+            "shock": 5,
+            "burn": 5,
+            "frost": 5,
+            "poison": 5,
+            "sonic": 5,
+            "mental": 5
         },
         "animation": {
             "walk_speed": 500
@@ -1264,23 +1265,24 @@
             {
                 "title": "Lava Pool",
                 "desc": "When dead, melts into puddle of boiling lava that damages foes.",
-                "info": ""
+                "info": "10 burn damage per step or turn"
             },
             {
-                "title": "Poked Eye",
-                "desc": "Swings it's eye at a nearby foe.",
-                "info": "No info"
-            },
-            {
-                "title": "Iron Shell",
-                "desc": "Solidifies from magma state into iron, greatly increasing resistances.",
-                "info": "No info"
+                "title": "Eye Poke",
+                "desc": "Swings its eye at a nearby foe.",
+                "info": "5 crush + 5 burn damage"
             },
             {
                 "title": "Black Pearl",
                 "desc": "Fires a durable sphere up in to the air, falling on target the next round.",
-                "info": "No info"
+                "info": "20 crush damage"
+            },
+            {
+                "title": "Iron Shell",
+                "desc": "Solidifies from magma state into iron, greatly increasing resistances.",
+                "info": "400% bonus defense and resistances"
             }
+
         ]
     },
     {
@@ -1455,48 +1457,48 @@
         "type": "G7",
         "stats": {
             "health": 320,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
+            "regrowth": 8,
+            "endurance": 20,
+            "energy": 90,
+            "meditation": 10,
+            "initiative": 65,
+            "offense": 20,
+            "defense": 20,
+            "movement": 4,
+            "pierce": 10,
+            "slash": 10,
+            "crush": 10,
+            "shock": 10,
+            "burn": 3,
+            "frost": 2,
+            "poison": 5,
+            "sonic": 1,
             "mental": 0
         },
         "animation": {
             "walk_speed": 500
         },
         "ability_info": [
-            {
-                "title": "Immortal Tree",
-                "desc": "Creature is being resurrected each time another one dies right on top.",
-                "info": ""
-            },
-            {
-                "title": "Stalagmite Teeth",
-                "desc": "Pierces nearby foe with it's denture.",
-                "info": "20 pierce damage"
-            },
-            {
-                "title": "Waterfall Burst",
-                "desc": "Powerful jet of water (Waterfall Cannon?)",
-                "info": "No info"
-            },
-            {
-                "title": "Weed Field",
-                "desc": "Nasty weeds spring allover a region, growing with time.",
-                "info": "No info"
-            }
+		{
+			"title": "Immortal Tree",
+			"desc": "Ressurects itself within a few rounds with half of health from last time if no creature is on top of the corpse.",
+			"info": "5 consecutive turns are required."
+		},
+		{
+			"title": "Stalagmite Teeth",
+			"desc": "Pierces nearby foe with it's denture.",
+			"info": "20 pierce damage"
+		},
+		{
+			"title": "Weed Field",
+			"desc": "Nasty weeds instantly grow at a location within range, damaging and traping foes depending on their size.",
+			"info": "9 pierce + 9 crush + 9 poison < 3 turns"
+		},
+		{
+			"title": "Waterfall Cannon",
+			"desc": "Powerful jet of water that damages several time, either knocking target back a bit or doing bonus damage.",
+			"info": "10 (or double) crush damage x 2 hits"
+		}
         ]
     },
     {
@@ -1508,7 +1510,7 @@
         "size": 3,
         "type": "P2",
         "stats": {
-            "health": 0,
+            "health": 100,
             "regrowth": 0,
             "endurance": 0,
             "energy": 0,
@@ -1562,7 +1564,7 @@
         "size": 2,
         "type": "P4",
         "stats": {
-            "health": 0,
+            "health": 220,
             "regrowth": 0,
             "endurance": 0,
             "energy": 0,
@@ -1840,7 +1842,7 @@
             "initiative": 100,
             "offense": 60,
             "defense": 60,
-            "movement": 6,
+            "movement": 5,
             "pierce": 20,
             "slash": 20,
             "crush": 20,
@@ -1858,17 +1860,17 @@
             {
                 "title": "Percussion Spear",
                 "desc": "Attacks cause rear spear strike, which cannot be dodged.",
-                "info": ""
+                "info": "30 pierce damage"
             },
             {
                 "title": "Executioner Axe",
-                "desc": "Slashes nearby foe, doing bonus damage based on it's max health.",
-                "info": "No info"
+                "desc": "Slashes nearby foe, doing bonus damage based on its max health.",
+                "info": "30 + 9% max health as slash damage"
             },
             {
                 "title": "Dragon Flight",
                 "desc": "Travels to a location passing over obstacles with no movement cost.",
-                "info": "No info"
+                "info": "+40 offense for next hit if not moving"
             },
             {
                 "title": "Life Breath",
@@ -2085,7 +2087,7 @@
             {
                 "title": "Power Bat",
                 "desc": "Pokes baseball bat into nearby foe.",
-                "info": "15 crush damage"
+                "info": "20 crush damage"
             },
             {
                 "title": "Ground Ball",
@@ -2095,7 +2097,7 @@
             {
                 "title": "Mud Bath",
                 "desc": "Orders a pile of mud at a location, slowing foes passing through.",
-                "info": "-1 movement / hex"
+                "info": "-1 movement / hexagon"
             }
         ]
     },
@@ -2325,13 +2327,13 @@
 		"type": "E7",
 		"stats": {
 			"health": 320,
-			"regrowth": 5,
+			"regrowth": 4,
 			"endurance": 100,
 			"energy": 80,
 			"meditation": 10,
 			"initiative": 80,
-			"offense": 80,
-			"defense": 80,
+			"offense": 50,
+			"defense": 50,
 			"movement": 5,
 			"pierce": 15,
 			"slash": 15,
@@ -2348,24 +2350,24 @@
 	},
 	"ability_info": [
 		{
-			"title": "Like Butter",
-			"desc": "Ignores half of targets defense.",
-			"info": ""
+			"title": "Bat Country",
+			"desc": "Last attacker receives some damage.",
+			"info": "5 pierce + 5 sonic damage"
 		},
 		{
-			"title": "Slicer",
-			"desc": "Slashes nearby foe using claws.",
-			"info": "No info"
+			"title": "Mega Slicer",
+			"desc": "Slashes nearby foe using claws. Target loses 5 defense for 5 rounds.",
+			"info": "30 slash damage"
 		},
 		{
-			"title": "Mesmerize",
-			"desc": "Does sonic damage to an inline foe, also causing it to skip next turn.",
-			"info": "No info"
+			"title": "Eclipsing Leap",
+			"desc": "Catapults itself at a target location, gaining double offense on landing.",
+			"info": "200% offense if not moving from spot"
 		},
 		{
-			"title": "Eclipsing Strike",
-			"desc": "Catapults itself at a foe, reaching it and striking it the next round.",
-			"info": "No info"
+			"title": "Sublimal Scream",
+			"desc": "Does damage to a conic area nearby.",
+			"info": "15 sonic + 15 mental damage"
 		}
 	]
 	},
@@ -2486,8 +2488,8 @@
 		"size": 3,
 		"type": "P6",
 		"stats": {
-			"health": 260,
-			"regrowth": 5,
+			"health": 240,
+			"regrowth": 4,
 			"endurance": 40,
 			"energy": 80,
 			"meditation": 8,
@@ -2516,7 +2518,7 @@
     },
 	"ability_info": [
 		{
-			"title": "Duality",
+			"title": "Cyclic Duality",
 			"desc": "Allows the use of an attack twice.",
 			"info": ""
 		},
@@ -2600,48 +2602,48 @@
 	"size": 3,
 	"type": "P5",
 	"stats": {
-		"health": 0,
-		"regrowth": 0,
-		"endurance": 0,
-		"energy": 0,
-		"meditation": 0,
-		"initiative": 0,
-		"offense": 0,
-		"defense": 0,
-		"movement": 0,
-		"pierce": 0,
-		"slash": 0,
-		"crush": 0,
-		"shock": 0,
-		"burn": 0,
-		"frost": 0,
-		"poison": 0,
-		"sonic": 0,
-		"mental": 0
+		"health": 250,
+		"regrowth": 3,
+		"endurance": 110,
+		"energy": 70,
+		"meditation": 10,
+		"initiative": 20,
+		"offense": 10,
+		"defense": 40,
+		"movement": 3,
+		"pierce": 7,
+		"slash": 7,
+		"crush": 7,
+		"shock": 1,
+		"burn": 4,
+		"frost": 1,
+		"poison": 1,
+		"sonic": 1,
+		"mental": 8
 	},
         "animation": {
-            "walk_speed": 500
+            "walk_speed": 400
         },
         "ability_info": [
             {
-                "title": "Plate Mail",
-                "desc": "No description",
+                "title": "Skull Shield",
+                "desc": "Armor shaped head grants double defense against frontal attacks.",
                 "info": ""
             },
             {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+                "title": "Whip Master",
+                "desc": "Slashes nearby foe using tongue, reducing its initiative for two turns.",
+                "info": "20 slash damage & -20 initiative"
             },
             {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+                "title": "Double Slap",
+                "desc": "Strikes nearby foe, pushing it back or else completely ignoring its defense.",
+                "info": "10 crush + 10 burn damage"
             },
             {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+                "title": "Meteor Slam",
+                "desc": "Regurgitates a sphere and throws it at pretty much any target location.",
+                "info": "20 crush damage + 10 burn"
             }
         ]
     },
