@@ -1216,17 +1216,17 @@
             {
                 "title": "Bone Scythe",
                 "desc": "Slashes nearby foe, causing it to bleed and lose health if moving.",
-                "info": "No info"
+                "info": "15 slash damage, -5 health / hexagon"
             },
             {
                 "title": "Blood Puke",
-                "desc": "Target's regrowth becomes nulled if it's a foe or doubles if it's an ally.",
-                "info": "No info"
+                "desc": "Targets regrowth becomes lowered if it's a foe or increased if it's an ally.",
+                "info": "+/- 10 regrowth change for a round"
             },
             {
                 "title": "Symbiotic Tumor",
-                "desc": "Engulfs body into a meat cocoon for bonus protection and regrowth. ",
-                "info": "No info"
+                "desc": "Engulfs body into a meat cocoon. ",
+                "info": "200% bonus defense and regrowth"
             }
         ]
     },
@@ -2302,12 +2302,12 @@
 		},
 		{
 			"title": "Man Trap",
-			"desc": "Bites nearby foe.",
-			"info": "12 pierce damage"
+			"desc": "Bites nearby foe, making it lose some maximum health based on damage.",
+			"info": "12 pierce damage with 25% effect"
 		},
 		{
 			"title": "Spinal Tap",
-			"desc": "Strikes nearby foe using back spikes. Target loses some maximum health.",
+			"desc": "Strikes nearby foe using back spikes, not allowing it to regenerate a turn.",
 			"info": "10 pierce + 10 poison damage"
 		},
 		{
