@@ -242,7 +242,7 @@ var Game = Class.create({
 
 		G.resizeCombatFrame(); //Resize while the game start
 		G.UI.resizeDash();
-		
+
 		//Resize event
 		$j(window).resize(function () {
 			//Throttle down to 1 event every 500ms of inactivity
@@ -368,9 +368,16 @@ var Game = Class.create({
 	*
 	*/
 	skipTurn: function(){
-		// if(G.turnThrottle) return;
-		// G.turnThrottle = true
-		// setTimeout(function(){G.turnThrottle=false},300)
+		if(G.turnThrottle) return;
+
+		G.turnThrottle = true
+		G.UI.btnSkipTurn.changeState("disabled");
+		G.UI.btnDelay.changeState("disabled");
+		setTimeout(function(){
+			G.turnThrottle=false;
+			G.UI.btnSkipTurn.changeState("normal");
+			if(!G.activeCreature.hasWait) G.UI.btnDelay.changeState("normal");
+		},1000)
 		G.grid.clearHexViewAlterations();
 		this.activeCreature.facePlayerDefault();
 		var skipTurn = new Date();
@@ -387,9 +394,17 @@ var Game = Class.create({
 	*
 	*/
 	delayCreature: function(){
-		// if(G.turnThrottle) return;
-		// G.turnThrottle = true
-		// setTimeout(function(){G.turnThrottle=false},300)
+		if(G.turnThrottle) return;
+		if(this.activeCreature.hasWait) return;
+
+		G.turnThrottle = true
+		G.UI.btnSkipTurn.changeState("disabled");
+		G.UI.btnDelay.changeState("disabled");
+		setTimeout(function(){
+			G.turnThrottle=false;
+			G.UI.btnSkipTurn.changeState("normal");
+			if(!G.activeCreature.hasWait) G.UI.btnDelay.changeState("normal");
+		},1000)
 		var skipTurn = new Date();
 		var p = this.activeCreature.player;
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);

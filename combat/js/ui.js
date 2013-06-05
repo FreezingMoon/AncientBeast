@@ -135,9 +135,11 @@ var UI = Class.create({
 	
 	resizeDash: function(){
 		var zoom = $j("#cardwrapper").outerWidth()/$j("#card").outerWidth();
+		zoom = (zoom<1) ? zoom : 1;
 		$j("#cardwrapper_inner").css("zoom",zoom);
 
 		zoom = $j("#creaturegridwrapper").innerWidth()/$j("#creaturegrid").innerWidth();
+		zoom = (zoom<1) ? zoom : 1;
 		$j("#creaturegrid").css("zoom",zoom);
 	},
 

@@ -183,9 +183,6 @@ var Creature = Class.create({
 					this.activate(crea);
 				}
 			});
-			G.UI.btnDelay.changeState("normal");
-		}else{
-			G.UI.btnDelay.changeState("disabled");
 		}
 
 		if(G.turn >= G.minimumTurnBeforeFleeing){ G.UI.btnFlee.changeState("normal"); }
