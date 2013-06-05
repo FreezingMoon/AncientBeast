@@ -241,11 +241,16 @@ var Game = Class.create({
 		this.nextCreature();
 
 		G.resizeCombatFrame(); //Resize while the game start
+		G.UI.resizeDash();
+		
 		//Resize event
 		$j(window).resize(function () {
 			//Throttle down to 1 event every 500ms of inactivity
 			clearTimeout(this.windowResizeTimeout);
-			this.windowResizeTimeout = setTimeout(function() { G.resizeCombatFrame(); }, 100);
+			this.windowResizeTimeout = setTimeout(function() { 
+				G.resizeCombatFrame();
+				G.UI.resizeDash();
+			}, 100);
 		});
 	},
 

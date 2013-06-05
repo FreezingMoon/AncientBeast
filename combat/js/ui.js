@@ -81,7 +81,7 @@ var UI = Class.create({
 				attack: 119, //W
 				ability: 101, //E
 				ultimate: 114, //R
-				overview: 111, //O
+				overview: 97, //A
 				skip: 115, //S
 				delay: 100, //D
 				flee: 102, //F
@@ -130,6 +130,15 @@ var UI = Class.create({
 
 		//Show UI
 		this.$display.show();
+	},
+
+	
+	resizeDash: function(){
+		var zoom = $j("#cardwrapper").outerWidth()/$j("#card").outerWidth();
+		$j("#cardwrapper_inner").css("zoom",zoom);
+
+		zoom = $j("#creaturegridwrapper").innerWidth()/$j("#creaturegrid").innerWidth();
+		$j("#creaturegrid").css("zoom",zoom);
 	},
 
 
