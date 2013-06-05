@@ -5,7 +5,7 @@
 */
 abilities[4] =[
 
-// 	First Ability: After Burner
+// 	First Ability: Scorched Ground
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStartPhase",
@@ -25,9 +25,9 @@ abilities[4] =[
 			return this.trap.hex.creature.type != "L2"; 
 		};
 
-		this.creature.hexagons[1].createTrap("mud-bath",[
+		this.creature.hexagons[1].createTrap("scorched-ground",[
 			new Effect(
-				"After Burner",this.creature,this.creature.hexagons[1],"onStepIn",
+				"Scorched Ground",this.creature,this.creature.hexagons[1],"onStepIn",
 				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
 			),
 		],this.creature.player);
@@ -39,9 +39,9 @@ abilities[4] =[
 			hex = this.creature.hexagons[2];
 
 
-		hex.createTrap("mud-bath",[
+		hex.createTrap("scorched-ground",[
 			new Effect(
-				"After Burner",this.creature,hex,"onStepIn",
+				"Scorched Ground",this.creature,hex,"onStepIn",
 				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
 			),
 		],this.creature.player);
@@ -50,7 +50,7 @@ abilities[4] =[
 
 
 
-// 	Second Ability: Pulverize
+// 	Second Ability: Pulverize Attack
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -106,7 +106,7 @@ abilities[4] =[
 
 
 
-// 	Thirt Ability: Fissure
+// 	Thirt Ability: Fissure Vent
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -115,11 +115,11 @@ abilities[4] =[
 		burn : 10,
 	},
 
-	map : [	 [0,0,1,0],
-			[0,0,1,1],
-			 [0,1,1,0],//origin line
-			[0,0,1,1],
-			 [0,0,1,0]],
+	map : [ [0,0,1,0],
+		[0,0,1,1],
+		[0,1,1,0],//origin line
+		[0,0,1,1],
+		[0,0,1,0]],
 
 	// 	require() :
 	require : function(){

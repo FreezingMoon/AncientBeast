@@ -816,5 +816,6 @@ body{
 	-o-transform-origin:0% 30%; /* Opera */
 }
 
-.trap.mud-bath { background: url("../grid/trap_mud.png"); }
+.trap.mud-bath { background: url("../grid/mud-bath.png"); }
 .trap.royal-seal { background: url("../grid/royal-seal.png"); }
+.trap.scorched-ground { background: url("../grid/scorched-ground.png"); }
