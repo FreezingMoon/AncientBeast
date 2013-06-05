@@ -608,7 +608,7 @@ body{
 
 
 /*---------------TEXTBOX--------------*/
-#textbox{
+#chat{
 	width: 800px;
 	height: 40px;
 	background-color: black;
@@ -616,7 +616,6 @@ body{
 	left: 50%;
 	bottom: 0px;
 	margin-left: -400px;
-	overflow-y: scroll;
 	transition: height 500ms;	
 	-ms-transition: height 500ms;	
 	-moz-transition: height 500ms; /* Firefox 4 */
@@ -624,17 +623,38 @@ body{
 	-o-transition: height 500ms; /* Opera */
 }
 
-#textbox:hover{
+#chat.focus{
 	height: 300px;
 }
-#textbox #textcontent{
-	font-size: 11px;
-	color: white;
-	padding: 10px;
-	width: 760px;
+
+#chat #chatbox{
+	height: 40px;
+	height: 100%;
+	overflow-y: scroll;
 }
 
-#textbox #textcontent p{
+#chat #chatbox #chatcontent{
+	padding: 10px;
+	font-size: 11px;
+	color: white;
+}
+
+#chat #chatinput{
+	display: none; /*will do that later*/
+	height: 20px;
+	font-size: 11px;
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+	max-width: 100%;
+	bottom: 0;
+	position: absolute;
+	border: 1px solid white;
+	background: transparent;
+	color: white;
+}
+
+#chat #chatbox #chatcontent p{
 	margin: 2px 0 7px;
 }
 

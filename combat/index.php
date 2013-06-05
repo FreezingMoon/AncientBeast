@@ -358,9 +358,12 @@ require_once('../bestiary/cards.php');
 				</div>
 			</div>
 			<div id="bottompanel">
-				<div id="textbox">
-					<div id="textcontent">
+				<div id="chat">
+					<div id="chatbox">
+						<div id="chatcontent">
+						</div>
 					</div>
+					<textarea id="chatinput"></textarea>
 				</div>
 			</div>
 		</div>

@@ -33,8 +33,10 @@ var UI = Class.create({
 		this.$queue = $j("#queuewrapper");
 		this.$dash = $j("#dash");
 		this.$grid = $j("#creaturegrid");
-		this.$textbox = $j("#textbox > #textcontent");
 		this.$activebox = $j("#activebox");
+
+		//Chat
+		this.chat = new Chat();
 
 		//Buttons Objects
 		this.buttons = [];
@@ -68,6 +70,46 @@ var UI = Class.create({
 			state : "disabled",
 		});
 		this.buttons.push(this.btnFlee);
+
+		//Binding Hotkeys
+		$j(document).on('keypress', function(e){
+
+			var keypressed = e.keyCode;
+			console.log(keypressed);
+
+			hotkeys = {
+				attack: 119, //W
+				ability: 101, //E
+				ultimate: 114, //R
+				overview: 111, //O
+				skip: 115, //S
+				delay: 100, //D
+				flee: 102, //F
+				chat: 99, //C
+			};
+
+			var prevD = false;
+
+			$j.each(hotkeys,function(k,v){
+				if(v==keypressed){
+					switch(k){
+						case "attack": G.UI.abilitiesButtons[1].click(); break;
+						case "ability": G.UI.abilitiesButtons[2].click(); break;
+						case "ultimate": G.UI.abilitiesButtons[3].click(); break;
+						case "overview": G.UI.btnToggleDash.click(); break;
+						case "skip": G.UI.btnSkipTurn.click(); break;
+						case "delay": G.UI.btnDelay.click(); break;
+						case "flee": G.UI.btnFlee.click(); break;
+						case "chat": G.UI.chat.toggle(); break;
+					}
+					prevD = true;
+				}
+			});
+			if(prevD){
+				e.preventDefault();
+				return false;
+			}
+		});
 
 		for (var i = 0; i < 4; i++) {
 			var b = new Button({
@@ -549,6 +591,31 @@ var UI = Class.create({
 	},
 
 });
+
+var Chat = Class.create({
+	/*	Constructor
+	*	
+	* 	Chat/Log Functions
+	*
+	*/
+	initialize: function(){
+		this.$chat = $j("#chat");
+		this.$content = $j("#chatcontent");
+		this.$chat.bind('click',function(){G.UI.chat.toggle();});
+	},
+
+
+	show : function(){ this.$chat.addClass("focus"); },
+	hide : function(){ this.$chat.removeClass("focus"); },
+	toggle : function(){ this.$chat.toggleClass("focus"); },
+
+	addMsg : function(msg){
+		var time = new Date(new Date() - G.startMatchTime);
+		this.$content.append("<p>"+zfill(time.getHours()-1,2)+":"+zfill(time.getMinutes(),2)+":"+zfill(time.getSeconds(),2)+" "+msg+"</p>");
+		this.$content.parent().scrollTop(this.$content.height());
+	},
+});
+
 
 var Button = Class.create({
 	/*	Constructor

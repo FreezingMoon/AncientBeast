@@ -353,10 +353,7 @@ var Game = Class.create({
 	*/
 	log: function(obj){	
 		console.log(obj);
-		var time = new Date(new Date() - this.startMatchTime);
-		
-		this.UI.$textbox.append("<p>"+zfill(time.getHours()-1,2)+":"+zfill(time.getMinutes(),2)+":"+zfill(time.getSeconds(),2)+" "+obj+"</p>"); 
-		this.UI.$textbox.parent().scrollTop(this.UI.$textbox.height());
+		this.UI.chat.addMsg(obj);
 	},
 
 
