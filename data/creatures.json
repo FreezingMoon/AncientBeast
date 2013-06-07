@@ -147,8 +147,8 @@
         "ability_info": [
             {
                 "title": "Backstabber",
-                "desc": "Reduces damage from behind and returns some to melee attackers.",
-                "info": "30% damage reduction and return."
+                "desc": "Reduces damage from behind and returns some to all melee attackers.",
+                "info": "30% rear damage reduction & return."
             },
             {
                 "title": "Metallic Claws",
@@ -326,24 +326,24 @@
         },
     	"ability_info": [
     		{
-    			"title": "Armor Penetration",
-    			"desc": "Attacks gradually break through enemy defense.",
-    			"info": ""
+    			"title": "Electrified Hair",
+    			"desc": "Absorbs half of all incoming shock damage, using it on the next attack.",
+    			"info": "Maximum of 100 damage absorbed."
     		},
     		{
     			"title": "Jab Attack",
-    			"desc": "Horn attack that does bonus pierce damage based on distance traveled.",
-    			"info": "No info"
+    			"desc": "Horn attack that gains bonus offense based on the last distance traveled.",
+    			"info": "20 pierce damage, +10 offense / hex"
     		},
     		{
-    			"title": "Static Charge",
-    			"desc": "Shakes hair to create friction and imbue next attack with lightning.",
-    			"info": "No info"
+    			"title": "Poisonous Vine",
+    			"desc": "Makes use of tongue to envenom horn, mostly effective for a turn.",
+    			"info": "+20 poison damage (+1 permanent)"
     		},
     		{
-    			"title": "Envenom",
-    			"desc": "Makes use of tongue to smear the horn with highly venomous saliva.",
-    			"info": "No info"
+    			"title": "Slash Attack",
+    			"desc": "Damages up to 3 nearby creatures.",
+    			"info": "20 slash + 10 frost damage"
     		}
     	]
 	},
@@ -801,15 +801,15 @@
         "size": 1,
         "type": "P1",
         "stats": {
-            "health": 80,
-            "regrowth": 10,
-            "endurance": 40,
+            "health": 60,
+            "regrowth": 5,
+            "endurance": 60,
             "energy": 70,
             "meditation": 3,
             "initiative": 85,
             "offense": 5,
             "defense": 15,
-            "movement": 6,
+            "movement": 4,
             "pierce": 8,
             "slash": 8,
             "crush": 12,
@@ -832,8 +832,8 @@
         "ability_info": [
             {
                 "title": "Gooey Body",
-                "desc": "Recovers lost health from last hit if doing nothing and skipping the turn.",
-                "info": ""
+                "desc": "Recovers 1/6 health at start of turn for every allie creature that's nearby.",
+                "info": "Ability also works when fatigued."
             },
             {
                 "title": "Gummy Mallet",
@@ -999,7 +999,7 @@
             },
             {
                 "title": "Trident Forehead",
-                "desc": "Pokes nearby foe with its forehead spikes.",
+                "desc": "Pokes nearby foe with its forehead.",
                 "info": "18 pierce damage"
             },
             {
@@ -1009,8 +1009,8 @@
             },
             {
                 "title": "Circular Saw",
-                "desc": "Travels in a straight line back and forth, cutting through all creatures.",
-                "info": "20 pierce damage"
+                "desc": "Travels in a straight line to a new location, cutting through creatures.",
+                "info": "30 pierce damage"
             }
         ]
     },
@@ -1139,7 +1139,7 @@
             "initiative": 60,
             "offense": 40,
             "defense": 5,
-            "movement": 4,
+            "movement": 3,
             "pierce": 5,
             "slash": 7,
             "crush": 6,
@@ -1155,24 +1155,24 @@
         },
         "ability_info": [
             {
-                "title": "Cryosauna",
-                "desc": "Foes have their movement reduced and initiative constantly decreased.",
-                "info": ""
+                "title": "High Voltage",
+                "desc": "Melee attackers receive damage for every hit and also lose energy points.",
+                "info": "10 shock damage, -5 energy points"
             },
             {
                 "title": "Suction cups",
-                "desc": "Crushes a frontal foe while draining a very small amount of it's energy.",
-                "info": "No info"
+                "desc": "Crushes a frontal foe while draining a small amount of its maximum health.",
+                "info": "30 crush damage, 3 health transfered"
             },
             {
-                "title": "Tentacle Grasp",
-                "desc": "Pulls a rather distant inline foe nearby while also crushing it.",
-                "info": "No info"
+                "title": "Fishing Net",
+                "desc": "Pulls a rather distant inline creature nearby while also crushing it a little.",
+                "info": "5 crush damage + 3 per hexagon"
             },
             {
                 "title": "Frostbite Shower",
                 "desc": "Sprinkles the area in front with liquid nitrogen, doing cold damage.",
-                "info": "No info"
+                "info": "35 frost damage over 7 hexagons"
             }
         ]
     },
@@ -1783,45 +1783,45 @@
             "health": 0,
             "regrowth": 0,
             "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
+            "energy": 60,
+            "meditation": 10,
+            "initiative": 30,
+            "offense": 5,
+            "defense": 5,
+            "movement": 3,
+            "pierce": 2,
+            "slash": 2,
+            "crush": 3,
+            "shock": 4,
             "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
+            "frost": 10,
+            "poison": 8,
+            "sonic": 10,
+            "mental": 10
         },
         "animation": {
-            "walk_speed": 500
+            "walk_speed": 300
         },
         "ability_info": [
             {
-                "title": "No name",
-                "desc": "No description",
-                "info": ""
+                "title": "Cold Rain",
+                "desc": "Attackers get damaged and have their frost stat constantly reduced.",
+                "info": "4 frost + 1 crush, 1 frost debuff"
             },
             {
-                "title": "No name",
+                "title": "Harpoon Claw",
                 "desc": "No description",
-                "info": "No info"
+                "info": "9 pierce + 6 slash damage"
             },
             {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+                "title": "Sea Serpent",
+                "desc": "Hits a nearby foe using tail.",
+                "info": "8 pierce + 8 crush + 8 frost damage"
             },
             {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+                "title": "Tsunami Wave",
+                "desc": "Travels in a straight line to a new spot, damaging all creatures along.",
+                "info": "10 crush + 10 frost damage"
             }
         ]
     },
@@ -1919,16 +1919,16 @@
             {
                 "title": "Wrist Blade",
                 "desc": "Slashes nearby foe using blade.",
-                "info": "15 slash damage"
+                "info": "20 slash damage"
             },
             {
-                "title": "Knock Back",
-                "desc": "Attack that pushes back target.",
-                "info": "10 slash + 5 crush damage"
+                "title": "Chain Whip",
+                "desc": "Short ranged attack that pushes back target a hexagon if it's nearby.",
+                "info": "20 crush damage"
             },
             {
                 "title": "Overpower",
-                "desc": "Increases offense and defense until attacking or getting hit once.",
+                "desc": "Increases offense and defense until attacking or getting hit current turn.",
                 "info": "+50% offense and defense bonus"
             }
         ]
@@ -2193,7 +2193,7 @@
                 "info": ""
             },
             {
-                "title": "Round Mouth",
+                "title": "Lamprey Mouth",
                 "desc": "Bites nearby foe with its sharp teeth.",
                 "info": "No info"
             },
@@ -2203,9 +2203,9 @@
                 "info": "No info"
             },
             {
-                "title": "Worm Strike",
+                "title": "Grapnel Strike",
                 "desc": "Grasps a distant foe, pulling itself to it, doing damage based on distance.",
-                "info": "No info"
+                "info": "6 pierce + 2 crush damage / hexagon"
             }
         ]
 	},
@@ -2313,7 +2313,7 @@
 		{
 			"title": "Skull Bolt",
 			"desc": "Consumes corpse under in order to use it as a high damage projectile.",
-			"info": "40 crush + 10 poison damage"
+			"info": "30 crush + 10 poison damage"
 		}
 	]
 	},
@@ -2696,8 +2696,8 @@
             },
             {
                 "title": "Hoof Strike",
-                "desc": "Bashes rear foe, pushing it back a few hexagons, based on its size.",
-                "info": "25 crush damage,up to 3 hexes push"
+                "desc": "Bashes nearby foe, pushing it back a couple hexagons, based on its size. Double offence against rear enemies.",
+                "info": "25 crush damage, up to 3 hexes push"
             }
         ]
     },
