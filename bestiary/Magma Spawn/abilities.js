@@ -92,6 +92,8 @@ abilities[4] =[
 	activate : function(target,args) {
 		var ability = args.ability;
 		ability.end();
+
+		var d = {burn:ability.creature.burnBoost, crush:damages.crush};
 		
 		var damage = new Damage(
 			args.creature, //Attacker
@@ -103,7 +105,7 @@ abilities[4] =[
 
 		target.takeDamage(damage);
 
-		ability.damages.burn++;
+		ability.creature.burnBoost++;
 	},
 },
 
