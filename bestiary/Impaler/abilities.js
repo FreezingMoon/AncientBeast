@@ -5,7 +5,7 @@
 */
 abilities[5] =[
 
-// 	First Ability: Armor Penetration
+// 	First Ability: Electrified Hair
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "never", //Just for display purpose the effect is in 2nd Ability
@@ -16,7 +16,7 @@ abilities[5] =[
 
 
 
-// 	Second Ability: Jab Attack
+// 	Second Ability: Deadly Jab
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -96,7 +96,7 @@ abilities[5] =[
 
 
 
-// 	Thirt Ability: Static Charge
+// 	Thirt Ability: Poisonous Vine
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -121,7 +121,7 @@ abilities[5] =[
 
 
 
-// 	Fourth Ability: Envenom
+// 	Fourth Ability: Super Slash
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",

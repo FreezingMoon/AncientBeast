@@ -271,9 +271,9 @@
 			"info": "5 burn damage for each hexagon"
 		},
 		{
-			"title": "Pulverize Attack",
-			"desc": "Smacks a foe with its heavy hand.",
-			"info": "9 crush + 1 burn damage"
+			"title": "Pulverizing Punch",
+			"desc": "Smacks a foe with its heavy hand, gaining bonus damage every hit.",
+			"info": "10 crush damage, + 1 burn per hit"
 		},
 		{
 			"title": "Fissure Vent",
@@ -299,8 +299,8 @@
 			"health": 200,
 			"regrowth": 10,
 			"endurance": 50,
-			"energy": 140,
-			"meditation": 10,
+			"energy": 80,
+			"meditation": 8,
 			"initiative": 110,
 			"offense": 40,
 			"defense": 15,
@@ -331,7 +331,7 @@
     			"info": "Maximum of 100 damage absorbed."
     		},
     		{
-    			"title": "Jab Attack",
+    			"title": "Deadly Jab",
     			"desc": "Horn attack that gains bonus offense based on the last distance traveled.",
     			"info": "20 pierce damage, +10 offense / hex"
     		},
@@ -341,8 +341,8 @@
     			"info": "+20 poison damage (+1 permanent)"
     		},
     		{
-    			"title": "Slash Attack",
-    			"desc": "Damages up to 3 nearby creatures.",
+    			"title": "Super Slash",
+    			"desc": "Damages up to 3 nearby creatures. 200% offense against fatigued ones.",
     			"info": "20 slash + 10 frost damage"
     		}
     	]
@@ -397,7 +397,7 @@
             {
                 "title": "Glacial Spikes",
                 "desc": "Several spears of ice erupt from its body, impaling all nearby creatures.",
-                "info": "20 frost damage"
+                "info": "30 frost damage"
             }
         ]
     },
@@ -528,11 +528,11 @@
             "regrowth": 3,
             "endurance": 50,
             "energy": 60,
-            "meditation": 5,
+            "meditation": 10,
             "initiative": 40,
-            "offense": 20,
-            "defense": 20,
-            "movement": 4,
+            "offense": 10,
+            "defense": 10,
+            "movement": 2,
             "pierce": 5,
             "slash": 4,
             "crush": 3,
@@ -549,23 +549,23 @@
         "ability_info": [
             {
                 "title": "Frozen Tower",
-                "desc": "Temporary increases offense and defense by holding the same spot.",
-                "info": "+5 offense and defense per round"
+                "desc": "Constantly increases offense and defense for every turn not moving.",
+                "info": "+10 offense and defense per round"
             },
             {
                 "title": "Icy Talons",
-                "desc": "Scratches nearby foe using claws.",
-                "info": "15 slash damage"
+                "desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
+                "info": "15 slash + 5 frost damage, -1 frost"
             },
             {
                 "title": "Tail Uppercut",
                 "desc": "Sucker punches a near enemy using limb, bypassing defensive abilities.",
-                "info": "20 crush damage"
+                "info": "20 crush damage + 10 frost damage"
             },
             {
                 "title": "Icicle Tongue",
-                "desc": "Launches shard that pierces up to several creatures sitting in a line.",
-                "info": "10 pierce damage, up to 6 hexagons"
+                "desc": "Launches a shard that can penetrate up to 6 hexagons that are all aligned.",
+                "info": "10 pierce + 6 lowering frost damage"
             }
         ]
     },
@@ -1810,17 +1810,17 @@
             },
             {
                 "title": "Harpoon Claw",
-                "desc": "No description",
-                "info": "9 pierce + 6 slash damage"
+                "desc": "Uses fingers against a nearby foe, doing more damage to it each time.",
+                "info": "6 pierce + 5 slash damage, +4 / hit"
             },
             {
                 "title": "Sea Serpent",
-                "desc": "Hits a nearby foe using tail.",
+                "desc": "Hits a nearby area using its tail, damaging one or two creatures.",
                 "info": "8 pierce + 8 crush + 8 frost damage"
             },
             {
                 "title": "Tsunami Wave",
-                "desc": "Travels in a straight line to a new spot, damaging all creatures along.",
+                "desc": "Travels in a straight line to a new spot, damaging all creatures while also ignoring traps along the way.",
                 "info": "10 crush + 10 frost damage"
             }
         ]

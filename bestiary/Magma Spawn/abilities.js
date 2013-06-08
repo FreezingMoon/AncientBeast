@@ -50,7 +50,7 @@ abilities[4] =[
 
 
 
-// 	Second Ability: Pulverize Attack
+// 	Second Ability: Pulverizing Punch
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",

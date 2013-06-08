@@ -3,7 +3,7 @@
 {"id":2,"info":100,"artwork":60,"icons":100,"model":80,"unwrap":0,"texture":10,"rig":90,"animation":10,"sound":10,"coding":0},
 {"id":3,"info":100,"artwork":100,"icons":100,"model":70,"unwrap":0,"texture":10,"rig":50,"animation":0,"sound":10,"coding":70},
 {"id":4,"info":100,"artwork":100,"icons":100,"model":100,"unwrap":100,"texture":100,"rig":100,"animation":20,"sound":10,"coding":90},
-{"id":5,"info":90,"artwork":100,"icons":90,"model":80,"unwrap":90,"texture":80,"rig":80,"animation":0,"sound":30,"coding":40},
+{"id":5,"info":100,"artwork":100,"icons":100,"model":100,"unwrap":100,"texture":100,"rig":80,"animation":0,"sound":30,"coding":40},
 {"id":6,"info":90,"artwork":100,"icons":90,"model":100,"unwrap":0,"texture":0,"rig":50,"animation":0,"sound":10,"coding":0},
 {"id":7,"info":80,"artwork":70,"icons":100,"model":80,"unwrap":0,"texture":0,"rig":50,"animation":0,"sound":10,"coding":0},
 {"id":8,"info":90,"artwork":60,"icons":100,"model":100,"unwrap":100,"texture":90,"rig":30,"animation":0,"sound":10,"coding":0},
