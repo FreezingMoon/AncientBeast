@@ -93,12 +93,14 @@ abilities[4] =[
 		var ability = args.ability;
 		ability.end();
 
-		var d = {burn:ability.creature.burnBoost, crush:damages.crush};
+		ability.creature.burnBoost = (ability.creature.burnBoost+1) ? ability.creature.burnBoost : 0;
+
+		var d = {burn:ability.creature.burnBoost, crush:ability.damages.crush};
 		
 		var damage = new Damage(
 			args.creature, //Attacker
 			"target", //Attack Type
-			ability.damages, //Damage Type
+			d, //Damage Type
 			1, //Area
 			[]	//Effects
 		);
