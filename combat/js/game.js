@@ -295,6 +295,23 @@ var Game = Class.create({
 		this.queue = this.nextQueue.slice(0); //Copy queue
 
 		this.delayQueue = [];
+
+		//Check temp stuff
+
+		//Trap
+		for (var i = 0; i < G.grid.traps.length; i++) {
+
+			trap = G.grid.traps[i];
+			
+			if(trap.turnLifetime > 0){
+				console.log(trap.creationTurn,G.turn);
+				if(G.turn-trap.creationTurn >= trap.turnLifetime){
+					trap.destroy();
+					i--;	
+				} 
+			}
+		};
+
 		this.nextCreature();
 	},
 

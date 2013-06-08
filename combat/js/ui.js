@@ -75,7 +75,7 @@ var UI = Class.create({
 		$j(document).on('keypress', function(e){
 
 			var keypressed = e.keyCode;
-			console.log(keypressed);
+			// console.log(keypressed);
 
 			hotkeys = {
 				attack: 119, //W

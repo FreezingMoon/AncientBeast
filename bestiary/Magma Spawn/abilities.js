@@ -30,7 +30,7 @@ abilities[4] =[
 				"Scorched Ground",this.creature,this.creature.hexagons[1],"onStepIn",
 				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
 			),
-		],this.creature.player);
+		],this.creature.player, {turnLifetime:1} );
 
 		var hex;
 		if( this.creature.player.flipped )
@@ -44,7 +44,7 @@ abilities[4] =[
 				"Scorched Ground",this.creature,hex,"onStepIn",
 				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
 			),
-		],this.creature.player);
+		],this.creature.player, {turnLifetime:1} );
 	},
 },
 
@@ -56,8 +56,8 @@ abilities[4] =[
 	trigger : "onQuery",
 
 	damages : {
-		burn : 1,
-		crush : 9
+		burn : 0,
+		crush : 10
 	},
 
 	// 	require() :
@@ -92,7 +92,7 @@ abilities[4] =[
 	activate : function(target,args) {
 		var ability = args.ability;
 		ability.end();
-
+		
 		var damage = new Damage(
 			args.creature, //Attacker
 			"target", //Attack Type
@@ -100,7 +100,10 @@ abilities[4] =[
 			1, //Area
 			[]	//Effects
 		);
+
 		target.takeDamage(damage);
+
+		ability.damages.burn++;
 	},
 },
 

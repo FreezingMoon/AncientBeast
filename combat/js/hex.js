@@ -1122,9 +1122,10 @@ var Hex = Class.create({
 
 	//---------TRAP FUNCTION---------//
 
-	createTrap: function(type, effects, owner){
+	createTrap: function(type, effects, owner, opt){
+		console.log(opt);
 		if(!!this.trap) this.destroyTrap();
-		this.trap = new Trap(this.x,this.y,type,effects,owner);
+		this.trap = new Trap(this.x,this.y,type,effects,owner,opt);
 		return this.trap;
 	},
 
@@ -1161,11 +1162,19 @@ var Trap = Class.create({
 	*	y : 			Integer : 	Hex coordinates
 	*
 	*/
-	initialize: function(x, y, type, effects, owner) {
+	initialize: function(x, y, type, effects, owner, opt) {
 		this.hex 		= G.grid.hexs[y][x];
 		this.type 		= type;
 		this.effects 	= effects;
 		this.owner 		= owner;
+
+		this.creationTurn = G.turn;
+
+		var o = {
+			turnLifetime : 0,
+		};
+
+		$j.extend(this,o,opt);
 
 		//register
 		G.grid.traps.push(this);
@@ -1184,7 +1193,8 @@ var Trap = Class.create({
 		this.$display.remove();
 
 		//unregister
-		G.grid.traps.push(this);
+		var i = G.grid.traps.indexOf(this);
+		G.grid.traps.splice(i,1);
 		this.hex.trap 	= undefined;
 		delete this;
 	},
