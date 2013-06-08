@@ -8,24 +8,26 @@ abilities[14] =[
 // 	First Ability: Self Flatten
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onDamage",
+	trigger : "onStartPhase",
 
 	// 	require() :
 	require : function(damage){
 		if( !this.testRequirements() ) return false;
-
-		if(damage == undefined) damage = {type:"target"}; //For the test function to work
-		if(this.used) return false; //Prevent Multiple dodge
-		if(damage.type != "target") return false; //Not targeted 
+		
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ally" ) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
 
 		return true;
 	},
 
 	//	activate() : 
-	activate : function(damage) {
-		damage.status = "Dodged";
-		this.end();
-		return damage;
+	activate : function() {
+		var targets = this.getTargets(this.creature.adjacentHexs(1));
+		var nbrAlly = 0;
+		targets.each(function(){ nbrAlly++; });
+		this.creature.heal(this.creature.stats.health*nbrAlly/6);
 	},
 },
 
@@ -95,35 +97,18 @@ abilities[14] =[
 
 	// 	query() :
 	query : function(){
-		
-		var ability = this;
-		var swine = this.creature;
-
-		var hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
-		
-		//TODO Filtering corpse hexs
-		hexs.filter(function(){return true;});
-		
-		G.grid.hideCreatureHexs(this.creature);
-		
-		G.grid.queryHexs({
-			fnOnCancel : function(){ G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
-			fnOnConfirm : this.activate,
-			args : {ability:this}, //OptionalArgs
-			hexs : hexs,
-		});
+		this.activate();
 	},
 
 
 	//	activate() : 
-	activate : function(hex,args) {
-		G.grid.clearHexViewAlterations();
-		var ability = args.ability;
-		ability.end();
+	activate : function() {
+		var hex = this.creature.hexagons[0];
+		this.end();
 
 		var effects = [
 			new Effect(
-				"Royal Seal",ability.creature,hex,"onStepIn",
+				"Royal Seal",this.creature,hex,"onStepIn",
 				{ 
 					requireFn: function(crea){ return crea !== this.owner; }, 
 					effectFn: function(effect,crea){ 
@@ -134,7 +119,7 @@ abilities[14] =[
 			),
 		]
 
-		var trap = hex.createTrap("royal-seal",effects,ability.creature.player);
+		var trap = hex.createTrap("royal-seal",effects,this.creature.player);
 		trap.hide();
 	},
 },
@@ -147,7 +132,7 @@ abilities[14] =[
 	trigger : "onQuery",
 
 	damages : {
-		sonic : 20,
+		sonic : 15,
 	},
 
 	directions : [0,1,0,0,1,0],
@@ -192,16 +177,23 @@ abilities[14] =[
 		ability.end();		
 
 		var target = path.last().creature;
+		console.log(path);
+		var melee = (path[1].creature === target);
+		console.log(melee);
 
-		var damage = new Damage(
+		var d = (melee) ? {sonic:15,crush:10} : ability.damages;
+
+		var damage = new Damage( 
 			args.creature, //Attacker
 			"target", //Attack Type
-			ability.damages, //Damage Type
+			d, //Damage Type
 			1, //Area
 			[]	//Effects
-		)
+		);
+		console.log(damage);
 
 		target.takeDamage(damage);
+
 
 		var dir = [];
 		switch( path[0].direction ){
@@ -226,8 +218,10 @@ abilities[14] =[
 			default:
 				break;
 		}
-
-		if(dir.length <= 1) return;
+return;
+		if(dir.length <= 1) {
+			return;
+		}
 
 		if(dir[1].isWalkable(target.size,target.id,true)){
 			target.moveTo(dir[1],{
