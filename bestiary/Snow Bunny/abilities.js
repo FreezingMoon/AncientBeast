@@ -195,6 +195,7 @@ abilities[12] =[
 			callback : function(){
 				G.activeCreature.queryMove();
 			},
+			animation : "push",
 		});
 	},
 },

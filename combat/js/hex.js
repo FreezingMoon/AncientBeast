@@ -334,6 +334,7 @@ var HexGrid = Class.create({
 		var defaultOpt = {
 			fnOnConfirm : function(hex,args){ G.activeCreature.queryMove(); },
 			fnOnSelect : function(hex,args){
+				G.activeCreature.faceHex(hex);
 				hex.overlayVisualState("creature selected player"+G.activeCreature.team);
 			},
 			fnOnCancel : function(hex,args){G.activeCreature.queryMove()},
@@ -410,7 +411,7 @@ var HexGrid = Class.create({
 					o.fnOnConfirm(clickedtHex,o.args);
 				}
 				
-				if(G.activeCreature instanceof Creature){ G.activeCreature.faceHex(G.activeCreature,clickedtHex); }
+				// if(G.activeCreature instanceof Creature){ G.activeCreature.faceHex(G.activeCreature,clickedtHex); }
 
 			}
 		};

@@ -338,15 +338,22 @@ var Creature = Class.create({
 	* 	Face creature at given hex
 	*
 	*/
-	faceHex: function(facefrom,faceto){
-		if(facefrom instanceof Creature){ facefrom = G.grid.hexs[facefrom.y][facefrom.x] }
-		if(faceto instanceof Creature){ faceto = G.grid.hexs[faceto.y][faceto.x] }
+	faceHex: function(faceto,facefrom){
+		if( !facefrom ) facefrom = (this.size < 2)? this.hexagons[0]: this.hexagons[1];
+
+		if(faceto instanceof Creature) faceto = (faceto.size < 2)? faceto.hexagons[0]: faceto.hexagons[1];
+
 		if(facefrom.y%2==0){
 			var flipped = ( faceto.x <= facefrom.x );
 		}else{
 			var flipped = ( faceto.x+1 <= facefrom.x );
 		}
-		if(flipped){ this.$display.addClass("flipped"); }else{ this.$display.removeClass("flipped"); }
+
+		if(flipped){ 
+			this.$display.addClass("flipped").css("margin-left", 90*this.size-this.display.width-this.display["offset-x"]);
+		}else{
+			this.$display.removeClass("flipped").css("margin-left", this.display["offset-x"]);
+		}
 	},
 	
 	/* 	facePlayerDefault()
@@ -392,6 +399,12 @@ var Creature = Class.create({
 
 		var currentHex = creature.hexagons[0];
 
+		//Determine facing
+		creature.$display.animate({'margin-right':0},0,"linear",function(){ //To stack with other transforms
+			creature.facePlayerDefault();
+			if(opts.animation!="push") creature.faceHex(path[0],currentHex);
+		});
+
 		//      STEP OUT
 		//Trap
 		creature.hexagons.each(function(){
@@ -418,12 +431,6 @@ var Creature = Class.create({
 		G.grid.xray( new Hex(0,0) ); //Clean Xray
 
 		creature.$health.hide();
-
-		//Determine facing
-		creature.$display.animate({'margin-right':0},0,"linear",function(){ //To stack with other transforms
-			creature.facePlayerDefault();
-			creature.faceHex(creature, path[0]);
-		});
 		
 		//TODO turn around animation
 
@@ -474,7 +481,7 @@ var Creature = Class.create({
 
 				if( thisHexId < path.length-1 && creature.remainingMove > 0 ){
 					//Determine facing
-					creature.faceHex(currentHex, path[thisHexId+1]);
+					if(opts.animation!="push") creature.faceHex(path[thisHexId+1],currentHex);
 
 					//      STEP OUT
 					//Trap
