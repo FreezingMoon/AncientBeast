@@ -362,7 +362,11 @@ var Creature = Class.create({
 	*
 	*/
 	facePlayerDefault: function(){
-		if(this.player.flipped){ this.$display.addClass("flipped"); }else{ this.$display.removeClass("flipped"); }
+		if(this.player.flipped){ 
+			this.$display.addClass("flipped").css("margin-left", 90*this.size-this.display.width-this.display["offset-x"]);
+		}else{
+			this.$display.removeClass("flipped").css("margin-left", this.display["offset-x"]);
+		}
 	},
 
 	/* 	moveTo(hex,opts)
