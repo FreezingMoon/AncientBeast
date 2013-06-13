@@ -199,32 +199,33 @@ abilities[5] =[
 		var ability = args.ability;
 		ability.end();
 
-		var finalDmg = $j.extend({ poison:0, shock:0 },ability.damages); //Copy object
-
-		//Poison Bonus
-		args.creature.effects.each(function(){
-			if(this.trigger == "poisonous_vine_perm"){
-				finalDmg.poison += 1;
-			}else if(this.trigger == "poisonous_vine"){
-				finalDmg.poison += 20;
-			}
-		});
-
-		//Electrified Hair Bonus
-		if(ability.creature.electrifiedHair){
-			if(ability.creature.electrifiedHair>25){
-				finalDmg.shock += 25;
-				ability.creature.electrifiedHair -= 25;
-			}else if(ability.creature.electrifiedHair>0){
-				finalDmg.shock += ability.creature.electrifiedHair;
-				ability.creature.electrifiedHair = 0;
-			}
-		}
-
 		var targets = ability.getTargets(hexs);
 
 		targets.each(function(){
 			if(this != window){
+
+				var finalDmg = $j.extend({ poison:0, shock:0 },ability.damages); //Copy object
+
+				//Poison Bonus
+				args.creature.effects.each(function(){
+					if(this.trigger == "poisonous_vine_perm"){
+						finalDmg.poison += 1;
+					}else if(this.trigger == "poisonous_vine"){
+						finalDmg.poison += 20;
+					}
+				});
+
+				//Electrified Hair Bonus
+				if(ability.creature.electrifiedHair){
+					if(ability.creature.electrifiedHair>25){
+						finalDmg.shock += 25;
+						ability.creature.electrifiedHair -= 25;
+					}else if(ability.creature.electrifiedHair>0){
+						finalDmg.shock += ability.creature.electrifiedHair;
+						ability.creature.electrifiedHair = 0;
+					}
+				}
+				
 				var damage = new Damage(
 					args.creature, //Attacker
 					"target", //Attack Type
