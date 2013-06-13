@@ -95,7 +95,7 @@ abilities[5] =[
 		});
 
 		//Jab Bonus
-		finalDmg.pierce += target.size*2;
+		finalDmg.pierce += ability.creature.travelDist*2;
 
 		//Electrified Hair Bonus
 		if(ability.creature.electrifiedHair){
