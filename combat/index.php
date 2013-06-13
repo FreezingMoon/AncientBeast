@@ -306,7 +306,7 @@ require_once('../bestiary/cards.php');
 									<h3 class="name"></h3>
 									<p class="score">0 Score</p>
 									<p class="plasma">0 Plasma</p>
-									<p class="timepool"> Time</p>
+									<p>Time <span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 								</div>
 							</div>';
 						}
@@ -339,7 +339,7 @@ require_once('../bestiary/cards.php');
 					<p class="name"></p>
 					<p class="points"><span></span> Points</p>
 					<p class="plasma"><span></span> Plasma</p>
-					<p class="time"><span>&#8734;</span> Time</p>
+					<p ><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 				</div>
 				<div id="rightpanel">
 					<div id="skip" class="button"><div class="desc"><span><u>S</u>kip Turn</span><p>End the turn of the current creature and proceed with the next one in queue.</p></div></div>

@@ -128,6 +128,10 @@ var UI = Class.create({
 		
 		this.materializeToggled = false;
 
+		if(G.turnTimePool) $j(".turntime").text(zfill(Math.floor(G.turnTimePool/60),2)+":"+zfill(G.turnTimePool%60,2));
+		if(G.timePool) $j(".timepool").text(zfill(Math.floor(G.timePool/60),2)+":"+zfill(G.timePool%60,2));
+			
+
 		//Show UI
 		this.$display.show();
 	},
@@ -421,10 +425,10 @@ var UI = Class.create({
 	*	
 	*/
 	updateInfos:function(){
-		$j("#playerbutton")
+		$j("#playerbutton, #playerinfos")
 			.removeClass("p0 p1 p2 p3")
-			.addClass("p"+G.activeCreature.player.id)
-			.css("background-image","url('"+G.activeCreature.player.avatar+"')");
+			.addClass("p"+G.activeCreature.player.id);
+		$j("#playerbutton").css("background-image","url('"+G.activeCreature.player.avatar+"')");
 		$j("#playerinfos .name").text(G.activeCreature.player.name);
 		$j("#playerinfos .points span").text(G.activeCreature.player.getScore().total);
 		$j("#playerinfos .plasma span").text(G.activeCreature.player.plasma);
@@ -444,14 +448,15 @@ var UI = Class.create({
 				remainingTime = Math.min(remainingTime, Math.round( (G.activeCreature.player.totalTimePool-(date - G.activeCreature.player.startTime))/1000) );
 			var minutes = Math.floor(remainingTime/60);
 			var seconds = remainingTime-minutes*60;
-			$j("#playerinfos .time span").text(zfill(minutes,2)+":"+zfill(seconds,2));
+			var id = G.activeCreature.player.id;
+			$j(".p"+id+" .turntime").text(zfill(minutes,2)+":"+zfill(seconds,2));
 			//Time Alert
 			if( remainingTime < G.turnTimePool*.25 ) 
-				$j("#playerinfos .time span").addClass("alert");
+				$j(".p"+id+" .turntime").addClass("alert");
 			else
-				$j("#playerinfos .time span").removeClass("alert");
+				$j(".p"+id+" .turntime").removeClass("alert");
 		}else{
-			$j("#playerinfos .time span").text("∞");
+			$j(".turntime").text("∞");
 		}
 
 		//TotalTimePool
@@ -461,10 +466,10 @@ var UI = Class.create({
 				remainingTime = Math.max(Math.round(remainingTime/1000),0);
 				var minutes = Math.floor(remainingTime/60);
 				var seconds = remainingTime-minutes*60;
-				$j(".playertabs.p"+this.id+" .timepool").text("TimePool "+zfill(minutes,2)+":"+zfill(seconds,2));
+				$j(".p"+this.id+" .timepool").text(zfill(minutes,2)+":"+zfill(seconds,2));
 			});
 		}else{
-			$j(".playertabs .timepool").text("TimePool ∞");
+			$j(".timepool").text("∞");
 		}
 	},
 
