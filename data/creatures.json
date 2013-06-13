@@ -319,7 +319,7 @@
     		"walk_speed": 200
     	},
         "display":{
-            "height": 202,
+            "height": 212,
             "width": 225,
             "offset-y": -181,
             "offset-x": 28

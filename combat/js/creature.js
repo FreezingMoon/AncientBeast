@@ -339,7 +339,8 @@ var Creature = Class.create({
 	*
 	*/
 	faceHex: function(faceto,facefrom){
-		if( !facefrom ) facefrom = (this.size < 2)? this.hexagons[0]: this.hexagons[1];
+		
+		if( !facefrom )	facefrom = (this.size < 2)? this.hexagons[0]: this.hexagons[1];
 
 		if(faceto instanceof Creature) faceto = (faceto.size < 2)? faceto.hexagons[0]: faceto.hexagons[1];
 
@@ -405,7 +406,7 @@ var Creature = Class.create({
 
 		//Determine facing
 		creature.$display.animate({'margin-right':0},0,"linear",function(){ //To stack with other transforms
-			creature.facePlayerDefault();
+			//creature.facePlayerDefault();
 			if(opts.animation!="push") creature.faceHex(path[0],currentHex);
 		});
 
@@ -447,7 +448,7 @@ var Creature = Class.create({
 			var nextPos = G.grid.hexs[this.y][this.x-creature.size+1];
 			var thisHexId = hexId;
 			creature.$display.animate(nextPos.displayPos,parseInt(creature.animation.walk_speed),"linear",function(){
-				creature.facePlayerDefault(creature);
+				//creature.facePlayerDefault(creature);
 				var currentHex = path[thisHexId];
 
 				creature.cleanHex();
@@ -514,6 +515,7 @@ var Creature = Class.create({
 
 					//TODO turn around animation
 					creature.facePlayerDefault();
+
 					//reveal and position healh idicator
 					var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
 					creature.$health

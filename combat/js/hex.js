@@ -402,6 +402,8 @@ var HexGrid = Class.create({
 				hex = G.grid.hexs[y][x]; //New coords
 				var clickedtHex = hex;
 
+				G.activeCreature.faceHex(clickedtHex);
+
 				if( clickedtHex != G.grid.lastClickedtHex ){
 					G.grid.lastClickedtHex = clickedtHex;
 					//ONCLICK
@@ -410,8 +412,6 @@ var HexGrid = Class.create({
 					//ONCONFIRM
 					o.fnOnConfirm(clickedtHex,o.args);
 				}
-				
-				// if(G.activeCreature instanceof Creature){ G.activeCreature.faceHex(G.activeCreature,clickedtHex); }
 
 			}
 		};

@@ -298,7 +298,7 @@ var Game = Class.create({
 
 		//Check temp stuff
 
-		//Trap
+		//Traps
 		for (var i = 0; i < G.grid.traps.length; i++) {
 
 			trap = G.grid.traps[i];
@@ -307,6 +307,20 @@ var Game = Class.create({
 				console.log(trap.creationTurn,G.turn);
 				if(G.turn-trap.creationTurn >= trap.turnLifetime){
 					trap.destroy();
+					i--;	
+				} 
+			}
+		};
+
+		//Effects
+		for (var i = 0; i < G.effects.length; i++) {
+
+			effect = G.effects[i];
+			
+			if(effect.turnLifetime > 0){
+				console.log(effect.creationTurn,G.turn);
+				if(G.turn-effect.creationTurn >= effect.turnLifetime){
+					effect.deleteEffect();
 					i--;	
 				} 
 			}

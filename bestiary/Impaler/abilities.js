@@ -8,10 +8,35 @@ abilities[5] =[
 // 	First Ability: Electrified Hair
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "never", //Just for display purpose the effect is in 2nd Ability
+	trigger : "onDamage", //Just for display purpose the effect is in 2nd Ability
 
 	// 	require() :
 	require : function(){return this.testRequirements();},
+
+	// 	require() :
+	require : function(damage){
+		this.setUsed(false); //Can be triggered as many times
+		if( this.creature.electrifiedHair == 100 ) return false;
+		return this.testRequirements();
+	},
+
+	//	activate() : 
+	activate : function(damage) {
+		if(!(this.creature.electrifiedHair+1)) this.creature.electrifiedHair = 0;
+		var capacity = 100-this.creature.electrifiedHair;
+		if(damage.damages.shock){
+			if(damage.damages.shock>0){
+				this.creature.electrifiedHair += (damage.damages.shock>capacity)
+				? capacity
+				: damage.damages.shock;
+				damage.damages.shock = (damage.damages.shock>capacity)
+				? damage.damages.shock-capacity
+				: 0;
+			}
+		}
+		this.end();
+		return damage; //Return Damage
+	},
 },
 
 
@@ -60,35 +85,35 @@ abilities[5] =[
 
 		var finalDmg = $j.extend({ poison:0, shock:0 },ability.damages); //Copy object
 
-		//Charge Calculation
+		//Poison Bonus
 		args.creature.effects.each(function(){
-			if(this.trigger == "impaler_charge"){
-				finalDmg.shock += (finalDmg.shock==0) ? 20 : 5 ;
-				this.deleteEffect();
-			}else if(this.trigger == "impaler_envenom"){
-				finalDmg.poison += (finalDmg.poison==0) ? 20 : 5 ;
-				this.deleteEffect();
+			if(this.trigger == "poisonous_vine_perm"){
+				finalDmg.poison += 1;
+			}else if(this.trigger == "poisonous_vine"){
+				finalDmg.poison += 20;
 			}
 		});
 
-		//Traveling Bonus
-		finalDmg.pierce += args.creature.travelDist * 5;
+		//Jab Bonus
+		finalDmg.pierce += target.size*2;
 
-		//Armor Penetration
-		var effect = new Effect(
-			"Armor Penetration", //Name
-			this.creature, //Caster
-			target, //Target
-			"persistant", //Trigger
-			{ alterations : {defense : -2} } //Optional arguments
-		);
+		//Electrified Hair Bonus
+		if(ability.creature.electrifiedHair){
+			if(ability.creature.electrifiedHair>25){
+				finalDmg.shock += 25;
+				ability.creature.electrifiedHair -= 25;
+			}else if(ability.creature.electrifiedHair>0){
+				finalDmg.shock += ability.creature.electrifiedHair;
+				ability.creature.electrifiedHair = 0;
+			}
+		}
 
 		var damage = new Damage(
 			args.creature, //Attacker
 			"target", //Attack Type
 			finalDmg, //Damage Type
 			1, //Area
-			[effect] //Effects
+			[] //Effects
 		)
 		target.takeDamage(damage);
 	},
@@ -113,7 +138,13 @@ abilities[5] =[
 	//	activate() : 
 	activate : function() {
 		this.end();
-		var effect = new Effect("Static Charge",this.creature,this.creature,"impaler_charge");
+		var effect = new Effect("Poisonous Vine",this.creature,this.creature,"poisonous_vine",{
+			turnLifetime : 1,
+		});
+		this.creature.addEffect(effect);
+
+		var effect = new Effect("Poisonous Vine",this.creature,this.creature,"poisonous_vine_perm",{
+		});
 		this.creature.addEffect(effect);
 		//TODO add animation
 	},
@@ -127,20 +158,83 @@ abilities[5] =[
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){return this.testRequirements();},
+	require : function(){
+		if( !this.testRequirements() ) return false;
+
+		return true;
+	},
+
+	damages : {
+		slash : 20, 
+		frost : 10
+	},
+
+	map : [  [0,0,0,0],
+			[0,1,0,0],
+			 [0,1,0,0],//origin line
+			[0,1,0,0],
+			 [0,0,0,0]],
 
 	// 	query() :
 	query : function(){
-		this.activate()
+		var ability = this;
+
+		G.grid.queryChoice({
+			fnOnConfirm : ability.activate,
+			team : 3, 
+			requireCreature : 0,
+			id : this.creature.id,
+			args : {creature:this.creature, ability:ability},
+			flipped : this.creature.flipped,
+			choices : [
+				G.grid.getHexMap(this.creature.x,this.creature.y-2,0,false,this.map),
+				G.grid.getHexMap(this.creature.x-this.creature.size+1,this.creature.y-2,0,true,this.map)
+			],
+		})
 	},
 
 
 	//	activate() : 
-	activate : function() {
-		this.end();
-		var effect = new Effect("Envenom",this.creature,this.creature,"impaler_envenom");
-		this.creature.addEffect(effect);
-		//TODO add animation
+	activate : function(hexs,args) {
+		var ability = args.ability;
+		ability.end();
+
+		var finalDmg = $j.extend({ poison:0, shock:0 },ability.damages); //Copy object
+
+		//Poison Bonus
+		args.creature.effects.each(function(){
+			if(this.trigger == "poisonous_vine_perm"){
+				finalDmg.poison += 1;
+			}else if(this.trigger == "poisonous_vine"){
+				finalDmg.poison += 20;
+			}
+		});
+
+		//Electrified Hair Bonus
+		if(ability.creature.electrifiedHair){
+			if(ability.creature.electrifiedHair>25){
+				finalDmg.shock += 25;
+				ability.creature.electrifiedHair -= 25;
+			}else if(ability.creature.electrifiedHair>0){
+				finalDmg.shock += ability.creature.electrifiedHair;
+				ability.creature.electrifiedHair = 0;
+			}
+		}
+
+		var targets = ability.getTargets(hexs);
+
+		targets.each(function(){
+			if(this != window){
+				var damage = new Damage(
+					args.creature, //Attacker
+					"target", //Attack Type
+					finalDmg, //Damage Type
+					1, //Area
+					[] //Effects
+				)
+				this.target.takeDamage(damage);
+			}
+		});
 	},
 }
 

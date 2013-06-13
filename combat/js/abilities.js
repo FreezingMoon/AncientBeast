@@ -314,7 +314,8 @@ var Effect = Class.create({
 			//Default Arguments
 			requireFn : function(){return true;},
 			effectFn : function(){},
-			alterations : {}
+			alterations : {},
+			turnLifetime : 0,
 		},optArgs);
 
 		$j.extend(this,args);
