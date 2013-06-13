@@ -309,6 +309,7 @@ var Effect = Class.create({
 		this.owner 		= owner;
 		this.target 	= target;
 		this.trigger 	= trigger;
+		this.creationTurn = G.turn;
 
 		var args = $j.extend({
 			//Default Arguments

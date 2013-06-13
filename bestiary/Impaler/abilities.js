@@ -143,7 +143,7 @@ abilities[5] =[
 		});
 		this.creature.addEffect(effect);
 
-		var effect = new Effect("Poisonous Vine",this.creature,this.creature,"poisonous_vine_perm",{
+		var effect = new Effect("",this.creature,this.creature,"poisonous_vine_perm",{
 		});
 		this.creature.addEffect(effect);
 		//TODO add animation
@@ -225,7 +225,7 @@ abilities[5] =[
 						ability.creature.electrifiedHair = 0;
 					}
 				}
-				
+
 				var damage = new Damage(
 					args.creature, //Attacker
 					"target", //Attack Type
