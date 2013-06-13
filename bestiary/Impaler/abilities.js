@@ -26,12 +26,12 @@ abilities[5] =[
 		var capacity = 100-this.creature.electrifiedHair;
 		if(damage.damages.shock){
 			if(damage.damages.shock>0){
-				this.creature.electrifiedHair += (damage.damages.shock>capacity)
+				this.creature.electrifiedHair += (damage.damages.shock/2>capacity)
 				? capacity
-				: damage.damages.shock;
-				damage.damages.shock = (damage.damages.shock>capacity)
+				: damage.damages.shock/2;
+				damage.damages.shock = (damage.damages.shock/2>capacity)
 				? damage.damages.shock-capacity
-				: 0;
+				: damage.damages.shock/2;
 			}
 		}
 		this.end();
