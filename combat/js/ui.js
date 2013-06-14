@@ -239,37 +239,31 @@ var UI = Class.create({
 				}
 			});
 
-			//Summon buttons
+			//Materialize button
 			$j('#materialize_button').unbind('click');
-			$j('#summon_buttons').hide();
-			if(	
+			if(
 				!summonedOrDead && 
 				G.activeCreature.player.id==player && 
 				G.activeCreature.type=="--" &&
 				G.activeCreature.abilities[3].used==false
 			  )
-			{
-				$j('#summon_buttons').show();
-				
+			{	
 				var lvl = creatureType.substring(1,2)-0;
 				var size = G.retreiveCreatureStats(creatureType).size-0;
 				plasmaCost = lvl+size;
 
-				//psyhelm overload
-				if( G.activeCreature.player.getNbrOfCreatures() >= G.creaLimitNbr ){
-					$j('#materialize_button h3').text("Psyhelm overload");
-					$j('#materialize_button p').text("Maximum creatures controlled");
+				//Messages
+				if(G.activeCreature.player.getNbrOfCreatures() >= G.creaLimitNbr){
+					$j('#materialize_button p').text("Error: Overload! Maximum creatures controlled");
 				}else if(plasmaCost>G.activeCreature.player.plasma){
-					$j('#materialize_button h3').text("Low Plasma");
-					$j('#materialize_button p').text("Not enough plasma to materialize");
+					$j('#materialize_button p').text("Error: Low Plasma! Cannot materialize creature");
 				}else{
-					$j('#materialize_button h3').text("Materialize");
-					$j('#materialize_button p').text("Summon this Creature for "+plasmaCost+" Plasma");
+					$j('#materialize_button p').text("Materialize this selected creature for "+plasmaCost+" plasma");
 
-					//Bind buttons
+					//Bind button
 					$j('#materialize_button').bind('click',function(e){
 						if(G.freezedInput) return;
-						G.UI.materializeToggled = false;
+						G.UI.materializeToggled = true;
 						G.UI.selectAbility(3);
 						G.UI.toggleDash();
 						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
@@ -277,12 +271,19 @@ var UI = Class.create({
 				}
 
 			}else{
-				if( G.activeCreature.player.id==player &&  this.materializeToggled ){
-					$j('#summon_buttons').show();
-					$j('#materialize_button h3').text("Materialize");
-					$j('#materialize_button p').text("Please select available creature");
-				}else{
-					$j('#summon_buttons').hide();
+				if (
+					G.activeCreature.player.id==player && 
+					G.activeCreature.type=="--" &&
+					G.activeCreature.abilities[3].used==true
+				){
+					$j('#materialize_button p').text("Materialization has already been used this round");
+				}else if(
+					G.activeCreature.player.id==player && 
+					G.activeCreature.type=="--"
+				){
+					$j('#materialize_button p').text("Please select an available creature from the grid");
+				}else if (G.activeCreature.type!="--"){
+					$j('#materialize_button p').text("Current active creature cannot materialize others");
 				}
 			}
 
@@ -364,7 +365,6 @@ var UI = Class.create({
 			this.materializeToggled = false;
 		}
 
-		//TODO Change Dash button to return
 	},
 
 

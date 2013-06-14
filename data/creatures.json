@@ -39,8 +39,8 @@
     	"ability_info": [
     		{
     			"title": "Artificial Satellite",
-    			"desc": "Protects from all harm and also facilitates distant materialization.",
-    			"info": "-2 plasma per use"
+    			"desc": "Protects from most harmful abilities.",
+    			"info": "-1 plasma per use"
     		},
     		{
     			"title": "Electroshock",
@@ -327,13 +327,13 @@
     	"ability_info": [
     		{
     			"title": "Electrified Hair",
-    			"desc": "Absorbs half of all incoming shock damage, using it on the next attack.",
+    			"desc": "Absorbs half of all incoming shock damage, using up to 25 on attacks.",
     			"info": "Maximum of 100 damage absorbed."
     		},
     		{
     			"title": "Deadly Jab",
     			"desc": "Horn attack that gains bonus offense based on the last distance traveled.",
-    			"info": "20 pierce damage, +10 offense / hex"
+    			"info": "20 pierce damage + 2 more / hexagon"
     		},
     		{
     			"title": "Poisonous Vine",

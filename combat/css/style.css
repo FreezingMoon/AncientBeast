@@ -525,36 +525,21 @@ body{
 	margin: auto;
 }
 
-#summon_buttons{ 
-	width: 860px;
-	margin: auto;
-	margin-top:10px;
-}
-
 #materialize_button{
 	font-size:24px;
 	font-weight:bold;
 	width: 860px;
-	background: #555;
 	display: inline-block;
 	cursor: pointer;
-}
-
-#materialize_button h3{
-	margin: 5px;
+	background-image: url("../images/button.png");
+	background-repeat: no-repeat;
 }
 
 #materialize_button p{
-	font-size:16px;
-	margin-top:0px;
+	font-size:32px;
+	margin-top:16px;
 	font-weight:normal;
 }
-
-#summon_buttons .ability{float: left;}
-#summon_buttons .ability_satellite{float: right;}
-#materialize_button .ability{ background-image: url("../../bestiary/Dark%20Priest/3.svg"); }
-#materialize_button .ability_satellite{ background-image: url("../../bestiary/Dark%20Priest/0.svg"); }
-.summon_button_disabled{ opacity:0.3; }
 
 .buff{ color: green; }
 .debuff{ color: red; }
@@ -738,7 +723,7 @@ body{
 	top: 0px;
 	z-index: 99;
 	text-align: center;
-	background: black url('../../images/Reaper.jpg') no-repeat center top;
+	background: black url('../images/Reaper.jpg') no-repeat center top;
 	color: white;
 }
 #loader{
