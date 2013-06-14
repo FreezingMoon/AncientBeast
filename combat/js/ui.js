@@ -241,16 +241,13 @@ var UI = Class.create({
 
 			//Materialize button
 			$j('#materialize_button').unbind('click');
-			$j('#materialize_button').hide();
 			if(
 				!summonedOrDead && 
 				G.activeCreature.player.id==player && 
 				G.activeCreature.type=="--" &&
 				G.activeCreature.abilities[3].used==false
 			  )
-			{
-				$j('#materialize_button').show();
-				
+			{	
 				var lvl = creatureType.substring(1,2)-0;
 				var size = G.retreiveCreatureStats(creatureType).size-0;
 				plasmaCost = lvl+size;
@@ -274,11 +271,19 @@ var UI = Class.create({
 				}
 
 			}else{
-				if(G.activeCreature.player.id==player &&  this.materializeToggled){
-					$j('#materialize_button').show();
+				if (
+					G.activeCreature.player.id==player && 
+					G.activeCreature.type=="--" &&
+					G.activeCreature.abilities[3].used==true
+				){
+					$j('#materialize_button p').text("Materialization has already been used this round");
+				}else if(
+					G.activeCreature.player.id==player && 
+					G.activeCreature.type=="--"
+				){
 					$j('#materialize_button p').text("Please select an available creature from the grid");
-				}else{
-					$j('#materialize_button').hide();
+				}else if (G.activeCreature.type!="--"){
+					$j('#materialize_button p').text("Current active creature cannot materialize others");
 				}
 			}
 
