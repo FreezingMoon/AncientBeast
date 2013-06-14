@@ -253,12 +253,12 @@ var UI = Class.create({
 				plasmaCost = lvl+size;
 
 				//Messages
-				if(G.activeCreature.player.getNbrOfCreatures() >= G.creaLimitNbr){
-					$j('#materialize_button p').text("Error: Overload! Maximum creatures controlled");
+				if(G.activeCreature.player.getNbrOfCreatures() > G.creaLimitNbr){
+					$j('#materialize_button p').text("Overload! Maximum number of units controlled");
 				}else if(plasmaCost>G.activeCreature.player.plasma){
-					$j('#materialize_button p').text("Error: Low Plasma! Cannot materialize creature");
+					$j('#materialize_button p').text("Low Plasma! Cannot materialize the selected unit");
 				}else{
-					$j('#materialize_button p').text("Materialize this selected creature for "+plasmaCost+" plasma");
+					$j('#materialize_button p').text("Materialize unit at target location for "+plasmaCost+" plasma");
 
 					//Bind button
 					$j('#materialize_button').bind('click',function(e){
@@ -281,9 +281,9 @@ var UI = Class.create({
 					G.activeCreature.player.id==player && 
 					G.activeCreature.type=="--"
 				){
-					$j('#materialize_button p').text("Please select an available creature from the grid");
+					$j('#materialize_button p').text("Please select an available unit from the left grid");
 				}else if (G.activeCreature.type!="--"){
-					$j('#materialize_button p').text("Current active creature cannot materialize others");
+					$j('#materialize_button p').text("The current active unit cannot materialize others");
 				}
 			}
 

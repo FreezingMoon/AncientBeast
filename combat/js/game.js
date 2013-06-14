@@ -172,7 +172,7 @@ var Game = Class.create({
 	setup: function(nbrPlayer){
 
 		//Rules Variables
-		this.creaLimitNbr = 8; //Psyhelm overload
+		this.creaLimitNbr = 7; //Psyhelm overload
 
 		//reseting global counters
 		trapID = 0;
