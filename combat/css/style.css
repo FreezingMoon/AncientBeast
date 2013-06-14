@@ -535,13 +535,9 @@ body{
 	background-repeat: no-repeat;
 }
 
-#materialize_button h3{
-	margin: 5px;
-}
-
 #materialize_button p{
-	font-size:16px;
-	margin-top:0px;
+	font-size:32px;
+	margin-top:16px;
 	font-weight:normal;
 }
 

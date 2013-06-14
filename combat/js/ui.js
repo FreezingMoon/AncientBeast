@@ -239,9 +239,8 @@ var UI = Class.create({
 				}
 			});
 
-			//Summon buttons
+			//Materialize button
 			$j('#materialize_button').unbind('click');
-			$j('#summon_buttons').hide();
 			if(	
 				!summonedOrDead && 
 				G.activeCreature.player.id==player && 
@@ -249,22 +248,18 @@ var UI = Class.create({
 				G.activeCreature.abilities[3].used==false
 			  )
 			{
-				$j('#summon_buttons').show();
 				
 				var lvl = creatureType.substring(1,2)-0;
 				var size = G.retreiveCreatureStats(creatureType).size-0;
 				plasmaCost = lvl+size;
 
-				//psyhelm overload
+				//Psyhelm overload
 				if( G.activeCreature.player.getNbrOfCreatures() >= G.creaLimitNbr ){
-					$j('#materialize_button h3').text("Psyhelm overload");
-					$j('#materialize_button p').text("Maximum creatures controlled");
+					$j('#materialize_button p').text("Error: Psyhelm overload! Maximum creatures controlled");
 				}else if(plasmaCost>G.activeCreature.player.plasma){
-					$j('#materialize_button h3').text("Low Plasma");
-					$j('#materialize_button p').text("Not enough plasma to materialize");
+					$j('#materialize_button p').text("Error: Low Plasma! Cannot materialize creature");
 				}else{
-					$j('#materialize_button h3').text("Materialize");
-					$j('#materialize_button p').text("Summon this Creature for "+plasmaCost+" Plasma");
+					$j('#materialize_button p').text("Materialize this selected creature for "+plasmaCost+" plasma");
 
 					//Bind buttons
 					$j('#materialize_button').bind('click',function(e){
@@ -278,11 +273,8 @@ var UI = Class.create({
 
 			}else{
 				if( G.activeCreature.player.id==player &&  this.materializeToggled ){
-					$j('#summon_buttons').show();
-					$j('#materialize_button h3').text("Materialize");
-					$j('#materialize_button p').text("Please select available creature");
-				}else{
-					$j('#summon_buttons').hide();
+
+					$j('#materialize_button p').text("Please select an available creature from the grid");
 				}
 			}
 
@@ -364,7 +356,6 @@ var UI = Class.create({
 			this.materializeToggled = false;
 		}
 
-		//TODO Change Dash button to return
 	},
 
 

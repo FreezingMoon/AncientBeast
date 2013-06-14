@@ -316,11 +316,8 @@ require_once('../bestiary/cards.php');
 					<div id="cardwrapper">
 						<div id="cardwrapper_inner">
 							<div id="card"><?php cards("",0); ?></div>
-							<div id="summon_buttons">
-								<div id="materialize_button" >
-									<h3>Materialize</h3>
-									<p></p>
-								</div>
+							<div id="materialize_button" >
+								<p></p>
 							</div>
 						</div>
 					</div>

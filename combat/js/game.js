@@ -82,9 +82,9 @@ var Game = Class.create({
 		//Msg (TODO External file)
 		this.msg = {
 			abilities : {
-				notarget : "No target available.",
+				notarget : "No targets available.",
 				noplasma : "Not enough plasma.",
-				nopsy	 : "Psyhelm overload : too much creature summoned",
+				nopsy	 : "Psyhelm overload: too many creatures controlled",
 				alreadyused : "Ability already used."
 			}
 		}
@@ -172,7 +172,7 @@ var Game = Class.create({
 	setup: function(nbrPlayer){
 
 		//Rules Variables
-		this.creaLimitNbr = 7; //Psyhelm overload
+		this.creaLimitNbr = 8; //Psyhelm overload
 
 		//reseting global counters
 		trapID = 0;
