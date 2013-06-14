@@ -86,6 +86,11 @@ var Game = Class.create({
 				noplasma : "Not enough plasma.",
 				nopsy	 : "Psyhelm overload: too many creatures controlled",
 				alreadyused : "Ability already used."
+			},
+			ui : {
+				dash : {
+					materialize_overload : "Overload! Maximum number of units controlled",
+				}
 			}
 		}
 	},

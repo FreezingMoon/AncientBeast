@@ -254,7 +254,7 @@ var UI = Class.create({
 
 				//Messages
 				if(G.activeCreature.player.getNbrOfCreatures() > G.creaLimitNbr){
-					$j('#materialize_button p').text("Overload! Maximum number of units controlled");
+					$j('#materialize_button p').text(G.msg.ui.dash.materialize_overload);
 				}else if(plasmaCost>G.activeCreature.player.plasma){
 					$j('#materialize_button p').text("Low Plasma! Cannot materialize the selected unit");
 				}else{
