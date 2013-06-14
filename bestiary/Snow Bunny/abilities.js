@@ -153,7 +153,7 @@ abilities[12] =[
 		ability.end();
 
 		var target = path.last().creature;
-		var dist = 6 - target.size;
+		var dist = 5 - target.size;
 		var dir = [];
 		switch( path[0].direction ){
 			case 0: //Upright
@@ -178,7 +178,7 @@ abilities[12] =[
 				break;
 		}
 
-		dir = dir.slice(0,dist-1);
+		dir = dir.slice(0,dist+1);
 
 		var hex = target.hexagons[0];
 		for (var j = 0; j < dir.length; j++) {
