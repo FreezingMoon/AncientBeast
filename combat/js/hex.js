@@ -755,12 +755,24 @@ var HexGrid = Class.create({
 	*	Draw a preview of the creature at the given coordinates
 	*/
 	previewCreature:function(pos,creatureData,player){
+		console.log("overlay")
 		this.updateDisplay(); //Retrace players creatures
-		$j("#crea_materialize_overlay").remove();
+
 		var flipped_class = (player.flipped) ? " flipped" : "" ;
-		this.$creatureW.append('<div id="crea_materialize_overlay" class="creature type_'+creatureData.id+' materialize_overlay'+flipped_class+'" ></div>');
-		$j("#crea_materialize_overlay").css(this.hexs[pos.y][pos.x-(creatureData.size-1)].displayPos);
-		$j("#crea_materialize_overlay").css("z-index", pos.y);
+
+		if( !$j("#crea_materialize_overlay").length ){
+			this.$creatureW.append('<div id="crea_materialize_overlay" class="creature type_'+creatureData.id+' materialize_overlay'+flipped_class+'" ></div>');
+		}
+
+		$j("#crea_materialize_overlay").css({
+			"background-image" : "url('../bestiary/"+creatureData.name+"/cardboard.png')",
+			height : creatureData.display.height,
+			width : creatureData.display.width,
+			"margin-top" : creatureData.display["offset-y"],
+			"margin-left" : (!player.flipped) ? creatureData.display["offset-x"] : 90*creatureData.size-creatureData.display.width-creatureData.display["offset-x"],
+			"z-index": pos.y
+		}).css(this.hexs[pos.y][pos.x-(creatureData.size-1)].displayPos);
+
 		for (var i = 0; i < creatureData.size; i++) {
 			this.hexs[pos.y][pos.x-i].overlayVisualState("creature selected player"+G.activeCreature.team);
 		}
