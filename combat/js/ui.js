@@ -241,30 +241,32 @@ var UI = Class.create({
 
 			//Materialize button
 			$j('#materialize_button').unbind('click');
-			if(	
+			$j('#materialize_button').hide();
+			if(
 				!summonedOrDead && 
 				G.activeCreature.player.id==player && 
 				G.activeCreature.type=="--" &&
 				G.activeCreature.abilities[3].used==false
 			  )
 			{
+				$j('#materialize_button').show();
 				
 				var lvl = creatureType.substring(1,2)-0;
 				var size = G.retreiveCreatureStats(creatureType).size-0;
 				plasmaCost = lvl+size;
 
-				//Psyhelm overload
-				if( G.activeCreature.player.getNbrOfCreatures() >= G.creaLimitNbr ){
-					$j('#materialize_button p').text("Error: Psyhelm overload! Maximum creatures controlled");
+				//Messages
+				if(G.activeCreature.player.getNbrOfCreatures() >= G.creaLimitNbr){
+					$j('#materialize_button p').text("Error: Overload! Maximum creatures controlled");
 				}else if(plasmaCost>G.activeCreature.player.plasma){
 					$j('#materialize_button p').text("Error: Low Plasma! Cannot materialize creature");
 				}else{
 					$j('#materialize_button p').text("Materialize this selected creature for "+plasmaCost+" plasma");
 
-					//Bind buttons
+					//Bind button
 					$j('#materialize_button').bind('click',function(e){
 						if(G.freezedInput) return;
-						G.UI.materializeToggled = false;
+						G.UI.materializeToggled = true;
 						G.UI.selectAbility(3);
 						G.UI.toggleDash();
 						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
@@ -272,9 +274,11 @@ var UI = Class.create({
 				}
 
 			}else{
-				if( G.activeCreature.player.id==player &&  this.materializeToggled ){
-
+				if(G.activeCreature.player.id==player &&  this.materializeToggled){
+					$j('#materialize_button').show();
 					$j('#materialize_button p').text("Please select an available creature from the grid");
+				}else{
+					$j('#materialize_button').hide();
 				}
 			}
 
