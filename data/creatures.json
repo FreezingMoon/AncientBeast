@@ -39,8 +39,8 @@
     	"ability_info": [
     		{
     			"title": "Artificial Satellite",
-    			"desc": "Protects from all harm and also facilitates distant materialization.",
-    			"info": "-2 plasma per use"
+    			"desc": "Protects from most harmful abilities.",
+    			"info": "-1 plasma per use"
     		},
     		{
     			"title": "Electroshock",

@@ -22,7 +22,7 @@ abilities[0] =[
 
 	//	activate() : 
 	activate : function(damage) {
-		this.creature.player.plasma  -= 2;
+		this.creature.player.plasma  -= 1;
 		this.end();
 		damage.damages = {};
 		damage.status = "Shielded";
