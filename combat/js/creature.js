@@ -444,95 +444,127 @@ var Creature = Class.create({
 
 		var hexId = 0;
 
-		path.each(function(){
-			var nextPos = G.grid.hexs[this.y][this.x-creature.size+1];
-			var thisHexId = hexId;
-			creature.$display.animate(nextPos.displayPos,parseInt(creature.animation.walk_speed),"linear",function(){
-				//creature.facePlayerDefault(creature);
-				var currentHex = path[thisHexId];
+		if( opts.animation == "teleport" ){
+			var currentHex = G.grid.hexs[hex.y][hex.x-creature.size+1];
+
+			creature.$display.animate({opacity:0},500,"linear",function(){
+				creature.$display
+					.css(currentHex.displayPos)
+					.css("z-index",currentHex.y)
+					.animate({opacity:1},500,"linear");
 
 				creature.cleanHex();
-				creature.x 	= currentHex.x - 0;
-				creature.y 	= currentHex.y - 0;
-				creature.pos 	= currentHex.pos;
+				creature.x 	= hex.x - 0;
+				creature.y 	= hex.y - 0;
+				creature.pos 	= hex.pos;
 				creature.updateHex();
 
-				if(!opts.ignoreMovementPoint){
-					creature.travelDist++;
-					creature.remainingMove--;
+				G.grid.updateDisplay();
 
-					//      STEP IN
+				//TODO turn around animation
+				creature.facePlayerDefault();
 
-					//Trap
-					creature.hexagons.each(function(){
-						this.activateTrap(G.triggers.onStepIn,creature);
-					});
-					//Passive abilities
-					creature.abilities.each(function(){
-						if( G.triggers.onStepIn.test(this.trigger) ){
-							if( this.require(currentHex) ){
-								this.activate(currentHex);
-							}
-						}
-					});
+				//reveal and position healh idicator
+				var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
+				creature.$health
+					.css(G.grid.hexs[creature.y][offsetX].displayPos)
+					.css("z-index",creature.y)
+					.show();
 
-					//Passive effects
-					creature.effects.each(function(){
-						if( G.triggers.onStepIn.test(this.trigger) ){
-							this.activate(currentHex);
-						}
-					});
-				}
-
-				if( thisHexId < path.length-1 && creature.remainingMove > 0 ){
-					//Determine facing
-					if(opts.animation!="push") creature.faceHex(path[thisHexId+1],currentHex);
-
-					//      STEP OUT
-					//Trap
-					creature.hexagons.each(function(){
-						this.activateTrap(G.triggers.onStepOut,creature);
-					});
-					//Passive abilities
-					creature.abilities.each(function(){
-						if( G.triggers.onStepOut.test(this.trigger) ){
-							if( this.require(currentHex) ){
-								this.activate(currentHex);
-							}
-						}
-					});
-
-					//Passive effects
-					creature.effects.each(function(){
-						if( G.triggers.onStepOut.test(this.trigger) ){
-							this.activate(currentHex);
-						}
-					});
-				}else{
-					creature.$display.clearQueue(); //Stop the creature
-
-					G.grid.updateDisplay();
-
-					//TODO turn around animation
-					creature.facePlayerDefault();
-
-					//reveal and position healh idicator
-					var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
-					creature.$health
-						.css(G.grid.hexs[creature.y][offsetX].displayPos)
-						.css("z-index",creature.y)
-						.show();
-
-					G.freezedInput = false;
-					opts.callback();
-				}
-
-				//Callback function set the proper z-index;
-				creature.$display.css("z-index",nextPos.y);
-
+				G.freezedInput = false;
+				opts.callback();
 			});
-			hexId++;
-		})
+		}else{
+			path.each(function(){
+				var nextPos = G.grid.hexs[this.y][this.x-creature.size+1];
+				var thisHexId = hexId;
+				creature.$display.animate(nextPos.displayPos,parseInt(creature.animation.walk_speed),"linear",function(){
+					//creature.facePlayerDefault(creature);
+					var currentHex = path[thisHexId];
+
+					creature.cleanHex();
+					creature.x 	= currentHex.x - 0;
+					creature.y 	= currentHex.y - 0;
+					creature.pos 	= currentHex.pos;
+					creature.updateHex();
+
+					if(!opts.ignoreMovementPoint){
+						creature.travelDist++;
+						creature.remainingMove--;
+
+						//      STEP IN
+
+						//Trap
+						creature.hexagons.each(function(){
+							this.activateTrap(G.triggers.onStepIn,creature);
+						});
+						//Passive abilities
+						creature.abilities.each(function(){
+							if( G.triggers.onStepIn.test(this.trigger) ){
+								if( this.require(currentHex) ){
+									this.activate(currentHex);
+								}
+							}
+						});
+
+						//Passive effects
+						creature.effects.each(function(){
+							if( G.triggers.onStepIn.test(this.trigger) ){
+								this.activate(currentHex);
+							}
+						});
+					}
+
+					if( thisHexId < path.length-1 && creature.remainingMove > 0 ){
+						//Determine facing
+						if(opts.animation!="push") creature.faceHex(path[thisHexId+1],currentHex);
+
+						//      STEP OUT
+						//Trap
+						creature.hexagons.each(function(){
+							this.activateTrap(G.triggers.onStepOut,creature);
+						});
+						//Passive abilities
+						creature.abilities.each(function(){
+							if( G.triggers.onStepOut.test(this.trigger) ){
+								if( this.require(currentHex) ){
+									this.activate(currentHex);
+								}
+							}
+						});
+
+						//Passive effects
+						creature.effects.each(function(){
+							if( G.triggers.onStepOut.test(this.trigger) ){
+								this.activate(currentHex);
+							}
+						});
+					}else{
+						creature.$display.clearQueue(); //Stop the creature
+
+						G.grid.updateDisplay();
+
+						//TODO turn around animation
+						creature.facePlayerDefault();
+
+						//reveal and position healh idicator
+						var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
+						creature.$health
+							.css(G.grid.hexs[creature.y][offsetX].displayPos)
+							.css("z-index",creature.y)
+							.show();
+
+						G.freezedInput = false;
+						opts.callback();
+					}
+
+					//Callback function set the proper z-index;
+					creature.$display.css("z-index",nextPos.y);
+
+				});
+				hexId++;
+			})
+		}
 	},
 
 

@@ -142,11 +142,60 @@ abilities[7] =[
 		var ability = args.args.ability;
 		ability.end();
 
+
+		var targets = ability.getTargets(ability.creature.adjacentHexs(1));
+
+		targets.each(function(){
+
+			if( !(this.target instanceof Creature) ) return;
+
+			var trg = this.target;
+
+			if(trg.team%2 != ability.creature.team%2){ //If Foe
+
+				var optArg = { alterations : {burn : -1} };
+
+				//Roasted effect
+				var effect = new Effect(
+					"Roasted", //Name
+					ability.creature, //Caster
+					trg, //Target
+					"", //Trigger
+					optArg //Optional arguments
+				);
+				trg.addEffect(effect);
+			}
+		})
+
 		args.creature.moveTo(hex,{
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			animation : "teleport",
-			callback : function(){ 
+			callback : function(){
+
+				var targets = ability.getTargets(ability.creature.adjacentHexs(1));
+
+				targets.each(function(){
+				if( !(this.target instanceof Creature) ) return;
+
+					var trg = this.target;
+
+					if(trg.team%2 != ability.creature.team%2){ //If Foe
+
+						var optArg = { alterations : {burn : -1} };
+
+						//Roasted effect
+						var effect = new Effect(
+							"Roasted", //Name
+							ability.creature, //Caster
+							trg, //Target
+							"", //Trigger
+							optArg //Optional arguments
+						);
+						trg.addEffect(effect);
+					}
+				})
+
 				G.activeCreature.queryMove() 
 			}
 		}); 
