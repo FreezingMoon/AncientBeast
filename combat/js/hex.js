@@ -143,8 +143,14 @@ var HexGrid = Class.create({
 					if(o.stopOnCreature) this.dashed = true;
 				});
 
-				dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team)
-				.each(function(){ this.dashed = false; });
+				dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team);
+
+				if( o.stopOnCreature && o.includeCrea && (i==1 || i==4) ){ // Only straight direction
+					if(dir.last().creature instanceof Creature)
+						dir = dir.concat(dir.last().creature.hexagons); //Add full creature
+				}
+
+				dir.each(function(){ this.dashed = false; });
 				
 				choices.push(dir);
 			}

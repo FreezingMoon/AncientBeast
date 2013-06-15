@@ -201,7 +201,7 @@ body{
 #hexsdisplay .displayhex.creature.player3{background: url("../grid/hex_p3.png");}
 
 #hexsdisplay .displayhex.creature.hidden{ opacity: 0 !important; }
-
+#hexsdisplay .displayhex.creature.dashed{background: url("../grid/hex_dashed.png");  z-index: 5; opacity: 1 !important;}
 /*------------------Creatures------------------*/
 
 #creatureWrapper .creature .effects{
