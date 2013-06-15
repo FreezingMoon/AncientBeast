@@ -405,7 +405,7 @@ var Creature = Class.create({
 		var currentHex = creature.hexagons[0];
 
 		//Determine facing
-		creature.$display.animate({'margin-right':0},0,"linear",function(){ //To stack with other transforms
+		creature.$display.animate({'margin-right':0,opacity:1},0,"linear",function(){ //To stack with other transforms
 			//creature.facePlayerDefault();
 			if(opts.animation!="push") creature.faceHex(path[0],currentHex);
 		});
@@ -447,12 +447,11 @@ var Creature = Class.create({
 		if( opts.animation == "teleport" ){
 			var currentHex = G.grid.hexs[hex.y][hex.x-creature.size+1];
 
-			creature.$display.animate({opacity:0},500,"linear",function(){
+			creature.$display.css({opacity:0}).animate({'margin-right':0},500,"linear",function(){
 				creature.$display
 					.css(currentHex.displayPos)
-					.css("z-index",currentHex.y)
-					.animate({opacity:1},500,"linear");
-
+					.css({"z-index":currentHex.y,opacity:1});
+				
 				creature.cleanHex();
 				creature.x 	= hex.x - 0;
 				creature.y 	= hex.y - 0;
