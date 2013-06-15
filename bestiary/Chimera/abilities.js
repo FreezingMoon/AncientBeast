@@ -86,9 +86,10 @@ abilities[45] =[
 	//	activate() : 
 	activate : function(target,args) {
 		var ability = args.ability;
-		ability.end();
 
 		ability.creature.abilities[0].abilityTriggered(0);
+
+		ability.end();
 
 		var damage = new Damage(
 			ability.creature, //Attacker
@@ -153,9 +154,9 @@ abilities[45] =[
 	//	activate() : 
 	activate : function(path,args) {
 		var ability = args.ability;
-		ability.end();
 
 		ability.creature.abilities[0].abilityTriggered(1);
+		ability.end();
 
 		crea = path.last().creature;
 
@@ -221,9 +222,11 @@ abilities[45] =[
 	//	activate() : 
 	activate : function(path,args) {
 		var ability = args.ability;
-		ability.end();
 
 		ability.creature.abilities[0].abilityTriggered(2);
+
+		ability.end();
+
 
 		var targets = [];
 		targets.push(path.last().creature);
