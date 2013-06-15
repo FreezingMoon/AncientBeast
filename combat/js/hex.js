@@ -1115,7 +1115,7 @@ var Hex = Class.create({
 	*
 	*/
 	cleanOverlayVisualState: function(classes){
-		classes=(classes!==undefined)?classes:"creature active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3";
+		classes=(classes!==undefined)?classes:"creature weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3";
 		this.$overlay.removeClass(classes);
 
 	},

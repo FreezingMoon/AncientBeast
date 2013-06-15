@@ -36,8 +36,10 @@ var Ability = Class.create({
 		G.log(this.creature.player.name+"'s "+this.creature.name+" uses "+this.title);
 		this.setUsed(true) //Should always be here
 		G.UI.updateInfos(); //Just in case
-		if(this.trigger == "onQuery")
+		if(this.trigger == "onQuery"){
 			G.activeCreature.queryMove();
+			G.clearOncePerDamageChain();
+		}
 	},
 
 

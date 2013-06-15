@@ -14,9 +14,12 @@ abilities[7] =[
 		burn : 10
 	},
 
+	triggeredThisChain : false,
+
 	// 	require() :
 	require : function(damage){
 		if( !this.testRequirements() ) return false;
+		if( this.triggeredThisChain ) return false
 		if(damage == undefined) damage = {type:"target"}; //For the test function to work
 		if( this.dmgIsType("retaliation",damage) ) return false;
 		return true;
@@ -34,6 +37,8 @@ abilities[7] =[
 			[],	//Effects
 			targets
 		);
+
+		this.triggeredThisChain = true;
 
 		return damage;
 	},
@@ -175,15 +180,25 @@ abilities[7] =[
 
 		var range = crea.hexagons[1].adjacentHex(3);
 
+		var head = range.indexOf(crea.hexagons[0]);
+		var tail = range.indexOf(crea.hexagons[2]);
+		range.splice(head,1);
+		range.splice(tail,1);
+
 		G.grid.queryHexs({
 			fnOnConfirm : ability.activate, //fnOnConfirm
 			fnOnSelect : function(hex,args){
-				var aoe = hex.adjacentHex(1).concat(hex);
-				aoe.each(function(){
+				if( hex.creature instanceof Creature ){
+					hex.overlayVisualState("creature selected player"+hex.creature.team);
+				}else{
+					hex.overlayVisualState("creature selected player"+G.activeCreature.team);
+				}				
+
+				hex.adjacentHex(1).each(function(){
 					if( this.creature instanceof Creature ){
-						this.overlayVisualState("creature selected player"+this.creature.team);
+						this.overlayVisualState("creature selected weakDmg player"+this.creature.team);
 					}else{
-						this.overlayVisualState("creature selected player"+G.activeCreature.team);
+						this.overlayVisualState("creature selected weakDmg player"+G.activeCreature.team);
 					}
 				});
 			},

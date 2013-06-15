@@ -527,6 +527,18 @@ var Game = Class.create({
 		retaliation : new RegExp('retaliation', 'i'),
 	},
 
+	clearOncePerDamageChain: function(){
+		for (var i = this.creatures.length - 1; i >= 0; i--) {
+			if(this.creatures[i] instanceof Creature){
+				for (var j = this.creatures[i].abilities.length - 1; j >= 0; j--) {
+					if(G.triggers.oncePerDamageChain.test(this.creatures[i].abilities[j].trigger)){
+						this.creatures[i].abilities[j].triggeredThisChain = false;
+					}
+				};
+			}
+		};
+	},
+
 	/*	endGame()
 	*
 	*	End the game and print stats

@@ -177,6 +177,14 @@ body{
 	-ms-animation: pulse0510 750ms infinite alternate;
 	-o-animation: pulse0510 750ms infinite alternate;
 }
+#hexsoverlay .displayhex.creature.selected.weakDmg{
+	animation: pulse0205 750ms infinite alternate;
+	-webkit-animation: pulse0205 750ms infinite alternate;
+	-moz-animation: pulse0205 750ms infinite alternate;
+	-ms-animation: pulse0205 750ms infinite alternate;
+	-o-animation: pulse0205 750ms infinite alternate;
+}
+
 
 #hexsoverlay .displayhex.hover{background: url("../grid/hex.png");}
 /*p0*/
@@ -713,6 +721,11 @@ body{
 @-webkit-keyframes pulse0510 { 0% {opacity: .5;} 100% {opacity: 1;} }
 @-o-keyframes pulse0510 { 0% {opacity: .5;} 100% {opacity: 1;} }
 
+/*Pulse between .8 and 1 opacity*/
+@keyframes pulse0205 { 0% {opacity: .2;} 100% {opacity: .5;} }
+@-moz-keyframes pulse0205 { 0% {opacity: .2;} 100% {opacity: .5;} }
+@-webkit-keyframes pulse0205 { 0% {opacity: .2;} 100% {opacity: .5;} }
+@-o-keyframes pulse0205 { 0% {opacity: .2;} 100% {opacity: .5;} }
 
 /*----------------Game setup--------------*/
 
