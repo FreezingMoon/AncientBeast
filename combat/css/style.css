@@ -164,6 +164,7 @@ body{
 #hexsoverlay .displayhex.hover{ z-index: 8;}
 
 #hexsdisplay .adj{background: url("../grid/hex_path.png");  z-index: 5; opacity: 1;}
+#hexsdisplay .displayhex.dashed{background: url("../grid/hex_dashed.png");  z-index: 5; opacity: 1 !important;}
 
 /*--------------------Players------------------*/
 .displayhex.creature{z-index: 6 !important; opacity: 1 !important;}

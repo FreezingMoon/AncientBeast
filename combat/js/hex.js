@@ -138,8 +138,15 @@ var HexGrid = Class.create({
 
 				if( o.distance > 0 ) dir = dir.slice(0,o.distance+1);
 
-				dir.each(function(){ this.direction = (o.flipped)?5-i:i; });
-				choices.push(dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team));
+				dir.each(function(){ 
+					this.direction = (o.flipped)?5-i:i; 
+					if(o.stopOnCreature) this.dashed = true;
+				});
+
+				dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team)
+				.each(function(){ this.dashed = false; });
+				
+				choices.push(dir);
 			}
 		};
 		
@@ -356,6 +363,13 @@ var HexGrid = Class.create({
 			this.unsetReachable(); 
 			if(o.hideNonTarget) this.setNotTarget();
 			else this.unsetNotTarget();
+			if(this.dashed){
+				this.$display.addClass("dashed");
+				this.dashed = false;
+			}else{
+				this.$display.removeClass("dashed");
+			}
+			
 		});
 		//Set reachable the given hexs
 		o.hexs.each(function(){ 
