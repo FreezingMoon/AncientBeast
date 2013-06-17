@@ -109,7 +109,7 @@ case wallpapers:
 	break;
 
 case fanart:
-	echo '<div class="center">Do you want your fan art to show up in here as well? Then post it in the <a href="#comments"><b>comments</b></a> section or upload it to dA!</div>';
+	echo '<div class="center">Post your fan art in the <a href="#comments"><b>comments</b></a> section or upload it to the <a href="http://Ancient-Beast.deviantArt.com" target="_blank"><b>deviantArt</b></a> group. The best works will be featured!</div>';
 	separate_segment();
 	echo '<div class="center">';
 	$images = scandir("../media/fanart");
