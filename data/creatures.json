@@ -40,7 +40,7 @@
     		{
     			"title": "Artificial Satellite",
     			"desc": "Protects from most harmful abilities.",
-    			"info": "-1 plasma per use"
+    			"info": "-1 plasma for each countered attack"
     		},
     		{
     			"title": "Electroshock",
