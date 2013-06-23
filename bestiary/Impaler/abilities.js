@@ -47,7 +47,7 @@ abilities[5] =[
 	trigger : "onQuery",
 
 	damages : {
-		pierce : 20
+		pierce : 10
 	},
 
 	// 	require() :
@@ -138,7 +138,7 @@ abilities[5] =[
 	//	activate() : 
 	activate : function() {
 		this.end();
-		var effect = new Effect("Poisonous Vine",this.creature,this.creature,"poisonous_vine",{
+		var effect = new Effect("Poisonous",this.creature,this.creature,"poisonous_vine",{
 			turnLifetime : 1,
 		});
 		this.creature.addEffect(effect);
@@ -165,8 +165,8 @@ abilities[5] =[
 	},
 
 	damages : {
-		slash : 20, 
-		frost : 10
+		slash : 16, 
+		frost : 4
 	},
 
 	map : [  [0,0,0,0],
@@ -211,7 +211,7 @@ abilities[5] =[
 					if(this.trigger == "poisonous_vine_perm"){
 						finalDmg.poison += 1;
 					}else if(this.trigger == "poisonous_vine"){
-						finalDmg.poison += 20;
+						finalDmg.poison += 5;
 					}
 				});
 

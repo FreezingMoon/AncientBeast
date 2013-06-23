@@ -57,7 +57,7 @@ abilities[4] =[
 
 	damages : {
 		burn : 0,
-		crush : 10
+		crush : 9
 	},
 
 	// 	require() :
@@ -93,7 +93,7 @@ abilities[4] =[
 		var ability = args.ability;
 		ability.end();
 
-		ability.creature.burnBoost = (ability.creature.burnBoost+1) ? ability.creature.burnBoost : 0;
+		ability.creature.burnBoost = (ability.creature.burnBoost+1) ? ability.creature.burnBoost : 1;
 
 		var d = {burn:ability.creature.burnBoost, crush:ability.damages.crush};
 		
@@ -189,7 +189,7 @@ abilities[4] =[
 	trigger : "onQuery",
 
 	damages : {
-		crush : 15,
+		crush : 10,
 		burn : 5,
 	},
 

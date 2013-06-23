@@ -5,7 +5,7 @@
 */
 abilities[14] =[
 
-// 	First Ability: Self Flatten
+// 	First Ability: Gooey Body
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStartPhase",
