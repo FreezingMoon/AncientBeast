@@ -131,6 +131,7 @@ case videos:
 
 case music:
 	echo '<div class="center">';
+	echo '<img src="band.jpg">';
 	$media = scandir("../media/music");
 	natsort($media);
 	$i = 0;
@@ -138,7 +139,7 @@ case music:
 	foreach($media as $file) {
 		if($file == "." || $file == "..") continue;
 		if($i == 0){
-			echo '<audio id="audio" preload="auto" tabindex="0" controls="" ><source src="'.$file.'">'.$error.'</audio>';
+			echo '<audio id="audio" preload="auto" tabindex="0" controls="" style="width:890px";"><source src="'.$file.'">'.$error.'</audio>';
 			echo '<ul id="playlist" style="list-style-type: none;padding-left:0px;" >';
 		}
 		$title = substr($file, 0, -4);
