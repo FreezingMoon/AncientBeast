@@ -207,13 +207,13 @@
     	"ability_info": [
     		{
     			"title": "Spore Contamination",
-    			"desc": "Nearby foes have their regrowth stat constantly reduced with each round. Stacks will drop only if not adjacent.",
-    			"info": "-1 regrowth per stack"
+    			"desc": "Nearby foes have their regrowth stat constantly reduced with each round.",
+    			"info": "2 stacks on contact, -1 stack per turn"
     		},
     		{
     			"title": "Supper Chomp",
     			"desc": "Takes a huge bite out of his foe, restoring a minor amount of health.",
-    			"info": "20 pierce damage,1/4 as regrowth"
+    			"info": "20 pierce damage, 1/4 as regrowth"
     		},
     		{
     			"title": "Frogger Jump",
