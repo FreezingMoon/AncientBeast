@@ -130,6 +130,8 @@ var Creature = Class.create({
 		G.creatures[this.id] = this;
 		G.nextQueue.push(this);
 		G.reorderQueue();
+
+		this.delayable = true;
 		
 		this.summon();
 	},
@@ -183,6 +185,8 @@ var Creature = Class.create({
 					this.activate(crea);
 				}
 			});
+
+			this.delayable = true;
 		}
 
 		if(G.turn >= G.minimumTurnBeforeFleeing){ G.UI.btnFlee.changeState("normal"); }
@@ -259,7 +263,9 @@ var Creature = Class.create({
 			callback : function(hex,args){ 
 				args.creature.moveTo(hex,{
 					callback : function(){ G.activeCreature.queryMove() }
-				}); 
+				});
+				args.creature.delayable = true;
+				G.UI.btnDelay.changeState("disabled");
 			},
 		},o);
 

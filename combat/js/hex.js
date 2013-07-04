@@ -1156,7 +1156,6 @@ var Hex = Class.create({
 	//---------TRAP FUNCTION---------//
 
 	createTrap: function(type, effects, owner, opt){
-		console.log(opt);
 		if(!!this.trap) this.destroyTrap();
 		this.trap = new Trap(this.x,this.y,type,effects,owner,opt);
 		return this.trap;

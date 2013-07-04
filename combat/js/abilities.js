@@ -39,6 +39,8 @@ var Ability = Class.create({
 		if(this.trigger == "onQuery"){
 			G.activeCreature.queryMove();
 			G.clearOncePerDamageChain();
+			G.activeCreature.delayable = false;
+			G.UI.btnDelay.changeState("disabled");
 		}
 	},
 

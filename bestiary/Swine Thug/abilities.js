@@ -55,7 +55,7 @@ abilities[37] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if( this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}

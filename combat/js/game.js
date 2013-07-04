@@ -431,7 +431,7 @@ var Game = Class.create({
 	*/
 	delayCreature: function(){
 		if(G.turnThrottle) return;
-		if(this.activeCreature.hasWait) return;
+		if(this.activeCreature.hasWait || !this.activeCreature.delayable) return;
 
 		G.turnThrottle = true
 		G.UI.btnSkipTurn.changeState("disabled");
