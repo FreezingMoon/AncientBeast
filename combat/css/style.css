@@ -126,6 +126,9 @@ body{
 	opacity: 0;
 }
 
+
+
+
 #hexsinput .hex div,.hex div:before,.hex div:after{
 	position: relative;
 	display: block;
@@ -159,6 +162,12 @@ body{
 	-moz-transform:rotate(60deg); /* Firefox */
 	-webkit-transform:rotate(60deg); /* Safari and Chrome */
 	-o-transform:rotate(60deg); /* Opera */
+}
+
+#hexsinput .hex.not-reachable div,
+#hexsinput .hex.not-reachable div:after,
+#hexsinput .hex.not-reachable div:before{
+	cursor: default;
 }
 
 #hexsoverlay .displayhex.hover{ z-index: 8;}
