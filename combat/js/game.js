@@ -412,7 +412,7 @@ var Game = Class.create({
 		setTimeout(function(){
 			G.turnThrottle=false;
 			G.UI.btnSkipTurn.changeState("normal");
-			if(!G.activeCreature.hasWait) G.UI.btnDelay.changeState("normal");
+			if(!G.activeCreature.hasWait && (G.delayQueue.length+G.queue.length!=0) ) G.UI.btnDelay.changeState("normal");
 		},1000)
 		G.grid.clearHexViewAlterations();
 		this.activeCreature.facePlayerDefault();
@@ -439,7 +439,7 @@ var Game = Class.create({
 		setTimeout(function(){
 			G.turnThrottle=false;
 			G.UI.btnSkipTurn.changeState("normal");
-			if(!G.activeCreature.hasWait) G.UI.btnDelay.changeState("normal");
+			if(!G.activeCreature.hasWait && (G.delayQueue.length+G.queue.length!=0) ) G.UI.btnDelay.changeState("normal");
 		},1000)
 		var skipTurn = new Date();
 		var p = this.activeCreature.player;
