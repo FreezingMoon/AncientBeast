@@ -357,14 +357,18 @@ var UI = Class.create({
 		if(!this.$dash.hasClass("active")){
 			this.showCreature("--",G.activeCreature.team);
 		}else{
-			this.$dash.removeClass("active");
-			if(this.materializeToggled){
-				this.selectAbility(-1);
-				G.activeCreature.queryMove();
-			}
-			this.materializeToggled = false;
+			this.closeDash();
 		}
 
+	},
+
+	closeDash: function(){
+		this.$dash.removeClass("active");
+		if(this.materializeToggled){
+			this.selectAbility(-1);
+			G.activeCreature.queryMove();
+		}
+		this.materializeToggled = false;
 	},
 
 
@@ -391,6 +395,7 @@ var UI = Class.create({
 						G.activeCreature.abilities[this.abilityId].use();
 					}else{
 						//Cancel Abilitie
+						G.UI.closeDash();
 						G.activeCreature.queryMove();
 					}
 				};
