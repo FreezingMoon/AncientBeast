@@ -155,7 +155,7 @@ require_once('../bestiary/cards.php');
 						<option value="Shadow Cave">Shadow Cave</option>
 					</select><br/><br/>
 
-					Plasma : 
+					Plasma Points : 
 					<select name="plasma">
 						<option value="5">5</option>
 						<option value="10">10</option>
@@ -191,8 +191,8 @@ require_once('../bestiary/cards.php');
 						<option value="99">99 sec</option>
 					</select><br/>
 
-					Active Creatures : 
-					<select name="active_creatures">
+					Active Units : 
+					<select name="active_units">
 						<option value="1">1</option>
 						<option value="2">2</option>
 						<option value="3">3</option>
