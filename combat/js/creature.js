@@ -709,6 +709,9 @@ var Creature = Class.create({
 		if(this.health + amount > this.baseStats.health)
 			amount = this.baseStats.health - this.health; //Cap health point
 
+		if(this.health + amount < 1)
+			amount = this.health-1; //Cap to 1hp
+
 		if(amount == 0) return;
 
 		this.health += amount; 
