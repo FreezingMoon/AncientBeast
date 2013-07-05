@@ -260,8 +260,8 @@ body{
 	-webkit-transition: opacity 500ms; /* Safari and Chrome */
 	-o-transition: opacity 500ms; /* Opera */
 }
-.creature.ghosted{opacity: .25;}
-.ghosted_hidden{opacity: .4!important;}
+.creature.ghosted{opacity: .25 !important;}
+.ghosted_hidden{opacity: .4 !important;}
 
 
 /*-----------------EFFECTS-------------------*/
