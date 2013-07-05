@@ -34,7 +34,7 @@ require_once('../bestiary/cards.php');
 	<head>
 		<meta charset='utf-8'>
 
-		<title>Ancient Beast 0.1</title>
+		<title>Ancient Beast 0.2</title>
 
 		<link rel="stylesheet" type="text/css" href="./css/style.css">
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
@@ -169,25 +169,37 @@ require_once('../bestiary/cards.php');
 						<option value="90">90</option>
 					</select><br/>
 
-					Time pool (for each player) : 
+					Time Pools : 
 					<select name="time_pool">
 						<option value="-1">&#8734;</option>
 						<option value="1">1 min</option>
-						<option value="2">2 min</option>
-						<option value="3">3 min</option>
 						<option value="5">5 min</option>
-						<option value="6">6 min</option>
-						<option value="7">7 min</option>
-						<option value="8">8 min</option>
+						<option value="10">10 min</option>
+						<option value="15">15 min</option>
+						<option value="20">20 min</option>
+						<option value="25">25 min</option>
+						<option value="30">30 min</option>
 					</select><br/>
 
-					Turn time : 
+					Turn Time : 
 					<select name="time_turn">
 						<option value="-1">&#8734;</option>
 						<option value="20">20 sec</option>
 						<option value="40">40 sec</option>
 						<option value="60">60 sec</option>
 						<option value="80">80 sec</option>
+						<option value="99">99 sec</option>
+					</select><br/>
+
+					Active Creatures : 
+					<select name="active_creatures">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
 					</select><br/>
 
 					<input type="submit" value="START">
