@@ -135,7 +135,7 @@ abilities[14] =[
 		sonic : 15,
 	},
 
-	directions : [0,1,0,0,1,0],
+	directions : [1,1,1,1,1,1],
 
 	// 	require() :
 	require : function(){
@@ -218,7 +218,7 @@ abilities[14] =[
 			default:
 				break;
 		}
-return;
+
 		if(dir.length <= 1) {
 			return;
 		}
