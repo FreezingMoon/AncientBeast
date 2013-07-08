@@ -112,6 +112,7 @@ var Game = Class.create({
 			turnTimePool : 60,
 			background_image : "Frozen Skull",
 			plasma_amount : 50,
+			creaLimitNbr : 7,
 		}
 		setupOpt = $j.extend(defaultOpt,setupOpt);
 		$j.extend(this,setupOpt);
@@ -175,9 +176,6 @@ var Game = Class.create({
 	*
 	*/
 	setup: function(nbrPlayer){
-
-		//Rules Variables
-		this.creaLimitNbr = 7; //Psyhelm overload
 
 		//reseting global counters
 		trapID = 0;

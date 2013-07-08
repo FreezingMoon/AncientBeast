@@ -392,6 +392,8 @@ var UI = Class.create({
 				this.css.normal = {"background-image":"url('../bestiary/"+G.activeCreature.name+"/"+this.abilityId+".svg')"};
 				this.$button.children(".desc").html("<span>"+ab.title+"</span><p>"+ab.desc+"<br>"+ab.info+"</p>");
 				this.click = function(){
+					if(G.UI.dashopen) return false;
+					
 					G.grid.clearHexViewAlterations();
 					if(G.UI.selectedAbility!=this.abilityId){
 						//Activate Abilitie

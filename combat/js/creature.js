@@ -721,14 +721,15 @@ var Creature = Class.create({
 
 		if(amount>0){
 			this.hint(amount,'healing d'+amount);
+			G.log(this.player.name+"'s "+this.name+" recovers +"+amount+" health");
 		}else if(amount==0){
 			this.hint("!",'msg_effects');
 		}else{
 			this.hint(amount,'dammage d'+amount);
+			G.log(this.player.name+"'s "+this.name+" loses -"+amount+" health");
 		}
 		
 
-		G.log(this.player.name+"'s "+this.name+" recovers +"+amount+" health");
 	},
 
 
