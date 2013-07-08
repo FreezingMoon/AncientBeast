@@ -712,14 +712,21 @@ var Creature = Class.create({
 		if(this.health + amount < 1)
 			amount = this.health-1; //Cap to 1hp
 
-		if(amount == 0) return;
+		//if(amount == 0) return;
 
 		this.health += amount; 
 
 		//Health display Update
 		this.updateHealth();
 
-		this.hint(amount,'healing d'+amount);
+		if(amount>0){
+			this.hint(amount,'healing d'+amount);
+		}else if(amount==0){
+			this.hint("!",'msg_effects');
+		}else{
+			this.hint(amount,'dammage d'+amount);
+		}
+		
 
 		G.log(this.player.name+"'s "+this.name+" recovers +"+amount+" health");
 	},
