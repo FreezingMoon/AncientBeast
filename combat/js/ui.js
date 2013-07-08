@@ -52,21 +52,21 @@ var UI = Class.create({
 		//Skip Turn Button
 		this.btnSkipTurn = new Button({
 			$button : $j("#skip.button"),
-			click : function(e){G.skipTurn();},
+			click : function(e){ if(!G.UI.dashopen) G.skipTurn();},
 		});
 		this.buttons.push(this.btnSkipTurn);
 
 		//Delay Creature Button
 		this.btnDelay = new Button({
 			$button : $j("#delay.button"),
-			click : function(e){G.delayCreature();},
+			click : function(e){ if(!G.UI.dashopen) G.delayCreature();},
 		});
 		this.buttons.push(this.btnDelay);
 
 		//Flee Match Button
 		this.btnFlee = new Button({
 			$button : $j("#flee.button"),
-			click : function(e){G.activeCreature.player.flee();},
+			click : function(e){ if(!G.UI.dashopen) G.activeCreature.player.flee();},
 			state : "disabled",
 		});
 		this.buttons.push(this.btnFlee);
@@ -127,10 +127,10 @@ var UI = Class.create({
 		this.selectedAbility = -1;
 		
 		this.materializeToggled = false;
+		this.dashopen = false;
 
 		if(G.turnTimePool) $j(".turntime").text(zfill(Math.floor(G.turnTimePool/60),2)+":"+zfill(G.turnTimePool%60,2));
-		if(G.timePool) $j(".timepool").text(zfill(Math.floor(G.timePool/60),2)+":"+zfill(G.timePool%60,2));
-			
+		if(G.timePool) $j(".timepool").text(zfill(Math.floor(G.timePool/60),2)+":"+zfill(G.timePool%60,2));			
 
 		//Show UI
 		this.$display.show();
@@ -157,6 +157,8 @@ var UI = Class.create({
 	*
 	*/
 	showCreature: function(creatureType,player){
+
+		this.dashopen = true;
 
 		//Set dash active
 		this.$dash.addClass("active");
@@ -368,6 +370,7 @@ var UI = Class.create({
 			this.selectAbility(-1);
 			G.activeCreature.queryMove();
 		}
+		this.dashopen = false;
 		this.materializeToggled = false;
 	},
 
