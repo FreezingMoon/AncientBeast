@@ -16,7 +16,10 @@ abilities[5] =[
 	// 	require() :
 	require : function(damage){
 		this.setUsed(false); //Can be triggered as many times
+		if( damage == undefined ) damage = { damages: {shock:1} }; //For checking to work
+
 		if( this.creature.electrifiedHair == 100 ) return false;
+		if( !damage.damages.shock ) return false;
 		return this.testRequirements();
 	},
 
