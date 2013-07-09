@@ -848,7 +848,7 @@
             {
                 "title": "Boom Box",
                 "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
-                "info": "15 sonic damage + 10 crush if melee"
+                "info": "15 sonic damage, double if no push."
             }
         ]
     },
@@ -1875,7 +1875,7 @@
             {
                 "title": "Life Breath",
                 "desc": "Brings back to life a dead ally for 3 rounds, after which it disintegrates.",
-                "info": "10 energy x creature level"
+                "info": "10 energy × creature level"
             }
         ]
     },
