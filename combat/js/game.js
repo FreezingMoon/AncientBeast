@@ -62,6 +62,7 @@ var Game = Class.create({
 		this.loadingSrc = 0;
 		this.minimumTurnBeforeFleeing = 12;
 		this.availableCreatures = [];
+		this.animationQueue = [];
 		this.loadedCreatures = [
 			0, //Dark Priest
 			37, //Swine Thug
@@ -513,6 +514,7 @@ var Game = Class.create({
 		onEndPhase : new RegExp('onEndPhase', 'i'),
 		onMovement : new RegExp('onMovement', 'i'),
 		onQuery : new RegExp('onQuery', 'i'),
+		onAttack : new RegExp('onAttack', 'i'),
 		onDamage : new RegExp('onDamage', 'i'),
 		oncePerDamageChain : new RegExp('oncePerDamageChain', 'i'),
 	},

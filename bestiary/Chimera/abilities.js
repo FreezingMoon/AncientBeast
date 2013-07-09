@@ -73,7 +73,7 @@ abilities[45] =[
 		var chimera = this.creature;
 
 		G.grid.queryCreature({
-			fnOnConfirm : this.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : chimera.id,
 			flipped : chimera.flipped,
@@ -138,7 +138,7 @@ abilities[45] =[
 		var chimera = this.creature;
 
 		G.grid.queryDirection({
-			fnOnConfirm : this.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : chimera.player.flipped,
 			team : 0, //enemies
 			id : chimera.id,
@@ -206,7 +206,7 @@ abilities[45] =[
 		var chimera = this.creature;
 
 		G.grid.queryDirection({
-			fnOnConfirm : this.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : chimera.player.flipped,
 			team : 0, //enemies
 			id : chimera.id,

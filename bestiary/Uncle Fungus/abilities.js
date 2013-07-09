@@ -23,6 +23,8 @@ abilities[3] =[
 		if( this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
 			this.end();
 			this.setUsed(false); //Infinite triggering
+		}else{
+			return false;
 		}
 
 		targets.each(function(){
@@ -106,6 +108,7 @@ abilities[3] =[
 	// 	query() :
 	query : function(){
 		var uncle = this.creature;
+		var ability = this;
 
 		var map = [ 	[0,0,0,0],
 				[0,1,0,1],
@@ -113,7 +116,7 @@ abilities[3] =[
 				[0,1,0,1]];
 
 		G.grid.queryCreature({
-			fnOnConfirm : this.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : uncle.id,
 			flipped : uncle.flipped,
@@ -181,7 +184,7 @@ abilities[3] =[
 
 		G.grid.queryHexs({
 			fnOnSelect : function(hex,args){ args.ability.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+args.ability.creature.team }) },
-			fnOnConfirm : this.activate,
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			args : {ability: this}, //Optional args
 			size :  uncle.size,
 			flipped :  uncle.player.flipped,
@@ -248,10 +251,11 @@ abilities[3] =[
 
 	// 	query() :
 	query : function(){
+		var ability = this;
 		var uncle = this.creature;
 
 		G.grid.queryCreature({
-			fnOnConfirm : this.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : uncle.id,
 			flipped : uncle.flipped,

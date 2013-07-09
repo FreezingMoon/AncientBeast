@@ -62,6 +62,55 @@ var Ability = Class.create({
 		}
 	},
 
+	/* 	animation()
+	*	
+	*	Animate the creature
+	*	
+	*/
+	animation: function(){
+
+		var ab = this;
+		var args = arguments;
+
+		G.freezedInput = true;
+
+		//Animate
+		var p0 = G.grid.hexs[this.creature.y][this.creature.x-this.creature.size+1].displayPos.left;
+		var p1 = p0;
+		var p2 = p0;
+
+		p1 += (this.creature.flipped)?5:-5;
+		p2 += (this.creature.flipped)?-5:5;
+
+		if( !this.noAnimation ){
+			var id = Math.random();
+
+			G.animationQueue.push(id);
+
+			if(this.animation_datas == undefined){ 
+				this.animation_datas = { 
+					duration : 500,
+					delay : 350,
+				};
+			}
+
+			this.creature.$display.animate({left:p1},250,"linear");
+			this.creature.$display.animate({left:p2},100,"linear");
+			this.creature.$display.animate({left:p0},150,"linear");
+
+			setTimeout(function(){ 
+				if( !G.triggers.onAttack.test(this.trigger) ) ab.activate.apply(ab,args);
+			},this.animation_datas.delay);
+
+			setTimeout(function(){ 	
+				G.animationQueue.filter(function(){ return (this!=id); });
+				if( G.animationQueue.length == 0 ) G.freezedInput = false;
+			},this.animation_datas.duration);
+		}
+
+		if( G.triggers.onAttack.test(this.trigger) ) return ab.activate.apply(ab,args);
+	},
+
 
 	/* 	getTargets(hexs)
 	*

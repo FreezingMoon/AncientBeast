@@ -78,7 +78,7 @@ abilities[4] =[
 		var magmaSpawn = this.creature;
 
 		G.grid.queryCreature({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : magmaSpawn.id,
 			flipped : magmaSpawn.flipped,
@@ -150,7 +150,7 @@ abilities[4] =[
 		var magmaSpawn = this.creature;
 
 		G.grid.queryChoice({
-			fnOnConfirm : ability.activate,
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 3, 
 			requireCreature : 0,
 			id : magmaSpawn.id,
@@ -223,7 +223,7 @@ abilities[4] =[
 		var x = (magmaSpawn.player.flipped) ? magmaSpawn.x-magmaSpawn.size+1 : magmaSpawn.x ;
 
 		G.grid.queryDirection({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //enemies
 			id : magmaSpawn.id,
 			requireCreature : true,

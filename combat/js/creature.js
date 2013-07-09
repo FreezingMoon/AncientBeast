@@ -174,7 +174,7 @@ var Creature = Class.create({
 			this.abilities.each(function(){
 				if( G.triggers.onStartPhase.test(this.trigger) ){
 					if( this.require() ){
-						this.activate(crea);
+						this.animation(crea);
 					}
 				}
 			});
@@ -425,7 +425,7 @@ var Creature = Class.create({
 		creature.abilities.each(function(){
 			if( G.triggers.onStepOut.test(this.trigger) ){
 				if( this.require(currentHex) ){
-					this.activate(currentHex);
+					this.animation(currentHex);
 				}
 			}
 		});
@@ -507,7 +507,7 @@ var Creature = Class.create({
 						creature.abilities.each(function(){
 							if( G.triggers.onStepIn.test(this.trigger) ){
 								if( this.require(currentHex) ){
-									this.activate(currentHex);
+									this.animation(currentHex);
 								}
 							}
 						});
@@ -533,7 +533,7 @@ var Creature = Class.create({
 						creature.abilities.each(function(){
 							if( G.triggers.onStepOut.test(this.trigger) ){
 								if( this.require(currentHex) ){
-									this.activate(currentHex);
+									this.animation(currentHex);
 								}
 							}
 						});
@@ -744,9 +744,9 @@ var Creature = Class.create({
 
 		//Passive abilities
 		this.abilities.each(function(){
-			if( G.triggers.onDamage.test(this.trigger) ){
+			if( G.triggers.onAttack.test(this.trigger) ){
 				if( this.require(damage) ){
-					damage = this.activate(damage);
+					damage = this.animation(damage);
 				}
 			}
 		});
@@ -779,6 +779,15 @@ var Creature = Class.create({
 				this.die(damage.attacker);
 				return {damages:dmg, kill:true}; //Killed
 			}
+
+			//Passive abilities
+			this.abilities.each(function(){
+				if( G.triggers.onDamage.test(this.trigger) ){
+					if( this.require(damage) ){
+						damage = this.animation(damage);
+					}
+				}
+			});
 
 			return {damages:dmg, kill:false}; //Not Killed
 		}else{

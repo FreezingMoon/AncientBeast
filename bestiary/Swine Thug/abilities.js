@@ -69,19 +69,18 @@ abilities[37] =[
 		var swine = this.creature;
 
 		G.grid.queryCreature({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
 			team : 0, //Team, 0 = ennemies
 			id : swine.id,
 			flipped : swine.player.flipped,
 			hexs : swine.adjacentHexs(1),
-			args : {ability: ability}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(target,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var damage = new Damage(
@@ -132,8 +131,6 @@ abilities[37] =[
 		var ability = this;
 		var swine = this.creature;
 
-
-
 		var choices = [
 			//Front
 			G.grid.getHexMap(swine.x,swine.y-2,0,false,bellowrow),
@@ -150,7 +147,7 @@ abilities[37] =[
 		});
 		
 		G.grid.queryChoice({
-			fnOnConfirm : ability.activate,
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
 			team : 0, 
 			requireCreature : 1,
 			id : swine.id,
@@ -205,7 +202,7 @@ abilities[37] =[
 		
 		G.grid.queryHexs({
 			fnOnCancel : function(){ G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
-			fnOnConfirm : this.activate,
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			args : {ability:this}, //OptionalArgs
 			hexs : hexs,
 		});

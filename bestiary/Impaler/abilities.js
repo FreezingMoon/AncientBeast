@@ -8,7 +8,7 @@ abilities[5] =[
 // 	First Ability: Electrified Hair
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onDamage", //Just for display purpose the effect is in 2nd Ability
+	trigger : "onAttack", 
 
 	// 	require() :
 	require : function(){return this.testRequirements();},
@@ -71,7 +71,7 @@ abilities[5] =[
 		var creature = this.creature;
 
 		G.grid.queryCreature({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : creature.id,
 			flipped : creature.flipped,
@@ -134,7 +134,7 @@ abilities[5] =[
 
 	// 	query() :
 	query : function(){
-		this.activate()
+		this.animation();
 	},
 
 
@@ -183,7 +183,7 @@ abilities[5] =[
 		var ability = this;
 
 		G.grid.queryChoice({
-			fnOnConfirm : ability.activate,
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 3, 
 			requireCreature : 0,
 			id : this.creature.id,

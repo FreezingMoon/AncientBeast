@@ -55,7 +55,7 @@ abilities[14] =[
 	// 	query() :
 	query : function(){
 		G.grid.queryCreature({
-			fnOnConfirm : this.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : this.creature.id,
 			flipped : this.creature.player.flipped,
@@ -97,7 +97,7 @@ abilities[14] =[
 
 	// 	query() :
 	query : function(){
-		this.activate();
+		this.animation();
 	},
 
 
@@ -158,7 +158,7 @@ abilities[14] =[
 		var crea = this.creature;
 
 		G.grid.queryDirection({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : crea.player.flipped,
 			team : 0, //enemies
 			id : this.creature.id,
@@ -190,7 +190,7 @@ abilities[14] =[
 			1, //Area
 			[]	//Effects
 		);
-		console.log(damage);
+
 
 		target.takeDamage(damage);
 

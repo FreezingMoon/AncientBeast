@@ -775,7 +775,7 @@ var HexGrid = Class.create({
 	*	Draw a preview of the creature at the given coordinates
 	*/
 	previewCreature:function(pos,creatureData,player){
-		console.log("overlay")
+
 		this.updateDisplay(); //Retrace players creatures
 
 		var flipped_class = (player.flipped) ? " flipped" : "" ;

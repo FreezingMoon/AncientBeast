@@ -26,7 +26,7 @@ abilities[7] =[
 	},
 
 	//	activate() : 
-	activate : function(damage) {
+	activate : function(damage){
 		var targets = this.getTargets(this.creature.adjacentHexs(1));
 		this.end();
 		
@@ -78,7 +78,7 @@ abilities[7] =[
 		var crea = this.creature;
 
 		G.grid.queryDirection({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : crea.player.flipped,
 			team : 0, //enemies
 			id : this.creature.id,
@@ -131,7 +131,7 @@ abilities[7] =[
 			noPath : true,
 			isAbility : true,
 			range : G.grid.getFlyingRange(crea.x,crea.y,50,crea.size,crea.id),
-			callback : this.activate,
+			callback : function(){ ability.animation.apply(ability,arguments); },
 			args : {creature:crea, ability: ability},
 		});
 	},
@@ -235,7 +235,7 @@ abilities[7] =[
 		range.splice(tail,1);
 
 		G.grid.queryHexs({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			fnOnSelect : function(hex,args){
 				if( hex.creature instanceof Creature ){
 					hex.overlayVisualState("creature selected player"+hex.creature.team);

@@ -8,7 +8,7 @@ abilities[0] =[
 // 	First Ability: Artificial Satellite
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onDamage",
+	trigger : "onAttack",
 
 	requirements : {
 		plasma : 1,
@@ -60,7 +60,7 @@ abilities[0] =[
 		var dpriest = this.creature;
 
 		G.grid.queryCreature({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
@@ -130,7 +130,7 @@ abilities[0] =[
 		var dpriest = this.creature;
 
 		G.grid.queryCreature({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
@@ -187,6 +187,7 @@ abilities[0] =[
 
 	// 	query() :
 	query : function(){
+		var ability = this;
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		//Ask the creature to summon
@@ -202,6 +203,7 @@ abilities[0] =[
 	//Callback function to queryCreature
 	materialize : function(creature){
 		var crea = G.retreiveCreatureStats(creature);
+		var ability = this;
 		var dpriest = this.creature;
 
 		G.grid.forEachHexs(function(){ this.unsetReachable(); });
@@ -215,7 +217,7 @@ abilities[0] =[
 		G.grid.queryHexs({
 			fnOnSelect : this.fnOnSelect,
 			fnOnCancel : function(){ G.activeCreature.queryMove(); },
-			fnOnConfirm : this.activate,
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			args : {dpriest:dpriest, creature:creature, ability:this, cost: (crea.size-0)+(crea.lvl-0)}, //OptionalArgs
 			size : crea.size,
 			flipped : dpriest.player.flipped,
