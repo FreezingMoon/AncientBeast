@@ -390,7 +390,8 @@ var UI = Class.create({
 			G.UI.abilitiesButtons.each(function(){
 				var ab = G.activeCreature.abilities[this.abilityId];
 				this.css.normal = {"background-image":"url('../bestiary/"+G.activeCreature.name+"/"+this.abilityId+".svg')"};
-				this.$button.children(".desc").html("<span>"+ab.title+"</span><p>"+ab.desc+"<br>"+ab.info+"</p>");
+				this.$button.children(".desc").children("span").text(ab.title);
+				this.$button.children(".desc").children("p").html(ab.desc+"<br>"+ab.info);
 				this.click = function(){
 					if(G.UI.dashopen) return false;
 					

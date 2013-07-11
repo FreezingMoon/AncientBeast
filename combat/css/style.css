@@ -638,7 +638,7 @@ body{
 
 #chat #chatbox #chatcontent{
 	padding: 10px;
-	font-size: 11px;
+	font-size: 13px;
 	color: white;
 }
 
@@ -684,13 +684,14 @@ body{
 	width: 0px;
 	left: 85px;
 	color: white;
-	background: rgba(0,0,0,.8);
+	background: #000;
 	overflow: hidden;
 }
 
 .button:hover .desc{
 	width: 230px;
 	border: 1px #555 solid;
+	overflow: visible;
 }
 
 .button .desc span {
@@ -705,9 +706,57 @@ body{
 .button .desc p {
 	margin: 0;
 	padding: 5px 7px 7px;
-	font-size: 11px;
+	font-size: 13px;
 	color: #aaa;
 
+}
+
+.button .desc .arrow{
+	position: absolute;
+	top: 27px;
+	left:-6px;
+	height: 0;
+	position: absolute;
+	width: 0;
+}
+
+.button .desc .arrow:before{
+	content: "";
+	border-right: 6px solid #555;
+	border-top: 8px solid transparent;
+	border-bottom: 8px solid transparent;
+	display: inline-block;
+	height: 0;
+	position: absolute;
+	width: 0;
+}
+
+.button .desc .arrow:after{
+	content: "";
+	left:1px;
+	border-right: 6px solid #000;
+	border-top: 8px solid transparent;
+	border-bottom: 8px solid transparent;
+	display: inline-block;
+	height: 0;
+	position: absolute;
+	width: 0;
+}
+
+#rightpanel .button .desc .arrow{
+	right: 0px;
+	left: auto;
+}
+
+#rightpanel .button .desc .arrow:before{
+	border-right: 0px solid transparent;
+	border-left: 6px solid #555;
+}
+
+#rightpanel .button .desc .arrow:after{
+	border-right: 0px solid transparent;
+	border-left: 6px solid #000;
+	left:-1px;
 }
 
 #rightpanel .button:hover .desc{

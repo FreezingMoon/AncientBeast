@@ -70,6 +70,7 @@ abilities[45] =[
 
 	//	query() :
 	query : function(){
+		var ability = this;
 		var chimera = this.creature;
 
 		G.grid.queryCreature({
@@ -135,6 +136,7 @@ abilities[45] =[
 
 	//	query() :
 	query : function(){
+		var ability = this;
 		var chimera = this.creature;
 
 		G.grid.queryDirection({
@@ -203,6 +205,7 @@ abilities[45] =[
 
 	//	query() :
 	query : function(){
+		var ability = this;
 		var chimera = this.creature;
 
 		G.grid.queryDirection({
