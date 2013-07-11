@@ -351,17 +351,17 @@ require_once('../bestiary/cards.php');
 					<p ><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 				</div>
 				<div id="rightpanel">
-					<div id="skip" class="button"><div class="desc"><div class="arrow"></div><span><u>S</u>kip Turn</span><p>End the turn of the current creature and proceed with the next one in queue.</p></div></div>
-					<div id="delay" class="button"><div class="desc"><div class="arrow"></div><span><u>D</u>elay Creature</span><p>Delayed creatures will act at the end of the current round, if alive and non fatigued.</p></div></div>
-					<div id="flee" class="button"><div class="desc"><div class="arrow"></div><span><u>F</u>lee Match</span><p>Give up but only after first 12 rounds.</p></div></div>
+					<div id="skip" class="button"><div class="desc"><div class="arrow"></div><div class="shortcut">[hotkey S]</div><span>Skip Turn</span><p>End the turn of the current creature and proceed with the next one in queue.</p></div></div>
+					<div id="delay" class="button"><div class="desc"><div class="arrow"></div><div class="shortcut">[hotkey D]</div><span>Delay Creature</span><p>Delayed creatures will act at the end of the current round, if alive and non fatigued.</p></div></div>
+					<div id="flee" class="button"><div class="desc"><div class="arrow"></div><div class="shortcut">[hotkey F]</div><span>Flee Match</span><p>Give up but only after first 12 rounds.</p></div></div>
 				</div>
 				<div id="leftpanel">
 					<div id="activebox">
 						<div id="abilities">
-							<div ability="0" class="ability button" style="cursor:default;"><div class="desc"><div class="arrow"></div><span></span><p></p></div></div>
-							<div ability="1" class="ability button"><div class="desc"><div class="arrow"></div><span></span><p></p></div></div>
-							<div ability="2" class="ability button"><div class="desc"><div class="arrow"></div><span></span><p></p></div></div>
-							<div ability="3" class="ability button"><div class="desc"><div class="arrow"></div><span></span><p></p></div></div>
+							<div ability="0" class="ability button" style="cursor:default;"><div class="desc"><div class="arrow"></div><div class="shortcut">[passive]</div><span></span><p></p></div></div>
+							<div ability="1" class="ability button"><div class="desc"><div class="arrow"></div><div class="shortcut">[hotkey W]</div><span></span><p></p></div></div>
+							<div ability="2" class="ability button"><div class="desc"><div class="arrow"></div><div class="shortcut">[hotkey E]</div><span></span><p></p></div></div>
+							<div ability="3" class="ability button"><div class="desc"><div class="arrow"></div><div class="shortcut">[hotkey R]</div><span></span><p></p></div></div>
 						</div>
 					</div>
 				</div>

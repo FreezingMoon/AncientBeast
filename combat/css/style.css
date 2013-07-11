@@ -711,6 +711,14 @@ body{
 
 }
 
+.button .desc .shortcut{
+	font-size: 12px;
+	position: absolute;
+	font-style: italic;
+	right: 8px;
+	top: 8px;
+}
+
 .button .desc .arrow{
 	position: absolute;
 	top: 27px;
@@ -746,6 +754,11 @@ body{
 #rightpanel .button .desc .arrow{
 	right: 0px;
 	left: auto;
+}
+
+#rightpanel .button .desc .shortcut{
+	left: 8px;
+	right: auto;
 }
 
 #rightpanel .button .desc .arrow:before{
