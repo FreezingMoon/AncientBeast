@@ -54,26 +54,24 @@ abilities[14] =[
 
 	// 	query() :
 	query : function(){
+		var ability = this;
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : this.creature.id,
 			flipped : this.creature.player.flipped,
 			hexs : this.creature.adjacentHexs(1),
-			args : {creature:this.creature, ability: this}
 		});
 	},
 
 
-
-
 	//	activate() : 
 	activate : function(target,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var damage = new Damage(
-			args.creature, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			ability.damages, //Damage Type
 			1, //Area
@@ -166,14 +164,13 @@ abilities[14] =[
 			x : crea.x,
 			y : crea.y,
 			directions : this.directions,
-			args : {creature:crea, ability: ability}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(path,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();		
 
 		var target = path.last().creature;
@@ -184,7 +181,7 @@ abilities[14] =[
 		var d = (melee) ? {sonic:15,crush:10} : ability.damages;
 
 		var damage = new Damage( 
-			args.creature, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			d, //Damage Type
 			1, //Area
@@ -196,7 +193,7 @@ abilities[14] =[
 
 
 		var dir = [];
-		switch( path[0].direction ){
+		switch( args.direction ){
 			case 0: //Upright
 				dir = G.grid.getHexMap(target.x,target.y-8,0,target.flipped,diagonalup).reverse();
 				break;

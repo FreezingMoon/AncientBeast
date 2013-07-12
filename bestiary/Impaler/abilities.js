@@ -76,20 +76,19 @@ abilities[5] =[
 			id : creature.id,
 			flipped : creature.flipped,
 			hexs : G.grid.getHexMap(creature.x-3,creature.y-2,0,false,frontnback3hex),
-			args : {creature:creature, ability: ability}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(target,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var finalDmg = $j.extend({ poison:0, shock:0 },ability.damages); //Copy object
 
 		//Poison Bonus
-		args.creature.effects.each(function(){
+		ability.creature.effects.each(function(){
 			if(this.trigger == "poisonous_vine_perm"){
 				finalDmg.poison += 1;
 			}else if(this.trigger == "poisonous_vine"){
@@ -112,7 +111,7 @@ abilities[5] =[
 		}
 
 		var damage = new Damage(
-			args.creature, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			finalDmg, //Damage Type
 			1, //Area
@@ -187,7 +186,6 @@ abilities[5] =[
 			team : 3, 
 			requireCreature : 0,
 			id : this.creature.id,
-			args : {creature:this.creature, ability:ability},
 			flipped : this.creature.flipped,
 			choices : [
 				G.grid.getHexMap(this.creature.x,this.creature.y-2,0,false,this.map),
@@ -199,7 +197,7 @@ abilities[5] =[
 
 	//	activate() : 
 	activate : function(hexs,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var targets = ability.getTargets(hexs);
@@ -210,7 +208,7 @@ abilities[5] =[
 				var finalDmg = $j.extend({ poison:0, shock:0 },ability.damages); //Copy object
 
 				//Poison Bonus
-				args.creature.effects.each(function(){
+				ability.creature.effects.each(function(){
 					if(this.trigger == "poisonous_vine_perm"){
 						finalDmg.poison += 1;
 					}else if(this.trigger == "poisonous_vine"){
@@ -230,7 +228,7 @@ abilities[5] =[
 				}
 
 				var damage = new Damage(
-					args.creature, //Attacker
+					ability.creature, //Attacker
 					"target", //Attack Type
 					finalDmg, //Damage Type
 					1, //Area

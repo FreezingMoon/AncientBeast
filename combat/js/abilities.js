@@ -69,8 +69,39 @@ var Ability = Class.create({
 	*/
 	animation: function(){
 
+		//Gamelog Event Registration
+		if( G.triggers.onQuery.test(this.trigger) ){
+			if(arguments[0] instanceof Hex){
+				var args = $j.extend({},arguments);
+				delete args[0];
+				G.gamelog.add({action:"ability",target:{type:"hex",x:arguments[0].x,y:arguments[0].y},id:this.id,args:args});
+			}
+			if(arguments[0] instanceof Creature){
+				var args = $j.extend({},arguments);
+				delete args[0];
+				G.gamelog.add({action:"ability",target:{type:"creature",crea:arguments[0].id},id:this.id,args:args});
+			}
+			if(arguments[0] instanceof Array){
+				var args = $j.extend({},arguments);
+				delete args[0];
+				var array = []
+				arguments[0].each(function(){ array.push({x:this.x,y:this.y}); });
+				G.gamelog.add({action:"ability",target:{type:"array",array:array},id:this.id,args:args});
+			}
+		}
+		
+		return this.animation2({arg:arguments});
+	},
+
+	animation2: function(o){
+
+		var opt = $j.extend({
+			callback: function(){},
+			arg: {},
+		},o);
+
 		var ab = this;
-		var args = arguments;
+		var args = opt.arg;
 
 		G.freezedInput = true;
 
@@ -83,9 +114,9 @@ var Ability = Class.create({
 		p2 += (this.creature.flipped)?-5:5;
 
 		if( !this.noAnimation ){
-			var id = Math.random();
+			var anim_id = Math.random();
 
-			G.animationQueue.push(id);
+			G.animationQueue.push(anim_id);
 
 			if(this.animation_datas == undefined){ 
 				this.animation_datas = { 
@@ -103,10 +134,17 @@ var Ability = Class.create({
 			},this.animation_datas.delay);
 
 			setTimeout(function(){ 	
-				G.animationQueue.filter(function(){ return (this!=id); });
+				G.animationQueue.filter(function(){ return (this!=anim_id); });
 				if( G.animationQueue.length == 0 ) G.freezedInput = false;
 			},this.animation_datas.duration);
 		}
+
+		var interval = setInterval(function(){
+			if(!G.freezedInput){
+				clearInterval(interval);
+				opt.callback();
+			}
+		},100)
 
 		if( G.triggers.onAttack.test(this.trigger) ) return ab.activate.apply(ab,args);
 	},

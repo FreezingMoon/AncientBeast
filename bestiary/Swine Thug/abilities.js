@@ -151,7 +151,6 @@ abilities[37] =[
 			team : 0, 
 			requireCreature : 1,
 			id : swine.id,
-			args : {creature:swine, ability:ability},
 			flipped : swine.flipped,
 			choices : choices,
 		});
@@ -160,13 +159,13 @@ abilities[37] =[
 
 	//	activate() : 
 	activate : function(path,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var target = path.last().creature;
 
 		var damage = new Damage(
-			args.creature, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			ability.damages, //Damage Type
 			1, //Area
@@ -203,7 +202,6 @@ abilities[37] =[
 		G.grid.queryHexs({
 			fnOnCancel : function(){ G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			args : {ability:this}, //OptionalArgs
 			hexs : hexs,
 		});
 	},
@@ -212,7 +210,7 @@ abilities[37] =[
 	//	activate() : 
 	activate : function(hex,args) {
 		G.grid.clearHexViewAlterations();
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var effects = [

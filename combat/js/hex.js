@@ -236,6 +236,7 @@ var HexGrid = Class.create({
 				for (var i = 0; i < args.opt.choices.length; i++) {
 					for (var j = 0; j < args.opt.choices[i].length; j++) {
 						if(hex.pos==args.opt.choices[i][j].pos){
+							args.opt.args.direction = hex.direction;
 							args.opt.fnOnConfirm(args.opt.choices[i],args.opt.args);
 							break;
 						}
@@ -247,6 +248,7 @@ var HexGrid = Class.create({
 				for (var i = 0; i < args.opt.choices.length; i++) {
 					for (var j = 0; j < args.opt.choices[i].length; j++) {
 						if(hex.pos==args.opt.choices[i][j].pos){
+							args.opt.args.direction = hex.direction;
 							args.opt.fnOnSelect(args.opt.choices[i],args.opt.args);
 							break;
 						}

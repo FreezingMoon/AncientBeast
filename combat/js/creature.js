@@ -260,12 +260,13 @@ var Creature = Class.create({
 			noPath : false,
 			isAbility : false,
 			range : G.grid.getMovementRange(this.x,this.y,this.remainingMove,this.size,this.id),
-			callback : function(hex,args){ 
+			callback : function(hex,args){
+				G.gamelog.add({action:"move",target:{x:hex.x,y:hex.y}});
+				args.creature.delayable = true;
+				G.UI.btnDelay.changeState("disabled");
 				args.creature.moveTo(hex,{
 					callback : function(){ G.activeCreature.queryMove() }
 				});
-				args.creature.delayable = true;
-				G.UI.btnDelay.changeState("disabled");
 			},
 		},o);
 
@@ -408,6 +409,9 @@ var Creature = Class.create({
 
 		G.freezedInput = true;
 
+		var anim_id = Math.random();
+		G.animationQueue.push(anim_id);
+
 		var currentHex = creature.hexagons[0];
 
 		//Determine facing
@@ -476,8 +480,8 @@ var Creature = Class.create({
 					.css("z-index",creature.y)
 					.show();
 
-				G.freezedInput = false;
-				opts.callback();
+				G.animationQueue.filter(function(){ return (this!=anim_id); });
+				if( G.animationQueue.length == 0 ) G.freezedInput = false;
 			});
 		}else{
 			path.each(function(){
@@ -559,17 +563,25 @@ var Creature = Class.create({
 							.css("z-index",creature.y)
 							.show();
 
-						G.freezedInput = false;
-						opts.callback();
+						G.animationQueue.filter(function(){ return (this!=anim_id); });
+						if( G.animationQueue.length == 0 ) G.freezedInput = false;
 					}
 
-					//Callback function set the proper z-index;
+					//Set the proper z-index;
 					creature.$display.css("z-index",nextPos.y);
 
 				});
 				hexId++;
 			})
 		}
+
+		var interval = setInterval(function(){
+			if(!G.freezedInput){
+				clearInterval(interval);
+				opts.callback();
+			}
+		},100)
+
 	},
 
 

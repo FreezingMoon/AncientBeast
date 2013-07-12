@@ -83,18 +83,17 @@ abilities[12] =[
 			id : snowBunny.id,
 			flipped : snowBunny.player.flipped,
 			hexs : snowBunny.adjacentHexs(1),
-			args : {snowBunny:snowBunny, ability: ability}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(target,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var damage = new Damage(
-			args.snowBunny, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			ability.damages, //Damage Type
 			1, //Area
@@ -142,20 +141,19 @@ abilities[12] =[
 			x : snowBunny.x,
 			y : snowBunny.y,
 			directions : this.directions,
-			args : {snowBunny:snowBunny, ability: ability}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(path,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var target = path.last().creature;
 		var dist = 5 - target.size;
 		var dir = [];
-		switch( path[0].direction ){
+		switch( args.direction ){
 			case 0: //Upright
 				dir = G.grid.getHexMap(target.x,target.y-8,0,target.flipped,diagonalup).reverse();
 				break;
@@ -242,14 +240,13 @@ abilities[12] =[
 			x : snowBunny.x,
 			y : snowBunny.y,
 			directions : [1,1,1,1,1,1],
-			args : {snowBunny:snowBunny, ability: ability}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(path,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();		
 
 		var crea = path.last().creature;
@@ -260,7 +257,7 @@ abilities[12] =[
  		dmg.crush += dist; //Add distance to crush damage
 
 		var damage = new Damage(
-			args.snowBunny, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			dmg, //Damage Type
 			1, //Area

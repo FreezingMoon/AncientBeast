@@ -85,7 +85,6 @@ abilities[7] =[
 			requireCreature : true,
 			x : crea.x,
 			y : crea.y,
-			args : {creature:crea, ability: ability},
 			distance : this.distance,
 			sourceCreature : crea,
 		});
@@ -94,13 +93,13 @@ abilities[7] =[
 
 	//	activate() : 
 	activate : function(path,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var target = path.last().creature;
 
 		var damage = new Damage(
-			args.creature, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			ability.damages, //Damage Type
 			1, //Area
@@ -132,14 +131,13 @@ abilities[7] =[
 			isAbility : true,
 			range : G.grid.getFlyingRange(crea.x,crea.y,50,crea.size,crea.id),
 			callback : function(){ ability.animation.apply(ability,arguments); },
-			args : {creature:crea, ability: ability},
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(hex,args) {
-		var ability = args.args.ability;
+		var ability = this;
 		ability.end();
 
 
@@ -167,7 +165,7 @@ abilities[7] =[
 			}
 		})
 
-		args.creature.moveTo(hex,{
+		ability.creature.moveTo(hex,{
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			animation : "teleport",
@@ -252,7 +250,6 @@ abilities[7] =[
 				});
 			},
 			id : this.creature.id,
-			args : {creature:crea, ability: ability},
 			hexs : range,
 		});
 	},
@@ -260,7 +257,7 @@ abilities[7] =[
 
 	//	activate() : 
 	activate : function(hex,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 		
 		var aoe = hex.adjacentHex(1);
@@ -269,7 +266,7 @@ abilities[7] =[
 
 		if(hex.creature instanceof Creature){
 			hex.creature.takeDamage(new Damage(
-				args.creature, //Attacker
+				ability.creature, //Attacker
 				"area", //Attack Type
 				ability.damages, //Damage Type
 				1, //Area
@@ -279,7 +276,7 @@ abilities[7] =[
 
 
 		ability.areaDamage(
-			args.creature,
+			ability.creature,
 			"area",
 			ability.damages2,
 			[],	//Effects

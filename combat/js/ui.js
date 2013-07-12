@@ -52,21 +52,41 @@ var UI = Class.create({
 		//Skip Turn Button
 		this.btnSkipTurn = new Button({
 			$button : $j("#skip.button"),
-			click : function(e){ if(!G.UI.dashopen) G.skipTurn();},
+			click : function(e){ if(!G.UI.dashopen){
+				G.gamelog.add({action:"skip"});
+				G.skipTurn();
+			}},
 		});
 		this.buttons.push(this.btnSkipTurn);
 
 		//Delay Creature Button
 		this.btnDelay = new Button({
 			$button : $j("#delay.button"),
-			click : function(e){ if(!G.UI.dashopen) G.delayCreature();},
+			click : function(e){ if(!G.UI.dashopen){ 
+				G.gamelog.add({action:"delay"});
+				G.delayCreature();
+			}},
 		});
 		this.buttons.push(this.btnDelay);
 
 		//Flee Match Button
 		this.btnFlee = new Button({
 			$button : $j("#flee.button"),
-			click : function(e){ if(!G.UI.dashopen) G.activeCreature.player.flee();},
+			click : function(e){ if(!G.UI.dashopen){
+				if( G.turn < G.minimumTurnBeforeFleeing ){
+					alert("You cannot flee the match in the first 10 rounds.");
+					return;
+				}
+				if( G.activeCreature.player.isLeader() ){
+					alert("You cannot flee the match while being in lead.");
+					return;
+				}
+
+				if(window.confirm("Are you sure you want to flee the match?")){
+					G.gamelog.add({action:"flee"});
+					G.activeCreature.player.flee();
+				}
+			}},
 			state : "disabled",
 		});
 		this.buttons.push(this.btnFlee);

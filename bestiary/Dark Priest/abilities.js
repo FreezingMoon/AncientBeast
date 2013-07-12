@@ -24,7 +24,7 @@ abilities[0] =[
 	activate : function(damage) {
 		this.creature.player.plasma  -= 1;
 		this.end();
-		damage.damages = {};
+		damage.damages = {total:0};
 		damage.status = "Shielded";
 		damage.effect = [];
 		return damage; //Return Damage
@@ -65,19 +65,18 @@ abilities[0] =[
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
 			hexs : dpriest.adjacentHexs(1),
-			args : {dpriest:dpriest, ability: ability}
 		});
 	},
 
 	//	activate() : 
 	activate : function(target,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var damage = {shock: 12*target.size};
 
 		var damage = new Damage(
-			args.dpriest, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			damage, //Damage Type
 			1, //Area
@@ -135,13 +134,12 @@ abilities[0] =[
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
 			hexs : dpriest.adjacentHexs(1),
-			args : {dpriest:dpriest, ability: ability}
 		});
 	},
 
 	//	activate() : 
 	activate : function(target,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var plasmaCost = target.size;
@@ -150,7 +148,7 @@ abilities[0] =[
 		ability.creature.player.plasma -= plasmaCost;
 
 		var damage = new Damage(
-			args.dpriest, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			damage, //Damage Type
 			1, //Area
@@ -197,7 +195,7 @@ abilities[0] =[
 
 	fnOnSelect : function(hex,args){
 		var crea = G.retreiveCreatureStats(args.creature);
-		G.grid.previewCreature(hex.pos,crea,args.dpriest.player);
+		G.grid.previewCreature(hex.pos,crea,this.creature.player);
 	},
 
 	//Callback function to queryCreature
@@ -215,10 +213,10 @@ abilities[0] =[
 		spawnRange = spawnRange.extendToLeft(crea.size);
 
 		G.grid.queryHexs({
-			fnOnSelect : this.fnOnSelect,
+			fnOnSelect : function(){ ability.fnOnSelect.apply(ability,arguments); },
 			fnOnCancel : function(){ G.activeCreature.queryMove(); },
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			args : {dpriest:dpriest, creature:creature, ability:this, cost: (crea.size-0)+(crea.lvl-0)}, //OptionalArgs
+			args : {creature:creature, cost: (crea.size-0)+(crea.lvl-0)}, //OptionalArgs
 			size : crea.size,
 			flipped : dpriest.player.flipped,
 			hexs : spawnRange
@@ -228,10 +226,10 @@ abilities[0] =[
 	//	activate() : 
 	activate : function(hex,args) {
 		var creature = args.creature;
-		var ability = args.ability;
+		var ability = this;
 
 		var creaStats = G.retreiveCreatureStats(creature);
-		var dpriest = args.dpriest;
+		var dpriest = this.creature;
 
 		var pos = { x:hex.x, y:hex.y };
 

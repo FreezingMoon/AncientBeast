@@ -63,6 +63,7 @@ var Game = Class.create({
 		this.minimumTurnBeforeFleeing = 12;
 		this.availableCreatures = [];
 		this.animationQueue = [];
+		this.gamelog = new Gamelog();
 		this.loadedCreatures = [
 			0, //Dark Priest
 			37, //Swine Thug
@@ -402,8 +403,12 @@ var Game = Class.create({
 	* 	End turn for the current creature
 	*
 	*/
-	skipTurn: function(){
+	skipTurn: function(o){
 		if(G.turnThrottle) return;
+
+		o = $j.extend({
+			callback: function(){},
+		},o);
 
 		G.turnThrottle = true
 		G.UI.btnSkipTurn.changeState("disabled");
@@ -412,6 +417,7 @@ var Game = Class.create({
 			G.turnThrottle=false;
 			G.UI.btnSkipTurn.changeState("normal");
 			if(!G.activeCreature.hasWait && (G.delayQueue.length+G.queue.length!=0) ) G.UI.btnDelay.changeState("normal");
+			o.callback.apply();
 		},1000)
 		G.grid.clearHexViewAlterations();
 		this.activeCreature.facePlayerDefault();
@@ -428,9 +434,13 @@ var Game = Class.create({
 	* 	Delay the action turn of the current creature
 	*
 	*/
-	delayCreature: function(){
+	delayCreature: function(o){
 		if(G.turnThrottle) return;
 		if(this.activeCreature.hasWait || !this.activeCreature.delayable) return;
+
+		o = $j.extend({
+			callback: function(){},
+		},o);
 
 		G.turnThrottle = true
 		G.UI.btnSkipTurn.changeState("disabled");
@@ -439,6 +449,7 @@ var Game = Class.create({
 			G.turnThrottle=false;
 			G.UI.btnSkipTurn.changeState("normal");
 			if(!G.activeCreature.hasWait && (G.delayQueue.length+G.queue.length!=0) ) G.UI.btnDelay.changeState("normal");
+			o.callback.apply();
 		},1000)
 		var skipTurn = new Date();
 		var p = this.activeCreature.player;
@@ -634,7 +645,46 @@ var Game = Class.create({
 				$j("#endscreen p").text("Draw!");
 			}
 		}
+	},
 
+	action : function(o,opt){
+
+		var defaultOpt = {
+			callback : function(){},
+		}
+		opt = $j.extend(defaultOpt,opt);
+
+		switch(o.action){
+			case "move":
+				G.activeCreature.moveTo(G.grid.hexs[o.target.y][o.target.x],{callback : opt.callback});
+				break;
+			case "skip":
+				G.skipTurn({callback : opt.callback});
+				break;
+			case "delay":
+				G.delayCreature({callback : opt.callback});
+				break;
+			case "flee":
+				G.activeCreature.player.flee({callback : opt.callback});
+				break;
+			case "ability":
+				var args = $j.makeArray(o.args[1]);
+				if(o.target.type=="hex"){
+					args.unshift(G.grid.hexs[o.target.y][o.target.x]);
+					G.activeCreature.abilities[o.id].animation2({callback:opt.callback,arg:args});
+				}
+				if(o.target.type=="creature"){
+					args.unshift(G.creatures[o.target.crea]);
+					G.activeCreature.abilities[o.id].animation2({callback:opt.callback,arg:args});
+				}
+				if(o.target.type=="array"){
+					var array = [];
+					o.target.array.each(function(){ array.push(G.grid.hexs[this.y][this.x]); });
+					args.unshift(array);
+					G.activeCreature.abilities[o.id].animation2({callback:opt.callback,arg:args});
+				}
+				break;
+		}
 	},
 });
 
@@ -705,21 +755,10 @@ var Player = Class.create({
 	*	Ask if the player want to flee the match
 	*
 	*/
-	flee: function(){
-		if( G.turn < G.minimumTurnBeforeFleeing ){
-			alert("You cannot flee the match in the first 10 rounds.");
-			return;
-		}
-		if( this.isLeader() ){
-			alert("You cannot flee the match while being in lead.");
-			return;
-		}
-
-		if(window.confirm("Are you sure you want to flee the match?")){
-			this.hasFleed = true;
-			this.deactivate();
-			G.skipTurn();
-		}
+	flee: function(o){
+		this.hasFleed = true;
+		this.deactivate();
+		G.skipTurn(o);
 	},
 
 
@@ -847,6 +886,34 @@ var Player = Class.create({
 		}
 	},
 });
+
+
+var Gamelog = Class.create({
+
+	initialize: function(id){
+		this.datas = [];
+	},
+
+	add: function(action){
+		this.datas.push(action);
+	},
+
+	play: function(log){
+		var log=[{"action":"ability","target":{"type":"hex","x":6,"y":4},"id":3,"args":{"1":{"creature":"A1","cost":2}}},{"action":"skip"},{"action":"ability","target":{"type":"hex","x":10,"y":5},"id":3,"args":{"1":{"creature":"G3","cost":5}}},{"action":"skip"},{"action":"move","target":{"x":8,"y":4}},{"action":"ability","target":{"type":"hex","x":5,"y":4},"id":2,"args":{"1":{}}},{"action":"ability","target":{"type":"creature","crea":3},"id":1,"args":{"1":{}}},{"action":"ability","target":{"type":"creature","crea":3},"id":3,"args":{"1":{}}},{"action":"skip"},{"action":"ability","target":{"type":"hex","x":5,"y":5},"id":3,"args":{"1":{"creature":"L2","cost":5}}},{"action":"skip"},{"action":"ability","target":{"type":"hex","x":9,"y":3},"id":3,"args":{"1":{"creature":"P1","cost":2}}},{"action":"skip"},{"action":"ability","target":{"type":"array","array":[{"x":7,"y":3},{"x":8,"y":3},{"x":9,"y":3}]},"id":2,"args":{"1":{"direction":-1}}},{"action":"ability","target":{"type":"hex","x":7,"y":1},"id":3,"args":{"1":{}}},{"action":"ability","target":{"type":"creature","crea":4},"id":1,"args":{"1":{}}},{"action":"skip"},{"action":"skip"},{"action":"move","target":{"x":7,"y":2}},{"action":"ability","target":{"type":"array","array":[{"x":7,"y":3},{"x":6,"y":4}]},"id":3,"args":{"1":{"direction":3}}},{"action":"move","target":{"x":6,"y":4}},{"action":"ability","target":{"type":"creature","crea":3},"id":1,"args":{"1":{}}},{"action":"skip"},{"action":"ability","target":{"type":"array","array":[{"x":7,"y":3},{"x":6,"y":4},{"x":7,"y":4},{"x":6,"y":5},{"x":7,"y":5},{"x":6,"y":6},{"x":7,"y":6},{"x":7,"y":7}]},"id":2,"args":{"1":{"direction":-1}}},{"action":"ability","target":{"type":"creature","crea":4},"id":1,"args":{"1":{}}}] ;
+		var i = -1;
+		var fun = function(){
+			i++;
+			if(i>log.length-1) return;
+			G.action(log[i],{callback:fun});
+		};
+		fun();
+	},
+
+	get: function(){
+		console.log(JSON.stringify(this.datas));
+	}
+});
+
 
 //Zfill like in python
 function zfill(num, size) {

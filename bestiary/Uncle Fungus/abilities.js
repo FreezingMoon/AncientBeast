@@ -110,10 +110,10 @@ abilities[3] =[
 		var uncle = this.creature;
 		var ability = this;
 
-		var map = [ 	[0,0,0,0],
-				[0,1,0,1],
-				[1,0,0,1], //origin line
-				[0,1,0,1]];
+		var map = [  [0,0,0,0],
+					[0,1,0,1],
+				 	 [1,0,0,1], //origin line
+					[0,1,0,1]];
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
@@ -121,14 +121,13 @@ abilities[3] =[
 			id : uncle.id,
 			flipped : uncle.flipped,
 			hexs : G.grid.getHexMap(uncle.x-2,uncle.y-2,0,false,map),
-			args : {ability: this}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(target,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var damage = new Damage(
@@ -141,20 +140,21 @@ abilities[3] =[
 
 		var dmg = target.takeDamage(damage);
 
-		//Frogger bonus
-		ability.creature.addEffect( new Effect(
-			"Regrowth++", //Name
-			ability.creature, //Caster
-			ability.creature, //Target
-			"onStartPhase", //Trigger
-			{	
-				effectFn : function(effect,crea){
-					effect.deleteEffect();
-				},
-				alterations : {regrowth : Math.round(dmg.damages.total/4)}
-			} //Optional arguments
-		) );
-
+		if(dmg.status == ""){
+			//Regrowth bonus
+			ability.creature.addEffect( new Effect(
+				"Regrowth++", //Name
+				ability.creature, //Caster
+				ability.creature, //Target
+				"onStartPhase", //Trigger
+				{	
+					effectFn : function(effect,crea){
+						effect.deleteEffect();
+					},
+					alterations : {regrowth : Math.round(dmg.damages.total/4)}
+				} //Optional arguments
+			) );
+		}
 
 		//remove frogger bonus if its found
 		ability.creature.effects.each(function(){
@@ -174,6 +174,10 @@ abilities[3] =[
 
 	require : function(){return this.testRequirements();},
 
+	fnOnSelect : function(hex,args){
+		this.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+this.creature.team })
+	},
+
 	// 	query() :
 	query : function(){
 		var ability = this;
@@ -183,9 +187,8 @@ abilities[3] =[
 		range.filter(function(){ return uncle.y == this.y; });
 
 		G.grid.queryHexs({
-			fnOnSelect : function(hex,args){ args.ability.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+args.ability.creature.team }) },
+			fnOnSelect : function(){ ability.fnOnSelect.apply(ability,arguments); },
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			args : {ability: this}, //Optional args
 			size :  uncle.size,
 			flipped :  uncle.player.flipped,
 			id :  uncle.id,
@@ -196,7 +199,7 @@ abilities[3] =[
 
 	//	activate() : 
 	activate : function(hex,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		ability.creature.moveTo(hex,{
@@ -260,14 +263,13 @@ abilities[3] =[
 			id : uncle.id,
 			flipped : uncle.flipped,
 			hexs : G.grid.getHexMap(uncle.x-2,uncle.y-2,0,false,frontnback2hex),
-			args : {ability: this}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(target,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		var damage = new Damage(

@@ -73,7 +73,6 @@ abilities[4] =[
 
 	// 	query() :
 	query : function(){
-		
 		var ability = this;
 		var magmaSpawn = this.creature;
 
@@ -83,14 +82,13 @@ abilities[4] =[
 			id : magmaSpawn.id,
 			flipped : magmaSpawn.flipped,
 			hexs : G.grid.getHexMap(magmaSpawn.x-3,magmaSpawn.y-2,0,false,frontnback3hex),
-			args : {creature:magmaSpawn, ability: ability}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(target,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		ability.creature.burnBoost = (ability.creature.burnBoost+1) ? ability.creature.burnBoost : 1;
@@ -98,7 +96,7 @@ abilities[4] =[
 		var d = {burn:ability.creature.burnBoost, crush:ability.damages.crush};
 		
 		var damage = new Damage(
-			args.creature, //Attacker
+			ability.creature, //Attacker
 			"target", //Attack Type
 			d, //Damage Type
 			1, //Area
@@ -145,7 +143,6 @@ abilities[4] =[
 
 	// 	query() :
 	query : function(){
-		
 		var ability = this;
 		var magmaSpawn = this.creature;
 
@@ -154,7 +151,6 @@ abilities[4] =[
 			team : 3, 
 			requireCreature : 0,
 			id : magmaSpawn.id,
-			args : {creature:magmaSpawn, ability:ability},
 			flipped : magmaSpawn.flipped,
 			choices : [
 				G.grid.getHexMap(magmaSpawn.x,magmaSpawn.y-2,0,false,this.map),
@@ -167,7 +163,7 @@ abilities[4] =[
 
 	//	activate() : 
 	activate : function(hexs,args) {
-		var ability = args.ability;
+		var ability = this;
 		ability.end();
 
 		//Basic Attack all nearby creatures
@@ -216,7 +212,6 @@ abilities[4] =[
 
 	// 	query() :
 	query : function(){
-		
 		var ability = this;
 		var magmaSpawn = this.creature;
 
@@ -230,15 +225,14 @@ abilities[4] =[
 			x : x,
 			y : magmaSpawn.y,
 			directions : this.directions,
-			args : {magmaSpawn:magmaSpawn, ability: ability}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(path,args) {
-		var magmaSpawn = args.magmaSpawn;
-		var ability = args.ability;
+		var ability = this;
+		var magmaSpawn = this.creature;
 		ability.end();
 
 		path.each(function(){this.destroyTrap();});
@@ -255,15 +249,14 @@ abilities[4] =[
 		target.takeDamage(damage);
 
 		//Movement
-		var direction = path.last().direction;
-		var magmaHex = (direction==4) ? magmaSpawn.hexagons[magmaSpawn.size-1] : magmaSpawn.hexagons[0] ;
+		var magmaHex = (args.direction==4) ? magmaSpawn.hexagons[magmaSpawn.size-1] : magmaSpawn.hexagons[0] ;
 		path.filterCreature(false,false);
 		path.unshift(magmaHex); //prevent error on empty path
 		var destination = path.last();
-		var x = (direction==4) ? destination.x+magmaSpawn.size-1 : destination.x ;
+		var x = (args.direction==4) ? destination.x+magmaSpawn.size-1 : destination.x ;
 		destination = G.grid.hexs[destination.y][x];
 
-		args.magmaSpawn.moveTo(destination,{
+		magmaSpawn.moveTo(destination,{
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			callback : function(){

@@ -79,14 +79,13 @@ abilities[45] =[
 			id : chimera.id,
 			flipped : chimera.flipped,
 			hexs : G.grid.getHexMap(chimera.x-3,chimera.y-2,0,false,frontnback3hex),
-			args : {ability: this}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(target,args) {
-		var ability = args.ability;
+		var ability = this;
 
 		ability.creature.abilities[0].abilityTriggered(0);
 
@@ -148,14 +147,13 @@ abilities[45] =[
 			x : chimera.x,
 			y : chimera.y,
 			directions : this.directions,
-			args : {chimera:chimera, ability: this}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(path,args) {
-		var ability = args.ability;
+		var ability = this;
 
 		ability.creature.abilities[0].abilityTriggered(1);
 		ability.end();
@@ -217,14 +215,13 @@ abilities[45] =[
 			x : chimera.x,
 			y : chimera.y,
 			directions : this.directions,
-			args : {chimera:chimera, ability: this}
 		});
 	},
 
 
 	//	activate() : 
 	activate : function(path,args) {
-		var ability = args.ability;
+		var ability = this;
 
 		ability.creature.abilities[0].abilityTriggered(2);
 
