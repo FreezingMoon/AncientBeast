@@ -119,7 +119,7 @@ abilities[45] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if( !this.testDirection({ team : "ennemy", directions : this.directions }) ){
+		if( !this.testDirection({ team : "both", directions : this.directions }) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -141,7 +141,7 @@ abilities[45] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : chimera.player.flipped,
-			team : 0, //enemies
+			team : 3, //everyone
 			id : chimera.id,
 			requireCreature : false,
 			x : chimera.x,
@@ -158,7 +158,7 @@ abilities[45] =[
 		ability.creature.abilities[0].abilityTriggered(1);
 		ability.end();
 
-		crea = path.last().creature;
+		var target = path.last().creature;
 
 		var damage = new Damage(
 			ability.creature, //Attacker
@@ -167,7 +167,33 @@ abilities[45] =[
 			1, //Area
 			[]	//Effects
 		);
-		crea.takeDamage(damage);
+		result = target.takeDamage(damage);
+		
+		while(result.kill){
+			console.log(result);
+
+			var hexs = G.grid.getHexMap(target.x,target.y,0,target.flipped,straitrow);
+			var newTarget = false;
+			for (var i = 0; i < hexs.length; i++) {
+				if(hexs[i].creature instanceof Creature) {
+					var target = hexs[i].creature;
+					newTarget = true;
+					break;
+				}
+			};
+
+			if(!newTarget) break;
+
+			var damage = new Damage(
+				ability.creature, //Attacker
+				"target", //Attack Type
+				{sonic:result.damages}, //Damage Type
+				1, //Area
+				[]	//Effects
+			);
+			result = target.takeDamage(damage);
+
+		}
 	},
 },
 
@@ -187,7 +213,7 @@ abilities[45] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if( !this.testDirection({ team : "ennemy", directions : this.directions }) ){
+		if( !this.testDirection({ team : "both", directions : this.directions }) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -209,7 +235,7 @@ abilities[45] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : chimera.player.flipped,
-			team : 0, //enemies
+			team : 3, //everyone
 			id : chimera.id,
 			requireCreature : false,
 			x : chimera.x,
