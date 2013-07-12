@@ -43,17 +43,17 @@
     			"info": "-1 plasma for each countered attack"
     		},
     		{
-    			"title": "Electroshock",
+    			"title": "Electro Shocker",
     			"desc": "Does shock damage to a nearby foe. Effective versus larger creatures.",
     			"info": "12 shock damage × creature size"
     		},
     		{
-		        "title": "Disintegration",
+		        "title": "Particle Disintegrator",
 		        "desc": "Does pure damage to a nearby foe. Bonus based on it's missing health.",
 		        "info": ">25 damage; plasma = creature size"
     		},
     		{
-		        "title": "Materialization",
+		        "title": "Unit Materializer",
 		        "desc": "Summons a creature on the combat field that will serve and obey orders.",
 		        "info": "plasma = creature size + level"
     		}
@@ -2529,7 +2529,7 @@
 		},
 		{
 			"title": "Power Note",
-			"desc": "Sings a very powerful note to a foe.",
+			"desc": "Sings a powerful note inline that keeps on going when killing units.",
 			"info": "20 sonic damage"
 		},
 		{

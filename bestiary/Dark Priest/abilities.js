@@ -33,7 +33,7 @@ abilities[0] =[
 
 
 
-// 	Second Ability: Electroshock
+// 	Second Ability: Electro Shocker
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -90,7 +90,7 @@ abilities[0] =[
 
 
 
-// 	Third Ability: Disintegration
+// 	Third Ability: Particle Disintegrator
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -163,7 +163,7 @@ abilities[0] =[
 
 
 
-// 	Fourth Ability: Materialize
+// 	Fourth Ability: Unit Materializer
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
