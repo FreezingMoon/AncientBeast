@@ -117,7 +117,7 @@ abilities[12] =[
 		if( !this.testRequirements() ) return false;
 
 		var test = this.testDirection({
-			team : "ennemy",
+			team : "both",
 			directions : this.directions,
 		});
 		if( !test ){
@@ -135,7 +135,7 @@ abilities[12] =[
 		G.grid.queryDirection({
 			fnOnConfirm : ability.activate, //fnOnConfirm
 			flipped : snowBunny.player.flipped,
-			team : 0, //enemies
+			team : 3, //Both
 			id : snowBunny.id,
 			requireCreature : true,
 			x : snowBunny.x,
