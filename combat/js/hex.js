@@ -99,6 +99,12 @@ var HexGrid = Class.create({
 		};
 
 		o = $j.extend(defaultOpt,o);
+
+		//This is alway true
+		o.isDirectionsQuery = true;
+
+		//Clean Direction
+		G.grid.forEachHexs(function(){ this.direction = -1; });
 		
 		var choices = [] 
 
@@ -192,6 +198,7 @@ var HexGrid = Class.create({
 			args : {},
 			flipped : false,
 			choices : [],
+			isDirectionsQuery : false,
 		};
 
 		o = $j.extend(defaultOpt,o);
@@ -228,6 +235,12 @@ var HexGrid = Class.create({
 			}
 
 			if(validChoice) hexs = hexs.concat(o.choices[i]);
+			else if(o.isDirectionsQuery){
+				G.grid.forEachHexs(function(){ 
+					if(o.choices[i][0].direction==this.direction) 
+						this.dashed = false; 
+				});
+			}
 		};
 
 		this.queryHexs({
