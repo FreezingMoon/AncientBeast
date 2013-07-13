@@ -78,7 +78,7 @@ abilities[12] =[
 		var snowBunny = this.creature;
 
 		G.grid.queryCreature({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : snowBunny.id,
 			flipped : snowBunny.player.flipped,
@@ -133,7 +133,7 @@ abilities[12] =[
 		var snowBunny = this.creature;
 
 		G.grid.queryDirection({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : snowBunny.player.flipped,
 			team : 3, //Both
 			id : snowBunny.id,
@@ -232,7 +232,7 @@ abilities[12] =[
 		var snowBunny = this.creature;
 
 		G.grid.queryDirection({
-			fnOnConfirm : ability.activate, //fnOnConfirm
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : snowBunny.player.flipped,
 			team : 0, //enemies
 			id : snowBunny.id,
