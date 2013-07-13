@@ -131,6 +131,7 @@ abilities[14] =[
 
 	damages : {
 		sonic : 15,
+		crush : 0,
 	},
 
 	directions : [1,1,1,1,1,1],
@@ -174,22 +175,9 @@ abilities[14] =[
 		ability.end();		
 
 		var target = path.last().creature;
-		console.log(path);
 		var melee = (path[1].creature === target);
-		console.log(melee);
 
 		var d = (melee) ? {sonic:15,crush:10} : ability.damages;
-
-		var damage = new Damage( 
-			ability.creature, //Attacker
-			"target", //Attack Type
-			d, //Damage Type
-			1, //Area
-			[]	//Effects
-		);
-
-
-		target.takeDamage(damage);
 
 
 		var dir = [];
@@ -216,19 +204,38 @@ abilities[14] =[
 				break;
 		}
 
-		if(dir.length <= 1) {
-			return;
+		var pushed = false;
+
+		if(dir.length > 1) {
+			if(dir[1].isWalkable(target.size,target.id,true)){
+				target.moveTo(dir[1],{
+					ignoreMovementPoint : true,
+					ignorePath : true,
+					callback : function(){
+						G.activeCreature.queryMove();
+					},
+					animation : "push",
+				});
+				pushed = true;
+			}
 		}
 
-		if(dir[1].isWalkable(target.size,target.id,true)){
-			target.moveTo(dir[1],{
-				ignoreMovementPoint : true,
-				ignorePath : true,
-				callback : function(){
-					G.activeCreature.queryMove();
-				},
-			});
+		//If no movement double damage
+		if(!pushed) {
+			d.sonic *= 2;
+			d.crush *= 2;
 		}
+
+		var damage = new Damage( 
+			ability.creature, //Attacker
+			"target", //Attack Type
+			d, //Damage Type
+			1, //Area
+			[]	//Effects
+		);
+
+		target.takeDamage(damage);
+
 	},
 }
 
