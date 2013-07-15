@@ -130,7 +130,7 @@ abilities[14] =[
 	trigger : "onQuery",
 
 	damages : {
-		sonic : 15,
+		sonic : 10,
 		crush : 0,
 	},
 
@@ -177,7 +177,7 @@ abilities[14] =[
 		var target = path.last().creature;
 		var melee = (path[1].creature === target);
 
-		var d = (melee) ? {sonic:15,crush:10} : ability.damages;
+		var d = (melee) ? {sonic:10,crush:10} : ability.damages;
 
 
 		var dir = [];
@@ -220,7 +220,7 @@ abilities[14] =[
 			}
 		}
 
-		//If no movement double damage
+		//If no pushing then double damage
 		if(!pushed) {
 			d.sonic *= 2;
 			d.crush *= 2;

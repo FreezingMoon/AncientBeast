@@ -801,15 +801,15 @@
         "size": 1,
         "type": "P1",
         "stats": {
-            "health": 60,
+            "health": 90,
             "regrowth": 5,
-            "endurance": 60,
+            "endurance": 30,
             "energy": 70,
             "meditation": 3,
             "initiative": 85,
             "offense": 4,
             "defense": 6,
-            "movement": 4,
+            "movement": 2,
             "pierce": 8,
             "slash": 8,
             "crush": 12,
@@ -843,12 +843,12 @@
             {
                 "title": "Royal Seal",
                 "desc": "Sticks chewing gum in place to hinder enemy movement for a turn.",
-                "info": "Foes cannot be moved from the spot."
+                "info": "Foes cannot be moved from the spot. Allied units are not affected by this."
             },
             {
                 "title": "Boom Box",
-                "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
-                "info": "15 sonic damage, double if no push."
+                "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch. Does double damage if not pushing!",
+                "info": "10 sonic damage + 10 crush if melee"
             }
         ]
     },
