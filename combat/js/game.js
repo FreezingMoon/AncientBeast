@@ -75,6 +75,16 @@ var Game = Class.create({
 			14, //Gumble
 			7, 	//Abolished
 			]; 
+		this.availableMusic = [
+			"Distant Realms by Moonthief.ogg",
+			// "It All Ends Here by Moonthief.ogg",
+			// "Road to Victory by Moonthief.ogg",
+			// "Tale of the Ruins by Moonthief.ogg",
+			// "Horn Head by Jens Kiilstofte.ogg  ",
+			// "Olympos Shall Prevail by Jens Kiilstofte.ogg  ",
+			// "Summoning the Beast by Moonthief.ogg  ",
+			// "Vengeance by Moonthief.ogg",
+		]
 		this.inputMethod = "Mouse";
 
 		//Gameplay
@@ -123,7 +133,18 @@ var Game = Class.create({
 
 		dpcolor = ["blue","orange","green","red"];
 
-		this.loadingSrc = (G.loadedCreatures.length-1) * 4 + dpcolor.length*2 + 2;
+		this.loadingSrc = (G.loadedCreatures.length-1) * 4 
+		+ dpcolor.length*2 + 2 //Darkpriest
+		+ this.availableMusic.length //Music
+		;
+
+		//Music Loading
+		this.musicLoaded = {};
+		this.soundsys = new Soundsys();
+		for (var i = 0; i < this.availableMusic.length; i++) {
+		 	this.soundsys.getSound("../media/music/"+this.availableMusic[i],i,function(){ G.loadFinish() });
+		};
+		
 
 		//Get JSON files
 		$j.getJSON("../data/creatures.json", function(json_in) {
@@ -257,6 +278,8 @@ var Game = Class.create({
 				G.UI.resizeDash();
 			}, 100);
 		});
+
+		G.soundsys.playMusic();
 	},
 
 
@@ -899,7 +922,6 @@ var Gamelog = Class.create({
 	},
 
 	play: function(log){
-		var log=[{"action":"ability","target":{"type":"hex","x":6,"y":4},"id":3,"args":{"1":{"creature":"A1","cost":2}}},{"action":"skip"},{"action":"ability","target":{"type":"hex","x":10,"y":5},"id":3,"args":{"1":{"creature":"G3","cost":5}}},{"action":"skip"},{"action":"move","target":{"x":8,"y":4}},{"action":"ability","target":{"type":"hex","x":5,"y":4},"id":2,"args":{"1":{}}},{"action":"ability","target":{"type":"creature","crea":3},"id":1,"args":{"1":{}}},{"action":"ability","target":{"type":"creature","crea":3},"id":3,"args":{"1":{}}},{"action":"skip"},{"action":"ability","target":{"type":"hex","x":5,"y":5},"id":3,"args":{"1":{"creature":"L2","cost":5}}},{"action":"skip"},{"action":"ability","target":{"type":"hex","x":9,"y":3},"id":3,"args":{"1":{"creature":"P1","cost":2}}},{"action":"skip"},{"action":"ability","target":{"type":"array","array":[{"x":7,"y":3},{"x":8,"y":3},{"x":9,"y":3}]},"id":2,"args":{"1":{"direction":-1}}},{"action":"ability","target":{"type":"hex","x":7,"y":1},"id":3,"args":{"1":{}}},{"action":"ability","target":{"type":"creature","crea":4},"id":1,"args":{"1":{}}},{"action":"skip"},{"action":"skip"},{"action":"move","target":{"x":7,"y":2}},{"action":"ability","target":{"type":"array","array":[{"x":7,"y":3},{"x":6,"y":4}]},"id":3,"args":{"1":{"direction":3}}},{"action":"move","target":{"x":6,"y":4}},{"action":"ability","target":{"type":"creature","crea":3},"id":1,"args":{"1":{}}},{"action":"skip"},{"action":"ability","target":{"type":"array","array":[{"x":7,"y":3},{"x":6,"y":4},{"x":7,"y":4},{"x":6,"y":5},{"x":7,"y":5},{"x":6,"y":6},{"x":7,"y":6},{"x":7,"y":7}]},"id":2,"args":{"1":{"direction":-1}}},{"action":"ability","target":{"type":"creature","crea":4},"id":1,"args":{"1":{}}}] ;
 		var i = -1;
 		var fun = function(){
 			i++;
@@ -912,6 +934,51 @@ var Gamelog = Class.create({
 	get: function(){
 		console.log(JSON.stringify(this.datas));
 	}
+});
+
+
+
+var Soundsys = Class.create({
+
+	initialize: function(o){
+		o = $j.extend({
+			music_volume : 1,
+			effects_volume : 1,
+		},o);
+
+		$j.extend(this,o);
+
+		window.AudioContext = window.AudioContext || window.webkitAudioContext;
+		this.context = new AudioContext();
+
+		//Music
+		this.musicGainNode = this.context.createGain();
+		this.musicGainNode.connect(this.context.destination);
+	},
+
+	playMusic: function(musicID){
+		this.playSound(G.musicLoaded[0],this.musicGainNode);
+	},
+
+	getSound: function(url,id,success){
+		var id = id;
+		bufferLoader = new BufferLoader(this.context,[url],function(arraybuffer){
+			G.musicLoaded[id] = arraybuffer[0];
+			success();
+		});
+
+		bufferLoader.load();
+
+	},
+
+	playSound: function(sound,node) {
+		var source = this.context.createBufferSource(); // creates a sound source
+		source.buffer = sound;                    // tell the source which sound to play
+		source.connect(node);       // connect the source to the context's destination (the speakers)
+		source.start(0);                           // play the source now
+	}
+
+
 });
 
 
@@ -945,4 +1012,52 @@ function getImage(url,success){
 	img.onload = function(){
 		success();
 	};
+}
+
+
+function BufferLoader(context, urlList, callback) {
+  this.context = context;
+  this.urlList = urlList;
+  this.onload = callback;
+  this.bufferList = new Array();
+  this.loadCount = 0;
+}
+
+BufferLoader.prototype.loadBuffer = function(url, index) {
+  // Load buffer asynchronously
+  var request = new XMLHttpRequest();
+  request.open("GET", url, true);
+  request.responseType = "arraybuffer";
+
+  var loader = this;
+
+  request.onload = function() {
+    // Asynchronously decode the audio file data in request.response
+    loader.context.decodeAudioData(
+      request.response,
+      function(buffer) {
+        if (!buffer) {
+          alert('error decoding file data: ' + url);
+          return;
+        }
+        loader.bufferList[index] = buffer;
+        if (++loader.loadCount == loader.urlList.length)
+          loader.onload(loader.bufferList);
+      },
+      function(error) {
+        console.error('decodeAudioData error', error);
+      }
+    );
+  }
+
+  request.onerror = function() {
+    alert('BufferLoader: XHR error');
+  }
+
+  request.send();
+}
+
+BufferLoader.prototype.load = function() {
+  for (var i = 0; i < this.urlList.length; ++i)
+  this.loadBuffer(this.urlList[i], i);
 }
