@@ -441,8 +441,8 @@
         "ability_info": [
             {
                 "title": "Greater Pyre",
-                "desc": "Burns all adjacent creatures whenever taking damage.",
-                "info": "10 burn damage"
+                "desc": "Fries all adjacent creatures after taking damage and still being alive.",
+                "info": "10 burn damage nearby"
             },
             {
                 "title": "Fiery Claw",
