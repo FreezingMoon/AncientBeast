@@ -488,6 +488,9 @@ var Creature = Class.create({
 				var nextPos = G.grid.hexs[this.y][this.x-creature.size+1];
 				var thisHexId = hexId;
 				creature.$display.animate(nextPos.displayPos,parseInt(creature.animation.walk_speed),"linear",function(){
+					//Sound Effect
+					G.soundsys.playSound(G.soundLoaded[1],G.soundsys.effectsGainNode);
+
 					//creature.facePlayerDefault(creature);
 					var currentHex = path[thisHexId];
 

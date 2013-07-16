@@ -85,6 +85,12 @@ var Game = Class.create({
 			// "Summoning the Beast by Moonthief.ogg  ",
 			// "Vengeance by Moonthief.ogg",
 		]
+		this.soundEffects = [
+			"step.ogg",
+			"swing.ogg",
+			"swing2.ogg",
+			"swing3.ogg",
+		]
 		this.inputMethod = "Mouse";
 
 		//Gameplay
@@ -136,15 +142,19 @@ var Game = Class.create({
 		this.loadingSrc = (G.loadedCreatures.length-1) * 4 
 		+ dpcolor.length*2 + 2 //Darkpriest
 		+ this.availableMusic.length //Music
+		+ this.soundEffects.length //Sound effects
 		;
 
 		//Music Loading
-		this.musicLoaded = {};
+		this.soundLoaded = {};
 		this.soundsys = new Soundsys();
 		for (var i = 0; i < this.availableMusic.length; i++) {
 		 	this.soundsys.getSound("../media/music/"+this.availableMusic[i],i,function(){ G.loadFinish() });
 		};
 		
+		for (var i = 0; i < this.soundEffects.length; i++) {
+		 	this.soundsys.getSound("./sounds/"+this.soundEffects[i],this.availableMusic.length+i,function(){ G.loadFinish() });
+		};
 
 		//Get JSON files
 		$j.getJSON("../data/creatures.json", function(json_in) {
@@ -954,28 +964,38 @@ var Soundsys = Class.create({
 		//Music
 		this.musicGainNode = this.context.createGain();
 		this.musicGainNode.connect(this.context.destination);
+		this.musicGainNode.gain.value = .1;
+
+		//Effects
+		this.effectsGainNode = this.context.createGain();
+		this.effectsGainNode.connect(this.context.destination);
 	},
 
 	playMusic: function(musicID){
-		this.playSound(G.musicLoaded[0],this.musicGainNode);
+		//this.playSound(G.soundLoaded[0],this.musicGainNode);
 	},
 
 	getSound: function(url,id,success){
 		var id = id;
 		bufferLoader = new BufferLoader(this.context,[url],function(arraybuffer){
-			G.musicLoaded[id] = arraybuffer[0];
+			G.soundLoaded[id] = arraybuffer[0];
 			success();
 		});
 
 		bufferLoader.load();
-
 	},
 
-	playSound: function(sound,node) {
-		var source = this.context.createBufferSource(); // creates a sound source
-		source.buffer = sound;                    // tell the source which sound to play
-		source.connect(node);       // connect the source to the context's destination (the speakers)
-		source.start(0);                           // play the source now
+	playSound: function(sound,node,o) {
+		o = $j.extend({
+			music_volume : 1,
+			effects_volume : 1,
+		},o);
+
+		var source = this.context.createBufferSource();
+		source.buffer = sound;
+		source.connect(node);
+		source.start(0);
+		return source;
 	}
 
 

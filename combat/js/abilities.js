@@ -129,8 +129,11 @@ var Ability = Class.create({
 			this.creature.$display.animate({left:p2},100,"linear");
 			this.creature.$display.animate({left:p0},150,"linear");
 
-			setTimeout(function(){ 
-				if( !G.triggers.onAttack.test(this.trigger) ) ab.activate.apply(ab,args);
+			setTimeout(function(){
+				if( !G.triggers.onAttack.test(this.trigger) ){
+					G.soundsys.playSound(G.soundLoaded[2],G.soundsys.effectsGainNode);
+					ab.activate.apply(ab,args);
+				}
 			},this.animation_datas.delay);
 
 			setTimeout(function(){ 	
