@@ -76,7 +76,7 @@ var Game = Class.create({
 			7, 	//Abolished
 			]; 
 		this.availableMusic = [
-			"Distant Realms by Moonthief.ogg",
+			//"Distant Realms by Moonthief.ogg",
 			// "It All Ends Here by Moonthief.ogg",
 			// "Road to Victory by Moonthief.ogg",
 			// "Tale of the Ruins by Moonthief.ogg",
