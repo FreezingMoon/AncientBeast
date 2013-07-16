@@ -298,7 +298,7 @@
 		"stats": {
 			"health": 200,
 			"regrowth": 10,
-			"endurance": 50,
+			"endurance": 40,
 			"energy": 80,
 			"meditation": 8,
 			"initiative": 65,
@@ -446,7 +446,7 @@
             },
             {
                 "title": "Fiery Claw",
-                "desc": "Scratches and burns a nearby foe. This attack has extended reach.",
+                "desc": "Scratches and burns a nearby foe. This attack has 1 hex extra reach.",
                 "info": "10 slash + 10 burn damage"
             },
             {
@@ -457,7 +457,7 @@
             {
                 "title": "Fire Ball",
                 "desc": "Throws a ball of fire that explodes on impact, damaging several creatures.",
-                "info": "20 burn in center + 10 burn nearby"
+                "info": "20 at center + 10 splash burn damage "
             }
         ]
     },
@@ -471,14 +471,14 @@
         "type": "W5",
         "stats": {
             "health": 240,
-            "regrowth": 7,
+            "regrowth": 12,
             "endurance": 60,
             "energy": 80,
             "meditation": 10,
             "initiative": 100,
             "offense": 45,
             "defense": 35,
-            "movement": 8,
+            "movement": 6,
             "pierce": 6,
             "slash": 6,
             "crush": 6,
@@ -494,24 +494,24 @@
         },
         "ability_info": [
             {
-                "title": "Unstoppable",
-                "desc": "Successfully resists first signs of fatigue, being able to carry on.",
+                "title": "Unstoppable Hate",
+                "desc": "1/2 regrowth works even if fatigued.",
                 "info": ""
             },
             {
                 "title": "Knuckle Head",
                 "desc": "Smashes ringed head into a foe.",
-                "info": "No info"
+                "info": "8 pierce + 8 slash + 8 crush damage"
             },
             {
                 "title": "Meat Hook",
                 "desc": "Drags a foe, doing bonus damage if it doesn't have any movement points.",
-                "info": "No info"
+                "info": "5 pierce damage per hexagon"
             },
             {
                 "title": "Double Swipe",
-                "desc": "Slashes nearby foes with both claws.",
-                "info": "No info"
+                "desc": "Slaps frontal units with both claws.",
+                "info": "15 slash + 15 crush damage"
             }
         ]
     },
@@ -1003,7 +1003,7 @@
                 "info": "18 pierce damage"
             },
             {
-                "title": "Trap Jaw",
+                "title": "Crocodile Clip",
                 "desc": "Bites nearby foe, crippling it for 1 movement point for its next turn.",
                 "info": "10 pierce + 10 crush damage"
             },
@@ -1024,10 +1024,10 @@
         "type": "W7",
         "stats": {
             "health": 280,
-            "regrowth": 2,
-            "endurance": 140,
+            "regrowth": 1,
+            "endurance": 70,
             "energy": 100,
-            "meditation": 5,
+            "meditation": 1,
             "initiative": 15,
             "offense": 15,
             "defense": 15,
@@ -1048,8 +1048,8 @@
         "ability_info": [
             {
                 "title": "Rib Cage",
-                "desc": "Gains one regrowth point for each corpse located on the battlefield.",
-                "info": ""
+                "desc": "Bonus stats for every unit that dies.",
+                "info": "+1 regrowth, +1 meditation per stack"
             },
             {
                 "title": "Claw Strike",
@@ -1059,11 +1059,11 @@
             {
                 "title": "Fly Swarm",
                 "desc": "Damages and distracts a foe, lowering it's offense and defense.",
-                "info": "-20 offence and defense for a round."
+                "info": "-20 offense and defense for a round"
             },
             {
                 "title": "Shadow Army",
-                "desc": "Allows any dead creature to fight again for it's life, as a shadow being.",
+                "desc": "Allows a long dead creature to come and fight again, as a shadow being.",
                 "info": "All shadows vanish if creature dies."
             }
         ]
@@ -1167,7 +1167,7 @@
             {
                 "title": "Fishing Net",
                 "desc": "Pulls a rather distant inline creature nearby while also crushing it a little.",
-                "info": "5 crush damage + 3 per hexagon"
+                "info": "5 crush damage + 3 more / hexagon"
             },
             {
                 "title": "Frostbite Shower",
@@ -1221,11 +1221,11 @@
             {
                 "title": "Blood Puke",
                 "desc": "Targets regrowth becomes lowered if it's a foe or increased if it's an ally.",
-                "info": "+/- 10 regrowth change for a round"
+                "info": "+/- 20 regrowth change for a round"
             },
             {
                 "title": "Symbiotic Tumor",
-                "desc": "Engulfs body into a meat cocoon. ",
+                "desc": "Engulfs body into a meat cocoon. This ability ends the current turn.",
                 "info": "200% bonus defense and regrowth"
             }
         ]
@@ -2082,7 +2082,7 @@
             {
                 "title": "Spa Mud",
                 "desc": "Gains temporary bonus regrowth and defense when entering a mud bath.",
-                "info": "+5 regrowth, +5 defence"
+                "info": "+5 regrowth, +5 defense"
             },
             {
                 "title": "Power Bat",
@@ -2166,21 +2166,21 @@
         "stats": {
             "health": 170,
             "regrowth": 4,
-            "endurance": 60,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
+            "endurance": 30,
+            "energy": 80,
+            "meditation": 5,
+            "initiative": 30,
+            "offense": 10,
+            "defense": 5,
+            "movement": 4,
+            "pierce": 4,
+            "slash": 4,
+            "crush": 4,
+            "shock": 5,
             "burn": 0,
             "frost": 0,
             "poison": 0,
-            "sonic": 0,
+            "sonic": 8,
             "mental": 0
         },
         "animation": {
@@ -2190,22 +2190,22 @@
             {
                 "title": "Maggot Infestation",
                 "desc": "Strikes any rear foe at beginning of turn, infesting it with a parasite.",
-                "info": ""
-            },
-            {
-                "title": "Lamprey Mouth",
-                "desc": "Bites nearby foe with its sharp teeth.",
-                "info": "No info"
+                "info": "-5 endurance stat debuff, stackable"
             },
             {
                 "title": "Scapel Limbs",
-                "desc": "Strikes nearby foe doing bonus damage on unused movement points.",
-                "info": "No info"
+                "desc": "Hits nearby foe using frontal blades. Double damage if unit is fatigued.",
+                "info": "12 pierce damage × 2 vs fatigued foe"
             },
             {
-                "title": "Grapnel Strike",
+                "title": "Whip Slash",
                 "desc": "Grasps a distant foe, pulling itself to it, doing damage based on distance.",
-                "info": "6 pierce + 2 crush damage / hexagon"
+                "info": "10 slash damage + 5 crush / hexagon"
+            },
+            {
+                "title": "Boomerang Throw",
+                "desc": "Forms a new weapon out of scapels and throws it away, flying right back.",
+                "info": "10 slash + 10 crush damage"
             }
         ]
 	},
@@ -2301,7 +2301,7 @@
 			"info": "+10 bonus offense"
 		},
 		{
-			"title": "Man Trap",
+			"title": "Trap Jaw",
 			"desc": "Bites nearby foe, making it lose some maximum health based on damage.",
 			"info": "12 pierce damage with 25% effect"
 		},
@@ -2312,8 +2312,8 @@
 		},
 		{
 			"title": "Skull Bolt",
-			"desc": "Consumes corpse under in order to use it as a high damage projectile.",
-			"info": "30 crush + 10 poison damage"
+			"desc": "Uses parts from every single killed unit as a high damage projectile.",
+			"info": "40 crush + 10 poison damage"
 		}
 	]
 	},
@@ -2361,7 +2361,7 @@
 		},
 		{
 			"title": "Eclipsing Leap",
-			"desc": "Catapults itself at a target location, gaining double offense on landing.",
+			"desc": "Catapults itself a spot within range, gaining double offense on landing.",
 			"info": "200% offense if not moving from spot"
 		},
 		{
@@ -2657,23 +2657,23 @@
         "type": "W6",
         "stats": {
             "health": 260,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
+            "regrowth": 4,
+            "endurance": 60,
+            "energy": 80,
+            "meditation": 5,
+            "initiative": 40,
+            "offense": 12,
+            "defense": 10,
+            "movement": 3,
+            "pierce": 5,
+            "slash": 6,
+            "crush": 7,
+            "shock": 7,
+            "burn": 5,
+            "frost": 5,
+            "poison": 4,
+            "sonic": 3,
+            "mental": 10
         },
         "animation": {
             "walk_speed": 500
@@ -2681,17 +2681,17 @@
         "ability_info": [
             {
                 "title": "Bone Head",
-                "desc": "No description",
-                "info": ""
+                "desc": "Frontal attacks cause less damage.",
+                "info": "10 damage reduction from every hit"
             },
             {
                 "title": "Free Haircut",
-                "desc": "Uses it's horns as a pair of scissors, slashing a nearby foe.",
+                "desc": "Slashes nearby foe using scissors.",
                 "info": "15 slash damage"
             },
             {
                 "title": "Flying Cleaver",
-                "desc": "Jumps over a nearby creature, slicing it with its large abdominal axe.",
+                "desc": "Jumps over a nearby creature, slicing it with its large abdominal bone axe.",
                 "info": "20 slash damage"
             },
             {
