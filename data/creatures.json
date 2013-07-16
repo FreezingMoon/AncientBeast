@@ -843,12 +843,12 @@
             {
                 "title": "Royal Seal",
                 "desc": "Sticks chewing gum in place to hinder enemy movement for a turn.",
-                "info": "Foes cannot be moved from the spot. Allied units are not affected by this."
+                "info": "Allied units are not affected by this."
             },
             {
                 "title": "Boom Box",
-                "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch. Does double damage if not pushing!",
-                "info": "10 sonic damage + 10 crush if melee"
+                "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
+                "info": "15 sonic damage + 15 crush if melee"
             }
         ]
     },
