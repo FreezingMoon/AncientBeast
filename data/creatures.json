@@ -861,48 +861,48 @@
         "size": 1,
         "type": "E1",
         "stats": {
-            "health": 0,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
+            "health": 80,
+            "regrowth": 1,
+            "endurance": 10,
+            "energy": 60,
+            "meditation": 15,
+            "initiative": 30,
+            "offense": 5,
+            "defense": 4,
+            "movement": 3,
+            "pierce": 2,
+            "slash": 2,
+            "crush": 2,
+            "shock": 2,
+            "burn": 2,
+            "frost": 2,
+            "poison": 2,
+            "sonic": 7,
+            "mental": 7
         },
         "animation": {
             "walk_speed": 500
         },
         "ability_info": [
             {
-                "title": "Fried Chicken",
-                "desc": "Corpse can be consumed by other creatures, regaining some health.",
-                "info": ""
-            },
-            {
-                "title": "Face Smash",
-                "desc": "Bashes nearby foe using it's head.",
-                "info": "No info"
+                "title": "Eye Shield",
+                "desc": "Reduces frontal damage up to half.",
+                "info": "Cannot reduce more than 25 points."
             },
             {
                 "title": "Optic Blast",
-                "desc": "Zaps a foe with it's laser cannon.",
-                "info": "No info"
+                "desc": "Zaps a foe with it's laser cannon. Does more damage at closer range.",
+                "info": "30 burn damage - 1 per hexagon"
             },
             {
-                "title": "Magic Act",
+                "title": "Tractor Beam",
+                "desc": "Pulls a distant unit several hexagons closer, depending on its overall size.",
+                "info": "range = 5 hexagons - creature size"
+            },
+            {
+                "title": "Switch Places",
                 "desc": "Swaps places of any two creatures in front that have similar sizes overall.",
-                "info": "No info"
+                "info": "Ability does not work on summoners."
             }
         ]
     },
@@ -1113,7 +1113,7 @@
             {
                 "title": "Fatal Attraction",
                 "desc": "Causes a target foe to come close to her, while depleting its movement.",
-                "info": "Does not work on summoners."
+                "info": "Ability does not work on summoners."
             },
             {
                 "title": "Tentacle Feet",
