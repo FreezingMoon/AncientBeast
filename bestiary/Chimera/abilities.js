@@ -276,16 +276,19 @@ abilities[45] =[
 			delete nextdmg.damages.total;
 			nextdmg = nextdmg.damages;
 
-			nextTargets = ability.getTargets(trg.adjacentHexs(1));
+			nextTargets = ability.getTargets(trg.adjacentHexs(1,true));
 
 			if(nextTargets.length == 0) break;
 
-			var bestTarget = { stats:{ defense:-99999, shock:-99999 } };
+			var bestTarget = { size: 0, stats:{ defense:-99999, shock:-99999 } };
 			for (var j = 0; j < nextTargets.length; j++) {
-				if (typeof nextTargets[j] == "undefined") continue // Skip empty ids.
-				if (targets.indexOf(nextTargets[j].target) != -1) continue
-				if (nextTargets[j].target.stats.shock+nextTargets[j].target.stats.defense <= bestTarget.stats.shock+bestTarget.stats.defense) continue
-				var bestTarget = nextTargets[j].target;
+				if (typeof nextTargets[j] == "undefined") continue; // Skip empty ids.
+				if (targets.indexOf(nextTargets[j].target) != -1) continue;
+
+				var t = nextTargets[j].target;
+				if(t.stats.shock > bestTarget.stats.shock) bestTarget = t;
+				else continue;
+
 			};
 
 			if( bestTarget instanceof Creature ){

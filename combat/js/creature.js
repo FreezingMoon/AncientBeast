@@ -695,7 +695,49 @@ var Creature = Class.create({
 	*	return : 	Array : 	Array of adjacent hexs
 	*
 	*/
-	adjacentHexs: function(dist){
+	adjacentHexs: function(dist,clockwise){
+
+		if(!!clockwise){
+			var Hexs = [];
+			var o = (this.y%2==0)?1:0;
+
+			if(this.size == 1){	
+				var c = [{y:this.y,x:this.x+1},
+				{y:this.y-1,x:this.x+o},
+				{y:this.y-1,x:this.x-1+o},
+				{y:this.y,x:this.x-1},
+				{y:this.y+1,x:this.x-1+o},
+				{y:this.y+1,x:this.x+o}];
+			}
+			if(this.size == 2){
+				var c = [{y:this.y,x:this.x+1},
+				{y:this.y-1,x:this.x+o},
+				{y:this.y-1,x:this.x-1+o},
+				{y:this.y-1,x:this.x-2+o},
+				{y:this.y,x:this.x-2},
+				{y:this.y+1,x:this.x-2+o},
+				{y:this.y+1,x:this.x-1+o},
+				{y:this.y+1,x:this.x+o}];
+			}
+			if(this.size == 3){
+				var c = [{y:this.y,x:this.x+1},
+				{y:this.y-1,x:this.x+o},
+				{y:this.y-1,x:this.x-1+o},
+				{y:this.y-1,x:this.x-2+o},
+				{y:this.y-1,x:this.x-3+o},
+				{y:this.y,x:this.x-3},
+				{y:this.y-1,x:this.x-3+o},
+				{y:this.y+1,x:this.x-2+o},
+				{y:this.y+1,x:this.x-1+o},
+				{y:this.y+1,x:this.x+o}];
+			}
+			for (var i = 0; i < c.length; i++) {
+				x = c[i].x;	y = c[i].y;
+				if(G.grid.hexExists(y,x)) Hexs.push(G.grid.hexs[y][x]);
+			};
+			return Hexs;
+		}
+
 		if(this.size > 1){
 			var creature = this;
 			var Hexs = this.hexagons[0].adjacentHex(dist);
