@@ -377,7 +377,7 @@ var UI = Class.create({
 	*/
 	toggleDash: function(){
 		if(!this.$dash.hasClass("active")){
-			this.showCreature("--",G.activeCreature.team);
+			this.showCreature(G.activeCreature.type,G.activeCreature.team);
 		}else{
 			this.closeDash();
 		}

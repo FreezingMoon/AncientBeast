@@ -418,7 +418,7 @@ var HexGrid = Class.create({
 				G.grid.lastClickedtHex = []; 
 				if(hex.creature instanceof Creature){ //If creature
 					var crea = hex.creature;
-					G.UI.showCreature(crea.type,crea.team);
+					//G.UI.showCreature(crea.type,crea.team);
 				}else{ //If nothing
 					o.fnOnCancel(hex,o.args); //ON CANCEL
 				}
