@@ -151,7 +151,9 @@ var HexGrid = Class.create({
 
 				dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team);
 
-				if( o.stopOnCreature && o.includeCrea && (i==1 || i==4) ){ // Only straight direction
+				if(dir.length==0) continue;
+
+				if( o.stopOnCreature && o.includeCrea && (i==1 || i==4)){ // Only straight direction
 					if(dir.last().creature instanceof Creature)
 						dir = dir.concat(dir.last().creature.hexagons); //Add full creature
 				}
