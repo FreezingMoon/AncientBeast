@@ -130,7 +130,7 @@ abilities[14] =[
 	trigger : "onQuery",
 
 	damages : {
-		sonic : 10,
+		sonic : 15,
 		crush : 0,
 	},
 
@@ -177,7 +177,7 @@ abilities[14] =[
 		var target = path.last().creature;
 		var melee = (path[0].creature === target);
 
-		var d = (melee) ? {sonic:10,crush:10} : ability.damages;
+		var d = (melee) ? {sonic:15,crush:15} : ability.damages;
 
 
 		var dir = [];
