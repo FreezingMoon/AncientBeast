@@ -175,7 +175,7 @@ abilities[14] =[
 		ability.end();		
 
 		var target = path.last().creature;
-		var melee = (path[1].creature === target);
+		var melee = (path[0].creature === target);
 
 		var d = (melee) ? {sonic:10,crush:10} : ability.damages;
 
@@ -221,10 +221,10 @@ abilities[14] =[
 		}
 
 		//If no pushing then double damage
-		if(!pushed) {
-			d.sonic *= 2;
-			d.crush *= 2;
-		}
+		// if(!pushed) {
+		// 	d.sonic *= 2;
+		// 	d.crush *= 2;
+		// }
 
 		var damage = new Damage( 
 			ability.creature, //Attacker
