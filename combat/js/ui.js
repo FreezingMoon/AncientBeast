@@ -287,7 +287,7 @@ var UI = Class.create({
 						if(G.freezedInput) return;
 						G.UI.materializeToggled = true;
 						G.UI.selectAbility(3);
-						G.UI.toggleDash();
+						G.UI.closeDash(true);
 						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
 					});
 				}
@@ -384,9 +384,9 @@ var UI = Class.create({
 
 	},
 
-	closeDash: function(){
+	closeDash: function(materialize){
 		this.$dash.removeClass("active");
-		if(this.materializeToggled){
+		if(!materialize){
 			this.selectAbility(-1);
 			G.activeCreature.queryMove();
 		}

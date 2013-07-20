@@ -390,8 +390,11 @@ var HexGrid = Class.create({
 			}else{
 				this.$display.removeClass("dashed");
 			}
-			
 		});
+
+		//Cleanup
+		$j("#crea_materialize_overlay").remove();
+
 		//Set reachable the given hexs
 		o.hexs.each(function(){ 
 			this.setReachable();
