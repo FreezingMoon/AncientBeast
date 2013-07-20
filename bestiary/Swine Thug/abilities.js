@@ -111,12 +111,12 @@ abilities[37] =[
 		if( !this.testRequirements() ) return false;
 
 		var swine = this.creature;
-		var hexs = G.grid.getHexMap(swine.x,swine.y-2,0,false,bellowrow).concat(
-			G.grid.getHexMap(swine.x,swine.y,0,false,straitrow),
-			G.grid.getHexMap(swine.x,swine.y,0,false,bellowrow),
-			G.grid.getHexMap(swine.x,swine.y-2,0,true,bellowrow),
-			G.grid.getHexMap(swine.x,swine.y,0,true,straitrow),
-			G.grid.getHexMap(swine.x,swine.y,0,true,bellowrow));
+		var hexs = G.grid.getHexMap(swine.x,swine.y-2,0,false,bellowrow).filterCreature(true,true,swine.id,swine.team).concat(
+			G.grid.getHexMap(swine.x,swine.y,0,false,straitrow).filterCreature(true,true,swine.id,swine.team),
+			G.grid.getHexMap(swine.x,swine.y,0,false,bellowrow).filterCreature(true,true,swine.id,swine.team),
+			G.grid.getHexMap(swine.x,swine.y-2,0,true,bellowrow).filterCreature(true,true,swine.id,swine.team),
+			G.grid.getHexMap(swine.x,swine.y,0,true,straitrow).filterCreature(true,true,swine.id,swine.team),
+			G.grid.getHexMap(swine.x,swine.y,0,true,bellowrow).filterCreature(true,true,swine.id,swine.team));
 		if( !this.atLeastOneTarget( hexs, "ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
