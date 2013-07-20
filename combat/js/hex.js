@@ -1182,7 +1182,7 @@ var Hex = Class.create({
 	activateTrap: function(trigger, target){
 		if(!this.trap) return;
 		this.trap.effects.each(function(){
-			if( trigger.test(this.trigger) &&  this.requireFn() ){
+			if( trigger.test(this.trigger) &&  this.requireFn(target) ){
 				G.log("Trap triggered");
 				this.activate(target);
 			}
