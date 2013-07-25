@@ -153,6 +153,12 @@ var Creature = Class.create({
 			.css(G.grid.hexs[this.y][offsetX].displayPos)
 			.css("z-index",this.y)
 			.fadeIn(500);
+
+		//Trigger trap under
+		var crea = this;
+		this.hexagons.each(function(){
+			this.activateTrap(G.triggers.onStepIn,crea);
+		});
 	},
 
 	/*	activate()
