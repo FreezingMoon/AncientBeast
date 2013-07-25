@@ -113,7 +113,7 @@ abilities[45] =[
 		sonic : 20,
 	},
 
-	directions : [0,1,0,0,0,0],
+	directions : [0,1,0,0,1,0],
 
 	//	require() :
 	require : function(){
