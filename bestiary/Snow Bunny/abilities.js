@@ -38,7 +38,7 @@ abilities[12] =[
 					callback : function(){	G.activeCreature.queryMove(); },
 					ignorePath : true,
 				});
-				damage.status = "Dodged";
+				//damage.status = "Dodged";
 				break; //Break for loop
 			}
 		};
