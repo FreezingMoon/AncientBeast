@@ -38,10 +38,6 @@ abilities[0] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	requirements : {
-		plasma : 1,
-	},
-
 	// 	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -93,6 +89,10 @@ abilities[0] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
+
+	requirements : {
+		plasma : 1,
+	},
 
 	// 	require() :
 	require : function(){

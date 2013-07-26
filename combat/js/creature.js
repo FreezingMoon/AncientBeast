@@ -352,7 +352,7 @@ var Creature = Class.create({
 	*
 	*/
 	faceHex: function(faceto,facefrom){
-		
+
 		if( !facefrom )	facefrom = (this.size < 2)? this.hexagons[0]: this.hexagons[1];
 
 		if(faceto instanceof Creature) faceto = (faceto.size < 2)? faceto.hexagons[0]: faceto.hexagons[1];
@@ -399,6 +399,8 @@ var Creature = Class.create({
 			ignoreMovementPoint : false,
 			ignorePath : false,
 		}
+
+
 
 		opts = $j.extend(defaultOpt,opts);
 
@@ -450,6 +452,7 @@ var Creature = Class.create({
 		creature.cleanHex();
 		G.grid.updateDisplay();
 		G.grid.xray( new Hex(0,0) ); //Clean Xray
+		creature.updateHex();
 
 		creature.$health.hide();
 		
