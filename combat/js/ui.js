@@ -133,7 +133,7 @@ var UI = Class.create({
 
 		for (var i = 0; i < 4; i++) {
 			var b = new Button({
-				$button : $j("#abilities .ability:nth-child("+(i+1)+")"),
+				$button : $j("#abilities > div:nth-child("+(i+1)+") > .ability"),
 				abilityId : i,
 			});
 			this.buttons.push(b);
@@ -401,7 +401,7 @@ var UI = Class.create({
 	*
 	*/
 	updateActivebox: function(){
-		var $abilitiesButtons = G.UI.$activebox.children("#abilities").children(".ability");
+		var $abilitiesButtons = $j("#abilities .ability");
 		$abilitiesButtons.unbind("click");
 
 		this.$activebox.children("#abilities").clearQueue().transition({y:"-420px"},function(){//Hide panel	
@@ -410,8 +410,9 @@ var UI = Class.create({
 			G.UI.abilitiesButtons.each(function(){
 				var ab = G.activeCreature.abilities[this.abilityId];
 				this.css.normal = {"background-image":"url('../bestiary/"+G.activeCreature.name+"/"+this.abilityId+".svg')"};
-				this.$button.children(".desc").children("span").text(ab.title);
-				this.$button.children(".desc").children("p").html(ab.desc+"<br>"+ab.info);
+				this.$button.next(".desc").children("span").text(ab.title);
+				this.$button.next(".desc").children("p").html(ab.desc+"<br>"+ab.info);
+
 				this.click = function(){
 					if(G.UI.dashopen) return false;
 					

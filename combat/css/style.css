@@ -647,7 +647,7 @@ body{
 
 #chat #chatbox #chatcontent{
 	padding: 10px;
-	font-size: 13px;
+	font-size: 14px;
 	color: white;
 }
 
@@ -686,8 +686,8 @@ body{
 	background: black;
 }
 
-.button .desc{
-	position: relative;
+.button + .desc{
+	position: absolute;
 	top: 1px;
 	display: block;
 	width: 0px;
@@ -697,13 +697,13 @@ body{
 	overflow: hidden;
 }
 
-.button:hover .desc{
-	width: 230px;
+.button:hover + .desc{
+	width: 250px;
 	border: 1px #555 solid;
 	overflow: visible;
 }
 
-.button .desc span {
+.button + .desc span {
 	display: block;
 	margin: 0;
 	padding: 7px 7px 0 7px;
@@ -712,15 +712,15 @@ body{
 	color: #fff;
 }
 
-.button .desc p {
+.button + .desc p {
 	margin: 0;
 	padding: 5px 7px 7px;
-	font-size: 13px;
-	color: #aaa;
+	font-size: 14px;
+	color: #ddd;
 
 }
 
-.button .desc .shortcut{
+.button +.desc .shortcut{
 	font-size: 12px;
 	position: absolute;
 	font-style: italic;
@@ -728,7 +728,7 @@ body{
 	top: 8px;
 }
 
-.button .desc .arrow{
+.button + .desc .arrow{
 	position: absolute;
 	top: 27px;
 	left:-6px;
@@ -737,7 +737,7 @@ body{
 	width: 0;
 }
 
-.button .desc .arrow:before{
+.button +.desc .arrow:before{
 	content: "";
 	border-right: 6px solid #555;
 	border-top: 8px solid transparent;
@@ -748,7 +748,7 @@ body{
 	width: 0;
 }
 
-.button .desc .arrow:after{
+.button +.desc .arrow:after{
 	content: "";
 	left:1px;
 	border-right: 6px solid #000;
@@ -760,29 +760,29 @@ body{
 	width: 0;
 }
 
-#rightpanel .button .desc .arrow{
+#rightpanel .button +.desc .arrow{
 	right: 0px;
 	left: auto;
 }
 
-#rightpanel .button .desc .shortcut{
+#rightpanel .button +.desc .shortcut{
 	left: 8px;
 	right: auto;
 }
 
-#rightpanel .button .desc .arrow:before{
+#rightpanel .button +.desc .arrow:before{
 	border-right: 0px solid transparent;
 	border-left: 6px solid #555;
 }
 
-#rightpanel .button .desc .arrow:after{
+#rightpanel .button +.desc .arrow:after{
 	border-right: 0px solid transparent;
 	border-left: 6px solid #000;
 	left:-1px;
 }
 
-#rightpanel .button:hover .desc{
-	left: -235px;
+#rightpanel .button:hover +.desc{
+	left: -255px;
 	text-align: right;
 }
 
