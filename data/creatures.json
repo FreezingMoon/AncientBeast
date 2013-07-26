@@ -718,8 +718,8 @@
         "ability_info": [
             {
                 "title": "Bunny Hopping",
-                "desc": "Avoids a basic attack by moving to an available adjacent location.",
-                "info": "-1 movement on use"
+                "desc": "Moves away one hexagon from first enemy that comes nearby frontaly.",
+                "info": "Works only once every game round."
             },
             {
                 "title": "Big Nip",
@@ -2243,12 +2243,12 @@
 	"ability_info": [
 		{
 			"title": "Hunting Horn",
-			"desc": "Moves 2 hexes towards closest foe.",
-			"info": "Movement points are not deducted."
+			"desc": "Moves 2 hexes towards closest foe. Movement points are not deducted.",
+			"info": "This creature can not be delayed."
 		},
 		{
 			"title": "Hammer Time",
-			"desc": "Hits up to 3 adjacent enemies. Less targets are can be hit multiple times.",
+			"desc": "Hits up to 3 nearby frontal foes, less targets are being hit multiple times.",
 			"info": "6 crush damage per hit"
 		},
 		{
@@ -2258,8 +2258,8 @@
 		},
 		{
 			"title": "Tentacle Bush",
-			"desc": "Defensive stance that multiplies current defense stat until next turn.",
-			"info": "700% amplified defense stat"
+			"desc": "Defensive stance that increases total defense and slaps nearby attackers.",
+			"info": "10 crush damage, 200% defense stat"
 		}
 	]
 	},
