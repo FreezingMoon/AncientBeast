@@ -170,7 +170,6 @@ abilities[45] =[
 		result = target.takeDamage(damage);
 		
 		while(result.kill){
-			console.log(result);
 
 			var hexs = G.grid.getHexMap(target.x,target.y,0,target.flipped,straitrow);
 			var newTarget = false;
@@ -187,7 +186,7 @@ abilities[45] =[
 			var damage = new Damage(
 				ability.creature, //Attacker
 				"target", //Attack Type
-				{sonic:result.damages}, //Damage Type
+				{sonic:result.damages.sonic}, //Damage Type
 				1, //Area
 				[]	//Effects
 			);
