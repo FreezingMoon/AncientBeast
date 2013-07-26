@@ -268,7 +268,7 @@
 		{
 			"title": "Scorched Ground",
 			"desc": "Ignites some of the ground under, lasting 1 round or until stepped on.",
-			"info": "5 burn damage for each hexagon"
+			"info": "10 burn damage for each hexagon"
 		},
 		{
 			"title": "Pulverizing Punch",
@@ -1696,24 +1696,24 @@
         },
         "ability_info": [
             {
-                "title": "Offspring",
-                "desc": "Spawns a little hungry eggplant that chases nearest foe and attacks it.",
-                "info": ""
+                "title": "Tiny Offspring",
+                "desc": "Spawns a little hungry eggplant that chases nearest foe and then attacks.",
+                "info": "Grows into an adult if it kills target."
             },
             {
                 "title": "Dinner Time",
-                "desc": "Bites a nearby foe.",
-                "info": "No info"
+                "desc": "Bites a nearby foe, gaining 10 bonus offense with every consecutive hit.",
+                "info": "10 pierce + 5 crush damage"
             },
             {
                 "title": "Pony Tail",
-                "desc": "Whips and poisons nearby foes, knocking them back.",
-                "info": "No info"
+                "desc": "Whips and poisons all nearby units.",
+                "info": "10 slash + 10 poison damage around"
             },
             {
                 "title": "Snake Tongue",
-                "desc": "Throws tongue at a distant target, having it come back with time.",
-                "info": "No info"
+                "desc": "Drags a somewhat distant inline unit close while also doing damage to it.",
+                "info": "16 poison + 4 pierce damage, 5 range"
             }
         ]
     },
@@ -2356,18 +2356,18 @@
 		},
 		{
 			"title": "Mega Slicer",
-			"desc": "Slashes nearby foe using claws. Target loses 5 defense for 5 rounds.",
-			"info": "30 slash damage"
-		},
-		{
-			"title": "Eclipsing Leap",
-			"desc": "Catapults itself a spot within range, gaining double offense on landing.",
-			"info": "200% offense if not moving from spot"
+			"desc": "Slashes nearby foe using the claws. Target loses 20 defense for 3 rounds.",
+			"info": "30 slash damage & defense debuff"
 		},
 		{
 			"title": "Sublimal Scream",
-			"desc": "Does damage to a conic area nearby.",
-			"info": "15 sonic + 15 mental damage"
+			"desc": "Does damage to a conic area nearby. Lowers initiative of all affected units.",
+			"info": "15 sonic + 15 mental damage, -10 init"
+		},
+		{
+			"title": "Eclipsing Leap",
+			"desc": "Catapults itself over up to 3 units with low health, squashing them all.",
+			"info": "Targets need to sum under 60 health."
 		}
 	]
 	},

@@ -16,7 +16,7 @@ abilities[4] =[
 	//	activate() : 
 	activate : function() {
 		var effectFn = function(effect,crea){ 
-			crea.takeDamage(new Damage( effect.attacker, "effect", {burn:5}, 1,[] )); 
+			crea.takeDamage(new Damage( effect.attacker, "effect", {burn:10}, 1,[] )); 
 			this.trap.destroy();
 		};
 
