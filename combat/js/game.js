@@ -959,6 +959,9 @@ var Soundsys = Class.create({
 		$j.extend(this,o);
 
 		window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+		if(!window.AudioContext) return false;
+
 		this.context = new AudioContext();
 
 		//Music
@@ -972,10 +975,12 @@ var Soundsys = Class.create({
 	},
 
 	playMusic: function(musicID){
+		if(!window.AudioContext) return false;
 		//this.playSound(G.soundLoaded[0],this.musicGainNode);
 	},
 
 	getSound: function(url,id,success){
+		if(!window.AudioContext) success();
 		var id = id;
 		bufferLoader = new BufferLoader(this.context,[url],function(arraybuffer){
 			G.soundLoaded[id] = arraybuffer[0];
@@ -986,6 +991,7 @@ var Soundsys = Class.create({
 	},
 
 	playSound: function(sound,node,o) {
+		if(!window.AudioContext) return false;
 		o = $j.extend({
 			music_volume : 1,
 			effects_volume : 1,
