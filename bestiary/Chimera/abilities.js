@@ -207,7 +207,7 @@ abilities[45] =[
 		shock : 20,
 	},
 
-	directions : [0,1,0,0,0,0],
+	directions : [0,1,0,0,1,0],
 	
 	require : function(){
 		if( !this.testRequirements() ) return false;
