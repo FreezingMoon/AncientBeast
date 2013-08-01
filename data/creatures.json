@@ -207,12 +207,12 @@
     	"ability_info": [
     		{
     			"title": "Spore Contamination",
-    			"desc": "Nearby foes have their regrowth stat constantly reduced with each round.",
-    			"info": "2 stacks on contact, -1 stack per turn"
+    			"desc": "Foes that get too close have their regrowth reduced for a whole turn.",
+    			"info": "-5 regrowth stat debuff for a round"
     		},
     		{
     			"title": "Supper Chomp",
-    			"desc": "Takes a huge bite out of his foe, restoring a minor amount of health.",
+    			"desc": "Takes a huge bite out of nearby foe, restoring a minor amount of health.",
     			"info": "20 pierce damage, 1/4 as regrowth"
     		},
     		{

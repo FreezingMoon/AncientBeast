@@ -27,12 +27,35 @@ require_once("../header.php");
 start_segment();
 ?>
 <span style="text-align: center; display: block; font-weight:bold;">
-<a href="irc://freenode.org/#AncientBeast" target="_blank"><u>Click here</u></a> to connect with your IRC client or use the <a href="#applet"><u>applet below</u></a>. You can <a href="mailto:DreadKnight@FreezingMoon.org" target="_blank"><u>email us</u></a> or <a href="#comment"><u>leave a comment</u></a>.</a></span>
+<a href="irc://irc.freenode.org/#AncientBeast" target="_blank"><u>Click here</u></a> to connect with your IRC client or use the <a href="#applet"><u>applet below</u></a>. You can <a href="mailto:DreadKnight@FreezingMoon.org" target="_blank"><u>email us</u></a> or <a href="#comment"><u>leave a comment</u></a>.</a></span>
 <?php
 separate_segment(applet);
 echo "<center><iframe src='http://webchat.freenode.net?channels=AncientBeast' width='99%' height='450'></iframe></center>";
 separate_segment(tutorial);
 echo "<center><iframe src='https://docs.google.com/present/embed?id=dfbbjc3c_24fb4cz7d8&size=l' frameborder='0' width='700' height='559'></iframe></center>";
+separate_segment(widgets);
+echo "<div class='center'>";?>
+
+<!-- Twitter Widget -->
+<a class="twitter-timeline" width="285" height="350" href="https://twitter.com/AncientBeast" data-widget-id="362776555539292160">Tweets by @AncientBeast</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+<!-- G+ Widget -->
+<div class="g-page" data-width="285" data-href="//plus.google.com/113034814032002995836" data-theme="dark" data-rel="publisher"></div>
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+
+<!--Facebook Widget -->
+<iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FAncientBeast&amp;width=285&amp;height=350&amp;colorscheme=dark&amp;show_faces=true&amp;header=false&amp;stream=false&amp;show_border=false&amp;appId=354537111308544" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:285px; height:350px;" allowTransparency="true"></iframe>
+
+<?php echo "</div>";
+separate_segment(badges);
+echo "<a href='http://www.indiedb.com/games/ancient-beast' title='View Ancient Beast on Indie DB' target='_blank'><img src='http://button.indiedb.com/popularity/medium/games/21552.png' alt='Ancient Beast'></a>";
 separate_segment(comment);
 include("../utils/disqus.php");
 end_segment();

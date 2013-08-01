@@ -103,7 +103,7 @@ foreach ($sections as &$sectionItem) {
 <?php end_segment(); ?>
 <article>
 <?php start_segment(); ?>
-<div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
+<div class="center"><iframe width="880" height="495" src="//www.youtube.com/embed/cAgf9hKGI3k?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
 <?php separate_segment("intro"); ?>
 <h3 class="indexheader"><a href="#intro">Intro</a></h3>
 <p>
