@@ -1873,7 +1873,7 @@
                 "info": "+25 offense for next hit if not moving"
             },
             {
-                "title": "Life Breath",
+                "title": "Battle Cry",
                 "desc": "Brings back to life a dead ally for 3 rounds, after which it disintegrates.",
                 "info": "10 energy × creature level"
             }
