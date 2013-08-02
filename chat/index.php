@@ -54,9 +54,20 @@ echo "<div class='center'>";?>
 <iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FAncientBeast&amp;width=285&amp;height=350&amp;colorscheme=dark&amp;show_faces=true&amp;header=false&amp;stream=false&amp;show_border=false&amp;appId=354537111308544" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:285px; height:350px;" allowTransparency="true"></iframe>
 
 <?php echo "</div>";
-separate_segment(badges);
-echo "<a href='http://www.indiedb.com/games/ancient-beast' title='View Ancient Beast on Indie DB' target='_blank'><img src='http://button.indiedb.com/popularity/medium/games/21552.png' alt='Ancient Beast'></a>";
-separate_segment(comment);
+
+separate_segment(badges); ?>
+<div class="center">
+<a href="http://www.indiedb.com/games/ancient-beast" title="View Ancient Beast on Indie DB" target="_blank">
+<img src="http://button.indiedb.com/popularity/medium/games/21552.png" alt="Ancient Beast"></a>
+<a href="http://gamejolt.com/games/arcade/ancient-beast/15964/" target="_blank">
+<img src="GJ.png" alt="Ancient Beast on GameJolt"></a>
+<a href="http://www.lgdb.org/game/ancient_beast" target="_blank">
+<img src="LGDB" alt="Ancient Beast on Linux Game Data Base"></a>
+<a href="http://forum.freegamedev.net/viewforum.php?f=70&sid=c5b79793f699eb6af86a9d013bf3500f" target="_blank">
+<img src="FGD.png" alt="FreeGameDev Ancient Beast SubForum"></a>
+</div>
+
+<?php separate_segment(comment);
 include("../utils/disqus.php");
 end_segment();
 end_page();
