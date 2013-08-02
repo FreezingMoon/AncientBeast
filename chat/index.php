@@ -62,7 +62,7 @@ separate_segment(badges); ?>
 <a href="http://gamejolt.com/games/arcade/ancient-beast/15964/" target="_blank">
 <img src="GJ.png" alt="Ancient Beast on GameJolt"></a>
 <a href="http://www.lgdb.org/game/ancient_beast" target="_blank">
-<img src="LGDB" alt="Ancient Beast on Linux Game Data Base"></a>
+<img src="LGDB.png" alt="Ancient Beast on Linux Game Data Base"></a>
 <a href="http://forum.freegamedev.net/viewforum.php?f=70&sid=c5b79793f699eb6af86a9d013bf3500f" target="_blank">
 <img src="FGD.png" alt="FreeGameDev Ancient Beast SubForum"></a>
 </div>
