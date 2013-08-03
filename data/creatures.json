@@ -724,7 +724,7 @@
             {
                 "title": "Big Nip",
                 "desc": "Dents nearby foe using it's big teeth.",
-                "info": "6 pierce + 6 slash + 6 crush damage"
+                "info": "6 slash + 6 crush + 4 pierce damage"
             },
             {
                 "title": "Blowing Wind",
@@ -2249,7 +2249,7 @@
 		{
 			"title": "Hammer Time",
 			"desc": "Hits a nearby foe using its head.",
-			"info": "6 crush + 4 pierce damage"
+			"info": "12 crush + 6 pierce damage"
 		},
 		{
 			"title": "Fishing Hook",
