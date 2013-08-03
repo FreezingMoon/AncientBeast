@@ -55,9 +55,9 @@ abilities[12] =[
 	trigger : "onQuery",
 
 	damages : {
-		pierce : 4,
-		slash : 4,
-		crush : 4,
+		pierce : 6,
+		slash : 6,
+		crush : 6,
 	},
 
 	// 	require() :
