@@ -2249,12 +2249,12 @@
 		{
 			"title": "Hammer Time",
 			"desc": "Hits a nearby foe using its hard head. Each strike lowers meditation by 1.",
-			"info": "12 crush + 6 pierce damage + debuff"
+			"info": "12 crush + 6 pierce damage & debuff"
 		},
 		{
 			"title": "Fishing Hook",
 			"desc": "Pierces small or medium creature, throwing it back, swapping places.",
-			"info": "10 pierce + 10 crush damage + swap"
+			"info": "10 pierce + 10 crush damage & swap"
 		},
 		{
 			"title": "Tentacle Bush",
