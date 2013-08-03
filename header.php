@@ -32,6 +32,7 @@ require_once('global.php'); ?>
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, strategy, combat, arena, free, foss, open source, card, chess, creatures, bitcoin, bets">
 <meta name="author" content="Dread Knight">
 
+<script type="application/javascript" src="/utils/tinybox.js"></script>
 <script type="text/javascript" >
 var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 </script>
@@ -92,6 +93,14 @@ _gaq.push(['_trackPageview']);
 })();
 </script>
 </head>
+<!--logged out-->
+<span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="#register" onclick="TINY.box.show({url:'/utils/register.php',post:'id=16',width:200,height:180,opacity:40,topsplit:5})">Register</a></span>
+<span style="position: absolute; margin-left: 366px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="#login" onclick="TINY.box.show({url:'/utils/login.php',post:'id=16',width:200,height:240,opacity:40,topsplit:5})">Login</a></span>
+
+<!--logged in-->
+<!-- <span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="/profile">Account</a></span>
+<span style="position: absolute; margin-left: 366px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="#login" onclick="TINY.box.show({url:'/utils/logout.php',post:'id=16',width:200,height:240,opacity:40,topsplit:5})">Logout</a></span>-->
+
 <body id="top">
 <!--banner-->
 <header id="header">
