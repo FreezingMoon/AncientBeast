@@ -29,7 +29,7 @@ start_segment();
 echo "<div class='center'><a href='https://github.com/FreezingMoon/AncientBeast' target='_blank'><b>Under HEAVY development!</b></a></div>";
 //if not logged in
 separate_segment();
-echo "<div class='center'>login options</div>";
+echo "<div class='center'>login options and benefits</div>";
 separate_segment();
 echo "<img src='../images/We_Want_YOU.jpg' alt='We Want YOU' title='Sign Up TODAY!'>";
 //if logged in
