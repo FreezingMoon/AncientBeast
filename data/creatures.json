@@ -724,7 +724,7 @@
             {
                 "title": "Big Nip",
                 "desc": "Dents nearby foe using it's big teeth.",
-                "info": "6 slash + 6 crush + 4 pierce damage"
+                "info": "8 pierce + 6 slash + 4 crush damage"
             },
             {
                 "title": "Blowing Wind",
@@ -1918,12 +1918,12 @@
             },
             {
                 "title": "Wrist Blade",
-                "desc": "Slashes nearby foe using blade.",
-                "info": "20 slash damage"
+                "desc": "Slashes a nearby foe using its blade.",
+                "info": "25 slash damage"
             },
             {
-                "title": "Chain Whip",
-                "desc": "Short ranged attack that pushes back target a hexagon if it's nearby.",
+                "title": "Belt Whip",
+                "desc": "Slaps all the frontal nearby units.",
                 "info": "20 crush damage"
             },
             {
