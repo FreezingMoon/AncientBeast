@@ -1922,14 +1922,14 @@
                 "info": "25 slash damage"
             },
             {
-                "title": "Belt Whip",
-                "desc": "Slaps all the frontal nearby units.",
+                "title": "Belt Slap",
+                "desc": "Pokes all the frontal nearby units, knocking them back one hexagon.",
                 "info": "20 crush damage"
             },
             {
                 "title": "Overpower",
                 "desc": "Increases offense and defense until attacking or getting hit current turn.",
-                "info": "+50% offense and defense bonus"
+                "info": "+50% offense and defense stat bonus"
             }
         ]
     },
