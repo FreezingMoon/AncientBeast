@@ -170,36 +170,51 @@ var Creature = Class.create({
 		this.travelDist = 0;
 		var crea = this;
 
+		var qm = function(){
+			if(G.turn >= G.minimumTurnBeforeFleeing){ G.UI.btnFlee.changeState("normal"); }
+
+			crea.player.startTime = new Date();
+			crea.queryMove();
+		}
+
 		if(!this.hasWait){
 			this.remainingMove = this.stats.movement;
 			this.abilities.each(function(){ this.setUsed(false); });
 
 			this.heal(this.stats.regrowth);
+			this.delayable = true;
+
+			for (var i = 0; i < crea.effects.length; i++) {
+				if(crea.effects[i].turnLifetime > 0 && "startOfTurn" == crea.effects[i].deleteTrigger){
+						if(G.turn-crea.effects[i].creationTurn >= crea.effects[i].turnLifetime){
+						crea.effects[i].deleteEffect();
+						i--;	
+					} 
+				}
+			};
+
 
 			//Passive abilities
 			this.abilities.each(function(){
 				if( G.triggers.onStartPhase.test(this.trigger) ){
 					if( this.require() ){
-						this.animation(crea);
-					}
-				}
+						this.animation2({args:[crea], callback: function(){
+							//Passive effects
+							crea.effects.each(function(){
+								if( G.triggers.onStartPhase.test(this.trigger) ){
+									this.activate(crea);
+								}
+							});
+							qm(); //QueryMove
+						}});
+					}else{ qm(); }
+				}else{ qm(); }
 			});
 
-			//Passive effects
-			this.effects.each(function(){
-				if( G.triggers.onStartPhase.test(this.trigger) ){
-					this.activate(crea);
-				}
-			});
-
-			this.delayable = true;
+		}else{
+			qm(); //QueryMove
 		}
-
-		if(G.turn >= G.minimumTurnBeforeFleeing){ G.UI.btnFlee.changeState("normal"); }
-
-		this.player.startTime = new Date();
-
-		this.queryMove();
+		
 	},
 
 
@@ -398,8 +413,8 @@ var Creature = Class.create({
 			animation : "walk",
 			ignoreMovementPoint : false,
 			ignorePath : false,
+			clampDist : -1,
 		}
-
 
 
 		opts = $j.extend(defaultOpt,opts);
@@ -412,6 +427,8 @@ var Creature = Class.create({
 		}else{
 			var path = creature.calculatePath(x,y);
 		}
+
+		if( opts.clampDist >= 0 ) path = path.slice(0,opts.clampDist);
 
 		if( path.length == 0 ) return; //Break if empty path
 
@@ -495,8 +512,10 @@ var Creature = Class.create({
 		}else{
 			path.each(function(){
 				var nextPos = G.grid.hexs[this.y][this.x-creature.size+1];
+
 				var thisHexId = hexId;
 				creature.$display.animate(nextPos.displayPos,parseInt(creature.animation.walk_speed),"linear",function(){
+
 					//Sound Effect
 					G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);
 
@@ -706,6 +725,7 @@ var Creature = Class.create({
 	*/
 	adjacentHexs: function(dist,clockwise){
 
+		//TODO Review this algo to allow distance
 		if(!!clockwise){
 			var Hexs = [];
 			var o = (this.y%2==0)?1:0;
@@ -808,12 +828,25 @@ var Creature = Class.create({
 	takeDamage: function(damage){
 		var creature = this;
 
+		//Determine if melee attack
+		damage.melee = false;
+		this.adjacentHexs(1).each(function(){
+			if( damage.attacker == this.creature ) damage.melee = true;
+		});
+
 		//Passive abilities
 		this.abilities.each(function(){
 			if( G.triggers.onAttack.test(this.trigger) ){
 				if( this.require(damage) ){
 					damage = this.animation(damage);
 				}
+			}
+		});
+
+		//Effects
+		this.effects.each(function(){
+			if( G.triggers.onAttack.test(this.trigger) ){
+				damage = this.animation(damage);
 			}
 		});
 
@@ -852,6 +885,13 @@ var Creature = Class.create({
 					if( this.require(damage) ){
 						damage = this.animation(damage);
 					}
+				}
+			});
+
+			//Effects
+			this.effects.each(function(){
+				if( G.triggers.onDamage.test(this.trigger) ){
+					damage = this.animation(damage);
 				}
 			});
 
@@ -911,9 +951,35 @@ var Creature = Class.create({
 	updateAlteration: function(){
 		var crea = this;
 		crea.stats = $j.extend({},this.baseStats);//Copy
+
+		//Multiplication Buff
 		this.effects.each(function(){
 			$j.each(this.alterations,function(key,value){
-				crea.stats[key] += value;
+				if( ( typeof value ) == "string" ) {
+					if( value.match(/\*/) ) {
+						crea.stats[key] = eval(crea.stats[key]+value);
+					}
+				}
+			})
+		});
+
+		//Usual Buff/Debuff
+		this.effects.each(function(){
+			$j.each(this.alterations,function(key,value){
+				if( ( typeof value ) != "string" ) {
+					crea.stats[key] += value;
+				}
+			})
+		});
+
+		//Division Debuff
+		this.effects.each(function(){
+			$j.each(this.alterations,function(key,value){
+				if( ( typeof value ) == "string" ) {
+					if( value.match(/\//) ) {
+						crea.stats[key] = eval(crea.stats[key]+value);
+					}
+				}
 			})
 		});
 	},
@@ -1001,6 +1067,16 @@ var Creature = Class.create({
 	*/
 	isAlly : function(team){
 		return ( team%2 == this.team%2 );
+	},
+
+
+	/*	getHexMap(team)
+	*
+	*	shortcut convenience function to grid.getHexMap
+	*/
+	getHexMap : function(map){
+		var x = ( this.player.flipped ) ? this.x+1-this.size : this.x;
+		return G.grid.getHexMap( x , this.y - map.origin[1] , 0-map.origin[0] , this.player.flipped , map );
 	},
 
 });

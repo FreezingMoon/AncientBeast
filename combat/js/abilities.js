@@ -411,11 +411,16 @@ var Effect = Class.create({
 			effectFn : function(){},
 			alterations : {},
 			turnLifetime : 0,
+			deleteTrigger : "endOfRound"
 		},optArgs);
 
 		$j.extend(this,args);
 
 		G.effects.push(this);
+	},
+
+	animation: function(){
+		this.activate.apply(this,arguments);
 	},
 
 	activate: function(arg){
