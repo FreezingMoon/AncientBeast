@@ -838,7 +838,7 @@
             {
                 "title": "Gummy Mallet",
                 "desc": "Transforms itself into a rubber hammer to strike a nearby foe.",
-                "info": "10 crush damage"
+                "info": "15 crush damage"
             },
             {
                 "title": "Royal Seal",
@@ -848,7 +848,7 @@
             {
                 "title": "Boom Box",
                 "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
-                "info": "15 sonic damage + 15 crush if melee"
+                "info": "20 sonic damage + 10 crush if melee"
             }
         ]
     },
@@ -2241,10 +2241,10 @@
         "walk_speed": 500
     },
     "display":{
-        "height": 265,
-        "width": 195,
-        "offset-y": -225,
-        "offset-x": -10
+        "height": 210,
+        "width": 155,
+        "offset-y": -175,
+        "offset-x": 20
     },
 	"ability_info": [
 		{
