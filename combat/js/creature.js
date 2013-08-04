@@ -992,6 +992,8 @@ var Creature = Class.create({
 	*
 	*/
 	die: function(killer){
+		G.log("Player"+(this.team+1)+"'s "+this.name+" is dead");
+
 		this.dead = true;		
 
 		this.killer = killer.player;
@@ -1041,21 +1043,20 @@ var Creature = Class.create({
 		this.$display.fadeOut(500);
 		this.$health.fadeOut(500);
 
-		//As hex occupation changes, path must be recalculated for the current creature not the dying one
 		this.cleanHex();
-		G.activeCreature.queryMove(); 
 
-		//Queue cleaning
 		G.queue.removePos(this);
 		G.nextQueue.removePos(this);
 		G.delayQueue.removePos(this);
 		G.reorderQueue();
 
-		if(G.activeCreature === this){ G.nextCreature(); } //End turn if current active creature die
+		if(G.activeCreature === this){ G.nextCreature(); return; } //End turn if current active creature die
 
+		//As hex occupation changes, path must be recalculated for the current creature not the dying one
+		G.activeCreature.queryMove(); 
+
+		//Queue cleaning
 		G.UI.updateActivebox();
-		//Debug Info
-		G.log("Player"+(this.team+1)+"'s "+this.name+" is dead");
 	},
 
 
