@@ -74,6 +74,7 @@ var Game = Class.create({
 			5, //Impaler
 			14, //Gumble
 			7, 	//Abolished
+			40,	//Nutcase
 			]; 
 		this.availableMusic = [
 			//"Distant Realms by Moonthief.ogg",
@@ -342,7 +343,6 @@ var Game = Class.create({
 			trap = G.grid.traps[i];
 			
 			if(trap.turnLifetime > 0){
-				console.log(trap.creationTurn,G.turn);
 				if(G.turn-trap.creationTurn >= trap.turnLifetime){
 					trap.destroy();
 					i--;	
@@ -355,8 +355,7 @@ var Game = Class.create({
 
 			effect = G.effects[i];
 			
-			if(effect.turnLifetime > 0){
-				console.log(effect.creationTurn,G.turn);
+			if(effect.turnLifetime > 0 && "endOfRound" == effect.deleteTrigger){
 				if(G.turn-effect.creationTurn >= effect.turnLifetime){
 					effect.deleteEffect();
 					i--;	
@@ -449,7 +448,7 @@ var Game = Class.create({
 		setTimeout(function(){
 			G.turnThrottle=false;
 			G.UI.btnSkipTurn.changeState("normal");
-			if(!G.activeCreature.hasWait && (G.delayQueue.length+G.queue.length!=0) ) G.UI.btnDelay.changeState("normal");
+			if(!G.activeCreature.hasWait && G.activeCreature.delayable && (G.delayQueue.length+G.queue.length!=0) ) G.UI.btnDelay.changeState("normal");
 			o.callback.apply();
 		},1000)
 		G.grid.clearHexViewAlterations();

@@ -1437,6 +1437,7 @@ diagonalup = 	 [[ 0,0,0,0,1 ], //origin line
 				  [ 0,1,0,0,0 ],
 				 [ 0,1,0,0,0 ],
 				  [ 1,0,0,0,0 ]];
+diagonalup.origin = [4,0];
 
 diagonaldown = 	 [[ 1,0,0,0,0 ], //origin line
 				 [ 0,1,0,0,0 ],
@@ -1447,18 +1448,36 @@ diagonaldown = 	 [[ 1,0,0,0,0 ], //origin line
 				  [ 0,0,0,1,0 ],
 				 [ 0,0,0,0,1 ],
 				  [ 0,0,0,0,1 ]];
+diagonaldown.origin = [0,0];
 
 straitrow = 	[[ 1,1,1, 1,1,1, 1,1,1, 1,1,1, 1,1,1, 1 ]]; //origin line
+straitrow.origin = [0,0];
+
 
 bellowrow = 	[  [ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ],//origin line
 				  [ 0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 ]];
+bellowrow.origin = [0,0];
 
 frontnback2hex = [	 [0,0,0,0],
 					[0,1,0,1],
 					 [1,0,0,1], //origin line
 					[0,1,0,1]];
+frontnback2hex.origin = [2,2];
 
 frontnback3hex = [	 [0,0,0,0,0],
 					[0,1,0,0,1],
 					 [1,0,0,0,1], //origin line
 					[0,1,0,0,1]];
+frontnback3hex.origin = [3,2];
+
+front2hex 		= [	 [0,0,0,0],
+					[0,0,0,1],
+					 [0,0,0,1], //origin line
+					[0,0,0,1]];
+front2hex.origin = [2,2];
+
+inlinefront2hex = [	 [0,0,0,0],
+					[0,0,0,0],
+					 [0,0,0,1], //origin line
+					[0,0,0,0]];
+inlinefront2hex.origin = [2,2];

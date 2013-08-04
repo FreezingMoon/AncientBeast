@@ -2237,9 +2237,15 @@
 			"sonic": 4,
 			"mental": 3
 	},
-	"animation": {
-		"walk_speed": 500
-	},
+    "animation": {
+        "walk_speed": 500
+    },
+    "display":{
+        "height": 265,
+        "width": 195,
+        "offset-y": -225,
+        "offset-x": -10
+    },
 	"ability_info": [
 		{
 			"title": "Hunting Horn",
