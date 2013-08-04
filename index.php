@@ -103,7 +103,7 @@ foreach ($sections as &$sectionItem) {
 <?php end_segment(); ?>
 <article>
 <?php start_segment(); ?>
-<div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
+<div class="center"><iframe width="880" height="495" src="//www.youtube.com/embed/cAgf9hKGI3k?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
 <?php separate_segment("intro"); ?>
 <h3 class="indexheader"><a href="#intro">Intro</a></h3>
 <p>
@@ -219,7 +219,7 @@ $(document).ready(function(){
 <h3 class="indexheader"><a href="#tools">Tools</a></h3>
 <p>The project is developed with the use of free open source cross platform applications and freeware services.
 <a href="http://www.wuala.com/referral/CGN5J6GH3PBBBHCGKJ3P" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's assets and sources, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group. There is no centralized forum, but you can use the various <a href="http://disqus.com" target="_blank"><b>Disqus</b></a> widgets around the website, our <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>Github issue tracker</b></a> or our <a href="http://forum.freegamedev.net/viewforum.php?f=70" target="_blank"><b>FreeGameDev subforum</b></a>.<br>
-<a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their animations, which are rendered into sprites that are usually made into sprite-sheets as well as for other tasks.<br>
+<a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their own animations, which are rendered into sprites that are usually made into sprite-sheets as well as for other tasks.<br>
 <a href="http://krita.org" target="_blank"><b>Krita</b></a>, <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> and <a href="http://mypaint.intilinux.com" target="_blank"><b>MyPaint</b></a> are useful for concept art, while <a href="http://inkscape.org" target="_blank"><b>Inkscape</b></a> is useful for creating vector ability icons.</p>
 <table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
@@ -247,18 +247,18 @@ The game requires animations to be 30 frames per second. Sprite sheets must have
 <?php separate_segment("license"); ?>
 <h3 class="indexheader"><a href="#license">License</a></h3>
 <br>
-<table border="1">
+<table border="1" width=100%>
 	<tr>
 		<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png" alt="Freezing Moon"></a></td>
 		<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
 	</tr>
 	<tr>
 		<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td>
-		<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license, provided you credit and link the project, as well as the author(s) of the respective works.</td>
+		<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
 	</tr>
 	<tr>
 		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png" alt="AGPL 3.0"></a></td>
-		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
+		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license,<br>provided you credit and link the project.</td>
 	</tr>
 </table>
 <?php end_segment(); ?>

@@ -46,20 +46,20 @@ abilities[3] =[
 
 						if(!nearFungus){
 							for (var i = 0; i < crea.effects.length; i++) {
-								if(crea.effects[i].name == "Contanimated"){
+								if(crea.effects[i].name == "Contaminated"){
 									crea.effects[i].deleteEffect();
 									break;
 								}
 							}
 						}
 					},
-					alterations : {regrowth : -2},
+					alterations : {regrowth : -5},
 					turn : G.turn,
 				};
 
 				//Spore Contamination
 				var effect = new Effect(
-					"Contanimated", //Name
+					"Contaminated", //Name
 					creature, //Caster
 					trg, //Target
 					"onStartPhase", //Trigger
@@ -68,7 +68,7 @@ abilities[3] =[
 
 				var validTarget = true;
 				trg.effects.each(function(){
-					if(this.name == "Contanimated"){
+					if(this.name == "Contaminated"){
 						if(this.turn == G.turn)
 							validTarget = false;
 					}

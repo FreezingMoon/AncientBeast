@@ -125,8 +125,10 @@ case fanart:
 
 case videos:
 	echo '<div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>';
-	separate_segment();
+	separate_segment("gameplay");
 	echo '<div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>';
+	separate_segment("clips");
+	echo '<div class="center"><iframe width="880" height="495" src="//www.youtube.com/embed/videoseries?list=PLADfTwuzK0YR-qoT0Dy6o3AGAoNCq1Y3R" frameborder="0" allowfullscreen></iframe></div>';
 	break;
 
 case music:
