@@ -2226,7 +2226,7 @@
 			"initiative": 120,
 			"offense": 15,
 			"defense": 10,
-			"movement": 4,
+			"movement": 3,
 			"pierce": 7,
 			"slash": 9,
 			"crush": 10,
@@ -2238,7 +2238,7 @@
 			"mental": 3
 	},
     "animation": {
-        "walk_speed": 500
+        "walk_speed": 360
     },
     "display":{
         "height": 210,
