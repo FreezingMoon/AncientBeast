@@ -1481,3 +1481,9 @@ inlinefront2hex = [	 [0,0,0,0],
 					 [0,0,0,1], //origin line
 					[0,0,0,0]];
 inlinefront2hex.origin = [2,2];
+
+inlinefrontnback2hex = [ [0,0,0,0],
+						[0,0,0,0],
+						 [1,0,0,1], //origin line
+						[0,0,0,0]];
+inlinefrontnback2hex.origin = [2,2];

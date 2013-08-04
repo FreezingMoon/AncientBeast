@@ -58,7 +58,11 @@ abilities[40] =[
 		for (var i = 1; i < 99; i++) {
 			var hexs = target.adjacentHexs(i);
 			for (var i = 0; i < hexs.length; i++) {
-				if( hexs[i].g != 0 && hexs[i].g < bestHex.g ) bestHex = hexs[i];
+				if( this.creature.player.flipped ) {
+					if( hexs[i].g != 0 && G.grid.hexs[hexs[i].y][hexs[i].x+this.creature.size-1].g < bestHex.g ) { bestHex = hexs[i]; }
+				} else {
+					if( hexs[i].g != 0 && hexs[i].g < bestHex.g ) { bestHex = hexs[i]; }
+				}
 			};
 			if(bestHex instanceof Hex) break;
 		};
@@ -111,15 +115,6 @@ abilities[40] =[
 		var ability = this;
 		ability.end();
 
-		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
-		);
-		target.takeDamage(damage);
-
 		var effect = new Effect(
 			"Hammer Time", //Name
 			ability.creature, //Caster
@@ -128,7 +123,15 @@ abilities[40] =[
 			{ alterations : {meditation : -1} }
 		);
 
-		target.addEffect(effect);
+		var damage = new Damage(
+			ability.creature, //Attacker
+			"target", //Attack Type
+			ability.damages, //Damage Type
+			1, //Area
+			[effect]	//Effects
+		);
+
+		target.takeDamage(damage);
 	},
 },
 
@@ -148,7 +151,7 @@ abilities[40] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(inlinefront2hex),"ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(inlinefrontnback2hex),"ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -164,7 +167,7 @@ abilities[40] =[
 			team : 0, //Team, 0 = ennemies
 			id : this.creature.id,
 			flipped : this.creature.flipped,
-			hexs : this.creature.getHexMap(inlinefront2hex),
+			hexs : this.creature.getHexMap(inlinefrontnback2hex),
 		});
 	},
 
