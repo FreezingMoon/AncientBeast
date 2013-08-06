@@ -1,6 +1,6 @@
 Login
 <form action="">
-	<input type="text" name="username" id="username" placeholder="Username" spellcheck="no" minlength="3" required autofocus>
+	<input type="text" name="username" id="username" placeholder="Username" spellcheck="no" pattern=".{5,20}" required autofocus>
 	<input type="password" name="password" id="password" placeholder="Password" required>
 	<button foraction="">Proceed</button>
 </form>
