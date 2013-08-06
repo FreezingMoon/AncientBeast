@@ -107,10 +107,9 @@ foreach ($sections as &$sectionItem) {
 <?php separate_segment("intro"); ?>
 <h3 class="indexheader"><a href="#intro">Intro</a></h3>
 <p>
-<b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of items and creatures to acquire and put to good use in order to defeat your opponents.
-</p>
+<b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to aquire and items to equip onto, putting them to use in order to defeat your opponents.
 <p>
-Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> (and community). It uses technologies such as HTML, PHP, and JavaScript, so it is playable from any modern browser without the need of plugins.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
+Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> (and community). It uses web languages such as HTML, PHP and JavaScript, so that it's playable from any modern browser without the need of plugins.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
 <?php separate_segment("plot"); ?>
 <h3 class="indexheader"><a href="#plot">Plot</a></h3>
@@ -124,7 +123,7 @@ Your browser does not support the audio element.
 It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
 </p>
 <p>
-Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield; split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strong will survive.
+Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strong will survive.
 </p>
 <?php separate_segment("gameplay"); ?>
 <h3 class="indexheader"><a href="#gameplay">Gameplay</a></h3>
