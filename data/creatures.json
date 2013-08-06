@@ -31,10 +31,10 @@
 			"walk_speed": 500
     	},
         "display":{
-            "height": 200,
             "width": 108,
-            "offset-y": -164,
-            "offset-x": 0
+            "height": 200,
+            "offset-x": 0,
+            "offset-y": -164
         },
     	"ability_info": [
     		{
@@ -196,10 +196,10 @@
     		"mental": 3
     	},
         "display":{
-		"height": 195,
 		"width": 165,
-		"offset-y": -142,
-		"offset-x": 2
+		"height": 195,
+		"offset-x": 2,
+		"offset-y": -142
         },
     	"animation": {
     		"walk_speed": 550
@@ -319,10 +319,10 @@
     		"walk_speed": 200
     	},
         "display":{
-            "height": 212,
             "width": 225,
-            "offset-y": -181,
-            "offset-x": 28
+            "height": 212,
+            "offset-x": 28,
+            "offset-y": -181
         },
     	"ability_info": [
     		{
@@ -433,10 +433,10 @@
             "walk_speed": 500
         },
         "display":{
-            "height": 277,
             "width": 270,
-            "offset-y": -235,
-            "offset-x": 0
+            "height": 277,
+            "offset-x": 0,
+            "offset-y": -235
         },
         "ability_info": [
             {
@@ -710,10 +710,10 @@
             "walk_speed": 500
         },
         "display":{
-            "height": 135,
             "width": 95,
-            "offset-y": -100,
-            "offset-x": 0
+            "height": 135,
+            "offset-x": -5,
+            "offset-y": -100
         },
         "ability_info": [
             {
@@ -824,10 +824,10 @@
             "walk_speed": 500
         },
         "display":{
-            "height": 85,
-            "width": 90,
-            "offset-y": -47,
-            "offset-x": -8
+            "width": 95,
+            "height": 115,
+            "offset-x": -10,
+            "offset-y": -75
         },
         "ability_info": [
             {
@@ -838,7 +838,7 @@
             {
                 "title": "Gummy Mallet",
                 "desc": "Transforms itself into a rubber hammer to strike a nearby foe.",
-                "info": "10 crush damage"
+                "info": "15 crush damage"
             },
             {
                 "title": "Royal Seal",
@@ -848,7 +848,7 @@
             {
                 "title": "Boom Box",
                 "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
-                "info": "15 sonic damage + 15 crush if melee"
+                "info": "20 sonic damage + 10 crush if melee"
             }
         ]
     },
@@ -2226,7 +2226,7 @@
 			"initiative": 120,
 			"offense": 15,
 			"defense": 10,
-			"movement": 4,
+			"movement": 3,
 			"pierce": 7,
 			"slash": 9,
 			"crush": 10,
@@ -2238,13 +2238,13 @@
 			"mental": 3
 	},
     "animation": {
-        "walk_speed": 500
+        "walk_speed": 360
     },
     "display":{
-        "height": 265,
-        "width": 195,
-        "offset-y": -225,
-        "offset-x": -10
+        "width": 155,
+        "height": 210,
+        "offset-x": 20,
+        "offset-y": -175
     },
 	"ability_info": [
 		{
@@ -2517,10 +2517,10 @@
 		"walk_speed": 500
 	},
     "display":{
-        "height": 220,
         "width": 300,
-        "offset-y": -183,
-        "offset-x": -12
+        "height": 220,
+        "offset-x": -12,
+        "offset-y": -183
     },
 	"ability_info": [
 		{

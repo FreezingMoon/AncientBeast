@@ -38,7 +38,7 @@ abilities[14] =[
 	trigger : "onQuery",
 
 	damages : {
-		crush : 10
+		crush : 15
 	},
 
 	// 	require() :
@@ -82,7 +82,6 @@ abilities[14] =[
 },
 
 
-
 // 	Thirt Ability: Royal Seal
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
@@ -123,14 +122,13 @@ abilities[14] =[
 },
 
 
-
 // 	Fourth Ability: Boom Box
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		sonic : 15,
+		sonic : 20,
 		crush : 0,
 	},
 
@@ -177,7 +175,7 @@ abilities[14] =[
 		var target = path.last().creature;
 		var melee = (path[0].creature === target);
 
-		var d = (melee) ? {sonic:15,crush:15} : ability.damages;
+		var d = (melee) ? {sonic:20,crush:10} : ability.damages;
 
 
 		var dir = [];
@@ -219,12 +217,6 @@ abilities[14] =[
 				pushed = true;
 			}
 		}
-
-		//If no pushing then double damage
-		// if(!pushed) {
-		// 	d.sonic *= 2;
-		// 	d.crush *= 2;
-		// }
 
 		var damage = new Damage( 
 			ability.creature, //Attacker

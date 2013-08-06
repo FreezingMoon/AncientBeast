@@ -116,7 +116,7 @@ abilities[40] =[
 		ability.end();
 
 		var effect = new Effect(
-			"Hammer Time", //Name
+			"Hammered", //Name
 			ability.creature, //Caster
 			target, //Target
 			"", //Trigger
@@ -210,7 +210,7 @@ abilities[40] =[
 
 
 
-//	Fourth Ability: Chain Lightning
+//	Fourth Ability: Tentacle Bush
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -236,7 +236,7 @@ abilities[40] =[
 		ability.end();
 
 		var effect = new Effect(
-			"Tentacle Bush", //Name
+			"Curled", //Name
 			ability.creature, //Caster
 			ability.creature, //Target
 			"onDamage", //Trigger

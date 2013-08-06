@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$stats = ["health","regrowth","endurance","energy","meditation","initiative","offense","defense","movement","pierce","slash","crush","shock","burn","frost","poison","sonic","mental"];
+$stats = array("health","regrowth","endurance","energy","meditation","initiative","offense","defense","movement","pierce","slash","crush","shock","burn","frost","poison","sonic","mental");
 
 foreach ($stats as $key => $x) {
 	//foreach ($x as $v) $stats[$key] = $v;
