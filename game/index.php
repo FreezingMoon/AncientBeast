@@ -44,17 +44,16 @@ TODO: move stuff above to just a pre-match screen; login box; provide video tuto
 <h3 class="indexheader"><a href="#requirements">Requirements</a></h3>
 
 <ul>
-<li>internet connection</li>
-<li>a <a href="http://www.google.com/chrome" target="_blank">modern browser</a> with HTML 5 support and JavaScript enabled</li>
+<li>internet connection (offline version available soon)</li>
+<li>a modern browser, <a href="http://www.google.com/chrome" target="_blank"><b>Google Chrome</b></a> recommended</li>
+<li>16:9 full HD display recommended (game will adapt otherwise)
+<li>stereo speakers (optional)</li>
 <li>500 MHz Processor</li>
 <li>256 MB RAM</li>
 <li>200 MB HDD</li>
 <li>64 MB Video Card</li>
 <li>controller (keyboard, mouse, <span class='strike'>gamepad</span>, touch screen, <span class='strike'>smartphone</span> or <span class='strike'>tablet</span>)</li>
 </ul>
-<p>Best played at Full HD resolution (1920x1080), <span class='strike'>with stereo speakers</span>, using <a href="http://www.google.com/chrome" target="_blank"><b>Google Chrome</b></a>.<br>
-While playing on a smartphone, it is highly recommended using a stylus, unless using it as a controller.</p>
-<p>Note that the game doesn't currently have online multiplayer, but you can still play with friends by using a Screen Sharing Software, such as <b><a href="http://teamviewer.com" target="_blank">Team Viewer</a></b>.
 <?php separate_segment();
 include("../utils/disqus.php");
 end_segment();	
