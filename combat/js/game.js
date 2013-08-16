@@ -73,8 +73,9 @@ var Game = Class.create({
 			12, //Snow Bunny
 			5, //Impaler
 			14, //Gumble
-			7, 	//Abolished
-			40,	//Nutcase
+			7, //Abolished
+			40, //Nutcase
+			39, //Headless
 			]; 
 		this.availableMusic = [
 			//"Distant Realms by Moonthief.ogg",
@@ -622,7 +623,7 @@ var Game = Class.create({
 				if(!this.players[i].creatures[j].dead){
 					if(this.players[i].creatures[j].type != "--")
 						this.players[i].score.push({type:"creaturebonus",creature:this.players[i].creatures[j]});
-					else //Darkpreist Bonus
+					else //DarkPriest Bonus
 						this.players[i].score.push({type:"darkpriestbonus"});
 				}else{
 					immortal = false;
@@ -729,7 +730,7 @@ var Game = Class.create({
 var Player = Class.create({
 	/*	Attributes
 	*
-	*	id : 		Integer : 	Id of the player 0,1,2 or 3
+	*	id : 		Integer : 	Id of the player 1, 2, 3 or 4
 	* 	creature : 	Array : 	Array containing players creatures
 	*	plasma : 	Integer : 	Plasma amount for the player
 	*	flipped : 	Boolean : 	Player side of the battlefield (affects displayed creature)
