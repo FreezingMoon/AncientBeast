@@ -156,18 +156,14 @@ require_once('../bestiary/cards.php');
 						<option value="Shadow Cave">Shadow Cave</option>
 					</select><br/><br/>
 
-					Plasma Points : 
-					<select name="plasma">
-						<option value="5">5</option>
-						<option value="10">10</option>
-						<option value="20">20</option>
-						<option value="30">30</option>
-						<option value="40" selected>40</option>
-						<option value="50">50</option>
-						<option value="60">60</option>
-						<option value="70">70</option>
-						<option value="80">80</option>
-						<option value="90">90</option>
+					Turn Time : 
+					<select name="time_turn">
+						<option value="-1">&#8734;</option>
+						<option value="20">20 sec</option>
+						<option value="40">40 sec</option>
+						<option value="60">60 sec</option>
+						<option value="80">80 sec</option>
+						<option value="99">99 sec</option>
 					</select><br/>
 
 					Time Pools : 
@@ -182,14 +178,18 @@ require_once('../bestiary/cards.php');
 						<option value="30">30 min</option>
 					</select><br/>
 
-					Turn Time : 
-					<select name="time_turn">
-						<option value="-1">&#8734;</option>
-						<option value="20">20 sec</option>
-						<option value="40">40 sec</option>
-						<option value="60">60 sec</option>
-						<option value="80">80 sec</option>
-						<option value="99">99 sec</option>
+					Plasma Points : 
+					<select name="plasma">
+						<option value="5">5</option>
+						<option value="10">10</option>
+						<option value="20">20</option>
+						<option value="30">30</option>
+						<option value="40" selected>40</option>
+						<option value="50">50</option>
+						<option value="60">60</option>
+						<option value="70">70</option>
+						<option value="80">80</option>
+						<option value="90">90</option>
 					</select><br/>
 
 					Active Units : 
