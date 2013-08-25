@@ -4,7 +4,7 @@ $j(document).ready(function(){
 	$j("form#gamesetup").submit(function(e){
 		e.preventDefault(); //prevent submit
 		gameconfig = {
-			nbrPlayer: $j('select[name="nbrplayer"]').val()-0,
+			nbrPlayer : $j('select[name="nbrplayer"]').val()-0,
 			background_image : $j('select[name="background"]').val(),
 			plasma_amount : $j('select[name="plasma"]').val()-0,
 			timePool : $j('select[name="time_pool"]').val()*60,

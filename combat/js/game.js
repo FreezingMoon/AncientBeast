@@ -104,7 +104,7 @@ var Game = Class.create({
 			abilities : {
 				notarget : "No targets available.",
 				noplasma : "Not enough plasma.",
-				nopsy	 : "Psyhelm overload: too many creatures controlled",
+				nopsy	 : "Psyhelm overload: too many creatures controlled", //is this string needed anymore?
 				alreadyused : "Ability already used."
 			},
 			ui : {
@@ -121,9 +121,6 @@ var Game = Class.create({
 	*	setupOpt : 	Object : 	Setup options from matchmaking menu
 	*
 	* 	Load all required game files
-	*
-	*	TODO : Loading bar or spinner
-	*
 	*/
 	loadGame: function(setupOpt){
 		var defaultOpt = {
