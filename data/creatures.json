@@ -411,8 +411,8 @@
         "type": "P7",
         "stats": {
             "health": 250,
-            "regrowth": 6,
-            "endurance": 66,
+            "regrowth": 5,
+            "endurance": 55,
             "energy": 100,
             "meditation": 10,
             "initiative": 120,
