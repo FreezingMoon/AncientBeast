@@ -1,11 +1,11 @@
 /*
 *
-*	Uncle Fungus abilities
+*	Golden Wyrm abilities
 *
 */
-abilities[3] =[
+abilities[33] =[
 
-// 	First Ability: Spore Contamination
+// 	First Ability: Percussion Spear
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStepIn onStartPhase",
@@ -84,13 +84,13 @@ abilities[3] =[
 
 
 
-// 	Second Ability: Supper Chomp
+// 	Second Ability: Executioner Axe
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	damages : {
-		pierce : 20,
+		slash : 40,
 	},
 
 	// 	require() :
@@ -107,7 +107,7 @@ abilities[3] =[
 
 	// 	query() :
 	query : function(){
-		var uncle = this.creature;
+		var wyrm = this.creature;
 		var ability = this;
 
 		var map = [  [0,0,0,0],
@@ -118,9 +118,9 @@ abilities[3] =[
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
-			id : uncle.id,
-			flipped : uncle.flipped,
-			hexs : G.grid.getHexMap(uncle.x-2,uncle.y-2,0,false,map),
+			id : wyrm.id,
+			flipped : wyrm.flipped,
+			hexs : G.grid.getHexMap(wyrm.x-2,wyrm.y-2,0,false,map),
 		});
 	},
 
@@ -167,7 +167,7 @@ abilities[3] =[
 
 
 
-// 	Third Ability: Frogger Jump
+// 	Third Ability: Dragon Flight
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -181,17 +181,17 @@ abilities[3] =[
 	// 	query() :
 	query : function(){
 		var ability = this;
-		var uncle = this.creature;
+		var wyrm = this.creature;
 
-		var range = G.grid.getFlyingRange(uncle.x,uncle.y,50,uncle.size,uncle.id);
-		range.filter(function(){ return uncle.y == this.y; });
+		var range = G.grid.getFlyingRange(wyrm.x,wyrm.y,50,wyrm.size,wyrm.id);
+		range.filter(function(){ return wyrm.y == this.y; });
 
 		G.grid.queryHexs({
 			fnOnSelect : function(){ ability.fnOnSelect.apply(ability,arguments); },
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			size :  uncle.size,
-			flipped :  uncle.player.flipped,
-			id :  uncle.id,
+			size :  wyrm.size,
+			flipped :  wyrm.player.flipped,
+			id :  wyrm.id,
 			hexs : range,
 		});
 	},
@@ -228,7 +228,7 @@ abilities[3] =[
 
 
 
-// 	Fourth Ability: Blade Kick
+// 	Fourth Ability: Battle Cry
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -255,14 +255,14 @@ abilities[3] =[
 	// 	query() :
 	query : function(){
 		var ability = this;
-		var uncle = this.creature;
+		var wyrm = this.creature;
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
-			id : uncle.id,
-			flipped : uncle.flipped,
-			hexs : G.grid.getHexMap(uncle.x-2,uncle.y-2,0,false,frontnback2hex),
+			id : wyrm.id,
+			flipped : wyrm.flipped,
+			hexs : G.grid.getHexMap(wyrm.x-2,wyrm.y-2,0,false,frontnback2hex),
 		});
 	},
 

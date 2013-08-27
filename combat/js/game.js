@@ -76,8 +76,10 @@ var Game = Class.create({
 			7, //Abolished
 			40, //Nutcase
 			39, //Headless
+			33, //Golden Wyrm
+			44, //Scavenger
 			]; 
-		this.availableMusic = [
+		this.availableMusic = [ //epic fail, just scan directory
 			//"Distant Realms by Moonthief.ogg",
 			// "It All Ends Here by Moonthief.ogg",
 			// "Road to Victory by Moonthief.ogg",
