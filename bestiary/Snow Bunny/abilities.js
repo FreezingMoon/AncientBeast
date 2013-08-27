@@ -207,7 +207,7 @@ abilities[12] =[
 
 	damages : {
 		crush : 0,
-		frost : 20
+		frost : 7
 	},
 
 	// 	require() :
@@ -254,7 +254,7 @@ abilities[12] =[
 
 		//Copy to not alter ability strength
  		var dmg = $j.extend({},ability.damages); 
- 		dmg.crush += dist; //Add distance to crush damage
+ 		dmg.crush += 4*dist; //Add distance to crush damage
 
 		var damage = new Damage(
 			ability.creature, //Attacker

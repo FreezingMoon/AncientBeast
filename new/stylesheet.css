@@ -1,0 +1,180 @@
+/* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
+ * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
+ *
+ * This file is part of Ancient Beast.
+ *
+ * Ancient Beast is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Ancient Beast is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * http://www.AncientBeast.com
+ * https://github.com/FreezingMoon/AncientBeast
+ * DreadKnight@FreezingMoon.org
+ */
+
+@import url(http://fonts.googleapis.com/css?family=Play:400,700);
+
+@font-face {
+	font-family: Charlemagnestd;
+	src: url('/charlemagnestd-bold.otf');
+}
+
+body {
+	font-family: 'Play', sans-serif;
+	text-align: center;
+	margin: 0 auto;
+	width: auto;
+	color: #b7b7b7;
+	font-size: 18px;
+	background: black url(images/bg.jpg) no-repeat left top fixed;
+	background-size: cover;
+	text-shadow: black 0.1em 0.1em 0.2em;
+}
+img {
+	border: none;
+	vertical-align: bottom;
+}
+#header ul li {
+	font-size: 32px;
+	font-family: Charlemagnestd;
+	font-weight: bold;
+	margin: 0px 20px;
+	padding: 0;
+	list-style-type: none;
+	display: inline;
+}
+.sections {
+	list-style-type: none;
+	width: 100%;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 0;
+	padding: 0;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+.center {
+	margin-left: auto!important;
+	margin-right: auto!important;
+	text-align: center!important;
+}
+.lighten {
+	display: block;
+}
+.shadow {
+	box-shadow: 0px 0px 10px black;
+}
+*:focus {outline: none;}
+#wrapper {text-align: left;}
+.div_top {
+	margin: 0;
+	background-image: url('images/div_top.png');
+	background-repeat: no-repeat;
+	height: 20px;
+	overflow: hidden;
+	padding: 0;
+}
+.div_center {
+	overflow: hidden;
+	background-image: url('images/div_center.png');
+	background-repeat: repeat-y;
+	margin: 0;
+	padding: 0px 30px;
+	position: relative;
+}
+.div_bottom {
+	margin: 0;
+	background-image: url('images/div_bottom.png');
+	background-repeat: no-repeat;
+	height: 20px;
+	margin-bottom: 10px;
+}
+A:link {text-decoration: none; color: #b7b7b7;}
+A:visited {text-decoration: none; color: #b7b7b7;}
+A:active {text-decoration: none; color: #b7b7b7;}
+A:hover {text-decoration: none; color: #e6e6e6; cursor: pointer; text-shadow: black 0.1em 0.1em 0.2em, red 0 0 10px;}
+
+.odd {background:rgba(200, 200, 200, 0.1)}
+.even {background:rgba(200, 200, 200, 0.2)}
+.highlight:hover {background:rgba(200, 200, 200, 0.3)}
+
+a.rollover:hover > img {
+	position: absolute;
+	width: 64px;
+	height: 64px;
+	margin-top: -32px;
+	margin-left: -16px;
+	outline: 2px solid black;
+	z-index: 20;
+}
+.tbox {
+	position: absolute;
+	display: none;
+	padding: 14px 17px;
+	z-index: 900;
+}
+.tinner {
+	padding: 15px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+	background: rgba(0, 0, 0, 0.9) url('images/loading.gif') no-repeat 50% 50%;
+	border: 3px solid grey;
+}
+.tmask {
+	position: absolute;
+	display: none;
+	top: 0px;
+	left: 0px;
+	height: 100%;
+	width: 100%;
+	background: #000;
+	z-index: 800;
+}
+.tclose {
+	position: absolute;
+	top: 14px;
+	right: 17px;
+	width: 30px;
+	height: 30px;
+	cursor: pointer;
+	background: url('images/close.png') no-repeat;
+}
+.tclose:hover {background-position:0 -30px}
+
+
+.track_item {
+	width:400px;
+	border:1px solid #FFF;
+	background-color:#666;
+	cursor:pointer;
+	padding:5px;
+}
+.track_item:hover {
+	opacity:0.8;
+	cursor:pointer;
+}
+
+
+
+#error {background:#ff6969; color:#fff; text-shadow:1px 1px #cf5454; border-right:1px solid #000; border-bottom:1px solid #000; padding:0}
+#error .tcontent {padding:10px 14px 11px; border:1px solid #ffb8b8; -moz-border-radius:5px; border-radius:5px}
+#success {background:#2ea125; color:#fff; text-shadow:1px 1px #1b6116; border-right:1px solid #000; border-bottom:1px solid #000; padding:10px; -moz-border-radius:0; border-radius:0}
+#bluemask {background:#4195aa}
+#frameless {padding:0}
+#frameless .tclose {left:6px}
+
+.indexheader {
+  margin: 0 auto 0 auto;
+  font-weight: bold;
+  text-align: center;
+}

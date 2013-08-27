@@ -107,7 +107,7 @@ abilities[14] =[
 			new Effect(
 				"Royal Seal",this.creature,hex,"onStepIn",
 				{ 
-					requireFn: function(crea){ return !crea.isAlly(this.owner.team); }, 
+					requireFn: function(crea){ return crea !== this.owner; }, 
 					effectFn: function(effect,crea){ 
 						crea.remainingMove = 0;
 						this.trap.destroy();

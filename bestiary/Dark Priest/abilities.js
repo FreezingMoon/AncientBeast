@@ -174,7 +174,7 @@ abilities[0] =[
 			this.message = G.msg.abilities.noplasma;
 			return false;
 		}
-		if(this.creature.player.getNbrOfCreatures() >= G.creaLimitNbr){
+		if(this.creature.player.getNbrOfCreatures() >= G.creaLimitNbr){ //is this needed anymore?
 			this.message = G.msg.abilities.nopsy;
 			return false;
 		}

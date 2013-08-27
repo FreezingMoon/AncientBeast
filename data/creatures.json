@@ -181,21 +181,21 @@
 			"endurance": 40,
 			"energy": 120,
 			"meditation": 6,
-			"initiative": 90,
+			"initiative": 80,
 			"offense": 10,
 			"defense": 5,
-			"movement": 4,
+			"movement": 3,
 			"pierce": 5,
 			"slash": 5,
 			"crush": 5,
 			"shock": 3,
 			"burn": 4,
 			"frost": 6,
-			"poison": 20,
+			"poison": 10,
 			"sonic": 5,
-    		"mental": 3
+    			"mental": 3
     	},
-        "display":{
+        "display": {
 		"width": 165,
 		"height": 195,
 		"offset-x": 2,
@@ -218,7 +218,7 @@
     		{
     			"title": "Frogger Jump",
     			"desc": "Leaps in straight line over obstacles, gaining bonus offense after landing.",
-    			"info": "+30 offense for next hit if not moving"
+    			"info": "+25 offense for next hit if not moving"
     		},
     		{
     			"title": "Blade Kick",
@@ -238,22 +238,22 @@
 		"stats": {
 			"health": 125,
 			"regrowth": 4,
-			"endurance": 80,
+			"endurance": 70,
 			"energy": 90,
 			"meditation": 3,
-			"initiative": 70,
-			"offense": 12,
-			"defense": 8,
+			"initiative": 46,
+			"offense": 7,
+			"defense": 12,
 			"movement": 3,
-			"pierce": 12,
-			"slash": 12,
-			"crush": 12,
-			"shock": 12,
-			"burn": 20,
+			"pierce": 9,
+			"slash": 9,
+			"crush": 9,
+			"shock": 9,
+			"burn": 10,
 			"frost": 0,
-			"poison": 25,
-			"sonic": 5,
-		"mental": 0
+			"poison": 10,
+			"sonic": 4,
+			"mental": 0
 	},
 	"animation": {
 		"walk_speed": 500
@@ -273,7 +273,7 @@
 		{
 			"title": "Pulverizing Punch",
 			"desc": "Smacks a foe with its heavy hand, gaining bonus damage every hit.",
-			"info": "9 crush damage, + 1 burn per hit"
+			"info": "8 crush damage, + 3 burn per hit"
 		},
 		{
 			"title": "Fissure Vent",
@@ -301,8 +301,8 @@
 			"endurance": 40,
 			"energy": 80,
 			"meditation": 8,
-			"initiative": 65,
-			"offense": 16,
+			"initiative": 75,
+			"offense": 15,
 			"defense": 8,
 			"movement": 6,
 			"pierce": 5,
@@ -410,24 +410,24 @@
         "size": 3,
         "type": "P7",
         "stats": {
-            "health": 280,
-            "regrowth": 6,
-            "endurance": 66,
+            "health": 250,
+            "regrowth": 5,
+            "endurance": 55,
             "energy": 100,
-            "meditation": 5,
-            "initiative": 120,
+            "meditation": 10,
+            "initiative": 110,
             "offense": 6,
             "defense": 6,
             "movement": 2,
-            "pierce": 10,
-            "slash": 10,
-            "crush": 10,
-            "shock": 10,
+            "pierce": 4,
+            "slash": 4,
+            "crush": 4,
+            "shock": 4,
             "burn": 10,
-            "frost": 10,
-            "poison": 10,
-            "sonic": 10,
-            "mental": 10
+            "frost": 2,
+            "poison": 2,
+            "sonic": 6,
+            "mental": 8
         },
         "animation": {
             "walk_speed": 500
@@ -687,21 +687,21 @@
         "size": 1,
         "type": "S1",
         "stats": {
-            "health": 90,
-            "regrowth": 6,
+            "health": 95,
+            "regrowth": 7,
             "endurance": 20,
             "energy": 100,
             "meditation": 6,
-            "initiative": 60,
-            "offense": 9,
-            "defense": 5,
-            "movement": 2,
-            "pierce": 3,
-            "slash": 3,
+            "initiative": 35,
+            "offense": 3,
+            "defense": 2,
+            "movement": 3,
+            "pierce": 2,
+            "slash": 2,
             "crush": 3,
             "shock": 3,
             "burn": 1,
-            "frost": 6,
+            "frost": 8,
             "poison": 0,
             "sonic": 0,
             "mental": 0
@@ -734,7 +734,7 @@
             {
                 "title": "Chilling Spit",
                 "desc": "Spits diagonal foe with cold saliva. Bonus damage based on distance.",
-                "info": "20 frost + 1 crush damage / hexagon"
+                "info": "7 frost + 4 crush damage / hexagon"
             }
         ]
     },
@@ -806,18 +806,18 @@
             "endurance": 30,
             "energy": 70,
             "meditation": 3,
-            "initiative": 85,
+            "initiative": 45,
             "offense": 4,
             "defense": 6,
-            "movement": 2,
+            "movement": 3,
             "pierce": 8,
             "slash": 8,
             "crush": 12,
             "shock": 3,
             "burn": 2,
             "frost": 3,
-            "poison": 7,
-            "sonic": 6,
+            "poison": 8,
+            "sonic": 12,
             "mental": 4
         },
         "animation": {
@@ -1835,14 +1835,14 @@
         "type": "A7",
         "stats": {
             "health": 250,
-            "regrowth": 10,
-            "endurance": 55,
-            "energy": 140,
-            "meditation": 7,
+            "regrowth": 8,
+            "endurance": 70,
+            "energy": 120,
+            "meditation": 10,
             "initiative": 100,
             "offense": 25,
             "defense": 25,
-            "movement": 5,
+            "movement": 3,
             "pierce": 20,
             "slash": 20,
             "crush": 20,
@@ -1854,7 +1854,13 @@
             "mental": 15
         },
         "animation": {
-            "walk_speed": 500
+            "walk_speed": 450
+        },
+        "display":{
+            "width": 335,
+            "height": 275,
+            "offset-x": -40,
+            "offset-y": -240
         },
         "ability_info": [
             {
@@ -1875,7 +1881,7 @@
             {
                 "title": "Battle Cry",
                 "desc": "Brings back to life a dead ally for 3 rounds, after which it disintegrates.",
-                "info": "10 energy × creature level"
+                "info": "cost = 10 energy × creature level"
             }
         ]
     },
@@ -2059,15 +2065,15 @@
             "offense": 6,
             "defense": 6,
             "movement": 3,
-            "pierce": 4,
-            "slash": 4,
-            "crush": 4,
-            "shock": 3,
-            "burn": 1,
-            "frost": 1,
-            "poison": 1,
-            "sonic": 1,
-            "mental": 1
+            "pierce": 7,
+            "slash": 7,
+            "crush": 7,
+            "shock": 6,
+            "burn": 3,
+            "frost": 3,
+            "poison": 2,
+            "sonic": 2,
+            "mental": 2
         },
         "animation": {
             "walk_speed": 500
@@ -2183,8 +2189,14 @@
             "sonic": 8,
             "mental": 0
         },
+        "display": {
+		"width": 175,
+		"height": 215,
+		"offset-x": 4,
+		"offset-y": -180
+        },
         "animation": {
-            "walk_speed": 500
+            "walk_speed": 300
         },
         "ability_info": [
             {
@@ -2193,8 +2205,8 @@
                 "info": "-5 endurance stat debuff, stackable"
             },
             {
-                "title": "Scapel Limbs",
-                "desc": "Hits nearby foe using frontal blades. Double damage if unit is fatigued.",
+                "title": "Bone Dagger",
+                "desc": "Hits nearby foe using frontal blade. Double damage if unit is fatigued.",
                 "info": "12 pierce damage × 2 vs fatigued foe"
             },
             {
@@ -2204,7 +2216,7 @@
             },
             {
                 "title": "Boomerang Throw",
-                "desc": "Forms a new weapon out of scapels and throws it away, flying right back.",
+                "desc": "Forms a new weapon out of blades and throws it away, flying right back.",
                 "info": "10 slash + 10 crush damage"
             }
         ]
@@ -2226,7 +2238,7 @@
 			"initiative": 120,
 			"offense": 15,
 			"defense": 10,
-			"movement": 3,
+			"movement": 4,
 			"pierce": 7,
 			"slash": 9,
 			"crush": 10,
@@ -2237,15 +2249,15 @@
 			"sonic": 4,
 			"mental": 3
 	},
-    "animation": {
-        "walk_speed": 360
-    },
-    "display":{
-        "width": 155,
-        "height": 210,
-        "offset-x": 20,
-        "offset-y": -175
-    },
+	"display": {
+		"width": 155,
+		"height": 210,
+		"offset-x": 20,
+		"offset-y": -175
+	},
+	"animation": {
+		"walk_speed": 360
+	},
 	"ability_info": [
 		{
 			"title": "Hunting Horn",
@@ -2448,7 +2460,7 @@
 			"initiative": 60,
 			"offense": 12,
 			"defense": 12,
-			"movement": 8,
+			"movement": 7,
 			"pierce": 8,
 			"slash": 7,
 			"crush": 6,
@@ -2460,11 +2472,17 @@
 			"mental": 6
 	},
 	"animation": {
-		"walk_speed": 500
+		"walk_speed": 250
 	},
+        "display":{
+            "width": 195,
+            "height": 205,
+            "offset-x": 0,
+            "offset-y": -160
+        },
 	"ability_info": [
 		{
-			"title": "Feathered",
+			"title": "Feathered Body",
 			"desc": "Can fly to available locations within movement range, avoiding obstacles.",
 			"info": ""
 		},
@@ -2495,13 +2513,13 @@
 		"type": "P6",
 		"stats": {
 			"health": 240,
-			"regrowth": 4,
+			"regrowth": 6,
 			"endurance": 40,
 			"energy": 80,
 			"meditation": 8,
-			"initiative": 50,
-			"offense": 20,
-			"defense": 20,
+			"initiative": 40,
+			"offense": 15,
+			"defense": 5,
 			"movement": 4,
 			"pierce": 8,
 			"slash": 8,

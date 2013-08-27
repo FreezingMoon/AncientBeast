@@ -1,11 +1,11 @@
 /*
 *
-*	Uncle Fungus abilities
+*	Headless abilities
 *
 */
-abilities[3] =[
+abilities[39] =[
 
-// 	First Ability: Spore Contamination
+// 	First Ability: Maggot Infestation
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStepIn onStartPhase",
@@ -84,7 +84,7 @@ abilities[3] =[
 
 
 
-// 	Second Ability: Supper Chomp
+// 	Second Ability: Scapel Limbs
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -167,7 +167,7 @@ abilities[3] =[
 
 
 
-// 	Third Ability: Frogger Jump
+// 	Third Ability: Whip Slash
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -220,7 +220,7 @@ abilities[3] =[
 				effectFn : function(effect,crea){
 					effect.deleteEffect();
 				},
-				alterations : {offense : 25}
+				alterations : {offense : 30}
 			} //Optional arguments
 		) );
 	},
@@ -228,7 +228,7 @@ abilities[3] =[
 
 
 
-// 	Fourth Ability: Blade Kick
+// 	Fourth Ability: Boomerang Throw
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
