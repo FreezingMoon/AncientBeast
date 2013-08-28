@@ -8,18 +8,16 @@ abilities[7] =[
 // 	First Ability: Greater Pyre
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onDamage oncePerDamageChain",
+	trigger : "onDamage",
 
 	damages : {
-		burn : 10
+		burn : 15
 	},
-
-	triggeredThisChain : false,
 
 	// 	require() :
 	require : function(damage){
+		if( this.used ) return false;
 		if( !this.testRequirements() ) return false;
-		if( this.triggeredThisChain ) return false
 		if( damage == undefined ) damage = {type:"target"}; //For the test function to work
 		else if( damage.dmgIsType("retaliation") ) return false;
 		return true;
@@ -37,8 +35,6 @@ abilities[7] =[
 			[],	//Effects
 			targets
 		);
-
-		this.triggeredThisChain = true;
 
 		return damage;
 	},
