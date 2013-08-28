@@ -3,7 +3,7 @@
 *	Snow Bunny abilities
 *
 */
-abilities[12] =[
+abilities[12] = [
 
 // 	First Ability: Bunny Hopping
 {
@@ -15,8 +15,8 @@ abilities[12] =[
 		if( !this.testRequirements() ) return false;
 
 		if(damage == undefined) damage = {type:"target"}; //For the test function to work
+		else if( !damage.dmgIsType("target") ) return false; //Not targeted 
 		if(this.used) return false; //Prevent Multiple dodge
-		if( !this.dmgIsType("target",damage) ) return false; //Not targeted 
 		if(this.creature.remainingMove <= 0) return false; //Not enough move points
 		var canDodge = false;
 		var creature = this.creature;

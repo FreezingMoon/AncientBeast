@@ -177,6 +177,17 @@ abilities[14] =[
 
 		var d = (melee) ? {sonic:20,crush:10} : ability.damages;
 
+		var damage = new Damage( 
+			ability.creature, //Attacker
+			"target", //Attack Type
+			d, //Damage Type
+			1, //Area
+			[]	//Effects
+		);
+
+		var result = target.takeDamage(damage);
+
+		if( result.kill ) return; // if creature die stop here
 
 		var dir = [];
 		switch( args.direction ){
@@ -217,16 +228,6 @@ abilities[14] =[
 				pushed = true;
 			}
 		}
-
-		var damage = new Damage( 
-			ability.creature, //Attacker
-			"target", //Attack Type
-			d, //Damage Type
-			1, //Area
-			[]	//Effects
-		);
-
-		target.takeDamage(damage);
 
 	},
 }
