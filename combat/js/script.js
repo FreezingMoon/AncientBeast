@@ -9,7 +9,7 @@ $j(document).ready(function(){
 			plasma_amount : $j('select[name="plasma"]').val()-0,
 			timePool : $j('select[name="time_pool"]').val()*60,
 			turnTimePool : $j('select[name="time_turn"]').val()-0,
-			creaLimitNbr : $j('select[name="active_units"]').val()+1, //DP counts as One
+			creaLimitNbr : $j('select[name="active_units"]').val()-0+1, //DP counts as One
 		};
 
 		if( gameconfig.background_image == "random" ){
