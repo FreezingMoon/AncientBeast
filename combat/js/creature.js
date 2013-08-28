@@ -170,11 +170,14 @@ var Creature = Class.create({
 		this.travelDist = 0;
 		var crea = this;
 
+		G.freezedInput = true;
+
 		var qm = function(){
 			if(G.turn >= G.minimumTurnBeforeFleeing){ G.UI.btnFlee.changeState("normal"); }
 
 			crea.player.startTime = new Date();
 			crea.queryMove();
+			G.freezedInput = false;
 		}
 
 		if(!this.hasWait){
@@ -195,21 +198,27 @@ var Creature = Class.create({
 
 
 			//Passive abilities
+			var passiveAnim = false;
 			this.abilities.each(function(){
 				if( G.triggers.onStartPhase.test(this.trigger) ){
 					if( this.require() ){
+						passiveAnim = true;
 						this.animation2({args:[crea], callback: function(){
 							//Passive effects
+							var passiveAnim = false;
 							crea.effects.each(function(){
+								//passiveAnim = true;
 								if( G.triggers.onStartPhase.test(this.trigger) ){
 									this.activate(crea);
 								}
 							});
-							qm(); //QueryMove
+							if(!passiveAnim) qm(); //QueryMove
 						}});
-					}else{ qm(); }
-				}else{ qm(); }
+					}
+				}
 			});
+
+			if(!passiveAnim) qm(); //QueryMove
 
 		}else{
 			qm(); //QueryMove
@@ -228,6 +237,17 @@ var Creature = Class.create({
 	deactivate: function(wait){
 		this.hasWait = !!wait;
 		G.grid.updateDisplay(); //Retrace players creatures
+		var crea = this;
+
+		for (var i = 0; i < crea.effects.length; i++) {
+			if(crea.effects[i].turnLifetime > 0 && "endOfTurn" == crea.effects[i].deleteTrigger){
+					if(G.turn-crea.effects[i].creationTurn >= crea.effects[i].turnLifetime){
+					crea.effects[i].deleteEffect();
+					i--;	
+				} 
+			}
+		};
+
 
 		//effects triggers
 		if(!wait){
@@ -413,7 +433,7 @@ var Creature = Class.create({
 			animation : "walk",
 			ignoreMovementPoint : false,
 			ignorePath : false,
-			clampDist : -1,
+			customMovementPoint : 0,
 		}
 
 
@@ -428,7 +448,13 @@ var Creature = Class.create({
 			var path = creature.calculatePath(x,y);
 		}
 
-		if( opts.clampDist >= 0 ) path = path.slice(0,opts.clampDist);
+		if( opts.customMovementPoint > 0 ){ 
+
+			path = path.slice(0,opts.customMovementPoint); 
+			//For compatibility
+			var savedMvtPoints = creature.remainingMove;
+			creature.remainingMove = opts.customMovementPoint;
+		}
 
 		if( path.length == 0 ) return; //Break if empty path
 
@@ -529,8 +555,10 @@ var Creature = Class.create({
 					creature.updateHex();
 
 					if(!opts.ignoreMovementPoint){
-						creature.travelDist++;
+
 						creature.remainingMove--;
+						if(opts.customMovementPoint == 0) creature.travelDist++;
+						
 
 						//      STEP IN
 
@@ -554,6 +582,7 @@ var Creature = Class.create({
 							}
 						});
 					}
+
 
 					if( thisHexId < path.length-1 && creature.remainingMove > 0 ){
 						//Determine facing
@@ -580,6 +609,13 @@ var Creature = Class.create({
 							}
 						});
 					}else{
+
+						//  	END OF MOVEMENT
+
+						if(opts.customMovementPoint > 0){
+							creature.remainingMove = savedMvtPoints;
+						}
+
 						creature.$display.clearQueue(); //Stop the creature
 
 						G.grid.updateDisplay();
@@ -597,6 +633,7 @@ var Creature = Class.create({
 						G.animationQueue.filter(function(){ return (this!=anim_id); });
 						if( G.animationQueue.length == 0 ) G.freezedInput = false;
 					}
+
 
 					//Set the proper z-index;
 					creature.$display.css("z-index",nextPos.y);
@@ -846,9 +883,12 @@ var Creature = Class.create({
 		//Effects
 		this.effects.each(function(){
 			if( G.triggers.onAttack.test(this.trigger) ){
-				damage = this.animation(damage);
+				if( this.requireFn(damage) ){
+					damage = this.animation(damage);
+				}
 			}
 		});
+
 
 		//Calculation
 		if(damage.status == ""){
@@ -883,7 +923,7 @@ var Creature = Class.create({
 			this.abilities.each(function(){
 				if( G.triggers.onDamage.test(this.trigger) ){
 					if( this.require(damage) ){
-						damage = this.animation(damage);
+						this.animation(damage);
 					}
 				}
 			});
@@ -891,7 +931,9 @@ var Creature = Class.create({
 			//Effects
 			this.effects.each(function(){
 				if( G.triggers.onDamage.test(this.trigger) ){
-					damage = this.animation(damage);
+					if( this.requireFn(damage) ){
+						damage = this.animation(damage);
+					}
 				}
 			});
 
