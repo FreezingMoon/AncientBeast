@@ -1734,7 +1734,7 @@
             "initiative": 80,
             "offense": 8,
             "defense": 8,
-            "movement": 4,
+            "movement": 3,
             "pierce": 9,
             "slash": 9,
             "crush": 9,
@@ -1744,6 +1744,12 @@
             "poison": 8,
             "sonic": 4,
             "mental": 5
+        },
+        "display": {
+		"width": 160,
+		"height": 210,
+		"offset-x": 15,
+		"offset-y": -165
         },
         "animation": {
             "walk_speed": 500
@@ -2271,7 +2277,7 @@
 		},
 		{
 			"title": "Fishing Hook",
-			"desc": "Pierces small or medium creature, throwing it back, swapping places.",
+			"desc": "Pierces a nearby unit while swapping places if it's small or medium sized.",
 			"info": "10 pierce + 10 crush damage & swap"
 		},
 		{
