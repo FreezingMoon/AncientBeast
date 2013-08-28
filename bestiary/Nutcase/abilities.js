@@ -58,13 +58,10 @@ abilities[40] =[
 		var bestHex = {g:9999};
 
 		for (var i = 1; i < 99; i++) {
-			var hexs = target.adjacentHexs(i);
+			var hexs = target.adjacentHexs(i).extendToRight(this.creature.size);
+
 			for (var i = 0; i < hexs.length; i++) {
-				if( this.creature.player.flipped ) {
-					if( hexs[i].g != 0 && G.grid.hexs[hexs[i].y][hexs[i].x+this.creature.size-1].g < bestHex.g ) { bestHex = hexs[i]; }
-				} else {
-					if( hexs[i].g != 0 && hexs[i].g < bestHex.g ) { bestHex = hexs[i]; }
-				}
+				if( hexs[i].g != 0 && hexs[i].g < bestHex.g ) { bestHex = hexs[i]; }
 			};
 			if(bestHex instanceof Hex) break;
 		};
