@@ -936,7 +936,12 @@ var Gamelog = Class.create({
 		var fun = function(){
 			i++;
 			if(i>log.length-1) return;
-			G.action(log[i],{callback:fun});
+			var interval = setInterval(function(){
+				if(!G.freezedInput){
+					clearInterval(interval);
+					G.action(log[i],{callback:fun});
+				}
+			},100);
 		};
 		fun();
 	},

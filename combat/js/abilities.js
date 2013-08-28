@@ -326,12 +326,8 @@ var Ability = Class.create({
 		return this.atLeastOneTarget(choices,o.team);
 	},
 
-	dmgIsType :function(type,dmg){
-		return G.dmgType[type].test(dmg.type);
-	},
+
 });
-
-
 
 abilities = []; //array containing all javascript methods for abilities
 
@@ -379,6 +375,10 @@ var Damage = Class.create({
 		});
 
 		return returnObj;
+	},
+
+	dmgIsType :function(type){
+		return G.dmgType[type].test(this.type);
 	},
 
 });

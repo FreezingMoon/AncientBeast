@@ -1317,6 +1317,7 @@ var Trap = Class.create({
 		for(var i=0;i<this.length;i++) {
 			f.apply(this[i], [i, this]);   
 		}
+		return this;
 	};
 
 
@@ -1335,6 +1336,7 @@ var Trap = Class.create({
 				i--;
 			}
 		}
+		return this;
 	};
 
 	/*	filterCreature(hexs,reverse,includeCrea,stopOnCreature)

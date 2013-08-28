@@ -233,20 +233,14 @@ abilities[4] =[
 	activate : function(path,args) {
 		var ability = this;
 		var magmaSpawn = this.creature;
+
+
+		var path = path;
+		var target = path.last().creature;
 		ability.end();
 
-		path.each(function(){this.destroyTrap();});
 
-		//Damage
-		var target = path.last().creature;
-		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
-		);
-		target.takeDamage(damage);
+
 
 		//Movement
 		var magmaHex = (args.direction==4) ? magmaSpawn.hexagons[magmaSpawn.size-1] : magmaSpawn.hexagons[0] ;
@@ -260,6 +254,18 @@ abilities[4] =[
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			callback : function(){
+				path.each(function(){this.destroyTrap();});
+			
+				//Damage
+				var damage = new Damage(
+					ability.creature, //Attacker
+					"target", //Attack Type
+					ability.damages, //Damage Type
+					1, //Area
+					[]	//Effects
+				);
+				target.takeDamage(damage);
+
 				G.activeCreature.queryMove();
 			},
 		});

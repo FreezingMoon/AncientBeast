@@ -94,12 +94,12 @@ abilities[14] =[
 
 	// 	query() :
 	query : function(){
-		this.animation();
+		this.animation(this.creature.hexagons[0]);
 	},
 
 
 	//	activate() : 
-	activate : function() {
+	activate : function(hex) {
 		var hex = this.creature.hexagons[0];
 		this.end();
 

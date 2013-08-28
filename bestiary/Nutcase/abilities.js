@@ -51,7 +51,9 @@ abilities[40] =[
 		//Search best hex
 		G.grid.cleanReachable(); //If not pathfinding will bug
 		G.grid.cleanPathAttr(true); //Erase all pathfinding datas
-		astar.search(G.grid.hexs[this.creature.y][this.creature.x],new Hex(-2,-2,null),this.creature.size,this.creature.id); 
+		astar.search(G.grid.hexs[this.creature.y][this.creature.x],new Hex(-2,-2,null),this.creature.size,this.creature.id);
+
+
 
 		var bestHex = {g:9999};
 
@@ -67,7 +69,9 @@ abilities[40] =[
 			if(bestHex instanceof Hex) break;
 		};
 
-		this.creature.moveTo( bestHex, { clampDist: 2, ignoreMovementPoint: true } );
+		if( bestHex.x == undefined ) return;
+
+		this.creature.moveTo( bestHex, { customMovementPoint : 2 } );
 		this.creature.delayable = false;
 	},
 },
@@ -120,7 +124,12 @@ abilities[40] =[
 			ability.creature, //Caster
 			target, //Target
 			"", //Trigger
-			{ alterations : {meditation : -1} }
+			{ 
+				alterations : {movement : -1},
+				turnLifetime : 1,
+				turn : G.turn,
+				deleteTrigger : "endOfTurn"
+			}
 		);
 
 		var damage = new Damage(
@@ -151,7 +160,8 @@ abilities[40] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(inlinefrontnback2hex),"ennemy" ) ){
+		if( !this.atLeastOneTarget( 
+				this.creature.getHexMap(inlinefrontnback2hex),"ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -226,7 +236,7 @@ abilities[40] =[
 
 	//	query() :
 	query : function(){
-		this.animation();
+		this.animation(this.creature.hexagons[0]);
 	},
 
 
@@ -239,21 +249,25 @@ abilities[40] =[
 			"Curled", //Name
 			ability.creature, //Caster
 			ability.creature, //Target
-			"onDamage", //Trigger
+			"onDamage oncePerDamageChain", //Trigger
 			{ 
 				requireFn : function(damage){
+					if( this.triggeredThisChain ) return false;
+					if( damage.dmgIsType("retaliation") ) return false;
 					return damage.melee;
 				},
 				effectFn : function(effect,damage){
 					var retailation = new Damage(
 						this.owner, //Attacker
-						"target", //Attack Type
+						"target retaliation", //Attack Type
 						ability.damages, //Damage Type
 						1, //Area
 						[]	//Effects
 					);
+					this.triggeredThisChain = true;
 					damage.attacker.takeDamage(retailation);
 				},
+				triggeredThisChain : false,
 				alterations : {defense : "*2"},
 				turn : G.turn,
 				turnLifetime : 1,
@@ -262,6 +276,7 @@ abilities[40] =[
 		);
 
 		ability.creature.addEffect(effect);
+		G.skipTurn();
 	},
 }
 

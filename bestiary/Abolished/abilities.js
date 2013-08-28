@@ -20,8 +20,8 @@ abilities[7] =[
 	require : function(damage){
 		if( !this.testRequirements() ) return false;
 		if( this.triggeredThisChain ) return false
-		if(damage == undefined) damage = {type:"target"}; //For the test function to work
-		if( this.dmgIsType("retaliation",damage) ) return false;
+		if( damage == undefined ) damage = {type:"target"}; //For the test function to work
+		else if( damage.dmgIsType("retaliation") ) return false;
 		return true;
 	},
 
