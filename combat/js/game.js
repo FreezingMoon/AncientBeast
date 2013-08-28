@@ -765,7 +765,7 @@ var Player = Class.create({
 		var nbr = 0;
 		for(var i = 0; i < this.creatures.length; i++){
 			var crea = this.creatures[i];
-			if( !crea.undead ) nbr++;
+			if( !crea.dead && !crea.undead ) nbr++;
 		}
 		return nbr;
 	},
