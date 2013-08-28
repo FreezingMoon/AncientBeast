@@ -448,7 +448,7 @@
             {
                 "title": "Greater Pyre",
                 "desc": "Fries all adjacent creatures after taking damage and still being alive.",
-                "info": "10 burn damage nearby"
+                "info": "15 burn damage nearby"
             },
             {
                 "title": "Fiery Claw",
