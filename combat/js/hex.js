@@ -1393,6 +1393,26 @@ var Trap = Class.create({
 	};
 
 
+	/*	extendToLeft(size)
+	*	
+	*	size : 		Integer : 	Size to extend
+	*
+	*	return : 	Array : 	The hex array with all corresponding hexs at the left
+	*/
+	Array.prototype.extendToRight = function(size) {
+		var ext = [];
+		for(var i=0;i<this.length;i++) {
+			for (var j = 0; j < size; j++) {
+				//NOTE : This code produce array with doubles.
+				if( G.grid.hexExists(this[i].y,this[i].x+j) )
+					ext.push(G.grid.hexs[this[i].y][this[i].x+j]);
+			}
+		}
+		return ext;
+	};
+
+
+
 	/*	each()
 	*
 	*	Return the last element of the array
