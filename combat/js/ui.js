@@ -263,7 +263,10 @@ var UI = Class.create({
 
 			//Materialize button
 			$j('#materialize_button').unbind('click');
-			if(
+		
+			if(G.activeCreature.player.getNbrOfCreatures() > G.creaLimitNbr){
+				$j('#materialize_button p').text(G.msg.ui.dash.materialize_overload);
+			}else if(
 				!summonedOrDead && 
 				G.activeCreature.player.id==player && 
 				G.activeCreature.type=="--" &&
@@ -275,9 +278,7 @@ var UI = Class.create({
 				plasmaCost = lvl+size;
 
 				//Messages
-				if(G.activeCreature.player.getNbrOfCreatures() > G.creaLimitNbr){
-					$j('#materialize_button p').text(G.msg.ui.dash.materialize_overload);
-				}else if(plasmaCost>G.activeCreature.player.plasma){
+				if(plasmaCost>G.activeCreature.player.plasma){
 					$j('#materialize_button p').text("Low Plasma! Cannot materialize the selected unit");
 				}else{
 					$j('#materialize_button p').text("Materialize unit at target location for "+plasmaCost+" plasma");

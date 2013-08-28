@@ -130,7 +130,7 @@ var Ability = Class.create({
 			this.creature.$display.animate({left:p0},150,"linear");
 
 			setTimeout(function(){
-				if( !G.triggers.onAttack.test(this.trigger) ){
+				if( !G.triggers.onAttack.test(ab.trigger) ){
 					G.soundsys.playSound(G.soundLoaded[2],G.soundsys.effectsGainNode);
 					ab.activate.apply(ab,args);
 				}
@@ -149,7 +149,7 @@ var Ability = Class.create({
 			}
 		},100)
 
-		if( G.triggers.onAttack.test(this.trigger) ) return ab.activate.apply(ab,args);
+		if( G.triggers.onAttack.test(ab.trigger) ) return ab.activate.apply(ab,args);
 	},
 
 

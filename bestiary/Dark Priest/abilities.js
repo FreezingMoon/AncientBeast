@@ -23,10 +23,14 @@ abilities[0] =[
 	//	activate() : 
 	activate : function(damage) {
 		this.creature.player.plasma  -= 1;
-		this.end();
+
+		
 		damage.damages = {total:0};
 		damage.status = "Shielded";
 		damage.effect = [];
+
+		this.end();
+
 		return damage; //Return Damage
 	},
 },
@@ -154,6 +158,8 @@ abilities[0] =[
 			1, //Area
 			[]	//Effects
 		);
+
+		ability.end();
 
 		target.takeDamage(damage);
 	},
