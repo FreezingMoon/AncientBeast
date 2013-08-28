@@ -375,8 +375,14 @@
 			"sonic": 4,
 			"mental": 15
         },
+        "display": {
+		"width": 240,
+		"height": 240,
+		"offset-x": 15,
+		"offset-y": -210
+        },
         "animation": {
-            "walk_speed": 500
+            "walk_speed": 400
         },
         "ability_info": [
             {
@@ -2272,7 +2278,7 @@
 		},
 		{
 			"title": "Hammer Time",
-			"desc": "Hits a nearby foe using its hard head. Each strike lowers meditation by 1.",
+			"desc": "Hits a nearby foe using its hard head, decreasing movement by 1 for a turn.",
 			"info": "12 crush + 6 pierce damage & debuff"
 		},
 		{
