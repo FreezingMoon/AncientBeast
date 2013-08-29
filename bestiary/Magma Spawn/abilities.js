@@ -64,7 +64,7 @@ abilities[4] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3,this.creature.y-2,0,false,frontnback3hex),"ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback3hex),"ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -81,7 +81,7 @@ abilities[4] =[
 			team : 0, //Team, 0 = ennemies
 			id : magmaSpawn.id,
 			flipped : magmaSpawn.flipped,
-			hexs : G.grid.getHexMap(magmaSpawn.x-3,magmaSpawn.y-2,0,false,frontnback3hex),
+			hexs : this.creature.getHexMap(frontnback3hex),
 		});
 	},
 

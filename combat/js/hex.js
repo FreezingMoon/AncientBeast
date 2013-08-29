@@ -1509,3 +1509,27 @@ inlinefrontnback2hex = [ [0,0,0,0],
 						 [1,0,0,1], //origin line
 						[0,0,0,0]];
 inlinefrontnback2hex.origin = [2,2];
+
+front1hex = [	 [0,0,0],
+				[0,0,1],
+				 [0,0,1], //origin line
+				[0,0,1]];
+front1hex.origin = [1,2];
+
+backtop1hex = [	 [0,0,0],
+				[0,1,0],
+				 [0,0,0], //origin line
+				[0,0,0]];
+backtop1hex.origin = [1,2];
+
+inlineback1hex = [	 [0,0,0],
+					[0,0,0],
+					 [1,0,0], //origin line
+					[0,0,0]];
+inlineback1hex.origin = [1,2];
+
+backbottom1hex = [	 [0,0,0],
+					[0,0,0],
+					 [0,0,0], //origin line
+					[0,1,0]];
+backbottom1hex.origin = [1,2];

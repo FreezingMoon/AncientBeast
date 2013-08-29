@@ -558,12 +558,101 @@ var Game = Class.create({
 		onStartPhase : new RegExp('onStartPhase', 'i'),
 		onEndPhase : new RegExp('onEndPhase', 'i'),
 		onMovement : new RegExp('onMovement', 'i'),
-		onQuery : new RegExp('onQuery', 'i'),
 		onAttack : new RegExp('onAttack', 'i'),
 		onDamage : new RegExp('onDamage', 'i'),
-		oncePerDamageChain : new RegExp('oncePerDamageChain', 'i'),
+		onCreatureMove : new RegExp('onCreatureMove', 'i'),
+
+		onStepIn_other : new RegExp('onOtherStepIn', 'i'),
+		onStepOut_other : new RegExp('onOtherStepOut', 'i'),
+		onStartPhase_other : new RegExp('onOtherStartPhase', 'i'),
+		onEndPhase_other : new RegExp('onOtherEndPhase', 'i'),
+		onMovement_other : new RegExp('onOtherMovement', 'i'),
+		onAttack_other : new RegExp('onOtherAttack', 'i'),
+		onDamage_other : new RegExp('onOtherDamage', 'i'),
+		onCreatureMove_other : new RegExp('onOtherCreatureMove', 'i'),
+
+		onQuery : new RegExp('onQuery', 'i'),
+		oncePerDamageChain : new RegExp('oncePerDamageChain', 'i')
+	},
+
+	triggerAbility : function( trigger, arg ){
+		arg[0].abilities.each(function(){
+			if( G.triggers[trigger].test(this.trigger) ){
+				if( this.require(arg[1]) ){
+					this.animation(arg[1]);
+				}
+			}
+		});
+
+		G.creatures.each(function(){
+			if(arg[0] == this) return;
+			this.abilities.each(function(){
+				if( G.triggers[trigger+"_other"].test(this.trigger) ){
+					if( this.require(arg[1]) ){
+						this.animation(arg[1]);
+					}
+				}
+			});
+		});
+	},
+
+	triggerEffect : function( trigger, arg ){
+		arg[0].effects.each(function(){
+			if( G.triggers[trigger].test(this.trigger) ){
+				this.activate(arg[1]);
+			}
+		});
+	},
+
+	triggerTrap : function( trigger, arg ){
+		arg[0].hexagons.each(function(){
+			this.activateTrap(G.triggers[trigger],arg[0]);
+		});
+	},
+
+	triggerDeleteEffect : function( trigger, creature ){
+		for (var i = 0; i < creature.effects.length; i++) {
+			if(creature.effects[i].turnLifetime > 0 && trigger == creature.effects[i].deleteTrigger){
+				if(G.turn-creature.effects[i].creationTurn >= creature.effects[i].turnLifetime){
+					creature.effects[i].deleteEffect();
+					i--;	
+				} 
+			}
+		};
+	},
+
+	triggersFn : {
+
+		onStepIn : function( creature, hex, callback ){
+			G.triggerTrap("onStepIn",arguments);
+			G.triggerAbility("onStepIn",arguments);
+			G.triggerEffect("onStepIn",arguments);
+		},
+
+		onStepOut : function( creature, hex, callback ){
+			G.triggerTrap("onStepOut",arguments);
+			G.triggerAbility("onStepOut",arguments);
+			G.triggerEffect("onStepOut",arguments);
+		},
+
+		onStartPhase : function( creature, callback ){
+			G.triggerDeleteEffect("onStartPhase",creature);
+			G.triggerAbility("onStartPhase",arguments);
+			G.triggerEffect("onStartPhase",[creature,creature]);
+		},
+
+		onEndPhase : function( creature, callback ){
+			G.triggerDeleteEffect("onEndPhase",creature);
+			G.triggerAbility("onEndPhase",arguments);
+			G.triggerEffect("onEndPhase",[creature,creature]);
+		},
+
+		onCreatureMove : function( creature, hex, callback ){
+			G.triggerAbility("onCreatureMove",arguments);
+		},
 	},
 	
+
 
 	/* 	Regex Test for damage type */
 	dmgType : {

@@ -168,17 +168,7 @@ var Creature = Class.create({
 	*/
 	activate: function(){
 		this.travelDist = 0;
-		var crea = this;
-
-		G.freezedInput = true;
-
-		var qm = function(){
-			if(G.turn >= G.minimumTurnBeforeFleeing){ G.UI.btnFlee.changeState("normal"); }
-
-			crea.player.startTime = new Date();
-			crea.queryMove();
-			G.freezedInput = false;
-		}
+		var creature = this;
 
 		if(!this.hasWait){
 			this.remainingMove = this.stats.movement;
@@ -187,43 +177,19 @@ var Creature = Class.create({
 			this.heal(this.stats.regrowth);
 			this.delayable = true;
 
-			for (var i = 0; i < crea.effects.length; i++) {
-				if(crea.effects[i].turnLifetime > 0 && "startOfTurn" == crea.effects[i].deleteTrigger){
-						if(G.turn-crea.effects[i].creationTurn >= crea.effects[i].turnLifetime){
-						crea.effects[i].deleteEffect();
-						i--;	
-					} 
-				}
-			};
-
-
-			//Passive abilities
-			var passiveAnim = false;
-			this.abilities.each(function(){
-				if( G.triggers.onStartPhase.test(this.trigger) ){
-					if( this.require() ){
-						passiveAnim = true;
-						this.animation2({args:[crea], callback: function(){
-							//Passive effects
-							var passiveAnim = false;
-							crea.effects.each(function(){
-								//passiveAnim = true;
-								if( G.triggers.onStartPhase.test(this.trigger) ){
-									this.activate(crea);
-								}
-							});
-							if(!passiveAnim) qm(); //QueryMove
-						}});
-					}
-				}
-			});
-
-			if(!passiveAnim) qm(); //QueryMove
-
-		}else{
-			qm(); //QueryMove
+			//Trigger
+			G.triggersFn.onStartPhase(creature);
 		}
-		
+
+		var interval = setInterval(function(){
+			if(!G.freezedInput){
+				clearInterval(interval);
+				if(G.turn >= G.minimumTurnBeforeFleeing){ G.UI.btnFlee.changeState("normal"); }
+				creature.player.startTime = new Date();
+				creature.queryMove();
+			}
+		},50);
+
 	},
 
 
@@ -237,26 +203,9 @@ var Creature = Class.create({
 	deactivate: function(wait){
 		this.hasWait = !!wait;
 		G.grid.updateDisplay(); //Retrace players creatures
-		var crea = this;
-
-		for (var i = 0; i < crea.effects.length; i++) {
-			if(crea.effects[i].turnLifetime > 0 && "endOfTurn" == crea.effects[i].deleteTrigger){
-					if(G.turn-crea.effects[i].creationTurn >= crea.effects[i].turnLifetime){
-					crea.effects[i].deleteEffect();
-					i--;	
-				} 
-			}
-		};
-
 
 		//effects triggers
-		if(!wait){
-			this.effects.each(function(){
-				if( G.triggers.onEndPhase.test(this.trigger) ){
-					this.activate(this);
-				}
-			});
-		}
+		if(!wait) G.triggersFn.onEndPhase(this);
 	},
 
 
@@ -471,26 +420,8 @@ var Creature = Class.create({
 			if(opts.animation!="push") creature.faceHex(path[0],currentHex);
 		});
 
-		//      STEP OUT
-		//Trap
-		creature.hexagons.each(function(){
-			this.activateTrap(G.triggers.onStepOut,creature);
-		});
-		//Passive abilities
-		creature.abilities.each(function(){
-			if( G.triggers.onStepOut.test(this.trigger) ){
-				if( this.require(currentHex) ){
-					this.animation(currentHex);
-				}
-			}
-		});
-
-		//Passive effects
-		creature.effects.each(function(){
-			if( G.triggers.onStepOut.test(this.trigger) ){
-				this.activate(currentHex);
-			}
-		});
+		//Trigger
+		G.triggersFn.onStepOut(creature,currentHex);
 
 		creature.cleanHex();
 		G.grid.updateDisplay();
@@ -559,28 +490,8 @@ var Creature = Class.create({
 						creature.remainingMove--;
 						if(opts.customMovementPoint == 0) creature.travelDist++;
 						
-
-						//      STEP IN
-
-						//Trap
-						creature.hexagons.each(function(){
-							this.activateTrap(G.triggers.onStepIn,creature);
-						});
-						//Passive abilities
-						creature.abilities.each(function(){
-							if( G.triggers.onStepIn.test(this.trigger) ){
-								if( this.require(currentHex) ){
-									this.animation(currentHex);
-								}
-							}
-						});
-
-						//Passive effects
-						creature.effects.each(function(){
-							if( G.triggers.onStepIn.test(this.trigger) ){
-								this.activate(currentHex);
-							}
-						});
+						//Trigger
+						G.triggersFn.onStepIn(creature,currentHex);
 					}
 
 
@@ -588,26 +499,9 @@ var Creature = Class.create({
 						//Determine facing
 						if(opts.animation!="push") creature.faceHex(path[thisHexId+1],currentHex);
 
-						//      STEP OUT
-						//Trap
-						creature.hexagons.each(function(){
-							this.activateTrap(G.triggers.onStepOut,creature);
-						});
-						//Passive abilities
-						creature.abilities.each(function(){
-							if( G.triggers.onStepOut.test(this.trigger) ){
-								if( this.require(currentHex) ){
-									this.animation(currentHex);
-								}
-							}
-						});
+						//Trigger
+						G.triggersFn.onStepOut(creature,currentHex);
 
-						//Passive effects
-						creature.effects.each(function(){
-							if( G.triggers.onStepOut.test(this.trigger) ){
-								this.activate(currentHex);
-							}
-						});
 					}else{
 
 						//  	END OF MOVEMENT
@@ -631,6 +525,10 @@ var Creature = Class.create({
 							.show();
 
 						G.animationQueue.filter(function(){ return (this!=anim_id); });
+
+						//Trigger
+						G.triggersFn.onCreatureMove(creature,currentHex);
+
 						if( G.animationQueue.length == 0 ) G.freezedInput = false;
 					}
 
