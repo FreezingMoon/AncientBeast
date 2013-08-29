@@ -337,33 +337,7 @@ var Game = Class.create({
 
 		this.delayQueue = [];
 
-		//Check temp stuff
-
-		//Traps
-		for (var i = 0; i < G.grid.traps.length; i++) {
-
-			trap = G.grid.traps[i];
-			
-			if(trap.turnLifetime > 0){
-				if(G.turn-trap.creationTurn >= trap.turnLifetime){
-					trap.destroy();
-					i--;	
-				} 
-			}
-		};
-
-		//Effects
-		for (var i = 0; i < G.effects.length; i++) {
-
-			effect = G.effects[i];
-			
-			if(effect.turnLifetime > 0 && "endOfRound" == effect.deleteTrigger){
-				if(G.turn-effect.creationTurn >= effect.turnLifetime){
-					effect.deleteEffect();
-					i--;	
-				} 
-			}
-		};
+		G.triggersFn.onStartOfRound();
 
 		this.nextCreature();
 	},
@@ -571,6 +545,7 @@ var Game = Class.create({
 		onDamage_other : new RegExp('onOtherDamage', 'i'),
 		onCreatureMove_other : new RegExp('onOtherCreatureMove', 'i'),
 
+		onStartOfRound : new RegExp('onStartOfRound', 'i'),
 		onQuery : new RegExp('onQuery', 'i'),
 		oncePerDamageChain : new RegExp('oncePerDamageChain', 'i')
 	},
@@ -611,9 +586,24 @@ var Game = Class.create({
 	},
 
 	triggerDeleteEffect : function( trigger, creature ){
+		if( creature = "all" ){
+			for (var i = 0; i < G.effects.length; i++) {
+				effect = G.effects[i];
+				if(effect.turnLifetime > 0 && trigger == effect.deleteTrigger){
+					if(G.turn-effect.creationTurn >= effect.turnLifetime){
+						effect.deleteEffect();
+						i--;	
+					} 
+				}
+			}
+			return;
+		}
+
 		for (var i = 0; i < creature.effects.length; i++) {
 			if(creature.effects[i].turnLifetime > 0 && trigger == creature.effects[i].deleteTrigger){
+				console.log(creature.effects[i].creationTurn);
 				if(G.turn-creature.effects[i].creationTurn >= creature.effects[i].turnLifetime){
+					console.log("lol2");
 					creature.effects[i].deleteEffect();
 					i--;	
 				} 
@@ -645,6 +635,21 @@ var Game = Class.create({
 			G.triggerDeleteEffect("onEndPhase",creature);
 			G.triggerAbility("onEndPhase",arguments);
 			G.triggerEffect("onEndPhase",[creature,creature]);
+		},
+
+		onStartOfRound : function( creature, callback ){
+			for (var i = 0; i < G.grid.traps.length; i++) {
+
+				trap = G.grid.traps[i];
+				
+				if(trap.turnLifetime > 0){
+					if(G.turn-trap.creationTurn >= trap.turnLifetime){
+						trap.destroy();
+						i--;	
+					} 
+				}
+			};
+			G.triggerDeleteEffect("onStartOfRound","all");
 		},
 
 		onCreatureMove : function( creature, hex, callback ){

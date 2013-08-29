@@ -411,7 +411,7 @@ var Effect = Class.create({
 			effectFn : function(){},
 			alterations : {},
 			turnLifetime : 0,
-			deleteTrigger : "endOfRound"
+			deleteTrigger : "onStartOfRound"
 		},optArgs);
 
 		$j.extend(this,args);

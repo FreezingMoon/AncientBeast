@@ -124,8 +124,6 @@ abilities[40] =[
 			{ 
 				alterations : {movement : -1},
 				turnLifetime : 1,
-				turn : G.turn,
-				deleteTrigger : "endOfTurn"
 			}
 		);
 
