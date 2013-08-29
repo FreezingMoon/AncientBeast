@@ -26,18 +26,17 @@ abilities[12] = [
 		destHex.creature.hexagons.each(function(){ 
 			id = ( frontHexs.indexOf(this) > id ) ? frontHexs.indexOf(this) : id;
 		});
-		
-		var canDodge = false;
 
 		switch( id ){
-			case 0 : canDodge = this.creature.getHexMap(backbottom1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
-			case 1 : canDodge = this.creature.getHexMap(inlineback1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
-			case 2 : canDodge = this.creature.getHexMap(backtop1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
+			case 0 : var hex = this.creature.getHexMap(backbottom1hex)[0]; break;
+			case 1 : var hex = this.creature.getHexMap(inlineback1hex)[0]; break;
+			case 2 : var hex = this.creature.getHexMap(backtop1hex)[0]; break;
 			default : return false;
 		}
 
-
-		return canDodge;
+		if( hex == undefined ) return false;
+		
+		return hex.isWalkable(this.creature.size,this.creature.id,true);
 	},
 
 	//	activate() : 
@@ -51,11 +50,11 @@ abilities[12] = [
 		destHex.creature.hexagons.each(function(){ 
 			id = ( frontHexs.indexOf(this) > id ) ? frontHexs.indexOf(this) : id;
 		});
-		
+
 		switch( id ){
-			case 0: hex = this.creature.getHexMap(backbottom1hex)[0]; break;
-			case 1: hex = this.creature.getHexMap(inlineback1hex)[0]; break;
-			case 2: hex = this.creature.getHexMap(backtop1hex)[0]; break;
+			case 0: var hex = this.creature.getHexMap(backbottom1hex)[0]; break;
+			case 1: var hex = this.creature.getHexMap(inlineback1hex)[0]; break;
+			case 2: var hex = this.creature.getHexMap(backtop1hex)[0]; break;
 		}
 
 		this.creature.moveTo(hex,{
