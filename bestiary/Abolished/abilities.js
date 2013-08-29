@@ -19,7 +19,6 @@ abilities[7] =[
 		if( this.used ) return false;
 		if( !this.testRequirements() ) return false;
 		if( damage == undefined ) damage = {type:"target"}; //For the test function to work
-		else if( damage.dmgIsType("retaliation") ) return false;
 		return true;
 	},
 
