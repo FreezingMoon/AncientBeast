@@ -8,42 +8,48 @@ abilities[12] = [
 // 	First Ability: Bunny Hopping
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onDamage",
+	trigger : "onOtherCreatureMove",
 
 	// 	require() :
-	require : function(damage){
+	require : function(destHex){
 		if( !this.testRequirements() ) return false;
 
-		if(damage == undefined) damage = {type:"target"}; //For the test function to work
-		else if( !damage.dmgIsType("target") ) return false; //Not targeted 
-		if(this.used) return false; //Prevent Multiple dodge
-		if(this.creature.remainingMove <= 0) return false; //Not enough move points
+		if( this.used ) return false; //Once per turn
+
+		if( destHex.creature.isAlly(this.creature.team) ) return false;
+
+		var frontHexs = this.creature.getHexMap(front1hex);
+
 		var canDodge = false;
-		var creature = this.creature;
-		creature.adjacentHexs(1).each(function(){
-			canDodge = canDodge || this.isWalkable(creature.id,creature.size,true);
-		});
-		if(!canDodge) return false;
-		return true;
+
+		switch( frontHexs.indexOf(destHex) ){
+			case 0: canDodge = this.creature.getHexMap(backbottom1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
+			case 1: canDodge = this.creature.getHexMap(inlineback1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
+			case 2: canDodge = this.creature.getHexMap(backtop1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
+			default : return false;
+		}
+
+		return canDodge;
 	},
 
 	//	activate() : 
-	activate : function(damage) {
-		var creature = this.creature;
-		var hexs = creature.adjacentHexs(1);
-		for (var i = hexs.length - 1; i >= 0; i--) {
-			//If hex available dodge the attack
-			if(hexs[i].isWalkable(creature.id,creature.size,true)){
-				creature.moveTo(hexs[i],{
-					callback : function(){	G.activeCreature.queryMove(); },
-					ignorePath : true,
-				});
-				//damage.status = "Dodged";
-				break; //Break for loop
-			}
-		};
-		this.end();
-		return damage;
+	activate : function(destHex) {
+		var ability = this;
+		ability.end();
+
+		var frontHexs = this.creature.getHexMap(front1hex);
+
+		switch( frontHexs.indexOf(destHex) ){
+			case 0: hex = this.creature.getHexMap(backbottom1hex)[0]; break;
+			case 1: hex = this.creature.getHexMap(inlineback1hex)[0]; break;
+			case 2: hex = this.creature.getHexMap(backtop1hex)[0]; break;
+		}
+
+		this.creature.moveTo(hex,{
+			callback : function(){	G.activeCreature.queryMove(); },
+			ignorePath : true,
+		});
+
 	},
 },
 

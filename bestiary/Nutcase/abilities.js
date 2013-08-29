@@ -268,7 +268,7 @@ abilities[40] =[
 				alterations : {defense : "*2"},
 				turn : G.turn,
 				turnLifetime : 1,
-				deleteTrigger : "startOfTurn"
+				deleteTrigger : "onStartPhase"
 			}
 		);
 
