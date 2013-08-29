@@ -48,7 +48,7 @@ abilities[37] =[
 	trigger : "onQuery",
 
 	damages : {
-		crush : 15
+		crush : 20
 	},
 
 	// 	require() :
