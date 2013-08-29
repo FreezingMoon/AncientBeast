@@ -302,18 +302,18 @@
 			"energy": 80,
 			"meditation": 8,
 			"initiative": 75,
-			"offense": 15,
-			"defense": 8,
+			"offense": 14,
+			"defense": 7,
 			"movement": 6,
 			"pierce": 5,
 			"slash": 2,
 			"crush": 4,
-			"shock": 20,
+			"shock": 10,
 			"burn": 3,
-			"frost": 20,
-			"poison": 20,
+			"frost": 15,
+			"poison": 15,
 			"sonic": 6,
-			"mental": 15
+			"mental": 10
     	},
     	"animation": {
     		"walk_speed": 200
@@ -2288,7 +2288,7 @@
 		},
 		{
 			"title": "Tentacle Bush",
-			"desc": "Defensive stance that increases total defense and slaps nearby attackers.",
+			"desc": "Defensive stance that increases total defense and slaps nearby attackers. Becomes unmovable and skips turn.",
 			"info": "10 crush damage, 200% defense stat"
 		}
 	]
@@ -2566,12 +2566,12 @@
 		{
 			"title": "Power Note",
 			"desc": "Sings a powerful note inline that keeps on going when killing units.",
-			"info": "20 sonic damage"
+			"info": "20 sonic damage that can continue"
 		},
 		{
 			"title": "Chain Lightning",
 			"desc": "Releases a lightning bolt that will arch, shocking multiple creatures.",
-			"info": "20 shock damage"
+			"info": "20 shock damage that can arch"
 		}
 	]
 	},
