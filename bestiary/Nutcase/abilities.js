@@ -248,7 +248,6 @@ abilities[40] =[
 			{ 
 				requireFn : function(damage){
 					if( this.triggeredThisChain ) return false;
-					if( damage.dmgIsType("retaliation") ) return false;
 					return damage.melee;
 				},
 				effectFn : function(effect,damage){
@@ -261,6 +260,7 @@ abilities[40] =[
 					);
 					this.triggeredThisChain = true;
 					damage.attacker.takeDamage(retailation);
+					this.triggeredThisChain = false;
 				},
 				triggeredThisChain : false,
 				alterations : {defense : "*2",moveable : false},
