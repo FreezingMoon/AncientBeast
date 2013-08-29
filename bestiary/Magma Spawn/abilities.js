@@ -239,7 +239,15 @@ abilities[4] =[
 		var target = path.last().creature;
 		ability.end();
 
-
+		//Damage
+		var damage = new Damage(
+			ability.creature, //Attacker
+			"target", //Attack Type
+			ability.damages, //Damage Type
+			1, //Area
+			[]	//Effects
+		);
+		target.takeDamage(damage);
 
 
 		//Movement
@@ -255,17 +263,6 @@ abilities[4] =[
 			ignorePath : true,
 			callback : function(){
 				path.each(function(){this.destroyTrap();});
-			
-				//Damage
-				var damage = new Damage(
-					ability.creature, //Attacker
-					"target", //Attack Type
-					ability.damages, //Damage Type
-					1, //Area
-					[]	//Effects
-				);
-				target.takeDamage(damage);
-
 				G.activeCreature.queryMove();
 			},
 		});
