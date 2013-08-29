@@ -16,18 +16,26 @@ abilities[12] = [
 
 		if( this.used ) return false; //Once per turn
 
+		if( !destHex ) return false; //If destHex is undefined
+
 		if( destHex.creature.isAlly(this.creature.team) ) return false;
 
 		var frontHexs = this.creature.getHexMap(front1hex);
-
+		
+		var id = -1;
+		destHex.creature.hexagons.each(function(){ 
+			id = ( frontHexs.indexOf(this) > id ) ? frontHexs.indexOf(this) : id;
+		});
+		
 		var canDodge = false;
 
-		switch( frontHexs.indexOf(destHex) ){
-			case 0: canDodge = this.creature.getHexMap(backbottom1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
-			case 1: canDodge = this.creature.getHexMap(inlineback1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
-			case 2: canDodge = this.creature.getHexMap(backtop1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
+		switch( id ){
+			case 0 : canDodge = this.creature.getHexMap(backbottom1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
+			case 1 : canDodge = this.creature.getHexMap(inlineback1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
+			case 2 : canDodge = this.creature.getHexMap(backtop1hex)[0].isWalkable(this.creature.size,this.creature.id,true); break;
 			default : return false;
 		}
+
 
 		return canDodge;
 	},
@@ -39,7 +47,12 @@ abilities[12] = [
 
 		var frontHexs = this.creature.getHexMap(front1hex);
 
-		switch( frontHexs.indexOf(destHex) ){
+		var id = -1;
+		destHex.creature.hexagons.each(function(){ 
+			id = ( frontHexs.indexOf(this) > id ) ? frontHexs.indexOf(this) : id;
+		});
+		
+		switch( id ){
 			case 0: hex = this.creature.getHexMap(backbottom1hex)[0]; break;
 			case 1: hex = this.creature.getHexMap(inlineback1hex)[0]; break;
 			case 2: hex = this.creature.getHexMap(backtop1hex)[0]; break;
