@@ -113,13 +113,13 @@ var UI = Class.create({
 			$j.each(hotkeys,function(k,v){
 				if(v==keypressed){
 					switch(k){
-						case "attack": G.UI.abilitiesButtons[1].click(); break;
-						case "ability": G.UI.abilitiesButtons[2].click(); break;
-						case "ultimate": G.UI.abilitiesButtons[3].click(); break;
-						case "overview": G.UI.btnToggleDash.click(); break;
-						case "skip": G.UI.btnSkipTurn.click(); break;
-						case "delay": G.UI.btnDelay.click(); break;
-						case "flee": G.UI.btnFlee.click(); break;
+						case "attack": G.UI.abilitiesButtons[1].triggerClick(); break;
+						case "ability": G.UI.abilitiesButtons[2].triggerClick(); break;
+						case "ultimate": G.UI.abilitiesButtons[3].triggerClick(); break;
+						case "overview": G.UI.btnToggleDash.triggerClick(); break;
+						case "skip": G.UI.btnSkipTurn.triggerClick(); break;
+						case "delay": G.UI.btnDelay.triggerClick(); break;
+						case "flee": G.UI.btnFlee.triggerClick(); break;
 						case "chat": G.UI.chat.toggle(); break;
 					}
 					prevD = true;
@@ -723,5 +723,20 @@ var Button = Class.create({
 			this.$button.addClass(state);
 			this.$button.css( this.css[state] );
 		}
+	},
+
+	triggerClick : function(){
+		if(G.freezedInput || !this.clickable) return;
+		this.click();
+	},
+
+	triggerMouseover : function(){
+		if(G.freezedInput || !this.clickable) return;
+		this.mouseover();
+	},
+
+	triggerMouseleave : function(){
+		if(G.freezedInput || !this.clickable) return;
+		this.mouseleave();
 	},
 });
