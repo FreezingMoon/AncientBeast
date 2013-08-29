@@ -550,11 +550,12 @@ var Game = Class.create({
 		oncePerDamageChain : new RegExp('oncePerDamageChain', 'i')
 	},
 
-	triggerAbility : function( trigger, arg ){
+	triggerAbility : function( trigger, arg, retValue ){
+
 		arg[0].abilities.each(function(){
 			if( G.triggers[trigger].test(this.trigger) ){
 				if( this.require(arg[1]) ){
-					this.animation(arg[1]);
+					retValue = this.animation(arg[1]);
 				}
 			}
 		});
@@ -564,17 +565,17 @@ var Game = Class.create({
 			this.abilities.each(function(){
 				if( G.triggers[trigger+"_other"].test(this.trigger) ){
 					if( this.require(arg[1]) ){
-						this.animation(arg[1]);
+						retValue = this.animation(arg[1]);
 					}
 				}
 			});
 		});
 	},
 
-	triggerEffect : function( trigger, arg ){
+	triggerEffect : function( trigger, arg, retValue ){
 		arg[0].effects.each(function(){
 			if( G.triggers[trigger].test(this.trigger) ){
-				this.activate(arg[1]);
+				retValue = this.activate(arg[1]);
 			}
 		});
 	},
@@ -655,6 +656,18 @@ var Game = Class.create({
 		onCreatureMove : function( creature, hex, callback ){
 			G.triggerAbility("onCreatureMove",arguments);
 		},
+
+
+		onAttack : function( creature, damage ){
+			damage = G.triggerAbility("onAttack",arguments,damage);
+			damage = G.triggerEffect("onAttack",arguments,damage);
+			return damage;
+		},
+
+		onDamage : function( creature, damage ){
+			G.triggerAbility("onDamage",arguments);
+			G.triggerEffect("onDamage",arguments);
+		}
 	},
 	
 

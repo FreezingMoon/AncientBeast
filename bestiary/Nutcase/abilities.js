@@ -244,7 +244,7 @@ abilities[40] =[
 			"Curled", //Name
 			ability.creature, //Caster
 			ability.creature, //Target
-			"onDamage oncePerDamageChain", //Trigger
+			"onDamage", //Trigger
 			{ 
 				requireFn : function(damage){
 					if( this.triggeredThisChain ) return false;
@@ -263,7 +263,7 @@ abilities[40] =[
 					damage.attacker.takeDamage(retailation);
 				},
 				triggeredThisChain : false,
-				alterations : {defense : "*2"},
+				alterations : {defense : "*2",moveable : false},
 				turn : G.turn,
 				turnLifetime : 1,
 				deleteTrigger : "onStartPhase"
