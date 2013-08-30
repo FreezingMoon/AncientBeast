@@ -368,10 +368,11 @@ var Game = Class.create({
 			return;
 		}
 
+		
+		this.log("Active Creature : "+this.activeCreature.player.name+"'s "+this.activeCreature.name);
 		this.activeCreature.activate();
 		G.checkTime();
 
-		this.log("Active Creature : "+this.activeCreature.player.name+"'s "+this.activeCreature.name);
 
 		//Update UI to match new creature
 		this.UI.updateActivebox();

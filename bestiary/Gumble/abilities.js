@@ -24,10 +24,17 @@ abilities[14] =[
 
 	//	activate() : 
 	activate : function() {
-		var targets = this.getTargets(this.creature.adjacentHexs(1));
+		var ability = this;
+		ability.end();
+
+		var crea = this.creature;
+		var targets = this.getTargets(crea.adjacentHexs(1));
 		var nbrAlly = 0;
-		targets.each(function(){ nbrAlly++; });
-		this.creature.heal(this.creature.stats.health*nbrAlly/6);
+		for (var i = 0; i < targets.length; i++) {
+			if(targets[i]===undefined) continue;
+			if(targets[i].target.isAlly(crea.team)) nbrAlly++; 
+		};
+		crea.heal(crea.stats.health*nbrAlly/6);
 	},
 },
 
