@@ -50,7 +50,7 @@ abilities[5] =[
 	trigger : "onQuery",
 
 	damages : {
-		pierce : 10
+		pierce : 12
 	},
 
 	// 	require() :

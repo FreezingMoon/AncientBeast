@@ -333,7 +333,7 @@
     		{
     			"title": "Deadly Jab",
     			"desc": "Horn attack that gains bonus offense based on the last distance traveled.",
-    			"info": "10 pierce damage + 2 more / hexagon"
+    			"info": "12 pierce damage + 2 more / hexagon"
     		},
     		{
     			"title": "Poisonous Vine",

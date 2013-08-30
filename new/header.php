@@ -110,7 +110,7 @@ _gaq.push(['_trackPageview']);
 <?php
   $menu = array('units', 'shop', 'media', 'game', 'blog', 'chat', 'user');
   foreach ($menu as &$menuItem) {
-    echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '">' . strtoupper($menuItem) . '</a></li>';
+    echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '"><img src="images/icons/' . $menuItem . '.svg" height=32 width=32 alt=""> ' . strtoupper($menuItem) . '</a></li>';
   }
 ?>
 <li><img src="/images/AB.gif" height=32 width=32 alt="Ancient Beast"></li>
