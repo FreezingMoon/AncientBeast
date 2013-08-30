@@ -381,6 +381,7 @@ var Creature = Class.create({
 
 		defaultOpt = {
 			callback : function(){return true;},
+			callbackStepIn : function(){return true;},
 			animation : "walk",
 			ignoreMovementPoint : false,
 			ignorePath : false,
@@ -466,6 +467,12 @@ var Creature = Class.create({
 						.show();
 	
 					G.animationQueue.filter(function(){ return (this!=anim_id); });
+
+					opts.callbackStepIn(currentHex);
+
+					//Trigger
+					G.triggersFn.onCreatureMove(creature,currentHex);
+
 					if( G.animationQueue.length == 0 ) G.freezedInput = false;
 				});
 			}else{
@@ -493,6 +500,7 @@ var Creature = Class.create({
 							if(opts.customMovementPoint == 0) creature.travelDist++;
 							
 							//Trigger
+							opts.callbackStepIn(currentHex);
 							G.triggersFn.onStepIn(creature,currentHex);
 						}
 	

@@ -165,7 +165,9 @@ abilities[7] =[
 			ignorePath : true,
 			animation : "teleport",
 			callback : function(){
-
+				G.activeCreature.queryMove() 
+			},
+			callbackStepIn  : function(){
 				var targets = ability.getTargets(ability.creature.adjacentHexs(1));
 
 				targets.each(function(){
@@ -188,9 +190,7 @@ abilities[7] =[
 						trg.addEffect(effect);
 					}
 				})
-
-				G.activeCreature.queryMove() 
-			}
+			},
 		}); 
 	},
 },
