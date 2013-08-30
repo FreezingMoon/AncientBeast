@@ -92,7 +92,7 @@ abilities[5] =[
 			if(this.trigger == "poisonous_vine_perm"){
 				finalDmg.poison += 1;
 			}else if(this.trigger == "poisonous_vine"){
-				finalDmg.poison += 20;
+				finalDmg.poison += 5;
 			}
 		});
 

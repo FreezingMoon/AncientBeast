@@ -103,16 +103,19 @@ _gaq.push(['_trackPageview']);
 
 <body>
 <!--banner-->
-<nav id="header"><ul class="center">
+<nav>
+<ul class="center">
+<li><a href="<?php echo $site_root; ?>new"><img src="/images/AB.gif" height=32 width=32 alt="Ancient Beast"></a></li>
 <!--navigation menu-->
 <?php
-  $menu = array('bestiary', 'shop', 'game', 'media', 'blog', 'chat');
+  $menu = array('units', 'shop', 'media', 'game', 'blog', 'chat', 'user');
   foreach ($menu as &$menuItem) {
     echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '">' . strtoupper($menuItem) . '</a></li>';
-  } 
+  }
 ?>
+<li><img src="/images/AB.gif" height=32 width=32 alt="Ancient Beast"></li>
 </ul></nav>
 
 <!--main area-->
-<div id="wrapper">
-<a href="<?php echo $site_root; ?>new"><img src="/images/AB.gif" height=64 width=64 alt="Ancient Beast"><img src="/images/AncientBeast.png" height=64></a>
+<div>
+<img src="/images/AncientBeast.png" height=64></a>

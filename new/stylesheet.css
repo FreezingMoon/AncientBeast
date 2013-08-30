@@ -31,37 +31,48 @@
 body {
 	font-family: 'Play', sans-serif;
 	text-align: center;
-	margin: 0 auto;
-	width: auto;
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: auto;
 	color: #b7b7b7;
 	font-size: 18px;
 	background: black url(images/bg.jpg) no-repeat left top fixed;
 	background-size: cover;
 	text-shadow: black 0.1em 0.1em 0.2em;
+	overflow: auto;
 }
 img {
 	border: none;
 	vertical-align: bottom;
 }
-#header ul li {
+nav {
+	display: table;
+	width: 100%;
+	border-collapse: collapse;
+	border: none;
+	background: rgba(0, 0, 0, 0.4);
+	box-shadow: 0px 5px 30px 3px rgba(0,0,0,0.6);
+}
+nav ul {
+	display: table-row;
 	font-size: 32px;
 	font-family: Charlemagnestd;
 	font-weight: bold;
-	margin: 0px 20px;
-	padding: 0;
-	list-style-type: none;
-	display: inline;
+}
+nav li {
+	display: table-cell;
+	margin: 0px;
+	padding: 10px 0px;
 }
 .sections {
-	list-style-type: none;
-	width: 100%;
-	font-size: 18px;
-	font-weight: bold;
-	margin: 0;
-	padding: 0;
-	margin-left: auto;
-	margin-right: auto;
-	text-align: center;
+	display: inline-block;
+	background: rgba(0, 0, 0, 0.4);
+	box-shadow: 0px 5px 30px 3px rgba(0,0,0,0.6);
+	border-radius: 15px;
+	display: inline-block;
+	padding: 20px;
+	margin: 20px;
 }
 .center {
 	margin-left: auto!important;
@@ -75,25 +86,25 @@ img {
 	box-shadow: 0px 0px 10px black;
 }
 *:focus {outline: none;}
-#wrapper {text-align: left;}
+
 .div_top {
-	margin: 0;
+	margin: 0px;
 	background-image: url('images/div_top.png');
 	background-repeat: no-repeat;
 	height: 20px;
 	overflow: hidden;
-	padding: 0;
+	padding: 0px;
 }
 .div_center {
 	overflow: hidden;
 	background-image: url('images/div_center.png');
 	background-repeat: repeat-y;
-	margin: 0;
+	margin: 0px;
 	padding: 0px 30px;
 	position: relative;
 }
 .div_bottom {
-	margin: 0;
+	margin: 0px;
 	background-image: url('images/div_bottom.png');
 	background-repeat: no-repeat;
 	height: 20px;

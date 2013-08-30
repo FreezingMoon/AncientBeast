@@ -99,7 +99,7 @@ WATCH TRAILER // + screenies
 -->
 <div class="center">
 
-<div style="width:55%; background: rgba(0, 0, 0, 0.8); border-radius: 15px; display: inline-block; padding: 20px; margin: 20px;">
+<div class="sections" style="width:55%;">
 <h3 class="indexheader"><a href="#gameplay">Intro</a></h3>
 <p>
 <b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to aquire and items to equip onto, putting them to use in order to defeat your opponents.
@@ -138,7 +138,7 @@ foreach($images as $image) {
 
 <!--second part-->
 
-<div style="width:35%; display: inline-block; background: rgba(0, 0, 0, 0.8); border-radius: 15px; display: inline-block; padding: 20px; margin: 20px;">
+<div class="sections" style="width: 35%;">
 <p>
 After engaging in combat, players are taken to the battle field where both parties take turns to materialize and control creatures. Each player can materialize one or two creatures every round, which usually suffer from materialization sickness, meaning they won't be able to act in the current round.
 </p>
