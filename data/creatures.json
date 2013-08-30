@@ -2248,7 +2248,7 @@
 			"energy": 110,
 			"meditation": 5,
 			"initiative": 120,
-			"offense": 15,
+			"offense": 10,
 			"defense": 10,
 			"movement": 4,
 			"pierce": 7,
@@ -2288,8 +2288,8 @@
 		},
 		{
 			"title": "Tentacle Bush",
-			"desc": "Defensive stance that increases total defense and slaps nearby attackers. Becomes unmovable and skips turn.",
-			"info": "10 crush damage, 200% defense stat"
+			"desc": "Curls up to defend against attacks. Becomes unmovable and skips turn.",
+			"info": "+5 temporary defense per hit taken"
 		}
 	]
 	},
