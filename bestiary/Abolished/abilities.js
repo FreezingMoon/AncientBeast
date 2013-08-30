@@ -125,7 +125,7 @@ abilities[7] =[
 			noPath : true,
 			isAbility : true,
 			range : G.grid.getFlyingRange(crea.x,crea.y,50,crea.size,crea.id),
-			callback : function(){ ability.animation.apply(ability,arguments); },
+			callback : function(){ delete arguments[1]; ability.animation.apply(ability,arguments); },
 		});
 	},
 
