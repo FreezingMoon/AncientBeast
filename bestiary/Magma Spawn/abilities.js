@@ -30,7 +30,7 @@ abilities[4] =[
 				"Scorched Ground",this.creature,this.creature.hexagons[1],"onStepIn",
 				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
 			),
-		],this.creature.player, {turnLifetime:1} );
+		],this.creature.player, { turnLifetime : 1, ownerCreature : this.creature, fullTurnLifetime : true } );
 
 		var hex;
 		if( this.creature.player.flipped )
@@ -44,7 +44,7 @@ abilities[4] =[
 				"Scorched Ground",this.creature,hex,"onStepIn",
 				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
 			),
-		],this.creature.player, {turnLifetime:1} );
+		],this.creature.player, { turnLifetime : 1, ownerCreature : this.creature, fullTurnLifetime : true } );
 	},
 },
 

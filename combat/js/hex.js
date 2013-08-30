@@ -1224,6 +1224,8 @@ var Trap = Class.create({
 
 		var o = {
 			turnLifetime : 0,
+			fullTurnLifetime : false,
+			ownerCreature : undefined, //needed for fullTurnLifetime
 		};
 
 		$j.extend(this,o,opt);

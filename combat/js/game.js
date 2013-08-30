@@ -368,7 +368,7 @@ var Game = Class.create({
 			return;
 		}
 
-		
+
 		this.log("Active Creature : "+this.activeCreature.player.name+"'s "+this.activeCreature.name);
 		this.activeCreature.activate();
 		G.checkTime();
@@ -628,6 +628,22 @@ var Game = Class.create({
 		},
 
 		onStartPhase : function( creature, callback ){
+			for (var i = 0; i < G.grid.traps.length; i++) {
+				trap = G.grid.traps[i];
+				if(trap.turnLifetime > 0){
+					if(G.turn-trap.creationTurn >= trap.turnLifetime){
+						if(trap.fullTurnLifetime){
+							if(trap.ownerCreature == G.activeCreature){
+								trap.destroy();
+								i--;
+							}
+						}else{
+							trap.destroy();
+							i--;
+						}
+					} 
+				}
+			};
 			G.triggerDeleteEffect("onStartPhase",creature);
 			G.triggerAbility("onStartPhase",arguments);
 			G.triggerEffect("onStartPhase",[creature,creature]);
@@ -640,17 +656,6 @@ var Game = Class.create({
 		},
 
 		onStartOfRound : function( creature, callback ){
-			for (var i = 0; i < G.grid.traps.length; i++) {
-
-				trap = G.grid.traps[i];
-				
-				if(trap.turnLifetime > 0){
-					if(G.turn-trap.creationTurn >= trap.turnLifetime){
-						trap.destroy();
-						i--;	
-					} 
-				}
-			};
 			G.triggerDeleteEffect("onStartOfRound","all");
 		},
 
