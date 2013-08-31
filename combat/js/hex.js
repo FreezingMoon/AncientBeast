@@ -468,6 +468,7 @@ var HexGrid = Class.create({
 
 			//Clear display and overlay
 			G.grid.updateDisplay();
+			G.UI.xrayQueue(-1);
 
 			//Not reachable hex
 			if( !hex.reachable ){
@@ -477,6 +478,7 @@ var HexGrid = Class.create({
 					crea.hexagons.each(function(){
 						this.$overlay.addClass("hover h_player"+crea.team);	
 					});
+					G.UI.xrayQueue(crea.id);
 				}else{ //If nothing
 					hex.$overlay.addClass("hover");
 				}
