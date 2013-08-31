@@ -134,6 +134,7 @@ abilities[0] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+			optTest : function(crea){ return ( crea.size <= dpriest.player.plasma ) ; },
 			team : 0, //Team, 0 = ennemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,

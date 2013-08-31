@@ -293,6 +293,7 @@ var HexGrid = Class.create({
 			fnOnConfirm : function(crea,args){ G.activeCreature.queryMove(); },
 			fnOnSelect : function(crea,args){ crea.tracePosition({ overlayClass: "creature selected player"+crea.team }); },
 			fnOnCancel : function(hex,args){G.activeCreature.queryMove()},
+			optTest : function(crea){ return true; },
 			args : {},
 			hexs : [],
 			flipped : false,
@@ -305,6 +306,9 @@ var HexGrid = Class.create({
 		//Exclude everything but the creatures
 		o.hexs.filter(function(){
 			if( this.creature instanceof Creature && this.creature.id!=o.id ){
+				
+				if(o.optTest(this)) return false;
+
 				var creaSource = G.creatures[o.id];
 				var creaTarget = this.creature;
 
