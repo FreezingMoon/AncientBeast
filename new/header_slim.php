@@ -101,20 +101,21 @@ _gaq.push(['_trackPageview']);
 <!-- <span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="/profile">Account</a></span>
 <span style="position: absolute; margin-left: 366px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="#login" onclick="TINY.box.show({url:'/profile/logout.php',post:'id=16',width:200,height:240,opacity:40,topsplit:5})">Logout</a></span>-->
 
-<body id="<?php ?>">
+<body>
 <!--banner-->
 <nav>
 <ul class="center">
-<!--navigation menu // style="background: url(images/AB.png) no-repeat center; background-size: 300px;"-->
+<li><a href="<?php echo $site_root; ?>new"><img src="/images/AB.gif" height=32 width=32 alt="Ancient Beast"></a></li>
+<!--navigation menu-->
 <?php
-	$menu = array('units', 'shop', 'media', 'watch', 'game', 'donate', 'blog', 'chat', 'user');
-	foreach ($menu as &$menuItem) {
-	if ($menuItem == 'game') echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '"><img src="images/AncientBeast.png" height=72"><br><img src="images/AB.gif"> PLAY NOW! <img src="images/AB.gif"></a></li>';
-	else echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '"><img src="images/icons/' . $menuItem . '.svg" height=64 width=64 alt=""><br>' . strtoupper($menuItem) . '</a></li>';
-}
+  $menuz = array('units', 'shop', 'media', 'game', 'blog', 'chat', 'user');
+  foreach ($menu as &$menuItem) {
+    echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '"><img src="images/icons/' . $menuItem . '.svg" height=32 width=32 alt=""> ' . strtoupper($menuItem) . '</a></li>';
+  }
 ?>
+<li><img src="/images/AB.gif" height=32 width=32 alt="Ancient Beast"></li>
 </ul></nav>
 
 <!--main area-->
 <div>
-<!--<img src="/images/AncientBeast.png" height=64></a>-->
+<img src="/images/AncientBeast.png" height=64></a>
