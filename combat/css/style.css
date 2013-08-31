@@ -619,7 +619,7 @@ body{
 .vignette.p2 div,#abilities.p2 .ability.active::before{background-image: url("../frames/orange.png");}
 .vignette.p3 div,#abilities.p3 .ability.active::before{background-image: url("../frames/green.png");}
 
-.vignette.roundmarker div{ background-image: url('../../images/contour.png'); }
+.vignette.roundmarker div{ background-image: url('../../images/contour.png'), url('../../images/round.jpg'); }
 
 .vignette.xray { opacity: .5; }
 
