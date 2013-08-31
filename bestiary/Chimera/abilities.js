@@ -143,7 +143,7 @@ abilities[45] =[
 			flipped : chimera.player.flipped,
 			team : 3, //everyone
 			id : chimera.id,
-			requireCreature : false,
+			requireCreature : true,
 			x : chimera.x,
 			y : chimera.y,
 			directions : this.directions,
@@ -236,7 +236,7 @@ abilities[45] =[
 			flipped : chimera.player.flipped,
 			team : 3, //everyone
 			id : chimera.id,
-			requireCreature : false,
+			requireCreature : true,
 			x : chimera.x,
 			y : chimera.y,
 			directions : this.directions,
