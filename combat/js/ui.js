@@ -234,6 +234,8 @@ var UI = Class.create({
 				if(crea){
 					if(key=="health"){
 						$stat.text(crea.health+"/"+value);
+					}else if(key=="endurance"){
+						$stat.text(crea.endurance+"/"+value);
 					}else{
 						$stat.text(crea.stats[key]);
 						if(crea.stats[key]>value){ //Buff

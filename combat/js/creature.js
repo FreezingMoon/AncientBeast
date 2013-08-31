@@ -93,6 +93,7 @@ var Creature = Class.create({
 		},
 		this.stats 		= $j.extend({},this.baseStats);//Copy
 		this.health		= obj.stats.health;
+		this.endurance 	= obj.stats.endurance;
 		this.remainingMove	= 0; //Default value recovered each turn
 
 		//Abilities
@@ -173,11 +174,17 @@ var Creature = Class.create({
 		var creature = this;
 
 		if(!this.hasWait){
-			this.remainingMove = this.stats.movement;
-			this.abilities.each(function(){ this.setUsed(false); });
 
-			this.heal(this.stats.regrowth);
+			//Variables reset
+			this.remainingMove = this.stats.movement;
+			if(this.endurance > 0){
+				this.heal(this.stats.regrowth);
+			}
+			this.endurance = this.stats.endurance;
+
 			this.delayable = true;
+
+			this.abilities.each(function(){ this.setUsed(false); });
 
 			//Trigger
 			G.triggersFn.onStartPhase(creature);
@@ -790,8 +797,12 @@ var Creature = Class.create({
 			//Damages
 			var dmg = damage.apply(this);
 			var dmgAmount = dmg.total;
+			
 			this.health -= dmgAmount;
 			this.health = (this.health < 0) ? 0 : this.health; //Cap
+			
+			this.endurance -= dmgAmount;
+			this.endurance = (this.endurance < 0) ? 0 : this.endurance; //Cap
 
 			//Effects
 			damage.effects.each(function(){
@@ -801,6 +812,8 @@ var Creature = Class.create({
 			//Display
 			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
 			this.hint(nbrDisplayed,'damage d'+dmgAmount);
+
+			if(this.endurance == 0) this.hint("Fatigued",'damage');
 
 			G.log(this.player.name+"'s "+this.name+" is hit "+nbrDisplayed+" health");
 
