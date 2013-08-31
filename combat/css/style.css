@@ -591,6 +591,7 @@ body{
 
 .vignette,
 .vignette div{
+	opacity: 1;
 	overflow: hidden;
 	vertical-align: top;
 	display: inline-block;
@@ -599,11 +600,11 @@ body{
 	background-size: 100% 100%;
 	cursor: pointer;
 
-	transition: width 500ms,height 500ms;
-	-ms-transition: width 500ms,height 500ms;
-	-moz-transition: width 500ms,height 500ms; /* Firefox 4 */
-	-webkit-transition: width 500ms,height 500ms; /* Safari and Chrome */
-	-o-transition: width 500ms,height 500ms; /* Opera */
+	transition: width 500ms,opacity 500ms,height 500ms;
+	-ms-transition: width 500ms,opacity 500ms,height 500ms;
+	-moz-transition: width 500ms,opacity 500ms,height 500ms; /* Firefox 4 */
+	-webkit-transition: width 500ms,opacity 500ms,height 500ms; /* Safari and Chrome */
+	-o-transition: width 500ms,opacity 500ms,height 500ms; /* Opera */
 }
 
 .vignette.active,.vignette.active div, #playerbutton.vignette div ,#playerbutton.vignette{
@@ -617,6 +618,10 @@ body{
 .vignette.p1 div,#abilities.p1 .ability.active::before{background-image: url("../frames/blue.png");}
 .vignette.p2 div,#abilities.p2 .ability.active::before{background-image: url("../frames/orange.png");}
 .vignette.p3 div,#abilities.p3 .ability.active::before{background-image: url("../frames/green.png");}
+
+.vignette.roundmarker div{ background-image: url('../../images/contour.png'); }
+
+.vignette.xray { opacity: .5; }
 
 
 /*---------------TEXTBOX--------------*/
