@@ -564,13 +564,13 @@ var UI = Class.create({
 
 			var $Q = $vignettes.filter('[queue="'+u+'"]');
 
-			//For all element of this queue
+			//For all elements of this queue
 			for (var i = 0; i < queue.length; i++) {
 
 				//Round Marker
 				if( typeof queue[i] == "string" ){
 
-					//If this element doesnot exists
+					//If this element does not exists
 					if($Q[i] == undefined){
 						$j($Q[i-1]).after('<div queue="'+u+'" roundmarker="1" class="vignette roundmarker"><div></div></div>');
 
