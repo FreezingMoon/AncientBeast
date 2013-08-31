@@ -179,7 +179,13 @@ var Creature = Class.create({
 			this.remainingMove = this.stats.movement;
 			if(this.endurance > 0){
 				this.heal(this.stats.regrowth);
+			}else{
+				this.hint("Fatiged",'msg_effects');
+				if(this.regrowth < 0){
+					this.heal(this.stats.regrowth);
+				}
 			}
+
 			this.endurance = this.stats.endurance;
 
 			this.delayable = true;
@@ -766,7 +772,7 @@ var Creature = Class.create({
 			this.hint("!",'msg_effects');
 		}else{
 			this.hint(amount,'dammage d'+amount);
-			G.log(this.player.name+"'s "+this.name+" loses -"+amount+" health");
+			G.log(this.player.name+"'s "+this.name+" loses "+amount+" health");
 		}
 		
 
