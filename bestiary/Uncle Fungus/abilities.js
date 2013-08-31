@@ -38,8 +38,8 @@ abilities[3] =[
 					effectFn : function(effect,crea){
 						var nearFungus = false;
 						crea.adjacentHexs(1).each(function(){
-							if(trg.creature instanceof Creature){
-								if(G.creatures[trg.creature] === effect.owner)
+							if(this.creature instanceof Creature){
+								if(this.creature === effect.owner)
 									nearFungus = true;
 							}
 						});

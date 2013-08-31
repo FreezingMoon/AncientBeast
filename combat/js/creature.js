@@ -180,7 +180,7 @@ var Creature = Class.create({
 			if(this.endurance > 0){
 				this.heal(this.stats.regrowth);
 			}else{
-				this.hint("Fatiged",'msg_effects');
+				this.hint("!",'damage');
 				if(this.regrowth < 0){
 					this.heal(this.stats.regrowth);
 				}
@@ -771,7 +771,7 @@ var Creature = Class.create({
 		}else if(amount==0){
 			this.hint("!",'msg_effects');
 		}else{
-			this.hint(amount,'dammage d'+amount);
+			this.hint(amount,'damage d'+amount);
 			G.log(this.player.name+"'s "+this.name+" loses "+amount+" health");
 		}
 		
