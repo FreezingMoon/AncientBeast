@@ -180,7 +180,7 @@ var Creature = Class.create({
 			if(this.endurance > 0){
 				this.heal(this.stats.regrowth);
 			}else{
-				this.hint("Fatiged",'msg_effects');
+				this.hint("Fatigued",'msg_effects');
 				if(this.regrowth < 0){
 					this.heal(this.stats.regrowth);
 				}
