@@ -809,7 +809,7 @@ var Creature = Class.create({
 			if( !(dmgAmount == dmgAmount) ){ //Check for NaN
 				this.hint("Error",'damage');
 				G.log("Oops something went wrong !");
-				return {damages:0, kill:false}; //Killed
+				return {damages:0, kill:false};
 			}
 			
 			this.health -= dmgAmount;
