@@ -2099,7 +2099,7 @@
         "ability_info": [
             {
                 "title": "Spa Mud",
-                "desc": "Gains temporary bonus regrowth and defense when entering a mud bath.",
+                "desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
                 "info": "+10 regrowth, +10 defense"
             },
             {
