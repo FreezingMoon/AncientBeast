@@ -605,7 +605,6 @@ var Game = Class.create({
 			if(creature.effects[i].turnLifetime > 0 && trigger == creature.effects[i].deleteTrigger){
 				console.log(creature.effects[i].creationTurn);
 				if(G.turn-creature.effects[i].creationTurn >= creature.effects[i].turnLifetime){
-					console.log("lol2");
 					creature.effects[i].deleteEffect();
 					i--;	
 				} 
@@ -630,6 +629,7 @@ var Game = Class.create({
 		onStartPhase : function( creature, callback ){
 			for (var i = 0; i < G.grid.traps.length; i++) {
 				trap = G.grid.traps[i];
+				if(trap == undefined) continue;
 				if(trap.turnLifetime > 0){
 					if(G.turn-trap.creationTurn >= trap.turnLifetime){
 						if(trap.fullTurnLifetime){
@@ -689,12 +689,14 @@ var Game = Class.create({
 		for (var i = this.creatures.length - 1; i >= 0; i--) {
 			if(this.creatures[i] instanceof Creature){
 				for (var j = this.creatures[i].abilities.length - 1; j >= 0; j--) {
-					if(G.triggers.oncePerDamageChain.test(this.creatures[i].abilities[j].trigger)){
-						this.creatures[i].abilities[j].triggeredThisChain = false;
-					}
+					this.creatures[i].abilities[j].triggeredThisChain = false;
 				};
 			}
 		};
+
+		for (var i = 0; i < G.effects.length; i++) {
+			G.effects[i].triggeredThisChain = false;
+		}
 	},
 
 	/*	endGame()
@@ -801,6 +803,7 @@ var Game = Class.create({
 		}
 		opt = $j.extend(defaultOpt,opt);
 
+		G.clearOncePerDamageChain();
 		switch(o.action){
 			case "move":
 				G.activeCreature.moveTo(G.grid.hexs[o.target.y][o.target.x],{callback : opt.callback});

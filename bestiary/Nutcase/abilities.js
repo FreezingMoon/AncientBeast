@@ -260,7 +260,6 @@ abilities[40] =[
 					);
 					this.triggeredThisChain = true;
 					damage.attacker.takeDamage(retailation);
-					this.triggeredThisChain = false;
 				},
 				triggeredThisChain : false,
 				alterations : {defense : "*2",moveable : false},

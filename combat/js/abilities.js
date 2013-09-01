@@ -23,6 +23,7 @@ var Ability = Class.create({
 		if( !this.require() ) return;
 		if( this.used == true ){ G.log("Ability already used!"); return; }
 		G.grid.clearHexViewAlterations();
+		G.clearOncePerDamageChain();
 		G.UI.selectAbility(this.id);
 		return this.query();
 	},
@@ -38,7 +39,6 @@ var Ability = Class.create({
 		G.UI.updateInfos(); //Just in case
 		if(this.trigger == "onQuery"){
 			G.activeCreature.queryMove();
-			G.clearOncePerDamageChain();
 			G.activeCreature.delayable = false;
 			G.UI.btnDelay.changeState("disabled");
 		}
@@ -138,7 +138,9 @@ var Ability = Class.create({
 
 			setTimeout(function(){ 	
 				G.animationQueue.filter(function(){ return (this!=anim_id); });
-				if( G.animationQueue.length == 0 ) G.freezedInput = false;
+				if( G.animationQueue.length == 0 ){
+					G.freezedInput = false;
+				}
 			},this.animation_datas.duration);
 		}
 

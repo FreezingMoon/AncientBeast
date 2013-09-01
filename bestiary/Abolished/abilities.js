@@ -19,6 +19,7 @@ abilities[7] =[
 		if( this.used ) return false;
 		if( !this.testRequirements() ) return false;
 		if( damage == undefined ) damage = {type:"target"}; //For the test function to work
+		if( this.triggeredThisChain ) return false;
 		return true;
 	},
 
@@ -26,6 +27,7 @@ abilities[7] =[
 	activate : function(damage){
 		var targets = this.getTargets(this.creature.adjacentHexs(1));
 		this.end();
+		this.triggeredThisChain = true;
 		
 		this.areaDamage(
 			this.creature, //Attacker

@@ -803,6 +803,12 @@ var Creature = Class.create({
 			//Damages
 			var dmg = damage.apply(this);
 			var dmgAmount = dmg.total;
+
+			if( dmgAmount == dmgAmount ){ //Check for NaN
+				this.hint("Error",'damage');
+				G.log("Oops something went wrong !");
+				return {damages:0, kill:false}; //Killed
+			}
 			
 			this.health -= dmgAmount;
 			this.health = (this.health < 0) ? 0 : this.health; //Cap
