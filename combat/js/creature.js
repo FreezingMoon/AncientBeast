@@ -810,6 +810,10 @@ var Creature = Class.create({
 			this.endurance -= dmgAmount;
 			this.endurance = (this.endurance < 0) ? 0 : this.endurance; //Cap
 
+			if( this.endurance == 0 && this.findEffect('Fatigued').length == 0 ){ 
+				this.addEffect( new Effect( "Fatigued", this, this, "", { alterations : {regrowth : -1*this.baseStats.regrowth } } ) );
+			} //Fatigued effect
+
 			//Effects
 			damage.effects.each(function(){
 				creature.addEffect(this);
@@ -818,8 +822,6 @@ var Creature = Class.create({
 			//Display
 			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
 			this.hint(nbrDisplayed,'damage d'+dmgAmount);
-
-			if(this.endurance == 0) this.hint("Fatigued",'damage');
 
 			G.log(this.player.name+"'s "+this.name+" is hit "+nbrDisplayed+" health");
 
@@ -1028,5 +1030,15 @@ var Creature = Class.create({
 		var x = ( this.player.flipped ) ? this.x+1-this.size : this.x;
 		return G.grid.getHexMap( x , this.y - map.origin[1] , 0-map.origin[0] , this.player.flipped , map );
 	},
+
+	findEffect : function(name){
+		var ret = [];
+		this.effects.each(function(){
+			if( this.name == name ){
+				ret.push(this);
+			}
+		});
+		return ret;
+	}
 
 });

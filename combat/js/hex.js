@@ -306,8 +306,8 @@ var HexGrid = Class.create({
 		//Exclude everything but the creatures
 		o.hexs.filter(function(){
 			if( this.creature instanceof Creature && this.creature.id!=o.id ){
-				
-				if(o.optTest(this)) return false;
+
+				if( !o.optTest(this) ) return false;
 
 				var creaSource = G.creatures[o.id];
 				var creaTarget = this.creature;
