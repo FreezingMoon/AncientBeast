@@ -8,10 +8,11 @@ abilities[3] =[
 // 	First Ability: Spore Contamination
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onStepIn onStartPhase",
+	trigger : "onStepIn onStartPhase onOtherStepIn",
 
 	// 	require() :
-	require : function(){
+	require : function(hex){
+		if( hex != this.creature.hexagons[0] && this.creature.adjacentHexs(1).indexOf(hex) == -1 ) return false;
 		return this.testRequirements();
 	},
 
@@ -182,7 +183,14 @@ abilities[3] =[
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			callback : function(){
-				G.activeCreature.queryMove();
+				G.triggersFn.onStepIn(ability.creature,ability.creature.hexagons[0]);
+
+				var interval = setInterval(function(){
+					if(!G.freezedInput){
+						clearInterval(interval);
+						G.activeCreature.queryMove();
+					}
+				},100)				
 			},
 		}); 
 
