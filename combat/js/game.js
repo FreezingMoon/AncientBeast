@@ -588,7 +588,7 @@ var Game = Class.create({
 	},
 
 	triggerDeleteEffect : function( trigger, creature ){
-		if( creature = "all" ){
+		if( creature == "all" ){
 			for (var i = 0; i < G.effects.length; i++) {
 				effect = G.effects[i];
 				if(effect.turnLifetime > 0 && trigger == effect.deleteTrigger){
@@ -603,7 +603,6 @@ var Game = Class.create({
 
 		for (var i = 0; i < creature.effects.length; i++) {
 			if(creature.effects[i].turnLifetime > 0 && trigger == creature.effects[i].deleteTrigger){
-				console.log(creature.effects[i].creationTurn);
 				if(G.turn-creature.effects[i].creationTurn >= creature.effects[i].turnLifetime){
 					creature.effects[i].deleteEffect();
 					i--;	

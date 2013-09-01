@@ -176,13 +176,15 @@ var Creature = Class.create({
 		if(!this.hasWait){
 
 			//Variables reset
+			this.updateAlteration();
 			this.remainingMove = this.stats.movement;
 			if(this.endurance > 0){
 				this.heal(this.stats.regrowth);
 			}else{
-				this.hint("!",'damage');
-				if(this.regrowth < 0){
+				if(this.stats.regrowth < 0){
 					this.heal(this.stats.regrowth);
+				}else{
+					this.hint("!",'damage');	
 				}
 			}
 
@@ -804,10 +806,10 @@ var Creature = Class.create({
 			var dmg = damage.apply(this);
 			var dmgAmount = dmg.total;
 
-			if( dmgAmount == dmgAmount ){ //Check for NaN
+			if( !(dmgAmount == dmgAmount) ){ //Check for NaN
 				this.hint("Error",'damage');
 				G.log("Oops something went wrong !");
-				return {damages:0, kill:false}; //Killed
+				return {damages:0, kill:false};
 			}
 			
 			this.health -= dmgAmount;
@@ -817,7 +819,19 @@ var Creature = Class.create({
 			this.endurance = (this.endurance < 0) ? 0 : this.endurance; //Cap
 
 			if( this.endurance == 0 && this.findEffect('Fatigued').length == 0 ){ 
-				this.addEffect( new Effect( "Fatigued", this, this, "", { alterations : {regrowth : -1*this.baseStats.regrowth } } ) );
+				this.addEffect( new Effect( 
+					"Fatigued", 
+					this, 
+					this, 
+					"", 
+					{ 
+						alterations : { regrowth : -1*this.baseStats.regrowth } ,
+						creationTurn : G.turn-1,
+						turnLifetime : 1,
+						deleteTrigger : "onEndPhase"
+					} 
+				) );
+
 			} //Fatigued effect
 
 			//Effects
