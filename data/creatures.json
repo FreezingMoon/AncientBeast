@@ -332,7 +332,7 @@
     		},
     		{
     			"title": "Deadly Jab",
-    			"desc": "Horn attack that gains bonus offense based on the last distance traveled.",
+    			"desc": "Horn attack that gains extra damage based on the last distance traveled.",
     			"info": "12 pierce damage + 2 more / hexagon"
     		},
     		{
@@ -734,7 +734,7 @@
             },
             {
                 "title": "Blowing Wind",
-                "desc": "Pushes away any creature for several hexagons, depending on its size.",
+                "desc": "Pushes away any creature for several hexagons, depending on unit's size.",
                 "info": "range = 5 hexagons - creature size"
             },
             {
@@ -849,7 +849,7 @@
             {
                 "title": "Royal Seal",
                 "desc": "Sticks chewing gum in place to hinder enemy movement for a turn.",
-                "info": "Allied units are not affected by this."
+                "info": "Allied units are affected by this."
             },
             {
                 "title": "Boom Box",
@@ -2099,7 +2099,7 @@
         "ability_info": [
             {
                 "title": "Spa Mud",
-                "desc": "Gains temporary bonus regrowth and defense when entering a mud bath.",
+                "desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
                 "info": "+10 regrowth, +10 defense"
             },
             {
