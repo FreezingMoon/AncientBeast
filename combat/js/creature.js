@@ -857,7 +857,7 @@ var Creature = Class.create({
 			//Trigger
 			if(!ignoreRetaliation) G.triggersFn.onDamage(this,damage);
 
-			return {damages:dmg, kill:false}; //Not Killed
+			return {damages:dmg, damageObj:damage, kill:false}; //Not Killed
 		}else{
 			if(damage.status == "Dodged"){ //If dodged
 				G.log(this.player.name+"'s "+this.name+" dodged the attack");

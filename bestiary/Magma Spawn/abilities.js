@@ -247,7 +247,7 @@ abilities[4] =[
 			1, //Area
 			[]	//Effects
 		);
-		target.takeDamage(damage);
+		var ret = target.takeDamage(damage,true);
 
 
 		//Movement
@@ -263,7 +263,17 @@ abilities[4] =[
 			ignorePath : true,
 			callback : function(){
 				path.each(function(){this.destroyTrap();});
-				G.activeCreature.queryMove();
+				
+				if( ret.damageObj instanceof Damage )
+					G.triggersFn.onDamage(target,ret.damageObj);
+
+				var interval = setInterval(function(){
+					if(!G.freezedInput){
+						clearInterval(interval);
+						G.activeCreature.queryMove();
+					}
+				},100)
+				
 			},
 		});
 	},
