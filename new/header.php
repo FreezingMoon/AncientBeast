@@ -109,8 +109,8 @@ _gaq.push(['_trackPageview']);
 <?php
 	$menu = array('units', 'shop', 'media', 'watch', 'game', 'donate', 'blog', 'chat', 'user');
 	foreach ($menu as &$menuItem) {
-	if ($menuItem == 'game') echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '"><img src="images/AncientBeast.png" height=72"><br><img src="images/AB.gif"> PLAY NOW! <img src="images/AB.gif"></a></li>';
-	else echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '"><img src="images/icons/' . $menuItem . '.svg" height=64 width=64 alt=""><br>' . strtoupper($menuItem) . '</a></li>';
+	if ($menuItem == 'game') echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '"><img src="' . $site_root . 'new/images/AncientBeast.png" height=72"><br><img src="' . $site_root . 'new/images/AB.gif"> PLAY NOW! <img src="' . $site_root . 'new/images/AB.gif"></a></li>';
+	else echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '"><img src="' . $site_root . 'new/images/icons/' . $menuItem . '.svg" height=64 width=64 alt=""><br>' . strtoupper($menuItem) . '</a></li>';
 }
 ?>
 </ul></nav>
