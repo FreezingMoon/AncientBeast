@@ -67,7 +67,7 @@ var Game = Class.create({
 		this.loadedCreatures = [
 			0, //Dark Priest
 			37, //Swine Thug
-			//3, //Uncle Fungus
+			3, //Uncle Fungus
 			4, //Magma Spawn
 			45, //Chimera
 			12, //Snow Bunny
