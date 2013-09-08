@@ -10,23 +10,29 @@ abilities[3] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStepIn onStartPhase onOtherStepIn",
 
+	priority : 10,
+
 	// 	require() :
 	require : function(hex){
-		if( hex != this.creature.hexagons[0] && this.creature.adjacentHexs(1).indexOf(hex) == -1 ) return false;
-		return this.testRequirements();
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ) return false;
+		
+		var targets = this.getTargets(this.creature.adjacentHexs(1));
+		
+		for (var i = 0; i < targets.length; i++) {
+			if( targets[i] == undefined ) continue;
+			if( !(targets[i].target instanceof Creature) ) continue;
+			if( !targets[i].target.isAlly(this.creature.team) && targets[i].target.findEffect("Contaminated").length == 0 )
+				return this.testRequirements();
+		};
+
+		return false
 	},
 
 	//	activate() : 
 	activate : function() {
+		var ability = this;
 		var creature = this.creature;
 		var targets = this.getTargets(this.creature.adjacentHexs(1));
-
-		if( this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
-			this.end();
-			this.setUsed(false); //Infinite triggering
-		}else{
-			return false;
-		}
 
 		targets.each(function(){
 			if( !(this.target instanceof Creature) ) return;
@@ -39,8 +45,11 @@ abilities[3] =[
 					alterations : {regrowth : -5},
 					creationTurn : G.turn-1,
 					turnLifetime : 1,
-					deleteTrigger : "onEndPhase"
+					deleteTrigger : "onEndPhase",
+					stackable : false
 				};
+
+				ability.end();
 
 				//Spore Contamination
 				var effect = new Effect(
@@ -51,9 +60,9 @@ abilities[3] =[
 					optArg //Optional arguments
 				);
 
-				if( trg.findEffect("Contaminated").length == 0 ){
-					trg.addEffect(effect);
-				}
+				trg.addEffect(effect);
+
+				ability.setUsed(false); //Infinite triggering
 			}
 		})
 	},

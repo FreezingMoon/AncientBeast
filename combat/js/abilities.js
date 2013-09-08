@@ -8,6 +8,7 @@ var Ability = Class.create({
 		this.creature = creature;
 		this.used = false;
 		this.id = abilityID;
+		this.priority = 0; //Priority for same trigger
 		var datas = G.retreiveCreatureStats(creature.type);
 		$j.extend(this,abilities[datas.id][abilityID],datas.ability_info[abilityID]);
 	},
@@ -413,7 +414,8 @@ var Effect = Class.create({
 			effectFn : function(){},
 			alterations : {},
 			turnLifetime : 0,
-			deleteTrigger : "onStartOfRound"
+			deleteTrigger : "onStartOfRound",
+			stackable : true
 		},optArgs);
 
 		$j.extend(this,args);
