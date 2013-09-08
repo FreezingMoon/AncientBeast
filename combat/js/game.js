@@ -67,7 +67,7 @@ var Game = Class.create({
 		this.loadedCreatures = [
 			0, //Dark Priest
 			37, //Swine Thug
-			3, //Uncle Fungus
+			//3, //Uncle Fungus
 			4, //Magma Spawn
 			45, //Chimera
 			12, //Snow Bunny
@@ -75,11 +75,11 @@ var Game = Class.create({
 			14, //Gumble
 			7, //Abolished
 			40, //Nutcase
-			39, //Headless
-			33, //Golden Wyrm
-			44, //Scavenger
-			31, //Cyber Hound
-			6, //Ice Demon
+			//39, //Headless
+			//33, //Golden Wyrm
+			//44, //Scavenger
+			//31, //Cyber Hound
+			//6, //Ice Demon
 			]; 
 		this.availableMusic = [ //epic fail, just scan directory
 			//"Distant Realms by Moonthief.ogg",
