@@ -52,7 +52,7 @@ header li {
 	margin: 0px;
 	padding: 5px 0px;
 }
-.sections {
+.section {
 	display: inline-block;
 	background: rgba(0, 0, 0, 0.4);
 	box-shadow: 0px 5px 20px 3px rgba(0,0,0,0.7);

@@ -50,13 +50,12 @@ require_once('header.php'); ?>
 });
 </script>
 
-<article>
 <!--replace video with image that opens lightbox player on click, also include images (screenshots) on homepage along with features
 WATCH TRAILER // + screenies
 <div class="center"><iframe width="880" height="495" src="//www.youtube.com/embed/cAgf9hKGI3k?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
 -->
 
-<div class="sections" style="width:60%;">
+<main style="width:60%;" class="section">
 
 <screenies class="center">
 <?php
@@ -100,38 +99,10 @@ Players are represented on the combat field by Dark Priests. All creature stats 
 Players can level up by gaining experience on the combat field, gaining 1 more plasma point each level, being able to materialize more and/or better creatures. In order to materialize a creature you own, it takes a number of plasma points equal to the creature's level plus the number of hexagons it occupies. Any creature owned can be materialized just once per combat, provided the player has enough plasma points to do so.<br>
 When fighting players of lower levels, you will temporarely lose plasma points in order to balance the fight.
 </p>
-<!--<h3>Plot</h3>
-<p>
-It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the RepRap project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
+</main>
 
-Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield; split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strong will survive.
-</p>-->
-</div>
-
-<!--second part-->
-<!-- have 3 screenies + video-->
-<side class="sections" style="width:30%;">
+<right class="section" style="width:30%;">
 <img src="images/ABlogo.png" width=400px>
-</side>
+</right>
 
-<!--
-<div class="sections" style="width: 35%;">
-<p>
-After engaging in combat, players are taken to the battle field where both parties take turns to materialize and control creatures. Each player can materialize one or two creatures every round, which usually suffer from materialization sickness, meaning they won't be able to act in the current round.
-</p>
-<p>
-<b>Health:</b> A raw number representing the amount of damage a creature can take until it dies.<br>
-<b>Regrowth:</b> Amount of health which gets restored to the creature every round.<br>
-<b>Endurance:</b> If a creature takes over a certain amount of damage in a round, it becomes fatigued, unable to act.<br>
-<b>Energy:</b> Doing any action, including moving, drains energy from the creature.<br>
-<b>Meditation:</b> Creature gains back this amount of energy points every round.<br>
-<b>Initiative:</b> Creatures with higher initiative get to act faster each round.<br>
-<b>Offense:</b> Influences the damage output of attacks.<br>
-<b>Defense:</b> Protects the creature by reducing incoming damage.<br>
-<b>Movement:</b> Each creature can move up to a certain number of hexagons each turn.<br>
-<b>Masteries</b> can have an impact on the effectiveness of the creature's abilities and can also help reduce incoming damage and even protect the creature from harmfull effects.
-</p>-->
-
-</div>
-</article>
 </body></html>

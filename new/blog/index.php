@@ -26,5 +26,13 @@ require_once("../header.php");?>
 	$("body").attr("id","blog");
 	$(document).attr('title', 'AncientBeast - Blog');
 </script>
-
+<news class="section" style="width:20%;">
+recent news
+</news>
+<article class="section" style="width:40%;">
+selected article
+</article>
+<disqus class="section" style="width:25%;">
+<?php require_once("disqus.js");?>
+</disqus>
 </body></html>
