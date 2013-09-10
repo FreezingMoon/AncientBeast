@@ -30,7 +30,8 @@ require_once('header.php'); ?>
 <script>
 	$("body").attr("id","home");
 	$(document).attr('title', 'AncientBeast - Online PvP TBS Game');
-$(document).ready(function() {
+	//TODO: review the need of the code below
+	$(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");
 	$("a[rel=pop]").fancybox({
 		'overlayColor'  : 'black',
@@ -73,11 +74,24 @@ foreach($images as $image) {
 
 <p>
 <b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to aquire and items to equip onto, putting them to use in order to defeat your opponents.
+</p>
+
 <p>
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> (and community). It uses web languages such as HTML, PHP and JavaScript, so that it's playable from any modern browser without the need of plugins.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 </p>
 
-<h3>Gameplay</h3>
+<links>
+<ul>
+	<li><a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">Github</a></li>
+	<li><a href="https://wuala.com/AncientBeast" target="_blank">Wuala</a></li>
+	<li><a href="https://ancient-beast.deviantart.com" target="_blank">deviantArt</a></li>
+	<li><a href="https://www.facebook.com/AncientBeast" target="_blank">Facebook</a></li>
+	<li><a href="https://twitter.com/AncientBeast" target="_blank">Twitter</a></li>
+	<li><a href="https://plus.google.com/b/113034814032002995836" target="_blank">Google</a></li>
+	<li><a href="https://www.youtube.com/user/AncientBeastGame" target="_blank">YouTube</a></li>
+</ul>
+</links>
+
 <p>
 Fights take place between 2 - 4 players, on a variety of visual combat fields, the grid being 16x9 hexagons. Plasma is a vital resource during combat, keeping players away from harm while also allowing them to materialize units in order to defend themselves or vanquish foes. Winner of the match is usually the last player standing, but when time limits are involved, the played with highest score can win. Killing creatures results in score points, also each unit drops a specific power-up that can aid more or less when picked up.
 </p>

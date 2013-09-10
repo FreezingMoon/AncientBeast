@@ -66,6 +66,24 @@ header li {
 	margin-right: auto!important;
 	text-align: center!important;
 }
+links {
+	display: table;
+	width: 100%;
+	border-collapse: collapse;
+	border: none;
+}
+links ul {
+	display: table-row;
+	font-size: 1.4em;
+	font-family: Charlemagnestd;
+	font-weight: bold;
+}
+links li {
+	display: table-cell;
+	margin: 0px;
+	padding: 0px;
+}
+
 .lighten {
 	display: block;
 }
