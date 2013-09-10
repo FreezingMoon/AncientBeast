@@ -32,14 +32,14 @@
 	cursor: default;
 	background-position: center;
 }
-.section.cardborder{
+.region.cardborder{
 	background-image: url('<?php echo $site_root; ?>images/cards/margin.png');
 	border: 0px; 
 	width: 430px;
 	display: block;
 	height: 550px;
 }
-.section {
+.region {
 	color: #fff;
 	border-style: solid;
 	border-color: transparent;
@@ -178,10 +178,10 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 	echo '
 	<table class="center" border=0>
 		<th class="card recto" style="background-image: url(\'' . $site_root . 'bestiary/' . $r['name'] . '/artwork.jpg\');">
-			<a href="#' . $underscore . '" class="section cardborder">';
+			<a href="#' . $underscore . '" class="region cardborder">';
 				//Display 3d creature if option enabled
 				if ($embed == 1) echo '<div class="embed"><iframe frameborder="0" height="520" width="400" src="http://sketchfab.com/embed/' . $r['embed'] . '?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe></div>';
-				echo '<table class="section info sin' . $r['realm'] . '">
+				echo '<table class="region info sin' . $r['realm'] . '">
 					<tr>
 						<td class="type" style="width:20%;">'.$r['realm'].$r['lvl'].'</td>
 						<td><audio src="' . $spaceless . '/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
@@ -192,8 +192,8 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 			</a>
 		</th>
 		<th class="card verso sin' . $r['realm'] . '">
-			<div class="section cardborder">
-				<table class="section">
+			<div class="region cardborder">
+				<table class="region">
 					<tr class="numbers">';
 					//Display Stats Numbers
 					$i=0;
@@ -204,7 +204,7 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 					echo '
 					</tr>
 				</table>
-				<div class="section abilities">';
+				<div class="region abilities">';
 			  	//Display Abilities
 				for ($i=0; $i < 4; $i++) { 
 				 	# code...
@@ -224,7 +224,7 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 				}
 				echo '
 				</div>
-				<table class="section">
+				<table class="region">
 					<tr class="numbers">';
 					//Display Masteries Numbers
 					$i=0;
