@@ -39,7 +39,7 @@ require_once("../header.php");?>
 <img src="FGD.png" alt="FreeGameDev Ancient Beast SubForum"></a>
 </buttons>
 <br>
-<iframe src='http://webchat.freenode.net?channels=AncientBeast' width='900' height='390'></iframe>
+<iframe style="border-radius:5px;" src='http://webchat.freenode.net?channels=AncientBeast' width='880' height='390'></iframe>
 </div>
 
 <!--provide this as an optional tab, replacing the chat
@@ -61,7 +61,7 @@ require_once("../header.php");?>
 </script>
 
 <!--Facebook Widget-->
-<iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FAncientBeast&amp;width=285&amp;height=350&amp;colorscheme=dark&amp;show_faces=true&amp;header=false&amp;stream=false&amp;show_border=false&amp;appId=354537111308544" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:285px; height:350px; background:#333;" allowTransparency="true"></iframe>
+<iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FAncientBeast&amp;width=285&amp;height=350&amp;colorscheme=dark&amp;show_faces=true&amp;header=false&amp;stream=false&amp;show_border=false&amp;appId=354537111308544" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:285px; height:350px; background:#333; border-radius:3px;" allowTransparency="true"></iframe>
 </social>
 
 

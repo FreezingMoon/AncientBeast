@@ -8,7 +8,7 @@ body {
 	width: 100%;
 	height: auto;
 	color: #b7b7b7;
-	font-size: 18px;
+	font-size: 1.4em;
 	background-color: black;
 	background-repeat: no-repeat;
 	background-attachment: fixed;
@@ -18,7 +18,13 @@ body {
 	overflow: auto;
 }
 body#home {background-image: url(media/wallpapers/Lust_Realm_by_Ramon_Miranda.jpg);}
-body#units {background-image: url(media/wallpapers/Dark_Priest_by_AshiRox.jpg);}
+body#units {background-image: url(media/wallpapers/Sloth_Realm_by_David_Revoy.jpg);}
+body#shop {background-image: url(media/wallpapers/Golden_Wyrm_by_AshiRox.jpg);}
+body#media {background-image: url(media/wallpapers/Symbol_by_MoonThief.jpg);}
+body#watch {background-image: url(media/wallpapers/Dark_Priest_by_AshiRox.jpg);}
+body#game {background-image: url(media/wallpapers/Dark_Priest_minimalistic_by_AshiRox.jpg);}
+body#donate {background-image: url(media/wallpapers/Adaptation_by_Katarzyna_Zalecka.jpg);}
+body#blog {background-image: url(media/wallpapers/Chimera_by_AshiRox.jpg);}
 body#chat {background-image: url(media/wallpapers/Abolished_by_AshiRox.jpg);}
 body#user {background-image: url(media/wallpapers/Reaper_by_Katarzyna_Zalecka.jpg);}
 
@@ -32,7 +38,7 @@ header {
 	border-collapse: collapse;
 	border: none;
 	background: rgba(0, 0, 0, 0.4);
-	box-shadow: 0px 5px 30px 3px rgba(0,0,0,0.6);
+	box-shadow: 0px 5px 20px 3px rgba(0,0,0,0.7);
 	margin-bottom: 10px;
 }
 header ul {
@@ -49,7 +55,7 @@ header li {
 .sections {
 	display: inline-block;
 	background: rgba(0, 0, 0, 0.4);
-	box-shadow: 0px 5px 30px 3px rgba(0,0,0,0.6);
+	box-shadow: 0px 5px 20px 3px rgba(0,0,0,0.7);
 	border-radius: 15px;
 	display: inline-block;
 	padding: 20px;
@@ -141,9 +147,3 @@ a.rollover:hover > img {
 #bluemask {background:#4195aa}
 #frameless {padding:0}
 #frameless .tclose {left:6px}
-
-.indexheader {
-  margin: 0 auto 0 auto;
-  font-weight: bold;
-  text-align: center;
-}
