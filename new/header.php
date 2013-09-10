@@ -26,49 +26,26 @@ require_once('global.php'); ?>
 <!doctype html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="google-site-verification" content="uNVUkWjGPKwXaFK-BkOowVezLve8a8rjbM_ew1UHiZg">
 <meta name="description" content="Turn Based Strategy Game Played Online Against Other People. Master your beasts!">
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, strategy, combat, arena, free, foss, open source, card, chess, creatures, bitcoin, bets">
 <meta name="author" content="Dread Knight">
 
-<script type="application/javascript" src="/utils/tinybox.js"></script>
-<script type="text/javascript" >
-var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
-</script>
-
-<link rel="alternate" type="application/rss+xml" title="Ancient Beast Blog (RSS 2.0)" href="<?php echo $site_url; ?>blog/feed/" />
-
-<!--set page title-->
-<title>
-<?php
-  if (isset($page_title)) {
-	  echo $page_title;
-  }
-  else {
-  	echo "AncientBeast - Online PvP TBS Game";
-  }
-?>
-</title>
-    
+<script src="/utils/tinybox.js"></script>
+<script>var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";</script>
+<link rel="alternate" type="application/rss+xml" title="Ancient Beast Blog (RSS 2.0)" href="<?php echo $site_url; ?>blog/feed/">
 <link rel="stylesheet" href="<?php echo $site_root; ?>new/stylesheet.css">
 <link rel="stylesheet" href="<?php echo $site_root; ?>combat/css/grid.css">
-<?php
-  if (isset($style)) {
-  	echo '<style type="text/css">' . $style . '</style>';
-  }
-  if (isset($stylesheet)) {
-	  echo '<link rel="stylesheet" href="' . $stylesheet . '">';
-  } 
-?>
-<!--flattr-->
-<script type="application/javascript" src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
+
 <!--jquery-->
-<script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-<!--pixastic-->
-<script type="application/javascript" src="<?php echo $site_root; ?>utils/pixastic.js"></script>
-<script type="application/javascript" src="<?php echo $site_root; ?>utils/lighten.js"></script>
-<script type="application/javascript">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<!--flattr-->
+<script src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
+<!--pixastic; deprecate?-->
+<script src="<?php echo $site_root; ?>utils/pixastic.js"></script>
+<script src="<?php echo $site_root; ?>utils/lighten.js"></script>
+<script>
 $(document).ready(function(){
 	$('.lighten').each(function(){
 		$(this).mouseenter(function() {
@@ -81,7 +58,7 @@ $(document).ready(function(){
 });
 </script>
 <!--google analytics-->
-<script type="text/javascript">
+<script>
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-2840181-5']);
 _gaq.push(['_trackPageview']);
@@ -101,9 +78,8 @@ _gaq.push(['_trackPageview']);
 <!-- <span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="/profile">Account</a></span>
 <span style="position: absolute; margin-left: 366px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="#login" onclick="TINY.box.show({url:'/profile/logout.php',post:'id=16',width:200,height:240,opacity:40,topsplit:5})">Logout</a></span>-->
 
-<body id="<?php ?>">
-<!--banner-->
-<nav>
+<body>
+<header>
 <ul class="center">
 <!--navigation menu // style="background: url(images/AB.png) no-repeat center; background-size: 300px;"-->
 <?php
@@ -113,8 +89,6 @@ _gaq.push(['_trackPageview']);
 	else echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '"><img src="' . $site_root . 'new/images/icons/' . $menuItem . '.svg" height=64 width=64 alt=""><br>' . strtoupper($menuItem) . '</a></li>';
 }
 ?>
-</ul></nav>
+</ul></header>
 
 <!--main area-->
-<div>
-<!--<img src="/images/AncientBeast.png" height=64></a>-->

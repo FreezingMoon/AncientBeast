@@ -1,11 +1,3 @@
-<!--//include copyright info
-//include style as php variable
-//include header
-//content
-//footer?
--->
-
-
 <?php
 /* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
  * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
@@ -30,49 +22,14 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$style = '
-.bigger {
-	font-size: 28px;
-}
-.realms {
-	height: 370px;
-	text-align: center;
-	padding-top: 10px;
-	width: 890px;
-	font-weight: bold;
-}
-.name_footer_realm {
-	position: absolute;
-	bottom: 20px;
-	text-align: center;
-	width: 127px;
-	height:20px;
-	font-size: 15px;
-	z-index:999;
-}
-.name_bg {
-	position: absolute;
-	bottom: 21px;
-	width: 127px;
-	height:20px;
-	background-color:#000;
-	opacity:0.5;
-}
-.cut_hover {
-	width:127px;
-	height:400px;
-}
-a.FM:hover {
-	text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;
-}';
-require_once('header.php'); 
-?>
-<script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script type="application/javascript" src="media/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="application/javascript" src="media/fancybox/jquery.easing-1.3.pack.js"></script>
-<script type="application/javascript" src="media/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
-<link rel="stylesheet" href="media/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
-<script type="application/javascript">
+require_once('header.php'); ?>
+<script src="new/media/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+<script src="new/media/fancybox/jquery.easing-1.3.pack.js"></script>
+<script src="new/media/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
+<link rel="stylesheet" href="new/media/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
+<script>
+	$("body").attr("id","home");
+	$(document).attr('title', 'AncientBeast - Online PvP TBS Game');
 $(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");
 	$("a[rel=pop]").fancybox({
@@ -122,6 +79,8 @@ It's the year 2653. In the last centuries, technology advanced exponentially and
 
 Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield; split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strong will survive.
 </p>
+
+<!--not working atm-->
 <?php
 echo '<div class="center">';
 $images = scandir('media/screenshots');
@@ -137,7 +96,7 @@ foreach($images as $image) {
 </div>
 
 <!--second part-->
-
+<!-- have 3 screenies + video-->
 <div class="sections" style="width: 35%;">
 <p>
 After engaging in combat, players are taken to the battle field where both parties take turns to materialize and control creatures. Each player can materialize one or two creatures every round, which usually suffer from materialization sickness, meaning they won't be able to act in the current round.
@@ -157,6 +116,5 @@ After engaging in combat, players are taken to the battle field where both parti
 </p>
 
 </div>
-</div>
 </article>
-<?php end_page(); ?>
+</body></html>

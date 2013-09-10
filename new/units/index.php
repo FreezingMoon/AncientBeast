@@ -23,22 +23,16 @@
  */
 
 $page_title = 'Ancient Beast - Bestiary';
-require_once('../header.php');
+require_once('../header.php');?>
+<script>$("body").attr("id","units");</script><?php
 require_once('../global.php');
 require_once('../images/stats/index.php');
 require_once('functions.php');
 require_once('cards.php');
 require_once('grid.php');
 
-
 $creature_results = get_creatures();
-//navigation bar
-//TODO
-//start_segment();
-//echo '<nav>Modes: Normal | List | Versus - Log-in to purchase creatures. || You own x out of 50 creatures. - View: 2D/3D - SketchFab gallery</nav>';
-//end_segment();
-//get link php variable
-//if normal, list or versus...
+//TODO: reuse code with the game
 
 //grid view
 echo '<style type="text/css">
@@ -60,17 +54,10 @@ echo "<br>";
 $i = 0;
 foreach ($creature_results as $r) {
 	$underscore = str_replace(' ', '_', $r['name']);
-	start_segment($underscore);
 	cards($r);
 	echo '<br>';
+	//progress should only be shown in units page at most
 	progress($r["progress"],$r);
-	end_segment();
 	$i++;
-}
-
-start_segment();
-echo '<div class="center">Please let us know your top 3 favorite creatures by commenting below. Any other feedback also welcome!</div>';
-separate_segment();
-include('../utils/disqus.php');
-end_segment();
-end_page(); ?>
+}?>
+</body></html>

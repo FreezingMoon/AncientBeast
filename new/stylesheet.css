@@ -1,32 +1,4 @@
-/* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
- * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
- *
- * This file is part of Ancient Beast.
- *
- * Ancient Beast is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Ancient Beast is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * http://www.AncientBeast.com
- * https://github.com/FreezingMoon/AncientBeast
- * DreadKnight@FreezingMoon.org
- */
-
 @import url(http://fonts.googleapis.com/css?family=Play:400,700);
-
-@font-face {
-	font-family: Charlemagnestd;
-	src: url('/charlemagnestd-bold.otf');
-}
 
 body {
 	font-family: 'Play', sans-serif;
@@ -37,33 +9,42 @@ body {
 	height: auto;
 	color: #b7b7b7;
 	font-size: 18px;
-	background: black url(images/bg.jpg) no-repeat left top fixed;
+	background-color: black;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-position: left top;
 	background-size: cover;
 	text-shadow: black 0.1em 0.1em 0.2em;
 	overflow: auto;
 }
+body#home {background-image: url(media/wallpapers/Lust_Realm_by_Ramon_Miranda.jpg);}
+body#units {background-image: url(media/wallpapers/Dark_Priest_by_AshiRox.jpg);}
+body#chat {background-image: url(media/wallpapers/Abolished_by_AshiRox.jpg);}
+body#user {background-image: url(media/wallpapers/Reaper_by_Katarzyna_Zalecka.jpg);}
+
 img {
 	border: none;
 	vertical-align: bottom;
 }
-nav {
+header {
 	display: table;
 	width: 100%;
 	border-collapse: collapse;
 	border: none;
 	background: rgba(0, 0, 0, 0.4);
 	box-shadow: 0px 5px 30px 3px rgba(0,0,0,0.6);
+	margin-bottom: 10px;
 }
-nav ul {
+header ul {
 	display: table-row;
 	font-size: 28px;
 	font-family: Charlemagnestd;
 	font-weight: bold;
 }
-nav li {
+header li {
 	display: table-cell;
 	margin: 0px;
-	padding: 10px 0px;
+	padding: 5px 0px;
 }
 .sections {
 	display: inline-block;
@@ -87,29 +68,6 @@ nav li {
 }
 *:focus {outline: none;}
 
-.div_top {
-	margin: 0px;
-	background-image: url('images/div_top.png');
-	background-repeat: no-repeat;
-	height: 20px;
-	overflow: hidden;
-	padding: 0px;
-}
-.div_center {
-	overflow: hidden;
-	background-image: url('images/div_center.png');
-	background-repeat: repeat-y;
-	margin: 0px;
-	padding: 0px 30px;
-	position: relative;
-}
-.div_bottom {
-	margin: 0px;
-	background-image: url('images/div_bottom.png');
-	background-repeat: no-repeat;
-	height: 20px;
-	margin-bottom: 10px;
-}
 A:link {text-decoration: none; color: #b7b7b7;}
 A:visited {text-decoration: none; color: #b7b7b7;}
 A:active {text-decoration: none; color: #b7b7b7;}
