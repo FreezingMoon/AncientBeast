@@ -81,28 +81,3 @@ function db_query($query) {
 	}
 	return true;
 }
-
-// Page generation
-function start_segment($x="") {
-	if ($x != NULL) {
-		echo "<div class='div_top' id='$x'></div>";
-	}
-	else {
-		echo "<div class='div_top'></div>";
-	}
-	echo "<div class='div_center'>";
-}
-function end_segment() {
-	echo "</div><div class=\"div_bottom\"></div>";
-}
-function separate_segment($x="") {
-	end_segment() . start_segment($x);
-}
-function end_page() {
-	start_segment(); ?>
-	</div>
-	</body>
-	</html>
-<?php
-}
-?>

@@ -60,6 +60,7 @@ header li {
 	display: inline-block;
 	padding: 20px;
 	margin: 20px;
+	vertical-align: top;
 }
 .center {
 	margin-left: auto!important;

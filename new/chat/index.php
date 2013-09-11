@@ -27,7 +27,20 @@ require_once("../header.php");?>
 	$(document).attr('title', 'AncientBeast - Chat');
 </script>
 
-<div class="section">
+<ad class="section" style="height:755px;">
+<img src="ad.jpg" style="border-radius:15px 15px 0px 0px;"><br>
+<script><!--
+google_ad_client = "ca-pub-9983172600670141";
+/* New AB */
+google_ad_slot = "6980399466";
+google_ad_width = 300;
+google_ad_height = 600;
+//-->
+</script>
+<script src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+</ad>
+
+<content class="section">
 <buttons>
 <a href="http://www.indiedb.com/games/ancient-beast" title="View Ancient Beast on Indie DB" target="_blank">
 <img src="http://button.indiedb.com/popularity/medium/games/21552.png" alt="Ancient Beast"></a>
@@ -59,6 +72,10 @@ require_once("../header.php");?>
 <!--Facebook Widget-->
 <iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FAncientBeast&amp;width=285&amp;height=350&amp;colorscheme=dark&amp;show_faces=true&amp;header=false&amp;stream=false&amp;show_border=false&amp;appId=354537111308544" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:285px; height:350px; background:#333; border-radius:3px;" allowTransparency="true"></iframe>
 </social>
-</div>
+</content>
+
+<disqus class="section" style="height:755px;">
+<?php require_once("../disqus.js");?>
+</disqus>
 
 </body></html>

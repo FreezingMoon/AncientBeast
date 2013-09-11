@@ -33,6 +33,6 @@ recent news
 selected article
 </article>
 <disqus class="section" style="width:25%;">
-<?php require_once("disqus.js");?>
+<?php require_once("../disqus.js");?>
 </disqus>
 </body></html>
