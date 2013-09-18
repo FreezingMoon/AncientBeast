@@ -168,6 +168,9 @@ var Game = Class.create({
 				var data = G.creatureJSON[G.loadedCreatures[j]];
 				G.creatureDatas.push(data);
 
+				//Load Creature Sound
+				G.soundsys.getSound("../bestiary/"+data.name+'/'+data.name+'.ogg',1000+G.loadedCreatures[j],function(){ G.loadFinish() });
+
 				//Loads Creature abilities
 				getScript('../bestiary/'+data.name+'/abilities.js',function(){ G.loadFinish() });
 
@@ -897,6 +900,14 @@ var Player = Class.create({
 	summon: function(type,pos){
 		var data = G.retreiveCreatureStats(type);
 		data = $j.extend(data,pos,{team:this.id}); //create the full data for creature creation
+		for (var i = G.creatureJSON.length - 1; i >= 0; i--) {
+			if(
+				G.creatureJSON[i].type == type && 
+				i!=0 ) // Avoid Darkpriest Announce at the begining of a match
+			{
+				G.soundsys.playSound(G.soundLoaded[1000+i],G.soundsys.announcerGainNode);
+			}
+		};
 		var creature = new Creature(data);
 		this.creatures.push(creature);
 	},
@@ -1077,6 +1088,7 @@ var Soundsys = Class.create({
 		o = $j.extend({
 			music_volume : 1,
 			effects_volume : 1,
+			announcer_volume : 1
 		},o);
 
 		$j.extend(this,o);
@@ -1095,6 +1107,10 @@ var Soundsys = Class.create({
 		//Effects
 		this.effectsGainNode = this.context.createGain();
 		this.effectsGainNode.connect(this.context.destination);
+
+		//Announcner
+		this.announcerGainNode = this.context.createGain();
+		this.announcerGainNode.connect(this.context.destination);
 	},
 
 	playMusic: function(musicID){
@@ -1126,8 +1142,6 @@ var Soundsys = Class.create({
 		source.start(0);
 		return source;
 	}
-
-
 });
 
 
