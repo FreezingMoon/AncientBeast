@@ -649,13 +649,14 @@ body{
 
 /*---------------TEXTBOX--------------*/
 #chat{
-	width: 800px;
+	width: 400px;
 	height: 40px;
-	background-color: black;
+	background-color: rgba(0,0,0,0.9);
 	position: absolute;
 	left: 50%;
 	bottom: 0px;
-	margin-left: -400px;
+	margin-left: -200px;
+	border-radius: 10px 0px;
 	transition: height 500ms;	
 	-ms-transition: height 500ms;	
 	-moz-transition: height 500ms; /* Firefox 4 */
