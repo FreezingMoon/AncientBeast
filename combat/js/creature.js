@@ -135,6 +135,7 @@ var Creature = Class.create({
 		G.reorderQueue();
 
 		this.delayable = true;
+		this.materializeSickness = true;
 		
 		this.summon();
 	},
@@ -172,6 +173,8 @@ var Creature = Class.create({
 	activate: function(){
 		this.travelDist = 0;
 		var creature = this;
+
+		this.materializeSickness = false;
 
 		if(!this.hasWait){
 

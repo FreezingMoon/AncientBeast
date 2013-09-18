@@ -448,7 +448,8 @@
             {
                 "title": "Greater Pyre",
                 "desc": "Fries all adjacent creatures after taking damage and still being alive.",
-                "info": "15 burn damage nearby"
+                "info": "15 burn damage nearby",
+                "affectedByMatSickness": 1
             },
             {
                 "title": "Fiery Claw",
@@ -725,7 +726,8 @@
             {
                 "title": "Bunny Hopping",
                 "desc": "Moves away one hexagon from first enemy that comes nearby frontaly.",
-                "info": "Works only once every game round."
+                "info": "Works only once every game round.",
+                "affectedByMatSickness": 1
             },
             {
                 "title": "Big Nip",

@@ -89,6 +89,9 @@ var Ability = Class.create({
 				arguments[0].each(function(){ array.push({x:this.x,y:this.y}); });
 				G.gamelog.add({action:"ability",target:{type:"array",array:array},id:this.id,args:args});
 			}
+		} else {
+			//Test for materialisation sickness
+			if(this.creature.materializeSickness && this.affectedByMatSickness) return false;
 		}
 		
 		return this.animation2({arg:arguments});
