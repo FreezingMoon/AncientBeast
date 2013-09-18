@@ -602,7 +602,11 @@ var UI = Class.create({
 						var $queues = this.$queue.children('.queue[turn]');
 					}else{
 						while( $j($Q[i]).attr("creatureid") != queue[i].id ){
-							if( $j($Q[i]).attr("initiative") < initiative ) {
+							if( 
+								$j($Q[i]).attr("creatureid") == undefined || 
+								$j($Q[i]).attr("initiative") < initiative
+								) 
+							{
 								$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div class="frame"></div><div class="stats"></div></div>');
 								this.$queue.children('.queue').children('.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').css({width:0}).transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
 							}else{

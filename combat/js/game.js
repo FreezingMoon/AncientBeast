@@ -457,7 +457,7 @@ var Game = Class.create({
 		setTimeout(function(){
 			G.turnThrottle=false;
 			G.UI.btnSkipTurn.changeState("normal");
-			if(!G.activeCreature.hasWait && (G.delayQueue.length+G.queue.length!=0) ) G.UI.btnDelay.changeState("normal");
+			if(!G.activeCreature.hasWait && G.activeCreature.delayable && (G.delayQueue.length+G.queue.length!=0) ) G.UI.btnDelay.changeState("normal");
 			o.callback.apply();
 		},1000)
 		var skipTurn = new Date();
