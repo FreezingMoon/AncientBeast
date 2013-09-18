@@ -635,7 +635,7 @@ var UI = Class.create({
 			this.updateFatigue();
 
 			//Set active creature
-			this.$queue.children('.queue').children('.vignette').filter(".active").removeClass("active"); //Avoid bugs
+			//this.$queue.children('.queue').children('.vignette').filter(".active").removeClass("active"); //Avoid bugs
 			this.$queue.children('.queue[queue="0"]').children('.vignette[queue="0"]').first().addClass("active");
 
 			//Add mouseover effect

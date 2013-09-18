@@ -605,14 +605,21 @@ body{
 	-webkit-transition: width 500ms,opacity 500ms,height 500ms; /* Safari and Chrome */
 	-o-transition: width 500ms,opacity 500ms,height 500ms; /* Opera */
 }
+.vignette .frame{
+	height: 100%;
+	width: 100%;
+}
 
 .vignette .stats{
 	display: block;
-	width: 78px;
+	overflow: hidden;
+	box-sizing: border-box;
+	width: 100%;
 	height: 18px;
 	border: 1px solid #555;
 	background: black;
 	color: white;
+	font-size: 14px;
 	transition: height 500ms;
 	-ms-transition: height 500ms;
 	-moz-transition: height 500ms; /* Firefox 4 */
