@@ -269,7 +269,7 @@ var Creature = Class.create({
 			range : G.grid.getMovementRange(this.x,this.y,this.remainingMove,this.size,this.id),
 			callback : function(hex,args){
 				G.gamelog.add({action:"move",target:{x:hex.x,y:hex.y}});
-				args.creature.delayable = true;
+				args.creature.delayable = false;
 				G.UI.btnDelay.changeState("disabled");
 				args.creature.moveTo(hex,{
 					callback : function(){ G.activeCreature.queryMove() }

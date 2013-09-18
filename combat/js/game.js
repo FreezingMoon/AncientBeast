@@ -445,7 +445,7 @@ var Game = Class.create({
 	*/
 	delayCreature: function(o){
 		if(G.turnThrottle) return;
-		if(this.activeCreature.hasWait || !this.activeCreature.delayable) return;
+		if(this.activeCreature.hasWait || !this.activeCreature.delayable || G.delayQueue.length + G.queue.length==0 ) return;
 
 		o = $j.extend({
 			callback: function(){},

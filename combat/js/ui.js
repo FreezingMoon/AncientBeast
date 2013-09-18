@@ -53,6 +53,7 @@ var UI = Class.create({
 		this.btnSkipTurn = new Button({
 			$button : $j("#skip.button"),
 			click : function(e){ if(!G.UI.dashopen){
+				if(G.turnThrottle) return;
 				G.gamelog.add({action:"skip"});
 				G.skipTurn();
 			}},
@@ -63,6 +64,8 @@ var UI = Class.create({
 		this.btnDelay = new Button({
 			$button : $j("#delay.button"),
 			click : function(e){ if(!G.UI.dashopen){ 
+				if(G.turnThrottle) return;
+				if(G.activeCreature.hasWait || !G.activeCreature.delayable || G.delayQueue.length + G.queue.length==0 ) return;
 				G.gamelog.add({action:"delay"});
 				G.delayCreature();
 			}},
