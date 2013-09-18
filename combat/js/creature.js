@@ -1027,6 +1027,7 @@ var Creature = Class.create({
 		G.nextQueue.removePos(this);
 		G.delayQueue.removePos(this);
 		G.reorderQueue();
+		G.grid.updateDisplay(); 
 
 		if(G.activeCreature === this){ G.nextCreature(); return; } //End turn if current active creature die
 

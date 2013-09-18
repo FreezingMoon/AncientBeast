@@ -670,7 +670,8 @@ var UI = Class.create({
 
 		G.creatures.each(function(){
 			if(this instanceof Creature){
-				$j('.queue .vignette[creatureid="'+this.id+'"]').children(".stats").text( this.endurance + "/" + this.stats.endurance );
+				var text = (this.endurance > 0) ? this.endurance + "/" + this.stats.endurance : "Fatigued";
+				$j('.queue .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
 			}
 		});
 		

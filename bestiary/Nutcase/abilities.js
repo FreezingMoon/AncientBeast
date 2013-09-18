@@ -189,17 +189,23 @@ abilities[40] =[
 			1, //Area
 			[]	//Effects
 		);
-		result = target.takeDamage(damage);
 
 		// Swap places
-		if( target.size > 2 ) return;
+		if( target.size > 2 ){
+			target.takeDamage(damage);
+			return;
+		} 
 
 		this.creature.moveTo(
 			G.grid.hexs[target.y][target.x],
 			{
 				ignorePath:true,
 				ignoreMovementPoint:true,
-				callback:function(){ ability.creature.updateHex(); target.updateHex(); G.grid.updateDisplay(); }
+				callback:function(){ 
+					target.updateHex(); 
+					G.grid.updateDisplay(); 
+					target.takeDamage(damage);
+				}
 			}
 		);
 		target.moveTo(
@@ -207,7 +213,10 @@ abilities[40] =[
 			{
 				ignorePath:true,
 				ignoreMovementPoint:true,
-				callback:function(){ ability.creature.updateHex(); target.updateHex(); G.grid.updateDisplay(); }
+				callback:function(){
+					ability.creature.updateHex(); 
+					G.grid.updateDisplay();
+				}
 			}
 		);
 	},
