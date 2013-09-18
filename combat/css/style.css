@@ -590,9 +590,8 @@ body{
 }
 
 .vignette,
-.vignette div{
+.vignette .frame{
 	opacity: 1;
-	overflow: hidden;
 	vertical-align: top;
 	display: inline-block;
 	height: 80px;
@@ -607,19 +606,36 @@ body{
 	-o-transition: width 500ms,opacity 500ms,height 500ms; /* Opera */
 }
 
-.vignette.active,.vignette.active div, #playerbutton.vignette div ,#playerbutton.vignette{
+.vignette .stats{
+	display: block;
+	width: 78px;
+	height: 18px;
+	border: 1px solid #555;
+	background: black;
+	color: white;
+	transition: height 500ms;
+	-ms-transition: height 500ms;
+	-moz-transition: height 500ms; /* Firefox 4 */
+	-webkit-transition: height 500ms; /* Safari and Chrome */
+	-o-transition: height 500ms; /* Opera */
+}
+.vignette.active .stats{
+	height: 0px;
+}
+
+.vignette.active,.vignette.active .frame, #playerbutton.vignette .frame ,#playerbutton.vignette{
 	height: 100px;
 	width: 100px;
 }
 
 /*#queue .vignette.hidden,#queue .vignette.hidden div{width: 0px; height: 80px;}*/
 
-.vignette.p0 div,#abilities.p0 .ability.active::before{background-image: url("../frames/red.png");}
-.vignette.p1 div,#abilities.p1 .ability.active::before{background-image: url("../frames/blue.png");}
-.vignette.p2 div,#abilities.p2 .ability.active::before{background-image: url("../frames/orange.png");}
-.vignette.p3 div,#abilities.p3 .ability.active::before{background-image: url("../frames/green.png");}
+.vignette.p0 .frame,#abilities.p0 .ability.active::before{background-image: url("../frames/red.png");}
+.vignette.p1 .frame,#abilities.p1 .ability.active::before{background-image: url("../frames/blue.png");}
+.vignette.p2 .frame,#abilities.p2 .ability.active::before{background-image: url("../frames/orange.png");}
+.vignette.p3 .frame,#abilities.p3 .ability.active::before{background-image: url("../frames/green.png");}
 
-.vignette.roundmarker div{ background-image: url('../../images/contour.png'), url('../../images/round.jpg'); }
+.vignette.roundmarker .frame{ background-image: url('../../images/contour.png'), url('../../images/round.jpg'); }
 
 .vignette.xray { opacity: .5; }
 

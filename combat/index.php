@@ -314,7 +314,7 @@ require_once('../bestiary/cards.php');
 				<div id="playertabswrapper">
 					<?php for ($i=0; $i < 4; $i++){
 						echo '<div class="playertabs p'.$i.'"  player="'.$i.'">
-								<div class="vignette active p'.$i.'"><div></div></div>
+								<div class="vignette active p'.$i.'"><div class="frame"></div></div>
 								<div class="infos">
 									<h3 class="name"></h3>
 									<p class="score">0 Score</p>
@@ -344,7 +344,7 @@ require_once('../bestiary/cards.php');
 				<div id="queue">
 					<div id="queuewrapper"></div>
 				</div>
-				<div id="playerbutton" class="toggledash vignette active"><div></div></div>
+				<div id="playerbutton" class="toggledash vignette active"><div class="frame"></div></div>
 				<div id="playerinfos" style="cursor:default;">
 					<p class="name"></p>
 					<p class="points"><span></span> Points</p>

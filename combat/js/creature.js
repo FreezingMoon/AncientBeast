@@ -818,6 +818,8 @@ var Creature = Class.create({
 			this.endurance -= dmgAmount;
 			this.endurance = (this.endurance < 0) ? 0 : this.endurance; //Cap
 
+			G.UI.updateFatigue();
+
 			if( this.endurance == 0 && this.findEffect('Fatigued').length == 0 ){ 
 				this.addEffect( new Effect( 
 					"Fatigued", 

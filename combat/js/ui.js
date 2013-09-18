@@ -572,7 +572,7 @@ var UI = Class.create({
 
 					//If this element does not exists
 					if($Q[i] == undefined){
-						$j($Q[i-1]).after('<div queue="'+u+'" roundmarker="1" class="vignette roundmarker"><div></div></div>');
+						$j($Q[i-1]).after('<div queue="'+u+'" roundmarker="1" class="vignette roundmarker"><div class="frame"></div><div class="stats">Round '+(G.turn+1)+'</div></div>');
 
 						//Updating
 						var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
@@ -586,9 +586,9 @@ var UI = Class.create({
 					//If this element doesnot exists
 					if($Q[i] == undefined){
 						if(i==0){
-							$j($queues[u]).append('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
+							$j($queues[u]).append('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div class="frame"></div><div class="stats"></div></div>');
 						}else{
-							$j($Q[i-1]).after('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
+							$j($Q[i-1]).after('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div class="frame"></div><div class="stats"></div></div>');
 						}
 						//Updating
 						var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
@@ -603,7 +603,7 @@ var UI = Class.create({
 					}else{
 						while( $j($Q[i]).attr("creatureid") != queue[i].id ){
 							if( $j($Q[i]).attr("initiative") < initiative ) {
-								$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div></div></div>');
+								$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div class="frame"></div><div class="stats"></div></div>');
 								this.$queue.children('.queue').children('.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').css({width:0}).transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
 							}else{
 								$j($Q[i]).attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
@@ -624,6 +624,8 @@ var UI = Class.create({
 					var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
 				}
 			}
+
+			this.updateFatigue();
 
 			//Set active creature
 			this.$queue.children('.queue').children('.vignette').filter(".active").removeClass("active"); //Avoid bugs
@@ -662,6 +664,16 @@ var UI = Class.create({
 	xrayQueue : function(creaID){
 		this.$queue.children('.queue').children('.vignette').removeClass("xray");
 		if(creaID>0) this.$queue.children('.queue').children('.vignette').not('[creatureid="'+creaID+'"]').addClass("xray");
+	},
+
+	updateFatigue : function(){
+
+		G.creatures.each(function(){
+			if(this instanceof Creature){
+				$j('.queue .vignette[creatureid="'+this.id+'"]').children(".stats").text( this.endurance + "/" + this.stats.endurance );
+			}
+		});
+		
 	}
 
 });
