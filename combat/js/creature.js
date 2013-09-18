@@ -677,7 +677,7 @@ var Creature = Class.create({
 	*
 	*/
 	getInitiative: function(wait){
-		return ((this.stats.initiative*4-this.team)+(1000*!(!!wait*!!this.hasWait)))*1000-this.id; //To avoid 2 identical initiative
+		return (this.stats.initiative*500-this.id)+(500000*!(!!wait && !!this.hasWait)); //To avoid 2 identical initiative
 	},
 
 
