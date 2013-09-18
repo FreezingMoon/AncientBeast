@@ -111,11 +111,12 @@ abilities[0] =[
 		}
 
 		//Search Lowest target cost
-		var lowestCost = 0;
+		var lowestCost = 99;
 		var targets = this.getTargets(range);
 
 		targets.each(function(){
-			if( lowestCost < this.size ) lowestCost = this.size;			
+			if( !(this.target instanceof Creature) ) return false;
+			if( lowestCost > this.target.size ) lowestCost = this.target.size;			
 		});
 
 		if(this.creature.player.plasma < lowestCost){
@@ -134,7 +135,7 @@ abilities[0] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			optTest : function(crea){ return ( crea.size <= dpriest.player.plasma ) ; },
+			optTest : function(hex){ return ( hex.creature.size <= dpriest.player.plasma ) ; },
 			team : 0, //Team, 0 = ennemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
