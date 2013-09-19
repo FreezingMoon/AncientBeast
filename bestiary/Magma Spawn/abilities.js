@@ -247,7 +247,7 @@ abilities[4] =[
 			1, //Area
 			[]	//Effects
 		);
-		var ret = target.takeDamage(damage,true);
+		
 
 
 		//Movement
@@ -268,6 +268,8 @@ abilities[4] =[
 						this.destroyTrap();
 					}
 				});
+
+				var ret = target.takeDamage(damage,true);
 				
 				if( ret.damageObj instanceof Damage )
 					G.triggersFn.onDamage(target,ret.damageObj);
