@@ -216,6 +216,7 @@ abilities[40] =[
 				callback:function(){
 					ability.creature.updateHex(); 
 					G.grid.updateDisplay();
+					ability.creature.queryMove(); 
 				}
 			}
 		);
