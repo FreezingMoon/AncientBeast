@@ -350,6 +350,16 @@ var UI = Class.create({
 					$j('#materialize_button p').text("Please select an available unit from the left grid");
 				}else if (G.activeCreature.type!="--"){
 					$j('#materialize_button p').text("The current active unit cannot materialize others");
+				}else if (
+					G.activeCreature.type=="--" &&
+					G.activeCreature.player.id!=player
+				){
+					$j('#materialize_button p').text("Switch to your own tab to materialize");
+					$j('#materialize_button').addClass("glowing");
+					//Bind button
+					$j('#materialize_button').bind('click',function(e){
+						G.UI.showCreature("--",G.activeCreature.player.id)
+					});
 				}
 			}
 
