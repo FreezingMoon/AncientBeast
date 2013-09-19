@@ -49,6 +49,28 @@ var UI = Class.create({
 		});
 		this.buttons.push(this.btnToggleDash);
 
+		//Audio Button
+		this.btnFlee = new Button({
+			$button : $j("#audio.button"),
+			click : function(e){ if(!G.UI.dashopen){
+				if( G.turn < G.minimumTurnBeforeFleeing ){
+					alert("You cannot flee the match in the first 10 rounds.");
+					return;
+				}
+				if( G.activeCreature.player.isLeader() ){
+					alert("You cannot flee the match while being in lead.");
+					return;
+				}
+
+				if(window.confirm("Are you sure you want to flee the match?")){
+					G.gamelog.add({action:"flee"});
+					G.activeCreature.player.flee();
+				}
+			}},
+			state : "disabled",
+		});
+		this.buttons.push(this.btnFlee);
+
 		//Skip Turn Button
 		this.btnSkipTurn = new Button({
 			$button : $j("#skip.button"),
@@ -101,14 +123,15 @@ var UI = Class.create({
 			// console.log(keypressed);
 
 			hotkeys = {
+				overview: 113, //Q
 				attack: 119, //W
 				ability: 101, //E
 				ultimate: 114, //R
-				overview: 97, //A
+				audio: 97, //A
 				skip: 115, //S
 				delay: 100, //D
 				flee: 102, //F
-				chat: 99, //C
+				chat: 13, //return
 			};
 
 			var prevD = false;

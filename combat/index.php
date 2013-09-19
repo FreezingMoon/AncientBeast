@@ -25,7 +25,7 @@
 // Utility
 if(!file_exists(dirname(__FILE__) . "/../config.php"))
 	die("Warning: config.php not found, please edit config.php.in to point to a database and save it as config.php<br>Disclaimer: Since this project is web based, you can use the code and assets along with database.sql to host Ancient Beast yourself for testing and development purposes only! Also, your version should not be indexable by search engines because that can cause harm to the project!");
-require_once("../config.php");
+require_once("../config.php"); //only needed for multiplayer
 require_once("../bestiary/functions.php");
 require_once('../bestiary/cards.php');
 
@@ -352,6 +352,7 @@ require_once('../bestiary/cards.php');
 					<p ><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 				</div>
 				<div id="rightpanel">
+					<div style="position:relative"><div id="audio" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey A</div><span>Music Player</span><p>Listen to some really fine epic tracks.</p></div></div>
 					<div style="position:relative"><div id="skip" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey S</div><span>Skip Turn</span><p>End the turn of the current creature and proceed with the next in queue.</p></div></div>
 					<div style="position:relative"><div id="delay" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey D</div><span>Delay Creature</span><p>Delayed creatures will act at the end of the round, if alive and still able to.</p></div></div>
 					<div style="position:relative"><div id="flee" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey F</div><span>Flee Match</span><p>Give up but only after first 12 rounds.</p></div></div>
