@@ -694,7 +694,7 @@ body{
 }
 
 #chat.focus #chatbox{
-	height: 100%;
+	height: 305px;
 	overflow-y: scroll;
 }
 
