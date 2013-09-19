@@ -158,6 +158,12 @@ abilities[45] =[
 		ability.creature.abilities[0].abilityTriggered(1);
 		ability.end();
 
+		var invertFlipped = ( 
+			( path[0].direction == 4 && !ability.creature.player.flipped )  || 
+			( path[0].direction == 1 && ability.creature.player.flipped ) 
+		);
+		console.log(invertFlipped)
+
 		var target = path.last().creature;
 
 		var damage = new Damage(
@@ -171,10 +177,11 @@ abilities[45] =[
 		
 		while(result.kill){
 
-			var hexs = G.grid.getHexMap(target.x,target.y,0,target.flipped,straitrow);
+			var hexs = ability.creature.getHexMap(straitrow,invertFlipped);
 			var newTarget = false;
 			for (var i = 0; i < hexs.length; i++) {
 				if(hexs[i].creature instanceof Creature) {
+					if(hexs[i].creature == ability.creature) continue;
 					var target = hexs[i].creature;
 					newTarget = true;
 					break;

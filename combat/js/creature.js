@@ -1039,6 +1039,7 @@ var Creature = Class.create({
 
 		//Queue cleaning
 		G.UI.updateActivebox();
+		G.UI.updateQueueDisplay(); //Just in case
 	},
 
 
@@ -1057,9 +1058,9 @@ var Creature = Class.create({
 	*
 	*	shortcut convenience function to grid.getHexMap
 	*/
-	getHexMap : function(map){
-		var x = ( this.player.flipped ) ? this.x+1-this.size : this.x;
-		return G.grid.getHexMap( x , this.y - map.origin[1] , 0-map.origin[0] , this.player.flipped , map );
+	getHexMap : function(map,invertFlipped){
+		var x = ( this.player.flipped || invertFlipped ) ? this.x+1-this.size : this.x;
+		return G.grid.getHexMap( x , this.y - map.origin[1] , 0-map.origin[0] , ( this.player.flipped || invertFlipped ) , map );
 	},
 
 	findEffect : function(name){
