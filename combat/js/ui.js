@@ -354,7 +354,7 @@ var UI = Class.create({
 					G.activeCreature.type=="--" &&
 					G.activeCreature.player.id!=player
 				){
-					$j('#materialize_button p').text("Switch to your own tab to materialize");
+					$j('#materialize_button p').text("Switch to your own tab to be able to materialize");
 					$j('#materialize_button').addClass("glowing");
 					//Bind button
 					$j('#materialize_button').bind('click',function(e){
