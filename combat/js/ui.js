@@ -753,7 +753,7 @@ var Chat = Class.create({
 
 	addMsg : function(msg,htmlclass){
 		var time = new Date(new Date() - G.startMatchTime);
-		this.$content.append("<p class='"+htmlclass+"''><i>"+zfill(time.getHours()-1,2)+":"+zfill(time.getMinutes(),2)+":"+zfill(time.getSeconds(),2)+"</i> "+msg+"</p>");
+		this.$content.append("<p class='"+htmlclass+"''><i>"+zfill(time.getUTCHours(),2)+":"+zfill(time.getMinutes(),2)+":"+zfill(time.getSeconds(),2)+"</i> "+msg+"</p>");
 		this.$content.parent().scrollTop(this.$content.height());
 	},
 });
