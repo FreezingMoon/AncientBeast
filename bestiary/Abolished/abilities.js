@@ -222,6 +222,8 @@ abilities[7] =[
 		var ability = this;
 		var crea = this.creature;
 
+		inRangeCreatures = crea.hexagons[1].adjacentHex(4);;
+
 		var range = crea.hexagons[1].adjacentHex(3);
 
 		var head = range.indexOf(crea.hexagons[0]);
@@ -232,22 +234,39 @@ abilities[7] =[
 		G.grid.queryHexs({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			fnOnSelect : function(hex,args){
+				hex.adjacentHex(1).each(function(){
+					if( this.creature instanceof Creature ){
+						if( this.creature == crea ){ //If it is abolished
+							crea.adjacentHexs(1).each(function(){
+								if( this.creature instanceof Creature ){
+									if( this.creature == crea ){ //If it is abolished
+										crea.adjacentHexs(1).overlayVisualState("creature selected weakDmg player"+this.creature.team);
+										this.overlayVisualState("creature selected weakDmg player"+this.creature.team);	
+									}else{
+										this.overlayVisualState("creature selected weakDmg player"+this.creature.team);	
+									}
+								}else{
+									this.overlayVisualState("creature selected weakDmg player"+G.activeCreature.team);
+								}
+							});
+						}else{
+							this.overlayVisualState("creature selected weakDmg player"+this.creature.team);	
+						}
+					}else{
+						this.overlayVisualState("creature selected weakDmg player"+G.activeCreature.team);
+					}
+				});
+
+				hex.cleanOverlayVisualState();
 				if( hex.creature instanceof Creature ){
 					hex.overlayVisualState("creature selected player"+hex.creature.team);
 				}else{
 					hex.overlayVisualState("creature selected player"+G.activeCreature.team);
 				}				
-
-				hex.adjacentHex(1).each(function(){
-					if( this.creature instanceof Creature ){
-						this.overlayVisualState("creature selected weakDmg player"+this.creature.team);
-					}else{
-						this.overlayVisualState("creature selected weakDmg player"+G.activeCreature.team);
-					}
-				});
 			},
 			id : this.creature.id,
 			hexs : range,
+			hideNonTarget : true,
 		});
 	},
 
