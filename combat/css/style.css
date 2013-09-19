@@ -649,13 +649,14 @@ body{
 
 /*---------------TEXTBOX--------------*/
 #chat{
-	width: 400px;
-	height: 40px;
+	width: 450px;
+	height: 30px;
 	background-color: rgba(0,0,0,0.9);
 	position: absolute;
 	left: 50%;
 	bottom: 0px;
-	margin-left: -200px;
+	margin-left: -225px;
+	padding: 5px;
 	border-radius: 10px 10px 0px 0px;
 	transition: height 500ms;	
 	-ms-transition: height 500ms;	
@@ -686,7 +687,8 @@ body{
 
 #chat #chatbox #chatcontent{
 	padding: 10px;
-	font-size: 14px;
+	padding-bottom:0px;
+	font-size: 1.1em;
 	color: white;
 }
 
