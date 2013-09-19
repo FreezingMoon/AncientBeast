@@ -335,7 +335,7 @@ var Game = Class.create({
 	nextRound: function(){
 		G.grid.clearHexViewAlterations();
 		this.turn++;
-		this.log("Round "+this.turn);
+		this.log("Round "+this.turn,"roundmarker");
 		this.queue = this.nextQueue.slice(0); //Copy queue
 
 		this.delayQueue = [];
@@ -404,9 +404,9 @@ var Game = Class.create({
 	* 	Display obj in the console log and in the game log
 	*
 	*/
-	log: function(obj){	
+	log: function(obj,htmlclass){	
 		console.log(obj);
-		this.UI.chat.addMsg(obj);
+		this.UI.chat.addMsg(obj,htmlclass);
 	},
 
 

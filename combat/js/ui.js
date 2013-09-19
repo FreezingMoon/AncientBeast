@@ -734,16 +734,17 @@ var Chat = Class.create({
 		this.$chat = $j("#chat");
 		this.$content = $j("#chatcontent");
 		this.$chat.bind('click',function(){G.UI.chat.toggle();});
+		$j("#combatwrapper,#toppanel,#dash,#endscreen").bind('click',function(){G.UI.chat.hide();});
 	},
 
 
 	show : function(){ this.$chat.addClass("focus"); },
 	hide : function(){ this.$chat.removeClass("focus"); },
-	toggle : function(){ this.$chat.toggleClass("focus"); },
+	toggle : function(){ this.$chat.toggleClass("focus"); this.$content.parent().scrollTop(this.$content.height());},
 
-	addMsg : function(msg){
+	addMsg : function(msg,htmlclass){
 		var time = new Date(new Date() - G.startMatchTime);
-		this.$content.append("<p>"+zfill(time.getHours()-1,2)+":"+zfill(time.getMinutes(),2)+":"+zfill(time.getSeconds(),2)+" "+msg+"</p>");
+		this.$content.append("<p class='"+htmlclass+"''><i>"+zfill(time.getHours()-1,2)+":"+zfill(time.getMinutes(),2)+":"+zfill(time.getSeconds(),2)+"</i> "+msg+"</p>");
 		this.$content.parent().scrollTop(this.$content.height());
 	},
 });

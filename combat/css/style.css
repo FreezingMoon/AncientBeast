@@ -664,7 +664,7 @@ body{
 #chat{
 	width: 450px;
 	height: 30px;
-	background-color: rgba(0,0,0,0.9);
+	background-color: rgba(0,0,0,0.8);
 	position: absolute;
 	left: 50%;
 	bottom: 0px;
@@ -692,17 +692,36 @@ body{
 	height: 300px;
 }
 
-#chat #chatbox{
-	height: 40px;
+#chat.focus #chatbox{
 	height: 100%;
 	overflow-y: scroll;
 }
 
+#chat #chatbox{
+	width: 450px;
+	height: 30px;
+	bottom: 0px;
+	overflow-y: hidden;
+	position: absolute;
+	transition: height 500ms;	
+	-ms-transition: height 500ms;	
+	-moz-transition: height 500ms; /* Firefox 4 */
+	-webkit-transition: height 500ms; /* Safari and Chrome */
+	-o-transition: height 500ms; /* Opera */
+}
+
+#chat.focus #chatbox #chatcontent{
+	position: relative;
+}
+
 #chat #chatbox #chatcontent{
+	width: 423px;
 	padding: 10px;
 	padding-bottom:0px;
 	font-size: 1.1em;
 	color: white;
+	position: absolute;
+	bottom: 0px;
 }
 
 #chat #chatinput{
@@ -721,9 +740,19 @@ body{
 }
 
 #chat #chatbox #chatcontent p{
-	margin: 2px 0 7px;
+	padding: 3px 0 6px;
+	margin: 4;
 }
 
+#chat #chatbox #chatcontent p.roundmarker{
+	border-bottom: 1px solid grey;
+}
+
+#chat #chatbox #chatcontent i{
+	font-size: 80%;
+	color: #aaa;
+	margin: 0 5px;
+}
 
 /*---------------ACTIVE UNIT--------------*/
 #activebox{
