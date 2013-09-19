@@ -281,6 +281,9 @@ var Creature = Class.create({
 		},o);
 
 		if( !o.isAbility ){
+			if(G.UI.selectedAbility != -1){
+				this.hint("Canceled",'gamehintblack');
+			}
 			$j("#abilities .ability").removeClass("active");
 			G.UI.selectAbility(-1);
 			G.UI.checkAbilities();

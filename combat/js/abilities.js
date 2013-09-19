@@ -39,6 +39,7 @@ var Ability = Class.create({
 		this.setUsed(true) //Should always be here
 		G.UI.updateInfos(); //Just in case
 		if(this.trigger == "onQuery"){
+			G.UI.selectAbility(-1);
 			G.activeCreature.queryMove();
 			G.activeCreature.delayable = false;
 			G.UI.btnDelay.changeState("disabled");
