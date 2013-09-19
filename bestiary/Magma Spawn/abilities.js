@@ -262,7 +262,12 @@ abilities[4] =[
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			callback : function(){
-				path.each(function(){this.destroyTrap();});
+				path.each(function(){
+					if( !this.trap ) return;
+					if( this.trap.owner =! magmaSpawn.player ){
+						this.destroyTrap();
+					}
+				});
 				
 				if( ret.damageObj instanceof Damage )
 					G.triggersFn.onDamage(target,ret.damageObj);
