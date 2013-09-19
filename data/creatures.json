@@ -202,7 +202,7 @@
 		"offset-y": -142
         },
     	"animation": {
-    		"walk_speed": 550
+    		"walk_speed": 360
     	},
     	"ability_info": [
     		{
