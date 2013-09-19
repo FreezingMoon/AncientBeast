@@ -252,13 +252,12 @@ abilities[45] =[
 
 		ability.end();
 
-
 		var targets = [];
-		targets.push(path.last().creature);
-		var nextdmg = $j.extend({},ability.damages); 
+		targets.push(path.last().creature); //Add First creature hit
+		var nextdmg = $j.extend({},ability.damages); //Copy the object
 
+		//For each Target
 		for (var i = 0; i < targets.length; i++) {
-			console.log(targets);
 			var trg = targets[i];
 
 			var damage = new Damage(
@@ -270,23 +269,38 @@ abilities[45] =[
 			);
 			nextdmg = trg.takeDamage(damage);
 
-			if(nextdmg.damages == undefined) break;
-			if(nextdmg.damages.total <= 0) break;
+			if(nextdmg.damages == undefined) break; //If attack is dodge
+			if(nextdmg.damages.total <= 0) break; //If damage is too weak
 			delete nextdmg.damages.total;
 			nextdmg = nextdmg.damages;
 
+			//Get next available targets
 			nextTargets = ability.getTargets(trg.adjacentHexs(1,true));
+			nextTargets.filter(function(){
+				if ( this.hexsHit == undefined ) return false; // remove empty ids.
+				return (targets.indexOf(this.target) == -1) ; //If this creature has already been hit
+			})
 
+
+			//If no target
 			if(nextTargets.length == 0) break;
 
+			//Best Target
 			var bestTarget = { size: 0, stats:{ defense:-99999, shock:-99999 } };
-			for (var j = 0; j < nextTargets.length; j++) {
+			for (var j = 0; j < nextTargets.length; j++) { //For each creature
 				if (typeof nextTargets[j] == "undefined") continue; // Skip empty ids.
-				if (targets.indexOf(nextTargets[j].target) != -1) continue;
+				if (targets.indexOf(nextTargets[j].target) != -1) continue; //If this creature has already been hit
 
 				var t = nextTargets[j].target;
-				if(t.stats.shock > bestTarget.stats.shock) bestTarget = t;
-				else continue;
+				//Compare to best target
+				if(t.stats.shock > bestTarget.stats.shock){
+					if( ( t == ability.creature && nextTargets.length == 1 ) || //If target is chimera and the only target
+						t != ability.creature ) { //Or this is not chimera
+						bestTarget = t;
+					}
+				} else {
+					continue;
+				}
 
 			};
 
