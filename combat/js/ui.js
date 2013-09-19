@@ -161,11 +161,16 @@ var UI = Class.create({
 
 	
 	resizeDash: function(){
-		var zoom = $j("#cardwrapper").outerWidth()/$j("#card").outerWidth();
+		var zoom1 = $j("#cardwrapper").innerWidth() / $j("#card").outerWidth();
+		var zoom2 = $j("#cardwrapper").innerHeight() / ( $j("#card").outerHeight() + $j("#materialize_button").outerHeight() );
+		console.log(zoom1,zoom2)
+		var zoom = Math.min(zoom1,zoom2);
 		zoom = (zoom<1) ? zoom : 1;
 		$j("#cardwrapper_inner").css("zoom",zoom);
 
-		zoom = $j("#creaturegridwrapper").innerWidth()/$j("#creaturegrid").innerWidth();
+		var zoom1 = $j("#creaturegridwrapper").innerWidth()/$j("#creaturegrid").innerWidth();
+		var zoom2 = $j("#creaturegridwrapper").innerHeight()/$j("#creaturegrid").innerHeight();
+		zoom = Math.min(zoom1,zoom2);
 		zoom = (zoom<1) ? zoom : 1;
 		$j("#creaturegrid").css("zoom",zoom);
 	},

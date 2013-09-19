@@ -556,6 +556,8 @@ body{
 	font-size:24px;
 	font-weight:bold;
 	width: 860px;
+	height: 85px;
+	margin: 0px 5px;
 	display: inline-block;
 	cursor: pointer;
 	background-image: url("../../images/button.png");
