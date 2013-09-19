@@ -560,8 +560,8 @@ body{
 	width: 860px;
 	height: 85px;
 	margin: 0px 5px;
+	cursor: default;
 	display: inline-block;
-	cursor: pointer;
 	background-image: url("../../images/button.png");
 	background-repeat: no-repeat;
 }
@@ -570,6 +570,15 @@ body{
 	font-size:32px;
 	margin-top:16px;
 	font-weight:normal;
+}
+
+#materialize_button.glowing p{
+	cursor: pointer;
+	animation: glowingtext 750ms infinite alternate;
+	-webkit-animation: glowingtext 750ms infinite alternate;
+	-moz-animation: glowingtext 750ms infinite alternate;
+	-ms-animation: glowingtext 750ms infinite alternate;
+	-o-animation: glowingtext 750ms infinite alternate;
 }
 
 .buff{ color: green; }
@@ -851,6 +860,11 @@ body{
 @-webkit-keyframes pulse0205 { 0% {opacity: .2;} 100% {opacity: .5;} }
 @-o-keyframes pulse0205 { 0% {opacity: .2;} 100% {opacity: .5;} }
 
+
+@keyframes 			glowingtext{ 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
+@-moz-keyframes 	glowingtext{ 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
+@-webkit-keyframes 	glowingtext{ 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
+@-o-keyframes 		glowingtext{ 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
 /*----------------Game setup--------------*/
 
 #matchmaking{

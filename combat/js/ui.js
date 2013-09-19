@@ -161,6 +161,13 @@ var UI = Class.create({
 			var b = new Button({
 				$button : $j("#abilities > div:nth-child("+(i+1)+") > .ability"),
 				abilityId : i,
+				css : {
+					disabled  	: {},
+					glowing  	: { "cursor": "pointer" },
+					selected  	: {},
+					active 		: {},
+					normal 		: { "cursor": "default" },
+				}
 			});
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
@@ -296,7 +303,7 @@ var UI = Class.create({
 			});
 
 			//Materialize button
-			$j('#materialize_button').unbind('click');
+			$j('#materialize_button').removeClass("glowing").unbind('click');
 		
 			if(G.activeCreature.player.getNbrOfCreatures() > G.creaLimitNbr){
 				$j('#materialize_button p').text(G.msg.ui.dash.materialize_overload);
@@ -316,6 +323,8 @@ var UI = Class.create({
 					$j('#materialize_button p').text("Low Plasma! Cannot materialize the selected unit");
 				}else{
 					$j('#materialize_button p').text("Materialize unit at target location for "+plasmaCost+" plasma");
+
+					$j('#materialize_button').addClass("glowing");
 
 					//Bind button
 					$j('#materialize_button').bind('click',function(e){
