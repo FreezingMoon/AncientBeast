@@ -186,7 +186,6 @@ var UI = Class.create({
 	resizeDash: function(){
 		var zoom1 = $j("#cardwrapper").innerWidth() / $j("#card").outerWidth();
 		var zoom2 = $j("#cardwrapper").innerHeight() / ( $j("#card").outerHeight() + $j("#materialize_button").outerHeight() );
-		console.log(zoom1,zoom2)
 		var zoom = Math.min(zoom1,zoom2);
 		zoom = (zoom<1) ? zoom : 1;
 		$j("#cardwrapper_inner").css("zoom",zoom);
@@ -265,6 +264,8 @@ var UI = Class.create({
 				if(crea){
 					if(key=="health"){
 						$stat.text(crea.health+"/"+value);
+					}else if(key=="movement"){
+						$stat.text(crea.remainingMove+"/"+value);
 					}else if(key=="endurance"){
 						$stat.text(crea.endurance+"/"+value);
 					}else{
