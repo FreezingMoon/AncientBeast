@@ -179,6 +179,7 @@ abilities[3] =[
 			flipped :  uncle.player.flipped,
 			id :  uncle.id,
 			hexs : range,
+			hideNonTarget : true
 		});
 	},
 
