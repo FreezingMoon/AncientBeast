@@ -277,6 +277,7 @@ abilities[45] =[
 			nextdmg = trg.takeDamage(damage);
 
 			if(nextdmg.damages == undefined) break; //If attack is dodge
+			if(nextdmg.kill) break; //If target is killed
 			if(nextdmg.damages.total <= 0) break; //If damage is too weak
 			delete nextdmg.damages.total;
 			nextdmg = nextdmg.damages;
