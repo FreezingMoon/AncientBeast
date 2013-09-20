@@ -1030,8 +1030,8 @@ var Creature = Class.create({
 		if(this.type == "--") this.player.deactivate(); //Here because of score calculation
 
 		//Kill animation
-		this.$display.fadeOut(500);
-		this.$health.fadeOut(500);
+		this.$display.css({opacity:0});
+		this.$health.css({opacity:0});
 
 		this.cleanHex();
 
