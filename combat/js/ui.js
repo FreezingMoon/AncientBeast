@@ -618,7 +618,9 @@ var UI = Class.create({
 				var $queues = this.$queue.children('.queue[turn]');
 			}
 
-			var $Q = $vignettes.filter('[queue="'+u+'"]');
+			//Updating
+			var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+			var $queues = this.$queue.children('.queue[turn]');
 
 			//For all elements of this queue
 			for (var i = 0; i < queue.length; i++) {
@@ -630,51 +632,80 @@ var UI = Class.create({
 					if($Q[i] == undefined){
 						$j($Q[i-1]).after('<div queue="'+u+'" roundmarker="1" class="vignette roundmarker"><div class="frame"></div><div class="stats">Round '+(G.turn+1)+'</div></div>');
 
-						//Updating
-						var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
-						var $queues = this.$queue.children('.queue[turn]');
+						//Updating for animation
+						$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
 
-						$Q.filter('[roundmarker="1"][queue="'+u+'"]').css({width:0}).transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
+						//Animation
+						$Q.filter('[roundmarker="1"][queue="'+u+'"]')
+							.css({width:0})
+							.transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
+					}else{
+						//While its not the round marker
+						while( $j($Q[i]).attr("roundmarker") == undefined ){
+							
+							//Remove elem
+							$j($Q[i]).attr("queue","-1")
+								.transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+
+							//Updating
+							$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+							$queues = this.$queue.children('.queue[turn]');
+						}
 					}
+
 				}else{
 					var initiative =  queue[i].getInitiative( (u==0) );
 
+					var queueElem = '<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div class="frame"></div><div class="stats"></div></div>';
+
 					//If this element doesnot exists
 					if($Q[i] == undefined){
+						//Create element
 						if(i==0){
-							$j($queues[u]).append('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div class="frame"></div><div class="stats"></div></div>');
+							$j($queues[u]).append(queueElem);
 						}else{
-							$j($Q[i-1]).after('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div class="frame"></div><div class="stats"></div></div>');
+							$j($Q[i-1]).after(queueElem);
 						}
-						//Updating
-						var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
-						var $queues = this.$queue.children('.queue[turn]');
 
-						$Q.filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').css({width:0}).transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
-					}else if(queue[i] == undefined){
-						$j($Q[i]).attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
-						//Updating
-						var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
-						var $queues = this.$queue.children('.queue[turn]');
+						//Updating for animation
+						$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+
+						//Animation
+						$Q.filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]')
+							.css({width:0})
+							.transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
+
 					}else{
+						//While its not the right creature
 						while( $j($Q[i]).attr("creatureid") != queue[i].id ){
+
 							if( 
 								$j($Q[i]).attr("creatureid") == undefined || 
 								$j($Q[i]).attr("initiative") < initiative
 								) 
 							{
-								$j($Q[i]).before('<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div class="frame"></div><div class="stats"></div></div>');
+								//Create elem
+								$j($Q[i]).before(queueElem);
 								this.$queue.children('.queue').children('.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').css({width:0}).transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
+							
+								//Updating for animation
+								$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+								
 							}else{
-								$j($Q[i]).attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+								//Remove elem
+								$j($Q[i]).attr("queue","-1")
+									.transition({width:0},queueAnimSpeed,function(){ this.remove(); });
 							}
 
 							//Updating
-							var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
-							var $queues = this.$queue.children('.queue[turn]');
+							$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+							$queues = this.$queue.children('.queue[turn]');
 						}
 					}
 				}
+				//Updating
+				$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+				$queues = this.$queue.children('.queue[turn]');
 			};
 
 			if( queue.length < $Q.length ){ //If displayed queue is longer compared to real queue
