@@ -372,7 +372,7 @@ var Game = Class.create({
 		}
 
 
-		this.log("Active Creature : "+this.activeCreature.player.name+"'s "+this.activeCreature.name);
+		this.log("Active Creature : %CreatureName"+this.activeCreature.id+"%");
 		this.activeCreature.activate();
 		G.checkTime();
 
@@ -404,9 +404,19 @@ var Game = Class.create({
 	* 	Display obj in the console log and in the game log
 	*
 	*/
-	log: function(obj,htmlclass){	
-		console.log(obj);
-		this.UI.chat.addMsg(obj,htmlclass);
+	log: function(obj,htmlclass){
+		//Formating
+		var stringConsole = obj;
+		var stringLog = obj;
+		for (var i = 0; i < this.creatures.length; i++) {
+			if( this.creatures[i] instanceof Creature ){
+				stringConsole = stringConsole.replace("%CreatureName"+i+"%",this.creatures[i].player.name+"'s "+this.creatures[i].name);
+				stringLog = stringLog.replace("%CreatureName"+i+"%","<span class='"+this.creatures[i].player.color+"'>"+this.creatures[i].name+"</span>");
+			}
+		};
+
+		console.log(stringConsole);
+		this.UI.chat.addMsg(stringLog,htmlclass);
 	},
 
 

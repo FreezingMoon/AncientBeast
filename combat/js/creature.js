@@ -287,6 +287,7 @@ var Creature = Class.create({
 			$j("#abilities .ability").removeClass("active");
 			G.UI.selectAbility(-1);
 			G.UI.checkAbilities();
+			G.UI.updateQueueDisplay();
 		}
 
 		G.grid.updateDisplay(); //Retrace players creatures
@@ -775,12 +776,12 @@ var Creature = Class.create({
 
 		if(amount>0){
 			this.hint(amount,'healing d'+amount);
-			G.log(this.player.name+"'s "+this.name+" recovers +"+amount+" health");
+			G.log("%CreatureName"+this.id+"% recovers +"+amount+" health");
 		}else if(amount==0){
 			this.hint("!",'msg_effects');
 		}else{
 			this.hint(amount,'damage d'+amount);
-			G.log(this.player.name+"'s "+this.name+" loses "+amount+" health");
+			G.log("%CreatureName"+this.id+"% loses "+amount+" health");
 		}
 		
 
@@ -826,9 +827,9 @@ var Creature = Class.create({
 
 			G.UI.updateFatigue();
 
-			if( this.endurance == 0 && this.findEffect('Fatigued').length == 0 ){ 
+			if( this.endurance == 0 && this.findEffect('Fatigue').length == 0 ){ 
 				this.addEffect( new Effect( 
-					"Fatigued", 
+					"Fatigue", 
 					this, 
 					this, 
 					"", 
@@ -851,7 +852,7 @@ var Creature = Class.create({
 			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
 			this.hint(nbrDisplayed,'damage d'+dmgAmount);
 
-			G.log(this.player.name+"'s "+this.name+" is hit "+nbrDisplayed+" health");
+			G.log("%CreatureName"+this.id+"% is hit "+nbrDisplayed+" health");
 
 			//Health display Update
 			this.updateHealth();
@@ -868,15 +869,15 @@ var Creature = Class.create({
 			return {damages:dmg, damageObj:damage, kill:false}; //Not Killed
 		}else{
 			if(damage.status == "Dodged"){ //If dodged
-				G.log(this.player.name+"'s "+this.name+" dodged the attack");
+				G.log("%CreatureName"+this.id+"% dodged the attack");
 			}
 
 			if(damage.status == "Shielded"){ //If Shielded
-				G.log(this.player.name+"'s "+this.name+" shielded the attack");
+				G.log("%CreatureName"+this.id+"% shielded the attack");
 			}
 
 			if(damage.status == "Disintegrated"){ //If Disintegrated
-				G.log(this.player.name+"'s "+this.name+" has been disintegrated");
+				G.log("%CreatureName"+this.id+"% has been disintegrated");
 				this.die(damage.attacker);
 			}
 
@@ -897,7 +898,7 @@ var Creature = Class.create({
 	* 	effect : 		Effect : 	Effect object
 	*
 	*/
-	addEffect: function(effect){
+	addEffect: function(effect,specialString){
 		if( !effect.stackable && this.findEffect(effect.name).length != 0 ){
 			//G.log(this.player.name+"'s "+this.name+" is already affected by "+effect.name);
 			return false;
@@ -906,9 +907,14 @@ var Creature = Class.create({
 		this.effects.push(effect);
 		this.updateAlteration();
 
-		this.hint(effect.name,'msg_effects');
-
-		G.log(this.player.name+"'s "+this.name+" is affected by "+effect.name);
+		if(effect.name != ""){
+			this.hint(effect.name,'msg_effects');
+			if(specialString){
+				G.log(specialString);
+			}else{
+				G.log("%CreatureName"+this.id+"% is affected by "+effect.name);
+			}
+		}
 	},
 
 	hint: function(text,cssclass){
@@ -976,7 +982,7 @@ var Creature = Class.create({
 	*
 	*/
 	die: function(killer){
-		G.log("Player"+(this.team+1)+"'s "+this.name+" is dead");
+		G.log("%CreatureName"+this.id+"% is dead");
 
 		this.dead = true;		
 

@@ -35,7 +35,7 @@ var Ability = Class.create({
 	*
 	*/
 	end: function() {
-		G.log(this.creature.player.name+"'s "+this.creature.name+" uses "+this.title);
+		G.log("%CreatureName"+this.creature.id+"% uses "+this.title);
 		this.setUsed(true) //Should always be here
 		G.UI.updateInfos(); //Just in case
 		if(this.trigger == "onQuery"){

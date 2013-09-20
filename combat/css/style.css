@@ -751,6 +751,14 @@ body{
 #chat #chatbox #chatcontent p.roundmarker{
 	border-bottom: 1px solid grey;
 }
+#chat #chatbox #chatcontent .red{ color: #F55; }
+#chat #chatbox #chatcontent .blue{ color: #88F; }
+#chat #chatbox #chatcontent .green{ color: #5F5; }
+#chat #chatbox #chatcontent .orange{ color: #FA5; }
+
+#chat #chatbox #chatcontent .red,#chat #chatbox #chatcontent .blue,#chat #chatbox #chatcontent .green,#chat #chatbox #chatcontent .orange{
+	text-shadow: black 1px 1px 5px;
+}
 
 #chat #chatbox #chatcontent i{
 	font-size: 80%;

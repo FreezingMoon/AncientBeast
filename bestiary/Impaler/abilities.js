@@ -143,7 +143,7 @@ abilities[5] =[
 		var effect = new Effect("Poisonous",this.creature,this.creature,"poisonous_vine",{
 			turnLifetime : 1,
 		});
-		this.creature.addEffect(effect);
+		this.creature.addEffect(effect,"%CreatureName"+this.creature.id+"% gains poison damage");
 
 		var effect = new Effect("",this.creature,this.creature,"poisonous_vine_perm",{
 		});
