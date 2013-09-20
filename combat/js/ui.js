@@ -690,7 +690,7 @@ var UI = Class.create({
 							
 								//Updating for animation
 								$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
-								
+
 							}else{
 								//Remove elem
 								$j($Q[i]).attr("queue","-1")
@@ -762,6 +762,12 @@ var UI = Class.create({
 		G.creatures.each(function(){
 			if(this instanceof Creature){
 				var text = (this.endurance > 0) ? this.endurance + "/" + this.stats.endurance : "Fatigued";
+
+				if(this.type == "--"){ //If darkpriest
+					this.abilities[0].require(); //Update protectedFromFratigue
+				}
+
+				text = (this.protectedFromFratigue) ? "Prodected" :  text ;
 				$j('.queue .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
 			}
 		});

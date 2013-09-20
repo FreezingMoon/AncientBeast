@@ -66,6 +66,7 @@ var Creature = Class.create({
 		this.hasWait 	= false;
 		this.travelDist = 0;
 		this.effects 	= [];
+		this.protectedFromFratigue = (this.type == "--") ? true : false ;
 		
 
 		//Statistics
