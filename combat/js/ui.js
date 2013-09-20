@@ -467,13 +467,13 @@ var UI = Class.create({
 				this.$button.next(".desc").children("p").html(ab.desc+"<br>"+ab.info);
 
 				this.click = function(){
-					if(G.UI.dashopen) return false;
-					
-					G.grid.clearHexViewAlterations();
 					if(G.UI.selectedAbility!=this.abilityId){
+						if(G.UI.dashopen) return false;
+						G.grid.clearHexViewAlterations();
 						//Activate Abilitie
 						G.activeCreature.abilities[this.abilityId].use();
 					}else{
+						G.grid.clearHexViewAlterations();
 						//Cancel Abilitie
 						G.UI.closeDash();
 						G.activeCreature.queryMove();
