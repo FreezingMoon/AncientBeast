@@ -763,11 +763,11 @@ var UI = Class.create({
 			if(this instanceof Creature){
 				var text = (this.endurance > 0) ? this.endurance + "/" + this.stats.endurance : "Fatigued";
 
-				if(this.type == "--"){ //If darkpriest
+				if(this.type == "--"){ //If Dark Priest
 					this.abilities[0].require(); //Update protectedFromFratigue
 				}
 
-				text = (this.protectedFromFratigue) ? "Prodected" :  text ;
+				text = (this.protectedFromFratigue) ? "Protected" :  text ;
 				$j('.queue .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
 			}
 		});
