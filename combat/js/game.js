@@ -1078,6 +1078,7 @@ var Gamelog = Class.create({
 			var interval = setInterval(function(){
 				if(!G.freezedInput){
 					clearInterval(interval);
+					G.activeCreature.queryMove(); //Avoid bug
 					G.action(log[i],{callback:fun});
 				}
 			},100);
@@ -1233,4 +1234,30 @@ BufferLoader.prototype.loadBuffer = function(url, index) {
 BufferLoader.prototype.load = function() {
   for (var i = 0; i < this.urlList.length; ++i)
   this.loadBuffer(this.urlList[i], i);
+}
+
+//http://www.openjs.com/scripts/others/dump_function_php_print_r.php
+function print_r(arr,level){
+	var dumped_text = "";
+	if(!level) level = 0;
+	
+	//The padding given at the beginning of the line.
+	var level_padding = "";
+	for(var j=0;j<level+1;j++) level_padding += "    ";
+	
+	if(typeof(arr) == 'object') { //Array/Hashes/Objects 
+		for(var item in arr) {
+			var value = arr[item];
+			
+			if(typeof(value) == 'object') { //If it is an array,
+				dumped_text += level_padding + "'" + item + "' ...\n";
+				dumped_text += dump(value,level+1);
+			} else {
+				dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+			}
+		}
+	} else { //Stings/Chars/Numbers etc.
+		dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
+	}
+	return dumped_text;
 }

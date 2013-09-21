@@ -8,7 +8,7 @@ abilities[37] =[
 // 	First Ability: Spa Mud
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onStepIn",
+	trigger : "onCreatureMove",
 
 	// 	require() :
 	require : function(hex){

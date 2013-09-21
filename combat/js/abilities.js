@@ -376,6 +376,8 @@ var Damage = Class.create({
 				var points = value;
 			} else {
 				var points = Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
+				//For Debuging
+				//console.log("damage = "+value+key+"dmg * (1 + ("+atk.offense+"atkoffense - "+trg.defense+"trgdefense / "+dmg.area+"area + "+atk[key]+"atk"+key+" - "+trg[key]+"trg"+key+" )/100)");
 			}
 			returnObj[key] = points;
 			returnObj.total += points;
