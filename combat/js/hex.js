@@ -1541,3 +1541,21 @@ backbottom1hex = [	 [0,0,0],
 					 [0,0,0], //origin line
 					[0,1,0]];
 backbottom1hex.origin = [1,2];
+
+fronttop1hex = [ [0,0,0],
+				[0,0,1],
+				 [0,0,0], //origin line
+				[0,0,0]];
+fronttop1hex.origin = [1,2];
+
+inlinefront1hex = [	 [0,0,0],
+					[0,0,0],
+					 [0,0,1], //origin line
+					[0,0,0]];
+inlinefront1hex.origin = [1,2];
+
+frontbottom1hex = [	 [0,0,0],
+					[0,0,0],
+					 [0,0,0], //origin line
+					[0,0,1]];
+frontbottom1hex.origin = [1,2];

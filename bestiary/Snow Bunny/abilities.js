@@ -28,9 +28,21 @@ abilities[12] = [
 		});
 
 		switch( id ){
-			case 0 : var hex = this.creature.getHexMap(backbottom1hex)[0]; break;
-			case 1 : var hex = this.creature.getHexMap(inlineback1hex)[0]; break;
-			case 2 : var hex = this.creature.getHexMap(backtop1hex)[0]; break;
+			case 0 : 
+				var hex = this.creature.getHexMap(backbottom1hex)[0];
+				if( hex == undefined || !hex.isWalkable(this.creature.size,this.creature.id,true) ){
+					var hex = this.creature.getHexMap(frontbottom1hex)[0];	
+				}
+				break;
+			case 1 : 
+				var hex = this.creature.getHexMap(inlineback1hex)[0];
+				break;
+			case 2 : 
+				var hex = this.creature.getHexMap(backtop1hex)[0]; 
+				if( hex == undefined || !hex.isWalkable(this.creature.size,this.creature.id,true) ){
+					var hex = this.creature.getHexMap(fronttop1hex)[0];	
+				}
+				break;
 			default : return false;
 		}
 
@@ -52,9 +64,22 @@ abilities[12] = [
 		});
 
 		switch( id ){
-			case 0: var hex = this.creature.getHexMap(backbottom1hex)[0]; break;
-			case 1: var hex = this.creature.getHexMap(inlineback1hex)[0]; break;
-			case 2: var hex = this.creature.getHexMap(backtop1hex)[0]; break;
+			case 0 : 
+				var hex = this.creature.getHexMap(backbottom1hex)[0];
+				if( hex == undefined || !hex.isWalkable(this.creature.size,this.creature.id,true) ){
+					var hex = this.creature.getHexMap(frontbottom1hex)[0];	
+				}
+				break;
+			case 1 : 
+				var hex = this.creature.getHexMap(inlineback1hex)[0];
+				break;
+			case 2 : 
+				var hex = this.creature.getHexMap(backtop1hex)[0]; 
+				if( hex == undefined || !hex.isWalkable(this.creature.size,this.creature.id,true) ){
+					var hex = this.creature.getHexMap(fronttop1hex)[0];	
+				}
+				break;
+			default : return false;
 		}
 
 		this.creature.moveTo(hex,{
