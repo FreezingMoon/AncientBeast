@@ -84,7 +84,7 @@ abilities[3] =[
 		if( !this.testRequirements() ) return false;
 
 		//At least one target
-		if( !this.atLeastOneTarget(this.creature.adjacentHexs(1),"ennemy") ){
+		if( !this.atLeastOneTarget(this.creature.getHexMap(frontnback2hex),"ennemy") ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -96,17 +96,12 @@ abilities[3] =[
 		var uncle = this.creature;
 		var ability = this;
 
-		var map = [  [0,0,0,0],
-					[0,1,0,1],
-				 	 [1,0,0,1], //origin line
-					[0,1,0,1]];
-
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
 			id : uncle.id,
 			flipped : uncle.flipped,
-			hexs : G.grid.getHexMap(uncle.x-2,uncle.y-2,0,false,map),
+			hexs : uncle.getHexMap(frontnback2hex),
 		});
 	},
 
