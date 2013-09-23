@@ -31,8 +31,8 @@ start_segment();
 <?php
 separate_segment(applet);
 echo "<center><iframe src='http://webchat.freenode.net?channels=AncientBeast' width='99%' height='450'></iframe></center>";
-separate_segment(tutorial);
-echo "<center><iframe src='https://docs.google.com/present/embed?id=dfbbjc3c_24fb4cz7d8&size=l' frameborder='0' width='700' height='559'></iframe></center>";
+//separate_segment(tutorial);
+//echo "<center><iframe src='https://docs.google.com/present/embed?id=dfbbjc3c_24fb4cz7d8&size=l' frameborder='0' width='700' height='559'></iframe></center>";
 separate_segment(widgets);
 echo "<div class='center'>";?>
 
