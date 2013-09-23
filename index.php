@@ -128,7 +128,7 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 <?php separate_segment("gameplay"); ?>
 <h3 class="indexheader"><a href="#gameplay">Gameplay</a></h3>
 <p>
-In order to play Ancient Beast, you'll needed to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are about 16x9 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
+In order to play Ancient Beast, you'll need to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are about 16x9 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
 </p>
 <?php
 echo '<div class="center">';

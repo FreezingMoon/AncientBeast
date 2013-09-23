@@ -35,7 +35,7 @@ require_once('global.php'); ?>
 <script src="/utils/tinybox.js"></script>
 <script>var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";</script>
 <link rel="alternate" type="application/rss+xml" title="Ancient Beast Blog (RSS 2.0)" href="<?php echo $site_url; ?>blog/feed/">
-<link rel="stylesheet" href="<?php echo $site_root; ?>new/stylesheet.css">
+<link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <link rel="stylesheet" href="<?php echo $site_root; ?>combat/css/grid.css">
 
 <!--jquery-->
@@ -85,8 +85,8 @@ _gaq.push(['_trackPageview']);
 <?php
 	$menu = array('units', 'shop', 'media', 'watch', 'game', 'donate', 'blog', 'chat', 'user');
 	foreach ($menu as &$menuItem) {
-	if ($menuItem == 'game') echo '<li><a href="' . $site_root . 'new/" id="' . $menuItem . '"><img src="' . $site_root . 'new/images/AncientBeast.png" height=72"></a><br><a href="' . $site_root . 'new/' . $menuItem . '"><img src="' . $site_root . 'new/images/AB.gif"> PLAY NOW! <img src="' . $site_root . 'new/images/AB.gif"></a></li>';
-	else echo '<li><a href="' . $site_root . 'new/' . $menuItem . '" id="' . $menuItem . '"><img src="' . $site_root . 'new/images/icons/' . $menuItem . '.svg" height=64 width=64 alt=""><br>' . strtoupper($menuItem) . '</a></li>';
+	if ($menuItem == 'game') echo '<li><a href="' . $site_root . '" id="' . $menuItem . '"><img src="' . $site_root . 'images/AncientBeast.png" height=72"></a><br><a href="' . $site_root . $menuItem . '"><img src="' . $site_root . 'images/AB.gif"> PLAY NOW! <img src="' . $site_root . 'images/AB.gif"></a></li>';
+	else echo '<li><a href="' . $site_root . $menuItem . '" id="' . $menuItem . '"><img src="' . $site_root . 'images/icons/' . $menuItem . '.svg" height=64 width=64 alt=""><br>' . strtoupper($menuItem) . '</a></li>';
 }
 ?>
 </ul></header>
