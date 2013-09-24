@@ -189,13 +189,15 @@ var Creature = Class.create({
 					if(this.stats.regrowth < 0){
 						this.heal(this.stats.regrowth);
 					}else{
-						this.hint("!",'damage');	
+						this.hint("!",'damage');
 					}
 				}
 
 				if(this.stats.meditation > 0){
 					this.energy = Math.min( this.stats.energy, this.energy + this.stats.meditation ); //cap
 				}
+			}else{
+				this.hint("!",'damage');
 			}
 
 			this.endurance = this.stats.endurance;
