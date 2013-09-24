@@ -287,6 +287,7 @@ var Creature = Class.create({
 					callback : function(){ G.activeCreature.queryMove() }
 				});
 			},
+			ownCreatureHexShade : true
 		},o);
 
 		if( !o.isAbility ){
@@ -312,7 +313,8 @@ var Creature = Class.create({
 			size : this.size,
 			flipped : this.player.flipped,
 			id : this.id,
-			hexs : o.range
+			hexs : o.range,
+			ownCreatureHexShade : o.ownCreatureHexShade
 		});
 	},
 

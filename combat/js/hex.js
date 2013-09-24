@@ -275,6 +275,7 @@ var HexGrid = Class.create({
 			hexs : hexs,
 			flipped : o.flipped,
 			hideNonTarget : true,
+			id : o.id
 		});
 	},
 
@@ -350,6 +351,7 @@ var HexGrid = Class.create({
 			hexs : o.hexs,
 			flipped : o.flipped,
 			hideNonTarget : true,
+			id : o.id
 		});
 
 	},
@@ -378,6 +380,7 @@ var HexGrid = Class.create({
 			id : 0,
 			flipped : false,
 			hideNonTarget : false,
+			ownCreatureHexShade : false,
 		};
 
 		o = $j.extend(defaultOpt,o);
@@ -400,6 +403,14 @@ var HexGrid = Class.create({
 
 		//Cleanup
 		$j("#crea_materialize_overlay").remove();
+
+		//Creature hex shade
+		this.$allOverHex.removeClass("ownCreatureHexShade");
+		if( !o.ownCreatureHexShade && o.id != 0 ){
+			G.creatures[o.id].hexagons.each(function(){				
+				this.overlayVisualState('ownCreatureHexShade')
+			})
+		}
 
 		//Set reachable the given hexs
 		o.hexs.each(function(){ 
