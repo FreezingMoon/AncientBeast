@@ -137,7 +137,7 @@ var Creature = Class.create({
 		G.reorderQueue();
 
 		this.delayable = true;
-		this.materializeSickness = true;
+		this.materializeSickness = (this.type == "--") ? false : true ;
 		
 		this.summon();
 	},

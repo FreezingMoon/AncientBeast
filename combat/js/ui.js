@@ -770,6 +770,7 @@ var UI = Class.create({
 				}
 
 				text = (this.protectedFromFratigue) ? "Prodected" :  text ;
+				text = (this.materializeSickness) ? "Sickened" :  text ;
 				$j('.queue .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
 			}
 		});
