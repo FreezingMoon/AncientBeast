@@ -364,8 +364,33 @@ var UI = Class.create({
 			}
 
 		}else{
-			//TODO Locked card
-			//$j("#card").text("Locked");
+			
+			//Recto
+			$j("#card .card.recto").css({"background-image":"url('../bestiary/"+stats.name+"/artwork.jpg')"});
+			$j("#card .card.recto .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
+			$j("#card .card.recto .type").text(stats.type);
+			$j("#card .card.recto .name").text(stats.name);
+			$j("#card .card.recto .hexs").text(stats.size+"H");
+
+			//Verso
+			$j.each(stats.stats,function(key,value){
+				var $stat = $j("#card .card.verso ."+key+" .value");
+				$stat.removeClass("buff debuff");
+				$stat.text(value);
+			});
+
+			//Abilities
+			$j.each(stats.ability_info,function(key,value){
+				$ability = $j("#card .card.verso .abilities .ability:eq("+key+")");
+				$ability.children('.icon').css({"background-image":"url('../bestiary/"+stats.name+"/"+key+".svg')"});
+				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
+				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
+				$ability.children(".wrapper").children(".info").children("#info").text(stats.ability_info[key].info);
+			});
+
+			//Materialize button
+			$j('#materialize_button').removeClass("glowing").unbind('click');
+			$j('#materialize_button p').text("This unit is currently under development");
 		}
 	},
 
