@@ -86,7 +86,7 @@
 	z-index: 1000;
 }
 
-#dash #creaturegrid .tooltip .arrow{ left: 56px; }
+#dash #creaturegrid .tooltip .arrow{ left: 42px; }
 
 #creaturegrid .tooltip .arrow:before{
 	content: "";

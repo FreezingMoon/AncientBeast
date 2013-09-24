@@ -133,7 +133,18 @@ abilities[5] =[
 
 	// 	query() :
 	query : function(){
-		this.animation();
+		var ability = this;
+		var creature = this.creature;
+
+		G.grid.queryHexs({
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+			size : creature.size,
+			flipped : creature.player.flipped,
+			id : creature.id,
+			hexs : creature.hexagons,
+			ownCreatureHexShade : true,
+			hideNonTarget : true
+		});
 	},
 
 

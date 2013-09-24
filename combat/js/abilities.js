@@ -26,6 +26,7 @@ var Ability = Class.create({
 		G.grid.clearHexViewAlterations();
 		G.clearOncePerDamageChain();
 		G.UI.selectAbility(this.id);
+		G.activeCreature.hint(this.title,"msg_effects");
 		return this.query();
 	},
 
