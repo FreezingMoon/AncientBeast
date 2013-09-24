@@ -132,6 +132,7 @@ var UI = Class.create({
 				delay: 100, //D
 				flee: 102, //F
 				chat: 13, //return
+				pause: 112 //P
 			};
 
 			var prevD = false;
@@ -147,6 +148,7 @@ var UI = Class.create({
 						case "delay": G.UI.btnDelay.triggerClick(); break;
 						case "flee": G.UI.btnFlee.triggerClick(); break;
 						case "chat": G.UI.chat.toggle(); break;
+						case "pause": G.togglePause(); break;
 					}
 					prevD = true;
 				}
@@ -557,7 +559,7 @@ var UI = Class.create({
 	*	
 	*/
 	updateTimer:function(){
-		var date = new Date();
+		var date = new Date() - G.pauseTime;
 
 		//TurnTimePool
 		if( G.turnTimePool >= 0 ){

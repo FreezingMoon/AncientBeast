@@ -60,6 +60,8 @@ var Game = Class.create({
 		this.creatureJSON;
 		this.loadedSrc = 0;
 		this.loadingSrc = 0;
+		this.pause = false;
+		this.pauseTime = 0;
 		this.minimumTurnBeforeFleeing = 12;
 		this.availableCreatures = [];
 		this.animationQueue = [];
@@ -170,7 +172,7 @@ var Game = Class.create({
 			for (var j = 0; j < G.loadedCreatures.length; j++) {
 			
 				var data = G.creatureJSON[G.loadedCreatures[j]];
-				
+
 				//Load Creature Sound
 				G.soundsys.getSound("../bestiary/"+data.name+'/'+data.name+'.ogg',1000+G.loadedCreatures[j],function(){ G.loadFinish() });
 
@@ -422,6 +424,24 @@ var Game = Class.create({
 		this.UI.chat.addMsg(stringLog,htmlclass);
 	},
 
+	togglePause: function(){
+		if( G.freezedInput && G.pause ){
+			G.pause = false;
+			G.freezedInput = false;
+			G.pauseTime += new Date() - G.pauseStartTime;
+			$j("#pause").remove();
+			this.timeInterval = setInterval(function(){
+				G.checkTime();
+			},1000);
+		}else if( !G.pause && !G.freezedInput ){
+			G.pause = true;
+			G.freezedInput = true;
+			G.pauseStartTime = new Date();
+			clearTimeout(this.timeInterval);
+			$j("#ui").append('<div id="pause">Pause</div>');
+		}
+	},
+
 
 	/*	skipTurn()
 	*
@@ -449,6 +469,7 @@ var Game = Class.create({
 		var skipTurn = new Date();
 		var p = this.activeCreature.player;
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
+		G.pauseTime = 0;
 		this.activeCreature.deactivate(false);
 		this.nextCreature();
 	},
@@ -488,7 +509,7 @@ var Game = Class.create({
 	*	
 	*/
 	checkTime: function(){
-		var date = new Date();
+		var date = new Date() - G.pauseTime;
 		var p = this.activeCreature.player;
 
 		p.totalTimePool = Math.max(p.totalTimePool,0); //Clamp

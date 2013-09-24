@@ -667,6 +667,25 @@ body{
 
 .vignette.xray { opacity: .5; }
 
+/*-----------PAUSE OVERLAY-------------*/
+
+#pause{
+	width: 100%;
+	height: 100%;
+	padding-top: 14%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 999;
+	font-style: italic;
+	font-size: 300%;
+	color: #FFF;
+	text-align: center;
+	box-sizing: border-box;
+	background-color: rgba(0,0,0,0.8);
+}
+
+
 
 /*---------------TEXTBOX--------------*/
 #chat{
