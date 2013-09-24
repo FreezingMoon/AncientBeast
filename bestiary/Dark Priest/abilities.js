@@ -10,10 +10,6 @@ abilities[0] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onAttack",
 
-	requirements : {
-		plasma : 1,
-	},
-
 	// 	require() :
 	require : function(damage){
 		this.setUsed(false); //Can be triggered as many times
@@ -96,10 +92,6 @@ abilities[0] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	requirements : {
-		plasma : 1,
-	},
 
 	// 	require() :
 	require : function(){

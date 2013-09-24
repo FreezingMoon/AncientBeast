@@ -109,7 +109,9 @@ var Game = Class.create({
 				notarget : "No targets available.",
 				noplasma : "Not enough plasma.",
 				nopsy	 : "Psyhelm overload: too many creatures controlled", //is this string needed anymore?
-				alreadyused : "Ability already used."
+				alreadyused : "Ability already used.",
+				toomuch : "Too much %stat%.",
+				notenough : "Not enough %stat%."
 			},
 			ui : {
 				dash : {
@@ -163,11 +165,12 @@ var Game = Class.create({
 		$j.getJSON("../data/creatures.json", function(json_in) {
 			G.creatureJSON = json_in;
 
+			G.creatureDatas = G.creatureJSON;
+
 			for (var j = 0; j < G.loadedCreatures.length; j++) {
 			
 				var data = G.creatureJSON[G.loadedCreatures[j]];
-				G.creatureDatas.push(data);
-
+				
 				//Load Creature Sound
 				G.soundsys.getSound("../bestiary/"+data.name+'/'+data.name+'.ogg',1000+G.loadedCreatures[j],function(){ G.loadFinish() });
 
