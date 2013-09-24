@@ -184,12 +184,12 @@ var Creature = Class.create({
 
 			if(!this.materializeSickness){
 				if(this.endurance > 0){
-					this.heal(this.stats.regrowth);
+					this.heal(this.stats.regrowth,true);
 				}else{
 					if(this.stats.regrowth < 0){
-						this.heal(this.stats.regrowth);
+						this.heal(this.stats.regrowth,true);
 					}else{
-						this.hint("!",'damage');
+						this.hint("&clubs;",'damage');
 					}
 				}
 
@@ -197,7 +197,7 @@ var Creature = Class.create({
 					this.energy = Math.min( this.stats.energy, this.energy + this.stats.meditation ); //cap
 				}
 			}else{
-				this.hint("!",'damage');
+				this.hint("&diams;",'damage');
 			}
 
 			this.endurance = this.stats.endurance;
@@ -773,7 +773,7 @@ var Creature = Class.create({
 	*
 	* 	amount : 	Damage : 	Amount of health point to restore
 	*/
-	heal: function(amount){
+	heal: function(amount,isRegrowth){
 		if(this.health + amount > this.baseStats.health)
 			amount = this.baseStats.health - this.health; //Cap health point
 
@@ -788,12 +788,15 @@ var Creature = Class.create({
 		this.updateHealth();
 
 		if(amount>0){
-			this.hint(amount,'healing d'+amount);
+			if(isRegrowth) this.hint(amount+" &hearts;",'healing d'+amount);
+			else this.hint(amount,'healing d'+amount);
 			G.log("%CreatureName"+this.id+"% recovers +"+amount+" health");
 		}else if(amount==0){
-			this.hint("!",'msg_effects');
+			if(isRegrowth) this.hint("&clubs;",'msg_effects');
+			else this.hint("!",'msg_effects');
 		}else{
-			this.hint(amount,'damage d'+amount);
+			if(isRegrowth) this.hint(amount+" &spades;",'damage d'+amount);
+			else this.hint(amount,'damage d'+amount);
 			G.log("%CreatureName"+this.id+"% loses "+amount+" health");
 		}
 		
