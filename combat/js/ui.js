@@ -422,18 +422,30 @@ var UI = Class.create({
 		.addClass("selected"+id);
 
 		this.$grid.children(".vignette") //vignettes class
-		.removeClass("active dead queued")
+		.removeClass("active dead queued notsummonable")
 		.addClass("locked");
 
 		//change creature status
 		G.players[id].availableCreatures.each(function(){
 			G.UI.$grid.children(".vignette[creature='"+this+"']").removeClass("locked");
+
+			var lvl = this.substring(1,2)-0;
+			var size = G.retreiveCreatureStats(this).size-0;
+			plasmaCost = lvl+size;
+
+			if( plasmaCost > G.players[id].plasma ){
+				G.UI.$grid.children(".vignette[creature='"+this+"']").addClass("notsummonable");
+			}
 		});
+
+
 		G.players[id].creatures.each(function(){
+			var $crea = G.UI.$grid.children(".vignette[creature='"+this+"']");
+			$crea.removeClass("notsummonable");
 			if(this.dead == true){
-				G.UI.$grid.children(".vignette[creature='"+this.type+"']").addClass("dead");
+				$crea.addClass("dead");
 			}else{
-				G.UI.$grid.children(".vignette[creature='"+this.type+"']").addClass("queued");
+				$crea.addClass("queued");
 			}
 		});
 

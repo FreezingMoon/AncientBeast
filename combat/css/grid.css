@@ -37,6 +37,7 @@
 #creaturegrid .vignette.active div.border{background-image: url("../../images/frame_focused.png");}
 
 #creaturegrid .vignette.dead 	div.overlay{ background-image: url("../icons/dead.svg"); }
+#creaturegrid .vignette.notsummonable 	div.overlay{ background-image: url("../icons/plasma.svg"); }
 #creaturegrid .vignette.locked 	div.overlay{ background-image: url("../icons/locked.svg"); }
 #creaturegrid .vignette.queued 	div.overlay{ background-image: url("../icons/queue.svg");
 	animation: pulse0106 750ms infinite alternate;
