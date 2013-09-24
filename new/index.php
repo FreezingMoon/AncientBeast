@@ -101,8 +101,8 @@ When fighting players of lower levels, you will temporarely lose plasma points i
 </p>
 </main>
 
-<right class="section" style="width:30%;">
-<img src="images/ABlogo.png" width=400px>
+<right class="section" style="width:500px;">
+<img src="images/ABlogo.png">
 </right>
 
 </body></html>
