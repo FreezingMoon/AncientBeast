@@ -38,6 +38,9 @@
         },
     	"ability_info": [
     		{
+                "requirements" : { 
+                    "plasma" : 1 
+                },
     			"title": "Artificial Satellite",
     			"desc": "Protects from most harmful abilities.",
     			"info": "-1 plasma for each countered attack"
@@ -48,6 +51,17 @@
     			"info": "12 shock damage × creature size"
     		},
     		{
+                "requirements" : { 
+                    "plasma" : 1,
+                    "energy" : 20
+                },
+                "costs" : {
+                    "energy" : 20,
+                    "plasma" : "Creature size"
+                },
+                "damages" : {
+                    "pure" : "25 + Bonus"
+                },
 		        "title": "Particle Disintegrator",
 		        "desc": "Does pure damage to a nearby foe. Bonus based on it's missing health.",
 		        "info": ">25 damage; plasma = creature size"

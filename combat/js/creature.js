@@ -95,6 +95,7 @@ var Creature = Class.create({
 		this.stats 		= $j.extend({},this.baseStats);//Copy
 		this.health		= obj.stats.health;
 		this.endurance 	= obj.stats.endurance;
+		this.energy 	= obj.stats.energy;
 		this.remainingMove	= 0; //Default value recovered each turn
 
 		//Abilities
@@ -175,20 +176,25 @@ var Creature = Class.create({
 		this.travelDist = 0;
 		var creature = this;
 
-		this.materializeSickness = false;
-
 		if(!this.hasWait){
 
 			//Variables reset
 			this.updateAlteration();
 			this.remainingMove = this.stats.movement;
-			if(this.endurance > 0){
-				this.heal(this.stats.regrowth);
-			}else{
-				if(this.stats.regrowth < 0){
+
+			if(!this.materializeSickness){
+				if(this.endurance > 0){
 					this.heal(this.stats.regrowth);
 				}else{
-					this.hint("!",'damage');	
+					if(this.stats.regrowth < 0){
+						this.heal(this.stats.regrowth);
+					}else{
+						this.hint("!",'damage');	
+					}
+				}
+
+				if(this.stats.meditation > 0){
+					this.energy = Math.min( this.stats.energy, this.energy + this.stats.meditation ); //cap
 				}
 			}
 
@@ -201,6 +207,8 @@ var Creature = Class.create({
 			//Trigger
 			G.triggersFn.onStartPhase(creature);
 		}
+
+		this.materializeSickness = false;
 
 		var interval = setInterval(function(){
 			if(!G.freezedInput){

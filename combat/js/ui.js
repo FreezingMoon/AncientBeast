@@ -273,6 +273,8 @@ var UI = Class.create({
 						$stat.text(crea.health+"/"+value);
 					}else if(key=="movement"){
 						$stat.text(crea.remainingMove+"/"+value);
+					}else if(key=="energy"){
+						$stat.text(crea.energy+"/"+value);
 					}else if(key=="endurance"){
 						$stat.text(crea.endurance+"/"+value);
 					}else{

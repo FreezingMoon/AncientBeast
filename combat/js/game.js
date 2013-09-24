@@ -109,7 +109,9 @@ var Game = Class.create({
 				notarget : "No targets available.",
 				noplasma : "Not enough plasma.",
 				nopsy	 : "Psyhelm overload: too many creatures controlled", //is this string needed anymore?
-				alreadyused : "Ability already used."
+				alreadyused : "Ability already used.",
+				toomuch : "Too much %stat%.",
+				notenough : "Not enough %stat%."
 			},
 			ui : {
 				dash : {

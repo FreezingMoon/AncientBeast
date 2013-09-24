@@ -35,6 +35,7 @@ var Ability = Class.create({
 	*
 	*/
 	end: function() {
+		this.applyCost();
 		G.log("%CreatureName"+this.creature.id+"% uses "+this.title);
 		this.setUsed(true) //Should always be here
 		G.UI.updateInfos(); //Just in case
@@ -233,6 +234,9 @@ var Ability = Class.create({
 	testRequirements : function(){
 		var def = {
 			plasma : 0,
+			energy:0,
+			endurance:0,
+			remainingMovement:0,
 			stats : {
 				health:0,
 				regrowth:0,
@@ -256,10 +260,57 @@ var Ability = Class.create({
 		}
 		
 		var req = $j.extend(def,this.requirements);
+
+		//Plasma
 		if(req.plasma > 0 ){
-			if( this.creature.player.plasma < req.plasma ) return false;
+			if( this.creature.player.plasma < req.plasma ){
+				this.message = G.msg.abilities.notenough.replace("%stat%","plasma"); 
+				return false;
+			}
 		}else if(req.plasma < 0 ){
-			if( this.creature.player.plasma > -req.plasma ) return false;
+			if( this.creature.player.plasma > -req.plasma ){
+				this.message = G.msg.abilities.toomuch.replace("%stat%","plasma"); 
+				return false;
+			}
+		}
+
+		//Energy
+		if(req.energy  > 0 ){
+			if( this.creature.energy < req.energy ){
+				this.message = G.msg.abilities.notenough.replace("%stat%","energy"); 
+				return false;
+			}
+		}else if(req.energy  < 0 ){
+			if( this.creature.energy > -req.energy ){
+				this.message = G.msg.abilities.toomuch.replace("%stat%","energy"); 
+				return false;
+			}
+		}
+
+		//Endurance
+		if(req.endurance  > 0 ){
+			if( this.creature.endurance < req.endurance ){
+				this.message = G.msg.abilities.notenough.replace("%stat%","endurance"); 
+				return false;
+			}
+		}else if(req.endurance  < 0 ){
+			if( this.creature.endurance > -req.endurance ){
+				this.message = G.msg.abilities.toomuch.replace("%stat%","endurance"); 
+				return false;
+			}
+		}
+
+		//Health
+		if(req.health  > 0 ){
+			if( this.creature.health < req.health ){
+				this.message = G.msg.abilities.notenough.replace("%stat%","health"); 
+				return false;
+			}
+		}else if(req.health  < 0 ){
+			if( this.creature.health > -req.health ){
+				this.message = G.msg.abilities.toomuch.replace("%stat%","health"); 
+				return false;
+			}
 		}
 
 		$j.each(req.stats,function(key,value) {
@@ -271,6 +322,16 @@ var Ability = Class.create({
 		});
 
 		return true;
+	},
+
+	applyCost : function(){
+		var crea = this.creature;
+		if( this.costs == undefined ) return;
+		$j.each(this.costs,function(key,value) {
+			if( typeof(value) == "number" ){
+				crea[key] = Math.max( crea[key]-value, 0 ); //Cap
+			}
+		})
 	},
 
 	testDirection : function(o){
