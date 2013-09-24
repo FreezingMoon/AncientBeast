@@ -50,7 +50,11 @@
 	z-index: 3;
 	opacity: 0;
 	bottom: 50px;
-	-webkit-transition: all 500ms;
+	transition: all 500ms;	
+	-ms-transition: all 500ms;	
+	-moz-transition: all 500ms; /* Firefox 4 */
+	-webkit-transition: all 500ms; /* Safari and Chrome */
+	-o-transition: all 500ms; /* Opera */
 } 
 
 #creaturegrid .vignette:hover .tooltip{

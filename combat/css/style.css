@@ -359,6 +359,7 @@ body{
 #bottompanel{
 	position: fixed;
 	bottom: 0px;
+	height: 0px;
 	width: 100%;
 	z-index: 2;
 }
@@ -673,17 +674,16 @@ body{
 	height: 30px;
 	background-color: rgba(0,0,0,0.8);
 	cursor: pointer;
-	position: absolute;
-	left: 50%;
-	bottom: 0px;
-	margin-left: -225px;
+	position: relative;
+	margin: 0 auto;
+	bottom: 40px;
 	padding: 5px;
 	border-radius: 10px 10px 0px 0px;
-	transition: height 500ms;	
-	-ms-transition: height 500ms;	
-	-moz-transition: height 500ms; /* Firefox 4 */
-	-webkit-transition: height 500ms; /* Safari and Chrome */
-	-o-transition: height 500ms; /* Opera */
+	transition: all 500ms;	
+	-ms-transition: all 500ms;	
+	-moz-transition: all 500ms; /* Firefox 4 */
+	-webkit-transition: all 500ms; /* Safari and Chrome */
+	-o-transition: all 500ms; /* Opera */
 }
 
 #chatbox::-webkit-scrollbar{
@@ -698,6 +698,7 @@ body{
 
 #chat.focus{
 	height: 300px;
+	bottom: 310px;
 }
 
 #chat.focus #chatbox{
