@@ -1,42 +1,47 @@
 @import url(http://fonts.googleapis.com/css?family=Play:400,700);
 #scroll {
-	display: block;
-	z-index: 999;
-	position: fixed;
 	bottom: 0;
+	display: block;
 	left: 96%;
+	position: fixed;
+	z-index: 999;
 }
 body {
-	font-family: 'Play', sans-serif;
-	text-align: center;
-	margin: 0 auto;
-	width: 950px;
-	color: #b7b7b7;
-	font-size: 18px;
 	background: url(images/header.png) no-repeat center top,
 		black url(images/bg.jpg) no-repeat left top fixed;
 	background-size: 1180px 295px, cover;
-	text-shadow: black 0.1em 0.1em 0.2em;
+	color: #b7b7b7;
+	font-family: 'Play', sans-serif;
+	font-size: 18px;
+	margin: 0 auto;
 	overflow-x: hidden;
+	text-align: center;
+	text-shadow: black 0.1em 0.1em 0.2em;
+	width: 950px;
 }
 img {
 	border: none;
 	vertical-align: bottom;
 }
 #header {
-	margin: 15px auto 0 auto;
 	padding: 0px;
+	margin: 15px auto 0 auto;
+}
+.indexheader {
+  margin: 0 auto 0 auto;
+  font-weight: bold;
+  text-align: center;
 }
 .sections {
-	list-style-type: none;
-	width: 100%;
 	font-size: 18px;
 	font-weight: bold;
+	list-style-type: none;
 	margin: 0;
-	padding: 0;
 	margin-left: auto;
 	margin-right: auto;
+	padding: 0;
 	text-align: center;
+	width: 100%;
 }
 .center {
 	margin-left: auto!important;
@@ -52,26 +57,26 @@ img {
 *:focus {outline: none;}
 #wrapper {text-align: left;}
 .div_top {
-	margin: 0;
 	background-image: url('images/div_top.png');
 	background-repeat: no-repeat;
 	height: 20px;
+	margin: 0;
 	overflow: hidden;
 	padding: 0;
 }
 .div_center {
-	overflow: hidden;
 	background-image: url('images/div_center.png');
 	background-repeat: repeat-y;
 	margin: 0;
 	padding: 0px 30px;
 	position: relative;
+	overflow: hidden;
 }
 .div_bottom {
-	margin: 0;
 	background-image: url('images/div_bottom.png');
 	background-repeat: no-repeat;
 	height: 20px;
+	margin: 0;
 	margin-bottom: 10px;
 }
 A:link {text-decoration: none; color: #b7b7b7;}
@@ -84,62 +89,61 @@ A:hover {text-decoration: none; color: #e6e6e6; cursor: pointer; text-shadow: bl
 .highlight:hover {background:rgba(200, 200, 200, 0.3)}
 
 a.rollover:hover > img {
-	position: absolute;
-	width: 64px;
 	height: 64px;
 	margin-top: -32px;
 	margin-left: -16px;
 	outline: 2px solid black;
+	position: absolute;
+	width: 64px;
 	z-index: 20;
 }
 .tbox {
-	position: absolute;
 	display: none;
 	padding: 14px 17px;
+	position: absolute;
 	z-index: 900;
 }
 .tinner {
-	padding: 15px;
-	-moz-border-radius: 15px;
-	border-radius: 15px;
 	background: rgba(0, 0, 0, 0.9) url('images/loading.gif') no-repeat 50% 50%;
 	border: 3px solid grey;
+	border-radius: 15px;
+	-moz-border-radius: 15px;
+	padding: 15px;
 }
 .tmask {
-	position: absolute;
-	display: none;
-	top: 0px;
-	left: 0px;
-	height: 100%;
-	width: 100%;
 	background: #000;
+	display: none;
+	height: 100%;
+	left: 0px;
+	position: absolute;
+	top: 0px;
+	width: 100%;
 	z-index: 800;
 }
 .tclose {
+	background: url('images/close.png') no-repeat;
+	cursor: pointer;
+	height: 30px;
 	position: absolute;
 	top: 14px;
 	right: 17px;
 	width: 30px;
-	height: 30px;
-	cursor: pointer;
-	background: url('images/close.png') no-repeat;
+
 }
 .tclose:hover {background-position:0 -30px}
 
 
 .track_item {
-	width:400px;
-	border:1px solid #FFF;
 	background-color:#666;
+	border:1px solid #FFF;
 	cursor:pointer;
 	padding:5px;
+	width:400px;
 }
 .track_item:hover {
-	opacity:0.8;
 	cursor:pointer;
+	opacity:0.8;
 }
-
-
 
 #error {background:#ff6969; color:#fff; text-shadow:1px 1px #cf5454; border-right:1px solid #000; border-bottom:1px solid #000; padding:0}
 #error .tcontent {padding:10px 14px 11px; border:1px solid #ffb8b8; -moz-border-radius:5px; border-radius:5px}
@@ -147,9 +151,3 @@ a.rollover:hover > img {
 #bluemask {background:#4195aa}
 #frameless {padding:0}
 #frameless .tclose {left:6px}
-
-.indexheader {
-  margin: 0 auto 0 auto;
-  font-weight: bold;
-  text-align: center;
-}

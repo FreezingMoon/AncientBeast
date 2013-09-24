@@ -273,8 +273,6 @@ var UI = Class.create({
 						$stat.text(crea.health+"/"+value);
 					}else if(key=="movement"){
 						$stat.text(crea.remainingMove+"/"+value);
-					}else if(key=="energy"){
-						$stat.text(crea.energy+"/"+value);
 					}else if(key=="endurance"){
 						$stat.text(crea.endurance+"/"+value);
 					}else{
@@ -765,11 +763,11 @@ var UI = Class.create({
 			if(this instanceof Creature){
 				var text = (this.endurance > 0) ? this.endurance + "/" + this.stats.endurance : "Fatigued";
 
-				if(this.type == "--"){ //If darkpriest
+				if(this.type == "--"){ //If Dark Priest
 					this.abilities[0].require(); //Update protectedFromFratigue
 				}
 
-				text = (this.protectedFromFratigue) ? "Prodected" :  text ;
+				text = (this.protectedFromFratigue) ? "Protected" :  text ;
 				text = (this.materializeSickness) ? "Sickened" :  text ;
 				$j('.queue .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
 			}
