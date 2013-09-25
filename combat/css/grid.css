@@ -17,6 +17,7 @@
 	background-size: 100% 100%;
 	position: relative;
 	display: inline-block;
+	overflow: hidden;
 }
 
 #creaturegrid .vignette div.overlay{	
@@ -49,21 +50,20 @@
 #creaturegrid .vignette .tooltip{
 	position: absolute;
 	z-index: 3;
-	opacity: 0;
-	bottom: 50px;
-	transition: all 500ms;	
-	-ms-transition: all 500ms;	
-	-moz-transition: all 500ms; /* Firefox 4 */
-	-webkit-transition: all 500ms; /* Safari and Chrome */
-	-o-transition: all 500ms; /* Opera */
+	bottom: 0px;
+	transition: bottom 150ms;	
+	-ms-transition: bottom 150ms;	
+	-moz-transition: bottom 150ms; /* Firefox 4 */
+	-webkit-transition: ottom 150ms; /* Safari and Chrome */
+	-o-transition: bottom 150ms; /* Opera */
 } 
 
 #creaturegrid .vignette:hover .tooltip{
 	position: absolute;
-	bottom: 0px;
+	bottom: 30px;
 	left:  0px;
 	display: block;
-	opacity: 1;
+	z-index: 3;
 } 
 
 #dash #creaturegrid .tooltip .content{ width: 100px; }
@@ -72,46 +72,12 @@
 	position: absolute;
 	display: block;
 	width: 128px;
+	font-size: 85%;
 	text-align: center;
-	padding: 5px;
+	padding: 5px 2px;
 	box-sizing: border-box;
 	color: white;
-	background: #000;
+	background: rgba(0,0,0,.9);
 	line-height: 20px;
 	border: 1px solid #555;
-}
-
-#creaturegrid .tooltip .arrow{
-	position: absolute;
-	top: -6px;
-	left: 56px;
-	height: 0;
-	position: absolute;
-	width: 0;
-	z-index: 1000;
-}
-
-#dash #creaturegrid .tooltip .arrow{ left: 42px; }
-
-#creaturegrid .tooltip .arrow:before{
-	content: "";
-	border-bottom: 6px solid #555;
-	border-right: 8px solid transparent;
-	border-left: 8px solid transparent;
-	display: inline-block;
-	height: 0;
-	position: absolute;
-	width: 0;
-}
-
-#creaturegrid .tooltip .arrow:after{
-	content: "";
-	top:1px;
-	border-bottom: 6px solid #000;
-	border-right: 8px solid transparent;
-	border-left: 8px solid transparent;
-	display: inline-block;
-	height: 0;
-	position: absolute;
-	width: 0;
 }

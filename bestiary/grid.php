@@ -29,7 +29,7 @@ echo '<style type="text/css">';
 			continue;
 		}
 		$underscore = str_replace(' ', '_', $r['name']);
-		echo '<a href="#'.$underscore.'" class="vignette type'.$r['realm'].$r['lvl'].'" creature="'.$r['realm'].$r['lvl'].'"><div class="tooltip"><div class="arrow"></div><div class="content">'.$r['name'].'</div></div><div class="overlay"></div><div class="border"></div></a>';
+		echo '<a href="#'.$underscore.'" class="vignette type'.$r['realm'].$r['lvl'].'" creature="'.$r['realm'].$r['lvl'].'"><div class="tooltip"><div class="content">'.$r['name'].'</div></div><div class="overlay"></div><div class="border"></div></a>';
 	} 
 
 	echo '</div>';
