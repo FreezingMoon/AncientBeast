@@ -421,26 +421,26 @@ var UI = Class.create({
 		.removeClass("selected0 selected1 selected2 selected3")
 		.addClass("selected"+id);
 
-		this.$grid.children(".vignette") //vignettes class
+		this.$grid.find(".vignette") //vignettes class
 		.removeClass("active dead queued notsummonable")
 		.addClass("locked");
 
 		//change creature status
 		G.players[id].availableCreatures.each(function(){
-			G.UI.$grid.children(".vignette[creature='"+this+"']").removeClass("locked");
+			G.UI.$grid.find(".vignette[creature='"+this+"']").removeClass("locked");
 
 			var lvl = this.substring(1,2)-0;
 			var size = G.retreiveCreatureStats(this).size-0;
 			plasmaCost = lvl+size;
 
 			if( plasmaCost > G.players[id].plasma ){
-				G.UI.$grid.children(".vignette[creature='"+this+"']").addClass("notsummonable");
+				G.UI.$grid.find(".vignette[creature='"+this+"']").addClass("notsummonable");
 			}
 		});
 
 
 		G.players[id].creatures.each(function(){
-			var $crea = G.UI.$grid.children(".vignette[creature='"+this+"']");
+			var $crea = G.UI.$grid.find(".vignette[creature='"+this.type+"']");
 			$crea.removeClass("notsummonable");
 			if(this.dead == true){
 				$crea.addClass("dead");
@@ -450,7 +450,7 @@ var UI = Class.create({
 		});
 
 		//Bind creature vignette click
-		this.$grid.children(".vignette").unbind('click').bind("click",function(e){
+		this.$grid.find(".vignette").unbind('click').bind("click",function(e){
 			e.preventDefault();
 			if(G.freezedInput) return;
 
