@@ -80,4 +80,13 @@
 	background: rgba(0,0,0,.9);
 	line-height: 20px;
 	border: 1px solid #555;
+	 white;
 }
+
+#creaturegrid .realmA .content{text-shadow: 0px 0px 5px yellow;}
+#creaturegrid .realmE .content{text-shadow: 0px 0px 5px orange;}
+#creaturegrid .realmG .content{text-shadow: 0px 0px 5px green;}
+#creaturegrid .realmL .content{text-shadow: 0px 0px 5px red;}
+#creaturegrid .realmP .content{text-shadow: 0px 0px 5px violet;}
+#creaturegrid .realmS .content{text-shadow: 0px 0px 5px blue;}
+#creaturegrid .realmW .content{text-shadow: 0px 0px 5px indigo;}
