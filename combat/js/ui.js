@@ -546,6 +546,12 @@ var UI = Class.create({
 			}else{
 				this.abilitiesButtons[i].changeState("disabled");
 			}
+
+			//Message
+			this.abilitiesButtons[i].$button.next(".desc").find(".message").remove();
+			if( ab.message != "" ){
+				this.abilitiesButtons[i].$button.next(".desc").append('<div class="message">'+ab.message+'</div>')
+			}
 		};
 
 		if( !oneUsableAbility && G.activeCreature.remainingMove == 0 ){

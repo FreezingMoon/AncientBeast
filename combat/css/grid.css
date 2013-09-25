@@ -54,7 +54,7 @@
 	transition: bottom 150ms;	
 	-ms-transition: bottom 150ms;	
 	-moz-transition: bottom 150ms; /* Firefox 4 */
-	-webkit-transition: ottom 150ms; /* Safari and Chrome */
+	-webkit-transition: bottom 150ms; /* Safari and Chrome */
 	-o-transition: bottom 150ms; /* Opera */
 } 
 
@@ -80,7 +80,6 @@
 	background: rgba(0,0,0,.9);
 	line-height: 20px;
 	border: 1px solid #555;
-	 white;
 }
 
 #creaturegrid .realmA .content{text-shadow: 0px 0px 5px yellow;}

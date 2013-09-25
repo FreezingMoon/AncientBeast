@@ -40,8 +40,6 @@ body{
 	min-width: 1920px;
 	min-height: 1080px;
 	background: url('../../locations/Dark Forest/bg.jpg');
-	background-repeat: repeat-x repeat-y;
-
 
 	/*padding: 277px 0 0 0;*/
 /*	position: absolute;
@@ -296,7 +294,7 @@ body{
 	text-align: center;
 	white-space: nowrap;
 }
-#creatureWrapper .gamehintblack{color: black; text-shadow:#FFF 1px 1px 2px,#FFF -1px -1px 2px;;}
+#creatureWrapper .gamehintblack{color: black; text-shadow:#FFF 1px 1px 2px,#FFF -1px -1px 2px;}
 #creatureWrapper .healing{color: green;}
 #creatureWrapper .msg_effects{color: yellow;}
 
@@ -836,7 +834,15 @@ body{
 	padding: 5px 7px 7px;
 	font-size: 14px;
 	color: #ddd;
+}
 
+.button + .desc .message {
+	margin: 0;
+	padding: 1px 7px 7px;
+	font-size: 14px;
+	color: #FAA;
+	text-align: center;
+	font-style: italic;
 }
 
 .button +.desc .shortcut{
