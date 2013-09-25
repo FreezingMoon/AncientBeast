@@ -197,6 +197,12 @@ abilities[3] =[
 					}
 				},100)				
 			},
+			callbackStepIn : function(hex){
+				console.log(ability);
+				if(ability.creature.abilities[0].require(hex)){
+					ability.creature.abilities[0].activate(hex);
+				}
+			}
 		}); 
 
 		//Frogger Leap bonus

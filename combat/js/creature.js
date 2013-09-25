@@ -535,10 +535,10 @@ var Creature = Class.create({
 							if(opts.customMovementPoint == 0) creature.travelDist++;
 							
 							//Trigger
-							opts.callbackStepIn(currentHex);
 							G.triggersFn.onStepIn(creature,currentHex);
 						}
-	
+
+						opts.callbackStepIn(currentHex);
 	
 						if( thisHexId < path.length-1 && creature.remainingMove > 0 ){
 							//Determine facing
