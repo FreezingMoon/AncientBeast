@@ -722,7 +722,7 @@ var UI = Class.create({
 
 					var queueElem = '<div queue="'+u+'" creatureid="'+queue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+queue[i].team+" type"+queue[i].type+'"><div class="frame"></div><div class="stats"></div></div>';
 
-					//If this element doesnot exists
+					//If this element does not exists
 					if($Q[i] == undefined){
 						//Create element
 						if(i==0){
@@ -740,7 +740,7 @@ var UI = Class.create({
 							.transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
 
 					}else{
-						//While its not the right creature
+						//While it'ss not the right creature
 						while( $j($Q[i]).attr("creatureid") != queue[i].id ){
 
 							if( 
@@ -748,7 +748,7 @@ var UI = Class.create({
 								$j($Q[i]).attr("initiative") < initiative
 								) 
 							{
-								//Create elem
+								//Create element
 								$j($Q[i]).before(queueElem);
 								this.$queue.children('.queue').children('.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').css({width:0}).transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
 							
@@ -756,7 +756,7 @@ var UI = Class.create({
 								$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
 
 							}else{
-								//Remove elem
+								//Remove element
 								$j($Q[i]).attr("queue","-1")
 									.transition({width:0},queueAnimSpeed,function(){ this.remove(); });
 							}
