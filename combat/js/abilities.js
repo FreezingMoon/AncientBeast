@@ -185,6 +185,26 @@ var Ability = Class.create({
 		return targets;
 	},
 
+	getFormatedCosts : function() {
+		if( !this.costs ) return false;
+		var string = "";
+		$j.each(this.costs,function(key,value){
+			if(string != "") string += ", ";
+			string += (value+'<span class="'+key+'"></span>');
+		});
+		return string;
+	},
+
+	getFormatedDamages : function() {
+		if( !this.damages ) return false;
+		var string = "";
+		$j.each(this.damages,function(key,value){
+			if(string != "") string += ", ";
+			string += (value+'<span class="'+key+'"></span>');
+		});
+		return string;
+	},
+
 	/* 	areaDamages(targets)
 	*
 	*	targets : 	Array : 	Example : target = [{target:crea1,hexsHit:2},{target:crea2,hexsHit:1}]

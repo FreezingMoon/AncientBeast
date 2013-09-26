@@ -911,6 +911,67 @@ body{
 	text-align: right;
 }
 
+/*-----------------Costs and damages-------------------*/
+
+.costs, .damages{
+	margin: 2px 10px;
+	font-size: 14px;
+}
+
+.costs{ color: #ddd; text-shadow: 1px 1px 0px #55f; }
+.damages{ color: #ddd; text-shadow: 1px 1px 0px #f55; }
+
+span.plasma,
+span.pure,
+span.health,
+span.regrowth,
+span.endurance,
+span.energy,
+span.meditation,
+span.initiative,
+span.offense,
+span.defense,
+span.movement,
+span.pierce,
+span.slash,
+span.crush,
+span.shock,
+span.burn,
+span.frost,
+span.poison,
+span.sonic,
+span.mental{
+	display: inline-block !important;
+	width: 15px;
+	height: 15px;
+	margin: 0px 3px !important;
+	padding: 0px !important;
+	background-size: 100% 100%; 
+	vertical-align: -2px;
+}
+
+span.plasma{ background-image: url("../../images/stats/health.png");  } 
+span.pure{ background-image: url("../../images/stats/health.png");  } 
+span.health{ background-image: url("../../images/stats/health.png");  } 
+span.regrowth{ background-image: url("../../images/stats/regrowth.png");  } 
+span.endurance{ background-image: url("../../images/stats/endurance.png");  } 
+span.energy{ background-image: url("../../images/stats/energy.png");  } 
+span.meditation{ background-image: url("../../images/stats/meditation.png");  } 
+span.initiative{ background-image: url("../../images/stats/initiative.png");  } 
+span.offense{ background-image: url("../../images/stats/offense.png");  } 
+span.defense{ background-image: url("../../images/stats/defense.png");  } 
+span.movement{ background-image: url("../../images/stats/movement.png");  } 
+span.pierce{ background-image: url("../../images/stats/pierce.png");  } 
+span.slash{ background-image: url("../../images/stats/slash.png");  } 
+span.crush{ background-image: url("../../images/stats/crush.png");  } 
+span.shock{ background-image: url("../../images/stats/shock.png");  } 
+span.burn{ background-image: url("../../images/stats/burn.png");  } 
+span.frost{ background-image: url("../../images/stats/frost.png");  } 
+span.poison{ background-image: url("../../images/stats/poison.png");  } 
+span.sonic{ background-image: url("../../images/stats/sonic.png");  } 
+span.mental{ background-image: url("../../images/stats/mental.png");  } 
+
+
 /*-----------------Animations-------------------*/
 
 /*Pulse between .6 and .1 opacity*/

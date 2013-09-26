@@ -360,10 +360,58 @@ require_once('../bestiary/cards.php');
 				<div id="leftpanel">
 					<div id="activebox">
 						<div id="abilities">
-							<div style="position:relative"><div ability="0" class="ability button" style="cursor:default;"></div><div ability="0" class="desc"><div class="arrow"></div><div class="shortcut">passive</div><span></span><p></p></div></div>
-							<div style="position:relative"><div ability="1" class="ability button"></div><div ability="1" class="desc"><div class="arrow"></div><div class="shortcut">hotkey W</div><span></span><p></p></div></div>
-							<div style="position:relative"><div ability="2" class="ability button"></div><div ability="2" class="desc"><div class="arrow"></div><div class="shortcut">hotkey E</div><span></span><p></p></div></div>
-							<div style="position:relative"><div ability="3" class="ability button"></div><div ability="3" class="desc"><div class="arrow"></div><div class="shortcut">hotkey R</div><span></span><p></p></div></div>
+							<div style="position:relative">
+								<div ability="0" class="ability button" style="cursor:default;"></div>
+								<div ability="0" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">passive</div>
+										<span></span>
+										<p></p>
+										<div class="cost"></div>
+										<div class="damages"></div>
+									</div>
+								</div>
+							</div>
+							<div style="position:relative">
+								<div ability="1" class="ability button"></div>
+								<div ability="1" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">hotkey W</div>
+										<span></span>
+										<p></p>
+										<div class="cost"></div>
+										<div class="damages"></div>
+									</div>
+								</div>
+							</div>
+							<div style="position:relative">
+								<div ability="2" class="ability button"></div>
+								<div ability="2" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">hotkey E</div>
+										<span></span>
+										<p></p>
+										<div class="cost"></div>
+										<div class="damages"></div>
+									</div>	
+								</div>
+							</div>
+							<div style="position:relative">
+								<div ability="3" class="ability button"></div>
+								<div ability="3" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">hotkey R</div>
+										<span></span>
+										<p></p>
+										<div class="cost"></div>
+										<div class="damages"></div>
+									</div>	
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>

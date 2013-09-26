@@ -498,14 +498,31 @@ var UI = Class.create({
 		var $abilitiesButtons = $j("#abilities .ability");
 		$abilitiesButtons.unbind("click");
 
-		this.$activebox.children("#abilities").clearQueue().transition({y:"-420px"},function(){//Hide panel	
+		this.$activebox.find("#abilities").clearQueue().transition({y:"-420px"},function(){//Hide panel	
 			$j(this).removeClass("p0 p1 p2 p3").addClass("p"+G.activeCreature.player.id);
 			//Change abilities buttons
 			G.UI.abilitiesButtons.each(function(){
 				var ab = G.activeCreature.abilities[this.abilityId];
 				this.css.normal = {"background-image":"url('../bestiary/"+G.activeCreature.name+"/"+this.abilityId+".svg')"};
-				this.$button.next(".desc").children("span").text(ab.title);
-				this.$button.next(".desc").children("p").html(ab.desc+"<br>"+ab.info);
+				this.$button.next(".desc").find("span").text(ab.title);
+				this.$button.next(".desc").find("p").html(ab.desc);
+
+				var costs_string = ab.getFormatedCosts();
+				var dmg_string = ab.getFormatedDamages();
+
+				//Removing elements
+				this.$button.next(".desc").find(".costs , .damages").remove();
+
+				//Add if needed
+				if(costs_string){
+					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="costs"></div>');
+					this.$button.next(".desc").find(".costs").html("Costs : "+costs_string);	
+				}
+				if(dmg_string){
+					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="damages"></div>');
+					this.$button.next(".desc").find(".damages").html("Damages : "+dmg_string);
+				}
+				
 
 				this.click = function(){
 					if(G.UI.selectedAbility!=this.abilityId){
