@@ -77,7 +77,8 @@ var Game = Class.create({
 			14, //Gumble
 			7, //Abolished
 			40, //Nutcase
-			//39, //Headless
+			9, //Nightmare
+			39, //Headless
 			//33, //Golden Wyrm
 			//44, //Scavenger
 			//31, //Cyber Hound
