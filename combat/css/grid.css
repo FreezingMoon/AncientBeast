@@ -35,7 +35,7 @@
 }
 
 #creaturegrid .vignette:hover div.border,
-#creaturegrid .vignette.active div.border{background-image: url("../../images/frame_focused.png");}
+#creaturegrid .vignette.active div.border{background-image: url("../../images/contour.png");}
 
 #creaturegrid .vignette.dead 	div.overlay{ background-image: url("../icons/dead.svg"); }
 #creaturegrid .vignette.notsummonable 	div.overlay{ background-image: url("../icons/plasma.svg"); }
@@ -60,7 +60,7 @@
 
 #creaturegrid .vignette:hover .tooltip{
 	position: absolute;
-	bottom: 30px;
+	bottom: 20px;
 	left:  0px;
 	display: block;
 	z-index: 3;
@@ -74,11 +74,11 @@
 	width: 128px;
 	font-size: 85%;
 	text-align: center;
-	padding: 5px 2px;
+	padding: 4px 2px;
 	box-sizing: border-box;
 	color: white;
-	background: rgba(0,0,0,.9);
-	line-height: 20px;
+	background: rgba(0,0,0,.8);
+	line-height: 10px;
 	border: 1px solid #555;
 }
 
