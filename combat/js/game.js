@@ -78,7 +78,11 @@ var Game = Class.create({
 			7, //Abolished
 			40, //Nutcase
 			9, //Nightmare
+<<<<<<< HEAD
 			39, //Headless
+=======
+			//39, //Headless
+>>>>>>> 83f0c5f3aca4ea5aee2f187e28fc678684def3ba
 			//33, //Golden Wyrm
 			//44, //Scavenger
 			//31, //Cyber Hound
@@ -345,6 +349,14 @@ var Game = Class.create({
 		this.queue = this.nextQueue.slice(0); //Copy queue
 
 		this.delayQueue = [];
+
+		//resetting values
+		for (var i = 0; i < this.creatures.length; i++) {
+			if( this.creatures[i] instanceof Creature ){
+				this.creatures[i].delayable = true;
+				this.creatures[i].delayed = false;
+			}
+		};
 
 		G.triggersFn.onStartOfRound();
 

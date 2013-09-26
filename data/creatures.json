@@ -567,8 +567,15 @@
         "animation": {
             "walk_speed": 500
         },
+        "display": {
+            "width": 128,
+            "height": 128,
+            "offset-x": 0,
+            "offset-y": -128
+        },
         "ability_info": [
             {
+                "effects" : [{ "offense" : 5, "defense" : 5, "permanent" : true }],
                 "title": "Frozen Tower",
                 "desc": "Constantly increases offense and defense for every turn not moving.",
                 "info": "+5 offense and defense per round"

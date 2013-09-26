@@ -683,8 +683,8 @@ var UI = Class.create({
 			}
 
 			//Updating
-			var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
-			var $queues = this.$queue.children('.queue[turn]');
+			$Q = this.$queue.find('.vignette[queue="'+u+'"]');
+			$queues = this.$queue.children('.queue[turn]');
 
 			//For all elements of this queue
 			for (var i = 0; i < queue.length; i++) {
@@ -697,7 +697,7 @@ var UI = Class.create({
 						$j($Q[i-1]).after('<div queue="'+u+'" roundmarker="1" class="vignette roundmarker"><div class="frame"></div><div class="stats">Round '+(G.turn+1)+'</div></div>');
 
 						//Updating for animation
-						$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+						$Q = this.$queue.find('.vignette[queue="'+u+'"]');
 
 						//Animation
 						$Q.filter('[roundmarker="1"][queue="'+u+'"]')
@@ -712,7 +712,7 @@ var UI = Class.create({
 								.transition({width:0},queueAnimSpeed,function(){ this.remove(); });
 
 							//Updating
-							$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+							$Q = this.$queue.find('.vignette[queue="'+u+'"]');
 							$queues = this.$queue.children('.queue[turn]');
 						}
 					}
@@ -731,11 +731,8 @@ var UI = Class.create({
 							$j($Q[i-1]).after(queueElem);
 						}
 
-						//Updating for animation
-						$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
-
 						//Animation
-						$Q.filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]')
+						this.$queue.find('.vignette[creatureid="'+queue[i].id+'"][queue="'+u+'"][initiative="'+initiative+'"]')
 							.css({width:0})
 							.transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
 
@@ -750,25 +747,26 @@ var UI = Class.create({
 							{
 								//Create element
 								$j($Q[i]).before(queueElem);
-								this.$queue.children('.queue').children('.vignette').filter('[creatureid="'+queue[i].id+'"][queue="'+u+'"]').css({width:0}).transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
-							
-								//Updating for animation
-								$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+
+								//Animation
+								this.$queue.find('.vignette[creatureid="'+queue[i].id+'"][queue="'+u+'"][initiative="'+initiative+'"]')
+									.css({width:0})
+									.transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
 
 							}else{
 								//Remove element
-								$j($Q[i]).attr("queue","-1")
-									.transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+								$j($Q[i]).attr("queue","-1").attr("creatureid","-1").attr("initiative","-1")
+									.transition({width:0},queueAnimSpeed,function(){ this.remove(); console.log("1") });
 							}
 
 							//Updating
-							$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+							$Q = this.$queue.find('.vignette[queue="'+u+'"]');
 							$queues = this.$queue.children('.queue[turn]');
 						}
 					}
 				}
 				//Updating
-				$Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+				$Q = this.$queue.find('.vignette[queue="'+u+'"]');
 				$queues = this.$queue.children('.queue[turn]');
 			};
 
@@ -776,15 +774,15 @@ var UI = Class.create({
 				for(var i = 0; i < $Q.length - queue.length; i++){
 					//Chop the excess
 					$Q.last().attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
-					var $Q = this.$queue.children('.queue').children('.vignette').filter('[queue="'+u+'"]');
+					var $Q = this.$queue.find('.vignette[queue="'+u+'"]');
 				}
 			}
 
 			this.updateFatigue();
 
 			//Set active creature
-			//this.$queue.children('.queue').children('.vignette').filter(".active").removeClass("active"); //Avoid bugs
-			this.$queue.children('.queue[queue="0"]').children('.vignette[queue="0"]').first().addClass("active");
+			this.$queue.find(".vignette.active").removeClass("active"); //Avoid bugs
+			this.$queue.find('.vignette[queue="0"]').first().addClass("active");
 
 			//Add mouseover effect
 			this.$queue.children('.queue').children('.vignette').not(".roundmarker").unbind("mouseover").unbind("mouseleave").bind("mouseover",function(){

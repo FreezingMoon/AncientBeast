@@ -137,6 +137,7 @@ var Creature = Class.create({
 		G.reorderQueue();
 
 		this.delayable = true;
+		this.delayed = false;
 		this.materializeSickness = (this.type == "--") ? false : true ;
 		
 		this.summon();
@@ -202,8 +203,6 @@ var Creature = Class.create({
 
 			this.endurance = this.stats.endurance;
 
-			this.delayable = true;
-
 			this.abilities.each(function(){ this.setUsed(false); });
 
 			//Trigger
@@ -232,11 +231,13 @@ var Creature = Class.create({
 	*
 	*/
 	deactivate: function(wait){
-		this.hasWait = !!wait;
+		this.hasWait = this.delayed = !!wait;
 		G.grid.updateDisplay(); //Retrace players creatures
 
 		//effects triggers
 		if(!wait) G.triggersFn.onEndPhase(this);
+
+		this.delayable = false;
 	},
 
 
@@ -246,7 +247,7 @@ var Creature = Class.create({
 	*
 	*/
 	wait: function(){
-		if(this.hasWait) return;
+		if(this.delayed) return;
 
 		var abilityAvailable = false;
 
@@ -254,9 +255,18 @@ var Creature = Class.create({
 		this.abilities.each(function(){	abilityAvailable = abilityAvailable || !this.used; });
 
 		if( this.remainingMove>0 && abilityAvailable ){
-			G.delayQueue.push(this);
+			this.delay()
 			this.deactivate(true);
 		}
+	},
+
+	delay : function(){
+		G.delayQueue.push(this);
+		G.queue.removePos(this);
+		this.delayable = false;
+		this.delayed = true;
+		this.hint("Delayed","msg_effects");
+		G.reorderQueue(); //Update UI and Queue order
 	},
 
 	/* 	queryMove()
@@ -694,7 +704,7 @@ var Creature = Class.create({
 	*
 	*/
 	getInitiative: function(wait){
-		return (this.stats.initiative*500-this.id)+(500000*!(!!wait && !!this.hasWait)); //To avoid 2 identical initiative
+		return (this.stats.initiative*500-this.id)+(500000*!(!!wait && !!this.delayed)); //To avoid 2 identical initiative
 	},
 
 
@@ -876,7 +886,7 @@ var Creature = Class.create({
 			//If Health is empty
 			if(this.health <= 0){
 				this.die(damage.attacker);
-				return {damages:dmg, kill:true}; //Killed
+				return {damages:dmg, damageObj:damage, kill:true}; //Killed
 			}
 
 			//Trigger
@@ -901,7 +911,7 @@ var Creature = Class.create({
 			this.hint(damage.status,'damage '+damage.status.toLowerCase());
 		}
 
-		return {kill:false}; //Not killed
+		return {damageObj:damage, kill:false}; //Not killed
 	},
 
 

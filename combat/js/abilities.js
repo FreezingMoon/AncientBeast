@@ -465,6 +465,8 @@ var Damage = Class.create({
 			returnObj.total += points;
 		});
 
+		returnObj.total = Math.min(returnObj.total,1); //Minimum of 1 damage
+
 		return returnObj;
 	},
 
