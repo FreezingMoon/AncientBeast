@@ -94,7 +94,7 @@ abilities[39] =[
 		var d = { pierce : 12 };
 
 		//Bonus for fatigued foe
-		d.pierce = target.endurance < 0 ? d.pierce * 2 : d.pierce;
+		d.pierce = target.endurance <= 0 ? d.pierce * 2 : d.pierce;
 
 		var damage = new Damage(
 			ability.creature, //Attacker
