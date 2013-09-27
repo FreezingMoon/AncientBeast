@@ -64,12 +64,12 @@
                 },
 		        "title": "Particle Disintegrator",
 		        "desc": "Does pure damage to a nearby foe. Bonus based on it's missing health.",
-		        "info": ">25 damage; plasma = creature size"
+		        "info": ">25 damage; plasma cost = unit size"
     		},
     		{
 		        "title": "Unit Materializer",
 		        "desc": "Summons a creature on the combat field that will serve and obey orders.",
-		        "info": "plasma = creature size + level"
+		        "info": "plasma cost = unit size + unit level"
     		}
     	]
 	},
@@ -587,8 +587,8 @@
             },
             {
                 "title": "Tail Uppercut",
-                "desc": "Sucker punches a near enemy using limb, bypassing defensive abilities.",
-                "info": "10 crush damage + 10 frost damage"
+                "desc": "Sucker punches a near enemy using limb, making it delay the next turn.",
+                "info": "10 crush + 10 frost damage & delay"
             },
             {
                 "title": "Icicle Tongue",
@@ -2252,7 +2252,7 @@
             {
                 "title": "Boomerang Throw",
                 "desc": "Forms a new weapon out of blades and throws it away, flying right back.",
-                "info": "10 slash + 10 crush damage"
+                "info": "10 slash + 5 crush damage, hits twice"
             }
         ]
 	},
