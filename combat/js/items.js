@@ -20,6 +20,7 @@ var Drop = Class.create({
 	pickup : function(creature){
 
 		G.log("%CreatureName"+creature.id+"% picks up "+this.name.replace("_"," "));
+		creature.hint(this.name.replace("_"," "),"msg_effects");
 		creature.dropCollection.push(this);
 
 		creature.updateAlteration();
