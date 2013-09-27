@@ -547,7 +547,7 @@ var Creature = Class.create({
 							
 							//Trigger
 							G.triggersFn.onStepIn(creature,currentHex);
-							currentHex.pickupDrop(creature);
+							creature.hexagons.each(function(){this.pickupDrop(creature);});
 						}
 
 						opts.callbackStepIn(currentHex);
@@ -585,7 +585,7 @@ var Creature = Class.create({
 	
 							//Trigger
 							G.triggersFn.onCreatureMove(creature,currentHex);
-							currentHex.pickupDrop(creature);
+							creature.hexagons.each(function(){this.pickupDrop(creature);});
 	
 							if( G.animationQueue.length == 0 ) G.freezedInput = false;
 						}
@@ -788,7 +788,7 @@ var Creature = Class.create({
 	*/
 	heal: function(amount,isRegrowth){
 		if(this.health + amount > this.baseStats.health)
-			amount = this.baseStats.health - this.health; //Cap health point
+			amount = this.stats.health - this.health; //Cap health point
 
 		if(this.health + amount < 1)
 			amount = this.health-1; //Cap to 1hp

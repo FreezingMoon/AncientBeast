@@ -18,10 +18,12 @@ var Drop = Class.create({
 	},
 
 	pickup : function(creature){
+
+		G.log("%CreatureName"+creature.id+"% picks up "+this.name.replace("_"," "));
 		creature.dropCollection.push(this);
 
 		creature.updateAlteration();
-		console.log(creature.health);
+		console.log(creature.stats.health);
 
 		this.hex.drop = undefined;
 
@@ -29,7 +31,6 @@ var Drop = Class.create({
 			switch(key){
 				case "health" : 
 					creature.heal(value);
-					console.log(value);
 					break;
 				case "endurance" : 
 					creature.endurance += value;
@@ -41,9 +42,11 @@ var Drop = Class.create({
 					creature.remainingMove += value;
 					break;
 			}
+			G.log("%CreatureName"+creature.id+"% gains "+value+" "+key);
 		});
 
 		creature.updateAlteration(); //Will cap the stats
+		console.log(creature.stats.health);
 
 		this.$display.fadeOut(500);
 	}
