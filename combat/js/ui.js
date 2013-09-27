@@ -272,20 +272,20 @@ var UI = Class.create({
 				$stat.removeClass("buff debuff");
 				if(crea){
 					if(key=="health"){
-						$stat.text(crea.health+"/"+value);
+						$stat.text(crea.health+"/"+crea.stats[key]);
 					}else if(key=="movement"){
-						$stat.text(crea.remainingMove+"/"+value);
+						$stat.text(crea.remainingMove+"/"+crea.stats[key]);
 					}else if(key=="energy"){
-						$stat.text(crea.energy+"/"+value);
+						$stat.text(crea.energy+"/"+crea.stats[key]);
 					}else if(key=="endurance"){
-						$stat.text(crea.endurance+"/"+value);
+						$stat.text(crea.endurance+"/"+crea.stats[key]);
 					}else{
 						$stat.text(crea.stats[key]);
-						if(crea.stats[key]>value){ //Buff
-							$stat.addClass("buff");
-						}else if(crea.stats[key]<value){ //Debuff
-							$stat.addClass("debuff");
-						}
+					}
+					if(crea.stats[key]>value){ //Buff
+						$stat.addClass("buff");
+					}else if(crea.stats[key]<value){ //Debuff
+						$stat.addClass("debuff");
 					}
 				}else{
 					$stat.text(value);
@@ -756,7 +756,7 @@ var UI = Class.create({
 							}else{
 								//Remove element
 								$j($Q[i]).attr("queue","-1").attr("creatureid","-1").attr("initiative","-1")
-									.transition({width:0},queueAnimSpeed,function(){ this.remove(); console.log("1") });
+									.transition({width:0},queueAnimSpeed,function(){ this.remove(); });
 							}
 
 							//Updating

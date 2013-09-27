@@ -459,13 +459,13 @@ var Damage = Class.create({
 			} else {
 				var points = Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
 				//For Debuging
-				//console.log("damage = "+value+key+"dmg * (1 + ("+atk.offense+"atkoffense - "+trg.defense+"trgdefense / "+dmg.area+"area + "+atk[key]+"atk"+key+" - "+trg[key]+"trg"+key+" )/100)");
+				if( G.debugMode ) console.log("damage = "+value+key+"dmg * (1 + ("+atk.offense+"atkoffense - "+trg.defense+"trgdefense / "+dmg.area+"area + "+atk[key]+"atk"+key+" - "+trg[key]+"trg"+key+" )/100)");
 			}
 			returnObj[key] = points;
 			returnObj.total += points;
 		});
 
-		returnObj.total = Math.min(returnObj.total,1); //Minimum of 1 damage
+		returnObj.total = Math.max(returnObj.total,1); //Minimum of 1 damage
 
 		return returnObj;
 	},

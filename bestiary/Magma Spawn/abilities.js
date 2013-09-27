@@ -120,11 +120,11 @@ abilities[4] =[
 		burn : 10,
 	},
 
-	map : [ [0,0,1,0],
-		[0,0,1,1],
-		[0,1,1,0],//origin line
-		[0,0,1,1],
-		[0,0,1,0]],
+	map : [  [0,0,1,0],
+			[0,0,1,1],
+			 [0,1,1,0],//origin line
+			[0,0,1,1],
+			 [0,0,1,0]],
 
 	// 	require() :
 	require : function(){
@@ -271,7 +271,7 @@ abilities[4] =[
 
 				var ret = target.takeDamage(damage,true);
 				
-				if( ret.damageObj instanceof Damage )
+				if( ret.damageObj instanceof Damage && ret.kill == false )
 					G.triggersFn.onDamage(target,ret.damageObj);
 
 				var interval = setInterval(function(){

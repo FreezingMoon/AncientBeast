@@ -8,77 +8,45 @@ abilities[39] =[
 // 	First Ability: Maggot Infestation
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onStepIn onStartPhase",
+	trigger : "onStartPhase",
 
 	// 	require() :
 	require : function(){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(inlineback2hex),"ennemy" ) ) return false;
 		return this.testRequirements();
 	},
 
+	effects : [{endurance : -5}],
+
 	//	activate() : 
 	activate : function() {
+		var ability = this;
 		var creature = this.creature;
-		var targets = this.getTargets(this.creature.adjacentHexs(1));
 
-		if( this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
+		if( this.atLeastOneTarget( this.creature.getHexMap(inlineback2hex),"ennemy" ) ){
 			this.end();
 			this.setUsed(false); //Infinite triggering
 		}else{
 			return false;
 		}
 
+		var targets = this.getTargets(this.creature.getHexMap(inlineback2hex));
+
 		targets.each(function(){
 			if( !(this.target instanceof Creature) ) return;
 
 			var trg = this.target;
 
-			if(trg.team%2 != creature.team%2){ //If Foe
-
-				var optArg = { 
-					effectFn : function(effect,crea){
-						var nearFungus = false;
-						crea.adjacentHexs(1).each(function(){
-							if(trg.creature instanceof Creature){
-								if(G.creatures[trg.creature] === effect.owner)
-									nearFungus = true;
-							}
-						});
-
-						if(!nearFungus){
-							for (var i = 0; i < crea.effects.length; i++) {
-								if(crea.effects[i].name == "Contaminated"){
-									crea.effects[i].deleteEffect();
-									break;
-								}
-							}
-						}
-					},
-					alterations : {regrowth : -5},
-					turn : G.turn,
-				};
-
-				//Spore Contamination
-				var effect = new Effect(
-					"Contaminated", //Name
-					creature, //Caster
-					trg, //Target
-					"onStartPhase", //Trigger
-					optArg //Optional arguments
-				);
-
-				var validTarget = true;
-				trg.effects.each(function(){
-					if(this.name == "Contaminated"){
-						if(this.turn == G.turn)
-							validTarget = false;
-					}
-				});
-
-				if(validTarget){
-					trg.addEffect(effect);
-				}
-			}
-		})
+			var effect = new Effect(
+				"Maggot Infestation", //Name
+				creature, //Caster
+				trg, //Target
+				"onStartPhase", //Trigger
+				{ alterations : ability.effects[0] } //Optional arguments
+			);
+			
+			trg.addEffect(effect);
+		});
 	},
 },
 
@@ -89,16 +57,14 @@ abilities[39] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	damages : {
-		pierce : 20,
-	},
-
 	// 	require() :
 	require : function(){
+		var crea = this.creature;
+
 		if( !this.testRequirements() ) return false;
 
 		//At least one target
-		if( !this.atLeastOneTarget(this.creature.adjacentHexs(1),"ennemy") ){
+		if( !this.atLeastOneTarget(crea.getHexMap(frontnback2hex),"ennemy") ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -107,20 +73,15 @@ abilities[39] =[
 
 	// 	query() :
 	query : function(){
-		var uncle = this.creature;
 		var ability = this;
-
-		var map = [  [0,0,0,0],
-					[0,1,0,1],
-				 	 [1,0,0,1], //origin line
-					[0,1,0,1]];
+		var crea = this.creature;
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //Team, 0 = ennemies
-			id : uncle.id,
-			flipped : uncle.flipped,
-			hexs : G.grid.getHexMap(uncle.x-2,uncle.y-2,0,false,map),
+			id : crea.id,
+			flipped : crea.flipped,
+			hexs : crea.getHexMap(frontnback2hex),
 		});
 	},
 
@@ -130,38 +91,20 @@ abilities[39] =[
 		var ability = this;
 		ability.end();
 
+		var d = { pierce : 12 };
+
+		//Bonus for fatigued foe
+		d.pierce = target.endurance < 0 ? d.pierce * 2 : d.pierce;
+
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
-			ability.damages, //Damage Type
+			d, //Damage Type
 			1, //Area
 			[]	//Effects
 		);
 
 		var dmg = target.takeDamage(damage);
-
-		if(dmg.status == ""){
-			//Regrowth bonus
-			ability.creature.addEffect( new Effect(
-				"Regrowth++", //Name
-				ability.creature, //Caster
-				ability.creature, //Target
-				"onStartPhase", //Trigger
-				{	
-					effectFn : function(effect,crea){
-						effect.deleteEffect();
-					},
-					alterations : {regrowth : Math.round(dmg.damages.total/4)}
-				} //Optional arguments
-			) );
-		}
-
-		//remove frogger bonus if its found
-		ability.creature.effects.each(function(){
-			if(this.name == "Frogger Bonus"){
-				this.deleteEffect();
-			}
-		});
 	},
 },
 
@@ -172,57 +115,90 @@ abilities[39] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	require : function(){return this.testRequirements();},
+	directions : [0,1,0,0,0,0],
 
-	fnOnSelect : function(hex,args){
-		this.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+this.creature.team })
+	require : function(){
+		if( !this.testRequirements() ) return false;
+
+		var crea = this.creature;
+		var x = (crea.player.flipped) ? crea.x-crea.size+1 : crea.x ;
+
+		var test = this.testDirection({
+			team : "ennemy",
+			x : x,
+			directions : this.directions,
+		});
+
+		if( !test ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return true;
 	},
 
 	// 	query() :
 	query : function(){
 		var ability = this;
-		var uncle = this.creature;
+		var crea = this.creature;
 
-		var range = G.grid.getFlyingRange(uncle.x,uncle.y,50,uncle.size,uncle.id);
-		range.filter(function(){ return uncle.y == this.y; });
+		var x = (crea.player.flipped) ? crea.x-crea.size+1 : crea.x ;
 
-		G.grid.queryHexs({
-			fnOnSelect : function(){ ability.fnOnSelect.apply(ability,arguments); },
+		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			size :  uncle.size,
-			flipped :  uncle.player.flipped,
-			id :  uncle.id,
-			hexs : range,
+			team : 0, //enemies
+			id : crea.id,
+			requireCreature : true,
+			x : x,
+			y : crea.y,
+			directions : this.directions,
 		});
 	},
 
 
 	//	activate() : 
-	activate : function(hex,args) {
+	activate : function(path,args) {
 		var ability = this;
+		var crea = this.creature;
+
+
+		var path = path;
+		var target = path.last().creature;
 		ability.end();
 
-		ability.creature.moveTo(hex,{
+		//Damage
+		var damage = new Damage(
+			ability.creature, //Attacker
+			"target", //Attack Type
+			{ slash : 10, crush : 5*path.length }, //Damage Type
+			1, //Area
+			[]	//Effects
+		);
+
+		//Movement
+		var creature = (args.direction==4) ? crea.hexagons[crea.size-1] : crea.hexagons[0] ;
+		path.filterCreature(false,false);
+		path.unshift(creature); //prevent error on empty path
+		var destination = path.last();
+		var x = (args.direction==4) ? destination.x+crea.size-1 : destination.x ;
+		destination = G.grid.hexs[destination.y][x];
+
+		crea.moveTo(destination,{
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			callback : function(){
-				G.activeCreature.queryMove();
-			},
-		}); 
+				var ret = target.takeDamage(damage,true);
+				
+				if( ret.damageObj instanceof Damage )
+					G.triggersFn.onDamage(target,ret.damageObj);
 
-		//Frogger Leap bonus
-		ability.creature.addEffect( new Effect(
-			"Offense++", //Name
-			ability.creature, //Caster
-			ability.creature, //Target
-			"onStepIn onEndPhase", //Trigger
-			{	
-				effectFn : function(effect,crea){
-					effect.deleteEffect();
-				},
-				alterations : {offense : 30}
-			} //Optional arguments
-		) );
+				var interval = setInterval(function(){
+					if(!G.freezedInput){
+						clearInterval(interval);
+						G.activeCreature.queryMove();
+					}
+				},100);
+			},
+		});
 	},
 },
 
@@ -234,59 +210,68 @@ abilities[39] =[
 	trigger : "onQuery",
 
 	damages : {
-		pierce : 15,
 		slash : 10,
 		crush : 5,
 	},
 
+	map : [ [0,0,0,0,0],
+		   [0,1,1,1,1],
+			[0,1,1,1,1],//origin line
+		   [0,1,1,1,1]],
+
 	// 	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
-
-		var map = G.grid.getHexMap(this.creature.x-2,this.creature.y-2,0,false,frontnback2hex);
-		//At least one target
-		if( !this.atLeastOneTarget(map,"ennemy") ){
-			this.message = G.msg.abilities.notarget;
-			return false;
-		}
 		return true;
 	},
 
 	// 	query() :
 	query : function(){
 		var ability = this;
-		var uncle = this.creature;
+		var crea = this.creature;
 
-		G.grid.queryCreature({
+		this.map.origin = [0,2];
+
+		G.grid.queryChoice({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
-			id : uncle.id,
-			flipped : uncle.flipped,
-			hexs : G.grid.getHexMap(uncle.x-2,uncle.y-2,0,false,frontnback2hex),
-		});
+			team : 3, 
+			requireCreature : 0,
+			id : crea.id,
+			flipped : crea.flipped,
+			choices : [
+				crea.getHexMap(this.map)
+			],
+		})
+
 	},
 
 
 	//	activate() : 
-	activate : function(target,args) {
+	activate : function(hexs) {
+
+		damages = {
+			slash : 10,
+			crush : 5,
+		}
+
 		var ability = this;
 		ability.end();
 
-		var damage = new Damage(
+		ability.areaDamage(
 			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			"zone", //Attack Type
+			damages, //Damage Type
+			[],	//Effects
+			ability.getTargets(hexs) //Targets
 		);
-		target.takeDamage(damage);
 
-		//remove frogger bonus if its found
-		ability.creature.effects.each(function(){
-			if(this.name == "Offense++"){
-				this.deleteEffect();
-			}
-		});
+		ability.areaDamage(
+			ability.creature, //Attacker
+			"zone", //Attack Type
+			damages, //Damage Type
+			[],	//Effects
+			ability.getTargets(hexs) //Targets
+		);
 	},
 }
 ];
