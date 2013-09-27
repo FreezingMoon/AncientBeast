@@ -262,7 +262,8 @@ abilities[39] =[
 			"zone", //Attack Type
 			damages, //Damage Type
 			[],	//Effects
-			ability.getTargets(hexs) //Targets
+			ability.getTargets(hexs), //Targets
+			true //Notriggers avoid double retailiation
 		);
 
 		ability.areaDamage(

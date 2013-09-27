@@ -209,12 +209,12 @@ var Ability = Class.create({
 	*
 	*	targets : 	Array : 	Example : target = [{target:crea1,hexsHit:2},{target:crea2,hexsHit:1}]
 	*/
-	areaDamage : function(attacker,type,damages,effects,targets) {
+	areaDamage : function(attacker,type,damages,effects,targets,notrigger) {
 		var multiKill = 0;
 		for (var i = 0; i < targets.length; i++) {
 			if(targets[i]===undefined) continue;
 			dmg = new Damage(attacker,type,damages,targets[i].hexsHit,effects)
-			multiKill += (targets[i].target.takeDamage(dmg).kill+0);
+			multiKill += (targets[i].target.takeDamage(dmg, notrigger).kill+0);
 		};
 		if(multiKill>1)	attacker.player.score.push({type:"combo",kills:multiKill});
 	},
