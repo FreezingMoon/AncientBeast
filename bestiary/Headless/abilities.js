@@ -127,6 +127,7 @@ abilities[39] =[
 			team : "ennemy",
 			x : x,
 			directions : this.directions,
+			distance : 5
 		});
 
 		if( !test ){
@@ -151,6 +152,7 @@ abilities[39] =[
 			x : x,
 			y : crea.y,
 			directions : this.directions,
+			distance : 5
 		});
 	},
 
