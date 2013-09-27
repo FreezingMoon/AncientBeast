@@ -910,6 +910,7 @@ var Hex = Class.create({
 		this.creature = undefined; //0 if no creature; else creature index
 		this.reachable = true;
 		this.direction = -1; //Used for queryDirection
+		this.drop = undefined; //Drop items
 
 		this.$display = $j('#hexsdisplay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object
 		this.$overlay = $j('#hexsoverlay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object
@@ -1213,6 +1214,13 @@ var Hex = Class.create({
 		delete G.grid.traps[this.trap.id];
 		this.trap.destroy();
 		delete this.trap;
+	},
+
+	//---------DROP FUNCTION---------//
+
+	pickupDrop: function(crea){
+		if(!this.drop) return;
+		this.drop.pickup(crea);
 	},
 
 });//End of Hex Class

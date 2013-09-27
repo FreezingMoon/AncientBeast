@@ -54,7 +54,7 @@ var Creature = Class.create({
 		this.realm 		= obj.realm; //Which creature it is
 		this.animation	= obj.animation;
 		this.display	= obj.display;
-		
+		this.drop		= obj.drop;
 
 		this.hexagons 	= [];
 
@@ -66,6 +66,7 @@ var Creature = Class.create({
 		this.hasWait 	= false;
 		this.travelDist = 0;
 		this.effects 	= [];
+		this.dropCollection	= [];
 		this.protectedFromFratigue = (this.type == "--") ? true : false ;
 		
 
@@ -546,6 +547,7 @@ var Creature = Class.create({
 							
 							//Trigger
 							G.triggersFn.onStepIn(creature,currentHex);
+							currentHex.pickupDrop(creature);
 						}
 
 						opts.callbackStepIn(currentHex);
@@ -572,7 +574,7 @@ var Creature = Class.create({
 							//TODO turn around animation
 							creature.facePlayerDefault();
 	
-							//reveal and position healh idicator
+							//reveal and position healh indicator
 							var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
 							creature.$health
 								.css(G.grid.hexs[creature.y][offsetX].displayPos)
@@ -583,6 +585,7 @@ var Creature = Class.create({
 	
 							//Trigger
 							G.triggersFn.onCreatureMove(creature,currentHex);
+							currentHex.pickupDrop(creature);
 	
 							if( G.animationQueue.length == 0 ) G.freezedInput = false;
 						}
@@ -969,9 +972,25 @@ var Creature = Class.create({
 				}
 			})
 		});
+		this.dropCollection.each(function(){
+			$j.each(this.alterations,function(key,value){
+				if( ( typeof value ) == "string" ) {
+					if( value.match(/\*/) ) {
+						crea.stats[key] = eval(crea.stats[key]+value);
+					}
+				}
+			})
+		});
 
 		//Usual Buff/Debuff
 		this.effects.each(function(){
+			$j.each(this.alterations,function(key,value){
+				if( ( typeof value ) == "number" ) {
+					crea.stats[key] += value;
+				}
+			})
+		});
+		this.dropCollection.each(function(){
 			$j.each(this.alterations,function(key,value){
 				if( ( typeof value ) == "number" ) {
 					crea.stats[key] += value;
@@ -989,9 +1008,25 @@ var Creature = Class.create({
 				}
 			})
 		});
+		this.dropCollection.each(function(){
+			$j.each(this.alterations,function(key,value){
+				if( ( typeof value ) == "string" ) {
+					if( value.match(/\//) ) {
+						crea.stats[key] = eval(crea.stats[key]+value);
+					}
+				}
+			})
+		});
 
 		//Boolean Buff/Debuff
 		this.effects.each(function(){
+			$j.each(this.alterations,function(key,value){
+				if( ( typeof value ) == "boolean" ) {
+					crea.stats[key] = value;
+				}
+			})
+		});
+		this.dropCollection.each(function(){
 			$j.each(this.alterations,function(key,value){
 				if( ( typeof value ) == "boolean" ) {
 					crea.stats[key] = value;
@@ -1018,6 +1053,14 @@ var Creature = Class.create({
 
 		this.killer = killer.player;
 		var isDeny = (this.killer.flipped == this.player.flipped);
+
+
+		//Drop item
+		if( this.drop ){
+			var offsetX = (this.player.flipped) ? this.x - this.size + 1: this.x ;
+			new Drop( this.drop.name, this.drop.name, this.drop.alterations, offsetX, this.y );	
+		}
+
 
 		if(!G.firstKill && !isDeny){ //First Kill
 			this.killer.score.push({type:"firstKill"});

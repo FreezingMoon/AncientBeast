@@ -52,6 +52,7 @@ require_once('../bestiary/cards.php');
 		<script type="text/javascript" src="./js/abilities.js"></script>
 		<script type="text/javascript" src="./js/creature.js"></script>
 		<script type="text/javascript" src="./js/pathfinding.js"></script>
+		<script type="text/javascript" src="./js/items.js"></script>
 		<script type="text/javascript" src="./js/game.js"></script>
 		<script type="text/javascript" src="./js/ui.js"></script>
 		<script type="text/javascript" src="./js/json2.js"></script>

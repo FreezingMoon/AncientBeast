@@ -225,6 +225,7 @@ var Game = Class.create({
 		//reseting global counters
 		trapID = 0;
 		effectId = 0;
+		dropID = 0;
 		this.creaIdCounter = 1;
 		
 		this.grid = new HexGrid();//Creating Hexgrid
