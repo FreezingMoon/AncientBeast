@@ -273,6 +273,7 @@ body{
 }
 .creature.ghosted{opacity: .25 !important;}
 .ghosted_hidden{opacity: .4 !important;}
+.creature.dead{opacity: 0 !important;}
 
 /*-----------------Drops-------------------*/
 .drop{
