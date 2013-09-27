@@ -142,16 +142,17 @@ abilities[39] =[
 		var ability = this;
 		var crea = this.creature;
 
-		var x = (crea.player.flipped) ? crea.x-crea.size+1 : crea.x ;
+		dir = (crea.player.flipped) ? [0,0,0,0,1,0] : this.directions;
 
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //enemies
 			id : crea.id,
 			requireCreature : true,
-			x : x,
+			sourceCreature : crea,
+			x : crea.x,
 			y : crea.y,
-			directions : this.directions,
+			directions : dir,
 			distance : 5
 		});
 	},
