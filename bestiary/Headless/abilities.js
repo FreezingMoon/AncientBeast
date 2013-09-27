@@ -38,7 +38,7 @@ abilities[39] =[
 			var trg = this.target;
 
 			var effect = new Effect(
-				"Maggot Infestation", //Name
+				"Infested", //Name
 				creature, //Caster
 				trg, //Target
 				"onStartPhase", //Trigger
