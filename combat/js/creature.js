@@ -878,7 +878,7 @@ var Creature = Class.create({
 			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
 			this.hint(nbrDisplayed,'damage d'+dmgAmount);
 
-			G.log("%CreatureName"+this.id+"% is hit "+nbrDisplayed+" health");
+			G.log("%CreatureName"+this.id+"% is hit : "+nbrDisplayed+" health");
 
 			//Health display Update
 			this.updateHealth();
