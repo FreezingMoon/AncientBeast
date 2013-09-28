@@ -204,7 +204,7 @@ var Ability = Class.create({
 		});
 		return string;
 	},
-
+	
 	/* 	areaDamages(targets)
 	*
 	*	targets : 	Array : 	Example : target = [{target:crea1,hexsHit:2},{target:crea2,hexsHit:1}]
@@ -279,6 +279,8 @@ var Ability = Class.create({
 				mental:0,
 			},
 		}
+
+		var r = this.requirements || this.costs;
 		
 		var req = $j.extend(def,this.requirements);
 
