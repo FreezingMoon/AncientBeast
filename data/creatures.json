@@ -219,7 +219,7 @@
     		"walk_speed": 360
     	},
         "drop" : {
-            "name" : "FrogLeg",
+            "name" : "Frog Leg",
             "alterations" : { "initiative" : 10 }
         },
     	"ability_info": [
@@ -305,7 +305,7 @@
 		{
 			"title": "Molten Hurl",
 			"desc": "Turns into a molten boulder, bowling itself into first foe in a straight line. Ignores all the traps along the way.",
-			"info": "10 crush + 5 burn damage"
+			"info": "10 crush + 5 burn damage & travel"
 		}
 	]
 	},
@@ -590,7 +590,7 @@
             "offset-y": -128
         },
         "drop" : {
-            "name" : "MilkBottle",
+            "name" : "Milk Bottle",
             "alterations" : { "energy" : 10 }
         },
         "ability_info": [
@@ -2266,7 +2266,7 @@
             "walk_speed": 300
         },
         "drop" : {
-            "name" : "YellowPepper",
+            "name" : "Yellow Pepper",
             "alterations" : { "health" : 20 }
         },
         "ability_info": [
@@ -2288,7 +2288,7 @@
             {
                 "title": "Boomerang Throw",
                 "desc": "Forms a new weapon out of blades and throws it away, flying right back.",
-                "info": "10 slash + 5 crush damage, hits twice"
+                "info": "5 slash + 5 crush damage, hits twice"
             }
         ]
 	},
@@ -2616,7 +2616,7 @@
         "offset-y": -183
     },
     "drop" : {
-        "name" : "BatWing",
+        "name" : "Bat Wing",
         "alterations" : { "movement" : 1 }
     },
 	"ability_info": [

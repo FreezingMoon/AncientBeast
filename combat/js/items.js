@@ -13,14 +13,14 @@ var Drop = Class.create({
 
 		this.hex.drop = this;
 
-		this.$display = G.grid.$creatureW.append('<img id="drop'+this.id +'" class="drop" src="../drops/'+icon+'.png"/>').children("#drop"+this.id);
+		this.$display = G.grid.$creatureW.append('<img id="drop'+this.id +'" class="drop" src="../drops/'+icon+'.png">').children("#drop"+this.id);
 		this.$display.css(this.hex.displayPos).hide().fadeIn(500);
 	},
 
 	pickup : function(creature){
 
-		G.log("%CreatureName"+creature.id+"% picks up "+this.name.replace("_"," "));
-		creature.hint(this.name.replace("_"," "),"msg_effects");
+		G.log("%CreatureName"+creature.id+"% picks up "+this.name);
+		creature.hint(this.name,"msg_effects");
 		creature.dropCollection.push(this);
 
 		creature.updateAlteration();
