@@ -16,6 +16,21 @@ abilities[3] =[
 	require : function(hex){
 		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ) return false;
 		
+		if( hex instanceof Hex && hex.creature instanceof Creature ){
+			var targets = this.getTargets(hex.creature.adjacentHexs(1));
+
+			var isAdj = false;
+
+			//Search if uncle is adjacent to the creature that is moving
+			for (var i = 0; i < targets.length; i++) {
+				if( targets[i] == undefined ) continue;
+				if( !(targets[i].target instanceof Creature) ) continue;
+				if( targets[i].target == this.creature ) isAdj = true;
+			};
+
+			if( !isAdj ) return false;
+		}
+
 		var targets = this.getTargets(this.creature.adjacentHexs(1));
 		
 		for (var i = 0; i < targets.length; i++) {
@@ -29,7 +44,7 @@ abilities[3] =[
 	},
 
 	//	activate() : 
-	activate : function() {
+	activate : function(hex) {
 		var ability = this;
 		var creature = this.creature;
 		var targets = this.getTargets(this.creature.adjacentHexs(1));
