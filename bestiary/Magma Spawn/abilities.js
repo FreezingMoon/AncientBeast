@@ -146,6 +146,8 @@ abilities[4] =[
 		var ability = this;
 		var magmaSpawn = this.creature;
 
+		this.map.origin = [0,2];
+
 		G.grid.queryChoice({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 3, 
@@ -153,8 +155,8 @@ abilities[4] =[
 			id : magmaSpawn.id,
 			flipped : magmaSpawn.flipped,
 			choices : [
-				G.grid.getHexMap(magmaSpawn.x,magmaSpawn.y-2,0,false,this.map),
-				G.grid.getHexMap(magmaSpawn.x-magmaSpawn.size+1,magmaSpawn.y-2,0,true,this.map)
+				magmaSpawn.getHexMap(this.map),
+				magmaSpawn.getHexMap(this.map,true)
 			],
 		})
 
