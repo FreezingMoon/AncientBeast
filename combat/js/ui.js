@@ -509,9 +509,10 @@ var UI = Class.create({
 
 				var costs_string = ab.getFormatedCosts();
 				var dmg_string = ab.getFormatedDamages();
+				var special_string = ab.getFormatedEffects();
 
 				//Removing elements
-				this.$button.next(".desc").find(".costs , .damages").remove();
+				this.$button.next(".desc").find(".costs , .damages , .special").remove();
 
 				//Add if needed
 				if(costs_string){
@@ -522,7 +523,10 @@ var UI = Class.create({
 					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="damages"></div>');
 					this.$button.next(".desc").find(".damages").html("Damages : "+dmg_string);
 				}
-				
+				if(special_string){
+					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="special"></div>');
+					this.$button.next(".desc").find(".special").html("Damages : "+special_string);
+				}
 
 				this.click = function(){
 					if(G.UI.selectedAbility!=this.abilityId){
