@@ -115,7 +115,7 @@ abilities[39] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	directions : [0,1,0,0,0,0],
+	directions : [0,1,0,0,1,0],
 
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -142,8 +142,6 @@ abilities[39] =[
 		var ability = this;
 		var crea = this.creature;
 
-		dir = (crea.player.flipped) ? [0,0,0,0,1,0] : this.directions;
-
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 0, //enemies
@@ -152,7 +150,7 @@ abilities[39] =[
 			sourceCreature : crea,
 			x : crea.x,
 			y : crea.y,
-			directions : dir,
+			directions : this.directions,
 			distance : 5
 		});
 	},
@@ -242,7 +240,8 @@ abilities[39] =[
 			id : crea.id,
 			flipped : crea.flipped,
 			choices : [
-				crea.getHexMap(this.map)
+				crea.getHexMap(this.map),
+				crea.getHexMap(this.map,true),
 			],
 		})
 
