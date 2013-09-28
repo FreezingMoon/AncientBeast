@@ -219,7 +219,7 @@
     		"walk_speed": 360
     	},
         "drop" : {
-            "name" : "FrogLeg",
+            "name" : "Frog Leg",
             "alterations" : { "initiative" : 10 }
         },
     	"ability_info": [
@@ -590,7 +590,7 @@
             "offset-y": -128
         },
         "drop" : {
-            "name" : "MilkBottle",
+            "name" : "Milk Bottle",
             "alterations" : { "energy" : 10 }
         },
         "ability_info": [
@@ -2266,7 +2266,7 @@
             "walk_speed": 300
         },
         "drop" : {
-            "name" : "YellowPepper",
+            "name" : "Yellow Pepper",
             "alterations" : { "health" : 20 }
         },
         "ability_info": [
@@ -2616,7 +2616,7 @@
         "offset-y": -183
     },
     "drop" : {
-        "name" : "BatWing",
+        "name" : "Bat Wing",
         "alterations" : { "movement" : 1 }
     },
 	"ability_info": [

@@ -191,7 +191,7 @@ var Creature = Class.create({
 					if(this.stats.regrowth < 0){
 						this.heal(this.stats.regrowth,true);
 					}else{
-						this.hint("&clubs;",'damage');
+						this.hint("&diams;",'damage');
 					}
 				}
 
@@ -199,7 +199,7 @@ var Creature = Class.create({
 					this.energy = Math.min( this.stats.energy, this.energy + this.stats.meditation ); //cap
 				}
 			}else{
-				this.hint("&diams;",'damage');
+				this.hint("&clubs;",'damage');
 			}
 
 			this.endurance = this.stats.endurance;
@@ -805,7 +805,7 @@ var Creature = Class.create({
 			else this.hint(amount,'healing d'+amount);
 			G.log("%CreatureName"+this.id+"% recovers +"+amount+" health");
 		}else if(amount==0){
-			if(isRegrowth) this.hint("&clubs;",'msg_effects');
+			if(isRegrowth) this.hint("&diams;",'msg_effects');
 			else this.hint("!",'msg_effects');
 		}else{
 			if(isRegrowth) this.hint(amount+" &spades;",'damage d'+amount);
