@@ -922,13 +922,14 @@ body{
 
 /*-----------------Costs and damages-------------------*/
 
-.costs, .damages{
+.costs, .damages, .special{
 	margin: 2px 10px;
 	font-size: 14px;
 }
 
 .costs{ color: #ddd; text-shadow: 1px 1px 0px #55f; }
 .damages{ color: #ddd; text-shadow: 1px 1px 0px #f55; }
+.special{ color: #ddd; text-shadow: 1px 1px 0px #ff5; }
 
 span.plasma,
 span.pure,

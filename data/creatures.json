@@ -595,7 +595,7 @@
         },
         "ability_info": [
             {
-                "effects" : [{ "offense" : 5, "defense" : 5, "permanent" : true }],
+                "effects" : [{ "special" : "(5%offense%, 5%defense%) each turn" }],
                 "title": "Frozen Tower",
                 "desc": "Constantly increases offense and defense for every turn not moving.",
                 "info": "+5 offense and defense per round"

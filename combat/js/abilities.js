@@ -204,7 +204,26 @@ var Ability = Class.create({
 		});
 		return string;
 	},
-	
+
+	getFormatedEffects : function() {
+		if( !this.effects ) return false;
+		var string = "";
+		for (var i = this.effects.length - 1; i >= 0; i--) {
+
+			if(this.effects[i].special){
+				string += this.effects[i].special.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>')
+				continue;
+			}
+
+			$j.each(this.effects[i],function(key,value){
+			if(string != "") string += ", ";
+			string += (value+'<span class="'+key+'"></span>');
+		});
+		};
+
+		return string;
+	},
+
 	/* 	areaDamages(targets)
 	*
 	*	targets : 	Array : 	Example : target = [{target:crea1,hexsHit:2},{target:crea2,hexsHit:1}]

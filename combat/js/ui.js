@@ -525,7 +525,7 @@ var UI = Class.create({
 				}
 				if(special_string){
 					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="special"></div>');
-					this.$button.next(".desc").find(".special").html("Damages : "+special_string);
+					this.$button.next(".desc").find(".special").html("Effects : "+special_string);
 				}
 
 				this.click = function(){
