@@ -367,34 +367,39 @@ var Game = Class.create({
 	*
 	*/
 	nextCreature: function(){
-		if(this.queue.length == 0){ //If no creature in queue
-			if(this.delayQueue.length > 0){
-				this.activeCreature = this.delayQueue[0]; //set new creature active
-				this.delayQueue = this.delayQueue.slice(1); //and remove it from the queue
-				console.log("Delayed Creature");
-			}else{
-				this.nextRound(); //Go to next Round
-				return; //End function
+		var interval = setInterval(function(){
+			if(!G.freezedInput){
+				clearInterval(interval);
+
+				if(G.queue.length == 0){ //If no creature in queue
+					if(G.delayQueue.length > 0){
+						G.activeCreature = G.delayQueue[0]; //set new creature active
+						G.delayQueue = G.delayQueue.slice(1); //and remove it from the queue
+						console.log("Delayed Creature");
+					}else{
+						G.nextRound(); //Go to next Round
+						return; //End function
+					}
+				}else{
+					G.activeCreature = G.queue[0]; //set new creature active
+					G.queue = G.queue.slice(1); //and remove it from the queue
+				}
+
+				if(G.activeCreature.player.hasLost){
+					G.nextCreature();
+					return;
+				}
+
+				G.log("Active Creature : %CreatureName"+G.activeCreature.id+"%");
+				G.activeCreature.activate();
+				
+				G.checkTime();
+
+				//Update UI to match new creature
+				G.UI.updateActivebox();
+				G.reorderQueue(); //Update UI and Queue order
 			}
-		}else{
-			this.activeCreature = this.queue[0]; //set new creature active
-			this.queue = this.queue.slice(1); //and remove it from the queue
-		}
-
-		if(this.activeCreature.player.hasLost){
-			this.nextCreature();
-			return;
-		}
-
-
-		this.log("Active Creature : %CreatureName"+this.activeCreature.id+"%");
-		this.activeCreature.activate();
-		G.checkTime();
-
-
-		//Update UI to match new creature
-		this.UI.updateActivebox();
-		this.reorderQueue(); //Update UI and Queue order
+		},50);
 	},
 
 
