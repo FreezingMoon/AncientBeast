@@ -252,7 +252,7 @@ abilities[39] =[
 	activate : function(hexs) {
 
 		damages = {
-			slash : 10,
+			slash : 5,
 			crush : 5,
 		}
 

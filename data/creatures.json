@@ -305,7 +305,7 @@
 		{
 			"title": "Molten Hurl",
 			"desc": "Turns into a molten boulder, bowling itself into first foe in a straight line. Ignores all the traps along the way.",
-			"info": "10 crush + 5 burn damage"
+			"info": "10 crush + 5 burn damage & travel"
 		}
 	]
 	},
@@ -2288,7 +2288,7 @@
             {
                 "title": "Boomerang Throw",
                 "desc": "Forms a new weapon out of blades and throws it away, flying right back.",
-                "info": "10 slash + 5 crush damage, hits twice"
+                "info": "5 slash + 5 crush damage, hits twice"
             }
         ]
 	},
