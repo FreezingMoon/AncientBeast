@@ -38,12 +38,12 @@
         },
     	"ability_info": [
     		{
-                "requirements" : { 
-                    "plasma" : 1 
-                },
     			"title": "Artificial Satellite",
     			"desc": "Protects from most harmful abilities.",
-    			"info": "-1 plasma for each countered attack"
+    			"info": "-1 plasma for each countered attack",
+			"requirements" : { 
+				"plasma" : 1 
+			}
     		},
     		{
     			"title": "Electro Shocker",
@@ -51,20 +51,21 @@
     			"info": "12 shock damage × creature size"
     		},
     		{
-                "requirements" : { 
-                    "plasma" : 1,
-                    "energy" : 20
-                },
-                "costs" : {
-                    "energy" : 20,
-                    "plasma" : "Creature size"
-                },
-                "damages" : {
-                    "pure" : "25 + Bonus"
-                },
+
 		        "title": "Particle Disintegrator",
 		        "desc": "Does pure damage to a nearby foe. Bonus based on it's missing health.",
-		        "info": ">25 damage; plasma cost = unit size"
+		        "info": ">25 damage; plasma cost = unit size",
+			"requirements" : { 
+				"plasma" : 1,
+				"energy" : 20
+			},
+			"costs" : {
+				"energy" : 20,
+				"plasma" : "Creature size"
+			},
+			"damages" : {
+				"pure" : "25 + Bonus"
+			}
     		},
     		{
 		        "title": "Unit Materializer",
@@ -82,24 +83,24 @@
 		"size": 1,
 		"type": "A2",
 		"stats": {
-			"health": 140,
-			"regrowth": 4,
-			"endurance": 50,
+			"health": 100,
+			"regrowth": 2,
+			"endurance": 30,
 			"energy": 125,
 			"meditation": 8,
 			"initiative": 110,
 			"offense": 12,
 			"defense": 4,
-			"movement": 5,
+			"movement": 4,
 			"pierce": 5,
 			"slash": 2,
 			"crush": 3,
 			"shock": 5,
-			"burn": 3,
-			"frost": 7,
-			"poison": 5,
-			"sonic": 6,
-			"mental": 20
+			"burn": 2,
+			"frost": 6,
+			"poison": 4,
+			"sonic": 5,
+			"mental": 8
 	},
 	"animation": {
 		"walk_speed": 500
@@ -407,8 +408,8 @@
 		"offset-x": 15,
 		"offset-y": -210
         },
-        "animation": {
-            "walk_speed": 400
+	"animation": {
+		"walk_speed": 400
         },
         "ability_info": [
             {
@@ -442,60 +443,70 @@
         "size": 3,
         "type": "P7",
         "stats": {
-            "health": 250,
-            "regrowth": 5,
-            "endurance": 55,
-            "energy": 100,
-            "meditation": 10,
-            "initiative": 110,
-            "offense": 6,
-            "defense": 6,
-            "movement": 2,
-            "pierce": 4,
-            "slash": 4,
-            "crush": 4,
-            "shock": 4,
-            "burn": 10,
-            "frost": 2,
-            "poison": 2,
-            "sonic": 6,
-            "mental": 8
+		"health": 250,
+		"regrowth": 5,
+		"endurance": 55,
+		"energy": 100,
+		"meditation": 10,
+		"initiative": 110,
+		"offense": 6,
+		"defense": 6,
+		"movement": 2,
+		"pierce": 4,
+		"slash": 4,
+		"crush": 4,
+		"shock": 4,
+		"burn": 10,
+		"frost": 2,
+		"poison": 2,
+		"sonic": 6,
+		"mental": 8
+	},
+	"animation": {
+		"walk_speed": 500
         },
-        "animation": {
-            "walk_speed": 500
-        },
-        "display":{
+	"display":{
             "width": 270,
             "height": 277,
             "offset-x": 0,
             "offset-y": -235
         },
         "drop" : {
-            "name" : "Radish",
-            "alterations" : { "burn" : 10 }
+		"name" : "Radish",
+		"alterations" : { "burn" : 10 }
         },
         "ability_info": [
-            {
-                "title": "Greater Pyre",
-                "desc": "Fries all adjacent creatures after taking damage and still being alive.",
-                "info": "15 burn damage nearby",
-                "affectedByMatSickness": 1
-            },
-            {
-                "title": "Fiery Claw",
-                "desc": "Scratches and burns a nearby foe. This attack has 1 hex extra reach.",
-                "info": "10 slash + 10 burn damage"
-            },
-            {
-                "title": "Burning Eye",
-                "desc": "Strategically teleports to a new location on the combat field.",
-                "info": "Reduces 1 burn stat to nearby foes."
-            },
-            {
-                "title": "Fire Ball",
-                "desc": "Throws a ball of fire that explodes on impact, damaging several creatures.",
-                "info": "20 at center + 10 splash burn damage "
-            }
+		{
+			"title": "Greater Pyre",
+			"desc": "Fries all adjacent creatures after taking damage and still being alive.",
+			"info": "15 burn damage nearby",
+			"affectedByMatSickness": 1
+		},
+		{
+			"title": "Fiery Claw",
+			"desc": "Scratches and burns a nearby foe. This attack has 1 hex extra reach.",
+			"info": "10 slash + 10 burn damage",
+			"damages" : {
+				"slash" : 10,
+				"burn" : 10
+			}
+		},
+		{
+			"title": "Burning Eye",
+			"desc": "Strategically teleports to a new location on the combat field.",
+			"info": "Reduces 1 burn stat to nearby foes."
+		},
+		{
+			"title": "Fire Ball",
+			"desc": "Throws a ball of fire that explodes on impact, damaging several creatures.",
+			"info": "20 at center + 10 splash burn damage",
+			"damages" : {
+				"burn" : 20
+			},
+			"damages2" : {
+				"burn" : 10
+			}
+		}
         ]
     },
     {
@@ -823,27 +834,37 @@
             "walk_speed": 500
         },
         "ability_info": [
-            {
-                "title": "Decaying Carcass",
-                "desc": "When dead, it's corpse rots fast and emanates deadly poisonous gases.",
-                "info": "5 poison damage, 5 regrowth debuff"
-            },
-            {
-                "title": "Rabid Bite",
-                "desc": "Sink poisonous teeth into nearby foe.",
-                "info": "10 pierce + 10 poison damage"
-            },
-            {
-                "title": "Bad Breath",
-                "desc": "Stinks up several nearby enemies, causing them to move away a hex.",
-                "info": "10 poison damage (double if staying)"
-            },
-            {
-                "title": "Goo Blast",
-                "desc": "Sneezes contagious toxin on a rather distant foe, spreading on proximity.",
-                "info": "15 poison damage and 5 regrowth debuff that stacks and even spreads."
-            }
-        ]
+		{
+			"title": "Decaying Carcass",
+			"desc": "Able to act another round if killed.",
+			"info": "Will collapse if taking 3 extra hits."
+		},
+		{
+			"title": "Rabid Bite",
+			"desc": "Sink poisonous teeth into nearby foe.",
+			"info": "10 pierce + 5 poison damage",
+			"damages" : {
+				"pierce" : 10,
+				"poison" : 5
+			}
+		},
+		{
+			"title": "Bad Breath",
+			"desc": "Stinks up several nearby enemies, causing them to move away a hex.",
+			"info": "10 poison damage, double if facing",
+			"damages" : {
+				"poison" : 10
+			}
+		},
+		{
+			"title": "Goo Blast",
+			"desc": "Sneezes contagious toxin on a foe, spreading to others that get close.",
+			"info": "10 poison damage that can spread",
+			"damages" : {
+				"poison" : 10
+			}
+		}
+	]
     },
     {
         "id": 14,
@@ -1622,48 +1643,58 @@
         "type": "P4",
         "stats": {
             "health": 220,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
+            "regrowth": 1,
+            "endurance": 100,
+            "energy": 70,
+            "meditation": 2,
+            "initiative": 10,
+            "offense": 10,
+            "defense": 10,
+            "movement": 2,
+            "pierce": 10,
+            "slash": 10,
+            "crush": 10,
+            "shock": 10,
+            "burn": 10,
+            "frost": 10,
+            "poison": 10,
+            "sonic": 5,
             "mental": 0
         },
         "animation": {
             "walk_speed": 500
         },
         "ability_info": [
-            {
-                "title": "Tankish Build",
-                "desc": "20% bonus to masteries and defense.",
-                "info": ""
-            },
-            {
-                "title": "Stomp'A'Fool",
-                "desc": "Deals damage to nearby foe.",
-                "info": "25 crush damage"
-            },
-            {
-                "title": "Stone Grinder",
-                "desc": "Destroys fatigued one or two hexagon creature or corpse.",
-                "info": "Does 10 crush damage around."
-            },
-            {
-                "title": "Charcoal Blast",
-                "desc": "Bombards an area with burning coal.",
-                "info": "10 crush to target + 10 burn in area"
-            }
+		{
+			"title": "Tankish Build",
+                	"desc": "20% bonus to masteries and defense.",
+                	"info": ""
+		},
+		{
+			"title": "Stomp'A'Fool",
+			"desc": "Deals damage to nearby foe.",
+		        "info": "25 crush damage",
+			"damages" : {
+				"crush" : 25
+			}
+		},
+		{
+			"title": "Stone Grinder",
+			"desc": "Destroys fatigued one or two hexagon creature or corpse.",
+			"info": "Does 10 crush damage around.",
+			"damages" : {
+				"crush" : 10
+			}
+		},
+		{
+			"title": "Charcoal Blast",
+			"desc": "Bombards an area with burning coal.",
+			"info": "10 crush to target + 10 burn in area",
+			"damages" : {
+				"crush" : 10,
+				"burn" : 10
+			}
+		}
         ]
     },
     {
@@ -1675,14 +1706,14 @@
         "size": 1,
         "type": "A5",
         "stats": {
-            "health": 170,
-            "regrowth": 5,
-            "endurance": 30,
+            "health": 100,
+            "regrowth": 4,
+            "endurance": 25,
             "energy": 100,
             "meditation": 10,
             "initiative": 40,
-            "offense": 14,
-            "defense": 14,
+            "offense": 10,
+            "defense": 25,
             "movement": 4,
             "pierce": 10,
             "slash": 10,
@@ -1692,33 +1723,42 @@
             "frost": 5,
             "poison": 3,
             "sonic": 3,
-            "mental": 15
+            "mental": 10
         },
         "animation": {
             "walk_speed": 500
         },
         "ability_info": [
-            {
-                "title": "Bad Touch",
-                "desc": "Every three strikes, a melee attacker is turned to gold for a whole round.",
-                "info": ""
-            },
-            {
-                "title": "Crystal Staff",
-                "desc": "Pokes nearby foe using the staff.<br> This attack has extended reach.",
-                "info": "15 crush damage"
-            },
-            {
-                "title": "Winged Orb",
-                "desc": "Heals an ally or damages a foe that's at the target location within 1 round.",
-                "info": "20 heal to ally or burn damage to foe"
-            },
-            {
-                "title": "Burning Light",
-                "desc": "Conjures an energy beam that causes multiple burning hits to first inline.",
-                "info": "3 hits x 10 burn damage"
-            }
-        ]
+		{
+			"title": "Bad Touch",
+			"desc": "Every three strikes, a melee attacker is turned to gold for a whole round.",
+			"info": ""
+		},
+		{
+			"title": "Crystal Staff",
+			"desc": "Pokes nearby foe using the staff.<br> This attack has extended reach.",
+			"info": "15 crush damage",
+			"damages" : {
+				"crush" : 15
+			}
+		},
+		{
+			"title": "Winged Orb",
+			"desc": "Heals an ally or damages a foe that's at the target location within 1 round.",
+			"info": "20 heal to ally or burn damage to foe",
+			"damages" : {
+				"burn" : 20
+			}
+		},
+		{
+			"title": "Burning Light",
+			"desc": "Conjures an energy beam that causes multiple burning hits to first inline.",
+			"info": "3 hits x 10 burn damage",
+			"damages" : {
+				"burn" : 10
+			}
+		}
+	]
     },
     {
         "id": 30,
@@ -1775,33 +1815,33 @@
         ]
     },
     {
-        "id": 31,
-        "name": "Cyber Hound",
-        "lvl": 3,
-        "embed": null,
-        "realm": "A",
-        "size": 2,
-        "type": "A3",
-        "stats": {
-            "health": 160,
-            "regrowth": 4,
-            "endurance": 80,
-            "energy": 110,
-            "meditation": 3,
-            "initiative": 80,
-            "offense": 8,
-            "defense": 8,
-            "movement": 3,
-            "pierce": 9,
-            "slash": 9,
-            "crush": 9,
-            "shock": 4,
-            "burn": 4,
-            "frost": 7,
-            "poison": 8,
-            "sonic": 4,
-            "mental": 5
-        },
+	"id": 31,
+	"name": "Cyber Hound",
+	"lvl": 3,
+	"embed": null,
+	"realm": "A",
+	"size": 2,
+	"type": "A3",
+	"stats": {
+		"health": 140,
+		"regrowth": 4,
+		"endurance": 80,
+		"energy": 110,
+		"meditation": 3,
+		"initiative": 60,
+		"offense": 8,
+		"defense": 8,
+		"movement": 2,
+		"pierce": 9,
+		"slash": 9,
+		"crush": 9,
+		"shock": 4,
+		"burn": 4,
+		"frost": 7,
+		"poison": 8,
+		"sonic": 4,
+		"mental": 5
+	},
         "display": {
 		"width": 160,
 		"height": 210,
@@ -1814,23 +1854,41 @@
         "ability_info": [
 		{
 			"title": "Bad Dog",
-			"desc": "Bites any frontal foes that stop by, also retaliates against rear attackers.",
-			"info": "8 pierce damage + 2 crush damage"
+			"desc": "Bites any frontal foe that stops by.",
+			"info": "8 pierce damage + 2 crush damage",
+                	"affectedByMatSickness": 1,
+			"damages" : {
+				"pierce" : 8,
+				"crush" : 2
+			}
 		},
+
 		{
 			"title": "Metal Hand",
-			"desc": "Injures a nearby foe.",
-			"info": "5 pierce + 5 slash + 5 crush damage"
-		},
-		{
-			"title": "Dead Eye",
-			"desc": "Studies foe within sight and gains bonus offense & defense against it.",
-			"info": "+10 offense & 10 defense against foe"
+			"desc": "Harms a foe by using prosthetic limb.",
+			"info": "10 crush + 5 shock damage",
+			"damages" : {
+				"crush" : 10,
+				"shock" : 5
+			}
 		},
 		{
 			"title": "Rocket Launcher",
 			"desc": "Fires up to 3 missiles that travel a fair distance, doing nice damage.",
-			"info": "8 crush + 8 burn damage per rocket"
+			"info": "8 crush + 8 burn damage per rocket",
+			"damages" : {
+				"crush" : 8,
+				"burn" : 8
+			}
+		},
+		{
+			"title": "Targeting System",
+			"desc": "All rockets that didn't hit units are being redirected at any target foe.",
+			"info": "This attack does only a single hit.",
+			"damages" : {
+				"crush" : 8,
+				"burn" : 8
+			}
 		}
 	]
     },
@@ -2011,14 +2069,14 @@
         "size": 1,
         "type": "A4",
         "stats": {
-            "health": 180,
-            "regrowth": 5,
+            "health": 100,
+            "regrowth": 3,
             "endurance": 40,
             "energy": 70,
             "meditation": 3,
             "initiative": 70,
             "offense": 15,
-            "defense": 15,
+            "defense": 30,
             "movement": 3,
             "pierce": 9,
             "slash": 9,
@@ -2028,7 +2086,7 @@
             "frost": 5,
             "poison": 0,
             "sonic": 0,
-            "mental": 10
+            "mental": 7
         },
         "animation": {
             "walk_speed": 500
@@ -2532,7 +2590,7 @@
 			"endurance": 30,
 			"energy": 80,
 			"meditation": 8,
-			"initiative": 60,
+			"initiative": 70,
 			"offense": 12,
 			"defense": 12,
 			"movement": 7,
@@ -2547,7 +2605,7 @@
 			"mental": 6
 	},
 	"animation": {
-		"walk_speed": 250
+		"walk_speed": 120
 	},
         "display":{
             "width": 195,
@@ -2562,19 +2620,19 @@
 			"info": ""
 		},
 		{
-			"title": "Slicing Talon",
+			"title": "Slicing Talons",
 			"desc": "Slashes nearby foe using claws.",
 			"info": "12 slash damage"
 		},
 		{
-			"title": "Special Delivery",
-			"desc": "Drops a boulder at the selected location, damaging a creature.",
-			"info": "15 crush damage"
+			"title": "Escort Service",
+			"desc": "Carries over a frontal or rear small or medium unit to a free inline location.",
+			"info": "Distance based on movement points."
 		},
 		{
-			"title": "Escort Service",
-			"desc": "Carries any small or medium creature to a new location. Also damages foes.",
-			"info": "6 pierce + 10 crush damage"
+			"title": "Ultimate Kiss",
+			"desc": "Bites a nearby foe, poisoning it once before the target becomes immune.",
+			"info": "8 pierce + 30/20/10 poison damage"
 		}
 	]
 	},
@@ -2627,7 +2685,7 @@
 		},
 		{
 			"title": "Tooth Fairy",
-			"desc": "Syncs teeth into nearby foe.",
+			"desc": "Syncs teeth into a nearby foe.",
 			"info": "20 crush damage"
 		},
 		{

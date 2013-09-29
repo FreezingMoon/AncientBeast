@@ -10,10 +10,6 @@ abilities[7] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onDamage",
 
-	damages : {
-		burn : 15
-	},
-
 	// 	require() :
 	require : function(damage){
 		if( this.used ) return false;
@@ -48,11 +44,6 @@ abilities[7] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		slash : 10,
-		burn : 10
-	},
 
 	distance : 2,
 
@@ -205,14 +196,6 @@ abilities[7] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		burn : 20,
-	},
-
-	damages2 : {
-		burn : 10,
-	},
 
 	// 	require() :
 	require : function(){

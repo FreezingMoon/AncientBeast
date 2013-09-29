@@ -47,10 +47,6 @@ abilities[31] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	damages : {
-		crush : 15
-	},
-
 	// 	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -96,15 +92,67 @@ abilities[31] =[
 
 
 
-// 	Third Ability: Dead Eye
+// 	Third Ability: Rocket Launcher
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	damages : {
-		crush : 15,
-		burn : 5,
+	require : function(){
+		return this.testRequirements();
 	},
+
+	// 	query() :
+	query : function(){
+		
+		var ability = this;
+		var swine = this.creature;
+
+		var hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
+		
+		//TODO Filtering corpse hexs
+		hexs.filter(function(){return true;});
+		
+		G.grid.hideCreatureHexs(this.creature);
+		
+		G.grid.queryHexs({
+			fnOnCancel : function(){ G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+			hexs : hexs,
+		});
+	},
+
+
+	//	activate() : 
+	activate : function(hex,args) {
+		G.grid.clearHexViewAlterations();
+		var ability = this;
+		ability.end();
+
+		var effects = [
+			new Effect(
+				"Slow Down",ability.creature,hex,"onStepIn",
+				{ 	
+					requireFn: function(){ 
+						if(this.trap.hex.creature==0) return false;
+						return this.trap.hex.creature.type != "A1"; 
+					}, 
+					effectFn: function(effect,crea){ crea.remainingMove--; },
+				}
+			),
+		]
+
+
+		hex.createTrap("mud-bath",effects,ability.creature.player);
+
+	},
+},
+
+
+
+// 	Forth Ability: Targeting System
+{
+	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	trigger : "onQuery",
 
 	// 	require() :
 	require : function(){
@@ -172,63 +220,6 @@ abilities[31] =[
 			[]	//Effects
 		);
 		target.takeDamage(damage);
-	},
-},
-
-
-
-// 	Fourth Ability: Rocket Launcher
-{
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onQuery",
-
-	require : function(){
-		return this.testRequirements();
-	},
-
-	// 	query() :
-	query : function(){
-		
-		var ability = this;
-		var swine = this.creature;
-
-		var hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
-		
-		//TODO Filtering corpse hexs
-		hexs.filter(function(){return true;});
-		
-		G.grid.hideCreatureHexs(this.creature);
-		
-		G.grid.queryHexs({
-			fnOnCancel : function(){ G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			hexs : hexs,
-		});
-	},
-
-
-	//	activate() : 
-	activate : function(hex,args) {
-		G.grid.clearHexViewAlterations();
-		var ability = this;
-		ability.end();
-
-		var effects = [
-			new Effect(
-				"Slow Down",ability.creature,hex,"onStepIn",
-				{ 	
-					requireFn: function(){ 
-						if(this.trap.hex.creature==0) return false;
-						return this.trap.hex.creature.type != "A1"; 
-					}, 
-					effectFn: function(effect,crea){ crea.remainingMove--; },
-				}
-			),
-		]
-
-
-		hex.createTrap("mud-bath",effects,ability.creature.player);
-
 	},
 }
 

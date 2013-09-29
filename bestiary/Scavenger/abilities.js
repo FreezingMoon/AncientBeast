@@ -5,7 +5,7 @@
 */
 abilities[44] =[
 
-// 	First Ability: Spa Mud
+// 	First Ability: Feathered Body
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStepIn",
@@ -42,14 +42,10 @@ abilities[44] =[
 
 
 
-// 	Second Ability: Power Bat
+// 	Second Ability: Slicing Talon
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		crush : 15
-	},
 
 	// 	require() :
 	require : function(){
@@ -96,15 +92,10 @@ abilities[44] =[
 
 
 
-// 	Third Ability: Ground Ball
+// 	Third Ability: Escort Service
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		crush : 15,
-		burn : 5,
-	},
 
 	// 	require() :
 	require : function(){
@@ -177,7 +168,7 @@ abilities[44] =[
 
 
 
-// 	Fourth Ability: Mud Bath
+// 	Fourth Ability: Ultimate Kiss
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",

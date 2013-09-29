@@ -79,9 +79,9 @@ var Game = Class.create({
 			40, //Nutcase
 			9, //Nightmare
 			39, //Headless
+			44, //Scavenger
+			31, //Cyber Hound
 			//33, //Golden Wyrm
-			//44, //Scavenger
-			//31, //Cyber Hound
 			//6, //Ice Demon
 			]; 
 		this.availableMusic = [ //epic fail, just scan directory
