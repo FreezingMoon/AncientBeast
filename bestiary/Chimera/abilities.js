@@ -267,16 +267,17 @@ abilities[45] =[
 			if(nextdmg.damages == undefined) break; //If attack is dodge
 			if(nextdmg.kill) break; //If target is killed
 			if(nextdmg.damages.total <= 0) break; //If damage is too weak
+			if(nextdmg.damageObj.status != "") break;
 			delete nextdmg.damages.total;
 			nextdmg = nextdmg.damages;
 
 			//Get next available targets
 			nextTargets = ability.getTargets(trg.adjacentHexs(1,true));
+
 			nextTargets.filter(function(){
 				if ( this.hexsHit == undefined ) return false; // remove empty ids.
 				return (targets.indexOf(this.target) == -1) ; //If this creature has already been hit
 			})
-
 
 			//If no target
 			if(nextTargets.length == 0) break;
@@ -285,7 +286,6 @@ abilities[45] =[
 			var bestTarget = { size: 0, stats:{ defense:-99999, shock:-99999 } };
 			for (var j = 0; j < nextTargets.length; j++) { //For each creature
 				if (typeof nextTargets[j] == "undefined") continue; // Skip empty ids.
-				if (targets.indexOf(nextTargets[j].target) != -1) continue; //If this creature has already been hit
 
 				var t = nextTargets[j].target;
 				//Compare to best target

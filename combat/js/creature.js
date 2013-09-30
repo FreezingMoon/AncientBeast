@@ -750,7 +750,7 @@ var Creature = Class.create({
 				{y:this.y-1,x:this.x-2+o},
 				{y:this.y-1,x:this.x-3+o},
 				{y:this.y,x:this.x-3},
-				{y:this.y-1,x:this.x-3+o},
+				{y:this.y+1,x:this.x-3+o},
 				{y:this.y+1,x:this.x-2+o},
 				{y:this.y+1,x:this.x-1+o},
 				{y:this.y+1,x:this.x+o}];
