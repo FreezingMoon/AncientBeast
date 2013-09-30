@@ -45,7 +45,7 @@ abilities[39] =[
 				{ alterations : ability.effects[0] } //Optional arguments
 			);
 			
-			trg.addEffect(effect);
+			trg.addEffect(effect,"%CreatureName"+trg.id+"% has been infested");
 		});
 	},
 },
