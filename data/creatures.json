@@ -2630,9 +2630,9 @@
 			"info": "Distance based on movement points."
 		},
 		{
-			"title": "Ultimate Kiss",
+			"title": "Venom Strike",
 			"desc": "Bites a nearby foe, poisoning it once before the target becomes immune.",
-			"info": "8 pierce + 30/20/10 poison damage"
+			"info": "10 pierce + 30/20/10 poison damage"
 		}
 	]
 	},

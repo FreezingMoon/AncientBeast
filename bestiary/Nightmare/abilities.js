@@ -28,7 +28,7 @@ abilities[9] =[
 
 		this.creature.addEffect( 
 			new Effect(
-				'Frozen Tower',
+				'Frostified',
 				this.creature,
 				this.creature,
 				"",

@@ -168,7 +168,7 @@ abilities[44] =[
 
 
 
-// 	Fourth Ability: Ultimate Kiss
+// 	Fourth Ability: Venom Strike
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
