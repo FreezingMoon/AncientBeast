@@ -43,6 +43,7 @@ var HexGrid = Class.create({
 
 		this.hexs 				= new Array(); //Hex Array
 		this.traps 				= new Array(); //Traps Array
+		this.allHexs			= new Array(); //All hexs
 		this.lastClickedtHex 	= []; //Array of hexagons containing last calculated pathfinding
 
 		this.$display 			= $j("#grid");
@@ -64,6 +65,7 @@ var HexGrid = Class.create({
 				this.$overHexsW.append('<div class="displayhex" x="'+hex+'" y="'+row+'"></div>');
 				this.$inptHexsW.append('<div class="hex" x="'+hex+'" y="'+row+'"><div class="physical"></div></div>');
 				this.hexs[row][hex] = new Hex(hex,row);	
+				this.allHexs.push(this.hexs[row][hex]);
 			};
 		};
 

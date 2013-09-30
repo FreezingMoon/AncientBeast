@@ -1141,8 +1141,8 @@ var Creature = Class.create({
 	*	shortcut convenience function to grid.getHexMap
 	*/
 	getHexMap : function(map,invertFlipped){
-		var x = ( this.player.flipped ? -invertFlipped : invertFlipped ) ? this.x+1-this.size : this.x;
-		return G.grid.getHexMap( x , this.y - map.origin[1] , 0-map.origin[0] , ( this.player.flipped ? -invertFlipped : invertFlipped ) , map );
+		var x = ( this.player.flipped ? !invertFlipped : invertFlipped ) ? this.x+1-this.size : this.x;
+		return G.grid.getHexMap( x , this.y - map.origin[1] , 0-map.origin[0] , ( this.player.flipped ? !invertFlipped : invertFlipped ) , map );
 	},
 
 	findEffect : function(name){

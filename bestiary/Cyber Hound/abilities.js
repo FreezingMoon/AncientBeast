@@ -8,35 +8,40 @@ abilities[31] =[
 // 	First Ability: Bad Dog
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onStepIn",
+	trigger : "onOtherCreatureMove",
 
 	// 	require() :
 	require : function(hex){
 		if( !this.testRequirements() ) return false;
 
-		if(hex == undefined) hex = this.creature.hexagons[0];
-		this.message = "";
-		if(hex.trap){
-			if(hex.trap.type == "mud-bath"){ 
-				return true;
-			}
+		if( hex instanceof Hex && hex.creature instanceof Creature ){
+			var isAdj = false;
+
+			//Search if Cyber hound is adjacent to the creature that is moving
+			for (var i = 0; i < hex.creature.hexagons.length; i++) {
+				if( hex.creature.hexagons[i] == this.creature.getHexMap(inlinefront2hex)[0] ) isAdj = true;
+			};
+
+			if( !isAdj ) return false;
 		}
-
-		this.message = "Not in a mud bath.";
-
-		this.creature.effects.each(function(){
-			if(this.trigger == "mud-bath")
-				this.deleteEffect();
-		});
-		return false;
+		return true;
 	},
 
 	//	activate() : 
-	activate : function(hex) {		
-		var effect = new Effect("Spa Mud",this.creature,this.creature,"mud-bath",{
-			alterations : { regrowth : 10, defense : 10 }
-		});
-		this.creature.addEffect(effect);
+	activate : function(hex) {
+		var ability = this;
+		ability.end();
+
+		var target = this.creature.getHexMap(inlinefront2hex)[0].creature;
+
+		var damage = new Damage(
+			ability.creature, //Attacker
+			"target", //Attack Type
+			ability.damages, //Damage Type
+			1, //Area
+			[]	//Effects
+		);
+		target.takeDamage(damage);
 	},
 },
 
@@ -51,7 +56,7 @@ abilities[31] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex), "ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -62,14 +67,14 @@ abilities[31] =[
 	query : function(){
 		
 		var ability = this;
-		var swine = this.creature;
+		var crea = this.creature;
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
 			team : 0, //Team, 0 = ennemies
-			id : swine.id,
-			flipped : swine.player.flipped,
-			hexs : swine.adjacentHexs(1),
+			id : crea.id,
+			flipped : crea.player.flipped,
+			hexs : crea.getHexMap(frontnback2hex)
 		});
 	},
 
@@ -101,49 +106,83 @@ abilities[31] =[
 		return this.testRequirements();
 	},
 
+	missedRocket : 0,
+
 	// 	query() :
 	query : function(){
 		
 		var ability = this;
-		var swine = this.creature;
+		var crea = this.creature;
 
-		var hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
-		
-		//TODO Filtering corpse hexs
-		hexs.filter(function(){return true;});
-		
-		G.grid.hideCreatureHexs(this.creature);
-		
-		G.grid.queryHexs({
+		var choices = [
+			//Front
+			G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id).concat(
+			G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true,true,crea.id),
+			G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id)),
+			//Behind
+			G.grid.getHexMap(crea.x-1,crea.y-2,0,true,bellowrow).filterCreature(true,true,crea.id).concat(
+			G.grid.getHexMap(crea.x-1,crea.y,0,true,straitrow).filterCreature(true,true,crea.id),
+			G.grid.getHexMap(crea.x-1,crea.y,0,true,bellowrow).filterCreature(true,true,crea.id))
+		];
+
+		choices[0].choiceId = 0;
+		choices[1].choiceId = 1;
+						
+		G.grid.queryChoice({
 			fnOnCancel : function(){ G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			hexs : hexs,
+			team : 4, //both
+			id : crea.id,
+			requireCreature : false,
+			choices : choices
 		});
 	},
 
 
 	//	activate() : 
-	activate : function(hex,args) {
-		G.grid.clearHexViewAlterations();
+	activate : function(choice,args) {
 		var ability = this;
 		ability.end();
 
-		var effects = [
-			new Effect(
-				"Slow Down",ability.creature,hex,"onStepIn",
-				{ 	
-					requireFn: function(){ 
-						if(this.trap.hex.creature==0) return false;
-						return this.trap.hex.creature.type != "A1"; 
-					}, 
-					effectFn: function(effect,crea){ crea.remainingMove--; },
-				}
-			),
-		]
+		var crea = this.creature;
+
+		if( choice.choiceId == 0 ){
+			//Front
+			var rows = [
+				G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id),
+				G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true,true,crea.id),
+				G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id)
+			];
+		}else{
+			//Back
+			var rows = [
+				G.grid.getHexMap(crea.x-1,crea.y-2,0,true,bellowrow).filterCreature(true,true,crea.id),
+				G.grid.getHexMap(crea.x-1,crea.y,0,true,straitrow).filterCreature(true,true,crea.id),
+				G.grid.getHexMap(crea.x-1,crea.y,0,true,bellowrow).filterCreature(true,true,crea.id)
+			];
+		}
 
 
-		hex.createTrap("mud-bath",effects,ability.creature.player);
+		for (var i = 0; i < rows.length; i++) {
+			if( rows[i].length == 0 || !(rows[i][ rows[i].length-1 ].creature instanceof Creature) ) {
+				//Miss
+				this.missedRocket += 1;
+				continue;
+			}
 
+			var target = rows[i][ rows[i].length-1 ].creature;
+
+			var damage = new Damage(
+				ability.creature, //Attacker
+				"target", //Attack Type
+				ability.damages, //Damage Type
+				1, //Area
+				[]	//Effects
+			);
+			target.takeDamage(damage);
+		};
+
+		G.UI.checkAbilities();
 	},
 },
 
@@ -158,15 +197,8 @@ abilities[31] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		var swine = this.creature;
-		var hexs = G.grid.getHexMap(swine.x,swine.y-2,0,false,bellowrow).filterCreature(true,true,swine.id,swine.team).concat(
-			G.grid.getHexMap(swine.x,swine.y,0,false,straitrow).filterCreature(true,true,swine.id,swine.team),
-			G.grid.getHexMap(swine.x,swine.y,0,false,bellowrow).filterCreature(true,true,swine.id,swine.team),
-			G.grid.getHexMap(swine.x,swine.y-2,0,true,bellowrow).filterCreature(true,true,swine.id,swine.team),
-			G.grid.getHexMap(swine.x,swine.y,0,true,straitrow).filterCreature(true,true,swine.id,swine.team),
-			G.grid.getHexMap(swine.x,swine.y,0,true,bellowrow).filterCreature(true,true,swine.id,swine.team));
-		if( !this.atLeastOneTarget( hexs, "ennemy" ) ){
-			this.message = G.msg.abilities.notarget;
+		if(this.creature.abilities[2].missedRocket == 0){
+			this.message = "No rocket launched."
 			return false;
 		}
 
@@ -177,45 +209,33 @@ abilities[31] =[
 	query : function(){
 
 		var ability = this;
-		var swine = this.creature;
+		var crea = this.creature;
 
-		var choices = [
-			//Front
-			G.grid.getHexMap(swine.x,swine.y-2,0,false,bellowrow),
-			G.grid.getHexMap(swine.x,swine.y,0,false,straitrow),
-			G.grid.getHexMap(swine.x,swine.y,0,false,bellowrow),
-			//Behind
-			G.grid.getHexMap(swine.x,swine.y-2,0,true,bellowrow),
-			G.grid.getHexMap(swine.x,swine.y,0,true,straitrow),
-			G.grid.getHexMap(swine.x,swine.y,0,true,bellowrow),
-		];
-
-		choices.each(function(){
-			this.filterCreature(true,true,swine.id,swine.team);
-		});
+		var hexs = G.grid.allHexs;
 		
-		G.grid.queryChoice({
+		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
-			team : 0, 
-			requireCreature : 1,
-			id : swine.id,
-			flipped : swine.flipped,
-			choices : choices,
+			team : 0, //Team, 0 = ennemies
+			id : crea.id,
+			flipped : crea.player.flipped,
+			hexs : hexs
 		});
 	},
 
 
 	//	activate() : 
-	activate : function(path,args) {
+	activate : function(crea,args) {
 		var ability = this;
 		ability.end();
 
-		var target = path.last().creature;
+		var target = crea;
+
+		this.creature.abilities[2].missedRocket -= 1;
 
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
-			ability.damages, //Damage Type
+			this.creature.abilities[2].damages, //Damage Type
 			1, //Area
 			[]	//Effects
 		);
