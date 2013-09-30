@@ -49,10 +49,6 @@ abilities[5] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	damages : {
-		pierce : 12
-	},
-
 	// 	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -175,11 +171,6 @@ abilities[5] =[
 		if( !this.testRequirements() ) return false;
 
 		return true;
-	},
-
-	damages : {
-		slash : 16, 
-		frost : 4
 	},
 
 	map : [  [0,0,0,0],

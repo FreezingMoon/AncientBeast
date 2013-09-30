@@ -15,8 +15,10 @@ abilities[4] =[
 
 	//	activate() : 
 	activate : function() {
+		var ability = this;
+
 		var effectFn = function(effect,crea){ 
-			crea.takeDamage(new Damage( effect.attacker, "effect", {burn:10}, 1,[] )); 
+			crea.takeDamage(new Damage( effect.attacker, "effect", ability.damages , 1,[] )); 
 			this.trap.destroy();
 		};
 
@@ -54,11 +56,6 @@ abilities[4] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		burn : 3,
-		crush : 8
-	},
 
 	// 	require() :
 	require : function(){
@@ -115,10 +112,6 @@ abilities[4] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		burn : 10,
-	},
 
 	map : [  [0,0,1,0],
 			[0,0,1,1],
@@ -185,11 +178,6 @@ abilities[4] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		crush : 10,
-		burn : 5,
-	},
 
 	directions : [0,1,0,0,1,0],
 

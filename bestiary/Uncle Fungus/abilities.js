@@ -57,7 +57,7 @@ abilities[3] =[
 			if(trg.team%2 != creature.team%2){ //If Foe
 
 				var optArg = { 
-					alterations : {regrowth : -5},
+					alterations : ability.effects[0],
 					creationTurn : G.turn-1,
 					turnLifetime : 1,
 					deleteTrigger : "onEndPhase",
@@ -89,10 +89,6 @@ abilities[3] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		pierce : 20,
-	},
 
 	// 	require() :
 	require : function(){
@@ -230,7 +226,7 @@ abilities[3] =[
 				effectFn : function(effect,crea){
 					effect.deleteEffect();
 				},
-				alterations : {offense : 25}
+				alterations : ability.effects[0]
 			} //Optional arguments
 		) );
 	},
@@ -242,12 +238,6 @@ abilities[3] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		pierce : 15,
-		slash : 10,
-		crush : 5,
-	},
 
 	// 	require() :
 	require : function(){

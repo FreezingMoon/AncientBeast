@@ -16,8 +16,6 @@ abilities[39] =[
 		return this.testRequirements();
 	},
 
-	effects : [{endurance : -5}],
-
 	//	activate() : 
 	activate : function() {
 		var ability = this;

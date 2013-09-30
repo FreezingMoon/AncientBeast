@@ -11,6 +11,9 @@ var Ability = Class.create({
 		this.priority = 0; //Priority for same trigger
 		var datas = G.retreiveCreatureStats(creature.type);
 		$j.extend(this,abilities[datas.id][abilityID],datas.ability_info[abilityID]);
+		if( this.requirements == undefined && this.costs != undefined ){
+			this.requirements = this.costs;
+		}
 	},
 
 
@@ -189,6 +192,12 @@ var Ability = Class.create({
 		if( !this.costs ) return false;
 		var string = "";
 		$j.each(this.costs,function(key,value){
+
+			if(key == "special"){
+				string += value.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>')
+				return;
+			}
+
 			if(string != "") string += ", ";
 			string += (value+'<span class="'+key+'"></span>');
 		});
@@ -199,6 +208,12 @@ var Ability = Class.create({
 		if( !this.damages ) return false;
 		var string = "";
 		$j.each(this.damages,function(key,value){
+
+			if(key == "special"){
+				string += value.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>')
+				return;
+			}
+			
 			if(string != "") string += ", ";
 			string += (value+'<span class="'+key+'"></span>');
 		});

@@ -269,7 +269,7 @@ abilities[7] =[
 			hex.creature.takeDamage(new Damage(
 				ability.creature, //Attacker
 				"area", //Attack Type
-				ability.damages, //Damage Type
+				ability.damages1, //Damage Type
 				1, //Area
 				[]	//Effects
 			));

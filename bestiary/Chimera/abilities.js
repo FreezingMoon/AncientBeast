@@ -44,10 +44,6 @@ abilities[45] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	damages : {
-		crush : 20,
-	},
-
 	//	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -108,11 +104,7 @@ abilities[45] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		sonic : 20,
-	},
-
+	
 	directions : [0,1,0,0,1,0],
 
 	//	require() :
@@ -209,10 +201,6 @@ abilities[45] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		shock : 20,
-	},
 
 	directions : [0,1,0,0,1,0],
 	

@@ -47,11 +47,6 @@ abilities[9] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	damages : {
-		slash : 6,
-		frost : 6
-	},
-
 	// 	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -109,11 +104,6 @@ abilities[9] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	damages : {
-		crush : 10,
-		frost : 10
-	},
-
 	// 	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -168,11 +158,6 @@ abilities[9] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		pierce : 10,
-		frost : 6,
-	},
 
 	directions : [1,1,1,1,1,1],
 

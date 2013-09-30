@@ -227,22 +227,32 @@
     		{
     			"title": "Toxic Spores",
     			"desc": "Foes that get too close have their regrowth reduced for a whole turn.",
-    			"info": "-5 regrowth stat debuff for a round"
+    			"info": "-5 regrowth stat debuff for a round",
+                "effects": [{"regrowth" : -5}]
     		},
     		{
     			"title": "Supper Chomp",
     			"desc": "Takes a huge bite out of nearby foe, restoring a minor amount of health.",
-    			"info": "20 pierce damage, 1/4 as regrowth"
+    			"info": "20 pierce damage, 1/4 as regrowth",
+                "damages" : {
+                    "pierce" : 20
+                }
     		},
     		{
     			"title": "Frogger Jump",
     			"desc": "Leaps in straight line over obstacles, gaining bonus offense after landing.",
-    			"info": "+25 offense for next hit if not moving"
+    			"info": "+25 offense for next hit if not moving",
+                "effects": [{"offense" : 25}]
     		},
     		{
     			"title": "Blade Kick",
     			"desc": "Slashes nearby foe using feet claws.",
-    			"info": "15 pierce + 10 slash + 5 crush damage"
+    			"info": "15 pierce + 10 slash + 5 crush damage",
+                "damages" : {
+                    "pierce" : 15,
+                    "slash" : 10,
+                    "crush" : 5
+                }
     		}
     	]
 	},
@@ -291,22 +301,34 @@
 		{
 			"title": "Scorched Ground",
 			"desc": "Ignites some of the ground under, lasting 1 round or until stepped on.",
-			"info": "10 burn damage for each hexagon"
+			"info": "10 burn damage for each hexagon",
+            "damages": {"burn":10}
 		},
 		{
 			"title": "Pulverizing Punch",
 			"desc": "Smacks a foe with its heavy hand, gaining bonus damage every hit.",
-			"info": "8 crush damage, + 3 burn per hit"
+			"info": "8 crush damage, + 3 burn per hit",
+            "damages" : {
+                "burn" : 3,
+                "crush" : 8
+            }
 		},
 		{
 			"title": "Fissure Vent",
 			"desc": "Smashes his fists into the ground, wreaking fierce havoc in area ahead.",
-			"info": "10 burn damage over all 8 hexagons"
+			"info": "10 burn damage over all 8 hexagons",
+            "damages" : {
+                "burn" : 10
+            }
 		},
 		{
 			"title": "Molten Hurl",
 			"desc": "Turns into a molten boulder, bowling itself into first foe in a straight line. Ignores all the traps along the way.",
-			"info": "10 crush + 5 burn damage & travel"
+			"info": "10 crush + 5 burn damage & travel",
+            "damages" : {
+                "crush" : 10,
+                "burn" : 5
+            }
 		}
 	]
 	},
@@ -360,17 +382,25 @@
     		{
     			"title": "Deadly Jab",
     			"desc": "Horn attack that gains extra damage based on the last distance traveled.",
-    			"info": "12 pierce damage + 3 more / hexagon"
+    			"info": "12 pierce damage + 3 more / hexagon",
+                "damages" : {
+                    "pierce" : 12
+                }
     		},
     		{
     			"title": "Poisonous Vine",
     			"desc": "Makes use of tongue to envenom horn, mostly effective for a turn.",
-    			"info": "+5 poison damage (+1 permanent)"
+    			"info": "+5 poison damage (+1 permanent)",
+                "effects": "+5 %poison% damage (+1 %poison% permanent)"
     		},
     		{
     			"title": "Super Slash",
     			"desc": "Damages up to 3 nearby creatures. 200% offense against fatigued ones.",
-    			"info": "16 slash + 4 frost damage"
+    			"info": "16 slash + 4 frost damage",
+                "damages" : {
+                    "slash" : 16, 
+                    "frost" : 4
+                }
     		}
     	]
 	},
@@ -480,6 +510,9 @@
 			"title": "Greater Pyre",
 			"desc": "Fries all adjacent creatures after taking damage and still being alive.",
 			"info": "15 burn damage nearby",
+            "damages" : {
+                "burn" : 15
+            },
 			"affectedByMatSickness": 1
 		},
 		{
@@ -494,13 +527,17 @@
 		{
 			"title": "Burning Eye",
 			"desc": "Strategically teleports to a new location on the combat field.",
-			"info": "Reduces 1 burn stat to nearby foes."
+			"info": "Reduces 1 burn stat to nearby foes.",
+            "effects": [{"special": "-1 %burn% on nearby foes"}]
 		},
 		{
 			"title": "Fire Ball",
 			"desc": "Throws a ball of fire that explodes on impact, damaging several creatures.",
 			"info": "20 at center + 10 splash burn damage",
-			"damages" : {
+            "damages" : {
+                "special" : "20 %burn% at center + 10 %burn% splash damage"
+            },
+			"damages1" : {
 				"burn" : 20
 			},
 			"damages2" : {
@@ -614,17 +651,29 @@
             {
                 "title": "Icy Talons",
                 "desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
-                "info": "6 slash + 6 frost damage, -1 frost"
+                "info": "6 slash + 6 frost damage, -1 frost",
+                "damages" : {
+                    "slash" : 6,
+                    "frost" : 6
+                }
             },
             {
                 "title": "Tail Uppercut",
                 "desc": "Sucker punches a near enemy using limb, making it delay the next turn.",
-                "info": "10 crush + 10 frost damage & delay"
+                "info": "10 crush + 10 frost damage & delay",
+                "damages" : {
+                    "crush" : 10,
+                    "frost" : 10
+                }
             },
             {
                 "title": "Icicle Tongue",
                 "desc": "Launches a shard that can penetrate up to 6 hexagons that are all aligned.",
-                "info": "10 pierce + 6 lowering frost damage"
+                "info": "10 pierce + 6 lowering frost damage",
+                "damages" : {
+                    "pierce" : 10,
+                    "frost" : 6
+                }
             }
         ]
     },
@@ -788,7 +837,12 @@
             {
                 "title": "Big Nip",
                 "desc": "Dents nearby foe using it's big teeth.",
-                "info": "8 pierce + 6 slash + 4 crush damage"
+                "info": "8 pierce + 6 slash + 4 crush damage",
+                "damages" : {
+                    "pierce" : 8,
+                    "slash" : 6,
+                    "crush" : 4
+                }
             },
             {
                 "title": "Blowing Wind",
@@ -798,7 +852,11 @@
             {
                 "title": "Chilling Spit",
                 "desc": "Spits diagonal foe with cold saliva. Bonus damage based on distance.",
-                "info": "7 frost + 4 crush damage / hexagon"
+                "info": "7 frost + 4 crush damage / hexagon",
+                "damages" : {
+                    "crush" : 0,
+                    "frost" : 7
+                }
             }
         ]
     },
@@ -911,22 +969,31 @@
             {
                 "title": "Gooey Body",
                 "desc": "Recovers 1/6 health at start of turn for every allie creature that's nearby.",
-                "info": "Ability also works when fatigued."
+                "info": "Ability also works when fatigued.",
+                "effects": [{"special": "+1/6 %health% x adjacent allies creatures"}]
             },
             {
                 "title": "Gummy Mallet",
                 "desc": "Transforms itself into a rubber hammer to strike a nearby foe.",
-                "info": "15 crush damage"
+                "info": "15 crush damage",
+                "damages" : {
+                    "crush" : 15
+                }
             },
             {
                 "title": "Royal Seal",
                 "desc": "Sticks chewing gum in place to hinder enemy movement for a turn.",
-                "info": "Allied units are affected by this."
+                "info": "Allied units are affected by this.",
+                "effects": [{"special": "%movement% is set to 0 for a turn"}]
             },
             {
                 "title": "Boom Box",
                 "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
-                "info": "20 sonic damage + 10 crush if melee"
+                "info": "20 sonic damage + 10 crush if melee",
+                "damages" : {
+                    "sonic" : 20,
+                    "crush" : 0
+                }
             }
         ]
     },
@@ -2211,16 +2278,22 @@
         },
         "ability_info": [
             {
+                "effects" : [{ "regrowth" : 10, "defense" : 10 }],
                 "title": "Spa Mud",
                 "desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
                 "info": "+10 regrowth, +10 defense"
             },
             {
+                "damages" : { "crush" : 20 },
                 "title": "Power Bat",
                 "desc": "Pokes baseball bat into nearby foe.",
                 "info": "20 crush damage"
             },
             {
+                "damages" : {
+                    "crush" : 15,
+                    "burn" : 5
+                },
                 "title": "Ground Ball",
                 "desc": "Strikes a mud boulder towards a foe. Usable on one of the 3 inline rows.",
                 "info": "15 crush + 5 burn damage"
@@ -2228,7 +2301,8 @@
             {
                 "title": "Mud Bath",
                 "desc": "Orders a pile of mud at a location, slowing units passing through it.",
-                "info": "-1 movement point per hexagon"
+                "info": "-1 movement point per hexagon",
+                "effects" : [{"special": "-1 %movement% per hexagon"}]
             }
         ]
     },
@@ -2329,6 +2403,7 @@
         },
         "ability_info": [
             {
+                "effects" : [{"endurance" : -5}],
                 "title": "Maggot Infestation",
                 "desc": "Strikes any rear foe at beginning of turn, infesting it with a parasite.",
                 "info": "-5 endurance stat debuff, stackable"
@@ -2336,7 +2411,8 @@
             {
                 "title": "Bone Dagger",
                 "desc": "Hits nearby foe using frontal blade. Double damage if unit is fatigued.",
-                "info": "12 pierce damage × 2 vs fatigued foe"
+                "info": "12 pierce damage × 2 vs fatigued foe",
+                "damages" : { "special" : "12 %pierce% ( x2 if target is fatigued)" }
             },
             {
                 "title": "Whip Slash",
@@ -2346,7 +2422,8 @@
             {
                 "title": "Boomerang Throw",
                 "desc": "Forms a new weapon out of blades and throws it away, flying right back.",
-                "info": "5 slash + 5 crush damage, hits twice"
+                "info": "5 slash + 5 crush damage, hits twice",
+                "damages" : { "special" : "5 %slash%, 5 %crush%, hits twice" }
             }
         ]
 	},
@@ -2400,17 +2477,28 @@
 		{
 			"title": "Hammer Time",
 			"desc": "Hits a nearby foe using its hard head, decreasing movement by 1 for a turn.",
-			"info": "12 crush + 6 pierce damage & debuff"
+			"info": "12 crush + 6 pierce damage & debuff",
+            "damages" : {
+                "crush" : 12,
+                "pierce" : 6
+            }
 		},
 		{
 			"title": "Fishing Hook",
 			"desc": "Pierces a nearby unit while swapping places if it's small or medium sized.",
-			"info": "10 pierce + 10 crush damage & swap"
+			"info": "10 pierce + 10 crush damage & swap",
+            "damages" : {
+                "pierce" : 10,
+                "crush" : 10
+            }
 		},
 		{
 			"title": "Tentacle Bush",
 			"desc": "Curls up to defend against attacks. Becomes unmovable and skips turn.",
-			"info": "+5 temporary defense per hit taken"
+			"info": "+5 temporary defense per hit taken",
+            "damages" : {
+                "crush" : 10
+            }
 		}
 	]
 	},
@@ -2686,17 +2774,26 @@
 		{
 			"title": "Tooth Fairy",
 			"desc": "Syncs teeth into a nearby foe.",
-			"info": "20 crush damage"
+			"info": "20 crush damage",
+            "damages" : {
+                "crush" : 20
+            }
 		},
 		{
 			"title": "Power Note",
 			"desc": "Sings a powerful note inline that keeps on going when killing units.",
-			"info": "20 sonic damage that can continue"
+			"info": "20 sonic damage that can continue",
+            "damages" : {
+                "sonic" : 20
+            }
 		},
 		{
 			"title": "Chain Lightning",
 			"desc": "Releases a lightning bolt that will arch, shocking multiple creatures.",
-			"info": "20 shock damage that can arch"
+			"info": "20 shock damage that can arch",
+            "damages" : {
+                "shock" : 20
+            }
 		}
 	]
 	},

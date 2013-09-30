@@ -34,7 +34,7 @@ abilities[37] =[
 	//	activate() : 
 	activate : function(hex) {		
 		var effect = new Effect("Spa Mud",this.creature,this.creature,"mud-bath",{
-			alterations : { regrowth : 10, defense : 10 }
+			alterations : this.effects[0]
 		});
 		this.creature.addEffect(effect);
 	},
@@ -46,10 +46,6 @@ abilities[37] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		crush : 20
-	},
 
 	// 	require() :
 	require : function(){
@@ -100,11 +96,6 @@ abilities[37] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		crush : 15,
-		burn : 5,
-	},
 
 	// 	require() :
 	require : function(){

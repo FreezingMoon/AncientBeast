@@ -80,11 +80,6 @@ abilities[40] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	damages : {
-		crush : 12,
-		pierce : 6
-	},
-
 	//	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -145,11 +140,6 @@ abilities[40] =[
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
-
-	damages : {
-		pierce : 10,
-		crush : 10,
-	},
 
 	//	require() :
 	require : function(){
@@ -233,10 +223,6 @@ abilities[40] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 		return true;
-	},
-
-	damages : {
-		crush : 10,
 	},
 
 	//	query() :
