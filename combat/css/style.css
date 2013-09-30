@@ -819,14 +819,15 @@ body{
 	width: 0px;
 	left: 85px;
 	color: white;
-	background: #000;
+	background: rgba(0,0,0,0.7);
 	overflow: hidden;
 }
 
 .button:hover + .desc{
 	width: 250px;
-	border: 1px #555 solid;
+	border: 2px black solid;
 	overflow: visible;
+	border-radius: 5px;
 }
 
 .button + .desc span {
@@ -863,29 +864,17 @@ body{
 }
 
 .button + .desc .arrow{
+	height: 0;
+	left:-6px;
+	position: absolute;
 	position: absolute;
 	top: 27px;
-	left:-6px;
-	height: 0;
-	position: absolute;
 	width: 0;
 }
 
 .button +.desc .arrow:before{
 	content: "";
-	border-right: 6px solid #555;
-	border-top: 8px solid transparent;
-	border-bottom: 8px solid transparent;
-	display: inline-block;
-	height: 0;
-	position: absolute;
-	width: 0;
-}
-
-.button +.desc .arrow:after{
-	content: "";
-	left:1px;
-	border-right: 6px solid #000;
+	border-right: 6px solid black;
 	border-top: 8px solid transparent;
 	border-bottom: 8px solid transparent;
 	display: inline-block;
@@ -906,17 +895,11 @@ body{
 
 #rightpanel .button +.desc .arrow:before{
 	border-right: 0px solid transparent;
-	border-left: 6px solid #555;
-}
-
-#rightpanel .button +.desc .arrow:after{
-	border-right: 0px solid transparent;
-	border-left: 6px solid #000;
-	left:-1px;
+	border-left: 6px solid black;
 }
 
 #rightpanel .button:hover +.desc{
-	left: -255px;
+	left: -259px;
 	text-align: right;
 }
 
