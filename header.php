@@ -51,6 +51,7 @@ var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
   }
 ?>
 </title>
+<link type="text/css" rel="stylesheet" href="//cdn.jsdelivr.net/hint.css/1.3.0/hint.min.css" />
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <link rel="stylesheet" href="<?php echo $site_root; ?>combat/css/grid.css">
 <?php

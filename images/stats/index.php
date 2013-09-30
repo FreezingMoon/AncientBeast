@@ -39,7 +39,7 @@ foreach ($stats as $x) {
 
 function displayStat($type = "health", $value = 0, $link = ""){
 	
-	echo '<td class="stats ' . $type . '" title="' . ucfirst($type) . '">';
+	echo '<td class="stats ' . $type . ' hint--bottom" data-hint="' . ucfirst($type) . '" >';
 		if($link != "") echo '
 			<a href="' . $link . '">';
 		echo '
