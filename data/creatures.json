@@ -225,7 +225,7 @@
         },
     	"ability_info": [
     		{
-    			"title": "Spore Contamination",
+    			"title": "Toxic Spores",
     			"desc": "Foes that get too close have their regrowth reduced for a whole turn.",
     			"info": "-5 regrowth stat debuff for a round"
     		},

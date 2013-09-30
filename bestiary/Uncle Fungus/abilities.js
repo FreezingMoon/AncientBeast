@@ -5,7 +5,7 @@
 */
 abilities[3] =[
 
-// 	First Ability: Spore Contamination
+// 	First Ability: Toxic Spores
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStepIn onStartPhase onOtherStepIn",
