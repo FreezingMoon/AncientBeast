@@ -377,7 +377,8 @@
     		{
     			"title": "Electrified Hair",
     			"desc": "Absorbs half of all incoming shock damage, using up to 25 on attacks.",
-    			"info": "Maximum of 100 damage absorbed."
+    			"info": "Maximum of 100 damage absorbed.",
+                "effects": [{"special":"Maximum of 100 %shock% damage absorbed."}]
     		},
     		{
     			"title": "Deadly Jab",
@@ -391,7 +392,7 @@
     			"title": "Poisonous Vine",
     			"desc": "Makes use of tongue to envenom horn, mostly effective for a turn.",
     			"info": "+5 poison damage (+1 permanent)",
-                "effects": "+5 %poison% damage (+1 %poison% permanent)"
+                "effects": [{"special":"+5 %poison% damage (+1 %poison% permanent)"}]
     		},
     		{
     			"title": "Super Slash",
