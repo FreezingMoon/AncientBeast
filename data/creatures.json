@@ -2711,10 +2711,11 @@
 			"poison": 8,
 			"sonic": 6,
 			"mental": 6
-	},
-	"animation": {
-		"walk_speed": 120
-	},
+    	},
+        "canFly" : true,
+    	"animation": {
+    		"walk_speed": 120
+    	},
         "display":{
             "width": 195,
             "height": 205,
@@ -2738,7 +2739,8 @@
 			"title": "Escort Service",
 			"desc": "Carries over a frontal or rear small or medium unit to a free inline location.",
 			"info": "Distance based on movement points.",
-			"costs" : {"movement" : "1 or 2 points per hexagon"}
+			"costs" : {"movement" : "1 or 2 points per hexagon"},
+            "animation_datas" : { "duration" : 500, "delay" : 500}
 		},
 		{
 			"title": "Venom Strike",

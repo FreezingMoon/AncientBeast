@@ -55,6 +55,7 @@ var Creature = Class.create({
 		this.animation	= obj.animation;
 		this.display	= obj.display;
 		this.drop		= obj.drop;
+		this.canFly		= obj.canFly;
 
 		this.hexagons 	= [];
 
@@ -297,6 +298,7 @@ var Creature = Class.create({
 				args.creature.delayable = false;
 				G.UI.btnDelay.changeState("disabled");
 				args.creature.moveTo(hex,{
+					animation : args.creature.canFly ? "fly" : "walk",
 					callback : function(){ G.activeCreature.queryMove() }
 				});
 			},
@@ -315,7 +317,11 @@ var Creature = Class.create({
 
 		G.grid.updateDisplay(); //Retrace players creatures
 
-		var select = (o.noPath)
+		if(this.canFly){
+			o.range = G.grid.getFlyingRange(this.x,this.y,this.remainingMove,this.size,this.id);
+		}
+
+		var select = (o.noPath || this.canFly)
 		? function(hex,args){ args.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+args.creature.team }); }
 		: function(hex,args){ args.creature.tracePath(hex); };
 
@@ -432,15 +438,17 @@ var Creature = Class.create({
 			ignoreMovementPoint : false,
 			ignorePath : false,
 			customMovementPoint : 0,
+			overrideSpeed : 0,
 		}
 
 		opts = $j.extend(defaultOpt,opts);
 
 		if(this.stats.moveable){
 			var creature = this;
+			var start = G.grid.hexs[creature.y][creature.x-creature.size+1];
 			var x = hex.x;
 			var y = hex.y;
-			if(opts.ignorePath){
+			if(opts.ignorePath || opts.animation == "fly"){
 				var path = [hex];
 			}else{
 				var path = creature.calculatePath(x,y);
@@ -485,8 +493,63 @@ var Creature = Class.create({
 			creature.travelDist = 0;
 	
 			var hexId = 0;
+
+			if( opts.animation == "fly" ){
+				var currentHex = G.grid.hexs[hex.y][hex.x-creature.size+1];
+
+				var speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
 	
-			if( opts.animation == "teleport" ){
+				creature.$display.animate(currentHex.displayPos,parseInt(speed),"linear",function(){
+					creature.$display
+						.css(currentHex.displayPos)
+						.css({"z-index":currentHex.y,opacity:1});
+					
+					creature.cleanHex();
+					creature.x 	= hex.x - 0;
+					creature.y 	= hex.y - 0;
+					creature.pos 	= hex.pos;
+					creature.updateHex();
+	
+					G.grid.updateDisplay();
+
+					//Determine distance
+					var distance = 0;
+					var k = 0;
+					while(!distance){
+						k++;
+						if( start.adjacentHex(k).findPos(currentHex) ) distance = k;
+					}
+
+					if(!opts.ignoreMovementPoint){
+
+						creature.remainingMove -= distance;
+						if(opts.customMovementPoint == 0) creature.travelDist += distance;
+						
+						//Trigger
+						G.triggersFn.onStepIn(creature,currentHex);
+						creature.hexagons.each(function(){this.pickupDrop(creature);});
+					}
+	
+					//TODO turn around animation
+					creature.facePlayerDefault();
+	
+					//reveal and position healh idicator
+					var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
+					creature.$health
+						.css(G.grid.hexs[creature.y][offsetX].displayPos)
+						.css("z-index",creature.y)
+						.show();
+	
+					G.animationQueue.filter(function(){ return (this!=anim_id); });
+
+					opts.callbackStepIn(currentHex);
+
+					//Trigger
+					G.triggersFn.onCreatureMove(creature,currentHex);
+
+					if( G.animationQueue.length == 0 ) G.freezedInput = false;
+				});
+			}else if( opts.animation == "teleport" ){
 				var currentHex = G.grid.hexs[hex.y][hex.x-creature.size+1];
 	
 				creature.$display.css({opacity:0}).animate({'margin-right':0},500,"linear",function(){
@@ -524,9 +587,11 @@ var Creature = Class.create({
 			}else{
 				path.each(function(){
 					var nextPos = G.grid.hexs[this.y][this.x-creature.size+1];
+
+					var speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
 	
 					var thisHexId = hexId;
-					creature.$display.animate(nextPos.displayPos,parseInt(creature.animation.walk_speed),"linear",function(){
+					creature.$display.animate(nextPos.displayPos,parseInt(speed),"linear",function(){
 	
 						//Sound Effect
 						G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);

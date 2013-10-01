@@ -549,11 +549,43 @@ var UI = Class.create({
 		if(G.activeCreature.player.creatures.length==1) //Blinking summon button during the 1st round
 			this.abilitiesButtons[3].changeState("glowing");
 
+		G.UI.checkAbilitiesTooltip();
+		
 		this.updateInfos();
+	},
+
+	checkAbilitiesTooltip : function(){
+		for (var i = 0; i < 4; i++) {
+			var ab = G.activeCreature.abilities[i];
+
+			var costs_string = ab.getFormatedCosts();
+			var dmg_string = ab.getFormatedDamages();
+			var special_string = ab.getFormatedEffects();
+
+			//Removing elements
+			this.abilitiesButtons[i].$button.next(".desc").find(".costs , .damages , .special").remove();
+
+			//Add if needed
+			if(costs_string){
+				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="costs"></div>');
+				this.abilitiesButtons[i].$button.next(".desc").find(".costs").html("Costs : "+costs_string);	
+			}
+			if(dmg_string){
+				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="damages"></div>');
+				this.abilitiesButtons[i].$button.next(".desc").find(".damages").html("Damages : "+dmg_string);
+			}
+			if(special_string){
+				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="special"></div>');
+				this.abilitiesButtons[i].$button.next(".desc").find(".special").html("Effects : "+special_string);
+			}
+		}
 	},
 
 	checkAbilities : function(){
 		var oneUsableAbility = false;
+
+		G.UI.checkAbilitiesTooltip();
+
 		for (var i = 0; i < 4; i++) {
 			var ab = G.activeCreature.abilities[i];
 			ab.message = "";

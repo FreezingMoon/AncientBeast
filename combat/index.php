@@ -162,7 +162,6 @@ require_once('../bestiary/cards.php');
 					Turn Time : 
 					<select name="time_turn">
 						<option value="-1">&#8734;</option>
-						<option value="5">5 sec</option>
 						<option value="20">20 sec</option>
 						<option value="40">40 sec</option>
 						<option value="60">60 sec</option>
@@ -173,7 +172,6 @@ require_once('../bestiary/cards.php');
 					Time Pools : 
 					<select name="time_pool">
 						<option value="-1">&#8734;</option>
-						<option value="0.5">30 sec</option>
 						<option value="1">1 min</option>
 						<option value="5">5 min</option>
 						<option value="10">10 min</option>
