@@ -82,13 +82,25 @@ abilities[44] =[
 
 		var crea = this.creature;
 
+		var hexs = crea.getHexMap(inlinefrontnback2hex)
+
+		if( hexs.length < 2 ){
+			//At the border of the map
+			return false;
+		}
+
+		if( hexs[0].creature && hexs[1].creature ){
+			//Sandwiched
+			return false;
+		}
+
 		//Filter 3h creatures
-		var hexs = crea.getHexMap(inlinefrontnback2hex).filter(function(){
+		hexs.filter(function(){
 			if( !this.creature ) return false;
 			return (this.creature.size < 3);
 		});
 
-		if( !this.atLeastOneTarget( hexs, "ally" ) ){
+		if( !this.atLeastOneTarget( hexs, "both" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -102,28 +114,12 @@ abilities[44] =[
 		var ability = this;
 		var crea = this.creature;
 
-		//Filter 3h creatures
-		var hexs = crea.getHexMap(inlinefrontnback2hex).filter(function(){
-			if( !this.creature ) return false;
-			return (this.creature.size < 3);
-		});
+		var hexs = crea.getHexMap(inlinefrontnback2hex);
+		var trg = hexs[0].creature || hexs[1].creature;
 		
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.query2.apply(ability,arguments); }, //fnOnConfirm
-			team : 1, //Ally
-			id : crea.id,
-			flipped : crea.flipped,
-			hexs : hexs,
-		});
-	},
-
-	// 	query() :
-	query2 : function(target,args){
-
 		var ability = this;
 		var crea = this.creature;
 
-		var trg = target;
 		var distance = Math.floor(crea.remainingMove/trg.size);
 		var size = crea.size+trg.size;
 
@@ -131,6 +127,7 @@ abilities[44] =[
 
 		var select = function(hex,args){
 			for (var i = 0; i < size; i++) {
+				if( !G.grid.hexExists(hex.y,hex.x-i) ) continue;
 				var h = G.grid.hexs[hex.y][hex.x-i];
 				if(trgIsInfront){
 					var color = i<trg.size ? trg.team : crea.team;	
@@ -144,11 +141,11 @@ abilities[44] =[
 		G.grid.queryHexs({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
 			fnOnSelect : select, //fnOnSelect,
-			team : 1, //Ally
+			team : 3, //Both
 			id : crea.id,
 			size : size,
 			flipped : crea.flipped,
-			hexs : G.grid.getFlyingRange(crea.x,crea.y,distance,size,crea.id),
+			hexs : G.grid.getFlyingRange(crea.x,crea.y,distance,size,crea.id).filter(function(){ return crea.y == this.y && ( trgIsInfront ? crea.x >= this.x : crea.x-crea.size < this.x ); }),
 			args : {trg : trg.id, trgIsInfront: trgIsInfront}
 		});
 	},
@@ -183,13 +180,20 @@ abilities[44] =[
 
 		crea.moveTo(crea_dest,{
 			animation : "fly",
-			callback : function(){ G.activeCreature.queryMove() },
+			callback : function(){ 
+				trg.updateHex(); 
+				G.grid.updateDisplay(); 
+			},
 			ignoreMovementPoint : true
 		});
 
 		trg.moveTo(trg_dest,{
 			animation : "fly",
-			callback : function(){ G.activeCreature.queryMove() },
+			callback : function(){ 
+				ability.creature.updateHex(); 
+				G.grid.updateDisplay();
+				ability.creature.queryMove(); 
+			},
 			ignoreMovementPoint : true,
 			overrideSpeed : crea.animation.walk_speed
 		});
