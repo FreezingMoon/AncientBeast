@@ -216,7 +216,7 @@ var Creature = Class.create({
 			if(!G.freezedInput){
 				clearInterval(interval);
 				if(G.turn >= G.minimumTurnBeforeFleeing){ G.UI.btnFlee.changeState("normal"); }
-				creature.player.startTime = new Date();
+				G.startTimer();
 				creature.queryMove();
 			}
 		},50);

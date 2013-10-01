@@ -61,10 +61,12 @@ var Game = Class.create({
 		this.loadedSrc = 0;
 		this.loadingSrc = 0;
 		this.pause = false;
+		this.gameState = "initialized";
 		this.pauseTime = 0;
 		this.minimumTurnBeforeFleeing = 12;
 		this.availableCreatures = [];
 		this.animationQueue = [];
+		this.checkTimeFrequency = 1000;
 		this.gamelog = new Gamelog();
 		this.loadedCreatures = [
 			0, //Dark Priest
@@ -140,6 +142,8 @@ var Game = Class.create({
 			plasma_amount : 50,
 			creaLimitNbr : 7,
 		}
+
+		this.gameState = "loading";
 		setupOpt = $j.extend(defaultOpt,setupOpt);
 		$j.extend(this,setupOpt);
 
@@ -222,6 +226,8 @@ var Game = Class.create({
 	*/
 	setup: function(nbrPlayer){
 
+		this.gameState = "playing";
+
 		//reseting global counters
 		trapID = 0;
 		effectId = 0;
@@ -285,7 +291,7 @@ var Game = Class.create({
 
 		this.timeInterval = setInterval(function(){
 			G.checkTime();
-		},1000);
+		},G.checkTimeFrequency);
 
 		this.nextCreature();
 
@@ -367,6 +373,9 @@ var Game = Class.create({
 	*
 	*/
 	nextCreature: function(){
+		if(this.gameState == "ended") return;
+
+		G.stopTimer();
 		var interval = setInterval(function(){
 			if(!G.freezedInput){
 				clearInterval(interval);
@@ -392,8 +401,6 @@ var Game = Class.create({
 
 				G.log("Active Creature : %CreatureName"+G.activeCreature.id+"%");
 				G.activeCreature.activate();
-				
-				G.checkTime();
 
 				//Update UI to match new creature
 				G.UI.updateActivebox();
@@ -445,14 +452,12 @@ var Game = Class.create({
 			G.freezedInput = false;
 			G.pauseTime += new Date() - G.pauseStartTime;
 			$j("#pause").remove();
-			this.timeInterval = setInterval(function(){
-				G.checkTime();
-			},1000);
+			G.startTimer();
 		}else if( !G.pause && !G.freezedInput ){
 			G.pause = true;
 			G.freezedInput = true;
 			G.pauseStartTime = new Date();
-			clearTimeout(this.timeInterval);
+			G.stopTimer();
 			$j("#ui").append('<div id="pause">Pause</div>');
 		}
 	},
@@ -468,11 +473,15 @@ var Game = Class.create({
 
 		o = $j.extend({
 			callback: function(){},
+			noTooltip: false
 		},o);
 
 		G.turnThrottle = true
 		G.UI.btnSkipTurn.changeState("disabled");
 		G.UI.btnDelay.changeState("disabled");
+
+		if(!o.noTooltip) G.activeCreature.hint("Skipped","msg_effects");
+
 		setTimeout(function(){
 			G.turnThrottle=false;
 			G.UI.btnSkipTurn.changeState("normal");
@@ -506,6 +515,7 @@ var Game = Class.create({
 		G.turnThrottle = true
 		G.UI.btnSkipTurn.changeState("disabled");
 		G.UI.btnDelay.changeState("disabled");
+
 		setTimeout(function(){
 			G.turnThrottle=false;
 			G.UI.btnSkipTurn.changeState("normal");
@@ -519,6 +529,18 @@ var Game = Class.create({
 		this.nextCreature();
 	},
 
+	startTimer: function(){
+		clearInterval(this.timeInterval);
+		this.activeCreature.player.startTime = new Date() - G.pauseTime;
+		G.checkTime();
+		this.timeInterval = setInterval(function(){
+			G.checkTime();
+		},G.checkTimeFrequency);
+	},
+
+	stopTimer: function(){
+		clearInterval(this.timeInterval);
+	},
 
 	/*	checkTime()
 	*	
@@ -526,6 +548,8 @@ var Game = Class.create({
 	checkTime: function(){
 		var date = new Date() - G.pauseTime;
 		var p = this.activeCreature.player;
+		var alertTime = 6; //in seconds
+		var msgStyle = "msg_effects";
 
 		p.totalTimePool = Math.max(p.totalTimePool,0); //Clamp
 
@@ -547,17 +571,36 @@ var Game = Class.create({
 					p.deactivate(); //Only if timepool is empty
 				G.skipTurn();
 				return;
+			}else{
+				if( (p.totalTimePool - (date - p.startTime))/1000 < alertTime ){
+					msgStyle = "damage";
+				}
+				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime){
+					this.activeCreature.hint( Math.ceil( this.turnTimePool - ((date - p.startTime)/1000)),msgStyle);
+				}
 			}
 		}else if( this.turnTimePool > 0 ){ //Turn time not infinite
 			if( (date - p.startTime)/1000 > this.turnTimePool ){
 				G.skipTurn();
 				return;
+			}else{
+				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime){
+					this.activeCreature.hint( Math.ceil( this.turnTimePool - ((date - p.startTime)/1000)),msgStyle);
+				}
 			}
 		}else if( this.timePool > 0 ){ //timepool not infinite
 			if( p.totalTimePool - (date - p.startTime) < 0 ){
 				p.deactivate();
 				G.skipTurn();
 				return;
+			}else{
+				console.log(p.totalTimePool - (date - p.startTime));
+				if( p.totalTimePool - (date - p.startTime) < alertTime ){
+					msgStyle = "damage";
+				}
+				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime){
+					this.activeCreature.hint( Math.ceil( this.turnTimePool - ((date - p.startTime)/1000)),msgStyle);
+				}
 			}
 		}
 
@@ -758,7 +801,8 @@ var Game = Class.create({
 	*
 	*/
 	endGame: function(){
-		clearInterval(this.timeInterval);
+		this.stopTimer();
+		this.gameState = "ended";
 
 		//Calculate The time cost of the end turn
 		var skipTurn = new Date();

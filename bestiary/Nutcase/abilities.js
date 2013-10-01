@@ -277,7 +277,7 @@ abilities[40] =[
 		);
 
 		ability.creature.addEffect(effect);
-		G.skipTurn();
+		G.skipTurn({noTooltip:true});
 	},
 }
 
