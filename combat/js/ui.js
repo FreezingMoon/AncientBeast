@@ -388,8 +388,8 @@ var UI = Class.create({
 				$ability = $j("#card .card.verso .abilities .ability:eq("+key+")");
 				$ability.children('.icon').css({"background-image":"url('../bestiary/"+stats.name+"/"+key+".svg')"});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
-				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
-				$ability.children(".wrapper").children(".info").children("#info").text(stats.ability_info[key].info);
+				$ability.children(".wrapper").children(".info").children("#desc").html(stats.ability_info[key].desc);
+				$ability.children(".wrapper").children(".info").children("#info").html(stats.ability_info[key].info);
 			});
 
 			//Materialize button
