@@ -81,12 +81,11 @@ abilities[44] =[
 		if( !this.testRequirements() ) return false;
 
 		var crea = this.creature;
-		var hexs = crea.getHexMap(inlinefrontnback2hex)
 
 		//Filter 3h creatures
 		var hexs = crea.getHexMap(inlinefrontnback2hex).filter(function(){
 			if( !this.creature ) return false;
-			return (this.creature.size > 2);
+			return (this.creature.size < 3);
 		});
 
 		if( !this.atLeastOneTarget( hexs, "ally" ) ){
@@ -106,7 +105,7 @@ abilities[44] =[
 		//Filter 3h creatures
 		var hexs = crea.getHexMap(inlinefrontnback2hex).filter(function(){
 			if( !this.creature ) return false;
-			return (this.creature.size > 2);
+			return (this.creature.size < 3);
 		});
 		
 		G.grid.queryCreature({
