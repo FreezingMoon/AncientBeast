@@ -152,6 +152,9 @@ var Ability = Class.create({
 					G.freezedInput = false;
 				}
 			},this.animation_datas.duration);
+		}else{
+			ab.activate.apply(ab,args);
+			G.freezedInput = false;
 		}
 
 		var interval = setInterval(function(){
