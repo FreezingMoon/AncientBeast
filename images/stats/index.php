@@ -37,16 +37,19 @@ foreach ($stats as $x) {
 	$counter++;
 }
 
-function displayStat($type = "health", $value = 0, $link = ""){
+function displayStat($type = "health", $value = 0, $link = "", $disp_info = false){
 	
-	echo '<td class="stats ' . $type . ' hint--bottom hint--rounded" data-hint="' . ucfirst($type) . '" >';
+	echo '<td class="stats ' . $type . '">';
 		if($link != "") echo '
-			<a href="' . $link . '">';
+			<a href="' . $link . '" >';
 		echo '
-				<div class="icon" ></div>
+				<div class="icon"></div>
 				<div class="value">' . $value . '</div>';
 		if($link != "") echo '
 			</a>';
+	if($disp_info){
+		echo '<div class="stats_infos">'.$type.'</div>';
+	}
 	echo '</td>';
 }
 

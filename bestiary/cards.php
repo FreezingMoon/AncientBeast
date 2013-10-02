@@ -99,6 +99,7 @@
 	width: 400px; 
 	height: 520px;
 	padding: 15px;
+	position: relative;
 }
 
 
@@ -109,7 +110,12 @@
 	padding: 0 5px;
 	margin: 0px 0px -5px 0px;
 	border: none;
-	width: 390px;
+	width: 400px;
+	height: 415px;
+	position: absolute;
+	left: 15px;
+	top: 67px;
+	z-index: 1;
 }
 
 .abilities h3{ font-size: 16px; margin: 0; text-decoration: underline;}
@@ -150,6 +156,40 @@
 	font-weight: bold;
 	text-align: center;
 }
+
+
+.low_row .stats_infos {
+	bottom: 52px;
+	top: auto;
+	left: 0px;
+}
+
+.stats_infos {
+	width: 400px;
+	height: 415px;
+	position: absolute;
+	left: 15px;
+	top: 67px;
+	background: black;
+	opacity: 0;
+	height: 0;
+	color: white;
+	z-index: 2;
+	line-height: 50px;
+	font-size: 20px;
+	overflow: hidden;
+	transition: all 250ms;
+	-moz-transition: all 250ms; /* Firefox 4 */
+	-webkit-transition: all 250ms; /* Safari and Chrome */
+	-ms-transition: all 250ms;
+	-o-transition: all 250ms; /* Opera */
+}
+
+.stats:hover .stats_infos {
+	height: auto;
+	opacity: 1;
+}
+
 </style>
 <script>
 function CallCreature(shout) {
@@ -198,7 +238,9 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 					//Display Stats Numbers
 					$i=0;
 					foreach ($r["stats"] as $key => $value) {
-					 	if( $i >= 0 &&  $i <= 8) { displayStat($key,$value); }
+					 	if( $i >= 0 &&  $i <= 8) { 
+					 		displayStat($key,$value,"",true); 
+				 		}
 						$i++;
 					}
 					echo '
@@ -224,13 +266,15 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 				}
 				echo '
 				</div>
-				<table class="section">
+				<table class="section low_row" style="position: absolute; top: 481px; left: 15px;">
 					<tr class="numbers">';
 					//Display Masteries Numbers
 					$i=0;
 					foreach ($r["stats"] as $key => $value) {
-					 	if( $i >= 9 &&  $i <= 17) { displayStat($key,$value); }
-						$i++;
+					 	if( $i >= 9 &&  $i <= 17) { 
+				 			displayStat($key,$value,"",true); 
+				 		}
+				 		$i++;
 					}
 					echo '
 					</tr>
@@ -240,3 +284,4 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 	</table>';
 }
 ?>
+
