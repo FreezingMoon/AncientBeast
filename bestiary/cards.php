@@ -1,5 +1,5 @@
-<!--
- * Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
+<?php 
+/* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
  * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
  *
  * This file is part of Ancient Beast.
@@ -20,8 +20,8 @@
  * http://www.AncientBeast.com
  * https://github.com/FreezingMoon/AncientBeast
  * DreadKnight@FreezingMoon.org
--->
-<?php require_once("../images/stats/index.php"); ?>
+ */
+require_once("../images/stats/index.php"); ?>
 <style>
 .card table{border: none;}
 
@@ -99,7 +99,6 @@
 	width: 400px; 
 	height: 520px;
 	padding: 15px;
-	position: relative;
 }
 
 
@@ -110,12 +109,8 @@
 	padding: 0 5px;
 	margin: 0px 0px -5px 0px;
 	border: none;
-	width: 400px;
-	height: 415px;
-	position: absolute;
-	left: 15px;
-	top: 67px;
-	z-index: 1;
+	width: 390px;
+	height: 416px;
 }
 
 .abilities h3{ font-size: 16px; margin: 0; text-decoration: underline;}
@@ -157,51 +152,75 @@
 	text-align: center;
 }
 
-
-.low_row .stats_infos {
-	bottom: 52px;
-	top: auto;
-	left: 0px;
-}
-
-.stats_infos {
-	width: 400px;
-	height: 415px;
+#card_info {
 	position: absolute;
-	left: 15px;
-	top: 67px;
-	background: black;
-	opacity: 0;
-	height: 0;
-	color: white;
-	z-index: 2;
-	line-height: 50px;
-	font-size: 20px;
-	overflow: hidden;
-	transition: all 250ms;
-	-moz-transition: all 250ms; /* Firefox 4 */
-	-webkit-transition: all 250ms; /* Safari and Chrome */
-	-ms-transition: all 250ms;
-	-o-transition: all 250ms; /* Opera */
-}
-
-.stats:hover .stats_infos {
-	height: auto;
+	display: hidden;
+	background: rgba(0,0,0,.8);
+	width: 400px;
+	height: 520px;
 	opacity: 1;
+	margin: 15px;
+	border-radius: 10px;
 }
-
 </style>
 <script>
 function CallCreature(shout) {
 	var thissound=document.getElementById(shout);
 	thissound.play();
 }
+
+function ucfirst (str) {
+  // http://kevin.vanzonneveld.net
+  // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  // +   bugfixed by: Onno Marsman
+  // +   improved by: Brett Zamir (http://brett-zamir.me)
+  // *     example 1: ucfirst('kevin van zonneveld');
+  // *     returns 1: 'Kevin van zonneveld'
+  str += '';
+  var f = str.charAt(0).toUpperCase();
+  return f + str.substr(1);
+}
+
+
+//The website use a different jquery shortcut than the game. Using jQuery object fix that.
+function showStat(stat,card) {
+	var $stat = jQuery(card).find("."+stat);
+	var desc = $stat.attr("description");
+	jQuery(card).find(".name").html( '<div class="'+stat+' icon small"></div> ' + ucfirst(stat) );
+	jQuery(card).find("#card_info").show().text(desc);
+	jQuery(card).find(".type").text("");
+	jQuery(card).find(".hexs").text("");
+}
+
+function hideInfos() {
+	jQuery(card).find(".name").each(function(){
+		var name = jQuery(this).attr("creature_name");
+		jQuery(this).html(name);
+	});
+	jQuery(card).find(".type").each(function(){
+		var name = jQuery(this).attr("creature_type");
+		jQuery(this).html(name);
+	});
+	jQuery(card).find(".hexs").each(function(){
+		var name = jQuery(this).attr("creature_size");
+		jQuery(this).html(name);
+	});
+	jQuery(card).find("#card_info").hide();
+}
+
+jQuery(document).ready(function(){
+	jQuery(".card .numbers .stats").mouseenter(function(){
+		var stat = jQuery(this).attr('stat');
+		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
+		showStat(stat,card);
+	});
+	jQuery(".card .numbers .stats").mouseleave(hideInfos);
+});
 </script>
 <?php
-function cards($r = "", $id = -1, $embed = 0) { //Print a card
+function cards($r = "", $id = -1, $embed = 0, $mouseEvent = false) { //Print a card
 	global $site_root; // from global.php
 	global $stats2;
-
 
 	if( $id != -1 && !is_array($r) ){
 		$ab_id = $id;
@@ -218,18 +237,19 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 	echo '
 	<table class="center" border=0>
 		<th class="card recto" style="background-image: url(\'' . $site_root . 'bestiary/' . $r['name'] . '/artwork.jpg\');">
-			<a href="#' . $underscore . '" class="section cardborder">';
+			<div href="#' . $underscore . '" class="section cardborder">
+				<div id="card_info"></div>';
 				//Display 3d creature if option enabled
 				if ($embed == 1) echo '<div class="embed"><iframe frameborder="0" height="520" width="400" src="http://sketchfab.com/embed/' . $r['embed'] . '?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe></div>';
 				echo '<table class="section info sin' . $r['realm'] . '">
 					<tr>
-						<td class="type" style="width:20%;">'.$r['realm'].$r['lvl'].'</td>
+						<td class="type" creature_type="'.$r['realm'].$r['lvl'].'" style="width:20%;">'.$r['realm'].$r['lvl'].'</td>
 						<td><audio src="' . $spaceless . '/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
-						<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '">' . $r['name'] . '</a></td>
-						<td class="hexs" style="width:20%;">' . $r['size'] . 'H</td>
+						<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '" creature_name="' . $r['name'] . '" >' . $r['name'] . '</a></td>
+						<td class="hexs" creature_size="' . $r['size'] . '" style="width:20%;">' . $r['size'] . 'H</td>
 					</tr>
 				</table>
-			</a>
+			</div>
 		</th>
 		<th class="card verso sin' . $r['realm'] . '">
 			<div class="section cardborder">
@@ -239,7 +259,7 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 					$i=0;
 					foreach ($r["stats"] as $key => $value) {
 					 	if( $i >= 0 &&  $i <= 8) { 
-					 		displayStat($key,$value,"",true); 
+				 			displayStat($key,$value); 
 				 		}
 						$i++;
 					}
@@ -266,13 +286,13 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 				}
 				echo '
 				</div>
-				<table class="section low_row" style="position: absolute; top: 481px; left: 15px;">
+				<table class="section">
 					<tr class="numbers">';
 					//Display Masteries Numbers
 					$i=0;
 					foreach ($r["stats"] as $key => $value) {
 					 	if( $i >= 9 &&  $i <= 17) { 
-				 			displayStat($key,$value,"",true); 
+					 		displayStat($key,$value); 
 				 		}
 				 		$i++;
 					}
@@ -284,4 +304,3 @@ function cards($r = "", $id = -1, $embed = 0) { //Print a card
 	</table>';
 }
 ?>
-

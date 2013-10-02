@@ -22,7 +22,36 @@
  * DreadKnight@FreezingMoon.org
  */
 
+function indexOf($needle, $haystack) {
+    for($i = 0,$z = count($haystack); $i < $z; $i++){
+            if ($haystack[$i] == $needle) {  //finds the needle
+                    return $i;
+            }
+    }
+    return false;
+}
+
 $stats = array("health","regrowth","endurance","energy","meditation","initiative","offense","defense","movement","pierce","slash","crush","shock","burn","frost","poison","sonic","mental");
+$originalStats = $stats;
+$descs = array(
+	"Testa", //health
+	"Testb", //regrowth
+	"Testc", //endurance
+	"Testd", //energy
+	"Teste", //meditation
+	"Testf", //initiative
+	"Testg", //offense
+	"Testh", //defense
+	"Testi", //movement
+	"Testj", //pierce
+	"Testk", //slash
+	"Testl", //crush
+	"Testm", //shock
+	"Testn", //burn
+	"Test", //frost
+	"Test", //poison
+	"Test", //sonic
+	"Test"); //mental
 
 foreach ($stats as $key => $x) {
 	//foreach ($x as $v) $stats[$key] = $v;
@@ -37,19 +66,19 @@ foreach ($stats as $x) {
 	$counter++;
 }
 
-function displayStat($type = "health", $value = 0, $link = "", $disp_info = false){
-	
-	echo '<td class="stats ' . $type . '">';
+function displayStat($type = "health", $value = 0, $link = ""){
+	global $originalStats;
+	global $descs;
+	$index = indexOf($type,$originalStats);
+
+	echo '<td description="' . $descs[$index] . '" stat="' . $type . '" class="stats ' . $type . '" >';
 		if($link != "") echo '
-			<a href="' . $link . '" >';
+			<a href="' . $link . '">';
 		echo '
-				<div class="icon"></div>
+				<div class="icon" ></div>
 				<div class="value">' . $value . '</div>';
 		if($link != "") echo '
 			</a>';
-	if($disp_info){
-		echo '<div class="stats_infos">'.$type.'</div>';
-	}
 	echo '</td>';
 }
 
@@ -62,13 +91,21 @@ function displayStat($type = "health", $value = 0, $link = "", $disp_info = fals
 	display: inline-block;
 }
 
+.small.icon{
+	height: 22px;
+	width: 22px;
+	display: inline-block;
+	background-size: 100% 100%;
+}
+
+
 .stats{ text-align: center;}
 
 <?php 
 foreach ($stats as $key => $value) {
 	echo "
-	." .$key. " .icon{ background-image: url('" .$site_root. "images/stats/" .$key. ".png'); }
-	." .$key. ":hover .icon{ background-image: url('" .$site_root. "images/stats/" .$key. ".gif'); }
+	.icon." .$key. ",." .$key. " .icon{ background-image: url('" .$site_root. "images/stats/" .$key. ".png'); }
+	.icon." .$key. ":hover,." .$key. ":hover .icon{ background-image: url('" .$site_root. "images/stats/" .$key. ".gif'); }
 	";
 }
 ?>

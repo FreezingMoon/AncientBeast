@@ -26,9 +26,6 @@
 if(!file_exists(dirname(__FILE__) . "/../config.php"))
 	die("Warning: config.php not found, please edit config.php.in to point to a database and save it as config.php<br>Disclaimer: Since this project is web based, you can use the code and assets along with database.sql to host Ancient Beast yourself for testing and development purposes only! Also, your version should not be indexable by search engines because that can cause harm to the project!");
 require_once("../config.php"); //only needed for multiplayer
-require_once("../bestiary/functions.php");
-require_once('../bestiary/cards.php');
-
 ?>
 <html>
 	<head>
@@ -48,6 +45,11 @@ require_once('../bestiary/cards.php');
 		<script type="text/javascript">
 			var $j = jQuery.noConflict();
 		</script>
+		
+<?php
+require_once("../bestiary/functions.php");
+require_once('../bestiary/cards.php');
+?>
 
 		<script src="//ajax.googleapis.com/ajax/libs/prototype/1.7.1.0/prototype.js"></script>
 		<script type="text/javascript" src="./js/hex.js"></script>
