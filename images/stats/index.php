@@ -66,7 +66,7 @@ foreach ($stats as $x) {
 	$counter++;
 }
 
-function displayStat($type = "health", $value = 0, $link = ""){
+function displayStat($type = "health", $value = 0, $link = "", $disp_info = false){
 	global $originalStats;
 	global $descs;
 	$index = indexOf($type,$originalStats);
@@ -79,6 +79,9 @@ function displayStat($type = "health", $value = 0, $link = ""){
 				<div class="value">' . $value . '</div>';
 		if($link != "") echo '
 			</a>';
+	if($disp_info){
+		echo '<div class="stats_infos"><div>This stat doesn\'t have any modifiers</div></div>';
+	}
 	echo '</td>';
 }
 

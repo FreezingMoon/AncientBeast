@@ -333,7 +333,7 @@ require_once('../bestiary/cards.php');
 				<div id="tabwrapper">
 					<div id="cardwrapper">
 						<div id="cardwrapper_inner">
-							<div id="card"><?php cards("",0); ?></div>
+							<div id="card"><?php cards("",0,0,true); ?></div>
 							<div id="materialize_button" >
 								<p></p>
 							</div>

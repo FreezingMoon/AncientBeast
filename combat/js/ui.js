@@ -254,9 +254,12 @@ var UI = Class.create({
 
 			//Retreive the summoned creature if it exists
 			var crea = undefined;
+			G.UI.selectedCreatureObj = undefined;
 			G.players[player].creatures.each(function(){
-				if(this.type == creatureType)
+				if(this.type == creatureType){
 					crea = this;
+					G.UI.selectedCreatureObj = this;
+				}
 			});
 
 			//Recto
@@ -625,6 +628,31 @@ var UI = Class.create({
 		$j("#playerinfos .plasma span").text(G.activeCreature.player.plasma);
 	},
 
+	showStatInfos: function(stat){
+
+		if( G.UI.selectedCreatureObj instanceof Creature ){
+			var buffDebuff = G.UI.selectedCreatureObj.getBuffDebuff(stat);
+			var atLeastOneBuff = false;
+			$j(card).find("."+stat+" .stats_infos").html("");
+			//Effects
+			$j.each( buffDebuff.objs.effects, function(key,value){
+				var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
+				$j(card).find("."+stat+" .stats_infos").append("<div>"+value.name+" : "+string+"</div>");
+				atLeastOneBuff = true;
+			});
+			//Drops
+			$j.each( buffDebuff.objs.drops, function(key,value){
+				var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
+				$j(card).find("."+stat+" .stats_infos").append("<div>"+value.name+" : "+string+"</div>");
+				atLeastOneBuff = true;
+			});
+
+			if(!atLeastOneBuff){
+				$j(card).find("."+stat+" .stats_infos").html("<div>This stat doesn't have any modifiers</div>");
+			}
+		}
+
+	},
 
 	/*	updateTimer()
 	*	

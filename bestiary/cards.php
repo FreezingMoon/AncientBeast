@@ -99,6 +99,7 @@ require_once("../images/stats/index.php"); ?>
 	width: 400px; 
 	height: 520px;
 	padding: 15px;
+	position: relative;
 }
 
 
@@ -152,16 +153,64 @@ require_once("../images/stats/index.php"); ?>
 	text-align: center;
 }
 
-#card_info {
+.card_info {
 	position: absolute;
-	display: hidden;
+	display: none;
 	background: rgba(0,0,0,.8);
 	width: 400px;
 	height: 520px;
 	opacity: 1;
-	margin: 15px;
+	margin: 16px;
 	border-radius: 10px;
+	font-size: 17px;
+	z-index: 2;
+	text-align: left;
 }
+.card_info .stat_desc {
+	margin: 15px;
+	font-size: 110%;
+}
+.card_info .stat_desc div{
+	margin: 5px;
+}
+
+
+.low_row .stats_infos {
+  bottom: 52px;
+  top: auto;
+  left: 0px;
+}
+
+.stats_infos {
+  width: 400px;
+  height: 415px;
+  position: absolute;
+  left: 15px;
+  top: 67px;
+  background: black;
+  opacity: 0;
+  height: 0;
+  color: white;
+  z-index: 2;
+  line-height: 20px;
+  font-size: 15px;
+  overflow: hidden;
+  text-align: left;
+  transition: all 250ms;
+  -moz-transition: all 250ms; /* Firefox 4 */
+  -webkit-transition: all 250ms; /* Safari and Chrome */
+  -ms-transition: all 250ms;
+  -o-transition: all 250ms; /* Opera */
+}
+
+.stats_infos div { margin: 10px; }
+
+.stats:hover .stats_infos {
+  height: auto;
+  opacity: 1;
+}
+
+
 </style>
 <script>
 function CallCreature(shout) {
@@ -186,39 +235,35 @@ function ucfirst (str) {
 function showStat(stat,card) {
 	var $stat = jQuery(card).find("."+stat);
 	var desc = $stat.attr("description");
-	jQuery(card).find(".name").html( '<div class="'+stat+' icon small"></div> ' + ucfirst(stat) );
-	jQuery(card).find("#card_info").show().text(desc);
-	jQuery(card).find(".type").text("");
-	jQuery(card).find(".hexs").text("");
+	jQuery(card).find(".card_info .stat_buff").html("");
+	jQuery(card).find(".card_info").show();
 }
 
-function hideInfos() {
-	jQuery(card).find(".name").each(function(){
-		var name = jQuery(this).attr("creature_name");
-		jQuery(this).html(name);
-	});
-	jQuery(card).find(".type").each(function(){
-		var name = jQuery(this).attr("creature_type");
-		jQuery(this).html(name);
-	});
-	jQuery(card).find(".hexs").each(function(){
-		var name = jQuery(this).attr("creature_size");
-		jQuery(this).html(name);
-	});
-	jQuery(card).find("#card_info").hide();
+function hideInfos(card) {
+	jQuery(card).find(".card_info").hide();
+	jQuery(card).find(".card_info .stat_buff").html("");
 }
 
 jQuery(document).ready(function(){
-	jQuery(".card .numbers .stats").mouseenter(function(){
+
+	var activate = function(){
 		var stat = jQuery(this).attr('stat');
 		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
 		showStat(stat,card);
+		if( typeof G != "undefined" && G instanceof Game){
+			G.UI.showStatInfos(stat);
+		}
+	};
+	jQuery(".card .numbers .stats").mouseenter(activate);
+	jQuery(".card .numbers .stats").click(activate);
+	jQuery(".card .numbers .stats").mouseleave(function(){
+		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
+		hideInfos(card);
 	});
-	jQuery(".card .numbers .stats").mouseleave(hideInfos);
 });
 </script>
 <?php
-function cards($r = "", $id = -1, $embed = 0, $mouseEvent = false) { //Print a card
+function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 	global $site_root; // from global.php
 	global $stats2;
 
@@ -238,15 +283,27 @@ function cards($r = "", $id = -1, $embed = 0, $mouseEvent = false) { //Print a c
 	<table class="center" border=0>
 		<th class="card recto" style="background-image: url(\'' . $site_root . 'bestiary/' . $r['name'] . '/artwork.jpg\');">
 			<div href="#' . $underscore . '" class="section cardborder">
-				<div id="card_info"></div>';
+				<div class="card_info">
+					<div class="stat_desc">
+						<div><span class="icon health"></span> Health : Lorem ipsum</div>
+						<div><span class="icon regrowth"></span> Regrowth : Lorem ipsum</div>
+						<div><span class="icon endurance"></span> Endurance : Lorem ipsum</div>
+						<div><span class="icon energy"></span> Energy : Lorem ipsum</div>
+						<div><span class="icon meditation"></span> Meditation : Lorem ipsum</div>
+						<div><span class="icon initiative"></span> Initiative : Lorem ipsum</div>
+						<div><span class="icon offense"></span> Offense : Lorem ipsum</div>
+						<div><span class="icon defense"></span> Defense : Lorem ipsum</div>
+						<div><span class="icon movement"></span> Movement : Lorem ipsum</div>
+					</div>
+				</div>';
 				//Display 3d creature if option enabled
 				if ($embed == 1) echo '<div class="embed"><iframe frameborder="0" height="520" width="400" src="http://sketchfab.com/embed/' . $r['embed'] . '?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe></div>';
-				echo '<table class="section info sin' . $r['realm'] . '">
+				echo '<table class="section info sin' . $r['realm'] . '" style="position relative; z-index:1">
 					<tr>
 						<td class="type" creature_type="'.$r['realm'].$r['lvl'].'" style="width:20%;">'.$r['realm'].$r['lvl'].'</td>
 						<td><audio src="' . $spaceless . '/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
 						<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '" creature_name="' . $r['name'] . '" >' . $r['name'] . '</a></td>
-						<td class="hexs" creature_size="' . $r['size'] . '" style="width:20%;">' . $r['size'] . 'H</td>
+						<td class="hexs" creature_size="' . $r['size'] . 'H" style="width:20%;">' . $r['size'] . 'H</td>
 					</tr>
 				</table>
 			</div>
@@ -259,7 +316,7 @@ function cards($r = "", $id = -1, $embed = 0, $mouseEvent = false) { //Print a c
 					$i=0;
 					foreach ($r["stats"] as $key => $value) {
 					 	if( $i >= 0 &&  $i <= 8) { 
-				 			displayStat($key,$value); 
+				 			displayStat($key,$value,"",$tooltip); 
 				 		}
 						$i++;
 					}
@@ -286,13 +343,13 @@ function cards($r = "", $id = -1, $embed = 0, $mouseEvent = false) { //Print a c
 				}
 				echo '
 				</div>
-				<table class="section">
+				<table class="section low_row" style="position: absolute; top: 481px; left: 15px;">
 					<tr class="numbers">';
 					//Display Masteries Numbers
 					$i=0;
 					foreach ($r["stats"] as $key => $value) {
 					 	if( $i >= 9 &&  $i <= 17) { 
-					 		displayStat($key,$value); 
+					 		displayStat($key,$value,"",$tooltip); 
 				 		}
 				 		$i++;
 					}

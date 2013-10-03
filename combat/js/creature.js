@@ -946,7 +946,7 @@ var Creature = Class.create({
 			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
 			this.hint(nbrDisplayed,'damage d'+dmgAmount);
 
-			G.log("%CreatureName"+this.id+"% is hit : "+nbrDisplayed+" health");
+			if(!damage.noLog) G.log("%CreatureName"+this.id+"% is hit : "+nbrDisplayed+" health");
 
 			//Health display Update
 			this.updateHealth();
@@ -963,15 +963,15 @@ var Creature = Class.create({
 			return {damages:dmg, damageObj:damage, kill:false}; //Not Killed
 		}else{
 			if(damage.status == "Dodged"){ //If dodged
-				G.log("%CreatureName"+this.id+"% dodged the attack");
+				if(!damage.noLog) G.log("%CreatureName"+this.id+"% dodged the attack");
 			}
 
 			if(damage.status == "Shielded"){ //If Shielded
-				G.log("%CreatureName"+this.id+"% shielded the attack");
+				if(!damage.noLog) G.log("%CreatureName"+this.id+"% shielded the attack");
 			}
 
 			if(damage.status == "Disintegrated"){ //If Disintegrated
-				G.log("%CreatureName"+this.id+"% has been disintegrated");
+				if(!damage.noLog) G.log("%CreatureName"+this.id+"% has been disintegrated");
 				this.die(damage.attacker);
 			}
 
@@ -1027,17 +1027,10 @@ var Creature = Class.create({
 		var crea = this;
 		crea.stats = $j.extend({},this.baseStats);//Copy
 
+		var buffDebuffArray = this.effects.concat(this.dropCollection);
+
 		//Multiplication Buff
-		this.effects.each(function(){
-			$j.each(this.alterations,function(key,value){
-				if( ( typeof value ) == "string" ) {
-					if( value.match(/\*/) ) {
-						crea.stats[key] = eval(crea.stats[key]+value);
-					}
-				}
-			})
-		});
-		this.dropCollection.each(function(){
+		buffDebuffArray.each(function(){
 			$j.each(this.alterations,function(key,value){
 				if( ( typeof value ) == "string" ) {
 					if( value.match(/\*/) ) {
@@ -1048,14 +1041,7 @@ var Creature = Class.create({
 		});
 
 		//Usual Buff/Debuff
-		this.effects.each(function(){
-			$j.each(this.alterations,function(key,value){
-				if( ( typeof value ) == "number" ) {
-					crea.stats[key] += value;
-				}
-			})
-		});
-		this.dropCollection.each(function(){
+		buffDebuffArray.each(function(){
 			$j.each(this.alterations,function(key,value){
 				if( ( typeof value ) == "number" ) {
 					crea.stats[key] += value;
@@ -1064,16 +1050,7 @@ var Creature = Class.create({
 		});
 
 		//Division Debuff
-		this.effects.each(function(){
-			$j.each(this.alterations,function(key,value){
-				if( ( typeof value ) == "string" ) {
-					if( value.match(/\//) ) {
-						crea.stats[key] = eval(crea.stats[key]+value);
-					}
-				}
-			})
-		});
-		this.dropCollection.each(function(){
+		buffDebuffArray.each(function(){
 			$j.each(this.alterations,function(key,value){
 				if( ( typeof value ) == "string" ) {
 					if( value.match(/\//) ) {
@@ -1084,14 +1061,7 @@ var Creature = Class.create({
 		});
 
 		//Boolean Buff/Debuff
-		this.effects.each(function(){
-			$j.each(this.alterations,function(key,value){
-				if( ( typeof value ) == "boolean" ) {
-					crea.stats[key] = value;
-				}
-			})
-		});
-		this.dropCollection.each(function(){
+		buffDebuffArray.each(function(){
 			$j.each(this.alterations,function(key,value){
 				if( ( typeof value ) == "boolean" ) {
 					crea.stats[key] = value;
@@ -1208,6 +1178,84 @@ var Creature = Class.create({
 	getHexMap : function(map,invertFlipped){
 		var x = ( this.player.flipped ? !invertFlipped : invertFlipped ) ? this.x+1-this.size : this.x;
 		return G.grid.getHexMap( x , this.y - map.origin[1] , 0-map.origin[0] , ( this.player.flipped ? !invertFlipped : invertFlipped ) , map );
+	},
+
+	getBuffDebuff : function(stat){
+		var crea = this;
+
+		var buffDebuffArray = this.effects.concat(this.dropCollection);
+		var buff = 0;
+		var debuff = 0;
+		var buffObjs = { effects: [], drops: [] };
+
+		var addToBuffObjs = function(obj){
+			if(obj instanceof Effect){
+				buffObjs.effects.push(obj);
+			}else if(obj instanceof Drops){
+				buffObjs.drops.push(obj);
+			}
+		}
+
+		//Multiplication Buff
+		buffDebuffArray.each(function(){
+			var o = this;
+			$j.each(this.alterations,function(key,value){
+				if( ( typeof value ) == "string" ) {
+					if( value.match(/\*/) ) {
+						if( key == stat || stat == undefined){
+							addToBuffObjs(o);
+							var base = crea.stats[key];
+							var result = eval(crea.stats[key]+value);
+							if(result > base){
+								buff += result-base;
+							}else{
+								debuff += result-base;
+							}
+						}
+					}
+				}
+			})
+		});
+
+		//Usual Buff/Debuff
+		buffDebuffArray.each(function(){
+			var o = this;
+			$j.each(this.alterations,function(key,value){
+				if( ( typeof value ) == "number" ) {
+					if( key == stat || stat == undefined){
+						addToBuffObjs(o);
+						if(value > 0){
+							buff += value;
+						}else{
+							debuff += value;
+						}
+					}
+				}
+			})
+		});
+
+		//Division Debuff
+		buffDebuffArray.each(function(){
+			var o = this;
+			$j.each(this.alterations,function(key,value){
+				if( ( typeof value ) == "string" ) {
+					if( key == stat || stat == undefined){
+						if( value.match(/\//) ) {
+							addToBuffObjs(o);
+							var base = crea.stats[key];
+							var result = eval(crea.stats[key]+value);
+							if(result > base){
+								buff += result-base;
+							}else{
+								debuff += result-base;
+							}
+						}
+					}
+				}
+			})
+		});
+
+		return {buff: buff, debuff: debuff, objs: buffObjs};
 	},
 
 	findEffect : function(name){
