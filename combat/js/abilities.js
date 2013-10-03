@@ -38,9 +38,9 @@ var Ability = Class.create({
 	*	End the ability. Must be called at the end of each ability function;
 	*
 	*/
-	end: function() {
+	end: function(desableLogMsg) {
 		this.applyCost();
-		G.log("%CreatureName"+this.creature.id+"% uses "+this.title);
+		if(!desableLogMsg) G.log("%CreatureName"+this.creature.id+"% uses "+this.title);
 		this.setUsed(true) //Should always be here
 		G.UI.updateInfos(); //Just in case
 		if(this.trigger == "onQuery"){

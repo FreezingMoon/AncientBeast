@@ -946,7 +946,7 @@ var Creature = Class.create({
 			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
 			this.hint(nbrDisplayed,'damage d'+dmgAmount);
 
-			G.log("%CreatureName"+this.id+"% is hit : "+nbrDisplayed+" health");
+			if(!damage.noLog) G.log("%CreatureName"+this.id+"% is hit : "+nbrDisplayed+" health");
 
 			//Health display Update
 			this.updateHealth();
@@ -963,15 +963,15 @@ var Creature = Class.create({
 			return {damages:dmg, damageObj:damage, kill:false}; //Not Killed
 		}else{
 			if(damage.status == "Dodged"){ //If dodged
-				G.log("%CreatureName"+this.id+"% dodged the attack");
+				if(!damage.noLog) G.log("%CreatureName"+this.id+"% dodged the attack");
 			}
 
 			if(damage.status == "Shielded"){ //If Shielded
-				G.log("%CreatureName"+this.id+"% shielded the attack");
+				if(!damage.noLog) G.log("%CreatureName"+this.id+"% shielded the attack");
 			}
 
 			if(damage.status == "Disintegrated"){ //If Disintegrated
-				G.log("%CreatureName"+this.id+"% has been disintegrated");
+				if(!damage.noLog) G.log("%CreatureName"+this.id+"% has been disintegrated");
 				this.die(damage.attacker);
 			}
 

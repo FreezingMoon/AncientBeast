@@ -28,7 +28,11 @@ abilities[0] =[
 		damage.status = "Shielded";
 		damage.effect = [];
 
-		this.end();
+		damage.noLog = true;
+
+		this.end(true); //desable message
+
+		G.log("%CreatureName"+this.creature.id+"% gets protected by Artificial Satellite");
 
 		return damage; //Return Damage
 	},
