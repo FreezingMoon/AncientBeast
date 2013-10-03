@@ -193,24 +193,15 @@ var Ability = Class.create({
 
 	getFormatedCosts : function() {
 		if( !this.costs ) return false;
-		var string = "";
-		$j.each(this.costs,function(key,value){
-
-			if(key == "special"){
-				string += value.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>')
-				return;
-			}
-
-			if(string != "") string += ", ";
-			string += (value+'<span class="'+key+'"></span>');
-		});
-		return string;
+		return this.getFormatedDamages(this.costs);
 	},
 
-	getFormatedDamages : function() {
-		if( !this.damages ) return false;
+	getFormatedDamages : function(obj) {
+		if( !this.damages && !obj ) return false;
+		var obj = this.damages || obj;
 		var string = "";
-		$j.each(this.damages,function(key,value){
+
+		$j.each(obj,function(key,value){
 
 			if(key == "special"){
 				string += value.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>')
