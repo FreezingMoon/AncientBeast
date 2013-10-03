@@ -154,7 +154,7 @@ require_once("../images/stats/index.php"); ?>
 
 #card_info {
 	position: absolute;
-	display: hidden;
+	display: none;
 	background: rgba(0,0,0,.8);
 	width: 400px;
 	height: 520px;
@@ -192,7 +192,7 @@ function showStat(stat,card) {
 	jQuery(card).find(".hexs").text("");
 }
 
-function hideInfos() {
+function hideInfos(card) {
 	jQuery(card).find(".name").each(function(){
 		var name = jQuery(this).attr("creature_name");
 		jQuery(this).html(name);
@@ -214,7 +214,10 @@ jQuery(document).ready(function(){
 		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
 		showStat(stat,card);
 	});
-	jQuery(".card .numbers .stats").mouseleave(hideInfos);
+	jQuery(".card .numbers .stats").mouseleave(function(){
+		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
+		hideInfos(card);
+	});
 });
 </script>
 <?php
