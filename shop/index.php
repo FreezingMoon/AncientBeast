@@ -51,7 +51,7 @@ function getSQLorder() {
 	if(!isset($_GET['filter']) || !in_array($_GET['filter'], array_keys($stats), true))
 		return 'ORDER BY type, value DESC';
 	else {
-		$f = mysql_real_escape_string($_GET['filter']);
+		$f = $_GET['filter'];
 		return "WHERE $f IS NOT NULL ORDER BY ABS($f) DESC";
 	}
 }
