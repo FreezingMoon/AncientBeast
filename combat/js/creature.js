@@ -297,6 +297,11 @@ var Creature = Class.create({
 			isAbility : false,
 			range : G.grid.getMovementRange(this.x,this.y,this.remainingMove,this.size,this.id),
 			callback : function(hex,args){
+				if( hex.x == args.creature.x && hex.y == args.creature.y ){
+					//Prevent null movement
+					G.activeCreature.queryMove();
+					return;
+				}
 				G.gamelog.add({action:"move",target:{x:hex.x,y:hex.y}});
 				args.creature.delayable = false;
 				G.UI.btnDelay.changeState("disabled");
@@ -518,7 +523,7 @@ var Creature = Class.create({
 					//Determine distance
 					var distance = 0;
 					var k = 0;
-					while(!distance){
+					while(!distance && start != currentHex){
 						k++;
 						if( start.adjacentHex(k).findPos(currentHex) ) distance = k;
 					}
