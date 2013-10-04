@@ -32,18 +32,12 @@ die();
 
 start_segment();
 echo "<div class='center'><a href='https://github.com/FreezingMoon/AncientBeast' target='_blank'><b>Under HEAVY development!</b></a></div>";
-//if not logged in
 separate_segment();
 echo "<div class='center'><a href='../profile/cpass.php'>Change Password</a></div>";
 separate_segment();
-echo "<div class='center'>login options and benefits</div>";
-separate_segment();
 echo "<img src='../images/We_Want_YOU.jpg' alt='We Want YOU' title='Sign Up TODAY!'>";
-//if logged in
 separate_segment();
 echo "<div class='center'>Godlet customization<br>Fine tune your gauntlet in order for your materialized creatures to benefit from stat bonuses in certain areas. Show Godlet along with spider-web configuration graph.</div>";
-separate_segment();
-echo "<div class='center'>Equiped items<br>Show the 6-7 items that are equiped and total of bonus stats provided. Show number of items owned out of total and they're value, as well as number of items sent as gift and their value. Clicking on the widget takes you to the item system.</div>";
 separate_segment();
 echo "<div class='center'>Top 5 creatures<br>Most materialized creatures in various game modes. Show number of creatures owned and they're estimated value, as well as number of creatures sent as gift and their estimated value.</div>";
 separate_segment();
