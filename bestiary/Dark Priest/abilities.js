@@ -240,10 +240,10 @@ abilities[0] =[
 
 		var pos = { x:hex.x, y:hex.y };
 
+		ability.end();
+
 		ability.creature.player.summon(creature,pos);
 		ability.creature.player.plasma -= args.cost;
-
-		ability.end();
 	},
 }
 
