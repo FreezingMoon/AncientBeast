@@ -15,6 +15,9 @@ abilities[31] =[
 		if( !this.testRequirements() ) return false;
 
 		if( hex instanceof Hex && hex.creature instanceof Creature ){
+
+			if( this.creature.isAlly( hex.creature ) ) return false; //Don't bite ally
+
 			var isAdj = false;
 
 			//Search if Cyber hound is adjacent to the creature that is moving
