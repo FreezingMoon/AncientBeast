@@ -650,6 +650,7 @@ var Game = Class.create({
 
 		//For triggered creature
 		arg[0].abilities.each(function(){
+			if( this.dead == true ) return;
 			if( G.triggers[trigger].test(this.trigger) ){
 				if( this.require(arg[1]) ){
 					retValue = this.animation(arg[1]);
@@ -659,7 +660,7 @@ var Game = Class.create({
 
 		//For other creatures
 		G.creatures.each(function(){
-			if(arg[0] == this) return;
+			if( arg[0] == this || this.dead == true ) return;
 			this.abilities.each(function(){
 				if( G.triggers[trigger+"_other"].test(this.trigger) ){
 					if( this.require(arg[1]) ){

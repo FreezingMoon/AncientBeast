@@ -1191,7 +1191,7 @@ var Creature = Class.create({
 		var addToBuffObjs = function(obj){
 			if(obj instanceof Effect){
 				buffObjs.effects.push(obj);
-			}else if(obj instanceof Drops){
+			}else if(obj instanceof Drop){
 				buffObjs.drops.push(obj);
 			}
 		}
