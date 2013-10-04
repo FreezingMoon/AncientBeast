@@ -23,29 +23,12 @@
  */
 
 // Utility
-if(!file_exists(dirname(__FILE__) . "/config.php"))
-	die("Warning: config.php not found, please edit config.php.in to point to a database and save it as config.php<br>Disclaimer: Since this project is web based, you can use the code and assets along with database.sql to host Ancient Beast yourself for testing and development purposes only! Also, your version should not be indexable by search engines because that can cause harm to the project!");
-require_once("config.php");
+require_once('config.php');
 
 $site_url = 'http://'.$_SERVER['SERVER_NAME'].$site_root;
-
-
-// Database
-$db_connection = NULL;
-function db_connect() {
-	global $db_connection, $db_info;
-	if(!is_null($db_connection))
-		return false;
-	$db_connection = mysql_connect($db_info["host"], $db_info["username"], $db_info["password"]);
-	if($db_connection === false) {
-		// TODO: redirect/display to static error page
-		die("Server connection issues...");
-		return false;
-	}
-	mysql_select_db($db_info["database"]);
-	mysql_query("SET NAMES 'utf8'");
-	return true;
-}
+//sesson starting for login
+session_start();
+// Page generation
 function db_execute($query) {
 	global $db_connection;
 	if($db_connection === false)
@@ -62,9 +45,6 @@ function db_query($query) {
 	global $db_connection;
 	if($db_connection === false)
 		return false;
-	if(is_null($db_connection))
-		if(!db_connect())
-			return false;
 
 	$r = mysql_query($query);
 	if($r === false) return false;
@@ -82,7 +62,6 @@ function db_query($query) {
 	return true;
 }
 
-// Page generation
 function start_segment($x="") {
 	if ($x != NULL) {
 		echo "<div class='div_top' id='$x'></div>";
@@ -105,7 +84,7 @@ function end_page() {
 	<td><a href="bitcoin:1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97?label=Ancient%20Beast"><img src="../donate/bitcoin.png" height="63" width="56" alt="bitcoin"></a></td>
 	<td><a class="FlattrButton" style="display:none;" href="http://AncientBeast.com"></a></td>
 	<td style="width:50%"></td>
-	<td><a href="http://FreezingMoon.org" target="_blank"><img src="../images/Freezing_Moon.png" height="52" width="444" alt="Freezing Moon"></a></td>
+	<td><a href="http://FreezingMoon.org" target="_blank"><img src="../<?php echo $site_root; ?>images/Freezing_Moon.png" height="52" width="444" alt="Freezing Moon"></a></td>
 	<td style="width:50%"></td>
 	<td><a href="http://facebook.com/AncientBeast" target="_blank" class="lighten"><img src="../images/facebook.png" height="64" width="64" class="lighten" alt="facebook"></a></td>
 	<td><a href="http://twitter.com/AncientBeast" target="_blank" class="lighten"><img src="../images/twitter.png" height="64" width="64" class="lighten" alt="twitter"></a></td>
