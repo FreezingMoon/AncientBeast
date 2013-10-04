@@ -198,7 +198,7 @@ var Ability = Class.create({
 
 	getFormatedDamages : function(obj) {
 		if( !this.damages && !obj ) return false;
-		var obj = this.damages || obj;
+		var obj = obj || this.damages;
 		var string = "";
 
 		$j.each(obj,function(key,value){
