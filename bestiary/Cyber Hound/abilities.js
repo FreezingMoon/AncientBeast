@@ -211,7 +211,7 @@ abilities[31] =[
 		var ability = this;
 		var crea = this.creature;
 
-		var hexs = G.grid.allHexs;
+		var hexs = G.grid.allHexs.slice(0); //Copy array
 		
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
