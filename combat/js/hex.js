@@ -472,11 +472,11 @@ var HexGrid = Class.create({
 					}
 				};
 
-				if(!availablePos){
-					//Prevent Bugs
-					console.log("nowhere to go");
-					return;
-				}
+				// if(!availablePos){
+				// 	//Prevent Bugs
+				// 	console.log("nowhere to go");
+				// 	return;
+				// }
 
 				hex = G.grid.hexs[y][x]; //New coords
 				var clickedtHex = hex;
@@ -538,11 +538,11 @@ var HexGrid = Class.create({
 					}
 				};
 
-				if(!availablePos){
-					//Prevent Bugs
-					console.log("nowhere to go");
-					return;
-				}
+				// if(!availablePos){
+				// 	//Prevent Bugs
+				// 	console.log("nowhere to go");
+				// 	return;
+				// }
 				
 				hex = G.grid.hexs[y][x]; //New coords
 				o.fnOnSelect(hex,o.args);

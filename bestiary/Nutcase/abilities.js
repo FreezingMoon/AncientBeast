@@ -170,10 +170,11 @@ abilities[40] =[
 	//	activate() : 
 	activate : function(target,args) {
 		var ability = this;
+		var crea = ability.creature;
 		ability.end();
 
 		var damage = new Damage(
-			ability.creature, //Attacker
+			crea, //Attacker
 			"target", //Attack Type
 			ability.damages, //Damage Type
 			1, //Area
@@ -186,8 +187,10 @@ abilities[40] =[
 			return;
 		} 
 
-		this.creature.moveTo(
-			G.grid.hexs[target.y][target.x],
+		var trgIsInfront = (G.grid.getHexMap(crea.x-inlinefront2hex.origin[0],crea.y-inlinefront2hex.origin[1],0,false,inlinefront2hex)[0].creature == target);
+
+		crea.moveTo(
+			G.grid.hexs[target.y][ target.size == 1 && !trgIsInfront ? target.x+1 : target.x ],
 			{
 				ignorePath:true,
 				ignoreMovementPoint:true,
@@ -199,14 +202,14 @@ abilities[40] =[
 			}
 		);
 		target.moveTo(
-			G.grid.hexs[this.creature.y][ ( target.size == 1 ) ? this.creature.x-1 : this.creature.x ],
+			G.grid.hexs[crea.y][ target.size == 1 && trgIsInfront ? crea.x-1 : crea.x ],
 			{
 				ignorePath:true,
 				ignoreMovementPoint:true,
 				callback:function(){
-					ability.creature.updateHex(); 
+					crea.updateHex(); 
 					G.grid.updateDisplay();
-					ability.creature.queryMove(); 
+					crea.queryMove(); 
 				}
 			}
 		);
