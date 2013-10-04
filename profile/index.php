@@ -25,9 +25,16 @@
 $page_title = "Ancient Beast - Profile";
 require_once("../header.php");
 require_once("../global.php");
+if($_SESSION['id'] == 0) {
+echo 'You need to login to view this page!';
+die();
+}
+
 start_segment();
 echo "<div class='center'><a href='https://github.com/FreezingMoon/AncientBeast' target='_blank'><b>Under HEAVY development!</b></a></div>";
 //if not logged in
+separate_segment();
+echo "<div class='center'><a href='../profile/cpass.php'>Change Password</a></div>";
 separate_segment();
 echo "<div class='center'>login options and benefits</div>";
 separate_segment();

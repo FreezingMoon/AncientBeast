@@ -58,6 +58,12 @@ a.FM:hover {
 	text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;
 }';
 require_once('header.php'); 
+
+if($_GET['action'] == 'logout'){
+  session_destroy();
+ 		echo 'You have been logged out.';
+		 echo '<meta http-equiv="refresh" content="1;url=index.php">';
+ }
 ?>
 <script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 <script type="application/javascript" src="media/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
