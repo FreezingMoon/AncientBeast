@@ -434,7 +434,7 @@ var Creature = Class.create({
 		defaultOpt = {
 			callback : function(){return true;},
 			callbackStepIn : function(){return true;},
-			animation : "walk",
+			animation : this.canFly ? "fly" : "walk",
 			ignoreMovementPoint : false,
 			ignorePath : false,
 			customMovementPoint : 0,

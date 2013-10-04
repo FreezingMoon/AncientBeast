@@ -315,16 +315,16 @@ var HexGrid = Class.create({
 				var creaSource = G.creatures[o.id];
 				var creaTarget = this.creature;
 
-				var isAllie = ( creaSource.team%2 == creaTarget.team%2 );
+				var isAllie = creaSource.isAlly( creaTarget.team );
 				switch(o.team){
 					case 0: //Ennemies
-						if(creaSource.team%2!=creaTarget.team%2) return true;
+						if( !isAllie ) return true;
 						break;
 					case 1: //Allies
-						if(creaSource.team%2==creaTarget.team%2) return true;
+						if( isAllie ) return true;
 						break;
 					case 2: //Same team
-						if(creaSource.team==creaTarget.team) return true;
+						if( creaSource.team==creaTarget.team ) return true;
 						break;
 					case 3: //Both
 						return true;

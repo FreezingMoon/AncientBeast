@@ -1155,9 +1155,13 @@ var Gamelog = Class.create({
 
 	play: function(log){
 		var i = -1;
+
 		var fun = function(){
 			i++;
-			if(i>log.length-1) return;
+			if(i>log.length-1){
+				G.activeCreature.queryMove(); //Avoid bug
+				return;	
+			} 
 			var interval = setInterval(function(){
 				if(!G.freezedInput){
 					clearInterval(interval);
