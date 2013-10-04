@@ -93,7 +93,7 @@ if (isset($_POST['submit'])) {
   $password = sha1($_POST["newpass"]);
   $password2 = sha1($_POST["newpassagain"]);
   $email = $_POST["email"];
-  $checkuser = mysql_query("SELECT * FROM `users` WHERE `username`='".$username."'") or die(mysql_error());
+  $checkuser = mysql_query("SELECT * FROM `ab_users` WHERE `username`='".$username."'") or die(mysql_error());
 
   $username_exist = mysql_num_rows($checkuser);
 
@@ -115,13 +115,10 @@ if (isset($_POST['submit'])) {
 
   //insert the values
  if (!isset($message)){
- $result = mysql_query("INSERT INTO `users` (username, password, email)".
+ $result = mysql_query("INSERT INTO `ab_users` (username, password, email)".
     "VALUES ('$username', '$password', '$email')");
     echo 'Your account has been created successfully!';
-	
-    
 	die();
-    
   }
 }
 ?>

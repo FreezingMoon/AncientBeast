@@ -27,7 +27,6 @@
 $site_root = "/";
 
 // Database information is stored here
-//replaced array with standard connection. 
 mysql_connect("localhost", "username", "password");
 mysql_select_db("database");
 

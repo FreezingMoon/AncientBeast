@@ -93,7 +93,7 @@ if(isset($_POST['submit']) && $_POST['submit'] != ""){
   $password = sha1($_POST["password"]);
 
 
-  $result = mysql_query("SELECT * FROM `users` WHERE `username`='$username'") or die ("Name and password not found or not matched");
+  $result = mysql_query("SELECT * FROM `ab_users` WHERE `username`='$username'") or die ("Name and password not found or not matched");
   $worked = mysql_fetch_array($result);
 
 
