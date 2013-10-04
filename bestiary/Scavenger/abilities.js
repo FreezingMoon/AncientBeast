@@ -105,6 +105,13 @@ abilities[44] =[
 			return false;
 		}
 
+		var trg = hexs[0].creature || hexs[1].creature;
+		if( crea.remainingMove < trg.size ){
+			//Not enough move points
+			this.message = "Not enough movement points.";
+			return false;
+		}
+
 		return true;
 	},
 
