@@ -144,15 +144,23 @@ abilities[44] =[
 				h.overlayVisualState("creature moveto selected player"+color);
 			};
 		}
+
+		var x = ( trgIsInfront ? crea.x+trg.size : crea.x );
 		
 		G.grid.queryHexs({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
 			fnOnSelect : select, //fnOnSelect,
 			team : 3, //Both
-			id : crea.id,
+			id : [crea.id,trg.id],
 			size : size,
-			flipped : crea.flipped,
-			hexs : G.grid.getFlyingRange(crea.x,crea.y,distance,size,crea.id).filter(function(){ return crea.y == this.y && ( trgIsInfront ? crea.x >= this.x : crea.x-crea.size < this.x ); }),
+			flipped : crea.player.flipped,
+			hexs : G.grid.getFlyingRange(x,crea.y,distance,size,[crea.id,trg.id]).filter(function(){ 
+				return crea.y == this.y && 
+					( trgIsInfront ?
+						 this.x < x :
+						 this.x > x-crea.size-trg.size+1
+					); 
+				}),
 			args : {trg : trg.id, trgIsInfront: trgIsInfront}
 		});
 	},

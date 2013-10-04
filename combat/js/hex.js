@@ -408,11 +408,25 @@ var HexGrid = Class.create({
 
 		//Creature hex shade
 		this.$allOverHex.removeClass("ownCreatureHexShade");
-		if( !o.ownCreatureHexShade && o.id != 0 ){
-			G.creatures[o.id].hexagons.each(function(){				
-				this.overlayVisualState('ownCreatureHexShade')
-			})
+
+		if( !o.ownCreatureHexShade ){
+			if( o.id instanceof Array ){
+				o.id.each(function(){
+					G.creatures[this].hexagons.each(function(){				
+						this.overlayVisualState('ownCreatureHexShade')
+					})
+				});
+			}else{
+				if( o.id != 0 ){
+					G.creatures[o.id].hexagons.each(function(){				
+						this.overlayVisualState('ownCreatureHexShade')
+					})
+				}
+			}		
 		}
+
+
+
 
 		//Set reachable the given hexs
 		o.hexs.each(function(){ 
@@ -447,14 +461,22 @@ var HexGrid = Class.create({
 				//Offset Pos
 				var offset = (o.flipped) ? o.size-1 : 0 ;
 				var mult = (o.flipped) ? 1 : -1 ; //For FLIPPED player
+				var availablePos = false;
 
 				for (var i = 0; i < o.size; i++) {	//try next hexagons to see if they fits
 					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
 					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)){ 
 						x += offset-i*mult;
+						availablePos = true;
 						break; 
 					}
 				};
+
+				if(!availablePos){
+					//Prevent Bugs
+					console.log("nowhere to go");
+					return;
+				}
 
 				hex = G.grid.hexs[y][x]; //New coords
 				var clickedtHex = hex;
@@ -505,14 +527,22 @@ var HexGrid = Class.create({
 				//Offset Pos
 				var offset = (o.flipped) ? o.size-1 : 0 ;
 				var mult = (o.flipped) ? 1 : -1 ; //For FLIPPED player
+				var availablePos = false;
 
 				for (var i = 0; i < o.size; i++) {	//try next hexagons to see if they fit
 					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
 					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)){ 
 						x += offset-i*mult;
+						availablePos = true;
 						break; 
 					}
 				};
+
+				if(!availablePos){
+					//Prevent Bugs
+					console.log("nowhere to go");
+					return;
+				}
 				
 				hex = G.grid.hexs[y][x]; //New coords
 				o.fnOnSelect(hex,o.args);
@@ -1081,7 +1111,14 @@ var Hex = Class.create({
 				blocked = blocked || hex.blocked ;
 				if(!ignoreReachable){ blocked = blocked || !hex.reachable ; }
 				if(hex.creature instanceof Creature){
-					blocked = blocked || (hex.creature.id != id); //Not blocked if this block contains the moving creature
+
+					if( id instanceof Array ){
+						var isNotMovingCreature = ( id.indexOf(hex.creature.id) == -1);
+					}else{
+						var isNotMovingCreature = ( hex.creature.id != id );
+					}
+
+					blocked = blocked || isNotMovingCreature; //Not blocked if this block contains the moving creature
 				}
 				 
 			}else{
