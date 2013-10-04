@@ -168,6 +168,9 @@ var Creature = Class.create({
 		this.hexagons.each(function(){
 			this.activateTrap(G.triggers.onStepIn,crea);
 		});
+
+		//Pickup drop
+		this.hexagons.each(function(){this.pickupDrop(crea);});
 	},
 
 	/*	activate()
