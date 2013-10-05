@@ -161,18 +161,6 @@ When fighting players of lower levels, you will temporarely lose plasma points i
 <p>
 After engaging in combat, players are taken to the battle field where both parties take turns to materialize and control creatures. Each player can materialize one or two creatures every round, which usually suffer from materialization sickness, meaning they won't be able to act in the current round.
 </p>
-<p>
-<b>Health:</b> A raw number representing the amount of damage a creature can take until it dies.<br>
-<b>Regrowth:</b> Amount of health which gets restored to the creature every round.<br>
-<b>Endurance:</b> If a creature takes over a certain amount of damage in a round, it becomes fatigued, unable to act.<br>
-<b>Energy:</b> Doing any action, including moving, drains energy from the creature.<br>
-<b>Meditation:</b> Creature gains back this amount of energy points every round.<br>
-<b>Initiative:</b> Creatures with higher initiative get to act faster each round.<br>
-<b>Offense:</b> Influences the damage output of attacks.<br>
-<b>Defense:</b> Protects the creature by reducing incoming damage.<br>
-<b>Movement:</b> Each creature can move up to a certain number of hexagons each turn.<br>
-<b>Masteries</b> can have an impact on the effectiveness of the creature's abilities and can also help reduce incoming damage and even protect the creature from harmfull effects.
-</p>
 <?php separate_segment("realms"); ?>
 <h3 class="indexheader"><a href="#realms">Realms</a></h3>
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit its inhabitants the most.</p>
