@@ -26,6 +26,9 @@ $style = '
 .bigger {
 	font-size: 28px;
 }
+#trailer {
+	padding: 15px;
+}
 .realms {
 	height: 370px;
 	text-align: center;
@@ -108,8 +111,22 @@ foreach ($sections as &$sectionItem) {
 </ul></nav>
 <?php end_segment(); ?>
 <article>
-<?php start_segment(); ?>
-<div class="center"><iframe width="880" height="495" src="//www.youtube.com/embed/cAgf9hKGI3k?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
+<?php start_segment("media"); ?>
+<div class="center">
+<?php
+echo '<div class="center">';
+$images = scandir('media/screenshots');
+natsort($images);
+$i = 0;
+foreach($images as $image) {
+	if($image == '.' || $image == '..') continue;
+	$title = substr($image, 0, -4);
+	$image = str_replace(' ', '%20', $image);
+	echo '<a id="img' . $i . '" rel="pop" href="media/screenshots/' . $image . '" title="' . $title . '"><img class="shadow" style="width:280px; margin:5px;" src="media/screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+	$i++;
+} echo '</div>';?>
+<!--<img src="<?php echo $site_root; ?>images/trailer.png" style="cursor:pointer;" title="Watch Gameplay Video" onclick="TINY.box.show({iframe:'//www.youtube.com/embed/cAgf9hKGI3k?wmode=transparent&list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI',boxid:'trailer',width:853,height:480,opacity:40,topsplit:2})">-->
+<iframe width="880" height="495" src="//www.youtube.com/embed/cAgf9hKGI3k?wmode=transparent&list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
 <?php separate_segment("intro"); ?>
 <h3 class="indexheader"><a href="#intro">Intro</a></h3>
 <p>
@@ -136,18 +153,6 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 <p>
 In order to play Ancient Beast, you'll need to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are about 16x9 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
 </p>
-<?php
-echo '<div class="center">';
-$images = scandir('media/screenshots');
-natsort($images);
-$i = 0;
-foreach($images as $image) {
-	if($image == '.' || $image == '..') continue;
-	$title = substr($image, 0, -4);
-	$image = str_replace(' ', '%20', $image);
-	echo '<a id="img' . $i . '" rel="pop" href="media/screenshots/' . $image . '" title="' . $title . '"><img class="shadow" style="width:280px; margin:5px;" src="media/screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
-	$i++;
-} echo '</div>';?>
 <p>
 Players are represented on the combat field by Dark Priests. All creature stats can be improved by purchasing items.
 Players can level up by gaining experience on the combat field, gaining 1 more plasma point each level, being able to materialize more and/or better creatures. In order to materialize a creature you own, it takes a number of plasma points equal to the creature's level plus the number of hexagons it occupies. Any creature owned can be materialized once per combat, provided the player has enough plasma points to do so.<br>
