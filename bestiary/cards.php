@@ -32,9 +32,9 @@ require_once("../images/stats/index.php"); ?>
 	cursor: default;
 	background-position: center;
 }
-.section.cardborder{
+.section.cardborder {
 	background-image: url('<?php echo $site_root; ?>images/cards/margin.png');
-	border: 0px; 
+	border: 0px;
 	width: 430px;
 	display: block;
 	height: 550px;
@@ -48,22 +48,22 @@ require_once("../images/stats/index.php"); ?>
 	font-weight: bold;
 	font-size: 16px;
 }
-.embed{
-	position: absolute; 
+.embed {
+	position: absolute;
 	margin: 15px 0 0 15px;
 }
 
-.recto .info{
-	background: rgba(0,0,0,0.7); 
-	border-radius: 15px; 
-	border: 4px ridge; 
-	position: relative; 
-	top: 495px; 
+.recto .info {
+	background: rgba(0,0,0,0.7);
+	border-radius: 15px;
+	border: 4px ridge;
+	position: relative;
+	top: 495px;
 	left: 15px;
 }
 .recto .info tr{ 
-	font-size: 24px; 
-	text-align: center; 
+	font-size: 24px;
+	text-align: center;
 	
 }
 .recto .info.sin-{border-color: grey;}
@@ -101,8 +101,6 @@ require_once("../images/stats/index.php"); ?>
 	padding: 15px;
 	position: relative;
 }
-
-
 
 .abilities {
 	vertical-align: top;
@@ -167,40 +165,39 @@ require_once("../images/stats/index.php"); ?>
 	text-align: left;
 }
 .card_info .stat_desc {
-	margin: 15px;
-	font-size: 110%;
+	margin: 5px 10px;
+	font-size: 100%;
 }
 .card_info .stat_desc div{
 	margin: 5px;
 }
 
-
 .low_row .stats_infos {
-  bottom: 52px;
-  top: auto;
-  left: 0px;
+	bottom: 52px;
+	top: auto;
+	left: 0px;
 }
 
 .stats_infos {
-  width: 400px;
-  height: 415px;
-  position: absolute;
-  left: 15px;
-  top: 67px;
-  background: black;
-  opacity: 0;
-  height: 0;
-  color: white;
-  z-index: 2;
-  line-height: 20px;
-  font-size: 15px;
-  overflow: hidden;
-  text-align: left;
-  transition: all 250ms;
-  -moz-transition: all 250ms; /* Firefox 4 */
-  -webkit-transition: all 250ms; /* Safari and Chrome */
-  -ms-transition: all 250ms;
-  -o-transition: all 250ms; /* Opera */
+	width: 400px;
+	height: 415px;
+	position: absolute;
+	left: 15px;
+	top: 67px;
+	background: black;
+	opacity: 0;
+	height: 0;
+	color: white;
+	z-index: 2;
+	line-height: 20px;
+	font-size: 15px;
+	overflow: hidden;
+	text-align: left;
+	transition: all 250ms;
+	-moz-transition: all 250ms; /* Firefox 4 */
+	-webkit-transition: all 250ms; /* Safari and Chrome */
+	-ms-transition: all 250ms;
+	-o-transition: all 250ms; /* Opera */
 }
 
 .stats_infos div { margin: 10px; }
@@ -285,15 +282,15 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 			<div href="#' . $underscore . '" class="section cardborder">
 				<div class="card_info">
 					<div class="stat_desc">
-						<div><span class="icon health"></span> Health : Lorem ipsum</div>
-						<div><span class="icon regrowth"></span> Regrowth : Lorem ipsum</div>
-						<div><span class="icon endurance"></span> Endurance : Lorem ipsum</div>
-						<div><span class="icon energy"></span> Energy : Lorem ipsum</div>
-						<div><span class="icon meditation"></span> Meditation : Lorem ipsum</div>
-						<div><span class="icon initiative"></span> Initiative : Lorem ipsum</div>
-						<div><span class="icon offense"></span> Offense : Lorem ipsum</div>
-						<div><span class="icon defense"></span> Defense : Lorem ipsum</div>
-						<div><span class="icon movement"></span> Movement : Lorem ipsum</div>
+						<div><span class="icon health"></span> Health : The raw amount of damage points a creature can take before it dies.</div>
+						<div><span class="icon regrowth"></span> Regrowth : Amount of health that gets restored at the beginning of every turn.</div>
+						<div><span class="icon endurance"></span> Endurance :  Protects unit from fatigue, which disables regrowth and meditation.</div>
+						<div><span class="icon energy"></span> Energy : Allows the use of abilities.</div>
+						<div><span class="icon meditation"></span> Meditation : Energy restored each turn.</div>
+						<div><span class="icon initiative"></span> Initiative : Creatures with higher amount of initiative points get to act their turn faster.</div>
+						<div><span class="icon offense"></span> Offense : Influences the damage output done by all the creature\'s attack abilities.</div>
+						<div><span class="icon defense"></span> Defense : Protects the creature by reducing some of the incoming damage.</div>
+						<div><span class="icon movement"></span> Movement : Any creature can move a certain number of hexagons every turn.</div>
 					</div>
 				</div>';
 				//Display 3d creature if option enabled
