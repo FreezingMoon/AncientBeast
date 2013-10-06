@@ -41,7 +41,7 @@
     			"title": "Artificial Satellite",
     			"desc": "Protects from most harmful abilities.",
     			"info": "-1 plasma for each countered attack",
-			"costs": {"plasma":"1 plasma for each countered attack"},
+			"costs": {"special":"1%health%per countered attack"},
 			"requirements" : {"plasma" : 1}
     		},
     		{
@@ -319,7 +319,7 @@
 			"title": "Fissure Vent",
 			"desc": "Smashes his fists into the ground, wreaking fierce havoc in area ahead.",
 			"info": "10 burn damage over all 8 hexagons",
-			"damages": {"burn": 10},
+			"damages": {"special": "10%burn%over 8 hexagons"},
 			"costs": {"energy": 20}
 		},
 		{
@@ -330,6 +330,7 @@
 				"crush": 10,
 				"burn": 5
 			},
+			"effects": [{"special": "travels toward inline unit"}],
 			"costs": {"energy": 30}
 		}
 	]
@@ -385,15 +386,15 @@
     		{
     			"title": "Deadly Jab",
     			"desc": "Horn attack that gains extra damage based on the last distance traveled.",
-    			"info": "12 pierce damage + 3 more / hexagon",
-			"damages": {"pierce": 12},
+    			"info": "12 pierce damage + 3 per hexagon",
+			"damages": {"special":"12%pierce%+ 3 per hexagon"},
 			"costs": {"energy": 15}
     		},
     		{
     			"title": "Poisonous Vine",
     			"desc": "Makes use of tongue to envenom horn, mostly effective for a turn.",
     			"info": "+5 poison damage (+1 permanent)",
-			"effects": [{"special": "+5 %poison% damage (+1 %poison% permanent)"}],
+			"effects": [{"special": "<br>+ 1%poison%permanent damage"},{"special": "<br>+ 5%poison%temporary damage"}],
 			"costs": {"energy": 10}
     		},
     		{
@@ -999,10 +1000,8 @@
                 "title": "Boom Box",
                 "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
                 "info": "20 sonic damage + 10 crush if melee",
-                "damages" : {
-                    "sonic" : 20,
-                    "crush" : 0
-                },
+                "damages" : {"special" : "20%sonic%+ 10%crush%if melee"},
+		"effects" : [{"special" : "one hexagon knockback"}],
 		"costs" : {"energy" : 30}
             }
         ]
@@ -2428,21 +2427,21 @@
 			"title": "Bone Dagger",
 			"desc": "Hits nearby foe using frontal blade. Double damage if unit is fatigued.",
 			"info": "12 pierce damage × 2 vs fatigued foe",
-			"damages": {"special": "12 %pierce% × 2 if target is fatigued"},
+			"damages": {"special": "12%pierce% × 2 if target is fatigued"},
 			"costs": {"energy": 15}
 		},
 		{
 			"title": "Whip Slash",
 			"desc": "Grasps a distant foe, pulling itself to it, doing damage based on distance.",
 			"info": "10 slash damage + 5 crush / hexagon",
-			"damages": {"special": "12 %slash%, 5 %crush% per hexagon"},
+			"damages": {"special": "12%slash%, 5%crush% per hexagon"},
 			"costs": {"energy": 20}
 		},
 		{
 			"title": "Boomerang Throw",
 		        "desc": "Forms a new weapon out of blades and throws it away, flying right back.",
 			"info": "5 slash + 5 crush damage, hits twice",
-			"damages": {"special": "5 %slash%, 5 %crush%, hits twice"},
+			"damages": {"special": "5%slash%, 5%crush%, hits twice"},
 			"costs": {"energy": 25}
             }
         ]
@@ -2715,13 +2714,13 @@
     	},
         "canFly" : true,
     	"animation": {
-    		"walk_speed": 120
+    		"walk_speed": 180
     	},
         "display":{
-            "width": 195,
-            "height": 205,
-            "offset-x": 0,
-            "offset-y": -160
+		"width": 195,
+		"height": 205,
+		"offset-x": 0,
+		"offset-y": -160
         },
 	"ability_info": [
 		{
