@@ -43,6 +43,7 @@ img {
 	text-align: center;
 	width: 100%;
 }
+.sections li {display:inline;}
 .center {
 	margin-left: auto!important;
 	margin-right: auto!important;

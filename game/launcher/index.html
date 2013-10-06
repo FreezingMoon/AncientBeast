@@ -7,46 +7,58 @@
     
 	<title>Ancient Beast</title>
 	<meta name="description" content="Ancient Beast is a turn based strategy indie game project.">
+	<link rel="canonical" href="http://www.AncientBeast.com/combat">
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<script src="jquery.fullscreen-min.js"></script>
 <style>
-html, body {height:100%;}
-body {
+html, body {
+	width: 100%;
+	height: 100%;
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
+	border: 0px;
 }
 #bar {
 	background: transparent;
 	text-align: center;
 	width: 100%;
-	height: 20px;
+	height: 32px;
 	position: relative;
-	z-index: 1;
+	z-index: 2;
 }
 a {
 	text-decoration: none;
 	font-weight: bold;
 	color: black;
 }
+button {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: justify;
+}
 iframe {
 	width: 100%;
 	height: 100%;
 	border: 0px;
-	border-top: 27px solid transparent;
+	border-top: 32px solid transparent;
 	box-sizing: border-box;
 	position: absolute;
-	z-index: 0;
+	z-index: 1;
 	display: block;
-	top: 0px;
+	top: 1px;
 }
 </style>
 </head>
 <body>
 <div id="bar">
-<button style="float:left;"><a href="http://AncientBeast.com" target="_blank" >www.AncientBeast.com</a></button>
-<button style="margin-left: auto; margin-right: auto;"><a href="http://www.AncientBeast.com/combat" target="game">Reset</a></button>
-<button style="float:right;" onclick="$('#game').fullScreen(true)"><a>Fullscreen</a></button>
+<button><a href="http://AncientBeast.com" target="_blank" >AncientBeast.com</a></button>
+<button style=""><a href="https://www.facebook.com/AncientBeast" target="_blank" >Facebook</a></button>
+<button style=""><a href="https://www.twitter.com/AncientBeast" target="_blank" >Twitter</a></button>
+<button style=""><a href="https://plus.google.com/113034814032002995836" target="_blank" >Google+</a></button>
+<button style=""><a href="http://AncientBeast.com/donate" target="_blank" >Donate</a></button>
+<button style=""><a href="http://www.AncientBeast.com/combat" target="game">Reset</a></button>
+<button style="" onclick="$('#game').fullScreen(true)"><a>Fullscreen</a></button>
 </div>
 <iframe id="game" name="game" src="http://www.AncientBeast.com/combat" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 </body>

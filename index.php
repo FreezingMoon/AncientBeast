@@ -26,9 +26,6 @@ $style = '
 .bigger {
 	font-size: 28px;
 }
-#trailer {
-	padding: 15px;
-}
 .realms {
 	height: 370px;
 	text-align: center;
@@ -54,8 +51,8 @@ $style = '
 	opacity:0.5;
 }
 .cut_hover {
-	width:127px;
-	height:400px;
+	width: 127px;
+	height: 400px;
 }
 a.FM:hover {
 	text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;
@@ -105,7 +102,7 @@ $sections = array(
 	'license'
 );
 foreach ($sections as &$sectionItem) {
-	echo '<li style="display:inline;"><a href="#' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
+	echo '<li><a href="#' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
 }
 ?>
 </ul></nav>

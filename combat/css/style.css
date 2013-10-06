@@ -1002,6 +1002,7 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 	text-align: center;
 	background: black url('../../images/Reaper.jpg') no-repeat center top;
 	color: white;
+	padding-top: 10%;
 }
 #loader{
 	width: 200px;
