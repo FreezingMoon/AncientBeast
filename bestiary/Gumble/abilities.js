@@ -184,7 +184,7 @@ abilities[14] =[
 		var target = path.last().creature;
 		var melee = (path[0].creature === target);
 
-		var d = (melee) ? {sonic:20,crush:10} : ability.damages;
+		var d = (melee) ? {sonic:20,crush:10} : {sonic:20};
 
 		var damage = new Damage( 
 			ability.creature, //Attacker
