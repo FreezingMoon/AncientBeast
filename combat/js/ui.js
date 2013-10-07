@@ -724,7 +724,7 @@ var UI = Class.create({
 			$queues.each(function(){
 				$j(this).attr("queue",$j(this).attr("queue")-1); //decrement queues
 				if($j(this).attr("queue")-0<0){ 
-					$j(this).children(".vignette").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+					$j(this).children(".vignette").transition({width:0,height:80},queueAnimSpeed,function(){ this.remove(); });
 					$j(this).transition({opacity:1},queueAnimSpeed,function(){ this.remove(); }); //Let vignette fade and remove ancients queues
 					$j(this).removeAttr("turn");
 				 };
@@ -783,7 +783,7 @@ var UI = Class.create({
 							
 							//Remove elem
 							$j($Q[i]).attr("queue","-1")
-								.transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+								.transition({width:0,height:80},queueAnimSpeed,function(){ this.remove(); });
 
 							//Updating
 							$Q = this.$queue.find('.vignette[queue="'+u+'"]');
@@ -830,7 +830,7 @@ var UI = Class.create({
 							}else{
 								//Remove element
 								$j($Q[i]).attr("queue","-1").attr("creatureid","-1").attr("initiative","-1")
-									.transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+									.transition({width:0,height:80},queueAnimSpeed,function(){ this.remove(); });
 							}
 
 							//Updating
@@ -847,7 +847,7 @@ var UI = Class.create({
 			if( queue.length < $Q.length ){ //If displayed queue is longer compared to real queue
 				for(var i = 0; i < $Q.length - queue.length; i++){
 					//Chop the excess
-					$Q.last().attr("queue","-1").transition({width:0},queueAnimSpeed,function(){ this.remove(); });
+					$Q.last().attr("queue","-1").transition({width:0,height:80},queueAnimSpeed,function(){ this.remove(); });
 					var $Q = this.$queue.find('.vignette[queue="'+u+'"]');
 				}
 			}
