@@ -324,6 +324,7 @@ var Creature = Class.create({
 		}
 
 		G.grid.updateDisplay(); //Retrace players creatures
+		this.facePlayerDefault();
 
 		if(this.canFly){
 			o.range = G.grid.getFlyingRange(this.x,this.y,this.remainingMove,this.size,this.id);
