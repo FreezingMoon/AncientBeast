@@ -101,6 +101,7 @@ var Game = Class.create({
 			"swing.ogg",
 			"swing2.ogg",
 			"swing3.ogg",
+			"heartbeat.ogg",
 		]
 		this.inputMethod = "Mouse";
 
@@ -380,8 +381,12 @@ var Game = Class.create({
 			if(!G.freezedInput){
 				clearInterval(interval);
 
+				var differentPlayer = false;
+
 				if(G.queue.length == 0){ //If no creature in queue
 					if(G.delayQueue.length > 0){
+						if( G.activeCreature ) differentPlayer = ( G.activeCreature.player != G.delayQueue[0].player );
+						else differentPlayer = true;
 						G.activeCreature = G.delayQueue[0]; //set new creature active
 						G.delayQueue = G.delayQueue.slice(1); //and remove it from the queue
 						console.log("Delayed Creature");
@@ -390,6 +395,8 @@ var Game = Class.create({
 						return; //End function
 					}
 				}else{
+					if( G.activeCreature ) differentPlayer = ( G.activeCreature.player != G.queue[0].player );
+					else differentPlayer = true;
 					G.activeCreature = G.queue[0]; //set new creature active
 					G.queue = G.queue.slice(1); //and remove it from the queue
 				}
@@ -397,6 +404,11 @@ var Game = Class.create({
 				if(G.activeCreature.player.hasLost){
 					G.nextCreature();
 					return;
+				}
+
+				//Heart Beat
+				if(differentPlayer){
+					G.soundsys.playSound(G.soundLoaded[4],G.soundsys.announcerGainNode);
 				}
 
 				G.log("Active Creature : %CreatureName"+G.activeCreature.id+"%");
