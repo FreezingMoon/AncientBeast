@@ -196,14 +196,24 @@ var UI = Class.create({
 		var zoom1 = $j("#cardwrapper").innerWidth() / $j("#card").outerWidth();
 		var zoom2 = $j("#cardwrapper").innerHeight() / ( $j("#card").outerHeight() + $j("#materialize_button").outerHeight() );
 		var zoom = Math.min(zoom1,zoom2);
-		zoom = (zoom<1) ? zoom : 1;
-		$j("#cardwrapper_inner").css("zoom",zoom);
+		zoom = Math.min(zoom,1);
+		$j("#cardwrapper_inner").css({ 
+			zoom: zoom, 
+			// "left": ($j("#cardwrapper").innerWidth()-$j("#card").innerWidth()*zoom)/2,
+			// position: "absolute",
+			// margin: 0
+		});
 
 		var zoom1 = $j("#creaturegridwrapper").innerWidth()/$j("#creaturegrid").innerWidth();
 		var zoom2 = $j("#creaturegridwrapper").innerHeight()/$j("#creaturegrid").innerHeight();
 		zoom = Math.min(zoom1,zoom2);
-		zoom = (zoom<1) ? zoom : 1;
-		$j("#creaturegrid").css("zoom",zoom);
+		zoom = Math.min(zoom,1);
+		$j("#creaturegrid").css({ 
+			scale: zoom, 
+			"left": ($j("#creaturegridwrapper").innerWidth()-$j("#creaturegrid").innerWidth()*zoom)/2,
+			position: "absolute",
+			margin: 0
+		});
 	},
 
 

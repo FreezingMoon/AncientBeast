@@ -564,6 +564,14 @@ body{
 	color: white;
 }
 
+#cardwrapper_inner{
+	transform-origin:0% 0%;
+	-ms-transform-origin:0% 0%; /* IE 9 */
+	-webkit-transform-origin:0% 0%; /* Safari and Chrome */
+	-moz-transform-origin:0% 0%; /* Firefox */
+	-o-transform-origin:0% 0%; /* Opera */
+}
+
 #card{
 	width: 870px;
 	margin: auto;

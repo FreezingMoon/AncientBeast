@@ -7,6 +7,12 @@
 	background-image:url("../../images/big_frame.png"); 
 	background-size:100%; 
 	padding:27px;
+
+	transform-origin:0% 0%;
+	-ms-transform-origin:0% 0%; /* IE 9 */
+	-webkit-transform-origin:0% 0%; /* Safari and Chrome */
+	-moz-transform-origin:0% 0%; /* Firefox */
+	-o-transform-origin:0% 0%; /* Opera */
 }
 
 #creaturegrid .vignette,
