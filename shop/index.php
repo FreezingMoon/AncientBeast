@@ -36,54 +36,68 @@ require_once("../header.php");
 require_once("../global.php");
 require_once("../images/stats/index.php");
 
+
 //Sorts the arrays by absolute value
-function magnitudesort($a, $b)
+function sortItems($a, $b)
 {
-    if ($a == $b) {
-        return 0;
-    }
-    return (abs($a) < abs($b)) ? -1 : 1;
+	global $sortingArray;
+
+	//For each critera
+	for ($i=0; $i < count($sortingArray); $i++) {
+
+		$sortIndex = $sortingArray[$i];
+
+		if( $a[$sortIndex] == "" ){
+			$a = $a["stats"];
+			$b = $b["stats"];
+		}
+
+		//If same value continue to the next sorting critera
+	    if ($a[$sortIndex] == $b[$sortIndex]) {
+	        continue;
+	    }
+
+	    //Else determine what to do
+	    return (abs($a[$sortIndex]) < abs($b[$sortIndex])) ? -1 : 1;
+	}
+
+    return 0;
+}
+
+function filterStat($var){
+	global $statSelected;
+	return ( $var["stats"][$statSelected] != "" );
 }
 
 //Get the SQL query order 
-function getSQLorder() {
+function getItems() {
 	global $stats;
-	if(!isset($_GET['filter']) || !in_array($_GET['filter'], array_keys($stats), true))
-		return 'ORDER BY type, value DESC';
-	else {
-		$f = $_GET['filter'];
-		return "WHERE $f IS NOT NULL ORDER BY ABS($f) DESC";
+	global $statSelected;
+	global $sortingArray;
+
+	$data = json_decode(file_get_contents('../data/items.json'), true);
+	if(!isset($_GET['filter']) || !in_array($_GET['filter'], array_keys($stats), true)) {
+		$sortingArray = ["value","type"];
+		uasort($data, "sortItems");
+		$data = array_reverse($data);
+	} else {
+		$statSelected = $_GET['filter'];
+		$sortingArray = [ $_GET['filter'] ];
+		$data = array_filter($data,"filterStat");
+		uasort($data, "sortItems");
+		$data = array_reverse($data);
 	}
+
+	return $data;
 }
 
-//Query MYSQL
-$order = getSQLorder();
-$items = 'SELECT id, name, value, type FROM ab_items '.$order;
-$rows = db_query($items);
-$statQuery = 'SELECT ' . implode(', ', array_keys($stats)) . ' FROM ab_items ' . $order;
-$itemStats = db_query($statQuery);
+//Gathering Data
+$data = getItems();
 
-$statCount = array_fill(0, count($stats), 0);
-$statCountRows = db_query('SELECT ' . implode(', ', array_keys($stats)) . ' FROM ab_items');
-foreach($statCountRows as $row) {
-	foreach($row as $k => $x) {
-		if($x == 0)
-			continue;
-		$statCount[$k]++;
-	}
-}
-
-//Sort stats and package items
-for($r = 0; $r < count($itemStats); $r++){
-	uasort($itemStats[$r], "magnitudesort");
-	$itemStats[$r] = array_reverse($itemStats[$r]);
-	$keys[$r] = array_keys($itemStats[$r]);
-	$rows[$r]['stats'] = $itemStats[$r];
-	$rows[$r]['keys'] = $keys[$r];
-}
 
 //Show filters
 start_segment();
+
 echo "<table style='width: 100%;'><tr>";
 foreach($stats as $k => $x)
 	displayStat($k,$statCount[$k],"{$site_root}shop/index.php?filter=$k");
@@ -91,10 +105,11 @@ echo "</tr></table>";
 
 separate_segment();
 
+
 //grid view
 echo '<table style="width: 100%;"><tr>';
 $i = 0;
-foreach ($rows as $r) {
+foreach ($data as $r) {
 	$i++;
 	echo "<td class=\"item\"><span style=\"cursor: pointer;\" class=\"lighten\"><a href=\"#{$r['id']}\"><center><img class=\"fix\" src=\"{$site_root}shop/items/" . rawurlencode($r['name']) . ".png\" style=\"display:block;\"></center><br>{$r['name']}</a></span></td>";
 	if (($i % 6) == 0) echo '</tr><tr>';
@@ -102,8 +117,9 @@ foreach ($rows as $r) {
 echo "</tr></table></a>";
 end_segment();
 
+
 //detailed view
-foreach ($rows as $r) {
+foreach ($data as $r) {
 	start_segment($r['id']);
 	echo "<table style='width: 100%; text-align:center;'>";
 	echo "<tr><td style=\"width: 132px;\"><a href=\"#{$r['id']}\"><img src=\"{$site_root}shop/items/" . rawurlencode($r['name']) . ".png\"></a></td>";

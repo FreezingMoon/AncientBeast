@@ -4,7 +4,7 @@
       "name":"Simple dagger",
       "type":"dagger",
       "value":80,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -21,14 +21,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":2,
       "name":"Throwing spear",
       "type":"spear",
       "value":100,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -45,14 +45,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":3,
       "name":"Throwing blade",
       "type":"blade",
       "value":120,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -69,14 +69,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":4,
       "name":"Short bow",
       "type":"bow",
       "value":110,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -93,14 +93,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":5,
       "name":"Ivy bow",
       "type":"bow",
       "value":140,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -117,14 +117,14 @@
       "frost":null,
       "poison":6,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":6,
       "name":"Blade bow",
       "type":"bow",
       "value":150,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -141,14 +141,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":7,
       "name":"Crystallized Lightning",
       "type":"staff",
       "value":400,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":3,
@@ -165,14 +165,14 @@
       "frost":null,
       "poison":null,
       "sonic":3,
-      "mental":3
+      "mental":3}
    },
    {
       "id":8,
       "name":"Thunderbird feather",
       "type":"feather",
       "value":160,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":5,
@@ -189,14 +189,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":9,
       "name":"Phoenix feather",
       "type":"feather",
       "value":170,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":1,
       "endurance":null,
       "energy":null,
@@ -213,14 +213,14 @@
       "frost":1,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":10,
       "name":"Sting shield",
       "type":"shield",
       "value":190,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -237,14 +237,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":11,
       "name":"Bloody Crystal necklace",
       "type":"amulet",
       "value":300,
-      "health":30,
+      "stats":{ "health":30,
       "regrowth":5,
       "endurance":null,
       "energy":null,
@@ -261,14 +261,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":12,
       "name":"Blue Sparrow amulet",
       "type":"amulet",
       "value":5000,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":5,
       "energy":10,
@@ -285,14 +285,14 @@
       "frost":2,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":13,
       "name":"Thunderbird cape",
       "type":"cape",
       "value":600,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":5,
@@ -309,14 +309,14 @@
       "frost":2,
       "poison":null,
       "sonic":null,
-      "mental":2
+      "mental":2}
    },
    {
       "id":14,
       "name":"Death's Touch bow",
       "type":"bow",
       "value":13000,
-      "health":99,
+      "stats":{ "health":99,
       "regrowth":-1,
       "endurance":-10,
       "energy":99,
@@ -333,14 +333,14 @@
       "frost":-5,
       "poison":-5,
       "sonic":-5,
-      "mental":-5
+      "mental":-5}
    },
    {
       "id":15,
       "name":"Cameleon ring",
       "type":"ring",
       "value":300,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -357,14 +357,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":16,
       "name":"Sulfur ring",
       "type":"ring",
       "value":450,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":-3,
       "endurance":null,
       "energy":null,
@@ -381,14 +381,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":17,
       "name":"Volcanic Pearl ring",
       "type":"ring",
       "value":450,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -405,14 +405,14 @@
       "frost":1,
       "poison":null,
       "sonic":1,
-      "mental":null
+      "mental":null}
    },
    {
       "id":18,
       "name":"Spider belt",
       "type":"belt",
       "value":320,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":3,
       "energy":null,
@@ -429,14 +429,14 @@
       "frost":null,
       "poison":2,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":19,
       "name":"Scout's Journal",
       "type":"misc",
       "value":500,
-      "health":1,
+      "stats":{ "health":1,
       "regrowth":1,
       "endurance":15,
       "energy":5,
@@ -453,14 +453,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":20,
       "name":"Deer helmet",
       "type":"helmet",
       "value":360,
-      "health":10,
+      "stats":{ "health":10,
       "regrowth":null,
       "endurance":null,
       "energy":5,
@@ -477,14 +477,14 @@
       "frost":1,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":21,
       "name":"Demonic helmet",
       "type":"helmet",
       "value":555,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -501,14 +501,14 @@
       "frost":null,
       "poison":null,
       "sonic":2,
-      "mental":null
+      "mental":null}
    },
    {
       "id":22,
       "name":"Curved axe",
       "type":"axe",
       "value":1000,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -525,14 +525,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":23,
       "name":"Leather boots",
       "type":"boots",
       "value":250,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -549,14 +549,14 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    },
    {
       "id":24,
       "name":"Studded club",
       "type":"club",
       "value":400,
-      "health":null,
+      "stats":{ "health":null,
       "regrowth":null,
       "endurance":null,
       "energy":null,
@@ -573,6 +573,6 @@
       "frost":null,
       "poison":null,
       "sonic":null,
-      "mental":null
+      "mental":null}
    }
 ]
