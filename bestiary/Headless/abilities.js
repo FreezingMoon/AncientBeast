@@ -162,13 +162,16 @@ abilities[39] =[
 
 		var path = path;
 		var target = path.last().creature;
+		path = path.filter( function(){	return !this.creature; }); //remove creatures
 		ability.end();
+
+		console.log(path); 
 
 		//Damage
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
-			{ slash : 10, crush : 5*path.length }, //Damage Type
+			{ slash : 12, crush : 5*path.length }, //Damage Type
 			1, //Area
 			[]	//Effects
 		);

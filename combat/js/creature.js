@@ -403,6 +403,11 @@ var Creature = Class.create({
 
 		if(faceto instanceof Creature) faceto = (faceto.size < 2)? faceto.hexagons[0]: faceto.hexagons[1];
 
+		if( faceto.x == facefrom.x ){
+			this.facePlayerDefault();
+			return;
+		}
+
 		if(facefrom.y%2==0){
 			var flipped = ( faceto.x <= facefrom.x );
 		}else{
