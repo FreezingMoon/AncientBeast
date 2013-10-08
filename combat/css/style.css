@@ -635,11 +635,6 @@ body{
 	background-size: 100% 100%;
 	cursor: pointer;
 
-	transition: width 500ms,opacity 500ms,height 500ms;
-	-ms-transition: width 500ms,opacity 500ms,height 500ms;
-	-moz-transition: width 500ms,opacity 500ms,height 500ms; /* Firefox 4 */
-	-webkit-transition: width 500ms,opacity 500ms,height 500ms; /* Safari and Chrome */
-	-o-transition: width 500ms,opacity 500ms,height 500ms; /* Opera */
 }
 .vignette .frame{
 	height: 100%;
@@ -656,17 +651,12 @@ body{
 	background: black;
 	color: white;
 	font-size: 14px;
-	transition: height 500ms;
-	-ms-transition: height 500ms;
-	-moz-transition: height 500ms; /* Firefox 4 */
-	-webkit-transition: height 500ms; /* Safari and Chrome */
-	-o-transition: height 500ms; /* Opera */
 }
 .vignette.active .stats{
 	height: 0px;
 }
 
-.vignette.active,.vignette.active .frame, #playerbutton.vignette .frame ,#playerbutton.vignette{
+#playerbutton.vignette .frame ,#playerbutton.vignette{
 	height: 100px;
 	width: 100px;
 }

@@ -180,6 +180,8 @@ var UI = Class.create({
 		this.selectedCreature = "";
 		this.selectedPlayer = 0;
 		this.selectedAbility = -1;
+
+		this.queueAnimSpeed = 500; //ms
 		
 		this.materializeToggled = false;
 		this.dashopen = false;
@@ -712,9 +714,13 @@ var UI = Class.create({
 
 		if(!G.nextQueue.length || !G.activeCreature ) return false; //Abort to avoid infinite loop
 
-		var queueAnimSpeed = 500;
+		var queueAnimSpeed = this.queueAnimSpeed;
+		var transition = "linear";
 
-		var $vignettes = this.$queue.children('.queue[turn]').children('.vignette');
+		//Set transition duration for stat indicators
+		this.$queue.find('.vignette .stats').css({transition: "height "+queueAnimSpeed+"ms"});
+
+		var $vignettes = this.$queue.find('.queue[turn] .vignette');
 		var $queues = this.$queue.children('.queue[turn]');
 
 		if( ($queues.first().attr("turn")-0) < G.turn){ //If first queue turn is lower than game turn 
@@ -724,9 +730,9 @@ var UI = Class.create({
 			$queues.each(function(){
 				$j(this).attr("queue",$j(this).attr("queue")-1); //decrement queues
 				if($j(this).attr("queue")-0<0){ 
-					$j(this).children(".vignette.active").transition({width:0,height:100},queueAnimSpeed,function(){ this.remove(); });
-					$j(this).children(".vignette:not(.active)").transition({width:0,height:80},queueAnimSpeed,function(){ this.remove(); });
-					$j(this).transition({opacity:1},queueAnimSpeed,function(){ this.remove(); }); //Let vignette fade and remove ancients queues
+					$j(this).children(".vignette.active").transition({width:0,height:100, queue: false },queueAnimSpeed,transition,function(){ this.remove(); });
+					$j(this).children(".vignette:not(.active)").transition({width:0,height:80, queue: false },queueAnimSpeed,transition,function(){ this.remove(); });
+					$j(this).transition({opacity:1, queue: false },queueAnimSpeed,transition,function(){ this.remove(); }); //Let vignette fade and remove ancients queues
 					$j(this).removeAttr("turn");
 				 };
 			});
@@ -777,7 +783,7 @@ var UI = Class.create({
 						//Animation
 						$Q.filter('[roundmarker="1"][queue="'+u+'"]')
 							.css({width:0})
-							.transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
+							.transition({width:80, queue: true },queueAnimSpeed,transition,function(){ $j(this).removeAttr("style"); });
 					}else{
 						//While its not the round marker
 						while( $j($Q[i]).attr("roundmarker") == undefined ){
@@ -785,7 +791,7 @@ var UI = Class.create({
 							//Remove elem
 							var isActive = $j($Q[i]).hasClass("active");
 							$j($Q[i]).attr("queue","-1")
-								.transition({width:0,height: isActive ? 100 : 80 },queueAnimSpeed,function(){ this.remove(); });
+								.transition({width:0,height: isActive ? 100 : 80, queue: false },queueAnimSpeed,transition,function(){ this.remove(); });
 
 							//Updating
 							$Q = this.$queue.find('.vignette[queue="'+u+'"]');
@@ -810,7 +816,7 @@ var UI = Class.create({
 						//Animation
 						this.$queue.find('.vignette[creatureid="'+queue[i].id+'"][queue="'+u+'"][initiative="'+initiative+'"]')
 							.css({width:0})
-							.transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
+							.transition({width:80, queue: true},queueAnimSpeed,transition,function(){ $j(this).removeAttr("style"); });
 
 					}else{
 						//While it'ss not the right creature
@@ -827,13 +833,13 @@ var UI = Class.create({
 								//Animation
 								this.$queue.find('.vignette[creatureid="'+queue[i].id+'"][queue="'+u+'"][initiative="'+initiative+'"]')
 									.css({width:0})
-									.transition({width:80},queueAnimSpeed,function(){ $j(this).removeAttr("style"); });
+									.transition({width:80, queue: true},queueAnimSpeed,transition,function(){ $j(this).removeAttr("style"); });
 
 							}else{
 								//Remove element
 								var isActive = $j($Q[i]).hasClass("active");
 								$j($Q[i]).attr("queue","-1").attr("creatureid","-1").attr("initiative","-1")
-									.transition({width:0,height: isActive ? 100 : 80 },queueAnimSpeed,function(){ this.remove(); });
+									.transition({width:0,height: isActive ? 100 : 80, queue: false },queueAnimSpeed,transition,function(){ this.remove(); });
 							}
 
 							//Updating
@@ -851,7 +857,7 @@ var UI = Class.create({
 				for(var i = 0; i < $Q.length - queue.length; i++){
 					//Chop the excess
 					var isActive = $Q.last().hasClass("active");
-					$Q.last().attr("queue","-1").transition({width:0,height: isActive ? 100 : 80 },queueAnimSpeed,function(){ this.remove(); });
+					$Q.last().attr("queue","-1").transition({width:0,height: isActive ? 100 : 80, queue: false },queueAnimSpeed,transition,function(){ this.remove(); });
 					var $Q = this.$queue.find('.vignette[queue="'+u+'"]');
 				}
 			}
@@ -860,7 +866,8 @@ var UI = Class.create({
 
 			//Set active creature
 			this.$queue.find('.vignette.active').removeClass("active"); //Avoid bugs
-			this.$queue.find('.vignette[queue="0"]').first().addClass("active");
+			console.log(this.$queue.find('.vignette[queue="0"]').first());
+			this.$queue.find('.vignette[queue="0"]').first().clearQueue().addClass("active").transition({ width: 100, height: 100 },queueAnimSpeed,transition,function(){ $j(this).css({ width: 100, height: 100 }); });
 
 			//Add mouseover effect
 			this.$queue.children('.queue').children('.vignette').not(".roundmarker").unbind("mouseover").unbind("mouseleave").bind("mouseover",function(){
