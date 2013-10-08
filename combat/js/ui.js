@@ -494,7 +494,7 @@ var UI = Class.create({
 
 	closeDash: function(materialize){
 		this.$dash.removeClass("active");
-		if(!materialize){
+		if(!materialize && G.activeCreature ){
 			G.activeCreature.queryMove();
 		}
 		this.dashopen = false;

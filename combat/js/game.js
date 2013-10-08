@@ -374,6 +374,9 @@ var Game = Class.create({
 	*
 	*/
 	nextCreature: function(){
+		G.UI.closeDash();
+		G.UI.btnToggleDash.changeState("normal");
+
 		if(this.gameState == "ended") return;
 
 		G.stopTimer();
@@ -588,6 +591,8 @@ var Game = Class.create({
 					msgStyle = "damage";
 				}
 				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime){
+					//Alert
+					G.UI.btnToggleDash.changeState("glowing");
 					this.activeCreature.hint( Math.ceil( this.turnTimePool - ((date - p.startTime)/1000)),msgStyle);
 				}
 			}
@@ -597,6 +602,8 @@ var Game = Class.create({
 				return;
 			}else{
 				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime){
+					//Alert
+					G.UI.btnToggleDash.changeState("glowing");
 					this.activeCreature.hint( Math.ceil( this.turnTimePool - ((date - p.startTime)/1000)),msgStyle);
 				}
 			}
@@ -611,6 +618,8 @@ var Game = Class.create({
 					msgStyle = "damage";
 				}
 				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime){
+					//Alert
+					G.UI.btnToggleDash.changeState("glowing");
 					this.activeCreature.hint( Math.ceil( this.turnTimePool - ((date - p.startTime)/1000)),msgStyle);
 				}
 			}
