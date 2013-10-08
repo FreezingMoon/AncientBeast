@@ -866,7 +866,6 @@ var UI = Class.create({
 
 			//Set active creature
 			this.$queue.find('.vignette.active').removeClass("active"); //Avoid bugs
-			console.log(this.$queue.find('.vignette[queue="0"]').first());
 			this.$queue.find('.vignette[queue="0"]').first().clearQueue().addClass("active").transition({ width: 100, height: 100 },queueAnimSpeed,transition,function(){ $j(this).css({ width: 100, height: 100 }); });
 
 			//Add mouseover effect

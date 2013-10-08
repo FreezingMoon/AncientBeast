@@ -580,6 +580,8 @@ var Game = Class.create({
 			return;
 		}
 
+		G.UI.updateTimer();
+
 		if( this.timePool > 0 && this.turnTimePool > 0 ){ //Turn time and timepool not infinite
 			if( (date - p.startTime)/1000 > this.turnTimePool || p.totalTimePool - (date - p.startTime) < 0 ){
 				if( p.totalTimePool - (date - p.startTime) < 0 )
@@ -624,8 +626,6 @@ var Game = Class.create({
 				}
 			}
 		}
-
-		G.UI.updateTimer();
 	},
 
 
