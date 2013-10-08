@@ -39,8 +39,8 @@ var Ability = Class.create({
 	*
 	*/
 	end: function(desableLogMsg) {
-		this.applyCost();
 		if(!desableLogMsg) G.log("%CreatureName"+this.creature.id+"% uses "+this.title);
+		this.applyCost();
 		this.setUsed(true) //Should always be here
 		G.UI.updateInfos(); //Just in case
 		if(this.trigger == "onQuery"){
@@ -353,7 +353,7 @@ var Ability = Class.create({
 
 		//Health
 		if(req.health  > 0 ){
-			if( this.creature.health < req.health ){
+			if( this.creature.health <= req.health ){
 				this.message = G.msg.abilities.notenough.replace("%stat%","health"); 
 				return false;
 			}
@@ -380,9 +380,14 @@ var Ability = Class.create({
 		if( this.costs == undefined ) return;
 		$j.each(this.costs,function(key,value) {
 			if( typeof(value) == "number" ){
+				if(key == 'health'){
+					crea.hint(value,'damage d'+value);
+					G.log("%CreatureName"+crea.id+"% loses "+value+" health");
+				}
 				crea[key] = Math.max( crea[key]-value, 0 ); //Cap
 			}
-		})
+		});
+		crea.updateHealth();
 	},
 
 	testDirection : function(o){

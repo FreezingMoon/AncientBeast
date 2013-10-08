@@ -210,7 +210,7 @@ abilities[37] =[
 				{ 	
 					requireFn: function(){ 
 						if(this.trap.hex.creature==0) return false;
-						return this.trap.hex.creature.type != "A1"; 
+						return (this.trap.hex.creature.type != "A1" && !this.trap.hex.creature.canFly); 
 					}, 
 					effectFn: function(effect,crea){ crea.remainingMove--; },
 				}
