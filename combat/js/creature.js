@@ -135,14 +135,11 @@ var Creature = Class.create({
 		
 		//Adding Himself to creature arrays and queue
 		G.creatures[this.id] = this;
-		G.nextQueue.push(this);
-		G.reorderQueue();
 
 		this.delayable = true;
 		this.delayed = false;
 		this.materializeSickness = (this.type == "--") ? false : true ;
 		
-		this.summon();
 	},
 
 
@@ -152,6 +149,10 @@ var Creature = Class.create({
 	*
 	*/
 	summon: function(){
+
+		G.nextQueue.push(this);
+		G.reorderQueue();
+		
 		//TODO Summon effect
 		this.$display.removeClass("ghosted");
 		$j("#crea_materialize_overlay").remove();

@@ -1025,6 +1025,7 @@ var Player = Class.create({
 		};
 		var creature = new Creature(data);
 		this.creatures.push(creature);
+		creature.summon();
 	},
 
 	/*	flee()
