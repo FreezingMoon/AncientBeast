@@ -31,7 +31,8 @@ $style = "
 	text-align: center;
 	width: 14%;
 	vertical-align: top;
-}";
+}
+.stats{ padding: 0 4px; }";
 require_once("../header.php");
 require_once("../global.php");
 require_once("../images/stats/index.php");
@@ -76,13 +77,13 @@ function getItems() {
 	global $sortingArray;
 
 	$data = json_decode(file_get_contents('../data/items.json'), true);
-	if(!isset($_GET['filter']) || !in_array($_GET['filter'], array_keys($stats), true)) {
-		$sortingArray = ["value","type"];
+	if( !isset($_GET['filter']) || !in_array( $_GET['filter'], array_keys($stats), true) ) {
+		$sortingArray = array("value","type");
 		uasort($data, "sortItems");
 		$data = array_reverse($data);
 	} else {
 		$statSelected = $_GET['filter'];
-		$sortingArray = [ $_GET['filter'] ];
+		$sortingArray = array( $_GET['filter'] );
 		$data = array_filter($data,"filterStat");
 		uasort($data, "sortItems");
 		$data = array_reverse($data);
@@ -143,6 +144,3 @@ include("../utils/disqus.php");
 end_segment();
 end_page();
 ?>
-<style type="text/css">
-.stats{ padding: 0 4px; }
-</style>
