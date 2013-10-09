@@ -168,6 +168,7 @@ var UI = Class.create({
 					glowing  	: { "cursor": "pointer" },
 					selected  	: {},
 					active 		: {},
+					noclick 	: {},
 					normal 		: { "cursor": "default" },
 				}
 			});
@@ -610,7 +611,7 @@ var UI = Class.create({
 				this.abilitiesButtons[i].changeState("glowing");
 				oneUsableAbility = true;
 			}else if( ab.message==G.msg.abilities.notarget || ( ab.trigger!="onQuery" && req && !ab.used ) ){
-				this.abilitiesButtons[i].changeState("normal");
+				this.abilitiesButtons[i].changeState("noclick");
 			}else{
 				this.abilitiesButtons[i].changeState("disabled");
 			}
@@ -1000,7 +1001,7 @@ var Button = Class.create({
 				btn.mouseleave();
 			} );
 		}
-		this.$button.removeClass("disabled glowing selected active")
+		this.$button.removeClass("disabled glowing selected active noclick")
 		this.$button.css( this.css["normal"] );
 		if( state != "normal" ){
 			this.$button.addClass(state);

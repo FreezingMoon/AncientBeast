@@ -340,10 +340,7 @@ body{
 #creatureWrapper .p2.health{border-color: orange;}
 #creatureWrapper .p3.health{border-color: green;}
 
-#creatureWrapper .flipped .damage,
-#creatureWrapper .flipped .gamehintblack,
-#creatureWrapper .flipped .msg_effects,
-#creatureWrapper .flipped .healing{ 
+#creatureWrapper .flipped .effects div{ 
 	-webkit-transform: scale(-1,1); 
 	-ms-transform: scale(-1,1); 
 	-moz-transform: scale(-1,1); 
@@ -393,7 +390,7 @@ body{
 	background-size: 100% 100%;
 }
 
-.button:not(.glowing):hover:before{
+.button.noclick:hover:before{
 	background-image: url('../../images/contour_dimmed.png');	
 }
 

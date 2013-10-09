@@ -106,6 +106,12 @@ abilities[44] =[
 		}
 
 		var trg = hexs[0].creature || hexs[1].creature;
+
+		if( !trg.stats.moveable ){
+			this.message = "Target is not moveable.";
+			return false;
+		}
+
 		if( crea.remainingMove < trg.size ){
 			//Not enough move points
 			this.message = "Not enough movement points.";
