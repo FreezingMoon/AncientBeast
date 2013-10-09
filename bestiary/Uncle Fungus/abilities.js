@@ -16,7 +16,8 @@ abilities[3] =[
 	require : function(hex){
 		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ) return false;
 		
-		if( hex instanceof Hex && hex.creature instanceof Creature ){
+		if( hex instanceof Hex && hex.creature instanceof Creature && hex.creature != this.creature){
+
 			var targets = this.getTargets(hex.creature.adjacentHexs(1));
 
 			var isAdj = false;
@@ -36,7 +37,7 @@ abilities[3] =[
 		for (var i = 0; i < targets.length; i++) {
 			if( targets[i] == undefined ) continue;
 			if( !(targets[i].target instanceof Creature) ) continue;
-			if( !targets[i].target.isAlly(this.creature.team) && targets[i].target.findEffect("Contaminated").length == 0 )
+			if( !targets[i].target.isAlly(this.creature.team) && targets[i].target.findEffect(this.title).length == 0 )
 				return this.testRequirements();
 		};
 
@@ -45,6 +46,7 @@ abilities[3] =[
 
 	//	activate() : 
 	activate : function(hex) {
+
 		var ability = this;
 		var creature = this.creature;
 		var targets = this.getTargets(this.creature.adjacentHexs(1));
@@ -68,14 +70,16 @@ abilities[3] =[
 
 				//Spore Contamination
 				var effect = new Effect(
-					"Contaminated", //Name
+					ability.title, //Name
 					creature, //Caster
 					trg, //Target
 					"", //Trigger
 					optArg //Optional arguments
 				);
 
-				trg.addEffect(effect);
+				trg.addEffect(effect,undefined,"Contaminated");
+
+				G.log("%CreatureName"+trg.id+"% regrowth is lowered by "+ability.effects[0].regrowth);
 
 				ability.setUsed(false); //Infinite triggering
 			}
@@ -138,7 +142,7 @@ abilities[3] =[
 			
 			//Regrowth bonus
 			ability.creature.addEffect( new Effect(
-				ability.name, //Name
+				ability.title, //Name
 				ability.creature, //Caster
 				ability.creature, //Target
 				"", //Trigger
