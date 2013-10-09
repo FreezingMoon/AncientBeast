@@ -138,7 +138,7 @@ abilities[3] =[
 			
 			//Regrowth bonus
 			ability.creature.addEffect( new Effect(
-				"Regrowth++", //Name
+				ability.name, //Name
 				ability.creature, //Caster
 				ability.creature, //Target
 				"", //Trigger
@@ -147,7 +147,8 @@ abilities[3] =[
 					deleteTrigger : "onStartPhase",
 					alterations : {regrowth : amount }
 				} //Optional arguments
-			), "%CreatureName"+ability.creature.id+"% gained "+amount+" temporary regrowth" );
+			), "%CreatureName"+ability.creature.id+"% gained "+amount+" temporary regrowth", //Custom Log
+			"Regrowth++" );	//Custom Hint
 		}
 
 		//remove frogger bonus if its found

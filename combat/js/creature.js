@@ -1007,7 +1007,7 @@ var Creature = Class.create({
 	* 	effect : 		Effect : 	Effect object
 	*
 	*/
-	addEffect: function(effect,specialString){
+	addEffect: function(effect,specialString,specialHint){
 		if( !effect.stackable && this.findEffect(effect.name).length != 0 ){
 			//G.log(this.player.name+"'s "+this.name+" is already affected by "+effect.name);
 			return false;
@@ -1017,7 +1017,11 @@ var Creature = Class.create({
 		this.updateAlteration();
 
 		if(effect.name != ""){
-			this.hint(effect.name,'msg_effects');
+			if(specialHint){
+				this.hint(specialHint,'msg_effects');
+			}else{
+				this.hint(effect.name,'msg_effects');
+			}
 			if(specialString){
 				G.log(specialString);
 			}else{
