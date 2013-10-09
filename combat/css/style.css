@@ -393,6 +393,10 @@ body{
 	background-size: 100% 100%;
 }
 
+.button:not(.glowing):hover:before{
+	background-image: url('../../images/contour_dimmed.png');	
+}
+
 .button:before{
 	content: "";
 	display: block;
