@@ -232,6 +232,8 @@ abilities[40] =[
 	query : function(){
 		var ability = this;
 		var creature = this.creature;
+
+		creature.hint("Confirm","confirm constant");
 		
 		G.grid.queryHexs({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
