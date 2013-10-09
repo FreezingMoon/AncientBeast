@@ -132,20 +132,22 @@ abilities[3] =[
 
 		var dmg = target.takeDamage(damage);
 
-		if(dmg.status == ""){
+		if(dmg.damageObj.status == ""){
+
+			var amount = Math.max(Math.round(dmg.damages.total/4),1);
+			
 			//Regrowth bonus
 			ability.creature.addEffect( new Effect(
 				"Regrowth++", //Name
 				ability.creature, //Caster
 				ability.creature, //Target
-				"onStartPhase", //Trigger
+				"", //Trigger
 				{	
-					effectFn : function(effect,crea){
-						effect.deleteEffect();
-					},
-					alterations : {regrowth : Math.round(dmg.damages.total/4)}
+					turnLifetime : 1,
+					deleteTrigger : "onStartPhase",
+					alterations : {regrowth : amount }
 				} //Optional arguments
-			) );
+			), "%CreatureName"+ability.creature.id+"% gained "+amount+" temporary regrowth" );
 		}
 
 		//remove frogger bonus if its found

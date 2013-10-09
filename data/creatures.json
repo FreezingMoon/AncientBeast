@@ -234,6 +234,7 @@
     			"title": "Supper Chomp",
     			"desc": "Takes a huge bite out of nearby foe, restoring a minor amount of health.",
     			"info": "20 pierce damage, 1/4 as regrowth",
+    			"effects": [{"special": "1/4 of damages as %regrowth%"}],
 			"damages": {"pierce" : 20},
 			"costs": {"energy" : 15}
     		},
