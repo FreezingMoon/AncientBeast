@@ -1031,10 +1031,21 @@ var Creature = Class.create({
 	},
 
 	hint: function(text,cssclass){
+		this.$effects.children(".constant").remove();
 		var id = this.$effects.children().length;
 		var $tooltip = this.$effects.append('<div id="hint'+id+1+'" class="'+cssclass+'">'+text+'</div>').children('#hint'+id+1);
+
+		//animate offset of the other tooltips
+		var i = 1;
+		this.$effects.children().each(function(){
+			$j(this).transition({bottom:50*i,queue:false},250);
+			i++;
+		});
+
 		$tooltip.css({"margin-left": -250+(this.display.width/2)});
-		$tooltip.transition({opacity:0},2000,function(){ this.remove(); }); 
+		$tooltip.css({bottom: -50,opacity:0}).transition({bottom:0, opacity:1},250);
+
+		if( !$tooltip.hasClass("constant") ) $tooltip.transition({opacity:1},500).transition({opacity:0},250,function(){ this.remove(); }); 
 	},
 
 	/* 	updateAlteration()

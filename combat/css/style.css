@@ -286,26 +286,30 @@ body{
 
 /*-----------------EFFECTS-------------------*/
 
-#creatureWrapper .damage,
-#creatureWrapper .gamehintblack,
-#creatureWrapper .healing,
-#creatureWrapper .msg_effects{
+#creatureWrapper .effects div{
 	font-size: 220%;
 	color: red;
 	font-style: italic;
 	font-weight: bold;
 	text-shadow: 2px 2px 7px  black;
 	display: block;
-	position: relative;
+	position: absolute;
 	height: 50px;
 	width: 500px;
-	top:0px;
+	bottom: 0px;
 	text-align: center;
 	white-space: nowrap;
 }
-#creatureWrapper .gamehintblack{color: black; text-shadow:#FFF 1px 1px 2px,#FFF -1px -1px 2px;}
-#creatureWrapper .healing{color: green;}
-#creatureWrapper .msg_effects{color: yellow;}
+#creatureWrapper .effects div.confirm{color: white; text-shadow:#000 1px 1px 2px,#000 -1px -1px 2px;
+	animation: pulse0510 750ms infinite alternate;
+	-webkit-animation: pulse0510 750ms infinite alternate;
+	-ms-animation: pulse0510 750ms infinite alternate;
+	-moz-animation: pulse0510 750ms infinite alternate;
+	-o-animation: pulse0510 750ms infinite alternate;
+}
+#creatureWrapper .effects div.gamehintblack{color: black; text-shadow:#FFF 1px 1px 2px,#FFF -1px -1px 2px;}
+#creatureWrapper .effects div.healing{color: green;}
+#creatureWrapper .effects div.msg_effects{color: yellow;}
 
 #creatureWrapper .health{
 	position: absolute;
