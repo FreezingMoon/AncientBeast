@@ -411,7 +411,7 @@ var Game = Class.create({
 
 				//Heart Beat
 				if(differentPlayer){
-					G.soundsys.playSound(G.soundLoaded[4],G.soundsys.announcerGainNode);
+					G.soundsys.playSound(G.soundLoaded[4],G.soundsys.heartbeatGainNode);
 				}
 
 				G.log("Active Creature : %CreatureName"+G.activeCreature.id+"%");
@@ -1209,6 +1209,7 @@ var Soundsys = Class.create({
 		o = $j.extend({
 			music_volume : 1,
 			effects_volume : 1,
+			heartbeats_volume : 1,
 			announcer_volume : 1
 		},o);
 
@@ -1228,6 +1229,11 @@ var Soundsys = Class.create({
 		//Effects
 		this.effectsGainNode = this.context.createGain();
 		this.effectsGainNode.connect(this.context.destination);
+
+		//HeartBeat
+		this.heartbeatGainNode = this.context.createGain();
+		this.heartbeatGainNode.connect(this.context.destination);
+		this.heartbeatGainNode.gain.value = .2;
 
 		//Announcner
 		this.announcerGainNode = this.context.createGain();
