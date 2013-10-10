@@ -797,6 +797,16 @@ var HexGrid = Class.create({
 	},
 
 
+	showGrid : function(val){
+		this.forEachHexs(function(){
+			if(this.creature) return;
+			this.$overlay.text(val ? this.coord : "");
+			this.$display.removeClass("showGrid");
+			if(val) this.$display.addClass("showGrid");
+		});
+	},
+
+
 	//******************//
 	//Shortcut functions//
 	//******************//
@@ -932,6 +942,7 @@ var Hex = Class.create({
 		this.x = x - 0; // - 0 force type
 		this.y = y - 0; // - 0 force type
 		this.pos = {x:x - 0, y:y - 0};
+		this.coord = String.fromCharCode(64+this.y+1)+(this.x+1);
 
 		this.f = 0; //pathfinding
 		this.g = 0; //pathfinding

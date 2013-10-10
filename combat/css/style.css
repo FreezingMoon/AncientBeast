@@ -121,6 +121,9 @@ body{
 	height: 52px;
 	margin: -36px -10px;
 	padding: 36px 10px;
+	line-height: 52px;
+	text-align: center;
+	font-size: 35px;
 	transition: opacity 250ms;
 	-moz-transition: opacity 250ms; /* Firefox 4 */
 	-webkit-transition: opacity 250ms; /* Safari and Chrome */
@@ -181,6 +184,8 @@ body{
 
 #hexsdisplay .adj{background: url("../grid/hex_path.png");  z-index: 5; opacity: 1;}
 #hexsdisplay .displayhex.dashed{background: url("../grid/hex_dashed.png");  z-index: 5; opacity: 1 !important;}
+
+#hexsdisplay .displayhex.showGrid{ opacity: 1 !important; }
 
 /*--------------------Players------------------*/
 .displayhex.creature{z-index: 6 !important; opacity: 1 !important;}

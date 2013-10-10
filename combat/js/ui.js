@@ -870,7 +870,14 @@ var UI = Class.create({
 			this.$queue.find('.vignette[queue="0"]').first().clearQueue().addClass("active").transition({ width: 100, height: 100 },queueAnimSpeed,transition,function(){ $j(this).css({ width: 100, height: 100 }); });
 
 			//Add mouseover effect
-			this.$queue.children('.queue').children('.vignette').not(".roundmarker").unbind("mouseover").unbind("mouseleave").bind("mouseover",function(){
+			
+			this.$queue.find('.queue .vignette.roundmarker').unbind("mouseover").unbind("mouseleave").bind("mouseover",function(){
+				G.grid.showGrid(true);
+			}).bind("mouseleave",function(){
+				G.grid.showGrid(false);
+			});
+
+			this.$queue.find('.queue .vignette').not(".roundmarker").unbind("mouseover").unbind("mouseleave").bind("mouseover",function(){
 				if(G.freezedInput) return;
 				var creaID = $j(this).attr("creatureid")-0;
 				G.creatures.each(function(){
