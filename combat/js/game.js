@@ -376,6 +376,7 @@ var Game = Class.create({
 	nextCreature: function(){
 		G.UI.closeDash(true); // True argument prevent calling the queryMove function before the next creature
 		G.UI.btnToggleDash.changeState("normal");
+		G.grid.xray( new Hex(-1,-1) ); //Clear Xray
 
 		if(this.gameState == "ended") return;
 

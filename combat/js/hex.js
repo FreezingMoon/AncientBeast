@@ -72,7 +72,6 @@ var HexGrid = Class.create({
 		this.$allInptHex		= $j("#hexsinput .hex"); //All Input Hexs
 		this.$allDispHex		= $j("#hexsdisplay .displayhex"); //All Display Hexs
 		this.$allOverHex		= $j("#hexsoverlay .displayhex"); //All Display Hexs
-
 	},
 
 	/* 	queryDirection(o)
@@ -554,6 +553,7 @@ var HexGrid = Class.create({
 			this.onSelectFn	 = onSelectFn;
 			this.onConfirmFn = onConfirmFn;
 		});
+
 	},
 
 
@@ -988,6 +988,10 @@ var Hex = Class.create({
 			if(G.freezedInput) return;
 			var hex = G.grid.hexs[ $j(this).attr("y")-0 ][ $j(this).attr("x")-0 ];
 			hex.onConfirmFn();
+		});
+
+		this.$input.bind("mouseleave",function(){
+			G.grid.xray( new Hex(-1,-1) ); //Clear Xray
 		});
 
 		this.trap = undefined;
