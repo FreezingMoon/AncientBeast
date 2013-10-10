@@ -80,7 +80,7 @@ function displayStat($type = "health", $value = 0, $link = "", $disp_info = fals
 		if($link != "") echo '
 			</a>';
 	if($disp_info){
-		echo '<div class="stats_infos"><div>This stat doesn\'t have any modifiers</div></div>';
+		echo '<div class="stats_infos"><div class="textcenter">This stat doesn\'t have any modifiers</div></div>';
 	}
 	echo '</td>';
 }

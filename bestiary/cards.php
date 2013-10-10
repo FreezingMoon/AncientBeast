@@ -207,6 +207,7 @@ require_once("../images/stats/index.php"); ?>
 }
 
 .stats_infos div { margin: 10px; }
+.stats_infos div.textcenter { text-align: center; }
 
 .stats:hover{
 	background: black;
