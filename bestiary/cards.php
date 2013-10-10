@@ -23,14 +23,15 @@
  */
 require_once("../images/stats/index.php"); ?>
 <style>
-.card table{border: none;}
+.card table,#card table{border: none; border-spacing: 0px;}
 
 .card {
 	width: 430px;
 	height: 550px;
 	background-repeat: no-repeat;
 	cursor: default;
-	background-position: center;
+	background-position: 16px 15px;
+	position : relative; 
 }
 .section.cardborder {
 	background-image: url('<?php echo $site_root; ?>images/cards/margin.png');
@@ -57,24 +58,25 @@ require_once("../images/stats/index.php"); ?>
 .recto .info {
 	background: rgba(0,0,0,0.7);
 	border-radius: 15px;
-	border: 4px ridge;
-	position: relative;
-	top: 495px;
-	left: 15px;
+	border: 4px ridge !important;
+	top: 496px;
+	left: 16px;
+	position: absolute; 
+	z-index:1; 
 }
 .recto .info tr{ 
 	font-size: 24px;
 	text-align: center;
 	
 }
-.recto .info.sin-{border-color: grey;}
-.recto .info.sinA{border-color: gold;}
-.recto .info.sinE{border-color: orange;}
-.recto .info.sinG{border-color: green;}
-.recto .info.sinL{border-color: red;}
-.recto .info.sinP{border-color: violet;}
-.recto .info.sinS{border-color: blue;}
-.recto .info.sinW{border-color: indigo;}
+.recto .info.sin-{border-color: grey !important;}
+.recto .info.sinA{border-color: gold !important;}
+.recto .info.sinE{border-color: orange !important;}
+.recto .info.sinG{border-color: green !important;}
+.recto .info.sinL{border-color: red !important;}
+.recto .info.sinP{border-color: violet !important;}
+.recto .info.sinS{border-color: blue !important;}
+.recto .info.sinW{border-color: indigo !important;}
 
 .recto .info.sin- tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em grey;}
 .recto .info.sinA tr{text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em gold;}
@@ -100,7 +102,9 @@ require_once("../images/stats/index.php"); ?>
 	width: 400px; 
 	height: 520px;
 	padding: 15px;
-	position: relative;
+	top: 0px; 
+	position: absolute; 
+	z-index: 2;
 }
 
 .abilities {
@@ -154,14 +158,14 @@ require_once("../images/stats/index.php"); ?>
 
 .card_info {
 	position: absolute;
+	top: 15px;
+	left: 16px;
 	display: none;
 	background: rgba(0,0,0,.8);
 	width: 400px;
 	color: white;
 	height: 520px;
 	opacity: 1;
-	margin: 15px;
-	border-radius: 10px;
 	font-size: 17px;
 	z-index: 2;
 	text-align: left;
@@ -316,18 +320,18 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 				</div>
 			</div>
 			<div href="#' . $underscore . '" class="section cardborder">
-				';
-				//Display 3d creature if option enabled
-				if ($embed == 1) echo '<div class="embed"><iframe frameborder="0" height="520" width="400" src="http://sketchfab.com/embed/' . $r['embed'] . '?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe></div>';
-				echo '<table class="section info sin' . $r['realm'] . '" style="position relative; z-index:1">
-					<tr>
-						<td class="type" creature_type="'.$r['realm'].$r['lvl'].'" style="width:20%;">'.$r['realm'].$r['lvl'].'</td>
-						<td><audio src="' . $spaceless . '/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
-						<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '" creature_name="' . $r['name'] . '" >' . $r['name'] . '</a></td>
-						<td class="hexs" creature_size="' . $r['size'] . 'H" style="width:20%;">' . $r['size'] . 'H</td>
-					</tr>
-				</table>
 			</div>
+			';
+			//Display 3d creature if option enabled
+			if ($embed == 1) echo '<div class="embed"><iframe frameborder="0" height="520" width="400" src="http://sketchfab.com/embed/' . $r['embed'] . '?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe></div>';
+			echo '<table class="section info sin' . $r['realm'] . '">
+				<tr>
+					<td class="type" creature_type="'.$r['realm'].$r['lvl'].'" style="width:20%;">'.$r['realm'].$r['lvl'].'</td>
+					<td><audio src="' . $spaceless . '/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
+					<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '" creature_name="' . $r['name'] . '" >' . $r['name'] . '</a></td>
+					<td class="hexs" creature_size="' . $r['size'] . 'H" style="width:20%;">' . $r['size'] . 'H</td>
+				</tr>
+			</table>
 		</th>
 		<th class="card verso sin' . $r['realm'] . '">
 			<div class="section cardborder">
