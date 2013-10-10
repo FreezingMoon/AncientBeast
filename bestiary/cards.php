@@ -43,6 +43,7 @@ require_once("../images/stats/index.php"); ?>
 	color: #fff;
 	border-style: solid;
 	border-color: transparent;
+	border-spacing: 0px;
 	width: 400px;
 	text-shadow: black 0.1em 0.1em 0.2em;
 	font-weight: bold;
@@ -156,9 +157,10 @@ require_once("../images/stats/index.php"); ?>
 	display: none;
 	background: rgba(0,0,0,.8);
 	width: 400px;
+	color: white;
 	height: 520px;
 	opacity: 1;
-	margin: 16px;
+	margin: 15px;
 	border-radius: 10px;
 	font-size: 17px;
 	z-index: 2;
@@ -173,7 +175,7 @@ require_once("../images/stats/index.php"); ?>
 }
 
 .low_row .stats_infos {
-	bottom: 52px;
+	bottom: 100%;
 	top: auto;
 	left: 0px;
 }
@@ -182,8 +184,7 @@ require_once("../images/stats/index.php"); ?>
 	width: 400px;
 	height: 415px;
 	position: absolute;
-	left: 15px;
-	top: 67px;
+	left: 0px;
 	background: black;
 	opacity: 0;
 	height: 0;
@@ -193,14 +194,43 @@ require_once("../images/stats/index.php"); ?>
 	font-size: 15px;
 	overflow: hidden;
 	text-align: left;
-	transition: all 250ms;
-	-moz-transition: all 250ms; /* Firefox 4 */
-	-webkit-transition: all 250ms; /* Safari and Chrome */
+/*	transition: all 250ms;
+	-moz-transition: all 250ms; 
+	-webkit-transition: all 250ms; 
 	-ms-transition: all 250ms;
-	-o-transition: all 250ms; /* Opera */
+	-o-transition: all 250ms; 
+*/
+	border-radius: 10px;
 }
 
 .stats_infos div { margin: 10px; }
+
+.stats:hover{
+	background: black;
+	border-radius: 10px;
+}
+
+
+#dash .stats:hover{
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+#dash .low_row .stats:hover{
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+
+
+.stats:first-child .stats_infos{ border-top-left-radius: 0px; }
+.stats:last-child .stats_infos{ border-top-right-radius: 0px; }
+
+.low_row .stats:first-child .stats_infos{ border-top-left-radius: 10px; border-bottom-left-radius: 0px; }
+.low_row .stats:last-child .stats_infos{ border-top-right-radius: 10px; border-bottom-right-radius: 0px; }
 
 .stats:hover .stats_infos {
   height: auto;
@@ -229,34 +259,27 @@ function ucfirst (str) {
 
 
 //The website use a different jquery shortcut than the game. Using jQuery object fix that.
-function showStat(stat,card) {
-	var $stat = jQuery(card).find("."+stat);
-	var desc = $stat.attr("description");
-	jQuery(card).find(".card_info .stat_buff").html("");
-	jQuery(card).find(".card_info").show();
-}
-
-function hideInfos(card) {
-	jQuery(card).find(".card_info").hide();
-	jQuery(card).find(".card_info .stat_buff").html("");
-}
-
 jQuery(document).ready(function(){
 
 	var activate = function(){
 		var stat = jQuery(this).attr('stat');
 		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
-		showStat(stat,card);
 		if( typeof G != "undefined" && G instanceof Game){
 			G.UI.showStatInfos(stat);
 		}
 	};
+
+	jQuery(".card .stat_table").mouseenter(function(){
+		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
+		jQuery(card).find(".card_info").show();
+	});
+	jQuery(".card .stat_table").mouseleave(function(){
+		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
+		jQuery(card).find(".card_info").hide();
+	});
+
 	jQuery(".card .numbers .stats").mouseenter(activate);
 	jQuery(".card .numbers .stats").click(activate);
-	jQuery(".card .numbers .stats").mouseleave(function(){
-		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
-		hideInfos(card);
-	});
 });
 </script>
 <?php
@@ -279,20 +302,21 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 	echo '
 	<table class="center" border=0>
 		<th class="card recto" style="background-image: url(\'' . $site_root . 'bestiary/' . $r['name'] . '/artwork.jpg\');">
+			<div class="card_info">
+				<div class="stat_desc">
+					<div><span class="icon health"></span> Health : The raw amount of damage points a creature can take before it dies.</div>
+					<div><span class="icon regrowth"></span> Regrowth : Amount of health that gets restored at the beginning of every turn.</div>
+					<div><span class="icon endurance"></span> Endurance :  Protects unit from fatigue, which disables regrowth and meditation.</div>
+					<div><span class="icon energy"></span> Energy : Allows the use of abilities.</div>
+					<div><span class="icon meditation"></span> Meditation : Energy restored each turn.</div>
+					<div><span class="icon initiative"></span> Initiative : Creatures with higher amount of initiative points get to act their turn faster.</div>
+					<div><span class="icon offense"></span> Offense : Influences the damage output done by all the creature\'s attack abilities.</div>
+					<div><span class="icon defense"></span> Defense : Protects the creature by reducing some of the incoming damage.</div>
+					<div><span class="icon movement"></span> Movement : Any creature can move a certain number of hexagons every turn.</div>
+				</div>
+			</div>
 			<div href="#' . $underscore . '" class="section cardborder">
-				<div class="card_info">
-					<div class="stat_desc">
-						<div><span class="icon health"></span> Health : The raw amount of damage points a creature can take before it dies.</div>
-						<div><span class="icon regrowth"></span> Regrowth : Amount of health that gets restored at the beginning of every turn.</div>
-						<div><span class="icon endurance"></span> Endurance :  Protects unit from fatigue, which disables regrowth and meditation.</div>
-						<div><span class="icon energy"></span> Energy : Allows the use of abilities.</div>
-						<div><span class="icon meditation"></span> Meditation : Energy restored each turn.</div>
-						<div><span class="icon initiative"></span> Initiative : Creatures with higher amount of initiative points get to act their turn faster.</div>
-						<div><span class="icon offense"></span> Offense : Influences the damage output done by all the creature\'s attack abilities.</div>
-						<div><span class="icon defense"></span> Defense : Protects the creature by reducing some of the incoming damage.</div>
-						<div><span class="icon movement"></span> Movement : Any creature can move a certain number of hexagons every turn.</div>
-					</div>
-				</div>';
+				';
 				//Display 3d creature if option enabled
 				if ($embed == 1) echo '<div class="embed"><iframe frameborder="0" height="520" width="400" src="http://sketchfab.com/embed/' . $r['embed'] . '?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe></div>';
 				echo '<table class="section info sin' . $r['realm'] . '" style="position relative; z-index:1">
@@ -307,7 +331,7 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 		</th>
 		<th class="card verso sin' . $r['realm'] . '">
 			<div class="section cardborder">
-				<table class="section">
+				<table class="section stat_table" style="position: relative;">
 					<tr class="numbers">';
 					//Display Stats Numbers
 					$i=0;
@@ -340,7 +364,7 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 				}
 				echo '
 				</div>
-				<table class="section low_row" style="position: absolute; top: 481px; left: 15px;">
+				<table class="section low_row stat_table" style="position: absolute; top: 481px; left: 15px;">
 					<tr class="numbers">';
 					//Display Masteries Numbers
 					$i=0;
