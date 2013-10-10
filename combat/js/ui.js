@@ -661,7 +661,7 @@ var UI = Class.create({
 			});
 
 			if(!atLeastOneBuff){
-				$j(card).find("."+stat+" .stats_infos").html("<div>This stat doesn't have any modifiers</div>");
+				$j(card).find("."+stat+" .stats_infos").html('<div class="textcenter">This stat doesn\'t have any modifiers</div>');
 			}
 		}
 
