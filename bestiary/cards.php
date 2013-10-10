@@ -110,7 +110,7 @@ require_once("../images/stats/index.php"); ?>
 .abilities {
 	vertical-align: top;
 	text-align: left;
-	padding: 5px;
+	padding: 5px 0px 5px 0px;
 	margin: 0px;
 	width: 390px;
 	height: 416px;
