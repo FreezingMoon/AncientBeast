@@ -1001,6 +1001,7 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 @-o-keyframes 		glowingtext{ 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
 /*----------------Game setup--------------*/
 
+#gamesetup {margin-top: 10%;}
 #matchmaking{
 	width: 100%;
 	height: 100%;
@@ -1011,7 +1012,6 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 	text-align: center;
 	background: black url('../../images/Reaper.jpg') no-repeat center top;
 	color: white;
-	padding-top: 10%;
 }
 #loader{
 	width: 200px;
