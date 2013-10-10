@@ -35,6 +35,7 @@ require_once("../images/stats/index.php"); ?>
 }
 .section.cardborder {
 	background-image: url('<?php echo $site_root; ?>images/cards/margin.png');
+	background-repeat: no-repeat;
 	border: 0px;
 	width: 430px;
 	display: block;
@@ -96,7 +97,7 @@ require_once("../images/stats/index.php"); ?>
 .verso.sinP{ background-image: url('<?php echo $site_root; ?>images/cards/P.jpg'); }
 .verso.sinS{ background-image: url('<?php echo $site_root; ?>images/cards/S.jpg'); }
 .verso.sinW{ background-image: url('<?php echo $site_root; ?>images/cards/W.jpg'); }
-.verso{ background-position: center; margin: 0 0 0 15px; }
+.verso{ margin: 0 0 0 15px; }
 
 .verso .cardborder{
 	width: 400px; 
