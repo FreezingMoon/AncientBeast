@@ -197,7 +197,7 @@ require_once("../images/stats/index.php"); ?>
 	line-height: 20px;
 	font-size: 15px;
 	overflow: hidden;
-	text-align: left;
+	text-align: center;
 /*	transition: all 250ms;
 	-moz-transition: all 250ms; 
 	-webkit-transition: all 250ms; 
@@ -207,7 +207,7 @@ require_once("../images/stats/index.php"); ?>
 	border-radius: 10px;
 }
 
-.stats_infos div { margin: 10px; }
+.stats_infos div { text-align: left; margin: 10px; }
 
 .stats:hover{
 	background: black;
