@@ -800,6 +800,7 @@ var HexGrid = Class.create({
 	showGrid : function(val){
 		this.forEachHexs(function(){
 			if(this.creature) return;
+			if(this.drop) return;
 			this.$overlay.text(val ? this.coord : "");
 			this.$display.removeClass("showGrid");
 			if(val) this.$display.addClass("showGrid");

@@ -124,6 +124,7 @@ body{
 	line-height: 52px;
 	text-align: center;
 	font-size: 35px;
+	/*text-shadow: 0px 0px 5px rgba(255,255,255,0.7);*/
 	transition: opacity 250ms;
 	-moz-transition: opacity 250ms; /* Firefox 4 */
 	-webkit-transition: opacity 250ms; /* Safari and Chrome */
