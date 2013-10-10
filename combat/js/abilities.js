@@ -64,8 +64,13 @@ var Ability = Class.create({
 				G.UI.abilitiesButtons[this.id].changeState("disabled");
 		}else{
 			this.used = false;
-			if(this.creature.id == G.activeCreature.id) //avoid dimmed passive for current creature
-				G.UI.abilitiesButtons[this.id].changeState("normal");
+			if(this.creature.id == G.activeCreature.id){
+				if(this.id == 0){ //Passive
+					G.UI.abilitiesButtons[this.id].changeState("noclick");
+				}else{
+					G.UI.abilitiesButtons[this.id].changeState("normal");
+				}
+			}
 		}
 	},
 
