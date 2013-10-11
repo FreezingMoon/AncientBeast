@@ -23,7 +23,7 @@
  */
 require_once("../images/stats/index.php"); ?>
 <style>
-.card table,#card table{border: none; border-spacing: 0px;}
+.card table,#card table{border-spacing: 0px;}
 
 .card {
 	width: 430px;
@@ -35,6 +35,7 @@ require_once("../images/stats/index.php"); ?>
 }
 .section.cardborder {
 	background-image: url('<?php echo $site_root; ?>images/cards/margin.png');
+	background-repeat: no-repeat;
 	border: 0px;
 	width: 430px;
 	display: block;
@@ -59,8 +60,8 @@ require_once("../images/stats/index.php"); ?>
 	background: rgba(0,0,0,0.7);
 	border-radius: 15px;
 	border: 4px ridge !important;
-	top: 496px;
-	left: 16px;
+	top: 497px;
+	left: 17px;
 	position: absolute; 
 	z-index:1; 
 }
@@ -96,7 +97,7 @@ require_once("../images/stats/index.php"); ?>
 .verso.sinP{ background-image: url('<?php echo $site_root; ?>images/cards/P.jpg'); }
 .verso.sinS{ background-image: url('<?php echo $site_root; ?>images/cards/S.jpg'); }
 .verso.sinW{ background-image: url('<?php echo $site_root; ?>images/cards/W.jpg'); }
-.verso{ background-position: center; margin: 0 0 0 15px; }
+.verso{ margin: 0 0 0 15px; }
 
 .verso .cardborder{
 	width: 400px; 
@@ -110,9 +111,8 @@ require_once("../images/stats/index.php"); ?>
 .abilities {
 	vertical-align: top;
 	text-align: left;
-	padding: 0 5px;
-	margin: 0px 0px -5px 0px;
-	border: none;
+	padding: 5px 0px 5px 0px;
+	margin: 0px;
 	width: 390px;
 	height: 416px;
 }
@@ -143,7 +143,7 @@ require_once("../images/stats/index.php"); ?>
 	display: table-cell; 
 	vertical-align: middle;
 	height: 100px;
-	padding-left: 100px;
+	padding-left: 103px;
 }
 
 .abilities .ability .info{
@@ -251,12 +251,6 @@ function CallCreature(shout) {
 }
 
 function ucfirst (str) {
-  // http://kevin.vanzonneveld.net
-  // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-  // +   bugfixed by: Onno Marsman
-  // +   improved by: Brett Zamir (http://brett-zamir.me)
-  // *     example 1: ucfirst('kevin van zonneveld');
-  // *     returns 1: 'Kevin van zonneveld'
   str += '';
   var f = str.charAt(0).toUpperCase();
   return f + str.substr(1);
