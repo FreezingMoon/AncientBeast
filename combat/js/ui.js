@@ -880,6 +880,7 @@ var UI = Class.create({
 			this.$queue.find('.queue .vignette').not(".roundmarker").unbind("mouseover").unbind("mouseleave").bind("mouseover",function(){
 				if(G.freezedInput) return;
 				var creaID = $j(this).attr("creatureid")-0;
+				G.grid.showMovementRange(creaID);
 				G.creatures.each(function(){
 					if(this instanceof Creature){
 						this.$display.removeClass("ghosted");
@@ -890,6 +891,7 @@ var UI = Class.create({
 				G.UI.xrayQueue(creaID);
 			}).bind("mouseleave",function(){ //On mouseleave cancel effect
 				if(G.freezedInput) return;
+				G.grid.redoLastQuery();
 				G.creatures.each(function(){
 					if(this instanceof Creature){
 						this.$display.removeClass("ghosted");

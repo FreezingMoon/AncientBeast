@@ -357,6 +357,10 @@ var HexGrid = Class.create({
 
 	},
 
+	redoLastQuery: function(){
+		this.queryHexs(this.lastQueryOpt);
+	},
+
 
 	/*	queryHexs(x, y, distance, size)
 	*
@@ -388,6 +392,8 @@ var HexGrid = Class.create({
 
 		G.grid.lastClickedtHex = [];
 
+		//Save the last Query
+		this.lastQueryOpt = $j.extend({},o); //Copy Obj
 
 		//Block all hexs
 		this.forEachHexs(function(){ 
@@ -516,6 +522,7 @@ var HexGrid = Class.create({
 					crea.hexagons.each(function(){
 						this.$overlay.addClass("hover h_player"+crea.team);	
 					});
+					G.grid.showMovementRange(crea.id);
 					G.UI.xrayQueue(crea.id);
 				}else{ //If nothing
 					hex.$overlay.addClass("hover");
@@ -807,6 +814,25 @@ var HexGrid = Class.create({
 		});
 	},
 
+	showMovementRange : function(id){
+		var crea = G.creatures[id];
+		if( crea.canFly ){
+			var hexs = this.getFlyingRange(crea.x,crea.y,crea.remainingMove,crea.size,crea.id);
+		}else{
+			var hexs = this.getMovementRange(crea.x,crea.y,crea.remainingMove,crea.size,crea.id);
+		}
+
+		//Block all hexs
+		this.forEachHexs(function(){ 
+			this.unsetReachable(); 
+		});
+
+		//Set reachable the given hexs
+		hexs.each(function(){ 
+			this.setReachable();
+		});
+
+	},
 
 	//******************//
 	//Shortcut functions//
@@ -992,6 +1018,7 @@ var Hex = Class.create({
 		});
 
 		this.$input.bind("mouseleave",function(){
+			G.grid.redoLastQuery();
 			G.grid.xray( new Hex(-1,-1) ); //Clear Xray
 		});
 
