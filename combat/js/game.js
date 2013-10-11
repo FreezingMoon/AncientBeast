@@ -283,6 +283,8 @@ var Game = Class.create({
 			
 		};
 
+		this.activeCreature = this.players[0].creatures[0]; //Prevent errors
+
 		this.UI = new UI(); //Creating UI not before because certain function requires creature to exists
 
 		//DO NOT CALL LOG BEFORE UI CREATION

@@ -522,7 +522,6 @@ var HexGrid = Class.create({
 					crea.hexagons.each(function(){
 						this.$overlay.addClass("hover h_player"+crea.team);	
 					});
-					G.grid.showMovementRange(crea.id);
 					G.UI.xrayQueue(crea.id);
 				}else{ //If nothing
 					hex.$overlay.addClass("hover");
@@ -817,9 +816,9 @@ var HexGrid = Class.create({
 	showMovementRange : function(id){
 		var crea = G.creatures[id];
 		if( crea.canFly ){
-			var hexs = this.getFlyingRange(crea.x,crea.y,crea.remainingMove,crea.size,crea.id);
+			var hexs = this.getFlyingRange(crea.x,crea.y,crea.stats.movement,crea.size,crea.id);
 		}else{
-			var hexs = this.getMovementRange(crea.x,crea.y,crea.remainingMove,crea.size,crea.id);
+			var hexs = this.getMovementRange(crea.x,crea.y,crea.stats.movement,crea.size,crea.id);
 		}
 
 		//Block all hexs
