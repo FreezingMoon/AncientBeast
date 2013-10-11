@@ -165,7 +165,7 @@ abilities[4] =[
 		ability.areaDamage(
 			ability.creature, //Attacker
 			"zone", //Attack Type
-			ability.damages, //Damage Type
+			ability.damages1, //Damage Type
 			[],	//Effects
 			ability.getTargets(hexs) //Targets
 		);

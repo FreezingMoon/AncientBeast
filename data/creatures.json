@@ -321,6 +321,7 @@
 			"desc": "Smashes his fists into the ground, wreaking fierce havoc in area ahead.",
 			"info": "10 burn damage over all 8 hexagons",
 			"damages": {"special": "10%burn%over 8 hexagons"},
+			"damages1": {"burn": 10},
 			"costs": {"energy": 20}
 		},
 		{
