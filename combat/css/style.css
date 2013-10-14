@@ -1002,10 +1002,52 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 @-o-keyframes 		glowingtext{ 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
 /*----------------Game setup--------------*/
 
-#gamesetup {margin-top: 10%;}
+
+/*Overiding JqueryUI Theme*/
+.ui-widget{font-size: .9em !important;}
+.ui-buttonset {margin-right: 5px !important;}
+.ui-button-text-only .ui-button-text {
+	padding: .4em .8em;
+}
+.ui-button .ui-button-text {
+	line-height: 1em;
+}
+
+#gamesetup,#gamesetup .cont {
+	display: inline-block;
+	margin: 2px;
+	padding: 5px;
+	background: rgba(25,25,25,.8);
+	border: rgb(25,25,25) 1px solid;
+	border-radius: 7px;
+}
+
+
+#gamesetup {
+	width: 540px;
+	height: 480px;
+    position:absolute;
+    display: block;
+    left:50%;
+    top:50%;
+    margin:-245px 0 0 -275px;
+    padding: 4px;
+}
+
+
+#gamesetup .cont h2{
+	margin: 5px;
+	font-size: 1em;
+}
+
+#gamesetup .typeradio{
+	white-space: nowrap;
+}
+
 #matchmaking{
 	width: 100%;
 	height: 100%;
+	min-height: 510px;
 	position: absolute;
 	left: 0px;
 	top: 0px;

@@ -34,11 +34,12 @@ require_once("../config.php"); //only needed for multiplayer
 		<title>Ancient Beast 0.2</title>
 		
 		<link type="text/css" rel="stylesheet" href="//cdn.jsdelivr.net/hint.css/1.3.0/hint.min.css" />
+		<link rel="stylesheet" type="text/css" href="./css/dot-luv/jquery-ui-1.9.2.custom.min.css" />
 		<link rel="stylesheet" type="text/css" href="./css/style.css">
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
 
@@ -147,68 +148,82 @@ require_once('../bestiary/cards.php');
 
 
 				<form id="gamesetup">
-					Players : 
-					<select name="nbrplayer">
-						<option value="2">1vs1</option>
-						<option value="4">2vs2</option>
-					</select><br/><br/>
+					<div class="cont">
+						<h2>Players</h2>
+						<div id="nbrplayer" class="typeradio">
+							<input type="radio" name="nbrplayer" checked="checked" value="2" id="p2"/><label for="p2">1vs1</label>
+							<input type="radio" name="nbrplayer" value="4" id="p4"/><label for="p4">2vs2</label>
+						</div>
+					</div>
+					<br/>
 
-					Location : 
-					<select name="background">
-						<option value="random">Random Place</option>
-						<option value="Dark Forest">Dark Forest</option>
-						<option value="Frozen Skull">Frozen Skull</option>
-						<option value="Shadow Cave">Shadow Cave</option>
-					</select><br/><br/>
+					<div class="cont">
+						<h2>Location</h2>
+						<span id="location" class="typeradio">
+							<input type="radio" id="bgopt1" name="location" checked="checked" value="random" /><label for="bgopt1">Random Place</label>
+							<input type="radio" id="bgopt2" name="location" value="Dark Forest" /><label for="bgopt2">Dark Forest</label>
+							<input type="radio" id="bgopt3" name="location" value="Frozen Skull" /><label for="bgopt3">Frozen Skull</label>
+							<input type="radio" id="bgopt4" name="location" value="Shadow Cave" /><label for="bgopt4">Shadow Cave</label>
+						</span><br/>
+						<!-- <div style="background:url('../locations/Shadow Cave/prev.jpg'); width : 400px; height : 225px; display: inline-block;"></div> -->
+					</div>
+					<br/>
+					<div class="cont">
+						<h2>Turn Time</h2>
+						<div id="time_turn" class="typeradio">
+							<input type="radio" id="timeopt1" name="time_turn" value="-1"  checked="checked"/><label for="timeopt1">&#8734;</label>
+							<input type="radio" id="timeopt2" name="time_turn" value="20" /><label for="timeopt2">20 sec</label>
+							<input type="radio" id="timeopt3" name="time_turn" value="40" /><label for="timeopt3">40 sec</label>
+							<input type="radio" id="timeopt4" name="time_turn" value="60" /><label for="timeopt4">60 sec</label>
+							<input type="radio" id="timeopt5" name="time_turn" value="80" /><label for="timeopt5">80 sec</label>
+							<input type="radio" id="timeopt6" name="time_turn" value="99" /><label for="timeopt6">99 sec</label>
+						</div>
+					</div>
+					<br/>
+					<div class="cont">
+						<h2>Time Pools</h2>
+						<div id="time_pool" class="typeradio">
+							<input type="radio" id="timepoolopt1" name="time_pool" value="-1" checked="checked"/><label for="timepoolopt1">&#8734;</label>
+							<input type="radio" id="timepoolopt2" name="time_pool" value="1"  /><label for="timepoolopt2">1 min</label>
+							<input type="radio" id="timepoolopt3" name="time_pool" value="5"  /><label for="timepoolopt3">5 sec</label>
+							<input type="radio" id="timepoolopt4" name="time_pool" value="10" /><label for="timepoolopt4">10 sec</label>
+							<input type="radio" id="timepoolopt5" name="time_pool" value="15" /><label for="timepoolopt5">15 sec</label>
+							<input type="radio" id="timepoolopt6" name="time_pool" value="20" /><label for="timepoolopt6">20 sec</label>
+							<input type="radio" id="timepoolopt7" name="time_pool" value="25" /><label for="timepoolopt7">25 sec</label>
+							<input type="radio" id="timepoolopt8" name="time_pool" value="30" /><label for="timepoolopt8">30 sec</label>
+						</div>
+					</div>
+					<br/>
+					<div class="cont">
+						<h2>Plasma Points</h2>
+						<div id="plasma" class="typeradio">
+							<input type="radio" id="plasmaopt1" name="plasma" value="5"  /><label for="plasmaopt1">5</label>
+							<input type="radio" id="plasmaopt2" name="plasma" value="10" /><label for="plasmaopt2">10</label>
+							<input type="radio" id="plasmaopt3" name="plasma" value="20" /><label for="plasmaopt3">20</label>
+							<input type="radio" id="plasmaopt4" name="plasma" value="30" /><label for="plasmaopt4">30</label>
+							<input type="radio" id="plasmaopt5" name="plasma" value="40" checked="checked"/><label for="plasmaopt5">40</label>
+							<input type="radio" id="plasmaopt6" name="plasma" value="50" /><label for="plasmaopt6">50</label>
+							<input type="radio" id="plasmaopt7" name="plasma" value="60" /><label for="plasmaopt7">60</label>
+							<input type="radio" id="plasmaopt8" name="plasma" value="70" /><label for="plasmaopt8">70</label>
+							<input type="radio" id="plasmaopt9" name="plasma" value="80" /><label for="plasmaopt9">80</label>
+							<input type="radio" id="plasmaopt10" name="plasma" value="90" /><label for="plasmaopt10">90</label></div>
+					</div>
+					<br/>
+					<div class="cont">
+						<h2>Active Units</h2>
+						<span id="active_units" class="typeradio">
+							<input type="radio" id="activeunitsopt1" name="active_units" value="1" /><label for="activeunitsopt1">5</label>
+							<input type="radio" id="activeunitsopt2" name="active_units" value="2" /><label for="activeunitsopt2">10</label>
+							<input type="radio" id="activeunitsopt3" name="active_units" value="3" /><label for="activeunitsopt3">20</label>
+							<input type="radio" id="activeunitsopt4" name="active_units" value="4" checked="checked"/><label for="activeunitsopt4">30</label>
+							<input type="radio" id="activeunitsopt5" name="active_units" value="5" /><label for="activeunitsopt5">40</label>
+							<input type="radio" id="activeunitsopt6" name="active_units" value="6" /><label for="activeunitsopt6">50</label>
+							<input type="radio" id="activeunitsopt7" name="active_units" value="7" /><label for="activeunitsopt7">60</label>
+						</span>
+					</div>
+					<br/>
 
-					Turn Time : 
-					<select name="time_turn">
-						<option value="-1">&#8734;</option>
-						<option value="20">20 sec</option>
-						<option value="40">40 sec</option>
-						<option value="60">60 sec</option>
-						<option value="80">80 sec</option>
-						<option value="99">99 sec</option>
-					</select><br/>
-
-					Time Pools : 
-					<select name="time_pool">
-						<option value="-1">&#8734;</option>
-						<option value="1">1 min</option>
-						<option value="5">5 min</option>
-						<option value="10">10 min</option>
-						<option value="15">15 min</option>
-						<option value="20">20 min</option>
-						<option value="25">25 min</option>
-						<option value="30">30 min</option>
-					</select><br/>
-
-					Plasma Points : 
-					<select name="plasma">
-						<option value="5">5</option>
-						<option value="10">10</option>
-						<option value="20">20</option>
-						<option value="30">30</option>
-						<option value="40" selected>40</option>
-						<option value="50">50</option>
-						<option value="60">60</option>
-						<option value="70">70</option>
-						<option value="80">80</option>
-						<option value="90">90</option>
-					</select><br/>
-
-					Active Units : 
-					<select name="active_units">
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3">3</option>
-						<option value="4" selected>4</option>
-						<option value="5">5</option>
-						<option value="6">6</option>
-						<option value="7">7</option>
-					</select><br/>
-
-					<input type="submit" value="START">
+					<input id="startbutton" style="font-size: 1.5em !important;" type="submit" value="START">
 				</form>
 			</div>
 		</div>

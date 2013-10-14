@@ -1,15 +1,18 @@
 $j(document).ready(function(){
 	G = new Game();
 
+	$j(".typeradio").buttonset();
+	$j("#startbutton").button();
+
 	$j("form#gamesetup").submit(function(e){
 		e.preventDefault(); //prevent submit
 		gameconfig = {
-			nbrPlayer : $j('select[name="nbrplayer"]').val()-0,
-			background_image : $j('select[name="background"]').val(),
-			plasma_amount : $j('select[name="plasma"]').val()-0,
-			timePool : $j('select[name="time_pool"]').val()*60,
-			turnTimePool : $j('select[name="time_turn"]').val()-0,
-			creaLimitNbr : $j('select[name="active_units"]').val()-0, //DP counts as One
+			nbrPlayer : $j('input[name="nbrplayer"]:checked').val()-0,
+			background_image : $j('input[name="location"]:checked').val(),
+			plasma_amount : $j('input[name="plasma"]:checked').val()-0,
+			timePool : $j('input[name="time_pool"]:checked').val()*60,
+			turnTimePool : $j('input[name="time_turn"]:checked').val()-0,
+			creaLimitNbr : $j('input[name="active_units"]:checked').val()-0, //DP counts as One
 		};
 
 		if( gameconfig.background_image == "random" ){
