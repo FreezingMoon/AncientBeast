@@ -81,7 +81,7 @@ abilities[5] =[
 		var ability = this;
 		ability.end();
 
-		var finalDmg = $j.extend({ poison:0, shock:0 },ability.damages); //Copy object
+		var finalDmg = $j.extend({ poison:0, shock:0 },ability.damages1); //Copy object
 
 		//Poison Bonus
 		ability.creature.effects.each(function(){

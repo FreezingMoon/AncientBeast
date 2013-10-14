@@ -390,6 +390,7 @@
     			"desc": "Horn attack that gains extra damage based on the last distance traveled.",
     			"info": "12 pierce damage + 3 per hexagon",
 			"damages": {"special":"12%pierce%+ 3 per hexagon"},
+			"damages1": {"pierce":12},
 			"costs": {"energy": 15}
     		},
     		{
