@@ -383,7 +383,8 @@
     			"title": "Electrified Hair",
     			"desc": "Absorbs half of all incoming shock damage, using up to 25 on attacks.",
     			"info": "Maximum of 100 damage absorbed.",
-			"effects": [{"special": "Maximum of 100 %shock% damage absorbed."}]
+				"effects": [{"special": "Maximum of 100 %shock% damage absorbed."}],
+				"maxCharge": 100
     		},
     		{
     			"title": "Deadly Jab",
@@ -649,7 +650,8 @@
 			"title": "Frozen Tower",
 			"desc": "Constantly increases offense and defense for every turn not moving.",
 			"info": "+5 offense and defense per round",
-			"effects": [{"special": "(5%offense%, 5%defense%) each turn"}]
+			"effects": [{"special": "(5%offense%, 5%defense%) each turn"}],
+			"maxCharge": 10
 		},
 		{
 			"title": "Icy Talons",

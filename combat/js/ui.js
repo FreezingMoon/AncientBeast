@@ -616,6 +616,12 @@ var UI = Class.create({
 				this.abilitiesButtons[i].changeState("disabled");
 			}
 
+			//Charge
+			this.abilitiesButtons[i].$button.next(".desc").find(".charge").remove();
+			if( ab.getCharge != undefined ){
+				this.abilitiesButtons[i].$button.next(".desc").append('<div class="charge">Charge : '+ab.getCharge().value+"/"+ab.getCharge().max+'</div>')
+			}
+
 			//Message
 			this.abilitiesButtons[i].$button.next(".desc").find(".message").remove();
 			if( ab.message != "" ){

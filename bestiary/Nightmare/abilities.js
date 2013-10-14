@@ -16,7 +16,7 @@ abilities[9] =[
 			this.message = "The creature moved this round.";
 			return false;
 		}
-		if( this.creature.findEffect("Frozen Tower").length >= 10 ){
+		if( this.creature.findEffect("Frostified").length >= this.maxCharge ){
 			this.message = "Buff limit reached.";
 			return false;
 		}
@@ -38,6 +38,10 @@ abilities[9] =[
 			) 
 		);
 	},
+
+	getCharge : function() {
+		return { min : 0 , max : this.maxCharge, value: this.creature.findEffect("Frostified").length };
+	}
 },
 
 

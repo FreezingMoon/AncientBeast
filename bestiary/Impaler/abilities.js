@@ -18,7 +18,7 @@ abilities[5] =[
 		this.setUsed(false); //Can be triggered as many times
 		if( damage == undefined ) damage = { damages: {shock:1} }; //For checking to work
 
-		if( this.creature.electrifiedHair == 100 ) return false;
+		if( this.creature.electrifiedHair >= this.maxCharge ) return false;
 		if( !damage.damages.shock ) return false;
 		return this.testRequirements();
 	},
@@ -26,7 +26,7 @@ abilities[5] =[
 	//	activate() : 
 	activate : function(damage) {
 		if(!(this.creature.electrifiedHair+1)) this.creature.electrifiedHair = 0;
-		var capacity = 100-this.creature.electrifiedHair;
+		var capacity = this.maxCharge-this.creature.electrifiedHair;
 		if(damage.damages.shock){
 			if(damage.damages.shock>0){
 				this.creature.electrifiedHair += (damage.damages.shock/2>capacity)
@@ -40,6 +40,10 @@ abilities[5] =[
 		this.end();
 		return damage; //Return Damage
 	},
+
+	getCharge : function() {
+		return { min : 0 , max : this.maxCharge, value: this.creature.electrifiedHair };
+	}
 },
 
 
