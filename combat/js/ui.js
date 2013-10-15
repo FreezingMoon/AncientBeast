@@ -118,8 +118,9 @@ var UI = Class.create({
 
 		//Binding Hotkeys
 		$j(document).on('keypress', function(e){
+			if(G.freezedInput) return;
 
-			var keypressed = e.keyCode;
+			var keypressed = e.which;
 			// console.log(keypressed);
 
 			hotkeys = {
@@ -158,6 +159,27 @@ var UI = Class.create({
 				return false;
 			}
 		});
+		
+		//Mouse Shortcut
+		$j("#dash").bind('mouseup', function(e){
+			if(G.freezedInput) return;
+
+			switch (e.which) {
+				case 1:
+					//Left mouse button pressed
+					break;
+				case 2:
+					//Middle mouse button pressed
+					break;
+				case 3:
+					//Right mouse button pressed
+					if(G.UI.dashopen){
+						G.UI.closeDash();
+					}
+					break;
+			}
+		});
+
 
 		for (var i = 0; i < 4; i++) {
 			var b = new Button({

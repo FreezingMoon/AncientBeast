@@ -554,10 +554,22 @@ var HexGrid = Class.create({
 			}
 		};
 
+		//ONRIGHTCLICK
+		var onRightClickFn = function(){
+			var hex = this;
+			var y = hex.y;
+			var x = hex.x;
+
+			if(hex.creature instanceof Creature){ //If creature
+				G.UI.showCreature( hex.creature.type, hex.creature.player.id );
+			}
+		};
+
 
 		this.forEachHexs(function(){ 
 			this.onSelectFn	 = onSelectFn;
 			this.onConfirmFn = onConfirmFn;
+			this.onRightClickFn = onRightClickFn;
 		});
 
 	},
@@ -1003,20 +1015,33 @@ var Hex = Class.create({
 
 		this.onSelectFn = function(){};
 		this.onConfirmFn = function(){};
+		this.onRightClickFn = function(){};
 
-		this.$input.bind('mouseover', function(){
+		this.$input.bind('mouseover', function(e){
 			if(G.freezedInput) return;
 			var hex = G.grid.hexs[ $j(this).attr("y")-0 ][ $j(this).attr("x")-0 ];
 			hex.onSelectFn();
 		});
 
-		this.$input.bind('click', function(){
+		this.$input.bind('mouseup', function(e){
 			if(G.freezedInput) return;
 			var hex = G.grid.hexs[ $j(this).attr("y")-0 ][ $j(this).attr("x")-0 ];
-			hex.onConfirmFn();
+			switch (e.which) {
+				case 1:
+					//Left mouse button pressed
+					hex.onConfirmFn();
+					break;
+				case 2:
+					//Middle mouse button pressed
+					break;
+				case 3:
+					//Right mouse button pressed
+					hex.onRightClickFn();
+					break;
+			}
 		});
 
-		this.$input.bind("mouseleave",function(){
+		this.$input.bind("mouseleave",function(e){
 			G.grid.redoLastQuery();
 			G.grid.xray( new Hex(-1,-1) ); //Clear Xray
 		});
