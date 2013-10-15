@@ -41,7 +41,7 @@ abilities[6] =[
 },
 
 
-// 	Second Ability: Frost Bite
+// 	Second Ability: Head Bash
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -107,7 +107,7 @@ abilities[6] =[
 
 
 
-// 	Thirt Ability: Frozen Orb
+// 	Thirt Ability: Frost Bite
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -198,7 +198,7 @@ abilities[6] =[
 
 
 
-// 	Fourth Ability: Glacial Spikes
+// 	Fourth Ability: Frozen Orb
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",

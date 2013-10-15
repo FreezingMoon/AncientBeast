@@ -83,8 +83,9 @@ var Game = Class.create({
 			39, //Headless
 			44, //Scavenger
 			31, //Cyber Hound
+			6, //Ice Demon
 			//33, //Golden Wyrm
-			//6, //Ice Demon
+
 			]; 
 		this.availableMusic = [ //epic fail, just scan directory
 			//"Distant Realms by Moonthief.ogg",
