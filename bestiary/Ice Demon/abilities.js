@@ -8,35 +8,36 @@ abilities[6] =[
 // 	First Ability: Snow Storm
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onDamage",
-
-	damages : {
-		burn : 15
-	},
+	trigger : "onEndPhase",
 
 	// 	require() :
-	require : function(damage){
-		if( this.used ) return false;
+	require : function(){
 		if( !this.testRequirements() ) return false;
-		if( damage == undefined ) damage = {type:"target"}; //For the test function to work
-		else if( damage.dmgIsType("retaliation") ) return false;
 		return true;
 	},
 
 	//	activate() : 
-	activate : function(damage){
-		var targets = this.getTargets(this.creature.adjacentHexs(1));
+	activate : function(){
+		var ability = this;
 		this.end();
-		
-		this.areaDamage(
-			this.creature, //Attacker
-			"area retaliation", //Attack Type
-			this.damages, //Damage Type
-			[],	//Effects
-			targets
-		);
 
-		return damage;
+		//Check all creatures
+		for (var i = 1; i < G.creatures.length; i++) {
+			if( G.creatures[i] instanceof Creature ){
+				var crea = G.creatures[i];
+
+				if( !crea.isAlly( ability.creature.team ) && !crea.dead && crea.findEffect( "Snow Storm" ).length == 0 ){
+					var effect = new Effect(
+						"Snow Storm", //Name
+						ability.creature, //Caster
+						crea, //Target
+						"", //Trigger
+						{ alterations: ability.effects[0] } //Optional arguments
+					)
+					crea.addEffect(effect);
+				}
+			}
+		};
 	},
 },
 
@@ -46,12 +47,7 @@ abilities[6] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	damages : {
-		slash : 10,
-		burn : 10
-	},
-
-	distance : 2,
+	distance : 1,
 
 	// 	require() :
 	require : function(){
@@ -92,12 +88,58 @@ abilities[6] =[
 		var ability = this;
 		ability.end();
 
+		var direction = path.last().direction;
 		var target = path.last().creature;
+
+		var dir = [];
+		switch( direction ){
+			case 0: //Upright
+				dir = G.grid.getHexMap(target.x,target.y-8,0,target.flipped,diagonalup).reverse();
+				break;
+			case 1: //StraitForward
+				dir = G.grid.getHexMap(target.x,target.y,0,target.flipped,straitrow);
+				break;
+			case 2: //Downright
+				dir = G.grid.getHexMap(target.x,target.y,0,target.flipped,diagonaldown);
+				break;
+			case 3: //Downleft
+				dir = G.grid.getHexMap(target.x,target.y,-4,target.flipped,diagonalup);
+				break;
+			case 4: //StraitBackward
+				dir = G.grid.getHexMap(target.x,target.y,0,!target.flipped,straitrow);
+				break;
+			case 5: //Upleft
+				dir = G.grid.getHexMap(target.x,target.y-8,-4,target.flipped,diagonaldown).reverse();
+				break;
+			default:
+				break;
+		}
+
+		var pushed = false;
+
+		if(dir.length > 1) {
+			if(dir[1].isWalkable(target.size,target.id,true)){
+				target.moveTo(dir[1],{
+					ignoreMovementPoint : true,
+					ignorePath : true,
+					callback : function(){
+						G.activeCreature.queryMove();
+					},
+					animation : "push",
+				});
+				pushed = true;
+			}
+		}
+		var d = $j.extend({},ability.damages);
+
+		if(!pushed){
+			d.crush = d.crush * 2;	
+		}
 
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
-			ability.damages, //Damage Type
+			d, //Damage Type
 			1, //Area
 			[]	//Effects
 		);
@@ -114,7 +156,28 @@ abilities[6] =[
 
 	// 	require() :
 	require : function(){
-		return this.testRequirements();
+		if( !this.testRequirements() ) return false;
+
+		var crea = this.creature;
+		var hexs = G.grid.getHexMap(crea.x,crea.y-2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team).concat(
+			G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y+2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team),
+
+			G.grid.getHexMap(crea.x,crea.y-2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y-2,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y,2,true,straitrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y+2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team));
+
+		if( !this.atLeastOneTarget( hexs, "ennemy" ) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+
+		return true;
+
 	},
 
 	// 	query() :
@@ -122,77 +185,52 @@ abilities[6] =[
 		var ability = this;
 		var crea = this.creature;
 
-		crea.queryMove({
-			noPath : true,
-			isAbility : true,
-			range : G.grid.getFlyingRange(crea.x,crea.y,50,crea.size,crea.id),
-			callback : function(){ ability.animation.apply(ability,arguments); },
+		var choices = [
+			//Front
+			G.grid.getHexMap(crea.x,crea.y-2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team).concat(
+			G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y+2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team)),
+			//Behind
+			G.grid.getHexMap(crea.x,crea.y-2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team).concat(
+			G.grid.getHexMap(crea.x,crea.y-2,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y,2,true,straitrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x,crea.y+2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team))
+		];
+		
+		G.grid.queryChoice({
+			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
+			team : 0, 
+			requireCreature : 1,
+			id : crea.id,
+			flipped : crea.flipped,
+			choices : choices,
 		});
+
 	},
 
 
 	//	activate() : 
-	activate : function(hex,args) {
+	activate : function(choice,args) {
 		var ability = this;
-		ability.end();
+		var crea = this.creature;
 
+		for (var i = 0; i < choice.length; i++) {
+			if( choice[i].creature instanceof Creature ){
 
-		var targets = ability.getTargets(ability.creature.adjacentHexs(1));
-
-		targets.each(function(){
-
-			if( !(this.target instanceof Creature) ) return;
-
-			var trg = this.target;
-
-			if(trg.team%2 != ability.creature.team%2){ //If Foe
-
-				var optArg = { alterations : {burn : -1} };
-
-				//Roasted effect
-				var effect = new Effect(
-					"Roasted", //Name
-					ability.creature, //Caster
-					trg, //Target
-					"", //Trigger
-					optArg //Optional arguments
+				choice[i].creature.takeDamage( 
+					new Damage(
+						ability.creature, //Attacker
+						"area", //Attack Type
+						ability.damages, //Damage Type
+						1, //Area
+						[]	//Effects
+					)
 				);
-				trg.addEffect(effect);
 			}
-		})
-
-		ability.creature.moveTo(hex,{
-			ignoreMovementPoint : true,
-			ignorePath : true,
-			animation : "teleport",
-			callback : function(){
-
-				var targets = ability.getTargets(ability.creature.adjacentHexs(1));
-
-				targets.each(function(){
-				if( !(this.target instanceof Creature) ) return;
-
-					var trg = this.target;
-
-					if(trg.team%2 != ability.creature.team%2){ //If Foe
-
-						var optArg = { alterations : {burn : -1} };
-
-						//Roasted effect
-						var effect = new Effect(
-							"Roasted", //Name
-							ability.creature, //Caster
-							trg, //Target
-							"", //Trigger
-							optArg //Optional arguments
-						);
-						trg.addEffect(effect);
-					}
-				})
-
-				G.activeCreature.queryMove() 
-			}
-		}); 
+		};
 	},
 },
 
@@ -203,17 +241,22 @@ abilities[6] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	damages : {
-		burn : 20,
-	},
+	directions : [0,1,0,0,1,0],
 
-	damages2 : {
-		burn : 10,
-	},
 
 	// 	require() :
 	require : function(){
-		return this.testRequirements();
+		if( !this.testRequirements() ) return false;
+		var test = this.testDirection({
+			team : "ennemy",
+			directions : this.directions,
+			sourceCreature : this.creature,
+		});
+		if( !test ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
+		return true;
 	},
 
 	// 	query() :
@@ -221,63 +264,34 @@ abilities[6] =[
 		var ability = this;
 		var crea = this.creature;
 
-		var range = crea.hexagons[1].adjacentHex(3);
-
-		var head = range.indexOf(crea.hexagons[0]);
-		var tail = range.indexOf(crea.hexagons[2]);
-		range.splice(head,1);
-		range.splice(tail,1);
-
-		G.grid.queryHexs({
+		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			fnOnSelect : function(hex,args){
-				if( hex.creature instanceof Creature ){
-					hex.overlayVisualState("creature selected player"+hex.creature.team);
-				}else{
-					hex.overlayVisualState("creature selected player"+G.activeCreature.team);
-				}				
-
-				hex.adjacentHex(1).each(function(){
-					if( this.creature instanceof Creature ){
-						this.overlayVisualState("creature selected weakDmg player"+this.creature.team);
-					}else{
-						this.overlayVisualState("creature selected weakDmg player"+G.activeCreature.team);
-					}
-				});
-			},
+			flipped : crea.player.flipped,
+			team : 0, //enemies
 			id : this.creature.id,
-			hexs : range,
+			requireCreature : true,
+			x : crea.x,
+			y : crea.y,
+			sourceCreature : crea,
 		});
 	},
 
 
 	//	activate() : 
-	activate : function(hex,args) {
+	activate : function(path,args) {
 		var ability = this;
 		ability.end();
+
+		var target = path.last().creature;
 		
-		var aoe = hex.adjacentHex(1);
-
-		var targets = ability.getTargets(aoe);
-
-		if(hex.creature instanceof Creature){
-			hex.creature.takeDamage(new Damage(
-				ability.creature, //Attacker
-				"area", //Attack Type
-				ability.damages, //Damage Type
-				1, //Area
-				[]	//Effects
-			));
-		}
-
-
-		ability.areaDamage(
-			ability.creature,
-			"area",
-			ability.damages2,
-			[],	//Effects
-			targets
+		var damage = new Damage(
+			ability.creature, //Attacker
+			"target", //Attack Type
+			ability.damages, //Damage Type
+			1, //Area
+			[]	//Effects
 		);
+		target.takeDamage(damage);
 
 	},
 }

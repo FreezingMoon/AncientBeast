@@ -455,7 +455,7 @@
 			"title": "Snow Storm",
 			"desc": "Foes have both their movement and initiative stats reduced while alive.",
 			"info": "-1 movement and -5 initiative debuff",
-			"effects": [{"special": "-1 %movement%&-5 %initiative% debuff"}]
+			"effects": [{"movement": -1, "initiative" :-5}]
 		},
 		{
 			"title": "Head Bash",
@@ -476,7 +476,7 @@
 			"title": "Frozen Orb",
 			"desc": "Creates an ice sphere and throws it at an inline foe, freezing it for a turn.",
 			"info": "10 crush + 10 frost damage & freeze",
-			"damages": {"special": "10%crush%+10%frost%"},
+			"damages": {"crush": 10, "frost" : 10 },
 			"effects": [{"special": "Target foe loses next turn."}],
 			"costs": {"energy": 30}
 		}
