@@ -380,7 +380,7 @@ body{
 
 #rightpanel{
 	position: absolute;
-	right: 0px;
+	right: 20px;
 	top: 100px;
 }
 #leftpanel{
@@ -809,7 +809,7 @@ body{
 /*---------------ACTIVE UNIT--------------*/
 #activebox{
 	position: relative;
-	left: 0px;
+	left: 20px;
 	top: 100px;
 }
 
@@ -1134,3 +1134,33 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 .trap.mud-bath { background: url("../grid/mud-bath.png"); }
 .trap.royal-seal { background: url("../grid/royal-seal.png"); }
 .trap.scorched-ground { background: url("../grid/scorched-ground.png"); }
+
+
+/*------------------Progress Bars-------------------*/
+.progressbar {
+	display: block;
+	position: absolute;
+	width: 20px;
+	height: 320px;
+	box-sizing: border-box;
+	border: 1px #777 solid;
+	background: black;
+	top: 0px;
+}
+
+#leftpanel .progressbar {
+	left: -20px;
+}
+
+#rightpanel .progressbar {
+	right: -20px;
+}
+
+.progressbar .bar {
+	display: block;
+	position: absolute;
+	width: 18px;
+	height: 0px;
+	bottom: 0px;
+	background: red;
+}

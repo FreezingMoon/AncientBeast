@@ -376,6 +376,7 @@ require_once('../bestiary/cards.php');
 					<div style="position:relative"><div id="skip" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey S</div><span>Skip Turn</span><p>End the turn of the current creature and proceed with the next in queue.</p></div></div>
 					<div style="position:relative"><div id="delay" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey D</div><span>Delay Creature</span><p>Delayed creatures will act at the end of the round, if alive and still able to.</p></div></div>
 					<div style="position:relative"><div id="flee" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey F</div><span>Flee Match</span><p>Give up but only after first 12 rounds.</p></div></div>
+					<div class="progressbar"><div class="bar poolbar"></div><div class="bar timebar"></div></div>
 				</div>
 				<div id="leftpanel">
 					<div id="activebox">
@@ -432,6 +433,7 @@ require_once('../bestiary/cards.php');
 									</div>	
 								</div>
 							</div>
+							<div class="progressbar"><div class="bar"></div></div>
 						</div>
 					</div>
 				</div>

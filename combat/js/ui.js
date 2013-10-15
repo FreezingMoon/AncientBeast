@@ -116,6 +116,11 @@ var UI = Class.create({
 		});
 		this.buttons.push(this.btnFlee);
 
+		//ProgessBar
+		this.energyBar = new ProgessBar({$bar : $j("#leftpanel .progressbar .bar"), color : "yellow" });
+		this.timeBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .timebar"), width : 9 , color : "white" });
+		this.poolBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" });
+
 		//Binding Hotkeys
 		$j(document).on('keypress', function(e){
 			if(G.freezedInput) return;
@@ -624,6 +629,10 @@ var UI = Class.create({
 
 		G.UI.checkAbilitiesTooltip();
 
+		//Energy Bar
+		var ratio = G.activeCreature.energy / G.activeCreature.stats.energy;
+		G.UI.energyBar.setSize( ratio );
+
 		for (var i = 0; i < 4; i++) {
 			var ab = G.activeCreature.abilities[i];
 			ab.message = "";
@@ -715,6 +724,10 @@ var UI = Class.create({
 				$j(".p"+id+" .turntime").addClass("alert");
 			else
 				$j(".p"+id+" .turntime").removeClass("alert");
+			
+			//Time Bar
+			var timeRatio = ( (date - G.activeCreature.player.startTime) / 1000 ) / G.turnTimePool;
+			G.UI.timeBar.setSize( 1 - timeRatio );
 		}else{
 			$j(".turntime").text("∞");
 		}
@@ -728,9 +741,14 @@ var UI = Class.create({
 				var seconds = remainingTime-minutes*60;
 				$j(".p"+this.id+" .timepool").text(zfill(minutes,2)+":"+zfill(seconds,2));
 			});
+		
+			//Time Bar
+			var poolRatio = ( G.activeCreature.player.totalTimePool - (date - G.activeCreature.player.startTime) ) / 1000 / G.timePool;
+			G.UI.poolBar.setSize( poolRatio );
 		}else{
 			$j(".timepool").text("∞");
 		}
+
 	},
 
 
@@ -1060,4 +1078,34 @@ var Button = Class.create({
 		if(G.freezedInput || !this.clickable) return;
 		this.mouseleave();
 	},
+});
+
+var ProgessBar = Class.create({
+
+	initialize: function(opts){
+		defaultOpts = {
+			height : 318,
+			width : 18,
+			color : "red",
+			$bar : undefined
+		};
+
+		opts = $j.extend(defaultOpts,opts);
+		$j.extend(this,opts);
+
+		this.setSize(0);
+	},
+
+	/*	setSize
+	*	
+	* 	percentage : 	Float : 	size between 0 and 1
+	*
+	*/
+	setSize: function(percentage){
+		this.$bar.css({
+			width : this.width,
+			height : this.height*percentage,
+			"background-color" : this.color,
+		});
+	}
 });
