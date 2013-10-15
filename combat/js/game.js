@@ -622,7 +622,6 @@ var Game = Class.create({
 				G.skipTurn();
 				return;
 			}else{
-				console.log(p.totalTimePool - (date - p.startTime));
 				if( p.totalTimePool - (date - p.startTime) < alertTime ){
 					msgStyle = "damage";
 				}
