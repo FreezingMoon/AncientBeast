@@ -448,30 +448,39 @@
 		"offset-y": -210
         },
 	"animation": {
-		"walk_speed": 400
+		"walk_speed": 350
         },
-        "ability_info": [
-            {
-                "title": "Snow Storm",
-                "desc": "Foes have their movement reduced and initiative constantly decreased.",
-                "info": "-1 movement, -5 initiative per turn"
-            },
-            {
-                "title": "Frost Bite",
-                "desc": "Exhales freezing gas that does full damage nearby or half further away.",
-                "info": "20 frost damage nearby or 10 if away"
-            },
-            {
-                "title": "Frozen Orb",
-                "desc": "Creates an ice sphere and throws it at a target within range, freezing it.",
-                "info": "No info"
-            },
-            {
-                "title": "Glacial Spikes",
-                "desc": "Several spears of ice erupt from its body, impaling all nearby creatures.",
-                "info": "30 frost damage"
-            }
-        ]
+	"ability_info": [
+		{
+			"title": "Snow Storm",
+			"desc": "Foes have both their movement and initiative stats reduced while alive.",
+			"info": "-1 movement and -5 initiative debuff",
+			"effects": [{"special": "-1 %movement%&-5 %initiative% debuff"}]
+		},
+		{
+			"title": "Head Bash",
+			"desc": "Smashes a nearby foe using head. Knockbacks or does double damage.",
+			"info": "15 crush & push or 30 crush damage",
+			"damages": {"crush": 15},
+			"effects": [{"special": "Push or double damage."}],
+			"costs": {"energy": 15}
+		},
+		{
+			"title": "Frost Bite",
+			"desc": "Exhales freezing gas that spreads in a large area, affecting blown targets.",
+			"info": "15 frost damage to all exposed units",
+			"damages": {"special": "15%frost%to first units"},
+			"costs": {"energy": 20}
+		},
+		{
+			"title": "Frozen Orb",
+			"desc": "Creates an ice sphere and throws it at an inline foe, freezing it for a turn.",
+			"info": "10 crush + 10 frost damage & freeze",
+			"damages": {"special": "10%crush%+10%frost%"},
+			"effects": [{"special": "Target foe loses next turn."}],
+			"costs": {"energy": 30}
+		}
+	]
     },
     {
         "id": 7,
