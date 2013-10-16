@@ -46,7 +46,7 @@ require_once("../images/stats/index.php"); ?>
 	border-style: solid;
 	border-color: transparent;
 	border-spacing: 0px;
-	width: 400px;
+	width: 402px;
 	text-shadow: black 0.1em 0.1em 0.2em;
 	font-weight: bold;
 	font-size: 16px;
@@ -61,7 +61,7 @@ require_once("../images/stats/index.php"); ?>
 	border-radius: 15px;
 	border: 4px ridge !important;
 	top: 497px;
-	left: 17px;
+	left: 15px;
 	position: absolute; 
 	z-index:1; 
 }
