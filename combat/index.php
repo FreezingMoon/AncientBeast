@@ -43,6 +43,8 @@ require_once("../config.php"); //only needed for multiplayer
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
 
+		<script type="text/javascript" src="../media/js/audioplayer.js" ></script>
+
 		<script type="text/javascript">
 			var $j = jQuery.noConflict();
 		</script>
@@ -290,6 +292,30 @@ require_once('../bestiary/cards.php');
 						require_once('../bestiary/grid.php');
 						creatureGrid(false);
 					?></div>
+				</div>
+				<div id="musicplayerwrapper">
+					<?php 
+						$media = scandir("../media/music");
+						natsort($media);
+						$i = 0;
+						$error = 'Your browser does not support the audio element.';
+
+						echo '<audio id="audio" preload="auto" tabindex="0" controls="" style="width:890px";"><source src="'.$site_root.'media/music/'.$media[0].'">'.$error.'</audio><a style="cursor: pointer;" id="mp_shuffle">Shuffle</a>';
+						echo '<ul id="playlist" style="list-style-type: none;padding-left:0px;" >';
+
+						foreach($media as $file) {
+							if($file == "." || $file == "..") continue;
+							if($i == 0){
+							}
+							$title = substr($file, 0, -4);
+							$file = str_replace(' ', '%20', $file);
+							if($title!=""){
+								echo '<li class="active"><a href="'.$site_root.'media/music/'.$file.'">' . $title . '</a></li>';
+							}
+							$i++;
+						}
+						echo '</ul>';
+					?>
 				</div>
 			</div>
 			<div id="toppanel">

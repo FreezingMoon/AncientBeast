@@ -422,10 +422,10 @@ body{
 	-o-animation: pulse0510 750ms infinite alternate;
 }
 
-#audio{ background-image: url('../icons/music.svg');}
-#skip{ background-image: url('../icons/skip.svg'); }
-#delay{ background-image: url('../icons/delay.svg'); }
-#flee{ background-image: url('../icons/flee.svg'); }
+.button#audio{ background-image: url('../icons/music.svg');}
+.button#skip{ background-image: url('../icons/skip.svg'); }
+.button#delay{ background-image: url('../icons/delay.svg'); }
+.button#flee{ background-image: url('../icons/flee.svg'); }
 
 #playerbutton{
 	z-index: 2; 
@@ -544,13 +544,23 @@ body{
 .selected2 .playertabs.p2,.selected2 #cardwrapper,.selected2 #creaturegridwrapper{background-color: rgba(255,172,0,0.15);}
 .selected3 .playertabs.p3,.selected3 #cardwrapper,.selected3 #creaturegridwrapper{background-color: rgba(0,255,0,.15);}
 
-#tabwrapper{
+#musicplayerwrapper, #tabwrapper{
 	top: 100px;
 	right: 0px;
 	bottom: 0px;
 	left: 0px;
 	position: absolute;
 }
+
+#musicplayerwrapper,#musicplayerwrapper a{
+	text-align: center;
+	color: #AAA;
+}
+
+#musicplayerwrapper .active,#musicplayerwrapper .active a{
+	color: white !important;
+}
+
 
 #creaturegridwrapper{
 	top: 0px;

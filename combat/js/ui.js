@@ -53,21 +53,8 @@ var UI = Class.create({
 		this.btnFlee = new Button({
 			$button : $j("#audio.button"),
 			click : function(e){ if(!G.UI.dashopen){
-				if( G.turn < G.minimumTurnBeforeFleeing ){
-					alert("You cannot flee the match in the first 10 rounds.");
-					return;
-				}
-				if( G.activeCreature.player.isLeader() ){
-					alert("You cannot flee the match while being in lead.");
-					return;
-				}
-
-				if(window.confirm("Are you sure you want to flee the match?")){
-					G.gamelog.add({action:"flee"});
-					G.activeCreature.player.flee();
-				}
-			}},
-			state : "disabled",
+				G.UI.showMusicPlayer();
+			}}
 		});
 		this.buttons.push(this.btnFlee);
 
@@ -468,6 +455,9 @@ var UI = Class.create({
 		.removeClass("active dead queued notsummonable")
 		.addClass("locked");
 
+		$j("#tabwrapper").show();
+		$j("#musicplayerwrapper").hide();
+
 		//change creature status
 		G.players[id].availableCreatures.each(function(){
 			G.UI.$grid.find(".vignette[creature='"+this+"']").removeClass("locked");
@@ -505,6 +495,20 @@ var UI = Class.create({
 			G.UI.showCreature(creatureType,G.UI.selectedPlayer);
 		});
 
+	},
+
+	showMusicPlayer: function(){
+		this.$dash.addClass("active");
+
+		this.showCreature(G.activeCreature.type,G.activeCreature.team);
+
+		this.selectedPlayer = -1;
+		
+		this.$dash //Dash class
+			.removeClass("selected0 selected1 selected2 selected3");
+
+		$j("#tabwrapper").hide();
+		$j("#musicplayerwrapper").show();
 	},
 
 

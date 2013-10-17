@@ -1246,9 +1246,10 @@ var Soundsys = Class.create({
 		this.announcerGainNode.connect(this.context.destination);
 	},
 
-	playMusic: function(musicID){
-		if(!window.AudioContext) return false;
+	playMusic: function(){
+		//if(!window.AudioContext) return false;
 		//this.playSound(G.soundLoaded[0],this.musicGainNode);
+		musicPlayer.playRandom();
 	},
 
 	getSound: function(url,id,success){

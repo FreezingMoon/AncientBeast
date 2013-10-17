@@ -141,13 +141,13 @@ case music:
 	foreach($media as $file) {
 		if($file == "." || $file == "..") continue;
 		if($i == 0){
-			echo '<audio id="audio" preload="auto" tabindex="0" controls="" style="width:890px";"><source src="'.$file.'">'.$error.'</audio>';
+			echo '<audio id="audio" preload="auto" tabindex="0" controls="" style="width:890px";"><source src="'.$file.'">'.$error.'</audio><a id="mp_shuffle">Shuffle</a>';
 			echo '<ul id="playlist" style="list-style-type: none;padding-left:0px;" >';
 		}
 		$title = substr($file, 0, -4);
 		$file = str_replace(' ', '%20', $file);
 		if($title!=""){
-			echo '<li class="active"><a href="'.$site_url.'media/music/'.$file.'">' . $title . '</a></li>';
+			echo '<li class=""><a href="'.$site_url.'media/music/'.$file.'">' . $title . '</a></li>';
 		}
 		$i++;
 	}

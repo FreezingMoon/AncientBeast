@@ -80,10 +80,10 @@ img {
 	margin: 0;
 	margin-bottom: 10px;
 }
-A:link {text-decoration: none; color: #b7b7b7;}
-A:visited {text-decoration: none; color: #b7b7b7;}
-A:active {text-decoration: none; color: #b7b7b7;}
-A:hover {text-decoration: none; color: #e6e6e6; cursor: pointer; text-shadow: black 0.1em 0.1em 0.2em, red 0 0 10px;}
+a:link {text-decoration: none; color: #b7b7b7;}
+a:visited {text-decoration: none; color: #b7b7b7;}
+a:active {text-decoration: none; color: #b7b7b7;}
+a:hover,.active a,a.active {text-decoration: none; color: #e6e6e6; cursor: pointer; text-shadow: black 0.1em 0.1em 0.2em, red 0 0 10px;}
 
 .odd {background:rgba(200, 200, 200, 0.1)}
 .even {background:rgba(200, 200, 200, 0.2)}

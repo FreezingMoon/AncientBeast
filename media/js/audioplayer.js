@@ -1,38 +1,71 @@
-var audio;
-var playlist;
-var tracks;
-var current;
- 
-init();
-function init(){
-    current = 0;
-    audio = $('#audio');
-    playlist = $('#playlist');
-    tracks = playlist.find('li a');
-    len = tracks.length - 1;
-    audio[0].volume = .10;
-    audio[0].play();
-    playlist.find('a').click(function(e){
-        e.preventDefault();
-        link = $(this);
-        current = link.parent().index();
-        run(link, audio[0]);
-    });
-    audio[0].addEventListener('ended',function(e){
-        current++;
-        if(current == len){
-            current = 0;
-            link = playlist.find('a')[0];
-        }else{
-            link = playlist.find('a')[current];    
+jQuery(document).ready(function(){ 
+    musicPlayer.init();
+});
+
+var musicPlayer = {
+    init : function(){
+
+        var mp = this;
+
+        this.current = 0;
+        this.audio = jQuery('#audio')[0];
+        this.playlist = jQuery('#playlist');
+        this.tracks = this.playlist.find('li a');
+
+        this.repeat = true;
+        this.shuffle = true;
+
+        this.audio.volume = .10;
+        this.audio.play();
+
+        jQuery('#mp_shuffle').addClass("active").click(function(e){
+            jQuery(this).toggleClass("active");
+            mp.shuffle = !mp.shuffle;
+        });
+
+        this.playlist.find('a').click(function(e){
+            e.preventDefault();
+
+            mp.current = jQuery(this).parent().index();
+
+            mp.run( jQuery(this) );
+        });
+
+        this.audio.addEventListener('ended',function(e){
+            if(mp.shuffle){
+                mp.playRandom();
+            }else{
+                mp.playNext();
+            }
+        });
+    },
+
+    playRandom : function(){
+        do{
+            var rand = Math.floor( Math.random() * ( this.tracks.length - 1 ) );
+        }while(rand == this.current); //Not 2 time the same track
+        this.current = rand;
+        var link = this.playlist.find('a')[this.current];
+        this.run( jQuery(link) );
+    },
+
+    playNext : function(){
+        this.current++;
+        if(this.current == this.tracks.length && this.repeat){
+            this.current = 0;
         }
-        run($(link),audio[0]);
-    });
-}
-function run(link, player){
-        player.src = link.attr('href');
+        var link = this.playlist.find('a')[this.current];
+        this.run( jQuery(link) );
+    },
+
+    run: function(link){
+        //Style
         par = link.parent();
         par.addClass('active').siblings().removeClass('active');
-        audio[0].load();
-        audio[0].play();
-}
+
+        this.audio.src = link.attr("href");
+        this.audio.load();
+        this.audio.play();
+    }
+
+};
