@@ -132,6 +132,7 @@ var Creature = Class.create({
 		//Health indicator
 		this.$health = G.grid.$creatureW.append('<div creature="'+this.id+'" class="health p'+this.team+'">'+this.health+'</div>').children(".health[creature='"+this.id+"']");
 		this.$health.hide();
+		this.updateHealth();
 		
 		//Adding Himself to creature arrays and queue
 		G.creatures[this.id] = this;
@@ -326,6 +327,7 @@ var Creature = Class.create({
 
 		G.grid.updateDisplay(); //Retrace players creatures
 		this.facePlayerDefault();
+		this.updateHealth();
 
 		if(this.canFly){
 			o.range = G.grid.getFlyingRange(this.x,this.y,this.remainingMove,this.size,this.id);
@@ -999,7 +1001,11 @@ var Creature = Class.create({
 
 
 	updateHealth: function(){
-		this.$health.text(this.health);
+		if( this.type == "--" && this.player.plasma > 0 ){
+			this.$health.addClass("plasma").text(this.player.plasma);
+		}else{
+			this.$health.removeClass("plasma").text(this.health);
+		}
 	},
 
 	/* 	addEffect(effect)

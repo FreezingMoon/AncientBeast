@@ -336,6 +336,8 @@ body{
 	-o-transition: opacity 500ms; /* Opera */
 }
 
+.health.plasma{ border-radius: 10px; }
+
 .health.ghosted{opacity: .25;}
 .materialize_overlay {opacity: 0.25;}
 

@@ -239,11 +239,12 @@ abilities[0] =[
 		var dpriest = this.creature;
 
 		var pos = { x:hex.x, y:hex.y };
+		
+		ability.creature.player.plasma -= args.cost;
 
 		ability.end();
 
 		ability.creature.player.summon(creature,pos);
-		ability.creature.player.plasma -= args.cost;
 	},
 }
 
