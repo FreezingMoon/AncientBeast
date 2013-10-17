@@ -32,13 +32,11 @@ body{
 }
 
 #combatframe{
-	height: 100%;
-	width: 100%;
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	min-width: 1920px;
-	min-height: 1080px;
+	width: 1920px;
+	height: 1080px;
 	background: url('../../locations/Dark Forest/bg.jpg');
 
 	/*padding: 277px 0 0 0;*/
