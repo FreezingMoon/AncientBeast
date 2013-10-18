@@ -177,7 +177,7 @@ abilities[0] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if(this.creature.player.plasma <= 0){
+		if(this.creature.player.plasma <= 1){
 			this.message = G.msg.abilities.noplasma;
 			return false;
 		}
