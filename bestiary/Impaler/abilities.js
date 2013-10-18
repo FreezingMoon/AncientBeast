@@ -42,7 +42,7 @@ abilities[5] =[
 	},
 
 	getCharge : function() {
-		return { min : 0 , max : this.maxCharge, value: this.creature.electrifiedHair };
+		return { min : 0 , max : this.maxCharge, value: ( this.creature.electrifiedHair || 0 ) };
 	}
 },
 
@@ -109,6 +109,8 @@ abilities[5] =[
 				ability.creature.electrifiedHair = 0;
 			}
 		}
+
+		G.UI.checkAbilities();
 
 		var damage = new Damage(
 			ability.creature, //Attacker
@@ -234,6 +236,8 @@ abilities[5] =[
 						ability.creature.electrifiedHair = 0;
 					}
 				}
+
+				G.UI.checkAbilities();
 
 				var damage = new Damage(
 					ability.creature, //Attacker
