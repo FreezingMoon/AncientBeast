@@ -1183,7 +1183,9 @@ var Creature = Class.create({
 
 		//Kill animation
 		this.$display.addClass("dead");
-		this.$health.css({opacity:0});
+		this.$health.css({opacity:0}).transition({},500,function(){
+			this.remove();
+		});
 
 		this.cleanHex();
 
