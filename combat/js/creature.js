@@ -1037,21 +1037,27 @@ var Creature = Class.create({
 	},
 
 	hint: function(text,cssclass){
+		var crea = this;
+
+		var tooltipSpeed = 250;
+		var tooltipDisplaySpeed = 500;
+		var tooltipTransition = "";
+
 		this.$effects.children(".constant").remove();
 		var id = this.$effects.children().length;
-		var $tooltip = this.$effects.append('<div id="hint'+id+1+'" class="'+cssclass+'">'+text+'</div>').children('#hint'+id+1);
+		var $tooltip = $j('<div class="'+cssclass+'">'+text+'</div>').prependTo(this.$effects);
 
-		//animate offset of the other tooltips
-		var i = 1;
+
 		this.$effects.children().each(function(){
-			$j(this).transition({bottom:50*i,queue:false},250);
-			i++;
+			var index = $j(this).index();
+			var offset = 50*index;
+			$j(this).transition({bottom:offset, queue: false },tooltipSpeed,tooltipTransition);
 		});
 
 		$tooltip.css({"margin-left": -250+(this.display.width/2)});
-		$tooltip.css({bottom: -50,opacity:0}).transition({bottom:0, opacity:1},250);
+		$tooltip.css({bottom: -50,opacity:0}).transition({bottom:0, opacity:1},tooltipSpeed,tooltipTransition);
 
-		if( !$tooltip.hasClass("constant") ) $tooltip.transition({opacity:1},500).transition({opacity:0},250,function(){ this.remove(); }); 
+		if( !$tooltip.hasClass("constant") ) $tooltip.transition({opacity:1},tooltipDisplaySpeed).transition({opacity:0},tooltipSpeed,tooltipTransition,function(){ this.remove(); }); 
 	},
 
 	/* 	updateAlteration()
