@@ -405,6 +405,11 @@ var Creature = Class.create({
 
 		if( !facefrom )	facefrom = (this.size < 2)? this.hexagons[0]: this.hexagons[1];
 
+		if( this.hexagons.indexOf(faceto) != -1 &&  this.hexagons.indexOf(facefrom) != -1 ){
+			this.facePlayerDefault();
+			return;
+		}
+
 		if(faceto instanceof Creature) faceto = (faceto.size < 2)? faceto.hexagons[0]: faceto.hexagons[1];
 
 		if( faceto.x == facefrom.x ){
