@@ -599,6 +599,7 @@ var Creature = Class.create({
 	
 					G.animationQueue.filter(function(){ return (this!=anim_id); });
 
+					creature.hexagons.each(function(){this.pickupDrop(creature);});
 					opts.callbackStepIn(currentHex);
 
 					//Trigger
