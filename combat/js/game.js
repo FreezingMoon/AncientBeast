@@ -495,14 +495,15 @@ var Game = Class.create({
 
 		o = $j.extend({
 			callback: function(){},
-			noTooltip: false
+			noTooltip: false,
+			tooltip: 'Skipped'
 		},o);
 
 		G.turnThrottle = true
 		G.UI.btnSkipTurn.changeState("disabled");
 		G.UI.btnDelay.changeState("disabled");
 
-		if(!o.noTooltip) G.activeCreature.hint("Skipped","msg_effects");
+		if(!o.noTooltip) G.activeCreature.hint(o.tooltip,"msg_effects");
 
 		setTimeout(function(){
 			G.turnThrottle=false;
