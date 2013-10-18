@@ -251,6 +251,7 @@ var UI = Class.create({
 		this.$dash.children("#tooltip").removeClass("active");
 		this.$dash.children("#playertabswrapper").addClass("active");
 		this.changePlayerTab(G.activeCreature.team);
+		this.resizeDash();
 
 		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click',function(e){
 			if(G.freezedInput) return;
