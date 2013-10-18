@@ -641,9 +641,8 @@ body{
 	z-index: 1;
 }
 
-#queue .queue{
-	vertical-align: top;
-	display: inline-block;
+#queuewrapper .vignette{
+	position: absolute;
 }
 
 .vignette,
@@ -673,6 +672,7 @@ body{
 	color: white;
 	font-size: 14px;
 }
+
 .vignette.active .stats{
 	height: 0px;
 }

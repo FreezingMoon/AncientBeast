@@ -1044,6 +1044,7 @@ var Hex = Class.create({
 		this.$input.bind("mouseleave",function(e){
 			G.grid.redoLastQuery();
 			G.grid.xray( new Hex(-1,-1) ); //Clear Xray
+			G.UI.xrayQueue( -1 ); //Clear Xray Queue
 		});
 
 		this.trap = undefined;
