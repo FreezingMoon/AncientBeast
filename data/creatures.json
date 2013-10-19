@@ -2472,8 +2472,8 @@
 			"health": 100,
 			"regrowth": 6,
 			"endurance": 20,
-			"energy": 120,
-			"meditation": 5,
+			"energy": 100,
+			"meditation": 25,
 			"initiative": 120,
 			"offense": 10,
 			"defense": 10,
@@ -2515,7 +2515,7 @@
                 		"crush": 12,
                 		"pierce": 6
 			},
-			"costs": {"energy": 20}
+			"costs": {"energy": 15}
 		},
 		{
 			"title": "Fishing Hook",
@@ -2525,13 +2525,12 @@
 				"pierce": 10,
 				"crush": 10
 			},
-			"costs": {"energy": 30}
+			"costs": {"energy": 25}
 		},
 		{
 			"title": "Tentacle Bush",
-			"desc": "Curls up to defend against attacks. Becomes unmovable and skips turn.",
-			"info": "+5 temporary defense per hit taken",
-			"damages": {"crush": 10},
+			"desc": "Gains temporal immunity to fatigue. Becomes unmovable and skips turn.",
+			"info": "",
 			"costs": {"energy": 10}
 		}
 	]
