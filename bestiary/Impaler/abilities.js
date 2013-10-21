@@ -178,6 +178,10 @@ abilities[5] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
+		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x,this.creature.y-2,0,false,this.map).concat( G.grid.getHexMap(this.creature.x-this.creature.size+1,this.creature.y-2,0,true,this.map) ),"ennemy" ) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
 		return true;
 	},
 
@@ -194,7 +198,7 @@ abilities[5] =[
 		G.grid.queryChoice({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : 3, 
-			requireCreature : 0,
+			requireCreature : 1,
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			choices : [
