@@ -175,17 +175,17 @@ abilities[6] =[
 		if( !this.testRequirements() ) return false;
 
 		var crea = this.creature;
-		var hexs = G.grid.getHexMap(crea.x,crea.y-2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team).concat(
-			G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
+		var hexs = G.grid.getHexMap(crea.x+2,crea.y-2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team).concat(
+			G.grid.getHexMap(crea.x+1,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
 			G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true,true,crea.id,crea.team),
-			G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
-			G.grid.getHexMap(crea.x,crea.y+2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x+1,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x+2,crea.y+2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team),
 
-			G.grid.getHexMap(crea.x,crea.y-2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team),
-			G.grid.getHexMap(crea.x,crea.y-2,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x-2,crea.y-2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x-1,crea.y-2,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
 			G.grid.getHexMap(crea.x,crea.y,2,true,straitrow).filterCreature(true,true,crea.id,crea.team),
-			G.grid.getHexMap(crea.x,crea.y,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
-			G.grid.getHexMap(crea.x,crea.y+2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team));
+			G.grid.getHexMap(crea.x-1,crea.y,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x-2,crea.y+2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team));
 
 		if( !this.atLeastOneTarget( hexs, "ennemy" ) ){
 			this.message = G.msg.abilities.notarget;
@@ -203,17 +203,17 @@ abilities[6] =[
 
 		var choices = [
 			//Front
-			G.grid.getHexMap(crea.x,crea.y-2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team).concat(
-			G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x+2,crea.y-2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team).concat(
+			G.grid.getHexMap(crea.x+1,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
 			G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true,true,crea.id,crea.team),
-			G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
-			G.grid.getHexMap(crea.x,crea.y+2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team)),
+			G.grid.getHexMap(crea.x+1,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x+2,crea.y+2,0,false,straitrow).filterCreature(true,true,crea.id,crea.team)),
 			//Behind
-			G.grid.getHexMap(crea.x,crea.y-2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team).concat(
-			G.grid.getHexMap(crea.x,crea.y-2,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x-2,crea.y-2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team).concat(
+			G.grid.getHexMap(crea.x-1,crea.y-2,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
 			G.grid.getHexMap(crea.x,crea.y,2,true,straitrow).filterCreature(true,true,crea.id,crea.team),
-			G.grid.getHexMap(crea.x,crea.y,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
-			G.grid.getHexMap(crea.x,crea.y+2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team))
+			G.grid.getHexMap(crea.x-1,crea.y,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
+			G.grid.getHexMap(crea.x-2,crea.y+2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team))
 		];
 		
 		G.grid.queryChoice({
