@@ -233,18 +233,23 @@ abilities[6] =[
 		var ability = this;
 		var crea = this.creature;
 
+		var creaturesHit = []
+
 		for (var i = 0; i < choice.length; i++) {
-			if( choice[i].creature instanceof Creature ){
+			if( choice[i].creature instanceof Creature && 
+				creaturesHit.indexOf(choice[i].creature) == -1 ){ //Prevent Multiple Hit
 
 				choice[i].creature.takeDamage( 
 					new Damage(
 						ability.creature, //Attacker
 						"area", //Attack Type
-						ability.damages, //Damage Type
+						ability.damages1, //Damage Type
 						1, //Area
 						[]	//Effects
 					)
 				);
+
+				creaturesHit.push(choice[i].creature);
 			}
 		};
 	},
