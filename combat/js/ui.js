@@ -970,8 +970,8 @@ var UI = Class.create({
 					this.abilities[0].require(); //Update protectedFromFratigue
 				}
 
-				text = (this.protectedFromFratigue) ? "Protected" :  text ;
-				text = (this.materializeSickness) ? "Sickened" :  text ;
+				text = ( this.protectedFromFratigue || this.stats.fatigueImunity ) ? "Protected" : text;
+				text = ( this.materializeSickness ) ? "Sickened" : text;
 				$j('#queuewrapper .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
 			}
 		});

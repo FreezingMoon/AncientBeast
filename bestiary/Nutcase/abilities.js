@@ -258,23 +258,7 @@ abilities[40] =[
 			ability.creature, //Target
 			"onDamage", //Trigger
 			{ 
-				requireFn : function(damage){
-					if( this.triggeredThisChain ) return false;
-					return damage.melee;
-				},
-				effectFn : function(effect,damage){
-					var retailation = new Damage(
-						this.owner, //Attacker
-						"target retaliation", //Attack Type
-						ability.damages, //Damage Type
-						1, //Area
-						[]	//Effects
-					);
-					this.triggeredThisChain = true;
-					damage.attacker.takeDamage(retailation);
-				},
-				triggeredThisChain : false,
-				alterations : {defense : "*2",moveable : false},
+				alterations : { moveable : false, fatigueImunity : true },
 				turn : G.turn,
 				turnLifetime : 1,
 				deleteTrigger : "onStartPhase"

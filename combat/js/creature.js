@@ -93,6 +93,7 @@ var Creature = Class.create({
 			mental:obj.stats.mental-0,
 
 			moveable:true,
+			fatigueImunity:false
 		},
 		this.stats 		= $j.extend({},this.baseStats);//Copy
 		this.health		= obj.stats.health;
@@ -954,9 +955,11 @@ var Creature = Class.create({
 			
 			this.health -= dmgAmount;
 			this.health = (this.health < 0) ? 0 : this.health; //Cap
-			
-			this.endurance -= dmgAmount;
-			this.endurance = (this.endurance < 0) ? 0 : this.endurance; //Cap
+
+			if( !this.stats.fatigueImunity ){
+				this.endurance -= dmgAmount;
+				this.endurance = (this.endurance < 0) ? 0 : this.endurance; //Cap
+			}
 
 			G.UI.updateFatigue();
 
