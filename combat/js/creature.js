@@ -182,48 +182,64 @@ var Creature = Class.create({
 	*/
 	activate: function(){
 		this.travelDist = 0;
-		var creature = this;
+		var crea = this;
 
-		if(!this.hasWait){
-
+		var varReset = function(){
 			//Variables reset
-			this.updateAlteration();
-			this.remainingMove = this.stats.movement;
+			crea.updateAlteration();
+			crea.remainingMove = crea.stats.movement;
 
-			if(!this.materializeSickness){
-				if(this.endurance > 0){
-					this.heal(this.stats.regrowth,true);
+			if(!crea.materializeSickness){
+				if(crea.endurance > 0){
+					crea.heal(crea.stats.regrowth,true);
 				}else{
-					if(this.stats.regrowth < 0){
-						this.heal(this.stats.regrowth,true);
+					if(crea.stats.regrowth < 0){
+						crea.heal(crea.stats.regrowth,true);
 					}else{
-						this.hint("&diams;",'damage');
+						crea.hint("&diams;",'damage');
 					}
 				}
 
-				if(this.stats.meditation > 0){
-					this.energy = Math.min( this.stats.energy, this.energy + this.stats.meditation ); //cap
+				if(crea.stats.meditation > 0){
+					crea.energy = Math.min( crea.stats.energy, crea.energy + crea.stats.meditation ); //cap
 				}
 			}else{
-				this.hint("&clubs;",'damage');
+				crea.hint("&clubs;",'damage');
 			}
 
-			this.endurance = this.stats.endurance;
+			crea.endurance = crea.stats.endurance;
 
-			this.abilities.each(function(){ this.setUsed(false); });
-
-			//Trigger
-			G.triggersFn.onStartPhase(creature);
+			crea.abilities.each(function(){ this.setUsed(false); });
 		}
 
 		this.materializeSickness = false;
+
+		//Freezed effect
+		if(this.freezed){
+			varReset();
+			crea.hint("Frozen",'msg_effects');
+			G.freezedInput = true;
+			setTimeout(function(){
+				G.freezedInput = false;
+				G.nextCreature();
+			},500);
+			return;
+		}
+
+		if(!this.hasWait){
+			varReset();
+
+			//Trigger
+			G.triggersFn.onStartPhase(crea);
+		}
+
 
 		var interval = setInterval(function(){
 			if(!G.freezedInput){
 				clearInterval(interval);
 				if(G.turn >= G.minimumTurnBeforeFleeing){ G.UI.btnFlee.changeState("normal"); }
 				G.startTimer();
-				creature.queryMove();
+				crea.queryMove();
 			}
 		},50);
 
@@ -944,6 +960,22 @@ var Creature = Class.create({
 
 			G.UI.updateFatigue();
 
+			//Display
+			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
+			this.hint(nbrDisplayed,'damage d'+dmgAmount);
+
+			if(!damage.noLog) G.log("%CreatureName"+this.id+"% is hit : "+nbrDisplayed+" health");
+
+			//Health display Update
+			this.updateHealth();
+
+			//If Health is empty
+			if(this.health <= 0){
+				this.die(damage.attacker);
+				return {damages:dmg, damageObj:damage, kill:true}; //Killed
+			}
+
+			//Add Fatigue effect
 			if( this.endurance == 0 && this.findEffect('Fatigue').length == 0 ){ 
 				this.addEffect( new Effect( 
 					"Fatigue", 
@@ -964,21 +996,6 @@ var Creature = Class.create({
 			damage.effects.each(function(){
 				creature.addEffect(this);
 			})
-
-			//Display
-			var nbrDisplayed = (dmgAmount) ? "-"+dmgAmount : 0;
-			this.hint(nbrDisplayed,'damage d'+dmgAmount);
-
-			if(!damage.noLog) G.log("%CreatureName"+this.id+"% is hit : "+nbrDisplayed+" health");
-
-			//Health display Update
-			this.updateHealth();
-
-			//If Health is empty
-			if(this.health <= 0){
-				this.die(damage.attacker);
-				return {damages:dmg, damageObj:damage, kill:true}; //Killed
-			}
 
 			//Trigger
 			if(!ignoreRetaliation) G.triggersFn.onDamage(this,damage);
@@ -1025,11 +1042,15 @@ var Creature = Class.create({
 			return false;
 		}
 
+		effect.target = this;
 		this.effects.push(effect);
+
+		G.triggersFn.onEffectAttachement(this, effect);
+
 		this.updateAlteration();
 
 		if(effect.name != ""){
-			if(specialHint){
+			if(specialHint || effect.specialHint){
 				this.hint(specialHint,'msg_effects');
 			}else{
 				this.hint(effect.name,'msg_effects');
@@ -1135,6 +1156,9 @@ var Creature = Class.create({
 		G.log("%CreatureName"+this.id+"% is dead");
 
 		this.dead = true;		
+
+		//Triggers
+		G.triggersFn.onCreatureDeath(this);
 
 		this.killer = killer.player;
 		var isDeny = (this.killer.flipped == this.player.flipped);

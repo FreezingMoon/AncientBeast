@@ -31,9 +31,25 @@ abilities[6] =[
 						"Snow Storm", //Name
 						ability.creature, //Caster
 						crea, //Target
-						"", //Trigger
-						{ alterations: ability.effects[0] } //Optional arguments
-					)
+						"onOtherCreatureDeath", //Trigger
+						{ 
+							effectFn: function(effect,crea){
+								var trg = effect.target;
+								
+								var iceDemonArray = G.findCreature({ 
+									type:"S7", //Ice Demon
+									dead:false, //Still Alive
+									team:[ 1-(trg.team%2), 1-(trg.team%2)+2 ] //oposite team
+								});
+
+								if( iceDemonArray.length == 0 ){
+									this.deleteEffect();
+								}
+							},
+							alterations: ability.effects[0], 
+							noLog: true 
+						} //Optional arguments
+					);
 					crea.addEffect(effect);
 				}
 			}
@@ -243,7 +259,6 @@ abilities[6] =[
 
 	directions : [0,1,0,0,1,0],
 
-
 	// 	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -265,6 +280,15 @@ abilities[6] =[
 		var crea = this.creature;
 
 		G.grid.queryDirection({
+			fnOnSelect : function(path,args){
+				path.last().adjacentHex( ability.radius ).concat( [path.last()] ).each(function(){
+					if( this.creature instanceof Creature ){
+						this.overlayVisualState("creature selected player"+this.creature.team);	
+					}else{
+						this.overlayVisualState("creature selected player"+G.activeCreature.team);
+					}
+				});
+			},
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : crea.player.flipped,
 			team : 0, //enemies
@@ -282,17 +306,41 @@ abilities[6] =[
 		var ability = this;
 		ability.end();
 
-		var target = path.last().creature;
-		
-		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
-		);
-		target.takeDamage(damage);
+		var trgs = ability.getTargets( path.last().adjacentHex( ability.radius )
+			.concat( [path.last()] ) ); //Include central hex
 
+		// var target = path.last().creature;
+		
+		// var damage = new Damage(
+		// 	ability.creature, //Attacker
+		// 	"target", //Attack Type
+		// 	ability.damages, //Damage Type
+		// 	1, //Area
+		// 	[]	//Effects
+		// );
+		// target.takeDamage(damage);
+
+		var effect = new Effect(
+			"Frozen", //Name
+			ability.creature, //Caster
+			undefined, //Target
+			"onEffectAttachement", //Trigger
+			{ 
+				effectFn: function(effect){
+					var trg = effect.target;
+					trg.freezed = true;
+					this.deleteEffect();
+				}
+			} //Optional arguments
+		);
+
+		ability.areaDamage(
+			ability.creature,
+			"area",
+			ability.damages,
+			[effect],	//Effects
+			trgs
+		);
 	},
 }
 

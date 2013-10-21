@@ -478,7 +478,8 @@
 			"info": "10 crush + 10 frost damage & freeze",
 			"damages": {"crush": 10, "frost" : 10 },
 			"effects": [{"special": "Target foe loses next turn."}],
-			"costs": {"energy": 30}
+			"costs": {"energy": 30},
+			"radius": 1
 		}
 	]
     },

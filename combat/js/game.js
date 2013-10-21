@@ -659,6 +659,7 @@ var Game = Class.create({
 		onAttack : new RegExp('onAttack', 'i'),
 		onDamage : new RegExp('onDamage', 'i'),
 		onCreatureMove : new RegExp('onCreatureMove', 'i'),
+		onCreatureDeath : new RegExp('onCreatureDeath', 'i'),
 
 		onStepIn_other : new RegExp('onOtherStepIn', 'i'),
 		onStepOut_other : new RegExp('onOtherStepOut', 'i'),
@@ -668,6 +669,10 @@ var Game = Class.create({
 		onAttack_other : new RegExp('onOtherAttack', 'i'),
 		onDamage_other : new RegExp('onOtherDamage', 'i'),
 		onCreatureMove_other : new RegExp('onOtherCreatureMove', 'i'),
+		onCreatureDeath_other : new RegExp('onOtherCreatureDeath', 'i'),
+
+		onEffectAttachement : new RegExp('onEffectAttachement', 'i'),
+		onEffectAttachement_other : new RegExp('onOtherEffectAttachement', 'i'),
 
 		onStartOfRound : new RegExp('onStartOfRound', 'i'),
 		onQuery : new RegExp('onQuery', 'i'),
@@ -678,7 +683,7 @@ var Game = Class.create({
 
 		//For triggered creature
 		arg[0].abilities.each(function(){
-			if( this.dead == true ) return;
+			if( arg[0].dead == true ) return;
 			if( G.triggers[trigger].test(this.trigger) ){
 				if( this.require(arg[1]) ){
 					retValue = this.animation(arg[1]);
@@ -700,9 +705,24 @@ var Game = Class.create({
 	},
 
 	triggerEffect : function( trigger, arg, retValue ){
+
+		//For triggered creature
 		arg[0].effects.each(function(){
+			if( arg[0].dead == true ) return;
 			if( G.triggers[trigger].test(this.trigger) ){
 				retValue = this.activate(arg[1]);
+			}
+		});
+
+		//For other creatures
+		G.creatures.each(function(){
+			if( this instanceof Creature){
+				if( arg[0] == this || this.dead == true ) return;
+				this.effects.each(function(){
+					if( G.triggers[ trigger + "_other" ].test(this.trigger) ){
+						retValue = this.activate(arg[1]);
+					}
+				});
 			}
 		});
 	},
@@ -788,6 +808,16 @@ var Game = Class.create({
 			G.triggerAbility("onCreatureMove",arguments);
 		},
 
+		onCreatureDeath : function( creature, callback ){
+			G.triggerAbility("onCreatureDeath",arguments);	
+			G.triggerEffect("onCreatureDeath",[creature,creature]);	
+		},
+
+
+		onEffectAttachement : function( creature, effect, callback ){
+			G.triggerEffect("onEffectAttachement",[creature,effect]);	
+		},
+
 
 		onAttack : function( creature, damage ){
 			damage = G.triggerAbility("onAttack",arguments,damage);
@@ -800,7 +830,44 @@ var Game = Class.create({
 			G.triggerEffect("onDamage",arguments);
 		}
 	},
-	
+
+
+	findCreature: function( o ){
+		var o = $j.extend({
+			team : -1, //No team
+			type : "--" //Darkpriest
+		},o);
+
+		var ret = [];
+
+		for (var i = 0; i < this.creatures.length; i++) {
+			if( this.creatures[i] instanceof Creature ) {
+				var match = true;
+				$j.each(o,function(key,val){
+
+					if( key == "team" ){
+						if(val == -1) return;
+
+						if(val instanceof Array){
+							var wrongTeam = true;
+							if( val.indexOf( G.creatures[i][key] ) != -1 ){
+								wrongTeam = false;
+							}
+							if( wrongTeam ) match = false;
+							return;
+						}
+					}
+
+					if( G.creatures[i][key] != val ) {
+						match = false;
+					}
+				});
+				if(match) ret.push( this.creatures[i] );
+			}
+		};
+
+		return ret;
+	},
 
 
 	/* 	Regex Test for damage type */

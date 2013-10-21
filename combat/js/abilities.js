@@ -545,7 +545,9 @@ var Effect = Class.create({
 			alterations : {},
 			turnLifetime : 0,
 			deleteTrigger : "onStartOfRound",
-			stackable : true
+			stackable : true,
+			noLog : false,
+			specialHint : undefined //Special hint for log
 		},optArgs);
 
 		$j.extend(this,args);
@@ -559,7 +561,7 @@ var Effect = Class.create({
 
 	activate: function(arg){
 		if( !this.requireFn(arg) ) return false;
-		console.log("Effect "+this.name+" triggered");
+		if( !this.noLog ) console.log("Effect "+this.name+" triggered");
 		this.effectFn(this,arg);
 	},
 
