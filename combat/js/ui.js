@@ -162,6 +162,9 @@ var UI = Class.create({
 					break;
 				case 2:
 					//Middle mouse button pressed
+					if(G.UI.dashopen){
+						//G.UI.materialize_button.triggerClick();
+					}
 					break;
 				case 3:
 					//Right mouse button pressed
@@ -172,6 +175,73 @@ var UI = Class.create({
 			}
 		});
 
+		$j("body").bind('mousewheel', function(e, delta, deltaX, deltaY){
+			if(G.freezedInput) return;
+
+			if(G.UI.dashopen){
+
+				var realms = ["A","E","G","L","P","S","W"];
+
+				if(delta > 0){ //Wheel up
+					var b = ( G.UI.selectedCreature == "--" ) ? "W8" :  G.UI.selectedCreature ;
+
+					if( b[1]-1 < 1 ){ //end of row
+						console.log(realms.indexOf(b[0])-1)
+						if( realms.indexOf(b[0])-1 > -1 ){
+							var r = realms[ realms.indexOf(b[0])-1 ];
+							G.UI.showCreature(r+"7");
+						}else{
+							G.UI.showCreature("--");
+						}
+						return;
+					}else{
+						G.UI.showCreature( b[0] + (b[1]-1) );
+					}
+
+				}else if(delta < 0){ //Wheel down
+					var b = ( G.UI.selectedCreature == "--" ) ? "A0" :  G.UI.selectedCreature ;
+
+					if( b[1]-0+1 > 7 ){ //end of row
+						if( realms.indexOf(b[0])+1 < realms.length ){
+							var r = realms[ realms.indexOf(b[0])+1 ];
+							G.UI.showCreature(r+"1");
+						}else{
+							G.UI.showCreature("--");
+						}
+						return;
+					}else{
+						G.UI.showCreature( b[0] + (b[1]-0+1) );
+					}
+				}
+
+			}else{
+				if(delta > 0){ //Wheel up
+					var b = ( G.UI.selectedAbility == -1 ) ? 4 :  G.UI.selectedAbility ;
+
+					for (var i = (b-1); i > 0; i--) {
+						if( G.activeCreature.abilities[i].require() ){
+							G.UI.abilitiesButtons[i].triggerClick();
+							return;
+						}
+					};
+
+					G.activeCreature.queryMove();
+
+				}else if(delta < 0){ //Wheel down
+					var b = ( G.UI.selectedAbility == -1 ) ? 0 :  G.UI.selectedAbility ;
+
+					for (var i = (b+1); i < 4; i++) {
+						if( G.activeCreature.abilities[i].require() ){
+							G.UI.abilitiesButtons[i].triggerClick();
+							return;
+						}
+					};
+
+					G.activeCreature.queryMove();
+
+				}
+			}
+		});
 
 		for (var i = 0; i < 4; i++) {
 			var b = new Button({
@@ -244,7 +314,10 @@ var UI = Class.create({
 	*/
 	showCreature: function(creatureType,player){
 
+		console.log(creatureType);
+
 		this.dashopen = true;
+		player = player || G.activeCreature.player.id;
 
 		//Set dash active
 		this.$dash.addClass("active");

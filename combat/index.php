@@ -42,6 +42,7 @@ require_once("../config.php"); //only needed for multiplayer
 		<script type="text/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
+		<script type="text/javascript" src="./js/jquery.mousewheel.js"></script>
 
 		<script type="text/javascript" src="../media/js/audioplayer.js" ></script>
 
