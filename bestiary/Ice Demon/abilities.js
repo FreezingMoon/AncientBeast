@@ -286,7 +286,13 @@ abilities[6] =[
 
 		G.grid.queryDirection({
 			fnOnSelect : function(path,args){
-				path.last().adjacentHex( ability.radius ).concat( [path.last()] ).each(function(){
+				var trg = path.last().creature;
+
+				var hex = (ability.creature.player.flipped)
+					? G.grid.hexs[path.last().y][path.last().x+trg.size-1]
+					: path.last();
+
+				hex.adjacentHex( ability.radius ).concat( [hex] ) .each(function(){
 					if( this.creature instanceof Creature ){
 						this.overlayVisualState("creature selected player"+this.creature.team);	
 					}else{
@@ -311,8 +317,14 @@ abilities[6] =[
 		var ability = this;
 		ability.end();
 
-		var trgs = ability.getTargets( path.last().adjacentHex( ability.radius )
-			.concat( [path.last()] ) ); //Include central hex
+		var trg = path.last().creature;
+
+		var hex = (ability.creature.player.flipped)
+			? G.grid.hexs[path.last().y][path.last().x+trg.size-1]
+			: path.last();
+
+		var trgs = ability.getTargets( hex.adjacentHex( ability.radius )
+			.concat( [hex] ) ); //Include central hex
 
 		// var target = path.last().creature;
 		
