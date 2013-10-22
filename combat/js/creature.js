@@ -218,12 +218,12 @@ var Creature = Class.create({
 		//Freezed effect
 		if(this.freezed){
 			varReset();
-			crea.hint("Frozen",'msg_effects');
-			G.freezedInput = true;
-			setTimeout(function(){
-				G.freezedInput = false;
-				G.nextCreature();
-			},500);
+			var interval = setInterval(function(){
+				if(!G.turnThrottle){
+					clearInterval(interval);
+					G.skipTurn({tooltip:"Frozen"});
+				}
+			},50);
 			return;
 		}
 
