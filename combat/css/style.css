@@ -654,7 +654,11 @@ body{
 	width: 80px;
 	background-size: 100% 100%;
 	cursor: pointer;
-
+	transition: opacity 300ms;
+	-ms-transition: opacity 300ms;
+	-moz-transition: opacity 300ms; /* Firefox 4 */
+	-webkit-transition: opacity 300ms; /* Safari and Chrome */
+	-o-transition: opacity 300ms; /* Opera */
 }
 .vignette .frame{
 	height: 100%;
