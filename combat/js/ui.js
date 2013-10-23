@@ -313,8 +313,6 @@ var UI = Class.create({
 	*/
 	showCreature: function(creatureType,player){
 
-		console.log(creatureType);
-
 		this.dashopen = true;
 		player = player || G.activeCreature.player.id;
 

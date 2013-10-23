@@ -418,18 +418,18 @@ var Creature = Class.create({
 	* 	Face creature at given hex
 	*
 	*/
-	faceHex: function(faceto,facefrom){
+	faceHex: function(faceto,facefrom,ignoreCreaHex){
 
-		if( !facefrom )	facefrom = (this.size < 2)? this.hexagons[0]: this.hexagons[1];
+		if( !facefrom )	facefrom = (this.player.flipped) ? this.hexagons[this.size-1] : this.hexagons[0];
 
-		if( this.hexagons.indexOf(faceto) != -1 &&  this.hexagons.indexOf(facefrom) != -1 ){
+		if( ignoreCreaHex && this.hexagons.indexOf(faceto) != -1 &&  this.hexagons.indexOf(facefrom) != -1 ){
 			this.facePlayerDefault();
 			return;
 		}
 
 		if(faceto instanceof Creature) faceto = (faceto.size < 2)? faceto.hexagons[0]: faceto.hexagons[1];
 
-		if( faceto.x == facefrom.x ){
+		if( faceto.x == facefrom.x && faceto.y == facefrom.y ){
 			this.facePlayerDefault();
 			return;
 		}
@@ -437,7 +437,7 @@ var Creature = Class.create({
 		if(facefrom.y%2==0){
 			var flipped = ( faceto.x <= facefrom.x );
 		}else{
-			var flipped = ( faceto.x+1 <= facefrom.x );
+			var flipped = ( faceto.x < facefrom.x );
 		}
 
 		if(flipped){ 
