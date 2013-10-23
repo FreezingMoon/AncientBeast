@@ -109,39 +109,68 @@ var UI = Class.create({
 		this.poolBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" });
 
 		//Binding Hotkeys
-		$j(document).on('keypress', function(e){
+		$j(document).keydown(function(e){
 			if(G.freezedInput) return;
 
-			var keypressed = e.which;
-			// console.log(keypressed);
+			var keypressed = e.keyCode || e.which;
+			//console.log(keypressed);
 
 			hotkeys = {
-				overview: 113, //Q
-				attack: 119, //W
-				ability: 101, //E
-				ultimate: 114, //R
-				audio: 97, //A
-				skip: 115, //S
-				delay: 100, //D
-				flee: 102, //F
+				overview: 81, //Q
+				attack: 87, //W
+				ability: 69, //E
+				ultimate: 82, //R
+				audio: 65, //A
+				skip: 83, //S
+				delay: 68, //D
+				flee: 70, //F
 				chat: 13, //return
-				pause: 112 //P
+				pause: 80, //P
+				dash_up: 38, //Up arrow
+				dash_down: 40, //Down arrow
+				dash_left: 37, //Left arrow
+				dash_right: 39, //Right arrow
+				dash_materializeButton: 13, //return
+
+				grid_up: 38, //Up arrow
+				grid_down: 40, //Down arrow
+				grid_left: 37, //Left arrow
+				grid_right: 39, //Right arrow
+				grid_confirm: 32 //Space
 			};
 
 			var prevD = false;
 
 			$j.each(hotkeys,function(k,v){
 				if(v==keypressed){
-					switch(k){
-						case "attack": G.UI.abilitiesButtons[1].triggerClick(); break;
-						case "ability": G.UI.abilitiesButtons[2].triggerClick(); break;
-						case "ultimate": G.UI.abilitiesButtons[3].triggerClick(); break;
-						case "overview": G.UI.btnToggleDash.triggerClick(); break;
-						case "skip": G.UI.btnSkipTurn.triggerClick(); break;
-						case "delay": G.UI.btnDelay.triggerClick(); break;
-						case "flee": G.UI.btnFlee.triggerClick(); break;
-						case "chat": G.UI.chat.toggle(); break;
-						case "pause": G.togglePause(); break;
+					//Context filter
+					if(G.UI.dashopen){
+						switch(k){
+							case "dash_materializeButton": G.UI.materializeButton.triggerClick(); break;
+							case "dash_up": G.UI.gridSelectUp(); break;
+							case "dash_down": G.UI.gridSelectDown(); break;
+							case "dash_left": G.UI.gridSelectLeft(); break;
+							case "dash_right": G.UI.gridSelectRight(); break;
+						}
+					}else{
+						switch(k){
+							case "attack": G.UI.abilitiesButtons[1].triggerClick(); break;
+							case "ability": G.UI.abilitiesButtons[2].triggerClick(); break;
+							case "ultimate": G.UI.abilitiesButtons[3].triggerClick(); break;
+							case "overview": G.UI.btnToggleDash.triggerClick(); break;
+							case "skip": G.UI.btnSkipTurn.triggerClick(); break;
+							case "delay": G.UI.btnDelay.triggerClick(); break;
+							case "flee": G.UI.btnFlee.triggerClick(); break;
+							case "chat": G.UI.chat.toggle(); break;
+							case "pause": G.togglePause(); break;
+
+							case "grid_up": G.grid.selectHexUp(); break;
+							case "grid_down": G.grid.selectHexDown(); break;
+							case "grid_left": G.grid.selectHexLeft(); break;
+							case "grid_right": G.grid.selectHexRight(); break;
+
+							case "grid_confirm": G.grid.confirmHex(); break;
+						}
 					}
 					prevD = true;
 				}
@@ -163,7 +192,7 @@ var UI = Class.create({
 				case 2:
 					//Middle mouse button pressed
 					if(G.UI.dashopen){
-						//G.UI.materialize_button.triggerClick();
+						G.UI.materializeButton.triggerClick();
 					}
 					break;
 				case 3:
@@ -178,41 +207,16 @@ var UI = Class.create({
 		$j("body").bind('mousewheel', function(e, delta, deltaX, deltaY){
 			if(G.freezedInput) return;
 
+
+			//Dash
 			if(G.UI.dashopen){
-
-				var realms = ["A","E","G","L","P","S","W"];
-
 				if(delta > 0){ //Wheel up
-					var b = ( G.UI.selectedCreature == "--" ) ? "W8" :  G.UI.selectedCreature ;
-
-					if( b[1]-1 < 1 ){ //end of row
-						if( realms.indexOf(b[0])-1 > -1 ){
-							var r = realms[ realms.indexOf(b[0])-1 ];
-							G.UI.showCreature(r+"7");
-						}else{
-							G.UI.showCreature("--");
-						}
-						return;
-					}else{
-						G.UI.showCreature( b[0] + (b[1]-1) );
-					}
-
+					G.UI.gridSelectPrevious();
 				}else if(delta < 0){ //Wheel down
-					var b = ( G.UI.selectedCreature == "--" ) ? "A0" :  G.UI.selectedCreature ;
-
-					if( b[1]-0+1 > 7 ){ //end of row
-						if( realms.indexOf(b[0])+1 < realms.length ){
-							var r = realms[ realms.indexOf(b[0])+1 ];
-							G.UI.showCreature(r+"1");
-						}else{
-							G.UI.showCreature("--");
-						}
-						return;
-					}else{
-						G.UI.showCreature( b[0] + (b[1]-0+1) );
-					}
+					G.UI.gridSelectNext();
 				}
 
+			//Abilities
 			}else{
 				if(delta > 0){ //Wheel up
 					var b = ( G.UI.selectedAbility == -1 ) ? 4 :  G.UI.selectedAbility ;
@@ -258,6 +262,18 @@ var UI = Class.create({
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
 		};
+
+		this.materializeButton = new Button({
+			$button : $j("#materialize_button"),
+			css : {
+				disabled  	: {},
+				glowing  	: { "cursor": "pointer" },
+				selected  	: {},
+				active 		: {},
+				noclick 	: {},
+				normal 		: { "cursor": "default" },
+			}
+		});
 
 		this.$dash.children("#playertabswrapper").addClass("numplayer"+G.nbrPlayer);
 
@@ -408,7 +424,7 @@ var UI = Class.create({
 			});
 
 			//Materialize button
-			$j('#materialize_button').removeClass("glowing").unbind('click');
+			this.materializeButton.changeState("disabled");
 		
 			if(G.activeCreature.player.getNbrOfCreatures() > G.creaLimitNbr){
 				$j('#materialize_button p').text(G.msg.ui.dash.materialize_overload);
@@ -429,16 +445,15 @@ var UI = Class.create({
 				}else{
 					$j('#materialize_button p').text("Materialize unit at target location for "+plasmaCost+" plasma");
 
-					$j('#materialize_button').addClass("glowing");
-
 					//Bind button
-					$j('#materialize_button').bind('click',function(e){
-						if(G.freezedInput) return;
+					this.materializeButton.click = function(e){
 						G.UI.materializeToggled = true;
 						G.UI.selectAbility(3);
 						G.UI.closeDash(true);
 						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
-					});
+					};
+					this.materializeButton.changeState("glowing");
+
 				}
 
 			}else{
@@ -460,11 +475,13 @@ var UI = Class.create({
 					G.activeCreature.player.id!=player
 				){
 					$j('#materialize_button p').text("Switch to your own tab to be able to materialize");
-					$j('#materialize_button').addClass("glowing");
+
 					//Bind button
-					$j('#materialize_button').bind('click',function(e){
-						G.UI.showCreature("--",G.activeCreature.player.id)
-					});
+					this.materializeButton.click = function(e){
+						G.UI.showCreature("--",G.activeCreature.player.id);
+					};
+					this.materializeButton.changeState("glowing");
+
 				}
 			}
 
@@ -606,6 +623,154 @@ var UI = Class.create({
 		this.materializeToggled = false;
 	},
 
+
+	gridSelectUp: function(){
+		var b = G.UI.selectedCreature ;
+
+		if( b == "--"){
+			G.UI.showCreature("W1");
+			return;
+		}
+
+		if( G.realms.indexOf(b[0])-1 > -1 ){
+			var r = G.realms[ G.realms.indexOf(b[0])-1 ];
+			G.UI.showCreature(r+b[1]);
+		}else{ // end of the grid
+			//G.UI.showCreature("--");
+		}
+	},
+
+	gridSelectDown: function(){
+		var b = G.UI.selectedCreature ;
+
+		if( b == "--"){
+			G.UI.showCreature("A1");
+			return;
+		}
+
+		if( G.realms.indexOf(b[0])+1 < G.realms.length ){
+			var r = G.realms[ G.realms.indexOf(b[0])+1 ];
+			G.UI.showCreature(r+b[1]);
+		}else{ // end of the grid
+			//G.UI.showCreature("--");
+		}
+	},
+
+	gridSelectLeft: function(){
+		var b = ( G.UI.selectedCreature == "--" ) ? "A0" :  G.UI.selectedCreature ;
+
+		if( b[1]-1 < 1 ){ //end of row
+			return;
+		}else{
+			G.UI.showCreature( b[0] + (b[1]-1) );
+		}
+	},
+
+	gridSelectRight: function(){
+		var b = ( G.UI.selectedCreature == "--" ) ? "A8" :  G.UI.selectedCreature ;
+
+		if( b[1]-0+1 > 7 ){ //end of row
+			return;
+		}else{
+			G.UI.showCreature( b[0] + (b[1]-0+1) );
+		}
+	},
+
+	gridSelectNext: function(){
+		var b = ( G.UI.selectedCreature == "--" ) ? "A0" :  G.UI.selectedCreature ;
+
+		if( b[1]-0+1 > 7 ){ //end of row
+			if( G.realms.indexOf(b[0])+1 < G.realms.length ){
+				var r = G.realms[ G.realms.indexOf(b[0])+1 ];
+
+				//Test If Valid Creature
+				if( $j.inArray( r+"1" , G.players[this.selectedPlayer].availableCreatures)>0	){
+					var valid = true;
+					for (var i = 0; i < G.players[ this.selectedPlayer ].creatures.length; i++) {
+						var crea = G.players[ this.selectedPlayer ].creatures[i];
+						if( crea instanceof Creature && crea.type == r+"1" && crea.dead ){
+							var valid = false;
+						}
+					};
+
+					if( valid ){
+						G.UI.showCreature( r+"1" );
+						return;
+					}
+				}
+				G.UI.selectedCreature = r+"1";
+			}else{
+				return;
+			}
+		}else{
+
+			//Test If Valid Creature
+			if( $j.inArray( b[0]+(b[1]-0+1) , G.players[this.selectedPlayer].availableCreatures)>0	){
+				var valid = true;
+				for (var i = 0; i < G.players[ this.selectedPlayer ].creatures.length; i++) {
+					var crea = G.players[ this.selectedPlayer ].creatures[i];
+					if( crea instanceof Creature && crea.type == b[0]+(b[1]-0+1) && crea.dead ){
+						var valid = false;
+					}
+				};
+
+				if( valid ){
+					G.UI.showCreature( b[0] + (b[1]-0+1) );
+					return;
+				}
+			}
+			G.UI.selectedCreature = b[0] + (b[1]-0+1);
+		}
+		G.UI.gridSelectNext();
+	},
+
+	gridSelectPrevious: function(){
+		var b = ( G.UI.selectedCreature == "--" ) ? "W8" :  G.UI.selectedCreature ;
+
+		if( b[1]-1 < 1 ){ //end of row
+			if( G.realms.indexOf(b[0])-1 > -1 ){
+				var r = G.realms[ G.realms.indexOf(b[0])-1 ];
+
+				//Test If Valid Creature
+				if( $j.inArray( r+"7" , G.players[this.selectedPlayer].availableCreatures)>0	){
+					var valid = true;
+					for (var i = 0; i < G.players[ this.selectedPlayer ].creatures.length; i++) {
+						var crea = G.players[ this.selectedPlayer ].creatures[i];
+						if( crea instanceof Creature && crea.type == r+"7" && crea.dead ){
+							var valid = false;
+						}
+					};
+
+					if( valid ){
+						G.UI.showCreature( r+"7" );
+						return;
+					}
+				}
+				G.UI.selectedCreature = r+"7";
+			}else{
+				return;
+			}
+		}else{
+
+			//Test If Valid Creature
+			if( $j.inArray( b[0]+(b[1]-1) , G.players[this.selectedPlayer].availableCreatures)>0	){
+				var valid = true;
+				for (var i = 0; i < G.players[ this.selectedPlayer ].creatures.length; i++) {
+					var crea = G.players[ this.selectedPlayer ].creatures[i];
+					if( crea instanceof Creature && crea.type == b[0]+(b[1]-1) && crea.dead ){
+						var valid = false;
+					}
+				};
+
+				if( valid ){
+					G.UI.showCreature( b[0] + (b[1]-1) );
+					return;
+				}
+			}
+			G.UI.selectedCreature = b[0] + (b[1]-1);
+		}
+		G.UI.gridSelectPrevious();
+	},
 
 	/*	updateActiveBox()
 	*
@@ -1110,7 +1275,7 @@ var Button = Class.create({
 	changeState : function(state){
 		var btn = this;
 
-		if(!state) state = this.state;
+		state = state || this.state;
 		this.state = state;
 		this.$button.unbind("click").unbind("mouseover").unbind("mouseleave");
 		if( state != "disabled" ){

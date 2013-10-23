@@ -68,6 +68,7 @@ var Game = Class.create({
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;
 		this.gamelog = new Gamelog();
+		this.realms = ["A","E","G","L","P","S","W"];
 		this.loadedCreatures = [
 			0, //Dark Priest
 			37, //Swine Thug

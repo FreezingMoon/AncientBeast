@@ -22,7 +22,7 @@ var HexGrid = Class.create({
 	*	
 	*	//Normal attributes
 	*	hexs : 				Array : 	Contain all hexs in row arrays (hexs[y][x])
-	*	lastClickedtHex : 	Hex : 		Last hex clicked!
+	*	lastClickedHex : 	Hex : 		Last hex clicked!
 	*
 	*/
 
@@ -44,7 +44,7 @@ var HexGrid = Class.create({
 		this.hexs 				= new Array(); //Hex Array
 		this.traps 				= new Array(); //Traps Array
 		this.allHexs			= new Array(); //All hexs
-		this.lastClickedtHex 	= []; //Array of hexagons containing last calculated pathfinding
+		this.lastClickedHex 	= []; //Array of hexagons containing last calculated pathfinding
 
 		this.$display 			= $j("#grid");
 		
@@ -68,6 +68,8 @@ var HexGrid = Class.create({
 				this.allHexs.push(this.hexs[row][hex]);
 			};
 		};
+
+		this.selectedHex = this.hexs[0][0];
 
 		this.$allInptHex		= $j("#hexsinput .hex"); //All Input Hexs
 		this.$allDispHex		= $j("#hexsdisplay .displayhex"); //All Display Hexs
@@ -390,7 +392,7 @@ var HexGrid = Class.create({
 
 		o = $j.extend(defaultOpt,o);
 
-		G.grid.lastClickedtHex = [];
+		G.grid.lastClickedHex = [];
 
 		//Save the last Query
 		this.lastQueryOpt = $j.extend({},o); //Copy Obj
@@ -451,7 +453,7 @@ var HexGrid = Class.create({
 
 			//Not reachable hex
 			if( !hex.reachable ){
-				G.grid.lastClickedtHex = []; 
+				G.grid.lastClickedHex = []; 
 				if(hex.creature instanceof Creature){ //If creature
 					var crea = hex.creature;
 					//G.UI.showCreature(crea.type,crea.team);
@@ -488,8 +490,8 @@ var HexGrid = Class.create({
 
 				G.activeCreature.faceHex(clickedtHex,undefined,true);
 
-				if( clickedtHex != G.grid.lastClickedtHex ){
-					G.grid.lastClickedtHex = clickedtHex;
+				if( clickedtHex != G.grid.lastClickedHex ){
+					G.grid.lastClickedHex = clickedtHex;
 					//ONCLICK
 					o.fnOnConfirm(clickedtHex,o.args);
 				}else{
@@ -845,6 +847,43 @@ var HexGrid = Class.create({
 
 	},
 
+	selectHexUp : function(){
+		if( this.hexExists(this.selectedHex.y-1,this.selectedHex.x) ){
+			var hex =  this.hexs[this.selectedHex.y-1][this.selectedHex.x];
+			this.selectedHex = hex;
+			hex.onSelectFn();
+		}
+	},
+
+	selectHexDown : function(){
+		if( this.hexExists(this.selectedHex.y+1,this.selectedHex.x) ){
+			var hex =  this.hexs[this.selectedHex.y+1][this.selectedHex.x];
+			this.selectedHex = hex;
+			hex.onSelectFn();
+		}
+	},
+
+	selectHexLeft : function(){
+		if( this.hexExists(this.selectedHex.y,this.selectedHex.x-1) ){
+			var hex =  this.hexs[this.selectedHex.y][this.selectedHex.x-1];
+			this.selectedHex = hex;
+			hex.onSelectFn();
+		}
+	},
+
+	selectHexRight : function(){
+		if( this.hexExists(this.selectedHex.y,this.selectedHex.x+1) ){
+			var hex =  this.hexs[this.selectedHex.y][this.selectedHex.x+1];
+			this.selectedHex = hex;
+			hex.onSelectFn();
+		}
+	},
+
+	confirmHex : function(){
+		if(G.freezedInput) return;
+		this.selectedHex.onConfirmFn();
+	},
+
 	//******************//
 	//Shortcut functions//
 	//******************//
@@ -1020,6 +1059,7 @@ var Hex = Class.create({
 		this.$input.bind('mouseover', function(e){
 			if(G.freezedInput) return;
 			var hex = G.grid.hexs[ $j(this).attr("y")-0 ][ $j(this).attr("x")-0 ];
+			G.grid.selectedHex = hex;
 			hex.onSelectFn();
 		});
 
