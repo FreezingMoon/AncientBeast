@@ -170,11 +170,13 @@ require_once("../images/stats/index.php"); ?>
 	z-index: 2;
 	text-align: left;
 }
-.card_info .stat_desc {
+.card_info .stat_desc,
+.card_info .masteries_desc{
 	margin: 5px 10px;
 	font-size: 100%;
 }
-.card_info .stat_desc div{
+.card_info .stat_desc div,
+.card_info .masteries_desc div{
 	margin: 5px;
 }
 
@@ -206,6 +208,8 @@ require_once("../images/stats/index.php"); ?>
 */
 	border-radius: 10px;
 }
+
+masteries_desc
 
 .stats_infos div { margin: 10px; }
 .stats_infos div.textcenter { text-align: center; }
@@ -268,9 +272,17 @@ jQuery(document).ready(function(){
 		}
 	};
 
-	jQuery(".card .stat_table").mouseenter(function(){
+	jQuery(".card .stat_table").first().mouseenter(function(){
 		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
 		jQuery(card).find(".card_info").show();
+		jQuery(card).find(".stat_desc").show();
+		jQuery(card).find(".masteries_desc").hide();
+	});
+	jQuery(".card .stat_table").last().mouseenter(function(){
+		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
+		jQuery(card).find(".card_info").show();
+		jQuery(card).find(".stat_desc").hide();
+		jQuery(card).find(".masteries_desc").show();
 	});
 	jQuery(".card .stat_table").mouseleave(function(){
 		var card = jQuery(this).parent().parent().parent().parent().parent().parent();
@@ -312,6 +324,23 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 					<div><span class="icon offense"></span> Offense : Influences the damage output done by all the creature\'s attack abilities.</div>
 					<div><span class="icon defense"></span> Defense : Protects the creature by reducing some of the incoming damage.</div>
 					<div><span class="icon movement"></span> Movement : Any creature can move a certain number of hexagons every turn.</div>
+				</div>
+				<div class="masteries_desc">
+					<div><span class="icon pierce"></span> Pierce : The raw amount of damage points a creature can take before it dies.</div>
+					<div><span class="icon slash"></span> Slash : Amount of health that gets restored at the beginning of every turn.</div>
+					<div><span class="icon crush"></span> Crush :  Protects unit from fatigue, which disables regrowth and meditation.</div>
+					<div><span class="icon shock"></span> Shock : Allows the use of abilities.</div>
+					<div><span class="icon burn"></span> Burn : Energy restored each turn.</div>
+					<div><span class="icon frost"></span> Frost : Creatures with higher amount of initiative points get to act their turn faster.</div>
+					<div><span class="icon poison"></span> Poison : Influences the damage output done by all the creature\'s attack abilities.</div>
+					<div><span class="icon sonic"></span> Sonic : Protects the creature by reducing some of the incoming damage.</div>
+					<div><span class="icon mental"></span> Mental : Any creature can move a certain number of hexagons every turn.</div>
+					<br>
+					<div style="text-align: center">
+						<b>Damage Formula</b>
+						<br>
+						<span> attack damage + attack damage * (offense of attacking creature - defense of creature being attacked / number of hexagons being hit + source stat of attacker - source stat of defender) / 100 = source output damage </span>
+					</div>
 				</div>
 			</div>
 			<div href="#' . $underscore . '" class="section cardborder">

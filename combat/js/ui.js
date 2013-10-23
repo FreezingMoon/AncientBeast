@@ -186,7 +186,6 @@ var UI = Class.create({
 					var b = ( G.UI.selectedCreature == "--" ) ? "W8" :  G.UI.selectedCreature ;
 
 					if( b[1]-1 < 1 ){ //end of row
-						console.log(realms.indexOf(b[0])-1)
 						if( realms.indexOf(b[0])-1 > -1 ){
 							var r = realms[ realms.indexOf(b[0])-1 ];
 							G.UI.showCreature(r+"7");
