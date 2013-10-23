@@ -1030,7 +1030,7 @@ var UI = Class.create({
 
 	xrayQueue : function(creaID){
 		this.$queue.find('.vignette').removeClass("xray");
-		if(creaID>0) this.$queue.find('.vignette[creatureid="'+creaID+'"]').addClass("xray");
+		if(creaID>0) this.$queue.find('.vignette[creatureid!="'+creaID+'"]').addClass("xray");
 	},
 
 	updateFatigue : function(){

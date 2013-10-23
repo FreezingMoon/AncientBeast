@@ -33,7 +33,6 @@ require_once("../config.php"); //only needed for multiplayer
 
 		<title>Ancient Beast 0.2</title>
 		
-		<link type="text/css" rel="stylesheet" href="//cdn.jsdelivr.net/hint.css/1.3.0/hint.min.css" />
 		<link rel="stylesheet" type="text/css" href="./css/dot-luv/jquery-ui-1.9.2.custom.min.css" />
 		<link rel="stylesheet" type="text/css" href="./css/style.css">
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
