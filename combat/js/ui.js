@@ -219,7 +219,7 @@ var UI = Class.create({
 					var b = ( G.UI.selectedAbility == -1 ) ? 4 :  G.UI.selectedAbility ;
 
 					for (var i = (b-1); i > 0; i--) {
-						if( G.activeCreature.abilities[i].require() ){
+						if( G.activeCreature.abilities[i].require() && !G.activeCreature.abilities[i].used ){
 							G.UI.abilitiesButtons[i].triggerClick();
 							return;
 						}
@@ -231,7 +231,7 @@ var UI = Class.create({
 					var b = ( G.UI.selectedAbility == -1 ) ? 0 :  G.UI.selectedAbility ;
 
 					for (var i = (b+1); i < 4; i++) {
-						if( G.activeCreature.abilities[i].require() ){
+						if( G.activeCreature.abilities[i].require() && !G.activeCreature.abilities[i].used ){
 							G.UI.abilitiesButtons[i].triggerClick();
 							return;
 						}
