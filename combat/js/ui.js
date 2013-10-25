@@ -108,6 +108,17 @@ var UI = Class.create({
 		this.timeBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .timebar"), width : 9 , color : "white" });
 		this.poolBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" });
 
+		//Volume Sliders
+		$j("#effects_volume").slider({
+			step:.2,
+			value:5,
+			min:0,
+			max:10,
+			slide: function( event, ui ) {
+				G.soundsys.setEffectsVolume( ui.value/5 );
+			}
+		});
+
 		//Binding Hotkeys
 		$j(document).keydown(function(e){
 			if(G.freezedInput) return;

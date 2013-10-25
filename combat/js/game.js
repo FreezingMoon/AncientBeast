@@ -1282,9 +1282,9 @@ var Soundsys = Class.create({
 
 	initialize: function(o){
 		o = $j.extend({
-			music_volume : 1,
+			music_volume : .1,
 			effects_volume : 1,
-			heartbeats_volume : 1,
+			heartbeats_volume : .2,
 			announcer_volume : 1
 		},o);
 
@@ -1299,20 +1299,22 @@ var Soundsys = Class.create({
 		//Music
 		this.musicGainNode = this.context.createGain();
 		this.musicGainNode.connect(this.context.destination);
-		this.musicGainNode.gain.value = .1;
+		this.musicGainNode.gain.value = this.music_volume;
 
 		//Effects
 		this.effectsGainNode = this.context.createGain();
 		this.effectsGainNode.connect(this.context.destination);
+		this.effectsGainNode.gain.value = this.effects_volume;
 
 		//HeartBeat
 		this.heartbeatGainNode = this.context.createGain();
 		this.heartbeatGainNode.connect(this.context.destination);
-		this.heartbeatGainNode.gain.value = .2;
+		this.heartbeatGainNode.gain.value = this.heartbeats_volume;
 
 		//Announcner
 		this.announcerGainNode = this.context.createGain();
 		this.announcerGainNode.connect(this.context.destination);
+		this.announcerGainNode.gain.value = this.announcer_volume;
 	},
 
 	playMusic: function(){
@@ -1344,6 +1346,12 @@ var Soundsys = Class.create({
 		source.connect(node);
 		source.start(0);
 		return source;
+	},
+
+	setEffectsVolume: function(value) {
+		this.effectsGainNode.gain.value = this.effects_volume * value;
+		this.heartbeatGainNode.gain.value = this.heartbeats_volume * value;
+		this.announcerGainNode.gain.value = this.announcer_volume * value;
 	}
 });
 

@@ -316,6 +316,9 @@ require_once('../bestiary/cards.php');
 						}
 						echo '</ul>';
 					?>
+					<div id="volume_sliders">
+						Effects volume <div id="effects_volume"></div>
+					</div>
 				</div>
 			</div>
 			<div id="toppanel">

@@ -1178,3 +1178,14 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 	bottom: 0px;
 	background: red;
 }
+
+#volume_sliders {
+	margin: 0 auto;
+	width: 500px;
+}
+
+#volume_sliders div {
+	display: inline-block;
+	margin: 0 10px;
+	width: 300px;
+}
