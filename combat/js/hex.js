@@ -488,7 +488,7 @@ var HexGrid = Class.create({
 				hex = G.grid.hexs[y][x]; //New coords
 				var clickedtHex = hex;
 
-				G.activeCreature.faceHex(clickedtHex,undefined,true);
+				G.activeCreature.faceHex(clickedtHex,undefined,true,true);
 
 				if( clickedtHex != G.grid.lastClickedHex ){
 					G.grid.lastClickedHex = clickedtHex;

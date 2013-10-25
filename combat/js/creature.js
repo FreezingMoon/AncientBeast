@@ -418,7 +418,7 @@ var Creature = Class.create({
 	* 	Face creature at given hex
 	*
 	*/
-	faceHex: function(faceto,facefrom,ignoreCreaHex){
+	faceHex: function(faceto,facefrom,ignoreCreaHex,attackFix){
 
 		if( !facefrom )	facefrom = (this.player.flipped) ? this.hexagons[this.size-1] : this.hexagons[0];
 
@@ -433,12 +433,28 @@ var Creature = Class.create({
 			this.facePlayerDefault();
 			return;
 		}
+		
+		if(attackFix && this.size>1){
+			//only works on 2hex creature targeting the adjacent row
+			if( facefrom.y%2==0 ){
+				if( faceto.x-this.player.flipped == facefrom.x ){
+					this.facePlayerDefault();
+					return;
+				}
+			}else{
+				if( faceto.x+1-this.player.flipped == facefrom.x ){
+					this.facePlayerDefault();
+					return;
+				}
+			}
+		}
 
 		if(facefrom.y%2==0){
 			var flipped = ( faceto.x <= facefrom.x );
 		}else{
 			var flipped = ( faceto.x < facefrom.x );
 		}
+
 
 		if(flipped){ 
 			this.$display.addClass("flipped").css("margin-left", 90*this.size-this.display.width-this.display["offset-x"]);

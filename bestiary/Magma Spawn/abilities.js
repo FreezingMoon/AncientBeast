@@ -123,6 +123,8 @@ abilities[4] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
+		this.map.origin = [0,2];
+		
 		// Require Ennemy
 		var magmaSpawn = this.creature;
 		var hexs = magmaSpawn.getHexMap(this.map).concat( magmaSpawn.getHexMap(this.map,true) );
