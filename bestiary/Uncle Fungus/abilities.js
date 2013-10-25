@@ -182,16 +182,35 @@ abilities[3] =[
 		var ability = this;
 		var uncle = this.creature;
 
-		var range = G.grid.getFlyingRange(uncle.x,uncle.y,50,uncle.size,uncle.id);
-		range.filter(function(){ return uncle.y == this.y; });
+		var hexsDashed = [];
+
+		var range = G.grid.allHexs.slice(0);//Copy
+		range.filter(function(){ 
+			if(uncle.y == this.y){
+				if(this.creature instanceof Creature && this.creature != uncle){
+					hexsDashed.push(this);
+					return false; 
+				}
+				return true; 
+			}
+			return false; 
+		});
 
 		G.grid.queryHexs({
 			fnOnSelect : function(){ ability.fnOnSelect.apply(ability,arguments); },
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+			fnOnConfirm : function(){ 
+				if( arguments[0].x == ability.creature.x && arguments[0].y == ability.creature.y ){
+					//Prevent null movement
+					ability.query();
+					return;
+				}
+				ability.animation.apply(ability,arguments); 
+			},
 			size :  uncle.size,
 			flipped :  uncle.player.flipped,
 			id :  uncle.id,
 			hexs : range,
+			hexsDashed : hexsDashed,
 			hideNonTarget : true
 		});
 	},
@@ -199,6 +218,7 @@ abilities[3] =[
 
 	//	activate() : 
 	activate : function(hex,args) {
+
 		var ability = this;
 		ability.end();
 

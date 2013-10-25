@@ -94,6 +94,7 @@ var HexGrid = Class.create({
 			flipped : false,
 			x : 0,
 			y : 0,
+			hexsDashed : [],
 			directions : [1,1,1,1,1,1],
 			includeCrea : true,
 			stopOnCreature : true,
@@ -149,7 +150,7 @@ var HexGrid = Class.create({
 
 				dir.each(function(){ 
 					this.direction = (o.flipped)?5-i:i; 
-					if(o.stopOnCreature) this.dashed = true;
+					if(o.stopOnCreature) o.hexsDashed.push(this); 
 				});
 
 				dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team);
@@ -161,7 +162,7 @@ var HexGrid = Class.create({
 						dir = dir.concat(dir.last().creature.hexagons); //Add full creature
 				}
 
-				dir.each(function(){ this.dashed = false; });
+				dir.each(function(){ o.hexsDashed.removePos(this.pos); });
 				
 				choices.push(dir);
 			}
@@ -203,6 +204,7 @@ var HexGrid = Class.create({
 			args : {},
 			flipped : false,
 			choices : [],
+			hexsDashed : [],
 			isDirectionsQuery : false,
 		};
 
@@ -243,7 +245,7 @@ var HexGrid = Class.create({
 			else if(o.isDirectionsQuery){
 				G.grid.forEachHexs(function(){ 
 					if(o.choices[i][0].direction==this.direction) 
-						this.dashed = false; 
+						o.hexsDashed.removePos(this.pos); 
 				});
 			}
 		};
@@ -276,6 +278,7 @@ var HexGrid = Class.create({
 			fnOnCancel : o.fnOnCancel,
 			args : {opt : o},
 			hexs : hexs,
+			hexsDashed : o.hexsDashed,
 			flipped : o.flipped,
 			hideNonTarget : true,
 			id : o.id
@@ -300,6 +303,7 @@ var HexGrid = Class.create({
 			optTest : function(crea){ return true; },
 			args : {},
 			hexs : [],
+			hexsDashed : [],
 			flipped : false,
 			id : 0,
 			team : 0,
@@ -352,6 +356,7 @@ var HexGrid = Class.create({
 			fnOnCancel : o.fnOnCancel,
 			args : {opt : o},
 			hexs : o.hexs,
+			hexsDashed : o.hexsDashed,
 			flipped : o.flipped,
 			hideNonTarget : true,
 			id : o.id
@@ -383,6 +388,7 @@ var HexGrid = Class.create({
 			fnOnCancel : function(hex,args){G.activeCreature.queryMove()},
 			args : {},
 			hexs : [],
+			hexsDashed : [],
 			size : 1,
 			id : 0,
 			flipped : false,
@@ -402,9 +408,8 @@ var HexGrid = Class.create({
 			this.unsetReachable(); 
 			if(o.hideNonTarget) this.setNotTarget();
 			else this.unsetNotTarget();
-			if(this.dashed){
+			if( o.hexsDashed.indexOf(this) != -1 ){
 				this.$display.addClass("dashed");
-				this.dashed = false;
 			}else{
 				this.$display.removeClass("dashed");
 			}
@@ -564,6 +569,8 @@ var HexGrid = Class.create({
 
 			if(hex.creature instanceof Creature){ //If creature
 				G.UI.showCreature( hex.creature.type, hex.creature.player.id );
+			}else{
+				G.UI.showCreature( G.activeCreature.type, G.activeCreature.player.id );
 			}
 		};
 
