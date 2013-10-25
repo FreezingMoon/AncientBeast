@@ -529,8 +529,7 @@ var UI = Class.create({
 
 
 	selectAbility: function(i){
-		if( this.selectedAbility > -1 )
-			this.abilitiesButtons[this.selectedAbility].changeState("normal");
+		this.checkAbilities();
 		this.selectedAbility = i;
 		if( i>-1 )
 			this.abilitiesButtons[i].changeState("active");
