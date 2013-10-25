@@ -124,13 +124,12 @@ abilities[4] =[
 		if( !this.testRequirements() ) return false;
 
 		// Require Ennemy
-		// var magmaSpawn = this.creature;
-		// var hexs = G.grid.getHexMap(magmaSpawn.x,magmaSpawn.y-2,0,false,this.map).concat(
-		// 	G.grid.getHexMap(magmaSpawn.x-magmaSpawn.size+1,magmaSpawn.y-2,0,true,this.map));
-		// if( !this.atLeastOneTarget( hexs,"ennemy" ) ){
-		// 	this.message = G.msg.abilities.notarget;
-		// 	return false;
-		// }
+		var magmaSpawn = this.creature;
+		var hexs = magmaSpawn.getHexMap(this.map).concat( magmaSpawn.getHexMap(this.map,true) );
+		if( !this.atLeastOneTarget( hexs,"ennemy" ) ){
+			this.message = G.msg.abilities.notarget;
+			return false;
+		}
 		return true;
 	},
 
