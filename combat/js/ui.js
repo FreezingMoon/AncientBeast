@@ -335,6 +335,8 @@ var UI = Class.create({
 		if(G.turnTimePool) $j(".turntime").text(zfill(Math.floor(G.turnTimePool/60),2)+":"+zfill(G.turnTimePool%60,2));
 		if(G.timePool) $j(".timepool").text(zfill(Math.floor(G.timePool/60),2)+":"+zfill(G.timePool%60,2));			
 
+		$j("#dash a").removeAttr("href"); //empty links
+
 		//Show UI
 		this.$display.show();
 	},
