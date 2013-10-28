@@ -374,7 +374,10 @@ var UI = Class.create({
 	showCreature: function(creatureType,player){
 
 		this.dashopen = true;
-		player = player || G.activeCreature.player.id;
+
+		if( player == undefined ){
+			player = G.activeCreature.player.id;
+		}
 
 		//Set dash active
 		this.$dash.addClass("active");
@@ -1204,7 +1207,7 @@ var UI = Class.create({
 			G.grid.showGrid(false);
 		});
 
-		this.$queue.find('.vignette').not(".roundmarker").unbind("mouseover").unbind("mouseleave").bind("mouseover",function(){
+		this.$queue.find('.vignette').not(".roundmarker").unbind("click").unbind("mouseover").unbind("mouseleave").bind("mouseover",function(){
 			if(G.freezedInput) return;
 			var creaID = $j(this).attr("creatureid")-0;
 			G.grid.showMovementRange(creaID);
@@ -1228,7 +1231,7 @@ var UI = Class.create({
 		}).bind("click",function(){ //Show dash on click
 			if(G.freezedInput) return;
 			var creaID = $j(this).attr("creatureid")-0;
-			G.UI.showCreature(G.creatures[creaID].type,G.creatures[creaID].team);
+			G.UI.showCreature(G.creatures[creaID].type,G.creatures[creaID].player.id);
 		});
 
 	},
