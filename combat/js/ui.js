@@ -215,7 +215,7 @@ var UI = Class.create({
 			}
 		});
 
-		$j("body").bind('mousewheel', function(e, delta, deltaX, deltaY){
+		$j("#combatwrapper, #dash, #toppanel").bind('mousewheel', function(e, delta, deltaX, deltaY){
 			if(G.freezedInput) return;
 
 
@@ -302,6 +302,8 @@ var UI = Class.create({
 			var opa =  .5+Math.floor( (1 + Math.sin(  Math.floor( new Date()*Math.PI*.20 )/100 ) ) / 4 *100)/100;
 
 			G.UI.buttons.each(function(){
+				this.$button.css("opacity","");
+
 				if(this.state == "glowing"){
 					this.$button.css("opacity",opa);	
 				}
