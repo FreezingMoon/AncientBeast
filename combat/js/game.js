@@ -661,6 +661,7 @@ var Game = Class.create({
 		onDamage : new RegExp('onDamage', 'i'),
 		onCreatureMove : new RegExp('onCreatureMove', 'i'),
 		onCreatureDeath : new RegExp('onCreatureDeath', 'i'),
+		onCreatureSummon : new RegExp('onCreatureSummon', 'i'),
 
 		onStepIn_other : new RegExp('onOtherStepIn', 'i'),
 		onStepOut_other : new RegExp('onOtherStepOut', 'i'),
@@ -671,6 +672,7 @@ var Game = Class.create({
 		onDamage_other : new RegExp('onOtherDamage', 'i'),
 		onCreatureMove_other : new RegExp('onOtherCreatureMove', 'i'),
 		onCreatureDeath_other : new RegExp('onOtherCreatureDeath', 'i'),
+		onCreatureSummon_other : new RegExp('onOtherCreatureSummon', 'i'),
 
 		onEffectAttachement : new RegExp('onEffectAttachement', 'i'),
 		onEffectAttachement_other : new RegExp('onOtherEffectAttachement', 'i'),
@@ -814,6 +816,10 @@ var Game = Class.create({
 			G.triggerEffect("onCreatureDeath",[creature,creature]);	
 		},
 
+		onCreatureSummon : function( creature, callback ){
+			G.triggerAbility("onCreatureSummon",arguments);	
+			G.triggerEffect("onCreatureSummon",[creature,creature]);	
+		},
 
 		onEffectAttachement : function( creature, effect, callback ){
 			G.triggerEffect("onEffectAttachement",[creature,effect]);	
@@ -1101,6 +1107,7 @@ var Player = Class.create({
 		var creature = new Creature(data);
 		this.creatures.push(creature);
 		creature.summon();
+		G.triggersFn.onCreatureSummon(creature);
 	},
 
 	/*	flee()

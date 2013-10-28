@@ -8,7 +8,7 @@ abilities[31] =[
 // 	First Ability: Bad Dog
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onOtherCreatureMove",
+	trigger : "onOtherCreatureMove onOtherCreatureSummon",
 
 	// 	require() :
 	require : function(hex){
