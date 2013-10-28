@@ -111,7 +111,14 @@ body{
 
 .hex{display: inline-block; position: absolute;}
 
-#hexsdisplay .displayhex{background: url('../grid/hex.png');}
+#hexsdisplay .displayhex{
+	background: url('../grid/hex.png');
+	transition: opacity 250ms;
+	-moz-transition: opacity 250ms; /* Firefox 4 */
+	-webkit-transition: opacity 250ms; /* Safari and Chrome */
+	-ms-transition: opacity 250ms;
+	-o-transition: opacity 250ms; /* Opera */
+}
 .displayhex{
 	position: absolute;
 	display: inline-block;
@@ -123,11 +130,6 @@ body{
 	text-align: center;
 	font-size: 35px;
 	/*text-shadow: 0px 0px 5px rgba(255,255,255,0.7);*/
-	transition: opacity 250ms;
-	-moz-transition: opacity 250ms; /* Firefox 4 */
-	-webkit-transition: opacity 250ms; /* Safari and Chrome */
-	-ms-transition: opacity 250ms;
-	-o-transition: opacity 250ms; /* Opera */
 }
 
 #hexsdisplay .displayhex.not-reachable{
@@ -187,24 +189,8 @@ body{
 #hexsdisplay .displayhex.showGrid{ opacity: 1 !important; }
 
 /*--------------------Players------------------*/
-.displayhex.creature{z-index: 6 !important; opacity: 1 !important;}
-
-#hexsoverlay .displayhex.creature.active,
-#hexsoverlay .displayhex.creature.selected{
-	animation: pulse0510 750ms infinite alternate;
-	-webkit-animation: pulse0510 750ms infinite alternate;
-	-moz-animation: pulse0510 750ms infinite alternate;
-	-ms-animation: pulse0510 750ms infinite alternate;
-	-o-animation: pulse0510 750ms infinite alternate;
-}
-#hexsoverlay .displayhex.creature.selected.weakDmg{
-	animation: pulse0205 750ms infinite alternate;
-	-webkit-animation: pulse0205 750ms infinite alternate;
-	-moz-animation: pulse0205 750ms infinite alternate;
-	-ms-animation: pulse0205 750ms infinite alternate;
-	-o-animation: pulse0205 750ms infinite alternate;
-}
-
+#hexsdisplay .displayhex.creature{z-index: 6 !important; opacity: 1 !important;}
+#hexsoverlay .displayhex.creature{z-index: 6 !important; opacity: 1;}
 
 #hexsoverlay .displayhex.hover{background: url("../grid/hex.png");}
 /*p0*/
@@ -268,7 +254,7 @@ body{
 	-o-transform: scale(-1,1) ; /* Opera */
 }
 
-.creature{
+#creatureWrapper .creature{
 	transition: opacity 500ms;
 	-ms-transition: opacity 500ms;
 	-moz-transition: opacity 500ms; /* Firefox 4 */
@@ -413,14 +399,6 @@ body{
 .button.disabled:before{ background-image: url('../../images/contour_dimmed.png'); }
 
 .disabled { cursor:default !important; }
-
-.button.glowing{
-	animation: pulse0510 750ms infinite alternate;
-	-webkit-animation: pulse0510 750ms infinite alternate;
-	-ms-animation: pulse0510 750ms infinite alternate;
-	-moz-animation: pulse0510 750ms infinite alternate;
-	-o-animation: pulse0510 750ms infinite alternate;
-}
 
 .button#audio{ background-image: url('../icons/music.svg');}
 .button#skip{ background-image: url('../icons/skip.svg'); }

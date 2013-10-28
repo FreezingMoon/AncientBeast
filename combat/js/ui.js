@@ -297,6 +297,39 @@ var UI = Class.create({
 		this.materializeToggled = false;
 		this.dashopen = false;
 
+		this.glowInterval = setInterval(function(){
+
+			var opa =  .5+Math.floor( (1 + Math.sin(  Math.floor( new Date()*Math.PI*.20 )/100 ) ) / 4 *100)/100;
+
+			G.UI.buttons.each(function(){
+				if(this.state == "glowing"){
+					this.$button.css("opacity",opa);	
+				}
+			})
+
+			opaWeak = opa/2;
+
+			G.grid.$allOverHex.each(function(){
+
+				$j(this).css("opacity","");
+
+				if( $j(this).hasClass("creature") ){
+
+					if( $j(this).hasClass("selected") || $j(this).hasClass("active") ){
+
+						if( $j(this).hasClass("weakDmg") ){
+
+							$j(this).css("opacity",opaWeak);
+							return;
+						}
+
+						$j(this).css("opacity",opa);
+					}
+				}
+			})
+		},10);
+
+
 		if(G.turnTimePool) $j(".turntime").text(zfill(Math.floor(G.turnTimePool/60),2)+":"+zfill(G.turnTimePool%60,2));
 		if(G.timePool) $j(".timepool").text(zfill(Math.floor(G.timePool/60),2)+":"+zfill(G.timePool%60,2));			
 
@@ -1304,6 +1337,7 @@ var Button = Class.create({
 		}
 		this.$button.removeClass("disabled glowing selected active noclick")
 		this.$button.css( this.css["normal"] );
+
 		if( state != "normal" ){
 			this.$button.addClass(state);
 			this.$button.css( this.css[state] );
