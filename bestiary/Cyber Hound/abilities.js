@@ -14,9 +14,14 @@ abilities[31] =[
 	require : function(hex){
 		if( !this.testRequirements() ) return false;
 
+		//OnSummon Fix
+		if( hex instanceof Creature){
+			hex = {creature : hex};
+		}
+
 		if( hex instanceof Hex && hex.creature instanceof Creature ){
 
-			if( this.creature.isAlly( hex.creature ) ) return false; //Don't bite ally
+			if( this.creature.isAlly( hex.creature.team ) ) return false; //Don't bite ally
 
 			var isAdj = false;
 

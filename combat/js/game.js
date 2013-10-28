@@ -817,7 +817,7 @@ var Game = Class.create({
 		},
 
 		onCreatureSummon : function( creature, callback ){
-			G.triggerAbility("onCreatureSummon",arguments);	
+			G.triggerAbility("onCreatureSummon",[creature,creature,callback]);	
 			G.triggerEffect("onCreatureSummon",[creature,creature]);	
 		},
 
