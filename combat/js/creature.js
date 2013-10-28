@@ -210,7 +210,10 @@ var Creature = Class.create({
 
 			crea.endurance = crea.stats.endurance;
 
-			crea.abilities.each(function(){ this.setUsed(false); });
+			crea.abilities.each(function(){ 
+				this.setUsed(false); 
+				this.token = 0;
+			});
 		}
 
 		this.materializeSickness = false;

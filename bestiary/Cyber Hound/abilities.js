@@ -109,7 +109,7 @@ abilities[31] =[
 		return this.testRequirements();
 	},
 
-	missedRocket : 0,
+	token : 0,
 
 	// 	query() :
 	query : function(){
@@ -169,7 +169,7 @@ abilities[31] =[
 		for (var i = 0; i < rows.length; i++) {
 			if( rows[i].length == 0 || !(rows[i][ rows[i].length-1 ].creature instanceof Creature) ) {
 				//Miss
-				this.missedRocket += 1;
+				this.token += 1;
 				continue;
 			}
 
@@ -200,7 +200,7 @@ abilities[31] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if(this.creature.abilities[2].missedRocket == 0){
+		if(this.creature.abilities[2].token == 0){
 			this.message = "No rocket launched."
 			return false;
 		}
@@ -233,7 +233,7 @@ abilities[31] =[
 
 		var target = crea;
 
-		this.creature.abilities[2].missedRocket -= 1;
+		this.creature.abilities[2].token -= 1;
 
 		var damage = new Damage(
 			ability.creature, //Attacker
