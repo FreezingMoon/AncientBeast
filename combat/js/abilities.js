@@ -10,7 +10,7 @@ var Ability = Class.create({
 		this.id = abilityID;
 		this.priority = 0; //Priority for same trigger
 		var datas = G.retreiveCreatureStats(creature.type);
-		$j.extend(this,abilities[datas.id][abilityID],datas.ability_info[abilityID]);
+		$j.extend(true,this,abilities[datas.id][abilityID],datas.ability_info[abilityID]);
 		if( this.requirements == undefined && this.costs != undefined ){
 			this.requirements = this.costs;
 		}
