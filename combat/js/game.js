@@ -68,6 +68,7 @@ var Game = Class.create({
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;
 		this.gamelog = new Gamelog();
+		this.debugMode = false;
 		this.realms = ["A","E","G","L","P","S","W"];
 		this.loadedCreatures = [
 			0, //Dark Priest
@@ -110,6 +111,7 @@ var Game = Class.create({
 		//Gameplay
 		this.firstKill = false;
 		this.freezedInput = false;
+		this.turnThrottle = false;
 
 		//Msg (TODO External file)
 		this.msg = {
@@ -500,7 +502,7 @@ var Game = Class.create({
 			tooltip: 'Skipped'
 		},o);
 
-		G.turnThrottle = true
+		G.turnThrottle = true;
 		G.UI.btnSkipTurn.changeState("disabled");
 		G.UI.btnDelay.changeState("disabled");
 
@@ -536,7 +538,7 @@ var Game = Class.create({
 			callback: function(){},
 		},o);
 
-		G.turnThrottle = true
+		G.turnThrottle = true;
 		G.UI.btnSkipTurn.changeState("disabled");
 		G.UI.btnDelay.changeState("disabled");
 
@@ -1252,6 +1254,8 @@ var Gamelog = Class.create({
 
 	initialize: function(id){
 		this.datas = [];
+		this.playing = false;
+		this.timeCursor = -1;
 	},
 
 	add: function(action){
@@ -1259,23 +1263,45 @@ var Gamelog = Class.create({
 	},
 
 	play: function(log){
-		var i = -1;
+
+		if(log){
+			this.datas = log;
+		}
 
 		var fun = function(){
-			i++;
-			if(i>log.length-1){
+			G.gamelog.timeCursor++;
+			if(G.debugMode) console.log(G.gamelog.timeCursor+"/"+G.gamelog.datas.length)
+			if(G.gamelog.timeCursor>G.gamelog.datas.length-1){
 				G.activeCreature.queryMove(); //Avoid bug
 				return;	
 			} 
 			var interval = setInterval(function(){
-				if(!G.freezedInput){
+				if(!G.freezedInput && !G.turnThrottle){
 					clearInterval(interval);
 					G.activeCreature.queryMove(); //Avoid bug
-					G.action(log[i],{callback:fun});
+					G.action(G.gamelog.datas[G.gamelog.timeCursor],{callback:fun});
 				}
 			},100);
 		};
 		fun();
+	},
+
+	next: function(){
+		if(G.freezedInput || G.turnThrottle) return false;
+
+		G.gamelog.timeCursor++;
+		if(G.debugMode) console.log(G.gamelog.timeCursor+"/"+G.gamelog.datas.length)
+		if(G.gamelog.timeCursor>G.gamelog.datas.length-1){
+			G.activeCreature.queryMove(); //Avoid bug
+			return;	
+		} 
+		var interval = setInterval(function(){
+			if(!G.freezedInput && !G.turnThrottle){
+				clearInterval(interval);
+				G.activeCreature.queryMove(); //Avoid bug
+				G.action(G.gamelog.datas[G.gamelog.timeCursor],{callback: function(){ G.activeCreature.queryMove() } });
+			}
+		},100);
 	},
 
 	get: function(){

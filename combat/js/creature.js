@@ -317,6 +317,7 @@ var Creature = Class.create({
 		o = $j.extend({
 			noPath : false,
 			isAbility : false,
+			ownCreatureHexShade : true,
 			range : G.grid.getMovementRange(this.x,this.y,this.remainingMove,this.size,this.id),
 			callback : function(hex,args){
 				if( hex.x == args.creature.x && hex.y == args.creature.y ){
@@ -331,8 +332,7 @@ var Creature = Class.create({
 					animation : args.creature.canFly ? "fly" : "walk",
 					callback : function(){ G.activeCreature.queryMove() }
 				});
-			},
-			ownCreatureHexShade : true
+			}
 		},o);
 
 		if( !o.isAbility ){
@@ -725,8 +725,12 @@ var Creature = Class.create({
 			G.log("This creature cannot be moved");
 		}
 
+		console.log("bite");
+
 		var interval = setInterval(function(){
+			console.log("bite1");
 			if(!G.freezedInput){
+				console.log("bite2");
 				clearInterval(interval);
 				opts.callback();
 			}
