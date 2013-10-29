@@ -16,7 +16,7 @@ abilities[31] =[
 
 		//OnSummon Fix
 		if( hex instanceof Creature){
-			hex = {creature : hex};
+			var hex = {creature : hex};
 		}
 
 		if( hex instanceof Hex && hex.creature instanceof Creature ){
@@ -26,9 +26,7 @@ abilities[31] =[
 			var isAdj = false;
 
 			//Search if Cyber hound is adjacent to the creature that is moving
-			for (var i = 0; i < hex.creature.hexagons.length; i++) {
-				if( hex.creature.hexagons[i] == this.creature.getHexMap(inlinefront2hex)[0] ) isAdj = true;
-			};
+			if( hex.creature.hexagons.indexOf( this.creature.getHexMap(inlinefront2hex)[0] ) != -1) isAdj = true;
 
 			if( !isAdj ) return false;
 		}
