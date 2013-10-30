@@ -348,10 +348,10 @@ var UI = Class.create({
 		var zoom = Math.min(zoom1,zoom2);
 		zoom = Math.min(zoom,1);
 		$j("#cardwrapper_inner").css({ 
-			zoom: zoom, 
-			// "left": ($j("#cardwrapper").innerWidth()-$j("#card").innerWidth()*zoom)/2,
-			// position: "absolute",
-			// margin: 0
+			scale: zoom, 
+			"left": ($j("#cardwrapper").innerWidth()-$j("#card").innerWidth()*zoom)/2,
+			position: "absolute",
+			margin: 0
 		});
 
 		var zoom1 = $j("#creaturegridwrapper").innerWidth()/$j("#creaturegrid").innerWidth();

@@ -557,7 +557,7 @@ body{
 	bottom: 0px;
 	width: 54%;
 	position: absolute;
-	overflow: auto;
+	overflow: hidden;
 	text-align: center;
 	vertical-align: middle;
 	color: white;
