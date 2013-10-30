@@ -216,7 +216,6 @@ var Creature = Class.create({
 			});
 		}
 
-		this.materializeSickness = false;
 
 		//Freezed effect
 		if(this.freezed){
@@ -237,6 +236,7 @@ var Creature = Class.create({
 			G.triggersFn.onStartPhase(crea);
 		}
 
+		this.materializeSickness = false;
 
 		var interval = setInterval(function(){
 			if(!G.freezedInput){
