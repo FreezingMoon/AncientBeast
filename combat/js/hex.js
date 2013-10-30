@@ -162,7 +162,7 @@ var HexGrid = Class.create({
 						dir = dir.concat(dir.last().creature.hexagons); //Add full creature
 				}
 
-				dir.each(function(){ o.hexsDashed.removePos(this.pos); });
+				dir.each(function(){ o.hexsDashed.removePos(this); });
 				
 				choices.push(dir);
 			}
@@ -245,7 +245,7 @@ var HexGrid = Class.create({
 			else if(o.isDirectionsQuery){
 				G.grid.forEachHexs(function(){ 
 					if(o.choices[i][0].direction==this.direction) 
-						o.hexsDashed.removePos(this.pos); 
+						o.hexsDashed.removePos(this); 
 				});
 			}
 		};
