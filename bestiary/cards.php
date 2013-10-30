@@ -209,9 +209,7 @@ require_once("../images/stats/index.php"); ?>
 	border-radius: 10px;
 }
 
-masteries_desc
-
-.stats_infos div { margin: 10px; }
+.stats_infos div { margin: 10px 50px; }
 .stats_infos div.textcenter { text-align: center; }
 
 .stats:hover{

@@ -725,12 +725,8 @@ var Creature = Class.create({
 			G.log("This creature cannot be moved");
 		}
 
-		console.log("bite");
-
 		var interval = setInterval(function(){
-			console.log("bite1");
 			if(!G.freezedInput){
-				console.log("bite2");
 				clearInterval(interval);
 				opts.callback();
 			}

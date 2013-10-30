@@ -977,14 +977,14 @@ var UI = Class.create({
 			$j(card).find("."+stat+" .stats_infos").html("");
 			//Effects
 			$j.each( buffDebuff.objs.effects, function(key,value){
-				var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
-				$j(card).find("."+stat+" .stats_infos").append("<div>"+value.name+" : "+string+"</div>");
+				//var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
+				if( value.alterations[stat] ) $j(card).find("."+stat+" .stats_infos").append("<div>"+value.name+" : "+(value.alterations[stat]>0?"+":"")+value.alterations[stat]+"</div>");
 				atLeastOneBuff = true;
 			});
 			//Drops
 			$j.each( buffDebuff.objs.drops, function(key,value){
-				var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
-				$j(card).find("."+stat+" .stats_infos").append("<div>"+value.name+" : "+string+"</div>");
+				//var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
+				if( value.alterations[stat] ) $j(card).find("."+stat+" .stats_infos").append("<div>"+value.name+" : "+(value.alterations[stat]>0?"+":"")+value.alterations[stat]+"</div>");
 				atLeastOneBuff = true;
 			});
 
