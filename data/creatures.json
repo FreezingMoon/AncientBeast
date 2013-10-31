@@ -647,10 +647,10 @@
             "walk_speed": 500
         },
         "display": {
-            "width": 128,
-            "height": 128,
-            "offset-x": 0,
-            "offset-y": -128
+            "width": 170,
+            "height": 250,
+            "offset-x": 5,
+            "offset-y": -215
         },
         "drop": {
             "name": "Milk Bottle",
