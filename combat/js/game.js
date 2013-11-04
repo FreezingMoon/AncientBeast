@@ -87,25 +87,15 @@ var Game = Class.create({
 			31, //Cyber Hound
 			6, //Ice Demon
 			//33, //Golden Wyrm
-
-			]; 
-		this.availableMusic = [ //epic fail, just scan directory
-			//"Distant Realms by Moonthief.ogg",
-			// "It All Ends Here by Moonthief.ogg",
-			// "Road to Victory by Moonthief.ogg",
-			// "Tale of the Ruins by Moonthief.ogg",
-			// "Horn Head by Jens Kiilstofte.ogg  ",
-			// "Olympos Shall Prevail by Jens Kiilstofte.ogg  ",
-			// "Summoning the Beast by Moonthief.ogg  ",
-			// "Vengeance by Moonthief.ogg",
-		]
+		];
+		this.availableMusic = [];
 		this.soundEffects = [
 			"step.ogg",
 			"swing.ogg",
 			"swing2.ogg",
 			"swing3.ogg",
 			"heartbeat.ogg",
-		]
+		];
 		this.inputMethod = "Mouse";
 
 		//Gameplay
@@ -1316,9 +1306,9 @@ var Soundsys = Class.create({
 	initialize: function(o){
 		o = $j.extend({
 			music_volume : .1,
-			effects_volume : 1,
+			effects_volume : .6,
 			heartbeats_volume : .2,
-			announcer_volume : 1
+			announcer_volume : .6
 		},o);
 
 		$j.extend(this,o);

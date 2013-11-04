@@ -15,7 +15,7 @@ var musicPlayer = {
         this.repeat = true;
         this.shuffle = true;
 
-        this.audio.volume = .10;
+        this.audio.volume = .25;
         this.audio.play();
 
         jQuery('#mp_shuffle').addClass("active").click(function(e){
