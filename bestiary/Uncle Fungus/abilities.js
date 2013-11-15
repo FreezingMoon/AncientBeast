@@ -220,7 +220,7 @@ abilities[3] =[
 	activate : function(hex,args) {
 
 		var ability = this;
-		ability.end();
+		ability.end(false,true); //defered ending
 
 		ability.creature.moveTo(hex,{
 			ignoreMovementPoint : true,
@@ -231,14 +231,14 @@ abilities[3] =[
 				var interval = setInterval(function(){
 					if(!G.freezedInput){
 						clearInterval(interval);
+						G.UI.selectAbility(-1);
 						G.activeCreature.queryMove();
 					}
 				},100)				
 			},
 			callbackStepIn : function(hex){
-				console.log(ability);
 				if(ability.creature.abilities[0].require(hex)){
-					ability.creature.abilities[0].activate(hex);
+					ability.creature.abilities[0].activate(hex); //Toxic spores
 				}
 			}
 		}); 

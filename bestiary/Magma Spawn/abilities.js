@@ -228,7 +228,7 @@ abilities[4] =[
 
 		var path = path;
 		var target = path.last().creature;
-		ability.end();
+		ability.end(false,true);
 
 		//Damage
 		var damage = new Damage(
@@ -238,7 +238,6 @@ abilities[4] =[
 			1, //Area
 			[]	//Effects
 		);
-		
 
 
 		//Movement
@@ -268,6 +267,7 @@ abilities[4] =[
 				var interval = setInterval(function(){
 					if(!G.freezedInput){
 						clearInterval(interval);
+						G.UI.selectAbility(-1);
 						G.activeCreature.queryMove();
 					}
 				},100)

@@ -233,17 +233,7 @@ abilities[40] =[
 		var ability = this;
 		var creature = this.creature;
 
-		creature.hint("Confirm","confirm constant");
-		
-		G.grid.queryHexs({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			size : creature.size,
-			flipped : creature.player.flipped,
-			id : creature.id,
-			hexs : creature.hexagons,
-			ownCreatureHexShade : true,
-			hideNonTarget : true
-		});
+		G.grid.querySelf({fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }});
 	},
 
 

@@ -38,16 +38,16 @@ var Ability = Class.create({
 	*	End the ability. Must be called at the end of each ability function;
 	*
 	*/
-	end: function(desableLogMsg) {
+	end: function(desableLogMsg,deferedEnding) {
 		if(!desableLogMsg) G.log("%CreatureName"+this.creature.id+"% uses "+this.title);
 		this.applyCost();
 		this.setUsed(true) //Should always be here
 		G.UI.updateInfos(); //Just in case
-		if(this.trigger == "onQuery"){
+		G.UI.btnDelay.changeState("disabled");
+		G.activeCreature.delayable = false;
+		if(this.trigger == "onQuery" && !deferedEnding){
 			G.UI.selectAbility(-1);
 			G.activeCreature.queryMove();
-			G.activeCreature.delayable = false;
-			G.UI.btnDelay.changeState("disabled");
 		}
 	},
 

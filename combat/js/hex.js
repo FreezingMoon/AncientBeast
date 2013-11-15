@@ -76,6 +76,19 @@ var HexGrid = Class.create({
 		this.$allOverHex		= $j("#hexsoverlay .displayhex"); //All Display Hexs
 	},
 
+	querySelf: function(o){
+		var defaultOpt = {
+			fnOnConfirm : function(crea,args){},
+			fnOnSelect : function(crea,args){},
+			fnOnCancel : function(crea,args){},
+			args : {}
+		};
+
+		o = $j.extend(defaultOpt,o);
+
+		o.fnOnConfirm(G.activeCreature,o.args);
+	},
+
 	/* 	queryDirection(o)
 	*
 	*	Shortcut to queryChoice with specific directions
