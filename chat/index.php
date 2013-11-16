@@ -27,13 +27,12 @@ require_once("../header.php");
 start_segment();
 ?>
 <span style="text-align: center; display: block; font-weight:bold;">
-<a href="irc://irc.freenode.org/#AncientBeast" target="_blank"><u>Click here</u></a> to connect with your IRC client or use the <a href="#applet"><u>applet below</u></a>. You can <a href="mailto:DreadKnight@FreezingMoon.org" target="_blank"><u>email us</u></a> or <a href="#comment"><u>leave a comment</u></a>.</a><br>If you're using <a href="http://www.google.com/chrome" target="_blank"><u>Google Chrome</u></a>, you can install <a href="https://chrome.google.com/webstore/detail/circ/bebigdkelppomhhjaaianniiifjbgocn" target="_blank"><u>CIRC app</u></a> and join <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> over at irc.freenode.net</span>
+If you prefer using your own <a href="https://docs.google.com/presentation/d/1VMQfNKV_6wPR0XN7RtskpQe4Mz1jhIg90Hio_CuGu4g/present" target="_blank"><u>IRC client</u></a> feel free to join <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> over at irc.freenode.net server.</span>
 <?php
-separate_segment(applet);
-echo "<center><iframe src='http://webchat.freenode.net?channels=AncientBeast' width='99%' height='450'></iframe></center>";
-//separate_segment(tutorial);
-//echo "<center><iframe src='https://docs.google.com/present/embed?id=dfbbjc3c_24fb4cz7d8&size=l' frameborder='0' width='700' height='559'></iframe></center>";
-separate_segment(widgets);
+separate_segment(IRC); ?>
+<iframe src="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" style="border:0; width:100%; height:500px;"></iframe>
+
+<?php separate_segment(widgets);
 echo "<div class='center'>";?>
 
 <!-- Twitter Widget -->
