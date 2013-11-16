@@ -34,7 +34,7 @@ function progress($r,$c) {
 		<a href='http://www.wuala.com/AncientBeast/bestiary/" . $spaceless . "' target='_blank'>";
 		$i = 0;
 		foreach($r as $key => $value) {
-			if($i++ < 1) continue; //Ignore Other keys
+			if($i++ < 1) continue; //Ignore other keys
 			$sum += $value;
 			$title = ucfirst($key) . ": $value% complete";
 			echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title' alt='$title'>";
