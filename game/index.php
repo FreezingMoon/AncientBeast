@@ -39,7 +39,7 @@ TODO: move stuff above to just a pre-match screen; login box; provide video tuto
 <?php separate_segment("warning"); ?>
 <div class="center">There's no online multiplayer for now, but you can still play with friends by using a <b><a href="http://teamviewer.com" target="_blank">Screen Sharing Software</a></b>.</div>
 <?php separate_segment("shortcut"); ?>
-<div class="center"><a href="<?php echo $site_root; ?>AncientBeast.html" download><b>Click here if you would like to download a desktop shortcut for this awesome game. Limited time offer!</b></a></div>
+<div class="center"><a href="<?php echo $site_root; ?>game/AncientBeast.html" download><b>Click here if you would like to download a desktop shortcut for this awesome game. Limited time offer!</b></a></div>
 <?php separate_segment("requirements"); ?>
 <h3 class="indexheader"><a href="#requirements">Requirements</a></h3>
 

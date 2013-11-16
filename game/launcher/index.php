@@ -7,12 +7,12 @@
 	    
 		<title>Ancient Beast</title>
 		<meta name="description" content="Ancient Beast is a turn based strategy indie game project.">
-		<link rel="canonical" href="http://www.AncientBeast.com/combat">
+		<link rel="canonical" href="www.AncientBeast.com/combat/">
 
-		<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css">
+		<link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css">
 
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 		<script src="jquery.fullscreen-min.js"></script>
 
 		<script type="text/javascript">
@@ -74,14 +74,14 @@
 	</head>
 	<body>
 		<div id="bar">
-			<a href="http://AncientBeast.com" target="_blank" >AncientBeast.com</a>
+			<a href="https://AncientBeast.com" target="_blank" >AncientBeast.com</a>
 			<a href="https://www.facebook.com/AncientBeast" target="_blank" >Facebook</a>
 			<a href="https://www.twitter.com/AncientBeast" target="_blank" >Twitter</a>
 			<a href="https://plus.google.com/113034814032002995836" target="_blank" >Google+</a>
-			<a href="http://AncientBeast.com/donate" target="_blank" >Donate</a>
-			<a href="http://www.AncientBeast.com/combat" target="game">Reset</a>
+			<a href="https://AncientBeast.com/donate" target="_blank" >Donate</a>
+			<a onclick="if(confirm('Reset Game?')) var ifr=document.getElementsByName('game')[0]; ifr.src=ifr.src;">Reset</a>
 			<a onclick="$('#game').fullScreen(true)">Fullscreen</a>
 		</div>
-		<iframe id="game" name="game" src="http://www.AncientBeast.com/combat" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
+		<iframe id="game" name="game" src="https://ancientbeast.c11.ixsecure.com/combat/" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 	</body>
 </html>
