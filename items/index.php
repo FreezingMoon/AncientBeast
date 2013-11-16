@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Ancient Beast - Shop";
+$page_title = "Ancient Beast - Items";
 $style = "
 .fix {
 	margin-bottom: -15px;
@@ -76,7 +76,7 @@ function getItems() {
 	global $statSelected;
 	global $sortingArray;
 
-	$data = json_decode(file_get_contents('../data/items.json'), true);
+	$data = json_decode(file_get_contents('items.json'), true);
 	if( !isset($_GET['filter']) || !in_array( $_GET['filter'], array_keys($stats), true) ) {
 		$sortingArray = array("value","type");
 		uasort($data, "sortItems");
@@ -101,7 +101,7 @@ start_segment();
 
 echo "<table style='width: 100%;'><tr>";
 foreach($stats as $k => $x)
-	displayStat($k,$statCount[$k],"{$site_root}shop/index.php?filter=$k");
+	displayStat($k,$statCount[$k],"index.php?filter=$k");
 echo "</tr></table>";
 
 separate_segment();
@@ -112,7 +112,7 @@ echo '<table style="width: 100%;"><tr>';
 $i = 0;
 foreach ($data as $r) {
 	$i++;
-	echo "<td class=\"item\"><span style=\"cursor: pointer;\" class=\"lighten\"><a href=\"#{$r['id']}\"><center><img class=\"fix\" src=\"{$site_root}shop/items/" . rawurlencode($r['name']) . ".png\" style=\"display:block;\"></center><br>{$r['name']}</a></span></td>";
+	echo "<td class=\"item\"><span style=\"cursor: pointer;\" class=\"lighten\"><a href=\"#{$r['id']}\"><center><img class=\"fix\" src=\"sprites/" . rawurlencode($r['name']) . ".png\" style=\"display:block;\"></center><br>{$r['name']}</a></span></td>";
 	if (($i % 6) == 0) echo '</tr><tr>';
 }
 echo "</tr></table></a>";
@@ -123,12 +123,12 @@ end_segment();
 foreach ($data as $r) {
 	start_segment($r['id']);
 	echo "<table style='width: 100%; text-align:center;'>";
-	echo "<tr><td style=\"width: 132px;\"><a href=\"#{$r['id']}\"><img src=\"{$site_root}shop/items/" . rawurlencode($r['name']) . ".png\"></a></td>";
+	echo "<tr><td style=\"width: 132px;\"><a href=\"#{$r['id']}\"><img src=\"sprites/" . rawurlencode($r['name']) . ".png\"></a></td>";
 	echo "<td><table style='width: 100%; font-size:24px; text-align:left;'><tr>";
 	echo "<td style='width: 40%;'><a href='#{$r['id']}'>{$r['name']}</a></td>";
-	echo "<td style='width: 20%;'><a href='#'>{$r['value']}<img src='{$site_root}shop/coins.png'></a></td>";
-	echo "<td style='width: 20%;'><a href='#'>Gift<img src='{$site_root}shop/gift.png'></a></td>";
-	echo "<td style='width: 20%;'><a href='#'>Purchase<img src='{$site_root}shop/purchase.png'></a></td>";
+	echo "<td style='width: 20%;'><a href='#'>{$r['value']}<img src='coins.png'></a></td>";
+	echo "<td style='width: 20%;'><a href='#'>Gift<img src='gift.png'></a></td>";
+	echo "<td style='width: 20%;'><a href='#'>Purchase<img src='purchase.png'></a></td>";
 	echo "</tr></table><br><table style='text-align:center;'><tr>";
 
 	foreach ($r['stats'] as $key => $value) {
