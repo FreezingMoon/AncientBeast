@@ -1,21 +1,21 @@
 <?php
-/* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
- * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
+/* Ancient Beast - Free Open Source Turn Based Strategy: card game meets chess, with creatures!
+ * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight).
  *
  * This file is part of Ancient Beast.
  *
  * Ancient Beast is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
  *
  * Ancient Beast is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * http://www.AncientBeast.com
  * https://github.com/FreezingMoon/AncientBeast
@@ -28,7 +28,7 @@ require_once('global.php'); ?>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <meta name="google-site-verification" content="uNVUkWjGPKwXaFK-BkOowVezLve8a8rjbM_ew1UHiZg">
-<meta name="description" content="Turn Based Strategy Game Played Online Against Other People. Master your beasts!">
+<meta name="description" content="Turn Based Strategy Game. Master your beasts!">
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, strategy, combat, arena, free, foss, open source, card, chess, creatures, bitcoin, bets">
 <meta name="author" content="Dread Knight">
 
@@ -47,7 +47,7 @@ var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 	  echo $page_title;
   }
   else {
-  	echo "AncientBeast - Online PvP TBS Game";
+  	echo "AncientBeast - Turn Based Strategy Game";
   }
 ?>
 </title>
