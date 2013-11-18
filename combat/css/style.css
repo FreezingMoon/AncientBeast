@@ -1010,20 +1010,20 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 	margin: 2px;
 	padding: 5px;
 	background: rgba(25,25,25,.8);
-	border: rgb(25,25,25) 1px solid;
+	border: rgba(0,105,185,.3) 1px solid;
 	border-radius: 7px;
 }
 
 
 #gamesetup {
-	width: 540px;
-	height: 480px;
-    position:absolute;
-    display: block;
-    left:50%;
-    top:50%;
-    margin:-245px 0 0 -275px;
-    padding: 4px;
+	width: 525px;
+	height: 415px;
+	position: absolute;
+	display: block;
+	left: 50%;
+	top: 50%;
+	margin: -270px 0 0 -260px;
+	padding: 4px;
 }
 
 

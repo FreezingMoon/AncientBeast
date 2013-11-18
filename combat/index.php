@@ -90,6 +90,18 @@ require_once('../bestiary/cards.php');
 							<input type="radio" name="nbrplayer" value="4" id="p4"><label for="p4">2vs2</label>
 						</div>
 					</div>
+					<div class="cont">
+						<h2>Active Units</h2>
+						<span id="active_units" class="typeradio">
+							<input type="radio" id="activeunitsopt1" name="active_units" value="1"><label for="activeunitsopt1">1</label>
+							<input type="radio" id="activeunitsopt2" name="active_units" value="2"><label for="activeunitsopt2">2</label>
+							<input type="radio" id="activeunitsopt3" name="active_units" value="3"><label for="activeunitsopt3">3</label>
+							<input type="radio" id="activeunitsopt4" name="active_units" value="4" checked="checked"><label for="activeunitsopt4">4</label>
+							<input type="radio" id="activeunitsopt5" name="active_units" value="5"><label for="activeunitsopt5">5</label>
+							<input type="radio" id="activeunitsopt6" name="active_units" value="6"><label for="activeunitsopt6">6</label>
+							<input type="radio" id="activeunitsopt7" name="active_units" value="7"><label for="activeunitsopt7">7</label>
+						</span>
+					</div>
 					<br>
 					<div class="cont">
 						<h2>Location</h2>
@@ -141,19 +153,6 @@ require_once('../bestiary/cards.php');
 							<input type="radio" id="plasmaopt8" name="plasma" value="70"><label for="plasmaopt8">70</label>
 							<input type="radio" id="plasmaopt9" name="plasma" value="80"><label for="plasmaopt9">80</label>
 							<input type="radio" id="plasmaopt10" name="plasma" value="90"><label for="plasmaopt10">90</label></div>
-					</div>
-					<br>
-					<div class="cont">
-						<h2>Active Units</h2>
-						<span id="active_units" class="typeradio">
-							<input type="radio" id="activeunitsopt1" name="active_units" value="1"><label for="activeunitsopt1">1</label>
-							<input type="radio" id="activeunitsopt2" name="active_units" value="2"><label for="activeunitsopt2">2</label>
-							<input type="radio" id="activeunitsopt3" name="active_units" value="3"><label for="activeunitsopt3">3</label>
-							<input type="radio" id="activeunitsopt4" name="active_units" value="4" checked="checked"><label for="activeunitsopt4">4</label>
-							<input type="radio" id="activeunitsopt5" name="active_units" value="5"><label for="activeunitsopt5">5</label>
-							<input type="radio" id="activeunitsopt6" name="active_units" value="6"><label for="activeunitsopt6">6</label>
-							<input type="radio" id="activeunitsopt7" name="active_units" value="7"><label for="activeunitsopt7">7</label>
-						</span>
 					</div>
 					<br>
 
