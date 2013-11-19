@@ -33,7 +33,7 @@ require_once("../config.php"); //only needed for multiplayer
 
 		<title>Ancient Beast 0.2</title>
 		
-		<link rel="stylesheet" type="text/css" href="./css/dot-luv/jquery-ui-1.9.2.custom.min.css" />
+		<link rel="stylesheet" type="text/css" href="./css/dot-luv/jquery-ui-1.9.2.custom.min.css">
 		<link rel="stylesheet" type="text/css" href="./css/style.css">
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
 
@@ -43,7 +43,7 @@ require_once("../config.php"); //only needed for multiplayer
 		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
 		<script type="text/javascript" src="./js/jquery.mousewheel.js"></script>
 
-		<script type="text/javascript" src="../media/js/audioplayer.js" ></script>
+		<script type="text/javascript" src="../media/js/audioplayer.js"></script>
 
 		<script type="text/javascript">
 			var $j = jQuery.noConflict();
@@ -104,43 +104,6 @@ require_once('../bestiary/cards.php');
 					</div>
 					<br>
 					<div class="cont">
-						<h2>Location</h2>
-						<span id="location" class="typeradio">
-							<input type="radio" id="bgopt1" name="location" checked="checked" value="random"><label for="bgopt1">Random Place</label>
-							<input type="radio" id="bgopt2" name="location" value="Dark Forest"><label for="bgopt2">Dark Forest</label>
-							<input type="radio" id="bgopt3" name="location" value="Frozen Skull"><label for="bgopt3">Frozen Skull</label>
-							<input type="radio" id="bgopt4" name="location" value="Shadow Cave"><label for="bgopt4">Shadow Cave</label>
-						</span><br/>
-						<!-- <div style="background:url('../locations/Shadow Cave/prev.jpg'); width : 400px; height : 225px; display: inline-block;"></div> -->
-					</div>
-					<br>
-					<div class="cont">
-						<h2>Turn Time</h2>
-						<div id="time_turn" class="typeradio">
-							<input type="radio" id="timeopt1" name="time_turn" value="-1"  checked="checked"><label for="timeopt1">&#8734;</label>
-							<input type="radio" id="timeopt2" name="time_turn" value="20"><label for="timeopt2">20 sec</label>
-							<input type="radio" id="timeopt3" name="time_turn" value="40"><label for="timeopt3">40 sec</label>
-							<input type="radio" id="timeopt4" name="time_turn" value="60"><label for="timeopt4">60 sec</label>
-							<input type="radio" id="timeopt5" name="time_turn" value="80"><label for="timeopt5">80 sec</label>
-							<input type="radio" id="timeopt6" name="time_turn" value="99"><label for="timeopt6">99 sec</label>
-						</div>
-					</div>
-					<br>
-					<div class="cont">
-						<h2>Time Pools</h2>
-						<div id="time_pool" class="typeradio">
-							<input type="radio" id="timepoolopt1" name="time_pool" value="-1" checked="checked"><label for="timepoolopt1">&#8734;</label>
-							<input type="radio" id="timepoolopt2" name="time_pool" value="1" ><label for="timepoolopt2">1 min</label>
-							<input type="radio" id="timepoolopt3" name="time_pool" value="5" ><label for="timepoolopt3">5 min</label>
-							<input type="radio" id="timepoolopt4" name="time_pool" value="10"><label for="timepoolopt4">10 min</label>
-							<input type="radio" id="timepoolopt5" name="time_pool" value="15"><label for="timepoolopt5">15 min</label>
-							<input type="radio" id="timepoolopt6" name="time_pool" value="20"><label for="timepoolopt6">20 min</label>
-							<input type="radio" id="timepoolopt7" name="time_pool" value="25"><label for="timepoolopt7">25 min</label>
-							<input type="radio" id="timepoolopt8" name="time_pool" value="30"><label for="timepoolopt8">30 min</label>
-						</div>
-					</div>
-					<br>
-					<div class="cont">
 						<h2>Plasma Points</h2>
 						<div id="plasma" class="typeradio">
 							<input type="radio" id="plasmaopt1" name="plasma" value="5" ><label for="plasmaopt1">5</label>
@@ -155,8 +118,49 @@ require_once('../bestiary/cards.php');
 							<input type="radio" id="plasmaopt10" name="plasma" value="90"><label for="plasmaopt10">90</label></div>
 					</div>
 					<br>
+					<div class="cont">
+						<h2>Turn Time</h2>
+						<div id="time_turn" class="typeradio">
+							<input type="radio" id="timeopt1" name="time_turn" value="20"><label for="timeopt1">20 sec</label>
+							<input type="radio" id="timeopt2" name="time_turn" value="40"><label for="timeopt2">40 sec</label>
+							<input type="radio" id="timeopt3" name="time_turn" value="60"><label for="timeopt3">60 sec</label>
+							<input type="radio" id="timeopt4" name="time_turn" value="80"><label for="timeopt4">80 sec</label>
+							<input type="radio" id="timeopt5" name="time_turn" value="99"><label for="timeopt5">99 sec</label>
+							<input type="radio" id="timeopt6" name="time_turn" value="-1"  checked="checked"><label for="timeopt6">&#8734;</label>
+						</div>
+					</div>
+					<br>
+					<div class="cont">
+						<h2>Time Pools</h2>
+						<div id="time_pool" class="typeradio">
+							<!-- <input type="radio" id="timepoolopt0" name="time_pool" value="1" ><label for="timepoolopt0">1 min</label> -->
+							<input type="radio" id="timepoolopt1" name="time_pool" value="5" ><label for="timepoolopt1">5 min</label>
+							<input type="radio" id="timepoolopt2" name="time_pool" value="10"><label for="timepoolopt2">10 min</label>
+							<input type="radio" id="timepoolopt3" name="time_pool" value="15"><label for="timepoolopt3">15 min</label>
+							<input type="radio" id="timepoolopt4" name="time_pool" value="20"><label for="timepoolopt4">20 min</label>
+							<input type="radio" id="timepoolopt5" name="time_pool" value="25"><label for="timepoolopt5">25 min</label>
+							<input type="radio" id="timepoolopt6" name="time_pool" value="30"><label for="timepoolopt6">30 min</label>
+							<input type="radio" id="timepoolopt7" name="time_pool" value="-1" checked="checked"><label for="timepoolopt7">&#8734;</label>
 
-					<input id="startbutton" style="font-size: 1.5em !important;" type="submit" value="START">
+						</div>
+					</div>
+					<br>
+					<div class="cont">
+						<h2>Location</h2>
+						<span id="location" class="typeradio">
+							<input type="radio" id="bgopt1" name="location" checked="checked" value="random"><label for="bgopt1">Random Place</label>
+							<input type="radio" id="bgopt2" name="location" value="Dark Forest"><label for="bgopt2">Dark Forest</label>
+							<input type="radio" id="bgopt3" name="location" value="Frozen Skull"><label for="bgopt3">Frozen Skull</label>
+							<input type="radio" id="bgopt4" name="location" value="Shadow Cave"><label for="bgopt4">Shadow Cave</label>
+						</span><br/>
+						<!-- <div style="background:url('../locations/Shadow Cave/prev.jpg'); width : 400px; height : 225px; display: inline-block;"></div> -->
+					</div>
+					<br>
+					<div style="font-size: 1.5em !important;">
+						<span class="blink" >PRESS </span>
+						<input class="ui-state-error" id="startbutton" style="border:rgba(180,0,0,.5) 2px solid;" type="submit" value="START">
+						<span class="blink"> BUTTON</span>
+					</div>
 				</form>
 			</div>
 		</div>

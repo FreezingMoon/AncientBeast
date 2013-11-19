@@ -1016,25 +1016,25 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 
 
 #gamesetup {
-	width: 525px;
+	width: 500px;
 	height: 415px;
 	position: absolute;
 	display: block;
 	left: 50%;
 	top: 50%;
-	margin: -230px 0 0 -265px;
+	margin: -230px 0 0 -255px;
 	padding: 4px;
 }
 
+#startbutton:hover {background: #B40000;}
+.blink {padding: 0px; font-weight: bold;}
 
 #gamesetup .cont h2{
 	margin: 5px;
 	font-size: 1em;
 }
 
-#gamesetup .typeradio{
-	white-space: nowrap;
-}
+#gamesetup .typeradio {white-space: nowrap;}
 
 #matchmaking{
 	width: 100%;

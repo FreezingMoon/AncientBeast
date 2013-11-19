@@ -32,7 +32,7 @@ require_once("../global.php");
 ?>
 
 
-<iframe id="game" name="game" src="https://ancientbeast.c11.ixsecure.com/game/launcher/" style="margin-top:-45px; width:950px; height:566px;" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
+<iframe id="game" name="game" src="launcher/" style="margin-top:-45px; width:950px; height:566px;" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 <?php start_segment("info"); ?>
 <div class="center"><a href="#comment-939192362"><b>Version 0.2 (released 15th June 2013)</b></a> - <a href="https://github.com/FreezingMoon/AncientBeast/issues/" target="_blank"><b>You can report all issues on Github</b></a> - <a href="https://github.com/FreezingMoon/AncientBeast/issues/milestones" target="_blank"><b>v0.3 ETA: 1st December 2013</b></a>
 There's no online multiplayer for now, but you can still play with friends by using a <b><a href="http://teamviewer.com" target="_blank">Screen Sharing Software</a></b>.
