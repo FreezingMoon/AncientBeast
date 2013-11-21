@@ -45,13 +45,21 @@ var HexGrid = Class.create({
 		this.traps 				= new Array(); //Traps Array
 		this.allHexs			= new Array(); //All hexs
 		this.lastClickedHex 	= []; //Array of hexagons containing last calculated pathfinding
-
-		this.$display 			= $j("#grid");
 		
-		this.$creatureW 		= $j("#creatureWrapper"); //Creature Wrapper
-		this.$inptHexsW			= $j("#hexsinput"); //Input Hexs Wrapper
-		this.$dispHexsW			= $j("#hexsdisplay"); //Display Hexs Wrapper
-		this.$overHexsW			= $j("#hexsoverlay"); //Display Hexs Wrapper
+		this.display 			= G.Phaser.add.group(undefined,"displayGrp");
+		this.display.x = 230;
+		this.display.y = 380;
+
+		this.gridGroup 			= G.Phaser.add.group(this.display,"gridGrp");
+		this.gridGroup._container.scale = {x:1,y:.75};
+
+		this.dispHexsGroup		= G.Phaser.add.group(this.gridGroup ,"dispHexsGrp");
+
+		this.overHexsGroup		= G.Phaser.add.group(this.gridGroup, "overHexsGrp");
+		
+		this.inptHexsGroup		= G.Phaser.add.group(this.gridGroup, "inptHexsGrp");
+
+		this.creatureGroup 		= G.Phaser.add.group(this.display, "creaturesGrp");
 
 		//Populate grid
 		for (var row = 0; row < opts.nbrRow; row++) {
@@ -61,19 +69,12 @@ var HexGrid = Class.create({
 					if( row % 2 == 0 && !opts.firstRowFull ) continue;
 					if( row % 2 == 1 && opts.firstRowFull ) continue;
 				}
-				this.$dispHexsW.append('<div class="displayhex" x="'+hex+'" y="'+row+'"></div>');
-				this.$overHexsW.append('<div class="displayhex" x="'+hex+'" y="'+row+'"></div>');
-				this.$inptHexsW.append('<div class="hex" x="'+hex+'" y="'+row+'"><div class="physical"></div></div>');
-				this.hexs[row][hex] = new Hex(hex,row);	
+				this.hexs[row][hex] = new Hex(hex,row,this);	
 				this.allHexs.push(this.hexs[row][hex]);
 			};
 		};
 
 		this.selectedHex = this.hexs[0][0];
-
-		this.$allInptHex		= $j("#hexsinput .hex"); //All Input Hexs
-		this.$allDispHex		= $j("#hexsdisplay .displayhex"); //All Display Hexs
-		this.$allOverHex		= $j("#hexsoverlay .displayhex"); //All Display Hexs
 	},
 
 	/* 	queryDirection(o)
@@ -190,9 +191,9 @@ var HexGrid = Class.create({
 			fnOnSelect : function(choice,args){
 				choice.each(function(){
 					if(this.creature instanceof Creature){
-						this.$overlay.addClass("creature selected player"+this.creature.team);	
+						// this.$overlay.addClass("creature selected player"+this.creature.team);	
 					}else{
-						this.$display.addClass("adj");
+						// this.$display.addClass("adj");
 					}
 					
 				});
@@ -409,17 +410,17 @@ var HexGrid = Class.create({
 			if(o.hideNonTarget) this.setNotTarget();
 			else this.unsetNotTarget();
 			if( o.hexsDashed.indexOf(this) != -1 ){
-				this.$display.addClass("dashed");
+				// this.$display.addClass("dashed");
 			}else{
-				this.$display.removeClass("dashed");
+				// this.$display.removeClass("dashed");
 			}
 		});
 
 		//Cleanup
-		$j("#crea_materialize_overlay").remove();
+		if(G.grid.materialize_overlay) G.grid.materialize_overlay.alpha = 0;
 
 		//Creature hex shade
-		this.$allOverHex.removeClass("ownCreatureHexShade");
+		// this.$allOverHex.removeClass("ownCreatureHexShade");
 
 		if( !o.ownCreatureHexShade ){
 			if( o.id instanceof Array ){
@@ -523,15 +524,15 @@ var HexGrid = Class.create({
 
 			//Not reachable hex
 			if( !hex.reachable ){
-				$j("#crea_materialize_overlay").remove();
+				if(G.grid.materialize_overlay) G.grid.materialize_overlay.alpha = 0;
 				if(hex.creature instanceof Creature){ //If creature
 					var crea = hex.creature;
 					crea.hexagons.each(function(){
-						this.$overlay.addClass("hover h_player"+crea.team);	
+						this.overlayVisualState("hover h_player"+crea.team);	
 					});
 					G.UI.xrayQueue(crea.id);
 				}else{ //If nothing
-					hex.$overlay.addClass("hover");
+					hex.overlayVisualState("hover");
 				}
 			}else{ //Reachable hex
 
@@ -595,8 +596,7 @@ var HexGrid = Class.create({
 		//Clear previous ghost
 		G.creatures.each(function(){ 
 			if( this instanceof Creature ){ 
-				this.$display.removeClass("ghosted");
-				this.$health.removeClass("ghosted");
+				this.xray(false);
 			}
 		});
 
@@ -622,12 +622,12 @@ var HexGrid = Class.create({
 					}
 				}
 				if(hide){
-					this.$display.addClass("ghosted_hidden");
-					this.$health.addClass("ghosted_hidden");
+					// this.$display.addClass("ghosted_hidden");
+					// this.$health.addClass("ghosted_hidden");
 					for (var i = 0; i < this.size; i++) {
 						if(this.hexagons[i]){
-							this.hexagons[i].$display.hide();
-							this.hexagons[i].$overlay.hide();
+							// this.hexagons[i].$display.hide();
+							// this.hexagons[i].$overlay.hide();
 						}
 					}
 				}
@@ -643,13 +643,13 @@ var HexGrid = Class.create({
 	showCreatureHexs: function(){
 		G.creatures.each(function(){ 
 			if( this instanceof Creature ){
-				this.$display.removeClass("ghosted_hidden");
-				this.$health.removeClass("ghosted_hidden");
+				// this.display.overlayVisualState("ghosted_hidden");
+				// this.health.overlayVisualState("ghosted_hidden");
 				for (var i = 0; i < this.size; i++) {
-					if(this.hexagons[i]){
-						this.hexagons[i].$display.show();
-						this.hexagons[i].$overlay.show();
-					}
+					// if(this.hexagons[i]){
+					// 	this.hexagons[i].display.alpha = 1;
+					// 	this.hexagons[i].overlay.alpha = 1;
+					// }
 				}
 			}
 		});
@@ -679,10 +679,10 @@ var HexGrid = Class.create({
 		this.hexs.each(function(){ this.each(function(){ 
 			if( this.creature instanceof Creature ){
 				if( this.creature.id == G.activeCreature.id ){
-					this.$overlay.addClass("active creature player"+this.creature.team);
-					this.$display.addClass("creature player"+this.creature.team);
+					this.overlayVisualState("active creature player"+this.creature.team);
+					this.displayVisualState("creature player"+this.creature.team);
 				}else{
-					this.$display.addClass("creature player"+this.creature.team);
+					this.displayVisualState("creature player"+this.creature.team);
 				}
 			} 
 		}); });	
@@ -828,9 +828,8 @@ var HexGrid = Class.create({
 		this.forEachHexs(function(){
 			if(this.creature) return;
 			if(this.drop) return;
-			this.$overlay.text(val ? this.coord : "");
-			this.$display.removeClass("showGrid");
-			if(val) this.$display.addClass("showGrid");
+			if(val) this.displayVisualState("showGrid");
+			else this.cleanDisplayVisualState("showGrid");
 		});
 	},
 
@@ -941,20 +940,24 @@ var HexGrid = Class.create({
 
 		this.updateDisplay(); //Retrace players creatures
 
-		var flipped_class = (player.flipped) ? " flipped" : "" ;
+		var creaHex = this.hexs[pos.y][pos.x-(creatureData.size-1)];
 
-		if( !$j("#crea_materialize_overlay").length ){
-			this.$creatureW.append('<div id="crea_materialize_overlay" class="creature type_'+creatureData.id+' materialize_overlay'+flipped_class+'" ></div>');
+		if( !G.grid.materialize_overlay ){ //If sprite does not exists
+			//Adding sprite
+			this.materialize_overlay = this.creatureGroup.create(0,0, creatureData.name+'_cardboard');
+			this.materialize_overlay.anchor.setTo(0.5,1);
+		}else{
+			this.materialize_overlay.loadTexture(creatureData.name+'_cardboard');
 		}
 
-		$j("#crea_materialize_overlay").css({
-			"background-image" : "url('../bestiary/"+creatureData.name+"/cardboard.png')",
-			height : creatureData.display.height,
-			width : creatureData.display.width,
-			"margin-top" : creatureData.display["offset-y"],
-			"margin-left" : (!player.flipped) ? creatureData.display["offset-x"] : 90*creatureData.size-creatureData.display.width-creatureData.display["offset-x"],
-			"z-index": pos.y
-		}).css(this.hexs[pos.y][pos.x-(creatureData.size-1)].displayPos);
+		//Placing sprite
+		this.materialize_overlay.x = creaHex.displayPos.x + creatureData.display["offset-x"] + this.materialize_overlay.texture.width/2 + 1; //((!this.player.flipped) ? this.display["offset-x"] : 90*this.size-this.display.width-this.display["offset-x"]);
+		this.materialize_overlay.y = creaHex.displayPos.y + creatureData.display["offset-y"] + this.materialize_overlay.texture.height;
+		this.materialize_overlay.alpha = 0.5;
+
+		if(player.flipped){
+			this.materialize_overlay.scale.setTo(-1,1);
+		}
 
 		for (var i = 0; i < creatureData.size; i++) {
 			this.hexs[pos.y][pos.x-i].overlayVisualState("creature selected player"+G.activeCreature.team);
@@ -1022,77 +1025,87 @@ var Hex = Class.create({
 	*	y : 			Integer : 	Hex coordinates
 	*
 	*/
-	initialize: function(x, y) {
-		this.x = x - 0; // - 0 force type
-		this.y = y - 0; // - 0 force type
-		this.pos = {x:x - 0, y:y - 0};
-		this.coord = String.fromCharCode(64+this.y+1)+(this.x+1);
+	initialize: function(x, y, grid) {
 
-		this.f = 0; //pathfinding
-		this.g = 0; //pathfinding
-		this.h = 0; //pathfinding
-		this.pathparent = null; //pathfinding
+		this.x = x;
+		this.y = y;
+		this.pos = {x:x, y:y};
+		this.coord = String.fromCharCode(64+this.y+1)+(this.x+1);
+		
+		//pathfinding
+		this.f = 0;
+		this.g = 0;
+		this.h = 0;
+		this.pathparent = null;
 
 		this.blocked = false;
-		this.creature = undefined; //0 if no creature; else creature index
+		this.creature = undefined;
 		this.reachable = true;
 		this.direction = -1; //Used for queryDirection
 		this.drop = undefined; //Drop items
+		this.displayClasses = "";
+		this.overlayClasses = "";
 
-		this.$display = $j('#hexsdisplay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object
-		this.$overlay = $j('#hexsoverlay .displayhex[x="'+x+'"][y="'+y+'"]'); //Jquery object
-		this.$input = $j('#hexsinput .hex[x="'+x+'"][y="'+y+'"]'); //Input Jquery object
+		this.displayPos = {y:y*78};
+		this.displayPos.x = (y%2 == 0) ? 46+x*90 : x*90;		
 
-		this.displayPos = {top:y*78};
-		this.displayPos.left = (y%2 == 0) ? 46+x*90 : x*90;
-		
-		this.$display.css(this.displayPos);
-		this.$overlay.css(this.displayPos);
-		this.$input.css(this.displayPos);
-		
-		var ymax = $j("#grid").height();
-		var xmax = $j("#grid").width();
+		if(grid){
 
-		// var xmult = (this.displayPos.left/xmax-.5)*(this.displayPos.top/ymax-.5)*-4;
-		var ymult = this.displayPos.top/ymax;
+			this.display 	= grid.dispHexsGroup.create(this.displayPos.x, this.displayPos.y, 'hex');
+			this.display.alpha = 0;
+			
+			this.overlay 	= grid.overHexsGroup.create(this.displayPos.x, this.displayPos.y, 'hex');
+			this.overlay.alpha = 0;
 
-		// this.displayPos.left = this.displayPos.left-Math.round(xmult*60);
-		this.displayPos.top = this.displayPos.top*.75+90;
+			this.coordText = G.Phaser.add.text(this.displayPos.x+54, this.displayPos.y+63, this.coord, {font: "30pt Play", fill: "#000000", align: "center"});
+			this.coordText.anchor.setTo(0.5, 0.5);
+			this.coordText.alpha = 0;
+			grid.overHexsGroup.add(this.coordText);
+
+			this.input 		= grid.inptHexsGroup.create(this.displayPos.x, this.displayPos.y, 'input');
+			this.input.inputEnabled = true;
+			this.input.input.pixelPerfect = true;
+			this.input.input.pixelPerfectAlpha = 1;
+			this.input.input.useHandCursor = false;
+
+			//Binding Events
+			this.input.events.onInputOver.add(function(){
+				if(G.freezedInput) return;
+				G.grid.selectedHex = this;
+				this.onSelectFn();
+			}, this);
+
+			this.input.events.onInputOut.add(function(){
+				if(G.freezedInput) return;
+				G.grid.redoLastQuery();
+				G.grid.xray( new Hex(-1,-1) ); //Clear Xray
+				G.UI.xrayQueue( -1 ); //Clear Xray Queue
+			}, this);
+
+			this.input.events.onInputUp.add(function(Sprite,Pointer){
+				if(G.freezedInput) return;
+				switch (Pointer.button) {
+					case 0:
+						//Left mouse button pressed
+						this.onConfirmFn();
+						break;
+					case 1:
+						//Middle mouse button pressed
+						break;
+					case 2:
+						//Right mouse button pressed
+						this.onRightClickFn();
+						break;
+				}
+			}, this);
+			
+		}
+
+		this.displayPos.y = this.displayPos.y*.75+30;
 
 		this.onSelectFn = function(){};
 		this.onConfirmFn = function(){};
 		this.onRightClickFn = function(){};
-
-		this.$input.bind('mouseover', function(e){
-			if(G.freezedInput) return;
-			var hex = G.grid.hexs[ $j(this).attr("y")-0 ][ $j(this).attr("x")-0 ];
-			G.grid.selectedHex = hex;
-			hex.onSelectFn();
-		});
-
-		this.$input.bind('mouseup', function(e){
-			if(G.freezedInput) return;
-			var hex = G.grid.hexs[ $j(this).attr("y")-0 ][ $j(this).attr("x")-0 ];
-			switch (e.which) {
-				case 1:
-					//Left mouse button pressed
-					hex.onConfirmFn();
-					break;
-				case 2:
-					//Middle mouse button pressed
-					break;
-				case 3:
-					//Right mouse button pressed
-					hex.onRightClickFn();
-					break;
-			}
-		});
-
-		this.$input.bind("mouseleave",function(e){
-			G.grid.redoLastQuery();
-			G.grid.xray( new Hex(-1,-1) ); //Clear Xray
-			G.UI.xrayQueue( -1 ); //Clear Xray Queue
-		});
 
 		this.trap = undefined;
 	},
@@ -1154,7 +1167,7 @@ var Hex = Class.create({
 					for (var j = 0; j <= 1; j++) {
 						if(G.grid.hexExists(this.y+i,this.x+j)){
 							if(G.grid.hexs[this.y+i][this.x+j].creature instanceof Creature){
-								var ghostedCreature = G.grid.hexs[this.y+i][this.x].creature;
+								var ghostedCreature = G.grid.hexs[this.y+i][this.x+j].creature;
 							}
 						}
 					}
@@ -1183,8 +1196,7 @@ var Hex = Class.create({
 				}
 			}
 			if(ghostedCreature instanceof Creature){
-				ghostedCreature.$display.addClass('ghosted');
-				ghostedCreature.$health.addClass("ghosted");
+				ghostedCreature.xray(true);
 			}
 		};
 	},
@@ -1252,8 +1264,7 @@ var Hex = Class.create({
 	*/
 	setBlocked: function(){
 		this.blocked = true;
-		this.$display.css("opacity",0);
-		//TODO change display
+		this.updateStyle();
 	},
 
 
@@ -1264,8 +1275,64 @@ var Hex = Class.create({
 	*/
 	unsetBlocked: function(){
 		this.blocked = false;
-		this.$display.css("opacity",1);
-		//TODO change display
+		this.updateStyle();
+	},
+
+
+	/*	overlayVisualState
+	*
+	*	Change the appearance of the overlay hex
+	*
+	*/
+	overlayVisualState: function(classes){
+		classes=(classes)?classes:"";
+		this.overlayClasses += " "+classes+" ";
+		this.updateStyle();
+	},
+
+	/*	displayVisualState
+	*
+	*	Change the appearance of the display hex
+	*
+	*/
+	displayVisualState: function(classes){
+		classes=(classes)?classes:"";
+		this.displayClasses += " "+classes+" ";
+		this.updateStyle();
+	},
+
+	/*	cleanOverlayVisualState
+	*
+	*	Clear the appearance of the overlay hex
+	*
+	*/
+	cleanOverlayVisualState: function(classes){
+		var classes = classes || "creature weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3";
+
+		var a = classes.split(' ');
+		for (var i = 0; i < a.length; i++) {
+			var regex = new RegExp("\\b"+a[i]+"\\b", 'g');
+			this.overlayClasses = this.overlayClasses.replace(regex,'');
+		};
+
+		this.updateStyle();
+	},
+
+	/*	cleanDisplayVisualState
+	*
+	*	Clear the appearance of the display hex
+	*
+	*/
+	cleanDisplayVisualState: function(classes){
+		classes = classes || "adj hover creature player0 player1 player2 player3";
+
+		var a = classes.split(' ');
+		for (var i = 0; i < a.length; i++) {
+			var regex = new RegExp("\\b"+a[i]+"\\b", 'g');
+			this.displayClasses = this.displayClasses.replace(regex,'');
+		};
+
+		this.updateStyle();
 	},
 
 
@@ -1276,52 +1343,9 @@ var Hex = Class.create({
 	*/
 	setReachable: function(){
 		this.reachable = true;
-		this.$display.removeClass("not-reachable");
-		this.$input.removeClass("not-reachable");
-		//TODO change display
+		this.input.input.useHandCursor = true;
+		this.updateStyle();
 	},
-
-	/*	overlayVisualState
-	*
-	*	Change the appearance of the overlay hex
-	*
-	*/
-	overlayVisualState: function(classes){
-		classes=(classes)?classes:"";
-		this.$overlay.addClass(classes);
-	},
-
-	/*	displayVisualState
-	*
-	*	Change the appearance of the display hex
-	*
-	*/
-	displayVisualState: function(classes){
-		classes=(classes)?classes:"";
-		this.$display.addClass(classes);
-	},
-
-	/*	cleanOverlayVisualState
-	*
-	*	Clear the appearance of the overlay hex
-	*
-	*/
-	cleanOverlayVisualState: function(classes){
-		classes=(classes!==undefined)?classes:"creature weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3";
-		this.$overlay.removeClass(classes);
-
-	},
-
-	/*	cleanDisplayVisualState
-	*
-	*	Clear the appearance of the display hex
-	*
-	*/
-	cleanDisplayVisualState: function(classes){
-		classes=(classes!==undefined)?classes:"adj hover creature player0 player1 player2 player3";
-		this.$display.removeClass(classes);
-	},
-
 
 	/*	unsetReachable()
 	*
@@ -1330,19 +1354,67 @@ var Hex = Class.create({
 	*/
 	unsetReachable: function(){
 		this.reachable = false;
-		this.$display.addClass("not-reachable");
-		this.$input.addClass("not-reachable");
-		//TODO change display
+		this.input.input.useHandCursor = false;
+		this.updateStyle();
 	},
 
+
 	unsetNotTarget: function(){
-		this.$display.removeClass("hidden");
-		//TODO change display
+		this.displayClasses = this.displayClasses.replace(/\bhidden\b/g,'');
+		this.updateStyle();
 	},
 
 	setNotTarget: function(){
-		this.$display.addClass("hidden");
-		//TODO change display
+		this.displayClasses += " hidden ";
+		this.updateStyle();
+	},
+
+	updateStyle: function(){
+
+		//Display Hex
+
+		var targetAlpha = 0;
+
+		targetAlpha = this.reachable || !!this.displayClasses.match(/creature/g);
+		targetAlpha = !this.displayClasses.match(/hidden/g) && targetAlpha;
+		targetAlpha = !!this.displayClasses.match(/showGrid/g) || targetAlpha;
+
+		if(this.displayClasses.match(/0|1|2|3/)){
+			var p = this.displayClasses.match(/0|1|2|3/);
+			this.display.loadTexture("hex_p"+p);
+			G.grid.dispHexsGroup.bringToTop(this.display);
+		}else if(this.displayClasses.match(/adj/)){
+			this.display.loadTexture("hex_path");
+		}else{
+			this.display.loadTexture("hex");
+		}
+
+		this.display.alpha = targetAlpha;
+
+		//Display Coord
+		this.coordText.alpha = !!this.displayClasses.match(/showGrid/g);
+
+		//Overlay Hex
+
+		var targetAlpha = 0;
+
+		targetAlpha = !!this.overlayClasses.match(/hover|creature/g);
+
+		if( this.overlayClasses.match(/0|1|2|3/) ){
+			var p = this.overlayClasses.match(/0|1|2|3/);
+
+			if( this.overlayClasses.match(/hover/) ){
+				this.overlay.loadTexture("hex_hover_p"+p);
+			}else{
+				this.overlay.loadTexture("hex_p"+p);
+			}
+			G.grid.overHexsGroup.bringToTop(this.overlay);
+		}else{
+			this.overlay.loadTexture("hex");
+		}
+
+		this.overlay.alpha = targetAlpha;
+
 	},
 
 	//---------TRAP FUNCTION---------//
@@ -1418,13 +1490,13 @@ var Trap = Class.create({
 			this.effects[i].trap = this;
 		};
 
-		this.$display = $j('#trapWrapper').append('<div id="trap'+this.id+'" class="trap '+this.type+'"></div>').children("#trap"+this.id);
-		this.$display.css(this.hex.displayPos);
+		// this.$display = $j('#trapWrapper').append('<div id="trap'+this.id+'" class="trap '+this.type+'"></div>').children("#trap"+this.id);
+		// this.$display.css(this.hex.displayPos);
 	},
 
 	destroy: function(){
-		this.$display.remove();
-
+		// this.$display.remove();
+// 
 		//unregister
 		var i = G.grid.traps.indexOf(this);
 		G.grid.traps.splice(i,1);
@@ -1435,12 +1507,12 @@ var Trap = Class.create({
 	hide: function(duration, timer){
 		timer = timer-0; //avoid undefined
 		duration = duration-0; //avoid undefined
-		this.$display.fadeOut(duration);
+		// this.$display.fadeOut(duration);
 	},
 
 	show: function(duration){
 		duration = duration-0; //avoid undefined
-		this.$display.fadeIn(duration);
+		// this.$display.fadeIn(duration);
 	},
 
 });

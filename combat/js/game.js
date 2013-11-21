@@ -51,6 +51,7 @@ var Game = Class.create({
 		this.c = this.creatures; //Convienience
 		this.effects = [];
 		this.activeCreature = undefined;
+		this.animations = new Animations();
 		this.turn = 0;
 		this.queue = [];
 		this.delayQueue = [];
@@ -103,6 +104,9 @@ var Game = Class.create({
 		this.freezedInput = false;
 		this.turnThrottle = false;
 
+		//Phaser
+		this.Phaser = new Phaser.Game(1920, 1080, Phaser.WEBGL, 'combatwrapper', {update:function(){ G.phaserUpdate(); }});
+
 		//Msg (TODO External file)
 		this.msg = {
 			abilities : {
@@ -146,10 +150,13 @@ var Game = Class.create({
 
 		dpcolor = ["blue","orange","green","red"];
 
-		this.loadingSrc = (G.loadedCreatures.length-1) * 4 
-		+ dpcolor.length*2 + 2 //Darkpriest
+		this.loadingSrc = (G.loadedCreatures.length-1) * 5 
+		+ dpcolor.length*2 + 3 //Darkpriest
 		+ this.availableMusic.length //Music
 		+ this.soundEffects.length //Sound effects
+		+ 1 //Background
+		+ 11 //Hexagons
+		+ 4 //Health Frames
 		;
 
 		//Music Loading
@@ -162,6 +169,27 @@ var Game = Class.create({
 		for (var i = 0; i < this.soundEffects.length; i++) {
 		 	this.soundsys.getSound("./sounds/"+this.soundEffects[i],this.availableMusic.length+i,function(){ G.loadFinish() });
 		};
+
+		this.Phaser.load.onFileComplete.add(G.loadFinish,G);
+
+		this.Phaser.load.image('p0_health', './frames/p0_health.png');
+		this.Phaser.load.image('p1_health', './frames/p1_health.png');
+		this.Phaser.load.image('p2_health', './frames/p2_health.png');
+		this.Phaser.load.image('p3_health', './frames/p3_health.png');
+
+		this.Phaser.load.image('hex', './grid/hex.png');
+		this.Phaser.load.image('hex_path', './grid/hex_path.png');
+		this.Phaser.load.image('input', './grid/hex_input.png');
+		this.Phaser.load.image('hex_p0', './grid/hex_p0.png');
+		this.Phaser.load.image('hex_p1', './grid/hex_p1.png');
+		this.Phaser.load.image('hex_p2', './grid/hex_p2.png');
+		this.Phaser.load.image('hex_p3', './grid/hex_p3.png');
+		this.Phaser.load.image('hex_hover_p0', './grid/hex_hover_p0.png');
+		this.Phaser.load.image('hex_hover_p1', './grid/hex_hover_p1.png');
+		this.Phaser.load.image('hex_hover_p2', './grid/hex_hover_p2.png');
+		this.Phaser.load.image('hex_hover_p3', './grid/hex_hover_p3.png');
+
+		this.Phaser.load.image('background',"../locations/"+this.background_image+"/bg.jpg");
 
 		//Get JSON files
 		$j.getJSON("../data/creatures.json", function(json_in) {
@@ -183,17 +211,19 @@ var Game = Class.create({
 				getImage('../bestiary/'+data.name+'/artwork.jpg',function(){ G.loadFinish() });
 				if(data.name == "Dark Priest"){
 					for (var i = 0; i < dpcolor.length; i++) {
-						getImage('../bestiary/'+data.name+'/cardboard-'+dpcolor[i]+'.png',function(){ G.loadFinish() });
+						G.Phaser.load.image(data.name+dpcolor[i]+'_cardboard','../bestiary/'+data.name+'/cardboard-'+dpcolor[i]+'.png');
 						getImage('../bestiary/'+data.name+'/avatar-'+dpcolor[i]+'.jpg',function(){ G.loadFinish() });
 					};
 				}else{
-					getImage('../bestiary/'+data.name+'/cardboard.png',function(){ G.loadFinish() });
+					G.Phaser.load.image(data.name+'_cardboard','../bestiary/'+data.name+'/cardboard.png');
 					getImage('../bestiary/'+data.name+'/avatar.jpg',function(){ G.loadFinish() });
 				}
 
 				//For code compatibility
 				G.availableCreatures[j] = data.type;
 			};
+
+			G.Phaser.load.start();
 		});
 
 	},
@@ -211,6 +241,10 @@ var Game = Class.create({
 		}
 	},
 
+	phaserUpdate : function(){
+		if( this.gameState != "playing" ) return;
+	},
+
 
 	/*	Setup(nbrPlayer)
 	*	
@@ -221,7 +255,10 @@ var Game = Class.create({
 	*/
 	setup: function(nbrPlayer){
 
-		this.gameState = "playing";
+		//Phaser
+		this.Phaser.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
+		this.Phaser.stage.update();
+		this.Phaser.add.sprite(0, 0, 'background');
 
 		//reseting global counters
 		trapID = 0;
@@ -230,8 +267,6 @@ var Game = Class.create({
 		this.creaIdCounter = 1;
 		
 		this.grid = new HexGrid();//Creating Hexgrid
-
-		$j("#combatframe").css("background-image","url('../locations/"+this.background_image+"/bg.jpg')");
 
 		this.startMatchTime = new Date();
 
@@ -282,6 +317,7 @@ var Game = Class.create({
 		this.UI = new UI(); //Creating UI not before because certain function requires creature to exists
 
 		//DO NOT CALL LOG BEFORE UI CREATION
+		this.gameState = "playing";
 
 		this.log("Welcome to Ancient Beast pre-Alpha");
 		this.log("Setting up a "+nbrPlayer+" player match");
@@ -315,21 +351,21 @@ var Game = Class.create({
 	*
 	*/
 	resizeCombatFrame: function(){
-		if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ){
-			// $j("#tabwrapper").css({scale: $j(window).height() / 1080});
-			this.$combatFrame.css({ 
-				scale: $j(window).height() / 1080, 
-				"margin-left": -1920*($j(window).height()/1080)/2, 
-				"margin-top": -1080*($j(window).height()/1080)/2, 
-			});
-		}else{
-			// $j("#tabwrapper").css({scale: $j(window).width() / 1080});
-			this.$combatFrame.css({ 
-				scale: $j(window).width() / 1920, 
-				"margin-left": -1920*($j(window).width()/1920)/2, 
-				"margin-top": -1080*($j(window).width()/1920)/2, 
-			});	
-		}
+		// if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ){
+		// 	// $j("#tabwrapper").css({scale: $j(window).height() / 1080});
+		// 	this.$combatFrame.css({ 
+		// 		scale: $j(window).height() / 1080, 
+		// 		"margin-left": -1920*($j(window).height()/1080)/2, 
+		// 		"margin-top": -1080*($j(window).height()/1080)/2, 
+		// 	});
+		// }else{
+		// 	// $j("#tabwrapper").css({scale: $j(window).width() / 1080});
+		// 	this.$combatFrame.css({ 
+		// 		scale: $j(window).width() / 1920, 
+		// 		"margin-left": -1920*($j(window).width()/1920)/2, 
+		// 		"margin-top": -1080*($j(window).width()/1920)/2, 
+		// 	});	
+		// }
 
 		if( $j("#cardwrapper").width() < $j("#card").width() ){
 			$j("#cardwrapper_inner").width()

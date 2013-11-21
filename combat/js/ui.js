@@ -311,21 +311,19 @@ var UI = Class.create({
 
 			opaWeak = opa/2;
 
-			G.grid.$allOverHex.each(function(){
+			G.grid.allHexs.each(function(){
 
-				$j(this).css("opacity","");
+				if( this.overlayClasses.match(/creature/) ){
 
-				if( $j(this).hasClass("creature") ){
+					if( this.overlayClasses.match(/selected|active/) ){
 
-					if( $j(this).hasClass("selected") || $j(this).hasClass("active") ){
+						if( this.overlayClasses.match(/weakDmg/) ){
 
-						if( $j(this).hasClass("weakDmg") ){
-
-							$j(this).css("opacity",opaWeak);
+							this.overlay.alpha = opaWeak;
 							return;
 						}
 
-						$j(this).css("opacity",opa);
+						this.overlay.alpha = opa;
 					}
 				}
 			})
@@ -1217,9 +1215,8 @@ var UI = Class.create({
 			G.grid.showMovementRange(creaID);
 			G.creatures.each(function(){
 				if(this instanceof Creature){
-					this.$display.removeClass("ghosted");
-					this.$health.removeClass("ghosted");
-					if(this.id != creaID){ this.$display.addClass("ghosted"); this.$health.addClass("ghosted"); };
+					this.xray(false);
+					if(this.id != creaID){ this.xray(true); };
 				}
 			});
 			G.UI.xrayQueue(creaID);
@@ -1228,7 +1225,7 @@ var UI = Class.create({
 			G.grid.redoLastQuery();
 			G.creatures.each(function(){
 				if(this instanceof Creature){
-					this.$display.removeClass("ghosted");
+					this.xray(false);
 				}
 			});
 			G.UI.xrayQueue(-1);

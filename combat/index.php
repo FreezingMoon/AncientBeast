@@ -37,7 +37,9 @@ require_once("../config.php"); //only needed for multiplayer
 		<link rel="stylesheet" type="text/css" href="./css/style.css">
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
 
+
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script type="text/javascript" src="./js/phaser.min.js"></script>
 		<script type="text/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
@@ -56,6 +58,7 @@ require_once('../bestiary/cards.php');
 
 		<script src="//ajax.googleapis.com/ajax/libs/prototype/1.7.1.0/prototype.js"></script>
 		<script type="text/javascript" src="./js/hex.js"></script>
+		<script type="text/javascript" src="./js/animations.js"></script>
 		<script type="text/javascript" src="./js/abilities.js"></script>
 		<script type="text/javascript" src="./js/creature.js"></script>
 		<script type="text/javascript" src="./js/pathfinding.js"></script>
@@ -410,20 +413,6 @@ require_once('../bestiary/cards.php');
 			</div>
 		</div>
 		<div id="combatwrapper">
-			<div id="combatframe" style="display:none;">
-				<div id="grid">
-					<div id="trapWrapper">
-					</div>
-					<div id="hexsdisplay">
-					</div>
-					<div id="hexsoverlay">
-					</div>
-					<div id="creatureWrapper">
-					</div>
-					<div id="hexsinput">
-					</div>
-				</div>
-			</div>
 		</div>
 	</body>
 </html>
