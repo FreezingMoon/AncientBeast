@@ -53,13 +53,15 @@ var HexGrid = Class.create({
 		this.gridGroup 			= G.Phaser.add.group(this.display,"gridGrp");
 		this.gridGroup._container.scale = {x:1,y:.75};
 
+		this.trapGroup			= G.Phaser.add.group(this.gridGroup ,"trapGrp");
+
 		this.dispHexsGroup		= G.Phaser.add.group(this.gridGroup ,"dispHexsGrp");
 
 		this.overHexsGroup		= G.Phaser.add.group(this.gridGroup, "overHexsGrp");
 		
-		this.inptHexsGroup		= G.Phaser.add.group(this.gridGroup, "inptHexsGrp");
-
 		this.creatureGroup 		= G.Phaser.add.group(this.display, "creaturesGrp");
+		
+		this.inptHexsGroup		= G.Phaser.add.group(this.gridGroup, "inptHexsGrp");
 
 		//Populate grid
 		for (var row = 0; row < opts.nbrRow; row++) {
@@ -1501,6 +1503,8 @@ var Trap = Class.create({
 		for (var i = this.effects.length - 1; i >= 0; i--) {
 			this.effects[i].trap = this;
 		};
+
+		this.display = G.grid.trapGroup.create(this.hex.originalDisplayPos.x, this.hex.originalDisplayPos.y, 'trap_'+type);
 
 		// this.$display = $j('#trapWrapper').append('<div id="trap'+this.id+'" class="trap '+this.type+'"></div>').children("#trap"+this.id);
 		// this.$display.css(this.hex.displayPos);

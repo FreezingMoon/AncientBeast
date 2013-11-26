@@ -189,6 +189,10 @@ var Game = Class.create({
 		this.Phaser.load.image('hex_hover_p2', './grid/hex_hover_p2.png');
 		this.Phaser.load.image('hex_hover_p3', './grid/hex_hover_p3.png');
 
+		this.Phaser.load.image('trap_royal-seal', './grid/royal-seal.png');
+		this.Phaser.load.image('trap_mud-bath', './grid/mud-bath.png');
+		this.Phaser.load.image('trap_scorched-ground', './grid/scorched-ground.png');
+
 		this.Phaser.load.image('background',"../locations/"+this.background_image+"/bg.jpg");
 
 		//Get JSON files
