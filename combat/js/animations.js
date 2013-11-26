@@ -181,6 +181,7 @@ var Animations = Class.create({
 			opts.callbackStepIn(hex);
 
 			// Sort order : NOT WORKING ATM
+			G.grid.orderCreatureZ();
 			//G.grid.creatureGroup.order();
 		},
 

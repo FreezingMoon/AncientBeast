@@ -826,7 +826,7 @@ var HexGrid = Class.create({
 
 	showGrid : function(val){
 		this.forEachHexs(function(){
-			if(this.creature) return;
+			if(this.creature) this.creature.xray(val);
 			if(this.drop) return;
 			if(val) this.displayVisualState("showGrid");
 			else this.cleanDisplayVisualState("showGrid");
@@ -888,6 +888,10 @@ var HexGrid = Class.create({
 	confirmHex : function(){
 		if(G.freezedInput) return;
 		this.selectedHex.onConfirmFn();
+	},
+
+	orderCreatureZ : function(){
+
 	},
 
 	//******************//
@@ -1047,7 +1051,9 @@ var Hex = Class.create({
 		this.overlayClasses = "";
 
 		this.displayPos = {y:y*78};
-		this.displayPos.x = (y%2 == 0) ? 46+x*90 : x*90;		
+		this.displayPos.x = (y%2 == 0) ? 46+x*90 : x*90;
+
+		this.originalDisplayPos = $j.extend({},this.displayPos);
 
 		if(grid){
 
@@ -1056,11 +1062,6 @@ var Hex = Class.create({
 			
 			this.overlay 	= grid.overHexsGroup.create(this.displayPos.x, this.displayPos.y, 'hex');
 			this.overlay.alpha = 0;
-
-			this.coordText = G.Phaser.add.text(this.displayPos.x+54, this.displayPos.y+63, this.coord, {font: "30pt Play", fill: "#000000", align: "center"});
-			this.coordText.anchor.setTo(0.5, 0.5);
-			this.coordText.alpha = 0;
-			grid.overHexsGroup.add(this.coordText);
 
 			this.input 		= grid.inptHexsGroup.create(this.displayPos.x, this.displayPos.y, 'input');
 			this.input.inputEnabled = true;
@@ -1392,7 +1393,16 @@ var Hex = Class.create({
 		this.display.alpha = targetAlpha;
 
 		//Display Coord
-		this.coordText.alpha = !!this.displayClasses.match(/showGrid/g);
+		if( !!this.displayClasses.match(/showGrid/g) ){
+			if( !(this.coordText && this.coordText.exists) ) {
+				this.coordText = G.Phaser.add.text(this.originalDisplayPos.x+54, this.originalDisplayPos.y+63, this.coord, {font: "30pt Play", fill: "#000000", align: "center"});
+				this.coordText.anchor.setTo(0.5, 0.5);
+				G.grid.overHexsGroup.add(this.coordText);
+			}
+		}else if(this.coordText && this.coordText.exists){
+			this.coordText.destroy();
+		}
+		
 
 		//Overlay Hex
 
