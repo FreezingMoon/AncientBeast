@@ -961,6 +961,8 @@ var HexGrid = Class.create({
 
 		if(player.flipped){
 			this.materialize_overlay.scale.setTo(-1,1);
+		}else{
+			this.materialize_overlay.scale.setTo(1,1);
 		}
 
 		for (var i = 0; i < creatureData.size; i++) {
