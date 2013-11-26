@@ -539,43 +539,8 @@ var Creature = Class.create({
 				
 			creature.travelDist = 0;
 	
-			if( opts.animation == "fly" ){
-				G.animations.movements.fly(this, path, opts);
-			}else if( opts.animation == "teleport" ){
-				var currentHex = G.grid.hexs[hex.y][hex.x-creature.size+1];
-	
-				creature.$display.css({opacity:0}).animate({'margin-right':0},500,"linear",function(){
-					creature.$display
-						.css(currentHex.displayPos)
-						.css({"z-index":currentHex.y,opacity:1});
-					
-					creature.cleanHex();
-					creature.x 	= hex.x - 0;
-					creature.y 	= hex.y - 0;
-					creature.pos 	= hex.pos;
-					creature.updateHex();
-	
-					G.grid.updateDisplay();
-	
-					//TODO turn around animation
-					creature.facePlayerDefault();
-	
-					//reveal and position healh idicator
-					creature.healthShow();
-	
-					G.animationQueue.filter(function(){ return (this!=anim_id); });
-
-					creature.pickupDrop();
-					opts.callbackStepIn(currentHex);
-
-					//Trigger
-					G.triggersFn.onCreatureMove(creature,currentHex);
-
-					if( G.animationQueue.length == 0 ) G.freezedInput = false;
-				});
-			}else{
-				G.animations.movements.walk(this, path, opts);
-			}
+			G.animations.movements[opts.animation](this, path, opts);
+			
 		}else{
 			G.log("This creature cannot be moved");
 		}
