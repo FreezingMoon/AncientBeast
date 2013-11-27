@@ -523,7 +523,7 @@ var Creature = Class.create({
 
 		if(this.stats.moveable){
 			var creature = this;
-			var start = G.grid.hexs[creature.y][creature.x-creature.size+1];
+			
 			var x = hex.x;
 			var y = hex.y;
 			
@@ -1018,6 +1018,9 @@ var Creature = Class.create({
 	*
 	*/
 	die: function(killer){
+
+		var crea = this;
+
 		G.log("%CreatureName"+this.id+"% is dead");
 
 		this.dead = true;		
@@ -1077,10 +1080,10 @@ var Creature = Class.create({
 		if(this.type == "--") this.player.deactivate(); //Here because of score calculation
 
 		//Kill animation
-		// this.$display.addClass("dead");
-		this.$health.css({opacity:0}).transition({},500,function(){
-			this.remove();
-		});
+		var tweenSprite = G.Phaser.add.tween(this.sprite).to( {alpha:0}, 500, Phaser.Easing.Linear.None ).start();
+		var tweenHealth = G.Phaser.add.tween(this.healtIndicatorGrp).to( {alpha:0}, 500, Phaser.Easing.Linear.None ).start();
+		tweenSprite.onCompleteCallback(function(){ crea.sprite.destroy(); });
+		tweenHealth.onCompleteCallback(function(){ crea.healtIndicatorGrp.destroy(); });
 
 		this.cleanHex();
 

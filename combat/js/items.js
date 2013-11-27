@@ -13,8 +13,11 @@ var Drop = Class.create({
 
 		this.hex.drop = this;
 
-		this.$display = G.grid.$creatureW.append('<img id="drop'+this.id +'" class="drop" src="../drops/'+icon+'.png">').children("#drop"+this.id);
-		this.$display.css(this.hex.displayPos).hide().fadeIn(500);
+		this.display = G.grid.dropGroup.create(this.hex.displayPos.x+54,this.hex.displayPos.y+15, 'drop_'+this.icon);
+		this.display.alpha = 0;
+		this.display.anchor.setTo(.5,.5);
+		this.display.scale.setTo(1.5,1.5);
+		G.Phaser.add.tween(this.display).to( {alpha:1}, 500, Phaser.Easing.Linear.None ).start();
 	},
 
 	pickup : function(creature){
@@ -24,7 +27,6 @@ var Drop = Class.create({
 		creature.dropCollection.push(this);
 
 		creature.updateAlteration();
-		console.log(creature.stats.health);
 
 		this.hex.drop = undefined;
 
@@ -47,8 +49,9 @@ var Drop = Class.create({
 		});
 
 		creature.updateAlteration(); //Will cap the stats
-		console.log(creature.stats.health);
 
-		this.$display.fadeOut(500);
+		var drop = this;
+		var tween = G.Phaser.add.tween(this.display).to( {alpha:0}, 500, Phaser.Easing.Linear.None ).start();
+		tween.onCompleteCallback(function(){ drop.display.destroy(); });
 	}
 });

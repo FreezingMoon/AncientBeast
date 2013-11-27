@@ -157,6 +157,7 @@ var Game = Class.create({
 		+ 1 //Background
 		+ 11 //Hexagons
 		+ 4 //Health Frames
+		+ 26 //drops
 		;
 
 		//Music Loading
@@ -172,11 +173,13 @@ var Game = Class.create({
 
 		this.Phaser.load.onFileComplete.add(G.loadFinish,G);
 
+		//Health
 		this.Phaser.load.image('p0_health', './frames/p0_health.png');
 		this.Phaser.load.image('p1_health', './frames/p1_health.png');
 		this.Phaser.load.image('p2_health', './frames/p2_health.png');
 		this.Phaser.load.image('p3_health', './frames/p3_health.png');
 
+		//Grid
 		this.Phaser.load.image('hex', './grid/hex.png');
 		this.Phaser.load.image('hex_path', './grid/hex_path.png');
 		this.Phaser.load.image('input', './grid/hex_input.png');
@@ -189,10 +192,40 @@ var Game = Class.create({
 		this.Phaser.load.image('hex_hover_p2', './grid/hex_hover_p2.png');
 		this.Phaser.load.image('hex_hover_p3', './grid/hex_hover_p3.png');
 
+		//Traps
 		this.Phaser.load.image('trap_royal-seal', './grid/royal-seal.png');
 		this.Phaser.load.image('trap_mud-bath', './grid/mud-bath.png');
 		this.Phaser.load.image('trap_scorched-ground', './grid/scorched-ground.png');
 
+		//Drops
+		this.Phaser.load.image('drop_Apple','../drops/Apple.png');
+		this.Phaser.load.image('drop_Bone.','../drops/Bone.png');
+		this.Phaser.load.image('drop_Cherry','../drops/Cherry.png');
+		this.Phaser.load.image('drop_Fish.','../drops/Fish.png');
+		this.Phaser.load.image('drop_Lemon','../drops/Lemon.png');
+		this.Phaser.load.image('drop_Mushroom','../drops/Mushroom.png');
+		this.Phaser.load.image('drop_Pear.','../drops/Pear.png');
+		this.Phaser.load.image('drop_Red Pepper','../drops/Red Pepper.png');
+		this.Phaser.load.image('drop_Watermellon','../drops/Watermellon.png');
+		this.Phaser.load.image('drop_Bat Wing','../drops/Bat Wing.png');
+		this.Phaser.load.image('drop_Candy','../drops/Candy.png');
+		this.Phaser.load.image('drop_Fang.','../drops/Fang.png');
+		this.Phaser.load.image('drop_Frog Leg','../drops/Frog Leg.png');
+		this.Phaser.load.image('drop_Meat.','../drops/Meat.png');
+		this.Phaser.load.image('drop_Nut.png','../drops/Nut.png');
+		this.Phaser.load.image('drop_Pineapple','../drops/Pineapple.png');
+		this.Phaser.load.image('drop_Spear','../drops/Spear.png');
+		this.Phaser.load.image('drop_Yellow Pepper','../drops/Yellow Pepper.png');
+		this.Phaser.load.image('drop_Bird Beak','../drops/Bird Beak.png');
+		this.Phaser.load.image('drop_Carrot','../drops/Carrot.png');
+		this.Phaser.load.image('drop_Feather','../drops/Feather.png');
+		this.Phaser.load.image('drop_Green Apple','../drops/Green Apple.png');
+		this.Phaser.load.image('drop_Milk Bottle','../drops/Milk Bottle.png');
+		this.Phaser.load.image('drop_Orange','../drops/Orange.png');
+		this.Phaser.load.image('drop_Radish','../drops/Radish.png');
+		this.Phaser.load.image('drop_Strawberry','../drops/Strawberry.png');
+
+		//Background
 		this.Phaser.load.image('background',"../locations/"+this.background_image+"/bg.jpg");
 
 		//Get JSON files

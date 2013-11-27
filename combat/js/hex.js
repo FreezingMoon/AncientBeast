@@ -54,13 +54,10 @@ var HexGrid = Class.create({
 		this.gridGroup._container.scale = {x:1,y:.75};
 
 		this.trapGroup			= G.Phaser.add.group(this.gridGroup ,"trapGrp");
-
 		this.dispHexsGroup		= G.Phaser.add.group(this.gridGroup ,"dispHexsGrp");
-
 		this.overHexsGroup		= G.Phaser.add.group(this.gridGroup, "overHexsGrp");
-		
+		this.dropGroup 			= G.Phaser.add.group(this.display, "dropGrp");
 		this.creatureGroup 		= G.Phaser.add.group(this.display, "creaturesGrp");
-		
 		this.inptHexsGroup		= G.Phaser.add.group(this.gridGroup, "inptHexsGrp");
 
 		//Populate grid
