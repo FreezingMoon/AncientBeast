@@ -155,8 +155,10 @@ var Game = Class.create({
 		+ this.availableMusic.length //Music
 		+ this.soundEffects.length //Sound effects
 		+ 1 //Background
-		+ 11 //Hexagons
+		+ 12 //Hexagons
 		+ 4 //Health Frames
+		+ 3 //Traps
+		+ 1 //Effects
 		+ 26 //drops
 		;
 
@@ -181,6 +183,7 @@ var Game = Class.create({
 
 		//Grid
 		this.Phaser.load.image('hex', './grid/hex.png');
+		this.Phaser.load.image('hex_dashed', './grid/hex_dashed.png');
 		this.Phaser.load.image('hex_path', './grid/hex_path.png');
 		this.Phaser.load.image('input', './grid/hex_input.png');
 		this.Phaser.load.image('hex_p0', './grid/hex_p0.png');
@@ -196,6 +199,9 @@ var Game = Class.create({
 		this.Phaser.load.image('trap_royal-seal', './grid/royal-seal.png');
 		this.Phaser.load.image('trap_mud-bath', './grid/mud-bath.png');
 		this.Phaser.load.image('trap_scorched-ground', './grid/scorched-ground.png');
+
+		//Effects
+		this.Phaser.load.image('effects_fissure-vent', './grid/fissure-vent.png');
 
 		//Drops
 		this.Phaser.load.image('drop_Apple','../drops/Apple.png');
@@ -294,6 +300,7 @@ var Game = Class.create({
 
 		//Phaser
 		this.Phaser.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
+		this.Phaser.stage.disableVisibilityChange = true;
 		this.Phaser.stage.update();
 		this.Phaser.add.sprite(0, 0, 'background');
 

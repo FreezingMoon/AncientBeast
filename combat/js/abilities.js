@@ -135,6 +135,7 @@ var Ability = Class.create({
 
 			if(this.animation_datas == undefined){ 
 				this.animation_datas = { 
+					visual : function(){},
 					duration : 500,
 					delay : 350,
 				};
@@ -145,6 +146,8 @@ var Ability = Class.create({
 			.to({x:p2}, 100, Phaser.Easing.Linear.None)
 			.to({x:p0}, 150, Phaser.Easing.Linear.None)
 			.start();
+			
+			ab.animation_datas.visual.apply(ab,args);
 
 			setTimeout(function(){
 				if( !G.triggers.onAttack.test(ab.trigger) ){
@@ -159,6 +162,7 @@ var Ability = Class.create({
 					G.freezedInput = false;
 				}
 			},this.animation_datas.duration);
+
 		}else{
 			ab.activate.apply(ab,args);
 			G.freezedInput = false;

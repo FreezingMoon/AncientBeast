@@ -135,7 +135,7 @@ var Creature = Class.create({
 		this.hintGrp.y = -this.sprite.texture.height+5;
 
 		//Health indicator
-		this.healtIndicatorGrp = G.Phaser.add.group(G.grid.creatureGroup, "creatureHealthGrp_"+this.id);
+		this.healtIndicatorGrp = G.Phaser.add.group(this.grp, "creatureHealthGrp_"+this.id);
 		//Adding background sprite
 		this.healtIndicatorGrp.create(28,49, "p"+this.team+'_health');
 		//Add text
@@ -191,8 +191,8 @@ var Creature = Class.create({
 	healthShow: function(){
 		var offsetX = (this.player.flipped) ? this.x - this.size + 1: this.x ;
 		var hex = G.grid.hexs[this.y][offsetX];
-		this.healtIndicatorGrp.x = hex.displayPos.x;
-		this.healtIndicatorGrp.y = hex.displayPos.y;
+		// this.healtIndicatorGrp.x = hex.displayPos.x;
+		// this.healtIndicatorGrp.y = hex.displayPos.y;
 		this.healtIndicatorGrp.alpha = 1;
 	},
 
@@ -933,12 +933,11 @@ var Creature = Class.create({
 		hint.alpha = 0;
 
 		//Chaining does not work with onCompleteCallback. This is a workaround.
-		hint.tweenAlpha1 = G.Phaser.add.tween(hint).to( {alpha:1}, tooltipSpeed, tooltipTransition ).start();;
-		hint.tweenAlpha2 = G.Phaser.add.tween(hint).to( {alpha:1}, tooltipDisplaySpeed, tooltipTransition );
-		hint.tweenAlpha3 = G.Phaser.add.tween(hint).to( {alpha:0}, tooltipSpeed, tooltipTransition );
-		hint.tweenAlpha1.onCompleteCallback(function(){ hint.tweenAlpha2.start() });
-		hint.tweenAlpha2.onCompleteCallback(function(){ hint.tweenAlpha3.start() });
-		hint.tweenAlpha3.onCompleteCallback(function(){ hint.destroy() });
+		hint.tweenAlpha = G.Phaser.add.tween(hint)
+		.to( {alpha:1}, tooltipSpeed, tooltipTransition )
+		.to( {alpha:1}, tooltipDisplaySpeed, tooltipTransition )
+		.to( {alpha:0}, tooltipSpeed, tooltipTransition ).start();
+		hint.tweenAlpha._lastChild.onComplete.add(function(){ hint.destroy() },this);
 
 		this.hintGrp.add(hint);
 

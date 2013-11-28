@@ -147,6 +147,11 @@ var Animations = Class.create({
 			});
 		},
 
+		push : function(crea,path,opts){
+			opts.pushed = true;
+			this.walk(crea,path,opts);
+		},
+
 		//--------Special Functions---------//
 
 		enterHex : function(crea,hex,opts){
@@ -167,11 +172,10 @@ var Animations = Class.create({
 
 			// Sort order : NOT WORKING ATM
 			G.grid.orderCreatureZ();
-			//G.grid.creatureGroup.order();
 		},
 
 		leaveHex : function(crea,hex,opts){
-			crea.faceHex(hex,crea.hexagons[0]); //Determine facing
+			if(!opts.pushed) crea.faceHex(hex,crea.hexagons[0]); //Determine facing
 			G.triggersFn.onStepOut(crea,crea.hexagons[0]); //Trigger
 		},
 

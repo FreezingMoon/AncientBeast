@@ -190,9 +190,9 @@ var HexGrid = Class.create({
 			fnOnSelect : function(choice,args){
 				choice.each(function(){
 					if(this.creature instanceof Creature){
-						// this.$overlay.addClass("creature selected player"+this.creature.team);	
+						this.overlayVisualState("creature selected player"+this.creature.team);	
 					}else{
-						// this.$display.addClass("adj");
+						this.displayVisualState("adj");
 					}
 					
 				});
@@ -409,9 +409,9 @@ var HexGrid = Class.create({
 			if(o.hideNonTarget) this.setNotTarget();
 			else this.unsetNotTarget();
 			if( o.hexsDashed.indexOf(this) != -1 ){
-				// this.$display.addClass("dashed");
+				this.displayVisualState("dashed");
 			}else{
-				// this.$display.removeClass("dashed");
+				this.cleanDisplayVisualState("dashed");
 			}
 		});
 
@@ -891,6 +891,20 @@ var HexGrid = Class.create({
 
 	orderCreatureZ : function(){
 
+		//Bubble sorting
+	    // var swapped;
+	    // do {
+	    //     swapped = false;
+	    //     for (var i=0; i < this.creatureGroup._container.children.length - 1; i++) {
+	    //     	console.log( this.creatureGroup._container.children[i].position.y , this.creatureGroup._container.children[i+1].position.y )
+	    //         if ( this.creatureGroup._container.children[i].position.y > this.creatureGroup._container.children[i+1].position.y ) {
+	    //             this.creatureGroup.addAt(this.creatureGroup._container.children[i+1],i);
+	    //             swapped = true;
+	    //     		console.log("swap");
+	    //         }
+	    //     }
+	    // } while (false);
+		//G.grid.creatureGroup.sort();
 	},
 
 	//******************//
@@ -1380,6 +1394,7 @@ var Hex = Class.create({
 		targetAlpha = this.reachable || !!this.displayClasses.match(/creature/g);
 		targetAlpha = !this.displayClasses.match(/hidden/g) && targetAlpha;
 		targetAlpha = !!this.displayClasses.match(/showGrid/g) || targetAlpha;
+		targetAlpha = !!this.displayClasses.match(/dashed/g) || targetAlpha;
 
 		if(this.displayClasses.match(/0|1|2|3/)){
 			var p = this.displayClasses.match(/0|1|2|3/);
@@ -1387,6 +1402,8 @@ var Hex = Class.create({
 			G.grid.dispHexsGroup.bringToTop(this.display);
 		}else if(this.displayClasses.match(/adj/)){
 			this.display.loadTexture("hex_path");
+		}else if(this.displayClasses.match(/dashed/)){
+			this.display.loadTexture("hex_dashed");
 		}else{
 			this.display.loadTexture("hex");
 		}
@@ -1503,13 +1520,11 @@ var Trap = Class.create({
 
 		this.display = G.grid.trapGroup.create(this.hex.originalDisplayPos.x, this.hex.originalDisplayPos.y, 'trap_'+type);
 
-		// this.$display = $j('#trapWrapper').append('<div id="trap'+this.id+'" class="trap '+this.type+'"></div>').children("#trap"+this.id);
-		// this.$display.css(this.hex.displayPos);
 	},
 
 	destroy: function(){
-		// this.$display.remove();
-// 
+		this.display.destroy();
+
 		//unregister
 		var i = G.grid.traps.indexOf(this);
 		G.grid.traps.splice(i,1);
@@ -1520,12 +1535,12 @@ var Trap = Class.create({
 	hide: function(duration, timer){
 		timer = timer-0; //avoid undefined
 		duration = duration-0; //avoid undefined
-		// this.$display.fadeOut(duration);
+		G.Phaser.add.tween(this.display).to({alpha:0}, duration, Phaser.Easing.Linear.None)
 	},
 
 	show: function(duration){
 		duration = duration-0; //avoid undefined
-		// this.$display.fadeIn(duration);
+		G.Phaser.add.tween(this.display).to({alpha:1}, duration, Phaser.Easing.Linear.None)
 	},
 
 });
