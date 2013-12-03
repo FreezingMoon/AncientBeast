@@ -24,8 +24,8 @@
 
 $page_title = "Page Not Found";
 require_once("../header.php");
-start_segment();
-echo "<a class=\"center\" href=\"$site_root\" title=\"Go to homepage\"><img src=\"../images/We_Want_YOU.jpg\"><br><h1>...to go to another page because this one is missing!</h1></a>";
-end_segment();
+start_segment(); ?>
+<a class="center" href="<?php echo $site_root; ?>" title="Go to homepage"><img src="../images/We_Want_YOU.jpg"><br><h1>...to go to another page because this one is missing!</h1></a>
+<?php end_segment();
 end_page();
 ?>

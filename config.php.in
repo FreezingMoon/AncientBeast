@@ -29,5 +29,6 @@ $site_root = "/AncientBeast/";
 // Database information is stored here
 mysql_connect("localhost", "username", "password");
 mysql_select_db("database");
+mysql_set_charset('utf8');
 
 ?>
