@@ -164,6 +164,8 @@ var Creature = Class.create({
 
 		G.nextQueue.push(this);
 		G.reorderQueue();
+
+		G.grid.orderCreatureZ();
 		
 		//TODO Summon effect
 		// this.$display.removeClass("ghosted");
@@ -366,6 +368,7 @@ var Creature = Class.create({
 		}
 
 		G.grid.updateDisplay(); //Retrace players creatures
+		G.grid.orderCreatureZ();
 		this.facePlayerDefault();
 		this.updateHealth();
 

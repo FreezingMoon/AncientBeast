@@ -891,19 +891,23 @@ var HexGrid = Class.create({
 
 	orderCreatureZ : function(){
 
-		//Bubble sorting
-	    // var swapped;
-	    // do {
-	    //     swapped = false;
-	    //     for (var i=0; i < this.creatureGroup._container.children.length - 1; i++) {
-	    //     	console.log( this.creatureGroup._container.children[i].position.y , this.creatureGroup._container.children[i+1].position.y )
-	    //         if ( this.creatureGroup._container.children[i].position.y > this.creatureGroup._container.children[i+1].position.y ) {
-	    //             this.creatureGroup.addAt(this.creatureGroup._container.children[i+1],i);
-	    //             swapped = true;
-	    //     		console.log("swap");
-	    //         }
-	    //     }
-	    // } while (false);
+		var index = 0;
+
+		for (var y = 0; y < this.hexs.length; y++) {
+			for (var i = 1; i < G.creatures.length; i++) {
+
+				if( G.creatures[i].y == y ){
+					this.creatureGroup.remove( G.creatures[i].grp._container);
+					this.creatureGroup.addAt( G.creatures[i].grp._container, index++ );
+				}
+			};
+
+			if( this.materialize_overlay && this.materialize_overlay.posy == y){
+				this.creatureGroup.remove( this.materialize_overlay);
+				this.creatureGroup.addAt( this.materialize_overlay, index++ );
+			}
+		};
+
 		//G.grid.creatureGroup.sort();
 	},
 
@@ -963,9 +967,15 @@ var HexGrid = Class.create({
 			//Adding sprite
 			this.materialize_overlay = this.creatureGroup.create(0,0, creatureData.name+'_cardboard');
 			this.materialize_overlay.anchor.setTo(0.5,1);
+			this.materialize_overlay.posy = pos.y;
 		}else{
 			this.materialize_overlay.loadTexture(creatureData.name+'_cardboard');
+			if( this.materialize_overlay.posy != pos.y){
+				this.materialize_overlay.posy = pos.y;	
+				this.orderCreatureZ();
+			}
 		}
+
 
 		//Placing sprite
 		this.materialize_overlay.x = creaHex.displayPos.x + creatureData.display["offset-x"] + this.materialize_overlay.texture.width/2 + 1; //((!this.player.flipped) ? this.display["offset-x"] : 90*this.size-this.display.width-this.display["offset-x"]);

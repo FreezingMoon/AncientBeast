@@ -300,8 +300,9 @@ var Game = Class.create({
 
 		//Phaser
 		this.Phaser.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
+		this.Phaser.stage.scale.setShowAll();
+		this.Phaser.stage.scale.refresh();
 		this.Phaser.stage.disableVisibilityChange = true;
-		this.Phaser.stage.update();
 		this.Phaser.add.sprite(0, 0, 'background');
 
 		//reseting global counters

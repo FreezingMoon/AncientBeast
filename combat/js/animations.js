@@ -170,13 +170,14 @@ var Animations = Class.create({
 
 			opts.callbackStepIn(hex);
 
-			// Sort order : NOT WORKING ATM
 			G.grid.orderCreatureZ();
 		},
 
 		leaveHex : function(crea,hex,opts){
 			if(!opts.pushed) crea.faceHex(hex,crea.hexagons[0]); //Determine facing
 			G.triggersFn.onStepOut(crea,crea.hexagons[0]); //Trigger
+
+			G.grid.orderCreatureZ();
 		},
 
 		movementComplete : function(crea,hex,anim_id,opts){
@@ -196,6 +197,8 @@ var Animations = Class.create({
 			G.triggersFn.onCreatureMove(crea,hex);//Trigger
 
 			crea.hexagons.each(function(){this.pickupDrop(crea);});
+
+			G.grid.orderCreatureZ();
 
 			G.animationQueue.filter(function(){ return (this!=anim_id); });
 			if( G.animationQueue.length == 0 ) G.freezedInput = false;
