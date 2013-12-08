@@ -20,6 +20,7 @@ body{
 	height: 100%;
 	overflow: hidden;
 	position: relative;
+	text-align: center;
 }
 
 #combatframe *{ /*avoid selecting game elements*/
@@ -31,24 +32,15 @@ body{
 	user-select: none;
 }
 
-#combatframe{
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 1920px;
-	height: 1080px;
-	background: url('../../locations/Dark Forest/bg.jpg');
+#combatwrapper canvas{
+	/*background: url('../../locations/Dark Forest/bg.jpg');*/
+	/*background-size: 100% 100%;*/
+	display: inline-block !important;
 
 	/*padding: 277px 0 0 0;*/
 /*	position: absolute;
 	top:0px;
 	left:0px;*/
-
-	transform-origin:0% 0%;
-	-ms-transform-origin:0% 0%; /* IE 9 */
-	-webkit-transform-origin:0% 0%; /* Safari and Chrome */
-	-moz-transform-origin:0% 0%; /* Firefox */
-	-o-transform-origin:0% 0%; /* Opera */
 
 	/*Shadow*/
 	-moz-box-shadow: 0px 0px 30px black;
@@ -1156,6 +1148,7 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 	height: 0px;
 	bottom: 0px;
 	background: red;
+	transition: height 500ms;
 }
 
 #volume_sliders {

@@ -51,6 +51,7 @@ var Game = Class.create({
 		this.c = this.creatures; //Convienience
 		this.effects = [];
 		this.activeCreature = undefined;
+		this.animations = new Animations();
 		this.turn = 0;
 		this.queue = [];
 		this.delayQueue = [];
@@ -103,6 +104,9 @@ var Game = Class.create({
 		this.freezedInput = false;
 		this.turnThrottle = false;
 
+		//Phaser
+		this.Phaser = new Phaser.Game(1920, 1080, Phaser.WEBGL, 'combatwrapper', {update:function(){ G.phaserUpdate(); }});
+
 		//Msg (TODO External file)
 		this.msg = {
 			abilities : {
@@ -146,10 +150,16 @@ var Game = Class.create({
 
 		dpcolor = ["blue","orange","green","red"];
 
-		this.loadingSrc = (G.loadedCreatures.length-1) * 4 
-		+ dpcolor.length*2 + 2 //Darkpriest
+		this.loadingSrc = (G.loadedCreatures.length-1) * 5 
+		+ dpcolor.length*2 + 3 //Darkpriest
 		+ this.availableMusic.length //Music
 		+ this.soundEffects.length //Sound effects
+		+ 1 //Background
+		+ 12 //Hexagons
+		+ 4 //Health Frames
+		+ 3 //Traps
+		+ 1 //Effects
+		+ 26 //drops
 		;
 
 		//Music Loading
@@ -162,6 +172,67 @@ var Game = Class.create({
 		for (var i = 0; i < this.soundEffects.length; i++) {
 		 	this.soundsys.getSound("./sounds/"+this.soundEffects[i],this.availableMusic.length+i,function(){ G.loadFinish() });
 		};
+
+		this.Phaser.load.onFileComplete.add(G.loadFinish,G);
+
+		//Health
+		this.Phaser.load.image('p0_health', './frames/p0_health.png');
+		this.Phaser.load.image('p1_health', './frames/p1_health.png');
+		this.Phaser.load.image('p2_health', './frames/p2_health.png');
+		this.Phaser.load.image('p3_health', './frames/p3_health.png');
+
+		//Grid
+		this.Phaser.load.image('hex', './grid/hex.png');
+		this.Phaser.load.image('hex_dashed', './grid/hex_dashed.png');
+		this.Phaser.load.image('hex_path', './grid/hex_path.png');
+		this.Phaser.load.image('input', './grid/hex_input.png');
+		this.Phaser.load.image('hex_p0', './grid/hex_p0.png');
+		this.Phaser.load.image('hex_p1', './grid/hex_p1.png');
+		this.Phaser.load.image('hex_p2', './grid/hex_p2.png');
+		this.Phaser.load.image('hex_p3', './grid/hex_p3.png');
+		this.Phaser.load.image('hex_hover_p0', './grid/hex_hover_p0.png');
+		this.Phaser.load.image('hex_hover_p1', './grid/hex_hover_p1.png');
+		this.Phaser.load.image('hex_hover_p2', './grid/hex_hover_p2.png');
+		this.Phaser.load.image('hex_hover_p3', './grid/hex_hover_p3.png');
+
+		//Traps
+		this.Phaser.load.image('trap_royal-seal', './grid/royal-seal.png');
+		this.Phaser.load.image('trap_mud-bath', './grid/mud-bath.png');
+		this.Phaser.load.image('trap_scorched-ground', './grid/scorched-ground.png');
+
+		//Effects
+		this.Phaser.load.image('effects_fissure-vent', './grid/fissure-vent.png');
+
+		//Drops
+		this.Phaser.load.image('drop_Apple','../drops/Apple.png');
+		this.Phaser.load.image('drop_Bone.','../drops/Bone.png');
+		this.Phaser.load.image('drop_Cherry','../drops/Cherry.png');
+		this.Phaser.load.image('drop_Fish.','../drops/Fish.png');
+		this.Phaser.load.image('drop_Lemon','../drops/Lemon.png');
+		this.Phaser.load.image('drop_Mushroom','../drops/Mushroom.png');
+		this.Phaser.load.image('drop_Pear.','../drops/Pear.png');
+		this.Phaser.load.image('drop_Red Pepper','../drops/Red Pepper.png');
+		this.Phaser.load.image('drop_Watermellon','../drops/Watermellon.png');
+		this.Phaser.load.image('drop_Bat Wing','../drops/Bat Wing.png');
+		this.Phaser.load.image('drop_Candy','../drops/Candy.png');
+		this.Phaser.load.image('drop_Fang.','../drops/Fang.png');
+		this.Phaser.load.image('drop_Frog Leg','../drops/Frog Leg.png');
+		this.Phaser.load.image('drop_Meat.','../drops/Meat.png');
+		this.Phaser.load.image('drop_Nut.png','../drops/Nut.png');
+		this.Phaser.load.image('drop_Pineapple','../drops/Pineapple.png');
+		this.Phaser.load.image('drop_Spear','../drops/Spear.png');
+		this.Phaser.load.image('drop_Yellow Pepper','../drops/Yellow Pepper.png');
+		this.Phaser.load.image('drop_Bird Beak','../drops/Bird Beak.png');
+		this.Phaser.load.image('drop_Carrot','../drops/Carrot.png');
+		this.Phaser.load.image('drop_Feather','../drops/Feather.png');
+		this.Phaser.load.image('drop_Green Apple','../drops/Green Apple.png');
+		this.Phaser.load.image('drop_Milk Bottle','../drops/Milk Bottle.png');
+		this.Phaser.load.image('drop_Orange','../drops/Orange.png');
+		this.Phaser.load.image('drop_Radish','../drops/Radish.png');
+		this.Phaser.load.image('drop_Strawberry','../drops/Strawberry.png');
+
+		//Background
+		this.Phaser.load.image('background',"../locations/"+this.background_image+"/bg.jpg");
 
 		//Get JSON files
 		$j.getJSON("../data/creatures.json", function(json_in) {
@@ -183,17 +254,19 @@ var Game = Class.create({
 				getImage('../bestiary/'+data.name+'/artwork.jpg',function(){ G.loadFinish() });
 				if(data.name == "Dark Priest"){
 					for (var i = 0; i < dpcolor.length; i++) {
-						getImage('../bestiary/'+data.name+'/cardboard-'+dpcolor[i]+'.png',function(){ G.loadFinish() });
+						G.Phaser.load.image(data.name+dpcolor[i]+'_cardboard','../bestiary/'+data.name+'/cardboard-'+dpcolor[i]+'.png');
 						getImage('../bestiary/'+data.name+'/avatar-'+dpcolor[i]+'.jpg',function(){ G.loadFinish() });
 					};
 				}else{
-					getImage('../bestiary/'+data.name+'/cardboard.png',function(){ G.loadFinish() });
+					G.Phaser.load.image(data.name+'_cardboard','../bestiary/'+data.name+'/cardboard.png');
 					getImage('../bestiary/'+data.name+'/avatar.jpg',function(){ G.loadFinish() });
 				}
 
 				//For code compatibility
 				G.availableCreatures[j] = data.type;
 			};
+
+			G.Phaser.load.start();
 		});
 
 	},
@@ -211,6 +284,10 @@ var Game = Class.create({
 		}
 	},
 
+	phaserUpdate : function(){
+		if( this.gameState != "playing" ) return;
+	},
+
 
 	/*	Setup(nbrPlayer)
 	*	
@@ -221,7 +298,12 @@ var Game = Class.create({
 	*/
 	setup: function(nbrPlayer){
 
-		this.gameState = "playing";
+		//Phaser
+		this.Phaser.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
+		this.Phaser.stage.scale.setShowAll();
+		this.Phaser.stage.scale.refresh();
+		this.Phaser.stage.disableVisibilityChange = true;
+		this.Phaser.add.sprite(0, 0, 'background');
 
 		//reseting global counters
 		trapID = 0;
@@ -230,8 +312,6 @@ var Game = Class.create({
 		this.creaIdCounter = 1;
 		
 		this.grid = new HexGrid();//Creating Hexgrid
-
-		$j("#combatframe").css("background-image","url('../locations/"+this.background_image+"/bg.jpg')");
 
 		this.startMatchTime = new Date();
 
@@ -282,6 +362,7 @@ var Game = Class.create({
 		this.UI = new UI(); //Creating UI not before because certain function requires creature to exists
 
 		//DO NOT CALL LOG BEFORE UI CREATION
+		this.gameState = "playing";
 
 		this.log("Welcome to Ancient Beast pre-Alpha");
 		this.log("Setting up a "+nbrPlayer+" player match");
@@ -315,21 +396,21 @@ var Game = Class.create({
 	*
 	*/
 	resizeCombatFrame: function(){
-		if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ){
-			// $j("#tabwrapper").css({scale: $j(window).height() / 1080});
-			this.$combatFrame.css({ 
-				scale: $j(window).height() / 1080, 
-				"margin-left": -1920*($j(window).height()/1080)/2, 
-				"margin-top": -1080*($j(window).height()/1080)/2, 
-			});
-		}else{
-			// $j("#tabwrapper").css({scale: $j(window).width() / 1080});
-			this.$combatFrame.css({ 
-				scale: $j(window).width() / 1920, 
-				"margin-left": -1920*($j(window).width()/1920)/2, 
-				"margin-top": -1080*($j(window).width()/1920)/2, 
-			});	
-		}
+		// if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ){
+		// 	// $j("#tabwrapper").css({scale: $j(window).height() / 1080});
+		// 	this.$combatFrame.css({ 
+		// 		scale: $j(window).height() / 1080, 
+		// 		"margin-left": -1920*($j(window).height()/1080)/2, 
+		// 		"margin-top": -1080*($j(window).height()/1080)/2, 
+		// 	});
+		// }else{
+		// 	// $j("#tabwrapper").css({scale: $j(window).width() / 1080});
+		// 	this.$combatFrame.css({ 
+		// 		scale: $j(window).width() / 1920, 
+		// 		"margin-left": -1920*($j(window).width()/1920)/2, 
+		// 		"margin-top": -1080*($j(window).width()/1920)/2, 
+		// 	});	
+		// }
 
 		if( $j("#cardwrapper").width() < $j("#card").width() ){
 			$j("#cardwrapper_inner").width()

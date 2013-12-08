@@ -110,31 +110,41 @@ var Creature = Class.create({
 		
 		this.updateHex();
 		
-		//Creating Html representation of creature
-		this.$display = G.grid.$creatureW.append('<div id="crea'+this.id +'" class="creature ghosted p'+this.team+'"><div class="effects"></div></div>').children("#crea"+this.id);
 		var dp = (this.type!="--") ? ""
-		:(this.team==0)? "-red"
-		:(this.team==1)? "-blue"
-		:(this.team==2)? "-orange" : "-green" ;
+		:(this.team==0)? "red"
+		:(this.team==1)? "blue"
+		:(this.team==2)? "orange" : "green" ;
 
-		this.$display.css({
-			"background-image" : "url('../bestiary/"+this.name+"/cardboard"+dp+".png')",
-			height : this.display.height,
-			width : this.display.width,
-			"margin-top" : this.display["offset-y"],
-			"margin-left" : (!this.player.flipped) ? this.display["offset-x"] : 90*this.size-this.display.width-this.display["offset-x"],
-		});
-		this.$effects = this.$display.children(".effects");
+		//Creature Container
+		this.grp = G.Phaser.add.group(G.grid.creatureGroup, "creatureGrp_"+this.id);
+		//Adding sprite
+		this.sprite = this.grp.create(0,0, this.name+dp+'_cardboard');
+		this.sprite.anchor.setTo(0.5,1);
+		//Placing sprite
+		this.sprite.x = this.display["offset-x"] + this.sprite.texture.width/2 + 1; //((!this.player.flipped) ? this.display["offset-x"] : 90*this.size-this.display.width-this.display["offset-x"]);
+		this.sprite.y = this.display["offset-y"] + this.sprite.texture.height;
+		//Placing Group
+		this.grp.x = this.hexagons[this.size-1].displayPos.x;
+		this.grp.y = this.hexagons[this.size-1].displayPos.y;
 
-		this.$display.css(this.hexagons[this.size-1].displayPos); //translate to its real position
-		this.$display.css("z-index",this.y);
 		this.facePlayerDefault();
 
+		//Hint Group
+		this.hintGrp = G.Phaser.add.group(this.grp,"creatureHintGrp_"+this.id);
+		this.hintGrp.x = 46 * this.size;
+		this.hintGrp.y = -this.sprite.texture.height+5;
+
 		//Health indicator
-		this.$health = G.grid.$creatureW.append('<div creature="'+this.id+'" class="health p'+this.team+'">'+this.health+'</div>').children(".health[creature='"+this.id+"']");
-		this.$health.hide();
-		this.updateHealth();
-		
+		this.healtIndicatorGrp = G.Phaser.add.group(this.grp, "creatureHealthGrp_"+this.id);
+		//Adding background sprite
+		this.healtIndicatorGrp.create(28,49, "p"+this.team+'_health');
+		//Add text
+		this.healtIndicatorText = G.Phaser.add.text(51,59, this.health, {font: "italic bold 15pt Play", fill: "#ffffff", align: "center"});
+		this.healtIndicatorText.anchor.setTo(0.5, 0.5);
+		this.healtIndicatorGrp.add(this.healtIndicatorText);
+		//Hide It
+		this.healtIndicatorGrp.alpha = 0;
+
 		//Adding Himself to creature arrays and queue
 		G.creatures[this.id] = this;
 
@@ -154,17 +164,16 @@ var Creature = Class.create({
 
 		G.nextQueue.push(this);
 		G.reorderQueue();
+
+		G.grid.orderCreatureZ();
 		
 		//TODO Summon effect
-		this.$display.removeClass("ghosted");
-		$j("#crea_materialize_overlay").remove();
+		// this.$display.removeClass("ghosted");
+		// $j("#crea_materialize_overlay").remove();
 
 		//reveal and position health indicator
-		var offsetX = (this.player.flipped) ? this.x - this.size + 1: this.x ;
-		this.$health
-			.css(G.grid.hexs[this.y][offsetX].displayPos)
-			.css("z-index",this.y)
-			.fadeIn(500);
+		this.updateHealth();
+		this.healthShow();
 
 		//Trigger trap under
 		var crea = this;
@@ -173,7 +182,20 @@ var Creature = Class.create({
 		});
 
 		//Pickup drop
-		this.hexagons.each(function(){this.pickupDrop(crea);});
+		this.pickupDrop();
+	},
+	
+
+	healthHide: function(){
+		this.healtIndicatorGrp.alpha = 0;
+	},
+
+	healthShow: function(){
+		var offsetX = (this.player.flipped) ? this.x - this.size + 1: this.x ;
+		var hex = G.grid.hexs[this.y][offsetX];
+		// this.healtIndicatorGrp.x = hex.displayPos.x;
+		// this.healtIndicatorGrp.y = hex.displayPos.y;
+		this.healtIndicatorGrp.alpha = 1;
 	},
 
 	/*	activate()
@@ -197,7 +219,7 @@ var Creature = Class.create({
 					if(crea.stats.regrowth < 0){
 						crea.heal(crea.stats.regrowth,true);
 					}else{
-						crea.hint("&diams;",'damage');
+						crea.hint("♦",'damage');
 					}
 				}
 
@@ -205,7 +227,7 @@ var Creature = Class.create({
 					crea.energy = Math.min( crea.stats.energy, crea.energy + crea.stats.meditation ); //cap
 				}
 			}else{
-				crea.hint("&clubs;",'damage');
+				crea.hint("♣",'damage');
 			}
 
 			crea.endurance = crea.stats.endurance;
@@ -346,6 +368,7 @@ var Creature = Class.create({
 		}
 
 		G.grid.updateDisplay(); //Retrace players creatures
+		G.grid.orderCreatureZ();
 		this.facePlayerDefault();
 		this.updateHealth();
 
@@ -460,9 +483,9 @@ var Creature = Class.create({
 
 
 		if(flipped){ 
-			this.$display.addClass("flipped").css("margin-left", 90*this.size-this.display.width-this.display["offset-x"]);
+			this.sprite.scale.setTo(-1,1);
 		}else{
-			this.$display.removeClass("flipped").css("margin-left", this.display["offset-x"]);
+			this.sprite.scale.setTo(1,1);
 		}
 	},
 	
@@ -473,9 +496,9 @@ var Creature = Class.create({
 	*/
 	facePlayerDefault: function(){
 		if(this.player.flipped){ 
-			this.$display.addClass("flipped").css("margin-left", 90*this.size-this.display.width-this.display["offset-x"]);
+			this.sprite.scale.setTo(-1,1);
 		}else{
-			this.$display.removeClass("flipped").css("margin-left", this.display["offset-x"]);
+			this.sprite.scale.setTo(1,1);
 		}
 	},
 
@@ -503,224 +526,24 @@ var Creature = Class.create({
 
 		if(this.stats.moveable){
 			var creature = this;
-			var start = G.grid.hexs[creature.y][creature.x-creature.size+1];
+			
 			var x = hex.x;
 			var y = hex.y;
+			
 			if(opts.ignorePath || opts.animation == "fly"){
 				var path = [hex];
 			}else{
 				var path = creature.calculatePath(x,y);
 			}
 	
-			if( opts.customMovementPoint > 0 ){ 
-	
-				path = path.slice(0,opts.customMovementPoint); 
-				//For compatibility
-				var savedMvtPoints = creature.remainingMove;
-				creature.remainingMove = opts.customMovementPoint;
-			}
-	
 			if( path.length == 0 ) return; //Break if empty path
 	
-			G.freezedInput = true;
-	
-			var anim_id = Math.random();
-			G.animationQueue.push(anim_id);
-	
-			var currentHex = creature.hexagons[0];
-	
-			//Determine facing
-			creature.$display.animate({'margin-right':0,opacity:1},0,"linear",function(){ //To stack with other transforms
-				//creature.facePlayerDefault();
-				if(opts.animation!="push") creature.faceHex(path[0],currentHex);
-			});
-	
-			//Trigger
-			G.triggersFn.onStepOut(creature,currentHex);
-	
-			creature.cleanHex();
-			G.grid.updateDisplay();
 			G.grid.xray( new Hex(0,0) ); //Clean Xray
-			creature.updateHex();
-	
-			creature.$health.hide();
-			
-			//TODO turn around animation
-	
-			//Translate creature with jquery animation
+				
 			creature.travelDist = 0;
 	
-			var hexId = 0;
-
-			if( opts.animation == "fly" ){
-				var currentHex = G.grid.hexs[hex.y][hex.x-creature.size+1];
-
-				var speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
-	
-				creature.$display.animate(currentHex.displayPos,parseInt(speed),"linear",function(){
-					creature.$display
-						.css(currentHex.displayPos)
-						.css({"z-index":currentHex.y,opacity:1});
-					
-					creature.cleanHex();
-					creature.x 	= hex.x - 0;
-					creature.y 	= hex.y - 0;
-					creature.pos 	= hex.pos;
-					creature.updateHex();
-	
-					G.grid.updateDisplay();
-
-					//Determine distance
-					var distance = 0;
-					var k = 0;
-					while(!distance && start != currentHex){
-						k++;
-						if( start.adjacentHex(k).findPos(currentHex) ) distance = k;
-					}
-
-					if(!opts.ignoreMovementPoint){
-
-						creature.remainingMove -= distance;
-						if(opts.customMovementPoint == 0) creature.travelDist += distance;
-						
-						//Trigger
-						G.triggersFn.onStepIn(creature,currentHex);
-						creature.hexagons.each(function(){this.pickupDrop(creature);});
-					}
-	
-					//TODO turn around animation
-					creature.facePlayerDefault();
-	
-					//reveal and position healh idicator
-					var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
-					creature.$health
-						.css(G.grid.hexs[creature.y][offsetX].displayPos)
-						.css("z-index",creature.y)
-						.show();
-	
-					G.animationQueue.filter(function(){ return (this!=anim_id); });
-
-					opts.callbackStepIn(currentHex);
-
-					//Trigger
-					G.triggersFn.onCreatureMove(creature,currentHex);
-
-					if( G.animationQueue.length == 0 ) G.freezedInput = false;
-				});
-			}else if( opts.animation == "teleport" ){
-				var currentHex = G.grid.hexs[hex.y][hex.x-creature.size+1];
-	
-				creature.$display.css({opacity:0}).animate({'margin-right':0},500,"linear",function(){
-					creature.$display
-						.css(currentHex.displayPos)
-						.css({"z-index":currentHex.y,opacity:1});
-					
-					creature.cleanHex();
-					creature.x 	= hex.x - 0;
-					creature.y 	= hex.y - 0;
-					creature.pos 	= hex.pos;
-					creature.updateHex();
-	
-					G.grid.updateDisplay();
-	
-					//TODO turn around animation
-					creature.facePlayerDefault();
-	
-					//reveal and position healh idicator
-					var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
-					creature.$health
-						.css(G.grid.hexs[creature.y][offsetX].displayPos)
-						.css("z-index",creature.y)
-						.show();
-	
-					G.animationQueue.filter(function(){ return (this!=anim_id); });
-
-					creature.hexagons.each(function(){this.pickupDrop(creature);});
-					opts.callbackStepIn(currentHex);
-
-					//Trigger
-					G.triggersFn.onCreatureMove(creature,currentHex);
-
-					if( G.animationQueue.length == 0 ) G.freezedInput = false;
-				});
-			}else{
-				path.each(function(){
-					var nextPos = G.grid.hexs[this.y][this.x-creature.size+1];
-
-					var speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
-	
-					var thisHexId = hexId;
-					creature.$display.animate(nextPos.displayPos,parseInt(speed),"linear",function(){
-	
-						//Sound Effect
-						G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);
-	
-						//creature.facePlayerDefault(creature);
-						var currentHex = path[thisHexId];
-	
-						creature.cleanHex();
-						creature.x 	= currentHex.x - 0;
-						creature.y 	= currentHex.y - 0;
-						creature.pos 	= currentHex.pos;
-						creature.updateHex();
-	
-						if(!opts.ignoreMovementPoint){
-	
-							creature.remainingMove--;
-							if(opts.customMovementPoint == 0) creature.travelDist++;
-							
-							//Trigger
-							G.triggersFn.onStepIn(creature,currentHex);
-							creature.hexagons.each(function(){this.pickupDrop(creature);});
-						}
-
-						opts.callbackStepIn(currentHex);
-	
-						if( thisHexId < path.length-1 && creature.remainingMove > 0 ){
-							//Determine facing
-							if(opts.animation!="push") creature.faceHex(path[thisHexId+1],currentHex);
-	
-							//Trigger
-							G.triggersFn.onStepOut(creature,currentHex);
-	
-						}else{
-	
-							//  	END OF MOVEMENT
-	
-							if(opts.customMovementPoint > 0){
-								creature.remainingMove = savedMvtPoints;
-							}
-	
-							creature.$display.clearQueue(); //Stop the creature
-	
-							G.grid.updateDisplay();
-	
-							//TODO turn around animation
-							creature.facePlayerDefault();
-	
-							//reveal and position healh indicator
-							var offsetX = (creature.player.flipped) ? creature.x - creature.size + 1: creature.x ;
-							creature.$health
-								.css(G.grid.hexs[creature.y][offsetX].displayPos)
-								.css("z-index",creature.y)
-								.show();
-	
-							G.animationQueue.filter(function(){ return (this!=anim_id); });
-	
-							//Trigger
-							G.triggersFn.onCreatureMove(creature,currentHex);
-							creature.hexagons.each(function(){this.pickupDrop(creature);});
-	
-							if( G.animationQueue.length == 0 ) G.freezedInput = false;
-						}
-	
-	
-						//Set the proper z-index;
-						creature.$display.css("z-index",nextPos.y);
-					});
-					hexId++;
-				})
-			}
+			G.animations.movements[opts.animation](this, path, opts);
+			
 		}else{
 			G.log("This creature cannot be moved");
 		}
@@ -925,14 +748,14 @@ var Creature = Class.create({
 		this.updateHealth();
 
 		if(amount>0){
-			if(isRegrowth) this.hint(amount+" &hearts;",'healing d'+amount);
+			if(isRegrowth) this.hint(amount+" ♥",'healing d'+amount);
 			else this.hint(amount,'healing d'+amount);
 			G.log("%CreatureName"+this.id+"% recovers +"+amount+" health");
 		}else if(amount==0){
-			if(isRegrowth) this.hint("&diams;",'msg_effects');
+			if(isRegrowth) this.hint("♦",'msg_effects');
 			else this.hint("!",'msg_effects');
 		}else{
-			if(isRegrowth) this.hint(amount+" &spades;",'damage d'+amount);
+			if(isRegrowth) this.hint(amount+" ♠",'damage d'+amount);
 			else this.hint(amount,'damage d'+amount);
 			G.log("%CreatureName"+this.id+"% loses "+amount+" health");
 		}
@@ -1047,9 +870,9 @@ var Creature = Class.create({
 
 	updateHealth: function(){
 		if( this.type == "--" && this.player.plasma > 0 ){
-			this.$health.addClass("plasma").text(this.player.plasma);
+			this.healtIndicatorText.setText(this.player.plasma);
 		}else{
-			this.$health.removeClass("plasma").text(this.health);
+			this.healtIndicatorText.setText(this.health);
 		}
 	},
 
@@ -1090,23 +913,45 @@ var Creature = Class.create({
 
 		var tooltipSpeed = 250;
 		var tooltipDisplaySpeed = 500;
-		var tooltipTransition = "";
+		var tooltipTransition = Phaser.Easing.Linear.None;
 
-		this.$effects.children(".constant").remove();
-		var id = this.$effects.children().length;
-		var $tooltip = $j('<div class="'+cssclass+'">'+text+'</div>').prependTo(this.$effects);
+		var hintColor = {
+			confirm : { fill: "#000000", stroke: "#ffffff" },
+			gamehintblack : { fill: "#ffffff", stroke: "#000000" },
+			healing : { fill: "#00ff00" },
+			msg_effects : { fill: "#ffff00" }
+		};
 
+		var style = $j.extend( { 
+			font: "italic bold 20pt Play", 
+			fill: "#ff0000", 
+			align: "center", 
+			stroke: "#000000", 
+			strokeThickness: 2 
+		}, hintColor[cssclass] );
 
-		this.$effects.children().each(function(){
-			var index = $j(this).index();
-			var offset = 50*index;
-			$j(this).transition({bottom:offset, queue: false },tooltipSpeed,tooltipTransition);
-		});
+		var hint = G.Phaser.add.text(0,50, text, style);
+		hint.anchor.setTo(0.5, 0.5);
 
-		$tooltip.css({"margin-left": -250+(this.display.width/2)});
-		$tooltip.css({bottom: -50,opacity:0}).transition({bottom:0, opacity:1},tooltipSpeed,tooltipTransition);
+		hint.alpha = 0;
 
-		if( !$tooltip.hasClass("constant") ) $tooltip.transition({opacity:1},tooltipDisplaySpeed).transition({opacity:0},tooltipSpeed,tooltipTransition,function(){ this.remove(); }); 
+		//Chaining does not work with onCompleteCallback. This is a workaround.
+		hint.tweenAlpha = G.Phaser.add.tween(hint)
+		.to( {alpha:1}, tooltipSpeed, tooltipTransition )
+		.to( {alpha:1}, tooltipDisplaySpeed, tooltipTransition )
+		.to( {alpha:0}, tooltipSpeed, tooltipTransition ).start();
+		hint.tweenAlpha._lastChild.onComplete.add(function(){ hint.destroy() },this);
+
+		this.hintGrp.add(hint);
+
+		this.hintGrp.forEach(function(grpHintElem){
+			var index = this.hintGrp.total - this.hintGrp.getIndex(grpHintElem) - 1;
+			var offset = -50 * index;
+			if(grpHintElem.tweenPos) grpHintElem.tweenPos.stop();
+			grpHintElem.tweenPos = G.Phaser.add.tween(grpHintElem).to( {y:offset}, tooltipSpeed, tooltipTransition ).start();
+		},this,true);
+
+		// if( !$tooltip.hasClass("constant") ) $tooltip.transition({opacity:1},tooltipDisplaySpeed).transition({opacity:0},tooltipSpeed,tooltipTransition,function(){ this.remove(); }); 
 	},
 
 	/* 	updateAlteration()
@@ -1175,6 +1020,9 @@ var Creature = Class.create({
 	*
 	*/
 	die: function(killer){
+
+		var crea = this;
+
 		G.log("%CreatureName"+this.id+"% is dead");
 
 		this.dead = true;		
@@ -1234,10 +1082,10 @@ var Creature = Class.create({
 		if(this.type == "--") this.player.deactivate(); //Here because of score calculation
 
 		//Kill animation
-		this.$display.addClass("dead");
-		this.$health.css({opacity:0}).transition({},500,function(){
-			this.remove();
-		});
+		var tweenSprite = G.Phaser.add.tween(this.sprite).to( {alpha:0}, 500, Phaser.Easing.Linear.None ).start();
+		var tweenHealth = G.Phaser.add.tween(this.healtIndicatorGrp).to( {alpha:0}, 500, Phaser.Easing.Linear.None ).start();
+		tweenSprite.onCompleteCallback(function(){ crea.sprite.destroy(); });
+		tweenHealth.onCompleteCallback(function(){ crea.healtIndicatorGrp.destroy(); });
 
 		this.cleanHex();
 
@@ -1364,6 +1212,20 @@ var Creature = Class.create({
 			}
 		});
 		return ret;
+	},
+
+
+	xray : function(enable){
+		if(enable){
+			this.grp.alpha = .5;
+		}else{
+			this.grp.alpha = 1;
+		}
+	},
+
+	pickupDrop : function(){
+		var crea = this;
+		this.hexagons.each(function(){this.pickupDrop(crea);});
 	}
 
 });

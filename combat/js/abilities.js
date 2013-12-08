@@ -121,12 +121,12 @@ var Ability = Class.create({
 		G.freezedInput = true;
 
 		//Animate
-		var p0 = G.grid.hexs[this.creature.y][this.creature.x-this.creature.size+1].displayPos.left;
+		var p0 = this.creature.sprite.x;
 		var p1 = p0;
 		var p2 = p0;
 
-		p1 += (this.creature.flipped)?5:-5;
-		p2 += (this.creature.flipped)?-5:5;
+		p1 += (this.creature.player.flipped)? 5 : -5;
+		p2 += (this.creature.player.flipped)? -5 : 5;
 
 		if( !this.noAnimation ){
 			var anim_id = Math.random();
@@ -135,14 +135,19 @@ var Ability = Class.create({
 
 			if(this.animation_datas == undefined){ 
 				this.animation_datas = { 
+					visual : function(){},
 					duration : 500,
 					delay : 350,
 				};
 			}
 
-			this.creature.$display.animate({left:p1},250,"linear");
-			this.creature.$display.animate({left:p2},100,"linear");
-			this.creature.$display.animate({left:p0},150,"linear");
+			var tween = G.Phaser.add.tween(this.creature.sprite)
+			.to({x:p1}, 250, Phaser.Easing.Linear.None)
+			.to({x:p2}, 100, Phaser.Easing.Linear.None)
+			.to({x:p0}, 150, Phaser.Easing.Linear.None)
+			.start();
+			
+			ab.animation_datas.visual.apply(ab,args);
 
 			setTimeout(function(){
 				if( !G.triggers.onAttack.test(ab.trigger) ){
@@ -157,6 +162,7 @@ var Ability = Class.create({
 					G.freezedInput = false;
 				}
 			},this.animation_datas.duration);
+
 		}else{
 			ab.activate.apply(ab,args);
 			G.freezedInput = false;
