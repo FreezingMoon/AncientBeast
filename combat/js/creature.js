@@ -139,7 +139,7 @@ var Creature = Class.create({
 		//Adding background sprite
 		this.healtIndicatorGrp.create(28,49, "p"+this.team+'_health');
 		//Add text
-		this.healtIndicatorText = G.Phaser.add.text(51,59, this.health, {font: "italic bold 15pt Play", fill: "#ffffff", align: "center"});
+		this.healtIndicatorText = G.Phaser.add.text(51,59, this.health, {font: "bold 15pt Play", fill: "#ffffff", align: "center"});
 		this.healtIndicatorText.anchor.setTo(0.5, 0.5);
 		this.healtIndicatorGrp.add(this.healtIndicatorText);
 		//Hide It
@@ -923,7 +923,7 @@ var Creature = Class.create({
 		};
 
 		var style = $j.extend( { 
-			font: "italic bold 20pt Play", 
+			font: "bold 20pt Play", 
 			fill: "#ff0000", 
 			align: "center", 
 			stroke: "#000000", 
