@@ -1095,13 +1095,15 @@ var Hex = Class.create({
 
 		if(grid){
 
-			this.display 	= grid.dispHexsGroup.create(this.displayPos.x, this.displayPos.y, 'hex');
+			//10px is the offset from the old version
+
+			this.display 	= grid.dispHexsGroup.create(this.displayPos.x-10, this.displayPos.y, 'hex');
 			this.display.alpha = 0;
 			
-			this.overlay 	= grid.overHexsGroup.create(this.displayPos.x, this.displayPos.y, 'hex');
+			this.overlay 	= grid.overHexsGroup.create(this.displayPos.x-10, this.displayPos.y, 'hex');
 			this.overlay.alpha = 0;
 
-			this.input 		= grid.inptHexsGroup.create(this.displayPos.x, this.displayPos.y, 'input');
+			this.input 		= grid.inptHexsGroup.create(this.displayPos.x-10, this.displayPos.y, 'input');
 			this.input.inputEnabled = true;
 			this.input.input.pixelPerfect = true;
 			this.input.input.pixelPerfectAlpha = 1;

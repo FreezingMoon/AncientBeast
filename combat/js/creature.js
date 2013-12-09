@@ -121,7 +121,7 @@ var Creature = Class.create({
 		this.sprite = this.grp.create(0,0, this.name+dp+'_cardboard');
 		this.sprite.anchor.setTo(0.5,1);
 		//Placing sprite
-		this.sprite.x = this.display["offset-x"] + this.sprite.texture.width/2 + 1; //((!this.player.flipped) ? this.display["offset-x"] : 90*this.size-this.display.width-this.display["offset-x"]);
+		this.sprite.x = ((!this.player.flipped) ? this.display["offset-x"] : 90*this.size-this.sprite.texture.width-this.display["offset-x"]) +this.sprite.texture.width/2;
 		this.sprite.y = this.display["offset-y"] + this.sprite.texture.height;
 		//Placing Group
 		this.grp.x = this.hexagons[this.size-1].displayPos.x;
@@ -487,6 +487,7 @@ var Creature = Class.create({
 		}else{
 			this.sprite.scale.setTo(1,1);
 		}
+		this.sprite.x = ((!flipped) ? this.display["offset-x"] : 90*this.size-this.sprite.texture.width-this.display["offset-x"]) +this.sprite.texture.width/2;
 	},
 	
 	/* 	facePlayerDefault()
@@ -500,6 +501,7 @@ var Creature = Class.create({
 		}else{
 			this.sprite.scale.setTo(1,1);
 		}
+		this.sprite.x = ((!this.player.flipped) ? this.display["offset-x"] : 90*this.size-this.sprite.texture.width-this.display["offset-x"]) +this.sprite.texture.width/2;
 	},
 
 	/* 	moveTo(hex,opts)

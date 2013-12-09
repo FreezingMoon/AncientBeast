@@ -105,7 +105,7 @@ var Game = Class.create({
 		this.turnThrottle = false;
 
 		//Phaser
-		this.Phaser = new Phaser.Game(1920, 1080, Phaser.WEBGL, 'combatwrapper', {update:function(){ G.phaserUpdate(); }});
+		this.Phaser = new Phaser.Game(1920, 1080, Phaser.WEBGL, 'combatwrapper', {update:function(){ G.phaserUpdate(); }, render:function(){ G.phaserRender(); }});
 
 		//Msg (TODO External file)
 		this.msg = {
@@ -287,6 +287,12 @@ var Game = Class.create({
 
 	phaserUpdate : function(){
 		if( this.gameState != "playing" ) return;
+	},
+
+	phaserRender : function(){
+		for (var i = 1; i < G.creatures.length; i++) {
+			//G.Phaser.debug.renderSpriteBounds(G.creatures[i].sprite);
+		};
 	},
 
 
