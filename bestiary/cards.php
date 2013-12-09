@@ -212,17 +212,13 @@ require_once("../images/stats/index.php"); ?>
 .stats_infos div { margin: 10px 20px; }
 .stats_infos div.textcenter { text-align: center; }
 
-.stats:hover{
-	background: black;
-	border-radius: 10px;
-}
-
-
 #dash .stats:hover{
 	border-top-left-radius: 10px;
 	border-top-right-radius: 10px;
 	border-bottom-left-radius: 0px;
 	border-bottom-right-radius: 0px;
+	background: black;
+	border-radius: 10px;
 }
 
 #dash .low_row .stats:hover{
