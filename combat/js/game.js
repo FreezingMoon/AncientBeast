@@ -158,7 +158,7 @@ var Game = Class.create({
 		+ 12 //Hexagons
 		+ 4 //Health Frames
 		+ 3 //Traps
-		+ 1 //Effects
+		+ 2 //Effects
 		+ 26 //drops
 		;
 
@@ -202,6 +202,7 @@ var Game = Class.create({
 
 		//Effects
 		this.Phaser.load.image('effects_fissure-vent', './grid/fissure-vent.png');
+		this.Phaser.load.image('effects_chilling-spit', '../bestiary/Snow Bunny/Chilling Spit.png');
 
 		//Drops
 		this.Phaser.load.image('drop_Apple','../drops/Apple.png');
