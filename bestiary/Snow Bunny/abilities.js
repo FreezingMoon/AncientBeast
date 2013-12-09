@@ -310,8 +310,8 @@ abilities[12] = [
 			}
 			var dist = path.slice(0).filterCreature(false,false).length;
 
-			var emissionPoint = {x: this.creature.grp.x+52, y: this.creature.grp.y-60};
-			var targetPoint = {x: targetHex.displayPos.x+52, y: targetHex.displayPos.y-60};
+			var emissionPoint = {x: this.creature.grp.x+52, y: this.creature.grp.y-20};
+			var targetPoint = {x: targetHex.displayPos.x+52, y: targetHex.displayPos.y-20};
 
 			var duration = this.animation_datas.delay = dist*75; //100ms for each hex
 			this.animation_datas.delay += 350; //350ms for the creature animation before the projectile
