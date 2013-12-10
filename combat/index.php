@@ -400,7 +400,7 @@ require_once('../bestiary/cards.php');
 									</div>	
 								</div>
 							</div>
-							<div class="progressbar"><div class="bar"></div></div>
+							<div class="progressbar"><div class="bar energybar"></div><div class="bar healthbar"></div></div>
 						</div>
 					</div>
 				</div>

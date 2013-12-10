@@ -1553,7 +1553,7 @@ var Trap = Class.create({
 			this.effects[i].trap = this;
 		};
 
-		this.display = G.grid.trapGroup.create(this.hex.originalDisplayPos.x, this.hex.originalDisplayPos.y, 'trap_'+type);
+		this.display = G.grid.trapGroup.create(this.hex.originalDisplayPos.x-10, this.hex.originalDisplayPos.y, 'trap_'+type);
 
 	},
 

@@ -1159,6 +1159,12 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 	transition: height 500ms;
 }
 
+.progressbar .bar.poolbar,
+.progressbar .bar.energybar
+{
+	margin-left: 9px;
+}
+
 #volume_sliders {
 	margin: 0 auto;
 	width: 500px;

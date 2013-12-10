@@ -104,7 +104,8 @@ var UI = Class.create({
 		this.buttons.push(this.btnFlee);
 
 		//ProgessBar
-		this.energyBar = new ProgessBar({$bar : $j("#leftpanel .progressbar .bar"), color : "yellow" });
+		this.healthBar = new ProgessBar({$bar : $j("#leftpanel .progressbar .bar.healthbar"), color : "red" });
+		this.energyBar = new ProgessBar({$bar : $j("#leftpanel .progressbar .bar.energybar"), color : "yellow" });
 		this.timeBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .timebar"), width : 9 , color : "white" });
 		this.poolBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" });
 
@@ -1369,7 +1370,7 @@ var ProgessBar = Class.create({
 	initialize: function(opts){
 		defaultOpts = {
 			height : 318,
-			width : 18,
+			width : 9,
 			color : "red",
 			$bar : undefined
 		};
@@ -1377,7 +1378,7 @@ var ProgessBar = Class.create({
 		opts = $j.extend(defaultOpts,opts);
 		$j.extend(this,opts);
 
-		this.setSize(0);
+		this.setSize(1);
 	},
 
 	/*	setSize

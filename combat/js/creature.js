@@ -879,6 +879,10 @@ var Creature = Class.create({
 
 
 	updateHealth: function(){
+		if(this == G.activeCreature){
+			G.UI.healthBar.setSize( this.health / this.stats.health );
+		}
+
 		if( this.type == "--" && this.player.plasma > 0 ){
 			this.healtIndicatorSprite.loadTexture("p"+this.player.id+"_plasma");
 			this.healtIndicatorText.setText(this.player.plasma);
