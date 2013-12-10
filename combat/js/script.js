@@ -16,8 +16,8 @@ $j(document).ready(function(){
 		};
 
 		if( gameconfig.background_image == "random" ){
-			var index = Math.floor(Math.random() * ($j('select[name="background"] option').length - 1) ) + 2;  // nth-child indices start at 1
-			gameconfig.background_image = $j('select[name="background"] option:nth-child(' + index + ")").attr("value");
+			var index = Math.floor(Math.random() * ($j('input[name="location"]').length - 1) ) + 1;  // nth-child indices start at 1
+			gameconfig.background_image = $j('input[name="location"]').slice(index,index+1).attr("value");
 		}
 		G.loadGame(gameconfig);
 		return false; //prevent submit
