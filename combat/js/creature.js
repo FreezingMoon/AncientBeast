@@ -131,15 +131,15 @@ var Creature = Class.create({
 
 		//Hint Group
 		this.hintGrp = G.Phaser.add.group(this.grp,"creatureHintGrp_"+this.id);
-		this.hintGrp.x = 46 * this.size;
+		this.hintGrp.x = 45 * this.size;
 		this.hintGrp.y = -this.sprite.texture.height+5;
 
 		//Health indicator
 		this.healtIndicatorGrp = G.Phaser.add.group(this.grp, "creatureHealthGrp_"+this.id);
 		//Adding background sprite
-		this.healtIndicatorGrp.create(28,49, "p"+this.team+'_health');
+		this.healtIndicatorSprite = this.healtIndicatorGrp.create( (this.player.flipped) ? 18 : 18 + 90*(this.size-1), 49, "p"+this.team+'_health');
 		//Add text
-		this.healtIndicatorText = G.Phaser.add.text(51,59, this.health, {font: "bold 15pt Play", fill: "#ffffff", align: "center"});
+		this.healtIndicatorText = G.Phaser.add.text( (this.player.flipped) ? 45 : 45 + 90*(this.size-1), 59, this.health, {font: "bold 15pt Play", fill: "#ffffff", align: "center"});
 		this.healtIndicatorText.anchor.setTo(0.5, 0.5);
 		this.healtIndicatorGrp.add(this.healtIndicatorText);
 		//Hide It
@@ -872,8 +872,10 @@ var Creature = Class.create({
 
 	updateHealth: function(){
 		if( this.type == "--" && this.player.plasma > 0 ){
+			this.healtIndicatorSprite.loadTexture("p"+this.player.id+"_plasma");
 			this.healtIndicatorText.setText(this.player.plasma);
 		}else{
+			this.healtIndicatorSprite.loadTexture("p"+this.player.id+"_health");
 			this.healtIndicatorText.setText(this.health);
 		}
 	},

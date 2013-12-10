@@ -150,16 +150,13 @@ var Game = Class.create({
 
 		dpcolor = ["blue","orange","green","red"];
 
-		this.loadingSrc = (G.loadedCreatures.length-1) * 5 
-		+ dpcolor.length*2 + 3 //Darkpriest
-		+ this.availableMusic.length //Music
+		this.loadingSrc = this.availableMusic.length //Music
 		+ this.soundEffects.length //Sound effects
 		+ 1 //Background
 		+ 12 //Hexagons
-		+ 4 //Health Frames
+		+ 8 //Health Frames
 		+ 3 //Traps
 		+ 2 //Effects
-		+ 26 //drops
 		;
 
 		//Music Loading
@@ -180,6 +177,10 @@ var Game = Class.create({
 		this.Phaser.load.image('p1_health', './frames/p1_health.png');
 		this.Phaser.load.image('p2_health', './frames/p2_health.png');
 		this.Phaser.load.image('p3_health', './frames/p3_health.png');
+		this.Phaser.load.image('p0_plasma', './frames/p0_plasma.png');
+		this.Phaser.load.image('p1_plasma', './frames/p1_plasma.png');
+		this.Phaser.load.image('p2_plasma', './frames/p2_plasma.png');
+		this.Phaser.load.image('p3_plasma', './frames/p3_plasma.png');
 
 		//Grid
 		this.Phaser.load.image('hex', './grid/hex.png');
@@ -204,34 +205,6 @@ var Game = Class.create({
 		this.Phaser.load.image('effects_fissure-vent', './grid/fissure-vent.png');
 		this.Phaser.load.image('effects_chilling-spit', '../bestiary/Snow Bunny/Chilling Spit.png');
 
-		//Drops
-		this.Phaser.load.image('drop_Apple','../drops/Apple.png');
-		this.Phaser.load.image('drop_Bone.','../drops/Bone.png');
-		this.Phaser.load.image('drop_Cherry','../drops/Cherry.png');
-		this.Phaser.load.image('drop_Fish.','../drops/Fish.png');
-		this.Phaser.load.image('drop_Lemon','../drops/Lemon.png');
-		this.Phaser.load.image('drop_Mushroom','../drops/Mushroom.png');
-		this.Phaser.load.image('drop_Pear.','../drops/Pear.png');
-		this.Phaser.load.image('drop_Red Pepper','../drops/Red Pepper.png');
-		this.Phaser.load.image('drop_Watermellon','../drops/Watermellon.png');
-		this.Phaser.load.image('drop_Bat Wing','../drops/Bat Wing.png');
-		this.Phaser.load.image('drop_Candy','../drops/Candy.png');
-		this.Phaser.load.image('drop_Fang.','../drops/Fang.png');
-		this.Phaser.load.image('drop_Frog Leg','../drops/Frog Leg.png');
-		this.Phaser.load.image('drop_Meat.','../drops/Meat.png');
-		this.Phaser.load.image('drop_Nut.png','../drops/Nut.png');
-		this.Phaser.load.image('drop_Pineapple','../drops/Pineapple.png');
-		this.Phaser.load.image('drop_Spear','../drops/Spear.png');
-		this.Phaser.load.image('drop_Yellow Pepper','../drops/Yellow Pepper.png');
-		this.Phaser.load.image('drop_Bird Beak','../drops/Bird Beak.png');
-		this.Phaser.load.image('drop_Carrot','../drops/Carrot.png');
-		this.Phaser.load.image('drop_Feather','../drops/Feather.png');
-		this.Phaser.load.image('drop_Green Apple','../drops/Green Apple.png');
-		this.Phaser.load.image('drop_Milk Bottle','../drops/Milk Bottle.png');
-		this.Phaser.load.image('drop_Orange','../drops/Orange.png');
-		this.Phaser.load.image('drop_Radish','../drops/Radish.png');
-		this.Phaser.load.image('drop_Strawberry','../drops/Strawberry.png');
-
 		//Background
 		this.Phaser.load.image('background',"../locations/"+this.background_image+"/bg.jpg");
 
@@ -245,20 +218,27 @@ var Game = Class.create({
 			
 				var data = G.creatureJSON[G.loadedCreatures[j]];
 
+				G.loadingSrc += 3;
+
 				//Load Creature Sound
 				G.soundsys.getSound("../bestiary/"+data.name+'/'+data.name+'.ogg',1000+G.loadedCreatures[j],function(){ G.loadFinish() });
-
 				//Loads Creature abilities
 				getScript('../bestiary/'+data.name+'/abilities.js',function(){ G.loadFinish() });
-
 				//Load Sprites
 				getImage('../bestiary/'+data.name+'/artwork.jpg',function(){ G.loadFinish() });
+
 				if(data.name == "Dark Priest"){
 					for (var i = 0; i < dpcolor.length; i++) {
+						G.loadingSrc += 2;
 						G.Phaser.load.image(data.name+dpcolor[i]+'_cardboard','../bestiary/'+data.name+'/cardboard-'+dpcolor[i]+'.png');
 						getImage('../bestiary/'+data.name+'/avatar-'+dpcolor[i]+'.jpg',function(){ G.loadFinish() });
 					};
 				}else{
+					if(data.drop){
+						G.loadingSrc += 1;
+						G.Phaser.load.image('drop_'+data.drop.name,'../drops/'+data.drop.name+'.png');
+					}
+					G.loadingSrc += 2;
 					G.Phaser.load.image(data.name+'_cardboard','../bestiary/'+data.name+'/cardboard.png');
 					getImage('../bestiary/'+data.name+'/avatar.jpg',function(){ G.loadFinish() });
 				}
