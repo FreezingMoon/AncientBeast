@@ -616,7 +616,8 @@ body{
 }
 
 .vignette,
-.vignette .frame{
+.vignette .frame,
+.vignette .overlay_frame{
 	opacity: 1;
 	vertical-align: top;
 	display: inline-block;
@@ -624,18 +625,25 @@ body{
 	width: 80px;
 	background-size: 100% 100%;
 	cursor: pointer;
+	position: relative;
+}
+.vignette .frame,.vignette .overlay_frame{
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
 	transition: opacity 300ms;
 	-ms-transition: opacity 300ms;
 	-moz-transition: opacity 300ms; /* Firefox 4 */
 	-webkit-transition: opacity 300ms; /* Safari and Chrome */
 	-o-transition: opacity 300ms; /* Opera */
 }
-.vignette .frame{
-	height: 100%;
-	width: 100%;
-}
 
 .vignette .stats{
+	position: absolute;
+	top: 80px;
+	left: 0;
 	display: block;
 	overflow: hidden;
 	box-sizing: border-box;
@@ -657,6 +665,8 @@ body{
 }
 
 /*#queue .vignette.hidden,#queue .vignette.hidden div{width: 0px; height: 80px;}*/
+.vignette .overlay_frame{ background-image: url('../frames/frame_white.png'); opacity: 0; }
+.vignette.xray .overlay_frame{ opacity: .5; }
 
 .vignette.p0 .frame,#abilities.p0 .ability.active::before{background-image: url("../frames/red.png");}
 .vignette.p1 .frame,#abilities.p1 .ability.active::before{background-image: url("../frames/blue.png");}
@@ -664,8 +674,6 @@ body{
 .vignette.p3 .frame,#abilities.p3 .ability.active::before{background-image: url("../frames/green.png");}
 
 .vignette.roundmarker .frame{ background-image: url('../../images/contour.png'), url('../../images/round.jpg'); }
-
-.vignette.xray { opacity: .5; }
 
 /*-----------PAUSE OVERLAY-------------*/
 

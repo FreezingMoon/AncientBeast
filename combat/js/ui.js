@@ -1159,7 +1159,7 @@ var UI = Class.create({
 			}else{
 
 				var initiative =  completeQueue[i].getInitiative( (u==0) );
-				var queueElem = '<div turn="'+(G.turn+u)+'" creatureid="'+completeQueue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+completeQueue[i].team+" type"+completeQueue[i].type+'"><div class="frame"></div><div class="stats"></div></div>';
+				var queueElem = '<div turn="'+(G.turn+u)+'" creatureid="'+completeQueue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+completeQueue[i].team+" type"+completeQueue[i].type+'"><div class="frame"></div><div class="overlay_frame"></div><div class="stats"></div></div>';
 
 				//If this element does not exists
 				if( $vignettes[i] == undefined ){
@@ -1239,7 +1239,7 @@ var UI = Class.create({
 
 	xrayQueue : function(creaID){
 		this.$queue.find('.vignette').removeClass("xray");
-		if(creaID>0) this.$queue.find('.vignette[creatureid!="'+creaID+'"]').addClass("xray");
+		if(creaID>0) this.$queue.find('.vignette[creatureid="'+creaID+'"]').addClass("xray");
 	},
 
 	updateFatigue : function(){
