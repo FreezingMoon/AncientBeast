@@ -1438,7 +1438,7 @@ var Hex = Class.create({
 		//Display Coord
 		if( !!this.displayClasses.match(/showGrid/g) ){
 			if( !(this.coordText && this.coordText.exists) ) {
-				this.coordText = G.Phaser.add.text(this.originalDisplayPos.x+54, this.originalDisplayPos.y+63, this.coord, {font: "30pt Play", fill: "#000000", align: "center"});
+				this.coordText = G.Phaser.add.text(this.originalDisplayPos.x+45, this.originalDisplayPos.y+63, this.coord, {font: "30pt Play", fill: "#000000", align: "center"});
 				this.coordText.anchor.setTo(0.5, 0.5);
 				G.grid.overHexsGroup.add(this.coordText);
 			}

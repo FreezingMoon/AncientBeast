@@ -137,7 +137,7 @@ var Creature = Class.create({
 		//Health indicator
 		this.healtIndicatorGrp = G.Phaser.add.group(this.grp, "creatureHealthGrp_"+this.id);
 		//Adding background sprite
-		this.healtIndicatorSprite = this.healtIndicatorGrp.create( (this.player.flipped) ? 18 : 18 + 90*(this.size-1), 49, "p"+this.team+'_health');
+		this.healtIndicatorSprite = this.healtIndicatorGrp.create( (this.player.flipped) ? 19 : 19 + 90*(this.size-1), 49, "p"+this.team+'_health');
 		//Add text
 		this.healtIndicatorText = G.Phaser.add.text( (this.player.flipped) ? 45 : 45 + 90*(this.size-1), 59, this.health, {font: "bold 15pt Play", fill: "#ffffff", align: "center"});
 		this.healtIndicatorText.anchor.setTo(0.5, 0.5);
