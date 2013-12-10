@@ -168,9 +168,16 @@ var Creature = Class.create({
 
 		G.grid.orderCreatureZ();
 		
+		if(G.grid.materialize_overlay) {
+			G.grid.materialize_overlay.alpha = .5;
+			G.Phaser.add.tween(G.grid.materialize_overlay)
+				.to({alpha:0}, 500, Phaser.Easing.Linear.None)
+				.start();
+		}
+
 		G.Phaser.add.tween(this.grp)
-			.to({alpha:1}, 500, Phaser.Easing.Linear.None)
-			.start();
+		 	.to({alpha:1}, 500, Phaser.Easing.Linear.None)
+		 	.start();
 
 		//reveal and position health indicator
 		this.updateHealth();
