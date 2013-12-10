@@ -450,6 +450,10 @@
 	"animation": {
 		"walk_speed": 350
         },
+        "drop" : {
+            "name": "Snow Flake",
+            "alterations": {"frost": 5}
+        },
 	"ability_info": [
 		{
 			"title": "Snow Storm",
@@ -1943,6 +1947,10 @@
         "animation": {
             "walk_speed": 500
         },
+        "drop" : {
+            "name": "Fang",
+            "alterations": {"offense": 10}
+        },
         "ability_info": [
 		{
 			"title": "Bad Dog",
@@ -2731,6 +2739,10 @@
     	"animation": {
     		"walk_speed": 180
     	},
+        "drop" : {
+            "name": "Feather",
+            "alterations": {"movement": 2}
+        },
         "display":{
 		"width": 195,
 		"height": 205,
