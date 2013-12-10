@@ -991,7 +991,7 @@ var HexGrid = Class.create({
 
 
 		//Placing sprite
-		this.materialize_overlay.x = creaHex.displayPos.x + creatureData.display["offset-x"] + this.materialize_overlay.texture.width/2 + 1; //((!this.player.flipped) ? this.display["offset-x"] : 90*this.size-this.display.width-this.display["offset-x"]);
+		this.materialize_overlay.x = creaHex.displayPos.x + ((!player.flipped) ? creatureData.display["offset-x"] : 90*creatureData.size-this.materialize_overlay.texture.width-creatureData.display["offset-x"]) +this.materialize_overlay.texture.width/2;
 		this.materialize_overlay.y = creaHex.displayPos.y + creatureData.display["offset-y"] + this.materialize_overlay.texture.height;
 		this.materialize_overlay.alpha = 0.5;
 

@@ -117,6 +117,7 @@ var Creature = Class.create({
 
 		//Creature Container
 		this.grp = G.Phaser.add.group(G.grid.creatureGroup, "creatureGrp_"+this.id);
+		this.grp.alpha = 0;
 		//Adding sprite
 		this.sprite = this.grp.create(0,0, this.name+dp+'_cardboard');
 		this.sprite.anchor.setTo(0.5,1);
@@ -167,9 +168,9 @@ var Creature = Class.create({
 
 		G.grid.orderCreatureZ();
 		
-		//TODO Summon effect
-		// this.$display.removeClass("ghosted");
-		// $j("#crea_materialize_overlay").remove();
+		G.Phaser.add.tween(this.grp)
+			.to({alpha:1}, 500, Phaser.Easing.Linear.None)
+			.start();
 
 		//reveal and position health indicator
 		this.updateHealth();
