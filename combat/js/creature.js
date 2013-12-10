@@ -1221,9 +1221,13 @@ var Creature = Class.create({
 
 	xray : function(enable){
 		if(enable){
-			this.grp.alpha = .5;
+			G.Phaser.add.tween(this.grp)
+				.to({alpha:.5}, 250, Phaser.Easing.Linear.None)
+				.start();
 		}else{
-			this.grp.alpha = 1;
+			G.Phaser.add.tween(this.grp)
+				.to({alpha:1}, 250, Phaser.Easing.Linear.None)
+				.start();
 		}
 	},
 

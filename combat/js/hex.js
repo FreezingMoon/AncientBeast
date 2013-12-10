@@ -1093,6 +1093,8 @@ var Hex = Class.create({
 
 		this.originalDisplayPos = $j.extend({},this.displayPos);
 
+		this.tween = null;
+
 		if(grid){
 
 			//10px is the offset from the old version
@@ -1434,6 +1436,14 @@ var Hex = Class.create({
 		}
 
 		this.display.alpha = targetAlpha;
+		//Too slow
+		// if(this.display.alpha != targetAlpha){
+		// 	if(this.tween) this.tween.stop();
+		// 	this.tween = G.Phaser.add.tween(this.display)
+		// 		.to({alpha:targetAlpha-0}, 250, Phaser.Easing.Linear.None)
+		// 		.start();
+		// }
+
 
 		//Display Coord
 		if( !!this.displayClasses.match(/showGrid/g) ){
