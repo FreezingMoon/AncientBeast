@@ -294,6 +294,7 @@ var UI = Class.create({
 		this.selectedAbility = -1;
 
 		this.queueAnimSpeed = 500; //ms
+		this.dashAnimSpeed = 500; //ms
 		
 		this.materializeToggled = false;
 		this.dashopen = false;
@@ -338,6 +339,7 @@ var UI = Class.create({
 
 		//Show UI
 		this.$display.show();
+		this.$dash.hide();
 	},
 
 	
@@ -375,6 +377,11 @@ var UI = Class.create({
 	*
 	*/
 	showCreature: function(creatureType,player){
+
+		if(!this.dashopen){
+			this.$dash.show().css("opacity",0);
+			this.$dash.transition({opacity:1},this.dashAnimSpeed,"linear");
+		}
 
 		this.dashopen = true;
 
@@ -665,6 +672,9 @@ var UI = Class.create({
 
 	closeDash: function(materialize){
 		this.$dash.removeClass("active");
+		this.$dash.transition({opacity:0,queue:false},this.dashAnimSpeed,"linear",function(){
+			G.UI.$dash.hide();
+		});
 		if(!materialize && G.activeCreature ){
 			G.activeCreature.queryMove();
 		}

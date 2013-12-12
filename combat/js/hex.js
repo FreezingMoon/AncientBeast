@@ -1113,20 +1113,20 @@ var Hex = Class.create({
 
 			//Binding Events
 			this.input.events.onInputOver.add(function(){
-				if(G.freezedInput) return;
+				if(G.freezedInput || G.UI.dashopen) return;
 				G.grid.selectedHex = this;
 				this.onSelectFn();
 			}, this);
 
 			this.input.events.onInputOut.add(function(){
-				if(G.freezedInput) return;
+				if(G.freezedInput || G.UI.dashopen) return;
 				G.grid.redoLastQuery();
 				G.grid.xray( new Hex(-1,-1) ); //Clear Xray
 				G.UI.xrayQueue( -1 ); //Clear Xray Queue
 			}, this);
 
 			this.input.events.onInputUp.add(function(Sprite,Pointer){
-				if(G.freezedInput) return;
+				if(G.freezedInput || G.UI.dashopen) return;
 				switch (Pointer.button) {
 					case 0:
 						//Left mouse button pressed
