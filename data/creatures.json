@@ -456,8 +456,8 @@
         },
 	"ability_info": [
 		{
-			"title": "Snow Storm",
-			"desc": "Foes have both their movement and initiative stats reduced while alive.",
+			"title": "Frost Bite",
+			"desc": "Retaliates to frontal melee attacks.",
 			"info": "-1 movement and -5 initiative debuff",
 			"effects": [{"movement": -1, "initiative" :-5}]
 		},
@@ -470,7 +470,7 @@
 			"costs": {"energy": 15}
 		},
 		{
-			"title": "Frost Bite",
+			"title": "Snow Storm",
 			"desc": "Exhales freezing gas that spreads in a large area, affecting blown targets.",
 			"info": "15 frost damage to all exposed units",
 			"damages": {"special": "15%frost%to first units"},

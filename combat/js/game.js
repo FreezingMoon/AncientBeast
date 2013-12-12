@@ -86,7 +86,7 @@ var Game = Class.create({
 			39, //Headless
 			44, //Scavenger
 			31, //Cyber Hound
-			//6, //Ice Demon
+			6, //Ice Demon
 			//33, //Golden Wyrm
 		];
 		this.availableMusic = [];
