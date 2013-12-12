@@ -293,7 +293,7 @@ var Game = Class.create({
 		var bg = this.Phaser.add.sprite(0, 0, 'background');
 		bg.inputEnabled = true;
 		bg.events.onInputUp.add(function(Sprite,Pointer){
-			if(G.freezedInput) return;
+			if(G.freezedInput || G.UI.dashopen) return;
 			switch (Pointer.button) {
 				case 0:
 					//Left mouse button pressed
