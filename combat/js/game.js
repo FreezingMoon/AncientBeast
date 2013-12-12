@@ -290,7 +290,23 @@ var Game = Class.create({
 		this.Phaser.stage.scale.setShowAll();
 		this.Phaser.stage.scale.refresh();
 		this.Phaser.stage.disableVisibilityChange = true;
-		this.Phaser.add.sprite(0, 0, 'background');
+		var bg = this.Phaser.add.sprite(0, 0, 'background');
+		bg.inputEnabled = true;
+		bg.events.onInputUp.add(function(Sprite,Pointer){
+			if(G.freezedInput) return;
+			switch (Pointer.button) {
+				case 0:
+					//Left mouse button pressed
+					break;
+				case 1:
+					//Middle mouse button pressed
+					break;
+				case 2:
+					//Right mouse button pressed
+					G.UI.showCreature( G.activeCreature.type, G.activeCreature.player.id );
+					break;
+			}
+		}, G);
 
 		//reseting global counters
 		trapID = 0;
