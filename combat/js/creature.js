@@ -166,6 +166,7 @@ var Creature = Class.create({
 		G.nextQueue.push(this);
 		G.reorderQueue();
 
+		G.grid.updateDisplay(); //Retrace players creatures
 		G.grid.orderCreatureZ();
 		
 		if(G.grid.materialize_overlay) {
