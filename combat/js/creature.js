@@ -216,6 +216,9 @@ var Creature = Class.create({
 		this.travelDist = 0;
 		var crea = this;
 
+		crea.oldEnergy = crea.energy;
+		crea.oldHealth = crea.health;
+
 		var varReset = function(){
 			//Variables reset
 			crea.updateAlteration();
@@ -235,9 +238,15 @@ var Creature = Class.create({
 				if(crea.stats.meditation > 0){
 					crea.energy = Math.min( crea.stats.energy, crea.energy + crea.stats.meditation ); //cap
 				}
+				
 			}else{
 				crea.hint("♣",'damage');
 			}
+
+			setTimeout(function(){
+				G.UI.energyBar.animSize( crea.energy/crea.stats.energy );
+				G.UI.healthBar.animSize( crea.health/crea.stats.health );
+			},1000);
 
 			crea.endurance = crea.stats.endurance;
 
@@ -756,7 +765,7 @@ var Creature = Class.create({
 		this.health += amount; 
 
 		//Health display Update
-		this.updateHealth();
+		this.updateHealth(isRegrowth);
 
 		if(amount>0){
 			if(isRegrowth) this.hint(amount+" ♥",'healing d'+amount);
@@ -879,9 +888,10 @@ var Creature = Class.create({
 	},
 
 
-	updateHealth: function(){
-		if(this == G.activeCreature){
-			G.UI.healthBar.setSize( this.health / this.stats.health );
+	updateHealth: function(noAnimBar){
+		if(this == G.activeCreature && !noAnimBar){
+			console.log("l")
+			G.UI.healthBar.animSize( this.health / this.stats.health );
 		}
 
 		if( this.type == "--" && this.player.plasma > 0 ){
