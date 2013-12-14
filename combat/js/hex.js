@@ -79,14 +79,32 @@ var HexGrid = Class.create({
 	querySelf: function(o){
 		var defaultOpt = {
 			fnOnConfirm : function(crea,args){},
-			fnOnSelect : function(crea,args){},
-			fnOnCancel : function(crea,args){},
-			args : {}
+			fnOnSelect : function(crea,args){
+				crea.hexagons.each(function(){
+					this.overlayVisualState("creature selected player"+this.creature.team);	
+				});
+			},
+			fnOnCancel : function(){G.activeCreature.queryMove()},
+			args : {},
+			confirmText : "Confirm",
+			id : G.activeCreature.id
 		};
 
 		o = $j.extend(defaultOpt,o);
 
-		o.fnOnConfirm(G.activeCreature,o.args);
+		//o.fnOnConfirm(G.activeCreature,o.args); //Autoconfirm
+		
+		G.activeCreature.hint(o.confirmText,"confirm");
+
+		this.queryHexs({
+			fnOnConfirm : function(hex,args){args.opt.fnOnConfirm(G.activeCreature,args.opt.args);},
+			fnOnSelect : function(hex,args){args.opt.fnOnSelect(G.activeCreature,args.opt.args);},
+			fnOnCancel : function(hex,args){args.opt.fnOnCancel(G.activeCreature,args.opt.args);},
+			args : {opt : o},
+			hexs : G.activeCreature.hexagons,
+			hideNonTarget : true,
+			id : o.id
+		});
 	},
 
 	/* 	queryDirection(o)

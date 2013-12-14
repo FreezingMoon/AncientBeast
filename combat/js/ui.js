@@ -959,9 +959,11 @@ var UI = Class.create({
 			}
 		};
 
+		//No action possible
 		if( !oneUsableAbility && G.activeCreature.remainingMove == 0 ){
-			G.skipTurn({tooltip:"Finished"});
-			//this.btnSkipTurn.changeState("glowing");
+			//G.skipTurn({tooltip:"Finished"}); //Autoskip
+			G.activeCreature.noActionPossible = true;
+			this.btnSkipTurn.changeState("glowing");
 		}
 	},
 

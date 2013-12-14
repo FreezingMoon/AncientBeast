@@ -152,6 +152,7 @@ var Creature = Class.create({
 		this.delayable = true;
 		this.delayed = false;
 		this.materializeSickness = (this.type == "--") ? false : true ;
+		this.noActionPossible = false;
 		
 	},
 
@@ -218,6 +219,7 @@ var Creature = Class.create({
 
 		crea.oldEnergy = crea.energy;
 		crea.oldHealth = crea.health;
+		crea.noActionPossible = false;
 
 		var varReset = function(){
 			//Variables reset
@@ -398,16 +400,24 @@ var Creature = Class.create({
 		? function(hex,args){ args.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+args.creature.team }); }
 		: function(hex,args){ args.creature.tracePath(hex); };
 
-		G.grid.queryHexs({
-			fnOnSelect : select,
-			fnOnConfirm : o.callback,
-			args : { creature:this, args: o.args }, //Optional args
-			size : this.size,
-			flipped : this.player.flipped,
-			id : this.id,
-			hexs : o.range,
-			ownCreatureHexShade : o.ownCreatureHexShade
-		});
+		if(this.noActionPossible){
+			G.grid.querySelf({
+				fnOnConfirm : function(){ G.UI.btnSkipTurn.click(); },
+				fnOnCancel : function(){},
+				confirmText : "Skip turn"
+			});
+		}else{
+			G.grid.queryHexs({
+				fnOnSelect : select,
+				fnOnConfirm : o.callback,
+				args : { creature:this, args: o.args }, //Optional args
+				size : this.size,
+				flipped : this.player.flipped,
+				id : this.id,
+				hexs : o.range,
+				ownCreatureHexShade : o.ownCreatureHexShade
+			});
+		}
 	},
 
 
@@ -890,7 +900,6 @@ var Creature = Class.create({
 
 	updateHealth: function(noAnimBar){
 		if(this == G.activeCreature && !noAnimBar){
-			console.log("l")
 			G.UI.healthBar.animSize( this.health / this.stats.health );
 		}
 
@@ -935,7 +944,7 @@ var Creature = Class.create({
 		}
 	},
 
-	hint: function(text,cssclass){
+	hint: function(text,cssClass){
 		var crea = this;
 
 		var tooltipSpeed = 250;
@@ -943,7 +952,7 @@ var Creature = Class.create({
 		var tooltipTransition = Phaser.Easing.Linear.None;
 
 		var hintColor = {
-			confirm : { fill: "#000000", stroke: "#ffffff" },
+			confirm : { fill: "#ffffff", stroke: "#000000" },
 			gamehintblack : { fill: "#ffffff", stroke: "#000000" },
 			healing : { fill: "#00ff00" },
 			msg_effects : { fill: "#ffff00" }
@@ -955,22 +964,39 @@ var Creature = Class.create({
 			align: "center", 
 			stroke: "#000000", 
 			strokeThickness: 2 
-		}, hintColor[cssclass] );
+		}, hintColor[cssClass] );
+
+		//remove constant element
+		this.hintGrp.forEach(function(grpHintElem){
+			if(grpHintElem.cssClass == 'confirm'){
+				grpHintElem.cssClass = "confirm_deleted";
+				grpHintElem.tweenAlpha = G.Phaser.add.tween(grpHintElem).to( {alpha:0}, tooltipSpeed, tooltipTransition ).start();
+				grpHintElem.tweenAlpha._lastChild.onComplete.add(function(){ this.destroy() },grpHintElem);
+			}
+		},this,true);
 
 		var hint = G.Phaser.add.text(0,50, text, style);
 		hint.anchor.setTo(0.5, 0.5);
 
 		hint.alpha = 0;
+		hint.cssClass = cssClass;
 
-		//Chaining does not work with onCompleteCallback. This is a workaround.
-		hint.tweenAlpha = G.Phaser.add.tween(hint)
-		.to( {alpha:1}, tooltipSpeed, tooltipTransition )
-		.to( {alpha:1}, tooltipDisplaySpeed, tooltipTransition )
-		.to( {alpha:0}, tooltipSpeed, tooltipTransition ).start();
-		hint.tweenAlpha._lastChild.onComplete.add(function(){ hint.destroy() },this);
+		if(cssClass == 'confirm'){
+			hint.tweenAlpha = G.Phaser.add.tween(hint)
+			.to( {alpha:1}, tooltipSpeed, tooltipTransition )
+			.start();
+		}else{
+			hint.tweenAlpha = G.Phaser.add.tween(hint)
+			.to( {alpha:1}, tooltipSpeed, tooltipTransition )
+			.to( {alpha:1}, tooltipDisplaySpeed, tooltipTransition )
+			.to( {alpha:0}, tooltipSpeed, tooltipTransition ).start();
+			hint.tweenAlpha._lastChild.onComplete.add(function(){ this.destroy() },hint);
+		}
+
 
 		this.hintGrp.add(hint);
 
+		//stacking
 		this.hintGrp.forEach(function(grpHintElem){
 			var index = this.hintGrp.total - this.hintGrp.getIndex(grpHintElem) - 1;
 			var offset = -50 * index;
@@ -978,7 +1004,6 @@ var Creature = Class.create({
 			grpHintElem.tweenPos = G.Phaser.add.tween(grpHintElem).to( {y:offset}, tooltipSpeed, tooltipTransition ).start();
 		},this,true);
 
-		// if( !$tooltip.hasClass("constant") ) $tooltip.transition({opacity:1},tooltipDisplaySpeed).transition({opacity:0},tooltipSpeed,tooltipTransition,function(){ this.remove(); }); 
 	},
 
 	/* 	updateAlteration()
