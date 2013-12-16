@@ -399,6 +399,7 @@ var Ability = Class.create({
 			}
 		});
 		crea.updateHealth();
+		if( crea.id == G.activeCreature.id ) G.UI.energyBar.animSize( crea.energy/crea.stats.energy );
 	},
 
 	testDirection : function(o){

@@ -840,8 +840,12 @@ var UI = Class.create({
 		var $abilitiesButtons = $j("#abilities .ability");
 		$abilitiesButtons.unbind("click");
 
-		this.$activebox.find("#abilities").clearQueue().transition({y:"-420px"},function(){//Hide panel	
+		this.$activebox.find("#abilities").clearQueue().transition({y:"-420px"},500,'easeInQuart',function(){//Hide panel	
 			$j(this).removeClass("p0 p1 p2 p3").addClass("p"+G.activeCreature.player.id);
+
+			G.UI.energyBar.setSize( G.activeCreature.oldEnergy/G.activeCreature.stats.energy );
+			G.UI.healthBar.setSize( G.activeCreature.oldHealth/G.activeCreature.stats.health );
+
 			//Change abilities buttons
 			G.UI.abilitiesButtons.each(function(){
 				var ab = G.activeCreature.abilities[this.abilityId];
@@ -885,7 +889,7 @@ var UI = Class.create({
 				};
 				this.changeState(); //ApplyChanges
 			});
-			G.UI.$activebox.children("#abilities").transition({y:"0px"}); //Show panel
+			G.UI.$activebox.children("#abilities").transition({y:"0px"},500,'easeOutQuart'); //Show panel
 		});
 
 		if(G.activeCreature.player.creatures.length==1) //Blinking summon button during the 1st round
@@ -928,10 +932,6 @@ var UI = Class.create({
 
 		G.UI.checkAbilitiesTooltip();
 
-		//Energy Bar
-		var ratio = G.activeCreature.energy / G.activeCreature.stats.energy;
-		G.UI.energyBar.setSize( ratio );
-
 		for (var i = 0; i < 4; i++) {
 			var ab = G.activeCreature.abilities[i];
 			ab.message = "";
@@ -959,9 +959,11 @@ var UI = Class.create({
 			}
 		};
 
+		//No action possible
 		if( !oneUsableAbility && G.activeCreature.remainingMove == 0 ){
-			G.skipTurn({tooltip:"Finished"});
-			//this.btnSkipTurn.changeState("glowing");
+			//G.skipTurn({tooltip:"Finished"}); //Autoskip
+			G.activeCreature.noActionPossible = true;
+			this.btnSkipTurn.changeState("glowing");
 		}
 	},
 
@@ -1402,5 +1404,19 @@ var ProgessBar = Class.create({
 			height : this.height*percentage,
 			"background-color" : this.color,
 		});
+	},
+
+	/*	animSize
+	*	
+	* 	percentage : 	Float : 	size between 0 and 1
+	*
+	*/
+	animSize: function(percentage){
+		this.$bar.transition({
+			queue: false,
+			width : this.width,
+			height : this.height*percentage,
+			"background-color" : this.color,
+		},500,"linear");
 	}
 });

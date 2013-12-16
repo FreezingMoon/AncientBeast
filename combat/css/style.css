@@ -1154,7 +1154,6 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 	height: 0px;
 	bottom: 0px;
 	background: red;
-	transition: height 500ms;
 }
 
 .progressbar .bar.poolbar,

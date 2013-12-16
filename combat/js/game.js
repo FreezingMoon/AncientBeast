@@ -50,7 +50,7 @@ var Game = Class.create({
 		this.creatures = [];
 		this.c = this.creatures; //Convienience
 		this.effects = [];
-		this.activeCreature = undefined;
+		this.activeCreature = {id:0};
 		this.animations = new Animations();
 		this.turn = 0;
 		this.queue = [];
@@ -1183,6 +1183,7 @@ var Player = Class.create({
 		var creature = new Creature(data);
 		this.creatures.push(creature);
 		creature.summon();
+		G.grid.updateDisplay(); //Retrace players creatures
 		G.triggersFn.onCreatureSummon(creature);
 	},
 
