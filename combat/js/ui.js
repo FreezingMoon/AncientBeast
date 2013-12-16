@@ -294,7 +294,7 @@ var UI = Class.create({
 		this.selectedAbility = -1;
 
 		this.queueAnimSpeed = 500; //ms
-		this.dashAnimSpeed = 500; //ms
+		this.dashAnimSpeed = 250; //ms
 		
 		this.materializeToggled = false;
 		this.dashopen = false;
