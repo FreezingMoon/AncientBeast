@@ -887,6 +887,26 @@ var UI = Class.create({
 						G.activeCreature.queryMove();
 					}
 				};
+
+				this.mouseover = function(){
+					var ab = G.activeCreature.abilities[this.abilityId];
+					if(ab.costs != undefined){
+						if( typeof ab.costs.energy == "number" ){
+							G.UI.energyBar.previewSize( ab.costs.energy / G.activeCreature.stats.energy );
+						}else{
+							G.UI.energyBar.previewSize( 0 );
+						}
+						if( typeof ab.costs.health == "number" ){
+							G.UI.healthBar.previewSize( ab.costs.health / G.activeCreaturestats.stats.health );
+						}else{
+							G.UI.healthBar.previewSize( 0 );
+						}
+					}
+				};
+				this.mouseleave = function(){
+					G.UI.energyBar.previewSize( 0 );
+					G.UI.healthBar.previewSize( 0 );
+				};
 				this.changeState(); //ApplyChanges
 			});
 			G.UI.$activebox.children("#abilities").transition({y:"0px"},500,'easeOutQuart'); //Show panel
@@ -1390,6 +1410,9 @@ var ProgessBar = Class.create({
 		opts = $j.extend(defaultOpts,opts);
 		$j.extend(this,opts);
 
+		this.$bar.append('<div class="previewbar"></div>');
+		this.$preview = this.$bar.children(".previewbar");
+
 		this.setSize(1);
 	},
 
@@ -1416,7 +1439,18 @@ var ProgessBar = Class.create({
 			queue: false,
 			width : this.width,
 			height : this.height*percentage,
-			"background-color" : this.color,
+		},500,"linear");
+	},
+
+	/*	previewSize
+	*	
+	* 	percentage : 	Float : 	size between 0 and 1
+	*
+	*/
+	previewSize: function(percentage){
+		this.$preview.css({
+			width : this.width-2,
+			height : (this.height-2)*percentage,
 		},500,"linear");
 	}
 });
