@@ -1156,6 +1156,16 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 	background: red;
 }
 
+.bar .previewbar{
+	display: block;
+	position: absolute;
+	width: 7px;
+	height: 0px;
+	top: 1px;
+	left: 1px;
+	background: rgba(0,0,0,.75);
+}
+
 .progressbar .bar.poolbar,
 .progressbar .bar.energybar
 {

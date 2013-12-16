@@ -54,6 +54,7 @@ var HexGrid = Class.create({
 		this.gridGroup._container.scale = {x:1,y:.75};
 
 		this.trapGroup			= G.Phaser.add.group(this.gridGroup ,"trapGrp");
+		this.trapGroup.x = -10;
 		this.dispHexsGroup		= G.Phaser.add.group(this.gridGroup ,"dispHexsGrp");
 		this.overHexsGroup		= G.Phaser.add.group(this.gridGroup, "overHexsGrp");
 		this.dropGroup 			= G.Phaser.add.group(this.display, "dropGrp");
@@ -1571,7 +1572,7 @@ var Trap = Class.create({
 			this.effects[i].trap = this;
 		};
 
-		this.display = G.grid.trapGroup.create(this.hex.originalDisplayPos.x-10, this.hex.originalDisplayPos.y, 'trap_'+type);
+		this.display = G.grid.trapGroup.create(this.hex.originalDisplayPos.x, this.hex.originalDisplayPos.y, 'trap_'+type);
 
 	},
 
