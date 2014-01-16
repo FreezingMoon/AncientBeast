@@ -52,8 +52,8 @@ require_once("../config.php"); //only needed for multiplayer
 		</script>
 		
 <?php
-require_once("../bestiary/functions.php");
-require_once('../bestiary/cards.php');
+require_once("../units/functions.php");
+require_once('../units/cards.php');
 ?>
 
 		<script src="//ajax.googleapis.com/ajax/libs/prototype/1.7.1.0/prototype.js"></script>
@@ -295,7 +295,7 @@ require_once('../bestiary/cards.php');
 						</div>
 					</div>
 					<div id="creaturegridwrapper"><?php
-						require_once('../bestiary/grid.php');
+						require_once('../units/grid.php');
 						creatureGrid(false);
 					?></div>
 				</div>
