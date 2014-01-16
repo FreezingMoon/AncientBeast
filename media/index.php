@@ -157,6 +157,6 @@ case music:
 }
 
 separate_segment(comments);
-include("../utils/disqus.php");
+include("../disqus.php");
 end_segment();
 end_page(); ?>

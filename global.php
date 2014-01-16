@@ -66,15 +66,15 @@ function db_query($query) {
 
 function start_segment($x="") {
 	if ($x != NULL) {
-		echo "<div class='div_top' id='$x'></div>";
+		echo '<div class="div_top" id="$x"></div>';
 	}
 	else {
-		echo "<div class='div_top'></div>";
+		echo '<div class="div_top"></div>';
 	}
-	echo "<div class='div_center'>";
+	echo '<div class="div_center">';
 }
 function end_segment() {
-	echo "</div><div class=\"div_bottom\"></div>";
+	echo '</div><div class="div_bottom"></div>';
 }
 function separate_segment($x="") {
 	end_segment() . start_segment($x);
@@ -88,7 +88,7 @@ function end_page() {
 	<td style="width:50%"></td>
 	<td>
 		<a href="http://FreezingMoon.org" target="_blank" class="lighten">
-		<img src="../<?php echo $site_root; ?>images/Freezing_Moon.png" height="52" width="444" alt="Freezing Moon" class="lighten"></a>
+		<img src="../<?php echo $site_url; ?>images/Freezing_Moon.png" height="52" width="444" alt="Freezing Moon" class="lighten"></a>
 		<a href="mailto:DreadKnight@FreezingMoon.org?Subject=You%20Rock!" target="_blank">Indie Game Projects - DreadKnight@FreezingMoon.org</a>
 	</td>
 	<td style="width:50%"></td>

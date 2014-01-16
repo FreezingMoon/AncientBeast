@@ -97,7 +97,7 @@ echo '</div>';
 end_segment();
 
 start_segment();
-include("../utils/disqus.php");
+include("../disqus.php");
 end_segment();
 
 if($post_count==1){

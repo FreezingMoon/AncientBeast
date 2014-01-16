@@ -26,13 +26,12 @@ require_once('global.php'); ?>
 <!doctype html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="google-site-verification" content="uNVUkWjGPKwXaFK-BkOowVezLve8a8rjbM_ew1UHiZg">
 <meta name="description" content="Turn Based Strategy Game. Master your beasts!">
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, strategy, combat, arena, free, foss, open source, card, chess, creatures, bitcoin, bets">
 <meta name="author" content="Dread Knight">
 
-<script type="application/javascript" src="/utils/tinybox.js"></script>
 <script type="text/javascript" >
 var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 </script>
@@ -51,7 +50,7 @@ var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
   }
 ?>
 </title>
-<link type="text/css" rel="stylesheet" href="//cdn.jsdelivr.net/hint.css/1.3.0/hint.min.css" />
+<link type="text/css" rel="stylesheet" href="//cdn.jsdelivr.net/hint.css/1.3.0/hint.min.css">
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <link rel="stylesheet" href="<?php echo $site_root; ?>combat/css/grid.css">
 <?php
@@ -66,9 +65,6 @@ var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 <script type="application/javascript" src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
 <!--jquery-->
 <script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-<!--pixastic-->
-<script type="application/javascript" src="<?php echo $site_root; ?>utils/pixastic.js"></script>
-<script type="application/javascript" src="<?php echo $site_root; ?>utils/lighten.js"></script>
 <script type="application/javascript">
 $(document).ready(function(){
 	$('.lighten').each(function(){
@@ -108,15 +104,16 @@ if($_SESSION['id'] != 0) { ?>
 <body id="top">
 <!--banner-->
 <header id="header">
-<div style="margin-top: -5px; margin-bottom: 50px;"><a href="<?php echo $site_root; ?>"><img src="<?php echo $site_root; ?>images/AncientBeast.png" height="125" width="555" alt="Ancient Beast"></a>
+<div style="margin-top: -5px; margin-bottom: 50px;">
+<a href="<?php echo $site_root; ?>"><img src="<?php echo $site_root; ?>images/AncientBeast.png" height="125" width="555" alt="Ancient Beast" class="lighten"></a>
 <!--navigation menu-->
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
   $menu = array('units', 'items', 'media', 'game', 'blog', 'chat');
   foreach ($menu as &$menuItem) {
     echo '<td>
-      <a href="' . $site_root . $menuItem . '" id="' . $menuItem . '" class="lighten">
-      <img alt=" ' . ucfirst($menuItem) . '" src="' . $site_root . 'images/icons/' . $menuItem . '.png" width="90" height="90" style="display:block;">
+      <a href="' . $site_root . $menuItem . '" id="' . $menuItem . '" style="display:block;" class="lighten">
+      <img alt=" ' . ucfirst($menuItem) . '" src="' . $site_root . 'images/icons/' . $menuItem . '.png" width="90" height="90"><br>
       ' . ucfirst($menuItem) . '</a></td>';
   } 
 ?>

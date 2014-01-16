@@ -49,8 +49,12 @@ img {
 	margin-right: auto!important;
 	text-align: center!important;
 }
-.lighten {
-	display: block;
+.lighten:hover {
+	filter: brightness(140%);
+	-webkit-filter: brightness(140%);
+	-moz-filter: brightness(140%);
+	-o-filter: brightness(140%);
+	-ms-filter: brightness(140%);
 }
 .shadow {
 	box-shadow: 0px 0px 10px black;

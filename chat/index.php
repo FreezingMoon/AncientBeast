@@ -67,7 +67,7 @@ separate_segment(badges); ?>
 </div>
 
 <?php separate_segment(comment);
-include("../utils/disqus.php");
+include("../disqus.php");
 end_segment();
 end_page();
 ?>
