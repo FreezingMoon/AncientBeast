@@ -203,7 +203,7 @@ var Game = Class.create({
 
 		//Effects
 		this.Phaser.load.image('effects_fissure-vent', './grid/fissure-vent.png');
-		this.Phaser.load.image('effects_chilling-spit', '../bestiary/Snow Bunny/Chilling Spit.png');
+		this.Phaser.load.image('effects_chilling-spit', '../units/sprites/Snow Bunny Chilling Spit.png');
 
 		//Background
 		this.Phaser.load.image('background',"../locations/"+this.background_image+"/bg.jpg");
@@ -1138,7 +1138,7 @@ var Player = Class.create({
 		:(this.id == 1)? "blue"
 		:(this.id == 2)? "orange"
 		: "green";
-		this.avatar = "../bestiary/Dark Priest/avatar-"+this.color+".jpg";
+		this.avatar = "../units/avatars/Dark Priest "+this.color+".jpg";
 		this.score = [];
 		this.plasma = G.plasma_amount;
 		this.flipped = !!(id%2); //Convert odd/even to true/false
