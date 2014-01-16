@@ -434,7 +434,7 @@ var UI = Class.create({
 			});
 
 			//Recto
-			$j("#card .card.recto").css({"background-image":"url('../bestiary/"+stats.name+"/artwork.jpg')"});
+			$j("#card .card.recto").css({"background-image":"url('../units/artwork/"+stats.name+".jpg')"});
 			$j("#card .card.recto .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
 			$j("#card .card.recto .type").text(stats.type);
 			$j("#card .card.recto .name").text(stats.name);
@@ -467,7 +467,7 @@ var UI = Class.create({
 			});
 			$j.each(abilities[stats.id],function(key,value){
 				$ability = $j("#card .card.verso .abilities .ability:eq("+key+")");
-				$ability.children('.icon').css({"background-image":"url('../bestiary/"+stats.name+"/"+key+".svg')"});
+				$ability.children('.icon').css({"background-image":"url('../units/icons/"+stats.name+" "+key+".svg')"});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").text(stats.ability_info[key].info);
@@ -545,7 +545,7 @@ var UI = Class.create({
 		}else{
 			
 			//Recto
-			$j("#card .card.recto").css({"background-image":"url('../bestiary/"+stats.name+"/artwork.jpg')"});
+			$j("#card .card.recto").css({"background-image":"url('../units/artwork/"+stats.name+".jpg')"});
 			$j("#card .card.recto .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
 			$j("#card .card.recto .type").text(stats.type);
 			$j("#card .card.recto .name").text(stats.name);
@@ -561,7 +561,7 @@ var UI = Class.create({
 			//Abilities
 			$j.each(stats.ability_info,function(key,value){
 				$ability = $j("#card .card.verso .abilities .ability:eq("+key+")");
-				$ability.children('.icon').css({"background-image":"url('../bestiary/"+stats.name+"/"+key+".svg')"});
+				$ability.children('.icon').css({"background-image":"url('../units/icons/"+stats.name+" "+key+".svg')"});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").html(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").html(stats.ability_info[key].info);
@@ -849,7 +849,7 @@ var UI = Class.create({
 			//Change abilities buttons
 			G.UI.abilitiesButtons.each(function(){
 				var ab = G.activeCreature.abilities[this.abilityId];
-				this.css.normal = {"background-image":"url('../bestiary/"+G.activeCreature.name+"/"+this.abilityId+".svg')"};
+				this.css.normal = {"background-image":"url('../units/icons/"+G.activeCreature.name+" "+this.abilityId+".svg')"};
 				this.$button.next(".desc").find("span").text(ab.title);
 				this.$button.next(".desc").find("p").html(ab.desc);
 
