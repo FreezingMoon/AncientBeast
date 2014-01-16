@@ -45,7 +45,7 @@ TODO: move stuff above to just a pre-match screen; login box; provide video tuto
 
 <ul>
 <li>internet connection (offline version available soon)</li>
-<li>a modern browser, <a href="http://www.google.com/chrome" target="_blank"><b>Google Chrome</b></a> recommended</li>
+<li>a modern browser, <a href="https://www.google.com/chrome" target="_blank"><b>Google Chrome</b></a> recommended</li>
 <li>16:9 full HD display recommended (game will adapt otherwise)
 <li>stereo speakers (optional)</li>
 <li>500 MHz Processor</li>

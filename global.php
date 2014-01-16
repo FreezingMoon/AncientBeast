@@ -92,8 +92,8 @@ function end_page() {
 		<a href="mailto:DreadKnight@FreezingMoon.org?Subject=You%20Rock!" target="_blank">Indie Game Projects - DreadKnight@FreezingMoon.org</a>
 	</td>
 	<td style="width:50%"></td>
-	<td><a href="http://facebook.com/AncientBeast" target="_blank" class="lighten"><img src="../images/facebook.png" height="64" width="64" class="lighten" alt="facebook"></a></td>
-	<td><a href="http://twitter.com/AncientBeast" target="_blank" class="lighten"><img src="../images/twitter.png" height="64" width="64" class="lighten" alt="twitter"></a></td>
+	<td><a href="https://facebook.com/AncientBeast" target="_blank" class="lighten"><img src="../images/facebook.png" height="64" width="64" class="lighten" alt="facebook"></a></td>
+	<td><a href="https://twitter.com/AncientBeast" target="_blank" class="lighten"><img src="../images/twitter.png" height="64" width="64" class="lighten" alt="twitter"></a></td>
 	<td><a href="https://plus.google.com/b/113034814032002995836/" target="_blank" class="lighten"><img src="../images/google.png" height="64" width="64" class="lighten" alt="google"></a></td>
 	</tr></table></div>
 	<?php end_segment(); ?>
