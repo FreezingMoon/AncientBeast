@@ -198,27 +198,27 @@ abilities[14] =[
 
 		var result = target.takeDamage(damage,true);
 
-		if( result.kill ) return; // if creature die stop here
+		// if( result.kill ) return; // if creature die stop here
 
 		var dir = [];
 		switch( args.direction ){
-			case 0: //Upright
-				dir = G.grid.getHexMap(target.x,target.y-8,0,target.flipped,diagonalup).reverse();
+			case 3: //Upright
+				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y-8,0,ability.creature.flipped,diagonalup).reverse();
 				break;
-			case 1: //StraitForward
-				dir = G.grid.getHexMap(target.x,target.y,0,target.flipped,straitrow);
+			case 4: //StraitForward
+				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y,0,ability.creature.flipped,straitrow);
 				break;
-			case 2: //Downright
-				dir = G.grid.getHexMap(target.x,target.y,0,target.flipped,diagonaldown);
+			case 5: //Downright
+				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y,0,ability.creature.flipped,diagonaldown);
 				break;
-			case 3: //Downleft
-				dir = G.grid.getHexMap(target.x,target.y,-4,target.flipped,diagonalup);
+			case 0: //Downleft
+				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y,-4,ability.creature.flipped,diagonalup);
 				break;
-			case 4: //StraitBackward
-				dir = G.grid.getHexMap(target.x,target.y,0,!target.flipped,straitrow);
+			case 1: //StraitBackward
+				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y,0,!ability.creature.flipped,straitrow);
 				break;
-			case 5: //Upleft
-				dir = G.grid.getHexMap(target.x,target.y-8,-4,target.flipped,diagonaldown).reverse();
+			case 2: //Upleft
+				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y-8,-4,ability.creature.flipped,diagonaldown).reverse();
 				break;
 			default:
 				break;
@@ -226,9 +226,10 @@ abilities[14] =[
 
 		var pushed = false;
 
+		//Recoil
 		if(dir.length > 1) {
-			if(dir[1].isWalkable(target.size,target.id,true)){
-				target.moveTo(dir[1],{
+			if(dir[1].isWalkable(ability.creature.size,ability.creature.id,true)){
+				ability.creature.moveTo(dir[1],{
 					ignoreMovementPoint : true,
 					ignorePath : true,
 					callback : function(){

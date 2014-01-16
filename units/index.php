@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = 'Ancient Beast - Bestiary';
+$page_title = 'Ancient Beast - Units';
 require_once('../header.php');
 require_once('../global.php');
 require_once('../images/stats/index.php');

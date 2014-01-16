@@ -171,6 +171,26 @@ abilities[4] =[
 			ability.getTargets(hexs) //Targets
 		);
 	},
+
+	animation_datas : { 
+		visual : function(hexs,args){
+
+			setTimeout(function(){
+				hexs.each(function(){
+					var sprite = G.grid.trapGroup.create(this.originalDisplayPos.x, this.originalDisplayPos.y, "effects_fissure-vent");
+					var tween = G.Phaser.add.tween(sprite)
+					.to({alpha:1},500,Phaser.Easing.Linear.None)
+					.to({alpha:0},500,Phaser.Easing.Linear.None)
+					.start();
+					tween._lastChild.onComplete.add(function(){ sprite.destroy() },this);
+				});
+			},this.animation_datas.delay);
+
+		},
+		duration : 500,
+		delay : 350,
+	},
+
 },
 
 

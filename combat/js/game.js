@@ -220,18 +220,18 @@ var Game = Class.create({
 
 				G.loadingSrc += 3;
 
-				//Load Creature Sound
-				G.soundsys.getSound("../bestiary/"+data.name+'/'+data.name+'.ogg',1000+G.loadedCreatures[j],function(){ G.loadFinish() });
-				//Loads Creature abilities
-				getScript('../bestiary/'+data.name+'/abilities.js',function(){ G.loadFinish() });
-				//Load Sprites
-				getImage('../bestiary/'+data.name+'/artwork.jpg',function(){ G.loadFinish() });
+				//Load unit shouts
+				G.soundsys.getSound('../units/shouts/'+data.name+'.ogg',1000+G.loadedCreatures[j],function(){ G.loadFinish() });
+				//Load unit abilities
+				getScript('../units/abilities/'+data.name+'.js',function(){ G.loadFinish() });
+				//Load artwork
+				getImage('../units/artwork/'+data.name+'.jpg',function(){ G.loadFinish() });
 
 				if(data.name == "Dark Priest"){
 					for (var i = 0; i < dpcolor.length; i++) {
 						G.loadingSrc += 2;
-						G.Phaser.load.image(data.name+dpcolor[i]+'_cardboard','../bestiary/'+data.name+'/cardboard-'+dpcolor[i]+'.png');
-						getImage('../bestiary/'+data.name+'/avatar-'+dpcolor[i]+'.jpg',function(){ G.loadFinish() });
+						G.Phaser.load.image(data.name+dpcolor[i]+'_cardboard','../units/cardboards/'+data.name+' '+dpcolor[i]+'.png');
+						getImage('../units/avatars/'+data.name+' '+dpcolor[i]+'.jpg',function(){ G.loadFinish() });
 					};
 				}else{
 					if(data.drop){
@@ -239,8 +239,8 @@ var Game = Class.create({
 						G.Phaser.load.image('drop_'+data.drop.name,'../drops/'+data.drop.name+'.png');
 					}
 					G.loadingSrc += 2;
-					G.Phaser.load.image(data.name+'_cardboard','../bestiary/'+data.name+'/cardboard.png');
-					getImage('../bestiary/'+data.name+'/avatar.jpg',function(){ G.loadFinish() });
+					G.Phaser.load.image(data.name+'_cardboard','../units/cardboards/'+data.name+'.png');
+					getImage('../units/avatars/'+data.name+'.jpg',function(){ G.loadFinish() });
 				}
 
 				//For code compatibility

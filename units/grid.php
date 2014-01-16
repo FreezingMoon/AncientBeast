@@ -13,14 +13,14 @@ echo '<style type="text/css">';
 
 	foreach ($creature_results as $r) {
 		if ($r['id'] == 0 ) { continue; } //Ignore Dark Priest
-		echo '.vignette.type' .$r['realm'].$r['lvl']. '{background-image: url("' .$site_root. 'bestiary/' .$r["name"]. '/avatar.jpg");}';
+		echo '.vignette.type' .$r['realm'].$r['lvl']. '{background-image: url("' .$site_root. 'units/avatars/' .$r["name"]. '.jpg");}';
 	}
 
 	echo '
-	.vignette.type--.p0{background-image: url("' .$site_root. 'bestiary/Dark Priest/avatar-red.jpg");}
-	.vignette.type--.p1{background-image: url("' .$site_root. 'bestiary/Dark Priest/avatar-blue.jpg");}
-	.vignette.type--.p2{background-image: url("' .$site_root. 'bestiary/Dark Priest/avatar-orange.jpg");}
-	.vignette.type--.p3{background-image: url("' .$site_root. 'bestiary/Dark Priest/avatar-green.jpg");}';
+	.vignette.type--.p0{background-image: url("' .$site_root. 'units/avatars/Dark Priest red.jpg");}
+	.vignette.type--.p1{background-image: url("' .$site_root. 'units/avatars/Dark Priest blue.jpg");}
+	.vignette.type--.p2{background-image: url("' .$site_root. 'units/avatars/Dark Priest orange.jpg");}
+	.vignette.type--.p3{background-image: url("' .$site_root. 'units/avatars/Dark Priest green.jpg");}';
 
 	echo '</style><div id="creaturegrid">';
 

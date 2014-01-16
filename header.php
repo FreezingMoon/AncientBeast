@@ -112,7 +112,7 @@ if($_SESSION['id'] != 0) { ?>
 <!--navigation menu-->
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-  $menu = array('bestiary', 'items', 'media', 'game', 'blog', 'chat');
+  $menu = array('units', 'items', 'media', 'game', 'blog', 'chat');
   foreach ($menu as &$menuItem) {
     echo '<td>
       <a href="' . $site_root . $menuItem . '" id="' . $menuItem . '" class="lighten">

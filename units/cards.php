@@ -310,7 +310,7 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 
 	echo '
 	<table class="center" border=0>
-		<th class="card recto" style="background-image: url(\'' . $site_root . 'bestiary/' . $r['name'] . '/artwork.jpg\');">
+		<th class="card recto" style="background-image: url(\'' . $site_root . 'units/artwork/' . $r['name'] . '.jpg\');">
 			<div class="card_info">
 				<div class="stat_desc">
 					<div><span class="icon health"></span> Health : The raw amount of damage points a creature can take before it dies.</div>
@@ -349,7 +349,7 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 			echo '<table class="section info sin' . $r['realm'] . '">
 				<tr>
 					<td class="type" creature_type="'.$r['realm'].$r['lvl'].'" style="width:20%;">'.$r['realm'].$r['lvl'].'</td>
-					<td><audio src="' . $spaceless . '/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
+					<td><audio src="shouts/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
 					<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '" creature_name="' . $r['name'] . '" >' . $r['name'] . '</a></td>
 					<td class="hexs" creature_size="' . $r['size'] . 'H" style="width:20%;">' . $r['size'] . 'H</td>
 				</tr>
@@ -376,7 +376,7 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 				 	# code...
 					echo '
 					<div class="ability">
-						<div class="icon" style="background-image: url(\'' . $site_root . 'bestiary/' . $r["name"] . '/' . $i . '.svg\');">
+						<div class="icon" style="background-image: url(\'' . $site_root . 'units/icons/' . $r["name"] . ' ' . $i . '.svg\');">
 							<div class="contour"></div>
 						</div>
 						<div class="wrapper">

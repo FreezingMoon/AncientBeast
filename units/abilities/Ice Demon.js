@@ -5,7 +5,7 @@
 */
 abilities[6] =[
 
-// 	First Ability: Snow Storm
+// 	First Ability: Frost Bite
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onEndPhase",
@@ -165,7 +165,7 @@ abilities[6] =[
 
 
 
-// 	Thirt Ability: Frost Bite
+// 	Thirt Ability: Snow Storm
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
