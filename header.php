@@ -61,8 +61,6 @@ var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 	  echo '<link rel="stylesheet" href="' . $stylesheet . '">';
   } 
 ?>
-<!--flattr-->
-<script type="application/javascript" src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
 <!--jquery-->
 <script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <script type="application/javascript">
