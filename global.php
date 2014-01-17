@@ -66,7 +66,7 @@ function db_query($query) {
 
 function start_segment($x="") {
 	if ($x != NULL) {
-		echo '<div class="div_top" id="$x"></div>';
+		echo '<div class="div_top" id="'.$x.'"></div>';
 	}
 	else {
 		echo '<div class="div_top"></div>';
