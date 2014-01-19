@@ -139,8 +139,5 @@ foreach ($data as $r) {
 	end_segment();
 }
 
-start_segment();
-include("../utils/disqus.php");
-end_segment();
-end_page();
-?>
+disqus();
+end_page(); ?>

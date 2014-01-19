@@ -120,7 +120,7 @@ if($post_count==1){
 	echo '</div>';
 	end_segment();
 }
-
+disqus();
 end_page(); ?>
 
 

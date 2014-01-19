@@ -155,8 +155,6 @@ case music:
 	echo "</div>";
 	echo '<script type="text/javascript" src="js/audioplayer.js" ></script>';
 }
-
-separate_segment(comments);
-include("../disqus.php");
 end_segment();
+disqus();
 end_page(); ?>

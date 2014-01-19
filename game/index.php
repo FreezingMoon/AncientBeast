@@ -54,8 +54,6 @@ TODO: move stuff above to just a pre-match screen; login box; provide video tuto
 <li>64 MB Video Card</li>
 <li>controller (keyboard, mouse, <span class='strike'>gamepad</span>, touch screen, <span class='strike'>smartphone</span> or <span class='strike'>tablet</span>)</li>
 </ul>
-<?php separate_segment();
-include("../disqus.php");
-end_segment();	
-end_page();
-?>
+<?php end_segment();
+disqus();	
+end_page(); ?>

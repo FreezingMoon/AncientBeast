@@ -70,7 +70,6 @@ foreach ($creature_results as $r) {
 
 start_segment();
 echo '<div class="center">Please let us know your top 3 favorite creatures by commenting below. Any other feedback also welcome!</div>';
-separate_segment();
-include('../disqus.php');
 end_segment();
+disqus("Ancient Beast - Bestiary");
 end_page(); ?>

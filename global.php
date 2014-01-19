@@ -79,6 +79,13 @@ function end_segment() {
 function separate_segment($x="") {
 	end_segment() . start_segment($x);
 }
+function disqus($x="") {
+	global $page_title;
+	if ($x == NULL) { $x = $page_title; }
+	start_segment();
+	include('../disqus.php');
+	end_segment();
+}
 function end_page() {
 	start_segment(); ?>
 	<div class="center"><table style="width:100%"><tr>
@@ -95,7 +102,7 @@ function end_page() {
 	<td style="width:50%"></td>
 	<td><a href="https://facebook.com/AncientBeast" target="_blank" class="lighten"><img src="../images/facebook.png" height="64" width="64" class="lighten" alt="facebook"></a></td>
 	<td><a href="https://twitter.com/AncientBeast" target="_blank" class="lighten"><img src="../images/twitter.png" height="64" width="64" class="lighten" alt="twitter"></a></td>
-	<td><a href="https://plus.google.com/b/113034814032002995836/" target="_blank" class="lighten"><img src="../images/google.png" height="64" width="64" class="lighten" alt="google"></a></td>
+	<td><a href="https://plus.google.com/b/113034814032002995836" target="_blank" class="lighten"><img src="../images/google.png" height="64" width="64" class="lighten" alt="google"></a></td>
 	</tr></table></div>
 	<?php end_segment(); ?>
 	</div>

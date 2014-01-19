@@ -1,8 +1,8 @@
-<center><div id="disqus_thread"></div>
+<div id="disqus_thread"></div>
 <script type="application/javascript">
 	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
 	var disqus_shortname = 'ancientbeast'; // required: replace example with your forum shortname
-	var disqus_identifier = '<?php echo $page_title; ?>';
+	var disqus_identifier = '<?php echo $x; ?>';
 
 	/* * * DON'T EDIT BELOW THIS LINE * * */
 	(function() {
@@ -10,4 +10,4 @@
 		dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
  		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 	})();
-</script></center>
+</script>

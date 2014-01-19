@@ -66,8 +66,6 @@ separate_segment(badges); ?>
 <img src="FGD.png" alt="FreeGameDev Ancient Beast SubForum"></a>
 </div>
 
-<?php separate_segment(comment);
-include("../disqus.php");
-end_segment();
-end_page();
-?>
+<?php end_segment();
+disqus();
+end_page(); ?>
