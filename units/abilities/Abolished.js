@@ -49,13 +49,13 @@ abilities[7] =[
 
 	// 	require() :
 	require : function(){
-		if( !this.testRequirements() ) return false;
+		if(!this.testRequirements()) return false;
 		var test = this.testDirection({
 			team : "ennemy",
 			distance : this.distance,
 			sourceCreature : this.creature,
 		});
-		if( !test ){
+		if(!test){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}

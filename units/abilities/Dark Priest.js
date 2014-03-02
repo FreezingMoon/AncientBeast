@@ -5,7 +5,7 @@
 */
 abilities[0] =[
 
-// 	First Ability: Artificial Satellite
+// 	First Ability: Plasma Shield
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onAttack",
@@ -92,19 +92,19 @@ abilities[0] =[
 
 
 
-// 	Third Ability: Particle Disintegrator
+// 	Third Ability: Particle Disruptor
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
 	require : function(){
-		if( !this.testRequirements() ) return false;
+		if(!this.testRequirements()) return false;
 
-		var range = this.creature.adjacentHexs(1);
+		var range = this.creature.adjacentHexs(2);
 
 		//At least one target
-		if( !this.atLeastOneTarget(range,"ennemy") ){
+		if(!this.atLeastOneTarget(range,"ennemy")){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -114,8 +114,8 @@ abilities[0] =[
 		var targets = this.getTargets(range);
 
 		targets.each(function(){
-			if( !(this.target instanceof Creature) ) return false;
-			if( lowestCost > this.target.size ) lowestCost = this.target.size;			
+			if(!(this.target instanceof Creature)) return false;
+			if(lowestCost > this.target.size) lowestCost = this.target.size;			
 		});
 
 		if(this.creature.player.plasma < lowestCost){
@@ -134,11 +134,11 @@ abilities[0] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			optTest : function(hex){ return ( hex.creature.size <= dpriest.player.plasma ) ; },
+			optTest : function(hex){ return (hex.creature.size <= dpriest.player.plasma) ; },
 			team : 0, //Team, 0 = ennemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
-			hexs : dpriest.adjacentHexs(1),
+			hexs : dpriest.adjacentHexs(2),
 		});
 	},
 
@@ -168,7 +168,7 @@ abilities[0] =[
 
 
 
-// 	Fourth Ability: Unit Materializer
+// 	Fourth Ability: Unit Maker
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -181,7 +181,7 @@ abilities[0] =[
 			this.message = G.msg.abilities.noplasma;
 			return false;
 		}
-		if(this.creature.player.getNbrOfCreatures() > G.creaLimitNbr){
+		if(this.creature.player.getNbrOfCreatures() == G.creaLimitNbr){
 			this.message = G.msg.abilities.nopsy;
 			return false;
 		}
@@ -241,6 +241,8 @@ abilities[0] =[
 		var pos = { x:hex.x, y:hex.y };
 		
 		ability.creature.player.plasma -= args.cost;
+
+		//TODO: make the UI show the updated number instantly
 
 		ability.end();
 
