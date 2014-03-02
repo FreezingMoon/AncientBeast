@@ -38,7 +38,7 @@
         },
     	"ability_info": [
     		{
-    			"title": "Artificial Satellite",
+    			"title": "Plasma Shield",
     			"desc": "Protects from most harmful abilities.",
     			"info": "-1 plasma for each countered attack",
 			"costs": {"special":"1%health%per countered attack"},
@@ -53,7 +53,7 @@
     		},
     		{
 
-		        "title": "Particle Disintegrator",
+		        "title": "Disruptor Beam",
 		        "desc": "Does pure damage to a nearby foe. Bonus based on its missing health.",
 		        "info": ">25 damage; plasma cost = unit size",
 			"requirements": { 
@@ -67,8 +67,8 @@
 			}
     		},
     		{
-		        "title": "Unit Materializer",
-		        "desc": "Summons a creature on the combat field that will serve and obey orders.",
+		        "title": "Unit Maker",
+		        "desc": "Materializes an unit on the combat field that will serve and obey orders.",
 		        "info": "plasma cost = unit size + unit level",
 			"costs": {"plasma": "creature size + level"}
     		}
@@ -1410,7 +1410,7 @@
         "lvl": 1,
         "embed": null,
         "realm": "L",
-        "size": 1,
+        "size": 2,
         "type": "L1",
         "stats": {
             "health": 85,
@@ -1435,10 +1435,16 @@
         "animation": {
             "walk_speed": 500
         },
+        "display":{
+            "width": 185,
+            "height": 124,
+            "offset-x": 0,
+            "offset-y": -80
+        },
         "ability_info": [
             {
                 "title": "Lava Pool",
-                "desc": "When dead, melts into puddle of boiling lava that damages foes.",
+                "desc": "Constantly pours lava all around if not moving for a complete turn.",
                 "info": "10 burn damage per step or turn"
             },
             {
