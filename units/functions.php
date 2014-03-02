@@ -1,8 +1,8 @@
 <?php
 
 function get_creatures(){
-	$progress_json = json_decode(file_get_contents('../data/progress.json'), true);
-	$creature_json = json_decode(file_get_contents('../data/creatures.json'), true);
+	$progress_json = json_decode(file_get_contents('../units/progress.json'), true);
+	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
 	$creature_results = array();
 	$i = 0;
 	foreach($creature_json as &$creature){
@@ -15,7 +15,7 @@ function get_creatures(){
 }
 
 function get_stats(){
-	$creature_json = json_decode(file_get_contents('../data/creatures.json'), true);
+	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
 	$stats_results = array();
 	$i = 0;
 	foreach($creature_json as &$creature){
@@ -31,7 +31,7 @@ function progress($r,$c) {
 		echo "
 
 		<div class='center' style='width:825px; background-image:url(../images/progress/widget.png); background-repeat:no-repeat;'>
-		<a href='http://www.wuala.com/AncientBeast/bestiary/" . $spaceless . "' target='_blank'>";
+		<a href='http://www.wuala.com/AncientBeast/units/" . $spaceless . "' target='_blank'>";
 		$i = 0;
 		foreach($r as $key => $value) {
 			if($i++ < 1) continue; //Ignore other keys
