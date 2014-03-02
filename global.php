@@ -81,7 +81,7 @@ function separate_segment($x="") {
 }
 function disqus($x="") {
 	global $page_title;
-	if ($x == NULL) { $x = $page_title; }
+	if (!$x) { $x = $page_title; }
 	start_segment();
 	include('../disqus.php');
 	end_segment();

@@ -29,7 +29,7 @@ require_once('global.php'); ?>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="google-site-verification" content="uNVUkWjGPKwXaFK-BkOowVezLve8a8rjbM_ew1UHiZg">
 <meta name="description" content="Turn Based Strategy Game. Master your beasts!">
-<meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, TBS, PvP, strategy, combat, arena, free, foss, open source, card, chess, creatures, bitcoin, bets">
+<meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, strategy, bitcoin, bets, combat, arena, chess, cards, creatures, free, open source, foss">
 <meta name="author" content="Dread Knight">
 
 <script type="text/javascript" >
@@ -50,7 +50,6 @@ var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
   }
 ?>
 </title>
-<link type="text/css" rel="stylesheet" href="//cdn.jsdelivr.net/hint.css/1.3.0/hint.min.css">
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <link rel="stylesheet" href="<?php echo $site_root; ?>combat/css/grid.css">
 <?php
