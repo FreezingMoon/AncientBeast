@@ -89,24 +89,6 @@ $(document).ready(function() {
 		$("#img" + RegExp.$1).trigger("click");
 });
 </script>
-<?php start_segment(); ?>
-<nav><ul class="sections">
-<?php
-$sections = array(
-	'intro',
-	'plot',
-	'gameplay',
-	'realms',
-	'tools',
-	'contribute',
-	'license'
-);
-foreach ($sections as &$sectionItem) {
-	echo '<li><a href="#' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
-}
-?>
-</ul></nav>
-<?php end_segment(); ?>
 <article>
 <?php start_segment("media"); ?>
 <div class="center">
@@ -122,14 +104,14 @@ foreach($images as $image) {
 	echo '<a id="img' . $i . '" rel="pop" href="media/screenshots/' . $image . '" title="' . $title . '"><img class="shadow" style="width:280px; margin:5px;" src="media/screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 	$i++;
 } echo '</div>';?>
-<!--<img src="<?php echo $site_root; ?>images/trailer.png" style="cursor:pointer;" title="Watch Gameplay Video" onclick="TINY.box.show({iframe:'//www.youtube.com/embed/cAgf9hKGI3k?wmode=transparent&list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI',boxid:'trailer',width:853,height:480,opacity:40,topsplit:2})">-->
-<iframe width="880" height="495" src="//www.youtube.com/embed/-7V4yzu_l9E?wmode=transparent?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
+<!--<img src="<?php echo $site_root; ?>images/trailer.png" style="cursor:pointer;" title="Watch Gameplay Video" onclick="TINY.box.show({iframe:'//www.youtube.com/embed/cAgf9hKGI3k?wmode=transparent&list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI',boxid:'trailer',width:853,height:480,opacity:40,topsplit:2})">
+<iframe width="880" height="495" src="//www.youtube.com/embed/-7V4yzu_l9E?wmode=transparent?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe>--></div>
 <?php separate_segment("intro"); ?>
 <h3 class="indexheader"><a href="#intro">Intro</a></h3>
 <p>
-<b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to acquire and items to equip onto, putting them to use in order to defeat your opponents.
+<b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to acquire and items to equip onto, putting them to use in order to defeat your opponents.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 <p>
-Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> (and community). It uses web languages such as HTML, PHP and JavaScript, so that it's playable from any modern browser without the need of plugins.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
+Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> (and community). It uses web languages such as HTML, PHP and JavaScript, so that it's playable from any modern browser without the need of plugins.
 </p>
 <?php separate_segment("plot"); ?>
 <h3 class="indexheader"><a href="#plot">Plot</a></h3>
@@ -208,54 +190,7 @@ $(document).ready(function(){
 	});
 });
 </script>
-
 <br>
-<?php separate_segment("tools"); ?>
-<h3 class="indexheader"><a href="#tools">Tools</a></h3>
-<p>The project is developed with the use of free open source cross platform applications and freeware services.
-<a href="http://www.wuala.com/referral/CGN5J6GH3PBBBHCGKJ3P" target="_blank"><b>Wuala</b></a> comes in very handy when working with files collaboratively. You can find our group over <a href="http://wuala.com/AncientBeast" target="_blank"><b>here</b></a> which contains all the project's assets and sources, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group. There is no centralized forum, but you can use the various <a href="http://disqus.com" target="_blank"><b>Disqus</b></a> widgets around the website, our <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>Github issue tracker</b></a> or our <a href="http://forum.freegamedev.net/viewforum.php?f=70" target="_blank"><b>FreeGameDev subforum</b></a>.<br>
-<a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their own animations, which are rendered into sprites that are usually made into sprite-sheets as well as for other tasks.<br>
-<a href="http://krita.org" target="_blank"><b>Krita</b></a>, <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> and <a href="http://mypaint.intilinux.com" target="_blank"><b>MyPaint</b></a> are useful for concept art, while <a href="http://inkscape.org" target="_blank"><b>Inkscape</b></a> is useful for creating vector ability icons.</p>
-<table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
-<?php
-$tools = array(
-	'github'     => 'https://github.com/FreezingMoon/AncientBeast',
-	'wuala'      => 'http://www.wuala.com/AncientBeast',
-	'deviantart' => 'http://Ancient-Beast.deviantart.com',
-	'blender'    => 'http://blender.org',
-	'krita'      => 'http://krita.org',
-	'gimp'       => 'http://gimp.org',
-	'mypaint'    => 'http://mypaint.intilinux.com',
-	'inkscape'   => 'http://inkscape.org'
-);
-foreach ($tools as $toolName => $toolLink) {
-	echo '<td><a href="' . $toolLink . '" target="_blank" class="lighten"><img src="images/icons/' . $toolName . '.png" style="display:block; width:99px; height99px;" alt="' . $toolName . '">' . ucfirst($toolName) . '</a></td>';
-}
-?>
-</tr></table>
-<?php separate_segment("contribute"); ?>
-<h3 class="indexheader"><a href="#contribute">Contribute</a></h3>
-<p>
-For putting creature sprites together into sprite sheets, you can use the <a href="http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Render/Spritify" target="_blank"><b>Spritify</b></a> blender addon.<br>
-The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. By default, rendered creatures should usually be facing right.
-</p>
-<?php separate_segment("license"); ?>
-<h3 class="indexheader"><a href="#license">License</a></h3>
-<br>
-<table border="1" width=100%>
-	<tr>
-		<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="images/FreezingMoon.png" alt="Freezing Moon"></a></td>
-		<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
-	</tr>
-	<tr>
-		<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td>
-		<td><a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
-	</tr>
-	<tr>
-		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png" alt="AGPL 3.0"></a></td>
-		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license,<br>provided you credit and link the project.</td>
-	</tr>
-</table>
 <?php end_segment(); ?>
 </article>
 <?php end_page(); ?>
