@@ -29,7 +29,7 @@ Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">fre
 <h3><a href="#contribute">Contribute</a></h3>
 <p>
 For putting creature sprites together into sprite sheets, you can use the <a href="http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/Render/Spritify" target="_blank"><b>Spritify</b></a> blender addon.<br>
-The game requires animations to be 30 frames per second. Sprite sheets must have transparent background and an offset of 3 pixels between frames. Creatures are rendered at a resolution based upon their size (number of hexagons occupied), with an 1:1 aspect ratio. By default, rendered creatures should usually be facing right.
+The game requires animations to be 30 frames per second. Sprite sheets must have transparent background. Units are rendered at a resolution based upon the number of hexagons occupied, using an 1:1 aspect ratio and facing towards the right side of the screen. The game engine used is <a href="http://phaser.io" target="_blank">Phaser</a>, having it's source code and issue tracker here on <a href="">github</a> as well; documentation is available <a href="http://gametest.mobi/phaser/docs/Phaser.html" target="_blank">here</a>.
 </p>
 
 <h3><a href="#license">License</a></h3>
