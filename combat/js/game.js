@@ -87,6 +87,7 @@ var Game = Class.create({
 			44, //Scavenger
 			31, //Cyber Hound
 			6, //Ice Demon
+			22, //Lava Mollusk
 			//33, //Golden Wyrm
 		];
 		this.availableMusic = [];
@@ -112,7 +113,7 @@ var Game = Class.create({
 			abilities : {
 				notarget : "No targets available.",
 				noplasma : "Not enough plasma.",
-				nopsy	 : "Psyhelm overload: too many creatures controlled", //is this string needed anymore?
+				nopsy	 : "Psyhelm overload: too many units!",
 				alreadyused : "Ability already used.",
 				toomuch : "Too much %stat%.",
 				notenough : "Not enough %stat%."
@@ -209,7 +210,7 @@ var Game = Class.create({
 		this.Phaser.load.image('background',"../locations/"+this.background_image+"/bg.jpg");
 
 		//Get JSON files
-		$j.getJSON("../data/creatures.json", function(json_in) {
+		$j.getJSON("../units/data.json", function(json_in) {
 			G.creatureJSON = json_in;
 
 			G.creatureDatas = G.creatureJSON;
@@ -1154,7 +1155,7 @@ var Player = Class.create({
 
 
 	getNbrOfCreatures : function(){
-		var nbr = 0;
+		var nbr = -1;
 		for(var i = 0; i < this.creatures.length; i++){
 			var crea = this.creatures[i];
 			if( !crea.dead && !crea.undead ) nbr++;
@@ -1175,7 +1176,7 @@ var Player = Class.create({
 		for (var i = G.creatureJSON.length - 1; i >= 0; i--) {
 			if(
 				G.creatureJSON[i].type == type && 
-				i!=0 ) // Avoid Darkpriest Announce at the begining of a match
+				i!=0 ) //Avoid DarkPriest shout at the begining of a match
 			{
 				G.soundsys.playSound(G.soundLoaded[1000+i],G.soundsys.announcerGainNode);
 			}

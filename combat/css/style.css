@@ -398,27 +398,24 @@ body{
 .button#flee{ background-image: url('../icons/flee.svg'); }
 
 #playerbutton{
-	z-index: 2; 
-	right: 0px; 
-	position: fixed; 
-	cursor: pointer; 
+	cursor: pointer;
+	position: fixed;
+	right: 0px;
+	z-index: 2;
 }
 
 #playerinfos{
-	z-index: 2;
-	right: 100px;
-	top: 0px;
-	position: fixed;
+	color: white;
 	display: block;
-	height: 80px;
-	width: auto;
-	background: rgba(0,0,0,.8);
-	border: 2px solid grey;
-	padding: 0px 7px;
 	font-size: 12px;
 	font-weight: bold;
-	color: white;
+	height: 100px;
+	margin: 1px -5px;
+	position: fixed;
 	text-align: right;
+	top: 0px;
+	width: 100px;
+	z-index: 2;
 }
 
 #playerinfos p{margin: 4px;}
@@ -657,7 +654,7 @@ body{
 	height: 0px;
 }
 
-#playerbutton.vignette .frame ,#playerbutton.vignette{
+#playerbutton.vignette .frame, #playeravatar.vignette, #playerbutton.vignette{
 	height: 100px;
 	width: 100px;
 }

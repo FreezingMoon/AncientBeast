@@ -106,7 +106,7 @@ var UI = Class.create({
 		//ProgessBar
 		this.healthBar = new ProgessBar({$bar : $j("#leftpanel .progressbar .bar.healthbar"), color : "red" });
 		this.energyBar = new ProgessBar({$bar : $j("#leftpanel .progressbar .bar.energybar"), color : "yellow" });
-		this.timeBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .timebar"), width : 9 , color : "white" });
+		this.timeBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .timebar"), color : "white" });
 		this.poolBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" });
 
 		//Volume Sliders
@@ -407,6 +407,7 @@ var UI = Class.create({
 			$j("#dash .playertabs.p"+i+" .name").text(G.players[i].name);
 			$j("#dash .playertabs.p"+i+" .plasma").text("Plasma "+G.players[i].plasma);
 			$j("#dash .playertabs.p"+i+" .score").text("Score "+G.players[i].getScore().total);
+			$j("#dash .playertabs.p"+i+" .units").text("Units "+G.players[i].getNbrOfCreatures()+" / "+G.creaLimitNbr);
 		};
 
 		//Change to the player tab
@@ -496,7 +497,7 @@ var UI = Class.create({
 				var size = G.retreiveCreatureStats(creatureType).size-0;
 				plasmaCost = lvl+size;
 
-				//Messages
+				//Messages (TODO: text string in a new language file!)
 				if(plasmaCost>G.activeCreature.player.plasma){
 					$j('#materialize_button p').text("Low Plasma! Cannot materialize the selected unit");
 				}else{
@@ -569,7 +570,7 @@ var UI = Class.create({
 
 			//Materialize button
 			$j('#materialize_button').removeClass("glowing").unbind('click');
-			$j('#materialize_button p').text("This unit is currently under development");
+			$j('#materialize_button p').text("This unit is currently under heavy development");
 		}
 	},
 
@@ -994,10 +995,11 @@ var UI = Class.create({
 		$j("#playerbutton, #playerinfos")
 			.removeClass("p0 p1 p2 p3")
 			.addClass("p"+G.activeCreature.player.id);
-		$j("#playerbutton").css("background-image","url('"+G.activeCreature.player.avatar+"')");
+		$j("#playerbutton").css("background-color","black");
 		$j("#playerinfos .name").text(G.activeCreature.player.name);
 		$j("#playerinfos .points span").text(G.activeCreature.player.getScore().total);
 		$j("#playerinfos .plasma span").text(G.activeCreature.player.plasma);
+		$j("#playerinfos .units span").text(G.activeCreature.player.getNbrOfCreatures()+" / "+G.creaLimitNbr); //TODO: needs to update instantly!
 	},
 
 	showStatInfos: function(stat){

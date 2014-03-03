@@ -61,8 +61,8 @@ require_once('../units/cards.php');
 		<script type="text/javascript" src="./js/animations.js"></script>
 		<script type="text/javascript" src="./js/abilities.js"></script>
 		<script type="text/javascript" src="./js/creature.js"></script>
+		<script type="text/javascript" src="./js/drops.js"></script>
 		<script type="text/javascript" src="./js/pathfinding.js"></script>
-		<script type="text/javascript" src="./js/items.js"></script>
 		<script type="text/javascript" src="./js/game.js"></script>
 		<script type="text/javascript" src="./js/ui.js"></script>
 		<script type="text/javascript" src="./js/json2.js"></script>
@@ -274,11 +274,12 @@ require_once('../units/cards.php');
 				<div id="playertabswrapper">
 					<?php for ($i=0; $i < 4; $i++){
 						echo '<div class="playertabs p'.$i.'"  player="'.$i.'">
-								<div class="vignette active p'.$i.'"><div class="frame"></div></div>
+								<div id="playeravatar" class="vignette active p'.$i.'"><div class="frame"></div></div>
 								<div class="infos">
 									<h3 class="name"></h3>
 									<p class="score">0 Score</p>
 									<p class="plasma">0 Plasma</p>
+									<p class="units">Units</p>
 									<p>Time <span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 								</div>
 							</div>';
@@ -331,13 +332,17 @@ require_once('../units/cards.php');
 				<div id="queue">
 					<div id="queuewrapper"></div>
 				</div>
-				<div id="playerbutton" class="toggledash vignette active"><div class="frame"></div></div>
-				<div id="playerinfos" style="cursor:default;">
+				<div id="playerbutton" class="toggledash vignette active frame">
+					<div class="frame"></div>
+					<div id="playerinfos">
 					<p class="name"></p>
 					<p class="points"><span></span> Points</p>
 					<p class="plasma"><span></span> Plasma</p>
+					<p class="units"><span></span> Units</p>
 					<p ><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 				</div>
+				</div>
+
 				<div id="rightpanel">
 					<div style="position:relative"><div id="audio" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey A</div><span>Music Player</span><p>Listen to some really fine epic tracks.</p></div></div>
 					<div style="position:relative"><div id="skip" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey S</div><span>Skip Turn</span><p>End the turn of the current creature and proceed with the next in queue.</p></div></div>

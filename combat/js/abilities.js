@@ -60,7 +60,7 @@ var Ability = Class.create({
 	setUsed: function(val) {
 		if(val){
 			this.used = true;
-			if(this.creature.id == G.activeCreature.id) //avoid dimmed passive for current creature
+			if(this.creature.id == G.activeCreature.id) //Avoid dimmed passive for current creature
 				G.UI.abilitiesButtons[this.id].changeState("disabled");
 		}else{
 			this.used = false;
