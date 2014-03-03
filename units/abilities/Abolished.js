@@ -182,7 +182,7 @@ abilities[7] =[
 							"", //Trigger
 							optArg //Optional arguments
 						);
-						trg.addEffect(effect,"%CreatureName"+trg.id+"% got roasted : -1 burn stat debuff");
+						trg.addEffect(effect,"%CreatureName"+trg.id+"% got roasted : -1 burn stat");
 					}
 				})
 			},
