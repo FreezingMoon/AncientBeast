@@ -44,6 +44,6 @@ The game requires animations to be 30 frames per second. Sprite sheets must have
 	</tr>
 	<tr>
 		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="images/agpl.png" alt="AGPL 3.0"></a></td>
-		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license,<br>provided you credit and link the project.</td>
+		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
 	</tr>
 </table>
