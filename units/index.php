@@ -23,6 +23,7 @@
  */
 
 $page_title = 'Ancient Beast - Units';
+$stylesheet = "../combat/css/grid.css";
 require_once('../header.php');
 require_once('../global.php');
 require_once('../images/stats/index.php');

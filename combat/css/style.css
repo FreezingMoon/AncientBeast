@@ -668,6 +668,11 @@ body{
 .vignette.p2 .frame,#abilities.p2 .ability.active::before{background-image: url("../frames/orange.png");}
 .vignette.p3 .frame,#abilities.p3 .ability.active::before{background-image: url("../frames/green.png");}
 
+.vignette.type--.p0{background-image: url("../../units/avatars/Dark Priest red.jpg");}
+.vignette.type--.p1{background-image: url("../../units/avatars/Dark Priest blue.jpg");}
+.vignette.type--.p2{background-image: url("../../units/avatars/Dark Priest orange.jpg");}
+.vignette.type--.p3{background-image: url("../../units/avatars/Dark Priest green.jpg");}
+
 .vignette.roundmarker .frame{ background-image: url('../../images/contour.png'), url('../../images/round.jpg'); }
 
 /*-----------PAUSE OVERLAY-------------*/
