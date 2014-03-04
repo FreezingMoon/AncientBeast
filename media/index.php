@@ -114,21 +114,21 @@ case realms:
 	<?php separate_segment("avarice"); ?>
 	<a href="#avarice"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge gold; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, gold 0 0 10px;">Avarice</span></div>
-	<img  src='../images/realms/avarice.jpg'>
+	<img  src='realms/avarice.jpg'>
 	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge gold; padding: 15px 0px;">
 	They like to aquire all sorts of useless things and riches by all means possible.<br>
 	Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</div></a>
 	<?php separate_segment("envy"); ?>
 	<a href="#envy"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge orange; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, orange 0 0 10px;">Envy</span></div>
-	<img  src='../images/realms/envy.jpg'>
+	<img  src='realms/envy.jpg'>
 	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge orange; padding: 15px 0px;">
 	The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>
 	It's located to the West side and it mainly consists of deserts and cannyons.</div></a>
 	<?php separate_segment("gluttony"); ?>
 	<a href="#gluttony"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge green; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, green 0 0 10px;">Gluttony</span></div>
-	<img  src='../images/realms/gluttony.jpg'>
+	<img  src='realms/gluttony.jpg'>
 	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge green; padding: 15px 0px;">
 	Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>
 	In the east side, where the jungles are really tall and wilde, not even the sun's waves go through.<br>
@@ -136,7 +136,7 @@ case realms:
 	<?php separate_segment("lust"); ?>
 	<a href="#lust"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge red; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, red 0 0 10px;">Lust</span></div>
-	<img  src='../images/realms/lust.jpg'>
+	<img  src='realms/lust.jpg'>
 	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge red; padding: 15px 0px;">
 	The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>
 	North side. Volcanoes spread all across this land, which is usually covered by ashes,<br>
@@ -144,7 +144,7 @@ case realms:
 	<?php separate_segment("pride"); ?>
 	<a href="#pride"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge violet; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, violet 0 0 10px;">Pride</span></div>
-	<img  src='../images/realms/pride.jpg'>
+	<img  src='realms/pride.jpg'>
 	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge violet; padding: 15px 0px;">
 	They're above everyone else. Literally at least.<br>
 	Hundreds of years ago, some of the population, mainly the rich,<br>
@@ -152,7 +152,7 @@ case realms:
 	<?php separate_segment("sloth"); ?>
 	<a href="#sloth"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge blue; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;">Sloth</span></div>
-	<img  src='../images/realms/sloth.jpg'>
+	<img  src='realms/sloth.jpg'>
 	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge blue; padding: 15px 0px;">
 	They don't bother to do much except survive.<br>
 	This Southern area is mainly water. The low temperature causes most of the water to freeze,<br>
@@ -160,7 +160,7 @@ case realms:
 	<?php separate_segment("wrath"); ?>
 	<a href="#wrath"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge indigo; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, indigo 0 0 10px;">Wrath</span></div>
-	<img  src='../images/realms/wrath.jpg'>
+	<img  src='realms/wrath.jpg'>
 	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge indigo; padding: 15px 0px;">
 	The beasts from this realm enjoy killing and inflicting suffering on others.<br>
 	Underworld. Back in the day there used to be secret underground facilities that were used for<br>
