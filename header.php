@@ -36,8 +36,6 @@ var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 	  echo '<link rel="stylesheet" href="' . $stylesheet . '">';
   } 
 ?>
-<!--jquery-->
-<script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <script type="application/javascript">
 $(document).ready(function(){
 	$('.lighten').each(function(){
