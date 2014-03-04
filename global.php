@@ -90,7 +90,7 @@ function end_page() {
 	global $site_url;
 	start_segment(); ?>
 	<div class="center"><table style="width:100%"><tr>
-	<td><a href="/donate"><img src="<?php echo $site_url; ?>donate/paypal.png" height="63" width="56" alt="paypal"></a></td>
+	<td><a href="<?php echo $site_url; ?>donate"><img src="<?php echo $site_url; ?>donate/paypal.png" height="63" width="56" alt="paypal"></a></td>
 	<td><a href="bitcoin:1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97?label=Ancient%20Beast"><img src="<?php echo $site_url; ?>donate/bitcoin.png" height="63" width="56" alt="bitcoin"></a></td>
 	<script type="application/javascript" src="https://api.flattr.com/js/0.6/load.js?mode=auto"></script>
 	<td><a class="FlattrButton" style="display:none;" href="http://AncientBeast.com"></a></td>

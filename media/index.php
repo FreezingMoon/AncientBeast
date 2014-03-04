@@ -76,8 +76,7 @@ foreach ($sections as &$sectionItem) {
 echo '<div class="center">';
 $type = $_GET['type'];
 if (!isset($type)) $type = 'artwork';
-switch($type)
-{
+switch($type) {
 case artwork:
  ?>
 
