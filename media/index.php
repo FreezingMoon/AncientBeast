@@ -23,6 +23,13 @@
  */
 
 $page_title = "Ancient Beast - Media";
+
+$style = '
+.bigger {
+	font-size: 28px;
+	color: #e6e6e6;
+}
+';
 require_once("../header.php"); ?>
 <script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 <script type="application/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
@@ -54,6 +61,7 @@ $(document).ready(function() {
 $sections = array(
 	'artwork',
 	'fanart',
+	'realms',
 	'screenshots',
 	'wallpapers',
 	'videos',
@@ -65,12 +73,15 @@ foreach ($sections as &$sectionItem) {
 ?>
 </ul></nav>
 <?php separate_segment();
+echo '<div class="center">';
 $type = $_GET['type'];
 if (!isset($type)) $type = 'artwork';
 switch($type)
 {
 case artwork:
-	echo '<div class="center">';
+ ?>
+
+	<?php
 	$images = scandir("../media/artwork");
 	natsort($images);
 	$i = 0;
@@ -79,37 +90,11 @@ case artwork:
 		$title = substr($image, 0, -4);
 		echo '<a id="img' . $i . '" rel="pop" href="artwork/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="artwork/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 		$i++;
-	} echo "</div>";
-	break;
-
-case screenshots:
-	echo '<div class="center">';
-	$images = scandir("../media/screenshots");
-	natsort($images);
-	$i = 0;
-	foreach($images as $image) {
-		if($image == "." || $image == "..") continue;
-		$title = substr($image, 0, -4);
-		echo '<a id="img' . $i . '" rel="pop" href="screenshots/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
-		$i++;
-	} echo "</div>";
-	break;
-
-case wallpapers:
-	echo '<div class="center">';
-	$images = scandir("../media/wallpapers");
-	natsort($images);
-	$i = 0;
-	foreach($images as $image) {
-		if($image == "." || $image == "..") continue;
-		$title = substr($image, 0, -4);
-		echo '<a id="img' . $i . '" rel="pop" href="wallpapers/' . $image . '" title="' . $title . '"><img class="shadow" style="width:435px; margin:5px;" src="wallpapers/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
-		$i++;
-	} echo "</div>";
+	}
 	break;
 
 case fanart:
-	echo '<div class="center">Post your fan art in the <a href="#comments"><b>comments</b></a> section or upload it to the <a href="http://Ancient-Beast.deviantArt.com" target="_blank"><b>deviantArt</b></a> group. The best works will be featured!</div>';
+	echo 'Post your fan art in the <a href="#comments"><b>comments</b></a> section or upload it to the <a href="http://Ancient-Beast.deviantArt.com" target="_blank"><b>deviantArt</b></a> group. The best works will be featured!</div>';
 	separate_segment();
 	echo '<div class="center">';
 	$images = scandir("../media/fanart");
@@ -120,19 +105,101 @@ case fanart:
 		$title = substr($image, 0, -4);
 		echo '<a id="img' . $i . '" rel="pop" href="fanart/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="fanart/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 		$i++;
-	} echo "</div>";
+	}
+	break;
+
+case realms:
+?>
+<p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit its inhabitants the most.</p></div>
+	<?php separate_segment("avarice"); ?>
+	<a href="#avarice"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge gold; padding: 15px 0px">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, gold 0 0 10px;">Avarice</span></div>
+	<img  src='../images/realms/avarice.jpg'>
+	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge gold; padding: 15px 0px;">
+	They like to aquire all sorts of useless things and riches by all means possible.<br>
+	Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</div></a>
+	<?php separate_segment("envy"); ?>
+	<a href="#envy"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge orange; padding: 15px 0px">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, orange 0 0 10px;">Envy</span></div>
+	<img  src='../images/realms/envy.jpg'>
+	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge orange; padding: 15px 0px;">
+	The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>
+	It's located to the West side and it mainly consists of deserts and cannyons.</div></a>
+	<?php separate_segment("gluttony"); ?>
+	<a href="#gluttony"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge green; padding: 15px 0px">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, green 0 0 10px;">Gluttony</span></div>
+	<img  src='../images/realms/gluttony.jpg'>
+	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge green; padding: 15px 0px;">
+	Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>
+	In the east side, where the jungles are really tall and wilde, not even the sun's waves go through.<br>
+	Beware of the vegetation as well and don't pet any animals!</div></a>
+	<?php separate_segment("lust"); ?>
+	<a href="#lust"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge red; padding: 15px 0px">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, red 0 0 10px;">Lust</span></div>
+	<img  src='../images/realms/lust.jpg'>
+	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge red; padding: 15px 0px;">
+	The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>
+	North side. Volcanoes spread all across this land, which is usually covered by ashes,<br>
+	while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</div></a>
+	<?php separate_segment("pride"); ?>
+	<a href="#pride"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge violet; padding: 15px 0px">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, violet 0 0 10px;">Pride</span></div>
+	<img  src='../images/realms/pride.jpg'>
+	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge violet; padding: 15px 0px;">
+	They're above everyone else. Literally at least.<br>
+	Hundreds of years ago, some of the population, mainly the rich,<br>
+	tried separating themselves from the rest, so they built floating fortresses.</div></a>
+	<?php separate_segment("sloth"); ?>
+	<a href="#sloth"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge blue; padding: 15px 0px">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;">Sloth</span></div>
+	<img  src='../images/realms/sloth.jpg'>
+	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge blue; padding: 15px 0px;">
+	They don't bother to do much except survive.<br>
+	This Southern area is mainly water. The low temperature causes most of the water to freeze,<br>
+	providing a home for many of the creatures.</div></a>
+	<?php separate_segment("wrath"); ?>
+	<a href="#wrath"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge indigo; padding: 15px 0px">
+	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, indigo 0 0 10px;">Wrath</span></div>
+	<img  src='../images/realms/wrath.jpg'>
+	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge indigo; padding: 15px 0px;">
+	The beasts from this realm enjoy killing and inflicting suffering on others.<br>
+	Underworld. Back in the day there used to be secret underground facilities that were used for<br>
+	God forbidden experiments regarding genetics and bio weapons.</div></a>
+<?php
+	break;
+case screenshots:
+	$images = scandir("../media/screenshots");
+	natsort($images);
+	$i = 0;
+	foreach($images as $image) {
+		if($image == "." || $image == "..") continue;
+		$title = substr($image, 0, -4);
+		echo '<a id="img' . $i . '" rel="pop" href="screenshots/' . $image . '" title="' . $title . '"><img class="shadow" style="height:200px; margin:5px;" src="screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+		$i++;
+	}
+	break;
+
+case wallpapers:
+	$images = scandir("../media/wallpapers");
+	natsort($images);
+	$i = 0;
+	foreach($images as $image) {
+		if($image == "." || $image == "..") continue;
+		$title = substr($image, 0, -4);
+		echo '<a id="img' . $i . '" rel="pop" href="wallpapers/' . $image . '" title="' . $title . '"><img class="shadow" style="width:435px; margin:5px;" src="wallpapers/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+		$i++;
+	}
 	break;
 
 case videos:
-	echo '<div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>';
+	echo '<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>';
 	separate_segment("gameplay");
 	echo '<div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>';
 	separate_segment("clips");
-	echo '<div class="center"><iframe width="880" height="495" src="//www.youtube.com/embed/videoseries?list=PLADfTwuzK0YR-qoT0Dy6o3AGAoNCq1Y3R" frameborder="0" allowfullscreen></iframe></div>';
+	echo '<div class="center"><iframe width="880" height="495" src="//www.youtube.com/embed/videoseries?list=PLADfTwuzK0YR-qoT0Dy6o3AGAoNCq1Y3R" frameborder="0" allowfullscreen></iframe>';
 	break;
 
 case music:
-	echo '<div class="center">';
 	echo '<img src="band.jpg">';
 	$media = scandir("../media/music");
 	natsort($media);
@@ -152,9 +219,9 @@ case music:
 		$i++;
 	}
 	echo '</ul>';
-	echo "</div>";
 	echo '<script type="text/javascript" src="js/audioplayer.js" ></script>';
 }
+echo "</div>";
 end_segment();
 disqus();
 end_page(); ?>
