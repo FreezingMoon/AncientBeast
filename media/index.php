@@ -79,7 +79,6 @@ if (!isset($type)) $type = 'artwork';
 switch($type) {
 case artwork:
  ?>
-
 	<?php
 	$images = scandir("../media/artwork");
 	natsort($images);
@@ -110,60 +109,56 @@ case fanart:
 case realms:
 ?>
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit its inhabitants the most.</p></div>
-	<?php separate_segment("avarice"); ?>
-	<a href="#avarice"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge gold; padding: 15px 0px">
+	<?php end_segment(); ?>
+	<a href="#avarice"><div id="avarice" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge gold; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, gold 0 0 10px;">Avarice</span></div>
-	<img  src='realms/avarice.jpg'>
-	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge gold; padding: 15px 0px;">
+	<img  src='realms/avarice.jpg' width=950px>
+	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge gold; padding: 15px 0px;">
 	They like to aquire all sorts of useless things and riches by all means possible.<br>
-	Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</div></a>
-	<?php separate_segment("envy"); ?>
-	<a href="#envy"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge orange; padding: 15px 0px">
+	Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</div></a><br>
+	<a href="#envy"><div id="envy" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge orange; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, orange 0 0 10px;">Envy</span></div>
-	<img  src='realms/envy.jpg'>
-	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge orange; padding: 15px 0px;">
+	<img  src='realms/envy.jpg' width=950px'>
+	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge orange; padding: 15px 0px;">
 	The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>
-	It's located to the West side and it mainly consists of deserts and cannyons.</div></a>
-	<?php separate_segment("gluttony"); ?>
-	<a href="#gluttony"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge green; padding: 15px 0px">
+	It's located to the West side and it mainly consists of deserts and cannyons.</div></a><br>
+	<a href="#gluttony"><div id="gluttony" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge green; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, green 0 0 10px;">Gluttony</span></div>
-	<img  src='realms/gluttony.jpg'>
-	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge green; padding: 15px 0px;">
+	<img  src='realms/gluttony.jpg' width=950px'>
+	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge green; padding: 15px 0px;">
 	Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>
 	In the east side, where the jungles are really tall and wilde, not even the sun's waves go through.<br>
-	Beware of the vegetation as well and don't pet any animals!</div></a>
-	<?php separate_segment("lust"); ?>
-	<a href="#lust"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge red; padding: 15px 0px">
+	Beware of the vegetation as well and don't pet any animals!</div></a><br>
+	<a href="#lust"><div id="lust" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge red; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, red 0 0 10px;">Lust</span></div>
-	<img  src='realms/lust.jpg'>
-	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge red; padding: 15px 0px;">
+	<img  src='realms/lust.jpg' width=950px'>
+	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge red; padding: 15px 0px;">
 	The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>
 	North side. Volcanoes spread all across this land, which is usually covered by ashes,<br>
-	while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</div></a>
-	<?php separate_segment("pride"); ?>
-	<a href="#pride"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge violet; padding: 15px 0px">
+	while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</div></a><br>
+	<a href="#pride"><div id="pride" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge violet; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, violet 0 0 10px;">Pride</span></div>
-	<img  src='realms/pride.jpg'>
-	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge violet; padding: 15px 0px;">
+	<img  src='realms/pride.jpg'  width=950px'>
+	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge violet; padding: 15px 0px;">
 	They're above everyone else. Literally at least.<br>
 	Hundreds of years ago, some of the population, mainly the rich,<br>
-	tried separating themselves from the rest, so they built floating fortresses.</div></a>
-	<?php separate_segment("sloth"); ?>
-	<a href="#sloth"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge blue; padding: 15px 0px">
+	tried separating themselves from the rest, so they built floating fortresses.</div></a><br>
+	<a href="#sloth"><div id="sloth" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge blue; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;">Sloth</span></div>
-	<img  src='realms/sloth.jpg'>
-	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge blue; padding: 15px 0px;">
+	<img  src='realms/sloth.jpg' width=950px'>
+	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge blue; padding: 15px 0px;">
 	They don't bother to do much except survive.<br>
 	This Southern area is mainly water. The low temperature causes most of the water to freeze,<br>
-	providing a home for many of the creatures.</div></a>
-	<?php separate_segment("wrath"); ?>
-	<a href="#wrath"><div class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(0,0,0,0.5); border:4px ridge indigo; padding: 15px 0px">
+	providing a home for many of the creatures.</div></a><br>
+	<a href="#wrath"><div id="wrath" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge indigo; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, indigo 0 0 10px;">Wrath</span></div>
-	<img  src='realms/wrath.jpg'>
-	<div class="center" style="background:rgba(0,0,0,0.5); border-radius: 0 0 15px 15px; border:4px ridge indigo; padding: 15px 0px;">
+	<img  src='realms/wrath.jpg' width=950px'>
+	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge indigo; padding: 15px 0px;">
 	The beasts from this realm enjoy killing and inflicting suffering on others.<br>
 	Underworld. Back in the day there used to be secret underground facilities that were used for<br>
-	God forbidden experiments regarding genetics and bio weapons.</div></a>
+	God forbidden experiments regarding genetics and bio weapons.</div></a><br>
+	<?php start_segment(); ?>
+	<div class="center">Which are the deadly sins you think would describe you the best? Feel free to share your burden with us, sinner.</div>
 <?php
 	break;
 case screenshots:
