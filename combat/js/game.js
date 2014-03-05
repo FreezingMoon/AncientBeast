@@ -106,7 +106,7 @@ var Game = Class.create({
 		this.turnThrottle = false;
 
 		//Phaser
-		this.Phaser = new Phaser.Game(1920, 1080, Phaser.WEBGL, 'combatwrapper', {update:function(){ G.phaserUpdate(); }, render:function(){ G.phaserRender(); }});
+		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {update:function(){ G.phaserUpdate(); }, render:function(){ G.phaserRender(); }});
 
 		//Msg (TODO External file)
 		this.msg = {
