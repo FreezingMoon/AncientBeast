@@ -26,7 +26,7 @@
 $page_title = "Ancient Beast - Sprite Sheet Animation Viewer";
 require_once("../header.php");
 start_segment(); ?>
-
+<script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <div align="center">
 <canvas class="center" id="kanvas" width="500" height="400" onclick="{pauseButtonPressed()}">
 No canvas support.
@@ -237,7 +237,6 @@ function updateFields() {	//duh, updates the values defined in index.html
 <?php separate_segment(); ?>
 <div class="center">If you're looking for a more advanced sprite sheet editor, you should really check out <a href="http://darkfunction.com/editor/" target="_blank"><b>darkFunction Editor</b></a>.<br>
 You can use <a href="https://raw.github.com/Fweeb/blender_spritify/master/spritify.py" target="_blank" download><b>Spritify</b></a> <a href="http://blender.org" target="_blank"><b>blender</b></a> <a href="https://github.com/Fweeb/blender_spritify" target="_blank"><b>addon</b></a> to generate <a href="spritesheet.png" target="_blank"><b>sprite sheets</b></a>. Feel free to share your sprite sheets below.</div>
-<?php separate_segment();
-include('../disqus.php');
-end_segment();
+<?php end_segment();
+disqus();
 end_page(); ?>
