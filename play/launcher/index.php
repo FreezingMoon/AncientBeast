@@ -77,7 +77,7 @@
 			<a href="http://AncientBeast.com" target="_blank">AncientBeast.com</a>
 			<a href="https://www.facebook.com/AncientBeast" target="_blank">Facebook</a>
 			<a href="https://www.twitter.com/AncientBeast" target="_blank">Twitter</a>
-			<a href="https://plus.google.com/113034814032002995836" target="_blank">Google+</a>
+			<a href="https://plus.google.com/+AncientBeast" target="_blank">Google+</a>
 			<a href="http://AncientBeast.com/donate" target="_blank">Donate</a>
 			<a onclick="if(confirm('Reset Game?')) var ifr=document.getElementsByName('game')[0]; ifr.src=ifr.src;">Reset</a>
 			<a onclick="$('#game').fullScreen(true)">Fullscreen</a>
