@@ -52,7 +52,7 @@ TODO: move stuff above to just a pre-match screen; login box; provide video tuto
 <li>256 MB RAM</li>
 <li>200 MB HDD</li>
 <li>64 MB Video Card</li>
-<li>controller (keyboard, mouse, <span class='strike'>gamepad</span>, touch screen, <span class='strike'>smartphone</span> or <span class='strike'>tablet</span>)</li>
+<li>controller: keyboard, mouse or touch screen (soon: gamepad, smartphone, tablet, voice, gestures, mind)</li>
 </ul>
 <?php end_segment();
 disqus();	
