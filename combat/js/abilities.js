@@ -11,13 +11,13 @@ var Ability = Class.create({
 		this.priority = 0; //Priority for same trigger
 		var datas = G.retreiveCreatureStats(creature.type);
 		$j.extend(true,this,abilities[datas.id][abilityID],datas.ability_info[abilityID]);
-		if( this.requirements == undefined && this.costs != undefined ){
+		if( this.requirements === undefined && this.costs !== undefined ){
 			this.requirements = this.costs;
 		}
 	},
 
 
-	/* 	use()
+	/* use()
 	*
 	*	Test and use the ability
 	*
@@ -25,7 +25,7 @@ var Ability = Class.create({
 	use: function() {
 		if( this.trigger != "onQuery" ) return;
 		if( !this.require() ) return;
-		if( this.used == true ){ G.log("Ability already used!"); return; }
+		if( this.used === true ){ G.log("Ability already used!"); return; }
 		G.grid.clearHexViewAlterations();
 		G.clearOncePerDamageChain();
 		G.UI.selectAbility(this.id);
@@ -33,7 +33,7 @@ var Ability = Class.create({
 		return this.query();
 	},
 
-	/* 	end()
+	/*	end()
 	*
 	*	End the ability. Must be called at the end of each ability function;
 	*
@@ -41,7 +41,7 @@ var Ability = Class.create({
 	end: function(desableLogMsg,deferedEnding) {
 		if(!desableLogMsg) G.log("%CreatureName"+this.creature.id+"% uses "+this.title);
 		this.applyCost();
-		this.setUsed(true) //Should always be here
+		this.setUsed(true); //Should always be here
 		G.UI.updateInfos(); //Just in case
 		G.UI.btnDelay.changeState("disabled");
 		G.activeCreature.delayable = false;
@@ -52,9 +52,9 @@ var Ability = Class.create({
 	},
 
 
-	/* 	setUsed(val)
+	/*	setUsed(val)
 	*	
-	*	val : 	Boolean : 	set the used attriute to the desired value
+	*	val :	Boolean :	set the used attriute to the desired value
 	*	
 	*/
 	setUsed: function(val) {
@@ -65,7 +65,7 @@ var Ability = Class.create({
 		}else{
 			this.used = false;
 			if(this.creature.id == G.activeCreature.id){
-				if(this.id == 0){ //Passive
+				if(this.id === 0){ //Passive
 					G.UI.abilitiesButtons[this.id].changeState("noclick");
 				}else{
 					G.UI.abilitiesButtons[this.id].changeState("normal");
@@ -74,7 +74,7 @@ var Ability = Class.create({
 		}
 	},
 
-	/* 	animation()
+	/*	animation()
 	*	
 	*	Animate the creature
 	*	
@@ -96,7 +96,7 @@ var Ability = Class.create({
 			if(arguments[0] instanceof Array){
 				var args = $j.extend({},arguments);
 				delete args[0];
-				var array = []
+				var array = [];
 				arguments[0].each(function(){ array.push({x:this.x,y:this.y}); });
 				G.gamelog.add({action:"ability",target:{type:"array",array:array},id:this.id,args:args});
 			}
@@ -133,7 +133,7 @@ var Ability = Class.create({
 
 			G.animationQueue.push(anim_id);
 
-			if(this.animation_datas == undefined){ 
+			if(this.animation_datas === undefined){ 
 				this.animation_datas = { 
 					visual : function(){},
 					duration : 500,
@@ -156,9 +156,9 @@ var Ability = Class.create({
 				}
 			},this.animation_datas.delay);
 
-			setTimeout(function(){ 	
+			setTimeout(function(){	
 				G.animationQueue.filter(function(){ return (this!=anim_id); });
-				if( G.animationQueue.length == 0 ){
+				if( G.animationQueue.length === 0 ){
 					G.freezedInput = false;
 				}
 			},this.animation_datas.duration);
@@ -173,24 +173,24 @@ var Ability = Class.create({
 				clearInterval(interval);
 				opt.callback();
 			}
-		},100)
+		},100);
 
 		if( G.triggers.onAttack.test(ab.trigger) ) return ab.activate.apply(ab,args);
 	},
 
 
-	/* 	getTargets(hexs)
+	/*	getTargets(hexs)
 	*
-	*	hexs : 		Array : 	Array containing the targeted hexs
+	*	hexs : Array : Contains the targeted hexagons
 	*
-	*	return : 	Array : 	Array containing the targets
+	*	return : Array : Contains the target units
 	*
 	*/
 	getTargets: function(hexs) {
 		var targets = [];
 		hexs.each(function(){//For each hex
 			if( this.creature instanceof Creature ) {
-				if( targets[this.creature.id] == undefined ) {
+				if( targets[this.creature.id] === undefined ) {
 					targets[this.creature.id] = {
 						hexsHit : 0,
 						target : this.creature
@@ -215,11 +215,11 @@ var Ability = Class.create({
 		$j.each(obj,function(key,value){
 
 			if(key == "special"){
-				string += value.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>')
+				string += value.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>');
 				return;
 			}
 			
-			if(string != "") string += ", ";
+			if(string !== "") string += ", ";
 			string += (value+'<span class="'+key+'"></span>');
 		});
 		return string;
@@ -231,37 +231,37 @@ var Ability = Class.create({
 		for (var i = this.effects.length - 1; i >= 0; i--) {
 
 			if(this.effects[i].special){
-				string += this.effects[i].special.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>')
+				string += this.effects[i].special.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>');
 				continue;
 			}
 
 			$j.each(this.effects[i],function(key,value){
-			if(string != "") string += ", ";
+			if(string !== "") string += ", ";
 			string += (value+'<span class="'+key+'"></span>');
 		});
-		};
+		}
 
 		return string;
 	},
 
-	/* 	areaDamages(targets)
+	/*	areaDamages(targets)
 	*
-	*	targets : 	Array : 	Example : target = [{target:crea1,hexsHit:2},{target:crea2,hexsHit:1}]
+	*	targets : Array : Example : target = [{target:crea1,hexsHit:2},{target:crea2,hexsHit:1}]
 	*/
 	areaDamage : function(attacker,type,damages,effects,targets,notrigger) {
 		var multiKill = 0;
 		for (var i = 0; i < targets.length; i++) {
 			if(targets[i]===undefined) continue;
-			dmg = new Damage(attacker,type,damages,targets[i].hexsHit,effects)
+			dmg = new Damage(attacker,type,damages,targets[i].hexsHit,effects);
 			multiKill += (targets[i].target.takeDamage(dmg, notrigger).kill+0);
-		};
+		}
 		if(multiKill>1)	attacker.player.score.push({type:"combo",kills:multiKill});
 	},
 
-	/* 	atLeastOneTarget(hexs,team)
+	/*	atLeastOneTarget(hexs,team)
 	*
-	*	hexs : 		Array : 	set of hex to test
-	*	team : 		String : 	ennemy,ally,both
+	*	hexs : Array : set of hex to test
+	*	team : String : ennemy, ally, both
 	*/
 	atLeastOneTarget : function(hexs,team){
 		for (var i = 0; i < hexs.length; i++) {
@@ -276,16 +276,15 @@ var Ability = Class.create({
 						break;
 					case "both":
 						return true;
-						break;
 				}
 			}
-		};
+		}
 		this.message = G.msg.abilities.notarget;
 		return false;
 	},
 
 
-	/* 	testRequirements()
+	/*	testRequirements()
 	*
 	*	test the requirement for this abilities. negatives values mean maximum value of the stat
 	*	For instance : energy = -5 means energy must be lower than 5.
@@ -317,7 +316,7 @@ var Ability = Class.create({
 				sonic:0,
 				mental:0,
 			},
-		}
+		};
 
 		var r = this.requirements || this.costs;
 		
@@ -388,7 +387,7 @@ var Ability = Class.create({
 
 	applyCost : function(){
 		var crea = this.creature;
-		if( this.costs == undefined ) return;
+		if( this.costs === undefined ) return;
 		$j.each(this.costs,function(key,value) {
 			if( typeof(value) == "number" ){
 				if(key == 'health'){
@@ -418,12 +417,12 @@ var Ability = Class.create({
 
 		o = $j.extend(defaultOpt,o);
 
-		var choices = [] 
+		var choices = [];
 
 		for (var i = 0; i < o.directions.length; i++) {
 			if(!!o.directions[i]){
-				var dir = []
-				var fx = 0
+				var dir = [];
+				var fx = 0;
 
 				if( o.sourceCreature instanceof Creature ){
 					if( (!o.sourceCreature.player.flipped && i>2) || (o.sourceCreature.player.flipped && i<3) ){
@@ -458,7 +457,7 @@ var Ability = Class.create({
 
 				choices = choices.concat(dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team));
 			}
-		};
+		}
 		return this.atLeastOneTarget(choices,o.team);
 	},
 
@@ -474,24 +473,24 @@ var Damage = Class.create({
 
 	/* Constructor(amount,type,effects)
 	*	
-	*	attacker : 		Creature : 	Creature that initiated the damage
-	*	type : 			String : 	Can be "target", "zone" or "effect"
-	* 	damages : 		Object : 	Object containing the damage by type {frost : 5} for example
-	*	area : 			Integer : 	Number of hex hit
-	*	effects : 		Array : 	Array containing Effect object to apply to the target
+	*	attacker :	Creature : Unit that initiated the damage
+	*	type :	String : Can be "target", "zone" or "effect"
+	*	damages :	Object : Object containing the damage by type {frost : 5} for example
+	*	area :	Integer : Number of hexagons being hit
+	*	effects :	Array : Contains Effect object to apply to the target
 	*/
 	initialize: function(attacker,type,damages,area,effects) {
-		this.attacker 	= attacker;
-		this.type 	= type;
-		this.damages 	= damages;
-		this.status 	= "";
-		this.effects 	= effects;
-		this.area 	= area;
+		this.attacker = attacker;
+		this.type = type;
+		this.damages = damages;
+		this.status = "";
+		this.effects = effects;
+		this.area = area;
 	},
 
 	/* apply(target)
 	*
-	*	target : 	Creature : 	Targeted creature
+	*	target :	Creature : Targeted creature
 	*/
 	apply: function(target) {
 		var trg = target.stats;
@@ -531,18 +530,18 @@ var Effect = Class.create({
 
 	/* Constructor(owner,parent,trigger,effectFn)
 	*	
-	*	owner : 		Creature : 	Creature that casted the effect
-	*	target : 		Object : 	Creature or Hex : the object that possess the effect
-	*	trigger : 		String : 	Event that trigger the effect
-	*	effectFn : 		Function : 	Function to trigger
+	*	owner :	Creature : Creature that casted the effect
+	*	target :	Object : Creature or Hex : the object that possess the effect
+	*	trigger :	String : Event that trigger the effect
+	*	effectFn :	Function : Function to trigger
 	*/
 	initialize: function(name,owner,target,trigger,optArgs){
-		this.id 		= effectId++;
+		this.id = effectId++;
 
-		this.name 		= name;
-		this.owner 		= owner;
-		this.target 	= target;
-		this.trigger 	= trigger;
+		this.name = name;
+		this.owner = owner;
+		this.target = target;
+		this.trigger = trigger;
 		this.creationTurn = G.turn;
 
 		var args = $j.extend({

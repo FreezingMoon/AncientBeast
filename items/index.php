@@ -38,12 +38,12 @@ require_once("../global.php");
 require_once("../images/stats/index.php");
 
 
-//Sorts the arrays by absolute value
+// Sorts the arrays by absolute value
 function sortItems($a, $b)
 {
 	global $sortingArray;
 
-	//For each critera
+	// For each critera
 	for ($i=0; $i < count($sortingArray); $i++) {
 
 		$sortIndex = $sortingArray[$i];
@@ -53,12 +53,12 @@ function sortItems($a, $b)
 			$b = $b["stats"];
 		}
 
-		//If same value continue to the next sorting critera
+		// If same value continue to the next sorting critera
 	    if ($a[$sortIndex] == $b[$sortIndex]) {
 	        continue;
 	    }
 
-	    //Else determine what to do
+	    // Else determine what to do
 	    return (abs($a[$sortIndex]) < abs($b[$sortIndex])) ? -1 : 1;
 	}
 
@@ -70,7 +70,7 @@ function filterStat($var){
 	return ( $var["stats"][$statSelected] != "" );
 }
 
-//Get the SQL query order 
+// Get the SQL query order 
 function getItems() {
 	global $stats;
 	global $statSelected;
@@ -92,36 +92,33 @@ function getItems() {
 	return $data;
 }
 
-//Gathering Data
+// Gathering Data
 $data = getItems();
 
-
-//Show filters
-start_segment();
-
-echo "<table style='width: 100%;'><tr>";
+// Show filters
+?>
+<div class="div center"><table style="width: 100%;"><tr>
+<?php
 foreach($stats as $k => $x)
 	displayStat($k,$statCount[$k],"index.php?filter=$k");
-echo "</tr></table>";
-
-separate_segment();
-
-
-//grid view
-echo '<table style="width: 100%;"><tr>';
+?>
+</tr></table></div><div class="div">
+<!-- grid view -->
+<table style="width: 100%;"><tr>
+<?php
 $i = 0;
 foreach ($data as $r) {
 	$i++;
-	echo "<td class=\"item\"><span style=\"cursor: pointer;\" class=\"lighten\"><a href=\"#{$r['id']}\"><center><img class=\"fix\" src=\"sprites/" . rawurlencode($r['name']) . ".png\" style=\"display:block;\"></center><br>{$r['name']}</a></span></td>";
+	echo "<td class=\"item\"><span style=\"cursor: pointer;\"><a href=\"#{$r['id']}\">
+	<img class=\"fix lighten center\" src=\"sprites/" . rawurlencode($r['name']) . ".png\" style=\"display:block;\"><br>{$r['name']}</a></span></td>";
 	if (($i % 6) == 0) echo '</tr><tr>';
 }
-echo "</tr></table></a>";
-end_segment();
-
-
+?>
+</tr></table></a></div>
+<?php
 //detailed view
 foreach ($data as $r) {
-	start_segment($r['id']);
+	echo "<div class='div' id='id'>";
 	echo "<table style='width: 100%; text-align:center;'>";
 	echo "<tr><td style=\"width: 132px;\"><a href=\"#{$r['id']}\"><img src=\"sprites/" . rawurlencode($r['name']) . ".png\"></a></td>";
 	echo "<td><table style='width: 100%; font-size:24px; text-align:left;'><tr>";
@@ -134,10 +131,10 @@ foreach ($data as $r) {
 	foreach ($r['stats'] as $key => $value) {
 		if($value) displayStat($key,$value);
 	}
-
-	echo "</tr></table></td></tr></table>";
-	end_segment();
+?>
+	</tr></table></td></tr></table></div>
+<?php
 }
 
 disqus();
-end_page(); ?>
+include("../footer.php"); ?>

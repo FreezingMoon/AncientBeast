@@ -24,17 +24,15 @@
 
 $page_title = "Ancient Beast - Chat";
 require_once("../header.php");
-start_segment();
 ?>
-<span style="text-align: center; display: block; font-weight:bold;">
-If you prefer using your own <a href="https://docs.google.com/presentation/d/1VMQfNKV_6wPR0XN7RtskpQe4Mz1jhIg90Hio_CuGu4g/present" target="_blank"><u>IRC client</u></a> feel free to join <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> over at irc.freenode.net server.</span>
-<?php
-separate_segment(IRC); ?>
+
+<div class="div center" style="display: block; font-weight:bold;">
+If you prefer using your own <a href="https://docs.google.com/presentation/d/1VMQfNKV_6wPR0XN7RtskpQe4Mz1jhIg90Hio_CuGu4g/present" target="_blank"><u>IRC client</u></a> feel free to join <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> over at irc.freenode.net server.</div>
+<div class="div center" id="IRC">
 <iframe src="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" style="border:0; width:100%; height:500px;"></iframe>
+</div>
 
-<?php separate_segment(widgets);
-echo "<div class='center'>";?>
-
+<div class="div center" id="widgets">
 <!-- Twitter Widget -->
 <a class="twitter-timeline" width="285" height="350" href="https://twitter.com/AncientBeast" data-widget-id="362776555539292160">Tweets by @AncientBeast</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
@@ -51,11 +49,9 @@ echo "<div class='center'>";?>
 
 <!--Facebook Widget -->
 <iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FAncientBeast&amp;width=285&amp;height=350&amp;colorscheme=dark&amp;show_faces=true&amp;header=false&amp;stream=false&amp;show_border=false&amp;appId=354537111308544" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:285px; height:350px;" allowTransparency="true"></iframe>
+</div>
 
-<?php echo "</div>";
-
-separate_segment(badges); ?>
-<div class="center">
+<div class="div center" id="badges">
 <a href="http://www.indiedb.com/games/ancient-beast" title="View Ancient Beast on Indie DB" target="_blank">
 <img src="http://button.indiedb.com/popularity/medium/games/21552.png" alt="Ancient Beast"></a>
 <a href="http://gamejolt.com/games/arcade/ancient-beast/15964/" target="_blank">
@@ -66,6 +62,6 @@ separate_segment(badges); ?>
 <img src="FGD.png" alt="FreeGameDev Ancient Beast SubForum"></a>
 </div>
 
-<?php end_segment();
+<?php
 disqus();
-end_page(); ?>
+include('../footer.php'); ?>

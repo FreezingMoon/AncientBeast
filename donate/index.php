@@ -33,16 +33,14 @@ require_once("../header.php");
 $cancel = $_GET["cancel"];
 $success = $_GET["success"];
 
-if (isset($cancel)) {
-start_segment();
-echo '<div align=center><b>It\'s a sad day. You have canceled...</b></div>';
-end_segment();
+if (isset($cancel)) { ?>
+<div class="div center"><b>It\'s a sad day. You have canceled...</b></div>
+<?php
 }
 
-if (isset($success)) {
-start_segment();
-echo '<div align=center><b>You are AWESOME! :)</b></div>';
-end_segment();
+if (isset($success)) { ?>
+<div class="div center"><b>You are AWESOME! :)</b></div>
+<?php
 }?>
 <a id="now"></a>
 <div style="padding:20px 0; margin-bottom:10px; background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge gold;">
@@ -132,31 +130,33 @@ end_segment();
 
 </td></tr></table>
 </div>
-<?php start_segment();
+<div class="div center">
+<?php
 $dollars_month = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="$" AND MONTH(date) = MONTH(NOW()) AND YEAR(date) = YEAR(NOW())');
 $dollars_total = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="$"');
 $euros_month = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="€" AND MONTH(date) = MONTH(NOW()) AND YEAR(date) = YEAR(NOW())');
-$euros_total = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="€"');
-echo '<div align=center><table width=100%><tr>
+$euros_total = db_query('SELECT COALESCE(SUM(amount),0) AS amount FROM ab_donors WHERE type="€"'); ?>
+<table width=100%><tr>
+<?php echo '
 <td align=center width=25%><u>' . date('F') . '</u><br><b>$' . $dollars_month[0]['amount'] . ' USD</b></td>
 <td align=center width=25%><u>Total</u><br><b>$' . $dollars_total[0]['amount'] . ' USD</b></td>
 <td align=center width=25%><u>' . date('F') . '</u><br><b>€' . $euros_month[0]['amount'] . ' EUR</b></td>
-<td align=center width=25%><u>Total</u><br><b>€' . $euros_total[0]['amount'] . ' EUR</b></td></tr></table></div>';
-separate_segment(); ?>
-<div align=center>Donations are done through <a href="http://Paypal.com" target="_blank"><b>Paypal</b></a> and subscriptions can be canceled anytime, see <a href="http://www.wikihow.com/Cancel-a-Recurring-Payment-in-PayPal" target="_blank"><b>this article</b></a> for more info. Any amount you wish to donate is greatly appreciated and helps further the development of Ancient Beast. Donations are non refundable and are being used for project's upkeep, hardware necessities, rewarding existing contributors, commissioning artists and coders, marketing and so on. Donors are rewarded with exciting prizes!</div>
-<?php separate_segment();
+<td align=center width=25%><u>Total</u><br><b>€' . $euros_total[0]['amount'] . ' EUR</b></td></tr></table></div>'; ?>
+
+<div class="div center">Donations are done through <a href="http://Paypal.com" target="_blank"><b>Paypal</b></a> and subscriptions can be canceled anytime, see <a href="http://www.wikihow.com/Cancel-a-Recurring-Payment-in-PayPal" target="_blank"><b>this article</b></a> for more info. Any amount you wish to donate is greatly appreciated and helps further the development of Ancient Beast. Donations are non refundable and are being used for project's upkeep, hardware necessities, rewarding existing contributors, commissioning artists and coders, marketing and so on. Donors are rewarded with exciting prizes!</div>
+
+<div class="div center">
+<?php
 $donors = 'SELECT * FROM ab_donors WHERE anonymous IS NULL ORDER BY amount DESC';
 $rows = db_query($donors);
+foreach ($rows as $r) echo '<a href="' . $r['website'] . '" target="_blank">' . $r['name'] . ' (' . $r['type'] . $r['amount'] . ')</a>, '; ?>
+<a href="#now">Your name here!</a></div>
 
-echo '<div align=center>';
-foreach ($rows as $r) echo '<a href="' . $r['website'] . '" target="_blank">' . $r['name'] . ' (' . $r['type'] . $r['amount'] . ')</a>, ';
-echo '<a href="#now">Your name here!</a></div>';
-
-separate_segment();?>
+<div class="div center">
 <p align=center>Feel free to send your <a href="http://www.bitcoin.org" style="font-weight: bold;" target="_blank"><img src="bitcoin.ico"> bitcoin</a> donation over at:</p>
 <p align=center style="width:380px; margin:0 auto; padding:20px 0; background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge gold;">
 <a href="bitcoin:1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97?label=Ancient%20Beast"><img src="QR.png"><br><br>
 1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97</a></p>
 <p align=center><a href="http://blockexplorer.com/address/1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97" target="_blank">We like being transparent, so click <b>here</b> if you wish to see a list with all bitcoin donations.</a></p>
-<p align=center><iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p>
-<?php end_segment(); end_page();?>
+<p align=center><iframe width="560" height="315" src="http://www.youtube.com/embed/Um63OQz3bjo" frameborder="0" allowfullscreen></iframe></p></div>
+<?php include('../footer.php'); ?>

@@ -22,70 +22,9 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$style = '
-.bigger {
-	font-size: 28px;
-}
-.realms {
-	height: 370px;
-	text-align: center;
-	padding-top: 10px;
-	width: 890px;
-	font-weight: bold;
-}
-.name_footer_realm {
-	position: absolute;
-	bottom: 20px;
-	text-align: center;
-	width: 127px;
-	height:20px;
-	font-size: 15px;
-	z-index:999;
-}
-.name_bg {
-	position: absolute;
-	bottom: 21px;
-	width: 127px;
-	height:20px;
-	background-color:#000;
-	opacity:0.5;
-}
-.cut_hover {
-	width:127px;
-	height:400px;
-}
-a.FM:hover {
-	text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;
-}';
-require_once('header.php'); 
-?>
-<script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script type="application/javascript" src="media/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="application/javascript" src="media/fancybox/jquery.easing-1.3.pack.js"></script>
-<script type="application/javascript" src="media/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
-<link rel="stylesheet" href="media/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
-<script type="application/javascript">
-$(document).ready(function() {
-	var basePage = window.location.href.replace(/#.*/, "");
-	$("a[rel=pop]").fancybox({
-		'overlayColor'  : 'black',
-		'transitionIn'	: 'elastic',
-		'transitionOut'	: 'elastic',
-		'onComplete'	: function(array, index) {
-			history.replaceState("", "", basePage + "#id=" + index);
-		},
-		'onClosed'		: function() {
-			history.replaceState("", "", basePage);
-		}
-	});
-	
-	if (/[\#&]id=(\d+)/.test(location.hash))
-		$("#img" + RegExp.$1).trigger("click");
-});
-</script>
+require_once('header.php'); ?>
 
-<?php start_segment(); ?>
-<div class="center">
+<div class="div center">
 <?php
 
 if(isset($_POST['submit']) && $_POST['submit'] != ""){
@@ -110,36 +49,33 @@ if(isset($_POST['submit']) && $_POST['submit'] != ""){
 ?>
 
 <form name='login' method='post' action='login.php'>
-  <table width='25%' border='0' align='center' cellpadding='0' cellspacing='0'>
-    <tr>
-      <td width='35%' height='27'><font size='2' face='verdana'>Username&nbsp;</font></td>
-      <td width='65%'><font size='2' face='verdana'>
-        <input name='username' type='text' size='22'>
-        </font></td>
-    </tr>
-    <tr>
-      <td height='24'><font size='2' face='verdana'>Password&nbsp;</font></td>
-      <td><font size='2' face='verdana'>
-        <input name='password' type='password' size='22'>
+	<table width='25%' border='0' align='center' cellpadding='0' cellspacing='0'>
+	<tr>
+		<td width='35%' height='27'><font size='2' face='verdana'>Username&nbsp;</font></td>
+		<td width='65%'><font size='2' face='verdana'>
+		<input name='username' type='text' size='22'>
+		</font></td>
+	</tr>
+	<tr>
+		<td height='24'><font size='2' face='verdana'>Password&nbsp;</font></td>
+		<td><font size='2' face='verdana'>
+		<input name='password' type='password' size='22'>
 
-        </font></td>
-    </tr>
-    <tr>
-      <td>&nbsp;</td>
-      <td><font size='2' face='verdana'>
-        <input type='submit' name='submit' value='Login'>
-        </font></td>
-    </tr>
-  </table>
+		</font></td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><font size='2' face='verdana'>
+		<input type='submit' name='submit' value='Login'>
+		</font></td>
+	</tr>
+	</table>
 </form>
-<br />
-<a href="register.php"> Register </a>
+<br>
+<a href="register.php">Register</a>
 <br>
 
 </td></tr>
- 
 </div>
 
-<?php end_segment(); ?>
-
-<?php end_page(); ?>
+<?php include('footer.php'); ?>

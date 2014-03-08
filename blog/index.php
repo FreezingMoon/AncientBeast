@@ -63,8 +63,9 @@ foreach($blog_posts as $post){
 
 require_once("../header.php");
 require_once("../global.php");
-
-start_segment();
+?>
+<div class="div center">
+<?php
 $i = 0;
 foreach($blog_posts as $post){
 	$post = get_post($post,'entries/');
@@ -82,10 +83,10 @@ foreach($blog_posts as $post){
 		$i+=1;
 	}
 }
-end_segment();
-
-start_segment();
-echo '<div class="center" >';
+?>
+</div>
+<div class="div center">
+<?php
 if($offset-$post_count>=0){ echo '<a href="?off='.($offset-$post_count).'" >'.$prev_button.'</a>'; }
 if($offset-$post_count>=0 && $offset+$post_count<$published_posts){ echo ' | '; }
 if($offset+$post_count<$published_posts){ echo '<a href="?off='.($offset+$post_count).'" >'.$next_button.'</a>'; }
@@ -93,18 +94,17 @@ echo '<br>';
 if($offset!=0){ echo '<a href="?off=0" >'.$latest_button.'</a>'; }
 if($offset!=0 && $offset+$post_count!=$published_posts){ echo ' | '; }
 if($offset+$post_count!=$published_posts){ echo ' <a href="?off='.($published_posts-1).'" >'.$oldest_button.'</a>'; }
-echo '</div>';
-end_segment();
+?>
+</div>
 
-start_segment();
-include("../disqus.php");
-end_segment();
+<?php disqus();
 
 if($post_count==1){
-	start_segment();
-	echo '<div class="center" >';
-	echo '<b>Blog Archive:</b><br><br>';
-	echo '<div class="blog_archive_list" >';
+?>
+	<div class="div center">
+	<b>Blog Archive:</b><br><br>
+	<div class="blog_archive_list" >
+	<?php
 	$i = 0;
 	foreach($blog_posts as &$post){
 		$post = get_post($post,'entries/');
@@ -116,13 +116,9 @@ if($post_count==1){
 			$i++;
 		}
 	}
-	echo '</div>';
-	echo '</div>';
-	end_segment();
+?>
+</div></div></div>
+<?php
 }
 disqus();
-end_page(); ?>
-
-
-
-
+include('../footer.php'); ?>

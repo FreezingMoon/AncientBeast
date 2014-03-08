@@ -23,7 +23,7 @@
  */
 
 $page_title = 'Ancient Beast - Units';
-$stylesheet = "../combat/css/grid.css";
+$stylesheet = '../combat/css/grid.css';
 require_once('../header.php');
 require_once('../global.php');
 require_once('../images/stats/index.php');
@@ -31,46 +31,44 @@ require_once('functions.php');
 require_once('cards.php');
 require_once('grid.php');
 
-
 $creature_results = get_creatures();
 //navigation bar
 //TODO
-//start_segment();
 //echo '<nav>Modes: Normal | List | Versus - Log-in to purchase creatures. || You own x out of 50 creatures. - View: 2D/3D - SketchFab gallery</nav>';
-//end_segment();
 //get link php variable
 //if normal, list or versus...
 
 //grid view
-echo '<style type="text/css">
-		#creaturegrid .vignette,
-		.vignette div.border,
-		.vignette div.overlay{
-			height: 128px;
-			width: 128px;
-		}
-		#creaturegrid{
-			width: 896px;
-			height: 896px;
-		}
-	</style>';
-creatureGrid($creature_results);
-echo "<br>";
+?>
+<style type="text/css">
+	#creaturegrid .vignette,
+	.vignette div.border,
+	.vignette div.overlay {
+		height: 128px;
+		width: 128px;
+	}
+	#creaturegrid {
+		width: 896px;
+		height: 896px;
+	}
+</style>
+<?php creatureGrid($creature_results); ?>
+<br>
 
+<?php
 //detailed view
 $i = 0;
 foreach ($creature_results as $r) {
 	$underscore = str_replace(' ', '_', $r['name']);
-	start_segment($underscore);
+	echo "<div class='div center' id='$underscore'>";
 	cards($r);
 	echo '<br>';
-	progress($r["progress"],$r);
-	end_segment();
+	progress($r['progress'],$r);
+	echo '</div>';
 	$i++;
 }
+?>
 
-start_segment();
-echo '<div class="center">Please let us know your top 3 favorite creatures by commenting below. Any other feedback also welcome!</div>';
-end_segment();
-disqus("Ancient Beast - Bestiary");
-end_page(); ?>
+<div class="div center">Please let us know your top 3 favorite creatures by commenting below. Any other feedback also welcome!</div>
+<?php disqus('Ancient Beast - Bestiary');
+include('../footer.php'); ?>

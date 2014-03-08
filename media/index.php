@@ -55,8 +55,7 @@ $(document).ready(function() {
 		$("#img" + RegExp.$1).trigger("click");
 });
 </script>
-<?php start_segment(); ?>
-<nav><ul class="sections">
+<nav class="div center"><ul class="sections">
 <?php
 $sections = array(
 	'artwork',
@@ -72,8 +71,8 @@ foreach ($sections as &$sectionItem) {
 }
 ?>
 </ul></nav>
-<?php separate_segment();
-echo '<div class="center">';
+<div class="div center">
+<?php
 $type = $_GET['type'];
 if (!isset($type)) $type = 'artwork';
 switch($type) {
@@ -93,9 +92,9 @@ case artwork:
 
 case fanart:
 	echo 'Post your fan art in the <a href="#comments"><b>comments</b></a> section or upload it to the <a href="http://Ancient-Beast.deviantArt.com" target="_blank"><b>deviantArt</b></a> group. The best works will be featured!</div>';
-	separate_segment();
-	echo '<div class="center">';
-	$images = scandir("../media/fanart");
+	?>
+	<div class="div center">
+	<?php $images = scandir("../media/fanart");
 	natsort($images);
 	$i = 0;
 	foreach($images as $image) {
@@ -108,8 +107,7 @@ case fanart:
 
 case realms:
 ?>
-<p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit its inhabitants the most.</p></div>
-	<?php end_segment(); ?>
+<p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit its inhabitants the most.</p></div></div>
 	<a href="#avarice"><div id="avarice" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge gold; padding: 15px 0px">
 	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, gold 0 0 10px;">Avarice</span></div>
 	<img  src='realms/avarice.jpg' width=950px>
@@ -157,8 +155,7 @@ case realms:
 	The beasts from this realm enjoy killing and inflicting suffering on others.<br>
 	Underworld. Back in the day there used to be secret underground facilities that were used for<br>
 	God forbidden experiments regarding genetics and bio weapons.</div></a><br>
-	<?php start_segment(); ?>
-	<div class="center">Which are the deadly sins you think would describe you the best? Feel free to share your burden with us, sinner.</div>
+	<div class="div center">Which are the deadly sins you think would describe you the best? Feel free to share your burden with us, sinner.</div>
 <?php
 	break;
 case screenshots:
@@ -186,15 +183,16 @@ case wallpapers:
 	break;
 
 case videos:
-	echo '<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>';
-	separate_segment("gameplay");
-	echo '<div class="center"><iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>';
-	separate_segment("clips");
-	echo '<div class="center"><iframe width="880" height="495" src="//www.youtube.com/embed/videoseries?list=PLADfTwuzK0YR-qoT0Dy6o3AGAoNCq1Y3R" frameborder="0" allowfullscreen></iframe>';
-	break;
+	?>
+	<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>
+	<div class="div center" id="gameplay">
+	<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
+	<div class="div center" id="clips">
+	<iframe width="880" height="495" src="//www.youtube.com/embed/videoseries?list=PLADfTwuzK0YR-qoT0Dy6o3AGAoNCq1Y3R" frameborder="0" allowfullscreen></iframe></div>
+	<?php break;
 
 case music:
-	echo '<img src="band.jpg">';
+	?><img src="band.jpg"><?php
 	$media = scandir("../media/music");
 	natsort($media);
 	$i = 0;
@@ -211,11 +209,11 @@ case music:
 			echo '<li class=""><a href="'.$site_url.'media/music/'.$file.'">' . $title . '</a></li>';
 		}
 		$i++;
-	}
-	echo '</ul>';
-	echo '<script type="text/javascript" src="js/audioplayer.js" ></script>';
+	} ?>
+	</ul>
+	<script type="text/javascript" src="js/audioplayer.js"></script>
+<?php
 }
-echo "</div>";
-end_segment();
+echo "</div></div>";
 disqus();
-end_page(); ?>
+include('../footer.php'); ?>

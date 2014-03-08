@@ -46,7 +46,7 @@ var Animations = Class.create({
 
 					if(!opts.ignoreMovementPoint){
 						crea.remainingMove--;
-						if(opts.customMovementPoint == 0) crea.travelDist++;
+						if(opts.customMovementPoint === 0) crea.travelDist++;
 					}
 
 					G.animations.movements.enterHex(crea,hex,opts);
@@ -106,7 +106,7 @@ var Animations = Class.create({
 					}
 					
 					crea.remainingMove -= distance;
-					if(opts.customMovementPoint == 0) crea.travelDist += distance;
+					if(opts.customMovementPoint === 0) crea.travelDist += distance;
 				}
 
 				G.animations.movements.enterHex(crea,hex,opts);
@@ -156,9 +156,9 @@ var Animations = Class.create({
 
 		enterHex : function(crea,hex,opts){
 			crea.cleanHex();
-			crea.x 	= hex.x - 0;
-			crea.y 	= hex.y - 0;
-			crea.pos 	= hex.pos;
+			crea.x		= hex.x - 0;
+			crea.y		= hex.y - 0;
+			crea.pos	= hex.pos;
 			crea.updateHex();
 
 			if(!opts.ignoreMovementPoint){
@@ -201,7 +201,7 @@ var Animations = Class.create({
 			G.grid.orderCreatureZ();
 
 			G.animationQueue.filter(function(){ return (this!=anim_id); });
-			if( G.animationQueue.length == 0 ) G.freezedInput = false;
+			if( G.animationQueue.length === 0 ) G.freezedInput = false;
 		}
 	}
 });

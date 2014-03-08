@@ -6,7 +6,7 @@ $j(document).ready(function(){
 
 	$j("form#gamesetup").submit(function(e){
 		e.preventDefault(); //prevent submit
-		gameconfig = {
+		var gameconfig = {
 			nbrPlayer : $j('input[name="nbrplayer"]:checked').val()-0,
 			background_image : $j('input[name="location"]:checked').val(),
 			plasma_amount : $j('input[name="plasma"]:checked').val()-0,

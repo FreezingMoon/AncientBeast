@@ -27,8 +27,8 @@ var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 ?>
 </title>
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
-
 <?php
+
   if (isset($style)) {
   	echo '<style type="text/css">' . $style . '</style>';
   }
@@ -36,18 +36,6 @@ var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 	  echo '<link rel="stylesheet" href="' . $stylesheet . '">';
   } 
 ?>
-<script type="application/javascript">
-$(document).ready(function(){
-	$('.lighten').each(function(){
-		$(this).mouseenter(function() {
-			var c = Pixastic.process($('img', this).get(0), "lighten", {amount:0.4});
-			$(this).mouseleave(function() {
-				Pixastic.revert(c);
-			});
-		});
-	});
-});
-</script>
 <!--google analytics-->
 <script type="text/javascript">
 var _gaq = _gaq || [];
@@ -63,7 +51,7 @@ _gaq.push(['_trackPageview']);
 </head>
 <?php
 if($_SESSION['id'] != 0) { ?>
- <span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>profile">Account</a></span>
+<span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>profile">Account</a></span>
 <span style="position: absolute; margin-left: 359px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>index.php?action=logout">Logout</a></span>
 
 <?php } else { ?>

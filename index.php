@@ -59,10 +59,8 @@ $(document).ready(function() {
 });
 </script>
 <article>
-<?php start_segment("media"); ?>
-<div class="center">
+<div class="div center" id="media">
 <?php
-echo '<div class="center">';
 $images = scandir('media/screenshots');
 natsort($images);
 $i = 0;
@@ -75,14 +73,15 @@ foreach($images as $image) {
 } echo '</div>';?>
 <!--<img src="<?php echo $site_root; ?>images/trailer.png" style="cursor:pointer;" title="Watch Gameplay Video" onclick="TINY.box.show({iframe:'//www.youtube.com/embed/cAgf9hKGI3k?wmode=transparent&list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI',boxid:'trailer',width:853,height:480,opacity:40,topsplit:2})">
 <iframe width="880" height="495" src="//www.youtube.com/embed/-7V4yzu_l9E?wmode=transparent?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe>--></div>
-<?php separate_segment("intro"); ?>
+
+<div class="div" id="intro">
 <h3 class="indexheader"><a href="#intro">Intro</a></h3>
 <p>
 <b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to acquire and items to equip onto, putting them to use in order to defeat your opponents.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 <p>
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> (and community). It uses web languages such as HTML, PHP and JavaScript, so that it's playable from any modern browser without the need of plugins.
-</p>
-<?php separate_segment("plot"); ?>
+</p></div>
+<div class="div" id="plot">
 <h3 class="indexheader"><a href="#plot">Plot</a></h3>
 <p class="center">
 <audio controls="controls">
@@ -95,8 +94,8 @@ It's the year 2653. In the last centuries, technology advanced exponentially and
 </p>
 <p>
 Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strong will survive.
-</p>
-<?php separate_segment("gameplay"); ?>
+</p></div>
+<div class="div" id="gameplay">
 <h3 class="indexheader"><a href="#gameplay">Gameplay</a></h3>
 <p>
 In order to play Ancient Beast, you'll need to register an account. After logging in, you'll be offered a level 1 creature to get you started. Fights take place between 2 - 4 players, on a variety of combat fields which are about 16x9 hexes. Based on the difficulty of the fight, you can win gold coins, which can be spent in the shop in order to purchase items or unlock more creatures.
@@ -109,6 +108,6 @@ When fighting players of lower levels, you will temporarely lose plasma points i
 <p>
 After engaging in combat, players are taken to the battle field where both parties take turns to materialize and control creatures. Each player can materialize one or two creatures every round, which usually suffer from materialization sickness, meaning they won't be able to act in the current round.
 </p>
-<?php end_segment(); ?>
+</div>
 </article>
-<?php end_page(); ?>
+<?php include('footer.php'); ?>

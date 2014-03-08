@@ -30,18 +30,18 @@ function progress($r,$c) {
 		$spaceless = str_replace(' ', '%20', $c['name'] );
 		echo "
 
-		<div class='center' style='width:825px; background-image:url(../images/progress/widget.png); background-repeat:no-repeat;'>
+		<div class='center' style='width:825px; background-image:url(progress/widget.png); background-repeat:no-repeat;'>
 		<a href='http://www.wuala.com/AncientBeast/units/" . $spaceless . "' target='_blank'>";
 		$i = 0;
 		foreach($r as $key => $value) {
 			if($i++ < 1) continue; //Ignore other keys
 			$sum += $value;
 			$title = ucfirst($key) . ": $value% complete";
-			echo "<img src='../images/progress/$value.png' height='75' width='75' title='$title' alt='$title'>";
+			echo "<img src='progress/$value.png' height='75' width='75' title='$title' alt='$title'>";
 		}
 		$total = $sum / 10;
 		$rounded_total = 10 * round ($total/10) ;
-		echo "<img src='../images/progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed' alt='$rounded_total'>
+		echo "<img src='progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed' alt='$rounded_total'>
 	</a>
 </div>";
 
