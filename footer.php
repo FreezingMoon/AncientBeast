@@ -15,8 +15,6 @@
 <td><a href="https://plus.google.com/+AncientBeast" target="_blank" class="lighten"><img src="<?php echo $site_url; ?>images/google.png" height="64" width="64" class="lighten" alt="google"></a></td>
 </tr></table></div>
 </div>
-</body>
-</html>
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <?php
 
@@ -27,3 +25,5 @@
 	  echo '<link rel="stylesheet" href="' . $stylesheet . '">';
   } 
 ?>
+</body>
+</html>
