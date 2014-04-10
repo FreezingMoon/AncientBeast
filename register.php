@@ -21,8 +21,9 @@
  * https://github.com/FreezingMoon/AncientBeast
  * DreadKnight@FreezingMoon.org
  */
-
-require_once('header.php'); ?>
+$page_title = "Ancient Beast - Register";
+require_once('header.php');
+?>
 
 <div class="div center">
 <?php

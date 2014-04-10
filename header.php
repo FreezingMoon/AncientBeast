@@ -12,6 +12,16 @@
 var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 </script>
 
+<link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
+<?php
+
+  if (isset($style)) {
+  	echo '<style type="text/css">' . $style . '</style>';
+  }
+  if (isset($stylesheet)) {
+	  echo '<link rel="stylesheet" href="' . $stylesheet . '">';
+  } 
+?>
 <link rel="alternate" type="application/rss+xml" title="Ancient Beast Blog (RSS 2.0)" href="<?php echo $site_url; ?>blog/feed/" />
 
 <!--set page title-->

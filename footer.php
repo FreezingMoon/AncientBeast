@@ -1,7 +1,6 @@
 <div class="div"><table style="width:100%"><tr>
 <td><a href="<?php echo $site_url; ?>donate"><img src="<?php echo $site_url; ?>donate/paypal.png" height="63" width="56" alt="paypal"></a></td>
 <td><a href="bitcoin:1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97?label=Ancient%20Beast"><img src="<?php echo $site_url; ?>donate/bitcoin.png" height="63" width="56" alt="bitcoin"></a></td>
-<script type="application/javascript" src="https://api.flattr.com/js/0.6/load.js"></script>
 <td><a class="FlattrButton" style="display:none;" href="http://AncientBeast.com"></a></td>
 <td style="width:50%"></td>
 <td>
@@ -16,14 +15,5 @@
 </tr></table></div>
 </div>
 </body>
-<link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
-<?php
-
-  if (isset($style)) {
-  	echo '<style type="text/css">' . $style . '</style>';
-  }
-  if (isset($stylesheet)) {
-	  echo '<link rel="stylesheet" href="' . $stylesheet . '">';
-  } 
-?>
 </html>
+<script type="application/javascript" src="https://api.flattr.com/js/0.6/load.js"></script>

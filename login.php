@@ -22,6 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
+$page_title = "Ancient Beast - Login";
 require_once('header.php'); ?>
 
 <div class="div center">
