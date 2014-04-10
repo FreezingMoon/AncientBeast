@@ -399,6 +399,7 @@ body{
 
 #playerbutton{
 	cursor: pointer;
+	background: black;
 	position: fixed;
 	right: 0px;
 	z-index: 2;
@@ -466,10 +467,14 @@ body{
 	position: absolute;
 	height: 100px; 
 	width: 100px; 
-	background-image: url('../icons/combat.svg'); 
+	background-image: url('../icons/close.svg'); 
 }
 
-#return.button:before{ height: 100px; width: 100px;}
+#return.button:before{
+	height: 100px;
+	width: 100px;
+	background-image: url('../../images/frame.png');
+}
 
 #playertabswrapper{ 
 	position: absolute; 
