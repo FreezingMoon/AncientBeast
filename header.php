@@ -16,7 +16,6 @@ var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 
 <!--set page title-->
 <title>
-
 <?php
   if (isset($page_title)) {
 	  echo $page_title;
@@ -39,6 +38,8 @@ _gaq.push(['_trackPageview']);
 })();
 </script>
 </head>
+
+<body>
 <?php
 if($_SESSION['id'] != 0) { ?>
 <span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>profile">Account</a></span>
@@ -47,10 +48,8 @@ if($_SESSION['id'] != 0) { ?>
 <?php } else { ?>
 <span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>register.php">Register</a></span>
 <span style="position: absolute; margin-left: 366px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>login.php">Login</a></span>
-
 <?php } ?>
 
-<body>
 <!--banner-->
 <header id="header">
 <div style="margin-top: -5px; margin-bottom: 50px;">

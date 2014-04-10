@@ -23,9 +23,9 @@
  */
 
 $style = '
-a.FM:hover {
-	text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;
-}';
+a.FM:hover { text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px; }
+.screenies { width: 280px; margin: 5px; }';
+
 require_once('header.php'); 
 
 if($_GET['action'] == 'logout'){
@@ -44,7 +44,7 @@ foreach($images as $image) {
 	if($image == '.' || $image == '..') continue;
 	$title = substr($image, 0, -4);
 	$image = str_replace(' ', '%20', $image);
-	echo '<a id="img' . $i . '" rel="pop" href="media/screenshots/' . $image . '" title="' . $title . '"><img class="shadow" style="width:280px; margin:5px;" src="media/screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+	echo '<a id="img' . $i . '" rel="pop" href="media/screenshots/' . $image . '" title="' . $title . '"><img class="shadow screenies" src="media/screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 	$i++;
 } echo '</div>';?>
 <!--<img src="<?php echo $site_root; ?>images/trailer.png" style="cursor:pointer;" title="Watch Gameplay Video" onclick="TINY.box.show({iframe:'//www.youtube.com/embed/cAgf9hKGI3k?wmode=transparent&list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI',boxid:'trailer',width:853,height:480,opacity:40,topsplit:2})">
@@ -86,12 +86,11 @@ After engaging in combat, players are taken to the battle field where both parti
 </p>
 </div>
 </article>
-
+<?php include('footer.php'); ?>
 <script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 <script type="application/javascript" src="media/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
 <script type="application/javascript" src="media/fancybox/jquery.easing-1.3.pack.js"></script>
 <script type="application/javascript" src="media/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
-<link rel="stylesheet" href="media/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
 <script type="application/javascript">
 $(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");
@@ -111,4 +110,4 @@ $(document).ready(function() {
 		$("#img" + RegExp.$1).trigger("click");
 });
 </script>
-<?php include('footer.php'); ?>
+<link rel="stylesheet" href="media/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
