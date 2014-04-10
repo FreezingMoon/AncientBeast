@@ -16,4 +16,4 @@
 </div>
 </body>
 </html>
-<script type="application/javascript" src="https://api.flattr.com/js/0.6/load.js"></script>
+<script type="application/javascript" src="https://api.flattr.com/js/0.6/load.js?mode=auto"></script>
