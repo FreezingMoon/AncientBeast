@@ -649,7 +649,7 @@ var Game = Class.create({
 	checkTime: function(){
 		var date = new Date() - G.pauseTime;
 		var p = this.activeCreature.player;
-		var alertTime = 6; //in seconds
+		var alertTime = 5; //in seconds
 		var msgStyle = "msg_effects";
 
 		p.totalTimePool = Math.max(p.totalTimePool,0); //Clamp
@@ -678,7 +678,7 @@ var Game = Class.create({
 				if( (p.totalTimePool - (date - p.startTime))/1000 < alertTime ){
 					msgStyle = "damage";
 				}
-				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime){
+				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime && G.UI.dashopen){
 					//Alert
 					G.UI.btnToggleDash.changeState("glowing");
 					this.activeCreature.hint( Math.ceil( this.turnTimePool - ((date - p.startTime)/1000)),msgStyle);
@@ -689,7 +689,7 @@ var Game = Class.create({
 				G.skipTurn();
 				return;
 			}else{
-				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime){
+				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime && G.UI.dashopen){
 					//Alert
 					G.UI.btnToggleDash.changeState("glowing");
 					this.activeCreature.hint( Math.ceil( this.turnTimePool - ((date - p.startTime)/1000)),msgStyle);
@@ -704,7 +704,7 @@ var Game = Class.create({
 				if( p.totalTimePool - (date - p.startTime) < alertTime ){
 					msgStyle = "damage";
 				}
-				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime){
+				if( this.turnTimePool - ((date - p.startTime)/1000) < alertTime && G.UI.dashopen){
 					//Alert
 					G.UI.btnToggleDash.changeState("glowing");
 					this.activeCreature.hint( Math.ceil( this.turnTimePool - ((date - p.startTime)/1000)),msgStyle);

@@ -401,7 +401,7 @@ var UI = Class.create({
 			G.UI.showCreature("--",$j(this).attr("player")-0);
 		});
 
-		//Change player infos
+		//Update player infos
 		for (var i = G.players.length - 1; i >= 0; i--) {
 			$j("#dash .playertabs.p"+i+" .vignette").css("background-image","url('"+G.players[i].avatar+"')");
 			$j("#dash .playertabs.p"+i+" .name").text(G.players[i].name);
@@ -995,7 +995,6 @@ var UI = Class.create({
 		$j("#playerbutton, #playerinfos")
 			.removeClass("p0 p1 p2 p3")
 			.addClass("p"+G.activeCreature.player.id);
-		$j("#playerbutton").css("background-color","black");
 		$j("#playerinfos .name").text(G.activeCreature.player.name);
 		$j("#playerinfos .points span").text(G.activeCreature.player.getScore().total);
 		$j("#playerinfos .plasma span").text(G.activeCreature.player.plasma);
@@ -1044,7 +1043,7 @@ var UI = Class.create({
 			var id = G.activeCreature.player.id;
 			$j(".p"+id+" .turntime").text(zfill(minutes,2)+":"+zfill(seconds,2));
 			//Time Alert
-			if( remainingTime < G.turnTimePool*0.25 ) 
+			if( remainingTime < 6 ) 
 				$j(".p"+id+" .turntime").addClass("alert");
 			else
 				$j(".p"+id+" .turntime").removeClass("alert");
