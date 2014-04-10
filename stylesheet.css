@@ -1,11 +1,3 @@
-@import url(https://fonts.googleapis.com/css?family=Play:400,700);
-#scroll {
-	bottom: 0;
-	display: block;
-	left: 96%;
-	position: fixed;
-	z-index: 999;
-}
 body {
 	background: url(images/header.png) no-repeat center top,
 		black url(images/bg.jpg) no-repeat left top fixed;
@@ -74,3 +66,13 @@ a:link {text-decoration: none; color: #b7b7b7;}
 a:visited {text-decoration: none; color: #b7b7b7;}
 a:active {text-decoration: none; color: #b7b7b7;}
 a:hover,.active a,a.active {text-decoration: none; color: #e6e6e6; cursor: pointer; text-shadow: black 0.1em 0.1em 0.2em, red 0 0 10px;}
+
+#scroll {
+	bottom: 0;
+	display: block;
+	left: 96%;
+	position: fixed;
+	z-index: 999;
+}
+
+@import url(https://fonts.googleapis.com/css?family=Play:400,700);
