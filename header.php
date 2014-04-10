@@ -50,7 +50,7 @@ if($_SESSION['id'] != 0) { ?>
 
 <?php } ?>
 
-<body id="top">
+<body>
 <!--banner-->
 <header id="header">
 <div style="margin-top: -5px; margin-bottom: 50px;">
@@ -71,6 +71,6 @@ if($_SESSION['id'] != 0) { ?>
 </header>
 
 <!--main area-->
-<div id="scroll"><a href="#top"><img src="<?php echo $site_root; ?>images/AB.gif" height="32" width="32" alt="top"><br>Top</a></div>
+<div id="scroll"><a href="#"><img src="<?php echo $site_root; ?>images/AB.gif" height="32" width="32" alt="top"><br>Top</a></div>
 <div id="wrapper">
 
