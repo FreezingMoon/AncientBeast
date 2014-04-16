@@ -60,10 +60,7 @@ Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">fre
 <div class="div" id="plot">
 <h3 class="indexheader"><a href="#plot">Plot</a></h3>
 <p class="center">
-<audio controls="controls">
-	<source src="plot.ogg" type="audio/ogg">
-Your browser does not support the audio element.
-</audio>
+<audio controls="controls" preload="none"><source src="plot.ogg" type="audio/ogg"></audio>
 </p>
 <p>
 It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
