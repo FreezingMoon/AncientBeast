@@ -8,11 +8,13 @@
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, strategy, bitcoin, bets, combat, arena, chess, cards, creatures, free, open source, foss">
 <meta name="author" content="Dread Knight">
 
+<link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
+
+<!--
 <script type="text/javascript" >
 var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
-</script>
+</script>-->
 
-<link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <?php
 
   if (isset($style)) {
