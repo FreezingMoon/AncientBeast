@@ -2,18 +2,12 @@
 <!doctype html>
 <html>
 <head>
+<link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <meta charset="utf-8">
 <meta name="google-site-verification" content="uNVUkWjGPKwXaFK-BkOowVezLve8a8rjbM_ew1UHiZg">
 <meta name="description" content="Turn Based Strategy Game. Master your beasts!">
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, strategy, bitcoin, bets, combat, arena, chess, cards, creatures, free, open source, foss">
 <meta name="author" content="Dread Knight">
-
-<link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
-
-<!--
-<script type="text/javascript" >
-var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
-</script>-->
 
 <?php
 

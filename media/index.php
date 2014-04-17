@@ -33,9 +33,9 @@ $style = '
 require_once("../header.php"); ?>
 <script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 <script type="application/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="application/javascript" src="fancybox/jquery.easing-1.3.pack.js"></script>
-<script type="application/javascript" src="fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
-<link rel="stylesheet" href="fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
+<script defer type="application/javascript" src="fancybox/jquery.easing-1.3.pack.js"></script>
+<script defer type="application/javascript" src="fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
+<link rel="stylesheet" href="fancybox/jquery.fancybox-1.3.4.css" media="screen">
 <script type="application/javascript">
 $(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");

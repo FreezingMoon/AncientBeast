@@ -85,26 +85,17 @@ After engaging in combat, players are taken to the battle field where both parti
 </article>
 <?php include('footer.php'); ?>
 <script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script type="application/javascript" src="media/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="application/javascript" src="media/fancybox/jquery.easing-1.3.pack.js"></script>
-<script type="application/javascript" src="media/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
-<script type="application/javascript">
+<script defer type="application/javascript" src="media/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+<script defer type="application/javascript" src="media/fancybox/jquery.easing-1.3.pack.js"></script>
+<script defer type="application/javascript" src="media/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
+<script defer type="application/javascript">
 $(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");
 	$("a[rel=pop]").fancybox({
 		'overlayColor'  : 'black',
 		'transitionIn'	: 'elastic',
 		'transitionOut'	: 'elastic',
-		'onComplete'	: function(array, index) {
-			history.replaceState("", "", basePage + "#id=" + index);
-		},
-		'onClosed'		: function() {
-			history.replaceState("", "", basePage);
-		}
 	});
-	
-	if (/[\#&]id=(\d+)/.test(location.hash))
-		$("#img" + RegExp.$1).trigger("click");
 });
 </script>
-<link rel="stylesheet" href="media/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
+<link async rel="stylesheet" href="media/fancybox/jquery.fancybox-1.3.4.css" media="screen">
