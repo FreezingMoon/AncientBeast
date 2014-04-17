@@ -145,6 +145,7 @@ sprite embed code<br>
 //	bs1.load_json_b64("eyJmcHMiOjMwLCJiY29sIjoidHJhbnNwYXJlbnQiLCJzcHJ3IjoyNTYsInNwcmgiOjI1NiwiaWNudCI6MjQsInN0ZXAiOjEsInJvd3MiOjMsImNvbHMiOjgsIml4IjowLCJpeSI6MCwib2ZmIjozfQ==");
 //	bs1.play();
 
+var site_root = "<?php echo 'http://'.$_SERVER['SERVER_NAME'].$site_root; ?>";
 document.getElementById("textField11").value = site_root+"viewer/spritesheet.png";
 
 var bs;
