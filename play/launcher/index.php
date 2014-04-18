@@ -34,7 +34,7 @@
 			margin: 0;
 			padding: 0;
 			overflow: hidden;
-			border: 0px;
+			border: 0;
 		}
 		#bar {
 			background: transparent;
@@ -59,7 +59,7 @@
 			height: 100%;
 			box-sizing: border-box;
 			-moz-box-sizing: border-box;
-			border: 0px;
+			border: 0;
 			padding-top: 32px;
 			position: absolute;
 			z-index: 1;
@@ -68,7 +68,7 @@
 		}
 
 		iframe.fullscreen{
-			padding-top: 0px;
+			padding-top: 0;
 		}
 		</style>
 	</head>

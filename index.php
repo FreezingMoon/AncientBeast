@@ -46,9 +46,8 @@ foreach($images as $image) {
 	$image = str_replace(' ', '%20', $image);
 	echo '<a id="img' . $i . '" rel="pop" href="media/screenshots/' . $image . '" title="' . $title . '"><img class="shadow screenies" src="media/screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 	$i++;
-} echo '</div>';?>
-<!--<img src="<?php echo $site_root; ?>images/trailer.png" style="cursor:pointer;" title="Watch Gameplay Video" onclick="TINY.box.show({iframe:'//www.youtube.com/embed/cAgf9hKGI3k?wmode=transparent&list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI',boxid:'trailer',width:853,height:480,opacity:40,topsplit:2})">
-<iframe width="880" height="495" src="//www.youtube.com/embed/-7V4yzu_l9E?wmode=transparent?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe>--></div>
+} ?>
+</div>
 
 <div class="div" id="intro">
 <h3 class="indexheader"><a href="#intro">Intro</a></h3>
