@@ -67,8 +67,5 @@ foreach ($creature_results as $r) {
 	echo '</div>';
 	$i++;
 }
-?>
-
-<div class="div center">Please let us know your top 3 favorite creatures by commenting below. Any other feedback also welcome!</div>
-<?php disqus('Ancient Beast - Bestiary');
+disqus('Ancient Beast - Bestiary');
 include('../footer.php'); ?>

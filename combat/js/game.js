@@ -11,8 +11,8 @@
 var Game = Class.create({
 	/*	Attributes
 	*
-	*	NOTE : attributes and variables starting with $ are jquery element 
-	*	and jquery function can be called dirrectly from them.
+	*	NOTE : attributes and variables starting with $ are jquery elements 
+	*	and jquery functions can be called dirrectly from them.
 	*	
 	*	//Jquery attributes
 	*	$combatFrame :	Combat element containing all graphics except the UI
@@ -84,10 +84,10 @@ var Game = Class.create({
 			40, //Nutcase
 			9, //Nightmare
 			39, //Headless
-			44, //Scavenger
+			//44, //Scavenger
 			31, //Cyber Hound
-			6, //Ice Demon
-			22, //Lava Mollusk
+			//6, //Ice Demon
+			//22, //Lava Mollusk
 			//33, //Golden Wyrm
 		];
 		this.availableMusic = [];
