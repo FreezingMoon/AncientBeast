@@ -37,7 +37,6 @@ require_once("../config.php"); //only needed for multiplayer
 		<link rel="stylesheet" type="text/css" href="./css/style.css">
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
 
-
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 		<script type="text/javascript" src="./js/phaser.min.js"></script>
 		<script type="text/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
