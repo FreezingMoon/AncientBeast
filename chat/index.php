@@ -27,10 +27,8 @@ require_once("../header.php");
 ?>
 
 <div class="div center" style="display: block; font-weight:bold;">
-If you prefer using your own <a href="https://docs.google.com/presentation/d/1VMQfNKV_6wPR0XN7RtskpQe4Mz1jhIg90Hio_CuGu4g/present" target="_blank"><u>IRC client</u></a> feel free to join <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> over at irc.freenode.net server.</div>
-<div class="div center" id="IRC">
-<iframe src="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" style="border:0; width:100%; height:500px;"></iframe>
-</div>
+Feel free to join us in <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> channel over at irc.freenode.org server using <a href="http://hexchat.github.io" target="_blank"><u>Hexchat</u> client</a>.</div>
+<div class="div center" id="IRC"><iframe src="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" style="border:0; width:100%; height:500px;"></iframe></div>
 
 <div class="div center" id="widgets">
 <!-- Twitter Widget -->
