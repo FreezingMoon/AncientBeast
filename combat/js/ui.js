@@ -137,7 +137,7 @@ var UI = Class.create({
 				delay: 68, //D
 				flee: 70, //F
 				chat: 13, //return
-				pause: 80, //P
+				//pause: 80, //P
 				dash_up: 38, //Up arrow
 				dash_down: 40, //Down arrow
 				dash_left: 37, //Left arrow
