@@ -913,9 +913,6 @@ var UI = Class.create({
 			G.UI.$activebox.children("#abilities").transition({y:"0px"},500,'easeOutQuart'); //Show panel
 		});
 
-		if(G.activeCreature.player.creatures.length==1) //Blinking summon button during the 1st round
-			this.abilitiesButtons[3].changeState("glowing");
-
 		G.UI.checkAbilitiesTooltip();
 		
 		this.updateInfos();
