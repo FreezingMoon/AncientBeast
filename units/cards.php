@@ -326,10 +326,9 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 	$spaceless = str_replace(' ', '%20', $r['name'] );
 	$underscore = str_replace(' ', '_', $r['name'] );
 	$CallCreature = 'CallCreature(\'' . $spaceless . '_shout\');';
-
-	echo '
+?>
 	<table class="center" border=0>
-		<th class="card recto" style="background-image: url(\'' . $site_root . 'units/artwork/' . $r['name'] . '.jpg\');">
+		<th class="card recto" style="background-image: url('<?php echo $site_root; ?>units/artwork/<?php echo $r['name']; ?>.jpg');">
 			<div class="card_info">
 				<div class="stat_desc">
 					<div><span class="icon health"></span> Health: The raw amount of damage points a creature can take before it dies.</div>
@@ -350,9 +349,8 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 					</div>
 				</div>
 			</div>
-			<div href="#' . $underscore . '" class="section cardborder">
-			</div>
-			';
+			<a href="#<?php echo $underscore; ?>" class="section cardborder"></a>
+<?php
 			//Display 3d creature if option enabled
 			if ($embed == 1) echo '<div class="embed"><iframe frameborder="0" height="520" width="400" src="http://sketchfab.com/embed/' . $r['embed'] . '?autostart=1&transparent=1&autospin=1&controls=0&watermark=0&desc_button=0&stop_button=0"></iframe></div>';
 			echo '<table class="section info sin' . $r['realm'] . '">
