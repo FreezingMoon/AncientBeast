@@ -217,7 +217,6 @@ require_once("../images/stats/index.php"); ?>
 	border-radius: 10px;
 }
 
-
 #dash .stats:hover{
 	border-top-left-radius: 10px;
 	border-top-right-radius: 10px;
@@ -244,18 +243,39 @@ require_once("../images/stats/index.php"); ?>
   opacity: 1;
 }
 
-
+span.plasma,
+span.pure,
+span.health,
+span.regrowth,
+span.endurance,
+span.energy,
+span.meditation,
+span.initiative,
+span.offense,
+span.defense,
+span.movement,
+span.pierce,
+span.slash,
+span.crush,
+span.shock,
+span.burn,
+span.frost,
+span.poison,
+span.sonic,
+span.mental{
+	display: inline-block !important;
+	width: 15px;
+	height: 15px;
+	margin: 0px 3px !important;
+	padding: 0px !important;
+	background-size: 100% 100%; 
+	vertical-align: -2px;
+}
 </style>
 <script>
 function CallCreature(shout) {
 	var thissound=document.getElementById(shout);
 	thissound.play();
-}
-
-function ucfirst (str) {
-  str += '';
-  var f = str.charAt(0).toUpperCase();
-  return f + str.substr(1);
 }
 
 //The website use a different jquery shortcut than the game. Using jQuery object fix that.
@@ -293,7 +313,7 @@ jQuery(document).ready(function(){
 <?php
 function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 	global $site_root; // from global.php
-	global $stats2;
+	global $stats;
 
 	if( $id != -1 && !is_array($r) ){
 		$ab_id = $id;
@@ -349,10 +369,10 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 				<table class="section stat_table" style="position: relative;">
 					<tr class="numbers">';
 					//Display Stats Numbers
-					$i=0;
+					$i=1;
 					foreach ($r["stats"] as $key => $value) {
-					 	if( $i >= 0 &&  $i <= 8) { 
-				 			displayStat($key,$value,"",$tooltip); 
+					 	if( $i > 0 && $i < 10) {
+				 			displayStat($key,$value,"",$tooltip);
 				 		}
 						$i++;
 					}
@@ -361,8 +381,7 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 				</table>
 				<div class="section abilities">';
 			  	//Display Abilities
-				for ($i=0; $i < 4; $i++) { 
-				 	# code...
+				for ($i=0; $i < 4; $i++) {
 					echo '
 					<div class="ability">
 						<div class="icon" style="background-image: url(\'' . $site_root . 'units/icons/' . $r["name"] . ' ' . $i . '.svg\');">
@@ -382,9 +401,9 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 				<table class="section low_row stat_table" style="position: absolute; top: 481px; left: 15px;">
 					<tr class="numbers">';
 					//Display Masteries Numbers
-					$i=0;
+					$i=1;
 					foreach ($r["stats"] as $key => $value) {
-					 	if( $i >= 9 &&  $i <= 17) { 
+					 	if( $i > 9 &&  $i < 19) { 
 					 		displayStat($key,$value,"",$tooltip); 
 				 		}
 				 		$i++;
