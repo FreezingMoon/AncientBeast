@@ -1,5 +1,4 @@
 <?php
-
 function get_creatures(){
 	$progress_json = json_decode(file_get_contents('../units/progress.json'), true);
 	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
@@ -43,7 +42,5 @@ function progress($r,$c) {
 		echo "<img src='progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed' alt='$rounded_total'>
 	</a>
 </div>";
-
 }
-
 ?>

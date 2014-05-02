@@ -10,25 +10,16 @@
 <meta name="author" content="Dread Knight">
 
 <?php
-
-  if (isset($style)) {
-  	echo '<style type="text/css">' . $style . '</style>';
-  }
-  if (isset($stylesheet)) {
-	  echo '<link rel="stylesheet" href="' . $stylesheet . '">';
-  } 
+if (isset($style)) echo '<style type="text/css">' . $style . '</style>';
+if (isset($stylesheet)) echo '<link rel="stylesheet" href="' . $stylesheet . '">';
 ?>
 <link rel="alternate" type="application/rss+xml" title="Ancient Beast Blog (RSS 2.0)" href="<?php echo $site_url; ?>blog/feed/" />
 
 <!--set page title-->
 <title>
 <?php
-  if (isset($page_title)) {
-	  echo $page_title;
-  }
-  else {
-  	echo "AncientBeast - Turn Based Strategy Game";
-  }
+if (isset($page_title)) echo $page_title;
+else echo "AncientBeast - Turn Based Strategy Game";
 ?>
 </title>
 <!--google analytics-->
