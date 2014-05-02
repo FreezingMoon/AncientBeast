@@ -1,27 +1,4 @@
 <?php
-/* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
- * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
- *
- * This file is part of Ancient Beast.
- *
- * Ancient Beast is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Ancient Beast is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * http://www.AncientBeast.com
- * https://github.com/FreezingMoon/AncientBeast
- * DreadKnight@FreezingMoon.org
- */
-
 $page_title = "Ancient Beast - Items";
 $style = "
 .fix {
@@ -118,7 +95,7 @@ foreach ($data as $r) {
 <?php
 //detailed view
 foreach ($data as $r) {
-	echo "<div class='div' id='id'>";
+	echo "<div class='div' id='{$r['id']}'>";
 	echo "<table style='width: 100%; text-align:center;'>";
 	echo "<tr><td style=\"width: 132px;\"><a href=\"#{$r['id']}\"><img src=\"sprites/" . rawurlencode($r['name']) . ".png\"></a></td>";
 	echo "<td><table style='width: 100%; font-size:24px; text-align:left;'><tr>";
