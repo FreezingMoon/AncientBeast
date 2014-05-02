@@ -401,7 +401,7 @@ var UI = Class.create({
 			G.UI.showCreature("--",$j(this).attr("player")-0);
 		});
 
-		//Update player infos
+		//Update player info
 		for (var i = G.players.length - 1; i >= 0; i--) {
 			$j("#dash .playertabs.p"+i+" .vignette").css("background-image","url('"+G.players[i].avatar+"')");
 			$j("#dash .playertabs.p"+i+" .name").text(G.players[i].name);

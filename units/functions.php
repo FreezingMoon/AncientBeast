@@ -29,7 +29,6 @@ function progress($r,$c) {
 		$sum = 0;
 		$spaceless = str_replace(' ', '%20', $c['name'] );
 		echo "
-
 		<div class='center' style='width:825px; background-image:url(progress/widget.png); background-repeat:no-repeat;'>
 		<a href='http://www.wuala.com/AncientBeast/units/" . $spaceless . "' target='_blank'>";
 		$i = 0;

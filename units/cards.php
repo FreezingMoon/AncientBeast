@@ -130,7 +130,7 @@ require_once("../images/stats/index.php"); ?>
 	background-size: 100% 100%;
 	width: 100px;
 	height: 100px;
-	background-image:  url('<?php echo $site_root; ?>images/missing.png')
+	background-image: url('<?php echo $site_root; ?>images/missing.png')
 }
 
 .abilities .icon .contour{
@@ -258,7 +258,6 @@ function ucfirst (str) {
   return f + str.substr(1);
 }
 
-
 //The website use a different jquery shortcut than the game. Using jQuery object fix that.
 jQuery(document).ready(function(){
 
@@ -313,31 +312,21 @@ function cards($r = "", $id = -1, $embed = 0, $tooltip = false) { //Print a card
 		<th class="card recto" style="background-image: url(\'' . $site_root . 'units/artwork/' . $r['name'] . '.jpg\');">
 			<div class="card_info">
 				<div class="stat_desc">
-					<div><span class="icon health"></span> Health : The raw amount of damage points a creature can take before it dies.</div>
-					<div><span class="icon regrowth"></span> Regrowth : Amount of health that gets restored at the beginning of every turn.</div>
-					<div><span class="icon endurance"></span> Endurance :  Protects unit from fatigue, which disables regrowth and meditation.</div>
+					<div><span class="icon health"></span> Health: The raw amount of damage points a creature can take before it dies.</div>
+					<div><span class="icon regrowth"></span> Regrowth: Amount of health that gets restored at the beginning of every turn.</div>
+					<div><span class="icon endurance"></span> Endurance :  Protects unit from fatigue, which disables regrowth and meditation.</div><br><br>
 					<div><span class="icon energy"></span> Energy : Allows the use of abilities.</div>
 					<div><span class="icon meditation"></span> Meditation : Energy restored each turn.</div>
-					<div><span class="icon initiative"></span> Initiative : Creatures with higher amount of initiative points get to act their turn faster.</div>
+					<div><span class="icon initiative"></span> Initiative : Creatures with higher amount of initiative points get to act their turn faster.</div><br><br>
 					<div><span class="icon offense"></span> Offense : Influences the damage output done by all the creature\'s attack abilities.</div>
 					<div><span class="icon defense"></span> Defense : Protects the creature by reducing some of the incoming damage.</div>
 					<div><span class="icon movement"></span> Movement : Any creature can move a certain number of hexagons every turn.</div>
 				</div>
 				<div class="masteries_desc">
-					<div><span class="icon pierce"></span> Pierce : The raw amount of damage points a creature can take before it dies.</div>
-					<div><span class="icon slash"></span> Slash : Amount of health that gets restored at the beginning of every turn.</div>
-					<div><span class="icon crush"></span> Crush :  Protects unit from fatigue, which disables regrowth and meditation.</div>
-					<div><span class="icon shock"></span> Shock : Allows the use of abilities.</div>
-					<div><span class="icon burn"></span> Burn : Energy restored each turn.</div>
-					<div><span class="icon frost"></span> Frost : Creatures with higher amount of initiative points get to act their turn faster.</div>
-					<div><span class="icon poison"></span> Poison : Influences the damage output done by all the creature\'s attack abilities.</div>
-					<div><span class="icon sonic"></span> Sonic : Protects the creature by reducing some of the incoming damage.</div>
-					<div><span class="icon mental"></span> Mental : Any creature can move a certain number of hexagons every turn.</div>
-					<br>
-					<div style="text-align: center">
-						<b>Damage Formula</b>
-						<br>
-						<span> attack damage + attack damage * (offense of attacking creature - defense of creature being attacked / number of hexagons being hit + source stat of attacker - source stat of defender) / 100 = source output damage </span>
+					<div style="text-align: center; font-size: x-large;">
+					<span>There are 9 common types of damage and a rare one called Pure damage that bypasses the formula bellow, doing a fixed non-variable amount of harm.</span><br><br>
+					<span><u>Damage Formula</u><br>attack damage +<br>attack damage / 100 *<br>(offense of attacking unit -<br>defense of unit attacked /<br>number of hexagons hit +<br>source stat of attacker -<br>source stat of defender)</span><br><br>
+					<span>Minimum damage is usually 1 unless the hit is being avoided.
 					</div>
 				</div>
 			</div>
