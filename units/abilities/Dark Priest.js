@@ -32,7 +32,7 @@ abilities[0] =[
 
 		this.end(true); //desable message
 
-		G.log("%CreatureName"+this.creature.id+"% gets protected by Artificial Satellite");
+		G.log("%CreatureName"+this.creature.id+"% is protected by Plasma Shield");
 
 		return damage; //Return Damage
 	},

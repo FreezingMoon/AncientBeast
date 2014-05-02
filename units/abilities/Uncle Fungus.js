@@ -79,7 +79,7 @@ abilities[3] =[
 
 				trg.addEffect(effect,undefined,"Contaminated");
 
-				G.log("%CreatureName"+trg.id+"% regrowth is lowered by "+ability.effects[0].regrowth);
+				G.log("%CreatureName"+trg.id+"%'s regrowth is lowered by "+ability.effects[0].regrowth);
 
 				ability.setUsed(false); //Infinite triggering
 			}
