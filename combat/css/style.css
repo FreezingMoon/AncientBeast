@@ -1,4 +1,3 @@
-@import url(https://fonts.googleapis.com/css?family=Play:400,700);
 body{
 	background: black url('../../images/skulls.jpg') repeat;
 	margin: 0;
@@ -94,12 +93,9 @@ body{
 #creatureWrapper{z-index: 3;}
 #hexsinput{z-index: 4;}
 
-
-
 .row{position: absolute;}
 
 .even{padding: 0px 2.818em;}
-
 
 .hex{display: inline-block; position: absolute;}
 
@@ -128,9 +124,6 @@ body{
 	/*background: url('../grid/hex_not_reachable.png');*/
 	opacity: 0;
 }
-
-
-
 
 #hexsinput .hex div,.hex div:before,.hex div:after{
 	position: relative;
@@ -627,6 +620,7 @@ body{
 	cursor: pointer;
 	position: relative;
 }
+
 .vignette .frame,.vignette .overlay_frame{
 	position: absolute;
 	top: 0;
@@ -697,8 +691,6 @@ body{
 	box-sizing: border-box;
 	background-color: rgba(0,0,0,0.8);
 }
-
-
 
 /*---------------TEXTBOX--------------*/
 #chat{
@@ -921,56 +913,26 @@ body{
 .charge{ color: #fff; text-shadow: 1px 1px 0px #f5f; }
 .special{ color: #ddd; text-shadow: 1px 1px 0px #ff5; }
 
-span.plasma,
-span.pure,
-span.health,
-span.regrowth,
-span.endurance,
-span.energy,
-span.meditation,
-span.initiative,
-span.offense,
-span.defense,
-span.movement,
-span.pierce,
-span.slash,
-span.crush,
-span.shock,
-span.burn,
-span.frost,
-span.poison,
-span.sonic,
-span.mental{
-	display: inline-block !important;
-	width: 15px;
-	height: 15px;
-	margin: 0px 3px !important;
-	padding: 0px !important;
-	background-size: 100% 100%; 
-	vertical-align: -2px;
-}
-
-span.plasma{ background-image: url("../../images/stats/health.png");  } 
-span.pure{ background-image: url("../../images/stats/health.png");  } 
-span.health{ background-image: url("../../images/stats/health.png");  } 
-span.regrowth{ background-image: url("../../images/stats/regrowth.png");  } 
-span.endurance{ background-image: url("../../images/stats/endurance.png");  } 
-span.energy{ background-image: url("../../images/stats/energy.png");  } 
-span.meditation{ background-image: url("../../images/stats/meditation.png");  } 
-span.initiative{ background-image: url("../../images/stats/initiative.png");  } 
-span.offense{ background-image: url("../../images/stats/offense.png");  } 
-span.defense{ background-image: url("../../images/stats/defense.png");  } 
-span.movement{ background-image: url("../../images/stats/movement.png");  } 
-span.pierce{ background-image: url("../../images/stats/pierce.png");  } 
-span.slash{ background-image: url("../../images/stats/slash.png");  } 
-span.crush{ background-image: url("../../images/stats/crush.png");  } 
-span.shock{ background-image: url("../../images/stats/shock.png");  } 
-span.burn{ background-image: url("../../images/stats/burn.png");  } 
-span.frost{ background-image: url("../../images/stats/frost.png");  } 
-span.poison{ background-image: url("../../images/stats/poison.png");  } 
-span.sonic{ background-image: url("../../images/stats/sonic.png");  } 
-span.mental{ background-image: url("../../images/stats/mental.png");  } 
-
+span.plasma{ background-image: url("../../images/stats/health.png");  }
+span.pure{ background-image: url("../../images/stats/health.png");  }
+span.health{ background-image: url("../../images/stats/health.png"); }
+span.regrowth{ background-image: url("../../images/stats/regrowth.png"); }
+span.endurance{ background-image: url("../../images/stats/endurance.png"); }
+span.energy{ background-image: url("../../images/stats/energy.png"); }
+span.meditation{ background-image: url("../../images/stats/meditation.png"); }
+span.initiative{ background-image: url("../../images/stats/initiative.png"); }
+span.offense{ background-image: url("../../images/stats/offense.png"); }
+span.defense{ background-image: url("../../images/stats/defense.png"); }
+span.movement{ background-image: url("../../images/stats/movement.png"); }
+span.pierce{ background-image: url("../../images/stats/pierce.png"); }
+span.slash{ background-image: url("../../images/stats/slash.png"); }
+span.crush{ background-image: url("../../images/stats/crush.png"); }
+span.shock{ background-image: url("../../images/stats/shock.png"); }
+span.burn{ background-image: url("../../images/stats/burn.png"); }
+span.frost{ background-image: url("../../images/stats/frost.png"); }
+span.poison{ background-image: url("../../images/stats/poison.png"); }
+span.sonic{ background-image: url("../../images/stats/sonic.png"); }
+span.mental{ background-image: url("../../images/stats/mental.png"); }
 
 /*-----------------Animations-------------------*/
 
@@ -999,7 +961,6 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 @-o-keyframes 		glowingtext{ 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
 /*----------------Game setup--------------*/
 
-
 /*Overiding JqueryUI Theme*/
 .ui-widget{font-size: .9em !important;}
 .ui-buttonset {margin-right: 5px !important;}
@@ -1018,7 +979,6 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 	border: rgba(0,105,185,.3) 1px solid;
 	border-radius: 7px;
 }
-
 
 #gamesetup {
 	width: 500px;
@@ -1133,7 +1093,6 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 .trap.royal-seal { background: url("../grid/royal-seal.png"); }
 .trap.scorched-ground { background: url("../grid/scorched-ground.png"); }
 
-
 /*------------------Progress Bars-------------------*/
 .progressbar {
 	display: block;
@@ -1189,3 +1148,4 @@ span.mental{ background-image: url("../../images/stats/mental.png");  }
 	margin: 0 10px;
 	width: 300px;
 }
+@import url(https://fonts.googleapis.com/css?family=Play:400,700);
