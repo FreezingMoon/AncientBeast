@@ -29,7 +29,7 @@ It's the year 2653. In the last centuries, technology advanced exponentially and
 Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strong will survive.
 </p></div>
 
-<img src="images/hand.png" class="image lighten" width=285px height=276px height= onclick="toggleSound();" title="Click to play narrative"></div>
+<img src="images/hand.png" class="image lighten" width=285px height=276px onclick="toggleSound();" title="Click to play narrative"></div>
 <audio id="narration" src="plot.ogg"></audio>
 
 <div class="div" id="gameplay">
