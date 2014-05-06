@@ -13,15 +13,15 @@ abilities[0] =[
 	// 	require() :
 	require : function(damage){
 		this.setUsed(false); //Can be triggered as many times
-		this.creature.protectedFromFratigue = this.testRequirements();
-		return this.creature.protectedFromFratigue;
+		this.creature.protectedFromFatigue = this.testRequirements();
+		return this.creature.protectedFromFatigue;
 	},
 
 	//	activate() : 
 	activate : function(damage) {
 		this.creature.player.plasma  -= 1;
 
-		this.creature.protectedFromFratigue = this.testRequirements();
+		this.creature.protectedFromFatigue = this.testRequirements();
 
 		
 		damage.damages = {total:0};

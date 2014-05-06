@@ -1277,10 +1277,10 @@ var UI = Class.create({
 				var text = (this.endurance > 0) ? this.endurance + "/" + this.stats.endurance : "Fatigued";
 
 				if(this.type == "--"){ //If Dark Priest
-					this.abilities[0].require(); //Update protectedFromFratigue
+					this.abilities[0].require(); //Update protectedFromFatigue
 				}
 
-				text = ( this.protectedFromFratigue || this.stats.fatigueImunity ) ? "Protected" : text;
+				text = ( this.protectedFromFatigue || this.stats.fatigueImunity ) ? "Protected" : text;
 				text = ( this.materializeSickness ) ? "Sickened" : text;
 				$j('#queuewrapper .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
 			}

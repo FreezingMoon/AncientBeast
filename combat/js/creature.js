@@ -68,7 +68,7 @@ var Creature = Class.create({
 		this.travelDist = 0;
 		this.effects	= [];
 		this.dropCollection	= [];
-		this.protectedFromFratigue = (this.type == "--") ? true : false ;
+		this.protectedFromFatigue = (this.type == "--") ? true : false ;
 		
 
 		// Statistics
