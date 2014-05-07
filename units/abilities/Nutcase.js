@@ -248,7 +248,7 @@ abilities[40] =[
 			ability.creature, //Target
 			"onDamage", //Trigger
 			{ 
-				alterations : { moveable : false, fatigueImunity : true },
+				alterations : { moveable : false, fatigueImmunity : true },
 				turn : G.turn,
 				turnLifetime : 1,
 				deleteTrigger : "onStartPhase"

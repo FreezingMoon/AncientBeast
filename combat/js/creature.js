@@ -93,7 +93,7 @@ var Creature = Class.create({
 			mental:obj.stats.mental-0,
 
 			moveable:true,
-			fatigueImunity:false
+			fatigueImmunity:false
 		},
 		this.stats		= $j.extend({}, this.baseStats); //Copy
 		this.health		= obj.stats.health;
@@ -151,7 +151,7 @@ var Creature = Class.create({
 
 		this.delayable = true;
 		this.delayed = false;
-		this.materializeSickness = (this.type == "--") ? false : true ;
+		this.materializationSickness = (this.type == "--") ? false : true ;
 		this.noActionPossible = false;
 		
 	},
@@ -226,7 +226,7 @@ var Creature = Class.create({
 			crea.updateAlteration();
 			crea.remainingMove = crea.stats.movement;
 
-			if(!crea.materializeSickness){
+			if(!crea.materializationSickness){
 				if(crea.endurance > 0){
 					crea.heal(crea.stats.regrowth, true);
 				}else{
@@ -278,7 +278,7 @@ var Creature = Class.create({
 			G.triggersFn.onStartPhase(crea);
 		}
 
-		this.materializeSickness = false;
+		this.materializationSickness = false;
 
 		var interval = setInterval(function(){
 			if(!G.freezedInput){
@@ -828,7 +828,7 @@ var Creature = Class.create({
 			this.health -= dmgAmount;
 			this.health = (this.health < 0) ? 0 : this.health; // Cap
 
-			if( !this.stats.fatigueImunity ){
+			if( !this.stats.fatigueImmunity ){
 				this.endurance -= dmgAmount;
 				this.endurance = (this.endurance < 0) ? 0 : this.endurance; // Cap
 			}

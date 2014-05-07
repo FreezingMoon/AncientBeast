@@ -1280,8 +1280,8 @@ var UI = Class.create({
 					this.abilities[0].require(); //Update protectedFromFatigue
 				}
 
-				text = ( this.protectedFromFatigue || this.stats.fatigueImunity ) ? "Protected" : text;
-				text = ( this.materializeSickness ) ? "Sickened" : text;
+				text = ( this.protectedFromFatigue || this.stats.fatigueImmunity ) ? "Protected" : text;
+				text = ( this.materializationSickness ) ? "Sickened" : text;
 				$j('#queuewrapper .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
 			}
 		});
