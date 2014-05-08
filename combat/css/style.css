@@ -992,7 +992,22 @@ span.mental{ background-image: url("../../images/stats/mental.png"); }
 }
 
 #startbutton:hover {background: #B40000;}
-.blink {padding: 0px; font-weight: bold;}
+.blink {
+	padding: 0px;
+	font-weight: bold;
+    animation: fading 2.5s infinite;
+    -webkit-animation: fading 2.5s infinite;
+}
+@keyframes fading {
+    0%   {opacity: 1;}
+    50%   {opacity: 0.1;}
+    100%   {opacity: 1;}
+}
+@-webkit-keyframes fading {
+    0%   {opacity: 1;}
+    50%   {opacity: 0.1;}
+    100%   {opacity: 1;}
+}
 
 #gamesetup .cont h2{
 	margin: 5px;
