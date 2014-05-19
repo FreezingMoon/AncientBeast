@@ -46,9 +46,9 @@ var Game = Class.create({
 	*/
 	initialize: function(){
 		this.players = [];
-		this.p = this.players; //Convienience
+		this.p = this.players; //Convenience
 		this.creatures = [];
-		this.c = this.creatures; //Convienience
+		this.c = this.creatures; //Convenience
 		this.effects = [];
 		this.activeCreature = {id:0};
 		this.animations = new Animations();
