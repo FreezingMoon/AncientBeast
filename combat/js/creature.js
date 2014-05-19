@@ -819,7 +819,7 @@ var Creature = Class.create({
 			var dmg = damage.apply(this);
 			var dmgAmount = dmg.total;
 
-			if( dmgAmount !== dmgAmount ) { // Check for NaN
+			if( !isFinite(dmgAmount) ) { // Check for Damage Errors
 				this.hint("Error",'damage');
 				G.log("Oops something went wrong !");
 				return {damages:0, kill:false};
