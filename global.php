@@ -22,16 +22,16 @@
  * DreadKnight@FreezingMoon.org
  */
 
+// Display error if no config file available
+if(!file_exists(dirname(__FILE__) . "/config.php"))
+	die("Warning: config.php not found, please edit config.php.in to point to a database and save it as config.php<br>Disclaimer: Since this project is web based, you can use the code and assets along with database.sql to host Ancient Beast yourself for testing and development purposes only! Also, your version should not be indexable by search engines because that can cause harm to the project!");
+require_once('config.php');
+
 // This variable should be used for relative links
 $site_url = 'http://'.$_SERVER['SERVER_NAME'].$site_root;
 
 // Session starting for login
 session_start();
-
-// Display error if no config file available
-if(!file_exists(dirname(__FILE__) . "/config.php"))
-	die("Warning: config.php not found, please edit config.php.in to point to a database and save it as config.php<br>Disclaimer: Since this project is web based, you can use the code and assets along with database.sql to host Ancient Beast yourself for testing and development purposes only! Also, your version should not be indexable by search engines because that can cause harm to the project!");
-require_once('config.php');
 
 // Display Disqus comments
 function disqus($x="") {
