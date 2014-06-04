@@ -1,4 +1,28 @@
-<?php require_once('global.php'); ?>
+<?php
+/* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
+ * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
+ *
+ * This file is part of Ancient Beast.
+ *
+ * Ancient Beast is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Ancient Beast is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * http://www.AncientBeast.com
+ * https://github.com/FreezingMoon/AncientBeast
+ * DreadKnight@FreezingMoon.org
+ */
+
+require_once('global.php'); ?>
 <!doctype html>
 <html>
 <head>
@@ -36,14 +60,19 @@ ga('send', 'pageview');
 
 <body>
 <?php
-if($_SESSION['id'] != 0) { ?>
-<span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>profile">Account</a></span>
+if(isset($_SESSION['id'])) { ?>
+<span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>account">Account</a></span>
 <span style="position: absolute; margin-left: 359px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>index.php?action=logout">Logout</a></span>
 
 <?php } else { ?>
-<span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>register.php">Register</a></span>
-<span style="position: absolute; margin-left: 366px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>login.php">Login</a></span>
-<?php } ?>
+<span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>account/register.php">Register</a></span>
+<span style="position: absolute; margin-left: 366px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>account/login.php">Login</a></span>
+<?php }
+if(isset($_GET['action']) == 'logout'){
+	session_destroy();
+	echo '<meta http-equiv="refresh" content="1; url=' . $site_url . '">';
+ }
+?>
 
 <!--banner-->
 <header id="header">
