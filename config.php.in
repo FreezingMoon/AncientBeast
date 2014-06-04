@@ -22,16 +22,17 @@
  * DreadKnight@FreezingMoon.org
  */
 
-//Directory of site relative to root, ending with a forward slash
-//Example: $site_root = "/" or $site_root = "/AncientBeast/"
-$site_root = "/AncientBeast/";
+// Directory of site relative to root, ending with a forward slash
+// Eg: $site_root = "/" or $site_root = "/ancientbeast/"
+$site_root = "/";
 
-//Database information is stored here
+// Database information is stored here
+// TODO: convert to PDO
 mysql_connect("localhost", "username", "password");
 mysql_select_db("database");
 mysql_set_charset('utf8');
 
-//reCAPTCHA keys
+// reCAPTCHA keys
 $publickey = "";
 $privatekey = "";
 ?>
