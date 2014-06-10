@@ -2,7 +2,7 @@
 //Utility
 if(!file_exists(dirname(__FILE__) . "/../config.php"))
 	die("Warning: config.php not found, please edit config.php.in to point to a database and save it as config.php<br>Disclaimer: Since this project is web based, you can use the code and assets along with database.sql to host Ancient Beast yourself for testing and development purposes only! Also, your version should not be indexable by search engines because that can cause harm to the project!");
-require_once("../config.php"); //needed for user accounts
+require_once("../config.php"); // Needed for user accounts
 ?>
 <html>
 	<head>
@@ -15,6 +15,8 @@ require_once("../config.php"); //needed for user accounts
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<!-- Use local jQuery if the CDN fails or there's no internet connection -->
+		<script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.2.min.js"></script>')</script>
 		<script type="text/javascript" src="./js/phaser.min.js"></script>
 		<script type="text/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
