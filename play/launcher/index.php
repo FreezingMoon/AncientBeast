@@ -82,6 +82,6 @@
 			<a onclick="if(confirm('Reset Game?')) var ifr=document.getElementsByName('game')[0]; ifr.src=ifr.src;">Reset</a>
 			<a onclick="$('#game').fullScreen(true)">Fullscreen</a>
 		</div>
-		<iframe id="game" name="game" src="https://ancientbeast.c11.ixsecure.com/combat/" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
+		<iframe id="game" name="game" src="https://the-ancientbeast.rhcloud.com/combat/" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 	</body>
 </html>
