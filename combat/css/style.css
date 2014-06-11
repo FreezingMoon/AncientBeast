@@ -34,10 +34,8 @@ body{
 
 #combatwrapper canvas{
 	display: inline-block !important;
-
+	overflow: hidden;
 	/*Shadow*/
-	-moz-box-shadow: 0px 0px 30px black;
-	-webkit-box-shadow: 0px 0px 30px black;
 	box-shadow: 0px 0px 30px black; 
 }
 

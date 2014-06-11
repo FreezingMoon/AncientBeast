@@ -29,7 +29,7 @@ if(isset($_POST['submit']) && $_POST['submit'] != ""){
 	$username = $_POST["username"];
 	$password = sha1($_POST["password"]);
 
-	$result = mysql_query("SELECT * FROM `ab_users` WHERE `username`='$username'") or die ("<div class='div center'>Name and password not found or not matched.</div>");
+	$result = mysql_query("SELECT * FROM `ab_users` WHERE `username`='$username'") or die ("<div class='warning center'>Name and password not found or not matched.</div>");
 	$worked = mysql_fetch_array($result);
 
 	if($worked['password'] == $password) {
@@ -37,7 +37,7 @@ if(isset($_POST['submit']) && $_POST['submit'] != ""){
 		echo '<meta http-equiv="refresh" content="0; url=' . $site_url . '">';
 		die();
 	} else {
-		echo "<div class='div center'>Sorry, your username and password combination are invalid.</div>";
+		echo "<div class='warning center'>Your username and password combination are invalid.</div>";
 	}
 }
 ?>

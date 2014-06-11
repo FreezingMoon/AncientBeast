@@ -43,7 +43,7 @@ var musicPlayer = {
     playRandom : function(){
         do{
             var rand = Math.floor( Math.random() * ( this.tracks.length - 1 ) );
-        }while(rand == this.current); //Not 2 time the same track
+        }while(rand == this.current); // Don't play the same track twice in a row
         this.current = rand;
         var link = this.playlist.find('a')[this.current];
         this.run( jQuery(link) );
@@ -59,7 +59,7 @@ var musicPlayer = {
     },
 
     run: function(link){
-        //Style
+        // Style the active track in the playlist
         par = link.parent();
         par.addClass('active').siblings().removeClass('active');
 

@@ -9,20 +9,14 @@
 		<meta name="description" content="Ancient Beast is a turn based strategy indie game project.">
 		<link rel="canonical" href="www.AncientBeast.com/combat/">
 
-		<link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css">
-
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="jquery.fullscreen-min.js"></script>
 
 		<script type="text/javascript">
 		$(document).ready(function(){
-
-			$("#bar a").button();
-
 			$(document).bind("fullscreenchange", function() {
 				$('#game').toggleClass('fullscreen');
 			});
-
 		});
 		</script>
 

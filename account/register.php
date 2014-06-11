@@ -42,28 +42,28 @@ if (isset($_POST['submit'])) {
 
 	if (!$resp->is_valid) {
 		// What happens when the CAPTCHA was entered incorrectly
-		$message .= "<div class='div center'>The reCAPTCHA wasn't entered correctly, try it again.</div>";
+		$message .= "<div class='warning center'>The reCAPTCHA wasn't entered correctly, try it again.</div>";
 	}
 	if($username_exist > 0){
-		$message .= "<div class='div center'>The username you chosen has already been taken, pick another one.</div>";
+		$message .= "<div class='warning center'>The username you chosen has already been taken, pick another one.</div>";
 	}
 	if(strlen($username) < 4 or strlen($username) > 18) {
-			$message .= "<div class='div center'>The username you chosen has " . strlen($username) . " characters. You need to have between 4 and 18 characters.</div>";
+			$message .= "<div class='warning center'>The username you chosen has " . strlen($username) . " characters. You need to have between 4 and 18 characters.</div>";
 	}
 	if(strlen($_POST["newpass"]) < 6 or strlen($_POST["newpass"]) > 20) {
-		$message .= "<div class='div center'>The password needs to have between 6 and 20 characters.</div>";
+		$message .= "<div class='warning center'>The password needs to have between 6 and 20 characters.</div>";
 	}
 	if($password !== $password2){
-		$message .= "<div class='div center'>Your passwords don't match. Please try again.</div>";
+		$message .= "<div class='warning center'>Your passwords don't match. Please try again.</div>";
 	}
 	if (!eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $email)) {
-		$message .= "<div class='div center'>The e-mail address you entered is invalid.</div>";
+		$message .= "<div class='warning center'>The e-mail address you entered is invalid.</div>";
 	}
 	//Insert the values
 	if (!isset($message)){
 		$result = mysql_query("INSERT INTO `ab_users` (username, password, email)".
 		"VALUES ('$username', '$password', '$email')");
-		echo "<div class='div center'>Your account has been created successfully! Check your email account.</div>";
+		echo "<div class='confirmation center'>Your account has been created successfully! Check your email account.</div>";
 	} else echo $message;
 }
 ?>
