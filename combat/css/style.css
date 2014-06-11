@@ -1,6 +1,7 @@
 body{
 	background: black url('../../images/skulls.jpg') repeat;
 	margin: 0;
+	overflow: hidden;
 	padding: 0;
 	font-family: 'Play', sans-serif;
 }
@@ -32,14 +33,7 @@ body{
 }
 
 #combatwrapper canvas{
-	/*background: url('../../locations/Dark Forest/bg.jpg');*/
-	/*background-size: 100% 100%;*/
 	display: inline-block !important;
-
-	/*padding: 277px 0 0 0;*/
-/*	position: absolute;
-	top:0px;
-	left:0px;*/
 
 	/*Shadow*/
 	-moz-box-shadow: 0px 0px 30px black;
