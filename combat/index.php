@@ -14,9 +14,9 @@ require_once("../global.php");
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 		<!-- Use local jQuery if the CDN fails or there's no internet connection -->
-		<script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.2.min.js"></script>')</script>
-		<script type="text/javascript" src="./js/phaser.min.js"></script>
+		<script>window.jQuery || document.write('<script src="js/jquery-1.7.2.min.js"></script>')</script>
 		<script type="text/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
+		<script type="text/javascript" src="./js/phaser.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
 		<script type="text/javascript" src="./js/jquery.mousewheel.js"></script>
@@ -283,7 +283,7 @@ require_once('../units/cards.php');
 						$i = 0;
 						$error = 'Your browser does not support the audio element.';
 
-						echo '<audio id="audio" preload="auto" tabindex="0" controls="" style="width:890px";"><source src="'.$site_root.'media/music/'.$media[0].'">'.$error.'</audio><a style="cursor: pointer;" id="mp_shuffle">Shuffle</a>';
+						echo '<audio id="audio" preload="auto" tabindex="0" controls="" style="width:890px";"><source src="'.$site_url.'media/music/'.$media[0].'">'.$error.'</audio><a style="cursor: pointer;" id="mp_shuffle">Shuffle</a>';
 						echo '<ul id="playlist" style="list-style-type: none;padding-left:0px;" >';
 
 						foreach($media as $file) {
@@ -293,7 +293,7 @@ require_once('../units/cards.php');
 							$title = substr($file, 0, -4);
 							$file = str_replace(' ', '%20', $file);
 							if($title!=""){
-								echo '<li class="active"><a href="'.$site_root.'media/music/'.$file.'">' . $title . '</a></li>';
+								echo '<li class="active"><a href="'.$site_url.'media/music/'.$file.'">' . $title . '</a></li>';
 							}
 							$i++;
 						}
