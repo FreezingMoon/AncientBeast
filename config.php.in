@@ -1,6 +1,6 @@
 <?php
 /* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
- * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
+ * Copyright (C) 2007-2014  Valentin Anastase (a.k.a. Dread Knight)
  *
  * This file is part of Ancient Beast.
  *
@@ -22,17 +22,23 @@
  * DreadKnight@FreezingMoon.org
  */
 
-// Directory of site relative to root, ending with a forward slash
+// Directory of site relative to root, ending with a slash
 // Eg: $site_root = "/" or $site_root = "/ancientbeast/"
 $site_root = "/";
 
-// Database information is stored here
-// TODO: convert to PDO
-mysql_connect("localhost", "username", "password");
-mysql_select_db("database");
-mysql_set_charset('utf8');
+// MySQL database information is stored over here
+// Default values are http://OpenShift.com env vars
+// Feel free to change and save this file as config.php
+$host = getenv('OPENSHIFT_MYSQL_DB_HOST') ? getenv('OPENSHIFT_MYSQL_DB_HOST') : 'localhost';
+$user = getenv('OPENSHIFT_MYSQL_DB_USERNAME') ? getenv('OPENSHIFT_MYSQL_DB_USERNAME') : 'root';
+$password = getenv('OPENSHIFT_MYSQL_DB_PASSWORD') ? getenv('OPENSHIFT_MYSQL_DB_PASSWORD') : 'password';
+$database = getenv('OPENSHIFT_APP_NAME') ? getenv('OPENSHIFT_APP_NAME') : 'AncientBeast';
 
-// reCAPTCHA keys
+$dbc = mysqli_connect($host, $user, $password, $database)
+or die('<br>Error connecting to the MySQL server! If you\'re not running an <a href="https://www.openshift.com/" target="_blank">OpenShift</a> instance for development purposes, '
+	.'then edit the <b>config.php.in</b> file with your info and save it as <b>config.php</b><br><br><b><a href="http://AncientBeast.com">Ancient Beast Official Website</a></b>');
+
+// reCAPTCHA keys https://www.google.com/recaptcha/admin
 $publickey = "";
 $privatekey = "";
 ?>
