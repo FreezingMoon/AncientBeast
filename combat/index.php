@@ -8,14 +8,14 @@ require_once("../global.php");
 
 		<title>Ancient Beast 0.2</title>
 		
-		<link rel="stylesheet" type="text/css" href="./css/dot-luv/jquery-ui-1.10.4.custom.min.css">
+		<link rel="stylesheet" type="text/css" href="./css/dot-luv/jquery-ui-1.9.2.custom.min.css">
 		<link rel="stylesheet" type="text/css" href="./css/style.css">
 		<link rel="stylesheet" type="text/css" href="./css/grid.css">
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 		<!-- Use local jQuery if the CDN fails or there's no internet connection -->
 		<script>window.jQuery || document.write('<script src="js/jquery-1.7.2.min.js"></script>')</script>
-		<script type="text/javascript" src="./js/jquery-ui-1.10.4.custom.min.js"></script>
+		<script type="text/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
 		<script type="text/javascript" src="./js/phaser.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
