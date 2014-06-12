@@ -1131,7 +1131,7 @@ var Creature = Class.create({
 			this.killer.score.push({type:"annihilation",player:this.team});
 		}
 
-		if(this.type == "--") this.player.deactivate(); //Here because of score calculation
+		if(this.type == "--") this.player.deactivate(); // Here because of score calculation
 
 		// Kill animation
 		var tweenSprite = G.Phaser.add.tween(this.sprite).to( {alpha:0}, 500, Phaser.Easing.Linear.None ).start();
@@ -1154,7 +1154,7 @@ var Creature = Class.create({
 
 		// Queue cleaning
 		G.UI.updateActivebox();
-		G.UI.updateQueueDisplay(); //Just in case
+		G.UI.updateQueueDisplay(); // Just in case
 	},
 
 

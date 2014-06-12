@@ -5,14 +5,14 @@ $j(document).ready(function(){
 	$j("#startbutton").button();
 
 	$j("form#gamesetup").submit(function(e){
-		e.preventDefault(); //prevent submit
+		e.preventDefault(); // Prevent submit
 		var gameconfig = {
 			nbrPlayer : $j('input[name="nbrplayer"]:checked').val()-0,
 			background_image : $j('input[name="location"]:checked').val(),
 			plasma_amount : $j('input[name="plasma"]:checked').val()-0,
 			timePool : $j('input[name="time_pool"]:checked').val()*60,
 			turnTimePool : $j('input[name="time_turn"]:checked').val()-0,
-			creaLimitNbr : $j('input[name="active_units"]:checked').val()-0, //DP counts as One
+			creaLimitNbr : $j('input[name="active_units"]:checked').val()-0, // DP counts as One
 		};
 
 		if( gameconfig.background_image == "random" ){
@@ -20,6 +20,6 @@ $j(document).ready(function(){
 			gameconfig.background_image = $j('input[name="location"]').slice(index,index+1).attr("value");
 		}
 		G.loadGame(gameconfig);
-		return false; //prevent submit
+		return false; // Prevent submit
 	});
 });

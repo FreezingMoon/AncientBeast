@@ -627,7 +627,7 @@ var UI = Class.create({
 			}
 		});
 
-		//Bind creature vignette click
+		// Bind creature vignette click
 		this.$grid.find(".vignette").unbind('click').bind("click",function(e){
 			e.preventDefault();
 			if(G.freezedInput) return;
@@ -649,7 +649,7 @@ var UI = Class.create({
 
 		this.selectedPlayer = -1;
 		
-		this.$dash //Dash class
+		this.$dash // Dash class
 			.removeClass("selected0 selected1 selected2 selected3");
 
 		$j("#tabwrapper").hide();
@@ -695,7 +695,7 @@ var UI = Class.create({
 		if( G.realms.indexOf(b[0])-1 > -1 ){
 			var r = G.realms[ G.realms.indexOf(b[0])-1 ];
 			G.UI.showCreature(r+b[1]);
-		}else{ // end of the grid
+		}else{ // End of the grid
 			//G.UI.showCreature("--");
 		}
 	},
