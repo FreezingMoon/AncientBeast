@@ -32,6 +32,7 @@ $style = '
 ';
 require_once("../header.php"); ?>
 <link rel="stylesheet" href="fancybox/jquery.fancybox-1.3.4.css" media="screen">
+<script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 
 <nav class="div center"><ul class="sections">
 <?php
@@ -51,13 +52,13 @@ foreach ($sections as &$sectionItem) {
 </ul></nav>
 <div class="div center">
 <?php
-$type = $_GET['type'];
+@$type = $_GET['type'];
 if (!isset($type)) $type = 'artwork';
 switch($type) {
-case artwork:
+case @artwork:
  ?>
 	<?php
-	$images = scandir("../media/artwork");
+	$images = scandir("artwork");
 	natsort($images);
 	$i = 0;
 	foreach($images as $image) {
@@ -68,11 +69,11 @@ case artwork:
 	}
 	break;
 
-case fanart:
+case @fanart:
 	echo 'Post your fan art in the <a href="#comments"><b>comments</b></a> section or upload it to the <a href="http://Ancient-Beast.deviantArt.com" target="_blank"><b>deviantArt</b></a> group. The best works will be featured!</div>';
 	?>
 	<div class="div center">
-	<?php $images = scandir("../media/fanart");
+	<?php $images = scandir("fanart");
 	natsort($images);
 	$i = 0;
 	foreach($images as $image) {
@@ -83,7 +84,7 @@ case fanart:
 	}
 	break;
 
-case realms:
+case @realms:
 ?>
 <p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit its inhabitants the most.</p></div></div>
 	<a href="#avarice"><div id="avarice" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge gold; padding: 15px 0px">
@@ -136,8 +137,8 @@ case realms:
 	<div class="div center">Which are the deadly sins you think would describe you the best? Feel free to share your burden with us, sinner.</div>
 <?php
 	break;
-case screenshots:
-	$images = scandir("../media/screenshots");
+case @screenshots:
+	$images = scandir("screenshots");
 	natsort($images);
 	$i = 0;
 	foreach($images as $image) {
@@ -148,7 +149,7 @@ case screenshots:
 	}
 	break;
 
-case wallpapers:
+case @wallpapers:
 	$images = scandir("../media/wallpapers");
 	natsort($images);
 	$i = 0;
@@ -160,7 +161,7 @@ case wallpapers:
 	}
 	break;
 
-case videos:
+case @videos:
 	?>
 	<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>
 	<div class="div center" id="gameplay">
@@ -169,33 +170,31 @@ case videos:
 	<iframe width="880" height="495" src="//www.youtube.com/embed/videoseries?list=PLADfTwuzK0YR-qoT0Dy6o3AGAoNCq1Y3R" frameborder="0" allowfullscreen></iframe></div>
 	<?php break;
 
-case music:
+case @music:
 	?><img src="band.jpg"><?php
-	$media = scandir("../media/music");
+	$folders = array('..', '.');
+	$media = array_values(array_diff(scandir("music"), $folders));
 	natsort($media);
 	$i = 0;
 	$error = 'Your browser does not support the audio element.';
-	foreach($media as $file) {
-		if($file == "." || $file == "..") continue;
-		if($i == 0){
-			echo '<audio id="audio" preload="auto" tabindex="0" controls="" style="width:890px";"><source src="'.$file.'">'.$error.'</audio><a id="mp_shuffle">Shuffle</a>';
-			echo '<ul id="playlist" style="list-style-type: none;padding-left:0px;" >';
-		}
+
+	echo '<audio id="audio" preload="auto" controls="" style="width:890px";"><source src="' . $site_url . 'media/music/' . $media[0] . '"> '. $error
+		.'</audio><a style="cursor: pointer;" id="mp_shuffle">Shuffle</a><ul id="playlist" style="list-style-type: none;padding-left:0px;">';
+
+	foreach($media as $file){
 		$title = substr($file, 0, -4);
 		$file = str_replace(' ', '%20', $file);
-		if($title!=""){
-			echo '<li class=""><a href="'.$site_url.'media/music/'.$file.'">' . $title . '</a></li>';
-		}
+		if($title!="") echo '<li class=""><a href="' . $site_url . 'media/music/' . $file . '">' . $title . '</a></li>';
 		$i++;
 	} ?>
 	</ul>
-	<script type="text/javascript" src="js/audioplayer.js"></script>
+	</div><div class="div center">Click on a track to start playing it. Let us know which are your favorite ones by leaving a comment bellow.</div>
+	<script type="text/javascript" src="<?php $site_url ?>js/musicplayer.js"></script>
 <?php
 }
 echo "</div></div>";
 disqus();
 include('../footer.php'); ?>
-<script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 <script type="application/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
 <script defer type="application/javascript" src="fancybox/jquery.easing-1.3.pack.js"></script>
 <script defer type="application/javascript" src="fancybox/jquery.mousewheel-3.0.4.pack.js"></script>

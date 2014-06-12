@@ -3,7 +3,7 @@ jQuery(document).ready(function(){
 });
 
 var musicPlayer = {
-    init : function(){
+    init: function(){
 
         var mp = this;
 
@@ -16,7 +16,7 @@ var musicPlayer = {
         this.shuffle = true;
 
         this.audio.volume = .25;
-        this.audio.play();
+        this.audio.pause();
 
         jQuery('#mp_shuffle').addClass("active").click(function(e){
             jQuery(this).toggleClass("active");
@@ -40,7 +40,7 @@ var musicPlayer = {
         });
     },
 
-    playRandom : function(){
+    playRandom: function(){
         do{
             var rand = Math.floor( Math.random() * ( this.tracks.length - 1 ) );
         }while(rand == this.current); // Don't play the same track twice in a row
@@ -49,7 +49,7 @@ var musicPlayer = {
         this.run( jQuery(link) );
     },
 
-    playNext : function(){
+    playNext: function(){
         this.current++;
         if(this.current == this.tracks.length && this.repeat){
             this.current = 0;
