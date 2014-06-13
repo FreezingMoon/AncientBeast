@@ -25,9 +25,7 @@ var musicPlayer = {
 
         this.playlist.find('a').click(function(e){
             e.preventDefault();
-
             mp.current = jQuery(this).parent().index();
-
             mp.run( jQuery(this) );
         });
 
