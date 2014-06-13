@@ -32,7 +32,7 @@ $style = '
 ';
 require_once("../header.php"); ?>
 <link rel="stylesheet" href="fancybox/jquery.fancybox-1.3.4.css" media="screen">
-<script type="application/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 
 <nav class="div center"><ul class="sections">
 <?php
@@ -189,17 +189,17 @@ case 'music':
 	} ?>
 	</ul>
 	</div><div class="div center">Click on a track to start playing it. Let us know which are your favorite ones by leaving a comment bellow.</div>
-	<script type="application/javascript" src="js/musicplayer.js"></script>
+	<script type="text/javascript" src="js/musicplayer.js"></script>
 <?php
 }
 echo "</div></div>";
 disqus();
 include('../footer.php'); ?>
-<script type="application/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-<script defer type="application/javascript" src="fancybox/jquery.easing-1.3.pack.js"></script>
-<script defer type="application/javascript" src="fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
+<script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+<script defer type="text/javascript" src="fancybox/jquery.easing-1.3.pack.js"></script>
+<script defer type="text/javascript" src="fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
 
-<script type="application/javascript">
+<script type="text/javascript">
 $(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");
 	$("a[rel=pop]").fancybox({

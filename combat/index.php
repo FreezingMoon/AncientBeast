@@ -13,13 +13,13 @@ require_once("../global.php");
 <link rel="stylesheet" type="text/css" href="./css/grid.css">
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<script type="application/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
-<script type="application/javascript" src="./js/phaser.min.js"></script>
-<script type="application/javascript" src="./js/jquery.transit.min.js"></script>
-<script type="application/javascript" src="./js/jquery.kinetic.js"></script>
-<script type="application/javascript" src="./js/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
+<script type="text/javascript" src="./js/phaser.min.js"></script>
+<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
+<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
+<script type="text/javascript" src="./js/jquery.mousewheel.js"></script>
 
-<script type="application/javascript">
+<script type="text/javascript">
 	var $j = jQuery.noConflict();
 </script>
 	
@@ -29,16 +29,16 @@ require_once('../units/cards.php');
 ?>
 
 <script src="//ajax.googleapis.com/ajax/libs/prototype/1.7.1.0/prototype.js"></script>
-<script type="application/javascript" src="./js/hex.js"></script>
-<script type="application/javascript" src="./js/animations.js"></script>
-<script type="application/javascript" src="./js/abilities.js"></script>
-<script type="application/javascript" src="./js/creature.js"></script>
-<script type="application/javascript" src="./js/drops.js"></script>
-<script type="application/javascript" src="./js/pathfinding.js"></script>
-<script type="application/javascript" src="./js/game.js"></script>
-<script type="application/javascript" src="./js/ui.js"></script>
-<script type="application/javascript" src="./js/json2.js"></script>
-<script type="application/javascript" src="./js/script.js"></script>
+<script type="text/javascript" src="./js/hex.js"></script>
+<script type="text/javascript" src="./js/animations.js"></script>
+<script type="text/javascript" src="./js/abilities.js"></script>
+<script type="text/javascript" src="./js/creature.js"></script>
+<script type="text/javascript" src="./js/drops.js"></script>
+<script type="text/javascript" src="./js/pathfinding.js"></script>
+<script type="text/javascript" src="./js/game.js"></script>
+<script type="text/javascript" src="./js/ui.js"></script>
+<script type="text/javascript" src="./js/json2.js"></script>
+<script type="text/javascript" src="./js/script.js"></script>
 
 <!--google analytics-->
 <script>
@@ -289,7 +289,7 @@ ga('send', 'pageview');
 						}
 						echo '</ul>';
 					?>
-					<script type="application/javascript" src="../media/js/musicplayer.js"></script>
+					<script type="text/javascript" src="../media/js/musicplayer.js"></script>
 					<div id="volume_sliders">
 						Effects volume <div id="effects_volume"></div>
 					</div>
