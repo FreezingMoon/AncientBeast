@@ -3,96 +3,92 @@
 require_once("../global.php");
 ?>
 <html>
-	<head>
-		<meta charset='utf-8'>
+<head>
+<meta charset='utf-8'>
 
-		<title>Ancient Beast 0.2</title>
+<title>Ancient Beast 0.2</title>
 		
-		<link rel="stylesheet" type="text/css" href="./css/dot-luv/jquery-ui-1.9.2.custom.min.css">
-		<link rel="stylesheet" type="text/css" href="./css/style.css">
-		<link rel="stylesheet" type="text/css" href="./css/grid.css">
+<link rel="stylesheet" type="text/css" href="./css/dot-luv/jquery-ui-1.9.2.custom.min.css">
+<link rel="stylesheet" type="text/css" href="./css/style.css">
+<link rel="stylesheet" type="text/css" href="./css/grid.css">
 
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-		<script type="text/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
-		<script type="text/javascript" src="./js/phaser.min.js"></script>
-		<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
-		<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
-		<script type="text/javascript" src="./js/jquery.mousewheel.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="application/javascript" src="./js/jquery-ui-1.9.2.custom.min.js"></script>
+<script type="application/javascript" src="./js/phaser.min.js"></script>
+<script type="application/javascript" src="./js/jquery.transit.min.js"></script>
+<script type="application/javascript" src="./js/jquery.kinetic.js"></script>
+<script type="application/javascript" src="./js/jquery.mousewheel.js"></script>
 
-		<script type="text/javascript" src="../media/js/musicplayer.js"></script>
-
-		<script type="text/javascript">
-			var $j = jQuery.noConflict();
-		</script>
+<script type="application/javascript">
+	var $j = jQuery.noConflict();
+</script>
 	
 <?php
 require_once("../units/functions.php");
 require_once('../units/cards.php');
 ?>
 
-		<script src="//ajax.googleapis.com/ajax/libs/prototype/1.7.1.0/prototype.js"></script>
-		<script type="text/javascript" src="./js/hex.js"></script>
-		<script type="text/javascript" src="./js/animations.js"></script>
-		<script type="text/javascript" src="./js/abilities.js"></script>
-		<script type="text/javascript" src="./js/creature.js"></script>
-		<script type="text/javascript" src="./js/drops.js"></script>
-		<script type="text/javascript" src="./js/pathfinding.js"></script>
-		<script type="text/javascript" src="./js/game.js"></script>
-		<script type="text/javascript" src="./js/ui.js"></script>
-		<script type="text/javascript" src="./js/json2.js"></script>
-		<script type="text/javascript" src="./js/script.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/prototype/1.7.1.0/prototype.js"></script>
+<script type="application/javascript" src="./js/hex.js"></script>
+<script type="application/javascript" src="./js/animations.js"></script>
+<script type="application/javascript" src="./js/abilities.js"></script>
+<script type="application/javascript" src="./js/creature.js"></script>
+<script type="application/javascript" src="./js/drops.js"></script>
+<script type="application/javascript" src="./js/pathfinding.js"></script>
+<script type="application/javascript" src="./js/game.js"></script>
+<script type="application/javascript" src="./js/ui.js"></script>
+<script type="application/javascript" src="./js/json2.js"></script>
+<script type="application/javascript" src="./js/script.js"></script>
 
-		<!--google analytics-->	
-		<script type="text/javascript">
-		var _gaq = _gaq || [];
-		_gaq.push(['_setAccount', 'UA-2840181-5']);
-		_gaq.push(['_trackPageview']);
-
-		(function() {
-			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		})();
-		</script>	
-	</head>
-	<body oncontextmenu="return false;">
-		<div id="matchmaking">
-			<div id="loader"><img src="../images/AB.gif">Loading</div>
-			<div id="gamesetupcontainer">
-				<form id="gamesetup">
-					<div class="cont">
-						<h2>Players</h2>
-						<div id="nbrplayer" class="typeradio">
-							<input type="radio" name="nbrplayer" checked="checked" value="2" id="p2"><label for="p2">1vs1</label>
-							<input type="radio" name="nbrplayer" value="4" id="p4"><label for="p4">2vs2</label>
-						</div>
+<!--google analytics-->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-2840181-5', 'ancientbeast.com');
+ga('require', 'displayfeatures');
+ga('send', 'pageview');
+</script>	
+</head>
+<body oncontextmenu="return false;">
+<div id="matchmaking">
+	<div id="loader"><img src="../images/AB.gif">Loading</div>
+		<div id="gamesetupcontainer">
+			<form id="gamesetup">
+				<div class="cont">
+					<h2>Players</h2>
+					<div id="nbrplayer" class="typeradio">
+						<input type="radio" name="nbrplayer" checked="checked" value="2" id="p2"><label for="p2">1vs1</label>
+						<input type="radio" name="nbrplayer" value="4" id="p4"><label for="p4">2vs2</label>
 					</div>
-					<div class="cont">
-						<h2>Active Units</h2>
-						<span id="active_units" class="typeradio">
-							<input type="radio" id="activeunitsopt1" name="active_units" value="1"><label for="activeunitsopt1">1</label>
-							<input type="radio" id="activeunitsopt2" name="active_units" value="2"><label for="activeunitsopt2">2</label>
-							<input type="radio" id="activeunitsopt3" name="active_units" value="3"><label for="activeunitsopt3">3</label>
-							<input type="radio" id="activeunitsopt4" name="active_units" value="4" checked="checked"><label for="activeunitsopt4">4</label>
-							<input type="radio" id="activeunitsopt5" name="active_units" value="5"><label for="activeunitsopt5">5</label>
-							<input type="radio" id="activeunitsopt6" name="active_units" value="6"><label for="activeunitsopt6">6</label>
-							<input type="radio" id="activeunitsopt7" name="active_units" value="7"><label for="activeunitsopt7">7</label>
-						</span>
-					</div>
-					<br>
-					<div class="cont">
-						<h2>Plasma Points</h2>
-						<div id="plasma" class="typeradio">
-							<input type="radio" id="plasmaopt1" name="plasma" value="5" ><label for="plasmaopt1">5</label>
-							<input type="radio" id="plasmaopt2" name="plasma" value="10"><label for="plasmaopt2">10</label>
-							<input type="radio" id="plasmaopt3" name="plasma" value="20"><label for="plasmaopt3">20</label>
-							<input type="radio" id="plasmaopt4" name="plasma" value="30"><label for="plasmaopt4">30</label>
-							<input type="radio" id="plasmaopt5" name="plasma" value="40" checked="checked"><label for="plasmaopt5">40</label>
-							<input type="radio" id="plasmaopt6" name="plasma" value="50"><label for="plasmaopt6">50</label>
-							<input type="radio" id="plasmaopt7" name="plasma" value="60"><label for="plasmaopt7">60</label>
-							<input type="radio" id="plasmaopt8" name="plasma" value="70"><label for="plasmaopt8">70</label>
-							<input type="radio" id="plasmaopt9" name="plasma" value="80"><label for="plasmaopt9">80</label>
-							<input type="radio" id="plasmaopt10" name="plasma" value="90"><label for="plasmaopt10">90</label></div>
+				</div>
+				<div class="cont">
+					<h2>Active Units</h2>
+					<span id="active_units" class="typeradio">
+						<input type="radio" id="activeunitsopt1" name="active_units" value="1"><label for="activeunitsopt1">1</label>
+						<input type="radio" id="activeunitsopt2" name="active_units" value="2"><label for="activeunitsopt2">2</label>
+						<input type="radio" id="activeunitsopt3" name="active_units" value="3"><label for="activeunitsopt3">3</label>
+						<input type="radio" id="activeunitsopt4" name="active_units" value="4" checked="checked"><label for="activeunitsopt4">4</label>
+						<input type="radio" id="activeunitsopt5" name="active_units" value="5"><label for="activeunitsopt5">5</label>
+						<input type="radio" id="activeunitsopt6" name="active_units" value="6"><label for="activeunitsopt6">6</label>
+						<input type="radio" id="activeunitsopt7" name="active_units" value="7"><label for="activeunitsopt7">7</label>
+					</span>
+				</div>
+				<br>
+				<div class="cont">
+					<h2>Plasma Points</h2>
+					<div id="plasma" class="typeradio">
+						<input type="radio" id="plasmaopt1" name="plasma" value="5" ><label for="plasmaopt1">5</label>
+						<input type="radio" id="plasmaopt2" name="plasma" value="10"><label for="plasmaopt2">10</label>
+						<input type="radio" id="plasmaopt3" name="plasma" value="20"><label for="plasmaopt3">20</label>
+						<input type="radio" id="plasmaopt4" name="plasma" value="30"><label for="plasmaopt4">30</label>
+						<input type="radio" id="plasmaopt5" name="plasma" value="40" checked="checked"><label for="plasmaopt5">40</label>
+						<input type="radio" id="plasmaopt6" name="plasma" value="50"><label for="plasmaopt6">50</label>
+						<input type="radio" id="plasmaopt7" name="plasma" value="60"><label for="plasmaopt7">60</label>
+						<input type="radio" id="plasmaopt8" name="plasma" value="70"><label for="plasmaopt8">70</label>
+						<input type="radio" id="plasmaopt9" name="plasma" value="80"><label for="plasmaopt9">80</label>
+						<input type="radio" id="plasmaopt10" name="plasma" value="90"><label for="plasmaopt10">90</label></div>
 					</div>
 					<br>
 					<div class="cont">
@@ -282,8 +278,8 @@ require_once('../units/cards.php');
 						$i = 0;
 						$error = 'Your browser does not support the audio element.';
 
-						echo '<audio id="audio" preload="auto" controls="" style="width:890px";"><source src="' . $site_url . 'media/music/' . $media[0] . '"> '. $error
-							.'</audio><a style="cursor: pointer;" id="mp_shuffle">Shuffle</a><ul id="playlist" style="list-style-type: none;padding-left:0px;">';
+						echo '<audio id="audio" preload="auto" controls="" style="width:890px;"><source src="' . $site_url . 'media/music/' . $media[0] . '"> '. $error
+							.'</audio><a style="cursor:pointer;" id="mp_shuffle">Shuffle</a><ul id="playlist" style="list-style-type:none; padding-left:0px;">';
 
 						foreach($media as $file){
 							$title = substr($file, 0, -4);
@@ -293,6 +289,7 @@ require_once('../units/cards.php');
 						}
 						echo '</ul>';
 					?>
+					<script type="application/javascript" src="../media/js/musicplayer.js"></script>
 					<div id="volume_sliders">
 						Effects volume <div id="effects_volume"></div>
 					</div>
