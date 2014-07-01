@@ -911,7 +911,7 @@
             "shock": 2,
             "burn": 2,
             "frost": 2,
-            "poison": 4,
+            "poison": 5,
             "sonic": 3,
             "mental": 1
         },
@@ -920,9 +920,9 @@
         },
         "ability_info": [
 		{
-			"title": "Decaying Carcass",
-			"desc": "Able to act another round if killed.",
-			"info": "Will collapse if taking 3 extra hits."
+			"title": "Natural Environment",
+			"desc": "Initial spot will become a swamp.",
+			"info": "+15 Poison mastery bonus while in"
 		},
 		{
 			"title": "Rabid Bite",
