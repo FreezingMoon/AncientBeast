@@ -31,30 +31,35 @@ $site_url = 'http://' . $_SERVER['SERVER_NAME'] . $site_root;
 // Session starting for login
 session_start();
 
+
+// Change character set to utf8
+mysqli_set_charset($link, "utf8");
+
 // Page generation
 function db_execute($query) {
-	global $db_connection;
-	if($db_connection === false)
+	global $link;
+	if($link === false)
 		return false;
-	if(is_null($db_connection))
+	if(is_null($link))
 		if(!db_connect())
 			return false;
 
-	$r = mysql_query($query);
+	$r = mysqli_query($link, $query);
 	if($r === false) return false;
+	mysqli_free_result($query);
 	return true;
 }
 function db_query($query) {
-	global $db_connection;
-	if($db_connection === false)
+	global $link;
+	if($link === false)
 		return false;
 
-	$r = mysql_query($query);
+	$r = mysqli_query($link, $query);
 	if($r === false) return false;
-	if(mysql_num_rows($r) > 0) {
+	if(mysqli_num_rows($r) > 0) {
 		$o = array();
 		$i = 0;
-		while ($row = @mysql_fetch_assoc($r)) {
+		while ($row = @mysqli_fetch_assoc($r)) {
 			$o[$i] = array();
 			foreach($row as $k => $v)
 				$o[$i][$k] = $v;
@@ -62,6 +67,7 @@ function db_query($query) {
 		}
 		return $o;
 	}
+	mysqli_free_result($query);
 	return true;
 }
 

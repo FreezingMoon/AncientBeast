@@ -29,8 +29,8 @@ if(isset($_POST['submit']) && $_POST['submit'] != ""){
 	$username = $_POST["username"];
 	$password = sha1($_POST["password"]);
 
-	$result = mysql_query("SELECT * FROM `ab_users` WHERE `username`='$username'") or die ("<div class='warning center'>Name and password not found or not matched.</div>");
-	$worked = mysql_fetch_array($result);
+	$result = mysqli_query($link, "SELECT * FROM `ab_users` WHERE `username`='$username'") or die ("<div class='warning center'>Name and password not found or not matched.</div>");
+	$worked = mysqli_fetch_array($result);
 
 	if($worked['password'] == $password) {
     	$_SESSION["id"] = $worked['id'];

@@ -31,8 +31,8 @@ if(isset($_SESSION['id'])	 == 0) {
 	die();
 }
 
-$data = mysql_query("SELECT * FROM `ab_users` WHERE `id`='" . $_SESSION['id'] . "'");
-$userdata = mysql_fetch_array($data);
+$data = mysqli_query($link, "SELECT * FROM `ab_users` WHERE `id`='" . $_SESSION['id'] . "'");
+$userdata = mysqli_fetch_array($data);
 $username = $userdata['username'];
 
 echo '<div class="div center">Welcome back, <b>' . $username . '</b>! In this page you can configure your account.</div>';
@@ -54,8 +54,8 @@ if (isset($_POST['changepass'])) {
 	$oldpassword = sha1($_POST['oldpass']);
 	$password = sha1($_POST['newpass']);
 	$password2 = sha1($_POST['newpassagain']);
-	$checkuser = mysql_query('SELECT * FROM `ab_users` WHERE `password`="' . $oldpassword . '" AND `id`="' . $_SESSION['id'] . '"');
-	$user_exist = mysql_num_rows($checkuser);
+	$checkuser = mysqli_query($link, 'SELECT * FROM `ab_users` WHERE `password`="' . $oldpassword . '" AND `id`="' . $_SESSION['id'] . '"');
+	$user_exist = mysqli_num_rows($checkuser);
 
 	if ($user_exist == 0) {
 		$message = '<div class="warning center">You entered the wrong old password.</div>';
@@ -69,7 +69,7 @@ if (isset($_POST['changepass'])) {
 
 	//update db with new pass
 	if (!isset($message)) {
-		$result = mysql_query('UPDATE `ab_users` SET `password`="' . $password . '" WHERE `id`="' . $_SESSION['id'] . '"');
+		$result = mysqli_query($link, 'UPDATE `ab_users` SET `password`="' . $password . '" WHERE `id`="' . $_SESSION['id'] . '"');
 		echo '<div class="confirmation center">Your password has been updated.</div>';
 	}
 }
@@ -87,7 +87,7 @@ if (isset($_POST['changeemail'])) {
 
 	//update db with new email
 	if (!isset($message)) {
-		$result = mysql_query('UPDATE `ab_users` SET `password`="' . $newemail . '" WHERE `id`="' . $_SESSION['id'] . '"');
+		$result = mysqli_query($link, 'UPDATE `ab_users` SET `password`="' . $newemail . '" WHERE `id`="' . $_SESSION['id'] . '"');
 		echo '<div class="confirmation center">Your email has been updated.</div>';
 	}
 }

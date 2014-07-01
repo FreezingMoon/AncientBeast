@@ -32,8 +32,8 @@ if (isset($_POST['submit'])) {
 	$password = sha1($_POST["newpass"]);
 	$password2 = sha1($_POST["newpassagain"]);
 	$email = $_POST["email"];
-	$checkuser = mysql_query("SELECT * FROM `ab_users` WHERE `username`='" . $username . "'") or die(mysql_error());
-	$username_exist = mysql_num_rows($checkuser);
+	$checkuser = mysqli_query($link, "SELECT * FROM `ab_users` WHERE `username`='" . $username . "'") or die(mysqli_error());
+	$username_exist = mysqli_num_rows($checkuser);
 	$message = null;
 	$resp = recaptcha_check_answer ($privatekey,
 									$_SERVER["REMOTE_ADDR"],
@@ -61,7 +61,7 @@ if (isset($_POST['submit'])) {
 	}
 	//Insert the values
 	if (!isset($message)){
-		$result = mysql_query("INSERT INTO `ab_users` (username, password, email)".
+		$result = mysqli_query($link, "INSERT INTO `ab_users` (username, password, email)".
 		"VALUES ('$username', '$password', '$email')");
 		echo "<div class='confirmation center'>Your account has been created successfully! Check your email account.</div>";
 	} else echo $message;

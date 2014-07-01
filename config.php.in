@@ -34,7 +34,7 @@ $user = getenv('OPENSHIFT_MYSQL_DB_USERNAME') ? getenv('OPENSHIFT_MYSQL_DB_USERN
 $password = getenv('OPENSHIFT_MYSQL_DB_PASSWORD') ? getenv('OPENSHIFT_MYSQL_DB_PASSWORD') : 'password';
 $database = getenv('OPENSHIFT_APP_NAME') ? getenv('OPENSHIFT_APP_NAME') : 'AncientBeast';
 
-$dbc = mysqli_connect($host, $user, $password, $database)
+$link = mysqli_connect($host, $user, $password, $database)
 or die('<br>Error connecting to the MySQL server! If you\'re not running an <a href="https://www.openshift.com/" target="_blank">OpenShift</a> instance for development purposes, '
 	.'then edit the <b>config.php.in</b> file with your info and save it as <b>config.php</b><br><br><b><a href="http://AncientBeast.com">Ancient Beast Official Website</a></b>');
 
