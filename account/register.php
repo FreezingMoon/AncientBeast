@@ -23,9 +23,22 @@
  */
 
 $page_title = "Ancient Beast - Register";
-$style = ".arranged {padding-right: 20px; float: right;}";
+$style = "
+.arranged {padding-right: 20px; float: right;}
+button {
+    background: none !important;
+    border: none;
+    padding: 0 !important;
+	color: #b7b7b7;
+	font-size: 18px;
+	font-weight: bold;
+	text-shadow: black 0.1em 0.1em 0.2em;
+	cursor: pointer;
+}
+label {cursor: pointer;}";
 require_once('../header.php');
-require_once('recaptchalib.php');
+require_once('ayah_php_bundle_1.1.8/ayah.php');
+$ayah = new AYAH();
 
 if (isset($_POST['submit'])) {
 	$username = strip_tags($_POST["newname"]);
@@ -35,12 +48,11 @@ if (isset($_POST['submit'])) {
 	$checkuser = mysqli_query($link, "SELECT * FROM `ab_users` WHERE `username`='" . $username . "'") or die(mysqli_error());
 	$username_exist = mysqli_num_rows($checkuser);
 	$message = null;
-	$resp = recaptcha_check_answer ($privatekey,
-									$_SERVER["REMOTE_ADDR"],
-									$_POST["recaptcha_challenge_field"],
-									$_POST["recaptcha_response_field"]);
 
-	if (!$resp->is_valid) {
+	// Use the AYAH object to see if the user passed or failed the game.
+	$score = $ayah->scoreResult();
+
+	if (!$score) {
 		// What happens when the CAPTCHA was entered incorrectly
 		$message .= "<div class='warning center'>The reCAPTCHA wasn't entered correctly, try it again.</div>";
 	}
@@ -60,7 +72,7 @@ if (isset($_POST['submit'])) {
 		$message .= "<div class='warning center'>The e-mail address you entered is invalid.</div>";
 	}
 	//Insert the values
-	if (!isset($message)){
+	if (!isset($message)) {
 		$result = mysqli_query($link, "INSERT INTO `ab_users` (username, password, email)".
 		"VALUES ('$username', '$password', '$email')");
 		echo "<div class='confirmation center'>Your account has been created successfully! Check your email account.</div>";
@@ -69,7 +81,7 @@ if (isset($_POST['submit'])) {
 ?>
 <div class="div center">
 <form name="register" method="post" action="register.php">
-<table width="30%" border=0 align=center cellpadding=0 cellspacing=0 style="display:inline-block;">
+<table width="30%" border=0 align=center cellpadding=0 cellspacing=0 style="display:inline-block; float:left;">
 	<tr>
 		<td class="arranged">Username</td>
 		<td><input type="text" name="newname" size="20" pattern=".{4,18}" required title="Between 4 and 18 chars" placeholder="Between 4 and 18 chars" autofocus></td>
@@ -87,19 +99,30 @@ if (isset($_POST['submit'])) {
 		<td><input type="email" name="email" placeholder="This will require validation"></td>
 	</tr>
 	<tr>
-		<td>&nbsp;</td>
-		<td>Prove you're human</td>
+		<td class="arranged"><input type="radio" name="subscription" value="free" id="free" checked><label for="free">Free</label></td>
+		<td><label for="free">Limited + Ads</label></td>
+	</tr>
+	<tr>
+		<td class="arranged"><input type="radio" name="subscription" value="paid" id="paid"><label for="paid">Paid</label></td>
+		<td><label for="paid">$5 per month</label></td>
 	</tr>
 </table>
-<div style="display:inline-block;"><?php echo recaptcha_get_html($publickey); ?></div>
-<div style="display:inline-block; vertical-align:top;">
-<input type="submit" name="submit" value="Register"><br>
-<span>Or use</span><br>
-<button>Facebook</button><br>
-<button>Google</button><br>
-<button>Twitter</button>
+<div style="display:inline-block; vertical-align: top;">
+<?php
+// Use the AYAH object to get the HTML code needed to
+// load and run PlayThru. You should place this code
+// directly before your 'Submit' button.
+echo $ayah->getPublisherHTML();
+?>
+</div>
+<div style="display:inline-block; float: right;">
+	<button type="submit" name="submit"><span class="lighten"><img src="register.png"><br>Register</span></button>
 </div>
 </form>
 </div>
-
-<?php include('../footer.php'); ?>
+<script>
+document.getElementById("paid").disabled = true;
+</script>
+<?php 
+disqus();
+include('../footer.php'); ?>
