@@ -30,6 +30,7 @@ require_once("../header.php");
 Feel free to join us in <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> channel over irc.freenode.org server using <a href="http://hexchat.github.io" target="_blank"><u>Hexchat</u></a> desktop client.</div>
 <div class="div center" id="IRC"><iframe src="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" style="border:0; width:100%; height:500px;"></iframe></div>
 
+<div class="div center" id="windowed">You can launch the chat in a new window by clicking one of the following links: <a href="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" target="_blank"><b>Freenode (official)</b></a> or <a href="https://kiwiirc.com/client/irc.techmansworld.com/?nick=Sinner|?#AncientBeast" target="_blank"><b>Techman</b></a></div>
 <div class="div center" id="widgets">
 <!-- Twitter Widget -->
 <a class="twitter-timeline" width="285" height="350" href="https://twitter.com/AncientBeast" data-widget-id="362776555539292160">Tweets by @AncientBeast</a>
