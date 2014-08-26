@@ -207,7 +207,7 @@ var Game = Class.create({
 		this.Phaser.load.image('effects_chilling-spit', '../units/sprites/Snow Bunny Chilling Spit.png');
 
 		// Background
-		this.Phaser.load.image('background',"../locations/"+this.background_image+"/bg.jpg");
+		this.Phaser.load.image('background', "../locations/"+this.background_image+"/bg.jpg");
 
 		// Get JSON files
 		$j.getJSON("../units/data.json", function(json_in) {
@@ -222,26 +222,26 @@ var Game = Class.create({
 				G.loadingSrc += 3;
 
 				// Load unit shouts
-				G.soundsys.getSound('../units/shouts/'+data.name+'.ogg',1000+G.loadedCreatures[j],function(){ G.loadFinish(); });
+				G.soundsys.getSound('../units/shouts/'+data.name+'.ogg', 1000+G.loadedCreatures[j],function(){ G.loadFinish(); });
 				// Load unit abilities
-				getScript('../units/abilities/'+data.name+'.js',function(){ G.loadFinish(); });
+				getScript('../units/abilities/'+data.name+'.js', function(){ G.loadFinish(); });
 				// Load artwork
-				getImage('../units/artwork/'+data.name+'.jpg',function(){ G.loadFinish(); });
+				getImage('../units/artwork/'+data.name+'.jpg', function(){ G.loadFinish(); });
 
 				if(data.name == "Dark Priest"){
 					for (var i = 0; i < dpcolor.length; i++) {
 						G.loadingSrc += 2;
-						G.Phaser.load.image(data.name+dpcolor[i]+'_cardboard','../units/cardboards/'+data.name+' '+dpcolor[i]+'.png');
-						getImage('../units/avatars/'+data.name+' '+dpcolor[i]+'.jpg',function(){ G.loadFinish(); });
+						G.Phaser.load.image(data.name+dpcolor[i]+'_cardboard', '../units/cardboards/'+data.name+' '+dpcolor[i]+'.png');
+						getImage('../units/avatars/'+data.name+' '+dpcolor[i]+'.jpg', function(){ G.loadFinish(); });
 					}
 				}else{
 					if(data.drop){
 						G.loadingSrc += 1;
-						G.Phaser.load.image('drop_'+data.drop.name,'../drops/'+data.drop.name+'.png');
+						G.Phaser.load.image('drop_'+data.drop.name, '../shop/food/'+data.drop.name+'.png');
 					}
 					G.loadingSrc += 2;
-					G.Phaser.load.image(data.name+'_cardboard','../units/cardboards/'+data.name+'.png');
-					getImage('../units/avatars/'+data.name+'.jpg',function(){ G.loadFinish(); });
+					G.Phaser.load.image(data.name+'_cardboard', '../units/cardboards/'+data.name+'.png');
+					getImage('../units/avatars/'+data.name+'.jpg', function(){ G.loadFinish(); });
 				}
 
 				// For code compatibility
@@ -361,7 +361,7 @@ var Game = Class.create({
 			
 		}
 
-		this.activeCreature = this.players[0].creatures[0]; //Prevent errors
+		this.activeCreature = this.players[0].creatures[0]; // Prevent errors
 
 		this.UI = new UI(); // Creating UI not before because certain function requires creature to exists
 
@@ -493,13 +493,26 @@ var Game = Class.create({
 						return;
 					}
 
-					// Heart Beat
+					// Heart Beat sound for different player turns
 					if(differentPlayer){
 						G.soundsys.playSound(G.soundLoaded[4],G.soundsys.heartbeatGainNode);
 					}
 
 					G.log("Active Creature : %CreatureName"+G.activeCreature.id+"%");
 					G.activeCreature.activate();
+
+					// Show tutorial in the first round for each player
+					if(G.turn == 1){
+						G.log("The active unit has a flashing hexagon");
+						G.log("It uses a plasma shield to protect itself");
+						G.log("It's portrait is displayed in the upper left");
+						G.log("Under the portrait are the unit's abilities");
+						G.log("The ones with flashing icons are usable");
+						G.log("Use the last one to materialize an unit");
+						G.log("Making units drains your plasma points");
+						G.log("Press the hourglass icon to skip the turn");
+						G.log("%CreatureName"+G.activeCreature.id+"%, press here to toggle tutorial!");
+					}
 
 					// Update UI to match new creature
 					G.UI.updateActivebox();
