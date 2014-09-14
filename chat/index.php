@@ -30,7 +30,17 @@ require_once("../header.php");
 Feel free to join us in <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> channel over irc.freenode.org server using <a href="http://hexchat.github.io" target="_blank"><u>Hexchat</u></a> desktop client.</div>
 <div class="div center" id="IRC"><iframe src="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" style="border:0; width:100%; height:500px;"></iframe></div>
 
-<div class="div center" id="windowed">You can launch the chat in a new window by clicking one of the following links: <a href="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" target="_blank"><b>Freenode (official)</b></a> or <a href="https://kiwiirc.com/client/irc.techmansworld.com/?nick=Sinner|?#AncientBeast" target="_blank"><b>Techman</b></a></div>
+<div class="div center" id="buttons">
+<a href="http://www.indiedb.com/games/ancient-beast" title="View Ancient Beast on Indie DB" target="_blank">
+<img src="http://button.indiedb.com/popularity/medium/games/21552.png" alt="Ancient Beast" class="lighten"></a>
+<a href="http://gamejolt.com/games/arcade/ancient-beast/15964/" target="_blank">
+<img src="GJ.png" alt="Ancient Beast on GameJolt" class="lighten"></a>
+<a href="http://www.lgdb.org/game/ancient_beast" target="_blank">
+<img src="LGDB.png" alt="Ancient Beast on Linux Game Data Base" class="lighten"></a>
+<a href="http://forum.freegamedev.net/viewforum.php?f=70&sid=c5b79793f699eb6af86a9d013bf3500f" target="_blank">
+<img src="FGD.png" alt="FreeGameDev Ancient Beast SubForum" class="lighten"></a>
+</div>
+
 <div class="div center" id="widgets">
 <!-- Twitter Widget -->
 <a class="twitter-timeline" width="285" height="350" href="https://twitter.com/AncientBeast" data-widget-id="362776555539292160">Tweets by @AncientBeast</a>
@@ -48,17 +58,6 @@ Feel free to join us in <a href="irc://irc.freenode.org/#AncientBeast"><u>#Ancie
 
 <!--Facebook Widget -->
 <iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FAncientBeast&amp;width=285&amp;height=350&amp;colorscheme=dark&amp;show_faces=true&amp;header=false&amp;stream=false&amp;show_border=false&amp;appId=354537111308544" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:285px; height:350px;" allowTransparency="true"></iframe>
-</div>
-
-<div class="div center" id="badges">
-<a href="http://www.indiedb.com/games/ancient-beast" title="View Ancient Beast on Indie DB" target="_blank">
-<img src="http://button.indiedb.com/popularity/medium/games/21552.png" alt="Ancient Beast"></a>
-<a href="http://gamejolt.com/games/arcade/ancient-beast/15964/" target="_blank">
-<img src="GJ.png" alt="Ancient Beast on GameJolt"></a>
-<a href="http://www.lgdb.org/game/ancient_beast" target="_blank">
-<img src="LGDB.png" alt="Ancient Beast on Linux Game Data Base"></a>
-<a href="http://forum.freegamedev.net/viewforum.php?f=70&sid=c5b79793f699eb6af86a9d013bf3500f" target="_blank">
-<img src="FGD.png" alt="FreeGameDev Ancient Beast SubForum"></a>
 </div>
 
 <?php

@@ -32,8 +32,9 @@ $style = '
 ';
 require_once("../header.php"); ?>
 <link rel="stylesheet" href="fancybox/jquery.fancybox-1.3.4.css" media="screen">
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 
+<!-- Display list of subpages -->
 <nav class="div center"><ul class="sections">
 <?php
 $sections = array(
@@ -52,12 +53,11 @@ foreach ($sections as &$sectionItem) {
 </ul></nav>
 <div class="div center">
 <?php
+// Display default or selected page
 @$type = $_GET['type'];
 if (!isset($type)) $type = 'artwork';
 switch($type) {
 case 'artwork':
- ?>
-	<?php
 	$images = scandir("artwork");
 	natsort($images);
 	$i = 0;
