@@ -10,7 +10,7 @@ img{border:none;vertical-align:bottom;}
 .shadow{box-shadow:0 0 10px black;}
 *:focus{outline:none;}
 #wrapper{text-align:left;}
-.div{border:20px solid transparent;border-image:url('images/div.png') 20 fill stretch;margin:0;margin-bottom:10px;padding:0 10px;position:relative;overflow:hidden;}
+.div{border:20px solid transparent;border-image:url('images/div.png') 20 fill stretch;margin:0;margin-bottom:10px;padding:4px 10px;position:relative;overflow:hidden;}
 .smalldiv{border:20px solid transparent;border-image:url('images/smalldiv.png') 20 fill stretch;margin:0;margin-bottom:10px;padding:0 10px;padding-top:5px;position:relative;overflow:hidden;}
 .warning{padding:20px 0; margin-bottom:10px; background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge red;}
 .confirmation{padding:20px 0; margin-bottom:10px; background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge green;}
@@ -20,5 +20,6 @@ a:active{text-decoration:none;color:#b7b7b7;}
 a:hover,.active a,a.active{text-decoration:none;color:#e6e6e6;cursor:pointer;text-shadow:black 0.1em 0.1em 0.2em, red 0 0 10px;}
 #scroll{bottom:0;display:block;left:96%;position:fixed;z-index:999;}
 iframe{border:0;}
+.footer img{width:48px;height:48px;}
 
 @import url(https://fonts.googleapis.com/css?family=Play:400,700);
