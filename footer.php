@@ -16,7 +16,7 @@
 <a href="https://wuala.com/AncientBeast" target="_blank"><img src="<?php echo $site_url; ?>images/footer/wuala.png" class="lighten" alt="wuala" title="Wuala"></a>
 <a href="https://Ancient-Beast.deviantart.com" target="_blank"><img src="<?php echo $site_url; ?>images/footer/deviantart.png" class="lighten" alt="deviantart" title="deviantArt"></a>
 <a href="http://www.reddit.com/r/AncientBeast" target="_blank"><img src="<?php echo $site_url; ?>images/footer/reddit.png" class="lighten" alt="reddit" title="Reddit"></a>
-<a href="mailto:DreadKnight@FreezingMoon.org?Subject=You%20Rock!" target="_blank"><img src="<?php echo $site_url; ?>images/footer/contact.png" class="lighten" alt="contact" title="Contact"></a>
+<a href="mailto:DreadKnight@FreezingMoon.org?Subject=I love this project!" target="_blank"><img src="<?php echo $site_url; ?>images/footer/contact.png" class="lighten" alt="contact" title="Contact"></a>
 </div>
 </body>
 </html>
