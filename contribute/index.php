@@ -55,7 +55,7 @@ Don't forget you can always spend some in our online <a href="http://AncientBeas
 
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Donors via PayPal</b></td><td><b>$</b></td></tr>
-<tr><td>Dread Knight</td><td>1000</td></tr>
+<tr><td><a href="https://www.fiverr.com/dreadknight" target="_blank"><u>Dread Knight</u></a></td><td>1000</td></tr>
 <tr><td>Kevin Brubeck Unhammer</td><td>50</td></tr>
 <tr><td>Teo Cazghir</td><td>50</td></tr>
 <tr><td>David Rappo</td><td>50</td></tr>
@@ -117,7 +117,7 @@ We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallp
 <tr><td>Gabriel Verdon</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Jeepster3D</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Mihai Walther</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Dread Knight</td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://www.fiverr.com/dreadknight" target="_blank"><u>Dread Knight</u></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>piacenti</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Roberto Roch</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>shiroikuro</td><td><?php echo ++$i; ?></td></tr>
@@ -129,6 +129,7 @@ We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallp
 <tr><td>Rogue Spark</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Fweeb</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>BetaSector</td><td><?php echo ++$i; ?></td></tr>
+<tr><td>Nynn</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Maggot Master</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>random223</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Oliwia Grambo</td><td><?php echo ++$i; ?></td></tr>
@@ -153,7 +154,7 @@ Sometimes even reviewing or talking code can greatly help.
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Code Contributors</b></td><td><b>#</b></td></tr>
 <tr><td>Clement Turjuque</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Dread Knight</td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://www.fiverr.com/dreadknight" target="_blank"><u>Dread Knight</u></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Dobz</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Archiboldian</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Fweeb</td><td><?php echo ++$i; ?></td></tr>
@@ -190,6 +191,7 @@ All tracks and sfx need to be under <a href="http://creativecommons.org/licenses
 <tr><td>Moonthief</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Jens Kiilstofte</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Dreux Ferrano</td><td><?php echo ++$i; ?></td></tr>
+<tr><td>Brandon756</td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table><br><br>
 <div style="display: inline-block;" class="center"><img src="band.jpg" style="padding-left: 10px;" width=400px height=250px></div>

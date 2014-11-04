@@ -1,6 +1,8 @@
 [![Visit our IRC channel](https://kiwiirc.com/buttons/irc.freenode.net/AncientBeast.png)](https://kiwiirc.com/client/irc.freenode.net/?nick=Sinner|?#AncientBeast)
-[![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=260151)](https://www.bountysource.com/trackers/260151-ancient-beast?utm_source=260151&utm_medium=shield&utm_campaign=TRACKER_BADGE)
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=DreadKnight&url=http://www.AncientBeast.com&title=Ancient Beast&language=&tags=github&category=software)
+[![Bountysource](https://www.bountysource.com/badge/team?team_id=265&style=bounties_received)](https://www.bountysource.com/teams/freezingmoon/issues?utm_source=Freezing%20Moon&utm_medium=shield&utm_campaign=bounties_received)
+[![Donate via Gratipay](http://img.shields.io/gratipay/AncientBeast.svg)](https://gratipay.com/AncientBeast)
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/126547/Ancient-Beast)
+
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast/master/media/screenshots/Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** *Chuck Palahniuk*
 

@@ -29,6 +29,21 @@ a.FM:hover { text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px; }
 require_once('header.php'); 
 ?>
 <article>
+<div class="div center">
+	<div style="display: inline-block; cursor: pointer;" class="lighten">
+		<a href="news/2013-06-15"><img src="news/2013-06-15/thumb.jpg"><br>
+		<b>See Version 0.2 Changelog</b></a>
+	</div>
+	<div style="display: inline-block; cursor: pointer;" class="lighten">
+		<a href="contribute"><img src="images/squares/contribute.jpg"><br>
+		<b>Learn How to Contribute</b></a>
+	</div>
+	<div style="display: inline-block; cursor: pointer;" class="lighten">
+		<a href="combat"><img src="images/squares/play.jpg"><br>
+		<b>Play the Game for Free</b></a>
+	</div>
+</div>
+
 <div class="div" id="intro">
 <div style="width: 475px; text-align: justify; display:inline-block;">
 <h3 class="indexheader"><a href="#intro">Intro</a></h3>
@@ -43,9 +58,9 @@ Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">fre
 <div style="width: 475px; text-align: justify; display:inline-block;">
 <h3 class="indexheader"><a href="#plot">Plot</a></h3>
 <p>
-It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for survival.
+It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for daily survival.
 </p><p>
-Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here, and only the strong will survive.
+Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here and only the strong ones will surpass it.
 </p>
 <div class="center"><audio id="narration" controls src="plot.ogg" style="width:475px;"></audio></div>
 <br>
@@ -56,16 +71,16 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 
 <div class="div center" id="social">
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="http://www.reddit.com/r/AncientBeast/" target="_blank"><img src="images/mascots/reddit.jpg"><br>
-		<b>Join the community on Reddit</b></a>
+		<a href="http://www.reddit.com/r/AncientBeast/" target="_blank"><img src="images/squares/reddit.jpg"><br>
+		<b>Join the Community on Reddit</b></a>
 	</div>
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><img src="images/mascots/github.jpg"><br>
-		<b>Contribute patches on Github</b></a>
+		<a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><img src="images/squares/github.jpg"><br>
+		<b>Fork the Project on Github</b></a>
 	</div>
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="http://ancient-beast.deviantart.com/" target="_blank"><img src="images/mascots/deviantart.jpg"><br>
-		<b>Submit fanart on deviantArt</b></a>
+		<a href="http://ancient-beast.deviantart.com/" target="_blank"><img src="images/squares/deviantart.jpg"><br>
+		<b>Submit Fanart on deviantArt</b></a>
 	</div>
 </div>
 

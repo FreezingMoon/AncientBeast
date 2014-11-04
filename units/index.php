@@ -17,7 +17,7 @@ $creature_results = get_creatures();
 //if normal, list or versus...
 ?>
 <!-- License -->
-<div class="div" id="license">All the characters are under the <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><b>CC-BY-SA 3.0</b></a> license. You can use them however you like, even for commercial projects, as long as you credit / link the project and mention the original artist(s), kinda like in the next example: <i>from Ancient Beast game project http://AncientBeast.com - character (or artwork) created by Awesome_Artist</i></div>
+<div class="div" id="license">All the characters are under the <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><b>CC-BY-SA 3.0</b></a> license. You can use them however you like, even for commercial projects, as long as you credit / link the project and mention the original artist(s), similar to the next example: <i>from Ancient Beast game project http://AncientBeast.com - character (or artwork) created by Awesome_Dude</i></div>
 
 <!-- Grid view -->
 
