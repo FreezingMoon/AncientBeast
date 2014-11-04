@@ -76,7 +76,7 @@ function disqus($x='') {
 	global $page_title;
 	if (!$x) { $x = $page_title; }
 	echo '<div class="div">';
-	include('../disqus.php');
+	include('disqus.php');
 	echo '</div>';
 }
 ?>

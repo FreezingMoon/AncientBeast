@@ -37,7 +37,6 @@ require_once('global.php'); ?>
 if (isset($style)) echo '<style type="text/css">' . $style . '</style>';
 if (isset($stylesheet)) echo '<link rel="stylesheet" href="' . $stylesheet . '">';
 ?>
-<link rel="alternate" type="application/rss+xml" title="Ancient Beast Blog (RSS 2.0)" href="<?php echo $site_url; ?>blog/feed/" />
 
 <!--set page title-->
 <title>
@@ -81,7 +80,7 @@ if(isset($_GET['action']) == 'logout'){
 <!--navigation menu-->
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-  $menu = array('units', 'media', 'items', 'play', 'blog', 'chat');
+  $menu = array('units', 'media', 'items', 'play', 'news', 'chat');
   foreach ($menu as &$menuItem) {
     echo '<td>
       <a href="' . $site_root . $menuItem . '" id="' . $menuItem . '" style="display:block;" class="lighten">
