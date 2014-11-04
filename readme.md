@@ -1,5 +1,5 @@
 [![Visit our IRC channel](https://kiwiirc.com/buttons/irc.freenode.net/AncientBeast.png)](https://kiwiirc.com/client/irc.freenode.net/?nick=Sinner|?#AncientBeast)
-[![Bountysource](https://www.bountysource.com/badge/team?team_id=265&style=bounties_received)](https://www.bountysource.com/teams/freezingmoon/issues?utm_source=Freezing%20Moon&utm_medium=shield&utm_campaign=bounties_received)
+[![Bountysource](https://www.bountysource.com/badge/team?team_id=44509&style=bounties_received)](https://www.bountysource.com/teams/ancientbeast/issues?utm_source=Ancient%20Beast&utm_medium=shield&utm_campaign=bounties_received)
 [![Donate via Gratipay](http://img.shields.io/gratipay/AncientBeast.svg)](https://gratipay.com/AncientBeast)
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/126547/Ancient-Beast)
 
