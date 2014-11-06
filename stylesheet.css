@@ -1,25 +1,143 @@
-body{background:url(images/header.png) no-repeat center top,
-black url(images/bg.jpg) no-repeat left top fixed;background-size:1180px 295px, cover;color:#b7b7b7;font-family:'Play', sans-serif;font-size:18px;margin:0 auto;overflow-x:hidden;text-align:center;text-shadow:black 0.1em 0.1em 0.2em;width:950px;}
-img{border:none;vertical-align:bottom;}
-#header{padding:0;margin:15px auto 0 auto;}
-.indexheader{margin:0 auto 0 auto;font-weight:bold;text-align:center;}
-.sections{font-size:18px;font-weight:bold;list-style-type:none;margin:0;margin-left:-10px;padding:0;width:100%;}
-.sections li{display:inline;}
-.center{margin-left:auto!important;margin-right:auto!important;text-align:center!important;}
-.lighten:hover{filter:brightness(120%);-webkit-filter:brightness(120%);-moz-filter:brightness(120%);-o-filter:brightness(120%);-ms-filter:brightness(120%);}
-.shadow{box-shadow:0 0 10px black;}
-*:focus{outline:none;}
-#wrapper{text-align:left;}
-.div{border:20px solid transparent;border-image:url('images/div.png') 20 fill stretch;margin:0;margin-bottom:10px;padding:4px 10px;position:relative;overflow:hidden;}
-.smalldiv{border:20px solid transparent;border-image:url('images/smalldiv.png') 20 fill stretch;margin:0;margin-bottom:10px;padding:0 10px;padding-top:5px;position:relative;overflow:hidden;}
-.warning{padding:20px 0; margin-bottom:10px; background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge red;}
-.confirmation{padding:20px 0; margin-bottom:10px; background:rgba(0,0,0,0.5); border-radius:15px; border:4px ridge green;}
-a:link{text-decoration:none;color:#b7b7b7;}
-a:visited{text-decoration:none;color:#b7b7b7;}
-a:active{text-decoration:none;color:#b7b7b7;}
-a:hover,.active a,a.active{text-decoration:none;color:#e6e6e6;cursor:pointer;text-shadow:black 0.1em 0.1em 0.2em, red 0 0 10px;}
-#scroll{bottom:0;display:block;left:96%;position:fixed;z-index:999;}
-iframe{border:0;}
-.footer img{width:48px;height:48px;}
-
 @import url(https://fonts.googleapis.com/css?family=Play:400,700);
+
+body {
+	background: url(images/header.png) no-repeat center top, #000 url(images/bg.jpg) no-repeat left top fixed;
+	background-size: 1180px 295px;
+	color: #b7b7b7;
+	font-family: Play,sans-serif;
+	font-size: 18px;
+	overflow-x: hidden;
+	text-align: center;
+	text-shadow: #000 .1em .1em .2em;
+	width: 950px;
+	margin: 0 auto;
+}
+
+img {
+	border: none;
+	vertical-align: bottom;
+}
+
+#header {
+	margin: 15px auto 0;
+	padding: 0;
+}
+
+.indexheader {
+	font-weight: 700;
+	text-align: center;
+	margin: 0 auto;
+}
+
+.sections {
+	font-size: 18px;
+	font-weight: 700;
+	list-style-type: none;
+	width: 100%;
+	margin: 0 0 0 -10px;
+	padding: 0;
+}
+
+.sections li {
+	display: inline;
+}
+
+.center {
+	margin-left: auto!important;
+	margin-right: auto!important;
+	text-align: center!important;
+}
+
+.lighten:hover {
+	filter: brightness(120%);
+	-webkit-filter: brightness(120%);
+	-moz-filter: brightness(120%);
+	-o-filter: brightness(120%);
+	-ms-filter: brightness(120%);
+}
+
+.shadow {
+	box-shadow: 0 0 10px #000;
+}
+
+:focus {
+	outline: none;
+}
+
+#wrapper {
+	text-align: left;
+}
+
+.div {
+	border: 20px solid transparent;
+	border-image: url(images/div.png) 20 fill stretch;
+	position: relative;
+	overflow: hidden;
+	margin: 0 0 10px;
+	padding: 4px 10px;
+}
+
+.smalldiv {
+	border: 20px solid transparent;
+	border-image: url(images/smalldiv.png) 20 fill stretch;
+	position: relative;
+	overflow: hidden;
+	margin: 0 0 10px;
+	padding: 5px 10px 0;
+}
+
+.warning {
+	margin-bottom: 10px;
+	background: rgba(0,0,0,0.5);
+	border-radius: 15px;
+	border: 4px ridge red;
+	padding: 20px 0;
+}
+
+.confirmation {
+	margin-bottom: 10px;
+	background: rgba(0,0,0,0.5);
+	border-radius: 15px;
+	border: 4px ridge green;
+	padding: 20px 0;
+}
+
+a:hover,.active a,a.active {
+	text-decoration: none;
+	color: #e6e6e6;
+	cursor: pointer;
+	text-shadow: #000 .1em .1em .2em red 0 0 10px;
+}
+
+a:link,a:visited,a:active {
+	text-decoration: none;
+	color: #b7b7b7;
+}
+
+#scroll {
+	bottom: 0;
+	display: block;
+	left: 96%;
+	position: fixed;
+	z-index: 999;
+}
+
+iframe {
+	border: 0;
+}
+
+.footer img {
+	width: 48px;
+	height: 48px;
+}
+
+.scrollback-stream.scrollback-toast {
+	left: 30px;
+	right: auto;
+}
+
+@media only screen and (max-width: 440px) {
+	.scrollback-stream.scrollback-toast {
+		left: 0;
+	}
+}
