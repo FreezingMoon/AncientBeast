@@ -30,6 +30,7 @@ require_once('header.php');
 ?>
 <article>
 <div class="div center">
+	<!-- Featured News Article -->
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
 		<a href="news/2013-06-15"><img src="news/2013-06-15/thumb.jpg"><br>
 		<b>See Version 0.2 Changelog</b></a>

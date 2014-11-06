@@ -22,8 +22,8 @@
  * DreadKnight@FreezingMoon.org
  */
 
+$page_title = "Ancient Beast - Version 0.1 Released";
 require_once("../../header.php");
-require_once("../../global.php");
 ?>
 <div class="div">
 <img src="banner.jpg">

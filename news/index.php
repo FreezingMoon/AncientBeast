@@ -26,10 +26,8 @@ require_once("../header.php");
 require_once("../global.php");
 ?>
 <div class="div center">
-<div style="display:inline-block"><a href="2012-12-12"><img src="2012-12-12/thumb.jpg"><br>Version 0.1 Released</a></div>
 <div style="display:inline-block"><a href="2013-06-15"><img src="2013-06-15/thumb.jpg"><br>Version 0.2 Released</a></div>
+<div style="display:inline-block"><a href="2012-12-12"><img src="2012-12-12/thumb.jpg"><br>Version 0.1 Released</a></div>
 </div>
 
-<?php
-disqus();
-include('../footer.php'); ?>
+<?php include('../footer.php'); ?>
