@@ -19,6 +19,6 @@
 <a href="mailto:DreadKnight@FreezingMoon.org?Subject=I love this project!" target="_blank"><img src="<?php echo $site_url; ?>images/footer/contact.png" class="lighten" alt="contact" title="Contact"></a>
 </div>
 <!-- ScrollBack.io Chat Widget -->
-<script>window.scrollback = {room:"ancientbeast",form:"toast",theme:"dark",minimize:true};(function(d,s,h,e){e=d.createElement(s);e.async=1;e.src=(location.protocol === "https:" ? "https:" : "http:") + "//scrollback.io/client.min.js";d.getElementsByTagName(s)[0].parentNode.appendChild(e);}(document,"script"));</script>
+<script>window.scrollback = {room:"ancientbeast",nick:"sinner",form:"toast",theme:"dark",minimize:true};(function(d,s,h,e){e=d.createElement(s);e.async=1;e.src=(location.protocol === "https:" ? "https:" : "http:") + "//scrollback.io/client.min.js";d.getElementsByTagName(s)[0].parentNode.appendChild(e);}(document,"script"));</script>
 </body>
 </html>
