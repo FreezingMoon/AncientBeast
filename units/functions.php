@@ -24,23 +24,18 @@ function get_stats(){
 	return $stats_results;
 }
 
-function progress($r,$c) {
-		$sum = 0;
-		$spaceless = str_replace(' ', '%20', $c['name'] );
-		echo "
-		<div class='center' style='width:825px; background-image:url(progress/widget.png); background-repeat:no-repeat;'>
-		<a href='http://www.wuala.com/AncientBeast/units/" . $spaceless . "' target='_blank'>";
-		$i = 0;
-		foreach($r as $key => $value) {
-			if($i++ < 1) continue; //Ignore other keys
-			$sum += $value;
-			$title = ucfirst($key) . ": $value% complete";
-			echo "<img src='progress/$value.png' height='75' width='75' title='$title' alt='$title'>";
-		}
-		$total = $sum / 10;
-		$rounded_total = 10 * round ($total/10) ;
-		echo "<img src='progress/$rounded_total.png' height='75' width='75' title='Total: $total% completed' alt='$rounded_total'>
-	</a>
-</div>";
+function progress($category, $unit){
+	$sum = 0;
+	$i = 0;
+	echo '<div class="center progress-widget"><a href="https://mega.co.nz/#F!DYYxzIRa!FKOq62BWn1TpAUw9gKL0YQ" target="_blank">';
+	foreach($category as $key => $value){
+		if ($i++ < 1) continue;
+		$sum += $value;
+		$title = ucfirst($key) . ': '. $value . '% complete';
+		echo '<div class="progress-' . round($value) . ' common-values" title="' . $title . '"></div>';
+	}
+	$total = $sum / 10;
+	$rounded_total = 10 * round($total/10);
+	echo '<div class="progress-' . $rounded_total . ' common-values" title="Total: ' . $total . '% completed"></div></a></div>';
 }
 ?>

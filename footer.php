@@ -13,7 +13,7 @@
 <a href="https://plus.google.com/+AncientBeast" target="_blank"><img src="<?php echo $site_url; ?>images/footer/google.png" class="lighten" alt="google" title="Google Plus"></a>
 <a href="https://www.youtube.com/AncientBeastGame" target="_blank"><img src="<?php echo $site_url; ?>images/footer/youtube.png" class="lighten" alt="youtube" title="Youtube"></a>
 <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><img src="<?php echo $site_url; ?>images/footer/github.png" class="lighten" alt="github" title="Github"></a>
-<a href="https://wuala.com/AncientBeast" target="_blank"><img src="<?php echo $site_url; ?>images/footer/wuala.png" class="lighten" alt="wuala" title="Wuala"></a>
+<a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><img src="<?php echo $site_url; ?>images/footer/mega.png" class="lighten" alt="mega" title="Mega"></a>
 <a href="https://Ancient-Beast.deviantart.com" target="_blank"><img src="<?php echo $site_url; ?>images/footer/deviantart.png" class="lighten" alt="deviantart" title="deviantArt"></a>
 <a href="http://www.reddit.com/r/AncientBeast" target="_blank"><img src="<?php echo $site_url; ?>images/footer/reddit.png" class="lighten" alt="reddit" title="Reddit"></a>
 <a href="mailto:DreadKnight@FreezingMoon.org?Subject=I love this project!" target="_blank"><img src="<?php echo $site_url; ?>images/footer/contact.png" class="lighten" alt="contact" title="Contact"></a>
