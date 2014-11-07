@@ -1,7 +1,7 @@
-[![Visit our IRC channel](https://kiwiirc.com/buttons/irc.freenode.net/AncientBeast.png)](https://kiwiirc.com/client/irc.freenode.net/?nick=Sinner|?#AncientBeast)
+[![Visit our IRC channel](http://img.shields.io/badge/IRC-%23AncientBeast-orange.svg)](https://kiwiirc.com/client/irc.freenode.net/?nick=Sinner|?#AncientBeast)
 [![Bountysource](https://www.bountysource.com/badge/team?team_id=44509&style=bounties_received)](https://www.bountysource.com/teams/ancientbeast/issues?utm_source=Ancient%20Beast&utm_medium=shield&utm_campaign=bounties_received)
 [![Donate via Gratipay](http://img.shields.io/gratipay/AncientBeast.svg)](https://gratipay.com/AncientBeast)
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/126547/Ancient-Beast)
+[![Flattr this git repo](http://img.shields.io/badge/flattr-donate-green.svg)](https://flattr.com/thing/126547/Ancient-Beast)
 
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast/master/media/screenshots/Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** *Chuck Palahniuk*
