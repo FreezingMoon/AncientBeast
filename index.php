@@ -24,7 +24,8 @@
 
 $style = '
 a.FM:hover { text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px; }
-.image { cursor: pointer; display: inline-block; padding-left: 10px; }';
+.image { cursor: pointer; display: inline-block; padding-left: 10px; }
+.small { width: 128px; height: 128px; }';
 
 require_once('header.php'); 
 ?>
@@ -53,36 +54,37 @@ require_once('header.php');
 </p><p>
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> (and community). It uses web languages such as HTML, PHP and JavaScript, so that it's playable from any modern browser without the need of any plugins.</p></div>
 <div style="display: inline-block;" class="center lighten"><a href="media/?type=screenshots#id=0"><img src="images/screenshots.gif" class="image" width=400px height=225px><br><b>Check out some screenshots!</b></a></div>
-
-</div>
-<div class="div" id="plot">
-<div style="width: 475px; text-align: justify; display:inline-block;">
-<h3 class="indexheader"><a href="#plot">Plot</a></h3>
-<p>
-It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for daily survival.
-</p><p>
-Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here and only the strong ones will surpass it.
-</p>
-<div class="center"><audio id="narration" controls src="plot.ogg" style="width:475px;"></audio></div>
-<br>
 </div>
 
-<img src="images/hand.png" class="image lighten" width=400px height=387px onclick="toggleSound();" title="Click to play narrative"></div>
-<audio id="narration" src="plot.ogg"></audio>
-
-<div class="div center" id="social">
-	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="http://www.reddit.com/r/AncientBeast/" target="_blank"><img src="images/squares/reddit.jpg"><br>
-		<b>Join the Community on Reddit</b></a>
-	</div>
-	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><img src="images/squares/github.jpg"><br>
-		<b>Fork the Project on Github</b></a>
-	</div>
-	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="http://ancient-beast.deviantart.com/" target="_blank"><img src="images/squares/deviantart.jpg"><br>
-		<b>Submit Fanart on deviantArt</b></a>
-	</div>
+<div class="div center">
+<table width=100%;>
+	<tr>
+		<td width=25%;><img src="images/features/heart.png" class="small"><br>
+				Fun Gameplay<br>
+				Easy to Learn<br>
+				Very Replayable<br>
+				Hard to Master
+		</td>
+		<td width=25%;><img src="images/features/earth.png" class="small"><br>
+				<b>Browser Based</b><br>
+				<b>Optional Account</b><br>
+				<b>Open Source</b><br>
+				Translations
+		</td>
+		<td width=25%;><img src="images/features/power.png" class="small"><br>
+				<b>Free to Play</b><br>
+				Input Methods<br>
+				<b>Light Weight</b><br>
+				Low Latency
+		</td>
+		<td width=25%;><img src="images/features/chair.png" class="small"><br>
+				Play-to-Win Prizes<br>
+				Various Game Modes<br>
+				Online Multiplayer<br>
+				<b>Hotseat</b> and Bots
+		</td>
+	</tr>
+</table>
 </div>
 
 </article>

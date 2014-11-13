@@ -26,6 +26,21 @@ $page_title = "Ancient Beast - Contribute";
 require_once('../header.php'); 
 ?>
 
+<div class="div center" id="social">
+	<div style="display: inline-block; cursor: pointer;" class="lighten">
+		<a href="http://www.reddit.com/r/AncientBeast/" target="_blank"><img src="../images/squares/reddit.jpg"><br>
+		<b>Join the Community on Reddit</b></a>
+	</div>
+	<div style="display: inline-block; cursor: pointer;" class="lighten">
+		<a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><img src="../images/squares/github.jpg"><br>
+		<b>Fork the Project on Github</b></a>
+	</div>
+	<div style="display: inline-block; cursor: pointer;" class="lighten">
+		<a href="http://ancient-beast.deviantart.com/" target="_blank"><img src="../images/squares/deviantart.jpg"><br>
+		<b>Submit Fanart on deviantArt</b></a>
+	</div>
+</div>
+
 <div class="div" id="foreword">
 <div style="width: 475px; text-align: justify; display:inline-block;">
 <h3 class="indexheader"><a href="#foreword">Foreword</a></h3>
@@ -103,7 +118,7 @@ The <a href="https://inkscape.org" target="_blank"><b>Inkscape</b></a> vector gr
 <p><b>Design various promotional items</b><br>
 We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallpapers</b></a>, 1920 by 1080 pixels and more merchandise for our online <a href="../shop"><b>shop</b></a>, such as <b>miniatures</b>, <b>plushies</b>, <b>T-shirts</b>, <b>posters</b> & <b>stickers</b>.
 </p>
-<a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="http://img.shields.io/badge/license-CC--BY--SA%203.0-green.svg" class="lighten"></a><a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><img src="http://img.shields.io/badge/repo-MEGA-red.svg" class="lighten"></a><a href="https://ancient-beast.deviantart.com" target="_blank"><img src="deviantart.png" class="lighten" width=124px height=18px></a>
+<a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="http://img.shields.io/badge/license-CC--BY--SA%203.0-green.svg" class="lighten"></a><a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><img src="http://img.shields.io/badge/repository-MEGA-red.svg" class="lighten"></a><a href="https://ancient-beast.deviantart.com" target="_blank"><img src="deviantart.png" class="lighten" width=124px height=18px></a>
 </div>
 
 <?php $i = 0; ?>

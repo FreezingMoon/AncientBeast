@@ -72,11 +72,21 @@ $(document).ready(function(){
 <div class="center">
 	<iframe id="game" name="game" src="../combat/" style="border: 4px ridge; border-color: grey; width: 934px; height: 525px;" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 </div>
-<div class="div center" id="info">
-Best played using a modern browser, <a href="https://www.google.com/chrome" target="_blank"><b>Google Chrome</b></a> recommended. <a href="<?php echo $site_root; ?>combat/" target="_blank"><b>Click here to open the game in new tab.</b></a><br>
-<a href="#comment-939192362"><b>Version 0.2 (released 15th June 2013)</b></a> - <a href="https://github.com/FreezingMoon/AncientBeast/issues/" target="_blank"><b>You can report all issues on Github</b></a> - <a href="https://github.com/FreezingMoon/AncientBeast/issues/milestones" target="_blank"><b>v0.3 ETA: 14th December 2014</b></a>
-There's no online multiplayer for now, but you can play online with friends by using a <b><a href="http://teamviewer.com" target="_blank">Screen Sharing Software</a></b>.
-<a href="<?php echo $site_root; ?>game/AncientBeast.html" download><b>Click here if you would like to download a desktop shortcut for this awesome game. Limited time offer!</b></a></div>
+
+<div class="div" id="plot">
+<div style="width: 475px; text-align: justify; display:inline-block;">
+<h3 class="indexheader"><a href="#plot">Plot</a></h3>
+<p>
+It's the year 2653. In the last centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for daily survival.
+</p><p>
+Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here and only the strong ones will surpass it.
+</p>
+<div class="center"><audio id="narration" controls src="plot.ogg" style="width:475px;"></audio></div>
+<br>
+</div>
+
+<img src="../images/hand.png" class="image lighten" width=400px height=387px onclick="toggleSound();" title="Click to play narrative"></div>
+<audio id="narration" src="plot.ogg"></audio>
 
 <?php
 disqus();
