@@ -74,14 +74,14 @@
 	</head>
 	<body>
 		<div id="bar">
-			<a href="http://AncientBeast.com" target="_blank">AncientBeast.com</a>
+			<a href="https://AncientBeast.com" target="_blank">AncientBeast.com</a>
 			<a href="https://www.facebook.com/AncientBeast" target="_blank">Facebook</a>
 			<a href="https://www.twitter.com/AncientBeast" target="_blank">Twitter</a>
 			<a href="https://plus.google.com/+AncientBeast" target="_blank">Google+</a>
-			<a href="http://AncientBeast.com/donate" target="_blank">Donate</a>
+			<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank">Donate</a>
 			<a onclick="if(confirm('Reset Game?')) var ifr=document.getElementsByName('game')[0]; ifr.src=ifr.src;">Reset</a>
 			<a onclick="$('#game').fullScreen(true)">Fullscreen</a>
 		</div>
-		<iframe id="game" name="game" src="https://the-ancientbeast.rhcloud.com/combat/" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
+		<iframe id="game" name="game" src="https://AncientBeast.com/combat/" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 	</body>
 </html>
