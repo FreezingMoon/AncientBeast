@@ -178,7 +178,7 @@ function nextCard() {
 					$i=1;
 					foreach ($r["stats"] as $key => $value) {
 					 	if( $i > 0 && $i < 10) {
-				 			displayStat($key,$value,"");
+				 			displayStat($key,$value);
 				 		}
 						$i++;
 					}
@@ -186,53 +186,52 @@ function nextCard() {
 				</div>
 				<div class="section abilities">';
 			  		// Display Abilities
-
-						echo '
-						<div class="ability">
-							<div id="first_icon" class="icon">
-								<div class="contour"></div>
-							</div>
-							<div class="wrapper">
-								<div class="info">
-									<h3 id="first_title"></h3>
-									<span class="desc" id="desc"></span>
-								</div>
+					echo '
+					<div class="ability">
+						<div id="first_icon" class="icon">
+							<div class="contour"></div>
+						</div>
+						<div class="wrapper">
+							<div class="info">
+								<h3 id="first_title"></h3>
+								<span class="desc" id="desc"></span>
 							</div>
 						</div>
-						<div class="ability">
-							<div id="second_icon" class="icon">
-								<div class="contour"></div>
-							</div>
-							<div class="wrapper">
-								<div class="info">
-									<h3 id="second_title"></h3>
-									<span class="desc" id="desc"></span>
-								</div>
+					</div>
+					<div class="ability">
+						<div id="second_icon" class="icon">
+							<div class="contour"></div>
+						</div>
+						<div class="wrapper">
+							<div class="info">
+								<h3 id="second_title"></h3>
+								<span class="desc" id="desc"></span>
 							</div>
 						</div>
-						<div class="ability">
-							<div id="third_icon" class="icon">
-								<div class="contour"></div>
-							</div>
-							<div class="wrapper">
-								<div class="info">
-									<h3 id="third_title"></h3>
-									<span class="desc" id="desc"></span>
-								</div>
+					</div>
+					<div class="ability">
+						<div id="third_icon" class="icon">
+							<div class="contour"></div>
+						</div>
+						<div class="wrapper">
+							<div class="info">
+								<h3 id="third_title"></h3>
+								<span class="desc" id="desc"></span>
 							</div>
 						</div>
-						<div class="ability">
-							<div id="fourth_icon" class="icon">
-								<div class="contour"></div>
-							</div>
-							<div class="wrapper">
-								<div class="info">
-									<h3 id="fourth_title"></h3>
-									<span class="desc" id="desc"></span>
-								</div>
+					</div>
+					<div class="ability">
+						<div id="fourth_icon" class="icon">
+							<div class="contour"></div>
+						</div>
+						<div class="wrapper">
+							<div class="info">
+								<h3 id="fourth_title"></h3>
+								<span class="desc" id="desc"></span>
 							</div>
 						</div>
-						';
+					</div>
+					';
 
 				echo '
 				</div>
