@@ -143,12 +143,12 @@ function nextCard() {
 			</div>
 
 			<!-- Card Anchor -->
-			<a href="#" title="Click for the next card" onClick="nextCard();return false;"><div style="height:100%;"></div></a>
+			<a href="#" title="Go to the next card" onClick="nextCard();return false;"><div style="height:100%;"></div></a>
 <?php		
 			// Display unit info
-			echo '<div class="section info sinG">
-					<span><a class="name">Check out the game features <span id="position">1</span>/4</a></span>
-			</div>
+			echo '<a href="#" class="name" style="color: white;" onClick="nextCard();return false;"><div class="section info sinG">
+					Check out the game features <span id="position">1</span>/4
+			</div></a>
 		</div></div>';
 
 		// Side B
@@ -184,7 +184,7 @@ function nextCard() {
 					}
 					echo '
 				</div>
-				<div class="section abilities">';
+				<div class="section abilities" onClick="nextCard();" style="cursor: pointer;">';
 			  		// Display Abilities
 					echo '
 					<div class="ability">
