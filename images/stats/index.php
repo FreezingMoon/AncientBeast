@@ -1,57 +1,34 @@
 <?php
-//TODO: find out what the crap bellow does
-function indexOf($needle, $haystack) {
-    for($i = 0, $z = count($haystack); $i < $z; $i++){
-            if ($haystack[$i] == $needle) {  //finds the needle
-                    return $i;
-            }
-    }
-    return false;
-}
-
 $stats = array("health","regrowth","endurance","energy","meditation","initiative","offense","defense","movement","pierce","slash","crush","shock","burn","frost","poison","sonic","mental");
 
 foreach ($stats as $key => $x) {
-	//foreach ($x as $v) $stats[$key] = $v;
-	$stats[$stats[$key]] = '<img src="../images/stats/' . $stats[$key] . '.png" height="32" width="32" title="' . ucfirst($stats[$key]) . '" onMouseOver="swap(this,\'mouseover_' . $stats[$key] . '\')" onMouseOut="swap(this,\'normal_' . $stats[$key] . '\')">'."\n";
-	define(strtoupper($stats[$key]) . '_ICON', $stats[$stats[$key]]);
+	$stats[$x] = '<img src="../images/stats/' . $x . '.png" class="icon" title="' . ucfirst($x) . '" onMouseOver="swap(this,\'mouseover_' . $x . '\')" onMouseOut="swap(this,\'normal_' . $x . '\')">'."\n";
+	define(strtoupper($x) . '_ICON', $stats[$x]);
 	unset($stats[$key]);
 }
 
-function displayStat($type = "health", $value = 0, $link = "", $disp_info = false){
+// Shows iconUsed by units/cards.php
+function displayStat($type = "health", $value = null, $link = null, $modifiers = false){
 	global $stats;
-	$index = indexOf($type,$stats);
-
-	echo '<td stat="' . $type . '" class="stats ' . $type . '">';
-	if($link != "") echo '<a href="' . $link . '">';
-	echo '<div class="icon"></div><div class="value">' . $value . '</div>';
-	if($link != "") echo '</a>';
-	if($disp_info) echo '<div class="stats_infos"><div class="textcenter">This stat doesn\'t have any modifiers</div></div>';
-	echo '</td>';
+	echo '<div stat="' . $type . '" class="stat ' . $type . '">';
+	if($link) echo '<a href="' . $link . '">';
+	echo '<div class="icon ' . $type . '"></div>';
+	if($value !== null) echo '<br><span class="value">' . $value . '</span>';
+	if($link) echo '</a>';
+	if($modifiers) echo '<div class="modifiers"><div>No active modifiers</div></div>';
+	echo '</div>';
 }
 ?>
 <style type="text/css">
-.icon{
-	height: 32px;
-	width: 32px;
-	display: inline-block;
-}
-
-.small.icon{
-	height: 22px;
-	width: 22px;
-	display: inline-block;
-	background-size: 100% 100%;
-}
-
-.stats{ text-align: center;}
+.icon { height: 32px; width: 32px; display: inline-block; }
+.stat { text-align: center; display: table-cell; vertical-align: middle; }
 
 <?php 
 foreach ($stats as $key => $value) {
-	echo "
-	.icon." .$key. ",." .$key. " .icon{ background-image: url('" .$site_root. "images/stats/" .$key. ".png'); }
-	.icon." .$key. ":hover,." .$key. ":hover .icon{ background-image: url('" .$site_root. "images/stats/" .$key. ".gif'); }
-	";
+	echo '
+	.icon.' . $key . ', .' . $key . ' .icon {background-image: url("' . $site_root . 'images/stats/' . $key . '.png");}'
+	.'.icon.' . $key . ':hover, .' . $key . ':hover .icon {background-image: url("' . $site_root . 'images/stats/' . $key . '.gif");}
+	';
 }
 ?>
 </style>
