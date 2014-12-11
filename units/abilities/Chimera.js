@@ -55,7 +55,7 @@ abilities[45] =[
 			return false;
 		}
 
-		//Duality
+		// Duality
 		if( this.creature.abilities[0].used ){
 			//this.message = "Duality has already been used";
 			//return false;
@@ -73,7 +73,7 @@ abilities[45] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+			team : 0, // Team, 0 = ennemies
 			id : chimera.id,
 			flipped : chimera.flipped,
 			hexs : G.grid.getHexMap(chimera.x-3,chimera.y-2,0,false,frontnback3hex),
@@ -90,11 +90,11 @@ abilities[45] =[
 		ability.end();
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 		target.takeDamage(damage);
 	},
@@ -117,7 +117,7 @@ abilities[45] =[
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		//Duality
+		// Duality
 		if( this.creature.abilities[0].used ){
 			//this.message = "Duality has already been used";
 			//return false;
@@ -135,7 +135,7 @@ abilities[45] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : chimera.player.flipped,
-			team : 3, //everyone
+			team : 3, // Everyone
 			id : chimera.id,
 			requireCreature : true,
 			x : chimera.x,
@@ -161,11 +161,11 @@ abilities[45] =[
 		var target = path.last().creature;
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 		result = target.takeDamage(damage);
 		
@@ -185,11 +185,11 @@ abilities[45] =[
 			if(!newTarget) break;
 
 			var damage = new Damage(
-				ability.creature, //Attacker
-				"target", //Attack Type
-				{sonic:result.damages.sonic}, //Damage Type
-				1, //Area
-				[]	//Effects
+				ability.creature, // Attacker
+				"target", // Attack Type
+				{sonic:result.damages.sonic}, // Damage Type
+				1, // Area
+				[]	// Effects
 			);
 			result = target.takeDamage(damage);
 
@@ -213,7 +213,7 @@ abilities[45] =[
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
-		//Duality
+		// Duality
 		if( this.creature.abilities[0].used ){
 			//this.message = "Duality has already been used";
 			//return false;
@@ -231,7 +231,7 @@ abilities[45] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : chimera.player.flipped,
-			team : 3, //everyone
+			team : 3, // Everyone
 			id : chimera.id,
 			requireCreature : true,
 			x : chimera.x,
@@ -250,50 +250,50 @@ abilities[45] =[
 		ability.end();
 
 		var targets = [];
-		targets.push(path.last().creature); //Add First creature hit
-		var nextdmg = $j.extend({},ability.damages); //Copy the object
+		targets.push(path.last().creature); // Add First creature hit
+		var nextdmg = $j.extend({},ability.damages); // Copy the object
 
-		//For each Target
+		// For each Target
 		for (var i = 0; i < targets.length; i++) {
 			var trg = targets[i];
 
 			var damage = new Damage(
-				ability.creature, //Attacker
-				"target", //Attack Type
-				nextdmg, //Damage Type
-				1, //Area
-				[] //Effects
+				ability.creature, // Attacker
+				"target", // Attack Type
+				nextdmg, // Damage Type
+				1, // Area
+				[] // Effects
 			);
 			nextdmg = trg.takeDamage(damage);
 
-			if(nextdmg.damages == undefined) break; //If attack is dodge
-			if(nextdmg.kill) break; //If target is killed
-			if(nextdmg.damages.total <= 0) break; //If damage is too weak
+			if(nextdmg.damages == undefined) break; // If attack is dodge
+			if(nextdmg.kill) break; // If target is killed
+			if(nextdmg.damages.total <= 0) break; // If damage is too weak
 			if(nextdmg.damageObj.status != "") break;
 			delete nextdmg.damages.total;
 			nextdmg = nextdmg.damages;
 
-			//Get next available targets
+			// Get next available targets
 			nextTargets = ability.getTargets(trg.adjacentHexs(1,true));
 
 			nextTargets.filter(function(){
-				if ( this.hexsHit == undefined ) return false; // remove empty ids.
-				return (targets.indexOf(this.target) == -1) ; //If this creature has already been hit
+				if ( this.hexsHit == undefined ) return false; // Remove empty ids
+				return (targets.indexOf(this.target) == -1) ; // If this creature has already been hit
 			})
 
-			//If no target
+			// If no target
 			if(nextTargets.length == 0) break;
 
-			//Best Target
+			// Best Target
 			var bestTarget = { size: 0, stats:{ defense:-99999, shock:-99999 } };
-			for (var j = 0; j < nextTargets.length; j++) { //For each creature
+			for (var j = 0; j < nextTargets.length; j++) { // For each creature
 				if (typeof nextTargets[j] == "undefined") continue; // Skip empty ids.
 
 				var t = nextTargets[j].target;
-				//Compare to best target
+				// Compare to best target
 				if(t.stats.shock > bestTarget.stats.shock){
-					if( ( t == ability.creature && nextTargets.length == 1 ) || //If target is chimera and the only target
-						t != ability.creature ) { //Or this is not chimera
+					if( ( t == ability.creature && nextTargets.length == 1 ) || // If target is chimera and the only target
+						t != ability.creature ) { // Or this is not chimera
 						bestTarget = t;
 					}
 				} else {

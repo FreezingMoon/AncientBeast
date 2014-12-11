@@ -1,8 +1,8 @@
 <?php
 function creatureGrid($creature_results=false) {
-	global $site_root; // from global.php
+	global $site_root; // From global.php
 	
-	//If result is empty do a query
+	// If result is empty do a query
 	if ($creature_results == false) {
 		$creature_results = get_creatures();
 	}
@@ -10,14 +10,14 @@ function creatureGrid($creature_results=false) {
 echo '<style type="text/css">';
 
 	foreach ($creature_results as $r) {
-		if ($r['id'] == 0 ) { continue; } //Ignore Dark Priest
+		if ($r['id'] == 0 ) { continue; } // Ignore Dark Priest
 		echo '.vignette.type'.$r['realm'].$r['lvl'].'{background-image: url("'.$site_root.'units/avatars/'.$r["name"].'.jpg");}';
 	}
 
 	echo '</style><div id="creaturegrid">';
 
 	foreach ($creature_results as $r) {
-		if ($r['id'] == 0 || $r['id'] == 50) { //Ignore Dark Priest and Shadow Leech
+		if ($r['id'] == 0 || $r['id'] == 50) { // Ignore Dark Priest and Shadow Leech
 			continue;
 		}
 		$underscore = str_replace(' ', '_', $r['name']);

@@ -5,14 +5,14 @@
 */
 abilities[3] =[
 
-// 	First Ability: Toxic Spores
+// First Ability: Toxic Spores
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	// Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStepIn onStartPhase onOtherStepIn",
 
 	priority : 10,
 
-	// 	require() :
+	// require() :
 	require : function(hex){
 		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ) return false;
 		
@@ -22,7 +22,7 @@ abilities[3] =[
 
 			var isAdj = false;
 
-			//Search if uncle is adjacent to the creature that is moving
+			// Search if Uncle is adjacent to the creature that is moving
 			for (var i = 0; i < targets.length; i++) {
 				if( targets[i] == undefined ) continue;
 				if( !(targets[i].target instanceof Creature) ) continue;
@@ -44,7 +44,7 @@ abilities[3] =[
 		return false
 	},
 
-	//	activate() : 
+	// activate() : 
 	activate : function(hex) {
 
 		var ability = this;
@@ -56,7 +56,7 @@ abilities[3] =[
 
 			var trg = this.target;
 
-			if(trg.team%2 != creature.team%2){ //If Foe
+			if(trg.team%2 != creature.team%2){ // If foe
 
 				var optArg = { 
 					alterations : ability.effects[0],
@@ -68,20 +68,20 @@ abilities[3] =[
 
 				ability.end();
 
-				//Spore Contamination
+				// Spore Contamination
 				var effect = new Effect(
-					ability.title, //Name
-					creature, //Caster
-					trg, //Target
-					"", //Trigger
-					optArg //Optional arguments
+					ability.title, // Name
+					creature, // Caster
+					trg, // Target
+					"", // Trigger
+					optArg // Optional arguments
 				);
 
 				trg.addEffect(effect,undefined,"Contaminated");
 
 				G.log("%CreatureName"+trg.id+"%'s regrowth is lowered by "+ability.effects[0].regrowth);
 
-				ability.setUsed(false); //Infinite triggering
+				ability.setUsed(false); // Infinite triggering
 			}
 		})
 	},
@@ -89,16 +89,16 @@ abilities[3] =[
 
 
 
-// 	Second Ability: Supper Chomp
+//	Second Ability: Supper Chomp
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	// Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	// 	require() :
+	// require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		//At least one target
+		// At least one target
 		if( !this.atLeastOneTarget(this.creature.getHexMap(frontnback2hex),"ennemy") ){
 			this.message = G.msg.abilities.notarget;
 			return false;
@@ -106,14 +106,14 @@ abilities[3] =[
 		return true;
 	},
 
-	// 	query() :
+	// query() :
 	query : function(){
 		var uncle = this.creature;
 		var ability = this;
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+			team : 0, // Team, 0 = ennemies
 			id : uncle.id,
 			flipped : uncle.flipped,
 			hexs : uncle.getHexMap(frontnback2hex),
@@ -121,17 +121,17 @@ abilities[3] =[
 	},
 
 
-	//	activate() : 
+	// activate() : 
 	activate : function(target,args) {
 		var ability = this;
 		ability.end();
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage type
+			1, // Area
+			[]	// Effects
 		);
 
 		var dmg = target.takeDamage(damage);
@@ -140,22 +140,22 @@ abilities[3] =[
 
 			var amount = Math.max(Math.round(dmg.damages.total/4),1);
 			
-			//Regrowth bonus
+			// Regrowth bonus
 			ability.creature.addEffect( new Effect(
-				ability.title, //Name
-				ability.creature, //Caster
-				ability.creature, //Target
-				"", //Trigger
+				ability.title, // Name
+				ability.creature, // Caster
+				ability.creature, // Target
+				"", // Trigger
 				{	
 					turnLifetime : 1,
 					deleteTrigger : "onStartPhase",
 					alterations : {regrowth : amount }
-				} //Optional arguments
+				} // Optional arguments
 			), "%CreatureName"+ability.creature.id+"% gained "+amount+" temporary regrowth", //Custom Log
-			"Regrowth++" );	//Custom Hint
+			"Regrowth++" );	// Custom Hint
 		}
 
-		//remove frogger bonus if its found
+		// Remove frogger bonus if its found
 		ability.creature.effects.each(function(){
 			if(this.name == "Frogger Bonus"){
 				this.deleteEffect();
@@ -166,9 +166,9 @@ abilities[3] =[
 
 
 
-// 	Third Ability: Frogger Jump
+// Third Ability: Frogger Jump
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	// Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	require : function(){return this.testRequirements();},
@@ -177,14 +177,14 @@ abilities[3] =[
 		this.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+this.creature.team })
 	},
 
-	// 	query() :
+	// query() :
 	query : function(){
 		var ability = this;
 		var uncle = this.creature;
 
 		var hexsDashed = [];
 
-		var range = G.grid.allHexs.slice(0);//Copy
+		var range = G.grid.allHexs.slice(0); // Copy
 		range.filter(function(){ 
 			if(uncle.y == this.y){
 				if(this.creature instanceof Creature && this.creature != uncle){
@@ -200,7 +200,7 @@ abilities[3] =[
 			fnOnSelect : function(){ ability.fnOnSelect.apply(ability,arguments); },
 			fnOnConfirm : function(){ 
 				if( arguments[0].x == ability.creature.x && arguments[0].y == ability.creature.y ){
-					//Prevent null movement
+					// Prevent null movement
 					ability.query();
 					return;
 				}
@@ -216,11 +216,11 @@ abilities[3] =[
 	},
 
 
-	//	activate() : 
+	// activate() : 
 	activate : function(hex,args) {
 
 		var ability = this;
-		ability.end(false,true); //defered ending
+		ability.end(false,true); // Defered ending
 
 		ability.creature.moveTo(hex,{
 			ignoreMovementPoint : true,
@@ -238,40 +238,40 @@ abilities[3] =[
 			},
 			callbackStepIn : function(hex){
 				if(ability.creature.abilities[0].require(hex)){
-					ability.creature.abilities[0].activate(hex); //Toxic spores
+					ability.creature.abilities[0].activate(hex); // Toxic spores
 				}
 			}
 		}); 
 
-		//Frogger Leap bonus
+		// Frogger Leap bonus
 		ability.creature.addEffect( new Effect(
-			"Offense++", //Name
-			ability.creature, //Caster
-			ability.creature, //Target
-			"onStepIn onEndPhase", //Trigger
+			"Offense++", // Name
+			ability.creature, // Caster
+			ability.creature, // Target
+			"onStepIn onEndPhase", // Trigger
 			{	
 				effectFn : function(effect,crea){
 					effect.deleteEffect();
 				},
 				alterations : ability.effects[0]
-			} //Optional arguments
+			} // Optional arguments
 		) );
 	},
 },
 
 
 
-// 	Fourth Ability: Blade Kick
+// Fourth Ability: Blade Kick
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	// Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	// 	require() :
+	// require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
 		var map = G.grid.getHexMap(this.creature.x-2,this.creature.y-2,0,false,frontnback2hex);
-		//At least one target
+		// At least one target
 		if( !this.atLeastOneTarget(map,"ennemy") ){
 			this.message = G.msg.abilities.notarget;
 			return false;
@@ -279,14 +279,14 @@ abilities[3] =[
 		return true;
 	},
 
-	// 	query() :
+	// query() :
 	query : function(){
 		var ability = this;
 		var uncle = this.creature;
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+			team : 0, // Team, 0 = ennemies
 			id : uncle.id,
 			flipped : uncle.flipped,
 			hexs : G.grid.getHexMap(uncle.x-2,uncle.y-2,0,false,frontnback2hex),
@@ -294,21 +294,21 @@ abilities[3] =[
 	},
 
 
-	//	activate() : 
+	// activate() : 
 	activate : function(target,args) {
 		var ability = this;
 		ability.end();
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 		target.takeDamage(damage);
 
-		//remove frogger bonus if its found
+		// Remove frogger bonus if its found
 		ability.creature.effects.each(function(){
 			if(this.name == "Offense++"){
 				this.deleteEffect();

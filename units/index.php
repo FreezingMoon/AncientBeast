@@ -1,26 +1,43 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <?php
+/* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
+ * Copyright (C) 2007-2014  Valentin Anastase (a.k.a. Dread Knight)
+ *
+ * This file is part of Ancient Beast.
+ *
+ * Ancient Beast is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Ancient Beast is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * https://www.AncientBeast.com
+ * https://github.com/FreezingMoon/AncientBeast
+ * DreadKnight@FreezingMoon.org
+ */
 $page_title = 'Ancient Beast - Units';
 $stylesheet = '../combat/css/grid.css';
 require_once('../header.php');
-require_once('../global.php');
-require_once('../images/stats/index.php');
-require_once('functions.php');
-require_once('cards.php');
 require_once('grid.php');
+require_once('cards.php');
+require_once('functions.php');
 
 $creature_results = get_creatures();
-//navigation bar
-//TODO
-//echo '<nav>Modes: Normal | List | Versus - Log-in to purchase creatures. || You own x out of 50 creatures. - View: 2D/3D - SketchFab gallery</nav>';
-//get link php variable
-//if normal, list or versus...
+// TODO: Navigation bar
+//echo '<nav>Modes: Single | Multiple | List</nav>';
 ?>
+
 <!-- License -->
 <div class="div" id="license">All the characters are under the <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><b>CC-BY-SA 3.0</b></a> license. You can use them however you like, even for commercial projects, as long as you credit / link the project and mention the original artist(s), similar to the next example: <i>from Ancient Beast game project http://AncientBeast.com - character (or artwork) created by Awesome_Dude</i></div>
 
 <!-- Grid view -->
-
 <style type="text/css">
 #creaturegrid .vignette,
 .vignette div.border,
