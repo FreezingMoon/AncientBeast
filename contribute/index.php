@@ -1,6 +1,6 @@
 <?php
 /* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
- * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
+ * Copyright (C) 2007-2014  Valentin Anastase (a.k.a. Dread Knight)
  *
  * This file is part of Ancient Beast.
  *
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * http://www.AncientBeast.com
+ * https://www.AncientBeast.com
  * https://github.com/FreezingMoon/AncientBeast
  * DreadKnight@FreezingMoon.org
  */
@@ -28,7 +28,7 @@ require_once('../header.php');
 
 <div class="div center" id="social">
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="http://www.reddit.com/r/AncientBeast/" target="_blank"><img src="../images/squares/reddit.jpg"><br>
+		<a href="http://reddit.com/r/AncientBeast" target="_blank"><img src="../images/squares/reddit.jpg"><br>
 		<b>Join the Community on Reddit</b></a>
 	</div>
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
@@ -36,26 +36,17 @@ require_once('../header.php');
 		<b>Fork the Project on Github</b></a>
 	</div>
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="http://ancient-beast.deviantart.com/" target="_blank"><img src="../images/squares/deviantart.jpg"><br>
+		<a href="http://ancient-beast.deviantart.com" target="_blank"><img src="../images/squares/deviantart.jpg"><br>
 		<b>Submit Fanart on deviantArt</b></a>
 	</div>
-</div>
-
-<div class="div" id="foreword">
-<div style="width: 475px; text-align: justify; display:inline-block;">
-<h3 class="indexheader"><a href="#foreword">Foreword</a></h3>
-<p>
-Ancient Beast is definitely not a one-man-show, nor made by a small team, but a collaborative project to which pretty much everyone can contribute to, this being one of the many reasons it's very open license wise. You have the opportunity to get involved with the project and contribute amazing stuff or simply provide some great feedback or small tweaks, spread the word around, throw some bucks at it. Maybe you got some artwork around that wasn't used for anything specific that would fit in nicely. You can use this as a learning experience so that you can eventually make your own games by possibly using stuff from this project while respecting the attribution part of the CC license. It's designed to spread like a virus, but only for great purposes.</p>
-</div>
-<div style="display: inline-block;" class="center"><img src="together.jpg" style="padding-left: 10px;" width=400px height=270px></div>
 </div>
 
 <div class="div" id="donate">
 <div style="width: 475px; text-align: justify; display:inline-block;">
 <h3 class="indexheader"><a href="#donate">Donate</a></h3>
 <p>
-We strongly believe in open source software development, but to run a successful project, you still require quite a bit of money in order to have at least few people work part-time on the project and deal with the stuff nobody else wants to ever actually do and there are also services and hardware requirements that must be met which tend to add up quite a bit. Please consider donating via <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><b>Paypal</b></a> or <a href="bitcoin:1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97?label=Ancient%20Beast"><b>Bitcoin</b></a>, even if you're not into turn based strategy games you must see the bigger picture: we're setting an example in the industry and also creating a huge high quality art repository that you and others can use for commercial work and possibly even make other neat games, comics or maybe even animations. Feel free to become our <a href="http://www.patreon.com/AncientBeast" target="_blank"><b>Patreon</b></a> and receive cool rewards.<br>
-You can address individual issues by using <a href="https://www.bountysource.com/teams/freezingmoon/issues?tracker_ids=260151" target="_blank"><b>Bounty Source</b></a>.<br>
+We strongly believe in open source software development, but to run a successful project, you still require quite a bit of money in order to have at least few people work part-time on the project and deal with the stuff nobody else wants to ever actually do and there are also services and hardware requirements that must be met which tend to add up quite a bit. Please consider donating via <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><b>Paypal</b></a> or <a href="bitcoin:1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97?label=Ancient%20Beast"><b>Bitcoin</b></a>, even if you're not into turn based strategy games you must see the bigger picture: we're setting an example in the industry and also creating a huge high quality art repository that you and others can use for commercial work and possibly even make other neat games, comics or maybe even animations. Feel free to become our <a href="http://patreon.com/AncientBeast" target="_blank"><b>Patreon</b></a> and receive cool rewards.<br>
+You can address individual issues by using <a href="https://bountysource.com/teams/freezingmoon/issues?tracker_ids=260151" target="_blank"><b>Bounty Source</b></a>.<br>
 If you wish to become a sponsor, get in touch via an <a href="mailto:DreadKnight@FreezingMoon.org?Subject=I want to Sponsor the Project" target="_blank"><b>email</b></a>.<br>
 Any amount you can donate is very appreciated, thank you!<br>
 Don't forget you can always spend some in our online <a href="http://AncientBeast.com/shop"><b>shop</b></a>.
@@ -64,23 +55,23 @@ Don't forget you can always spend some in our online <a href="http://AncientBeas
 <a href="bitcoin:1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97?label=Ancient%20Beast" target="_blank"><img src="bitcoin.png" class="lighten" width=85px height=20px></a>
 <a href="https://flattr.com/thing/126547/Ancient-Beast" target="_blank"><img src="flattr.png" width=90px class="lighten" height=20px></a>
 <a href="https://gratipay.com/AncientBeast" target="_blank"><img src="gratipay.png" class="lighten" width=77px height=20px></a>
-<a href="https://www.bountysource.com/teams/freezingmoon/issues?tracker_ids=260151" target="_blank"><img src="bountysource.png" class="lighten" width=64px height=20px></a>
-<a href="https://www.centup.org/publisher/ancient-beast" target="_blank"><img src="centup.png" class="lighten" width=64px height=20px></a></p>
+<a href="https://bountysource.com/teams/freezingmoon/issues?tracker_ids=260151" target="_blank"><img src="bountysource.png" class="lighten" width=64px height=20px></a>
+<a href="https://centup.org/publisher/ancient-beast" target="_blank"><img src="centup.png" class="lighten" width=64px height=20px></a></p>
 </div>
 
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Donors via PayPal</b></td><td><b>$</b></td></tr>
-<tr><td><a href="https://www.fiverr.com/dreadknight" target="_blank"><u>Dread Knight</u></a></td><td>1000</td></tr>
-<tr><td>Kevin Brubeck Unhammer</td><td>50</td></tr>
+<tr><td><a href="https://fiverr.com/dreadknight" target="_blank"><u>Dread Knight</u></a></td><td>1000</td></tr>
+<tr><td><a href="https://github.com/unhammer" target="_blank"><u>Kevin Brubeck Unhammer</u></a></td><td>50</td></tr>
 <tr><td>Teo Cazghir</td><td>50</td></tr>
-<tr><td>David Rappo</td><td>50</td></tr>
-<tr><td>Vanessa Young</td><td>46</td></tr>
-<tr><td>Hein-Pieter van Braam</td><td>40</td></tr>
-<tr><td>Iwan Gabovitch</td><td>25</td></tr>
-<tr><td>Adam Dalton</td><td>20</td></tr>
-<tr><td>Alexandre Deschamps</td><td>20</td></tr>
+<tr><td><a href="https://bountysource.com" target="_blank"><u>David Rappo</u></a></td><td>50</td></tr>
+<tr><td><a href="https://facebook.com/silvernessa" target="_blank"><u>Vanessa Young</u></a></td><td>46</td></tr>
+<tr><td><a href="https://github.com/hpvb" target="_blank"><u>Hein-Pieter van Braam</u></a></td><td>40</td></tr>
+<tr><td><a href="http://qubodup.net" target="_blank"><u>Iwan Gabovitch</u></a></td><td>25</td></tr>
+<tr><td><a href="https://facebook.com/akumdara" target="_blank"><u>Adam Dalton</u></a></td><td>20</td></tr>
+<tr><td><a href="https://twitter.com/alexandredes" target="_blank"><u>Alexandre Deschamps</u></a></td><td>20</td></tr>
 <tr><td>Leif Larsen</td><td>10</td></tr>
-<tr><td>Daniel Cohen</td><td>5</td></tr>
+<tr><td><a href="http://mrfaemir.deviantart.com" target="_blank"><u>Daniel Cohen</u></a></td><td>5</td></tr>
 <tr><td>gamesandspace</td><td>3</td></tr>
 <tr><td>Markus Eliassen</td><td>3</td></tr>
 <tr><td>Pandu Aji Wirawan</td><td>2</td></tr>
@@ -124,33 +115,33 @@ We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallp
 <?php $i = 0; ?>
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Art Contributors</b></td><td><b>#</b></td></tr>
-<tr><td>Katarzyna Zalecka</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Indre Lelertaviciute</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Ashirox</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Clement Foucault</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>n-pigeon</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Gabriel Verdon</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Jeepster3D</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Mihai Walther</td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://www.fiverr.com/dreadknight" target="_blank"><u>Dread Knight</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td>piacenti</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Roberto Roch</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>shiroikuro</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>UndeadKitty13</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Ramon Miranda</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>David Revoy</td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://sythgara.deviantart.com" target="_blank"><u>Katarzyna Zalecka</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://velvetcat.deviantart.com" target="_blank"><u>Indre Lelertaviciute</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://ashirox.deviantart.com" target="_blank"><u>Ashirox</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://turjuque.deviantart.com" target="_blank"><u>Clement Foucault</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://n-pigeon.deviantart.com" target="_blank"><u>n-pigeon</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://gabriel-verdon.deviantart.com" target="_blank"><u>Gabriel Verdon</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://youtube.com/user/Jeepster3D" target="_blank"><u>Jeepster3D</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://seekerofawe.deviantart.com" target="_blank"><u>Mihai Walther</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://dreadknight666.deviantart.com" target="_blank"><u>Dread Knight</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://opengameart.org/users/piacenti" target="_blank"><u>piacenti</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://youtube.com/user/thisroomthatIkeep" target="_blank"><u>Roberto Roch</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://opengameart.org/users/5hiroi" target="_blank"><u>shiroikuro</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://undeadkitty13.deviantart.com" target="_blank"><u>UndeadKitty13</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://theshock.deviantart.com" target="_blank"><u>Ramon Miranda</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://deevad.deviantart.com" target="_blank"><u>David Revoy</u></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>GetBacon</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Bri Arwiie</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Rogue Spark</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Fweeb</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>BetaSector</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Nynn</td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://slyth3rin.deviantart.com" target="_blank"><u>Bri Arwiie</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://rougespark.deviantart.com" target="_blank"><u>Rogue Spark</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://monsterjavaguns.com" target="_blank"><u>Fweeb</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://betasector.deviantart.com" target="_blank"><u>BetaSector</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://nynn.contact.free.fr" target="_blank"><u>Nynn</u></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Maggot Master</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>random223</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Oliwia Grambo</td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://random223.deviantart.com" target="_blank"><u>random223</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://onirke.deviantart.com" target="_blank"><u>Oliwia Grambo</u></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table><br>
-<div style="display: inline-block;" class="center"><img src="gumble.jpg" style="padding-left: 10px;" width=400px height=270px></div>
+<div style="display: inline-block;" class="center"><img src="gumble.png" style="padding-left: 10px;" width=400px height=270px></div>
 </div>
 </div>
 
@@ -158,26 +149,26 @@ We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallp
 <div style="width: 475px; text-align: justify; display:inline-block;">
 <h3 class="indexheader"><a href="#Coding">Coding</a></h3>
 <p>
-We can always use an extra hand or two when it comes to polishing and adding new functionality to the website and to the game itself of course. All the coding languages used are web based, such as HTML, CSS, PHP, Javascript and Node.js. The project uses the great <a href="www.phaser.io" target="_blank"><b>Phaser</b></a> game engine, having a neat <a href="http://www.html5gamedevs.com/forum/14-phaser/" target="_blank"><b>community</b></a>, <a href="http://docs.phaser.io" target="_blank"><b>documentation</b></a> and <a href="http://examples.phaser.io/" target="_blank"><b>examples</b></a>. It's also open source, you can find it's repository on <a href="https://github.com/photonstorm/phaser" target="_blank"><b>Github</b></a>.<br>
+We can always use an extra hand or two when it comes to polishing and adding new functionality to the website and to the game itself of course. All the coding languages used are web based, such as HTML, CSS, PHP, Javascript and Node.js. The project uses the great <a href="www.phaser.io" target="_blank"><b>Phaser</b></a> game engine, having a neat <a href="http://html5gamedevs.com/forum/14-phaser/" target="_blank"><b>community</b></a>, <a href="http://docs.phaser.io" target="_blank"><b>documentation</b></a> and <a href="http://examples.phaser.io/" target="_blank"><b>examples</b></a>. It's also open source, you can find it's repository on <a href="https://github.com/photonstorm/phaser" target="_blank"><b>Github</b></a>.<br>
 If you want a task assigned, simply drop by our <a href="http://AncientBeast.com/chat"><b>chat</b></a> room and poke DreadKnight, the project's founder, he'll brief you.<br>
 Sometimes even reviewing or talking code can greatly help.
 </p>
-<a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="http://img.shields.io/badge/license-AGPL3.0-green.svg" class="lighten"></a><a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><img src="http://img.shields.io/github/issues/FreezingMoon/AncientBeast.svg" class="lighten"></a><a href="https://www.bountysource.com/teams/ancientbeast" target="_blank"><a href="https://www.bountysource.com/teams/ancientbeast/issues?utm_source=Ancient%20Beast&utm_medium=shield&utm_campaign=bounties_received" target="_blank"><img src="https://www.bountysource.com/badge/team?team_id=44509&style=bounties_received" class="lighten"></a>
+<a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="http://img.shields.io/badge/license-AGPL3.0-green.svg" class="lighten"></a><a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><img src="http://img.shields.io/github/issues/FreezingMoon/AncientBeast.svg" class="lighten"></a><a href="https://bountysource.com/teams/ancientbeast" target="_blank"><a href="https://www.bountysource.com/teams/ancientbeast/issues?utm_source=Ancient%20Beast&utm_medium=shield&utm_campaign=bounties_received" target="_blank"><img src="https://bountysource.com/badge/team?team_id=44509&style=bounties_received" class="lighten"></a>
 </div>
 
 <?php $i = 0; ?>
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Code Contributors</b></td><td><b>#</b></td></tr>
-<tr><td>Clement Turjuque</td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://www.fiverr.com/dreadknight" target="_blank"><u>Dread Knight</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Dobz</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Archiboldian</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Fweeb</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Nehmulos</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>SlimeTP</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>hjaarnio</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Uhkis</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>randompast</td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Hypersomniac" target="_blank"><u>Clement Turjuque</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://fiverr.com/dreadknight" target="_blank"><u>Dread Knight</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Dobz" target="_blank"><u>Dobz</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Archiboldian" target="_blank"><u>Archiboldian</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Fweeb" target="_blank"><u>Fweeb</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Nehmulos" target="_blank"><u>Nehmulos</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/SlimeTP" target="_blank"><u>SlimeTP</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/hjaarnio" target="_blank"><u>hjaarnio</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Uhkis" target="_blank"><u>Uhkis</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/randompast" target="_blank"><u>randompast</u></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table></div>
 </div>
@@ -203,10 +194,10 @@ All tracks and sfx need to be under <a href="http://creativecommons.org/licenses
 <?php $i = 0; ?>
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Audio Contributors</b></td><td><b>#</b></td></tr>
-<tr><td>Moonthief</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Jens Kiilstofte</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Dreux Ferrano</td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Brandon756</td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://youtube.com/user/moonthiefro" target="_blank"><u>Moonthief</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://twitter.com/Jenskiilstofte" target="_blank"><u>Jens Kiilstofte</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://youtube.com/user/DruoxTheShredder" target="_blank"><u>Dreux Ferrano</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://opengameart.org/users/haeldb" target="_blank"><u>Brandon756</u></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table><br><br>
 <div style="display: inline-block;" class="center"><img src="band.jpg" style="padding-left: 10px;" width=400px height=250px></div>
@@ -221,7 +212,7 @@ No moneys and no coding or artistic skills? No worries, you can still help out b
 Click on the icons below and join our various project groups. You can also hang out with us in our own project <a href="http://AncientBeast.com/chat"><b>chat</b></a> room.
 </p>
 </div>
-<div style="display: inline-block;" class="center"><img src="gumble.png" style="padding-left: 10px;" width=400px height=250px></div>
+<div style="display: inline-block;" class="center"><img src="together.jpg" style="padding-left: 10px;" width=400px height=250px></div>
 </div>
 
 <?php include('../footer.php'); ?>
