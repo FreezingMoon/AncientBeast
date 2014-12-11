@@ -1,6 +1,6 @@
 <?php
 /* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
- * Copyright (C) 2007-2014  Valentin Anastase (a.k.a. Dread Knight)
+ * Copyright (C) 2007-2014 Valentin Anastase (a.k.a. Dread Knight)
  *
  * This file is part of Ancient Beast.
  *
@@ -11,18 +11,24 @@
  *
  * Ancient Beast is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  * https://www.AncientBeast.com
  * https://github.com/FreezingMoon/AncientBeast
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Ancient Beast - Contribute";
+$page_title = 'Ancient Beast - Contribute';
+$style = '
+.donate { color: #FFE873 !important; }
+.artwork { color: #FC8585 !important; }
+.coding { color: #6EDD64 !important; }
+.audio { color: #AFC8FF !important; }
+';
 require_once('../header.php'); 
 ?>
 
@@ -61,21 +67,21 @@ Don't forget you can always spend some in our online <a href="http://AncientBeas
 
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Donors via PayPal</b></td><td><b>$</b></td></tr>
-<tr><td><a href="https://fiverr.com/dreadknight" target="_blank"><u>Dread Knight</u></a></td><td>1000</td></tr>
-<tr><td><a href="https://github.com/unhammer" target="_blank"><u>Kevin Brubeck Unhammer</u></a></td><td>50</td></tr>
-<tr><td>Teo Cazghir</td><td>50</td></tr>
-<tr><td><a href="https://bountysource.com" target="_blank"><u>David Rappo</u></a></td><td>50</td></tr>
-<tr><td><a href="https://facebook.com/silvernessa" target="_blank"><u>Vanessa Young</u></a></td><td>46</td></tr>
-<tr><td><a href="https://github.com/hpvb" target="_blank"><u>Hein-Pieter van Braam</u></a></td><td>40</td></tr>
-<tr><td><a href="http://qubodup.net" target="_blank"><u>Iwan Gabovitch</u></a></td><td>25</td></tr>
-<tr><td><a href="https://facebook.com/akumdara" target="_blank"><u>Adam Dalton</u></a></td><td>20</td></tr>
-<tr><td><a href="https://twitter.com/alexandredes" target="_blank"><u>Alexandre Deschamps</u></a></td><td>20</td></tr>
-<tr><td>Leif Larsen</td><td>10</td></tr>
-<tr><td><a href="http://mrfaemir.deviantart.com" target="_blank"><u>Daniel Cohen</u></a></td><td>5</td></tr>
-<tr><td>gamesandspace</td><td>3</td></tr>
-<tr><td>Markus Eliassen</td><td>3</td></tr>
-<tr><td>Pandu Aji Wirawan</td><td>2</td></tr>
-<tr><td>Max Mazon</td><td>1</td></tr>
+<tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten donate"><img src="bly.png"> Dread Knight <img src="bry.png"></a></td><td>1000</td></tr>
+<tr><td><a href="https://github.com/unhammer" target="_blank" class="lighten donate"><img src="bly.png"> Kevin Brubeck Unhammer <img src="bry.png"></a></td><td>50</td></tr>
+<tr><td><a href="http://teogreengage.blogspot.com" target="_blank" class="lighten donate"><img src="bly.png"> Teo Cazghir <img src="bry.png"></td><td>50</td></tr>
+<tr><td><a href="https://bountysource.com" target="_blank" class="lighten donate"><img src="bly.png"> David Rappo <img src="bry.png"></a></td><td>50</td></tr>
+<tr><td><a href="https://facebook.com/silvernessa" target="_blank" class="lighten donate"><img src="bly.png"> Vanessa Young <img src="bry.png"></a></td><td>46</td></tr>
+<tr><td><a href="https://github.com/hpvb" target="_blank" class="lighten donate"><img src="bly.png"> Hein-Pieter van Braam <img src="bry.png"></a></td><td>40</td></tr>
+<tr><td><a href="http://qubodup.net" target="_blank" class="lighten donate"><img src="bly.png"> Iwan Gabovitch <img src="bry.png"></a></td><td>25</td></tr>
+<tr><td><a href="https://facebook.com/akumdara" target="_blank" class="lighten donate"><img src="bly.png"> Adam Dalton <img src="bry.png"></a></td><td>20</td></tr>
+<tr><td><a href="https://twitter.com/alexandredes" target="_blank" class="lighten donate"><img src="bly.png"> Alexandre Deschamps <img src="bry.png"></a></td><td>20</td></tr>
+<tr><td><a href="" target="_blank" class="lighten donate"><img src="bly.png"> Leif Larsen <img src="bry.png"></td><td>10</td></tr>
+<tr><td><a href="http://mrfaemir.deviantart.com" target="_blank" class="lighten donate"><img src="bly.png"> Daniel Cohen <img src="bry.png"></a></td><td>5</td></tr>
+<tr><td><a href="" target="_blank" class="lighten donate"><img src="bly.png"> gamesandspace <img src="bry.png"></a></td><td>3</td></tr>
+<tr><td><a href="" target="_blank" class="lighten donate"><img src="bly.png"> Markus Eliassen <img src="bry.png"></a></td><td>3</td></tr>
+<tr><td><a href="" target="_blank" class="lighten donate"><img src="bly.png"> Pandu Aji Wirawan <img src="bry.png"></a></td><td>2</td></tr>
+<tr><td><a href="" target="_blank" class="lighten donate"><img src="bly.png"> Max Mazon <img src="bry.png"></a></td><td>1</td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table></div>
 </div>
@@ -89,7 +95,7 @@ If you want a task assigned, simply drop by our <a href="../chat"><b>chat</b></a
 </p><p>
 Several ways you can help out using with your artistic skills:<br>
 <p><b>Draw playable creatures or characters</b><br>
-All new units should be rather original, so no typically known fantasy monsters, also their negative shape should stand out when next to the ones of  the other ingame <a href="../units"><b>characters</b></a>.</p>
+All new units should be rather original, so no typically known fantasy monsters, also their negative shape should stand out when next to the ones of the other ingame <a href="../units"><b>characters</b></a>.</p>
 
 <p><b>Make fanart of existing creatures</b><br>
 We always love seeing the current game <a href="../units"><b>characters</b></a> in new poses and doing new things or interacting with each other. If you can come up with a small comic strip, then awesome!</p>
@@ -115,30 +121,30 @@ We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallp
 <?php $i = 0; ?>
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Art Contributors</b></td><td><b>#</b></td></tr>
-<tr><td><a href="http://sythgara.deviantart.com" target="_blank"><u>Katarzyna Zalecka</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://velvetcat.deviantart.com" target="_blank"><u>Indre Lelertaviciute</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://ashirox.deviantart.com" target="_blank"><u>Ashirox</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://turjuque.deviantart.com" target="_blank"><u>Clement Foucault</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://n-pigeon.deviantart.com" target="_blank"><u>n-pigeon</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://gabriel-verdon.deviantart.com" target="_blank"><u>Gabriel Verdon</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://youtube.com/user/Jeepster3D" target="_blank"><u>Jeepster3D</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://seekerofawe.deviantart.com" target="_blank"><u>Mihai Walther</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://dreadknight666.deviantart.com" target="_blank"><u>Dread Knight</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://opengameart.org/users/piacenti" target="_blank"><u>piacenti</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://youtube.com/user/thisroomthatIkeep" target="_blank"><u>Roberto Roch</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://opengameart.org/users/5hiroi" target="_blank"><u>shiroikuro</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://undeadkitty13.deviantart.com" target="_blank"><u>UndeadKitty13</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://theshock.deviantart.com" target="_blank"><u>Ramon Miranda</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://deevad.deviantart.com" target="_blank"><u>David Revoy</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td>GetBacon</td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://slyth3rin.deviantart.com" target="_blank"><u>Bri Arwiie</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://rougespark.deviantart.com" target="_blank"><u>Rogue Spark</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://monsterjavaguns.com" target="_blank"><u>Fweeb</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://betasector.deviantart.com" target="_blank"><u>BetaSector</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://nynn.contact.free.fr" target="_blank"><u>Nynn</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td>Maggot Master</td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://random223.deviantart.com" target="_blank"><u>random223</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://onirke.deviantart.com" target="_blank"><u>Oliwia Grambo</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://sythgara.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Katarzyna Zalecka <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://velvetcat.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Indre Lelertaviciute <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://ashirox.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Ashirox <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://turjuque.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Clement Foucault <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://n-pigeon.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> n-pigeon <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://gabriel-verdon.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Gabriel Verdon <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://youtube.com/user/Jeepster3D" target="_blank" class="lighten artwork"><img src="blr.png"> Jeepster3D <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://seekerofawe.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Mihai Walther <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://dreadknight666.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Dread Knight <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://opengameart.org/users/piacenti" target="_blank" class="lighten artwork"><img src="blr.png"> piacenti <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://youtube.com/user/thisroomthatIkeep" target="_blank" class="lighten artwork"><img src="blr.png"> Roberto Roch <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://opengameart.org/users/5hiroi" target="_blank" class="lighten artwork"><img src="blr.png"> shiroikuro <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://undeadkitty13.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> UndeadKitty13 <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://theshock.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Ramon Miranda <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://deevad.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> David Revoy <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="" target="_blank" class="lighten artwork"><img src="blr.png"> GetBacon <img src="brr.png"></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://slyth3rin.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Bri Arwiie <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://rougespark.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Rogue Spark <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://monsterjavaguns.com" target="_blank"  class="lighten artwork"><img src="blr.png"> Fweeb <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://betasector.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> BetaSector <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://nynn.contact.free.fr" target="_blank" class="lighten artwork"><img src="blr.png"> Nynn <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="" target="_blank"  class="lighten artwork"><img src="blr.png"> Maggot Master <img src="brr.png"></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://random223.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> random223 <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://onirke.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Oliwia Grambo <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table><br>
 <div style="display: inline-block;" class="center"><img src="gumble.png" style="padding-left: 10px;" width=400px height=270px></div>
@@ -159,16 +165,16 @@ Sometimes even reviewing or talking code can greatly help.
 <?php $i = 0; ?>
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Code Contributors</b></td><td><b>#</b></td></tr>
-<tr><td><a href="https://github.com/Hypersomniac" target="_blank"><u>Clement Turjuque</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://fiverr.com/dreadknight" target="_blank"><u>Dread Knight</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/Dobz" target="_blank"><u>Dobz</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/Archiboldian" target="_blank"><u>Archiboldian</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/Fweeb" target="_blank"><u>Fweeb</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/Nehmulos" target="_blank"><u>Nehmulos</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/SlimeTP" target="_blank"><u>SlimeTP</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/hjaarnio" target="_blank"><u>hjaarnio</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/Uhkis" target="_blank"><u>Uhkis</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/randompast" target="_blank"><u>randompast</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Hypersomniac" target="_blank" class="lighten coding"><img src="blg.png"> Clement Turjuque <img src="brg.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten coding"><img src="blg.png"> Dread Knight <img src="brg.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Dobz" target="_blank" class="lighten coding"><img src="blg.png"> Dobz <img src="brg.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Archiboldian" target="_blank" class="lighten coding"><img src="blg.png"> Archiboldian <img src="brg.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Fweeb" target="_blank" class="lighten coding"><img src="blg.png"> Fweeb <img src="brg.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Nehmulos" target="_blank" class="lighten coding"><img src="blg.png"> Nehmulos <img src="brg.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/SlimeTP" target="_blank" class="lighten coding"><img src="blg.png"> SlimeTP <img src="brg.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/hjaarnio" target="_blank" class="lighten coding"><img src="blg.png"> hjaarnio <img src="brg.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Uhkis" target="_blank" class="lighten coding"><img src="blg.png"> Uhkis <img src="brg.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/randompast" target="_blank" class="lighten coding"><img src="blg.png"> randompast <img src="brg.png"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table></div>
 </div>
@@ -180,13 +186,13 @@ Sometimes even reviewing or talking code can greatly help.
 If composing is more of your expertise, we can always use more tracks of epic genre, as example you can check out the existing tracks and also some from related games, such as the Heroes of Might and Magic 3's combat tracks and the OST from the King's Bounty games. I also consider sound fx is another important area that can make or break gameplay, it should not be annoying and repetitive while nicely complementing and reinforcing the ongoing actions.
 </p><p>
 Check out these tracks as reference, but always be original:<br>
-<a href="http://AncientBeast.com/media?type=music" target="_blank">Ancient Beast Official Soundtrack</a><br>
-<a href="https://www.youtube.com/watch?v=7hbaNfHToT8" target="_blank">Heroes of Might and Magic 3: Combat 1</a><br>
-<a href="https://www.youtube.com/watch?v=GSwATqPUsv0" target="_blank">Heroes of Might and Magic 3: Combat 2</a><br>
-<a href="https://www.youtube.com/watch?v=ea5RiOfcF6k" target="_blank">Heroes of Might and Magic 3: Combat 3</a><br>
-<a href="https://www.youtube.com/watch?v=M0ObS62Js-4" target="_blank">Heroes of Might and Magic 3: Combat 4</a><br>
-<a href="https://www.youtube.com/watch?v=iKGrzdwyW-M&list=PL570FD020D275457E" target="_blank">King's Bounty: The Legend (playlist)</a><br>
-<a href="https://www.youtube.com/watch?v=tnNowmSdP1c&list=PL5052849DDF6C95A6" target="_blank">King's Bounty: Armored Princess (playlist)</a><br>
+<a href="http://AncientBeast.com/media?type=music" target="_blank"><b>Ancient Beast Official Soundtrack</b></a><br>
+<a href="https://www.youtube.com/watch?v=7hbaNfHToT8" target="_blank"><b>Heroes of Might and Magic 3: Combat 1</b></a><br>
+<a href="https://www.youtube.com/watch?v=GSwATqPUsv0" target="_blank"><b>Heroes of Might and Magic 3: Combat 2</b></a><br>
+<a href="https://www.youtube.com/watch?v=ea5RiOfcF6k" target="_blank"><b>Heroes of Might and Magic 3: Combat 3</b></a><br>
+<a href="https://www.youtube.com/watch?v=M0ObS62Js-4" target="_blank"><b>Heroes of Might and Magic 3: Combat 4</b></a><br>
+<a href="https://www.youtube.com/watch?v=iKGrzdwyW-M&list=PL570FD020D275457E" target="_blank"><b>King's Bounty: The Legend (playlist)</b></a><br>
+<a href="https://www.youtube.com/watch?v=tnNowmSdP1c&list=PL5052849DDF6C95A6" target="_blank"><b>King's Bounty: Armored Princess (playlist)</b></a><br>
 </p>
 All tracks and sfx need to be under <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><b>CC-BY-SA 3.0</b></a> license.
 </div>
@@ -194,10 +200,10 @@ All tracks and sfx need to be under <a href="http://creativecommons.org/licenses
 <?php $i = 0; ?>
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Audio Contributors</b></td><td><b>#</b></td></tr>
-<tr><td><a href="http://youtube.com/user/moonthiefro" target="_blank"><u>Moonthief</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://twitter.com/Jenskiilstofte" target="_blank"><u>Jens Kiilstofte</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://youtube.com/user/DruoxTheShredder" target="_blank"><u>Dreux Ferrano</u></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://opengameart.org/users/haeldb" target="_blank"><u>Brandon756</u></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://youtube.com/user/moonthiefro" target="_blank" class="lighten audio"><img src="blb.png"> Moonthief <img src="brb.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://twitter.com/Jenskiilstofte" target="_blank" class="lighten audio"><img src="blb.png"> Jens Kiilstofte <img src="brb.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://youtube.com/user/DruoxTheShredder" target="_blank" class="lighten audio"><img src="blb.png"> Dreux Ferrano <img src="brb.png"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://opengameart.org/users/haeldb" target="_blank" class="lighten audio"><img src="blb.png"> Brandon756 <img src="brb.png"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table><br><br>
 <div style="display: inline-block;" class="center"><img src="band.jpg" style="padding-left: 10px;" width=400px height=250px></div>
