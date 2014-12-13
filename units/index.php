@@ -23,7 +23,7 @@
  * DreadKnight@FreezingMoon.org
  */
 $page_title = 'Units';
-$stylesheet = '../combat/css/grid.css';
+$stylesheet = '../game/css/grid.css';
 require_once('../header.php');
 require_once('grid.php');
 require_once('cards.php');
