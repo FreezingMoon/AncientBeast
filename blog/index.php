@@ -22,6 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
+$page_title = "Blog";
 require_once("../header.php");
 require_once("../global.php");
 ?>

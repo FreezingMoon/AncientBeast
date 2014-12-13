@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Ancient Beast - Version 0.2 Released";
+$page_title = "Version 0.2 Released";
 require_once("../../header.php");
 ?>
 <div class="div">
