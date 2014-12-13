@@ -7,7 +7,6 @@
 	    
 		<title>Ancient Beast</title>
 		<meta name="description" content="Ancient Beast is a turn based strategy indie game project.">
-		<link rel="canonical" href="www.AncientBeast.com/combat/">
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="jquery.fullscreen-min.js"></script>
@@ -82,6 +81,6 @@
 			<a onclick="if(confirm('Reset Game?')) var ifr=document.getElementsByName('game')[0]; ifr.src=ifr.src;">Reset</a>
 			<a onclick="$('#game').fullScreen(true)">Fullscreen</a>
 		</div>
-		<iframe id="game" name="game" src="https://AncientBeast.com/combat/" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
+		<iframe id="game" name="game" src="https://AncientBeast.com/game/" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 	</body>
 </html>

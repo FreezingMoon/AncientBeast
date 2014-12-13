@@ -639,6 +639,7 @@ body{
 	background: black;
 	color: white;
 	font-size: 14px;
+	text-align: center;
 }
 
 .vignette.active .stats{
@@ -1099,6 +1100,7 @@ span.mental{ background-image: url("../../images/stats/mental.png"); }
 .trap.mud-bath { background: url("../grid/mud-bath.png"); }
 .trap.royal-seal { background: url("../grid/royal-seal.png"); }
 .trap.scorched-ground { background: url("../grid/scorched-ground.png"); }
+.trap.firewall { background: url("../grid/scorched-ground.png"); }
 
 /*------------------Progress Bars-------------------*/
 .progressbar {

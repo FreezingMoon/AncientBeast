@@ -1,12 +1,12 @@
 var astar = {
 
-	//start and end must be Hex type
+	// Start and end must be Hex type
 	search: function(start, end, creatureSize, creatureId) {
 		var openList   = [];
 		var closedList = [];
 		openList.push(start);
 
-		if(start == end){
+		if(start == end) {
 			//console.log("Same coordinates");
 			return [];
 		}
@@ -41,7 +41,7 @@ var astar = {
 				var neighbor = neighbors[i];
 
 				if( closedList.findPos(neighbor) || !neighbor.isWalkable(creatureSize,creatureId) ) {
-					// not a valid node to process, skip to next neighbor
+					// Not a valid node to process, skip to next neighbor
 					continue;
 				}
  
@@ -70,7 +70,7 @@ var astar = {
 					neighbor.pathparent = currentNode;
 					neighbor.g = gScore;
 					neighbor.f = neighbor.g + neighbor.h;
-					//neighbor.$display.children(".physical").text(neighbor.g); //Debug
+					//neighbor.$display.children(".physical").text(neighbor.g); // Debug
 				}
 			}
 		}
@@ -83,7 +83,7 @@ var astar = {
 		// This is the Manhattan distance
 		var d1 = Math.abs (pos1.x - pos0.x);
 		var d2 = Math.abs (pos1.y - pos0.y);
-		return 0; //Dijkstra algo "better" but slower
-		//return d1 + d2; //Not good for range prediction
+		return 0; // Dijkstra algo "better" but slower
+		//return d1 + d2; // Not good for range prediction
 	},
 };

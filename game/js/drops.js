@@ -1,10 +1,9 @@
 var Drop = Class.create({
 
-	initialize : function(name,icon,alterations,x,y){
+	initialize : function(name,alterations,x,y){
 
 		this.name 			= name;
 		this.id 			= dropID++;
-		this.icon 			= icon;
 		this.x 				= x;
 		this.y 				= y;
 		this.pos 			= { x:x, y:y };
@@ -13,14 +12,14 @@ var Drop = Class.create({
 
 		this.hex.drop = this;
 
-		this.display = G.grid.dropGroup.create(this.hex.displayPos.x+54,this.hex.displayPos.y+15, 'drop_'+this.icon);
+		this.display = G.grid.dropGroup.create(this.hex.displayPos.x+54, this.hex.displayPos.y+15, 'drop_'+this.name);
 		this.display.alpha = 0;
 		this.display.anchor.setTo(.5,.5);
 		this.display.scale.setTo(1.5,1.5);
 		G.Phaser.add.tween(this.display).to( {alpha:1}, 500, Phaser.Easing.Linear.None ).start();
 	},
 
-	pickup : function(creature){
+	pickup : function(creature) {
 
 		G.log("%CreatureName"+creature.id+"% picks up "+this.name);
 		creature.hint(this.name,"msg_effects");
@@ -30,7 +29,8 @@ var Drop = Class.create({
 
 		this.hex.drop = undefined;
 
-		$j.each( this.alterations, function(key,value){
+		// Fills up consumable stats
+		$j.each( this.alterations, function(key, value){
 			switch(key){
 				case "health" : 
 					creature.heal(value);
@@ -48,10 +48,10 @@ var Drop = Class.create({
 			G.log("%CreatureName"+creature.id+"% gains "+value+" "+key);
 		});
 
-		creature.updateAlteration(); //Will cap the stats
+		creature.updateAlteration(); // Will cap the stats
 
 		var drop = this;
 		var tween = G.Phaser.add.tween(this.display).to( {alpha:0}, 500, Phaser.Easing.Linear.None ).start();
-		tween.onCompleteCallback(function(){ drop.display.destroy(); });
+		tween.onCompleteCallback(function() { drop.display.destroy(); });
 	}
 });

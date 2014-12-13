@@ -8,10 +8,10 @@ var Ability = Class.create({
 		this.creature = creature;
 		this.used = false;
 		this.id = abilityID;
-		this.priority = 0; //Priority for same trigger
+		this.priority = 0; // Priority for same trigger
 		var datas = G.retreiveCreatureStats(creature.type);
 		$j.extend(true,this,abilities[datas.id][abilityID],datas.ability_info[abilityID]);
-		if( this.requirements === undefined && this.costs !== undefined ){
+		if( this.requirements === undefined && this.costs !== undefined ) {
 			this.requirements = this.costs;
 		}
 	},
@@ -25,7 +25,7 @@ var Ability = Class.create({
 	use: function() {
 		if( this.trigger != "onQuery" ) return;
 		if( !this.require() ) return;
-		if( this.used === true ){ G.log("Ability already used!"); return; }
+		if( this.used === true ) { G.log("Ability already used!"); return; }
 		G.grid.clearHexViewAlterations();
 		G.clearOncePerDamageChain();
 		G.UI.selectAbility(this.id);
@@ -41,11 +41,11 @@ var Ability = Class.create({
 	end: function(desableLogMsg,deferedEnding) {
 		if(!desableLogMsg) G.log("%CreatureName"+this.creature.id+"% uses "+this.title);
 		this.applyCost();
-		this.setUsed(true); //Should always be here
-		G.UI.updateInfos(); //Just in case
+		this.setUsed(true); // Should always be here
+		G.UI.updateInfos(); // Just in case
 		G.UI.btnDelay.changeState("disabled");
 		G.activeCreature.delayable = false;
-		if(this.trigger == "onQuery" && !deferedEnding){
+		if(this.trigger == "onQuery" && !deferedEnding) {
 			G.UI.selectAbility(-1);
 			G.activeCreature.queryMove();
 		}
@@ -60,12 +60,12 @@ var Ability = Class.create({
 	setUsed: function(val) {
 		if(val){
 			this.used = true;
-			if(this.creature.id == G.activeCreature.id) //Avoid dimmed passive for current creature
+			if(this.creature.id == G.activeCreature.id) // Avoid dimmed passive for current creature
 				G.UI.abilitiesButtons[this.id].changeState("disabled");
 		}else{
 			this.used = false;
-			if(this.creature.id == G.activeCreature.id){
-				if(this.id === 0){ //Passive
+			if(this.creature.id == G.activeCreature.id) {
+				if(this.id === 0) { // Passive
 					G.UI.abilitiesButtons[this.id].changeState("noclick");
 				}else{
 					G.UI.abilitiesButtons[this.id].changeState("normal");
@@ -79,39 +79,39 @@ var Ability = Class.create({
 	*	Animate the creature
 	*	
 	*/
-	animation: function(){
+	animation: function() {
 
-		//Gamelog Event Registration
-		if( G.triggers.onQuery.test(this.trigger) ){
+		// Gamelog Event Registration
+		if( G.triggers.onQuery.test(this.trigger) ) {
 			if(arguments[0] instanceof Hex){
 				var args = $j.extend({},arguments);
 				delete args[0];
 				G.gamelog.add({action:"ability",target:{type:"hex",x:arguments[0].x,y:arguments[0].y},id:this.id,args:args});
 			}
-			if(arguments[0] instanceof Creature){
+			if(arguments[0] instanceof Creature) {
 				var args = $j.extend({},arguments);
 				delete args[0];
 				G.gamelog.add({action:"ability",target:{type:"creature",crea:arguments[0].id},id:this.id,args:args});
 			}
-			if(arguments[0] instanceof Array){
+			if(arguments[0] instanceof Array) {
 				var args = $j.extend({},arguments);
 				delete args[0];
 				var array = [];
-				arguments[0].each(function(){ array.push({x:this.x,y:this.y}); });
+				arguments[0].each(function() { array.push({x:this.x,y:this.y}); });
 				G.gamelog.add({action:"ability",target:{type:"array",array:array},id:this.id,args:args});
 			}
 		} else {
-			//Test for materialization sickness
+			// Test for materialization sickness
 			if(this.creature.materializationSickness && this.affectedByMatSickness) return false;
 		}
 		
 		return this.animation2({arg:arguments});
 	},
 
-	animation2: function(o){
+	animation2: function(o) {
 
 		var opt = $j.extend({
-			callback: function(){},
+			callback: function() {},
 			arg: {},
 		},o);
 
@@ -120,7 +120,7 @@ var Ability = Class.create({
 
 		G.freezedInput = true;
 
-		//Animate
+		// Animate
 		var p0 = this.creature.sprite.x;
 		var p1 = p0;
 		var p2 = p0;
@@ -133,9 +133,9 @@ var Ability = Class.create({
 
 			G.animationQueue.push(anim_id);
 
-			if(this.animation_datas === undefined){ 
+			if(this.animation_datas === undefined) { 
 				this.animation_datas = { 
-					visual : function(){},
+					visual : function() {},
 					duration : 500,
 					delay : 350,
 				};
@@ -149,16 +149,16 @@ var Ability = Class.create({
 			
 			ab.animation_datas.visual.apply(ab,args);
 
-			setTimeout(function(){
-				if( !G.triggers.onAttack.test(ab.trigger) ){
+			setTimeout(function() {
+				if( !G.triggers.onAttack.test(ab.trigger) ) {
 					G.soundsys.playSound(G.soundLoaded[2],G.soundsys.effectsGainNode);
 					ab.activate.apply(ab,args);
 				}
 			},this.animation_datas.delay);
 
-			setTimeout(function(){	
-				G.animationQueue.filter(function(){ return (this!=anim_id); });
-				if( G.animationQueue.length === 0 ){
+			setTimeout(function() {	
+				G.animationQueue.filter(function() { return (this!=anim_id); });
+				if( G.animationQueue.length === 0 ) {
 					G.freezedInput = false;
 				}
 			},this.animation_datas.duration);
@@ -168,7 +168,7 @@ var Ability = Class.create({
 			G.freezedInput = false;
 		}
 
-		var interval = setInterval(function(){
+		var interval = setInterval(function() {
 			if(!G.freezedInput){
 				clearInterval(interval);
 				opt.callback();
@@ -188,7 +188,7 @@ var Ability = Class.create({
 	*/
 	getTargets: function(hexs) {
 		var targets = [];
-		hexs.each(function(){//For each hex
+		hexs.each(function() { // For each hex
 			if( this.creature instanceof Creature ) {
 				if( targets[this.creature.id] === undefined ) {
 					targets[this.creature.id] = {
@@ -196,7 +196,7 @@ var Ability = Class.create({
 						target : this.creature
 					};
 				}
-				targets[this.creature.id].hexsHit += 1; //creature has been found
+				targets[this.creature.id].hexsHit += 1; // Unit has been found
 			}
 		});
 		return targets;
@@ -212,9 +212,9 @@ var Ability = Class.create({
 		var obj = obj || this.damages;
 		var string = "";
 
-		$j.each(obj,function(key,value){
+		$j.each(obj,function(key,value) {
 
-			if(key == "special"){
+			if(key == "special") {
 				string += value.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>');
 				return;
 			}
@@ -230,12 +230,12 @@ var Ability = Class.create({
 		var string = "";
 		for (var i = this.effects.length - 1; i >= 0; i--) {
 
-			if(this.effects[i].special){
+			if(this.effects[i].special) {
 				string += this.effects[i].special.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,'<span class="$1"></span>');
 				continue;
 			}
 
-			$j.each(this.effects[i],function(key,value){
+			$j.each(this.effects[i],function(key,value) {
 			if(string !== "") string += ", ";
 			string += (value+'<span class="'+key+'"></span>');
 		});
@@ -263,11 +263,11 @@ var Ability = Class.create({
 	*	hexs : Array : set of hex to test
 	*	team : String : ennemy, ally, both
 	*/
-	atLeastOneTarget : function(hexs,team){
+	atLeastOneTarget : function(hexs,team) {
 		for (var i = 0; i < hexs.length; i++) {
-			if(hexs[i].creature instanceof Creature){
+			if(hexs[i].creature instanceof Creature) {
 				var crea = hexs[i].creature;
-				switch(team){
+				switch(team) {
 					case "ally":
 						if( this.creature.isAlly(crea.team) ) return true;
 						break;
@@ -290,7 +290,7 @@ var Ability = Class.create({
 	*	For instance : energy = -5 means energy must be lower than 5.
 	*	If one requirement fails it returns false.
 	*/
-	testRequirements : function(){
+	testRequirements : function() {
 		var def = {
 			plasma : 0,
 			energy:0,
@@ -322,62 +322,62 @@ var Ability = Class.create({
 		
 		var req = $j.extend(def,this.requirements);
 
-		//Plasma
-		if(req.plasma > 0 ){
-			if( this.creature.player.plasma < req.plasma ){
+		// Plasma
+		if(req.plasma > 0 ) {
+			if( this.creature.player.plasma < req.plasma ) {
 				this.message = G.msg.abilities.notenough.replace("%stat%","plasma"); 
 				return false;
 			}
-		}else if(req.plasma < 0 ){
-			if( this.creature.player.plasma > -req.plasma ){
+		}else if(req.plasma < 0 ) {
+			if( this.creature.player.plasma > -req.plasma ) {
 				this.message = G.msg.abilities.toomuch.replace("%stat%","plasma"); 
 				return false;
 			}
 		}
 
-		//Energy
-		if(req.energy  > 0 ){
-			if( this.creature.energy < req.energy ){
+		// Energy
+		if(req.energy  > 0 ) {
+			if( this.creature.energy < req.energy ) {
 				this.message = G.msg.abilities.notenough.replace("%stat%","energy"); 
 				return false;
 			}
-		}else if(req.energy  < 0 ){
-			if( this.creature.energy > -req.energy ){
+		}else if(req.energy  < 0 ) {
+			if( this.creature.energy > -req.energy ) {
 				this.message = G.msg.abilities.toomuch.replace("%stat%","energy"); 
 				return false;
 			}
 		}
 
-		//Endurance
-		if(req.endurance  > 0 ){
-			if( this.creature.endurance < req.endurance ){
+		// Endurance
+		if(req.endurance  > 0 ) {
+			if( this.creature.endurance < req.endurance ) {
 				this.message = G.msg.abilities.notenough.replace("%stat%","endurance"); 
 				return false;
 			}
-		}else if(req.endurance  < 0 ){
-			if( this.creature.endurance > -req.endurance ){
+		}else if(req.endurance  < 0 ) {
+			if( this.creature.endurance > -req.endurance ) {
 				this.message = G.msg.abilities.toomuch.replace("%stat%","endurance"); 
 				return false;
 			}
 		}
 
-		//Health
-		if(req.health  > 0 ){
-			if( this.creature.health <= req.health ){
+		// Health
+		if(req.health  > 0 ) {
+			if( this.creature.health <= req.health ) {
 				this.message = G.msg.abilities.notenough.replace("%stat%","health"); 
 				return false;
 			}
-		}else if(req.health  < 0 ){
-			if( this.creature.health > -req.health ){
+		}else if(req.health  < 0 ) {
+			if( this.creature.health > -req.health ) {
 				this.message = G.msg.abilities.toomuch.replace("%stat%","health"); 
 				return false;
 			}
 		}
 
 		$j.each(req.stats,function(key,value) {
-			if(value > 0 ){
+			if(value > 0 ) {
 				if( this.creature.stats[key] < value ) return false;
-			}else if(value < 0 ){
+			}else if(value < 0 ) {
 				if( this.creature.stats[key] > value ) return false;
 			}
 		});
@@ -385,23 +385,23 @@ var Ability = Class.create({
 		return true;
 	},
 
-	applyCost : function(){
+	applyCost : function() {
 		var crea = this.creature;
 		if( this.costs === undefined ) return;
 		$j.each(this.costs,function(key,value) {
-			if( typeof(value) == "number" ){
-				if(key == 'health'){
+			if( typeof(value) == "number" ) {
+				if(key == 'health') {
 					crea.hint(value,'damage d'+value);
 					G.log("%CreatureName"+crea.id+"% loses "+value+" health");
 				}
-				crea[key] = Math.max( crea[key]-value, 0 ); //Cap
+				crea[key] = Math.max( crea[key]-value, 0 ); // Cap
 			}
 		});
 		crea.updateHealth();
 		if( crea.id == G.activeCreature.id ) G.UI.energyBar.animSize( crea.energy/crea.stats.energy );
 	},
 
-	testDirection : function(o){
+	testDirection : function(o) {
 		var defaultOpt = {
 			team : "ennemy",
 			id : this.creature.id,
@@ -420,33 +420,33 @@ var Ability = Class.create({
 		var choices = [];
 
 		for (var i = 0; i < o.directions.length; i++) {
-			if(!!o.directions[i]){
+			if(!!o.directions[i]) {
 				var dir = [];
 				var fx = 0;
 
-				if( o.sourceCreature instanceof Creature ){
-					if( (!o.sourceCreature.player.flipped && i>2) || (o.sourceCreature.player.flipped && i<3) ){
+				if( o.sourceCreature instanceof Creature ) {
+					if( (!o.sourceCreature.player.flipped && i>2) || (o.sourceCreature.player.flipped && i<3) ) {
 						fx =  -1*(o.sourceCreature.size-1);
 					}
 				}
 
-				switch(i){
-					case 0: //Upright
+				switch(i) {
+					case 0: // Upright
 						dir = G.grid.getHexMap(o.x+fx,o.y-8,0,o.flipped,diagonalup).reverse();
 						break;
-					case 1: //StraitForward
+					case 1: // StraitForward
 						dir = G.grid.getHexMap(o.x+fx,o.y,0,o.flipped,straitrow);
 						break;
-					case 2: //Downright
+					case 2: // Downright
 						dir = G.grid.getHexMap(o.x+fx,o.y,0,o.flipped,diagonaldown);
 						break;
-					case 3: //Downleft
+					case 3: // Downleft
 						dir = G.grid.getHexMap(o.x+fx,o.y,-4,o.flipped,diagonalup);
 						break;
-					case 4: //StraitBackward
+					case 4: // StraitBackward
 						dir = G.grid.getHexMap(o.x+fx,o.y,0,!o.flipped,straitrow);
 						break;
-					case 5: //Upleft
+					case 5: // Upleft
 						dir = G.grid.getHexMap(o.x+fx,o.y-8,-4,o.flipped,diagonaldown).reverse();
 						break;
 					default:
@@ -464,7 +464,7 @@ var Ability = Class.create({
 
 });
 
-abilities = []; //array containing all javascript methods for abilities
+abilities = []; // Array containing all javascript methods for abilities
 
 /*	
 * Damage Class
@@ -498,9 +498,9 @@ var Damage = Class.create({
 		var atk = dmg.attacker.stats;
 		var returnObj = {total:0};
 
-		//DAMAGE CALCULATION
+		// DAMAGE CALCULATION
 		$j.each(this.damages,function(key,value) {
-			if(key=="pure") { //Bypass defense calculation
+			if(key=="pure") { // Bypass defense calculation
 				var points = value;
 			} else {
 				var points = Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
@@ -511,12 +511,12 @@ var Damage = Class.create({
 			returnObj.total += points;
 		});
 
-		returnObj.total = Math.max(returnObj.total,1); //Minimum of 1 damage
+		returnObj.total = Math.max(returnObj.total,1); // Minimum of 1 damage
 
 		return returnObj;
 	},
 
-	dmgIsType :function(type){
+	dmgIsType :function(type) {
 		return G.dmgType[type].test(this.type);
 	},
 
@@ -535,7 +535,7 @@ var Effect = Class.create({
 	*	trigger :	String : Event that trigger the effect
 	*	effectFn :	Function : Function to trigger
 	*/
-	initialize: function(name,owner,target,trigger,optArgs){
+	initialize: function(name,owner,target,trigger,optArgs) {
 		this.id = effectId++;
 
 		this.name = name;
@@ -545,15 +545,15 @@ var Effect = Class.create({
 		this.creationTurn = G.turn;
 
 		var args = $j.extend({
-			//Default Arguments
-			requireFn : function(){return true;},
-			effectFn : function(){},
+			// Default Arguments
+			requireFn : function() {return true;},
+			effectFn : function() {},
 			alterations : {},
 			turnLifetime : 0,
 			deleteTrigger : "onStartOfRound",
 			stackable : true,
 			noLog : false,
-			specialHint : undefined //Special hint for log
+			specialHint : undefined // Special hint for log
 		},optArgs);
 
 		$j.extend(this,args);
@@ -561,17 +561,17 @@ var Effect = Class.create({
 		G.effects.push(this);
 	},
 
-	animation: function(){
+	animation: function() {
 		this.activate.apply(this,arguments);
 	},
 
-	activate: function(arg){
+	activate: function(arg) {
 		if( !this.requireFn(arg) ) return false;
 		if( !this.noLog ) console.log("Effect "+this.name+" triggered");
 		this.effectFn(this,arg);
 	},
 
-	deleteEffect: function(){
+	deleteEffect: function() {
 		var i = this.target.effects.indexOf(this);
 		this.target.effects.splice(i,1);
 		i = G.effects.indexOf(this);

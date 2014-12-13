@@ -72,7 +72,7 @@ $(document).ready(function(){
 	<a onclick="$('#game').fullScreen(true)" style="margin-left: 682px;">Fullscreen</a>
 </div>
 <div class="center">
-	<iframe id="game" name="game" src="../combat/" style="border: 4px ridge; border-color: grey; width: 934px; height: 525px;" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
+	<iframe id="game" name="game" src="../game/" style="border: 4px ridge; border-color: grey; width: 934px; height: 525px;" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 </div>
 
 <div class="div" id="plot">

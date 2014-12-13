@@ -1,4 +1,27 @@
 <?php
+/* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
+ * Copyright (C) 2007-2014  Valentin Anastase (a.k.a. Dread Knight)
+ *
+ * This file is part of Ancient Beast.
+ *
+ * Ancient Beast is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Ancient Beast is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * https://www.AncientBeast.com
+ * https://github.com/FreezingMoon/AncientBeast
+ * DreadKnight@FreezingMoon.org
+ */
+
 // Needed for user accounts
 require_once("../global.php");
 ?>
@@ -8,16 +31,16 @@ require_once("../global.php");
 
 <title>Ancient Beast 0.2</title>
 		
-<link rel="stylesheet" type="text/css" href="./css/dot-luv/jquery-ui-1.9.2.custom.min.css">
-<link rel="stylesheet" type="text/css" href="./css/style.css">
-<link rel="stylesheet" type="text/css" href="./css/grid.css">
+<link rel="stylesheet" type="text/css" href="css/dot-luv/jquery-ui-1.9.2.custom.min.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<link rel="stylesheet" type="text/css" href="css/grid.css">
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-<script type="text/javascript" src="./js/phaser.min.js"></script>
-<script type="text/javascript" src="./js/jquery.transit.min.js"></script>
-<script type="text/javascript" src="./js/jquery.kinetic.js"></script>
-<script type="text/javascript" src="./js/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="js/phaser.min.js"></script>
+<script type="text/javascript" src="js/jquery.transit.min.js"></script>
+<script type="text/javascript" src="js/jquery.kinetic.js"></script>
+<script type="text/javascript" src="js/jquery.mousewheel.js"></script>
 
 <script type="text/javascript">
 	var $j = jQuery.noConflict();
@@ -29,16 +52,16 @@ require_once('../units/cards.php');
 ?>
 
 <script src="//ajax.googleapis.com/ajax/libs/prototype/1.7.1.0/prototype.js"></script>
-<script type="text/javascript" src="./js/hex.js"></script>
-<script type="text/javascript" src="./js/animations.js"></script>
-<script type="text/javascript" src="./js/abilities.js"></script>
-<script type="text/javascript" src="./js/creature.js"></script>
-<script type="text/javascript" src="./js/drops.js"></script>
-<script type="text/javascript" src="./js/pathfinding.js"></script>
-<script type="text/javascript" src="./js/game.js"></script>
-<script type="text/javascript" src="./js/ui.js"></script>
-<script type="text/javascript" src="./js/json2.js"></script>
-<script type="text/javascript" src="./js/script.js"></script>
+<script type="text/javascript" src="js/hex.js"></script>
+<script type="text/javascript" src="js/animations.js"></script>
+<script type="text/javascript" src="js/abilities.js"></script>
+<script type="text/javascript" src="js/creature.js"></script>
+<script type="text/javascript" src="js/drops.js"></script>
+<script type="text/javascript" src="js/pathfinding.js"></script>
+<script type="text/javascript" src="js/game.js"></script>
+<script type="text/javascript" src="js/ui.js"></script>
+<script type="text/javascript" src="js/json2.js"></script>
+<script type="text/javascript" src="js/script.js"></script>
 
 <!--google analytics-->
 <script>
@@ -311,10 +334,14 @@ ga('send', 'pageview');
 				</div>
 
 				<div id="rightpanel">
-					<div style="position:relative"><div id="audio" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey A</div><span>Music Player</span><p>Listen to some really fine epic tracks.</p></div></div>
-					<div style="position:relative"><div id="skip" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey S</div><span>Skip Turn</span><p>End the turn of the current creature and proceed with the next in queue.</p></div></div>
-					<div style="position:relative"><div id="delay" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey D</div><span>Delay Creature</span><p>Delayed creatures will act at the end of the round, if alive and still able to.</p></div></div>
-					<div style="position:relative"><div id="flee" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey F</div><span>Flee Match</span><p>Give up but only after first 12 rounds.</p></div></div>
+					<div style="position:relative"><div id="audio" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey A</div><span>Audio Player</span>
+					<p>Listen to some really fine epic tracks.</p></div></div>
+					<div style="position:relative"><div id="skip" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey S</div><span>Skip Turn</span>
+					<p>End the turn of the current creature and proceed with the next in queue.</p></div></div>
+					<div style="position:relative"><div id="delay" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey D</div><span>Delay Unit</span>
+					<p>Delayed creatures will act at the end of the round, if alive and still able to.</p></div></div>
+					<div style="position:relative"><div id="flee" class="button"></div><div class="desc"><div class="arrow"></div><div class="shortcut">hotkey F</div><span>Flee Match</span>
+					<p>Give up but only after first 12 rounds.</p></div></div>
 					<div class="progressbar"><div class="bar poolbar"></div><div class="bar timebar"></div></div>
 				</div>
 				<div id="leftpanel">
