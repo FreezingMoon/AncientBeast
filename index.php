@@ -43,7 +43,7 @@ require_once('header.php');
 		<b>Learn How to Contribute</b></a>
 	</div>
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="combat"><img src="images/squares/play.jpg"><br>
+		<a href="game"><img src="images/squares/play.jpg"><br>
 		<b>Play the Game for Free</b></a>
 	</div>
 </div>
