@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Ancient Beast - Chat";
+$page_title = "Chat";
 require_once("../header.php");
 ?>
 

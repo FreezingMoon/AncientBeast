@@ -1,6 +1,6 @@
 <?php
 /* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
- * Copyright (C) 2007-2012  Valentin Anastase (a.k.a. Dread Knight)
+ * Copyright (C) 2007-2014  Valentin Anastase (a.k.a. Dread Knight)
  *
  * This file is part of Ancient Beast.
  *
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * http://www.AncientBeast.com
+ * https://www.AncientBeast.com
  * https://github.com/FreezingMoon/AncientBeast
  * DreadKnight@FreezingMoon.org
  */
@@ -41,8 +41,9 @@ if (isset($stylesheet)) echo '<link rel="stylesheet" href="' . $stylesheet . '">
 <!--set page title-->
 <title>
 <?php
-if (isset($page_title)) echo $page_title;
-else echo "AncientBeast - Turn Based Strategy Game";
+$title = "Ancient Beast - ";
+if (isset($page_title)) echo $title . $page_title;
+else echo $title . "Turn Based Strategy Game";
 ?>
 </title>
 <!--google analytics-->
@@ -80,7 +81,7 @@ if(isset($_GET['action']) == 'logout'){
 <!--navigation menu-->
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-  $menu = array('units', 'media', 'items', 'play', 'news', 'chat');
+  $menu = array('units', 'media', 'duel', 'play', 'blog', 'chat');
   foreach ($menu as &$menuItem) {
     echo '<td>
       <a href="' . $site_root . $menuItem . '" id="' . $menuItem . '" style="display:block;" class="lighten">

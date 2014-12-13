@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = 'Ancient Beast - Contribute';
+$page_title = 'Contribute';
 $style = '
 .donate { color: #FFE873 !important; }
 .artwork { color: #FC8585 !important; }

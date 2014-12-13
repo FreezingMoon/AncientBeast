@@ -23,7 +23,7 @@
 -->
 
 <?php
-$page_title = "Ancient Beast - Sprite Sheet Animation Viewer";
+$page_title = "Sprite Sheet Animation Viewer";
 require_once("../header.php"); ?>
 <script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <div class="div center">

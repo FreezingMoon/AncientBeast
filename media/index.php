@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Ancient Beast - Media";
+$page_title = "Media";
 
 $style = '
 .bigger { font-size: 28px; color: #e6e6e6; }

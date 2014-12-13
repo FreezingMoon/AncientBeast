@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Ancient Beast - Account";
+$page_title = "Account";
 $style = ".arranged {padding-right: 20px; float: right;}";
 require_once("../header.php");
 require_once("../global.php");

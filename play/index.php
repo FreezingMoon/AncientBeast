@@ -21,6 +21,9 @@
  * https://github.com/FreezingMoon/AncientBeast
  * DreadKnight@FreezingMoon.org
  */
+
+$page_title = "Game";
+
 $style = '
 .strike {
 	text-decoration: line-through;
@@ -50,7 +53,6 @@ $style = '
 iframe.fullscreen {padding-top: 0;}
 ';
 
-$page_title = "Ancient Beast - Game";
 require_once('../header.php');
 ?>
 

@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Ancient Beast - Register";
+$page_title = "Register";
 $style = "
 .arranged {padding-right: 20px; float: right;}
 button {

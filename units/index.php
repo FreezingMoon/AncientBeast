@@ -22,7 +22,7 @@
  * https://github.com/FreezingMoon/AncientBeast
  * DreadKnight@FreezingMoon.org
  */
-$page_title = 'Ancient Beast - Units';
+$page_title = 'Units';
 $stylesheet = '../combat/css/grid.css';
 require_once('../header.php');
 require_once('grid.php');

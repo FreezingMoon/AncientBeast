@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Ancient Beast - Login";
+$page_title = "Login";
 require_once('../header.php');
 
 if(isset($_POST['submit']) && $_POST['submit'] != ""){
