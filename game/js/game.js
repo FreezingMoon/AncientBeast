@@ -208,7 +208,7 @@ var Game = Class.create({
 		this.Phaser.load.image('effects_chilling-spit', '../units/sprites/Snow Bunny Chilling Spit.png');
 
 		// Background
-		this.Phaser.load.image('background', "../locations/"+this.background_image+"/bg.jpg");
+		this.Phaser.load.image('background', "locations/"+this.background_image+"/bg.jpg");
 
 		// Get JSON files
 		$j.getJSON("../units/data.json", function(json_in) {
@@ -238,7 +238,7 @@ var Game = Class.create({
 				}else{
 					if(data.drop){
 						G.loadingSrc += 1;
-						G.Phaser.load.image('drop_'+data.drop.name, '../shop/food/'+data.drop.name+'.png');
+						G.Phaser.load.image('drop_'+data.drop.name, '../units/drops/'+data.drop.name+'.png');
 					}
 					G.loadingSrc += 2;
 					G.Phaser.load.image(data.name+'_cardboard', '../units/cardboards/'+data.name+'.png');

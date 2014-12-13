@@ -230,14 +230,14 @@ ga('send', 'pageview');
 								<td>--</td>
 							</tr>
 							<tr class="creaturebonus">
-								<td>Survivor Creatures</td>
+								<td>Survivor Units</td>
 								<td>--</td>
 								<td>--</td>
 								<td>--</td>
 								<td>--</td>
 							</tr>
 							<tr class="darkpriestbonus">
-								<td>Survivor DarkPriest</td>
+								<td>Survivor Dark Priest</td>
 								<td>--</td>
 								<td>--</td>
 								<td>--</td>
