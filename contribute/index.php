@@ -67,6 +67,7 @@ Don't forget you can always spend some in our online <a href="http://AncientBeas
 
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Donors via PayPal</b></td><td><b>$</b></td></tr>
+<tr><td><a href="https://harumorii.deviantart.com" target="_blank" class="lighten donate"><img src="bly.png"> Haru <img src="bry.png"></a></td><td>2500</td></tr>
 <tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten donate"><img src="bly.png"> Dread Knight <img src="bry.png"></a></td><td>1000</td></tr>
 <tr><td><a href="https://github.com/unhammer" target="_blank" class="lighten donate"><img src="bly.png"> Kevin Brubeck Unhammer <img src="bry.png"></a></td><td>50</td></tr>
 <tr><td><a href="http://teogreengage.blogspot.com" target="_blank" class="lighten donate"><img src="bly.png"> Teo Cazghir <img src="bry.png"></td><td>50</td></tr>
