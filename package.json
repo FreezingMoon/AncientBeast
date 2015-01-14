@@ -1,0 +1,23 @@
+{
+  "name": "AncienBeast",
+  "subdomain": "AncienBeast",
+  "description": "AncienBeast",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.8.3"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "version": "0.0.1",
+  "devDependencies": {
+    "6to5ify": "^3.1.0",
+    "browserify": "^8.0.3",
+    "gulp": "^3.8.10",
+    "gulp-livereload": "^3.3.0",
+    "gulp-nodemon": "^1.0.4",
+    "vinyl-source-stream": "^1.0.0"
+  }
+}
