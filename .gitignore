@@ -1,7 +1,3 @@
-.htaccess
-config.php
-robots.txt
-
 # System and IDE files
 Thumbs.db
 .DS_Store
