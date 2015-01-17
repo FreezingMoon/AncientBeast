@@ -6,16 +6,16 @@ var gulp = require("gulp");
 var nodemon = require("gulp-nodemon");
 var browserify = require("browserify");
 var source = require("vinyl-source-stream");
-var to5ify = require("6to5ify");
+var tsify = require("tsify");
 var livereload = require('gulp-livereload');
 var nodemon_instance;
 
 gulp.task("browserify", function() {
   return browserify({
-    entries: './public/code/Init.js',
+    entries: './public/code/init.ts',
     debug: true
   })
-      .transform(to5ify)
+      .transform(tsify)
       .bundle()
       .pipe(source("bundle.js"))
       .pipe(gulp.dest('./public'))

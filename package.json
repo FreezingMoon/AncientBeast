@@ -13,11 +13,14 @@
   },
   "version": "0.0.1",
   "devDependencies": {
-    "6to5ify": "^3.1.0",
-    "browserify": "^8.0.3",
-    "gulp": "^3.8.10",
-    "gulp-livereload": "^3.3.0",
-    "gulp-nodemon": "^1.0.4",
-    "vinyl-source-stream": "^1.0.0"
+    "grunt": "^0.4.5",
+    "grunt-concurrent": "~0",
+    "grunt-contrib-concat": "^0.4.0",
+    "grunt-contrib-uglify": "~0.5.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-env": "~0",
+    "grunt-nodemon": "~0",
+    "grunt-protractor-runner": "~1",
+    "grunt-ts": "^2.0.1"
   }
 }
