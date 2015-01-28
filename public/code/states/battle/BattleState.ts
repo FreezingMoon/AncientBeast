@@ -4,7 +4,6 @@ module battle {
 
         create() {
             new Background(this, 0,0, 'background');
-            new Unit(this, 0,0, 'unit');
 
             // add tiles
             for(var y = 0; y<11; y++ ){
@@ -19,9 +18,9 @@ module battle {
                     }
                 }
             }
-            // /add tiles
 
-
+            new Wolf(this, 0,0, 'unit');
+            new PathFinder(this, {xId:15, yId:11});
         }
     }
 
