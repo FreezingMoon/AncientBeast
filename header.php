@@ -27,7 +27,7 @@ require_once('global.php'); ?>
 <html>
 <head>
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
-<link rel="icon" type="image/png" href="favicon.png">
+<link rel="icon" type="image/png" href="<?php echo $site_root; ?>favicon.png">
 <meta charset="utf-8">
 <meta name="google-site-verification" content="uNVUkWjGPKwXaFK-BkOowVezLve8a8rjbM_ew1UHiZg">
 <meta name="description" content="Turn Based Strategy Game. Master your beasts!">
