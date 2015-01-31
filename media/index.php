@@ -46,11 +46,13 @@ $sections = array(
 	'videos',
 	'music'
 );
+
 foreach ($sections as &$sectionItem) {
 	echo '<li style="display:inline;"><a href="?type=' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
 }
 ?>
 </ul></nav>
+
 <div class="div center">
 <?php
 // Display default or selected page
