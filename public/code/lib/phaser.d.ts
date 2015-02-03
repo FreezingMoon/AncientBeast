@@ -7,7 +7,7 @@ declare class Phaser {
 
     static VERSION: string;
     static DEV_VERSION: string;
-    //static GAMES: Phaser.Game[];
+    static GAMES: Phaser.Game[];
 
     static AUTO: number;
     static CANVAS: number;
@@ -1127,6 +1127,7 @@ declare module Phaser {
     class Game {
 
         constructor(width?: number, height?: number, renderer?: number, parent?: any, state?: any, transparent?: boolean, antialias?: boolean, physicsConfig?: any);
+        constructor(config: IGameConfig);
 
         add: Phaser.GameObjectFactory;
         antialias: boolean;
@@ -2982,6 +2983,55 @@ declare module Phaser {
 
     module Plugin {
 
+        class AStar extends Phaser.Plugin {
+
+            static VERSION: string;
+            static COST_ORTHAGONAL: number;
+            static COST_DIAGAONAL: number;
+            static DISTANCE_MANHATTEN: string;
+            static DISTANCE_EUCLIDIAN: string;
+
+            constructor(parent: any);
+
+            parent: any;
+            version: string;
+
+            findPath(startPoint: Phaser.Point, goalPoint: Phaser.Point): Phaser.Plugin.AStar.AStarPath;
+            isWalkable(x: number, y: number): boolean;
+            setAStarMap(map: Phaser.Tilemap, layerName: string, tilesetName: string): Phaser.Plugin.AStar;
+
+        }
+
+        module AStar {
+
+            class AStarNode {
+
+                constructor(x: number, y: number, isWalkable: boolean);
+
+                x: number;
+                y: number;
+                g: number;
+                h: number;
+                f: number;
+                parent: Phaser.Plugin.AStar.AStarNode;
+                travelCost: number;
+                walkable: boolean;
+
+            }
+
+            class AStarPath {
+
+                constructor(nodes: Phaser.Plugin.AStar.AStarNode[], start: Phaser.Plugin.AStar.AStarNode, goal: Phaser.Plugin.AStar.AStarNode);
+
+                nodes: Phaser.Plugin.AStar.AStarNode[];
+                start: Phaser.Plugin.AStar.AStarNode;
+                goal: Phaser.Plugin.AStar.AStarNode;
+                visited: Phaser.Plugin.AStar.AStarNode[];
+
+            }
+
+        }
+
         class ColorHarmony extends Phaser.Plugin {
 
             getAnalogousHarmony(color: number, threshold?: number): any;
@@ -4519,6 +4569,7 @@ declare module Phaser {
             renderShadow: boolean;
             sprite: Phaser.Image;
 
+            AStar(astar: Phaser.Plugin.AStar, x: number, y: number, showVisited: boolean): void;
             boot(): void;
             body(sprite: Phaser.Sprite, color?: string, filled?: boolean): void;
             bodyInfo(sprite: Phaser.Sprite, x: number, y: Number, color?: string): void;

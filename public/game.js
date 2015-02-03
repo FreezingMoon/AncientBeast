@@ -29,6 +29,20 @@ var battle;
             _super.apply(this, arguments);
         }
         State.prototype.create = function () {
+            this.battleGround = [
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ];
+
             new battle.Background(this, 0, 0, 'background');
 
             for (var y = 0; y < 11; y++) {
@@ -44,7 +58,6 @@ var battle;
             }
 
             new battle.Wolf(this, 0, 0, 'unit');
-            new battle.PathFinder(this, { xId: 15, yId: 11 });
         };
         return State;
     })(Phaser.State);
@@ -53,11 +66,92 @@ var battle;
 var battle;
 (function (battle) {
     var PathFinder = (function () {
-        function PathFinder(state, size) {
-            this.state = state;
+        function PathFinder(unit, xId, yId, speed, size) {
+            this.unit = unit;
+            this.xId = xId;
+            this.yId = yId;
+            this.speed = speed;
             this.size = size;
+            this.grid = unit.state.battleGround;
+
+            this.generatePaths();
         }
-        PathFinder.prototype.generateViablePaths = function (position) {
+        PathFinder.prototype.generatePaths = function () {
+            var _this = this;
+            this.gridCopy = [];
+
+            for (var y = 0; y < this.grid.length; y++) {
+                this.gridCopy.push(this.grid[y].slice());
+            }
+
+            this.fringes = [];
+            this.fringes.push({ xId: this.xId, yId: this.yId, path: [] });
+            this.newFringes = [];
+
+            for (var dist = 0; dist < this.speed; dist++) {
+                this.fringes.forEach(function (fringe) {
+                    _this.checkAroundTile(fringe);
+                });
+                this.fringes = this.newFringes;
+            }
+        };
+
+        PathFinder.prototype.checkAroundTile = function (fringe) {
+            var _this = this;
+            var tileToCheck;
+            var x = fringe.xId;
+            var y = fringe.yId;
+
+            if (y % 2) {
+                tileToCheck = [
+                    { x: x, y: y - 1 }, { x: x + 1, y: y - 1 },
+                    { x: x - 1, y: y }, { x: x + 1, y: y },
+                    { x: x, y: y + 1 }, { x: x + 1, y: y + 1 }
+                ];
+            } else {
+                tileToCheck = [
+                    { x: x - 1, y: y - 1 }, { x: x, y: y - 1 },
+                    { x: x - 1, y: y }, { x: x + 1, y: y },
+                    { x: x - 1, y: y + 1 }, { x: x, y: y + 1 }
+                ];
+            }
+
+            tileToCheck.forEach(function (position) {
+                if (position.y < 0 || position.y > _this.gridCopy.length - 1) {
+                    return;
+                }
+
+                var row = _this.gridCopy[position.y];
+
+                if (position.x < 0 || position.x > row.length - 1) {
+                    return;
+                }
+
+                var path = _this.getPath(position.x, position.y);
+
+                if (path) {
+                    return;
+                }
+
+                var tile = row[position.x];
+
+                if (tile === 0) {
+                    var newPath = fringe.path.slice();
+                    newPath.push(position);
+
+                    var node = {
+                        xId: position.x,
+                        yId: position.y,
+                        path: newPath
+                    };
+
+                    _this.gridCopy[position.y][position.x] = newPath;
+                    _this.newFringes.push(node);
+                }
+            });
+        };
+
+        PathFinder.prototype.getPath = function (xId, yId) {
         };
         return PathFinder;
     })();
@@ -112,14 +206,22 @@ var battle;
 (function (battle) {
     var Unit = (function (_super) {
         __extends(Unit, _super);
-        function Unit(state, xId, yId, name) {
+        function Unit(state, name, xId, yId, speed, size) {
             _super.call(this, state.game, 0, 0, name);
             this.state = state;
+            this.xId = xId;
+            this.yId = yId;
+            this.speed = speed;
+            this.size = size;
 
             this.x = 200 + xId * 90;
             this.y = 400 + yId * 64;
 
+            this.state.battleGround[yId][xId] = this;
+
             this.anchor.setTo(0, 1);
+
+            this.pathFinder = new battle.PathFinder(this, xId, yId, speed, size);
 
             state.game.add.existing(this);
         }
@@ -132,7 +234,7 @@ var battle;
     var Wolf = (function (_super) {
         __extends(Wolf, _super);
         function Wolf(state, xId, yId, name) {
-            _super.call(this, state, xId, yId, name);
+            _super.call(this, state, name, xId, yId, 4, 1);
 
             this.inputEnabled = true;
             this.input.enableDrag(true);
