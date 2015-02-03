@@ -1,3 +1,3 @@
 Ancient Beast 2015
 
-Needs node and gulp to run in development
+Needs node and grunt to run in development
