@@ -15,6 +15,8 @@ module load {
 
             this.load.image('background', 'images/bg2.jpg');
             this.load.image('hex',        'images/hex.png');
+            this.load.image('hexRed',     'images/hex_red.png');
+            this.load.image('hexPath',    'images/hex_path.png');
             this.load.image('unit',       'images/CyberHound.png');
         }
 

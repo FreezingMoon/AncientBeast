@@ -9,7 +9,10 @@ module battle {
             this.scale.y = 0.8;
 
             state.game.add.existing(this);
+        }
 
+        changeColor(){
+            this.loadTexture('hexRed', 0);
         }
 
     }

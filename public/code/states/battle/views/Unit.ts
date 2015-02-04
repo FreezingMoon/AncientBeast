@@ -20,7 +20,7 @@ module battle {
 
             this.anchor.setTo(0,1);
 
-            this.pathFinder = new PathFinder(this,xId,yId,speed,size);
+            this.pathFinder = new PathFinder(this);
 
             state.game.add.existing(this);
         }
