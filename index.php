@@ -26,7 +26,12 @@
 $style = '
 a.FM:hover { text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px; }
 .image { cursor: pointer; display: inline-block; padding-left: 10px; }
-.small { width: 128px; height: 128px; }';
+.small { width: 128px; height: 128px; }
+#screenshot { display: inline-block; position: relative; vertical-align: top; margin: 10px; width: 390px; }
+#screenshot img { position: absolute; z-index: 8; top: 0; padding: 0px; margin: 0px; border: solid 2px grey; }
+#screenshot IMG.active { z-index: 10; }
+#screenshot IMG.last-active {z-index: 9; }
+';
 $stylesheet = 'units/cards.css';
 
 require_once('header.php'); 
@@ -55,7 +60,11 @@ require_once('header.php');
 <b>Ancient Beast</b> is a turn based strategy indie game project, played against other people (or bots) in hotseat or online modes, featuring a wide variety of units to acquire and put to good use in order to defeat all your opponents in battle.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it as well!
 </p><p>
 Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a> and <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a>, being developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> and community. It uses web technologies such as HTML, PHP, JavaScript and Node.js, so that it's playable from modern browsers without requiring plugins.</p></div>
-<div style="display: inline-block;" class="center lighten"><a href="media/?type=screenshots#id=0"><img src="images/screenshots.gif" class="image" width=400px height=225px><br><b>Check out some screenshots!</b></a></div>
+<div class="lighten" id="screenshot"><a href="media/?type=screenshots#id=0">
+<img src="images/screenie1.png" class="image" width=400px height=225px>
+<img src="images/screenie2.png" class="image" width=400px height=225px>
+<img src="images/screenie3.png" class="image" width=400px height=225px>
+<div class="center" style="padding-top: 235px;"><b>Check out some screenshots!</b></div></a></div>
 </div>
 <?php require_once("images/stats/index.php"); ?>
 
@@ -253,9 +262,22 @@ function nextCard() {
 </article>
 <?php include('footer.php'); ?>
 <script>
-function toggleSound() {
-	var audioElem = document.getElementById('narration');
-	if (audioElem.paused) audioElem.play();
-	else audioElem.pause();
-}
+  function nextSlide() {
+    var x = $('#screenshot img:not(.active)');
+    return $(x[Math.floor(Math.random() * x.length)]);
+  }
+
+  function slideSwitch() {
+    var active = $('#screenshot img.active');
+    if (active.length == 0)
+      active = nextSlide();
+    var next = nextSlide();
+    active.addClass('last-active');
+    next.css({opacity: 0.0})
+      .addClass('active')
+      .animate({opacity: 1.0}, 1000, function() {
+          active.removeClass('active last-active');
+    });
+  }
+  $(function() { setInterval("slideSwitch()", 4000); });
 </script>
