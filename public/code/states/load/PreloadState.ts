@@ -6,7 +6,7 @@ module preload {
         init(nextState){
 
             this.nextState = nextState;
-            this.game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+            this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         }
 
         preload() {
