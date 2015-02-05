@@ -23,12 +23,17 @@ var battle;
         __extends(State, _super);
         function State() {
             _super.apply(this, arguments);
+            this.units = [];
         }
+        State.prototype.init = function (data) {
+            this.initData = data;
+        };
+
         State.prototype.create = function () {
             var _this = this;
             this.battleGround = [
-                [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -44,6 +49,8 @@ var battle;
 
             new battle.Background(this, 0, 0, 'background');
 
+            this.obstacles = this.add.group();
+
             this.battleGround.forEach(function (tile, y) {
                 var row = [];
                 if (y % 2) {
@@ -58,13 +65,19 @@ var battle;
                 _this.tiles.push(row);
             });
 
-            var wolfy = new battle.Wolf(this, 0, 0, 'unit');
+            this.obstacles.add(new battle.Obstacle(this, 3, 6, 'obstacle'));
+            this.obstacles.add(new battle.Obstacle(this, 2, 7, 'obstacle'));
+            this.obstacles.add(new battle.Obstacle(this, 1, 7, 'obstacle'));
 
-            var walkable = wolfy.pathFinder.getWalkableTiles();
-
-            walkable.forEach(function (pos) {
-                _this.tiles[pos.y][pos.x].changeColor();
+            this.initData.player.units.forEach(function (unit) {
+                _this.units.push(new unit.constructors.battle(_this, 0, 5, false));
             });
+
+            this.initData.enemy.units.forEach(function (unit) {
+                _this.units.push(new unit.constructors.battle(_this, 14, 5, true));
+            });
+
+            this.units[0].startTurn();
         };
         return State;
     })(Phaser.State);
@@ -202,6 +215,27 @@ var battle;
 })(battle || (battle = {}));
 var battle;
 (function (battle) {
+    var Obstacle = (function (_super) {
+        __extends(Obstacle, _super);
+        function Obstacle(state, xId, yId, name) {
+            _super.call(this, state.game, 0, 0, name);
+            this.state = state;
+
+            this.x = this.state.tiles[yId][xId].x;
+            this.y = this.state.tiles[yId][xId].y;
+
+            this.state.battleGround[yId][xId] = 1;
+
+            this.anchor.setTo(0.5);
+
+            state.game.add.existing(this);
+        }
+        return Obstacle;
+    })(Phaser.Sprite);
+    battle.Obstacle = Obstacle;
+})(battle || (battle = {}));
+var battle;
+(function (battle) {
     var Tile = (function (_super) {
         __extends(Tile, _super);
         function Tile(state, x, y, name) {
@@ -214,7 +248,7 @@ var battle;
             state.game.add.existing(this);
         }
         Tile.prototype.changeColor = function () {
-            this.loadTexture('hexRed', 0);
+            this.loadTexture('hexPath', 0);
         };
         return Tile;
     })(Phaser.Sprite);
@@ -224,25 +258,39 @@ var battle;
 (function (battle) {
     var Unit = (function (_super) {
         __extends(Unit, _super);
-        function Unit(state, name, xId, yId, speed, size) {
+        function Unit(state, name, xId, yId, flip, speed, size) {
             _super.call(this, state.game, 0, 0, name);
             this.state = state;
             this.xId = xId;
             this.yId = yId;
+            this.flip = flip;
             this.speed = speed;
             this.size = size;
 
-            this.x = 200 + xId * 90;
-            this.y = 400 + yId * 64;
+            this.x = this.state.tiles[yId][xId].x + 10;
+            this.y = this.state.tiles[yId][xId].y + 20;
 
             this.state.battleGround[yId][xId] = this;
 
-            this.anchor.setTo(0, 1);
+            this.anchor.setTo(.5, 1);
+
+            if (flip) {
+                this.scale.x = -1;
+                this.x -= 20;
+            }
 
             this.pathFinder = new battle.PathFinder(this);
 
             state.game.add.existing(this);
         }
+        Unit.prototype.startTurn = function () {
+            var _this = this;
+            var tiles = this.pathFinder.getWalkableTiles();
+
+            tiles.forEach(function (pos) {
+                _this.state.tiles[pos.y][pos.x].changeColor();
+            });
+        };
         return Unit;
     })(Phaser.Sprite);
     battle.Unit = Unit;
@@ -251,8 +299,11 @@ var battle;
 (function (battle) {
     var Wolf = (function (_super) {
         __extends(Wolf, _super);
-        function Wolf(state, xId, yId, name) {
-            _super.call(this, state, name, xId, yId, 4, 1);
+        function Wolf(state, xId, yId, flip) {
+            _super.call(this, state, 'wolf', xId, yId, flip, 4, 1);
+
+            this.scale.x *= 0.8;
+            this.scale.y *= 0.8;
 
             this.inputEnabled = true;
             this.input.enableDrag(true);
@@ -279,11 +330,35 @@ var load;
             this.load.image('hex', 'images/hex.png');
             this.load.image('hexRed', 'images/hex_red.png');
             this.load.image('hexPath', 'images/hex_path.png');
-            this.load.image('unit', 'images/CyberHound.png');
+            this.load.image('obstacle', 'images/obstacle.png');
+            this.load.image('wolf', 'images/CyberHound.png');
         };
 
         State.prototype.create = function () {
-            this.game.state.start(this.nextState);
+            var mockData = {
+                player: {
+                    units: [
+                        {
+                            count: 10,
+                            constructors: {
+                                battle: battle.Wolf
+                            }
+                        }
+                    ]
+                },
+                enemy: {
+                    units: [
+                        {
+                            count: 20,
+                            constructors: {
+                                battle: battle.Wolf
+                            }
+                        }
+                    ]
+                }
+            };
+
+            this.game.state.start(this.nextState, true, false, mockData);
         };
         return State;
     })(Phaser.State);

@@ -12,7 +12,7 @@ module battle {
         }
 
         changeColor(){
-            this.loadTexture('hexRed', 0);
+            this.loadTexture('hexPath', 0);
         }
 
     }

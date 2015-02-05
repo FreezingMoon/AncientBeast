@@ -17,12 +17,35 @@ module load {
             this.load.image('hex',        'images/hex.png');
             this.load.image('hexRed',     'images/hex_red.png');
             this.load.image('hexPath',    'images/hex_path.png');
-            this.load.image('unit',       'images/CyberHound.png');
+            this.load.image('obstacle',    'images/obstacle.png');
+            this.load.image('wolf',       'images/CyberHound.png');
         }
 
         create() {
+            var mockData = {
+                player: {
+                    units:[
+                        {
+                            count: 10,
+                            constructors:{
+                                battle:battle.Wolf
+                            }
+                        }
+                    ]
+                },
+                enemy:{
+                    units:[
+                        {
+                            count: 20,
+                            constructors:{
+                                battle:battle.Wolf
+                            }
+                        }
+                    ]
+                }
+            };
 
-            this.game.state.start(this.nextState);
+            this.game.state.start(this.nextState, true, false, mockData);
         }
 
     }

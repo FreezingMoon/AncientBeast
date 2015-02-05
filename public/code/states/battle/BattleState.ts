@@ -4,13 +4,21 @@ module battle {
         battleGround;
         controller;
         tiles;
+        units = [];
+        initData;
+        obstacles;
+
+        init(data){
+
+            this.initData = data;
+        }
 
         create() {
 
             // used to speed up pathfinding, this.tiles[] is where actual tiles are
             this.battleGround = [ // 16-15 x 11
-                [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                 [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -27,6 +35,8 @@ module battle {
 
             new Background(this, 0,0, 'background');
 
+            this.obstacles = this.add.group();
+
             // add tiles
             this.battleGround.forEach((tile, y)=>{
                 var row = [];
@@ -42,17 +52,24 @@ module battle {
                 this.tiles.push(row);
             });
 
+            // add some obstacles
+            this.obstacles.add(new Obstacle(this, 3, 6, 'obstacle'));
+            this.obstacles.add(new Obstacle(this, 2, 7, 'obstacle'));
+            this.obstacles.add(new Obstacle(this, 1, 7, 'obstacle'));
 
-            // showing off pathfinding
-            var wolfy = new Wolf(this, 0,0, 'unit');
-
-            var walkable = wolfy.pathFinder.getWalkableTiles();
-
-            walkable.forEach((pos)=>{
-                this.tiles[pos.y][pos.x].changeColor();
+            // add Player units
+            this.initData.player.units.forEach((unit)=>{
+                this.units.push(new unit.constructors.battle(this, 0, 5, false));
             });
-            // showing off pathfinding
 
+            // add Enemy units
+            this.initData.enemy.units.forEach((unit)=>{
+                this.units.push(new unit.constructors.battle(this, 14, 5, true));
+            });
+
+
+
+            this.units[0].startTurn();
         }
     }
 
