@@ -87,9 +87,17 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 <br>
 </div>
 
-<img src="../images/hand.png" class="image lighten" width=400px height=387px onclick="toggleSound();" title="Click to play narrative"></div>
+<img src="../images/hand.png" class="image lighten" width=400px height=387px onclick="toggleSound();" style="cursor: pointer;" title="Click to play narrative"></div>
 <audio id="narration" src="plot.ogg"></audio>
 
 <?php
 disqus();
 include('../footer.php'); ?>
+
+<script>
+function toggleSound() {
+	var audioElem = document.getElementById('narration');
+	if (audioElem.paused) audioElem.play();
+	else audioElem.pause();
+}
+</script>
