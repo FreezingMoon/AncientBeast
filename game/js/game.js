@@ -225,7 +225,7 @@ var Game = Class.create({
 				// Load unit shouts
 				G.soundsys.getSound('../units/shouts/'+data.name+'.ogg', 1000+G.loadedCreatures[j],function() { G.loadFinish(); });
 				// Load unit abilities
-				getScript('../units/abilities/'+data.name+'.js', function() { G.loadFinish(); });
+				getScript('abilities/'+data.name+'.js', function() { G.loadFinish(); });
 				// Load artwork
 				getImage('../units/artwork/'+data.name+'.jpg', function() { G.loadFinish(); });
 
@@ -238,7 +238,7 @@ var Game = Class.create({
 				}else{
 					if(data.drop){
 						G.loadingSrc += 1;
-						G.Phaser.load.image('drop_'+data.drop.name, '../units/drops/'+data.drop.name+'.png');
+						G.Phaser.load.image('drop_'+data.drop.name, 'drops/'+data.drop.name+'.png');
 					}
 					G.loadingSrc += 2;
 					G.Phaser.load.image(data.name+'_cardboard', '../units/cardboards/'+data.name+'.png');
