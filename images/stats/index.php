@@ -8,13 +8,11 @@ foreach ($stats as $key => $x) {
 }
 
 // Shows iconUsed by units/cards.php
-function displayStat($type = "health", $value = null, $link = null, $modifiers = false){
+function displayStat($type = "health", $value = null, $modifiers = false) {
 	global $stats;
 	echo '<div stat="' . $type . '" class="stat ' . $type . '">';
-	if($link) echo '<a href="' . $link . '">';
 	echo '<div class="icon ' . $type . '"></div>';
 	if($value !== null) echo '<br><span class="value">' . $value . '</span>';
-	if($link) echo '</a>';
 	if($modifiers) echo '<div class="modifiers"><div>No active modifiers</div></div>';
 	echo '</div>';
 }

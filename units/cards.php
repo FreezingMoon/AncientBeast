@@ -123,7 +123,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 					$i=1;
 					foreach ($r["stats"] as $key => $value) {
 					 	if( $i > 0 && $i < 10) {
-				 			displayStat($key,$value,"",$modifiers);
+				 			displayStat($key,$value,$modifiers);
 				 		}
 						$i++;
 					}
@@ -153,7 +153,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 					$i=1;
 					foreach ($r["stats"] as $key => $value) {
 					 	if( $i > 9 &&  $i < 19) { 
-					 		displayStat($key,$value,"",$modifiers); 
+					 		displayStat($key,$value,$modifiers); 
 				 		}
 				 		$i++;
 					}
