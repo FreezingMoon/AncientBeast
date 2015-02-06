@@ -56,7 +56,7 @@ We strongly believe in open source software development, but to run a successful
 You can address individual issues by using <a href="https://bountysource.com/teams/freezingmoon/issues?tracker_ids=260151" target="_blank"><b>Bounty Source</b></a>.<br>
 If you wish to become a sponsor, get in touch via an <a href="mailto:DreadKnight@FreezingMoon.org?Subject=I want to Sponsor the Project" target="_blank"><b>email</b></a>.<br>
 Any amount you can donate is very appreciated, thank you!<br>
-Don't forget you can always spend some in our online <a href="http://AncientBeast.com/shop"><b>shop</b></a>.
+<!--Don't forget you can always spend some in our online <a href="https://AncientBeast.com/shop"><b>shop</b></a>.-->
 </p>
 <p><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><img src="paypal.png" class="lighten" width=68px height=20px></a>
 <a href="bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast" target="_blank"><img src="bitcoin.png" class="lighten" width=85px height=20px></a>
@@ -69,9 +69,9 @@ Don't forget you can always spend some in our online <a href="http://AncientBeas
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width:400px;"><tr><td><b>Top Donors via PayPal</b></td><td><b>$</b></td></tr>
 <tr><td><a href="https://harumorii.deviantart.com" target="_blank" class="lighten donate"><img src="bly.png"> Haru <img src="bry.png"></a></td><td>2500</td></tr>
-<tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten donate"><img src="bly.png"> Dread Knight <img src="bry.png"></a></td><td>1000</td></tr>
+<tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten donate"><img src="bly.png"> Dread Knight <img src="bry.png"></a></td><td>1250</td></tr>
 <tr><td><a href="https://github.com/unhammer" target="_blank" class="lighten donate"><img src="bly.png"> Kevin Brubeck Unhammer <img src="bry.png"></a></td><td>50</td></tr>
-<tr><td><a href="http://teogreengage.blogspot.com" target="_blank" class="lighten donate"><img src="bly.png"> Teo Cazghir <img src="bry.png"></td><td>50</td></tr>
+<tr><td><a href="https://teogreengage.blogspot.com" target="_blank" class="lighten donate"><img src="bly.png"> Teo Cazghir <img src="bry.png"></td><td>50</td></tr>
 <tr><td><a href="https://bountysource.com" target="_blank" class="lighten donate"><img src="bly.png"> David Rappo <img src="bry.png"></a></td><td>50</td></tr>
 <tr><td><a href="https://facebook.com/silvernessa" target="_blank" class="lighten donate"><img src="bly.png"> Vanessa Young <img src="bry.png"></a></td><td>46</td></tr>
 <tr><td><a href="https://github.com/hpvb" target="_blank" class="lighten donate"><img src="bly.png"> Hein-Pieter van Braam <img src="bry.png"></a></td><td>40</td></tr>
