@@ -25,9 +25,7 @@
 $page_title = "Game";
 
 $style = '
-.strike {
-	text-decoration: line-through;
-}
+.strike { text-decoration: line-through; }
 #bar {
 	background: transparent;
 	width: 100%;
@@ -49,8 +47,8 @@ $style = '
 	background: rgb(255,255,255); /* Old browsers */
 	background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(241,241,241,1) 50%,rgba(225,225,225,1) 51%,rgba(246,246,246,1) 100%);
 }
-#bar a:hover {background: white; color: black;}
-iframe.fullscreen {padding-top: 0;}
+#bar a:hover { background: white; color: black; }
+iframe.fullscreen { padding-top: 0; }
 ';
 
 require_once('../header.php');
