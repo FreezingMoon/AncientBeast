@@ -56,8 +56,8 @@ foreach ($sections as &$sectionItem) {
 <div class="div center">
 <?php
 // Display default or selected page
-@$type = $_GET['type'];
-if (!isset($type)) $type = 'artwork';
+$type = isset($_GET['type']) ? $_GET['type'] : 'artwork';
+
 switch($type) {
 case 'artwork':
 	$images = scandir("artwork");
