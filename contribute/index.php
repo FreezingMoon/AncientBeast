@@ -89,7 +89,7 @@ Don't forget you can always spend some in our online <a href="http://AncientBeas
 
 <div class="div" id="artwork">
 <div style="width: 475px; text-align: justify; display:inline-block;">
-<h3 class="indexheader"><a href="#Artwork">Artwork</a></h3>
+<h3 class="indexheader"><a href="#artwork">Artwork</a></h3>
 <p>
 Perhaps it's not money you want to contribute, but rather spend some time and energy while putting your pen and brush to some good use in order to create more visual content for the project or simply having fun drawing fan art of already existing creatures? If you have something lying around and you think it could nicely fit the game while under the same <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><b>CC-BY-SA 3.0</b></a> license, feel free to send it our way!<br>
 If you want a task assigned, simply drop by our <a href="../chat"><b>chat</b></a> room and poke DreadKnight, the project's founder, he'll brief you.
@@ -154,7 +154,7 @@ We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallp
 
 <div class="div" id="coding">
 <div style="width: 475px; text-align: justify; display:inline-block;">
-<h3 class="indexheader"><a href="#Coding">Coding</a></h3>
+<h3 class="indexheader"><a href="#coding">Coding</a></h3>
 <p>
 We can always use an extra hand or two when it comes to polishing and adding new functionality to the website and to the game itself of course. All the coding languages used are web based, such as HTML, CSS, PHP, Javascript and Node.js. The project uses the great <a href="www.phaser.io" target="_blank"><b>Phaser</b></a> game engine, having a neat <a href="http://html5gamedevs.com/forum/14-phaser/" target="_blank"><b>community</b></a>, <a href="http://docs.phaser.io" target="_blank"><b>documentation</b></a> and <a href="http://examples.phaser.io/" target="_blank"><b>examples</b></a>. It's also open source, you can find it's repository on <a href="https://github.com/photonstorm/phaser" target="_blank"><b>Github</b></a>.<br>
 If you want a task assigned, simply drop by our <a href="http://AncientBeast.com/chat"><b>chat</b></a> room and poke DreadKnight, the project's founder, he'll brief you.<br>
@@ -182,7 +182,7 @@ Sometimes even reviewing or talking code can greatly help.
 
 <div class="div" id="audio">
 <div style="width: 475px; text-align: justify; display:inline-block;">
-<h3 class="indexheader"><a href="#Audio">Audio</a></h3>
+<h3 class="indexheader"><a href="#audio">Audio</a></h3>
 <p>
 If composing is more of your expertise, we can always use more tracks of epic genre, as example you can check out the existing tracks and also some from related games, such as the Heroes of Might and Magic 3's combat tracks and the OST from the King's Bounty games. I also consider sound fx is another important area that can make or break gameplay, it should not be annoying and repetitive while nicely complementing and reinforcing the ongoing actions.
 </p><p>
@@ -213,7 +213,7 @@ All tracks and sfx need to be under <a href="http://creativecommons.org/licenses
 
 <div class="div" id="supporter">
 <div style="width: 475px; text-align: justify; display:inline-block;">
-<h3 class="indexheader"><a href="#Supporter">Supporter</a></h3>
+<h3 class="indexheader"><a href="#supporter">Supporter</a></h3>
 <p>
 No moneys and no coding or artistic skills? No worries, you can still help out by being part of the community, testing out the game and reporting issues, brainstorming and spreading out the word as our marketing budget is pretty much non-existend, so we rely on you for that! Feedback and boosting the numbers are always nice, as they can also boost up morale and reassure us we're on the proper path.
 Click on the icons below and join our various project groups. You can also hang out with us in our own project <a href="http://AncientBeast.com/chat"><b>chat</b></a> room.
