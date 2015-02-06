@@ -1,7 +1,7 @@
 <?php mysqli_close($link); ?>
 <div class="footer smalldiv center">
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><img src="<?php echo $site_url; ?>images/footer/paypal.png" class="lighten" alt="paypal" title="Donate using PayPal!"></a>
-<a href="bitcoin:1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97?label=Ancient%20Beast"><img src="<?php echo $site_url; ?>images/footer/bitcoin.png" class="lighten" alt="bitcoin" title="Donate some Bitcoins!"></a>
+<a href="bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast"><img src="<?php echo $site_url; ?>images/footer/bitcoin.png" class="lighten" alt="bitcoin" title="Donate some Bitcoins!"></a>
 <a href="https://www.bountysource.com/trackers/260151-ancient-beast"><img src="<?php echo $site_url; ?>images/footer/bountysource.png" class="lighten" alt="bountysource" title="Place some bounties!"></a>
 <a href="http://www.patreon.com/AncientBeast" target="_blank"><img src="<?php echo $site_url; ?>images/footer/patreon.png" class="lighten" alt="patreon" title="Donate via Patreon!"></a>	
 <a href="https://flattr.com/thing/126547/Ancient-Beast" target="_blank"><img src="<?php echo $site_url; ?>images/footer/flattr.png" class="lighten" alt="flattr" title="Donate via Flattr!"></a>

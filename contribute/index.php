@@ -28,6 +28,7 @@ $style = '
 .artwork { color: #FC8585 !important; }
 .coding { color: #6EDD64 !important; }
 .audio { color: #AFC8FF !important; }
+.image { margin-left: 10px; width: 400px; height: 250px; }
 ';
 require_once('../header.php'); 
 ?>
@@ -51,14 +52,14 @@ require_once('../header.php');
 <div style="width: 475px; text-align: justify; display:inline-block;">
 <h3 class="indexheader"><a href="#donate">Donate</a></h3>
 <p>
-We strongly believe in open source software development, but to run a successful project, you still require quite a bit of money in order to have at least few people work part-time on the project and deal with the stuff nobody else wants to ever actually do and there are also services and hardware requirements that must be met which tend to add up quite a bit. Please consider donating via <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><b>Paypal</b></a> or <a href="bitcoin:1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97?label=Ancient%20Beast"><b>Bitcoin</b></a>, even if you're not into turn based strategy games you must see the bigger picture: we're setting an example in the industry and also creating a huge high quality art repository that you and others can use for commercial work and possibly even make other neat games, comics or maybe even animations. Feel free to become our <a href="http://patreon.com/AncientBeast" target="_blank"><b>Patreon</b></a> and receive cool rewards.<br>
+We strongly believe in open source software development, but to run a successful project, you still require quite a bit of money in order to have at least few people work part-time on the project and deal with the stuff nobody else wants to ever actually do and there are also services and hardware requirements that must be met which tend to add up quite a bit. Please consider donating via <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><b>Paypal</b></a> or <a href="bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast"><b>Bitcoin</b></a>, even if you're not into turn based strategy games you must see the bigger picture: we're setting an example in the industry and also creating a huge high quality art repository that you and others can use for commercial work and possibly even make other neat games, comics or maybe even animations. Feel free to become our <a href="http://patreon.com/AncientBeast" target="_blank"><b>Patreon</b></a> and receive cool rewards.<br>
 You can address individual issues by using <a href="https://bountysource.com/teams/freezingmoon/issues?tracker_ids=260151" target="_blank"><b>Bounty Source</b></a>.<br>
 If you wish to become a sponsor, get in touch via an <a href="mailto:DreadKnight@FreezingMoon.org?Subject=I want to Sponsor the Project" target="_blank"><b>email</b></a>.<br>
 Any amount you can donate is very appreciated, thank you!<br>
 Don't forget you can always spend some in our online <a href="http://AncientBeast.com/shop"><b>shop</b></a>.
 </p>
 <p><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><img src="paypal.png" class="lighten" width=68px height=20px></a>
-<a href="bitcoin:1Gpa3NKn8nR9ipXPZbwkjYxqZX3cmz7q97?label=Ancient%20Beast" target="_blank"><img src="bitcoin.png" class="lighten" width=85px height=20px></a>
+<a href="bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast" target="_blank"><img src="bitcoin.png" class="lighten" width=85px height=20px></a>
 <a href="https://flattr.com/thing/126547/Ancient-Beast" target="_blank"><img src="flattr.png" width=90px class="lighten" height=20px></a>
 <a href="https://gratipay.com/AncientBeast" target="_blank"><img src="gratipay.png" class="lighten" width=77px height=20px></a>
 <a href="https://bountysource.com/teams/freezingmoon/issues?tracker_ids=260151" target="_blank"><img src="bountysource.png" class="lighten" width=64px height=20px></a>
@@ -148,7 +149,7 @@ We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallp
 <tr><td><a href="http://onirke.deviantart.com" target="_blank" class="lighten artwork"><img src="blr.png"> Oliwia Grambo <img src="brr.png"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table><br>
-<div style="display: inline-block;" class="center"><img src="gumble.png" style="padding-left: 10px;" width=400px height=270px></div>
+<div style="display: inline-block;" class="center"><img src="gumble.png" class="image"></div>
 </div>
 </div>
 
@@ -207,7 +208,7 @@ All tracks and sfx need to be under <a href="http://creativecommons.org/licenses
 <tr><td><a href="http://opengameart.org/users/haeldb" target="_blank" class="lighten audio"><img src="blb.png"> Brandon756 <img src="brb.png"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table><br><br>
-<div style="display: inline-block;" class="center"><img src="band.jpg" style="padding-left: 10px;" width=400px height=250px></div>
+<div style="display: inline-block;" class="center"><img src="band.jpg" class="image"></div>
 </div>
 </div>
 
@@ -219,7 +220,7 @@ No moneys and no coding or artistic skills? No worries, you can still help out b
 Click on the icons below and join our various project groups. You can also hang out with us in our own project <a href="http://AncientBeast.com/chat"><b>chat</b></a> room.
 </p>
 </div>
-<div style="display: inline-block;" class="center"><img src="together.jpg" style="padding-left: 10px;" width=400px height=250px></div>
+<div style="display: inline-block;" class="center"><img src="together.jpg" class="image"></div>
 </div>
 
 <?php include('../footer.php'); ?>
