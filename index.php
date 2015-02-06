@@ -28,7 +28,7 @@ a.FM:hover { text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px; }
 .image { cursor: pointer; display: inline-block; padding-left: 10px; }
 .small { width: 128px; height: 128px; }
 #screenshot { display: inline-block; position: relative; vertical-align: top; margin: 10px; width: 390px; }
-#screenshot img { position: absolute; z-index: 8; top: 0; padding: 0px; margin: 0px; border: solid 2px grey; }
+#screenshot img { position: absolute; z-index: 8; top: 0; padding: 0px; margin: 0px; border: ridge 3px grey; }
 #screenshot IMG.active { z-index: 10; }
 #screenshot IMG.last-active {z-index: 9; }
 ';
