@@ -3,7 +3,7 @@ module battle {
 
         constructor(state: State, xId: number, yId: number, flip:boolean) {
 
-            super(state, 'wolf', xId, yId, flip, 4, 1);
+            super(state, 'wolf', xId, yId, flip, 5, 1);
 
             this.scale.x *= 0.8;
             this.scale.y *= 0.8;

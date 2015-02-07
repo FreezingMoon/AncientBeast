@@ -66,6 +66,7 @@ var battle;
             });
 
             this.obstacles.add(new battle.Obstacle(this, 3, 6, 'obstacle'));
+            this.obstacles.add(new battle.Obstacle(this, 4, 6, 'obstacle'));
             this.obstacles.add(new battle.Obstacle(this, 2, 7, 'obstacle'));
             this.obstacles.add(new battle.Obstacle(this, 1, 7, 'obstacle'));
 
@@ -73,9 +74,13 @@ var battle;
                 _this.units.push(new unit.constructors.battle(_this, 0, 5, false));
             });
 
+            new battle.DarkPriest(this, 0, 0, false, 'Red');
+
             this.initData.enemy.units.forEach(function (unit) {
                 _this.units.push(new unit.constructors.battle(_this, 14, 5, true));
             });
+
+            new battle.DarkPriest(this, 15, 0, true, 'Blue');
 
             this.units[0].startTurn();
         };
@@ -297,10 +302,24 @@ var battle;
 })(battle || (battle = {}));
 var battle;
 (function (battle) {
+    var DarkPriest = (function (_super) {
+        __extends(DarkPriest, _super);
+        function DarkPriest(state, xId, yId, flip, color) {
+            _super.call(this, state, 'darkPriest' + color, xId, yId, flip, 2, 1);
+
+            this.inputEnabled = true;
+            this.input.enableDrag(true);
+        }
+        return DarkPriest;
+    })(battle.Unit);
+    battle.DarkPriest = DarkPriest;
+})(battle || (battle = {}));
+var battle;
+(function (battle) {
     var Wolf = (function (_super) {
         __extends(Wolf, _super);
         function Wolf(state, xId, yId, flip) {
-            _super.call(this, state, 'wolf', xId, yId, flip, 4, 1);
+            _super.call(this, state, 'wolf', xId, yId, flip, 5, 1);
 
             this.scale.x *= 0.8;
             this.scale.y *= 0.8;
@@ -331,12 +350,20 @@ var load;
             this.load.image('hexRed', 'images/hex_red.png');
             this.load.image('hexPath', 'images/hex_path.png');
             this.load.image('obstacle', 'images/obstacle.png');
-            this.load.image('wolf', 'images/CyberHound.png');
+            this.load.image('wolf', 'images/cyber_hound.png');
+            this.load.image('darkPriestRed', 'images/dark_priest_red.png');
+            this.load.image('darkPriestBlue', 'images/dark_priest_blue.png');
         };
 
         State.prototype.create = function () {
             var mockData = {
                 player: {
+                    hero: {
+                        count: 1,
+                        constructors: {
+                            battle: battle.DarkPriest
+                        }
+                    },
                     units: [
                         {
                             count: 10,
@@ -347,6 +374,12 @@ var load;
                     ]
                 },
                 enemy: {
+                    hero: {
+                        count: 1,
+                        constructors: {
+                            battle: battle.DarkPriest
+                        }
+                    },
                     units: [
                         {
                             count: 20,
@@ -373,7 +406,7 @@ var preload;
         }
         State.prototype.init = function (nextState) {
             this.nextState = nextState;
-            this.game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+            this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         };
 
         State.prototype.preload = function () {

@@ -54,6 +54,7 @@ module battle {
 
             // add some obstacles
             this.obstacles.add(new Obstacle(this, 3, 6, 'obstacle'));
+            this.obstacles.add(new Obstacle(this, 4, 6, 'obstacle'));
             this.obstacles.add(new Obstacle(this, 2, 7, 'obstacle'));
             this.obstacles.add(new Obstacle(this, 1, 7, 'obstacle'));
 
@@ -61,13 +62,16 @@ module battle {
             this.initData.player.units.forEach((unit)=>{
                 this.units.push(new unit.constructors.battle(this, 0, 5, false));
             });
+            // add Player hero
+            new DarkPriest(this, 0, 0, false, 'Red');
 
             // add Enemy units
             this.initData.enemy.units.forEach((unit)=>{
                 this.units.push(new unit.constructors.battle(this, 14, 5, true));
             });
 
-
+            // add Enemy hero
+            new DarkPriest(this, 15, 0, true, 'Blue');
 
             this.units[0].startTurn();
         }

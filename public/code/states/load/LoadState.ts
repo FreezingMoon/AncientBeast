@@ -17,23 +17,38 @@ module load {
             this.load.image('hex',        'images/hex.png');
             this.load.image('hexRed',     'images/hex_red.png');
             this.load.image('hexPath',    'images/hex_path.png');
-            this.load.image('obstacle',    'images/obstacle.png');
-            this.load.image('wolf',       'images/CyberHound.png');
+            this.load.image('obstacle',   'images/obstacle.png');
+            this.load.image('wolf',       'images/cyber_hound.png');
+            this.load.image('darkPriestRed', 'images/dark_priest_red.png');
+            this.load.image('darkPriestBlue', 'images/dark_priest_blue.png');
         }
 
         create() {
             var mockData = {
                 player: {
+                    hero:{
+                        count: 1,
+                        constructors:{
+                            battle:battle.DarkPriest
+                        }
+                    },
                     units:[
                         {
                             count: 10,
                             constructors:{
                                 battle:battle.Wolf
                             }
-                        }
+                        },
+
                     ]
                 },
                 enemy:{
+                    hero:{
+                        count: 1,
+                        constructors:{
+                            battle:battle.DarkPriest
+                        }
+                    },
                     units:[
                         {
                             count: 20,
