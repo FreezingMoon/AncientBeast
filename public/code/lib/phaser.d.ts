@@ -1127,7 +1127,6 @@ declare module Phaser {
     class Game {
 
         constructor(width?: number, height?: number, renderer?: number, parent?: any, state?: any, transparent?: boolean, antialias?: boolean, physicsConfig?: any);
-        constructor(config: IGameConfig);
 
         add: Phaser.GameObjectFactory;
         antialias: boolean;
