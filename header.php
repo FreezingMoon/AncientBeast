@@ -75,11 +75,11 @@ if(isset($_GET['action']) == 'logout'){
  }
 ?>
 
-<!--banner-->
+<!-- Title Banner -->
 <header id="header">
 <div style="margin-top: -5px; margin-bottom: 50px;">
 <a href="<?php echo $site_root; ?>"><img src="<?php echo $site_root; ?>images/AncientBeast.png" height="125" width="555" alt="Ancient Beast" class="lighten"></a>
-<!--navigation menu-->
+<!-- Navigation Menu -->
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
   $menu = array('units', 'media', 'duel', 'play', 'blog', 'chat');
@@ -94,7 +94,7 @@ if(isset($_GET['action']) == 'logout'){
 </div>
 </header>
 
-<!--main area-->
+<!-- Main Area -->
 <div id="scroll"><a href="#"><img src="<?php echo $site_root; ?>images/AB.gif" height="32" width="32" alt="top"><br>Top</a></div>
 <div id="wrapper">
 
