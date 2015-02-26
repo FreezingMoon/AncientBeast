@@ -86,6 +86,20 @@ img {
 	padding: 5px 10px 0;
 }
 
+.button {
+	display: inline-block;
+	width: 300px;
+	background-position: center;
+	line-height: 87px;
+	font-weight: bold;
+}
+
+.button:hover { background-position: top; }
+
+.button:active { background-position: bottom; }
+
+
+
 .warning {
 	margin-bottom: 10px;
 	background: rgba(0,0,0,0.5);
@@ -116,6 +130,12 @@ a:hover,.active a,a.active {
 
 iframe {
 	border: 0;
+}
+
+.frame {
+	border: 4px ridge;
+	border-radius: 15px;
+	border-color: #660E00;
 }
 
 #scroll {

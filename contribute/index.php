@@ -33,18 +33,18 @@ $style = '
 require_once('../header.php'); 
 ?>
 
-<div class="div center" id="social">
+<div class="center" id="social" style="margin-bottom: 5px;">
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="http://reddit.com/r/AncientBeast" target="_blank"><img src="../images/squares/reddit.jpg"><br>
-		<b>Join the Community on Reddit</b></a>
+		<a href="http://reddit.com/r/AncientBeast" target="_blank"><img src="../images/squares/reddit.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Join the Community on Reddit</div></a>
 	</div>
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><img src="../images/squares/github.jpg"><br>
-		<b>Fork the Project on Github</b></a>
+		<a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><img src="../images/squares/github.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png); ;">Fork the Project on Github</div></a>
 	</div>
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="http://ancient-beast.deviantart.com" target="_blank"><img src="../images/squares/deviantart.jpg"><br>
-		<b>Submit Fanart on deviantArt</b></a>
+		<a href="http://ancient-beast.deviantart.com" target="_blank"><img src="../images/squares/deviantart.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Submit Fanart on deviantArt</div></a>
 	</div>
 </div>
 

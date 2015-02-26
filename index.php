@@ -28,7 +28,7 @@ a.FM:hover { text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px; }
 .image { cursor: pointer; display: inline-block; padding-left: 10px; }
 .small { width: 128px; height: 128px; }
 #screenshot { display: inline-block; position: relative; vertical-align: top; margin: 10px; width: 390px; }
-#screenshot img { position: absolute; z-index: 8; top: 0; padding: 0px; margin: 0px; border: ridge 3px grey; }
+#screenshot img { position: absolute; z-index: 8; top: 0; padding: 0px; margin: 0px; border-color: grey !important; }
 #screenshot IMG.active { z-index: 10; }
 #screenshot IMG.last-active {z-index: 9; }
 ';
@@ -37,19 +37,19 @@ $stylesheet = 'units/cards.css';
 require_once('header.php'); 
 ?>
 <article>
-<div class="div center">
+<div class="center" style="margin-bottom: 5px;">
 	<!-- Featured Blog Article -->
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="blog/2013-06-15"><img src="blog/2013-06-15/thumb.jpg"><br>
-		<b>See Version 0.2 Changelog</b></a>
+		<a href="blog/2013-06-15"><img src="blog/2013-06-15/thumb.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(images/push_button.png);">See the v0.2 Changelog</div></a>
 	</div>
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="contribute"><img src="images/squares/contribute.jpg"><br>
-		<b>Learn How to Contribute</b></a>
+		<a href="game"><img src="images/squares/contribute.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(images/push_button.png); ;">Play the Game for Free</div></a>
 	</div>
 	<div style="display: inline-block; cursor: pointer;" class="lighten">
-		<a href="game"><img src="images/squares/play.jpg"><br>
-		<b>Play the Game for Free</b></a>
+		<a href="contribute"><img src="images/squares/play.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(images/push_button.png);">Learn How to Contribute</div></a>
 	</div>
 </div>
 
@@ -59,11 +59,11 @@ require_once('header.php');
 <p>
 <b>Ancient Beast</b> is a turn based strategy indie game project, played against other people (or bots) in hotseat or online modes, featuring a wide variety of units to acquire and put to good use in order to defeat all your opponents in battle.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it as well!
 </p><p>
-Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a> and <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a>, being developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> and community. It uses web technologies such as HTML, PHP, JavaScript and Node.js, so that it's playable from modern browsers without requiring plugins.</p></div>
+Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a> and <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a>, being developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> and community. It uses web technologies such as HTML, PHP, JavaScript and Node.js, so that it's playable from modern browsers without requiring plugins. Study the <a href="design"><b>Game Design Document</b></a> for more in depth info.</p></div>
 <div class="lighten" id="screenshot"><a href="media/?type=screenshots#id=0">
-<img src="images/screenie1.png" class="image" width=400px height=225px>
-<img src="images/screenie2.png" class="image" width=400px height=225px>
-<img src="images/screenie3.png" class="image" width=400px height=225px>
+<img src="images/screenie1.png" class="image frame" width=400px height=225px>
+<img src="images/screenie2.png" class="image frame" width=400px height=225px>
+<img src="images/screenie3.png" class="image frame" width=400px height=225px>
 <div class="center" style="padding-top: 235px;"><b>Check out some screenshots!</b></div></a></div>
 </div>
 <?php require_once("images/stats/index.php"); ?>
