@@ -13,6 +13,9 @@ body {
 	margin: 0 auto;
 }
 
+/* Chrome Hack https://code.google.com/p/chromium/issues/detail?id=413183 */
+@media screen and (-webkit-min-device-pixel-ratio:0) { body { word-spacing: -1px; } }
+
 img {
 	border: none;
 	vertical-align: bottom;
@@ -38,9 +41,7 @@ img {
 	padding: 0;
 }
 
-.sections li {
-	display: inline;
-}
+.sections li { display: inline; }
 
 .center {
 	margin-left: auto !important;
@@ -56,17 +57,11 @@ img {
 	-ms-filter: brightness(120%);
 }
 
-.shadow {
-	box-shadow: 0 0 10px #000;
-}
+.shadow { box-shadow: 0 0 10px #000; }
 
-:focus {
-	outline: none;
-}
+:focus { outline: none; }
 
-#wrapper {
-	text-align: left;
-}
+#wrapper { text-align: left; }
 
 .div {
 	border: 20px solid transparent;
