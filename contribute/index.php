@@ -48,6 +48,11 @@ require_once('../header.php');
 	</div>
 </div>
 
+<div class="div center" id="info">
+This is a collaborative project, you can get get involved in various ways: 
+<a href="#donate"><b>Donate</b></a> | <a href="#artwork"><b>Artwork</b></a> | <a href="#coding"><b>Coding</b></a> | <a href="#supporter"><b>Supporter</b></a>
+</div>
+
 <div class="div" id="donate">
 <div style="width: 475px; text-align: justify; display:inline-block;">
 <h3 class="indexheader"><a href="#donate">Donate</a></h3>
