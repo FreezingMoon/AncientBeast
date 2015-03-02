@@ -66,6 +66,8 @@ Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">fre
 <img src="images/screenie3.png" class="image frame" width=400px height=225px>
 <div class="center" style="padding-top: 235px;"><b>Check out some screenshots!</b></div></a></div>
 </div>
+
+<!-- Game Features -->
 <?php require_once("images/stats/index.php"); ?>
 
 <script>
@@ -89,7 +91,7 @@ nextCard();
 });
 // Show next info card
 var i = 0;
-var total = 4;
+var total = 5;
 function nextCard() {
 	i = i%total+1;
 	$("#position").html(i);
@@ -110,7 +112,7 @@ function nextCard() {
 			$("#first_title").text("Browser Based").next().html("You don't have to bother yourself with downloading and installing the game or some problematic browser plug-in.");
 			$("#second_title").text("Optional User").next().html("Eager to play? Go right ahead, you can enjoy most of the game without even having to spend any time registering.");
 			$("#third_title").text("Open Source").next().html("This project is mostly a community effort, so you can contribute to it as well while having fun and learning.");
-			$("#fourth_title").text("Translations - Coming Soon").next().html("We don't like to marginalize anyone, so we're making an effort to have this project translated in many languages.");
+			$("#fourth_title").text("Everything Translated - Coming Soon").next().html("We don't like to marginalize anyone, so we're making an effort to have this project translated in many languages.");
 		break;
 		case 3:
 			$("#first_title").text("Free to Play").next().html("We're putting a lot of love and effort into this game project using free tools, we want to give back something nice.");
@@ -120,9 +122,15 @@ function nextCard() {
 		break;
 		case 4:
 			$("#first_title").text("Win Prizes - Coming Soon").next().html("Not only you can play it for free, but there are ways you can actually win stuff, such as achieving high scores.");
-			$("#second_title").text("Arcade Mode").next().html("Having a few mates over in your living room? Enjoy playing together on the TV while also having a slice of pizza.");
+			$("#second_title").text("Arcade Mode").next().html("Having a few mates over in your living room? Enjoy playing together on your TV while also having a slice of pizza.");
 			$("#third_title").text("Online Multiplayer - Coming Soon").next().html("You can challenge anyone in the world to a battle while you can also team up with your best friend in 2vs2 matches.");
 			$("#fourth_title").text("Challenging Bots - Coming Soon").next().html("Want to play a practice match or two to polish up your skills or try out new strategy you thought of? No problem.");
+		break;
+		case 5:
+			$("#first_title").text("Awesome Creatures").next().html("They come in lots of shapes and sizes, serving as the tools to do your bindings. Each unit comes with unique abilities.");
+			$("#second_title").text("Town Building - Coming Soon").next().html("You'll be going through a lot of fuss in order to acquire all those resources so that you can make various structures.");
+			$("#third_title").text("Adventure Map - Coming Soon").next().html("Explore mysterious lands and seek out fame and glory while gathering various resources and collecting deadly units.");
+			$("#fourth_title").text("Single Player - Coming Soon").next().html("Multiple campaigns that will keep you on your toes, testing out your various skillsets to the fullest and even beyond.");
 		break;
 	}
 }
@@ -156,7 +164,7 @@ function nextCard() {
 <?php		
 			// Display unit info
 			echo '<a href="#" class="name" style="color: white;" onClick="nextCard();return false;"><div class="section info sinG">
-					Check out the game features <span id="position">1</span>/4
+					Check out the game features <span id="position">1</span>/5
 			</div></a>
 		</div></div>';
 
@@ -259,8 +267,26 @@ function nextCard() {
 ?>
 </div>
 
+<div class="div" id="plot">
+<div style="width: 475px; text-align: justify; display:inline-block;">
+<h3 class="indexheader"><a href="#plot">Plot</a></h3>
+<p>
+It's the year 2653. In the last few centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for daily survival.
+</p><p>
+Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here and only the strong ones will surpass it.
+</p>
+<div class="center"><audio id="narration" controls src="plot.ogg" style="width:475px;"></audio></div>
+<br>
+</div>
+
+<img src="images/hand.png" class="image lighten" width=400px height=387px onclick="toggleSound();" style="cursor: pointer;" title="Click to play narrative">
+<audio id="narration" src="plot.ogg"></audio>
+</div>
+
 </article>
 <?php include('footer.php'); ?>
+
+<!-- Change Feature Slides -->
 <script>
   function nextSlide() {
     var x = $('#screenshot img:not(.active)');
@@ -280,4 +306,13 @@ function nextCard() {
     });
   }
   $(function() { setInterval("slideSwitch()", 4000); });
+</script>
+
+<!-- Toggle Plot Narration -->
+<script>
+function toggleSound() {
+	var audioElem = document.getElementById('narration');
+	if (audioElem.paused) audioElem.play();
+	else audioElem.pause();
+}
 </script>
