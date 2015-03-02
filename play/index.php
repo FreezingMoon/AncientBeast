@@ -73,29 +73,5 @@ $(document).ready(function(){
 	<iframe id="game" name="game" src="../game/" style="border: 4px ridge; border-color: grey; width: 934px; height: 525px;" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 </div>
 
-<div class="div" id="plot">
-<div style="width: 475px; text-align: justify; display:inline-block;">
-<h3 class="indexheader"><a href="#plot">Plot</a></h3>
-<p>
-It's the year 2653. In the last few centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org/" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for daily survival.
-</p><p>
-Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here and only the strong ones will surpass it.
-</p>
-<div class="center"><audio id="narration" controls src="plot.ogg" style="width:475px;"></audio></div>
-<br>
-</div>
-
-<img src="../images/hand.png" class="image lighten" width=400px height=387px onclick="toggleSound();" style="cursor: pointer;" title="Click to play narrative"></div>
-<audio id="narration" src="plot.ogg"></audio>
-
 <?php
-disqus();
 include('../footer.php'); ?>
-
-<script>
-function toggleSound() {
-	var audioElem = document.getElementById('narration');
-	if (audioElem.paused) audioElem.play();
-	else audioElem.pause();
-}
-</script>
