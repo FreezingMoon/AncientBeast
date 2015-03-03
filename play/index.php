@@ -66,8 +66,8 @@ $(document).ready(function(){
 </script>
 
 <div id="bar">
-	<a onclick="if(confirm('Reset Game?')) var ifr=document.getElementsByName('game')[0]; ifr.src=ifr.src;" style="margin-left: 15px;">Reset Game</a>
-	<a onclick="$('#game').fullScreen(true)" style="margin-left: 682px;">Fullscreen</a>
+	<a onclick="if(confirm('Reset Game?')) var ifr=document.getElementsByName('game')[0]; ifr.src=ifr.src;" style="margin-left: 5px;"><img src="reset.svg" style="margin-bottom: 3px;"> Reset Game</a>
+	<a onclick="$('#game').fullScreen(true)" style="margin-left: 660px;">Fullscreen <img src="fullscreen.svg" style="margin-bottom: 3px;"></a>
 </div>
 <div class="center">
 	<iframe id="game" name="game" src="../game/" style="border: 4px ridge; border-color: grey; width: 934px; height: 525px;" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
