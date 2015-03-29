@@ -1,8 +1,15 @@
+var http    = require('http');
 var express = require('express');
-var pub = __dirname + '/public';
-var app = express();
+var morgan  = require('morgan');
 
-app.use(express.static(pub));
+var server = express();
 
-app.listen(80);
-console.log('Type localhost to your browser url bar');
+server.use(morgan('dev'));
+server.use(express.static('public'));
+
+var s = http.createServer(server);
+
+s.listen(80);
+
+console.log('server listening on port 80, type localhost to your browser');
+
