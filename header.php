@@ -62,12 +62,12 @@ ga('send', 'pageview');
 <body>
 <?php
 if(isset($_SESSION['id'])) { ?>
-<span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>account">Account</a></span>
-<span style="position: absolute; margin-left: 359px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>index.php?action=logout">Logout</a></span>
+<span class="account" style="margin-left: -423px;"><a href="<?php echo $site_root; ?>account" id="Account">Account</a></span>
+<span class="account" style="margin-left: 359px;"><a href="<?php echo $site_root; ?>index.php?action=logout">Logout</a></span>
 
 <?php } else { ?>
-<span style="position: absolute; margin-left: -423px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>account/register.php">Register</a></span>
-<span style="position: absolute; margin-left: 366px; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;"><a href="<?php echo $site_root; ?>account/login.php">Login</a></span>
+<span class="account" style="margin-left: -423px;"><a href="<?php echo $site_root; ?>account/register" id="Register">Register</a></span>
+<span class="account" style="margin-left: 366px;"><a href="<?php echo $site_root; ?>account/login" id="Login">Login</a></span>
 <?php }
 if(isset($_GET['action']) == 'logout'){
 	session_destroy();
@@ -82,10 +82,10 @@ if(isset($_GET['action']) == 'logout'){
 <!-- Navigation Menu -->
 <nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
 <?php
-  $menu = array('units', 'media', 'duel', 'play', 'blog', 'chat');
+  $menu = array('units', 'media', 'shop', 'play', 'blog', 'chat');
   foreach ($menu as &$menuItem) {
     echo '<td>
-      <a href="' . $site_root . $menuItem . '" id="' . $menuItem . '" style="display:block;" class="lighten">
+      <a href="' . $site_root . $menuItem . '" id="' . ucfirst($menuItem) . '" style="display:block;" class="lighten">
       <img alt=" ' . ucfirst($menuItem) . '" src="' . $site_root . 'images/icons/' . $menuItem . '.png" width="90" height="90"><br>
       ' . ucfirst($menuItem) . '</a></td>';
   } 
