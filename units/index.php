@@ -1,4 +1,4 @@
-<script src="../jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <?php
 /* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
  * Copyright (C) 2007-2014  Valentin Anastase (a.k.a. Dread Knight)
@@ -103,9 +103,8 @@ switch ($view) {
 		}
 		?>
 		</div>
-		<!-- Sketchfab embedded folder -->
-		<!-- TODO: Make it display on click -->
-		<!--
+		<!-- Sketchfab embedded folder
+		TODO: Make it display on click
 		<div class="div center">
 		<iframe width="890" height="995" src="https://sketchfab.com/playlists/embed?folder=3629b9ff802d45f09771ec13a7d25c75" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" onmousewheel=""></iframe>
 		</div>
@@ -116,7 +115,7 @@ switch ($view) {
 		break;
 
 	case 'table':
-		require_once("../images/stats/index.php");
+		require_once('../images/stats/index.php');
 		// TODO: Show specific unit card when clicking a row
 		?>
 		<script>document.title = "Ancient Beast - Table";</script>
