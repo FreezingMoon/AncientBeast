@@ -1,6 +1,16 @@
 <?php
 $page_title = "Design";
 $style = "
+.sections {
+	font-size: 18px;
+	font-weight: 700;
+	list-style-type: none;
+	width: 100%;
+	margin: 0 0 0 -10px;
+	padding: 0;
+}
+
+.sections li { display: inline; }
 ";
 require_once("../header.php"); ?>
 
