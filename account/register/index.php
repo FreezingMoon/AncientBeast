@@ -24,19 +24,20 @@
 
 $page_title = "Register";
 $style = "
-.arranged {padding-right: 20px; float: right;}
+.arranged { padding-right: 20px; float: right; }
 button {
-    background: none !important;
-    border: none;
-    padding: 0 !important;
+	background: none !important;
+	border: none;
+	padding: 0 !important;
 	color: #b7b7b7;
 	font-size: 18px;
 	font-weight: bold;
 	text-shadow: black 0.1em 0.1em 0.2em;
 	cursor: pointer;
 }
+.div td { padding-bottom: 14px; }
 label {cursor: pointer;}";
-require_once('../header.php');
+require_once('../../header.php');
 require_once('ayah_php_bundle_1.1.8/ayah.php');
 $ayah = new AYAH();
 
@@ -79,50 +80,49 @@ if (isset($_POST['submit'])) {
 	} else echo $message;
 }
 ?>
+
+<!-- Hightlight active page -->
+<script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
+
 <div class="div center">
-<form name="register" method="post" action="register.php">
-<table width="30%" border=0 align=center cellpadding=0 cellspacing=0 style="display:inline-block; float:left;">
-	<tr>
-		<td class="arranged">Username</td>
-		<td><input type="text" name="newname" size="20" pattern=".{4,18}" required title="Between 4 and 18 chars" placeholder="Between 4 and 18 chars" autofocus></td>
-    </tr>
-	<tr>
-		<td class="arranged">Password</td>
-		<td><input type="password" name="newpass" pattern=".{6,20}" required title="Between 6 and 20 chars" placeholder="Between 6 and 20 chars"></td>
-	</tr>
-	<tr>
-		<td class="arranged">Confirm</td>
-		<td><input type="password" name="newpassagain" pattern=".{6,20}" required title="Between 6 and 20 chars" placeholder="Type the password again"></td>
-	</tr>
-	<tr>
-		<td class="arranged">Email</td>
-		<td><input type="email" name="email" placeholder="This will require validation"></td>
-	</tr>
-	<tr>
-		<td class="arranged"><input type="radio" name="subscription" value="free" id="free" checked><label for="free">Free</label></td>
-		<td><label for="free">Limited + Ads</label></td>
-	</tr>
-	<tr>
-		<td class="arranged"><input type="radio" name="subscription" value="paid" id="paid"><label for="paid">Paid</label></td>
-		<td><label for="paid">$5 per month</label></td>
-	</tr>
-</table>
-<div style="display:inline-block; vertical-align: top;">
+<div style="display:inline-block; float: left">
 <?php
 // Use the AYAH object to get the HTML code needed to
 // load and run PlayThru. You should place this code
 // directly before your 'Submit' button.
 echo $ayah->getPublisherHTML();
 ?>
+
+<form name="register" method="post" action="register.php">
+
+<table width="30%" border=0 align=center cellpadding=0 cellspacing=0 style="margin-top: 5px; margin-bottom: -5px;">
+	<tr>
+		<td class="arranged">Username</td>
+		<td><input type="text" name="newname" size="24" pattern=".{4,18}" required title="Between 4 and 18 chars" placeholder="Between 4 and 18 chars" autofocus></td>
+    </tr>
+	<tr>
+		<td class="arranged">Password</td>
+		<td><input type="password" name="newpass" size="24" pattern=".{6,20}" required title="Between 6 and 20 chars" placeholder="Between 6 and 20 chars"></td>
+	</tr>
+	<tr>
+		<td class="arranged">Confirm</td>
+		<td><input type="password" name="newpassagain" size="24" pattern=".{6,20}" required title="Between 6 and 20 chars" placeholder="Type the password again"></td>
+	</tr>
+	<tr>
+		<td class="arranged">Email</td>
+		<td><input type="email" name="email" size="24" required placeholder="This will require validation"></td>
+	</tr>
+</table>
+<a href="?view=viewer"><div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Register New Account</div></a><br>
+<a href="#" onClick="alert('Please bear with us while we implement this feature!');"><img src="<?php echo $site_root; ?>account/facebook.png" class="lighten"></a>
+<a href="#" onClick="alert('Please bear with us while we implement this feature!');"><img src="<?php echo $site_root; ?>account/google.png" class="lighten"></a>
+<a href="#" onClick="alert('Please bear with us while we implement this feature!');"><img src="<?php echo $site_root; ?>account/twitter.png" class="lighten"></a>
 </div>
-<div style="display:inline-block; float: right;">
+<!--<div style="display:inline-block; float: right;">
 	<button type="submit" name="submit"><span class="lighten"><img src="register.png"><br>Register</span></button>
-</div>
+</div>-->
 </form>
+<img src="<?php echo $site_root; ?>images/We_Want_YOU.jpg" title="We Want You!" alt="We Want You!" width=490px height=490px style="display: inline-block; float: right;">
 </div>
-<script>
-document.getElementById("paid").disabled = true;
-</script>
 <?php 
-disqus();
-include('../footer.php'); ?>
+include('../../footer.php'); ?>
