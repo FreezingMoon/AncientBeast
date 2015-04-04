@@ -26,6 +26,9 @@ $page_title = "Chat";
 require_once("../header.php");
 ?>
 
+<!-- Hightlight active page -->
+<script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
+
 <div class="div center" style="display: block; font-weight:bold;">
 Feel free to join us in <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> channel over irc.freenode.org server using <a href="http://hexchat.github.io" target="_blank"><u>Hexchat</u></a> desktop client.</div>
 <div class="div center" id="IRC"><iframe src="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" style="border:0; width:100%; height:500px;"></iframe></div>

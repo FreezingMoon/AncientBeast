@@ -22,7 +22,7 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Game";
+$page_title = "Play";
 
 $style = '
 .strike { text-decoration: line-through; }
@@ -51,8 +51,10 @@ $style = '
 iframe.fullscreen { padding-top: 0; }
 ';
 
-require_once('../header.php');
-?>
+require_once('../header.php'); ?>
+
+<!-- Hightlight active page -->
+<script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="launcher/jquery.fullscreen-min.js"></script>
