@@ -40,6 +40,17 @@ img {
 
 .active { color: #E90000 !important; }
 
+.sections {
+	font-size: 18px;
+	font-weight: 700;
+	list-style-type: none;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.sections li { display: inline; }
+
 .center {
 	margin-left: auto !important;
 	margin-right: auto !important;

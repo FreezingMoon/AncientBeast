@@ -22,7 +22,8 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Media";
+// Display default or selected page
+$type = isset($_GET['type']) ? $_GET['type'] : 'Media';
 
 $style = '
 .bigger { font-size: 28px; color: #e6e6e6; }
@@ -30,17 +31,37 @@ $style = '
 .screenies { width: 285px; margin: 5px; }
 .wallpapers { width: 435px; margin: 5px; }
 ';
-require_once("../header.php"); ?>
+require_once("../header.php");
 
-<!-- Hightlight active page -->
-<script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
+// Display list of subpages
+function subpages() {
+	$sections = array(
+		'artwork',
+		'fanart',
+		'screenshots',
+		'wallpapers',
+		'videos',
+		'music'
+	);
+	echo '<nav class="div center"><ul class="sections">';
+	foreach ($sections as &$sectionItem) {
+		echo '<li style="display:inline;"><a href="?type=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
+	}
+	echo '</ul></nav>';
+}
+?>
+
+<script>
+// Set page title
+document.title = "Ancient Beast - <?php echo ucfirst($type); ?>";
+// Hightlight media page
+document.getElementById("Media").className += " active";
+</script>
 
 <link rel="stylesheet" href="fancybox/jquery.fancybox-1.3.4.css" media="screen">
 <script src="../jquery.min.js"></script>
 
 <?php
-// Display default or selected page
-$type = isset($_GET['type']) ? $_GET['type'] : '';
 
 switch($type) {
 	default:
@@ -73,7 +94,9 @@ switch($type) {
 		</div>
 		<?php
 		break;
+
 	case 'artwork':
+		subpages();
 		$images = scandir("artwork");
 		natsort($images);
 		$i = 0;
@@ -89,7 +112,7 @@ switch($type) {
 		break;
 
 	case 'fanart':
-		echo '<div class="div center">Post your fan art in the <a href="#comments"><b>comments</b></a> section or upload it to the <a href="http://Ancient-Beast.deviantArt.com" target="_blank"><b>deviantArt</b></a> group. The best works will be featured!</div>';
+		subpages();
 		?>
 		<div class="div center">
 		<?php $images = scandir("fanart");
@@ -101,12 +124,12 @@ switch($type) {
 			echo '<a id="img' . $i . '" rel="pop" href="fanart/' . $image . '" title="' . $title . '"><img class="shadow artwork" src="fanart/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 			$i++;
 		}
-		echo '</div>';
+		echo '</div><div class="div center">Post your fan art in the <a href="#comments"><b>comments</b></a> section or upload it to the <a href="http://Ancient-Beast.deviantArt.com" target="_blank"><b>deviantArt</b></a> group. The best works will be featured!</div>';
 		disqus();
 		break;
 
-
 	case 'screenshots':
+		subpages();
 		echo '<div class="div center">';
 		$images = scandir("screenshots");
 		natsort($images);
@@ -122,6 +145,7 @@ switch($type) {
 		break;
 
 	case 'wallpapers':
+		subpages();
 		echo '<div class="div center">';
 		$images = scandir("../media/wallpapers");
 		natsort($images);
@@ -137,6 +161,7 @@ switch($type) {
 		break;
 
 	case 'videos':
+		subpages();
 		?>
 		<div class="div center">
 		<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>
@@ -147,6 +172,7 @@ switch($type) {
 		<?php break;
 
 	case 'music':
+		subpages();
 		?><div class="div center"><img src="band.jpg"><?php
 		$folders = array('..', '.');
 		$media = array_values(array_diff(scandir("music"), $folders));
@@ -172,11 +198,15 @@ switch($type) {
 echo "</div></div>";
 include('../footer.php'); ?>
 
+<!-- Highlight active subpage -->
+<script>document.getElementById("<?php echo $type; ?>").className += " active";</script>
+
 <script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
 <script defer type="text/javascript" src="fancybox/jquery.easing-1.3.pack.js"></script>
 <script defer type="text/javascript" src="fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
 
 <script type="text/javascript">
+// Change URL to viewed image
 $(document).ready(function() {
 	var basePage = window.location.href.replace(/#.*/, "");
 	$("a[rel=pop]").fancybox({
