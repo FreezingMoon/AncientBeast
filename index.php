@@ -37,17 +37,17 @@ $stylesheet = 'units/cards.css';
 require_once('header.php'); 
 ?>
 <article>
-<div class="center" style="margin-bottom: 5px;">
+<div class="center">
 	<!-- Featured Blog Article -->
-	<div style="display: inline-block; cursor: pointer;" class="lighten">
+	<div style="display: inline-block;" class="lighten">
 		<a href="blog/2013-06-15"><img src="blog/2013-06-15/thumb.jpg" class="frame"><br>
 		<div class="button" style="background-image: url(images/push_button.png);">See the v0.2 Changelog</div></a>
 	</div>
-	<div style="display: inline-block; cursor: pointer;" class="lighten">
+	<div style="display: inline-block;" class="lighten">
 		<a href="game"><img src="images/squares/contribute.jpg" class="frame"><br>
 		<div class="button" style="background-image: url(images/push_button.png); ;">Play the Game for Free</div></a>
 	</div>
-	<div style="display: inline-block; cursor: pointer;" class="lighten">
+	<div style="display: inline-block;" class="lighten">
 		<a href="contribute"><img src="images/squares/play.jpg" class="frame"><br>
 		<div class="button" style="background-image: url(images/push_button.png);">Learn How to Contribute</div></a>
 	</div>
@@ -118,7 +118,7 @@ function nextCard() {
 			$("#first_title").text("Free to Play").next().html("We're putting a lot of love and effort into this game project using free tools, we want to give back something nice.");
 			$("#second_title").text("Input Methods - Coming Soon").next().html("Given the way it was designed, you have the freedom to play this using most input methods you can think of.");
 			$("#third_title").text("Light Weight").next().html("Everything is carefully optimized so that you can enjoy playing on pretty much any device with a web browser.");
-			$("#fourth_title").text("Low Latency").next().html("There is very small internet traffic when playing online so that you can enjoy a proper match against anyone.");
+			$("#fourth_title").text("Low Latency").next().html("There is very small internet traffic when playing online so that you can enjoy a proper match against anyone you want.");
 		break;
 		case 4:
 			$("#first_title").text("Win Prizes - Coming Soon").next().html("Not only you can play it for free, but there are ways you can actually win stuff, such as achieving high scores.");
