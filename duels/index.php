@@ -22,14 +22,14 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Duel";
+$page_title = "Duels";
 require_once("../header.php");
 ?>
 
 <!-- TODO: explain how the duel / bet system works -->
 
 <div class="div" style="text-align: justify;">
-At some point in the future you and others who want to become professional players or simply make some pocket money will be able to battle for <a href="http://bitcoin.com" target="_blank"><b>Bitcoins</b></a> or bet on the outcome of upcoming matches for a small fee. The game is free and you can spend as much time as you like improving your skills before trying your luck at it. It was carefully designed to allow anyone equal chances while avoiding any randomness, relying only on skills. Below I've included a fictional example table, meanwhile feel free to <a href="./contribute"><b>contribute</b></a> to make things happen faster.
+At some point in the future you and others who want to become professional players or simply make some pocket money will be able to battle for <a href="http://bitcoin.com" target="_blank"><b>Bitcoins</b></a> or bet on the outcome of upcoming matches for a small fee. The game is free and you can spend as much time as you like improving your skills before trying your luck at it. It was carefully designed to allow anyone equal chances while avoiding any randomness, relying only on skills. Below I've included a fictional example table, meanwhile feel free to <a href="<?php echo $site_root; ?>contribute"><b>contribute</b></a> to make things happen faster.
 </div>
 
 <div class="div">
