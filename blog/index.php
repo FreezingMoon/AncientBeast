@@ -26,9 +26,19 @@ $page_title = "Blog";
 require_once("../header.php");
 require_once("../global.php");
 ?>
-<div class="div center">
-<div style="display:inline-block"><a href="2013-06-15"><img src="2013-06-15/thumb.jpg"><br>Version 0.2 Released</a></div>
-<div style="display:inline-block"><a href="2012-12-12"><img src="2012-12-12/thumb.jpg"><br>Version 0.1 Released</a></div>
-</div>
 
+<!-- Hightlight active page -->
+<script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
+
+<div class="center">
+	<div style="display: inline-block;" class="lighten">
+		<a href="?view=viewer"><img src="2013-06-15/thumb.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Version 0.2 Released</div></a>
+	</div>
+	<div style="display: inline-block;" class="lighten">
+		<a href="?view=widget"><img src="2012-12-12/thumb.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png); ;">Version 0.1 Released</div></a>
+	</div>
+	</div>
+</div>
 <?php include('../footer.php'); ?>

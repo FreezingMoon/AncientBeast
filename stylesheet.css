@@ -21,6 +21,12 @@ img {
 	vertical-align: bottom;
 }
 
+.account {
+	position: absolute;
+	padding-top: -20px;
+	text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;
+}
+
 #header {
 	margin: 15px auto 0;
 	padding: 0;
@@ -32,16 +38,7 @@ img {
 	margin: 0 auto;
 }
 
-.sections {
-	font-size: 18px;
-	font-weight: 700;
-	list-style-type: none;
-	width: 100%;
-	margin: 0 0 0 -10px;
-	padding: 0;
-}
-
-.sections li { display: inline; }
+.active { color: #E90000 !important; }
 
 .center {
 	margin-left: auto !important;
@@ -72,9 +69,9 @@ img {
 	padding: 4px 10px;
 }
 
-.smalldiv {
+.footer {
 	border: 20px solid transparent;
-	border-image: url(images/smalldiv.png) 20 fill stretch;
+	border-image: url(images/footer.png) 20 fill stretch;
 	position: relative;
 	overflow: hidden;
 	margin: 0 0 10px;
@@ -87,13 +84,12 @@ img {
 	background-position: center;
 	line-height: 87px;
 	font-weight: bold;
+	margin-bottom: 5px;
 }
 
 .button:hover { background-position: top; }
 
 .button:active { background-position: bottom; }
-
-
 
 .warning {
 	margin-bottom: 10px;

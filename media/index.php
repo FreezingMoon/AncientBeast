@@ -31,172 +31,147 @@ $style = '
 .wallpapers { width: 435px; margin: 5px; }
 ';
 require_once("../header.php"); ?>
+
+<!-- Hightlight active page -->
+<script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
+
 <link rel="stylesheet" href="fancybox/jquery.fancybox-1.3.4.css" media="screen">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="../jquery.min.js"></script>
 
-<!-- Display list of subpages -->
-<nav class="div center"><ul class="sections">
-<?php
-$sections = array(
-	'artwork',
-	'fanart',
-	'realms',
-	'screenshots',
-	'wallpapers',
-	'videos',
-	'music'
-);
-
-foreach ($sections as &$sectionItem) {
-	echo '<li style="display:inline;"><a href="?type=' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
-}
-?>
-</ul></nav>
-
-<div class="div center">
 <?php
 // Display default or selected page
-$type = isset($_GET['type']) ? $_GET['type'] : 'artwork';
+$type = isset($_GET['type']) ? $_GET['type'] : '';
 
 switch($type) {
-case 'artwork':
-	$images = scandir("artwork");
-	natsort($images);
-	$i = 0;
-	foreach($images as $image) {
-		if($image == "." || $image == "..") continue;
-		$title = substr($image, 0, -4);
-		echo '<a id="img' . $i . '" rel="pop" href="artwork/' . $image . '" title="' . $title . '"><img class="shadow artwork" src="artwork/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
-		$i++;
-	}
-	break;
+	default:
+		?>
+		<div class="center">
+			<div style="display: inline-block;" class="lighten">
+				<a href="?type=artwork"><img src="<?php echo $site_root; ?>images/squares/artwork.jpg" class="frame"><br>
+				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Browse Official Artwork</div></a>
+			</div>
+			<div style="display: inline-block;" class="lighten">
+				<a href="?type=fanart"><img src="<?php echo $site_root; ?>images/squares/fanart.jpg" class="frame"><br>
+				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png); ;">View Selected Fanart</div></a>
+			</div>
+			<div style="display: inline-block;" class="lighten">
+				<a href="?type=screenshots"><img src="<?php echo $site_root; ?>images/squares/screenshots.jpg" class="frame"><br>
+				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Gameplay Screenshots</div></a>
+			</div>
+			<div style="display: inline-block;" class="lighten">
+				<a href="?type=wallpapers"><img src="<?php echo $site_root; ?>images/squares/wallpapers.jpg" class="frame"><br>
+				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png); ;">Pick Desktop Wallpaper</div></a>
+			</div>
+			<div style="display: inline-block;" class="lighten">
+				<a href="?type=videos"><img src="<?php echo $site_root; ?>images/squares/videos.jpg" class="frame"><br>
+				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Watch Project Videos</div></a>
+			</div>
+			<div style="display: inline-block;" class="lighten">
+				<a href="?type=music"><img src="<?php echo $site_root; ?>images/squares/music.jpg" class="frame"><br>
+				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Listen To Music</div></a>
+			</div>
+		</div>
+		<?php
+		break;
+	case 'artwork':
+		$images = scandir("artwork");
+		natsort($images);
+		$i = 0;
+		echo '<div class="div center">';
+		foreach($images as $image) {
+			if($image == "." || $image == "..") continue;
+			$title = substr($image, 0, -4);
+			echo '<a id="img' . $i . '" rel="pop" href="artwork/' . $image . '" title="' . $title . '"><img class="shadow artwork" src="artwork/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+			$i++;
+		}
+		echo '</div>';
+		disqus();
+		break;
 
-case 'fanart':
-	echo 'Post your fan art in the <a href="#comments"><b>comments</b></a> section or upload it to the <a href="http://Ancient-Beast.deviantArt.com" target="_blank"><b>deviantArt</b></a> group. The best works will be featured!</div>';
-	?>
-	<div class="div center">
-	<?php $images = scandir("fanart");
-	natsort($images);
-	$i = 0;
-	foreach($images as $image) {
-		if($image == "." || $image == "..") continue;
-		$title = substr($image, 0, -4);
-		echo '<a id="img' . $i . '" rel="pop" href="fanart/' . $image . '" title="' . $title . '"><img class="shadow artwork" src="fanart/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
-		$i++;
-	}
-	break;
+	case 'fanart':
+		echo '<div class="div center">Post your fan art in the <a href="#comments"><b>comments</b></a> section or upload it to the <a href="http://Ancient-Beast.deviantArt.com" target="_blank"><b>deviantArt</b></a> group. The best works will be featured!</div>';
+		?>
+		<div class="div center">
+		<?php $images = scandir("fanart");
+		natsort($images);
+		$i = 0;
+		foreach($images as $image) {
+			if($image == "." || $image == "..") continue;
+			$title = substr($image, 0, -4);
+			echo '<a id="img' . $i . '" rel="pop" href="fanart/' . $image . '" title="' . $title . '"><img class="shadow artwork" src="fanart/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+			$i++;
+		}
+		echo '</div>';
+		disqus();
+		break;
 
-case 'realms':
-?>
-<p style="text-align:center;">The world has been divided into 7 regions, one for each of the deadly sins that suit its inhabitants the most.</p></div></div>
-	<a href="#avarice"><div id="avarice" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge gold; padding: 15px 0px">
-	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, gold 0 0 10px;">Avarice</span></div>
-	<img  src='realms/avarice.jpg' width=950px>
-	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge gold; padding: 15px 0px;">
-	They like to aquire all sorts of useless things and riches by all means possible.<br>
-	Located in the middle, consists of old city scapes, with wrecked buildings and streets filled with anarchy.</div></a><br>
-	<a href="#envy"><div id="envy" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge orange; padding: 15px 0px">
-	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, orange 0 0 10px;">Envy</span></div>
-	<img  src='realms/envy.jpg' width=950px'>
-	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge orange; padding: 15px 0px;">
-	The creatures living in this realm always feel rather insecure about themselves and they hate it when others have more or are better in some ways.<br>
-	It's located to the West side and it mainly consists of deserts and cannyons.</div></a><br>
-	<a href="#gluttony"><div id="gluttony" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge green; padding: 15px 0px">
-	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, green 0 0 10px;">Gluttony</span></div>
-	<img  src='realms/gluttony.jpg' width=950px'>
-	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge green; padding: 15px 0px;">
-	Overcrowded place where all sorts of beasts and plants eat each other as soon as they get a chance.<br>
-	In the east side, where the jungles are really tall and wilde, not even the sun's waves go through.<br>
-	Beware of the vegetation as well and don't pet any animals!</div></a><br>
-	<a href="#lust"><div id="lust" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge red; padding: 15px 0px">
-	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, red 0 0 10px;">Lust</span></div>
-	<img  src='realms/lust.jpg' width=950px'>
-	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge red; padding: 15px 0px;">
-	The creatures around here have a burning lust for destruction, incinerating everything within reach.<br>
-	North side. Volcanoes spread all across this land, which is usually covered by ashes,<br>
-	while rivers of hot magma run by, so beware your step and keep in mind that the air rather toxic.</div></a><br>
-	<a href="#pride"><div id="pride" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge violet; padding: 15px 0px">
-	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, violet 0 0 10px;">Pride</span></div>
-	<img  src='realms/pride.jpg'  width=950px'>
-	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge violet; padding: 15px 0px;">
-	They're above everyone else. Literally at least.<br>
-	Hundreds of years ago, some of the population, mainly the rich,<br>
-	tried separating themselves from the rest, so they built floating fortresses.</div></a><br>
-	<a href="#sloth"><div id="sloth" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge blue; padding: 15px 0px">
-	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px;">Sloth</span></div>
-	<img  src='realms/sloth.jpg' width=950px'>
-	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge blue; padding: 15px 0px;">
-	They don't bother to do much except survive.<br>
-	This Southern area is mainly water. The low temperature causes most of the water to freeze,<br>
-	providing a home for many of the creatures.</div></a><br>
-	<a href="#wrath"><div id="wrath" class="center" style="border-radius: 15px 15px 0 0 ; background:rgba(30,30,30,0.8); border:4px ridge indigo; padding: 15px 0px">
-	<span class="bigger" style="text-shadow: black 0.1em 0.1em 0.2em, indigo 0 0 10px;">Wrath</span></div>
-	<img  src='realms/wrath.jpg' width=950px'>
-	<div class="center" style="background:rgba(30,30,30,0.8); border-radius: 0 0 15px 15px; border:4px ridge indigo; padding: 15px 0px;">
-	The beasts from this realm enjoy killing and inflicting suffering on others.<br>
-	Underworld. Back in the day there used to be secret underground facilities that were used for<br>
-	God forbidden experiments regarding genetics and bio weapons.</div></a><br>
-	<div class="div center">Which are the deadly sins you think would describe you the best? Feel free to share your burden with us, sinner.</div>
-<?php
-	break;
-case 'screenshots':
-	$images = scandir("screenshots");
-	natsort($images);
-	$i = 0;
-	foreach($images as $image) {
-		if($image == "." || $image == "..") continue;
-		$title = substr($image, 0, -4);
-		echo '<a id="img' . $i . '" rel="pop" href="screenshots/' . $image . '" title="' . $title . '"><img class="shadow screenies" src="screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
-		$i++;
-	}
-	break;
 
-case 'wallpapers':
-	$images = scandir("../media/wallpapers");
-	natsort($images);
-	$i = 0;
-	foreach($images as $image) {
-		if($image == "." || $image == "..") continue;
-		$title = substr($image, 0, -4);
-		echo '<a id="img' . $i . '" rel="pop" href="wallpapers/' . $image . '" title="' . $title . '"><img class="shadow wallpapers" src="wallpapers/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
-		$i++;
-	}
-	break;
+	case 'screenshots':
+		echo '<div class="div center">';
+		$images = scandir("screenshots");
+		natsort($images);
+		$i = 0;
+		foreach($images as $image) {
+			if($image == "." || $image == "..") continue;
+			$title = substr($image, 0, -4);
+			echo '<a id="img' . $i . '" rel="pop" href="screenshots/' . $image . '" title="' . $title . '"><img class="shadow screenies" src="screenshots/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+			$i++;
+		}
+		echo '</div>';
+		disqus();
+		break;
 
-case 'videos':
-	?>
-	<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>
-	<div class="div center" id="gameplay">
-	<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
-	<div class="div center" id="clips">
-	<iframe width="880" height="495" src="//www.youtube.com/embed/videoseries?list=PLADfTwuzK0YR-qoT0Dy6o3AGAoNCq1Y3R" frameborder="0" allowfullscreen></iframe></div>
-	<?php break;
+	case 'wallpapers':
+		echo '<div class="div center">';
+		$images = scandir("../media/wallpapers");
+		natsort($images);
+		$i = 0;
+		foreach($images as $image) {
+			if($image == "." || $image == "..") continue;
+			$title = substr($image, 0, -4);
+			echo '<a id="img' . $i . '" rel="pop" href="wallpapers/' . $image . '" title="' . $title . '"><img class="shadow wallpapers" src="wallpapers/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
+			$i++;
+		}
+		echo '</div>';
+		disqus();
+		break;
 
-case 'music':
-	?><img src="band.jpg"><?php
-	$folders = array('..', '.');
-	$media = array_values(array_diff(scandir("music"), $folders));
-	natsort($media);
-	$i = 0;
-	$error = 'Your browser does not support the audio element.';
+	case 'videos':
+		?>
+		<div class="div center">
+		<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>
+		<div class="div center" id="gameplay">
+		<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLADfTwuzK0YQG6rKWImoeKlpVZy9dj_XI" frameborder="0" allowfullscreen></iframe></div>
+		<div class="div center" id="clips">
+		<iframe width="880" height="495" src="//www.youtube.com/embed/videoseries?list=PLADfTwuzK0YR-qoT0Dy6o3AGAoNCq1Y3R" frameborder="0" allowfullscreen></iframe></div>
+		<?php break;
 
-	echo '<audio id="audio" preload="auto" controls="" style="width:890px;"><source src="' . $site_url . 'media/music/' . $media[0] . '"> '. $error
-		.'</audio><a style="cursor: pointer;" id="mp_shuffle">Shuffle</a><ul id="playlist" style="list-style-type:none; padding-left:0px;">';
+	case 'music':
+		?><div class="div center"><img src="band.jpg"><?php
+		$folders = array('..', '.');
+		$media = array_values(array_diff(scandir("music"), $folders));
+		natsort($media);
+		$i = 0;
+		$error = 'Your browser does not support the audio element.';
 
-	foreach($media as $file){
-		$title = substr($file, 0, -4);
-		$file = str_replace(' ', '%20', $file);
-		if($title!="") echo '<li class=""><a href="' . $site_url . 'media/music/' . $file . '">' . $title . '</a></li>';
-		$i++;
-	} ?>
-	</ul>
-	</div><div class="div center">Click on a track to start playing it. Let us know which are your favorite ones by leaving a comment bellow.</div>
-	<script type="text/javascript" src="js/musicplayer.js"></script>
+		echo '<audio id="audio" preload="auto" controls="" style="width:890px;"><source src="' . $site_url . 'media/music/' . $media[0] . '"> '. $error
+			.'</audio><a style="cursor: pointer;" id="mp_shuffle">Shuffle</a><ul id="playlist" style="list-style-type:none; padding-left:0px;">';
+
+		foreach($media as $file){
+			$title = substr($file, 0, -4);
+			$file = str_replace(' ', '%20', $file);
+			if($title!="") echo '<li class=""><a href="' . $site_url . 'media/music/' . $file . '">' . $title . '</a></li>';
+			$i++;
+		} ?>
+		</ul>
+		</div><div class="div center">Click on a track to start playing it. Let us know which are your favorite ones by leaving a comment bellow.</div>
+		<?php disqus(); ?>
+		<script type="text/javascript" src="musicplayer.js"></script>
 <?php
 }
 echo "</div></div>";
-disqus();
 include('../footer.php'); ?>
+
 <script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
 <script defer type="text/javascript" src="fancybox/jquery.easing-1.3.pack.js"></script>
 <script defer type="text/javascript" src="fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
