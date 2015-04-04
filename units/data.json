@@ -550,7 +550,7 @@
 		},
 			{
 				"title": "Frozen Orb",
-				"desc": "Throws an ice sphere at an inline spot, freezing a foe or doing damage nearby	.",
+				"desc": "Throws an ice sphere at an inline spot, freezing a foe or doing damage nearby.",
 				"info": "30 frost damage & freeze or splashing",
 				"damages": {
 					"crush": 10
