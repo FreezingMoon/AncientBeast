@@ -30,7 +30,7 @@ require_once("../global.php");
 <meta charset='utf-8'>
 
 <title>Ancient Beast 0.2</title>
-		
+
 <link rel="stylesheet" type="text/css" href="css/dot-luv/jquery-ui-1.9.2.custom.min.css">
 <link rel="stylesheet" type="text/css" href="css/style.css">
 <link rel="stylesheet" type="text/css" href="css/grid.css">
@@ -47,7 +47,7 @@ require_once("../global.php");
 </script>
 	
 <?php
-require_once("../units/functions.php");
+require_once('../units/functions.php');
 require_once('../units/cards.php');
 ?>
 
