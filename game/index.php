@@ -312,7 +312,7 @@ ga('send', 'pageview');
 						}
 						echo '</ul>';
 					?>
-					<script type="text/javascript" src="../media/js/musicplayer.js"></script>
+					<script type="text/javascript" src="../media/musicplayer.js"></script>
 					<div id="volume_sliders">
 						Effects volume <div id="effects_volume"></div>
 					</div>
