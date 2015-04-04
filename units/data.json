@@ -3,7 +3,6 @@
 		"id": 0,
 		"name": "Dark Priest",
 		"lvl": "-",
-		"embed": null,
 		"realm": "-",
 		"size": 1,
 		"type": "--",
@@ -27,50 +26,62 @@
 			"sonic": 2,
 			"mental": 30
 		},
-	"animation": {
+		"animation": {
 			"walk_speed": 500
-    	},
-        "display":{
-            "width": 108,
-            "height": 200,
-            "offset-x": 0,
-            "offset-y": -164
-        },
-    	"ability_info": [
-    		{
-    			"title": "Plasma Shield",
-    			"desc": "Protects from most harmful abilities.",
-    			"info": "-1 plasma for each countered attack",
-			"costs": {"special":"1%health%per countered attack"},
-			"requirements" : {"plasma" : 1}
+		},
+		"display": {
+			"width": 108,
+			"height": 200,
+			"offset-x": 0,
+			"offset-y": -164
+		},
+		"ability_info": [
+			{
+				"title": "Plasma Shield",
+				"desc": "Protects from most harmful abilities.",
+				"info": "-1 plasma for each countered attack",
+				"costs": {
+					"special": "1%health%per countered attack"
+				},
+				"requirements": {
+					"plasma": 1
+				}
     		},
-    		{
-    			"title": "Electro Shocker",
-    			"desc": "Does shock damage to a nearby foe. Effective versus larger creatures.",
-    			"info": "12 shock damage × creature size",
-			"damages" : {"shock" : "12 × creature size"},
-			"costs": {"energy": 10}
+			{
+				"title": "Electro Shocker",
+				"desc": "Does shock damage to a nearby foe. Effective versus larger creatures.",
+				"info": "12 shock damage × creature size",
+				"damages": {
+					"shock": "12 × creature size"
+				},
+				"costs": {
+					"energy": 10
+				}
     		},
-    		{
+			{
 
-		        "title": "Disruptor Beam",
-		        "desc": "Does pure damage to a nearby foe. Bonus based on its missing health.",
-		        "info": ">25 damage; plasma cost = unit size",
-			"requirements": { 
-				"plasma": 2,
-				"energy": 20
-			},
-			"damages": {"pure": "25 + missing health"},
-			"costs": {
-				"energy": 20,
-				"plasma": "target unit size"
-			}
+				"title": "Disruptor Beam",
+				"desc": "Does pure damage to a nearby foe. Bonus based on its missing health.",
+				"info": ">25 damage; plasma cost = unit size",
+				"requirements": {
+					"plasma": 2,
+					"energy": 20
+				},
+				"damages": {
+					"pure": "25 + missing health"
+				},
+				"costs": {
+					"energy": 20,
+					"plasma": "target unit size"
+				}
     		},
-    		{
-		        "title": "Unit Maker",
-		        "desc": "Materializes an unit on the combat field that will serve and obey orders.",
-		        "info": "plasma cost = unit size + unit level",
-			"costs": {"plasma": "creature size + level"}
+			{
+				"title": "Unit Maker",
+				"desc": "Materializes a unit on the combat field that will serve and obey given orders.",
+				"info": "plasma cost = unit size + unit level",
+				"costs": {
+					"plasma": "creature size + level"
+				}
     		}
     	]
 	},
@@ -78,10 +89,10 @@
 		"id": 1,
 		"name": "Bounty Hunter",
 		"lvl": 2,
-		"embed": null,
 		"realm": "A",
 		"size": 1,
 		"type": "A2",
+		"set": "Alpha",
 		"stats": {
 			"health": 100,
 			"regrowth": 2,
@@ -101,30 +112,30 @@
 			"poison": 4,
 			"sonic": 5,
 			"mental": 8
-	},
-	"animation": {
-		"walk_speed": 500
-	},
-	"ability_info": [
-		{
-			"title": "Post Mortem",
-			"desc": "Drops a powerful fuse bomb on the ground when dying (lasts 1 round).",
-			"info": "Does 20 burn + 10 crush damage."
 		},
-		{
-			"title": "Sword Slash",
-			"desc": "Swift attack on a nearby foe.",
-			"info": "Does 15 slash damage."
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Pistol Shots",
-			"desc": "Delivers a ranged shot within 6 hexes. Can be used twice per round.",
-			"info": "10 pierce damage in any direction."
+		"ability_info": [
+			{
+				"title": "Personal Space",
+				"desc": "Gains bonus stat points if there's an adjacent enemy unit when turn starts.",
+				"info": "50% increase in offense and movement"
 		},
-		{
-			"title": "Rifle Shot",
-			"desc": "Very powerful long range attack.",
-			"info": "30 pierce damage in any direction."
+			{
+				"title": "Sword Strike",
+				"desc": "Swift attack on a nearby enemy unit.",
+				"info": "Does 15 slash and 5 piece damage"
+		},
+			{
+				"title": "Pistol Shots",
+				"desc": "Delivers a ranged shot within 6 hexes. Can be used twice every single round.",
+				"info": "20 pierce damage in any direction"
+		},
+			{
+				"title": "Rifle Shot",
+				"desc": "Very powerful long range attack that can strike up to 12 hexagons distance.",
+				"info": "40 pierce damage in any direction"
 		}
         ]
 	},
@@ -132,10 +143,10 @@
 		"id": 2,
 		"name": "Marauder",
 		"lvl": 6,
-		"embed": null,
 		"realm": "G",
 		"size": 3,
 		"type": "G6",
+		"set": "Alpha",
 		"stats": {
 			"health": 280,
 			"regrowth": 10,
@@ -155,30 +166,30 @@
 			"poison": 6,
 			"sonic": 3,
 			"mental": 3
-    	},
-    	"animation": {
-		  "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Backstabber",
-                "desc": "Reduces damage from behind and returns some to all melee attackers.",
-                "info": "30% rear damage reduction & return."
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Backstabber",
+				"desc": "Reduces damage from behind and returns some to all melee attackers.",
+				"info": "30% rear damage reduction & return"
             },
-            {
-                "title": "Metallic Claws",
-                "desc": "Razor sharp claws help him really shred his foes.",
-                "info": "10 pierce + 10 slash damage."
+			{
+				"title": "Metallic Claws",
+				"desc": "Shreds nearby foe using its razor nails.",
+				"info": "10 pierce + 10 slash damage"
             },
-            {
-                "title": "Tail Mace",
-                "desc": "Whips out it's scepter like tail to bluntly punish a distant foe.",
-                "info": "15 pierce + 15 crush damage."
+			{
+				"title": "Tail Mace",
+				"desc": "Whips out its scepter like tail to bluntly punish a foe that's within 3 hexagons.",
+				"info": "15 pierce + 15 crush damage"
             },
-            {
-                "title": "Brain Power",
-                "desc": "Electro-charges it's brain functions to shock all nearby creatures.",
-                "info": "25 shock damage to adjacent targets."
+			{
+				"title": "Brain Power",
+				"desc": "Electro-charges its own brain functions in order to shock all the nearby units.",
+				"info": "25 shock damage to adjacent targets"
             }
         ]
 	},
@@ -186,10 +197,10 @@
 		"id": 3,
 		"name": "Uncle Fungus",
 		"lvl": 3,
-		"embed": null,
 		"realm": "G",
 		"size": 2,
 		"type": "G3",
+		"set": "Alpha",
 		"stats": {
 			"health": 120,
 			"regrowth": 6,
@@ -206,55 +217,70 @@
 			"shock": 3,
 			"burn": 4,
 			"frost": 6,
-			"poison": 10,
+			"poison": 12,
 			"sonic": 5,
-    			"mental": 3
-    	},
-        "display": {
-		"width": 165,
-		"height": 195,
-		"offset-x": 2,
-		"offset-y": -142
-        },
-    	"animation": {
-    		"walk_speed": 360
-    	},
-        "drop" : {
-            "name": "Frog Leg",
-            "alterations": {"initiative": 10}
-        },
-    	"ability_info": [
-    		{
-    			"title": "Toxic Spores",
-    			"desc": "Foes that get too close have their regrowth reduced for a whole turn.",
-    			"info": "-5 regrowth stat debuff for a round",
-			"effects": [{"regrowth": -5}]
+			"mental": 3
+		},
+		"display": {
+			"width": 165,
+			"height": 195,
+			"offset-x": 2,
+			"offset-y": -142
+		},
+		"animation": {
+			"walk_speed": 360
+		},
+		"drop": {
+			"name": "Frog Leg",
+			"health": 5,
+			"energy": 10
+		},
+		"ability_info": [
+			{
+				"title": "Toxic Spores",
+				"desc": "Foes that get too close have their regrowth reduced for a whole turn.",
+				"info": "-5 regrowth stat debuff for a round",
+				"effects": [{
+					"regrowth": -5
+				}]
     		},
-    		{
-    			"title": "Supper Chomp",
-    			"desc": "Takes a huge bite out of nearby foe, restoring a minor amount of health.",
-    			"info": "20 pierce damage, 1/4 as regrowth",
-    			"effects": [{"special": "1/4 of damages as %regrowth%"}],
-			"damages": {"pierce" : 20},
-			"costs": {"energy" : 15}
+			{
+				"title": "Supper Chomp",
+				"desc": "Takes a huge bite out of nearby foe, restoring a minor amount of health.",
+				"info": "20 pierce damage, 1/4 as regrowth",
+				"effects": [{
+					"special": "1/4 of damages as %regrowth%"
+				}],
+				"damages": {
+					"pierce": 20
+				},
+				"costs": {
+					"energy": 15
+				}
     		},
-    		{
-    			"title": "Frogger Jump",
-    			"desc": "Leaps in straight line over obstacles, gaining bonus offense after landing.",
-    			"info": "+25 offense for next hit if not moving",
-			"effects": [{"offense" : 25}],
-			"costs": {"energy": 30}
+			{
+				"title": "Frogger Jump",
+				"desc": "Leaps in straight line over obstacles, gaining bonus offense after landing.",
+				"info": "+25 offense for next hit if not moving",
+				"effects": [{
+					"offense": 25
+				}],
+				"costs": {
+					"energy": 30
+				}
     		},
-    		{
-    			"title": "Blade Kick",
-    			"desc": "Slashes nearby foe using feet claws.",
-    			"info": "15 pierce + 10 slash + 5 crush damage",
-			"damages": {
-				"pierce": 15,
-				"slash": 10,
-				"crush": 5
-			},
-			"costs": {"energy": 20}
+			{
+				"title": "Blade Kick",
+				"desc": "Slashes nearby foe using feet claws.",
+				"info": "15 pierce + 10 slash + 5 crush damage",
+				"damages": {
+					"pierce": 15,
+					"slash": 10,
+					"crush": 5
+				},
+				"costs": {
+					"energy": 20
+				}
     		}
     	]
 	},
@@ -262,10 +288,10 @@
 		"id": 4,
 		"name": "Magma Spawn",
 		"lvl": 2,
-		"embed": null,
 		"realm": "L",
 		"size": 3,
 		"type": "L2",
+		"set": "Alpha",
 		"stats": {
 			"health": 125,
 			"regrowth": 4,
@@ -285,55 +311,70 @@
 			"poison": 10,
 			"sonic": 4,
 			"mental": 0
-	},
-	"animation": {
-		"walk_speed": 500
-	},
-    "display":{
-        "height": 158,
-        "width": 206,
-        "offset-y": -121,
-        "offset-x": 28
-    },
-    "drop" : {
-        "name": "Apple",
-        "alterations" : {"endurance": 10 }
-    },
-	"ability_info": [
-		{
-			"title": "Scorched Ground",
-			"desc": "Ignites some of the ground under, lasting 1 round or until stepped on.",
-			"info": "10 burn damage for each hexagon",
-			"damages": {"burn":10}
 		},
-		{
-			"title": "Pulverizing Punch",
-			"desc": "Smacks a foe with its heavy hand, gaining bonus damage every hit.",
-			"info": "8 crush damage, + 3 burn per hit",
-			"damages": {
-				"burn": 3,
-				"crush": 8
-			},
-			"costs": {"energy": 15}
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Fissure Vent",
-			"desc": "Smashes his fists into the ground, wreaking fierce havoc in area ahead.",
-			"info": "10 burn damage over all 8 hexagons",
-			"damages": {"special": "10%burn%over 8 hexagons"},
-			"damages1": {"burn": 10},
-			"costs": {"energy": 20}
+		"display": {
+			"height": 158,
+			"width": 206,
+			"offset-y": -121,
+			"offset-x": 28
 		},
-		{
-			"title": "Molten Hurl",
-			"desc": "Turns into a molten boulder, bowling itself into first foe in a straight line. Ignores all the traps along the way.",
-			"info": "10 crush + 5 burn damage & travel",
-			"damages": {
-				"crush": 10,
-				"burn": 5
-			},
-			"effects": [{"special": "travels toward inline unit"}],
-			"costs": {"energy": 30}
+		"drop": {
+			"name": "Apple",
+			"health": 15,
+			"energy": 10
+		},
+		"ability_info": [
+			{
+				"title": "Scorched Ground",
+				"desc": "Ignites some of the ground under, lasting 1 round or until stepped on.",
+				"info": "10 burn damage for each hexagon",
+				"damages": {
+					"burn": 10
+				}
+		},
+			{
+				"title": "Pulverizing Punch",
+				"desc": "Smacks a foe with its heavy hand, gaining bonus damage every hit.",
+				"info": "8 crush damage, + 3 burn per hit",
+				"damages": {
+					"burn": 3,
+					"crush": 8
+				},
+				"costs": {
+					"energy": 15
+				}
+		},
+			{
+				"title": "Fissure Vent",
+				"desc": "Smashes his fists into the ground, wreaking fierce havoc in area ahead.",
+				"info": "10 burn damage over all 8 hexagons",
+				"damages": {
+					"special": "10%burn%over 8 hexagons"
+				},
+				"damages1": {
+					"burn": 10
+				},
+				"costs": {
+					"energy": 20
+				}
+		},
+			{
+				"title": "Molten Hurl",
+				"desc": "Turns into a molten boulder, bowling itself into first foe in a straight line. Ignores all the traps along the way.",
+				"info": "10 crush + 5 burn damage & travel",
+				"damages": {
+					"crush": 10,
+					"burn": 5
+				},
+				"effects": [{
+					"special": "travels toward inline unit"
+				}],
+				"costs": {
+					"energy": 30
+				}
 		}
 	]
 	},
@@ -341,10 +382,10 @@
 		"id": 5,
 		"name": "Impaler",
 		"lvl": 5,
-		"embed": null,
 		"realm": "S",
 		"size": 3,
 		"type": "S5",
+		"set": "Alpha",
 		"stats": {
 			"health": 200,
 			"regrowth": 10,
@@ -364,52 +405,69 @@
 			"poison": 15,
 			"sonic": 6,
 			"mental": 10
-    	},
-    	"animation": {
-    		"walk_speed": 200
-    	},
-        "display":{
-            "width": 225,
-            "height": 212,
-            "offset-x": 28,
-            "offset-y": -181
-        },
-        "drop" : {
-            "name": "Fish",
-            "alterations": {"meditation": 5}
-        },
-    	"ability_info": [
-    		{
-    			"title": "Electrified Hair",
-    			"desc": "Absorbs half of all incoming shock damage, using up to 25 on attacks.",
-    			"info": "Maximum of 100 damage absorbed.",
-				"effects": [{"special": "Maximum of 100 %shock% damage absorbed."}],
+		},
+		"animation": {
+			"walk_speed": 200
+		},
+		"display": {
+			"width": 225,
+			"height": 212,
+			"offset-x": 28,
+			"offset-y": -181
+		},
+		"drop": {
+			"name": "Fish",
+			"health": 5,
+			"energy": 10
+		},
+		"ability_info": [
+			{
+				"title": "Electrified Hair",
+				"desc": "Reduces half of all incoming shock damage, up to 100 points per turn.",
+				"info": "This isn't affected by any unit stats",
+				"effects": [{
+					"special": "Maximum of 100 %shock% damage absorbed."
+				}],
 				"maxCharge": 100
     		},
-    		{
-    			"title": "Deadly Jab",
-    			"desc": "Horn attack that gains extra damage based on the last distance traveled.",
-    			"info": "12 pierce damage + 3 per hexagon",
-			"damages": {"special":"12%pierce%+ 3 per hexagon"},
-			"damages1": {"pierce":12},
-			"costs": {"energy": 15}
+			{
+				"title": "Deadly Jab",
+				"desc": "Horn attack that gains extra damage based on the last distance traveled.",
+				"info": "15 pierce damage + 5 per hexagon",
+				"damages": {
+					"special": "12%pierce%+ 3 per hexagon"
+				},
+				"damages1": {
+					"pierce": 12
+				},
+				"costs": {
+					"energy": 15
+				}
     		},
-    		{
-    			"title": "Poisonous Vine",
-    			"desc": "Makes use of tongue to envenom horn, mostly effective for a turn.",
-    			"info": "+5 poison damage (+1 permanent)",
-			"effects": [{"special": "<br>+ 1%poison%permanent damage"},{"special": "<br>+ 5%poison%temporary damage"}],
-			"costs": {"energy": 10}
+			{
+				"title": "Poisonous Vine",
+				"desc": "Ties up a nearby foe, causing it to take damage if he moves within next turn.",
+				"info": "25 poison damage triggered if moving",
+				"effects": [{
+					"special": "<br>+ 1%poison%permanent damage"
+				}, {
+					"special": "<br>+ 5%poison%temporary damage"
+				}],
+				"costs": {
+					"energy": 10
+				}
     		},
-    		{
-    			"title": "Super Slash",
-    			"desc": "Damages up to 3 nearby creatures. 200% offense against fatigued ones.",
-    			"info": "16 slash + 4 frost damage",
-			"damages": {
-				"slash": 16, 
-				"frost": 4
-                	},
-			"costs": {"energy": 20}
+			{
+				"title": "Critical Strike",
+				"desc": "Damages up to 3 nearby creatures. 300% offense against fatigued ones.",
+				"info": "15 slash + 10 pierce + 5 frost damage",
+				"damages": {
+					"slash": 16,
+					"frost": 4
+				},
+				"costs": {
+					"energy": 20
+				}
     		}
     	]
 	},
@@ -417,2062 +475,2156 @@
 		"id": 6,
 		"name": "Ice Demon",
 		"lvl": 7,
-		"embed": null,
 		"realm": "S",
 		"size": 3,
 		"type": "S7",
+		"set": "Alpha",
 		"stats": {
 			"health": 333,
-			"regrowth": 5,
-			"endurance": 80,
-			"energy": 100,
+			"regrowth": 3,
+			"endurance": 90,
+			"energy": 80,
 			"meditation": 25,
 			"initiative": 66,
-			"offense": 20,
-			"defense": 20,
+			"offense": 8,
+			"defense": 22,
 			"movement": 4,
 			"pierce": 14,
 			"slash": 14,
 			"crush": 14,
 			"shock": 6,
 			"burn": 3,
-			"frost": 40,
-			"poison": 20,
+			"frost": 20,
+			"poison": 10,
 			"sonic": 4,
 			"mental": 15
-        },
-        "display": {
-		"width": 240,
-		"height": 240,
-		"offset-x": 15,
-		"offset-y": -210
-        },
-	"animation": {
-		"walk_speed": 350
-        },
-        "drop" : {
-            "name": "Snow Flake",
-            "alterations": {"frost": 5}
-        },
-	"ability_info": [
-		{
-			"title": "Frost Bite",
-			"desc": "Retaliates to frontal melee attacks.",
-			"info": "-1 movement and -5 initiative debuff",
-			"effects": [{"movement": -1, "initiative" :-5}]
 		},
-		{
-			"title": "Head Bash",
-			"desc": "Smashes a nearby foe using head. Knockbacks or does double damage.",
-			"info": "15 crush & push or 30 crush damage",
-			"damages": {"crush": 15},
-			"effects": [{"special": "Push or double damage."}],
-			"costs": {"energy": 15}
+		"display": {
+			"width": 240,
+			"height": 240,
+			"offset-x": 15,
+			"offset-y": -210
 		},
-		{
-			"title": "Snow Storm",
-			"desc": "Exhales freezing gas that spreads in a large area, affecting blown targets.",
-			"info": "15 frost damage to all exposed units",
-			"damages": {"special": "15%frost%to first units"},
-			"damages1": {"frost": 15},
-			"costs": {"energy": 20}
+		"animation": {
+			"walk_speed": 350
 		},
-		{
-			"title": "Frozen Orb",
-			"desc": "Creates an ice sphere and throws it at an inline foe, freezing it for a turn.",
-			"info": "10 crush + 10 frost damage & freeze",
-			"damages": {"crush": 10, "frost" : 10 },
-			"effects": [{"special": "Target foe loses next turn."}],
-			"costs": {"energy": 30},
-			"radius": 1
+		"drop": {
+			"name": "Snow Flake",
+			"health": 5,
+			"energy": 0
+		},
+		"ability_info": [
+			{
+				"title": "Snow Storm",
+				"desc": "Chills nearby units at the start of the turn, while healing sloth units and self.",
+				"info": "10 frost damage, 10 heal to sloth units",
+				"effects": [{
+					"movement": -1,
+					"initiative": -5
+				}]
+		},
+			{
+				"title": "Head Bash",
+				"desc": "Smashes a nearby foe using head. Knockback or deals double damage.",
+				"info": "15 frost & push or 30 crush damage",
+				"damages": {
+					"crush": 15
+				},
+				"effects": [{
+					"special": "Push or double damage."
+				}],
+				"costs": {
+					"energy": 15
+				}
+		},
+			{
+				"title": "Frost Bite",
+				"desc": "Exhales chilling gas that damages a nearby foe, making it unable to heal.",
+				"info": "20 frost damage & disabled healing",
+				"damages": {
+					"frost": 20
+				},
+				"costs": {
+					"energy": 20
+				}
+		},
+			{
+				"title": "Frozen Orb",
+				"desc": "Throws an ice sphere at an inline spot, freezing a foe or doing damage nearby	.",
+				"info": "30 frost damage & freeze or splashing",
+				"damages": {
+					"crush": 10
+				},
+				"effects": [{
+					"special": "Target foe loses next turn."
+				}],
+				"costs": {
+					"energy": 30
+				}
 		}
 	]
     },
-    {
-        "id": 7,
-        "name": "Abolished",
-        "lvl": 7,
-        "embed": null,
-        "realm": "P",
-        "size": 3,
-        "type": "P7",
-        "stats": {
-		"health": 250,
-		"regrowth": 5,
-		"endurance": 55,
-		"energy": 100,
-		"meditation": 10,
-		"initiative": 110,
-		"offense": 6,
-		"defense": 6,
-		"movement": 2,
-		"pierce": 4,
-		"slash": 4,
-		"crush": 4,
-		"shock": 4,
-		"burn": 10,
-		"frost": 2,
-		"poison": 2,
-		"sonic": 6,
-		"mental": 8
-	},
-	"animation": {
-		"walk_speed": 500
-        },
-	"display":{
-            "width": 270,
-            "height": 277,
-            "offset-x": 0,
-            "offset-y": -235
-        },
-        "drop": {
-		"name": "Radish",
-		"alterations": {"burn": 10}
-        },
-        "ability_info": [
-		{
-			"title": "Greater Pyre",
-			"desc": "Fries all adjacent creatures after taking damage and still being alive.",
-			"info": "15 burn damage nearby",
-			"damages": {"burn": 15},
-			"affectedByMatSickness": 1
+	{
+		"id": 7,
+		"name": "Abolished",
+		"lvl": 7,
+		"realm": "P",
+		"size": 3,
+		"type": "P7",
+		"set": "Alpha",
+		"stats": {
+			"health": 240,
+			"regrowth": 5,
+			"endurance": 55,
+			"energy": 100,
+			"meditation": 10,
+			"initiative": 110,
+			"offense": 6,
+			"defense": 6,
+			"movement": 2,
+			"pierce": 4,
+			"slash": 4,
+			"crush": 4,
+			"shock": 4,
+			"burn": 10,
+			"frost": 2,
+			"poison": 2,
+			"sonic": 6,
+			"mental": 8
 		},
-		{
-			"title": "Fiery Claw",
-			"desc": "Scratches and burns a nearby foe. This attack has 1 hex extra reach.",
-			"info": "10 slash + 10 burn damage",
-			"damages": {
-				"slash": 10,
-				"burn": 10
-			},
-			"costs": {"energy": 15}
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Burning Eye",
-			"desc": "Strategically teleports to a new location on the combat field.",
-			"info": "Reduces 1 burn stat to nearby foes.",
-			"effects": [{"special": "-1 %burn% on nearby foes"}],
-			"costs": {"energy": 30}
+		"display": {
+			"width": 270,
+			"height": 277,
+			"offset-x": 0,
+			"offset-y": -235
 		},
-		{
-			"title": "Fire Ball",
-			"desc": "Throws a ball of fire that explodes on impact, damaging several creatures.",
-			"info": "20 at center + 10 splash burn damage",
-			"damages": {"special": "20 %burn% at center + 10 %burn% splash damage"},
-			"damages1": {"burn": 20},
-			"damages2": {"burn": 10},
-			"costs": {"energy": 20}
+		"drop": {
+			"name": "Radish",
+			"health": 5,
+			"energy": 5
+		},
+		"ability_info": [
+			{
+				"title": "Burning Heart",
+				"desc": "Hits reduce the target's burn mastery.",
+				"info": "-5 burn mastery each successful strike"
+		},
+			{
+				"title": "Fiery Claw",
+				"desc": "Scratches and also burns a nearby foe. This attack has 1 hexagon extra reach.",
+				"info": "10 slash + 10 burn damage for each hit",
+				"damages": {
+					"slash": 10,
+					"burn": 10
+				},
+				"costs": {
+					"energy": 15
+				}
+		},
+			{
+				"title": "Wild Fire",
+				"desc": "Strategically teleports to a new location leaving a firewall behind.",
+				"info": "3 x 10 burn damage per hexagon",
+				"effects": [{
+					"special": "10 %burn% damage per hex"
+				}],
+				"costs": {
+					"energy": 30
+				}
+		},
+			{
+				"title": "Greater Pyre",
+				"desc": "Meditates for a short period while causing burns to all adjacent units.",
+				"info": "20 burn damage nearby, hurts allies",
+				"damages": {
+					"burn": 20
+				},
+				"costs": {
+					"energy": 20
+				}
 		}
         ]
     },
-    {
-        "id": 8,
-        "name": "Horn Head",
-        "lvl": 5,
-        "embed": "qiZwkauNCsMRVielvbpliN0K5up",
-        "realm": "W",
-        "size": 2,
-        "type": "W5",
-        "stats": {
-            "health": 240,
-            "regrowth": 12,
-            "endurance": 60,
-            "energy": 80,
-            "meditation": 10,
-            "initiative": 100,
-            "offense": 45,
-            "defense": 35,
-            "movement": 6,
-            "pierce": 6,
-            "slash": 6,
-            "crush": 6,
-            "shock": 2,
-            "burn": 2,
-            "frost": 2,
-            "poison": 2,
-            "sonic": 10,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Unstoppable Hate",
-                "desc": "1/2 regrowth works even if fatigued.",
-                "info": ""
+	{
+		"id": 8,
+		"name": "Horn Head",
+		"lvl": 5,
+		"realm": "W",
+		"size": 2,
+		"type": "W5",
+		"set": "Alpha",
+		"stats": {
+			"health": 240,
+			"regrowth": 12,
+			"endurance": 60,
+			"energy": 80,
+			"meditation": 10,
+			"initiative": 100,
+			"offense": 45,
+			"defense": 35,
+			"movement": 6,
+			"pierce": 6,
+			"slash": 6,
+			"crush": 6,
+			"shock": 2,
+			"burn": 2,
+			"frost": 2,
+			"poison": 2,
+			"sonic": 10,
+			"mental": 0
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Last Stand",
+				"desc": "Can act one more turn after being killed.",
+				"info": ""
             },
-            {
-                "title": "Knuckle Head",
-                "desc": "Smashes ringed head into a foe.",
-                "info": "8 pierce + 8 slash + 8 crush damage"
+			{
+				"title": "Knuckle Head",
+				"desc": "Smashes ringed head into a foe.",
+				"info": "8 pierce + 8 slash + 8 crush damage"
             },
-            {
-                "title": "Meat Hook",
-                "desc": "Drags a foe, doing bonus damage if it doesn't have any movement points.",
-                "info": "5 pierce damage per hexagon"
+			{
+				"title": "Meat Hook",
+				"desc": "Drags a foe, doing bonus damage if it doesn't have any movement points.",
+				"info": "5 pierce damage per hexagon moved"
             },
-            {
-                "title": "Double Swipe",
-                "desc": "Slaps frontal units with both claws.",
-                "info": "15 slash + 15 crush damage"
+			{
+				"title": "Double Swipe",
+				"desc": "Slaps frontal units with both claws.",
+				"info": "15 slash + 15 crush damage per hit"
             }
         ]
     },
-    {
-        "id": 9,
-        "name": "Nightmare",
-        "lvl": 4,
-        "embed": null,
-        "realm": "S",
-        "size": 2,
-        "type": "S4",
-        "stats": {
-            "health": 230,
-            "regrowth": 3,
-            "endurance": 50,
-            "energy": 60,
-            "meditation": 30,
-            "initiative": 40,
-            "offense": 10,
-            "defense": 10,
-            "movement": 2,
-            "pierce": 5,
-            "slash": 4,
-            "crush": 3,
-            "shock": 2,
-            "burn": 1,
-            "frost": 10,
-            "poison": 5,
-            "sonic": 5,
-            "mental": 15
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "display": {
-            "width": 170,
-            "height": 250,
-            "offset-x": 5,
-            "offset-y": -215
-        },
-        "drop": {
-            "name": "Milk Bottle",
-            "alterations": {"energy": 10}
-        },
-        "ability_info": [
-		{
-			"title": "Frozen Tower",
-			"desc": "Constantly increases offense and defense for every turn not moving.",
-			"info": "+5 offense and defense per round",
-			"effects": [{"special": "(5%offense%, 5%defense%) each turn"}],
-			"maxCharge": 10
+	{
+		"id": 9,
+		"name": "Nightmare",
+		"lvl": 4,
+		"realm": "S",
+		"size": 2,
+		"type": "S4",
+		"set": "Alpha",
+		"stats": {
+			"health": 230,
+			"regrowth": 3,
+			"endurance": 50,
+			"energy": 60,
+			"meditation": 30,
+			"initiative": 40,
+			"offense": 10,
+			"defense": 10,
+			"movement": 2,
+			"pierce": 5,
+			"slash": 4,
+			"crush": 3,
+			"shock": 2,
+			"burn": 1,
+			"frost": 10,
+			"poison": 5,
+			"sonic": 5,
+			"mental": 15
 		},
-		{
-			"title": "Icy Talons",
-			"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
-			"info": "6 slash + 6 frost damage, -1 frost",
- 			"damages": {
-				"slash": 6,
-				"frost": 6
-			},
-			"costs": {"energy": 10}
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Tail Uppercut",
-			"desc": "Sucker punches a near enemy using limb, making it delay the next turn.",
-			"info": "10 crush + 10 frost damage & delay",
-			"damages": {
-				"crush": 10,
-				"frost": 10
-			},
-			"costs": {"energy": 15}
+		"display": {
+			"width": 170,
+			"height": 250,
+			"offset-x": 5,
+			"offset-y": -215
 		},
-		{
-			"title": "Icicle Tongue",
-			"desc": "Launches a shard that can penetrate up to 6 hexagons that are all aligned.",
-			"info": "10 pierce + 6 lowering frost damage",
-			"damages": {
-				"pierce": 10,
-				"frost": "6 lowering"
-			},
-			"costs": {"energy": 20}
+		"drop": {
+			"name": "Milk Bottle",
+			"health": 10,
+			"energy": 0
+		},
+		"ability_info": [
+			{
+				"title": "Frozen Tower",
+				"desc": "Constantly increases offense and defense for every turn not moving.",
+				"info": "+5 offense and defense per round",
+				"effects": [{
+					"special": "(5%offense%, 5%defense%) each turn"
+				}],
+				"maxCharge": 10
+		},
+			{
+				"title": "Icy Talons",
+				"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
+				"info": "6 slash + 6 frost damage, -1 frost",
+				"damages": {
+					"slash": 6,
+					"frost": 6
+				},
+				"costs": {
+					"energy": 10
+				}
+		},
+			{
+				"title": "Tail Uppercut",
+				"desc": "Sucker punches a near enemy using limb, making it delay the next turn.",
+				"info": "10 crush + 10 frost damage & delay",
+				"damages": {
+					"crush": 10,
+					"frost": 10
+				},
+				"costs": {
+					"energy": 15
+				}
+		},
+			{
+				"title": "Icicle Tongue",
+				"desc": "Launches a shard that can penetrate up to 6 hexagons that are all aligned.",
+				"info": "10 pierce + 6 lowering frost damage",
+				"damages": {
+					"pierce": 10,
+					"frost": "6 lowering"
+				},
+				"costs": {
+					"energy": 20
+				}
             }
         ]
     },
-    {
-        "id": 10,
-        "name": "Troglodyte",
-        "lvl": 3,
-        "embed": null,
-        "realm": "P",
-        "size": 3,
-        "type": "P3",
-        "stats": {
-            "health": 120,
-            "regrowth": 2,
-            "endurance": 60,
-            "energy": 90,
-            "meditation": 2,
-            "initiative": 10,
-            "offense": 10,
-            "defense": 10,
-            "movement": 4,
-            "pierce": 3,
-            "slash": 3,
-            "crush": 3,
-            "shock": 3,
-            "burn": 3,
-            "frost": 3,
-            "poison": 3,
-            "sonic": 5,
-            "mental": 20
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Inner Vision",
-                "desc": "Lack of sight forces the creature to focus on all its other senses.",
-                "info": "+5 initiative for each round alive."
+	{
+		"id": 10,
+		"name": "Troglodyte",
+		"lvl": 3,
+		"realm": "P",
+		"size": 3,
+		"type": "P3",
+		"set": "Alpha",
+		"stats": {
+			"health": 120,
+			"regrowth": 2,
+			"endurance": 60,
+			"energy": 90,
+			"meditation": 2,
+			"initiative": 10,
+			"offense": 10,
+			"defense": 10,
+			"movement": 3,
+			"pierce": 3,
+			"slash": 3,
+			"crush": 3,
+			"shock": 3,
+			"burn": 3,
+			"frost": 3,
+			"poison": 3,
+			"sonic": 10,
+			"mental": 20
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Inner Vision",
+				"desc": "Lack of sight forces the creature to focus on all of its remaining senses.",
+				"info": "+5 initiative for each passing round"
             },
-            {
-                "title": "Tongue Dagger",
-                "desc": "Melee attack on a nearby foe.",
-                "info": "5 pierce + 15 crush damage"
+			{
+				"title": "Tongue Dagger",
+				"desc": "Pokes a nearby foe, crushing it if melee or pierces it if it is one hexagon distant.",
+				"info": "20 pierce or crush damage on attack"
             },
-            {
-                "title": "Sonic Scream",
-                "desc": "Shock waves that travel far.",
-                "info": "20 sonic damage"
+			{
+				"title": "Sonic Scream",
+				"desc": "Shock waves that affect a large area but do less damage the further away.",
+				"info": "10 sonic damage over 15 hexagons"
             },
-            {
-                "title": "Psychic Blast",
-                "desc": "Focuses the power of mind in order to attack foes from a small region.",
-                "info": "20 mental damage"
+			{
+				"title": "Psychic Blast",
+				"desc": "Focuses the power of mind in order to attack foes up to 4 hexagons distance.",
+				"info": "18 mental damage over 7 hexagons"
             }
         ]
     },
-    {
-        "id": 11,
-        "name": "Toxic Shroom",
-        "lvl": 1,
-        "embed": null,
-        "realm": "G",
-        "size": 1,
-        "type": "G1",
-        "stats": {
-            "health": 80,
-            "regrowth": 7,
-            "endurance": 60,
-            "energy": 70,
-            "meditation": 7,
-            "initiative": 60,
-            "offense": 3,
-            "defense": 5,
-            "movement": 4,
-            "pierce": 2,
-            "slash": 2,
-            "crush": 4,
-            "shock": 1,
-            "burn": 2,
-            "frost": 5,
-            "poison": 4,
-            "sonic": 1,
-            "mental": 5
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Travel Waypoint",
-                "desc": "Transfer from a shroom to another.",
-                "info": ""
+	{
+		"id": 11,
+		"name": "Toxic Shroom",
+		"lvl": 1,
+		"realm": "G",
+		"size": 1,
+		"type": "G1",
+		"set": "Alpha",
+		"stats": {
+			"health": 80,
+			"regrowth": 7,
+			"endurance": 60,
+			"energy": 70,
+			"meditation": 7,
+			"initiative": 60,
+			"offense": 3,
+			"defense": 5,
+			"movement": 4,
+			"pierce": 2,
+			"slash": 2,
+			"crush": 4,
+			"shock": 1,
+			"burn": 2,
+			"frost": 5,
+			"poison": 10,
+			"sonic": 1,
+			"mental": 5
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Travel Waypoint",
+				"desc": "Transfers location with any of the tiny mushshrooms that are within range.",
+				"info": ""
             },
-            {
-                "title": "Head Bash",
-                "desc": "Bumps it's large cap into nearby foe.",
-                "info": "10 crush damage"
+			{
+				"title": "Head Bash",
+				"desc": "Bumps it's large cap into nearby foe. Knocks it back one hexagon if small.",
+				"info": "10 crush damage + knockback if 1H"
             },
-            {
-                "title": "Noxious Cloud",
-                "desc": "Releases several toxic clouds all around, persisting for several rounds.",
-                "info": "15 adjacent poison damage"
+			{
+				"title": "Noxious Cloud",
+				"desc": "Releases several toxic clouds all around, persisting for three rounds.",
+				"info": "15 adjacent poison damage (6 hex)"
             },
-            {
-                "title": "Tiny Mushroom",
-                "desc": "Drops a shroom that serves as a waypoint or a poisonous trap.",
-                "info": "20 poison damage"
+			{
+				"title": "Tiny Mushroom",
+				"desc": "Drops a deadly shroom that acts either as a waypoint or as a poisonous trap.",
+				"info": "35 poison damage when stepped over"
             }
 
         ]
     },
-    {
-        "id": 12,
-        "name": "Snow Bunny",
-        "lvl": 1,
-        "embed": null,
-        "realm": "S",
-        "size": 1,
-        "type": "S1",
-        "stats": {
-            "health": 95,
-            "regrowth": 7,
-            "endurance": 20,
-            "energy": 100,
-            "meditation": 25,
-            "initiative": 35,
-            "offense": 3,
-            "defense": 2,
-            "movement": 3,
-            "pierce": 2,
-            "slash": 2,
-            "crush": 3,
-            "shock": 3,
-            "burn": 1,
-            "frost": 8,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "display":{
-            "width": 95,
-            "height": 135,
-            "offset-x": -5,
-            "offset-y": -100
-        },
-        "drop" : {
-            "name": "Carrot",
-            "alterations": {"poison": 5}
-        },
-        "ability_info": [
-		{
-			"title": "Bunny Hopping",
-			"desc": "Moves away one hexagon from first enemy that comes nearby frontaly.",
- 			"info": "Works only once every game round.",
-			"affectedByMatSickness": 1
+	{
+		"id": 12,
+		"name": "Snow Bunny",
+		"lvl": 1,
+		"realm": "S",
+		"size": 1,
+		"type": "S1",
+		"set": "Alpha",
+		"stats": {
+			"health": 95,
+			"regrowth": 7,
+			"endurance": 20,
+			"energy": 100,
+			"meditation": 25,
+			"initiative": 35,
+			"offense": 3,
+			"defense": 2,
+			"movement": 3,
+			"pierce": 2,
+			"slash": 2,
+			"crush": 3,
+			"shock": 3,
+			"burn": 1,
+			"frost": 8,
+			"poison": 0,
+			"sonic": 0,
+			"mental": 0
 		},
-		{
- 			"title": "Big Nip",
-			"desc": "Dents nearby foe using it's big teeth.",
-			"info": "8 pierce + 6 slash + 4 crush damage",
-			"damages": {
-				"pierce": 8,
-				"slash": 6,
-				"crush": 4
-			},
-			"costs": {"energy": 15}
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Blowing Wind",
-			"desc": "Pushes away any creature for several hexagons, depending on unit's size.",
-			"info": "range = 5 hexagons - creature size",
-			"effects": [{"special": "range = 5 hexagons - creature size"}],
-			"costs": {"energy": 20}
+		"display": {
+			"width": 95,
+			"height": 135,
+			"offset-x": -5,
+			"offset-y": -100
 		},
-		{
-			"title": "Chilling Spit",
-			"desc": "Spits diagonal foe with cold saliva. Bonus damage based on distance.",
-			"info": "7 frost + 4 crush damage / hexagon",
-			"damages": {
- 				"crush": 0,
-				"frost": 7
-			},
-			"costs": {"energy": 20}
+		"drop": {
+			"name": "Carrot",
+			"health": 10,
+			"energy": 3
+		},
+		"ability_info": [
+			{
+				"title": "Bunny Hopping",
+				"desc": "Moves away one hexagon from first enemy that comes nearby frontaly.",
+				"info": "Works only once every game round.",
+				"affectedByMatSickness": 1
+		},
+			{
+				"title": "Big Nip",
+				"desc": "Dents nearby foe using it's big teeth.",
+				"info": "8 pierce + 6 slash + 4 crush damage",
+				"damages": {
+					"pierce": 8,
+					"slash": 6,
+					"crush": 4
+				},
+				"costs": {
+					"energy": 15
+				}
+		},
+			{
+				"title": "Blowing Wind",
+				"desc": "Pushes away any creature for several hexagons, depending on unit's size.",
+				"info": "range = 5 hexagons - creature size",
+				"effects": [{
+					"special": "range = 5 hexagons - creature size"
+				}],
+				"costs": {
+					"energy": 20
+				}
+		},
+			{
+				"title": "Chilling Spit",
+				"desc": "Spits diagonal foe with cold saliva. Bonus damage based on distance.",
+				"info": "7 frost + 3 crush damage / hexagon",
+				"damages": {
+					"crush": 0,
+					"frost": 7
+				},
+				"costs": {
+					"energy": 20
+				}
             }
         ]
     },
-    {
-        "id": 13,
-        "name": "Swampler",
-        "lvl": 2,
-        "embed": null,
-        "realm": "G",
-        "size": 1,
-        "type": "G2",
-        "stats": {
-            "health": 100,
-            "regrowth": 5,
-            "endurance": 60,
-            "energy": 70,
-            "meditation": 20,
-            "initiative": 65,
-            "offense": 2,
-            "defense": 4,
-            "movement": 4,
-            "pierce": 2,
-            "slash": 2,
-            "crush": 2,
-            "shock": 2,
-            "burn": 2,
-            "frost": 2,
-            "poison": 5,
-            "sonic": 3,
-            "mental": 1
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-		{
-			"title": "Natural Environment",
-			"desc": "Initial spot will become a swamp.",
-			"info": "+15 Poison mastery bonus while in"
+	{
+		"id": 13,
+		"name": "Swampler",
+		"lvl": 2,
+		"realm": "G",
+		"size": 1,
+		"type": "G2",
+		"set": "Alpha",
+		"stats": {
+			"health": 100,
+			"regrowth": 5,
+			"endurance": 60,
+			"energy": 70,
+			"meditation": 20,
+			"initiative": 65,
+			"offense": 2,
+			"defense": 4,
+			"movement": 4,
+			"pierce": 2,
+			"slash": 2,
+			"crush": 2,
+			"shock": 2,
+			"burn": 2,
+			"frost": 2,
+			"poison": 8,
+			"sonic": 3,
+			"mental": 1
 		},
-		{
-			"title": "Rabid Bite",
-			"desc": "Sink poisonous teeth into nearby foe.",
-			"info": "10 pierce + 5 poison damage",
-			"damages" : {
-				"pierce" : 10,
-				"poison" : 5
-			}
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Bad Breath",
-			"desc": "Stinks up several nearby enemies, causing them to move away a hex.",
-			"info": "10 poison damage, double if facing",
-			"damages" : {
-				"poison" : 10
-			}
+		"ability_info": [
+			{
+				"title": "Natural Environment",
+				"desc": "Initial spot will become a swamp.",
+				"info": "+15 Poison mastery bonus while in"
 		},
-		{
-			"title": "Goo Blast",
-			"desc": "Sneezes contagious toxin on a foe, spreading to others that get close.",
-			"info": "10 poison damage that can spread",
-			"damages" : {
-				"poison" : 10
-			}
+			{
+				"title": "Rabid Bite",
+				"desc": "Sink poisonous teeth into nearby foe.",
+				"info": "10 pierce + 5 poison damage",
+				"damages": {
+					"pierce": 10,
+					"poison": 5
+				}
+		},
+			{
+				"title": "Bad Breath",
+				"desc": "Stinks up several nearby enemies, causing them to move away a hex.",
+				"info": "10 poison damage, double if facing",
+				"damages": {
+					"poison": 10
+				}
+		},
+			{
+				"title": "Goo Blast",
+				"desc": "Sneezes contagious toxin on a foe, spreading to others that get close.",
+				"info": "10 poison damage that can spread",
+				"damages": {
+					"poison": 10
+				}
 		}
 	]
     },
-    {
-        "id": 14,
-        "name": "Gumble",
-        "lvl": 1,
-        "embed": null,
-        "realm": "P",
-        "size": 1,
-        "type": "P1",
-        "stats": {
-            "health": 90,
-            "regrowth": 5,
-            "endurance": 30,
-            "energy": 70,
-            "meditation": 30,
-            "initiative": 45,
-            "offense": 4,
-            "defense": 6,
-            "movement": 3,
-            "pierce": 8,
-            "slash": 8,
-            "crush": 12,
-            "shock": 3,
-            "burn": 2,
-            "frost": 3,
-            "poison": 8,
-            "sonic": 12,
-            "mental": 4
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "display":{
-            "width": 95,
-            "height": 115,
-            "offset-x": -10,
-            "offset-y": -75
-        },
-        "drop" : {
-            "name": "Cherry",
-            "alterations": {"regrowth": 5}
-        },
-        "ability_info": [
-            {
-                "title": "Gooey Body",
-                "desc": "Recovers 1/6 health at start of turn for every allie creature that's nearby.",
-                "info": "Ability also works when fatigued.",
-                "effects": [{"special": "+1/6 %health% × adjacent allies creatures"}]
+	{
+		"id": 14,
+		"name": "Gumble",
+		"lvl": 1,
+		"realm": "P",
+		"size": 1,
+		"type": "P1",
+		"set": "Alpha",
+		"stats": {
+			"health": 90,
+			"regrowth": 5,
+			"endurance": 30,
+			"energy": 70,
+			"meditation": 30,
+			"initiative": 45,
+			"offense": 4,
+			"defense": 6,
+			"movement": 3,
+			"pierce": 8,
+			"slash": 8,
+			"crush": 12,
+			"shock": 3,
+			"burn": 2,
+			"frost": 3,
+			"poison": 8,
+			"sonic": 12,
+			"mental": 4
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"display": {
+			"width": 95,
+			"height": 115,
+			"offset-x": -10,
+			"offset-y": -75
+		},
+		"drop": {
+			"name": "Cherry",
+			"health": 5,
+			"energy": 10
+		},
+		"ability_info": [
+			{
+				"title": "Gooey Body",
+				"desc": "Recovers 1/6 health at start of turn for every allied creature that is nearby.",
+				"info": "This ability also works when fatigued",
+				"effects": [{
+					"special": "+1/6 %health% × adjacent allies creatures"
+				}]
             },
-            {
-                "title": "Gummy Mallet",
-                "desc": "Transforms itself into a rubber hammer to strike a nearby foe.",
-                "info": "15 crush damage",
-                "damages": {"crush": 15},
-		"costs": {"energy": 20}
+			{
+				"title": "Gummy Mallet",
+				"desc": "Fully transforms himself into a large hammer to strike down a nearby foe.",
+				"info": "15 crush damage",
+				"damages": {
+					"crush": 15
+				},
+				"costs": {
+					"energy": 20
+				}
             },
-            {
-                "title": "Royal Seal",
-                "desc": "Sticks chewing gum in place to hinder enemy movement for a turn. <br>Allied units are affected by this.",
-                "info": "",
-                "effects": [{"special": "%movement% is set to 0 for a turn"}],
-		"costs": {
-			"energy": 20,
-			"health": 10
-		}
+			{
+				"title": "Royal Seal",
+				"desc": "Sticks chewing gum in place to hinder any passing unit for a complete turn.",
+				"info": "Does not affect self but affects allies",
+				"effects": [{
+					"special": "%movement% is set to 0 for a turn"
+				}],
+				"costs": {
+					"energy": 20,
+					"health": 10
+				}
             },
-            {
-                "title": "Boom Box",
-                "desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
-                "info": "20 sonic damage + 10 crush if melee",
-                "damages" : {"special" : "20%sonic%+ 10%crush%if melee"},
-		"effects" : [{"special" : "one hexagon knockback"}],
-		"costs" : {"energy" : 30}
+			{
+				"title": "Boom Box",
+				"desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
+				"info": "20 sonic damage + 10 crush if melee",
+				"damages": {
+					"special": "20%sonic%+ 10%crush%if melee"
+				},
+				"effects": [{
+					"special": "one hexagon knockback"
+				}],
+				"costs": {
+					"energy": 30
+				}
             }
         ]
     },
-    {
-        "id": 15,
-        "name": "Cycloper",
-        "lvl": 1,
-        "embed": null,
-        "realm": "E",
-        "size": 1,
-        "type": "E1",
-        "stats": {
-            "health": 80,
-            "regrowth": 1,
-            "endurance": 10,
-            "energy": 60,
-            "meditation": 20,
-            "initiative": 30,
-            "offense": 5,
-            "defense": 4,
-            "movement": 3,
-            "pierce": 2,
-            "slash": 2,
-            "crush": 2,
-            "shock": 2,
-            "burn": 2,
-            "frost": 2,
-            "poison": 2,
-            "sonic": 7,
-            "mental": 7
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Eye Shield",
-                "desc": "Reduces frontal damage up to half.",
-                "info": "Cannot reduce more than 25 points."
+	{
+		"id": 15,
+		"name": "Cycloper",
+		"lvl": 1,
+		"realm": "E",
+		"size": 2,
+		"type": "E1",
+		"set": "Alpha",
+		"stats": {
+			"health": 80,
+			"regrowth": 1,
+			"endurance": 10,
+			"energy": 60,
+			"meditation": 20,
+			"initiative": 30,
+			"offense": 5,
+			"defense": 4,
+			"movement": 3,
+			"pierce": 2,
+			"slash": 2,
+			"crush": 2,
+			"shock": 2,
+			"burn": 2,
+			"frost": 2,
+			"poison": 2,
+			"sonic": 7,
+			"mental": 7
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Explosive Death",
+				"desc": "Instantly detonates when being killed, dealing damage to all adjacent units.",
+				"info": "10 burn + 10 crush + 10 sonic damage"
             },
-            {
-                "title": "Optic Blast",
-                "desc": "Zaps a foe with it's laser cannon. Does more damage at closer range.",
-                "info": "30 burn damage - 1 per hexagon"
+			{
+				"title": "Optic Blast",
+				"desc": "Zaps a foe with the laser cannon eye. Does more damage at closer range.",
+				"info": "30 burn damage - 1 per hexagon"
             },
-            {
-                "title": "Tractor Beam",
-                "desc": "Pulls a distant unit several hexagons closer, depending on its overall size.",
-                "info": "range = 5 hexagons - creature size"
+			{
+				"title": "Tractor Beam",
+				"desc": "Pulls a distant unit several hexagons closer, depending on its overall size.",
+				"info": "range = 4 hexagons - creature size"
             },
-            {
-                "title": "Switch Places",
-                "desc": "Swaps places of any two creatures in front that have similar sizes overall.",
-                "info": "Ability does not work on summoners."
+			{
+				"title": "Over Power",
+				"desc": "Causes the next ability to deal double damage or have increased efficiency.",
+				"info": ""
             }
         ]
     },
-    {
-        "id": 16,
-        "name": "Vulcan",
-        "lvl": 5,
-        "embed": null,
-        "realm": "L",
-        "size": 2,
-        "type": "L5",
-        "stats": {
-            "health": 0,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Ground Shaker",
-                "desc": "Stomps the ground when walking, increasing the delay of all it's foes.",
-                "info": ""
+	{
+		"id": 16,
+		"name": "Vulcan",
+		"lvl": 5,
+		"realm": "L",
+		"size": 2,
+		"type": "L5",
+		"set": "Alpha",
+		"stats": {
+			"health": 160,
+			"regrowth": 2,
+			"endurance": 65,
+			"energy": 80,
+			"meditation": 4,
+			"initiative": 35,
+			"offense": 7,
+			"defense": 9,
+			"movement": 3,
+			"pierce": 8,
+			"slash": 8,
+			"crush": 8,
+			"shock": 8,
+			"burn": 10,
+			"frost": 0,
+			"poison": 5,
+			"sonic": 3,
+			"mental": 0
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Ground Shaker",
+				"desc": "Stomps the ground when attacking, increasing the delay of nearby foes.",
+				"info": "-10 initiative for every ability used"
             },
-            {
-                "title": "Lava Splash",
-                "desc": "Hits a near foe with a handful of lava.",
-                "info": "No info"
+			{
+				"title": "Lava Splash",
+				"desc": "Hits a near foe with a handful of lava. Reduces the target's burn stat by 1.",
+				"info": "20 burn damage, -1 burn stat debuff"
             },
-            {
-                "title": "Volcanic Cannon",
-                "desc": "Fires a flaming boulder projectile at a target location, hitting next round. Land is scorched if it's being empty.",
-                "info": "15 crush + 15 burn damage"
+			{
+				"title": "Volcanic Cannon",
+				"desc": "Fires a flaming boulder projectile at a target location, hitting next round. Land is scorched if it's being empty.",
+				"info": "25 crush + 25 burn damage scorch"
             },
-            {
-                "title": "Spitfire",
-                "desc": "Erupts with rage, bombarding the battlefield with hot burning lava.",
-                "info": "No info"
+			{
+				"title": "Armageddon Day",
+				"desc": "Erupts with rage, bombarding all the battlefield with hot burning magma.",
+				"info": "5 crush + 15 burn damage to all units"
             }
         ]
     },
-    {
-        "id": 17,
-        "name": "Razorback",
-        "lvl": 6,
-        "embed": null,
-        "realm": "E",
-        "size": 2,
-        "type": "E6",
-        "stats": {
-            "health": 260,
-            "regrowth": 2,
-            "endurance": 80,
-            "energy": 70,
-            "meditation": 2,
-            "initiative": 45,
-            "offense": 15,
-            "defense": 30,
-            "movement": 4,
-            "pierce": 12,
-            "slash": 12,
-            "crush": 12,
-            "shock": 10,
-            "burn": 8,
-            "frost": 8,
-            "poison": 10,
-            "sonic": 8,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Spiked Fence",
-                "desc": "Foes walking on corpse get impaled and receive extra damage when hit.",
-                "info": "5 pierce damage over 3 hexagons"
+	{
+		"id": 17,
+		"name": "Razorback",
+		"lvl": 6,
+		"realm": "E",
+		"size": 2,
+		"type": "E6",
+		"set": "Alpha",
+		"stats": {
+			"health": 260,
+			"regrowth": 2,
+			"endurance": 80,
+			"energy": 70,
+			"meditation": 2,
+			"initiative": 45,
+			"offense": 15,
+			"defense": 30,
+			"movement": 4,
+			"pierce": 12,
+			"slash": 12,
+			"crush": 12,
+			"shock": 10,
+			"burn": 8,
+			"frost": 8,
+			"poison": 10,
+			"sonic": 8,
+			"mental": 0
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Spiked Fence",
+				"desc": "Foes walking on corpse get impaled and receive extra damage when hit.",
+				"info": "5 pierce damage over 3 hexagons"
             },
-            {
-                "title": "Trident Forehead",
-                "desc": "Pokes nearby foe with its forehead.",
-                "info": "18 pierce damage"
+			{
+				"title": "Trident Forehead",
+				"desc": "Pokes nearby foe with its forehead.",
+				"info": "27 pierce damage on every attack"
             },
-            {
-                "title": "Crocodile Clip",
-                "desc": "Bites nearby foe, crippling it for 1 movement point for its next turn.",
-                "info": "10 pierce + 10 crush damage"
+			{
+				"title": "Crocodile Clip",
+				"desc": "Bites nearby foe, crippling it for 1 movement point for its next turn.",
+				"info": "10 pierce + 10 crush damage on hit"
             },
-            {
-                "title": "Circular Saw",
-                "desc": "Travels in a straight line to a new location, cutting through creatures.",
-                "info": "30 pierce damage"
+			{
+				"title": "Circular Saw",
+				"desc": "Travels in a straight line to a new location, cutting through all units.",
+				"info": "15 pierce + 15 slash damage on hit"
             }
         ]
     },
-    {
-        "id": 18,
-        "name": "Sarcophag",
-        "lvl": 7,
-        "embed": null,
-        "realm": "W",
-        "size": 3,
-        "type": "W7",
-        "stats": {
-            "health": 280,
-            "regrowth": 1,
-            "endurance": 70,
-            "energy": 100,
-            "meditation": 1,
-            "initiative": 15,
-            "offense": 15,
-            "defense": 15,
-            "movement": 3,
-            "pierce": 9,
-            "slash": 9,
-            "crush": 9,
-            "shock": 12,
-            "burn": 10,
-            "frost": 8,
-            "poison": 14,
-            "sonic": 10,
-            "mental": 20
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Rib Cage",
-                "desc": "Bonus stats for every unit that dies.",
-                "info": "+1 regrowth, +1 meditation per stack"
+	{
+		"id": 18,
+		"name": "Sarcophag",
+		"lvl": 7,
+		"realm": "W",
+		"size": 3,
+		"type": "W7",
+		"set": "Alpha",
+		"stats": {
+			"health": 270,
+			"regrowth": 1,
+			"endurance": 70,
+			"energy": 50,
+			"meditation": 1,
+			"initiative": 10,
+			"offense": 10,
+			"defense": 10,
+			"movement": 2,
+			"pierce": 9,
+			"slash": 9,
+			"crush": 9,
+			"shock": 12,
+			"burn": 10,
+			"frost": 8,
+			"poison": 14,
+			"sonic": 10,
+			"mental": 20
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Rib Cage",
+				"desc": "Bonus stats for every unit that dies.",
+				"info": "+1 regrowth, +1 meditation per stack"
             },
-            {
-                "title": "Claw Strike",
-                "desc": "Slashes nearby foe using claws.",
-                "info": "30 slash damage"
+			{
+				"title": "Dark Claw",
+				"desc": "Strikes a nearby foe using claws, creating a Shadow Leech if it kills.",
+				"info": "30 slash and 30 pierce damage"
             },
-            {
-                "title": "Fly Swarm",
-                "desc": "Damages and distracts a foe, lowering it's offense and defense.",
-                "info": "-20 offense and defense for a round"
+			{
+				"title": "Fly Swarm",
+				"desc": "Distracts a unit, lowering its defense and meditation for a complete round.",
+				"info": "-30 defense, -10 meditation one turn"
             },
-            {
-                "title": "Shadow Army",
-                "desc": "Allows a long dead creature to come and fight again, as a shadow being.",
-                "info": "All shadows vanish if creature dies."
+			{
+				"title": "Shadow Legion",
+				"desc": "Allows a long dead creature to come and fight again, as a shadow being.",
+				"info": "All shadows vanish if creature dies."
             }
         ]
     },
-    {
-        "id": 19,
-        "name": "Miss Creeper",
-        "lvl": 4,
-        "embed": null,
-        "realm": "G",
-        "size": 1,
-        "type": "G4",
-        "stats": {
-            "health": 190,
-            "regrowth": 2,
-            "endurance": 33,
-            "energy": 80,
-            "meditation": 3,
-            "initiative": 80,
-            "offense": 30,
-            "defense": 5,
-            "movement": 4,
-            "pierce": 6,
-            "slash": 6,
-            "crush": 6,
-            "shock": 1,
-            "burn": 1,
-            "frost": 1,
-            "poison": 5,
-            "sonic": 6,
-            "mental": 7
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Blood Chalice",
-                "desc": "Nearby damage restores own health.",
-                "info": "20% damage conversion to health."
+	{
+		"id": 19,
+		"name": "Miss Creeper",
+		"lvl": 4,
+		"realm": "G",
+		"size": 1,
+		"type": "G4",
+		"set": "Alpha",
+		"stats": {
+			"health": 190,
+			"regrowth": 2,
+			"endurance": 33,
+			"energy": 80,
+			"meditation": 3,
+			"initiative": 80,
+			"offense": 25,
+			"defense": 5,
+			"movement": 2,
+			"pierce": 6,
+			"slash": 6,
+			"crush": 6,
+			"shock": 1,
+			"burn": 1,
+			"frost": 1,
+			"poison": 5,
+			"sonic": 5,
+			"mental": 9
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Blood Chalice",
+				"desc": "Nearby damage restores own health.",
+				"info": "30% damage conversion to hit points"
             },
-            {
-                "title": "Slice",
-                "desc": "Claw swipe gesture on a nearby foe.",
-                "info": "15 pierce + 15 slash damage"
+			{
+				"title": "Slicing Nails",
+				"desc": "Claw swipe gesture on a nearby foe.",
+				"info": "15 pierce + 15 slash damage"
             },
-            {
-                "title": "Fatal Attraction",
-                "desc": "Causes a target foe to come close to her, while depleting its movement.",
-                "info": "Ability does not work on summoners."
+			{
+				"title": "Fatal Attraction",
+				"desc": "Causes a target foe to come close to her, while depleting its movement.",
+				"info": "Ability does not work on summoners"
             },
-            {
-                "title": "Tentacle Feet",
-                "desc": "All nearby foes have their movement restrained and take some damage.",
-                "info": "10 crush damage and no movement."
+			{
+				"title": "Tentacle Feet",
+				"desc": "All nearby foes have their movement restrained and take some damage.",
+				"info": "10 crush damage and no movement"
             }
         ]
     },
-    {
-        "id": 20,
-        "name": "Adaptation",
-        "lvl": 6,
-        "embed": null,
-        "realm": "S",
-        "size": 3,
-        "type": "S6",
-        "stats": {
-            "health": 270,
-            "regrowth": 5,
-            "endurance": 60,
-            "energy": 50,
-            "meditation": 4,
-            "initiative": 60,
-            "offense": 40,
-            "defense": 5,
-            "movement": 3,
-            "pierce": 5,
-            "slash": 7,
-            "crush": 6,
-            "shock": 8,
-            "burn": 1,
-            "frost": 35,
-            "poison": 5,
-            "sonic": 15,
-            "mental": 10
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "High Voltage",
-                "desc": "Melee attackers receive damage for every hit and also lose energy points.",
-                "info": "10 shock damage, -5 energy points"
+	{
+		"id": 20,
+		"name": "Adaptation",
+		"lvl": 6,
+		"realm": "S",
+		"size": 3,
+		"type": "S6",
+		"set": "Alpha",
+		"stats": {
+			"health": 270,
+			"regrowth": 5,
+			"endurance": 60,
+			"energy": 50,
+			"meditation": 4,
+			"initiative": 60,
+			"offense": 40,
+			"defense": 5,
+			"movement": 3,
+			"pierce": 5,
+			"slash": 7,
+			"crush": 6,
+			"shock": 8,
+			"burn": 1,
+			"frost": 35,
+			"poison": 5,
+			"sonic": 15,
+			"mental": 10
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "High Voltage",
+				"desc": "Melee attackers receive damage for every hit and also lose energy points.",
+				"info": "10 shock damage & -5 energy points"
             },
-            {
-                "title": "Suction cups",
-                "desc": "Crushes a frontal foe while draining a small amount of its maximum health.",
-                "info": "30 crush damage, 3 health transfered"
+			{
+				"title": "Suction cups",
+				"desc": "Crushes a frontal foe while draining a small amount of its maximum health.",
+				"info": "30 crush damage, 3 health transfered"
             },
-            {
-                "title": "Fishing Net",
-                "desc": "Pulls a rather distant inline creature nearby while also crushing it a little.",
-                "info": "5 crush damage + 3 more / hexagon"
+			{
+				"title": "Fishing Net",
+				"desc": "Pulls one rather distant inline enemy nearby while also crushing it a little.",
+				"info": "5 crush damage + 3 more / hexagon"
             },
-            {
-                "title": "Frostbite Shower",
-                "desc": "Sprinkles the area in front with liquid nitrogen, doing cold damage.",
-                "info": "35 frost damage over 7 hexagons"
+			{
+				"title": "Frostbite Shower",
+				"desc": "Sprinkles a large frontal area with liquid nitrogen, doing cold damage.",
+				"info": "35 frost damage over 7 hexagons"
             }
         ]
     },
-    {
-        "id": 21,
-        "name": "Flayed",
-        "lvl": 4,
-        "embed": null,
-        "realm": "W",
-        "size": 2,
-        "type": "W4",
-        "stats": {
-            "health": 200,
-            "regrowth": 10,
-            "endurance": 40,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Half Life",
-                "desc": "Can regenerate health up to double.",
-                "info": ""
+	{
+		"id": 21,
+		"name": "Flayed",
+		"lvl": 4,
+		"realm": "W",
+		"size": 2,
+		"type": "W4",
+		"set": "Alpha",
+		"stats": {
+			"health": 200,
+			"regrowth": 10,
+			"endurance": 40,
+			"energy": 60,
+			"meditation": 5,
+			"initiative": 60,
+			"offense": 25,
+			"defense": 10,
+			"movement": 4,
+			"pierce": 5,
+			"slash": 5,
+			"crush": 5,
+			"shock": 4,
+			"burn": 3,
+			"frost": 2,
+			"poison": 0,
+			"sonic": 3,
+			"mental": 2
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Half Life",
+				"desc": "Can regenerate health up to double. Maximum health is still the initial one.",
+				"info": ""
             },
-            {
-                "title": "Bone Scythe",
-                "desc": "Slashes nearby foe, causing it to bleed and lose health if moving.",
-                "info": "15 slash damage, -5 health / hexagon"
+			{
+				"title": "Bone Scythe",
+				"desc": "Slashes nearby foe, causing it to hemorrhage, losing health if moving.",
+				"info": "15 slash damage, -5 health / hexagon"
             },
-            {
-                "title": "Blood Puke",
-                "desc": "Targets regrowth becomes lowered if it's a foe or increased if it's an ally.",
-                "info": "+/- 20 regrowth change for a round"
+			{
+				"title": "Blood Puke",
+				"desc": "Targets regrowth becomes lowered if it's a foe or increased if it's an ally.",
+				"info": "+/- 20 regrowth change for a round"
             },
-            {
-                "title": "Symbiotic Tumor",
-                "desc": "Engulfs body into a meat cocoon. This ability ends the current turn.",
-                "info": "200% bonus defense and regrowth"
+			{
+				"title": "Symbiotic Tumor",
+				"desc": "Engulfs body into a meat cocoon. Current turn is ended by this ability.",
+				"info": "200% bonus defense and regrowth"
             }
         ]
     },
-    {
-        "id": 22,
-        "name": "Lava Mollusk",
-        "lvl": 1,
-        "embed": null,
-        "realm": "L",
-        "size": 2,
-        "type": "L1",
-        "stats": {
-            "health": 85,
-            "regrowth": 1,
-            "endurance": 15,
-            "energy": 60,
-            "meditation": 3,
-            "initiative": 25,
-            "offense": 3,
-            "defense": 5,
-            "movement": 2,
-            "pierce": 5,
-            "slash": 5,
-            "crush": 5,
-            "shock": 5,
-            "burn": 5,
-            "frost": 5,
-            "poison": 5,
-            "sonic": 5,
-            "mental": 5
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "display":{
-            "width": 185,
-            "height": 124,
-            "offset-x": 0,
-            "offset-y": -80
-        },
-        "ability_info": [
-            {
-                "title": "Lava Pool",
-                "desc": "Constantly pours lava all around if not moving for a complete turn.",
-                "info": "10 burn damage per step or turn"
+	{
+		"id": 22,
+		"name": "Lava Mollusk",
+		"lvl": 1,
+		"realm": "L",
+		"size": 2,
+		"type": "L1",
+		"set": "Alpha",
+		"stats": {
+			"health": 85,
+			"regrowth": 1,
+			"endurance": 15,
+			"energy": 60,
+			"meditation": 3,
+			"initiative": 20,
+			"offense": 3,
+			"defense": 5,
+			"movement": 2,
+			"pierce": 3,
+			"slash": 3,
+			"crush": 3,
+			"shock": 6,
+			"burn": 8,
+			"frost": 4,
+			"poison": 5,
+			"sonic": 1,
+			"mental": 1
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"display": {
+			"width": 185,
+			"height": 124,
+			"offset-x": 0,
+			"offset-y": -80
+		},
+		"ability_info": [
+			{
+				"title": "Heat Haze",
+				"desc": "Nearby foes have their offense stat reduced, dealing way less damage.",
+				"info": "-50% offensive debuff while adjacent"
             },
-            {
-                "title": "Eye Poke",
-                "desc": "Swings its eye at a nearby foe.",
-                "info": "5 crush + 5 burn damage"
+			{
+				"title": "Burning Eye",
+				"desc": "Fries a nearby foe, can target sides too.",
+				"info": "15 burn adjacent damage, any direction"
             },
-            {
-                "title": "Black Pearl",
-                "desc": "Fires a durable sphere up in to the air, falling on target the next round.",
-                "info": "20 crush damage"
+			{
+				"title": "Covert Attack",
+				"desc": "Reaches any foe within 5 hexagons by digging with its tentacles, surprising it.",
+				"info": "21 pierce damage, 20% defense ignored"
             },
-            {
-                "title": "Iron Shell",
-                "desc": "Solidifies from magma state into iron, greatly increasing resistances.",
-                "info": "400% bonus defense and resistances"
+			{
+				"title": "Iron Shell",
+				"desc": "Catapults a flaming orb at any inline spot, poking a foe or cauzing hazard.",
+				"info": "20 crush damage + 10 burn damage"
             }
 
         ]
     },
-    {
-        "id": 23,
-        "name": "Metal Face",
-        "lvl": 4,
-        "embed": null,
-        "realm": "L",
-        "size": 3,
-        "type": "L4",
-        "stats": {
-            "health": 0,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Forced Involution",
-                "desc": "When dead, reconfigures itself as a weaker creature, the Magma Spawn.",
-                "info": ""
+	{
+		"id": 23,
+		"name": "Metal Face",
+		"lvl": 4,
+		"realm": "L",
+		"size": 2,
+		"type": "L4",
+		"set": "Alpha",
+		"stats": {
+			"health": 130,
+			"regrowth": 3,
+			"endurance": 40,
+			"energy": 80,
+			"meditation": 4,
+			"initiative": 40,
+			"offense": 5,
+			"defense": 5,
+			"movement": 3,
+			"pierce": 4,
+			"slash": 4,
+			"crush": 4,
+			"shock": 6,
+			"burn": 8,
+			"frost": 1,
+			"poison": 7,
+			"sonic": 3,
+			"mental": 7
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Birthing Caldera",
+				"desc": "When dead, reconfigures itself as a weaker creature, the Lava Mollusk.",
+				"info": "It will have only half health & energy."
             },
-            {
-                "title": "Forked Hand",
-                "desc": "Pierces foe using it's metallic harpoon shaped fingers.",
-                "info": "No info"
+			{
+				"title": "Forked Hand",
+				"desc": "Pierces foe using its harpoon fingers.",
+				"info": "20 pierce damage"
             },
-            {
-                "title": "Fire Dump",
-                "desc": "Ignites the ground, the fire expands and contracts over several rounds.",
-                "info": "No info"
+			{
+				"title": "Spit Fire",
+				"desc": "Showers lava drops over a nearby area.",
+				"info": "10 burn damage over a 7 hexagons area"
             },
-            {
-                "title": "Shotgun Blast",
-                "desc": "Blows a handful of shrapnel in a conic area, doing versatile damage.",
-                "info": "No info"
+			{
+				"title": "Shotgun Blast",
+				"desc": "Blows a handful of shrapnel in a large conic area, damaging only first targets.",
+				"info": "15 pierce damage over 15 hexagons"
             }
         ]
     },
-    {
-        "id": 24,
-        "name": "Living Armor",
-        "lvl": 6,
-        "embed": null,
-        "realm": "A",
-        "size": 2,
-        "type": "A6",
-        "stats": {
-            "health": 200,
-            "regrowth": 10,
-            "endurance": 100,
-            "energy": 100,
-            "meditation": 10,
-            "initiative": 10,
-            "offense": 20,
-            "defense": 20,
-            "movement": 3,
-            "pierce": 15,
-            "slash": 14,
-            "crush": 12,
-            "shock": 2,
-            "burn": 2,
-            "frost": 2,
-            "poison": 10,
-            "sonic": 2,
-            "mental": 20
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Healing Factor",
-                "desc": "Able to regenerate even if fatigued.",
-                "info": ""
+	{
+		"id": 24,
+		"name": "Living Armor",
+		"lvl": 6,
+		"realm": "A",
+		"size": 2,
+		"type": "A6",
+		"set": "Alpha",
+		"stats": {
+			"health": 200,
+			"regrowth": 10,
+			"endurance": 100,
+			"energy": 100,
+			"meditation": 10,
+			"initiative": 10,
+			"offense": 20,
+			"defense": 20,
+			"movement": 2,
+			"pierce": 15,
+			"slash": 14,
+			"crush": 12,
+			"shock": 2,
+			"burn": 2,
+			"frost": 2,
+			"poison": 10,
+			"sonic": 2,
+			"mental": 20
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Healing Factor",
+				"desc": "1/2 regrowth works even if fatigued.",
+				"info": ""
             },
-            {
-                "title": "Gauntlet Strike",
-                "desc": "Punches a nearby foe with it's heavy armored hand, leaving quite a mark.",
-                "info": "20 crush damage"
+			{
+				"title": "Gauntlet Strike",
+				"desc": "Punches a nearby foe with it's heavy armored hand, leaving quite a mark.",
+				"info": "25 crush damage"
             },
-            {
-                "title": "Bloody Greed",
-                "desc": "Powerful sword penetrating attack, affecting multiple inline hexagons.",
-                "info": "20 pierce + 10 slash damage"
+			{
+				"title": "Bloody Greed",
+				"desc": "Powerful sword penetrating attack, affecting multiple inline hexagons.",
+				"info": "20 pierce + 10 slash damage, 3 hex"
             },
-            {
-                "title": "Supreme Motivation",
-                "desc": "Greed drives it to do an extra effort and act twice in the current round.",
-                "info": "Ability only usable once per round."
+			{
+				"title": "Foot Tromp",
+				"desc": "Stamps the ground, dealing sonic damage to units in the nearby area.",
+				"info": "15 or 30 adjacent sonic damage"
             }
         ]
     },
-    {
-        "id": 25,
-        "name": "Mr. Stitches",
-        "lvl": 3,
-        "embed": null,
-        "realm": "E",
-        "size": 1,
-        "type": "E3",
-        "stats": {
-            "health": 160,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 70,
-            "meditation": 3,
-            "initiative": 160,
-            "offense": 5,
-            "defense": 5,
-            "movement": 5,
-            "pierce": 10,
-            "slash": 0,
-            "crush": 10,
-            "shock": 10,
-            "burn": 0,
-            "frost": 10,
-            "poison": 10,
-            "sonic": 10,
-            "mental": 10
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Self Sewing",
-                "desc": "Partially repairs itself if not taking any damage for a whole round.",
-                "info": "10% of total health recovered / round"
+	{
+		"id": 25,
+		"name": "Mr. Stitches",
+		"lvl": 3,
+		"realm": "E",
+		"size": 1,
+		"type": "E3",
+		"set": "Alpha",
+		"stats": {
+			"health": 160,
+			"regrowth": 0,
+			"endurance": 0,
+			"energy": 70,
+			"meditation": 3,
+			"initiative": 160,
+			"offense": 2,
+			"defense": 3,
+			"movement": 5,
+			"pierce": 10,
+			"slash": 0,
+			"crush": 10,
+			"shock": 10,
+			"burn": 0,
+			"frost": 10,
+			"poison": 10,
+			"sonic": 10,
+			"mental": 10
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Self Sewing",
+				"desc": "Partially repairs itself if not taking any damage at all for a whole game round.",
+				"info": "10% of total health recovered / round"
             },
-            {
-                "title": "Razorblade",
-                "desc": "Slices a nearby foe, keeping samples.",
-                "info": "15 slash damage"
+			{
+				"title": "Razorblade",
+				"desc": "Slices a nearby foe, keeping samples.",
+				"info": "15 slash damage"
             },
-            {
-                "title": "Scarecrow",
-                "desc": "Intimidates a nearby foe, making it run away until it meets an allie.",
-                "info": "If already acted, it will run next turn."
+			{
+				"title": "Scarecrow",
+				"desc": "Causes a nearby foe to not be able to target Mr. Stitches directly for a turn.",
+				"info": ""
             },
-            {
-                "title": "Voodoo Doll",
-                "desc": "Stabs itself, doing mental damage to any of the previously attacked foes.",
-                "info": "20 mental damage"
+			{
+				"title": "Voodoo Doll",
+				"desc": "Stabs itself, doing mental damage to any of the previously attacked units.",
+				"info": "20 mental damage to sampled foes"
             }
         ]
     },
-    {
-        "id": 26,
-        "name": "Moss Hound",
-        "lvl": 7,
-        "embed": null,
-        "realm": "G",
-        "size": 3,
-        "type": "G7",
-        "stats": {
-            "health": 320,
-            "regrowth": 8,
-            "endurance": 20,
-            "energy": 90,
-            "meditation": 10,
-            "initiative": 65,
-            "offense": 20,
-            "defense": 20,
-            "movement": 4,
-            "pierce": 10,
-            "slash": 10,
-            "crush": 10,
-            "shock": 10,
-            "burn": 3,
-            "frost": 2,
-            "poison": 5,
-            "sonic": 1,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-		{
-			"title": "Immortal Tree",
-			"desc": "Ressurects itself within a few rounds with half of health from last time if no creature is on top of the corpse.",
-			"info": "5 consecutive turns are required."
+	{
+		"id": 26,
+		"name": "Moss Hound",
+		"lvl": 7,
+		"realm": "G",
+		"size": 3,
+		"type": "G7",
+		"set": "Alpha",
+		"stats": {
+			"health": 320,
+			"regrowth": 8,
+			"endurance": 20,
+			"energy": 90,
+			"meditation": 10,
+			"initiative": 65,
+			"offense": 20,
+			"defense": 20,
+			"movement": 4,
+			"pierce": 10,
+			"slash": 10,
+			"crush": 10,
+			"shock": 10,
+			"burn": 3,
+			"frost": 2,
+			"poison": 5,
+			"sonic": 1,
+			"mental": 0
 		},
-		{
-			"title": "Stalagmite Teeth",
-			"desc": "Pierces nearby foe with it's denture.",
-			"info": "20 pierce damage"
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Weed Field",
-			"desc": "Nasty weeds instantly grow at a location within range, damaging and traping foes depending on their size.",
-			"info": "9 pierce + 9 crush + 9 poison < 3 turns"
+		"ability_info": [
+			{
+				"title": "Immortal Tree",
+				"desc": "Ressurects itself within three rounds if no units are sitting on top of the corpse.",
+				"info": "50% total health, limited to a single use"
 		},
-		{
-			"title": "Waterfall Cannon",
-			"desc": "Powerful jet of water that damages several time, either knocking target back a bit or doing bonus damage.",
-			"info": "10 (or double) crush damage x 2 hits"
+			{
+				"title": "Stalagmite Teeth",
+				"desc": "Pierces nearby foe with its denture.",
+				"info": "20 pierce damage"
+		},
+			{
+				"title": "Weed Field",
+				"desc": "Nasty weeds instantly grow at a location within range, damaging and traping foes depending on their size.",
+				"info": "9 pierce + 9 crush + 9 poison < 3 turns"
+		},
+			{
+				"title": "Waterfall Cannon",
+				"desc": "Powerful jet of water that damages several time, either knocking target back a bit or doing bonus damage.",
+				"info": "10 (or double) crush damage x 2 hits"
 		}
         ]
     },
-    {
-        "id": 27,
-        "name": "Sand Shrimp",
-        "lvl": 2,
-        "embed": null,
-        "realm": "P",
-        "size": 3,
-        "type": "P2",
-        "stats": {
-            "health": 100,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "No name",
-                "desc": "No description",
-                "info": ""
+	{
+		"id": 27,
+		"name": "Sand Shrimp",
+		"lvl": 2,
+		"realm": "P",
+		"size": 3,
+		"type": "P2",
+		"set": "Alpha",
+		"stats": {
+			"health": 110,
+			"regrowth": 5,
+			"endurance": 100,
+			"energy": 35,
+			"meditation": 5,
+			"initiative": 20,
+			"offense": 3,
+			"defense": 3,
+			"movement": 3,
+			"pierce": 1,
+			"slash": 1,
+			"crush": 1,
+			"shock": 1,
+			"burn": 1,
+			"frost": 1,
+			"poison": 1,
+			"sonic": 1,
+			"mental": 2
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Evolved Organs",
+				"desc": "Each new round heals himself for 50% of all the damage previously received.",
+				"info": ""
             },
-            {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+			{
+				"title": "Squid Head",
+				"desc": "Chews on a nearby enemy, stealing 5 regrowth stat points for a single turn.",
+				"info": "25 crush damage, 5 regrowth transfer"
             },
-            {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+			{
+				"title": "Tied Up",
+				"desc": "Binds together with a nearby enemy, denying it to move apart too far away.",
+				"info": "Up to 3 hexagons maximum distance"
             },
-            {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+			{
+				"title": "Cloned Embryo",
+				"desc": "Creates a duplicate of himself, being able to be in multiple places at once.",
+				"info": "Duplicates share health and energy."
             }
         ]
     },
-    {
-        "id": 28,
-        "name": "Stomper",
-        "lvl": 4,
-        "embed": null,
-        "realm": "P",
-        "size": 2,
-        "type": "P4",
-        "stats": {
-            "health": 220,
-            "regrowth": 1,
-            "endurance": 100,
-            "energy": 70,
-            "meditation": 2,
-            "initiative": 10,
-            "offense": 10,
-            "defense": 10,
-            "movement": 2,
-            "pierce": 10,
-            "slash": 10,
-            "crush": 10,
-            "shock": 10,
-            "burn": 10,
-            "frost": 10,
-            "poison": 10,
-            "sonic": 5,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-		{
-			"title": "Tankish Build",
-                	"desc": "20% bonus to masteries and defense.",
-                	"info": ""
+	{
+		"id": 28,
+		"name": "Stomper",
+		"lvl": 4,
+		"realm": "P",
+		"size": 2,
+		"type": "P4",
+		"set": "Alpha",
+		"stats": {
+			"health": 170,
+			"regrowth": 1,
+			"endurance": 100,
+			"energy": 70,
+			"meditation": 2,
+			"initiative": 10,
+			"offense": 10,
+			"defense": 10,
+			"movement": 2,
+			"pierce": 10,
+			"slash": 10,
+			"crush": 10,
+			"shock": 10,
+			"burn": 10,
+			"frost": 10,
+			"poison": 10,
+			"sonic": 5,
+			"mental": 0
 		},
-		{
-			"title": "Stomp'A'Fool",
-			"desc": "Deals damage to nearby foe.",
-		        "info": "25 crush damage",
-			"damages" : {
-				"crush" : 25
-			}
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Stone Grinder",
-			"desc": "Destroys fatigued one or two hexagon creature or corpse.",
-			"info": "Does 10 crush damage around.",
-			"damages" : {
-				"crush" : 10
-			}
+		"ability_info": [
+			{
+				"title": "Tankish Build",
+				"desc": "Gains 5% bonus defense every round.",
+				"info": "Double when not taking any damage"
 		},
-		{
-			"title": "Charcoal Blast",
-			"desc": "Bombards an area with burning coal.",
-			"info": "10 crush to target + 10 burn in area",
-			"damages" : {
-				"crush" : 10,
-				"burn" : 10
-			}
+			{
+				"title": "Stomping Time",
+				"desc": "Deals damage to a single nearby foe and causes it to act slow for a round.",
+				"info": "25 crush damage, 90 initiative debuff",
+				"damages": {
+					"crush": 25
+				}
+		},
+			{
+				"title": "Stone Grinder",
+				"desc": "Leaps on and destroys one or two nearby inline units that are low on hitpoints while picking their drops.",
+				"info": "Each unit has to be under 50 health",
+				"damages": {
+					"crush": 10
+				}
+		},
+			{
+				"title": "Charcoal Blast",
+				"desc": "Bombards an inline target with a hot coal projectile that breaks on impact.",
+				"info": "10 crush to target + 10 burn in area",
+				"damages": {
+					"crush": 10,
+					"burn": 10
+				}
 		}
         ]
     },
-    {
-        "id": 29,
-        "name": "Gilded Maiden",
-        "lvl": 5,
-        "embed": null,
-        "realm": "A",
-        "size": 1,
-        "type": "A5",
-        "stats": {
-            "health": 100,
-            "regrowth": 4,
-            "endurance": 25,
-            "energy": 100,
-            "meditation": 10,
-            "initiative": 40,
-            "offense": 10,
-            "defense": 25,
-            "movement": 4,
-            "pierce": 10,
-            "slash": 10,
-            "crush": 10,
-            "shock": 0,
-            "burn": 5,
-            "frost": 5,
-            "poison": 3,
-            "sonic": 3,
-            "mental": 10
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-		{
-			"title": "Bad Touch",
-			"desc": "Every three strikes, a melee attacker is turned to gold for a whole round.",
-			"info": ""
+	{
+		"id": 29,
+		"name": "Gilded Maiden",
+		"lvl": 5,
+		"realm": "A",
+		"size": 1,
+		"type": "A5",
+		"set": "Alpha",
+		"stats": {
+			"health": 100,
+			"regrowth": 4,
+			"endurance": 25,
+			"energy": 100,
+			"meditation": 10,
+			"initiative": 40,
+			"offense": 10,
+			"defense": 25,
+			"movement": 4,
+			"pierce": 10,
+			"slash": 10,
+			"crush": 10,
+			"shock": 0,
+			"burn": 5,
+			"frost": 5,
+			"poison": 3,
+			"sonic": 3,
+			"mental": 10
 		},
-		{
-			"title": "Crystal Staff",
-			"desc": "Pokes nearby foe using the staff.<br> This attack has extended reach.",
-			"info": "15 crush damage",
-			"damages" : {
-				"crush" : 15
-			}
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Winged Orb",
-			"desc": "Heals an ally or damages a foe that's at the target location within 1 round.",
-			"info": "20 heal to ally or burn damage to foe",
-			"damages" : {
-				"burn" : 20
-			}
+		"ability_info": [
+			{
+				"title": "Bad Touch",
+				"desc": "Every 5 melee hits taken, the attacking unit is turned to gold for a whole round.",
+				"info": ""
 		},
-		{
-			"title": "Burning Light",
-			"desc": "Conjures an energy beam that causes multiple burning hits to first inline.",
-			"info": "3 hits x 10 burn damage",
-			"damages" : {
-				"burn" : 10
-			}
+			{
+				"title": "Crystal Staff",
+				"desc": "Pokes nearby foe using the neat staff. This attack has 1 hex extended reach.",
+				"info": "15 crush damage",
+				"damages": {
+					"crush": 15
+				}
+		},
+			{
+				"title": "Winged Orb",
+				"desc": "Heals an ally or damages an enemy that is at the target location after one round.",
+				"info": "20 heal to ally or burn damage to foe",
+				"damages": {
+					"burn": 20
+				}
+		},
+			{
+				"title": "Burning Light",
+				"desc": "Conjures an energy beam that causes multiple burning hits to first inline.",
+				"info": "3 hits x 10 burn damage per attack",
+				"damages": {
+					"burn": 10
+				}
 		}
 	]
     },
-    {
-        "id": 30,
-        "name": "Eggplant",
-        "lvl": 5,
-        "embed": null,
-        "realm": "G",
-        "size": 2,
-        "type": "G5",
-        "stats": {
-            "health": 230,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Tiny Offspring",
-                "desc": "Spawns a little hungry eggplant that chases nearest foe and then attacks.",
-                "info": "Grows into an adult if it kills target."
+	{
+		"id": 30,
+		"name": "Eggplant",
+		"lvl": 5,
+		"realm": "G",
+		"size": 2,
+		"type": "G5",
+		"set": "Alpha",
+		"stats": {
+			"health": 260,
+			"regrowth": 12,
+			"endurance": 70,
+			"energy": 90,
+			"meditation": 2,
+			"initiative": 70,
+			"offense": 20,
+			"defense": 35,
+			"movement": 4,
+			"pierce": 5,
+			"slash": 4,
+			"crush": 5,
+			"shock": 3,
+			"burn": 2,
+			"frost": 2,
+			"poison": 14,
+			"sonic": 3,
+			"mental": 7
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Tiny Offspring",
+				"desc": "Spawns a little hungry eggplant that chases nearest foe and then attacks.",
+				"info": "Grows into an adult if it kills target."
             },
-            {
-                "title": "Dinner Time",
-                "desc": "Bites a nearby foe, gaining 10 bonus offense with every consecutive hit.",
-                "info": "10 pierce + 5 crush damage"
+			{
+				"title": "Dinner Time",
+				"desc": "Bites a nearby foe, gaining 20 bonus offense with every consecutive hit.",
+				"info": "15 pierce + 5 crush damage"
             },
-            {
-                "title": "Pony Tail",
-                "desc": "Whips and poisons all nearby units.",
-                "info": "10 slash + 10 poison damage around"
+			{
+				"title": "Pony Tail",
+				"desc": "Whips and poisons all nearby units.",
+				"info": "10 slash + 10 poison damage around"
             },
-            {
-                "title": "Snake Tongue",
-                "desc": "Drags a somewhat distant inline unit close while also doing damage to it.",
-                "info": "16 poison + 4 pierce damage, 5 range"
+			{
+				"title": "Snake Tongue",
+				"desc": "Drags a somewhat distant inline unit close while also doing damage to it.",
+				"info": "16 poison + 4 pierce damage, 5 range"
             }
         ]
     },
-    {
-	"id": 31,
-	"name": "Cyber Hound",
-	"lvl": 3,
-	"embed": null,
-	"realm": "A",
-	"size": 2,
-	"type": "A3",
-	"stats": {
-		"health": 140,
-		"regrowth": 4,
-		"endurance": 80,
-		"energy": 110,
-		"meditation": 35,
-		"initiative": 60,
-		"offense": 8,
-		"defense": 8,
-		"movement": 2,
-		"pierce": 9,
-		"slash": 9,
-		"crush": 9,
-		"shock": 4,
-		"burn": 4,
-		"frost": 7,
-		"poison": 8,
-		"sonic": 4,
-		"mental": 5
-	},
-        "display": {
-		"width": 160,
-		"height": 210,
-		"offset-x": 15,
-		"offset-y": -165
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "drop" : {
-            "name": "Fang",
-            "alterations": {"offense": 10}
-        },
-        "ability_info": [
-		{
-			"title": "Bad Dog",
-			"desc": "Bites any frontal foe that stops by.",
-			"info": "8 pierce damage + 2 crush damage",
-                	"affectedByMatSickness": 1,
-			"damages" : {
-				"pierce" : 8,
-				"crush" : 2
-			}
+	{
+		"id": 31,
+		"name": "Cyber Hound",
+		"lvl": 3,
+		"realm": "A",
+		"size": 2,
+		"type": "A3",
+		"set": "Alpha",
+		"stats": {
+			"health": 140,
+			"regrowth": 4,
+			"endurance": 80,
+			"energy": 110,
+			"meditation": 35,
+			"initiative": 60,
+			"offense": 8,
+			"defense": 8,
+			"movement": 2,
+			"pierce": 9,
+			"slash": 9,
+			"crush": 9,
+			"shock": 4,
+			"burn": 4,
+			"frost": 7,
+			"poison": 8,
+			"sonic": 4,
+			"mental": 5
+		},
+		"display": {
+			"width": 160,
+			"height": 210,
+			"offset-x": 15,
+			"offset-y": -165
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"drop": {
+			"name": "Fang",
+			"health": 5,
+			"energy": 10
+		},
+		"ability_info": [
+			{
+				"title": "Bad Dog",
+				"desc": "Bites any frontal foe that stops by.",
+				"info": "8 pierce damage + 2 crush damage",
+				"affectedByMatSickness": 1,
+				"damages": {
+					"pierce": 8,
+					"crush": 2
+				}
 		},
 
-		{
-			"title": "Metal Hand",
-			"desc": "Harms a foe by using prosthetic limb.",
-			"info": "10 crush + 5 shock damage",
-			"damages" : {
-				"crush" : 10,
-				"shock" : 5
-			},
-			"costs" : {"energy" : 15}
+			{
+				"title": "Metal Hand",
+				"desc": "Harms a foe by using prosthetic limb.",
+				"info": "10 crush + 5 shock damage per hit",
+				"damages": {
+					"crush": 10,
+					"shock": 5
+				},
+				"costs": {
+					"energy": 15
+				}
 		},
-		{
-			"title": "Rocket Launcher",
-			"desc": "Fires up to 3 missiles that travel a fair distance, doing nice damage.",
-			"info": "8 crush + 8 burn damage per rocket",
-			"damages" : {
-				"crush" : 8,
-				"burn" : 8
-			},
-			"costs" : {"energy" : 25}
+			{
+				"title": "Rocket Launcher",
+				"desc": "Fires up to 3 missiles that travel a fair distance, striking individual targets.",
+				"info": "10 crush + 10 burn damage per rocket",
+				"damages": {
+					"crush": 10,
+					"burn": 10
+				},
+				"costs": {
+					"energy": 25
+				}
 		},
-		{
-			"title": "Targeting System",
-			"desc": "All rockets that didn't hit units are being redirected at any target foe.",
-			"info": "This attack does only a single hit.",
-			"damages" : {
-				"crush" : 8,
-				"burn" : 8
-			},
-			"costs" : {"energy" : 15}
+			{
+				"title": "Targeting System",
+				"desc": "All rockets that didn't hit units are being redirected at any target foe.",
+				"info": "This attack counts as a single hit.",
+				"damages": {
+					"crush": 8,
+					"burn": 8
+				},
+				"costs": {
+					"energy": 15
+				}
 		}
 	]
     },
-    {
-        "id": 32,
-        "name": "Deep Beauty",
-        "lvl": 3,
-        "embed": null,
-        "realm": "S",
-        "size": 2,
-        "type": "S3",
-        "stats": {
-            "health": 0,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 60,
-            "meditation": 10,
-            "initiative": 30,
-            "offense": 5,
-            "defense": 5,
-            "movement": 3,
-            "pierce": 2,
-            "slash": 2,
-            "crush": 3,
-            "shock": 4,
-            "burn": 0,
-            "frost": 10,
-            "poison": 8,
-            "sonic": 10,
-            "mental": 10
-        },
-        "animation": {
-            "walk_speed": 300
-        },
-        "ability_info": [
-            {
-                "title": "Cold Rain",
-                "desc": "Attackers get damaged and have their frost stat constantly reduced.",
-                "info": "4 frost + 1 crush, 1 frost debuff"
-            },
-            {
-                "title": "Harpoon Claw",
-                "desc": "Uses fingers against a nearby foe, doing more damage to it each time.",
-                "info": "6 pierce + 5 slash damage, +4 / hit"
-            },
-            {
-                "title": "Sea Serpent",
-                "desc": "Hits a nearby area using its tail, damaging one or two creatures.",
-                "info": "8 pierce + 8 crush + 8 frost damage"
-            },
-            {
-                "title": "Tsunami Wave",
-                "desc": "Travels in a straight line to a new spot, damaging all creatures while also ignoring traps along the way.",
-                "info": "10 crush + 10 frost damage"
-            }
-        ]
-    },
-    {
-        "id": 33,
-        "name": "Golden Wyrm",
-        "lvl": 7,
-        "embed": null,
-        "realm": "A",
-        "size": 3,
-        "type": "A7",
-        "stats": {
-            "health": 250,
-            "regrowth": 8,
-            "endurance": 70,
-            "energy": 120,
-            "meditation": 10,
-            "initiative": 100,
-            "offense": 25,
-            "defense": 25,
-            "movement": 3,
-            "pierce": 20,
-            "slash": 20,
-            "crush": 20,
-            "shock": 15,
-            "burn": 20,
-            "frost": 10,
-            "poison": 10,
-            "sonic": 15,
-            "mental": 15
-        },
-        "animation": {
-            "walk_speed": 450
-        },
-        "display":{
-            "width": 335,
-            "height": 275,
-            "offset-x": -40,
-            "offset-y": -240
-        },
-        "ability_info": [
-            {
-                "title": "Percussion Spear",
-                "desc": "Attacks cause rear spear strike, which cannot be dodged.",
-                "info": "30 pierce damage"
-            },
-            {
-                "title": "Executioner Axe",
-                "desc": "Slashes nearby foe, doing bonus damage based on its max health.",
-                "info": "30 + 9% max health slash damage"
-            },
-            {
-                "title": "Dragon Flight",
-                "desc": "Travels to a location passing over obstacles with no movement cost.",
-                "info": "+25 offense for next hit if not moving"
-            },
-            {
-                "title": "Battle Cry",
-                "desc": "Brings back to life a dead ally for 3 rounds, after which it disintegrates.",
-                "info": "cost = 10 energy × creature level"
-            }
-        ]
-    },
-    {
-        "id": 34,
-        "name": "Bouncer",
-        "lvl": 2,
-        "embed": null,
-        "realm": "S",
-        "size": 2,
-        "type": "S2",
-        "stats": {
-            "health": 130,
-            "regrowth": 3,
-            "endurance": 80,
-            "energy": 60,
-            "meditation": 10,
-            "initiative": 30,
-            "offense": 12,
-            "defense": 12,
-            "movement": 2,
-            "pierce": 10,
-            "slash": 10,
-            "crush": 10,
-            "shock": 10,
-            "burn": 10,
-            "frost": 10,
-            "poison": 10,
-            "sonic": 10,
-            "mental": 10
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Intimidating",
-                "desc": "Nearby foes have their offense and defense reduced for a full round.",
-                "info": "-25% offense and defense debuff"
-            },
-            {
-                "title": "Wrist Blade",
-                "desc": "Slashes a nearby foe using its blade.",
-                "info": "25 slash damage"
-            },
-            {
-                "title": "Belt Slap",
-                "desc": "Pokes all the frontal nearby units, knocking them back one hexagon.",
-                "info": "20 crush damage"
-            },
-            {
-                "title": "Overpower",
-                "desc": "Increases offense and defense until attacking or getting hit current turn.",
-                "info": "+50% offense and defense stat bonus"
-            }
-        ]
-    },
-    {
-        "id": 35,
-        "name": "Greedy Knight",
-        "lvl": 4,
-        "embed": null,
-        "realm": "A",
-        "size": 1,
-        "type": "A4",
-        "stats": {
-            "health": 100,
-            "regrowth": 3,
-            "endurance": 40,
-            "energy": 70,
-            "meditation": 3,
-            "initiative": 70,
-            "offense": 15,
-            "defense": 30,
-            "movement": 3,
-            "pierce": 9,
-            "slash": 9,
-            "crush": 9,
-            "shock": 0,
-            "burn": 5,
-            "frost": 5,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 7
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Shield Block",
-                "desc": "Uses shield to defend against frontal attacks, greatly reducing damage.",
-                "info": "+30 defense against frontal attacks"
-            },
-            {
-                "title": "Mace Strike",
-                "desc": "Does versatile damage to nearby foe. Constantly reduces target's defense.",
-                "info": "7 pierce + 7 crush + 7 slash damage"
-            },
-            {
-                "title": "Lion Charge",
-                "desc": "Runs very fast towards a foe up to 5 hexagons and savagely strikes it.",
-                "info": "20% extra damage per hexagon"
-            },
-            {
-                "title": "Super Cloak",
-                "desc": "Moves through units to destination, damaging every foe along the way while also ignoring all obstacles.",
-                "info": ""
-            }
-        ]
-    },
-    {
-        "id": 36,
-        "name": "Vertigo",
-        "lvl": 4,
-        "embed": null,
-        "realm": "E",
-        "size": 1,
-        "type": "E4",
-        "stats": {
-            "health": 0,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Perstilence",
-                "desc": "Foes have regrowth and meditation constantly reduced every few rounds.",
-                "info": ""
-            },
-            {
-                "title": "Gnarled Staff",
-                "desc": "Pokes nearby foe using wooden staff.",
-                "info": "No info"
-            },
-            {
-                "title": "Rock Shard",
-                "desc": "Summons obstacle at inline location, doing some damage when erupting.",
-                "info": "No info"
-            },
-            {
-                "title": "Furious Twister",
-                "desc": "Summons tornado that travels inline every round, bashing all creatures.",
-                "info": "No info"
-            }
-        ]
-    },
-    {
-        "id": 37,
-        "name": "Swine Thug",
-        "lvl": 1,
-        "embed": null,
-        "realm": "A",
-        "size": 1,
-        "type": "A1",
-        "stats": {
-            "health": 110,
-            "regrowth": 3,
-            "endurance": 40,
-            "energy": 70,
-            "meditation": 30,
-            "initiative": 40,
-            "offense": 6,
-            "defense": 6,
-            "movement": 3,
-            "pierce": 7,
-            "slash": 7,
-            "crush": 7,
-            "shock": 6,
-            "burn": 3,
-            "frost": 3,
-            "poison": 2,
-            "sonic": 2,
-            "mental": 2
-        },
-        "drop" : {
-            "name": "Meat",
-            "alterations": {"health": 10}
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "display":{
-            "height": 190,
-            "width": 140,
-            "offset-y": -150,
-            "offset-x": -21
-        },
-        "ability_info": [
-		{
-			"title": "Spa Mud",
-			"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
-			"info": "+10 regrowth, +10 defense",
-			"effects": [{"regrowth": 10, "defense": 10}]
+	{
+		"id": 32,
+		"name": "Deep Beauty",
+		"lvl": 3,
+		"realm": "S",
+		"size": 2,
+		"type": "S3",
+		"set": "Alpha",
+		"stats": {
+			"health": 140,
+			"regrowth": 4,
+			"endurance": 40,
+			"energy": 60,
+			"meditation": 10,
+			"initiative": 30,
+			"offense": 5,
+			"defense": 5,
+			"movement": 3,
+			"pierce": 2,
+			"slash": 2,
+			"crush": 3,
+			"shock": 4,
+			"burn": 0,
+			"frost": 10,
+			"poison": 8,
+			"sonic": 10,
+			"mental": 10
 		},
-		{
-			"title": "Power Bat",
-			"desc": "Pokes baseball bat into nearby foe.",
-			"info": "20 crush damage",
-			"damages": {"crush": 20},
-			"costs": {"energy": 20}
+		"animation": {
+			"walk_speed": 300
 		},
-		{
-			"title": "Ground Ball",
-			"desc": "Strikes a mud boulder towards a foe. Usable on one of the 3 inline rows.",
-			"info": "15 crush + 5 burn damage",
-			"damages": {
-				"crush": 15,
-				"burn": 5
-			},
-			"costs": {"energy": 15}
-		},
-		{
-			"title": "Mud Bath",
-			"desc": "Orders a pile of mud at a location, slowing units passing through it.",
-			"info": "-1 movement point per hexagon",
-			"effects": [{"special": "-1 %movement% per hexagon"}],
-			"costs": {"energy": 15}
+		"ability_info": [
+			{
+				"title": "Cold Rain",
+				"desc": "Attackers get damaged and have their frost stat constantly reduced every hit.",
+				"info": "4 frost + 1 crush damage, 1 frost debuff"
+            },
+			{
+				"title": "Harpoon Claw",
+				"desc": "Uses fingers against a nearby foe, doing more damage to it each time.",
+				"info": "6 pierce + 5 slash damage, +4 / hit"
+            },
+			{
+				"title": "Sea Serpent",
+				"desc": "Hits a nearby area using its tail, damaging one or two creatures.",
+				"info": "8 pierce + 8 crush + 8 frost damage"
+            },
+			{
+				"title": "Tsunami Wave",
+				"desc": "Travels in a straight line to a new spot, damaging all units while ignoring traps.",
+				"info": "10 crush + 10 frost damage & travel"
             }
         ]
     },
-    {
-        "id": 38,
-        "name": "Infernal",
-        "lvl": 3,
-        "embed": null,
-        "realm": "L",
-        "size": 2,
-        "type": "L3",
-        "stats": {
-            "health": 140,
-            "regrowth": 5,
-            "endurance": 40,
-            "energy": 100,
-            "meditation": 10,
-            "initiative": 30,
-            "offense": 6,
-            "defense": 10,
-            "movement": 3,
-            "pierce": 5,
-            "slash": 5,
-            "crush": 5,
-            "shock": 5,
-            "burn": 10,
-            "frost": 3,
-            "poison": 2,
-            "sonic": 2,
-            "mental": 7
-        },
-        "animation": {
-            "walk_speed": 600
-        },
-        "ability_info": [
-            {
-                "title": "Crossed Bones",
-                "desc": "Blocks damage from frontal attacks. Effect decreases on consecutive hits.",
-                "info": "Reduces 50% damage - 10% per hit."
+	{
+		"id": 33,
+		"name": "Golden Wyrm",
+		"lvl": 7,
+		"realm": "A",
+		"size": 3,
+		"type": "A7",
+		"set": "Alpha",
+		"stats": {
+			"health": 250,
+			"regrowth": 8,
+			"endurance": 70,
+			"energy": 120,
+			"meditation": 10,
+			"initiative": 100,
+			"offense": 25,
+			"defense": 25,
+			"movement": 3,
+			"pierce": 20,
+			"slash": 20,
+			"crush": 20,
+			"shock": 15,
+			"burn": 20,
+			"frost": 10,
+			"poison": 10,
+			"sonic": 15,
+			"mental": 15
+		},
+		"animation": {
+			"walk_speed": 450
+		},
+		"display": {
+			"width": 335,
+			"height": 275,
+			"offset-x": -40,
+			"offset-y": -240
+		},
+		"ability_info": [
+			{
+				"title": "Percussion Spear",
+				"desc": "Attacks cause rear spear strike, which cannot be dodged.",
+				"info": "30 pierce damage"
             },
-            {
-                "title": "Shark Attack",
-                "desc": "Bytes a nearby foe, lowering its maximum health by one each time.",
-                "info": "16 pierce damage, -1 max health"
+			{
+				"title": "Executioner Axe",
+				"desc": "Slashes nearby foe, doing bonus damage based on its max health.",
+				"info": "30 + 9% max health slash damage"
             },
-            {
-                "title": "Fire Breath",
-                "desc": "Ranged attack that damages first encountered units on several rows.",
-                "info": "20 burn damage"
+			{
+				"title": "Dragon Flight",
+				"desc": "Travels to a location passing over obstacles with no movement cost.",
+				"info": "+25 offense for next hit if not moving"
             },
-            {
-                "title": "Crystal Meditation",
-                "desc": "Heals nearby allies and damages foes partially based on their size.",
-                "info": "10 pure damage or heal per hex"
+			{
+				"title": "Battle Cry",
+				"desc": "Brings back to life the last dead unit for 3 rounds, after which it disintegrates.",
+				"info": "It will have 30% health and last energy"
             }
         ]
     },
-    {
-        "id": 39,
-        "name": "Headless",
-        "lvl": 3,
-        "embed": null,
-        "realm": "W",
-        "size": 2,
-        "type": "W3",
-        "stats": {
-            "health": 170,
-            "regrowth": 4,
-            "endurance": 30,
-            "energy": 90,
-            "meditation": 30,
-            "initiative": 30,
-            "offense": 10,
-            "defense": 5,
-            "movement": 4,
-            "pierce": 4,
-            "slash": 4,
-            "crush": 4,
-            "shock": 5,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 8,
-            "mental": 0
-        },
-        "display": {
-		"width": 175,
-		"height": 215,
-		"offset-x": 4,
-		"offset-y": -180
-        },
-        "animation": {
-            "walk_speed": 300
-        },
-        "drop": {
-            "name": "Yellow Pepper",
-            "alterations": {"health": 20}
-        },
-        "ability_info": [
-		{
-			"title": "Maggot Infestation",
-			"desc": "Strikes any rear foe at beginning of turn, infesting it with a parasite.",
-			"info": "-5 endurance stat debuff, stackable",
-			"effects": [{"special": "-5 %endurance% debuff, stackable"}]
+	{
+		"id": 34,
+		"name": "Bouncer",
+		"lvl": 2,
+		"realm": "S",
+		"size": 2,
+		"type": "S2",
+		"set": "Alpha",
+		"stats": {
+			"health": 130,
+			"regrowth": 3,
+			"endurance": 80,
+			"energy": 60,
+			"meditation": 10,
+			"initiative": 30,
+			"offense": 12,
+			"defense": 22,
+			"movement": 2,
+			"pierce": 10,
+			"slash": 10,
+			"crush": 10,
+			"shock": 10,
+			"burn": 10,
+			"frost": 10,
+			"poison": 10,
+			"sonic": 10,
+			"mental": 10
 		},
-		{
-			"title": "Bone Dagger",
-			"desc": "Hits nearby foe using frontal blade. Double damage if unit is fatigued.",
-			"info": "12 pierce damage × 2 vs fatigued foe",
-			"damages": {"special": "12%pierce% × 2 if target is fatigued"},
-			"costs": {"energy": 15}
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Whip Slash",
-			"desc": "Grasps a distant foe, pulling itself to it, doing damage based on distance.",
-			"info": "10 slash damage + 5 crush / hexagon",
-			"damages": {"special": "12%slash%, 5%crush% per hexagon"},
-			"costs": {"energy": 20}
+		"ability_info": [
+			{
+				"title": "Fearsome Unit",
+				"desc": "Nearby foes have their offense and defense reduced for a full round.",
+				"info": "-25% offense and defense debuff"
+            },
+			{
+				"title": "Wrist Blade",
+				"desc": "Slashes a nearby foe using its blade, disturbing its energy regeneration.",
+				"info": "25 slash damage, 1 meditation debuff"
+            },
+			{
+				"title": "Power Display",
+				"desc": "Switches the places of two nearby side units that are the same hexagonal size.",
+				"info": "8 crush damage to both swapped units"
+            },
+			{
+				"title": "Belt Slap",
+				"desc": "Pokes all the frontal nearby units, knocking them back one hexagon.",
+				"info": "20 crush damage plus knockback"
+            }
+        ]
+    },
+	{
+		"id": 35,
+		"name": "Greedy Knight",
+		"lvl": 4,
+		"realm": "A",
+		"size": 1,
+		"type": "A4",
+		"set": "Alpha",
+		"stats": {
+			"health": 100,
+			"regrowth": 3,
+			"endurance": 40,
+			"energy": 70,
+			"meditation": 3,
+			"initiative": 70,
+			"offense": 15,
+			"defense": 30,
+			"movement": 3,
+			"pierce": 9,
+			"slash": 9,
+			"crush": 9,
+			"shock": 0,
+			"burn": 5,
+			"frost": 5,
+			"poison": 2,
+			"sonic": 0,
+			"mental": 7
 		},
-		{
-			"title": "Boomerang Throw",
-		        "desc": "Forms a new weapon out of blades and throws it away, flying right back.",
-			"info": "5 slash + 5 crush damage, hits twice",
-			"damages": {"special": "5%slash%, 5%crush%, hits twice"},
-			"costs": {"energy": 25}
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Heavy Armor",
+				"desc": "All incoming pierce, slash and crush types of damage are greatly reduced.",
+				"info": "+25% physical damage resistance"
+            },
+			{
+				"title": "Mace Strike",
+				"desc": "Does versatile damage to nearby foe.",
+				"info": "9 pierce + 9 crush + 9 slash damage"
+            },
+			{
+				"title": "Shield Bash",
+				"desc": "Pokes a nearby unit with the shield, damaging and also knocking it back.",
+				"info": "25 crush damage + 1 hexagon push"
+            },
+			{
+				"title": "Lion Charge",
+				"desc": "Runs fast towards an inline foe up to 10 hexagons while gaining offense bonus.",
+				"info": "+20% extra offense per hexagon ran by"
+            }
+        ]
+    },
+	{
+		"id": 36,
+		"name": "Vertigo",
+		"lvl": 4,
+		"realm": "E",
+		"size": 2,
+		"type": "E4",
+		"set": "Alpha",
+		"stats": {
+			"health": 240,
+			"regrowth": 7,
+			"endurance": 60,
+			"energy": 160,
+			"meditation": 10,
+			"initiative": 50,
+			"offense": 1,
+			"defense": 9,
+			"movement": 3,
+			"pierce": 3,
+			"slash": 3,
+			"crush": 3,
+			"shock": 2,
+			"burn": 2,
+			"frost": 2,
+			"poison": 6,
+			"sonic": 8,
+			"mental": 10
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Pestilence",
+				"desc": "All drops within 4 hexagons range are being picked at the beginning of turn.",
+				"info": ""
+            },
+			{
+				"title": "Gnarled Staff",
+				"desc": "Pokes nearby foe using wooden staff.",
+				"info": "15 crush damage, -5 crush stat debuff"
+            },
+			{
+				"title": "Rock Shard",
+				"desc": "Causes an obstable to erupt at an empty location within 6 hexagons.",
+				"info": "It can be destroyed with only 1 hit."
+            },
+			{
+				"title": "Furious Twister",
+				"desc": "Summons tornado that travels inline every round, bashing all creatures.",
+				"info": "20 crush damage, 4 hexagons push"
+            }
+        ]
+    },
+	{
+		"id": 37,
+		"name": "Swine Thug",
+		"lvl": 1,
+		"realm": "A",
+		"size": 1,
+		"type": "A1",
+		"set": "Alpha",
+		"stats": {
+			"health": 110,
+			"regrowth": 3,
+			"endurance": 40,
+			"energy": 70,
+			"meditation": 30,
+			"initiative": 40,
+			"offense": 6,
+			"defense": 6,
+			"movement": 3,
+			"pierce": 7,
+			"slash": 7,
+			"crush": 7,
+			"shock": 6,
+			"burn": 3,
+			"frost": 3,
+			"poison": 2,
+			"sonic": 2,
+			"mental": 2
+		},
+		"drop": {
+			"name": "Meat",
+			"health": 20,
+			"energy": 5
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"display": {
+			"height": 190,
+			"width": 140,
+			"offset-y": -150,
+			"offset-x": -21
+		},
+		"ability_info": [
+			{
+				"title": "Spa Mud",
+				"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
+				"info": "+10 regrowth, +10 defense bonus stat",
+				"effects": [{
+					"regrowth": 10,
+					"defense": 10
+				}]
+		},
+			{
+				"title": "Power Bat",
+				"desc": "Bashes baseball bat into a nearby foe.",
+				"info": "20 crush damage, 1 hexagon knockback",
+				"damages": {
+					"crush": 20
+				},
+				"costs": {
+					"energy": 20
+				}
+		},
+			{
+				"title": "Ground Ball",
+				"desc": "Strikes a mud boulder towards a foe. Usable on one of the 3 inline rows.",
+				"info": "15 crush + 5 burn damage on attack",
+				"damages": {
+					"crush": 15,
+					"burn": 5
+				},
+				"costs": {
+					"energy": 15
+				}
+		},
+			{
+				"title": "Mud Bath",
+				"desc": "Orders a pile of mud at a location, slowing units passing through it.",
+				"info": "-1 movement point per hexagon",
+				"effects": [{
+					"special": "-1 %movement% per hexagon"
+				}],
+				"costs": {
+					"energy": 15
+				}
+            }
+        ]
+    },
+	{
+		"id": 38,
+		"name": "Infernal",
+		"lvl": 3,
+		"realm": "L",
+		"size": 2,
+		"type": "L3",
+		"set": "Alpha",
+		"stats": {
+			"health": 140,
+			"regrowth": 5,
+			"endurance": 40,
+			"energy": 100,
+			"meditation": 10,
+			"initiative": 30,
+			"offense": 6,
+			"defense": 10,
+			"movement": 3,
+			"pierce": 5,
+			"slash": 5,
+			"crush": 5,
+			"shock": 5,
+			"burn": 10,
+			"frost": 3,
+			"poison": 2,
+			"sonic": 2,
+			"mental": 7
+		},
+		"animation": {
+			"walk_speed": 600
+		},
+		"ability_info": [
+			{
+				"title": "Crossed Bones",
+				"desc": "Blocks damage from frontal attacks. Effect decreases on consecutive hits.",
+				"info": "Reduces 50% damage - 10% per hit."
+            },
+			{
+				"title": "Shark Attack",
+				"desc": "Bytes a nearby foe, lowering its maximum health by one each time.",
+				"info": "16 pierce damage, -1 max health"
+            },
+			{
+				"title": "Fire Flow",
+				"desc": "Ranged attack that damages first encountered units on several rows.",
+				"info": "20 burn damage"
+            },
+			{
+				"title": "Crystal Meditation",
+				"desc": "Heals nearby allies and damages foes, efficiency depending on the units size.",
+				"info": "10 pure damage or heal per hexagon"
+            }
+        ]
+    },
+	{
+		"id": 39,
+		"name": "Headless",
+		"lvl": 3,
+		"realm": "W",
+		"size": 2,
+		"type": "W3",
+		"set": "Alpha",
+		"stats": {
+			"health": 170,
+			"regrowth": 4,
+			"endurance": 30,
+			"energy": 90,
+			"meditation": 30,
+			"initiative": 30,
+			"offense": 10,
+			"defense": 5,
+			"movement": 4,
+			"pierce": 4,
+			"slash": 4,
+			"crush": 4,
+			"shock": 5,
+			"burn": 0,
+			"frost": 0,
+			"poison": 0,
+			"sonic": 8,
+			"mental": 0
+		},
+		"display": {
+			"width": 175,
+			"height": 215,
+			"offset-x": 4,
+			"offset-y": -180
+		},
+		"animation": {
+			"walk_speed": 300
+		},
+		"drop": {
+			"name": "Yellow Pepper",
+			"health": 15,
+			"energy": 4
+		},
+		"ability_info": [
+			{
+				"title": "Maggot Infestation",
+				"desc": "Strikes any rear foe at beginning of turn, infesting it with a parasite.",
+				"info": "-5 endurance stat debuff, stackable",
+				"effects": [{
+					"special": "-5 %endurance% debuff, stackable"
+				}]
+		},
+			{
+				"title": "Bone Dagger",
+				"desc": "Hits nearby foe using frontal blade. Double damage if unit is fatigued.",
+				"info": "12 pierce damage × 2 vs fatigued foe",
+				"damages": {
+					"special": "12%pierce% × 2 if target is fatigued"
+				},
+				"costs": {
+					"energy": 15
+				}
+		},
+			{
+				"title": "Whip Slash",
+				"desc": "Grasps a distant foe, pulling itself to it, doing damage based on total distance.",
+				"info": "10 slash damage + 5 crush per hexagon",
+				"damages": {
+					"special": "12%slash%, 5%crush% per hexagon"
+				},
+				"costs": {
+					"energy": 20
+				}
+		},
+			{
+				"title": "Boomerang Throw",
+				"desc": "Forms a new weapon out of blades and throws it away, flying right back.",
+				"info": "5 slash + 5 crush damage, hits twice",
+				"damages": {
+					"special": "5%slash%, 5%crush%, hits twice"
+				},
+				"costs": {
+					"energy": 25
+				}
             }
         ]
 	},
@@ -2480,10 +2632,10 @@
 		"id": 40,
 		"name": "Nutcase",
 		"lvl": 1,
-		"embed": null,
 		"realm": "W",
 		"size": 2,
 		"type": "W1",
+		"set": "Alpha",
 		"stats": {
 			"health": 100,
 			"regrowth": 6,
@@ -2503,51 +2655,58 @@
 			"poison": 5,
 			"sonic": 4,
 			"mental": 3
-	},
-	"display": {
-		"width": 155,
-		"height": 210,
-		"offset-x": 20,
-		"offset-y": -175
-	},
-	"animation": {
-		"walk_speed": 360
-	},
-    "drop" : {
-        "name": "Nut",
-        "alterations": {"defense": 5 }
-    },
-	"ability_info": [
-		{
-			"title": "Hunting Horn",
-			"desc": "Moves 2 hexes towards closest foe. Movement points are not deducted. This creature can not be delayed.",
-			"info": ""
 		},
-		{
-			"title": "Hammer Time",
-			"desc": "Hits a nearby foe using its hard head, decreasing movement by 1 for a turn.",
-			"info": "12 crush + 6 pierce damage & debuff",
-			"damages": {
-                		"crush": 12,
-                		"pierce": 6
-			},
-			"costs": {"energy": 15}
+		"display": {
+			"width": 155,
+			"height": 210,
+			"offset-x": 20,
+			"offset-y": -175
 		},
-		{
-			"title": "Fishing Hook",
-			"desc": "Pierces a nearby unit while swapping places if it's small or medium sized.",
-			"info": "10 pierce + 10 crush damage & swap",
-			"damages": {
-				"pierce": 10,
-				"crush": 10
-			},
-			"costs": {"energy": 25}
+		"animation": {
+			"walk_speed": 360
 		},
-		{
-			"title": "Tentacle Bush",
-			"desc": "Gains temporal immunity to fatigue. Becomes unmovable and skips turn.",
-			"info": "",
-			"costs": {"energy": 10}
+		"drop": {
+			"name": "Nut",
+			"health": 8,
+			"energy": 0
+		},
+		"ability_info": [
+			{
+				"title": "Hunting Horn",
+				"desc": "Moves 2 hexes towards closest foe. Movement points are not deducted. This creature can not be delayed.",
+				"info": ""
+		},
+			{
+				"title": "Hammer Time",
+				"desc": "Hits a nearby foe using its hard head, decreasing movement by 1 for a turn.",
+				"info": "12 crush + 6 pierce damage & debuff",
+				"damages": {
+					"crush": 12,
+					"pierce": 6
+				},
+				"costs": {
+					"energy": 15
+				}
+		},
+			{
+				"title": "Fishing Hook",
+				"desc": "Pierces a nearby unit while swapping places if it's small or medium sized.",
+				"info": "10 pierce + 10 crush damage & swap",
+				"damages": {
+					"pierce": 10,
+					"crush": 10
+				},
+				"costs": {
+					"energy": 25
+				}
+		},
+			{
+				"title": "Tentacle Bush",
+				"desc": "Gains temporal immunity to fatigue. Becomes unmovable and skips turn.",
+				"info": "",
+				"costs": {
+					"energy": 10
+				}
 		}
 	]
 	},
@@ -2555,10 +2714,10 @@
 		"id": 41,
 		"name": "Flesh Cleanser",
 		"lvl": 2,
-		"embed": null,
 		"realm": "W",
 		"size": 2,
 		"type": "W2",
+		"set": "Alpha",
 		"stats": {
 			"health": 135,
 			"regrowth": 4,
@@ -2578,30 +2737,30 @@
 			"poison": 12,
 			"sonic": 3,
 			"mental": 12
-	},
-	"animation": {
-		"walk_speed": 450
-	},
-	"ability_info": [
-		{
-			"title": "Death Dealer",
-			"desc": "Gains bonus offense for every kill.",
-			"info": "+10 bonus offense"
 		},
-		{
-			"title": "Trap Jaw",
-			"desc": "Bites nearby foe, making it lose some maximum health based on damage.",
-			"info": "12 pierce damage with 25% effect"
+		"animation": {
+			"walk_speed": 450
 		},
-		{
-			"title": "Spinal Tap",
-			"desc": "Strikes nearby foe using back spikes, not allowing it to regenerate a turn.",
-			"info": "10 pierce + 10 poison damage"
+		"ability_info": [
+			{
+				"title": "Death Dealer",
+				"desc": "Gains bonus offense stat for every kill.",
+				"info": "+10 bonus offense if last hitting a unit"
 		},
-		{
-			"title": "Skull Bolt",
-			"desc": "Uses parts from every single killed unit as a high damage projectile.",
-			"info": "40 crush + 10 poison damage"
+			{
+				"title": "Trap Jaw",
+				"desc": "Bites nearby foe, making it lose some maximum health based on damage.",
+				"info": "12 pierce damage with 25% effect"
+		},
+			{
+				"title": "Spinal Tap",
+				"desc": "Strikes a frontal foe using back spikes, not allowing it to regenerate one turn.",
+				"info": "10 pierce + 10 poison damage per hit"
+		},
+			{
+				"title": "Skull Bolt",
+				"desc": "Uses parts from units that died in a 10 hexagons region as deadly projectiles.",
+				"info": "40 crush + 10 poison damage per hit"
 		}
 	]
 	},
@@ -2609,10 +2768,10 @@
 		"id": 42,
 		"name": "Night Stalker",
 		"lvl": 7,
-		"embed": null,
 		"realm": "E",
 		"size": 2,
 		"type": "E7",
+		"set": "Alpha",
 		"stats": {
 			"health": 320,
 			"regrowth": 4,
@@ -2632,30 +2791,30 @@
 			"poison": 5,
 			"sonic": 5,
 			"mental": 10
-	},
-	"animation": {
-		"walk_speed": 500
-	},
-	"ability_info": [
-		{
-			"title": "Bat Country",
-			"desc": "First attacker receives some damage.",
-			"info": "5 pierce + 5 sonic damage"
 		},
-		{
-			"title": "Mega Slicer",
-			"desc": "Slashes nearby foe using the claws. Target loses 20 defense for 3 rounds.",
-			"info": "30 slash damage & defense debuff"
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Sublimal Scream",
-			"desc": "Does damage to a conic area nearby. Lowers initiative of all affected units.",
-			"info": "15 sonic + 15 mental damage, -10 init"
+		"ability_info": [
+			{
+				"title": "Bat Country",
+				"desc": "First attacker receives some damage.",
+				"info": "5 pierce + 5 sonic + 5 mental damage"
 		},
-		{
-			"title": "Eclipsing Leap",
-			"desc": "Catapults itself over up to 3 units with low health, squashing them all.",
-			"info": "Targets need to sum under 60 health."
+			{
+				"title": "Mega Slicer",
+				"desc": "Slashes nearby foe using the claws. Target loses 20 defense for 3 rounds.",
+				"info": "30 slash damage & defense debuff"
+		},
+			{
+				"title": "Sublimal Scream",
+				"desc": "Does damage to a conic area nearby. Lowers initiative of all affected units.",
+				"info": "15 sonic + 15 mental damage, -10 init"
+		},
+			{
+				"title": "Eclipsing Leap",
+				"desc": "Catapults itself over up to 3 units with very low health, squashing all of them.",
+				"info": "Targets need to sum under 100 health"
 		}
 	]
 	},
@@ -2663,53 +2822,53 @@
 		"id": 43,
 		"name": "Fire Bird",
 		"lvl": 7,
-		"embed": null,
 		"realm": "L",
 		"size": 3,
 		"type": "L7",
+		"set": "Alpha",
 		"stats": {
-			"health": 0,
-			"regrowth": 0,
-			"endurance": 0,
-			"energy": 0,
-			"meditation": 0,
-			"initiative": 0,
-			"offense": 0,
-			"defense": 0,
-			"movement": 0,
-			"pierce": 0,
-			"slash": 0,
-			"crush": 0,
-			"shock": 0,
-			"burn": 0,
-			"frost": 0,
-			"poison": 0,
-			"sonic": 0,
-			"mental": 0
-	},
-	"animation": {
-		"walk_speed": 500
-	},
-	"ability_info": [
-		{
-			"title": "No name",
-			"desc": "No description",
-			"info": ""
+			"health": 210,
+			"regrowth": 10,
+			"endurance": 10,
+			"energy": 150,
+			"meditation": 30,
+			"initiative": 140,
+			"offense": 20,
+			"defense": 15,
+			"movement": 3,
+			"pierce": 5,
+			"slash": 5,
+			"crush": 5,
+			"shock": 8,
+			"burn": 15,
+			"frost": 3,
+			"poison": 6,
+			"sonic": 3,
+			"mental": 4
 		},
-		{
-			"title": "No name",
-			"desc": "No description",
-			"info": "No info"
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "No name",
-			"desc": "No description",
-			"info": "No info"
+		"ability_info": [
+			{
+				"title": "Hot Ashes",
+				"desc": "If killed, leaves ashes behind that will reiginite it back to life if not stomped.",
+				"info": "1/3 hitpoints & energy for each stack"
 		},
-		{
-			"title": "No name",
-			"desc": "No description",
-			"info": "No info"
+			{
+				"title": "Little Kindle",
+				"desc": "Releases a bonfire that will chase the closest foe at a low movement speed.",
+				"info": "25 burn damage and 3 hexagons move"
+		},
+			{
+				"title": "Blazing Waves",
+				"desc": "Launches two burning streams which will scorch all the units they encounter.",
+				"info": "30 burn damage over 8 hexagons area"
+		},
+			{
+				"title": "Supreme Motivation",
+				"desc": "The lust drives it to do an extra effort, acting again at the end of the round.",
+				"info": "This is usable if unit wasn't delayed."
 		}
 	]
 	},
@@ -2717,10 +2876,10 @@
 		"id": 44,
 		"name": "Scavenger",
 		"lvl": 2,
-		"embed": null,
 		"realm": "E",
 		"size": 2,
 		"type": "E2",
+		"set": "Alpha",
 		"stats": {
 			"health": 115,
 			"regrowth": 2,
@@ -2740,50 +2899,62 @@
 			"poison": 8,
 			"sonic": 6,
 			"mental": 6
-    	},
-        "canFly" : true,
-    	"animation": {
-    		"walk_speed": 180
-    	},
-        "drop" : {
-            "name": "Feather",
-            "alterations": {"movement": 2}
-        },
-        "display":{
-		"width": 195,
-		"height": 205,
-		"offset-x": 0,
-		"offset-y": -160
-        },
-	"ability_info": [
-		{
-			"title": "Feathered Body",
-			"desc": "Can fly to available locations within movement range, avoiding obstacles.",
-			"info": ""
 		},
-		{
-			"title": "Slicing Talons",
-			"desc": "Slashes nearby foe using claws.",
-			"info": "12 slash damage",
-			"damages" : {"slash" : 12},
-			"costs" : {"energy" : 15}
+		"canFly": true,
+		"animation": {
+			"walk_speed": 180
 		},
-		{
-			"title": "Escort Service",
-			"desc": "Carries over a frontal or rear small or medium unit to a free inline location.",
-			"info": "Distance based on movement points.",
-			"costs" : {"movement" : "1 or 2 points per hexagon"},
-            "animation_datas" : { "duration" : 500, "delay" : 500}
+		"drop": {
+			"name": "Feather",
+			"health": 1,
+			"energy": 9
 		},
-		{
-			"title": "Venom Strike",
-			"desc": "Bites a nearby enemy and poisons it. First five attacks contain more toxin.",
-			"info": "10 pierce + 60/50/40/30/20/10 poison",
-			"damages" : {
-				"pierce" : 10,
-				"poison" : 60
-			},
-			"costs" : {"energy" : 20}
+		"display": {
+			"width": 195,
+			"height": 205,
+			"offset-x": 0,
+			"offset-y": -160
+		},
+		"ability_info": [
+			{
+				"title": "Feathered Body",
+				"desc": "Can fly to available locations within movement range, avoiding obstacles.",
+				"info": ""
+		},
+			{
+				"title": "Slicing Talons",
+				"desc": "Slashes nearby foe using claws.",
+				"info": "12 slash damage",
+				"damages": {
+					"slash": 12
+				},
+				"costs": {
+					"energy": 15
+				}
+		},
+			{
+				"title": "Escort Service",
+				"desc": "Carries over a frontal or rear small or medium unit to a free inline location.",
+				"info": "Distance based on movement points.",
+				"costs": {
+					"movement": "1 or 2 points per hexagon"
+				},
+				"animation_datas": {
+					"duration": 500,
+					"delay": 500
+				}
+		},
+			{
+				"title": "Venom Strike",
+				"desc": "Bites a nearby enemy and poisons it. First five attacks contain more toxin.",
+				"info": "10 pierce + 60/50/40/30/20/10 poison",
+				"damages": {
+					"pierce": 10,
+					"poison": 60
+				},
+				"costs": {
+					"energy": 20
+				}
 		}
 	]
 	},
@@ -2791,12 +2962,12 @@
 		"id": 45,
 		"name": "Chimera",
 		"lvl": 6,
-		"embed": null,
 		"realm": "P",
 		"size": 3,
 		"type": "P6",
+		"set": "Alpha",
 		"stats": {
-			"health": 240,
+			"health": 220,
 			"regrowth": 6,
 			"endurance": 40,
 			"energy": 80,
@@ -2814,46 +2985,59 @@
 			"poison": 8,
 			"sonic": 15,
 			"mental": 12
-	},
-	"animation": {
-		"walk_speed": 500
-	},
-    "display":{
-        "width": 300,
-        "height": 220,
-        "offset-x": -12,
-        "offset-y": -183
-    },
-    "drop" : {
-        "name" : "Bat Wing",
-        "alterations" : { "movement" : 1 }
-    },
-	"ability_info": [
-		{
-			"title": "Cyclic Duality",
-			"desc": "Allows the use of an attack twice.",
-			"info": ""
 		},
-		{
-			"title": "Tooth Fairy",
-			"desc": "Syncs teeth into a nearby foe.",
-			"info": "20 crush damage",
-            		"damages" : {"crush" : 20},
-			"costs" : {"energy" : 15}
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "Power Note",
-			"desc": "Sings a powerful note inline that keeps on going when killing units.",
-			"info": "20 sonic damage that can continue",
-			"damages" : {"sonic" : 20},
-			"costs" : {"energy" : 20}
+		"display": {
+			"width": 300,
+			"height": 220,
+			"offset-x": -12,
+			"offset-y": -183
 		},
-		{
-			"title": "Chain Lightning",
-			"desc": "Releases a lightning bolt that will arch, shocking multiple creatures.",
-			"info": "20 shock damage that can arch",
-			"damages" : {"shock" : 20},
-			"costs" : {"energy" : 25}
+		"drop": {
+			"name": "Bat Wing",
+			"health": 2,
+			"energy": 14
+		},
+		"ability_info": [
+			{
+				"title": "Cyclic Duality",
+				"desc": "Allows the use of an attack two times.",
+				"info": ""
+		},
+			{
+				"title": "Tooth Fairy",
+				"desc": "Syncs teeth into a nearby foe.",
+				"info": "20 crush damage",
+				"damages": {
+					"crush": 20
+				},
+				"costs": {
+					"energy": 15
+				}
+		},
+			{
+				"title": "Power Note",
+				"desc": "Sings a powerful note inline that keeps on going when killing units.",
+				"info": "20 sonic damage that can continue",
+				"damages": {
+					"sonic": 20
+				},
+				"costs": {
+					"energy": 20
+				}
+		},
+			{
+				"title": "Chain Lightning",
+				"desc": "Releases a lightning bolt that will arch, shocking multiple creatures.",
+				"info": "20 shock damage that can arch",
+				"damages": {
+					"shock": 20
+				},
+				"costs": {
+					"energy": 25
+				}
 		}
 	]
 	},
@@ -2861,271 +3045,270 @@
 		"id": 46,
 		"name": "Scorpius",
 		"lvl": 5,
-		"embed": null,
 		"realm": "E",
 		"size": 3,
 		"type": "E5",
+		"set": "Alpha",
 		"stats": {
-			"health": 0,
-			"regrowth": 0,
-			"endurance": 0,
-			"energy": 0,
-			"meditation": 0,
-			"initiative": 0,
-			"offense": 0,
-			"defense": 0,
-			"movement": 0,
-			"pierce": 0,
-			"slash": 0,
-			"crush": 0,
-			"shock": 0,
-			"burn": 0,
-			"frost": 0,
-			"poison": 0,
-			"sonic": 0,
-			"mental": 0
-	},
-	"animation": {
-		"walk_speed": 500
-	},
-	"ability_info": [
-		{
-			"title": "No name",
-			"desc": "No description",
-			"info": ""
+			"health": 260,
+			"regrowth": 4,
+			"endurance": 80,
+			"energy": 70,
+			"meditation": 5,
+			"initiative": 30,
+			"offense": 8,
+			"defense": 20,
+			"movement": 4,
+			"pierce": 10,
+			"slash": 10,
+			"crush": 8,
+			"shock": 9,
+			"burn": 2,
+			"frost": 2,
+			"poison": 9,
+			"sonic": 2,
+			"mental": 1
 		},
-		{
-			"title": "No name",
-			"desc": "No description",
-			"info": "No info"
+		"animation": {
+			"walk_speed": 500
 		},
-		{
-			"title": "No name",
-			"desc": "No description",
-			"info": "No info"
+		"ability_info": [
+			{
+				"title": "Palm Tree",
+				"desc": "This unit usually stays underground, revealing only the tail most of the time.",
+				"info": "Reduces 5 damage from incoming hits."
 		},
-		{
-			"title": "No name",
-			"desc": "No description",
-			"info": "No info"
+			{
+				"title": "Crab Pinter",
+				"desc": "Versatile attack done on a nearby foe.",
+				"info": "9 pierce + 9 slash + 9 crush damage"
+		},
+			{
+				"title": "Venomous Tail",
+				"desc": "Pokes any foe within 4 hexagons range.",
+				"info": "20 pierce + 20 poison damage on hit"
+		},
+			{
+				"title": "Spiked Arrow",
+				"desc": "Travels through the ground to a new location, damaging all surface units.",
+				"info": "20 slash damage, ignores rock shards"
 		}
 	]
 	},
 	{
-	"id": 47,
-	"name": "Royal Guard",
-	"lvl": 5,
-	"embed": null,
-	"realm": "P",
-	"size": 3,
-	"type": "P5",
-	"stats": {
-		"health": 250,
-		"regrowth": 3,
-		"endurance": 110,
-		"energy": 70,
-		"meditation": 10,
-		"initiative": 20,
-		"offense": 10,
-		"defense": 40,
-		"movement": 3,
-		"pierce": 7,
-		"slash": 7,
-		"crush": 7,
-		"shock": 1,
-		"burn": 4,
-		"frost": 1,
-		"poison": 1,
-		"sonic": 1,
-		"mental": 8
-	},
-        "animation": {
-            "walk_speed": 400
-        },
-        "ability_info": [
-            {
-                "title": "Skull Shield",
-                "desc": "Armor shaped head grants double defense against frontal attacks.",
-                "info": ""
+		"id": 47,
+		"name": "Royal Guard",
+		"lvl": 5,
+		"realm": "P",
+		"size": 3,
+		"type": "P5",
+		"set": "Alpha",
+		"stats": {
+			"health": 200,
+			"regrowth": 3,
+			"endurance": 110,
+			"energy": 70,
+			"meditation": 10,
+			"initiative": 20,
+			"offense": 10,
+			"defense": 20,
+			"movement": 3,
+			"pierce": 7,
+			"slash": 7,
+			"crush": 7,
+			"shock": 1,
+			"burn": 4,
+			"frost": 1,
+			"poison": 1,
+			"sonic": 1,
+			"mental": 8
+		},
+		"animation": {
+			"walk_speed": 400
+		},
+		"ability_info": [
+			{
+				"title": "Skull Shield",
+				"desc": "Armor shaped head grants double defense against frontal attacks.",
+				"info": ""
             },
-            {
-                "title": "Whip Master",
-                "desc": "Slashes nearby foe using tongue, reducing its initiative for two turns.",
-                "info": "20 slash damage & -20 initiative"
+			{
+				"title": "Whip Master",
+				"desc": "Slashes nearby foe using tongue, reducing its initiative for two turns.",
+				"info": "20 slash damage & -20 initiative stat"
             },
-            {
-                "title": "Double Slap",
-                "desc": "Strikes nearby foe, pushing it back or else completely ignoring its defense.",
-                "info": "10 crush + 10 burn damage"
+			{
+				"title": "Double Slap",
+				"desc": "Strikes nearby foe, pushing it back or else completely ignoring its defense.",
+				"info": "10 crush + 10 burn damage"
             },
-            {
-                "title": "Meteor Slam",
-                "desc": "Regurgitates a sphere and throws it at pretty much any target location.",
-                "info": "20 crush damage + 10 burn"
+			{
+				"title": "Meteor Slam",
+				"desc": "Regurgitates a sphere and throws it at any location within 8 hexagons range.",
+				"info": "20 crush damage + 10 burn"
             }
         ]
     },
-    {
-        "id": 48,
-        "name": "Satyr",
-        "lvl": 6,
-        "embed": null,
-        "realm": "W",
-        "size": 3,
-        "type": "W6",
-        "stats": {
-            "health": 260,
-            "regrowth": 4,
-            "endurance": 60,
-            "energy": 80,
-            "meditation": 5,
-            "initiative": 40,
-            "offense": 12,
-            "defense": 10,
-            "movement": 3,
-            "pierce": 5,
-            "slash": 6,
-            "crush": 7,
-            "shock": 7,
-            "burn": 5,
-            "frost": 5,
-            "poison": 4,
-            "sonic": 3,
-            "mental": 10
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "Bone Head",
-                "desc": "Frontal attacks cause less damage.",
-                "info": "10 damage reduction from every hit"
+	{
+		"id": 48,
+		"name": "Satyr",
+		"lvl": 6,
+		"realm": "W",
+		"size": 3,
+		"type": "W6",
+		"set": "Alpha",
+		"stats": {
+			"health": 260,
+			"regrowth": 4,
+			"endurance": 60,
+			"energy": 80,
+			"meditation": 5,
+			"initiative": 40,
+			"offense": 12,
+			"defense": 10,
+			"movement": 3,
+			"pierce": 5,
+			"slash": 6,
+			"crush": 7,
+			"shock": 7,
+			"burn": 5,
+			"frost": 5,
+			"poison": 4,
+			"sonic": 3,
+			"mental": 10
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Bone Head",
+				"desc": "Frontal attacks cause less damage.",
+				"info": "10 damage reduction from every hit"
             },
-            {
-                "title": "Free Haircut",
-                "desc": "Slashes nearby foe using scissors.",
-                "info": "15 slash damage"
+			{
+				"title": "Free Haircut",
+				"desc": "Slashes nearby foe using scissors.",
+				"info": "15 slash damage"
             },
-            {
-                "title": "Flying Cleaver",
-                "desc": "Jumps over a nearby creature, slicing it with its large abdominal bone axe.",
-                "info": "20 slash damage"
+			{
+				"title": "Flying Cleaver",
+				"desc": "Jumps over a nearby creature, slicing it with its large abdominal bone axe.",
+				"info": "20 slash damage"
             },
-            {
-                "title": "Hoof Strike",
-                "desc": "Bashes nearby foe, pushing it back a couple hexagons, based on its size. Double offence against rear enemies.",
-                "info": "25 crush damage, up to 3 hexes push"
+			{
+				"title": "Hoof Strike",
+				"desc": "Bashes nearby foe, pushing it back a couple hexagons, based on its size.",
+				"info": "25 crush damage, up to 3 hexes push"
             }
         ]
     },
-    {
-        "id": 49,
-        "name": "Volpyr",
-        "lvl": 6,
-        "embed": null,
-        "realm": "L",
-        "size": 3,
-        "type": "L6",
-        "stats": {
-            "health": 0,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 0,
-            "meditation": 0,
-            "initiative": 0,
-            "offense": 0,
-            "defense": 0,
-            "movement": 0,
-            "pierce": 0,
-            "slash": 0,
-            "crush": 0,
-            "shock": 0,
-            "burn": 0,
-            "frost": 0,
-            "poison": 0,
-            "sonic": 0,
-            "mental": 0
-        },
-        "animation": {
-            "walk_speed": 500
-        },
-        "ability_info": [
-            {
-                "title": "No name",
-                "desc": "No description",
-                "info": ""
+	{
+		"id": 49,
+		"name": "Volpyr",
+		"lvl": 6,
+		"realm": "L",
+		"size": 3,
+		"type": "L6",
+		"set": "Alpha",
+		"stats": {
+			"health": 180,
+			"regrowth": 2,
+			"endurance": 25,
+			"energy": 90,
+			"meditation": 6,
+			"initiative": 30,
+			"offense": 4,
+			"defense": 4,
+			"movement": 3,
+			"pierce": 2,
+			"slash": 2,
+			"crush": 2,
+			"shock": 3,
+			"burn": 7,
+			"frost": 1,
+			"poison": 2,
+			"sonic": 1,
+			"mental": 5
+		},
+		"animation": {
+			"walk_speed": 500
+		},
+		"ability_info": [
+			{
+				"title": "Blood Lust",
+				"desc": "Each successful hit increases both offense and burn stats by one point.",
+				"info": ""
             },
-            {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+			{
+				"title": "Flaming Paw",
+				"desc": "Strikes an adjacent foe, doing bonus damage with each consecutive hit.",
+				"info": "10 slash + 5 burn bonus damage"
             },
-            {
-                "title": "No name",
-                "desc": "No description",
-                "info": "No info"
+			{
+				"title": "Fire Breath",
+				"desc": "Incinerates a 6 hexagons cone area, hitting only first encountered units.",
+				"info": "20 burn damage"
             },
-            {
-                "title": "Unfriendly Fire",
-                "desc": "Ranged fire attack that bounces left and right each time it hits a creature.",
-                "info": "20 burn damage + 5 more per target"
+			{
+				"title": "Unfriendly Fire",
+				"desc": "Ranged fire attack that bounces left and right each time it hits a creature.",
+				"info": "20 burn damage + 5 more per target"
             }
         ]
     },
-    {
-        "id": 50,
-        "name": "Shadow Leech",
-        "lvl": "S",
-        "embed": null,
-        "realm": "W",
-        "size": 1,
-        "type": "WS",
-        "stats": {
-            "health": 100,
-            "regrowth": 0,
-            "endurance": 0,
-            "energy": 100,
-            "meditation": 10,
-            "initiative": 25,
-            "offense": 5,
-            "defense": 5,
-            "movement": 4,
-            "pierce": 6,
-            "slash": 6,
-            "crush": 6,
-            "shock": 4,
-            "burn": 4,
-            "frost": 4,
-            "poison": 5,
-            "sonic": 0,
-            "mental": 10
-        },
-        "animation": {
-            "walk_speed": 600
-        },
-        "ability_info": [
-            {
-                "title": "Ethereal Body",
-                "desc": "Passes through obstacles and only takes half of the incoming damage.",
-                "info": ""
+	{
+		"id": 50,
+		"name": "Shadow Leech",
+		"lvl": "S",
+		"realm": "W",
+		"size": 1,
+		"type": "WS",
+		"set": "Alpha",
+		"stats": {
+			"health": 40,
+			"regrowth": 0,
+			"endurance": 0,
+			"energy": 40,
+			"meditation": 15,
+			"initiative": 25,
+			"offense": 5,
+			"defense": 5,
+			"movement": 5,
+			"pierce": 6,
+			"slash": 6,
+			"crush": 6,
+			"shock": 4,
+			"burn": 4,
+			"frost": 4,
+			"poison": 5,
+			"sonic": 0,
+			"mental": 10
+		},
+		"animation": {
+			"walk_speed": 600
+		},
+		"ability_info": [
+			{
+				"title": "Ethereal Body",
+				"desc": "Passes through obstacles and only takes half of the incoming damage.",
+				"info": ""
             },
-            {
-                "title": "Hand Jaw",
-                "desc": "Bites nearby foe using its... hand. Steals 5 energy points from target.",
-                "info": "12 pierce damage"
+			{
+				"title": "Hand Jaw",
+				"desc": "Bites nearby foe using its... hand. Steals 5 energy points from target.",
+				"info": "12 pierce damage"
             },
-            {
-                "title": "Sorrow Visions",
-                "desc": "Causes a foe within range to fall into depression and not act for one turn.",
-                "info": "10 mind damage"
+			{
+				"title": "Sorrow Visions",
+				"desc": "Causes a foe within range to fall into depression and not act for one turn.",
+				"info": "10 mind damage"
             },
-            {
-                "title": "Sleeping Mummy",
-                "desc": "Meditative state that restores 20 health if not disrupted for a round.",
-                "info": "35 bonus defense while in stance."
+			{
+				"title": "Sleeping Mummy",
+				"desc": "Meditative state that restores 20 health if not disrupted for a round.",
+				"info": "45 bonus defense while in stance."
             }
         ]
     }
 ]
-

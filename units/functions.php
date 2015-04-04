@@ -1,10 +1,10 @@
 <?php
-function get_creatures(){
+function get_creatures() {
 	$progress_json = json_decode(file_get_contents('../units/progress.json'), true);
 	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
 	$creature_results = array();
 	$i = 0;
-	foreach($creature_json as &$creature){
+	foreach($creature_json as &$creature) {
 		$creature["progress"] = $progress_json[$i];
 		$creature_results[$creature["type"]] = $creature;
 		$i++;
@@ -13,22 +13,22 @@ function get_creatures(){
 	return $creature_results;
 }
 
-function get_stats(){
+function get_stats() {
 	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
 	$stats_results = array();
 	$i = 0;
-	foreach($creature_json as &$creature){
+	foreach($creature_json as &$creature) {
 		$stats_results[$i] = $creature["stats"];
 		$i++;
 	}
 	return $stats_results;
 }
 
-function progress($category, $unit){
+function progress($category, $unit) {
 	$sum = 0;
 	$i = 0;
 	echo '<div class="center progress-widget"><a href="https://mega.co.nz/#F!DYYxzIRa!FKOq62BWn1TpAUw9gKL0YQ" target="_blank">';
-	foreach($category as $key => $value){
+	foreach($category as $key => $value) {
 		if ($i++ < 1) continue;
 		$sum += $value;
 		$title = ucfirst($key) . ': '. $value . '% complete';
