@@ -47,7 +47,7 @@ require_once("../global.php");
 </script>
 	
 <?php
-require_once('../units/functions.php');
+require_once("../units/functions.php");
 require_once('../units/cards.php');
 ?>
 
