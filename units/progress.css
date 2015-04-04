@@ -1,0 +1,18 @@
+.progress-widget { background: url('../images/progress.png') no-repeat 0 -75px; width: 825px; height: 75px; margin-top: 10px; }
+.common-values {
+	background-image: url('../images/progress.png');
+	width: 75px;
+	height: 75px;
+	display: inline-block;
+}
+.progress-0 { background-image: none; }
+.progress-10 { background-position: -675px 0; }
+.progress-20 { background-position: -600px 0; }
+.progress-30 { background-position: -525px 0; }
+.progress-40 { background-position: -450px 0; }
+.progress-50 { background-position: -375px 0; }
+.progress-60 { background-position: -300px 0; }
+.progress-70 { background-position: -225px 0; }
+.progress-80 { background-position: -150px 0; }
+.progress-90 { background-position: -75px 0; }
+.progress-100 { background-position: 0 0; }
