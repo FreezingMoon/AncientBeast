@@ -183,7 +183,7 @@
             },
 			{
 				"title": "Tail Mace",
-				"desc": "Whips out its scepter like tail to bluntly punish a foe that's within 3 hexagons.",
+				"desc": "Whips out its scepter like tail to bluntly punish a foe that is within 3 hexagons.",
 				"info": "15 pierce + 15 crush damage"
             },
 			{
@@ -238,8 +238,8 @@
 		"ability_info": [
 			{
 				"title": "Toxic Spores",
-				"desc": "Foes that get too close have their regrowth reduced for a whole turn.",
-				"info": "-5 regrowth stat debuff for a round",
+				"desc": "Units that come into contact have their regrowth constantly reduced bit by bit.",
+				"info": "-1 regrowth stat debuff that can stack",
 				"effects": [{
 					"regrowth": -5
 				}]
@@ -363,8 +363,8 @@
 		},
 			{
 				"title": "Molten Hurl",
-				"desc": "Turns into a molten boulder, bowling itself into first foe in a straight line. Ignores all the traps along the way.",
-				"info": "10 crush + 5 burn damage & travel",
+				"desc": "Turns into a magma boulder, bowling itself into first foe in a straight line. Destroys all the traps along the way.",
+				"info": "10 crush + 5 burn damage & movement",
 				"damages": {
 					"crush": 10,
 					"burn": 5
@@ -1022,13 +1022,13 @@
 		"ability_info": [
 			{
 				"title": "Natural Environment",
-				"desc": "Initial spot will become a swamp.",
-				"info": "+15 Poison mastery bonus while in"
+				"desc": "Initial spot will become a swamp home.",
+				"info": "+15 Poison mastery bonus while inside"
 		},
 			{
 				"title": "Rabid Bite",
 				"desc": "Sink poisonous teeth into nearby foe.",
-				"info": "10 pierce + 5 poison damage",
+				"info": "10 pierce + 5 poison damage on hit",
 				"damages": {
 					"pierce": 10,
 					"poison": 5
@@ -1670,22 +1670,22 @@
 			{
 				"title": "Healing Factor",
 				"desc": "1/2 regrowth works even if fatigued.",
-				"info": ""
+				"info": "Applies to nearby allied units as well"
             },
 			{
 				"title": "Gauntlet Strike",
 				"desc": "Punches a nearby foe with it's heavy armored hand, leaving quite a mark.",
-				"info": "25 crush damage"
+				"info": "25 crush damage, -5 meditation stat"
             },
 			{
 				"title": "Bloody Greed",
 				"desc": "Powerful sword penetrating attack, affecting multiple inline hexagons.",
-				"info": "20 pierce + 10 slash damage, 3 hex"
+				"info": "20 pierce damage over 2 hexagons"
             },
 			{
 				"title": "Foot Tromp",
-				"desc": "Stamps the ground, dealing sonic damage to units in the nearby area.",
-				"info": "15 or 30 adjacent sonic damage"
+				"desc": "Stamps the ground, causing all units nearby to lose 90 initiative for a turn.",
+				"info": "-90 initiative debuff, lasts one round"
             }
         ]
     },
@@ -1782,18 +1782,18 @@
 		},
 			{
 				"title": "Stalagmite Teeth",
-				"desc": "Pierces nearby foe with its denture.",
-				"info": "20 pierce damage"
-		},
-			{
-				"title": "Weed Field",
-				"desc": "Nasty weeds instantly grow at a location within range, damaging and traping foes depending on their size.",
-				"info": "9 pierce + 9 crush + 9 poison < 3 turns"
+				"desc": "Pierces nearby unit with its denture, striking larger targets multiple times.",
+				"info": "10 pierce damage, can do up to 3 hits"
 		},
 			{
 				"title": "Waterfall Cannon",
-				"desc": "Powerful jet of water that damages several time, either knocking target back a bit or doing bonus damage.",
-				"info": "10 (or double) crush damage x 2 hits"
+				"desc": "Powerful jet of water that damages & pushes back, has a 6 hexagons range.",
+				"info": "20 knocking crush damage, up to 2 hits"
+		},
+			{
+				"title": "Thorny Weed",
+				"desc": "Nasty ivy grows at a free spot up to 8 hexagons away, waiting for a foe prey.",
+				"info": "9 pierce + 9 poison & 1 round entangle"
 		}
         ]
     },
@@ -1889,16 +1889,16 @@
 				"info": "Double when not taking any damage"
 		},
 			{
-				"title": "Stomping Time",
-				"desc": "Deals damage to a single nearby foe and causes it to act slow for a round.",
-				"info": "25 crush damage, 90 initiative debuff",
+				"title": "Ultra Squish",
+				"desc": "Deals damage to a single nearby foe.",
+				"info": "20 crush + 10 sonic damage on strike",
 				"damages": {
 					"crush": 25
 				}
 		},
 			{
 				"title": "Stone Grinder",
-				"desc": "Leaps on and destroys one or two nearby inline units that are low on hitpoints while picking their drops.",
+				"desc": "Leaps on and destroys one or two nearby inline units that are injured.",
 				"info": "Each unit has to be under 50 health",
 				"damages": {
 					"crush": 10
@@ -2195,7 +2195,7 @@
 			"initiative": 100,
 			"offense": 25,
 			"defense": 25,
-			"movement": 3,
+			"movement": 2,
 			"pierce": 20,
 			"slash": 20,
 			"crush": 20,
@@ -2217,9 +2217,9 @@
 		},
 		"ability_info": [
 			{
-				"title": "Percussion Spear",
-				"desc": "Attacks cause rear spear strike, which cannot be dodged.",
-				"info": "30 pierce damage"
+				"title": "Battle Cry",
+				"desc": "Roars at the beginning of the turn if took any damage in previous round.",
+				"info": "20 sonic damage to adjacent units"
             },
 			{
 				"title": "Executioner Axe",
@@ -2232,7 +2232,7 @@
 				"info": "+25 offense for next hit if not moving"
             },
 			{
-				"title": "Battle Cry",
+				"title": "Visible Stigmata",
 				"desc": "Brings back to life the last dead unit for 3 rounds, after which it disintegrates.",
 				"info": "It will have 30% health and last energy"
             }
@@ -2281,7 +2281,7 @@
 				"info": "25 slash damage, 1 meditation debuff"
             },
 			{
-				"title": "Power Display",
+				"title": "Force Display",
 				"desc": "Switches the places of two nearby side units that are the same hexagonal size.",
 				"info": "8 crush damage to both swapped units"
             },
@@ -2379,7 +2379,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Pestilence",
+				"title": "Pestilence Bug",
 				"desc": "All drops within 4 hexagons range are being picked at the beginning of turn.",
 				"info": ""
             },
@@ -2444,7 +2444,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Spa Mud",
+				"title": "Spa Clay",
 				"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
 				"info": "+10 regrowth, +10 defense bonus stat",
 				"effects": [{
@@ -2477,10 +2477,10 @@
 		},
 			{
 				"title": "Mud Bath",
-				"desc": "Orders a pile of mud at a location, slowing units passing through it.",
-				"info": "-1 movement point per hexagon",
+				"desc": "Orders a pile of mud over any hexagon, slowing any other units that walk over.",
+				"info": "-1 movement point, on free spot or self",
 				"effects": [{
-					"special": "-1 %movement% per hexagon"
+					"special": "-1 %movement%"
 				}],
 				"costs": {
 					"energy": 15
@@ -2639,12 +2639,12 @@
 		"stats": {
 			"health": 100,
 			"regrowth": 6,
-			"endurance": 20,
+			"endurance": 40,
 			"energy": 100,
 			"meditation": 25,
 			"initiative": 120,
 			"offense": 10,
-			"defense": 10,
+			"defense": 14,
 			"movement": 4,
 			"pierce": 7,
 			"slash": 9,
@@ -2673,8 +2673,8 @@
 		"ability_info": [
 			{
 				"title": "Hunting Horn",
-				"desc": "Moves 2 hexes towards closest foe. Movement points are not deducted. This creature can not be delayed.",
-				"info": ""
+				"desc": "Moves 3 hexes towards closest foe. Movement points are not deducted.",
+				"info": "This creature can not be delayed"
 		},
 			{
 				"title": "Hammer Time",
@@ -2702,8 +2702,8 @@
 		},
 			{
 				"title": "Tentacle Bush",
-				"desc": "Gains temporal immunity to fatigue. Becomes unmovable and skips turn.",
-				"info": "",
+				"desc": "Curls up in a defensive stance, reducing 80% damage from first incoming hit.",
+				"info": "Becomes unmovable and skips turn",
 				"costs": {
 					"energy": 10
 				}
@@ -2789,8 +2789,8 @@
 			"burn": 10,
 			"frost": 5,
 			"poison": 5,
-			"sonic": 5,
-			"mental": 10
+			"sonic": 12,
+			"mental": 12
 		},
 		"animation": {
 			"walk_speed": 500
@@ -2798,7 +2798,7 @@
 		"ability_info": [
 			{
 				"title": "Bat Country",
-				"desc": "First attacker receives some damage.",
+				"desc": "First attacker receives some damage. This ability triggers once every round.",
 				"info": "5 pierce + 5 sonic + 5 mental damage"
 		},
 			{
@@ -2808,7 +2808,7 @@
 		},
 			{
 				"title": "Sublimal Scream",
-				"desc": "Does damage to a conic area nearby. Lowers initiative of all affected units.",
+				"desc": "Damages a 10 hexagons conic area. Lowers initiative of all affected units.",
 				"info": "15 sonic + 15 mental damage, -10 init"
 		},
 			{
@@ -2923,7 +2923,7 @@
 		},
 			{
 				"title": "Slicing Talons",
-				"desc": "Slashes nearby foe using claws.",
+				"desc": "Slashes nearby foe using its claws.",
 				"info": "12 slash damage",
 				"damages": {
 					"slash": 12
@@ -3076,7 +3076,7 @@
 			{
 				"title": "Palm Tree",
 				"desc": "This unit usually stays underground, revealing only the tail most of the time.",
-				"info": "Reduces 5 damage from incoming hits."
+				"info": "Reduces 5 damage from incoming hits"
 		},
 			{
 				"title": "Crab Pinter",
@@ -3129,7 +3129,7 @@
 		"ability_info": [
 			{
 				"title": "Skull Shield",
-				"desc": "Armor shaped head grants double defense against frontal attacks.",
+				"desc": "Armor shaped head grants double defense against any frontal attacks.",
 				"info": ""
             },
 			{
@@ -3248,7 +3248,7 @@
 			{
 				"title": "Fire Breath",
 				"desc": "Incinerates a 6 hexagons cone area, hitting only first encountered units.",
-				"info": "20 burn damage"
+				"info": "20 burn damage conic area damage"
             },
 			{
 				"title": "Unfriendly Fire",
