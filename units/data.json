@@ -37,7 +37,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Plasma Shield",
+				"title": "Plasma Field",
 				"desc": "Protects from most harmful abilities.",
 				"info": "-1 plasma for each countered attack",
 				"costs": {
@@ -77,7 +77,7 @@
     		},
 			{
 				"title": "Unit Maker",
-				"desc": "Materializes a unit on the combat field that will serve and obey given orders.",
+				"desc": "Materialises a unit on the combat field that will serve and obey given orders.",
 				"info": "plasma cost = unit size + unit level",
 				"costs": {
 					"plasma": "creature size + level"
@@ -123,19 +123,19 @@
 				"info": "50% increase in offense and movement"
 		},
 			{
-				"title": "Sword Strike",
+				"title": "Sword Slit",
 				"desc": "Swift attack on a nearby enemy unit.",
 				"info": "Does 15 slash and 5 piece damage"
 		},
 			{
 				"title": "Pistol Shots",
 				"desc": "Delivers a ranged shot within 6 hexes. Can be used twice every single round.",
-				"info": "20 pierce damage in any direction"
+				"info": "20 pierce damage in any of 6 directions"
 		},
 			{
 				"title": "Rifle Shot",
 				"desc": "Very powerful long range attack that can strike up to 12 hexagons distance.",
-				"info": "40 pierce damage in any direction"
+				"info": "40 pierce damage in any of 6 directions"
 		}
         ]
 	},
@@ -172,22 +172,22 @@
 		},
 		"ability_info": [
 			{
-				"title": "Backstabber",
+				"title": "Back Stabs",
 				"desc": "Reduces damage from behind and returns some to all melee attackers.",
 				"info": "30% rear damage reduction & return"
             },
 			{
 				"title": "Metallic Claws",
 				"desc": "Shreds nearby foe using its razor nails.",
-				"info": "10 pierce + 10 slash damage"
+				"info": "10 pierce + 10 slash damage on strike"
             },
 			{
-				"title": "Tail Mace",
+				"title": "Morning Star",
 				"desc": "Whips out its scepter like tail to bluntly punish a foe that is within 3 hexagons.",
-				"info": "15 pierce + 15 crush damage"
+				"info": "15 pierce + 15 crush damage on strike"
             },
 			{
-				"title": "Brain Power",
+				"title": "Brain Storm",
 				"desc": "Electro-charges its own brain functions in order to shock all the nearby units.",
 				"info": "25 shock damage to adjacent targets"
             }
@@ -270,8 +270,8 @@
 				}
     		},
 			{
-				"title": "Blade Kick",
-				"desc": "Slashes nearby foe using feet claws.",
+				"title": "Sabre Kick",
+				"desc": "Strikes a nearby foe using feet claws, doing nice versatile phyisical damage.",
 				"info": "15 pierce + 10 slash + 5 crush damage",
 				"damages": {
 					"pierce": 15,
@@ -328,7 +328,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Scorched Ground",
+				"title": "Scorched Area",
 				"desc": "Ignites some of the ground under, lasting 1 round or until stepped on.",
 				"info": "10 burn damage for each hexagon",
 				"damages": {
@@ -336,7 +336,7 @@
 				}
 		},
 			{
-				"title": "Pulverizing Punch",
+				"title": "Pulverizing Pummel",
 				"desc": "Smacks a foe with its heavy hand, gaining bonus damage every hit.",
 				"info": "8 crush damage, + 3 burn per hit",
 				"damages": {
@@ -349,7 +349,7 @@
 		},
 			{
 				"title": "Fissure Vent",
-				"desc": "Smashes his fists into the ground, wreaking fierce havoc in area ahead.",
+				"desc": "Smashes both fists into the ground, wreaking fierce havoc in area ahead.",
 				"info": "10 burn damage over all 8 hexagons",
 				"damages": {
 					"special": "10%burn%over 8 hexagons"
@@ -401,7 +401,7 @@
 			"crush": 4,
 			"shock": 10,
 			"burn": 3,
-			"frost": 15,
+			"frost": 12,
 			"poison": 15,
 			"sonic": 6,
 			"mental": 10
@@ -431,7 +431,7 @@
 				"maxCharge": 100
     		},
 			{
-				"title": "Deadly Jab",
+				"title": "Hasted Jab",
 				"desc": "Horn attack that gains extra damage based on the last distance traveled.",
 				"info": "15 pierce damage + 5 per hexagon",
 				"damages": {
@@ -446,7 +446,7 @@
     		},
 			{
 				"title": "Poisonous Vine",
-				"desc": "Ties up a nearby foe, causing it to take damage if he moves within next turn.",
+				"desc": "Tangles a nearby foe, causing it to take damage if it will move within next turn.",
 				"info": "25 poison damage triggered if moving",
 				"effects": [{
 					"special": "<br>+ 1%poison%permanent damage"
@@ -458,9 +458,9 @@
 				}
     		},
 			{
-				"title": "Critical Strike",
-				"desc": "Damages up to 3 nearby creatures. 300% offense against fatigued ones.",
-				"info": "15 slash + 10 pierce + 5 frost damage",
+				"title": "Arched Pole",
+				"desc": "Damages up to 9 nearby creatures, hitting them up to twice if one dies.",
+				"info": "9 slash + 5 frost damage up to 2 hits",
 				"damages": {
 					"slash": 16,
 					"frost": 4
@@ -515,16 +515,16 @@
 		},
 		"ability_info": [
 			{
-				"title": "Snow Storm",
-				"desc": "Chills nearby units at the start of the turn, while healing sloth units and self.",
-				"info": "10 frost damage, 10 heal to sloth units",
+				"title": "Snow Fall",
+				"desc": "Chills nearby units at the start of the turn, while healing sloth units & self.",
+				"info": "10 frost debuff, 10 heal to sloth units",
 				"effects": [{
 					"movement": -1,
 					"initiative": -5
 				}]
 		},
 			{
-				"title": "Head Bash",
+				"title": "Flat Frons",
 				"desc": "Smashes a nearby foe using head. Knockback or deals double damage.",
 				"info": "15 frost & push or 30 crush damage",
 				"damages": {
@@ -613,7 +613,7 @@
 				"info": "-5 burn mastery each successful strike"
 		},
 			{
-				"title": "Fiery Claw",
+				"title": "Fiery Touch",
 				"desc": "Scratches and also burns a nearby foe. This attack has 1 hexagon extra reach.",
 				"info": "10 slash + 10 burn damage for each hit",
 				"damages": {
@@ -686,17 +686,17 @@
 				"info": ""
             },
 			{
-				"title": "Knuckle Head",
+				"title": "Knuckle Nib",
 				"desc": "Smashes ringed head into a foe.",
 				"info": "8 pierce + 8 slash + 8 crush damage"
             },
 			{
-				"title": "Meat Hook",
+				"title": "Meat Sickle",
 				"desc": "Drags a foe, doing bonus damage if it doesn't have any movement points.",
 				"info": "5 pierce damage per hexagon moved"
             },
 			{
-				"title": "Double Swipe",
+				"title": "Dual Swipe",
 				"desc": "Slaps frontal units with both claws.",
 				"info": "15 slash + 15 crush damage per hit"
             }
@@ -746,7 +746,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Frozen Tower",
+				"title": "Frigid Tower",
 				"desc": "Constantly increases offense and defense for every turn not moving.",
 				"info": "+5 offense and defense per round",
 				"effects": [{
@@ -767,7 +767,7 @@
 				}
 		},
 			{
-				"title": "Tail Uppercut",
+				"title": "Sudden Uppercut",
 				"desc": "Sucker punches a near enemy using limb, making it delay the next turn.",
 				"info": "10 crush + 10 frost damage & delay",
 				"damages": {
@@ -779,12 +779,12 @@
 				}
 		},
 			{
-				"title": "Icicle Tongue",
-				"desc": "Launches a shard that can penetrate up to 6 hexagons that are all aligned.",
-				"info": "10 pierce + 6 lowering frost damage",
+				"title": "Icicle Spear",
+				"desc": "Launches an ice shard that can pierce up to 6 inline or diagonal distant units.",
+				"info": "10 pierce + 6 diminishing frost damage",
 				"damages": {
 					"pierce": 10,
-					"frost": "6 lowering"
+					"frost": "6 diminishing"
 				},
 				"costs": {
 					"energy": 20
@@ -830,8 +830,8 @@
 				"info": "+5 initiative for each passing round"
             },
 			{
-				"title": "Tongue Dagger",
-				"desc": "Pokes a nearby foe, crushing it if melee or pierces it if it is one hexagon distant.",
+				"title": "Tongue Poke",
+				"desc": "Hits nearby foe, crushing it if melee or pierces it if it is one hexagon distant.",
 				"info": "20 pierce or crush damage on attack"
             },
 			{
@@ -884,8 +884,8 @@
 				"info": ""
             },
 			{
-				"title": "Head Bash",
-				"desc": "Bumps it's large cap into nearby foe. Knocks it back one hexagon if small.",
+				"title": "Cap Knock",
+				"desc": "Bumps its large cap into nearby foe. Knocks it back one hexagon if small.",
 				"info": "10 crush damage + knockback if 1H"
             },
 			{
@@ -951,8 +951,8 @@
 				"affectedByMatSickness": 1
 		},
 			{
-				"title": "Big Nip",
-				"desc": "Dents nearby foe using it's big teeth.",
+				"title": "Big Pliers",
+				"desc": "Dents nearby foe using his big teeth.",
 				"info": "8 pierce + 6 slash + 4 crush damage",
 				"damages": {
 					"pierce": 8,
@@ -1026,7 +1026,7 @@
 				"info": "+15 Poison mastery bonus while inside"
 		},
 			{
-				"title": "Rabid Bite",
+				"title": "Rabid Nip",
 				"desc": "Sink poisonous teeth into nearby foe.",
 				"info": "10 pierce + 5 poison damage on hit",
 				"damages": {
@@ -1043,8 +1043,8 @@
 				}
 		},
 			{
-				"title": "Goo Blast",
-				"desc": "Sneezes contagious toxin on a foe, spreading to others that get close.",
+				"title": "Goo Sneeze",
+				"desc": "Expels contagious toxin on a foe, spreading to others that get close.",
 				"info": "10 poison damage that can spread",
 				"damages": {
 					"poison": 10
@@ -1096,8 +1096,8 @@
 		},
 		"ability_info": [
 			{
-				"title": "Gooey Body",
-				"desc": "Recovers 1/6 health at start of turn for every allied creature that is nearby.",
+				"title": "Gooey Composition",
+				"desc": "Recovers 1/6 health at turn start for every allied creature that is nearby.",
 				"info": "This ability also works when fatigued",
 				"effects": [{
 					"special": "+1/6 %health% × adjacent allies creatures"
@@ -1106,7 +1106,7 @@
 			{
 				"title": "Gummy Mallet",
 				"desc": "Fully transforms himself into a large hammer to strike down a nearby foe.",
-				"info": "15 crush damage",
+				"info": "15 crush damage for each attack done",
 				"damages": {
 					"crush": 15
 				},
@@ -1175,14 +1175,14 @@
 		},
 		"ability_info": [
 			{
-				"title": "Explosive Death",
+				"title": "Explosive End",
 				"desc": "Instantly detonates when being killed, dealing damage to all adjacent units.",
 				"info": "10 burn + 10 crush + 10 sonic damage"
             },
 			{
-				"title": "Optic Blast",
+				"title": "Optic Burst",
 				"desc": "Zaps a foe with the laser cannon eye. Does more damage at closer range.",
-				"info": "30 burn damage - 1 per hexagon"
+				"info": "30 burn damage - 1 for each hexagon"
             },
 			{
 				"title": "Tractor Beam",
@@ -1190,7 +1190,7 @@
 				"info": "range = 4 hexagons - creature size"
             },
 			{
-				"title": "Over Power",
+				"title": "Power Charge",
 				"desc": "Causes the next ability to deal double damage or have increased efficiency.",
 				"info": ""
             }
@@ -1213,7 +1213,7 @@
 			"initiative": 35,
 			"offense": 7,
 			"defense": 9,
-			"movement": 3,
+			"movement": 4,
 			"pierce": 8,
 			"slash": 8,
 			"crush": 8,
@@ -1229,9 +1229,9 @@
 		},
 		"ability_info": [
 			{
-				"title": "Ground Shaker",
-				"desc": "Stomps the ground when attacking, increasing the delay of nearby foes.",
-				"info": "-10 initiative for every ability used"
+				"title": "Armageddon Day",
+				"desc": "Before dying, bombarding the whole battlefield after one complete round.",
+				"info": "5 crush + 15 burn damage to all units"
             },
 			{
 				"title": "Lava Splash",
@@ -1239,14 +1239,14 @@
 				"info": "20 burn damage, -1 burn stat debuff"
             },
 			{
-				"title": "Volcanic Cannon",
-				"desc": "Fires a flaming boulder projectile at a target location, hitting next round. Land is scorched if it's being empty.",
-				"info": "25 crush + 25 burn damage scorch"
+				"title": "Volcanic Artillery",
+				"desc": "A hot rock will hit target spot at the end of round, damaging a foe or the ground.",
+				"info": "20 crush + 20 burn damage or cracking"
             },
 			{
-				"title": "Armageddon Day",
-				"desc": "Erupts with rage, bombarding all the battlefield with hot burning magma.",
-				"info": "5 crush + 15 burn damage to all units"
+				"title": "Cracked Earth",
+				"desc": "Stomps one hexagon underneath, causing lava to erupt every round.",
+				"info": "20 burn damage to all units above"
             }
         ]
     },
@@ -1285,7 +1285,7 @@
 			{
 				"title": "Spiked Fence",
 				"desc": "Foes walking on corpse get impaled and receive extra damage when hit.",
-				"info": "5 pierce damage over 3 hexagons"
+				"info": "10 pierce damage over 3 hexagons"
             },
 			{
 				"title": "Trident Forehead",
@@ -1294,8 +1294,8 @@
             },
 			{
 				"title": "Crocodile Clip",
-				"desc": "Bites nearby foe, crippling it for 1 movement point for its next turn.",
-				"info": "10 pierce + 10 crush damage on hit"
+				"desc": "Bites nearby foe, crippling it for a turn, reducing up to three movement points.",
+				"info": "10 pierce + 10 crush damage & cripple"
             },
 			{
 				"title": "Circular Saw",
@@ -1319,8 +1319,8 @@
 			"energy": 50,
 			"meditation": 1,
 			"initiative": 10,
-			"offense": 10,
-			"defense": 10,
+			"offense": 6,
+			"defense": 8,
 			"movement": 2,
 			"pierce": 9,
 			"slash": 9,
@@ -1339,10 +1339,10 @@
 			{
 				"title": "Rib Cage",
 				"desc": "Bonus stats for every unit that dies.",
-				"info": "+1 regrowth, +1 meditation per stack"
+				"info": "+3 regrowth, +3 meditation per stack"
             },
 			{
-				"title": "Dark Claw",
+				"title": "Dark Grasp",
 				"desc": "Strikes a nearby foe using claws, creating a Shadow Leech if it kills.",
 				"info": "30 slash and 30 pierce damage"
             },
@@ -1391,23 +1391,23 @@
 		},
 		"ability_info": [
 			{
-				"title": "Blood Chalice",
-				"desc": "Nearby damage restores own health.",
-				"info": "30% damage conversion to hit points"
+				"title": "Muscous Pillar",
+				"desc": "Any nearby killed units restore health based on their own total amount pool.",
+				"info": "10% of maximum health stat recovery"
             },
 			{
-				"title": "Slicing Nails",
+				"title": "Carving Nails",
 				"desc": "Claw swipe gesture on a nearby foe.",
-				"info": "15 pierce + 15 slash damage"
+				"info": "15 pierce + 15 slash damage on hit"
             },
 			{
 				"title": "Fatal Attraction",
-				"desc": "Causes a target foe to come close to her, while depleting its movement.",
+				"desc": "Causes a target foe within 6 hexagons to approach her at the start of its turn.",
 				"info": "Ability does not work on summoners"
             },
 			{
-				"title": "Tentacle Feet",
-				"desc": "All nearby foes have their movement restrained and take some damage.",
+				"title": "Tendril Feet",
+				"desc": "All nearby foes have their movement restrained and take a bit of damage.",
 				"info": "10 crush damage and no movement"
             }
         ]
@@ -1447,20 +1447,20 @@
 			{
 				"title": "High Voltage",
 				"desc": "Melee attackers receive damage for every hit and also lose energy points.",
-				"info": "10 shock damage & -5 energy points"
+				"info": "5 shock damage that depletes energy"
             },
 			{
-				"title": "Suction cups",
+				"title": "Suction Cups",
 				"desc": "Crushes a frontal foe while draining a small amount of its maximum health.",
 				"info": "30 crush damage, 3 health transfered"
             },
 			{
-				"title": "Fishing Net",
-				"desc": "Pulls one rather distant inline enemy nearby while also crushing it a little.",
-				"info": "5 crush damage + 3 more / hexagon"
+				"title": "Hunting Net",
+				"desc": "Drags closer up to 3 distant units that are aligned on different parallel rows.",
+				"info": "pull = 7 hexagons range - unit number"
             },
 			{
-				"title": "Frostbite Shower",
+				"title": "Nitrogen Shower",
 				"desc": "Sprinkles a large frontal area with liquid nitrogen, doing cold damage.",
 				"info": "35 frost damage over 7 hexagons"
             }
@@ -1504,13 +1504,13 @@
 				"info": ""
             },
 			{
-				"title": "Bone Scythe",
-				"desc": "Slashes nearby foe, causing it to hemorrhage, losing health if moving.",
+				"title": "Limb Scythe",
+				"desc": "Slashes a nearby foe, causing it to hemorrhage, losing health if moving.",
 				"info": "15 slash damage, -5 health / hexagon"
             },
 			{
-				"title": "Blood Puke",
-				"desc": "Targets regrowth becomes lowered if it's a foe or increased if it's an ally.",
+				"title": "Sangvine Puke",
+				"desc": "Target's regrowth becomes lowered if it's a foe or increased if it's an ally.",
 				"info": "+/- 20 regrowth change for a round"
             },
 			{
@@ -1564,17 +1564,17 @@
 				"info": "-50% offensive debuff while adjacent"
             },
 			{
-				"title": "Burning Eye",
+				"title": "Glowing Eye",
 				"desc": "Fries a nearby foe, can target sides too.",
 				"info": "15 burn adjacent damage, any direction"
             },
 			{
-				"title": "Covert Attack",
+				"title": "Covert Strike",
 				"desc": "Reaches any foe within 5 hexagons by digging with its tentacles, surprising it.",
 				"info": "21 pierce damage, 20% defense ignored"
             },
 			{
-				"title": "Iron Shell",
+				"title": "Crashing Globe",
 				"desc": "Catapults a flaming orb at any inline spot, poking a foe or cauzing hazard.",
 				"info": "20 crush damage + 10 burn damage"
             }
@@ -1614,24 +1614,24 @@
 		},
 		"ability_info": [
 			{
-				"title": "Birthing Caldera",
-				"desc": "When dead, reconfigures itself as a weaker creature, the Lava Mollusk.",
-				"info": "It will have only half health & energy."
+				"title": "Fierce Temper",
+				"desc": "Showers lava drops when being hit, damaging all the unit that are nearby.",
+				"info": "5 burn damage over a 8 hexagons area"
             },
 			{
-				"title": "Forked Hand",
+				"title": "Forked Fingers",
 				"desc": "Pierces foe using its harpoon fingers.",
-				"info": "20 pierce damage"
+				"info": "20 pierce damage per each hit done"
             },
 			{
-				"title": "Spit Fire",
-				"desc": "Showers lava drops over a nearby area.",
-				"info": "10 burn damage over a 7 hexagons area"
-            },
-			{
-				"title": "Shotgun Blast",
-				"desc": "Blows a handful of shrapnel in a large conic area, damaging only first targets.",
+				"title": "Shotgun Rampage",
+				"desc": "Blows a handful of shrapnel in a large conic area, damaging all units within.",
 				"info": "15 pierce damage over 15 hexagons"
+            },
+			{
+				"title": "Birthing Caldera",
+				"desc": "If under 50 health, can reconfigure itself as the Lava Mollusk creature.",
+				"info": "It will have only half health & energy"
             }
         ]
     },
@@ -1673,7 +1673,7 @@
 				"info": "Applies to nearby allied units as well"
             },
 			{
-				"title": "Gauntlet Strike",
+				"title": "Iron Fist",
 				"desc": "Punches a nearby foe with it's heavy armored hand, leaving quite a mark.",
 				"info": "25 crush damage, -5 meditation stat"
             },
@@ -1727,12 +1727,12 @@
 				"info": "10% of total health recovered / round"
             },
 			{
-				"title": "Razorblade",
+				"title": "Razor Blade",
 				"desc": "Slices a nearby foe, keeping samples.",
-				"info": "15 slash damage"
+				"info": "15 slash damage on every single strike"
             },
 			{
-				"title": "Scarecrow",
+				"title": "Terrifying Stance",
 				"desc": "Causes a nearby foe to not be able to target Mr. Stitches directly for a turn.",
 				"info": ""
             },
@@ -1776,9 +1776,9 @@
 		},
 		"ability_info": [
 			{
-				"title": "Immortal Tree",
+				"title": "Immortal Wood",
 				"desc": "Ressurects itself within three rounds if no units are sitting on top of the corpse.",
-				"info": "50% total health, limited to a single use"
+				"info": "50% total health, 10 rounds cooldown"
 		},
 			{
 				"title": "Stalagmite Teeth",
@@ -1905,7 +1905,7 @@
 				}
 		},
 			{
-				"title": "Charcoal Blast",
+				"title": "Coal Burp",
 				"desc": "Bombards an inline target with a hot coal projectile that breaks on impact.",
 				"info": "10 crush to target + 10 burn in area",
 				"damages": {
@@ -1948,30 +1948,30 @@
 		},
 		"ability_info": [
 			{
-				"title": "Bad Touch",
-				"desc": "Every 5 melee hits taken, the attacking unit is turned to gold for a whole round.",
+				"title": "Forbidden Touch",
+				"desc": "Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
 				"info": ""
 		},
 			{
-				"title": "Crystal Staff",
+				"title": "Ruby Sceptre",
 				"desc": "Pokes nearby foe using the neat staff. This attack has 1 hex extended reach.",
-				"info": "15 crush damage",
+				"info": "15 crush + 5 pure damage per attack",
 				"damages": {
 					"crush": 15
 				}
 		},
 			{
-				"title": "Winged Orb",
+				"title": "Winged Sphere",
 				"desc": "Heals an ally or damages an enemy that is at the target location after one round.",
-				"info": "20 heal to ally or burn damage to foe",
+				"info": "20 heal for ally or burn damage to a foe",
 				"damages": {
 					"burn": 20
 				}
 		},
 			{
-				"title": "Burning Light",
-				"desc": "Conjures an energy beam that causes multiple burning hits to first inline.",
-				"info": "3 hits x 10 burn damage per attack",
+				"title": "Searing Light",
+				"desc": "Conjures an energy beam that causes multiple burning hits to first unit met.",
+				"info": "3 hits x 10 burn damage every attack",
 				"damages": {
 					"burn": 10
 				}
@@ -2011,14 +2011,14 @@
 		},
 		"ability_info": [
 			{
-				"title": "Tiny Offspring",
+				"title": "Miniature Offspring",
 				"desc": "Spawns a little hungry eggplant that chases nearest foe and then attacks.",
-				"info": "Grows into an adult if it kills target."
+				"info": "Grows into an adult if it kills the target"
             },
 			{
-				"title": "Dinner Time",
+				"title": "Having Dinner",
 				"desc": "Bites a nearby foe, gaining 20 bonus offense with every consecutive hit.",
-				"info": "15 pierce + 5 crush damage"
+				"info": "15 pierce + 5 crush damage per attack"
             },
 			{
 				"title": "Pony Tail",
@@ -2026,7 +2026,7 @@
 				"info": "10 slash + 10 poison damage around"
             },
 			{
-				"title": "Snake Tongue",
+				"title": "Oral Snake",
 				"desc": "Drags a somewhat distant inline unit close while also doing damage to it.",
 				"info": "16 poison + 4 pierce damage, 5 range"
             }
@@ -2162,7 +2162,7 @@
 				"info": "4 frost + 1 crush damage, 1 frost debuff"
             },
 			{
-				"title": "Harpoon Claw",
+				"title": "Organic Harpoon",
 				"desc": "Uses fingers against a nearby foe, doing more damage to it each time.",
 				"info": "6 pierce + 5 slash damage, +4 / hit"
             },
@@ -2172,7 +2172,7 @@
 				"info": "8 pierce + 8 crush + 8 frost damage"
             },
 			{
-				"title": "Tsunami Wave",
+				"title": "Tsunami Surge",
 				"desc": "Travels in a straight line to a new spot, damaging all units while ignoring traps.",
 				"info": "10 crush + 10 frost damage & travel"
             }
@@ -2219,7 +2219,7 @@
 			{
 				"title": "Battle Cry",
 				"desc": "Roars at the beginning of the turn if took any damage in previous round.",
-				"info": "20 sonic damage to adjacent units"
+				"info": "30 sonic damage to adjacent units"
             },
 			{
 				"title": "Executioner Axe",
@@ -2276,7 +2276,7 @@
 				"info": "-25% offense and defense debuff"
             },
 			{
-				"title": "Wrist Blade",
+				"title": "Wrist Scimitar",
 				"desc": "Slashes a nearby foe using its blade, disturbing its energy regeneration.",
 				"info": "25 slash damage, 1 meditation debuff"
             },
@@ -2286,7 +2286,7 @@
 				"info": "8 crush damage to both swapped units"
             },
 			{
-				"title": "Belt Slap",
+				"title": "Belt Swat",
 				"desc": "Pokes all the frontal nearby units, knocking them back one hexagon.",
 				"info": "20 crush damage plus knockback"
             }
@@ -2325,22 +2325,22 @@
 		},
 		"ability_info": [
 			{
-				"title": "Heavy Armor",
+				"title": "Bronze Armor",
 				"desc": "All incoming pierce, slash and crush types of damage are greatly reduced.",
-				"info": "+25% physical damage resistance"
+				"info": "+25% physical resistance to damage"
             },
 			{
-				"title": "Mace Strike",
+				"title": "Heavy Mace",
 				"desc": "Does versatile damage to nearby foe.",
-				"info": "9 pierce + 9 crush + 9 slash damage"
+				"info": "10 pierce + 10 crush + 5 slash damage"
             },
 			{
-				"title": "Shield Bash",
+				"title": "Shield Smite",
 				"desc": "Pokes a nearby unit with the shield, damaging and also knocking it back.",
 				"info": "25 crush damage + 1 hexagon push"
             },
 			{
-				"title": "Lion Charge",
+				"title": "Lion Thrust",
 				"desc": "Runs fast towards an inline foe up to 10 hexagons while gaining offense bonus.",
 				"info": "+20% extra offense per hexagon ran by"
             }
@@ -2391,11 +2391,11 @@
 			{
 				"title": "Rock Shard",
 				"desc": "Causes an obstable to erupt at an empty location within 6 hexagons.",
-				"info": "It can be destroyed with only 1 hit."
+				"info": "It can be destroyed with only 2 hits"
             },
 			{
 				"title": "Furious Twister",
-				"desc": "Summons tornado that travels inline every round, bashing all creatures.",
+				"desc": "Summons tornado that travels inline every round, bashing first creature.",
 				"info": "20 crush damage, 4 hexagons push"
             }
         ]
@@ -2453,7 +2453,7 @@
 				}]
 		},
 			{
-				"title": "Power Bat",
+				"title": "Baseball Baton",
 				"desc": "Bashes baseball bat into a nearby foe.",
 				"info": "20 crush damage, 1 hexagon knockback",
 				"damages": {
@@ -2503,9 +2503,9 @@
 			"energy": 100,
 			"meditation": 10,
 			"initiative": 30,
-			"offense": 6,
+			"offense": 5,
 			"defense": 10,
-			"movement": 3,
+			"movement": 4,
 			"pierce": 5,
 			"slash": 5,
 			"crush": 5,
@@ -2521,24 +2521,24 @@
 		},
 		"ability_info": [
 			{
-				"title": "Crossed Bones",
-				"desc": "Blocks damage from frontal attacks. Effect decreases on consecutive hits.",
-				"info": "Reduces 50% damage - 10% per hit."
-            },
-			{
-				"title": "Shark Attack",
-				"desc": "Bytes a nearby foe, lowering its maximum health by one each time.",
-				"info": "16 pierce damage, -1 max health"
-            },
-			{
-				"title": "Fire Flow",
-				"desc": "Ranged attack that damages first encountered units on several rows.",
-				"info": "20 burn damage"
-            },
-			{
 				"title": "Crystal Meditation",
-				"desc": "Heals nearby allies and damages foes, efficiency depending on the units size.",
-				"info": "10 pure damage or heal per hexagon"
+				"desc": "At turn start, heals adjacent allies and damages foes based on their number.",
+				"info": "3 pure damage or heal per nearby unit"
+            },
+			{
+				"title": "Shark Aggression",
+				"desc": "Bytes a nearby foe, lowering its maximum health by one each time.",
+				"info": "15 pierce damage, -1 max health"
+            },
+			{
+				"title": "Crossed Bones",
+				"desc": "Continually pushes frontal inline unit, moving it up to 4 hexagons distance.",
+				"info": "Does not subtract movement points"
+            },
+			{
+				"title": "Charring Flow",
+				"desc": "Ranged attack that damages first encountered units on several rows.",
+				"info": "20 burn damage, up to 7 hexagons"
             }
         ]
     },
@@ -2587,14 +2587,14 @@
 		"ability_info": [
 			{
 				"title": "Maggot Infestation",
-				"desc": "Strikes any rear foe at beginning of turn, infesting it with a parasite.",
+				"desc": "Strikes any rear foe at beginning of turn, infesting it with a big parasite.",
 				"info": "-5 endurance stat debuff, stackable",
 				"effects": [{
 					"special": "-5 %endurance% debuff, stackable"
 				}]
 		},
 			{
-				"title": "Bone Dagger",
+				"title": "Cartilage Dagger",
 				"desc": "Hits nearby foe using frontal blade. Double damage if unit is fatigued.",
 				"info": "12 pierce damage × 2 vs fatigued foe",
 				"damages": {
@@ -2607,9 +2607,9 @@
 			{
 				"title": "Whip Slash",
 				"desc": "Grasps a distant foe, pulling itself to it, doing damage based on total distance.",
-				"info": "10 slash damage + 5 crush per hexagon",
+				"info": "10 slash damage + 5 more per hexagon",
 				"damages": {
-					"special": "12%slash%, 5%crush% per hexagon"
+					"special": "12%slash%, more per hexagon"
 				},
 				"costs": {
 					"energy": 20
@@ -2617,10 +2617,10 @@
 		},
 			{
 				"title": "Boomerang Throw",
-				"desc": "Forms a new weapon out of blades and throws it away, flying right back.",
-				"info": "5 slash + 5 crush damage, hits twice",
+				"desc": "Forms a new weapon out of blades and throws it away 5 hexagons, returning.",
+				"info": "10 slash damage over 15 hexagons x 2",
 				"damages": {
-					"special": "5%slash%, 5%crush%, hits twice"
+					"special": "10%slash%, hits 2 times"
 				},
 				"costs": {
 					"energy": 25
@@ -2643,8 +2643,8 @@
 			"energy": 100,
 			"meditation": 25,
 			"initiative": 120,
-			"offense": 10,
-			"defense": 14,
+			"offense": 9,
+			"defense": 12,
 			"movement": 4,
 			"pierce": 7,
 			"slash": 9,
@@ -2672,9 +2672,9 @@
 		},
 		"ability_info": [
 			{
-				"title": "Hunting Horn",
+				"title": "War Horn",
 				"desc": "Moves 3 hexes towards closest foe. Movement points are not deducted.",
-				"info": "This creature can not be delayed"
+				"info": "This creature can't ever be delayed"
 		},
 			{
 				"title": "Hammer Time",
@@ -2690,7 +2690,7 @@
 		},
 			{
 				"title": "Fishing Hook",
-				"desc": "Pierces a nearby unit while swapping places if it's small or medium sized.",
+				"desc": "Pierces a nearby unit while swapping places if it is small or medium sized.",
 				"info": "10 pierce + 10 crush damage & swap",
 				"damages": {
 					"pierce": 10,
@@ -2702,8 +2702,8 @@
 		},
 			{
 				"title": "Tentacle Bush",
-				"desc": "Curls up in a defensive stance, reducing 80% damage from first incoming hit.",
-				"info": "Becomes unmovable and skips turn",
+				"desc": "Curls up in a defensive stance, reducing 25% damage from first 4 incoming hits.",
+				"info": "Becomes unmovable and skips the turn",
 				"costs": {
 					"energy": 10
 				}
@@ -2749,18 +2749,18 @@
 		},
 			{
 				"title": "Trap Jaw",
-				"desc": "Bites nearby foe, making it lose some maximum health based on damage.",
-				"info": "12 pierce damage with 25% effect"
+				"desc": "Bites frontal foe, doing extra damage if the target breaks away during its turn.",
+				"info": "12 pierce damage, twice if it will move"
 		},
 			{
 				"title": "Spinal Tap",
 				"desc": "Strikes a frontal foe using back spikes, not allowing it to regenerate one turn.",
-				"info": "10 pierce + 10 poison damage per hit"
+				"info": "9 pierce + 9 poison damage, 0 regrowth"
 		},
 			{
 				"title": "Skull Bolt",
-				"desc": "Uses parts from units that died in a 10 hexagons region as deadly projectiles.",
-				"info": "40 crush + 10 poison damage per hit"
+				"desc": "Uses parts from units that died within 5 hexagons radius as a deadly projectile.",
+				"info": "40 crush + 10 poison damage per launch"
 		}
 	]
 	},
@@ -2807,7 +2807,7 @@
 				"info": "30 slash damage & defense debuff"
 		},
 			{
-				"title": "Sublimal Scream",
+				"title": "Sublimal Message",
 				"desc": "Damages a 10 hexagons conic area. Lowers initiative of all affected units.",
 				"info": "15 sonic + 15 mental damage, -10 init"
 		},
@@ -2917,14 +2917,14 @@
 		},
 		"ability_info": [
 			{
-				"title": "Feathered Body",
+				"title": "Wing Feathers",
 				"desc": "Can fly to available locations within movement range, avoiding obstacles.",
 				"info": ""
 		},
 			{
-				"title": "Slicing Talons",
+				"title": "Slicing Pounce",
 				"desc": "Slashes nearby foe using its claws.",
-				"info": "12 slash damage",
+				"info": "12 slash damage done every strike",
 				"damages": {
 					"slash": 12
 				},
@@ -2935,7 +2935,7 @@
 			{
 				"title": "Escort Service",
 				"desc": "Carries over a frontal or rear small or medium unit to a free inline location.",
-				"info": "Distance based on movement points.",
+				"info": "Distance based on movement points",
 				"costs": {
 					"movement": "1 or 2 points per hexagon"
 				},
@@ -2945,8 +2945,8 @@
 				}
 		},
 			{
-				"title": "Venom Strike",
-				"desc": "Bites a nearby enemy and poisons it. First five attacks contain more toxin.",
+				"title": "Deadly Toxin",
+				"desc": "Bites a nearby enemy and poisons it. First five attacks contain more venom.",
 				"info": "10 pierce + 60/50/40/30/20/10 poison",
 				"damages": {
 					"pierce": 10,
@@ -2973,7 +2973,7 @@
 			"energy": 80,
 			"meditation": 30,
 			"initiative": 40,
-			"offense": 15,
+			"offense": 7,
 			"defense": 5,
 			"movement": 4,
 			"pierce": 8,
@@ -3004,12 +3004,12 @@
 			{
 				"title": "Cyclic Duality",
 				"desc": "Allows the use of an attack two times.",
-				"info": ""
+				"info": "The extra usage still requires energy"
 		},
 			{
 				"title": "Tooth Fairy",
 				"desc": "Syncs teeth into a nearby foe.",
-				"info": "20 crush damage",
+				"info": "20 crush damage per strike",
 				"damages": {
 					"crush": 20
 				},
@@ -3018,9 +3018,9 @@
 				}
 		},
 			{
-				"title": "Power Note",
-				"desc": "Sings a powerful note inline that keeps on going when killing units.",
-				"info": "20 sonic damage that can continue",
+				"title": "Disturbing Sound",
+				"desc": "Sings a powerful musical note inline that keeps on going when killing units.",
+				"info": "20 sonic damage that can continue on",
 				"damages": {
 					"sonic": 20
 				},
@@ -3030,8 +3030,8 @@
 		},
 			{
 				"title": "Chain Lightning",
-				"desc": "Releases a lightning bolt that will arch, shocking multiple creatures.",
-				"info": "20 shock damage that can arch",
+				"desc": "Releases a lightning bolt that will arch, shocking multiple adjacent creatures.",
+				"info": "20 shock damage inline that can arch",
 				"damages": {
 					"shock": 20
 				},
@@ -3079,19 +3079,19 @@
 				"info": "Reduces 5 damage from incoming hits"
 		},
 			{
-				"title": "Crab Pinter",
-				"desc": "Versatile attack done on a nearby foe.",
-				"info": "9 pierce + 9 slash + 9 crush damage"
+				"title": "Crab Pincer",
+				"desc": "Powerful attack done on a nearby foe.",
+				"info": "10 pierce + 10 crush damage on strike"
 		},
 			{
-				"title": "Venomous Tail",
-				"desc": "Pokes any foe within 4 hexagons range.",
-				"info": "20 pierce + 20 poison damage on hit"
+				"title": "Venomous Stinger",
+				"desc": "Pokes any foe within 2 hexagons range, piercing and poisoning it for two turns.",
+				"info": "20 pierce + 20 poison damage 2 rounds"
 		},
 			{
-				"title": "Spiked Arrow",
+				"title": "Imbricated Scales",
 				"desc": "Travels through the ground to a new location, damaging all surface units.",
-				"info": "20 slash damage, ignores rock shards"
+				"info": "20 slash damage, ignores obstacles"
 		}
 	]
 	},
@@ -3128,24 +3128,24 @@
 		},
 		"ability_info": [
 			{
-				"title": "Skull Shield",
-				"desc": "Armor shaped head grants double defense against any frontal attacks.",
-				"info": ""
+				"title": "Frontal Aegis",
+				"desc": "Shield shaped head grants +9 defense bonus stat against any frontal attacks.",
+				"info": "Melee attackers are pushed a hexagon"
             },
 			{
-				"title": "Whip Master",
+				"title": "Lash Master",
 				"desc": "Slashes nearby foe using tongue, reducing its initiative for two turns.",
 				"info": "20 slash damage & -20 initiative stat"
             },
 			{
 				"title": "Double Slap",
-				"desc": "Strikes nearby foe, pushing it back or else completely ignoring its defense.",
-				"info": "10 crush + 10 burn damage"
+				"desc": "Strikes up to two frontal nearby units that are positioned next to each other.",
+				"info": "20 crush damage to each unit being hit"
             },
 			{
 				"title": "Meteor Slam",
 				"desc": "Regurgitates a sphere and throws it at any location within 8 hexagons range.",
-				"info": "20 crush damage + 10 burn"
+				"info": "20 crush + 10 burn damage per strike"
             }
         ]
     },
@@ -3164,8 +3164,8 @@
 			"energy": 80,
 			"meditation": 5,
 			"initiative": 40,
-			"offense": 12,
-			"defense": 10,
+			"offense": 10,
+			"defense": 8,
 			"movement": 3,
 			"pierce": 5,
 			"slash": 6,
@@ -3182,22 +3182,22 @@
 		},
 		"ability_info": [
 			{
-				"title": "Bone Head",
-				"desc": "Frontal attacks cause less damage.",
-				"info": "10 damage reduction from every hit"
+				"title": "Hard Headed",
+				"desc": "Frontal attacks cause way less damage.",
+				"info": "10 points frontal hit damage reduction"
             },
 			{
-				"title": "Free Haircut",
-				"desc": "Slashes nearby foe using scissors.",
-				"info": "15 slash damage"
+				"title": "Stiff Scissors",
+				"desc": "Stabs up to two nearby diagonal units.",
+				"info": "15 pierce damage, 2 diagonal targets"
             },
 			{
 				"title": "Flying Cleaver",
-				"desc": "Jumps over a nearby creature, slicing it with its large abdominal bone axe.",
-				"info": "20 slash damage"
+				"desc": "Jumps over a nearby creature, slicing it with its large abdominal bone hatchet.",
+				"info": "20 slash damage to the leaped over unit"
             },
 			{
-				"title": "Hoof Strike",
+				"title": "Demon Hoof",
 				"desc": "Bashes nearby foe, pushing it back a couple hexagons, based on its size.",
 				"info": "25 crush damage, up to 3 hexes push"
             }
@@ -3236,22 +3236,22 @@
 		},
 		"ability_info": [
 			{
-				"title": "Blood Lust",
+				"title": "Gore Lust",
 				"desc": "Each successful hit increases both offense and burn stats by one point.",
 				"info": ""
             },
 			{
 				"title": "Flaming Paw",
-				"desc": "Strikes an adjacent foe, doing bonus damage with each consecutive hit.",
-				"info": "10 slash + 5 burn bonus damage"
+				"desc": "Strikes an adjacent foe, doing bonus damage with each consecutive strike.",
+				"info": "10 slash + 5 burn bonus damage on hit"
             },
 			{
-				"title": "Fire Breath",
+				"title": "Bonfire Exhale",
 				"desc": "Incinerates a 6 hexagons cone area, hitting only first encountered units.",
 				"info": "20 burn damage conic area damage"
             },
 			{
-				"title": "Unfriendly Fire",
+				"title": "Unfriendly Flare",
 				"desc": "Ranged fire attack that bounces left and right each time it hits a creature.",
 				"info": "20 burn damage + 5 more per target"
             }
@@ -3290,19 +3290,19 @@
 		},
 		"ability_info": [
 			{
-				"title": "Ethereal Body",
+				"title": "Ethereal Shape",
 				"desc": "Passes through obstacles and only takes half of the incoming damage.",
 				"info": ""
             },
 			{
-				"title": "Hand Jaw",
-				"desc": "Bites nearby foe using its... hand. Steals 5 energy points from target.",
-				"info": "12 pierce damage"
+				"title": "Palm Jaw",
+				"desc": "Bites nearby foe by using its... hand, stealing 5 energy points from target.",
+				"info": "12 pierce damage & 5 energy transfer"
             },
 			{
 				"title": "Sorrow Visions",
-				"desc": "Causes a foe within range to fall into depression and not act for one turn.",
-				"info": "10 mind damage"
+				"desc": "Causes a foe within 5 hexagons to skip its next turn if not taking any damage.",
+				"info": "10 mind bonus damage if the unit is hit"
             },
 			{
 				"title": "Sleeping Mummy",
