@@ -103,7 +103,7 @@ function nextCard() {
 	$("#fourth_icon").css("background","url(images/features/"+i+"-4.svg)");
 	switch(i) {
 		case 1:
-			$("#first_title").text("Fun Gameplay").next().html("You can materialize and control a variety of units in order to do your bindings and defeat all your foes.");
+			$("#first_title").text("Fun Gameplay").next().html("You can materialise and control a variety of units in order to do your bidding and defeat all your foes.");
 			$("#second_title").text("Easy to Learn").next().html("Intimidated at first sight? No worries, everything is being explained during gameplay in a very non intrusive way.");
 			$("#third_title").text("Very Replayable").next().html("There are basically an almost infinite combination of units and moves that can be done so no 2 battles are alike.");
 			$("#fourth_title").text("Hard to Master").next().html("The game only relies on pure skill and never on dice throws, chances or other luck factors. It's always all up to you!");
@@ -127,7 +127,7 @@ function nextCard() {
 			$("#fourth_title").text("Challenging Bots - Coming Soon").next().html("Want to play a practice match or two to polish up your skills or try out new strategy you thought of? No problem.");
 		break;
 		case 5:
-			$("#first_title").text("Awesome Creatures").next().html("They come in lots of shapes and sizes, serving as the tools to do your bindings. Each unit comes with unique abilities.");
+			$("#first_title").text("Awesome Creatures").next().html("They come in lots of shapes and sizes, serving as the tools to fulfil your will. Each unit comes with unique abilities.");
 			$("#second_title").text("Town Building - Coming Soon").next().html("You'll be going through a lot of fuss in order to acquire all those resources so that you can make various structures.");
 			$("#third_title").text("Adventure Map - Coming Soon").next().html("Explore mysterious lands and seek out fame and glory while gathering various resources and collecting deadly units.");
 			$("#fourth_title").text("Single Player - Coming Soon").next().html("Multiple campaigns that will keep you on your toes, testing out your various skillsets to the fullest and even beyond.");
