@@ -6,24 +6,19 @@
     "type": "git",
     "url": "https://github.com/FreezingMoon/AncientBeast"
   },
-  "scripts": {
-    "start": "node app.js"
-  },
-  "dependencies": {
-    "express": "^4.12.3"
-  },
   "engines": {
     "node": "*"
   },
   "version": "0.0.1",
   "devDependencies": {
-    "babelify": "^5.0.4",
-    "browserify": "^9.0.3",
-    "envify": "^3.4.0",
+    "babelify": "^6.0.1",
+    "browserify": "^9.0.7",
+    "express": "^5.0.0-alpha.1",
     "gulp": "^3.8.11",
     "gulp-livereload": "^3.8.0",
     "morgan": "^1.5.2",
+    "open": "0.0.5",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^2.6.2"
+    "watchify": "^3.1.0"
   }
 }

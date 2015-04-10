@@ -1,26 +1,20 @@
-var renderer = new PIXI.WebGLRenderer(window.innerWidth, window.innerHeight);
+import preloadState from './states/load/preloadState.js';
+import loadState from './states/load/loadState.js';
+import gameState from './states/game/gameState.js';
 
-document.body.appendChild(renderer.view);
+class Game extends Phaser.Game {
 
-var stage = new PIXI.Container();
+    constructor() {
 
-var bunnyTexture = PIXI.Texture.fromImage("./images/cyber_hound.png");
-var bunny = new PIXI.Sprite(bunnyTexture);
+        super(1920, 1080, Phaser.AUTO, null);
 
-bunny.position.x = 400;
-bunny.position.y = 300;
+        this.state.add('preloadState', preloadState, false);
+        this.state.add('loadState', loadState, false);
+        this.state.add('gameState', gameState, false);
 
-bunny.scale.x = 2;
-bunny.scale.y = 2;
-
-stage.addChild(bunny);
-
-requestAnimationFrame(animate);
-
-function animate() {
-    bunny.rotation += 0.01;
-
-    renderer.render(stage);
-
-    requestAnimationFrame(animate);
+        this.state.start('preloadState');
+    }
 }
+
+new Game();
+

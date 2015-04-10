@@ -1,17 +1,14 @@
-"use strict";
-/**
- * Dependencies
- */
-var gulp = require("gulp");
-var http = require('http');
-var browserify = require("browserify");
-var watchify = require("watchify");
-var source = require("vinyl-source-stream");
-var envify = require("envify");
-var babelify = require("babelify");
-var livereload = require('gulp-livereload');
+'use strict';
 
-gulp.task("browserify", function() {
+var gulp = require('gulp');
+var browserify = require('browserify');
+var watchify = require('watchify');
+var source = require('vinyl-source-stream');
+var babelify = require('babelify');
+var livereload = require('gulp-livereload');
+var open = require('open');
+
+gulp.task('browserify', function() {
     return watchify(browserify({
         cache: {},
         packageCache: {},
@@ -19,22 +16,21 @@ gulp.task("browserify", function() {
         entries: './src/main.js',
         debug: true
     }))
-        .transform(envify)
         .transform(babelify)
         .bundle()
-        .pipe(source("game.js"))
+        .pipe(source('bundle.js'))
         .pipe(gulp.dest('./public'))
         .pipe(livereload());
 });
 
-gulp.task("watch", function () {
+gulp.task('watch', ['browserify'], function () {
     livereload.listen();
-    gulp.watch('./src/**/*.js', ["browserify"]);
+    gulp.watch('./src/**/*.js', ['browserify']);
 });
 
-gulp.task('server', function() {
-
+gulp.task('server', ['browserify'], function() {
     require('./app');
+    open('http://localhost:3000');
 });
 
-gulp.task("default", ["browserify", "watch", "server"]);
+gulp.task('default', ['browserify', 'watch', 'server']);

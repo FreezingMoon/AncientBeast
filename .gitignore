@@ -1,8 +1,6 @@
 # System and IDE files
 Thumbs.db
 .DS_Store
-.idea
-.tscache/
 Phaser OSX.sublime-project
 Phaser OSX.sublime-workspace
 Phaser.sublime-project
@@ -10,8 +8,10 @@ Phaser.sublime-workspace
 *.suo
 *.sublime-project
 *.sublime-workspace
+.idea
+.tscache/
 
 # Vendors
 node_modules/
 
-.nodemon
+public/bundle.js

@@ -1,10 +1,14 @@
-Ancient Beast 2015
+# Ancient Beast 2015
 
-Needs [node/io.js](https://iojs.org/)
+**Tools** - Node, Gulp, Browserify, ES6 (Babel)
 
-To install grunt if you have never used it
+**Requires** - [node/io.js](https://iojs.org/)
+
+## Install
+
+If you have never used Gulp
 ```bash
-npm install -g grunt-cli
+npm install -g gulp
 ```
 
 Then install npm modules
@@ -12,11 +16,7 @@ Then install npm modules
 npm install
 ```
 
-To start the server, tsify and uglify your game type:
+To start the server, browserify your files from /src and start watching for changes:
 ```bash
-grunt
+gulp
 ```
-
-To see the game, type [http://localhost](http://localhost) to your browser
-
-To run tests, [http://localhost/SpecRunner.html](http://localhost/SpecRunner.html)
