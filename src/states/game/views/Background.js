@@ -1,10 +1,9 @@
 export default class Background extends Phaser.Sprite {
 
-    constructor(state, x, y, name) {
+    constructor() {
 
-        super(state.game, x, y, name);
+        super(game, 0, 0, 'background');
 
-        state.game.add.existing(this);
-
+        game.add.existing(this);
     }
 }

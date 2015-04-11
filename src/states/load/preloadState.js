@@ -10,7 +10,7 @@ export default class extends Phaser.State {
 
         // CONFIG
         this.game.camera.roundPx = false;
-        this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        this.game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
 
         this.game.state.start('loadState');
     }

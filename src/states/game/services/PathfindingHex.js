@@ -1,10 +1,7 @@
 export default class PathFinder{
 
-    constructor(unit){
+    constructor(){
 
-        this.grid = unit.state.battleGround;
-
-        this.generatePaths();
     }
 
     generatePaths(){
@@ -41,13 +38,13 @@ export default class PathFinder{
             tileToCheck = [
                 {x: x,y: y-1},{x: x+1,y: y-1},
                 {x: x-1,y: y},{x: x+1,y: y},
-                {x: x,y: y+1},{x: x+1,y: y+1},
+                {x: x,y: y+1},{x: x+1,y: y+1}
             ]
         } else {
             tileToCheck = [
                 {x: x-1,y: y-1},{x: x,y: y-1},
                 {x: x-1,y: y},  {x: x+1,y: y},
-                {x: x-1,y: y+1},{x: x,y: y+1},
+                {x: x-1,y: y+1},{x: x,y: y+1}
             ]
         }
 

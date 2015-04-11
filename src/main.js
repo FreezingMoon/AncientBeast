@@ -16,5 +16,6 @@ class Game extends Phaser.Game {
     }
 }
 
-new Game();
+// game is global, so we would not have to pass state/game to every sprite
+window.game = new Game();
 
