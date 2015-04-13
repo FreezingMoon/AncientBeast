@@ -78,7 +78,7 @@
 			{
 				"title": "Unit Maker",
 				"desc": "Materialises a unit on the combat field that will serve and obey given orders.",
-				"info": "plasma cost = unit size + unit level",
+				"info": "plasma cost = unit hexagon size + level",
 				"costs": {
 					"plasma": "creature size + level"
 				}
@@ -173,7 +173,7 @@
 		"ability_info": [
 			{
 				"title": "Back Stabs",
-				"desc": "Reduces damage from behind and returns some to all melee attackers.",
+				"desc": "Reduces some damage from behind and also harms rear melee attackers.",
 				"info": "30% rear damage reduction & return"
             },
 			{
@@ -188,8 +188,8 @@
             },
 			{
 				"title": "Brain Storm",
-				"desc": "Electro-charges its own brain functions in order to shock all the nearby units.",
-				"info": "25 shock damage to adjacent targets"
+				"desc": "Damages nearby units using electricity, gaining a bonus for each collected drop.",
+				"info": "20 adjacent shock damage, +5 per drop"
             }
         ]
 	},
@@ -757,7 +757,7 @@
 			{
 				"title": "Icy Talons",
 				"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
-				"info": "6 slash + 6 frost damage, -1 frost",
+				"info": "6 slash + 6 frost damage, -5 frost",
 				"damages": {
 					"slash": 6,
 					"frost": 6
@@ -768,8 +768,8 @@
 		},
 			{
 				"title": "Sudden Uppercut",
-				"desc": "Sucker punches a near enemy using limb, making it delay the next turn.",
-				"info": "10 crush + 10 frost damage & delay",
+				"desc": "Sucker punches a near enemy using limb, making him delay the next turn.",
+				"info": "10 crush + 10 frost damage and delay",
 				"damages": {
 					"crush": 10,
 					"frost": 10
@@ -885,18 +885,18 @@
             },
 			{
 				"title": "Cap Knock",
-				"desc": "Bumps its large cap into nearby foe. Knocks it back one hexagon if small.",
-				"info": "10 crush damage + knockback if 1H"
+				"desc": "Bumps its large cap into any nearby foe, damaging him and also pushing if little.",
+				"info": "10 crush damage + knockback if small"
             },
 			{
 				"title": "Noxious Cloud",
-				"desc": "Releases several toxic clouds all around, persisting for three rounds.",
-				"info": "15 adjacent poison damage (6 hex)"
+				"desc": "Releases several toxic clouds that can be inhaled, persisting for three rounds.",
+				"info": "15 adjacent poison damage for 3 turns"
             },
 			{
 				"title": "Tiny Mushroom",
-				"desc": "Drops a deadly shroom that acts either as a waypoint or as a poisonous trap.",
-				"info": "35 poison damage when stepped over"
+				"desc": "Drops a deadly shroom that acts either as a travel point or as a poisonous trap.",
+				"info": "35 poison damage when stepped upon"
             }
 
         ]
@@ -1028,7 +1028,7 @@
 			{
 				"title": "Rabid Nip",
 				"desc": "Sink poisonous teeth into nearby foe.",
-				"info": "10 pierce + 5 poison damage on hit",
+				"info": "10 pierce + 5 poison damage on attack",
 				"damages": {
 					"pierce": 10,
 					"poison": 5
@@ -1036,16 +1036,16 @@
 		},
 			{
 				"title": "Bad Breath",
-				"desc": "Stinks up several nearby enemies, causing them to move away a hex.",
-				"info": "10 poison damage, double if facing",
+				"desc": "Stinks up to three adjacent enemies, doing extra damage if they're facing.",
+				"info": "10 poison damage, double if towards",
 				"damages": {
 					"poison": 10
 				}
 		},
 			{
 				"title": "Goo Sneeze",
-				"desc": "Expels contagious toxin on a foe, spreading to others that get close.",
-				"info": "10 poison damage that can spread",
+				"desc": "xpels contagious toxin on distant foe, spreading to others that get too close.",
+				"info": "10 poison damage, can spread around",
 				"damages": {
 					"poison": 10
 				}
@@ -1615,8 +1615,8 @@
 		"ability_info": [
 			{
 				"title": "Fierce Temper",
-				"desc": "Showers lava drops when being hit, damaging all the unit that are nearby.",
-				"info": "5 burn damage over a 8 hexagons area"
+				"desc": "Showers lava drops at the beginning of each turn, damaging all adjacent units.",
+				"info": "10 burn damage over a 8 hexagons area"
             },
 			{
 				"title": "Forked Fingers",
@@ -2089,7 +2089,7 @@
 			{
 				"title": "Metal Hand",
 				"desc": "Harms a foe by using prosthetic limb.",
-				"info": "10 crush + 5 shock damage per hit",
+				"info": "10 crush + 5 shock damage per attack",
 				"damages": {
 					"crush": 10,
 					"shock": 5
@@ -2113,7 +2113,7 @@
 			{
 				"title": "Targeting System",
 				"desc": "All rockets that didn't hit units are being redirected at any target foe.",
-				"info": "This attack counts as a single hit.",
+				"info": "This attack counts as a single strike",
 				"damages": {
 					"crush": 8,
 					"burn": 8
@@ -2527,7 +2527,7 @@
             },
 			{
 				"title": "Shark Aggression",
-				"desc": "Bytes a nearby foe, lowering its maximum health by one each time.",
+				"desc": "Bytes a nearby foe, lowering his maximum health by one each time.",
 				"info": "15 pierce damage, -1 max health"
             },
 			{
