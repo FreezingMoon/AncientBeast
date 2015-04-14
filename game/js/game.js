@@ -502,14 +502,14 @@ var Game = Class.create({
 					G.log("Active Creature : %CreatureName"+G.activeCreature.id+"%");
 					G.activeCreature.activate();
 
-					// Show tutorial in the first round for each player
+					// Show mini tutorial in the first round for each player
 					if(G.turn == 1) {
 						G.log("The active unit has a flashing hexagon");
-						G.log("It uses a plasma shield to protect itself");
-						G.log("It's portrait is displayed in the upper left");
+						G.log("It uses a plasma field to protect itself");
+						G.log("Its portrait is displayed in the upper left");
 						G.log("Under the portrait are the unit's abilities");
 						G.log("The ones with flashing icons are usable");
-						G.log("Use the last one to materialize an unit");
+						G.log("Use the last one to materialize a unit");
 						G.log("Making units drains your plasma points");
 						G.log("Press the hourglass icon to skip the turn");
 						G.log("%CreatureName"+G.activeCreature.id+"%, press here to toggle tutorial!");
