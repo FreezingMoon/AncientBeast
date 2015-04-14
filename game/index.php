@@ -161,7 +161,7 @@ ga('send', 'pageview');
 					<br>
 					<br>
 					<div>
-						<span style="color: red; font-weight: bold;">Version 0.2 (extra buggy pre-Alpha release, please bare with us!)</span>
+						<span style="color: red; font-weight: bold; text-shadow: 2px 2px black;">Version 0.2 (extra buggy pre-Alpha release, please bare with us!)</span>
 					</div>
 				</form>
 			</div>
