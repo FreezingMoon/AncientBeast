@@ -157,6 +157,12 @@ ga('send', 'pageview');
 						<input class="ui-state-error" id="startbutton" style="border:rgba(180,0,0,.5) 2px solid;" type="submit" value="START">
 						<span class="blink"> BUTTON</span>
 					</div>
+					<br>
+					<br>
+					<br>
+					<div>
+						<span style="color: red; font-weight: bold;">Version 0.2 (extra buggy pre-Alpha release, please bare with us!)</span>
+					</div>
 				</form>
 			</div>
 		</div>
