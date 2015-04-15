@@ -1,7 +1,11 @@
 export default class PathFinder{
 
-    constructor(){
+    constructor(unit, grid){
 
+        this.unit = unit;
+        this.grid = grid;
+
+        this.generatePaths();
     }
 
     generatePaths(){

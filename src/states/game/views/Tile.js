@@ -28,7 +28,15 @@ export default class Tile extends Phaser.Sprite {
     }
 
     revertColor(){
+        if(this.marked){
+            return;
+        }
         this.loadTexture('hex', 0);
+    }
+
+    mark(){
+        this.changeColor();
+        this.marked = true;
     }
 
 }

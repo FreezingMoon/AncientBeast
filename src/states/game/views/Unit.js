@@ -1,12 +1,14 @@
 export default class Unit extends Phaser.Sprite {
 
-    constructor(state, name, xId, yId, flip, speed, size) {
+    constructor(name, xId, yId, flip, speed, size) {
 
-        super(state.game, 0, 0, name);
+        super(game, 0, 0, name);
 
         // get my tile
-        this.x = 500;
-        this.y = 500;
+        let base = yId%2 ? 285 : 240;
+
+        this.x = base +90 * xId;
+        this.y = 380 + 62 * yId;
 
         this.anchor.setTo(.5, 1);
 
@@ -16,6 +18,6 @@ export default class Unit extends Phaser.Sprite {
             this.x -= 20;
         }
 
-        state.game.add.existing(this);
+        game.add.existing(this);
     }
 }
