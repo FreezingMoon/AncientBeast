@@ -1,4 +1,4 @@
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
 <?php
 /* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
  * Copyright (C) 2007-2014  Valentin Anastase (a.k.a. Dread Knight)
@@ -69,73 +69,6 @@ Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">fre
 
 <!-- Game Features -->
 <?php require_once("images/stats/index.php"); ?>
-
-<script>
-$(function(){	
-	// Shows description of stats
-	$(".stats").mouseenter(function() {
-		var card = jQuery(this).parent().siblings().find(".stats_desc");
-		jQuery(card).show();
-	});
-	// Shows description of masteries
-	$(".masteries").mouseenter(function() {
-		var card = jQuery(this).parent().siblings().find(".masteries_desc");
-		jQuery(card).show();
-	});
-	// Hides the mini-tutorial
-	$(".section").mouseleave(function() {
-		var card = jQuery(this).parent().siblings().find(".card_info");
-		jQuery(card).hide();
-	});
-nextCard();
-});
-// Show next info card
-var i = 0;
-var total = 5;
-function nextCard() {
-	i = i%total+1;
-	$("#position").html(i);
-	$("#artwork").css("background","url(images/cards/margin.png),url(images/features/"+i+".jpg)");
-
-	$("#first_icon").css("background","url(images/features/"+i+"-1.svg)");
-	$("#second_icon").css("background","url(images/features/"+i+"-2.svg)");
-	$("#third_icon").css("background","url(images/features/"+i+"-3.svg)");
-	$("#fourth_icon").css("background","url(images/features/"+i+"-4.svg)");
-	switch(i) {
-		case 1:
-			$("#first_title").text("Fun Gameplay").next().html("You can materialise and control a variety of units in order to do your bidding and defeat all your foes.");
-			$("#second_title").text("Easy to Learn").next().html("Intimidated at first sight? No worries, everything is being explained during gameplay in a very non intrusive way.");
-			$("#third_title").text("Very Replayable").next().html("There are basically an almost infinite combination of units and moves that can be done so no 2 battles are alike.");
-			$("#fourth_title").text("Hard to Master").next().html("The game only relies on pure skill and never on dice throws, chances or other luck factors. It's always all up to you!");
-		break;
-		case 2:
-			$("#first_title").text("Browser Based").next().html("You don't have to bother yourself with downloading and installing the game or some problematic browser plug-in.");
-			$("#second_title").text("Optional User").next().html("Eager to play? Go right ahead, you can enjoy most of the game without even having to spend any time registering.");
-			$("#third_title").text("Open Source").next().html("This project is mostly a community effort, so you can contribute to it as well while having fun and learning.");
-			$("#fourth_title").text("Everything Translated - Coming Soon").next().html("We don't like to marginalize anyone, so we're making an effort to have this project translated in many languages.");
-		break;
-		case 3:
-			$("#first_title").text("Free to Play").next().html("We're putting a lot of love and effort into this game project using free tools, we want to give back something nice.");
-			$("#second_title").text("Input Methods - Coming Soon").next().html("Given the way it was designed, you have the freedom to play this using most input methods you can think of.");
-			$("#third_title").text("Light Weight").next().html("Everything is carefully optimized so that you can enjoy playing on pretty much any device with a web browser.");
-			$("#fourth_title").text("Low Latency").next().html("There is very small internet traffic when playing online so that you can enjoy a proper match against anyone you want.");
-		break;
-		case 4:
-			$("#first_title").text("Win Prizes - Coming Soon").next().html("Not only you can play it for free, but there are ways you can actually win stuff, such as achieving high scores.");
-			$("#second_title").text("Arcade Mode").next().html("Having a few mates over in your living room? Enjoy playing together on your TV while also having a slice of pizza.");
-			$("#third_title").text("Online Multiplayer - Coming Soon").next().html("You can challenge anyone in the world to a battle while you can also team up with your best friend in 2vs2 matches.");
-			$("#fourth_title").text("Challenging Bots - Coming Soon").next().html("Want to play a practice match or two to polish up your skills or try out new strategy you thought of? No problem.");
-		break;
-		case 5:
-			$("#first_title").text("Awesome Creatures").next().html("They come in lots of shapes and sizes, serving as the tools to fulfil your will. Each unit comes with unique abilities.");
-			$("#second_title").text("Town Building - Coming Soon").next().html("You'll be going through a lot of fuss in order to acquire all those resources so that you can make various structures.");
-			$("#third_title").text("Adventure Map - Coming Soon").next().html("Explore mysterious lands and seek out fame and glory while gathering various resources and collecting deadly units.");
-			$("#fourth_title").text("Single Player - Coming Soon").next().html("Multiple campaigns that will keep you on your toes, testing out your various skillsets to the fullest and even beyond.");
-		break;
-	}
-}
-
-</script>
 
 <div class="div center" id="features">
 	<div class="center" style="display:inline-block; vertical-align: top;">
@@ -286,6 +219,8 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 </article>
 <?php include('footer.php'); ?>
 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
 <!-- Change Feature Slides -->
 <script>
   function nextSlide() {
@@ -314,5 +249,71 @@ function toggleSound() {
 	var audioElem = document.getElementById('narration');
 	if (audioElem.paused) audioElem.play();
 	else audioElem.pause();
+}
+</script>
+
+<script>
+$(function(){	
+	// Shows description of stats
+	$(".stats").mouseenter(function() {
+		var card = jQuery(this).parent().siblings().find(".stats_desc");
+		jQuery(card).show();
+	});
+	// Shows description of masteries
+	$(".masteries").mouseenter(function() {
+		var card = jQuery(this).parent().siblings().find(".masteries_desc");
+		jQuery(card).show();
+	});
+	// Hides the mini-tutorial
+	$(".section").mouseleave(function() {
+		var card = jQuery(this).parent().siblings().find(".card_info");
+		jQuery(card).hide();
+	});
+nextCard();
+});
+// Show next info card
+var i = 0;
+var total = 5;
+function nextCard() {
+	i = i%total+1;
+	$("#position").html(i);
+	$("#artwork").css("background","url(images/cards/margin.png),url(images/features/"+i+".jpg)");
+
+	$("#first_icon").css("background","url(images/features/"+i+"-1.svg)");
+	$("#second_icon").css("background","url(images/features/"+i+"-2.svg)");
+	$("#third_icon").css("background","url(images/features/"+i+"-3.svg)");
+	$("#fourth_icon").css("background","url(images/features/"+i+"-4.svg)");
+	switch(i) {
+		case 1:
+			$("#first_title").text("Fun Gameplay").next().html("You can materialise and control a variety of units in order to do your bidding and defeat all your foes.");
+			$("#second_title").text("Easy to Learn").next().html("Intimidated at first sight? No worries, everything is being explained during gameplay in a very non intrusive way.");
+			$("#third_title").text("Very Replayable").next().html("There are basically an almost infinite combination of units and moves that can be done so no 2 battles are alike.");
+			$("#fourth_title").text("Hard to Master").next().html("The game only relies on pure skill and never on dice throws, chances or other luck factors. It's always all up to you!");
+		break;
+		case 2:
+			$("#first_title").text("Browser Based").next().html("You don't have to bother yourself with downloading and installing the game or some problematic browser plug-in.");
+			$("#second_title").text("Optional User").next().html("Eager to play? Go right ahead, you can enjoy most of the game without even having to spend any time registering.");
+			$("#third_title").text("Open Source").next().html("This project is mostly a community effort, so you can contribute to it as well while having fun and learning.");
+			$("#fourth_title").text("Everything Translated - Coming Soon").next().html("We don't like to marginalize anyone, so we're making an effort to have this project translated in many languages.");
+		break;
+		case 3:
+			$("#first_title").text("Free to Play").next().html("We're putting a lot of love and effort into this game project using free tools, we want to give back something nice.");
+			$("#second_title").text("Input Methods - Coming Soon").next().html("Given the way it was designed, you have the freedom to play this using most input methods you can think of.");
+			$("#third_title").text("Light Weight").next().html("Everything is carefully optimized so that you can enjoy playing on pretty much any device with a web browser.");
+			$("#fourth_title").text("Low Latency").next().html("There is very small internet traffic when playing online so that you can enjoy a proper match against anyone you want.");
+		break;
+		case 4:
+			$("#first_title").text("Win Prizes - Coming Soon").next().html("Not only you can play it for free, but there are ways you can actually win stuff, such as achieving high scores.");
+			$("#second_title").text("Arcade Mode").next().html("Having a few mates over in your living room? Enjoy playing together on your TV while also having a slice of pizza.");
+			$("#third_title").text("Online Multiplayer - Coming Soon").next().html("You can challenge anyone in the world to a battle while you can also team up with your best friend in 2vs2 matches.");
+			$("#fourth_title").text("Challenging Bots - Coming Soon").next().html("Want to play a practice match or two to polish up your skills or try out new strategy you thought of? No problem.");
+		break;
+		case 5:
+			$("#first_title").text("Awesome Creatures").next().html("They come in lots of shapes and sizes, serving as the tools to fulfil your will. Each unit comes with unique abilities.");
+			$("#second_title").text("Town Building - Coming Soon").next().html("You'll be going through a lot of fuss in order to acquire all those resources so that you can make various structures.");
+			$("#third_title").text("Adventure Map - Coming Soon").next().html("Explore mysterious lands and seek out fame and glory while gathering various resources and collecting deadly units.");
+			$("#fourth_title").text("Single Player - Coming Soon").next().html("Multiple campaigns that will keep you on your toes, testing out your various skillsets to the fullest and even beyond.");
+		break;
+	}
 }
 </script>
