@@ -137,7 +137,7 @@ function nextCard() {
 
 </script>
 
-<div class="div center">
+<div class="div center" id="features">
 	<div class="center" style="display:inline-block; vertical-align: top;">
 		<div id="artwork" class="card sideA" style="background-image: url('<?php echo $site_url; ?>images/cards/margin.png'), url('<?php echo $site_url; ?>images/features/1.jpg');">
 
