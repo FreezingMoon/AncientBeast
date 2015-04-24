@@ -348,7 +348,7 @@
 				}
 		},
 			{
-				"title": "Fissure Vent",
+				"title": "Cracked Earth",
 				"desc": "Smashes both fists into the ground, wreaking fierce havoc in area ahead.",
 				"info": "10 burn damage over all 8 hexagons",
 				"damages": {
@@ -1234,17 +1234,17 @@
 				"info": "5 crush + 15 burn damage to all units"
             },
 			{
-				"title": "Lava Splash",
-				"desc": "Hits a near foe with a handful of lava. Reduces the target's burn stat by 1.",
-				"info": "20 burn damage, -1 burn stat debuff"
+				"title": "Lava Lamp",
+				"desc": "Stares and splashes a nearby foe unit. Reduces the target's burn stat by one.",
+				"info": "20 burn damage & -1 burn stat debuff"
             },
 			{
 				"title": "Volcanic Artillery",
 				"desc": "A hot rock will hit target spot at the end of round, damaging a foe or the ground.",
-				"info": "20 crush + 20 burn damage or cracking"
+				"info": "20 crush + 20 burn damage or a fissure"
             },
 			{
-				"title": "Cracked Earth",
+				"title": "Fissure Vent",
 				"desc": "Stomps one hexagon underneath, causing lava to erupt every round.",
 				"info": "20 burn damage to all units above"
             }
