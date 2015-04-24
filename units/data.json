@@ -328,8 +328,8 @@
 		},
 		"ability_info": [
 			{
-				"title": "Scorched Area",
-				"desc": "Ignites some of the ground under, lasting 1 round or until stepped on.",
+				"title": "Boiling Point",
+				"desc": "Leaves 2 puddles on ground under, lasting 1 round or until stepped on.",
 				"info": "10 burn damage for each hexagon",
 				"damages": {
 					"burn": 10
