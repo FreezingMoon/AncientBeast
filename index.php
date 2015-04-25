@@ -59,7 +59,7 @@ require_once('header.php');
 <p>
 <b>Ancient Beast</b> is a turn based strategy indie game project, played against other people (or bots) in hotseat or online modes, featuring a wide variety of units to acquire and put to good use in order to defeat all your opponents in battle.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it as well!
 </p><p>
-Ancient Beast is <a href="http://www.wuala.com/AncientBeast" target="_blank">free</a> and <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a>, being developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> and community. It uses web technologies such as HTML, PHP, JavaScript and Node.js, so that it's playable from modern browsers without requiring plugins. Study the <a href="design"><b>Game Design Document</b></a> for more in depth info.</p></div>
+Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank">free</a> and <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a>, being developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> and community. It uses web technologies such as HTML, PHP, JavaScript and Node.js, so that it's playable from modern browsers without requiring plugins. Study the <a href="design"><b>Game Design Document</b></a> for more in depth info.</p></div>
 <div class="lighten" id="screenshot"><a href="media/?type=screenshots#id=0">
 <img src="images/screenie1.png" class="image frame" width=400px height=225px>
 <img src="images/screenie2.png" class="image frame" width=400px height=225px>
