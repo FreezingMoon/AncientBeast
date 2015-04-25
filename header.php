@@ -26,7 +26,7 @@ require_once('global.php'); ?>
 <!doctype html>
 <html>
 <head>
-<meta name=viewport content="width=device-width, initial-scale=1">
+<meta name=viewport content="width=950, initial-scale=1">
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <link rel="icon" type="image/png" href="<?php echo $site_root; ?>favicon.png">
 <meta charset="utf-8">
