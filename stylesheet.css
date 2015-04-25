@@ -1,5 +1,4 @@
 @import url(https://fonts.googleapis.com/css?family=Play:400,700);
-
 body {
 	background: url(images/header.png) no-repeat center top, #000 url(images/bg.jpg) no-repeat left top fixed;
 	background-size: 1180px 295px, cover;
@@ -12,9 +11,13 @@ body {
 	width: 950px;
 	margin: 0 auto;
 }
-
 /* Chrome Hack https://code.google.com/p/chromium/issues/detail?id=413183 */
-@media screen and (-webkit-min-device-pixel-ratio:0) { body { word-spacing: -1px; } }
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+	body {
+		word-spacing: -1px;
+	}
+}
 
 img {
 	border: none;
@@ -38,7 +41,9 @@ img {
 	margin: 0 auto;
 }
 
-.active { color: #E90000 !important; }
+.active {
+	color: #E90000 !important;
+}
 
 .sections {
 	font-size: 18px;
@@ -49,7 +54,9 @@ img {
 	padding: 0;
 }
 
-.sections li { display: inline; }
+.sections li {
+	display: inline;
+}
 
 .center {
 	margin-left: auto !important;
@@ -65,11 +72,17 @@ img {
 	-ms-filter: brightness(120%);
 }
 
-.shadow { box-shadow: 0 0 10px #000; }
+.shadow {
+	box-shadow: 0 0 10px #000;
+}
 
-:focus { outline: none; }
+:focus {
+	outline: none;
+}
 
-#wrapper { text-align: left; }
+#wrapper {
+	text-align: left;
+}
 
 .div {
 	border: 20px solid transparent;
@@ -98,13 +111,17 @@ img {
 	margin-bottom: 5px;
 }
 
-.button:hover { background-position: top; }
+.button:hover {
+	background-position: top;
+}
 
-.button:active { background-position: bottom; }
+.button:active {
+	background-position: bottom;
+}
 
 .warning {
 	margin-bottom: 10px;
-	background: rgba(0,0,0,0.5);
+	background: rgba(0, 0, 0, 0.5);
 	border-radius: 15px;
 	border: 4px ridge red;
 	padding: 20px 0;
@@ -112,18 +129,22 @@ img {
 
 .confirmation {
 	margin-bottom: 10px;
-	background: rgba(0,0,0,0.5);
+	background: rgba(0, 0, 0, 0.5);
 	border-radius: 15px;
 	border: 4px ridge green;
 	padding: 20px 0;
 }
 
-a:link,a:visited,a:active {
+a:link,
+a:visited,
+a:active {
 	text-decoration: none;
 	color: #b7b7b7;
 }
 
-a:hover,.active a,a.active {
+a:hover,
+.active a,
+a.active {
 	text-decoration: none;
 	color: #e6e6e6;
 	cursor: pointer;
@@ -153,13 +174,8 @@ iframe {
 	height: 48px;
 }
 
-.scrollback-stream.scrollback-toast {
-	left: 30px;
-	right: auto;
-}
-
-@media only screen and (max-width: 440px) {
-	.scrollback-stream.scrollback-toast {
-		left: 0;
+@media (max-width: 1060px) {
+	#scroll {
+		display: none;
 	}
 }
