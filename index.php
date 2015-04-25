@@ -40,15 +40,15 @@ require_once('header.php');
 <div class="center">
 	<!-- Featured Blog Article -->
 	<div style="display: inline-block;" class="lighten">
-		<a href="blog/2013-06-15"><img src="blog/2013-06-15/thumb.jpg" class="frame"><br>
+		<a href="blog/2013-06-15"><img src="blog/2013-06-15/thumb.jpg" width=290px; height=290px; class="frame"><br>
 		<div class="button" style="background-image: url(images/push_button.png);">See the v0.2 Changelog</div></a>
 	</div>
 	<div style="display: inline-block;" class="lighten">
-		<a href="game"><img src="images/squares/contribute.jpg" class="frame"><br>
+		<a href="game"><img src="images/squares/contribute.jpg" width=290px; height=290px; class="frame"><br>
 		<div class="button" style="background-image: url(images/push_button.png); ;">Play the Game for Free</div></a>
 	</div>
 	<div style="display: inline-block;" class="lighten">
-		<a href="contribute"><img src="images/squares/play.jpg" class="frame"><br>
+		<a href="contribute"><img src="images/squares/play.jpg" width=290px; height=290px; class="frame"><br>
 		<div class="button" style="background-image: url(images/push_button.png);">Learn How to Contribute</div></a>
 	</div>
 </div>
