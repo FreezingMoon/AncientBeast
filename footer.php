@@ -1,55 +1,55 @@
 <?php mysqli_close($link); ?>
 <div class="footer smalldiv center">
 	<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/paypal.png" width=48px; height=48px; class="lighten" alt="paypal" title="Donate using PayPal!">
+		<img src="<?php echo $site_root; ?>images/footer/paypal.png" width=48px; height=48px; class="lighten" alt="paypal" title="Donate using PayPal!">
 	</a>
 	<a href="bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast">
-		<img src="<?php echo $site_url; ?>images/footer/bitcoin.png" width=48px; height=48px; class="lighten" alt="bitcoin" title="Donate some Bitcoins!">
+		<img src="<?php echo $site_root; ?>images/footer/bitcoin.png" width=48px; height=48px; class="lighten" alt="bitcoin" title="Donate some Bitcoins!">
 	</a>
 	<a href="https://www.bountysource.com/trackers/260151-ancient-beast">
-		<img src="<?php echo $site_url; ?>images/footer/bountysource.png" width=48px; height=48px; class="lighten" alt="bountysource" title="Place some bounties!">
+		<img src="<?php echo $site_root; ?>images/footer/bountysource.png" width=48px; height=48px; class="lighten" alt="bountysource" title="Place some bounties!">
 	</a>
 	<a href="https://www.patreon.com/AncientBeast" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/patreon.png" width=48px; height=48px; class="lighten" alt="patreon" title="Donate via Patreon!">
+		<img src="<?php echo $site_root; ?>images/footer/patreon.png" width=48px; height=48px; class="lighten" alt="patreon" title="Donate via Patreon!">
 	</a>
 	<a href="https://flattr.com/thing/126547/Ancient-Beast" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/flattr.png" width=48px; height=48px; class="lighten" alt="flattr" title="Donate via Flattr!">
+		<img src="<?php echo $site_root; ?>images/footer/flattr.png" width=48px; height=48px; class="lighten" alt="flattr" title="Donate via Flattr!">
 	</a>
 	<a href="https://steamcommunity.com/sharedfiles/filedetails/?id=195722359" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/steam.png" width=48px; height=48px; class="lighten" alt="steam" title="Steam">
+		<img src="<?php echo $site_root; ?>images/footer/steam.png" width=48px; height=48px; class="lighten" alt="steam" title="Steam">
 	</a>
 	<a href="http://www.indiedb.com/games/ancient-beast" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/indiedb.png" width=48px; height=48px; class="lighten" alt="indiedb" title="IndieDB">
+		<img src="<?php echo $site_root; ?>images/footer/indiedb.png" width=48px; height=48px; class="lighten" alt="indiedb" title="IndieDB">
 	</a>
 	<a href="https://gamejolt.com/games/arcade/ancient-beast/15964/" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/gamejolt.png" width=48px; height=48px; class="lighten" alt="gamejolt" title="Game Jolt"
+		<img src="<?php echo $site_root; ?>images/footer/gamejolt.png" width=48px; height=48px; class="lighten" alt="gamejolt" title="Game Jolt"
 	</a>
 	<a href="https://facebook.com/AncientBeast" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/facebook.png" width=48px; height=48px; class="lighten" alt="facebook" title="Facebook">
+		<img src="<?php echo $site_root; ?>images/footer/facebook.png" width=48px; height=48px; class="lighten" alt="facebook" title="Facebook">
 	</a>
 	<a href="https://twitter.com/AncientBeast" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/twitter.png" width=48px; height=48px; class="lighten" alt="twitter" title="Twitter">
+		<img src="<?php echo $site_root; ?>images/footer/twitter.png" width=48px; height=48px; class="lighten" alt="twitter" title="Twitter">
 	</a>
 	<a href="https://plus.google.com/+AncientBeast" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/google.png" width=48px; height=48px; class="lighten" alt="google" title="Google Plus">
+		<img src="<?php echo $site_root; ?>images/footer/google.png" width=48px; height=48px; class="lighten" alt="google" title="Google Plus">
 	</a>
 	<a href="https://www.youtube.com/AncientBeastGame" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/youtube.png" width=48px; height=48px; class="lighten" alt="youtube" title="Youtube">
+		<img src="<?php echo $site_root; ?>images/footer/youtube.png" width=48px; height=48px; class="lighten" alt="youtube" title="Youtube">
 	</a>
 	<a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/github.png" width=48px; height=48px; class="lighten" alt="github" title="Github">
+		<img src="<?php echo $site_root; ?>images/footer/github.png" width=48px; height=48px; class="lighten" alt="github" title="Github">
 	</a>
 	<a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/mega.png" width=48px; height=48px; class="lighten" alt="mega" title="Mega">
+		<img src="<?php echo $site_root; ?>images/footer/mega.png" width=48px; height=48px; class="lighten" alt="mega" title="Mega">
 	</a>
 	<a href="https://Ancient-Beast.deviantart.com" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/deviantart.png" width=48px; height=48px; class="lighten" alt="deviantart" title="deviantArt">
+		<img src="<?php echo $site_root; ?>images/footer/deviantart.png" width=48px; height=48px; class="lighten" alt="deviantart" title="deviantArt">
 	</a>
 	<a href="https://www.reddit.com/r/AncientBeast" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/reddit.png" width=48px; height=48px; class="lighten" alt="reddit" title="Reddit">
+		<img src="<?php echo $site_root; ?>images/footer/reddit.png" width=48px; height=48px; class="lighten" alt="reddit" title="Reddit">
 	</a>
 	<a href="mailto:DreadKnight@FreezingMoon.org?Subject=I love this project!" target="_blank">
-		<img src="<?php echo $site_url; ?>images/footer/contact.png" width=48px; height=48px; class="lighten" alt="contact" title="Contact">
+		<img src="<?php echo $site_root; ?>images/footer/contact.png" width=48px; height=48px; class="lighten" alt="contact" title="Contact">
 	</a>
 </div>
 </body>

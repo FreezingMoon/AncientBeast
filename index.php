@@ -72,7 +72,7 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 
 <div class="div center" id="features">
 	<div class="center" style="display:inline-block; vertical-align: top;">
-		<div id="artwork" class="card sideA" style="background-image: url('<?php echo $site_url; ?>images/cards/margin.png'), url('<?php echo $site_url; ?>images/features/1.jpg');">
+		<div id="artwork" class="card sideA" style="background-image: url('<?php echo $site_root; ?>images/cards/margin.png'), url('<?php echo $site_root; ?>images/features/1.jpg');">
 
 			<!-- On hover mini tutorial -->
 			<div class="card_info stats_desc"><br>
@@ -103,7 +103,7 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 
 		// Side B
 		echo '
-		<div class="card sideB" style="background-image: url(' . $site_url . 'images/cards/margin.png), url(' . $site_url . 'images/cards/G.jpg);">
+		<div class="card sideB" style="background-image: url(' . $site_root . 'images/cards/margin.png), url(' . $site_root . 'images/cards/G.jpg);">
 				<div class="section numbers stats">';
 					// Display Stats
 					$r["stats"] = [
