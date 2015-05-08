@@ -26,10 +26,10 @@ require_once('global.php'); ?>
 <!doctype html>
 <html>
 <head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=960">
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <link rel="icon" type="image/png" href="<?php echo $site_root; ?>favicon.png">
-<meta charset="utf-8">
 <meta name="google-site-verification" content="uNVUkWjGPKwXaFK-BkOowVezLve8a8rjbM_ew1UHiZg">
 <meta name="description" content="Turn Based Strategy Game. Master your beasts!">
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, strategy, bitcoin, bets, combat, arena, chess, cards, creatures, free, open source, foss">
