@@ -84,8 +84,9 @@ Any amount you can donate is very appreciated, thank you!<br>
 <tr><td><a href="http://qubodup.net" target="_blank" class="lighten donate"><img src="yellow.png"> Iwan Gabovitch <img src="yellow.png" class="scale"></a></td><td>25</td></tr>
 <tr><td><a href="https://facebook.com/akumdara" target="_blank" class="lighten donate"><img src="yellow.png"> Adam Dalton <img src="yellow.png" class="scale"></a></td><td>20</td></tr>
 <tr><td><a href="https://twitter.com/alexandredes" target="_blank" class="lighten donate"><img src="yellow.png"> Alexandre Deschamps <img src="yellow.png" class="scale"></a></td><td>20</td></tr>
+<tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Vincent Bermel <img src="yellow.png" class="scale"></a></td><td>15</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Leif Larsen <img src="yellow.png" class="scale"></td><td>10</td></tr>
-<tr><td><a href="http://mrfaemir.deviantart.com" target="_blank" class="lighten donate"><img src="yellow.png"> Daniel Cohen <img src="yellow.png" class="scale"></a></td><td>5</td></tr>
+<tr><td><a href="https://mrfaemir.deviantart.com" target="_blank" class="lighten donate"><img src="yellow.png"> Daniel Cohen <img src="yellow.png" class="scale"></a></td><td>5</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> gamesandspace <img src="yellow.png" class="scale"></a></td><td>3</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Markus Eliassen <img src="yellow.png" class="scale"></a></td><td>3</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Pandu Aji Wirawan <img src="yellow.png" class="scale"></a></td><td>2</td></tr>
