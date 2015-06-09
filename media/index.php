@@ -104,6 +104,7 @@ switch($type) {
 		foreach($images as $image) {
 			if($image == "." || $image == "..") continue;
 			$title = substr($image, 0, -4);
+			$title = str_replace('_', ' ', $title);
 			echo '<a id="img' . $i . '" rel="pop" href="artwork/' . $image . '" title="' . $title . '"><img class="shadow artwork" src="artwork/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 			$i++;
 		}
@@ -121,6 +122,7 @@ switch($type) {
 		foreach($images as $image) {
 			if($image == "." || $image == "..") continue;
 			$title = substr($image, 0, -4);
+			$title = str_replace('_', ' ', $title);
 			echo '<a id="img' . $i . '" rel="pop" href="fanart/' . $image . '" title="' . $title . '"><img class="shadow artwork" src="fanart/' . $image . '" title="' . $title . '" alt="' . $image . '"></a>';
 			$i++;
 		}
