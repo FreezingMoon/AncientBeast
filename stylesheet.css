@@ -103,16 +103,26 @@ img {
 }
 
 .button {
-	display: inline-block;
-	width: 300px;
+	background-color: transparent;
+	background-image: url(images/push_button.png);
 	background-position: center;
-	line-height: 87px;
+	border: none;
+	color: #b7b7b7;
+	font-family: Play, sans-serif;
+	font-size: larger;
+	display: inline-block;
 	font-weight: bold;
+	line-height: 87px;
 	margin-bottom: 5px;
+	width: 300px;
+	padding: 0;
 }
 
 .button:hover {
 	background-position: top;
+	cursor: pointer;
+	color: white;
+	padding: 0;
 }
 
 .button:active {
