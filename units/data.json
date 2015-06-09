@@ -1044,7 +1044,7 @@
 		},
 			{
 				"title": "Goo Sneeze",
-				"desc": "xpels contagious toxin on distant foe, spreading to others that get too close.",
+				"desc": "Expels contagious toxin on distant foe, spreading to others that get too close.",
 				"info": "10 poison damage, can spread around",
 				"damages": {
 					"poison": 10
