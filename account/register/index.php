@@ -113,14 +113,11 @@ echo $ayah->getPublisherHTML();
 		<td><input type="email" name="email" size="24" required placeholder="This will require validation"></td>
 	</tr>
 </table>
-<a href="?view=viewer"><div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Register New Account</div></a><br>
+<input type="submit" name="submit" value="Register New Account" class="button"><br>
 <a href="#" onClick="alert('Please bear with us while we implement this feature!');"><img src="<?php echo $site_root; ?>account/facebook.png" class="lighten"></a>
 <a href="#" onClick="alert('Please bear with us while we implement this feature!');"><img src="<?php echo $site_root; ?>account/google.png" class="lighten"></a>
 <a href="#" onClick="alert('Please bear with us while we implement this feature!');"><img src="<?php echo $site_root; ?>account/twitter.png" class="lighten"></a>
 </div>
-<!--<div style="display:inline-block; float: right;">
-	<button type="submit" name="submit"><span class="lighten"><img src="register.png"><br>Register</span></button>
-</div>-->
 </form>
 <img src="<?php echo $site_root; ?>images/We_Want_YOU.jpg" title="We Want You!" alt="We Want You!" width=490px height=490px style="display: inline-block; float: right;">
 </div>

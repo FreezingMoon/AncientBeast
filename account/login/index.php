@@ -77,13 +77,10 @@ $wip = 'onClick="alert(\'Please bear with us while we implement this feature!\')
 		<td class="arranged">Password</td>
 		<td><input name='password' type='password' size=22></td>
 	</tr>
-	<!--<tr>
-		<td>&nbsp;</td>
-		<td><input type='submit' name='submit' value='Login'></td>
-	</tr>-->
 </table>
+<input type="submit" name="submit" value="Log Into Your Account" class="button">
 </form>
-<a href="?view=viewer"><div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Log Into Your Account</div></a><br>
+
 <a href="#" <?php echo $wip; ?>><img src="<?php echo $site_root; ?>account/facebook.png" class="lighten"></a>
 <a href="#" <?php echo $wip; ?>><img src="<?php echo $site_root; ?>account/google.png" class="lighten"></a>
 <a href="#" <?php echo $wip; ?>><img src="<?php echo $site_root; ?>account/twitter.png" class="lighten"></a>
