@@ -30,15 +30,44 @@ require_once("../global.php");
 <!-- Hightlight active page -->
 <script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
 
+<!-- TODO: php should check for link variable, if there's none, then scan for folders and gather data, make an array of items, get some variables to generate the thumbnails/info;
+if there's a GET link variable, it should gather that and display that article only; this whole thing is to automise the blog and remove manual work and template redundancy -->
 <div class="center">
 	<div style="display: inline-block;" class="lighten">
-		<a href="?view=viewer"><img src="2013-06-15/thumb.jpg" class="frame"><br>
+		<a href="2013-06-15"><img src="2013-06-15/thumb.jpg" class="frame"><br>
 		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Version 0.2 Released</div></a>
 	</div>
 	<div style="display: inline-block;" class="lighten">
-		<a href="?view=widget"><img src="2012-12-12/thumb.jpg" class="frame"><br>
+		<a href="2012-12-12"><img src="2012-12-12/thumb.jpg" class="frame"><br>
 		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png); ;">Version 0.1 Released</div></a>
 	</div>
 	</div>
 </div>
+
+<div class="div center">
+<!-- Begin MailChimp Signup Form -->
+
+<div id="mc_embed_signup">
+<form action="//FreezingMoon.us7.list-manage.com/subscribe/post?u=32f1406080b23a82ecf9e8d6b&amp;id=94b74a4105" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <div id="mc_embed_signup_scroll">
+	<div style="display: inline-block; padding-top: 8px; padding-right: 50px;"><span style="font-size: 1.1em;">Be part of our mailing list and receive news updates!</span><br><br>
+		<input type="email" value="" name="EMAIL" class="required email" style="width: 100%;" id="mce-EMAIL" placeholder=" ▷ Simply enter here your email address, you can unsubscribe at any time ◁">
+	</div>
+    <div style="display: inline-block; vertical-align: top;" class="lighten clear">
+		<input type="submit" cvalue="Subscribe" name="subscribe" value="Subscribe" id="mc-embedded-subscribe" class="button">
+	</div>
+<div class="mc-field-group">
+
+</div>
+	<div id="mce-responses" class="clear">
+		<div class="response" id="mce-error-response" style="display:none"></div>
+		<div class="response" id="mce-success-response" style="display:none"></div>
+	</div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_32f1406080b23a82ecf9e8d6b_94b74a4105" tabindex="-1" value=""></div>
+    </div>
+</form>
+</div>
+<!--End mc_embed_signup-->
+</div>
+
 <?php include('../footer.php'); ?>
