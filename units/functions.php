@@ -1,4 +1,5 @@
 <?php
+// Fetches all the unit data along with their progress status
 function get_creatures() {
 	$progress_json = json_decode(file_get_contents('../units/progress.json'), true);
 	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
@@ -13,6 +14,7 @@ function get_creatures() {
 	return $creature_results;
 }
 
+// Fetches all the unit stats
 function get_stats() {
 	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
 	$stats_results = array();
@@ -24,6 +26,7 @@ function get_stats() {
 	return $stats_results;
 }
 
+// Creates the progress status graphic for a specific unit
 function progress($category, $unit) {
 	$sum = 0;
 	$i = 0;
