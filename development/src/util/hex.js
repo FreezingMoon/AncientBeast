@@ -1,25 +1,25 @@
 /*	HexGrid Class
 *
-*	Object containing grid and hexagons DOM element and methods concerning the whole grid 
+*	Object containing grid and hexagons DOM element and methods concerning the whole grid
 *	Should only have one instance during the game.
 *
 */
 var HexGrid = Class.create({
 
 	/*	Attributes
-	*	
-	*	NOTE : attributes and variables starting with $ are jquery element 
+	*
+	*	NOTE : attributes and variables starting with $ are jquery element
 	*	and jquery function can be called dirrectly from them.
 	*
 	*	//Jquery attributes
-	*	$display : 		Grid container 
+	*	$display : 		Grid container
 	*	$creatureW : 	Creature Wrapper container
 	*	$inptHexsW : 	Input Hexagons container
 	*	$dispHexsW : 	Display Hexagons container
 	*	$overHexsW : 	Overlay Hexagons container
 	*	$allInptHex : 	Shortcut to all input hexagons DOM elements (for input events)
 	*	$allDispHex : 	Shortcut to all display hexagons DOM elements (to change style of hexagons)
-	*	
+	*
 	*	//Normal attributes
 	*	hexs : 				Array : 	Contain all hexs in row arrays (hexs[y][x])
 	*	lastClickedHex : 	Hex : 		Last hex clicked!
@@ -28,7 +28,7 @@ var HexGrid = Class.create({
 
 
 	/*	Constructor
-	*	
+	*
 	* 	Create attributes and populate JS grid with Hex objects
 	*
 	*/
@@ -45,13 +45,13 @@ var HexGrid = Class.create({
 		this.traps 				= new Array(); // Traps Array
 		this.allHexs			= new Array(); // All hexs
 		this.lastClickedHex 	= []; // Array of hexagons containing last calculated pathfinding
-		
+
 		this.display 			= G.Phaser.add.group(undefined,"displayGrp");
 		this.display.x = 230;
 		this.display.y = 380;
 
 		this.gridGroup 			= G.Phaser.add.group(this.display,"gridGrp");
-		this.gridGroup._container.scale = {x:1,y:.75};
+		this.gridGroup.scale.set(1, .75);
 
 		this.trapGroup			= G.Phaser.add.group(this.gridGroup ,"trapGrp");
 		this.trapGroup.x = -10;
@@ -69,7 +69,7 @@ var HexGrid = Class.create({
 					if( row % 2 == 0 && !opts.firstRowFull ) continue;
 					if( row % 2 == 1 && opts.firstRowFull ) continue;
 				}
-				this.hexs[row][hex] = new Hex(hex,row,this);	
+				this.hexs[row][hex] = new Hex(hex,row,this);
 				this.allHexs.push(this.hexs[row][hex]);
 			};
 		};
@@ -82,7 +82,7 @@ var HexGrid = Class.create({
 			fnOnConfirm : function(crea,args) {},
 			fnOnSelect : function(crea,args) {
 				crea.hexagons.each(function() {
-					this.overlayVisualState("creature selected player"+this.creature.team);	
+					this.overlayVisualState("creature selected player"+this.creature.team);
 				});
 			},
 			fnOnCancel : function() {G.activeCreature.queryMove()},
@@ -94,7 +94,7 @@ var HexGrid = Class.create({
 		o = $j.extend(defaultOpt,o);
 
 		//o.fnOnConfirm(G.activeCreature,o.args); // Autoconfirm
-		
+
 		G.activeCreature.hint(o.confirmText,"confirm");
 
 		this.queryHexs({
@@ -111,7 +111,7 @@ var HexGrid = Class.create({
 	/* 	queryDirection(o)
 	*
 	*	Shortcut to queryChoice with specific directions
-	*	
+	*
 	*	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexs.
 	*	fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
 	*	fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
@@ -141,8 +141,8 @@ var HexGrid = Class.create({
 
 		// Clean Direction
 		G.grid.forEachHexs(function() { this.direction = -1; });
-		
-		var choices = [] 
+
+		var choices = []
 
 		for (var i = 0; i < o.directions.length; i++) {
 			if(!!o.directions[i]){
@@ -180,9 +180,9 @@ var HexGrid = Class.create({
 
 				if( o.distance > 0 ) dir = dir.slice(0,o.distance+1);
 
-				dir.each(function() { 
-					this.direction = (o.flipped)?5-i:i; 
-					if(o.stopOnCreature) o.hexsDashed.push(this); 
+				dir.each(function() {
+					this.direction = (o.flipped)?5-i:i;
+					if(o.stopOnCreature) o.hexsDashed.push(this);
 				});
 
 				dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team);
@@ -195,12 +195,12 @@ var HexGrid = Class.create({
 				}
 
 				dir.each(function() { o.hexsDashed.removePos(this); });
-				
+
 				choices.push(dir);
 			}
 		};
-		
-		o.choices = choices;	
+
+		o.choices = choices;
 
 		G.grid.queryChoice(o);
 	},
@@ -208,7 +208,7 @@ var HexGrid = Class.create({
 
 	/*
 	*	queryChoice(o)
-	*	
+	*
 	*	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexs.
 	*	fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
 	*	fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
@@ -222,15 +222,15 @@ var HexGrid = Class.create({
 			fnOnSelect : function(choice,args) {
 				choice.each(function() {
 					if(this.creature instanceof Creature) {
-						this.overlayVisualState("creature selected player"+this.creature.team);	
+						this.overlayVisualState("creature selected player"+this.creature.team);
 					}else{
 						this.displayVisualState("adj");
 					}
-					
+
 				});
 			},
 			fnOnCancel : function(hex,args) {G.activeCreature.queryMove()},
-			team : 0, 
+			team : 0,
 			requireCreature : 1,
 			id : 0,
 			args : {},
@@ -275,9 +275,9 @@ var HexGrid = Class.create({
 
 			if(validChoice) hexs = hexs.concat(o.choices[i]);
 			else if(o.isDirectionsQuery) {
-				G.grid.forEachHexs(function() { 
-					if(o.choices[i][0].direction==this.direction) 
-						o.hexsDashed.removePos(this); 
+				G.grid.forEachHexs(function() {
+					if(o.choices[i][0].direction==this.direction)
+						o.hexsDashed.removePos(this);
 				});
 			}
 		};
@@ -436,8 +436,8 @@ var HexGrid = Class.create({
 		this.lastQueryOpt = $j.extend({},o); // Copy Obj
 
 		// Block all hexs
-		this.forEachHexs(function() { 
-			this.unsetReachable(); 
+		this.forEachHexs(function() {
+			this.unsetReachable();
 			if(o.hideNonTarget) this.setNotTarget();
 			else this.unsetNotTarget();
 			if( o.hexsDashed.indexOf(this) != -1 ){
@@ -456,24 +456,24 @@ var HexGrid = Class.create({
 		if( !o.ownCreatureHexShade ) {
 			if( o.id instanceof Array ) {
 				o.id.each(function() {
-					G.creatures[this].hexagons.each(function() {				
+					G.creatures[this].hexagons.each(function() {
 						this.overlayVisualState('ownCreatureHexShade')
 					})
 				});
 			}else{
 				if( o.id != 0 ) {
-					G.creatures[o.id].hexagons.each(function() {				
+					G.creatures[o.id].hexagons.each(function() {
 						this.overlayVisualState('ownCreatureHexShade')
 					})
 				}
-			}		
+			}
 		}
 
 
 
 
 		// Set reachable the given hexs
-		o.hexs.each(function() { 
+		o.hexs.each(function() {
 			this.setReachable();
 			if(o.hideNonTarget) this.unsetNotTarget();
 		});
@@ -484,13 +484,13 @@ var HexGrid = Class.create({
 			var hex = this;
 			var y = hex.y;
 			var x = hex.x;
-			
+
 			// Clear display and overlay
 			G.grid.updateDisplay();
 
 			// Not reachable hex
 			if( !hex.reachable ) {
-				G.grid.lastClickedHex = []; 
+				G.grid.lastClickedHex = [];
 				if(hex.creature instanceof Creature) { // If creature
 					var crea = hex.creature;
 					// G.UI.showCreature(crea.type,crea.team);
@@ -509,10 +509,10 @@ var HexGrid = Class.create({
 
 				for (var i = 0; i < o.size; i++) {	// Try next hexagons to see if they fits
 					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
-					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)) { 
+					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)) {
 						x += offset-i*mult;
 						availablePos = true;
-						break; 
+						break;
 					}
 				};
 
@@ -539,7 +539,7 @@ var HexGrid = Class.create({
 			}
 		};
 
-		
+
 		// ONMOUSEOVER
 		var onSelectFn = function() {
 			var hex = this;
@@ -559,7 +559,7 @@ var HexGrid = Class.create({
 				if(hex.creature instanceof Creature) { // If creature
 					var crea = hex.creature;
 					crea.hexagons.each(function() {
-						this.overlayVisualState("hover h_player"+crea.team);	
+						this.overlayVisualState("hover h_player"+crea.team);
 					});
 					G.UI.xrayQueue(crea.id);
 				}else{ // If nothing
@@ -575,10 +575,10 @@ var HexGrid = Class.create({
 
 				for (var i = 0; i < o.size; i++) {	// Try next hexagons to see if they fit
 					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
-					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)) { 
+					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)) {
 						x += offset-i*mult;
 						availablePos = true;
-						break; 
+						break;
 					}
 				};
 
@@ -587,7 +587,7 @@ var HexGrid = Class.create({
 				// 	console.log("nowhere to go");
 				// 	return;
 				// }
-				
+
 				hex = G.grid.hexs[y][x]; // New coords
 				o.fnOnSelect(hex,o.args);
 			}
@@ -607,7 +607,7 @@ var HexGrid = Class.create({
 		};
 
 
-		this.forEachHexs(function() { 
+		this.forEachHexs(function() {
 			this.onSelectFn	 = onSelectFn;
 			this.onConfirmFn = onConfirmFn;
 			this.onRightClickFn = onRightClickFn;
@@ -617,7 +617,7 @@ var HexGrid = Class.create({
 
 
 	/*	xray(hex)
-	* 	
+	*
 	*	hex : 	Hex : 	Hexagon to emphase
 	*
 	*	If hex contain creature call ghostOverlap for each creature hexs
@@ -625,8 +625,8 @@ var HexGrid = Class.create({
 	*/
 	xray: function(hex) {
 		//Clear previous ghost
-		G.creatures.each(function() { 
-			if( this instanceof Creature ) { 
+		G.creatures.each(function() {
+			if( this instanceof Creature ) {
 				this.xray(false);
 			}
 		});
@@ -637,14 +637,14 @@ var HexGrid = Class.create({
 			hex.ghostOverlap();
 		}
 	},
-	
+
 	/*	hideCreatureHexs()
-	* 	
+	*
 	*	Ghosts hexs with creatures
 	*
 	*/
 	hideCreatureHexs: function(except) {
-		G.creatures.each(function() { 
+		G.creatures.each(function() {
 			if( this instanceof Creature ) {
 				var hide = true;
 				if(except instanceof Creature) {
@@ -665,14 +665,14 @@ var HexGrid = Class.create({
 			}
 		});
 	},
-	
+
 	/*	showCreatureHexs()
-	* 	
+	*
 	*	Unghosts hexs with creatures
 	*
 	*/
 	showCreatureHexs: function() {
-		G.creatures.each(function() { 
+		G.creatures.each(function() {
 			if( this instanceof Creature ) {
 				// this.display.overlayVisualState("ghosted_hidden");
 				// this.health.overlayVisualState("ghosted_hidden");
@@ -685,9 +685,9 @@ var HexGrid = Class.create({
 			}
 		});
 	},
-	
+
 	/*	clearHexViewAlterations()
-	* 	
+	*
 	*	Removes all hex view alterations like hideCreatureHexs used
 	*	Squashes bugs by making sure all view alterations are removed
 	*	on a change of ability/change of turn/etc
@@ -700,14 +700,14 @@ var HexGrid = Class.create({
 	},
 
 	/*	updateDisplay()
-	* 	
+	*
 	*	Update overlay hexs with creature positions
 	*
 	*/
-	updateDisplay: function() { 
-		this.cleanDisplay(); 
-		this.cleanOverlay(); 
-		this.hexs.each(function() { this.each(function() { 
+	updateDisplay: function() {
+		this.cleanDisplay();
+		this.cleanOverlay();
+		this.hexs.each(function() { this.each(function() {
 			if( this.creature instanceof Creature ) {
 				if( this.creature.id == G.activeCreature.id ) {
 					this.overlayVisualState("active creature player"+this.creature.team);
@@ -715,8 +715,8 @@ var HexGrid = Class.create({
 				}else{
 					this.displayVisualState("creature player"+this.creature.team);
 				}
-			} 
-		}); });	
+			}
+		}); });
 	},
 
 
@@ -724,7 +724,7 @@ var HexGrid = Class.create({
 	*
 	*	x : 	Integer : 	Coordinates to test
 	*	y : 	Integer : 	Coordinates to test
-	* 	
+	*
 	*	Test if hex exists
 	*
 	*/
@@ -735,12 +735,12 @@ var HexGrid = Class.create({
 		return false;
 	},
 
-	
+
 	/*	isHexIn(hex,hexArray)
 	*
 	*	hex : 		Hex : 		Hex to look for
 	*	hexarray : 	Array : 	Array of hexes to look for hex in
-	* 	
+	*
 	*	Test if hex exists inside array of hexes
 	*
 	*/
@@ -752,10 +752,10 @@ var HexGrid = Class.create({
 		}
 		return false;
 	},
-	
-	
+
+
 	/* 	getMovementRange(x,y,distance,size,id)
-	*	
+	*
 	*	x : 		Integer : 	Start position
 	*	y : 		Integer : 	Start position
 	*	distance : 	Integer : 	Distance from the start position
@@ -765,11 +765,11 @@ var HexGrid = Class.create({
 	*	return : 	Array : 	Set of the reachable hexs
 	*/
 	getMovementRange: function(x,y,distance,size,id) {
-		//	Populate distance (hex.g) in hexs by asking an impossible 
+		//	Populate distance (hex.g) in hexs by asking an impossible
 		//	destination to test all hexagons
 		this.cleanReachable(); // If not pathfinding will bug
 		this.cleanPathAttr(true); // Erase all pathfinding datas
-		astar.search(G.grid.hexs[y][x],new Hex(-2,-2,null),size,id); 
+		astar.search(G.grid.hexs[y][x],new Hex(-2,-2,null),size,id);
 
 		// Gather all the reachable hexs
 		var hexs = [];
@@ -778,13 +778,13 @@ var HexGrid = Class.create({
 			if( this.g <= distance && this.g != 0 )
 				hexs.push(G.grid.hexs[this.y][this.x]);
 		});
-		
+
 		return hexs.extendToLeft(size);
 	},
 
 
 	/* 	getFlyingRange(x,y,distance,size,id)
-	*	
+	*
 	*	x : 		Integer : 	Start position
 	*	y : 		Integer : 	Start position
 	*	distance : 	Integer : 	Distance from the start position
@@ -801,7 +801,7 @@ var HexGrid = Class.create({
 		hexs.filter(function() {
 			return this.isWalkable(size,id,true);
 		});
-	
+
 		return hexs.extendToLeft(size);
 	},
 
@@ -834,7 +834,7 @@ var HexGrid = Class.create({
 			// Translating even to odd row patern
 			array[y].unshift(0);
 			if(originy%2!=0 && y%2!=0) { // Even rows
-				if(flipped) 
+				if(flipped)
 					array[y].pop(); // Remove last element as the array will be parse backward
 				else
 					array[y].splice(0,1); // Remove first element
@@ -873,12 +873,12 @@ var HexGrid = Class.create({
 		}
 
 		// Block all hexs
-		this.forEachHexs(function() { 
-			this.unsetReachable(); 
+		this.forEachHexs(function() {
+			this.unsetReachable();
 		});
 
 		// Set reachable the given hexs
-		hexs.each(function() { 
+		hexs.each(function() {
 			this.setReachable();
 		});
 
@@ -929,8 +929,9 @@ var HexGrid = Class.create({
 			for (var i = 1; i < G.creatures.length; i++) {
 
 				if( G.creatures[i].y == y ) {
-					this.creatureGroup.remove( G.creatures[i].grp._container);
-					this.creatureGroup.addAt( G.creatures[i].grp._container, index++ );
+					console.log(G.creatures[i].grp);
+					this.creatureGroup.remove( G.creatures[i].grp);
+					this.creatureGroup.addAt( G.creatures[i].grp, index++ );
 				}
 			};
 
@@ -948,29 +949,29 @@ var HexGrid = Class.create({
 	//******************//
 
 	/*	forEachHexs(f)
-	*	
+	*
 	*	f : Function : 	Function to execute
-	* 	
+	*
 	*	Execute f for each hexs
 	*/
 	forEachHexs: function(f) { this.hexs.each(function() { this.each(function() { f.apply(this); }); }); },
 
 	/*	cleanPathAttr(includeG)
-	*	
+	*
 	*	includeG : 	Boolean : 	Include hex.g attribute
-	* 	
+	*
 	*	Execute hex.cleanPathAttr() function for all the grid. Refer to the Hex class for more info
 	*/
 	cleanPathAttr: function(includeG) { this.hexs.each(function() { this.each(function() { this.cleanPathAttr(includeG); }); }); },
 
 	/*	cleanReachable()
-	* 	
+	*
 	*	Execute hex.setReachable() function for all the grid. Refer to the Hex class for more info
 	*/
 	cleanReachable: function() { this.hexs.each(function() { this.each(function() { this.setReachable(); }); });	},
 
 	/*	cleanDisplay(cssClass)
-	* 	
+	*
 	*	cssClass : 	String : 	Class(es) name(s) to remove with jQuery removeClass function
 	*
 	*	Shorcut for $allDispHex.removeClass()
@@ -1003,7 +1004,7 @@ var HexGrid = Class.create({
 		}else{
 			this.materialize_overlay.loadTexture(creatureData.name+'_cardboard');
 			if( this.materialize_overlay.posy != pos.y) {
-				this.materialize_overlay.posy = pos.y;	
+				this.materialize_overlay.posy = pos.y;
 				this.orderCreatureZ();
 			}
 		}
@@ -1052,15 +1053,15 @@ var HexGrid = Class.create({
 var Hex = Class.create({
 
 	/*	Attributes
-	*	
-	*	NOTE : attributes and variables starting with $ are jquery element 
+	*
+	*	NOTE : attributes and variables starting with $ are jquery element
 	*	and jquery function can be called dirrectly from them.
 	*
 	*	//Jquery attributes
 	*	$display : 		Hex display element
 	*	$overlay : 		Hex overlay element
 	*	$input : 		Hex input element (bind controls on it)
-	*	
+	*
 	*	//Normal attributes
 	*	x : 			Integer : 	Hex coordinates
 	*	y : 			Integer : 	Hex coordinates
@@ -1081,7 +1082,7 @@ var Hex = Class.create({
 
 
 	/*	Constructor(x,y)
-	*	
+	*
 	*	x : 			Integer : 	Hex coordinates
 	*	y : 			Integer : 	Hex coordinates
 	*
@@ -1092,7 +1093,7 @@ var Hex = Class.create({
 		this.y = y;
 		this.pos = {x:x, y:y};
 		this.coord = String.fromCharCode(64+this.y+1)+(this.x+1);
-		
+
 		// Pathfinding
 		this.f = 0;
 		this.g = 0;
@@ -1120,7 +1121,7 @@ var Hex = Class.create({
 
 			this.display 	= grid.dispHexsGroup.create(this.displayPos.x-10, this.displayPos.y, 'hex');
 			this.display.alpha = 0;
-			
+
 			this.overlay 	= grid.overHexsGroup.create(this.displayPos.x-10, this.displayPos.y, 'hex');
 			this.overlay.alpha = 0;
 
@@ -1160,7 +1161,7 @@ var Hex = Class.create({
 						break;
 				}
 			}, this);
-			
+
 		}
 
 		this.displayPos.y = this.displayPos.y*.75+30;
@@ -1179,7 +1180,7 @@ var Hex = Class.create({
 	*
 	*	return : 	Array : 	Array containing Hexs
 	*
-	*	This function return an array containing all hexs of the grid 
+	*	This function return an array containing all hexs of the grid
 	* 	at the distance given of the current hex.
 	*
 	*/
@@ -1189,8 +1190,8 @@ var Hex = Class.create({
 			var deltaY = i;
 			if(this.y%2 == 0) {
 				// Evenrow
-				for ( var deltaX = ( Math.ceil(Math.abs(i)/2) - distance ); 
-				deltaX <= ( distance - Math.floor(Math.abs(i)/2) ); 
+				for ( var deltaX = ( Math.ceil(Math.abs(i)/2) - distance );
+				deltaX <= ( distance - Math.floor(Math.abs(i)/2) );
 				deltaX++) {
 					var x = this.x + deltaX;
 					var y = this.y + deltaY;
@@ -1201,9 +1202,9 @@ var Hex = Class.create({
 				};
 			}else{
 				// Oddrow
-				for ( var deltaX = ( Math.floor(Math.abs(i)/2) - distance ); 
-				deltaX <= ( distance - Math.ceil(Math.abs(i)/2) ); 
-				deltaX++) { 
+				for ( var deltaX = ( Math.floor(Math.abs(i)/2) - distance );
+				deltaX <= ( distance - Math.ceil(Math.abs(i)/2) );
+				deltaX++) {
 					var x = this.x + deltaX;
 					var y = this.y + deltaY;
 					if(!(deltaY == 0 && deltaX == 0) && // Exclude current hex
@@ -1268,7 +1269,7 @@ var Hex = Class.create({
 	*
 	*	includeG : 	Boolean : 	Set includeG to True if you change the start of the calculated path.
 	*
-	*	This function reset all the pathfinding attribute to 
+	*	This function reset all the pathfinding attribute to
 	*	0 to calculate new path to another hex.
 	*
 	*/
@@ -1291,7 +1292,7 @@ var Hex = Class.create({
 	*/
 	isWalkable: function(size,id,ignoreReachable) {
 		var blocked = false;
-		
+
 		for (var i = 0; i < size; i++) {
 			// For each Hex of the creature
 			if( (this.x-i) >= 0 && (this.x-i) < G.grid.hexs[this.y].length ){ //if hex exists
@@ -1309,7 +1310,7 @@ var Hex = Class.create({
 
 					blocked = blocked || isNotMovingCreature; // Not blocked if this block contains the moving creature
 				}
-				 
+
 			}else{
 				// Blocked by grid boundaries
 				blocked = true;
@@ -1474,7 +1475,7 @@ var Hex = Class.create({
 		}else if(this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
 		}
-		
+
 
 		// Overlay Hex
 
@@ -1542,7 +1543,7 @@ var Hex = Class.create({
 var Trap = Class.create({
 
 	/*	Constructor(x,y)
-	*	
+	*
 	*	x : 			Integer : 	Hex coordinates
 	*	y : 			Integer : 	Hex coordinates
 	*
@@ -1607,7 +1608,7 @@ var Trap = Class.create({
 */
 
 	/*	findPos(obj)
-	*	
+	*
 	*	obj : 		Object : 	Anything with pos attribute. Could be Hex of Creature.
 	*
 	*	return : 	Object : 	Object found in the array. False if nothing
@@ -1624,7 +1625,7 @@ var Trap = Class.create({
 
 
 	/*	removePos(obj)
-	*	
+	*
 	*	obj : 		Object : 	Anything with pos attribute. Could be Hex of Creature.
 	*
 	*	return : 	Boolean : 	True if success. False if failed.
@@ -1641,7 +1642,7 @@ var Trap = Class.create({
 
 
 	/*	each(f)
-	*	
+	*
 	*	f : 		Function : 	Function to apply to each array's entry
 	*
 	*	Apply a function for each entries of the array
@@ -1650,14 +1651,14 @@ var Trap = Class.create({
 	Array.prototype.each = function(f) {
 		if(!f.apply) return;
 		for(var i=0;i<this.length;i++) {
-			f.apply(this[i], [i, this]);   
+			f.apply(this[i], [i, this]);
 		}
 		return this;
 	};
 
 
 	/*	filter(f)
-	*	
+	*
 	*	f : 		Function : 	Function to apply to each array's entry
 	*
 	*	If f return false remove the element from the array
@@ -1691,7 +1692,7 @@ var Trap = Class.create({
 		 			if(this[i].creature.id==id) {
 		 				this.splice(i,1);
 		 				i--;
-		 				continue;	
+		 				continue;
 		 			}else{
 		 				this.splice(i,1);
 		 				i--;
@@ -1710,7 +1711,7 @@ var Trap = Class.create({
 
 
 	/*	extendToLeft(size)
-	*	
+	*
 	*	size : 		Integer : 	Size to extend
 	*
 	*	return : 	Array : 	The hex array with all corresponding hexs at the left
@@ -1729,7 +1730,7 @@ var Trap = Class.create({
 
 
 	/*	extendToLeft(size)
-	*	
+	*
 	*	size : 		Integer : 	Size to extend
 	*
 	*	return : 	Array : 	The hex array with all corresponding hexs at the left

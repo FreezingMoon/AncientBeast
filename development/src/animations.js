@@ -1,14 +1,14 @@
 var Animations = Class.create({
-	
+
 	initialize: function() {},
 
 	movements : {
 
 		walk : function(crea,path,opts){
 
-			if( opts.customMovementPoint > 0 ){ 
-	
-				path = path.slice(0,opts.customMovementPoint); 
+			if( opts.customMovementPoint > 0 ){
+
+				path = path.slice(0,opts.customMovementPoint);
 				// For compatibility
 				var savedMvtPoints = creature.remainingMove;
 				creature.remainingMove = opts.customMovementPoint;
@@ -18,13 +18,13 @@ var Animations = Class.create({
 
 			var anim_id = Math.random();
 			G.animationQueue.push(anim_id);
-				
+
 			var hexId = 0;
 
 			crea.healthHide();
 
 			var anim = function() {
-				
+
 				var hex = path[hexId];
 
 				if( hexId < path.length && crea.remainingMove > 0 ){
@@ -32,7 +32,7 @@ var Animations = Class.create({
 				}else{
 					G.animations.movements.movementComplete(crea,hex,anim_id,opts); return;
 				}
-		
+
 				var nextPos = G.grid.hexs[hex.y][hex.x-crea.size+1];
 				var speed = !opts.overrideSpeed ? crea.animation.walk_speed : opts.overrideSpeed;
 
@@ -40,7 +40,7 @@ var Animations = Class.create({
 				.to(nextPos.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
 				.start();
 
-				tween.onCompleteCallback(function() {
+				tween.onComplete.add(function() {
 					// Sound Effect
 					G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);
 
@@ -64,9 +64,9 @@ var Animations = Class.create({
 
 		fly : function(crea,path,opts){
 
-			if( opts.customMovementPoint > 0 ){ 
-	
-				path = path.slice(0,opts.customMovementPoint); 
+			if( opts.customMovementPoint > 0 ){
+
+				path = path.slice(0,opts.customMovementPoint);
 				// For compatibility
 				var savedMvtPoints = crea.remainingMove;
 				crea.remainingMove = opts.customMovementPoint;
@@ -76,7 +76,7 @@ var Animations = Class.create({
 
 			var anim_id = Math.random();
 			G.animationQueue.push(anim_id);
-				
+
 			var hexId = 0;
 
 			crea.healthHide();
@@ -92,7 +92,7 @@ var Animations = Class.create({
 			.to(currentHex.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
 			.start();
 
-			tween.onCompleteCallback(function() {
+			tween.onComplete.add(function() {
 				// Sound Effect
 				G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);
 
@@ -104,7 +104,7 @@ var Animations = Class.create({
 						k++;
 						if( start.adjacentHex(k).findPos(currentHex) ) distance = k;
 					}
-					
+
 					crea.remainingMove -= distance;
 					if(opts.customMovementPoint === 0) crea.travelDist += distance;
 				}
@@ -129,7 +129,7 @@ var Animations = Class.create({
 			.to({alpha: 0}, 500, Phaser.Easing.Linear.None)
 			.start();
 
-			tween.onCompleteCallback(function() {
+			tween.onComplete.add(function() {
 				// Sound Effect
 				G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);
 

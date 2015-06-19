@@ -6,14 +6,14 @@
 var Creature = Class.create({
 
 	/*	Attributes
-	*	
-	*	NOTE : attributes and variables starting with $ are jquery element 
+	*
+	*	NOTE : attributes and variables starting with $ are jquery element
 	*	and jquery function can be called dirrectly from them.
 	*
 	*	//Jquery attributes
 	*	$display :		Creature representation
 	*	$effects :		Effects container (inside $display)
-	*	
+	*
 	*	//Normal attributes
 	*	x :				Integer :	Hex coordinates
 	*	y :				Integer :	Hex coordinates
@@ -69,7 +69,7 @@ var Creature = Class.create({
 		this.effects	= [];
 		this.dropCollection	= [];
 		this.protectedFromFatigue = (this.type == "--") ? true : false ;
-		
+
 
 		// Statistics
 		this.baseStats	= {
@@ -107,9 +107,9 @@ var Creature = Class.create({
 		this.abilities[1] = new Ability(this,1);
 		this.abilities[2] = new Ability(this,2);
 		this.abilities[3] = new Ability(this,3);
-		
+
 		this.updateHex();
-		
+
 		var dp = (this.type !== "--") ? ""
 		:(this.team === 0)? "red"
 		:(this.team === 1)? "blue"
@@ -153,7 +153,7 @@ var Creature = Class.create({
 		this.delayed = false;
 		this.materializationSickness = (this.type == "--") ? false : true ;
 		this.noActionPossible = false;
-		
+
 	},
 
 
@@ -169,7 +169,7 @@ var Creature = Class.create({
 
 		G.grid.updateDisplay(); // Retrace players creatures
 		G.grid.orderCreatureZ();
-		
+
 		if(G.grid.materialize_overlay) {
 			G.grid.materialize_overlay.alpha = 0.5;
 			G.Phaser.add.tween(G.grid.materialize_overlay)
@@ -194,7 +194,7 @@ var Creature = Class.create({
 		// Pickup drop
 		this.pickupDrop();
 	},
-	
+
 
 	healthHide: function() {
 		this.healtIndicatorGrp.alpha = 0;
@@ -240,7 +240,7 @@ var Creature = Class.create({
 				if(crea.stats.meditation > 0){
 					crea.energy = Math.min( crea.stats.energy, crea.energy + crea.stats.meditation ); //cap
 				}
-				
+
 			}else{
 				crea.hint("♣", 'damage');
 			}
@@ -252,8 +252,8 @@ var Creature = Class.create({
 
 			crea.endurance = crea.stats.endurance;
 
-			crea.abilities.each(function() { 
-				this.setUsed(false); 
+			crea.abilities.each(function() {
+				this.setUsed(false);
 				this.token = 0;
 			});
 		};
@@ -459,11 +459,11 @@ var Creature = Class.create({
 			this.hexagons.push(G.grid.hexs[this.y][this.x-i]);
 		}
 
-		this.hexagons.each(function() { 
+		this.hexagons.each(function() {
 			this.creature = creature;
 		});
 	},
-	
+
 	/*	faceHex(facefrom,faceto)
 	*
 	*	facefrom :	Hex or Creature :	Hex to face from
@@ -487,7 +487,7 @@ var Creature = Class.create({
 			this.facePlayerDefault();
 			return;
 		}
-		
+
 		if(attackFix && this.size>1){
 			//only works on 2hex creature targeting the adjacent row
 			if( facefrom.y%2 === 0 ){
@@ -510,21 +510,21 @@ var Creature = Class.create({
 		}
 
 
-		if(flipped){ 
+		if(flipped){
 			this.sprite.scale.setTo(-1,1);
 		}else{
 			this.sprite.scale.setTo(1,1);
 		}
 		this.sprite.x = ((!flipped) ? this.display["offset-x"] : 90*this.size-this.sprite.texture.width-this.display["offset-x"]) +this.sprite.texture.width/2;
 	},
-	
+
 	/*	facePlayerDefault()
 	*
 	*	Face default direction
 	*
 	*/
 	facePlayerDefault: function() {
-		if(this.player.flipped){ 
+		if(this.player.flipped){
 			this.sprite.scale.setTo(-1,1);
 		}else{
 			this.sprite.scale.setTo(1,1);
@@ -556,24 +556,24 @@ var Creature = Class.create({
 
 		if(this.stats.moveable){
 			var creature = this;
-			
+
 			var x = hex.x;
 			var y = hex.y;
-			
+
 			if(opts.ignorePath || opts.animation == "fly"){
 				var path = [hex];
 			}else{
 				var path = creature.calculatePath(x,y);
 			}
-	
+
 			if( path.length === 0 ) return; // Break if empty path
-	
+
 			G.grid.xray( new Hex(0,0) ); // Clean Xray
-				
+
 			creature.travelDist = 0;
-	
+
 			G.animations.movements[opts.animation](this, path, opts);
-			
+
 		}else{
 			G.log("This creature cannot be moved");
 		}
@@ -606,7 +606,7 @@ var Creature = Class.create({
 
 		if( path.length === 0 ) return; // Break if empty path
 
-		path.each(function() { 
+		path.each(function() {
 			creature.tracePosition({ x: this.x, y: this.y, displayClass: "adj" });
 		}); // Trace path
 
@@ -667,9 +667,9 @@ var Creature = Class.create({
 		var mult = (G.players[this.team].flipped) ? 1 : -1 ; // For FLIPPED player
 		for (var i = 0; i < this.size; i++) { // Try next hexagons to see if they fit
 			if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
-			if(G.grid.hexs[y][x+offset-i*mult].isWalkable(this.size, this.id)){ 
+			if(G.grid.hexs[y][x+offset-i*mult].isWalkable(this.size, this.id)){
 				x += offset-i*mult;
-				break; 
+				break;
 			}
 		}
 		return {x:x, y:y};
@@ -702,7 +702,7 @@ var Creature = Class.create({
 			var Hexs = [];
 			var o = (this.y%2 === 0)?1:0;
 
-			if(this.size == 1) {	
+			if(this.size == 1) {
 				var c = [{y:this.y,x:this.x+1},
 				{y:this.y-1,x:this.x+o},
 				{y:this.y-1,x:this.x-1+o},
@@ -772,7 +772,7 @@ var Creature = Class.create({
 
 		// if(amount == 0) return;
 
-		this.health += amount; 
+		this.health += amount;
 
 		// Health display Update
 		this.updateHealth(isRegrowth);
@@ -789,7 +789,7 @@ var Creature = Class.create({
 			else this.hint(amount,'damage d'+amount);
 			G.log("%CreatureName"+this.id+"% loses "+amount+" health");
 		}
-		
+
 
 	},
 
@@ -824,7 +824,7 @@ var Creature = Class.create({
 				G.log("Oops something went wrong !");
 				return {damages:0, kill:false};
 			}
-			
+
 			this.health -= dmgAmount;
 			this.health = (this.health < 0) ? 0 : this.health; // Cap
 
@@ -851,18 +851,18 @@ var Creature = Class.create({
 			}
 
 			// Add Fatigue effect
-			if( this.endurance === 0 && this.findEffect('Fatigue').length === 0 ){ 
-				this.addEffect( new Effect( 
-					"Fatigue", 
-					this, 
-					this, 
-					"", 
-					{ 
+			if( this.endurance === 0 && this.findEffect('Fatigue').length === 0 ){
+				this.addEffect( new Effect(
+					"Fatigue",
+					this,
+					this,
+					"",
+					{
 						alterations : { regrowth : -1*this.baseStats.regrowth } ,
 						creationTurn : G.turn-1,
 						turnLifetime : 1,
 						deleteTrigger : "onEndPhase"
-					} 
+					}
 				) );
 
 			} // Fatigued effect
@@ -958,12 +958,12 @@ var Creature = Class.create({
 			msg_effects : { fill: "#ffff00" }
 		};
 
-		var style = $j.extend( { 
-			font: "bold 20pt Play", 
-			fill: "#ff0000", 
-			align: "center", 
-			stroke: "#000000", 
-			strokeThickness: 2 
+		var style = $j.extend( {
+			font: "bold 20pt Play",
+			fill: "#ff0000",
+			align: "center",
+			stroke: "#000000",
+			strokeThickness: 2
 		}, hintColor[cssClass] );
 
 		// Remove constant element
@@ -971,7 +971,7 @@ var Creature = Class.create({
 			if(grpHintElem.cssClass == 'confirm'){
 				grpHintElem.cssClass = "confirm_deleted";
 				grpHintElem.tweenAlpha = G.Phaser.add.tween(grpHintElem).to( {alpha:0}, tooltipSpeed, tooltipTransition ).start();
-				grpHintElem.tweenAlpha._lastChild.onComplete.add(function() { this.destroy(); },grpHintElem);
+				grpHintElem.tweenAlpha.onComplete.add(function() { this.destroy(); },grpHintElem);
 			}
 		},this,true);
 
@@ -990,7 +990,7 @@ var Creature = Class.create({
 			.to( {alpha:1}, tooltipSpeed, tooltipTransition )
 			.to( {alpha:1}, tooltipDisplaySpeed, tooltipTransition )
 			.to( {alpha:0}, tooltipSpeed, tooltipTransition ).start();
-			hint.tweenAlpha._lastChild.onComplete.add(function() { this.destroy(); },hint);
+			hint.tweenAlpha.onComplete.add(function() { this.destroy(); },hint);
 		}
 
 
@@ -1077,7 +1077,7 @@ var Creature = Class.create({
 
 		G.log("%CreatureName"+this.id+"% is dead");
 
-		this.dead = true;		
+		this.dead = true;
 
 		// Triggers
 		G.triggersFn.onCreatureDeath(this);
@@ -1089,7 +1089,7 @@ var Creature = Class.create({
 		// Drop item
 		if( this.drop ){
 			var offsetX = (this.player.flipped) ? this.x - this.size + 1: this.x ;
-			new Drop( this.drop.name, this.drop.alterations, offsetX, this.y );	
+			new Drop( this.drop.name, this.drop.alterations, offsetX, this.y );
 		}
 
 
@@ -1123,7 +1123,7 @@ var Creature = Class.create({
 			for(var i = 0; i < this.killer.score.length; i++){
 				var s = this.killer.score[i];
 				if(s.type == "humiliation"){
-					if(s.player == this.team) this.killer.score.splice(i, 1);	
+					if(s.player == this.team) this.killer.score.splice(i, 1);
 					break;
 				}
 			}
@@ -1145,12 +1145,12 @@ var Creature = Class.create({
 		G.nextQueue.removePos(this);
 		G.delayQueue.removePos(this);
 		G.reorderQueue();
-		G.grid.updateDisplay(); 
+		G.grid.updateDisplay();
 
 		if(G.activeCreature === this){ G.nextCreature(); return; } //End turn if current active creature die
 
 		// As hex occupation changes, path must be recalculated for the current creature not the dying one
-		G.activeCreature.queryMove(); 
+		G.activeCreature.queryMove();
 
 		// Queue cleaning
 		G.UI.updateActivebox();

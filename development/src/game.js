@@ -289,10 +289,12 @@ var Game = Class.create({
 	setup: function(nbrPlayer) {
 
 		// Phaser
-		this.Phaser.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
-		this.Phaser.stage.scale.setShowAll();
-		this.Phaser.stage.scale.refresh();
-		this.Phaser.stage.disableVisibilityChange = true;
+		this.Phaser.scale.pageALignHorizontally = true;
+	  this.Phaser.scale.pageAlignVertically = true;
+	  this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+	  this.Phaser.stage.forcePortrait = true;
+	  this.Phaser.scale.setScreenSize(true);
+
 		var bg = this.Phaser.add.sprite(0, 0, 'background');
 		bg.inputEnabled = true;
 		bg.events.onInputUp.add(function(Sprite,Pointer) {
