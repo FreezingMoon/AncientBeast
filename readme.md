@@ -53,3 +53,48 @@ The game requires animations to be 30 frames per second. Sprite sheets must have
 		<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
 	</tr>
 </table>
+
+
+## Development Setup For Game
+
+Change your directory to the development folder
+
+### Features
+
+- **Gruntfile.js** for all your game scripts to one file, also with `watch` , its automaticly re-compile.
+- **Package.json** for initialize your npm package and set dependencies.
+
+### Setting up This Project Template
+Installing [NodeJS](http://nodejs.org). Next, install [Grunt](http://gruntjs.com).
+
+#### Installing Grunt
+
+Firstly, install [NodeJS](http://nodejs.org/) after that use that command from terminal.
+
+```
+npm install -g grunt-cli
+```
+
+#### Installing Dependencies
+
+Please, navigate into the template directory's root and use that command for installing/updating dependencies.
+
+```
+npm install
+```
+
+This will read `package.json` and install dependencies.
+
+#### Launch
+
+Simply run command:
+
+```
+grunt
+```
+
+This will launch your browser automaticly.
+
+Grunt will work in background. When you change your script files, it will re-compile scripts every time.
+
+---
