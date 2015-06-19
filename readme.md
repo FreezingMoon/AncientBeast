@@ -61,8 +61,8 @@ Change your directory to the development folder
 
 ### Features
 
-- **Gruntfile.js** for all your game scripts to one file, also with `watch` , its automaticly re-compile.
-- **Package.json** for initialize your npm package and set dependencies.
+- **Gruntfile.js** compiles all your game scripts to one file, also with `watch` will automatically re-compile.
+- **Package.json**  initializes your npm packages and set dependencies.
 
 ### Setting up This Project Template
 First Install [NodeJS](http://nodejs.org). Next, install [Grunt](http://gruntjs.com).
@@ -77,7 +77,7 @@ npm install -g grunt-cli
 
 #### Installing Dependencies
 
-Please, navigate into the development directory use this command for installing/updating dependencies.
+Please, navigate into the development directory and use this command for installing/updating dependencies.
 
 ```
 npm install
@@ -93,8 +93,8 @@ Simply run command:
 grunt
 ```
 
-This will launch your browser automaticly.
+This will launch your browser automatically.
 
-Grunt will work in background. When you change your script files, it will re-compile scripts every time.
+Grunt will work in background. When you change your script files, it will re-compile the scripts every time.
 
 ---
