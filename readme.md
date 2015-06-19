@@ -77,7 +77,7 @@ npm install -g grunt-cli
 
 #### Installing Dependencies
 
-Please, navigate into the template directory's root and use that command for installing/updating dependencies.
+Please, navigate into the development directory use this command for installing/updating dependencies.
 
 ```
 npm install
