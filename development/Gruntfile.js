@@ -4,7 +4,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.registerTask('server', 'Start the web server.', function() {
-      grunt.log.writeln('Starting web server on port 8080.');
+      grunt.log.writeln('Starting web server on port 80.');
       require('./server/server.js');
     });
     grunt.initConfig({
@@ -22,7 +22,8 @@ module.exports = function (grunt) {
                 src: [
                     "src/*.js",
                     "src/util/**/*.js",
-                    "src/abilities/**/*.js"
+                    "src/abilities/**/*.js",
+                    "src/network/**/*.js"
                 ],
                 dest: 'deploy/js/<%= pkg.name %>.js'
             }

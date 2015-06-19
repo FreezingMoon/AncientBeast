@@ -1,13 +1,48 @@
+// Setup basic express server
 var express = require('express');
 var app = express();
-//app.get('/', function (req, res) {
-//  res.send('Hello World!');
-//});
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+var port = process.env.PORT || 8080;
+var gameManager = require('./gamemanager.js');
+var qManager = require('./queuemanager.js');
 
-app.use(express.static('deploy'));
+//setup the game queue and connection details
+io.on('connection', function(session){
+  console.log('a user connected');
 
-var server = app.listen(8080, function () {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log('Ancient Beast Server listening at http://%s:%s', host, port);
+  //store the username in the socket session for this client
+  var username = makeid();
+  session.username = username;
+
+  //add user to the queue
+  qManager.addToQueue(session);
+
+  session.on('disconnect', function(){
+    console.log('user disconnected');
+    qManager.removeFromQueue(session);
+  });
+
+  //send user the username
+  session.emit('login', session.username);
+
 });
+
+
+function makeid()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 5; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
+
+
+//listen for server, and use static routing for deploy directory
+server.listen(port, function () {
+  console.log('Server listening at port %d', port);
+});
+app.use(express.static('./deploy'));
