@@ -4,8 +4,8 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 8080;
-var gameManager = require('./gamemanager.js');
-var qManager = require('./queuemanager.js');
+var gameManager = require('./server/gamemanager.js');
+var qManager = require('./server/queuemanager.js');
 
 //setup the game queue and connection details
 io.on('connection', function(session){

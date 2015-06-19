@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.registerTask('server', 'Start the web server.', function() {
       grunt.log.writeln('Starting web server on port 80.');
-      require('./server/server.js');
+      require('./server.js');
     });
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
