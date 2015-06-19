@@ -65,7 +65,7 @@ Change your directory to the development folder
 - **Package.json** for initialize your npm package and set dependencies.
 
 ### Setting up This Project Template
-Installing [NodeJS](http://nodejs.org). Next, install [Grunt](http://gruntjs.com).
+First Install [NodeJS](http://nodejs.org). Next, install [Grunt](http://gruntjs.com).
 
 #### Installing Grunt
 
