@@ -50,8 +50,8 @@ require_once('../header.php');
 </div>
 
 <div class="div center" id="info">
-This is a collaborative project, you can get get involved in various ways: 
-<a href="#donate"><b>Donate</b></a> | <a href="#artwork"><b>Artwork</b></a> | <a href="#coding"><b>Coding</b></a> | <a href="#supporter"><b>Supporter</b></a>
+This is a collaborative project, meaning you can be part of it too: 
+<a href="#donate"><b>Donate</b></a> | <a href="#artwork"><b>Artwork</b></a> | <a href="#coding"><b>Coding</b></a> | <a href="#audio"><b>Audio</b></a> | <a href="#supporter"><b>Supporter</b></a>
 </div>
 
 <div class="div" id="donate">
