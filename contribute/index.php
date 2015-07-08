@@ -76,6 +76,7 @@ Any amount you can donate is very appreciated, thank you!<br>
 <table style="width:400px;"><tr><td><b>Top Donors via PayPal</b></td><td><b>$</b></td></tr>
 <tr><td><a href="https://harumorii.deviantart.com" target="_blank" class="lighten donate"><img src="yellow.png"> Haru <img src="yellow.png" class="scale"></a></td><td>2500</td></tr>
 <tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten donate"><img src="yellow.png"> Dread Knight <img src="yellow.png" class="scale"></a></td><td>1250</td></tr>
+<tr><td><a href="http://www.ugnis.com" target="_blank" class="lighten donate"><img src="yellow.png"> Karolis Masiulis  <img src="yellow.png" class="scale"></a></td><td>300</td></tr>
 <tr><td><a href="https://github.com/unhammer" target="_blank" class="lighten donate"><img src="yellow.png"> Kevin Brubeck Unhammer <img src="yellow.png" class="scale"></a></td><td>50</td></tr>
 <tr><td><a href="https://teogreengage.blogspot.com" target="_blank" class="lighten donate"><img src="yellow.png"> Teo Cazghir <img src="yellow.png" class="scale"></td><td>50</td></tr>
 <tr><td><a href="https://bountysource.com" target="_blank" class="lighten donate"><img src="yellow.png"> David Rappo <img src="yellow.png" class="scale"></a></td><td>50</td></tr>
