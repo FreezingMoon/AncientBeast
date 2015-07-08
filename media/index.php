@@ -34,21 +34,20 @@ $style = '
 require_once("../header.php");
 
 // Display list of subpages
-function subpages() {
-	$sections = array(
-		'artwork',
-		'fanart',
-		'screenshots',
-		'wallpapers',
-		'videos',
-		'music'
-	);
-	echo '<nav class="div center"><ul class="sections">';
-	foreach ($sections as &$sectionItem) {
-		echo '<li style="display:inline;"><a href="?type=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding:1.7em;">' . ucfirst($sectionItem) . '</a></li>';
-	}
-	echo '</ul></nav>';
+
+$sections = array(
+	'artwork',
+	'fanart',
+	'screenshots',
+	'wallpapers',
+	'videos',
+	'music'
+);
+echo '<nav class="div center" id="navigation"><ul class="sections">';
+foreach ($sections as &$sectionItem) {
+	echo '<li style="display:inline;"><a href="?type=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding:2em;">' . ucfirst($sectionItem) . '</a></li>';
 }
+echo '</ul></nav>';
 ?>
 
 <script>
@@ -62,6 +61,8 @@ document.getElementById("Media").className += " active";
 <script src="../jquery.min.js"></script>
 
 <?php
+// This div serves as an anchor
+echo '<div id="focus"></div>';
 
 switch($type) {
 	default:
@@ -96,7 +97,6 @@ switch($type) {
 		break;
 
 	case 'artwork':
-		subpages();
 		$images = scandir("artwork");
 		natsort($images);
 		$i = 0;
@@ -113,7 +113,6 @@ switch($type) {
 		break;
 
 	case 'fanart':
-		subpages();
 		?>
 		<div class="div center">
 		<?php $images = scandir("fanart");
@@ -131,7 +130,6 @@ switch($type) {
 		break;
 
 	case 'screenshots':
-		subpages();
 		echo '<div class="div center">';
 		$images = scandir("screenshots");
 		natsort($images);
@@ -147,7 +145,6 @@ switch($type) {
 		break;
 
 	case 'wallpapers':
-		subpages();
 		echo '<div class="div center">';
 		$images = scandir("../media/wallpapers");
 		natsort($images);
@@ -163,7 +160,6 @@ switch($type) {
 		break;
 
 	case 'videos':
-		subpages();
 		?>
 		<div class="div center">
 		<iframe width="880" height="495" src="http://www.youtube.com/embed/videoseries?list=PLC179DAED0274E304" frameborder="0" allowfullscreen></iframe></div>
@@ -174,7 +170,6 @@ switch($type) {
 		<?php break;
 
 	case 'music':
-		subpages();
 		?><div class="div center"><img src="band.jpg"><?php
 		$folders = array('..', '.');
 		$media = array_values(array_diff(scandir("music"), $folders));
@@ -202,6 +197,9 @@ include('../footer.php'); ?>
 
 <!-- Highlight active subpage -->
 <script>document.getElementById("<?php echo $type; ?>").className += " active";</script>
+
+<!-- Focus on content when clicking subpage again -->
+<script>document.getElementById("<?php echo $type; ?>").href += "#focus";</script>
 
 <script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
 <script defer type="text/javascript" src="fancybox/jquery.easing-1.3.pack.js"></script>
