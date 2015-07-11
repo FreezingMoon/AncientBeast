@@ -31,7 +31,6 @@ $site_url = 'http://' . $_SERVER['SERVER_NAME'] . $site_root;
 // Session starting for login
 session_start();
 
-
 // Change character set to utf8
 mysqli_set_charset($link, "utf8");
 

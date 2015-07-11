@@ -217,7 +217,11 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 </div>
 
 </article>
-<?php include('footer.php'); ?>
+
+<?php
+include('blog/subscribe.php');
+include('footer.php');
+?>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 
