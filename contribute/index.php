@@ -91,6 +91,7 @@ Any amount you can donate is very appreciated, thank you!<br>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> gamesandspace <img src="yellow.png" class="scale"></a></td><td>3</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Markus Eliassen <img src="yellow.png" class="scale"></a></td><td>3</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Pandu Aji Wirawan <img src="yellow.png" class="scale"></a></td><td>2</td></tr>
+<tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Caleb Smith <img src="yellow.png" class="scale"></a></td><td>1.23</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Max Mazon <img src="yellow.png" class="scale"></a></td><td>1</td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
 </table></div>
