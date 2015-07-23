@@ -391,7 +391,7 @@
 			"regrowth": 10,
 			"endurance": 40,
 			"energy": 80,
-			"meditation": 30,
+			"meditation": 10,
 			"initiative": 75,
 			"offense": 14,
 			"defense": 7,
@@ -423,19 +423,18 @@
 		"ability_info": [
 			{
 				"title": "Electrified Hair",
-				"desc": "Reduces half of all incoming shock damage, up to 100 points per turn.",
+				"desc": "Converts up to 1/4 of any incoming shock damage into energy points.",
 				"info": "This isn't affected by any unit stats",
 				"effects": [{
-					"special": "Maximum of 100 %shock% damage absorbed."
-				}],
-				"maxCharge": 100
+					"special": "Converts ~25%%shock% into%energy%"
+				}]
     		},
 			{
 				"title": "Hasted Jab",
 				"desc": "Horn attack that gains extra damage based on the last distance traveled.",
 				"info": "15 pierce damage + 5 per hexagon",
 				"damages": {
-					"special": "12%pierce%+ 3 per hexagon"
+					"special": "15%pierce%+ 5 per hexagon"
 				},
 				"damages1": {
 					"pierce": 12
@@ -449,9 +448,7 @@
 				"desc": "Tangles a nearby foe, causing it to take damage if it will move within next turn.",
 				"info": "25 poison damage triggered if moving",
 				"effects": [{
-					"special": "<br>+ 1%poison%permanent damage"
-				}, {
-					"special": "<br>+ 5%poison%temporary damage"
+					"special": "25 poison damage if moving"
 				}],
 				"costs": {
 					"energy": 10
@@ -459,11 +456,11 @@
     		},
 			{
 				"title": "Arched Pole",
-				"desc": "Damages up to 9 nearby creatures, hitting them up to twice if one dies.",
+				"desc": "Damages up to 9 nearby creatures, even hitting them twice if one dies.",
 				"info": "9 slash + 5 frost damage up to 2 hits",
 				"damages": {
-					"slash": 16,
-					"frost": 4
+					"slash": 9,
+					"frost": 5
 				},
 				"costs": {
 					"energy": 20
