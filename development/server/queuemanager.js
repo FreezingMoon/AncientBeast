@@ -23,7 +23,8 @@ exports.checkQueueForGame = function()
     }
     queueCount++;
     if (queueCount == 1) {
-      startGame(player1, i)l
+      startGame(player1, i);
+      queueCount = 0;
     }
   }
 }
