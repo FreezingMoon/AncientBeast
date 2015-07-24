@@ -16,7 +16,16 @@ exports.removeFromQueue = function(player)
 //if we have enough players it will return 2 of the player sessions for a game
 exports.checkQueueForGame = function()
 {
-
+  var queueCount = 0;
+  for (var i in queue) {
+    if(queueCount == 0) {
+      var player1 = i;
+    }
+    queueCount++;
+    if (queueCount == 1) {
+      startGame(player1, i)l
+    }
+  }
 }
 
 
