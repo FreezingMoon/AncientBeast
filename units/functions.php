@@ -3,7 +3,7 @@
 function get_creatures() {
 	$progress_json = json_decode(file_get_contents('../units/progress.json'), true);
 	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
-	$creature_results = array();
+	$creature_results = [];
 	$i = 0;
 	foreach($creature_json as &$creature) {
 		$creature["progress"] = $progress_json[$i];
@@ -17,7 +17,7 @@ function get_creatures() {
 // Fetches all the unit stats
 function get_stats() {
 	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
-	$stats_results = array();
+	$stats_results = [];
 	$i = 0;
 	foreach($creature_json as &$creature) {
 		$stats_results[$i] = $creature["stats"];
