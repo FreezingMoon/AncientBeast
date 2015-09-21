@@ -68,7 +68,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 	global $site_url; // From global.php
 	global $stats;
 
-	if ($id != -1 && !is_array($r)){
+	if ($id != -1 && !is_array($r)) {
 		$ab_id = $id;
 
 		$ab_creatures = get_creatures();
@@ -108,7 +108,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 <?php		
 			// Display unit info
 			echo '<div class="section info sin' . $r['realm'] . '">
-					<span class="type" creature_type="'.$r['realm'].$r['lvl'].'" style="float:left; margin-left:22px;">'.$r['realm'].$r['lvl'].'</span>
+					<span class="type" creature_type="'.$r['realm'].$r['level'].'" style="float:left; margin-left:22px;">'.$r['realm'].$r['level'].'</span>
 					<span><audio src="../units/shouts/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
 					<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '" creature_name="' . $r['name'] . '" >' . $r['name'] . '</a></span>
 					<span class="hexs" creature_size="' . $r['size'] . 'H" style="float:right; margin-right:22px;">' . $r['size'] . 'H</span>
@@ -132,6 +132,10 @@ function cards($r = "", $id = -1, $modifiers = false) {
 				<div class="section abilities">';
 			  		// Display Abilities
 					for ($i=0; $i < 4; $i++) {
+						// Figure out if upgradable
+						if (!empty($r["ability_info"][$i]["upgrade"])) { $upgrade = '<br><span class="desc" id="info">Upgrade: ' . $r["ability_info"][$i]["upgrade"] . '</span>'; } 
+						// Figure out the cost
+						if ($i==0) { $cost = ' - this ability is passive.'; } else { $cost = ' - costs ' . $r["ability_info"][$i]["costs"]["energy"] . ' energy pts.'; }
 						echo '
 						<div class="ability">
 							<div class="icon" style="background-image: url(\'' . $site_url . 'units/icons/' . $r["name"] . ' ' . $i . '.svg\');">
@@ -139,12 +143,14 @@ function cards($r = "", $id = -1, $modifiers = false) {
 							</div>
 							<div class="wrapper">
 								<div class="info">
-									<h3>' . $r["ability_info"][$i]["title"] . '</h3>
+									<h3><span style="text-decoration: underline;">' . $r["ability_info"][$i]["title"] . '</span>' . $cost . '</h3>
 									<span class="desc" id="desc">' . $r["ability_info"][$i]["desc"] . '</span><br>
-									<span class="desc" id="info">' . $r["ability_info"][$i]["info"] . '</span>
+									<span class="desc" id="info">' . $r["ability_info"][$i]["info"] . '</span>'
+									. $upgrade . '
 								</div>
 							</div>
 						</div>';
+						$upgrade = NULL;
 				}
 				echo '
 				</div>
@@ -152,7 +158,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 					// Display Masteries
 					$i=1;
 					foreach ($r["stats"] as $key => $value) {
-					 	if( $i > 9 &&  $i < 19) { 
+					 	if( $i > 9) { 
 					 		displayStat($key,$value,$modifiers); 
 				 		}
 				 		$i++;

@@ -36,7 +36,7 @@ $stylesheet = 'units/cards.css';
 
 require_once('header.php'); 
 ?>
-<article>
+
 <div class="center">
 	<!-- Featured Blog Article -->
 	<div style="display: inline-block;" class="lighten">
@@ -216,8 +216,6 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 <audio id="narration" src="plot.ogg"></audio>
 </div>
 
-</article>
-
 <?php
 include('blog/subscribe.php');
 include('footer.php');
@@ -225,39 +223,35 @@ include('footer.php');
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 
-<!-- Change Feature Slides -->
 <script>
-  function nextSlide() {
-    var x = $('#screenshot img:not(.active)');
-    return $(x[Math.floor(Math.random() * x.length)]);
-  }
+// Change Feature Slides
+function nextSlide() {
+	var x = $('#screenshot img:not(.active)');
+	return $(x[Math.floor(Math.random() * x.length)]);
+}
 
-  function slideSwitch() {
-    var active = $('#screenshot img.active');
-    if (active.length == 0)
-      active = nextSlide();
-    var next = nextSlide();
-    active.addClass('last-active');
-    next.css({opacity: 0.0})
-      .addClass('active')
-      .animate({opacity: 1.0}, 1000, function() {
-          active.removeClass('active last-active');
-    });
-  }
-  $(function() { setInterval("slideSwitch()", 4000); });
-</script>
+function slideSwitch() {
+	var active = $('#screenshot img.active');
+	if (active.length == 0)
+ 		active = nextSlide();
+	var next = nextSlide();
+	active.addClass('last-active');
+	next.css({opacity: 0.0})
+  	.addClass('active')
+  	.animate({opacity: 1.0}, 1000, function() {
+	active.removeClass('active last-active');
+	});
+}
+$(function() { setInterval("slideSwitch()", 4000); });
 
-<!-- Toggle Plot Narration -->
-<script>
+// Toggle Plot Narration
 function toggleSound() {
 	var audioElem = document.getElementById('narration');
 	if (audioElem.paused) audioElem.play();
 	else audioElem.pause();
 }
-</script>
 
-<script>
-$(function(){	
+$(function() {	
 	// Shows description of stats
 	$(".stats").mouseenter(function() {
 		var card = jQuery(this).parent().siblings().find(".stats_desc");
@@ -275,6 +269,7 @@ $(function(){
 	});
 nextCard();
 });
+
 // Show next info card
 var i = 0;
 var total = 5;
@@ -295,7 +290,7 @@ function nextCard() {
 			$("#fourth_title").text("Hard to Master").next().html("The game only relies on pure skill and never on dice throws, chances or other luck factors. It's always all up to you!");
 		break;
 		case 2:
-			$("#first_title").text("Browser Based").next().html("You don't have to bother yourself with downloading and installing the game or some problematic browser plug-in.");
+			$("#first_title").text("Browser Based").next().html("You don't have to bother yourself with downloading and installing the game or some silly problematic browser plug-in.");
 			$("#second_title").text("Optional User").next().html("Eager to play? Go right ahead, you can enjoy most of the game without even having to spend any time registering.");
 			$("#third_title").text("Open Source").next().html("This project is mostly a community effort, so you can contribute to it as well while having fun and learning.");
 			$("#fourth_title").text("Everything Translated - Coming Soon").next().html("We don't like to marginalize anyone, so we're making an effort to have this project translated in many languages.");
