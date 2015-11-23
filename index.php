@@ -34,14 +34,14 @@ a.FM:hover { text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px; }
 ';
 $stylesheet = 'units/cards.css';
 
-require_once('header.php'); 
+require_once 'header.php'; 
 ?>
 
 <div class="center">
 	<!-- Featured Blog Article -->
 	<div style="display: inline-block;" class="lighten">
-		<a href="blog/2013-06-15"><img src="blog/2013-06-15/thumb.jpg" width=290px; height=290px; class="frame"><br>
-		<div class="button" style="background-image: url(images/push_button.png);">See the v0.2 Changelog</div></a>
+		<a href="design"><img src="images/squares/design.jpg" width=290px; height=290px; class="frame"><br>
+		<div class="button" style="background-image: url(images/push_button.png);">Game Design Document</div></a>
 	</div>
 	<div style="display: inline-block;" class="lighten">
 		<a href="game"><img src="images/squares/contribute.jpg" width=290px; height=290px; class="frame"><br>
@@ -49,7 +49,7 @@ require_once('header.php');
 	</div>
 	<div style="display: inline-block;" class="lighten">
 		<a href="contribute"><img src="images/squares/play.jpg" width=290px; height=290px; class="frame"><br>
-		<div class="button" style="background-image: url(images/push_button.png);">Learn How to Contribute</div></a>
+		<div class="button" style="background-image: url(images/push_button.png);">Make Your Contribution</div></a>
 	</div>
 </div>
 
@@ -59,7 +59,7 @@ require_once('header.php');
 <p>
 <b>Ancient Beast</b> is a turn based strategy indie game project, played against other people (or bots) in hotseat or online modes, featuring a wide variety of units to acquire and put to good use in order to defeat all your opponents in battle.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it as well!
 </p><p>
-Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank">free</a> and <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a>, being developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> and community. It uses web technologies such as HTML, PHP, JavaScript and Node.js, so that it's playable from modern browsers without requiring plugins. Study the <a href="design"><b>Game Design Document</b></a> for more in depth info.</p></div>
+Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank">free</a> and <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a>, being developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> and community. It uses web technologies such as HTML, PHP, JavaScript and Node.js, so that it's playable from modern browsers without requiring plugins.</p></div>
 <div class="lighten" id="screenshot"><a href="media/?type=screenshots#id=0">
 <img src="images/screenie1.png" class="image frame" width=400px height=225px>
 <img src="images/screenie2.png" class="image frame" width=400px height=225px>
@@ -68,7 +68,7 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 </div>
 
 <!-- Game Features -->
-<?php require_once("images/stats/index.php"); ?>
+<?php require_once 'images/stats/index.php'; ?>
 
 <div class="div center" id="features">
 	<div class="center" style="display:inline-block; vertical-align: top;">
@@ -97,106 +97,106 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 <?php		
 			// Display unit info
 			echo '<a href="#" class="name" style="color: white;" onClick="nextCard();return false;"><div class="section info sinG">
-					Check out the game features <span id="position">1</span>/5
+					Check out the game features <span id="position">1</span>/4
 			</div></a>
 		</div></div>';
 
 		// Side B
 		echo '
 		<div class="card sideB" style="background-image: url(' . $site_root . 'images/cards/margin.png), url(' . $site_root . 'images/cards/G.jpg);">
-				<div class="section numbers stats">';
-					// Display Stats
-					$r["stats"] = [
-									"health"=>190,
-									"regrowth"=>2,
-									"endurance"=>33,
-									"energy"=>80,
-									"meditation"=>3,
-									"initiative"=>80,
-									"offense"=>30,
-									"defense"=> 5,
-									"movement"=> 4,
-									"pierce"=> 6,
-									"slash"=> 6,
-									"crush"=> 6,
-									"shock"=> 1,
-									"burn"=> 1,
-									"frost"=> 1,
-									"poison"=> 5,
-									"sonic"=> 6,
-									"mental"=> 7];
-					$i=1;
-					foreach ($r["stats"] as $key => $value) {
-					 	if( $i > 0 && $i < 10) {
-				 			displayStat($key,$value);
-				 		}
-						$i++;
-					}
-					echo '
-				</div>
-				<div class="section abilities" onClick="nextCard();" style="cursor: pointer;">';
-			  		// Display Abilities
-					echo '
-					<div class="ability">
-						<div id="first_icon" class="icon">
-							<div class="contour"></div>
-						</div>
-						<div class="wrapper">
-							<div class="info">
-								<h3 id="first_title"></h3>
-								<span class="desc" id="desc"></span>
-							</div>
-						</div>
-					</div>
-					<div class="ability">
-						<div id="second_icon" class="icon">
-							<div class="contour"></div>
-						</div>
-						<div class="wrapper">
-							<div class="info">
-								<h3 id="second_title"></h3>
-								<span class="desc" id="desc"></span>
-							</div>
-						</div>
-					</div>
-					<div class="ability">
-						<div id="third_icon" class="icon">
-							<div class="contour"></div>
-						</div>
-						<div class="wrapper">
-							<div class="info">
-								<h3 id="third_title"></h3>
-								<span class="desc" id="desc"></span>
-							</div>
-						</div>
-					</div>
-					<div class="ability">
-						<div id="fourth_icon" class="icon">
-							<div class="contour"></div>
-						</div>
-						<div class="wrapper">
-							<div class="info">
-								<h3 id="fourth_title"></h3>
-								<span class="desc" id="desc"></span>
-							</div>
-						</div>
-					</div>
-					';
-
+			<div class="section numbers stats">';
+				// Display Stats
+				$r["stats"] = [
+								"health"=>190,
+								"regrowth"=>2,
+								"endurance"=>33,
+								"energy"=>80,
+								"meditation"=>3,
+								"initiative"=>80,
+								"offense"=>30,
+								"defense"=> 5,
+								"movement"=> 4,
+								"pierce"=> 6,
+								"slash"=> 6,
+								"crush"=> 6,
+								"shock"=> 1,
+								"burn"=> 1,
+								"frost"=> 1,
+								"poison"=> 5,
+								"sonic"=> 6,
+								"mental"=> 7];
+				$i=1;
+				foreach ($r["stats"] as $key => $value) {
+				 	if( $i > 0 && $i < 10) {
+			 			displayStat($key,$value);
+			 		}
+					$i++;
+				}
 				echo '
+			</div>
+			<div class="section abilities" onClick="nextCard();" style="cursor: pointer;">';
+		  		// Display Abilities
+				echo '
+				<div class="ability">
+					<div id="first_icon" class="icon">
+						<div class="contour"></div>
+					</div>
+					<div class="wrapper">
+						<div class="info">
+							<h3 id="first_title"></h3>
+							<span class="desc" id="desc"></span>
+						</div>
+					</div>
 				</div>
-				<div class="section numbers masteries">';
-					// Display Masteries
-					$i=1;
-					foreach ($r["stats"] as $key => $value) {
-					 	if( $i > 9 &&  $i < 19) { 
-					 		displayStat($key,$value,""); 
-				 		}
-				 		$i++;
-					}
-					echo '
+				<div class="ability">
+					<div id="second_icon" class="icon">
+						<div class="contour"></div>
+					</div>
+					<div class="wrapper">
+						<div class="info">
+							<h3 id="second_title"></h3>
+							<span class="desc" id="desc"></span>
+						</div>
+					</div>
 				</div>
-			</div>';
+				<div class="ability">
+					<div id="third_icon" class="icon">
+						<div class="contour"></div>
+					</div>
+					<div class="wrapper">
+						<div class="info">
+							<h3 id="third_title"></h3>
+							<span class="desc" id="desc"></span>
+						</div>
+					</div>
+				</div>
+				<div class="ability">
+					<div id="fourth_icon" class="icon">
+						<div class="contour"></div>
+					</div>
+					<div class="wrapper">
+						<div class="info">
+							<h3 id="fourth_title"></h3>
+							<span class="desc" id="desc"></span>
+						</div>
+					</div>
+				</div>
+				';
+
+			echo '
+			</div>
+			<div class="section numbers masteries">';
+				// Display Masteries
+				$i=1;
+				foreach ($r["stats"] as $key => $value) {
+				 	if( $i > 9 &&  $i < 19) { 
+				 		displayStat($key,$value,""); 
+			 		}
+			 		$i++;
+				}
+				echo '
+			</div>
+		</div>';
 ?>
 </div>
 
@@ -217,8 +217,8 @@ Despite their combined efforts, the world's governments couldn't prevent the wor
 </div>
 
 <?php
-include('blog/subscribe.php');
-include('footer.php');
+include 'blog/subscribe.php';
+include 'footer.php';
 ?>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -272,7 +272,7 @@ nextCard();
 
 // Show next info card
 var i = 0;
-var total = 5;
+var total = 4;
 function nextCard() {
 	i = i%total+1;
 	$("#position").html(i);
@@ -286,32 +286,26 @@ function nextCard() {
 		case 1:
 			$("#first_title").html("<u>Fun Gameplay</u>").next().html("You can materialise and control a variety of units in order to do your bidding and defeat all your foes.");
 			$("#second_title").html("<u>Easy to Learn</u>").next().html("Intimidated at first sight? No worries, everything is being explained during gameplay in a very non intrusive way.");
-			$("#third_title").html("<u>Very Replayable</u>").next().html("There are basically an almost infinite combination of units and moves that can be done so no 2 battles are alike.");
+			$("#third_title").html("<u>Ultra Replayable</u>").next().html("There are basically an almost infinite combination of units and moves that can be done so no 2 battles are alike.");
 			$("#fourth_title").html("<u>Hard to Master</u>").next().html("The game only relies on pure skill and never on dice throws, chances or other luck factors. It's always all up to you!");
 		break;
 		case 2:
 			$("#first_title").html("<u>Browser Based</u>").next().html("You don't have to bother yourself with downloading and installing the game or some silly problematic browser plug-in.");
-			$("#second_title").html("<u>Optional User</u>").next().html("Eager to play? Go right ahead, you can enjoy most of the game without even having to spend any time registering.");
-			$("#third_title").html("<u>Open Source</u>").next().html("This project is mostly a community effort, so you can contribute to it as well while having fun and learning.");
-			$("#fourth_title").html("<u>Everything Translated</u> - Coming Soon").next().html("We do not like to marginalize players, so we're making an effort to have this project translated in many languages.");
+			$("#second_title").html("<u>Free to Play</u>").next().html("We're putting a lot of love and effort into this game project using free tools, we want to give back something nice.");
+			$("#third_title").html("<u>Optional User</u>").next().html("Eager to play? Go right ahead, you can enjoy most of the game without even having to spend any time registering.");
+			$("#fourth_title").html("<u>Open Source</u>").next().html("This project is mostly a community effort, so you can contribute to it as well while having fun and learning.");
 		break;
 		case 3:
-			$("#first_title").html("<u>Free to Play</u>").next().html("We're putting a lot of love and effort into this game project using free tools, we want to give back something nice.");
+			$("#first_title").html("<u>Light Weight</u>").next().html("Everything is carefully optimized so that you can enjoy playing on pretty much any device with a web browser.");
 			$("#second_title").html("<u>Input Methods</u> - Coming Soon").next().html("Given the way it was designed, you have the freedom to play this using most input methods you can think of.");
-			$("#third_title").html("<u>Light Weight</u>").next().html("Everything is carefully optimized so that you can enjoy playing on pretty much any device with a web browser.");
-			$("#fourth_title").html("<u>Low Latency</u>").next().html("There is very small internet traffic when playing online so that you can enjoy a proper match against anyone you want.");
+			$("#third_title").html("<u>Awesome Creatures</u>").next().html("They come in lots of shapes and sizes, serving as the tools to fulfil your will. Each unit comes with unique abilities.");
+			$("#fourth_title").html("<u>Town Building</u> - Coming Soon").next().html("You'll be going through a lot of fuss in order to acquire all those resources so that you can make various structures.");
 		break;
 		case 4:
 			$("#first_title").html("<u>Win Prizes</u> - Coming Soon").next().html("Not only you can play it for free, but there are ways you can actually win stuff, such as achieving high scores.");
 			$("#second_title").html("<u>Arcade Mode</u>").next().html("Having a few mates over in your living room? Enjoy playing together on your TV while also having a slice of pizza.");
 			$("#third_title").html("<u>Online Multiplayer</u> - Coming Soon").next().html("You can challenge anyone in the world to a battle while you can also team up with your best friend in 2vs2 matches.");
 			$("#fourth_title").html("<u>Challenging Bots</u> - Coming Soon").next().html("Want to play a practice match or two to polish up your skills or try out new strategy you thought of? No problem.");
-		break;
-		case 5:
-			$("#first_title").html("<u>Awesome Creatures</u>").next().html("They come in lots of shapes and sizes, serving as the tools to fulfil your will. Each unit comes with unique abilities.");
-			$("#second_title").html("<u>Town Building</u> - Coming Soon").next().html("You'll be going through a lot of fuss in order to acquire all those resources so that you can make various structures.");
-			$("#third_title").html("<u>Adventure Map</u> - Coming Soon").next().html("Explore mysterious lands and seek out fame and glory while gathering various resources and collecting deadly units.");
-			$("#fourth_title").html("<u>Single Player</u> - Coming Soon").next().html("Multiple campaigns that will keep you on your toes, testing out your various skillsets to the fullest and even beyond.");
 		break;
 	}
 }
