@@ -11,12 +11,12 @@ I'm also not too happy with the free graphical resources you can find online, so
 </div>
 
 <div class="div">
-<div id="plot"><a href="#plot"><h3 class="center">Plot</h3></a></div><br>
+<div id="synopsis"><a href="#synopsis"><h3 class="center">Synopsis</h3></a></div><br>
 Everything has a duality. I'm not a religious person but I believe in Him and I came to the conclussion that God and the Devil are the same person, two sides of the same coin. And it is said that He created us in His image, meaning we're capable of both good and evil. And the same goes for everything we make as well. Every single invention that benefit the human kind also lead to suffering and massacres. Now we face a new era, the 3rd industrial revolution, thanks to 3d printers, which allow us to make pretty much anything we can image, house hold objects, action figures, chess pieces, weapons, vehicles, buildings, organs and now even living creatures. We are living in a fantasy world where anything is possible. The average person has a lot of power in his hands, but not enough wisdom to put it to good use. Not a very comfortable thought for a good night's sleep, is it?
 </div>
 
 <div class="div">
-<div id="refs"><a href="#refs"><h3 class="center">Refs</h3></a></div><br>
+<div id="references"><a href="#references"><h3 class="center">References</h3></a></div><br>
 I've always preferred multiplayer games that have high replayability rather then playing a lot of games that only revolve around the single player modes. I don't really bother playing the latest and "greatest" AAA titles out there, but I constantly research game design and study a lot of game titles in various ways, like watching Let's Plays, watching buddies play them or reading / watching reviews. I've played quite a bit of turn based strategy games, mobas, beat'em'ups, shooters and real time strategies over the years. Even if my favorite platform was essentially the NES, these types of games except beat'em'ups and tbs' don't really cut it on it (or being played with game pads), but I kinda felt that some of them lacked a bit of soul since they were less about bringing people physically together, to play face-to-face, except for Chess, which on the other hand, feels rather dull and outdated when being played on a device, even a missuse of modern hardware if you ask me, which applies to a lot of Collectible / Trading Card Games (CCG/TCG), usually played by old people in parks, while online you tend to not even see your opponent's face, chances being you're actually not playing against a real person, but a bot pretending to be one.
 HoMM3, Disciples 2, Dota, Age of Wonders 2, League of Legends, Heroes of Newerth, Chess
 </div>

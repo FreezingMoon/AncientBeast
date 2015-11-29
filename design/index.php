@@ -10,10 +10,10 @@ require_once "../header.php";
 $sections = array(
 	'info',
 	'input',
+	'combat',
 	'arcade',
-	'duels',
 	'tournament',
-	'wars'
+	'kingdom'
 );
 echo '<nav class="div center" id="navigation"><ul class="sections">';
 foreach ($sections as &$sectionItem) {
@@ -37,19 +37,19 @@ switch ($view) {
 				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Input Methods</div></a>
 			</div>
 			<div style="display: inline-block;" class="lighten">
-				<a href="?view=arcade"><img src="<?php echo $site_root; ?>images/squares/arcade.jpg" class="frame"><br>
-				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Arcade Mode</div></a>
+				<a href="?view=combat"><img src="<?php echo $site_root; ?>images/squares/deviantart.jpg" class="frame"><br>
+				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Combat Details</div></a>
 			</div>
 			<div style="display: inline-block;" class="lighten">
-				<a href="?view=duels"><img src="<?php echo $site_root; ?>images/squares/deviantart.jpg" class="frame"><br>
-				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Hardcore Duels</div></a>
+				<a href="?view=arcade"><img src="<?php echo $site_root; ?>images/squares/arcade.jpg" class="frame"><br>
+				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Arcade Mode</div></a>
 			</div>
 			<div style="display: inline-block;" class="lighten">
 				<a href="?view=tournament"><img src="<?php echo $site_root; ?>images/squares/contribute.jpg" class="frame"><br>
 				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Monthly Tournament</div></a>
 			</div>
 			<div style="display: inline-block;" class="lighten">
-				<a href="?view=wars"><img src="<?php echo $site_root; ?>images/squares/kingdom.jpg" class="frame"><br>
+				<a href="?view=kingdom"><img src="<?php echo $site_root; ?>images/squares/kingdom.jpg" class="frame"><br>
 				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Kingdom Wars</div></a>
 			</div>
 		</div>
@@ -64,20 +64,20 @@ switch ($view) {
 		include 'input.php';
 		break;
 
-	case 'arcade':
-		include 'arcade.php';
+	case 'combat':
+		include 'combat.php';
 		break;
 
-	case 'duels':
-		include 'duels.php';
+	case 'arcade':
+		include 'arcade.php';
 		break;
 
 	case 'tournament':
 		include 'tournament.php';
 		break;
 
-	case 'wars':
-		include 'wars.php';
+	case 'kingdom':
+		include 'kingdom.php';
 }
 ?>
 

@@ -1,0 +1,46 @@
+.card {
+	width: 400px;
+	height: 520px;
+	padding: 15px;
+	background-repeat: no-repeat !important;
+	background-position: center !important;
+	cursor: default;
+	display: inline-block;
+	vertical-align: top;
+}
+.section {
+	color: #fff;
+	width: 100%;
+	text-shadow: black 0.1em 0.1em 0.2em;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.abilities { text-align: left; }
+
+.abilities h3 { font-size: 16px; margin: 0; text-decoration: underline; }
+
+.abilities .icon { position: absolute; left: 0px; top: 0px; }
+
+.abilities .icon, .contour{
+	display: inline-block;
+	background-size: 100% 100%;
+	width: 130px;
+	height: 130px;
+	background-image: url(../images/missing.png)
+}
+
+.abilities .icon .contour { background-image: url(../images/contour.png); }
+
+.ability { position: relative; padding-right: 3px; }
+
+.abilities .ability .wrapper{
+	display: table-cell; 
+	height: 130px;
+	padding-left: 133px;
+	vertical-align: middle;
+}
+
+.abilities .ability .info { display: inline-block; }
+
+#first_title { font-size: 28px !important; text-decoration: none !important; }

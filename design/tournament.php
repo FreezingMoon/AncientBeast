@@ -413,5 +413,3 @@ email template or web app for sponsorship request (might be in contribute / fund
 </tbody>
 </table>
 </div>
-
-<?php include 'combat.php'; ?>
