@@ -9,7 +9,7 @@
 	<a href="https://www.bountysource.com/trackers/260151-ancient-beast">
 		<img src="<?php echo $site_root; ?>images/footer/bountysource.png" width=48px; height=48px; class="lighten" alt="bountysource" title="Place some bounties!">
 	</a>
-	<a href="https://www.patreon.com/AncientBeast" target="_blank">
+	<a href="https://www.patreon.com/FreezingMoon" target="_blank">
 		<img src="<?php echo $site_root; ?>images/footer/patreon.png" width=48px; height=48px; class="lighten" alt="patreon" title="Donate via Patreon!">
 	</a>
 	<a href="https://flattr.com/thing/126547/Ancient-Beast" target="_blank">
