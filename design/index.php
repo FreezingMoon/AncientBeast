@@ -29,23 +29,23 @@ switch ($view) {
 		?>
 		<div class="center">
 			<div style="display: inline-block;" class="lighten">
-				<a href="?view=info"><img src="<?php echo $site_root; ?>images/squares/viewer.jpg" class="frame"><br>
+				<a href="?view=info"><img src="<?php echo $site_root; ?>images/squares/info.jpg" class="frame"><br>
 				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Project Info</div></a>
+			</div>
+			<div style="display: inline-block;" class="lighten">
+				<a href="?view=combat"><img src="<?php echo $site_root; ?>images/squares/combat.jpg" class="frame"><br>
+				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Combat Details</div></a>
 			</div>
 			<div style="display: inline-block;" class="lighten">
 				<a href="?view=input"><img src="<?php echo $site_root; ?>images/squares/input.jpg" class="frame"><br>
 				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Input Methods</div></a>
 			</div>
 			<div style="display: inline-block;" class="lighten">
-				<a href="?view=combat"><img src="<?php echo $site_root; ?>images/squares/deviantart.jpg" class="frame"><br>
-				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Combat Details</div></a>
-			</div>
-			<div style="display: inline-block;" class="lighten">
 				<a href="?view=arcade"><img src="<?php echo $site_root; ?>images/squares/arcade.jpg" class="frame"><br>
 				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Arcade Mode</div></a>
 			</div>
 			<div style="display: inline-block;" class="lighten">
-				<a href="?view=tournament"><img src="<?php echo $site_root; ?>images/squares/contribute.jpg" class="frame"><br>
+				<a href="?view=tournament"><img src="<?php echo $site_root; ?>images/squares/tournament.jpg" class="frame"><br>
 				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Monthly Tournament</div></a>
 			</div>
 			<div style="display: inline-block;" class="lighten">

@@ -34,7 +34,6 @@ $style = '
 require_once("../header.php");
 
 // Display list of subpages
-
 $sections = array(
 	'artwork',
 	'fanart',
@@ -45,7 +44,7 @@ $sections = array(
 );
 echo '<nav class="div center" id="navigation"><ul class="sections">';
 foreach ($sections as &$sectionItem) {
-	echo '<li style="display:inline;"><a href="?type=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding:2em;">' . ucfirst($sectionItem) . '</a></li>';
+	echo '<li style="display: inline;"><a href="?type=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding:2em;">' . ucfirst($sectionItem) . '</a></li>';
 }
 echo '</ul></nav>';
 ?>
@@ -53,6 +52,7 @@ echo '</ul></nav>';
 <script>
 // Set page title
 document.title = "Ancient Beast - <?php echo ucfirst($type); ?>";
+
 // Hightlight media page
 document.getElementById("Media").className += " active";
 </script>

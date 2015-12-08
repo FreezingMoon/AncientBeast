@@ -86,7 +86,7 @@ if(isset($_GET['action']) == 'logout'){
   $menu = array('units', 'media', 'shop', 'play', 'blog', 'chat');
   foreach ($menu as &$menuItem) {
     echo '<td>
-      <a href="' . $site_root . $menuItem . '" id="' . ucfirst($menuItem) . '" style="display:block;" class="lighten">
+      <a href="' . $site_root . $menuItem . '/" id="' . ucfirst($menuItem) . '" style="display:block;" class="lighten">
       <img alt=" ' . ucfirst($menuItem) . '" src="' . $site_root . 'images/icons/' . $menuItem . '.png" width="90" height="90"><br>
       ' . ucfirst($menuItem) . '</a></td>';
   } 

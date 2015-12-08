@@ -9,15 +9,19 @@ The game was carefully designed to be playable with pretty much any modern or fu
 
 //explain why it's nicely design<br>
 //and how each input device works<br>
-mouse<br>
-keyboard<br>
-(combination)<br>
-gamepad<br>
-touchscreen<br>
-smartphone<br>
+Implemented<br>
+mouse - you don't even need to click any of the UI in order to play fast<br>
+keyboard - the game is fully playable with just hotkeys, even if lacking a mouse<br>
+(combination) - when playing from a desktop PC, it's ideal to have a mouse + keyboard combo<br>
+gamepad - one having a d-pad ideally, since it will help a lot targeting stuff on the hex grid<br>
+touchscreen (monitor, smart TV, Microsoft Surface) - the game was designed with them in mind, so the interface is very touch friendly, same goes for the gameplay<br>
+smartphone - mainly being used as a controller (in the future, for playing AB directly as well, requires optimizations, panning/zooming, bigger screen/phablet = better, also resolution tweaks, gameplay somewhat too long for phone compared to casual games) for when playing on a smart TV in Arcade mode, especially along with other people, as it makes it easy to log-in all the players if having the controller app preinstalled<br>
 tablet<br>
-voice commands<br>
-hand gestures<br>
-mind control<br>
-future plans: AR (seeing the units in front of you and moving them with your hands) and VR (being on the combat field yourself)
+<br>
+Brainstorm<br>
+voice commands - easy targeting because of the grid coordinate system, similar to chess, if the desktop or smart TV is missing a microphone, this input method could be executed from the smartphone app<br>
+hand gestures - there are already smart TVs that replaced the remote as the main interaction mode, removing it completely, so that you won't have to remember where you put it anymore<br>
+mind control - control the game in a similar fashion to how Dark Priests control their unit using their Psyhelmets, by using a mind control helmet that reads certain brain waves and associates them to specific in-game actions<br>
+Augmented Reality (seeing the units in front of you and moving them with your hands)<br>
+Virtual Reality (being on the combat field yourself)
 </div>

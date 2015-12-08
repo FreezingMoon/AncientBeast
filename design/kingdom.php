@@ -64,7 +64,7 @@ city layout: 3x3 grid; square (homm3) or diamond (isometric, homm4) to be decide
 <p></p>
 <u>Material Church</u> - Living Armor<br>
 <p></p>
-<u>Tribute Shrine / throne</u> - Golden Wyrm<br>
+<u>Tribute Shrine / Throne</u> - Golden Wyrm<br>
 <p></p>
 </p>
 <br>
@@ -93,19 +93,19 @@ city layout: 3x3 grid; square (homm3) or diamond (isometric, homm4) to be decide
 <br>
 <u>Sculpted Totem</u><br>
 <p></p>
-<u>deadly/hazard-ous Glade / sacrifice altar / skull tray / chest / fungal den/relics / mystic stone / Twisted Tree</u> - Toxic Shroom<br>
+<u>Fungal Throne / Shrine</u> - Toxic Shroom<br>
 <p></p>
 <u>Peaceful Lily/swamp</u> - Swampler<br>
 <p></p>
 <u>Stump Hyve / Mystic Ziggurat</u> - Uncle Fungus<br>
 <p></p>
-<u>Flower Pot</u> - Miss Creeper<br>
+<u>Mystic Ziggurat</u> - Miss Creeper<br>
 <p></p>
-<u>Mystic Ziggurat / Monkey Cup (nepenthes)</u> - Papa Eggplant<br>
-<p></p>
+<u>Monkey Cup</u> - Papa Eggplant<br>
+<p>nepenthes carnivore flower</p>
 <u>Digestive Tub / Corrosive Pool</u> - Marauder<br>
 <p></p>
-<u>Sacred Ground / Sacrificial / Grave Glade / Secret Glade / Waterfall Den</u> - Moss Hound<br>
+<u>Waterfall Den</u> - Moss Hound<br>
 <p>A forest having a small glade, with a dead tree in the middle, having butterflies in it. The forest is so tick that the trees are forming a wall, the only visible entrance appears to be a wolf shaped den.</p>
 <p>
 <br>
@@ -196,7 +196,7 @@ city layout: 3x3 grid; square (homm3) or diamond (isometric, homm4) to be decide
 </div>
 
 <div class="div">
-<div id="skills"><a href="#cities"><h3 class="center">Skills and Perks</h3></a></div><br>
+<div id="skills"><a href="#skills"><h3 class="center">Skills and Perks</h3></a></div><br>
 <p>
 Your summoner gains experience and can level up, learning skills/perks, some of them are mutually exclusive and you can only have a total of 7, so choose them wisely to suite your needs.
 </p>
