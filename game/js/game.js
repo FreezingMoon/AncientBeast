@@ -211,7 +211,7 @@ var Game = Class.create({
 		this.Phaser.load.image('background', "locations/"+this.background_image+"/bg.jpg");
 
 		// Get JSON files
-		$j.getJSON("../units/data.json", function(json_in) {
+		$j.getJSON("js/data.json", function(json_in) {
 			G.creatureJSON = json_in;
 
 			G.creatureDatas = G.creatureJSON;
@@ -225,7 +225,7 @@ var Game = Class.create({
 				// Load unit shouts
 				G.soundsys.getSound('../units/shouts/'+data.name+'.ogg', 1000+G.loadedCreatures[j],function() { G.loadFinish(); });
 				// Load unit abilities
-				getScript('abilities/'+data.name+'.js', function() { G.loadFinish(); });
+				getScript('js/abilities/'+data.name+'.js', function() { G.loadFinish(); });
 				// Load artwork
 				getImage('../units/artwork/'+data.name+'.jpg', function() { G.loadFinish(); });
 

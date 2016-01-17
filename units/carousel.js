@@ -1,8 +1,12 @@
 $(function() {
 	// Get the units data as an array
-	$.getJSON("data.json", function(units) {
+	$.getJSON("../game/js/data.json", function(units) {
 		// Select URL defined unit or a random one to spice things up
-		var selected = Math.floor(Math.random()*units.length);
+		//var selected = Math.floor(Math.random()*units.length);
+		// The selected unit is defined before script inclusion
+
+		//window.history.pushState("", "", '?view=viewer&id=' + selected);
+
 		// Change the avatars, always showing the focused unit in middle
 		function carousel() {
             $('#carousel').html('');
@@ -19,8 +23,10 @@ $(function() {
 			selected = number;
 			carousel();
 		};
+
 		carousel();
-			// Show the cards for the selected unit, progress indicator
+
+			// Show the cards for the selected unit, progress indicator (update if different unit)
 			// If new avatar is clicked, repeat the whole process and also update the URL to match
 			// Bonus: Page title and disqus commenting system could also match the selected unit
 			// Note: It's hard to do PHP's ksort algorithm inside javascript, so use type sorting

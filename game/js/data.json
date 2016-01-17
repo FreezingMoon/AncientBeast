@@ -483,8 +483,8 @@
 			"energy": 80,
 			"meditation": 25,
 			"initiative": 66,
-			"offense": 8,
-			"defense": 22,
+			"offense": 9,
+			"defense": 18,
 			"movement": 4,
 			"pierce": 14,
 			"slash": 14,
@@ -512,12 +512,11 @@
 		},
 		"ability_info": [
 			{
-				"title": "Snow Fall",
-				"desc": "Chills nearby units at the start of the turn, while healing sloth units & self.",
-				"info": "10 frost debuff, 10 heal to sloth units",
+				"title": "Lamellar Body",
+				"desc": "Gains extra defense and frost mastery with every sloth unit on the battlefield.",
+				"info": "1 defense & 1 frost for each sloth unit",
 				"effects": [{
-					"movement": -1,
-					"initiative": -5
+					"frost": 1
 				}]
 		},
 			{
@@ -535,9 +534,9 @@
 				}
 		},
 			{
-				"title": "Frost Bite",
-				"desc": "Exhales chilling gas that damages a nearby foe, making it unable to heal.",
-				"info": "20 frost damage & disabled healing",
+				"title": "Heavy Cloud",
+				"desc": "Summons a snow fall over any area, buffing sloth units under with frost mastery while debuffing other units.",
+				"info": "5 frost mastery stackable buff/debuff",
 				"damages": {
 					"frost": 20
 				},
@@ -546,9 +545,9 @@
 				}
 		},
 			{
-				"title": "Frozen Orb",
-				"desc": "Throws an ice sphere at an inline spot, freezing a foe or doing damage nearby.",
-				"info": "30 frost damage & freeze or splashing",
+				"title": "Snowman Guard",
+				"desc": "Creates a snow warrior nearby that will attack any frontal inline foe each turn.",
+				"info": "100 hp, 10 frost damage and mastery",
 				"damages": {
 					"crush": 10
 				},
@@ -682,7 +681,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Last Stand",
+				"title": "Life Support",
 				"desc": "Can act one more turn after being killed.",
 				"info": ""
             },
@@ -976,7 +975,7 @@
 				}
 		},
 			{
-				"title": "Chilling Spit",
+				"title": "Freezing Spit",
 				"desc": "Spits diagonal foe with cold saliva. Bonus damage based on distance.",
 				"info": "7 frost + 3 crush damage / hexagon",
 				"damages": {
@@ -1526,7 +1525,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Half Life",
+				"title": "Half Full",
 				"desc": "Can regenerate health up to double. Maximum health is still the initial one.",
 				"info": ""
             },
@@ -2381,7 +2380,7 @@
 				"info": "+25% physical resistance to damage"
             },
 			{
-				"title": "Heavy Mace",
+				"title": "Brass Mace",
 				"desc": "Does versatile damage to nearby foe.",
 				"info": "10 pierce + 10 crush + 5 slash damage"
             },
@@ -2649,7 +2648,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Maggot Infestation",
+				"title": "Larva Infest",
 				"desc": "Strikes any rear foe at beginning of turn, infesting it with a big parasite.",
 				"info": "-5 endurance stat debuff, stackable",
 				"effects": [{
@@ -2679,7 +2678,7 @@
 				}
 		},
 			{
-				"title": "Boomerang Throw",
+				"title": "Boomerang Tool",
 				"desc": "Forms a new weapon out of blades and throws it away 5 hexagons, returning.",
 				"info": "10 slash damage over 15 hexagons x 2",
 				"damages": {
