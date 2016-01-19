@@ -55,5 +55,5 @@ The project is developed with the use of free open source cross platform applica
 
 ### Contribute
 <p>
-There are various ways in which you can help out the project. Check out the <a href="http://ancientbeast.com/contribute" target="_blank">"Make Your Contribution"</a> guide and let's get things going!
+There are various ways in which you can help out the project. Check out the <a href="http://ancientbeast.com/contribute" target="_blank">"Make Your Contribution"</a> guide and get it going!
 </p>
