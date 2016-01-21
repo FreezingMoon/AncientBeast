@@ -149,7 +149,6 @@ ga('send', 'pageview');
 							<input type="radio" id="bgopt3" name="location" value="Frozen Skull"><label for="bgopt3">Frozen Skull</label>
 							<input type="radio" id="bgopt4" name="location" value="Shadow Cave"><label for="bgopt4">Shadow Cave</label>
 						</span><br/>
-						<!-- <div style="background:url('../locations/Shadow Cave/prev.jpg'); width : 400px; height : 225px; display: inline-block;"></div> -->
 					</div>
 					<br>
 					<div style="font-size: 1.5em !important;">
