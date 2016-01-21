@@ -336,7 +336,7 @@
 				}
 		},
 			{
-				"title": "Pulverizing Pummel",
+				"title": "Pulverizing Hit",
 				"desc": "Smacks a foe with its heavy hand, gaining bonus damage every hit.",
 				"info": "8 crush damage, + 3 burn per hit",
 				"damages": {
