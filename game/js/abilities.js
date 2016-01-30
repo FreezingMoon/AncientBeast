@@ -146,8 +146,6 @@ var Ability = Class.create({
 			.to({x:p2}, 100, Phaser.Easing.Linear.None)
 			.to({x:p0}, 150, Phaser.Easing.Linear.None)
 			.start();
-			
-			ab.animation_datas.visual.apply(ab,args);
 
 			setTimeout(function() {
 				if( !G.triggers.onAttack.test(ab.trigger) ) {

@@ -84,7 +84,7 @@ var Game = Class.create({
 			40, // Nutcase
 			9, // Nightmare
 			39, // Headless
-			//44, // Scavenger
+			44, // Scavenger
 			31, // Cyber Hound
 			//6, // Ice Demon
 			//22, // Lava Mollusk
