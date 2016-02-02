@@ -2654,7 +2654,7 @@
 				"effects": [{
 					"special": "-5 %endurance% debuff, stackable"
 				}]
-		},
+			},
 			{
 				"title": "Cartilage Dagger",
 				"desc": "Hits nearby foe using frontal blade. Double damage if unit is fatigued.",
@@ -2665,7 +2665,7 @@
 				"costs": {
 					"energy": 15
 				}
-		},
+			},
 			{
 				"title": "Whip Slash",
 				"desc": "Grasps a distant foe, pulling itself to it, doing damage based on total distance.",
@@ -2676,7 +2676,7 @@
 				"costs": {
 					"energy": 20
 				}
-		},
+			},
 			{
 				"title": "Boomerang Tool",
 				"desc": "Forms a new weapon out of blades and throws it away 5 hexagons, returning.",
@@ -2734,9 +2734,10 @@
 		},
 		"ability_info": [
 			{
-				"title": "War Horn",
-				"desc": "Moves 3 hexes towards closest foe. Movement points are not deducted.",
-				"info": "This creature can't ever be delayed"
+				"title": "Tentacle Bush",
+				"desc": "Grabs hold of all the melee attackers, making them unable to move that turn.",
+				"info": "Becomes unmovable by most abilities.",
+				"upgrade" : "grabs also do 5 crush damage"
 		},
 			{
 				"title": "Hammer Time",
@@ -2751,6 +2752,18 @@
 				}
 		},
 			{
+				"title": "War Horn",
+				"desc": "Charges towards an inline foe, hitting it and also pushing it as much as possible.",
+				"info": "10 pierce damage + 1 more per hexagon",
+				"upgrade" : "5 bonus pierce damage on hit",
+				"damages": {
+					"pierce": 20
+				},
+				"costs": {
+					"energy": 20
+				}
+		},
+			{
 				"title": "Fishing Hook",
 				"desc": "Pierces a nearby unit while swapping places if it is small or medium sized.",
 				"info": "10 pierce + 10 crush damage & swap",
@@ -2760,14 +2773,6 @@
 				},
 				"costs": {
 					"energy": 25
-				}
-		},
-			{
-				"title": "Tentacle Bush",
-				"desc": "Curls up in a defensive stance, reducing 25% damage from first 4 incoming hits.",
-				"info": "Becomes unmovable and skips the turn",
-				"costs": {
-					"energy": 10
 				}
 		}
 	]
