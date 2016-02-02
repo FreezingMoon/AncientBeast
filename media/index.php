@@ -189,7 +189,7 @@ switch($type) {
 		</ul>
 		</div><div class="div center">Click on a track to start playing it. Let us know which are your favorite ones by leaving a comment bellow.</div>
 		<?php disqus(); ?>
-		<script type="text/javascript" src="musicplayer.js"></script>
+		<script type="text/javascript" src="../game/js/music.js"></script>
 <?php
 }
 echo "</div></div>";

@@ -2,7 +2,7 @@
 // Fetches all the unit data along with their progress status
 function get_creatures() {
 	$progress_json = json_decode(file_get_contents('../units/progress.json'), true);
-	$creature_json = json_decode(file_get_contents('../game/js/data.json'), true);
+	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
 	$creature_results = [];
 	$i = 0;
 	foreach($creature_json as &$creature) {
@@ -16,7 +16,7 @@ function get_creatures() {
 
 // Fetches all the unit stats
 function get_stats() {
-	$creature_json = json_decode(file_get_contents('../game/js/data.json'), true);
+	$creature_json = json_decode(file_get_contents('../units/data.json'), true);
 	$stats_results = [];
 	$i = 0;
 	foreach($creature_json as &$creature) {
