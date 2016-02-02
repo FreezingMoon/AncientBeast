@@ -147,8 +147,6 @@ var Ability = Class.create({
 			.to({x:p0}, 150, Phaser.Easing.Linear.None)
 			.start();
 
-			ab.animation_datas.visual.apply(ab,args);
-
 			setTimeout(function() {
 				if( !G.triggers.onAttack.test(ab.trigger) ) {
 					G.soundsys.playSound(G.soundLoaded[2],G.soundsys.effectsGainNode);
