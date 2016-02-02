@@ -147,8 +147,6 @@ var Ability = Class.create({
 			.to({x:p0}, 150, Phaser.Easing.Linear.None)
 			.start();
 
-			ab.animation_datas.visual.apply(ab,args);
-
 			setTimeout(function() {
 				if( !G.triggers.onAttack.test(ab.trigger) ) {
 					G.soundsys.playSound(G.soundLoaded[2],G.soundsys.effectsGainNode);
@@ -2223,7 +2221,7 @@ var Game = Class.create({
 			40, // Nutcase
 			9, // Nightmare
 			39, // Headless
-			//44, // Scavenger
+			44, // Scavenger
 			31, // Cyber Hound
 			//6, // Ice Demon
 			//22, // Lava Mollusk
@@ -3724,6 +3722,76 @@ function print_r(arr,level) {
 	}
 	return dumped_text;
 }
+
+jQuery(document).ready(function() { 
+    musicPlayer.init();
+});
+
+var musicPlayer = {
+    init: function() {
+
+        var mp = this;
+
+        this.current = 0;
+        this.audio = jQuery('#audio')[0];
+        this.playlist = jQuery('#playlist');
+        this.tracks = this.playlist.find('li a');
+
+        this.repeat = true;
+        this.shuffle = true;
+
+        this.audio.volume = .25;
+        this.audio.pause();
+
+        jQuery('#mp_shuffle').addClass("active").click(function(e) {
+            jQuery(this).toggleClass("active");
+            mp.shuffle = !mp.shuffle;
+        });
+
+        this.playlist.find('a').click(function(e) {
+            e.preventDefault();
+            mp.current = jQuery(this).parent().index();
+            mp.run( jQuery(this) );
+        });
+
+        this.audio.addEventListener('ended',function(e) {
+            if(mp.shuffle){
+                mp.playRandom();
+            } else {
+                mp.playNext();
+            }
+        });
+    },
+
+    playRandom: function() {
+        do {
+            var rand = Math.floor( Math.random() * ( this.tracks.length - 1 ) );
+        } while(rand == this.current); // Don't play the same track twice in a row
+        this.current = rand;
+        var link = this.playlist.find('a')[this.current];
+        this.run( jQuery(link) );
+    },
+
+    playNext: function() {
+        this.current++;
+        if(this.current == this.tracks.length && this.repeat) {
+            this.current = 0;
+        }
+        var link = this.playlist.find('a')[this.current];
+        this.run( jQuery(link) );
+    },
+
+    run: function(link) {
+        // Style the active track in the playlist
+        par = link.parent();
+        par.addClass('active').siblings().removeClass('active');
+
+        this.audio.src = link.attr("href");
+        this.audio.load();
+        this.audio.play();
+    }
+
+};
 
 /** Initialize the game global variable */
 var G = new Game();

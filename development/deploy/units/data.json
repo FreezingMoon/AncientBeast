@@ -2,7 +2,7 @@
 	{
 		"id": 0,
 		"name": "Dark Priest",
-		"lvl": "-",
+		"level": "-",
 		"realm": "-",
 		"size": 1,
 		"type": "--",
@@ -88,7 +88,7 @@
 	{
 		"id": 1,
 		"name": "Bounty Hunter",
-		"lvl": 2,
+		"level": 2,
 		"realm": "A",
 		"size": 1,
 		"type": "A2",
@@ -133,7 +133,7 @@
 				"info": "20 pierce damage in any of 6 directions"
 		},
 			{
-				"title": "Rifle Assassination",
+				"title": "Rifle Assassin",
 				"desc": "Very powerful long range attack that can strike up to 12 hexagons distance.",
 				"info": "40 pierce damage in any of 6 directions"
 		}
@@ -142,7 +142,7 @@
 	{
 		"id": 2,
 		"name": "Marauder",
-		"lvl": 6,
+		"level": 6,
 		"realm": "G",
 		"size": 3,
 		"type": "G6",
@@ -196,7 +196,7 @@
 	{
 		"id": 3,
 		"name": "Uncle Fungus",
-		"lvl": 3,
+		"level": 3,
 		"realm": "G",
 		"size": 2,
 		"type": "G3",
@@ -287,7 +287,7 @@
 	{
 		"id": 4,
 		"name": "Magma Spawn",
-		"lvl": 2,
+		"level": 2,
 		"realm": "L",
 		"size": 3,
 		"type": "L2",
@@ -336,7 +336,7 @@
 				}
 		},
 			{
-				"title": "Pulverizing Pummel",
+				"title": "Pulverizing Hit",
 				"desc": "Smacks a foe with its heavy hand, gaining bonus damage every hit.",
 				"info": "8 crush damage, + 3 burn per hit",
 				"damages": {
@@ -363,7 +363,7 @@
 		},
 			{
 				"title": "Molten Hurl",
-				"desc": "Turns into a magma boulder, bowling itself into first foe in a straight line. Destroys all the traps along the way.",
+				"desc": "Bowls itself into first inline foe, while destroying all the traps along the way.",
 				"info": "10 crush + 5 burn damage & movement",
 				"damages": {
 					"crush": 10,
@@ -381,7 +381,7 @@
 	{
 		"id": 5,
 		"name": "Impaler",
-		"lvl": 5,
+		"level": 5,
 		"realm": "S",
 		"size": 3,
 		"type": "S5",
@@ -391,7 +391,7 @@
 			"regrowth": 10,
 			"endurance": 40,
 			"energy": 80,
-			"meditation": 30,
+			"meditation": 10,
 			"initiative": 75,
 			"offense": 14,
 			"defense": 7,
@@ -423,19 +423,18 @@
 		"ability_info": [
 			{
 				"title": "Electrified Hair",
-				"desc": "Reduces half of all incoming shock damage, up to 100 points per turn.",
+				"desc": "Converts up to 1/4 of any incoming shock damage into energy points.",
 				"info": "This isn't affected by any unit stats",
 				"effects": [{
-					"special": "Maximum of 100 %shock% damage absorbed."
-				}],
-				"maxCharge": 100
+					"special": "Converts ~25%%shock% into%energy%"
+				}]
     		},
 			{
 				"title": "Hasted Jab",
 				"desc": "Horn attack that gains extra damage based on the last distance traveled.",
 				"info": "15 pierce damage + 5 per hexagon",
 				"damages": {
-					"special": "12%pierce%+ 3 per hexagon"
+					"special": "15%pierce%+ 5 per hexagon"
 				},
 				"damages1": {
 					"pierce": 12
@@ -449,9 +448,7 @@
 				"desc": "Tangles a nearby foe, causing it to take damage if it will move within next turn.",
 				"info": "25 poison damage triggered if moving",
 				"effects": [{
-					"special": "<br>+ 1%poison%permanent damage"
-				}, {
-					"special": "<br>+ 5%poison%temporary damage"
+					"special": "25 poison damage if moving"
 				}],
 				"costs": {
 					"energy": 10
@@ -459,11 +456,11 @@
     		},
 			{
 				"title": "Arched Pole",
-				"desc": "Damages up to 9 nearby creatures, hitting them up to twice if one dies.",
+				"desc": "Damages up to 9 nearby creatures, even hitting them twice if one dies.",
 				"info": "9 slash + 5 frost damage up to 2 hits",
 				"damages": {
-					"slash": 16,
-					"frost": 4
+					"slash": 9,
+					"frost": 5
 				},
 				"costs": {
 					"energy": 20
@@ -474,7 +471,7 @@
 	{
 		"id": 6,
 		"name": "Ice Demon",
-		"lvl": 7,
+		"level": 7,
 		"realm": "S",
 		"size": 3,
 		"type": "S7",
@@ -486,8 +483,8 @@
 			"energy": 80,
 			"meditation": 25,
 			"initiative": 66,
-			"offense": 8,
-			"defense": 22,
+			"offense": 9,
+			"defense": 18,
 			"movement": 4,
 			"pierce": 14,
 			"slash": 14,
@@ -515,12 +512,11 @@
 		},
 		"ability_info": [
 			{
-				"title": "Snow Fall",
-				"desc": "Chills nearby units at the start of the turn, while healing sloth units & self.",
-				"info": "10 frost debuff, 10 heal to sloth units",
+				"title": "Lamellar Body",
+				"desc": "Gains extra defense and frost mastery with every sloth unit on the battlefield.",
+				"info": "1 defense & 1 frost for each sloth unit",
 				"effects": [{
-					"movement": -1,
-					"initiative": -5
+					"frost": 1
 				}]
 		},
 			{
@@ -538,9 +534,9 @@
 				}
 		},
 			{
-				"title": "Frost Bite",
-				"desc": "Exhales chilling gas that damages a nearby foe, making it unable to heal.",
-				"info": "20 frost damage & disabled healing",
+				"title": "Heavy Cloud",
+				"desc": "Summons a snow fall over any area, buffing sloth units under with frost mastery while debuffing other units.",
+				"info": "5 frost mastery stackable buff/debuff",
 				"damages": {
 					"frost": 20
 				},
@@ -549,9 +545,9 @@
 				}
 		},
 			{
-				"title": "Frozen Orb",
-				"desc": "Throws an ice sphere at an inline spot, freezing a foe or doing damage nearby.",
-				"info": "30 frost damage & freeze or splashing",
+				"title": "Snowman Guard",
+				"desc": "Creates a snow warrior nearby that will attack any frontal inline foe each turn.",
+				"info": "100 hp, 10 frost damage and mastery",
 				"damages": {
 					"crush": 10
 				},
@@ -567,7 +563,7 @@
 	{
 		"id": 7,
 		"name": "Abolished",
-		"lvl": 7,
+		"level": 7,
 		"realm": "P",
 		"size": 3,
 		"type": "P7",
@@ -610,12 +606,14 @@
 			{
 				"title": "Burning Heart",
 				"desc": "Hits reduce the target's burn mastery.",
-				"info": "-5 burn mastery each successful strike"
+				"info": "-1 burn mastery each successful strike",
+				"upgrade": "+1 burn mastery to self on hit"
 		},
 			{
 				"title": "Fiery Touch",
-				"desc": "Scratches and also burns a nearby foe. This attack has 1 hexagon extra reach.",
+				"desc": "Scratches and burns a distant enemy. This attack has 3 hexagons extra reach.",
 				"info": "10 slash + 10 burn damage for each hit",
+				"upgrade": "Doubles the hexagon range.",
 				"damages": {
 					"slash": 10,
 					"burn": 10
@@ -626,8 +624,9 @@
 		},
 			{
 				"title": "Wild Fire",
-				"desc": "Strategically teleports to a new location leaving a firewall behind.",
-				"info": "3 x 10 burn damage per hexagon",
+				"desc": "Teleports within 6 hexagons range, leaving a firewall in the old location.",
+				"info": "3 x 10 burn damage per hexagon.",
+				"upgrade": "Infinite teleportation range.",
 				"effects": [{
 					"special": "10 %burn% damage per hex"
 				}],
@@ -639,6 +638,7 @@
 				"title": "Greater Pyre",
 				"desc": "Meditates for a short period while causing burns to all adjacent units.",
 				"info": "20 burn damage nearby, hurts allies",
+				"upgrade": "+10 burn bonus damage.",
 				"damages": {
 					"burn": 20
 				},
@@ -651,7 +651,7 @@
 	{
 		"id": 8,
 		"name": "Horn Head",
-		"lvl": 5,
+		"level": 5,
 		"realm": "W",
 		"size": 2,
 		"type": "W5",
@@ -681,7 +681,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Last Stand",
+				"title": "Life Support",
 				"desc": "Can act one more turn after being killed.",
 				"info": ""
             },
@@ -705,7 +705,7 @@
 	{
 		"id": 9,
 		"name": "Nightmare",
-		"lvl": 4,
+		"level": 4,
 		"realm": "S",
 		"size": 2,
 		"type": "S4",
@@ -795,7 +795,7 @@
 	{
 		"id": 10,
 		"name": "Troglodyte",
-		"lvl": 3,
+		"level": 3,
 		"realm": "P",
 		"size": 3,
 		"type": "P3",
@@ -849,7 +849,7 @@
 	{
 		"id": 11,
 		"name": "Toxic Shroom",
-		"lvl": 1,
+		"level": 1,
 		"realm": "G",
 		"size": 1,
 		"type": "G1",
@@ -904,7 +904,7 @@
 	{
 		"id": 12,
 		"name": "Snow Bunny",
-		"lvl": 1,
+		"level": 1,
 		"realm": "S",
 		"size": 1,
 		"type": "S1",
@@ -975,7 +975,7 @@
 				}
 		},
 			{
-				"title": "Chilling Spit",
+				"title": "Freezing Spit",
 				"desc": "Spits diagonal foe with cold saliva. Bonus damage based on distance.",
 				"info": "7 frost + 3 crush damage / hexagon",
 				"damages": {
@@ -991,7 +991,7 @@
 	{
 		"id": 13,
 		"name": "Swampler",
-		"lvl": 2,
+		"level": 2,
 		"realm": "G",
 		"size": 1,
 		"type": "G2",
@@ -1021,7 +1021,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Natural Environment",
+				"title": "Natural Habitat",
 				"desc": "Initial spot will become a swamp home.",
 				"info": "+15 Poison mastery bonus while inside"
 		},
@@ -1055,7 +1055,7 @@
 	{
 		"id": 14,
 		"name": "Gumble",
-		"lvl": 1,
+		"level": 1,
 		"realm": "P",
 		"size": 1,
 		"type": "P1",
@@ -1096,9 +1096,10 @@
 		},
 		"ability_info": [
 			{
-				"title": "Gooey Composition",
+				"title": "Gooey Body",
 				"desc": "Recovers 1/6 health at turn start for every allied creature that is nearby.",
-				"info": "This ability also works when fatigued",
+				"info": "This ability works when fatigued too.",
+				"upgrade" : "1/3 health recovery rate.",
 				"effects": [{
 					"special": "+1/6 %health% × adjacent allies creatures"
 				}]
@@ -1106,30 +1107,33 @@
 			{
 				"title": "Gummy Mallet",
 				"desc": "Fully transforms himself into a large hammer to strike down a nearby foe.",
-				"info": "15 crush damage for each attack done",
+				"info": "15 crush damage for each attack done.",
+				"upgrade" : "Hits opposing direction too.",
 				"damages": {
 					"crush": 15
 				},
 				"costs": {
-					"energy": 20
+					"energy": 30
 				}
             },
 			{
 				"title": "Royal Seal",
 				"desc": "Sticks chewing gum in place to hinder any passing unit for a complete turn.",
-				"info": "Does not affect self but affects allies",
+				"info": "Does not affect self but affects allies.",
+				"upgrade": "Removes the 20 health cost.",
 				"effects": [{
 					"special": "%movement% is set to 0 for a turn"
 				}],
 				"costs": {
 					"energy": 20,
-					"health": 10
+					"health": 20
 				}
             },
 			{
 				"title": "Boom Box",
 				"desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
 				"info": "20 sonic damage + 10 crush if melee",
+				"upgrade": "2x melee bonus damage.",
 				"damages": {
 					"special": "20%sonic%+ 10%crush%if melee"
 				},
@@ -1145,7 +1149,7 @@
 	{
 		"id": 15,
 		"name": "Cycloper",
-		"lvl": 1,
+		"level": 1,
 		"realm": "E",
 		"size": 2,
 		"type": "E1",
@@ -1199,7 +1203,7 @@
 	{
 		"id": 16,
 		"name": "Vulcan",
-		"lvl": 5,
+		"level": 5,
 		"realm": "L",
 		"size": 2,
 		"type": "L5",
@@ -1229,7 +1233,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Armageddon Day",
+				"title": "Judgement Day",
 				"desc": "Before dying, bombarding the whole battlefield after one complete round.",
 				"info": "5 crush + 15 burn damage to all units"
             },
@@ -1253,7 +1257,7 @@
 	{
 		"id": 17,
 		"name": "Razorback",
-		"lvl": 6,
+		"level": 6,
 		"realm": "E",
 		"size": 2,
 		"type": "E6",
@@ -1290,24 +1294,33 @@
 			{
 				"title": "Trident Forehead",
 				"desc": "Pokes nearby foe with its forehead.",
-				"info": "27 pierce damage on every attack"
+				"info": "27 pierce damage on every attack",
+				"costs": {
+					"energy": 10
+				}
             },
 			{
 				"title": "Crocodile Clip",
 				"desc": "Bites nearby foe, crippling it for a turn, reducing up to three movement points.",
-				"info": "10 pierce + 10 crush damage & cripple"
+				"info": "10 pierce + 10 crush damage & cripple",
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Circular Saw",
 				"desc": "Travels in a straight line to a new location, cutting through all units.",
-				"info": "15 pierce + 15 slash damage on hit"
+				"info": "15 pierce + 15 slash damage on hit",
+				"costs": {
+					"energy": 40
+				}
             }
         ]
     },
 	{
 		"id": 18,
 		"name": "Sarcophag",
-		"lvl": 7,
+		"level": 7,
 		"realm": "W",
 		"size": 3,
 		"type": "W7",
@@ -1361,7 +1374,7 @@
 	{
 		"id": 19,
 		"name": "Miss Creeper",
-		"lvl": 4,
+		"level": 4,
 		"realm": "G",
 		"size": 1,
 		"type": "G4",
@@ -1393,29 +1406,42 @@
 			{
 				"title": "Muscous Pillar",
 				"desc": "Any nearby killed units restore health based on their own total amount pool.",
-				"info": "10% of maximum health stat recovery"
+				"info": "5% of maximum health stat recovery.",
+				"upgrade": "double the recovery bonus."
             },
 			{
 				"title": "Carving Nails",
 				"desc": "Claw swipe gesture on a nearby foe.",
-				"info": "15 pierce + 15 slash damage on hit"
+				"info": "10 pierce + 10 slash damage on strike",
+				"upgrade": "+5 pierce & +5 slash bonus.",
+				"costs": {
+					"energy": 10
+				}
             },
 			{
 				"title": "Fatal Attraction",
 				"desc": "Causes a target foe within 6 hexagons to approach her at the start of its turn.",
-				"info": "Ability does not work on summoners"
+				"info": "Ability does not work on summoners.",
+				"upgrade": "+4 hexagons bonus range.",
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Tendril Feet",
 				"desc": "All nearby foes have their movement restrained and take a bit of damage.",
-				"info": "10 crush damage and no movement"
+				"info": "10 crush damage and no movement.",
+				"upgrade": "+5 bonus crush damange.",
+				"costs": {
+					"energy": 30
+				}
             }
         ]
     },
 	{
 		"id": 20,
 		"name": "Adaptation",
-		"lvl": 6,
+		"level": 6,
 		"realm": "S",
 		"size": 3,
 		"type": "S6",
@@ -1469,7 +1495,7 @@
 	{
 		"id": 21,
 		"name": "Flayed",
-		"lvl": 4,
+		"level": 4,
 		"realm": "W",
 		"size": 2,
 		"type": "W4",
@@ -1499,7 +1525,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Half Life",
+				"title": "Half Full",
 				"desc": "Can regenerate health up to double. Maximum health is still the initial one.",
 				"info": ""
             },
@@ -1523,7 +1549,7 @@
 	{
 		"id": 22,
 		"name": "Lava Mollusk",
-		"lvl": 1,
+		"level": 1,
 		"realm": "L",
 		"size": 2,
 		"type": "L1",
@@ -1584,7 +1610,7 @@
 	{
 		"id": 23,
 		"name": "Metal Face",
-		"lvl": 4,
+		"level": 4,
 		"realm": "L",
 		"size": 2,
 		"type": "L4",
@@ -1616,7 +1642,7 @@
 			{
 				"title": "Fierce Temper",
 				"desc": "Showers lava drops at the beginning of each turn, damaging all adjacent units.",
-				"info": "10 burn damage over a 8 hexagons area"
+				"info": "10 burn damage over 8 hexagons area."
             },
 			{
 				"title": "Forked Fingers",
@@ -1638,7 +1664,7 @@
 	{
 		"id": 24,
 		"name": "Living Armor",
-		"lvl": 6,
+		"level": 6,
 		"realm": "A",
 		"size": 2,
 		"type": "A6",
@@ -1692,7 +1718,7 @@
 	{
 		"id": 25,
 		"name": "Mr. Stitches",
-		"lvl": 3,
+		"level": 3,
 		"realm": "E",
 		"size": 1,
 		"type": "E3",
@@ -1746,13 +1772,13 @@
 	{
 		"id": 26,
 		"name": "Moss Hound",
-		"lvl": 7,
+		"level": 7,
 		"realm": "G",
 		"size": 3,
 		"type": "G7",
 		"set": "Alpha",
 		"stats": {
-			"health": 320,
+			"health": 280,
 			"regrowth": 8,
 			"endurance": 20,
 			"energy": 90,
@@ -1778,29 +1804,42 @@
 			{
 				"title": "Immortal Wood",
 				"desc": "Ressurects itself within three rounds if no units are sitting on top of the corpse.",
-				"info": "50% total health, 10 rounds cooldown"
+				"info": "-50% total health, 10 rounds cooldown.",
+				"upgrade" : "full health when it revives."
 		},
 			{
 				"title": "Stalagmite Teeth",
 				"desc": "Pierces nearby unit with its denture, striking larger targets multiple times.",
-				"info": "10 pierce damage, can do up to 3 hits"
+				"info": "10 pierce damage, can do up to 2 hits.",
+				"upgrade" : "+1 one more maximum hit.",
+				"costs": {
+					"energy": 20
+				}
 		},
 			{
 				"title": "Waterfall Cannon",
-				"desc": "Powerful jet of water that damages & pushes back, has a 6 hexagons range.",
-				"info": "20 knocking crush damage, up to 2 hits"
+				"desc": "Powerful jet of water that damages & pushes back, has a 4 hexagons range.",
+				"info": "20 knocking crush damage, up to 2 hits.",
+				"upgrade" : "+2 hexagons bonus range.",
+				"costs": {
+					"energy": 30
+				}
 		},
 			{
 				"title": "Thorny Weed",
-				"desc": "Nasty ivy grows at a free spot up to 8 hexagons away, waiting for a foe prey.",
-				"info": "9 pierce + 9 poison & 1 round entangle"
+				"desc": "Nasty ivy grows at a free spot up to 6 hexagons away, waiting for a foe prey.",
+				"info": "9 pierce + 9 poison & 1 round entangle.",
+				"upgrade" : "2x damage vs small units.",
+				"costs": {
+					"energy": 35
+				}
 		}
         ]
     },
 	{
 		"id": 27,
 		"name": "Sand Shrimp",
-		"lvl": 2,
+		"level": 2,
 		"realm": "P",
 		"size": 3,
 		"type": "P2",
@@ -1831,8 +1870,9 @@
 		"ability_info": [
 			{
 				"title": "Evolved Organs",
-				"desc": "Each new round heals himself for 50% of all the damage previously received.",
-				"info": ""
+				"desc": "Each new round heals himself for 25% of all the damage previously received.",
+				"info": "This ability also works when fatigued.",
+				"upgrade": "2x healing bonus per turn."
             },
 			{
 				"title": "Squid Head",
@@ -1854,7 +1894,7 @@
 	{
 		"id": 28,
 		"name": "Stomper",
-		"lvl": 4,
+		"level": 4,
 		"realm": "P",
 		"size": 2,
 		"type": "P4",
@@ -1918,7 +1958,7 @@
 	{
 		"id": 29,
 		"name": "Gilded Maiden",
-		"lvl": 5,
+		"level": 5,
 		"realm": "A",
 		"size": 1,
 		"type": "A5",
@@ -1948,7 +1988,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Forbidden Touch",
+				"title": "Banned Touch",
 				"desc": "Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
 				"info": ""
 		},
@@ -1958,6 +1998,9 @@
 				"info": "15 crush + 5 pure damage per attack",
 				"damages": {
 					"crush": 15
+				},
+				"costs": {
+					"energy": 10
 				}
 		},
 			{
@@ -1966,22 +2009,29 @@
 				"info": "20 heal for ally or burn damage to a foe",
 				"damages": {
 					"burn": 20
+				},
+				"costs": {
+					"energy": 30
 				}
 		},
 			{
 				"title": "Searing Light",
 				"desc": "Conjures an energy beam that causes multiple burning hits to first unit met.",
-				"info": "3 hits x 10 burn damage every attack",
+				"info": "2 hits x 10 burn damage every attack",
+				"upgrade": "One extra burn damage hit.",
 				"damages": {
 					"burn": 10
+				},
+				"costs": {
+					"energy": 40
 				}
 		}
 	]
     },
 	{
 		"id": 30,
-		"name": "Eggplant",
-		"lvl": 5,
+		"name": "Papa Eggplant",
+		"level": 5,
 		"realm": "G",
 		"size": 2,
 		"type": "G5",
@@ -2011,7 +2061,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Miniature Offspring",
+				"title": "Small Version",
 				"desc": "Spawns a little hungry eggplant that chases nearest foe and then attacks.",
 				"info": "Grows into an adult if it kills the target"
             },
@@ -2035,7 +2085,7 @@
 	{
 		"id": 31,
 		"name": "Cyber Hound",
-		"lvl": 3,
+		"level": 3,
 		"realm": "A",
 		"size": 2,
 		"type": "A3",
@@ -2127,7 +2177,7 @@
 	{
 		"id": 32,
 		"name": "Deep Beauty",
-		"lvl": 3,
+		"level": 3,
 		"realm": "S",
 		"size": 2,
 		"type": "S3",
@@ -2181,7 +2231,7 @@
 	{
 		"id": 33,
 		"name": "Golden Wyrm",
-		"lvl": 7,
+		"level": 7,
 		"realm": "A",
 		"size": 3,
 		"type": "A7",
@@ -2241,7 +2291,7 @@
 	{
 		"id": 34,
 		"name": "Bouncer",
-		"lvl": 2,
+		"level": 2,
 		"realm": "S",
 		"size": 2,
 		"type": "S2",
@@ -2295,7 +2345,7 @@
 	{
 		"id": 35,
 		"name": "Greedy Knight",
-		"lvl": 4,
+		"level": 4,
 		"realm": "A",
 		"size": 1,
 		"type": "A4",
@@ -2330,7 +2380,7 @@
 				"info": "+25% physical resistance to damage"
             },
 			{
-				"title": "Heavy Mace",
+				"title": "Brass Mace",
 				"desc": "Does versatile damage to nearby foe.",
 				"info": "10 pierce + 10 crush + 5 slash damage"
             },
@@ -2349,7 +2399,7 @@
 	{
 		"id": 36,
 		"name": "Vertigo",
-		"lvl": 4,
+		"level": 4,
 		"realm": "E",
 		"size": 2,
 		"type": "E4",
@@ -2403,7 +2453,7 @@
 	{
 		"id": 37,
 		"name": "Swine Thug",
-		"lvl": 1,
+		"level": 1,
 		"realm": "A",
 		"size": 1,
 		"type": "A1",
@@ -2491,7 +2541,7 @@
 	{
 		"id": 38,
 		"name": "Infernal",
-		"lvl": 3,
+		"level": 3,
 		"realm": "L",
 		"size": 2,
 		"type": "L3",
@@ -2521,31 +2571,43 @@
 		},
 		"ability_info": [
 			{
-				"title": "Crystal Meditation",
+				"title": "Crystal Therapy",
 				"desc": "At turn start, heals adjacent allies and damages foes based on their number.",
-				"info": "3 pure damage or heal per nearby unit"
+				"info": "3 pure damage or heal per nearby unit.",
+				"upgrade": "1/3 more damage or healing."
             },
 			{
 				"title": "Shark Aggression",
 				"desc": "Bytes a nearby foe, lowering his maximum health by one each time.",
-				"info": "15 pierce damage, -1 max health"
+				"info": "15 pierce damage, -1 max health",
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Crossed Bones",
 				"desc": "Continually pushes frontal inline unit, moving it up to 4 hexagons distance.",
-				"info": "Does not subtract movement points"
+				"info": "Does not subtract movement points.",
+				"upgrade": "Reduced energy cost to half.",
+				"costs": {
+					"energy": 30
+				}
             },
 			{
 				"title": "Charring Flow",
 				"desc": "Ranged attack that damages first encountered units on several rows.",
-				"info": "20 burn damage, up to 7 hexagons"
+				"info": "20 burn damage, up to 7 hexagons",
+				"upgrade": "",
+				"costs": {
+					"energy": 15
+				}
             }
         ]
     },
 	{
 		"id": 39,
 		"name": "Headless",
-		"lvl": 3,
+		"level": 3,
 		"realm": "W",
 		"size": 2,
 		"type": "W3",
@@ -2586,13 +2648,13 @@
 		},
 		"ability_info": [
 			{
-				"title": "Maggot Infestation",
+				"title": "Larva Infest",
 				"desc": "Strikes any rear foe at beginning of turn, infesting it with a big parasite.",
 				"info": "-5 endurance stat debuff, stackable",
 				"effects": [{
 					"special": "-5 %endurance% debuff, stackable"
 				}]
-		},
+			},
 			{
 				"title": "Cartilage Dagger",
 				"desc": "Hits nearby foe using frontal blade. Double damage if unit is fatigued.",
@@ -2603,7 +2665,7 @@
 				"costs": {
 					"energy": 15
 				}
-		},
+			},
 			{
 				"title": "Whip Slash",
 				"desc": "Grasps a distant foe, pulling itself to it, doing damage based on total distance.",
@@ -2614,9 +2676,9 @@
 				"costs": {
 					"energy": 20
 				}
-		},
+			},
 			{
-				"title": "Boomerang Throw",
+				"title": "Boomerang Tool",
 				"desc": "Forms a new weapon out of blades and throws it away 5 hexagons, returning.",
 				"info": "10 slash damage over 15 hexagons x 2",
 				"damages": {
@@ -2631,7 +2693,7 @@
 	{
 		"id": 40,
 		"name": "Nutcase",
-		"lvl": 1,
+		"level": 1,
 		"realm": "W",
 		"size": 2,
 		"type": "W1",
@@ -2672,9 +2734,10 @@
 		},
 		"ability_info": [
 			{
-				"title": "War Horn",
-				"desc": "Moves 3 hexes towards closest foe. Movement points are not deducted.",
-				"info": "This creature can't ever be delayed"
+				"title": "Tentacle Bush",
+				"desc": "Grabs hold of all the melee attackers, making them unable to move that turn.",
+				"info": "Becomes unmovable by most abilities.",
+				"upgrade" : "grabs also do 5 crush damage"
 		},
 			{
 				"title": "Hammer Time",
@@ -2689,6 +2752,18 @@
 				}
 		},
 			{
+				"title": "War Horn",
+				"desc": "Charges towards an inline foe, hitting it and also pushing it as much as possible.",
+				"info": "10 pierce damage + 1 more per hexagon",
+				"upgrade" : "5 bonus pierce damage on hit",
+				"damages": {
+					"pierce": 20
+				},
+				"costs": {
+					"energy": 20
+				}
+		},
+			{
 				"title": "Fishing Hook",
 				"desc": "Pierces a nearby unit while swapping places if it is small or medium sized.",
 				"info": "10 pierce + 10 crush damage & swap",
@@ -2699,21 +2774,13 @@
 				"costs": {
 					"energy": 25
 				}
-		},
-			{
-				"title": "Tentacle Bush",
-				"desc": "Curls up in a defensive stance, reducing 25% damage from first 4 incoming hits.",
-				"info": "Becomes unmovable and skips the turn",
-				"costs": {
-					"energy": 10
-				}
 		}
 	]
 	},
 	{
 		"id": 41,
 		"name": "Flesh Cleanser",
-		"lvl": 2,
+		"level": 2,
 		"realm": "W",
 		"size": 2,
 		"type": "W2",
@@ -2767,7 +2834,7 @@
 	{
 		"id": 42,
 		"name": "Night Stalker",
-		"lvl": 7,
+		"level": 7,
 		"realm": "E",
 		"size": 2,
 		"type": "E7",
@@ -2821,7 +2888,7 @@
 	{
 		"id": 43,
 		"name": "Fire Bird",
-		"lvl": 7,
+		"level": 7,
 		"realm": "L",
 		"size": 3,
 		"type": "L7",
@@ -2853,29 +2920,42 @@
 			{
 				"title": "Hot Ashes",
 				"desc": "If killed, leaves ashes behind that will reiginite it back to life if not stomped.",
-				"info": "1/3 hitpoints & energy for each stack"
+				"info": "1/3 hitpoints & energy for each stack.",
+				"upgrade" : "Full energy when it revives."
 		},
 			{
 				"title": "Little Kindle",
 				"desc": "Releases a bonfire that will chase the closest foe at a low movement speed.",
-				"info": "25 burn damage and 3 hexagons move"
+				"info": "25 burn damage and 3 hexagons move.",
+				"upgrade" : "+2 more Kindle movement.",
+				"costs": {
+					"energy": 25
+				}
 		},
 			{
 				"title": "Blazing Waves",
 				"desc": "Launches two burning streams which will scorch all the units they encounter.",
-				"info": "30 burn damage over 8 hexagons area"
+				"info": "30 burn damage over 8 hexagons area.",
+				"upgrade" : "The attack becomes multi-hit.",
+				"costs": {
+					"energy": 20
+				}
 		},
 			{
-				"title": "Supreme Motivation",
-				"desc": "The lust drives it to do an extra effort, acting again at the end of the round.",
-				"info": "This is usable if unit wasn't delayed."
+				"title": "Extra Motion",
+				"desc": "The lust drives it to do double effort, acting again at the end of the round.",
+				"info": "This is usable if unit wasn't delayed.",
+				"upgrade" : "If killed it will die after turn.",
+				"costs": {
+					"energy": 50
+				}
 		}
 	]
 	},
 	{
 		"id": 44,
 		"name": "Scavenger",
-		"lvl": 2,
+		"level": 2,
 		"realm": "E",
 		"size": 2,
 		"type": "E2",
@@ -2961,7 +3041,7 @@
 	{
 		"id": 45,
 		"name": "Chimera",
-		"lvl": 6,
+		"level": 6,
 		"realm": "P",
 		"size": 3,
 		"type": "P6",
@@ -3004,23 +3084,26 @@
 			{
 				"title": "Cyclic Duality",
 				"desc": "Allows the use of an attack two times.",
-				"info": "The extra usage still requires energy"
+				"info": "The extra usage still requires energy.",
+				"upgrade": "1/2 energy needed 2nd time."
 		},
 			{
 				"title": "Tooth Fairy",
-				"desc": "Syncs teeth into a nearby foe.",
-				"info": "20 crush damage per strike",
+				"desc": "Syncs teeth into a nearby enemy.",
+				"info": "16 crush damage, single hit attack.",
+				"upgrade": "This attack will hit twice.",
 				"damages": {
 					"crush": 20
 				},
 				"costs": {
-					"energy": 15
+					"energy": 16
 				}
 		},
 			{
 				"title": "Disturbing Sound",
 				"desc": "Sings a powerful musical note inline that keeps on going when killing units.",
-				"info": "20 sonic damage that can continue on",
+				"info": "20 sonic damage that can continue on.",
+				"upgrade": "Penetrates for -50% damage.",
 				"damages": {
 					"sonic": 20
 				},
@@ -3031,12 +3114,13 @@
 			{
 				"title": "Chain Lightning",
 				"desc": "Releases a lightning bolt that will arch, shocking multiple adjacent creatures.",
-				"info": "20 shock damage inline that can arch",
+				"info": "20 shock damage inline that can arch.",
+				"upgrade": "Can arch 1 hexagon further.",
 				"damages": {
 					"shock": 20
 				},
 				"costs": {
-					"energy": 25
+					"energy": 30
 				}
 		}
 	]
@@ -3044,7 +3128,7 @@
 	{
 		"id": 46,
 		"name": "Scorpius",
-		"lvl": 5,
+		"level": 5,
 		"realm": "E",
 		"size": 3,
 		"type": "E5",
@@ -3084,7 +3168,7 @@
 				"info": "10 pierce + 10 crush damage on strike"
 		},
 			{
-				"title": "Venomous Stinger",
+				"title": "Stinger Venom",
 				"desc": "Pokes any foe within 2 hexagons range, piercing and poisoning it for two turns.",
 				"info": "20 pierce + 20 poison damage 2 rounds"
 		},
@@ -3098,7 +3182,7 @@
 	{
 		"id": 47,
 		"name": "Royal Guard",
-		"lvl": 5,
+		"level": 5,
 		"realm": "P",
 		"size": 3,
 		"type": "P5",
@@ -3152,7 +3236,7 @@
 	{
 		"id": 48,
 		"name": "Satyr",
-		"lvl": 6,
+		"level": 6,
 		"realm": "W",
 		"size": 3,
 		"type": "W6",
@@ -3206,7 +3290,7 @@
 	{
 		"id": 49,
 		"name": "Volpyr",
-		"lvl": 6,
+		"level": 6,
 		"realm": "L",
 		"size": 3,
 		"type": "L6",
@@ -3260,7 +3344,7 @@
 	{
 		"id": 50,
 		"name": "Shadow Leech",
-		"lvl": "S",
+		"level": "S",
 		"realm": "W",
 		"size": 1,
 		"type": "WS",
