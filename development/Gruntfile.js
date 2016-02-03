@@ -1,8 +1,10 @@
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-open');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-open');
+
     grunt.registerTask('server', 'Start the web server.', function() {
       grunt.log.writeln('Starting web server on port 80.');
       require('./server.js');
@@ -32,6 +34,19 @@ module.exports = function (grunt) {
             files: 'src/**/*.js',
             tasks: ['concat']
         },
+		// Copies the customized build of Phaser into the game
+		// http://phaser.io/tutorials/creating-custom-phaser-builds
+		copy: {
+			main: {
+				files: [{
+					expand: true,
+					src: ['node_modules/phaser/build/phaser*.js'],
+					dest: 'deploy/js/lib/',
+					filter: 'isFile',
+					flatten: true
+				}]
+			}
+		},
         open: {
             dev: {
                 path: 'http://localhost:8080/index.html'
@@ -39,6 +54,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('default', ['concat', 'server', 'open', 'watch']);
+    grunt.registerTask('default', ['concat', 'server', 'copy', 'open', 'watch']);
 
 };

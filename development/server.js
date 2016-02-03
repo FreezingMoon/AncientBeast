@@ -7,15 +7,15 @@ var port = process.env.PORT || 8080;
 var gameManager = require('./server/gamemanager.js');
 var qManager = require('./server/queuemanager.js');
 
-//setup the game queue and connection details
+// Setup the game queue and connection details
 io.on('connection', function(session){
   console.log('a user connected');
 
-  //store the username in the socket session for this client
+  // Store the username in the socket session for this client
   var username = makeid();
   session.username = username;
 
-  //add user to the queue
+  // Add user to the queue
   qManager.addToQueue(session);
 
   session.on('disconnect', function(){
@@ -23,7 +23,7 @@ io.on('connection', function(session){
     qManager.removeFromQueue(session);
   });
 
-  //send user the username
+  // Send user the username
   session.emit('login', session.username);
 
 });
@@ -41,7 +41,7 @@ function makeid()
 }
 
 
-//listen for server, and use static routing for deploy directory
+// Listen for server, and use static routing for deploy directory
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
 });
