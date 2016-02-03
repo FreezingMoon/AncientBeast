@@ -2621,7 +2621,7 @@
 			"initiative": 30,
 			"offense": 10,
 			"defense": 6,
-			"movement": 4,
+			"movement": 3,
 			"pierce": 4,
 			"slash": 4,
 			"crush": 4,
@@ -2657,7 +2657,7 @@
 			},
 			{
 				"title": "Cartilage Dagger",
-				"desc": "Hits nearby foe using frontal blade. Double damage if unit is fatigued.",
+				"desc": "Hits nearby unit using frontal blade. Double damage if the foe is fatigued.",
 				"info": "12 pierce damage × 2 vs fatigued foe",
 				"damages": {
 					"special": "12%pierce% × 2 if target is fatigued"
@@ -2667,12 +2667,10 @@
 				}
 			},
 			{
-				"title": "Whip Slash",
-				"desc": "Grasps a distant foe, pulling itself to it, doing damage based on total distance.",
-				"info": "10 slash damage + 5 more per hexagon",
-				"damages": {
-					"special": "12%slash%, more per hexagon"
-				},
+				"title": "Whip Move",
+				"desc": "Grasps a distant unit, pulling close to each other based on their relative size.",
+				"info": "Between 2 and 6 hexagons pull range",
+				"upgrade" : "+2 maximum range increase",
 				"costs": {
 					"energy": 20
 				}
@@ -2681,6 +2679,7 @@
 				"title": "Boomerang Tool",
 				"desc": "Forms a new weapon out of blades and throws it away 5 hexagons, returning.",
 				"info": "10 slash damage over 15 hexagons x 2",
+				"upgrade" : "area increased by 3 hxagons",
 				"damages": {
 					"special": "10%slash%, hits 2 times"
 				},
