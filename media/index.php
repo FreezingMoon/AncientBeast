@@ -133,6 +133,7 @@ switch($type) {
 		echo '<div class="div center">';
 		$images = scandir("screenshots");
 		natsort($images);
+		$images = array_reverse($images);
 		$i = 0;
 		foreach($images as $image) {
 			if($image == "." || $image == "..") continue;
