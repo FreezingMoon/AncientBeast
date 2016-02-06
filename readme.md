@@ -1,4 +1,3 @@
-<p align="center">
 [![Play Now!](http://img.shields.io/badge/Play-Now-red.svg)](http://AncientBeast.com/combat)
 [![Visit our IRC channel](http://img.shields.io/badge/IRC-%23AncientBeast-blue.svg)](https://kiwiirc.com/client/irc.freenode.net/?nick=Sinner|?#AncientBeast)
 [![Donate via PayPal](http://img.shields.io/badge/PayPal-Donate-orange.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4)
@@ -6,12 +5,9 @@
 [![Bountysource](https://www.bountysource.com/badge/team?team_id=44509&style=bounties_received)](https://www.bountysource.com/teams/ancientbeast/issues?utm_source=Ancient%20Beast&utm_medium=shield&utm_campaign=bounties_received)
 [![Donate via Gratipay](http://img.shields.io/gratipay/AncientBeast.svg)](https://gratipay.com/AncientBeast)
 [![Donate via Patreon](http://img.shields.io/badge/Patreon-Donate-orange.svg)](https://www.patreon.com/FreezingMoon)
-</p>
 
-<p align="center">
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast/master/media/screenshots/v0.1%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** *Chuck Palahniuk*
-</p>
 
 ### Intro
 <p>
