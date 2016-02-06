@@ -7,7 +7,7 @@
 [![Donate via Patreon](http://img.shields.io/badge/Patreon-Donate-orange.svg)](https://www.patreon.com/FreezingMoon)
 
 
-![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast/master/media/screenshots/v0.1%20Dark%20Forest.jpg)
+![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast/master/media/screenshots/Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** *Chuck Palahniuk*
 
 ### Intro
@@ -26,7 +26,7 @@ The project is developed with the use of free open source cross platform applica
 </p>
 
 <table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;">
-<tr>
+<tr align="center">
 	<td><a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><img src="images/tools/mega.png" style="display:block; width:99px; height99px;" alt="mega">Mega</a></td>
 	<td><a href="http://Ancient-Beast.deviantart.com" target="_blank"><img src="images/tools/deviantart.png" style="display:block; width:99px; height:99px;" alt="deviantart">deviantArt</a></td>
 	<td><a href="http://blender.org" target="_blank"><img src="images/tools/blender.png" style="display:block; width:99px; height:99px;" alt="blender">Blender</a></td>
