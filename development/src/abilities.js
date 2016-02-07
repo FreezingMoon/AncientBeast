@@ -185,7 +185,7 @@ var Ability = Class.create({
 	*
 	*/
 	getTargets: function(hexs) {
-		var targets = [];
+		var targets = {};
 		hexs.each(function() { // For each hex
 			if( this.creature instanceof Creature ) {
 				if( targets[this.creature.id] === undefined ) {
@@ -197,7 +197,11 @@ var Ability = Class.create({
 				targets[this.creature.id].hexsHit += 1; // Unit has been found
 			}
 		});
-		return targets;
+		targetsList = [];
+		for(id in targets) {
+			targetsList.push(targets[id]);
+		}
+		return targetsList;
 	},
 
 	getFormatedCosts : function() {
@@ -242,7 +246,7 @@ var Ability = Class.create({
 		return string;
 	},
 
-	/*	areaDamages(targets)
+	/*	areaDamage(targets)
 	*
 	*	targets : Array : Example : target = [{target:crea1,hexsHit:2},{target:crea2,hexsHit:1}]
 	*/

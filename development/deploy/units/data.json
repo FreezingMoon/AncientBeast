@@ -630,6 +630,9 @@
 				"effects": [{
 					"special": "10 %burn% damage per hex"
 				}],
+				"damages": {
+					"burn": 10
+				},
 				"costs": {
 					"energy": 30
 				}
