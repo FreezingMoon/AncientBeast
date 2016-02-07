@@ -61,9 +61,9 @@ require_once 'header.php';
 </p><p>
 Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank">free</a> and <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a>, being developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> and community. It uses web technologies such as HTML, PHP, JavaScript and Node.js, so that it's playable from modern browsers without requiring plugins.</p></div>
 <div class="lighten" id="screenshot"><a href="media/?type=screenshots#id=0">
-<img src="images/screenie1.png" class="image frame active" width=400px height=225px>
-<img src="images/screenie2.png" class="image frame" style="opacity: 0;" width=400px height=225px>
-<img src="images/screenie3.png" class="image frame" style="opacity: 0;" width=400px height=225px>
+<img src="images/thumbs/screenie1.png" class="image frame active" width=400px height=225px>
+<img src="images/thumbs/screenie2.png" class="image frame" style="opacity: 0;" width=400px height=225px>
+<img src="images/thumbs/screenie3.png" class="image frame" style="opacity: 0;" width=400px height=225px>
 <div class="center" style="padding-top: 235px;"><b>Check out some screenshots!</b></div></a></div>
 </div>
 
