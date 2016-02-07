@@ -794,7 +794,7 @@ var Game = Class.create({
 			this.abilities.each(function() {
 				if( G.triggers[trigger+"_other"].test(this.trigger) ) {
 					if( this.require(arg[1]) ) {
-						retValue = this.animation(arg[1]);
+						retValue = this.animation(arg[1], arg[0]);
 					}
 				}
 			});
@@ -927,8 +927,8 @@ var Game = Class.create({
 		},
 
 		onDamage : function( creature, damage ) {
-			G.triggerAbility("onDamage",arguments);
-			G.triggerEffect("onDamage",arguments);
+			G.triggerAbility("onDamage", arguments);
+			G.triggerEffect("onDamage", arguments);
 		}
 	},
 

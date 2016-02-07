@@ -185,7 +185,7 @@ var Ability = Class.create({
 	*
 	*/
 	getTargets: function(hexs) {
-		var targets = [];
+		var targets = {};
 		hexs.each(function() { // For each hex
 			if( this.creature instanceof Creature ) {
 				if( targets[this.creature.id] === undefined ) {
@@ -197,7 +197,11 @@ var Ability = Class.create({
 				targets[this.creature.id].hexsHit += 1; // Unit has been found
 			}
 		});
-		return targets;
+		targetsList = [];
+		for(id in targets) {
+			targetsList.push(targets[id]);
+		}
+		return targetsList;
 	},
 
 	getFormatedCosts : function() {
@@ -242,7 +246,7 @@ var Ability = Class.create({
 		return string;
 	},
 
-	/*	areaDamages(targets)
+	/*	areaDamage(targets)
 	*
 	*	targets : Array : Example : target = [{target:crea1,hexsHit:2},{target:crea2,hexsHit:1}]
 	*/
@@ -2930,7 +2934,7 @@ var Game = Class.create({
 			this.abilities.each(function() {
 				if( G.triggers[trigger+"_other"].test(this.trigger) ) {
 					if( this.require(arg[1]) ) {
-						retValue = this.animation(arg[1]);
+						retValue = this.animation(arg[1], arg[0]);
 					}
 				}
 			});
@@ -3063,8 +3067,8 @@ var Game = Class.create({
 		},
 
 		onDamage : function( creature, damage ) {
-			G.triggerAbility("onDamage",arguments);
-			G.triggerEffect("onDamage",arguments);
+			G.triggerAbility("onDamage", arguments);
+			G.triggerEffect("onDamage", arguments);
 		}
 	},
 
@@ -7756,32 +7760,24 @@ G.abilities[7] =[
 // 	First Ability: Burning Heart
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onDamage",
+	trigger : "onOtherDamage",
 
 	// 	require() :
 	require : function(damage){
-		if( this.used ) return false;
 		if( !this.testRequirements() ) return false;
 		if( damage == undefined ) damage = {type:"target"}; // For the test function to work
 		return true;
 	},
 
-	//	activate() :
-	activate : function(damage){
-		if(this.triggeredThisChain) return damage;
-
-		var targets = this.getTargets(this.creature.adjacentHexs(1));
+	//  activate() :
+	activate : function(damage, target){
+		if(this.creature.id === damage.attacker.id){
+			target.stats.burn -= 1;
+			if(this.upgraded === true) {
+				this.creature.stats.burn += 1;
+			}
+		}
 		this.end();
-
-		this.areaDamage(
-			this.creature, // Attacker
-			"area retaliation", // Attack Type
-			this.damages, // Damage Type
-			[],	// Effects
-			targets
-		);
-
-		return damage;
 	},
 },
 
@@ -7791,7 +7787,7 @@ G.abilities[7] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
-	distance : 2,
+	distance : 3,
 
 	// 	require() :
 	require : function(){
@@ -7847,7 +7843,7 @@ G.abilities[7] =[
 
 
 
-// 	Thirt Ability: Wild Fire
+// 	Third Ability: Wild Fire
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -7865,7 +7861,7 @@ G.abilities[7] =[
 		crea.queryMove({
 			noPath : true,
 			isAbility : true,
-			range : G.grid.getFlyingRange(crea.x,crea.y,50,crea.size,crea.id),
+			range : G.grid.getFlyingRange(crea.x,crea.y,6,crea.size,crea.id),
 			callback : function(){ delete arguments[1]; ability.animation.apply(ability,arguments); },
 		});
 	},
@@ -7931,21 +7927,15 @@ G.abilities[7] =[
 			return this.trap.hex.creature.type != "P7";
 		};
 
-		this.creature.hexagons[1].createTrap("firewall",[
-			new Effect(
-				"Firewall",this.creature,this.creature.hexagons[1],"onStepIn",
-				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
-			),
-		],this.creature.player, { turnLifetime : 1, ownerCreature : this.creature, fullTurnLifetime : true } );
-
-		var hex = this.creature.hexagons[2];
-
-		hex.createTrap("firewall",[
-			new Effect(
-				"Firewall",this.creature,hex,"onStepIn",
-				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
-			),
-		],this.creature.player, { turnLifetime : 1, ownerCreature : this.creature, fullTurnLifetime : true } );
+    var crea = this.creature;
+		crea.hexagons.each(function() {
+			this.createTrap("firewall",[
+				new Effect(
+					"Firewall",crea,this,"onStepIn",
+					{ requireFn: requireFn, effectFn: effectFn,	attacker: crea }
+				),
+			],crea.player, { turnLifetime : 1, ownerCreature : crea, fullTurnLifetime : true } );
+		});
 	},
 },
 
@@ -7966,19 +7956,14 @@ G.abilities[7] =[
 		var ability = this;
 		var crea = this.creature;
 
-		inRangeCreatures = crea.hexagons[1].adjacentHex(1);;
+		// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
 
-		var range = crea.hexagons[1].adjacentHex(1);
-
-		var head = range.indexOf(crea.hexagons[0]);
-		var tail = range.indexOf(crea.hexagons[2]);
-		range.splice(head,1);
-		range.splice(tail,1);
+		var range = crea.adjacentHexs(1);
 
 		G.grid.queryHexs({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			fnOnSelect : function(hex,args){
-				hex.adjacentHex(1).each(function(){
+				range.each(function(){
 					if( this.creature instanceof Creature ){
 						if( this.creature == crea ){ // If it is Abolished
 							crea.adjacentHexs(1).each(function(){
@@ -8020,28 +8005,19 @@ G.abilities[7] =[
 		var ability = this;
 		ability.end();
 
-		var aoe = hex.adjacentHex(1);
-
+		var crea = this.creature;
+		var aoe = crea.adjacentHexs(1);
 		var targets = ability.getTargets(aoe);
 
-		if(hex.creature instanceof Creature){
-			hex.creature.takeDamage(new Damage(
+		targets.each(function() {
+			this.target.takeDamage(new Damage(
 				ability.creature, // Attacker
 				"area", // Attack Type
-				ability.damages1, // Damage Type
+				ability.damages, // Damage Type
 				1, // Area
 				[]	// Effects
 			));
-		}
-
-
-		ability.areaDamage(
-			ability.creature,
-			"area",
-			ability.damages2,
-			[],	// Effects
-			targets
-		);
+		});
 
 	},
 }
