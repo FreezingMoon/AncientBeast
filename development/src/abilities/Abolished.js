@@ -7,19 +7,19 @@ G.abilities[7] =[
 
 // 	First Ability: Burning Heart
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onOtherDamage",
 
 	// 	require() :
-	require : function(damage){
+	require : function(damage) {
 		if( !this.testRequirements() ) return false;
 		if( damage == undefined ) damage = {type:"target"}; // For the test function to work
 		return true;
 	},
 
 	//  activate() :
-	activate : function(damage, target){
-		if(this.creature.id === damage.attacker.id){
+	activate : function(damage, target) {
+		if(this.creature.id === damage.attacker.id) {
 			target.stats.burn -= 1;
 			if(this.upgraded === true) {
 				this.creature.stats.burn += 1;
@@ -32,20 +32,20 @@ G.abilities[7] =[
 
 // 	Second Ability: Fiery Claw
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	distance : 3,
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if(!this.testRequirements()) return false;
 		var test = this.testDirection({
 			team : "ennemy",
 			distance : this.distance,
 			sourceCreature : this.creature,
 		});
-		if(!test){
+		if(!test) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -53,12 +53,12 @@ G.abilities[7] =[
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 		var crea = this.creature;
 
 		G.grid.queryDirection({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+			fnOnConfirm : function() { ability.animation.apply(ability,arguments); },
 			flipped : crea.player.flipped,
 			team : 0, // enemies
 			id : this.creature.id,
@@ -93,16 +93,16 @@ G.abilities[7] =[
 
 // 	Third Ability: Wild Fire
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		return this.testRequirements();
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 		var crea = this.creature;
 
@@ -110,7 +110,7 @@ G.abilities[7] =[
 			noPath : true,
 			isAbility : true,
 			range : G.grid.getFlyingRange(crea.x,crea.y,6,crea.size,crea.id),
-			callback : function(){ delete arguments[1]; ability.animation.apply(ability,arguments); },
+			callback : function() { delete arguments[1]; ability.animation.apply(ability,arguments); },
 		});
 	},
 
@@ -123,7 +123,7 @@ G.abilities[7] =[
 
 		var targets = ability.getTargets(ability.creature.adjacentHexs(1));
 
-		targets.each(function(){
+		targets.each(function() {
 
 			if( !(this.target instanceof Creature) ) return;
 
@@ -131,22 +131,22 @@ G.abilities[7] =[
 
 		})
 
-		ability.creature.moveTo(hex,{
+		ability.creature.moveTo(hex, {
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			animation : "teleport",
-			callback : function(){
+			callback : function() {
 				G.activeCreature.queryMove()
 			},
-			callbackStepIn  : function(){
+			callbackStepIn  : function() {
 				var targets = ability.getTargets(ability.creature.adjacentHexs(1));
 
-				targets.each(function(){
+				targets.each(function() {
 				if( !(this.target instanceof Creature) ) return;
 
 					var trg = this.target;
 
-					if(trg.team%2 != ability.creature.team%2){ // If Foe
+					if(trg.team%2 != ability.creature.team%2) { // If Foe
 
 						var optArg = { alterations : {burn : -5} };
 
@@ -165,12 +165,12 @@ G.abilities[7] =[
 		});
 
 		// Leave a Firewall in old location
-		var effectFn = function(effect,crea){
+		var effectFn = function(effect,crea) {
 			crea.takeDamage(new Damage( effect.attacker, "effect", ability.damages , 1,[] ));
 			this.trap.destroy();
 		};
 
-		var requireFn = function(){
+		var requireFn = function() {
 			if(this.trap.hex.creature==0) return false;
 			return this.trap.hex.creature.type != "P7";
 		};
@@ -195,12 +195,12 @@ G.abilities[7] =[
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		return this.testRequirements();
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 		var crea = this.creature;
 
@@ -209,14 +209,14 @@ G.abilities[7] =[
 		var range = crea.adjacentHexs(1);
 
 		G.grid.queryHexs({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			fnOnSelect : function(hex,args){
-				range.each(function(){
-					if( this.creature instanceof Creature ){
-						if( this.creature == crea ){ // If it is Abolished
-							crea.adjacentHexs(1).each(function(){
-								if( this.creature instanceof Creature ){
-									if( this.creature == crea ){ // If it is Abolished
+			fnOnConfirm : function() { ability.animation.apply(ability,arguments); },
+			fnOnSelect : function(hex,args) {
+				range.each(function() {
+					if( this.creature instanceof Creature ) {
+						if( this.creature == crea ) { // If it is Abolished
+							crea.adjacentHexs(1).each(function() {
+								if( this.creature instanceof Creature ) {
+									if( this.creature == crea ) { // If it is Abolished
 										crea.adjacentHexs(1).overlayVisualState("creature selected weakDmg player"+this.creature.team);
 										this.overlayVisualState("creature selected weakDmg player"+this.creature.team);
 									}else{
@@ -235,7 +235,7 @@ G.abilities[7] =[
 				});
 
 				hex.cleanOverlayVisualState();
-				if( hex.creature instanceof Creature ){
+				if( hex.creature instanceof Creature ) {
 					hex.overlayVisualState("creature selected player"+hex.creature.team);
 				}else{
 					hex.overlayVisualState("creature selected player"+G.activeCreature.team);
