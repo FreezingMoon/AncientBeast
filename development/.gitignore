@@ -1,5 +1,10 @@
-#DS_STORE FILES
+# Concatenated game file
+deploy/js/ancientbeast.js
+
+# DS_STORE FILES
 .DS_Store
+
+
 ### Node ###
 # Logs
 logs
