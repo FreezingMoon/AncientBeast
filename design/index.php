@@ -1,8 +1,10 @@
 <?php
-//$page_title = "This is my design";
 
 // Display default or selected page
 $view = isset($_GET['view']) ? $_GET['view'] : 'default';
+
+// Set page title
+$page_title = ucfirst($view);
 
 require_once "../header.php";
 
@@ -27,6 +29,7 @@ echo '<div id="focus"></div>';
 switch ($view) {
 	default:
 		?>
+		<script>/* Custom page title */ document.title = "Ancient Beast - This is my design";</script>
 		<div class="center">
 			<div style="display: inline-block;" class="lighten">
 				<a href="?view=info"><img src="<?php echo $site_root; ?>images/squares/info.jpg" class="frame"><br>
@@ -80,11 +83,6 @@ switch ($view) {
 		include 'kingdom.php';
 }
 ?>
-
-<script>
-// Set page title
-document.title = "Ancient Beast - <?php echo ucfirst($type); ?>";
-</script>
 
 <?php include("../footer.php"); ?>
 
