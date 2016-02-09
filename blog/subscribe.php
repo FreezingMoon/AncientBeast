@@ -4,7 +4,7 @@
 <div id="mc_embed_signup">
 <form action="//FreezingMoon.us7.list-manage.com/subscribe/post?u=32f1406080b23a82ecf9e8d6b&amp;id=94b74a4105" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
     <div id="mc_embed_signup_scroll">
-	<div style="display: inline-block; padding-top: 8px; padding-right: 50px;"><span style="font-size: 1.1em;">Be part of our mailing list and receive news updates!</span><br><br>
+	<div style="display: inline-block; padding-top: 8px; padding-right: 50px;"><span style="font-size: 1.1em;">Be part of our mailing list and receive news bulletins!</span><br><br>
 		<input type="email" value="" name="EMAIL" class="required email" style="width: 100%;" id="mce-EMAIL" placeholder=" ▷ Simply enter here your email address, you can unsubscribe at any time ◁">
 	</div>
     <div style="display: inline-block; vertical-align: top;" class="lighten clear">
