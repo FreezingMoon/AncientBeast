@@ -107,7 +107,7 @@ var Game = Class.create({
 		this.turnThrottle = false;
 
 		// Phaser
-		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {update:function() { G.phaserUpdate(); }, render:function() { G.phaserRender(); }});
+		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', { update:function() { G.phaserUpdate(); }, render:function() { G.phaserRender(); }});
 
 		// Msg (TODO External file)
 		this.msg = {
@@ -134,7 +134,7 @@ var Game = Class.create({
 	*
 	*	Load all required game files
 	*/
-	loadGame: function(setupOpt){
+	loadGame: function(setupOpt) {
 		var defaultOpt = {
 			nbrPlayer : 2,
 			timePool : 5*60,
@@ -175,38 +175,40 @@ var Game = Class.create({
 		this.Phaser.load.onFileComplete.add(G.loadFinish,G);
 
 		// Health
-		this.Phaser.load.image('p0_health', './frames/p0_health.png');
-		this.Phaser.load.image('p1_health', './frames/p1_health.png');
-		this.Phaser.load.image('p2_health', './frames/p2_health.png');
-		this.Phaser.load.image('p3_health', './frames/p3_health.png');
-		this.Phaser.load.image('p0_plasma', './frames/p0_plasma.png');
-		this.Phaser.load.image('p1_plasma', './frames/p1_plasma.png');
-		this.Phaser.load.image('p2_plasma', './frames/p2_plasma.png');
-		this.Phaser.load.image('p3_plasma', './frames/p3_plasma.png');
+		this.Phaser.load.image('p0_health', './interface/rectangle_red.png');
+		this.Phaser.load.image('p1_health', './interface/rectangle_red.png');
+		this.Phaser.load.image('p2_health', './interface/rectangle_red.png');
+		this.Phaser.load.image('p3_health', './interface/rectangle_red.png');
+		this.Phaser.load.image('p0_plasma', './interface/capsule_red.png');
+		this.Phaser.load.image('p1_plasma', './interface/capsule_blue.png');
+		this.Phaser.load.image('p2_plasma', './interface/capsule_orange.png');
+		this.Phaser.load.image('p3_plasma', './interface/capsule_green.png');
 
 		// Grid
-		this.Phaser.load.image('hex', './grid/hex.png');
-		this.Phaser.load.image('hex_dashed', './grid/hex_dashed.png');
-		this.Phaser.load.image('hex_path', './grid/hex_path.png');
-		this.Phaser.load.image('input', './grid/hex_input.png');
-		this.Phaser.load.image('hex_p0', './grid/hex_p0.png');
-		this.Phaser.load.image('hex_p1', './grid/hex_p1.png');
-		this.Phaser.load.image('hex_p2', './grid/hex_p2.png');
-		this.Phaser.load.image('hex_p3', './grid/hex_p3.png');
-		this.Phaser.load.image('hex_hover_p0', './grid/hex_hover_p0.png');
-		this.Phaser.load.image('hex_hover_p1', './grid/hex_hover_p1.png');
-		this.Phaser.load.image('hex_hover_p2', './grid/hex_hover_p2.png');
-		this.Phaser.load.image('hex_hover_p3', './grid/hex_hover_p3.png');
+		this.Phaser.load.image('hex', './interface/hex.png');
+		this.Phaser.load.image('hex_dashed', './interface/hex_dashed.png');
+		this.Phaser.load.image('hex_path', './interface/hex_path.png');
+		this.Phaser.load.image('cancel', './interface/cancel.png');
+		this.Phaser.load.image('input', './interface/hex_input.png');
+		this.Phaser.load.image('hex_p0', './interface/hex_glowing_red.png');
+		this.Phaser.load.image('hex_p1', './interface/hex_glowing_blue.png');
+		this.Phaser.load.image('hex_p2', './interface/hex_glowing_orange.png');
+		this.Phaser.load.image('hex_p3', './interface/hex_glowing_green.png');
+		this.Phaser.load.image('hex_hover_p0', './interface/hex_outline_red.png');
+		this.Phaser.load.image('hex_hover_p1', './interface/hex_outline_blue.png');
+		this.Phaser.load.image('hex_hover_p2', './interface/hex_outline_orange.png');
+		this.Phaser.load.image('hex_hover_p3', './interface/hex_outline_green.png');
 
 		// Traps
-		this.Phaser.load.image('trap_royal-seal', './grid/royal-seal.png');
-		this.Phaser.load.image('trap_mud-bath', './grid/mud-bath.png');
-		this.Phaser.load.image('trap_scorched-ground', './grid/scorched-ground.png');
-		this.Phaser.load.image('trap_firewall', './grid/scorched-ground.png');
+		// TODO: Load these sprites only after the specific unit has been materialized
+		this.Phaser.load.image('trap_royal-seal', './units/sprites/Gumble - Royal Seal.png');
+		this.Phaser.load.image('trap_mud-bath', './units/sprites/Swine Thug - Mud Bath.png');
+		this.Phaser.load.image('trap_scorched-ground', './units/sprites/Magma Spawn - Scorched Ground.png');
+		this.Phaser.load.image('trap_firewall', './units/sprites/Magma Spawn - Scorched Ground.png');
 
 		// Effects
-		this.Phaser.load.image('effects_fissure-vent', './grid/fissure-vent.png');
-		this.Phaser.load.image('effects_chilling-spit', '../units/sprites/Snow Bunny Chilling Spit.png');
+		this.Phaser.load.image('effects_fissure-vent', './units/sprites/Magma Spawn - Fissure Vent.png');
+		this.Phaser.load.image('effects_chilling-spit', '../units/sprites/Snow Bunny - Chilling Spit.png');
 
 		// Background
 		this.Phaser.load.image('background', "locations/"+this.background_image+"/bg.jpg");
@@ -237,7 +239,7 @@ var Game = Class.create({
 						getImage('../units/avatars/'+data.name+' '+dpcolor[i]+'.jpg', function() { G.loadFinish(); });
 					}
 				}else{
-					if(data.drop){
+					if(data.drop) {
 						G.loadingSrc += 1;
 						G.Phaser.load.image('drop_'+data.drop.name, 'drops/'+data.drop.name+'.png');
 					}
@@ -262,7 +264,7 @@ var Game = Class.create({
 
 	loadFinish: function() {
 		this.loadedSrc++;
-		if(this.loadingSrc==this.loadedSrc){
+		if(this.loadingSrc==this.loadedSrc) {
 			$j("#loader").hide();
 			G.setup(G.nbrPlayer);
 		}
@@ -333,7 +335,7 @@ var Game = Class.create({
 			var player = new Player(i);
 			this.players.push(player);
 
-			//starting position
+			// Starting position
 			var pos = {};
 			if(nbrPlayer>2) { // If 4 players
 				switch(player.id) {
@@ -712,7 +714,7 @@ var Game = Class.create({
 					this.activeCreature.hint( Math.ceil( this.turnTimePool - ((date - p.startTime)/1000)),msgStyle);
 				}
 			}
-		}else if( this.timePool > 0 ){ // Timepool not infinite
+		}else if( this.timePool > 0 ) { // Timepool not infinite
 			if( p.totalTimePool - (date - p.startTime) < 0 ) {
 				p.deactivate();
 				G.skipTurn();
@@ -1342,7 +1344,7 @@ var Player = Class.create({
 });
 
 
-var Gamelog = Class.create({
+var Gamelog = Class.create( {
 
 	initialize: function(id) {
 		this.datas = [];
@@ -1403,7 +1405,7 @@ var Gamelog = Class.create({
 
 
 
-var Soundsys = Class.create({
+var Soundsys = Class.create( {
 
 	initialize: function(o) {
 		o = $j.extend({

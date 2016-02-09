@@ -43,25 +43,25 @@ var UI = Class.create({
 		this.abilitiesButtons = [];
 
 		// Dash Button
-		this.btnToggleDash = new Button({
+		this.btnToggleDash = new Button( {
 			$button : $j(".toggledash"),
 			click : function(e) {G.UI.toggleDash();},
 		});
 		this.buttons.push(this.btnToggleDash);
 
 		// Audio Button
-		this.btnFlee = new Button({
+		this.btnFlee = new Button( {
 			$button : $j("#audio.button"),
-			click : function(e) { if(!G.UI.dashopen){
+			click : function(e) { if(!G.UI.dashopen) {
 				G.UI.showMusicPlayer();
 			}}
 		});
 		this.buttons.push(this.btnFlee);
 
 		// Skip Turn Button
-		this.btnSkipTurn = new Button({
+		this.btnSkipTurn = new Button( {
 			$button : $j("#skip.button"),
-			click : function(e) { if(!G.UI.dashopen){
+			click : function(e) { if(!G.UI.dashopen) {
 				if(G.turnThrottle) return;
 				G.gamelog.add({action:"skip"});
 				G.skipTurn();
@@ -70,7 +70,7 @@ var UI = Class.create({
 		this.buttons.push(this.btnSkipTurn);
 
 		// Delay Unit Button
-		this.btnDelay = new Button({
+		this.btnDelay = new Button( {
 			$button : $j("#delay.button"),
 			click : function(e) { if(!G.UI.dashopen) {
 				if(G.turnThrottle) return;
@@ -82,7 +82,7 @@ var UI = Class.create({
 		this.buttons.push(this.btnDelay);
 
 		// Flee Match Button
-		this.btnFlee = new Button({
+		this.btnFlee = new Button( {
 			$button : $j("#flee.button"),
 			click : function(e){ if(!G.UI.dashopen) {
 				if( G.turn < G.minimumTurnBeforeFleeing ) {
@@ -104,13 +104,13 @@ var UI = Class.create({
 		this.buttons.push(this.btnFlee);
 
 		// ProgessBar
-		this.healthBar = new ProgessBar({$bar : $j("#leftpanel .progressbar .bar.healthbar"), color : "red" });
-		this.energyBar = new ProgessBar({$bar : $j("#leftpanel .progressbar .bar.energybar"), color : "yellow" });
-		this.timeBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .timebar"), color : "white" });
-		this.poolBar = new ProgessBar({$bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" });
+		this.healthBar = new ProgessBar( {$bar : $j("#leftpanel .progressbar .bar.healthbar"), color : "red" });
+		this.energyBar = new ProgessBar( {$bar : $j("#leftpanel .progressbar .bar.energybar"), color : "yellow" });
+		this.timeBar = new ProgessBar( {$bar : $j("#rightpanel .progressbar .timebar"), color : "white" });
+		this.poolBar = new ProgessBar( {$bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" });
 
 		// Volume Sliders
-		$j("#effects_volume").slider({
+		$j("#effects_volume").slider( {
 			step: 0.2,
 			value: 5,
 			min: 0,
@@ -155,7 +155,7 @@ var UI = Class.create({
 			var prevD = false;
 
 			$j.each(hotkeys,function(k,v) {
-				if(v==keypressed){
+				if(v==keypressed) {
 					// Context filter
 					if(G.UI.dashopen) {
 						switch(k) {
@@ -166,7 +166,7 @@ var UI = Class.create({
 							case "dash_right": G.UI.gridSelectRight(); break;
 						}
 					}else{
-						switch(k){
+						switch(k) {
 							case "cycle": G.UI.abilitiesButtons[0].triggerClick(); break; // Not usable atm :(
 							case "attack": G.UI.abilitiesButtons[1].triggerClick(); break;
 							case "ability": G.UI.abilitiesButtons[2].triggerClick(); break;
@@ -223,7 +223,7 @@ var UI = Class.create({
 			if(G.freezedInput) return;
 
 			// Dash
-			if(G.UI.dashopen ){
+			if(G.UI.dashopen ) {
 				if(delta > 0) { // Wheel up
 					G.UI.gridSelectPrevious();
 				}else if(delta < 0) { // Wheel down
@@ -261,7 +261,7 @@ var UI = Class.create({
 		});
 
 		for (var i = 0; i < 4; i++) {
-			var b = new Button({
+			var b = new Button( {
 				$button : $j("#abilities > div:nth-child("+(i+1)+") > .ability"),
 				abilityId : i,
 				css : {
@@ -277,7 +277,7 @@ var UI = Class.create({
 			this.abilitiesButtons.push(b);
 		}
 
-		this.materializeButton = new Button({
+		this.materializeButton = new Button( {
 			$button : $j("#materialize_button"),
 			css : {
 				disabled	: {},
@@ -301,7 +301,7 @@ var UI = Class.create({
 		this.materializeToggled = false;
 		this.dashopen = false;
 
-		this.glowInterval = setInterval(function(){
+		this.glowInterval = setInterval(function() {
 
 			var opa =  0.5+Math.floor( (1 + Math.sin(  Math.floor( new Date()*Math.PI*0.20 )/100 ) ) / 4 *100)/100;
 
@@ -378,9 +378,9 @@ var UI = Class.create({
 	*	Query a creature in the available creatures of the active player
 	*
 	*/
-	showCreature: function(creatureType,player){
+	showCreature: function(creatureType,player) {
 
-		if(!this.dashopen){
+		if(!this.dashopen) {
 			this.$dash.show().css("opacity",0);
 			this.$dash.transition({opacity:1},this.dashAnimSpeed,"linear");
 		}
@@ -398,7 +398,7 @@ var UI = Class.create({
 		this.changePlayerTab(G.activeCreature.team);
 		this.resizeDash();
 
-		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click',function(e){
+		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click',function(e) {
 			if(G.freezedInput) return;
 			G.UI.showCreature("--",$j(this).attr("player")-0);
 		});
@@ -423,7 +423,7 @@ var UI = Class.create({
 		var stats = G.retreiveCreatureStats(creatureType);
 
 		// TODO card animation
-		if( $j.inArray(creatureType, G.players[player].availableCreatures)>0 || creatureType=="--"){
+		if( $j.inArray(creatureType, G.players[player].availableCreatures)>0 || creatureType=="--") {
 			// Retreive the selected unit
 			var crea = undefined;
 			G.UI.selectedCreatureObj = undefined;
@@ -435,7 +435,7 @@ var UI = Class.create({
 			});
 
 			// Card A
-			$j("#card .sideA").css({"background-image":"url('../images/cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')"});
+			$j("#card .sideA").css({"background-image":"url('../cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')"});
 			$j("#card .sideA audio").attr("src", "../units/shouts/"+stats.name+".ogg")
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
 			$j("#card .sideA .type").text(stats.type);
@@ -443,12 +443,12 @@ var UI = Class.create({
 			$j("#card .sideA .hexs").text(stats.size+"H");
 
 			// Card B
-			$j("#card .sideB").css({"background-image":"url('../images/cards/margin.png'), url('../images/cards/"+stats.type.substring(0,1)+".jpg')"});
+			$j("#card .sideB").css( {"background-image":"url('../cards/margin.png'), url('../cards/"+stats.type.substring(0,1)+".jpg')" });
 			$j.each(stats.stats,function(key,value) {
 				var $stat = $j("#card .sideB ."+key+" .value");
 				$stat.removeClass("buff debuff");
 				if(crea){
-					if(key=="health"){
+					if(key=="health") {
 						$stat.text(crea.health+"/"+crea.stats[key]);
 					}else if(key=="movement") {
 						$stat.text(crea.remainingMove+"/"+crea.stats[key]);
@@ -577,7 +577,7 @@ var UI = Class.create({
 	},
 
 
-	selectAbility: function(i){
+	selectAbility: function(i) {
 		this.checkAbilities();
 		this.selectedAbility = i;
 		if( i>-1 )
@@ -592,7 +592,7 @@ var UI = Class.create({
 	*	Change to the specified player tab in the dash
 	*
 	*/
-	changePlayerTab: function(id){
+	changePlayerTab: function(id) {
 		this.selectedPlayer = id;
 		this.$dash // Dash class
 		.removeClass("selected0 selected1 selected2 selected3")
@@ -738,7 +738,7 @@ var UI = Class.create({
 	gridSelectNext: function() {
 		var b = ( G.UI.selectedCreature == "--" ) ? "A0" :  G.UI.selectedCreature ;
 
-		if( b[1]-0+1 > 7 ){ // End of row
+		if( b[1]-0+1 > 7 ) { // End of row
 			if( G.realms.indexOf(b[0])+1 < G.realms.length ) {
 				var r = G.realms[ G.realms.indexOf(b[0])+1 ];
 
@@ -752,7 +752,7 @@ var UI = Class.create({
 						}
 					}
 
-					if( valid ){
+					if( valid ) {
 						G.UI.showCreature( r+"1" );
 						return;
 					}
@@ -783,7 +783,7 @@ var UI = Class.create({
 		G.UI.gridSelectNext();
 	},
 
-	gridSelectPrevious: function(){
+	gridSelectPrevious: function() {
 		var b = ( G.UI.selectedCreature == "--" ) ? "W8" :  G.UI.selectedCreature ;
 
 		if( b[1]-1 < 1 ) { // End of row
@@ -861,15 +861,15 @@ var UI = Class.create({
 				this.$button.next(".desc").find(".costs , .damages , .special").remove();
 
 				// Add if needed
-				if(costs_string){
+				if(costs_string) {
 					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="costs"></div>');
 					this.$button.next(".desc").find(".costs").html("Costs : "+costs_string);
 				}
-				if(dmg_string){
+				if(dmg_string) {
 					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="damages"></div>');
 					this.$button.next(".desc").find(".damages").html("Damages : "+dmg_string);
 				}
-				if(special_string){
+				if(special_string) {
 					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="special"></div>');
 					this.$button.next(".desc").find(".special").html("Effects : "+special_string);
 				}
@@ -903,7 +903,7 @@ var UI = Class.create({
 						}
 					}
 				};
-				this.mouseleave = function(){
+				this.mouseleave = function() {
 					G.UI.energyBar.previewSize( 0 );
 					G.UI.healthBar.previewSize( 0 );
 				};
@@ -1135,7 +1135,7 @@ var UI = Class.create({
 			$vignettes = G.UI.$queue.find('.vignette[verified!="-1"]');
 		};
 
-		var updatePos = function(){
+		var updatePos = function() {
 
 			$vignettes.each(function() {
 				var index = $j(this).index('#queuewrapper .vignette[verified!="-1"]');
@@ -1145,7 +1145,7 @@ var UI = Class.create({
 		};
 
 		this.$queue.find('.vignette[verified!="-1"]').each(function(){
-			if( $j(this).attr("turn") < G.turn ){
+			if( $j(this).attr("turn") < G.turn ) {
 				deleteVignette( this );
 			}
 		});
@@ -1197,10 +1197,10 @@ var UI = Class.create({
 					// While it'ss not the right creature
 					while( $j($vignettes[i]).attr("creatureid") != completeQueue[i].id ) {
 
-						if( $j($vignettes[i]).attr("creatureid") === undefined ){ // Is Round Marker
+						if( $j($vignettes[i]).attr("creatureid") === undefined ) { // Is Round Marker
 							// Create element before
 							appendVignette(i-1,queueElem);
-						}else if( $j($vignettes[i]).attr("initiative") < initiative ){ // Initiative is lower
+						}else if( $j($vignettes[i]).attr("initiative") < initiative ) { // Initiative is lower
 							// Create element before
 							appendVignette(i-1,queueElem);
 						}else{
@@ -1290,7 +1290,7 @@ var UI = Class.create({
 
 });
 
-var Chat = Class.create({
+var Chat = Class.create( {
 	/*	Constructor
 	*
 	*	Chat/Log Functions
@@ -1316,7 +1316,7 @@ var Chat = Class.create({
 });
 
 
-var Button = Class.create({
+var Button = Class.create( {
 	/*	Constructor
 	*
 	*	Create attributes and default buttons
@@ -1392,7 +1392,7 @@ var Button = Class.create({
 	},
 });
 
-var ProgessBar = Class.create({
+var ProgessBar = Class.create( {
 
 	initialize: function(opts) {
 		defaultOpts = {
@@ -1417,7 +1417,7 @@ var ProgessBar = Class.create({
 	*
 	*/
 	setSize: function(percentage) {
-		this.$bar.css({
+		this.$bar.css( {
 			width : this.width,
 			height : this.height*percentage,
 			"background-color" : this.color,
@@ -1430,7 +1430,7 @@ var ProgessBar = Class.create({
 	*
 	*/
 	animSize: function(percentage) {
-		this.$bar.transition({
+		this.$bar.transition( {
 			queue : false,
 			width : this.width,
 			height : this.height*percentage,
@@ -1443,7 +1443,7 @@ var ProgessBar = Class.create({
 	*
 	*/
 	previewSize: function(percentage) {
-		this.$preview.css({
+		this.$preview.css( {
 			width : this.width-2,
 			height : (this.height-2)*percentage,
 		},500,"linear");

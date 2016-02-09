@@ -260,7 +260,7 @@ var Creature = Class.create({
 
 
 		// Freezed effect
-		if(this.freezed){
+		if(this.freezed) {
 			varReset();
 			var interval = setInterval(function() {
 				if(!G.turnThrottle){
@@ -271,7 +271,7 @@ var Creature = Class.create({
 			return;
 		}
 
-		if(!this.hasWait){
+		if(!this.hasWait) {
 			varReset();
 
 			// Trigger
@@ -299,7 +299,7 @@ var Creature = Class.create({
 	*	Preview the creature position at the given coordinates
 	*
 	*/
-	deactivate: function(wait){
+	deactivate: function(wait) {
 		this.hasWait = this.delayed = !!wait;
 		G.grid.updateDisplay(); // Retrace players creatures
 
@@ -323,7 +323,7 @@ var Creature = Class.create({
 		// If at least one ability has not been used
 		this.abilities.each(function() {	abilityAvailable = abilityAvailable || !this.used; });
 
-		if( this.remainingMove>0 && abilityAvailable ){
+		if( this.remainingMove>0 && abilityAvailable ) {
 			this.delay();
 			this.deactivate(true);
 		}
@@ -343,31 +343,31 @@ var Creature = Class.create({
 	*	launch move action query
 	*
 	*/
-	queryMove: function(o){
+	queryMove: function(o) {
 
 		// Once Per Damage Abilities recover
 		G.creatures.each(function() { //For all Creature
-			if(this instanceof Creature){
+			if(this instanceof Creature) {
 				this.abilities.each(function() {
-					if( G.triggers.oncePerDamageChain.test(this.trigger) ){
+					if( G.triggers.oncePerDamageChain.test(this.trigger) ) {
 						this.setUsed(false);
 					}
 				});
 			}
 		});
 
-		o = $j.extend({
+		o = $j.extend( {
 			noPath : false,
 			isAbility : false,
 			ownCreatureHexShade : true,
 			range : G.grid.getMovementRange(this.x, this.y, this.remainingMove, this.size, this.id),
-			callback : function(hex, args){
-				if( hex.x == args.creature.x && hex.y == args.creature.y ){
+			callback : function(hex, args) {
+				if( hex.x == args.creature.x && hex.y == args.creature.y ) {
 					// Prevent null movement
 					G.activeCreature.queryMove();
 					return;
 				}
-				G.gamelog.add({action:"move",target:{x:hex.x,y:hex.y}});
+				G.gamelog.add( { action:"move",target:{x:hex.x,y:hex.y} });
 				args.creature.delayable = false;
 				G.UI.btnDelay.changeState("disabled");
 				args.creature.moveTo(hex, {
