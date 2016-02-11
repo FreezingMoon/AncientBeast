@@ -217,11 +217,11 @@ body {
 }
 
 #creatureWrapper div.creature.flipped {
-	transform: scale(-1,1) ;
-	-ms-transform: scale(-1,1) ; /* IE 9 */
-	-moz-transform: scale(-1,1) ; /* Firefox */
-	-webkit-transform: scale(-1,1) ; /* Safari and Chrome */
-	-o-transform: scale(-1,1) ; /* Opera */
+	transform: scale(-1, 1) ;
+	-ms-transform: scale(-1, 1) ; /* IE 9 */
+	-moz-transform: scale(-1, 1) ; /* Firefox */
+	-webkit-transform: scale(-1, 1) ; /* Safari and Chrome */
+	-o-transform: scale(-1, 1) ; /* Opera */
 }
 
 #creatureWrapper .creature {
@@ -277,7 +277,7 @@ body {
 	width: 50px;
 	height: 20px;
 	border: 2px solid;
-	background: rgba(0,0,0,.5);
+	background: rgba(0, 0, 0, 0.5);
 	color: white;
 	font-weight: bold;
 	font-size: 17px;
@@ -297,17 +297,17 @@ body {
 .health.ghosted { opacity: .25; }
 .materialize_overlay { opacity: 0.25; }
 
-#creatureWrapper .p0.health {border-color: red; }
-#creatureWrapper .p1.health {border-color: blue; }
-#creatureWrapper .p2.health {border-color: orange; }
-#creatureWrapper .p3.health {border-color: green; }
+#creatureWrapper .p0.health { border-color: red; }
+#creatureWrapper .p1.health { border-color: blue; }
+#creatureWrapper .p2.health { border-color: orange; }
+#creatureWrapper .p3.health { border-color: green; }
 
 #creatureWrapper .flipped .effects div { 
-	-webkit-transform: scale(-1,1); 
-	-ms-transform: scale(-1,1); 
-	-moz-transform: scale(-1,1); 
-	-o-transform: scale(-1,1); 
-	transform: scale(-1,1); 
+	-webkit-transform: scale(-1, 1); 
+	-ms-transform: scale(-1, 1); 
+	-moz-transform: scale(-1, 1); 
+	-o-transform: scale(-1, 1); 
+	transform: scale(-1, 1); 
 }
 
 /*-----------------UI-------------------*/
@@ -519,9 +519,9 @@ body {
 
 #card { width: 870px; margin: auto; }
 
-#materialize_button{
-	font-size:24px;
-	font-weight:bold;
+#materialize_button {
+	font-size: 24px;
+	font-weight: bold;
 	width: 860px;
 	height: 85px;
 	margin: 0px 5px;
@@ -531,7 +531,7 @@ body {
 	background-repeat: no-repeat;
 }
 
-#materialize_button p { font-size:32px; margin-top:16px; font-weight:normal; }
+#materialize_button p { font-size: 32px; margin-top: 16px; font-weight: normal; }
 
 #materialize_button.glowing p {
 	cursor: pointer;

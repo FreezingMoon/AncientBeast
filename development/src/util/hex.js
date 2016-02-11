@@ -4,7 +4,7 @@
 *	Should only have one instance during the game.
 *
 */
-var HexGrid = Class.create({
+var HexGrid = Class.create( {
 
 	/*	Attributes
 	*
@@ -77,12 +77,12 @@ var HexGrid = Class.create({
 		this.selectedHex = this.hexs[0][0];
 	},
 
-	querySelf: function(o){
+	querySelf: function(o) {
 		var defaultOpt = {
 			fnOnConfirm : function(crea,args) {},
 			fnOnSelect : function(crea,args) {
 				crea.hexagons.each(function() {
-					this.overlayVisualState("creature selected player"+this.creature.team);
+					this.overlayVisualState("creature selected player" + this.creature.team);
 				});
 			},
 			fnOnCancel : function() {G.activeCreature.queryMove()},
@@ -98,10 +98,10 @@ var HexGrid = Class.create({
 		G.activeCreature.hint(o.confirmText,"confirm");
 
 		this.queryHexs({
-			fnOnConfirm : function(hex,args){args.opt.fnOnConfirm(G.activeCreature,args.opt.args);},
-			fnOnSelect : function(hex,args){args.opt.fnOnSelect(G.activeCreature,args.opt.args);},
-			fnOnCancel : function(hex,args){args.opt.fnOnCancel(G.activeCreature,args.opt.args);},
-			args : {opt : o},
+			fnOnConfirm : function(hex,args) { args.opt.fnOnConfirm(G.activeCreature,args.opt.args); },
+			fnOnSelect : function(hex,args) { args.opt.fnOnSelect(G.activeCreature,args.opt.args); },
+			fnOnCancel : function(hex,args) { args.opt.fnOnCancel(G.activeCreature,args.opt.args); },
+			args : { opt : o },
 			hexs : G.activeCreature.hexagons,
 			hideNonTarget : true,
 			id : o.id
@@ -145,7 +145,7 @@ var HexGrid = Class.create({
 		var choices = []
 
 		for (var i = 0; i < o.directions.length; i++) {
-			if(!!o.directions[i]){
+			if(!!o.directions[i]) {
 				var dir = []
 				var fx = 0
 
@@ -157,39 +157,39 @@ var HexGrid = Class.create({
 
 				switch(i) {
 					case 0: // Upright
-						dir = G.grid.getHexMap(o.x+fx,o.y-8,0,o.flipped,diagonalup).reverse();
+						dir = G.grid.getHexMap(o.x+fx, o.y-8, 0, o.flipped, diagonalup).reverse();
 						break;
 					case 1: // StraitForward
-						dir = G.grid.getHexMap(o.x+fx,o.y,0,o.flipped,straitrow);
+						dir = G.grid.getHexMap(o.x+fx, o.y, 0, o.flipped, straitrow);
 						break;
 					case 2: // Downright
-						dir = G.grid.getHexMap(o.x+fx,o.y,0,o.flipped,diagonaldown);
+						dir = G.grid.getHexMap(o.x+fx, o.y, 0, o.flipped, diagonaldown);
 						break;
 					case 3: // Downleft
-						dir = G.grid.getHexMap(o.x+fx,o.y,-4,o.flipped,diagonalup);
+						dir = G.grid.getHexMap(o.x+fx, o.y, -4,o.flipped, diagonalup);
 						break;
 					case 4: // StraitBackward
-						dir = G.grid.getHexMap(o.x+fx,o.y,0,!o.flipped,straitrow);
+						dir = G.grid.getHexMap(o.x+fx, o.y, 0, !o.flipped, straitrow);
 						break;
 					case 5: // Upleft
-						dir = G.grid.getHexMap(o.x+fx,o.y-8,-4,o.flipped,diagonaldown).reverse();
+						dir = G.grid.getHexMap(o.x+fx, o.y-8, -4, o.flipped, diagonaldown).reverse();
 						break;
 					default:
 						break;
 				}
 
-				if( o.distance > 0 ) dir = dir.slice(0,o.distance+1);
+				if( o.distance > 0 ) dir = dir.slice(0, o.distance+1);
 
 				dir.each(function() {
 					this.direction = (o.flipped)?5-i:i;
 					if(o.stopOnCreature) o.hexsDashed.push(this);
 				});
 
-				dir.filterCreature(o.includeCrea,o.stopOnCreature,o.id,o.team);
+				dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id, o.team);
 
 				if(dir.length==0) continue;
 
-				if( o.stopOnCreature && o.includeCrea && (i==1 || i==4)){ // Only straight direction
+				if( o.stopOnCreature && o.includeCrea && (i==1 || i==4)) { // Only straight direction
 					if(dir.last().creature instanceof Creature)
 						dir = dir.concat(dir.last().creature.hexagons); // Add full creature
 				}
@@ -218,18 +218,18 @@ var HexGrid = Class.create({
 	*/
 	queryChoice: function(o) {
 		var defaultOpt = {
-			fnOnConfirm : function(choice,args) { G.activeCreature.queryMove(); },
-			fnOnSelect : function(choice,args) {
+			fnOnConfirm : function(choice, args) { G.activeCreature.queryMove(); },
+			fnOnSelect : function(choice, args) {
 				choice.each(function() {
 					if(this.creature instanceof Creature) {
-						this.overlayVisualState("creature selected player"+this.creature.team);
+						this.overlayVisualState("creature selected player" + this.creature.team);
 					}else{
 						this.displayVisualState("adj");
 					}
 
 				});
 			},
-			fnOnCancel : function(hex,args) {G.activeCreature.queryMove()},
+			fnOnCancel : function(hex,args) { G.activeCreature.queryMove() },
 			team : 0,
 			requireCreature : 1,
 			id : 0,
@@ -326,11 +326,11 @@ var HexGrid = Class.create({
 	*	id : 			Integer : 	Creature ID
 	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
 	*/
-	queryCreature: function(o){
+	queryCreature: function(o) {
 
 		var defaultOpt = {
 			fnOnConfirm : function(crea,args) { G.activeCreature.queryMove(); },
-			fnOnSelect : function(crea,args) { crea.tracePosition({ overlayClass: "creature selected player"+crea.team }); },
+			fnOnSelect : function(crea,args) { crea.tracePosition({ overlayClass: "creature selected player" + crea.team }); },
 			fnOnCancel : function(hex,args) {G.activeCreature.queryMove()},
 			optTest : function(crea) { return true; },
 			args : {},
@@ -353,7 +353,7 @@ var HexGrid = Class.create({
 				var creaTarget = this.creature;
 
 				var isAllie = creaSource.isAlly( creaTarget.team );
-				switch(o.team){
+				switch(o.team) {
 					case 0: // Ennemies
 						if( !isAllie ) return true;
 						break;
@@ -417,7 +417,7 @@ var HexGrid = Class.create({
 				G.activeCreature.faceHex(hex,undefined,true);
 				hex.overlayVisualState("creature selected player"+G.activeCreature.team);
 			},
-			fnOnCancel : function(hex,args) {G.activeCreature.queryMove()},
+			fnOnCancel : function(hex,args) { G.activeCreature.queryMove() },
 			args : {},
 			hexs : [],
 			hexsDashed : [],
@@ -440,7 +440,7 @@ var HexGrid = Class.create({
 			this.unsetReachable();
 			if(o.hideNonTarget) this.setNotTarget();
 			else this.unsetNotTarget();
-			if( o.hexsDashed.indexOf(this) != -1 ){
+			if( o.hexsDashed.indexOf(this) != -1 ) {
 				this.displayVisualState("dashed");
 			}else{
 				this.cleanDisplayVisualState("dashed");
@@ -516,7 +516,7 @@ var HexGrid = Class.create({
 					}
 				};
 
-				// if(!availablePos){
+				// if(!availablePos) {
 				// 	//Prevent Bugs
 				// 	console.log("nowhere to go");
 				// 	return;
@@ -582,7 +582,7 @@ var HexGrid = Class.create({
 					}
 				};
 
-				// if(!availablePos){
+				// if(!availablePos) {
 				// 	//Prevent Bugs
 				// 	console.log("nowhere to go");
 				// 	return;
@@ -624,7 +624,7 @@ var HexGrid = Class.create({
 	*
 	*/
 	xray: function(hex) {
-		//Clear previous ghost
+		// Clear previous ghost
 		G.creatures.each(function() {
 			if( this instanceof Creature ) {
 				this.xray(false);
@@ -652,7 +652,7 @@ var HexGrid = Class.create({
 						hide = false;
 					}
 				}
-				if(hide){
+				if(hide) {
 					// this.$display.addClass("ghosted_hidden");
 					// this.$health.addClass("ghosted_hidden");
 					for (var i = 0; i < this.size; i++) {
@@ -677,10 +677,10 @@ var HexGrid = Class.create({
 				// this.display.overlayVisualState("ghosted_hidden");
 				// this.health.overlayVisualState("ghosted_hidden");
 				for (var i = 0; i < this.size; i++) {
-					// if(this.hexagons[i]) {
-					// 	this.hexagons[i].display.alpha = 1;
-					// 	this.hexagons[i].overlay.alpha = 1;
-					// }
+					//if(this.hexagons[i]) {
+					//	this.hexagons[i].display.alpha = 1;
+					//	this.hexagons[i].overlay.alpha = 1;
+					//}
 				}
 			}
 		});
@@ -710,17 +710,17 @@ var HexGrid = Class.create({
 		this.hexs.each(function() { this.each(function() {
 			if( this.creature instanceof Creature ) {
 				if( this.creature.id == G.activeCreature.id ) {
-					this.overlayVisualState("active creature player"+this.creature.team);
-					this.displayVisualState("creature player"+this.creature.team);
+					this.overlayVisualState("active creature player" + this.creature.team);
+					this.displayVisualState("creature player" + this.creature.team);
 				}else{
-					this.displayVisualState("creature player"+this.creature.team);
+					this.displayVisualState("creature player" + this.creature.team);
 				}
 			}
 		}); });
 	},
 
 
-	/*	hexExists(y,x)
+	/*	hexExists(y, x)
 	*
 	*	x : 	Integer : 	Coordinates to test
 	*	y : 	Integer : 	Coordinates to test
@@ -736,7 +736,7 @@ var HexGrid = Class.create({
 	},
 
 
-	/*	isHexIn(hex,hexArray)
+	/*	isHexIn(hex, hexArray)
 	*
 	*	hex : 		Hex : 		Hex to look for
 	*	hexarray : 	Array : 	Array of hexes to look for hex in
@@ -744,7 +744,7 @@ var HexGrid = Class.create({
 	*	Test if hex exists inside array of hexes
 	*
 	*/
-	isHexIn: function(hex,hexArray) {
+	isHexIn: function(hex, hexArray) {
 		for (var i = 0; i < hexArray.length; i++) {
 			if(hexArray[i].x == hex.x && hexArray[i].y == hex.y) {
 				return true;
@@ -754,7 +754,7 @@ var HexGrid = Class.create({
 	},
 
 
-	/* 	getMovementRange(x,y,distance,size,id)
+	/* 	getMovementRange(x, y, distance, size, id)
 	*
 	*	x : 		Integer : 	Start position
 	*	y : 		Integer : 	Start position
@@ -764,12 +764,12 @@ var HexGrid = Class.create({
 	*
 	*	return : 	Array : 	Set of the reachable hexs
 	*/
-	getMovementRange: function(x,y,distance,size,id) {
+	getMovementRange: function(x, y, distance, size, id) {
 		//	Populate distance (hex.g) in hexs by asking an impossible
 		//	destination to test all hexagons
 		this.cleanReachable(); // If not pathfinding will bug
 		this.cleanPathAttr(true); // Erase all pathfinding datas
-		astar.search(G.grid.hexs[y][x],new Hex(-2,-2,null),size,id);
+		astar.search(G.grid.hexs[y][x], new Hex(-2, -2, null), size, id);
 
 		// Gather all the reachable hexs
 		var hexs = [];
@@ -793,13 +793,13 @@ var HexGrid = Class.create({
 	*
 	*	return : 	Array : 	Set of the reachable hexs
 	*/
-	getFlyingRange: function(x,y,distance,size,id) {
+	getFlyingRange: function(x, y, distance, size, id) {
 
 		// Gather all the reachable hexs
 		var hexs = G.grid.hexs[y][x].adjacentHex(distance);
 
 		hexs.filter(function() {
-			return this.isWalkable(size,id,true);
+			return this.isWalkable(size, id, true);
 		});
 
 		return hexs.extendToLeft(size);
@@ -816,7 +816,7 @@ var HexGrid = Class.create({
 	*
 	*	return : 	Array : 	Set of corresponding hexs
 	*/
-	getHexMap: function(originx,originy,offsetx,flipped,array) { // Heavy logic in here
+	getHexMap: function(originx, originy, offsetx, flipped, array) { // Heavy logic in here
 
 		var array = array.slice(0); // Copy to not modify original
 		originx += (flipped) ? 1-array[0].length-offsetx : -1+offsetx;
@@ -837,14 +837,14 @@ var HexGrid = Class.create({
 				if(flipped)
 					array[y].pop(); // Remove last element as the array will be parse backward
 				else
-					array[y].splice(0,1); // Remove first element
+					array[y].splice(0, 1); // Remove first element
 			}
 
 			// Gathering hexs
 			for (var x = 0; x < array[y].length; x++) {
-				if( !!array[y][x] ){
+				if( !!array[y][x] ) {
 					xfinal = (flipped) ? array[y].length-1-x : x ; // Parse the array backward for flipped player
-					if( this.hexExists(originy+y,originx+xfinal) ) {
+					if( this.hexExists(originy+y, originx+xfinal) ) {
 						hexs.push(this.hexs[originy+y][originx+xfinal]);
 					}
 				}
@@ -855,7 +855,7 @@ var HexGrid = Class.create({
 	},
 
 
-	showGrid : function(val){
+	showGrid : function(val) {
 		this.forEachHexs(function() {
 			if(this.creature) this.creature.xray(val);
 			if(this.drop) return;
@@ -867,9 +867,9 @@ var HexGrid = Class.create({
 	showMovementRange : function(id) {
 		var crea = G.creatures[id];
 		if( crea.canFly ) {
-			var hexs = this.getFlyingRange(crea.x,crea.y,crea.stats.movement,crea.size,crea.id);
+			var hexs = this.getFlyingRange(crea.x, crea.y, crea.stats.movement, crea.size, crea.id);
 		}else{
-			var hexs = this.getMovementRange(crea.x,crea.y,crea.stats.movement,crea.size,crea.id);
+			var hexs = this.getMovementRange(crea.x, crea.y, crea.stats.movement, crea.size, crea.id);
 		}
 
 		// Block all hexs
@@ -885,7 +885,7 @@ var HexGrid = Class.create({
 	},
 
 	selectHexUp : function() {
-		if( this.hexExists(this.selectedHex.y-1,this.selectedHex.x) ) {
+		if( this.hexExists(this.selectedHex.y-1, this.selectedHex.x) ) {
 			var hex =  this.hexs[this.selectedHex.y-1][this.selectedHex.x];
 			this.selectedHex = hex;
 			hex.onSelectFn();
@@ -893,7 +893,7 @@ var HexGrid = Class.create({
 	},
 
 	selectHexDown : function() {
-		if( this.hexExists(this.selectedHex.y+1,this.selectedHex.x) ) {
+		if( this.hexExists(this.selectedHex.y+1, this.selectedHex.x) ) {
 			var hex =  this.hexs[this.selectedHex.y+1][this.selectedHex.x];
 			this.selectedHex = hex;
 			hex.onSelectFn();
@@ -901,7 +901,7 @@ var HexGrid = Class.create({
 	},
 
 	selectHexLeft : function() {
-		if( this.hexExists(this.selectedHex.y,this.selectedHex.x-1) ) {
+		if( this.hexExists(this.selectedHex.y, this.selectedHex.x-1) ) {
 			var hex =  this.hexs[this.selectedHex.y][this.selectedHex.x-1];
 			this.selectedHex = hex;
 			hex.onSelectFn();
@@ -909,7 +909,7 @@ var HexGrid = Class.create({
 	},
 
 	selectHexRight : function() {
-		if( this.hexExists(this.selectedHex.y,this.selectedHex.x+1) ) {
+		if( this.hexExists(this.selectedHex.y, this.selectedHex.x+1) ) {
 			var hex =  this.hexs[this.selectedHex.y][this.selectedHex.x+1];
 			this.selectedHex = hex;
 			hex.onSelectFn();
@@ -976,10 +976,10 @@ var HexGrid = Class.create({
 	*
 	*	Shorcut for $allDispHex.removeClass()
 	*/
-	cleanDisplay: function(cssClass){
+	cleanDisplay: function(cssClass) {
 		this.forEachHexs(function() { this.cleanDisplayVisualState(cssClass) });
 	},
-	cleanOverlay: function(cssClass){
+	cleanOverlay: function(cssClass) {
 		this.forEachHexs(function() { this.cleanOverlayVisualState(cssClass) });
 	},
 
@@ -990,7 +990,7 @@ var HexGrid = Class.create({
 	*
 	*	Draw a preview of the creature at the given coordinates
 	*/
-	previewCreature:function(pos,creatureData,player) {
+	previewCreature:function(pos, creatureData, player) {
 
 		this.updateDisplay(); // Retrace players creatures
 
@@ -998,11 +998,11 @@ var HexGrid = Class.create({
 
 		if( !G.grid.materialize_overlay ) { // If sprite does not exists
 			// Adding sprite
-			this.materialize_overlay = this.creatureGroup.create(0,0, creatureData.name+'_cardboard');
+			this.materialize_overlay = this.creatureGroup.create(0, 0, creatureData.name + '_cardboard');
 			this.materialize_overlay.anchor.setTo(0.5,1);
 			this.materialize_overlay.posy = pos.y;
 		}else{
-			this.materialize_overlay.loadTexture(creatureData.name+'_cardboard');
+			this.materialize_overlay.loadTexture(creatureData.name + '_cardboard');
 			if( this.materialize_overlay.posy != pos.y) {
 				this.materialize_overlay.posy = pos.y;
 				this.orderCreatureZ();
@@ -1015,14 +1015,14 @@ var HexGrid = Class.create({
 		this.materialize_overlay.y = creaHex.displayPos.y + creatureData.display["offset-y"] + this.materialize_overlay.texture.height;
 		this.materialize_overlay.alpha = 0.5;
 
-		if(player.flipped){
-			this.materialize_overlay.scale.setTo(-1,1);
+		if(player.flipped) {
+			this.materialize_overlay.scale.setTo(-1, 1);
 		}else{
-			this.materialize_overlay.scale.setTo(1,1);
+			this.materialize_overlay.scale.setTo(1, 1);
 		}
 
 		for (var i = 0; i < creatureData.size; i++) {
-			this.hexs[pos.y][pos.x-i].overlayVisualState("creature selected player"+G.activeCreature.team);
+			this.hexs[pos.y][pos.x-i].overlayVisualState("creature selected player" + G.activeCreature.team);
 		}
 	},
 
@@ -1030,7 +1030,7 @@ var HexGrid = Class.create({
 		$j(".debug").remove();
 		var i = 0;
 		hexs.each(function() {
-			var a = G.grid.$creatureW.append('<div class=".debug" id="debug'+i+'"></div>').children("#debug"+i);
+			var a = G.grid.$creatureW.append('<div class=".debug" id="debug' + i + '"></div>').children("#debug" + i);
 			a.css({
 				position: 'absolute',
 				width: 20,
@@ -1092,7 +1092,7 @@ var Hex = Class.create({
 		this.x = x;
 		this.y = y;
 		this.pos = {x:x, y:y};
-		this.coord = String.fromCharCode(64+this.y+1)+(this.x+1);
+		this.coord = String.fromCharCode(64+this.y + 1) + (this.x + 1);
 
 		// Pathfinding
 		this.f = 0;
@@ -1111,11 +1111,11 @@ var Hex = Class.create({
 		this.displayPos = {y:y*78};
 		this.displayPos.x = (y%2 == 0) ? 46+x*90 : x*90;
 
-		this.originalDisplayPos = $j.extend({},this.displayPos);
+		this.originalDisplayPos = $j.extend({}, this.displayPos);
 
 		this.tween = null;
 
-		if(grid){
+		if(grid) {
 
 			// 10px is the offset from the old version
 
@@ -1141,11 +1141,11 @@ var Hex = Class.create({
 			this.input.events.onInputOut.add(function() {
 				if(G.freezedInput || G.UI.dashopen) return;
 				G.grid.redoLastQuery();
-				G.grid.xray( new Hex(-1,-1) ); // Clear Xray
+				G.grid.xray( new Hex(-1, -1) ); // Clear Xray
 				G.UI.xrayQueue( -1 ); // Clear Xray Queue
 			}, this);
 
-			this.input.events.onInputUp.add(function(Sprite,Pointer) {
+			this.input.events.onInputUp.add(function(Sprite, Pointer) {
 				if(G.freezedInput || G.UI.dashopen) return;
 				switch (Pointer.button) {
 					case 0:
@@ -1196,7 +1196,7 @@ var Hex = Class.create({
 					var x = this.x + deltaX;
 					var y = this.y + deltaY;
 					if(!(deltaY == 0 && deltaX == 0) && // Exclude current hex
-					y < G.grid.hexs.length && y >= 0 &&	x < G.grid.hexs[y].length && x >=0){  // Exclude inexisting hexs
+					y < G.grid.hexs.length && y >= 0 &&	x < G.grid.hexs[y].length && x >=0) {  // Exclude inexisting hexs
 						adjHex.push(G.grid.hexs[y][x]);
 					};
 				};
@@ -1208,7 +1208,7 @@ var Hex = Class.create({
 					var x = this.x + deltaX;
 					var y = this.y + deltaY;
 					if(!(deltaY == 0 && deltaX == 0) && // Exclude current hex
-					y < G.grid.hexs.length && y >= 0 && x < G.grid.hexs[y].length && x >=0){ // Exclude inexisting hexs
+					y < G.grid.hexs.length && y >= 0 && x < G.grid.hexs[y].length && x >=0) { // Exclude inexisting hexs
 						adjHex.push(G.grid.hexs[y][x]);
 					};
 				};
@@ -1226,33 +1226,33 @@ var Hex = Class.create({
 	ghostOverlap: function() {
 		for (var i = 1; i <= 3; i++) {
 			if(this.y%2 == 0) {
-				if(i == 1){
+				if(i == 1) {
 					for (var j = 0; j <= 1; j++) {
-						if(G.grid.hexExists(this.y+i,this.x+j)) {
-							if(G.grid.hexs[this.y+i][this.x+j].creature instanceof Creature){
+						if(G.grid.hexExists(this.y+i, this.x+j)) {
+							if(G.grid.hexs[this.y+i][this.x+j].creature instanceof Creature) {
 								var ghostedCreature = G.grid.hexs[this.y+i][this.x+j].creature;
 							}
 						}
 					}
 				}else{
-					if(G.grid.hexExists(this.y+i,this.x)) {
-						if(G.grid.hexs[this.y+i][this.x].creature instanceof Creature){
+					if(G.grid.hexExists(this.y+i, this.x)) {
+						if(G.grid.hexs[this.y+i][this.x].creature instanceof Creature) {
 							var ghostedCreature = G.grid.hexs[this.y+i][this.x].creature;
 						}
 					}
 				}
 			}else{
-				if(i == 1){
+				if(i == 1) {
 					for (var j = 0; j <= 1; j++) {
-						if(G.grid.hexExists(this.y+i,this.x-j)) {
-							if(G.grid.hexs[this.y+i][this.x-j].creature instanceof Creature){
+						if(G.grid.hexExists(this.y+i, this.x-j)) {
+							if(G.grid.hexs[this.y+i][this.x-j].creature instanceof Creature) {
 								var ghostedCreature = G.grid.hexs[this.y+i][this.x-j].creature;
 							}
 						}
 					}
 				}else{
-					if(G.grid.hexExists(this.y+i,this.x)) {
-						if(G.grid.hexs[this.y+i][this.x].creature instanceof Creature){
+					if(G.grid.hexExists(this.y+i, this.x)) {
+						if(G.grid.hexs[this.y+i][this.x].creature instanceof Creature) {
 							var ghostedCreature = G.grid.hexs[this.y+i][this.x].creature;
 						}
 					}
@@ -1290,17 +1290,17 @@ var Hex = Class.create({
 	*	return : 	Boolean : 	True if this hex is walkable
 	*
 	*/
-	isWalkable: function(size,id,ignoreReachable) {
+	isWalkable: function(size, id, ignoreReachable) {
 		var blocked = false;
 
 		for (var i = 0; i < size; i++) {
 			// For each Hex of the creature
-			if( (this.x-i) >= 0 && (this.x-i) < G.grid.hexs[this.y].length ){ //if hex exists
+			if( (this.x-i) >= 0 && (this.x-i) < G.grid.hexs[this.y].length ) { //if hex exists
 				var hex = G.grid.hexs[this.y][this.x-i];
 				// Verify if blocked. If it's blocked by one attribute, OR statement will keep it status
 				blocked = blocked || hex.blocked ;
-				if(!ignoreReachable){ blocked = blocked || !hex.reachable ; }
-				if(hex.creature instanceof Creature){
+				if(!ignoreReachable) { blocked = blocked || !hex.reachable ; }
+				if(hex.creature instanceof Creature) {
 
 					if( id instanceof Array ) {
 						var isNotMovingCreature = ( id.indexOf(hex.creature.id) == -1);
@@ -1348,8 +1348,8 @@ var Hex = Class.create({
 	*
 	*/
 	overlayVisualState: function(classes) {
-		classes=(classes)?classes:"";
-		this.overlayClasses += " "+classes+" ";
+		classes = (classes) ? classes: "";
+		this.overlayClasses += " " + classes + " ";
 		this.updateStyle();
 	},
 
@@ -1359,7 +1359,7 @@ var Hex = Class.create({
 	*
 	*/
 	displayVisualState: function(classes) {
-		classes=(classes)?classes:"";
+		classes = (classes) ? classes: "";
 		this.displayClasses += " "+classes+" ";
 		this.updateStyle();
 	},
@@ -1375,7 +1375,7 @@ var Hex = Class.create({
 		var a = classes.split(' ');
 		for (var i = 0; i < a.length; i++) {
 			var regex = new RegExp("\\b"+a[i]+"\\b", 'g');
-			this.overlayClasses = this.overlayClasses.replace(regex,'');
+			this.overlayClasses = this.overlayClasses.replace(regex, '');
 		};
 
 		this.updateStyle();
@@ -1386,13 +1386,13 @@ var Hex = Class.create({
 	*	Clear the appearance of the display hex
 	*
 	*/
-	cleanDisplayVisualState: function(classes){
+	cleanDisplayVisualState: function(classes) {
 		classes = classes || "adj hover creature player0 player1 player2 player3";
 
 		var a = classes.split(' ');
 		for (var i = 0; i < a.length; i++) {
 			var regex = new RegExp("\\b"+a[i]+"\\b", 'g');
-			this.displayClasses = this.displayClasses.replace(regex,'');
+			this.displayClasses = this.displayClasses.replace(regex, '');
 		};
 
 		this.updateStyle();
@@ -1443,13 +1443,13 @@ var Hex = Class.create({
 		targetAlpha = !!this.displayClasses.match(/showGrid/g) || targetAlpha;
 		targetAlpha = !!this.displayClasses.match(/dashed/g) || targetAlpha;
 
-		if(this.displayClasses.match(/0|1|2|3/)){
+		if(this.displayClasses.match(/0|1|2|3/)) {
 			var p = this.displayClasses.match(/0|1|2|3/);
 			this.display.loadTexture("hex_p"+p);
 			G.grid.dispHexsGroup.bringToTop(this.display);
-		}else if(this.displayClasses.match(/adj/)){
+		}else if(this.displayClasses.match(/adj/)) {
 			this.display.loadTexture("hex_path");
-		}else if(this.displayClasses.match(/dashed/)){
+		}else if(this.displayClasses.match(/dashed/)) {
 			this.display.loadTexture("hex_dashed");
 		}else{
 			this.display.loadTexture("hex");
@@ -1457,7 +1457,7 @@ var Hex = Class.create({
 
 		this.display.alpha = targetAlpha;
 		// Too slow
-		// if(this.display.alpha != targetAlpha){
+		// if(this.display.alpha != targetAlpha) {
 		// 	if(this.tween) this.tween.stop();
 		// 	this.tween = G.Phaser.add.tween(this.display)
 		// 		.to({alpha:targetAlpha-0}, 250, Phaser.Easing.Linear.None)
@@ -1527,7 +1527,7 @@ var Hex = Class.create({
 
 	//---------DROP FUNCTION---------//
 
-	pickupDrop: function(crea){
+	pickupDrop: function(crea) {
 		if(!this.drop) return;
 		this.drop.pickup(crea);
 	},
@@ -1675,7 +1675,7 @@ var Trap = Class.create({
 		return this;
 	};
 
-	/*	filterCreature(hexs,reverse,includeCrea,stopOnCreature)
+	/*	filterCreature(hexs, reverse, includeCrea, stopOnCreature)
 	*
 	*	includeCrea : 		Boolean : 	Add creature hexs to the array
 	*	stopOnCreature : 	Boolean : 	Cut the array when finding a creature
@@ -1683,24 +1683,24 @@ var Trap = Class.create({
 	*
 	*	return : 		Array : 	filtered array
 	*/
-	Array.prototype.filterCreature = function(includeCrea,stopOnCreature,id) {
+	Array.prototype.filterCreature = function(includeCrea, stopOnCreature, id) {
 		var creaHexs = [];
 
 		for (var i = 0; i < this.length; i++) {
 		 	if(this[i].creature instanceof Creature) {
 		 		if(!includeCrea || this[i].creature.id==id) {
 		 			if(this[i].creature.id==id) {
-		 				this.splice(i,1);
+		 				this.splice(i, 1);
 		 				i--;
 		 				continue;
 		 			}else{
-		 				this.splice(i,1);
+		 				this.splice(i, 1);
 		 				i--;
 		 			}
 		 		}else{
 		 			creaHexs = creaHexs.concat(this[i].creature.hexagons);
 		 		}
-		 		if(stopOnCreature){
+		 		if(stopOnCreature) {
 		 			this.splice(i+1,99);
 		 			break;
 		 		}
@@ -1718,10 +1718,10 @@ var Trap = Class.create({
 	*/
 	Array.prototype.extendToLeft = function(size) {
 		var ext = [];
-		for(var i=0;i<this.length;i++) {
+		for(var i=0; i<this.length; i++) {
 			for (var j = 0; j < size; j++) {
 				// NOTE : This code produce array with doubles.
-				if( G.grid.hexExists(this[i].y,this[i].x-j) )
+				if( G.grid.hexExists(this[i].y, this[i].x-j) )
 					ext.push(G.grid.hexs[this[i].y][this[i].x-j]);
 			}
 		}
@@ -1737,7 +1737,7 @@ var Trap = Class.create({
 	*/
 	Array.prototype.extendToRight = function(size) {
 		var ext = [];
-		for(var i=0;i<this.length;i++) {
+		for(var i=0; i<this.length; i++) {
 			for (var j = 0; j < size; j++) {
 				// NOTE : This code produces array with doubles.
 				if( G.grid.hexExists(this[i].y,this[i].x+j) )
