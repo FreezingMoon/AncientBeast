@@ -988,13 +988,13 @@ var UI = Class.create({
 	*
 	*/
 	updateInfos:function() {
-		$j("#playerbutton, #playerinfos")
+		$j("#playerbutton, #playerinfo")
 			.removeClass("p0 p1 p2 p3")
 			.addClass("p"+G.activeCreature.player.id);
-		$j("#playerinfos .name").text(G.activeCreature.player.name);
-		$j("#playerinfos .points span").text(G.activeCreature.player.getScore().total);
-		$j("#playerinfos .plasma span").text(G.activeCreature.player.plasma);
-		$j("#playerinfos .units span").text(G.activeCreature.player.getNbrOfCreatures()+" / "+G.creaLimitNbr); // TODO: needs to update instantly!
+		$j("#playerinfo .name").text(G.activeCreature.player.name);
+		$j("#playerinfo .points span").text(G.activeCreature.player.getScore().total);
+		$j("#playerinfo .plasma span").text(G.activeCreature.player.plasma);
+		$j("#playerinfo .units span").text(G.activeCreature.player.getNbrOfCreatures()+" / "+G.creaLimitNbr); // TODO: needs to update instantly!
 	},
 
 	showStatModifiers: function(stat) {

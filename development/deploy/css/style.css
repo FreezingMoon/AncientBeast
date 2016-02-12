@@ -60,7 +60,7 @@ body {
 
 }
 
-#hexsinput, #hexsdisplay,#creatureWrapper, #hexsoverlay, #trapWrapper {
+#hexsinput, #hexsdisplay, #creatureWrapper, #hexsoverlay, #trapWrapper {
 	position: relative;
 	top: 0px;
 	left: 0px;
@@ -80,7 +80,7 @@ body {
 	transform: scaleY(0.75);
 }
 
-#hexsdisplay { z-index: 1; opacity: .5; }
+#hexsdisplay { z-index: 1; opacity: 0.5; }
 #hexsoverlay { z-index: 2; }
 #creatureWrapper { z-index: 3; }
 #hexsinput { z-index: 4; }
@@ -260,14 +260,14 @@ body {
 	text-align: center;
 	white-space: nowrap;
 }
-#creatureWrapper .effects div.confirm { color: white; text-shadow:#000 1px 1px 2px,#000 -1px -1px 2px;
+#creatureWrapper .effects div.confirm { color: white; text-shadow: #000 1px 1px 2px, #000 -1px -1px 2px;
 	animation: pulse0510 750ms infinite alternate;
 	-webkit-animation: pulse0510 750ms infinite alternate;
 	-ms-animation: pulse0510 750ms infinite alternate;
 	-moz-animation: pulse0510 750ms infinite alternate;
 	-o-animation: pulse0510 750ms infinite alternate;
 }
-#creatureWrapper .effects div.gamehintblack { color: black; text-shadow:#FFF 1px 1px 2px,#FFF -1px -1px 2px; }
+#creatureWrapper .effects div.gamehintblack { color: black; text-shadow: #FFF 1px 1px 2px, #FFF -1px -1px 2px; }
 #creatureWrapper .effects div.healing { color: green; }
 #creatureWrapper .effects div.msg_effects { color: yellow; }
 
@@ -321,7 +321,7 @@ body {
 
 #toppanel {
 	position: fixed;
-	top:0px;
+	top: 0px;
 	width: 100%;
 	z-index: 2;
 }
@@ -338,8 +338,8 @@ body {
 #leftpanel { position: absolute; left: 0px; z-index: 0; }
 
 .button {
-	width:80px;
-	height:80px;
+	width: 80px;
+	height: 80px;
 	cursor: pointer;
 	background-size: 100% 100%;
 }
@@ -373,7 +373,7 @@ body {
 	z-index: 2;
 }
 
-#playerinfos {
+#playerinfo {
 	color: white;
 	display: block;
 	font-size: 12px;
@@ -387,15 +387,15 @@ body {
 	z-index: 2;
 }
 
-#playerinfos p { margin: 4px; }
-#playerinfos .name { font-size: 15px; }
+#playerinfo p { margin: 4px; }
+#playerinfo .name { font-size: 15px; }
 
 .alert { color: red; }
 
 /*-------------------dash-------------------*/
 
 #dash {
-	background: rgba(0,0,0,.85);
+	background: rgba(0, 0, 0, 0.85);
 	width: 100%;
 	height: 100%;
 	position: fixed;
@@ -482,9 +482,9 @@ body {
 	position: absolute;
 }
 
-#musicplayerwrapper,#musicplayerwrapper a { text-align: center; color: #AAA; }
+#musicplayerwrapper, #musicplayerwrapper a { text-align: center; color: #AAA; }
 
-#musicplayerwrapper .active,#musicplayerwrapper .active a { color: white !important; }
+#musicplayerwrapper .active, #musicplayerwrapper .active a { color: white !important; }
 
 #creaturegridwrapper {
 	top: 0px;
@@ -573,7 +573,7 @@ body {
 	position: relative;
 }
 
-.vignette .frame,.vignette .overlay_frame {
+.vignette .frame, .vignette .overlay_frame {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -623,7 +623,7 @@ body {
 .vignette.roundmarker .frame { background-image: url('../../interface/contour.png'), url('../../interface/round.jpg'); }
 
 /*-----------PAUSE OVERLAY-------------*/
-
+/* Pause has been disabled from game */
 #pause {
 	width: 100%;
 	height: 100%;
@@ -637,14 +637,14 @@ body {
 	color: #FFF;
 	text-align: center;
 	box-sizing: border-box;
-	background-color: rgba(0,0,0,0.8);
+	background-color: rgba(0, 0, 0, 0.8);
 }
 
 /*---------------TEXTBOX--------------*/
 #chat {
 	width: 450px;
 	height: 30px;
-	background-color: rgba(0,0,0,0.8);
+	background-color: rgba(0, 0, 0, 0.8);
 	cursor: pointer;
 	position: relative;
 	margin: 0 auto;
@@ -660,7 +660,7 @@ body {
 
 #chatbox::-webkit-scrollbar { width: 7px; }
 
-#chatbox::-webkit-scrollbar-thumb { border-radius: 10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3); background-color: white; }
+#chatbox::-webkit-scrollbar-thumb { border-radius: 10px; -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); background-color: white; }
 
 #chat.focus { height: 300px; bottom: 310px; }
 
@@ -732,7 +732,7 @@ body {
 	width: 0px;
 	left: 85px;
 	color: white;
-	background: rgba(0,0,0,0.7);
+	background: rgba(0, 0, 0, 0.7);
 	overflow: hidden;
 }
 
@@ -837,28 +837,28 @@ span.mental { background-image: url("../../stats/mental.png"); }
 /*-----------------Animations-------------------*/
 
 /*Pulse between .6 and .1 opacity*/
-@keyframes pulse0106 { 0% {opacity: .1;} 100% {opacity: .6;} }
-@-moz-keyframes pulse0106 { 0% {opacity: .1;} 100% {opacity: .6;} }
-@-webkit-keyframes pulse0106 { 0% {opacity: .1;} 100% {opacity: .6;} }
-@-o-keyframes pulse0106 { 0% {opacity: .1;} 100% {opacity: .6;} }
+@keyframes pulse0106 { 0% { opacity: .1; } 100% { opacity: .6; } }
+@-moz-keyframes pulse0106 { 0% { opacity: .1; } 100% { opacity: .6; } }
+@-webkit-keyframes pulse0106 { 0% { opacity: .1; } 100% { opacity: .6; } }
+@-o-keyframes pulse0106 { 0% { opacity: .1; } 100% { opacity: .6; } }
 
 /*Pulse between .8 and 1 opacity*/
-@keyframes pulse0510 { 0% {opacity: .5;} 100% {opacity: 1;} }
-@-moz-keyframes pulse0510 { 0% {opacity: .5;} 100% {opacity: 1;} }
-@-webkit-keyframes pulse0510 { 0% {opacity: .5;} 100% {opacity: 1;} }
-@-o-keyframes pulse0510 { 0% {opacity: .5;} 100% {opacity: 1;} }
+@keyframes pulse0510 { 0% { opacity: .5; } 100% { opacity: 1; } }
+@-moz-keyframes pulse0510 { 0% { opacity: .5; } 100% { opacity: 1; } }
+@-webkit-keyframes pulse0510 { 0% { opacity: .5; } 100% { opacity: 1; } }
+@-o-keyframes pulse0510 { 0% { opacity: .5; } 100% { opacity: 1; } }
 
 /*Pulse between .8 and 1 opacity*/
-@keyframes pulse0205 { 0% {opacity: .2;} 100% {opacity: .5;} }
-@-moz-keyframes pulse0205 { 0% {opacity: .2;} 100% {opacity: .5;} }
-@-webkit-keyframes pulse0205 { 0% {opacity: .2;} 100% {opacity: .5;} }
-@-o-keyframes pulse0205 { 0% {opacity: .2;} 100% {opacity: .5;} }
+@keyframes pulse0205 { 0% { opacity: .2; } 100% { opacity: .5; } }
+@-moz-keyframes pulse0205 { 0% { opacity: .2; } 100% {opacity: .5;} }
+@-webkit-keyframes pulse0205 { 0% { opacity: .2; } 100% { opacity: .5; } }
+@-o-keyframes pulse0205 { 0% { opacity: .2; } 100% { opacity: .5; } }
 
 
-@keyframes 			glowingtext { 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
-@-moz-keyframes 	glowingtext { 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
-@-webkit-keyframes 	glowingtext { 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
-@-o-keyframes 		glowingtext { 0% {text-shadow:none;} 100% {text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px;} }
+@keyframes 			glowingtext { 0% { text-shadow:none; } 100% { text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px; } }
+@-moz-keyframes 	glowingtext { 0% { text-shadow:none; } 100% { text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px; } }
+@-webkit-keyframes 	glowingtext { 0% { text-shadow:none; } 100% { text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px; } }
+@-o-keyframes 		glowingtext { 0% { text-shadow:none; } 100% { text-shadow: #F00 0px 2px 19px,#F00 0px 2px 78px; } }
 /*----------------Game setup--------------*/
 
 /*Overiding JqueryUI Theme*/
