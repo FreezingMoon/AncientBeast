@@ -392,10 +392,10 @@
 			"endurance": 40,
 			"energy": 80,
 			"meditation": 10,
-			"initiative": 75,
-			"offense": 14,
+			"initiative": 60,
+			"offense": 13,
 			"defense": 7,
-			"movement": 6,
+			"movement": 5,
 			"pierce": 5,
 			"slash": 2,
 			"crush": 4,
@@ -425,6 +425,7 @@
 				"title": "Electrified Hair",
 				"desc": "Converts up to 1/4 of any incoming shock damage into energy points.",
 				"info": "This isn't affected by any unit stats",
+				"upgrade": "1/2 conversion ratio boost",
 				"effects": [{
 					"special": "Converts ~25%%shock% into%energy%"
 				}]
@@ -432,12 +433,13 @@
 			{
 				"title": "Hasted Jab",
 				"desc": "Horn attack that gains extra damage based on the last distance traveled.",
-				"info": "15 pierce damage + 5 per hexagon",
+				"info": "15 pierce damage + 5 extra per hex",
+				"upgrade": "+1 movement if it fatigues",
 				"damages": {
-					"special": "15%pierce%+ 5 per hexagon"
+					"special": "15%pierce%+ 10 per hexagon"
 				},
 				"damages1": {
-					"pierce": 12
+					"pierce": 15
 				},
 				"costs": {
 					"energy": 15
@@ -447,23 +449,25 @@
 				"title": "Poisonous Vine",
 				"desc": "Tangles a nearby foe, causing it to take damage if it will move within next turn.",
 				"info": "25 poison damage triggered if moving",
+				"upgrade": "Activated by abilities as well",
 				"effects": [{
 					"special": "25 poison damage if moving"
 				}],
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
     		},
 			{
 				"title": "Arched Pole",
-				"desc": "Damages up to 9 nearby creatures, even hitting them twice if one dies.",
-				"info": "9 slash + 5 frost damage up to 2 hits",
+				"desc": "Damages up to 5 nearby creatures, even hitting them twice if one dies.",
+				"info": "9 slash + 7 frost damage up to 2 hits",
+				"upgrade": "Up to 7 targets and 3 hits",
 				"damages": {
 					"slash": 9,
-					"frost": 5
+					"frost": 7
 				},
 				"costs": {
-					"energy": 20
+					"energy": 30
 				}
     		}
     	]
@@ -624,12 +628,15 @@
 		},
 			{
 				"title": "Wild Fire",
-				"desc": "Teleports within 6 hexagons range, leaving a firewall in the old location.",
+				"desc": "Teleports within 7 hexagons range, leaving a firewall in the old location.",
 				"info": "3 x 10 burn damage per hexagon.",
-				"upgrade": "Infinite teleportation range.",
+				"upgrade": "Increased range each use.",
 				"effects": [{
 					"special": "10 %burn% damage per hex"
 				}],
+				"damages": {
+					"burn": 10
+				},
 				"costs": {
 					"energy": 30
 				}
@@ -1263,7 +1270,7 @@
 		"type": "E6",
 		"set": "Alpha",
 		"stats": {
-			"health": 260,
+			"health": 230,
 			"regrowth": 2,
 			"endurance": 80,
 			"energy": 70,
@@ -1452,7 +1459,7 @@
 			"endurance": 60,
 			"energy": 50,
 			"meditation": 4,
-			"initiative": 60,
+			"initiative": 65,
 			"offense": 10,
 			"defense": 6,
 			"movement": 3,
@@ -1724,11 +1731,11 @@
 		"type": "E3",
 		"set": "Alpha",
 		"stats": {
-			"health": 160,
+			"health": 100,
 			"regrowth": 0,
-			"endurance": 0,
+			"endurance": 1,
 			"energy": 70,
-			"meditation": 3,
+			"meditation": 10,
 			"initiative": 160,
 			"offense": 2,
 			"defense": 3,
@@ -2269,22 +2276,35 @@
 			{
 				"title": "Battle Cry",
 				"desc": "Roars at the beginning of the turn if took any damage in previous round.",
-				"info": "30 sonic damage to adjacent units"
+				"info": "30 sonic damage to adjacent units",
+				"upgrade": "Half damage roar anyway"
             },
 			{
 				"title": "Executioner Axe",
 				"desc": "Slashes nearby foe, doing bonus damage based on its max health.",
-				"info": "30 + 9% max health slash damage"
+				"info": "30 + 5% max health slash damage",
+				"upgrade": "Increased to 10 percent",
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Dragon Flight",
-				"desc": "Travels to a location passing over obstacles with no movement cost.",
-				"info": "+25 offense for next hit if not moving"
+				"desc": "Travels to a nearby location passing over obstacles at no movement cost.",
+				"info": "Flies to location within 10 hexagons",
+				"upgrade": "+25 offense if hitting next",
+				"costs": {
+					"energy": 20
+				}
             },
 			{
 				"title": "Visible Stigmata",
 				"desc": "Brings back to life the last dead unit for 3 rounds, after which it disintegrates.",
-				"info": "It will have 30% health and last energy"
+				"info": "It will have 10% health and last energy",
+				"upgrade": "Revived unit has full energy",
+				"costs": {
+					"energy": 25
+				}
             }
         ]
     },
@@ -2405,14 +2425,14 @@
 		"type": "E4",
 		"set": "Alpha",
 		"stats": {
-			"health": 240,
+			"health": 180,
 			"regrowth": 7,
 			"endurance": 60,
 			"energy": 160,
 			"meditation": 10,
 			"initiative": 50,
 			"offense": 1,
-			"defense": 9,
+			"defense": 12,
 			"movement": 3,
 			"pierce": 3,
 			"slash": 3,
@@ -2839,7 +2859,7 @@
 		"type": "E7",
 		"set": "Alpha",
 		"stats": {
-			"health": 320,
+			"health": 260,
 			"regrowth": 4,
 			"endurance": 100,
 			"energy": 80,
@@ -2960,14 +2980,14 @@
 		"type": "E2",
 		"set": "Alpha",
 		"stats": {
-			"health": 115,
+			"health": 95,
 			"regrowth": 2,
 			"endurance": 30,
 			"energy": 90,
 			"meditation": 30,
 			"initiative": 70,
 			"offense": 1,
-			"defense": 8,
+			"defense": 7,
 			"movement": 9,
 			"pierce": 7,
 			"slash": 7,
@@ -3004,6 +3024,7 @@
 				"title": "Slicing Pounce",
 				"desc": "Slashes nearby foe using its claws.",
 				"info": "12 slash damage done every strike",
+				"upgrade": "Can also move large units",
 				"damages": {
 					"slash": 12
 				},
@@ -3015,6 +3036,7 @@
 				"title": "Escort Service",
 				"desc": "Carries over a frontal or rear small or medium unit to a free inline location.",
 				"info": "Distance based on movement points",
+				"upgrade": "Can also move large units",
 				"costs": {
 					"movement": "1 or 2 points per hexagon"
 				},
@@ -3025,11 +3047,12 @@
 		},
 			{
 				"title": "Deadly Toxin",
-				"desc": "Bites a nearby enemy and poisons it. First five attacks contain more venom.",
-				"info": "10 pierce + 60/50/40/30/20/10 poison",
+				"desc": "Bites a nearby enemy and poisons it. The venom loses potency if overused.",
+				"info": "10 pierce + 10 poison x 4 max stacks",
+				"upgrade": "Regains a stack if not used",
 				"damages": {
 					"pierce": 10,
-					"poison": 60
+					"poison": 35
 				},
 				"costs": {
 					"energy": 20
@@ -3133,7 +3156,7 @@
 		"type": "E5",
 		"set": "Alpha",
 		"stats": {
-			"health": 260,
+			"health": 200,
 			"regrowth": 4,
 			"endurance": 80,
 			"energy": 70,

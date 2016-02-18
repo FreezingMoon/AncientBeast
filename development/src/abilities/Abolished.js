@@ -109,7 +109,7 @@ G.abilities[7] =[
 		crea.queryMove({
 			noPath : true,
 			isAbility : true,
-			range : G.grid.getFlyingRange(crea.x,crea.y,6,crea.size,crea.id),
+			range : G.grid.getFlyingRange(crea.x,crea.y,7,crea.size,crea.id),
 			callback : function() { delete arguments[1]; ability.animation.apply(ability,arguments); },
 		});
 	},
