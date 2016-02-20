@@ -1,3 +1,6 @@
+ACTIVE_UPGRADE_TARGET = 4;
+PASSIVE_UPGRADE_TARGET = 4;
+
 /*	Ability Class
 *
 *	Class parsing function from creature abilities
@@ -9,11 +12,17 @@ var Ability = Class.create( {
 		this.used = false;
 		this.id = abilityID;
 		this.priority = 0; // Priority for same trigger
+		this.timesUsed = 0;
 		var datas = G.retreiveCreatureStats(creature.type);
 		$j.extend(true,this,G.abilities[datas.id][abilityID],datas.ability_info[abilityID]);
 		if( this.requirements === undefined && this.costs !== undefined ) {
 			this.requirements = this.costs;
 		}
+	},
+
+	isUpgraded: function() {
+		if(this.trigger == "onQuery") return this.timesUsed >= ACTIVE_UPGRADE_TARGET;
+		return this.creature.turnsActive >= PASSIVE_UPGRADE_TARGET;
 	},
 
 
@@ -118,6 +127,11 @@ var Ability = Class.create( {
 		var ab = this;
 		var args = opt.arg;
 
+		var activateAbility = function() {
+			ab.activate.apply(ab,args);
+			ab.timesUsed += 1;
+		}
+
 		G.freezedInput = true;
 
 		// Animate
@@ -150,7 +164,7 @@ var Ability = Class.create( {
 			setTimeout(function() {
 				if( !G.triggers.onAttack.test(ab.trigger) ) {
 					G.soundsys.playSound(G.soundLoaded[2], G.soundsys.effectsGainNode);
-					ab.activate.apply(ab,args);
+					activateAbility();
 				}
 			},this.animation_datas.delay);
 
@@ -162,7 +176,7 @@ var Ability = Class.create( {
 			},this.animation_datas.duration);
 
 		}else{
-			ab.activate.apply(ab,args);
+			activateAbility();
 			G.freezedInput = false;
 		}
 

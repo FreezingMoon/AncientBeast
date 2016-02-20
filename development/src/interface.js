@@ -853,6 +853,10 @@ var UI = Class.create({
 				this.$button.next(".desc").find("span").text(ab.title);
 				this.$button.next(".desc").find("p").html(ab.desc);
 
+				// Add a gold contour if the ability has been upgraded.
+				if(ab.isUpgraded()) this.$button.addClass('upgraded');
+				else this.$button.removeClass('upgraded');
+
 				var costs_string = ab.getFormatedCosts();
 				var dmg_string = ab.getFormatedDamages();
 				var special_string = ab.getFormatedEffects();
