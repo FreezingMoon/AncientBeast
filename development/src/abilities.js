@@ -1,5 +1,5 @@
-ACTIVE_UPGRADE_TARGET = 4
-PASSIVE_UPGRADE_TARGET = 4
+ACTIVE_UPGRADE_TARGET = 4;
+PASSIVE_UPGRADE_TARGET = 4;
 
 /*	Ability Class
 *
@@ -22,8 +22,7 @@ var Ability = Class.create( {
 
 	isUpgraded: function() {
 		if(this.trigger == "onQuery") return this.timesUsed >= ACTIVE_UPGRADE_TARGET;
-		else if(this.creature.turnsActive >= PASSIVE_UPGRADE_TARGET) return true;
-		return false;
+		return this.creature.turnsActive >= PASSIVE_UPGRADE_TARGET;
 	},
 
 
@@ -128,6 +127,11 @@ var Ability = Class.create( {
 		var ab = this;
 		var args = opt.arg;
 
+		var activateAbility = function() {
+			ab.activate.apply(ab,args);
+			ab.timesUsed += 1;
+		}
+
 		G.freezedInput = true;
 
 		// Animate
@@ -160,7 +164,7 @@ var Ability = Class.create( {
 			setTimeout(function() {
 				if( !G.triggers.onAttack.test(ab.trigger) ) {
 					G.soundsys.playSound(G.soundLoaded[2], G.soundsys.effectsGainNode);
-					ab.activate.apply(ab,args);
+					activateAbility();
 				}
 			},this.animation_datas.delay);
 
@@ -172,11 +176,9 @@ var Ability = Class.create( {
 			},this.animation_datas.duration);
 
 		}else{
-			ab.activate.apply(ab,args);
+			activateAbility();
 			G.freezedInput = false;
 		}
-
-		ab.timesUsed += 1;
 
 		var interval = setInterval(function() {
 			if(!G.freezedInput) {
