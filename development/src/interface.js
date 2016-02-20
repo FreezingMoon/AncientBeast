@@ -846,12 +846,23 @@ var UI = Class.create({
 			G.UI.energyBar.setSize( G.activeCreature.oldEnergy/G.activeCreature.stats.energy );
 			G.UI.healthBar.setSize( G.activeCreature.oldHealth/G.activeCreature.stats.health );
 
+			console.log ('Changing ability buttons!');
+			console.log (G.activeCreature);
+
 			// Change ability buttons
 			G.UI.abilitiesButtons.each(function() {
 				var ab = G.activeCreature.abilities[this.abilityId];
 				this.css.normal = {"background-image":"url('../units/icons/"+G.activeCreature.name+" "+this.abilityId+".svg')"};
 				this.$button.next(".desc").find("span").text(ab.title);
 				this.$button.next(".desc").find("p").html(ab.desc);
+
+				// Add a gold contour if the ability has been upgraded.
+				if(ab.isUpgraded()) {
+					console.log('ability is upgraded:');
+					console.log(this.$button);
+					this.$button.addClass('upgraded');
+				}
+				else this.$button.removeClass('upgraded');
 
 				var costs_string = ab.getFormatedCosts();
 				var dmg_string = ab.getFormatedDamages();

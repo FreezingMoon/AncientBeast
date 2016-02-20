@@ -69,7 +69,7 @@ var Creature = Class.create( {
 		this.effects	= [];
 		this.dropCollection	= [];
 		this.protectedFromFatigue = (this.type == "--") ? true : false ;
-
+		this.turnsActive = 0;
 
 		// Statistics
 		this.baseStats	= {
@@ -304,7 +304,10 @@ var Creature = Class.create( {
 		G.grid.updateDisplay(); // Retrace players creatures
 
 		// Effects triggers
-		if(!wait) G.triggersFn.onEndPhase(this);
+		if(!wait) {
+			this.turnsActive += 1;
+			G.triggersFn.onEndPhase(this);
+		}
 
 		this.delayable = false;
 	},
