@@ -21,7 +21,7 @@ G.abilities[7] =[
 	activate : function(damage, target) {
 		if(this.creature.id === damage.attacker.id) {
 			target.stats.burn -= 1;
-			if(this.upgraded === true) {
+			if(this.isUpgraded() === true) {
 				this.creature.stats.burn += 1;
 			}
 		}
@@ -56,6 +56,8 @@ G.abilities[7] =[
 	query : function() {
 		var ability = this;
 		var crea = this.creature;
+
+		if(this.isUpgraded) this.distance = 6;
 
 		G.grid.queryDirection({
 			fnOnConfirm : function() { ability.animation.apply(ability,arguments); },
@@ -105,11 +107,12 @@ G.abilities[7] =[
 	query : function() {
 		var ability = this;
 		var crea = this.creature;
+		var range = this.timesUsed + 7
 
 		crea.queryMove({
 			noPath : true,
 			isAbility : true,
-			range : G.grid.getFlyingRange(crea.x,crea.y,7,crea.size,crea.id),
+			range : G.grid.getFlyingRange(crea.x,crea.y,range,crea.size,crea.id),
 			callback : function() { delete arguments[1]; ability.animation.apply(ability,arguments); },
 		});
 	},
@@ -256,6 +259,8 @@ G.abilities[7] =[
 		var crea = this.creature;
 		var aoe = crea.adjacentHexs(1);
 		var targets = ability.getTargets(aoe);
+
+		if(this.isUpgraded()) this.damages.burn = 30;
 
 		targets.each(function() {
 			this.target.takeDamage(new Damage(

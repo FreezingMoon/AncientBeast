@@ -356,6 +356,8 @@ body {
 	background-image: url('../../interface/contour.png');
 }
 
+.button.upgraded:before { background-image: url('../../interface/contour_golden.png'); }
+
 .button.disabled:before { background-image: url('../../interface/contour_dimmed.png'); }
 
 .disabled { cursor:default !important; }
