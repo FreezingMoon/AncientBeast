@@ -5,6 +5,7 @@
 */
 G.abilities[39] =[
 
+
 // 	First Ability: Maggot Infestation
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
@@ -158,8 +159,7 @@ G.abilities[39] =[
 	activate : function(path,args) {
 		var ability = this;
 		var crea = this.creature;
-
-
+		
 		var path = path;
 		var target = path.last().creature;
 		path = path.filter( function(){	return !this.creature; }); //remove creatures
@@ -168,6 +168,7 @@ G.abilities[39] =[
 		console.log(path);
 
 		//Damage
+		
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
@@ -175,32 +176,63 @@ G.abilities[39] =[
 			1, //Area
 			[]	//Effects
 		);
-
+		//console.log('\n\n ok:' + target.size);
+		
 		//Movement
 		var creature = (args.direction==4) ? crea.hexagons[crea.size-1] : crea.hexagons[0] ;
+
 		path.filterCreature(false,false);
 		path.unshift(creature); //prevent error on empty path
 		var destination = path.last();
-		var x = (args.direction==4) ? destination.x+crea.size-1 : destination.x ;
+		//var x = (args.direction==4) ? destination.x+crea.size-1 : destination.x ;
+		var x = destination.x+crea.size-2;
+		
 		destination = G.grid.hexs[destination.y][x];
+		
+		//Should the unit move toward the enemy player?
+		//If source_moveto = 1, move closer toward the enemy
+		var source_moveto = 0;
+		//If target_moveto = 1, move closer to the player
+		var target_moveto = 0;
+		if (target.size == 1)
+		{
+			//TODO if Headless uses this ability on a small (one hexagon) unit, it will only pull that unit nearby
+		
+		}
+		if (target.size == 2)
+		{
+			/*TODO: if the target unit is medium as well (two hexagons), both units will be moved towards each other
+			(if the space between the units is not dividable by 2, Headless will move one extra hexagon
+			towards the unit, so that they'll end up being adjacent in any scenario) */
+		}
+		if (target.size == 3)
+		{
+			//if the target unit is big (three hexagons), only Headless will move towards it
+			source_moveto = 1;
+		}
+		
+		if (source_moveto == 1)
+		{
+			//Move headless
+			crea.moveTo(destination,{
+				ignoreMovementPoint : true,
+				ignorePath : true,
+				callback : function(){
+					
+					//var ret = target.takeDamage(damage,true);
 
-		crea.moveTo(destination,{
-			ignoreMovementPoint : true,
-			ignorePath : true,
-			callback : function(){
-				var ret = target.takeDamage(damage,true);
-
-				if( ret.damageObj instanceof Damage )
-					G.triggersFn.onDamage(target,ret.damageObj);
-
-				var interval = setInterval(function(){
-					if(!G.freezedInput){
-						clearInterval(interval);
-						G.activeCreature.queryMove();
-					}
-				},100);
-			},
-		});
+					//if( ret.damageObj instanceof Damage )
+					//	G.triggersFn.onDamage(target,ret.damageObj);
+					
+					var interval = setInterval(function(){
+						if(!G.freezedInput){
+							clearInterval(interval);
+							G.activeCreature.queryMove();
+						}
+					},100);
+				},
+			});
+		}
 	},
 },
 
