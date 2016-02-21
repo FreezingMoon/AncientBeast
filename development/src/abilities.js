@@ -147,8 +147,8 @@ var Ability = Class.create( {
 
 			G.animationQueue.push(anim_id);
 
-			if(this.animation_datas === undefined) {
-				this.animation_datas = {
+			if(this.animation_data === undefined) {
+				this.animation_data = {
 					visual : function() {},
 					duration : 500,
 					delay : 350,
@@ -166,14 +166,14 @@ var Ability = Class.create( {
 					G.soundsys.playSound(G.soundLoaded[2], G.soundsys.effectsGainNode);
 					activateAbility();
 				}
-			},this.animation_datas.delay);
+			},this.animation_data.delay);
 
 			setTimeout(function() {
-				G.animationQueue.filter(function() { return (this!=anim_id); });
+				G.animationQueue.filter(function() { return (this!=anim_id); } );
 				if( G.animationQueue.length === 0 ) {
 					G.freezedInput = false;
 				}
-			},this.animation_datas.duration);
+			},this.animation_data.duration);
 
 		}else{
 			activateAbility();

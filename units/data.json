@@ -3040,7 +3040,7 @@
 				"costs": {
 					"movement": "1 or 2 points per hexagon"
 				},
-				"animation_datas": {
+				"animation_data": {
 					"duration": 500,
 					"delay": 500
 				}

@@ -209,9 +209,9 @@ var Game = Class.create({
 		this.Phaser.load.image('trap_firewall', './units/sprites/Magma Spawn - Scorched Ground.png');
 
 		// Effects
-		this.Phaser.load.image('effects_fiery-touch', '../units/sprites/Abolished - Fiery Touch.png');
+		this.Phaser.load.image('effects_fiery-touch', './units/sprites/Abolished - Fiery Touch.png');
 		this.Phaser.load.image('effects_fissure-vent', './units/sprites/Magma Spawn - Fissure Vent.png');
-		this.Phaser.load.image('effects_freezing-spit', '../units/sprites/Snow Bunny - Freezing Spit.png');
+		this.Phaser.load.image('effects_freezing-spit', './units/sprites/Snow Bunny - Freezing Spit.png');
 
 		// Background
 		this.Phaser.load.image('background', "locations/" + this.background_image + "/bg.jpg");

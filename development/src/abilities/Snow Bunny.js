@@ -157,7 +157,7 @@ G.abilities[12] = [
 			team : "both",
 			directions : this.directions,
 		});
-		if( !test ){
+		if( !test ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -190,7 +190,7 @@ G.abilities[12] = [
 		var target = path.last().creature;
 		var dist = 5 - target.size;
 		var dir = [];
-		switch( args.direction ){
+		switch( args.direction ) {
 			case 0: // Upright
 				dir = G.grid.getHexMap(target.x, target.y-8, 0, target.flipped, diagonalup).reverse();
 				break;
@@ -237,9 +237,9 @@ G.abilities[12] = [
 
 
 
-// 	Fourth Ability: Chilling Spit
+// 	Fourth Ability: Freezing Spit
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
@@ -258,7 +258,7 @@ G.abilities[12] = [
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 
 		var ability = this;
 		var snowBunny = this.creature;
@@ -299,7 +299,7 @@ G.abilities[12] = [
 		crea.takeDamage(damage);
 	},
 
-	animation_datas : {
+	animation_data : {
 		visual : function(path, args) {
 
 			var crea = path.last().creature;
@@ -313,8 +313,8 @@ G.abilities[12] = [
 			var emissionPoint = { x: this.creature.grp.x+52, y: this.creature.grp.y-20 };
 			var targetPoint = { x: targetHex.displayPos.x+52, y: targetHex.displayPos.y-20 };
 
-			var duration = this.animation_datas.delay = dist*75; // 100ms for each hex
-			this.animation_datas.delay += 350; // 350ms for the creature animation before the projectile
+			var duration = this.animation_data.delay = dist*75; // 100ms for each hex
+			this.animation_data.delay += 350; // 350ms for the creature animation before the projectile
 
 			setTimeout(function() {
 				var sprite = G.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, "effects_freezing-spit");
