@@ -436,14 +436,13 @@ var UI = Class.create({
 
 			// Card A
 			$j("#card .sideA").css({"background-image":"url('../cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')"});
-			$j("#card .sideA audio").attr("src", "../units/shouts/"+stats.name+".ogg")
-			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
+			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
 			$j("#card .sideA .hexs").text(stats.size+"H");
 
 			// Card B
-			$j("#card .sideB").css( {"background-image":"url('../cards/margin.png'), url('../cards/"+stats.type.substring(0,1)+".jpg')" });
+			$j("#card .sideB").css( {"background-image": "url('../cards/margin.png'), url('../cards/"+stats.type.substring(0, 1)+".jpg')" });
 			$j.each(stats.stats,function(key,value) {
 				var $stat = $j("#card .sideB ."+key+" .value");
 				$stat.removeClass("buff debuff");
