@@ -278,7 +278,7 @@ body {
 	background-size: 100% 100%;
 }
 
-.button.noclick:hover:before { background-image: url('../../interface/contour_dimmed.png'); }
+.button.noclick:hover:before { background-image: url('../../interface/frame_dimmed.png'); }
 
 .button:before {
 	content: "";
@@ -287,12 +287,12 @@ body {
 	height: 80px;
 	width: 80px;
 	background-size: 100% 100%;
-	background-image: url('../../interface/contour.png');
+	background-image: url('../../interface/frame.png');
 }
 
-.button.upgraded:before { background-image: url('../../interface/contour_golden.png'); }
+.button.upgraded:before { background-image: url('../../interface/frame_upgrade.png'); }
 
-.button.disabled:before { background-image: url('../../interface/contour_dimmed.png'); }
+.button.disabled:before { background-image: url('../../interface/frame_dimmed.png'); }
 
 .disabled { cursor:default !important; }
 
@@ -556,7 +556,7 @@ body {
 .vignette.type--.p2 { background-image: url("../../units/avatars/Dark Priest orange.jpg"); }
 .vignette.type--.p3 { background-image: url("../../units/avatars/Dark Priest green.jpg"); }
 
-.vignette.roundmarker .frame { background-image: url('../../interface/contour.png'), url('../../interface/round.jpg'); }
+.vignette.roundmarker .frame { background-image: url('../../interface/frame.png'), url('../../interface/round.jpg'); }
 
 /*-----------PAUSE OVERLAY-------------*/
 /* Pause has been disabled from game */
