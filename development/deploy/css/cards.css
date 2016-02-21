@@ -61,7 +61,7 @@
 
 .abilities .icon .contour { background-image: url(../interface/contour.png); }
 
-.ability { position: relative; padding-right: 3px; }
+.ability { position: relative; }
 
 .abilities .ability .wrapper{
 	display: table-cell; 
