@@ -117,100 +117,119 @@ ga('send', 'pageview');
 </script>
 </head>
 <body oncontextmenu="return false;">
-<div id="matchmaking">
+<div id="matchMaking">
 	<div id="loader"><img src="../interface/AB.gif">Loading</div>
-		<div id="gamesetupcontainer">
+		<div id="gameSetupContainer">
 			<!-- TODO: turn the title into homepage button -->
 			<img src="../interface/AncientBeast.png" >
-			<form id="gamesetup">
+			<form id="gameSetup">
 				<div class="cont">
-					<h2>Players</h2>
-					<div id="nbrplayer" class="typeradio">
-						<input type="radio" name="nbrplayer" checked="checked" value="2" id="p2"><label for="p2">1vs1</label>
-						<input type="radio" name="nbrplayer" value="4" id="p4"><label for="p4">2vs2</label>
-					</div>
+					<h2>Player Mode</h2>
+					<span id="playerMode" class="typeRadio">
+						<input type="radio" id="p2" name="playerMode" value="2" checked="checked"><label for="p2">1vs1</label>
+						<input type="radio" id="p4" name="playerMode" value="4"><label for="p4">2vs2</label>
+					</span>
 				</div>
 				<div class="cont">
 					<h2>Active Units</h2>
-					<span id="active_units" class="typeradio">
-						<input type="radio" id="activeunitsopt1" name="active_units" value="1"><label for="activeunitsopt1">1</label>
-						<input type="radio" id="activeunitsopt2" name="active_units" value="2"><label for="activeunitsopt2">2</label>
-						<input type="radio" id="activeunitsopt3" name="active_units" value="3"><label for="activeunitsopt3">3</label>
-						<input type="radio" id="activeunitsopt4" name="active_units" value="4" checked="checked"><label for="activeunitsopt4">4</label>
-						<input type="radio" id="activeunitsopt5" name="active_units" value="5"><label for="activeunitsopt5">5</label>
-						<input type="radio" id="activeunitsopt6" name="active_units" value="6"><label for="activeunitsopt6">6</label>
-						<input type="radio" id="activeunitsopt7" name="active_units" value="7"><label for="activeunitsopt7">7</label>
+					<span id="activeUnits" class="typeRadio">
+						<input type="radio" id="activeUnitsOpt1" name="activeUnits" value="1"><label for="activeUnitsOpt1">1</label>
+						<input type="radio" id="activeUnitsOpt2" name="activeUnits" value="2"><label for="activeUnitsOpt2">2</label>
+						<input type="radio" id="activeUnitsOpt3" name="activeUnits" value="3"><label for="activeUnitsOpt3">3</label>
+						<input type="radio" id="activeUnitsOpt4" name="activeUnits" value="4" checked="checked"><label for="activeUnitsOpt4">4</label>
+						<input type="radio" id="activeUnitsOpt5" name="activeUnits" value="5"><label for="activeUnitsOpt5">5</label>
+						<input type="radio" id="activeUnitsOpt6" name="activeUnits" value="6"><label for="activeUnitsOpt6">6</label>
+						<input type="radio" id="activeUnitsOpt7" name="activeUnits" value="7"><label for="activeUnitsOpt7">7</label>
+					</span>
+				</div>
+				<br>
+				<div class="cont">
+					<h2>Unit Drops</h2>
+					<span id="unitDrops" class="typeRadio">
+						<input type="radio" id="unitDropsOn" name="drops" value="1" checked="checked"><label for="unitDropsOn">On</label>
+						<input type="radio" id="unitDropsOff" name="drops" value="0"><label for="unitDropsOff">Off</label>
+					</span>
+				</div>
+				<div class="cont">
+					<h2>Ability Upgrades</h2>
+					<span id="abilityUpgrades" class="typeRadio">
+						<input type="radio" id="abilityUpgrade1" name="abilityUpgrades" value="0"><label for="abilityUpgrade1">Enabled</label>
+						<input type="radio" id="abilityUpgrade2" name="abilityUpgrades" value="2"><label for="abilityUpgrade2">2</label>
+						<input type="radio" id="abilityUpgrade3" name="abilityUpgrades" value="4" checked="checked"><label for="abilityUpgrade3">4</label>
+						<input type="radio" id="abilityUpgrade4" name="abilityUpgrades" value="6"><label for="abilityUpgrade4">6</label>
+						<input type="radio" id="abilityUpgrade5" name="abilityUpgrades" value="8"><label for="abilityUpgrade5">8</label>
+						<input type="radio" id="abilityUpgrade9" name="abilityUpgrades" value="-1"><label for="abilityUpgrade9">Disabled</label>
 					</span>
 				</div>
 				<br>
 				<div class="cont">
 					<h2>Plasma Points</h2>
-					<div id="plasma" class="typeradio">
-						<input type="radio" id="plasmaopt1" name="plasma" value="5" ><label for="plasmaopt1">5</label>
-						<input type="radio" id="plasmaopt2" name="plasma" value="10"><label for="plasmaopt2">10</label>
-						<input type="radio" id="plasmaopt3" name="plasma" value="20"><label for="plasmaopt3">20</label>
-						<input type="radio" id="plasmaopt4" name="plasma" value="30"><label for="plasmaopt4">30</label>
-						<input type="radio" id="plasmaopt5" name="plasma" value="40" checked="checked"><label for="plasmaopt5">40</label>
-						<input type="radio" id="plasmaopt6" name="plasma" value="50"><label for="plasmaopt6">50</label>
-						<input type="radio" id="plasmaopt7" name="plasma" value="60"><label for="plasmaopt7">60</label>
-						<input type="radio" id="plasmaopt8" name="plasma" value="70"><label for="plasmaopt8">70</label>
-						<input type="radio" id="plasmaopt9" name="plasma" value="80"><label for="plasmaopt9">80</label>
-						<input type="radio" id="plasmaopt10" name="plasma" value="90"><label for="plasmaopt10">90</label></div>
+					<span id="plasmaPoints" class="typeRadio">
+						<!-- <input type="radio" id="plasmaPointsOpt0" name="plasmaPoints" value="5"><label for="plasmaPointsOpt0">5</label> -->
+						<input type="radio" id="plasmaPointsOpt1" name="plasmaPoints" value="10"><label for="plasmaPointsOpt1">10</label>
+						<input type="radio" id="plasmaPointsOpt2" name="plasmaPoints" value="20"><label for="plasmaPointsOpt2">20</label>
+						<input type="radio" id="plasmaPointsOpt3" name="plasmaPoints" value="30"><label for="plasmaPointsOpt3">30</label>
+						<input type="radio" id="plasmaPointsOpt4" name="plasmaPoints" value="40" checked="checked"><label for="plasmaPointsOpt4">40</label>
+						<input type="radio" id="plasmaPointsOpt5" name="plasmaPoints" value="50"><label for="plasmaPointsOpt5">50</label>
+						<input type="radio" id="plasmaPointsOpt6" name="plasmaPoints" value="60"><label for="plasmaPointsOpt6">60</label>
+						<input type="radio" id="plasmaPointsOpt7" name="plasmaPoints" value="70"><label for="plasmaPointsOpt7">70</label>
+						<input type="radio" id="plasmaPointsOpt8" name="plasmaPoints" value="80"><label for="plasmaPointsOpt8">80</label>
+						<input type="radio" id="plasmaPointsOpt9" name="plasmaPoints" value="90"><label for="plasmaPointsOpt9">90</label>
+						<input type="radio" id="plasmaPointsOpt10" name="plasmaPoints" value="100"><label for="plasmaPointsOpt10">100</label>
+					</span>
+				</div>
+					<br>
+					<div class="cont">
+						<h2>Turn Time [seconds]</h2>
+						<span id="turnTime" class="typeRadio">
+							<input type="radio" id="turnTimeOpt1" name="turnTime" value="20"><label for="turnTimeOpt1">20</label>
+							<input type="radio" id="turnTimeOpt2" name="turnTime" value="40"><label for="turnTimeOpt2">40</label>
+							<input type="radio" id="turnTimeOpt3" name="turnTime" value="60"><label for="turnTimeOpt3">60</label>
+							<input type="radio" id="turnTimeOpt4" name="turnTime" value="80"><label for="turnTimeOpt4">80</label>
+							<input type="radio" id="turnTimeOpt5" name="turnTime" value="99"><label for="turnTimeOpt5">99</label>
+							<input type="radio" id="turnTimeOpt6" name="turnTime" value="-1"  checked="checked"><label for="turnTimeOpt6">&#8734;</label>
+						</span>
+					</div>
+					<div class="cont">
+						<h2>Time Pools [minutes]</h2>
+						<span id="timePool" class="typeRadio">
+							<!-- <input type="radio" id="timePoolOpt0" name="timePool" value="1" ><label for="timePoolOpt0">1 min</label> -->
+							<input type="radio" id="timePoolOpt1" name="timePool" value="15"><label for="timePoolOpt1">15</label>
+							<input type="radio" id="timePoolOpt2" name="timePool" value="20"><label for="timePoolOpt2">20</label>
+							<input type="radio" id="timePoolOpt3" name="timePool" value="25"><label for="timePoolOpt3">25</label>
+							<input type="radio" id="timePoolOpt4" name="timePool" value="30"><label for="timePoolOpt4">30</label>
+							<input type="radio" id="timePoolOpt5" name="timePool" value="-1" checked="checked"><label for="timePoolOpt5">&#8734;</label>
+						</span>
 					</div>
 					<br>
 					<div class="cont">
-						<h2>Turn Time</h2>
-						<div id="time_turn" class="typeradio">
-							<input type="radio" id="timeopt1" name="time_turn" value="20"><label for="timeopt1">20 sec</label>
-							<input type="radio" id="timeopt2" name="time_turn" value="40"><label for="timeopt2">40 sec</label>
-							<input type="radio" id="timeopt3" name="time_turn" value="60"><label for="timeopt3">60 sec</label>
-							<input type="radio" id="timeopt4" name="time_turn" value="80"><label for="timeopt4">80 sec</label>
-							<input type="radio" id="timeopt5" name="time_turn" value="99"><label for="timeopt5">99 sec</label>
-							<input type="radio" id="timeopt6" name="time_turn" value="-1"  checked="checked"><label for="timeopt6">&#8734;</label>
-						</div>
+						<h2>Combat Location</h2>
+						<span id="combatLocation" class="typeRadio">
+							<input type="radio" id="bgOpt1" name="combatLocation" value="random" checked="checked"><label for="bgOpt1">Random Place</label>
+							<input type="radio" id="bgOpt2" name="combatLocation" value="Dark Forest"><label for="bgOpt2">Dark Forest</label>
+							<input type="radio" id="bgOpt3" name="combatLocation" value="Frozen Skull"><label for="bgOpt3">Frozen Skull</label>
+							<input type="radio" id="bgOpt4" name="combatLocation" value="Shadow Cave"><label for="bgOpt4">Shadow Cave</label>
+						</span>
+						<!-- <div style="background: url('../locations/Shadow Cave/prev.jpg'); width : 400px; height : 225px; display: inline-block;"></div> -->
 					</div>
 					<br>
-					<div class="cont">
-						<h2>Time Pools</h2>
-						<div id="time_pool" class="typeradio">
-							<!-- <input type="radio" id="timepoolopt0" name="time_pool" value="1" ><label for="timepoolopt0">1 min</label> -->
-							<input type="radio" id="timepoolopt1" name="time_pool" value="5" ><label for="timepoolopt1">5 min</label>
-							<input type="radio" id="timepoolopt2" name="time_pool" value="10"><label for="timepoolopt2">10 min</label>
-							<input type="radio" id="timepoolopt3" name="time_pool" value="15"><label for="timepoolopt3">15 min</label>
-							<input type="radio" id="timepoolopt4" name="time_pool" value="20"><label for="timepoolopt4">20 min</label>
-							<input type="radio" id="timepoolopt5" name="time_pool" value="25"><label for="timepoolopt5">25 min</label>
-							<input type="radio" id="timepoolopt6" name="time_pool" value="30"><label for="timepoolopt6">30 min</label>
-							<input type="radio" id="timepoolopt7" name="time_pool" value="-1" checked="checked"><label for="timepoolopt7">&#8734;</label>
-						</div>
-					</div>
 					<br>
-					<div class="cont">
-						<h2>Location</h2>
-						<span id="location" class="typeradio">
-							<input type="radio" id="bgopt1" name="location" checked="checked" value="random"><label for="bgopt1">Random Place</label>
-							<input type="radio" id="bgopt2" name="location" value="Dark Forest"><label for="bgopt2">Dark Forest</label>
-							<input type="radio" id="bgopt3" name="location" value="Frozen Skull"><label for="bgopt3">Frozen Skull</label>
-							<input type="radio" id="bgopt4" name="location" value="Shadow Cave"><label for="bgopt4">Shadow Cave</label>
-						</span><br/>
-						<!-- <div style="background:url('../locations/Shadow Cave/prev.jpg'); width : 400px; height : 225px; display: inline-block;"></div> -->
-					</div>
-					<br>
-					<div style="font-size: 1.5em !important;">
-						<span class="blink" >PRESS </span>
-						<input class="ui-state-error" id="startbutton" style="border:rgba(180,0,0,.5) 2px solid;" type="submit" value="START">
+					<div style="font-size: 1.5em !important; text-shadow: 2px 2px black;">
+						<span class="blink">PRESS </span>
+						<input class="ui-state-error" id="startButton" style="border: rgba(180, 0, 0, 0.5) 2px solid;" type="submit" value="START">
 						<span class="blink"> BUTTON</span>
 					</div>
 					<br>
 					<br>
 					<br>
 					<div>
-						<span style="color: red; font-weight: bold; text-shadow: 2px 2px black;">Version 0.2 (extra buggy pre-Alpha release, please bare with us!)</span>
+						<span style="color: red; font-weight: bold; text-shadow: 2px 2px black;">Version 0.2 [WARNING: extra buggy pre-Alpha release!]</span>
 					</div>
 				</form>
 			</div>
 		</div>
-		<div id="ui" style="display:none;">
-			<div id="endscreen" style="display:none;">
+		<div id="ui" style="display: none;">
+			<div id="endscreen" style="display: none;">
 				<div id="scoreboard">
 					<h1>Match Over</h1>
 					<table id="score">
@@ -314,7 +333,7 @@ ga('send', 'pageview');
 			<div id="dash" class="selected0">
 				<div id="return" class="toggledash button"></div>
 				<div id="playertabswrapper">
-					<div class="playertabs p0"  player="0">
+					<div class="playertabs p0" player="0">
 								<div id="playeravatar" class="vignette active p0"><div class="frame"></div></div>
 								<div class="infos">
 									<h3 class="name"></h3>
@@ -323,7 +342,7 @@ ga('send', 'pageview');
 									<p class="units">Units</p>
 									<p>Time <span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 								</div>
-							</div><div class="playertabs p1"  player="1">
+							</div><div class="playertabs p1" player="1">
 								<div id="playeravatar" class="vignette active p1"><div class="frame"></div></div>
 								<div class="infos">
 									<h3 class="name"></h3>
@@ -332,7 +351,7 @@ ga('send', 'pageview');
 									<p class="units">Units</p>
 									<p>Time <span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 								</div>
-							</div><div class="playertabs p2"  player="2">
+							</div><div class="playertabs p2" player="2">
 								<div id="playeravatar" class="vignette active p2"><div class="frame"></div></div>
 								<div class="infos">
 									<h3 class="name"></h3>
@@ -341,7 +360,7 @@ ga('send', 'pageview');
 									<p class="units">Units</p>
 									<p>Time <span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 								</div>
-							</div><div class="playertabs p3"  player="3">
+							</div><div class="playertabs p3" player="3">
 								<div id="playeravatar" class="vignette active p3"><div class="frame"></div></div>
 								<div class="infos">
 									<h3 class="name"></h3>
@@ -350,11 +369,11 @@ ga('send', 'pageview');
 									<p class="units">Units</p>
 									<p>Time <span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 								</div>
-							</div>				</div>
+							</div></div>
 				<div id="tabwrapper">
 					<div id="cardwrapper">
 						<div id="cardwrapper_inner">
-							<div id="card">	<div class="center" style="display:inline-block; vertical-align: top;">
+							<div id="card">	<div class="center" style="display: inline-block; vertical-align: top;">
 		<div class="card sideA" style="background-image: url('cards/margin.png'), url('units/artwork/Dark Priest.jpg');">
 
 			<!-- On hover mini tutorial -->
@@ -376,12 +395,11 @@ ga('send', 'pageview');
 			</div>
 
 			<!-- Card Anchor -->
-			<a href="#Dark_Priest"><div style="height:100%;"></div></a>
+			<a href="#Dark_Priest"><div style="height: 100%;"></div></a>
 			<div class="section info sin-">
-					<span class="type" creature_type="--" style="float:left; margin-left:22px;">--</span>
-					<span><audio src="../units/shouts/Dark%20Priest.ogg" id="Dark%20Priest_shout" style="display:none;" preload="auto"></audio>
-					<a class="name" onClick="CallCreature('Dark%20Priest_shout');" onmouseover="CallCreature('Dark%20Priest_shout');" creature_name="Dark Priest" >Dark Priest</a></span>
-					<span class="hexs" creature_size="1H" style="float:right; margin-right:22px;">1H</span>
+					<span class="type" creature_type="--" style="float: left; margin-left: 22px;">--</span>
+					<a class="name" creature_name="Dark Priest">Dark Priest</a></span>
+					<span class="hexs" creature_size="1H" style="float: right; margin-right: 22px;">1H</span>
 			</div>
 		</div></div>
 		<div class="card sideB" style="background-image: url(cards/margin.png), url(cards/-.jpg);">

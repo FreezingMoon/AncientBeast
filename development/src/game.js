@@ -31,7 +31,7 @@ var Game = Class.create({
 	*	turn :				Integer :	Number of the current turn
 	*
 	*	// Normal attributes
-	*	nbrPlayer :			Integer :	Number of player in the game
+	*	playerMode :		Integer :	Number of player in the game
 	*	activeCreature :	Creature :	Current active creature object reference
 	*	creaIdCounter :		Integer :	Creature ID counter used for creature creation
 	*	creatureDatas :		Array :		Array containing all datas for the creatures
@@ -136,12 +136,14 @@ var Game = Class.create({
 	*/
 	loadGame: function(setupOpt) {
 		var defaultOpt = {
-			nbrPlayer : 2,
-			timePool : 5*60,
-			turnTimePool : 60,
-			background_image : "Frozen Skull",
-			plasma_amount : 50,
+			playerMode : 2,
 			creaLimitNbr : 7,
+			unitDrops : 1,
+			abilityUpgrades : 4,
+			plasma_amount : 50,
+			turnTimePool : 60,
+			timePool : 5*60,
+			background_image : "Frozen Skull",
 		};
 
 		this.gameState = "loading";
@@ -258,7 +260,7 @@ var Game = Class.create({
 	},
 
 	startLoading: function() {
-		$j("#gamesetupcontainer").hide();
+		$j("#gameSetupContainer").hide();
 		$j("#loader").show();
 	},
 
@@ -266,7 +268,7 @@ var Game = Class.create({
 		this.loadedSrc++;
 		if(this.loadingSrc==this.loadedSrc) {
 			$j("#loader").hide();
-			G.setup(G.nbrPlayer);
+			G.setup(G.playerMode);
 		}
 	},
 
@@ -281,14 +283,14 @@ var Game = Class.create({
 	},
 
 
-	/*	Setup(nbrPlayer)
+	/*	Setup(playerMode)
 	*
-	*	nbrPlayer :		Integer :	Ideally 2 or 4, number of players to setup the game
+	*	playerMode :		Integer :	Ideally 2 or 4, number of players to setup the game
 	*
 	*	Launch the game with the given number of player.
 	*
 	*/
-	setup: function(nbrPlayer) {
+	setup: function(playerMode) {
 
 		// Phaser
 		this.Phaser.scale.pageALignHorizontally = true;
@@ -329,15 +331,15 @@ var Game = Class.create({
 		this.$combatFrame.show();
 
 		// Remove loading screen
-		$j("#matchmaking").hide();
+		$j("#matchMaking").hide();
 
-		for (var i = 0; i < nbrPlayer; i++) {
+		for (var i = 0; i < playerMode; i++) {
 			var player = new Player(i);
 			this.players.push(player);
 
 			// Starting position
 			var pos = {};
-			if(nbrPlayer>2) { // If 4 players
+			if(playerMode>2) { // If 4 players
 				switch(player.id) {
 					case 0:
 						pos = {x: 0, y: 1};
@@ -375,7 +377,7 @@ var Game = Class.create({
 		this.gameState = "playing";
 
 		this.log("Welcome to Ancient Beast pre-Alpha");
-		this.log("Setting up a " + nbrPlayer + " player match");
+		this.log("Setting up a " + playerMode + " player match");
 
 		this.timeInterval = setInterval(function() {
 			G.checkTime();
@@ -675,7 +677,7 @@ var Game = Class.create({
 
 		// Check all timepool
 		var playerStillHaveTime = (this.timePool>0) ? false : true ; // So check is always true for infinite time
-		for(var i = 0; i < this.nbrPlayer; i++) { // Each player
+		for(var i = 0; i < this.playerMode; i++) { // Each player
 			playerStillHaveTime = (this.players[i].totalTimePool > 0) || playerStillHaveTime;
 		}
 
@@ -1013,13 +1015,13 @@ var Game = Class.create({
 
 		var $table = $j("#endscreen table tbody");
 
-		if(this.nbrPlayer==2) { // If Only 2 players remove the other 2 columns
+		if(this.playerMode==2) { // If Only 2 players remove the other 2 columns
 			$table.children("tr").children("td:nth-child(even)").remove();
 			var $table = $j("#endscreen table tbody");
 		}
 
 		// FILLING THE BOARD
-		for(var i = 0; i < this.nbrPlayer; i++) { // Each player
+		for(var i = 0; i < this.playerMode; i++) { // Each player
 
 			// TimeBonus
 			if(this.timePool > 0)
@@ -1046,7 +1048,7 @@ var Game = Class.create({
 				this.players[i].score.push( { type: "immortal" } );
 
 			//----------Display-----------//
-			var colId = (this.nbrPlayer>2) ?( i+2+((i%2)*2-1)*Math.min(1, i%3) ):i+2;
+			var colId = (this.playerMode>2) ?( i+2+((i%2)*2-1)*Math.min(1, i%3) ):i+2;
 
 			// Change Name
 			$table.children("tr.player_name").children("td: nth-child(" + colId + ")") // Weird expression swap 2nd and 3rd player
@@ -1061,7 +1063,7 @@ var Game = Class.create({
 		}
 
 		// Defining winner
-		if(this.nbrPlayer > 2) { //2vs2
+		if(this.playerMode > 2) { //2vs2
 			var score1 = this.players[0].getScore().total + this.players[2].getScore().total;
 			var score2 = this.players[1].getScore().total + this.players[3].getScore().total;
 
@@ -1289,7 +1291,7 @@ var Player = Class.create({
 	*/
 	isLeader: function() {
 
-		for(var i = 0; i < G.nbrPlayer; i++) { // Each player
+		for(var i = 0; i < G.playerMode; i++) { // Each player
 			// If someone has a higher score
 			if(G.players[i].getScore().total > this.getScore().total) {
 				return false; // He's not in lead
@@ -1332,7 +1334,7 @@ var Player = Class.create({
 		G.reorderQueue();
 
 		// Test if allie Dark Priest is dead
-		if( G.nbrPlayer > 2) {
+		if( G.playerMode > 2) {
 			// 2vs2
 			if( G.players[ (this.id+2)%4 ].hasLost )
 				G.endGame();

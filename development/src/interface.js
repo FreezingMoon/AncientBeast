@@ -289,7 +289,7 @@ var UI = Class.create({
 			}
 		});
 
-		this.$dash.children("#playertabswrapper").addClass("numplayer"+G.nbrPlayer);
+		this.$dash.children("#playertabswrapper").addClass("numplayer"+G.playerMode);
 
 		this.selectedCreature = "";
 		this.selectedPlayer = 0;
