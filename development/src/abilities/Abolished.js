@@ -57,7 +57,7 @@ G.abilities[7] =[
 		var ability = this;
 		var crea = this.creature;
 
-		if(this.isUpgraded) this.distance = 6;
+		if(this.isUpgraded) this.distance = 5;
 
 		G.grid.queryDirection({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
@@ -211,7 +211,7 @@ G.abilities[7] =[
 
 		var range = crea.adjacentHexs(1);
 
-		G.grid.queryHexs({
+		G.grid.queryHexs( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			fnOnSelect : function(hex, args) {
 				range.each(function() {
@@ -252,7 +252,7 @@ G.abilities[7] =[
 
 
 	//	activate() :
-	activate : function(hex,args) {
+	activate : function(hex, args) {
 		var ability = this;
 		ability.end();
 
