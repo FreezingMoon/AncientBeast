@@ -13,7 +13,7 @@ G.abilities[7] =[
 	// 	require() :
 	require : function(damage) {
 		if( !this.testRequirements() ) return false;
-		if( damage == undefined ) damage = {type:"target"}; // For the test function to work
+		if( damage == undefined ) damage = { type: "target" }; // For the test function to work
 		return true;
 	},
 
@@ -40,11 +40,11 @@ G.abilities[7] =[
 	// 	require() :
 	require : function() {
 		if(!this.testRequirements()) return false;
-		var test = this.testDirection({
+		var test = this.testDirection( {
 			team : "ennemy",
 			distance : this.distance,
 			sourceCreature : this.creature,
-		});
+		} );
 		if(!test) {
 			this.message = G.msg.abilities.notarget;
 			return false;
@@ -60,7 +60,7 @@ G.abilities[7] =[
 		if(this.isUpgraded) this.distance = 6;
 
 		G.grid.queryDirection({
-			fnOnConfirm : function() { ability.animation.apply(ability,arguments); },
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : crea.player.flipped,
 			team : 0, // enemies
 			id : this.creature.id,
@@ -74,7 +74,7 @@ G.abilities[7] =[
 
 
 	//	activate() :
-	activate : function(path,args) {
+	activate : function(path, args) {
 		var ability = this;
 		ability.end();
 
@@ -107,19 +107,19 @@ G.abilities[7] =[
 	query : function() {
 		var ability = this;
 		var crea = this.creature;
-		var range = this.timesUsed + 7
+		var range = this.timesUsed + 6
 
 		crea.queryMove({
 			noPath : true,
 			isAbility : true,
-			range : G.grid.getFlyingRange(crea.x,crea.y,range,crea.size,crea.id),
-			callback : function() { delete arguments[1]; ability.animation.apply(ability,arguments); },
+			range : G.grid.getFlyingRange(crea.x, crea.y, range, crea.size, crea.id),
+			callback : function() { delete arguments[1]; ability.animation.apply(ability, arguments); },
 		});
 	},
 
 
 	//	activate() :
-	activate : function(hex,args) {
+	activate : function(hex, args) {
 		var ability = this;
 		ability.end();
 
@@ -151,7 +151,7 @@ G.abilities[7] =[
 
 					if(trg.team%2 != ability.creature.team%2) { // If Foe
 
-						var optArg = { alterations : {burn : -5} };
+						var optArg = { alterations : { burn : -5 } };
 
 						// Roasted effect
 						var effect = new Effect(
@@ -161,7 +161,7 @@ G.abilities[7] =[
 							"", // Trigger
 							optArg // Optional arguments
 						);
-						trg.addEffect(effect,"%CreatureName"+trg.id+"% got roasted : -5 burn stat");
+						trg.addEffect(effect, "%CreatureName"+trg.id+"% got roasted : -5 burn stat");
 					}
 				})
 			},
@@ -180,7 +180,7 @@ G.abilities[7] =[
 
     var crea = this.creature;
 		crea.hexagons.each(function() {
-			this.createTrap("firewall",[
+			this.createTrap("firewall", [
 				new Effect(
 					"Firewall",crea,this,"onStepIn",
 					{ requireFn: requireFn, effectFn: effectFn,	attacker: crea }
@@ -194,7 +194,7 @@ G.abilities[7] =[
 
 // 	Fourth Ability: Greater Pyre
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
@@ -212,8 +212,8 @@ G.abilities[7] =[
 		var range = crea.adjacentHexs(1);
 
 		G.grid.queryHexs({
-			fnOnConfirm : function() { ability.animation.apply(ability,arguments); },
-			fnOnSelect : function(hex,args) {
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+			fnOnSelect : function(hex, args) {
 				range.each(function() {
 					if( this.creature instanceof Creature ) {
 						if( this.creature == crea ) { // If it is Abolished

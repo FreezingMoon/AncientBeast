@@ -628,7 +628,7 @@
 		},
 			{
 				"title": "Wild Fire",
-				"desc": "Teleports within 7 hexagons range, leaving a firewall in the old location.",
+				"desc": "Teleports within 6 hexagons range, leaving a firewall in the old location.",
 				"info": "3 x 10 burn damage per hexagon.",
 				"upgrade": "Increased range each use.",
 				"effects": [{
