@@ -45,7 +45,7 @@ var UI = Class.create({
 		// Dash Button
 		this.btnToggleDash = new Button( {
 			$button : $j(".toggledash"),
-			click : function(e) {G.UI.toggleDash();},
+			click : function(e) { G.UI.toggleDash(); },
 		});
 		this.buttons.push(this.btnToggleDash);
 
@@ -63,7 +63,7 @@ var UI = Class.create({
 			$button : $j("#skip.button"),
 			click : function(e) { if(!G.UI.dashopen) {
 				if(G.turnThrottle) return;
-				G.gamelog.add({action:"skip"});
+				G.gamelog.add( { action: "skip" } );
 				G.skipTurn();
 			}},
 		});
@@ -75,7 +75,7 @@ var UI = Class.create({
 			click : function(e) { if(!G.UI.dashopen) {
 				if(G.turnThrottle) return;
 				if(G.activeCreature.hasWait || !G.activeCreature.delayable || G.delayQueue.length + G.queue.length ===0 ) return;
-				G.gamelog.add({action:"delay"});
+				G.gamelog.add( { action: "delay" } );
 				G.delayCreature();
 			}},
 		});
@@ -104,10 +104,10 @@ var UI = Class.create({
 		this.buttons.push(this.btnFlee);
 
 		// ProgessBar
-		this.healthBar = new ProgessBar( {$bar : $j("#leftpanel .progressbar .bar.healthbar"), color : "red" });
-		this.energyBar = new ProgessBar( {$bar : $j("#leftpanel .progressbar .bar.energybar"), color : "yellow" });
-		this.timeBar = new ProgessBar( {$bar : $j("#rightpanel .progressbar .timebar"), color : "white" });
-		this.poolBar = new ProgessBar( {$bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" });
+		this.healthBar = new ProgessBar( { $bar : $j("#leftpanel .progressbar .bar.healthbar"), color : "red" } );
+		this.energyBar = new ProgessBar( { $bar : $j("#leftpanel .progressbar .bar.energybar"), color : "yellow" } );
+		this.timeBar = new ProgessBar( { $bar : $j("#rightpanel .progressbar .timebar"), color : "white" } );
+		this.poolBar = new ProgessBar( { $bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" } );
 
 		// Volume Sliders
 		$j("#effects_volume").slider( {
@@ -154,7 +154,7 @@ var UI = Class.create({
 
 			var prevD = false;
 
-			$j.each(hotkeys,function(k,v) {
+			$j.each(hotkeys,function(k, v) {
 				if(v==keypressed) {
 					// Context filter
 					if(G.UI.dashopen) {
@@ -790,7 +790,7 @@ var UI = Class.create({
 				var r = G.realms[ G.realms.indexOf(b[0])-1 ];
 
 				// Test If Valid Creature
-				if( $j.inArray( r+"7" , G.players[this.selectedPlayer].availableCreatures)>0	) {
+				if( $j.inArray( r+"7", G.players[this.selectedPlayer].availableCreatures)>0	) {
 					var valid = true;
 					for (var i = 0; i < G.players[ this.selectedPlayer ].creatures.length; i++) {
 						var crea = G.players[ this.selectedPlayer ].creatures[i];
@@ -811,7 +811,7 @@ var UI = Class.create({
 		}else{
 
 			// Test If Valid Creature
-			if( $j.inArray( b[0]+(b[1]-1) , G.players[this.selectedPlayer].availableCreatures)>0 ) {
+			if( $j.inArray( b[0]+(b[1]-1), G.players[this.selectedPlayer].availableCreatures)>0 ) {
 				var valid = true;
 				for (var i = 0; i < G.players[ this.selectedPlayer ].creatures.length; i++) {
 					var crea = G.players[ this.selectedPlayer ].creatures[i];
@@ -839,7 +839,7 @@ var UI = Class.create({
 		var $abilitiesButtons = $j("#abilities .ability");
 		$abilitiesButtons.unbind("click");
 
-		this.$activebox.find("#abilities").clearQueue().transition({y:"-420px"},500,'easeInQuart',function() { // Hide panel
+		this.$activebox.find("#abilities").clearQueue().transition( { y: "-420px" }, 500, 'easeInQuart', function() { // Hide panel
 			$j(this).removeClass("p0 p1 p2 p3").addClass("p"+G.activeCreature.player.id);
 
 			G.UI.energyBar.setSize( G.activeCreature.oldEnergy/G.activeCreature.stats.energy );
@@ -848,11 +848,11 @@ var UI = Class.create({
 			// Change ability buttons
 			G.UI.abilitiesButtons.each(function() {
 				var ab = G.activeCreature.abilities[this.abilityId];
-				this.css.normal = {"background-image":"url('../units/icons/"+G.activeCreature.name+" "+this.abilityId+".svg')"};
+				this.css.normal = { "background-image": "url('../units/icons/"+G.activeCreature.name+" "+this.abilityId+".svg')" };
 				this.$button.next(".desc").find("span").text(ab.title);
 				this.$button.next(".desc").find("p").html(ab.desc);
 
-				// Add a gold contour if the ability has been upgraded.
+				// Change the ability's frame when it gets upgraded
 				if(ab.isUpgraded()) this.$button.addClass('upgraded');
 				else this.$button.removeClass('upgraded');
 

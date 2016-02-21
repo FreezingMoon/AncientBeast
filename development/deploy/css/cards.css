@@ -51,7 +51,7 @@
 
 .abilities .icon { position: absolute; left: 0px; top: 0px; }
 
-.abilities .icon, .contour{
+.abilities .icon, .frame {
 	display: inline-block;
 	background-size: 100% 100%;
 	width: 100px;
@@ -59,7 +59,7 @@
 	background-image: url(../interface/missing.png)
 }
 
-.abilities .icon .contour { background-image: url(../interface/contour.png); }
+.abilities .icon .frame { background-image: url(../interface/frame.png); }
 
 .ability { position: relative; }
 
