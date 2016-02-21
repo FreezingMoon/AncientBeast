@@ -41,7 +41,7 @@
 }
 
 #creaturegrid .vignette:hover div.border,
-#creaturegrid .vignette.active div.border { background-image: url("../../interface/contour.png"); }
+#creaturegrid .vignette.active div.border { background-image: url("../../interface/frame.png"); }
 
 #creaturegrid .vignette.dead 	div.overlay { background-image: url("../icons/dead.svg"); }
 #creaturegrid .vignette.notsummonable 	div.overlay{ background-image: url("../icons/plasma.svg"); }
