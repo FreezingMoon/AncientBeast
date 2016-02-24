@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.0"
+   id="svg2"
+   height="32"
+   width="32">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3212">
+      <stop
+         id="stop3214"
+         offset="0"
+         style="stop-color:#c41329;stop-opacity:1;" />
+      <stop
+         style="stop-color:#c23840;stop-opacity:0.49803922;"
+         offset="1"
+         id="stop3220" />
+      <stop
+         id="stop3216"
+         offset="1"
+         style="stop-color:#ca1818;stop-opacity:0;" />
+    </linearGradient>
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1,0,0,0.895698,0.4940484,3.2060036)"
+       r="24.484351"
+       fy="30.737693"
+       fx="31.942568"
+       cy="30.737693"
+       cx="31.942568"
+       id="radialGradient3218"
+       xlink:href="#linearGradient3212" />
+    <filter
+       id="filter3398">
+      <feGaussianBlur
+         id="feGaussianBlur3400"
+         stdDeviation="1.6144325" />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1">
+    <g
+       transform="matrix(0.5060233,0,0,0.5060233,-0.1202446,1.3331101)"
+       id="g3205">
+      <path
+         id="path2383"
+         transform="matrix(1.9761936,0,0,1.9761936,0.23762661,-2.6344836)"
+         d="M 31.294922,14.142578 C 31.477044,10.905423 30.555779,4.8413307 25.15625,3.3945312 24.516467,3.223102 23.894193,3.1768907 23.294922,3.2265625 c -4.194897,0.3477024 -7.28711,5.4140625 -7.28711,5.4140625 0,0 -3.092212,-5.0663601 -7.2871089,-5.4140625 C 8.1214319,3.1768907 7.499158,3.223102 6.859375,3.3945312 1.4598461,4.8413307 0.53858079,10.905423 0.72070312,14.142578 1.1565152,21.888963 16.007812,30.566406 16.007812,30.566406 c 0,0 14.851298,-8.677443 15.28711,-16.423828 z M 4.3632812,14.894531 C 4.1504727,12.512734 4.813123,9.2205956 8.1074219,8.3378906 8.4977586,8.2333123 8.8785206,8.2040693 9.2441406,8.234375 c 2.5593434,0.2121361 6.7636714,4.794922 6.7636714,4.794922 0,0 4.204329,-4.582786 6.763672,-4.794922 0.36562,-0.030305 0.746382,-0.00107 1.136719,0.1035156 3.294299,0.8827049 4.092543,3.9714544 3.744141,6.5566404 -0.632227,4.691199 -11.644532,12.460938 -11.644532,12.460938 0,0 -11.2232709,-7.74611 -11.6445308,-12.460938 z"
+         style="fill:#e30000;fill-opacity:1;fill-rule:evenodd;stroke:#210000;stroke-width:1.39999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>
