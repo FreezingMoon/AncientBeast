@@ -16,7 +16,7 @@
 	font-size: 16px;
 }
 .sideA .info {
-	background: rgba(0,0,0,0.7);
+	background: rgba(0, 0, 0, 0.7);
 	border-radius: 15px;
 	border: 4px ridge !important;
 	font-size: 24px;
@@ -83,7 +83,7 @@
 .card_info {
 	position: absolute;
 	display: none;
-	background: rgba(0,0,0,.8);
+	background: rgba(0, 0, 0, 0.8);
 	width: 400px;
 	color: white;
 	height: 520px;

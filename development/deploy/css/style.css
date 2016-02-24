@@ -23,7 +23,7 @@ body {
 	text-align: center;
 }
 
-#combatframe * { /*avoid selecting game elements*/
+#combatframe * { /* Avoid selecting game elements */
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -35,7 +35,6 @@ body {
 #combatwrapper canvas {
 	display: inline-block !important;
 	overflow: hidden;
-	/*Shadow*/
 	box-shadow: 0px 0px 30px black; 
 }
 
@@ -65,11 +64,11 @@ body {
 	top: 0px;
 	left: 0px;
 
-	transform-origin:45.05em 22.5em;
-	-ms-transform-origin:45.05em 22.5em; /* IE 9 */
-	-webkit-transform-origin:45.05em 22.5em; /* Safari and Chrome */
-	-moz-transform-origin:45.05em 22.5em; /* Firefox */
-	-o-transform-origin:45.05em 22.5em; /* Opera */
+	transform-origin: 45.05em 22.5em;
+	-ms-transform-origin: 45.05em 22.5em; /* IE 9 */
+	-webkit-transform-origin: 45.05em 22.5em; /* Safari and Chrome */
+	-moz-transform-origin: 45.05em 22.5em; /* Firefox */
+	-o-transform-origin: 45.05em 22.5em; /* Opera */
 }
 
 #hexsinput, #hexsdisplay, #hexsoverlay {
@@ -109,12 +108,12 @@ body {
 	line-height: 52px;
 	text-align: center;
 	font-size: 35px;
-	/*text-shadow: 0px 0px 5px rgba(255,255,255,0.7);*/
+	/*text-shadow: 0px 0px 5px rgba(255, 255, 255, 0.7);*/
 }
 
 #hexsdisplay .displayhex.not-reachable { opacity: 0; }
 
-#hexsinput .hex div,.hex div:before,.hex div:after {
+#hexsinput .hex div, .hex div:before, .hex div:after {
 	position: relative;
 	display: block;
 	color: black;
@@ -125,7 +124,7 @@ body {
 	width: 90px;
 	height: 52px;
 	z-index: 99;
-	text-align: center;	font-size: 20px; line-height: 20px; /*for debug*/
+	text-align: center;	font-size: 20px; line-height: 20px; /* For debug */
 	cursor: pointer;
 }
 
@@ -195,7 +194,6 @@ body {
 #hexsdisplay .displayhex.creature.hidden { opacity: 0 !important; }
 #hexsdisplay .displayhex.creature.dashed { background: url("../interface/hex_dashed.png");  z-index: 5; opacity: 1 !important; }
 /*------------------Creatures------------------*/
-
 #creatureWrapper .creature .effects { position: absolute; bottom: 100%; left: 0px; }
 
 #creatureWrapper .creature {
@@ -542,9 +540,9 @@ body {
 
 #playerbutton.vignette .frame, #playeravatar.vignette, #playerbutton.vignette { height: 100px; width: 100px; }
 
-/*#queue .vignette.hidden,#queue .vignette.hidden div{width: 0px; height: 80px;}*/
+/*#queue .vignette.hidden,#queue .vignette.hidden div{ width: 0px; height: 80px; }*/
 .vignette .overlay_frame { background-image: url('../interface/frame_white.png'); opacity: 0; }
-.vignette.xray .overlay_frame { opacity: .5; }
+.vignette.xray .overlay_frame { opacity: 0.5; }
 
 .vignette.p0 .frame,#abilities.p0 .ability.active::before { background-image: url("../interface/frame_red.png"); }
 .vignette.p1 .frame,#abilities.p1 .ability.active::before { background-image: url("../interface/frame_blue.png"); }
@@ -749,34 +747,34 @@ body {
 .charge { color: #fff; text-shadow: 1px 1px 0px #f5f; }
 .special { color: #ddd; text-shadow: 1px 1px 0px #ff5; }
 
-span.plasma { background-image: url("../../stats/health.png");  }
-span.pure { background-image: url("../../stats/health.png");  }
-span.health { background-image: url("../../stats/health.png"); }
-span.regrowth { background-image: url("../../stats/regrowth.png"); }
-span.endurance { background-image: url("../../stats/endurance.png"); }
-span.energy { background-image: url("../../stats/energy.png"); }
-span.meditation { background-image: url("../../stats/meditation.png"); }
-span.initiative { background-image: url("../../stats/initiative.png"); }
-span.offense { background-image: url("../../stats/offense.png"); }
-span.defense { background-image: url("../../stats/defense.png"); }
-span.movement { background-image: url("../../stats/movement.png"); }
-span.pierce { background-image: url("../../stats/pierce.png"); }
-span.slash { background-image: url("../../stats/slash.png"); }
-span.crush { background-image: url("../../stats/crush.png"); }
-span.shock { background-image: url("../../stats/shock.png"); }
-span.burn { background-image: url("../../stats/burn.png"); }
-span.frost { background-image: url("../../stats/frost.png"); }
-span.poison { background-image: url("../../stats/poison.png"); }
-span.sonic { background-image: url("../../stats/sonic.png"); }
-span.mental { background-image: url("../../stats/mental.png"); }
+span.plasma { background-image: url("../../stats/plasma.svg");  }
+span.health { background-image: url("../../stats/health.svg"); }
+span.regrowth { background-image: url("../../stats/regrowth.svg"); }
+span.endurance { background-image: url("../../stats/endurance.svg"); }
+span.energy { background-image: url("../../stats/energy.svg"); }
+span.meditation { background-image: url("../../stats/meditation.svg"); }
+span.initiative { background-image: url("../../stats/initiative.svg"); }
+span.offense { background-image: url("../../stats/offense.svg"); }
+span.defense { background-image: url("../../stats/defense.svg"); }
+span.movement { background-image: url("../../stats/movement.svg"); }
+span.pierce { background-image: url("../../stats/pierce.svg"); }
+span.slash { background-image: url("../../stats/slash.svg"); }
+span.crush { background-image: url("../../stats/crush.svg"); }
+span.shock { background-image: url("../../stats/shock.svg"); }
+span.burn { background-image: url("../../stats/burn.svg"); }
+span.frost { background-image: url("../../stats/frost.svg"); }
+span.poison { background-image: url("../../stats/poison.svg"); }
+span.sonic { background-image: url("../../stats/sonic.svg"); }
+span.mental { background-image: url("../../stats/mental.svg"); }
+span.pure { background-image: url("../../stats/pure.svg");  }
 
 /*-----------------Animations-------------------*/
 
 /*Pulse between .6 and .1 opacity*/
-@keyframes pulse0106 { 0% { opacity: .1; } 100% { opacity: .6; } }
-@-moz-keyframes pulse0106 { 0% { opacity: .1; } 100% { opacity: .6; } }
-@-webkit-keyframes pulse0106 { 0% { opacity: .1; } 100% { opacity: .6; } }
-@-o-keyframes pulse0106 { 0% { opacity: .1; } 100% { opacity: .6; } }
+@keyframes pulse0106 { 0% { opacity: 0.1; } 100% { opacity: 0.6; } }
+@-moz-keyframes pulse0106 { 0% { opacity: 0.1; } 100% { opacity: 0.6; } }
+@-webkit-keyframes pulse0106 { 0% { opacity: 0.1; } 100% { opacity: 0.6; } }
+@-o-keyframes pulse0106 { 0% { opacity: 0.1; } 100% { opacity: 0.6; } }
 
 /*Pulse between .8 and 1 opacity*/
 @keyframes pulse0510 { 0% { opacity: 0.5; } 100% { opacity: 1; } }
@@ -831,8 +829,8 @@ span.mental { background-image: url("../../stats/mental.png"); }
     animation: fading 2.5s infinite;
     -webkit-animation: fading 2.5s infinite;
 }
-@keyframes fading { 0%   {opacity: 1;} 50%   {opacity: 0.1;} 100%   {opacity: 1;} }
-@-webkit-keyframes fading { 0%   {opacity: 1;} 50%   {opacity: 0.1;} 100%   {opacity: 1;} }
+@keyframes fading { 0%   { opacity: 1; } 50%   { opacity: 0.1; } 100%   { opacity: 1; } }
+@-webkit-keyframes fading { 0%   { opacity: 1; } 50%   { opacity: 0.1; } 100%   { opacity: 1; } }
 
 #gameSetup .cont h2 { margin: 5px; font-size: 1em; }
 
@@ -874,7 +872,7 @@ span.mental { background-image: url("../../stats/mental.png"); }
 	top: 0px;
 	z-index: 100;
 	display: block;
-	background: rgba(0,0,0,.8);
+	background: rgba(0, 0, 0, 0.8);
 }
 
 #scoreboard {

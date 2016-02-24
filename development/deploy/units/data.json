@@ -59,7 +59,6 @@
 				}
     		},
 			{
-
 				"title": "Disruptor Beam",
 				"desc": "Does pure damage to a nearby foe. Bonus based on its missing health.",
 				"info": ">25 damage; plasma cost = unit size",

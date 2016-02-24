@@ -5,14 +5,14 @@
 */
 G.abilities[0] =[
 
-// 	First Ability: Plasma Shield
+// 	First Ability: Plasma Field
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onAttack",
 
 	// 	require() :
-	require : function(damage){
-		this.setUsed(false); //Can be triggered as many times
+	require : function(damage) {
+		this.setUsed(false); // Can be triggered multiple times
 		this.creature.protectedFromFatigue = this.testRequirements();
 		return this.creature.protectedFromFatigue;
 	},
@@ -30,11 +30,11 @@ G.abilities[0] =[
 
 		damage.noLog = true;
 
-		this.end(true); //desable message
+		this.end(true); // Disable message
 
-		G.log("%CreatureName"+this.creature.id+"% is protected by Plasma Shield");
+		G.log("%CreatureName"+this.creature.id+"% is protected by Plasma Field");
 
-		return damage; //Return Damage
+		return damage; // Return Damage
 	},
 },
 
@@ -42,14 +42,14 @@ G.abilities[0] =[
 
 // 	Second Ability: Electro Shocker
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -57,14 +57,14 @@ G.abilities[0] =[
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 
 		var ability = this;
 		var dpriest = this.creature;
 
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+			team : 0, // Team, 0 = ennemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
 			hexs : dpriest.adjacentHexs(1),
@@ -72,18 +72,18 @@ G.abilities[0] =[
 	},
 
 	//	activate() :
-	activate : function(target,args) {
+	activate : function(target, args) {
 		var ability = this;
 		ability.end();
 
 		var damage = {shock: 12*target.size};
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			damage, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			damage, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 
 		target.takeDamage(damage);
@@ -92,33 +92,33 @@ G.abilities[0] =[
 
 
 
-// 	Third Ability: Particle Disruptor
+// 	Third Ability: Disruptor Beam
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if(!this.testRequirements()) return false;
 
 		var range = this.creature.adjacentHexs(2);
 
-		//At least one target
-		if(!this.atLeastOneTarget(range,"ennemy")){
+		// At least one target
+		if(!this.atLeastOneTarget(range, "ennemy")) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
 
-		//Search Lowest target cost
+		// Search Lowest target cost
 		var lowestCost = 99;
 		var targets = this.getTargets(range);
 
-		targets.each(function(){
+		targets.each(function() {
 			if(!(this.target instanceof Creature)) return false;
 			if(lowestCost > this.target.size) lowestCost = this.target.size;
 		});
 
-		if(this.creature.player.plasma < lowestCost){
+		if(this.creature.player.plasma < lowestCost) {
 			this.message = G.msg.abilities.noplasma;
 			return false;
 		}
@@ -127,15 +127,15 @@ G.abilities[0] =[
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 
 		var ability = this;
 		var dpriest = this.creature;
 
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			optTest : function(hex){ return (hex.creature.size <= dpriest.player.plasma) ; },
-			team : 0, //Team, 0 = ennemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+			optTest : function(hex) { return (hex.creature.size <= dpriest.player.plasma) ; },
+			team : 0, // Team, 0 = ennemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
 			hexs : dpriest.adjacentHexs(2),
@@ -143,21 +143,21 @@ G.abilities[0] =[
 	},
 
 	//	activate() :
-	activate : function(target,args) {
+	activate : function(target, args) {
 		var ability = this;
 		ability.end();
 
 		var plasmaCost = target.size;
-		var damage = {pure: 25+target.baseStats.health-target.health};
+		var damage = { pure: 25+target.baseStats.health-target.health };
 
 		ability.creature.player.plasma -= plasmaCost;
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			damage, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			damage, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 
 		ability.end();
@@ -170,18 +170,18 @@ G.abilities[0] =[
 
 // 	Fourth Ability: Unit Maker
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if(this.creature.player.plasma <= 1){
+		if(this.creature.player.plasma <= 1) {
 			this.message = G.msg.abilities.noplasma;
 			return false;
 		}
-		if(this.creature.player.getNbrOfCreatures() == G.creaLimitNbr){
+		if(this.creature.player.getNbrOfCreatures() == G.creaLimitNbr) {
 			this.message = G.msg.abilities.nopsy;
 			return false;
 		}
@@ -191,39 +191,39 @@ G.abilities[0] =[
 	summonRange : 6,
 
 	// 	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
-		G.grid.updateDisplay(); //Retrace players creatures
+		G.grid.updateDisplay(); // Retrace players creatures
 
-		//Ask the creature to summon
+		// Ask the creature to summon
 		G.UI.materializeToggled = true;
 		G.UI.toggleDash();
 	},
 
-	fnOnSelect : function(hex,args){
+	fnOnSelect : function(hex,args) {
 		var crea = G.retreiveCreatureStats(args.creature);
-		G.grid.previewCreature(hex.pos,crea,this.creature.player);
+		G.grid.previewCreature(hex.pos, crea, this.creature.player);
 	},
 
-	//Callback function to queryCreature
-	materialize : function(creature){
+	// Callback function to queryCreature
+	materialize : function(creature) {
 		var crea = G.retreiveCreatureStats(creature);
 		var ability = this;
 		var dpriest = this.creature;
 
-		G.grid.forEachHexs(function(){ this.unsetReachable(); });
+		G.grid.forEachHexs(function() { this.unsetReachable(); } );
 
 		var spawnRange = dpriest.hexagons[0].adjacentHex(this.summonRange);
 
-		spawnRange.each(function(){ this.setReachable(); });
-		spawnRange.filter(function(){ return this.isWalkable(crea.size,0,false);	});
+		spawnRange.each(function() { this.setReachable(); } );
+		spawnRange.filter(function() { return this.isWalkable(crea.size, 0, false);	} );
 		spawnRange = spawnRange.extendToLeft(crea.size);
 
-		G.grid.queryHexs({
-			fnOnSelect : function(){ ability.fnOnSelect.apply(ability,arguments); },
-			fnOnCancel : function(){ G.activeCreature.queryMove(); },
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			args : {creature:creature, cost: (crea.size-0)+(crea.lvl-0)}, //OptionalArgs
+		G.grid.queryHexs( {
+			fnOnSelect : function() { ability.fnOnSelect.apply(ability, arguments); },
+			fnOnCancel : function() { G.activeCreature.queryMove(); },
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+			args : {creature:creature, cost: (crea.size-0)+(crea.lvl-0)}, // OptionalArgs
 			size : crea.size,
 			flipped : dpriest.player.flipped,
 			hexs : spawnRange
@@ -242,11 +242,11 @@ G.abilities[0] =[
 
 		ability.creature.player.plasma -= args.cost;
 
-		//TODO: make the UI show the updated number instantly
+		//TODO: Make the UI show the updated number instantly
 
 		ability.end();
 
-		ability.creature.player.summon(creature,pos);
+		ability.creature.player.summon(creature, pos);
 	},
 }
 

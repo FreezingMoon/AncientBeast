@@ -125,19 +125,19 @@ var UI = Class.create({
 			if(G.freezedInput) return;
 
 			var keypressed = e.keyCode || e.which;
-			//console.log(keypressed);
+			//console.log(keypressed); // For debugging
 
 			hotkeys = {
-				overview: 9, // Tab
-				cycle: 81, // Q
+				overview: 9, // Tab TODO: This should open/close score screen
+				cycle: 81, // Q TODO: Make this work
 				attack: 87, // W
 				ability: 69, // E
 				ultimate: 82, // R
-				audio: 65, // A
+				audio: 65, // A TODO: Make this work
 				skip: 83, // S
 				delay: 68, // D
 				flee: 70, // F
-				chat: 13, // Return
+				chat: 13, // Return TODO: Should open, send & hide chat
 				//pause: 80, // P, might get deprecated
 				dash_up: 38, // Up arrow
 				dash_down: 40, // Down arrow
@@ -167,7 +167,7 @@ var UI = Class.create({
 						}
 					}else{
 						switch(k) {
-							case "cycle": G.UI.abilitiesButtons[0].triggerClick(); break; // Not usable atm :(
+							case "cycle": G.UI.abilitiesButtons[0].triggerClick(); break; // TODO: Make this cycle through usable abilities
 							case "attack": G.UI.abilitiesButtons[1].triggerClick(); break;
 							case "ability": G.UI.abilitiesButtons[2].triggerClick(); break;
 							case "ultimate": G.UI.abilitiesButtons[3].triggerClick(); break;
@@ -334,8 +334,8 @@ var UI = Class.create({
 		},10);
 
 
-		if(G.turnTimePool) $j(".turntime").text(zfill(Math.floor(G.turnTimePool/60),2)+":"+zfill(G.turnTimePool%60,2));
-		if(G.timePool) $j(".timepool").text(zfill(Math.floor(G.timePool/60),2)+":"+zfill(G.timePool%60,2));
+		if(G.turnTimePool) $j(".turntime").text(zfill(Math.floor(G.turnTimePool/60), 2)+":"+zfill(G.turnTimePool%60, 2));
+		if(G.timePool) $j(".timepool").text(zfill(Math.floor(G.timePool/60), 2)+":"+zfill(G.timePool%60, 2));
 
 		$j("#tabwrapper a").removeAttr("href"); // Empty links
 
@@ -345,12 +345,12 @@ var UI = Class.create({
 	},
 
 
-	resizeDash: function(){
+	resizeDash: function() {
 		var zoom1 = $j("#cardwrapper").innerWidth() / $j("#card").outerWidth();
 		var zoom2 = $j("#cardwrapper").innerHeight() / ( $j("#card").outerHeight() + $j("#materialize_button").outerHeight() );
-		var zoom = Math.min(zoom1,zoom2);
+		var zoom = Math.min(zoom1, zoom2);
 		zoom = Math.min(zoom,1);
-		$j("#cardwrapper_inner").css({
+		$j("#cardwrapper_inner").css( {
 			scale: zoom,
 			"left": ($j("#cardwrapper").innerWidth()-$j("#card").innerWidth()*zoom)/2,
 			position: "absolute",
@@ -359,9 +359,9 @@ var UI = Class.create({
 
 		var zoom1 = $j("#creaturegridwrapper").innerWidth()/$j("#creaturegrid").innerWidth();
 		var zoom2 = $j("#creaturegridwrapper").innerHeight()/$j("#creaturegrid").innerHeight();
-		zoom = Math.min(zoom1,zoom2);
-		zoom = Math.min(zoom,1);
-		$j("#creaturegrid").css({
+		zoom = Math.min(zoom1, zoom2);
+		zoom = Math.min(zoom, 1);
+		$j("#creaturegrid").css( {
 			scale: zoom,
 			"left": ($j("#creaturegridwrapper").innerWidth()-$j("#creaturegrid").innerWidth()*zoom)/2,
 			position: "absolute",
@@ -370,7 +370,7 @@ var UI = Class.create({
 	},
 
 
-	/*	showCreature(creatureType,player)
+	/*	showCreature(creatureType, player)
 	*
 	*	creatureType :	String :	Creature type
 	*	player :		Integer :	Player ID
@@ -378,11 +378,11 @@ var UI = Class.create({
 	*	Query a creature in the available creatures of the active player
 	*
 	*/
-	showCreature: function(creatureType,player) {
+	showCreature: function(creatureType, player) {
 
 		if(!this.dashopen) {
 			this.$dash.show().css("opacity",0);
-			this.$dash.transition({opacity:1},this.dashAnimSpeed,"linear");
+			this.$dash.transition( { opacity: 1 }, this.dashAnimSpeed, "linear");
 		}
 
 		this.dashopen = true;
@@ -398,7 +398,7 @@ var UI = Class.create({
 		this.changePlayerTab(G.activeCreature.team);
 		this.resizeDash();
 
-		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click',function(e) {
+		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click', function(e) {
 			if(G.freezedInput) return;
 			G.UI.showCreature("--",$j(this).attr("player")-0);
 		});
@@ -413,7 +413,7 @@ var UI = Class.create({
 		}
 
 		// Change to the player tab
-		if(player != G.UI.selectedPlayer) {this.changePlayerTab(player);}
+		if(player != G.UI.selectedPlayer) { this.changePlayerTab(player); }
 
 		this.$grid.children(".vignette").removeClass("active")
 		.filter("[creature='"+creatureType+"']").addClass("active");
@@ -435,15 +435,15 @@ var UI = Class.create({
 			});
 
 			// Card A
-			$j("#card .sideA").css({"background-image":"url('../cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')"});
+			$j("#card .sideA").css( { "background-image": "url('../cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')" } );
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
 			$j("#card .sideA .hexs").text(stats.size+"H");
 
 			// Card B
-			$j("#card .sideB").css( {"background-image": "url('../cards/margin.png'), url('../cards/"+stats.type.substring(0, 1)+".jpg')" });
-			$j.each(stats.stats,function(key,value) {
+			$j("#card .sideB").css( { "background-image": "url('../cards/margin.png'), url('../cards/"+stats.type.substring(0, 1)+".jpg')" } );
+			$j.each(stats.stats,function(key, value) {
 				var $stat = $j("#card .sideB ."+key+" .value");
 				$stat.removeClass("buff debuff");
 				if(crea){
@@ -467,7 +467,7 @@ var UI = Class.create({
 					$stat.text(value);
 				}
 			});
-			$j.each(G.abilities[stats.id],function(key,value) {
+			$j.each(G.abilities[stats.id],function(key, value) {
 				$ability = $j("#card .sideB .abilities .ability:eq("+key+")");
 				$ability.children('.icon').css({"background-image":"url('../units/icons/"+stats.name+" "+key+".svg')"});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
@@ -485,7 +485,7 @@ var UI = Class.create({
 			// Materialize button
 			this.materializeButton.changeState("disabled");
 
-			if(G.activeCreature.player.getNbrOfCreatures() > G.creaLimitNbr){
+			if(G.activeCreature.player.getNbrOfCreatures() > G.creaLimitNbr) {
 				$j('#materialize_button p').text(G.msg.ui.dash.materialize_overload);
 			}else if(
 				!summonedOrDead &&
@@ -494,7 +494,7 @@ var UI = Class.create({
 				G.activeCreature.abilities[3].used === false
 			)
 			{
-				var lvl = creatureType.substring(1,2)-0;
+				var lvl = creatureType.substring(1, 2)-0;
 				var size = G.retreiveCreatureStats(creatureType).size-0;
 				plasmaCost = lvl+size;
 
@@ -548,7 +548,7 @@ var UI = Class.create({
 
 			// Card A
 			$j("#card .sideA").css({"background-image":"url('../images/cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')"});
-			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
+			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
 			$j("#card .sideA .hexs").text(stats.size+"H");
@@ -561,7 +561,7 @@ var UI = Class.create({
 			});
 
 			// Abilities
-			$j.each(stats.ability_info,function(key,value) {
+			$j.each(stats.ability_info,function(key, value) {
 				$ability = $j("#card .sideB .abilities .ability:eq("+key+")");
 				$ability.children('.icon').css({"background-image":"url('../units/icons/"+stats.name+" "+key+".svg')"});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
@@ -608,7 +608,7 @@ var UI = Class.create({
 		G.players[id].availableCreatures.each(function() {
 			G.UI.$grid.find(".vignette[creature='"+this+"']").removeClass("locked");
 
-			var lvl = this.substring(1,2)-0;
+			var lvl = this.substring(1, 2)-0;
 			var size = G.retreiveCreatureStats(this).size-0;
 			plasmaCost = lvl+size;
 
@@ -672,7 +672,7 @@ var UI = Class.create({
 
 	closeDash: function(materialize) {
 		this.$dash.removeClass("active");
-		this.$dash.transition({opacity:0,queue:false},this.dashAnimSpeed,"linear",function() {
+		this.$dash.transition({ opacity: 0, queue: false }, this.dashAnimSpeed, "linear", function() {
 			G.UI.$dash.hide();
 		});
 		if(!materialize && G.activeCreature ) {
@@ -685,7 +685,7 @@ var UI = Class.create({
 	gridSelectUp: function() {
 		var b = G.UI.selectedCreature ;
 
-		if( b == "--"){
+		if( b == "--") {
 			G.UI.showCreature("W1");
 			return;
 		}
@@ -701,7 +701,7 @@ var UI = Class.create({
 	gridSelectDown: function() {
 		var b = G.UI.selectedCreature ;
 
-		if( b == "--"){
+		if( b == "--") {
 			G.UI.showCreature("A1");
 			return;
 		}
@@ -763,7 +763,7 @@ var UI = Class.create({
 		}else{
 
 			// Test If Valid Creature
-			if( $j.inArray( b[0]+(b[1]-0+1) , G.players[this.selectedPlayer].availableCreatures)>0	) {
+			if( $j.inArray( b[0]+(b[1]-0+1), G.players[this.selectedPlayer].availableCreatures)>0	) {
 				var valid = true;
 				for (var i = 0; i < G.players[ this.selectedPlayer ].creatures.length; i++) {
 					var crea = G.players[ this.selectedPlayer ].creatures[i];
@@ -789,7 +789,7 @@ var UI = Class.create({
 			if( G.realms.indexOf(b[0])-1 > -1 ) {
 				var r = G.realms[ G.realms.indexOf(b[0])-1 ];
 
-				// Test If Valid Creature
+				// Test if valid creature
 				if( $j.inArray( r+"7", G.players[this.selectedPlayer].availableCreatures)>0	) {
 					var valid = true;
 					for (var i = 0; i < G.players[ this.selectedPlayer ].creatures.length; i++) {
@@ -810,7 +810,7 @@ var UI = Class.create({
 			}
 		}else{
 
-			// Test If Valid Creature
+			// Test if valid creature
 			if( $j.inArray( b[0]+(b[1]-1), G.players[this.selectedPlayer].availableCreatures)>0 ) {
 				var valid = true;
 				for (var i = 0; i < G.players[ this.selectedPlayer ].creatures.length; i++) {
@@ -997,7 +997,7 @@ var UI = Class.create({
 		$j("#playerinfo .name").text(G.activeCreature.player.name);
 		$j("#playerinfo .points span").text(G.activeCreature.player.getScore().total);
 		$j("#playerinfo .plasma span").text(G.activeCreature.player.plasma);
-		$j("#playerinfo .units span").text(G.activeCreature.player.getNbrOfCreatures()+" / "+G.creaLimitNbr); // TODO: needs to update instantly!
+		$j("#playerinfo .units span").text(G.activeCreature.player.getNbrOfCreatures()+" / "+G.creaLimitNbr); // TODO: Needs to update instantly!
 	},
 
 	showStatModifiers: function(stat) {
@@ -1041,7 +1041,7 @@ var UI = Class.create({
 			var minutes = Math.floor(remainingTime/60);
 			var seconds = remainingTime-minutes*60;
 			var id = G.activeCreature.player.id;
-			$j(".p"+id+" .turntime").text(zfill(minutes,2)+":"+zfill(seconds,2));
+			$j(".p"+id+" .turntime").text(zfill(minutes,2)+":"+zfill(seconds, 2));
 			// Time Alert
 			if( remainingTime < 6 )
 				$j(".p"+id+" .turntime").addClass("alert");
@@ -1059,7 +1059,7 @@ var UI = Class.create({
 		if( G.timePool >= 0 ) {
 			G.players.each(function() {
 				var remainingTime = (this.id == G.activeCreature.player.id) ? this.totalTimePool - (date - this.startTime) : this.totalTimePool;
-				remainingTime = Math.max(Math.round(remainingTime/1000),0);
+				remainingTime = Math.max(Math.round(remainingTime/1000), 0);
 				var minutes = Math.floor(remainingTime/60);
 				var seconds = remainingTime-minutes*60;
 				$j(".p"+this.id+" .timepool").text(zfill(minutes,2)+":"+zfill(seconds,2));
@@ -1092,17 +1092,17 @@ var UI = Class.create({
 		this.$queue.find('.vignette .stats').css({transition: "height "+queueAnimSpeed+"ms"});
 
 		// Updating
-		var $vignettes = this.$queue.find('.vignette[verified!="-1"]').attr("verified",0);
+		var $vignettes = this.$queue.find('.vignette[verified!="-1"]').attr("verified", 0);
 
 		var deleteVignette = function(vignette) {
 
 			if( $j( vignette ).hasClass("roundmarker") ) {
-					$j( vignette ).attr("verified",-1).transition({x:-80, queue: false },queueAnimSpeed,transition,function(){ this.remove(); });
+					$j( vignette ).attr("verified", -1).transition( { x:-80, queue: false }, queueAnimSpeed, transition, function() { this.remove(); } );
 			}else{
 				if( $j( vignette ).hasClass("active") ) {
-					$j( vignette ).attr("verified",-1).transition({x:-100, queue: false },queueAnimSpeed,transition,function(){ this.remove(); });
+					$j( vignette ).attr("verified", -1).transition( { x:-100, queue: false }, queueAnimSpeed, transition, function() { this.remove(); } );
 				}else{
-					$j( vignette ).attr("verified",-1).transition({x:"-=80", queue: false },queueAnimSpeed,transition,function(){ this.remove(); });
+					$j( vignette ).attr("verified", -1).transition( { x:"-=80", queue: false }, queueAnimSpeed, transition, function() { this.remove(); } );
 				}
 			}
 
@@ -1110,7 +1110,7 @@ var UI = Class.create({
 			$vignettes = G.UI.$queue.find('.vignette[verified!="-1"]');
 		};
 
-		var appendVignette = function(pos,vignette) {
+		var appendVignette = function(pos, vignette) {
 
 			// Create element
 			if( $vignettes.length === 0 ) {
@@ -1131,8 +1131,8 @@ var UI = Class.create({
 
 			// Animation
 			$v.attr("verified",1)
-				.css({x: offset})
-				.transition({queue: true},queueAnimSpeed,transition); // Dont know why but it must be here
+				.css( { x: offset } )
+				.transition( { queue: true }, queueAnimSpeed, transition); // Dont know why but it must be here
 
 			// Updating
 			$vignettes = G.UI.$queue.find('.vignette[verified!="-1"]');
@@ -1143,11 +1143,11 @@ var UI = Class.create({
 			$vignettes.each(function() {
 				var index = $j(this).index('#queuewrapper .vignette[verified!="-1"]');
 				var offset = (index-(!!index))*80 + (!!index)*100;
-				$j(this).css({"z-index": 0-index}).transition({x:offset, queue: false },queueAnimSpeed,transition);
+				$j(this).css( { "z-index": 0-index } ).transition( { x:offset, queue: false }, queueAnimSpeed, transition);
 			});
 		};
 
-		this.$queue.find('.vignette[verified!="-1"]').each(function(){
+		this.$queue.find('.vignette[verified!="-1"]').each(function() {
 			if( $j(this).attr("turn") < G.turn ) {
 				deleteVignette( this );
 			}
@@ -1159,13 +1159,13 @@ var UI = Class.create({
 		completeQueue = completeQueue.concat(G.delayQueue);
 
 		for (var i = 1; i < nbrOfQueue; i++) {
-			completeQueue = completeQueue.concat(["nextround"],G.nextQueue);
+			completeQueue = completeQueue.concat(["nextround"], G.nextQueue);
 		}
 
 		var u = 0;
 
 		// Updating
-		$vignettes = this.$queue.find('.vignette[verified!="-1"]').attr("verified",0);
+		$vignettes = this.$queue.find('.vignette[verified!="-1"]').attr("verified", 0);
 
 		for (var i = 0; i < completeQueue.length; i++) {
 
@@ -1177,7 +1177,7 @@ var UI = Class.create({
 				// If this element does not exists
 				if( $vignettes[i] === undefined ) {
 					// Create it
-					appendVignette(i,queueElem);
+					appendVignette(i, queueElem);
 				}else{
 					// While its not the round marker
 					while( $j( $vignettes[i] ).attr("roundmarker") === undefined ) {
@@ -1195,17 +1195,17 @@ var UI = Class.create({
 				// If this element does not exists
 				if( $vignettes[i] === undefined ) {
 					// Create it
-					appendVignette(i,queueElem);
+					appendVignette(i, queueElem);
 				}else{
 					// While it'ss not the right creature
 					while( $j($vignettes[i]).attr("creatureid") != completeQueue[i].id ) {
 
 						if( $j($vignettes[i]).attr("creatureid") === undefined ) { // Is Round Marker
 							// Create element before
-							appendVignette(i-1,queueElem);
+							appendVignette(i-1, queueElem);
 						}else if( $j($vignettes[i]).attr("initiative") < initiative ) { // Initiative is lower
 							// Create element before
-							appendVignette(i-1,queueElem);
+							appendVignette(i-1, queueElem);
 						}else{
 							// Remove element
 							deleteVignette( $vignettes[i] );
@@ -1215,7 +1215,7 @@ var UI = Class.create({
 			}
 
 			// Tag as verified
-			$j($vignettes[i]).attr("verified",1);
+			$j($vignettes[i]).attr("verified", 1);
 		}
 
 		// Delete non verified
@@ -1230,7 +1230,7 @@ var UI = Class.create({
 		this.$queue.find('.vignette[verified="1"]')
 			.first().clearQueue().addClass("active")
 			.css({ transformOrigin: '0px 0px' })
-			.transition({ scale : 1.25, x : 0 },queueAnimSpeed,transition);
+			.transition( { scale : 1.25, x : 0 }, queueAnimSpeed, transition);
 
 		// Add mouseover effect
 
@@ -1302,14 +1302,14 @@ var Chat = Class.create( {
 	initialize: function() {
 		this.$chat = $j("#chat");
 		this.$content = $j("#chatcontent");
-		this.$chat.bind('click',function() {G.UI.chat.toggle();});
-		$j("#combatwrapper,#toppanel,#dash,#endscreen").bind('click',function() {G.UI.chat.hide();});
+		this.$chat.bind( 'click',function() { G.UI.chat.toggle(); } );
+		$j("#combatwrapper, #toppanel, #dash, #endscreen").bind('click',function() { G.UI.chat.hide(); } );
 	},
 
 
 	show : function() { this.$chat.addClass("focus"); },
 	hide : function() { this.$chat.removeClass("focus"); },
-	toggle : function() { this.$chat.toggleClass("focus"); this.$content.parent().scrollTop(this.$content.height());},
+	toggle : function() { this.$chat.toggleClass("focus"); this.$content.parent().scrollTop(this.$content.height()); },
 
 	addMsg : function(msg,htmlclass) {
 		var time = new Date(new Date() - G.startMatchTime);
@@ -1344,8 +1344,8 @@ var Button = Class.create( {
 			}
 		};
 
-		opts = $j.extend(defaultOpts,opts);
-		$j.extend(this,opts);
+		opts = $j.extend(defaultOpts, opts);
+		$j.extend(this, opts);
 		this.changeState(this.state);
 	},
 
@@ -1405,7 +1405,7 @@ var ProgessBar = Class.create( {
 			$bar : undefined
 		};
 
-		opts = $j.extend(defaultOpts,opts);
+		opts = $j.extend(defaultOpts, opts);
 		$j.extend(this,opts);
 
 		this.$bar.append('<div class="previewbar"></div>');
