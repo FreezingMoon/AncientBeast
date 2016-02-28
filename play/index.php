@@ -75,5 +75,7 @@ $(document).ready(function(){
 	<iframe id="game" name="game" src="../game/" style="border: 4px ridge; border-color: grey; width: 934px; height: 525px;" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
 </div>
 
+<div class="center warning" style="background: rgba(0, 0, 0, 0.85);">Warning, prototype! The gameplay is currently broken and lacking a lot of features, including online multiplayer.</div>
+
 <?php
 include('../footer.php'); ?>

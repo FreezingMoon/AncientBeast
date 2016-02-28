@@ -17,9 +17,10 @@ $sections = array(
 	'tournament',
 	'kingdom'
 );
+echo '<div class="center warning">The game design documentation is currently a very rough early draft and it requires a few more writing sessions.</div>';
 echo '<nav class="div center" id="navigation"><ul class="sections">';
 foreach ($sections as &$sectionItem) {
-	echo '<li style="display: inline;"><a href="?view=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding:2em;">' . ucfirst($sectionItem) . '</a></li>';
+	echo '<li style="display: inline;"><a href="?view=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding: 2em;">' . ucfirst($sectionItem) . '</a></li>';
 }
 echo '</ul></nav>';
 
@@ -30,6 +31,7 @@ switch ($view) {
 	default:
 		?>
 		<script>/* Custom page title */ document.title = "Ancient Beast - This is my design";</script>
+
 		<div class="center">
 			<div style="display: inline-block;" class="lighten">
 				<a href="?view=info"><img src="<?php echo $site_root; ?>images/squares/info.jpg" class="frame"><br>
@@ -56,6 +58,7 @@ switch ($view) {
 				<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Kingdom Wars</div></a>
 			</div>
 		</div>
+		
 		<?php
 		break;
 

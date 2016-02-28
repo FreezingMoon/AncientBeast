@@ -38,7 +38,7 @@ if(isset($_POST['submit']) && $_POST['submit'] != "") {
 
 	if($worked['password'] == $password) {
     	$_SESSION["id"] = $worked['id'];
-		echo '<meta http-equiv="refresh" content="0; url=' . $site_url . '">';
+		echo '<meta http-equiv="refresh" content="0; url=' . $site_url . 'account">';
 		die();
 	} else {
 		echo "<div class='warning center'>Your username and password combination are invalid.</div>";
@@ -51,6 +51,8 @@ $wip = 'onClick="alert(\'Please bear with us while we implement this feature!\')
 
 <!-- Hightlight active page -->
 <script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
+
+<div class="center warning">The user account system is currently in alpha stage, so it's very problematic and not required to play the game.</div>
 
 <div class="center" id="options">
 	<div style="display: inline-block;" class="lighten">
@@ -67,15 +69,15 @@ $wip = 'onClick="alert(\'Please bear with us while we implement this feature!\')
 <div class="div center">
 <img src="gumble.png" style="display: inline-block; float: left;">
 <div style="display: inline-block;">
-<form name='login' method='post' action='index.php'>
-<table width='25%' border=0 align=center cellpadding=0 cellspacing=0>
+<form name="login" method="post" action="index.php">
+<table width="25%" border=0 align=center cellpadding=0 cellspacing=0>
 	<tr>
 		<td class="arranged">Username</td>
-		<td><input name='username' type='text' size=22 autofocus></td>
+		<td><input name="username" type="text" size=22 autofocus></td>
 	</tr>
 	<tr>
 		<td class="arranged">Password</td>
-		<td><input name='password' type='password' size=22></td>
+		<td><input name="password" type="password" size=22></td>
 	</tr>
 </table>
 <input type="submit" name="submit" value="Log Into Your Account" class="button">
@@ -87,9 +89,5 @@ $wip = 'onClick="alert(\'Please bear with us while we implement this feature!\')
 </div>
 <img src="snowbunny.png" style="display: inline-block; float: right;">
 </div>
-
-<!--<div class="div center">
-<a href="../register"><b>Register</b></a> an account only in the case you don't have one yet, otherwise <b>reset password</b> if you forgot it.
-</div>-->
 
 <?php include('../../footer.php'); ?>

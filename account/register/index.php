@@ -57,7 +57,7 @@ if (isset($_POST['submit'])) {
 		// What happens when the CAPTCHA was entered incorrectly
 		$message .= "<div class='warning center'>The reCAPTCHA wasn't entered correctly, try it again.</div>";
 	}
-	if($username_exist > 0){
+	if($username_exist > 0) {
 		$message .= "<div class='warning center'>The username you chosen has already been taken, pick another one.</div>";
 	}
 	if(strlen($username) < 4 or strlen($username) > 18) {
@@ -66,7 +66,7 @@ if (isset($_POST['submit'])) {
 	if(strlen($_POST["newpass"]) < 6 or strlen($_POST["newpass"]) > 20) {
 		$message .= "<div class='warning center'>The password needs to have between 6 and 20 characters.</div>";
 	}
-	if($password !== $password2){
+	if($password !== $password2) {
 		$message .= "<div class='warning center'>Your passwords don't match. Please try again.</div>";
 	}
 	if (!eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $email)) {
@@ -84,6 +84,8 @@ if (isset($_POST['submit'])) {
 <!-- Hightlight active page -->
 <script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
 
+<div class="center warning">The user account system is currently in alpha stage, so it's very problematic and not required to play the game.</div>
+
 <div class="div center">
 <div style="display:inline-block; float: left">
 <?php
@@ -93,7 +95,7 @@ if (isset($_POST['submit'])) {
 echo $ayah->getPublisherHTML();
 ?>
 
-<form name="register" method="post" action="register.php">
+<form name="register" method="post" action="index.php">
 
 <table width="30%" border=0 align=center cellpadding=0 cellspacing=0 style="margin-top: 5px; margin-bottom: -5px;">
 	<tr>
