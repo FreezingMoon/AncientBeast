@@ -10,6 +10,8 @@
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** *Chuck Palahniuk*
 
 ### Intro
+
+[![Join the chat at https://gitter.im/FreezingMoon/AncientBeast](https://badges.gitter.im/FreezingMoon/AncientBeast.svg)](https://gitter.im/FreezingMoon/AncientBeast?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 <p>
 <b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to acquire and items to equip onto, putting them to use in order to defeat your opponents.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 <p>
