@@ -1,5 +1,6 @@
 [![Play Now!](http://img.shields.io/badge/Play-Now-red.svg)](http://AncientBeast.com/combat)
 [![Visit our IRC channel](http://img.shields.io/badge/IRC-%23AncientBeast-blue.svg)](https://kiwiirc.com/client/irc.freenode.net/?nick=Sinner|?#AncientBeast)
+[![Join the chat at https://gitter.im/FreezingMoon/AncientBeast](https://badges.gitter.im/FreezingMoon/AncientBeast.svg)](https://gitter.im/FreezingMoon/AncientBeast?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Donate via PayPal](http://img.shields.io/badge/PayPal-Donate-orange.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4)
 [![Flattr this Project](http://img.shields.io/badge/flattr-Donate-green.svg)](https://flattr.com/thing/126547/Ancient-Beast)
 [![Bountysource](https://www.bountysource.com/badge/team?team_id=44509&style=bounties_received)](https://www.bountysource.com/teams/ancientbeast/issues?utm_source=Ancient%20Beast&utm_medium=shield&utm_campaign=bounties_received)
