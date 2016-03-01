@@ -3,7 +3,7 @@
 *	Object containing UI DOM element, update functions and event managment on UI.
 *
 */
-var UI = Class.create({
+var UI = Class.create( {
 
 	/*	Attributes
 	*
@@ -84,7 +84,7 @@ var UI = Class.create({
 		// Flee Match Button
 		this.btnFlee = new Button( {
 			$button : $j("#flee.button"),
-			click : function(e){ if(!G.UI.dashopen) {
+			click : function(e) { if(!G.UI.dashopen) {
 				if( G.turn < G.minimumTurnBeforeFleeing ) {
 					alert("You cannot flee the match in the first 10 rounds.");
 					return;
@@ -95,10 +95,10 @@ var UI = Class.create({
 				}
 
 				if(window.confirm("Are you sure you want to flee the match?")) {
-					G.gamelog.add({action:"flee"});
+					G.gamelog.add( {action: "flee" } );
 					G.activeCreature.player.flee();
 				}
-			}},
+			} },
 			state : "disabled",
 		});
 		this.buttons.push(this.btnFlee);
@@ -189,7 +189,7 @@ var UI = Class.create({
 					prevD = true;
 				}
 			});
-			if(prevD){
+			if(prevD) {
 				e.preventDefault();
 				return false;
 			}
@@ -381,7 +381,7 @@ var UI = Class.create({
 	showCreature: function(creatureType, player) {
 
 		if(!this.dashopen) {
-			this.$dash.show().css("opacity",0);
+			this.$dash.show().css("opacity", 0);
 			this.$dash.transition( { opacity: 1 }, this.dashAnimSpeed, "linear");
 		}
 
@@ -446,7 +446,7 @@ var UI = Class.create({
 			$j.each(stats.stats,function(key, value) {
 				var $stat = $j("#card .sideB ."+key+" .value");
 				$stat.removeClass("buff debuff");
-				if(crea){
+				if(crea) {
 					if(key=="health") {
 						$stat.text(crea.health+"/"+crea.stats[key]);
 					}else if(key=="movement") {
@@ -469,7 +469,7 @@ var UI = Class.create({
 			});
 			$j.each(G.abilities[stats.id],function(key, value) {
 				$ability = $j("#card .sideB .abilities .ability:eq("+key+")");
-				$ability.children('.icon').css({"background-image":"url('../units/icons/"+stats.name+" "+key+".svg')"});
+				$ability.children('.icon').css( { "background-image":"url('../units/icons/"+stats.name+" "+key+".svg')" } );
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").text(stats.ability_info[key].info);
@@ -477,7 +477,7 @@ var UI = Class.create({
 
 			var summonedOrDead = false;
 			G.players[player].creatures.each(function() {
-				if(this.type == creatureType){
+				if(this.type == creatureType) {
 					summonedOrDead = true;
 				}
 			});
@@ -520,19 +520,19 @@ var UI = Class.create({
 					G.activeCreature.player.id === player &&
 					G.activeCreature.type === "--" &&
 					G.activeCreature.abilities[3].used === true
-				){
+				) {
 					$j('#materialize_button p').text("Materialization has already been used this round");
 				}else if(
 					G.activeCreature.player.id === player &&
 					G.activeCreature.type === "--"
-				){
+				) {
 					$j('#materialize_button p').text("Please select an available unit from the left grid");
 				}else if (G.activeCreature.type != "--") {
 					$j('#materialize_button p').text("The current active unit cannot materialize others");
 				}else if (
 					G.activeCreature.type ==="--" &&
 					G.activeCreature.player.id != player
-				){
+				) {
 					$j('#materialize_button p').text("Switch to your own tab to be able to materialize");
 
 					// Bind button
@@ -547,7 +547,7 @@ var UI = Class.create({
 		}else{
 
 			// Card A
-			$j("#card .sideA").css({"background-image":"url('../images/cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')"});
+			$j("#card .sideA").css( { "background-image":"url('../images/cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')" } );
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
@@ -563,7 +563,7 @@ var UI = Class.create({
 			// Abilities
 			$j.each(stats.ability_info,function(key, value) {
 				$ability = $j("#card .sideB .abilities .ability:eq("+key+")");
-				$ability.children('.icon').css({"background-image":"url('../units/icons/"+stats.name+" "+key+".svg')"});
+				$ability.children('.icon').css( { "background-image":"url('../units/icons/"+stats.name+" "+key+".svg')" } );
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").html(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").html(stats.ability_info[key].info);
@@ -620,7 +620,7 @@ var UI = Class.create({
 		G.players[id].creatures.each(function() {
 			var $crea = G.UI.$grid.find(".vignette[creature='"+this.type+"']");
 			$crea.removeClass("notsummonable");
-			if(this.dead === true){
+			if(this.dead === true) {
 				$crea.addClass("dead");
 			}else{
 				$crea.addClass("queued");
@@ -672,7 +672,7 @@ var UI = Class.create({
 
 	closeDash: function(materialize) {
 		this.$dash.removeClass("active");
-		this.$dash.transition({ opacity: 0, queue: false }, this.dashAnimSpeed, "linear", function() {
+		this.$dash.transition( { opacity: 0, queue: false }, this.dashAnimSpeed, "linear", function() {
 			G.UI.$dash.hide();
 		});
 		if(!materialize && G.activeCreature ) {
@@ -772,7 +772,7 @@ var UI = Class.create({
 					}
 				}
 
-				if( valid ){
+				if( valid ) {
 					G.UI.showCreature( b[0] + (b[1]-0+1) );
 					return;
 				}
@@ -799,7 +799,7 @@ var UI = Class.create({
 						}
 					}
 
-					if( valid ){
+					if( valid ) {
 						G.UI.showCreature( r+"7" );
 						return;
 					}
@@ -820,7 +820,7 @@ var UI = Class.create({
 					}
 				}
 
-				if( valid ){
+				if( valid ) {
 					G.UI.showCreature( b[0] + (b[1]-1) );
 					return;
 				}
@@ -912,7 +912,7 @@ var UI = Class.create({
 				};
 				this.changeState(); // Apply changes
 			});
-			G.UI.$activebox.children("#abilities").transition({y:"0px"},500,'easeOutQuart'); // Show panel
+			G.UI.$activebox.children("#abilities").transition( { y: "0px" }, 500, 'easeOutQuart'); // Show panel
 		});
 
 		G.UI.checkAbilitiesTooltip();
@@ -932,15 +932,15 @@ var UI = Class.create({
 			this.abilitiesButtons[i].$button.next(".desc").find(".costs , .damages , .special").remove();
 
 			// Add if needed
-			if(costs_string){
+			if(costs_string) {
 				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="costs"></div>');
 				this.abilitiesButtons[i].$button.next(".desc").find(".costs").html("Costs : "+costs_string);
 			}
-			if(dmg_string){
+			if(dmg_string) {
 				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="damages"></div>');
 				this.abilitiesButtons[i].$button.next(".desc").find(".damages").html("Damages : "+dmg_string);
 			}
-			if(special_string){
+			if(special_string) {
 				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="special"></div>');
 				this.abilitiesButtons[i].$button.next(".desc").find(".special").html("Effects : "+special_string);
 			}
@@ -981,7 +981,7 @@ var UI = Class.create({
 
 		// No action possible
 		if( !oneUsableAbility && G.activeCreature.remainingMove === 0 ) {
-			//G.skipTurn({tooltip:"Finished"}); // Autoskip
+			//G.skipTurn( { tooltip: "Finished" } ); // Autoskip
 			G.activeCreature.noActionPossible = true;
 			this.btnSkipTurn.changeState("glowing");
 		}
@@ -1008,13 +1008,13 @@ var UI = Class.create({
 			// Might not be needed
 			$j(card).find("."+stat+" .modifiers").html("");
 			// Effects
-			$j.each(buffDebuff.objs.effects, function(key,value) {
+			$j.each(buffDebuff.objs.effects, function(key, value) {
 				//var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
 				if( value.alterations[stat] ) $j(card).find("."+stat+" .modifiers").append("<div>"+value.name+" : "+(value.alterations[stat]>0?"+":"")+value.alterations[stat]+"</div>");
 				atLeastOneBuff = true;
 			});
 			// Drops
-			$j.each(buffDebuff.objs.drops, function(key,value) {
+			$j.each(buffDebuff.objs.drops, function(key, value) {
 				//var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
 				if( value.alterations[stat] ) $j(card).find("."+stat+" .modifiers").append("<div>"+value.name+" : "+(value.alterations[stat]>0?"+":"")+value.alterations[stat]+"</div>");
 				atLeastOneBuff = true;
@@ -1062,7 +1062,7 @@ var UI = Class.create({
 				remainingTime = Math.max(Math.round(remainingTime/1000), 0);
 				var minutes = Math.floor(remainingTime/60);
 				var seconds = remainingTime-minutes*60;
-				$j(".p"+this.id+" .timepool").text(zfill(minutes,2)+":"+zfill(seconds,2));
+				$j(".p"+this.id+" .timepool").text(zfill(minutes,2)+":"+zfill(seconds, 2));
 			});
 
 			// Time Bar
@@ -1089,7 +1089,7 @@ var UI = Class.create({
 		var nbrOfQueue = 2;
 
 		// Set transition duration for stat indicators
-		this.$queue.find('.vignette .stats').css({transition: "height "+queueAnimSpeed+"ms"});
+		this.$queue.find('.vignette .stats').css( { transition: "height "+queueAnimSpeed+"ms" } );
 
 		// Updating
 		var $vignettes = this.$queue.find('.vignette[verified!="-1"]').attr("verified", 0);
@@ -1229,18 +1229,18 @@ var UI = Class.create({
 		this.$queue.find('.vignette.active').removeClass("active"); // Avoid bugs
 		this.$queue.find('.vignette[verified="1"]')
 			.first().clearQueue().addClass("active")
-			.css({ transformOrigin: '0px 0px' })
+			.css( { transformOrigin: '0px 0px' } )
 			.transition( { scale : 1.25, x : 0 }, queueAnimSpeed, transition);
 
 		// Add mouseover effect
 
-		this.$queue.find('.vignette.roundmarker').unbind("mouseover").unbind("mouseleave").bind("mouseover",function() {
+		this.$queue.find('.vignette.roundmarker').unbind("mouseover").unbind("mouseleave").bind("mouseover", function() {
 			G.grid.showGrid(true);
 		}).bind("mouseleave",function() {
 			G.grid.showGrid(false);
 		});
 
-		this.$queue.find('.vignette').not(".roundmarker").unbind("click").unbind("mouseover").unbind("mouseleave").bind("mouseover",function() {
+		this.$queue.find('.vignette').not(".roundmarker").unbind("click").unbind("mouseover").unbind("mouseleave").bind("mouseover", function() {
 			if(G.freezedInput) return;
 			var creaID = $j(this).attr("creatureid")-0;
 			G.grid.showMovementRange(creaID);
@@ -1313,7 +1313,7 @@ var Chat = Class.create( {
 
 	addMsg : function(msg,htmlclass) {
 		var time = new Date(new Date() - G.startMatchTime);
-		this.$content.append("<p class='"+htmlclass+"'><i>"+zfill(time.getUTCHours(),2)+":"+zfill(time.getMinutes(),2)+":"+zfill(time.getSeconds(),2)+"</i> "+msg+"</p>");
+		this.$content.append("<p class='"+htmlclass+"'><i>"+zfill(time.getUTCHours(), 2)+":"+zfill(time.getMinutes(), 2)+":"+zfill(time.getSeconds(), 2)+"</i> "+msg+"</p>");
 		this.$content.parent().scrollTop(this.$content.height());
 	},
 });
