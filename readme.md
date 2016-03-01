@@ -25,7 +25,7 @@ The project is developed with the use of free open source cross platform applica
 <a href="http://krita.org" target="_blank"><b>Krita</b></a>, <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> and <a href="http://mypaint.intilinux.com" target="_blank"><b>MyPaint</b></a> are useful for concept art, while <a href="http://inkscape.org" target="_blank"><b>Inkscape</b></a> is useful for creating vector ability icons.
 </p>
 
-<table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;">
+<table style="font-size: 18px; font-weight: bold; margin: 0; padding: 0; margin-left: auto; margin-right: auto; text-align: center;">
 <tr align="center">
 	<td><a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><img src="images/tools/mega.png" style="display:block; width:99px; height99px;" alt="mega">Mega</a></td>
 	<td><a href="http://Ancient-Beast.deviantart.com" target="_blank"><img src="images/tools/deviantart.png" style="display:block; width:99px; height:99px;" alt="deviantart">deviantArt</a></td>
@@ -55,5 +55,6 @@ The project is developed with the use of free open source cross platform applica
 
 ### Contribute
 <p>
-There are various ways in which you can help out the project. Check out the <a href="http://ancientbeast.com/contribute" target="_blank">"Make Your Contribution"</a> guide and get it going!
+There are various ways in which you can help out the project. Check out the <a href="https://ancientbeast.com/contribute" target="_blank">"Make Your Contribution"</a> guide and get it going!<br>
+In case you want to beta test and even patch the [development version](https://github.com/FreezingMoon/AncientBeast/tree/master/development) of the game, dive right in by following this [quick guide](https://github.com/FreezingMoon/AncientBeast/tree/master/development/#readme).
 </p>

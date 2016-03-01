@@ -1,16 +1,15 @@
-## Development Setup For Game
+## Development Setup
+### Workflow Features
 
-### Features
+- **Gruntfile.js** compiles game scripts into one file that's automatically re-compiled.
+- **Package.json**  initializes the required npm packages along with set dependencies.
 
-- **Gruntfile.js** compiles all your game scripts to one file, also with `watch` will automatically re-compile.
-- **Package.json**  initializes your npm packages and set dependencies.
-
-### Setting up This Project Template
-First Install [NodeJS](http://nodejs.org). Next, install [Grunt](http://gruntjs.com).
+### Package Requirements
+First Install [NodeJS](http://nodejs.org). After that, proceed with installing [Grunt](http://gruntjs.com).
 
 #### Installing Grunt
 
-Firstly, install [NodeJS](http://nodejs.org/) after that use that command from terminal.
+After you've installed [NodeJS](http://nodejs.org/), use the following command in a terminal:
 
 ```
 npm install -g grunt-cli
@@ -18,24 +17,22 @@ npm install -g grunt-cli
 
 #### Installing Dependencies
 
-Please, navigate into the development directory and use this command for installing/updating dependencies.
+Navigate into the development directory and use this command for installing & updating dependencies:
 
 ```
 npm install
 ```
 
-This will read `package.json` and install dependencies.
+This will read `package.json` and install all of the gameplay established npm package dependencies.
 
-#### Launch
+#### Betatest Game
 
-Simply run command:
+To have the game properly set-up and opened in the default browser, simply run this terminal command:
 
 ```
 grunt
 ```
 
-This will launch your browser automatically.
-
-Grunt will work in background. When you change your script files, it will re-compile the scripts every time.
+Grunt will work in the background so that when you change any game scripts, the re-compile will occur.
 
 ---
