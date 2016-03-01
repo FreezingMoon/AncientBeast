@@ -56,5 +56,5 @@ The project is developed with the use of free open source cross platform applica
 ### Contribute
 <p>
 There are various ways in which you can help out the project. Check out the <a href="https://ancientbeast.com/contribute" target="_blank">"Make Your Contribution"</a> guide and get it going!<br>
-In case you want to beta test and even patch the [development version](https://github.com/FreezingMoon/AncientBeast/tree/master/development) of the game, dive right in by following this [quick guide](https://github.com/FreezingMoon/AncientBeast/tree/master/development/#readme).
+In case you want to beta test and even patch the <a href="https://github.com/FreezingMoon/AncientBeast/tree/master/development">development version</a> of the game, dive right in by following this <a href="https://github.com/FreezingMoon/AncientBeast/tree/master/development/#readme">quick guide</a>.
 </p>
