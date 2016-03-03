@@ -44,25 +44,6 @@ Feel free to join us in <a href="irc://irc.freenode.org/#AncientBeast"><u>#Ancie
 <img src="FGD.png" alt="FreeGameDev Ancient Beast SubForum" class="lighten"></a>
 </div>
 
-<div class="div center" id="widgets">
-<!-- Twitter Widget -->
-<a class="twitter-timeline" width="285" height="350" href="https://twitter.com/AncientBeast" data-widget-id="362776555539292160">Tweets by @AncientBeast</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-
-<!-- G+ Widget -->
-<div class="g-page" data-width="285" data-href="//plus.google.com/113034814032002995836" data-theme="dark" data-rel="publisher"></div>
-<script type="text/javascript">
-  (function() {
-    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-    po.src = 'https://apis.google.com/js/plusone.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-  })();
-</script>
-
-<!--Facebook Widget -->
-<iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FAncientBeast&amp;width=285&amp;height=350&amp;colorscheme=dark&amp;show_faces=true&amp;header=false&amp;stream=false&amp;show_border=false&amp;appId=354537111308544" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:285px; height:350px;" allowTransparency="true"></iframe>
-</div>
-
 <?php
 disqus();
 include('../footer.php'); ?>
