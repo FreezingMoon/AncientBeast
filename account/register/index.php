@@ -38,8 +38,6 @@ button {
 .div td { padding-bottom: 14px; }
 label {cursor: pointer;}";
 require_once('../../header.php');
-require_once('ayah_php_bundle_1.1.8/ayah.php');
-$ayah = new AYAH();
 
 if (isset($_POST['submit'])) {
 	$username = strip_tags($_POST["newname"]);
@@ -50,13 +48,6 @@ if (isset($_POST['submit'])) {
 	$username_exist = mysqli_num_rows($checkuser);
 	$message = null;
 
-	// Use the AYAH object to see if the user passed or failed the game.
-	$score = $ayah->scoreResult();
-
-	if (!$score) {
-		// What happens when the CAPTCHA was entered incorrectly
-		$message .= "<div class='warning center'>The reCAPTCHA wasn't entered correctly, try it again.</div>";
-	}
 	if($username_exist > 0) {
 		$message .= "<div class='warning center'>The username you chosen has already been taken, pick another one.</div>";
 	}
@@ -88,12 +79,6 @@ if (isset($_POST['submit'])) {
 
 <div class="div center">
 <div style="display:inline-block; float: left">
-<?php
-// Use the AYAH object to get the HTML code needed to
-// load and run PlayThru. You should place this code
-// directly before your 'Submit' button.
-echo $ayah->getPublisherHTML();
-?>
 
 <form name="register" method="post" action="index.php">
 
