@@ -40,7 +40,7 @@
 				"title": "Plasma Field",
 				"desc": "Protects from most harmful abilities.",
 				"info": "-1 plasma for each countered attack.",
-				"upgrade": "5 pure damage to melee foe.",
+				"upgrade": "5 pure damage counter hit.",
 				"costs": {
 					"special": "1%health%per countered attack"
 				},
