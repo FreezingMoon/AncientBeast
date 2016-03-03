@@ -168,7 +168,7 @@ G.abilities[0] =[
 
 
 
-// 	Fourth Ability: Unit Maker
+// 	Fourth Ability: Godlet Printer
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
