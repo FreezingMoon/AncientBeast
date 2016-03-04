@@ -38,7 +38,7 @@
 		"ability_info": [
 			{
 				"title": "Plasma Field",
-				"desc": "Protects from most harmful abilities.",
+				"desc": "Protects from most harmful abilities when unit not being currently active.",
 				"info": "-1 plasma for each countered attack.",
 				"upgrade": "5 pure damage counter hit.",
 				"costs": {
@@ -303,7 +303,7 @@
 				"title": "Sabre Kick",
 				"desc": "Strikes a nearby foe using feet claws, doing nice versatile physical damage.",
 				"info": "15 pierce + 10 slash + 5 crush damage.",
-				"upgrade": "Full knockback to frontal foe.",
+				"upgrade": "Total push of frontal target.",
 				"damages": {
 					"pierce": 15,
 					"slash": 10,
