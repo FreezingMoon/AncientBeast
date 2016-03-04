@@ -303,7 +303,7 @@
 				"title": "Sabre Kick",
 				"desc": "Strikes a nearby foe using feet claws, doing nice versatile physical damage.",
 				"info": "15 pierce + 10 slash + 5 crush damage.",
-				"upgrade": "Total knockback to inline foe.",
+				"upgrade": "Full knockback to frontal foe.",
 				"damages": {
 					"pierce": 15,
 					"slash": 10,
