@@ -44,6 +44,21 @@ Feel free to join us in <a href="irc://irc.freenode.org/#AncientBeast"><u>#Ancie
 <img src="FGD.png" alt="FreeGameDev Ancient Beast SubForum" class="lighten"></a>
 </div>
 
+<div class="center" id="social">
+	<div style="display: inline-block;" class="lighten">
+		<a href="http://reddit.com/r/AncientBeast" target="_blank"><img src="../images/squares/reddit.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Reddit: Join Forum</div></a>
+	</div>
+	<div style="display: inline-block;" class="lighten">
+		<a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><img src="../images/squares/github.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png); ;">GitHub: Fork Project</div></a>
+	</div>
+	<div style="display: inline-block;" class="lighten">
+		<a href="http://ancient-beast.deviantart.com" target="_blank"><img src="../images/squares/deviantart.jpg" class="frame"><br>
+		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">deviantArt: Submit Art</div></a>
+	</div>
+</div>
+
 <?php
 disqus();
 include('../footer.php'); ?>
