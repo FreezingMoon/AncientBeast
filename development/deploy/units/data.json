@@ -276,7 +276,7 @@
 				"title": "Supper Chomp",
 				"desc": "Takes a huge bite out of nearby foe, restoring a minor amount of health.",
 				"info": "20 pierce damage, 1/2 as regrowth.",
-				"upgrade": "Instant healing untill full.",
+				"upgrade": "Instant healing until full.",
 				"effects": [{
 					"special": "1/4 of damages as %regrowth%"
 				}],
@@ -301,9 +301,9 @@
     		},
 			{
 				"title": "Sabre Kick",
-				"desc": "Strikes a nearby foe using feet claws, doing nice versatile phyisical damage.",
+				"desc": "Strikes a nearby foe using feet claws, doing nice versatile physical damage.",
 				"info": "15 pierce + 10 slash + 5 crush damage.",
-				"upgrade": "Total knocback to inline foe.",
+				"upgrade": "Total knockback to inline foe.",
 				"damages": {
 					"pierce": 15,
 					"slash": 10,
