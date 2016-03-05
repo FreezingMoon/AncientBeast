@@ -33,17 +33,6 @@ require_once("../header.php");
 Feel free to join us in <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> channel over irc.freenode.org server using <a href="http://hexchat.github.io" target="_blank"><u>Hexchat</u></a> desktop client.</div>
 <div class="div center" id="IRC"><iframe src="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" style="border:0; width:100%; height:500px;"></iframe></div>
 
-<div class="div center" id="buttons">
-<a href="http://www.indiedb.com/games/ancient-beast" title="View Ancient Beast on Indie DB" target="_blank">
-<img src="http://button.indiedb.com/popularity/medium/games/21552.png" alt="Ancient Beast" class="lighten"></a>
-<a href="http://gamejolt.com/games/arcade/ancient-beast/15964/" target="_blank">
-<img src="GJ.png" alt="Ancient Beast on GameJolt" class="lighten"></a>
-<a href="http://www.lgdb.org/game/ancient_beast" target="_blank">
-<img src="LGDB.png" alt="Ancient Beast on Linux Game Data Base" class="lighten"></a>
-<a href="http://forum.freegamedev.net/viewforum.php?f=70&sid=c5b79793f699eb6af86a9d013bf3500f" target="_blank">
-<img src="FGD.png" alt="FreeGameDev Ancient Beast SubForum" class="lighten"></a>
-</div>
-
 <div class="center" id="social">
 	<div style="display: inline-block;" class="lighten">
 		<a href="http://reddit.com/r/AncientBeast" target="_blank"><img src="../images/squares/reddit.jpg" class="frame"><br>
