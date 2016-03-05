@@ -23,17 +23,29 @@
  */
 
 $page_title = "Chat";
+$style = '
+.gitter-chat-embed-action-bar { display: none; }
+.gitter iframe { width: 100%; height: 600px; }
+';
 require_once("../header.php");
 ?>
 
 <!-- Hightlight active page -->
 <script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
 
-<div class="div center" style="display: block; font-weight:bold;">
-Feel free to join us in <a href="irc://irc.freenode.org/#AncientBeast"><u>#AncientBeast</u></a> channel over irc.freenode.org server using <a href="http://hexchat.github.io" target="_blank"><u>Hexchat</u></a> desktop client.</div>
-<div class="div center" id="IRC"><iframe src="https://kiwiirc.com/client/irc.freenode.org/?nick=Sinner|?#AncientBeast" style="border:0; width:100%; height:500px;"></iframe></div>
+<div class="div gitter"></div>
+<script>
+	((window.gitter = {}).chat = {}).options = {
+		room: 'FreezingMoon/AncientBeast',
+		showChatByDefault: true,
+		targetElement: '.gitter',
+		useStyles: false,
+		preload: true
+	};
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
 
-<div class="center" id="social">
+<div class="center" id="action">
 	<div style="display: inline-block;" class="lighten">
 		<a href="http://reddit.com/r/AncientBeast" target="_blank"><img src="../images/squares/reddit.jpg" class="frame"><br>
 		<div class="button" style="background-image: url(<?php echo $site_root; ?>images/push_button.png);">Reddit: Join Forum</div></a>
