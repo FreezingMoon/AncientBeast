@@ -12,7 +12,7 @@
 		<script src="jquery.fullscreen-min.js"></script>
 
 		<script type="text/javascript">
-		$(document).ready(function(){
+		$(document).ready(function() {
 			$(document).bind("fullscreenchange", function() {
 				$('#game').toggleClass('fullscreen');
 			});
@@ -40,18 +40,18 @@
 		a {
 			text-decoration: none;
 			font-weight: bold !important;
-			font-family: Verdana,Arial,sans-serif;
+			font-family: Verdana, Arial, sans-serif;
 			font-size: .9em !important;
 			padding: 2px 7px !important;
 			cursor: pointer;
 			border-radius: 4px;
 			border: 1px solid #d3d3d3;
 			color: #555555;
-			background: rgb(255,255,255); /* Old browsers */
-			background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(241,241,241,1) 50%,rgba(225,225,225,1) 51%,rgba(246,246,246,1) 100%);
+			background: rgb(255, 255, 255); /* Old browsers */
+			background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(241, 241, 241, 1) 50%, rgba(225, 225, 225, 1) 51%, rgba(246, 246, 246, 1) 100%);
 
 		}
-		a:hover {background: white; color: black;}
+		a:hover { background: white; color: black; }
 
 		iframe {
 			width: 100%;
@@ -66,7 +66,7 @@
 			top: 1px;
 		}
 
-		iframe.fullscreen{
+		iframe.fullscreen {
 			padding-top: 0;
 		}
 		</style>
