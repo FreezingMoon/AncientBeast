@@ -614,9 +614,9 @@
 		"stats": {
 			"health": 220,
 			"regrowth": 5,
-			"endurance": 55,
+			"endurance": 25,
 			"energy": 100,
-			"meditation": 10,
+			"meditation": 25,
 			"initiative": 110,
 			"offense": 6,
 			"defense": 6,
@@ -662,7 +662,7 @@
 					"burn": 10
 				},
 				"costs": {
-					"energy": 15
+					"energy": 20
 				}
 		},
 			{
@@ -689,7 +689,7 @@
 					"burn": 20
 				},
 				"costs": {
-					"energy": 20
+					"energy": 25
 				}
 		}
         ]
