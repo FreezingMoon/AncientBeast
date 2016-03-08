@@ -103,16 +103,17 @@ G.abilities[7] =[
 		return this.testRequirements();
 	},
 
+	range : 6,
+
 	// 	query() :
 	query : function() {
 		var ability = this;
 		var crea = this.creature;
-		var range = this.timesUsed + 6
 
 		crea.queryMove({
 			noPath : true,
 			isAbility : true,
-			range : G.grid.getFlyingRange(crea.x, crea.y, range, crea.size, crea.id),
+			range : G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
 			callback : function() { delete arguments[1]; ability.animation.apply(ability, arguments); },
 		});
 	},
@@ -122,6 +123,10 @@ G.abilities[7] =[
 	activate : function(hex, args) {
 		var ability = this;
 		ability.end();
+
+		if( this.isUpgraded() ) {
+			this.range += 1;
+		};
 
 
 		var targets = ability.getTargets(ability.creature.adjacentHexs(1));
@@ -215,34 +220,10 @@ G.abilities[7] =[
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			fnOnSelect : function(hex, args) {
 				range.each(function() {
-					if( this.creature instanceof Creature ) {
-						if( this.creature == crea ) { // If it is Abolished
-							crea.adjacentHexs(1).each(function() {
-								if( this.creature instanceof Creature ) {
-									if( this.creature == crea ) { // If it is Abolished
-										crea.adjacentHexs(1).overlayVisualState("creature selected weakDmg player"+this.creature.team);
-										this.overlayVisualState("creature selected weakDmg player"+this.creature.team);
-									}else{
-										this.overlayVisualState("creature selected weakDmg player"+this.creature.team);
-									}
-								}else{
-									this.overlayVisualState("creature selected weakDmg player"+G.activeCreature.team);
-								}
-							});
-						}else{
-							this.overlayVisualState("creature selected weakDmg player"+this.creature.team);
-						}
-					}else{
-						this.overlayVisualState("creature selected weakDmg player"+G.activeCreature.team);
-					}
+					this.overlayVisualState("creature selected weakDmg player"+this.creature.team);
 				});
-
 				hex.cleanOverlayVisualState();
-				if( hex.creature instanceof Creature ) {
-					hex.overlayVisualState("creature selected player"+hex.creature.team);
-				}else{
-					hex.overlayVisualState("creature selected player"+G.activeCreature.team);
-				}
+				hex.overlayVisualState("creature selected player"+G.activeCreature.team);
 			},
 			id : this.creature.id,
 			hexs : range,

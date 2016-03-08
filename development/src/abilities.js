@@ -1,6 +1,3 @@
-ACTIVE_UPGRADE_TARGET = 4;
-PASSIVE_UPGRADE_TARGET = 4;
-
 /*	Ability Class
 *
 *	Class parsing function from creature abilities
@@ -21,8 +18,9 @@ var Ability = Class.create( {
 	},
 
 	isUpgraded: function() {
-		if(this.trigger == "onQuery") return this.timesUsed >= ACTIVE_UPGRADE_TARGET;
-		else return this.creature.turnsActive >= PASSIVE_UPGRADE_TARGET;
+		if(G.abilityUpgrades == -1 || !this.upgrade) return false;
+		if(this.trigger == "onQuery") return this.timesUsed >= G.abilityUpgrades;
+		else return this.creature.turnsActive >= G.abilityUpgrades;
 	},
 
 
