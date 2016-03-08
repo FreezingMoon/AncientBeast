@@ -5,7 +5,7 @@
 - **Package.json**  initializes the required npm packages along with set dependencies.
 
 ### Package Requirements
-First Install [NodeJS](http://nodejs.org). If you're on Linux, you might need to create a path link.
+First Install [NodeJS](http://nodejs.org). Linux users: if you installed from repository, you might need to create a path link.
 
 #### Installing Dependencies
 
