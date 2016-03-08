@@ -57,7 +57,7 @@ G.abilities[7] =[
 		var ability = this;
 		var crea = this.creature;
 
-		if(this.isUpgraded) this.distance = 5;
+		if(this.isUpgraded()) this.distance = 5;
 
 		G.grid.queryDirection({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },

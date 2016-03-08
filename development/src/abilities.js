@@ -22,7 +22,7 @@ var Ability = Class.create( {
 
 	isUpgraded: function() {
 		if(this.trigger == "onQuery") return this.timesUsed >= ACTIVE_UPGRADE_TARGET;
-		return this.creature.turnsActive >= PASSIVE_UPGRADE_TARGET;
+		else return this.creature.turnsActive >= PASSIVE_UPGRADE_TARGET;
 	},
 
 
