@@ -5,15 +5,7 @@
 - **Package.json**  initializes the required npm packages along with set dependencies.
 
 ### Package Requirements
-First Install [NodeJS](http://nodejs.org). After that, proceed with installing [Grunt](http://gruntjs.com).
-
-#### Installing Grunt
-
-After you've installed [NodeJS](http://nodejs.org/), use the following command in a terminal:
-
-```
-npm install -g grunt-cli
-```
+First Install [NodeJS](http://nodejs.org). If you're on Linux, you might need to create a path link.
 
 #### Installing Dependencies
 
