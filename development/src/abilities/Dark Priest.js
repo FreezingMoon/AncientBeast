@@ -19,21 +19,38 @@ G.abilities[0] =[
 
 	//	activate() :
 	activate : function(damage) {
-		this.creature.player.plasma  -= 1;
+                if(G.activeCreature.id==this.creature.id){
+                    /* only used when unit isn't active */
+                    return damage; // Return Damage
+                }
+                
+                if(this.isUpgraded()&&damage.melee&&!damage.counter){
+                    //counter damage
+                    var counter=new Damage(
+                        this.creature, // Attacker
+                        "target", // Attack Type
+                        {pure:5}, // Damage Type
+                        1, // Area
+                        []	// Effects
+                    );
+                    counter.counter=true;
+                    G.activeCreature.takeDamage(counter);
+                }
+                
+                this.creature.player.plasma  -= 1;
 
-		this.creature.protectedFromFatigue = this.testRequirements();
+                this.creature.protectedFromFatigue = this.testRequirements();
 
 
-		damage.damages = {total:0};
-		damage.status = "Shielded";
-		damage.effect = [];
+                damage.damages = {total:0};
+                damage.status = "Shielded";
+                damage.effect = [];
 
-		damage.noLog = true;
+                damage.noLog = true;
 
-		this.end(true); // Disable message
+                this.end(true); // Disable message
 
-		G.log("%CreatureName"+this.creature.id+"% is protected by Plasma Field");
-
+                G.log("%CreatureName"+this.creature.id+"% is protected by Plasma Field");
 		return damage; // Return Damage
 	},
 },
@@ -48,8 +65,7 @@ G.abilities[0] =[
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
-
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" ) ) {
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(this.isUpgraded()?4:1), "ennemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -67,7 +83,7 @@ G.abilities[0] =[
 			team : 0, // Team, 0 = ennemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
-			hexs : dpriest.adjacentHexs(1),
+			hexs : dpriest.adjacentHexs(this.isUpgraded()?4:1),
 		});
 	},
 
@@ -148,14 +164,16 @@ G.abilities[0] =[
 		ability.end();
 
 		var plasmaCost = target.size;
-		var damage = { pure: 25+target.baseStats.health-target.health };
+		var damage = target.baseStats.health-target.health;
+                
+                if (this.isUpgraded() && damage<40) damage=40;
 
 		ability.creature.player.plasma -= plasmaCost;
 
-		var damage = new Damage(
+		damage = new Damage(
 			ability.creature, // Attacker
 			"target", // Attack Type
-			damage, // Damage Type
+			{ pure: damage }, // Damage Type
 			1, // Area
 			[]	// Effects
 		);
@@ -188,12 +206,14 @@ G.abilities[0] =[
 		return true;
 	},
 
-	summonRange : 6,
+	summonRange : 4,
 
 	// 	query() :
 	query : function() {
 		var ability = this;
 		G.grid.updateDisplay(); // Retrace players creatures
+                
+                if(this.isUpgraded()) this.summonRange=6;
 
 		// Ask the creature to summon
 		G.UI.materializeToggled = true;

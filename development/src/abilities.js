@@ -484,6 +484,8 @@ abilities = []; // Array containing all javascript methods for abilities
 
 /*
 * Damage Class
+* 
+* TODO this documentation needs to be updated with things that are determined dynamically like #melee and #counter
 */
 var Damage = Class.create( {
 
