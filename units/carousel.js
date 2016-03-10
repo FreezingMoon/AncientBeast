@@ -1,6 +1,6 @@
 $(function() {
 	// Get the units data as an array
-	$.getJSON("../game/js/data.json", function(units) {
+	$.getJSON("data.json", function(units) {
 		// Select URL defined unit or a random one to spice things up
 		//var selected = Math.floor(Math.random()*units.length);
 		// The selected unit is defined before script inclusion
