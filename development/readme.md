@@ -32,6 +32,7 @@ Grunt will work in the background so that when you change any game scripts, the 
 
 ### Getting Involved
 After you've playtested the development version of the game, there are 2 main ways you can contribute to the project.
+
 For a more comprehensive guide on how to help out the project, you can check out the [Make Your Contribution](https://AncientBeast.com/contribute) guide.
 
 #### Report Issues
@@ -40,7 +41,7 @@ If you encounter any problems with the version, you can report them to our [GitH
 
 #### Patch Game
 The main coding language used is Javascript, feel free to create patches and propose them by opening Pull Requests.
-You should look around on GitHub Issue tracker for open issues, priority being the ones that are assigned to the next [milestone](https://github.com/FreezingMoon/AncientBeast/milestones) and are tagged "[Priority](https://github.com/FreezingMoon/AncientBeast/labels/Priority)", while also lacking the "[Brainstorm](https://github.com/FreezingMoon/AncientBeast/labels/Brainstorm)" tag. You can ping [DreadKnight](https://github.com/DreadKnight) in the [Gitter Chatroom](https://gitter.im/FreezingMoon/AncientBeast) in order to be assigned to something specific, otherwise you can comment on a specific issue in order to receive green light for it, making sure there's nobody else currently working on the issue or that design hasn't changed and a patch is still required.
+You should look around on GitHub Issue tracker for open issues, priority being the ones that are assigned to the next [milestone](https://github.com/FreezingMoon/AncientBeast/milestones) and are tagged "[Priority](https://github.com/FreezingMoon/AncientBeast/labels/Priority)", while also lacking the "[Brainstorm](https://github.com/FreezingMoon/AncientBeast/labels/Brainstorm)" tag. You can ping [DreadKnight](https://github.com/DreadKnight) in the [Gitter Chatroom](https://gitter.im/FreezingMoon/AncientBeast) in order to be assigned to something specific, otherwise you can comment on a specific issue in order to receive the green light for it, making sure there's nobody else currently working on the issue or that design hasn't changed and a patch is still required.
 
 ##### Useful Tool
 If you're not very keen on using git from the CLI, I recomment using [Git Cola](https://git-cola.github.io) for cloning the project and managing your fork.
