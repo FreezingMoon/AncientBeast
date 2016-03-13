@@ -1,11 +1,6 @@
 ## Development Setup
 It's very easy to set-up a local server in order to test and contribute to the development version of the game.
 
-### Workflow Features
-
-- **Gruntfile.js** compiles game scripts into one file that's automatically re-compiled.
-- **Package.json**  initializes the required npm packages along with set dependencies.
-
 ### Recommended Tool
 If you're not very keen on using git from the CLI, I recomment using [Git Cola](https://git-cola.github.io) for cloning the project and creating patches.
 
