@@ -7,14 +7,14 @@ G.abilities[14] =[
 
 // 	First Ability: Gooey Body
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onStartPhase",
 
 	// 	require() :
-	require : function(damage){
+	require : function(damage) {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ally" ) ){
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "ally" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -41,14 +41,14 @@ G.abilities[14] =[
 
 // 	Second Ability: Gummy Mallet
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -58,9 +58,9 @@ G.abilities[14] =[
 	// 	query() :
 	query : function(){
 		var ability = this;
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+			team : 0, // Team, 0 = ennemies
 			id : this.creature.id,
 			flipped : this.creature.player.flipped,
 			hexs : this.creature.adjacentHexs(1),
@@ -69,16 +69,16 @@ G.abilities[14] =[
 
 
 	//	activate() :
-	activate : function(target,args) {
+	activate : function(target, args) {
 		var ability = this;
 		ability.end();
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage Type
+			1, // Area
+			[] // Effects
 		);
 		target.takeDamage(damage);
 	},
@@ -87,23 +87,23 @@ G.abilities[14] =[
 
 // 	Thirt Ability: Royal Seal
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		return this.testRequirements();
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 		var creature = this.creature;
 
-		creature.hint("Confirm","confirm constant");
+		creature.hint("Confirm", "confirm constant");
 
 		G.grid.queryHexs({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			size : creature.size,
 			flipped : creature.player.flipped,
 			id : creature.id,
@@ -121,10 +121,10 @@ G.abilities[14] =[
 
 		var effects = [
 			new Effect(
-				"Royal Seal",this.creature,hex,"onStepIn",
+				"Royal Seal", this.creature, hex, "onStepIn",
 				{
-					requireFn: function(crea){ return crea !== this.owner; },
-					effectFn: function(effect,crea){
+					requireFn: function(crea) { return crea !== this.owner; },
+					effectFn: function(effect, crea) {
 						crea.remainingMove = 0;
 						this.trap.destroy();
 					},
@@ -132,7 +132,7 @@ G.abilities[14] =[
 			),
 		]
 
-		var trap = hex.createTrap("royal-seal",effects,this.creature.player);
+		var trap = hex.createTrap("royal-seal", effects, this.creature.player);
 		trap.hide();
 	},
 },
@@ -140,16 +140,16 @@ G.abilities[14] =[
 
 // 	Fourth Ability: Boom Box
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	directions : [1,1,1,1,1,1],
+	directions : [1, 1, 1, 1, 1, 1],
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		var test = this.testDirection({
+		var test = this.testDirection( {
 			team : "ennemy",
 			directions : this.directions,
 		});
@@ -161,14 +161,14 @@ G.abilities[14] =[
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 		var crea = this.creature;
 
 		G.grid.queryDirection({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : crea.player.flipped,
-			team : 0, //enemies
+			team : 0, // enemies
 			id : this.creature.id,
 			requireCreature : true,
 			x : crea.x,
@@ -179,46 +179,46 @@ G.abilities[14] =[
 
 
 	//	activate() :
-	activate : function(path,args) {
+	activate : function(path, args) {
 		var ability = this;
 		ability.end();
 
 		var target = path.last().creature;
 		var melee = (path[0].creature === target);
 
-		var d = (melee) ? {sonic:20,crush:10} : {sonic:20};
+		var d = (melee) ? { sonic: 20, crush: 10 } : { sonic: 20 };
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			d, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			d, // Damage Type
+			1, // Area
+			[] // Effects
 		);
 
-		var result = target.takeDamage(damage,true);
+		var result = target.takeDamage(damage, true);
 
 		// if( result.kill ) return; // if creature die stop here
 
 		var dir = [];
-		switch( args.direction ){
-			case 3: //Upright
-				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y-8,0,ability.creature.flipped,diagonalup).reverse();
+		switch( args.direction ) {
+			case 3: // Upright
+				dir = G.grid.getHexMap(ability.creature.x, ability.creature.y-8, 0, ability.creature.flipped, diagonalup).reverse();
 				break;
-			case 4: //StraitForward
-				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y,0,ability.creature.flipped,straitrow);
+			case 4: // StraitForward
+				dir = G.grid.getHexMap(ability.creature.x, ability.creature.y, 0, ability.creature.flipped, straitrow);
 				break;
-			case 5: //Downright
-				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y,0,ability.creature.flipped,diagonaldown);
+			case 5: // Downright
+				dir = G.grid.getHexMap(ability.creature.x, ability.creature.y, 0, ability.creature.flipped, diagonaldown);
 				break;
-			case 0: //Downleft
-				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y,-4,ability.creature.flipped,diagonalup);
+			case 0: // Downleft
+				dir = G.grid.getHexMap(ability.creature.x, ability.creature.y, -4, ability.creature.flipped, diagonalup);
 				break;
-			case 1: //StraitBackward
-				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y,0,!ability.creature.flipped,straitrow);
+			case 1: // StraitBackward
+				dir = G.grid.getHexMap(ability.creature.x, ability.creature.y, 0, !ability.creature.flipped, straitrow);
 				break;
-			case 2: //Upleft
-				dir = G.grid.getHexMap(ability.creature.x,ability.creature.y-8,-4,ability.creature.flipped,diagonaldown).reverse();
+			case 2: // Upleft
+				dir = G.grid.getHexMap(ability.creature.x, ability.creature.y-8, -4, ability.creature.flipped, diagonaldown).reverse();
 				break;
 			default:
 				break;
@@ -228,13 +228,13 @@ G.abilities[14] =[
 
 		//Recoil
 		if(dir.length > 1) {
-			if(dir[1].isWalkable(ability.creature.size,ability.creature.id,true)){
-				ability.creature.moveTo(dir[1],{
+			if(dir[1].isWalkable(ability.creature.size,ability.creature.id,true)) {
+				ability.creature.moveTo(dir[1], {
 					ignoreMovementPoint : true,
 					ignorePath : true,
-					callback : function(){
+					callback : function() {
 						if( result.damageObj instanceof Damage )
-							G.triggersFn.onDamage(target,result.damageObj);
+							G.triggersFn.onDamage(target, result.damageObj);
 
 						G.activeCreature.queryMove();
 					},
