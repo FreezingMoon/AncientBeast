@@ -901,7 +901,7 @@
 		"type": "G1",
 		"set": "Alpha",
 		"stats": {
-			"health": 60,
+			"health": 65,
 			"regrowth": 10,
 			"endurance": 20,
 			"energy": 70,
@@ -1132,7 +1132,7 @@
 		"type": "P1",
 		"set": "Alpha",
 		"stats": {
-			"health": 90,
+			"health": 70,
 			"regrowth": 5,
 			"endurance": 30,
 			"energy": 70,
@@ -1168,11 +1168,11 @@
 		"ability_info": [
 			{
 				"title": "Gooey Body",
-				"desc": "Recovers 1/6 health at turn start for every allied creature that is nearby.",
+				"desc": "Recovers 25% of health lost only from the last hit taken when the turn starts.",
 				"info": "This ability works when fatigued too.",
-				"upgrade" : "1/3 health recovery rate.",
+				"upgrade" : "Now 50% health recovered.",
 				"effects": [{
-					"special": "+1/6 %health% × adjacent allies creatures"
+					"special": "25% health recovered from last hit taken."
 				}]
             },
 			{
@@ -1191,24 +1191,24 @@
 				"title": "Royal Seal",
 				"desc": "Sticks chewing gum in place to hinder any passing unit for a complete turn.",
 				"info": "Does not affect self but affects allies.",
-				"upgrade": "Fully disables foes one turn.",
+				"upgrade": "Can leap within 4 hexagons.",
 				"effects": [{
 					"special": "%movement% is set to 0 for a turn"
 				}],
 				"costs": {
-					"health": 20
+					"energy": 20
 				}
             },
 			{
 				"title": "Boom Box",
 				"desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
-				"info": "20 sonic damage + 10 crush if melee",
+				"info": "20 sonic damage + 10 crush if melee.",
 				"upgrade": "2x melee bonus damage.",
 				"damages": {
 					"special": "20%sonic%+ 10%crush%if melee"
 				},
 				"effects": [{
-					"special": "one hexagon knockback"
+					"special": "One hexagon knockback."
 				}],
 				"costs": {
 					"energy": 30
@@ -1955,9 +1955,9 @@
 		"type": "P2",
 		"set": "Alpha",
 		"stats": {
-			"health": 100,
+			"health": 90,
 			"regrowth": 5,
-			"endurance": 100,
+			"endurance": 65,
 			"energy": 35,
 			"meditation": 5,
 			"initiative": 20,
