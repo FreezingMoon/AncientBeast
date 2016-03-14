@@ -24,6 +24,8 @@
 
 // Directory of site relative to root, ending with a slash
 // Eg: $site_root = '/' or $site_root = '/ancientbeast/'
+// Warning: You might need to use your port number too!
+// Eg: $site_root = ':8088/';
 $site_root = '/';
 
 // MySQL database information is stored over here
