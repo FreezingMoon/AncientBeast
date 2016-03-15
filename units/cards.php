@@ -83,7 +83,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 	// Side A
 ?>
 	<div class="center" style="display:inline-block; vertical-align: top;">
-		<div class="card sideA" style="background-image: url('/images/cards/margin.png'), url('/units/artwork/<?php echo $r['name']; ?>.jpg');">
+		<div class="card sideA" style="background-image: url('<?php echo $site_url; ?>images/cards/margin.png'), url('<?php echo $site_url; ?>units/artwork/<?php echo $r['name']; ?>.jpg');">
 
 			<!-- On hover mini tutorial -->
 			<div class="card_info stats_desc"><br>
