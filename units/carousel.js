@@ -10,9 +10,12 @@ $(function() {
 
 	// Get the units data as an array
 	$.getJSON("data.json", function(results) {
-		// draw the carousel
+		// set the global var
 		units = results;
+		// draw the carousel
 		drawCarousel();
+		// preload all the images
+		preloadImages(units);
 		// add an EL for any carousel divs
 		// it's important to note that the EL is bound to document on purpose
 		// since the events are on dom elements not added at runtime, we have to do this
@@ -61,5 +64,15 @@ $(function() {
 	function clearCarousel() {
 		// remove all the data from the carousel and that's about it
 		$("#carousel").html("");
+	}
+
+	function preloadImages(unitArr) {
+		var images = [];
+		var i = 0;
+		while (i < unitArr.length) {
+			images[i] = new Image();
+			images[i].src = "avatars/" + unitArr[i].name + ".jpg";
+			i++;
+		}
 	}
 });
