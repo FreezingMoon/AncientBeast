@@ -1,8 +1,6 @@
 $(function() {
 	// this will hold the JSON array of all units
 	var units;
-	// this is which unit is currently selected
-	var selectedUnit = 0;
 	// total items in the carousel (needs to be odd)
 	var carouselLength = 7;
 	// essentially, the amount on each side after you remove the middle
