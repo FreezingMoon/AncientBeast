@@ -18,9 +18,9 @@ $(function() {
 		// it's important to note that the EL is bound to document on purpose
 		// since the events are on dom elements not added at runtime, we have to do this
 		$(document).on("click", ".unit-carousel-div", function(e) {
-			console.log("clicked");
 			selectedUnit = $(e.target).data("id");
 			updateCarousel();
+			updateCard(selectedUnit);
 		});
 
 	});
@@ -71,6 +71,25 @@ $(function() {
 			images[i] = new Image();
 			images[i].src = "avatars/" + unitArr[i].name + ".jpg";
 			i++;
+		}
+	}
+
+	function updateCard(unitIndex) {
+		// set the unit to the selected unit
+		var unit = units[unitIndex];
+		// update side a
+		$(".sideA").css("background-image", "url('/images/cards/margin.png'), url('/units/artwork/" + unit.name + ".jpg')");
+		$(".sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + unit.type.substring(0, 1));
+		$(".sideA .type").text(unit.type);
+		$(".sideA .name").text(unit.name);
+		$(".sideA .hexs").text(unit.size+"H");
+		// update side b
+		$(".sideB").css("background-image", "url('/images/cards/margin.png'), url('/images/cards/" + unit.type.substring(0, 1) + ".jpg')");
+		for (var property in unit.stats) {
+			if (unit.stats.hasOwnProperty(property)) {
+				var stat = ".sideB ." + property + " .value";
+				$(stat).text(unit.stats[property]);
+			}
 		}
 	}
 });
