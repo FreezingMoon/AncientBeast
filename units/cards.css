@@ -64,7 +64,7 @@
 .ability { position: relative; padding-right: 3px; }
 
 .abilities .ability .wrapper{
-	display: table-cell; 
+	display: table-cell;
 	height: 100px;
 	padding-left: 103px;
 	vertical-align: middle;
@@ -167,6 +167,14 @@ span.mental {
 	height: 15px;
 	margin: 0px 3px !important;
 	padding: 0px !important;
-	background-size: 100% 100%; 
+	background-size: 100% 100%;
 	vertical-align: -2px;
+}
+
+.unit-carousel-div {
+	background: url('../images/frame.png');
+	height: 128px;
+	width: 128px;
+	display: inline-block;
+	cursor: pointer;
 }
