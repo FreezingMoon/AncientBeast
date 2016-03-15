@@ -83,5 +83,13 @@ $(function() {
 		$(".sideA .type").text(unit.type);
 		$(".sideA .name").text(unit.name);
 		$(".sideA .hexs").text(unit.size+"H");
+		// update side b
+		$(".sideB").css("background-image", "url('/images/cards/margin.png'), url('/images/cards/" + unit.type.substring(0, 1) + ".jpg')");
+		for (var property in unit.stats) {
+			if (unit.stats.hasOwnProperty(property)) {
+				var stat = ".sideB ." + property + " .value";
+				$(stat).text(unit.stats[property]);
+			}
+		}
 	}
 });
