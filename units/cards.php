@@ -1,4 +1,4 @@
-<?php 
+<?php
 /* Ancient Beast - Free Open Source Online PvP TBS: card game meets chess, with creatures.
  * Copyright (C) 2007-2014  Valentin Anastase (a.k.a. Dread Knight)
  *
@@ -41,7 +41,7 @@ jQuery(document).ready(function() {
 			G.UI.showStatModifiers(stat);
 		}
 	};
-	
+
 	// Shows description of stats
 	jQuery(".stats").mouseenter(function() {
 		var card = jQuery(this).parent().siblings().find(".stats_desc");
@@ -74,7 +74,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 		$ab_creatures = get_creatures();
 		$r = reset($ab_creatures);
 	}
-  
+
 	// Preparing shout
 	$spaceless = str_replace(' ', '%20', $r['name'] );
 	$underscore = str_replace(' ', '_', $r['name'] );
@@ -83,7 +83,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 	// Side A
 ?>
 	<div class="center" style="display:inline-block; vertical-align: top;">
-		<div class="card sideA" style="background-image: url('<?php echo $site_url; ?>images/cards/margin.png'), url('<?php echo $site_url; ?>units/artwork/<?php echo $r['name']; ?>.jpg');">
+		<div class="card sideA" style="background-image: url('/images/cards/margin.png'), url('/units/artwork/<?php echo $r['name']; ?>.jpg');">
 
 			<!-- On hover mini tutorial -->
 			<div class="card_info stats_desc"><br>
@@ -105,7 +105,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 
 			<!-- Card Anchor -->
 			<a href="#<?php echo $underscore; ?>"><div style="height:100%;"></div></a>
-<?php		
+<?php
 			// Display unit info
 			echo '<div class="section info sin' . $r['realm'] . '">
 					<span class="type" creature_type="'.$r['realm'].$r['level'].'" style="float:left; margin-left:22px;">'.$r['realm'].$r['level'].'</span>
@@ -133,7 +133,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 			  		// Display Abilities
 					for ($i=0; $i < 4; $i++) {
 						// Figure out if upgradable
-						if (!empty($r["ability_info"][$i]["upgrade"])) { $upgrade = '<br><span class="desc" id="info">Upgrade: ' . $r["ability_info"][$i]["upgrade"] . '</span>'; } 
+						if (!empty($r["ability_info"][$i]["upgrade"])) { $upgrade = '<br><span class="desc" id="info">Upgrade: ' . $r["ability_info"][$i]["upgrade"] . '</span>'; }
 						// Figure out the cost
 						if ($i==0) { $cost = ' - this ability is passive.'; } else { $cost = ' - costs ' . $r["ability_info"][$i]["costs"]["energy"] . ' energy pts.'; }
 						echo '
@@ -158,8 +158,8 @@ function cards($r = "", $id = -1, $modifiers = false) {
 					// Display Masteries
 					$i=1;
 					foreach ($r["stats"] as $key => $value) {
-					 	if( $i > 9) { 
-					 		displayStat($key,$value,$modifiers); 
+					 	if( $i > 9) {
+					 		displayStat($key,$value,$modifiers);
 				 		}
 				 		$i++;
 					}
