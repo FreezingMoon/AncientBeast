@@ -10,7 +10,7 @@ if ($id == $random) {
 	$id = array_rand($units, 1);
 }
 ?>
-<script> var selected = <?php echo $id; ?>; </script>
+<script> var selectedUnit = <?php echo $id; ?>; </script>
 <script type="text/javascript" src="carousel.js"></script>
 <style type="text/css">
 #carousel {
@@ -19,8 +19,8 @@ if ($id == $random) {
 	width: 896px;
 	margin: 0px;
 	line-height: 0px;
-	background-image: url("../images/carousel.png"); 
-	background-size: 100%; 
+	background-image: url("../images/carousel.png");
+	background-size: 100%;
 	padding: 27px;
 	margin-bottom: 5px;
 	/* Disable selection when double clicking last avatar */
