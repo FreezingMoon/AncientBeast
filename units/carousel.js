@@ -3,6 +3,11 @@ $(function() {
 	var units;
 	// this is which unit is currently selected
 	var selectedUnit = 0;
+	// total items in the carousel (needs to be odd)
+	var carouselLength = 7;
+	// essentially, the amount on each side after you remove the middle
+	var modValue = (carouselLength - 1) / 2;
+
 	// Get the units data as an array
 	$.getJSON("data.json", function(results) {
 		// draw the carousel
@@ -14,17 +19,13 @@ $(function() {
 		$(document).on("click", ".unit-carousel-div", function(e) {
 			console.log("clicked");
 			selectedUnit = $(e.target).data("id");
-			drawCarousel();
+			updateCarousel();
 		});
 
 	});
 
 	function drawCarousel() {
 		clearCarousel();
-		// total items in the carousel (needs to be odd)
-		var carouselLength = 7;
-		// essentially, the amount on each side after you remove the middle
-		var modValue = (carouselLength - 1) / 2;
 		// start at -mod
 		var i = modValue * -1;
 		// go until positive mod, should result in carouselLength iterations
@@ -42,6 +43,19 @@ $(function() {
 			$("#carousel").append(unitDiv);
 			i++;
 		}
+	}
+
+	function updateCarousel() {
+		var i = modValue * -1;
+		$(".unit-carousel-div").each(function(index) {
+			// grabs a spot from the unit array
+			var unitIndex = Math.abs((units.length + selectedUnit + i) % units.length);
+			// add in the data id
+			$(this).data("id", unitIndex);
+			// add in the background images
+			$(this).css("background", "url('../images/frame.png'), url('avatars/" + units[unitIndex].name + ".jpg')");
+			i++;
+		});
 	}
 
 	function clearCarousel() {
