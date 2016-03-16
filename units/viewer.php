@@ -3,6 +3,8 @@
 
 <!-- Carousel -->
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 $id = isset($_GET['id']) ? $_GET['id'] : $random;
 $units = array_column($creature_results, 'id');
 //$valid = array_search($id, $units);
