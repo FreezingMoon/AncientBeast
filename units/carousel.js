@@ -17,7 +17,7 @@ $(function() {
 		// add an EL for any carousel divs
 		// it's important to note that the EL is bound to document on purpose
 		// since the events are on dom elements not added at runtime, we have to do this
-		$(document).on("click", ".unit-carousel-div", function(e) {
+		$(document).on("click", ".carouselAvatar", function(e) {
 			selectedUnit = $(e.target).data("id");
 			updateCarousel();
 			updateCard(selectedUnit);
@@ -36,7 +36,7 @@ $(function() {
 			// add in the div we'll build on
 			var unitDiv = document.createElement("div");
 			// add the class and data id (index)
-			$(unitDiv).addClass("unit-carousel-div");
+			$(unitDiv).addClass("carouselAvatar");
 			$(unitDiv).data("id", index);
 			// add in the background images
 			$(unitDiv).css("background", "url('" + siteUrl + "images/frame.png'), url('avatars/" + units[index].name + ".jpg')");
@@ -48,7 +48,7 @@ $(function() {
 
 	function updateCarousel() {
 		var i = modValue * -1;
-		$(".unit-carousel-div").each(function(index) {
+		$(".carouselAvatar").each(function(index) {
 			// grabs a spot from the unit array
 			var unitIndex = Math.abs((units.length + selectedUnit + i) % units.length);
 			// add in the data id

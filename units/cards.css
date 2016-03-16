@@ -170,11 +170,3 @@ span.mental {
 	background-size: 100% 100%;
 	vertical-align: -2px;
 }
-
-.unit-carousel-div {
-	background: url('../images/frame.png');
-	height: 128px;
-	width: 128px;
-	display: inline-block;
-	cursor: pointer;
-}

@@ -15,26 +15,7 @@ if ($id == $random) {
 	var siteUrl = "<?php echo $site_url; ?>";
 </script>
 <script type="text/javascript" src="carousel.js"></script>
-<style type="text/css">
-#carousel {
-	display: block;
-	height: 128px;
-	width: 896px;
-	margin: 0px;
-	line-height: 0px;
-	background-image: url("../images/carousel.png");
-	background-size: 100%;
-	padding: 27px;
-	margin-bottom: 5px;
-	/* Disable selection when double clicking last avatar */
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-</style>
+<link rel="stylesheet" href="carousel.css">
 
 <div id="carousel"></div>
 
