@@ -287,7 +287,7 @@ function nextCard() {
 			$("#first_title").html("<u>Fun Gameplay</u>").next().html("You can materialise and control a variety of units in order to do your bidding and defeat all your foes.");
 			$("#second_title").html("<u>Easy to Learn</u>").next().html("Intimidated at first sight? No worries, everything is being explained during gameplay in a very non intrusive way.");
 			$("#third_title").html("<u>Ultra Replayable</u>").next().html("There are basically an almost infinite combination of units and moves that can be done so no 2 battles are alike.");
-			$("#fourth_title").html("<u>Hard to Master</u>").next().html("The game only relies on pure skill and never on dice throws, chances or other luck factors. It's always all up to you!");
+			$("#fourth_title").html("<u>Hard to Master</u>").next().html("The game only relies on pure skill and never on dice throws, chances or other luck factors. It is always all up to you!");
 		break;
 		case 2:
 			$("#first_title").html("<u>Browser Based</u>").next().html("You don't have to bother yourself with downloading and installing the game or some silly problematic browser plug-in.");
