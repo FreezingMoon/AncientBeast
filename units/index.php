@@ -62,7 +62,7 @@ $sections = array(
 );
 echo '<nav class="div center"><ul class="sections">';
 foreach ($sections as &$sectionItem) {
-	echo '<li style="display: inline;"><a href="?view=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding:2.5em;">' . ucfirst($sectionItem) . '</a></li>';
+	echo '<li style="display: inline;"><a href="?view=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding: 2.5em;">' . ucfirst($sectionItem) . '</a></li>';
 }
 echo '</ul></nav>';
 

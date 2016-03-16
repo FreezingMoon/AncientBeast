@@ -5,7 +5,7 @@
 <!-- Carousel -->
 <?php
 $id = isset($_GET['id']) ? $_GET['id'] : $random;
-$units = array_column($creature_results, 'id');
+@$units = array_column($creature_results, 'id');
 //$valid = array_search($id, $units);
 if ($id == $random) {
 	$id = array_rand($units, 1);
