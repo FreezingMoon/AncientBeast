@@ -39,7 +39,7 @@ $(function() {
 			$(unitDiv).addClass("unit-carousel-div");
 			$(unitDiv).data("id", index);
 			// add in the background images
-			$(unitDiv).css("background", "url('../images/frame.png'), url('avatars/" + units[index].name + ".jpg')");
+			$(unitDiv).css("background", "url('" + siteUrl + "images/frame.png'), url('avatars/" + units[index].name + ".jpg')");
 			// add it to the carousel
 			$("#carousel").append(unitDiv);
 			i++;
@@ -54,7 +54,7 @@ $(function() {
 			// add in the data id
 			$(this).data("id", unitIndex);
 			// add in the background images
-			$(this).css("background", "url('../images/frame.png'), url('avatars/" + units[unitIndex].name + ".jpg')");
+			$(this).css("background", "url('" + siteUrl + "images/frame.png'), url('avatars/" + units[unitIndex].name + ".jpg')");
 			i++;
 		});
 	}
@@ -78,13 +78,13 @@ $(function() {
 		// set the unit to the selected unit
 		var unit = units[unitIndex];
 		// update side a
-		$(".sideA").css("background-image", "url('/images/cards/margin.png'), url('/units/artwork/" + unit.name + ".jpg')");
+		$(".sideA").css("background-image", "url('" + siteUrl + "images/cards/margin.png'), url('/units/artwork/" + unit.name + ".jpg')");
 		$(".sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + unit.type.substring(0, 1));
 		$(".sideA .type").text(unit.type);
 		$(".sideA .name").text(unit.name);
 		$(".sideA .hexs").text(unit.size+"H");
 		// update side b
-		$(".sideB").css("background-image", "url('/images/cards/margin.png'), url('/images/cards/" + unit.type.substring(0, 1) + ".jpg')");
+		$(".sideB").css("background-image", "url('" + siteUrl + "images/cards/margin.png'), url('" + siteUrl + "images/cards/" + unit.type.substring(0, 1) + ".jpg')");
 		for (var property in unit.stats) {
 			if (unit.stats.hasOwnProperty(property)) {
 				var stat = ".sideB ." + property + " .value";

@@ -10,7 +10,10 @@ if ($id == $random) {
 	$id = array_rand($units, 1);
 }
 ?>
-<script> var selectedUnit = <?php echo $id; ?>; </script>
+<script>
+	var selectedUnit = <?php echo $id; ?>;
+	var siteUrl = "<?php echo $site_url; ?>";
+</script>
 <script type="text/javascript" src="carousel.js"></script>
 <style type="text/css">
 #carousel {
