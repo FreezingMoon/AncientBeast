@@ -1,10 +1,9 @@
 <!-- TODO: Update the URL to contain the new units id -->
+<link rel="stylesheet" href="carousel.css">
 <link rel="stylesheet" href="progress.css">
 
 <!-- Carousel -->
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 $id = isset($_GET['id']) ? $_GET['id'] : $random;
 $units = array_column($creature_results, 'id');
 //$valid = array_search($id, $units);
@@ -17,7 +16,6 @@ if ($id == $random) {
 	var siteUrl = "<?php echo $site_url; ?>";
 </script>
 <script type="text/javascript" src="carousel.js"></script>
-<link rel="stylesheet" href="carousel.css">
 
 <div id="carousel"></div>
 
