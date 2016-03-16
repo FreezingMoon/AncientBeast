@@ -41,7 +41,7 @@ if ($id == $random) {
 <div class="div center">
 <?php
 // Cards
-// TODO: Check if the unit id exists, just in case, if not, then assign random value
+// TODO: Check if the unit id exists, if not, assign random valid id
 // TODO: Sort these by set / realm / level instead of id
 require_once 'cards.php';
 foreach ($creature_results as $r) {
@@ -57,11 +57,11 @@ foreach ($creature_results as $r) {
 		// TODO: Add left and right arrow hotkeys
 		// TODO: Add card flip eyecandy animation
 		echo '</div>';
-		//TODO: fix disqus page title; probably fixed already ;)
+		//TODO: Fix disqus page title
 		disqus($page_title);
 	}
 }
 
-// TODO: Show unit drop along with health and/or energy modifiers
+// TODO: Show unit drop along with its modifiers
 echo "</div>";
 disqus($page_title);
