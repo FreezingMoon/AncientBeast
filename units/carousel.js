@@ -78,7 +78,7 @@ $(function() {
 		// set the unit to the selected unit
 		var unit = units[unitIndex];
 		// update side a
-		$(".sideA").css("background-image", "url('" + siteUrl + "images/cards/margin.png'), url('/units/artwork/" + unit.name + ".jpg')");
+		$(".sideA").css("background-image", "url('" + siteUrl + "images/cards/margin.png'), url('" + siteUrl + "units/artwork/" + unit.name + ".jpg')");
 		$(".sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + unit.type.substring(0, 1));
 		$(".sideA .type").text(unit.type);
 		$(".sideA .name").text(unit.name);
