@@ -37,8 +37,8 @@ $style = '
 #statsTable td:hover { color: white; }
 
 ';
-require_once('../header.php');
-require_once('functions.php');
+require_once '../header.php';
+require_once 'functions.php';
 
 $creature_results = get_creatures();
 $view = isset($_GET['view']) ? $_GET['view'] : 'Units';

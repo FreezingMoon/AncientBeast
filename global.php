@@ -23,8 +23,8 @@
  */
 
 // Display error if no config file available
-if(file_exists(dirname(__FILE__) . "/config.php")) require_once('config.php');
-else require_once('config.php.in');
+if(file_exists(dirname(__FILE__) . "/config.php")) require_once 'config.php';
+else require_once 'config.php.in';
 
 $site_url = 'http://' . $_SERVER['SERVER_NAME'] . $site_root;
 

@@ -21,7 +21,7 @@
  * https://github.com/FreezingMoon/AncientBeast
  * DreadKnight@FreezingMoon.org
  */
-require_once("../images/stats/index.php"); ?>
+require_once "../images/stats/index.php"; ?>
 <link rel="stylesheet" href="../units/cards.css">
 
 <script>
@@ -33,7 +33,7 @@ function CallCreature(shout) {
 // The website uses a different jQuery shortcut than the game, using jQuery object fixes that
 jQuery(document).ready(function() {
 
-	// Shows specific stat modifier (TODO: fix this since it's broken in-game)
+	// Shows specific stat modifier (TODO: Fix this since it's broken in-game)
 	var activate = function() {
 		var stat = jQuery(this).attr('stat');
 		var card = jQuery(this).parent().parent().parent().parent().parent();
@@ -108,10 +108,10 @@ function cards($r = "", $id = -1, $modifiers = false) {
 <?php
 			// Display unit info
 			echo '<div class="section info sin' . $r['realm'] . '">
-					<span class="type" creature_type="'.$r['realm'].$r['level'].'" style="float:left; margin-left:22px;">'.$r['realm'].$r['level'].'</span>
-					<span><audio src="../units/shouts/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display:none;" preload="auto"></audio>
+					<span class="type" creature_type="' . $r['realm'] . $r['level'] . '" style="float: left; margin-left: 22px;">' . $r['realm'] . $r['level'] . '</span>
+					<span><audio src="../units/shouts/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display: none;" preload="auto"></audio>
 					<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '" creature_name="' . $r['name'] . '" >' . $r['name'] . '</a></span>
-					<span class="hexs" creature_size="' . $r['size'] . 'H" style="float:right; margin-right:22px;">' . $r['size'] . 'H</span>
+					<span class="hexs" creature_size="' . $r['size'] . 'H" style="float: right; margin-right: 22px;">' . $r['size'] . 'H</span>
 			</div>
 		</div></div>';
 
@@ -159,7 +159,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 					$i=1;
 					foreach ($r["stats"] as $key => $value) {
 					 	if( $i > 9) {
-					 		displayStat($key,$value,$modifiers);
+					 		displayStat($key, $value, $modifiers);
 				 		}
 				 		$i++;
 					}

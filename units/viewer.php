@@ -38,7 +38,7 @@ foreach ($creature_results as $r) {
 		// TODO: Add left and right arrow hotkeys
 		// TODO: Add card flip eyecandy animation
 		echo '</div>';
-		//TODO: Fix disqus page title
+		//TODO: Fix Disqus page title
 		disqus($page_title);
 	}
 }
