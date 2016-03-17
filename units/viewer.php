@@ -4,11 +4,18 @@
 
 <!-- Carousel -->
 <?php
+// Get the selected ID or pick a random valid id
 $id = isset($_GET['id']) ? $_GET['id'] : $random;
-$units = array_column($creature_results, 'id');
-//$valid = array_search($id, $units);
+
+// Calculate the total number of existing units
+$total_units = count($creature_results);
+
+// TODO: Make sure the id actually exists
+//$valid = array_search($id, $total_units);
+
+// Make sure random id is within range
 if ($id == $random) {
-	$id = array_rand($units, 1);
+	$id = rand(1, $total_units);
 }
 ?>
 <script>
