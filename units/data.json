@@ -38,10 +38,12 @@
 		"ability_info": [
 			{
 				"title": "Plasma Field",
-				"desc": "Protects from most harmful abilities.",
-				"info": "-1 plasma for each countered attack",
+				"desc": "Protects from most harmful abilities when unit not being currently active.",
+				"info": "-1 plasma for each countered attack.",
+				"upgrade": "5 pure damage counter hit.",
 				"costs": {
-					"special": "1%health%per countered attack"
+					"plasma": 1,
+					"special": "per countered attack"
 				},
 				"requirements": {
 					"plasma": 1
@@ -49,20 +51,21 @@
     		},
 			{
 				"title": "Electro Shocker",
-				"desc": "Does shock damage to a nearby foe. Effective versus larger creatures.",
-				"info": "12 shock damage × creature size",
+				"desc": "Does shock damage to a nearby unit. More effective versus larger enemies.",
+				"info": "12 shock damage × unit hexagon size.",
+				"upgrade": "The range is increased to 4.",
 				"damages": {
 					"shock": "12 × creature size"
 				},
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
     		},
 			{
-
 				"title": "Disruptor Beam",
-				"desc": "Does pure damage to a nearby foe. Bonus based on its missing health.",
-				"info": ">25 damage; plasma cost = unit size",
+				"desc": "Does pure damage to a nearby unit, based on its missing health points.",
+				"info": "Plasma cost is equal to the unit size.",
+				"upgrade": "Minimum 40 pure damage.",
 				"requirements": {
 					"plasma": 2,
 					"energy": 20
@@ -76,10 +79,12 @@
 				}
     		},
 			{
-				"title": "Unit Maker",
-				"desc": "Materialises a unit on the combat field that will serve and obey given orders.",
-				"info": "plasma cost = unit hexagon size + level",
+				"title": "Godlet Printer",
+				"desc": "Materializes a unit within 4 hexagons that will serve and obey given orders.",
+				"info": "Plasma cost equals unit's size + level.",
+				"upgrade": "Range becomes 6 hexagons.",
 				"costs": {
+					"energy": 20,
 					"plasma": "creature size + level"
 				}
     		}
@@ -96,13 +101,13 @@
 		"stats": {
 			"health": 100,
 			"regrowth": 2,
-			"endurance": 30,
+			"endurance": 35,
 			"energy": 125,
-			"meditation": 8,
+			"meditation": 14,
 			"initiative": 110,
 			"offense": 12,
 			"defense": 5,
-			"movement": 4,
+			"movement": 2,
 			"pierce": 5,
 			"slash": 2,
 			"crush": 3,
@@ -119,23 +124,46 @@
 		"ability_info": [
 			{
 				"title": "Personal Space",
-				"desc": "Gains bonus stat points if there's an adjacent enemy unit when turn starts.",
-				"info": "50% increase in offense and movement"
+				"desc": "Gains bonus stat points if there is an adjacent enemy unit when turn starts.",
+				"info": "50% offense and movement increase.",
+				"upgrade": "Bonus is increased to 100%."
 		},
 			{
-				"title": "Sword Slit",
-				"desc": "Swift attack on a nearby enemy unit.",
-				"info": "Does 15 slash and 5 piece damage"
+				"title": "Sword Slitter",
+				"desc": "Swift attack on any nearby enemy unit.",
+				"info": "Hit does 15 slash and 10 piece damage.",
+				"upgrade": "Performs extra hit if it will kill.",
+				"damages": {
+					"pierce": 15,
+					"slash": 10
+				},
+				"costs": {
+					"energy": 15
+				}
 		},
 			{
-				"title": "Pistol Shots",
-				"desc": "Delivers a ranged shot within 6 hexes. Can be used twice every single round.",
-				"info": "20 pierce damage in any of 6 directions"
+				"title": "Pistol Shot",
+				"desc": "Delivers a medium ranged shot that can damage target up to 6 hexagons away.",
+				"info": "20 pierce damage in any of 6 directions.",
+				"upgrade": "Can be used twice per round.",
+				"damages": {
+					"pierce": 20
+				},
+				"costs": {
+					"energy": 15
+				}
 		},
 			{
 				"title": "Rifle Assassin",
 				"desc": "Very powerful long range attack that can strike up to 12 hexagons distance.",
-				"info": "40 pierce damage in any of 6 directions"
+				"info": "40 pierce damage in any of 6 directions.",
+				"upgrade": "12 total directions targeting.",
+				"damages": {
+					"pierce": 40
+				},
+				"costs": {
+					"energy": 35
+				}
 		}
         ]
 	},
@@ -148,11 +176,11 @@
 		"type": "G6",
 		"set": "Alpha",
 		"stats": {
-			"health": 280,
+			"health": 230,
 			"regrowth": 10,
-			"endurance": 60,
-			"energy": 150,
-			"meditation": 7,
+			"endurance": 40,
+			"energy": 120,
+			"meditation": 6,
 			"initiative": 100,
 			"offense": 15,
 			"defense": 5,
@@ -202,14 +230,14 @@
 		"type": "G3",
 		"set": "Alpha",
 		"stats": {
-			"health": 120,
-			"regrowth": 6,
-			"endurance": 40,
+			"health": 130,
+			"regrowth": 5,
+			"endurance": 55,
 			"energy": 120,
 			"meditation": 20,
 			"initiative": 80,
-			"offense": 10,
-			"defense": 5,
+			"offense": 12,
+			"defense": 4,
 			"movement": 3,
 			"pierce": 5,
 			"slash": 5,
@@ -239,7 +267,8 @@
 			{
 				"title": "Toxic Spores",
 				"desc": "Units that come into contact have their regrowth constantly reduced bit by bit.",
-				"info": "-1 regrowth stat debuff that can stack",
+				"info": "-1 regrowth stat debuff that can stack.",
+				"upgrade": "Stacks will poison every turn.",
 				"effects": [{
 					"regrowth": -5
 				}]
@@ -247,7 +276,8 @@
 			{
 				"title": "Supper Chomp",
 				"desc": "Takes a huge bite out of nearby foe, restoring a minor amount of health.",
-				"info": "20 pierce damage, 1/4 as regrowth",
+				"info": "20 pierce damage, 1/2 as regrowth.",
+				"upgrade": "Instant healing until full.",
 				"effects": [{
 					"special": "1/4 of damages as %regrowth%"
 				}],
@@ -260,8 +290,9 @@
     		},
 			{
 				"title": "Frogger Jump",
-				"desc": "Leaps in straight line over obstacles, gaining bonus offense after landing.",
-				"info": "+25 offense for next hit if not moving",
+				"desc": "Leaps in straight line over any traps, gaining bonus offense after jumping.",
+				"info": "+25 offense for next hit after landing.",
+				"upgrade": "Leaps units or jumps twice.",
 				"effects": [{
 					"offense": 25
 				}],
@@ -271,8 +302,9 @@
     		},
 			{
 				"title": "Sabre Kick",
-				"desc": "Strikes a nearby foe using feet claws, doing nice versatile phyisical damage.",
-				"info": "15 pierce + 10 slash + 5 crush damage",
+				"desc": "Strikes a nearby foe using feet claws, doing nice versatile physical damage.",
+				"info": "15 pierce + 10 slash + 5 crush damage.",
+				"upgrade": "Total push of frontal target.",
 				"damages": {
 					"pierce": 15,
 					"slash": 10,
@@ -330,15 +362,17 @@
 			{
 				"title": "Boiling Point",
 				"desc": "Leaves 2 puddles of hot lava under, lasting 1 round or until stepped on.",
-				"info": "10 burn damage for each hexagon",
+				"info": "10 burn damage for each hexagon.",
+				"upgrade": "Will last until stepped on.",
 				"damages": {
 					"burn": 10
 				}
 		},
 			{
 				"title": "Pulverizing Hit",
-				"desc": "Smacks a foe with its heavy hand, gaining bonus damage every hit.",
-				"info": "8 crush damage, + 3 burn per hit",
+				"desc": "Smacks a foe with its very heavy hand, gaining bonus damage with every hit.",
+				"info": "8 crush damage + 2 burn each strike.",
+				"upgrade": "Hit bonus damage is now 4.",
 				"damages": {
 					"burn": 3,
 					"crush": 8
@@ -350,7 +384,8 @@
 			{
 				"title": "Cracked Earth",
 				"desc": "Smashes both fists into the ground, wreaking fierce havoc in area ahead.",
-				"info": "10 burn damage over all 8 hexagons",
+				"info": "10 burn damage over all 8 hexagons.",
+				"upgrade": "Converts traps to hot lava.",
 				"damages": {
 					"special": "10%burn%over 8 hexagons"
 				},
@@ -364,7 +399,8 @@
 			{
 				"title": "Molten Hurl",
 				"desc": "Bowls itself into first inline foe, while destroying all the traps along the way.",
-				"info": "10 crush + 5 burn damage & movement",
+				"info": "10 crush + 5 burn damage & movement.",
+				"upgrade": "Can mow down multiple foes.",
 				"damages": {
 					"crush": 10,
 					"burn": 5
@@ -424,22 +460,22 @@
 			{
 				"title": "Electrified Hair",
 				"desc": "Converts up to 1/4 of any incoming shock damage into energy points.",
-				"info": "This isn't affected by any unit stats",
-				"upgrade": "1/2 conversion ratio boost",
+				"info": "This isn't affected by any unit stats.",
+				"upgrade": "1/2 conversion ratio boost.",
 				"effects": [{
 					"special": "Converts ~25%%shock% into%energy%"
 				}]
     		},
 			{
 				"title": "Hasted Jab",
-				"desc": "Horn attack that gains extra damage based on the last distance traveled.",
-				"info": "15 pierce damage + 5 extra per hex",
-				"upgrade": "+1 movement if it fatigues",
+				"desc": "Horn attack that restores all depleted movement points if it fatigues target.",
+				"info": "20 pierce damage & movement reset.",
+				"upgrade": "Hit gains 20 poison damage.",
 				"damages": {
-					"special": "15%pierce%+ 10 per hexagon"
+					"special": "15%pierce%& movement reset"
 				},
 				"damages1": {
-					"pierce": 15
+					"pierce": 20
 				},
 				"costs": {
 					"energy": 15
@@ -448,8 +484,8 @@
 			{
 				"title": "Poisonous Vine",
 				"desc": "Tangles a nearby foe, causing it to take damage if it will move within next turn.",
-				"info": "25 poison damage triggered if moving",
-				"upgrade": "Activated by abilities as well",
+				"info": "25 poison damage triggered if moving.",
+				"upgrade": "Gains 6 hexagon extra range.",
 				"effects": [{
 					"special": "25 poison damage if moving"
 				}],
@@ -460,8 +496,8 @@
 			{
 				"title": "Arched Pole",
 				"desc": "Damages up to 5 nearby creatures, even hitting them twice if one dies.",
-				"info": "9 slash + 7 frost damage up to 2 hits",
-				"upgrade": "Up to 7 targets and 3 hits",
+				"info": "9 slash + 7 frost damage up to 2 hits.",
+				"upgrade": "+ 5 poison + 3 shock added.",
 				"damages": {
 					"slash": 9,
 					"frost": 7
@@ -481,8 +517,8 @@
 		"type": "S7",
 		"set": "Alpha",
 		"stats": {
-			"health": 333,
-			"regrowth": 3,
+			"health": 240,
+			"regrowth": 10,
 			"endurance": 90,
 			"energy": 80,
 			"meditation": 25,
@@ -518,7 +554,8 @@
 			{
 				"title": "Lamellar Body",
 				"desc": "Gains extra defense and frost mastery with every sloth unit on the battlefield.",
-				"info": "1 defense & 1 frost for each sloth unit",
+				"info": "1 defense & 1 frost for each sloth unit.",
+				"upgrade": "Allied sloth units gain bonus.",
 				"effects": [{
 					"frost": 1
 				}]
@@ -526,7 +563,8 @@
 			{
 				"title": "Flat Frons",
 				"desc": "Smashes a nearby foe using head. Knockback or deals double damage.",
-				"info": "15 frost & push or 30 crush damage",
+				"info": "20 frost & push or 40 crush damage.",
+				"upgrade": "Kills foes under 60 health.",
 				"damages": {
 					"crush": 15
 				},
@@ -539,8 +577,9 @@
 		},
 			{
 				"title": "Heavy Cloud",
-				"desc": "Summons a snow fall over any area, buffing sloth units under with frost mastery while debuffing other units.",
-				"info": "5 frost mastery stackable buff/debuff",
+				"desc": "Summons a snow fall over 7 hexagons, buffing sloth units with frost mastery .",
+				"info": "5 frost mastery stackable sloth buff.",
+				"upgrade": "Can also debuff other units.",
 				"damages": {
 					"frost": 20
 				},
@@ -550,8 +589,9 @@
 		},
 			{
 				"title": "Snowman Guard",
-				"desc": "Creates a snow warrior nearby that will attack any frontal inline foe each turn.",
-				"info": "100 hp, 10 frost damage and mastery",
+				"desc": "Creates a snow warrior nearby which attacks a frontal inline foe each turn.",
+				"info": "100 hp, 10 frost damage and mastery.",
+				"upgrade": "Can attack over allied units.",
 				"damages": {
 					"crush": 10
 				},
@@ -573,11 +613,11 @@
 		"type": "P7",
 		"set": "Alpha",
 		"stats": {
-			"health": 240,
+			"health": 220,
 			"regrowth": 5,
-			"endurance": 55,
+			"endurance": 25,
 			"energy": 100,
-			"meditation": 10,
+			"meditation": 25,
 			"initiative": 110,
 			"offense": 6,
 			"defense": 6,
@@ -616,14 +656,14 @@
 			{
 				"title": "Fiery Touch",
 				"desc": "Scratches and burns a distant enemy. This attack has 3 hexagons extra reach.",
-				"info": "10 slash + 10 burn damage for each hit",
+				"info": "10 slash + 10 burn damage for each hit.",
 				"upgrade": "Doubles the hexagon range.",
 				"damages": {
 					"slash": 10,
 					"burn": 10
 				},
 				"costs": {
-					"energy": 15
+					"energy": 20
 				}
 		},
 			{
@@ -644,13 +684,13 @@
 			{
 				"title": "Greater Pyre",
 				"desc": "Meditates for a short period while causing burns to all adjacent units.",
-				"info": "20 burn damage nearby, hurts allies",
+				"info": "20 burn damage nearby, hurts allies.",
 				"upgrade": "+10 burn bonus damage.",
 				"damages": {
 					"burn": 20
 				},
 				"costs": {
-					"energy": 20
+					"energy": 25
 				}
 		}
         ]
@@ -664,9 +704,9 @@
 		"type": "W5",
 		"set": "Alpha",
 		"stats": {
-			"health": 240,
+			"health": 215,
 			"regrowth": 12,
-			"endurance": 60,
+			"endurance": 100,
 			"energy": 80,
 			"meditation": 10,
 			"initiative": 100,
@@ -718,9 +758,9 @@
 		"type": "S4",
 		"set": "Alpha",
 		"stats": {
-			"health": 230,
+			"health": 180,
 			"regrowth": 3,
-			"endurance": 50,
+			"endurance": 70,
 			"energy": 60,
 			"meditation": 30,
 			"initiative": 40,
@@ -808,7 +848,7 @@
 		"type": "P3",
 		"set": "Alpha",
 		"stats": {
-			"health": 120,
+			"health": 110,
 			"regrowth": 2,
 			"endurance": 60,
 			"energy": 90,
@@ -862,12 +902,12 @@
 		"type": "G1",
 		"set": "Alpha",
 		"stats": {
-			"health": 80,
-			"regrowth": 7,
-			"endurance": 60,
+			"health": 65,
+			"regrowth": 10,
+			"endurance": 20,
 			"energy": 70,
-			"meditation": 7,
-			"initiative": 60,
+			"meditation": 10,
+			"initiative": 20,
 			"offense": 3,
 			"defense": 5,
 			"movement": 4,
@@ -887,23 +927,44 @@
 		"ability_info": [
 			{
 				"title": "Travel Waypoint",
-				"desc": "Transfers location with any of the tiny mushshrooms that are within range.",
-				"info": ""
-            },
+				"desc": "Transfers location with any of the tiny mushshrooms within movement range.",
+				"info": "Each swap will take 1 movement point.",
+				"upgrade": "Gains unlimited swap range."
+			},
 			{
 				"title": "Cap Knock",
 				"desc": "Bumps its large cap into any nearby foe, damaging him and also pushing if little.",
-				"info": "10 crush damage + knockback if small"
-            },
+				"info": "10 crush damage + knockback if small.",
+				"upgrade": "Strikes opposite side foe too.",
+				"costs": {
+					"energy": 10
+				}
+			},
 			{
 				"title": "Noxious Cloud",
-				"desc": "Releases several toxic clouds that can be inhaled, persisting for three rounds.",
-				"info": "15 adjacent poison damage for 3 turns"
+				"desc": "Releases several toxic clouds that can be inhaled, persisting for two rounds.",
+				"info": "10 adjacent poison damage for 2 turns.",
+				"upgrade": "+1 round cloud persistency.",
+				"comments": [
+					"Toxic Shroom is immune to own clouds, but will destroy them when passing through.",
+					"A noxious cloud will completely override the enemy ones when using ability adjacent."
+				],
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Tiny Mushroom",
 				"desc": "Drops a deadly shroom that acts either as a travel point or as a poisonous trap.",
-				"info": "35 poison damage when stepped upon"
+				"info": "20 poison damage when stepped upon.",
+				"upgrade": "It can multiply if it kills units.",
+				"comments": [
+					"Killing a small unit will cause the shroom to respawn while consuming any drops.",
+					"The bigger units killed by this trap will respawn shrooms throughout their size."
+				],
+				"costs": {
+					"energy": 20
+				}
             }
 
         ]
@@ -917,15 +978,15 @@
 		"type": "S1",
 		"set": "Alpha",
 		"stats": {
-			"health": 95,
+			"health": 75,
 			"regrowth": 7,
 			"endurance": 20,
-			"energy": 100,
+			"energy": 75,
 			"meditation": 25,
 			"initiative": 35,
 			"offense": 3,
 			"defense": 2,
-			"movement": 3,
+			"movement": 2,
 			"pierce": 2,
 			"slash": 2,
 			"crush": 3,
@@ -955,12 +1016,14 @@
 				"title": "Bunny Hopping",
 				"desc": "Moves away one hexagon from first enemy that comes nearby frontaly.",
 				"info": "Works only once every game round.",
+				"upgrade": "Can leap twice every turn.",
 				"affectedByMatSickness": 1
 		},
 			{
 				"title": "Big Pliers",
-				"desc": "Dents nearby foe using his big teeth.",
-				"info": "8 pierce + 6 slash + 4 crush damage",
+				"desc": "Dents nearby foe using his big teeth, doing a small mixture of damage to it.",
+				"info": "8 pierce + 6 slash + 4 crush hit damage.",
+				"upgrade": "Up to 10 offense stat debuff.",
 				"damages": {
 					"pierce": 8,
 					"slash": 6,
@@ -972,10 +1035,11 @@
 		},
 			{
 				"title": "Blowing Wind",
-				"desc": "Pushes away any creature for several hexagons, depending on unit's size.",
-				"info": "range = 5 hexagons - creature size",
+				"desc": "Pushes away any unit for several hexagons, depending on its size.",
+				"info": "range = 5 hexagons - creature size.",
+				"upgrade": "No creature size penalty.",
 				"effects": [{
-					"special": "range = 5 hexagons - creature size"
+					"special": "range = 5 hexagons - creature size."
 				}],
 				"costs": {
 					"energy": 20
@@ -983,14 +1047,15 @@
 		},
 			{
 				"title": "Freezing Spit",
-				"desc": "Spits diagonal foe with cold saliva. Bonus damage based on distance.",
-				"info": "7 frost + 3 crush damage / hexagon",
+				"desc": "Spits distant target with cold saliva. Bonus damage is based on distance.",
+				"info": "10 frost + 2 crush damage / hexagon.",
+				"upgrade": "Frost damage boost to 20.",
 				"damages": {
 					"crush": 0,
-					"frost": 7
+					"frost": 10
 				},
 				"costs": {
-					"energy": 20
+					"energy": 25
 				}
             }
         ]
@@ -1004,7 +1069,7 @@
 		"type": "G2",
 		"set": "Alpha",
 		"stats": {
-			"health": 100,
+			"health": 95,
 			"regrowth": 5,
 			"endurance": 60,
 			"energy": 70,
@@ -1012,7 +1077,7 @@
 			"initiative": 65,
 			"offense": 2,
 			"defense": 4,
-			"movement": 4,
+			"movement": 3,
 			"pierce": 2,
 			"slash": 2,
 			"crush": 2,
@@ -1031,7 +1096,7 @@
 				"title": "Natural Habitat",
 				"desc": "Initial spot will become a swamp home.",
 				"info": "+15 Poison mastery bonus while inside"
-		},
+			},
 			{
 				"title": "Rabid Nip",
 				"desc": "Sink poisonous teeth into nearby foe.",
@@ -1040,7 +1105,7 @@
 					"pierce": 10,
 					"poison": 5
 				}
-		},
+			},
 			{
 				"title": "Bad Breath",
 				"desc": "Stinks up to three adjacent enemies, doing extra damage if they're facing.",
@@ -1048,7 +1113,7 @@
 				"damages": {
 					"poison": 10
 				}
-		},
+			},
 			{
 				"title": "Goo Sneeze",
 				"desc": "Expels contagious toxin on distant foe, spreading to others that get too close.",
@@ -1056,7 +1121,7 @@
 				"damages": {
 					"poison": 10
 				}
-		}
+			}
 	]
     },
 	{
@@ -1068,7 +1133,7 @@
 		"type": "P1",
 		"set": "Alpha",
 		"stats": {
-			"health": 90,
+			"health": 70,
 			"regrowth": 5,
 			"endurance": 30,
 			"energy": 70,
@@ -1104,18 +1169,18 @@
 		"ability_info": [
 			{
 				"title": "Gooey Body",
-				"desc": "Recovers 1/6 health at turn start for every allied creature that is nearby.",
+				"desc": "Recovers 25% of health lost only from the last hit taken when the turn starts.",
 				"info": "This ability works when fatigued too.",
-				"upgrade" : "1/3 health recovery rate.",
+				"upgrade" : "Now 50% health recovered.",
 				"effects": [{
-					"special": "+1/6 %health% × adjacent allies creatures"
+					"special": "25% health recovered from last hit taken."
 				}]
             },
 			{
 				"title": "Gummy Mallet",
 				"desc": "Fully transforms himself into a large hammer to strike down a nearby foe.",
 				"info": "15 crush damage for each attack done.",
-				"upgrade" : "Hits opposing direction too.",
+				"upgrade" : "Strikes diagonal foe as well.",
 				"damages": {
 					"crush": 15
 				},
@@ -1127,25 +1192,24 @@
 				"title": "Royal Seal",
 				"desc": "Sticks chewing gum in place to hinder any passing unit for a complete turn.",
 				"info": "Does not affect self but affects allies.",
-				"upgrade": "Removes the 20 health cost.",
+				"upgrade": "Can leap within 4 hexagons.",
 				"effects": [{
 					"special": "%movement% is set to 0 for a turn"
 				}],
 				"costs": {
-					"energy": 20,
-					"health": 20
+					"energy": 20
 				}
             },
 			{
 				"title": "Boom Box",
 				"desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
-				"info": "20 sonic damage + 10 crush if melee",
+				"info": "20 sonic damage + 10 crush if melee.",
 				"upgrade": "2x melee bonus damage.",
 				"damages": {
 					"special": "20%sonic%+ 10%crush%if melee"
 				},
 				"effects": [{
-					"special": "one hexagon knockback"
+					"special": "One hexagon knockback."
 				}],
 				"costs": {
 					"energy": 30
@@ -1168,8 +1232,8 @@
 			"energy": 60,
 			"meditation": 20,
 			"initiative": 30,
-			"offense": 5,
-			"defense": 4,
+			"offense": 3,
+			"defense": 3,
 			"movement": 3,
 			"pierce": 2,
 			"slash": 2,
@@ -1188,22 +1252,35 @@
 			{
 				"title": "Explosive End",
 				"desc": "Instantly detonates when being killed, dealing damage to all adjacent units.",
-				"info": "10 burn + 10 crush + 10 sonic damage"
+				"info": "10 burn + 10 crush + 10 sonic damage.",
+				"upgrade": "Detonates only nearby foes."
             },
 			{
 				"title": "Optic Burst",
-				"desc": "Zaps a foe with the laser cannon eye. Does more damage at closer range.",
-				"info": "30 burn damage - 1 for each hexagon"
+				"desc": "Zaps a foe with the laser cannon eye. Does bigger damage at closer range.",
+				"info": "15 burn damage -1 for each hexagon.",
+				"upgrade": "+10 crush damage if melee.",
+				"costs": {
+					"energy": 20
+				}
             },
 			{
 				"title": "Tractor Beam",
 				"desc": "Pulls a distant unit several hexagons closer, depending on its overall size.",
-				"info": "range = 4 hexagons - creature size"
+				"info": "distance = 4 hexagons - creature size.",
+				"upgrade": "Removed unit size penalty.",
+				"costs": {
+					"energy": 20
+				}
             },
 			{
 				"title": "Power Charge",
 				"desc": "Causes the next ability to deal double damage or have increased efficiency.",
-				"info": ""
+				"info": "The buff expires before the next turn.",	
+				"upgrade": "Charge is usable next round.",
+				"costs": {
+					"energy": 20
+				}
             }
         ]
     },
@@ -1274,7 +1351,7 @@
 			"regrowth": 2,
 			"endurance": 80,
 			"energy": 70,
-			"meditation": 2,
+			"meditation": 20,
 			"initiative": 45,
 			"offense": 15,
 			"defense": 25,
@@ -1295,29 +1372,33 @@
 		"ability_info": [
 			{
 				"title": "Spiked Fence",
-				"desc": "Foes walking on corpse get impaled and receive extra damage when hit.",
-				"info": "10 pierce damage over 3 hexagons"
+				"desc": "Melee attackers get severly punished, receiving some of the damage as well.",
+				"info": "1/4 melee damage returned (piercing).",
+				"upgrade": "Half melee damage returned."
             },
 			{
 				"title": "Trident Forehead",
-				"desc": "Pokes nearby foe with its forehead.",
-				"info": "27 pierce damage on every attack",
-				"costs": {
-					"energy": 10
-				}
-            },
-			{
-				"title": "Crocodile Clip",
-				"desc": "Bites nearby foe, crippling it for a turn, reducing up to three movement points.",
-				"info": "10 pierce + 10 crush damage & cripple",
+				"desc": "Pokes nearby foe with its forehead, 200% damage if hitting same spot.",
+				"info": "15 pierce damage done per attack.",
+				"upgrade": "300% spot bonus damage.",
 				"costs": {
 					"energy": 15
 				}
             },
 			{
+				"title": "Crocodile Clip",
+				"desc": "Bite cripples nearby foe for one turn, increasing ability energy cost by 25%.",
+				"info": "10% of target total health as damage.",
+				"upgrade": "50% increase of energy cost.",
+				"costs": {
+					"energy": 30
+				}
+            },
+			{
 				"title": "Circular Saw",
-				"desc": "Travels in a straight line to a new location, cutting through all units.",
-				"info": "15 pierce + 15 slash damage on hit",
+				"desc": "Travels in a straight line up to seven hexagons, cutting through all units.",
+				"info": "12 pierce + 12 slash damage on hit.",
+				"upgrade": "Can return to initial spot.",
 				"costs": {
 					"energy": 40
 				}
@@ -1333,7 +1414,7 @@
 		"type": "W7",
 		"set": "Alpha",
 		"stats": {
-			"health": 270,
+			"health": 215,
 			"regrowth": 1,
 			"endurance": 70,
 			"energy": 50,
@@ -1387,8 +1468,8 @@
 		"type": "G4",
 		"set": "Alpha",
 		"stats": {
-			"health": 190,
-			"regrowth": 2,
+			"health": 180,
+			"regrowth": 3,
 			"endurance": 33,
 			"energy": 80,
 			"meditation": 3,
@@ -1414,7 +1495,7 @@
 				"title": "Muscous Pillar",
 				"desc": "Any nearby killed units restore health based on their own total amount pool.",
 				"info": "5% of maximum health stat recovery.",
-				"upgrade": "double the recovery bonus."
+				"upgrade": "Doubles the recovery bonus."
             },
 			{
 				"title": "Carving Nails",
@@ -1438,7 +1519,7 @@
 				"title": "Tendril Feet",
 				"desc": "All nearby foes have their movement restrained and take a bit of damage.",
 				"info": "10 crush damage and no movement.",
-				"upgrade": "+5 bonus crush damange.",
+				"upgrade": "+10 bonus crush damange.",
 				"costs": {
 					"energy": 30
 				}
@@ -1454,9 +1535,9 @@
 		"type": "S6",
 		"set": "Alpha",
 		"stats": {
-			"health": 270,
+			"health": 230,
 			"regrowth": 5,
-			"endurance": 60,
+			"endurance": 55,
 			"energy": 50,
 			"meditation": 4,
 			"initiative": 65,
@@ -1567,10 +1648,10 @@
 			"endurance": 15,
 			"energy": 60,
 			"meditation": 3,
-			"initiative": 20,
+			"initiative": 10,
 			"offense": 3,
 			"defense": 5,
-			"movement": 2,
+			"movement": 1,
 			"pierce": 3,
 			"slash": 3,
 			"crush": 3,
@@ -1594,22 +1675,45 @@
 			{
 				"title": "Heat Haze",
 				"desc": "Nearby foes have their offense stat reduced, dealing way less damage.",
-				"info": "-50% offensive debuff while adjacent"
+				"info": "-50% offensive debuff while adjacent.",
+				"upgrade": "Hits on them do 3 extra burn."
             },
 			{
 				"title": "Glowing Eye",
-				"desc": "Fries a nearby foe, can target sides too.",
-				"info": "15 burn adjacent damage, any direction"
+				"desc": "Fries any targeted nearby foe, can also hit the smaller ones from sides as well.",
+				"info": "15 burn adjacent damage, any target.",
+				"upgrade": "Destroys target's initiative.",
+				"damages": {
+					"burn": 15
+				},
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Covert Strike",
 				"desc": "Reaches any foe within 5 hexagons by digging with its tentacles, surprising it.",
-				"info": "21 pierce damage, 20% defense ignored"
+				"info": "21 pierce damage, 1/4 defense ignored.",
+				"upgrade": "Depletes target's movement.",
+				"damages": {
+					"pierce": 21
+				},
+				"costs": {
+					"energy": 25
+				}
             },
 			{
 				"title": "Crashing Globe",
-				"desc": "Catapults a flaming orb at any inline spot, poking a foe or cauzing hazard.",
-				"info": "20 crush damage + 10 burn damage"
+				"desc": "Catapults a flaming orb at any selected inline target, leaving it without cover.",
+				"info": "20 crush damage + 10 burn per strike.",
+				"upgrade": "Nullifies target's meditation.",
+				"damages": {
+					"crush": 20,	
+					"burn": 10
+				},
+				"costs": {
+					"energy": 30
+				}
             }
 
         ]
@@ -1761,7 +1865,7 @@
             },
 			{
 				"title": "Razor Blade",
-				"desc": "Slices a nearby foe, keeping samples.",
+				"desc": "Slices a nearby foe, keeping a sample.",
 				"info": "15 slash damage on every single strike"
             },
 			{
@@ -1785,9 +1889,9 @@
 		"type": "G7",
 		"set": "Alpha",
 		"stats": {
-			"health": 280,
-			"regrowth": 8,
-			"endurance": 20,
+			"health": 235,
+			"regrowth": 10,
+			"endurance": 25,
 			"energy": 90,
 			"meditation": 10,
 			"initiative": 65,
@@ -1852,9 +1956,9 @@
 		"type": "P2",
 		"set": "Alpha",
 		"stats": {
-			"health": 110,
+			"health": 90,
 			"regrowth": 5,
-			"endurance": 100,
+			"endurance": 65,
 			"energy": 35,
 			"meditation": 5,
 			"initiative": 20,
@@ -1907,14 +2011,14 @@
 		"type": "P4",
 		"set": "Alpha",
 		"stats": {
-			"health": 170,
-			"regrowth": 1,
+			"health": 130,
+			"regrowth": 5,
 			"endurance": 100,
 			"energy": 70,
-			"meditation": 2,
+			"meditation": 7,
 			"initiative": 10,
 			"offense": 10,
-			"defense": 10,
+			"defense": 15,
 			"movement": 2,
 			"pierce": 10,
 			"slash": 10,
@@ -1932,32 +2036,45 @@
 		"ability_info": [
 			{
 				"title": "Tankish Build",
-				"desc": "Gains 5% bonus defense every round.",
-				"info": "Double when not taking any damage"
+				"desc": "This unit becomes more durable as it gains one bonus defense every round.",
+				"info": "Maximum defense bonus capped at 40.",
+				"upgrade": "Two when no damage taken."
 		},
 			{
-				"title": "Ultra Squish",
+				"title": "Seismic Stomp",
 				"desc": "Deals damage to a single nearby foe.",
-				"info": "20 crush + 10 sonic damage on strike",
+				"info": "20 crush + 10 sonic damage on strike.",
+				"upgrade": "Attack targets within 2 hex.",
 				"damages": {
 					"crush": 25
+				},
+				"costs": {
+					"energy": 20
 				}
 		},
 			{
 				"title": "Stone Grinder",
-				"desc": "Leaps on and destroys one or two nearby inline units that are injured.",
-				"info": "Each unit has to be under 50 health",
+				"desc": "Leaps within 5 hexagons to squash two spots that are occupied by injured foes.",
+				"info": "Every enemy has to be under 25 health.",
+				"upgrade": "Health threshold becomes 50.",
 				"damages": {
 					"crush": 10
+				},
+				"costs": {
+					"energy": 30
 				}
 		},
 			{
 				"title": "Coal Burp",
 				"desc": "Bombards an inline target with a hot coal projectile that breaks on impact.",
-				"info": "10 crush to target + 10 burn in area",
+				"info": "30 crush to target + 15 burn sideways.",
+				"upgrade": "Sides can burn for one turn.",
 				"damages": {
-					"crush": 10,
-					"burn": 10
+					"crush": 30,
+					"burn": 15
+				},
+				"costs": {
+					"energy": 30
 				}
 		}
         ]
@@ -2044,15 +2161,15 @@
 		"type": "G5",
 		"set": "Alpha",
 		"stats": {
-			"health": 260,
-			"regrowth": 12,
-			"endurance": 70,
-			"energy": 90,
-			"meditation": 2,
-			"initiative": 70,
-			"offense": 16,
-			"defense": 20,
-			"movement": 4,
+			"health": 200,
+			"regrowth": 8,
+			"endurance": 55,
+			"energy": 80,
+			"meditation": 8,
+			"initiative": 60,
+			"offense": 5,
+			"defense": 5,
+			"movement": 2,
 			"pierce": 5,
 			"slash": 4,
 			"crush": 5,
@@ -2070,22 +2187,47 @@
 			{
 				"title": "Small Version",
 				"desc": "Spawns a little hungry eggplant that chases nearest foe and then attacks.",
-				"info": "Grows into an adult if it kills the target"
+				"info": "Grows into an adult if it kills two foes.",
+				"upgrade": "Needs only one kill or drop."
             },
 			{
 				"title": "Having Dinner",
-				"desc": "Bites a nearby foe, gaining 20 bonus offense with every consecutive hit.",
-				"info": "15 pierce + 5 crush damage per attack"
-            },
-			{
-				"title": "Pony Tail",
-				"desc": "Whips and poisons all nearby units.",
-				"info": "10 slash + 10 poison damage around"
+				"desc": "Bites a nearby foe, regaining a small number of maximum health each hit.",
+				"info": "15 pierce damage & 5% health regain.",
+				"upgrade": "+10 poison damage on hit.",
+				"damages": {
+					"pierce": 15
+				},
+				"costs": {
+					"energy": 10
+				}
+
             },
 			{
 				"title": "Oral Snake",
-				"desc": "Drags a somewhat distant inline unit close while also doing damage to it.",
-				"info": "16 poison + 4 pierce damage, 5 range"
+				"desc": "Drags nearby an inline unit up to five hexagons distance while damaging it.",
+				"info": "12 pierce + 8 poison damage on strike.",
+				"upgrade": "Extra 4 poison per hexagon.",
+				"damages": {
+					"pierce": 12,
+					"poison": 8
+				},
+				"costs": {
+					"energy": 20
+				}
+            },
+			{
+				"title": "Flower Fury",
+				"desc": "Uses pony tail to whip and poison all adjacent units that strayed too close.",
+				"info": "10 slash + 10 poison damage around.",
+				"upgrade": "Triggers again when killing.",
+				"damages": {
+					"slash": 10,
+					"poison": 10
+				},
+				"costs": {
+					"energy": 30
+				}
             }
         ]
     },
@@ -2099,13 +2241,13 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 140,
-			"regrowth": 4,
-			"endurance": 80,
-			"energy": 110,
-			"meditation": 35,
+			"regrowth": 5,
+			"endurance": 75,
+			"energy": 60,
+			"meditation": 20,
 			"initiative": 60,
-			"offense": 7,
-			"defense": 8,
+			"offense": 6,
+			"defense": 9,
 			"movement": 2,
 			"pierce": 9,
 			"slash": 9,
@@ -2133,9 +2275,10 @@
 		},
 		"ability_info": [
 			{
-				"title": "Bad Dog",
-				"desc": "Bites any frontal foe that stops by.",
-				"info": "8 pierce damage + 2 crush damage",
+				"title": "Bad Doggie",
+				"desc": "Bites any adjacent frontal foe that is unfortunate to be there at turn start.",
+				"info": "12 pierce damage + 10 crush damage.",
+				"upgrade": "Also bites before turn ends.",
 				"affectedByMatSickness": 1,
 				"damages": {
 					"pierce": 8,
@@ -2145,38 +2288,41 @@
 
 			{
 				"title": "Metal Hand",
-				"desc": "Harms a foe by using prosthetic limb.",
-				"info": "10 crush + 5 shock damage per attack",
+				"desc": "Harms nearby foe by using one of the two fearsome prosthetic heavy limbs.",
+				"info": "15 crush + 5 shock damage per attack.",
+				"upgrade": "Extra hit if above 30 energy.",
 				"damages": {
 					"crush": 10,
 					"shock": 5
 				},
 				"costs": {
-					"energy": 15
+					"energy": 20
 				}
 		},
 			{
 				"title": "Rocket Launcher",
-				"desc": "Fires up to 3 missiles that travel a fair distance, striking individual targets.",
-				"info": "10 crush + 10 burn damage per rocket",
+				"desc": "Fires up to 3 missiles that travel long distances, striking individual targets.",
+				"info": "10 crush + 10 burn damage per rocket.",
+				"upgrade": "Energy cost is reduced by 10.",
 				"damages": {
 					"crush": 10,
 					"burn": 10
 				},
 				"costs": {
-					"energy": 25
+					"energy": 40
 				}
 		},
 			{
 				"title": "Targeting System",
-				"desc": "All rockets that didn't hit units are being redirected at any target foe.",
-				"info": "This attack counts as a single strike",
+				"desc": "Two of the rockets that didn't hit this round are redirected to a new target.",
+				"info": "This attack counts as a single strike.",
+				"upgrade": "All rockets are being used.",
 				"damages": {
 					"crush": 8,
 					"burn": 8
 				},
 				"costs": {
-					"energy": 15
+					"energy": 10
 				}
 		}
 	]
@@ -2190,8 +2336,8 @@
 		"type": "S3",
 		"set": "Alpha",
 		"stats": {
-			"health": 140,
-			"regrowth": 4,
+			"health": 120,
+			"regrowth": 12,
 			"endurance": 40,
 			"energy": 60,
 			"meditation": 10,
@@ -2244,11 +2390,11 @@
 		"type": "A7",
 		"set": "Alpha",
 		"stats": {
-			"health": 250,
+			"health": 225,
 			"regrowth": 8,
 			"endurance": 70,
-			"energy": 120,
-			"meditation": 10,
+			"energy": 125,
+			"meditation": 25,
 			"initiative": 100,
 			"offense": 25,
 			"defense": 25,
@@ -2276,34 +2422,34 @@
 			{
 				"title": "Battle Cry",
 				"desc": "Roars at the beginning of the turn if took any damage in previous round.",
-				"info": "30 sonic damage to adjacent units",
-				"upgrade": "Half damage roar anyway"
+				"info": "30 sonic damage to adjacent units.",
+				"upgrade": "Only roars if nearby foes."
             },
 			{
 				"title": "Executioner Axe",
-				"desc": "Slashes nearby foe, doing bonus damage based on its max health.",
-				"info": "30 + 5% max health slash damage",
-				"upgrade": "Increased to 10 percent",
+				"desc": "Slashes nearby foe, doing some bonus damage based on its maximum health.",
+				"info": "30 + 5% maximum health slash damage.",
+				"upgrade": "Increased the bonus to 10%.",
 				"costs": {
-					"energy": 15
+					"energy": 25
 				}
             },
 			{
 				"title": "Dragon Flight",
 				"desc": "Travels to a nearby location passing over obstacles at no movement cost.",
-				"info": "Flies to location within 10 hexagons",
-				"upgrade": "+25 offense if hitting next",
+				"info": "Flies to location within 10 hexagons.",
+				"upgrade": "+25 offense if hitting next.",
 				"costs": {
-					"energy": 20
+					"energy": 30
 				}
             },
 			{
 				"title": "Visible Stigmata",
 				"desc": "Brings back to life the last dead unit for 3 rounds, after which it disintegrates.",
-				"info": "It will have 10% health and last energy",
-				"upgrade": "Revived unit has full energy",
+				"info": "It will have 10% health and last energy.",
+				"upgrade": "Can self revive if being killed.",
 				"costs": {
-					"energy": 25
+					"energy": 40
 				}
             }
         ]
@@ -2317,9 +2463,9 @@
 		"type": "S2",
 		"set": "Alpha",
 		"stats": {
-			"health": 130,
-			"regrowth": 3,
-			"endurance": 80,
+			"health": 125,
+			"regrowth": 4,
+			"endurance": 90,
 			"energy": 60,
 			"meditation": 10,
 			"initiative": 30,
@@ -2481,10 +2627,10 @@
 		"stats": {
 			"health": 110,
 			"regrowth": 3,
-			"endurance": 40,
-			"energy": 70,
-			"meditation": 30,
-			"initiative": 40,
+			"endurance": 45,
+			"energy": 75,
+			"meditation": 25,
+			"initiative": 45,
 			"offense": 6,
 			"defense": 8,
 			"movement": 3,
@@ -2516,7 +2662,8 @@
 			{
 				"title": "Spa Clay",
 				"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
-				"info": "+10 regrowth, +10 defense bonus stat",
+				"info": "+5 regrowth, +5 defense bonus stat.",	
+				"upgrade": "Doubles the stat bonuses.",
 				"effects": [{
 					"regrowth": 10,
 					"defense": 10
@@ -2524,10 +2671,11 @@
 		},
 			{
 				"title": "Baseball Baton",
-				"desc": "Bashes baseball bat into a nearby foe.",
-				"info": "20 crush damage, 1 hexagon knockback",
+				"desc": "Bashes baseball bat into a nearby foe, crushing it and pushing it 1 hexagon.",
+				"info": "25 crush damage on hit & knockback.",
+				"upgrade": "Causes target to mud slide.",
 				"damages": {
-					"crush": 20
+					"crush": 25
 				},
 				"costs": {
 					"energy": 20
@@ -2535,25 +2683,27 @@
 		},
 			{
 				"title": "Ground Ball",
-				"desc": "Strikes a mud boulder towards a foe. Usable on one of the 3 inline rows.",
-				"info": "15 crush + 5 burn damage on attack",
+				"desc": "Strikes a mud boulder towards a foe. Usable within one of the 3 inline rows.",
+				"info": "15 crush + 5 burn damage on each hit.",
+				"upgrade": "-1 meditation stat debuffed.",
 				"damages": {
 					"crush": 15,
 					"burn": 5
 				},
 				"costs": {
-					"energy": 15
+					"energy": 25
 				}
 		},
 			{
 				"title": "Mud Bath",
 				"desc": "Orders a pile of mud over any hexagon, slowing any other units that walk over.",
-				"info": "-1 movement point, on free spot or self",
+				"info": "-1 movement point, on free spot or self.",	
+				"upgrade": "10 energy cost if used on self.",
 				"effects": [{
 					"special": "-1 %movement%"
 				}],
 				"costs": {
-					"energy": 15
+					"energy": 30
 				}
             }
         ]
@@ -2574,7 +2724,7 @@
 			"meditation": 10,
 			"initiative": 30,
 			"offense": 5,
-			"defense": 10,
+			"defense": 15,
 			"movement": 4,
 			"pierce": 5,
 			"slash": 5,
@@ -2633,7 +2783,7 @@
 		"type": "W3",
 		"set": "Alpha",
 		"stats": {
-			"health": 170,
+			"health": 160,
 			"regrowth": 4,
 			"endurance": 30,
 			"energy": 90,
@@ -2724,8 +2874,8 @@
 			"energy": 100,
 			"meditation": 25,
 			"initiative": 120,
-			"offense": 9,
-			"defense": 12,
+			"offense": 6,
+			"defense": 9,
 			"movement": 4,
 			"pierce": 7,
 			"slash": 9,
@@ -2735,7 +2885,7 @@
 			"frost": 6,
 			"poison": 5,
 			"sonic": 4,
-			"mental": 3
+			"mental": 2
 		},
 		"display": {
 			"width": 155,
@@ -2756,12 +2906,13 @@
 				"title": "Tentacle Bush",
 				"desc": "Grabs hold of all the melee attackers, making them unable to move that turn.",
 				"info": "Becomes unmovable by most abilities.",
-				"upgrade" : "grabs also do 5 crush damage"
+				"upgrade" : "Grabs will do 5 crush damage."
 		},
 			{
 				"title": "Hammer Time",
 				"desc": "Hits a nearby foe using its hard head, decreasing movement by 1 for a turn.",
-				"info": "12 crush + 6 pierce damage & debuff",
+				"info": "12 crush + 6 pierce damage & debuff.",
+				"upgrade" : "Attacks up to 3 frontal foes.",
 				"damages": {
 					"crush": 12,
 					"pierce": 6
@@ -2773,8 +2924,8 @@
 			{
 				"title": "War Horn",
 				"desc": "Charges towards an inline foe, hitting it and also pushing it as much as possible.",
-				"info": "10 pierce damage + 1 more per hexagon",
-				"upgrade" : "5 bonus pierce damage on hit",
+				"info": "10 pierce damage + 2 bonus / hexagon.",
+				"upgrade" : "5 bonus pierce damage on hit.",
 				"damages": {
 					"pierce": 20
 				},
@@ -2785,7 +2936,8 @@
 			{
 				"title": "Fishing Hook",
 				"desc": "Pierces a nearby unit while swapping places if it is small or medium sized.",
-				"info": "10 pierce + 10 crush damage & swap",
+				"info": "10 pierce + 10 crush damage & swap.",
+				"upgrade" : "Can also swap large units.",
 				"damages": {
 					"pierce": 10,
 					"crush": 10
@@ -2805,7 +2957,7 @@
 		"type": "W2",
 		"set": "Alpha",
 		"stats": {
-			"health": 135,
+			"health": 130,
 			"regrowth": 4,
 			"endurance": 15,
 			"energy": 50,
@@ -2855,19 +3007,19 @@
 		"name": "Night Stalker",
 		"level": 7,
 		"realm": "E",
-		"size": 2,
+		"size": 3,
 		"type": "E7",
 		"set": "Alpha",
 		"stats": {
-			"health": 260,
-			"regrowth": 4,
+			"health": 230,
+			"regrowth": 5,
 			"endurance": 100,
 			"energy": 80,
 			"meditation": 10,
 			"initiative": 80,
-			"offense": 25,
-			"defense": 25,
-			"movement": 3,
+			"offense": 23,
+			"defense": 23,
+			"movement": 2,
 			"pierce": 15,
 			"slash": 15,
 			"crush": 15,
@@ -2885,22 +3037,35 @@
 			{
 				"title": "Bat Country",
 				"desc": "First attacker receives some damage. This ability triggers once every round.",
-				"info": "5 pierce + 5 sonic + 5 mental damage"
+				"info": "5 pierce + 5 sonic + 5 mental damage.",	
+				"upgrade": "Triggers on different units."
 		},
 			{
 				"title": "Mega Slicer",
-				"desc": "Slashes nearby foe using the claws. Target loses 20 defense for 3 rounds.",
-				"info": "30 slash damage & defense debuff"
+				"desc": "Slashes nearby foe using the claws. Target loses 3 defense permanently.",
+				"info": "30 slash damage & defense debuff.",
+				"upgrade": "The debuff can now stack.",
+				"costs": {
+						"energy": 20
+				}
 		},
 			{
-				"title": "Sublimal Message",
-				"desc": "Damages a 10 hexagons conic area. Lowers initiative of all affected units.",
-				"info": "15 sonic + 15 mental damage, -10 init"
+				"title": "Subliminal Shout",
+				"desc": "Damages a 10 hexagons conic area. Inflicts rather rare types of damage.",
+				"info": "13 sonic plus 13 mental area damage.",
+				"upgrade": "-10 initiative debuff to foes.",
+				"costs": {
+						"energy": 40
+				}
 		},
 			{
 				"title": "Eclipsing Leap",
-				"desc": "Catapults itself over up to 3 units with very low health, squashing all of them.",
-				"info": "Targets need to sum under 100 health"
+				"desc": "Catapults itself to strike any enemy that has 3 inline hexagons available.",
+				"info": "18 pierce + 18 crush damage on hit.",
+				"upgrade": "+18 slash damage added.",
+				"costs": {
+					"energy": 60
+				}
 		}
 	]
 	},
@@ -3017,8 +3182,9 @@
 		"ability_info": [
 			{
 				"title": "Wing Feathers",
-				"desc": "Can fly to available locations within movement range, avoiding obstacles.",
-				"info": ""
+				"desc": "Can fly to available locations within movement range, avoiding all traps.",
+				"info": "Safely travel towards new locations.",
+				"upgrade": "Flight over all units as well."
 		},
 			{
 				"title": "Slicing Pounce",
@@ -3036,7 +3202,7 @@
 				"title": "Escort Service",
 				"desc": "Carries over a frontal or rear small or medium unit to a free inline location.",
 				"info": "Distance based on movement points",
-				"upgrade": "Can also move large units",
+				"upgrade": "Can also move large units.",
 				"costs": {
 					"movement": "1 or 2 points per hexagon"
 				},
@@ -3048,8 +3214,8 @@
 			{
 				"title": "Deadly Toxin",
 				"desc": "Bites a nearby enemy and poisons it. The venom loses potency if overused.",
-				"info": "10 pierce + 10 poison x 4 max stacks",
-				"upgrade": "Regains a stack if not used",
+				"info": "10 pierce + 10 poison x 3 max stacks.",
+				"upgrade": "Regains a stack if not used.",
 				"damages": {
 					"pierce": 10,
 					"poison": 35
@@ -3069,7 +3235,7 @@
 		"type": "P6",
 		"set": "Alpha",
 		"stats": {
-			"health": 220,
+			"health": 180,
 			"regrowth": 6,
 			"endurance": 40,
 			"energy": 80,
@@ -3160,7 +3326,7 @@
 			"regrowth": 4,
 			"endurance": 80,
 			"energy": 70,
-			"meditation": 5,
+			"meditation": 20,
 			"initiative": 30,
 			"offense": 8,
 			"defense": 20,
@@ -3182,22 +3348,35 @@
 			{
 				"title": "Palm Tree",
 				"desc": "This unit usually stays underground, revealing only the tail most of the time.",
-				"info": "Reduces 5 damage from incoming hits"
+				"info": "Reduces 3 damage from incoming hits",
+				"upgrade": "Reduction increased to 6 pts."
 		},
 			{
 				"title": "Crab Pincer",
 				"desc": "Powerful attack done on a nearby foe.",
-				"info": "10 pierce + 10 crush damage on strike"
+				"info": "10 pierce + 10 crush damage on strike",
+				"upgrade": "-1 offense stackable debuff.",
+				"costs": {
+					"energy": 15
+				}
 		},
 			{
 				"title": "Stinger Venom",
 				"desc": "Pokes any foe within 2 hexagons range, piercing and poisoning it for two turns.",
-				"info": "20 pierce + 20 poison damage 2 rounds"
+				"info": "10 pierce + 20 poison damage 2 rounds",
+				"upgrade": "Ignores 1/4 of defense stat.",
+				"costs": {
+					"energy": 25
+				}
 		},
 			{
 				"title": "Imbricated Scales",
-				"desc": "Travels through the ground to a new location, damaging all surface units.",
-				"info": "20 slash damage, ignores obstacles"
+				"desc": "Launches a projectile that can split on impact, dealing 1/3 damage sideways.",
+				"info": "30 pierce damage, 10 pierce sideways",
+				"upgrade": "Both split shards penetrate.",
+				"costs": {
+					"energy": 30
+				}
 		}
 	]
 	},
@@ -3210,11 +3389,11 @@
 		"type": "P5",
 		"set": "Alpha",
 		"stats": {
-			"health": 200,
-			"regrowth": 3,
+			"health": 160,
+			"regrowth": 6,
 			"endurance": 110,
 			"energy": 70,
-			"meditation": 10,
+			"meditation": 15,
 			"initiative": 20,
 			"offense": 10,
 			"defense": 20,
@@ -3264,7 +3443,7 @@
 		"type": "W6",
 		"set": "Alpha",
 		"stats": {
-			"health": 260,
+			"health": 220,
 			"regrowth": 4,
 			"endurance": 60,
 			"energy": 80,

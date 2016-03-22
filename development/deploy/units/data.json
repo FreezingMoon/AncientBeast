@@ -42,7 +42,8 @@
 				"info": "-1 plasma for each countered attack.",
 				"upgrade": "5 pure damage counter hit.",
 				"costs": {
-					"special": "1%health%per countered attack"
+					"plasma": 1,
+					"special": "per countered attack"
 				},
 				"requirements": {
 					"plasma": 1
@@ -50,7 +51,7 @@
     		},
 			{
 				"title": "Electro Shocker",
-				"desc": "Does shock damage to a nearby unit. Way more effective versus larger foes.",
+				"desc": "Does shock damage to a nearby unit. More effective versus larger enemies.",
 				"info": "12 shock damage × unit hexagon size.",
 				"upgrade": "The range is increased to 4.",
 				"damages": {
@@ -655,7 +656,7 @@
 			{
 				"title": "Fiery Touch",
 				"desc": "Scratches and burns a distant enemy. This attack has 3 hexagons extra reach.",
-				"info": "10 slash + 10 burn damage for each hit",
+				"info": "10 slash + 10 burn damage for each hit.",
 				"upgrade": "Doubles the hexagon range.",
 				"damages": {
 					"slash": 10,
@@ -683,7 +684,7 @@
 			{
 				"title": "Greater Pyre",
 				"desc": "Meditates for a short period while causing burns to all adjacent units.",
-				"info": "20 burn damage nearby, hurts allies",
+				"info": "20 burn damage nearby, hurts allies.",
 				"upgrade": "+10 burn bonus damage.",
 				"damages": {
 					"burn": 20
@@ -2697,7 +2698,7 @@
 				"title": "Mud Bath",
 				"desc": "Orders a pile of mud over any hexagon, slowing any other units that walk over.",
 				"info": "-1 movement point, on free spot or self.",	
-				"upgrade": "No energy cost if used on self.",
+				"upgrade": "10 energy cost if used on self.",
 				"effects": [{
 					"special": "-1 %movement%"
 				}],
