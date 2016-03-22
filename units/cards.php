@@ -33,31 +33,22 @@ function CallCreature(shout) {
 // The website uses a different jQuery shortcut than the game, using jQuery object fixes that
 jQuery(document).ready(function() {
 
-	// Shows specific stat modifier (TODO: Fix this since it's broken in-game)
-	var activate = function() {
-		var stat = jQuery(this).attr('stat');
-		var card = jQuery(this).parent().parent().parent().parent().parent();
-		if( typeof G != "undefined" && G instanceof Game) {
-			G.UI.showStatModifiers(stat);
-		}
-	};
-
-	// Shows description of stats
+	// Show description of stats
 	jQuery(".stats").mouseenter(function() {
 		var card = jQuery(this).parent().siblings().find(".stats_desc");
 		jQuery(card).show();
 	});
-	// Shows description of masteries
+	// Show description of masteries
 	jQuery(".masteries").mouseenter(function() {
 		var card = jQuery(this).parent().siblings().find(".masteries_desc");
 		jQuery(card).show();
 	});
-	// Hides the mini-tutorial
+	// Hide the mini-tutorial
 	jQuery(".section").mouseleave(function() {
 		var card = jQuery(this).parent().siblings().find(".card_info");
 		jQuery(card).hide();
 	});
-	// Find out what this does >_<
+	// Find out what this does; maybe related to modifiers
 	jQuery(".card .numbers .stats").mouseenter(activate);
 	jQuery(".card .numbers .stats").click(activate);
 });
@@ -82,7 +73,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 
 	// Side A
 ?>
-	<div class="center" style="display:inline-block; vertical-align: top;">
+	<div class="center" style="display: inline-block; vertical-align: top;">
 		<div class="card sideA" style="background-image: url('<?php echo $site_url; ?>images/cards/margin.png'), url('<?php echo $site_url; ?>units/artwork/<?php echo $r['name']; ?>.jpg');">
 
 			<!-- On hover mini tutorial -->
@@ -104,7 +95,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 			</div>
 
 			<!-- Card Anchor -->
-			<a href="#<?php echo $underscore; ?>"><div style="height:100%;"></div></a>
+			<a href="#<?php echo $underscore; ?>"><div style="height: 100%;"></div></a>
 <?php
 			// Display unit info
 			echo '<div class="section info sin' . $r['realm'] . '">
@@ -123,7 +114,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 					$i=1;
 					foreach ($r["stats"] as $key => $value) {
 					 	if( $i > 0 && $i < 10) {
-				 			displayStat($key,$value,$modifiers);
+				 			displayStat($key, $value, $modifiers);
 				 		}
 						$i++;
 					}
@@ -133,7 +124,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 			  		// Display Abilities
 					for ($i=0; $i < 4; $i++) {
 						// Figure out if upgradable
-						if (!empty($r["ability_info"][$i]["upgrade"])) { $upgrade = '<br><span class="desc" id="info">Upgrade: ' . $r["ability_info"][$i]["upgrade"] . '</span>'; }
+						if (!empty($r["ability_info"][$i]["upgrade"])) { $upgrade = '<br><span class="desc" id="upgrade">Upgrade: ' . $r["ability_info"][$i]["upgrade"] . '</span>'; }
 						// Figure out the cost
 						if ($i==0) { $cost = ' - this ability is passive.'; } else { $cost = ' - costs ' . $r["ability_info"][$i]["costs"]["energy"] . ' energy pts.'; }
 						echo '
