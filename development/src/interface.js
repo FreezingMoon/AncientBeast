@@ -405,7 +405,7 @@ var UI = Class.create( {
 
 		// Update player info
 		for (var i = G.players.length - 1; i >= 0; i--) {
-			$j("#dash .playertabs.p"+i+" .vignette").css("background-image","url('"+G.players[i].avatar+"')");
+			$j("#dash .playertabs.p"+i+" .vignette").css("background-image","url('" + G.players[i].avatar + "')");
 			$j("#dash .playertabs.p"+i+" .name").text(G.players[i].name);
 			$j("#dash .playertabs.p"+i+" .plasma").text("Plasma "+G.players[i].plasma);
 			$j("#dash .playertabs.p"+i+" .score").text("Score "+G.players[i].getScore().total);
@@ -435,16 +435,16 @@ var UI = Class.create( {
 			});
 
 			// Card A
-			$j("#card .sideA").css( { "background-image": "url('../cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')" } );
-			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0, 1));
+			$j("#card .sideA").css( { "background-image": "url('../cards/margin.png'), url('../units/artwork/" + stats.name + ".jpg')" } );
+			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
 			$j("#card .sideA .hexs").text(stats.size+"H");
 
 			// Card B
-			$j("#card .sideB").css( { "background-image": "url('../cards/margin.png'), url('../cards/"+stats.type.substring(0, 1)+".jpg')" } );
+			$j("#card .sideB").css( { "background-image": "url('../cards/margin.png'), url('../cards/" + stats.type.substring(0, 1) + ".jpg')" } );
 			$j.each(stats.stats,function(key, value) {
-				var $stat = $j("#card .sideB ."+key+" .value");
+				var $stat = $j("#card .sideB ." + key + " .value");
 				$stat.removeClass("buff debuff");
 				if(crea) {
 					if(key=="health") {
@@ -468,11 +468,12 @@ var UI = Class.create( {
 				}
 			});
 			$j.each(G.abilities[stats.id],function(key, value) {
-				$ability = $j("#card .sideB .abilities .ability:eq("+key+")");
-				$ability.children('.icon').css( { "background-image":"url('../units/icons/"+stats.name+" "+key+".svg')" } );
+				$ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
+				$ability.children('.icon').css( { "background-image":"url('../units/icons/" + stats.name + " " + key + ".svg')" } );
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").text(stats.ability_info[key].info);
+				$ability.children(".wrapper").children(".info").children("#upgrade").text("Upgrade: " + stats.ability_info[key].upgrade);
 			});
 
 			var summonedOrDead = false;
@@ -628,7 +629,7 @@ var UI = Class.create( {
 		});
 
 		// Bind creature vignette click
-		this.$grid.find(".vignette").unbind('click').bind("click",function(e) {
+		this.$grid.find(".vignette").unbind('click').bind("click", function(e) {
 			e.preventDefault();
 			if(G.freezedInput) return;
 
