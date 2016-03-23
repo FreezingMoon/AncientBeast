@@ -1134,8 +1134,8 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 70,
-			"regrowth": 5,
-			"endurance": 30,
+			"regrowth": 7,
+			"endurance": 50,
 			"energy": 70,
 			"meditation": 30,
 			"initiative": 45,
@@ -1169,12 +1169,9 @@
 		"ability_info": [
 			{
 				"title": "Gooey Body",
-				"desc": "Recovers 25% of health lost only from the last hit taken when the turn starts.",
-				"info": "This ability works when fatigued too.",
-				"upgrade" : "Now 50% health recovered.",
-				"effects": [{
-					"special": "25% health recovered from last hit taken."
-				}]
+				"desc": "Receives bonus pierce, slash and crush masteries based on remaining health.",
+				"info": "1 bonus point each for every 15 health.",
+				"upgrade" : "Bonus threshold is set to 10."
             },
 			{
 				"title": "Gummy Mallet",
@@ -1190,11 +1187,11 @@
             },
 			{
 				"title": "Royal Seal",
-				"desc": "Sticks chewing gum in place to hinder any passing unit for a complete turn.",
+				"desc": "Sticks chewing gum nearby to hinder any passing unit for a complete turn.",
 				"info": "Does not affect self but affects allies.",
 				"upgrade": "Can leap within 4 hexagons.",
 				"effects": [{
-					"special": "%movement% is set to 0 for a turn"
+					"special": "%movement% is set to 0 for a turn."
 				}],
 				"costs": {
 					"energy": 20
@@ -1981,9 +1978,9 @@
 		"ability_info": [
 			{
 				"title": "Evolved Organs",
-				"desc": "Each new round heals himself for 25% of all the damage previously received.",
+				"desc": "Recovers 25% of health lost only from the last hit taken when the turn starts.",
 				"info": "This ability also works when fatigued.",
-				"upgrade": "2x healing bonus per turn."
+				"upgrade" : "Now 50% health recovered."
             },
 			{
 				"title": "Squid Head",
