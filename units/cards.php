@@ -32,7 +32,6 @@ function CallCreature(shout) {
 
 // The website uses a different jQuery shortcut than the game, using jQuery object fixes that
 jQuery(document).ready(function() {
-
 	// Show description of stats
 	jQuery(".stats").mouseenter(function() {
 		var card = jQuery(this).parent().siblings().find(".stats_desc");
@@ -48,9 +47,6 @@ jQuery(document).ready(function() {
 		var card = jQuery(this).parent().siblings().find(".card_info");
 		jQuery(card).hide();
 	});
-	// Find out what this does; maybe related to modifiers
-	jQuery(".card .numbers .stats").mouseenter(activate);
-	jQuery(".card .numbers .stats").click(activate);
 });
 </script>
 <?php
