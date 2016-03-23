@@ -431,7 +431,7 @@
 			"initiative": 60,
 			"offense": 13,
 			"defense": 7,
-			"movement": 5,
+			"movement": 4,
 			"pierce": 5,
 			"slash": 2,
 			"crush": 4,
@@ -461,21 +461,22 @@
 				"title": "Electrified Hair",
 				"desc": "Converts up to 1/4 of any incoming shock damage into energy points.",
 				"info": "This isn't affected by any unit stats.",
-				"upgrade": "1/2 conversion ratio boost.",
+				"upgrade": "1/3 conversion ratio boost.",
 				"effects": [{
 					"special": "Converts ~25%%shock% into%energy%"
 				}]
     		},
 			{
-				"title": "Hasted Jab",
-				"desc": "Horn attack that restores all depleted movement points if it fatigues target.",
-				"info": "20 pierce damage & movement reset.",
-				"upgrade": "Hit gains 20 poison damage.",
+				"title": "Hasted Javelin",
+				"desc": "Horn attack that restores all depleted movement points if it damages target.",
+				"info": "30 pierce damage & resets movement.",
+				"upgrade": "Hit gains 10 poison damage.",
 				"damages": {
-					"special": "15%pierce%& movement reset"
+					"special": "30%pierce%& movement reset"
 				},
 				"damages1": {
-					"pierce": 20
+					"pierce": 30,
+					"poison": 10
 				},
 				"costs": {
 					"energy": 15
@@ -485,7 +486,7 @@
 				"title": "Poisonous Vine",
 				"desc": "Tangles a nearby foe, causing it to take damage if it will move within next turn.",
 				"info": "25 poison damage triggered if moving.",
-				"upgrade": "Gains 6 hexagon extra range.",
+				"upgrade": "Gains 3 hexagon extra range.",
 				"effects": [{
 					"special": "25 poison damage if moving"
 				}],
