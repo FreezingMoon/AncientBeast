@@ -42,7 +42,7 @@ jQuery(document).ready(function() {
 		var card = jQuery(this).parent().siblings().find(".masteries_desc");
 		jQuery(card).show();
 	});
-	// Hide the mini-tutorial
+	// Hide any descriptions
 	jQuery(".section").mouseleave(function() {
 		var card = jQuery(this).parent().siblings().find(".card_info");
 		jQuery(card).hide();

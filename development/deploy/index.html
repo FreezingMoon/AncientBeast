@@ -2,7 +2,7 @@
 <head>
 <meta charset='utf-8'>
 
-<title>Ancient Beast 0.2</title>
+<title>Ancient Beast 0.3-dev</title>
 
 <link rel="stylesheet" type="text/css" href="css/dot-luv/jquery-ui-1.9.2.custom.min.css">
 <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -27,39 +27,22 @@
 
 	.icon.plasma, .plasma .icon { background-image: url("stats/plasma.svg"); }
 	.icon.health, .health .icon { background-image: url("stats/health.svg"); }.icon.health:hover, .health:hover .icon { background-image: url("stats/health.gif"); }
-
 	.icon.regrowth, .regrowth .icon { background-image: url("stats/regrowth.svg"); }.icon.regrowth:hover, .regrowth:hover .icon { background-image: url("stats/regrowth.gif"); }
-
 	.icon.endurance, .endurance .icon { background-image: url("stats/endurance.svg"); }.icon.endurance:hover, .endurance:hover .icon { background-image: url("stats/endurance.gif"); }
-
 	.icon.energy, .energy .icon { background-image: url("stats/energy.svg"); }.icon.energy:hover, .energy:hover .icon { background-image: url("stats/energy.gif"); }
-
 	.icon.meditation, .meditation .icon { background-image: url("stats/meditation.svg"); }.icon.meditation:hover, .meditation:hover .icon { background-image: url("stats/meditation.gif"); }
-
 	.icon.initiative, .initiative .icon { background-image: url("stats/initiative.svg"); }.icon.initiative:hover, .initiative:hover .icon { background-image: url("stats/initiative.gif"); }
-
 	.icon.offense, .offense .icon { background-image: url("stats/offense.svg"); }.icon.offense:hover, .offense:hover .icon { background-image: url("stats/offense.gif"); }
-
 	.icon.defense, .defense .icon { background-image: url("stats/defense.svg"); }.icon.defense:hover, .defense:hover .icon { background-image: url("stats/defense.gif"); }
-
 	.icon.movement, .movement .icon { background-image: url("stats/movement.svg"); }.icon.movement:hover, .movement:hover .icon { background-image: url("stats/movement.gif"); }
-
 	.icon.pierce, .pierce .icon { background-image: url("stats/pierce.svg"); }.icon.pierce:hover, .pierce:hover .icon { background-image: url("stats/pierce.gif"); }
-
 	.icon.slash, .slash .icon { background-image: url("stats/slash.svg"); }.icon.slash:hover, .slash:hover .icon { background-image: url("stats/slash.gif"); }
-
 	.icon.crush, .crush .icon { background-image: url("stats/crush.svg"); }.icon.crush:hover, .crush:hover .icon { background-image: url("stats/crush.gif"); }
-
 	.icon.shock, .shock .icon { background-image: url("stats/shock.svg"); }.icon.shock:hover, .shock:hover .icon { background-image: url("stats/shock.gif"); }
-
 	.icon.burn, .burn .icon { background-image: url("stats/burn.svg"); }.icon.burn:hover, .burn:hover .icon { background-image: url("stats/burn.gif"); }
-
 	.icon.frost, .frost .icon { background-image: url("stats/frost.svg"); }.icon.frost:hover, .frost:hover .icon { background-image: url("stats/frost.gif"); }
-
 	.icon.poison, .poison .icon { background-image: url("stats/poison.svg"); }.icon.poison:hover, .poison:hover .icon { background-image: url("stats/poison.gif"); }
-
 	.icon.sonic, .sonic .icon { background-image: url("stats/sonic.svg"); }.icon.sonic:hover, .sonic:hover .icon { background-image: url("stats/sonic.gif"); }
-
 	.icon.mental, .mental .icon { background-image: url("stats/mental.svg"); }.icon.mental:hover, .mental:hover .icon { background-image: url("stats/mental.gif"); }
 	</style>
 <link rel="stylesheet" href="css/cards.css">
@@ -73,7 +56,7 @@ function CallCreature(shout) {
 // The website uses a different jQuery shortcut than the game, using jQuery object fixes that
 jQuery(document).ready(function() {
 
-	// Shows specific stat modifier (TODO: fix this since it's broken in-game)
+	// Show specific stat modifier (TODO: fix this since it's broken in-game)
 	var activate = function() {
 		var stat = jQuery(this).attr('stat');
 		var card = jQuery(this).parent().parent().parent().parent().parent();
@@ -82,22 +65,22 @@ jQuery(document).ready(function() {
 		}
 	};
 
-	// Shows description of stats
+	// Show description of stats
 	jQuery(".stats").mouseenter(function() {
 		var card = jQuery(this).parent().siblings().find(".stats_desc");
 		jQuery(card).show();
 	});
-	// Shows description of masteries
+	// Show description of masteries
 	jQuery(".masteries").mouseenter(function() {
 		var card = jQuery(this).parent().siblings().find(".masteries_desc");
 		jQuery(card).show();
 	});
-	// Hides the mini-tutorial
+	// Hide any descriptions
 	jQuery(".section").mouseleave(function() {
 		var card = jQuery(this).parent().siblings().find(".card_info");
 		jQuery(card).hide();
 	});
-	// Find out what this does >_<
+	// Display stuff
 	jQuery(".card .numbers .stats").mouseenter(activate);
 	jQuery(".card .numbers .stats").click(activate);
 });
@@ -105,7 +88,7 @@ jQuery(document).ready(function() {
 
 
 
-<!--google analytics-->
+<!--Google Analytics-->
 <script>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -116,6 +99,7 @@ ga('require', 'displayfeatures');
 ga('send', 'pageview');
 </script>
 </head>
+
 <body oncontextmenu="return false;">
 <div id="matchMaking">
 	<div id="loader"><img src="../interface/AB.gif">Loading</div>
@@ -530,7 +514,7 @@ ga('send', 'pageview');
 					<div id="activebox">
 						<div id="abilities">
 							<div style="position:relative">
-								<div ability="0" class="ability button" style="cursor:default;"></div>
+								<div ability="0" class="ability button" style="cursor: default;"></div>
 								<div ability="0" class="desc">
 									<div class="arrow"></div>
 									<div class="abilityinfo_content">
