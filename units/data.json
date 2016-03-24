@@ -563,11 +563,12 @@
 		},
 			{
 				"title": "Flat Frons",
-				"desc": "Smashes a nearby foe using head. Knockback or deals double damage.",
+				"desc": "Smashes a nearby foe using its face. Knockback or deals double damage.",
 				"info": "20 frost & push or 40 crush damage.",
-				"upgrade": "Kills foes under 60 health.",
+				"upgrade": "Kills foes under 45 health.",
 				"damages": {
-					"crush": 15
+					"crush": 40,
+					"frost": 20
 				},
 				"effects": [{
 					"special": "Push or double damage."
@@ -577,30 +578,25 @@
 				}
 		},
 			{
-				"title": "Heavy Cloud",
-				"desc": "Summons a snow fall over 7 hexagons, buffing sloth units with frost mastery .",
-				"info": "5 frost mastery stackable sloth buff.",
-				"upgrade": "Can also debuff other units.",
+				"title": "Falling Arrow",
+				"desc": "Performs rather low range attack that can hit a target even behind obstacles.",
+				"info": "30 pierce + 10 frost low range damage.",
+				"upgrade": "Bonus damage if lower level.",
 				"damages": {
-					"frost": 20
+					"pierce": 30,
+					"frost": 10
 				},
 				"costs": {
-					"energy": 20
+					"energy": 25
 				}
 		},
 			{
-				"title": "Snowman Guard",
-				"desc": "Creates a snow warrior nearby which attacks a frontal inline foe each turn.",
-				"info": "100 hp, 10 frost damage and mastery.",
-				"upgrade": "Can attack over allied units.",
-				"damages": {
-					"crush": 10
-				},
-				"effects": [{
-					"special": "Target foe loses next turn."
-				}],
+				"title": "Flake Conversion",
+				"desc": "Marks a 7 hexagon area, any unit killed until its turn becomes allied snowman.",
+				"info": " Has 10 health, frost damage & mastery.",
+				"upgrade": "Attacks over any allied units.",
 				"costs": {
-					"energy": 30
+					"energy": 40
 				}
 		}
 	]

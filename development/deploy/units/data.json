@@ -431,7 +431,7 @@
 			"initiative": 60,
 			"offense": 13,
 			"defense": 7,
-			"movement": 5,
+			"movement": 4,
 			"pierce": 5,
 			"slash": 2,
 			"crush": 4,
@@ -461,21 +461,22 @@
 				"title": "Electrified Hair",
 				"desc": "Converts up to 1/4 of any incoming shock damage into energy points.",
 				"info": "This isn't affected by any unit stats.",
-				"upgrade": "1/2 conversion ratio boost.",
+				"upgrade": "1/3 conversion ratio boost.",
 				"effects": [{
 					"special": "Converts ~25%%shock% into%energy%"
 				}]
     		},
 			{
-				"title": "Hasted Jab",
-				"desc": "Horn attack that restores all depleted movement points if it fatigues target.",
-				"info": "20 pierce damage & movement reset.",
-				"upgrade": "Hit gains 20 poison damage.",
+				"title": "Hasted Javelin",
+				"desc": "Horn attack that restores all depleted movement points if it damages target.",
+				"info": "30 pierce damage & resets movement.",
+				"upgrade": "Hit gains 10 poison damage.",
 				"damages": {
-					"special": "15%pierce%& movement reset"
+					"special": "30%pierce%& movement reset"
 				},
 				"damages1": {
-					"pierce": 20
+					"pierce": 30,
+					"poison": 10
 				},
 				"costs": {
 					"energy": 15
@@ -485,7 +486,7 @@
 				"title": "Poisonous Vine",
 				"desc": "Tangles a nearby foe, causing it to take damage if it will move within next turn.",
 				"info": "25 poison damage triggered if moving.",
-				"upgrade": "Gains 6 hexagon extra range.",
+				"upgrade": "Gains 3 hexagon extra range.",
 				"effects": [{
 					"special": "25 poison damage if moving"
 				}],
@@ -562,11 +563,12 @@
 		},
 			{
 				"title": "Flat Frons",
-				"desc": "Smashes a nearby foe using head. Knockback or deals double damage.",
+				"desc": "Smashes a nearby foe using its face. Knockback or deals double damage.",
 				"info": "20 frost & push or 40 crush damage.",
-				"upgrade": "Kills foes under 60 health.",
+				"upgrade": "Kills foes under 45 health.",
 				"damages": {
-					"crush": 15
+					"crush": 40,
+					"frost": 20
 				},
 				"effects": [{
 					"special": "Push or double damage."
@@ -576,30 +578,25 @@
 				}
 		},
 			{
-				"title": "Heavy Cloud",
-				"desc": "Summons a snow fall over 7 hexagons, buffing sloth units with frost mastery .",
-				"info": "5 frost mastery stackable sloth buff.",
-				"upgrade": "Can also debuff other units.",
+				"title": "Falling Arrow",
+				"desc": "Performs rather low range attack that can hit a target even behind obstacles.",
+				"info": "30 pierce + 10 frost low range damage.",
+				"upgrade": "Bonus damage if lower level.",
 				"damages": {
-					"frost": 20
+					"pierce": 30,
+					"frost": 10
 				},
 				"costs": {
-					"energy": 20
+					"energy": 25
 				}
 		},
 			{
-				"title": "Snowman Guard",
-				"desc": "Creates a snow warrior nearby which attacks a frontal inline foe each turn.",
-				"info": "100 hp, 10 frost damage and mastery.",
-				"upgrade": "Can attack over allied units.",
-				"damages": {
-					"crush": 10
-				},
-				"effects": [{
-					"special": "Target foe loses next turn."
-				}],
+				"title": "Flake Conversion",
+				"desc": "Marks a 7 hexagon area, any unit killed until its turn becomes allied snowman.",
+				"info": " Has 10 health, frost damage & mastery.",
+				"upgrade": "Attacks over any allied units.",
 				"costs": {
-					"energy": 30
+					"energy": 40
 				}
 		}
 	]
@@ -1187,7 +1184,7 @@
             },
 			{
 				"title": "Royal Seal",
-				"desc": "Sticks chewing gum in place to hinder any passing unit for a complete turn.",
+				"desc": "Sticks chewing gum nearby to hinder any passing unit for a complete turn.",
 				"info": "Does not affect self but affects allies.",
 				"upgrade": "Can leap within 4 hexagons.",
 				"effects": [{
