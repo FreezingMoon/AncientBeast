@@ -566,6 +566,9 @@
 				"desc": "Smashes a nearby foe using its face. Knockback or deals double damage.",
 				"info": "20 frost & push or 40 crush damage.",
 				"upgrade": "Kills foes under 46 health.",
+				"comments": [
+					"If the target unit can be knocked back, the effect will occur before unit dies."
+				],
 				"damages": {
 					"crush": 40,
 					"frost": 20,
