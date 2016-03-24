@@ -565,16 +565,34 @@
 				"title": "Flat Frons",
 				"desc": "Smashes a nearby foe using its face. Knockback or deals double damage.",
 				"info": "20 frost & push or 40 crush damage.",
-				"upgrade": "Kills foes under 45 health.",
+				"upgrade": "Kills foes under 46 health.",
 				"damages": {
 					"crush": 40,
-					"frost": 20
+					"frost": 20,
+					"pure": 46
 				},
 				"effects": [{
 					"special": "Push or double damage."
 				}],
 				"costs": {
-					"energy": 15
+					"energy": 20
+				}
+		},
+			{
+				"title": "Flake Conversion",
+				"desc": "Marked spot within 5 range will spawn a snowman if any unit dies on top of it.",
+				"info": " Has 20 health, frost damage & mastery.",
+				"upgrade": "Attacks over any allied units.",
+				"comments": [
+					"This ability can be used only on empty hexagons within available defined range.",
+					"Snowmen cannot be controlled and will automatically attack the first inline foe.",
+					"The first snowman will have 0 initiative, while preceding ones will go negative.",
+					"Older marks will give higher initiative when multiple snowmen are spawned at once.",
+					"All snowmen will have a single avatar in the unit queue, considered as a group.",
+					"The queue avatar will have neutral frame if group is mixed or player colored one."
+				],
+				"costs": {
+					"energy": 25
 				}
 		},
 			{
@@ -582,23 +600,18 @@
 				"desc": "Performs rather low range attack that can hit a target even behind obstacles.",
 				"info": "30 pierce + 10 frost low range damage.",
 				"upgrade": "Bonus damage if lower level.",
+				"comments": [
+					"Up to 6 pierce and 6 frost damage will be granted if hitting a level 1 target."
+				],
 				"damages": {
 					"pierce": 30,
 					"frost": 10
 				},
 				"costs": {
-					"energy": 25
-				}
-		},
-			{
-				"title": "Flake Conversion",
-				"desc": "Marks a 7 hexagon area, any unit killed until its turn becomes allied snowman.",
-				"info": " Has 10 health, frost damage & mastery.",
-				"upgrade": "Attacks over any allied units.",
-				"costs": {
-					"energy": 40
+					"energy": 30
 				}
 		}
+
 	]
     },
 	{
