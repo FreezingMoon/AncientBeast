@@ -593,6 +593,7 @@
 					"The first snowman will have 0 initiative, while preceding ones will go negative.",
 					"Older marks will give higher initiative when multiple snowmen are spawned at once.",
 					"Killed units drops will remain hidden until the snowmen on top of them get slain.",
+					"Dead Snowmen will not drop anything at all, regardless if the game setting is on.",
 					"All snowmen will have a single avatar in the unit queue, considered as a group.",
 					"The queue avatar will have neutral frame if group is mixed or player colored one."
 				],
