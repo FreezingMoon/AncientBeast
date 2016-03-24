@@ -587,6 +587,7 @@
 				"info": " Has 20 health, frost damage & mastery.",
 				"upgrade": "Attacks over any allied units.",
 				"comments": [
+					"This is basically a trap that only vanishes when it triggers or gets destroyed.",
 					"This ability can be used only on empty hexagons within available defined range.",
 					"Snowmen cannot be controlled and will automatically attack the first inline foe.",
 					"The first snowman will have 0 initiative, while preceding ones will go negative.",
