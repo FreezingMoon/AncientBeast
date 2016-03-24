@@ -585,7 +585,7 @@
 				"title": "Flake Conversion",
 				"desc": "Marked spot within 5 range will spawn a snowman if any unit dies on top of it.",
 				"info": " Has 20 health, frost damage & mastery.",
-				"upgrade": "Attacks over any allied units.",
+				"upgrade": "Attacks over most obstacles.",
 				"comments": [
 					"This is basically a trap that only vanishes when it triggers or gets destroyed.",
 					"This ability can be used only on empty hexagons within available defined range.",
@@ -601,11 +601,12 @@
 		},
 			{
 				"title": "Falling Arrow",
-				"desc": "Performs rather low range attack that can hit a target even behind obstacles.",
+				"desc": "Performs 4 hexagon range attack that can hit a target even behind obstacles.",
 				"info": "30 pierce + 10 frost low range damage.",
 				"upgrade": "Bonus damage if lower level.",
 				"comments": [
-					"Up to 6 pierce and 6 frost damage will be granted if hitting a level 1 target."
+					"Up to 12 pierce and 12 frost damage will be granted if hitting a level 1 target.",
+					"This ability works inline and diagonally, forward or behind, within given range."
 				],
 				"damages": {
 					"pierce": 30,
