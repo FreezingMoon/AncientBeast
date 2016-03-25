@@ -519,7 +519,7 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 240,
-			"regrowth": 10,
+			"regrowth": 1,
 			"endurance": 90,
 			"energy": 80,
 			"meditation": 25,
@@ -555,19 +555,19 @@
 			{
 				"title": "Lamellar Body",
 				"desc": "Gains extra defense and frost mastery with every sloth unit on the battlefield.",
-				"info": "1 defense & 1 frost for each sloth unit.",
-				"upgrade": "Allied sloth units gain bonus.",
+				"info": "1 defense & 1 frost for every sloth unit.",
+				"upgrade": "Gains 1 regrowth stat as well.",
 				"effects": [{
 					"frost": 1
 				}]
 		},
 			{
 				"title": "Flat Frons",
-				"desc": "Smashes a nearby foe using its face. Knockback or deals double damage.",
-				"info": "20 frost & push or 40 crush damage.",
-				"upgrade": "Kills foes under 46 health.",
-				"comments": [
-					"If the target unit can be knocked back, the effect will occur before unit dies."
+				"desc": "Smashes a nearby foe with its big head. Shatters frozen target below 40 health.",
+				"info": "20 crush + 10 frost damage each attack.",
+				"upgrade": "Pushes foe up to 3 hexagons.",
+				"details": [
+					"If the target unit can be knocked back, the effect will occur before unit dies.",
 				],
 				"damages": {
 					"crush": 40,
@@ -582,20 +582,16 @@
 				}
 		},
 			{
-				"title": "Flake Conversion",
-				"desc": "Marked spot within 5 range will spawn a snowman if any unit dies on top of it.",
-				"info": " Has 20 health, frost damage & mastery.",
-				"upgrade": "Attacks over most obstacles.",
-				"comments": [
-					"This is basically a trap that only vanishes when it triggers or gets destroyed.",
+				"title": "Flake Convertor",
+				"desc": "Marked spot within 5 range will cause any fatigued units on top to skip turn.",
+				"info": "The effect is instantly removed on hit.",
+				"upgrade": "It will not affect allied units.",
+				"details": [
 					"This ability can be used only on empty hexagons within available defined range.",
-					"Snowmen cannot be controlled and will automatically attack the first inline foe.",
-					"The first snowman will have 0 initiative, while preceding ones will go negative.",
-					"Older marks will give higher initiative when multiple snowmen are spawned at once.",
-					"Killed units drops will remain hidden until the snowmen on top of them get slain.",
-					"Dead Snowmen will not drop anything at all, regardless if the game setting is on.",
-					"All snowmen will have a single avatar in the unit queue, considered as a group.",
-					"The queue avatar will have neutral frame if group is mixed or player colored one."
+					"This is basically a trap that only vanishes when it triggers or gets destroyed.",
+					"Fatigued active units that will walk over it will instantly skip remaining turn.",
+					"Any fatigued units that get moved away over will be affected while undisrupted.",
+					"Any units that fly during movement can only get affected after landing on trap."
 				],
 				"costs": {
 					"energy": 25
@@ -603,22 +599,20 @@
 		},
 			{
 				"title": "Falling Arrow",
-				"desc": "Performs 4 hexagon range attack that can hit a target even behind obstacles.",
-				"info": "30 pierce + 10 frost low range damage.",
-				"upgrade": "Bonus damage if lower level.",
-				"comments": [
-					"Up to 12 pierce and 12 frost damage will be granted if hitting a level 1 target.",
+				"desc": "Performs 4 hexagon range attack that does extra damage to lower level units.",
+				"info": "20 pierce + 3 frost per level difference.",
+				"upgrade": "Adds 2 bonus pierce per level.",
+				"details": [
+					"Up to 12 pierce and 18 frost damage will be granted if hitting a level 1 target.",
 					"This ability works inline and diagonally, forward or behind, within given range."
 				],
 				"damages": {
-					"pierce": 30,
-					"frost": 10
+					"pierce": 20
 				},
 				"costs": {
 					"energy": 30
 				}
 		}
-
 	]
     },
 	{
@@ -962,7 +956,7 @@
 				"desc": "Releases several toxic clouds that can be inhaled, persisting for two rounds.",
 				"info": "10 adjacent poison damage for 2 turns.",
 				"upgrade": "+1 round cloud persistency.",
-				"comments": [
+				"details": [
 					"Toxic Shroom is immune to own clouds, but will destroy them when passing through.",
 					"A noxious cloud will completely override the enemy ones when using ability adjacent."
 				],
@@ -975,7 +969,7 @@
 				"desc": "Drops a deadly shroom that acts either as a travel point or as a poisonous trap.",
 				"info": "20 poison damage when stepped upon.",
 				"upgrade": "It can multiply if it kills units.",
-				"comments": [
+				"details": [
 					"Killing a small unit will cause the shroom to respawn while consuming any drops.",
 					"The bigger units killed by this trap will respawn shrooms throughout their size."
 				],
