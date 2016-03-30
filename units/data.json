@@ -523,16 +523,16 @@
 			"endurance": 90,
 			"energy": 80,
 			"meditation": 25,
-			"initiative": 66,
+			"initiative": 35,
 			"offense": 9,
 			"defense": 18,
-			"movement": 4,
+			"movement": 3,
 			"pierce": 14,
 			"slash": 14,
 			"crush": 14,
 			"shock": 6,
 			"burn": 3,
-			"frost": 20,
+			"frost": 25,
 			"poison": 10,
 			"sonic": 4,
 			"mental": 15
@@ -558,6 +558,7 @@
 				"info": "1 defense & 1 frost for every sloth unit.",
 				"upgrade": "Gains 1 regrowth stat as well.",
 				"effects": [{
+					"defense": 1,
 					"frost": 1
 				}]
 		},
@@ -565,36 +566,32 @@
 				"title": "Flat Frons",
 				"desc": "Smashes a nearby foe with its big head. Shatters frozen target below 40 health.",
 				"info": "20 crush + 10 frost damage each attack.",
-				"upgrade": "Pushes foe up to 3 hexagons.",
+				"upgrade": "Can charge to knockback foe.",
 				"details": [
-					"If the target unit can be knocked back, the effect will occur before unit dies.",
+					"If the target unit can be knocked back, the effect will occur before unit dies."
 				],
 				"damages": {
-					"crush": 40,
-					"frost": 20,
+					"crush": 20,
+					"frost": 10,
 					"pure": 46
 				},
-				"effects": [{
-					"special": "Push or double damage."
-				}],
 				"costs": {
-					"energy": 20
+					"energy": 25
 				}
 		},
 			{
 				"title": "Flake Convertor",
-				"desc": "Marked spot within 5 range will cause any fatigued units on top to skip turn.",
-				"info": "The effect is instantly removed on hit.",
-				"upgrade": "It will not affect allied units.",
+				"desc": "Fatigued inline target within 5 range will get frozen and skip turn if not hit.",
+				"info": "Frost mastery difference as damage.",
+				"upgrade": "Hits don't break the effect.",
 				"details": [
-					"This ability can be used only on empty hexagons within available defined range.",
-					"This is basically a trap that only vanishes when it triggers or gets destroyed.",
-					"Fatigued active units that will walk over it will instantly skip remaining turn.",
-					"Any fatigued units that get moved away over will be affected while undisrupted.",
-					"Any units that fly during movement can only get affected after landing on trap."
+					"Unable to do any frost damage to targets that have a higher frost mastery than him."
 				],
+				"damages": {
+					"frost": 0
+				},
 				"costs": {
-					"energy": 25
+					"energy": 30
 				}
 		},
 			{
@@ -610,10 +607,10 @@
 					"pierce": 20
 				},
 				"costs": {
-					"energy": 30
+					"energy": 35
 				}
 		}
-	]
+		]
     },
 	{
 		"id": 7,
@@ -1557,7 +1554,7 @@
 			"crush": 6,
 			"shock": 8,
 			"burn": 1,
-			"frost": 35,
+			"frost": 20,
 			"poison": 5,
 			"sonic": 15,
 			"mental": 10
