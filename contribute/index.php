@@ -29,7 +29,7 @@ $style = '
 .coding { color: #6EDD64 !important; }
 .audio { color: #AFC8FF !important; }
 .image { margin-left: 10px; width: 400px; height: 250px; }
-.scale { transform:scale(-1,1); }
+.scale { transform: scale(-1, 1); }
 ';
 require_once('../header.php'); 
 ?>
@@ -58,10 +58,10 @@ Any amount you can donate is very appreciated, thank you!<br>
 </div>
 
 <div style="display: inline-block; vertical-align: top;" class="center">
-<table style="width:400px;"><tr><td><b>Top Donors via PayPal</b></td><td><b>$</b></td></tr>
+<table style="width: 400px;"><tr><td><b>Top Donors via PayPal</b></td><td><b>$</b></td></tr>
 <tr><td><a href="https://harumorii.deviantart.com" target="_blank" class="lighten donate"><img src="yellow.png"> Haru <img src="yellow.png" class="scale"></a></td><td>2500</td></tr>
 <tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten donate"><img src="yellow.png"> Dread Knight <img src="yellow.png" class="scale"></a></td><td>1250</td></tr>
-<tr><td><a href="http://www.ugnis.com" target="_blank" class="lighten donate"><img src="yellow.png"> Karolis Masiulis  <img src="yellow.png" class="scale"></a></td><td>300</td></tr>
+<tr><td><a href="http://ugnis.com" target="_blank" class="lighten donate"><img src="yellow.png"> Karolis Masiulis  <img src="yellow.png" class="scale"></a></td><td>300</td></tr>
 <tr><td><a href="https://github.com/unhammer" target="_blank" class="lighten donate"><img src="yellow.png"> Kevin Brubeck Unhammer <img src="yellow.png" class="scale"></a></td><td>50</td></tr>
 <tr><td><a href="https://teogreengage.blogspot.com" target="_blank" class="lighten donate"><img src="yellow.png"> Teo Cazghir <img src="yellow.png" class="scale"></td><td>50</td></tr>
 <tr><td><a href="https://bountysource.com" target="_blank" class="lighten donate"><img src="yellow.png"> David Rappo <img src="yellow.png" class="scale"></a></td><td>50</td></tr>
@@ -83,7 +83,7 @@ Any amount you can donate is very appreciated, thank you!<br>
 </div>
 
 <div class="div" id="artwork">
-<div style="width: 475px; text-align: justify; display:inline-block;">
+<div style="width: 475px; text-align: justify; display: inline-block;">
 <h3 class="indexheader"><a href="#artwork">Artwork</a></h3>
 <p>
 Perhaps it's not money you want to contribute, but rather spend some time and energy while putting your pen and brush to some good use in order to create more visual content for the project or simply having fun drawing fan art of already existing creatures? If you have something lying around and you think it could nicely fit the game while under the same <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><b>CC-BY-SA 3.0</b></a> license, feel free to send it our way!<br>
@@ -116,7 +116,7 @@ We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallp
 
 <?php $i = 0; ?>
 <div style="display: inline-block; vertical-align: top;" class="center">
-<table style="width:400px;"><tr><td><b>Top Art Contributors</b></td><td><b>#</b></td></tr>
+<table style="width: 400px;"><tr><td><b>Top Art Contributors</b></td><td><b>#</b></td></tr>
 <tr><td><a href="http://sythgara.deviantart.com" target="_blank" class="lighten artwork"><img src="red.png"> Katarzyna Zalecka <img src="red.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="http://velvetcat.deviantart.com" target="_blank" class="lighten artwork"><img src="red.png"> Indre Lelertaviciute <img src="red.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="http://ashirox.deviantart.com" target="_blank" class="lighten artwork"><img src="red.png"> Ashirox <img src="red.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
@@ -139,7 +139,7 @@ We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallp
 <tr><td><a href="http://monsterjavaguns.com" target="_blank"  class="lighten artwork"><img src="red.png"> Fweeb <img src="red.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="http://betasector.deviantart.com" target="_blank" class="lighten artwork"><img src="red.png"> BetaSector <img src="red.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="http://nynn.contact.free.fr" target="_blank" class="lighten artwork"><img src="red.png"> Nynn <img src="red.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="" target="_blank"  class="lighten artwork"><img src="red.png"> Maggot Master <img src="red.png" class="scale"></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://facebook.com/All.Things.Rotten.Maggotmaster" target="_blank"  class="lighten artwork"><img src="red.png"> Maggot Master <img src="red.png" class="scale"></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="http://random223.deviantart.com" target="_blank" class="lighten artwork"><img src="red.png"> random223 <img src="red.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="http://onirke.deviantart.com" target="_blank" class="lighten artwork"><img src="red.png"> Oliwia Grambo <img src="red.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td>Your Name</td><td>?</td></tr>
@@ -161,7 +161,7 @@ Sometimes even reviewing or talking code can greatly help.
 
 <?php $i = 0; ?>
 <div style="display: inline-block; vertical-align: top;" class="center">
-<table style="width:400px;"><tr><td><b>Top Code Contributors</b></td><td><b>#</b></td></tr>
+<table style="width: 400px;"><tr><td><b>Top Code Contributors</b></td><td><b>#</b></td></tr>
 <tr><td><a href="https://github.com/Hypersomniac" target="_blank" class="lighten coding"><img src="green.png"> Clement Turjuque <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten coding"><img src="green.png"> Dread Knight <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/Dobz" target="_blank" class="lighten coding"><img src="green.png"> Dobz <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
@@ -196,7 +196,7 @@ All tracks and SFX need to be under <a href="http://creativecommons.org/licenses
 
 <?php $i = 0; ?>
 <div style="display: inline-block; vertical-align: top;" class="center">
-<table style="width:400px;"><tr><td><b>Top Audio Contributors</b></td><td><b>#</b></td></tr>
+<table style="width: 400px;"><tr><td><b>Top Audio Contributors</b></td><td><b>#</b></td></tr>
 <tr><td><a href="http://youtube.com/user/moonthiefro" target="_blank" class="lighten audio"><img src="blue.png"> Moonthief <img src="blue.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://twitter.com/Jenskiilstofte" target="_blank" class="lighten audio"><img src="blue.png"> Jens Kiilstofte <img src="blue.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="http://youtube.com/user/DruoxTheShredder" target="_blank" class="lighten audio"><img src="blue.png"> Dreux Ferrano <img src="blue.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
