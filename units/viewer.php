@@ -24,6 +24,9 @@ if ($id == $random) {
 </script>
 <script type="text/javascript" src="carousel.js"></script>
 
+<!-- Warning: Work in progress! -->
+<div class="center warning">This viewer is currently not fully functional, as it requires a bit more coding. Go check out the <a href="/?view=sets"><u>sets view</u></a> instead!</div>
+
 <div id="carousel"></div>
 
 <div class="div center">

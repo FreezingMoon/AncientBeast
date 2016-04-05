@@ -17,8 +17,13 @@ $sections = array(
 	'tournament',
 	'kingdom'
 );
-echo '<div class="center warning">The game design documentation is currently a very rough early draft and it requires a few more writing sessions.</div>';
-echo '<nav class="div center" id="navigation"><ul class="sections">';
+?>
+<!-- Warning: Work in progress! -->
+<div class="center warning">The game design documentation is currently a very rough early draft and it requires a few more writing sessions.</div>
+
+<nav class="div center" id="navigation"><ul class="sections">
+
+<?php
 foreach ($sections as &$sectionItem) {
 	echo '<li style="display: inline;"><a href="?view=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding: 2em;">' . ucfirst($sectionItem) . '</a></li>';
 }
