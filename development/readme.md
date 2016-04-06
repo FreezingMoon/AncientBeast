@@ -1,6 +1,5 @@
 ## Development Setup
-It's very easy to set-up a local server in order to test and contribute to the development version of the game.
-
+It's very easy to set-up a local server in order to test and contribute to the development version of the game.<br>
 It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, named [Phaser](http://phaser.io).
 
 ### Recommended Tool
