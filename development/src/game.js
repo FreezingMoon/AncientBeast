@@ -51,7 +51,7 @@ var Game = Class.create({
 		this.creatures = [];
 		this.c = this.creatures; // Convenience
 		this.effects = [];
-		this.activeCreature = {id:0};
+		this.activeCreature = { id: 0 };
 		this.animations = new Animations();
 		this.turn = 0;
 		this.queue = [];
@@ -343,16 +343,16 @@ var Game = Class.create({
 			if(playerMode>2) { // If 4 players
 				switch(player.id) {
 					case 0:
-						pos = {x: 0, y: 1};
+						pos = { x: 0, y: 1} ;
 						break;
 					case 1:
-						pos = {x: 15, y: 1};
+						pos = { x: 15, y: 1 };
 						break;
 					case 2:
-						pos = {x: 0, y: 7};
+						pos = { x: 0, y: 7 };
 						break;
 					case 3:
-						pos = {x: 15, y: 7};
+						pos = { x: 15, y: 7 };
 						break;
 				}
 			}else{ // If 2 players
@@ -831,7 +831,7 @@ var Game = Class.create({
 
 	triggerTrap : function( trigger, arg ) {
 		arg[0].hexagons.each(function() {
-			this.activateTrap(G.triggers[trigger],arg[0]);
+			this.activateTrap(G.triggers[trigger], arg[0]);
 		});
 	},
 
@@ -862,15 +862,15 @@ var Game = Class.create({
 	triggersFn : {
 
 		onStepIn : function( creature, hex, callback ) {
-			G.triggerTrap("onStepIn",arguments);
-			G.triggerAbility("onStepIn",arguments);
-			G.triggerEffect("onStepIn",arguments);
+			G.triggerTrap("onStepIn", arguments);
+			G.triggerAbility("onStepIn", arguments);
+			G.triggerEffect("onStepIn", arguments);
 		},
 
 		onStepOut : function( creature, hex, callback ) {
-			G.triggerTrap("onStepOut",arguments);
-			G.triggerAbility("onStepOut",arguments);
-			G.triggerEffect("onStepOut",arguments);
+			G.triggerTrap("onStepOut", arguments);
+			G.triggerAbility("onStepOut", arguments);
+			G.triggerEffect("onStepOut", arguments);
 		},
 
 		onStartPhase : function( creature, callback ) {
@@ -891,43 +891,43 @@ var Game = Class.create({
 					}
 				}
 			}
-			G.triggerDeleteEffect("onStartPhase",creature);
-			G.triggerAbility("onStartPhase",arguments);
-			G.triggerEffect("onStartPhase",[creature,creature]);
+			G.triggerDeleteEffect("onStartPhase", creature);
+			G.triggerAbility("onStartPhase", arguments);
+			G.triggerEffect("onStartPhase", [creature, creature]);
 		},
 
 		onEndPhase : function( creature, callback ) {
-			G.triggerDeleteEffect("onEndPhase",creature);
-			G.triggerAbility("onEndPhase",arguments);
-			G.triggerEffect("onEndPhase",[creature,creature]);
+			G.triggerDeleteEffect("onEndPhase", creature);
+			G.triggerAbility("onEndPhase", arguments);
+			G.triggerEffect("onEndPhase", [creature, creature]);
 		},
 
 		onStartOfRound : function( creature, callback ) {
-			G.triggerDeleteEffect("onStartOfRound","all");
+			G.triggerDeleteEffect("onStartOfRound", "all");
 		},
 
 		onCreatureMove : function( creature, hex, callback ) {
-			G.triggerAbility("onCreatureMove",arguments);
+			G.triggerAbility("onCreatureMove", arguments);
 		},
 
 		onCreatureDeath : function( creature, callback ) {
-			G.triggerAbility("onCreatureDeath",arguments);
-			G.triggerEffect("onCreatureDeath",[creature,creature]);
+			G.triggerAbility("onCreatureDeath", arguments);
+			G.triggerEffect("onCreatureDeath", [creature, creature]);
 		},
 
 		onCreatureSummon : function( creature, callback ) {
-			G.triggerAbility("onCreatureSummon",[creature,creature,callback]);
-			G.triggerEffect("onCreatureSummon",[creature,creature]);
+			G.triggerAbility("onCreatureSummon", [creature, creature, callback]);
+			G.triggerEffect("onCreatureSummon", [creature, creature]);
 		},
 
 		onEffectAttachement : function( creature, effect, callback ) {
-			G.triggerEffect("onEffectAttachement",[creature,effect]);
+			G.triggerEffect("onEffectAttachement", [creature, effect]);
 		},
 
 
 		onAttack : function( creature, damage ) {
-			damage = G.triggerAbility("onAttack",arguments,damage);
-			damage = G.triggerEffect("onAttack",arguments,damage);
+			damage = G.triggerAbility("onAttack", arguments, damage);
+			damage = G.triggerEffect("onAttack", arguments, damage);
 			return damage;
 		},
 
@@ -939,7 +939,7 @@ var Game = Class.create({
 
 
 	findCreature: function( o ) {
-		var o = $j.extend({
+		var o = $j.extend( {
 			team : -1, // No team
 			type : "--" // Dark Priest
 		},o);
@@ -1017,7 +1017,7 @@ var Game = Class.create({
 		var $table = $j("#endscreen table tbody");
 
 		if(this.playerMode==2) { // If Only 2 players remove the other 2 columns
-			$table.children("tr").children("td:nth-child(even)").remove();
+			$table.children("tr").children("td: nth-child(even)").remove();
 			var $table = $j("#endscreen table tbody");
 		}
 
@@ -1056,7 +1056,7 @@ var Game = Class.create({
 			.text(this.players[i].name);
 
 			//Change score
-			$j.each(this.players[i].getScore(),function(index,val) {
+			$j.each(this.players[i].getScore(),function(index, val) {
 				var text = ( val === 0 && index !== "total") ? "--" : val ;
 				$table.children("tr."+index).children("td: nth-child(" + colId + ")") // Weird expression swap 2nd and 3rd player
 				.text(text);
@@ -1142,7 +1142,7 @@ var Game = Class.create({
 *	Player object with attributes
 *
 */
-var Player = Class.create({
+var Player = Class.create( {
 	/*	Attributes
 	*
 	*	id :		Integer :	Id of the player 1, 2, 3 or 4
@@ -1171,7 +1171,7 @@ var Player = Class.create({
 		this.totalTimePool = G.timePool*1000;
 		this.startTime = new Date();
 
-		this.score = [{type:"timebonus"}];
+		this.score = [{ type: "timebonus" }];
 	},
 
 
@@ -1193,7 +1193,7 @@ var Player = Class.create({
 	*/
 	summon: function(type, pos) {
 		var data = G.retreiveCreatureStats(type);
-		data = $j.extend(data,pos,{team:this.id}); // Create the full data for creature creation
+		data = $j.extend(data, pos, { team: this.id }) ; // Create the full data for creature creation
 		for (var i = G.creatureJSON.length - 1; i >= 0; i--) {
 			if(
 				G.creatureJSON[i].type == type &&
@@ -1411,12 +1411,12 @@ var Gamelog = Class.create( {
 var Soundsys = Class.create( {
 
 	initialize: function(o) {
-		o = $j.extend({
+		o = $j.extend( {
 			music_volume : 0.1,
 			effects_volume : 0.6,
 			heartbeats_volume : 0.3,
 			announcer_volume : 0.6
-		},o);
+		}, o);
 
 		$j.extend(this,o);
 
@@ -1453,7 +1453,7 @@ var Soundsys = Class.create( {
 		musicPlayer.playRandom();
 	},
 
-	getSound: function(url,id,success) {
+	getSound: function(url, id, success) {
 		if(!window.AudioContext) success();
 		var id = id;
 		bufferLoader = new BufferLoader(this.context,[url],function(arraybuffer) {
@@ -1464,7 +1464,7 @@ var Soundsys = Class.create( {
 		bufferLoader.load();
 	},
 
-	playSound: function(sound,node,o) {
+	playSound: function(sound, node, o) {
 		if(!window.AudioContext) return false;
 		o = $j.extend( {
 			music_volume : 1,
