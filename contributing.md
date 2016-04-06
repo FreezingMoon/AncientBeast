@@ -31,7 +31,7 @@ In case you're using a different path and/or name for the project's root, make s
 
 ### Next Step
 
-You're free to browse [existing issues](https://github.com/FreezingMoon/AncientBeast/issues) and comment on the ones that you want to take a swing at in order to make sure the issue is still relevant and that nobody else is working on it. You can also drop by the project's [Gitter Chatroom](https://gitter.im/FreezingMoon/AncientBeast) (which requires logging in with GitHub) and talk to the founder, Dread Knight, who will find you something to work on in no time.
+You're free to browse [existing issues](https://github.com/FreezingMoon/AncientBeast/issues) and comment on the ones that you want to take a swing at in order to make sure the issue is still relevant and that nobody else is working on it. You can also drop by the project's [Gitter Chatroom](https://gitter.im/FreezingMoon/AncientBeast) (which requires logging in with GitHub) and mention your skills and that you're interested in helping out. Dread Knight will find you something to work on in no time.
 
 ## How to contribute to the game
 
