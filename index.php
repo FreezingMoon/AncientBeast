@@ -82,85 +82,74 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 			</div></a>
 		</div></div>
 
-		<!-- Side B -->
-		<div class="card sideB" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/cards/G.jpg);">
-			<div class="section abilities" onClick="nextCard();" style="cursor: pointer;">
-		  		<!-- Display Abilities -->
-				<div class="ability">
-					<div id="first_icon" class="icon">
-						<div class="contour"></div>
-					</div>
-					<div class="wrapper">
-						<div class="info">
-							<h3 id="first_title" class="underline"></h3>
-							<span class="desc" id="desc"></span>
-						</div>
-					</div>
-				</div>
-				<div class="ability">
-					<div id="second_icon" class="icon">
-						<div class="contour"></div>
-					</div>
-					<div class="wrapper">
-						<div class="info">
-							<h3 id="second_title"></h3>
-							<span class="desc" id="desc"></span>
-						</div>
-					</div>
-				</div>
-				<div class="ability">
-					<div id="third_icon" class="icon">
-						<div class="contour"></div>
-					</div>
-					<div class="wrapper">
-						<div class="info">
-							<h3 id="third_title"></h3>
-							<span class="desc" id="desc"></span>
-						</div>
-					</div>
-				</div>
-				<div class="ability">
-					<div id="fourth_icon" class="icon">
-						<div class="contour"></div>
-					</div>
-					<div class="wrapper">
-						<div class="info">
-							<h3 id="fourth_title"></h3>
-							<span class="desc" id="desc"></span>
-						</div>
-					</div>
-				</div>
-				<div class="ability">
-					<div id="fifth_icon" class="icon">
-						<div class="contour"></div>
-					</div>
-					<div class="wrapper">
-						<div class="info">
-							<h3 id="fifth_title"></h3>
-							<span class="desc" id="desc"></span>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="section numbers masteries">
-				<?php
-				// Display Masteries
-				$i=1;
-				foreach ($r["stats"] as $key => $value) {
-				 	if( $i > 9 &&  $i < 19) { 
-				 		displayStat($key, $value, ""); 
-			 		}
-			 		$i++;
-				}
-				?>
-			</div>
-		</div>
-</div>
-
-<div class="div center" id="contribute">
 	<!-- Side B -->
 	<div class="card sideB" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/cards/G.jpg);">
 		<div class="section abilities" onClick="nextCard();" style="cursor: pointer;">
+	  		<!-- Display Abilities -->
+			<div class="ability">
+				<div id="first_icon" class="icon">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="first_title" class="underline"></h3>
+						<span class="desc" id="desc"></span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="second_icon" class="icon">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="second_title"></h3>
+						<span class="desc" id="desc"></span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="third_icon" class="icon">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="third_title"></h3>
+						<span class="desc" id="desc"></span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="fourth_icon" class="icon">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="fourth_title"></h3>
+						<span class="desc" id="desc"></span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="fifth_icon" class="icon">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="fifth_title"></h3>
+						<span class="desc" id="desc"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Contribution Widget -->
+<div class="div center" id="contribute">
+	<!-- Left Side -->
+	<div class="card sideB" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/cards/G.jpg);">
+		<a href="contribute"><div class="section abilities">
 	  		<!-- Display Abilities -->
 			<div class="ability">
 				<div id="first_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/donate.svg);">
@@ -217,19 +206,19 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 					</div>
 				</div>
 			</div>
-		</div>
+		</div></a>
 	</div>
 
-	<!-- Side A -->
+	<!-- Right Side -->
 	<div class="center" style="display: inline-block; vertical-align: top;">
 		<div id="artwork" class="card sideA" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/skills.jpg);">
 			<!-- Card Anchor -->
-			<a href="contribute" title="Check out the contribution page" onClick="nextCard(); return false;"><div style="height: 100%;"></div></a>
+			<a href="contribute" title="Check out the contribution page"><div style="height: 100%;"></div></a>
 	
 			<!-- Display unit info -->
-			<a href="#" class="name" style="color: white;" onClick="nextCard(); return false;">
+			<a href="#" class="name" style="color: white;">
 				<div class="section info sinL">
-					You can contribute to this project!
+					Contribute to this project today!
 				</div>
 			</a>
 		</div>
