@@ -5,7 +5,7 @@ Website itself is built using HTML, CSS, Javascript, PHP and MySQL. It needs to 
 
 ### Installing Dependencies
 
-You'll have to install an Apache HTTP Server, like [AMPPS](http://www.ampps.com/downloads) or something operating system specific, like WAMP, [MAMP](https://www.mamp.info) or LAMP.
+You'll have to install an Apache HTTP Server, like [AMPPS](http://www.ampps.com/downloads) or operating system specific ones, like WAMP, [MAMP](https://www.mamp.info) or LAMP.
 
 ### Recommended Tool
 
