@@ -30,7 +30,9 @@ a.FM:hover { text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px; }
 #screenshot { display: inline-block; position: relative; vertical-align: top; margin: 10px; width: 390px; }
 #screenshot img { position: absolute; z-index: 8; top: 0; padding: 0px; margin: 0px; border-color: grey !important; }
 #screenshot IMG.active { z-index: 10; }
-#screenshot IMG.last-active {z-index: 9; }
+#screenshot IMG.last-active { z-index: 9; }
+.abilities .ability .wrapper { height: 104px !important; padding-left: 107px !important; }
+.abilities .icon, .contour { width: 104px !important; height: 104px !important; }
 ';
 $stylesheet = 'units/cards.css';
 
@@ -54,96 +56,43 @@ require_once 'header.php';
 </div>
 
 <div class="div" id="intro">
-<div style="width: 475px; text-align: justify; display:inline-block;">
+<div style="width: 475px; text-align: justify; display: inline-block;">
 <h3 class="indexheader"><a href="#intro">Intro</a></h3>
 <p>
 <b>Ancient Beast</b> is a turn based strategy indie game project, played against other people (or bots) in hotseat or online modes, featuring a wide variety of units to acquire and put to good use in order to defeat all your opponents in battle.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it as well!
 </p><p>
 Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank">free</a> and <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a>, being developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> and community. It uses web technologies such as HTML, PHP, JavaScript and Node.js, so that it's playable from modern browsers without requiring plugins.</p></div>
 <div class="lighten" id="screenshot"><a href="media/?type=screenshots#id=0">
-<img src="images/thumbs/screenie1.png" class="image frame active" width=400px height=225px>
-<img src="images/thumbs/screenie2.png" class="image frame" style="opacity: 0;" width=400px height=225px>
-<img src="images/thumbs/screenie3.png" class="image frame" style="opacity: 0;" width=400px height=225px>
+<img src="images/thumbs/screenie1.png" class="image frame active" width=400px; height=225px;>
+<img src="images/thumbs/screenie2.png" class="image frame" style="opacity: 0;" width=400px; height=225px;>
+<img src="images/thumbs/screenie3.png" class="image frame" style="opacity: 0;" width=400px; height=225px;>
 <div class="center" style="padding-top: 235px;"><b>Check out some screenshots!</b></div></a></div>
 </div>
 
 <!-- Game Features -->
-<?php require_once 'images/stats/index.php'; ?>
-
 <div class="div center" id="features">
-	<div class="center" style="display:inline-block; vertical-align: top;">
-		<div id="artwork" class="card sideA" style="background-image: url('<?php echo $site_root; ?>images/cards/margin.png'), url('<?php echo $site_root; ?>images/features/1.jpg');">
-
-			<!-- On hover mini tutorial -->
-			<div class="card_info stats_desc"><br>
-				<div><span class="icon health"></span> Health: The raw amount of damage points a creature can take before it dies.</div>
-				<div><span class="icon regrowth"></span> Regrowth: Amount of health that gets restored at the beginning of every turn.</div>
-				<div><span class="icon endurance"></span> Endurance :  Protects unit from fatigue, which disables regrowth and meditation.</div><br>
-				<div><span class="icon energy"></span> Energy : Each unit ability requires a certain amount of energy to be used.</div>
-				<div><span class="icon meditation"></span> Meditation : Energy restored each turn.</div>
-				<div><span class="icon initiative"></span> Initiative : Units with higher amount of initiative points get to act their turn faster.</div><br>
-				<div><span class="icon offense"></span> Offense : Influences the damage output done by all the creature's attack abilities.</div>
-				<div><span class="icon defense"></span> Defense : Protects the creature by reducing some of the incoming damage.</div>
-				<div><span class="icon movement"></span> Movement : Any creature can move a certain number of hexagons every turn.</div>
-			</div>
-			<div class="card_info masteries_desc">
-				<span>There are 9 common types of damage and a rare one called Pure damage that bypasses the formula bellow, doing a fixed non-variable amount of harm no matter what.</span><br><br>
-				<span><u>Damage Formula</u><br>attack damage +<br>attack damage / 100 *<br>(offense of attacking unit -<br>defense of unit attacked /<br>number of hexagons hit +<br>source stat of attacker -<br>source stat of defender)</span><br><br>
-				<span>Minimum damage is usually 1<br>unless the hit is being avoided.</span>
-			</div>
-
+	<div class="center" style="display: inline-block; vertical-align: top;">
+		<div id="artwork" class="card sideA" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/features/1.jpg);">
 			<!-- Card Anchor -->
-			<a href="#" title="Go to the next card" onClick="nextCard();return false;"><div style="height:100%;"></div></a>
-<?php		
-			// Display unit info
-			echo '<a href="#" class="name" style="color: white;" onClick="nextCard();return false;"><div class="section info sinG">
-					Check out the game features <span id="position">1</span>/4
-			</div></a>
-		</div></div>';
+			<a href="#" title="Go to the next card" onClick="nextCard(); return false;"><div style="height: 100%;"></div></a>
 
-		// Side B
-		echo '
-		<div class="card sideB" style="background-image: url(' . $site_root . 'images/cards/margin.png), url(' . $site_root . 'images/cards/G.jpg);">
-			<div class="section numbers stats">';
-				// Display Stats
-				$r["stats"] = [
-								"health"=>190,
-								"regrowth"=>2,
-								"endurance"=>33,
-								"energy"=>80,
-								"meditation"=>3,
-								"initiative"=>80,
-								"offense"=>30,
-								"defense"=> 5,
-								"movement"=> 4,
-								"pierce"=> 6,
-								"slash"=> 6,
-								"crush"=> 6,
-								"shock"=> 1,
-								"burn"=> 1,
-								"frost"=> 1,
-								"poison"=> 5,
-								"sonic"=> 6,
-								"mental"=> 7];
-				$i=1;
-				foreach ($r["stats"] as $key => $value) {
-				 	if( $i > 0 && $i < 10) {
-			 			displayStat($key,$value);
-			 		}
-					$i++;
-				}
-				echo '
-			</div>
-			<div class="section abilities" onClick="nextCard();" style="cursor: pointer;">';
-		  		// Display Abilities
-				echo '
+			<!-- Display unit info -->
+			<a href="#" class="name" style="color: white;" onClick="nextCard(); return false;"><div class="section info sinG">
+					Check out the game features (<span id="position">1</span>/3)
+			</div></a>
+		</div></div>
+
+		<!-- Side B -->
+		<div class="card sideB" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/cards/G.jpg);">
+			<div class="section abilities" onClick="nextCard();" style="cursor: pointer;">
+		  		<!-- Display Abilities -->
 				<div class="ability">
 					<div id="first_icon" class="icon">
 						<div class="contour"></div>
 					</div>
 					<div class="wrapper">
 						<div class="info">
-							<h3 id="first_title"></h3>
+							<h3 id="first_title" class="underline"></h3>
 							<span class="desc" id="desc"></span>
 						</div>
 					</div>
@@ -181,39 +130,126 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 						</div>
 					</div>
 				</div>
-				';
-
-			echo '
+				<div class="ability">
+					<div id="fifth_icon" class="icon">
+						<div class="contour"></div>
+					</div>
+					<div class="wrapper">
+						<div class="info">
+							<h3 id="fifth_title"></h3>
+							<span class="desc" id="desc"></span>
+						</div>
+					</div>
+				</div>
 			</div>
-			<div class="section numbers masteries">';
+			<div class="section numbers masteries">
+				<?php
 				// Display Masteries
 				$i=1;
 				foreach ($r["stats"] as $key => $value) {
 				 	if( $i > 9 &&  $i < 19) { 
-				 		displayStat($key,$value,""); 
+				 		displayStat($key, $value, ""); 
 			 		}
 			 		$i++;
 				}
-				echo '
+				?>
 			</div>
-		</div>';
-?>
+		</div>
+</div>
+
+<div class="div center" id="contribute">
+	<!-- Side B -->
+	<div class="card sideB" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/cards/G.jpg);">
+		<div class="section abilities" onClick="nextCard();" style="cursor: pointer;">
+	  		<!-- Display Abilities -->
+			<div class="ability">
+				<div id="first_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/donate.svg);">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="first_title" class="underline">Donate</h3>
+						<span class="desc" id="desc">You can donate to the project directly via PayPal or Bitcoin. We also have a Patreon and a Bountysource page.</span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="second_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/artwork.svg);">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="second_title" class="underline">Artwork</h3>
+						<span class="desc" id="desc">You can donate existing artwork that you think it could nicely fit the project or offer your skills to create new stuff.</span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="third_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/coding.svg);">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="third_title" class="underline">Coding</h3>
+						<span class="desc" id="desc">We can always use an extra coding hand adding new functionality to the game or website and to squash bugs.</span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="fourth_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/audio.svg);">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="fourth_title" class="underline">Audio</h3>
+						<span class="desc" id="desc">Fast paced epic tracks can really set players in the mood for combat, while sound effects can empower abilities.</span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="fifth_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/writing.svg);">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="fifth_title" class="underline">Writing</h3>
+						<span class="desc" id="desc">Create exciting stories about the crazy and dangerous adventures that your favorite project units could undergo.</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Side A -->
+	<div class="center" style="display: inline-block; vertical-align: top;">
+		<div id="artwork" class="card sideA" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/skills.jpg);">
+			<!-- Card Anchor -->
+			<a href="contribute" title="Check out the contribution page" onClick="nextCard(); return false;"><div style="height: 100%;"></div></a>
+	
+			<!-- Display unit info -->
+			<a href="#" class="name" style="color: white;" onClick="nextCard(); return false;">
+				<div class="section info sinL">
+					You can contribute to this project!
+				</div>
+			</a>
+		</div>
+	</div>
 </div>
 
 <div class="div" id="plot">
-<div style="width: 475px; text-align: justify; display:inline-block;">
-<h3 class="indexheader"><a href="#plot">Plot</a></h3>
-<p>
-It's the year 2653. In the last few centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for daily survival.
-</p><p>
-Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here and only the strong ones will surpass it.
-</p>
-<div class="center"><audio id="narration" controls src="plot.ogg" style="width:475px;"></audio></div>
-<br>
-</div>
+	<img src="images/hand.png" class="image lighten" width=400px; height=387px; onClick="toggleSound();" style="cursor: pointer;" title="Click to play narrative">
+	<audio id="narration" src="plot.ogg"></audio>
 
-<img src="images/hand.png" class="image lighten" width=400px height=387px onclick="toggleSound();" style="cursor: pointer;" title="Click to play narrative">
-<audio id="narration" src="plot.ogg"></audio>
+	<div style="width: 475px; text-align: justify; display: inline-block;">
+		<h3 class="indexheader"><a href="#plot">Plot</a></h3>
+		<p>
+		It's the year 2653. In the last few centuries, technology advanced exponentially and everyone had a fair chance of playing God. With help from the <a href="http://reprap.org" target="_blank"><b>RepRap</b></a> project, a free desktop 3d printer, which gave anyone power to build their own weapon factory or genetic laboratory on their own property. Mechanic parts or genetic modifications turned from a fashion option into a requirement for daily survival.
+		</p><p>
+	Despite their combined efforts, the world's governments couldn't prevent the world from plunging into chaos. The Earth has become a battlefield, split between 7 factions fighting for dominion over the ravaged landscape. The apocalypse is here and only the strong ones will surpass it.
+		</p>
+		<div class="center"><audio id="narration" controls src="plot.ogg" style="width: 475px;"></audio></div>
+		<br>
+	</div>
 </div>
 
 <?php
@@ -223,8 +259,8 @@ include 'footer.php';
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 
+<!-- Screenshot Thumbnail Slideshow -->
 <script>
-// Screenshot Thumbnail Slideshow
 function nextSlide() {
 	var x = $('#screenshot img:not(.active)');
 	return $(x[Math.floor(Math.random() * x.length)]);
@@ -236,9 +272,9 @@ function slideSwitch() {
  		active = nextSlide();
 	var next = nextSlide();
 	active.addClass('last-active');
-	next.css({opacity: 0.0})
+	next.css({ opacity: 0.0 })
   	.addClass('active')
-  	.animate({opacity: 1.0}, 1000, function() {
+  	.animate({ opacity: 1.0 }, 1000, function() {
 	active.removeClass('active last-active');
 	});
 }
@@ -251,62 +287,46 @@ function toggleSound() {
 	else audioElem.pause();
 }
 
-$(function() {	
-	// Shows description of stats
-	$(".stats").mouseenter(function() {
-		var card = jQuery(this).parent().siblings().find(".stats_desc");
-		jQuery(card).show();
-	});
-	// Shows description of masteries
-	$(".masteries").mouseenter(function() {
-		var card = jQuery(this).parent().siblings().find(".masteries_desc");
-		jQuery(card).show();
-	});
-	// Hides the mini-tutorial
-	$(".section").mouseleave(function() {
-		var card = jQuery(this).parent().siblings().find(".card_info");
-		jQuery(card).hide();
-	});
-nextCard();
-});
-
 // Show next info card
 var i = 0;
-var total = 4;
+var total = 3;
 function nextCard() {
 	i = i%total+1;
 	$("#position").html(i);
-	$("#artwork").css("background","url(images/cards/margin.png),url(images/features/"+i+".jpg)");
+	$("#artwork").css("background", "url(images/cards/margin.png), url(images/features/" + i + ".jpg)");
 
-	$("#first_icon").css("background","url(images/features/"+i+"-1.svg)");
-	$("#second_icon").css("background","url(images/features/"+i+"-2.svg)");
-	$("#third_icon").css("background","url(images/features/"+i+"-3.svg)");
-	$("#fourth_icon").css("background","url(images/features/"+i+"-4.svg)");
+	$("#first_icon").css("background", "url(images/features/" + i + "-1.svg)");
+	$("#second_icon").css("background", "url(images/features/" + i + "-2.svg)");
+	$("#third_icon").css("background", "url(images/features/" + i + "-3.svg)");
+	$("#fourth_icon").css("background", "url(images/features/" + i + "-4.svg)");
+	$("#fifth_icon").css("background", "url(images/features/" + i + "-5.svg)");
 	switch(i) {
 		case 1:
-			$("#first_title").html("<u>Fun Gameplay</u>").next().html("You can materialise and control a variety of units in order to do your bidding and defeat all your foes.");
-			$("#second_title").html("<u>Easy to Learn</u>").next().html("Intimidated at first sight? No worries, everything is being explained during gameplay in a very non intrusive way.");
-			$("#third_title").html("<u>Ultra Replayable</u>").next().html("There are basically an almost infinite combination of units and moves that can be done so no 2 battles are alike.");
-			$("#fourth_title").html("<u>Hard to Master</u>").next().html("The game only relies on pure skill and never on dice throws, chances or other luck factors. It is always all up to you!");
+			$("#first_title").html("<u>Free Game</u>").next().html("We're putting a lot of love and effort into this game project using free tools, we want to give back something nice.");
+			$("#second_title").html("<u>Fun Gameplay</u>").next().html("You can materialise and control a variety of units in order to do your bidding and defeat all your foes.");
+			$("#third_title").html("<u>Easy to Learn</u>").next().html("Intimidated at first sight? No worries, everything is being explained during gameplay in a very non intrusive way.");
+			$("#fourth_title").html("<u>Ultra Replayable</u>").next().html("There are basically an almost infinite combination of units and moves that can be done so no 2 battles are alike.");
+			$("#fifth_title").html("<u>Hard to Master</u>").next().html("The game only relies on pure skill and never on dice throws, chances or other luck factors. It is always all up to you!");
 		break;
 		case 2:
-			$("#first_title").html("<u>Browser Based</u>").next().html("You don't have to bother yourself with downloading and installing the game or some silly problematic browser plug-in.");
-			$("#second_title").html("<u>Free to Play</u>").next().html("We're putting a lot of love and effort into this game project using free tools, we want to give back something nice.");
-			$("#third_title").html("<u>Optional User</u>").next().html("Eager to play? Go right ahead, you can enjoy most of the game without even having to spend any time registering.");
-			$("#fourth_title").html("<u>Open Source</u>").next().html("This project is mostly a community effort, so you can contribute to it as well while having fun and learning.");
+			$("#first_title").html("<u>Awesome Units</u>").next().html("They come in lots of shapes and sizes, serving as the tools to fulfil your will. Each unit comes with unique abilities.");
+			$("#second_title").html("<u>Town Building</u> - Coming Soon").next().html("You'll be going through a lot of fuss in order to acquire all those resources so that you can make various structures.");
+			$("#third_title").html("<u>Online Multiplayer</u> - Coming Soon").next().html("You can challenge anyone in the world to a battle while you can also team up with your best friend in 2vs2 matches.");
+			$("#fourth_title").html("<u>Challenging Bots</u> - Coming Soon").next().html("Want to play a practice match to polish up your skills or try out some new cool strategy you thought of? No problem.");
+			$("#fifth_title").html("<u>Arcade Mode</u>").next().html("Having a few mates over in your living room? Enjoy playing together on your TV while also having a slice of pizza.");
 		break;
 		case 3:
 			$("#first_title").html("<u>Light Weight</u>").next().html("Everything is carefully optimized so that you can enjoy playing on pretty much any device with a web browser.");
-			$("#second_title").html("<u>Input Methods</u> - Coming Soon").next().html("Given the way it was designed, you have the freedom to play this using most input methods you can think of.");
-			$("#third_title").html("<u>Awesome Creatures</u>").next().html("They come in lots of shapes and sizes, serving as the tools to fulfil your will. Each unit comes with unique abilities.");
-			$("#fourth_title").html("<u>Town Building</u> - Coming Soon").next().html("You'll be going through a lot of fuss in order to acquire all those resources so that you can make various structures.");
-		break;
-		case 4:
-			$("#first_title").html("<u>Win Prizes</u> - Coming Soon").next().html("Not only you can play it for free, but there are ways you can actually win stuff, such as achieving high scores.");
-			$("#second_title").html("<u>Arcade Mode</u>").next().html("Having a few mates over in your living room? Enjoy playing together on your TV while also having a slice of pizza.");
-			$("#third_title").html("<u>Online Multiplayer</u> - Coming Soon").next().html("You can challenge anyone in the world to a battle while you can also team up with your best friend in 2vs2 matches.");
-			$("#fourth_title").html("<u>Challenging Bots</u> - Coming Soon").next().html("Want to play a practice match or two to polish up your skills or try out new strategy you thought of? No problem.");
+			$("#second_title").html("<u>Offline Game</u> - Coming Soon").next().html("You can download and play the game even at those times when you do not have an internet connection available.");
+			$("#third_title").html("<u>Optional User</u>").next().html("Eager to play? Go right ahead, you can enjoy most of the game without even having to spend any time registering.");
+			$("#fourth_title").html("<u>Input Methods</u> - Coming Soon").next().html("Given the way it was designed, you have the freedom to play this using most input methods you can think of.");
+			$("#fifth_title").html("<u>Open Source</u>").next().html("This project is mostly a community effort, so you can contribute to it as well while having fun and learning.");
+
+
 		break;
 	}
 }
+
+// Auto-trigger the first page of features
+$(function() { nextCard(); });
 </script>
