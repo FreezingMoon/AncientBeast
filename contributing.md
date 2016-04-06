@@ -21,7 +21,7 @@ https://github.com/FreezingMoon/AncientBeast.git
 
 ### Create Database
 
-Access your MySQL database via phpMyAdmin, create a database for the project and import **database.sql** file from the project's root.
+Access your **phpMyAdmin**, create a database for the project and import **database.sql** file from the project's root.
 
 ### Change Config
 
