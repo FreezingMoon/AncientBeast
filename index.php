@@ -158,7 +158,7 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 				<div class="wrapper">
 					<div class="info">
 						<h3 id="first_title" class="underline">Donate</h3>
-						<span class="desc" id="desc">You can donate to the project directly via PayPal or Bitcoin. We also have a Patreon and a Bountysource page.</span>
+						<span class="desc" id="desc">You can donate to the project directly via PayPal or Bitcoin and we also have nice Patreon and Bountysource pages.</span>
 					</div>
 				</div>
 			</div>
