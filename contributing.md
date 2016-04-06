@@ -29,6 +29,10 @@ You'll have to configure **config.php.in** file from project root directory, upd
 That file will not be tracked so it will be completely ignored from your commits, making things easier for you.
 In case you're using a different path and/or name for the project's root, make sure you update **$site_root** to reflect that, or you'll end up not seeing any images on your local website.
 
+### Next Step
+
+You're free to browse [existing issues](https://github.com/FreezingMoon/AncientBeast/issues) and comment on the ones that you want to take a swing at in order to make sure the issue is still relevant and that nobody else is working on it. You can also drop by the project's [Gitter Chatroom](https://gitter.im/FreezingMoon/AncientBeast) (which requires logging in with GitHub) and talk to the founder, Dread Knight, who will find you something to work on in no time.
+
 ## How to contribute to the game
 
 The gameplay is in dire need or contributors, you can check out [this guide](https://github.com/FreezingMoon/AncientBeast/tree/master/development/#readme) for more details.
