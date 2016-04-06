@@ -13,8 +13,7 @@ If you're not very keen on using git from the CLI, I recomment using [Git Cola](
 
 ### Fork Project
 
-You can create a clone of the project by using git from CLI or with the use of a tool, like the one recommended above.
-Create a folder called "AncientBeast" inside the root of your development server and browse it, the naming is important.
+You can create a clone of the project by using git from CLI or with the use of a tool, like the one recommended above.  Create a folder called "AncientBeast" inside the root of your development server and browse it, the naming is important.
 ```
 https://github.com/FreezingMoon/AncientBeast.git
 ```
