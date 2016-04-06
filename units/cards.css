@@ -51,7 +51,7 @@
 
 .abilities .icon { position: absolute; left: 0px; top: 0px; }
 
-.abilities .icon, .contour{
+.abilities .icon, .contour {
 	display: inline-block;
 	background-size: 100% 100%;
 	width: 100px;
@@ -63,7 +63,7 @@
 
 .ability { position: relative; padding-right: 3px; }
 
-.abilities .ability .wrapper{
+.abilities .ability .wrapper {
 	display: table-cell;
 	height: 100px;
 	padding-left: 103px;
@@ -83,7 +83,7 @@
 .card_info {
 	position: absolute;
 	display: none;
-	background: rgba(0,0,0,.8);
+	background: rgba(0, 0, 0, 0.8);
 	width: 400px;
 	color: white;
 	height: 520px;

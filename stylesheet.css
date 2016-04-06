@@ -11,39 +11,19 @@ body {
 	width: 950px;
 	margin: 0 auto;
 }
+
 /* Chrome Hack https://code.google.com/p/chromium/issues/detail?id=413183 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) { body { word-spacing: -1px; } }
 
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-	body {
-		word-spacing: -1px;
-	}
-}
+img { border: none; vertical-align: bottom; }
 
-img {
-	border: none;
-	vertical-align: bottom;
-}
+.account { position: absolute; padding-top: -20px; text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black; }
 
-.account {
-	position: absolute;
-	padding-top: -20px;
-	text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em black;
-}
+#header { margin: 15px auto 0; padding: 0; }
 
-#header {
-	margin: 15px auto 0;
-	padding: 0;
-}
+.indexheader { font-weight: 700; text-align: center; margin: 0 auto; }
 
-.indexheader {
-	font-weight: 700;
-	text-align: center;
-	margin: 0 auto;
-}
-
-.active {
-	color: #E90000 !important;
-}
+.active { color: #E90000 !important; }
 
 .sections {
 	font-size: 18px;
@@ -54,15 +34,9 @@ img {
 	padding: 0;
 }
 
-.sections li {
-	display: inline;
-}
+.sections li { display: inline; }
 
-.center {
-	margin-left: auto !important;
-	margin-right: auto !important;
-	text-align: center !important;
-}
+.center { margin-left: auto !important; margin-right: auto !important; text-align: center !important; }
 
 .lighten:hover {
 	filter: brightness(120%);
@@ -72,17 +46,11 @@ img {
 	-ms-filter: brightness(120%);
 }
 
-.shadow {
-	box-shadow: 0 0 10px #000;
-}
+.shadow { box-shadow: 0 0 10px #000; }
+.underline { text-decoration: underline; }
+:focus { outline: none; }
 
-:focus {
-	outline: none;
-}
-
-#wrapper {
-	text-align: left;
-}
+#wrapper { text-align: left; }
 
 .div {
 	border: 20px solid transparent;
@@ -147,10 +115,7 @@ img {
 
 a:link,
 a:visited,
-a:active {
-	text-decoration: none;
-	color: #b7b7b7;
-}
+a:active { text-decoration: none; color: #b7b7b7; }
 
 a:hover,
 .active a,
@@ -165,11 +130,7 @@ iframe {
 	border: 0;
 }
 
-.frame {
-	border: 4px ridge;
-	border-radius: 15px;
-	border-color: #660E00;
-}
+.frame { border: 4px ridge; border-radius: 15px; border-color: #660E00; }
 
 #scroll {
 	bottom: 0;
@@ -179,13 +140,6 @@ iframe {
 	z-index: 999;
 }
 
-.footer img {
-	width: 48px;
-	height: 48px;
-}
+.footer img { width: 48px; height: 48px; }
 
-@media (max-width: 1060px) {
-	#scroll {
-		display: none;
-	}
-}
+@media (max-width: 1060px) { #scroll { display: none; } }
