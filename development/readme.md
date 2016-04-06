@@ -1,6 +1,8 @@
 ## Development Setup
 It's very easy to set-up a local server in order to test and contribute to the development version of the game.
 
+It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, named [Phaser](http://phaser.io).
+
 ### Recommended Tool
 If you're not very keen on using git from the CLI, I recomment using [Git Cola](https://git-cola.github.io) for cloning the project and creating patches.
 
