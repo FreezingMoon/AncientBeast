@@ -1,6 +1,6 @@
 ## How to contribute to the website
 
-The website is pretty much wrapped around the game itself, meaning it reuses a lot of its assets. To keep things simple, the "stable" and "development" versions of the game are also included in this repository, but they'll require a Node.js server.
+The website is pretty much wrapped around the game itself, meaning it reuses a lot of its assets. To keep things simple, the "stable" and "development" versions of the game are also included in this repository, but they'll require a Node.js server.<br>
 It's built using HTML, CSS, Javascript, PHP and MySQL. It needs to run on a server, a local one will do just fine.
 
 ### Installing Dependencies
