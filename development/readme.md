@@ -39,8 +39,7 @@ Grunt will work in the background so that when you change any game scripts, the 
 ---
 
 ## Getting Involved
-After you've playtested the development version of the game, there are 2 main ways you can contribute to the project.
-
+After you've playtested the development version of the game, there are 2 main ways you can contribute to the project.<br>
 For a more comprehensive guide on how to help out the project, you can check out the [Make Your Contribution](https://AncientBeast.com/contribute) guide.
 
 ### Report Issues
