@@ -1017,7 +1017,7 @@ var Game = Class.create({
 		var $table = $j("#endscreen table tbody");
 
 		if(this.playerMode==2) { // If Only 2 players remove the other 2 columns
-			$table.children("tr").children("td: nth-child(even)").remove();
+			$table.children("tr").children("td:nth-child(even)").remove();
 			var $table = $j("#endscreen table tbody");
 		}
 
@@ -1052,13 +1052,13 @@ var Game = Class.create({
 			var colId = (this.playerMode>2) ?( i+2+((i%2)*2-1)*Math.min(1, i%3) ):i+2;
 
 			// Change Name
-			$table.children("tr.player_name").children("td: nth-child(" + colId + ")") // Weird expression swap 2nd and 3rd player
+			$table.children("tr.player_name").children("td:nth-child(" + colId + ")") // Weird expression swap 2nd and 3rd player
 			.text(this.players[i].name);
 
 			//Change score
 			$j.each(this.players[i].getScore(),function(index, val) {
 				var text = ( val === 0 && index !== "total") ? "--" : val ;
-				$table.children("tr."+index).children("td: nth-child(" + colId + ")") // Weird expression swap 2nd and 3rd player
+				$table.children("tr."+index).children("td:nth-child(" + colId + ")") // Weird expression swap 2nd and 3rd player
 				.text(text);
 			});
 		}
