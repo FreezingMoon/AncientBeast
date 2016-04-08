@@ -27,7 +27,7 @@ module.exports = function (grunt) {
                     "src/abilities/**/*.js",
                     "src/network/**/*.js"
                 ],
-                dest: 'deploy/js/<%= pkg.name %>.js'
+                dest: 'deploy/scripts/<%= pkg.name %>.js'
             }
         },
         watch: {
@@ -41,7 +41,7 @@ module.exports = function (grunt) {
 				files: [{
 					expand: true,
 					src: ['node_modules/phaser/build/phaser*.js'],
-					dest: 'deploy/js/lib/',
+					dest: 'deploy/scripts/libs/',
 					filter: 'isFile',
 					flatten: true
 				}]

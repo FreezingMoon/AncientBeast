@@ -8,8 +8,8 @@ var gameManager = require('./server/gamemanager.js');
 var qManager = require('./server/queuemanager.js');
 
 // Setup the game queue and connection details
-io.on('connection', function(session){
-  console.log('a user connected');
+io.on('connection', function(session) {
+  console.log('an user connected');
 
   // Store the username in the socket session for this client
   var username = makeid();
@@ -18,7 +18,7 @@ io.on('connection', function(session){
   // Add user to the queue
   qManager.addToQueue(session);
 
-  session.on('disconnect', function(){
+  session.on('disconnect', function() {
     console.log('user disconnected');
     qManager.removeFromQueue(session);
   });
@@ -29,8 +29,7 @@ io.on('connection', function(session){
 });
 
 
-function makeid()
-{
+function makeid() {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 

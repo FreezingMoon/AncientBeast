@@ -10,40 +10,40 @@
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.js"></script>
-<script type="text/javascript" src="js/lib/phaser.js"></script>
-<script type="text/javascript" src="js/lib/jquery.transit.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery.kinetic.js"></script>
-<script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="scripts/libs/phaser.js"></script>
+<script type="text/javascript" src="scripts/libs/jquery.transit.min.js"></script>
+<script type="text/javascript" src="scripts/libs/jquery.kinetic.js"></script>
+<script type="text/javascript" src="scripts/libs/jquery.mousewheel.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/prototype/1.7.1.0/prototype.js"></script>
 <script type="text/javascript">
 	var $j = jQuery.noConflict();
 </script>
 <script src="//cdn.socket.io/socket.io-1.3.5.js"></script> <!-- Socket.io Library -->
-<script type="text/javascript" src="js/ancientbeast.js"></script> <!-- Compiled Script -->
+<script type="text/javascript" src="scripts/ancientbeast.js"></script> <!-- Compiled Script -->
 
 <style type="text/css">
 .icon { height: 32px; width: 32px; display: inline-block; }
 .stat { text-align: center; display: table-cell; vertical-align: middle; }
 
 	.icon.plasma, .plasma .icon { background-image: url("stats/plasma.svg"); }
-	.icon.health, .health .icon { background-image: url("stats/health.svg"); }.icon.health:hover, .health:hover .icon { background-image: url("stats/health.gif"); }
-	.icon.regrowth, .regrowth .icon { background-image: url("stats/regrowth.svg"); }.icon.regrowth:hover, .regrowth:hover .icon { background-image: url("stats/regrowth.gif"); }
-	.icon.endurance, .endurance .icon { background-image: url("stats/endurance.svg"); }.icon.endurance:hover, .endurance:hover .icon { background-image: url("stats/endurance.gif"); }
-	.icon.energy, .energy .icon { background-image: url("stats/energy.svg"); }.icon.energy:hover, .energy:hover .icon { background-image: url("stats/energy.gif"); }
-	.icon.meditation, .meditation .icon { background-image: url("stats/meditation.svg"); }.icon.meditation:hover, .meditation:hover .icon { background-image: url("stats/meditation.gif"); }
-	.icon.initiative, .initiative .icon { background-image: url("stats/initiative.svg"); }.icon.initiative:hover, .initiative:hover .icon { background-image: url("stats/initiative.gif"); }
-	.icon.offense, .offense .icon { background-image: url("stats/offense.svg"); }.icon.offense:hover, .offense:hover .icon { background-image: url("stats/offense.gif"); }
-	.icon.defense, .defense .icon { background-image: url("stats/defense.svg"); }.icon.defense:hover, .defense:hover .icon { background-image: url("stats/defense.gif"); }
-	.icon.movement, .movement .icon { background-image: url("stats/movement.svg"); }.icon.movement:hover, .movement:hover .icon { background-image: url("stats/movement.gif"); }
-	.icon.pierce, .pierce .icon { background-image: url("stats/pierce.svg"); }.icon.pierce:hover, .pierce:hover .icon { background-image: url("stats/pierce.gif"); }
-	.icon.slash, .slash .icon { background-image: url("stats/slash.svg"); }.icon.slash:hover, .slash:hover .icon { background-image: url("stats/slash.gif"); }
-	.icon.crush, .crush .icon { background-image: url("stats/crush.svg"); }.icon.crush:hover, .crush:hover .icon { background-image: url("stats/crush.gif"); }
-	.icon.shock, .shock .icon { background-image: url("stats/shock.svg"); }.icon.shock:hover, .shock:hover .icon { background-image: url("stats/shock.gif"); }
-	.icon.burn, .burn .icon { background-image: url("stats/burn.svg"); }.icon.burn:hover, .burn:hover .icon { background-image: url("stats/burn.gif"); }
-	.icon.frost, .frost .icon { background-image: url("stats/frost.svg"); }.icon.frost:hover, .frost:hover .icon { background-image: url("stats/frost.gif"); }
-	.icon.poison, .poison .icon { background-image: url("stats/poison.svg"); }.icon.poison:hover, .poison:hover .icon { background-image: url("stats/poison.gif"); }
-	.icon.sonic, .sonic .icon { background-image: url("stats/sonic.svg"); }.icon.sonic:hover, .sonic:hover .icon { background-image: url("stats/sonic.gif"); }
-	.icon.mental, .mental .icon { background-image: url("stats/mental.svg"); }.icon.mental:hover, .mental:hover .icon { background-image: url("stats/mental.gif"); }
+	.icon.health, .health .icon { background-image: url("stats/health.svg"); } .icon.health:hover, .health:hover .icon { background-image: url("stats/health.gif"); }
+	.icon.regrowth, .regrowth .icon { background-image: url("stats/regrowth.svg"); } .icon.regrowth:hover, .regrowth:hover .icon { background-image: url("stats/regrowth.gif"); }
+	.icon.endurance, .endurance .icon { background-image: url("stats/endurance.svg"); } .icon.endurance:hover, .endurance:hover .icon { background-image: url("stats/endurance.gif"); }
+	.icon.energy, .energy .icon { background-image: url("stats/energy.svg"); } .icon.energy:hover, .energy:hover .icon { background-image: url("stats/energy.gif"); }
+	.icon.meditation, .meditation .icon { background-image: url("stats/meditation.svg"); } .icon.meditation:hover, .meditation:hover .icon { background-image: url("stats/meditation.gif"); }
+	.icon.initiative, .initiative .icon { background-image: url("stats/initiative.svg"); } .icon.initiative:hover, .initiative:hover .icon { background-image: url("stats/initiative.gif"); }
+	.icon.offense, .offense .icon { background-image: url("stats/offense.svg"); } .icon.offense:hover, .offense:hover .icon { background-image: url("stats/offense.gif"); }
+	.icon.defense, .defense .icon { background-image: url("stats/defense.svg"); } .icon.defense:hover, .defense:hover .icon { background-image: url("stats/defense.gif"); }
+	.icon.movement, .movement .icon { background-image: url("stats/movement.svg"); } .icon.movement:hover, .movement:hover .icon { background-image: url("stats/movement.gif"); }
+	.icon.pierce, .pierce .icon { background-image: url("stats/pierce.svg"); } .icon.pierce:hover, .pierce:hover .icon { background-image: url("stats/pierce.gif"); }
+	.icon.slash, .slash .icon { background-image: url("stats/slash.svg"); } .icon.slash:hover, .slash:hover .icon { background-image: url("stats/slash.gif"); }
+	.icon.crush, .crush .icon { background-image: url("stats/crush.svg"); } .icon.crush:hover, .crush:hover .icon { background-image: url("stats/crush.gif"); }
+	.icon.shock, .shock .icon { background-image: url("stats/shock.svg"); } .icon.shock:hover, .shock:hover .icon { background-image: url("stats/shock.gif"); }
+	.icon.burn, .burn .icon { background-image: url("stats/burn.svg"); } .icon.burn:hover, .burn:hover .icon { background-image: url("stats/burn.gif"); }
+	.icon.frost, .frost .icon { background-image: url("stats/frost.svg"); } .icon.frost:hover, .frost:hover .icon { background-image: url("stats/frost.gif"); }
+	.icon.poison, .poison .icon { background-image: url("stats/poison.svg"); } .icon.poison:hover, .poison:hover .icon { background-image: url("stats/poison.gif"); }
+	.icon.sonic, .sonic .icon { background-image: url("stats/sonic.svg"); } .icon.sonic:hover, .sonic:hover .icon { background-image: url("stats/sonic.gif"); }
+	.icon.mental, .mental .icon { background-image: url("stats/mental.svg"); } .icon.mental:hover, .mental:hover .icon { background-image: url("stats/mental.gif"); }
 	</style>
 <link rel="stylesheet" href="css/cards.css">
 
