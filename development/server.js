@@ -9,7 +9,7 @@ var qManager = require('./server/queuemanager.js');
 
 // Setup the game queue and connection details
 io.on('connection', function(session) {
-  console.log('an user connected');
+  console.log('a user connected');
 
   // Store the username in the socket session for this client
   var username = makeid();
