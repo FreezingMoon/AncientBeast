@@ -21,8 +21,8 @@ $(function() {
 			selectedUnit = $(e.target).data("id");
 			updateCarousel();
 			//updateCard(selectedUnit);
-            var urll = "?view=viewer&id="+selectedUnit;
-            window.location.href = urll;
+            		var urll = "?view=viewer&id="+selectedUnit;
+            		window.location.href = urll;
 		});
 
 	});
