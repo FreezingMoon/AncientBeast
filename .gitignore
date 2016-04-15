@@ -1,3 +1,4 @@
 .ds_store
 config.php
 robots.txt
+node_modules/
