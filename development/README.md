@@ -21,6 +21,7 @@ First Install [NodeJS](http://nodejs.org). Linux users: if you installed from re
 Navigate into the *development* directory and use this command for installing & updating dependencies:
 
 ```
+cd development
 npm install
 ```
 
