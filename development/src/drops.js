@@ -1,13 +1,14 @@
 var Drop = Class.create({
 
-	initialize : function(name,alterations,x,y){
+	initialize : function(name,health,energy,x,y){
 
 		this.name 			= name;
 		this.id 			= dropID++;
 		this.x 				= x;
 		this.y 				= y;
 		this.pos 			= { x:x, y:y };
-		this.alterations 	= alterations;
+		this.health			= health;
+		this.energy			= energy;
 		this.hex 			= G.grid.hexs[this.y][this.x];
 
 		this.hex.drop = this;
@@ -29,29 +30,19 @@ var Drop = Class.create({
 
 		this.hex.drop = undefined;
 
-		// Fills up consumable stats
-		$j.each( this.alterations, function(key, value){
-			switch(key){
-				case "health" : 
-					creature.heal(value);
-					break;
-				case "endurance" : 
-					creature.endurance += value;
-					break;
-				case "energy" : 
-					creature.energy += value;
-					break;
-				case "movement" : 
-					creature.remainingMove += value;
-					break;
-			}
-			G.log("%CreatureName"+creature.id+"% gains "+value+" "+key);
-		});
+		if(this.health) {
+			creature.heal(this.health);
+			G.log("%CreatureName"+creature.id+"% gains "+this.health+" health");
+		}
+		if(this.energy) {
+			creature.energy += this.energy;
+			G.log("%CreatureName"+creature.id+"% gains "+this.energy+" energy");
+		}
 
 		creature.updateAlteration(); // Will cap the stats
 
 		var drop = this;
 		var tween = G.Phaser.add.tween(this.display).to( {alpha:0}, 500, Phaser.Easing.Linear.None ).start();
-		tween.onCompleteCallback(function() { drop.display.destroy(); });
+		tween.onComplete.add(function() { drop.display.destroy(); });
 	}
 });
