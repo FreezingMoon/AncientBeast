@@ -20,7 +20,9 @@ $(function() {
 		$(document).on("click", ".carouselAvatar", function(e) {
 			selectedUnit = $(e.target).data("id");
 			updateCarousel();
-			updateCard(selectedUnit);
+			//updateCard(selectedUnit);
+            		var urll = "?view=viewer&id="+selectedUnit;
+            		window.location.href = urll;
 		});
 
 	});
