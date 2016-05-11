@@ -33,8 +33,15 @@ G.abilities[37] =[
 
 	//	activate() :
 	activate : function(hex) {
+		var alterations = $j.extend({}, this.effects[0]);
+		// Double effect if upgraded
+		if (this.isUpgraded()){
+			for (var k in alterations){
+				alterations[k] = alterations[k]*2;
+			}
+		}
 		var effect = new Effect("Spa Mud",this.creature,this.creature,"mud-bath",{
-			alterations : this.effects[0]
+			alterations : alterations
 		});
 		this.creature.addEffect(effect);
 	},
