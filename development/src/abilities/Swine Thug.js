@@ -174,6 +174,14 @@ G.abilities[37] =[
 	trigger : "onQuery",
 
 	require : function(){
+		// If upgraded, self cost is less
+		if (this.isUpgraded()) {
+			this.requirements = {energy: 10};
+			this.costs = {energy: 10};
+		}else{
+			this.requirements = {energy: 30};
+			this.costs = {energy: 30};
+		}
 		return this.testRequirements();
 	},
 
@@ -184,8 +192,17 @@ G.abilities[37] =[
 		var swine = this.creature;
 		var size = 1;
 
-		// Gather all the reachable hexs, including the current one
-		var hexs = G.grid.hexs[swine.y][swine.x].adjacentHex(50, true);
+		// Check if we are upgraded; self cost is less so if we only have enough
+		// energy to cast on self, restrict range to self
+		var selfOnly = this.isUpgraded() && this.creature.energy < 30;
+
+		var hexs;
+		if (selfOnly){
+			hexs = [G.grid.hexs[swine.y][swine.x]];
+		}else{
+			// Gather all the reachable hexs, including the current one
+			hexs = G.grid.hexs[swine.y][swine.x].adjacentHex(50, true);
+		}
 
 		//TODO Filtering corpse hexs
 		hexs.filter(function(){return true;});
@@ -204,6 +221,18 @@ G.abilities[37] =[
 	activate : function(hex,args) {
 		G.grid.clearHexViewAlterations();
 		var ability = this;
+		var swine = this.creature;
+
+		// If upgraded and cast on self, cost is less
+		var isSelf = hex.x === swine.x && hex.y === swine.y;
+		if (this.isUpgraded()) {
+			this.requirements = {energy: 10};
+			this.costs = {energy: 10};
+		}else{
+			this.requirements = {energy: 30};
+			this.costs = {energy: 30};
+		}
+
 		ability.end();
 
 		var effects = [
