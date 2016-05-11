@@ -162,6 +162,14 @@ G.abilities[37] =[
 
 		var target = path.last().creature;
 
+		// If upgraded, hits will debuff target with -1 meditation
+		if (this.isUpgraded()) {
+			var effect = new Effect("Ground Ball",ability.creature,target,"onDamage",{
+				alterations : {meditation: -1}
+			});
+			target.addEffect(effect);
+		}
+
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
