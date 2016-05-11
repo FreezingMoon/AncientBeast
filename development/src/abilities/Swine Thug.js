@@ -182,8 +182,10 @@ G.abilities[37] =[
 
 		var ability = this;
 		var swine = this.creature;
+		var size = 1;
 
-		var hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
+		// Gather all the reachable hexs, including the current one
+		var hexs = G.grid.hexs[swine.y][swine.x].adjacentHex(50, true);
 
 		//TODO Filtering corpse hexs
 		hexs.filter(function(){return true;});
