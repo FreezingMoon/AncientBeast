@@ -307,7 +307,7 @@ G.abilities[37] =[
 
 		// If upgraded and cast on self, cost is less
 		var isSelf = hex.x === swine.x && hex.y === swine.y;
-		if (this.isUpgraded()) {
+		if (this.isUpgraded() && isSelf) {
 			this.requirements = {energy: 10};
 			this.costs = {energy: 10};
 		}else{
