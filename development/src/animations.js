@@ -4,14 +4,16 @@ var Animations = Class.create({
 
 	movements : {
 
+		savedMvtPoints: 0,
+
 		walk : function(crea,path,opts){
 
 			if( opts.customMovementPoint > 0 ){
 
 				path = path.slice(0,opts.customMovementPoint);
 				// For compatibility
-				var savedMvtPoints = creature.remainingMove;
-				creature.remainingMove = opts.customMovementPoint;
+				this.savedMvtPoints = crea.remainingMove;
+				crea.remainingMove = opts.customMovementPoint;
 			}
 
 			G.freezedInput = true;
@@ -68,7 +70,7 @@ var Animations = Class.create({
 
 				path = path.slice(0,opts.customMovementPoint);
 				// For compatibility
-				var savedMvtPoints = crea.remainingMove;
+				this.savedMvtPoints = crea.remainingMove;
 				crea.remainingMove = opts.customMovementPoint;
 			}
 
@@ -183,7 +185,7 @@ var Animations = Class.create({
 		movementComplete : function(crea,hex,anim_id,opts){
 
 			if(opts.customMovementPoint > 0){
-				crea.remainingMove = savedMvtPoints;
+				crea.remainingMove = this.savedMvtPoints;
 			}
 
 			G.grid.updateDisplay();

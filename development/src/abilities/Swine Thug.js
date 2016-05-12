@@ -93,7 +93,38 @@ G.abilities[37] =[
 			1, //Area
 			[]	//Effects
 		);
-		target.takeDamage(damage);
+		var result = target.takeDamage(damage);
+		// Knock the target back if they are still alive
+		if( !result.kill ){
+			// Knock the target in the opposite direction of the attacker
+			var dx = target.x - ability.creature.x;
+			var dy = target.y - ability.creature.y;
+			// Due to target size, this could be off; limit dx
+			if(dx > 1) dx = 1;
+			if(dx < -1) dx = -1;
+			// Hex grid corrections
+			if(dy !== 0){
+				if(target.y%2 == 0){
+					// Even row
+					dx++;
+				}else{
+					// Odd row
+					dx--;
+				}
+			}
+			var hexes = G.grid.hexs[target.y+dy][target.x+dx].adjacentHex(0, true);
+			if (hexes.length > 0) {
+				target.moveTo(hexes[0], {
+					ignoreMovementPoint : true,
+					ignorePath : true,
+					customMovementPoint: 1,	// Ignore target's movement points
+					callback : function() {
+						G.activeCreature.queryMove();
+					},
+					animation : "push",
+				});
+			}
+		}
 	},
 },
 
