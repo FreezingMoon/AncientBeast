@@ -138,13 +138,12 @@ G.abilities[37] =[
 
 				if(!this.isUpgraded()) break;
 				// Check if we are over a mud bath
-				// As long as the target is over at least one mud bath, they will keep
-				// slipping
-				var mudSlide = false;
+				// The target must be completely over mud baths to keep sliding
+				var mudSlide = true;
 				for (var i = 0; i < target.size; i++) {
 					hex = G.grid.hexs[y][x-i];
-					if(hexes[0].trap && hexes[0].trap.type === "mud-bath") {
-						mudSlide = true;
+					if(!hex.trap || hex.trap.type !== "mud-bath") {
+						mudSlide = false;
 						break;
 					}
 				}
