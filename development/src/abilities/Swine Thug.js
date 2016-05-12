@@ -109,9 +109,6 @@ G.abilities[37] =[
 				// Knock the target in the opposite direction of the attacker
 				var dx = x - xLast;
 				var dy = y - yLast;
-				// Due to target size, this could be off; limit dx
-				if(dx > 1) dx = 1;
-				if(dx < -1) dx = -1;
 				// Hex grid corrections
 				if(dy !== 0){
 					if(y%2 == 0){
@@ -122,6 +119,9 @@ G.abilities[37] =[
 						dx--;
 					}
 				}
+				// Due to target size, this could be off; limit dx
+				if(dx > 1) dx = 1;
+				if(dx < -1) dx = -1;
 				xLast = x;
 				yLast = y;
 				// Check that the next knockback hex is valid
@@ -139,7 +139,17 @@ G.abilities[37] =[
 
 				if(!this.isUpgraded()) break;
 				// Check if we are over a mud bath
-				if(!hexes[0].trap || hexes[0].trap.type !== "mud-bath") break;
+				// As long as the target is over at least one mud bath, they will keep
+				// slipping
+				var mudSlide = false;
+				for (var i = 0; i < target.size; i++) {
+					hexes = G.grid.hexs[y][x-i].adjacentHex(0, true);
+					if(hexes[0].trap && hexes[0].trap.type === "mud-bath") {
+						mudSlide = true;
+						break;
+					}
+				}
+				if (!mudSlide) break;
 			}
 			if(x !== target.x || y !== target.y){
 				target.moveTo(G.grid.hexs[y][x], {
