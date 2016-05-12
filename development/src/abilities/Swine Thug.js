@@ -129,9 +129,8 @@ G.abilities[37] =[
 				var yNext = y + dy;
 				if(yNext < 0 || yNext >= G.grid.hexs.length) break;
 				if(xNext < 0 || xNext >= G.grid.hexs[yNext].length) break;
-				var hexes = G.grid.hexs[yNext][xNext].adjacentHex(0, true);
-				if(hexes.length === 0) break;
-				if(!hexes[0].isWalkable(target.size, target.id, true)) break;
+				var hex = G.grid.hexs[yNext][xNext];
+				if(!hex.isWalkable(target.size, target.id, true)) break;
 
 				movementPoints++;
 				x = xNext;
@@ -143,7 +142,7 @@ G.abilities[37] =[
 				// slipping
 				var mudSlide = false;
 				for (var i = 0; i < target.size; i++) {
-					hexes = G.grid.hexs[y][x-i].adjacentHex(0, true);
+					hex = G.grid.hexs[y][x-i];
 					if(hexes[0].trap && hexes[0].trap.type === "mud-bath") {
 						mudSlide = true;
 						break;
