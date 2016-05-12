@@ -131,6 +131,7 @@ G.abilities[37] =[
 				if(xNext < 0 || xNext >= G.grid.hexs[yNext].length) break;
 				var hexes = G.grid.hexs[yNext][xNext].adjacentHex(0, true);
 				if(hexes.length === 0) break;
+				if(!hexes[0].isWalkable(target.size, target.id, true)) break;
 
 				movementPoints++;
 				x = xNext;
