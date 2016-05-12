@@ -96,28 +96,55 @@ G.abilities[37] =[
 		var result = target.takeDamage(damage);
 		// Knock the target back if they are still alive
 		if( !result.kill ){
-			// Knock the target in the opposite direction of the attacker
-			var dx = target.x - ability.creature.x;
-			var dy = target.y - ability.creature.y;
-			// Due to target size, this could be off; limit dx
-			if(dx > 1) dx = 1;
-			if(dx < -1) dx = -1;
-			// Hex grid corrections
-			if(dy !== 0){
-				if(target.y%2 == 0){
-					// Even row
-					dx++;
-				}else{
-					// Odd row
-					dx--;
+			// See how far we can knock the target back
+			// For unupgraded ability, this is only 1 hex
+			// For upgraded, as long as the target is over a mud tile, keep pushing
+			// them back
+			var x = target.x;
+			var y = target.y;
+			var xLast = ability.creature.x;
+			var yLast = ability.creature.y;
+			var movementPoints = 0;
+			while(true){
+				// Knock the target in the opposite direction of the attacker
+				var dx = x - xLast;
+				var dy = y - yLast;
+				// Due to target size, this could be off; limit dx
+				if(dx > 1) dx = 1;
+				if(dx < -1) dx = -1;
+				// Hex grid corrections
+				if(dy !== 0){
+					if(y%2 == 0){
+						// Even row
+						dx++;
+					}else{
+						// Odd row
+						dx--;
+					}
 				}
+				xLast = x;
+				yLast = y;
+				// Check that the next knockback hex is valid
+				var xNext = x + dx;
+				var yNext = y + dy;
+				if(yNext < 0 || yNext >= G.grid.hexs.length) break;
+				if(xNext < 0 || xNext >= G.grid.hexs[yNext].length) break;
+				var hexes = G.grid.hexs[yNext][xNext].adjacentHex(0, true);
+				if(hexes.length === 0) break;
+
+				movementPoints++;
+				x = xNext;
+				y = yNext;
+
+				if(!this.isUpgraded()) break;
+				// Check if we are over a mud bath
+				if(!hexes[0].trap || hexes[0].trap.type !== "mud-bath") break;
 			}
-			var hexes = G.grid.hexs[target.y+dy][target.x+dx].adjacentHex(0, true);
-			if (hexes.length > 0) {
-				target.moveTo(hexes[0], {
+			if(x !== target.x || y !== target.y){
+				target.moveTo(G.grid.hexs[y][x], {
 					ignoreMovementPoint : true,
 					ignorePath : true,
-					customMovementPoint: 1,	// Ignore target's movement points
+					customMovementPoint: movementPoints,	// Ignore target's movement points
 					callback : function() {
 						G.activeCreature.queryMove();
 					},
