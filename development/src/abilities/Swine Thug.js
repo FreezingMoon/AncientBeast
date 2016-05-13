@@ -278,13 +278,12 @@ G.abilities[37] =[
 		// energy to cast on self, restrict range to self
 		var selfOnly = this.isUpgraded() && this.creature.energy < 30;
 
-		var hexs;
-		if (selfOnly) {
-			hexs = [G.grid.hexs[swine.y][swine.x]];
-		}else{
+		var hexs = [];
+		if (!selfOnly) {
 			// Gather all the reachable hexs, including the current one
-			hexs = G.grid.hexs[swine.y][swine.x].adjacentHex(50, true);
+			hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
 		}
+		hexs.push(G.grid.hexs[swine.y][swine.x]);
 
 		//TODO: Filtering corpse hexs
 		hexs.filter(function() { return true; } );

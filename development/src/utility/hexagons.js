@@ -1183,8 +1183,7 @@ var Hex = Class.create({
 	* 	at the distance given of the current hex.
 	*
 	*/
-	adjacentHex: function(distance, includeSelf) {
-		includeSelf = typeof includeSelf !== 'includeSelf' ? includeSelf : false;
+	adjacentHex: function(distance) {
 		var adjHex = [];
 		for (var i = -distance; i <= distance; i++) {
 			var deltaY = i;
@@ -1202,7 +1201,7 @@ var Hex = Class.create({
 				var x = this.x + deltaX;
 				var y = this.y + deltaY;
 				// Exclude current hex
-				if (!includeSelf && deltaY == 0 && deltaX == 0) {
+				if (deltaY == 0 && deltaX == 0) {
 					continue;
 				}
 				if(y < G.grid.hexs.length && y >= 0 &&	x < G.grid.hexs[y].length && x >=0) {  // Exclude inexisting hexs
