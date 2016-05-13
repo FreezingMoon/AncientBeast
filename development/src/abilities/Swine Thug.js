@@ -100,57 +100,89 @@ G.abilities[37] =[
 			// For unupgraded ability, this is only 1 hex
 			// For upgraded, as long as the target is over a mud tile, keep pushing
 			// them back
-			var x = target.x;
-			var y = target.y;
-			var xLast = ability.creature.x;
-			var yLast = ability.creature.y;
-			var movementPoints = 0;
-			while(true) {
-				// Knock the target in the opposite direction of the attacker
-				var dx = x - xLast;
-				var dy = y - yLast;
+
+			// Calculate relative direction from creature to target
+			var dx = target.x - ability.creature.x;
+			var dy = target.y - ability.creature.y;
+			// Due to target size, this could be off; limit dx
+			if(dx > 1) dx = 1;
+			if(dx < -1) dx = -1;
+			var dir;
+			if (dy === 0) {
+				if (dx === 1) {
+					dir = 1;	// forward
+				} else {	// dx === -1
+					dir = 4;	// backward
+				}
+			} else {
 				// Hex grid corrections
-				if(dy !== 0) {
-					if(y%2 == 0) {
-						// Even row
-						dx++;
-					} else {
-						// Odd row
-						dx--;
+				if (ability.creature.y % 2 == 0 && dx < 1) {
+					dx++;
+				}
+				if (dx === 1) {
+					if (dy === -1) {
+						dir = 0;	// upright
+					} else {	// dy === 1
+						dir = 2;	// downright
+					}
+				} else {	// dx === 0
+					if (dy === 1) {
+						dir = 3;	// downleft
+					} else {	// dy === -1
+						dir = 5;	// upleft
 					}
 				}
-				// Due to target size, this could be off; limit dx
-				if(dx > 1) dx = 1;
-				if(dx < -1) dx = -1;
-				xLast = x;
-				yLast = y;
+			}
+			var hexes;
+			var flipped = false;
+			switch (dir) {
+				case 0: // Upright
+					hexes = G.grid.getHexMap(target.x, target.y-8, 0, flipped, diagonalup).reverse();
+					break;
+				case 1: // StraitForward
+					hexes = G.grid.getHexMap(target.x, target.y, 0, flipped, straitrow);
+					break;
+				case 2: // Downright
+					hexes = G.grid.getHexMap(target.x, target.y, 0, flipped, diagonaldown);
+					break;
+				case 3: // Downleft
+					hexes = G.grid.getHexMap(target.x, target.y, -4, flipped, diagonalup);
+					break;
+				case 4: // StraitBackward
+					hexes = G.grid.getHexMap(target.x, target.y, 0, !flipped, straitrow);
+					break;
+				case 5: // Upleft
+					hexes = G.grid.getHexMap(target.x, target.y-8, -4, flipped, diagonaldown).reverse();
+					break;
+				default:
+					break;
+			}
+			var movementPoints = 0;
+			var hex = null;
+			// See how far the target can be knocked back; skip the first hex as it is
+			// the same hex as the target
+			for (var i = 1; i < hexes.length; i++) {
 				// Check that the next knockback hex is valid
-				var xNext = x + dx;
-				var yNext = y + dy;
-				if(yNext < 0 || yNext >= G.grid.hexs.length) break;
-				if(xNext < 0 || xNext >= G.grid.hexs[yNext].length) break;
-				var hex = G.grid.hexs[yNext][xNext];
-				if(!hex.isWalkable(target.size, target.id, true)) break;
+				if (!hexes[i].isWalkable(target.size, target.id, true)) break;
 
 				movementPoints++;
-				x = xNext;
-				y = yNext;
+				hex = hexes[i];
 
 				if(!this.isUpgraded()) break;
 				// Check if we are over a mud bath
 				// The target must be completely over mud baths to keep sliding
 				var mudSlide = true;
 				for (var i = 0; i < target.size; i++) {
-					hex = G.grid.hexs[y][x-i];
-					if(!hex.trap || hex.trap.type !== "mud-bath") {
+					var mudHex = G.grid.hexs[hex.y][hex.x-i];
+					if(!mudHex.trap || mudHex.trap.type !== "mud-bath") {
 						mudSlide = false;
 						break;
 					}
 				}
 				if (!mudSlide) break;
 			}
-			if(x !== target.x || y !== target.y) {
-				target.moveTo(G.grid.hexs[y][x], {
+			if (hex !== null) {
+				target.moveTo(hex, {
 					ignoreMovementPoint : true,
 					ignorePath : true,
 					customMovementPoint: movementPoints,	// Ignore target's movement points
@@ -255,14 +287,17 @@ G.abilities[37] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
+	_energyNormal: 30,
+	_energySelfUpgraded: 10,
+
 	require : function() {
 		// If upgraded, self cost is less
 		if (this.isUpgraded()) {
-			this.requirements = { energy: 10 };
-			this.costs = { energy: 10 };
+			this.requirements = { energy: this._energySelfUpgraded };
+			this.costs = { energy: this._energySelfUpgraded };
 		}else{
-			this.requirements = { energy: 30 };
-			this.costs = { energy: 30 };
+			this.requirements = { energy: this._energyNormal };
+			this.costs = { energy: this._energyNormal };
 		}
 		return this.testRequirements();
 	},
@@ -276,15 +311,14 @@ G.abilities[37] =[
 
 		// Check if we are upgraded; self cost is less so if we only have enough
 		// energy to cast on self, restrict range to self
-		var selfOnly = this.isUpgraded() && this.creature.energy < 30;
+		var selfOnly = this.isUpgraded() && this.creature.energy < this._energyNormal;
 
-		var hexs;
-		if (selfOnly) {
-			hexs = [G.grid.hexs[swine.y][swine.x]];
-		}else{
+		var hexs = [];
+		if (!selfOnly) {
 			// Gather all the reachable hexs, including the current one
-			hexs = G.grid.hexs[swine.y][swine.x].adjacentHex(50, true);
+			hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
 		}
+		hexs.push(G.grid.hexs[swine.y][swine.x]);
 
 		//TODO: Filtering corpse hexs
 		hexs.filter(function() { return true; } );
@@ -308,11 +342,11 @@ G.abilities[37] =[
 		// If upgraded and cast on self, cost is less
 		var isSelf = hex.x === swine.x && hex.y === swine.y;
 		if (this.isUpgraded() && isSelf) {
-			this.requirements = { energy: 10 };
-			this.costs = { energy: 10 };
+			this.requirements = { energy: this._energySelfUpgraded };
+			this.costs = { energy: this._energySelfUpgraded };
 		}else{
-			this.requirements = { energy: 30 };
-			this.costs = { energy: 30 };
+			this.requirements = { energy: this._energyNormal };
+			this.costs = { energy: this._energyNormal };
 		}
 
 		ability.end();
