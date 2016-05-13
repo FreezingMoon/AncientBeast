@@ -255,14 +255,17 @@ G.abilities[37] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
+	_energyNormal: 30,
+	_energySelfUpgraded: 10,
+
 	require : function() {
 		// If upgraded, self cost is less
 		if (this.isUpgraded()) {
-			this.requirements = { energy: 10 };
-			this.costs = { energy: 10 };
+			this.requirements = { energy: this._energySelfUpgraded };
+			this.costs = { energy: this._energySelfUpgraded };
 		}else{
-			this.requirements = { energy: 30 };
-			this.costs = { energy: 30 };
+			this.requirements = { energy: this._energyNormal };
+			this.costs = { energy: this._energyNormal };
 		}
 		return this.testRequirements();
 	},
@@ -276,7 +279,7 @@ G.abilities[37] =[
 
 		// Check if we are upgraded; self cost is less so if we only have enough
 		// energy to cast on self, restrict range to self
-		var selfOnly = this.isUpgraded() && this.creature.energy < 30;
+		var selfOnly = this.isUpgraded() && this.creature.energy < this._energyNormal;
 
 		var hexs = [];
 		if (!selfOnly) {
@@ -307,11 +310,11 @@ G.abilities[37] =[
 		// If upgraded and cast on self, cost is less
 		var isSelf = hex.x === swine.x && hex.y === swine.y;
 		if (this.isUpgraded() && isSelf) {
-			this.requirements = { energy: 10 };
-			this.costs = { energy: 10 };
+			this.requirements = { energy: this._energySelfUpgraded };
+			this.costs = { energy: this._energySelfUpgraded };
 		}else{
-			this.requirements = { energy: 30 };
-			this.costs = { energy: 30 };
+			this.requirements = { energy: this._energyNormal };
+			this.costs = { energy: this._energyNormal };
 		}
 
 		ability.end();
