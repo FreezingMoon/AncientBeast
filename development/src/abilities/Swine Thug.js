@@ -33,8 +33,15 @@ G.abilities[37] =[
 
 	//	activate() :
 	activate : function(hex) {
+		var alterations = $j.extend({}, this.effects[0]);
+		// Double effect if upgraded
+		if (this.isUpgraded()){
+			for (var k in alterations){
+				alterations[k] = alterations[k]*2;
+			}
+		}
 		var effect = new Effect("Spa Mud",this.creature,this.creature,"mud-bath",{
-			alterations : this.effects[0]
+			alterations : alterations
 		});
 		this.creature.addEffect(effect);
 	},
@@ -86,7 +93,74 @@ G.abilities[37] =[
 			1, //Area
 			[]	//Effects
 		);
-		target.takeDamage(damage);
+		var result = target.takeDamage(damage);
+		// Knock the target back if they are still alive
+		if( !result.kill ){
+			// See how far we can knock the target back
+			// For unupgraded ability, this is only 1 hex
+			// For upgraded, as long as the target is over a mud tile, keep pushing
+			// them back
+			var x = target.x;
+			var y = target.y;
+			var xLast = ability.creature.x;
+			var yLast = ability.creature.y;
+			var movementPoints = 0;
+			while(true){
+				// Knock the target in the opposite direction of the attacker
+				var dx = x - xLast;
+				var dy = y - yLast;
+				// Hex grid corrections
+				if(dy !== 0){
+					if(y%2 == 0){
+						// Even row
+						dx++;
+					}else{
+						// Odd row
+						dx--;
+					}
+				}
+				// Due to target size, this could be off; limit dx
+				if(dx > 1) dx = 1;
+				if(dx < -1) dx = -1;
+				xLast = x;
+				yLast = y;
+				// Check that the next knockback hex is valid
+				var xNext = x + dx;
+				var yNext = y + dy;
+				if(yNext < 0 || yNext >= G.grid.hexs.length) break;
+				if(xNext < 0 || xNext >= G.grid.hexs[yNext].length) break;
+				var hex = G.grid.hexs[yNext][xNext];
+				if(!hex.isWalkable(target.size, target.id, true)) break;
+
+				movementPoints++;
+				x = xNext;
+				y = yNext;
+
+				if(!this.isUpgraded()) break;
+				// Check if we are over a mud bath
+				// The target must be completely over mud baths to keep sliding
+				var mudSlide = true;
+				for (var i = 0; i < target.size; i++) {
+					hex = G.grid.hexs[y][x-i];
+					if(!hex.trap || hex.trap.type !== "mud-bath") {
+						mudSlide = false;
+						break;
+					}
+				}
+				if (!mudSlide) break;
+			}
+			if(x !== target.x || y !== target.y){
+				target.moveTo(G.grid.hexs[y][x], {
+					ignoreMovementPoint : true,
+					ignorePath : true,
+					customMovementPoint: movementPoints,	// Ignore target's movement points
+					callback : function() {
+						G.activeCreature.queryMove();
+					},
+					animation : "push",
+				});
+			}
+		}
 	},
 },
 
@@ -155,6 +229,14 @@ G.abilities[37] =[
 
 		var target = path.last().creature;
 
+		// If upgraded, hits will debuff target with -1 meditation
+		if (this.isUpgraded()) {
+			var effect = new Effect("Ground Ball",ability.creature,target,"onDamage",{
+				alterations : {meditation: -1}
+			});
+			target.addEffect(effect);
+		}
+
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
@@ -174,6 +256,14 @@ G.abilities[37] =[
 	trigger : "onQuery",
 
 	require : function(){
+		// If upgraded, self cost is less
+		if (this.isUpgraded()) {
+			this.requirements = {energy: 10};
+			this.costs = {energy: 10};
+		}else{
+			this.requirements = {energy: 30};
+			this.costs = {energy: 30};
+		}
 		return this.testRequirements();
 	},
 
@@ -182,8 +272,19 @@ G.abilities[37] =[
 
 		var ability = this;
 		var swine = this.creature;
+		var size = 1;
 
-		var hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
+		// Check if we are upgraded; self cost is less so if we only have enough
+		// energy to cast on self, restrict range to self
+		var selfOnly = this.isUpgraded() && this.creature.energy < 30;
+
+		var hexs;
+		if (selfOnly){
+			hexs = [G.grid.hexs[swine.y][swine.x]];
+		}else{
+			// Gather all the reachable hexs, including the current one
+			hexs = G.grid.hexs[swine.y][swine.x].adjacentHex(50, true);
+		}
 
 		//TODO Filtering corpse hexs
 		hexs.filter(function(){return true;});
@@ -202,6 +303,18 @@ G.abilities[37] =[
 	activate : function(hex,args) {
 		G.grid.clearHexViewAlterations();
 		var ability = this;
+		var swine = this.creature;
+
+		// If upgraded and cast on self, cost is less
+		var isSelf = hex.x === swine.x && hex.y === swine.y;
+		if (this.isUpgraded() && isSelf) {
+			this.requirements = {energy: 10};
+			this.costs = {energy: 10};
+		}else{
+			this.requirements = {energy: 30};
+			this.costs = {energy: 30};
+		}
+
 		ability.end();
 
 		var effects = [

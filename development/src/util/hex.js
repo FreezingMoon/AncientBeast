@@ -929,7 +929,6 @@ var HexGrid = Class.create( {
 			for (var i = 1; i < G.creatures.length; i++) {
 
 				if( G.creatures[i].y == y ) {
-					console.log(G.creatures[i].grp);
 					this.creatureGroup.remove( G.creatures[i].grp);
 					this.creatureGroup.addAt( G.creatures[i].grp, index++ );
 				}
@@ -1184,36 +1183,33 @@ var Hex = Class.create({
 	* 	at the distance given of the current hex.
 	*
 	*/
-	adjacentHex: function(distance) {
+	adjacentHex: function(distance, includeSelf) {
+		includeSelf = typeof includeSelf !== 'includeSelf' ? includeSelf : false;
 		var adjHex = [];
 		for (var i = -distance; i <= distance; i++) {
 			var deltaY = i;
+			var startX, endX;
 			if(this.y%2 == 0) {
 				// Evenrow
-				for ( var deltaX = ( Math.ceil(Math.abs(i)/2) - distance );
-				deltaX <= ( distance - Math.floor(Math.abs(i)/2) );
-				deltaX++) {
-					var x = this.x + deltaX;
-					var y = this.y + deltaY;
-					if(!(deltaY == 0 && deltaX == 0) && // Exclude current hex
-					y < G.grid.hexs.length && y >= 0 &&	x < G.grid.hexs[y].length && x >=0) {  // Exclude inexisting hexs
-						adjHex.push(G.grid.hexs[y][x]);
-					};
-				};
+				startX = Math.ceil(Math.abs(i)/2) - distance;
+				endX = distance - Math.floor(Math.abs(i)/2);
 			}else{
 				// Oddrow
-				for ( var deltaX = ( Math.floor(Math.abs(i)/2) - distance );
-				deltaX <= ( distance - Math.ceil(Math.abs(i)/2) );
-				deltaX++) {
-					var x = this.x + deltaX;
-					var y = this.y + deltaY;
-					if(!(deltaY == 0 && deltaX == 0) && // Exclude current hex
-					y < G.grid.hexs.length && y >= 0 && x < G.grid.hexs[y].length && x >=0) { // Exclude inexisting hexs
-						adjHex.push(G.grid.hexs[y][x]);
-					};
-				};
+				startX = Math.floor(Math.abs(i)/2) - distance;
+				endX = distance - Math.ceil(Math.abs(i)/2);
 			}
-		};
+			for ( var deltaX = startX; deltaX <= endX; deltaX++) {
+				var x = this.x + deltaX;
+				var y = this.y + deltaY;
+				// Exclude current hex
+				if (!includeSelf && deltaY == 0 && deltaX == 0) {
+					continue;
+				}
+				if(y < G.grid.hexs.length && y >= 0 &&	x < G.grid.hexs[y].length && x >=0) {  // Exclude inexisting hexs
+					adjHex.push(G.grid.hexs[y][x]);
+				}
+			}
+		}
 		return adjHex;
 	},
 
