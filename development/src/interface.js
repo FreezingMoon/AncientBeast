@@ -469,7 +469,7 @@ var UI = Class.create( {
 			});
 			$j.each(G.abilities[stats.id],function(key, value) {
 				$ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
-				$ability.children('.icon').css( { "background-image":"url('../units/icons/" + stats.name + " " + key + ".svg')" } );
+				$ability.children('.icon').css( { "background-image": "url('../units/abilities/" + stats.name + " " + key + ".svg')" } );
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").text(stats.ability_info[key].info);
@@ -563,8 +563,8 @@ var UI = Class.create( {
 
 			// Abilities
 			$j.each(stats.ability_info,function(key, value) {
-				$ability = $j("#card .sideB .abilities .ability:eq("+key+")");
-				$ability.children('.icon').css( { "background-image":"url('../units/icons/"+stats.name+" "+key+".svg')" } );
+				$ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
+				$ability.children('.icon').css( { "background-image": "url('../units/abilities/" + stats.name+" " + key + ".svg')" } );
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").html(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").html(stats.ability_info[key].info);
@@ -849,7 +849,7 @@ var UI = Class.create( {
 			// Change ability buttons
 			G.UI.abilitiesButtons.each(function() {
 				var ab = G.activeCreature.abilities[this.abilityId];
-				this.css.normal = { "background-image": "url('../units/icons/"+G.activeCreature.name+" "+this.abilityId+".svg')" };
+				this.css.normal = { "background-image": "url('../units/abilities/" + G.activeCreature.name + " " + this.abilityId + ".svg')" };
 				this.$button.next(".desc").find("span").text(ab.title);
 				this.$button.next(".desc").find("p").html(ab.desc);
 
@@ -867,15 +867,15 @@ var UI = Class.create( {
 				// Add if needed
 				if(costs_string) {
 					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="costs"></div>');
-					this.$button.next(".desc").find(".costs").html("Costs : "+costs_string);
+					this.$button.next(".desc").find(".costs").html("Costs : " + costs_string);
 				}
 				if(dmg_string) {
 					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="damages"></div>');
-					this.$button.next(".desc").find(".damages").html("Damages : "+dmg_string);
+					this.$button.next(".desc").find(".damages").html("Damages : " + dmg_string);
 				}
 				if(special_string) {
 					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="special"></div>');
-					this.$button.next(".desc").find(".special").html("Effects : "+special_string);
+					this.$button.next(".desc").find(".special").html("Effects : " + special_string);
 				}
 
 				this.click = function() {
@@ -935,15 +935,15 @@ var UI = Class.create( {
 			// Add if needed
 			if(costs_string) {
 				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="costs"></div>');
-				this.abilitiesButtons[i].$button.next(".desc").find(".costs").html("Costs : "+costs_string);
+				this.abilitiesButtons[i].$button.next(".desc").find(".costs").html("Costs : " + costs_string);
 			}
 			if(dmg_string) {
 				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="damages"></div>');
-				this.abilitiesButtons[i].$button.next(".desc").find(".damages").html("Damages : "+dmg_string);
+				this.abilitiesButtons[i].$button.next(".desc").find(".damages").html("Damages : " + dmg_string);
 			}
 			if(special_string) {
 				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="special"></div>');
-				this.abilitiesButtons[i].$button.next(".desc").find(".special").html("Effects : "+special_string);
+				this.abilitiesButtons[i].$button.next(".desc").find(".special").html("Effects : " + special_string);
 			}
 		}
 	},
@@ -958,10 +958,10 @@ var UI = Class.create( {
 			ab.message = "";
 			var req = ab.require();
 			ab.message = (ab.used) ? G.msg.abilities.alreadyused : ab.message;
-			if( req && !ab.used && ab.trigger=="onQuery") {
+			if( req && !ab.used && ab.trigger == "onQuery") {
 				this.abilitiesButtons[i].changeState("glowing");
 				oneUsableAbility = true;
-			}else if( ab.message==G.msg.abilities.notarget || ( ab.trigger!="onQuery" && req && !ab.used ) ) {
+			}else if( ab.message==G.msg.abilities.notarget || ( ab.trigger != "onQuery" && req && !ab.used ) ) {
 				this.abilitiesButtons[i].changeState("noclick");
 			}else{
 				this.abilitiesButtons[i].changeState("disabled");
@@ -970,13 +970,13 @@ var UI = Class.create( {
 			// Charge
 			this.abilitiesButtons[i].$button.next(".desc").find(".charge").remove();
 			if( ab.getCharge !== undefined ) {
-				this.abilitiesButtons[i].$button.next(".desc").append('<div class="charge">Charge : '+ab.getCharge().value+"/"+ab.getCharge().max+'</div>');
+				this.abilitiesButtons[i].$button.next(".desc").append('<div class="charge">Charge : ' + ab.getCharge().value + "/" + ab.getCharge().max + '</div>');
 			}
 
 			// Message
 			this.abilitiesButtons[i].$button.next(".desc").find(".message").remove();
 			if( ab.message !== "" ) {
-				this.abilitiesButtons[i].$button.next(".desc").append('<div class="message">'+ab.message+'</div>');
+				this.abilitiesButtons[i].$button.next(".desc").append('<div class="message">' + ab.message + '</div>');
 			}
 		}
 
@@ -1011,13 +1011,13 @@ var UI = Class.create( {
 			// Effects
 			$j.each(buffDebuff.objs.effects, function(key, value) {
 				//var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
-				if( value.alterations[stat] ) $j(card).find("."+stat+" .modifiers").append("<div>"+value.name+" : "+(value.alterations[stat]>0?"+":"")+value.alterations[stat]+"</div>");
+				if( value.alterations[stat] ) $j(card).find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "")+value.alterations[stat] + "</div>");
 				atLeastOneBuff = true;
 			});
 			// Drops
 			$j.each(buffDebuff.objs.drops, function(key, value) {
 				//var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
-				if( value.alterations[stat] ) $j(card).find("."+stat+" .modifiers").append("<div>"+value.name+" : "+(value.alterations[stat]>0?"+":"")+value.alterations[stat]+"</div>");
+				if( value.alterations[stat] ) $j(card).find("." + stat + " .modifiers").append("<div>" + value.name + " : "+(value.alterations[stat] > 0 ? "+" : "")+value.alterations[stat] + "</div>");
 				atLeastOneBuff = true;
 			});
 
@@ -1036,13 +1036,13 @@ var UI = Class.create( {
 
 		// TurnTimePool
 		if( G.turnTimePool >= 0 ) {
-			var remainingTime = G.turnTimePool - Math.round((date - G.activeCreature.player.startTime)/1000);
+			var remainingTime = G.turnTimePool - Math.round((date - G.activeCreature.player.startTime) / 1000);
 			if(G.timePool > 0)
-				remainingTime = Math.min(remainingTime, Math.round( (G.activeCreature.player.totalTimePool-(date - G.activeCreature.player.startTime))/1000) );
-			var minutes = Math.floor(remainingTime/60);
-			var seconds = remainingTime-minutes*60;
+				remainingTime = Math.min(remainingTime, Math.round( (G.activeCreature.player.totalTimePool-(date - G.activeCreature.player.startTime)) / 1000) );
+			var minutes = Math.floor(remainingTime / 60);
+			var seconds = remainingTime - minutes * 60;
 			var id = G.activeCreature.player.id;
-			$j(".p"+id+" .turntime").text(zfill(minutes,2)+":"+zfill(seconds, 2));
+			$j(".p"+id+" .turntime").text(zfill(minutes, 2)+ ":" + zfill(seconds, 2));
 			// Time Alert
 			if( remainingTime < 6 )
 				$j(".p"+id+" .turntime").addClass("alert");
@@ -1060,10 +1060,10 @@ var UI = Class.create( {
 		if( G.timePool >= 0 ) {
 			G.players.each(function() {
 				var remainingTime = (this.id == G.activeCreature.player.id) ? this.totalTimePool - (date - this.startTime) : this.totalTimePool;
-				remainingTime = Math.max(Math.round(remainingTime/1000), 0);
-				var minutes = Math.floor(remainingTime/60);
-				var seconds = remainingTime-minutes*60;
-				$j(".p"+this.id+" .timepool").text(zfill(minutes,2)+":"+zfill(seconds, 2));
+				remainingTime = Math.max(Math.round(remainingTime / 1000), 0);
+				var minutes = Math.floor(remainingTime / 60);
+				var seconds = remainingTime - minutes * 60;
+				$j(".p"+this.id+" .timepool").text(zfill(minutes, 2)+":"+zfill(seconds, 2));
 			});
 
 			// Time Bar
@@ -1098,12 +1098,12 @@ var UI = Class.create( {
 		var deleteVignette = function(vignette) {
 
 			if( $j( vignette ).hasClass("roundmarker") ) {
-					$j( vignette ).attr("verified", -1).transition( { x:-80, queue: false }, queueAnimSpeed, transition, function() { this.remove(); } );
+					$j( vignette ).attr("verified", -1).transition( { x: -80, queue: false }, queueAnimSpeed, transition, function() { this.remove(); } );
 			}else{
 				if( $j( vignette ).hasClass("active") ) {
-					$j( vignette ).attr("verified", -1).transition( { x:-100, queue: false }, queueAnimSpeed, transition, function() { this.remove(); } );
+					$j( vignette ).attr("verified", -1).transition( { x: -100, queue: false }, queueAnimSpeed, transition, function() { this.remove(); } );
 				}else{
-					$j( vignette ).attr("verified", -1).transition( { x:"-=80", queue: false }, queueAnimSpeed, transition, function() { this.remove(); } );
+					$j( vignette ).attr("verified", -1).transition( { x: "-=80", queue: false }, queueAnimSpeed, transition, function() { this.remove(); } );
 				}
 			}
 
@@ -1116,18 +1116,18 @@ var UI = Class.create( {
 			// Create element
 			if( $vignettes.length === 0 ) {
 				var $v = $j( vignette ).prependTo( G.UI.$queue );
-				var index = $v.index('#queuewrapper .vignette[verified!="-1"]');
+				var index = $v.index('#queuewrapper .vignette[verified != "-1"]');
 				var offset = (index-(!!index))*80 + (!!index)*100 -80;
 
 			}else if( $vignettes[pos] ) {
 				var $v = $j( vignette ).insertAfter( $vignettes[pos] );
-				var index = $v.index('#queuewrapper .vignette[verified!="-1"]');
+				var index = $v.index('#queuewrapper .vignette[verified != "-1"]');
 				var offset = (index-(!!index))*80 + (!!index)*100 -80;
 
 			}else{
 				var $v = $j( vignette ).appendTo( G.UI.$queue );
-				var index = $v.index('#queuewrapper .vignette[verified!="-1"]');
-				var offset = (index-(!!index))*80 + (!!index)*100 +1000;
+				var index = $v.index('#queuewrapper .vignette[verified != "-1"]');
+				var offset = (index-(!!index)) * 80 + (!!index) * 100 + 1000;
 			}
 
 			// Animation
@@ -1136,19 +1136,19 @@ var UI = Class.create( {
 				.transition( { queue: true }, queueAnimSpeed, transition); // Dont know why but it must be here
 
 			// Updating
-			$vignettes = G.UI.$queue.find('.vignette[verified!="-1"]');
+			$vignettes = G.UI.$queue.find('.vignette[verified != "-1"]');
 		};
 
 		var updatePos = function() {
 
 			$vignettes.each(function() {
-				var index = $j(this).index('#queuewrapper .vignette[verified!="-1"]');
-				var offset = (index-(!!index))*80 + (!!index)*100;
+				var index = $j(this).index('#queuewrapper .vignette[verified != "-1"]');
+				var offset = (index-(!!index)) * 80 + (!!index) * 100;
 				$j(this).css( { "z-index": 0-index } ).transition( { x:offset, queue: false }, queueAnimSpeed, transition);
 			});
 		};
 
-		this.$queue.find('.vignette[verified!="-1"]').each(function() {
+		this.$queue.find('.vignette[verified != "-1"]').each(function() {
 			if( $j(this).attr("turn") < G.turn ) {
 				deleteVignette( this );
 			}
@@ -1166,14 +1166,14 @@ var UI = Class.create( {
 		var u = 0;
 
 		// Updating
-		$vignettes = this.$queue.find('.vignette[verified!="-1"]').attr("verified", 0);
+		$vignettes = this.$queue.find('.vignette[verified != "-1"]').attr("verified", 0);
 
 		for (var i = 0; i < completeQueue.length; i++) {
 
 			// Round Marker
 			if( typeof completeQueue[i] == "string" ) {
 
-				var queueElem = '<div turn="'+(G.turn+u)+'" roundmarker="1" class="vignette roundmarker"><div class="frame"></div><div class="stats">Round '+(G.turn+1)+'</div></div>';
+				var queueElem = '<div turn="' + (G.turn+u) + '" roundmarker="1" class="vignette roundmarker"><div class="frame"></div><div class="stats">Round ' + (G.turn + 1) + '</div></div>';
 
 				// If this element does not exists
 				if( $vignettes[i] === undefined ) {
@@ -1191,7 +1191,7 @@ var UI = Class.create( {
 			}else{
 
 				var initiative =  completeQueue[i].getInitiative( (u === 0) );
-				var queueElem = '<div turn="'+(G.turn+u)+'" creatureid="'+completeQueue[i].id+'" initiative="'+initiative+'" class="vignette hidden p'+completeQueue[i].team+" type"+completeQueue[i].type+'"><div class="frame"></div><div class="overlay_frame"></div><div class="stats"></div></div>';
+				var queueElem = '<div turn="' + (G.turn+u) + '" creatureid="' + completeQueue[i].id + '" initiative="' + initiative + '" class="vignette hidden p' + completeQueue[i].team + " type" + completeQueue[i].type + '"><div class="frame"></div><div class="overlay_frame"></div><div class="stats"></div></div>';
 
 				// If this element does not exists
 				if( $vignettes[i] === undefined ) {

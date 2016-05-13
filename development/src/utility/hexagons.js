@@ -69,7 +69,7 @@ var HexGrid = Class.create( {
 					if( row % 2 == 0 && !opts.firstRowFull ) continue;
 					if( row % 2 == 1 && opts.firstRowFull ) continue;
 				}
-				this.hexs[row][hex] = new Hex(hex,row,this);
+				this.hexs[row][hex] = new Hex(hex, row, this);
 				this.allHexs.push(this.hexs[row][hex]);
 			};
 		};
@@ -79,8 +79,8 @@ var HexGrid = Class.create( {
 
 	querySelf: function(o) {
 		var defaultOpt = {
-			fnOnConfirm : function(crea,args) {},
-			fnOnSelect : function(crea,args) {
+			fnOnConfirm : function(crea, args) {},
+			fnOnSelect : function(crea, args) {
 				crea.hexagons.each(function() {
 					this.overlayVisualState("creature selected player" + this.creature.team);
 				});
@@ -98,9 +98,9 @@ var HexGrid = Class.create( {
 		G.activeCreature.hint(o.confirmText,"confirm");
 
 		this.queryHexs({
-			fnOnConfirm : function(hex,args) { args.opt.fnOnConfirm(G.activeCreature,args.opt.args); },
-			fnOnSelect : function(hex,args) { args.opt.fnOnSelect(G.activeCreature,args.opt.args); },
-			fnOnCancel : function(hex,args) { args.opt.fnOnCancel(G.activeCreature,args.opt.args); },
+			fnOnConfirm : function(hex, args) { args.opt.fnOnConfirm(G.activeCreature, args.opt.args); },
+			fnOnSelect : function(hex, args) { args.opt.fnOnSelect(G.activeCreature, args.opt.args); },
+			fnOnCancel : function(hex, args) { args.opt.fnOnCancel(G.activeCreature, args.opt.args); },
 			args : { opt : o },
 			hexs : G.activeCreature.hexagons,
 			hideNonTarget : true,
@@ -127,7 +127,7 @@ var HexGrid = Class.create( {
 			x : 0,
 			y : 0,
 			hexsDashed : [],
-			directions : [1,1,1,1,1,1],
+			directions : [1, 1, 1, 1, 1, 1],
 			includeCrea : true,
 			stopOnCreature : true,
 			distance : 0,
@@ -150,7 +150,7 @@ var HexGrid = Class.create( {
 				var fx = 0
 
 				if( o.sourceCreature instanceof Creature ) {
-					if( (!o.sourceCreature.player.flipped && i>2) || (o.sourceCreature.player.flipped && i<3) ) {
+					if( (!o.sourceCreature.player.flipped && i > 2) || (o.sourceCreature.player.flipped && i < 3) ) {
 						fx =  -1*(o.sourceCreature.size-1);
 					}
 				}
@@ -166,7 +166,7 @@ var HexGrid = Class.create( {
 						dir = G.grid.getHexMap(o.x+fx, o.y, 0, o.flipped, diagonaldown);
 						break;
 					case 3: // Downleft
-						dir = G.grid.getHexMap(o.x+fx, o.y, -4,o.flipped, diagonalup);
+						dir = G.grid.getHexMap(o.x+fx, o.y, -4, o.flipped, diagonalup);
 						break;
 					case 4: // StraitBackward
 						dir = G.grid.getHexMap(o.x+fx, o.y, 0, !o.flipped, straitrow);
@@ -181,7 +181,7 @@ var HexGrid = Class.create( {
 				if( o.distance > 0 ) dir = dir.slice(0, o.distance+1);
 
 				dir.each(function() {
-					this.direction = (o.flipped)?5-i:i;
+					this.direction = (o.flipped) ? 5 - i : i;
 					if(o.stopOnCreature) o.hexsDashed.push(this);
 				});
 
@@ -189,7 +189,7 @@ var HexGrid = Class.create( {
 
 				if(dir.length==0) continue;
 
-				if( o.stopOnCreature && o.includeCrea && (i==1 || i==4)) { // Only straight direction
+				if( o.stopOnCreature && o.includeCrea && (i == 1 || i == 4)) { // Only straight direction
 					if(dir.last().creature instanceof Creature)
 						dir = dir.concat(dir.last().creature.hexagons); // Add full creature
 				}
@@ -240,7 +240,7 @@ var HexGrid = Class.create( {
 			isDirectionsQuery : false,
 		};
 
-		o = $j.extend(defaultOpt,o);
+		o = $j.extend(defaultOpt, o);
 
 		var hexs = [];
 		for (var i = 0; i < o.choices.length; i++) {
@@ -257,13 +257,13 @@ var HexGrid = Class.create( {
 						var isAllie = ( creaSource.team%2 == creaTarget.team%2 );
 						switch(o.team) {
 							case 0: // Ennemies
-								if(creaSource.team%2!=creaTarget.team%2) validChoice = true;
+								if(creaSource.team % 2 != creaTarget.team % 2) validChoice = true;
 								break;
 							case 1: // Allies
-								if(creaSource.team%2==creaTarget.team%2) validChoice = true;
+								if(creaSource.team % 2 == creaTarget.team % 2) validChoice = true;
 								break;
 							case 2: // Same team
-								if(creaSource.team==creaTarget.team) validChoice = true;
+								if(creaSource.team == creaTarget.team) validChoice = true;
 								break;
 							case 3: // Both
 								validChoice = true;
@@ -276,7 +276,7 @@ var HexGrid = Class.create( {
 			if(validChoice) hexs = hexs.concat(o.choices[i]);
 			else if(o.isDirectionsQuery) {
 				G.grid.forEachHexs(function() {
-					if(o.choices[i][0].direction==this.direction)
+					if(o.choices[i][0].direction == this.direction)
 						o.hexsDashed.removePos(this);
 				});
 			}
@@ -287,9 +287,9 @@ var HexGrid = Class.create( {
 				// Determine which set of hexs (choice) the hex is part of
 				for (var i = 0; i < args.opt.choices.length; i++) {
 					for (var j = 0; j < args.opt.choices[i].length; j++) {
-						if(hex.pos==args.opt.choices[i][j].pos) {
+						if(hex.pos == args.opt.choices[i][j].pos) {
 							args.opt.args.direction = hex.direction;
-							args.opt.fnOnConfirm(args.opt.choices[i],args.opt.args);
+							args.opt.fnOnConfirm(args.opt.choices[i], args.opt.args);
 							break;
 						}
 					};
@@ -301,7 +301,7 @@ var HexGrid = Class.create( {
 					for (var j = 0; j < args.opt.choices[i].length; j++) {
 						if(hex.pos==args.opt.choices[i][j].pos) {
 							args.opt.args.direction = hex.direction;
-							args.opt.fnOnSelect(args.opt.choices[i],args.opt.args);
+							args.opt.fnOnSelect(args.opt.choices[i], args.opt.args);
 							break;
 						}
 					};
@@ -377,13 +377,13 @@ var HexGrid = Class.create( {
 		o.hexs = extended;
 
 		this.queryHexs({
-			fnOnConfirm : function(hex,args) {
+			fnOnConfirm : function(hex, args) {
 				var crea = hex.creature;
-				args.opt.fnOnConfirm(crea,args.opt.args);
+				args.opt.fnOnConfirm(crea, args.opt.args);
 			},
-			fnOnSelect : function(hex,args) {
+			fnOnSelect : function(hex, args) {
 				var crea = hex.creature;
-				args.opt.fnOnSelect(crea,args.opt.args);
+				args.opt.fnOnSelect(crea, args.opt.args);
 			},
 			fnOnCancel : o.fnOnCancel,
 			args : {opt : o},
@@ -412,10 +412,10 @@ var HexGrid = Class.create( {
 	queryHexs: function(o) {
 
 		var defaultOpt = {
-			fnOnConfirm : function(hex,args) { G.activeCreature.queryMove(); },
-			fnOnSelect : function(hex,args) {
-				G.activeCreature.faceHex(hex,undefined,true);
-				hex.overlayVisualState("creature selected player"+G.activeCreature.team);
+			fnOnConfirm : function(hex, args) { G.activeCreature.queryMove(); },
+			fnOnSelect : function(hex, args) {
+				G.activeCreature.faceHex(hex, undefined, true);
+				hex.overlayVisualState("creature selected player" + G.activeCreature.team);
 			},
 			fnOnCancel : function(hex,args) { G.activeCreature.queryMove() },
 			args : {},
@@ -508,9 +508,9 @@ var HexGrid = Class.create( {
 				var availablePos = false;
 
 				for (var i = 0; i < o.size; i++) {	// Try next hexagons to see if they fits
-					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
-					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)) {
-						x += offset-i*mult;
+					if( (x + offset - i *mult >= G.grid.hexs[y].length) || (x + offset - i * mult < 0) ) continue;
+					if(G.grid.hexs[y][x + offset - i * mult].isWalkable(o.size, o.id)) {
+						x += offset - i * mult;
 						availablePos = true;
 						break;
 					}
@@ -525,15 +525,15 @@ var HexGrid = Class.create( {
 				hex = G.grid.hexs[y][x]; // New coords
 				var clickedtHex = hex;
 
-				G.activeCreature.faceHex(clickedtHex,undefined,true,true);
+				G.activeCreature.faceHex(clickedtHex, undefined, true, true);
 
 				if( clickedtHex != G.grid.lastClickedHex ) {
 					G.grid.lastClickedHex = clickedtHex;
 					// ONCLICK
-					o.fnOnConfirm(clickedtHex,o.args);
+					o.fnOnConfirm(clickedtHex, o.args);
 				}else{
 					// ONCONFIRM
-					o.fnOnConfirm(clickedtHex,o.args);
+					o.fnOnConfirm(clickedtHex, o.args);
 				}
 
 			}
@@ -569,14 +569,14 @@ var HexGrid = Class.create( {
 
 
 				//Offset Pos
-				var offset = (o.flipped) ? o.size-1 : 0 ;
+				var offset = (o.flipped) ? o.size - 1 : 0 ;
 				var mult = (o.flipped) ? 1 : -1 ; // For FLIPPED player
 				var availablePos = false;
 
 				for (var i = 0; i < o.size; i++) {	// Try next hexagons to see if they fit
-					if( (x+offset-i*mult >= G.grid.hexs[y].length) || (x+offset-i*mult < 0) ) continue;
-					if(G.grid.hexs[y][x+offset-i*mult].isWalkable(o.size,o.id)) {
-						x += offset-i*mult;
+					if( (x + offset - i * mult >= G.grid.hexs[y].length) || (x + offset - i * mult < 0) ) continue;
+					if(G.grid.hexs[y][x + offset - i * mult].isWalkable(o.size, o.id)) {
+						x += offset - i * mult;
 						availablePos = true;
 						break;
 					}
@@ -589,7 +589,7 @@ var HexGrid = Class.create( {
 				// }
 
 				hex = G.grid.hexs[y][x]; // New coords
-				o.fnOnSelect(hex,o.args);
+				o.fnOnSelect(hex, o.args);
 			}
 		};
 
@@ -728,9 +728,9 @@ var HexGrid = Class.create( {
 	*	Test if hex exists
 	*
 	*/
-	hexExists: function(y,x) {
-		if( (y>=0) && (y<this.hexs.length) ) {
-			if( (x>=0) && (x<this.hexs[y].length) ) return true;
+	hexExists: function(y, x) {
+		if( (y >= 0) && (y < this.hexs.length) ) {
+			if( (x >= 0) && (x < this.hexs[y].length) ) return true;
 		}
 		return false;
 	},
@@ -819,7 +819,7 @@ var HexGrid = Class.create( {
 	getHexMap: function(originx, originy, offsetx, flipped, array) { // Heavy logic in here
 
 		var array = array.slice(0); // Copy to not modify original
-		originx += (flipped) ? 1-array[0].length-offsetx : -1+offsetx;
+		originx += (flipped) ? 1 - array[0].length-offsetx : -1 + offsetx;
 		var hexs = [];
 
 		for (var y = 0; y < array.length; y++) {
@@ -827,13 +827,13 @@ var HexGrid = Class.create( {
 			array[y] = array[y].slice(0); // Copy Row
 
 			// Translating to flipped patern
-			if(flipped && y%2!=0) { // Odd rows
+			if(flipped && y % 2 != 0) { // Odd rows
 				array[y].push(0);
 			}
 
 			// Translating even to odd row patern
 			array[y].unshift(0);
-			if(originy%2!=0 && y%2!=0) { // Even rows
+			if(originy % 2 != 0 && y % 2 != 0) { // Even rows
 				if(flipped)
 					array[y].pop(); // Remove last element as the array will be parse backward
 				else
@@ -843,9 +843,9 @@ var HexGrid = Class.create( {
 			// Gathering hexs
 			for (var x = 0; x < array[y].length; x++) {
 				if( !!array[y][x] ) {
-					xfinal = (flipped) ? array[y].length-1-x : x ; // Parse the array backward for flipped player
-					if( this.hexExists(originy+y, originx+xfinal) ) {
-						hexs.push(this.hexs[originy+y][originx+xfinal]);
+					xfinal = (flipped) ? array[y].length - 1 - x : x ; // Parse the array backward for flipped player
+					if( this.hexExists(originy + y, originx + xfinal) ) {
+						hexs.push(this.hexs[originy + y][originx + xfinal]);
 					}
 				}
 			}
@@ -885,32 +885,32 @@ var HexGrid = Class.create( {
 	},
 
 	selectHexUp : function() {
-		if( this.hexExists(this.selectedHex.y-1, this.selectedHex.x) ) {
-			var hex =  this.hexs[this.selectedHex.y-1][this.selectedHex.x];
+		if( this.hexExists(this.selectedHex.y - 1, this.selectedHex.x) ) {
+			var hex =  this.hexs[this.selectedHex.y - 1][this.selectedHex.x];
 			this.selectedHex = hex;
 			hex.onSelectFn();
 		}
 	},
 
 	selectHexDown : function() {
-		if( this.hexExists(this.selectedHex.y+1, this.selectedHex.x) ) {
-			var hex =  this.hexs[this.selectedHex.y+1][this.selectedHex.x];
+		if( this.hexExists(this.selectedHex.y + 1, this.selectedHex.x) ) {
+			var hex =  this.hexs[this.selectedHex.y + 1][this.selectedHex.x];
 			this.selectedHex = hex;
 			hex.onSelectFn();
 		}
 	},
 
 	selectHexLeft : function() {
-		if( this.hexExists(this.selectedHex.y, this.selectedHex.x-1) ) {
-			var hex =  this.hexs[this.selectedHex.y][this.selectedHex.x-1];
+		if( this.hexExists(this.selectedHex.y, this.selectedHex.x - 1) ) {
+			var hex =  this.hexs[this.selectedHex.y][this.selectedHex.x - 1];
 			this.selectedHex = hex;
 			hex.onSelectFn();
 		}
 	},
 
 	selectHexRight : function() {
-		if( this.hexExists(this.selectedHex.y, this.selectedHex.x+1) ) {
-			var hex =  this.hexs[this.selectedHex.y][this.selectedHex.x+1];
+		if( this.hexExists(this.selectedHex.y, this.selectedHex.x + 1) ) {
+			var hex =  this.hexs[this.selectedHex.y][this.selectedHex.x + 1];
 			this.selectedHex = hex;
 			hex.onSelectFn();
 		}
