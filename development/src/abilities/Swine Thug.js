@@ -368,6 +368,12 @@ G.abilities[37] =[
 
 		hex.createTrap("mud-bath", effects, ability.creature.player);
 
+		// Trigger trap immediately if on self
+		if (isSelf) {
+			// onCreatureMove is Spa Goggles' trigger event
+			G.triggersFn.onCreatureMove(swine, hex);
+		}
+
 	},
 }
 
