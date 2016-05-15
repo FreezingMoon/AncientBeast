@@ -133,30 +133,7 @@ G.abilities[37] =[
 					}
 				}
 			}
-			var hexes;
-			var flipped = false;
-			switch (dir) {
-				case 0: // Upright
-					hexes = G.grid.getHexMap(target.x, target.y-8, 0, flipped, diagonalup).reverse();
-					break;
-				case 1: // StraitForward
-					hexes = G.grid.getHexMap(target.x, target.y, 0, flipped, straitrow);
-					break;
-				case 2: // Downright
-					hexes = G.grid.getHexMap(target.x, target.y, 0, flipped, diagonaldown);
-					break;
-				case 3: // Downleft
-					hexes = G.grid.getHexMap(target.x, target.y, -4, flipped, diagonalup);
-					break;
-				case 4: // StraitBackward
-					hexes = G.grid.getHexMap(target.x, target.y, 0, !flipped, straitrow);
-					break;
-				case 5: // Upleft
-					hexes = G.grid.getHexMap(target.x, target.y-8, -4, flipped, diagonaldown).reverse();
-					break;
-				default:
-					break;
-			}
+			var hexes = G.grid.getHexLine(target.x, target.y, dir, false);
 			var movementPoints = 0;
 			var hex = null;
 			// See how far the target can be knocked back; skip the first hex as it is

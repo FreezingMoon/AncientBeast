@@ -155,28 +155,7 @@ var HexGrid = Class.create( {
 					}
 				}
 
-				switch(i) {
-					case 0: // Upright
-						dir = G.grid.getHexMap(o.x+fx, o.y-8, 0, o.flipped, diagonalup).reverse();
-						break;
-					case 1: // StraitForward
-						dir = G.grid.getHexMap(o.x+fx, o.y, 0, o.flipped, straitrow);
-						break;
-					case 2: // Downright
-						dir = G.grid.getHexMap(o.x+fx, o.y, 0, o.flipped, diagonaldown);
-						break;
-					case 3: // Downleft
-						dir = G.grid.getHexMap(o.x+fx, o.y, -4, o.flipped, diagonalup);
-						break;
-					case 4: // StraitBackward
-						dir = G.grid.getHexMap(o.x+fx, o.y, 0, !o.flipped, straitrow);
-						break;
-					case 5: // Upleft
-						dir = G.grid.getHexMap(o.x+fx, o.y-8, -4, o.flipped, diagonaldown).reverse();
-						break;
-					default:
-						break;
-				}
+				dir = G.grid.getHexLine(ox.x+fx, o.y, i, o.flipped);
 
 				if( o.distance > 0 ) dir = dir.slice(0, o.distance+1);
 
@@ -664,6 +643,36 @@ var HexGrid = Class.create( {
 				}
 			}
 		});
+	},
+
+	/* getHexLine(x, y, dir, flipped)
+	*
+	* Gets a line of hexes given a start point and a direction
+	* The result is an array of hexes, starting from the start point's hex, and
+	* extending out in a straight line.
+	* If the coordinate is erroneous, returns an empty array.
+	*
+	* x, y: coordinate of start hex
+	* dir: direction number (0 = upright, continues clockwise to 5 = upleft)
+	* flipped
+	*/
+	getHexLine: function(x, y, dir, flipped) {
+		switch (dir) {
+			case 0: // Upright
+				return G.grid.getHexMap(x, y-8, 0, flipped, diagonalup).reverse();
+			case 1: // StraitForward
+				return G.grid.getHexMap(x, y, 0, flipped, straitrow);
+			case 2: // Downright
+				return G.grid.getHexMap(x, y, 0, flipped, diagonaldown);
+			case 3: // Downleft
+				return G.grid.getHexMap(x, y, -4, flipped, diagonalup);
+			case 4: // StraitBackward
+				return G.grid.getHexMap(x, y, 0, !flipped, straitrow);
+			case 5: // Upleft
+				return G.grid.getHexMap(x, y-8, -4, flipped, diagonaldown).reverse();
+			default:
+				return [];
+		}
 	},
 
 	/*	showCreatureHexs()
