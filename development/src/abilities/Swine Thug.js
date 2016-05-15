@@ -49,7 +49,7 @@ G.abilities[37] =[
 
 
 
-// 	Second Ability: Power Bat
+// 	Second Ability: Baseball Baton
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -183,12 +183,13 @@ G.abilities[37] =[
 			}
 			if (hex !== null) {
 				target.moveTo(hex, {
-					ignoreMovementPoint : true,
-					ignorePath : true,
-					customMovementPoint: movementPoints,	// Ignore target's movement points
 					callback : function() {
 						G.activeCreature.queryMove();
 					},
+					ignoreMovementPoint : true,
+					ignorePath : true,
+					customMovementPoint: movementPoints,	// Ignore target's movement points
+					overrideSpeed: 1000,	// Slower speed for knockback
 					animation : "push",
 				});
 			}
