@@ -305,6 +305,7 @@ G.abilities[37] =[
 			fnOnCancel : function() { G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			hexs : hexs,
+			hideNonTarget: true
 		});
 	},
 
