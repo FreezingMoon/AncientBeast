@@ -115,7 +115,7 @@ G.abilities[37] =[
 				}
 			} else {
 				// Hex grid corrections
-				if (ability.creature.y % 2 == 0 && dx < 1) {
+				if (target.y % 2 == 0 && dx < 1) {
 					dx++;
 				}
 				if (dx === 1) {
@@ -135,7 +135,7 @@ G.abilities[37] =[
 			var hexes = G.grid.getHexLine(target.x, target.y, dir, false);
 			var movementPoints = 0;
 			var hex = null;
-			// See how far the target can be knocked back 
+			// See how far the target can be knocked back
 			// Skip the first hex as it is the same hex as the target
 			for (var i = 1; i < hexes.length; i++) {
 				// Check that the next knockback hex is valid
