@@ -97,9 +97,8 @@ G.abilities[37] =[
 		// Knock the target back if they are still alive
 		if( !result.kill ) {
 			// See how far we can knock the target back
-			// For unupgraded ability, this is only 1 hex
-			// For upgraded, as long as the target is over a mud tile, keep pushing
-			// them back
+			// For regular ability, this is only 1 hex
+			// For upgraded, as long as the target is over a mud tile, keep sliding
 
 			// Calculate relative direction from creature to target
 			var dx = target.x - ability.creature.x;
@@ -110,9 +109,9 @@ G.abilities[37] =[
 			var dir;
 			if (dy === 0) {
 				if (dx === 1) {
-					dir = 1;	// forward
-				} else {	// dx === -1
-					dir = 4;	// backward
+					dir = 1; // forward
+				} else { // dx === -1
+					dir = 4; // backward
 				}
 			} else {
 				// Hex grid corrections
@@ -121,23 +120,23 @@ G.abilities[37] =[
 				}
 				if (dx === 1) {
 					if (dy === -1) {
-						dir = 0;	// upright
-					} else {	// dy === 1
-						dir = 2;	// downright
+						dir = 0; // upright
+					} else { // dy === 1
+						dir = 2; // downright
 					}
-				} else {	// dx === 0
+				} else { // dx === 0
 					if (dy === 1) {
-						dir = 3;	// downleft
-					} else {	// dy === -1
-						dir = 5;	// upleft
+						dir = 3; // downleft
+					} else { // dy === -1
+						dir = 5; // upleft
 					}
 				}
 			}
 			var hexes = G.grid.getHexLine(target.x, target.y, dir, false);
 			var movementPoints = 0;
 			var hex = null;
-			// See how far the target can be knocked back; skip the first hex as it is
-			// the same hex as the target
+			// See how far the target can be knocked back 
+			// Skip the first hex as it is the same hex as the target
 			for (var i = 1; i < hexes.length; i++) {
 				// Check that the next knockback hex is valid
 				if (!hexes[i].isWalkable(target.size, target.id, true)) break;
@@ -165,8 +164,8 @@ G.abilities[37] =[
 					},
 					ignoreMovementPoint : true,
 					ignorePath : true,
-					customMovementPoint: movementPoints,	// Ignore target's movement points
-					overrideSpeed: 1000,	// Slower speed for knockback
+					customMovementPoint: movementPoints, // Ignore target's movement points
+					overrideSpeed: 1200, // Custom speed for knockback
 					animation : "push",
 				});
 			}
@@ -262,14 +261,14 @@ G.abilities[37] =[
 
 // 	Fourth Ability: Mud Bath
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	_energyNormal: 30,
 	_energySelfUpgraded: 10,
 
 	require : function() {
-		// If upgraded, self cost is less
+		// If ability is upgraded, self cast energy cost is less
 		if (this.isUpgraded()) {
 			this.requirements = { energy: this._energySelfUpgraded };
 			this.costs = { energy: this._energySelfUpgraded };
@@ -287,14 +286,13 @@ G.abilities[37] =[
 		var swine = this.creature;
 		var size = 1;
 
-		// Check if we are upgraded; self cost is less so if we only have enough
-		// energy to cast on self, restrict range to self
+		// Check if the ability is upgraded because then the self cast energy cost is less
 		var selfOnly = this.isUpgraded() && this.creature.energy < this._energyNormal;
 
 		var hexs = [];
 		if (!selfOnly) {
 			// Gather all the reachable hexs, including the current one
-			hexs = G.grid.getFlyingRange(swine.x,swine.y,50,1,0);
+			hexs = G.grid.getFlyingRange(swine.x, swine.y, 50, 1, 0);
 		}
 		hexs.push(G.grid.hexs[swine.y][swine.x]);
 

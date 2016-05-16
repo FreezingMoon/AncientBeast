@@ -46,16 +46,16 @@ var HexGrid = Class.create( {
 		this.allHexs			= new Array(); // All hexs
 		this.lastClickedHex 	= []; // Array of hexagons containing last calculated pathfinding
 
-		this.display 			= G.Phaser.add.group(undefined,"displayGrp");
+		this.display 			= G.Phaser.add.group(undefined, "displayGrp");
 		this.display.x = 230;
 		this.display.y = 380;
 
-		this.gridGroup 			= G.Phaser.add.group(this.display,"gridGrp");
+		this.gridGroup 			= G.Phaser.add.group(this.display, "gridGrp");
 		this.gridGroup.scale.set(1, .75);
 
-		this.trapGroup			= G.Phaser.add.group(this.gridGroup ,"trapGrp");
+		this.trapGroup			= G.Phaser.add.group(this.gridGroup, "trapGrp");
 		this.trapGroup.x = -10;
-		this.dispHexsGroup		= G.Phaser.add.group(this.gridGroup ,"dispHexsGrp");
+		this.dispHexsGroup		= G.Phaser.add.group(this.gridGroup, "dispHexsGrp");
 		this.overHexsGroup		= G.Phaser.add.group(this.gridGroup, "overHexsGrp");
 		this.dropGroup 			= G.Phaser.add.group(this.display, "dropGrp");
 		this.creatureGroup 		= G.Phaser.add.group(this.display, "creaturesGrp");
@@ -65,7 +65,7 @@ var HexGrid = Class.create( {
 		for (var row = 0; row < opts.nbrRow; row++) {
 			this.hexs.push(new Array());
 			for (var hex = 0; hex < opts.nbrHexsPerRow; hex++) {
-				if( hex == opts.nbrHexsPerRow-1 ) {
+				if( hex == opts.nbrHexsPerRow - 1 ) {
 					if( row % 2 == 0 && !opts.firstRowFull ) continue;
 					if( row % 2 == 1 && opts.firstRowFull ) continue;
 				}
@@ -95,7 +95,7 @@ var HexGrid = Class.create( {
 
 		//o.fnOnConfirm(G.activeCreature,o.args); // Autoconfirm
 
-		G.activeCreature.hint(o.confirmText,"confirm");
+		G.activeCreature.hint(o.confirmText, "confirm");
 
 		this.queryHexs({
 			fnOnConfirm : function(hex, args) { args.opt.fnOnConfirm(G.activeCreature, args.opt.args); },
@@ -151,13 +151,13 @@ var HexGrid = Class.create( {
 
 				if( o.sourceCreature instanceof Creature ) {
 					if( (!o.sourceCreature.player.flipped && i > 2) || (o.sourceCreature.player.flipped && i < 3) ) {
-						fx =  -1*(o.sourceCreature.size-1);
+						fx =  - 1 * (o.sourceCreature.size - 1);
 					}
 				}
 
-				dir = G.grid.getHexLine(ox.x+fx, o.y, i, o.flipped);
+				dir = G.grid.getHexLine(o.x + fx, o.y, i, o.flipped);
 
-				if( o.distance > 0 ) dir = dir.slice(0, o.distance+1);
+				if( o.distance > 0 ) dir = dir.slice(0, o.distance + 1);
 
 				dir.each(function() {
 					this.direction = (o.flipped) ? 5 - i : i;
@@ -262,7 +262,7 @@ var HexGrid = Class.create( {
 		};
 
 		this.queryHexs({
-			fnOnConfirm : function(hex,args) {
+			fnOnConfirm : function(hex, args) {
 				// Determine which set of hexs (choice) the hex is part of
 				for (var i = 0; i < args.opt.choices.length; i++) {
 					for (var j = 0; j < args.opt.choices[i].length; j++) {
@@ -274,7 +274,7 @@ var HexGrid = Class.create( {
 					};
 				};
 			},
-			fnOnSelect : function(hex,args) {
+			fnOnSelect : function(hex, args) {
 				// Determine which set of hexs (choice) the hex is part of
 				for (var i = 0; i < args.opt.choices.length; i++) {
 					for (var j = 0; j < args.opt.choices[i].length; j++) {
@@ -287,7 +287,7 @@ var HexGrid = Class.create( {
 				};
 			},
 			fnOnCancel : o.fnOnCancel,
-			args : {opt : o},
+			args : { opt : o },
 			hexs : hexs,
 			hexsDashed : o.hexsDashed,
 			flipped : o.flipped,
@@ -308,9 +308,9 @@ var HexGrid = Class.create( {
 	queryCreature: function(o) {
 
 		var defaultOpt = {
-			fnOnConfirm : function(crea,args) { G.activeCreature.queryMove(); },
-			fnOnSelect : function(crea,args) { crea.tracePosition({ overlayClass: "creature selected player" + crea.team }); },
-			fnOnCancel : function(hex,args) {G.activeCreature.queryMove()},
+			fnOnConfirm : function(crea, args) { G.activeCreature.queryMove(); },
+			fnOnSelect : function(crea, args) { crea.tracePosition({ overlayClass: "creature selected player" + crea.team }); },
+			fnOnCancel : function(hex, args) { G.activeCreature.queryMove() },
 			optTest : function(crea) { return true; },
 			args : {},
 			hexs : [],
@@ -365,7 +365,7 @@ var HexGrid = Class.create( {
 				args.opt.fnOnSelect(crea, args.opt.args);
 			},
 			fnOnCancel : o.fnOnCancel,
-			args : {opt : o},
+			args : { opt : o },
 			hexs : o.hexs,
 			hexsDashed : o.hexsDashed,
 			flipped : o.flipped,
@@ -538,7 +538,7 @@ var HexGrid = Class.create( {
 				if(hex.creature instanceof Creature) { // If creature
 					var crea = hex.creature;
 					crea.hexagons.each(function() {
-						this.overlayVisualState("hover h_player"+crea.team);
+						this.overlayVisualState("hover h_player" + crea.team);
 					});
 					G.UI.xrayQueue(crea.id);
 				}else{ // If nothing
