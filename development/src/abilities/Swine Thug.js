@@ -49,7 +49,7 @@ G.abilities[37] =[
 
 
 
-// 	Second Ability: Power Bat
+// 	Second Ability: Baseball Baton
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -133,30 +133,7 @@ G.abilities[37] =[
 					}
 				}
 			}
-			var hexes;
-			var flipped = false;
-			switch (dir) {
-				case 0: // Upright
-					hexes = G.grid.getHexMap(target.x, target.y-8, 0, flipped, diagonalup).reverse();
-					break;
-				case 1: // StraitForward
-					hexes = G.grid.getHexMap(target.x, target.y, 0, flipped, straitrow);
-					break;
-				case 2: // Downright
-					hexes = G.grid.getHexMap(target.x, target.y, 0, flipped, diagonaldown);
-					break;
-				case 3: // Downleft
-					hexes = G.grid.getHexMap(target.x, target.y, -4, flipped, diagonalup);
-					break;
-				case 4: // StraitBackward
-					hexes = G.grid.getHexMap(target.x, target.y, 0, !flipped, straitrow);
-					break;
-				case 5: // Upleft
-					hexes = G.grid.getHexMap(target.x, target.y-8, -4, flipped, diagonaldown).reverse();
-					break;
-				default:
-					break;
-			}
+			var hexes = G.grid.getHexLine(target.x, target.y, dir, false);
 			var movementPoints = 0;
 			var hex = null;
 			// See how far the target can be knocked back; skip the first hex as it is
@@ -183,12 +160,13 @@ G.abilities[37] =[
 			}
 			if (hex !== null) {
 				target.moveTo(hex, {
-					ignoreMovementPoint : true,
-					ignorePath : true,
-					customMovementPoint: movementPoints,	// Ignore target's movement points
 					callback : function() {
 						G.activeCreature.queryMove();
 					},
+					ignoreMovementPoint : true,
+					ignorePath : true,
+					customMovementPoint: movementPoints,	// Ignore target's movement points
+					overrideSpeed: 1000,	// Slower speed for knockback
 					animation : "push",
 				});
 			}
@@ -366,6 +344,12 @@ G.abilities[37] =[
 
 
 		hex.createTrap("mud-bath", effects, ability.creature.player);
+
+		// Trigger trap immediately if on self
+		if (isSelf) {
+			// onCreatureMove is Spa Goggles' trigger event
+			G.triggersFn.onCreatureMove(swine, hex);
+		}
 
 	},
 }
