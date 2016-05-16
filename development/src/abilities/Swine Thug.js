@@ -132,7 +132,7 @@ G.abilities[37] =[
 					}
 				}
 			}
-			var hexes = G.grid.getHexLine(target.x, target.y, dir, false);
+			var hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
 			var movementPoints = 0;
 			var hex = null;
 			// See how far the target can be knocked back
@@ -148,8 +148,8 @@ G.abilities[37] =[
 				// Check if we are over a mud bath
 				// The target must be completely over mud baths to keep sliding
 				var mudSlide = true;
-				for (var i = 0; i < target.size; i++) {
-					var mudHex = G.grid.hexs[hex.y][hex.x-i];
+				for (var j = 0; j < target.size; j++) {
+					var mudHex = G.grid.hexs[hex.y][hex.x-j];
 					if(!mudHex.trap || mudHex.trap.type !== "mud-bath") {
 						mudSlide = false;
 						break;
