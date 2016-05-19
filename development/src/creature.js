@@ -1018,7 +1018,7 @@ var Creature = Class.create( {
 		var crea = this;
 		crea.stats = $j.extend({}, this.baseStats); // Copy
 
-		var buffDebuffArray = this.effects.concat(this.dropCollection);
+		var buffDebuffArray = this.effects;
 
 		// Multiplication Buff
 		buffDebuffArray.each(function() {
@@ -1092,7 +1092,7 @@ var Creature = Class.create( {
 		// Drop item
 		if( this.drop ) {
 			var offsetX = (this.player.flipped) ? this.x - this.size + 1 : this.x ;
-			new Drop( this.drop.name, this.drop.alterations, offsetX, this.y );
+			new Drop( this.drop.name, this.drop.health, this.drop.energy, offsetX, this.y );
 		}
 
 
@@ -1139,8 +1139,8 @@ var Creature = Class.create( {
 		// Kill animation
 		var tweenSprite = G.Phaser.add.tween(this.sprite).to( {alpha:0}, 500, Phaser.Easing.Linear.None ).start();
 		var tweenHealth = G.Phaser.add.tween(this.healtIndicatorGrp).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None ).start();
-		tweenSprite.onCompleteCallback(function() { crea.sprite.destroy(); });
-		tweenHealth.onCompleteCallback(function() { crea.healtIndicatorGrp.destroy(); });
+		tweenSprite.onComplete.add( function() { crea.sprite.destroy(); } );
+		tweenHealth.onComplete.add( function() { crea.healtIndicatorGrp.destroy(); } );
 
 		this.cleanHex();
 

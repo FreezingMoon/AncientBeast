@@ -1,6 +1,6 @@
 ### Ancient Beast ###
 # Concatenated game file
-deploy/js/ancientbeast.js
+deploy/scripts/ancientbeast.js
 
 # DS_STORE FILES
 .DS_Store

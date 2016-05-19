@@ -125,7 +125,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 						if ($i==0) { $cost = ' - this ability is passive.'; } else { $cost = ' - costs ' . $r["ability_info"][$i]["costs"]["energy"] . ' energy pts.'; }
 						echo '
 						<div class="ability">
-							<div class="icon" style="background-image: url(\'' . $site_url . 'units/icons/' . $r["name"] . ' ' . $i . '.svg\');">
+							<div class="icon" style="background-image: url(\'' . $site_url . 'units/abilities/' . $r["name"] . ' ' . $i . '.svg\');">
 								<div class="contour"></div>
 							</div>
 							<div class="wrapper">

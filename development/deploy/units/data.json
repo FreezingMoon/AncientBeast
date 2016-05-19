@@ -202,23 +202,36 @@
 			{
 				"title": "Back Stabs",
 				"desc": "Reduces some damage from behind and also harms rear melee attackers.",
-				"info": "30% rear damage reduction & return"
+				"info": "30% rear damage reduction & return.",
+				"upgrade": "test"
             },
 			{
 				"title": "Metallic Claws",
 				"desc": "Shreds nearby foe using its razor nails.",
-				"info": "10 pierce + 10 slash damage on strike"
+				"info": "10 pierce + 10 slash damage on strike.",
+				"upgrade": "test",
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Morning Star",
 				"desc": "Whips out its scepter like tail to bluntly punish a foe that is within 3 hexagons.",
-				"info": "15 pierce + 15 crush damage on strike"
+				"info": "15 pierce + 15 crush damage on strike.",
+				"upgrade": "test",
+				"costs": {
+					"energy": 20
+				}
             },
 			{
-				"title": "Brain Storm",
-				"desc": "Damages nearby units using electricity, gaining a bonus for each collected drop.",
-				"info": "20 adjacent shock damage, +5 per drop"
-            }
+				"title": "Diving Shredder",
+				"desc": "Dives 6 empty hexagons or more while damaging side units from nearby rows.",
+				"info": "Does 10 slash damage to each hexagon.",
+				"upgrade": "5 extra slash damage per hit.",
+				"costs": {
+					"energy": 30
+				}
+			}
         ]
 	},
 	{
@@ -2665,7 +2678,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Spa Clay",
+				"title": "Spa Goggles",
 				"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
 				"info": "+5 regrowth, +5 defense bonus stat.",	
 				"upgrade": "Doubles the stat bonuses.",
