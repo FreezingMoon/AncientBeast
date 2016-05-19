@@ -244,6 +244,7 @@ G.abilities[37] =[
 				alterations : { meditation: -1 }
 			});
 			target.addEffect(effect);
+			G.log("%CreatureName"+target.id+"%'s meditation is lowered by 1");
 		}
 
 		var damage = new Damage(
