@@ -350,7 +350,7 @@ var UI = Class.create({
 		var zoom2 = $j("#cardwrapper").innerHeight() / ( $j("#card").outerHeight() + $j("#materialize_button").outerHeight() );
 		var zoom = Math.min(zoom1,zoom2);
 		zoom = Math.min(zoom,1);
-		$j("#cardwrapper_inner").css({ 
+		$j("#cardwrapper_inner").css( { 
 			scale: zoom, 
 			"left": ($j("#cardwrapper").innerWidth()-$j("#card").innerWidth()*zoom)/2,
 			position: "absolute",
@@ -378,11 +378,11 @@ var UI = Class.create({
 	*	Query a creature in the available creatures of the active player
 	*
 	*/
-	showCreature: function(creatureType,player){
+	showCreature: function(creatureType, player) {
 
-		if(!this.dashopen){
-			this.$dash.show().css("opacity",0);
-			this.$dash.transition({opacity:1},this.dashAnimSpeed,"linear");
+		if(!this.dashopen) {
+			this.$dash.show().css("opacity", 0);
+			this.$dash.transition({ opacity: 1 }, this.dashAnimSpeed, "linear");
 		}
 
 		this.dashopen = true;
@@ -398,18 +398,18 @@ var UI = Class.create({
 		this.changePlayerTab(G.activeCreature.team);
 		this.resizeDash();
 
-		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click',function(e){
+		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click', function(e) {
 			if(G.freezedInput) return;
 			G.UI.showCreature("--",$j(this).attr("player")-0);
 		});
 
 		// Update player info
 		for (var i = G.players.length - 1; i >= 0; i--) {
-			$j("#dash .playertabs.p"+i+" .vignette").css("background-image","url('"+G.players[i].avatar+"')");
-			$j("#dash .playertabs.p"+i+" .name").text(G.players[i].name);
-			$j("#dash .playertabs.p"+i+" .plasma").text("Plasma "+G.players[i].plasma);
-			$j("#dash .playertabs.p"+i+" .score").text("Score "+G.players[i].getScore().total);
-			$j("#dash .playertabs.p"+i+" .units").text("Units "+G.players[i].getNbrOfCreatures()+" / "+G.creaLimitNbr);
+			$j("#dash .playertabs.p" + i + " .vignette").css("background-image", "url('" + G.players[i].avatar + "')");
+			$j("#dash .playertabs.p" + i + " .name").text(G.players[i].name);
+			$j("#dash .playertabs.p" + i + " .plasma").text("Plasma " + G.players[i].plasma);
+			$j("#dash .playertabs.p" + i + " .score").text("Score " + G.players[i].getScore().total);
+			$j("#dash .playertabs.p" + i + " .units").text("Units " + G.players[i].getNbrOfCreatures() + " / " + G.creaLimitNbr);
 		}
 
 		// Change to the player tab
@@ -423,7 +423,7 @@ var UI = Class.create({
 		var stats = G.retreiveCreatureStats(creatureType);
 
 		// TODO card animation
-		if( $j.inArray(creatureType, G.players[player].availableCreatures)>0 || creatureType=="--"){
+		if( $j.inArray(creatureType, G.players[player].availableCreatures)>0 || creatureType == "--") {
 			// Retreive the selected unit
 			var crea = undefined;
 			G.UI.selectedCreatureObj = undefined;
@@ -435,42 +435,42 @@ var UI = Class.create({
 			});
 
 			// Card A
-			$j("#card .sideA").css({"background-image":"url('../images/cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')"});
+			$j("#card .sideA").css({ "background-image": "url('../images/cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')" });
 			$j("#card .sideA audio").attr("src", "../units/shouts/"+stats.name+".ogg")
-			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
+			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
 			$j("#card .sideA .hexs").text(stats.size+"H");
 
 			// Card B
-			$j("#card .sideB").css({"background-image":"url('../images/cards/margin.png'), url('../images/cards/"+stats.type.substring(0,1)+".jpg')"});
-			$j.each(stats.stats,function(key,value) {
-				var $stat = $j("#card .sideB ."+key+" .value");
+			$j("#card .sideB").css({ "background-image": "url('../images/cards/margin.png'), url('../images/cards/" + stats.type.substring(0, 1)+ ".jpg')" });
+			$j.each(stats.stats,function(key, value) {
+				var $stat = $j("#card .sideB ." + key + " .value");
 				$stat.removeClass("buff debuff");
 				if(crea){
 					if(key=="health"){
-						$stat.text(crea.health+"/"+crea.stats[key]);
+						$stat.text(crea.health + "/" + crea.stats[key]);
 					}else if(key=="movement") {
-						$stat.text(crea.remainingMove+"/"+crea.stats[key]);
+						$stat.text(crea.remainingMove + "/" + crea.stats[key]);
 					}else if(key=="energy") {
-						$stat.text(crea.energy+"/"+crea.stats[key]);
+						$stat.text(crea.energy + "/" + crea.stats[key]);
 					}else if(key=="endurance") {
-						$stat.text(crea.endurance+"/"+crea.stats[key]);
+						$stat.text(crea.endurance + "/" + crea.stats[key]);
 					}else{
 						$stat.text(crea.stats[key]);
 					}
-					if(crea.stats[key]>value) { // Buff
+					if(crea.stats[key] > value) { // Buff
 						$stat.addClass("buff");
-					}else if(crea.stats[key]<value) { // Debuff
+					}else if(crea.stats[key] < value) { // Debuff
 						$stat.addClass("debuff");
 					}
 				}else{
 					$stat.text(value);
 				}
 			});
-			$j.each(abilities[stats.id],function(key,value) {
-				$ability = $j("#card .sideB .abilities .ability:eq("+key+")");
-				$ability.children('.icon').css({"background-image":"url('../units/icons/"+stats.name+" "+key+".svg')"});
+			$j.each(abilities[stats.id], function(key, value) {
+				$ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
+				$ability.children('.icon').css({ "background-image": "url('../units/abilities/" + stats.name + " " + key + ".svg')" });
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").text(stats.ability_info[key].info);
@@ -478,7 +478,7 @@ var UI = Class.create({
 
 			var summonedOrDead = false;
 			G.players[player].creatures.each(function() {
-				if(this.type == creatureType){
+				if(this.type == creatureType) {
 					summonedOrDead = true;
 				}
 			});
@@ -495,7 +495,7 @@ var UI = Class.create({
 				G.activeCreature.abilities[3].used === false
 			)
 			{	
-				var lvl = creatureType.substring(1,2)-0;
+				var lvl = creatureType.substring(1, 2)-0;
 				var size = G.retreiveCreatureStats(creatureType).size-0;
 				plasmaCost = lvl+size;
 
@@ -548,8 +548,8 @@ var UI = Class.create({
 		}else{
 			
 			// Card A
-			$j("#card .sideA").css({"background-image":"url('../images/cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')"});
-			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0,1));
+			$j("#card .sideA").css({ "background-image": "url('../images/cards/margin.png'), url('../units/artwork/" + stats.name + ".jpg')" });
+			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
 			$j("#card .sideA .hexs").text(stats.size+"H");
@@ -562,9 +562,9 @@ var UI = Class.create({
 			});
 
 			// Abilities
-			$j.each(stats.ability_info,function(key,value) {
+			$j.each(stats.ability_info, function(key, value) {
 				$ability = $j("#card .sideB .abilities .ability:eq("+key+")");
-				$ability.children('.icon').css({"background-image":"url('../units/icons/"+stats.name+" "+key+".svg')"});
+				$ability.children('.icon').css({ "background-image":"url('../units/abilities/" + stats.name + " " + key + ".svg')" });
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").html(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").html(stats.ability_info[key].info);
@@ -849,7 +849,7 @@ var UI = Class.create({
 			// Change ability buttons
 			G.UI.abilitiesButtons.each(function() {
 				var ab = G.activeCreature.abilities[this.abilityId];
-				this.css.normal = {"background-image":"url('../units/icons/"+G.activeCreature.name+" "+this.abilityId+".svg')"};
+				this.css.normal = {"background-image":"url('../units/abilities/"+G.activeCreature.name+" "+this.abilityId+".svg')"};
 				this.$button.next(".desc").find("span").text(ab.title);
 				this.$button.next(".desc").find("p").html(ab.desc);
 

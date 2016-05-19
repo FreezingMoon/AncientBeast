@@ -8,7 +8,7 @@
 *	to really start the game
 *
 */
-var Game = Class.create({
+var Game = Class.create( {
 	/*	Attributes
 	*
 	*	NOTE : attributes and variables starting with $ are jquery elements
