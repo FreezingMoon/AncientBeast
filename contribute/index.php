@@ -43,7 +43,7 @@ This is a collaborative project, meaning you can be part of it too:
 <div style="width: 475px; text-align: justify; display:inline-block;">
 <h3 class="indexheader"><a href="#donate">Donate</a></h3>
 <p>
-We strongly believe in open source software development, but to run a successful project, you still require quite a bit of money in order to have at least few people work part-time on the project and deal with the stuff nobody else wants to ever actually do and there are also services and hardware requirements that must be met which tend to add up quite a bit. Please consider donating via <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><b>Paypal</b></a> or <a href="bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast"><b>Bitcoin</b></a>, even if you're not into turn based strategy games you must see the bigger picture: we're setting an example in the industry and also creating a huge high quality art repository that you and others can use for commercial work and possibly even make other neat games, comics or maybe even animations. Feel free to become our <a href="http://patreon.com/AncientBeast" target="_blank"><b>Patreon</b></a> and receive cool rewards.<br>
+We strongly believe in open source software development, but to run a successful project, you still require quite a bit of money in order to have at least few people work part-time on the project and deal with the stuff nobody else wants to ever actually do and there are also services and hardware requirements that must be met which tend to add up quite a bit. Please consider donating via <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><b>Paypal</b></a> or <a href="bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast"><b>Bitcoin</b></a>, even if you're not into turn based strategy games you must see the bigger picture: we're setting an example in the industry and also creating a huge high quality art repository that you and others can use for commercial work and possibly even make other neat games, comics or maybe even some animations. Feel free to become our <a href="http://patreon.com/AncientBeast" target="_blank"><b>Patreon</b></a> and receive cool rewards.<br>
 You can address individual issues by using <a href="https://bountysource.com/teams/freezingmoon/issues?tracker_ids=260151" target="_blank"><b>Bounty Source</b></a>.<br>
 If you wish to become a sponsor, get in touch via an <a href="mailto:DreadKnight@FreezingMoon.org?Subject=I want to Sponsor the Project" target="_blank"><b>email</b></a>.<br>
 Any amount you can donate is very appreciated, thank you!<br>
@@ -60,7 +60,8 @@ Any amount you can donate is very appreciated, thank you!<br>
 <div style="display: inline-block; vertical-align: top;" class="center">
 <table style="width: 400px;"><tr><td><b>Top Donors via PayPal</b></td><td><b>$</b></td></tr>
 <tr><td><a href="https://harumorii.deviantart.com" target="_blank" class="lighten donate"><img src="yellow.png"> Haru <img src="yellow.png" class="scale"></a></td><td>2500</td></tr>
-<tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten donate"><img src="yellow.png"> Dread Knight <img src="yellow.png" class="scale"></a></td><td>1250</td></tr>
+<tr><td><a href="https://FreezingMoon.org" target="_blank" class="lighten donate"><img src="yellow.png"> Anastase family <img src="yellow.png" class="scale"></a></td><td>1900</td></tr>
+<tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten donate"><img src="yellow.png"> Dread Knight <img src="yellow.png" class="scale"></a></td><td>1350</td></tr>
 <tr><td><a href="http://ugnis.com" target="_blank" class="lighten donate"><img src="yellow.png"> Karolis Masiulis  <img src="yellow.png" class="scale"></a></td><td>300</td></tr>
 <tr><td><a href="https://github.com/unhammer" target="_blank" class="lighten donate"><img src="yellow.png"> Kevin Brubeck Unhammer <img src="yellow.png" class="scale"></a></td><td>50</td></tr>
 <tr><td><a href="https://teogreengage.blogspot.com" target="_blank" class="lighten donate"><img src="yellow.png"> Teo Cazghir <img src="yellow.png" class="scale"></td><td>50</td></tr>
@@ -71,7 +72,8 @@ Any amount you can donate is very appreciated, thank you!<br>
 <tr><td><a href="https://facebook.com/akumdara" target="_blank" class="lighten donate"><img src="yellow.png"> Adam Dalton <img src="yellow.png" class="scale"></a></td><td>20</td></tr>
 <tr><td><a href="https://twitter.com/alexandredes" target="_blank" class="lighten donate"><img src="yellow.png"> Alexandre Deschamps <img src="yellow.png" class="scale"></a></td><td>20</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Vincent Bermel <img src="yellow.png" class="scale"></a></td><td>15</td></tr>
-<tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Leif Larsen <img src="yellow.png" class="scale"></td><td>10</td></tr>
+<tr><td><a href="http://options.tradersapiens.ru/iqoption" target="_blank" class="lighten donate"><img src="yellow.png"> IQOption <img src="yellow.png" class="scale"></td><td>10</td></tr>
+<tr><td><a href="https://facebook.com/leifhl" target="_blank" class="lighten donate"><img src="yellow.png"> Leif Larsen <img src="yellow.png" class="scale"></td><td>10</td></tr>
 <tr><td><a href="https://mrfaemir.deviantart.com" target="_blank" class="lighten donate"><img src="yellow.png"> Daniel Cohen <img src="yellow.png" class="scale"></a></td><td>5</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> gamesandspace <img src="yellow.png" class="scale"></a></td><td>3</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Markus Eliassen <img src="yellow.png" class="scale"></a></td><td>3</td></tr>
@@ -164,11 +166,16 @@ Sometimes even reviewing or talking code can greatly help.
 <table style="width: 400px;"><tr><td><b>Top Code Contributors</b></td><td><b>#</b></td></tr>
 <tr><td><a href="https://github.com/Hypersomniac" target="_blank" class="lighten coding"><img src="green.png"> Clement Turjuque <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://fiverr.com/dreadknight" target="_blank" class="lighten coding"><img src="green.png"> Dread Knight <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/Dobz" target="_blank" class="lighten coding"><img src="green.png"> Dobz <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/Archiboldian" target="_blank" class="lighten coding"><img src="green.png"> Archiboldian <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/Fweeb" target="_blank" class="lighten coding"><img src="green.png"> Fweeb <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="https://github.com/Nehmulos" target="_blank" class="lighten coding"><img src="green.png"> Nehmulos <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/seand88" target="_blank" class="lighten coding"><img src="green.png"> seand88 <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Spencer-Zhang" target="_blank" class="lighten coding"><img src="green.png"> Spencer-Zhang <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/cxong" target="_blank" class="lighten coding"><img src="green.png"> Cong <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/tukkek" target="_blank" class="lighten coding"><img src="green.png"> tukkek <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Dobz" target="_blank" class="lighten coding"><img src="green.png"> Dobz <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/SlimeTP" target="_blank" class="lighten coding"><img src="green.png"> SlimeTP <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Nehmulos" target="_blank" class="lighten coding"><img src="green.png"> Nehmulos <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/Archiboldian" target="_blank" class="lighten coding"><img src="green.png"> Archiboldian <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/snollygolly" target="_blank" class="lighten coding"><img src="green.png"> Matt Horning <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/hjaarnio" target="_blank" class="lighten coding"><img src="green.png"> hjaarnio <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/Uhkis" target="_blank" class="lighten coding"><img src="green.png"> Uhkis <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/randompast" target="_blank" class="lighten coding"><img src="green.png"> randompast <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
