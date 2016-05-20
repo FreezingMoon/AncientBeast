@@ -27,10 +27,13 @@ $style = '
 a.FM:hover { text-shadow: black 0.1em 0.1em 0.2em, blue 0 0 10px; }
 .image { cursor: pointer; display: inline-block; padding-left: 10px; }
 .small { width: 128px; height: 128px; }
+
 #screenshot { display: inline-block; position: relative; vertical-align: top; margin: 10px; width: 390px; }
 #screenshot img { position: absolute; z-index: 8; top: 0; padding: 0px; margin: 0px; border-color: grey !important; }
 #screenshot IMG.active { z-index: 10; }
 #screenshot IMG.last-active { z-index: 9; }
+
+.abilities a { color: white; }
 .abilities .ability .wrapper { height: 104px !important; padding-left: 107px !important; }
 .abilities .icon, .contour { width: 104px !important; height: 104px !important; }
 ';
@@ -149,9 +152,11 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 <div class="div center" id="contribute">
 	<!-- Left Side -->
 	<div class="card sideB" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/cards/G.jpg);">
-		<a href="contribute"><div class="section abilities">
-	  		<!-- Display Abilities -->
+	  	<!-- Display main ways to contribute -->
+		<div class="section abilities">
+
 			<div class="ability">
+				<a href="contribute/#donate">
 				<div id="first_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/donate.svg);">
 					<div class="contour"></div>
 				</div>
@@ -161,8 +166,11 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 						<span class="desc" id="desc">You can donate to the project directly via PayPal or Bitcoin and we also have nice Patreon and Bountysource pages.</span>
 					</div>
 				</div>
+				</a>
 			</div>
+
 			<div class="ability">
+				<a href="contribute/#artwork">
 				<div id="second_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/artwork.svg);">
 					<div class="contour"></div>
 				</div>
@@ -172,8 +180,11 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 						<span class="desc" id="desc">You can donate existing artwork that you think it could nicely fit the project or offer your skills to create new stuff.</span>
 					</div>
 				</div>
+				</a>
 			</div>
+
 			<div class="ability">
+				<a href="contribute/#coding">
 				<div id="third_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/coding.svg);">
 					<div class="contour"></div>
 				</div>
@@ -183,8 +194,11 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 						<span class="desc" id="desc">We can always use an extra coding hand adding new functionality to the game or website and to squash bugs.</span>
 					</div>
 				</div>
+				</a>
 			</div>
+
 			<div class="ability">
+				<a href="contribute/#audio">
 				<div id="fourth_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/audio.svg);">
 					<div class="contour"></div>
 				</div>
@@ -194,8 +208,11 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 						<span class="desc" id="desc">Fast paced epic tracks can really set players in the mood for combat, while sound effects can empower abilities.</span>
 					</div>
 				</div>
+				</a>
 			</div>
+
 			<div class="ability">
+				<a href="contribute"> <!-- TODO: add custom link when category is added in the contribute page -->
 				<div id="fifth_icon" class="icon" style="background-image: url(<?php echo $site_root; ?>images/contribute/writing.svg);">
 					<div class="contour"></div>
 				</div>
@@ -205,8 +222,10 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 						<span class="desc" id="desc">Create exciting stories about the crazy and dangerous adventures that your favorite project units could undergo.</span>
 					</div>
 				</div>
+				</a>
 			</div>
-		</div></a>
+
+		</div>
 	</div>
 
 	<!-- Right Side -->
