@@ -44,6 +44,16 @@ G.abilities[37] =[
 			alterations : alterations
 		});
 		this.creature.addEffect(effect);
+		var log = "%CreatureName"+this.creature.id+"%'s ";
+		var first = true;
+		for (var k in alterations) {
+			if (!first) {
+				log += ", ";
+			}
+			log += k + " is increased by " + alterations[k];
+			first = false;
+		}
+		G.log(log);
 	},
 },
 
