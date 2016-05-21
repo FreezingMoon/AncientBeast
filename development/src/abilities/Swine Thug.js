@@ -44,6 +44,22 @@ G.abilities[37] =[
 			alterations : alterations
 		});
 		this.creature.addEffect(effect);
+
+		// Log message, assume that all buffs are the same amount, and there are
+		// only two buffs (otherwise the grammar doesn't make sense)
+		var log = "%CreatureName"+this.creature.id+"%'s ";
+		var first = true;
+		var amount;
+		for (var k in alterations) {
+			if (!first) {
+				log += "and ";
+			}
+			log += k + " ";
+			first = false;
+			amount = alterations[k];
+		}
+		log += "are increased by " + amount;
+		G.log(log);
 	},
 },
 
