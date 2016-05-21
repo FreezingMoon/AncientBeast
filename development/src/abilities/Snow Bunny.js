@@ -16,7 +16,7 @@ G.abilities[12] = [
 
 		if( this.used ) return false; // Once per turn
 
-		if( !destHex ) return false; // If destHex is undefined
+		if( !destHex || !destHex.creature ) return false; // If destHex is undefined
 
 		if( destHex.creature.isAlly(this.creature.team) ) return false;
 
