@@ -2680,11 +2680,11 @@
 			{
 				"title": "Spa Goggles",
 				"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
-				"info": "+5 regrowth, +5 defense bonus stat.",	
-				"upgrade": "Doubles the stat bonuses.",
+				"info": "+5 regrowth & defense while on mud.",	
+				"upgrade": "Doubles both stat bonuses.",
 				"effects": [{
-					"regrowth": 10,
-					"defense": 10
+					"regrowth": 5,
+					"defense": 5
 				}]
 		},
 			{
