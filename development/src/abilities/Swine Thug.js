@@ -149,7 +149,6 @@ G.abilities[37] =[
 				}
 			}
 			var hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
-			var movementPoints = 0;
 			var hex = null;
 			// See how far the target can be knocked back
 			// Skip the first hex as it is the same hex as the target
@@ -157,7 +156,6 @@ G.abilities[37] =[
 				// Check that the next knockback hex is valid
 				if (!hexes[i].isWalkable(target.size, target.id, true)) break;
 
-				movementPoints++;
 				hex = hexes[i];
 
 				if(!this.isUpgraded()) break;
@@ -180,7 +178,6 @@ G.abilities[37] =[
 					},
 					ignoreMovementPoint : true,
 					ignorePath : true,
-					customMovementPoint: movementPoints, // Ignore target's movement points
 					overrideSpeed: 1200, // Custom speed for knockback
 					animation : "push",
 				});

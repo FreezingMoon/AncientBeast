@@ -29,7 +29,7 @@ var Animations = Class.create({
 
 				var hex = path[hexId];
 
-				if( hexId < path.length && crea.remainingMove > 0 ){
+				if (hexId < path.length && (crea.remainingMove > 0 || opts.ignoreMovementPoint)) {
 					G.animations.movements.leaveHex(crea,hex,opts);
 				}else{
 					G.animations.movements.movementComplete(crea,hex,anim_id,opts); return;
