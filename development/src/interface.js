@@ -109,6 +109,27 @@ var UI = Class.create( {
 		this.timeBar = new ProgessBar( { $bar : $j("#rightpanel .progressbar .timebar"), color : "white" } );
 		this.poolBar = new ProgessBar( { $bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" } );
 
+		this.showAbilityCosts = function(abilityId) {
+			var ab = G.activeCreature.abilities[abilityId];
+			if(ab.costs !== undefined) {
+				if( typeof ab.costs.energy == "number" ) {
+					G.UI.energyBar.previewSize( ab.costs.energy / G.activeCreature.stats.energy );
+				}else{
+					G.UI.energyBar.previewSize( 0 );
+				}
+				if( typeof ab.costs.health == "number" ) {
+					G.UI.healthBar.previewSize( ab.costs.health / G.activeCreaturestats.stats.health );
+				}else{
+					G.UI.healthBar.previewSize( 0 );
+				}
+			}
+		}
+
+		this.hideAbilityCosts = function() {
+			G.UI.energyBar.previewSize( 0 );
+			G.UI.healthBar.previewSize( 0 );
+		}
+
 		// Volume Sliders
 		$j("#effects_volume").slider( {
 			step: 0.2,
@@ -580,8 +601,13 @@ var UI = Class.create( {
 	selectAbility: function(i) {
 		this.checkAbilities();
 		this.selectedAbility = i;
-		if( i>-1 )
+		if( i>-1 ) {
+			G.UI.showAbilityCosts(i);
 			this.abilitiesButtons[i].changeState("active");
+		}
+		else {
+			G.UI.hideAbilityCosts();
+		}
 	},
 
 
@@ -879,13 +905,16 @@ var UI = Class.create( {
 				}
 
 				this.click = function() {
-					if(G.UI.selectedAbility!=this.abilityId) {
+					if(G.UI.selectedAbility != this.abilityId) {
 						if(G.UI.dashopen) return false;
 						G.grid.clearHexViewAlterations();
+						var ab = G.activeCreature.abilities[this.abilityId];
+						G.UI.selectAbility(this.abilityId);
 						// Activate Ability
 						G.activeCreature.abilities[this.abilityId].use();
 					}else{
 						G.grid.clearHexViewAlterations();
+						G.UI.selectAbility(-1);
 						// Cancel Ability
 						G.UI.closeDash();
 						G.activeCreature.queryMove();
@@ -893,24 +922,15 @@ var UI = Class.create( {
 				};
 
 				this.mouseover = function() {
-					var ab = G.activeCreature.abilities[this.abilityId];
-					if(ab.costs !== undefined) {
-						if( typeof ab.costs.energy == "number" ) {
-							G.UI.energyBar.previewSize( ab.costs.energy / G.activeCreature.stats.energy );
-						}else{
-							G.UI.energyBar.previewSize( 0 );
-						}
-						if( typeof ab.costs.health == "number" ) {
-							G.UI.healthBar.previewSize( ab.costs.health / G.activeCreaturestats.stats.health );
-						}else{
-							G.UI.healthBar.previewSize( 0 );
-						}
-					}
-				};
+					if(G.UI.selectedAbility == -1) {
+						G.UI.showAbilityCosts(this.abilityId);
+					};
+				}
 				this.mouseleave = function() {
-					G.UI.energyBar.previewSize( 0 );
-					G.UI.healthBar.previewSize( 0 );
-				};
+					if(G.UI.selectedAbility == -1) {
+						G.UI.hideAbilityCosts();
+					}
+				}
 				this.changeState(); // Apply changes
 			});
 			G.UI.$activebox.children("#abilities").transition( { y: "0px" }, 500, 'easeOutQuart'); // Show panel

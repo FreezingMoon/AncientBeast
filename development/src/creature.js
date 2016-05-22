@@ -1090,7 +1090,7 @@ var Creature = Class.create( {
 
 
 		// Drop item
-		if( this.drop ) {
+		if( G.unitDrops == 1 && this.drop ) {
 			var offsetX = (this.player.flipped) ? this.x - this.size + 1 : this.x ;
 			new Drop( this.drop.name, this.drop.health, this.drop.energy, offsetX, this.y );
 		}
