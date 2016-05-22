@@ -108,7 +108,7 @@ G.abilities[39] =[
 
 
 
-// 	Third Ability: Whip Slash
+// 	Third Ability: Whip Move
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -158,23 +158,9 @@ G.abilities[39] =[
 	activate : function(path,args) {
 		var ability = this;
 		var crea = this.creature;
-
-
-		var path = path;
 		var target = path.last().creature;
 		path = path.filter( function(){	return !this.creature; }); //remove creatures
 		ability.end();
-
-		console.log(path);
-
-		//Damage
-		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			{ slash : 12, crush : 5*path.length }, //Damage Type
-			1, //Area
-			[]	//Effects
-		);
 
 		//Movement
 		var creature = (args.direction==4) ? crea.hexagons[crea.size-1] : crea.hexagons[0] ;
@@ -188,11 +174,6 @@ G.abilities[39] =[
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			callback : function(){
-				var ret = target.takeDamage(damage,true);
-
-				if( ret.damageObj instanceof Damage )
-					G.triggersFn.onDamage(target,ret.damageObj);
-
 				var interval = setInterval(function(){
 					if(!G.freezedInput){
 						clearInterval(interval);
