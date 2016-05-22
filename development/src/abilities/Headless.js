@@ -115,20 +115,29 @@ G.abilities[39] =[
 
 	directions : [0,1,0,0,1,0],
 
+	_minDistance: 2,
+	_maxDistance: 6,
+
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
 		var crea = this.creature;
 		var x = (crea.player.flipped) ? crea.x-crea.size+1 : crea.x ;
 
-		var test = this.testDirection({
-			team : "ennemy",
-			x : x,
-			directions : this.directions,
-			distance : 5
+		// There must be no targets within min distance, and a target within max
+		var testMin = this.testDirection({
+			team: "ennemy",
+			x: x,
+			directions: this.directions,
+			distance: this._minDistance
 		});
-
-		if( !test ){
+		var testMax = this.testDirection({
+			team: "ennemy",
+			x: x,
+			directions: this.directions,
+			distance: this._maxDistance
+		});
+		if (testMin || !testMax){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -149,7 +158,8 @@ G.abilities[39] =[
 			x : crea.x,
 			y : crea.y,
 			directions : this.directions,
-			distance : 5
+			distance: this._maxDistance,
+			minDistance: this._minDistance
 		});
 	},
 
