@@ -137,7 +137,7 @@ G.abilities[31] =[
 		G.grid.queryChoice({
 			fnOnCancel : function(){ G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 4, //both
+			team : "both",
 			id : crea.id,
 			requireCreature : false,
 			choices : choices

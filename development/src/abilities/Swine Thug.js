@@ -235,7 +235,7 @@ G.abilities[37] =[
 
 		G.grid.queryChoice( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
-			team : 0,
+			team : "ennemy",
 			requireCreature : 1,
 			id : swine.id,
 			flipped : swine.flipped,

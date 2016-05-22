@@ -187,7 +187,7 @@ G.abilities[5] =[
 
 		G.grid.queryChoice( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 3,
+			team : "both",
 			requireCreature : 1,
 			id : this.creature.id,
 			flipped : this.creature.flipped,

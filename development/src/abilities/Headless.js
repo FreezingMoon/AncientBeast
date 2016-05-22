@@ -117,8 +117,7 @@ G.abilities[39] =[
 
 	_minDistance: 2,
 	_maxDistance: 6,
-	_targetTeamStr: "both",
-	_targetTeamInt: 3,
+	_targetTeam: "both",
 
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -128,13 +127,13 @@ G.abilities[39] =[
 
 		// There must be no targets within min distance, and a target within max
 		var testMin = this.testDirection({
-			team: this._targetTeamStr,
+			team: this._targetTeam,
 			x: x,
 			directions: this.directions,
 			distance: this._minDistance
 		});
 		var testMax = this.testDirection({
-			team: this._targetTeamStr,
+			team: this._targetTeam,
 			x: x,
 			directions: this.directions,
 			distance: this._maxDistance
@@ -153,7 +152,7 @@ G.abilities[39] =[
 
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : this._targetTeamInt,
+			team : this._targetTeam,
 			id : crea.id,
 			requireCreature : true,
 			sourceCreature : crea,
@@ -229,7 +228,7 @@ G.abilities[39] =[
 
 		G.grid.queryChoice({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 3,
+			team : "both",
 			requireCreature : 0,
 			id : crea.id,
 			flipped : crea.flipped,
