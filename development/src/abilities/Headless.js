@@ -130,13 +130,15 @@ G.abilities[39] =[
 			team: this._targetTeam,
 			x: x,
 			directions: this.directions,
-			distance: this._minDistance
+			distance: this._minDistance,
+			sourceCreature: crea
 		});
 		var testMax = this.testDirection({
 			team: this._targetTeam,
 			x: x,
 			directions: this.directions,
-			distance: this._maxDistance
+			distance: this._maxDistance,
+			sourceCreature: crea
 		});
 		if (testMin || !testMax){
 			this.message = G.msg.abilities.notarget;
@@ -159,8 +161,7 @@ G.abilities[39] =[
 			x : crea.x,
 			y : crea.y,
 			directions : this.directions,
-			distance: this._maxDistance,
-			minDistance: this._minDistance
+			distance: this._maxDistance
 		});
 	},
 
