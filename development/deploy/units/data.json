@@ -1037,7 +1037,7 @@
 				"title": "Bunny Hopping",
 				"desc": "Moves away one hexagon from first enemy that comes nearby frontaly.",
 				"info": "Works only once every game round.",
-				"upgrade": "Can leap twice every turn.",
+				"upgrade": "Can leap twice each round.",
 				"affectedByMatSickness": 1
 		},
 			{
