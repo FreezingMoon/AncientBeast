@@ -181,24 +181,59 @@ G.abilities[39] =[
 
 		//Movement
 		var creature = (args.direction==4) ? crea.hexagons[crea.size-1] : crea.hexagons[0] ;
-		path.filterCreature(false,false);
-		path.unshift(creature); //prevent error on empty path
-		var destination = path.last();
-		var x = (args.direction==4) ? destination.x+crea.size-1 : destination.x ;
-		destination = G.grid.hexs[destination.y][x];
+		path.filterCreature(false, false);
+		var destination = null;
+		var destinationTarget = null;
+		if (target.size === 1) {
+			// Small creature, pull target towards self
+			destinationTarget = path.first();
+		} else if (target.size === 2) {
+			// Medium creature, pull self and target towards each other half way,
+			// rounding upwards for self (self move one extra hex if required)
+			var midpoint = Math.floor((path.length - 1) / 2);
+			destination = path[midpoint];
+			if (midpoint < path.length - 1) {
+				destinationTarget = path[midpoint + 1];
+			}
+		} else {
+			// Large creature, pull self towards target
+			destination = path.last();
+		}
 
-		crea.moveTo(destination,{
-			ignoreMovementPoint : true,
-			ignorePath : true,
-			callback : function(){
-				var interval = setInterval(function(){
-					if(!G.freezedInput){
-						clearInterval(interval);
-						G.activeCreature.queryMove();
-					}
-				},100);
-			},
-		});
+		var x;
+		var hex;
+		if (destination !== null) {
+			x = (args.direction === 4) ? destination.x + crea.size - 1 : destination.x;
+			hex = G.grid.hexs[destination.y][x];
+			crea.moveTo(hex, {
+				ignoreMovementPoint: true,
+				ignorePath: true,
+				callback: function() {
+					var interval = setInterval(function() {
+						if (!G.freezedInput) {
+							clearInterval(interval);
+							G.activeCreature.queryMove();
+						}
+					}, 100);
+				},
+			});
+		}
+		if (destinationTarget !== null) {
+			x = (args.direction === 1) ? destinationTarget.x + target.size - 1 : destinationTarget.x;
+			hex = G.grid.hexs[destinationTarget.y][x];
+			target.moveTo(hex, {
+				ignoreMovementPoint: true,
+				ignorePath: true,
+				callback: function() {
+					var interval = setInterval(function() {
+						if (!G.freezedInput) {
+							clearInterval(interval);
+							G.activeCreature.queryMove();
+						}
+					}, 100);
+				},
+			});
+		}
 	},
 },
 
