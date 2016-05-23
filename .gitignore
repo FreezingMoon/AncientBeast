@@ -1,3 +1,7 @@
 .ds_store
 config.php
 robots.txt
+
+*.iml
+
+*.xml

@@ -21,6 +21,8 @@ $(function() {
 			selectedUnit = $(e.target).data("id");
 			updateCarousel();
 			updateCard(selectedUnit);
+            		//var urll = "?view=viewer&id="+selectedUnit;
+            		//window.location.href = urll;
 		});
 
 	});
@@ -34,9 +36,10 @@ $(function() {
 			// Grabs a spot from the unit array
 			var index = Math.abs((units.length + selectedUnit + i) % units.length);
 			// Add in the div we'll build on
-			var unitDiv = document.createElement("div");
+			var unitDiv = document.createElement("a");
 			// Add the class and data id (index)
 			$(unitDiv).addClass("carouselAvatar");
+            $(unitDiv).attr("href","?view=viewer&id="+index+"#carousel");
 			$(unitDiv).data("id", index);
 			// Add in the background images
 			$(unitDiv).css("background", "url('" + siteUrl + "images/frame.png'), url('avatars/" + units[index].name + ".jpg')");
