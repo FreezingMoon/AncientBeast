@@ -123,29 +123,46 @@ G.abilities[39] =[
 		return 6;
 	},
 	_targetTeam: "both",
+	_getValidDirections: function() {
+		// Get all directions where there are no targets within min distance,
+		// and a target within max distance
+		var crea = this.creature;
+		var x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
+		var validDirections = [0, 0, 0, 0, 0, 0];
+		for (var i = 0; i < this.directions.length; i++) {
+			if (this.directions[i] === 0) {
+				continue;
+			}
+			var directions = [0, 0, 0, 0, 0, 0];
+			directions[i] = 1;
+			var testMin = this.testDirection({
+				team: this._targetTeam,
+				x: x,
+				directions: directions,
+				distance: this._minDistance,
+				sourceCreature: crea
+			});
+			var testMax = this.testDirection({
+				team: this._targetTeam,
+				x: x,
+				directions: directions,
+				distance: this._getMaxDistance(),
+				sourceCreature: crea
+			});
+			if (!testMin && testMax) {
+				validDirections[i] = 1;
+			}
+		}
+		return validDirections;
+	},
 
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		var crea = this.creature;
-		var x = (crea.player.flipped) ? crea.x-crea.size+1 : crea.x ;
-
-		// There must be no targets within min distance, and a target within max
-		var testMin = this.testDirection({
-			team: this._targetTeam,
-			x: x,
-			directions: this.directions,
-			distance: this._minDistance,
-			sourceCreature: crea
-		});
-		var testMax = this.testDirection({
-			team: this._targetTeam,
-			x: x,
-			directions: this.directions,
-			distance: this._getMaxDistance(),
-			sourceCreature: crea
-		});
-		if (testMin || !testMax){
+		// There must be at least one direction where there is a target within
+		// min/max range
+		var validDirections = this._getValidDirections();
+		if (!validDirections.some(function(e) { return e === 1; })) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -165,7 +182,7 @@ G.abilities[39] =[
 			sourceCreature : crea,
 			x : crea.x,
 			y : crea.y,
-			directions : this.directions,
+			directions : this._getValidDirections(),
 			distance: this._getMaxDistance()
 		});
 	},
