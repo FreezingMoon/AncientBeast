@@ -35,7 +35,6 @@ var Ability = Class.create( {
 		if( this.used === true ) { G.log("Ability already used!"); return; }
 		G.grid.clearHexViewAlterations();
 		G.clearOncePerDamageChain();
-		G.UI.selectAbility(this.id);
 		G.activeCreature.hint(this.title,"msg_effects");
 		return this.query();
 	},
@@ -52,8 +51,8 @@ var Ability = Class.create( {
 		G.UI.updateInfos(); // Just in case
 		G.UI.btnDelay.changeState("disabled");
 		G.activeCreature.delayable = false;
+		G.UI.selectAbility(-1);
 		if(this.trigger == "onQuery" && !deferedEnding) {
-			G.UI.selectAbility(-1);
 			G.activeCreature.queryMove();
 		}
 	},
@@ -140,7 +139,8 @@ var Ability = Class.create( {
 		p1 += (this.creature.player.flipped)? 5 : -5;
 		p2 += (this.creature.player.flipped)? -5 : 5;
 
-		if( !this.noAnimation ) {
+		// Play animations and sounds only for active abilities
+		if( this.trigger === 'onQuery' ) {
 			var anim_id = Math.random();
 
 			G.animationQueue.push(anim_id);

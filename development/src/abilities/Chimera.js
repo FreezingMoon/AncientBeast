@@ -10,8 +10,6 @@ G.abilities[45] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStartPhase",
 
-	noAnimation : true,
-
 	//	require() :
 	require : function(){
 		return this.testRequirements();
