@@ -135,7 +135,7 @@ G.abilities[45] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : chimera.player.flipped,
-			team : 3, // Everyone
+			team : "both",
 			id : chimera.id,
 			requireCreature : true,
 			x : chimera.x,
@@ -231,7 +231,7 @@ G.abilities[45] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : chimera.player.flipped,
-			team : 3, // Everyone
+			team : "both",
 			id : chimera.id,
 			requireCreature : true,
 			x : chimera.x,

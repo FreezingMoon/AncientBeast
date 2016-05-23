@@ -144,7 +144,7 @@ G.abilities[4] =[
 
 		G.grid.queryChoice( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 3,
+			team : "both",
 			requireCreature : 0,
 			id : magmaSpawn.id,
 			flipped : magmaSpawn.flipped,
@@ -230,7 +230,7 @@ G.abilities[4] =[
 
 		G.grid.queryDirection( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Enemies
+			team : "ennemy",
 			id : magmaSpawn.id,
 			requireCreature : true,
 			x : x,

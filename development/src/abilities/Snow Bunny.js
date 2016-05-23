@@ -172,7 +172,7 @@ G.abilities[12] = [
 		G.grid.queryDirection( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : snowBunny.player.flipped,
-			team : 3, // Both
+			team : "both",
 			id : snowBunny.id,
 			requireCreature : true,
 			x : snowBunny.x,
@@ -266,7 +266,7 @@ G.abilities[12] = [
 		G.grid.queryDirection( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : snowBunny.player.flipped,
-			team : 0, //enemies
+			team : "ennemy",
 			id : snowBunny.id,
 			requireCreature : true,
 			x : snowBunny.x,

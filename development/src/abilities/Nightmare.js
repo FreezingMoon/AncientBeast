@@ -195,7 +195,7 @@ G.abilities[9] =[
 
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 3, //enemies
+			team : "both",
 			id : crea.id,
 			requireCreature : true,
 			x : x,

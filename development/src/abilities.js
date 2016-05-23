@@ -437,7 +437,6 @@ var Ability = Class.create( {
 
 		for (var i = 0; i < o.directions.length; i++) {
 			if(!!o.directions[i]) {
-				var dir = [];
 				var fx = 0;
 
 				if( o.sourceCreature instanceof Creature ) {
@@ -446,32 +445,11 @@ var Ability = Class.create( {
 					}
 				}
 
-				switch(i) {
-					case 0: // Upright
-						dir = G.grid.getHexMap(o.x+fx, o.y-8, 0, o.flipped, diagonalup).reverse();
-						break;
-					case 1: // StraitForward
-						dir = G.grid.getHexMap(o.x+fx, o.y, 0, o.flipped, straitrow);
-						break;
-					case 2: // Downright
-						dir = G.grid.getHexMap(o.x+fx, o.y, 0, o.flipped, diagonaldown);
-						break;
-					case 3: // Downleft
-						dir = G.grid.getHexMap(o.x+fx, o.y, -4, o.flipped, diagonalup);
-						break;
-					case 4: // StraitBackward
-						dir = G.grid.getHexMap(o.x+fx, o.y, 0, !o.flipped, straitrow);
-						break;
-					case 5: // Upleft
-						dir = G.grid.getHexMap(o.x+fx, o.y-8, -4, o.flipped, diagonaldown).reverse();
-						break;
-					default:
-						break;
-				}
+				var dir = G.grid.getHexLine(o.x+fx, o.y, i, o.flipped);
 
 				if( o.distance > 0 ) dir = dir.slice(0, o.distance+1);
 
-				choices = choices.concat(dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id, o.team));
+				choices = choices.concat(dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id));
 			}
 		}
 		return this.atLeastOneTarget(choices, o.team);
@@ -484,7 +462,7 @@ abilities = []; // Array containing all javascript methods for abilities
 
 /*
 * Damage Class
-* 
+*
 * TODO this documentation needs to be updated with things that are determined dynamically like #melee and #counter
 */
 var Damage = Class.create( {

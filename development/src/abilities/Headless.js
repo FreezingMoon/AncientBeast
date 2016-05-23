@@ -108,27 +108,61 @@ G.abilities[39] =[
 
 
 
-// 	Third Ability: Whip Slash
+// 	Third Ability: Whip Move
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	directions : [0,1,0,0,1,0],
 
+	_minDistance: 2,
+	_getMaxDistance: function() {
+		if (this.isUpgraded()) {
+			return 8;
+		}
+		return 6;
+	},
+	_targetTeam: "both",
+	_getValidDirections: function() {
+		// Get all directions where there are no targets within min distance,
+		// and a target within max distance
+		var crea = this.creature;
+		var x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
+		var validDirections = [0, 0, 0, 0, 0, 0];
+		for (var i = 0; i < this.directions.length; i++) {
+			if (this.directions[i] === 0) {
+				continue;
+			}
+			var directions = [0, 0, 0, 0, 0, 0];
+			directions[i] = 1;
+			var testMin = this.testDirection({
+				team: this._targetTeam,
+				x: x,
+				directions: directions,
+				distance: this._minDistance,
+				sourceCreature: crea
+			});
+			var testMax = this.testDirection({
+				team: this._targetTeam,
+				x: x,
+				directions: directions,
+				distance: this._getMaxDistance(),
+				sourceCreature: crea
+			});
+			if (!testMin && testMax) {
+				validDirections[i] = 1;
+			}
+		}
+		return validDirections;
+	},
+
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		var crea = this.creature;
-		var x = (crea.player.flipped) ? crea.x-crea.size+1 : crea.x ;
-
-		var test = this.testDirection({
-			team : "ennemy",
-			x : x,
-			directions : this.directions,
-			distance : 5
-		});
-
-		if( !test ){
+		// There must be at least one direction where there is a target within
+		// min/max range
+		var validDirections = this._getValidDirections();
+		if (!validDirections.some(function(e) { return e === 1; })) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -142,14 +176,14 @@ G.abilities[39] =[
 
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //enemies
+			team : this._targetTeam,
 			id : crea.id,
 			requireCreature : true,
 			sourceCreature : crea,
 			x : crea.x,
 			y : crea.y,
-			directions : this.directions,
-			distance : 5
+			directions : this._getValidDirections(),
+			distance: this._getMaxDistance()
 		});
 	},
 
@@ -158,49 +192,65 @@ G.abilities[39] =[
 	activate : function(path,args) {
 		var ability = this;
 		var crea = this.creature;
-
-
-		var path = path;
 		var target = path.last().creature;
 		path = path.filter( function(){	return !this.creature; }); //remove creatures
 		ability.end();
 
-		console.log(path);
-
-		//Damage
-		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			{ slash : 12, crush : 5*path.length }, //Damage Type
-			1, //Area
-			[]	//Effects
-		);
-
 		//Movement
 		var creature = (args.direction==4) ? crea.hexagons[crea.size-1] : crea.hexagons[0] ;
-		path.filterCreature(false,false);
-		path.unshift(creature); //prevent error on empty path
-		var destination = path.last();
-		var x = (args.direction==4) ? destination.x+crea.size-1 : destination.x ;
-		destination = G.grid.hexs[destination.y][x];
+		path.filterCreature(false, false);
+		var destination = null;
+		var destinationTarget = null;
+		if (target.size === 1) {
+			// Small creature, pull target towards self
+			destinationTarget = path.first();
+		} else if (target.size === 2) {
+			// Medium creature, pull self and target towards each other half way,
+			// rounding upwards for self (self move one extra hex if required)
+			var midpoint = Math.floor((path.length - 1) / 2);
+			destination = path[midpoint];
+			if (midpoint < path.length - 1) {
+				destinationTarget = path[midpoint + 1];
+			}
+		} else {
+			// Large creature, pull self towards target
+			destination = path.last();
+		}
 
-		crea.moveTo(destination,{
-			ignoreMovementPoint : true,
-			ignorePath : true,
-			callback : function(){
-				var ret = target.takeDamage(damage,true);
-
-				if( ret.damageObj instanceof Damage )
-					G.triggersFn.onDamage(target,ret.damageObj);
-
-				var interval = setInterval(function(){
-					if(!G.freezedInput){
-						clearInterval(interval);
-						G.activeCreature.queryMove();
-					}
-				},100);
-			},
-		});
+		var x;
+		var hex;
+		if (destination !== null) {
+			x = (args.direction === 4) ? destination.x + crea.size - 1 : destination.x;
+			hex = G.grid.hexs[destination.y][x];
+			crea.moveTo(hex, {
+				ignoreMovementPoint: true,
+				ignorePath: true,
+				callback: function() {
+					var interval = setInterval(function() {
+						if (!G.freezedInput) {
+							clearInterval(interval);
+							G.activeCreature.queryMove();
+						}
+					}, 100);
+				},
+			});
+		}
+		if (destinationTarget !== null) {
+			x = (args.direction === 1) ? destinationTarget.x + target.size - 1 : destinationTarget.x;
+			hex = G.grid.hexs[destinationTarget.y][x];
+			target.moveTo(hex, {
+				ignoreMovementPoint: true,
+				ignorePath: true,
+				callback: function() {
+					var interval = setInterval(function() {
+						if (!G.freezedInput) {
+							clearInterval(interval);
+							G.activeCreature.queryMove();
+						}
+					}, 100);
+				},
+			});
+		}
 	},
 },
 
@@ -236,7 +286,7 @@ G.abilities[39] =[
 
 		G.grid.queryChoice({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 3,
+			team : "both",
 			requireCreature : 0,
 			id : crea.id,
 			flipped : crea.flipped,
