@@ -116,7 +116,12 @@ G.abilities[39] =[
 	directions : [0,1,0,0,1,0],
 
 	_minDistance: 2,
-	_maxDistance: 6,
+	_getMaxDistance: function() {
+		if (this.isUpgraded()) {
+			return 8;
+		}
+		return 6;
+	},
 	_targetTeam: "both",
 
 	require : function(){
@@ -137,7 +142,7 @@ G.abilities[39] =[
 			team: this._targetTeam,
 			x: x,
 			directions: this.directions,
-			distance: this._maxDistance,
+			distance: this._getMaxDistance(),
 			sourceCreature: crea
 		});
 		if (testMin || !testMax){
@@ -161,7 +166,7 @@ G.abilities[39] =[
 			x : crea.x,
 			y : crea.y,
 			directions : this.directions,
-			distance: this._maxDistance
+			distance: this._getMaxDistance()
 		});
 	},
 
