@@ -73,6 +73,7 @@ Any amount you can donate is very appreciated, thank you!<br>
 <tr><td><a href="https://twitter.com/alexandredes" target="_blank" class="lighten donate"><img src="yellow.png"> Alexandre Deschamps <img src="yellow.png" class="scale"></a></td><td>20</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> Vincent Bermel <img src="yellow.png" class="scale"></a></td><td>15</td></tr>
 <tr><td><a href="http://options.tradersapiens.ru/iqoption" target="_blank" class="lighten donate"><img src="yellow.png"> IQOption <img src="yellow.png" class="scale"></td><td>11</td></tr>
+<tr><td><a href="http://binaryoptionstradingtips.com/no/bdswiss-erfaringer" target="_blank" class="lighten donate"><img src="yellow.png"> BDSwiss <img src="yellow.png" class="scale"></td><td>10</td></tr>
 <tr><td><a href="https://facebook.com/leifhl" target="_blank" class="lighten donate"><img src="yellow.png"> Leif Larsen <img src="yellow.png" class="scale"></td><td>10</td></tr>
 <tr><td><a href="https://mrfaemir.deviantart.com" target="_blank" class="lighten donate"><img src="yellow.png"> Daniel Cohen <img src="yellow.png" class="scale"></a></td><td>5</td></tr>
 <tr><td><a href="" target="_blank" class="lighten donate"><img src="yellow.png"> gamesandspace <img src="yellow.png" class="scale"></a></td><td>3</td></tr>
