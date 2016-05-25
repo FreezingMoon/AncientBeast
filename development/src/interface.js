@@ -460,7 +460,7 @@ var UI = Class.create( {
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
-			$j("#card .sideA .hexs").text(stats.size+"H");
+			$j("#card .sideA .hexs").html(stats.size + "&#11041;");
 
 			// Card B
 			$j("#card .sideB").css( { "background-image": "url('../cards/margin.png'), url('../cards/" + stats.type.substring(0, 1) + ".jpg')" } );

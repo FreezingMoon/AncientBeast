@@ -82,7 +82,7 @@ $(function() {
 		$(".sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + unit.type.substring(0, 1));
 		$(".sideA .type").text(unit.type);
 		$(".sideA .name").text(unit.name);
-		$(".sideA .hexs").text(unit.size+"H");
+		$(".sideA .hexs").html(unit.size + "&#11041;");
 		// Update side B
 		$(".sideB").css("background-image", "url('" + siteUrl + "images/cards/margin.png'), url('" + siteUrl + "images/cards/" + unit.type.substring(0, 1) + ".jpg')");
 		for (var property in unit.stats) {

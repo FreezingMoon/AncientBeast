@@ -98,7 +98,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 					<span class="type" creature_type="' . $r['realm'] . $r['level'] . '" style="float: left; margin-left: 22px;">' . $r['realm'] . $r['level'] . '</span>
 					<span><audio src="../units/shouts/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display: none;" preload="auto"></audio>
 					<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '" creature_name="' . $r['name'] . '" >' . $r['name'] . '</a></span>
-					<span class="hexs" creature_size="' . $r['size'] . 'H" style="float: right; margin-right: 22px;">' . $r['size'] . 'H</span>
+					<span class="hexs" creature_size="' . $r['size'] . 'H" style="float: right; margin-right: 22px;">' . $r['size'] . '&#11041;</span>
 			</div>
 		</div></div>';
 
