@@ -534,12 +534,7 @@ var UI = Class.create( {
 						G.UI.closeDash(true);
 						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
 					};
-					$j("#card .sideA").on("click",function(){
-						G.UI.materializeToggled = true;
-						G.UI.selectAbility(3);
-						G.UI.closeDash(true);
-						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
-					});
+					$j("#card .sideA").on("click",this.materializeButton.click);
 					this.materializeButton.changeState("glowing");
 
 				}
@@ -568,9 +563,7 @@ var UI = Class.create( {
 					this.materializeButton.click = function(e) {
 						G.UI.showCreature("--", G.activeCreature.player.id);
 					};
-					$j("#card .sideA").on("click",function(){
-						G.UI.showCreature("--", G.activeCreature.player.id);
-					});
+					$j("#card .sideA").on("click",this.materializeButton.click);
 					this.materializeButton.changeState("glowing");
 
 				}
