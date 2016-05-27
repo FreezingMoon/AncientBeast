@@ -21,29 +21,29 @@ G.abilities[39] =[
 		var ability = this;
 		var creature = this.creature;
 
-		if( this.atLeastOneTarget( this.creature.getHexMap(inlineback2hex),"ennemy" ) ){
+		if( this.atLeastOneTarget( this.creature.getHexMap(inlineback2hex),"ennemy" ) ) {
 			this.end();
-			this.setUsed(false); //Infinite triggering
+			this.setUsed(false); // Infinite triggering
 		}else{
 			return false;
 		}
 
 		var targets = this.getTargets(this.creature.getHexMap(inlineback2hex));
 
-		targets.each(function(){
+		targets.each(function() {
 			if( !(this.target instanceof Creature) ) return;
 
 			var trg = this.target;
 
 			var effect = new Effect(
-				"Infested", //Name
-				creature, //Caster
-				trg, //Target
-				"onStartPhase", //Trigger
-				{ alterations : ability.effects[0] } //Optional arguments
+				"Infested", // Name
+				creature, // Caster
+				trg, // Target
+				"onStartPhase", // Trigger
+				{ alterations : ability.effects[0] } // Optional arguments
 			);
 
-			trg.addEffect(effect,"%CreatureName"+trg.id+"% has been infested");
+			trg.addEffect(effect, "%CreatureName" + trg.id + "% has been infested");
 		});
 	},
 },
@@ -52,17 +52,17 @@ G.abilities[39] =[
 
 // 	Second Ability: Scapel Limbs
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		var crea = this.creature;
 
 		if( !this.testRequirements() ) return false;
 
 		//At least one target
-		if( !this.atLeastOneTarget(crea.getHexMap(frontnback2hex),"ennemy") ){
+		if( !this.atLeastOneTarget(crea.getHexMap(frontnback2hex), "ennemy") ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -70,13 +70,13 @@ G.abilities[39] =[
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 		var crea = this.creature;
 
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+			team : 0, // Team, 0 = enemies
 			id : crea.id,
 			flipped : crea.flipped,
 			hexs : crea.getHexMap(frontnback2hex),
@@ -110,7 +110,7 @@ G.abilities[39] =[
 
 // 	Third Ability: Whip Move
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	directions : [0,1,0,0,1,0],

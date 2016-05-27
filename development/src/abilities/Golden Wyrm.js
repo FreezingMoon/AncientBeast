@@ -7,11 +7,11 @@ G.abilities[33] =[
 
 // 	First Ability: Percussion Spear
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onStepIn onStartPhase",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		return this.testRequirements();
 	},
 
@@ -20,7 +20,7 @@ G.abilities[33] =[
 		var creature = this.creature;
 		var targets = this.getTargets(this.creature.adjacentHexs(1));
 
-		if( this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
+		if( this.atLeastOneTarget( this.creature.adjacentHexs(1),"enemy" ) ){
 			this.end();
 			this.setUsed(false); //Infinite triggering
 		}else{
@@ -32,21 +32,21 @@ G.abilities[33] =[
 
 			var trg = this.target;
 
-			if(trg.team%2 != creature.team%2){ //If Foe
+			if(trg.team % 2 != creature.team % 2) { // If Foe
 
 				var optArg = {
-					effectFn : function(effect,crea){
+					effectFn : function(effect, crea) {
 						var nearFungus = false;
-						crea.adjacentHexs(1).each(function(){
-							if(trg.creature instanceof Creature){
+						crea.adjacentHexs(1).each(function() {
+							if(trg.creature instanceof Creature) {
 								if(G.creatures[trg.creature] === effect.owner)
 									nearFungus = true;
 							}
 						});
 
-						if(!nearFungus){
+						if(!nearFungus) {
 							for (var i = 0; i < crea.effects.length; i++) {
-								if(crea.effects[i].name == "Contaminated"){
+								if(crea.effects[i].name == "Contaminated") {
 									crea.effects[i].deleteEffect();
 									break;
 								}
@@ -59,22 +59,22 @@ G.abilities[33] =[
 
 				//Spore Contamination
 				var effect = new Effect(
-					"Contaminated", //Name
-					creature, //Caster
-					trg, //Target
-					"onStartPhase", //Trigger
-					optArg //Optional arguments
+					"Contaminated", // Name
+					creature, // Caster
+					trg, // Target
+					"onStartPhase", // Trigger
+					optArg // Optional arguments
 				);
 
 				var validTarget = true;
 				trg.effects.each(function(){
-					if(this.name == "Contaminated"){
+					if(this.name == "Contaminated") {
 						if(this.turn == G.turn)
 							validTarget = false;
 					}
 				});
 
-				if(validTarget){
+				if(validTarget) {
 					trg.addEffect(effect);
 				}
 			}
@@ -86,7 +86,7 @@ G.abilities[33] =[
 
 // 	Second Ability: Executioner Axe
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	damages : {
@@ -98,7 +98,7 @@ G.abilities[33] =[
 		if( !this.testRequirements() ) return false;
 
 		//At least one target
-		if( !this.atLeastOneTarget(this.creature.adjacentHexs(1),"ennemy") ){
+		if( !this.atLeastOneTarget(this.creature.adjacentHexs(1),"enemy") ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -116,49 +116,49 @@ G.abilities[33] =[
 					[0,1,0,1]];
 
 		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
+			team : 0, // Team, 0 = enemies
 			id : wyrm.id,
 			flipped : wyrm.flipped,
-			hexs : G.grid.getHexMap(wyrm.x-2,wyrm.y-2,0,false,map),
+			hexs : G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, map),
 		});
 	},
 
 
 	//	activate() :
-	activate : function(target,args) {
+	activate : function(target, args) {
 		var ability = this;
 		ability.end();
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 
 		var dmg = target.takeDamage(damage);
 
-		if(dmg.status == ""){
-			//Regrowth bonus
+		if(dmg.status == "") {
+			// Regrowth bonus
 			ability.creature.addEffect( new Effect(
-				"Regrowth++", //Name
-				ability.creature, //Caster
-				ability.creature, //Target
-				"onStartPhase", //Trigger
+				"Regrowth++", // Name
+				ability.creature, // Caster
+				ability.creature, // Target
+				"onStartPhase", // Trigger
 				{
-					effectFn : function(effect,crea){
+					effectFn : function(effect, crea) {
 						effect.deleteEffect();
 					},
-					alterations : {regrowth : Math.round(dmg.damages.total/4)}
+					alterations : { regrowth : Math.round(dmg.damages.total / 4) }
 				} //Optional arguments
 			) );
 		}
 
 		//remove frogger bonus if its found
-		ability.creature.effects.each(function(){
-			if(this.name == "Frogger Bonus"){
+		ability.creature.effects.each(function() {
+			if(this.name == "Frogger Bonus") {
 				this.deleteEffect();
 			}
 		});
@@ -169,13 +169,13 @@ G.abilities[33] =[
 
 // 	Third Ability: Dragon Flight
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	require : function(){return this.testRequirements();},
+	require : function() { return this.testRequirements(); },
 
 	fnOnSelect : function(hex,args){
-		this.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player"+this.creature.team })
+		this.creature.tracePosition( { x: hex.x, y: hex.y, overlayClass: "creature moveto selected player" + this.creature.team })
 	},
 
 	// 	query() :
@@ -183,12 +183,12 @@ G.abilities[33] =[
 		var ability = this;
 		var wyrm = this.creature;
 
-		var range = G.grid.getFlyingRange(wyrm.x,wyrm.y,50,wyrm.size,wyrm.id);
+		var range = G.grid.getFlyingRange(wyrm.x, wyrm.y, 50, wyrm.size, wyrm.id);
 		range.filter(function(){ return wyrm.y == this.y; });
 
 		G.grid.queryHexs({
-			fnOnSelect : function(){ ability.fnOnSelect.apply(ability,arguments); },
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+			fnOnSelect : function() { ability.fnOnSelect.apply(ability, arguments); },
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			size :  wyrm.size,
 			flipped :  wyrm.player.flipped,
 			id :  wyrm.id,
@@ -198,30 +198,30 @@ G.abilities[33] =[
 
 
 	//	activate() :
-	activate : function(hex,args) {
+	activate : function(hex, args) {
 		var ability = this;
 		ability.end();
 
-		ability.creature.moveTo(hex,{
+		ability.creature.moveTo(hex, {
 			ignoreMovementPoint : true,
 			ignorePath : true,
-			callback : function(){
+			callback : function() {
 				G.activeCreature.queryMove();
 			},
 		});
 
-		//Frogger Leap bonus
+		// Frogger Leap bonus
 		ability.creature.addEffect( new Effect(
-			"Offense++", //Name
-			ability.creature, //Caster
-			ability.creature, //Target
-			"onStepIn onEndPhase", //Trigger
+			"Offense++", // Name
+			ability.creature, // Caster
+			ability.creature, // Target
+			"onStepIn onEndPhase", // Trigger
 			{
-				effectFn : function(effect,crea){
+				effectFn : function(effect, crea) {
 					effect.deleteEffect();
 				},
 				alterations : {offense : 25}
-			} //Optional arguments
+			} // Optional arguments
 		) );
 	},
 },
@@ -230,7 +230,7 @@ G.abilities[33] =[
 
 // 	Fourth Ability: Battle Cry
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	damages : {
@@ -243,9 +243,9 @@ G.abilities[33] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		var map = G.grid.getHexMap(this.creature.x-2,this.creature.y-2,0,false,frontnback2hex);
-		//At least one target
-		if( !this.atLeastOneTarget(map,"ennemy") ){
+		var map = G.grid.getHexMap(this.creature.x-2, this.creature.y-2, 0, false, frontnback2hex);
+		// At least one target
+		if( !this.atLeastOneTarget(map, "enemy") ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -259,7 +259,7 @@ G.abilities[33] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+			team : 0, //Team, 0 = enemies
 			id : wyrm.id,
 			flipped : wyrm.flipped,
 			hexs : G.grid.getHexMap(wyrm.x-2,wyrm.y-2,0,false,frontnback2hex),

@@ -1,20 +1,20 @@
 /*
 *
-*	Abolished abilities
+*	Lava Mollusk abilities
 *
 */
 G.abilities[22] =[
 
 // 	First Ability: Greater Pyre
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onDamage",
 
 	// 	require() :
 	require : function(damage){
 		if( this.used ) return false;
 		if( !this.testRequirements() ) return false;
-		if( damage == undefined ) damage = {type:"target"}; //For the test function to work
+		if( damage == undefined ) damage = { type: "target" }; // For the test function to work
 		//if( this.triggeredThisChain ) return false;
 		return true;
 	},
@@ -28,10 +28,10 @@ G.abilities[22] =[
 		this.triggeredThisChain = true;
 
 		this.areaDamage(
-			this.creature, //Attacker
-			"area retaliation", //Attack Type
-			this.damages, //Damage Type
-			[],	//Effects
+			this.creature, // Attacker
+			"area retaliation", // Attack Type
+			this.damages, // Damage Type
+			[],	// Effects
 			targets
 		);
 
@@ -42,7 +42,7 @@ G.abilities[22] =[
 
 // 	Second Ability: Fiery Claw
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	distance : 2,
@@ -51,7 +51,7 @@ G.abilities[22] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 		var test = this.testDirection({
-			team : "ennemy",
+			team : "enemy",
 			distance : this.distance,
 			sourceCreature : this.creature,
 		});
@@ -70,7 +70,7 @@ G.abilities[22] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			flipped : crea.player.flipped,
-			team : "ennemy",
+			team : "enemy",
 			id : this.creature.id,
 			requireCreature : true,
 			x : crea.x,

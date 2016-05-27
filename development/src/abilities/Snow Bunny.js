@@ -101,7 +101,7 @@ G.abilities[12] = [
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" ) ) {
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -116,7 +116,7 @@ G.abilities[12] = [
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = ennemies
+			team : 0, // Team, 0 = enemies
 			id : snowBunny.id,
 			flipped : snowBunny.player.flipped,
 			hexs : snowBunny.adjacentHexs(1),
@@ -247,7 +247,7 @@ G.abilities[12] = [
 		if( !this.testRequirements() ) return false;
 
 		var test = this.testDirection( {
-			team : "ennemy",
+			team : "enemy",
 			directions : this.directions,
 		});
 		if( !test ) {
@@ -266,7 +266,7 @@ G.abilities[12] = [
 		G.grid.queryDirection( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : snowBunny.player.flipped,
-			team : "ennemy",
+			team : "enemy",
 			id : snowBunny.id,
 			requireCreature : true,
 			x : snowBunny.x,
@@ -310,16 +310,16 @@ G.abilities[12] = [
 			}
 			var dist = path.slice(0).filterCreature(false, false).length;
 
-			var emissionPoint = { x: this.creature.grp.x+52, y: this.creature.grp.y-20 };
-			var targetPoint = { x: targetHex.displayPos.x+52, y: targetHex.displayPos.y-20 };
+			var emissionPoint = { x: this.creature.grp.x + 52, y: this.creature.grp.y - 20 };
+			var targetPoint = { x: targetHex.displayPos.x + 52, y: targetHex.displayPos.y - 20 };
 
-			var duration = this.animation_data.delay = dist*75; // 100ms for each hex
+			var duration = this.animation_data.delay = dist * 75; // 100ms for each hex
 			this.animation_data.delay += 350; // 350ms for the creature animation before the projectile
 
 			setTimeout(function() {
 				var sprite = G.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, "effects_freezing-spit");
 				sprite.anchor.setTo(0.5, 0.5);
-				sprite.rotation = -Math.PI/3 + args.direction * Math.PI/3;
+				sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
 				var tween = G.Phaser.add.tween(sprite)
 				.to( { x: targetPoint.x, y: targetPoint.y }, duration, Phaser.Easing.Linear.None)
 				.start();

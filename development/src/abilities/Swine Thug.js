@@ -74,7 +74,7 @@ G.abilities[37] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" ) ) {
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -89,7 +89,7 @@ G.abilities[37] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
-			team : 0, // Team, 0 = ennemies
+			team : 0, // Team, 0 = enemies
 			id : swine.id,
 			flipped : swine.player.flipped,
 			hexs : swine.adjacentHexs(1),
@@ -204,7 +204,7 @@ G.abilities[37] =[
 			G.grid.getHexMap(swine.x,swine.y - 2, 0, true, bellowrow).filterCreature(true,true, swine.id, swine.team),
 			G.grid.getHexMap(swine.x,swine.y, 0, true, straitrow).filterCreature(true, true, swine.id, swine.team),
 			G.grid.getHexMap(swine.x,swine.y, 0, true, bellowrow).filterCreature(true, true, swine.id, swine.team));
-		if( !this.atLeastOneTarget( hexs, "ennemy" ) ) {
+		if( !this.atLeastOneTarget( hexs, "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -235,7 +235,7 @@ G.abilities[37] =[
 
 		G.grid.queryChoice( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
-			team : "ennemy",
+			team : "enemy",
 			requireCreature : 1,
 			id : swine.id,
 			flipped : swine.flipped,
@@ -257,7 +257,7 @@ G.abilities[37] =[
 				alterations : { meditation: -1 }
 			});
 			target.addEffect(effect);
-			G.log("%CreatureName"+target.id+"%'s meditation is lowered by 1");
+			G.log("%CreatureName" + target.id + "%'s meditation is lowered by 1");
 		}
 
 		var damage = new Damage(

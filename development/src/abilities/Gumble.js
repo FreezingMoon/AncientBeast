@@ -48,7 +48,7 @@ G.abilities[14] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "ennemy" ) ) {
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -60,7 +60,7 @@ G.abilities[14] =[
 		var ability = this;
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = ennemies
+			team : 0, // Team, 0 = enemies
 			id : this.creature.id,
 			flipped : this.creature.player.flipped,
 			hexs : this.creature.adjacentHexs(1),
@@ -150,7 +150,7 @@ G.abilities[14] =[
 		if( !this.testRequirements() ) return false;
 
 		var test = this.testDirection( {
-			team : "ennemy",
+			team : "enemy",
 			directions : this.directions,
 		});
 		if( !test ){
@@ -168,7 +168,7 @@ G.abilities[14] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : crea.player.flipped,
-			team : "ennemy",
+			team : "enemy",
 			id : this.creature.id,
 			requireCreature : true,
 			x : crea.x,

@@ -65,7 +65,7 @@ G.abilities[0] =[
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(this.isUpgraded()?4:1), "ennemy" ) ) {
+		if( !this.atLeastOneTarget( this.creature.adjacentHexs(this.isUpgraded()?4:1), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -80,7 +80,7 @@ G.abilities[0] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = ennemies
+			team : 0, // Team, 0 = enemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
 			hexs : dpriest.adjacentHexs(this.isUpgraded()?4:1),
@@ -120,7 +120,7 @@ G.abilities[0] =[
 		var range = this.creature.adjacentHexs(2);
 
 		// At least one target
-		if(!this.atLeastOneTarget(range, "ennemy")) {
+		if(!this.atLeastOneTarget(range, "enemy")) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -151,7 +151,7 @@ G.abilities[0] =[
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			optTest : function(hex) { return (hex.creature.size <= dpriest.player.plasma) ; },
-			team : 0, // Team, 0 = ennemies
+			team : 0, // Team, 0 = enemies
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
 			hexs : dpriest.adjacentHexs(2),

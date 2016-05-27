@@ -7,16 +7,16 @@ G.abilities[44] =[
 
 // 	First Ability: Feathered Body
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		return true;
 	},
 
 	//	activate() :
-	activate : function(){
+	activate : function() {
 	},
 },
 
@@ -24,14 +24,14 @@ G.abilities[44] =[
 
 // 	Second Ability: Slicing Talon
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -39,12 +39,12 @@ G.abilities[44] =[
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+			team : 0, // Team, 0 = enemies
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			hexs : this.creature.getHexMap(frontnback2hex),
@@ -53,16 +53,16 @@ G.abilities[44] =[
 
 
 	//	activate() :
-	activate : function(target,args) {
+	activate : function(target, args) {
 		var ability = this;
 		ability.end();
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 
 		target.takeDamage(damage);
@@ -73,46 +73,46 @@ G.abilities[44] =[
 
 // 	Third Ability: Escort Service
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
 		var crea = this.creature;
 
 		var hexs = crea.getHexMap(inlinefrontnback2hex)
 
-		if( hexs.length < 2 ){
-			//At the border of the map
+		if( hexs.length < 2 ) {
+			// At the border of the map
 			return false;
 		}
 
-		if( hexs[0].creature && hexs[1].creature ){
-			//Sandwiched
+		if( hexs[0].creature && hexs[1].creature ) {
+			// Sandwiched
 			return false;
 		}
 
 		//Filter 3h creatures
-		hexs.filter(function(){
+		hexs.filter(function() {
 			if( !this.creature ) return false;
 			return (this.creature.size < 3);
 		});
 
-		if( !this.atLeastOneTarget( hexs, "both" ) ){
+		if( !this.atLeastOneTarget( hexs, "both" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
 
 		var trg = hexs[0].creature || hexs[1].creature;
 
-		if( !trg.stats.moveable ){
+		if( !trg.stats.moveable ) {
 			this.message = "Target is not moveable.";
 			return false;
 		}
 
-		if( crea.remainingMove < trg.size ){
+		if( crea.remainingMove < trg.size ) {
 			//Not enough move points
 			this.message = "Not enough movement points.";
 			return false;
@@ -122,7 +122,7 @@ G.abilities[44] =[
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 
 		var ability = this;
 		var crea = this.creature;
@@ -136,7 +136,7 @@ G.abilities[44] =[
 		var distance = Math.floor(crea.remainingMove/trg.size);
 		var size = crea.size+trg.size;
 
-		var trgIsInfront = (G.grid.getHexMap(crea.x-inlinefront2hex.origin[0],crea.y-inlinefront2hex.origin[1],0,false,inlinefront2hex)[0].creature == trg);
+		var trgIsInfront = (G.grid.getHexMap(crea.x-inlinefront2hex.origin[0], crea.y-inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == trg);
 
 		var select = function(hex,args){
 			for (var i = 0; i < size; i++) {
@@ -154,17 +154,17 @@ G.abilities[44] =[
 		var x = ( trgIsInfront ? crea.x+trg.size : crea.x );
 
 		G.grid.queryHexs({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
-			fnOnSelect : select, //fnOnSelect,
-			team : 3, //Both
+			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); }, // fnOnConfirm
+			fnOnSelect : select, // fnOnSelect,
+			team : 3, // Both
 			id : [crea.id,trg.id],
 			size : size,
 			flipped : crea.player.flipped,
-			hexs : G.grid.getFlyingRange(x,crea.y,distance,size,[crea.id,trg.id]).filter(function(){
+			hexs : G.grid.getFlyingRange(x,crea.y,distance,size,[crea.id,trg.id]).filter(function() {
 				return crea.y == this.y &&
 					( trgIsInfront ?
 						 this.x < x :
-						 this.x > x-crea.size-trg.size+1
+						 this.x > x-crea.size-trg.size + 1
 					);
 				}),
 			args : {trg : trg.id, trgIsInfront: trgIsInfront}
@@ -173,7 +173,7 @@ G.abilities[44] =[
 
 
 	//	activate() :
-	activate : function(hex,args) {
+	activate : function(hex, args) {
 		var ability = this;
 		ability.end();
 
@@ -187,7 +187,7 @@ G.abilities[44] =[
 		var crea_dest 	= G.grid.hexs[hex.y][ trgIF ? hex.x-trg.size : hex.x ];
 		var trg_dest 	= G.grid.hexs[hex.y][ trgIF ? hex.x : hex.x-crea.size ];
 
-		//Determine distance
+		// Determine distance
 		var distance = 0;
 		var k = 0;
 		var start = G.grid.hexs[crea.y][crea.x];
@@ -196,8 +196,8 @@ G.abilities[44] =[
 			if( start.adjacentHex(k).findPos(crea_dest) ) distance = k;
 		}
 
-		//substract from movement points
-		crea.remainingMove -= distance*trg.size;
+		// Substract from movement points
+		crea.remainingMove -= distance * trg.size;
 
 		crea.moveTo(crea_dest,{
 			animation : "fly",
@@ -233,7 +233,7 @@ G.abilities[44] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"enemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}

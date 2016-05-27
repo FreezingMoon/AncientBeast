@@ -7,13 +7,13 @@ G.abilities[40] =[
 
 // 	First Ability: Hunting Horn
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onStartPhase",
 
 	//	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
-		if( this.atLeastOneTarget( this.creature.adjacentHexs(1),"ennemy" ) ){
+		if( this.atLeastOneTarget( this.creature.adjacentHexs(1), "enemy" ) ) {
 			return false;
 		}
 		return true;
@@ -25,7 +25,7 @@ G.abilities[40] =[
 
 		for (var i = 1; i < 99; i++) {
 			var hexs = this.creature.adjacentHexs(i);
-			if( !this.atLeastOneTarget( hexs,"ennemy" ) ) continue;
+			if( !this.atLeastOneTarget( hexs,"enemy" ) ) continue;
 
 			var targets = this.getTargets(hexs);
 
@@ -48,10 +48,10 @@ G.abilities[40] =[
 		if( !(target instanceof Creature) ) return;
 
 
-		//Search best hex
-		G.grid.cleanReachable(); //If not pathfinding will bug
-		G.grid.cleanPathAttr(true); //Erase all pathfinding datas
-		astar.search(G.grid.hexs[this.creature.y][this.creature.x],new Hex(-2,-2,null),this.creature.size,this.creature.id);
+		// Search best hex
+		G.grid.cleanReachable(); // If not pathfinding will bug
+		G.grid.cleanPathAttr(true); // Erase all pathfinding datas
+		astar.search(G.grid.hexs[this.creature.y][this.creature.x], new Hex(-2, -2, null), this.creature.size, this.creature.id);
 
 
 
@@ -77,14 +77,14 @@ G.abilities[40] =[
 
 //	Second Ability: Hammer Time
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	//	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -96,9 +96,9 @@ G.abilities[40] =[
 	query : function(){
 		var ability = this;
 
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
+			team : 0, // Team, 0 = enemies
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			hexs : this.creature.getHexMap(frontnback2hex)
@@ -112,10 +112,10 @@ G.abilities[40] =[
 		ability.end();
 
 		var effect = new Effect(
-			"Hammered", //Name
-			ability.creature, //Caster
-			target, //Target
-			"", //Trigger
+			"Hammered", // Name
+			ability.creature, // Caster
+			target, // Target
+			"", // Trigger
 			{
 				alterations : {movement : -1},
 				turnLifetime : 1,
@@ -123,11 +123,11 @@ G.abilities[40] =[
 		);
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[effect]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage Type
+			1, // Area
+			[effect]	// Effects
 		);
 
 		target.takeDamage(damage);
@@ -136,17 +136,17 @@ G.abilities[40] =[
 
 
 
-//	Thirt Ability: Fishing Hook
+//	Third Ability: Fishing Hook
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	//	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
 		if( !this.atLeastOneTarget(
-				this.creature.getHexMap(inlinefrontnback2hex),"ennemy" ) ){
+				this.creature.getHexMap(inlinefrontnback2hex),"enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -154,12 +154,12 @@ G.abilities[40] =[
 	},
 
 	//	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
+			team : 0, // Team, 0 = enemies
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			hexs : this.creature.getHexMap(inlinefrontnback2hex),
@@ -174,27 +174,27 @@ G.abilities[40] =[
 		ability.end();
 
 		var damage = new Damage(
-			crea, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			crea, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 
 		// Swap places
-		if( target.size > 2 ){
+		if( target.size > 2 ) {
 			target.takeDamage(damage);
 			return;
 		}
 
-		var trgIsInfront = (G.grid.getHexMap(crea.x-inlinefront2hex.origin[0],crea.y-inlinefront2hex.origin[1],0,false,inlinefront2hex)[0].creature == target);
+		var trgIsInfront = (G.grid.getHexMap(crea.x-inlinefront2hex.origin[0], crea.y-inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == target);
 
 		crea.moveTo(
 			G.grid.hexs[target.y][ target.size == 1 && !trgIsInfront ? target.x+1 : target.x ],
 			{
-				ignorePath:true,
-				ignoreMovementPoint:true,
-				callback:function(){
+				ignorePath: true,
+				ignoreMovementPoint: true,
+				callback:function() {
 					target.updateHex();
 					G.grid.updateDisplay();
 					target.takeDamage(damage);
@@ -204,8 +204,8 @@ G.abilities[40] =[
 		target.moveTo(
 			G.grid.hexs[crea.y][ target.size == 1 && trgIsInfront ? crea.x-1 : crea.x ],
 			{
-				ignorePath:true,
-				ignoreMovementPoint:true,
+				ignorePath: true,
+				ignoreMovementPoint: true,
 				callback:function(){
 					crea.updateHex();
 					G.grid.updateDisplay();
@@ -220,20 +220,20 @@ G.abilities[40] =[
 
 //	Fourth Ability: Tentacle Bush
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 		return true;
 	},
 
 	//	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 		var creature = this.creature;
 
-		G.grid.querySelf({fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }});
+		G.grid.querySelf({fnOnConfirm : function(){ ability.animation.apply(ability, arguments); }});
 	},
 
 
@@ -243,10 +243,10 @@ G.abilities[40] =[
 		ability.end();
 
 		var effect = new Effect(
-			"Curled", //Name
-			ability.creature, //Caster
-			ability.creature, //Target
-			"onDamage", //Trigger
+			"Curled", // Name
+			ability.creature, // Caster
+			ability.creature, // Target
+			"onDamage", // Trigger
 			{
 				alterations : { moveable : false, fatigueImmunity : true },
 				turn : G.turn,
@@ -256,7 +256,7 @@ G.abilities[40] =[
 		);
 
 		ability.creature.addEffect(effect);
-		G.skipTurn({noTooltip:true});
+		G.skipTurn({noTooltip: true});
 	},
 }
 

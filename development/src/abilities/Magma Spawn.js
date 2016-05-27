@@ -27,9 +27,9 @@ G.abilities[4] =[
 			return this.trap.hex.creature.type != "L2";
 		};
 
-		this.creature.hexagons[1].createTrap("scorched-ground",[
+		this.creature.hexagons[1].createTrap("scorched-ground", [
 			new Effect(
-				"Scorched Ground",this.creature,this.creature.hexagons[1],"onStepIn",
+				"Scorched Ground", this.creature,this.creature.hexagons[1], "onStepIn",
 				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
 			),
 		],this.creature.player, { turnLifetime : 1, ownerCreature : this.creature, fullTurnLifetime : true } );
@@ -43,7 +43,7 @@ G.abilities[4] =[
 
 		hex.createTrap("scorched-ground",[
 			new Effect(
-				"Scorched Ground", this.creature,hex, "onStepIn",
+				"Scorched Ground", this.creature, hex, "onStepIn",
 				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
 			),
 		],this.creature.player, { turnLifetime : 1, ownerCreature : this.creature, fullTurnLifetime : true } );
@@ -61,7 +61,7 @@ G.abilities[4] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback3hex), "ennemy" ) ) {
+		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback3hex), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -75,7 +75,7 @@ G.abilities[4] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = ennemies
+			team : 0, // Team, 0 = enemies
 			id : magmaSpawn.id,
 			flipped : magmaSpawn.flipped,
 			hexs : this.creature.getHexMap(frontnback3hex),
@@ -125,10 +125,10 @@ G.abilities[4] =[
 
 		this.map.origin = [0,2];
 
-		// Require Ennemy
+		// Require enemy
 		var magmaSpawn = this.creature;
 		var hexs = magmaSpawn.getHexMap(this.map).concat( magmaSpawn.getHexMap(this.map, true) );
-		if( !this.atLeastOneTarget( hexs,"ennemy" ) ) {
+		if( !this.atLeastOneTarget( hexs,"enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -209,7 +209,7 @@ G.abilities[4] =[
 		var x = (magmaSpawn.player.flipped) ? magmaSpawn.x-magmaSpawn.size+1 : magmaSpawn.x ;
 
 		var test = this.testDirection( {
-			team : "ennemy",
+			team : "enemy",
 			x : x,
 			directions : this.directions,
 		});
@@ -230,7 +230,7 @@ G.abilities[4] =[
 
 		G.grid.queryDirection( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : "ennemy",
+			team : "enemy",
 			id : magmaSpawn.id,
 			requireCreature : true,
 			x : x,

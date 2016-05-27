@@ -41,7 +41,7 @@ G.abilities[7] =[
 	require : function() {
 		if(!this.testRequirements()) return false;
 		var test = this.testDirection( {
-			team : "ennemy",
+			team : "enemy",
 			distance : this.distance,
 			sourceCreature : this.creature,
 		} );

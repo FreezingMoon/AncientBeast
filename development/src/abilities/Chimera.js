@@ -45,16 +45,16 @@ G.abilities[45] =[
 	trigger : "onQuery",
 
 	//	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3,this.creature.y-2,0,false,frontnback3hex),"ennemy" ) ){
+		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3,this.creature.y-2,0,false,frontnback3hex),"enemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
 
 		// Duality
-		if( this.creature.abilities[0].used ){
+		if( this.creature.abilities[0].used ) {
 			//this.message = "Duality has already been used";
 			//return false;
 		}else{
@@ -65,22 +65,22 @@ G.abilities[45] =[
 	},
 
 	//	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 		var chimera = this.creature;
 
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, // Team, 0 = ennemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+			team : 0, // Team, 0 = enemies
 			id : chimera.id,
 			flipped : chimera.flipped,
-			hexs : G.grid.getHexMap(chimera.x-3,chimera.y-2,0,false,frontnback3hex),
+			hexs : G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, frontnback3hex),
 		});
 	},
 
 
 	//	activate() :
-	activate : function(target,args) {
+	activate : function(target, args) {
 		var ability = this;
 
 		ability.creature.abilities[0].abilityTriggered(0);
@@ -100,23 +100,23 @@ G.abilities[45] =[
 
 
 
-//	Thirt Ability: Power Note
+//	Third Ability: Power Note
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	directions : [0,1,0,0,1,0],
 
 	//	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.testDirection({ team : "both", directions : this.directions }) ){
+		if( !this.testDirection({ team : "both", directions : this.directions }) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
 		// Duality
-		if( this.creature.abilities[0].used ){
+		if( this.creature.abilities[0].used ) {
 			//this.message = "Duality has already been used";
 			//return false;
 		}else{
@@ -131,7 +131,7 @@ G.abilities[45] =[
 		var chimera = this.creature;
 
 		G.grid.queryDirection({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
 			flipped : chimera.player.flipped,
 			team : "both",
 			id : chimera.id,
@@ -144,7 +144,7 @@ G.abilities[45] =[
 
 
 	//	activate() :
-	activate : function(path,args) {
+	activate : function(path, args) {
 		var ability = this;
 
 		ability.creature.abilities[0].abilityTriggered(1);
@@ -167,7 +167,7 @@ G.abilities[45] =[
 		);
 		result = target.takeDamage(damage);
 
-		while(result.kill){
+		while(result.kill) {
 
 			var hexs = ability.creature.getHexMap(straitrow,invertFlipped);
 			var newTarget = false;
@@ -199,20 +199,20 @@ G.abilities[45] =[
 
 //	Fourth Ability: Chain Lightning
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	directions : [0,1,0,0,1,0],
 
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.testDirection({ team : "both", directions : this.directions }) ){
+		if( !this.testDirection({ team : "both", directions : this.directions }) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
 		// Duality
-		if( this.creature.abilities[0].used ){
+		if( this.creature.abilities[0].used ) {
 			//this.message = "Duality has already been used";
 			//return false;
 		}else{
@@ -226,8 +226,8 @@ G.abilities[45] =[
 		var ability = this;
 		var chimera = this.creature;
 
-		G.grid.queryDirection({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+		G.grid.queryDirection( {
+			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
 			flipped : chimera.player.flipped,
 			team : "both",
 			id : chimera.id,
@@ -240,7 +240,7 @@ G.abilities[45] =[
 
 
 	//	activate() :
-	activate : function(path,args) {
+	activate : function(path, args) {
 		var ability = this;
 
 		ability.creature.abilities[0].abilityTriggered(2);
@@ -274,7 +274,7 @@ G.abilities[45] =[
 			// Get next available targets
 			nextTargets = ability.getTargets(trg.adjacentHexs(1,true));
 
-			nextTargets.filter(function(){
+			nextTargets.filter(function() {
 				if ( this.hexsHit == undefined ) return false; // Remove empty ids
 				return (targets.indexOf(this.target) == -1) ; // If this creature has already been hit
 			})

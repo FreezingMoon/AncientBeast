@@ -55,14 +55,14 @@ G.abilities[31] =[
 
 // 	Second Ability: Metal Hand
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex), "ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -76,8 +76,8 @@ G.abilities[31] =[
 		var crea = this.creature;
 
 		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
-			team : 0, //Team, 0 = ennemies
+			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); }, //fnOnConfirm
+			team : 0, //Team, 0 = enemies
 			id : crea.id,
 			flipped : crea.player.flipped,
 			hexs : crea.getHexMap(frontnback2hex)
@@ -86,7 +86,7 @@ G.abilities[31] =[
 
 
 	//	activate() :
-	activate : function(target,args) {
+	activate : function(target, args) {
 		var ability = this;
 		ability.end();
 
@@ -105,30 +105,30 @@ G.abilities[31] =[
 
 // 	Third Ability: Rocket Launcher
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	require : function(){
+	require : function() {
 		return this.testRequirements();
 	},
 
 	token : 0,
 
 	// 	query() :
-	query : function(){
+	query : function() {
 
 		var ability = this;
 		var crea = this.creature;
 
 		var choices = [
 			//Front
-			G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id).concat(
-			G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true,true,crea.id),
-			G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id)),
+			G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true, true, crea.id).concat(
+			G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true, true, crea.id),
+			G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true, true, crea.id)),
 			//Behind
-			G.grid.getHexMap(crea.x-1,crea.y-2,0,true,bellowrow).filterCreature(true,true,crea.id).concat(
-			G.grid.getHexMap(crea.x-1,crea.y,0,true,straitrow).filterCreature(true,true,crea.id),
-			G.grid.getHexMap(crea.x-1,crea.y,0,true,bellowrow).filterCreature(true,true,crea.id))
+			G.grid.getHexMap(crea.x-1,crea.y-2,0,true,bellowrow).filterCreature(true, true, crea.id).concat(
+			G.grid.getHexMap(crea.x-1,crea.y,0,true,straitrow).filterCreature(true, true, crea.id),
+			G.grid.getHexMap(crea.x-1,crea.y,0,true,bellowrow).filterCreature(true, true, crea.id))
 		];
 
 		choices[0].choiceId = 0;
@@ -221,7 +221,7 @@ G.abilities[31] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
-			team : 0, //Team, 0 = ennemies
+			team : 0, //Team, 0 = enemies
 			id : crea.id,
 			flipped : crea.player.flipped,
 			hexs : hexs

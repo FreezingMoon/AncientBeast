@@ -57,7 +57,7 @@ G.abilities[5] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3, this.creature.y-2, 0, false, frontnback3hex), "ennemy" ) ) {
+		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3, this.creature.y-2, 0, false, frontnback3hex), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -72,7 +72,7 @@ G.abilities[5] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = ennemies
+			team : 0, // Team, 0 = enemies
 			id : creature.id,
 			flipped : creature.flipped,
 			hexs : G.grid.getHexMap(creature.x-3, creature.y-2, 0, false, frontnback3hex),
@@ -168,7 +168,7 @@ G.abilities[5] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x, this.creature.y-2, 0, false,this.map).concat( G.grid.getHexMap(this.creature.x-this.creature.size+1, this.creature.y-2, 0, true, this.map) ), "ennemy" ) ) {
+		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x, this.creature.y-2, 0, false,this.map).concat( G.grid.getHexMap(this.creature.x-this.creature.size+1, this.creature.y-2, 0, true, this.map) ), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}

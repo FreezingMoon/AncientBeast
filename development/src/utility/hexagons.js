@@ -115,7 +115,7 @@ var HexGrid = Class.create( {
 	*	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexs.
 	*	fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
 	*	fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
-	*	team : 				String : 	"ennemy", "ally", "same" or "both"
+	*	team : 				String : 	"enemy", "ally", "same" or "both"
 	*	requireCreature : 	Boolean : 	Disable a choice if it does not contain a creature matching the team argument
 	*	distance :			Integer :	if defined, maximum distance of query in hexes
 	*	minDistance :		Integer :	if defined, minimum distance of query, 1 = 1 hex gap required
@@ -123,7 +123,7 @@ var HexGrid = Class.create( {
 	*/
 	queryDirection: function(o) {
 		var defaultOpt = {
-			team : "ennemy",
+			team : "enemy",
 			id : 0,
 			flipped : false,
 			x : 0,
@@ -201,7 +201,7 @@ var HexGrid = Class.create( {
 	*	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexs.
 	*	fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
 	*	fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
-	*	team : 				Integer : 	0 = ennemies, 1 = allies, 2 = same team, 3 = both
+	*	team : 				Integer : 	0 = enemies, 1 = allies, 2 = same team, 3 = both
 	*	requireCreature : 	Boolean : 	Disable a choice if it does not contain a creature matching the team argument
 	* 	args : 				Object : 	Object given to the events function (to easily pass variable for these function)
 	*/
@@ -219,7 +219,7 @@ var HexGrid = Class.create( {
 				});
 			},
 			fnOnCancel : function(hex,args) { G.activeCreature.queryMove() },
-			team : "ennemy",
+			team : "enemy",
 			requireCreature : 1,
 			id : 0,
 			args : {},
@@ -245,7 +245,7 @@ var HexGrid = Class.create( {
 
 						var isAllie = ( creaSource.team%2 == creaTarget.team%2 );
 						switch(o.team) {
-							case "ennemy":
+							case "enemy":
 								if(creaSource.team % 2 != creaTarget.team % 2) validChoice = true;
 								break;
 							case "ally":
@@ -311,7 +311,7 @@ var HexGrid = Class.create( {
 	*	fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexs.
 	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
 	*	fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
-	*	team : 			Integer : 	0 = ennemies, 1 = allies, 2 = same team, 3 = both
+	*	team : 			Integer : 	0 = enemies, 1 = allies, 2 = same team, 3 = both
 	*	id : 			Integer : 	Creature ID
 	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
 	*/
@@ -343,7 +343,7 @@ var HexGrid = Class.create( {
 
 				var isAllie = creaSource.isAlly( creaTarget.team );
 				switch(o.team) {
-					case 0: // Ennemies
+					case 0: // enemies
 						if( !isAllie ) return true;
 						break;
 					case 1: // Allies

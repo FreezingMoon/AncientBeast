@@ -7,16 +7,16 @@ G.abilities[9] =[
 
 // 	First Ability: Frozen Tower
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onEndPhase",
 
 	// 	require() :
-	require : function(){
-		if( this.creature.remainingMove < this.creature.stats.movement ){
+	require : function() {
+		if( this.creature.remainingMove < this.creature.stats.movement ) {
 			this.message = "The creature moved this round.";
 			return false;
 		}
-		if( this.creature.findEffect("Frostified").length >= this.maxCharge ){
+		if( this.creature.findEffect("Frostified").length >= this.maxCharge ) {
 			this.message = "Buff limit reached.";
 			return false;
 		}
@@ -48,14 +48,14 @@ G.abilities[9] =[
 
 // 	Second Ability: Icy Talons
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex), "enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -66,9 +66,9 @@ G.abilities[9] =[
 	query : function(){
 		var ability = this;
 
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+			team : 0, // Team, 0 = enemies
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			hexs : this.creature.getHexMap(frontnback2hex),
@@ -77,14 +77,14 @@ G.abilities[9] =[
 
 
 	//	activate() :
-	activate : function(target,args) {
+	activate : function(target, args) {
 		var ability = this;
 		ability.end();
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
+			ability.creature, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage Type
 			1, //Area
 			[
 				new Effect(
@@ -112,7 +112,7 @@ G.abilities[9] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"ennemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"enemy" ) ){
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -125,7 +125,7 @@ G.abilities[9] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+			team : 0, //Team, 0 = enemies
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			hexs : this.creature.getHexMap(frontnback2hex),
