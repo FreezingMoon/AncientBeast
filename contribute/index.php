@@ -188,6 +188,7 @@ Sometimes even reviewing or talking code can greatly help.
 <tr><td><a href="https://github.com/Nehmulos" target="_blank" class="lighten coding"><img src="green.png"> Nehmulos <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/Archiboldian" target="_blank" class="lighten coding"><img src="green.png"> Archiboldian <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/snollygolly" target="_blank" class="lighten coding"><img src="green.png"> Matt Horning <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="https://github.com/s-lugo" target="_blank" class="lighten coding"><img src="green.png"> Sebastian Lugo <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/hjaarnio" target="_blank" class="lighten coding"><img src="green.png"> hjaarnio <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/Uhkis" target="_blank" class="lighten coding"><img src="green.png"> Uhkis <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/randompast" target="_blank" class="lighten coding"><img src="green.png"> randompast <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
