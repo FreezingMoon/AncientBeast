@@ -506,6 +506,7 @@ var UI = Class.create( {
 
 			// Materialize button
 			this.materializeButton.changeState("disabled");
+			$j("#card .sideA").addClass("disabled").unbind("click");
 
 			if(G.activeCreature.player.getNbrOfCreatures() > G.creaLimitNbr) {
 				$j('#materialize_button p').text(G.msg.ui.dash.materialize_overload);
@@ -533,6 +534,8 @@ var UI = Class.create( {
 						G.UI.closeDash(true);
 						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
 					};
+					$j("#card .sideA").on("click",this.materializeButton.click);
+					$j("#card .sideA").removeClass("disabled");
 					this.materializeButton.changeState("glowing");
 
 				}
@@ -561,6 +564,8 @@ var UI = Class.create( {
 					this.materializeButton.click = function(e) {
 						G.UI.showCreature("--", G.activeCreature.player.id);
 					};
+					$j("#card .sideA").on("click",this.materializeButton.click);
+					$j("#card .sideA").removeClass("disabled");
 					this.materializeButton.changeState("glowing");
 
 				}
@@ -593,6 +598,7 @@ var UI = Class.create( {
 
 			// Materialize button
 			$j('#materialize_button').removeClass("glowing").unbind('click');
+			$j("#card .sideA").addClass("disabled").unbind('click');
 			$j('#materialize_button p').text("This unit is currently under heavy development");
 		}
 	},
