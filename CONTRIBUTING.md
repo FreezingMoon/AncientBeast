@@ -1,3 +1,7 @@
+## How to contribute to the game
+
+The gameplay is in dire need or contributors, you can check out [this guide](https://github.com/FreezingMoon/AncientBeast/tree/master/development/#readme) for more details.
+
 ## How to contribute to the website
 
 The website is pretty much wrapped around the game itself, meaning it reuses a lot of its assets. To keep things simple, the stable and development versions of the game are also included in this repository, but they'll each require a Node.js server.<br>
@@ -33,10 +37,6 @@ In case you're using a different path and/or name for the project's root, make s
 
 You're free to browse [existing issues](https://github.com/FreezingMoon/AncientBeast/issues) and comment on the ones that you want to take a swing at in order to make sure the issue is still relevant and that nobody else is working on it. You can also drop by the project's [Gitter Chatroom](https://gitter.im/FreezingMoon/AncientBeast) (which requires logging in with GitHub) and mention your skills and that you're interested in helping out; you'll be assigned to a specific issue.
 
-## How to contribute to the game
-
-The gameplay is in dire need or contributors, you can check out [this guide](https://github.com/FreezingMoon/AncientBeast/tree/master/development/#readme) for more details.
-
 ## Other ways of contributing
 
-Coding is not the only thing required in order to make this project as awesome as possible, check out a more versatile [How to Contribute](http://ancientbeast.com/contribute) guide.
+Coding is not the only thing required in order to make this project as awesome as possible, see the [How to Contribute](http://ancientbeast.com/contribute) guide.
