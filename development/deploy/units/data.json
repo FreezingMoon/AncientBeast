@@ -85,7 +85,7 @@
 				"upgrade": "Range becomes 6 hexagons.",
 				"costs": {
 					"energy": 20,
-					"plasma": "creature size + level"
+					"plasma": "unit size + level"
 				}
     		}
     	]
@@ -188,7 +188,7 @@
 			"pierce": 8,
 			"slash": 8,
 			"crush": 6,
-			"shock": 12,
+			"shock": 10,
 			"burn": 9,
 			"frost": 5,
 			"poison": 6,
@@ -438,7 +438,7 @@
 		"stats": {
 			"health": 200,
 			"regrowth": 10,
-			"endurance": 40,
+			"endurance": 37,
 			"energy": 80,
 			"meditation": 10,
 			"initiative": 60,
@@ -448,10 +448,10 @@
 			"pierce": 5,
 			"slash": 2,
 			"crush": 4,
-			"shock": 10,
+			"shock": 20,
 			"burn": 3,
-			"frost": 12,
-			"poison": 15,
+			"frost": 18,
+			"poison": 18,
 			"sonic": 6,
 			"mental": 10
 		},
@@ -472,9 +472,9 @@
 		"ability_info": [
 			{
 				"title": "Electrified Hair",
-				"desc": "Converts up to 1/4 of any incoming shock damage into energy points.",
-				"info": "This isn't affected by any unit stats.",
-				"upgrade": "1/3 conversion ratio boost.",
+				"desc": "Converts up to 1/4 of incoming shock damage into missing energy points.",
+				"info": "Conversion happens even if fatigued.",
+				"upgrade": "Overflowing energy heals.",
 				"effects": [{
 					"special": "Converts ~25%%shock% into%energy%"
 				}]
@@ -497,9 +497,9 @@
     		},
 			{
 				"title": "Poisonous Vine",
-				"desc": "Tangles a nearby foe, causing it to take damage if it will move within next turn.",
+				"desc": "Tangles a foe within 2 radius, causing it to take damage if it will move next turn.",
 				"info": "25 poison damage triggered if moving.",
-				"upgrade": "Gains 3 hexagon extra range.",
+				"upgrade": "Usable within four hexagons.",
 				"effects": [{
 					"special": "25 poison damage if moving"
 				}],
@@ -508,18 +508,17 @@
 				}
     		},
 			{
-				"title": "Arched Pole",
-				"desc": "Damages up to 5 nearby creatures, even hitting them twice if one dies.",
-				"info": "9 slash + 7 frost damage up to 2 hits.",
-				"upgrade": "+ 5 poison + 3 shock added.",
+				"title": "Chain Lightning",
+				"desc": "Releases a lightning bolt that will arch, shocking multiple adjacent creatures.",
+				"info": "20 shock damage that can arch nearby.",
+				"upgrade": "Can arch 1 hexagon further.",
 				"damages": {
-					"slash": 9,
-					"frost": 7
+					"shock": 20
 				},
 				"costs": {
 					"energy": 30
 				}
-    		}
+			}
     	]
 	},
 	{
@@ -671,8 +670,8 @@
 			{
 				"title": "Burning Heart",
 				"desc": "Hits reduce the target's burn mastery.",
-				"info": "-1 burn mastery each successful strike",
-				"upgrade": "+1 burn mastery to self on hit"
+				"info": "-1 burn mastery each successful strike.",
+				"upgrade": "+1 burn mastery to self on hit."
 		},
 			{
 				"title": "Fiery Touch",
@@ -690,8 +689,8 @@
 			{
 				"title": "Wild Fire",
 				"desc": "Teleports within 6 hexagons range, leaving a firewall in the old location.",
-				"info": "3 x 10 burn damage per hexagon.",
-				"upgrade": "Increased range each use.",
+				"info": "3 x 10 burn damage per each hexagon.",
+				"upgrade": "Increased range each usage.",
 				"effects": [{
 					"special": "10 %burn% damage per hex"
 				}],
@@ -1865,7 +1864,7 @@
 			"pierce": 10,
 			"slash": 0,
 			"crush": 10,
-			"shock": 10,
+			"shock": 14,
 			"burn": 0,
 			"frost": 10,
 			"poison": 10,
@@ -1907,7 +1906,7 @@
 		"type": "G7",
 		"set": "Alpha",
 		"stats": {
-			"health": 235,
+			"health": 256,
 			"regrowth": 10,
 			"endurance": 25,
 			"energy": 90,
@@ -1915,7 +1914,7 @@
 			"initiative": 65,
 			"offense": 20,
 			"defense": 20,
-			"movement": 4,
+			"movement": 3,
 			"pierce": 10,
 			"slash": 10,
 			"crush": 10,
@@ -1932,9 +1931,9 @@
 		"ability_info": [
 			{
 				"title": "Immortal Wood",
-				"desc": "Ressurects itself within three rounds if no units are sitting on top of the corpse.",
-				"info": "-50% total health, 10 rounds cooldown.",
-				"upgrade" : "full health when it revives."
+				"desc": "Resurrects itself the next round if no units are sitting on top of the corpse.",
+				"info": "Each time it will have 50% less health.",
+				"upgrade" : "Corpse will persist 3 rounds."
 		},
 			{
 				"title": "Stalagmite Teeth",
@@ -1947,18 +1946,18 @@
 		},
 			{
 				"title": "Waterfall Cannon",
-				"desc": "Powerful jet of water that damages & pushes back, has a 4 hexagons range.",
+				"desc": "Powerful jet of water that damages & pushes back, has a 3 hexagons range.",
 				"info": "20 knocking crush damage, up to 2 hits.",
-				"upgrade" : "+2 hexagons bonus range.",
+				"upgrade" : "+2 hexagons range increase.",
 				"costs": {
 					"energy": 30
 				}
 		},
 			{
 				"title": "Thorny Weed",
-				"desc": "Nasty ivy grows at a free spot up to 6 hexagons away, waiting for a foe prey.",
+				"desc": "Nasty ivy grows at a free spot up to 5 hexagons away, waiting for a foe prey.",
 				"info": "9 pierce + 9 poison & 1 round entangle.",
-				"upgrade" : "2x damage vs small units.",
+				"upgrade" : "Target unit for entangle only.",
 				"costs": {
 					"energy": 35
 				}
@@ -2420,9 +2419,9 @@
 			"pierce": 20,
 			"slash": 20,
 			"crush": 20,
-			"shock": 15,
+			"shock": 5,
 			"burn": 20,
-			"frost": 10,
+			"frost": 5,
 			"poison": 10,
 			"sonic": 15,
 			"mental": 15
@@ -2838,7 +2837,7 @@
 			{
 				"title": "Larva Infest",
 				"desc": "Strikes any rear foe at beginning of turn, infesting it with a big parasite.",
-				"info": "-5 endurance stat debuff, stackable",
+				"info": "-5 endurance stat debuff, stackable.",
 				"effects": [{
 					"special": "-5 %endurance% debuff, stackable"
 				}]
@@ -2846,7 +2845,7 @@
 			{
 				"title": "Cartilage Dagger",
 				"desc": "Hits nearby unit using frontal blade. Double damage if the foe is fatigued.",
-				"info": "12 pierce damage × 2 vs fatigued foe",
+				"info": "12 pierce damage × 2 vs fatigued foe.",
 				"damages": {
 					"special": "12%pierce% × 2 if target is fatigued"
 				},
@@ -2857,8 +2856,8 @@
 			{
 				"title": "Whip Move",
 				"desc": "Grasps a distant unit, pulling close to each other based on their relative size.",
-				"info": "Between 2 and 6 hexagons pull range",
-				"upgrade" : "+2 maximum range increase",
+				"info": "Between 2 and 6 hexagons pull range.",
+				"upgrade" : "+2 maximum range increase.",
 				"costs": {
 					"energy": 20
 				}
@@ -2867,7 +2866,7 @@
 				"title": "Boomerang Tool",
 				"desc": "Forms a new weapon out of blades and throws it away 5 hexagons, returning.",
 				"info": "10 slash damage over 15 hexagons x 2",
-				"upgrade" : "area increased by 3 hxagons",
+				"upgrade" : "area increased by 3 hxagons.",
 				"damages": {
 					"special": "10%slash%, hits 2 times"
 				},
@@ -3265,9 +3264,9 @@
 			"pierce": 8,
 			"slash": 8,
 			"crush": 8,
-			"shock": 15,
-			"burn": 10,
-			"frost": 9,
+			"shock": 4,
+			"burn": 6,
+			"frost": 8,
 			"poison": 8,
 			"sonic": 15,
 			"mental": 12
