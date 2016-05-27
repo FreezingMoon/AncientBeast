@@ -47,17 +47,17 @@ We strongly believe in open source software development, but to run a successful
 </p><p>
 You should consider donating via <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><b>Paypal</b></a> or <a href="bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast"><b>Bitcoin</b></a>, even if you're not into turn based strategy games you must see the bigger picture: we're setting an example in the industry and also creating a huge high quality art repository that you and others can use for commercial work and possibly even make other neat games, comics or maybe even some animations.
 </p><p>
-Feel free to become our <a href="http://patreon.com/AncientBeast" target="_blank"><b>Patreon</b></a> and receive cool rewards.
-You can address individual issues by using <a href="https://bountysource.com/teams/freezingmoon/issues?tracker_ids=260151" target="_blank"><b>Bounty Source</b></a>.
+Feel free to become our <a href="http://patreon.com/FreezingMoon" target="_blank"><b>Patreon</b></a> and receive cool rewards.
+You can address individual issues by using <a href="https://www.bountysource.com/teams/ancientbeast/issues" target="_blank"><b>Bounty Source</b></a>.
 If you wish to become a sponsor, get in touch via an <a href="mailto:DreadKnight@FreezingMoon.org?Subject=I want to Sponsor the Project" target="_blank"><b>email</b></a>.
 Any amount you can donate is very appreciated, thank you!<br>
 <!--Don't forget you can always spend some in our online <a href="https://AncientBeast.com/shop"><b>shop</b></a>.-->
 </p>
 <p>
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><img src="http://img.shields.io/badge/PayPal-Donate-yellow.svg" class="lighten"></a>
-<a href="bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast" target="_blank"><img src="http://img.shields.io/badge/Bitcoin-Donate-orange.svg" class="lighten"></a>
-<a href="http://patreon.com/FreezingMoon" target="_blank"><img src="http://img.shields.io/badge/Patreon-Donate-red.svg" class="lighten"></a>
-<a href="https://www.bountysource.com/teams/ancientbeast/issues" target="_blank"><img src="http://img.shields.io/badge/Bountysource-Donate-green.svg" class="lighten"></a>
+<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4" target="_blank"><img src="http://img.shields.io/badge/Donate-PayPal-yellow.svg" class="lighten"></a>
+<a href="bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast" target="_blank"><img src="http://img.shields.io/badge/Donate-Bitcoin-orange.svg" class="lighten"></a>
+<a href="http://patreon.com/FreezingMoon" target="_blank"><img src="http://img.shields.io/badge/Donate-Patreon-red.svg" class="lighten"></a>
+<a href="https://www.bountysource.com/teams/ancientbeast/issues" target="_blank"><img src="http://img.shields.io/badge/Donate-Bountysource-green.svg" class="lighten"></a>
 </p>
 </div>
 
@@ -94,7 +94,7 @@ Any amount you can donate is very appreciated, thank you!<br>
 <h3 class="indexheader"><a href="#artwork">Artwork</a></h3>
 <p>
 Perhaps it's not money you want to contribute, but rather spend some time and energy while putting your pen and brush to some good use in order to create more visual content for the project or simply having fun drawing fan art of already existing creatures? If you have something lying around and you think it could nicely fit the game while under the same <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><b>CC-BY-SA 3.0</b></a> license, feel free to send it our way!<br>
-If you want a task assigned, simply drop by our <a href="../chat"><b>chat</b></a> room and poke DreadKnight, the project's founder, he'll brief you.
+If you want a task assigned, simply drop by our <a href="../chat"><b>chat room</b></a> and poke <i>DreadKnight</i>, the project's founder, he'll brief you.
 </p><p>
 Several ways you can help out using with your artistic skills:<br>
 <p><b>Draw playable creatures or characters</b><br>
@@ -118,7 +118,10 @@ The <a href="https://inkscape.org" target="_blank"><b>Inkscape</b></a> vector gr
 <p><b>Design various promotional items</b><br>
 We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallpapers</b></a>, 1920 by 1080 pixels and more merchandise for our online <a href="../shop"><b>shop</b></a>, such as <b>miniatures</b>, <b>plushies</b>, <b>T-shirts</b>, <b>posters</b> & <b>stickers</b>.
 </p>
-<a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="http://img.shields.io/badge/license-CC--BY--SA%203.0-green.svg" class="lighten"></a><a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><img src="http://img.shields.io/badge/repository-MEGA-red.svg" class="lighten"></a><a href="https://ancient-beast.deviantart.com" target="_blank"><img src="http://img.shields.io/badge/group-deviantArt-green.svg" class="lighten"></a>
+<a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><img src="http://img.shields.io/badge/license-CC--BY--SA%203.0-green.svg" class="lighten"></a>
+<a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><img src="http://img.shields.io/badge/repository-MEGA-red.svg" class="lighten"></a>
+<a href="https://ancient-beast.deviantart.com" target="_blank"><img src="http://img.shields.io/badge/group-deviantArt-green.svg" class="lighten"></a>
+<a href="https://gitter.im/FreezingMoon/AncientBeast" target="_blank"><img src="https://badges.gitter.im/FreezingMoon/AncientBeast.svg" class="lighten"></a>
 </div>
 
 <?php $i = 0; ?>
@@ -159,13 +162,15 @@ We can always use some more desktop <a href="../media/?type=wallpapers"><b>wallp
 <div style="width: 475px; text-align: justify; display:inline-block;">
 <h3 class="indexheader"><a href="#coding">Coding</a></h3>
 <p>
-We can always use an extra hand or two when it comes to polishing and adding new functionality to the website and to the game itself of course. All the coding languages used are web based, such as HTML, CSS, PHP, Javascript and Node.js. The project uses the great <a href="www.phaser.io" target="_blank"><b>Phaser</b></a> game engine, having a neat <a href="http://html5gamedevs.com/forum/14-phaser" target="_blank"><b>community</b></a>, <a href="http://docs.phaser.io" target="_blank"><b>documentation</b></a> and <a href="http://examples.phaser.io" target="_blank"><b>examples</b></a>.
+We can always use an extra hand or two when it comes to polishing and adding new functionality to the website and to the game itself of course. All the coding languages used are web based, such as HTML, CSS, PHP, Javascript and Node.js. The project uses the great <a href="http://phaser.io" target="_blank"><b>Phaser</b></a> game engine, having a neat <a href="http://html5gamedevs.com/forum/14-phaser" target="_blank"><b>community</b></a>, <a href="http://phaser.io/docs" target="_blank"><b>documentation</b></a> and <a href="http://phaser.io/examples" target="_blank"><b>examples</b></a>.
+It is also open source, you can find it's repository on <a href="https://github.com/photonstorm/phaser" target="_blank"><b>Github</b></a>.
 </p><p>
-It's also open source, you can find it's repository on <a href="https://github.com/photonstorm/phaser" target="_blank"><b>Github</b></a>.<br>
-If you want a task assigned, simply drop by our <a href="http://AncientBeast.com/chat"><b>chat</b></a> room and poke DreadKnight, the project's founder, he'll brief you.<br>
+If you want a task assigned, simply drop by our <a href="http://AncientBeast.com/chat"><b>chat room</b></a> and poke <i>DreadKnight</i>, the project's founder, he'll brief you.<br>
 Sometimes even reviewing or talking code can greatly help.
 </p>
-<a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="http://img.shields.io/badge/license-AGPL3.0-green.svg" class="lighten"></a><a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><img src="http://img.shields.io/github/issues/FreezingMoon/AncientBeast.svg" class="lighten"></a><a href="https://bountysource.com/teams/ancientbeast" target="_blank"><a href="https://www.bountysource.com/teams/ancientbeast/issues" target="_blank"><img src="https://bountysource.com/badge/team?team_id=44509&style=bounties_received" class="lighten"></a>
+<a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="http://img.shields.io/badge/license-AGPL3.0-green.svg" class="lighten"></a>
+<a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><img src="http://img.shields.io/github/issues/FreezingMoon/AncientBeast.svg" class="lighten"></a>
+<a href="https://www.bountysource.com/teams/ancientbeast/issues" target="_blank"><img src="https://bountysource.com/badge/team?team_id=44509&style=bounties_received" class="lighten"></a>
 </div>
 
 <?php $i = 0; ?>
@@ -194,7 +199,7 @@ Sometimes even reviewing or talking code can greatly help.
 <div style="width: 475px; text-align: justify; display:inline-block;">
 <h3 class="indexheader"><a href="#audio">Audio</a></h3>
 <p>
-If composing is more of your expertise, we can always use more tracks of epic genre, as example you can check out the existing tracks and also some from related games, such as the Heroes of Might and Magic 3's combat tracks and the OST from the King's Bounty games. I also consider sound fx is another important area that can make or break gameplay, meaning that it should not be annoying and repetitive while nicely complementing and reinforcing the ongoing actions.
+If composing is more of your expertise, we can always use more tracks of epic genre, as example you can check out the existing tracks and also some from related games, such as the Heroes of Might and Magic 3's combat tracks and the OST from the King's Bounty games. I consider sound effects a very important part that can make or break gameplay, meaning that they should not be annoying and repetitive while nicely complementing and reinforcing various actions.
 </p><p>
 Check out these tracks as reference, but always be original:<br>
 <a href="http://AncientBeast.com/media?type=music" target="_blank"><b>Ancient Beast Official Soundtrack</b></a><br>
@@ -226,7 +231,7 @@ All tracks and SFX need to be under <a href="http://creativecommons.org/licenses
 <h3 class="indexheader"><a href="#supporter">Supporter</a></h3>
 <p>
 No moneys and no coding or artistic skills? No worries, you can still help out by being part of the community, testing out the game and reporting issues, brainstorming and spreading out the word as our marketing budget is pretty much non-existend, so we rely on you for that! Feedback and boosting the numbers are always nice, as they can also boost up morale and reassure us we're on the proper path.
-Click on the icons below and join our various project groups. You can also hang out with us in our own project <a href="http://AncientBeast.com/chat"><b>chat</b></a> room.
+Click on the icons below and join our various project groups. You can also hang out with us in our own project <a href="http://AncientBeast.com/chat"><b>chat room</b></a>.
 </p>
 </div>
 <div style="display: inline-block;" class="center"><img src="together.jpg" class="image"></div>
