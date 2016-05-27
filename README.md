@@ -1,10 +1,11 @@
 [![Play Ancient Beast](http://img.shields.io/badge/Play-Ancient%20Beast-red.svg)](http://AncientBeast.com/combat)
 [![Join the chatroom](https://badges.gitter.im/FreezingMoon/AncientBeast.svg)](https://gitter.im/FreezingMoon/AncientBeast)
-[![Donate via PayPal](http://img.shields.io/badge/PayPal-Donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4)
-[![Flattr this Project](http://img.shields.io/badge/flattr-Donate-green.svg)](https://flattr.com/thing/126547/Ancient-Beast)
+[![Donate via PayPal](http://img.shields.io/badge/Donate-PayPal-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4)
+[![Donate via Patreon](http://img.shields.io/badge/Donate-Patreon-orange.svg)](https://www.patreon.com/FreezingMoon)
 [![Donate bia Bountysource](https://www.bountysource.com/badge/team?team_id=44509&style=bounties_received)](https://www.bountysource.com/teams/ancientbeast/issues)
+[![Flattr this Project](http://img.shields.io/badge/Donate-Flattr-green.svg)](https://flattr.com/thing/126547/Ancient-Beast)
 [![Donate via Gratipay](http://img.shields.io/gratipay/AncientBeast.svg)](https://gratipay.com/AncientBeast)
-[![Donate via Patreon](http://img.shields.io/badge/Patreon-Donate-orange.svg)](https://www.patreon.com/FreezingMoon)
+
 
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast/master/media/screenshots/v0.1%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** *Chuck Palahniuk*
