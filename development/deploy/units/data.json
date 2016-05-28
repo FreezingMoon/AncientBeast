@@ -3165,7 +3165,7 @@
 			"health": 95,
 			"regrowth": 2,
 			"endurance": 30,
-			"energy": 90,
+			"energy": 75,
 			"meditation": 30,
 			"initiative": 70,
 			"offense": 1,
@@ -3206,8 +3206,8 @@
 			{
 				"title": "Slicing Pounce",
 				"desc": "Slashes nearby foe using its claws.",
-				"info": "12 slash damage done every strike",
-				"upgrade": "Can also move large units",
+				"info": "12 slash damage done every strike.",
+				"upgrade": "-1 offense debuff per hit.",
 				"damages": {
 					"slash": 12
 				},
@@ -3218,9 +3218,10 @@
 			{
 				"title": "Escort Service",
 				"desc": "Carries over a frontal or rear small or medium unit to a free inline location.",
-				"info": "Distance based on movement points",
+				"info": "Distance based on movement points.",
 				"upgrade": "Can also move large units.",
 				"costs": {
+					"energy": 0,
 					"movement": "1 or 2 points per hexagon"
 				},
 				"animation_data": {
@@ -3230,15 +3231,15 @@
 		},
 			{
 				"title": "Deadly Toxin",
-				"desc": "Bites a nearby enemy and poisons it. The venom loses potency if overused.",
-				"info": "10 pierce + 10 poison x 3 max stacks.",
-				"upgrade": "Regains a stack if not used.",
+				"desc": "Bites a nearby enemy and poisons it, taking damage every turn until dead.",
+				"info": "8 pierce & 16 poison damage per turn.",
+				"upgrade": "Poison damages since bite.",
 				"damages": {
-					"pierce": 10,
-					"poison": 35
+					"pierce": 8,
+					"poison": 16
 				},
 				"costs": {
-					"energy": 20
+					"energy": 30
 				}
 		}
 	]
