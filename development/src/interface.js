@@ -223,11 +223,7 @@ var UI = Class.create( {
 			if(G.freezedInput) return;
 
 			var keypressed = e.keyCode || e.which;
-
-			hotkeys = {
-				show_grid: 16 // Shift
-			};
-
+			
 			$j.each(hotkeys,function(k, v) {
 				if(v==keypressed) {
 					switch(k) {
