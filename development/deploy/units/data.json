@@ -3232,11 +3232,11 @@
 			{
 				"title": "Deadly Toxin",
 				"desc": "Bites a nearby enemy and poisons it, taking damage every turn until dead.",
-				"info": "8 pierce & 16 poison damage per turn.",
+				"info": "8 pierce & 12 poison damage per turn.",
 				"upgrade": "Poison damages since bite.",
 				"damages": {
 					"pierce": 8,
-					"poison": 16
+					"poison": 12
 				},
 				"costs": {
 					"energy": 30
