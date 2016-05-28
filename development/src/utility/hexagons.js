@@ -1507,7 +1507,7 @@ var Hex = Class.create({
 			}
 			G.grid.overHexsGroup.bringToTop(this.overlay);
 		}else{
-			this.overlay.loadTexture("hex");
+			this.overlay.loadTexture("cancel");
 		}
 
 		this.overlay.alpha = targetAlpha;
