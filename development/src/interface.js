@@ -496,6 +496,13 @@ var UI = Class.create( {
 				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").text(stats.ability_info[key].info);
 				$ability.children(".wrapper").children(".info").children("#upgrade").text("Upgrade: " + stats.ability_info[key].upgrade);
+
+				if( key !== 0){
+					$ability.children(".wrapper").children(".info").children("#cost").text(" - costs " + stats.ability_info[key].costs.energy + " energy pts.");
+				}
+				else{
+					$ability.children(".wrapper").children(".info").children("#cost").text(" - this ability is passive.");
+				}
 			});
 
 			var summonedOrDead = false;
