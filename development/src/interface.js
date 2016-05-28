@@ -50,13 +50,13 @@ var UI = Class.create( {
 		this.buttons.push(this.btnToggleDash);
 
 		// Audio Button
-		this.btnFlee = new Button( {
+		this.btnAudio = new Button( {
 			$button : $j("#audio.button"),
 			click : function(e) { if(!G.UI.dashopen) {
 				G.UI.showMusicPlayer();
 			}}
 		});
-		this.buttons.push(this.btnFlee);
+		this.buttons.push(this.btnAudio);
 
 		// Skip Turn Button
 		this.btnSkipTurn = new Button( {
@@ -193,6 +193,7 @@ var UI = Class.create( {
 							case "ability": G.UI.abilitiesButtons[2].triggerClick(); break;
 							case "ultimate": G.UI.abilitiesButtons[3].triggerClick(); break;
 							case "overview": G.UI.btnToggleDash.triggerClick(); break;
+							case "audio": G.UI.btnAudio.triggerClick(); break;
 							case "skip": G.UI.btnSkipTurn.triggerClick(); break;
 							case "delay": G.UI.btnDelay.triggerClick(); break;
 							case "flee": G.UI.btnFlee.triggerClick(); break;
