@@ -160,6 +160,7 @@ var UI = Class.create( {
 				flee: 70, // F
 				chat: 13, // Return TODO: Should open, send & hide chat
 				//pause: 80, // P, might get deprecated
+				show_grid: 16, // Shift
 				dash_up: 38, // Up arrow
 				dash_down: 40, // Down arrow
 				dash_left: 37, // Left arrow
@@ -199,6 +200,7 @@ var UI = Class.create( {
 							case "flee": G.UI.btnFlee.triggerClick(); break;
 							case "chat": G.UI.chat.toggle(); break;
 							case "pause": G.togglePause(); break; // Might get deprecated
+							case "show_grid": G.grid.showGrid(true); break;
 
 							case "grid_up": G.grid.selectHexUp(); break;
 							case "grid_down": G.grid.selectHexDown(); break;
