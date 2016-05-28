@@ -219,6 +219,24 @@ var UI = Class.create( {
 			}
 		});
 
+		$j(document).keyup(function(e) {
+			if(G.freezedInput) return;
+
+			var keypressed = e.keyCode || e.which;
+
+			hotkeys = {
+				show_grid: 16 // Shift
+			};
+
+			$j.each(hotkeys,function(k, v) {
+				if(v==keypressed) {
+					switch(k) {
+						case "show_grid": G.grid.showGrid(false); break;
+					}
+				}
+			});
+		});
+
 		// Mouse Shortcut
 		$j("#dash").bind('mouseup', function(e) {
 			if(G.freezedInput) return;
