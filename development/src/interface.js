@@ -182,6 +182,7 @@ var UI = Class.create( {
 					// Context filter
 					if(G.UI.dashopen) {
 						switch(k) {
+							case "close": G.UI.closeDash(); break;
 							case "dash_materializeButton": G.UI.materializeButton.triggerClick(); break;
 							case "dash_up": G.UI.gridSelectUp(); break;
 							case "dash_down": G.UI.gridSelectDown(); break;
