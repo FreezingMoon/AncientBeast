@@ -159,6 +159,7 @@ var UI = Class.create( {
 				delay: 68, // D
 				flee: 70, // F
 				chat: 13, // Return TODO: Should open, send & hide chat
+				close: 27, // Escape
 				//pause: 80, // P, might get deprecated
 				show_grid: 16, // Shift
 				dash_up: 38, // Up arrow
@@ -223,7 +224,7 @@ var UI = Class.create( {
 			if(G.freezedInput) return;
 
 			var keypressed = e.keyCode || e.which;
-			
+
 			$j.each(hotkeys,function(k, v) {
 				if(v==keypressed) {
 					switch(k) {
