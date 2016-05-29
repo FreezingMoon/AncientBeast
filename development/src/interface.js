@@ -159,7 +159,9 @@ var UI = Class.create( {
 				delay: 68, // D
 				flee: 70, // F
 				chat: 13, // Return TODO: Should open, send & hide chat
+				close: 27, // Escape
 				//pause: 80, // P, might get deprecated
+				show_grid: 16, // Shift
 				dash_up: 38, // Up arrow
 				dash_down: 40, // Down arrow
 				dash_left: 37, // Left arrow
@@ -180,6 +182,8 @@ var UI = Class.create( {
 					// Context filter
 					if(G.UI.dashopen) {
 						switch(k) {
+							case "close": G.UI.closeDash(); break;
+							case "ultimate": G.UI.closeDash(); break;
 							case "dash_materializeButton": G.UI.materializeButton.triggerClick(); break;
 							case "dash_up": G.UI.gridSelectUp(); break;
 							case "dash_down": G.UI.gridSelectDown(); break;
@@ -199,6 +203,7 @@ var UI = Class.create( {
 							case "flee": G.UI.btnFlee.triggerClick(); break;
 							case "chat": G.UI.chat.toggle(); break;
 							case "pause": G.togglePause(); break; // Might get deprecated
+							case "show_grid": G.grid.showGrid(true); break;
 
 							case "grid_up": G.grid.selectHexUp(); break;
 							case "grid_down": G.grid.selectHexDown(); break;
@@ -215,6 +220,20 @@ var UI = Class.create( {
 				e.preventDefault();
 				return false;
 			}
+		});
+
+		$j(document).keyup(function(e) {
+			if(G.freezedInput) return;
+
+			var keypressed = e.keyCode || e.which;
+
+			$j.each(hotkeys,function(k, v) {
+				if(v==keypressed) {
+					switch(k) {
+						case "show_grid": G.grid.showGrid(false); break;
+					}
+				}
+			});
 		});
 
 		// Mouse Shortcut
