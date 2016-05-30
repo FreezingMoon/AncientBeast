@@ -48,7 +48,7 @@ If you encounter any problems with the version, you can report them to our [GitH
 
 
 ### Patch Game
-The main coding language used is Javascript, feel free to create patches and propose them by opening Pull Requests.
+The main coding language used is Javascript, feel free to create patches and propose them by making a Pull Request.
 You should look around on GitHub Issue tracker for open issues, priority being the ones that are assigned to the next [milestone](https://github.com/FreezingMoon/AncientBeast/milestones) and are tagged "[Priority](https://github.com/FreezingMoon/AncientBeast/labels/Priority)", while also lacking the "[Brainstorm](https://github.com/FreezingMoon/AncientBeast/labels/Brainstorm)" tag. You can ping [DreadKnight](https://github.com/DreadKnight) in the [Gitter Chatroom](https://gitter.im/FreezingMoon/AncientBeast) in order to be assigned to something specific, otherwise you can comment on a specific issue in order to receive the green light for it, making sure there's nobody else currently working on the issue or that design hasn't changed and a patch is still required.
 
 ---
