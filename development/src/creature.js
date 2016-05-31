@@ -1301,6 +1301,13 @@ var Creature = Class.create( {
 	 * @return {string} "normal", "hover", or "flying"
 	 */
 	movementType: function() {
+		// If the creature has an ability that modifies movement type, use that,
+		// otherwise use the creature's base movement type
+		for (var i = 0; i < this.abilities.length; i++) {
+			if ('movementType' in this.abilities[i]) {
+				return this.abilities[i].movementType();
+			}
+		}
 		return this._movementType;
 	}
 

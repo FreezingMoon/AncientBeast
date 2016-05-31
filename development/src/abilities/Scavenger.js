@@ -7,6 +7,15 @@ G.abilities[44] =[
 
 // 	First Ability: Feathered Body
 {
+	/**
+	 * Provides custom movement type given whether the ability is upgraded or not.
+	 * Creature is "hover" unless this ability is upgraded, then it's "flying"
+	 * @return {string} movement type, "hover" or "flying"
+	 */
+	movementType: function() {
+		return this.isUpgraded() ? "flying" : this.creature._movementType;
+	},
+
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "",
 
