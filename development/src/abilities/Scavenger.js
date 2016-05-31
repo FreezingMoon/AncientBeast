@@ -31,7 +31,7 @@ G.abilities[44] =[
 
 
 
-// 	Second Ability: Slicing Talon
+// 	Second Ability: Slicing Pounce
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -65,6 +65,15 @@ G.abilities[44] =[
 	activate : function(target, args) {
 		var ability = this;
 		ability.end();
+
+		// If upgraded, hits will debuff target with -1 offense
+		if (this.isUpgraded()) {
+			var effect = new Effect("Slicing Pounce", ability.creature, target, "onDamage", {
+				alterations : { offense: -1 }
+			});
+			target.addEffect(effect);
+			G.log("%CreatureName" + target.id + "%'s offense is lowered by 1");
+		}
 
 		var damage = new Damage(
 			ability.creature, // Attacker
