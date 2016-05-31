@@ -243,7 +243,7 @@ G.abilities[44] =[
 
 
 
-// 	Fourth Ability: Venom Strike
+// 	Fourth Ability: Deadly Toxin
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -278,17 +278,22 @@ G.abilities[44] =[
 		var ability = this;
 		ability.end();
 
+		// Don't perform poison damage unless upgraded
+		var damages = $j.extend({}, ability.damages);
+		if (!this.isUpgraded()) {
+			delete damages.poison;
+		}
+
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
-			ability.damages, //Damage Type
+			damages, //Damage Type
 			1, //Area
 			[]	//Effects
 		);
 
 		target.takeDamage(damage);
 
-		ability.damages.poison -= ability.damages.poison == 10 ? 0 : 10;
 		G.UI.checkAbilities();
 	},
 }

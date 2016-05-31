@@ -3235,8 +3235,8 @@
 				"info": "8 pierce & 12 poison damage per turn.",
 				"upgrade": "Poison damages since bite.",
 				"damages": {
-					"pierce": 8,
-					"poison": 12
+					"pierce": 12,
+					"poison": 8
 				},
 				"costs": {
 					"energy": 30
