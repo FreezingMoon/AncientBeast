@@ -243,7 +243,7 @@
 		"type": "G3",
 		"set": "Alpha",
 		"stats": {
-			"health": 130,
+			"health": 132,
 			"regrowth": 5,
 			"endurance": 55,
 			"energy": 120,
@@ -436,7 +436,7 @@
 		"type": "S5",
 		"set": "Alpha",
 		"stats": {
-			"health": 200,
+			"health": 190,
 			"regrowth": 10,
 			"endurance": 37,
 			"energy": 80,
@@ -530,7 +530,7 @@
 		"type": "S7",
 		"set": "Alpha",
 		"stats": {
-			"health": 240,
+			"health": 245,
 			"regrowth": 1,
 			"endurance": 90,
 			"energy": 80,
@@ -633,7 +633,7 @@
 		"type": "P7",
 		"set": "Alpha",
 		"stats": {
-			"health": 220,
+			"health": 234,
 			"regrowth": 5,
 			"endurance": 25,
 			"energy": 100,
@@ -725,7 +725,7 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 215,
-			"regrowth": 12,
+			"regrowth": 11,
 			"endurance": 100,
 			"energy": 80,
 			"meditation": 10,
@@ -998,8 +998,8 @@
 		"type": "S1",
 		"set": "Alpha",
 		"stats": {
-			"health": 75,
-			"regrowth": 7,
+			"health": 70,
+			"regrowth": 4,
 			"endurance": 20,
 			"energy": 75,
 			"meditation": 25,
@@ -1153,8 +1153,8 @@
 		"type": "P1",
 		"set": "Alpha",
 		"stats": {
-			"health": 70,
-			"regrowth": 7,
+			"health": 75,
+			"regrowth": 6,
 			"endurance": 50,
 			"energy": 70,
 			"meditation": 30,
@@ -1485,7 +1485,7 @@
 		"type": "G4",
 		"set": "Alpha",
 		"stats": {
-			"health": 180,
+			"health": 165,
 			"regrowth": 3,
 			"endurance": 33,
 			"energy": 80,
@@ -1552,7 +1552,7 @@
 		"type": "S6",
 		"set": "Alpha",
 		"stats": {
-			"health": 230,
+			"health": 220,
 			"regrowth": 5,
 			"endurance": 55,
 			"energy": 50,
@@ -1744,7 +1744,7 @@
 		"type": "L4",
 		"set": "Alpha",
 		"stats": {
-			"health": 130,
+			"health": 128,
 			"regrowth": 3,
 			"endurance": 40,
 			"energy": 80,
@@ -1907,13 +1907,13 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 256,
-			"regrowth": 10,
-			"endurance": 25,
+			"regrowth": 8,
+			"endurance": 64,
 			"energy": 90,
 			"meditation": 10,
 			"initiative": 65,
-			"offense": 20,
-			"defense": 20,
+			"offense": 12,
+			"defense": 14,
 			"movement": 3,
 			"pierce": 10,
 			"slash": 10,
@@ -2028,7 +2028,7 @@
 		"type": "P4",
 		"set": "Alpha",
 		"stats": {
-			"health": 130,
+			"health": 135,
 			"regrowth": 5,
 			"endurance": 100,
 			"energy": 70,
@@ -2357,20 +2357,20 @@
 			"regrowth": 12,
 			"endurance": 40,
 			"energy": 60,
-			"meditation": 10,
+			"meditation": 15,
 			"initiative": 30,
 			"offense": 5,
 			"defense": 5,
 			"movement": 3,
-			"pierce": 2,
-			"slash": 2,
-			"crush": 3,
-			"shock": 4,
+			"pierce": 4,
+			"slash": 1,
+			"crush": 2,
+			"shock": 2,
 			"burn": 0,
 			"frost": 10,
 			"poison": 8,
-			"sonic": 10,
-			"mental": 10
+			"sonic": 4,
+			"mental": 12
 		},
 		"animation": {
 			"walk_speed": 300
@@ -2588,8 +2588,8 @@
 		"type": "E4",
 		"set": "Alpha",
 		"stats": {
-			"health": 180,
-			"regrowth": 7,
+			"health": 170,
+			"regrowth": 6,
 			"endurance": 60,
 			"energy": 160,
 			"meditation": 10,
@@ -2642,7 +2642,7 @@
 		"type": "A1",
 		"set": "Alpha",
 		"stats": {
-			"health": 110,
+			"health": 105,
 			"regrowth": 3,
 			"endurance": 45,
 			"energy": 75,
@@ -2885,7 +2885,7 @@
 		"type": "W1",
 		"set": "Alpha",
 		"stats": {
-			"health": 100,
+			"health": 99,
 			"regrowth": 6,
 			"endurance": 40,
 			"energy": 100,
@@ -2974,7 +2974,7 @@
 		"type": "W2",
 		"set": "Alpha",
 		"stats": {
-			"health": 130,
+			"health": 123,
 			"regrowth": 4,
 			"endurance": 15,
 			"energy": 50,
@@ -3028,7 +3028,7 @@
 		"type": "E7",
 		"set": "Alpha",
 		"stats": {
-			"health": 230,
+			"health": 240,
 			"regrowth": 5,
 			"endurance": 100,
 			"energy": 80,
@@ -3162,7 +3162,7 @@
 		"type": "E2",
 		"set": "Alpha",
 		"stats": {
-			"health": 95,
+			"health": 92,
 			"regrowth": 2,
 			"endurance": 30,
 			"energy": 75,
@@ -3232,11 +3232,11 @@
 			{
 				"title": "Deadly Toxin",
 				"desc": "Bites a nearby enemy and poisons it, taking damage every turn until dead.",
-				"info": "8 pierce & 12 poison damage per turn.",
+				"info": "12 pierce & 8 poison damage per turn.",
 				"upgrade": "Poison damages since bite.",
 				"damages": {
-					"pierce": 8,
-					"poison": 12
+					"pierce": 12,
+					"poison": 8
 				},
 				"costs": {
 					"energy": 30
@@ -3340,7 +3340,7 @@
 		"type": "E5",
 		"set": "Alpha",
 		"stats": {
-			"health": 200,
+			"health": 186,
 			"regrowth": 4,
 			"endurance": 80,
 			"energy": 70,
