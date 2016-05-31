@@ -98,6 +98,7 @@ G.abilities[44] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
+		var ability = this;
 		var crea = this.creature;
 
 		var hexs = crea.getHexMap(inlinefrontnback2hex)
@@ -112,10 +113,10 @@ G.abilities[44] =[
 			return false;
 		}
 
-		//Filter 3h creatures
+		// Cannot escort large (size > 2) creatures unless ability is upgraded
 		hexs.filter(function() {
 			if( !this.creature ) return false;
-			return (this.creature.size < 3);
+			return this.creature.size < 3 || ability.isUpgraded();
 		});
 
 		if( !this.atLeastOneTarget( hexs, "both" ) ) {
