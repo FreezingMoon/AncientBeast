@@ -1293,7 +1293,7 @@
 			{
 				"title": "Power Charge",
 				"desc": "Causes the next ability to deal double damage or have increased efficiency.",
-				"info": "The buff expires before the next turn.",	
+				"info": "The buff expires before the next turn.",
 				"upgrade": "Charge is usable next round.",
 				"costs": {
 					"energy": 20
@@ -1725,7 +1725,7 @@
 				"info": "20 crush damage + 10 burn per strike.",
 				"upgrade": "Nullifies target's meditation.",
 				"damages": {
-					"crush": 20,	
+					"crush": 20,
 					"burn": 10
 				},
 				"costs": {
@@ -2679,7 +2679,7 @@
 			{
 				"title": "Spa Goggles",
 				"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
-				"info": "+5 regrowth & defense while on mud.",	
+				"info": "+5 regrowth & defense while on mud.",
 				"upgrade": "Doubles both stat bonuses.",
 				"effects": [{
 					"regrowth": 5,
@@ -2714,7 +2714,7 @@
 			{
 				"title": "Mud Bath",
 				"desc": "Orders a pile of mud over any hexagon, slowing any other units that walk over.",
-				"info": "-1 movement point, on free spot or self.",	
+				"info": "-1 movement point, on free spot or self.",
 				"upgrade": "10 energy cost if used on self.",
 				"effects": [{
 					"special": "-1 %movement%"
@@ -3054,7 +3054,7 @@
 			{
 				"title": "Bat Country",
 				"desc": "First attacker receives some damage. This ability triggers once every round.",
-				"info": "5 pierce + 5 sonic + 5 mental damage.",	
+				"info": "5 pierce + 5 sonic + 5 mental damage.",
 				"upgrade": "Triggers on different units."
 		},
 			{
@@ -3181,7 +3181,7 @@
 			"sonic": 6,
 			"mental": 6
 		},
-		"canFly": true,
+		"movementType": "hover",
 		"animation": {
 			"walk_speed": 180
 		},

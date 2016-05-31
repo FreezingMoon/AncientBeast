@@ -55,7 +55,10 @@ var Creature = Class.create( {
 		this.animation	= obj.animation;
 		this.display	= obj.display;
 		this.drop		= obj.drop;
-		this.canFly		= obj.canFly;
+		this._movementType = "normal";
+		if (obj.movementType) {
+			this._movementType = obj.movementType;
+		}
 
 		this.hexagons	= [];
 
@@ -374,7 +377,7 @@ var Creature = Class.create( {
 				args.creature.delayable = false;
 				G.UI.btnDelay.changeState("disabled");
 				args.creature.moveTo(hex, {
-					animation : args.creature.canFly ? "fly" : "walk",
+					animation : args.creature.movementType() === "flying" ? "fly" : "walk",
 					callback : function() { G.activeCreature.queryMove(); }
 				});
 			}
@@ -395,13 +398,19 @@ var Creature = Class.create( {
 		this.facePlayerDefault();
 		this.updateHealth();
 
-		if(this.canFly){
+		if (this.movementType() === "flying") {
 			o.range = G.grid.getFlyingRange(this.x, this.y, this.remainingMove, this.size, this.id);
 		}
 
-		var select = (o.noPath || this.canFly)
-		? function(hex,args){ args.creature.tracePosition( { x: hex.x, y: hex.y, overlayClass: "creature moveto selected player" + args.creature.team } ); }
-		: function(hex,args){ args.creature.tracePath(hex); };
+		var selectNormal = function(hex, args) { args.creature.tracePath(hex); };
+		var selectFlying = function(hex, args) {
+			args.creature.tracePosition({
+				x: hex.x,
+				y: hex.y,
+				overlayClass: "creature moveto selected player" + args.creature.team
+			});
+		};
+		var select = (o.noPath || this.movementType() === "flying") ? selectFlying : selectNormal;
 
 		if(this.noActionPossible){
 			G.grid.querySelf({
@@ -548,7 +557,7 @@ var Creature = Class.create( {
 		defaultOpt = {
 			callback : function() { return true; },
 			callbackStepIn : function() { return true; },
-			animation : this.canFly ? "fly" : "walk",
+			animation : this.movementType() === "flying" ? "fly" : "walk",
 			ignoreMovementPoint : false,
 			ignorePath : false,
 			customMovementPoint : 0,
@@ -1285,6 +1294,14 @@ var Creature = Class.create( {
 	pickupDrop : function() {
 		var crea = this;
 		this.hexagons.each(function() { this.pickupDrop(crea); } );
+	},
+
+	/**
+	 * Get movement type for this creature
+	 * @return {string} "normal", "hover", or "flying"
+	 */
+	movementType: function() {
+		return this._movementType;
 	}
 
 });

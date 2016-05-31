@@ -2,6 +2,9 @@
 # Concatenated game file
 deploy/scripts/ancientbeast.js
 
+# Game data files
+deploy/units/data.json
+
 # DS_STORE FILES
 .DS_Store
 

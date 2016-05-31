@@ -347,8 +347,11 @@ G.abilities[37] =[
 				"Slow Down", ability.creature, hex, "onStepIn",
 				{
 					requireFn: function() {
-						if(this.trap.hex.creature == 0) return false;
-						return (this.trap.hex.creature.type != "A1" && !this.trap.hex.creature.canFly);
+						if (this.trap.hex.creature === 0) return false;
+						return (
+							this.trap.hex.creature.type != "A1" &&
+							this.trap.hex.creature.movementType() === "normal"
+						);
 					},
 					effectFn: function(effect, crea) { crea.remainingMove--; },
 				}
