@@ -46,13 +46,6 @@ module.exports = function (grunt) {
 					flatten: true
 				}]
 			},
-            data: {
-                files: [{
-                    src: '../units/data.json',
-                    dest: 'deploy/units/',
-                    filter: 'isFile'
-                }]
-            }
         },
         open: {
             dev: {
@@ -61,6 +54,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('default', ['concat', 'server', 'copy:main', 'copy:data', 'open', 'watch']);
+    grunt.registerTask('default', ['concat', 'server', 'copy', 'open', 'watch']);
 
 };
