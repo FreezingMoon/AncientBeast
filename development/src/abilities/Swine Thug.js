@@ -348,15 +348,12 @@ G.abilities[37] =[
 				{
 					requireFn: function() {
 						if (this.trap.hex.creature === 0) return false;
-						return (
-							this.trap.hex.creature.type != "A1" &&
-							this.trap.hex.creature.movementType() === "normal"
-						);
+						return this.trap.hex.creature.type != "A1";
 					},
 					effectFn: function(effect, crea) { crea.remainingMove--; },
 				}
 			),
-		]
+		];
 
 
 		hex.createTrap("mud-bath", effects, ability.creature.player);

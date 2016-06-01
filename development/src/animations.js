@@ -42,6 +42,10 @@ var Animations = Class.create({
 				.to(nextPos.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
 				.start();
 
+				// Ignore traps for hover creatures, unless this is the last hex
+				var enterHexOpts = $j.extend({
+					ignoreTraps: crea.movementType() !== "normal" && hexId < path.length - 1
+				}, opts);
 				tween.onComplete.add(function() {
 					// Sound Effect
 					G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);
@@ -51,7 +55,7 @@ var Animations = Class.create({
 						if(opts.customMovementPoint === 0) crea.travelDist++;
 					}
 
-					G.animations.movements.enterHex(crea,hex,opts);
+					G.animations.movements.enterHex(crea, hex, enterHexOpts);
 
 
 					anim(); // Next tween
@@ -165,7 +169,7 @@ var Animations = Class.create({
 
 			if(!opts.ignoreMovementPoint){
 				// Trigger
-				G.triggersFn.onStepIn(crea,hex);
+				G.triggersFn.onStepIn(crea, hex, opts);
 			}
 
 			crea.pickupDrop();
