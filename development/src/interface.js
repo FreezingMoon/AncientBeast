@@ -192,6 +192,7 @@ var UI = Class.create( {
 						}
 					}else{
 						switch(k) {
+							case "close": G.UI.chat.hide(); break; // Close chat if opened
 							case "cycle": G.UI.abilitiesButtons[0].triggerClick(); break; // TODO: Make this cycle through usable abilities
 							case "attack": G.UI.abilitiesButtons[1].triggerClick(); break;
 							case "ability": G.UI.abilitiesButtons[2].triggerClick(); break;
