@@ -7,6 +7,15 @@ G.abilities[44] =[
 
 // 	First Ability: Feathered Body
 {
+	/**
+	 * Provides custom movement type given whether the ability is upgraded or not.
+	 * Creature is "hover" unless this ability is upgraded, then it's "flying"
+	 * @return {string} movement type, "hover" or "flying"
+	 */
+	movementType: function() {
+		return this.isUpgraded() ? "flying" : this.creature._movementType;
+	},
+
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "",
 
@@ -22,7 +31,7 @@ G.abilities[44] =[
 
 
 
-// 	Second Ability: Slicing Talon
+// 	Second Ability: Slicing Pounce
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -57,6 +66,15 @@ G.abilities[44] =[
 		var ability = this;
 		ability.end();
 
+		// If upgraded, hits will debuff target with -1 offense
+		if (this.isUpgraded()) {
+			var effect = new Effect("Slicing Pounce", ability.creature, target, "onDamage", {
+				alterations : { offense: -1 }
+			});
+			target.addEffect(effect);
+			G.log("%CreatureName" + target.id + "%'s offense is lowered by 1");
+		}
+
 		var damage = new Damage(
 			ability.creature, // Attacker
 			"target", // Attack Type
@@ -80,6 +98,7 @@ G.abilities[44] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
+		var ability = this;
 		var crea = this.creature;
 
 		var hexs = crea.getHexMap(inlinefrontnback2hex)
@@ -94,10 +113,10 @@ G.abilities[44] =[
 			return false;
 		}
 
-		//Filter 3h creatures
+		// Cannot escort large (size > 2) creatures unless ability is upgraded
 		hexs.filter(function() {
 			if( !this.creature ) return false;
-			return (this.creature.size < 3);
+			return this.creature.size < 3 || ability.isUpgraded();
 		});
 
 		if( !this.atLeastOneTarget( hexs, "both" ) ) {
@@ -224,7 +243,7 @@ G.abilities[44] =[
 
 
 
-// 	Fourth Ability: Venom Strike
+// 	Fourth Ability: Deadly Toxin
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -259,17 +278,35 @@ G.abilities[44] =[
 		var ability = this;
 		ability.end();
 
+		// Don't perform poison damage unless upgraded
+		var damages = $j.extend({}, ability.damages);
+		if (!this.isUpgraded()) {
+			delete damages.poison;
+		}
+
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
-			ability.damages, //Damage Type
+			damages, //Damage Type
 			1, //Area
 			[]	//Effects
 		);
 
 		target.takeDamage(damage);
 
-		ability.damages.poison -= ability.damages.poison == 10 ? 0 : 10;
+		// Add poison damage debuff
+		var effect = new Effect(this.title, this.creature, target, "onStartPhase", {
+			stackable: false,
+			effectFn: function(effect, creature) {
+				G.log("%CreatureName" + creature.id + "% takes poison damage from " + ability.title);
+				creature.takeDamage(new Damage(
+					effect.owner, "effect", {poison: ability.damages.poison}, 1, []
+				));
+			}
+		});
+		target.replaceEffect(effect);
+		G.log("%CreatureName" + target.id + "% has been poisoned by " + this.title);
+
 		G.UI.checkAbilities();
 	},
 }
