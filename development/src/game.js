@@ -861,8 +861,10 @@ var Game = Class.create( {
 
 	triggersFn : {
 
-		onStepIn : function( creature, hex, callback ) {
-			G.triggerTrap("onStepIn", arguments);
+		onStepIn: function(creature, hex, opts) {
+			if (!opts.ignoreTraps) {
+				G.triggerTrap("onStepIn", arguments);
+			}
 			G.triggerAbility("onStepIn", arguments);
 			G.triggerEffect("onStepIn", arguments);
 		},

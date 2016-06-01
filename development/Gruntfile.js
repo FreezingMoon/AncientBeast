@@ -45,8 +45,8 @@ module.exports = function (grunt) {
 					filter: 'isFile',
 					flatten: true
 				}]
-			}
-		},
+			},
+        },
         open: {
             dev: {
                 path: 'http://localhost:8080/index.html'

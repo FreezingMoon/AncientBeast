@@ -55,7 +55,10 @@ var Creature = Class.create( {
 		this.animation	= obj.animation;
 		this.display	= obj.display;
 		this.drop		= obj.drop;
-		this.canFly		= obj.canFly;
+		this._movementType = "normal";
+		if (obj.movementType) {
+			this._movementType = obj.movementType;
+		}
 
 		this.hexagons	= [];
 
@@ -374,7 +377,7 @@ var Creature = Class.create( {
 				args.creature.delayable = false;
 				G.UI.btnDelay.changeState("disabled");
 				args.creature.moveTo(hex, {
-					animation : args.creature.canFly ? "fly" : "walk",
+					animation : args.creature.movementType() === "flying" ? "fly" : "walk",
 					callback : function() { G.activeCreature.queryMove(); }
 				});
 			}
@@ -395,13 +398,19 @@ var Creature = Class.create( {
 		this.facePlayerDefault();
 		this.updateHealth();
 
-		if(this.canFly){
+		if (this.movementType() === "flying") {
 			o.range = G.grid.getFlyingRange(this.x, this.y, this.remainingMove, this.size, this.id);
 		}
 
-		var select = (o.noPath || this.canFly)
-		? function(hex,args){ args.creature.tracePosition( { x: hex.x, y: hex.y, overlayClass: "creature moveto selected player" + args.creature.team } ); }
-		: function(hex,args){ args.creature.tracePath(hex); };
+		var selectNormal = function(hex, args) { args.creature.tracePath(hex); };
+		var selectFlying = function(hex, args) {
+			args.creature.tracePosition({
+				x: hex.x,
+				y: hex.y,
+				overlayClass: "creature moveto selected player" + args.creature.team
+			});
+		};
+		var select = (o.noPath || this.movementType() === "flying") ? selectFlying : selectNormal;
 
 		if(this.noActionPossible){
 			G.grid.querySelf({
@@ -548,7 +557,7 @@ var Creature = Class.create( {
 		defaultOpt = {
 			callback : function() { return true; },
 			callbackStepIn : function() { return true; },
-			animation : this.canFly ? "fly" : "walk",
+			animation : this.movementType() === "flying" ? "fly" : "walk",
 			ignoreMovementPoint : false,
 			ignorePath : false,
 			customMovementPoint : 0,
@@ -947,6 +956,36 @@ var Creature = Class.create( {
 		}
 	},
 
+	/**
+	 * Add effect, but if the effect is already attached, replace it with the new
+	 * effect. This is useful in team games where the same effect is used twice on
+	 * the same creature, and the effect shouldn't stack; the new effect should
+	 * belong to the last player to add it.
+	 * Note that for stackable effects, this is the same as addEffect()
+	 *
+	 * @param {Effect} effect - the effect to add
+	 */
+	replaceEffect: function(effect) {
+		if (!effect.stackable && this.findEffect(effect.name).length !== 0) {
+			this.removeEffect(effect.name);
+		}
+		this.addEffect(effect);
+	},
+
+	/**
+	 * Remove an effect by name
+	 *
+	 * @param {string} name - name of effect
+	 */
+	removeEffect: function(name) {
+		for (var i = 0; i < this.effects.length; i++) {
+			if (this.effects[i].name === name) {
+				this.effects.splice(i, 1);
+				break;
+			}
+		}
+	},
+
 	hint: function(text,cssClass) {
 		var crea = this;
 
@@ -1285,6 +1324,21 @@ var Creature = Class.create( {
 	pickupDrop : function() {
 		var crea = this;
 		this.hexagons.each(function() { this.pickupDrop(crea); } );
+	},
+
+	/**
+	 * Get movement type for this creature
+	 * @return {string} "normal", "hover", or "flying"
+	 */
+	movementType: function() {
+		// If the creature has an ability that modifies movement type, use that,
+		// otherwise use the creature's base movement type
+		for (var i = 0; i < this.abilities.length; i++) {
+			if ('movementType' in this.abilities[i]) {
+				return this.abilities[i].movementType();
+			}
+		}
+		return this._movementType;
 	}
 
 });

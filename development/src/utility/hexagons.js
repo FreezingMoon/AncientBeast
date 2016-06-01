@@ -885,10 +885,15 @@ var HexGrid = Class.create( {
 
 	showMovementRange : function(id) {
 		var crea = G.creatures[id];
-		if( crea.canFly ) {
-			var hexs = this.getFlyingRange(crea.x, crea.y, crea.stats.movement, crea.size, crea.id);
-		}else{
-			var hexs = this.getMovementRange(crea.x, crea.y, crea.stats.movement, crea.size, crea.id);
+		var hexs;
+		if (crea.movementType() === "flying") {
+			hexs = this.getFlyingRange(
+				crea.x, crea.y, crea.stats.movement, crea.size, crea.id
+			);
+		} else {
+			hexs = this.getMovementRange(
+				crea.x, crea.y, crea.stats.movement, crea.size, crea.id
+			);
 		}
 
 		// Block all hexs
