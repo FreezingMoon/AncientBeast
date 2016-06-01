@@ -601,7 +601,7 @@ var UI = Class.create( {
 		}else{
 
 			// Card A
-			$j("#card .sideA").css( { "background-image":"url('../images/cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')" } );
+			$j("#card .sideA").css( { "background-image":"url('../cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')" } );
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
