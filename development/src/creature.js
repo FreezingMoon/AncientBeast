@@ -956,6 +956,36 @@ var Creature = Class.create( {
 		}
 	},
 
+	/**
+	 * Add effect, but if the effect is already attached, replace it with the new
+	 * effect. This is useful in team games where the same effect is used twice on
+	 * the same creature, and the effect shouldn't stack; the new effect should
+	 * belong to the last player to add it.
+	 * Note that for stackable effects, this is the same as addEffect()
+	 *
+	 * @param {Effect} effect - the effect to add
+	 */
+	replaceEffect: function(effect) {
+		if (!effect.stackable && this.findEffect(effect.name).length !== 0) {
+			this.removeEffect(effect.name);
+		}
+		this.addEffect(effect);
+	},
+
+	/**
+	 * Remove an effect by name
+	 *
+	 * @param {string} name - name of effect
+	 */
+	removeEffect: function(name) {
+		for (var i = 0; i < this.effects.length; i++) {
+			if (this.effects[i].name === name) {
+				this.effects.splice(i, 1);
+				break;
+			}
+		}
+	},
+
 	hint: function(text,cssClass) {
 		var crea = this;
 

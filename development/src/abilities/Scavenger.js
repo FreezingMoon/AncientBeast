@@ -296,6 +296,7 @@ G.abilities[44] =[
 
 		// Add poison damage debuff
 		var effect = new Effect(this.title, this.creature, target, "onStartPhase", {
+			stackable: false,
 			effectFn: function(effect, creature) {
 				G.log("%CreatureName" + creature.id + "% takes poison damage from " + ability.title);
 				creature.takeDamage(new Damage(
@@ -303,7 +304,7 @@ G.abilities[44] =[
 				));
 			}
 		});
-		target.addEffect(effect);
+		target.replaceEffect(effect);
 		G.log("%CreatureName" + target.id + "% has been poisoned by " + this.title);
 
 		G.UI.checkAbilities();
