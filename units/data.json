@@ -815,7 +815,8 @@
 			{
 				"title": "Frigid Tower",
 				"desc": "Constantly increases offense and defense for every turn not moving.",
-				"info": "+5 offense and defense per round",
+				"info": "+5 frost and defense every round.",
+				"upgrade": "+5 offense stat per turn.",
 				"effects": [{
 					"special": "(5%offense%, 5%defense%) each turn"
 				}],
@@ -824,7 +825,7 @@
 			{
 				"title": "Icy Talons",
 				"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
-				"info": "6 slash + 6 frost damage, -5 frost",
+				"info": "6 slash + 6 frost damage, -1 frost.",
 				"damages": {
 					"slash": 6,
 					"frost": 6
@@ -836,7 +837,7 @@
 			{
 				"title": "Sudden Uppercut",
 				"desc": "Sucker punches a near enemy using limb, making him delay the next turn.",
-				"info": "10 crush + 10 frost damage and delay",
+				"info": "10 crush + 10 frost damage and delay.",
 				"damages": {
 					"crush": 10,
 					"frost": 10
@@ -848,7 +849,8 @@
 			{
 				"title": "Icicle Spear",
 				"desc": "Launches an ice shard that can pierce up to 6 inline or diagonal distant units.",
-				"info": "10 pierce + 6 diminishing frost damage",
+				"info": "10 pierce + 6 diminishing frost per hit.",
+				"upgrade": "Can penetrate until blocked.",
 				"damages": {
 					"pierce": 10,
 					"frost": "6 diminishing"
@@ -894,12 +896,21 @@
 			{
 				"title": "Inner Vision",
 				"desc": "Lack of sight forces the creature to focus on all of its remaining senses.",
-				"info": "+5 initiative for each passing round"
+				"info": "+5 initiative for each passing round.",
+				"upgrade": "+20 offense bonus if first."
             },
 			{
 				"title": "Tongue Poke",
 				"desc": "Hits nearby foe, crushing it if melee or pierces it if it is one hexagon distant.",
-				"info": "20 pierce or crush damage on attack"
+				"info": "20 pierce or crush damage on attack",
+				"upgrade": "Strikes second foe if killing.",
+				"damages": {
+					"pierce": 20,
+					"crush": 10
+				},
+				"costs": {
+					"energy": 20
+				}
             },
 			{
 				"title": "Sonic Scream",
@@ -3318,7 +3329,7 @@
 				}
 		},
 			{
-				"title": "Chain Lightning",
+				"title": "Battering Ram",
 				"desc": "Releases a lightning bolt that will arch, shocking multiple adjacent creatures.",
 				"info": "20 shock damage inline that can arch.",
 				"upgrade": "Can arch 1 hexagon further.",
