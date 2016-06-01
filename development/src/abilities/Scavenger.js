@@ -5,11 +5,11 @@
 */
 G.abilities[44] =[
 
-// 	First Ability: Feathered Body
+// 	First Ability: Wing Feathers
 {
 	/**
 	 * Provides custom movement type given whether the ability is upgraded or not.
-	 * Creature is "hover" unless this ability is upgraded, then it's "flying"
+	 * Movement type is "hover" unless this ability is upgraded, then it's "flying"
 	 * @return {string} movement type, "hover" or "flying"
 	 */
 	movementType: function() {
@@ -155,31 +155,31 @@ G.abilities[44] =[
 		var distance = Math.floor(crea.remainingMove/trg.size);
 		var size = crea.size+trg.size;
 
-		var trgIsInfront = (G.grid.getHexMap(crea.x-inlinefront2hex.origin[0], crea.y-inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == trg);
+		var trgIsInfront = (G.grid.getHexMap(crea.x - inlinefront2hex.origin[0], crea.y - inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == trg);
 
-		var select = function(hex,args){
+		var select = function(hex,args) {
 			for (var i = 0; i < size; i++) {
-				if( !G.grid.hexExists(hex.y,hex.x-i) ) continue;
-				var h = G.grid.hexs[hex.y][hex.x-i];
-				if(trgIsInfront){
+				if( !G.grid.hexExists(hex.y, hex.x - i) ) continue;
+				var h = G.grid.hexs[hex.y][hex.x - i];
+				if(trgIsInfront) {
 					var color = i<trg.size ? trg.team : crea.team;
 				}else{
-					var color = i>1 ? trg.team : crea.team;
+					var color = i > 1 ? trg.team : crea.team;
 				}
-				h.overlayVisualState("creature moveto selected player"+color);
+				h.overlayVisualState("creature moveto selected player" + color);
 			};
 		}
 
-		var x = ( trgIsInfront ? crea.x+trg.size : crea.x );
+		var x = ( trgIsInfront ? crea.x + trg.size : crea.x );
 
 		G.grid.queryHexs({
-			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); }, // fnOnConfirm
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
 			fnOnSelect : select, // fnOnSelect,
 			team : 3, // Both
-			id : [crea.id,trg.id],
+			id : [crea.id, trg.id],
 			size : size,
 			flipped : crea.player.flipped,
-			hexs : G.grid.getFlyingRange(x,crea.y,distance,size,[crea.id,trg.id]).filter(function() {
+			hexs : G.grid.getFlyingRange(x,crea.y, distance, size, [crea.id, trg.id]).filter(function() {
 				return crea.y == this.y &&
 					( trgIsInfront ?
 						 this.x < x :
@@ -203,7 +203,7 @@ G.abilities[44] =[
 
 		var trgIF = args.trgIsInfront;
 
-		var crea_dest 	= G.grid.hexs[hex.y][ trgIF ? hex.x-trg.size : hex.x ];
+		var crea_dest 	= G.grid.hexs[hex.y][ trgIF ? hex.x - trg.size : hex.x ];
 		var trg_dest 	= G.grid.hexs[hex.y][ trgIF ? hex.x : hex.x-crea.size ];
 
 		// Determine distance
@@ -218,9 +218,9 @@ G.abilities[44] =[
 		// Substract from movement points
 		crea.remainingMove -= distance * trg.size;
 
-		crea.moveTo(crea_dest,{
+		crea.moveTo(crea_dest, {
 			animation : "fly",
-			callback : function(){
+			callback : function() {
 				trg.updateHex();
 				G.grid.updateDisplay();
 			},
@@ -229,7 +229,7 @@ G.abilities[44] =[
 
 		trg.moveTo(trg_dest,{
 			animation : "fly",
-			callback : function(){
+			callback : function() {
 				ability.creature.updateHex();
 				G.grid.updateDisplay();
 				ability.creature.queryMove();
@@ -245,14 +245,14 @@ G.abilities[44] =[
 
 // 	Fourth Ability: Deadly Toxin
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function(){
+	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"enemy" ) ){
+		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"enemy" ) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -260,12 +260,12 @@ G.abilities[44] =[
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 		var ability = this;
 
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = ennemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+			team : 0, // Team, 0 = enemies
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			hexs : this.creature.getHexMap(frontnback2hex),
@@ -298,14 +298,14 @@ G.abilities[44] =[
 		var effect = new Effect(this.title, this.creature, target, "onStartPhase", {
 			stackable: false,
 			effectFn: function(effect, creature) {
-				G.log("%CreatureName" + creature.id + "% takes poison damage from " + ability.title);
+				G.log("%CreatureName" + creature.id + "% is affected by " + ability.title);
 				creature.takeDamage(new Damage(
 					effect.owner, "effect", {poison: ability.damages.poison}, 1, []
 				));
 			}
 		});
 		target.replaceEffect(effect);
-		G.log("%CreatureName" + target.id + "% has been poisoned by " + this.title);
+		G.log("%CreatureName" + target.id + "% is poisoned by " + this.title);
 
 		G.UI.checkAbilities();
 	},
