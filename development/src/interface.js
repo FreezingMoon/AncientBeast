@@ -238,7 +238,7 @@ var UI = Class.create( {
 		});
 
 		// Mouse Shortcut
-		$j("#dash").bind('mouseup', function(e) {
+		$j("#dash").bind('mousedown', function(e) {
 			if(G.freezedInput) return;
 
 			switch (e.which) {
@@ -1295,7 +1295,7 @@ var UI = Class.create( {
 			G.grid.showGrid(false);
 		});
 
-		this.$queue.find('.vignette').not(".roundmarker").unbind("click").unbind("mouseover").unbind("mouseleave").bind("mouseover", function() {
+		this.$queue.find('.vignette').not(".roundmarker").unbind("mousedown").unbind("mouseover").unbind("mouseleave").bind("mouseover", function() {
 			if(G.freezedInput) return;
 			var creaID = $j(this).attr("creatureid")-0;
 			G.grid.showMovementRange(creaID);
@@ -1315,7 +1315,7 @@ var UI = Class.create( {
 				}
 			});
 			G.UI.xrayQueue(-1);
-		}).bind("click",function() { // Show dash on click
+		}).bind("mousedown",function() { // Show dash on click
 			if(G.freezedInput) return;
 			var creaID = $j(this).attr("creatureid")-0;
 			G.UI.showCreature(G.creatures[creaID].type,G.creatures[creaID].player.id);
