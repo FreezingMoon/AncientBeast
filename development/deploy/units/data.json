@@ -279,9 +279,9 @@
 		"ability_info": [
 			{
 				"title": "Toxic Spores",
-				"desc": "Units that come into contact have their regrowth constantly reduced bit by bit.",
+				"desc": "Foes that come into contact have their regrowth constantly reduced bit by bit.",
 				"info": "-1 regrowth stat debuff that can stack.",
-				"upgrade": "Stacks will poison every turn.",
+				"upgrade": "Triggers at every turn start.",
 				"effects": [{
 					"regrowth": -5
 				}]
@@ -671,7 +671,7 @@
 				"title": "Burning Heart",
 				"desc": "Hits reduce the target's burn mastery.",
 				"info": "-1 burn mastery each successful strike.",
-				"upgrade": "+1 burn mastery to self on hit."
+				"upgrade": "1 burn mastery to self on hit."
 		},
 			{
 				"title": "Fiery Touch",
@@ -815,7 +815,8 @@
 			{
 				"title": "Frigid Tower",
 				"desc": "Constantly increases offense and defense for every turn not moving.",
-				"info": "+5 offense and defense per round",
+				"info": "+5 frost and defense every round.",
+				"upgrade": "+5 offense stat per turn.",
 				"effects": [{
 					"special": "(5%offense%, 5%defense%) each turn"
 				}],
@@ -824,7 +825,7 @@
 			{
 				"title": "Icy Talons",
 				"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
-				"info": "6 slash + 6 frost damage, -5 frost",
+				"info": "6 slash + 6 frost damage, -1 frost.",
 				"damages": {
 					"slash": 6,
 					"frost": 6
@@ -836,7 +837,7 @@
 			{
 				"title": "Sudden Uppercut",
 				"desc": "Sucker punches a near enemy using limb, making him delay the next turn.",
-				"info": "10 crush + 10 frost damage and delay",
+				"info": "10 crush + 10 frost damage and delay.",
 				"damages": {
 					"crush": 10,
 					"frost": 10
@@ -848,7 +849,8 @@
 			{
 				"title": "Icicle Spear",
 				"desc": "Launches an ice shard that can pierce up to 6 inline or diagonal distant units.",
-				"info": "10 pierce + 6 diminishing frost damage",
+				"info": "10 pierce + 6 diminishing frost per hit.",
+				"upgrade": "Can penetrate until blocked.",
 				"damages": {
 					"pierce": 10,
 					"frost": "6 diminishing"
@@ -894,12 +896,21 @@
 			{
 				"title": "Inner Vision",
 				"desc": "Lack of sight forces the creature to focus on all of its remaining senses.",
-				"info": "+5 initiative for each passing round"
+				"info": "+5 initiative for each passing round.",
+				"upgrade": "+20 offense bonus if first."
             },
 			{
 				"title": "Tongue Poke",
 				"desc": "Hits nearby foe, crushing it if melee or pierces it if it is one hexagon distant.",
-				"info": "20 pierce or crush damage on attack"
+				"info": "20 pierce or crush damage on attack",
+				"upgrade": "Strikes second foe if killing.",
+				"damages": {
+					"pierce": 20,
+					"crush": 10
+				},
+				"costs": {
+					"energy": 20
+				}
             },
 			{
 				"title": "Sonic Scream",
@@ -2112,7 +2123,7 @@
 			"meditation": 10,
 			"initiative": 40,
 			"offense": 10,
-			"defense": 25,
+			"defense": 20,
 			"movement": 4,
 			"pierce": 10,
 			"slash": 10,
@@ -2136,7 +2147,7 @@
 			{
 				"title": "Ruby Sceptre",
 				"desc": "Pokes nearby foe using the neat staff. This attack has 1 hex extended reach.",
-				"info": "15 crush + 5 pure damage per attack",
+				"info": "15 crush + 5 pure damage per attack.",
 				"damages": {
 					"crush": 15
 				},
@@ -2147,7 +2158,7 @@
 			{
 				"title": "Winged Sphere",
 				"desc": "Heals an ally or damages an enemy that is at the target location after one round.",
-				"info": "20 heal for ally or burn damage to a foe",
+				"info": "20 heal for ally or burn damage to a foe.",
 				"damages": {
 					"burn": 20
 				},
@@ -2293,7 +2304,7 @@
 		"ability_info": [
 			{
 				"title": "Bad Doggie",
-				"desc": "Bites any adjacent frontal foe that is unfortunate to be there at turn start.",
+				"desc": "Bites an adjacent inline enemy that's unfortunate to be there at turn start.",
 				"info": "12 pierce damage + 10 crush damage.",
 				"upgrade": "Also bites before turn ends.",
 				"affectedByMatSickness": 1,
@@ -2306,11 +2317,11 @@
 			{
 				"title": "Metal Hand",
 				"desc": "Harms nearby foe by using one of the two fearsome prosthetic heavy limbs.",
-				"info": "15 crush + 5 shock damage per attack.",
-				"upgrade": "Extra hit if above 30 energy.",
+				"info": "12 crush + 8 shock damage per attack.",
+				"upgrade": "Steals up to 8 energy points.",
 				"damages": {
-					"crush": 10,
-					"shock": 5
+					"crush": 12,
+					"shock": 8
 				},
 				"costs": {
 					"energy": 20
@@ -2330,7 +2341,7 @@
 				}
 		},
 			{
-				"title": "Targeting System",
+				"title": "Target Locking",
 				"desc": "Two of the rockets that didn't hit this round are redirected to a new target.",
 				"info": "This attack counts as a single strike.",
 				"upgrade": "All rockets are being used.",
@@ -2540,8 +2551,8 @@
 			"energy": 70,
 			"meditation": 3,
 			"initiative": 70,
-			"offense": 15,
-			"defense": 30,
+			"offense": 14,
+			"defense": 24,
 			"movement": 3,
 			"pierce": 9,
 			"slash": 9,
@@ -2550,7 +2561,7 @@
 			"burn": 5,
 			"frost": 5,
 			"poison": 2,
-			"sonic": 0,
+			"sonic": 1,
 			"mental": 7
 		},
 		"animation": {
@@ -2560,22 +2571,26 @@
 			{
 				"title": "Bronze Armor",
 				"desc": "All incoming pierce, slash and crush types of damage are greatly reduced.",
-				"info": "+25% physical resistance to damage"
+				"info": "+15% physical resistance to damage.",
+				"upgrade": "Double physical resistance."
             },
 			{
 				"title": "Brass Mace",
 				"desc": "Does versatile damage to nearby foe.",
-				"info": "10 pierce + 10 crush + 5 slash damage"
-            },
-			{
-				"title": "Shield Smite",
-				"desc": "Pokes a nearby unit with the shield, damaging and also knocking it back.",
-				"info": "25 crush damage + 1 hexagon push"
+				"info": "11 pierce + 10 crush + 9 slash damage.",
+				"upgrade": "+3 damage for each source."
             },
 			{
 				"title": "Lion Thrust",
-				"desc": "Runs fast towards an inline foe up to 10 hexagons while gaining offense bonus.",
-				"info": "+20% extra offense per hexagon ran by"
+				"desc": "Runs very fast towards an inline foe for up to 5 hexagons, greatly terrorizing it.",
+				"info": "20 mental damage when reaching foe.",
+				"upgrade": "20% extra offense / hexagon."
+            },
+			{
+				"title": "Defensive Stance",
+				"desc": "Will be extra vigilant, better protecting himself from attacks until the next turn.",
+				"info": "Reduces 9 damage from incoming hits.",
+				"upgrade": "Will stop penetrating attacks."
             }
         ]
     },
@@ -2619,17 +2634,17 @@
 			{
 				"title": "Gnarled Staff",
 				"desc": "Pokes nearby foe using wooden staff.",
-				"info": "15 crush damage, -5 crush stat debuff"
+				"info": "15 crush damage, -5 crush stat debuff."
             },
 			{
 				"title": "Rock Shard",
 				"desc": "Causes an obstable to erupt at an empty location within 6 hexagons.",
-				"info": "It can be destroyed with only 2 hits"
+				"info": "It can be destroyed with only 2 hits."
             },
 			{
 				"title": "Furious Twister",
 				"desc": "Summons tornado that travels inline every round, bashing first creature.",
-				"info": "20 crush damage, 4 hexagons push"
+				"info": "20 crush damage, 4 hexagons push."
             }
         ]
     },
@@ -3289,9 +3304,9 @@
 		"ability_info": [
 			{
 				"title": "Cyclic Duality",
-				"desc": "Allows the use of an attack two times.",
-				"info": "The extra usage still requires energy.",
-				"upgrade": "1/2 energy needed 2nd time."
+				"desc": "Can delay the remaining of the turn even after using all movement points.",
+				"info": "This won't work if an ability was used.",
+				"upgrade": "Can delay after abilities too."
 		},
 			{
 				"title": "Tooth Fairy",
@@ -3318,7 +3333,7 @@
 				}
 		},
 			{
-				"title": "Chain Lightning",
+				"title": "Battering Ram",
 				"desc": "Releases a lightning bolt that will arch, shocking multiple adjacent creatures.",
 				"info": "20 shock damage inline that can arch.",
 				"upgrade": "Can arch 1 hexagon further.",
