@@ -5,7 +5,7 @@
 */
 G.abilities[12] = [
 
-// 	First Ability: Bunny Hopping
+// 	First Ability: Bunny Hop
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onOtherCreatureMove",
@@ -213,7 +213,7 @@ G.abilities[12] = [
 				break;
 		}
 
-		dir = dir.slice(0, dist+1);
+		dir = dir.slice(0, dist + 1);
 
 		var hex = target.hexagons[0];
 		for (var j = 0; j < dir.length; j++) {
