@@ -913,7 +913,7 @@
 				}
             },
 			{
-				"title": "Sonic Scream",
+				"title": "Subliminal Shout",
 				"desc": "Shock waves that affect a large area but do less damage the further away.",
 				"info": "10 sonic damage over 15 hexagons"
             },
@@ -1044,7 +1044,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Bunny Hopping",
+				"title": "Bunny Hop",
 				"desc": "Moves away one hexagon from first enemy that comes nearby frontaly.",
 				"info": "Works only once every game round.",
 				"upgrade": "Can leap twice each round.",
@@ -2819,7 +2819,7 @@
 			"regrowth": 4,
 			"endurance": 30,
 			"energy": 90,
-			"meditation": 30,
+			"meditation": 26,
 			"initiative": 30,
 			"offense": 10,
 			"defense": 6,
@@ -3044,14 +3044,14 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 240,
-			"regrowth": 5,
-			"endurance": 100,
+			"regrowth": 4,
+			"endurance": 85,
 			"energy": 80,
-			"meditation": 10,
+			"meditation": 20,
 			"initiative": 80,
 			"offense": 23,
 			"defense": 23,
-			"movement": 2,
+			"movement": 1,
 			"pierce": 15,
 			"slash": 15,
 			"crush": 15,
@@ -3067,25 +3067,32 @@
 		},
 		"ability_info": [
 			{
-				"title": "Bat Country",
-				"desc": "First attacker receives some damage. This ability triggers once every round.",
-				"info": "5 pierce + 5 sonic + 5 mental damage.",
-				"upgrade": "Triggers on different units."
+				"title": "Arm Shield",
+				"desc": "Reduces a fixed number of damage points from incoming basic attacks.",
+				"info": "10 damage points attack reduction.",
+				"upgrade": "Reduces from all abilities."
 		},
 			{
 				"title": "Mega Slicer",
 				"desc": "Slashes nearby foe using the claws. Target loses 3 defense permanently.",
 				"info": "30 slash damage & defense debuff.",
 				"upgrade": "The debuff can now stack.",
+				"damages": {
+					"slash": 30
+				},
 				"costs": {
 						"energy": 20
 				}
 		},
 			{
-				"title": "Subliminal Shout",
-				"desc": "Damages a 10 hexagons conic area. Inflicts rather rare types of damage.",
-				"info": "13 sonic plus 13 mental area damage.",
-				"upgrade": "-10 initiative debuff to foes.",
+				"title": "Screaming Bat",
+				"desc": "Flying fiend attack that will damage every single hexagon of current row. This hits each hexagon individually.",
+				"info": "10 sonic plus 9 mental to whole row.",
+				"upgrade": "Can also target side lanes.",
+				"damages": {
+					"sonic": 10,
+					"mental": 9
+				},
 				"costs": {
 						"energy": 40
 				}
@@ -3095,6 +3102,10 @@
 				"desc": "Catapults itself to strike any enemy that has 3 inline hexagons available.",
 				"info": "18 pierce + 18 crush damage on hit.",
 				"upgrade": "+18 slash damage added.",
+				"damages": {
+					"pierce": 18,
+					"crush": 18
+				},
 				"costs": {
 					"energy": 60
 				}
