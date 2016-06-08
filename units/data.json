@@ -3086,7 +3086,7 @@
 		},
 			{
 				"title": "Screaming Bat",
-				"desc": "Flying fiend attack that will damage every single hexagon of current row. This hits each hexagon individually.",
+				"desc": "Flying fiend attack that will damage every single hexagon of current row.",
 				"info": "10 sonic plus 9 mental to whole row.",
 				"upgrade": "Can also target side lanes.",
 				"damages": {
