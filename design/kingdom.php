@@ -205,8 +205,74 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 <br>
 <link rel="stylesheet" href="card.css">
 
-<div class="center" style="display:inline-block; vertical-align: top;">
-	<div id="artwork" class="card sideA" style="background-image: url('<?php echo $site_root; ?>images/cards/margin.png'), url('<?php echo $site_root; ?>images/skills.jpg');"></div>
+<div class="center" style="display: inline-block; vertical-align: top;">
+
+	<div class="card sideB" style="background-image: url('<?php echo $site_root; ?>images/cards/margin.png'), url('<?php echo $site_root; ?>images/cards/A.jpg');">
+		<div class="section abilities">
+			<div class="ability">
+				<div id="first_icon" class="icon" style="background-image: url(skills/winged-sword.svg);">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="first_title">Tactics</h3>
+						<span class="desc" id="desc">
+							Combat related skills<br>
+							Can be used by all realms
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="second_icon" class="icon" style="background-image: url(skills/brutal-helm.svg);">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="second_title">Psyhelm Overclock</h3>
+						<span class="desc" id="desc">
+							Control more units at the same time<br>
+							Level 1: Up to 5 units<br>
+							Level 2: Up to 6 units<br>
+							Level 3: Up to 7 units
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="third_icon" class="icon" style="background-image: url(skills/mesh-ball.svg);">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="third_title">Increased Plasma</h3>
+						<span class="desc" id="desc">
+							Extra plasma points per combat<br>
+							Level 1: 2 extra points<br>
+							Level 2: 4 extra points<br>
+							Level 3: 6 extra points
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="ability">
+				<div id="fourth_icon" class="icon" style="background-image: url(skills/clockwork.svg);">
+					<div class="contour"></div>
+				</div>
+				<div class="wrapper">
+					<div class="info">
+						<h3 id="fourth_title">Careful Planning</h3>
+						<span class="desc" id="desc">
+							You have bonus time each turn<br>
+							Level 1: 15% faster building<br>
+							Level 2: 20% faster building<br>
+							Level 3: 25% faster building	
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<div class="card sideB" style="background-image: url('<?php echo $site_root; ?>images/cards/margin.png'), url('<?php echo $site_root; ?>images/cards/A.jpg');">
 		<div class="section abilities">
@@ -218,7 +284,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Constructions</h3>
 						<span class="desc" id="desc">
-							Management related skill<br>
+							Management related skills<br>
 							Can be used by all realms
 						</span>
 					</div>
@@ -285,7 +351,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Economics</h3>
 						<span class="desc" id="desc">
-							Management related skill<br>
+							Management related skills<br>
 							Can be unlocked by Avarice
 						</span>
 					</div>
@@ -345,14 +411,14 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 	<div class="card sideB" style="background-image: url('<?php echo $site_root; ?>images/cards/margin.png'), url('<?php echo $site_root; ?>images/cards/A.jpg');">
 		<div class="section abilities">
 			<div class="ability">
-				<div id="first_icon" class="icon" style="background-image: url(skills/winged-sword.svg);">
+				<div id="first_icon" class="icon" style="background-image: url(skills/mortar.svg);">
 					<div class="contour"></div>
 				</div>
 				<div class="wrapper">
 					<div class="info">
 						<h3 id="first_title">Arsenal</h3>
 						<span class="desc" id="desc">
-							Siege related skill<br>
+							Siege related skills<br>
 							Can be unlocked by Avarice
 						</span>
 					</div>
@@ -422,7 +488,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Espionage</h3>
 						<span class="desc" id="desc">
-							Siege related skill<br>
+							Siege related skills<br>
 							Can be unlocked by Envy
 						</span>
 					</div>
@@ -489,7 +555,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Training</h3>
 						<span class="desc" id="desc">
-							Combat related skill<br>
+							Combat related skills<br>
 							Can be unlocked by Envy
 						</span>
 					</div>
@@ -556,7 +622,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Nutrition</h3>
 						<span class="desc" id="desc">
-							Combat related skill<br>
+							Combat related skills<br>
 							Can be unlocked by Gluttony
 						</span>
 					</div>
@@ -623,7 +689,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Medicine</h3>
 						<span class="desc" id="desc">
-							Combat related skill<br>
+							Combat related skills<br>
 							Can be unlocked by Gluttony
 						</span>
 					</div>
@@ -690,7 +756,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Nature</h3>
 						<span class="desc" id="desc">
-							Siege related skill<br>
+							Siege related skills<br>
 							Can be unlocked by Lust
 						</span>
 					</div>
@@ -757,7 +823,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Conquest</h3>
 						<span class="desc" id="desc">
-							Siege related skill<br>
+							Siege related skills<br>
 							Can be unlocked by Lust
 						</span>
 					</div>
@@ -817,14 +883,14 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 	<div class="card sideB" style="background-image: url('<?php echo $site_root; ?>images/cards/margin.png'), url('<?php echo $site_root; ?>images/cards/P.jpg');">
 		<div class="section abilities">
 			<div class="ability">
-				<div id="first_icon" class="icon" style="background-image: url(skills/minions.svg);">
+				<div id="first_icon" class="icon" style="background-image: url(skills/public-speaker.svg);">
 					<div class="contour"></div>
 				</div>
 				<div class="wrapper">
 					<div class="info">
 						<h3 id="first_title">Leadership</h3>
 						<span class="desc" id="desc">
-							Management related skill<br>
+							Management related skills<br>
 							Can be unlocked by Pride
 						</span>
 					</div>
@@ -891,7 +957,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Proficiency</h3>
 						<span class="desc" id="desc">
-							Combat related skill<br>
+							Combat related skills<br>
 							Can be unlocked by Pride
 						</span>
 					</div>
@@ -961,7 +1027,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Shields</h3>
 						<span class="desc" id="desc">
-							Combat related skill<br>
+							Combat related skills<br>
 							Can be unlocked by Sloth
 						</span>
 					</div>
@@ -1028,7 +1094,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Score</h3>
 						<span class="desc" id="desc">
-							Combat related skill<br>
+							Combat related skills<br>
 							Can be unlocked by Sloth
 						</span>
 					</div>
@@ -1095,7 +1161,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Wards</h3>
 						<span class="desc" id="desc">
-							Combat related skill<br>
+							Combat related skills<br>
 							Can be unlocked by Wrath
 						</span>
 					</div>
@@ -1162,7 +1228,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 					<div class="info">
 						<h3 id="first_title">Genetics</h3>
 						<span class="desc" id="desc">
-							Combat related skill<br>
+							Combat related skills<br>
 							Can be unlocked by Wrath
 						</span>
 					</div>
