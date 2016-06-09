@@ -230,7 +230,7 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 
 	<!-- Right Side -->
 	<div class="center" style="display: inline-block; vertical-align: top;">
-		<div id="artwork" class="card sideA" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/skills.jpg);">
+		<div id="artwork" class="card sideA" style="background-image: url(<?php echo $site_root; ?>images/cards/margin.png), url(<?php echo $site_root; ?>images/teamwork.jpg);">
 			<!-- Card Anchor -->
 			<a href="contribute" title="Check out the contribution page"><div style="height: 100%;"></div></a>
 	
