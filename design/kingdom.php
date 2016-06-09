@@ -248,9 +248,9 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 						<h3 id="third_title">Increased Plasma</h3>
 						<span class="desc" id="desc">
 							Extra plasma points per combat<br>
-							Level 1: 2 extra points<br>
-							Level 2: 4 extra points<br>
-							Level 3: 6 extra points
+							Level 1: 3 extra points<br>
+							Level 2: 6 extra points<br>
+							Level 3: 9 extra points
 						</span>
 					</div>
 				</div>
@@ -264,9 +264,9 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 						<h3 id="fourth_title">Careful Planning</h3>
 						<span class="desc" id="desc">
 							You have bonus time each turn<br>
-							Level 1: 15% faster building<br>
-							Level 2: 20% faster building<br>
-							Level 3: 25% faster building	
+							Level 1: Up to 35 seconds<br>
+							Level 2: Up to 40 seconds<br>
+							Level 3: Up to 45 seconds
 						</span>
 					</div>
 				</div>
