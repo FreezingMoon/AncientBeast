@@ -215,7 +215,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 				</div>
 				<div class="wrapper">
 					<div class="info">
-						<h3 id="first_title">Tactics</h3>
+						<h3 id="first_title">Warfare</h3>
 						<span class="desc" id="desc">
 							Combat related skills<br>
 							Can be used by all realms
@@ -374,7 +374,7 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 				</div>
 			</div>
 			<div class="ability">
-				<div id="third_icon" class="icon" style="background-image: url(skills/crystal-bars.svg);">
+				<div id="third_icon" class="icon" style="background-image: url(skills/minerals.svg);">
 					<div class="contour"></div>
 				</div>
 				<div class="wrapper">
@@ -749,12 +749,12 @@ Your summoner gains experience and can level up, learning skills/perks, some of 
 	<div class="card sideB" style="background-image: url('<?php echo $site_root; ?>images/cards/margin.png'), url('<?php echo $site_root; ?>images/cards/L.jpg');">
 		<div class="section abilities">
 			<div class="ability">
-				<div id="first_icon" class="icon" style="background-image: url(skills/forest.svg);">
+				<div id="first_icon" class="icon" style="background-image: url(skills/lightning-storm.svg);">
 					<div class="contour"></div>
 				</div>
 				<div class="wrapper">
 					<div class="info">
-						<h3 id="first_title">Nature</h3>
+						<h3 id="first_title">Calamity</h3>
 						<span class="desc" id="desc">
 							Siege related skills<br>
 							Can be unlocked by Lust
