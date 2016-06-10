@@ -3059,8 +3059,8 @@
 			"burn": 10,
 			"frost": 5,
 			"poison": 5,
-			"sonic": 12,
-			"mental": 12
+			"sonic": 20,
+			"mental": 20
 		},
 		"animation": {
 			"walk_speed": 500
@@ -3086,9 +3086,9 @@
 		},
 			{
 				"title": "Screaming Bat",
-				"desc": "Flying fiend attack that will damage every single hexagon of current row.",
+				"desc": "Flying fiend attack that will damage every hexagon from the chosen row.",
 				"info": "10 sonic plus 9 mental to whole row.",
-				"upgrade": "Can also target side lanes.",
+				"upgrade": "Will not cause self damage.",
 				"damages": {
 					"sonic": 10,
 					"mental": 9
