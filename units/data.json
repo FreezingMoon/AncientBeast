@@ -176,7 +176,7 @@
 		"type": "G6",
 		"set": "Alpha",
 		"stats": {
-			"health": 230,
+			"health": 225,
 			"regrowth": 10,
 			"endurance": 40,
 			"energy": 120,
@@ -332,10 +332,10 @@
 	{
 		"id": 4,
 		"name": "Magma Spawn",
-		"level": 2,
+		"level": 3,
 		"realm": "L",
 		"size": 3,
-		"type": "L2",
+		"type": "L3",
 		"set": "Alpha",
 		"stats": {
 			"health": 125,
@@ -346,7 +346,7 @@
 			"initiative": 46,
 			"offense": 7,
 			"defense": 12,
-			"movement": 3,
+			"movement": 2,
 			"pierce": 9,
 			"slash": 9,
 			"crush": 9,
@@ -724,7 +724,7 @@
 		"type": "W5",
 		"set": "Alpha",
 		"stats": {
-			"health": 215,
+			"health": 205,
 			"regrowth": 11,
 			"endurance": 100,
 			"energy": 80,
@@ -1329,7 +1329,7 @@
 			"initiative": 35,
 			"offense": 7,
 			"defense": 11,
-			"movement": 4,
+			"movement": 2,
 			"pierce": 8,
 			"slash": 8,
 			"crush": 8,
@@ -1345,24 +1345,37 @@
 		},
 		"ability_info": [
 			{
-				"title": "Judgement Day",
+				"title": "Ragnarok Day",
 				"desc": "Before dying, bombarding the whole battlefield after one complete round.",
-				"info": "5 crush + 15 burn damage to all units"
+				"info": "5 crush + 15 burn damage to all units.",
+				"upgrade": "Does double damage now."
             },
 			{
-				"title": "Lava Lamp",
-				"desc": "Stares and splashes a nearby foe unit. Reduces the target's burn stat by one.",
-				"info": "20 burn damage & -1 burn stat debuff"
+				"title": "Frying Stare",
+				"desc": "Stares and splashes a nearby foe unit. Reduces the target's burn stat by two.",
+				"info": "20 burn damage & -2 burn stat debuff.",
+				"upgrade": "-10 burn stat to inline enemy.",
+				"costs": {
+					"energy": 20
+				}
             },
 			{
 				"title": "Volcanic Artillery",
 				"desc": "A hot rock will hit target spot at the end of round, damaging a foe or the ground.",
-				"info": "20 crush + 20 burn damage or a fissure"
+				"info": "20 crush + 20 burn damage or a fissure.",
+				"upgrade": "Ability becomes usable twice.",
+				"costs": {
+					"energy": 20
+				}
             },
 			{
-				"title": "Fissure Vent",
-				"desc": "Stomps one hexagon underneath, causing lava to erupt every round.",
-				"info": "20 burn damage to all units above"
+				"title": "Violent Fissures",
+				"desc": "Stomps the ground creating a fissure at target location, erupting existing ones.",
+				"info": "20 burn damage to all units on fissures.",
+				"upgrade": "Will cause two fissures under.",
+				"costs": {
+					"energy": 20
+				}
             }
         ]
     },
@@ -1375,7 +1388,7 @@
 		"type": "E6",
 		"set": "Alpha",
 		"stats": {
-			"health": 230,
+			"health": 211,
 			"regrowth": 2,
 			"endurance": 80,
 			"energy": 70,
@@ -1442,7 +1455,7 @@
 		"type": "W7",
 		"set": "Alpha",
 		"stats": {
-			"health": 215,
+			"health": 217,
 			"regrowth": 1,
 			"endurance": 70,
 			"energy": 50,
@@ -1675,7 +1688,7 @@
 			"regrowth": 1,
 			"endurance": 15,
 			"energy": 60,
-			"meditation": 3,
+			"meditation": 30,
 			"initiative": 10,
 			"offense": 3,
 			"defense": 5,
@@ -1703,7 +1716,7 @@
 			{
 				"title": "Heat Haze",
 				"desc": "Nearby foes have their offense stat reduced, dealing way less damage.",
-				"info": "-50% offensive debuff while adjacent.",
+				"info": "-25% offensive debuff while adjacent.",
 				"upgrade": "Hits on them do 3 extra burn."
             },
 			{
@@ -1749,17 +1762,17 @@
 	{
 		"id": 23,
 		"name": "Metal Face",
-		"level": 4,
+		"level": 2,
 		"realm": "L",
 		"size": 2,
-		"type": "L4",
+		"type": "L2",
 		"set": "Alpha",
 		"stats": {
-			"health": 128,
+			"health": 115,
 			"regrowth": 3,
-			"endurance": 40,
-			"energy": 80,
-			"meditation": 4,
+			"endurance": 65,
+			"energy": 60,
+			"meditation": 30,
 			"initiative": 40,
 			"offense": 5,
 			"defense": 5,
@@ -1779,24 +1792,37 @@
 		},
 		"ability_info": [
 			{
-				"title": "Fierce Temper",
-				"desc": "Showers lava drops at the beginning of each turn, damaging all adjacent units.",
-				"info": "10 burn damage over 8 hexagons area."
+				"title": "Protective Vest",
+				"desc": "Removes all negative effects received from other units at beginning of turn.",
+				"info": "Constantly purges any debuff effects.",
+				"upgrade": "Becomes immune to debuffs."
             },
 			{
-				"title": "Forked Fingers",
-				"desc": "Pierces foe using its harpoon fingers.",
-				"info": "20 pierce damage per each hit done"
+				"title": "Spiked Cudgel",
+				"desc": "Transform hand into a deadly weapon, hitting a nearby foe, works all around.",
+				"info": "18 pierce + 7 crush damage per strike.",
+				"upgrade": "25% regrowth debuff, 1 turn.",
+				"costs": {
+					"energy": 20
+				}
             },
 			{
-				"title": "Shotgun Rampage",
-				"desc": "Blows a handful of shrapnel in a large conic area, damaging all units within.",
-				"info": "15 pierce damage over 15 hexagons"
+				"title": "Penetrating Drill",
+				"desc": "Punctures nearby enemy to damage it some more or to harm foes beyond it.",
+				"info": "10 pierce damage done to 3 hexagons.",
+				"upgrade": "Ignores 75% of defense stat.",
+				"costs": {
+					"energy": 25
+				}
             },
 			{
-				"title": "Birthing Caldera",
-				"desc": "If under 50 health, can reconfigure itself as the Lava Mollusk creature.",
-				"info": "It will have only half health & energy"
+				"title": "Pointe Technique",
+				"desc": "Leaps on top of medium or large enemy within 6 range, staying there if killing it.",
+				"info": "The target unit takes 30 pierce damage.",
+				"upgrade": "Range becomes 10 hexagons.",
+				"costs": {
+					"energy": 30
+				}
             }
         ]
     },
@@ -2743,10 +2769,10 @@
 	{
 		"id": 38,
 		"name": "Infernal",
-		"level": 3,
+		"level": 4,
 		"realm": "L",
 		"size": 2,
-		"type": "L3",
+		"type": "L4",
 		"set": "Alpha",
 		"stats": {
 			"health": 140,
@@ -2757,7 +2783,7 @@
 			"initiative": 30,
 			"offense": 5,
 			"defense": 15,
-			"movement": 4,
+			"movement": 2,
 			"pierce": 5,
 			"slash": 5,
 			"crush": 5,
@@ -2773,35 +2799,36 @@
 		},
 		"ability_info": [
 			{
-				"title": "Crystal Therapy",
-				"desc": "At turn start, heals adjacent allies and damages foes based on their number.",
-				"info": "3 pure damage or heal per nearby unit.",
-				"upgrade": "1/3 more damage or healing."
+				"title": "Crossed Bones",
+				"desc": "When this unit gets killed, it starts to restructure itself into a Lava Mollusk.",
+				"info": "The unit won't have any energy at first.",
+				"upgrade": "Unit starts with half energy."
             },
 			{
 				"title": "Shark Aggression",
-				"desc": "Bytes a nearby foe, lowering his maximum health by one each time.",
-				"info": "15 pierce damage, -1 max health",
+				"desc": "Bytes a nearby foe, lowering its total maximum health by 1 with each strike.",
+				"info": "15 pierce damage, one health debuff.",
+				"upgrade": "1/3 more damage or healing.",
 				"costs": {
 					"energy": 15
 				}
             },
 			{
-				"title": "Crossed Bones",
-				"desc": "Continually pushes frontal inline unit, moving it up to 4 hexagons distance.",
-				"info": "Does not subtract movement points.",
-				"upgrade": "Reduced energy cost to half.",
+				"title": "Crystal Therapy",
+				"desc": "Grows adjacent minerals that will buff regrowth & meditation of nearby units.",
+				"info": "4 regrowth + 4 meditation per crystal.",
+				"upgrade": "Each formation resists 3 hits.",
 				"costs": {
 					"energy": 30
 				}
             },
 			{
-				"title": "Charring Flow",
-				"desc": "Ranged attack that damages first encountered units on several rows.",
-				"info": "20 burn damage, up to 7 hexagons",
-				"upgrade": "",
+				"title": "Charring Flame",
+				"desc": "Ranged attack that damages any of the first encountered units on several rows.",
+				"info": "20 burn damage done to 3 paralel lines.",
+				"upgrade": "Becomes a double hit attack.",
 				"costs": {
-					"energy": 15
+					"energy": 40
 				}
             }
         ]
@@ -3043,11 +3070,11 @@
 		"type": "E7",
 		"set": "Alpha",
 		"stats": {
-			"health": 240,
+			"health": 222,
 			"regrowth": 4,
-			"endurance": 85,
-			"energy": 80,
-			"meditation": 20,
+			"endurance": 66,
+			"energy": 90,
+			"meditation": 30,
 			"initiative": 80,
 			"offense": 23,
 			"defense": 23,
@@ -3081,7 +3108,7 @@
 					"slash": 30
 				},
 				"costs": {
-						"energy": 20
+						"energy": 30
 				}
 		},
 			{
@@ -3094,7 +3121,7 @@
 					"mental": 9
 				},
 				"costs": {
-						"energy": 40
+						"energy": 35
 				}
 		},
 			{
@@ -3107,7 +3134,7 @@
 					"crush": 18
 				},
 				"costs": {
-					"energy": 60
+					"energy": 55
 				}
 		}
 	]
@@ -3279,7 +3306,7 @@
 		"type": "P6",
 		"set": "Alpha",
 		"stats": {
-			"health": 180,
+			"health": 182,
 			"regrowth": 6,
 			"endurance": 40,
 			"energy": 80,
@@ -3487,7 +3514,7 @@
 		"type": "W6",
 		"set": "Alpha",
 		"stats": {
-			"health": 220,
+			"health": 214,
 			"regrowth": 4,
 			"endurance": 60,
 			"energy": 80,
@@ -3513,22 +3540,35 @@
 			{
 				"title": "Hard Headed",
 				"desc": "Frontal attacks cause way less damage.",
-				"info": "10 points frontal hit damage reduction"
+				"info": "10 points frontal hit damage reduction",
+				"upgrade": "-1 offense stackable debuff."
             },
 			{
 				"title": "Stiff Scissors",
 				"desc": "Stabs up to two nearby diagonal units.",
-				"info": "15 pierce damage, 2 diagonal targets"
+				"info": "15 pierce damage, 2 diagonal targets",
+				"upgrade": "-1 offense stackable debuff.",
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Flying Cleaver",
 				"desc": "Jumps over a nearby creature, slicing it with its large abdominal bone hatchet.",
-				"info": "20 slash damage to the leaped over unit"
+				"info": "20 slash damage to the leaped over unit",
+				"upgrade": "-1 offense stackable debuff.",
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Demon Hoof",
 				"desc": "Bashes nearby foe, pushing it back a couple hexagons, based on its size.",
-				"info": "25 crush damage, up to 3 hexes push"
+				"info": "25 crush damage, up to 3 hexes push",
+				"upgrade": "-1 offense stackable debuff.",
+				"costs": {
+					"energy": 15
+				}
             }
         ]
     },
@@ -3566,23 +3606,36 @@
 		"ability_info": [
 			{
 				"title": "Gore Lust",
-				"desc": "Each successful hit increases both offense and burn stats by one point.",
-				"info": ""
+				"desc": "Each successful hit increases both the offense and burn stats a single point.",
+				"info": "1 offense stat & 1 burn mastery on hit.",
+				"upgrade": "The bonus is tripled on kills."
             },
 			{
 				"title": "Flaming Paw",
-				"desc": "Strikes an adjacent foe, doing bonus damage with each consecutive strike.",
-				"info": "10 slash + 5 burn bonus damage on hit"
+				"desc": "Strikes an adjacent enemy, doing some extra burn damage to it consecutively.",
+				"info": "9 slash + 9 burn damage that will stack.",
+				"upgrade": "Can affect different enemies.",
+				"costs": {
+					"energy": 15
+				}
             },
 			{
-				"title": "Bonfire Exhale",
-				"desc": "Incinerates a 6 hexagons cone area, hitting only first encountered units.",
-				"info": "20 burn damage conic area damage"
+				"title": "Bonfire Spring",
+				"desc": "Ranged attack that will push the target one hexagon or otherwise strike again.",
+				"info": "20 burn damage & knockback or 2x hit.",
+				"upgrade": "Now it always strikes twice.",
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Unfriendly Flare",
-				"desc": "Ranged fire attack that bounces left and right each time it hits a creature.",
-				"info": "20 burn damage + 5 more per target"
+				"desc": "Diagonal fierce projectile that keeps bouncing each time it hits a creature.",
+				"info": "20 burn damage + 5 more per target.",
+				"upgrade": "Can hit frontaly and bounce.",
+				"costs": {
+					"energy": 15
+				}
             }
         ]
     },
