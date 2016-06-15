@@ -1201,14 +1201,14 @@
 			{
 				"title": "Gooey Body",
 				"desc": "Receives bonus pierce, slash and crush masteries based on remaining health.",
-				"info": "1 bonus point each for every 15 health.",
-				"upgrade" : "Bonus threshold is set to 10."
+				"info": "1 bonus point each for every 10 health.",
+				"upgrade" : "Health threshold becomes 5."
             },
 			{
 				"title": "Gummy Mallet",
-				"desc": "Fully transforms himself into a large hammer to strike down a nearby foe.",
-				"info": "15 crush damage for each attack done.",
-				"upgrade" : "Strikes diagonal foe as well.",
+				"desc": "Fully transforms himself into a large hammer to strike down nearby foes.",
+				"info": "16 crush damage done to 7 hexagons.",
+				"upgrade" : "Does half damage to allies.",
 				"damages": {
 					"crush": 15
 				},
@@ -1230,9 +1230,9 @@
             },
 			{
 				"title": "Boom Box",
-				"desc": "Turns belly into a speaker, blasting a distant foe, pushing it back a notch.",
-				"info": "20 sonic damage + 10 crush if melee.",
-				"upgrade": "2x melee bonus damage.",
+				"desc": "Turns belly into a speaker, blasting a distant enemy, pushing it back a notch.",
+				"info": "20 sonic damage + 10 crush if it's melee.",
+				"upgrade": "+10 sonic if it can't push foe.",
 				"damages": {
 					"special": "20%sonic%+ 10%crush%if melee"
 				},
