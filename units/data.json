@@ -244,14 +244,14 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 132,
-			"regrowth": 5,
+			"regrowth": 4,
 			"endurance": 55,
-			"energy": 120,
-			"meditation": 20,
+			"energy": 75,
+			"meditation": 25,
 			"initiative": 80,
 			"offense": 12,
 			"defense": 4,
-			"movement": 3,
+			"movement": 2,
 			"pierce": 5,
 			"slash": 5,
 			"crush": 5,
@@ -279,9 +279,9 @@
 		"ability_info": [
 			{
 				"title": "Toxic Spores",
-				"desc": "Foes that come into contact have their regrowth constantly reduced bit by bit.",
+				"desc": "Any melee range enemy attackers will have their regrowth stat reduced a bit.",
 				"info": "-1 regrowth stat debuff that can stack.",
-				"upgrade": "Triggers at every turn start.",
+				"upgrade": "Hitting a foe will debuff too.",
 				"effects": [{
 					"regrowth": -5
 				}]
@@ -298,7 +298,7 @@
 					"pierce": 20
 				},
 				"costs": {
-					"energy": 15
+					"energy": 20
 				}
     		},
 			{
@@ -310,21 +310,21 @@
 					"offense": 25
 				}],
 				"costs": {
-					"energy": 30
+					"energy": 25
 				}
     		},
 			{
 				"title": "Sabre Kick",
 				"desc": "Strikes a nearby foe using feet claws, doing nice versatile physical damage.",
-				"info": "15 pierce + 10 slash + 5 crush damage.",
-				"upgrade": "Total push of frontal target.",
+				"info": "18 pierce + 12 slash + 6 crush damage.",
+				"upgrade": "Adds 1 hexagon knockback.",
 				"damages": {
-					"pierce": 15,
-					"slash": 10,
-					"crush": 5
+					"pierce": 18,
+					"slash": 12,
+					"crush": 6
 				},
 				"costs": {
-					"energy": 20
+					"energy": 30
 				}
     		}
     	]
@@ -511,7 +511,7 @@
 				"title": "Chain Lightning",
 				"desc": "Releases a lightning bolt that will arch, shocking multiple adjacent creatures.",
 				"info": "20 shock damage that can arch nearby.",
-				"upgrade": "Can arch 1 hexagon further.",
+				"upgrade": "Can arch 1 hexagon distance.",
 				"damages": {
 					"shock": 20
 				},
@@ -1165,11 +1165,11 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 75,
-			"regrowth": 6,
+			"regrowth": 5,
 			"endurance": 50,
 			"energy": 70,
-			"meditation": 30,
-			"initiative": 45,
+			"meditation": 43,
+			"initiative": 35,
 			"offense": 4,
 			"defense": 6,
 			"movement": 3,
@@ -1225,7 +1225,7 @@
 					"special": "%movement% is set to 0 for a turn."
 				}],
 				"costs": {
-					"energy": 20
+					"energy": 31
 				}
             },
 			{
@@ -1240,7 +1240,7 @@
 					"special": "One hexagon knockback."
 				}],
 				"costs": {
-					"energy": 30
+					"energy": 32
 				}
             }
         ]
@@ -2011,8 +2011,8 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 90,
-			"regrowth": 5,
-			"endurance": 65,
+			"regrowth": 3,
+			"endurance": 30,
 			"energy": 35,
 			"meditation": 5,
 			"initiative": 20,
@@ -2035,9 +2035,9 @@
 		"ability_info": [
 			{
 				"title": "Evolved Organs",
-				"desc": "Recovers 25% of health lost only from the last hit taken when the turn starts.",
+				"desc": "Recovers 30% of health lost only from the last hit taken when the turn starts.",
 				"info": "This ability also works when fatigued.",
-				"upgrade" : "Now 50% health recovered."
+				"upgrade" : "Up to 60% health recovered."
             },
 			{
 				"title": "Squid Head",
