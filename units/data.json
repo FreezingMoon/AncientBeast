@@ -781,8 +781,8 @@
 			"health": 180,
 			"regrowth": 3,
 			"endurance": 70,
-			"energy": 60,
-			"meditation": 30,
+			"energy": 69,
+			"meditation": 33,
 			"initiative": 40,
 			"offense": 10,
 			"defense": 10,
@@ -826,24 +826,27 @@
 				"title": "Icy Talons",
 				"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
 				"info": "6 slash + 6 frost damage, -1 frost.",
+				"upgrade": "6 pierce vs smaller foes.",
 				"damages": {
 					"slash": 6,
-					"frost": 6
+					"frost": 6,
+					"pierce": 6
 				},
 				"costs": {
-					"energy": 10
+					"energy": 14
 				}
 		},
 			{
 				"title": "Sudden Uppercut",
 				"desc": "Sucker punches a near enemy using limb, making him delay the next turn.",
 				"info": "10 crush + 10 frost damage and delay.",
+				"upgrade": "-10 defense until it will act.",
 				"damages": {
 					"crush": 10,
 					"frost": 10
 				},
 				"costs": {
-					"energy": 15
+					"energy": 25
 				}
 		},
 			{
@@ -856,7 +859,7 @@
 					"frost": "6 diminishing"
 				},
 				"costs": {
-					"energy": 20
+					"energy": 30
 				}
             }
         ]
@@ -1602,22 +1605,22 @@
 			{
 				"title": "High Voltage",
 				"desc": "Melee attackers receive damage for every hit and also lose energy points.",
-				"info": "5 shock damage that depletes energy"
+				"info": "5 shock damage that depletes energy."
             },
 			{
 				"title": "Suction Cups",
 				"desc": "Crushes a frontal foe while draining a small amount of its maximum health.",
-				"info": "30 crush damage, 3 health transfered"
+				"info": "30 crush damage, 3 health transfered."
             },
 			{
 				"title": "Hunting Net",
 				"desc": "Drags closer up to 3 distant units that are aligned on different parallel rows.",
-				"info": "pull = 7 hexagons range - unit number"
+				"info": "Pull = 7 hexagons range - unit number"
             },
 			{
 				"title": "Nitrogen Shower",
 				"desc": "Sprinkles a large frontal area with liquid nitrogen, doing cold damage.",
-				"info": "35 frost damage over 7 hexagons"
+				"info": "35 frost damage over 7 hexagons."
             }
         ]
     },
@@ -2907,8 +2910,8 @@
 			{
 				"title": "Boomerang Tool",
 				"desc": "Forms a new weapon out of blades and throws it away 5 hexagons, returning.",
-				"info": "10 slash damage over 15 hexagons x 2",
-				"upgrade" : "area increased by 3 hxagons.",
+				"info": "10 slash damage over 15 hexagons x 2.",
+				"upgrade" : "Area increased by 3 hxagons.",
 				"damages": {
 					"special": "10%slash%, hits 2 times"
 				},
