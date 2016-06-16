@@ -28,6 +28,7 @@ $(function() {
 		<tr style="background: rgba(0, 0, 0, 0.6); height: 32px;">
 			<th class="center" style="font-size: 24px; font-weight: 400;">Unit Name</th>
 			<th class="center" title="Level" style="font-size: 32px; font-weight: 400;">&#9651;</th>
+			<th class="center" title="Realm" style="font-size: 32px; font-weight: 400;">&#9723;</th>
 			<th class="center" title="Size" style="font-size: 32px; font-weight: 400;">&#11041;</th>
 			<th class="center" title="Progress" style="font-size: 32px; font-weight: 400;">&#9719;</th>
 			<th class="center" title="Health"><span class="icon health"></span></th>
@@ -60,9 +61,10 @@ $(function() {
 			$columns = [
 				$r['name'],
 				$r['level'],
+				$r['realm'],
 				$r['size'],
 				//$r['progress'],
-				'?'
+				'?' // TODO: Fix progress and remove this!
 			];
 			$stats = $r['stats'];
 			$columns = array_merge($columns, $stats);
