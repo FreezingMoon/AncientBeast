@@ -497,9 +497,9 @@
     		},
 			{
 				"title": "Poisonous Vine",
-				"desc": "Tangles a foe within 2 radius, causing it to take damage if it will move next turn.",
+				"desc": "Tangles a foe within 2 radius for a turn, causing it some damage if it will move.",
 				"info": "25 poison damage triggered if moving.",
-				"upgrade": "Usable within four hexagons.",
+				"upgrade": "The vine will last indefinitely.",
 				"effects": [{
 					"special": "25 poison damage if moving"
 				}],
@@ -1233,8 +1233,8 @@
             },
 			{
 				"title": "Boom Box",
-				"desc": "Turns belly into a speaker, blasting a distant enemy, pushing it back a notch.",
-				"info": "20 sonic damage + 10 crush if it's melee.",
+				"desc": "Turns belly into a speaker, blasting one distant enemy, pushing it back a notch.",
+				"info": "20 sonic damage + 10 crush if adjacent.",
 				"upgrade": "+10 sonic if it can't push foe.",
 				"damages": {
 					"special": "20%sonic%+ 10%crush%if melee"
@@ -2883,16 +2883,18 @@
 				"title": "Larva Infest",
 				"desc": "Strikes any rear foe at beginning of turn, infesting it with a big parasite.",
 				"info": "-5 endurance stat debuff, stackable.",
+				"upgrade" : "Instantly fatigues enemy.",
 				"effects": [{
-					"special": "-5 %endurance% debuff, stackable"
+					"special": "-5 %endurance% debuff, stackable."
 				}]
 			},
 			{
 				"title": "Cartilage Dagger",
 				"desc": "Hits nearby unit using frontal blade. Double damage if the foe is fatigued.",
 				"info": "12 pierce damage × 2 vs fatigued foe.",
+				"upgrade" : "Extra endurance is damage.",
 				"damages": {
-					"special": "12%pierce% × 2 if target is fatigued"
+					"special": "12%pierce% × 2 if target is fatigued."
 				},
 				"costs": {
 					"energy": 15
@@ -2911,9 +2913,9 @@
 				"title": "Boomerang Tool",
 				"desc": "Forms a new weapon out of blades and throws it away 5 hexagons, returning.",
 				"info": "10 slash damage over 15 hexagons x 2.",
-				"upgrade" : "Area increased by 3 hxagons.",
+				"upgrade" : "+3 hexagons area increase.",
 				"damages": {
-					"special": "10%slash%, hits 2 times"
+					"special": "10%slash%, hits 2 times."
 				},
 				"costs": {
 					"energy": 25
@@ -2973,11 +2975,11 @@
 			{
 				"title": "Hammer Time",
 				"desc": "Hits a nearby foe using its hard head, decreasing movement by 1 for a turn.",
-				"info": "12 crush + 6 pierce damage & debuff.",
+				"info": "10 crush + 5 pierce damage & debuff.",
 				"upgrade" : "Attacks up to 3 frontal foes.",
 				"damages": {
-					"crush": 12,
-					"pierce": 6
+					"crush": 10,
+					"pierce": 5
 				},
 				"costs": {
 					"energy": 15
@@ -2985,9 +2987,9 @@
 		},
 			{
 				"title": "War Horn",
-				"desc": "Charges towards an inline foe, hitting it and also pushing it as much as possible.",
+				"desc": "Charges towards an inline foe, hitting it while also pushing it as much possible.",
 				"info": "10 pierce damage + 2 bonus / hexagon.",
-				"upgrade" : "5 bonus pierce damage on hit.",
+				"upgrade" : "Does 5 bonus pierce damage.",
 				"damages": {
 					"pierce": 20
 				},
