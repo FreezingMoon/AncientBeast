@@ -184,8 +184,6 @@ var Ability = Class.create( {
 				opt.callback();
 			}
 		},100);
-
-		if( G.triggers.onAttack.test(ab.trigger) ) return ab.activate.apply(ab, args);
 	},
 
 
