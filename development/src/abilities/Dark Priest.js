@@ -8,7 +8,7 @@ G.abilities[0] =[
 // 	First Ability: Plasma Field
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onAttack",
+	trigger : "onAttacked",
 
 	// 	require() :
 	require : function(damage) {
@@ -23,7 +23,7 @@ G.abilities[0] =[
                     /* only used when unit isn't active */
                     return damage; // Return Damage
                 }
-                
+
                 if(this.isUpgraded()&&damage.melee&&!damage.counter){
                     //counter damage
                     var counter=new Damage(
@@ -36,7 +36,7 @@ G.abilities[0] =[
                     counter.counter=true;
                     G.activeCreature.takeDamage(counter);
                 }
-                
+
                 this.creature.player.plasma  -= 1;
 
                 this.creature.protectedFromFatigue = this.testRequirements();
@@ -165,7 +165,7 @@ G.abilities[0] =[
 
 		var plasmaCost = target.size;
 		var damage = target.baseStats.health-target.health;
-                
+
                 if (this.isUpgraded() && damage<40) damage=40;
 
 		ability.creature.player.plasma -= plasmaCost;
@@ -212,7 +212,7 @@ G.abilities[0] =[
 	query : function() {
 		var ability = this;
 		G.grid.updateDisplay(); // Retrace players creatures
-                
+
                 if(this.isUpgraded()) this.summonRange=6;
 
 		// Ask the creature to summon

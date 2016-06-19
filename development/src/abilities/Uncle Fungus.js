@@ -8,7 +8,12 @@ G.abilities[3] =[
 // First Ability: Toxic Spores
 {
 	// Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onAttack",
+	triggerFunc: function() {
+		if (this.isUpgraded()) {
+			return "onAttacked onAttack";
+		}
+		return "onAttacked";
+	},
 
 	priority : 10,
 
