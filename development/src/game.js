@@ -756,7 +756,7 @@ var Game = Class.create( {
 		onStartPhase : /\bonStartPhase\b/,
 		onEndPhase : /\bonEndPhase\b/,
 		onMovement : /\bonMovement\b/,
-		onAttacked : /\bonAttacked\b/,
+		onUnderAttack : /\bonUnderAttack\b/,
 		onDamage : /\bonDamage\b/,
 		onAttack : /\bonAttack\b/,
 		onCreatureMove : /\bonCreatureMove\b/,
@@ -770,7 +770,7 @@ var Game = Class.create( {
 		onMovement_other : /\bonOtherMovement\b/,
 		onAttack_other : /\bonOtherAttack\b/,
 		onDamage_other : /\bonOtherDamage\b/,
-		onAttacked_other : /\bonOtherAttacked\b/,
+		onUnderAttack_other : /\bonOtherUnderAttack\b/,
 		onCreatureMove_other : /\bonOtherCreatureMove\b/,
 		onCreatureDeath_other : /\bonOtherCreatureDeath\b/,
 		onCreatureSummon_other : /\bonOtherCreatureSummon\b/,
@@ -929,9 +929,9 @@ var Game = Class.create( {
 		},
 
 
-		onAttacked : function( creature, damage ) {
-			damage = G.triggerAbility("onAttacked", arguments, damage);
-			damage = G.triggerEffect("onAttacked", arguments, damage);
+		onUnderAttack : function( creature, damage ) {
+			damage = G.triggerAbility("onUnderAttack", arguments, damage);
+			damage = G.triggerEffect("onUnderAttack", arguments, damage);
 			return damage;
 		},
 

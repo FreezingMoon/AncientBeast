@@ -24,10 +24,12 @@ var Ability = Class.create( {
 	},
 
 	getTrigger: function() {
-		if (this.trigger) {
+		if (this.trigger !== undefined) {
 			return this.trigger;
+		} else if (this.triggerFunc !== undefined) {
+			return this.triggerFunc();
 		}
-		return this.triggerFunc();
+		return undefined;
 	},
 
 
@@ -167,7 +169,7 @@ var Ability = Class.create( {
 			.start();
 
 			setTimeout(function() {
-				if( !G.triggers.onAttacked.test(ab.getTrigger()) ) {
+				if( !G.triggers.onUnderAttack.test(ab.getTrigger()) ) {
 					G.soundsys.playSound(G.soundLoaded[2], G.soundsys.effectsGainNode);
 					activateAbility();
 				}
@@ -489,12 +491,10 @@ var Damage = Class.create( {
 		this.area = area;
 	},
 
-	/* apply(target)
-	*
-	*	target :	Creature : Targeted creature
+	/* applyDamage()
 	*/
-	apply: function(target) {
-		var trg = target.stats;
+	applyDamage: function() {
+		var trg = this.target.stats;
 		var dmg = this;
 		var atk = dmg.attacker.stats;
 		var returnObj = {total:0};

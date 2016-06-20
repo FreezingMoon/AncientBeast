@@ -8,7 +8,7 @@ G.abilities[5] =[
 // 	First Ability: Electrified Hair
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onAttacked",
+	trigger : "onUnderAttack",
 
 	// 	require() :
 	require : function() { return this.testRequirements(); },
