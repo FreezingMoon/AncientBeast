@@ -820,6 +820,7 @@ var Creature = Class.create( {
 		this.adjacentHexs(1).each(function() {
 			if( damage.attacker == this.creature ) damage.melee = true;
 		});
+		damage.target = this;
 
 		// Trigger
 		G.triggersFn.onUnderAttack(this, damage);
@@ -829,7 +830,7 @@ var Creature = Class.create( {
 		if( damage.status === "" ) {
 
 			// Damages
-			var dmg = damage.apply(this);
+			var dmg = damage.applyDamage();
 			var dmgAmount = dmg.total;
 
 			if( !isFinite(dmgAmount) ) { // Check for Damage Errors

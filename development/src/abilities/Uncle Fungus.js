@@ -18,81 +18,48 @@ G.abilities[3] =[
 	priority : 10,
 
 	// require() :
-	require : function(hex) {
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "enemy" ) ) return false;
+	require : function(damage) {
+		if( !this.testRequirements() ) return false;
 
-		var i;
-		var targets;
-		if( hex instanceof Hex && hex.creature instanceof Creature && hex.creature != this.creature) {
-
-			targets = this.getTargets(hex.creature.adjacentHexs(1));
-
-			var isAdj = false;
-
-			// Search if Uncle is adjacent to the creature that is moving
-			for (i = 0; i < targets.length; i++) {
-				if( targets[i] === undefined ) continue;
-				if( !(targets[i].target instanceof Creature) ) continue;
-				if( targets[i].target == this.creature ) isAdj = true;
-			}
-
-			if( !isAdj ) return false;
-		}
-
-		targets = this.getTargets(this.creature.adjacentHexs(1));
-
-		for (i = 0; i < targets.length; i++) {
-			if( targets[i] === undefined ) continue;
-			if( !(targets[i].target instanceof Creature) ) continue;
-			if( !targets[i].target.isAlly(this.creature.team) &&
-				targets[i].target.findEffect(this.title).length === 0 ) {
-				return this.testRequirements();
-			}
-		}
-
-		return false;
+		// Check that attack is melee
+		return damage && damage.melee;
 	},
 
 	// activate() :
-	activate : function(hex) {
-
+	activate: function(damage) {
 		var ability = this;
 		var creature = this.creature;
-		var targets = this.getTargets(this.creature.adjacentHexs(1));
 
-		targets.each(function() {
-			if( !(this.target instanceof Creature) ) return;
+		if (!damage || !damage.melee) return;
 
-			var trg = this.target;
+		// ability may trigger both onAttack and onUnderAttack;
+		// the target should be the other creature
+		var target = damage.attacker === creature ? damage.target : damage.attacker;
 
-			if(trg.team % 2 != creature.team % 2) { // If foe
+		var optArg = {
+			alterations : ability.effects[0],
+			creationTurn : G.turn-1,
+			turnLifetime : 1,
+			deleteTrigger : "onEndPhase",
+			stackable : false
+		};
 
-				var optArg = {
-					alterations : ability.effects[0],
-					creationTurn : G.turn-1,
-					turnLifetime : 1,
-					deleteTrigger : "onEndPhase",
-					stackable : false
-				};
+		ability.end();
 
-				ability.end();
+		// Spore Contamination
+		var effect = new Effect(
+			ability.title, // Name
+			creature, // Caster
+			target, // Target
+			"", // Trigger
+			optArg // Optional arguments
+		);
 
-				// Spore Contamination
-				var effect = new Effect(
-					ability.title, // Name
-					creature, // Caster
-					trg, // Target
-					"", // Trigger
-					optArg // Optional arguments
-				);
+		target.addEffect(effect, undefined, "Contaminated");
 
-				trg.addEffect(effect,undefined,"Contaminated");
+		G.log("%CreatureName" + target.id + "%'s regrowth is lowered by " + ability.effects[0].regrowth);
 
-				G.log("%CreatureName" + trg.id + "%'s regrowth is lowered by " + ability.effects[0].regrowth);
-
-				ability.setUsed(false); // Infinite triggering
-			}
-		})
+		ability.setUsed(false); // Infinite triggering
 	},
 },
 

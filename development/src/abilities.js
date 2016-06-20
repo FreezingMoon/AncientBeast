@@ -491,12 +491,10 @@ var Damage = Class.create( {
 		this.area = area;
 	},
 
-	/* apply(target)
-	*
-	*	target :	Creature : Targeted creature
+	/* applyDamage()
 	*/
-	apply: function(target) {
-		var trg = target.stats;
+	applyDamage: function() {
+		var trg = this.target.stats;
 		var dmg = this;
 		var atk = dmg.attacker.stats;
 		var returnObj = {total:0};
