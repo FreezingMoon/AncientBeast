@@ -46,7 +46,7 @@ G.abilities[9] =[
 
 
 
-// 	Second Ability: Icy Talons
+// 	Second Ability: Organic Harpoon
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
