@@ -114,19 +114,32 @@ G.abilities[3] =[
 
 			var amount = Math.max(Math.round(dmg.damages.total / 2), 1);
 
+			// If upgraded, heal immediately up to the amount of health lost so far;
+			// use the remainder as regrowth
+			if (this.isUpgraded()) {
+				var healthLost = this.creature.stats.health - this.creature.health;
+				if (healthLost > 0) {
+					var healAmount = Math.min(amount, healthLost);
+					amount -= healAmount;
+					this.creature.heal(healAmount, false);
+				}
+			}
+
 			// Regrowth bonus
-			ability.creature.addEffect( new Effect(
-				ability.title, // Name
-				ability.creature, // Caster
-				ability.creature, // Target
-				"", // Trigger
-				{
-					turnLifetime : 1,
-					deleteTrigger : "onStartPhase",
-					alterations : {regrowth : amount }
-				} // Optional arguments
-			), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", //Custom Log
-			"Regrowth++" );	// Custom Hint
+			if (amount > 0) {
+				ability.creature.addEffect( new Effect(
+					ability.title, // Name
+					ability.creature, // Caster
+					ability.creature, // Target
+					"", // Trigger
+					{
+						turnLifetime : 1,
+						deleteTrigger : "onStartPhase",
+						alterations : {regrowth : amount }
+					} // Optional arguments
+				), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", //Custom Log
+				"Regrowth++" );	// Custom Hint
+			}
 		}
 
 		// Remove frogger bonus if its found

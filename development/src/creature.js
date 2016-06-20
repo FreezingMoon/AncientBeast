@@ -775,9 +775,9 @@ var Creature = Class.create( {
 	*
 	*	amount :	Damage :	Amount of health point to restore
 	*/
-	heal: function(amount,isRegrowth) {
-		if(this.health + amount > this.baseStats.health)
-			amount = this.stats.health - this.health; // Cap health point
+	heal: function(amount, isRegrowth) {
+		// Cap health point
+		amount = Math.min(amount, this.stats.health - this.health);
 
 		if(this.health + amount < 1)
 			amount = this.health-1; // Cap to 1hp
