@@ -110,9 +110,9 @@ G.abilities[3] =[
 
 		var dmg = target.takeDamage(damage);
 
-		if(dmg.damageObj.status == "") {
+		if (dmg.damageObj.status === "") {
 
-			var amount = Math.max(Math.round(dmg.damages.total / 4), 1);
+			var amount = Math.max(Math.round(dmg.damages.total / 2), 1);
 
 			// Regrowth bonus
 			ability.creature.addEffect( new Effect(
