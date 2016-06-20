@@ -283,7 +283,7 @@
 				"info": "-1 regrowth stat debuff that can stack.",
 				"upgrade": "Hitting a foe will debuff too.",
 				"effects": [{
-					"regrowth": -5
+					"regrowth": -1
 				}]
     		},
 			{

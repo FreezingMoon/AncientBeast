@@ -39,9 +39,7 @@ G.abilities[3] =[
 		var optArg = {
 			alterations : ability.effects[0],
 			creationTurn : G.turn-1,
-			turnLifetime : 1,
-			deleteTrigger : "onEndPhase",
-			stackable : false
+			stackable : true
 		};
 
 		ability.end();
