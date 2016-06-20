@@ -167,7 +167,7 @@ var Ability = Class.create( {
 			.start();
 
 			setTimeout(function() {
-				if( !G.triggers.onAttacked.test(ab.getTrigger()) ) {
+				if( !G.triggers.onUnderAttack.test(ab.getTrigger()) ) {
 					G.soundsys.playSound(G.soundLoaded[2], G.soundsys.effectsGainNode);
 					activateAbility();
 				}

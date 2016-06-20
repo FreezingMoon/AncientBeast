@@ -10,9 +10,9 @@ G.abilities[3] =[
 	// Type : Can be "onQuery", "onStartPhase", "onDamage"
 	triggerFunc: function() {
 		if (this.isUpgraded()) {
-			return "onAttacked onAttack";
+			return "onUnderAttack onAttack";
 		}
-		return "onAttacked";
+		return "onUnderAttack";
 	},
 
 	priority : 10,

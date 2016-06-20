@@ -822,7 +822,7 @@ var Creature = Class.create( {
 		});
 
 		// Trigger
-		G.triggersFn.onAttacked(this, damage);
+		G.triggersFn.onUnderAttack(this, damage);
 		G.triggersFn.onAttack(damage.attacker, damage);
 
 		// Calculation

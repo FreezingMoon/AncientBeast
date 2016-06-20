@@ -8,7 +8,7 @@ G.abilities[0] =[
 // 	First Ability: Plasma Field
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onAttacked",
+	trigger : "onUnderAttack",
 
 	// 	require() :
 	require : function(damage) {
