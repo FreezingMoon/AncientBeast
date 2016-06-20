@@ -53,11 +53,7 @@ G.abilities[3] =[
 			optArg // Optional arguments
 		);
 
-<<<<<<< HEAD
-				trg.addEffect(effect, undefined, "Contaminated");
-=======
 		target.addEffect(effect, undefined, "Contaminated");
->>>>>>> 8a6bcc0f05188d8af6e5f063b4eafafa687637ca
 
 		G.log("%CreatureName" + target.id + "%'s regrowth is lowered by " + ability.effects[0].regrowth);
 
@@ -129,7 +125,7 @@ G.abilities[3] =[
 					deleteTrigger : "onStartPhase",
 					alterations : {regrowth : amount }
 				} // Optional arguments
-			), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", // Custom Log
+			), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", //Custom Log
 			"Regrowth++" );	// Custom Hint
 		}
 
@@ -184,9 +180,9 @@ G.abilities[3] =[
 				}
 				ability.animation.apply(ability, arguments);
 			},
-			size :  uncle.size,
-			flipped :  uncle.player.flipped,
-			id :  uncle.id,
+			size :  uncle.size,
+			flipped :  uncle.player.flipped,
+			id :  uncle.id,
 			hexs : range,
 			hexsDashed : hexsDashed,
 			hideNonTarget : true
