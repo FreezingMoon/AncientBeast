@@ -86,7 +86,7 @@ G.abilities[3] =[
 					optArg // Optional arguments
 				);
 
-				trg.addEffect(effect,undefined,"Contaminated");
+				trg.addEffect(effect, undefined, "Contaminated");
 
 				G.log("%CreatureName" + trg.id + "%'s regrowth is lowered by " + ability.effects[0].regrowth);
 
@@ -160,7 +160,7 @@ G.abilities[3] =[
 					deleteTrigger : "onStartPhase",
 					alterations : {regrowth : amount }
 				} // Optional arguments
-			), "%CreatureName" + ability.creature.id + "% gained " + amount + " temporary regrowth", //Custom Log
+			), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", // Custom Log
 			"Regrowth++" );	// Custom Hint
 		}
 
