@@ -19,8 +19,15 @@ var Ability = Class.create( {
 
 	isUpgraded: function() {
 		if(G.abilityUpgrades == -1 || !this.upgrade) return false;
-		if(this.trigger == "onQuery") return this.timesUsed >= G.abilityUpgrades;
+		if(this.trigger === "onQuery") return this.timesUsed >= G.abilityUpgrades;
 		else return this.creature.turnsActive >= G.abilityUpgrades;
+	},
+
+	getTrigger: function() {
+		if (this.trigger) {
+			return this.trigger;
+		}
+		return this.triggerFunc();
 	},
 
 
@@ -30,7 +37,7 @@ var Ability = Class.create( {
 	*
 	*/
 	use: function() {
-		if( this.trigger != "onQuery" ) return;
+		if( this.getTrigger() !== "onQuery" ) return;
 		if( !this.require() ) return;
 		if( this.used === true ) { G.log("Ability already used!"); return; }
 		G.grid.clearHexViewAlterations();
@@ -52,7 +59,7 @@ var Ability = Class.create( {
 		G.UI.btnDelay.changeState("disabled");
 		G.activeCreature.delayable = false;
 		G.UI.selectAbility(-1);
-		if(this.trigger == "onQuery" && !deferedEnding) {
+		if(this.getTrigger() === "onQuery" && !deferedEnding) {
 			G.activeCreature.queryMove();
 		}
 	},
@@ -88,7 +95,7 @@ var Ability = Class.create( {
 	animation: function() {
 
 		// Gamelog Event Registration
-		if( G.triggers.onQuery.test(this.trigger) ) {
+		if( G.triggers.onQuery.test(this.getTrigger()) ) {
 			if(arguments[0] instanceof Hex) {
 				var args = $j.extend( {}, arguments);
 				delete args[0];
@@ -140,7 +147,7 @@ var Ability = Class.create( {
 		p2 += (this.creature.player.flipped)? -5 : 5;
 
 		// Play animations and sounds only for active abilities
-		if( this.trigger === 'onQuery' ) {
+		if( this.getTrigger() === 'onQuery' ) {
 			var anim_id = Math.random();
 
 			G.animationQueue.push(anim_id);
@@ -160,7 +167,7 @@ var Ability = Class.create( {
 			.start();
 
 			setTimeout(function() {
-				if( !G.triggers.onAttack.test(ab.trigger) ) {
+				if( !G.triggers.onAttacked.test(ab.getTrigger()) ) {
 					G.soundsys.playSound(G.soundLoaded[2], G.soundsys.effectsGainNode);
 					activateAbility();
 				}
@@ -184,8 +191,6 @@ var Ability = Class.create( {
 				opt.callback();
 			}
 		},100);
-
-		if( G.triggers.onAttack.test(ab.trigger) ) return ab.activate.apply(ab, args);
 	},
 
 

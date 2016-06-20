@@ -355,7 +355,7 @@ var Creature = Class.create( {
 		G.creatures.each(function() { //For all Creature
 			if(this instanceof Creature) {
 				this.abilities.each(function() {
-					if( G.triggers.oncePerDamageChain.test(this.trigger) ) {
+					if( G.triggers.oncePerDamageChain.test(this.getTrigger()) ) {
 						this.setUsed(false);
 					}
 				});
@@ -822,7 +822,8 @@ var Creature = Class.create( {
 		});
 
 		// Trigger
-		G.triggersFn.onAttack(this, damage);
+		G.triggersFn.onAttacked(this, damage);
+		G.triggersFn.onAttack(damage.attacker, damage);
 
 		// Calculation
 		if( damage.status === "" ) {

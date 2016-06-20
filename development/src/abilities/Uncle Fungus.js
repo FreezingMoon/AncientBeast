@@ -8,7 +8,12 @@ G.abilities[3] =[
 // First Ability: Toxic Spores
 {
 	// Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onStepIn onStartPhase onOtherStepIn",
+	triggerFunc: function() {
+		if (this.isUpgraded()) {
+			return "onAttacked onAttack";
+		}
+		return "onAttacked";
+	},
 
 	priority : 10,
 
@@ -16,32 +21,36 @@ G.abilities[3] =[
 	require : function(hex) {
 		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "enemy" ) ) return false;
 
+		var i;
+		var targets;
 		if( hex instanceof Hex && hex.creature instanceof Creature && hex.creature != this.creature) {
 
-			var targets = this.getTargets(hex.creature.adjacentHexs(1));
+			targets = this.getTargets(hex.creature.adjacentHexs(1));
 
 			var isAdj = false;
 
 			// Search if Uncle is adjacent to the creature that is moving
-			for (var i = 0; i < targets.length; i++) {
-				if( targets[i] == undefined ) continue;
+			for (i = 0; i < targets.length; i++) {
+				if( targets[i] === undefined ) continue;
 				if( !(targets[i].target instanceof Creature) ) continue;
 				if( targets[i].target == this.creature ) isAdj = true;
-			};
+			}
 
 			if( !isAdj ) return false;
 		}
 
-		var targets = this.getTargets(this.creature.adjacentHexs(1));
+		targets = this.getTargets(this.creature.adjacentHexs(1));
 
-		for (var i = 0; i < targets.length; i++) {
-			if( targets[i] == undefined ) continue;
+		for (i = 0; i < targets.length; i++) {
+			if( targets[i] === undefined ) continue;
 			if( !(targets[i].target instanceof Creature) ) continue;
-			if( !targets[i].target.isAlly(this.creature.team) && targets[i].target.findEffect(this.title).length == 0 )
+			if( !targets[i].target.isAlly(this.creature.team) &&
+				targets[i].target.findEffect(this.title).length === 0 ) {
 				return this.testRequirements();
-		};
+			}
+		}
 
-		return false
+		return false;
 	},
 
 	// activate() :

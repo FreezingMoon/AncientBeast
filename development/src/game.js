@@ -751,34 +751,36 @@ var Game = Class.create( {
 
 	/*	Regex Test for triggers */
 	triggers : {
-		onStepIn : new RegExp('onStepIn', 'i'),
-		onStepOut : new RegExp('onStepOut', 'i'),
-		onStartPhase : new RegExp('onStartPhase', 'i'),
-		onEndPhase : new RegExp('onEndPhase', 'i'),
-		onMovement : new RegExp('onMovement', 'i'),
-		onAttack : new RegExp('onAttack', 'i'),
-		onDamage : new RegExp('onDamage', 'i'),
-		onCreatureMove : new RegExp('onCreatureMove', 'i'),
-		onCreatureDeath : new RegExp('onCreatureDeath', 'i'),
-		onCreatureSummon : new RegExp('onCreatureSummon', 'i'),
+		onStepIn : /\bonStepIn\b/,
+		onStepOut : /\bonStepOut\b/,
+		onStartPhase : /\bonStartPhase\b/,
+		onEndPhase : /\bonEndPhase\b/,
+		onMovement : /\bonMovement\b/,
+		onAttacked : /\bonAttacked\b/,
+		onDamage : /\bonDamage\b/,
+		onAttack : /\bonAttack\b/,
+		onCreatureMove : /\bonCreatureMove\b/,
+		onCreatureDeath : /\bonCreatureDeath\b/,
+		onCreatureSummon : /\bonCreatureSummon\b/,
 
-		onStepIn_other : new RegExp('onOtherStepIn', 'i'),
-		onStepOut_other : new RegExp('onOtherStepOut', 'i'),
-		onStartPhase_other : new RegExp('onOtherStartPhase', 'i'),
-		onEndPhase_other : new RegExp('onOtherEndPhase', 'i'),
-		onMovement_other : new RegExp('onOtherMovement', 'i'),
-		onAttack_other : new RegExp('onOtherAttack', 'i'),
-		onDamage_other : new RegExp('onOtherDamage', 'i'),
-		onCreatureMove_other : new RegExp('onOtherCreatureMove', 'i'),
-		onCreatureDeath_other : new RegExp('onOtherCreatureDeath', 'i'),
-		onCreatureSummon_other : new RegExp('onOtherCreatureSummon', 'i'),
+		onStepIn_other : /\bonOtherStepIn\b/,
+		onStepOut_other : /\bonOtherStepOut\b/,
+		onStartPhase_other : /\bonOtherStartPhase\b/,
+		onEndPhase_other : /\bonOtherEndPhase\b/,
+		onMovement_other : /\bonOtherMovement\b/,
+		onAttack_other : /\bonOtherAttack\b/,
+		onDamage_other : /\bonOtherDamage\b/,
+		onAttacked_other : /\bonOtherAttacked\b/,
+		onCreatureMove_other : /\bonOtherCreatureMove\b/,
+		onCreatureDeath_other : /\bonOtherCreatureDeath\b/,
+		onCreatureSummon_other : /\bonOtherCreatureSummon\b/,
 
-		onEffectAttachement : new RegExp('onEffectAttachement', 'i'),
-		onEffectAttachement_other : new RegExp('onOtherEffectAttachement', 'i'),
+		onEffectAttachement : /\bonEffectAttachement\b/,
+		onEffectAttachement_other : /\bonOtherEffectAttachement\b/,
 
-		onStartOfRound : new RegExp('onStartOfRound', 'i'),
-		onQuery : new RegExp('onQuery', 'i'),
-		oncePerDamageChain : new RegExp('oncePerDamageChain', 'i')
+		onStartOfRound : /\bonStartOfRound\b/,
+		onQuery : /\bonQuery\b/,
+		oncePerDamageChain : /\boncePerDamageChain\b/
 	},
 
 	triggerAbility : function( trigger, arg, retValue ) {
@@ -786,7 +788,7 @@ var Game = Class.create( {
 		// For triggered creature
 		arg[0].abilities.each(function() {
 			if( arg[0].dead === true ) return;
-			if( G.triggers[trigger].test(this.trigger) ) {
+			if( G.triggers[trigger].test(this.getTrigger()) ) {
 				if( this.require(arg[1]) ) {
 					retValue = this.animation(arg[1]);
 				}
@@ -797,7 +799,7 @@ var Game = Class.create( {
 		G.creatures.each(function() {
 			if( arg[0] === this || this.dead === true ) return;
 			this.abilities.each(function() {
-				if( G.triggers[trigger+"_other"].test(this.trigger) ) {
+				if( G.triggers[trigger+"_other"].test(this.getTrigger()) ) {
 					if( this.require(arg[1]) ) {
 						retValue = this.animation(arg[1], arg[0]);
 					}
@@ -927,15 +929,20 @@ var Game = Class.create( {
 		},
 
 
-		onAttack : function( creature, damage ) {
-			damage = G.triggerAbility("onAttack", arguments, damage);
-			damage = G.triggerEffect("onAttack", arguments, damage);
+		onAttacked : function( creature, damage ) {
+			damage = G.triggerAbility("onAttacked", arguments, damage);
+			damage = G.triggerEffect("onAttacked", arguments, damage);
 			return damage;
 		},
 
 		onDamage : function( creature, damage ) {
 			G.triggerAbility("onDamage", arguments);
 			G.triggerEffect("onDamage", arguments);
+		},
+
+		onAttack : function( creature, damage ) {
+			damage = G.triggerAbility("onAttack", arguments, damage);
+			damage = G.triggerEffect("onAttack", arguments, damage);
 		}
 	},
 

@@ -141,39 +141,39 @@ var UI = Class.create( {
 			}
 		});
 
+		var hotkeys = {
+			overview: 9, // Tab TODO: This should open/close score screen
+			cycle: 81, // Q TODO: Make this work
+			attack: 87, // W
+			ability: 69, // E
+			ultimate: 82, // R
+			audio: 65, // A TODO: Make this work
+			skip: 83, // S
+			delay: 68, // D
+			flee: 70, // F
+			chat: 13, // Return TODO: Should open, send & hide chat
+			close: 27, // Escape
+			//pause: 80, // P, might get deprecated
+			show_grid: 16, // Shift
+			dash_up: 38, // Up arrow
+			dash_down: 40, // Down arrow
+			dash_left: 37, // Left arrow
+			dash_right: 39, // Right arrow
+			dash_materializeButton: 13, // Return
+
+			grid_up: 38, // Up arrow
+			grid_down: 40, // Down arrow
+			grid_left: 37, // Left arrow
+			grid_right: 39, // Right arrow
+			grid_confirm: 32 // Space
+		};
+
 		// Binding Hotkeys
 		$j(document).keydown(function(e) {
 			if(G.freezedInput) return;
 
 			var keypressed = e.keyCode || e.which;
 			//console.log(keypressed); // For debugging
-
-			hotkeys = {
-				overview: 9, // Tab TODO: This should open/close score screen
-				cycle: 81, // Q TODO: Make this work
-				attack: 87, // W
-				ability: 69, // E
-				ultimate: 82, // R
-				audio: 65, // A TODO: Make this work
-				skip: 83, // S
-				delay: 68, // D
-				flee: 70, // F
-				chat: 13, // Return TODO: Should open, send & hide chat
-				close: 27, // Escape
-				//pause: 80, // P, might get deprecated
-				show_grid: 16, // Shift
-				dash_up: 38, // Up arrow
-				dash_down: 40, // Down arrow
-				dash_left: 37, // Left arrow
-				dash_right: 39, // Right arrow
-				dash_materializeButton: 13, // Return
-
-				grid_up: 38, // Up arrow
-				grid_down: 40, // Down arrow
-				grid_left: 37, // Left arrow
-				grid_right: 39, // Right arrow
-				grid_confirm: 32 // Space
-			};
 
 			var prevD = false;
 
