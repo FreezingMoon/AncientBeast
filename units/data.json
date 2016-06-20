@@ -786,7 +786,7 @@
 			"initiative": 40,
 			"offense": 10,
 			"defense": 10,
-			"movement": 2,
+			"movement": 1,
 			"pierce": 5,
 			"slash": 4,
 			"crush": 3,
@@ -823,7 +823,7 @@
 				"maxCharge": 10
 		},
 			{
-				"title": "Icy Talons",
+				"title": "Organic Harpoon",
 				"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
 				"info": "6 slash + 6 frost damage, -1 frost.",
 				"upgrade": "6 pierce vs smaller foes.",
@@ -2401,7 +2401,7 @@
 			"initiative": 30,
 			"offense": 5,
 			"defense": 5,
-			"movement": 3,
+			"movement": 2,
 			"pierce": 4,
 			"slash": 1,
 			"crush": 2,
@@ -2417,24 +2417,37 @@
 		},
 		"ability_info": [
 			{
-				"title": "Cold Rain",
-				"desc": "Attackers get damaged and have their frost stat constantly reduced every hit.",
-				"info": "4 frost + 1 crush damage, 1 frost debuff"
-            },
-			{
-				"title": "Organic Harpoon",
-				"desc": "Uses fingers against a nearby foe, doing more damage to it each time.",
-				"info": "6 pierce + 5 slash damage, +4 / hit"
+				"title": "Sea Horse",
+				"desc": "Meditation stat will be highly increased if being at full health, restoring energy.",
+				"info": "15 extra meditation points if full health.",
+				"upgrade": "Can now fully restore energy."
             },
 			{
 				"title": "Sea Serpent",
-				"desc": "Hits a nearby area using its tail, damaging one or two creatures.",
-				"info": "8 pierce + 8 crush + 8 frost damage"
+				"desc": "Hits a nearby area using its large tail, doing area damage over 2 hexagons.",
+				"info": "8 pierce + 8 frost damage, has 2 range.",
+				"upgrade": "Increased area & range by 1.",
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Tsunami Surge",
-				"desc": "Travels in a straight line to a new spot, damaging all units while ignoring traps.",
-				"info": "10 crush + 10 frost damage & travel"
+				"desc": "Unleashes a very powerful water wave that will travel inline to hit first target.",
+				"info": "16 crush + 16 frost damage done inline.",
+				"upgrade": "Will continue if it kills target.",
+				"costs": {
+					"energy": 20
+				}
+            },
+			{
+				"title": "Mirror Image",
+				"desc": "Creates a duplicate of an unit that will only have 1 health and die after a turn.",
+				"info": "Usable within target's adjacent space.",
+				"upgrade": "Lasts until original unit dies.",
+				"costs": {
+					"energy": 40
+				}
             }
         ]
     },
@@ -3365,7 +3378,7 @@
 		},
 			{
 				"title": "Disturbing Sound",
-				"desc": "Sings a powerful musical note inline that keeps on going when killing units.",
+				"desc": "Sings a powerful musical note inline that splits on impact and even bounces.",
 				"info": "20 sonic damage that can continue on.",
 				"upgrade": "Penetrates for -50% damage.",
 				"damages": {
