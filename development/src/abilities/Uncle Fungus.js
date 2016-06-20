@@ -161,7 +161,7 @@ G.abilities[3] =[
 		var range = G.grid.allHexs.slice(0); // Copy
 		range.filter(function() {
 			if(uncle.y == this.y) {
-				if(this.creature instanceof Creature && this.creature != uncle){
+				if(this.creature instanceof Creature && this.creature != uncle) {
 					hexsDashed.push(this);
 					return false;
 				}
@@ -219,7 +219,7 @@ G.abilities[3] =[
 
 		// Frogger Leap bonus
 		ability.creature.addEffect( new Effect(
-			"Offense++", // Name
+			"Offense Bonus", // Name
 			ability.creature, // Caster
 			ability.creature, // Target
 			"onStepIn onEndPhase", // Trigger
@@ -282,9 +282,9 @@ G.abilities[3] =[
 		);
 		target.takeDamage(damage);
 
-		// Remove frogger bonus if its found
+		// Remove Frogger Jump bonus if its found
 		ability.creature.effects.each(function() {
-			if(this.name == "Offense++") {
+			if(this.name == "Offense Bonus") {
 				this.deleteEffect();
 			}
 		});
