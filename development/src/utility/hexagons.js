@@ -1694,7 +1694,7 @@ var Trap = Class.create({
 		return this;
 	};
 
-	/*	filterCreature(hexs, reverse, includeCrea, stopOnCreature)
+	/*	filterCreature(includeCrea, stopOnCreature, id)
 	*
 	*	includeCrea : 		Boolean : 	Add creature hexs to the array
 	*	stopOnCreature : 	Boolean : 	Cut the array when finding a creature

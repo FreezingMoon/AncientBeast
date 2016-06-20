@@ -230,7 +230,7 @@ G.abilities[37] =[
 		];
 
 		choices.each(function() {
-			this.filterCreature(true, true, swine.id, swine.team);
+			this.filterCreature(true, true, swine.id);
 		});
 
 		G.grid.queryChoice( {

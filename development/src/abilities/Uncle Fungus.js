@@ -161,7 +161,11 @@ G.abilities[3] =[
 	require : function() { return this.testRequirements(); },
 
 	fnOnSelect : function(hex,args){
-		this.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player" + this.creature.team })
+		this.creature.tracePosition({
+			x: hex.x,
+			y: hex.y,
+			overlayClass: "creature moveto selected player" + this.creature.team
+		});
 	},
 
 	// query() :
@@ -169,19 +173,13 @@ G.abilities[3] =[
 		var ability = this;
 		var uncle = this.creature;
 
-		var hexsDashed = [];
-
-		var range = G.grid.allHexs.slice(0); // Copy
-		range.filter(function() {
-			if(uncle.y == this.y) {
-				if(this.creature instanceof Creature && this.creature != uncle) {
-					hexsDashed.push(this);
-					return false;
-				}
-				return true;
-			}
-			return false;
-		});
+		// If upgraded, leap over creatures as well; otherwise stop on creatures
+		var stopOnCreature = !this.isUpgraded();
+		var forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, straitrow);
+		forward = forward.filterCreature(false, stopOnCreature, uncle.id);
+		var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, straitrow);
+		backward = backward.filterCreature(false, stopOnCreature, uncle.id);
+		var range = forward.concat(backward);
 
 		G.grid.queryHexs({
 			fnOnSelect : function() { ability.fnOnSelect.apply(ability, arguments); },
@@ -197,7 +195,7 @@ G.abilities[3] =[
 			flipped :  uncle.player.flipped,
 			id :  uncle.id,
 			hexs : range,
-			hexsDashed : hexsDashed,
+			hexsDashed : [],
 			hideNonTarget : true
 		});
 	},
@@ -221,7 +219,7 @@ G.abilities[3] =[
 						G.UI.selectAbility(-1);
 						G.activeCreature.queryMove();
 					}
-				},100)
+				}, 100);
 			},
 			callbackStepIn : function(hex) {
 				if(ability.creature.abilities[0].require(hex)) {
