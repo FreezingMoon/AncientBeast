@@ -24,10 +24,12 @@ var Ability = Class.create( {
 	},
 
 	getTrigger: function() {
-		if (this.trigger) {
+		if (this.trigger !== undefined) {
 			return this.trigger;
+		} else if (this.triggerFunc !== undefined) {
+			return this.triggerFunc();
 		}
-		return this.triggerFunc();
+		return undefined;
 	},
 
 
