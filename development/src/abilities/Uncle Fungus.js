@@ -173,13 +173,10 @@ G.abilities[3] =[
 		var ability = this;
 		var uncle = this.creature;
 
-		// If upgraded, leap over creatures as well; otherwise stop on creatures
-		var stopOnCreature = !this.isUpgraded();
-		var forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, straitrow);
-		forward = forward.filterCreature(false, stopOnCreature, uncle.id);
-		var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, straitrow);
-		backward = backward.filterCreature(false, stopOnCreature, uncle.id);
-		var range = forward.concat(backward);
+		// Don't jump over creatures if we're not upgraded, or we are in a second
+		// "low" jump
+		var stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
+		var hexes = this._getHexRange(stopOnCreature);
 
 		G.grid.queryHexs({
 			fnOnSelect : function() { ability.fnOnSelect.apply(ability, arguments); },
@@ -194,7 +191,7 @@ G.abilities[3] =[
 			size :  uncle.size,
 			flipped :  uncle.player.flipped,
 			id :  uncle.id,
-			hexs : range,
+			hexs : hexes,
 			hexsDashed : [],
 			hideNonTarget : true
 		});
@@ -206,6 +203,23 @@ G.abilities[3] =[
 
 		var ability = this;
 		ability.end(false,true); // Defered ending
+
+		// If upgraded and we haven't leapt over creatures/obstacles, allow a second
+		// jump of the same kind
+		if (this.isUpgraded() && !this._isSecondLowJump()) {
+			// Check if we've leapt over creatures by finding all "low" jumps (jumps
+			// not over creatures), and finding whether this jump was a "low" one
+			var lowJumpHexes = this._getHexRange(true);
+			var isLowJump = false;
+			for (var i = 0; i < lowJumpHexes.length; i++) {
+				if (lowJumpHexes[i].x === hex.x && lowJumpHexes[i].y === hex.y) {
+					isLowJump = true;
+				}
+			}
+			if (isLowJump) {
+				this.setUsed(false);
+			}
+		}
 
 		ability.creature.moveTo(hex, {
 			ignoreMovementPoint : true,
@@ -242,6 +256,20 @@ G.abilities[3] =[
 			} // Optional arguments
 		) );
 	},
+
+	_getHexRange: function(stopOnCreature) {
+		// Get the hex range of this ability
+		var uncle = this.creature;
+		var forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, straitrow);
+		forward = forward.filterCreature(false, stopOnCreature, uncle.id);
+		var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, straitrow);
+		backward = backward.filterCreature(false, stopOnCreature, uncle.id);
+		return forward.concat(backward);
+	},
+
+	_isSecondLowJump: function() {
+		return this.timesUsedThisTurn === 1;
+	}
 },
 
 
