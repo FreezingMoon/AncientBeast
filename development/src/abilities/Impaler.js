@@ -159,90 +159,116 @@ G.abilities[5] =[
 
 
 
-// 	Fourth Ability: Arched Pole
+//	Fourth Ability: Chain Lightning
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	// 	require() :
+	directions : [0,1,0,0,1,0],
+
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x, this.creature.y-2, 0, false,this.map).concat( G.grid.getHexMap(this.creature.x-this.creature.size+1, this.creature.y-2, 0, true, this.map) ), "enemy" ) ) {
+		if( !this.testDirection({ team : "both", directions : this.directions }) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
+		}
+		// Duality
+		if( this.creature.abilities[0].used ) {
+			//this.message = "Duality has already been used";
+			//return false;
+		}else{
+			this.setUsed(false);
 		}
 		return true;
 	},
 
-	map : [  [0,0,0,0],
-			[0,1,0,0],
-			 [0,1,0,0], // Origin line
-			[0,1,0,0],
-			 [0,0,0,0]],
-
-	// query() :
-	query : function() {
+	//	query() :
+	query : function(){
 		var ability = this;
+		var chimera = this.creature;
 
-		G.grid.queryChoice( {
-			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
+		G.grid.queryDirection( {
+			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
+			flipped : chimera.player.flipped,
 			team : "both",
-			requireCreature : 1,
-			id : this.creature.id,
-			flipped : this.creature.flipped,
-			choices : [
-				G.grid.getHexMap(this.creature.x,this.creature.y-2, 0, false, this.map),
-				G.grid.getHexMap(this.creature.x-this.creature.size+1, this.creature.y-2, 0, true, this.map)
-			],
-		})
+			id : chimera.id,
+			requireCreature : true,
+			x : chimera.x,
+			y : chimera.y,
+			directions : this.directions,
+		});
 	},
 
 
-	// activate() :
-	activate : function(hexs,args) {
+	//	activate() :
+	activate : function(path, args) {
 		var ability = this;
+
+		ability.creature.abilities[0].abilityTriggered(2);
+
 		ability.end();
 
-		var targets = ability.getTargets(hexs);
+		var targets = [];
+		targets.push(path.last().creature); // Add First creature hit
+		var nextdmg = $j.extend({},ability.damages); // Copy the object
 
-		targets.each(function() {
-			if(this != window) {
+		// For each Target
+		for (var i = 0; i < targets.length; i++) {
+			var trg = targets[i];
 
-				var finalDmg = $j.extend( { poison: 0, shock: 0 }, ability.damages); // Copy object
+			var damage = new Damage(
+				ability.creature, // Attacker
+				"target", // Attack Type
+				nextdmg, // Damage Type
+				1, // Area
+				[] // Effects
+			);
+			nextdmg = trg.takeDamage(damage);
 
-				// Poison Bonus
-				ability.creature.effects.each(function() {
-					if(this.trigger == "poisonous_vine_perm") {
-						finalDmg.poison += 1;
-					}else if(this.trigger == "poisonous_vine") {
-						finalDmg.poison += 5;
+			if(nextdmg.damages == undefined) break; // If attack is dodge
+			if(nextdmg.kill) break; // If target is killed
+			if(nextdmg.damages.total <= 0) break; // If damage is too weak
+			if(nextdmg.damageObj.status != "") break;
+			delete nextdmg.damages.total;
+			nextdmg = nextdmg.damages;
+
+			// Get next available targets
+			nextTargets = ability.getTargets(trg.adjacentHexs(1,true));
+
+			nextTargets.filter(function() {
+				if ( this.hexsHit == undefined ) return false; // Remove empty ids
+				return (targets.indexOf(this.target) == -1) ; // If this creature has already been hit
+			})
+
+			// If no target
+			if(nextTargets.length == 0) break;
+
+			// Best Target
+			var bestTarget = { size: 0, stats:{ defense:-99999, shock:-99999 } };
+			for (var j = 0; j < nextTargets.length; j++) { // For each creature
+				if (typeof nextTargets[j] == "undefined") continue; // Skip empty ids.
+
+				var t = nextTargets[j].target;
+				// Compare to best target
+				if(t.stats.shock > bestTarget.stats.shock){
+					if( ( t == ability.creature && nextTargets.length == 1 ) || // If target is chimera and the only target
+						t != ability.creature ) { // Or this is not chimera
+						bestTarget = t;
 					}
-				});
-
-				// Electrified Hair Bonus
-				if(ability.creature.electrifiedHair) {
-					if(ability.creature.electrifiedHair>25) {
-						finalDmg.shock += 25;
-						ability.creature.electrifiedHair -= 25;
-					}else if(ability.creature.electrifiedHair>0) {
-						finalDmg.shock += ability.creature.electrifiedHair;
-						ability.creature.electrifiedHair = 0;
-					}
+				} else {
+					continue;
 				}
 
-				G.UI.checkAbilities();
+			};
 
-				var damage = new Damage(
-					ability.creature, // Attacker
-					"target", // Attack Type
-					finalDmg, // Damage Type
-					1, // Area
-					[] // Effects
-				)
-				this.target.takeDamage(damage);
+			if( bestTarget instanceof Creature ){
+				targets.push(bestTarget);
+			}else{
+				break;
 			}
-		});
+		};
+
 	},
 }
 
