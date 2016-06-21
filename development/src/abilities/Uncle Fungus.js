@@ -270,7 +270,7 @@ G.abilities[3] =[
 
 
 
-// Fourth Ability: Blade Kick
+// Fourth Ability: Sabre Kick
 {
 	// Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -315,7 +315,29 @@ G.abilities[3] =[
 			1, // Area
 			[]	// Effects
 		);
-		target.takeDamage(damage);
+		var result = target.takeDamage(damage);
+
+		// If upgraded, knock back target by 1 hex
+		if (this.isUpgraded() && !result.kill) {
+			var dx = target.x - this.creature.x;
+			var dy = target.y - this.creature.y;
+			var dir = getDirectionFromDelta(target.y, dx, dy);
+			var hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
+			// The hex to knock back into is the second hex since the first is where
+			// they are currently
+			if (hexes.length >= 2 &&
+					hexes[1].isWalkable(target.size, target.id, true)) {
+				target.moveTo(hexes[1], {
+					callback : function() {
+						G.activeCreature.queryMove();
+					},
+					ignoreMovementPoint: true,
+					ignorePath: true,
+					overrideSpeed: 500, // Custom speed for knockback
+					animation: "push"
+				});
+			}
+		}
 
 		// Remove Frogger Jump bonus if its found
 		ability.creature.effects.each(function() {
