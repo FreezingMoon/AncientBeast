@@ -292,7 +292,7 @@
 				"info": "20 pierce damage, 1/2 as regrowth.",
 				"upgrade": "Instant healing until full.",
 				"effects": [{
-					"special": "1/4 of damages as %regrowth%"
+					"special": "1/2 of damages as %regrowth%"
 				}],
 				"damages": {
 					"pierce": 20

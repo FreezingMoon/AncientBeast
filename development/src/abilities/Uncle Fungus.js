@@ -110,23 +110,36 @@ G.abilities[3] =[
 
 		var dmg = target.takeDamage(damage);
 
-		if(dmg.damageObj.status == "") {
+		if (dmg.damageObj.status === "") {
 
-			var amount = Math.max(Math.round(dmg.damages.total / 4), 1);
+			var amount = Math.max(Math.round(dmg.damages.total / 2), 1);
+
+			// If upgraded, heal immediately up to the amount of health lost so far;
+			// use the remainder as regrowth
+			if (this.isUpgraded()) {
+				var healthLost = this.creature.stats.health - this.creature.health;
+				if (healthLost > 0) {
+					var healAmount = Math.min(amount, healthLost);
+					amount -= healAmount;
+					this.creature.heal(healAmount, false);
+				}
+			}
 
 			// Regrowth bonus
-			ability.creature.addEffect( new Effect(
-				ability.title, // Name
-				ability.creature, // Caster
-				ability.creature, // Target
-				"", // Trigger
-				{
-					turnLifetime : 1,
-					deleteTrigger : "onStartPhase",
-					alterations : {regrowth : amount }
-				} // Optional arguments
-			), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", //Custom Log
-			"Regrowth++" );	// Custom Hint
+			if (amount > 0) {
+				ability.creature.addEffect( new Effect(
+					ability.title, // Name
+					ability.creature, // Caster
+					ability.creature, // Target
+					"", // Trigger
+					{
+						turnLifetime : 1,
+						deleteTrigger : "onStartPhase",
+						alterations : {regrowth : amount }
+					} // Optional arguments
+				), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", //Custom Log
+				"Regrowth++" );	// Custom Hint
+			}
 		}
 
 		// Remove frogger bonus if its found
@@ -148,7 +161,11 @@ G.abilities[3] =[
 	require : function() { return this.testRequirements(); },
 
 	fnOnSelect : function(hex,args){
-		this.creature.tracePosition({ x: hex.x, y: hex.y, overlayClass: "creature moveto selected player" + this.creature.team })
+		this.creature.tracePosition({
+			x: hex.x,
+			y: hex.y,
+			overlayClass: "creature moveto selected player" + this.creature.team
+		});
 	},
 
 	// query() :
@@ -156,19 +173,10 @@ G.abilities[3] =[
 		var ability = this;
 		var uncle = this.creature;
 
-		var hexsDashed = [];
-
-		var range = G.grid.allHexs.slice(0); // Copy
-		range.filter(function() {
-			if(uncle.y == this.y) {
-				if(this.creature instanceof Creature && this.creature != uncle) {
-					hexsDashed.push(this);
-					return false;
-				}
-				return true;
-			}
-			return false;
-		});
+		// Don't jump over creatures if we're not upgraded, or we are in a second
+		// "low" jump
+		var stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
+		var hexes = this._getHexRange(stopOnCreature);
 
 		G.grid.queryHexs({
 			fnOnSelect : function() { ability.fnOnSelect.apply(ability, arguments); },
@@ -183,8 +191,8 @@ G.abilities[3] =[
 			size :  uncle.size,
 			flipped :  uncle.player.flipped,
 			id :  uncle.id,
-			hexs : range,
-			hexsDashed : hexsDashed,
+			hexs : hexes,
+			hexsDashed : [],
 			hideNonTarget : true
 		});
 	},
@@ -196,9 +204,27 @@ G.abilities[3] =[
 		var ability = this;
 		ability.end(false,true); // Defered ending
 
+		// If upgraded and we haven't leapt over creatures/obstacles, allow a second
+		// jump of the same kind
+		if (this.isUpgraded() && !this._isSecondLowJump()) {
+			// Check if we've leapt over creatures by finding all "low" jumps (jumps
+			// not over creatures), and finding whether this jump was a "low" one
+			var lowJumpHexes = this._getHexRange(true);
+			var isLowJump = false;
+			for (var i = 0; i < lowJumpHexes.length; i++) {
+				if (lowJumpHexes[i].x === hex.x && lowJumpHexes[i].y === hex.y) {
+					isLowJump = true;
+				}
+			}
+			if (isLowJump) {
+				this.setUsed(false);
+			}
+		}
+
+		// Jump directly to hex
 		ability.creature.moveTo(hex, {
-			ignoreMovementPoint : true,
-			ignorePath : true,
+			ignoreMovementPoint: true,
+			ignorePath: true,
 			callback : function() {
 				G.triggersFn.onStepIn(ability.creature,ability.creature.hexagons[0]);
 
@@ -208,12 +234,7 @@ G.abilities[3] =[
 						G.UI.selectAbility(-1);
 						G.activeCreature.queryMove();
 					}
-				},100)
-			},
-			callbackStepIn : function(hex) {
-				if(ability.creature.abilities[0].require(hex)) {
-					ability.creature.abilities[0].activate(hex); // Toxic spores
-				}
+				}, 100);
 			}
 		});
 
@@ -231,11 +252,25 @@ G.abilities[3] =[
 			} // Optional arguments
 		) );
 	},
+
+	_getHexRange: function(stopOnCreature) {
+		// Get the hex range of this ability
+		var uncle = this.creature;
+		var forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, straitrow);
+		forward = forward.filterCreature(false, stopOnCreature, uncle.id);
+		var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, straitrow);
+		backward = backward.filterCreature(false, stopOnCreature, uncle.id);
+		return forward.concat(backward);
+	},
+
+	_isSecondLowJump: function() {
+		return this.timesUsedThisTurn === 1;
+	}
 },
 
 
 
-// Fourth Ability: Blade Kick
+// Fourth Ability: Sabre Kick
 {
 	// Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -280,7 +315,29 @@ G.abilities[3] =[
 			1, // Area
 			[]	// Effects
 		);
-		target.takeDamage(damage);
+		var result = target.takeDamage(damage);
+
+		// If upgraded, knock back target by 1 hex
+		if (this.isUpgraded() && !result.kill) {
+			var dx = target.x - this.creature.x;
+			var dy = target.y - this.creature.y;
+			var dir = getDirectionFromDelta(target.y, dx, dy);
+			var hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
+			// The hex to knock back into is the second hex since the first is where
+			// they are currently
+			if (hexes.length >= 2 &&
+					hexes[1].isWalkable(target.size, target.id, true)) {
+				target.moveTo(hexes[1], {
+					callback : function() {
+						G.activeCreature.queryMove();
+					},
+					ignoreMovementPoint: true,
+					ignorePath: true,
+					overrideSpeed: 500, // Custom speed for knockback
+					animation: "push"
+				});
+			}
+		}
 
 		// Remove Frogger Jump bonus if its found
 		ability.creature.effects.each(function() {

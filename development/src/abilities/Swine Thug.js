@@ -119,35 +119,7 @@ G.abilities[37] =[
 			// Calculate relative direction from creature to target
 			var dx = target.x - ability.creature.x;
 			var dy = target.y - ability.creature.y;
-			// Due to target size, this could be off; limit dx
-			if(dx > 1) dx = 1;
-			if(dx < -1) dx = -1;
-			var dir;
-			if (dy === 0) {
-				if (dx === 1) {
-					dir = 1; // forward
-				} else { // dx === -1
-					dir = 4; // backward
-				}
-			} else {
-				// Hex grid corrections
-				if (target.y % 2 == 0 && dx < 1) {
-					dx++;
-				}
-				if (dx === 1) {
-					if (dy === -1) {
-						dir = 0; // upright
-					} else { // dy === 1
-						dir = 2; // downright
-					}
-				} else { // dx === 0
-					if (dy === 1) {
-						dir = 3; // downleft
-					} else { // dy === -1
-						dir = 5; // upleft
-					}
-				}
-			}
+			var dir = getDirectionFromDelta(target.y, dx, dy);
 			var hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
 			var hex = null;
 			// See how far the target can be knocked back
@@ -230,7 +202,7 @@ G.abilities[37] =[
 		];
 
 		choices.each(function() {
-			this.filterCreature(true, true, swine.id, swine.team);
+			this.filterCreature(true, true, swine.id);
 		});
 
 		G.grid.queryChoice( {

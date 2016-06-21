@@ -10,6 +10,7 @@ var Ability = Class.create( {
 		this.id = abilityID;
 		this.priority = 0; // Priority for same trigger
 		this.timesUsed = 0;
+		this.timesUsedThisTurn = 0;
 		var datas = G.retreiveCreatureStats(creature.type);
 		$j.extend(true,this,G.abilities[datas.id][abilityID],datas.ability_info[abilityID]);
 		if( this.requirements === undefined && this.costs !== undefined ) {
@@ -32,6 +33,14 @@ var Ability = Class.create( {
 		return undefined;
 	},
 
+	/**
+	 * Reset ability at start of turn.
+	 */
+	reset: function() {
+		this.setUsed(false);
+		this.token = 0;
+		this.timesUsedThisTurn = 0;
+	},
 
 	/* use()
 	*
@@ -135,8 +144,9 @@ var Ability = Class.create( {
 
 		var activateAbility = function() {
 			ab.activate.apply(ab,args);
-			ab.timesUsed += 1;
-		}
+			ab.timesUsed++;
+			ab.timesUsedThisTurn++;
+		};
 
 		G.freezedInput = true;
 
