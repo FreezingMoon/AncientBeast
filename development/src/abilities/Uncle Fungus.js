@@ -221,9 +221,10 @@ G.abilities[3] =[
 			}
 		}
 
+		// Jump directly to hex
 		ability.creature.moveTo(hex, {
-			ignoreMovementPoint : true,
-			ignorePath : true,
+			ignoreMovementPoint: true,
+			ignorePath: true,
 			callback : function() {
 				G.triggersFn.onStepIn(ability.creature,ability.creature.hexagons[0]);
 
@@ -234,11 +235,6 @@ G.abilities[3] =[
 						G.activeCreature.queryMove();
 					}
 				}, 100);
-			},
-			callbackStepIn : function(hex) {
-				if(ability.creature.abilities[0].require(hex)) {
-					ability.creature.abilities[0].activate(hex); // Toxic spores
-				}
 			}
 		});
 
