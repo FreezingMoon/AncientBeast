@@ -22,7 +22,11 @@ G.abilities[3] =[
 		if( !this.testRequirements() ) return false;
 
 		// Check that attack is melee
-		return damage && damage.melee;
+		if (damage && damage.melee !== undefined) {
+			return damage.melee;
+		}
+		// Always return true so that ability is highlighted in UI
+		return true;
 	},
 
 	// activate() :
