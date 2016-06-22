@@ -3407,7 +3407,7 @@
 		"name": "Scorpius",
 		"level": 5,
 		"realm": "E",
-		"size": 3,
+		"size": 2,
 		"type": "E5",
 		"set": "Alpha",
 		"stats": {
@@ -3436,14 +3436,14 @@
 		"ability_info": [
 			{
 				"title": "Palm Tree",
-				"desc": "This unit usually stays underground, revealing only the tail most of the time.",
-				"info": "Reduces 3 damage from incoming hits",
-				"upgrade": "Reduction increased to 6 pts."
+				"desc": "This unit prefers to hide underground, revealing only the tail most of the time.",
+				"info": "Becomes immovable by enemy abilities.",
+				"upgrade": "Clears 1 debuff stack per turn."
 		},
 			{
 				"title": "Crab Pincer",
 				"desc": "Powerful attack done on a nearby foe.",
-				"info": "10 pierce + 10 crush damage on strike",
+				"info": "10 pierce + 10 crush damage on strike.",
 				"upgrade": "-1 offense stackable debuff.",
 				"costs": {
 					"energy": 15
@@ -3452,16 +3452,16 @@
 			{
 				"title": "Stinger Venom",
 				"desc": "Pokes any foe within 2 hexagons range, piercing and poisoning it for two turns.",
-				"info": "10 pierce + 20 poison damage 2 rounds",
-				"upgrade": "Ignores 1/4 of defense stat.",
+				"info": "10 pierce + 20 poison damage 2 rounds.",
+				"upgrade": "Ignores half of defense stat.",
 				"costs": {
 					"energy": 25
 				}
 		},
 			{
 				"title": "Imbricated Scales",
-				"desc": "Launches a projectile that can split on impact, dealing 1/3 damage sideways.",
-				"info": "30 pierce damage, 10 pierce sideways",
+				"desc": "Launches a projectile that can split on impact, dealing 1/2 damage each side.",
+				"info": "30 pierce damage, 10 pierce sideways.",
 				"upgrade": "Both split shards penetrate.",
 				"costs": {
 					"energy": 30
