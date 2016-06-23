@@ -200,7 +200,8 @@ G.abilities[31] =[
 		}
 
 		if (this.token > 0) {
-			G.log(this.token + " rockets missed");
+			G.log("%CreatureName" + this.creature.id + "%'s " + this.title +
+					" missed " + this.token + " rocket(s)");
 		}
 
 		G.UI.checkAbilities();
@@ -209,7 +210,6 @@ G.abilities[31] =[
 
 
 
-// 	Forth Ability: Targeting System
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -265,7 +265,8 @@ G.abilities[31] =[
 			damages[key] *= rocketsToUse;
 		}
 
-		G.log(rocketsToUse + " rockets locked");
+		G.log("%CreatureName" + this.creature.id + "%'s " + this.title +
+				" redirected " + rocketsToUse + " rocket(s)");
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
