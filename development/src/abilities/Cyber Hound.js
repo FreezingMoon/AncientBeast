@@ -123,8 +123,6 @@ G.abilities[31] =[
 		return this.testRequirements();
 	},
 
-	token : 0,
-
 	// 	query() :
 	query : function() {
 
@@ -201,6 +199,10 @@ G.abilities[31] =[
 			target.takeDamage(damage);
 		}
 
+		if (this.token > 0) {
+			G.log(this.token + " rockets missed");
+		}
+
 		G.UI.checkAbilities();
 	},
 },
@@ -216,8 +218,8 @@ G.abilities[31] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if(this.creature.abilities[2].token == 0){
-			this.message = "No rocket launched."
+		if (this.creature.abilities[2].token === 0) {
+			this.message = "No rocket launched.";
 			return false;
 		}
 
@@ -249,17 +251,30 @@ G.abilities[31] =[
 
 		var target = crea;
 
-		this.creature.abilities[2].token -= 1;
+		// Use all rockets if upgraded, or up to 2 if not
+		var rocketLauncherAbility = this.creature.abilities[2];
+		var rocketsToUse = rocketLauncherAbility.token;
+		if (!this.isUpgraded()) {
+			rocketsToUse = Math.min(rocketsToUse, 2);
+		}
+		rocketLauncherAbility.token -= rocketsToUse;
 
+		// Multiply damage by number of rockets
+		var damages = $j.extend({}, rocketLauncherAbility.damages);
+		for (var key in damages) {
+			damages[key] *= rocketsToUse;
+		}
+
+		G.log(rocketsToUse + " rockets locked");
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
-			this.creature.abilities[2].damages, //Damage Type
+			damages, //Damage Type
 			1, //Area
 			[]	//Effects
 		);
 		target.takeDamage(damage);
-	},
+	}
 }
 
 ];

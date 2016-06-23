@@ -2375,8 +2375,8 @@
 				"info": "This attack counts as a single strike.",
 				"upgrade": "All rockets are being used.",
 				"damages": {
-					"crush": 8,
-					"burn": 8
+					"crush": 10,
+					"burn": 10
 				},
 				"costs": {
 					"energy": 10
