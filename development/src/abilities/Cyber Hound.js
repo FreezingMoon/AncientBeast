@@ -112,6 +112,14 @@ G.abilities[31] =[
 	trigger : "onQuery",
 
 	require : function() {
+		// Recalculate energy requirements/costs based on whether this is ugpraded
+		if (this.isUpgraded()) {
+			this.requirements = { energy: 30 };
+			this.costs = { energy: 30 };
+		} else {
+			this.requirements = { energy: 40 };
+			this.costs = { energy: 40 };
+		}
 		return this.testRequirements();
 	},
 
@@ -155,16 +163,17 @@ G.abilities[31] =[
 
 		var crea = this.creature;
 
-		if( choice.choiceId == 0 ){
+		var rows;
+		if (choice.choiceId === 0) {
 			//Front
-			var rows = [
+			rows = [
 				G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id),
 				G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true,true,crea.id),
 				G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id)
 			];
 		}else{
 			//Back
-			var rows = [
+			rows = [
 				G.grid.getHexMap(crea.x-1,crea.y-2,0,true,bellowrow).filterCreature(true,true,crea.id),
 				G.grid.getHexMap(crea.x-1,crea.y,0,true,straitrow).filterCreature(true,true,crea.id),
 				G.grid.getHexMap(crea.x-1,crea.y,0,true,bellowrow).filterCreature(true,true,crea.id)
@@ -173,7 +182,8 @@ G.abilities[31] =[
 
 
 		for (var i = 0; i < rows.length; i++) {
-			if( rows[i].length == 0 || !(rows[i][ rows[i].length-1 ].creature instanceof Creature) ) {
+			if (rows[i].length === 0 ||
+					!(rows[i][ rows[i].length-1 ].creature instanceof Creature) ) {
 				//Miss
 				this.token += 1;
 				continue;
@@ -189,7 +199,7 @@ G.abilities[31] =[
 				[]	//Effects
 			);
 			target.takeDamage(damage);
-		};
+		}
 
 		G.UI.checkAbilities();
 	},
