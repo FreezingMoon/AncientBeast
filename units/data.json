@@ -2394,10 +2394,10 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 120,
-			"regrowth": 12,
+			"regrowth": 21,
 			"endurance": 40,
 			"energy": 60,
-			"meditation": 15,
+			"meditation": 10,
 			"initiative": 30,
 			"offense": 5,
 			"defense": 5,
