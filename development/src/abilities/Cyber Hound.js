@@ -7,7 +7,14 @@ G.abilities[31] =[
 
 // 	First Ability: Bad Doggie
 {
-	trigger: "onStartPhase onEndPhase",
+	triggerFunc: function() {
+		// When upgraded, trigger both at start and end of turn
+		// Otherwise just trigger at start
+		if (this.isUpgraded()) {
+			return "onStartPhase onEndPhase";
+		}
+		return "onStartPhase";
+	},
 
 	require: function() {
 		if (!this.testRequirements()) return false;
