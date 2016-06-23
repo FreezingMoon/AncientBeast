@@ -32,11 +32,11 @@ G.abilities[31] =[
 		this.end();
 
 		var damage = new Damage(
-			this.creature, //Attacker
-			"target", //Attack Type
-			this.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			this.creature, // Attacker
+			"target", // Attack Type
+			this.damages, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 		target.takeDamage(damage);
 
@@ -70,8 +70,8 @@ G.abilities[31] =[
 		var crea = this.creature;
 
 		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); }, //fnOnConfirm
-			team : 0, //Team, 0 = enemies
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
+			team : 0, // Team, 0 = enemies
 			id : crea.id,
 			flipped : crea.player.flipped,
 			hexs : crea.getHexMap(frontnback2hex)
@@ -85,11 +85,11 @@ G.abilities[31] =[
 		ability.end();
 
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			ability.damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			ability.damages, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 		target.takeDamage(damage);
 
@@ -131,21 +131,21 @@ G.abilities[31] =[
 
 		var choices = [
 			//Front
-			G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true, true, crea.id).concat(
-			G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true, true, crea.id),
-			G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true, true, crea.id)),
+			G.grid.getHexMap(crea.x, crea.y-2, 0, false, bellowrow).filterCreature(true, true, crea.id).concat(
+			G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow).filterCreature(true, true, crea.id),
+			G.grid.getHexMap(crea.x, crea.y, 0, false, bellowrow).filterCreature(true, true, crea.id)),
 			//Behind
-			G.grid.getHexMap(crea.x-1,crea.y-2,0,true,bellowrow).filterCreature(true, true, crea.id).concat(
-			G.grid.getHexMap(crea.x-1,crea.y,0,true,straitrow).filterCreature(true, true, crea.id),
-			G.grid.getHexMap(crea.x-1,crea.y,0,true,bellowrow).filterCreature(true, true, crea.id))
+			G.grid.getHexMap(crea.x-1, crea.y-2, 0, true, bellowrow).filterCreature(true, true, crea.id).concat(
+			G.grid.getHexMap(crea.x-1, crea.y, 0, true, straitrow).filterCreature(true, true, crea.id),
+			G.grid.getHexMap(crea.x-1, crea.y, 0, true, bellowrow).filterCreature(true, true, crea.id))
 		];
 
 		choices[0].choiceId = 0;
 		choices[1].choiceId = 1;
 
 		G.grid.queryChoice({
-			fnOnCancel : function(){ G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
+			fnOnCancel : function() { G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			team : "both",
 			id : crea.id,
 			requireCreature : false,
@@ -163,18 +163,18 @@ G.abilities[31] =[
 
 		var rows;
 		if (choice.choiceId === 0) {
-			//Front
+			// Front
 			rows = [
-				G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id),
-				G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true,true,crea.id),
-				G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id)
+				G.grid.getHexMap(crea.x, crea.y-2, 0, false, bellowrow).filterCreature(true, true, crea.id),
+				G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow).filterCreature(true, true, crea.id),
+				G.grid.getHexMap(crea.x, crea.y, 0, false, bellowrow).filterCreature(true, true, crea.id)
 			];
-		}else{
-			//Back
+		} else {
+			// Back
 			rows = [
-				G.grid.getHexMap(crea.x-1,crea.y-2,0,true,bellowrow).filterCreature(true,true,crea.id),
-				G.grid.getHexMap(crea.x-1,crea.y,0,true,straitrow).filterCreature(true,true,crea.id),
-				G.grid.getHexMap(crea.x-1,crea.y,0,true,bellowrow).filterCreature(true,true,crea.id)
+				G.grid.getHexMap(crea.x-1, crea.y-2, 0,true, bellowrow).filterCreature(true, true, crea.id),
+				G.grid.getHexMap(crea.x-1, crea.y, 0, true, straitrow).filterCreature(true, true, crea.id),
+				G.grid.getHexMap(crea.x-1, crea.y, 0, true, bellowrow).filterCreature(true, true, crea.id)
 			];
 		}
 
@@ -200,8 +200,7 @@ G.abilities[31] =[
 		}
 
 		if (this.token > 0) {
-			G.log("%CreatureName" + this.creature.id + "%'s " + this.title +
-					" missed " + this.token + " rocket(s)");
+			G.log("%CreatureName" + this.creature.id + "% missed " + this.token + " rocket(s)");
 		}
 
 		G.UI.checkAbilities();
@@ -212,7 +211,7 @@ G.abilities[31] =[
 
 // 	Fourth Ability: Target Locking
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
+	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
 	// 	require() :
@@ -228,16 +227,16 @@ G.abilities[31] =[
 	},
 
 	// 	query() :
-	query : function(){
+	query : function() {
 
 		var ability = this;
 		var crea = this.creature;
 
-		var hexs = G.grid.allHexs.slice(0); //Copy array
+		var hexs = G.grid.allHexs.slice(0); // Copy array
 
-		G.grid.queryCreature({
-			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
-			team : 0, //Team, 0 = enemies
+		G.grid.queryCreature( {
+			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
+			team : 0, // Team, 0 = enemies
 			id : crea.id,
 			flipped : crea.player.flipped,
 			hexs : hexs
@@ -246,7 +245,7 @@ G.abilities[31] =[
 
 
 	//	activate() :
-	activate : function(crea,args) {
+	activate : function(crea, args) {
 		var ability = this;
 		ability.end();
 
@@ -266,14 +265,13 @@ G.abilities[31] =[
 			damages[key] *= rocketsToUse;
 		}
 
-		G.log("%CreatureName" + this.creature.id + "%'s " + this.title +
-				" redirected " + rocketsToUse + " rocket(s)");
+		G.log("%CreatureName" + this.creature.id + "% redirects " + rocketsToUse + " rocket(s)");
 		var damage = new Damage(
-			ability.creature, //Attacker
-			"target", //Attack Type
-			damages, //Damage Type
-			1, //Area
-			[]	//Effects
+			ability.creature, // Attacker
+			"target", // Attack Type
+			damages, // Damage Type
+			1, // Area
+			[]	// Effects
 		);
 		target.takeDamage(damage);
 	}
