@@ -2338,8 +2338,8 @@
 				"upgrade": "Also bites before turn ends.",
 				"affectedByMatSickness": 1,
 				"damages": {
-					"pierce": 8,
-					"crush": 2
+					"pierce": 12,
+					"crush": 10
 				}
 		},
 
