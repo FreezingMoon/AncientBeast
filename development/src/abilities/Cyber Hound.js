@@ -5,36 +5,30 @@
 */
 G.abilities[31] =[
 
-// 	First Ability: Bad Dog
+// 	First Ability: Bad Doggie
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onOtherCreatureMove onOtherCreatureSummon",
-
-	// 	require() :
-	require : function(hex){
-		if( !this.testRequirements() ) return false;
-
-		//OnSummon Fix
-		if( hex instanceof Creature){
-			var hex = {creature : hex};
+	triggerFunc: function() {
+		// When upgraded, trigger both at start and end of turn
+		// Otherwise just trigger at start
+		if (this.isUpgraded()) {
+			return "onStartPhase onEndPhase";
 		}
+		return "onStartPhase";
+	},
 
-		if( hex instanceof Hex && hex.creature instanceof Creature ){
+	require: function() {
+		if (!this.testRequirements()) return false;
 
-			if( this.creature.isAlly( hex.creature.team ) ) return false; //Don't bite ally
-
-			var isAdj = false;
-
-			//Search if Cyber hound is adjacent to the creature that is moving
-			if( hex.creature.hexagons.indexOf( this.creature.getHexMap(inlinefront2hex)[0] ) != -1) isAdj = true;
-
-			if( !isAdj ) return false;
-		}
+		// Check if there's an enemy creature in front
+		var hexesInFront = this.creature.getHexMap(inlinefront2hex);
+		if (hexesInFront.length < 1) return false;
+		var target = hexesInFront[0].creature;
+		if (!target) return false;
+		if (this.creature.isAlly(target.team)) return false;
 		return true;
 	},
 
-	//	activate() :
-	activate : function(hex) {
+	activate: function() {
 		var ability = this;
 		ability.end();
 
@@ -98,6 +92,15 @@ G.abilities[31] =[
 			[]	//Effects
 		);
 		target.takeDamage(damage);
+
+		// If upgrade, also steal up to 8 energy
+		if (this.isUpgraded()) {
+			var energySteal = Math.min(8, target.energy);
+			target.energy -= energySteal;
+			this.creature.recharge(energySteal);
+			G.log("%CreatureName" + this.creature.id + "% steals " + energySteal +
+				" energy from %CreatureName" + target.id + "%");
+		}
 	},
 },
 
@@ -109,10 +112,16 @@ G.abilities[31] =[
 	trigger : "onQuery",
 
 	require : function() {
+		// Recalculate energy requirements/costs based on whether this is ugpraded
+		if (this.isUpgraded()) {
+			this.requirements = { energy: 30 };
+			this.costs = { energy: 30 };
+		} else {
+			this.requirements = { energy: 40 };
+			this.costs = { energy: 40 };
+		}
 		return this.testRequirements();
 	},
-
-	token : 0,
 
 	// 	query() :
 	query : function() {
@@ -152,16 +161,17 @@ G.abilities[31] =[
 
 		var crea = this.creature;
 
-		if( choice.choiceId == 0 ){
+		var rows;
+		if (choice.choiceId === 0) {
 			//Front
-			var rows = [
+			rows = [
 				G.grid.getHexMap(crea.x,crea.y-2,0,false,bellowrow).filterCreature(true,true,crea.id),
 				G.grid.getHexMap(crea.x,crea.y,0,false,straitrow).filterCreature(true,true,crea.id),
 				G.grid.getHexMap(crea.x,crea.y,0,false,bellowrow).filterCreature(true,true,crea.id)
 			];
 		}else{
 			//Back
-			var rows = [
+			rows = [
 				G.grid.getHexMap(crea.x-1,crea.y-2,0,true,bellowrow).filterCreature(true,true,crea.id),
 				G.grid.getHexMap(crea.x-1,crea.y,0,true,straitrow).filterCreature(true,true,crea.id),
 				G.grid.getHexMap(crea.x-1,crea.y,0,true,bellowrow).filterCreature(true,true,crea.id)
@@ -170,7 +180,8 @@ G.abilities[31] =[
 
 
 		for (var i = 0; i < rows.length; i++) {
-			if( rows[i].length == 0 || !(rows[i][ rows[i].length-1 ].creature instanceof Creature) ) {
+			if (rows[i].length === 0 ||
+					!(rows[i][ rows[i].length-1 ].creature instanceof Creature) ) {
 				//Miss
 				this.token += 1;
 				continue;
@@ -186,7 +197,11 @@ G.abilities[31] =[
 				[]	//Effects
 			);
 			target.takeDamage(damage);
-		};
+		}
+
+		if (this.token > 0) {
+			G.log(this.token + " rockets missed");
+		}
 
 		G.UI.checkAbilities();
 	},
@@ -203,8 +218,8 @@ G.abilities[31] =[
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if(this.creature.abilities[2].token == 0){
-			this.message = "No rocket launched."
+		if (this.creature.abilities[2].token === 0) {
+			this.message = "No rocket launched.";
 			return false;
 		}
 
@@ -236,17 +251,30 @@ G.abilities[31] =[
 
 		var target = crea;
 
-		this.creature.abilities[2].token -= 1;
+		// Use all rockets if upgraded, or up to 2 if not
+		var rocketLauncherAbility = this.creature.abilities[2];
+		var rocketsToUse = rocketLauncherAbility.token;
+		if (!this.isUpgraded()) {
+			rocketsToUse = Math.min(rocketsToUse, 2);
+		}
+		rocketLauncherAbility.token -= rocketsToUse;
 
+		// Multiply damage by number of rockets
+		var damages = $j.extend({}, rocketLauncherAbility.damages);
+		for (var key in damages) {
+			damages[key] *= rocketsToUse;
+		}
+
+		G.log(rocketsToUse + " rockets locked");
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
-			this.creature.abilities[2].damages, //Damage Type
+			damages, //Damage Type
 			1, //Area
 			[]	//Effects
 		);
 		target.takeDamage(damage);
-	},
+	}
 }
 
 ];

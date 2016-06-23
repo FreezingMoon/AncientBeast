@@ -241,7 +241,7 @@ var Creature = Class.create( {
 				}
 
 				if(crea.stats.meditation > 0) {
-					crea.energy = Math.min( crea.stats.energy, crea.energy + crea.stats.meditation ); //cap
+					crea.recharge(crea.stats.meditation);
 				}
 
 			}else{
@@ -768,7 +768,13 @@ var Creature = Class.create( {
 		}
 	},
 
-
+	/**
+	 * Restore energy up to the max limit
+	 * @param {number} amount: amount of energy to restore
+	 */
+	recharge: function(amount) {
+		this.energy = Math.min(this.stats.energy, this.energy + amount);
+	},
 
 	/*	heal(amount)
 	*
