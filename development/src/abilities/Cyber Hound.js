@@ -17,31 +17,31 @@ G.abilities[31] =[
 	},
 
 	require: function() {
-		if (!this.testRequirements()) return false;
-
-		// Check if there's an enemy creature in front
-		var hexesInFront = this.creature.getHexMap(inlinefront2hex);
-		if (hexesInFront.length < 1) return false;
-		var target = hexesInFront[0].creature;
-		if (!target) return false;
-		if (this.creature.isAlly(target.team)) return false;
-		return true;
+		// Check requirements in activate() so the ability is always highlighted
+		return this.testRequirements();
 	},
 
 	activate: function() {
-		var ability = this;
-		ability.end();
+		// Check if there's an enemy creature in front
+		var hexesInFront = this.creature.getHexMap(inlinefront2hex);
+		if (hexesInFront.length < 1) return;
+		var target = hexesInFront[0].creature;
+		if (!target) return;
+		if (this.creature.isAlly(target.team)) return;
 
-		var target = this.creature.getHexMap(inlinefront2hex)[0].creature;
+		this.end();
 
 		var damage = new Damage(
-			ability.creature, //Attacker
+			this.creature, //Attacker
 			"target", //Attack Type
-			ability.damages, //Damage Type
+			this.damages, //Damage Type
 			1, //Area
 			[]	//Effects
 		);
 		target.takeDamage(damage);
+
+		// Keep highlighted in UI
+		this.setUsed(false);
 	},
 },
 
@@ -200,7 +200,8 @@ G.abilities[31] =[
 		}
 
 		if (this.token > 0) {
-			G.log(this.token + " rockets missed");
+			G.log("%CreatureName" + this.creature.id + "%'s " + this.title +
+					" missed " + this.token + " rocket(s)");
 		}
 
 		G.UI.checkAbilities();
@@ -209,7 +210,7 @@ G.abilities[31] =[
 
 
 
-// 	Forth Ability: Targeting System
+// 	Fourth Ability: Target Locking
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -265,7 +266,8 @@ G.abilities[31] =[
 			damages[key] *= rocketsToUse;
 		}
 
-		G.log(rocketsToUse + " rockets locked");
+		G.log("%CreatureName" + this.creature.id + "%'s " + this.title +
+				" redirected " + rocketsToUse + " rocket(s)");
 		var damage = new Damage(
 			ability.creature, //Attacker
 			"target", //Attack Type
