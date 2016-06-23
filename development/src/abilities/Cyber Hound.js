@@ -92,6 +92,15 @@ G.abilities[31] =[
 			[]	//Effects
 		);
 		target.takeDamage(damage);
+
+		// If upgrade, also steal up to 8 energy
+		if (this.isUpgraded()) {
+			var energySteal = Math.min(8, target.energy);
+			target.energy -= energySteal;
+			this.creature.recharge(energySteal);
+			G.log("%CreatureName" + this.creature.id + "% steals " + energySteal +
+				" energy from %CreatureName" + target.id + "%");
+		}
 	},
 },
 
