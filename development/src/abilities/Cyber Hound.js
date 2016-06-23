@@ -5,36 +5,23 @@
 */
 G.abilities[31] =[
 
-// 	First Ability: Bad Dog
+// 	First Ability: Bad Doggie
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onOtherCreatureMove onOtherCreatureSummon",
+	trigger: "onStartPhase onEndPhase",
 
-	// 	require() :
-	require : function(hex){
-		if( !this.testRequirements() ) return false;
+	require: function() {
+		if (!this.testRequirements()) return false;
 
-		//OnSummon Fix
-		if( hex instanceof Creature){
-			var hex = {creature : hex};
-		}
-
-		if( hex instanceof Hex && hex.creature instanceof Creature ){
-
-			if( this.creature.isAlly( hex.creature.team ) ) return false; //Don't bite ally
-
-			var isAdj = false;
-
-			//Search if Cyber hound is adjacent to the creature that is moving
-			if( hex.creature.hexagons.indexOf( this.creature.getHexMap(inlinefront2hex)[0] ) != -1) isAdj = true;
-
-			if( !isAdj ) return false;
-		}
+		// Check if there's an enemy creature in front
+		var hexesInFront = this.creature.getHexMap(inlinefront2hex);
+		if (hexesInFront.length < 1) return false;
+		var target = hexesInFront[0].creature;
+		if (!target) return false;
+		if (this.creature.isAlly(target.team)) return false;
 		return true;
 	},
 
-	//	activate() :
-	activate : function(hex) {
+	activate: function() {
 		var ability = this;
 		ability.end();
 
