@@ -1213,7 +1213,7 @@
 				"info": "16 crush damage done to 7 hexagons.",
 				"upgrade" : "Does half damage to allies.",
 				"damages": {
-					"crush": 15
+					"crush": 16
 				},
 				"costs": {
 					"energy": 30
@@ -1228,7 +1228,7 @@
 					"special": "%movement% is set to 0 for a turn."
 				}],
 				"costs": {
-					"energy": 31
+					"energy": 20
 				}
             },
 			{
@@ -1243,7 +1243,7 @@
 					"special": "One hexagon knockback."
 				}],
 				"costs": {
-					"energy": 32
+					"energy": 30
 				}
             }
         ]

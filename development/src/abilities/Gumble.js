@@ -7,35 +7,14 @@ G.abilities[14] =[
 
 // 	First Ability: Gooey Body
 {
-	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onStartPhase",
-
-	// 	require() :
-	require : function(damage) {
-		if( !this.testRequirements() ) return false;
-
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "ally" ) ) {
-			this.message = G.msg.abilities.notarget;
-			return false;
-		}
-
+	require : function() {
+		// Always active
 		return true;
 	},
 
-	//	activate() :
-	activate : function() {
-		var ability = this;
-		ability.end();
-
-		var crea = this.creature;
-		var targets = this.getTargets(crea.adjacentHexs(1));
-		var nbrAlly = 0;
-		for (var i = 0; i < targets.length; i++) {
-			if(targets[i]===undefined) continue;
-			if(targets[i].target.isAlly(crea.team)) nbrAlly++;
-		};
-		crea.heal(crea.stats.health*nbrAlly/6);
-	},
+	activate: function() {
+		// Do nothing; ability is passive buff only
+	}
 },
 
 

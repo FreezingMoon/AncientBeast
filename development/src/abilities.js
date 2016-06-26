@@ -512,10 +512,11 @@ var Damage = Class.create( {
 
 		// DAMAGE CALCULATION
 		$j.each(this.damages,function(key, value) {
+			var points;
 			if(key=="pure") { // Bypass defense calculation
-				var points = value;
+				points = value;
 			} else {
-				var points = Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
+				points = Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key] )/100));
 				//For Debuging
 				if( G.debugMode ) console.log("damage = " + value + key + "dmg * (1 + (" + atk.offense + "atkoffense - " + trg.defense + "trgdefense / " + dmg.area + "area + " + atk[key] + "atk" + key + " - " + trg[key] + "trg" + key + " )/100)");
 			}
