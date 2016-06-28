@@ -159,6 +159,17 @@ var Creature = Class.create( {
 
 	},
 
+	/**
+	 * Get creature stats for the purpose of damage calculation
+	 * Some passive abilities may modify this creature's stats; apply them all
+	 */
+	getModifiedStats: function() {
+		var stats = $j.extend({}, this.stats);
+		for (var i = 0; i < this.abilities.length; i++) {
+			stats = this.abilities[i].getModifiedStats(stats);
+		}
+		return stats;
+	},
 
 	/*	summon()
 	*

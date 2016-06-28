@@ -35,6 +35,21 @@ var Ability = Class.create( {
 	},
 
 	/**
+	 * Get modified damage stats
+	 * Some passive abilities may modify stats for damage purposes
+	 * Apply modifications for this ability
+	 * Note: parameter will be modified in-place
+	 * @param {dict} stats - copy of creature stats
+	 */
+	getModifiedStats: function(stats) {
+		if (this._getModifiedStats === undefined) {
+			return stats;
+		} else {
+			return this._getModifiedStats(stats);
+		}
+	},
+
+	/**
 	 * Reset ability at start of turn.
 	 */
 	reset: function() {
@@ -505,9 +520,9 @@ var Damage = Class.create( {
 	/* applyDamage()
 	*/
 	applyDamage: function() {
-		var trg = this.target.stats;
+		var trg = this.target.getModifiedStats();
 		var dmg = this;
-		var atk = dmg.attacker.stats;
+		var atk = dmg.attacker.getModifiedStats();
 		var returnObj = {total:0};
 
 		// DAMAGE CALCULATION
