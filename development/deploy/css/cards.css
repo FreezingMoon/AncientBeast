@@ -67,7 +67,6 @@
 .ability { position: relative; }
 
 .abilities .ability .wrapper{
-	display: table-cell;
 	height: 100px;
 	padding-left: 103px;
 	vertical-align: middle;
