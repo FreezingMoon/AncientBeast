@@ -14,19 +14,6 @@ G.abilities[14] =[
 
 	activate: function() {
 		// Do nothing; ability is passive buff only
-	},
-
-	_getModifiedStats: function(stats) {
-		// This ability modifies the creature's stats when damage is applied
-		// Bonus points to pierce, slash and crush based on remaining health
-		var healthBonusDivisor = this.isUpgraded() ? 5 : 10;
-		var bonus = Math.floor(stats.health / healthBonusDivisor);
-		var statsToApplyBonus = ['pierce', 'slash', 'crush'];
-		for (var i = 0; i < statsToApplyBonus.length; i++) {
-			var key = statsToApplyBonus[i];
-			stats[key] = stats[key] + bonus;
-		}
-		return stats;
 	}
 },
 
