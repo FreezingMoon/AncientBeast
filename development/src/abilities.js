@@ -541,12 +541,13 @@ var Damage = Class.create( {
 */
 var Effect = Class.create( {
 
-	/* Constructor(owner,parent,trigger,effectFn)
+	/* Constructor(name, owner, target, trigger, optArgs)
 	*
+	* @param {string} name: name of the effect
 	*	owner :	Creature : Creature that casted the effect
 	*	target :	Object : Creature or Hex : the object that possess the effect
 	*	trigger :	String : Event that trigger the effect
-	*	effectFn :	Function : Function to trigger
+	*	@param {object} optArgs: dictionary of optional arguments
 	*/
 	initialize: function(name, owner, target, trigger, optArgs) {
 		this.id = effectId++;

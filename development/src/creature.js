@@ -807,7 +807,7 @@ var Creature = Class.create( {
 			G.log("%CreatureName" + this.id + "% loses " + amount + " health");
 		}
 
-
+		G.triggersFn.onHeal(this, amount);
 	},
 
 
@@ -965,9 +965,7 @@ var Creature = Class.create( {
 
 	/**
 	 * Add effect, but if the effect is already attached, replace it with the new
-	 * effect. This is useful in team games where the same effect is used twice on
-	 * the same creature, and the effect shouldn't stack; the new effect should
-	 * belong to the last player to add it.
+	 * effect.
 	 * Note that for stackable effects, this is the same as addEffect()
 	 *
 	 * @param {Effect} effect - the effect to add

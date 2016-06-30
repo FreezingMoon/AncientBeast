@@ -7,14 +7,49 @@ G.abilities[14] =[
 
 // 	First Ability: Gooey Body
 {
+	// Update stat buffs whenever health changes
+	trigger: "onCreatureSummon onDamage onHeal",
+
 	require : function() {
 		// Always active
 		return true;
 	},
 
 	activate: function() {
-		// Do nothing; ability is passive buff only
-	}
+		if (this.creature.dead) {
+			return;
+		}
+		// Attach a permanent effect that gives Gumble stat buffs
+		// Bonus points to pierce, slash and crush based on remaining health
+		var healthBonusDivisor = this.isUpgraded() ? 5 : 10;
+		var bonus = Math.floor(this.creature.health / healthBonusDivisor);
+		// Log whenever the bonus applied changes
+		var noLog = bonus == this._lastBonus;
+		this._lastBonus = bonus;
+		var statsToApplyBonus = ['pierce', 'slash', 'crush'];
+		var alterations = {};
+		for (var i = 0; i < statsToApplyBonus.length; i++) {
+			var key = statsToApplyBonus[i];
+			alterations[key] = bonus;
+		}
+		this.creature.replaceEffect(new Effect(
+			"Gooey Body",		// name
+			this.creature,	// Caster
+			this.creature,	// Target
+			"",							// Trigger
+			{
+				alterations: alterations,
+				deleteTrigger: "",
+				stackable: false,
+				noLog: noLog
+			}
+		));
+		if (!noLog) {
+			G.log("%CreatureName" + this.creature.id + "%'s pierce, slash and crush are buffed by " + bonus);
+		}
+	},
+
+	_lastBonus: 0
 },
 
 
