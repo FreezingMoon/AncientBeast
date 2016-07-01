@@ -201,7 +201,6 @@ var HexGrid = Class.create( {
 	*	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexs.
 	*	fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
 	*	fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
-	*	team : 				Integer : 	0 = enemies, 1 = allies, 2 = same team, 3 = both
 	*	requireCreature : 	Boolean : 	Disable a choice if it does not contain a creature matching the team argument
 	* 	args : 				Object : 	Object given to the events function (to easily pass variable for these function)
 	*/

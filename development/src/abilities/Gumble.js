@@ -58,26 +58,47 @@ G.abilities[14] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	// 	require() :
-	require : function() {
-		if( !this.testRequirements() ) return false;
-
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "enemy" ) ) {
-			this.message = G.msg.abilities.notarget;
-			return false;
-		}
-		return true;
+	require: function() {
+		// Always usable, even if no targets
+		return this.testRequirements();
 	},
 
 	// 	query() :
 	query : function(){
 		var ability = this;
-		G.grid.queryCreature( {
-			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
-			id : this.creature.id,
-			flipped : this.creature.player.flipped,
-			hexs : this.creature.adjacentHexs(1),
+		// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
+		// center of each area is two hexes away. Each area can be chosen regardless
+		// of whether targets are within.
+		var area = [
+			 [1,1,0],
+			[1,1,1],
+			 [1,1,0]
+		];
+		area.origin = [1, 1];
+		var choices = [
+			G.grid.getHexMap(
+				this.creature.x+1, this.creature.y-2-1, 0, false, area),	// up-right
+			G.grid.getHexMap(
+				this.creature.x+2, this.creature.y-1, 0, false, area),	// front
+			G.grid.getHexMap(
+				this.creature.x+1, this.creature.y+2-1, 0, false, area),	// down-right
+			G.grid.getHexMap(
+				this.creature.x-1, this.creature.y+2-1, 0, false, area),	// down-left
+			G.grid.getHexMap(
+				this.creature.x-2, this.creature.y-1, 0, false, area),	// back
+			G.grid.getHexMap(
+				this.creature.x-1, this.creature.y-2-1, 0, false, area),	// up-left
+		];
+		G.grid.queryChoice({
+			fnOnCancel: function() {
+				G.activeCreature.queryMove();
+				G.grid.clearHexViewAlterations();
+			},
+			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
+			team: "both",
+			id: this.creature.id,
+			requireCreature: false,
+			choices: choices
 		});
 	},
 
