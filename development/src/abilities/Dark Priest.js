@@ -28,7 +28,6 @@ G.abilities[0] =[
                     //counter damage
                     var counter=new Damage(
                         this.creature, // Attacker
-                        "target", // Attack Type
                         {pure:5}, // Damage Type
                         1, // Area
                         []	// Effects
@@ -96,7 +95,6 @@ G.abilities[0] =[
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			damage, // Damage Type
 			1, // Area
 			[]	// Effects
@@ -172,7 +170,6 @@ G.abilities[0] =[
 
 		damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			{ pure: damage }, // Damage Type
 			1, // Area
 			[]	// Effects

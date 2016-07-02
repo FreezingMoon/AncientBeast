@@ -77,7 +77,6 @@ G.abilities[44] =[
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			ability.damages, // Damage Type
 			1, // Area
 			[]	// Effects
@@ -286,7 +285,6 @@ G.abilities[44] =[
 
 		var damage = new Damage(
 			ability.creature, //Attacker
-			"target", //Attack Type
 			damages, //Damage Type
 			1, //Area
 			[]	//Effects
@@ -300,7 +298,7 @@ G.abilities[44] =[
 			effectFn: function(effect, creature) {
 				G.log("%CreatureName" + creature.id + "% is affected by " + ability.title);
 				creature.takeDamage(new Damage(
-					effect.owner, "effect", {poison: ability.damages.poison}, 1, []
+					effect.owner, {poison: ability.damages.poison}, 1, []
 				));
 			}
 		});

@@ -282,11 +282,11 @@ var Ability = Class.create( {
 	*
 	*	targets : Array : Example : target = [ { target: crea1, hexsHit: 2 }, { target: crea2, hexsHit: 1 } ]
 	*/
-	areaDamage : function(attacker, type, damages, effects, targets, notrigger) {
+	areaDamage: function(attacker, damages, effects, targets, notrigger) {
 		var multiKill = 0;
 		for (var i = 0; i < targets.length; i++) {
 			if(targets[i]===undefined) continue;
-			dmg = new Damage(attacker, type, damages, targets[i].hexsHit, effects);
+			dmg = new Damage(attacker, damages, targets[i].hexsHit, effects);
 			multiKill += (targets[i].target.takeDamage(dmg, notrigger).kill+0);
 		}
 		if(multiKill>1)	attacker.player.score.push( { type: "combo", kills: multiKill } );
@@ -485,17 +485,15 @@ abilities = []; // Array containing all javascript methods for abilities
 */
 var Damage = Class.create( {
 
-	/* Constructor(amount,type,effects)
+	/**
 	*
 	*	attacker :	Creature : Unit that initiated the damage
-	*	type :	String : Can be "target", "zone" or "effect"
 	*	damages :	Object : Object containing the damage by type {frost : 5} for example
 	*	area :	Integer : Number of hexagons being hit
 	*	effects :	Array : Contains Effect object to apply to the target
 	*/
-	initialize: function(attacker, type, damages, area, effects) {
+	initialize: function(attacker, damages, area, effects) {
 		this.attacker = attacker;
-		this.type = type;
 		this.damages = damages;
 		this.status = "";
 		this.effects = effects;
@@ -527,12 +525,7 @@ var Damage = Class.create( {
 		returnObj.total = Math.max(returnObj.total, 1); // Minimum of 1 damage
 
 		return returnObj;
-	},
-
-	dmgIsType :function(type) {
-		return G.dmgType[type].test(this.type);
-	},
-
+	}
 });
 
 

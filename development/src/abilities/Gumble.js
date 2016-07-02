@@ -102,20 +102,16 @@ G.abilities[14] =[
 		});
 	},
 
-
-	//	activate() :
-	activate : function(target, args) {
+	activate: function(hexes, args) {
 		var ability = this;
 		ability.end();
 
-		var damage = new Damage(
-			ability.creature, // Attacker
-			"target", // Attack Type
-			ability.damages, // Damage Type
-			1, // Area
-			[] // Effects
+		ability.areaDamage(
+			ability.creature, //Attacker
+			ability.damages, //Damage Type
+			[],	//Effects
+			ability.getTargets(hexes) //Targets
 		);
-		target.takeDamage(damage);
 	},
 },
 
@@ -225,7 +221,6 @@ G.abilities[14] =[
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			d, // Damage Type
 			1, // Area
 			[] // Effects

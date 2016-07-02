@@ -89,7 +89,6 @@ G.abilities[45] =[
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			ability.damages, // Damage Type
 			1, // Area
 			[]	// Effects
@@ -154,13 +153,11 @@ G.abilities[45] =[
 			( path[0].direction == 4 && !ability.creature.player.flipped )  ||
 			( path[0].direction == 1 && ability.creature.player.flipped )
 		);
-		console.log(invertFlipped)
 
 		var target = path.last().creature;
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			ability.damages, // Damage Type
 			1, // Area
 			[]	// Effects
@@ -184,7 +181,6 @@ G.abilities[45] =[
 
 			var damage = new Damage(
 				ability.creature, // Attacker
-				"target", // Attack Type
 				{sonic:result.damages.sonic}, // Damage Type
 				1, // Area
 				[]	// Effects
@@ -257,7 +253,6 @@ G.abilities[45] =[
 
 			var damage = new Damage(
 				ability.creature, // Attacker
-				"target", // Attack Type
 				nextdmg, // Damage Type
 				1, // Area
 				[] // Effects

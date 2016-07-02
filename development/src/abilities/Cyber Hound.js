@@ -33,7 +33,6 @@ G.abilities[31] =[
 
 		var damage = new Damage(
 			this.creature, // Attacker
-			"target", // Attack Type
 			this.damages, // Damage Type
 			1, // Area
 			[]	// Effects
@@ -86,7 +85,6 @@ G.abilities[31] =[
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			ability.damages, // Damage Type
 			1, // Area
 			[]	// Effects
@@ -191,7 +189,6 @@ G.abilities[31] =[
 
 			var damage = new Damage(
 				ability.creature, //Attacker
-				"target", //Attack Type
 				ability.damages, //Damage Type
 				1, //Area
 				[]	//Effects
@@ -268,7 +265,6 @@ G.abilities[31] =[
 		G.log("%CreatureName" + this.creature.id + "% redirects " + rocketsToUse + " rocket(s)");
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			damages, // Damage Type
 			1, // Area
 			[]	// Effects

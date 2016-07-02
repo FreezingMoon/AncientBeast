@@ -96,7 +96,6 @@ G.abilities[39] =[
 
 		var damage = new Damage(
 			ability.creature, //Attacker
-			"target", //Attack Type
 			d, //Damage Type
 			1, //Area
 			[]	//Effects
@@ -312,7 +311,6 @@ G.abilities[39] =[
 
 		ability.areaDamage(
 			ability.creature, //Attacker
-			"zone", //Attack Type
 			damages, //Damage Type
 			[],	//Effects
 			ability.getTargets(hexs), //Targets
@@ -321,7 +319,6 @@ G.abilities[39] =[
 
 		ability.areaDamage(
 			ability.creature, //Attacker
-			"zone", //Attack Type
 			damages, //Damage Type
 			[],	//Effects
 			ability.getTargets(hexs) //Targets

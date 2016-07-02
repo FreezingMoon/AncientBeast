@@ -991,14 +991,6 @@ var Game = Class.create( {
 		return ret;
 	},
 
-
-	/*	Regex Test for damage type */
-	dmgType : {
-		area : new RegExp('area', 'i'),
-		target : new RegExp('target', 'i'),
-		retaliation : new RegExp('retaliation', 'i'),
-	},
-
 	clearOncePerDamageChain: function() {
 		for (var i = this.creatures.length - 1; i >= 0; i--) {
 			if(this.creatures[i] instanceof Creature) {
