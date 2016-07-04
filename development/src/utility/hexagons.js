@@ -226,6 +226,7 @@ var HexGrid = Class.create( {
 			choices : [],
 			hexsDashed : [],
 			isDirectionsQuery : false,
+			hideNonTarget: true
 		};
 
 		o = $j.extend(defaultOpt, o);
@@ -278,10 +279,10 @@ var HexGrid = Class.create( {
 						if(hex.pos == args.opt.choices[i][j].pos) {
 							args.opt.args.direction = hex.direction;
 							args.opt.fnOnConfirm(args.opt.choices[i], args.opt.args);
-							break;
+							return;
 						}
-					};
-				};
+					}
+				}
 			},
 			fnOnSelect : function(hex, args) {
 				// Determine which set of hexs (choice) the hex is part of
@@ -290,17 +291,17 @@ var HexGrid = Class.create( {
 						if(hex.pos==args.opt.choices[i][j].pos) {
 							args.opt.args.direction = hex.direction;
 							args.opt.fnOnSelect(args.opt.choices[i], args.opt.args);
-							break;
+							return;
 						}
-					};
-				};
+					}
+				}
 			},
 			fnOnCancel : o.fnOnCancel,
 			args : { opt : o },
 			hexs : hexs,
 			hexsDashed : o.hexsDashed,
 			flipped : o.flipped,
-			hideNonTarget : true,
+			hideNonTarget: o.hideNonTarget,
 			id : o.id
 		});
 	},
