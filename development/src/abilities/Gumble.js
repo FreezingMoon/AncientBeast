@@ -90,6 +90,12 @@ G.abilities[14] =[
 			G.grid.getHexMap(
 				this.creature.x-1+dx, this.creature.y-2+dy, 0, false, area),	// up-left
 		];
+		// Reorder choices based on number of hexes
+		// This ensures that if a choice contains overlapping hexes only, that
+		// choice won't be available for selection.
+		choices.sort(function(choice1, choice2) {
+			return choice1.length < choice2.length;
+		});
 		G.grid.queryChoice({
 			fnOnCancel: function() {
 				G.activeCreature.queryMove();
