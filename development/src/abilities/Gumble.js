@@ -70,24 +70,25 @@ G.abilities[14] =[
 		// center of each area is two hexes away. Each area can be chosen regardless
 		// of whether targets are within.
 		var area = [
-			 [1,1,0],
+			 [1,1],
 			[1,1,1],
-			 [1,1,0]
+			 [1,1]
 		];
-		area.origin = [1, 1];
+		var dx = this.creature.y % 2 !== 0 ? -1 : 0;
+		var dy = -1;
 		var choices = [
 			G.grid.getHexMap(
-				this.creature.x+1, this.creature.y-2-1, 0, false, area),	// up-right
+				this.creature.x+1+dx, this.creature.y-2+dy, 0, false, area),	// up-right
 			G.grid.getHexMap(
-				this.creature.x+2, this.creature.y-1, 0, false, area),	// front
+				this.creature.x+2+dx, this.creature.y+dy, 0, false, area),	// front
 			G.grid.getHexMap(
-				this.creature.x+1, this.creature.y+2-1, 0, false, area),	// down-right
+				this.creature.x+1+dx, this.creature.y+2+dy, 0, false, area),	// down-right
 			G.grid.getHexMap(
-				this.creature.x-1, this.creature.y+2-1, 0, false, area),	// down-left
+				this.creature.x-1+dx, this.creature.y+2+dy, 0, false, area),	// down-left
 			G.grid.getHexMap(
-				this.creature.x-2, this.creature.y-1, 0, false, area),	// back
+				this.creature.x-2+dx, this.creature.y+dy, 0, false, area),	// back
 			G.grid.getHexMap(
-				this.creature.x-1, this.creature.y-2-1, 0, false, area),	// up-left
+				this.creature.x-1+dx, this.creature.y-2+dy, 0, false, area),	// up-left
 		];
 		G.grid.queryChoice({
 			fnOnCancel: function() {
