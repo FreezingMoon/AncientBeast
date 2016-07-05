@@ -172,7 +172,11 @@ G.abilities[14] =[
 			var effect = new Effect(
 				"Royal Seal", ability.creature, hex, "onStepIn",
 				{
-					requireFn: function(crea) { return crea !== this.owner; },
+					// Gumbles immune
+					requireFn: function() {
+						var crea = this.trap.hex.creature;
+						return crea && crea.type !== this.owner.type;
+					},
 					effectFn: function(effect, crea) {
 						crea.remainingMove = 0;
 						this.trap.destroy();
