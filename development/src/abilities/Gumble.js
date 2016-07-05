@@ -142,7 +142,8 @@ G.abilities[14] =[
 		var showConfirm = true;
 		if (this.isUpgraded()) {
 			// Upgraded Royal Seal can target up to 4 hexes range
-			hexes = creature.hexagons[0].adjacentHex(4);
+			hexes = G.grid.getFlyingRange(
+				creature.x, creature.y, 4, creature.size, creature.id);
 			showConfirm = false;
 		}
 		// If we can only target one hex (unupgraded) then show a confirm hint
@@ -165,20 +166,39 @@ G.abilities[14] =[
 	//	activate() :
 	activate : function(hex) {
 		this.end();
+		var ability = this;
 
-		var effect = new Effect(
-			"Royal Seal", this.creature, hex, "onStepIn",
-			{
-				requireFn: function(crea) { return crea !== this.owner; },
-				effectFn: function(effect, crea) {
-					crea.remainingMove = 0;
-					this.trap.destroy();
+		var makeSeal = function() {
+			var effect = new Effect(
+				"Royal Seal", ability.creature, hex, "onStepIn",
+				{
+					requireFn: function(crea) { return crea !== this.owner; },
+					effectFn: function(effect, crea) {
+						crea.remainingMove = 0;
+						this.trap.destroy();
+					},
+				}
+			);
+
+			var trap = hex.createTrap("royal-seal", [effect], ability.creature.player);
+			trap.hide();
+		};
+
+		// Move Gumble to the target hex if necessary
+		if (hex.x !== this.creature.x || hex.y !== this.creature.y) {
+			this.creature.moveTo(hex, {
+				callback: function() {
+					G.activeCreature.queryMove();
+					makeSeal();
 				},
-			}
-		);
-
-		var trap = hex.createTrap("royal-seal", [effect], this.creature.player);
-		trap.hide();
+				ignoreMovementPoint: true,
+				ignorePath: true,
+				overrideSpeed: 200, // Custom speed for jumping
+				animation: "push"
+			});
+		} else {
+			makeSeal();
+		}
 	},
 },
 
