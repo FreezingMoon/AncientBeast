@@ -142,8 +142,8 @@ G.abilities[14] =[
 		var showConfirm = true;
 		if (this.isUpgraded()) {
 			// Upgraded Royal Seal can target up to 4 hexes range
-			hexes = G.grid.getFlyingRange(
-				creature.x, creature.y, 4, creature.size, creature.id);
+			hexes = hexes.concat(G.grid.getFlyingRange(
+				creature.x, creature.y, 4, creature.size, creature.id));
 			showConfirm = false;
 		}
 		// If we can only target one hex (unupgraded) then show a confirm hint
