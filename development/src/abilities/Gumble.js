@@ -256,17 +256,6 @@ G.abilities[14] =[
 
 		var d = (melee) ? { sonic: 20, crush: 10 } : { sonic: 20 };
 
-		var damage = new Damage(
-			ability.creature, // Attacker
-			d, // Damage Type
-			1, // Area
-			[] // Effects
-		);
-
-		var result = target.takeDamage(damage, true);
-
-		if (result.kill) return; // if creature die stop here
-
 		var dir = [];
 		switch( args.direction ) {
 			case 0: // Upright
@@ -290,6 +279,22 @@ G.abilities[14] =[
 			default:
 				break;
 		}
+
+		// Perform extra damage if upgraded and cannot push back
+		if (this.isUpgraded() && dir.length <= 1) {
+			d.sonic += 10;
+		}
+
+		var damage = new Damage(
+			ability.creature, // Attacker
+			d, // Damage Type
+			1, // Area
+			[] // Effects
+		);
+
+		var result = target.takeDamage(damage, true);
+
+		if (result.kill) return; // if creature die stop here
 
 		// Knockback the target 1 hex
 		if (dir.length > 1) {
