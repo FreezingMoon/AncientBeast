@@ -575,6 +575,9 @@ var Effect = Class.create( {
 	activate: function(arg) {
 		if( !this.requireFn(arg) ) return false;
 		if( !this.noLog ) console.log("Effect " + this.name + " triggered");
+		if (arg instanceof Creature) {
+			arg.addEffect(this);
+		}
 		this.effectFn(this,arg);
 	},
 

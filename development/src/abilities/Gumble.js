@@ -175,11 +175,11 @@ G.abilities[14] =[
 					requireFn: function(crea) { return crea !== this.owner; },
 					effectFn: function(effect, crea) {
 						crea.remainingMove = 0;
-						// Immobilize target so that they can't move and no
-						// abilities/effects can move them
-						crea.stats.moveable = false;
 						this.trap.destroy();
-					}
+					},
+					// Immobilize target so that they can't move and no
+					// abilities/effects can move them
+					alterations: { moveable: false }
 				}
 			);
 
