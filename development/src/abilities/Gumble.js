@@ -280,8 +280,10 @@ G.abilities[14] =[
 				break;
 		}
 
+		var canKnockBack = dir.length > 1 && target.stats.moveable;
+
 		// Perform extra damage if upgraded and cannot push back
-		if (this.isUpgraded() && dir.length <= 1) {
+		if (this.isUpgraded() && !canKnockBack) {
 			d.sonic += 10;
 		}
 
@@ -297,7 +299,7 @@ G.abilities[14] =[
 		if (result.kill) return; // if creature die stop here
 
 		// Knockback the target 1 hex
-		if (dir.length > 1) {
+		if (canKnockBack) {
 			if (dir[1].isWalkable(target.size, target.id, true)) {
 				target.moveTo(dir[1], {
 					ignoreMovementPoint : true,
