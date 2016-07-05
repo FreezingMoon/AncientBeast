@@ -138,14 +138,24 @@ G.abilities[14] =[
 		var ability = this;
 		var creature = this.creature;
 
-		creature.hint("Confirm", "confirm constant");
+		var hexes = creature.hexagons;
+		var showConfirm = true;
+		if (this.isUpgraded()) {
+			// Upgraded Royal Seal can target up to 4 hexes range
+			hexes = creature.hexagons[0].adjacentHex(4);
+			showConfirm = false;
+		}
+		// If we can only target one hex (unupgraded) then show a confirm hint
+		if (showConfirm) {
+			creature.hint("Confirm", "confirm constant");
+		}
 
 		G.grid.queryHexs({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			size : creature.size,
 			flipped : creature.player.flipped,
 			id : creature.id,
-			hexs : creature.hexagons,
+			hexs: hexes,
 			ownCreatureHexShade : true,
 			hideNonTarget : true
 		});
@@ -154,23 +164,20 @@ G.abilities[14] =[
 
 	//	activate() :
 	activate : function(hex) {
-		var hex = this.creature.hexagons[0];
 		this.end();
 
-		var effects = [
-			new Effect(
-				"Royal Seal", this.creature, hex, "onStepIn",
-				{
-					requireFn: function(crea) { return crea !== this.owner; },
-					effectFn: function(effect, crea) {
-						crea.remainingMove = 0;
-						this.trap.destroy();
-					},
-				}
-			),
-		]
+		var effect = new Effect(
+			"Royal Seal", this.creature, hex, "onStepIn",
+			{
+				requireFn: function(crea) { return crea !== this.owner; },
+				effectFn: function(effect, crea) {
+					crea.remainingMove = 0;
+					this.trap.destroy();
+				},
+			}
+		);
 
-		var trap = hex.createTrap("royal-seal", effects, this.creature.player);
+		var trap = hex.createTrap("royal-seal", [effect], this.creature.player);
 		trap.hide();
 	},
 },
