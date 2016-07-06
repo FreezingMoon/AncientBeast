@@ -203,16 +203,22 @@ Sometimes even reviewing or talking code can greatly help.
 <p>
 If composing is more of your expertise, we can always use more tracks of epic genre, as example you can check out the existing tracks and also some from related games, such as the Heroes of Might and Magic 3's combat tracks and the OST from the King's Bounty games. I consider sound effects a very important part that can make or break gameplay, meaning that they should not be annoying and repetitive while nicely complementing and reinforcing various actions.
 </p><p>
+The ideal track for the combat mode would be around 3:30 lenght, non-loopable, epic style, rather dark and fast paced.<br>
+All tracks and SFX need to be under <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><b>CC-BY-SA 3.0</b></a> licensing.
+</p><p>
 Check out these tracks as reference, but always be original:<br>
 <a href="http://AncientBeast.com/media?type=music" target="_blank"><b>Ancient Beast Official Soundtrack</b></a><br>
 <a href="https://www.youtube.com/watch?v=7hbaNfHToT8" target="_blank"><b>Heroes of Might and Magic 3: Combat 1</b></a><br>
 <a href="https://www.youtube.com/watch?v=GSwATqPUsv0" target="_blank"><b>Heroes of Might and Magic 3: Combat 2</b></a><br>
 <a href="https://www.youtube.com/watch?v=ea5RiOfcF6k" target="_blank"><b>Heroes of Might and Magic 3: Combat 3</b></a><br>
 <a href="https://www.youtube.com/watch?v=M0ObS62Js-4" target="_blank"><b>Heroes of Might and Magic 3: Combat 4</b></a><br>
-<a href="https://www.youtube.com/watch?v=iKGrzdwyW-M&list=PL570FD020D275457E" target="_blank"><b>King's Bounty: The Legend (playlist)</b></a><br>
-<a href="https://www.youtube.com/watch?v=tnNowmSdP1c&list=PL5052849DDF6C95A6" target="_blank"><b>King's Bounty: Armored Princess (playlist)</b></a><br>
+</p><p>
+Here are some playlists that include non-combat tracks:
+<a href="https://www.youtube.com/watch?v=iKGrzdwyW-M&list=PL570FD020D275457E" target="_blank"><b>Extra playlist: King's Bounty: The Legend</b></a><br>
+<a href="https://www.youtube.com/watch?v=tnNowmSdP1c&list=PL5052849DDF6C95A6" target="_blank"><b>Extra playlist: King's Bounty: Armored Princess</b></a><br>
+</p><p>
+If you make any sample tracks, it would be ideal to have them uploaded to <a href="https://SoundCloud.com" target="_blank"><b>SoundCloud</b> and share their links in our <a href="https://AncientBeast.com/chat"><b>chatroom</b></a> to receive some feedback from <b>Dread Knight</b> before proceeding, making sure you are on the right track ;-)
 </p>
-All tracks and SFX need to be under <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank"><b>CC-BY-SA 3.0</b></a> license.
 </div>
 
 <?php $i = 0; ?>
@@ -233,7 +239,7 @@ All tracks and SFX need to be under <a href="http://creativecommons.org/licenses
 <h3 class="indexheader"><a href="#supporter">Supporter</a></h3>
 <p>
 No moneys and no coding or artistic skills? No worries, you can still help out by being part of the community, testing out the game and reporting issues, brainstorming and spreading out the word as our marketing budget is pretty much non-existend, so we rely on you for that! Feedback and boosting the numbers are always nice, as they can also boost up morale and reassure us we're on the proper path.
-Click on the icons below and join our various project groups. You can also hang out with us in our own project <a href="http://AncientBeast.com/chat"><b>chat room</b></a>.
+Click on the icons below and join our various project groups. You can also hang out with us in our own project <a href="https://AncientBeast.com/chat"><b>chat room</b></a>.
 </p>
 </div>
 <div style="display: inline-block;" class="center"><img src="together.jpg" class="image"></div>
