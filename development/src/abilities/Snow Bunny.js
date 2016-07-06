@@ -131,7 +131,6 @@ G.abilities[12] = [
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			ability.damages, // Damage Type
 			1, // Area
 			[]	// Effects
@@ -290,11 +289,10 @@ G.abilities[12] = [
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			dmg, // Damage Type
 			1, // Area
 			[]	// Effects
-		)
+		);
 
 		crea.takeDamage(damage);
 	},

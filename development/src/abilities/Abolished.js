@@ -82,7 +82,6 @@ G.abilities[7] =[
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			ability.damages, // Damage Type
 			1, // Area
 			[]	// Effects
@@ -174,7 +173,7 @@ G.abilities[7] =[
 
 		// Leave a Firewall in old location
 		var effectFn = function(effect,crea) {
-			crea.takeDamage(new Damage( effect.attacker, "effect", ability.damages , 1,[] ));
+			crea.takeDamage(new Damage( effect.attacker, ability.damages , 1,[] ));
 			this.trap.destroy();
 		};
 
@@ -246,7 +245,6 @@ G.abilities[7] =[
 		targets.each(function() {
 			this.target.takeDamage(new Damage(
 				ability.creature, // Attacker
-				"area", // Attack Type
 				ability.damages, // Damage Type
 				1, // Area
 				[]	// Effects

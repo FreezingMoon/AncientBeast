@@ -29,7 +29,6 @@ G.abilities[22] =[
 
 		this.areaDamage(
 			this.creature, // Attacker
-			"area retaliation", // Attack Type
 			this.damages, // Damage Type
 			[],	// Effects
 			targets
@@ -90,7 +89,6 @@ G.abilities[22] =[
 
 		var damage = new Damage(
 			ability.creature, //Attacker
-			"target", //Attack Type
 			ability.damages, //Damage Type
 			1, //Area
 			[]	//Effects
@@ -268,7 +266,6 @@ G.abilities[22] =[
 		if(hex.creature instanceof Creature){
 			hex.creature.takeDamage(new Damage(
 				ability.creature, //Attacker
-				"area", //Attack Type
 				ability.damages1, //Damage Type
 				1, //Area
 				[]	//Effects
@@ -278,7 +275,6 @@ G.abilities[22] =[
 
 		ability.areaDamage(
 			ability.creature,
-			"area",
 			ability.damages2,
 			[],	//Effects
 			targets

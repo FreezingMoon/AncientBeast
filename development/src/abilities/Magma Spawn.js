@@ -18,7 +18,7 @@ G.abilities[4] =[
 		var ability = this;
 
 		var effectFn = function(effect,crea) {
-			crea.takeDamage(new Damage( effect.attacker, "effect", ability.damages , 1,[] ));
+			crea.takeDamage(new Damage( effect.attacker, ability.damages , 1,[] ));
 			this.trap.destroy();
 		};
 
@@ -94,7 +94,6 @@ G.abilities[4] =[
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			d, // Damage Type
 			1, // Area
 			[]	// Effects
@@ -165,7 +164,6 @@ G.abilities[4] =[
 		// Basic Attack all nearby creatures
 		ability.areaDamage(
 			ability.creature, // Attacker
-			"zone", //Attack Type
 			ability.damages1, // Damage Type
 			[],	// Effects
 			ability.getTargets(hexs) // Targets
@@ -253,7 +251,6 @@ G.abilities[4] =[
 		// Damage
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			ability.damages, // Damage Type
 			1, // Area
 			[]	// Effects

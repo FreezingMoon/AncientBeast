@@ -106,7 +106,6 @@ G.abilities[3] =[
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			ability.damages, // Damage type
 			1, // Area
 			[]	// Effects
@@ -314,7 +313,6 @@ G.abilities[3] =[
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			"target", // Attack Type
 			ability.damages, // Damage Type
 			1, // Area
 			[]	// Effects

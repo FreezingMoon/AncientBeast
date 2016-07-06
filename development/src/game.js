@@ -758,6 +758,7 @@ var Game = Class.create( {
 		onMovement : /\bonMovement\b/,
 		onUnderAttack : /\bonUnderAttack\b/,
 		onDamage : /\bonDamage\b/,
+		onHeal: /\bonHeal\b/,
 		onAttack : /\bonAttack\b/,
 		onCreatureMove : /\bonCreatureMove\b/,
 		onCreatureDeath : /\bonCreatureDeath\b/,
@@ -770,6 +771,7 @@ var Game = Class.create( {
 		onMovement_other : /\bonOtherMovement\b/,
 		onAttack_other : /\bonOtherAttack\b/,
 		onDamage_other : /\bonOtherDamage\b/,
+		onHeal_other : /\bonOtherHeal\b/,
 		onUnderAttack_other : /\bonOtherUnderAttack\b/,
 		onCreatureMove_other : /\bonOtherCreatureMove\b/,
 		onCreatureDeath_other : /\bonOtherCreatureDeath\b/,
@@ -940,6 +942,11 @@ var Game = Class.create( {
 			G.triggerEffect("onDamage", arguments);
 		},
 
+		onHeal: function(creature, amount) {
+			G.triggerAbility("onHeal", arguments);
+			G.triggerEffect("onHeal", arguments);
+		},
+
 		onAttack : function( creature, damage ) {
 			damage = G.triggerAbility("onAttack", arguments, damage);
 			damage = G.triggerEffect("onAttack", arguments, damage);
@@ -982,14 +989,6 @@ var Game = Class.create( {
 		}
 
 		return ret;
-	},
-
-
-	/*	Regex Test for damage type */
-	dmgType : {
-		area : new RegExp('area', 'i'),
-		target : new RegExp('target', 'i'),
-		retaliation : new RegExp('retaliation', 'i'),
 	},
 
 	clearOncePerDamageChain: function() {
