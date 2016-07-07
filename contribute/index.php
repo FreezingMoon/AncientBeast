@@ -217,7 +217,7 @@ Here are some playlists that include non-combat tracks:
 <a href="https://www.youtube.com/watch?v=iKGrzdwyW-M&list=PL570FD020D275457E" target="_blank"><b>Extra playlist: King's Bounty: The Legend</b></a><br>
 <a href="https://www.youtube.com/watch?v=tnNowmSdP1c&list=PL5052849DDF6C95A6" target="_blank"><b>Extra playlist: King's Bounty: Armored Princess</b></a><br>
 </p><p>
-If you make any sample tracks, it would be ideal to have them uploaded to <a href="https://SoundCloud.com" target="_blank"><b>SoundCloud</b> and share their links in our <a href="https://AncientBeast.com/chat"><b>chatroom</b></a> to receive some feedback from <b>Dread Knight</b> before proceeding, making sure you are on the right track ;-)
+If you make any sample tracks, it would be ideal to have them uploaded to <a href="https://SoundCloud.com" target="_blank"><b>SoundCloud</b></a> and share their links in our <a href="https://AncientBeast.com/chat"><b>chatroom</b></a> to receive some feedback from <a href="https://github.com/DreadKnight" target="_blank"><b>Dread Knight</b></a> before proceeding, making sure you are on the right track ;-)
 </p>
 </div>
 
