@@ -284,7 +284,9 @@ G.abilities[14] =[
 				break;
 		}
 
-		var canKnockBack = dir.length > 1 && target.stats.moveable;
+		var canKnockBack = dir.length > 1 &&
+			dir[1].isWalkable(target.size, target.id, true) &&
+			target.stats.moveable;
 
 		// Perform extra damage if upgraded and cannot push back
 		if (this.isUpgraded() && !canKnockBack) {
@@ -304,19 +306,18 @@ G.abilities[14] =[
 
 		// Knockback the target 1 hex
 		if (canKnockBack) {
-			if (dir[1].isWalkable(target.size, target.id, true)) {
-				target.moveTo(dir[1], {
-					ignoreMovementPoint : true,
-					ignorePath : true,
-					callback : function() {
-						if( result.damageObj instanceof Damage )
-							G.triggersFn.onDamage(target, result.damageObj);
+			target.moveTo(dir[1], {
+				ignoreMovementPoint: true,
+				ignorePath: true,
+				callback: function() {
+					if (result.damageObj instanceof Damage) {
+						G.triggersFn.onDamage(target, result.damageObj);
+					}
 
-						G.activeCreature.queryMove();
-					},
-					animation : "push",
-				});
-			}
+					G.activeCreature.queryMove();
+				},
+				animation : "push",
+			});
 		}
 	}
 }
