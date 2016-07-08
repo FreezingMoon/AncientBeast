@@ -45,7 +45,7 @@ G.abilities[14] =[
 			}
 		));
 		if (!noLog) {
-			G.log("%CreatureName" + this.creature.id + "%'s pierce, slash and crush are buffed by " + bonus);
+			G.log("%CreatureName" + this.creature.id + "% receives " + bonus + " pierce, slash and crush");
 		}
 	},
 
