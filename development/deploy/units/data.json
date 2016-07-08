@@ -1223,7 +1223,7 @@
 				"title": "Royal Seal",
 				"desc": "Sticks chewing gum nearby to hinder any passing unit for a complete turn.",
 				"info": "Does not affect self but affects allies.",
-				"upgrade": "Can leap within 4 hexagons.",
+				"upgrade": "Can leap within 3 hexagons.",
 				"effects": [{
 					"special": "%movement% is set to 0 for a turn."
 				}],
