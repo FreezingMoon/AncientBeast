@@ -1210,13 +1210,13 @@
 			{
 				"title": "Gummy Mallet",
 				"desc": "Fully transforms himself into a large hammer to strike down nearby foes.",
-				"info": "16 crush damage done to 7 hexagons.",
-				"upgrade" : "Does half damage to allies.",
+				"info": "10 crush damage done to 7 hexagons.",
+				"upgrade" : "Double damage to enemies.",
 				"damages": {
-					"crush": 16
+					"crush": 10
 				},
 				"costs": {
-					"energy": 30
+					"energy": 25
 				}
             },
 			{

@@ -114,10 +114,10 @@ G.abilities[14] =[
 		ability.end();
 
 		ability.areaDamage(
-			ability.creature, //Attacker
-			ability.damages, //Damage Type
-			[],	//Effects
-			ability.getTargets(hexes) //Targets
+			ability.creature, // Attacker
+			ability.damages, // Damage Type
+			[],	// Effects
+			ability.getTargets(hexes) // Targets
 		);
 	},
 },
