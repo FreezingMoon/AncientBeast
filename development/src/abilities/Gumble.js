@@ -138,18 +138,10 @@ G.abilities[14] =[
 		var ability = this;
 		var creature = this.creature;
 
-		var hexes = creature.hexagons;
-		var showConfirm = true;
-		if (this.isUpgraded()) {
-			// Upgraded Royal Seal can target up to 3 hexagons range
-			hexes = hexes.concat(G.grid.getFlyingRange(
-				creature.x, creature.y, 3, creature.size, creature.id));
-			showConfirm = false;
-		}
-		// If we can only target one hex (unupgraded) then show a confirm hint (TODO: This needs tweaked, wrong unupgraded behaviour!)
-		if (showConfirm) {
-			creature.hint("Confirm", "confirm constant");
-		}
+		// Upgraded Royal Seal can target up to 3 hexagons range
+		var range = this.isUpgraded() ? 3 : 1;
+		hexes = creature.hexagons.concat(G.grid.getFlyingRange(
+			creature.x, creature.y, range, creature.size, creature.id));
 
 		G.grid.queryHexs({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
