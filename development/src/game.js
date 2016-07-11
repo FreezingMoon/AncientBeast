@@ -866,17 +866,23 @@ var Game = Class.create( {
 	triggersFn : {
 
 		onStepIn: function(creature, hex, opts) {
+			G.triggerAbility("onStepIn", arguments);
+			G.triggerEffect("onStepIn", arguments);
+			// Check traps last; this is because traps add effects triggered by
+			// this event, which get triggered again via G.triggerEffect. Otherwise
+			// the trap's effects will be triggered twice.
 			if (!opts || !opts.ignoreTraps) {
 				G.triggerTrap("onStepIn", arguments);
 			}
-			G.triggerAbility("onStepIn", arguments);
-			G.triggerEffect("onStepIn", arguments);
 		},
 
 		onStepOut : function( creature, hex, callback ) {
-			G.triggerTrap("onStepOut", arguments);
 			G.triggerAbility("onStepOut", arguments);
 			G.triggerEffect("onStepOut", arguments);
+			// Check traps last; this is because traps add effects triggered by
+			// this event, which get triggered again via G.triggerEffect. Otherwise
+			// the trap's effects will be triggered twice.
+			G.triggerTrap("onStepOut", arguments);
 		},
 
 		onStartPhase : function( creature, callback ) {
@@ -919,6 +925,16 @@ var Game = Class.create( {
 		onCreatureDeath : function( creature, callback ) {
 			G.triggerAbility("onCreatureDeath", arguments);
 			G.triggerEffect("onCreatureDeath", [creature, creature]);
+			// Look for traps owned by this creature and destroy them
+			for (var i = 0; i < G.grid.traps.length; i++) {
+				var trap = G.grid.traps[i];
+				if (trap === undefined) continue;
+				if (trap.turnLifetime > 0 && trap.fullTurnLifetime &&
+						trap.ownerCreature == creature) {
+					trap.destroy();
+					i--;
+				}
+			}
 		},
 
 		onCreatureSummon : function( creature, callback ) {

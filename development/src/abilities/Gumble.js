@@ -170,8 +170,12 @@ G.abilities[14] =[
 						return crea && crea.type !== this.owner.type;
 					},
 					effectFn: function(effect, crea) {
-						crea.remainingMove = 0;
-						this.trap.destroy();
+						if (this.trap.turnLifetime === 0) {
+							crea.remainingMove = 0;
+							// Destroy the trap on the trapped creature's turn
+							this.trap.turnLifetime = 1;
+							this.trap.ownerCreature = crea;
+						}
 					},
 					// Immobilize target so that they can't move and no
 					// abilities/effects can move them
@@ -179,7 +183,10 @@ G.abilities[14] =[
 				}
 			);
 
-			var trap = hex.createTrap("royal-seal", [effect], ability.creature.player);
+			var trap = hex.createTrap(
+				"royal-seal", [effect], ability.creature.player,
+				{ ownerCreature: ability.creature, fullTurnLifetime: true }
+			);
 			trap.hide();
 		};
 
