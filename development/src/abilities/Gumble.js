@@ -113,13 +113,29 @@ G.abilities[14] =[
 		var ability = this;
 		ability.end();
 
-		ability.areaDamage(
-			ability.creature, // Attacker
-			ability.damages, // Damage Type
-			[],	// Effects
-			ability.getTargets(hexes) // Targets
-		);
-	},
+		var targets = ability.getTargets(hexes);
+		// Deal double damage to enemies if upgraded
+		var enemyDamages = $j.extend({}, ability.damages);
+		if (this.isUpgraded()) {
+			for (var k in enemyDamages) {
+				enemyDamages[k] *= 2;
+			}
+		}
+		// See areaDamage()
+		var kills = 0;
+		for (var i = 0; i < targets.length; i++) {
+			if (targets[i] === undefined) continue;
+			var damages = this.damages;
+			if (!this.creature.isAlly(targets[i].target.team)) {
+				damages = enemyDamages;
+			}
+			var dmg = new Damage(this.creature, damages, targets[i].hexsHit, []);
+			kills += (targets[i].target.takeDamage(dmg).kill+0);
+		}
+		if (kills > 1) {
+			this.creature.player.score.push( { type: "combo", kills: kills } );
+		}
+	}
 },
 
 
@@ -138,18 +154,10 @@ G.abilities[14] =[
 		var ability = this;
 		var creature = this.creature;
 
-		var hexes = creature.hexagons;
-		var showConfirm = true;
-		if (this.isUpgraded()) {
-			// Upgraded Royal Seal can target up to 3 hexagons range
-			hexes = hexes.concat(G.grid.getFlyingRange(
-				creature.x, creature.y, 3, creature.size, creature.id));
-			showConfirm = false;
-		}
-		// If we can only target one hex (unupgraded) then show a confirm hint (TODO: This needs tweaked, wrong unupgraded behaviour!)
-		if (showConfirm) {
-			creature.hint("Confirm", "confirm constant");
-		}
+		// Upgraded Royal Seal can target up to 3 hexagons range
+		var range = this.isUpgraded() ? 3 : 1;
+		hexes = creature.hexagons.concat(G.grid.getFlyingRange(
+			creature.x, creature.y, range, creature.size, creature.id));
 
 		G.grid.queryHexs({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
@@ -178,8 +186,12 @@ G.abilities[14] =[
 						return crea && crea.type !== this.owner.type;
 					},
 					effectFn: function(effect, crea) {
-						crea.remainingMove = 0;
-						this.trap.destroy();
+						if (this.trap.turnLifetime === 0) {
+							crea.remainingMove = 0;
+							// Destroy the trap on the trapped creature's turn
+							this.trap.turnLifetime = 1;
+							this.trap.ownerCreature = crea;
+						}
 					},
 					// Immobilize target so that they can't move and no
 					// abilities/effects can move them
@@ -187,7 +199,10 @@ G.abilities[14] =[
 				}
 			);
 
-			var trap = hex.createTrap("royal-seal", [effect], ability.creature.player);
+			var trap = hex.createTrap(
+				"royal-seal", [effect], ability.creature.player,
+				{ ownerCreature: ability.creature, fullTurnLifetime: true }
+			);
 			trap.hide();
 		};
 
