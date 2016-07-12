@@ -113,13 +113,29 @@ G.abilities[14] =[
 		var ability = this;
 		ability.end();
 
-		ability.areaDamage(
-			ability.creature, // Attacker
-			ability.damages, // Damage Type
-			[],	// Effects
-			ability.getTargets(hexes) // Targets
-		);
-	},
+		var targets = ability.getTargets(hexes);
+		// Deal double damage to enemies if upgraded
+		var enemyDamages = $j.extend({}, ability.damages);
+		if (this.isUpgraded()) {
+			for (var k in enemyDamages) {
+				enemyDamages[k] *= 2;
+			}
+		}
+		// See areaDamage()
+		var kills = 0;
+		for (var i = 0; i < targets.length; i++) {
+			if (targets[i] === undefined) continue;
+			var damages = this.damages;
+			if (!this.creature.isAlly(targets[i].target.team)) {
+				damages = enemyDamages;
+			}
+			var dmg = new Damage(this.creature, damages, targets[i].hexsHit, []);
+			kills += (targets[i].target.takeDamage(dmg).kill+0);
+		}
+		if (kills > 1) {
+			this.creature.player.score.push( { type: "combo", kills: kills } );
+		}
+	}
 },
 
 
