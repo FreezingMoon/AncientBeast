@@ -117,7 +117,8 @@ var Game = Class.create( {
 				nopsy		: "Psyhelm overload: too many units!",
 				alreadyused	: "Ability already used.",
 				toomuch		: "Too much %stat%.",
-				notenough	: "Not enough %stat%."
+				notenough	: "Not enough %stat%.",
+				notmoveable : "This creature cannot be moved."
 			},
 			ui : {
 				dash : {

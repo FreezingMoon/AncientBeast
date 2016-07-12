@@ -149,7 +149,22 @@ G.abilities[39] =[
 				sourceCreature: crea
 			});
 			if (!testMin && testMax) {
-				validDirections[i] = 1;
+				// Target needs to be moveable
+				var fx = 0;
+				if ((!this.creature.player.flipped && i>2) ||
+						(this.creature.player.flipped && i<3)) {
+					fx =  -1*(this.creature.size-1);
+				}
+				var dir = G.grid.getHexLine(
+					this.creature.x+fx, this.creature.y, i, this.creature.player.flipped);
+				if (this._getMaxDistance() > 0) {
+					dir = dir.slice(0,this._getMaxDistance()+1);
+				}
+				dir = dir.filterCreature(true, true, this.creature.id);
+				var target = dir.last().creature;
+				if (target.stats.moveable) {
+					validDirections[i] = 1;
+				}
 			}
 		}
 		return validDirections;
@@ -157,6 +172,12 @@ G.abilities[39] =[
 
 	require : function(){
 		if( !this.testRequirements() ) return false;
+
+		// Creature must be moveable
+		if (!this.creature.stats.moveable) {
+			this.message = G.msg.abilities.notmoveable;
+			return false;
+		}
 
 		// There must be at least one direction where there is a target within
 		// min/max range
