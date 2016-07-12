@@ -565,7 +565,8 @@ var Creature = Class.create( {
 
 		opts = $j.extend(defaultOpt, opts);
 
-		if(this.stats.moveable) {
+		// Teleportation ignores moveable
+		if (this.stats.moveable || opts.animation === "teleport") {
 			var creature = this;
 
 			var x = hex.x;

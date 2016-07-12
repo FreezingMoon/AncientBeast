@@ -161,7 +161,14 @@ G.abilities[3] =[
 	// Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	require : function() { return this.testRequirements(); },
+	require: function() {
+		// Must be able to move
+		if (!this.creature.stats.moveable) {
+			this.message = G.msg.abilities.notmoveable;
+			return false;
+		}
+		return this.testRequirements() && this.creature.stats.moveable;
+	},
 
 	fnOnSelect : function(hex,args){
 		this.creature.tracePosition({

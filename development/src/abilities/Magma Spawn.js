@@ -23,7 +23,7 @@ G.abilities[4] =[
 		};
 
 		var requireFn = function() {
-			if(this.trap.hex.creature==0) return false;
+			if (!this.trap.hex.creature) return false;
 			return this.trap.hex.creature.type != "L2";
 		};
 
@@ -203,6 +203,12 @@ G.abilities[4] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
+		// Creature must be moveable
+		if (!this.creature.stats.moveable) {
+			this.message = G.msg.abilities.notmoveable;
+			return false;
+		}
+
 		var magmaSpawn = this.creature;
 		var x = (magmaSpawn.player.flipped) ? magmaSpawn.x-magmaSpawn.size+1 : magmaSpawn.x ;
 
@@ -243,8 +249,6 @@ G.abilities[4] =[
 		var ability = this;
 		var magmaSpawn = this.creature;
 
-
-		var path = path;
 		var target = path.last().creature;
 		ability.end(false,true);
 
@@ -271,14 +275,14 @@ G.abilities[4] =[
 			callback : function() {
 				path.each(function() {
 					if( !this.trap ) return;
-					if( this.trap.owner =! magmaSpawn.player ) {
+					if (this.trap.owner !== magmaSpawn.player) {
 						this.destroyTrap();
 					}
 				});
 
 				var ret = target.takeDamage(damage, true);
 
-				if( ret.damageObj instanceof Damage && ret.kill == false )
+				if( ret.damageObj instanceof Damage && ret.kill === false )
 					G.triggersFn.onDamage(target, ret.damageObj);
 
 				var interval = setInterval(function() {
@@ -287,7 +291,7 @@ G.abilities[4] =[
 						G.UI.selectAbility(-1);
 						G.activeCreature.queryMove();
 					}
-				},100)
+				},100);
 
 			},
 		});
