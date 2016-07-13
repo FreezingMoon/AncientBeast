@@ -7,42 +7,23 @@ G.abilities[5] =[
 
 // 	First Ability: Electrified Hair
 {
-	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onUnderAttack",
+	trigger: "onUnderAttack",
 
-	// 	require() :
-	require : function() { return this.testRequirements(); },
-
-	// 	require() :
-	require : function(damage) {
-		this.setUsed(false); // Can be triggered as many times
-		if( damage == undefined ) damage = { damages: { shock: 1 } }; // For checking to work
-
-		if( this.creature.electrifiedHair >= this.maxCharge ) return false;
-		if( !damage.damages.shock ) return false;
+	require: function(damage) {
+		if (damage === undefined) return false;
+		if (!damage.damages.shock) return false;
 		return this.testRequirements();
 	},
 
-	//	activate() :
-	activate : function(damage) {
-		if(!(this.creature.electrifiedHair+1)) this.creature.electrifiedHair = 0;
-		var capacity = this.maxCharge-this.creature.electrifiedHair;
-		if(damage.damages.shock) {
-			if(damage.damages.shock>0) {
-				this.creature.electrifiedHair += (damage.damages.shock/2>capacity)
-				? capacity
-				: damage.damages.shock/2;
-				damage.damages.shock = (damage.damages.shock/2>capacity)
-				? damage.damages.shock-capacity
-				: damage.damages.shock/2;
-			}
-		}
+	activate: function(damage) {
 		this.end();
-		return damage; //Return Damage
-	},
-
-	getCharge : function() {
-		return { min : 0 , max : this.maxCharge, value: ( this.creature.electrifiedHair || 0 ) };
+		var converted = Math.floor(damage.damages.shock / 4);
+		// Lower damage
+		damage.damages.shock -= converted;
+		// Replenish energy
+		this.creature.recharge(converted);
+		G.log("%CreatureName" + this.creature.id + "% absorbs " + converted + " shock damage into energy");
+		return damage;
 	}
 },
 
