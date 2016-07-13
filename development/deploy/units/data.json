@@ -503,6 +503,9 @@
 				"effects": [{
 					"special": "25 poison damage if moving"
 				}],
+				"damages": {
+					"poison": 25
+				},
 				"costs": {
 					"energy": 20
 				}

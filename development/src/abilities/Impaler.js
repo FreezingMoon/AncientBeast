@@ -105,30 +105,54 @@ G.abilities[5] =[
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function() { return this.testRequirements(); },
+	require : function() {
+		var hexes = this._getHexes();
+		if (!this.atLeastOneTarget(hexes, "enemy")) {
+			return false;
+		}
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function() {
 		var ability = this;
 		var creature = this.creature;
 
-		G.grid.querySelf({fnOnConfirm : function() { ability.animation.apply(ability, arguments); } });
+		G.grid.queryCreature( {
+			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
+			team: 0, // Team, 0 = enemies
+			id: creature.id,
+			flipped: creature.flipped,
+			hexs: this._getHexes()
+		});
 	},
 
-
-	//	activate() :
-	activate : function() {
+	activate: function(target) {
 		this.end();
-		var effect = new Effect("Poisonous", this.creature, this.creature, "poisonous_vine", {
-			turnLifetime : 1,
-		});
-		this.creature.addEffect(effect, "%CreatureName" + this.creature.id + "% gains poison damage");
-
-		var effect = new Effect("", this.creature,this.creature, "poisonous_vine_perm", {
-		});
-		this.creature.addEffect(effect);
-		// TODO: Add animation
+		var damages = this.damages;
+		// Last 1 turn, or indefinitely if upgraded
+		var lifetime = this.isUpgraded() ? 0 : 1;
+		target.addEffect(new Effect(
+			this.title,
+			this.creature,
+			target,
+			"onStepOut onAttack",
+			{
+				effectFn: function(effect) {
+					G.log("%CreatureName" + effect.target.id + "% is hit by " + effect.name);
+					effect.target.takeDamage(new Damage(effect.owner, damages, 1, []));
+					effect.deleteEffect();
+				},
+				turnLifetime: lifetime
+			}
+		));
 	},
+
+	_getHexes: function() {
+		// Target a creature within 2 hex radius
+		var hexes = G.grid.hexs[this.creature.y][this.creature.x].adjacentHex(2);
+		return hexes.extendToLeft(this.creature.size);
+	}
 },
 
 
