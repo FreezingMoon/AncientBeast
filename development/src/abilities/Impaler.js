@@ -45,8 +45,7 @@ G.abilities[5] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3, this.creature.y-2, 0, false, frontnback3hex), "enemy" ) ) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.atLeastOneTarget(this._getHexes(), "enemy")) {
 			return false;
 		}
 		return true;
@@ -63,7 +62,7 @@ G.abilities[5] =[
 			team : 0, // Team, 0 = enemies
 			id : creature.id,
 			flipped : creature.flipped,
-			hexs : G.grid.getHexMap(creature.x-3, creature.y-2, 0, false, frontnback3hex),
+			hexs: this._getHexes()
 		});
 	},
 
@@ -95,6 +94,10 @@ G.abilities[5] =[
 			G.log("%CreatureName" + this.creature.id + "%'s movement recharged");
 		}
 	},
+
+	_getHexes: function() {
+		return G.grid.getHexMap(this.creature.x-3, this.creature.y-2, 0, false, frontnback3hex);
+	}
 },
 
 
@@ -106,8 +109,7 @@ G.abilities[5] =[
 
 	// 	require() :
 	require : function() {
-		var hexes = this._getHexes();
-		if (!this.atLeastOneTarget(hexes, "enemy")) {
+		if (!this.atLeastOneTarget(this._getHexes(), "enemy")) {
 			return false;
 		}
 		return this.testRequirements();
@@ -162,21 +164,10 @@ G.abilities[5] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	directions : [0,1,0,0,1,0],
-
-	require : function() {
-		if( !this.testRequirements() ) return false;
-
-		if( !this.testDirection({ team : "both", directions : this.directions }) ) {
-			this.message = G.msg.abilities.notarget;
+	require: function() {
+		if (!this.testRequirements()) return false;
+		if (!this.atLeastOneTarget(this._getHexes(), "both")) {
 			return false;
-		}
-		// Duality
-		if( this.creature.abilities[0].used ) {
-			//this.message = "Duality has already been used";
-			//return false;
-		}else{
-			this.setUsed(false);
 		}
 		return true;
 	},
@@ -184,17 +175,13 @@ G.abilities[5] =[
 	//	query() :
 	query : function(){
 		var ability = this;
-		var chimera = this.creature;
 
-		G.grid.queryDirection( {
-			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
-			flipped : chimera.player.flipped,
-			team : "both",
-			id : chimera.id,
-			requireCreature : true,
-			x : chimera.x,
-			y : chimera.y,
-			directions : this.directions,
+		G.grid.queryCreature( {
+			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
+			team: 3, // Team, 3 = both
+			id: this.creature.id,
+			flipped: this.creature.flipped,
+			hexs: this._getHexes()
 		});
 	},
 
@@ -223,10 +210,10 @@ G.abilities[5] =[
 			);
 			nextdmg = trg.takeDamage(damage);
 
-			if(nextdmg.damages == undefined) break; // If attack is dodge
+			if (nextdmg.damages === undefined) break; // If attack is dodge
 			if(nextdmg.kill) break; // If target is killed
 			if(nextdmg.damages.total <= 0) break; // If damage is too weak
-			if(nextdmg.damageObj.status != "") break;
+			if (nextdmg.damageObj.status !== "") break;
 			delete nextdmg.damages.total;
 			nextdmg = nextdmg.damages;
 
@@ -234,12 +221,12 @@ G.abilities[5] =[
 			nextTargets = ability.getTargets(trg.adjacentHexs(1,true));
 
 			nextTargets.filter(function() {
-				if ( this.hexsHit == undefined ) return false; // Remove empty ids
+				if (this.hexsHit === undefined) return false; // Remove empty ids
 				return (targets.indexOf(this.target) == -1) ; // If this creature has already been hit
-			})
+			});
 
 			// If no target
-			if(nextTargets.length == 0) break;
+			if (nextTargets.length === 0) break;
 
 			// Best Target
 			var bestTarget = { size: 0, stats:{ defense:-99999, shock:-99999 } };
@@ -257,16 +244,20 @@ G.abilities[5] =[
 					continue;
 				}
 
-			};
+			}
 
 			if( bestTarget instanceof Creature ){
 				targets.push(bestTarget);
 			}else{
 				break;
 			}
-		};
+		}
 
 	},
+
+	_getHexes: function() {
+		return G.grid.getHexMap(this.creature.x-3, this.creature.y-2, 0, false, frontnback3hex);
+	}
 }
 
 ];
