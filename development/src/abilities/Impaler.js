@@ -36,7 +36,7 @@ G.abilities[5] =[
 
 
 
-// 	Second Ability: Hasted Jab
+// 	Second Ability: Hasted Javelin
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -73,29 +73,11 @@ G.abilities[5] =[
 		var ability = this;
 		ability.end();
 
-		var finalDmg = $j.extend( { poison: 0, shock: 0 }, ability.damages1); // Copy object
+		var finalDmg = $j.extend({poison: 0}, ability.damages1);
 
-		// Poison Bonus
-		ability.creature.effects.each(function() {
-			if(this.trigger == "poisonous_vine_perm") {
-				finalDmg.poison += 1;
-			}else if(this.trigger == "poisonous_vine") {
-				finalDmg.poison += 5;
-			}
-		});
-
-		// Jab Bonus
-		finalDmg.pierce += ability.creature.travelDist*5;
-
-		// Electrified Hair Bonus
-		if(ability.creature.electrifiedHair) {
-			if(ability.creature.electrifiedHair>25) {
-				finalDmg.shock += 25;
-				ability.creature.electrifiedHair -= 25;
-			} else if(ability.creature.electrifiedHair>0) {
-				finalDmg.shock += ability.creature.electrifiedHair;
-				ability.creature.electrifiedHair = 0;
-			}
+		// Poison Bonus if upgraded
+		if (this.isUpgraded()) {
+			finalDmg.poison = this.damages1.poison;
 		}
 
 		G.UI.checkAbilities();
@@ -105,8 +87,13 @@ G.abilities[5] =[
 			finalDmg, // Damage Type
 			1, // Area
 			[] // Effects
-		)
-		target.takeDamage(damage);
+		);
+		var result = target.takeDamage(damage);
+		// Recharge movement if any damage dealt
+		if (result.damages && result.damages.total > 0) {
+			this.creature.remainingMove = this.creature.stats.movement;
+			G.log("%CreatureName" + this.creature.id + "%'s movement recharged");
+		}
 	},
 },
 
