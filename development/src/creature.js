@@ -771,7 +771,7 @@ var Creature = Class.create( {
 
 	/**
 	 * Restore energy up to the max limit
-	 * @param {number} amount: amount of energy to restore
+	 * @param {Number} amount: amount of energy to restore
 	 */
 	recharge: function(amount) {
 		this.energy = Math.min(this.stats.energy, this.energy + amount);

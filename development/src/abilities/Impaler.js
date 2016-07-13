@@ -21,7 +21,14 @@ G.abilities[5] =[
 		// Lower damage
 		damage.damages.shock -= converted;
 		// Replenish energy
+		// Calculate overflow first; we may need it later
+		var energyMissing = this.creature.stats.energy - this.creature.energy;
+		var energyOverflow = converted - energyMissing;
 		this.creature.recharge(converted);
+		// If upgraded and energy overflow, convert into health
+		if (this.isUpgraded() && energyOverflow > 0) {
+			this.creature.heal(energyOverflow);
+		}
 		G.log("%CreatureName" + this.creature.id + "% absorbs " + converted + " shock damage into energy");
 		return damage;
 	}
