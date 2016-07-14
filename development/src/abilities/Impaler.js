@@ -7,48 +7,36 @@ G.abilities[5] =[
 
 // 	First Ability: Electrified Hair
 {
-	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onUnderAttack",
+	trigger: "onUnderAttack",
 
-	// 	require() :
-	require : function() { return this.testRequirements(); },
-
-	// 	require() :
-	require : function(damage) {
-		this.setUsed(false); // Can be triggered as many times
-		if( damage == undefined ) damage = { damages: { shock: 1 } }; // For checking to work
-
-		if( this.creature.electrifiedHair >= this.maxCharge ) return false;
-		if( !damage.damages.shock ) return false;
+	require: function(damage) {
+		if (damage === undefined) return false;
+		if (!damage.damages.shock) return false;
 		return this.testRequirements();
 	},
 
-	//	activate() :
-	activate : function(damage) {
-		if(!(this.creature.electrifiedHair+1)) this.creature.electrifiedHair = 0;
-		var capacity = this.maxCharge-this.creature.electrifiedHair;
-		if(damage.damages.shock) {
-			if(damage.damages.shock>0) {
-				this.creature.electrifiedHair += (damage.damages.shock/2>capacity)
-				? capacity
-				: damage.damages.shock/2;
-				damage.damages.shock = (damage.damages.shock/2>capacity)
-				? damage.damages.shock-capacity
-				: damage.damages.shock/2;
-			}
-		}
+	activate: function(damage) {
 		this.end();
-		return damage; //Return Damage
-	},
-
-	getCharge : function() {
-		return { min : 0 , max : this.maxCharge, value: ( this.creature.electrifiedHair || 0 ) };
+		var converted = Math.floor(damage.damages.shock / 4);
+		// Lower damage
+		damage.damages.shock -= converted;
+		// Replenish energy
+		// Calculate overflow first; we may need it later
+		var energyMissing = this.creature.stats.energy - this.creature.energy;
+		var energyOverflow = converted - energyMissing;
+		this.creature.recharge(converted);
+		// If upgraded and energy overflow, convert into health
+		if (this.isUpgraded() && energyOverflow > 0) {
+			this.creature.heal(energyOverflow);
+		}
+		G.log("%CreatureName" + this.creature.id + "% absorbs " + converted + " shock damage into energy");
+		return damage;
 	}
 },
 
 
 
-// 	Second Ability: Hasted Jab
+// 	Second Ability: Hasted Javelin
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -57,8 +45,7 @@ G.abilities[5] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3, this.creature.y-2, 0, false, frontnback3hex), "enemy" ) ) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.atLeastOneTarget(this._getHexes(), "enemy")) {
 			return false;
 		}
 		return true;
@@ -75,7 +62,7 @@ G.abilities[5] =[
 			team : 0, // Team, 0 = enemies
 			id : creature.id,
 			flipped : creature.flipped,
-			hexs : G.grid.getHexMap(creature.x-3, creature.y-2, 0, false, frontnback3hex),
+			hexs: this._getHexes()
 		});
 	},
 
@@ -85,29 +72,11 @@ G.abilities[5] =[
 		var ability = this;
 		ability.end();
 
-		var finalDmg = $j.extend( { poison: 0, shock: 0 }, ability.damages1); // Copy object
+		var finalDmg = $j.extend({poison: 0}, ability.damages1);
 
-		// Poison Bonus
-		ability.creature.effects.each(function() {
-			if(this.trigger == "poisonous_vine_perm") {
-				finalDmg.poison += 1;
-			}else if(this.trigger == "poisonous_vine") {
-				finalDmg.poison += 5;
-			}
-		});
-
-		// Jab Bonus
-		finalDmg.pierce += ability.creature.travelDist*5;
-
-		// Electrified Hair Bonus
-		if(ability.creature.electrifiedHair) {
-			if(ability.creature.electrifiedHair>25) {
-				finalDmg.shock += 25;
-				ability.creature.electrifiedHair -= 25;
-			} else if(ability.creature.electrifiedHair>0) {
-				finalDmg.shock += ability.creature.electrifiedHair;
-				ability.creature.electrifiedHair = 0;
-			}
+		// Poison Bonus if upgraded
+		if (this.isUpgraded()) {
+			finalDmg.poison = this.damages1.poison;
 		}
 
 		G.UI.checkAbilities();
@@ -117,9 +86,18 @@ G.abilities[5] =[
 			finalDmg, // Damage Type
 			1, // Area
 			[] // Effects
-		)
-		target.takeDamage(damage);
+		);
+		var result = target.takeDamage(damage);
+		// Recharge movement if any damage dealt
+		if (result.damages && result.damages.total > 0) {
+			this.creature.remainingMove = this.creature.stats.movement;
+			G.log("%CreatureName" + this.creature.id + "%'s movement recharged");
+		}
 	},
+
+	_getHexes: function() {
+		return G.grid.getHexMap(this.creature.x-3, this.creature.y-2, 0, false, frontnback3hex);
+	}
 },
 
 
@@ -130,30 +108,53 @@ G.abilities[5] =[
 	trigger : "onQuery",
 
 	// 	require() :
-	require : function() { return this.testRequirements(); },
+	require : function() {
+		if (!this.atLeastOneTarget(this._getHexes(), "enemy")) {
+			return false;
+		}
+		return this.testRequirements();
+	},
 
 	// 	query() :
 	query : function() {
 		var ability = this;
 		var creature = this.creature;
 
-		G.grid.querySelf({fnOnConfirm : function() { ability.animation.apply(ability, arguments); } });
+		G.grid.queryCreature( {
+			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
+			team: 0, // Team, 0 = enemies
+			id: creature.id,
+			flipped: creature.flipped,
+			hexs: this._getHexes()
+		});
 	},
 
-
-	//	activate() :
-	activate : function() {
+	activate: function(target) {
 		this.end();
-		var effect = new Effect("Poisonous", this.creature, this.creature, "poisonous_vine", {
-			turnLifetime : 1,
-		});
-		this.creature.addEffect(effect, "%CreatureName" + this.creature.id + "% gains poison damage");
-
-		var effect = new Effect("", this.creature,this.creature, "poisonous_vine_perm", {
-		});
-		this.creature.addEffect(effect);
-		// TODO: Add animation
+		var damages = this.damages;
+		// Last 1 turn, or indefinitely if upgraded
+		var lifetime = this.isUpgraded() ? 0 : 1;
+		target.addEffect(new Effect(
+			this.title,
+			this.creature,
+			target,
+			"onStepOut onAttack",
+			{
+				effectFn: function(effect) {
+					G.log("%CreatureName" + effect.target.id + "% is hit by " + effect.name);
+					effect.target.takeDamage(new Damage(effect.owner, damages, 1, []));
+					effect.deleteEffect();
+				},
+				turnLifetime: lifetime
+			}
+		));
 	},
+
+	_getHexes: function() {
+		// Target a creature within 2 hex radius
+		var hexes = G.grid.hexs[this.creature.y][this.creature.x].adjacentHex(2);
+		return hexes.extendToLeft(this.creature.size);
+	}
 },
 
 
@@ -163,21 +164,10 @@ G.abilities[5] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	directions : [0,1,0,0,1,0],
-
-	require : function() {
-		if( !this.testRequirements() ) return false;
-
-		if( !this.testDirection({ team : "both", directions : this.directions }) ) {
-			this.message = G.msg.abilities.notarget;
+	require: function() {
+		if (!this.testRequirements()) return false;
+		if (!this.atLeastOneTarget(this._getHexes(), "both")) {
 			return false;
-		}
-		// Duality
-		if( this.creature.abilities[0].used ) {
-			//this.message = "Duality has already been used";
-			//return false;
-		}else{
-			this.setUsed(false);
 		}
 		return true;
 	},
@@ -185,36 +175,63 @@ G.abilities[5] =[
 	//	query() :
 	query : function(){
 		var ability = this;
-		var chimera = this.creature;
 
-		G.grid.queryDirection( {
-			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
-			flipped : chimera.player.flipped,
-			team : "both",
-			id : chimera.id,
-			requireCreature : true,
-			x : chimera.x,
-			y : chimera.y,
-			directions : this.directions,
+		G.grid.queryCreature( {
+			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
+			team: 3, // Team, 3 = both
+			id: this.creature.id,
+			flipped: this.creature.flipped,
+			hexs: this._getHexes()
 		});
 	},
 
 
 	//	activate() :
-	activate : function(path, args) {
+	activate : function(target) {
 		var ability = this;
-
-		ability.creature.abilities[0].abilityTriggered(2);
-
 		ability.end();
 
 		var targets = [];
-		targets.push(path.last().creature); // Add First creature hit
+		targets.push(target); // Add First creature hit
 		var nextdmg = $j.extend({},ability.damages); // Copy the object
 
 		// For each Target
 		for (var i = 0; i < targets.length; i++) {
 			var trg = targets[i];
+
+			// If upgraded and the target is an ally, protect it with an effect that
+			// reduces the damage to guarantee at least 1 health remaining
+			if (this.isUpgraded() && this.creature.isAlly(trg.team)) {
+				trg.addEffect(new Effect(
+					this.title,
+					this.creature,
+					trg,
+					"onUnderAttack",
+					{
+						effectFn: function(effect, damage) {
+							// Simulate the damage to determine how much damage would have
+							// been dealt; then reduce the damage so that it will not kill
+							while (true) {
+								var dmg = damage.applyDamage();
+								// If we can't reduce any further, give up and have the damage
+								// be zero
+								if (dmg.total <= 0 || damage.damages.shock <= 0 ||
+										trg.health <= 1) {
+									damage.damages = {shock: 0};
+									break;
+								} else if (dmg.total >= trg.health) {
+									// Too much damage, would have killed; reduce and try again
+									damage.damages.shock--;
+								} else {
+									break;
+								}
+							}
+						},
+						deleteTrigger: "onEndPhase",
+						noLog: true
+					}
+				));
+			}
 
 			var damage = new Damage(
 				ability.creature, // Attacker
@@ -224,10 +241,10 @@ G.abilities[5] =[
 			);
 			nextdmg = trg.takeDamage(damage);
 
-			if(nextdmg.damages == undefined) break; // If attack is dodge
+			if (nextdmg.damages === undefined) break; // If attack is dodge
 			if(nextdmg.kill) break; // If target is killed
 			if(nextdmg.damages.total <= 0) break; // If damage is too weak
-			if(nextdmg.damageObj.status != "") break;
+			if (nextdmg.damageObj.status !== "") break;
 			delete nextdmg.damages.total;
 			nextdmg = nextdmg.damages;
 
@@ -235,12 +252,12 @@ G.abilities[5] =[
 			nextTargets = ability.getTargets(trg.adjacentHexs(1,true));
 
 			nextTargets.filter(function() {
-				if ( this.hexsHit == undefined ) return false; // Remove empty ids
+				if (this.hexsHit === undefined) return false; // Remove empty ids
 				return (targets.indexOf(this.target) == -1) ; // If this creature has already been hit
-			})
+			});
 
 			// If no target
-			if(nextTargets.length == 0) break;
+			if (nextTargets.length === 0) break;
 
 			// Best Target
 			var bestTarget = { size: 0, stats:{ defense:-99999, shock:-99999 } };
@@ -258,16 +275,20 @@ G.abilities[5] =[
 					continue;
 				}
 
-			};
+			}
 
 			if( bestTarget instanceof Creature ){
 				targets.push(bestTarget);
 			}else{
 				break;
 			}
-		};
+		}
 
 	},
+
+	_getHexes: function() {
+		return G.grid.getHexMap(this.creature.x-3, this.creature.y-2, 0, false, frontnback3hex);
+	}
 }
 
 ];
