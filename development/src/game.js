@@ -948,9 +948,9 @@ var Game = Class.create( {
 		},
 
 
-		onUnderAttack : function( creature, damage ) {
-			damage = G.triggerAbility("onUnderAttack", arguments, damage);
-			damage = G.triggerEffect("onUnderAttack", arguments, damage);
+		onUnderAttack: function(creature, damage) {
+			G.triggerAbility("onUnderAttack", arguments, damage);
+			G.triggerEffect("onUnderAttack", arguments, damage);
 			return damage;
 		},
 

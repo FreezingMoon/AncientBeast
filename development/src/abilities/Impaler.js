@@ -187,20 +187,50 @@ G.abilities[5] =[
 
 
 	//	activate() :
-	activate : function(path, args) {
+	activate : function(target) {
 		var ability = this;
-
-		ability.creature.abilities[0].abilityTriggered(2);
-
 		ability.end();
 
 		var targets = [];
-		targets.push(path.last().creature); // Add First creature hit
+		targets.push(target); // Add First creature hit
 		var nextdmg = $j.extend({},ability.damages); // Copy the object
 
 		// For each Target
 		for (var i = 0; i < targets.length; i++) {
 			var trg = targets[i];
+
+			// If upgraded and the target is an ally, protect it with an effect that
+			// reduces the damage to guarantee at least 1 health remaining
+			if (this.isUpgraded() && this.creature.isAlly(trg.team)) {
+				trg.addEffect(new Effect(
+					this.title,
+					this.creature,
+					trg,
+					"onUnderAttack",
+					{
+						effectFn: function(effect, damage) {
+							// Simulate the damage to determine how much damage would have
+							// been dealt; then reduce the damage so that it will not kill
+							while (true) {
+								var dmg = damage.applyDamage();
+								// If we can't reduce any further, give up and have the damage
+								// be zero
+								if (dmg.total <= 0 || damage.damages.shock <= 0 ||
+										trg.health <= 1) {
+									damage.damages = {shock: 0};
+								} else if (dmg.total >= trg.health) {
+									// Too much damage, would have killed; reduce and try again
+									damage.damages.shock--;
+								} else {
+									break;
+								}
+							}
+						},
+						deleteTrigger: "onEndPhase",
+						noLog: true
+					}
+				));
+			}
 
 			var damage = new Damage(
 				ability.creature, // Attacker
