@@ -218,6 +218,7 @@ G.abilities[5] =[
 								if (dmg.total <= 0 || damage.damages.shock <= 0 ||
 										trg.health <= 1) {
 									damage.damages = {shock: 0};
+									break;
 								} else if (dmg.total >= trg.health) {
 									// Too much damage, would have killed; reduce and try again
 									damage.damages.shock--;
