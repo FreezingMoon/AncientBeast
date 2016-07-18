@@ -195,7 +195,9 @@ G.abilities[14] =[
 					},
 					// Immobilize target so that they can't move and no
 					// abilities/effects can move them
-					alterations: { moveable: false }
+					alterations: { moveable: false },
+					deleteTrigger: "onStartPhase",
+					turnLifetime: 1
 				}
 			);
 
