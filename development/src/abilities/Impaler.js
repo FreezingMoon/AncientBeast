@@ -92,6 +92,7 @@ G.abilities[5] =[
 		if (result.damages && result.damages.total > 0) {
 			this.creature.remainingMove = this.creature.stats.movement;
 			G.log("%CreatureName" + this.creature.id + "%'s movement recharged");
+			G.activeCreature.queryMove();
 		}
 	},
 
