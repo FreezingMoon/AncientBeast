@@ -9,13 +9,14 @@ G.abilities[5] =[
 {
 	trigger: "onUnderAttack",
 
-	require: function(damage) {
-		if (damage === undefined) return false;
-		if (!damage.damages.shock) return false;
-		return this.testRequirements();
+	require: function() {
+		// Always true to highlight ability
+		return true;
 	},
 
 	activate: function(damage) {
+		if (damage === undefined) return false;
+		if (!damage.damages.shock) return false;
 		this.end();
 		var converted = Math.floor(damage.damages.shock / 4);
 		// Lower damage
