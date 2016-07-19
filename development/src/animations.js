@@ -47,6 +47,13 @@ var Animations = Class.create({
 					ignoreTraps: crea.movementType() !== "normal" && hexId < path.length - 1
 				}, opts);
 				tween.onComplete.add(function() {
+
+					if (crea.dead) {
+						// Stop moving if creature has died while moving
+						G.animations.movements.movementComplete(crea, hex, anim_id, opts);
+						return;
+					}
+
 					// Sound Effect
 					G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);
 

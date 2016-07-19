@@ -350,6 +350,12 @@ var Creature = Class.create( {
 	*/
 	queryMove: function(o) {
 
+		if (this.dead) {
+			// Creatures can die during their turns from trap effects; make sure this
+			// function doesn't do anything
+			return;
+		}
+
 		// Once Per Damage Abilities recover
 		G.creatures.each(function() { //For all Creature
 			if(this instanceof Creature) {
