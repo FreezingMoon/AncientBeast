@@ -145,7 +145,8 @@ G.abilities[5] =[
 					effect.target.takeDamage(new Damage(effect.owner, damages, 1, []));
 					effect.deleteEffect();
 				},
-				turnLifetime: lifetime
+				turnLifetime: lifetime,
+				deleteTrigger: "onEndPhase"
 			}
 		));
 	},
