@@ -52,25 +52,33 @@ G.abilities[39] =[
 					alterations: { endurance: -5 }
 				}
 			);
-			var effect = new Effect(
-				this.title, // Name
-				creature, // Caster
-				trg, // Target
-				"onStartPhase", // Trigger
-				{
-					effectFn: function() {
-						// Activate debuff
-						trg.addEffect(debuff);
-						// Note: effect activate by default adds the effect on the target,
-						// but target already has this effect, so remove the trigger to
-						// prevent infinite addition of this effect.
-						this.trigger = "";
-						this.deleteEffect();
+			if (ability.isUpgraded()) {
+				// Upgraded ability adds the debuff immediately
+				debuff.name = ability.title;
+				trg.addEffect(debuff, "%CreatureName" + trg.id + "% has been infested");
+			} else {
+				// Add an effect that triggers on the target's start phase and adds the
+				// debuff
+				var effect = new Effect(
+					ability.title, // Name
+					creature, // Caster
+					trg, // Target
+					"onStartPhase", // Trigger
+					{
+						effectFn: function() {
+							// Activate debuff
+							trg.addEffect(debuff);
+							// Note: effect activate by default adds the effect on the target,
+							// but target already has this effect, so remove the trigger to
+							// prevent infinite addition of this effect.
+							this.trigger = "";
+							this.deleteEffect();
+						}
 					}
-				}
-			);
+				);
 
-			trg.addEffect(effect, "%CreatureName" + trg.id + "% has been infested");
+				trg.addEffect(effect, "%CreatureName" + trg.id + "% has been infested");
+			}
 		});
 	},
 },
