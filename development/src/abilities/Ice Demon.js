@@ -217,7 +217,7 @@ G.abilities[6] =[
 
 		G.grid.queryChoice({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
-			team : "ennemy",
+			team : "enemy",
 			requireCreature : 1,
 			id : crea.id,
 			flipped : crea.flipped,
@@ -266,7 +266,7 @@ G.abilities[6] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 		var test = this.testDirection( {
-			team : "ennemy",
+			team : "enemy",
 			directions : this.directions,
 			sourceCreature : this.creature,
 		});
@@ -300,7 +300,7 @@ G.abilities[6] =[
 			},
 			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
 			flipped : crea.player.flipped,
-			team : "ennemy",
+			team : "enemy",
 			id : this.creature.id,
 			requireCreature : true,
 			x : crea.x,

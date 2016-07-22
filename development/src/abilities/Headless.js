@@ -5,14 +5,20 @@
 */
 G.abilities[39] =[
 
-// 	First Ability: Maggot Infestation
+// 	First Ability: Larva Infest
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onStartPhase",
 
-	// 	require() :
-	require : function(){
-		if( !this.atLeastOneTarget( this.creature.getHexMap(inlineback2hex),"ennemy" ) ) return false;
+	_targetTeam: "enemy",
+	_getHexes: function() {
+		return this.creature.getHexMap(inlineback2hex);
+	},
+
+	require: function() {
+		if (!this.atLeastOneTarget(this._getHexes(), this._targetTeam)) {
+			return false;
+		}
 		return this.testRequirements();
 	},
 
@@ -21,26 +27,47 @@ G.abilities[39] =[
 		var ability = this;
 		var creature = this.creature;
 
-		if( this.atLeastOneTarget( this.creature.getHexMap(inlineback2hex),"ennemy" ) ) {
+		if (this.atLeastOneTarget(this._getHexes(), this._targetTeam)) {
 			this.end();
 			this.setUsed(false); // Infinite triggering
 		}else{
 			return false;
 		}
 
-		var targets = this.getTargets(this.creature.getHexMap(inlineback2hex));
+		var targets = this.getTargets(this._getHexes());
 
 		targets.each(function() {
 			if( !(this.target instanceof Creature) ) return;
 
 			var trg = this.target;
 
+			var debuff = new Effect(
+				"", // No name to prevent logging
+				creature,
+				trg,
+				"",
+				{
+					deleteTrigger: "",
+					stackable: true,
+					alterations: { endurance: -5 }
+				}
+			);
 			var effect = new Effect(
-				"Infested", // Name
+				this.title, // Name
 				creature, // Caster
 				trg, // Target
 				"onStartPhase", // Trigger
-				{ alterations : ability.effects[0] } // Optional arguments
+				{
+					effectFn: function() {
+						// Activate debuff
+						trg.addEffect(debuff);
+						// Note: effect activate by default adds the effect on the target,
+						// but target already has this effect, so remove the trigger to
+						// prevent infinite addition of this effect.
+						this.trigger = "";
+						this.deleteEffect();
+					}
+				}
 			);
 
 			trg.addEffect(effect, "%CreatureName" + trg.id + "% has been infested");
@@ -62,7 +89,7 @@ G.abilities[39] =[
 		if( !this.testRequirements() ) return false;
 
 		//At least one target
-		if( !this.atLeastOneTarget(crea.getHexMap(frontnback2hex), "ennemy") ) {
+		if( !this.atLeastOneTarget(crea.getHexMap(frontnback2hex), "enemy") ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
