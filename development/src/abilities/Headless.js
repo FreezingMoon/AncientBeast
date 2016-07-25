@@ -318,7 +318,7 @@ G.abilities[39] =[
 
 
 
-// 	Fourth Ability: Boomerang Throw
+// 	Fourth Ability: Boomerang Tool
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -328,10 +328,20 @@ G.abilities[39] =[
 		crush : 5,
 	},
 
-	map : [ [0,0,0,0,0],
-		   [0,1,1,1,1],
-			[0,1,1,1,1],//origin line
-		   [0,1,1,1,1]],
+	_getHexes: function() {
+		// extra range if upgraded
+		if (this.isUpgraded()) {
+			return [[],
+				   [0,1,1,1,1,1],
+					[0,1,1,1,1,1],//origin line
+				   [0,1,1,1,1,1]];
+		}
+		return [[],
+			   [0,1,1,1,1],
+				[0,1,1,1,1],//origin line
+			   [0,1,1,1,1]];
+	},
+
 
 	// 	require() :
 	require : function(){
@@ -344,7 +354,8 @@ G.abilities[39] =[
 		var ability = this;
 		var crea = this.creature;
 
-		this.map.origin = [0,2];
+		var hexes = this._getHexes();
+		hexes.origin = [0,2];
 
 		G.grid.queryChoice({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
@@ -352,22 +363,15 @@ G.abilities[39] =[
 			requireCreature : 0,
 			id : crea.id,
 			flipped : crea.flipped,
-			choices : [
-				crea.getHexMap(this.map),
-				crea.getHexMap(this.map,true),
+			choices: [
+				crea.getHexMap(hexes),
+				crea.getHexMap(hexes, true),
 			],
-		})
-
+		});
 	},
 
-
-	//	activate() :
-	activate : function(hexs) {
-
-		damages = {
-			slash : 5,
-			crush : 5,
-		}
+	activate: function(hexs) {
+		var damages = { slash : 10 };
 
 		var ability = this;
 		ability.end();
