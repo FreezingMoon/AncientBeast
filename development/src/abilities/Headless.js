@@ -85,7 +85,7 @@ G.abilities[39] =[
 
 
 
-// 	Second Ability: Scapel Limbs
+// 	Second Ability: Cartilage Dagger
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -125,6 +125,13 @@ G.abilities[39] =[
 		ability.end();
 
 		var d = { pierce : 12 };
+		// Extra pierce damage if upgraded
+		if (this.isUpgraded()) {
+			var bonus = this.creature.endurance - target.endurance;
+			if (bonus > 0) {
+				d.pierce += bonus;
+			}
+		}
 
 		//Bonus for fatigued foe
 		d.pierce = target.endurance <= 0 ? d.pierce * 2 : d.pierce;
