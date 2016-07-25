@@ -88,7 +88,7 @@ G.abilities[6] =[
 		G.grid.queryDirection( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : crea.player.flipped,
-			team : "ennemy",
+			team : "enemy",
 			id : this.creature.id,
 			requireCreature : true,
 			x : crea.x,

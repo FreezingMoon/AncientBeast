@@ -85,7 +85,9 @@ var HexGrid = Class.create( {
 					this.overlayVisualState("creature selected player" + this.creature.team);
 				});
 			},
-			fnOnCancel : function() {G.activeCreature.queryMove()},
+			fnOnCancel: function() {
+				G.activeCreature.queryMove();
+			},
 			args : {},
 			confirmText : "Confirm",
 			id : G.activeCreature.id

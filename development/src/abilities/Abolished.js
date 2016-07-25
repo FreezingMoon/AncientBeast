@@ -13,7 +13,9 @@ G.abilities[7] =[
 	// 	require() :
 	require : function(damage) {
 		if( !this.testRequirements() ) return false;
-		if( damage == undefined ) damage = { type: "target" }; // For the test function to work
+		if (damage === undefined) {
+			damage = { type: "target" }; // For the test function to work
+		}
 		return true;
 	},
 
@@ -30,7 +32,7 @@ G.abilities[7] =[
 },
 
 
-// 	Second Ability: Fiery Claw
+// 	Second Ability: Fiery Touch
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -62,7 +64,7 @@ G.abilities[7] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : crea.player.flipped,
-			team : 0, // enemies
+			team: "enemy", // enemies
 			id : this.creature.id,
 			requireCreature : true,
 			x : crea.x,
@@ -125,25 +127,21 @@ G.abilities[7] =[
 
 		if( this.isUpgraded() ) {
 			this.range += 1;
-		};
+		}
 
 
 		var targets = ability.getTargets(ability.creature.adjacentHexs(1));
 
 		targets.each(function() {
-
-			if( !(this.target instanceof Creature) ) return;
-
-			var trg = this.target;
-
-		})
+			if (!(this.target instanceof Creature)) return;
+		});
 
 		ability.creature.moveTo(hex, {
 			ignoreMovementPoint : true,
 			ignorePath : true,
 			animation : "teleport",
 			callback : function() {
-				G.activeCreature.queryMove()
+				G.activeCreature.queryMove();
 			},
 			callbackStepIn  : function() {
 				var targets = ability.getTargets(ability.creature.adjacentHexs(1));
@@ -167,7 +165,7 @@ G.abilities[7] =[
 						);
 						trg.addEffect(effect, "%CreatureName"+trg.id+"% got roasted : -5 burn stat");
 					}
-				})
+				});
 			},
 		});
 
@@ -178,7 +176,7 @@ G.abilities[7] =[
 		};
 
 		var requireFn = function() {
-			if(this.trap.hex.creature==0) return false;
+			if (this.trap.hex.creature === 0) return false;
 			return this.trap.hex.creature.type != "P7";
 		};
 
