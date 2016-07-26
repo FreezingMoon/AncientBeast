@@ -330,16 +330,22 @@ G.abilities[39] =[
 
 	_getHexes: function() {
 		// extra range if upgraded
+		var hexes;
 		if (this.isUpgraded()) {
-			return [[],
+			hexes = [
+				  [0,0,0,0,0,0],
 				   [0,1,1,1,1,1],
 					[0,1,1,1,1,1],//origin line
 				   [0,1,1,1,1,1]];
+		} else {
+			hexes = [
+				  [0,0,0,0,0],
+				   [0,1,1,1,1],
+					[0,1,1,1,1],//origin line
+				   [0,1,1,1,1]];
 		}
-		return [[],
-			   [0,1,1,1,1],
-				[0,1,1,1,1],//origin line
-			   [0,1,1,1,1]];
+		hexes.origin = [0, 2];
+		return hexes;
 	},
 
 
@@ -355,14 +361,13 @@ G.abilities[39] =[
 		var crea = this.creature;
 
 		var hexes = this._getHexes();
-		hexes.origin = [0,2];
 
 		G.grid.queryChoice({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
 			team : "both",
 			requireCreature : 0,
 			id : crea.id,
-			flipped : crea.flipped,
+			flipped : crea.player.flipped,
 			choices: [
 				crea.getHexMap(hexes),
 				crea.getHexMap(hexes, true),
