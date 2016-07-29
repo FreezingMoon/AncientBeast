@@ -3373,7 +3373,7 @@
 				"info": "16 crush damage, single hit attack.",
 				"upgrade": "This attack will hit twice.",
 				"damages": {
-					"crush": 20
+					"crush": 16
 				},
 				"costs": {
 					"energy": 16
@@ -3388,19 +3388,19 @@
 					"sonic": 21
 				},
 				"costs": {
-					"energy": 20
+					"energy": 21
 				}
 		},
 			{
 				"title": "Battering Ram",
-				"desc": "Knocks a nearby unit up to 4 hexagons, causing damage to the next inline unit.",
+				"desc": "Knocks a nearby unit up to 3 hexagons, causing damage to the next inline unit.",
 				"info": "30 crush damage, push that diminishes.",
 				"upgrade": "Consistent knock-back effect.",
 				"damages": {
 					"crush": 30
 				},
 				"costs": {
-					"energy": 40
+					"energy": 30
 				}
 		}
 	]
