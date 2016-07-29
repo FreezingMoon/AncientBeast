@@ -3393,11 +3393,11 @@
 		},
 			{
 				"title": "Battering Ram",
-				"desc": "Knocks a nearby unit up to 3 hexagons, causing damage to the next inline unit.",
-				"info": "30 crush damage, push that diminishes.",
-				"upgrade": "Consistent knock-back effect.",
+				"desc": "Knocks a nearby unit up to 3 hexagons, launching it into the next one and so on.",
+				"info": "15 crush damage & push that diminish.",
+				"upgrade": "Consistent damage and push.",
 				"damages": {
-					"crush": 30
+					"crush": 15
 				},
 				"costs": {
 					"energy": 30
