@@ -3328,10 +3328,10 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 182,
-			"regrowth": 6,
+			"regrowth": 12,
 			"endurance": 40,
 			"energy": 80,
-			"meditation": 30,
+			"meditation": 40,
 			"initiative": 40,
 			"offense": 7,
 			"defense": 5,
@@ -3363,13 +3363,13 @@
 		"ability_info": [
 			{
 				"title": "Cyclic Duality",
-				"desc": "Can delay the remaining of the turn even after using all movement points.",
-				"info": "This won't work if an ability was used.",
-				"upgrade": "Can delay after abilities too."
+				"desc": "Even when becoming fatigued, can still recharge up to half of meditation stat.",
+				"info": "This works with the existing unit stats.",
+				"upgrade": "Half regrowth regeneration."
 		},
 			{
 				"title": "Tooth Fairy",
-				"desc": "Syncs teeth into a nearby enemy.",
+				"desc": "Both heads sink their teeth into a nearby enemy target, damaging it.",
 				"info": "16 crush damage, single hit attack.",
 				"upgrade": "This attack will hit twice.",
 				"damages": {
@@ -3381,11 +3381,11 @@
 		},
 			{
 				"title": "Disturbing Sound",
-				"desc": "Sings a powerful musical note inline that splits on impact and even bounces.",
-				"info": "20 sonic damage that can continue on.",
-				"upgrade": "Penetrates for -50% damage.",
+				"desc": "Sings a very powerful musical note that doesn't get stopped by any dying units.",
+				"info": "21 sonic damage that continues on kill.",
+				"upgrade": "+7 sonic damage when killing.",
 				"damages": {
-					"sonic": 20
+					"sonic": 21
 				},
 				"costs": {
 					"energy": 20
@@ -3393,14 +3393,14 @@
 		},
 			{
 				"title": "Battering Ram",
-				"desc": "Releases a lightning bolt that will arch, shocking multiple adjacent creatures.",
-				"info": "20 shock damage inline that can arch.",
-				"upgrade": "Can arch 1 hexagon further.",
+				"desc": "Knocks a nearby unit up to 4 hexagons, causing damage to the next inline unit.",
+				"info": "30 crush damage, push that diminishes.",
+				"upgrade": "Consistent knock-back effect.",
 				"damages": {
-					"shock": 20
+					"crush": 30
 				},
 				"costs": {
-					"energy": 30
+					"energy": 40
 				}
 		}
 	]
