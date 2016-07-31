@@ -99,6 +99,8 @@ var Animations = Class.create({
 			var start = G.grid.hexs[crea.y][crea.x-crea.size+1];
 			var currentHex = G.grid.hexs[hex.y][hex.x-crea.size+1];
 
+			G.animations.movements.leaveHex(crea, start, opts);
+
 			var speed = !opts.overrideSpeed ? crea.animation.walk_speed : opts.overrideSpeed;
 
 			var tween = G.Phaser.add.tween(crea.grp)
@@ -133,6 +135,8 @@ var Animations = Class.create({
 			var hex = path[0];
 
 			var currentHex = G.grid.hexs[hex.y][hex.x-crea.size+1];
+
+			G.animations.movements.leaveHex(crea, currentHex, opts);
 
 			var anim_id = Math.random();
 			G.animationQueue.push(anim_id);

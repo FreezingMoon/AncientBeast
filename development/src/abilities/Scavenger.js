@@ -100,7 +100,7 @@ G.abilities[44] =[
 		var ability = this;
 		var crea = this.creature;
 
-		var hexs = crea.getHexMap(inlinefrontnback2hex)
+		var hexs = crea.getHexMap(inlinefrontnback2hex);
 
 		if( hexs.length < 2 ) {
 			// At the border of the map
@@ -139,17 +139,12 @@ G.abilities[44] =[
 		return true;
 	},
 
-	// 	query() :
-	query : function() {
-
+	query: function() {
 		var ability = this;
 		var crea = this.creature;
 
 		var hexs = crea.getHexMap(inlinefrontnback2hex);
 		var trg = hexs[0].creature || hexs[1].creature;
-
-		var ability = this;
-		var crea = this.creature;
 
 		var distance = Math.floor(crea.remainingMove/trg.size);
 		var size = crea.size+trg.size;
@@ -160,14 +155,15 @@ G.abilities[44] =[
 			for (var i = 0; i < size; i++) {
 				if( !G.grid.hexExists(hex.y, hex.x - i) ) continue;
 				var h = G.grid.hexs[hex.y][hex.x - i];
-				if(trgIsInfront) {
-					var color = i<trg.size ? trg.team : crea.team;
-				}else{
-					var color = i > 1 ? trg.team : crea.team;
+				var color;
+				if (trgIsInfront) {
+					color = i < trg.size ? trg.team : crea.team;
+				} else {
+					color = i > 1 ? trg.team : crea.team;
 				}
 				h.overlayVisualState("creature moveto selected player" + color);
-			};
-		}
+			}
+		};
 
 		var x = ( trgIsInfront ? crea.x + trg.size : crea.x );
 
