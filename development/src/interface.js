@@ -1331,8 +1331,13 @@ var UI = Class.create( {
 	updateFatigue : function() {
 
 		G.creatures.each(function() {
-			if(this instanceof Creature) {
-				var text = (this.endurance > 0) ? this.endurance + "/" + this.stats.endurance : "Fatigued";
+			if (this instanceof Creature) {
+				var text;
+				if (this.endurance > 0) {
+					text = this.endurance + "/" + this.stats.endurance;
+				} else {
+					text = "Fragile";
+				}
 
 				if(this.type == "--") { // If Dark Priest
 					this.abilities[0].require(); // Update protectedFromFatigue

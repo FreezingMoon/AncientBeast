@@ -41,44 +41,42 @@ G.abilities[39] =[
 
 			var trg = this.target;
 
-			var debuff = new Effect(
-				"", // No name to prevent logging
-				creature,
-				trg,
-				"",
+			if (ability.isUpgraded()) {
+				// Upgraded ability causes fatigue - endurance set to 0
+				trg.addFatigue(trg.endurance);
+			}
+
+			// Add an effect that triggers on the target's start phase and adds the
+			// debuff
+			var effect = new Effect(
+				ability.title, // Name
+				creature, // Caster
+				trg, // Target
+				"onStartPhase", // Trigger
 				{
-					deleteTrigger: "",
-					stackable: true,
-					alterations: { endurance: -5 }
+					effectFn: function() {
+						// Activate debuff
+						trg.addEffect(new Effect(
+							"", // No name to prevent logging
+							creature,
+							trg,
+							"",
+							{
+								deleteTrigger: "",
+								stackable: true,
+								alterations: { endurance: -5 }
+							}
+						));
+						// Note: effect activate by default adds the effect on the target,
+						// but target already has this effect, so remove the trigger to
+						// prevent infinite addition of this effect.
+						this.trigger = "";
+						this.deleteEffect();
+					}
 				}
 			);
-			if (ability.isUpgraded()) {
-				// Upgraded ability adds the debuff immediately
-				debuff.name = ability.title;
-				trg.addEffect(debuff, "%CreatureName" + trg.id + "% has been infested");
-			} else {
-				// Add an effect that triggers on the target's start phase and adds the
-				// debuff
-				var effect = new Effect(
-					ability.title, // Name
-					creature, // Caster
-					trg, // Target
-					"onStartPhase", // Trigger
-					{
-						effectFn: function() {
-							// Activate debuff
-							trg.addEffect(debuff);
-							// Note: effect activate by default adds the effect on the target,
-							// but target already has this effect, so remove the trigger to
-							// prevent infinite addition of this effect.
-							this.trigger = "";
-							this.deleteEffect();
-						}
-					}
-				);
 
-				trg.addEffect(effect, "%CreatureName" + trg.id + "% has been infested");
-			}
+			trg.addEffect(effect, "%CreatureName" + trg.id + "% has been infested");
 		});
 	},
 },

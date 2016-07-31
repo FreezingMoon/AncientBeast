@@ -854,12 +854,7 @@ var Creature = Class.create( {
 			this.health -= dmgAmount;
 			this.health = (this.health < 0) ? 0 : this.health; // Cap
 
-			if( !this.stats.fatigueImmunity ) {
-				this.endurance -= dmgAmount;
-				this.endurance = (this.endurance < 0) ? 0 : this.endurance; // Cap
-			}
-
-			G.UI.updateFatigue();
+			this.addFatigue(dmgAmount);
 
 			// Display
 			var nbrDisplayed = (dmgAmount) ? "-" + dmgAmount : 0;
@@ -875,23 +870,6 @@ var Creature = Class.create( {
 				this.die(damage.attacker);
 				return {damages: dmg, damageObj: damage, kill: true}; // Killed
 			}
-
-			// Add Fatigue effect
-			if( this.endurance === 0 && this.findEffect('Fatigue').length === 0 ) {
-				this.addEffect( new Effect(
-					"Fatigue",
-					this,
-					this,
-					"",
-					{
-						alterations : { regrowth : -1*this.baseStats.regrowth } ,
-						creationTurn : G.turn-1,
-						turnLifetime : 1,
-						deleteTrigger : "onEndPhase"
-					}
-				) );
-
-			} // Fatigued effect
 
 			// Effects
 			damage.effects.each(function() {
@@ -935,6 +913,31 @@ var Creature = Class.create( {
 		}else{
 			this.healtIndicatorSprite.loadTexture("p" + this.player.id + "_health");
 			this.healtIndicatorText.setText(this.health);
+		}
+	},
+
+	addFatigue: function(dmgAmount) {
+		if (!this.stats.fatigueImmunity) {
+			this.endurance -= dmgAmount;
+			this.endurance = this.endurance < 0 ? 0 : this.endurance; // Cap
+		}
+
+		G.UI.updateFatigue();
+
+		// Add Fatigue effect
+		if (this.endurance === 0 && this.findEffect('Fatigue').length === 0) {
+			this.addEffect(new Effect(
+				"Fatigue",
+				this,
+				this,
+				"",
+				{
+					alterations: { regrowth : -1*this.baseStats.regrowth },
+					creationTurn: G.turn - 1,
+					turnLifetime: 1,
+					deleteTrigger: "onEndPhase"
+				}
+			));
 		}
 	},
 
