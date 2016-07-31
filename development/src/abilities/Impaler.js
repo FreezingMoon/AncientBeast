@@ -140,7 +140,8 @@ G.abilities[5] =[
 			this.title,
 			this.creature,
 			target,
-			"onStepOut onAttack",
+			// Target takes damage when they move
+			"onStepOut",
 			{
 				effectFn: function(effect) {
 					G.log("%CreatureName" + effect.target.id + "% is hit by " + effect.name);
