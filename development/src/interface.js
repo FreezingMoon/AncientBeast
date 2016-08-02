@@ -1335,8 +1335,10 @@ var UI = Class.create( {
 				var text;
 				if (this.endurance > 0) {
 					text = this.endurance + "/" + this.stats.endurance;
-				} else {
+				} else if (this.stats.endurance === 0) {
 					text = "Fragile";
+				} else {
+					text = "Fatigued";
 				}
 
 				if(this.type == "--") { // If Dark Priest
