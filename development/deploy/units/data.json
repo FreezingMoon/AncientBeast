@@ -1638,7 +1638,7 @@
 		"stats": {
 			"health": 200,
 			"regrowth": 10,
-			"endurance": 40,
+			"endurance": 38,
 			"energy": 60,
 			"meditation": 5,
 			"initiative": 60,
@@ -2862,14 +2862,14 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 160,
-			"regrowth": 4,
-			"endurance": 30,
-			"energy": 90,
+			"regrowth": 7,
+			"endurance": 34,
+			"energy": 78,
 			"meditation": 26,
-			"initiative": 30,
-			"offense": 10,
+			"initiative": 18,
+			"offense": 11,
 			"defense": 6,
-			"movement": 3,
+			"movement": 5,
 			"pierce": 4,
 			"slash": 4,
 			"crush": 4,
@@ -2897,7 +2897,7 @@
 		"ability_info": [
 			{
 				"title": "Larva Infest",
-				"desc": "Strikes any rear foe at beginning of turn, infesting it with a big parasite.",
+				"desc": "Strikes any rear foe at start & end of turn, infesting it with a big parasite.",
 				"info": "-5 endurance stat debuff, stackable.",
 				"upgrade" : "Instantly fatigues enemy.",
 				"effects": [{
@@ -2907,13 +2907,13 @@
 			{
 				"title": "Cartilage Dagger",
 				"desc": "Hits nearby unit using frontal blade. Double damage if the foe is fatigued.",
-				"info": "12 pierce damage × 2 vs fatigued foe.",
+				"info": "11 pierce damage × 2 vs fatigued foe.",
 				"upgrade" : "Extra endurance is damage.",
 				"damages": {
-					"special": "12%pierce% × 2 if target is fatigued."
+					"special": "11%pierce% × 2 if target is fatigued."
 				},
 				"costs": {
-					"energy": 15
+					"energy": 16
 				}
 			},
 			{
@@ -2934,7 +2934,7 @@
 					"special": "10%slash%, hits 2 times."
 				},
 				"costs": {
-					"energy": 25
+					"energy": 24
 				}
             }
         ]
