@@ -49,9 +49,9 @@ var Creature = Class.create( {
 		this.y			= obj.y - 0;
 		this.pos		= {x: this.x, y: this.y};
 		this.size		= obj.size - 0;
-		this.type		= obj.type; //Which creature it is
-		this.lvl		= (obj.lvl == "-") ? 1 : obj.lvl-0; //Which creature it is
-		this.realm		= obj.realm; //Which creature it is
+		this.type				= obj.type;
+		this.level			= obj.level-0;
+		this.realm			= obj.realm;
 		this.animation	= obj.animation;
 		this.display	= obj.display;
 		this.drop		= obj.drop;

@@ -1275,7 +1275,7 @@ var Player = Class.create( {
 					points += 20;
 					break;
 				case "kill":
-					points += s.creature.lvl*5;
+					points += s.creature.level*5;
 					break;
 				case "combo":
 					points += s.kills*5;
@@ -1296,7 +1296,7 @@ var Player = Class.create( {
 					points += 25;
 					break;
 				case "creaturebonus":
-					points += s.creature.lvl*5;
+					points += s.creature.level*5;
 					break;
 				case "darkpriestbonus":
 					points += 50;

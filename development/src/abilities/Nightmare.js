@@ -5,7 +5,7 @@
 */
 G.abilities[9] =[
 
-// 	First Ability: Frozen Tower
+// 	First Ability: Frigid Tower
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onEndPhase",
@@ -14,10 +14,6 @@ G.abilities[9] =[
 	require : function() {
 		if( this.creature.remainingMove < this.creature.stats.movement ) {
 			this.message = "The creature moved this round.";
-			return false;
-		}
-		if( this.creature.findEffect("Frostified").length >= this.maxCharge ) {
-			this.message = "Buff limit reached.";
 			return false;
 		}
 		return this.testRequirements();
@@ -33,20 +29,17 @@ G.abilities[9] =[
 				this.creature,
 				"",
 				{
-					alterations : { offense : 5, defense : 5 }
+					alterations: { offense: 5, defense: 5 },
+					stackable: true
 				}
 			)
 		);
-	},
-
-	getCharge : function() {
-		return { min : 0 , max : this.maxCharge, value: this.creature.findEffect("Frostified").length };
 	}
 },
 
 
 
-// 	Second Ability: Organic Harpoon
+// 	Second Ability: Icy Talons
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -81,17 +74,24 @@ G.abilities[9] =[
 		var ability = this;
 		ability.end();
 
+		// Upgraded ability does pierce damage to smaller size or level targets
+		var damages = ability.damages;
+		if (!this.isUpgraded() ||
+				!(target.size < this.creature.size || target.level < this.creature.level)) {
+			damages.pierce = 0;
+		}
+
 		var damage = new Damage(
 			ability.creature, // Attacker
-			ability.damages, // Damage Type
+			damages, // Damage Type
 			1, //Area
 			[
 				new Effect(
-					'Icy Talons',
+					this.title,
 					this.creature,
 					this.target,
 					"",
-					{ alterations : { frost : -1 } }
+					{ alterations: { frost: -1 }, stackable: true }
 				)
 			]	//Effects
 		);

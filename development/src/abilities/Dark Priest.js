@@ -240,7 +240,7 @@ G.abilities[0] =[
 			fnOnSelect : function() { ability.fnOnSelect.apply(ability, arguments); },
 			fnOnCancel : function() { G.activeCreature.queryMove(); },
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			args : {creature:creature, cost: (crea.size-0)+(crea.lvl-0)}, // OptionalArgs
+			args : {creature:creature, cost: (crea.size-0)+(crea.level-0)}, // OptionalArgs
 			size : crea.size,
 			flipped : dpriest.player.flipped,
 			hexs : spawnRange
