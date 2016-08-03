@@ -1531,12 +1531,17 @@ var Hex = Class.create({
 
 	activateTrap: function(trigger, target) {
 		if(!this.trap) return;
+		var activated = false;
 		this.trap.effects.each(function() {
 			if( trigger.test(this.trigger) &&  this.requireFn() ) {
 				G.log("Trap triggered");
 				this.activate(target);
+				activated = true;
 			}
 		});
+		if (this.trap && this.trap.destroyOnActivate) {
+			this.destroyTrap();
+		}
 	},
 
 	destroyTrap: function() {
@@ -1581,6 +1586,7 @@ var Trap = Class.create({
 			turnLifetime : 0,
 			fullTurnLifetime : false,
 			ownerCreature : undefined, // Needed for fullTurnLifetime
+			destroyOnActivate: false
 		};
 
 		$j.extend(this,o,opt);

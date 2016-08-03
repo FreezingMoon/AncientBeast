@@ -136,22 +136,33 @@ G.abilities[5] =[
 		var damages = this.damages;
 		// Last 1 turn, or indefinitely if upgraded
 		var lifetime = this.isUpgraded() ? 0 : 1;
-		target.addEffect(new Effect(
-			this.title,
-			this.creature,
-			target,
-			// Target takes damage when they move
-			"onStepOut",
+		var ability = this;
+		// Add a trap to every hex of the target
+		var effect = new Effect(
+			ability.title, ability.creature, this, "onStepOut",
 			{
 				effectFn: function(effect) {
 					G.log("%CreatureName" + effect.target.id + "% is hit by " + effect.name);
 					effect.target.takeDamage(new Damage(effect.owner, damages, 1, []));
-					effect.deleteEffect();
-				},
-				turnLifetime: lifetime,
-				deleteTrigger: "onEndPhase"
+					// Hack: manually destroy traps so we don't activate multiple traps
+					// and see multiple logs etc.
+					target.hexagons.each(function() { this.destroyTrap(); });
+				}
 			}
-		));
+		);
+		target.hexagons.each(function() {
+			this.createTrap(
+				"poisonous-vine",
+				[effect],
+				ability.creature.player,
+				{
+					turnLifetime: lifetime,
+					fullTurnLifetime: true,
+					ownerCreature: ability.creature,
+					destroyOnActivate: true
+				}
+			);
+		});
 	},
 
 	_getHexes: function() {

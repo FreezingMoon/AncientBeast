@@ -136,6 +136,27 @@ G.abilities[7] =[
 			if (!(this.target instanceof Creature)) return;
 		});
 
+		// Leave a Firewall in current location
+		var effectFn = function(effect,crea) {
+			crea.takeDamage(new Damage( effect.attacker, ability.damages , 1,[] ));
+			this.trap.destroy();
+		};
+
+		var requireFn = function() {
+			if (this.trap.hex.creature === 0) return false;
+			return this.trap.hex.creature.type != "P7";
+		};
+
+    var crea = this.creature;
+		crea.hexagons.each(function() {
+			this.createTrap("firewall", [
+				new Effect(
+					"Firewall",crea,this,"onStepIn",
+					{ requireFn: requireFn, effectFn: effectFn,	attacker: crea }
+				),
+			],crea.player, { turnLifetime : 1, ownerCreature : crea, fullTurnLifetime : true } );
+		});
+
 		ability.creature.moveTo(hex, {
 			ignoreMovementPoint : true,
 			ignorePath : true,
@@ -167,27 +188,6 @@ G.abilities[7] =[
 					}
 				});
 			},
-		});
-
-		// Leave a Firewall in old location
-		var effectFn = function(effect,crea) {
-			crea.takeDamage(new Damage( effect.attacker, ability.damages , 1,[] ));
-			this.trap.destroy();
-		};
-
-		var requireFn = function() {
-			if (this.trap.hex.creature === 0) return false;
-			return this.trap.hex.creature.type != "P7";
-		};
-
-    var crea = this.creature;
-		crea.hexagons.each(function() {
-			this.createTrap("firewall", [
-				new Effect(
-					"Firewall",crea,this,"onStepIn",
-					{ requireFn: requireFn, effectFn: effectFn,	attacker: crea }
-				),
-			],crea.player, { turnLifetime : 1, ownerCreature : crea, fullTurnLifetime : true } );
 		});
 	},
 },
