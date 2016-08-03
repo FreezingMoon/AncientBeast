@@ -7,8 +7,7 @@ G.abilities[39] =[
 
 // 	First Ability: Larva Infest
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onStartPhase",
+	trigger: "onStartPhase onEndPhase",
 
 	_targetTeam: "enemy",
 	_getHexes: function() {
