@@ -162,7 +162,7 @@ G.abilities[9] =[
 
 		var result = target.takeDamage(damage);
 
-		if( result.kill == true || result.damageObj.status != "") return;
+		if (result.kill || result.damageObj.status !== "") return;
 
 		if( target.delayable ){
 			target.delay();
@@ -172,12 +172,17 @@ G.abilities[9] =[
 
 
 
-// 	Fourth Ability: Icicle Tongue
+// 	Fourth Ability: Icicle Spear
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	directions : [1,1,1,1,1,1],
+
+	_getDistance: function() {
+		// Upgraded ability has infinite range
+		return this.isUpgraded() ? 0 : 6;
+	},
 
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -189,7 +194,7 @@ G.abilities[9] =[
 			team : "both",
 			x : x,
 			directions : this.directions,
-			distance : 6,
+			distance: this._getDistance(),
 			stopOnCreature : false
 		});
 
@@ -215,6 +220,7 @@ G.abilities[9] =[
 			x : x,
 			y : crea.y,
 			directions : this.directions,
+			distance: this._getDistance(),
 			stopOnCreature : false
 		});
 	},
@@ -230,7 +236,10 @@ G.abilities[9] =[
 			if(path[i].creature instanceof Creature){
 				var trg = path[i].creature;
 
-				var d = { pierce : 10, frost : 6-i };
+				var d = { pierce: ability.damages.pierce, frost : 6-i };
+				if (d.frost < 0) {
+					d.frost = 0;
+				}
 
 				//Damage
 				var damage = new Damage(
@@ -242,13 +251,14 @@ G.abilities[9] =[
 
 				var result = trg.takeDamage(damage);
 
-				if( result.damageObj.status == "Shielded" ) return;
+				// Stop propagating if no damage dealt
+				if (result.damageObj.status === "Shielded" ||
+						(result.damages && result.damages.total <= 0)) {
+					break;
+				}
 			}
-		};
-
-
-
-	},
+		}
+	}
 }
 
 ];
