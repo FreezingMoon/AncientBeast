@@ -1337,6 +1337,10 @@ var UI = Class.create( {
 					text = this.endurance + "/" + this.stats.endurance;
 				} else if (this.stats.endurance === 0) {
 					text = "Fragile";
+					// Display message if the creature has first become fragile
+					if (this.fatigueText !== text) {
+						G.log("%CreatureName" + this.id + "% has become fragile");
+					}
 				} else {
 					text = "Fatigued";
 				}
@@ -1348,6 +1352,7 @@ var UI = Class.create( {
 				text = ( this.protectedFromFatigue || this.stats.fatigueImmunity ) ? "Protected" : text;
 				text = ( this.materializationSickness ) ? "Sickened" : text;
 				$j('#queuewrapper .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
+				this.fatigueText = text;
 			}
 		});
 

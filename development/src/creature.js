@@ -149,6 +149,9 @@ var Creature = Class.create( {
 		// Hide It
 		this.healtIndicatorGrp.alpha = 0;
 
+		// State variable for displaying endurance/fatigue text
+		this.fatigueText = "";
+
 		// Adding Himself to creature arrays and queue
 		G.creatures[this.id] = this;
 
