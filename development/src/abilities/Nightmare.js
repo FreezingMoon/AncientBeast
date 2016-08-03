@@ -102,7 +102,7 @@ G.abilities[9] =[
 
 
 
-// 	Thirt Ability: Tail Uppercut
+// 	Third Ability: Sudden Uppercut
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -137,11 +137,27 @@ G.abilities[9] =[
 		var ability = this;
 		ability.end();
 
+		var effects = [];
+		// Upgraded ability adds a -10 defense debuff
+		if (this.isUpgraded()) {
+			effects.push(new Effect(
+				this.title,
+				this.creature,
+				target,
+				"",
+				{
+					alterations: { defense: -10 },
+					stackable: true,
+					turnLifetime: 1,
+					deleteTrigger: "onStartPhase"
+				}
+			));
+		}
 		var damage = new Damage(
 			ability.creature, //Attacker
 			ability.damages, //Damage Type
 			1, //Area
-			[]	//Effects
+			effects
 		);
 
 		var result = target.takeDamage(damage);
