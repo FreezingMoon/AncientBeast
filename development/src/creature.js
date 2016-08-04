@@ -233,7 +233,9 @@ var Creature = Class.create( {
 			crea.remainingMove = crea.stats.movement;
 
 			if(!crea.materializationSickness) {
-				if(crea.endurance > 0){
+				// Fatigued creatures (endurance 0) should not regenerate, but fragile
+				// ones (max endurance 0) should anyway
+				if (crea.endurance > 0 || crea.stats.endurance === 0) {
 					crea.heal(crea.stats.regrowth, true);
 				}else{
 					if(crea.stats.regrowth < 0) {
