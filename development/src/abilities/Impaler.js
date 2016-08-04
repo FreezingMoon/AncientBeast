@@ -147,6 +147,7 @@ G.abilities[5] =[
 					// Hack: manually destroy traps so we don't activate multiple traps
 					// and see multiple logs etc.
 					target.hexagons.each(function() { this.destroyTrap(); });
+					effect.deleteEffect();
 				}
 			}
 		);
