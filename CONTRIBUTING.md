@@ -45,6 +45,9 @@ For a more comprehensive guide on how to help out the project, you can check out
 
 ### Report Issues
 If you encounter any problems with the version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues), try to avoid duplicates.
+Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues.
+You can use this function from the browser console window in order to fetch the log `G.gamelog.get()`.
+To replay a match, you can start a new game and paste the log between brackets of `G.gamelog.play()`.
 
 
 ### Patch Game
