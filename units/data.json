@@ -2929,7 +2929,7 @@
 				"title": "Boomerang Tool",
 				"desc": "Forms a new weapon out of blades and throws it away 5 hexagons, returning.",
 				"info": "10 slash damage over 15 hexagons x 2.",
-				"upgrade" : "+3 hexagons area increase.",
+				"upgrade" : "+3 hexagons increased area.",
 				"damages": {
 					"special": "10%slash%, hits 2 times."
 				},
