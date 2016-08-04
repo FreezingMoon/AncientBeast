@@ -7,8 +7,7 @@ G.abilities[39] =[
 
 // 	First Ability: Larva Infest
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onStartPhase",
+	trigger: "onStartPhase onEndPhase",
 
 	_targetTeam: "enemy",
 	_getHexes: function() {
@@ -122,17 +121,16 @@ G.abilities[39] =[
 		var ability = this;
 		ability.end();
 
-		var d = { pierce : 12 };
+		var d = { pierce: 11 };
+		//Bonus for fatigued foe
+		d.pierce = target.endurance <= 0 ? d.pierce * 2 : d.pierce;
 		// Extra pierce damage if upgraded
 		if (this.isUpgraded()) {
-			var bonus = this.creature.endurance - target.endurance;
+			var bonus = this.creature.stats.endurance - target.stats.endurance;
 			if (bonus > 0) {
 				d.pierce += bonus;
 			}
 		}
-
-		//Bonus for fatigued foe
-		d.pierce = target.endurance <= 0 ? d.pierce * 2 : d.pierce;
 
 		var damage = new Damage(
 			ability.creature, //Attacker

@@ -826,7 +826,7 @@
 				"maxCharge": 10
 		},
 			{
-				"title": "Organic Harpoon",
+				"title": "Icy Talons",
 				"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
 				"info": "6 slash + 6 frost damage, -1 frost.",
 				"upgrade": "6 pierce vs smaller foes.",

@@ -208,6 +208,7 @@ var Game = Class.create( {
 		this.Phaser.load.image('trap_mud-bath', './units/sprites/Swine Thug - Mud Bath.png');
 		this.Phaser.load.image('trap_scorched-ground', './units/sprites/Magma Spawn - Scorched Ground.png');
 		this.Phaser.load.image('trap_firewall', './units/sprites/Magma Spawn - Scorched Ground.png');
+		this.Phaser.load.image('trap_poisonous-vine', './units/sprites/Impaler - Poisonous Vine.png');
 
 		// Effects
 		this.Phaser.load.image('effects_fiery-touch', './units/sprites/Abolished - Fiery Touch.png');
@@ -1274,7 +1275,7 @@ var Player = Class.create( {
 					points += 20;
 					break;
 				case "kill":
-					points += s.creature.lvl*5;
+					points += s.creature.level*5;
 					break;
 				case "combo":
 					points += s.kills*5;
@@ -1295,7 +1296,7 @@ var Player = Class.create( {
 					points += 25;
 					break;
 				case "creaturebonus":
-					points += s.creature.lvl*5;
+					points += s.creature.level*5;
 					break;
 				case "darkpriestbonus":
 					points += 50;

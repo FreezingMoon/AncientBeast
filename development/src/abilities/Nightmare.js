@@ -5,7 +5,7 @@
 */
 G.abilities[9] =[
 
-// 	First Ability: Frozen Tower
+// 	First Ability: Frigid Tower
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onEndPhase",
@@ -14,10 +14,6 @@ G.abilities[9] =[
 	require : function() {
 		if( this.creature.remainingMove < this.creature.stats.movement ) {
 			this.message = "The creature moved this round.";
-			return false;
-		}
-		if( this.creature.findEffect("Frostified").length >= this.maxCharge ) {
-			this.message = "Buff limit reached.";
 			return false;
 		}
 		return this.testRequirements();
@@ -33,20 +29,17 @@ G.abilities[9] =[
 				this.creature,
 				"",
 				{
-					alterations : { offense : 5, defense : 5 }
+					alterations: { offense: 5, defense: 5 },
+					stackable: true
 				}
 			)
 		);
-	},
-
-	getCharge : function() {
-		return { min : 0 , max : this.maxCharge, value: this.creature.findEffect("Frostified").length };
 	}
 },
 
 
 
-// 	Second Ability: Organic Harpoon
+// 	Second Ability: Icy Talons
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -81,17 +74,24 @@ G.abilities[9] =[
 		var ability = this;
 		ability.end();
 
+		// Upgraded ability does pierce damage to smaller size or level targets
+		var damages = ability.damages;
+		if (!this.isUpgraded() ||
+				!(target.size < this.creature.size || target.level < this.creature.level)) {
+			damages.pierce = 0;
+		}
+
 		var damage = new Damage(
 			ability.creature, // Attacker
-			ability.damages, // Damage Type
+			damages, // Damage Type
 			1, //Area
 			[
 				new Effect(
-					'Icy Talons',
+					this.title,
 					this.creature,
 					this.target,
 					"",
-					{ alterations : { frost : -1 } }
+					{ alterations: { frost: -1 }, stackable: true }
 				)
 			]	//Effects
 		);
@@ -102,7 +102,7 @@ G.abilities[9] =[
 
 
 
-// 	Thirt Ability: Tail Uppercut
+// 	Third Ability: Sudden Uppercut
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
@@ -137,16 +137,32 @@ G.abilities[9] =[
 		var ability = this;
 		ability.end();
 
+		var effects = [];
+		// Upgraded ability adds a -10 defense debuff
+		if (this.isUpgraded()) {
+			effects.push(new Effect(
+				this.title,
+				this.creature,
+				target,
+				"",
+				{
+					alterations: { defense: -10 },
+					stackable: true,
+					turnLifetime: 1,
+					deleteTrigger: "onStartPhase"
+				}
+			));
+		}
 		var damage = new Damage(
 			ability.creature, //Attacker
 			ability.damages, //Damage Type
 			1, //Area
-			[]	//Effects
+			effects
 		);
 
 		var result = target.takeDamage(damage);
 
-		if( result.kill == true || result.damageObj.status != "") return;
+		if (result.kill || result.damageObj.status !== "") return;
 
 		if( target.delayable ){
 			target.delay();
@@ -156,12 +172,17 @@ G.abilities[9] =[
 
 
 
-// 	Fourth Ability: Icicle Tongue
+// 	Fourth Ability: Icicle Spear
 {
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
 	directions : [1,1,1,1,1,1],
+
+	_getDistance: function() {
+		// Upgraded ability has infinite range
+		return this.isUpgraded() ? 0 : 6;
+	},
 
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -173,7 +194,7 @@ G.abilities[9] =[
 			team : "both",
 			x : x,
 			directions : this.directions,
-			distance : 6,
+			distance: this._getDistance(),
 			stopOnCreature : false
 		});
 
@@ -199,6 +220,7 @@ G.abilities[9] =[
 			x : x,
 			y : crea.y,
 			directions : this.directions,
+			distance: this._getDistance(),
 			stopOnCreature : false
 		});
 	},
@@ -214,7 +236,10 @@ G.abilities[9] =[
 			if(path[i].creature instanceof Creature){
 				var trg = path[i].creature;
 
-				var d = { pierce : 10, frost : 6-i };
+				var d = { pierce: ability.damages.pierce, frost : 6-i };
+				if (d.frost < 0) {
+					d.frost = 0;
+				}
 
 				//Damage
 				var damage = new Damage(
@@ -226,13 +251,14 @@ G.abilities[9] =[
 
 				var result = trg.takeDamage(damage);
 
-				if( result.damageObj.status == "Shielded" ) return;
+				// Stop propagating if no damage dealt
+				if (result.damageObj.status === "Shielded" ||
+						(result.damages && result.damages.total <= 0)) {
+					break;
+				}
 			}
-		};
-
-
-
-	},
+		}
+	}
 }
 
 ];

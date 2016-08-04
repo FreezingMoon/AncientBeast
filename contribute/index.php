@@ -182,7 +182,7 @@ Sometimes even reviewing or talking code can greatly help.
 <tr><td><a href="https://github.com/Fweeb" target="_blank" class="lighten coding"><img src="green.png"> Fweeb <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/seand88" target="_blank" class="lighten coding"><img src="green.png"> seand88 <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/Spencer-Zhang" target="_blank" class="lighten coding"><img src="green.png"> Spencer-Zhang <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
-<tr><td><a href="http://cxong.github.io" target="_blank" class="lighten coding"><img src="green.png"> Cong Xu <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
+<tr><td><a href="http://cxong.github.io" target="_blank" class="lighten coding"><img src="green.png"> congusbongus <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/tukkek" target="_blank" class="lighten coding"><img src="green.png"> tukkek <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/Dobz" target="_blank" class="lighten coding"><img src="green.png"> Dobz <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
 <tr><td><a href="https://github.com/SlimeTP" target="_blank" class="lighten coding"><img src="green.png"> SlimeTP <img src="green.png" class="scale"></a></td><td><?php echo ++$i; ?></td></tr>
