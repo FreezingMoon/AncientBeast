@@ -24,7 +24,7 @@ G.abilities[4] =[
 
 		var requireFn = function() {
 			if (!this.trap.hex.creature) return false;
-			return this.trap.hex.creature.type != "L2";
+			return this.trap.hex.creature.type != "L3";
 		};
 
 		this.creature.hexagons[1].createTrap("scorched-ground", [
