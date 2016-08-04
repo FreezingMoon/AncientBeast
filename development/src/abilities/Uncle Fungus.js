@@ -270,7 +270,27 @@ G.abilities[3] =[
 		forward = forward.filterCreature(false, stopOnCreature, uncle.id);
 		var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, straitrow);
 		backward = backward.filterCreature(false, stopOnCreature, uncle.id);
-		return forward.concat(backward);
+		// Combine and sort by X, left to right
+		var hexes = forward.concat(backward).sort(function(a, b) {
+			return a.x - b.x;
+		});
+		// Filter out any hexes that cannot accomodate the creature's size
+		var run = 0;
+		for (var i = 0; i < hexes.length; i++) {
+			if (i === 0 || hexes[i-1].x + 1 === hexes[i].x) {
+				run++;
+			} else {
+				if (run < this.creature.size) {
+					hexes.splice(i - run, run);
+					i -= run;
+				}
+				run = 1;
+			}
+		}
+		if (run < this.creature.size) {
+			hexes.splice(hexes.length - run, run);
+		}
+		return hexes;
 	},
 
 	_isSecondLowJump: function() {
