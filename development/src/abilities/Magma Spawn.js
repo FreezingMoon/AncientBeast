@@ -24,7 +24,8 @@ G.abilities[4] =[
 
 		var requireFn = function() {
 			if (!this.trap.hex.creature) return false;
-			return this.trap.hex.creature.type != "L3";
+			// Magma Spawn immune to Scorched Ground
+			return this.trap.hex.creature.id !== ability.creature.id;
 		};
 
 		this.creature.hexagons[1].createTrap("scorched-ground", [
