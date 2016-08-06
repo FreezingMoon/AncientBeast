@@ -45,14 +45,6 @@ G.abilities[45] =[
 			return false;
 		}
 
-		// Duality
-		if( this.creature.abilities[0].used ) {
-			//this.message = "Duality has already been used";
-			//return false;
-		}else{
-			this.setUsed(false);
-		}
-
 		return true;
 	},
 
@@ -84,6 +76,10 @@ G.abilities[45] =[
 			[]	// Effects
 		);
 		target.takeDamage(damage);
+		if (this.isUpgraded()) {
+			// Second attack
+			target.takeDamage(damage);
+		}
 	},
 },
 
@@ -103,13 +99,6 @@ G.abilities[45] =[
 		if( !this.testDirection({ team : "both", directions : this.directions }) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
-		}
-		// Duality
-		if( this.creature.abilities[0].used ) {
-			//this.message = "Duality has already been used";
-			//return false;
-		}else{
-			this.setUsed(false);
 		}
 		return true;
 	},
@@ -195,13 +184,6 @@ G.abilities[45] =[
 		if( !this.testDirection({ team : "both", directions : this.directions }) ) {
 			this.message = G.msg.abilities.notarget;
 			return false;
-		}
-		// Duality
-		if( this.creature.abilities[0].used ) {
-			//this.message = "Duality has already been used";
-			//return false;
-		}else{
-			this.setUsed(false);
 		}
 		return true;
 	},
