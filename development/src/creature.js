@@ -237,16 +237,15 @@ var Creature = Class.create( {
 				// ones (max endurance 0) should anyway
 				if (crea.endurance > 0 || crea.stats.endurance === 0) {
 					crea.heal(crea.stats.regrowth, true);
+					if (crea.stats.meditation > 0) {
+						crea.recharge(crea.stats.meditation);
+					}
 				}else{
 					if(crea.stats.regrowth < 0) {
 						crea.heal(crea.stats.regrowth, true);
 					}else{
 						crea.hint("♦", 'damage');
 					}
-				}
-
-				if(crea.stats.meditation > 0) {
-					crea.recharge(crea.stats.meditation);
 				}
 
 			}else{
