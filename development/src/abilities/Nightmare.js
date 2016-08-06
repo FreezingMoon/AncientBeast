@@ -10,8 +10,22 @@ G.abilities[9] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onEndPhase",
 
+	_effectName: 'Frostified',
+
+	_getOffenseBuff: function() {
+		return this.isUpgraded() ? 5 : 0;
+	},
+
 	// 	require() :
 	require : function() {
+		// Check whether this ability is upgraded; if so then make sure all existing
+		// buffs include an offense buff
+		var ability = this;
+		this.creature.effects.each(function() {
+			if (this.name === ability._effectName) {
+				this.alterations.offense = ability._getOffenseBuff();
+			}
+		});
 		if( this.creature.remainingMove < this.creature.stats.movement ) {
 			this.message = "The creature moved this round.";
 			return false;
@@ -24,12 +38,14 @@ G.abilities[9] =[
 
 		this.creature.addEffect(
 			new Effect(
-				'Frostified',
+				this._effectName,
 				this.creature,
 				this.creature,
 				"",
 				{
-					alterations: { offense: 5, defense: 5 },
+					alterations: {
+						frost: 5, defense: 5, offense: this._getOffenseBuff()
+					},
 					stackable: true
 				}
 			)
