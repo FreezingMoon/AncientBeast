@@ -228,6 +228,7 @@ var Creature = Class.create( {
 		crea.noActionPossible = false;
 
 		var varReset = function() {
+			G.triggersFn.onReset(crea);
 			// Variables reset
 			crea.updateAlteration();
 			crea.remainingMove = crea.stats.movement;
@@ -235,7 +236,7 @@ var Creature = Class.create( {
 			if(!crea.materializationSickness) {
 				// Fatigued creatures (endurance 0) should not regenerate, but fragile
 				// ones (max endurance 0) should anyway
-				if (crea.endurance > 0 || crea.stats.endurance === 0) {
+				if (!crea.isFatigued()) {
 					crea.heal(crea.stats.regrowth, true);
 					if (crea.stats.meditation > 0) {
 						crea.recharge(crea.stats.meditation);
@@ -927,22 +928,6 @@ var Creature = Class.create( {
 		}
 
 		G.UI.updateFatigue();
-
-		// Add Fatigue effect
-		if (this.endurance === 0 && this.findEffect('Fatigue').length === 0) {
-			this.addEffect(new Effect(
-				"Fatigue",
-				this,
-				this,
-				"",
-				{
-					alterations: { regrowth : -1*this.baseStats.regrowth },
-					creationTurn: G.turn - 1,
-					turnLifetime: 1,
-					deleteTrigger: "onEndPhase"
-				}
-			));
-		}
 	},
 
 	/*	addEffect(effect)
@@ -1229,6 +1214,13 @@ var Creature = Class.create( {
 		return ( team%2 == this.team%2 );
 	},
 
+	isFatigued: function() {
+		return this.endurance === 0 && !this.isFragile();
+	},
+
+	isFragile: function() {
+		return this.stats.endurance === 0;
+	},
 
 	/*	getHexMap(team)
 	*

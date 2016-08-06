@@ -755,6 +755,7 @@ var Game = Class.create( {
 	triggers : {
 		onStepIn : /\bonStepIn\b/,
 		onStepOut : /\bonStepOut\b/,
+		onReset: /\bonReset\b/,
 		onStartPhase : /\bonStartPhase\b/,
 		onEndPhase : /\bonEndPhase\b/,
 		onMovement : /\bonMovement\b/,
@@ -768,6 +769,7 @@ var Game = Class.create( {
 
 		onStepIn_other : /\bonOtherStepIn\b/,
 		onStepOut_other : /\bonOtherStepOut\b/,
+		onReset_other : /\bonOtherReset\b/,
 		onStartPhase_other : /\bonOtherStartPhase\b/,
 		onEndPhase_other : /\bonOtherEndPhase\b/,
 		onMovement_other : /\bonOtherMovement\b/,
@@ -885,6 +887,12 @@ var Game = Class.create( {
 			// this event, which get triggered again via G.triggerEffect. Otherwise
 			// the trap's effects will be triggered twice.
 			G.triggerTrap("onStepOut", arguments);
+		},
+
+		onReset: function(creature) {
+			G.triggerDeleteEffect("onReset", creature);
+			G.triggerAbility("onReset", arguments);
+			G.triggerEffect("onReset", [creature, creature]);
 		},
 
 		onStartPhase : function( creature, callback ) {

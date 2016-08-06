@@ -7,34 +7,26 @@ G.abilities[45] =[
 
 // 	First Ability: Cyclic Duality
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onStartPhase",
+	trigger: "onReset",
 
 	//	require() :
 	require : function(){
 		return this.testRequirements();
 	},
 
-	//	activate() :
-	activate : function() {
-		this.tokens = [false,false,false];
-	},
-
-	abilityTriggered : function(id){
-		if(this.used) return;
-		if(this.tokens[id]){
-			this.end();
-			for (var i = 0; i < this.tokens.length; i++) {
-				this.creature.abilities[i+1].used  = this.tokens[i];
-			};
-			G.UI.checkAbilities();
-		}else{
-			this.tokens[id] = true;
-			this.creature.abilities[id+1].setUsed(false);
+	activate: function() {
+		// Only activate when fatigued
+		if (!this.creature.isFatigued()) {
+			return;
 		}
-	},
 
-	tokens : [false,false,false],
+		if (this.isUpgraded()) {
+			this.creature.heal(Math.floor(this.creature.stats.regrowth / 2), true);
+		}
+		if (this.creature.stats.meditation > 0) {
+			this.creature.recharge(Math.floor(this.creature.stats.meditation / 2));
+		}
+	}
 },
 
 
@@ -82,8 +74,6 @@ G.abilities[45] =[
 	//	activate() :
 	activate : function(target, args) {
 		var ability = this;
-
-		ability.creature.abilities[0].abilityTriggered(0);
 
 		ability.end();
 
@@ -146,7 +136,6 @@ G.abilities[45] =[
 	activate : function(path, args) {
 		var ability = this;
 
-		ability.creature.abilities[0].abilityTriggered(1);
 		ability.end();
 
 		var invertFlipped = (
@@ -238,8 +227,6 @@ G.abilities[45] =[
 	//	activate() :
 	activate : function(path, args) {
 		var ability = this;
-
-		ability.creature.abilities[0].abilityTriggered(2);
 
 		ability.end();
 
