@@ -83,14 +83,12 @@ G.abilities[45] =[
 	},
 },
 
-
-
-//	Third Ability: Power Note
+//	Third Ability: Disturbing Sound
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	directions : [0,1,0,0,1,0],
+	directions: [1,1,1,1,1,1],
 
 	//	require() :
 	require : function() {
@@ -127,12 +125,9 @@ G.abilities[45] =[
 
 		ability.end();
 
-		var invertFlipped = (
-			( path[0].direction == 4 && !ability.creature.player.flipped )  ||
-			( path[0].direction == 1 && ability.creature.player.flipped )
-		);
-
 		var target = path.last().creature;
+		var hexes = G.grid.getHexLine(
+			target.x, target.y, args.direction, target.flipped);
 
 		var damage = new Damage(
 			ability.creature, // Attacker
@@ -142,31 +137,32 @@ G.abilities[45] =[
 		);
 		result = target.takeDamage(damage);
 
+		var i = 0;
 		while(result.kill) {
+			i++;
+			if (i >= hexes.length) {
+				break;
+			}
+			var hex = hexes[i];
+			if (!hex.creature) {
+				continue;
+			}
+			target = hex.creature;
 
-			var hexs = ability.creature.getHexMap(straitrow,invertFlipped);
-			var newTarget = false;
-			for (var i = 0; i < hexs.length; i++) {
-				if(hexs[i].creature instanceof Creature) {
-					if(hexs[i].creature == ability.creature) continue;
-					var target = hexs[i].creature;
-					newTarget = true;
-					break;
-				}
-			};
-
-			if(!newTarget) break;
-
-			var damage = new Damage(
+			// extra sonic damage if upgraded
+			var sonic = result.damages.sonic + this.isUpgraded() ? 7 : 0;
+			if (sonic <= 0) {
+				break;
+			}
+			damage = new Damage(
 				ability.creature, // Attacker
-				{sonic:result.damages.sonic}, // Damage Type
+				{sonic: sonic}, // Damage Type
 				1, // Area
 				[]	// Effects
 			);
 			result = target.takeDamage(damage);
-
 		}
-	},
+	}
 },
 
 
