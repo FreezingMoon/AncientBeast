@@ -88,13 +88,11 @@ G.abilities[45] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	directions: [1,1,1,1,1,1],
-
 	//	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.testDirection({ team : "both", directions : this.directions }) ) {
+		if (!this.testDirection({ team: "both", sourceCreature: this.creature })) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -114,7 +112,7 @@ G.abilities[45] =[
 			requireCreature : true,
 			x : chimera.x,
 			y : chimera.y,
-			directions : this.directions,
+			sourceCreature: chimera
 		});
 	},
 
