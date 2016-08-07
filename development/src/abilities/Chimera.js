@@ -165,19 +165,20 @@ G.abilities[45] =[
 	}
 },
 
-
-
-//	Fourth Ability: Chain Lightning
+// Fourth Ability: Battering Ram
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	directions : [0,1,0,0,1,0],
+	_getHexes: function() {
+		return G.grid.getHexMap(
+			this.creature.x - 3, this.creature.y - 2, 0, false, frontnback3hex);
+	},
 
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.testDirection({ team : "both", directions : this.directions }) ) {
+		if (!this.atLeastOneTarget(this._getHexes(), "both")) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -189,85 +190,77 @@ G.abilities[45] =[
 		var ability = this;
 		var chimera = this.creature;
 
-		G.grid.queryDirection( {
-			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
-			flipped : chimera.player.flipped,
-			team : "both",
-			id : chimera.id,
-			requireCreature : true,
-			x : chimera.x,
-			y : chimera.y,
-			directions : this.directions,
+		G.grid.queryCreature({
+			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
+			team: 3, // Team, 3 = both
+			id: chimera.id,
+			flipped: chimera.flipped,
+			hexs: this._getHexes()
 		});
 	},
 
-
-	//	activate() :
-	activate : function(path, args) {
+	activate: function(target, args) {
 		var ability = this;
+		this.end();
 
-		ability.end();
+		// Calculate relative direction from creature to target
+		var dx = target.x - ability.creature.x;
+		var dy = target.y - ability.creature.y;
+		var dir = getDirectionFromDelta(target.y, dx, dy);
 
-		var targets = [];
-		targets.push(path.last().creature); // Add First creature hit
-		var nextdmg = $j.extend({},ability.damages); // Copy the object
-
-		// For each Target
-		for (var i = 0; i < targets.length; i++) {
-			var trg = targets[i];
-
+		var knockback = function(_target, _crush, _range) {
 			var damage = new Damage(
 				ability.creature, // Attacker
-				nextdmg, // Damage Type
+				{crush: _crush}, // Damage Type
 				1, // Area
-				[] // Effects
+				[]	// Effects
 			);
-			nextdmg = trg.takeDamage(damage);
-
-			if(nextdmg.damages == undefined) break; // If attack is dodge
-			if(nextdmg.kill) break; // If target is killed
-			if(nextdmg.damages.total <= 0) break; // If damage is too weak
-			if(nextdmg.damageObj.status != "") break;
-			delete nextdmg.damages.total;
-			nextdmg = nextdmg.damages;
-
-			// Get next available targets
-			nextTargets = ability.getTargets(trg.adjacentHexs(1,true));
-
-			nextTargets.filter(function() {
-				if ( this.hexsHit == undefined ) return false; // Remove empty ids
-				return (targets.indexOf(this.target) == -1) ; // If this creature has already been hit
-			})
-
-			// If no target
-			if(nextTargets.length == 0) break;
-
-			// Best Target
-			var bestTarget = { size: 0, stats:{ defense:-99999, shock:-99999 } };
-			for (var j = 0; j < nextTargets.length; j++) { // For each creature
-				if (typeof nextTargets[j] == "undefined") continue; // Skip empty ids.
-
-				var t = nextTargets[j].target;
-				// Compare to best target
-				if(t.stats.shock > bestTarget.stats.shock){
-					if( ( t == ability.creature && nextTargets.length == 1 ) || // If target is chimera and the only target
-						t != ability.creature ) { // Or this is not chimera
-						bestTarget = t;
-					}
-				} else {
-					continue;
-				}
-
-			};
-
-			if( bestTarget instanceof Creature ){
-				targets.push(bestTarget);
-			}else{
-				break;
+			var result = _target.takeDamage(damage);
+			// Knock the target back if they are still alive and there is enough range
+			if (result.kill || _range <= 0) {
+				return;
+			}
+			// See how far we can knock the target back
+			var hexes = G.grid.getHexLine(_target.x, _target.y, dir, _target.flipped);
+			// Skip the first hex as it is the same hex as the target
+			hexes = hexes.splice(1, _range + 1);
+			var hex = null;
+			var nextHex = null;
+			// See how far the target can be knocked back
+			for (var i = 0; i < hexes.length; i++) {
+				nextHex = hexes[i];
+				// Check that the next knockback hex is valid
+				if (i === hexes.length - 1) break;
+				if (!hexes[i].isWalkable(_target.size, _target.id, true)) break;
+				hex = hexes[i];
+			}
+			if (hex !== null) {
+				_target.moveTo(hex, {
+					callback: function() {
+						// If there's a next creature to knockback into, continue
+						// recursively, otherwise end and return to Chimera's turn
+						if (nextHex !== null && nextHex !== hex && nextHex.creature) {
+							// Diminishing crush damage if unupgraded
+							var crush = ability.isUpgraded() ? _crush : _crush - 5;
+							// Diminishing range if unupgraded
+							var range = ability.isUpgraded() ? _range : _range - 1;
+							knockback(nextHex.creature, crush, range);
+						} else {
+							G.activeCreature.queryMove();
+						}
+					},
+					ignoreMovementPoint: true,
+					ignorePath: true,
+					overrideSpeed: 400, // Custom speed for knockback
+					animation: "push"
+				});
 			}
 		};
 
-	},
+		var crush = this.damages.crush;
+		var range = 3;
+		knockback(target, crush, range);
+	}
 }
 
 ];
