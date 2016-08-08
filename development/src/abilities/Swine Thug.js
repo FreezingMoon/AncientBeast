@@ -87,21 +87,25 @@ G.abilities[37] =[
 		var ability = this;
 		var swine = this.creature;
 
-		G.grid.queryCreature( {
-			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
-			team : 0, // Team, 0 = enemies
-			id : swine.id,
-			flipped : swine.player.flipped,
-			hexs : swine.adjacentHexs(1),
+		G.grid.queryDirection({
+			fnOnConfirm: function(){ ability.animation.apply(ability, arguments); },
+			flipped: swine.player.flipped,
+			team: "enemy",
+			id: swine.id,
+			requireCreature: true,
+			x: swine.x,
+			y: swine.y,
+			sourceCreature: swine,
+			stopOnCreature: false,
+			distance: 1
 		});
 	},
 
-
-	//	activate() :
-	activate : function(target, args) {
+	activate: function(path, args) {
 		var ability = this;
 		ability.end();
 
+		var target = path.last().creature;
 		var damage = new Damage(
 			ability.creature, // Attacker
 			ability.damages, // Damage Type
@@ -115,15 +119,13 @@ G.abilities[37] =[
 			// For regular ability, this is only 1 hex
 			// For upgraded, as long as the target is over a mud tile, keep sliding
 
-			// Calculate relative direction from creature to target
-			var dx = target.x - ability.creature.x;
-			var dy = target.y - ability.creature.y;
-			var dir = getDirectionFromDelta(target.y, dx, dy);
-			var hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
-			var hex = null;
 			// See how far the target can be knocked back
 			// Skip the first hex as it is the same hex as the target
-			for (var i = 1; i < hexes.length; i++) {
+			var hexes = G.grid.getHexLine(
+				target.x, target.y, args.direction, target.flipped);
+			hexes.splice(0, 1);
+			var hex = null;
+			for (var i = 0; i < hexes.length; i++) {
 				// Check that the next knockback hex is valid
 				if (!hexes[i].isWalkable(target.size, target.id, true)) break;
 
