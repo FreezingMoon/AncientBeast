@@ -184,7 +184,7 @@
 			"initiative": 100,
 			"offense": 15,
 			"defense": 5,
-			"movement": 5,
+			"movement": 7,
 			"pierce": 8,
 			"slash": 8,
 			"crush": 6,
@@ -398,7 +398,7 @@
 				"title": "Cracked Earth",
 				"desc": "Smashes both fists into the ground, wreaking fierce havoc in area ahead.",
 				"info": "10 burn damage over all 8 hexagons.",
-				"upgrade": "Converts traps to hot lava.",
+				"upgrade": "Spawns hot lava traps over.",
 				"damages": {
 					"special": "10%burn%over 8 hexagons"
 				},
@@ -1086,7 +1086,7 @@
 				"title": "Freezing Spit",
 				"desc": "Spits distant target with cold saliva. Bonus damage is based on distance.",
 				"info": "10 frost + 2 crush damage / hexagon.",
-				"upgrade": "Frost damage boost to 20.",
+				"upgrade": "Freezes foe at melee range.",
 				"damages": {
 					"crush": 0,
 					"frost": 10
@@ -1402,7 +1402,7 @@
 			"initiative": 45,
 			"offense": 15,
 			"defense": 25,
-			"movement": 4,
+			"movement": 5,
 			"pierce": 12,
 			"slash": 12,
 			"crush": 12,
@@ -2956,7 +2956,7 @@
 			"initiative": 120,
 			"offense": 6,
 			"defense": 9,
-			"movement": 4,
+			"movement": 5,
 			"pierce": 7,
 			"slash": 9,
 			"crush": 10,
@@ -3004,10 +3004,10 @@
 			{
 				"title": "War Horn",
 				"desc": "Charges towards an inline foe, hitting it while also pushing it as much possible.",
-				"info": "10 pierce damage + 2 bonus / hexagon.",
+				"info": "10 pierce damage + 1 bonus / hexagon.",
 				"upgrade" : "Does 5 bonus pierce damage.",
 				"damages": {
-					"pierce": 20
+					"pierce": 10
 				},
 				"costs": {
 					"energy": 20
@@ -3177,7 +3177,7 @@
 			"initiative": 140,
 			"offense": 15,
 			"defense": 15,
-			"movement": 3,
+			"movement": 5,
 			"pierce": 5,
 			"slash": 5,
 			"crush": 5,
@@ -3677,7 +3677,7 @@
 			"initiative": 25,
 			"offense": 5,
 			"defense": 5,
-			"movement": 5,
+			"movement": 6,
 			"pierce": 6,
 			"slash": 6,
 			"crush": 6,
