@@ -3383,7 +3383,7 @@
 				"title": "Disturbing Sound",
 				"desc": "Sings a very powerful musical note that doesn't get stopped by any dying units.",
 				"info": "21 sonic damage that continues on kill.",
-				"upgrade": "+7 sonic damage when killing.",
+				"upgrade": "+9 sonic damage when killing.",
 				"damages": {
 					"sonic": 21
 				},
