@@ -24,9 +24,7 @@ var Game = Class.create( {
 	*	grid :				Grid :	Grid object
 	*	UI :				UI :	UI object
 	*
-	*	queue :				Array :	Current array of Creature ordered by initiative
-	*	delayQueue :		Array :	Array of Creature who has wait during the turn
-	*	nextQueue :			Array :	Array containing ALL creature ordered by initiative
+	*	queue :				CreatureQueue :	queue of creatures to manage phase order
 	*
 	*	turn :				Integer :	Number of the current turn
 	*
@@ -54,9 +52,7 @@ var Game = Class.create( {
 		this.activeCreature = { id: 0 };
 		this.animations = new Animations();
 		this.turn = 0;
-		this.queue = [];
-		this.delayQueue = [];
-		this.nextQueue = []; // Next round queue
+		this.queue = new CreatureQueue();
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
 		this.creatureJSON = [];
@@ -442,9 +438,7 @@ var Game = Class.create( {
 		G.grid.clearHexViewAlterations();
 		this.turn++;
 		this.log("Round " + this.turn, "roundmarker");
-		this.queue = this.nextQueue.slice(0); // Copy queue
-
-		this.delayQueue = [];
+		this.queue.nextRound();
 
 		// Resetting values
 		for (var i = 0; i < this.creatures.length; i++) {
@@ -481,22 +475,17 @@ var Game = Class.create( {
 
 					var differentPlayer = false;
 
-					if(G.queue.length === 0) { // If no creature in queue
-						if(G.delayQueue.length > 0) {
-							if( G.activeCreature ) differentPlayer = ( G.activeCreature.player != G.delayQueue[0].player );
-							else differentPlayer = true;
-							G.activeCreature = G.delayQueue[0]; //set new creature active
-							G.delayQueue = G.delayQueue.slice(1); //and remove it from the queue
-							console.log("Delayed Creature");
-						}else{
-							G.nextRound(); // Go to next Round
-							return; // End function
+					if (G.queue.isCurrentEmpty()) {
+						G.nextRound(); // Go to next Round
+						return; // End function
+					} else {
+						var next = G.queue.dequeue();
+						if (G.activeCreature) {
+							differentPlayer = G.activeCreature.player != next.player;
+						} else {
+							differentPlayer = true;
 						}
-					}else{
-						if( G.activeCreature ) differentPlayer = ( G.activeCreature.player != G.queue[0].player );
-						else differentPlayer = true;
-						G.activeCreature = G.queue[0]; // Set new creature active
-						G.queue = G.queue.slice(1); // And remove it from the queue
+						G.activeCreature = next; // Set new creature active
 					}
 
 					if(G.activeCreature.player.hasLost) {
@@ -527,26 +516,17 @@ var Game = Class.create( {
 
 					// Update UI to match new creature
 					G.UI.updateActivebox();
-					G.reorderQueue(); // Update UI and Queue order
+					G.updateQueueDisplay();
 				}
 			},50);
 		},300);
 	},
 
-
-	/*	reorderQueue()
-	*
-	*	Do what it says xD
-	*
-	*/
-	reorderQueue: function() {
-		this.queue.orderByInitiative();
-		this.nextQueue.orderByInitiative();
-		if ( this.UI ) {
+	updateQueueDisplay: function() {
+		if (this.UI) {
 			this.UI.updateQueueDisplay();
 		}
 	},
-
 
 	/*	log(obj)
 	*
@@ -610,7 +590,11 @@ var Game = Class.create( {
 		setTimeout(function() {
 			G.turnThrottle=false;
 			G.UI.btnSkipTurn.changeState("normal");
-			if(!G.activeCreature.hasWait && G.activeCreature.delayable && (G.delayQueue.length + G.queue.length !== 0) ) G.UI.btnDelay.changeState("normal");
+			if (!G.activeCreature.hasWait &&
+					G.activeCreature.delayable &&
+					!G.queue.isCurrentEmpty()) {
+				G.UI.btnDelay.changeState("normal");
+			}
 			o.callback.apply();
 		},1000);
 		G.grid.clearHexViewAlterations();
@@ -630,8 +614,12 @@ var Game = Class.create( {
 	*
 	*/
 	delayCreature: function(o) {
-		if(G.turnThrottle) return;
-		if(this.activeCreature.hasWait || !this.activeCreature.delayable || G.delayQueue.length + G.queue.length ===0 ) return;
+		if (G.turnThrottle) return;
+		if (this.activeCreature.hasWait ||
+				!this.activeCreature.delayable ||
+				G.queue.isCurrentEmpty()) {
+			return;
+		}
 
 		o = $j.extend({
 			callback: function() {},
@@ -644,7 +632,11 @@ var Game = Class.create( {
 		setTimeout(function() {
 			G.turnThrottle=false;
 			G.UI.btnSkipTurn.changeState("normal");
-			if(!G.activeCreature.hasWait && G.activeCreature.delayable && (G.delayQueue.length + G.queue.length !== 0) ) G.UI.btnDelay.changeState("normal");
+			if (!G.activeCreature.hasWait &&
+					G.activeCreature.delayable &&
+					!G.queue.isCurrentEmpty()) {
+				G.UI.btnDelay.changeState("normal");
+			}
 			o.callback.apply();
 		},1000);
 		var skipTurn = new Date();
@@ -1361,12 +1353,10 @@ var Player = Class.create( {
 		for(var i = 1; i < G.creatures.length; i++) {
 			var crea = G.creatures[i];
 			if(crea.player.id == this.id) {
-				G.queue.removePos(crea);
-				G.nextQueue.removePos(crea);
-				G.delayQueue.removePos(crea);
+				G.queue.remove(crea);
 			}
 		}
-		G.reorderQueue();
+		G.updateQueueDisplay();
 
 		// Test if allie Dark Priest is dead
 		if( G.playerMode > 2) {

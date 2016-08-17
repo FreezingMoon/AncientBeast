@@ -73,8 +73,12 @@ var UI = Class.create( {
 		this.btnDelay = new Button( {
 			$button : $j("#delay.button"),
 			click : function(e) { if(!G.UI.dashopen) {
-				if(G.turnThrottle) return;
-				if(G.activeCreature.hasWait || !G.activeCreature.delayable || G.delayQueue.length + G.queue.length ===0 ) return;
+				if (G.turnThrottle) return;
+				if (G.activeCreature.hasWait ||
+						!G.activeCreature.delayable ||
+						G.queue.isCurrentEmpty()) {
+					return;
+				}
 				G.gamelog.add( { action: "delay" } );
 				G.delayCreature();
 			}},
@@ -1137,11 +1141,10 @@ var UI = Class.create( {
 	*/
 	updateQueueDisplay: function() { // Ugly as hell need rewrite
 
-		if(!G.nextQueue.length || !G.activeCreature ) return false; // Abort to avoid infinite loop
+		if (G.queue.isNextEmpty() || !G.activeCreature) return false; // Abort to avoid infinite loop
 
 		var queueAnimSpeed = this.queueAnimSpeed;
 		var transition = "linear";
-		var nbrOfQueue = 2;
 
 		// Set transition duration for stat indicators
 		this.$queue.find('.vignette .stats').css( { transition: "height "+queueAnimSpeed+"ms" } );
@@ -1209,13 +1212,9 @@ var UI = Class.create( {
 		});
 
 		// Prepend current unit to queue after copying it
-		var completeQueue = G.queue.slice(0);
+		var completeQueue = G.queue.queue.slice(0);
 		completeQueue.unshift(G.activeCreature);
-		completeQueue = completeQueue.concat(G.delayQueue);
-
-		for (var i = 1; i < nbrOfQueue; i++) {
-			completeQueue = completeQueue.concat(["nextround"], G.nextQueue);
-		}
+		completeQueue = completeQueue.concat(["nextround"], G.queue.nextQueue);
 
 		var u = 0;
 
@@ -1253,17 +1252,23 @@ var UI = Class.create( {
 					appendVignette(i, queueElem);
 				}else{
 					// While it'ss not the right creature
-					while( $j($vignettes[i]).attr("creatureid") != completeQueue[i].id ) {
+					while (true) {
+						var v = $vignettes[i];
+						var $v = $j(v);
+						var vid = $v.attr("creatureid");
+						if (vid == completeQueue[i].id) {
+							break;
+						}
 
-						if( $j($vignettes[i]).attr("creatureid") === undefined ) { // Is Round Marker
+						if (vid === undefined) { // Is Round Marker
 							// Create element before
 							appendVignette(i-1, queueElem);
-						}else if( $j($vignettes[i]).attr("initiative") < initiative ) { // Initiative is lower
+						} else if ($v.attr("initiative") < initiative) { // Initiative is lower
 							// Create element before
 							appendVignette(i-1, queueElem);
 						}else{
 							// Remove element
-							deleteVignette( $vignettes[i] );
+							deleteVignette(v);
 						}
 					}
 				}

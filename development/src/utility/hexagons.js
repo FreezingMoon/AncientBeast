@@ -1830,29 +1830,6 @@ function getDirectionFromDelta(y, dx, dy) {
 	};
 
 
-	/*	orderByInitiative()
-	*
-	*	Used by game.queue
-	*	TODO need a separate class to not add confusion
-	*
-	*/
-	Array.prototype.orderByInitiative = function() {
-		// Bubble sorting
-	    var swapped;
-	    do {
-	        swapped = false;
-	        for (var i=0; i < this.length-1; i++) {
-	            if ( this[i].getInitiative() < this[i+1].getInitiative() ) {
-	                var temp = this[i];
-	                this[i] = this[i+1];
-	                this[i+1] = temp;
-	                swapped = true;
-	            }
-	        }
-	    } while (swapped);
-	};
-
-
 //-----------------//
 // USEFUL MATRICES //
 //-----------------//

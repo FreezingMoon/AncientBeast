@@ -170,8 +170,8 @@ var Creature = Class.create( {
 	*/
 	summon: function() {
 
-		G.nextQueue.push(this);
-		G.reorderQueue();
+		G.queue.addByInitiative(this);
+		G.updateQueueDisplay();
 
 		G.grid.updateDisplay(); // Retrace players creatures
 		G.grid.orderCreatureZ();
@@ -322,7 +322,7 @@ var Creature = Class.create( {
 
 	/*	wait()
 	*
-	*	Add the creature to the delayQueue
+	*	Move the creature to the end of the queue
 	*
 	*/
 	wait: function() {
@@ -339,13 +339,12 @@ var Creature = Class.create( {
 		}
 	},
 
-	delay : function() {
-		G.delayQueue.push(this);
-		G.queue.removePos(this);
+	delay: function() {
+		G.queue.delay(this);
 		this.delayable = false;
 		this.delayed = true;
 		this.hint("Delayed", "msg_effects");
-		G.reorderQueue(); // Update UI and Queue order
+		G.updateQueueDisplay();
 	},
 
 	/*	queryMove()
@@ -1187,10 +1186,8 @@ var Creature = Class.create( {
 
 		this.cleanHex();
 
-		G.queue.removePos(this);
-		G.nextQueue.removePos(this);
-		G.delayQueue.removePos(this);
-		G.reorderQueue();
+		G.queue.remove(this);
+		G.updateQueueDisplay();
 		G.grid.updateDisplay();
 
 		if(G.activeCreature === this) { G.nextCreature(); return; } //End turn if current active creature die
