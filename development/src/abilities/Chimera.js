@@ -231,26 +231,30 @@ G.abilities[45] =[
 				if (!hexes[i].isWalkable(_target.size, _target.id, true)) break;
 				hex = hexes[i];
 			}
+
+			var knockbackEnd = function() {
+				if (nextHex !== null && nextHex !== hex && nextHex.creature) {
+					// Diminishing crush damage if unupgraded
+					var crush = ability.isUpgraded() ? _crush : _crush - 5;
+					// Diminishing range if unupgraded
+					var range = ability.isUpgraded() ? _range : _range - 1;
+					knockback(nextHex.creature, crush, range);
+				} else {
+					G.activeCreature.queryMove();
+				}
+			};
+
 			if (hex !== null) {
 				_target.moveTo(hex, {
-					callback: function() {
-						// If there's a next creature to knockback into, continue
-						// recursively, otherwise end and return to Chimera's turn
-						if (nextHex !== null && nextHex !== hex && nextHex.creature) {
-							// Diminishing crush damage if unupgraded
-							var crush = ability.isUpgraded() ? _crush : _crush - 5;
-							// Diminishing range if unupgraded
-							var range = ability.isUpgraded() ? _range : _range - 1;
-							knockback(nextHex.creature, crush, range);
-						} else {
-							G.activeCreature.queryMove();
-						}
-					},
+					callback: knockbackEnd,
 					ignoreMovementPoint: true,
 					ignorePath: true,
 					overrideSpeed: 400, // Custom speed for knockback
 					animation: "push"
 				});
+			} else {
+				// No knockback distance, but there may be a creature behind the target
+				knockbackEnd();
 			}
 		};
 
