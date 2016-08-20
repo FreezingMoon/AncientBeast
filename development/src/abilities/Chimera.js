@@ -188,23 +188,21 @@ G.abilities[45] =[
 		var ability = this;
 		var chimera = this.creature;
 
-		G.grid.queryCreature({
-			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
-			team: 3, // Team, 3 = both
-			id: chimera.id,
-			flipped: chimera.flipped,
-			hexs: this._getHexes()
+		G.grid.queryDirection({
+			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
+			flipped : chimera.player.flipped,
+			team : "both",
+			id : chimera.id,
+			requireCreature : true,
+			x : chimera.x,
+			y : chimera.y,
+			sourceCreature: chimera
 		});
 	},
 
-	activate: function(target, args) {
+	activate: function(path, args) {
 		var ability = this;
 		this.end();
-
-		// Calculate relative direction from creature to target
-		var dx = target.x - ability.creature.x;
-		var dy = target.y - ability.creature.y;
-		var dir = getDirectionFromDelta(target.y, dx, dy);
 
 		var knockback = function(_target, _crush, _range) {
 			var damage = new Damage(
@@ -219,7 +217,8 @@ G.abilities[45] =[
 				return;
 			}
 			// See how far we can knock the target back
-			var hexes = G.grid.getHexLine(_target.x, _target.y, dir, _target.flipped);
+			var hexes = G.grid.getHexLine(
+				_target.x, _target.y, args.direction, _target.flipped);
 			// Skip the first hex as it is the same hex as the target
 			hexes = hexes.splice(1, _range + 1);
 			var hex = null;
@@ -255,6 +254,7 @@ G.abilities[45] =[
 			}
 		};
 
+		var target = path.last().creature;
 		var crush = this.damages.crush;
 		var range = 3;
 		knockback(target, crush, range);
