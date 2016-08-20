@@ -148,7 +148,7 @@ G.abilities[45] =[
 			target = hex.creature;
 
 			// extra sonic damage if upgraded
-			var sonic = result.damages.sonic + this.isUpgraded() ? 9 : 0;
+			var sonic = ability.damages.sonic + (this.isUpgraded() ? 9 : 0);
 			if (sonic <= 0) {
 				break;
 			}
