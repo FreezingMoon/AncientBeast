@@ -168,19 +168,35 @@ G.abilities[45] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	_getHexes: function() {
-		return G.grid.getHexMap(
-			this.creature.x - 3, this.creature.y - 2, 0, false, frontnback3hex);
+	_targetTeam: "both",
+
+	_getDirections: function() {
+		return this.testDirections({
+			flipped: this.creature.player.flipped,
+			team: this._targetTeam,
+			id: this.creature.id,
+			requireCreature: true,
+			x: this.creature.x,
+			y: this.creature.y,
+			distance: 1,
+			sourceCreature: this.creature,
+			directions: [1, 1, 1, 1, 1, 1],
+			includeCrea: true,
+			stopOnCreature: true
+		});
 	},
 
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if (!this.atLeastOneTarget(this._getHexes(), "both")) {
-			this.message = G.msg.abilities.notarget;
-			return false;
+		var directions = this._getDirections();
+		for (var i = 0; i < directions.length; i++) {
+			if (directions[i] === 1) {
+				return true;
+			}
 		}
-		return true;
+		this.message = G.msg.abilities.notarget;
+		return false;
 	},
 
 	//	query() :
@@ -191,8 +207,9 @@ G.abilities[45] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
 			flipped : chimera.player.flipped,
-			team : "both",
+			team: this._targetTeam,
 			id : chimera.id,
+			directions: this._getDirections(),
 			requireCreature : true,
 			x : chimera.x,
 			y : chimera.y,

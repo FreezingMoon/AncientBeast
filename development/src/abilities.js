@@ -435,7 +435,14 @@ var Ability = Class.create( {
 		if( crea.id == G.activeCreature.id ) G.UI.energyBar.animSize( crea.energy/crea.stats.energy );
 	},
 
-	testDirection : function(o) {
+	/**
+	 * Test and get directions where there are valid targets in directions, using
+	 * direction queries
+	 * @param o dict of arguments for direction query
+	 * @returns array of ints, length of total directions, 1 if direction valid
+	 * 	else 0
+	 */
+	testDirections: function(o) {
 		var defaultOpt = {
 			team : "enemy",
 			id : this.creature.id,
@@ -451,29 +458,46 @@ var Ability = Class.create( {
 
 		o = $j.extend(defaultOpt,o);
 
-		var choices = [];
+		var outDirections = [];
 
 		for (var i = 0; i < o.directions.length; i++) {
-			if(!!o.directions[i]) {
-				var fx = 0;
-
-				if( o.sourceCreature instanceof Creature ) {
-					if( (!o.sourceCreature.player.flipped && i>2) || (o.sourceCreature.player.flipped && i<3) ) {
-						fx =  -1*(o.sourceCreature.size-1);
-					}
-				}
-
-				var dir = G.grid.getHexLine(o.x+fx, o.y, i, o.flipped);
-
-				if( o.distance > 0 ) dir = dir.slice(0, o.distance+1);
-
-				choices = choices.concat(dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id));
+			if (!o.directions[i]) {
+				outDirections.push(0);
+				continue;
 			}
+			var fx = 0;
+
+			if( o.sourceCreature instanceof Creature ) {
+				if( (!o.sourceCreature.player.flipped && i>2) || (o.sourceCreature.player.flipped && i<3) ) {
+					fx =  -1*(o.sourceCreature.size-1);
+				}
+			}
+
+			var dir = G.grid.getHexLine(o.x+fx, o.y, i, o.flipped);
+
+			if( o.distance > 0 ) dir = dir.slice(0, o.distance+1);
+
+			dir = dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id);
+			var isValid = this.atLeastOneTarget(dir, o.team);
+			outDirections.push(isValid ? 1 : 0);
 		}
-		return this.atLeastOneTarget(choices, o.team);
+		return outDirections;
 	},
 
-
+	/**
+	 * Test whether there are valid targets in directions, using direction queries
+	 * @param o dict of arguments for direction query
+	 * @returns true if valid targets in at least one direction, else false
+	 */
+	testDirection : function(o) {
+		var directions = this.testDirections(o);
+		for (var i = 0; i < directions.length; i++) {
+			if (directions[i] === 1) {
+				return true;
+			}
+		}
+		return false;
+	}
 });
 
 abilities = []; // Array containing all javascript methods for abilities
