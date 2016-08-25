@@ -384,10 +384,10 @@
 			{
 				"title": "Pulverizing Hit",
 				"desc": "Smacks a foe with its very heavy hand, gaining bonus damage with every hit.",
-				"info": "8 crush damage + 2 burn each strike.",
-				"upgrade": "Hit bonus damage is now 4.",
+				"info": "8 crush damage + 4 burn each strike.",
+				"upgrade": "2 stacks if hitting same foe.",
 				"damages": {
-					"burn": 3,
+					"burn": 4,
 					"crush": 8
 				},
 				"costs": {
