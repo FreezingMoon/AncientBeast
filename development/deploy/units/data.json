@@ -854,7 +854,7 @@
 		},
 			{
 				"title": "Icicle Spear",
-				"desc": "Launches an ice shard that can pierce up to 6 inline or diagonal distant units.",
+				"desc": "Launches an ice shard that can pierce through up to six hexagons distance.",
 				"info": "10 pierce + 6 diminishing frost per hit.",
 				"upgrade": "Can penetrate until blocked.",
 				"damages": {
