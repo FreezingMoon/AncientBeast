@@ -398,7 +398,7 @@
 				"title": "Cracked Earth",
 				"desc": "Smashes both fists into the ground, wreaking fierce havoc in area ahead.",
 				"info": "10 burn damage over all 8 hexagons.",
-				"upgrade": "Spawns hot lava traps over.",
+				"upgrade": "It can spawn hot lava traps.",
 				"damages": {
 					"special": "10%burn%over 8 hexagons"
 				},
