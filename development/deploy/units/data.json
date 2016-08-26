@@ -1059,15 +1059,15 @@
 			{
 				"title": "Big Pliers",
 				"desc": "Dents nearby foe using his big teeth, doing a small mixture of damage to it.",
-				"info": "4 pierce + 4 slash + 8 crush hit damage.",
+				"info": "4 pierce + 6 slash + 8 crush hit damage.",
 				"upgrade": "Pure damage vs frozen foes.",
 				"damages": {
 					"pierce": 4,
-					"slash": 4,
+					"slash": 6,
 					"crush": 8
 				},
 				"costs": {
-					"energy": 16
+					"energy": 18
 				}
 		},
 			{
