@@ -235,7 +235,7 @@ G.abilities[45] =[
 			}
 			// See how far we can knock the target back
 			var hexes = G.grid.getHexLine(
-				_target.x, _target.y, args.direction, _target.flipped);
+				_target.x, _target.y, args.direction, _target.player.flipped);
 			// Skip the first hex as it is the same hex as the target
 			hexes = hexes.splice(1, _range + 1);
 			var hex = null;
@@ -250,6 +250,17 @@ G.abilities[45] =[
 			}
 
 			var knockbackEnd = function() {
+				// Special case when hitting left: the next hex is still the same
+				// creature, so continue in this direction until we reach the next
+				// creature
+				if (nextHex.creature === _target && args.direction === 4) {
+					var nextHexes = G.grid.getHexLine(
+						_target.x, _target.y, args.direction, _target.player_flipped);
+					nextHexes = nextHexes.splice(_target.size);
+					if (nextHexes.length > 0) {
+						nextHex = nextHexes[0];
+					}
+				}
 				if (nextHex !== null && nextHex !== hex && nextHex.creature) {
 					// Diminishing crush damage if unupgraded
 					var crush = ability.isUpgraded() ? _crush : _crush - 5;
