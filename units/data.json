@@ -1059,15 +1059,15 @@
 			{
 				"title": "Big Pliers",
 				"desc": "Dents nearby foe using his big teeth, doing a small mixture of damage to it.",
-				"info": "4 pierce + 4 slash + 4 crush hit damage.",
+				"info": "4 pierce + 4 slash + 8 crush hit damage.",
 				"upgrade": "Pure damage vs frozen foes.",
 				"damages": {
 					"pierce": 4,
 					"slash": 4,
-					"crush": 4
+					"crush": 8
 				},
 				"costs": {
-					"energy": 12
+					"energy": 16
 				}
 		},
 			{
@@ -1085,7 +1085,7 @@
 			{
 				"title": "Freezing Spit",
 				"desc": "Spits distant target with cold saliva. Bonus damage is based on distance.",
-				"info": "10 frost + 2 crush damage / hexagon.",
+				"info": "10 frost + 3 crush damage / hexagon.",
 				"upgrade": "Freezes foe at melee range.",
 				"damages": {
 					"crush": 0,
