@@ -1169,22 +1169,21 @@ var UI = Class.create( {
 		};
 
 		var appendVignette = function(pos, vignette) {
-
+			var $v, index, offset;
 			// Create element
 			if( $vignettes.length === 0 ) {
-				var $v = $j( vignette ).prependTo( G.UI.$queue );
-				var index = $v.index('#queuewrapper .vignette[verified != "-1"]');
-				var offset = (index-(!!index))*80 + (!!index)*100 -80;
-
+				$v = $j( vignette ).prependTo( G.UI.$queue );
+				index = $v.index('#queuewrapper .vignette[verified != "-1"]');
+				offset = (index-(!!index))*80 + (!!index)*100 -80;
 			}else if( $vignettes[pos] ) {
-				var $v = $j( vignette ).insertAfter( $vignettes[pos] );
-				var index = $v.index('#queuewrapper .vignette[verified != "-1"]');
-				var offset = (index-(!!index))*80 + (!!index)*100 -80;
+				$v = $j( vignette ).insertAfter( $vignettes[pos] );
+				index = $v.index('#queuewrapper .vignette[verified != "-1"]');
+				offset = (index-(!!index))*80 + (!!index)*100 -80;
 
 			}else{
-				var $v = $j( vignette ).appendTo( G.UI.$queue );
-				var index = $v.index('#queuewrapper .vignette[verified != "-1"]');
-				var offset = (index-(!!index)) * 80 + (!!index) * 100 + 1000;
+				$v = $j( vignette ).appendTo( G.UI.$queue );
+				index = $v.index('#queuewrapper .vignette[verified != "-1"]');
+				offset = (index-(!!index)) * 80 + (!!index) * 100 + 1000;
 			}
 
 			// Animation
@@ -1222,11 +1221,11 @@ var UI = Class.create( {
 		$vignettes = this.$queue.find('.vignette[verified != "-1"]').attr("verified", 0);
 
 		for (var i = 0; i < completeQueue.length; i++) {
-
+			var queueElem;
 			// Round Marker
 			if( typeof completeQueue[i] == "string" ) {
 
-				var queueElem = '<div turn="' + (G.turn+u) + '" roundmarker="1" class="vignette roundmarker"><div class="frame"></div><div class="stats">Round ' + (G.turn + 1) + '</div></div>';
+				queueElem = '<div turn="' + (G.turn+u) + '" roundmarker="1" class="vignette roundmarker"><div class="frame"></div><div class="stats">Round ' + (G.turn + 1) + '</div></div>';
 
 				// If this element does not exists
 				if( $vignettes[i] === undefined ) {
@@ -1244,7 +1243,7 @@ var UI = Class.create( {
 			}else{
 
 				var initiative =  completeQueue[i].getInitiative( (u === 0) );
-				var queueElem = '<div turn="' + (G.turn+u) + '" creatureid="' + completeQueue[i].id + '" initiative="' + initiative + '" class="vignette hidden p' + completeQueue[i].team + " type" + completeQueue[i].type + '"><div class="frame"></div><div class="overlay_frame"></div><div class="stats"></div></div>';
+				queueElem = '<div turn="' + (G.turn+u) + '" creatureid="' + completeQueue[i].id + '" initiative="' + initiative + '" class="vignette hidden p' + completeQueue[i].team + " type" + completeQueue[i].type + '"><div class="frame"></div><div class="overlay_frame"></div><div class="stats"></div></div>';
 
 				// If this element does not exists
 				if( $vignettes[i] === undefined ) {
@@ -1258,6 +1257,14 @@ var UI = Class.create( {
 						var vid = $v.attr("creatureid");
 						if (vid == completeQueue[i].id) {
 							break;
+						}
+
+						// Check if the creature exists at all; if not delete
+						if ($j.grep(completeQueue, function(item) {
+							return item.id === vid;
+						}).length === 0) {
+							deleteVignette(v);
+							continue;
 						}
 
 						if (vid === undefined) { // Is Round Marker
