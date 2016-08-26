@@ -1051,7 +1051,7 @@
 		"ability_info": [
 			{
 				"title": "Bunny Hop",
-				"desc": "Moves away one hexagon from first enemy that comes nearby frontaly.",
+				"desc": "Moves away one hexagon from first enemy that comes nearby frontally.",
 				"info": "Works only once every game round.",
 				"upgrade": "Can leap twice each round.",
 				"affectedByMatSickness": 1
@@ -1059,24 +1059,24 @@
 			{
 				"title": "Big Pliers",
 				"desc": "Dents nearby foe using his big teeth, doing a small mixture of damage to it.",
-				"info": "8 pierce + 6 slash + 4 crush hit damage.",
-				"upgrade": "Up to 10 offense stat debuff.",
+				"info": "4 pierce + 4 slash + 4 crush hit damage.",
+				"upgrade": "Pure damage vs frozen foes.",
 				"damages": {
-					"pierce": 8,
-					"slash": 6,
+					"pierce": 4,
+					"slash": 4,
 					"crush": 4
 				},
 				"costs": {
-					"energy": 15
+					"energy": 12
 				}
 		},
 			{
 				"title": "Blowing Wind",
 				"desc": "Pushes away any unit for several hexagons, depending on its size.",
-				"info": "range = 5 hexagons - creature size.",
-				"upgrade": "No creature size penalty.",
+				"info": "Range = 5 hexagons - creature size.",
+				"upgrade": "No penalty vs frozen foes.",
 				"effects": [{
-					"special": "range = 5 hexagons - creature size."
+					"special": "Range = 5 hexagons - creature size."
 				}],
 				"costs": {
 					"energy": 20
