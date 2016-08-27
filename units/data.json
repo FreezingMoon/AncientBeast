@@ -2464,8 +2464,8 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 225,
-			"regrowth": 8,
-			"endurance": 70,
+			"regrowth": 5,
+			"endurance": 25,
 			"energy": 125,
 			"meditation": 25,
 			"initiative": 100,
@@ -2500,9 +2500,9 @@
             },
 			{
 				"title": "Executioner Axe",
-				"desc": "Slashes nearby foe, doing some bonus damage based on its maximum health.",
-				"info": "30 + 5% maximum health slash damage.",
-				"upgrade": "Increased the bonus to 10%.",
+				"desc": "Slashes a nearby foe, instantly killing it if it's under a certain health threshold.",
+				"info": "30 slash damage, 45 health threshold.",
+				"upgrade": "Usable again on killing strike.",
 				"costs": {
 					"energy": 25
 				}
@@ -2518,11 +2518,11 @@
             },
 			{
 				"title": "Visible Stigmata",
-				"desc": "Brings back to life the last dead unit for 3 rounds, after which it disintegrates.",
-				"info": "It will have 10% health and last energy.",
-				"upgrade": "Can self revive if being killed.",
+				"desc": "Rapidly transfers up to 50 health points to a nearby allied unit, this is non lethal.",
+				"info": "Usage requires being at least 25 health.",
+				"upgrade": "+10 regrowth bonus each use.",
 				"costs": {
-					"energy": 40
+					"energy": 50
 				}
             }
         ]
