@@ -24,14 +24,14 @@ npm install -g grunt-cli
 ```
 
 ### Installing Dependencies
-Still in the terminal, you'll have to navigate to the *development* directory and install dependencies:
+Still in the terminal, you'll have to navigate to the *development* directory and install project dependencies:
 
 ```
 cd development
 npm install
 ```
 
-This will read `package.json` and install all of the gameplay established npm package dependencies.
+This will read `package.json` and install all of the gameplay established npm package dependencies.<br>
 The *npm install* command will also update any required dependencies if `package.json` file changes.
 
 ### Betatest Game
