@@ -16,9 +16,15 @@ https://github.com/FreezingMoon/AncientBeast.git
 ### Package Requirements
 First Install [NodeJS](http://nodejs.org). Linux users: if you installed from repository, you might need to create a path link.
 
-### Installing Dependencies
+### Grunt Setup
+After you've successfully installed the Node.js package, open up a terminal and use the next command:
 
-Navigate into the *development* directory and use this command for installing & updating dependencies:
+```
+npm install -g grunt-cli
+```
+
+### Installing Dependencies
+Still in the terminal, you'll have to navigate to the *development* directory and install dependencies:
 
 ```
 cd development
@@ -26,6 +32,7 @@ npm install
 ```
 
 This will read `package.json` and install all of the gameplay established npm package dependencies.
+The *npm install* command will also update any required dependencies if `package.json` file changes.
 
 ### Betatest Game
 
