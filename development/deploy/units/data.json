@@ -1844,7 +1844,7 @@
 			"health": 200,
 			"regrowth": 10,
 			"endurance": 100,
-			"energy": 100,
+			"energy": 150,
 			"meditation": 10,
 			"initiative": 10,
 			"offense": 15,
@@ -1853,11 +1853,11 @@
 			"pierce": 15,
 			"slash": 14,
 			"crush": 12,
-			"shock": 2,
-			"burn": 2,
-			"frost": 2,
+			"shock": 1,
+			"burn": 3,
+			"frost": 4,
 			"poison": 10,
-			"sonic": 2,
+			"sonic": 1,
 			"mental": 20
 		},
 		"animation": {
@@ -1865,24 +1865,43 @@
 		},
 		"ability_info": [
 			{
-				"title": "Healing Factor",
-				"desc": "1/2 regrowth works even if fatigued.",
-				"info": "Applies to nearby allied units as well"
+				"title": "First Aid",
+				"desc": "1/5 regrowth works even if fatigued. Works with the current modified stat.",
+				"info": "Applies to nearby allied units as well.",
+				"upgrade": "4 health recovery is assured."
             },
 			{
 				"title": "Iron Fist",
 				"desc": "Punches a nearby foe with it's heavy armored hand, leaving quite a mark.",
-				"info": "25 crush damage, -5 meditation stat"
+				"info": "20 crush damage, -5 defense debuff.",
+				"upgrade": "-5 meditation debuff too.",
+				"damages": {
+					"crush": 20
+				},
+				"costs": {
+					"energy": 25
+				}
             },
 			{
 				"title": "Bloody Greed",
 				"desc": "Powerful sword penetrating attack, affecting multiple inline hexagons.",
-				"info": "20 pierce damage over 2 hexagons"
+				"info": "20 pierce damage over 2 hexagons.",
+				"upgrade": "3 hexagons area damage.",
+				"damages": {
+					"pierce": 20
+				},
+				"costs": {
+					"energy": 30
+				}
             },
 			{
 				"title": "Foot Tromp",
-				"desc": "Stamps the ground, causing all units nearby to lose 90 initiative for a turn.",
-				"info": "-90 initiative debuff, lasts one round"
+				"desc": "Stomps the ground, causing nearby units to have their next turn delayed.",
+				"info": "This offers a huge tactical advantage.",
+				"upgrade": "It will not affect allied units.",
+				"costs": {
+					"energy": 33
+				}
             }
         ]
     },
@@ -2152,7 +2171,7 @@
 			"regrowth": 4,
 			"endurance": 25,
 			"energy": 100,
-			"meditation": 10,
+			"meditation": 35,
 			"initiative": 40,
 			"offense": 10,
 			"defense": 20,
@@ -2161,9 +2180,9 @@
 			"slash": 10,
 			"crush": 10,
 			"shock": 0,
-			"burn": 5,
-			"frost": 5,
-			"poison": 3,
+			"burn": 8,
+			"frost": 6,
+			"poison": 4,
 			"sonic": 3,
 			"mental": 10
 		},
@@ -2174,14 +2193,17 @@
 			{
 				"title": "Banned Touch",
 				"desc": "Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
-				"info": ""
+				"info": "Units remain golden even if attacked.",
+				"upgrade": "Own attacks can turn to gold."
 		},
 			{
 				"title": "Ruby Sceptre",
 				"desc": "Pokes nearby foe using the neat staff. This attack has 1 hex extended reach.",
-				"info": "15 crush + 5 pure damage per attack.",
+				"info": "12 crush + 5 pure damage per attack.",
+				"upgrade": "Regains up to 5 health on hit.",
 				"damages": {
-					"crush": 15
+					"crush": 12,
+					"pure": 5
 				},
 				"costs": {
 					"energy": 10
@@ -2190,9 +2212,10 @@
 			{
 				"title": "Winged Sphere",
 				"desc": "Heals an ally or damages an enemy that is at the target location after one round.",
-				"info": "20 heal for ally or burn damage to a foe.",
+				"info": "30 heal for ally or burn damage to a foe.",
+				"upgrade": "5 area damage / heal on miss.",
 				"damages": {
-					"burn": 20
+					"burn": 30
 				},
 				"costs": {
 					"energy": 30
@@ -2201,10 +2224,10 @@
 			{
 				"title": "Searing Light",
 				"desc": "Conjures an energy beam that causes multiple burning hits to first unit met.",
-				"info": "2 hits x 10 burn damage every attack",
+				"info": "2 hits x 13 burn damage every attack",
 				"upgrade": "One extra burn damage hit.",
 				"damages": {
-					"burn": 10
+					"burn": 15
 				},
 				"costs": {
 					"energy": 40
@@ -2827,7 +2850,7 @@
 				"title": "Shark Aggression",
 				"desc": "Bytes a nearby foe, lowering its total maximum health by 1 with each strike.",
 				"info": "15 pierce damage, one health debuff.",
-				"upgrade": "1/3 more damage or healing.",
+				"upgrade": "+5 more damage or healing.",
 				"costs": {
 					"energy": 15
 				}
