@@ -181,7 +181,7 @@ var UI = Class.create( {
 
 			var prevD = false;
 
-			$j.each(hotkeys,function(k, v) {
+			$j.each(hotkeys, function(k, v) {
 				if(v==keypressed) {
 					// Context filter
 					if(G.UI.dashopen) {
@@ -446,7 +446,7 @@ var UI = Class.create( {
 
 		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click', function(e) {
 			if(G.freezedInput) return;
-			G.UI.showCreature("--",$j(this).attr("player")-0);
+			G.UI.showCreature("--", $j(this).attr("player")-0);
 		});
 
 		// Update player info
@@ -494,19 +494,19 @@ var UI = Class.create( {
 				$stat.removeClass("buff debuff");
 				if(crea) {
 					if(key=="health") {
-						$stat.text(crea.health+"/"+crea.stats[key]);
+						$stat.text(crea.health + "/" + crea.stats[key]);
 					}else if(key=="movement") {
-						$stat.text(crea.remainingMove+"/"+crea.stats[key]);
+						$stat.text(crea.remainingMove + "/" + crea.stats[key]);
 					}else if(key=="energy") {
-						$stat.text(crea.energy+"/"+crea.stats[key]);
+						$stat.text(crea.energy + "/" + crea.stats[key]);
 					}else if(key=="endurance") {
-						$stat.text(crea.endurance+"/"+crea.stats[key]);
+						$stat.text(crea.endurance + "/" + crea.stats[key]);
 					}else{
 						$stat.text(crea.stats[key]);
 					}
-					if(crea.stats[key]>value) { // Buff
+					if(crea.stats[key] > value) { // Buff
 						$stat.addClass("buff");
-					}else if(crea.stats[key]<value) { // Debuff
+					}else if(crea.stats[key] < value) { // Debuff
 						$stat.addClass("debuff");
 					}
 				}else{
@@ -557,7 +557,7 @@ var UI = Class.create( {
 				if(plasmaCost>G.activeCreature.player.plasma) {
 					$j('#materialize_button p').text("Low Plasma! Cannot materialize the selected unit");
 				}else{
-					$j('#materialize_button p').text("Materialize unit at target location for "+plasmaCost+" plasma");
+					$j('#materialize_button p').text("Materialize unit at target location for " + plasmaCost + " plasma");
 
 					// Bind button
 					this.materializeButton.click = function(e) {
@@ -606,15 +606,15 @@ var UI = Class.create( {
 		}else{
 
 			// Card A
-			$j("#card .sideA").css( { "background-image":"url('../cards/margin.png'), url('../units/artwork/"+stats.name+".jpg')" } );
+			$j("#card .sideA").css( { "background-image": "url('../cards/margin.png'), url('../units/artwork/" + stats.name + ".jpg')" } );
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin"+stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
-			$j("#card .sideA .hexs").text(stats.size+"H");
+			$j("#card .sideA .hexs").text(stats.size + "H");
 
 			// Card B
-			$j.each(stats.stats,function(key,value) {
-				var $stat = $j("#card .sideB ."+key+" .value");
+			$j.each(stats.stats,function(key, value) {
+				var $stat = $j("#card .sideB ." + key + " .value");
 				$stat.removeClass("buff debuff");
 				$stat.text(value);
 			});
@@ -660,7 +660,7 @@ var UI = Class.create( {
 		this.selectedPlayer = id;
 		this.$dash // Dash class
 		.removeClass("selected0 selected1 selected2 selected3")
-		.addClass("selected"+id);
+		.addClass("selected" + id);
 
 		this.$grid.find(".vignette") // Vignettes class
 		.removeClass("active dead queued notsummonable")
@@ -683,7 +683,7 @@ var UI = Class.create( {
 		});
 
 		G.players[id].creatures.each(function() {
-			var $crea = G.UI.$grid.find(".vignette[creature='"+this.type+"']");
+			var $crea = G.UI.$grid.find(".vignette[creature='" + this.type + "']");
 			$crea.removeClass("notsummonable");
 			if(this.dead === true) {
 				$crea.addClass("dead");
@@ -710,7 +710,7 @@ var UI = Class.create( {
 	showMusicPlayer: function() {
 		this.$dash.addClass("active");
 
-		this.showCreature(G.activeCreature.type,G.activeCreature.team);
+		this.showCreature(G.activeCreature.type, G.activeCreature.team);
 
 		this.selectedPlayer = -1;
 
@@ -728,7 +728,7 @@ var UI = Class.create( {
 	*/
 	toggleDash: function() {
 		if(!this.$dash.hasClass("active")) {
-			this.showCreature(G.activeCreature.type,G.activeCreature.team);
+			this.showCreature(G.activeCreature.type, G.activeCreature.team);
 		}else{
 			this.closeDash();
 		}
