@@ -947,10 +947,10 @@ var UI = Class.create( {
 						if(G.UI.dashopen) return false;
 						G.grid.clearHexViewAlterations();
 						var ab = G.activeCreature.abilities[this.abilityId];
-						if(ab.require()==true&&this.abilityId!=0)//For colored Frame around usable ability
-						{
-						G.UI.selectAbility(this.abilityId);
-						}
+						if(ab.require() == true && this.abilityId != 0) // Colored frame around selected ability
+							{
+								G.UI.selectAbility(this.abilityId);
+							}
 						// Activate Ability
 						G.activeCreature.abilities[this.abilityId].use();
 					}else{
