@@ -3717,23 +3717,42 @@
 		"ability_info": [
 			{
 				"title": "Ethereal Shape",
-				"desc": "Passes through obstacles and only takes half of the incoming damage.",
-				"info": ""
+				"desc": "Passes through any obstacles and also takes only half of the incoming damage.",
+				"info": "Will not be able to stop over obstacles.",
+				"upgrade": "Causes delay to enemy units."
             },
 			{
 				"title": "Palm Jaw",
-				"desc": "Bites nearby foe by using its... hand, stealing 5 energy points from target.",
-				"info": "12 pierce damage & 5 energy transfer"
+				"desc": "Bites nearby foe by using its own hand, stealing the energy points cost from it.",
+				"info": "12 pierce damage & 10 energy transfer.",
+				"upgrade": "Kills steal all the energy left.",
+				"damages": {
+					"pierce": 12
+				},
+				"costs": {
+					"energy": 10
+				}
             },
 			{
 				"title": "Sorrow Visions",
 				"desc": "Causes a foe within 5 hexagons to skip its next turn if not taking any damage.",
-				"info": "10 mind bonus damage if the unit is hit"
+				"info": "Can not target any enemy summoners.",
+				"upgrade": "13 mental damage if awaken.",
+				"damages": {
+					"mental": 13
+				},
+				"costs": {
+					"energy": 15
+				}
             },
 			{
 				"title": "Sleeping Mummy",
-				"desc": "Meditative state that restores 20 health if not disrupted for a round.",
-				"info": "45 bonus defense while in stance."
+				"desc": "Meditative state that heals 20 points if not being disrupted for a whole round.",
+				"info": "15 bonus defense while in this stance.",
+				"upgrade": "Will always restore 5 health.",
+				"costs": {
+					"energy": 25
+				}
             }
         ]
     }
