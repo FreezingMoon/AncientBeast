@@ -2972,10 +2972,10 @@
 		"set": "Alpha",
 		"stats": {
 			"health": 99,
-			"regrowth": 6,
-			"endurance": 40,
-			"energy": 100,
-			"meditation": 25,
+			"regrowth": 3,
+			"endurance": 30,
+			"energy": 123,
+			"meditation": 33,
 			"initiative": 120,
 			"offense": 6,
 			"defense": 9,
@@ -3013,40 +3013,40 @@
 		},
 			{
 				"title": "Hammer Time",
-				"desc": "Hits a nearby foe using its hard head, decreasing movement by 1 for a turn.",
-				"info": "10 crush + 5 pierce damage & debuff.",
+				"desc": "Nails a nearby unit using its hard head, making it take extra damage if moving.",
+				"info": "10 crush + 10 pierce damage & pinning.",
 				"upgrade" : "Attacks up to 3 frontal foes.",
 				"damages": {
 					"crush": 10,
-					"pierce": 5
+					"pierce": 10
 				},
 				"costs": {
-					"energy": 15
+					"energy": 24
 				}
 		},
 			{
 				"title": "War Horn",
 				"desc": "Charges towards an inline foe, hitting it while also pushing it as much possible.",
-				"info": "10 pierce damage + 1 bonus / hexagon.",
+				"info": "11 pierce damage + 1 bonus / hexagon.",
 				"upgrade" : "Does 5 bonus pierce damage.",
 				"damages": {
-					"pierce": 10
+					"pierce": 11
 				},
 				"costs": {
-					"energy": 20
+					"energy": 26
 				}
 		},
 			{
 				"title": "Fishing Hook",
 				"desc": "Pierces a nearby unit while swapping places if it is small or medium sized.",
-				"info": "10 pierce + 10 crush damage & swap.",
+				"info": "12 pierce + 12 crush damage & swap.",
 				"upgrade" : "Can also swap large units.",
 				"damages": {
-					"pierce": 10,
-					"crush": 10
+					"pierce": 12,
+					"crush": 12
 				},
 				"costs": {
-					"energy": 25
+					"energy": 29
 				}
 		}
 	]
