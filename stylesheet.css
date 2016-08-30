@@ -10,10 +10,12 @@ body {
 	text-shadow: #000 .1em .1em .2em;
 	width: 950px;
 	margin: 0 auto;
+	letter-spacing: -.005em;
+	word-spacing: -.1em;
 }
 
 /* Chrome Hack https://code.google.com/p/chromium/issues/detail?id=413183 */
-@media screen and (-webkit-min-device-pixel-ratio: 0) { body { word-spacing: -1px; } }
+@media screen and (-webkit-min-device-pixel-ratio: 0) { body { word-spacing: -0.055em; letter-spacing: 0; } }
 
 img { border: none; vertical-align: bottom; }
 
