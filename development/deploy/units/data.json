@@ -1547,8 +1547,8 @@
 			{
 				"title": "Carving Nails",
 				"desc": "Claw swipe gesture on a nearby foe.",
-				"info": "10 pierce + 10 slash damage on strike",
-				"upgrade": "+5 pierce & +5 slash bonus.",
+				"info": "12 pierce + 12 slash damage on strike",
+				"upgrade": "+4 pierce & +4 slash bonus.",
 				"costs": {
 					"energy": 10
 				}
@@ -1559,14 +1559,14 @@
 				"info": "Ability does not work on summoners.",
 				"upgrade": "+4 hexagons bonus range.",
 				"costs": {
-					"energy": 15
+					"energy": 20
 				}
             },
 			{
 				"title": "Tendril Feet",
 				"desc": "All nearby foes have their movement restrained and take a bit of damage.",
-				"info": "10 crush damage and no movement.",
-				"upgrade": "+10 bonus crush damange.",
+				"info": "20 crush damage and no movement.",
+				"upgrade": "Disables all ability upgrades.",
 				"costs": {
 					"energy": 30
 				}
