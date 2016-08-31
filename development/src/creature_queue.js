@@ -37,7 +37,7 @@ var CreatureQueue = Class.create({
 	delay: function(creature) {
 		// Find out if the creature is in the current queue or next queue; remove
 		// it from the queue and replace it at the end
-		var inQueue = this.queue.removePos(creature);
+		var inQueue = this.queue.removePos(creature) || creature === G.activeCreature;
 		var queue = this.queue;
 		if (!inQueue) {
 			queue = this.nextQueue;
