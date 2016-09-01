@@ -1235,8 +1235,9 @@ var UI = Class.create( {
 					appendVignette(i, queueElem);
 				}else{
 					// While its not the round marker
-					while( $j( $vignettes[i] ).attr("roundmarker") === undefined ) {
-						deleteVignette( $vignettes[i] );
+					while (i < $vignettes.length &&
+							$j($vignettes[i]).attr("roundmarker") === undefined) {
+						deleteVignette($vignettes[i]);
 					}
 				}
 				u++;
@@ -1244,8 +1245,7 @@ var UI = Class.create( {
 			// Creature Vignette
 			}else{
 
-				var initiative =  completeQueue[i].getInitiative( (u === 0) );
-				queueElem = '<div turn="' + (G.turn+u) + '" creatureid="' + completeQueue[i].id + '" initiative="' + initiative + '" class="vignette hidden p' + completeQueue[i].team + " type" + completeQueue[i].type + '"><div class="frame"></div><div class="overlay_frame"></div><div class="stats"></div></div>';
+				queueElem = '<div turn="' + (G.turn+u) + '" creatureid="' + completeQueue[i].id + '" class="vignette hidden p' + completeQueue[i].team + " type" + completeQueue[i].type + '"><div class="frame"></div><div class="overlay_frame"></div><div class="stats"></div></div>';
 
 				// If this element does not exists
 				if( $vignettes[i] === undefined ) {
@@ -1261,15 +1261,15 @@ var UI = Class.create( {
 							break;
 						}
 
-						// Check if the creature exists at all; if not delete
-						if ($j.grep(completeQueue, function(item) {
+						// Check if the vignette exists at all; if not delete
+						if (!isNaN(vid) && $j.grep(completeQueue, function(item) {
 							return item.id === vid;
 						}).length === 0) {
 							deleteVignette(v);
 							continue;
 						}
 
-						if (vid === undefined) { // Is Round Marker
+						if (isNaN(vid)) { // Is Round Marker
 							// Create element before
 							appendVignette(i-1, queueElem);
 						} else {

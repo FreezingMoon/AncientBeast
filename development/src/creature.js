@@ -698,15 +698,14 @@ var Creature = Class.create( {
 	},
 
 
-	/*	getInitiative(dist)
-	*
-	*	wait :		Boolean :	Take account of the hasWait attribute
+	/*	getInitiative()
 	*
 	*	return :	Integer :	Initiative value to order the queue
 	*
 	*/
-	getInitiative: function(wait) {
-		return (this.stats.initiative*500-this.id) + (500000*!(!!wait && !!this.delayed)); // To avoid 2 identical initiative
+	getInitiative: function() {
+		// To avoid 2 identical initiative
+		return this.stats.initiative*500 - this.id;
 	},
 
 
