@@ -522,9 +522,9 @@ var Game = Class.create( {
 		},300);
 	},
 
-	updateQueueDisplay: function() {
+	updateQueueDisplay: function(excludeActiveCreature) {
 		if (this.UI) {
-			this.UI.updateQueueDisplay();
+			this.UI.updateQueueDisplay(excludeActiveCreature);
 		}
 	},
 

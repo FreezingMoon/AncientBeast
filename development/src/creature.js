@@ -344,7 +344,7 @@ var Creature = Class.create( {
 		this.delayable = false;
 		this.delayed = true;
 		this.hint("Delayed", "msg_effects");
-		G.updateQueueDisplay();
+		G.updateQueueDisplay(true);
 	},
 
 	/*	queryMove()

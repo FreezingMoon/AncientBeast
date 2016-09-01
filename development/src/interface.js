@@ -1142,7 +1142,7 @@ var UI = Class.create( {
 	*	Delete and add element to the Queue container based on the game's queues
 	*
 	*/
-	updateQueueDisplay: function() { // Ugly as hell need rewrite
+	updateQueueDisplay: function(excludeActiveCreature) { // Ugly as hell need rewrite
 
 		if (G.queue.isNextEmpty() || !G.activeCreature) return false; // Abort to avoid infinite loop
 
@@ -1213,9 +1213,10 @@ var UI = Class.create( {
 			}
 		});
 
-		// Prepend current unit to queue after copying it
 		var completeQueue = G.queue.queue.slice(0);
-		completeQueue.unshift(G.activeCreature);
+		if (!excludeActiveCreature) {
+			completeQueue.unshift(G.activeCreature);
+		}
 		completeQueue = completeQueue.concat(["nextround"], G.queue.nextQueue);
 
 		var u = 0;
@@ -1256,7 +1257,7 @@ var UI = Class.create( {
 						var v = $vignettes[i];
 						var $v = $j(v);
 						var vid = parseInt($v.attr("creatureid"));
-						if (vid == completeQueue[i].id) {
+						if (vid === completeQueue[i].id) {
 							break;
 						}
 
@@ -1271,12 +1272,21 @@ var UI = Class.create( {
 						if (vid === undefined) { // Is Round Marker
 							// Create element before
 							appendVignette(i-1, queueElem);
-						} else if ($v.attr("initiative") < initiative) { // Initiative is lower
-							// Create element before
-							appendVignette(i-1, queueElem);
-						}else{
-							// Remove element
-							deleteVignette(v);
+						} else {
+							// See if the creature has moved up the queue
+							var found = false;
+							for (var j = 0; j < i && !found; j++) {
+								if (vid === completeQueue[j].id) {
+									found = true;
+								}
+							}
+							if (found) {
+								// Create element before
+								appendVignette(i-1, queueElem);
+							} else {
+								// Remove element
+								deleteVignette(v);
+							}
 						}
 					}
 				}
