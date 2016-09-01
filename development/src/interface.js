@@ -1221,8 +1221,6 @@ var UI = Class.create( {
 		var u = 0;
 
 		// Updating
-		$vignettes = this.$queue.find('.vignette[verified != "-1"]').attr("verified", 0);
-
 		for (var i = 0; i < completeQueue.length; i++) {
 			var queueElem;
 			// Round Marker
@@ -1253,11 +1251,11 @@ var UI = Class.create( {
 					// Create it
 					appendVignette(i, queueElem);
 				}else{
-					// While it'ss not the right creature
+					// While it's not the right creature
 					while (true) {
 						var v = $vignettes[i];
 						var $v = $j(v);
-						var vid = $v.attr("creatureid");
+						var vid = parseInt($v.attr("creatureid"));
 						if (vid == completeQueue[i].id) {
 							break;
 						}
