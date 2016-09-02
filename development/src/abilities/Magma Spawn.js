@@ -5,7 +5,7 @@
 */
 G.abilities[4] =[
 
-// 	First Ability: Scorched Ground
+// 	First Ability: Boiling Point
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onStartPhase",
@@ -28,30 +28,35 @@ G.abilities[4] =[
 			return this.trap.hex.creature.id !== ability.creature.id;
 		};
 
-		this.creature.hexagons[1].createTrap("scorched-ground", [
-			new Effect(
-				"Scorched Ground", this.creature,this.creature.hexagons[1], "onStepIn",
-				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
-			),
-		],this.creature.player, { turnLifetime : 1, ownerCreature : this.creature, fullTurnLifetime : true } );
+		// Traps last forever if upgraded, otherwise 1 turn
+		var lifetime = this.isUpgraded() ? 0 : 1;
+		var addTrap = function(_hex) {
+			_hex.createTrap(
+				"scorched-ground",
+				[
+					new Effect(
+						"Scorched Ground", ability.creature, _hex, "onStepIn",
+						{
+							requireFn: requireFn,
+							effectFn: effectFn,
+							attacker: ability.creature
+						}
+					)
+				],
+				ability.creature.player,
+				{
+					turnLifetime: lifetime,
+					ownerCreature: ability.creature,
+					fullTurnLifetime: true
+				}
+			);
+		};
 
-		var hex;
-		if( this.creature.player.flipped )
-			hex = this.creature.hexagons[0];
-		else
-			hex = this.creature.hexagons[2];
-
-
-		hex.createTrap("scorched-ground",[
-			new Effect(
-				"Scorched Ground", this.creature, hex, "onStepIn",
-				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
-			),
-		],this.creature.player, { turnLifetime : 1, ownerCreature : this.creature, fullTurnLifetime : true } );
-	},
+		// Leave two traps behind
+		addTrap(this.creature.hexagons[1]);
+		addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
+	}
 },
-
-
 
 // 	Second Ability: Pulverizing Punch
 {
@@ -152,7 +157,7 @@ G.abilities[4] =[
 				magmaSpawn.getHexMap(this.map),
 				magmaSpawn.getHexMap(this.map, true)
 			],
-		})
+		});
 
 	},
 
@@ -181,7 +186,8 @@ G.abilities[4] =[
 					.to( {alpha: 1 }, 500, Phaser.Easing.Linear.None)
 					.to( {alpha: 0}, 500, Phaser.Easing.Linear.None)
 					.start();
-					tween._lastChild.onComplete.add(function() { sprite.destroy() }, this);
+					tween._lastChild.onComplete.add(
+						function() { sprite.destroy(); }, this);
 				});
 			},this.animation_data.delay);
 
