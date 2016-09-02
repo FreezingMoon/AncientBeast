@@ -7,8 +7,7 @@ G.abilities[7] =[
 
 // 	First Ability: Burning Heart
 {
-	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onOtherDamage",
+	trigger: "onUnderAttack",
 
 	// 	require() :
 	require : function(damage) {

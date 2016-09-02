@@ -235,7 +235,7 @@ G.abilities[45] =[
 			}
 			// See how far we can knock the target back
 			var hexes = G.grid.getHexLine(
-				_target.x, _target.y, args.direction, _target.player.flipped);
+				_target.x, _target.y, args.direction, false);
 			// Skip the first hex as it is the same hex as the target
 			hexes = hexes.splice(1, _range + 1);
 			var hex = null;
@@ -255,7 +255,7 @@ G.abilities[45] =[
 				// creature
 				if (nextHex.creature === _target && args.direction === 4) {
 					var nextHexes = G.grid.getHexLine(
-						_target.x, _target.y, args.direction, _target.player_flipped);
+						_target.x, _target.y, args.direction, false);
 					nextHexes = nextHexes.splice(_target.size);
 					if (nextHexes.length > 0) {
 						nextHex = nextHexes[0];
