@@ -238,12 +238,7 @@ G.abilities[14] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		var test = this.testDirection( {
-			team : "enemy",
-			directions : this.directions,
-		});
-		if( !test ){
-			this.message = G.msg.abilities.notarget;
+		if (!this.testDirection({ team: "enemy", directions : this.directions })){
 			return false;
 		}
 		return true;

@@ -213,14 +213,9 @@ G.abilities[4] =[
 		var magmaSpawn = this.creature;
 		var x = (magmaSpawn.player.flipped) ? magmaSpawn.x-magmaSpawn.size+1 : magmaSpawn.x ;
 
-		var test = this.testDirection( {
-			team : "enemy",
-			x : x,
-			directions : this.directions,
-		});
-
-		if( !test ) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.testDirection({
+				team: "enemy", x: x, directions: this.directions
+			})) {
 			return false;
 		}
 		return true;

@@ -224,6 +224,7 @@ G.abilities[39] =[
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
+		this.message = "";
 		return true;
 	},
 

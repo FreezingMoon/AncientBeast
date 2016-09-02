@@ -93,7 +93,6 @@ G.abilities[45] =[
 		if( !this.testRequirements() ) return false;
 
 		if (!this.testDirection({ team: "both", sourceCreature: this.creature })) {
-			this.message = G.msg.abilities.notarget;
 			return false;
 		}
 		return true;
@@ -192,6 +191,7 @@ G.abilities[45] =[
 		var directions = this._getDirections();
 		for (var i = 0; i < directions.length; i++) {
 			if (directions[i] === 1) {
+				this.message = "";
 				return true;
 			}
 		}
