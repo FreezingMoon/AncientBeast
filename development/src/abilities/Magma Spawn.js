@@ -35,7 +35,7 @@ G.abilities[4] =[
 				"scorched-ground",
 				[
 					new Effect(
-						"Scorched Ground", ability.creature, _hex, "onStepIn",
+						ability.title, ability.creature, _hex, "onStepIn",
 						{
 							requireFn: requireFn,
 							effectFn: effectFn,
@@ -58,10 +58,12 @@ G.abilities[4] =[
 	}
 },
 
-// 	Second Ability: Pulverizing Punch
+// 	Second Ability: Pulverizing Hit
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onQuery",
+	trigger: "onQuery",
+
+	// Track the last target
+	_lastTargetId: -1,
 
 	// 	require() :
 	require : function() {
@@ -94,9 +96,15 @@ G.abilities[4] =[
 		var ability = this;
 		ability.end();
 
-		ability.creature.burnBoost = (ability.creature.burnBoost+1) ? ability.creature.burnBoost : 3;
-
-		var d = { burn: ability.creature.burnBoost, crush: ability.damages.crush };
+		// Deal burn damage based on number of times used
+		var d = {
+			burn: this.damages.burn * (this.timesUsed + 1), crush: this.damages.crush
+		};
+		// If upgraded, extra damage if hitting the same target
+		if (this.isUpgraded() && target.id === this._lastTargetId) {
+			d.burn *= 2;
+		}
+		this._lastTargetId = target.id;
 
 		var damage = new Damage(
 			ability.creature, // Attacker
@@ -106,8 +114,6 @@ G.abilities[4] =[
 		);
 
 		target.takeDamage(damage);
-
-		ability.creature.burnBoost++;
 	},
 },
 
