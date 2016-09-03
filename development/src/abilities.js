@@ -167,7 +167,6 @@ var Ability = Class.create( {
 
 			if(this.animation_data === undefined) {
 				this.animation_data = {
-					visual : function() {},
 					duration : 500,
 					delay : 350,
 				};

@@ -15,46 +15,44 @@ G.abilities[4] =[
 
 	//	activate() :
 	activate : function() {
+		// Leave two traps behind
+		this._addTrap(this.creature.hexagons[1]);
+		this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
+	},
+
+	_addTrap: function(hex) {
 		var ability = this;
-
-		var effectFn = function(effect,crea) {
-			crea.takeDamage(new Damage( effect.attacker, ability.damages , 1,[] ));
-			this.trap.destroy();
-		};
-
-		var requireFn = function() {
-			if (!this.trap.hex.creature) return false;
-			// Magma Spawn immune to Scorched Ground
-			return this.trap.hex.creature.id !== ability.creature.id;
-		};
 
 		// Traps last forever if upgraded, otherwise 1 turn
 		var lifetime = this.isUpgraded() ? 0 : 1;
-		var addTrap = function(_hex) {
-			_hex.createTrap(
-				"scorched-ground",
-				[
-					new Effect(
-						ability.title, ability.creature, _hex, "onStepIn",
-						{
-							requireFn: requireFn,
-							effectFn: effectFn,
-							attacker: ability.creature
-						}
-					)
-				],
-				ability.creature.player,
-				{
-					turnLifetime: lifetime,
-					ownerCreature: ability.creature,
-					fullTurnLifetime: true
-				}
-			);
-		};
 
-		// Leave two traps behind
-		addTrap(this.creature.hexagons[1]);
-		addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
+		hex.createTrap(
+			"scorched-ground",
+			[
+				new Effect(
+					this.title, this.creature, hex, "onStepIn",
+					{
+						requireFn: function() {
+							if (!this.trap.hex.creature) return false;
+							// Magma Spawn immune to Scorched Ground
+							return this.trap.hex.creature.id !== ability.creature.id;
+						},
+						effectFn: function(effect, crea) {
+							crea.takeDamage(
+								new Damage(effect.attacker, ability.damages, 1, []));
+							this.trap.destroy();
+						},
+						attacker: this.creature
+					}
+				)
+			],
+			this.creature.player,
+			{
+				turnLifetime: lifetime,
+				ownerCreature: this.creature,
+				fullTurnLifetime: true
+			}
+		);
 	}
 },
 
@@ -119,7 +117,7 @@ G.abilities[4] =[
 
 
 
-// 	Thirt Ability: Fissure Vent
+// 	Thirt Ability: Cracked Earth
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -180,28 +178,17 @@ G.abilities[4] =[
 			[],	// Effects
 			ability.getTargets(hexs) // Targets
 		);
-	},
 
-	animation_data : {
-		visual : function(hexs, args) {
-
-			setTimeout(function() {
-				hexs.each(function() {
-					var sprite = G.grid.trapGroup.create(this.originalDisplayPos.x, this.originalDisplayPos.y, "effects_fissure-vent");
-					var tween = G.Phaser.add.tween(sprite)
-					.to( {alpha: 1 }, 500, Phaser.Easing.Linear.None)
-					.to( {alpha: 0}, 500, Phaser.Easing.Linear.None)
-					.start();
-					tween._lastChild.onComplete.add(
-						function() { sprite.destroy(); }, this);
-				});
-			},this.animation_data.delay);
-
-		},
-		duration : 500,
-		delay : 350,
-	},
-
+		// If upgraded, leave Boiling Point traps on all hexes that don't contain a
+		// creature
+		if (this.isUpgraded()) {
+			hexs.each(function() {
+				if (!this.creature) {
+					ability.creature.abilities[0]._addTrap(this);
+				}
+			});
+		}
+	}
 },
 
 
