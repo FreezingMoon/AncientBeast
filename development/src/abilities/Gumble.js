@@ -322,10 +322,6 @@ G.abilities[14] =[
 				ignoreMovementPoint: true,
 				ignorePath: true,
 				callback: function() {
-					if (result.damageObj instanceof Damage) {
-						G.triggersFn.onDamage(target, result.damageObj);
-					}
-
 					G.activeCreature.queryMove();
 				},
 				animation : "push",

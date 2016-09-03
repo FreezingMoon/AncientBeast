@@ -128,20 +128,8 @@ G.abilities[4] =[
 			[0,0,1,1],
 			 [0,0,1,0]],
 
-	// 	require() :
-	require : function() {
-		if( !this.testRequirements() ) return false;
-
-		this.map.origin = [0,2];
-
-		// Require enemy
-		var magmaSpawn = this.creature;
-		var hexs = magmaSpawn.getHexMap(this.map).concat( magmaSpawn.getHexMap(this.map, true) );
-		if( !this.atLeastOneTarget( hexs,"enemy" ) ) {
-			this.message = G.msg.abilities.notarget;
-			return false;
-		}
-		return true;
+	require: function() {
+		return this.testRequirements();
 	},
 
 	// 	query() :
@@ -244,7 +232,6 @@ G.abilities[4] =[
 		var ability = this;
 		var magmaSpawn = this.creature;
 
-		var target = path.last().creature;
 		ability.end(false,true);
 
 		// Damage
@@ -255,41 +242,55 @@ G.abilities[4] =[
 			[]	// Effects
 		);
 
-
 		// Movement
-		var magmaHex = (args.direction==4) ? magmaSpawn.hexagons[magmaSpawn.size-1] : magmaSpawn.hexagons[0] ;
-		path.filterCreature(false,false);
-		path.unshift(magmaHex); // Prevent error on empty path
-		var destination = path.last();
-		var x = (args.direction==4) ? destination.x+magmaSpawn.size-1 : destination.x ;
-		destination = G.grid.hexs[destination.y][x];
+		var hurl = function(_path) {
+			var target = _path.last().creature;
 
-		magmaSpawn.moveTo(destination, {
-			ignoreMovementPoint : true,
-			ignorePath : true,
-			callback : function() {
-				path.each(function() {
-					if( !this.trap ) return;
-					if (this.trap.owner !== magmaSpawn.player) {
+			var magmaHex = magmaSpawn.hexagons[
+				args.direction === 4 ? magmaSpawn.size - 1 : 0];
+			_path.filterCreature(false, false);
+			_path.unshift(magmaHex); // Prevent error on empty path
+			var destination = _path.last();
+			var x = destination.x + (args.direction === 4 ? magmaSpawn.size - 1 : 0);
+			destination = G.grid.hexs[destination.y][x];
+
+			magmaSpawn.moveTo(destination, {
+				ignoreMovementPoint: true,
+				ignorePath: true,
+				callback: function() {
+					// Destroy traps along path
+					_path.each(function() {
+						if (!this.trap) return;
 						this.destroyTrap();
+					});
+
+					var targetKilled = false;
+					if (target !== undefined) {
+						var ret = target.takeDamage(damage, true);
+						targetKilled = ret.kill;
 					}
-				});
 
-				var ret = target.takeDamage(damage, true);
-
-				if( ret.damageObj instanceof Damage && ret.kill === false )
-					G.triggersFn.onDamage(target, ret.damageObj);
-
-				var interval = setInterval(function() {
-					if(!G.freezedInput) {
-						clearInterval(interval);
-						G.UI.selectAbility(-1);
-						G.activeCreature.queryMove();
+					// If upgraded and target killed, keep going in the same direction and
+					// find the next target to move into
+					if (ability.isUpgraded() && targetKilled) {
+						var nextPath = G.grid.getHexLine(
+							target.x, target.y, args.direction, false);
+						nextPath.filterCreature(true, true, magmaSpawn.id);
+						// Skip the first hex as it is the same hex as the target
+						hurl(nextPath);
+					} else {
+						var interval = setInterval(function() {
+							if(!G.freezedInput) {
+								clearInterval(interval);
+								G.UI.selectAbility(-1);
+								G.activeCreature.queryMove();
+							}
+						}, 100);
 					}
-				},100);
-
-			},
-		});
+				},
+			});
+		};
+		hurl(path);
 	},
 }
 
