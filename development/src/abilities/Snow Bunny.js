@@ -14,41 +14,17 @@ G.abilities[12] = [
 	require : function(destHex) {
 		if( !this.testRequirements() ) return false;
 
-		if( this.used ) return false; // Once per turn
+		// If upgraded, useable twice per turn
+		var usesPerTurn = this.isUpgraded() ? 2 : 1;
+		if (this.timesUsedThisTurn >= usesPerTurn) {
+			return false;
+		}
 
 		if( !destHex || !destHex.creature ) return false; // If destHex is undefined
 
 		if( destHex.creature.isAlly(this.creature.team) ) return false;
 
-		var frontHexs = this.creature.getHexMap(front1hex);
-
-		var id = -1;
-		destHex.creature.hexagons.each(function() {
-			id = ( frontHexs.indexOf(this) > id ) ? frontHexs.indexOf(this) : id;
-		});
-
-		switch( id ) {
-			case 0 :
-				var hex = this.creature.getHexMap(backbottom1hex)[0];
-				if( hex == undefined || !hex.isWalkable(this.creature.size, this.creature.id, true) ) {
-					var hex = this.creature.getHexMap(frontbottom1hex)[0];
-				}
-				break;
-			case 1 :
-				var hex = this.creature.getHexMap(inlineback1hex)[0];
-				break;
-			case 2 :
-				var hex = this.creature.getHexMap(backtop1hex)[0];
-				if( hex == undefined || !hex.isWalkable(this.creature.size, this.creature.id, true) ) {
-					var hex = this.creature.getHexMap(fronttop1hex)[0];
-				}
-				break;
-			default : return false;
-		}
-
-		if( hex == undefined ) return false;
-
-		return hex.isWalkable(this.creature.size, this.creature.id, true);
+		return this._getHopHex(destHex) !== undefined;
 	},
 
 	//	activate() :
@@ -56,38 +32,52 @@ G.abilities[12] = [
 		var ability = this;
 		ability.end();
 
-		var frontHexs = this.creature.getHexMap(front1hex);
+		this.creature.moveTo(
+			this._getHopHex(destHex),
+			{
+				callback: function() {	G.activeCreature.queryMove(); },
+				ignorePath: true,
+				ignoreMovementPoint: true
+			}
+		);
+	},
 
+	_getHopHex: function(fromHex) {
+		var hexes = this.creature.getHexMap(front1hex);
+
+		// Find which hex we are hopping from
 		var id = -1;
-		destHex.creature.hexagons.each(function() {
-			id = ( frontHexs.indexOf(this) > id ) ? frontHexs.indexOf(this) : id;
+		fromHex.creature.hexagons.each(function() {
+			id = hexes.indexOf(this) > id ? hexes.indexOf(this) : id;
 		});
 
-		switch( id ) {
-			case 0 :
-				var hex = this.creature.getHexMap(backbottom1hex)[0];
-				if( hex == undefined || !hex.isWalkable(this.creature.size, this.creature.id, true) ) {
-					var hex = this.creature.getHexMap(frontbottom1hex)[0];
-				}
+		// Try to hop away
+		var hex;
+		switch (id) {
+			case 0:
+				hex = this.creature.getHexMap(backbottom1hex)[0];
 				break;
-			case 1 :
-				var hex = this.creature.getHexMap(inlineback1hex)[0];
+			case 1:
+				hex = this.creature.getHexMap(inlineback1hex)[0];
 				break;
-			case 2 :
-				var hex = this.creature.getHexMap(backtop1hex)[0];
-				if( hex == undefined || !hex.isWalkable(this.creature.size, this.creature.id, true) ) {
-					var hex = this.creature.getHexMap(fronttop1hex)[0];
-				}
+			case 2:
+				hex = this.creature.getHexMap(backtop1hex)[0];
 				break;
-			default : return false;
 		}
 
-		this.creature.moveTo(hex, {
-			callback : function() {	G.activeCreature.queryMove(); },
-			ignorePath : true,
-		});
+		// If we can't hop away, try hopping backwards
+		if (id !== 1 &&
+				(hex === undefined ||
+					!hex.isWalkable(this.creature.size, this.creature.id, true))) {
+			hex = this.creature.getHexMap(inlineback1hex)[0];
+		}
 
-	},
+		if (hex !== undefined &&
+				!hex.isWalkable(this.creature.size, this.creature.id, true)) {
+			return undefined;
+		}
+		return hex;
+	}
 },
 
 
