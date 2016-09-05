@@ -160,32 +160,34 @@ var Game = Class.create( {
 		+ 2 // Effects
 		;
 
+		var i;
+
 		// Music Loading
 		this.soundLoaded = {};
 		this.soundsys = new Soundsys();
-		for (var i = 0; i < this.availableMusic.length; i++) {
+		for (i = 0; i < this.availableMusic.length; i++) {
 			this.soundsys.getSound("../media/music/" + this.availableMusic[i], i, function() { G.loadFinish(); } );
 		}
 
-		for (var i = 0; i < this.soundEffects.length; i++) {
+		for (i = 0; i < this.soundEffects.length; i++) {
 			this.soundsys.getSound("./sounds/" + this.soundEffects[i], this.availableMusic.length + i, function() { G.loadFinish(); } );
 		}
 
 		this.Phaser.load.onFileComplete.add(G.loadFinish,G);
 
 		// Health
-		this.Phaser.load.image('p0_health', './interface/rectangle_red.png');
-		this.Phaser.load.image('p1_health', './interface/rectangle_red.png');
-		this.Phaser.load.image('p2_health', './interface/rectangle_red.png');
-		this.Phaser.load.image('p3_health', './interface/rectangle_red.png');
-		this.Phaser.load.image('p0_plasma', './interface/capsule_red.png');
-		this.Phaser.load.image('p1_plasma', './interface/capsule_blue.png');
-		this.Phaser.load.image('p2_plasma', './interface/capsule_orange.png');
-		this.Phaser.load.image('p3_plasma', './interface/capsule_green.png');
-		this.Phaser.load.image('p0_frozen', './interface/rectangle_frozen_red.png');
-		this.Phaser.load.image('p1_frozen', './interface/rectangle_frozen_red.png');
-		this.Phaser.load.image('p2_frozen', './interface/rectangle_frozen_red.png');
-		this.Phaser.load.image('p3_frozen', './interface/rectangle_frozen_red.png');
+		var playerColors = ['red', 'blue', 'orange', 'green'];
+		for (i = 0; i < 4; i++) {
+			this.Phaser.load.image(
+				'p' + i + '_health',
+				'./interface/rectangle_' + playerColors[i] + '.png');
+			this.Phaser.load.image(
+				'p' + i + '_plasma',
+				'./interface/capsule_' + playerColors[i] + '.png');
+			this.Phaser.load.image(
+				'p' + i + '_frozen',
+				'./interface/rectangle_frozen_' + playerColors[i] + '.png');
+		}
 
 		// Grid
 		this.Phaser.load.image('hex', './interface/hex.png');
@@ -193,14 +195,14 @@ var Game = Class.create( {
 		this.Phaser.load.image('hex_path', './interface/hex_path.png');
 		this.Phaser.load.image('cancel', './interface/cancel.png');
 		this.Phaser.load.image('input', './interface/hex_input.png');
-		this.Phaser.load.image('hex_p0', './interface/hex_glowing_red.png');
-		this.Phaser.load.image('hex_p1', './interface/hex_glowing_blue.png');
-		this.Phaser.load.image('hex_p2', './interface/hex_glowing_orange.png');
-		this.Phaser.load.image('hex_p3', './interface/hex_glowing_green.png');
-		this.Phaser.load.image('hex_hover_p0', './interface/hex_outline_red.png');
-		this.Phaser.load.image('hex_hover_p1', './interface/hex_outline_blue.png');
-		this.Phaser.load.image('hex_hover_p2', './interface/hex_outline_orange.png');
-		this.Phaser.load.image('hex_hover_p3', './interface/hex_outline_green.png');
+		for (i = 0; i < 4; i++) {
+			this.Phaser.load.image(
+				'hex_p' + i,
+				'./interface/hex_glowing_' + playerColors[i] + '.png');
+			this.Phaser.load.image(
+				'hex_hover_p' + i,
+				'./interface/hex_outline_' + playerColors[i] + '.png');
+		}
 
 		// Traps
 		// TODO: Load these sprites only after the specific unit has been materialized
@@ -489,7 +491,10 @@ var Game = Class.create( {
 						} else {
 							differentPlayer = true;
 						}
+						var last = G.activeCreature;
 						G.activeCreature = next; // Set new creature active
+						// Update health displays due to active creature change
+						last.updateHealth();
 					}
 
 					if(G.activeCreature.player.hasLost) {

@@ -920,14 +920,16 @@ var Creature = Class.create( {
 			G.UI.healthBar.animSize( this.health / this.stats.health );
 		}
 
-		if( this.type == "--" && this.player.plasma > 0 ) {
-			this.healthIndicatorSprite.loadTexture("p" + this.player.id + "_plasma");
+		// Dark Priest plasma shield when inactive
+		if (this.type == "--" && this.player.plasma > 0 &&
+				this !== G.activeCreature) {
+			this.healthIndicatorSprite.loadTexture("p" + this.team + "_plasma");
 			this.healthIndicatorText.setText(this.player.plasma);
 		} else {
 			if (this.stats.frozen) {
-				this.healthIndicatorSprite.loadTexture("p" + this.player.id + "_frozen");
+				this.healthIndicatorSprite.loadTexture("p" + this.team + "_frozen");
 			} else {
-				this.healthIndicatorSprite.loadTexture("p" + this.player.id + "_health");
+				this.healthIndicatorSprite.loadTexture("p" + this.team + "_health");
 			}
 			this.healthIndicatorText.setText(this.health);
 		}
