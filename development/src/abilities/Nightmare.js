@@ -206,16 +206,13 @@ G.abilities[9] =[
 		var crea = this.creature;
 		var x = (crea.player.flipped) ? crea.x-crea.size+1 : crea.x ;
 
-		var test = this.testDirection({
-			team : "both",
-			x : x,
-			directions : this.directions,
-			distance: this._getDistance(),
-			stopOnCreature : false
-		});
-
-		if( !test ){
-			this.message = G.msg.abilities.notarget;
+		if (!this.testDirection({
+				team: "both",
+				x: x,
+				directions: this.directions,
+				distance: this._getDistance(),
+				stopOnCreature: false
+			})) {
 			return false;
 		}
 		return true;

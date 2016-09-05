@@ -238,12 +238,7 @@ G.abilities[14] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		var test = this.testDirection( {
-			team : "enemy",
-			directions : this.directions,
-		});
-		if( !test ){
-			this.message = G.msg.abilities.notarget;
+		if (!this.testDirection({ team: "enemy", directions : this.directions })){
 			return false;
 		}
 		return true;
@@ -327,10 +322,6 @@ G.abilities[14] =[
 				ignoreMovementPoint: true,
 				ignorePath: true,
 				callback: function() {
-					if (result.damageObj instanceof Damage) {
-						G.triggersFn.onDamage(target, result.damageObj);
-					}
-
 					G.activeCreature.queryMove();
 				},
 				animation : "push",

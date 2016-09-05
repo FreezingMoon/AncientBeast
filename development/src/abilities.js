@@ -167,7 +167,6 @@ var Ability = Class.create( {
 
 			if(this.animation_data === undefined) {
 				this.animation_data = {
-					visual : function() {},
 					duration : 500,
 					delay : 350,
 				};
@@ -493,9 +492,11 @@ var Ability = Class.create( {
 		var directions = this.testDirections(o);
 		for (var i = 0; i < directions.length; i++) {
 			if (directions[i] === 1) {
+				this.message = "";
 				return true;
 			}
 		}
+		this.message = G.msg.abilities.notarget;
 		return false;
 	}
 });

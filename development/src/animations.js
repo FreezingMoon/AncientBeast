@@ -31,8 +31,10 @@ var Animations = Class.create({
 
 				if (hexId < path.length && (crea.remainingMove > 0 || opts.ignoreMovementPoint)) {
 					G.animations.movements.leaveHex(crea,hex,opts);
-				}else{
-					G.animations.movements.movementComplete(crea,hex,anim_id,opts); return;
+				} else {
+					G.animations.movements.movementComplete(
+						crea, path[path.length - 1], anim_id, opts);
+					return;
 				}
 
 				var nextPos = G.grid.hexs[hex.y][hex.x-crea.size+1];

@@ -5,7 +5,7 @@
 */
 G.abilities[4] =[
 
-// 	First Ability: Scorched Ground
+// 	First Ability: Boiling Point
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onStartPhase",
@@ -15,48 +15,53 @@ G.abilities[4] =[
 
 	//	activate() :
 	activate : function() {
+		// Leave two traps behind
+		this._addTrap(this.creature.hexagons[1]);
+		this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
+	},
+
+	_addTrap: function(hex) {
 		var ability = this;
 
-		var effectFn = function(effect,crea) {
-			crea.takeDamage(new Damage( effect.attacker, ability.damages , 1,[] ));
-			this.trap.destroy();
-		};
+		// Traps last forever if upgraded, otherwise 1 turn
+		var lifetime = this.isUpgraded() ? 0 : 1;
 
-		var requireFn = function() {
-			if (!this.trap.hex.creature) return false;
-			// Magma Spawn immune to Scorched Ground
-			return this.trap.hex.creature.id !== ability.creature.id;
-		};
-
-		this.creature.hexagons[1].createTrap("scorched-ground", [
-			new Effect(
-				"Scorched Ground", this.creature,this.creature.hexagons[1], "onStepIn",
-				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
-			),
-		],this.creature.player, { turnLifetime : 1, ownerCreature : this.creature, fullTurnLifetime : true } );
-
-		var hex;
-		if( this.creature.player.flipped )
-			hex = this.creature.hexagons[0];
-		else
-			hex = this.creature.hexagons[2];
-
-
-		hex.createTrap("scorched-ground",[
-			new Effect(
-				"Scorched Ground", this.creature, hex, "onStepIn",
-				{ requireFn: requireFn, effectFn: effectFn,	attacker: this.creature }
-			),
-		],this.creature.player, { turnLifetime : 1, ownerCreature : this.creature, fullTurnLifetime : true } );
-	},
+		hex.createTrap(
+			"scorched-ground",
+			[
+				new Effect(
+					this.title, this.creature, hex, "onStepIn",
+					{
+						requireFn: function() {
+							if (!this.trap.hex.creature) return false;
+							// Magma Spawn immune to Scorched Ground
+							return this.trap.hex.creature.id !== ability.creature.id;
+						},
+						effectFn: function(effect, crea) {
+							crea.takeDamage(
+								new Damage(effect.attacker, ability.damages, 1, []));
+							this.trap.destroy();
+						},
+						attacker: this.creature
+					}
+				)
+			],
+			this.creature.player,
+			{
+				turnLifetime: lifetime,
+				ownerCreature: this.creature,
+				fullTurnLifetime: true
+			}
+		);
+	}
 },
 
-
-
-// 	Second Ability: Pulverizing Punch
+// 	Second Ability: Pulverizing Hit
 {
-	//	Type : Can be "onQuery","onStartPhase","onDamage"
-	trigger : "onQuery",
+	trigger: "onQuery",
+
+	// Track the last target
+	_lastTargetId: -1,
 
 	// 	require() :
 	require : function() {
@@ -89,9 +94,15 @@ G.abilities[4] =[
 		var ability = this;
 		ability.end();
 
-		ability.creature.burnBoost = (ability.creature.burnBoost+1) ? ability.creature.burnBoost : 3;
-
-		var d = { burn: ability.creature.burnBoost, crush: ability.damages.crush };
+		// Deal burn damage based on number of times used
+		var d = {
+			burn: this.damages.burn * (this.timesUsed + 1), crush: this.damages.crush
+		};
+		// If upgraded, extra damage if hitting the same target
+		if (this.isUpgraded() && target.id === this._lastTargetId) {
+			d.burn *= 2;
+		}
+		this._lastTargetId = target.id;
 
 		var damage = new Damage(
 			ability.creature, // Attacker
@@ -101,14 +112,12 @@ G.abilities[4] =[
 		);
 
 		target.takeDamage(damage);
-
-		ability.creature.burnBoost++;
 	},
 },
 
 
 
-// 	Thirt Ability: Fissure Vent
+// 	Thirt Ability: Cracked Earth
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -119,20 +128,8 @@ G.abilities[4] =[
 			[0,0,1,1],
 			 [0,0,1,0]],
 
-	// 	require() :
-	require : function() {
-		if( !this.testRequirements() ) return false;
-
-		this.map.origin = [0,2];
-
-		// Require enemy
-		var magmaSpawn = this.creature;
-		var hexs = magmaSpawn.getHexMap(this.map).concat( magmaSpawn.getHexMap(this.map, true) );
-		if( !this.atLeastOneTarget( hexs,"enemy" ) ) {
-			this.message = G.msg.abilities.notarget;
-			return false;
-		}
-		return true;
+	require: function() {
+		return this.testRequirements();
 	},
 
 	// 	query() :
@@ -152,7 +149,7 @@ G.abilities[4] =[
 				magmaSpawn.getHexMap(this.map),
 				magmaSpawn.getHexMap(this.map, true)
 			],
-		})
+		});
 
 	},
 
@@ -169,27 +166,17 @@ G.abilities[4] =[
 			[],	// Effects
 			ability.getTargets(hexs) // Targets
 		);
-	},
 
-	animation_data : {
-		visual : function(hexs, args) {
-
-			setTimeout(function() {
-				hexs.each(function() {
-					var sprite = G.grid.trapGroup.create(this.originalDisplayPos.x, this.originalDisplayPos.y, "effects_fissure-vent");
-					var tween = G.Phaser.add.tween(sprite)
-					.to( {alpha: 1 }, 500, Phaser.Easing.Linear.None)
-					.to( {alpha: 0}, 500, Phaser.Easing.Linear.None)
-					.start();
-					tween._lastChild.onComplete.add(function() { sprite.destroy() }, this);
-				});
-			},this.animation_data.delay);
-
-		},
-		duration : 500,
-		delay : 350,
-	},
-
+		// If upgraded, leave Boiling Point traps on all hexes that don't contain a
+		// creature
+		if (this.isUpgraded()) {
+			hexs.each(function() {
+				if (!this.creature) {
+					ability.creature.abilities[0]._addTrap(this);
+				}
+			});
+		}
+	}
 },
 
 
@@ -213,14 +200,9 @@ G.abilities[4] =[
 		var magmaSpawn = this.creature;
 		var x = (magmaSpawn.player.flipped) ? magmaSpawn.x-magmaSpawn.size+1 : magmaSpawn.x ;
 
-		var test = this.testDirection( {
-			team : "enemy",
-			x : x,
-			directions : this.directions,
-		});
-
-		if( !test ) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.testDirection({
+				team: "enemy", x: x, directions: this.directions
+			})) {
 			return false;
 		}
 		return true;
@@ -250,7 +232,6 @@ G.abilities[4] =[
 		var ability = this;
 		var magmaSpawn = this.creature;
 
-		var target = path.last().creature;
 		ability.end(false,true);
 
 		// Damage
@@ -261,41 +242,55 @@ G.abilities[4] =[
 			[]	// Effects
 		);
 
-
 		// Movement
-		var magmaHex = (args.direction==4) ? magmaSpawn.hexagons[magmaSpawn.size-1] : magmaSpawn.hexagons[0] ;
-		path.filterCreature(false,false);
-		path.unshift(magmaHex); // Prevent error on empty path
-		var destination = path.last();
-		var x = (args.direction==4) ? destination.x+magmaSpawn.size-1 : destination.x ;
-		destination = G.grid.hexs[destination.y][x];
+		var hurl = function(_path) {
+			var target = _path.last().creature;
 
-		magmaSpawn.moveTo(destination, {
-			ignoreMovementPoint : true,
-			ignorePath : true,
-			callback : function() {
-				path.each(function() {
-					if( !this.trap ) return;
-					if (this.trap.owner !== magmaSpawn.player) {
+			var magmaHex = magmaSpawn.hexagons[
+				args.direction === 4 ? magmaSpawn.size - 1 : 0];
+			_path.filterCreature(false, false);
+			_path.unshift(magmaHex); // Prevent error on empty path
+			var destination = _path.last();
+			var x = destination.x + (args.direction === 4 ? magmaSpawn.size - 1 : 0);
+			destination = G.grid.hexs[destination.y][x];
+
+			magmaSpawn.moveTo(destination, {
+				ignoreMovementPoint: true,
+				ignorePath: true,
+				callback: function() {
+					// Destroy traps along path
+					_path.each(function() {
+						if (!this.trap) return;
 						this.destroyTrap();
+					});
+
+					var targetKilled = false;
+					if (target !== undefined) {
+						var ret = target.takeDamage(damage, true);
+						targetKilled = ret.kill;
 					}
-				});
 
-				var ret = target.takeDamage(damage, true);
-
-				if( ret.damageObj instanceof Damage && ret.kill === false )
-					G.triggersFn.onDamage(target, ret.damageObj);
-
-				var interval = setInterval(function() {
-					if(!G.freezedInput) {
-						clearInterval(interval);
-						G.UI.selectAbility(-1);
-						G.activeCreature.queryMove();
+					// If upgraded and target killed, keep going in the same direction and
+					// find the next target to move into
+					if (ability.isUpgraded() && targetKilled) {
+						var nextPath = G.grid.getHexLine(
+							target.x, target.y, args.direction, false);
+						nextPath.filterCreature(true, true, magmaSpawn.id);
+						// Skip the first hex as it is the same hex as the target
+						hurl(nextPath);
+					} else {
+						var interval = setInterval(function() {
+							if(!G.freezedInput) {
+								clearInterval(interval);
+								G.UI.selectAbility(-1);
+								G.activeCreature.queryMove();
+							}
+						}, 100);
 					}
-				},100);
-
-			},
-		});
+				},
+			});
+		};
+		hurl(path);
 	},
 }
 

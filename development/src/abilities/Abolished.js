@@ -7,8 +7,7 @@ G.abilities[7] =[
 
 // 	First Ability: Burning Heart
 {
-	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onOtherDamage",
+	trigger: "onUnderAttack",
 
 	// 	require() :
 	require : function(damage) {
@@ -42,13 +41,9 @@ G.abilities[7] =[
 	// 	require() :
 	require : function() {
 		if(!this.testRequirements()) return false;
-		var test = this.testDirection( {
-			team : "enemy",
-			distance : this.distance,
-			sourceCreature : this.creature,
-		} );
-		if(!test) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.testDirection({
+				team: "enemy", distance: this.distance, sourceCreature: this.creature
+			})) {
 			return false;
 		}
 		return true;
