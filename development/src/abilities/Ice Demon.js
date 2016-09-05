@@ -330,14 +330,12 @@ G.abilities[6] =[
 			"Frozen", // Name
 			ability.creature, // Caster
 			undefined, // Target
-			"onEffectAttachement", // Trigger
+			"", // Trigger
 			{
-				effectFn: function(effect){
-					var trg = effect.target;
-					trg.freezed = true;
-					this.deleteEffect();
-				}
-			} // Optional arguments
+				alterations: { frozen: true },
+				turnLifetime: 1,
+				deleteTrigger : "onEndPhase"
+			}
 		);
 
 		ability.areaDamage(

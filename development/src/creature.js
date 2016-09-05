@@ -95,9 +95,10 @@ var Creature = Class.create( {
 			sonic:obj.stats.sonic-0,
 			mental:obj.stats.mental-0,
 
-			moveable:true,
-			fatigueImmunity:false
-		},
+			moveable: true,
+			fatigueImmunity: false,
+			frozen: false
+		};
 		this.stats		= $j.extend({}, this.baseStats); //Copy
 		this.health		= obj.stats.health;
 		this.endurance	= obj.stats.endurance;
@@ -139,15 +140,22 @@ var Creature = Class.create( {
 		this.hintGrp.y = -this.sprite.texture.height+5;
 
 		// Health indicator
-		this.healtIndicatorGrp = G.Phaser.add.group(this.grp, "creatureHealthGrp_" + this.id);
+		this.healthIndicatorGroup = G.Phaser.add.group(this.grp, "creatureHealthGrp_" + this.id);
 		// Adding background sprite
-		this.healtIndicatorSprite = this.healtIndicatorGrp.create( (this.player.flipped) ? 19 : 19 + 90 * (this.size-1), 49, "p" + this.team + '_health');
+		this.healthIndicatorSprite = this.healthIndicatorGroup.create(
+			this.player.flipped ? 19 : 19 + 90 * (this.size-1),
+			49,
+			"p" + this.team + '_health');
 		// Add text
-		this.healtIndicatorText = G.Phaser.add.text( (this.player.flipped) ? 45 : 45 + 90 * (this.size-1), 63, this.health, { font: "bold 15pt Play", fill: "#ffffff", align: "center" } );
-		this.healtIndicatorText.anchor.setTo(0.5, 0.5);
-		this.healtIndicatorGrp.add(this.healtIndicatorText);
+		this.healthIndicatorText = G.Phaser.add.text(
+			this.player.flipped ? 45 : 45 + 90 * (this.size-1),
+			63,
+			this.health,
+			{ font: "bold 15pt Play", fill: "#ffffff", align: "center" });
+		this.healthIndicatorText.anchor.setTo(0.5, 0.5);
+		this.healthIndicatorGroup.add(this.healthIndicatorText);
 		// Hide It
-		this.healtIndicatorGrp.alpha = 0;
+		this.healthIndicatorGroup.alpha = 0;
 
 		// State variable for displaying endurance/fatigue text
 		this.fatigueText = "";
@@ -203,15 +211,15 @@ var Creature = Class.create( {
 
 
 	healthHide: function() {
-		this.healtIndicatorGrp.alpha = 0;
+		this.healthIndicatorGroup.alpha = 0;
 	},
 
 	healthShow: function() {
 		var offsetX = (this.player.flipped) ? this.x - this.size + 1 : this.x ;
 		var hex = G.grid.hexs[this.y][offsetX];
-		// this.healtIndicatorGrp.x = hex.displayPos.x;
-		// this.healtIndicatorGrp.y = hex.displayPos.y;
-		this.healtIndicatorGrp.alpha = 1;
+		// this.healthIndicatorGroup.x = hex.displayPos.x;
+		// this.healthIndicatorGroup.y = hex.displayPos.y;
+		this.healthIndicatorGroup.alpha = 1;
 	},
 
 	/*	activate()
@@ -265,9 +273,8 @@ var Creature = Class.create( {
 			});
 		};
 
-
-		// Freezed effect
-		if(this.freezed) {
+		// Frozen effect
+		if (this.stats.frozen) {
 			varReset();
 			var interval = setInterval(function() {
 				if(!G.turnThrottle) {
@@ -308,6 +315,7 @@ var Creature = Class.create( {
 	*/
 	deactivate: function(wait) {
 		this.hasWait = this.delayed = !!wait;
+		this.stats.frozen = false;
 		G.grid.updateDisplay(); // Retrace players creatures
 
 		// Effects triggers
@@ -865,9 +873,6 @@ var Creature = Class.create( {
 
 			if(!damage.noLog) G.log("%CreatureName" + this.id + "% is hit : " + nbrDisplayed + " health");
 
-			// Health display Update
-			this.updateHealth();
-
 			// If Health is empty
 			if(this.health <= 0) {
 				this.die(damage.attacker);
@@ -878,6 +883,11 @@ var Creature = Class.create( {
 			damage.effects.each(function() {
 				creature.addEffect(this);
 			});
+
+			// Health display Update
+			// Note: update health after adding effects as some effects may affect
+			// health display
+			this.updateHealth();
 
 			// Trigger
 			if(!ignoreRetaliation) G.triggersFn.onDamage(this, damage);
@@ -911,11 +921,15 @@ var Creature = Class.create( {
 		}
 
 		if( this.type == "--" && this.player.plasma > 0 ) {
-			this.healtIndicatorSprite.loadTexture("p" + this.player.id + "_plasma");
-			this.healtIndicatorText.setText(this.player.plasma);
-		}else{
-			this.healtIndicatorSprite.loadTexture("p" + this.player.id + "_health");
-			this.healtIndicatorText.setText(this.health);
+			this.healthIndicatorSprite.loadTexture("p" + this.player.id + "_plasma");
+			this.healthIndicatorText.setText(this.player.plasma);
+		} else {
+			if (this.stats.frozen) {
+				this.healthIndicatorSprite.loadTexture("p" + this.player.id + "_frozen");
+			} else {
+				this.healthIndicatorSprite.loadTexture("p" + this.player.id + "_health");
+			}
+			this.healthIndicatorText.setText(this.health);
 		}
 	},
 
@@ -1179,9 +1193,9 @@ var Creature = Class.create( {
 
 		// Kill animation
 		var tweenSprite = G.Phaser.add.tween(this.sprite).to( {alpha:0}, 500, Phaser.Easing.Linear.None ).start();
-		var tweenHealth = G.Phaser.add.tween(this.healtIndicatorGrp).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None ).start();
+		var tweenHealth = G.Phaser.add.tween(this.healthIndicatorGroup).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None ).start();
 		tweenSprite.onComplete.add( function() { crea.sprite.destroy(); } );
-		tweenHealth.onComplete.add( function() { crea.healtIndicatorGrp.destroy(); } );
+		tweenHealth.onComplete.add( function() { crea.healthIndicatorGroup.destroy(); } );
 
 		this.cleanHex();
 

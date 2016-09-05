@@ -1356,7 +1356,13 @@ var UI = Class.create( {
 		G.creatures.each(function() {
 			if (this instanceof Creature) {
 				var text;
-				if (this.endurance > 0) {
+				if (this.stats.frozen) {
+					text = "Frozen";
+				} else if (this.materializationSickness) {
+					text = "Sickened";
+				} else if (this.protectedFromFatigue || this.stats.fatigueImmunity) {
+					text = "Protected";
+				} else if (this.endurance > 0) {
 					text = this.endurance + "/" + this.stats.endurance;
 				} else if (this.stats.endurance === 0) {
 					text = "Fragile";
@@ -1372,8 +1378,6 @@ var UI = Class.create( {
 					this.abilities[0].require(); // Update protectedFromFatigue
 				}
 
-				text = ( this.protectedFromFatigue || this.stats.fatigueImmunity ) ? "Protected" : text;
-				text = ( this.materializationSickness ) ? "Sickened" : text;
 				$j('#queuewrapper .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
 				this.fatigueText = text;
 			}

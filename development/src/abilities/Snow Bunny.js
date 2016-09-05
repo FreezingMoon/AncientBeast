@@ -82,7 +82,7 @@ G.abilities[12] = [
 
 
 
-// 	Second Ability: Big Nip
+// 	Second Ability: Big Pliers
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
@@ -206,7 +206,7 @@ G.abilities[12] = [
 			}else{
 				break;
 			}
-		};
+		}
 
 		target.moveTo(hex, {
 			ignoreMovementPoint : true,
@@ -260,21 +260,37 @@ G.abilities[12] = [
 		var ability = this;
 		ability.end();
 
-		var crea = path.last().creature;
+		var target = path.last().creature;
 		var dist = path.slice(0).filterCreature(false, false).length;
 
 		// Copy to not alter ability strength
- 		var dmg = $j.extend( {}, ability.damages);
- 		dmg.crush += 4*dist; // Add distance to crush damage
+		var dmg = $j.extend( {}, ability.damages);
+		dmg.crush += 3*dist; // Add distance to crush damage
+
+		var effects = [];
+		// If upgraded and melee range, freeze the target
+		if (this.isUpgraded() && dist === 0) {
+			effects.push(new Effect(
+				this.title,
+				this.creature,
+				target,
+				"",
+				{
+					alterations: { frozen: true },
+					turnLifetime: 1,
+					deleteTrigger : "onEndPhase"
+				}
+			));
+		}
 
 		var damage = new Damage(
 			ability.creature, // Attacker
 			dmg, // Damage Type
 			1, // Area
-			[]	// Effects
+			effects	// Effects
 		);
 
-		crea.takeDamage(damage);
+		target.takeDamage(damage);
 	}
 }
 

@@ -182,6 +182,10 @@ var Game = Class.create( {
 		this.Phaser.load.image('p1_plasma', './interface/capsule_blue.png');
 		this.Phaser.load.image('p2_plasma', './interface/capsule_orange.png');
 		this.Phaser.load.image('p3_plasma', './interface/capsule_green.png');
+		this.Phaser.load.image('p0_frozen', './interface/rectangle_frozen_red.png');
+		this.Phaser.load.image('p1_frozen', './interface/rectangle_frozen_red.png');
+		this.Phaser.load.image('p2_frozen', './interface/rectangle_frozen_red.png');
+		this.Phaser.load.image('p3_frozen', './interface/rectangle_frozen_red.png');
 
 		// Grid
 		this.Phaser.load.image('hex', './interface/hex.png');
@@ -835,26 +839,23 @@ var Game = Class.create( {
 		});
 	},
 
-	triggerDeleteEffect : function( trigger, creature ) {
-		if( creature == "all" ) {
-			for (var i = 0; i < G.effects.length; i++) {
-				effect = G.effects[i];
-				if(effect.turnLifetime > 0 && trigger == effect.deleteTrigger) {
-					if(G.turn-effect.creationTurn >= effect.turnLifetime) {
-						effect.deleteEffect();
-						i--;
-					}
-				}
-			}
-			return;
+	triggerDeleteEffect: function(trigger, creature) {
+		var effects;
+		if (creature == "all") {
+			effects = G.effects;
+		} else {
+			effects = creature.effects;
 		}
-
-		for (var i = 0; i < creature.effects.length; i++) {
-			if(creature.effects[i].turnLifetime > 0 && trigger == creature.effects[i].deleteTrigger) {
-				if(G.turn-creature.effects[i].creationTurn >= creature.effects[i].turnLifetime) {
-					creature.effects[i].deleteEffect();
-					i--;
+		for (var i = 0; i < effects.length; i++) {
+			var effect = effects[i];
+			if (effect.turnLifetime > 0 && trigger === effect.deleteTrigger &&
+					G.turn-effect.creationTurn >= effect.turnLifetime) {
+				effect.deleteEffect();
+				// Update UI in case effect changes it
+				if (effect.target) {
+					effect.target.updateHealth();
 				}
+				i--;
 			}
 		}
 	},
