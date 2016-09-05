@@ -10,21 +10,19 @@ G.abilities[12] = [
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onOtherCreatureMove",
 
-	// 	require() :
-	require : function(destHex) {
-		if( !this.testRequirements() ) return false;
-
-		// If upgraded, useable twice per turn
-		var usesPerTurn = this.isUpgraded() ? 2 : 1;
-		if (this.timesUsedThisTurn >= usesPerTurn) {
+	require: function(fromHex) {
+		if (!this.testRequirements()) {
 			return false;
 		}
 
-		if( !destHex || !destHex.creature ) return false; // If destHex is undefined
-
-		if( destHex.creature.isAlly(this.creature.team) ) return false;
-
-		return this._getHopHex(destHex) !== undefined;
+		// If enough uses, jump away when an enemy has entered our trigger area, and
+		// we have a space to jump back to
+		return (
+			this.timesUsedThisTurn < this._getUsesPerTurn() &&
+			fromHex && fromHex.creature &&
+			fromHex.creature.isAlly(this.creature.team) &&
+			this._getTriggerHexId() >= 0 &&
+			this._getHopHex(fromHex) !== undefined);
 	},
 
 	//	activate() :
@@ -42,7 +40,12 @@ G.abilities[12] = [
 		);
 	},
 
-	_getHopHex: function(fromHex) {
+	_getUsesPerTurn: function() {
+		// If upgraded, useable twice per turn
+		return this.isUpgraded() ? 2 : 1;
+	},
+
+	_getTriggerHexId: function(fromHex) {
 		var hexes = this.creature.getHexMap(front1hex);
 
 		// Find which hex we are hopping from
@@ -50,6 +53,12 @@ G.abilities[12] = [
 		fromHex.creature.hexagons.each(function() {
 			id = hexes.indexOf(this) > id ? hexes.indexOf(this) : id;
 		});
+
+		return id;
+	},
+
+	_getHopHex: function(fromHex) {
+		var id = this._getTriggerHexId(fromHex);
 
 		// Try to hop away
 		var hex;
