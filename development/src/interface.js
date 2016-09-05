@@ -947,10 +947,22 @@ var UI = Class.create( {
 						if(G.UI.dashopen) return false;
 						G.grid.clearHexViewAlterations();
 						var ab = G.activeCreature.abilities[this.abilityId];
-						if(ab.require() == true && this.abilityId != 0) // Colored frame around selected ability
+					//click on passive ability would cycle between usable abilities
+                                        if(this.abilityId==0)
+                                                {
+							var b = ( G.UI.selectedAbility == -1 ) ? 4 :  G.UI.selectedAbility ;
+							for (var i = (b-1); i > 0; i--)
 							{
-								G.UI.selectAbility(this.abilityId);
+							if( G.activeCreature.abilities[i].require() && !G.activeCreature.abilities[i].used ) 
+								{
+								G.UI.abilitiesButtons[i].triggerClick();
+								}
 							}
+						}
+					if(ab.require() == true && this.abilityId != 0) // Colored frame around selected ability
+						{
+							G.UI.selectAbility(this.abilityId);
+						}
 						// Activate Ability
 						G.activeCreature.abilities[this.abilityId].use();
 					}else{
@@ -1027,6 +1039,22 @@ var UI = Class.create( {
 			}else{
 				this.abilitiesButtons[i].changeState("disabled");
 			}
+			if(i===0)// Tooltip of passive ability should display if there is any usable ability or not
+				{
+					var b = ( G.UI.selectedAbility == -1 ) ? 4 :  G.UI.selectedAbility ;//For checking usable ability
+					for (var j = (b-1); j > 0; j--) 
+					{
+						if( G.activeCreature.abilities[j].require() && !G.activeCreature.abilities[j].used ) 
+						{
+							ab.message =G.msg.abilities.passivecycle;//message if there is any usable ability
+							break;
+						}
+						else 
+						{
+							ab.message =G.msg.abilities.passiveunavailable;//message if there is no usable ability
+						}
+					}	
+				}
 
 			// Charge
 			this.abilitiesButtons[i].$button.next(".desc").find(".charge").remove();

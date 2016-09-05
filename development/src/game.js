@@ -108,13 +108,15 @@ var Game = Class.create( {
 		// Msg (TODO External file)
 		this.msg = {
 			abilities : {
-				notarget	: "No targets available.",
-				noplasma	: "Not enough plasma.",
-				nopsy		: "Psyhelm overload: too many units!",
-				alreadyused	: "Ability already used.",
-				toomuch		: "Too much %stat%.",
-				notenough	: "Not enough %stat%.",
-				notmoveable : "This creature cannot be moved."
+				notarget	   : "No targets available.",
+				noplasma	   : "Not enough plasma.",
+				nopsy		   : "Psyhelm overload: too many units!",
+				alreadyused	   : "Ability already used.",
+				toomuch		   : "Too much %stat%.",
+				notenough	   : "Not enough %stat%.",
+				notmoveable        : "This creature cannot be moved.",
+				passivecycle       : "Tap this to change between usable abilities.",
+				passiveunavailable : "Currently there are no usable abilities."
 			},
 			ui : {
 				dash : {
