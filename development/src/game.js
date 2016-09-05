@@ -115,8 +115,8 @@ var Game = Class.create( {
 				toomuch		   : "Too much %stat%.",
 				notenough	   : "Not enough %stat%.",
 				notmoveable        : "This creature cannot be moved.",
-				passivecycle       : "Tap this to change between usable abilities.",
-				passiveunavailable : "Currently there are no usable abilities."
+				passivecycle       : "Switch between any usable abilities.",
+				passiveunavailable : "No usable abilities to switch to."
 			},
 			ui : {
 				dash : {
