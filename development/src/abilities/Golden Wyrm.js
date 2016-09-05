@@ -10,6 +10,8 @@ G.abilities[33] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onStepIn onStartPhase",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		return this.testRequirements();
@@ -20,7 +22,8 @@ G.abilities[33] =[
 		var creature = this.creature;
 		var targets = this.getTargets(this.creature.adjacentHexs(1));
 
-		if( this.atLeastOneTarget( this.creature.adjacentHexs(1),"enemy" ) ){
+		if (this.atLeastOneTarget(
+				this.creature.adjacentHexs(1), this._targetTeam)) {
 			this.end();
 			this.setUsed(false); //Infinite triggering
 		}else{
@@ -32,7 +35,7 @@ G.abilities[33] =[
 
 			var trg = this.target;
 
-			if(trg.team % 2 != creature.team % 2) { // If Foe
+			if (isTeam(creature, trg, this._targetTeam)) {
 
 				var optArg = {
 					effectFn : function(effect, crea) {
@@ -78,7 +81,7 @@ G.abilities[33] =[
 					trg.addEffect(effect);
 				}
 			}
-		})
+		});
 	},
 },
 
@@ -92,13 +95,15 @@ G.abilities[33] =[
 	damages : {
 		slash : 40,
 	},
+	_targetTeam: Team.enemy,
 
 	// 	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
 		//At least one target
-		if( !this.atLeastOneTarget(this.creature.adjacentHexs(1),"enemy") ) {
+		if (!this.atLeastOneTarget(
+				this.creature.adjacentHexs(1), this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -117,7 +122,7 @@ G.abilities[33] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : wyrm.id,
 			flipped : wyrm.flipped,
 			hexs : G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, map),
@@ -237,6 +242,7 @@ G.abilities[33] =[
 		slash : 10,
 		crush : 5,
 	},
+	_targetTeam: Team.enemy,
 
 	// 	require() :
 	require : function(){
@@ -244,7 +250,7 @@ G.abilities[33] =[
 
 		var map = G.grid.getHexMap(this.creature.x-2, this.creature.y-2, 0, false, frontnback2hex);
 		// At least one target
-		if( !this.atLeastOneTarget(map, "enemy") ) {
+		if (!this.atLeastOneTarget(map, this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -258,7 +264,7 @@ G.abilities[33] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = enemies
+			team: this._targetTeam,
 			id : wyrm.id,
 			flipped : wyrm.flipped,
 			hexs : G.grid.getHexMap(wyrm.x-2,wyrm.y-2,0,false,frontnback2hex),

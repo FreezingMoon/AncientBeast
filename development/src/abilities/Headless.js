@@ -9,7 +9,7 @@ G.abilities[39] =[
 {
 	trigger: "onStartPhase onEndPhase",
 
-	_targetTeam: "enemy",
+	_targetTeam: Team.enemy,
 	_getHexes: function() {
 		return this.creature.getHexMap(inlineback2hex);
 	},
@@ -87,6 +87,8 @@ G.abilities[39] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		var crea = this.creature;
@@ -94,7 +96,8 @@ G.abilities[39] =[
 		if( !this.testRequirements() ) return false;
 
 		//At least one target
-		if( !this.atLeastOneTarget(crea.getHexMap(frontnback2hex), "enemy") ) {
+		if (!this.atLeastOneTarget(
+				crea.getHexMap(frontnback2hex), this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -108,7 +111,7 @@ G.abilities[39] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : crea.id,
 			flipped : crea.flipped,
 			hexs : crea.getHexMap(frontnback2hex),
@@ -159,7 +162,7 @@ G.abilities[39] =[
 		}
 		return 6;
 	},
-	_targetTeam: "both",
+	_targetTeam: Team.both,
 	_getValidDirections: function() {
 		// Get all directions where there are no targets within min distance,
 		// and a target within max distance
@@ -361,7 +364,7 @@ G.abilities[39] =[
 
 		G.grid.queryChoice({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : "both",
+			team: Team.both,
 			requireCreature : 0,
 			id : crea.id,
 			flipped : crea.player.flipped,

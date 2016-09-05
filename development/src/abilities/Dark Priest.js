@@ -61,10 +61,14 @@ G.abilities[0] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(this.isUpgraded()?4:1), "enemy" ) ) {
+		if (!this.atLeastOneTarget(
+					this.creature.adjacentHexs(this.isUpgraded() ? 4 : 1),
+					this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -79,7 +83,7 @@ G.abilities[0] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
 			hexs : dpriest.adjacentHexs(this.isUpgraded()?4:1),
@@ -91,11 +95,11 @@ G.abilities[0] =[
 		var ability = this;
 		ability.end();
 
-		var damage = {shock: 12*target.size};
+		var damageAmount = {shock: 12*target.size};
 
 		var damage = new Damage(
 			ability.creature, // Attacker
-			damage, // Damage Type
+			damageAmount, // Damage Type
 			1, // Area
 			[]	// Effects
 		);
@@ -111,6 +115,8 @@ G.abilities[0] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if(!this.testRequirements()) return false;
@@ -118,7 +124,7 @@ G.abilities[0] =[
 		var range = this.creature.adjacentHexs(2);
 
 		// At least one target
-		if(!this.atLeastOneTarget(range, "enemy")) {
+		if (!this.atLeastOneTarget(range, this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -149,7 +155,7 @@ G.abilities[0] =[
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			optTest : function(hex) { return (hex.creature.size <= dpriest.player.plasma) ; },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,
 			hexs : dpriest.adjacentHexs(2),

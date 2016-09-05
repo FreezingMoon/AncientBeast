@@ -60,11 +60,14 @@ G.abilities[9] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex), "enemy" ) ) {
+		if (!this.atLeastOneTarget(
+				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -77,7 +80,7 @@ G.abilities[9] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			hexs : this.creature.getHexMap(frontnback2hex),
@@ -123,11 +126,14 @@ G.abilities[9] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"enemy" ) ){
+		if (!this.atLeastOneTarget(
+				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -140,7 +146,7 @@ G.abilities[9] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : 0, //Team, 0 = enemies
+			team: this._targetTeam,
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			hexs : this.creature.getHexMap(frontnback2hex),
@@ -194,6 +200,7 @@ G.abilities[9] =[
 	trigger : "onQuery",
 
 	directions : [1,1,1,1,1,1],
+	_targetTeam: Team.both,
 
 	_getDistance: function() {
 		// Upgraded ability has infinite range
@@ -207,7 +214,7 @@ G.abilities[9] =[
 		var x = (crea.player.flipped) ? crea.x-crea.size+1 : crea.x ;
 
 		if (!this.testDirection({
-				team: "both",
+				team: this._targetTeam,
 				x: x,
 				directions: this.directions,
 				distance: this._getDistance(),
@@ -227,7 +234,7 @@ G.abilities[9] =[
 
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); },
-			team : "both",
+			team: this._targetTeam,
 			id : crea.id,
 			requireCreature : true,
 			x : x,

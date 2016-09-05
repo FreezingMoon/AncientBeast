@@ -70,11 +70,14 @@ G.abilities[37] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "enemy" ) ) {
+		if (!this.atLeastOneTarget(
+				this.creature.adjacentHexs(1), this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -90,7 +93,7 @@ G.abilities[37] =[
 		G.grid.queryDirection({
 			fnOnConfirm: function(){ ability.animation.apply(ability, arguments); },
 			flipped: swine.player.flipped,
-			team: "enemy",
+			team: this._targetTeam,
 			id: swine.id,
 			requireCreature: true,
 			x: swine.x,
@@ -166,6 +169,8 @@ G.abilities[37] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
@@ -177,7 +182,7 @@ G.abilities[37] =[
 			G.grid.getHexMap(swine.x,swine.y - 2, 0, true, bellowrow).filterCreature(true,true, swine.id, swine.team),
 			G.grid.getHexMap(swine.x,swine.y, 0, true, straitrow).filterCreature(true, true, swine.id, swine.team),
 			G.grid.getHexMap(swine.x,swine.y, 0, true, bellowrow).filterCreature(true, true, swine.id, swine.team));
-		if( !this.atLeastOneTarget( hexs, "enemy" ) ) {
+		if (!this.atLeastOneTarget(hexs, this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -208,7 +213,7 @@ G.abilities[37] =[
 
 		G.grid.queryChoice( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
-			team : "enemy",
+			team: this._targetTeam,
 			requireCreature : 1,
 			id : swine.id,
 			flipped : swine.flipped,

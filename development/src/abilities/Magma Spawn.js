@@ -63,11 +63,14 @@ G.abilities[4] =[
 	// Track the last target
 	_lastTargetId: -1,
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback3hex), "enemy" ) ) {
+		if (!this.atLeastOneTarget(
+				this.creature.getHexMap(frontnback3hex), this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -81,7 +84,7 @@ G.abilities[4] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : magmaSpawn.id,
 			flipped : magmaSpawn.flipped,
 			hexs : this.creature.getHexMap(frontnback3hex),
@@ -141,7 +144,7 @@ G.abilities[4] =[
 
 		G.grid.queryChoice( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : "both",
+			team: Team.both,
 			requireCreature : 0,
 			id : magmaSpawn.id,
 			flipped : magmaSpawn.flipped,
@@ -187,6 +190,7 @@ G.abilities[4] =[
 	trigger : "onQuery",
 
 	directions : [0,1,0,0,1,0],
+	_targetTeam: Team.enemy,
 
 	require : function() {
 		if( !this.testRequirements() ) return false;
@@ -201,7 +205,7 @@ G.abilities[4] =[
 		var x = (magmaSpawn.player.flipped) ? magmaSpawn.x-magmaSpawn.size+1 : magmaSpawn.x ;
 
 		if (!this.testDirection({
-				team: "enemy", x: x, directions: this.directions
+				team: this._targetTeam, x: x, directions: this.directions
 			})) {
 			return false;
 		}
@@ -217,7 +221,7 @@ G.abilities[4] =[
 
 		G.grid.queryDirection( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : "enemy",
+			team: this._targetTeam,
 			id : magmaSpawn.id,
 			requireCreature : true,
 			x : x,
@@ -272,13 +276,20 @@ G.abilities[4] =[
 
 					// If upgraded and target killed, keep going in the same direction and
 					// find the next target to move into
+					var continueHurl = false;
 					if (ability.isUpgraded() && targetKilled) {
 						var nextPath = G.grid.getHexLine(
 							target.x, target.y, args.direction, false);
 						nextPath.filterCreature(true, true, magmaSpawn.id);
-						// Skip the first hex as it is the same hex as the target
-						hurl(nextPath);
-					} else {
+						var nextTarget = nextPath.last().creature;
+						// Continue only if there's a next enemy creature
+						if (nextTarget &&
+								isTeam(magmaSpawn, nextTarget, this._targetTeam)) {
+							continueHurl = true;
+							hurl(nextPath);
+						}
+					}
+					if (!continueHurl) {
 						var interval = setInterval(function() {
 							if(!G.freezedInput) {
 								clearInterval(interval);

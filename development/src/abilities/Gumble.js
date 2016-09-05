@@ -102,7 +102,7 @@ G.abilities[14] =[
 				G.grid.clearHexViewAlterations();
 			},
 			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
-			team: "both",
+			team: Team.both,
 			id: this.creature.id,
 			requireCreature: false,
 			choices: choices
@@ -126,7 +126,7 @@ G.abilities[14] =[
 		for (var i = 0; i < targets.length; i++) {
 			if (targets[i] === undefined) continue;
 			var damages = this.damages;
-			if (!this.creature.isAlly(targets[i].target.team)) {
+			if (isTeam(this.creature, targets[i].target, Team.enemy)) {
 				damages = enemyDamages;
 			}
 			var dmg = new Damage(this.creature, damages, targets[i].hexsHit, []);
@@ -233,12 +233,14 @@ G.abilities[14] =[
 	trigger : "onQuery",
 
 	directions : [1, 1, 1, 1, 1, 1],
+	_targetTeam: Team.enemy,
 
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if (!this.testDirection({ team: "enemy", directions : this.directions })){
+		if (!this.testDirection(
+				{ team: this._targetTeam, directions: this.directions })) {
 			return false;
 		}
 		return true;
@@ -252,7 +254,7 @@ G.abilities[14] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : crea.player.flipped,
-			team : "enemy",
+			team: this._targetTeam,
 			id : this.creature.id,
 			requireCreature : true,
 			x : crea.x,

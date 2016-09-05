@@ -42,11 +42,13 @@ G.abilities[5] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if (!this.atLeastOneTarget(this._getHexes(), "enemy")) {
+		if (!this.atLeastOneTarget(this._getHexes(), this._targetTeam)) {
 			return false;
 		}
 		return true;
@@ -60,7 +62,7 @@ G.abilities[5] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : creature.id,
 			flipped : creature.flipped,
 			hexs: this._getHexes()
@@ -109,9 +111,11 @@ G.abilities[5] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
-		if (!this.atLeastOneTarget(this._getHexes(), "enemy")) {
+		if (!this.atLeastOneTarget(this._getHexes(), this._targetTeam)) {
 			return false;
 		}
 		return this.testRequirements();
@@ -124,7 +128,7 @@ G.abilities[5] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
-			team: 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id: creature.id,
 			flipped: creature.flipped,
 			hexs: this._getHexes()
@@ -180,9 +184,11 @@ G.abilities[5] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.both,
+
 	require: function() {
 		if (!this.testRequirements()) return false;
-		if (!this.atLeastOneTarget(this._getHexes(), "both")) {
+		if (!this.atLeastOneTarget(this._getHexes(), this._targetTeam)) {
 			return false;
 		}
 		return true;
@@ -194,7 +200,7 @@ G.abilities[5] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
-			team: 3, // Team, 3 = both
+			team: this._targetTeam,
 			id: this.creature.id,
 			flipped: this.creature.flipped,
 			hexs: this._getHexes()
@@ -217,7 +223,7 @@ G.abilities[5] =[
 
 			// If upgraded and the target is an ally, protect it with an effect that
 			// reduces the damage to guarantee at least 1 health remaining
-			if (this.isUpgraded() && this.creature.isAlly(trg.team)) {
+			if (this.isUpgraded() && isTeam(this.creature, trg, Team.ally)) {
 				trg.addEffect(new Effect(
 					this.title,
 					this.creature,

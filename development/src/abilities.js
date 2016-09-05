@@ -294,21 +294,14 @@ var Ability = Class.create( {
 	/*	atLeastOneTarget(hexs,team)
 	*
 	*	hexs : Array : set of hex to test
-	*	team : String : enemy, ally, both
+	*	team: Team
 	*/
 	atLeastOneTarget : function(hexs, team) {
 		for (var i = 0; i < hexs.length; i++) {
 			if(hexs[i].creature instanceof Creature) {
 				var crea = hexs[i].creature;
-				switch(team) {
-					case "ally":
-						if( this.creature.isAlly(crea.team) ) return true;
-						break;
-					case "enemy":
-						if( !this.creature.isAlly(crea.team) ) return true;
-						break;
-					case "both":
-						return true;
+				if (isTeam(this.creature, crea, team)) {
+					return true;
 				}
 			}
 		}
@@ -443,7 +436,7 @@ var Ability = Class.create( {
 	 */
 	testDirections: function(o) {
 		var defaultOpt = {
-			team : "enemy",
+			team: Team.enemy,
 			id : this.creature.id,
 			flipped : this.creature.player.flipped,
 			x : this.creature.x,

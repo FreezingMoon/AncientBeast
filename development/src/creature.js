@@ -1215,17 +1215,6 @@ var Creature = Class.create( {
 		G.UI.updateQueueDisplay(); // Just in case
 	},
 
-
-	/*	isAlly(team)
-	*
-	*	team :		Integer :	id of the player
-	*
-	*	return :	Boolean :	True if ally and false for ennemies
-	*/
-	isAlly : function(team) {
-		return ( team%2 == this.team%2 );
-	},
-
 	isFatigued: function() {
 		return this.endurance === 0 && !this.isFragile();
 	},
@@ -1234,7 +1223,7 @@ var Creature = Class.create( {
 		return this.stats.endurance === 0;
 	},
 
-	/*	getHexMap(team)
+	/*	getHexMap()
 	*
 	*	shortcut convenience function to grid.getHexMap
 	*/

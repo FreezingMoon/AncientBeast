@@ -36,11 +36,14 @@ G.abilities[44] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex), "enemy" ) ) {
+		if (!this.atLeastOneTarget(
+				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -53,7 +56,7 @@ G.abilities[44] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			hexs : this.creature.getHexMap(frontnback2hex),
@@ -93,6 +96,8 @@ G.abilities[44] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.both,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
@@ -118,7 +123,7 @@ G.abilities[44] =[
 			return this.creature.size < 3 || ability.isUpgraded();
 		});
 
-		if( !this.atLeastOneTarget( hexs, "both" ) ) {
+		if (!this.atLeastOneTarget(hexs, this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -170,7 +175,7 @@ G.abilities[44] =[
 		G.grid.queryHexs({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
 			fnOnSelect : select, // fnOnSelect,
-			team : 3, // Both
+			team: this._targetTeam,
 			id : [crea.id, trg.id],
 			size : size,
 			flipped : crea.player.flipped,
@@ -243,11 +248,14 @@ G.abilities[44] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex),"enemy" ) ) {
+		if (!this.atLeastOneTarget(
+				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -260,7 +268,7 @@ G.abilities[44] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : this.creature.id,
 			flipped : this.creature.flipped,
 			hexs : this.creature.getHexMap(frontnback2hex),

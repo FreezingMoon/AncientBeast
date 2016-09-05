@@ -20,7 +20,7 @@ G.abilities[12] = [
 		return (
 			this.timesUsedThisTurn < this._getUsesPerTurn() &&
 			fromHex && fromHex.creature &&
-			fromHex.creature.isAlly(this.creature.team) &&
+			isTeam(fromHex.creature, this.creature, Team.enemy) &&
 			this._getTriggerHexId() >= 0 &&
 			this._getHopHex(fromHex) !== undefined);
 	},
@@ -96,11 +96,14 @@ G.abilities[12] = [
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.adjacentHexs(1), "enemy" ) ) {
+		if (!this.atLeastOneTarget(
+				this.creature.adjacentHexs(1), this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -115,7 +118,7 @@ G.abilities[12] = [
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : snowBunny.id,
 			flipped : snowBunny.player.flipped,
 			hexs : snowBunny.adjacentHexs(1),
@@ -155,12 +158,14 @@ G.abilities[12] = [
 	trigger : "onQuery",
 
 	directions : [1,1,1,1,1,1],
+	_targetTeam: Team.both,
 
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if (!this.testDirection({ team: "both", directions: this.directions })) {
+		if (!this.testDirection(
+				{ team: this._targetTeam, directions: this.directions })) {
 			return false;
 		}
 		return true;
@@ -174,7 +179,7 @@ G.abilities[12] = [
 		G.grid.queryDirection( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : snowBunny.player.flipped,
-			team : "both",
+			team: this._targetTeam,
 			id : snowBunny.id,
 			requireCreature : true,
 			x : snowBunny.x,
@@ -245,11 +250,14 @@ G.abilities[12] = [
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if (!this.testDirection({ team: "enemy", directions: this.directions })) {
+		if (!this.testDirection(
+				{ team: this._targetTeam, directions: this.directions })) {
 			return false;
 		}
 		return true;
@@ -264,7 +272,7 @@ G.abilities[12] = [
 		G.grid.queryDirection( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : snowBunny.player.flipped,
-			team : "enemy",
+			team: this._targetTeam,
 			id : snowBunny.id,
 			requireCreature : true,
 			x : snowBunny.x,

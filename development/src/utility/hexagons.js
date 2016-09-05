@@ -117,7 +117,7 @@ var HexGrid = Class.create( {
 	*	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexs.
 	*	fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
 	*	fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
-	*	team : 				String : 	"enemy", "ally", "same" or "both"
+	*	team : 				Team
 	*	requireCreature : 	Boolean : 	Disable a choice if it does not contain a creature matching the team argument
 	*	distance :			Integer :	if defined, maximum distance of query in hexes
 	*	minDistance :		Integer :	if defined, minimum distance of query, 1 = 1 hex gap required
@@ -125,7 +125,7 @@ var HexGrid = Class.create( {
 	*/
 	queryDirection: function(o) {
 		var defaultOpt = {
-			team : "enemy",
+			team: Team.enemy,
 			id : 0,
 			flipped : false,
 			x : 0,
@@ -219,8 +219,8 @@ var HexGrid = Class.create( {
 
 				});
 			},
-			fnOnCancel : function(hex,args) { G.activeCreature.queryMove() },
-			team : "enemy",
+			fnOnCancel: function(hex,args) { G.activeCreature.queryMove(); },
+			team: Team.enemy,
 			requireCreature : 1,
 			id : 0,
 			args : {},
@@ -244,21 +244,8 @@ var HexGrid = Class.create( {
 					if( o.choices[i][j].creature instanceof Creature && o.choices[i][j].creature!=o.id ) {
 						var creaSource = G.creatures[o.id];
 						var creaTarget = o.choices[i][j].creature;
-
-						var isAllie = ( creaSource.team%2 == creaTarget.team%2 );
-						switch(o.team) {
-							case "enemy":
-								if(creaSource.team % 2 != creaTarget.team % 2) validChoice = true;
-								break;
-							case "ally":
-								if(creaSource.team % 2 == creaTarget.team % 2) validChoice = true;
-								break;
-							case "same":
-								if(creaSource.team == creaTarget.team) validChoice = true;
-								break;
-							case "both":
-								validChoice = true;
-								break;
+						if (isTeam(creaSource, creaTarget, o.team)) {
+							validChoice = true;
 						}
 					}
 				}
@@ -271,7 +258,7 @@ var HexGrid = Class.create( {
 						o.hexsDashed.removePos(this);
 				});
 			}
-		};
+		}
 
 		this.queryHexs({
 			fnOnConfirm : function(hex, args) {
@@ -313,7 +300,7 @@ var HexGrid = Class.create( {
 	*	fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexs.
 	*	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
 	*	fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
-	*	team : 			Integer : 	0 = enemies, 1 = allies, 2 = same team, 3 = both
+	*	team : 			Team
 	*	id : 			Integer : 	Creature ID
 	* 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
 	*/
@@ -322,14 +309,14 @@ var HexGrid = Class.create( {
 		var defaultOpt = {
 			fnOnConfirm : function(crea, args) { G.activeCreature.queryMove(); },
 			fnOnSelect : function(crea, args) { crea.tracePosition({ overlayClass: "creature selected player" + crea.team }); },
-			fnOnCancel : function(hex, args) { G.activeCreature.queryMove() },
+			fnOnCancel : function(hex, args) { G.activeCreature.queryMove(); },
 			optTest : function(crea) { return true; },
 			args : {},
 			hexs : [],
 			hexsDashed : [],
 			flipped : false,
 			id : 0,
-			team : 0,
+			team: Team.enemy,
 		};
 
 		o = $j.extend(defaultOpt,o);
@@ -343,20 +330,8 @@ var HexGrid = Class.create( {
 				var creaSource = G.creatures[o.id];
 				var creaTarget = this.creature;
 
-				var isAllie = creaSource.isAlly( creaTarget.team );
-				switch(o.team) {
-					case 0: // enemies
-						if( !isAllie ) return true;
-						break;
-					case 1: // Allies
-						if( isAllie ) return true;
-						break;
-					case 2: // Same team
-						if( creaSource.team==creaTarget.team ) return true;
-						break;
-					case 3: // Both
-						return true;
-						break;
+				if (isTeam(creaSource, creaTarget, o.team)) {
+					return true;
 				}
 			}
 			return false;
@@ -408,7 +383,7 @@ var HexGrid = Class.create( {
 				G.activeCreature.faceHex(hex, undefined, true);
 				hex.overlayVisualState("creature selected player" + G.activeCreature.team);
 			},
-			fnOnCancel : function(hex,args) { G.activeCreature.queryMove() },
+			fnOnCancel : function(hex,args) { G.activeCreature.queryMove(); },
 			args : {},
 			hexs : [],
 			hexsDashed : [],

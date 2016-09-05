@@ -26,7 +26,8 @@ G.abilities[6] =[
 			if( G.creatures[i] instanceof Creature ) {
 				var crea = G.creatures[i];
 
-				if( !crea.isAlly( ability.creature.team ) && !crea.dead && crea.findEffect( "Snow Storm" ).length == 0 ) {
+				if (isTeam(crea, ability.creature, Team.enemy) && !crea.dead &&
+						crea.findEffect( "Snow Storm" ).length === 0) {
 					var effect = new Effect(
 						"Snow Storm", // Name
 						ability.creature, // Caster
@@ -64,12 +65,15 @@ G.abilities[6] =[
 	trigger : "onQuery",
 
 	distance : 1,
+	_targetTeam: Team.enemy,
 
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 		if (!this.testDirection({
-				team: "enemy", distance: this.distance, sourceCreature: this.creature
+				team: this._targetTeam,
+				distance: this.distance,
+				sourceCreature: this.creature
 			})) {
 			return false;
 		}
@@ -84,7 +88,7 @@ G.abilities[6] =[
 		G.grid.queryDirection( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : crea.player.flipped,
-			team : "enemy",
+			team: this._targetTeam,
 			id : this.creature.id,
 			requireCreature : true,
 			x : crea.x,
@@ -165,6 +169,8 @@ G.abilities[6] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function(){
 		if( !this.testRequirements() ) return false;
@@ -182,7 +188,7 @@ G.abilities[6] =[
 			G.grid.getHexMap(crea.x-1,crea.y,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
 			G.grid.getHexMap(crea.x-2,crea.y+2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team));
 
-		if( !this.atLeastOneTarget( hexs, "ennemy" ) ) {
+		if (!this.atLeastOneTarget(hexs, this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -213,7 +219,7 @@ G.abilities[6] =[
 
 		G.grid.queryChoice({
 			fnOnConfirm : function(){ ability.animation.apply(ability,arguments); }, //fnOnConfirm
-			team : "enemy",
+			team: this._targetTeam,
 			requireCreature : 1,
 			id : crea.id,
 			flipped : crea.flipped,
@@ -257,12 +263,14 @@ G.abilities[6] =[
 	trigger : "onQuery",
 
 	directions : [0,1,0,0,1,0],
+	_targetTeam: Team.enemy,
 
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 		if (!this.testDirection({
-			team: "enemy", directions: this.directions, sourceCreature: this.creature
+				team: this._targetTeam, directions: this.directions,
+				sourceCreature: this.creature
 			})) {
 			return false;
 		}
@@ -292,7 +300,7 @@ G.abilities[6] =[
 			},
 			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
 			flipped : crea.player.flipped,
-			team : "enemy",
+			team: this._targetTeam,
 			id : this.creature.id,
 			requireCreature : true,
 			x : crea.x,

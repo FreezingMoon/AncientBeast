@@ -37,12 +37,14 @@ G.abilities[7] =[
 	trigger : "onQuery",
 
 	distance : 3,
+	_targetTeam: Team.enemy,
 
 	// 	require() :
 	require : function() {
 		if(!this.testRequirements()) return false;
 		if (!this.testDirection({
-				team: "enemy", distance: this.distance, sourceCreature: this.creature
+				team: this._targetTeam, distance: this.distance,
+				sourceCreature: this.creature
 			})) {
 			return false;
 		}
@@ -59,7 +61,7 @@ G.abilities[7] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			flipped : crea.player.flipped,
-			team: "enemy", // enemies
+			team: this._targetTeam,
 			id : this.creature.id,
 			requireCreature : true,
 			x : crea.x,
@@ -167,7 +169,7 @@ G.abilities[7] =[
 
 					var trg = this.target;
 
-					if(trg.team%2 != ability.creature.team%2) { // If Foe
+					if (isTeam(ability.creature, trg, Team.enemy)) {
 
 						var optArg = { alterations : { burn : -5 } };
 

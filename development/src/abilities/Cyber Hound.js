@@ -27,7 +27,9 @@ G.abilities[31] =[
 		if (hexesInFront.length < 1) return;
 		var target = hexesInFront[0].creature;
 		if (!target) return;
-		if (this.creature.isAlly(target.team)) return;
+		if (!isTeam(this.creature, target, Team.enemy)) {
+			return;
+		}
 
 		this.end();
 
@@ -51,11 +53,14 @@ G.abilities[31] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	// 	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( this.creature.getHexMap(frontnback2hex), "enemy" ) ) {
+		if (!this.atLeastOneTarget(
+				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -70,7 +75,7 @@ G.abilities[31] =[
 
 		G.grid.queryCreature({
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : crea.id,
 			flipped : crea.player.flipped,
 			hexs : crea.getHexMap(frontnback2hex)
@@ -144,7 +149,7 @@ G.abilities[31] =[
 		G.grid.queryChoice({
 			fnOnCancel : function() { G.activeCreature.queryMove(); G.grid.clearHexViewAlterations(); },
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : "both",
+			team: Team.both,
 			id : crea.id,
 			requireCreature : false,
 			choices : choices
@@ -233,7 +238,7 @@ G.abilities[31] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); }, // fnOnConfirm
-			team : 0, // Team, 0 = enemies
+			team: Team.enemy,
 			id : crea.id,
 			flipped : crea.player.flipped,
 			hexs : hexs

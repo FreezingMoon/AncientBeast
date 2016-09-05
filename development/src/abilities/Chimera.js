@@ -36,11 +36,16 @@ G.abilities[45] =[
 	//	Type : Can be "onQuery","onStartPhase","onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.enemy,
+
 	//	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if( !this.atLeastOneTarget( G.grid.getHexMap(this.creature.x-3,this.creature.y-2,0,false,frontnback3hex),"enemy" ) ){
+		if (!this.atLeastOneTarget(
+					G.grid.getHexMap(
+						this.creature.x - 3, this.creature.y - 2, 0, false, frontnback3hex),
+					this._targetTeam)) {
 			this.message = G.msg.abilities.notarget;
 			return false;
 		}
@@ -55,7 +60,7 @@ G.abilities[45] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			team : 0, // Team, 0 = enemies
+			team: this._targetTeam,
 			id : chimera.id,
 			flipped : chimera.flipped,
 			hexs : G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, frontnback3hex),
@@ -88,11 +93,14 @@ G.abilities[45] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
+	_targetTeam: Team.both,
+
 	//	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if (!this.testDirection({ team: "both", sourceCreature: this.creature })) {
+		if (!this.testDirection(
+				{ team: this._targetTeam, sourceCreature: this.creature })) {
 			return false;
 		}
 		return true;
@@ -106,7 +114,7 @@ G.abilities[45] =[
 		G.grid.queryDirection({
 			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
 			flipped : chimera.player.flipped,
-			team : "both",
+			team: this._targetTeam,
 			id : chimera.id,
 			requireCreature : true,
 			x : chimera.x,
@@ -167,7 +175,7 @@ G.abilities[45] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	_targetTeam: "both",
+	_targetTeam: Team.both,
 
 	_getDirections: function() {
 		return this.testDirections({
