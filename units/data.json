@@ -939,7 +939,7 @@
 		"type": "G1",
 		"set": "Alpha",
 		"stats": {
-			"health": 65,
+			"health": 45,
 			"regrowth": 10,
 			"endurance": 20,
 			"energy": 70,
@@ -1015,7 +1015,7 @@
 		"type": "S1",
 		"set": "Alpha",
 		"stats": {
-			"health": 70,
+			"health": 55,
 			"regrowth": 4,
 			"endurance": 20,
 			"energy": 75,
@@ -1106,7 +1106,7 @@
 		"type": "G2",
 		"set": "Alpha",
 		"stats": {
-			"health": 95,
+			"health": 75,
 			"regrowth": 5,
 			"endurance": 60,
 			"energy": 70,
@@ -1137,10 +1137,10 @@
 			{
 				"title": "Rabid Nip",
 				"desc": "Sink poisonous teeth into nearby foe.",
-				"info": "10 pierce + 5 poison damage on attack",
+				"info": "10 pierce + 6 poison damage on attack",
 				"damages": {
 					"pierce": 10,
-					"poison": 5
+					"poison": 6
 				}
 			},
 			{
@@ -1154,9 +1154,9 @@
 			{
 				"title": "Goo Sneeze",
 				"desc": "Expels contagious toxin on distant foe, spreading to others that get too close.",
-				"info": "10 poison damage, can spread around",
+				"info": "15 poison damage, can spread around",
 				"damages": {
-					"poison": 10
+					"poison": 15
 				}
 			}
 	]
@@ -1170,7 +1170,7 @@
 		"type": "P1",
 		"set": "Alpha",
 		"stats": {
-			"health": 75,
+			"health": 70,
 			"regrowth": 5,
 			"endurance": 50,
 			"energy": 70,
@@ -1260,7 +1260,7 @@
 		"type": "E1",
 		"set": "Alpha",
 		"stats": {
-			"health": 80,
+			"health": 60,
 			"regrowth": 1,
 			"endurance": 10,
 			"energy": 60,
@@ -1690,7 +1690,7 @@
 		"type": "L1",
 		"set": "Alpha",
 		"stats": {
-			"health": 85,
+			"health": 65,
 			"regrowth": 1,
 			"endurance": 15,
 			"energy": 60,
@@ -2035,7 +2035,7 @@
 		"type": "P2",
 		"set": "Alpha",
 		"stats": {
-			"health": 90,
+			"health": 95,
 			"regrowth": 3,
 			"endurance": 30,
 			"energy": 35,
@@ -2725,7 +2725,7 @@
 		"type": "A1",
 		"set": "Alpha",
 		"stats": {
-			"health": 103,
+			"health": 90,
 			"regrowth": 3,
 			"endurance": 45,
 			"energy": 75,
@@ -2971,10 +2971,10 @@
 		"type": "W1",
 		"set": "Alpha",
 		"stats": {
-			"health": 96,
+			"health": 80,
 			"regrowth": 3,
 			"endurance": 30,
-			"energy": 123,
+			"energy": 80,
 			"meditation": 33,
 			"initiative": 120,
 			"offense": 6,
@@ -3259,7 +3259,7 @@
 		"type": "E2",
 		"set": "Alpha",
 		"stats": {
-			"health": 92,
+			"health": 85,
 			"regrowth": 2,
 			"endurance": 30,
 			"energy": 75,
