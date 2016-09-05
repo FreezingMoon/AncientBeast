@@ -190,7 +190,8 @@ G.abilities[12] = [
 		ability.end();
 
 		var target = path.last().creature;
-		var dist = 5 - target.size;
+		// No blow size penalty if upgraded and target is frozen
+		var dist = 5 - (this.isUpgraded() && target.stats.frozen ? 0 : target.size);
 		var dir = [];
 		switch( args.direction ) {
 			case 0: // Upright
