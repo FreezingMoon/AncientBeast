@@ -1180,8 +1180,8 @@
 			"defense": 6,
 			"movement": 3,
 			"pierce": 8,
-			"slash": 8,
-			"crush": 12,
+			"slash": 3,
+			"crush": 8,
 			"shock": 3,
 			"burn": 2,
 			"frost": 3,
@@ -1207,7 +1207,7 @@
 			{
 				"title": "Gooey Body",
 				"desc": "Receives bonus pierce, slash and crush masteries based on remaining health.",
-				"info": "1 bonus point each for every 10 health.",
+				"info": "3 bonus points each for every 7 health.",
 				"upgrade" : "Health threshold becomes 5."
             },
 			{

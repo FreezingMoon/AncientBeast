@@ -21,8 +21,8 @@ G.abilities[14] =[
 		}
 		// Attach a permanent effect that gives Gumble stat buffs
 		// Bonus points to pierce, slash and crush based on remaining health
-		var healthBonusDivisor = this.isUpgraded() ? 5 : 10;
-		var bonus = Math.floor(this.creature.health / healthBonusDivisor);
+		var healthBonusDivisor = this.isUpgraded() ? 5 : 7;
+		var bonus = Math.floor(this.creature.health / healthBonusDivisor * 3);
 		// Log whenever the bonus applied changes
 		var noLog = bonus == this._lastBonus;
 		this._lastBonus = bonus;
@@ -33,10 +33,10 @@ G.abilities[14] =[
 			alterations[key] = bonus;
 		}
 		this.creature.replaceEffect(new Effect(
-			"Gooey Body",		// name
+			"Gooey Body",	// name
 			this.creature,	// Caster
 			this.creature,	// Target
-			"",							// Trigger
+			"",				// Trigger
 			{
 				alterations: alterations,
 				deleteTrigger: "",
@@ -78,17 +78,17 @@ G.abilities[14] =[
 		var dy = -1;
 		var choices = [
 			G.grid.getHexMap(
-				this.creature.x+1+dx, this.creature.y-2+dy, 0, false, area),	// up-right
+				this.creature.x+1+dx, this.creature.y-2+dy, 0, false, area),// up-right
 			G.grid.getHexMap(
 				this.creature.x+2+dx, this.creature.y+dy, 0, false, area),	// front
 			G.grid.getHexMap(
-				this.creature.x+1+dx, this.creature.y+2+dy, 0, false, area),	// down-right
+				this.creature.x+1+dx, this.creature.y+2+dy, 0, false, area),// down-right
 			G.grid.getHexMap(
-				this.creature.x-1+dx, this.creature.y+2+dy, 0, false, area),	// down-left
+				this.creature.x-1+dx, this.creature.y+2+dy, 0, false, area),// down-left
 			G.grid.getHexMap(
 				this.creature.x-2+dx, this.creature.y+dy, 0, false, area),	// back
 			G.grid.getHexMap(
-				this.creature.x-1+dx, this.creature.y-2+dy, 0, false, area),	// up-left
+				this.creature.x-1+dx, this.creature.y-2+dy, 0, false, area),// up-left
 		];
 		// Reorder choices based on number of hexes
 		// This ensures that if a choice contains overlapping hexes only, that
