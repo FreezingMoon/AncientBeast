@@ -119,9 +119,18 @@ G.abilities[12] = [
 		var ability = this;
 		ability.end();
 
+		var damages = ability.damages;
+		// If upgraded, do pure damage against frozen targets
+		if (this.isUpgraded() && target.stats.frozen) {
+			damages = { pure: 0 };
+			for (var type in ability.damages) {
+				damages.pure += ability.damages[type];
+			}
+		}
+
 		var damage = new Damage(
 			ability.creature, // Attacker
-			ability.damages, // Damage Type
+			damages, // Damage Type
 			1, // Area
 			[]	// Effects
 		);
