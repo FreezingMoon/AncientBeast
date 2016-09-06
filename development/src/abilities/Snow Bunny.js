@@ -21,7 +21,7 @@ G.abilities[12] = [
 			this.timesUsedThisTurn < this._getUsesPerTurn() &&
 			fromHex && fromHex.creature &&
 			isTeam(fromHex.creature, this.creature, Team.enemy) &&
-			this._getTriggerHexId() >= 0 &&
+			this._getTriggerHexId(fromHex) >= 0 &&
 			this._getHopHex(fromHex) !== undefined);
 	},
 

@@ -888,6 +888,7 @@ var Creature = Class.create( {
 			// Note: update health after adding effects as some effects may affect
 			// health display
 			this.updateHealth();
+			G.UI.updateFatigue();
 
 			// Trigger
 			if(!ignoreRetaliation) G.triggersFn.onDamage(this, damage);

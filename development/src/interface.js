@@ -953,7 +953,7 @@ var UI = Class.create( {
 							var b = ( G.UI.selectedAbility == -1 ) ? 4 :  G.UI.selectedAbility ;
 							for (var i = (b-1); i > 0; i--)
 							{
-							if( G.activeCreature.abilities[i].require() && !G.activeCreature.abilities[i].used ) 
+							if( G.activeCreature.abilities[i].require() && !G.activeCreature.abilities[i].used )
 								{
 								G.UI.abilitiesButtons[i].triggerClick();
 								}
@@ -1042,18 +1042,18 @@ var UI = Class.create( {
 			if(i===0) // Tooltip for passive ability to display if there is any usable abilities or not
 				{
 					var b = ( G.UI.selectedAbility == -1 ) ? 4 :  G.UI.selectedAbility ; // Checking usable abilities
-					for (var j = (b-1); j > 0; j--) 
+					for (var j = (b-1); j > 0; j--)
 					{
-						if( G.activeCreature.abilities[j].require() && !G.activeCreature.abilities[j].used ) 
+						if( G.activeCreature.abilities[j].require() && !G.activeCreature.abilities[j].used )
 						{
 							ab.message =G.msg.abilities.passivecycle; // Message if there is any usable abilities
 							break;
 						}
-						else 
+						else
 						{
 							ab.message =G.msg.abilities.passiveunavailable; // Message if there is no usable abilities
 						}
-					}	
+					}
 				}
 
 			// Charge
@@ -1383,9 +1383,12 @@ var UI = Class.create( {
 
 		G.creatures.each(function() {
 			if (this instanceof Creature) {
+				var textElement = $j('#queuewrapper .vignette[creatureid="' + this.id + '"]').children(".stats");
+				textElement.css({background: 'black'});
 				var text;
 				if (this.stats.frozen) {
 					text = "Frozen";
+					textElement.css({background: 'darkturquoise'});
 				} else if (this.materializationSickness) {
 					text = "Sickened";
 				} else if (this.protectedFromFatigue || this.stats.fatigueImmunity) {
@@ -1406,7 +1409,7 @@ var UI = Class.create( {
 					this.abilities[0].require(); // Update protectedFromFatigue
 				}
 
-				$j('#queuewrapper .vignette[creatureid="' + this.id + '"]').children(".stats").text(text);
+				textElement.text(text);
 				this.fatigueText = text;
 			}
 		});
