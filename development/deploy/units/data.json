@@ -1523,7 +1523,7 @@
 			"initiative": 80,
 			"offense": 17,
 			"defense": 4,
-			"movement": 2,
+			"movement": 1,
 			"pierce": 6,
 			"slash": 6,
 			"crush": 6,
@@ -2062,7 +2062,7 @@
 				"title": "Evolved Organs",
 				"desc": "Recovers 30% of health lost only from the last hit taken when the turn starts.",
 				"info": "This ability also works when fatigued.",
-				"upgrade" : "Up to 60% health recovered."
+				"upgrade" : "Up to 50% health recovered."
             },
 			{
 				"title": "Squid Head",
@@ -3009,7 +3009,7 @@
 				"title": "Tentacle Bush",
 				"desc": "Grabs hold of all the melee attackers, making them unable to move that turn.",
 				"info": "Becomes unmovable by most abilities.",
-				"upgrade" : "Grabs will do 5 crush damage."
+				"upgrade" : "+5 energy to foe ability cost."
 		},
 			{
 				"title": "Hammer Time",
@@ -3026,9 +3026,9 @@
 		},
 			{
 				"title": "War Horn",
-				"desc": "Charges towards an inline foe, hitting it while also pushing it as much possible.",
+				"desc": "Charges towards an inline foe, doing a bit of extra damage based on distance.",
 				"info": "11 pierce damage + 1 bonus / hexagon.",
-				"upgrade" : "Does 5 bonus pierce damage.",
+				"upgrade" : "Can also push the target foe.",
 				"damages": {
 					"pierce": 11
 				},
@@ -3038,7 +3038,7 @@
 		},
 			{
 				"title": "Fishing Hook",
-				"desc": "Pierces a nearby unit while swapping places if it is small or medium sized.",
+				"desc": "Throws over a nearby foe, swapping places if it is small or medium sized.",
 				"info": "12 pierce + 12 crush damage & swap.",
 				"upgrade" : "Can also swap large units.",
 				"damages": {
