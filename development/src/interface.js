@@ -876,11 +876,11 @@ var UI = Class.create( {
 		}else{
 
 			// Test if valid creature
-			if( $j.inArray( b[0]+(b[1]-1), G.players[this.selectedPlayer].availableCreatures)>0 ) {
+			if( $j.inArray( b[0] + (b[1]-1), G.players[this.selectedPlayer].availableCreatures)>0 ) {
 				var valid = true;
 				for (var i = 0; i < G.players[ this.selectedPlayer ].creatures.length; i++) {
 					var crea = G.players[ this.selectedPlayer ].creatures[i];
-					if( crea instanceof Creature && crea.type == b[0]+(b[1]-1) && crea.dead ) {
+					if( crea instanceof Creature && crea.type == b[0] + (b[1]-1) && crea.dead ) {
 						var valid = false;
 					}
 				}
@@ -947,8 +947,8 @@ var UI = Class.create( {
 						if(G.UI.dashopen) return false;
 						G.grid.clearHexViewAlterations();
 						var ab = G.activeCreature.abilities[this.abilityId];
-					// Tap the passive ability to cycle between usable abilities
-                                        if(this.abilityId==0)
+					// Passive ability icon can cycle between usable abilities
+                                        if(this.abilityId == 0)
                                                 {
 							var b = ( G.UI.selectedAbility == -1 ) ? 4 :  G.UI.selectedAbility ;
 							for (var i = (b-1); i > 0; i--)
@@ -1090,7 +1090,7 @@ var UI = Class.create( {
 		$j("#playerinfo .units span").text(G.activeCreature.player.getNbrOfCreatures()+" / "+G.creaLimitNbr); // TODO: Needs to update instantly!
 	},
 
-	showStatModifiers: function(stat) {
+	showStatModifiers: function(stat) { // Broken and deprecated
 
 		if( G.UI.selectedCreatureObj instanceof Creature ) {
 			var buffDebuff = G.UI.selectedCreatureObj.getBuffDebuff(stat);
@@ -1152,7 +1152,7 @@ var UI = Class.create( {
 				remainingTime = Math.max(Math.round(remainingTime / 1000), 0);
 				var minutes = Math.floor(remainingTime / 60);
 				var seconds = remainingTime - minutes * 60;
-				$j(".p"+this.id+" .timepool").text(zfill(minutes, 2)+":"+zfill(seconds, 2));
+				$j(".p" + this.id + " .timepool").text(zfill(minutes, 2) + ":" + zfill(seconds, 2));
 			});
 
 			// Time Bar
@@ -1178,7 +1178,7 @@ var UI = Class.create( {
 		var transition = "linear";
 
 		// Set transition duration for stat indicators
-		this.$queue.find('.vignette .stats').css( { transition: "height "+queueAnimSpeed+"ms" } );
+		this.$queue.find('.vignette .stats').css( { transition: "height " + queueAnimSpeed + "ms" } );
 
 		// Updating
 		var $vignettes = this.$queue.find('.vignette[verified!="-1"]').attr("verified", 0);
@@ -1231,7 +1231,7 @@ var UI = Class.create( {
 			$vignettes.each(function() {
 				var index = $j(this).index('#queuewrapper .vignette[verified != "-1"]');
 				var offset = (index-(!!index)) * 80 + (!!index) * 100;
-				$j(this).css( { "z-index": 0-index } ).transition( { x:offset, queue: false }, queueAnimSpeed, transition);
+				$j(this).css( { "z-index": 0-index } ).transition( { x: offset, queue: false }, queueAnimSpeed, transition);
 			});
 		};
 
@@ -1406,7 +1406,7 @@ var UI = Class.create( {
 					this.abilities[0].require(); // Update protectedFromFatigue
 				}
 
-				$j('#queuewrapper .vignette[creatureid="'+this.id+'"]').children(".stats").text(text);
+				$j('#queuewrapper .vignette[creatureid="' + this.id + '"]').children(".stats").text(text);
 				this.fatigueText = text;
 			}
 		});
