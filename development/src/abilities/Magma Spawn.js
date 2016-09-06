@@ -284,7 +284,7 @@ G.abilities[4] =[
 						var nextTarget = nextPath.last().creature;
 						// Continue only if there's a next enemy creature
 						if (nextTarget &&
-								isTeam(magmaSpawn, nextTarget, this._targetTeam)) {
+								isTeam(magmaSpawn, nextTarget, ability._targetTeam)) {
 							continueHurl = true;
 							hurl(nextPath);
 						}
