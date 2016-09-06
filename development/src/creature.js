@@ -151,7 +151,10 @@ var Creature = Class.create( {
 			this.player.flipped ? 45 : 45 + 90 * (this.size-1),
 			63,
 			this.health,
-			{ font: "bold 15pt Play", fill: "#ffffff", align: "center" });
+			{
+				font: "bold 15pt Play", fill: "#fff", align: "center", stroke: "#000",
+				strokeThickness: 6
+			});
 		this.healthIndicatorText.anchor.setTo(0.5, 0.5);
 		this.healthIndicatorGroup.add(this.healthIndicatorText);
 		// Hide It
