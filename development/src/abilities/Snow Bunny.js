@@ -33,7 +33,9 @@ G.abilities[12] = [
 		this.creature.moveTo(
 			this._getHopHex(destHex),
 			{
-				callback: function() {	G.activeCreature.queryMove(); },
+				callbackStepIn: function() {
+					G.activeCreature.queryMove();
+				},
 				ignorePath: true,
 				ignoreMovementPoint: true
 			}
