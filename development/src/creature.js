@@ -887,6 +887,11 @@ var Creature = Class.create( {
 				creature.addEffect(this);
 			});
 
+			// Unfreeze if taking non-zero damage
+			if (dmgAmount > 0) {
+				this.stats.frozen = false;
+			}
+
 			// Health display Update
 			// Note: update health after adding effects as some effects may affect
 			// health display

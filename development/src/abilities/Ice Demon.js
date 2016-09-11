@@ -340,9 +340,10 @@ G.abilities[6] =[
 			undefined, // Target
 			"", // Trigger
 			{
-				alterations: { frozen: true },
-				turnLifetime: 1,
-				deleteTrigger : "onEndPhase"
+				effectFn: function(effect) {
+					effect.target.stats.frozen = true;
+					this.deleteEffect();
+				}
 			}
 		);
 

@@ -296,30 +296,20 @@ G.abilities[12] = [
 		var dmg = $j.extend( {}, ability.damages);
 		dmg.crush += 3*dist; // Add distance to crush damage
 
-		var effects = [];
-		// If upgraded and melee range, freeze the target
-		if (this.isUpgraded() && dist === 0) {
-			effects.push(new Effect(
-				this.title,
-				this.creature,
-				target,
-				"",
-				{
-					alterations: { frozen: true },
-					turnLifetime: 1,
-					deleteTrigger : "onEndPhase"
-				}
-			));
-		}
-
 		var damage = new Damage(
 			ability.creature, // Attacker
 			dmg, // Damage Type
 			1, // Area
-			effects	// Effects
+			[]
 		);
+		var damageResult = target.takeDamage(damage);
 
-		target.takeDamage(damage);
+		// If upgraded and melee range, freeze the target
+		if (this.isUpgraded() && damageResult.damageObj.melee) {
+			target.stats.frozen = true;
+			target.updateHealth();
+			G.UI.updateFatigue();
+		}
 	}
 }
 
