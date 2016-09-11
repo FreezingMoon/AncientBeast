@@ -91,21 +91,21 @@ G.abilities[4] =[
 		});
 	},
 
-
-	//	activate() :
-	activate : function(target, args) {
+	activate: function(target, args) {
+		var i;
 		var ability = this;
 		ability.end();
 
-		// Deal burn damage based on number of times used
-		var d = {
-			burn: this.damages.burn * (this.timesUsed + 1), crush: this.damages.crush
-		};
-		// If upgraded, extra damage if hitting the same target
-		if (this.isUpgraded() && target.id === this._lastTargetId) {
-			d.burn *= 2;
+		var d = { burn: this.damages.burn, crush: this.damages.crush };
+		// Deal extra burn damage based on number of stacks
+		var stacksExisting = 0;
+		for (i = 0; i < target.effects.length; i++) {
+			if (target.effects[i].name === this.title &&
+					target.effects[i].owner === this.creature) {
+				stacksExisting++;
+			}
 		}
-		this._lastTargetId = target.id;
+		d.burn += stacksExisting * this.damages.burn;
 
 		var damage = new Damage(
 			ability.creature, // Attacker
@@ -113,8 +113,28 @@ G.abilities[4] =[
 			1, // Area
 			[]	// Effects
 		);
-
 		target.takeDamage(damage);
+
+		// Add attack stacks
+		var stacksToAdd = 1;
+		// If upgraded, extra stacks if hitting the same target
+		if (this.isUpgraded() && target.id === this._lastTargetId) {
+			stacksToAdd = 2;
+		}
+		this._lastTargetId = target.id;
+
+		for (i = 0; i < stacksToAdd; i++) {
+			target.addEffect(new Effect(
+				this.title,
+				this.creature,
+				target,
+				"",
+				{
+					deleteTrigger: "",
+					stackable: true
+				}
+			));
+		}
 	},
 },
 
