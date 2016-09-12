@@ -345,17 +345,17 @@ var Creature = Class.create( {
 		this.abilities.each(function() { abilityAvailable = abilityAvailable || !this.used; } );
 
 		if( this.remainingMove>0 && abilityAvailable ) {
-			this.delay();
+			this.delay(G.activeCreature === this);
 			this.deactivate(true);
 		}
 	},
 
-	delay: function() {
+	delay: function(excludeActiveCreature) {
 		G.queue.delay(this);
 		this.delayable = false;
 		this.delayed = true;
 		this.hint("Delayed", "msg_effects");
-		G.updateQueueDisplay(true);
+		G.updateQueueDisplay(excludeActiveCreature);
 	},
 
 	/*	queryMove()

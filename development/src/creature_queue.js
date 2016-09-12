@@ -26,7 +26,13 @@ var CreatureQueue = Class.create({
 		this.nextQueue.removePos(creature);
 	},
 	nextRound: function() {
+		// Copy next queue into current queue
 		this.queue = this.nextQueue.slice(0);
+		// Sort next queue by initiative (current queue may be reordered)
+		this.nextQueue = this.nextQueue.sort(function(a, b) {
+			// Sort by initiative descending
+			return b.getInitiative() - a.getInitiative();
+		});
 	},
 	isCurrentEmpty: function() {
 		return this.queue.length === 0;

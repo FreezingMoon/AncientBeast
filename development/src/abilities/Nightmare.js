@@ -186,9 +186,7 @@ G.abilities[9] =[
 
 		if (result.kill || result.damageObj.status !== "") return;
 
-		if( target.delayable ){
-			target.delay();
-		}
+		target.delay();
 	},
 },
 
