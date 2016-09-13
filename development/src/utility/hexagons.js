@@ -51,14 +51,16 @@ var HexGrid = Class.create( {
 		this.display.y = 380;
 
 		this.gridGroup 			= G.Phaser.add.group(this.display, "gridGrp");
-		this.gridGroup.scale.set(1, .75);
+		this.gridGroup.scale.set(1, 0.75);
 
 		this.trapGroup			= G.Phaser.add.group(this.gridGroup, "trapGrp");
-		this.trapGroup.x = -10;
 		this.dispHexsGroup		= G.Phaser.add.group(this.gridGroup, "dispHexsGrp");
 		this.overHexsGroup		= G.Phaser.add.group(this.gridGroup, "overHexsGrp");
 		this.dropGroup 			= G.Phaser.add.group(this.display, "dropGrp");
 		this.creatureGroup 		= G.Phaser.add.group(this.display, "creaturesGrp");
+		// Parts of traps displayed over creatures
+		this.trapOverGroup 		= G.Phaser.add.group(this.display, "trapOverGrp");
+		this.trapOverGroup.scale.set(1, 0.75);
 		this.inptHexsGroup		= G.Phaser.add.group(this.gridGroup, "inptHexsGrp");
 
 		// Populate grid
@@ -1108,8 +1110,13 @@ var Hex = Class.create({
 		this.displayClasses = "";
 		this.overlayClasses = "";
 
-		this.displayPos = {y:y*78};
-		this.displayPos.x = (y%2 == 0) ? 46+x*90 : x*90;
+		// Horizontal hex grid, width is distance between opposite sides
+		this.width = 90;
+		this.height = this.width / Math.sqrt(3) * 2 * 0.75;
+		this.displayPos = {
+			x: ((y%2 === 0) ? x + 0.5 : x) * this.width,
+			y: y * this.height
+		};
 
 		this.originalDisplayPos = $j.extend({}, this.displayPos);
 
@@ -1496,8 +1503,20 @@ var Hex = Class.create({
 
 	},
 
-	//---------TRAP FUNCTION---------//
-
+	/**
+	 * Add a trap to a hex.
+	 * @param {string} type - name of sprite to use; see Phaser.load.image usage
+	 * @param {Effect[]} effects - effects to activate when trap triggered
+	 * @param {Player} owner - owner of trap
+	 * @param {Object} opt - optional arguments merged into the Trap object
+	 * Examples:
+	 * - turnLifetime
+	 * - fullTurnLifetime
+	 * - ownerCreature
+	 * - destroyOnActivate
+	 * - typeOver
+	 * @returns {Trap}
+	 */
 	createTrap: function(type, effects, owner, opt) {
 		if(!!this.trap) this.destroyTrap();
 		this.trap = new Trap(this.x,this.y,type,effects,owner,opt);
@@ -1561,7 +1580,9 @@ var Trap = Class.create({
 			turnLifetime : 0,
 			fullTurnLifetime : false,
 			ownerCreature : undefined, // Needed for fullTurnLifetime
-			destroyOnActivate: false
+			destroyOnActivate: false,
+			typeOver: undefined,
+			destroyAnimation: undefined
 		};
 
 		$j.extend(this,o,opt);
@@ -1575,18 +1596,42 @@ var Trap = Class.create({
 			this.effects[i].trap = this;
 		};
 
-		this.display = G.grid.trapGroup.create(this.hex.originalDisplayPos.x, this.hex.originalDisplayPos.y, 'trap_'+type);
-
+		var spriteName = 'trap_' + type;
+		var pos = this.hex.originalDisplayPos;
+		this.display = G.grid.trapGroup.create(
+			pos.x + this.hex.width / 2, pos.y + 60, spriteName);
+		this.display.anchor.setTo(0.5);
+		if (this.typeOver) {
+			this.displayOver = G.grid.trapOverGroup.create(
+				pos.x + this.hex.width / 2, pos.y + 60, spriteName);
+			this.displayOver.anchor.setTo(0.5);
+			this.displayOver.scale.x *= -1;
+		}
 	},
 
 	destroy: function() {
-		this.display.destroy();
+		var tweenDuration = 500;
+		var destroySprite = function(sprite, animation) {
+			if (animation === 'shrinkDown') {
+				sprite.anchor.y = 1;
+				sprite.y += sprite.height / 2;
+				var tween = G.Phaser.add.tween(sprite.scale)
+				.to({y: 0}, tweenDuration, Phaser.Easing.Linear.None)
+				.start();
+				tween.onComplete.add(function() { this.destroy(); }, sprite);
+			} else {
+				sprite.destroy();
+			}
+		};
+		destroySprite(this.display, this.destroyAnimation);
+		if (this.displayOver) {
+			destroySprite(this.displayOver, this.destroyAnimation);
+		}
 
 		// Unregister
 		var i = G.grid.traps.indexOf(this);
 		G.grid.traps.splice(i,1);
-		this.hex.trap 	= undefined;
-		delete this;
+		this.hex.trap = undefined;
 	},
 
 	hide: function(duration, timer) {
