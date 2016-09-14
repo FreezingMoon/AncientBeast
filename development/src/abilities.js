@@ -165,32 +165,35 @@ var Ability = Class.create( {
 
 			G.animationQueue.push(anim_id);
 
-			if(this.animation_data === undefined) {
-				this.animation_data = {
-					duration : 500,
-					delay : 350,
-				};
+			var animationData = {
+				duration: 500, delay: 350, activateAnimation: true
+			};
+			if (this.getAnimationData) {
+				animationData = $j.extend(
+					animationData, this.getAnimationData.apply(this, args));
 			}
 
-			var tween = G.Phaser.add.tween(this.creature.sprite)
-			.to({x:p1}, 250, Phaser.Easing.Linear.None)
-			.to({x:p2}, 100, Phaser.Easing.Linear.None)
-			.to({x:p0}, 150, Phaser.Easing.Linear.None)
-			.start();
+			if (animationData.activateAnimation) {
+				var tween = G.Phaser.add.tween(this.creature.sprite)
+				.to({x:p1}, 250, Phaser.Easing.Linear.None)
+				.to({x:p2}, 100, Phaser.Easing.Linear.None)
+				.to({x:p0}, 150, Phaser.Easing.Linear.None)
+				.start();
+			}
 
 			setTimeout(function() {
 				if( !G.triggers.onUnderAttack.test(ab.getTrigger()) ) {
 					G.soundsys.playSound(G.soundLoaded[2], G.soundsys.effectsGainNode);
 					activateAbility();
 				}
-			},this.animation_data.delay);
+			}, animationData.delay);
 
 			setTimeout(function() {
 				G.animationQueue.filter(function() { return (this!=anim_id); } );
 				if( G.animationQueue.length === 0 ) {
 					G.freezedInput = false;
 				}
-			},this.animation_data.duration);
+			}, animationData.duration);
 
 		}else{
 			activateAbility();

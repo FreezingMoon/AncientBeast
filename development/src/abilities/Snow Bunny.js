@@ -292,45 +292,51 @@ G.abilities[12] = [
 		var target = path.last().creature;
 		var dist = path.slice(0).filterCreature(false, false).length;
 
-		// Delayed start of attack animation
-		setTimeout(function() {
-			var emissionPoint = {
-				x: ability.creature.grp.x + 52, y: ability.creature.grp.y - 20
-			};
-			var targetPoint = {
-				x: target.grp.x + 52, y: target.grp.y - 20
-			};
-			var sprite = G.grid.creatureGroup.create(
-				emissionPoint.x, emissionPoint.y, 'effects_freezing-spit');
-			sprite.anchor.setTo(0.5);
-			sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
-			var duration = dist * 75;
-			var tween = G.Phaser.add.tween(sprite)
-			.to({ x: targetPoint.x, y: targetPoint.y }, duration, Phaser.Easing.Linear.None)
-			.start();
-			tween.onComplete.add(function() {
-				this.destroy();
+		var emissionPoint = {
+			x: ability.creature.grp.x + 52, y: ability.creature.grp.y - 20
+		};
+		var targetPoint = {
+			x: target.grp.x + 52, y: target.grp.y - 20
+		};
+		var sprite = G.grid.creatureGroup.create(
+			emissionPoint.x, emissionPoint.y, 'effects_freezing-spit');
+		sprite.anchor.setTo(0.5);
+		sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
+		var duration = dist * 75;
+		var tween = G.Phaser.add.tween(sprite)
+		.to({ x: targetPoint.x, y: targetPoint.y }, duration, Phaser.Easing.Linear.None)
+		.start();
+		tween.onComplete.add(function() {
+			this.destroy();
 
-				// Copy to not alter ability strength
-				var dmg = $j.extend( {}, ability.damages);
-				dmg.crush += 3*dist; // Add distance to crush damage
+			// Copy to not alter ability strength
+			var dmg = $j.extend( {}, ability.damages);
+			dmg.crush += 3*dist; // Add distance to crush damage
 
-				var damage = new Damage(
-					ability.creature, // Attacker
-					dmg, // Damage Type
-					1, // Area
-					[]
-				);
-				var damageResult = target.takeDamage(damage);
+			var damage = new Damage(
+				ability.creature, // Attacker
+				dmg, // Damage Type
+				1, // Area
+				[]
+			);
+			var damageResult = target.takeDamage(damage);
 
-				// If upgraded and melee range, freeze the target
-				if (ability.isUpgraded() && damageResult.damageObj.melee) {
-					target.stats.frozen = true;
-					target.updateHealth();
-					G.UI.updateFatigue();
-				}
-			}, sprite);
-		}, 350);
+			// If upgraded and melee range, freeze the target
+			if (ability.isUpgraded() && damageResult.damageObj.melee) {
+				target.stats.frozen = true;
+				target.updateHealth();
+				G.UI.updateFatigue();
+			}
+		}, sprite);
+	},
+
+	getAnimationData: function(path, args) {
+		var dist = path.slice(0).filterCreature(false, false).length;
+		return {
+			duration: 500,
+			delay: 0,
+			activateAnimation: false
+		};
 	}
 }
 
