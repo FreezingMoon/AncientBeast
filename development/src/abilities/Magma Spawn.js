@@ -275,6 +275,13 @@ G.abilities[4] =[
 			[]	// Effects
 		);
 
+		// Destroy traps currently under self
+		for (var i = 0; i < this.creature.hexagons.length; i++) {
+			if (this.creature.hexagons[i].trap) {
+				this.creature.hexagons[i].destroyTrap();
+			}
+		}
+
 		// Movement
 		var hurl = function(_path) {
 			var target = _path.last().creature;
