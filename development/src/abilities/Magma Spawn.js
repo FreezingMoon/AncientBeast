@@ -145,11 +145,13 @@ G.abilities[4] =[
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 	trigger : "onQuery",
 
-	map : [  [0,0,1,0],
-			[0,0,1,1],
-			 [0,1,1,0],//origin line
-			[0,0,1,1],
-			 [0,0,1,0]],
+	map: [
+		 [0,0,1,0],
+		[0,0,1,1],
+		 [1,1,1,0],//origin line
+		[0,0,1,1],
+		 [0,0,1,0]
+	],
 
 	require: function() {
 		return this.testRequirements();
@@ -182,19 +184,26 @@ G.abilities[4] =[
 		var ability = this;
 		ability.end();
 
-		// Basic Attack all nearby creatures
+		// Attack all creatures in area except for self
+		var targets = ability.getTargets(hexs);
+		for (var i = 0; i < targets.length; i++) {
+			if (targets[i].target === this.creature) {
+				targets.splice(i, 1);
+				break;
+			}
+		}
 		ability.areaDamage(
 			ability.creature, // Attacker
 			ability.damages1, // Damage Type
 			[],	// Effects
-			ability.getTargets(hexs) // Targets
+			targets
 		);
 
-		// If upgraded, leave Boiling Point traps on all hexes that don't contain a
-		// creature
+		// If upgraded, leave Boiling Point traps on all hexes that don't contain
+		// another creature
 		if (this.isUpgraded()) {
 			hexs.each(function() {
-				if (!this.creature) {
+				if (!this.creature || this.creature === ability.creature) {
 					ability.creature.abilities[0]._addTrap(this);
 				}
 			});
