@@ -37,10 +37,11 @@ G.abilities[4] =[
 							// Magma Spawn immune to Scorched Ground
 							return this.trap.hex.creature.id !== ability.creature.id;
 						},
-						effectFn: function(effect, crea) {
-							crea.takeDamage(
+						effectFn: function(effect, target) {
+							target.takeDamage(
 								new Damage(effect.attacker, ability.damages, 1, []));
 							this.trap.destroy();
+							effect.deleteEffect();
 						},
 						attacker: this.creature
 					}
