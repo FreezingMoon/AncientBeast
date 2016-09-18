@@ -838,7 +838,8 @@ var Creature = Class.create( {
 	*
 	*	return :	Object :	Contains damages dealed and if creature is killed or not
 	*/
-	takeDamage: function(damage,ignoreRetaliation) {
+	takeDamage: function(damage, ignoreRetaliation) {
+		ignoreRetaliation = ignoreRetaliation === true;	// default false
 		var creature = this;
 
 		// Determine if melee attack

@@ -1322,29 +1322,6 @@ var Hex = Class.create({
 		return !blocked; // Its walkable if it's NOT blocked
 	},
 
-
-	/*	setBlocked()
-	*
-	*	Set Hex.blocked to True for this hex and change $display class
-	*
-	*/
-	setBlocked: function() {
-		this.blocked = true;
-		this.updateStyle();
-	},
-
-
-	/*	unsetBlocked()
-	*
-	*	Set Hex.blocked to False for this hex and change $display class
-	*
-	*/
-	unsetBlocked: function() {
-		this.blocked = false;
-		this.updateStyle();
-	},
-
-
 	/*	overlayVisualState
 	*
 	*	Change the appearance of the overlay hex

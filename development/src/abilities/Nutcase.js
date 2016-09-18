@@ -5,80 +5,47 @@
 */
 G.abilities[40] =[
 
-// 	First Ability: Hunting Horn
+//	First Ability: Tentacle Bush
 {
 	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onStartPhase",
+	trigger : "onQuery",
 
-	_targetTeam: Team.enemy,
-
-	//	require() :
 	require : function() {
 		if( !this.testRequirements() ) return false;
-		if (this.atLeastOneTarget(
-				this.creature.adjacentHexs(1), this._targetTeam)) {
-			return false;
-		}
 		return true;
 	},
 
+	//	query() :
+	query : function() {
+		var ability = this;
+		var creature = this.creature;
+
+		G.grid.querySelf({fnOnConfirm : function(){ ability.animation.apply(ability, arguments); }});
+	},
+
+
 	//	activate() :
 	activate : function() {
-		this.end();
+		var ability = this;
+		ability.end();
 
-		for (var i = 1; i < 99; i++) {
-			var hexs = this.creature.adjacentHexs(i);
-			if (!this.atLeastOneTarget(hexs, this._targetTeam)) continue;
-
-			var targets = this.getTargets(hexs);
-
-			if(targets.length>0){
-				var target = (this.creature.flipped) ? { x : 9999 } : { x : -1 };
-				for (var j = 0; j < targets.length; j++) {
-					if (targets[j] === undefined) continue;
-					if (!isTeam(targets[j].target, this.creature, this._targetTeam)) {
-						continue;
-					}
-
-					if(this.creature.flipped){
-						if(targets[j].target.x < target.x) target = targets[j].target;
-					}else{
-						if(targets[j].target.x > target.x) target = targets[j].target;
-					}
-				};
-				break;
+		var effect = new Effect(
+			"Curled", // Name
+			ability.creature, // Caster
+			ability.creature, // Target
+			"onDamage", // Trigger
+			{
+				alterations : { moveable : false, fatigueImmunity : true },
+				turn : G.turn,
+				turnLifetime : 1,
+				deleteTrigger : "onStartPhase"
 			}
-		};
+		);
 
-		if( !(target instanceof Creature) ) return;
-
-
-		// Search best hex
-		G.grid.cleanReachable(); // If not pathfinding will bug
-		G.grid.cleanPathAttr(true); // Erase all pathfinding datas
-		astar.search(G.grid.hexs[this.creature.y][this.creature.x], new Hex(-2, -2, null), this.creature.size, this.creature.id);
-
-
-
-		var bestHex = {g:9999};
-
-		for (var i = 1; i < 99; i++) {
-			var hexs = target.adjacentHexs(i).extendToRight(this.creature.size);
-
-			for (var i = 0; i < hexs.length; i++) {
-				if( hexs[i].g != 0 && hexs[i].g < bestHex.g ) { bestHex = hexs[i]; }
-			};
-			if(bestHex instanceof Hex) break;
-		};
-
-		if( bestHex.x == undefined ) return;
-
-		this.creature.moveTo( bestHex, { customMovementPoint : 2 } );
-		this.creature.delayable = false;
+		ability.creature.addEffect(effect);
+		G.skipTurn({noTooltip: true});
 	},
 },
-
-
 
 //	Second Ability: Hammer Time
 {
@@ -141,7 +108,77 @@ G.abilities[40] =[
 	},
 },
 
+// 	Third Ability: War Horn
+{
+	trigger: "onQuery",
 
+	_directions : [0, 1, 0, 0, 1, 0],	// forward/backward
+	_targetTeam: Team.enemy,
+
+	//	require() :
+	require : function() {
+		if( !this.testRequirements() ) return false;
+		if (!this.testDirection({
+				team: this._targetTeam, directions: this._directions
+			})) {
+			return false;
+		}
+		return true;
+	},
+
+	query: function() {
+		var ability = this;
+		G.grid.queryDirection({
+			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
+			team: this._targetTeam,
+			id: this.creature.id,
+			requireCreature: true,
+			sourceCreature: this.creature,
+			x: this.creature.x,
+			y: this.creature.y,
+			directions: this._directions
+		});
+	},
+
+	//	activate() :
+	activate : function(path, args) {
+		var ability = this;
+		this.end();
+
+		var target = path.last().creature;
+		path = path.filterCreature(false, false);
+		var destination = path.last();
+		if (args.direction === 4) {
+			destination =
+				G.grid.hexagons[destination.y][destination.x + this.creature.size - 1];
+		}
+
+		// Calculate damage, extra damage per hex distance
+		var damages = $j.extend({}, this.damages);
+		damages.pierce += path.length;
+		var damage = new Damage(this.creature, damages, 1, []);
+
+		G.grid.cleanReachable();
+		this.creature.moveTo(destination, {
+			overrideSpeed: 100,
+			customMovementPoint: path.length,
+			callback: function() {
+				var interval = setInterval(function() {
+					if (!G.freezedInput) {
+						clearInterval(interval);
+
+						// Deal damage only if we have reached the end of the path
+						if (destination.creature === ability.creature) {
+							target.takeDamage(damage);
+						}
+
+						G.activeCreature.queryMove();
+					}
+				}, 100);
+			},
+		});
+	}
+},
 
 //	Third Ability: Fishing Hook
 {
@@ -221,50 +258,6 @@ G.abilities[40] =[
 				}
 			}
 		);
-	},
-},
-
-
-
-//	Fourth Ability: Tentacle Bush
-{
-	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onQuery",
-
-	require : function() {
-		if( !this.testRequirements() ) return false;
-		return true;
-	},
-
-	//	query() :
-	query : function() {
-		var ability = this;
-		var creature = this.creature;
-
-		G.grid.querySelf({fnOnConfirm : function(){ ability.animation.apply(ability, arguments); }});
-	},
-
-
-	//	activate() :
-	activate : function() {
-		var ability = this;
-		ability.end();
-
-		var effect = new Effect(
-			"Curled", // Name
-			ability.creature, // Caster
-			ability.creature, // Target
-			"onDamage", // Trigger
-			{
-				alterations : { moveable : false, fatigueImmunity : true },
-				turn : G.turn,
-				turnLifetime : 1,
-				deleteTrigger : "onStartPhase"
-			}
-		);
-
-		ability.creature.addEffect(effect);
-		G.skipTurn({noTooltip: true});
 	},
 }
 

@@ -180,10 +180,7 @@ var Animations = Class.create({
 			crea.pos	= hex.pos;
 			crea.updateHex();
 
-			if(!opts.ignoreMovementPoint){
-				// Trigger
-				G.triggersFn.onStepIn(crea, hex, opts);
-			}
+			G.triggersFn.onStepIn(crea, hex, opts);
 
 			crea.pickupDrop();
 
