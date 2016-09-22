@@ -128,33 +128,62 @@ var HexGrid = Class.create( {
 	queryDirection: function(o) {
 		var defaultOpt = {
 			team: Team.enemy,
+			requireCreature: true,
 			id : 0,
 			flipped : false,
 			x : 0,
 			y : 0,
-			hexsDashed : [],
+			hexesDashed: [],
 			directions : [1, 1, 1, 1, 1, 1],
 			includeCrea : true,
-			stopOnCreature : true,
+			stopOnCreature: true,
+			dashedHexesAfterCreatureStop: true,
 			distance : 0,
 			minDistance: 0,
 			sourceCreature : undefined,
 		};
 
-		o = $j.extend(defaultOpt,o);
-
 		// This is alway true
 		o.isDirectionsQuery = true;
+
+		o = this.getDirectionChoices(o);
+
+		G.grid.queryChoice(o);
+	},
+
+	/**
+	 * Get an object that contains the choices and hexesDashed for a direction
+	 * query.
+	 * @param {Object} o
+	 * @returns {Object}
+	 */
+	getDirectionChoices: function(o) {
+		var defaultOpt = {
+			team: Team.enemy,
+			requireCreature: true,
+			id : 0,
+			flipped : false,
+			x : 0,
+			y : 0,
+			hexesDashed: [],
+			directions : [1, 1, 1, 1, 1, 1],
+			includeCrea : true,
+			stopOnCreature: true,
+			dashedHexesAfterCreatureStop: true,
+			distance : 0,
+			minDistance: 0,
+			sourceCreature : undefined,
+		};
+		o = $j.extend(defaultOpt, o);
 
 		// Clean Direction
 		G.grid.forEachHexs(function() { this.direction = -1; });
 
-		var choices = []
-
+		o.choices = [];
 		for (var i = 0; i < o.directions.length; i++) {
 			if(!!o.directions[i]) {
-				var dir = []
-				var fx = 0
+				var dir = [];
+				var fx = 0;
 
 				if( o.sourceCreature instanceof Creature ) {
 					if( (!o.sourceCreature.player.flipped && i > 2) || (o.sourceCreature.player.flipped && i < 3) ) {
@@ -173,29 +202,54 @@ var HexGrid = Class.create( {
 					dir = dir.slice(o.minDistance + 1);
 				}
 
+				var hexesDashed = [];
 				dir.each(function() {
 					this.direction = (o.flipped) ? 5 - i : i;
-					if(o.stopOnCreature) o.hexsDashed.push(this);
+					if (o.stopOnCreature && o.dashedHexesAfterCreatureStop) {
+						hexesDashed.push(this);
+					}
 				});
 
 				dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id);
 
-				if(dir.length==0) continue;
+				if (dir.length === 0) continue;
 
-				if( o.stopOnCreature && o.includeCrea && (i == 1 || i == 4)) { // Only straight direction
-					if(dir.last().creature instanceof Creature)
-						dir = dir.concat(dir.last().creature.hexagons); // Add full creature
+				if (o.requireCreature) {
+					var validChoice = false;
+					// Search each hex for a creature that matches the team argument
+					for (var j = 0; j < dir.length; j++) {
+						var creaTarget = dir[j].creature;
+						if (creaTarget instanceof Creature && creaTarget.id !== o.id) {
+							var creaSource = G.creatures[o.id];
+							if (isTeam(creaSource, creaTarget, o.team)) {
+								validChoice = true;
+								break;
+							}
+						}
+					}
+					if (!validChoice) {
+						continue;
+					}
 				}
 
-				dir.each(function() { o.hexsDashed.removePos(this); });
+				if (o.stopOnCreature && o.includeCrea && (i === 1 || i === 4)) {
+					// Only straight direction
+					if(dir.last().creature instanceof Creature) {
+						// Add full creature
+						var creature = dir.last().creature;
+						dir.pop();
+						dir = dir.concat(creature.hexagons);
+					}
+				}
 
-				choices.push(dir);
+				dir.each(function() { hexesDashed.removePos(this); });
+
+				o.hexesDashed = o.hexesDashed.concat(hexesDashed);
+				o.choices.push(dir);
 			}
-		};
+		}
 
-		o.choices = choices;
-
-		G.grid.queryChoice(o);
+		return o;
 	},
 
 
@@ -228,7 +282,7 @@ var HexGrid = Class.create( {
 			args : {},
 			flipped : false,
 			choices : [],
-			hexsDashed : [],
+			hexesDashed: [],
 			isDirectionsQuery : false,
 			hideNonTarget: true
 		};
@@ -257,7 +311,7 @@ var HexGrid = Class.create( {
 			else if(o.isDirectionsQuery) {
 				G.grid.forEachHexs(function() {
 					if(o.choices[i][0].direction == this.direction)
-						o.hexsDashed.removePos(this);
+						o.hexesDashed.removePos(this);
 				});
 			}
 		}
@@ -290,7 +344,7 @@ var HexGrid = Class.create( {
 			fnOnCancel : o.fnOnCancel,
 			args : { opt : o },
 			hexs : hexs,
-			hexsDashed : o.hexsDashed,
+			hexesDashed: o.hexesDashed,
 			flipped : o.flipped,
 			hideNonTarget: o.hideNonTarget,
 			id : o.id
@@ -315,7 +369,7 @@ var HexGrid = Class.create( {
 			optTest : function(crea) { return true; },
 			args : {},
 			hexs : [],
-			hexsDashed : [],
+			hexesDashed: [],
 			flipped : false,
 			id : 0,
 			team: Team.enemy,
@@ -356,7 +410,7 @@ var HexGrid = Class.create( {
 			fnOnCancel : o.fnOnCancel,
 			args : { opt : o },
 			hexs : o.hexs,
-			hexsDashed : o.hexsDashed,
+			hexesDashed: o.hexesDashed,
 			flipped : o.flipped,
 			hideNonTarget : true,
 			id : o.id
@@ -388,7 +442,7 @@ var HexGrid = Class.create( {
 			fnOnCancel : function(hex,args) { G.activeCreature.queryMove(); },
 			args : {},
 			hexs : [],
-			hexsDashed : [],
+			hexesDashed: [],
 			size : 1,
 			id : 0,
 			flipped : false,
@@ -408,7 +462,7 @@ var HexGrid = Class.create( {
 			this.unsetReachable();
 			if(o.hideNonTarget) this.setNotTarget();
 			else this.unsetNotTarget();
-			if( o.hexsDashed.indexOf(this) != -1 ) {
+			if (o.hexesDashed.indexOf(this) !== -1) {
 				this.displayVisualState("dashed");
 			}else{
 				this.cleanDisplayVisualState("dashed");
@@ -1668,7 +1722,6 @@ function getDirectionFromDelta(y, dx, dy) {
 	return dir;
 }
 
-
 /*	Array Prototypes
 *
 *	Extend Array type for more flexibility and ease of use
@@ -1744,6 +1797,9 @@ function getDirectionFromDelta(y, dx, dy) {
 	};
 
 	/*	filterCreature(includeCrea, stopOnCreature, id)
+	*	Filters in-place an array of hexes based on creatures.
+	* The array typically represents a linear sequence of hexes, to produce a
+	* subset/superset of hexes that contain or don't contain creatures.
 	*
 	*	includeCrea : 		Boolean : 	Add creature hexs to the array
 	*	stopOnCreature : 	Boolean : 	Cut the array when finding a creature

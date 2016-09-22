@@ -205,7 +205,9 @@ var Animations = Class.create({
 			G.grid.updateDisplay();
 
 			//TODO turn around animation
-			crea.facePlayerDefault();
+			if (opts.turnAroundOnComplete) {
+				crea.facePlayerDefault();
+			}
 
 			//TODO reveal healh indicator
 			crea.healthShow();

@@ -205,7 +205,7 @@ G.abilities[3] =[
 			flipped :  uncle.player.flipped,
 			id :  uncle.id,
 			hexs : hexes,
-			hexsDashed : [],
+			hexesDashed: [],
 			hideNonTarget : true
 		});
 	},

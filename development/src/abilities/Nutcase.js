@@ -128,40 +128,112 @@ G.abilities[40] =[
 
 	query: function() {
 		var ability = this;
-		G.grid.queryDirection({
-			fnOnConfirm: function() { ability.animation.apply(ability, arguments); },
+
+		var o = {
+			fnOnConfirm: function() {
+				ability.animation.apply(ability, arguments);
+			},
 			team: this._targetTeam,
-			id: this.creature.id,
 			requireCreature: true,
+			id: this.creature.id,
 			sourceCreature: this.creature,
 			x: this.creature.x,
 			y: this.creature.y,
-			directions: this._directions
-		});
+			directions: this._directions,
+			dashedHexesAfterCreatureStop: false
+		};
+		if (!this.isUpgraded()) {
+			G.grid.queryDirection(o);
+		} else {
+			// Create custom choices containing normal directions plus hex choices
+			// past the first creature, extending up to the next obstacle
+			o = G.grid.getDirectionChoices(o);
+			var newChoices = [];
+			for (var i = 0; i < o.choices.length; i++) {
+				var j;
+				var direction = o.choices[i][0].direction;
+
+				// Add dashed hexes up to the next obstacle for this direction choice
+				var fx = 0;
+				if (o.sourceCreature instanceof Creature) {
+					if ((!o.sourceCreature.player.flipped && direction > 2) ||
+							(o.sourceCreature.player.flipped && direction < 3)) {
+						fx = -(o.sourceCreature.size - 1);
+					}
+				}
+				var line = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
+				o.choices[i].each(function() { line.removePos(this); });
+				line.filterCreature(false, true, o.id);
+				o.hexesDashed = o.hexesDashed.concat(line);
+
+				// For each dashed hex, create a new choice composed of the original
+				// choice, extended up to and including the dashed hex. This will be the
+				// choice that pushes the target up to that hex.
+				// Get a new hex line so that the hexes are in the right order
+				var newChoice = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
+				// Exclude creature
+				ability.creature.hexagons.each(function() {
+					if (newChoice.findPos(this)) {
+						newChoice.removePos(this);
+					}
+				});
+				// Exclude hexes that don't exist in the original choice
+				for (j = 0; j < newChoice.length; j++) {
+					if (!o.choices[i].findPos(newChoice[j])) {
+						newChoice.removePos(newChoice[j]);
+						j--;
+					}
+				}
+				// Extend choice to include each dashed hex in succession
+				for (j = 0; j < line.length; j++) {
+					newChoice.push(line[j]);
+					newChoices.push(newChoice.slice());
+				}
+			}
+			o.choices = o.choices.concat(newChoices);
+			o.requireCreature = false;
+			G.grid.queryChoice(o);
+		}
 	},
 
-	//	activate() :
-	activate : function(path, args) {
+	activate: function(path, args) {
+		var i;
 		var ability = this;
 		this.end();
 
-		var target = path.last().creature;
-		path = path.filterCreature(false, false);
-		var destination = path.last();
+		// Find:
+		// - the target which is the first creature in the path
+		// - the run path which is up to the creature
+		// - the push paths which start from the last creature hex and continues to
+		//   the rest of the path
+		var target;
+		var runPath;
+		var pushPath = [];
+		for (i = 0; i < path.length; i++) {
+			if (path[i].creature) {
+				target = path[i].creature;
+				runPath = path.slice(0, i);
+				if (i > 0) {
+					pushPath = path.slice(i);
+				}
+				break;
+			}
+		}
+		var destination = runPath.last();
 		if (args.direction === 4) {
 			destination =
-				G.grid.hexagons[destination.y][destination.x + this.creature.size - 1];
+				G.grid.hexs[destination.y][destination.x + this.creature.size - 1];
 		}
 
 		// Calculate damage, extra damage per hex distance
 		var damages = $j.extend({}, this.damages);
-		damages.pierce += path.length;
+		damages.pierce += runPath.length;
 		var damage = new Damage(this.creature, damages, 1, []);
 
 		G.grid.cleanReachable();
 		this.creature.moveTo(destination, {
 			overrideSpeed: 100,
-			customMovementPoint: path.length,
+			ignoreMovementPoint: true,
 			callback: function() {
 				var interval = setInterval(function() {
 					if (!G.freezedInput) {
@@ -172,11 +244,65 @@ G.abilities[40] =[
 							target.takeDamage(damage);
 						}
 
-						G.activeCreature.queryMove();
+						if (!ability._pushTarget(target, pushPath, args)) {
+							G.activeCreature.queryMove();
+						}
 					}
 				}, 100);
 			},
 		});
+	},
+
+	_pushTarget: function(target, pushPath, args) {
+		var ability = this;
+		var creature = this.creature;
+
+		var targetPushPath = pushPath.slice();
+		targetPushPath.filterCreature(false, false, creature.id);
+		targetPushPath.filterCreature(false, false, target.id);
+		if (targetPushPath.length === 0) {
+			return false;
+		}
+
+		// Push the creature one hex at a time
+		// As we need to move creatures simultaneously, we can't use the normal path
+		// calculation as the target blocks the path
+		var i = 0;
+		var interval = setInterval(function() {
+			if (!G.freezedInput) {
+				if (i === targetPushPath.length ||
+						creature.dead || target.dead ||
+						!creature.stats.moveable || !target.stats.moveable) {
+					clearInterval(interval);
+					creature.facePlayerDefault();
+					G.activeCreature.queryMove();
+				} else {
+					var hex = pushPath[i];
+					var targetHex = targetPushPath[i];
+					if (args.direction === 4) {
+						hex = G.grid.hexs[hex.y][hex.x + creature.size - 1];
+						targetHex = G.grid.hexs[targetHex.y][targetHex.x + target.size - 1];
+					}
+					ability._pushOneHex(target, hex, targetHex);
+					i++;
+				}
+			}
+		});
+
+		return true;
+	},
+
+	_pushOneHex: function(target, hex, targetHex) {
+		var opts = {
+			overrideSpeed: 100,
+			ignorePath: true,
+			ignoreMovementPoint: true,
+			turnAroundOnComplete: false
+		};
+		// Note: order matters here; moving ourselves first results on overlapping
+		// hexes momentarily and messes up creature hex displays
+		target.moveTo(targetHex, $j.extend({ animation: 'push' }, opts));
+		this.creature.moveTo(hex, opts);
 	}
 },
 

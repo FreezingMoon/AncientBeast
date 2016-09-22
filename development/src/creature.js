@@ -581,7 +581,8 @@ var Creature = Class.create( {
 			ignoreMovementPoint : false,
 			ignorePath : false,
 			customMovementPoint : 0,
-			overrideSpeed : 0,
+			overrideSpeed: 0,
+			turnAroundOnComplete: true
 		};
 
 		opts = $j.extend(defaultOpt, opts);
