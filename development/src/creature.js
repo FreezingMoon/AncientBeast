@@ -382,11 +382,18 @@ var Creature = Class.create( {
 			}
 		});
 
+		var remainingMove = this.remainingMove;
+		// No movement range if unmoveable
+		if (!this.stats.moveable) {
+			remainingMove = 0;
+		}
+
 		o = $j.extend( {
 			noPath : false,
 			isAbility : false,
 			ownCreatureHexShade : true,
-			range : G.grid.getMovementRange(this.x, this.y, this.remainingMove, this.size, this.id),
+			range: G.grid.getMovementRange(
+				this.x, this.y, remainingMove, this.size, this.id),
 			callback : function(hex, args) {
 				if( hex.x == args.creature.x && hex.y == args.creature.y ) {
 					// Prevent null movement
@@ -419,7 +426,8 @@ var Creature = Class.create( {
 		this.updateHealth();
 
 		if (this.movementType() === "flying") {
-			o.range = G.grid.getFlyingRange(this.x, this.y, this.remainingMove, this.size, this.id);
+			o.range = G.grid.getFlyingRange(
+				this.x, this.y, remainingMove, this.size, this.id);
 		}
 
 		var selectNormal = function(hex, args) { args.creature.tracePath(hex); };
@@ -969,7 +977,7 @@ var Creature = Class.create( {
 		effect.target = this;
 		this.effects.push(effect);
 
-		G.triggersFn.onEffectAttachement(this, effect);
+		G.triggersFn.onEffectAttach(this, effect);
 
 		this.updateAlteration();
 

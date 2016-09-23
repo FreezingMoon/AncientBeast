@@ -7,44 +7,51 @@ G.abilities[40] =[
 
 //	First Ability: Tentacle Bush
 {
-	//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-	trigger : "onQuery",
+	trigger: "onUnderAttack",
 
-	require : function() {
-		if( !this.testRequirements() ) return false;
+	require: function() {
+		// Always true to highlight ability
 		return true;
 	},
 
-	//	query() :
-	query : function() {
-		var ability = this;
-		var creature = this.creature;
-
-		G.grid.querySelf({fnOnConfirm : function(){ ability.animation.apply(ability, arguments); }});
-	},
-
-
-	//	activate() :
-	activate : function() {
+	activate: function(damage) {
+		if (damage === undefined) {
+			return false;
+		}
 		var ability = this;
 		ability.end();
 
-		var effect = new Effect(
-			"Curled", // Name
-			ability.creature, // Caster
-			ability.creature, // Target
-			"onDamage", // Trigger
+		// Target becomes unmoveable until end of their phase
+		damage.attacker.addEffect(new Effect(
+			this.title,
+			this.creature, // Caster
+			damage.attacker, // Target
+			"", // Trigger
 			{
-				alterations : { moveable : false, fatigueImmunity : true },
-				turn : G.turn,
-				turnLifetime : 1,
-				deleteTrigger : "onStartPhase"
+				alterations: { moveable: false },
+				deleteTrigger: "onEndPhase",
+				// Delete this effect as soon as attacker's turn finishes
+				turnLifetime: 1,
+				creationTurn: G.turn - 1,
 			}
-		);
-
-		ability.creature.addEffect(effect);
-		G.skipTurn({noTooltip: true});
-	},
+		));
+		// Nutcase becomes unmoveable until start of its phase
+		this.creature.addEffect(new Effect(
+			this.title,
+			this.creature,
+			this.creature,
+			"",
+			{
+				alterations: { moveable: false },
+				deleteTrigger: "onStartPhase",
+				turnLifetime: 1
+			}
+		));
+		// Making attacker unmoveable will change its move query, so update it
+		if (damage.attacker === G.activeCreature) {
+			damage.attacker.queryMove();
+		}
+	}
 },
 
 //	Second Ability: Hammer Time

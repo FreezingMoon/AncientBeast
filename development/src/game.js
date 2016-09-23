@@ -784,8 +784,8 @@ var Game = Class.create( {
 		onCreatureDeath_other : /\bonOtherCreatureDeath\b/,
 		onCreatureSummon_other : /\bonOtherCreatureSummon\b/,
 
-		onEffectAttachement : /\bonEffectAttachement\b/,
-		onEffectAttachement_other : /\bonOtherEffectAttachement\b/,
+		onEffectAttach: /\bonEffectAttach\b/,
+		onEffectAttach_other : /\bonOtherEffectAttach\b/,
 
 		onStartOfRound : /\bonStartOfRound\b/,
 		onQuery : /\bonQuery\b/,
@@ -952,8 +952,8 @@ var Game = Class.create( {
 			G.triggerEffect("onCreatureSummon", [creature, creature]);
 		},
 
-		onEffectAttachement : function( creature, effect, callback ) {
-			G.triggerEffect("onEffectAttachement", [creature, effect]);
+		onEffectAttach: function(creature, effect, callback) {
+			G.triggerEffect("onEffectAttach", [creature, effect]);
 		},
 
 
