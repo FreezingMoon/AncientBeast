@@ -22,18 +22,23 @@ G.abilities[40] =[
 		ability.end();
 
 		// Target becomes unmoveable until end of their phase
+		var o = {
+			alterations: { moveable: false },
+			deleteTrigger: "onEndPhase",
+			// Delete this effect as soon as attacker's turn finishes
+			turnLifetime: 1,
+			creationTurn: G.turn - 1,
+		};
+		// If upgraded, target abilities cost more energy
+		if (this.isUpgraded()) {
+			o.alterations.reqEnergy = 5;
+		}
 		damage.attacker.addEffect(new Effect(
 			this.title,
 			this.creature, // Caster
 			damage.attacker, // Target
 			"", // Trigger
-			{
-				alterations: { moveable: false },
-				deleteTrigger: "onEndPhase",
-				// Delete this effect as soon as attacker's turn finishes
-				turnLifetime: 1,
-				creationTurn: G.turn - 1,
-			}
+			o
 		));
 		// Nutcase becomes unmoveable until start of its phase
 		this.creature.addEffect(new Effect(

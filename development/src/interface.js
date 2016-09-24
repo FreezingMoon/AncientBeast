@@ -114,25 +114,27 @@ var UI = Class.create( {
 		this.poolBar = new ProgessBar( { $bar : $j("#rightpanel .progressbar .poolbar"), color : "grey" } );
 
 		this.showAbilityCosts = function(abilityId) {
-			var ab = G.activeCreature.abilities[abilityId];
+			var creature = G.activeCreature;
+			var ab = creature.abilities[abilityId];
 			if(ab.costs !== undefined) {
 				if( typeof ab.costs.energy == "number" ) {
-					G.UI.energyBar.previewSize( ab.costs.energy / G.activeCreature.stats.energy );
+					var costsEnergy = ab.costs.energy + creature.stats.reqEnergy;
+					G.UI.energyBar.previewSize(costsEnergy / creature.stats.energy);
 				}else{
 					G.UI.energyBar.previewSize( 0 );
 				}
 				if( typeof ab.costs.health == "number" ) {
-					G.UI.healthBar.previewSize( ab.costs.health / G.activeCreaturestats.stats.health );
+					G.UI.healthBar.previewSize(ab.costs.health / creature.stats.health);
 				}else{
 					G.UI.healthBar.previewSize( 0 );
 				}
 			}
-		}
+		};
 
 		this.hideAbilityCosts = function() {
 			G.UI.energyBar.previewSize( 0 );
 			G.UI.healthBar.previewSize( 0 );
-		}
+		};
 
 		// Volume Sliders
 		$j("#effects_volume").slider( {

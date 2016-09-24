@@ -245,6 +245,7 @@ var Ability = Class.create( {
 		if( !this.damages && !obj ) return false;
 		var obj = obj || this.damages;
 		var string = "";
+		var creature = this.creature;
 
 		$j.each(obj,function(key, value) {
 
@@ -252,6 +253,10 @@ var Ability = Class.create( {
 				// TODO: don't manually list all the stats and masteries when needed
 				string += value.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g, '<span class="$1"></span>');
 				return;
+			}
+
+			if (key === 'energy') {
+				value += creature.stats.reqEnergy;
 			}
 
 			if(string !== "") string += ", ";
@@ -365,13 +370,14 @@ var Ability = Class.create( {
 		}
 
 		// Energy
-		if(req.energy  > 0 ) {
-			if( this.creature.energy < req.energy ) {
+		var reqEnergy = req.energy + this.creature.stats.reqEnergy;
+		if (reqEnergy > 0) {
+			if (this.creature.energy < reqEnergy) {
 				this.message = G.msg.abilities.notenough.replace("%stat%", "energy");
 				return false;
 			}
-		}else if(req.energy  < 0 ) {
-			if( this.creature.energy > -req.energy ) {
+		} else if (reqEnergy < 0) {
+			if (this.creature.energy > -reqEnergy) {
 				this.message = G.msg.abilities.toomuch.replace("%stat%", "energy");
 				return false;
 			}
@@ -422,6 +428,8 @@ var Ability = Class.create( {
 				if(key == 'health') {
 					crea.hint(value,'damage d'+value);
 					G.log("%CreatureName" + crea.id + "% loses " + value + " health");
+				} else if (key === 'energy') {
+					value += crea.stats.reqEnergy;
 				}
 				crea[key] = Math.max( crea[key]-value, 0 ); // Cap
 			}

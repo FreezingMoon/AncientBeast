@@ -97,7 +97,9 @@ var Creature = Class.create( {
 
 			moveable: true,
 			fatigueImmunity: false,
-			frozen: false
+			frozen: false,
+			// Extra energy required for abilities
+			reqEnergy: 0
 		};
 		this.stats		= $j.extend({}, this.baseStats); //Copy
 		this.health		= obj.stats.health;
