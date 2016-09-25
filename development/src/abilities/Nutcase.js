@@ -98,14 +98,18 @@ G.abilities[40] =[
 		var ability = this;
 		ability.end();
 
+		// Target takes pierce damage if it ever moves
 		var effect = new Effect(
 			"Hammered", // Name
 			ability.creature, // Caster
 			target, // Target
-			"", // Trigger
+			"onStepOut", // Trigger
 			{
-				alterations : {movement : -1},
-				turnLifetime : 1,
+				effectFn: function(effect) {
+					effect.target.takeDamage(new Damage(
+						effect.owner, { pierce: ability.damages.pierce }, 1, []));
+					effect.deleteEffect();
+				}
 			}
 		);
 
