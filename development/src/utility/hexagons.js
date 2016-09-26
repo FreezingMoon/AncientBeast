@@ -335,6 +335,8 @@ var HexGrid = Class.create( {
 					for (var j = 0; j < args.opt.choices[i].length; j++) {
 						if(hex.pos==args.opt.choices[i][j].pos) {
 							args.opt.args.direction = hex.direction;
+							args.opt.args.hex = hex;
+							args.opt.args.choiceIndex = i;
 							args.opt.fnOnSelect(args.opt.choices[i], args.opt.args);
 							return;
 						}
@@ -1934,6 +1936,14 @@ front2hex 		= [	 [0,0,0,0],
 					 [0,0,0,1], // Origin line
 					[0,0,0,1]];
 front2hex.origin = [2,2];
+
+back2hex = [
+	 [0,0,0,0],
+	[0,1,0,0],
+	 [1,0,0,0], // Origin line
+	[0,1,0,0]
+];
+back2hex.origin = [2,2];
 
 inlinefront2hex = [	 [0,0,0,0],
 					[0,0,0,0],

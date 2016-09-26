@@ -83,25 +83,81 @@ G.abilities[40] =[
 	query : function(){
 		var ability = this;
 
-		G.grid.queryCreature( {
-			fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
-			team: this._targetTeam,
-			id : this.creature.id,
-			flipped : this.creature.flipped,
-			hexs : this.creature.getHexMap(frontnback2hex)
-		});
+		if (!this.isUpgraded()) {
+			G.grid.queryCreature( {
+				fnOnConfirm : function(){ ability.animation.apply(ability, arguments); },
+				team: this._targetTeam,
+				id : this.creature.id,
+				flipped : this.creature.flipped,
+				hexs : this.creature.getHexMap(frontnback2hex)
+			});
+		} else {
+			// If upgraded, show choice of front and back hex groups
+			var choices = [
+				this.creature.getHexMap(front2hex),
+				this.creature.getHexMap(back2hex)
+			];
+			G.grid.queryChoice({
+				fnOnSelect: function(choice, args) {
+					G.activeCreature.faceHex(args.hex, undefined, true);
+					args.hex.overlayVisualState(
+						"creature selected player" + G.activeCreature.team);
+				},
+				fnOnConfirm: function() {
+					ability.animation.apply(ability, arguments);
+				},
+				team: this._targetTeam,
+				id: this.creature.id,
+				choices: choices
+			});
+		}
 	},
 
-
-	//	activate() :
-	activate : function(target,args) {
+	activate: function(targetOrChoice, args) {
 		var ability = this;
 		ability.end();
+
+		if (!this.isUpgraded()) {
+			this._activateOnTarget(targetOrChoice);
+		} else {
+			// We want to order the hexes in a clockwise fashion, unless the player
+			// chose the last clockwise hex, in which case order counterclockwise.
+			// Order by y coordinate, which means:
+			// - y ascending if
+			//   - front choice (choice 0) and not bottom hex chosen, or
+			//   - back choice (choice 1) and top hex chosen
+			// - otherwise, y descending
+			var isFrontChoice = args.choiceIndex === 0;
+			var yCoords = targetOrChoice.map(function(hex) { return hex.y; });
+			var yMin = Math.min.apply(null, yCoords);
+			var yMax = Math.max.apply(null, yCoords);
+			var yAscending;
+			if (isFrontChoice) {
+				yAscending = args.hex.y !== yMax;
+			} else {
+				yAscending = args.hex.y === yMin;
+			}
+			targetOrChoice.sort(function(a, b) {
+				return yAscending ? a.y - b.y : b.y - a.y;
+			});
+			for (var i = 0; i < targetOrChoice.length; i++) {
+				var target = targetOrChoice[i].creature;
+				// only attack enemies
+				if (!isTeam(this.creature, target, this._targetTeam)) {
+					continue;
+				}
+				this._activateOnTarget(target);
+			}
+		}
+	},
+
+	_activateOnTarget: function(target) {
+		var ability = this;
 
 		// Target takes pierce damage if it ever moves
 		var effect = new Effect(
 			"Hammered", // Name
-			ability.creature, // Caster
+			this.creature, // Caster
 			target, // Target
 			"onStepOut", // Trigger
 			{
@@ -114,14 +170,14 @@ G.abilities[40] =[
 		);
 
 		var damage = new Damage(
-			ability.creature, // Attacker
-			ability.damages, // Damage Type
+			this.creature, // Attacker
+			this.damages, // Damage Type
 			1, // Area
 			[effect]	// Effects
 		);
 
 		target.takeDamage(damage);
-	},
+	}
 },
 
 // 	Third Ability: War Horn
