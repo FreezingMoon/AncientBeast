@@ -289,29 +289,36 @@ var Ability = Class.create( {
 	*
 	*	targets : Array : Example : target = [ { target: crea1, hexsHit: 2 }, { target: crea2, hexsHit: 1 } ]
 	*/
-	areaDamage: function(attacker, damages, effects, targets, notrigger) {
+	areaDamage: function(attacker, damages, effects, targets, ignoreRetaliation) {
 		var multiKill = 0;
 		for (var i = 0; i < targets.length; i++) {
 			if(targets[i]===undefined) continue;
 			dmg = new Damage(attacker, damages, targets[i].hexsHit, effects);
-			multiKill += (targets[i].target.takeDamage(dmg, notrigger).kill+0);
+			var damageResult = targets[i].target.takeDamage(
+				dmg, { ignoreRetaliation: ignoreRetaliation });
+			multiKill += damageResult.kill + 0;
 		}
 		if(multiKill>1)	attacker.player.score.push( { type: "combo", kills: multiKill } );
 	},
 
-	/*	atLeastOneTarget(hexs,team)
-	*
-	*	hexs : Array : set of hex to test
-	*	team: Team
-	*/
-	atLeastOneTarget : function(hexs, team) {
-		for (var i = 0; i < hexs.length; i++) {
-			if(hexs[i].creature instanceof Creature) {
-				var crea = hexs[i].creature;
-				if (isTeam(this.creature, crea, team)) {
-					return true;
-				}
-			}
+	/**
+	 * Return whether there is at least one creature in the hexes that satisfies
+	 * various conditions, e.g. team.
+	 * @param {Hex[]} hexes
+	 * @param {object} o
+	 */
+	atLeastOneTarget: function(hexes, o) {
+		var defaultOpt = {
+			team: Team.both,
+			optTest: function(creature) { return true; }
+		};
+		o = $j.extend(defaultOpt, o);
+		for (var i = 0; i < hexes.length; i++) {
+			var creature = hexes[i].creature;
+			if (!creature) continue;
+			if (!isTeam(this.creature, creature, o.team)) continue;
+			if (!o.optTest(creature)) continue;
+			return true;
 		}
 		this.message = G.msg.abilities.notarget;
 		return false;

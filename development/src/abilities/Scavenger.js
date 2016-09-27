@@ -43,8 +43,7 @@ G.abilities[44] =[
 		if( !this.testRequirements() ) return false;
 
 		if (!this.atLeastOneTarget(
-				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.getHexMap(frontnback2hex), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;
@@ -123,8 +122,7 @@ G.abilities[44] =[
 			return this.creature.size < 3 || ability.isUpgraded();
 		});
 
-		if (!this.atLeastOneTarget(hexs, this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.atLeastOneTarget(hexs, { team: this._targetTeam })) {
 			return false;
 		}
 
@@ -255,8 +253,7 @@ G.abilities[44] =[
 		if( !this.testRequirements() ) return false;
 
 		if (!this.atLeastOneTarget(
-				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.getHexMap(frontnback2hex), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;

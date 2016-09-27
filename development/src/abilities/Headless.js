@@ -15,7 +15,7 @@ G.abilities[39] =[
 	},
 
 	require: function() {
-		if (!this.atLeastOneTarget(this._getHexes(), this._targetTeam)) {
+		if (!this.atLeastOneTarget(this._getHexes(), { team: this._targetTeam })) {
 			return false;
 		}
 		return this.testRequirements();
@@ -26,7 +26,7 @@ G.abilities[39] =[
 		var ability = this;
 		var creature = this.creature;
 
-		if (this.atLeastOneTarget(this._getHexes(), this._targetTeam)) {
+		if (this.atLeastOneTarget(this._getHexes(), { team: this._targetTeam })) {
 			this.end();
 			this.setUsed(false); // Infinite triggering
 		}else{
@@ -97,8 +97,7 @@ G.abilities[39] =[
 
 		//At least one target
 		if (!this.atLeastOneTarget(
-				crea.getHexMap(frontnback2hex), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				crea.getHexMap(frontnback2hex), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;

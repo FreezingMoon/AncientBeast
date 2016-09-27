@@ -849,8 +849,12 @@ var Creature = Class.create( {
 	*
 	*	return :	Object :	Contains damages dealed and if creature is killed or not
 	*/
-	takeDamage: function(damage, ignoreRetaliation) {
-		ignoreRetaliation = ignoreRetaliation === true;	// default false
+	takeDamage: function(damage, o) {
+		var defaultOpt = {
+			ignoreRetaliation: false,
+			isFromTrap: false
+		};
+		o = $j.extend(defaultOpt, o);
 		var creature = this;
 
 		// Determine if melee attack
@@ -859,6 +863,7 @@ var Creature = Class.create( {
 			if( damage.attacker == this.creature ) damage.melee = true;
 		});
 		damage.target = this;
+		damage.isFromTrap = o.isFromTrap;
 
 		// Trigger
 		G.triggersFn.onUnderAttack(this, damage);
@@ -911,7 +916,9 @@ var Creature = Class.create( {
 			G.UI.updateFatigue();
 
 			// Trigger
-			if(!ignoreRetaliation) G.triggersFn.onDamage(this, damage);
+			if (!o.ignoreRetaliation) {
+				G.triggersFn.onDamage(this, damage);
+			}
 
 			return { damages: dmg, damageObj: damage, kill: false }; // Not Killed
 		}else{

@@ -45,8 +45,7 @@ G.abilities[45] =[
 		if (!this.atLeastOneTarget(
 					G.grid.getHexMap(
 						this.creature.x - 3, this.creature.y - 2, 0, false, frontnback3hex),
-					this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+					{ team: this._targetTeam })) {
 			return false;
 		}
 

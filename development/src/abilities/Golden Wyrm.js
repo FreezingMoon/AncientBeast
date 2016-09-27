@@ -23,7 +23,7 @@ G.abilities[33] =[
 		var targets = this.getTargets(this.creature.adjacentHexs(1));
 
 		if (this.atLeastOneTarget(
-				this.creature.adjacentHexs(1), this._targetTeam)) {
+				this.creature.adjacentHexs(1), { team: this._targetTeam })) {
 			this.end();
 			this.setUsed(false); //Infinite triggering
 		}else{
@@ -103,8 +103,7 @@ G.abilities[33] =[
 
 		//At least one target
 		if (!this.atLeastOneTarget(
-				this.creature.adjacentHexs(1), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.adjacentHexs(1), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;
@@ -250,8 +249,7 @@ G.abilities[33] =[
 
 		var map = G.grid.getHexMap(this.creature.x-2, this.creature.y-2, 0, false, frontnback2hex);
 		// At least one target
-		if (!this.atLeastOneTarget(map, this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.atLeastOneTarget(map, { team: this._targetTeam })) {
 			return false;
 		}
 		return true;

@@ -67,8 +67,7 @@ G.abilities[9] =[
 		if( !this.testRequirements() ) return false;
 
 		if (!this.atLeastOneTarget(
-				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.getHexMap(frontnback2hex), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;
@@ -133,8 +132,7 @@ G.abilities[9] =[
 		if( !this.testRequirements() ) return false;
 
 		if (!this.atLeastOneTarget(
-				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.getHexMap(frontnback2hex), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;

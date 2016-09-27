@@ -68,8 +68,7 @@ G.abilities[0] =[
 		if( !this.testRequirements() ) return false;
 		if (!this.atLeastOneTarget(
 					this.creature.adjacentHexs(this.isUpgraded() ? 4 : 1),
-					this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+					{ team: this._targetTeam })) {
 			return false;
 		}
 		return true;
@@ -124,8 +123,7 @@ G.abilities[0] =[
 		var range = this.creature.adjacentHexs(2);
 
 		// At least one target
-		if (!this.atLeastOneTarget(range, this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.atLeastOneTarget(range, { team: this._targetTeam })) {
 			return false;
 		}
 
@@ -154,7 +152,9 @@ G.abilities[0] =[
 
 		G.grid.queryCreature( {
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
-			optTest : function(hex) { return (hex.creature.size <= dpriest.player.plasma) ; },
+			optTest: function(creature) {
+				return creature.size <= dpriest.player.plasma;
+			},
 			team: this._targetTeam,
 			id : dpriest.id,
 			flipped : dpriest.player.flipped,

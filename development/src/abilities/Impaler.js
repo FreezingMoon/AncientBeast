@@ -48,7 +48,7 @@ G.abilities[5] =[
 	require : function() {
 		if( !this.testRequirements() ) return false;
 
-		if (!this.atLeastOneTarget(this._getHexes(), this._targetTeam)) {
+		if (!this.atLeastOneTarget(this._getHexes(), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;
@@ -115,7 +115,7 @@ G.abilities[5] =[
 
 	// 	require() :
 	require : function() {
-		if (!this.atLeastOneTarget(this._getHexes(), this._targetTeam)) {
+		if (!this.atLeastOneTarget(this._getHexes(), { team: this._targetTeam })) {
 			return false;
 		}
 		return this.testRequirements();
@@ -147,7 +147,8 @@ G.abilities[5] =[
 			{
 				effectFn: function(effect) {
 					G.log("%CreatureName" + effect.target.id + "% is hit by " + effect.name);
-					effect.target.takeDamage(new Damage(effect.owner, damages, 1, []));
+					effect.target.takeDamage(
+						new Damage(effect.owner, damages, 1, []), { isFromTrap: true });
 					// Hack: manually destroy traps so we don't activate multiple traps
 					// and see multiple logs etc.
 					target.hexagons.each(function() { this.destroyTrap(); });
@@ -190,7 +191,7 @@ G.abilities[5] =[
 
 	require: function() {
 		if (!this.testRequirements()) return false;
-		if (!this.atLeastOneTarget(this._getHexes(), this._targetTeam)) {
+		if (!this.atLeastOneTarget(this._getHexes(), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;

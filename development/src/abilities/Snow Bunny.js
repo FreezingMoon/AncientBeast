@@ -105,8 +105,7 @@ G.abilities[12] = [
 		if( !this.testRequirements() ) return false;
 
 		if (!this.atLeastOneTarget(
-				this.creature.adjacentHexs(1), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.adjacentHexs(1), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;

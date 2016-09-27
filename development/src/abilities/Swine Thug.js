@@ -77,8 +77,7 @@ G.abilities[37] =[
 		if( !this.testRequirements() ) return false;
 
 		if (!this.atLeastOneTarget(
-				this.creature.adjacentHexs(1), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.adjacentHexs(1), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;
@@ -182,8 +181,7 @@ G.abilities[37] =[
 			G.grid.getHexMap(swine.x,swine.y - 2, 0, true, bellowrow).filterCreature(true,true, swine.id, swine.team),
 			G.grid.getHexMap(swine.x,swine.y, 0, true, straitrow).filterCreature(true, true, swine.id, swine.team),
 			G.grid.getHexMap(swine.x,swine.y, 0, true, bellowrow).filterCreature(true, true, swine.id, swine.team));
-		if (!this.atLeastOneTarget(hexs, this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.atLeastOneTarget(hexs, { team: this._targetTeam })) {
 			return false;
 		}
 

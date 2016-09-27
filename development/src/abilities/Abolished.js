@@ -135,7 +135,9 @@ G.abilities[7] =[
 
 		// Leave a Firewall in current location
 		var effectFn = function(effect,crea) {
-			crea.takeDamage(new Damage( effect.attacker, ability.damages , 1,[] ));
+			crea.takeDamage(
+				new Damage(effect.attacker, ability.damages , 1, []),
+				{ isFromTrap: true });
 			this.trap.destroy();
 		};
 

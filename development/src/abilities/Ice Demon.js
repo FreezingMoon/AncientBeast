@@ -188,8 +188,7 @@ G.abilities[6] =[
 			G.grid.getHexMap(crea.x-1,crea.y,2,true,bellowrow).filterCreature(true,true,crea.id,crea.team),
 			G.grid.getHexMap(crea.x-2,crea.y+2,2,true,straitrow).filterCreature(true,true,crea.id,crea.team));
 
-		if (!this.atLeastOneTarget(hexs, this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.atLeastOneTarget(hexs, { team: this._targetTeam })) {
 			return false;
 		}
 

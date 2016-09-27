@@ -314,7 +314,7 @@ G.abilities[14] =[
 			[] // Effects
 		);
 
-		var result = target.takeDamage(damage, true);
+		var result = target.takeDamage(damage, { ignoreRetaliation: true });
 
 		if (result.kill) return; // if creature die stop here
 

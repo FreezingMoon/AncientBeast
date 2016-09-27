@@ -80,8 +80,7 @@ G.abilities[3] =[
 
 		// At least one target
 		if (!this.atLeastOneTarget(
-				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.getHexMap(frontnback2hex), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;
@@ -316,8 +315,7 @@ G.abilities[3] =[
 
 		var map = G.grid.getHexMap(this.creature.x-2, this.creature.y-2, 0, false, frontnback2hex);
 		// At least one target
-		if (!this.atLeastOneTarget(map, this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+		if (!this.atLeastOneTarget(map, { team: this._targetTeam })) {
 			return false;
 		}
 		return true;

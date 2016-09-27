@@ -15,9 +15,11 @@ G.abilities[40] =[
 	},
 
 	activate: function(damage) {
-		if (damage === undefined) {
-			return false;
-		}
+		// Must take melee damage from a non-trap source
+		if (damage === undefined) return false;
+		if (!damage.melee) return false;
+		if (damage.isFromTrap) return false;
+
 		var ability = this;
 		ability.end();
 
@@ -71,8 +73,7 @@ G.abilities[40] =[
 		if( !this.testRequirements() ) return false;
 
 		if (!this.atLeastOneTarget(
-				this.creature.getHexMap(frontnback2hex), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.getHexMap(frontnback2hex), { team: this._targetTeam })) {
 			return false;
 		}
 
@@ -385,13 +386,19 @@ G.abilities[40] =[
 
 	_targetTeam: Team.enemy,
 
-	//	require() :
-	require : function() {
-		if( !this.testRequirements() ) return false;
+	require: function() {
+		var ability = this;
+		if (!this.testRequirements()) return false;
 
 		if (!this.atLeastOneTarget(
-				this.creature.getHexMap(inlinefrontnback2hex), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.getHexMap(inlinefrontnback2hex),
+				{
+					team: this._targetTeam,
+					optTest: function(creature) {
+						// Size restriction of 2 if unupgraded
+						return ability.isUpgraded() ? true : creature.size <= 2;
+					}
+				})) {
 			return false;
 		}
 		return true;
@@ -406,7 +413,11 @@ G.abilities[40] =[
 			team: this._targetTeam,
 			id : this.creature.id,
 			flipped : this.creature.flipped,
-			hexs : this.creature.getHexMap(inlinefrontnback2hex),
+			hexs: this.creature.getHexMap(inlinefrontnback2hex),
+			optTest: function(creature) {
+				// Size restriction of 2 if unupgraded
+				return ability.isUpgraded() ? true : creature.size <= 2;
+			}
 		});
 	},
 
@@ -424,35 +435,31 @@ G.abilities[40] =[
 			[]	// Effects
 		);
 
-		// Swap places
-		if( target.size > 2 ) {
-			target.takeDamage(damage);
-			return;
-		}
-
 		var trgIsInfront = (G.grid.getHexMap(crea.x-inlinefront2hex.origin[0], crea.y-inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == target);
 
+		var creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
 		crea.moveTo(
-			G.grid.hexs[target.y][ target.size == 1 && !trgIsInfront ? target.x+1 : target.x ],
+			G.grid.hexs[target.y][creaX],
 			{
 				ignorePath: true,
 				ignoreMovementPoint: true,
 				callback:function() {
-					target.updateHex();
+					crea.updateHex();
 					G.grid.updateDisplay();
-					target.takeDamage(damage);
+					crea.queryMove();
 				}
 			}
 		);
+		var targetX = crea.x + (trgIsInfront ? target.size - crea.size: 0);
 		target.moveTo(
-			G.grid.hexs[crea.y][ target.size == 1 && trgIsInfront ? crea.x-1 : crea.x ],
+			G.grid.hexs[crea.y][targetX],
 			{
 				ignorePath: true,
 				ignoreMovementPoint: true,
 				callback:function(){
-					crea.updateHex();
+					target.updateHex();
 					G.grid.updateDisplay();
-					crea.queryMove();
+					target.takeDamage(damage);
 				}
 			}
 		);

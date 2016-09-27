@@ -39,7 +39,8 @@ G.abilities[4] =[
 						},
 						effectFn: function(effect, target) {
 							target.takeDamage(
-								new Damage(effect.attacker, ability.damages, 1, []));
+								new Damage(effect.attacker, ability.damages, 1, []),
+								{ isFromTrap: true });
 							this.trap.destroy();
 							effect.deleteEffect();
 						},
@@ -71,8 +72,7 @@ G.abilities[4] =[
 		if( !this.testRequirements() ) return false;
 
 		if (!this.atLeastOneTarget(
-				this.creature.getHexMap(frontnback3hex), this._targetTeam)) {
-			this.message = G.msg.abilities.notarget;
+				this.creature.getHexMap(frontnback3hex), { team: this._targetTeam })) {
 			return false;
 		}
 		return true;
