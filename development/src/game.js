@@ -300,11 +300,14 @@ var Game = Class.create( {
 	setup: function(playerMode) {
 
 		// Phaser
-		this.Phaser.scale.pageALignHorizontally = true;
+		this.Phaser.scale.pageAlignHorizontally = true;
 	  this.Phaser.scale.pageAlignVertically = true;
 	  this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-	  this.Phaser.stage.forcePortrait = true;
 	  this.Phaser.scale.setScreenSize(true);
+		this.Phaser.stage.disableVisibilityChange = true;
+		if (!this.Phaser.device.desktop) {
+			this.Phaser.stage.forcePortrait = true;
+		}
 
 		var bg = this.Phaser.add.sprite(0, 0, 'background');
 		bg.inputEnabled = true;
