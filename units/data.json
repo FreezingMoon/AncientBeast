@@ -2971,7 +2971,7 @@
 		"type": "W1",
 		"set": "Alpha",
 		"stats": {
-			"health": 80,
+			"health": 85,
 			"regrowth": 3,
 			"endurance": 30,
 			"energy": 80,
@@ -3259,7 +3259,7 @@
 		"type": "E2",
 		"set": "Alpha",
 		"stats": {
-			"health": 85,
+			"health": 80,
 			"regrowth": 2,
 			"endurance": 30,
 			"energy": 75,
