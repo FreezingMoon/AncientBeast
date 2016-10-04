@@ -286,16 +286,9 @@ G.abilities[40] =[
 			if (path[i].creature) {
 				target = path[i].creature;
 				runPath = path.slice(0, i);
-				if (i > 0) {
-					pushPath = path.slice(i);
-				}
+				pushPath = path.slice(i);
 				break;
 			}
-		}
-		var destination = runPath.last();
-		if (args.direction === 4) {
-			destination =
-				G.grid.hexs[destination.y][destination.x + this.creature.size - 1];
 		}
 
 		// Calculate damage, extra damage per hex distance
@@ -303,27 +296,41 @@ G.abilities[40] =[
 		damages.pierce += runPath.length;
 		var damage = new Damage(this.creature, damages, 1, []);
 
-		G.grid.cleanReachable();
-		this.creature.moveTo(destination, {
-			overrideSpeed: 100,
-			ignoreMovementPoint: true,
-			callback: function() {
-				var interval = setInterval(function() {
-					if (!G.freezedInput) {
-						clearInterval(interval);
+		// Move towards target if necessary
+		if (runPath.length > 0) {
+			var destination = runPath.last();
+			if (args.direction === 4) {
+				destination =
+					G.grid.hexs[destination.y][destination.x + this.creature.size - 1];
+			}
 
-						// Deal damage only if we have reached the end of the path
-						if (destination.creature === ability.creature) {
-							target.takeDamage(damage);
-						}
+			G.grid.cleanReachable();
+			this.creature.moveTo(destination, {
+				overrideSpeed: 100,
+				ignoreMovementPoint: true,
+				callback: function() {
+					var interval = setInterval(function() {
+						if (!G.freezedInput) {
+							clearInterval(interval);
 
-						if (!ability._pushTarget(target, pushPath, args)) {
-							G.activeCreature.queryMove();
+							// Deal damage only if we have reached the end of the path
+							if (destination.creature === ability.creature) {
+								target.takeDamage(damage);
+							}
+
+							if (!ability._pushTarget(target, pushPath, args)) {
+								G.activeCreature.queryMove();
+							}
 						}
-					}
-				}, 100);
-			},
-		});
+					}, 100);
+				},
+			});
+		} else {
+			target.takeDamage(damage);
+			if (!ability._pushTarget(target, pushPath, args)) {
+				G.activeCreature.queryMove();
+			}
+		}
 	},
 
 	_pushTarget: function(target, pushPath, args) {

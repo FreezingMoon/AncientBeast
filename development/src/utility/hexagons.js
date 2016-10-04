@@ -1585,6 +1585,13 @@ var Hex = Class.create({
 		this.drop.pickup(crea);
 	},
 
+	/**
+	 * Override toJSON to avoid circular references when outputting to game log
+	 * Used by game log only
+	 */
+	toJSON: function() {
+		return {x: this.x, y: this.y};
+	}
 }); // End of Hex Class
 
 
