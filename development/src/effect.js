@@ -29,7 +29,8 @@ var Effect = Class.create( {
 			deleteTrigger : "onStartOfRound",
 			stackable : true,
 			noLog : false,
-			specialHint : undefined // Special hint for log
+			specialHint : undefined, // Special hint for log
+			deleteOnOwnerDeath: false
 		},optArgs);
 
 		$j.extend(this,args);

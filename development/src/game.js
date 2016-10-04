@@ -935,16 +935,29 @@ var Game = Class.create( {
 			G.triggerAbility("onCreatureMove", arguments);
 		},
 
-		onCreatureDeath : function( creature, callback ) {
+		onCreatureDeath: function(creature, callback) {
+			var i;
 			G.triggerAbility("onCreatureDeath", arguments);
 			G.triggerEffect("onCreatureDeath", [creature, creature]);
 			// Look for traps owned by this creature and destroy them
-			for (var i = 0; i < G.grid.traps.length; i++) {
+			for (i = 0; i < G.grid.traps.length; i++) {
 				var trap = G.grid.traps[i];
 				if (trap === undefined) continue;
 				if (trap.turnLifetime > 0 && trap.fullTurnLifetime &&
 						trap.ownerCreature == creature) {
 					trap.destroy();
+					i--;
+				}
+			}
+			// Look for effects owned by this creature and destroy them if necessary
+			for (i = 0; i < G.effects.length; i++) {
+				var effect = G.effects[i];
+				if (effect.deleteOnOwnerDeath) {
+					effect.deleteEffect();
+					// Update UI in case effect changes it
+					if (effect.target) {
+						effect.target.updateHealth();
+					}
 					i--;
 				}
 			}

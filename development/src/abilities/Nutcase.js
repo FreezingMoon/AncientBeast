@@ -30,6 +30,7 @@ G.abilities[40] =[
 			// Delete this effect as soon as attacker's turn finishes
 			turnLifetime: 1,
 			creationTurn: G.turn - 1,
+			deleteOnOwnerDeath: true
 		};
 		// If upgraded, target abilities cost more energy
 		if (this.isUpgraded()) {
