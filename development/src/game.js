@@ -952,7 +952,7 @@ var Game = Class.create( {
 			// Look for effects owned by this creature and destroy them if necessary
 			for (i = 0; i < G.effects.length; i++) {
 				var effect = G.effects[i];
-				if (effect.deleteOnOwnerDeath) {
+				if (effect.owner === creature && effect.deleteOnOwnerDeath) {
 					effect.deleteEffect();
 					// Update UI in case effect changes it
 					if (effect.target) {
