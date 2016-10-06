@@ -145,7 +145,7 @@ G.abilities[40] =[
 			for (var i = 0; i < targetOrChoice.length; i++) {
 				var target = targetOrChoice[i].creature;
 				// only attack enemies
-				if (!isTeam(this.creature, target, this._targetTeam)) {
+				if (!target || !isTeam(this.creature, target, this._targetTeam)) {
 					continue;
 				}
 				this._activateOnTarget(target);
