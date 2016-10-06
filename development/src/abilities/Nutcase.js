@@ -43,18 +43,20 @@ G.abilities[40] =[
 			"", // Trigger
 			o
 		));
-		// Nutcase becomes unmoveable until start of its phase
-		this.creature.addEffect(new Effect(
-			this.title,
-			this.creature,
-			this.creature,
-			"",
-			{
-				alterations: { moveable: false },
-				deleteTrigger: "onStartPhase",
-				turnLifetime: 1
-			}
-		));
+		// If inactive, Nutcase becomes unmoveable until start of its phase
+		if (G.activeCreature !== this.creature) {
+			this.creature.addEffect(new Effect(
+				this.title,
+				this.creature,
+				this.creature,
+				"",
+				{
+					alterations: { moveable: false },
+					deleteTrigger: "onStartPhase",
+					turnLifetime: 1
+				}
+			));
+		}
 		// Making attacker unmoveable will change its move query, so update it
 		if (damage.attacker === G.activeCreature) {
 			damage.attacker.queryMove();
