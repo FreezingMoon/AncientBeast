@@ -534,6 +534,8 @@ var Damage = Class.create( {
 		this.status = "";
 		this.effects = effects;
 		this.area = area;
+		// Whether this is counter-damage
+		this.counter = false;
 	},
 
 	/* applyDamage()

@@ -36,13 +36,23 @@ G.abilities[40] =[
 		if (this.isUpgraded()) {
 			o.alterations.reqEnergy = 5;
 		}
-		damage.attacker.addEffect(new Effect(
-			this.title,
-			this.creature, // Caster
-			damage.attacker, // Target
-			"", // Trigger
-			o
-		));
+		// Create a zero damage with debuff
+		var counterDamage = new Damage(
+			this.creature, {}, 1, [new Effect(
+				this.title,
+				this.creature, // Caster
+				damage.attacker, // Target
+				"", // Trigger
+				o
+			)]
+		);
+		counterDamage.counter = true;
+		damage.attacker.takeDamage(counterDamage);
+		// Making attacker unmoveable will change its move query, so update it
+		if (damage.attacker === G.activeCreature) {
+			damage.attacker.queryMove();
+		}
+
 		// If inactive, Nutcase becomes unmoveable until start of its phase
 		if (G.activeCreature !== this.creature) {
 			this.creature.addEffect(new Effect(
@@ -56,10 +66,6 @@ G.abilities[40] =[
 					turnLifetime: 1
 				}
 			));
-		}
-		// Making attacker unmoveable will change its move query, so update it
-		if (damage.attacker === G.activeCreature) {
-			damage.attacker.queryMove();
 		}
 	}
 },
