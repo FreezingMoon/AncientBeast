@@ -19,10 +19,22 @@ var Ability = Class.create( {
 		}
 	},
 
+	hasUpgrade: function() {
+		return G.abilityUpgrades >= 0 && this.upgrade;
+	},
+
+	usesLeftBeforeUpgrade: function() {
+		if (this.trigger === "onQuery") {
+			return G.abilityUpgrades - this.timesUsed;
+		}
+		return G.abilityUpgrades - this.creature.turnsActive;
+	},
+
 	isUpgraded: function() {
-		if(G.abilityUpgrades == -1 || !this.upgrade) return false;
-		if(this.trigger === "onQuery") return this.timesUsed >= G.abilityUpgrades;
-		else return this.creature.turnsActive >= G.abilityUpgrades;
+		if (!this.hasUpgrade()) {
+			return false;
+		}
+		return this.usesLeftBeforeUpgrade() <= 0;
 	},
 
 	getTrigger: function() {
@@ -67,6 +79,10 @@ var Ability = Class.create( {
 		if(!desableLogMsg) G.log("%CreatureName" + this.creature.id + "% uses " + this.title);
 		this.applyCost();
 		this.setUsed(true); // Should always be here
+		this.timesUsed++;
+		this.timesUsedThisTurn++;
+		// Update upgrade information
+		G.UI.updateAbilityButtonsContent();
 		G.UI.updateInfos(); // Just in case
 		G.UI.btnDelay.changeState("disabled");
 		G.activeCreature.delayable = false;
@@ -145,8 +161,6 @@ var Ability = Class.create( {
 
 		var activateAbility = function() {
 			ab.activate.apply(ab,args);
-			ab.timesUsed++;
-			ab.timesUsedThisTurn++;
 		};
 
 		G.freezedInput = true;

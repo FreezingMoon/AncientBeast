@@ -903,46 +903,26 @@ var UI = Class.create( {
 	*
 	*/
 	updateActivebox: function() {
+		var creature = G.activeCreature;
 		var $abilitiesButtons = $j("#abilities .ability");
 		$abilitiesButtons.unbind("click");
 
 		this.$activebox.find("#abilities").clearQueue().transition( { y: "-420px" }, 500, 'easeInQuart', function() { // Hide panel
-			$j(this).removeClass("p0 p1 p2 p3").addClass("p"+G.activeCreature.player.id);
+			$j(this).removeClass("p0 p1 p2 p3").addClass("p"+creature.player.id);
 
-			G.UI.energyBar.setSize( G.activeCreature.oldEnergy/G.activeCreature.stats.energy );
-			G.UI.healthBar.setSize( G.activeCreature.oldHealth/G.activeCreature.stats.health );
+			G.UI.energyBar.setSize(creature.oldEnergy/creature.stats.energy);
+			G.UI.healthBar.setSize(creature.oldHealth/creature.stats.health);
+
+			G.UI.updateAbilityButtonsContent();
 
 			// Change ability buttons
 			G.UI.abilitiesButtons.each(function() {
-				var ab = G.activeCreature.abilities[this.abilityId];
-				this.css.normal = { "background-image": "url('../units/abilities/" + G.activeCreature.name + " " + this.abilityId + ".svg')" };
-				this.$button.next(".desc").find("span").text(ab.title);
-				this.$button.next(".desc").find("p").html(ab.desc);
-
-				// Change the ability's frame when it gets upgraded
-				if(ab.isUpgraded()) this.$button.addClass('upgraded');
-				else this.$button.removeClass('upgraded');
-
-				var costs_string = ab.getFormatedCosts();
-				var dmg_string = ab.getFormatedDamages();
-				var special_string = ab.getFormatedEffects();
-
-				// Removing elements
-				this.$button.next(".desc").find(".costs , .damages , .special").remove();
-
-				// Add if needed
-				if(costs_string) {
-					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="costs"></div>');
-					this.$button.next(".desc").find(".costs").html("Costs : " + costs_string);
-				}
-				if(dmg_string) {
-					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="damages"></div>');
-					this.$button.next(".desc").find(".damages").html("Damages : " + dmg_string);
-				}
-				if(special_string) {
-					this.$button.next(".desc").find(".abilityinfo_content").append('<div class="special"></div>');
-					this.$button.next(".desc").find(".special").html("Effects : " + special_string);
-				}
+				var ab = creature.abilities[this.abilityId];
+				this.css.normal = {
+					"background-image": "url('../units/abilities/" + creature.name + " " + this.abilityId + ".svg')"				};
+				var $desc = this.$button.next(".desc");
+				$desc.find("span.title").text(ab.title);
+				$desc.find("p").html(ab.desc);
 
 				this.click = function() {
 					if(G.UI.selectedAbility != this.abilityId) {
@@ -991,42 +971,67 @@ var UI = Class.create( {
 			G.UI.$activebox.children("#abilities").transition( { y: "0px" }, 500, 'easeOutQuart'); // Show panel
 		});
 
-		G.UI.checkAbilitiesTooltip();
-
 		this.updateInfos();
 	},
 
-	checkAbilitiesTooltip : function() {
-		for (var i = 0; i < 4; i++) {
-			var ab = G.activeCreature.abilities[i];
+	updateAbilityButtonsContent: function() {
+		var creature = G.activeCreature;
+
+		// Change ability buttons
+		this.abilitiesButtons.each(function() {
+			var ab = creature.abilities[this.abilityId];
+			var $desc = this.$button.next(".desc");
+
+			// Change the ability's frame when it gets upgraded
+			if(ab.isUpgraded()) this.$button.addClass('upgraded');
+			else this.$button.removeClass('upgraded');
+
+			// Add extra ability info
+			var $abilityInfo = $desc.find(".abilityinfo_content");
+			$abilityInfo.find(".info").remove();
 
 			var costs_string = ab.getFormatedCosts();
+			if (costs_string) {
+				$abilityInfo.append(
+					'<div class="info costs">' +
+					'Costs : ' + costs_string +
+					'</div>'
+				);
+			}
 			var dmg_string = ab.getFormatedDamages();
+			if (dmg_string) {
+				$abilityInfo.append(
+					'<div class="info damages">' +
+					'Damages : ' + dmg_string +
+					'</div>'
+				);
+			}
 			var special_string = ab.getFormatedEffects();
-
-			// Removing elements
-			this.abilitiesButtons[i].$button.next(".desc").find(".costs , .damages , .special").remove();
-
-			// Add if needed
-			if(costs_string) {
-				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="costs"></div>');
-				this.abilitiesButtons[i].$button.next(".desc").find(".costs").html("Costs : " + costs_string);
+			if (special_string) {
+				$abilityInfo.append(
+					'<div class="info special">' +
+					'Effects : ' + special_string +
+					'</div>'
+				);
 			}
-			if(dmg_string) {
-				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="damages"></div>');
-				this.abilitiesButtons[i].$button.next(".desc").find(".damages").html("Damages : " + dmg_string);
+			if (ab.hasUpgrade()) {
+				var upgradeText;
+				if (!ab.isUpgraded()) {
+					upgradeText = 'Uses left before upgrading : ' + ab.usesLeftBeforeUpgrade();
+				} else {
+					upgradeText = 'Upgrade : ' + ab.upgrade;
+				}
+				$abilityInfo.append(
+					'<div class="info upgrade">' +
+					upgradeText +
+					'</div>'
+				);
 			}
-			if(special_string) {
-				this.abilitiesButtons[i].$button.next(".desc").find(".abilityinfo_content").append('<div class="special"></div>');
-				this.abilitiesButtons[i].$button.next(".desc").find(".special").html("Effects : " + special_string);
-			}
-		}
+		});
 	},
 
 	checkAbilities : function() {
 		var oneUsableAbility = false;
-
-		G.UI.checkAbilitiesTooltip();
 
 		for (var i = 0; i < 4; i++) {
 			var ab = G.activeCreature.abilities[i];

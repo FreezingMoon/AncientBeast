@@ -682,7 +682,7 @@ body {
 }
 
 .button:hover + .desc {
-	width: 250px;
+	width: 270px;
 	border: 2px black solid;
 	overflow: visible;
 	border-radius: 5px;
@@ -746,16 +746,17 @@ body {
 
 #rightpanel .button +.desc .arrow:before { border-right: 0px solid transparent; border-left: 6px solid black; }
 
-#rightpanel .button:hover +.desc { left: -259px; text-align: right; }
+#rightpanel .button:hover +.desc { width: 250px; left: -259px; text-align: right; }
 
 /*-----------------Costs and damages-------------------*/
 
-.costs, .damages, .special, .charge { margin: 2px 10px; font-size: 14px; }
+.abilityinfo_content>.info { margin: 2px 10px; font-size: 14px; }
 
-.costs { color: #ddd; text-shadow: 1px 1px 0px #55f; }
-.damages { color: #ddd; text-shadow: 1px 1px 0px #f55; }
-.charge { color: #fff; text-shadow: 1px 1px 0px #f5f; }
-.special { color: #ddd; text-shadow: 1px 1px 0px #ff5; }
+.abilityinfo_content>.info.costs { color: #ddd; text-shadow: 1px 1px 0px #55f; }
+.abilityinfo_content>.info.damages { color: #ddd; text-shadow: 1px 1px 0px #f55; }
+.abilityinfo_content>.info.charge { color: #fff; text-shadow: 1px 1px 0px #f5f; }
+.abilityinfo_content>.info.special { color: #ddd; text-shadow: 1px 1px 0px #ff5; }
+.abilityinfo_content>.info.upgrade { color: #ddd; text-shadow: 1px 1px 0px #5a5; }
 
 span.plasma { background-image: url("../../stats/plasma.svg");  }
 span.health { background-image: url("../../stats/health.svg"); }
