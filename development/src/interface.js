@@ -1017,13 +1017,16 @@ var UI = Class.create( {
 			if (ab.hasUpgrade()) {
 				var upgradeText;
 				if (!ab.isUpgraded()) {
+					$abilityInfo.append(
+						'<div class="info upgrade">' +
+						'Uses left before upgrading : ' + ab.usesLeftBeforeUpgrade() +
+						'</div>'
+					);
 					upgradeText = 'Uses left before upgrading : ' + ab.usesLeftBeforeUpgrade();
-				} else {
-					upgradeText = 'Upgrade : ' + ab.upgrade;
 				}
 				$abilityInfo.append(
 					'<div class="info upgrade">' +
-					upgradeText +
+					'Upgrade : ' + ab.upgrade +
 					'</div>'
 				);
 			}
