@@ -21,9 +21,9 @@ G.abilities[3] =[
 	require : function(damage) {
 		if( !this.testRequirements() ) return false;
 
-		// Check that attack is melee
+		// Check that attack is melee from actual creature, not from trap
 		if (damage && damage.melee !== undefined) {
-			return damage.melee;
+			return damage.melee && !damage.isFromTrap;
 		}
 		// Always return true so that ability is highlighted in UI
 		return true;
