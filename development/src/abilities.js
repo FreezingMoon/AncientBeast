@@ -23,8 +23,17 @@ var Ability = Class.create( {
 		return G.abilityUpgrades >= 0 && this.upgrade;
 	},
 
+	/**
+	 * Whether this ability upgrades after a certain number of uses. Otherwise it
+	 * upgrades after a certain number of rounds.
+	 * By default, this applies to active (onQuery) abilities.
+	 */
+	isUpgradedPerUse: function() {
+		return this.trigger === "onQuery";
+	},
+
 	usesLeftBeforeUpgrade: function() {
-		if (this.trigger === "onQuery") {
+		if (this.isUpgradedPerUse()) {
 			return G.abilityUpgrades - this.timesUsed;
 		}
 		return G.abilityUpgrades - this.creature.turnsActive;
