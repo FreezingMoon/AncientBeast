@@ -7,7 +7,7 @@ G.abilities[7] =[
 
 // 	First Ability: Burning Heart
 {
-	trigger: "onUnderAttack",
+	trigger: "onOtherDamage",
 
 	// 	require() :
 	require : function(damage) {
@@ -21,9 +21,24 @@ G.abilities[7] =[
 	//  activate() :
 	activate : function(damage, target) {
 		if(this.creature.id === damage.attacker.id) {
+			var optArg = { alterations : {burn : -1} };
+
+			target.addEffect(new Effect(
+				"Burning Heart", //Name
+				this.creature, //Caster
+				target, //Target
+				"", //Trigger
+				{ alterations: { burn: -1 } } //Optional arguments
+			));
 			target.stats.burn -= 1;
-			if(this.isUpgraded() === true) {
-				this.creature.stats.burn += 1;
+			if (this.isUpgraded()) {
+				this.creature.addEffect(new Effect(
+					"Burning Heart", //Name
+					this.creature, //Caster
+					this.creature, //Target
+					"", //Trigger
+					{ alterations: { burn: 1 } } //Optional arguments
+				));
 			}
 		}
 		this.end();
