@@ -9,6 +9,11 @@ G.abilities[7] =[
 {
 	trigger: "onOtherDamage",
 
+	// Override upgrade behavior: count times activated as upgrade count
+	usesLeftBeforeUpgrade: function() {
+		return G.abilityUpgrades - this.timesUsed;
+	},
+
 	// 	require() :
 	require : function(damage) {
 		if( !this.testRequirements() ) return false;
@@ -20,26 +25,27 @@ G.abilities[7] =[
 
 	//  activate() :
 	activate : function(damage, target) {
-		if(this.creature.id === damage.attacker.id) {
-			var optArg = { alterations : {burn : -1} };
+		if (this.creature.id !== damage.attacker.id) {
+			return;
+		}
+		var optArg = { alterations : {burn : -1} };
 
-			target.addEffect(new Effect(
+		target.addEffect(new Effect(
+			"Burning Heart", //Name
+			this.creature, //Caster
+			target, //Target
+			"", //Trigger
+			{ alterations: { burn: -1 } } //Optional arguments
+		));
+		target.stats.burn -= 1;
+		if (this.isUpgraded()) {
+			this.creature.addEffect(new Effect(
 				"Burning Heart", //Name
 				this.creature, //Caster
-				target, //Target
+				this.creature, //Target
 				"", //Trigger
-				{ alterations: { burn: -1 } } //Optional arguments
+				{ alterations: { burn: 1 } } //Optional arguments
 			));
-			target.stats.burn -= 1;
-			if (this.isUpgraded()) {
-				this.creature.addEffect(new Effect(
-					"Burning Heart", //Name
-					this.creature, //Caster
-					this.creature, //Target
-					"", //Trigger
-					{ alterations: { burn: 1 } } //Optional arguments
-				));
-			}
 		}
 		this.end();
 	},
@@ -216,7 +222,9 @@ G.abilities[7] =[
 			fnOnConfirm : function() { ability.animation.apply(ability, arguments); },
 			fnOnSelect : function(hex, args) {
 				range.each(function() {
-					this.overlayVisualState("creature selected weakDmg player"+this.creature.team);
+					if (this.creature) {
+						this.overlayVisualState("creature selected weakDmg player"+this.creature.team);
+					}
 				});
 				hex.cleanOverlayVisualState();
 				hex.overlayVisualState("creature selected player"+G.activeCreature.team);
