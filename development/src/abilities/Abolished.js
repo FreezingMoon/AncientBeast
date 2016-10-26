@@ -162,31 +162,7 @@ G.abilities[7] =[
 			animation : "teleport",
 			callback : function() {
 				G.activeCreature.queryMove();
-			},
-			callbackStepIn  : function() {
-				var targets = ability.getTargets(ability.creature.adjacentHexs(1));
-
-				targets.each(function() {
-				if( !(this.target instanceof Creature) ) return;
-
-					var trg = this.target;
-
-					if (isTeam(ability.creature, trg, Team.enemy)) {
-
-						var optArg = { alterations : { burn : -5 } };
-
-						// Roasted effect
-						var effect = new Effect(
-							"Roasted", // Name
-							ability.creature, // Caster
-							trg, // Target
-							"", // Trigger
-							optArg // Optional arguments
-						);
-						trg.addEffect(effect, "%CreatureName"+trg.id+"% got roasted : -5 burn stat");
-					}
-				});
-			},
+			}
 		});
 	},
 },
