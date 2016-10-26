@@ -108,11 +108,20 @@ G.abilities[7] =[
 		var ability = this;
 		var crea = this.creature;
 
+		// Teleport to any hex within range except for the current hex
 		crea.queryMove({
 			noPath : true,
 			isAbility : true,
-			range : G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
-			callback : function() { delete arguments[1]; ability.animation.apply(ability, arguments); },
+			range: G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
+			callback: function(hex, args) {
+				if (hex.x == args.creature.x && hex.y == args.creature.y) {
+					// Prevent null movement
+					ability.query();
+					return;
+				}
+				delete arguments[1];
+				ability.animation.apply(ability, arguments);
+			}
 		});
 	},
 
