@@ -9,11 +9,6 @@ G.abilities[7] =[
 {
 	trigger: "onOtherDamage",
 
-	// Override upgrade behavior: count times activated as upgrade count
-	isUpgradedPerUse: function() {
-		return true;
-	},
-
 	// 	require() :
 	require : function(damage) {
 		if( !this.testRequirements() ) return false;
