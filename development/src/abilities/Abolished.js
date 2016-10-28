@@ -23,7 +23,6 @@ G.abilities[7] =[
 		if (this.creature.id !== damage.attacker.id) {
 			return;
 		}
-		var optArg = { alterations : {burn : -1} };
 
 		target.addEffect(new Effect(
 			"Burning Heart", //Name
