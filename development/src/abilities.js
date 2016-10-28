@@ -511,7 +511,7 @@ var Ability = Class.create( {
 			if( o.distance > 0 ) dir = dir.slice(0, o.distance+1);
 
 			dir = dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id);
-			var isValid = this.atLeastOneTarget(dir, o.team);
+			var isValid = this.atLeastOneTarget(dir, o);
 			outDirections.push(isValid ? 1 : 0);
 		}
 		return outDirections;
