@@ -41,7 +41,6 @@ G.abilities[7] =[
 				{ alterations: { burn: 1 } } //Optional arguments
 			));
 		}
-		this.end();
 	},
 },
 
