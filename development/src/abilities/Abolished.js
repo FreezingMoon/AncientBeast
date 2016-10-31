@@ -157,8 +157,12 @@ G.abilities[7] =[
 		});
 
 		// Leave a Firewall in current location
-		var effectFn = function(effect,crea) {
-			crea.takeDamage(
+		var effectFn = function(effect, creatureOrHex) {
+			var creature = creatureOrHex;
+			if (!(creatureOrHex instanceof Creature)) {
+				creature = creatureOrHex.creature;
+			}
+			creature.takeDamage(
 				new Damage(effect.attacker, ability.damages , 1, []),
 				{ isFromTrap: true });
 			this.trap.destroy();
@@ -166,7 +170,7 @@ G.abilities[7] =[
 
 		var requireFn = function() {
 			if (this.trap.hex.creature === 0) return false;
-			return this.trap.hex.creature.type != "P7";
+			return this.trap.hex.creature.type !== ability.creature.type;
 		};
 
     var crea = this.creature;
