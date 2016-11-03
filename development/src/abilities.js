@@ -88,10 +88,6 @@ var Ability = Class.create( {
 		if(!desableLogMsg) G.log("%CreatureName" + this.creature.id + "% uses " + this.title);
 		this.applyCost();
 		this.setUsed(true); // Should always be here
-		this.timesUsed++;
-		this.timesUsedThisTurn++;
-		// Update upgrade information
-		G.UI.updateAbilityButtonsContent();
 		G.UI.updateInfos(); // Just in case
 		G.UI.btnDelay.changeState("disabled");
 		G.activeCreature.delayable = false;
@@ -100,7 +96,6 @@ var Ability = Class.create( {
 			G.activeCreature.queryMove();
 		}
 	},
-
 
 	/*	setUsed(val)
 	*
@@ -122,6 +117,17 @@ var Ability = Class.create( {
 				}
 			}
 		}
+	},
+
+	/**
+	 * Called after activate(); primarily to set times used so that isUpgraded is
+	 * correct within activate().
+	 */
+	postActivate: function() {
+		this.timesUsed++;
+		this.timesUsedThisTurn++;
+		// Update upgrade information
+		G.UI.updateAbilityButtonsContent();
 	},
 
 	/*	animation()
@@ -170,6 +176,7 @@ var Ability = Class.create( {
 
 		var activateAbility = function() {
 			ab.activate.apply(ab,args);
+			ab.postActivate();
 		};
 
 		G.freezedInput = true;
