@@ -60,7 +60,7 @@ require_once('../header.php'); ?>
 <script src="launcher/jquery.fullscreen-min.js"></script>
 
 <script type="text/javascript">
-$(document).ready(function(){
+$(document).ready(function() {
 	$(document).bind("fullscreenchange", function() {
 		$('#game').toggleClass('fullscreen');
 	});
@@ -71,11 +71,20 @@ $(document).ready(function(){
 	<a onclick="if(confirm('Reset Game?')) var ifr=document.getElementsByName('game')[0]; ifr.src=ifr.src;" style="margin-left: 5px;"><img src="reset.svg" style="margin-bottom: 3px;"> Reset Game</a>
 	<a onclick="$('#game').fullScreen(true)" style="margin-left: 660px;">Fullscreen <img src="fullscreen.svg" style="margin-bottom: 3px;"></a>
 </div>
-<div class="center">
-	<iframe id="game" name="game" src="../game/" style="border: 4px ridge; border-color: grey; width: 934px; height: 525px;" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
-</div>
 
-<div class="center warning" style="background: rgba(0, 0, 0, 0.85);">Warning, prototype! The gameplay is currently broken and lacking a lot of features, including online multiplayer.</div>
+<?php
+// Display local game server if the address is localhost
+$source = "http://localhost:8080/index.html";
+$whitelist = array('127.0.0.1', '::1');
+
+if(!in_array($_SERVER['REMOTE_ADDR'], $whitelist)) {
+	$source = "https://game.ancientbeast.com";
+}
+?>
+
+<div class="center">
+	<iframe id="game" name="game" src="<?php echo $source; ?>" style="border: 4px ridge; border-color: grey; width: 934px; height: 525px;" seamless webkitAllowFullScreen mozAllowFullScreen allowFullScreen></iframe>
+</div>
 
 <?php
 include('../footer.php'); ?>
