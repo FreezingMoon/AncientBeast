@@ -24,14 +24,18 @@ $sections = array(
 <nav class="div center" id="navigation"><ul class="sections">
 
 <?php
+// TODO: Make this into a function and reuse it at the bottom of the page for easier navigation after reading the current page, even if there's a "Go to Top" button
 foreach ($sections as &$sectionItem) {
 	echo '<li style="display: inline;"><a href="?view=' . $sectionItem . '"  id="' . $sectionItem . '" style="padding: 2em;">' . ucfirst($sectionItem) . '</a></li>';
 }
-echo '</ul></nav>';
+?>
 
-// This div serves as an anchor
-echo '<div id="focus"></div>';
+</ul></nav>
 
+<!-- This div serves as an anchor -->
+<div id="focus"></div>
+
+<?php
 switch ($view) {
 	default:
 		?>
