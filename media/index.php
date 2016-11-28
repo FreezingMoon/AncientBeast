@@ -173,24 +173,24 @@ switch($type) {
 	case 'music':
 		?><div class="div center"><img src="band.jpg"><?php
 		$folders = array('..', '.');
-		$media = array_values(array_diff(scandir("music"), $folders));
+		$media = array_values(array_diff(scandir("../game/deploy/music"), $folders));
 		natsort($media);
 		$i = 0;
 		$error = 'Your browser does not support the audio element.';
 
-		echo '<audio id="audio" preload="auto" controls="" style="width:890px;"><source src="' . $site_url . 'media/music/' . $media[0] . '"> '. $error
+		echo '<audio id="audio" preload="auto" controls="" style="width:890px;"><source src="' . $site_url . 'game/deploy/music/' . $media[0] . '"> '. $error
 			.'</audio><a style="cursor: pointer;" id="mp_shuffle">Shuffle</a><ul id="playlist" style="list-style-type:none; padding-left:0px;">';
 
 		foreach($media as $file){
 			$title = substr($file, 0, -4);
 			$file = str_replace(' ', '%20', $file);
-			if($title!="") echo '<li class=""><a href="' . $site_url . 'media/music/' . $file . '">' . $title . '</a></li>';
+			if($title!="") echo '<li class=""><a href="' . $site_url . 'game/deploy/music/' . $file . '">' . $title . '</a></li>';
 			$i++;
 		} ?>
 		</ul>
 		</div><div class="div center">Click on a track to start playing it. Let us know which are your favorite ones by leaving a comment bellow.</div>
 		<?php disqus(); ?>
-		<script type="text/javascript" src="../game/js/music.js"></script>
+		<script type="text/javascript" src="../game/src/music.js"></script>
 <?php
 }
 echo "</div></div>";
