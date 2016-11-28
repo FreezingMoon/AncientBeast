@@ -23,7 +23,7 @@
  * DreadKnight@FreezingMoon.org
  */
 $page_title = 'Units';
-$stylesheet = '../game/css/grid.css';
+$stylesheet = '../game/deploy/css/grid.css';
 $style = '
 .bigger {
 	color: #e6e6e6;

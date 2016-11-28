@@ -70,7 +70,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 	// Side A
 ?>
 	<div class="center" style="display: inline-block; vertical-align: top;">
-		<div class="card sideA" style="background-image: url('<?php echo $site_url; ?>images/cards/margin.png'), url('<?php echo $site_url; ?>units/artwork/<?php echo $r['name']; ?>.jpg');">
+		<div class="card sideA" style="background-image: url('<?php echo $site_url; ?>images/cards/margin.png'), url('<?php echo $site_url; ?>game/deploy/units/artwork/<?php echo $r['name']; ?>.jpg');">
 
 			<!-- On hover mini tutorial -->
 			<div class="card_info stats_desc"><br>
@@ -96,7 +96,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 			// Display unit info
 			echo '<div class="section info sin' . $r['realm'] . '">
 					<span class="type" creature_type="' . $r['realm'] . $r['level'] . '" style="float: left; margin-left: 22px;">' . $r['realm'] . $r['level'] . '</span>
-					<span><audio src="../units/shouts/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display: none;" preload="auto"></audio>
+					<span><audio src="../game/deploy/units/shouts/' . $spaceless . '.ogg" id="' . $spaceless . '_shout" style="display: none;" preload="auto"></audio>
 					<a class="name" onClick="' . $CallCreature . '" onmouseover="' . $CallCreature . '" creature_name="' . $r['name'] . '" >' . $r['name'] . '</a></span>
 					<span class="hexs" creature_size="' . $r['size'] . 'H" style="float: right; margin-right: 22px;">' . $r['size'] . '&#11041;</span>
 			</div>
@@ -125,7 +125,7 @@ function cards($r = "", $id = -1, $modifiers = false) {
 						if ($i==0) { $cost = ' - this ability is passive.'; } else { $cost = ' - costs ' . $r["ability_info"][$i]["costs"]["energy"] . ' energy pts.'; }
 						echo '
 						<div class="ability">
-							<div class="icon" style="background-image: url(\'' . $site_url . 'units/abilities/' . $r["name"] . ' ' . $i . '.svg\');">
+							<div class="icon" style="background-image: url(\'' . $site_url . 'game/deploy/units/abilities/' . $r["name"] . ' ' . $i . '.svg\');">
 								<div class="contour"></div>
 							</div>
 							<div class="wrapper">

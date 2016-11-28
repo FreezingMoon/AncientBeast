@@ -39,7 +39,7 @@ $(function() {
 			$(unitDiv).addClass("carouselAvatar");
 			$(unitDiv).data("id", index);
 			// Add in the background images
-			$(unitDiv).css("background", "url('" + siteUrl + "images/frame.png'), url('avatars/" + units[index].name + ".jpg')");
+			$(unitDiv).css("background", "url('" + siteUrl + "images/frame.png'), url('../game/deploy/units/avatars/" + units[index].name + ".jpg')");
 			// Add it to the carousel
 			$("#carousel").append(unitDiv);
 			i++;
@@ -54,7 +54,7 @@ $(function() {
 			// Add in the data id
 			$(this).data("id", unitIndex);
 			// Add in the background images
-			$(this).css("background", "url('" + siteUrl + "images/frame.png'), url('avatars/" + units[unitIndex].name + ".jpg')");
+			$(this).css("background", "url('" + siteUrl + "images/frame.png'), url('../game/deploy/units/avatars/" + units[unitIndex].name + ".jpg')");
 			i++;
 		});
 	}
@@ -69,7 +69,7 @@ $(function() {
 		var i = 0;
 		while (i < unitArr.length) {
 			images[i] = new Image();
-			images[i].src = "avatars/" + unitArr[i].name + ".jpg";
+			images[i].src = "../game/deploy/units/avatars/" + unitArr[i].name + ".jpg";
 			i++;
 		}
 	}
@@ -78,7 +78,7 @@ $(function() {
 		// Set the unit to the selected unit
 		var unit = units[unitIndex];
 		// Update side A
-		$(".sideA").css("background-image", "url('" + siteUrl + "images/cards/margin.png'), url('" + siteUrl + "units/artwork/" + unit.name + ".jpg')");
+		$(".sideA").css("background-image", "url('" + siteUrl + "images/cards/margin.png'), url('" + siteUrl + "game/deploy/units/artwork/" + unit.name + ".jpg')");
 		$(".sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + unit.type.substring(0, 1));
 		$(".sideA .type").text(unit.type);
 		$(".sideA .name").text(unit.name);
