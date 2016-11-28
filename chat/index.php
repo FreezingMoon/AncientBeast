@@ -73,6 +73,10 @@ require_once("../header.php");
 </script>
 <script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
 
+<div class="div">
+<iframe src="https://discordapp.com/widget?id=154868963132571649&theme=dark" width="100%" height="400" allowtransparency="true" frameborder="0"></iframe>
+</div>
+
 <div class="center" id="action">
 	<div style="display: inline-block;" class="lighten">
 		<a href="http://reddit.com/r/AncientBeast" target="_blank"><img src="../images/squares/reddit.jpg" class="frame"><br>
