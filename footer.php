@@ -22,7 +22,7 @@
 	<a href="http://www.indiedb.com/games/ancient-beast" target="_blank">
 		<img src="<?php echo $site_root; ?>images/footer/indiedb.png" style="width: 48px; height: 48px;" class="lighten" alt="indiedb" title="IndieDB">
 	</a>
-	<a href="https://gamejolt.com/games/arcade/ancient-beast/15964/" target="_blank">
+	<a href="https://gamejolt.com/games/ancient-beast/15964" target="_blank">
 		<img src="<?php echo $site_root; ?>images/footer/gamejolt.png" style="width: 48px; height: 48px;" class="lighten" alt="gamejolt" title="Game Jolt">
 	</a>
 	<a href="https://facebook.com/AncientBeast" target="_blank">
