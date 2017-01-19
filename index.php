@@ -45,15 +45,15 @@ require_once 'header.php';
 <div class="center">
 	<!-- Featured Blog Article -->
 	<div style="display: inline-block;" class="lighten">
-		<a href="design"><img src="images/squares/design.jpg" width=290px; height=290px; class="frame"><br>
+		<a href="design"><img src="images/squares/design.jpg" style="width: 290px; height: 290px;" class="frame" alt="Game Design Document"><br>
 		<div class="button" style="background-image: url(images/push_button.png);">Game Design Document</div></a>
 	</div>
 	<div style="display: inline-block;" class="lighten">
-		<a href="game"><img src="images/squares/play.jpg" width=290px; height=290px; class="frame"><br>
+		<a href="game"><img src="images/squares/play.jpg" style="width: 290px; height: 290px;" class="frame" alt="Play the Game"><br>
 		<div class="button" style="background-image: url(images/push_button.png); ;">Play the Game for Free</div></a>
 	</div>
 	<div style="display: inline-block;" class="lighten">
-		<a href="contribute"><img src="images/squares/contribute.jpg" width=290px; height=290px; class="frame"><br>
+		<a href="contribute"><img src="images/squares/contribute.jpg" style="width: 290px; height: 290px;" class="frame" alt="Make Your Contribution"><br>
 		<div class="button" style="background-image: url(images/push_button.png);">Make Your Contribution</div></a>
 	</div>
 </div>
@@ -66,9 +66,9 @@ require_once 'header.php';
 </p><p>
 Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank">free</a> and <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a>, being developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> and community. It uses web technologies such as HTML, PHP, JavaScript and Node.js, so that it's playable from modern browsers without requiring plugins.</p></div>
 <div class="lighten" id="screenshot"><a href="media/?type=screenshots#id=0">
-<img src="images/thumbs/screenie1.png" class="image frame active" width=400px; height=225px;>
-<img src="images/thumbs/screenie2.png" class="image frame" style="opacity: 0;" width=400px; height=225px;>
-<img src="images/thumbs/screenie3.png" class="image frame" style="opacity: 0;" width=400px; height=225px;>
+<img src="images/thumbs/screenie1.png" class="image frame active" style="width: 400px; height: 225px;" alt="Screenshot 1">
+<img src="images/thumbs/screenie2.png" class="image frame" style="opacity: 0; width: 400px; height: 225px;" alt="Screenshot 2">
+<img src="images/thumbs/screenie3.png" class="image frame" style="opacity: 0; width: 400px; height: 225px;" alt="Screenshot 3">
 <div class="center" style="padding-top: 235px;"><b>Check out some screenshots!</b></div></a></div>
 </div>
 
@@ -245,7 +245,7 @@ Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"
 </div>
 
 <div class="div" id="plot">
-	<img src="images/hand.png" class="image lighten" width=400px; height=387px; onClick="toggleSound();" style="cursor: pointer;" title="Click to play narrative">
+	<img src="images/hand.png" class="image lighten" onClick="toggleSound();" style="cursor: pointer; width: 400px; height: 387px;" title="Click to play narrative" alt="Click to paly narrative">
 	<audio id="narration" src="plot.ogg"></audio>
 
 	<div style="width: 475px; text-align: justify; display: inline-block;">
