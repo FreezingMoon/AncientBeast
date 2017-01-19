@@ -31,7 +31,7 @@ require_once('global.php'); ?>
 <link rel="stylesheet" href="<?php echo $site_root; ?>stylesheet.css">
 <link rel="icon" type="image/png" href="<?php echo $site_root; ?>favicon.png">
 <meta name="google-site-verification" content="uNVUkWjGPKwXaFK-BkOowVezLve8a8rjbM_ew1UHiZg">
-<meta name="description" content="Turn Based Strategy Game. Master your beasts!">
+<meta name="description" content="3d print your own squad of units with unique abilities in order to defeat your enemies.">
 <meta name="keywords" content="ancientbeast, ancient, beast, game, online, multiplayer, strategy, bitcoin, bets, combat, arena, chess, cards, creatures, free, open source, foss">
 <meta name="author" content="Dread Knight">
 
