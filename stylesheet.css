@@ -128,7 +128,7 @@ a.active {
 	text-decoration: none;
 	color: #e6e6e6;
 	cursor: pointer;
-	text-shadow: #000 .1em .1em .2em red 0 0 10px;
+	text-shadow: #000 .1em .1em .2em red 0 0 10px; /* buggy or useless? */
 }
 
 iframe {
