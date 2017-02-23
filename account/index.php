@@ -22,37 +22,37 @@
  * DreadKnight@FreezingMoon.org
  */
 
-$page_title = "Account";
-$style = ".arranged {padding-right: 20px; float: right;}";
-require_once("../header.php");
-require_once("../global.php");
-if(isset($_SESSION['id'])	 == 0) {
-	echo '<meta http-equiv="refresh" content="0; url=' . $site_root . 'account/login.php">';
+$page_title = 'Account';
+$style = '.arranged {padding-right: 20px; float: right;}';
+require_once('../header.php');
+require_once('../global.php');
+if(isset($_SESSION['id']) == 0) {
+	echo '<meta http-equiv="refresh" content="0; url=' . $site_root . 'account/login">';
 	die();
 }
 
-$data = mysqli_query($link, "SELECT * FROM `ab_users` WHERE `id`='" . $_SESSION['id'] . "'");
+
+
+// User data
+$data = mysqli_query($link, 'SELECT * FROM `ab_users` WHERE `id`="' . $_SESSION['id'] . '"');
 $userdata = mysqli_fetch_array($data);
 $username = $userdata['username'];
 
-echo '<div class="div center">Welcome back, <b>' . $username . '</b>! In this page you can configure your account.</div>';
-
 $message = "";
+
 // Gravatar
 $email = $userdata['email'];
 $default = $site_root . 'images/AB-symbol.png';
-$grav_url = 'http://www.gravatar.com/avatar/' . md5(strtolower(trim($email))) . '?d=' . urlencode($default) . '&s=90&r=g';
+$grav_url = 'http://www.gravatar.com/avatar/' . md5(strtolower(trim($email))) . '?d=' . urlencode($default) . '&s=128&r=g';
 ?>
 
 <!-- Hightlight active page -->
 <script>document.getElementById("<?php echo $page_title; ?>").className += " active";</script>
 
-<div class="div center">
-<a href="https://gravatar.com" target="_blank" class="lighten" style="float:left;"><img src="<?php echo $grav_url; ?>" title="Change avatar..." alt="avatar" width=90px height=90px ></a>
-<div style="display:inline-block;"><div class="center">In order to use an avatar, you must have a <a href="https://gravatar.com" target="_blank"><b>Gravatar</b></a> account<br>and a G rated image choosen for your current email address.<br>In case you don't have one but you have a <b>subscription</b>, then<br>the portrait of your top favorite unit will be displayed instead.</div></div>
-<img src="<?php echo $default; ?>" style="float:right; width:90px; height:90px;"></div>
-
 <?php
+// This div serves as an anchor
+echo '<div id="focus"></div>';
+
 // Change password
 if (isset($_POST['changepass'])) {
 	$oldpassword = sha1($_POST['oldpass']);
@@ -77,6 +77,7 @@ if (isset($_POST['changepass'])) {
 		echo '<div class="confirmation center">Your password has been updated.</div>';
 	}
 }
+
 // Change email
 if (isset($_POST['changeemail'])) {
 	$newemail = $_POST['newemail'];
@@ -95,6 +96,7 @@ if (isset($_POST['changeemail'])) {
 		echo '<div class="confirmation center">Your email has been updated.</div>';
 	}
 }
+
 // Display update error(s)
 if (isset($message)) {
 	echo $message;
@@ -117,12 +119,15 @@ if (isset($message)) {
 	<tr>
 		<td class="arranged">Confirm Password</td>
 		<td><input type="password" name="newpassagain" pattern=".{6,20}" placeholder="Type the new pass again"></td>
-	</tr>
-		<td>&nbsp;</td>
-		<td><input type="submit" name="changepass" value="Change Password"></td>
-	</tr>
 	</table>
+<input type="submit" name="changepass" value="Change Password" class="button">
 </form>
+</div>
+
+<div style="display:inline-block;">
+<a href="https://gravatar.com" target="_blank" class="lighten" style="float:left;"><img src="<?php echo $grav_url; ?>" title="Change avatar..." alt="avatar" width=128px height=128px><br><b>
+<?php echo $username; ?>
+</b></a>
 </div>
 
 <!-- Change email form -->
@@ -140,14 +145,43 @@ if (isset($message)) {
 	<tr>
 		<td class="arranged">Confirm Email</td>
 		<td><input type="email" name="newemailagain" placeholder="Type the new email again"></td>
-	</tr>
-		<td>&nbsp;</td>
-		<td><input type="submit" name="changeemail" value="Change Email"></td>
-	</tr>
 	</table>
+<input type="submit" name="changeemail" value="Change Email" class="button">
 </form>
 </div>
 </div>
+
+<div class="div center">Show connected social networks</div>
+
+<!--
+<div class="div center">
+	<div style="display: inline-block; padding-top: 8px; padding-right: 50px;"><span style="font-size: 1.1em;">You can deposit bitcoins to this address</span><br><br>
+		<input value="1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb" name="deposit" style="width: 100%;" id="deposit">
+	</div>
+    <div style="display: inline-block; vertical-align: top;" class="lighten">
+		<input type="submit" name="deposit" value="Deposit Bitcoins" id="deposit-bitcoins" class="button">
+	</div>
+</div>
+
+<div class="div center">
+	<div style="display: inline-block; padding-top: 8px; padding-right: 50px;"><span style="font-size: 1.1em;">Your withdraw address is the following</span><br><br>
+		<input value="" name="save" style="width: 100%;" id="save-address" placeholder=" ▷ Currently no withdraw bitcoin address configured  ◁">
+	</div>
+    <div style="display: inline-block; vertical-align: top;" class="lighten">
+		<input type="submit" name="save-address" value="Save Address" id="save-address" class="button">
+	</div>
+</div>
+
+</div>
+<div class="div center">
+	<div style="display: inline-block; padding-top: 8px; padding-right: 50px;"><span style="font-size: 1.1em;">Your current balance is 0.030321 btc</span><br><br>
+		<input value="" name="withdraw" style="width: 100%;" id="withdraw-bitcoins" placeholder=" ▷ Standard Bitcoin transaction fee will be deducted ◁">
+	</div>
+    <div style="display: inline-block; vertical-align: top;" class="lighten">
+		<input type="submit" name="withdraw-bitcoins" value="Withdraw Bitcoins" id="withdraw-bitcoins" class="button">
+	</div>
+</div>
+-->
 
 <!-- Brainstorm -->
 <div class="div center">Godlet customization<br>Fine tune your gauntlet in order for your materialized creatures to benefit from stat bonuses in certain areas. Show Godlet along with spider-web configuration graph.</div>
@@ -155,4 +189,11 @@ if (isset($message)) {
 <div class="div center">Player stats and awards<br>Show number of won/draw/lost/surrendered games and the number of firt kills/denies/bloods/humiliations/annihilation/immortals/etc.</div>
 <div class="div center">Buddy list<br>Show all buddies along with possible indicators: starred, online/offline fb/twitter/google.</div>
 <div class="div center">Match history<br>Show latest matches along with some info, such as mode, outcome, date. Should allow replay/share.</div>
+
 <?php include('../footer.php'); ?>
+
+<!-- Highlight active subpage -->
+<script>document.getElementById("<?php echo $view; ?>").className += " active";</script>
+
+<!-- Focus on content when clicking subpage again -->
+<script>document.getElementById("<?php echo $view; ?>").href += "#focus";</script>
