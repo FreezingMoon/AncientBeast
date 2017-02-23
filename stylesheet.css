@@ -1,4 +1,7 @@
 @import url(https://fonts.googleapis.com/css?family=Play:400,700);
+
+.alpha { color: rgba(0, 0, 0, 0)!important; text-shadow: none; }
+
 body {
 	background: url(images/header.png) no-repeat center top, #000 url(images/bg.jpg) no-repeat left top fixed;
 	background-size: 1180px 295px, cover;

@@ -67,10 +67,10 @@ if(isset($_SESSION['id'])) { ?>
 <span class="account" style="margin-left: 359px;"><a href="<?php echo $site_root; ?>index.php?action=logout">Logout</a></span>
 
 <?php } else { ?>
-<span class="account" style="margin-left: -423px;"><a href="<?php echo $site_root; ?>account/register" id="Register">Register</a></span>
-<span class="account" style="margin-left: 366px;"><a href="<?php echo $site_root; ?>account/login" id="Login">Login</a></span>
+<span class="account" style="margin-left: -423px;"><a href="<?php echo $site_root; ?>account/register" id="Register" class="alpha">Register</a></span>
+<span class="account" style="margin-left: 366px;"><a href="<?php echo $site_root; ?>account/login" id="Login" class="alpha">Login</a></span>
 <?php }
-if(isset($_GET['action']) == 'logout'){
+if(isset($_GET['action']) == 'logout') {
 	session_destroy();
 	echo '<meta http-equiv="refresh" content="1; url=' . $site_url . '">';
  }
@@ -81,7 +81,7 @@ if(isset($_GET['action']) == 'logout'){
 <div style="margin-top: -5px; margin-bottom: 50px;">
 <a href="<?php echo $site_root; ?>"><img src="<?php echo $site_root; ?>images/AncientBeast.png" height="125" width="555" alt="Ancient Beast" class="lighten"></a>
 <!-- Navigation Menu -->
-<nav><table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;"><tr>
+<nav><table style="font-size: 18px; font-weight: bold; margin: 0; padding: 0; margin-left: auto; margin-right: auto; text-align: center;"><tr>
 <?php
   $menu = array('units', 'media', 'shop', 'play', 'blog', 'chat');
   foreach ($menu as &$menuItem) {
