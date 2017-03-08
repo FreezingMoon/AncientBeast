@@ -10,11 +10,11 @@ body {
 	font-size: 18px;
 	overflow-x: hidden;
 	text-align: center;
-	text-shadow: #000 .1em .1em .2em;
+	text-shadow: #000 0.1em 0.1em 0.2em;
 	width: 950px;
 	margin: 0 auto;
-	letter-spacing: -.005em;
-	word-spacing: -.1em;
+	letter-spacing: -0.005em;
+	word-spacing: -0.1em;
 }
 
 /* Chrome Hack https://code.google.com/p/chromium/issues/detail?id=413183 */
@@ -128,7 +128,7 @@ a.active {
 	text-decoration: none;
 	color: #e6e6e6;
 	cursor: pointer;
-	text-shadow: #000 .1em .1em .2em red 0 0 10px; /* buggy or useless? */
+	text-shadow: #000 0.1em 0.1em 0.2em, red 0 0 10px;
 }
 
 iframe {
