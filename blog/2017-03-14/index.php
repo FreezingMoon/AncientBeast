@@ -30,7 +30,7 @@ require_once("../../header.php");
 <script src="<?php echo $site_root; ?>jquery.min.js"></script>
 
 <div class="div" id="intro">
-<h2 class="indexheader"><a href="#intro">Version 0.3 was released on 8th March (2017)</a></h2>
+<h2 class="indexheader"><a href="#intro">Version 0.3 was released on 15th March (2017)</a></h2>
 
 <p>Hello to all sinners! It's been quite a long time since the last release, but rest assured that we haven't been slacking. Even when I'm not at my machine mashing buttons, I tend to think about the multitude of things that go into this project. Like how to improve things, what works, what doesn't, how to take things to the next level. Personally I dealt with a life changing surgery, a few moves, anxiety, depression, computer related addictions, also ending up being financially broke several times. I'm constantly struggling to get everything in proper place.</p>
 
@@ -118,11 +118,17 @@ require_once("../../header.php");
 <div class="div" id="issues">
 <h2 class="indexheader"><a href="#issues">Known Issues</a></h2>
 
-<p>All the things listed below will hopefully be worked on and fixed asap. Feel free to <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>report</b></a> if you find some more.</p>
+<p>
+All the things listed below will hopefully be worked on and fixed asap. Feel free to <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>report</b></a> if you find some more.
+</p>
 
 <a href="https://github.com/FreezingMoon/AncientBeast/issues/844" target="_blank"><b>#844</b></a> the buff/debuff in-game UI currently broken<br>
-<a href="https://github.com/FreezingMoon/AncientBeast/issues/890" target="_blank"><b>#890</b></a> Units card viewer doesn't update any abilities<br>
-<a href="https://github.com/FreezingMoon/AncientBeast/issues/1100" target="_blank"><b>#1100</b></a> Snow Bunny's Freezing Spit upgraded ability used at melee range doesn't freeze the foe</p>
+<a href="https://github.com/FreezingMoon/AncientBeast/issues/890" target="_blank"><b>#890</b></a> the website units card viewer doesn't update any abilities<br>
+<a href="https://github.com/FreezingMoon/AncientBeast/issues/1098" target="_blank"><b>#1098</b></a> bad z-index for Impaler's Poisonous Vine trap<br>
+<a href="https://github.com/FreezingMoon/AncientBeast/issues/1100" target="_blank"><b>#1100</b></a> Snow Bunny's Freezing Spit upgraded ability used at melee range doesn't freeze the foe
+
+</p>
+
 </div>
 <div class="div" id="support">
 <h2 class="indexheader"><a href="#support">Support needed</a></h2>
