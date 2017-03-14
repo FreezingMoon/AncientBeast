@@ -1,8 +1,5 @@
 AddDefaultCharset UTF-8
 
-#Redirect bestiary to units page
-RedirectMatch 301 /bestiary(.*) /units/$1
-
 <IfModule mod_deflate.c>
 AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
 </IfModule>
