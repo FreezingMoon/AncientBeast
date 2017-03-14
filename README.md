@@ -1,4 +1,4 @@
-[![Play Ancient Beast](http://img.shields.io/badge/play-Ancient%20Beast-red.svg)](http://AncientBeast.com/combat)
+[![Play Ancient Beast](http://img.shields.io/badge/play-Ancient%20Beast-red.svg)](http://AncientBeast.com/game)
 [![Join the chatroom](https://badges.gitter.im/FreezingMoon/AncientBeast.svg)](https://gitter.im/FreezingMoon/AncientBeast)
 [![Donate via PayPal](http://img.shields.io/badge/donate-PayPal-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CJF8R55CJE9R4)
 [![Donate via Patreon](http://img.shields.io/badge/donate-Patreon-orange.svg)](https://www.patreon.com/FreezingMoon)
