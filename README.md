@@ -27,28 +27,28 @@ The project is developed with the use of free open source cross platform applica
 
 <table style="font-size: 18px; font-weight: bold; margin: 0; padding: 0; margin-left: auto; margin-right: auto; text-align: center;">
 <tr align="center">
-	<td><a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><img src="(https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/mega.png" style="display:block; width:99px; height99px;" alt="mega">Mega</a></td>
-	<td><a href="http://Ancient-Beast.deviantart.com" target="_blank"><img src="(https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/deviantart.png" style="display:block; width:99px; height:99px;" alt="deviantart">deviantArt</a></td>
-	<td><a href="http://blender.org" target="_blank"><img src="(https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/blender.png" style="display:block; width:99px; height:99px;" alt="blender">Blender</a></td>
-	<td><a href="http://krita.org" target="_blank"><img src="(https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/krita.png" style="display:block; width:99px; height:99px;" alt="krita">Krita</a></td>
-	<td><a href="http://gimp.org" target="_blank"><img src="(https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/gimp.png" style="display:block; width:99px; height:99px;" alt="gimp">Gimp</a></td>
-	<td><a href="http://mypaint.intilinux.com" target="_blank"><img src="(https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/mypaint.png" style="display:block; width:99px; height:99px;" alt="mypaint">Mypaint</a></td>
-	<td><a href="http://inkscape.org" target="_blank"><img src="(https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/inkscape.png" style="display:block; width:99px; height:99px;" alt="inkscape">Inkscape</a></td>
+	<td><a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/mega.png" style="display:block; width:99px; height99px;" alt="mega">Mega</a></td>
+	<td><a href="http://Ancient-Beast.deviantart.com" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/deviantart.png" style="display:block; width:99px; height:99px;" alt="deviantart">deviantArt</a></td>
+	<td><a href="http://blender.org" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/blender.png" style="display:block; width:99px; height:99px;" alt="blender">Blender</a></td>
+	<td><a href="http://krita.org" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/krita.png" style="display:block; width:99px; height:99px;" alt="krita">Krita</a></td>
+	<td><a href="http://gimp.org" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/gimp.png" style="display:block; width:99px; height:99px;" alt="gimp">Gimp</a></td>
+	<td><a href="http://mypaint.intilinux.com" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/mypaint.png" style="display:block; width:99px; height:99px;" alt="mypaint">Mypaint</a></td>
+	<td><a href="http://inkscape.org" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/inkscape.png" style="display:block; width:99px; height:99px;" alt="inkscape">Inkscape</a></td>
 </tr>
 </table>
 
 ### License
 <table border=1 width=100%>
 <tr>
-	<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="(https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
+	<td><a href="http://www.FreezingMoon.org" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
 	<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
 </tr>
 <tr>
-	<td><a href="http://creativecommons.org/licenses/by-sa/3.0" target="_blank"><img src="(https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td>
+	<td><a href="http://creativecommons.org/licenses/by-sa/3.0" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td>
 	<td><a href="http://creativecommons.org/licenses/by-sa/3.0" target="_blank">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
 </tr>
 <tr>
-	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="(https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
+	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
 	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_blank">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
 </tr>
 </table>
