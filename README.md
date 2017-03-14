@@ -7,7 +7,7 @@
 [![Donate via Gratipay](http://img.shields.io/gratipay/AncientBeast.svg)](https://gratipay.com/AncientBeast)
 
 
-![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast/master/media/screenshots/v0.1%20Dark%20Forest.jpg)
+![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast/master/media/screenshots/v0.3%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** *Chuck Palahniuk*
 
 ### Intro
