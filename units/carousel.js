@@ -85,11 +85,13 @@ $(function() {
 		$(".sideA .hexs").html(unit.size + "&#11041;");
 		// Update side B
 		$(".sideB").css("background-image", "url('" + siteUrl + "images/cards/margin.png'), url('" + siteUrl + "images/cards/" + unit.type.substring(0, 1) + ".jpg')");
+		// TODO: Change abilities (icon, title, desc, info, upgrade)
 		for (var property in unit.stats) {
 			if (unit.stats.hasOwnProperty(property)) {
 				var stat = ".sideB ." + property + " .value";
 				$(stat).text(unit.stats[property]);
 			}
 		}
+
 	}
 });
