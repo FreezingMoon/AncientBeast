@@ -56,42 +56,9 @@ Very often, it will be very helpful for debugging purposes to fetch game logs wh
 You can use this function from the browser console window in order to fetch the log `G.gamelog.get()`.<br>
 To replay a match, you can start a new game and paste the log between brackets of `G.gamelog.play()`.
 
-
 ### Patch Game
 The main coding language used is Javascript, feel free to create patches and propose them by making a Pull Request.
 You should look around on GitHub Issue tracker for open issues, priority being the ones that are assigned to the next [milestone](https://github.com/FreezingMoon/AncientBeast/milestones) and are tagged "[Priority](https://github.com/FreezingMoon/AncientBeast/labels/Priority)", while also lacking the "[Brainstorm](https://github.com/FreezingMoon/AncientBeast/labels/Brainstorm)" tag. You can ping [DreadKnight](https://github.com/DreadKnight) in the [Gitter Chatroom](https://gitter.im/FreezingMoon/AncientBeast) in order to be assigned to something specific, otherwise you can comment on a specific issue in order to receive the green light for it, making sure there's nobody else currently working on the issue or that design hasn't changed and a patch is still required.
-
----
-## How to contribute to the website
-
-The website is pretty much wrapped around the game itself, meaning it reuses a lot of its assets. To keep things simple, the stable and development versions of the game are also included in this repository, but they'll each require a Node.js server.<br>
-Website itself is built using HTML, CSS, Javascript, PHP and MySQL. It needs to run on a server, a local one will do just fine.
-
-### Installing Dependencies
-
-You'll have to install an Apache HTTP Server, like [AMPPS](http://www.ampps.com/downloads) or operating system specific ones, like [WAMP](http://wampserver.com), [MAMP](https://www.mamp.info) or [LAMP](https://turnkeylinux.org/lampstack).
-
-### Recommended Tool
-
-If you're not very keen on using git from the CLI, I recomment using [Git Cola](https://git-cola.github.io) for cloning the project and creating patches.
-
-### Fork Project
-
-You can create a clone of the project by using git from CLI or with the use of a tool, like the one recommended above.<br>
-Create a folder called **AncientBeast** inside the root of your development server and browse it, the naming is important.
-```
-https://github.com/FreezingMoon/AncientBeast.git
-```
-
-### Create Database
-
-Access your **phpMyAdmin**, create a database for the project and import **database.sql** file located in the project's root.
-
-### Change Config
-
-You'll have to configure **config.php.in** file from project root directory, update the database info and save it as **config.php**.
-That file will not be tracked so it will be completely ignored from your commits, making things easier for you.
-In case you're using a different path and/or name for the project's root, make sure you update **$site_root** to reflect that, or you'll end up not seeing any images on your local website.
 
 ### Next Step
 
