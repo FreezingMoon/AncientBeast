@@ -29,7 +29,7 @@ exports.checkQueueForGame = function() {
 function removePlayerFromQueue(username) {
 	for (var i =0; i < queue.length; i++)
 		if (queue[i].username === username) {
-			queue.splice(i,1);
+			queue.splice(i, 1);
 			break;
 		}
 }
