@@ -1464,7 +1464,7 @@
 			"health": 217,
 			"regrowth": 1,
 			"endurance": 70,
-			"energy": 50,
+			"energy": 60,
 			"meditation": 1,
 			"initiative": 10,
 			"offense": 6,
@@ -1486,23 +1486,36 @@
 		"ability_info": [
 			{
 				"title": "Rib Cage",
-				"desc": "Bonus stats for every unit that dies.",
-				"info": "+3 regrowth, +3 meditation per stack"
+				"desc": "Bonus points for every unit that dies.",
+				"info": "+6 defense & +6 meditation per stack.",
+				"upgrade": "9 regrowth when a unit dies."
             },
 			{
 				"title": "Dark Grasp",
-				"desc": "Strikes a nearby foe using claws, creating a Shadow Leech if it kills.",
-				"info": "30 slash and 30 pierce damage"
+				"desc": "Strikes a nearby foe using its claws, creating one Shadow Leech if it kills.",
+				"info": "20 slash and 20 pierce damage per hit.",
+				"upgrade": "Picks drop after killing unit.",
+				"costs": {
+					"energy": 40
+				}
             },
 			{
 				"title": "Fly Swarm",
 				"desc": "Distracts a unit, lowering its defense and meditation for a complete round.",
-				"info": "-30 defense, -10 meditation one turn"
+				"info": "-20 defense, -10 meditation one turn.",
+				"upgrade": "Persists if unit not moving.",
+				"costs": {
+					"energy": 30
+				}
             },
 			{
 				"title": "Shadow Legion",
 				"desc": "Allows a long dead creature to come and fight again, as a shadow being.",
-				"info": "All shadows vanish if creature dies."
+				"info": "All shadows vanish if creature dies.",
+				"upgrade": "Shadows will remain alive.",
+				"costs": {
+					"energy": 20
+				}
             }
         ]
     },
