@@ -24,10 +24,9 @@ npm install -g grunt-cli
 ```
 
 ### Installing Dependencies
-Still in the terminal, you'll have to navigate to the *development* directory and install project dependencies:
+Still in the terminal, use the following command in order to easily install all project dependencies:
 
 ```
-cd development
 npm install
 ```
 
