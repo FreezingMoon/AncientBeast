@@ -826,11 +826,21 @@ span.pure { background-image: url("../../stats/pure.svg");  }
 	-ms-filter: brightness(120%);
 }
 
-#version {
+#warning {
 	color: red;
 	font-weight: bold;
 	text-shadow: 2px 2px black;
-	padding-top: 10px;
+	padding-top: 10;
+
+}
+
+#version {
+	font-weight: bold;
+	text-shadow: 2px 2px black;
+	position: absolute;
+	right: 25%;
+	left: 25%;
+	bottom: 10px;
 }
 
 @media (max-height: 525px) {
