@@ -873,11 +873,11 @@ a:hover { color: white; }
 
 #gameSetupContainer
 #gameSetup {
-	margin: 0;
 	position: absolute;
+	display: block;
 	top: 50%;
 	left: 50%;
-	transform: translate(-50%, -50%);
+	margin: -220px 0 0 -255px;
 }
 
 #startButton:hover { background: #B40000; }
