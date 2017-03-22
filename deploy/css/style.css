@@ -812,25 +812,65 @@ span.pure { background-image: url("../../stats/pure.svg");  }
 .ui-button-text-only .ui-button-text { padding: 0.4em 0.8em; }
 .ui-button .ui-button-text { line-height: 1em; }
 
-#gameSetup, #gameSetup .cont {
+#gameTitle {
 	display: inline-block;
-	margin: 2px;
-	padding: 5px;
+	vertical-align: top;
+	transform: rotate(0deg);
+}
+
+#gameTitle:hover {
+	filter: brightness(120%);
+	-webkit-filter: brightness(120%);
+	-moz-filter: brightness(120%);
+	-o-filter: brightness(120%);
+	-ms-filter: brightness(120%);
+}
+
+#version {
+	color: red;
+	font-weight: bold;
+	text-shadow: 2px 2px black;
+	padding-top: 10px;
+}
+
+@media (max-height: 525px) {
+	#gameTitle {
+		transform: rotate(90deg);
+		vertical-align: middle;
+		position: fixed;
+		margin-top: 205;
+		padding: 0 105;
+	}
+}
+
+@media (min-height: 1001px) {
+	#gameTitle {
+		transform: rotate(0deg);
+	}
+}
+
+a { color: red; }
+a:hover { color: white; }
+
+#settings, .cont {
+	display: inline-block;
 	background: rgba(25, 25, 25, 0.8);
 	border: rgba(0, 105, 185, 0.3) 1px solid;
 	border-radius: 7px;
+	margin: 2px;
+	padding: 5px;
+}
+
+#settings {
 }
 
 #gameSetupContainer
 #gameSetup {
-	width: 480px;
-	height: 360px;
 	position: absolute;
 	display: block;
 	left: 50%;
 	top: 50%;
-	margin: -230px 0 0 -255px;
-	padding: 4px;
+	margin: -220px 0 0 -255px;
 }
 
 #startButton:hover { background: #B40000; }
