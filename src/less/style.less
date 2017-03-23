@@ -1,3 +1,6 @@
+/* TODO: Store the font locally and import it */
+@import url(https://fonts.googleapis.com/css?family=Play:400,700);
+
 body {
 	background: black url('../../interface/skulls.jpg') repeat;
 	margin: 0;
@@ -826,11 +829,21 @@ span.pure { background-image: url("../../stats/pure.svg");  }
 	-ms-filter: brightness(120%);
 }
 
-#version {
+#warning {
 	color: red;
 	font-weight: bold;
 	text-shadow: 2px 2px black;
-	padding-top: 10px;
+	padding-top: 10;
+
+}
+
+#version {
+	font-weight: bold;
+	text-shadow: 2px 2px black;
+	position: absolute;
+	right: 25%;
+	left: 25%;
+	bottom: 10px;
 }
 
 @media (max-height: 525px) {
@@ -1011,6 +1024,3 @@ a:hover { color: white; }
 #volume_sliders { margin: 0 auto; width: 500px; }
 
 #volume_sliders div { display: inline-block; margin: 0 10px; width: 300px; }
-
-/* TODO: Store the font locally and import it */
-@import url(https://fonts.googleapis.com/css?family=Play:400,700);

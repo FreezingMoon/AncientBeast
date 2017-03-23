@@ -1,4 +1,7 @@
 ### Ancient Beast ###
+# generated/copied css files
+deploy/css/**
+
 # Concatenated game file
 deploy/scripts/ancientbeast.js
 
