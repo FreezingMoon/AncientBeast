@@ -87,11 +87,17 @@ module.exports = function(grunt) {
           },
           components: {
             files: [
-              { expand: true, cwd: 'src/less', src: '*.less', dest: 'deploy/css/', ext: '.css' }
+              {
+                expand: true,
+                cwd: 'src/less',
+                src: '*.less',
+                dest: 'deploy/css/',
+                ext: '.css'
+              }
             ]
           }
         }
     });
 
-    grunt.registerTask('default', ['concat', 'server', 'copy', 'open', 'watch', 'less']);
+    grunt.registerTask('default', ['concat', 'server', 'less', 'copy', 'open', 'watch']);
 };
