@@ -1,10 +1,9 @@
 [![Play Ancient Beast](http://img.shields.io/badge/play-Ancient%20Beast-red.svg)](https://play.AncientBeast.com)
-[![Join the chatroom](https://badges.gitter.im/FreezingMoon/AncientBeast.svg)](https://gitter.im/FreezingMoon/AncientBeast)
+[![Donate via Patreon](http://img.shields.io/badge/join-Discord-blue.svg)](https://discord.gg/x78rKen)
 [![Donate via PayPal](http://img.shields.io/badge/donate-PayPal-yellow.svg)](https://www.paypal.me/AncientBeast)
 [![Donate via Patreon](http://img.shields.io/badge/donate-Patreon-orange.svg)](https://www.patreon.com/FreezingMoon)
 [![Donate bia Bountysource](https://www.bountysource.com/badge/team?team_id=44509&style=bounties_received)](https://www.bountysource.com/teams/ancientbeast/issues)
 [![Flattr this Project](http://img.shields.io/badge/donate-Flattr-green.svg)](https://flattr.com/thing/126547/Ancient-Beast)
-[![Donate via Gratipay](http://img.shields.io/gratipay/AncientBeast.svg)](https://gratipay.com/AncientBeast)
 
 
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/media/screenshots/v0.3%20Dark%20Forest.jpg)
