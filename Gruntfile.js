@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-connect');
+    //grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('assemble-less');
@@ -99,5 +99,5 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('default', ['concat', 'server', 'less', 'copy', 'open', 'watch']);
+    grunt.registerTask('default', ['concat', 'less', 'copy', 'open', 'watch']);
 };
