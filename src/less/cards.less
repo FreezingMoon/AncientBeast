@@ -30,97 +30,103 @@
 	font-size: 16px;
 }
 
-.sideA .info {
-	background: rgba(0, 0, 0, 0.7);
-	border-radius: 15px;
-	border: 4px ridge !important;
-	font-size: 24px;
-	text-align: center;
-	margin-top: -35px;
-	position: inherit;
-	width: 392px;
-	z-index: 1;
-}
+.sideA {
+	.info {
+		background: rgba(0, 0, 0, 0.7);
+		border-radius: 15px;
+		border: 4px ridge !important;
+		font-size: 24px;
+		text-align: center;
+		margin-top: -35px;
+		position: inherit;
+		width: 392px;
+		z-index: 1;
+	}
 
-.sideA .info.sin- {
-	border-color: grey !important;
-}
+	.info {
+		&.sin- {
+			border-color: grey !important;
+		}
 
-.sideA .info.sinA {
-	border-color: gold !important;
-}
+		&.sinA {
+			border-color: gold !important;
+		}
 
-.sideA .info.sinE {
-	border-color: orange !important;
-}
+		&.sinE {
+			border-color: orange !important;
+		}
 
-.sideA .info.sinG {
-	border-color: green !important;
-}
+		&.sinG {
+			border-color: green !important;
+		}
 
-.sideA .info.sinL {
-	border-color: red !important;
-}
+		&.sinL {
+			border-color: red !important;
+		}
 
-.sideA .info.sinP {
-	border-color: violet !important;
-}
+		&.sinP {
+			border-color: violet !important;
+		}
 
-.sideA .info.sinS {
-	border-color: blue !important;
-}
+		&.sinS {
+			border-color: blue !important;
+		}
 
-.sideA .info.sinW {
-	border-color: indigo !important;
-}
+		&.sinW {
+			border-color: indigo !important;
+		}
 
-.sideA .info.sin- {
-	text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em grey;
-}
+		&.sin- {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em grey;
+		}
 
-.sideA .info.sinA {
-	text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em gold;
-}
+		&.sinA {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em gold;
+		}
 
-.sideA .info.sinE {
-	text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em orange;
-}
+		&.sinE {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em orange;
+		}
 
-.sideA .info.sinG {
-	text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em green;
-}
+		&.sinG {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em green;
+		}
 
-.sideA .info.sinL {
-	text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em red;
-}
+		&.sinL {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em red;
+		}
 
-.sideA .info.sinP {
-	text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em violet;
-}
+		&.sinP {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em violet;
+		}
 
-.sideA .info.sinS {
-	text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em blue;
-}
+		&.sinS {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em blue;
+		}
 
-.sideA .info.sinW {
-	text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em indigo;
+		&.sinW {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em indigo;
+		}
+	}
 }
 
 .abilities {
 	text-align: left;
 }
 
-.abilities h3 {
-	font-size: 16px;
-	margin: 0;
-	text-decoration: underline;
-	display: inline;
-}
+.abilities {
+	h3 {
+		font-size: 16px;
+		margin: 0;
+		text-decoration: underline;
+		display: inline;
+	}
 
-.abilities .icon {
-	position: absolute;
-	left: 0;
-	top: 0;
+	.icon {
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
 }
 
 .abilities .icon,
@@ -140,15 +146,19 @@
 	position: relative;
 }
 
-.abilities .ability .wrapper {
-	height: 100px;
-	padding-left: 103px;
-	vertical-align: middle;
-}
+.abilities {
+	.ability {
+		.wrapper {
+			height: 100px;
+			padding-left: 103px;
+			vertical-align: middle;
+		}
 
-.abilities .ability .info {
-	display: inline-block;
-	font-size: smaller;
+		.info {
+			display: inline-block;
+			font-size: smaller;
+		}
+	}
 }
 
 .numbers {
@@ -253,31 +263,33 @@
 	opacity: 1;
 }
 
-span.burn,
-span.crush,
-span.defense,
-span.endurance,
-span.energy,
-span.frost,
-span.health,
-span.initiative,
-span.meditation,
-span.mental,
-span.movement,
-span.offense,
-span.pierce,
-span.plasma,
-span.poison,
-span.pure,
-span.regrowth,
-span.shock,
-span.slash,
-span.sonic {
-	display: inline-block !important;
-	width: 15px;
-	height: 15px;
-	margin: 0 3px !important;
-	padding: 0 !important;
-	background-size: 100% 100%;
-	vertical-align: -2px;
+span {
+	&.burn,
+	&.crush,
+	&.defense,
+	&.endurance,
+	&.energy,
+	&.frost,
+	&.health,
+	&.initiative,
+	&.meditation,
+	&.mental,
+	&.movement,
+	&.offense,
+	&.pierce,
+	&.plasma,
+	&.poison,
+	&.pure,
+	&.regrowth,
+	&.shock,
+	&.slash,
+	&.sonic {
+		display: inline-block !important;
+		width: 15px;
+		height: 15px;
+		margin: 0 3px !important;
+		padding: 0 !important;
+		background-size: 100% 100%;
+		vertical-align: -2px;
+	}
 }

@@ -34,7 +34,7 @@ function makeid() {
 	var text = "";
 	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-	for( var i=0; i < 5; i++ )
+	for (var i = 0; i < 5; i++)
 		text += possible.charAt(Math.floor(Math.random() * possible.length));
 
 	return text;
@@ -42,7 +42,7 @@ function makeid() {
 
 
 // Listen for server, and use static routing for deploy directory
-server.listen(port, function () {
+server.listen(port, function() {
 	console.log('Server listening at port %d', port);
 });
 app.use(express.static('./deploy'));

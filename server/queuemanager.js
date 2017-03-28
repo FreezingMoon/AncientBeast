@@ -15,8 +15,8 @@ exports.removeFromQueue = function(player) {
 exports.checkQueueForGame = function() {
 	var queueCount = 0;
 	for (var i in queue) {
-		if(queueCount == 0) {
-		var player1 = i;
+		if (queueCount == 0) {
+			var player1 = i;
 		}
 		queueCount++;
 		if (queueCount == 1) {
@@ -27,7 +27,7 @@ exports.checkQueueForGame = function() {
 }
 
 function removePlayerFromQueue(username) {
-	for (var i =0; i < queue.length; i++)
+	for (var i = 0; i < queue.length; i++)
 		if (queue[i].username === username) {
 			queue.splice(i, 1);
 			break;

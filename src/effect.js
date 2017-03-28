@@ -1,16 +1,16 @@
 /*
-* Effect Class
-*/
-var Effect = Class.create( {
+ * Effect Class
+ */
+var Effect = Class.create({
 
 	/* Constructor(name, owner, target, trigger, optArgs)
-	*
-	* @param {string} name: name of the effect
-	*	owner :	Creature : Creature that casted the effect
-	*	target :	Object : Creature or Hex : the object that possess the effect
-	*	trigger :	String : Event that trigger the effect
-	*	@param {object} optArgs: dictionary of optional arguments
-	*/
+	 *
+	 * @param {string} name: name of the effect
+	 *	owner :	Creature : Creature that casted the effect
+	 *	target :	Object : Creature or Hex : the object that possess the effect
+	 *	trigger :	String : Event that trigger the effect
+	 *	@param {object} optArgs: dictionary of optional arguments
+	 */
 	initialize: function(name, owner, target, trigger, optArgs) {
 		this.id = effectId++;
 
@@ -20,20 +20,22 @@ var Effect = Class.create( {
 		this.trigger = trigger;
 		this.creationTurn = G.turn;
 
-		var args = $j.extend( {
+		var args = $j.extend({
 			// Default Arguments
-			requireFn : function() { return true; },
-			effectFn : function() {},
-			alterations : {},
-			turnLifetime : 0,
-			deleteTrigger : "onStartOfRound",
-			stackable : true,
-			noLog : false,
-			specialHint : undefined, // Special hint for log
+			requireFn: function() {
+				return true;
+			},
+			effectFn: function() {},
+			alterations: {},
+			turnLifetime: 0,
+			deleteTrigger: "onStartOfRound",
+			stackable: true,
+			noLog: false,
+			specialHint: undefined, // Special hint for log
 			deleteOnOwnerDeath: false
-		},optArgs);
+		}, optArgs);
 
-		$j.extend(this,args);
+		$j.extend(this, args);
 
 		G.effects.push(this);
 	},
@@ -43,12 +45,12 @@ var Effect = Class.create( {
 	},
 
 	activate: function(arg) {
-		if( !this.requireFn(arg) ) return false;
-		if( !this.noLog ) console.log("Effect " + this.name + " triggered");
+		if (!this.requireFn(arg)) return false;
+		if (!this.noLog) console.log("Effect " + this.name + " triggered");
 		if (arg instanceof Creature) {
 			arg.addEffect(this);
 		}
-		this.effectFn(this,arg);
+		this.effectFn(this, arg);
 	},
 
 	deleteEffect: function() {
