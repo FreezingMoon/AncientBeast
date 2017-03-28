@@ -359,7 +359,8 @@ body {
 #dash #creaturegrid {
 	height: 700px;
 	width: 700px;
-	display: inline-block;
+	display: inline-flex;
+	flex-wrap: wrap;
 	top: 0px;
 	bottom: 0px;
 	padding:20px;
@@ -383,12 +384,9 @@ body {
 	right: 100px;
 	display: none;
 }
-#playertabswrapper.active { display: block; }
+#playertabswrapper.active { display: flex; }
 
-#playertabswrapper.numplayer2 .playertabs { width: 50%; }
 #playertabswrapper.numplayer2 .playertabs.p2, #playertabswrapper.numplayer2 .playertabs.p3 { display: none; }
-
-#playertabswrapper.numplayer4 .playertabs { width: 25%; }
 
 #playertabswrapper .playertabs {
 	height: 100px;
@@ -397,6 +395,7 @@ body {
 	font-size: 12px;
 	text-align: left;
 	cursor: pointer;
+	flex-grow: 1;
 }
 
 #playertabswrapper .vignette { float: left; }
