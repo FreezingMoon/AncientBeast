@@ -56,8 +56,6 @@ var Game = Class.create( {
 		this.creaIdCounter = 1;
 		this.creatureDatas = [];
 		this.creatureJSON = [];
-		this.loadedSrc = 0;
-		this.loadingSrc = 0;
 		this.pause = false;
 		this.gameState = "initialized";
 		this.pauseTime = 0;
@@ -153,26 +151,17 @@ var Game = Class.create( {
 
 		dpcolor = ["blue", "orange", "green", "red"];
 
-		this.loadingSrc = this.availableMusic.length // Music
-		+ this.soundEffects.length // Sound effects
-		+ 1 // Background
-		+ 12 // Hexagons
-		+ 8 // Health Frames
-		+ 3 // Traps
-		+ 2 // Effects
-		;
-
 		var i;
 
 		// Music Loading
 		this.soundLoaded = {};
 		this.soundsys = new Soundsys();
 		for (i = 0; i < this.availableMusic.length; i++) {
-			this.soundsys.getSound("../media/music/" + this.availableMusic[i], i, function() { G.loadFinish(); } );
+			this.soundsys.getSound("../media/music/" + this.availableMusic[i], i );
 		}
 
 		for (i = 0; i < this.soundEffects.length; i++) {
-			this.soundsys.getSound("./sounds/" + this.soundEffects[i], this.availableMusic.length + i, function() { G.loadFinish(); } );
+			this.soundsys.getSound("./sounds/" + this.soundEffects[i], this.availableMusic.length + i );
 		}
 
 		this.Phaser.load.onFileComplete.add(G.loadFinish,G);
@@ -232,29 +221,25 @@ var Game = Class.create( {
 
 				var data = G.creatureJSON[G.loadedCreatures[j]];
 
-				G.loadingSrc += 2;
 
 				// Load unit shouts
-				G.soundsys.getSound('../units/shouts/'+data.name+'.ogg', 1000+G.loadedCreatures[j], function() { G.loadFinish(); });
+				G.soundsys.getSound('../units/shouts/'+data.name+'.ogg', 1000+G.loadedCreatures[j]);
 				// Load unit abilities
-				//getScript('abilities/'+data.name+'.js', function() { G.loadFinish(); });
+				//getScript('abilities/'+data.name+'.js');
 				// Load artwork
-				getImage('../units/artwork/'+data.name+'.jpg', function() { G.loadFinish(); });
+				getImage('../units/artwork/'+data.name+'.jpg');
 
 				if(data.name == "Dark Priest") {
 					for (var i = 0; i < dpcolor.length; i++) {
-						G.loadingSrc += 2;
 						G.Phaser.load.image(data.name+dpcolor[i] + '_cardboard', '../units/cardboards/' + data.name+' ' + dpcolor[i] + '.png');
-						getImage('../units/avatars/' + data.name+' ' + dpcolor[i] + '.jpg', function() { G.loadFinish(); });
+						getImage('../units/avatars/' + data.name+' ' + dpcolor[i] + '.jpg');
 					}
 				}else{
 					if(data.drop) {
-						G.loadingSrc += 1;
 						G.Phaser.load.image('drop_' + data.drop.name, 'drops/' + data.drop.name+'.png');
 					}
-					G.loadingSrc += 2;
 					G.Phaser.load.image(data.name + '_cardboard', '../units/cardboards/' + data.name+'.png');
-					getImage('../units/avatars/' + data.name + '.jpg', function() { G.loadFinish(); });
+					getImage('../units/avatars/' + data.name + '.jpg');
 				}
 
 				// For code compatibility
@@ -272,10 +257,16 @@ var Game = Class.create( {
 	},
 
 	loadFinish: function() {
-		this.loadedSrc++;
-		if(this.loadingSrc==this.loadedSrc) {
-			$j("#loader").hide();
-			G.setup(G.playerMode);
+        var progress = this.Phaser.load.progress;
+		var loadingBarWidth = 348;
+		var progressWidth = util.calculatePercentageResult(loadingBarWidth, progress);
+		$j(".progress").css('width', progressWidth);
+
+		if(progress == 100) {
+			setTimeout(function() {
+				$j("#loader").hide();
+				G.setup(G.playerMode);
+			},1000)
 		}
 	},
 
@@ -1501,12 +1492,10 @@ var Soundsys = Class.create( {
 		musicPlayer.playRandom();
 	},
 
-	getSound: function(url, id, success) {
-		if(!window.AudioContext) success();
+	getSound: function(url, id) {
 		var id = id;
 		bufferLoader = new BufferLoader(this.context,[url],function(arraybuffer) {
 			G.soundLoaded[id] = arraybuffer[0];
-			success();
 		});
 
 		bufferLoader.load();
@@ -1542,7 +1531,7 @@ function zfill(num, size) {
 
 // Cross Browser script loader
 // From http://stackoverflow.com/a/5853358
-function getScript(url,success) {
+function getScript(url) {
 	var script = document.createElement('script');
 	script.src = url;
 	var head = document.getElementsByTagName('head')[0];
@@ -1550,7 +1539,7 @@ function getScript(url,success) {
 	script.onload = script.onreadystatechange = function() {
 		if ( !done && (!this.readyState || this.readyState == 'loaded' || this.readyState == 'complete') ) {
 			done = true;
-			success();
+			
 			script.onload = script.onreadystatechange = null;
 			head.removeChild(script);
 		}
@@ -1558,11 +1547,11 @@ function getScript(url,success) {
 	head.appendChild(script);
 }
 
-function getImage(url,success) {
+function getImage(url) {
 	var img = new Image();
 	img.src = url;
 	img.onload = function() {
-		success();
+		
 	};
 }
 

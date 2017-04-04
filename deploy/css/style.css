@@ -920,6 +920,28 @@ a:hover { color: white; }
 	display: none;
 }
 
+#barLoader {
+    position:relative;
+    margin-left: -60px;
+}
+
+.loadingBar {
+    position: absolute;
+    left: 0;
+    top: 0;
+ }
+  
+.progress {
+    width: 0px;
+    height:53px;
+    margin-left: 3px;
+    -webkit-transition:300ms linear;
+	-moz-transition:300ms linear;
+	-o-transition:300ms linear;
+	-ms-transition:300ms linear;
+	transition:300ms linear;
+}
+
 /*--------------Scoreboard------------------*/
 
 #endscreen {
