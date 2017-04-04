@@ -4,21 +4,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-open');
+    grunt.loadNpmTasks('grunt-express-server');
 
-    grunt.registerTask('server', 'Start the web server.', function() {
-      grunt.log.writeln('Starting web server on port 80.');
-      require('./server.js');
-    });
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        /**connect: {
-            server: {
-                options: {
-                    port: 8080,
-                    base: './deploy'
-                }
-            }
-        }, */
         concat: {
             dist: {
                 src: [
@@ -47,6 +36,17 @@ module.exports = function (grunt) {
 				}]
 			},
         },
+        express: {
+            options: {
+                port: 8080,
+            },
+            server: {
+                options: {
+                  script: 'server.js'
+              }
+           }    
+
+        },
         open: {
             dev: {
                 path: 'http://localhost:8080/index.html'
@@ -54,6 +54,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('default', ['concat', 'copy', 'open', 'watch']);
+    grunt.registerTask('default', ['concat', 'copy', 'open', 'express', 'watch']);
 
 };
