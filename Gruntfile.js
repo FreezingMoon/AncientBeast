@@ -5,23 +5,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('assemble-less');
 	grunt.loadNpmTasks('grunt-open');
-
-	grunt.registerTask('server', 'Start the web server.', function() {
-		grunt.log.writeln('Starting web server on port 80.');
-		require('./server.js');
-	});
+	grunt.loadNpmTasks('grunt-express-server');
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		/**connect: {
-		    server: {
-		        options: {
-		            port: 8080,
-		            base: './deploy'
-		        }
-		    }
-		}, */
-
 		concat: {
 			dist: {
 				src: [
@@ -33,7 +20,16 @@ module.exports = function(grunt) {
 				dest: 'deploy/scripts/<%= pkg.name %>.js'
 			}
 		},
-
+		express: {
+			options: {
+				port: 8080,
+			},
+			server: {
+				options: {
+					script: 'server.js'
+				}
+			}
+		},
 		watch: {
 			files: 'src/**/*.js',
 			tasks: ['concat'],
@@ -97,5 +93,5 @@ module.exports = function(grunt) {
 		}
 	});
 
-	grunt.registerTask('default', ['concat', 'less', 'copy', 'server', 'open', 'watch']);
+	grunt.registerTask('default', ['concat', 'less', 'copy', 'express', 'open', 'watch']);
 };

@@ -30,6 +30,7 @@
 	},
 	"devDependencies": {
 		"grunt-contrib-watch": "~0.5.3",
+		"grunt-express-server": "^0.5.3",
 		"grunt-open": "~0.2.3"
 	},
 	"scripts": {
