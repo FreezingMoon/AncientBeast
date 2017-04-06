@@ -7,59 +7,15 @@
 
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.js"></script>
-	<script type="text/javascript" src="scripts/libs/phaser.js"></script>
-	<script type="text/javascript" src="scripts/libs/jquery.transit.min.js"></script>
-	<script type="text/javascript" src="scripts/libs/jquery.kinetic.js"></script>
-	<script type="text/javascript" src="scripts/libs/jquery.mousewheel.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/prototype/1.7.1.0/prototype.js"></script>
-	<script type="text/javascript">
-		var $j = jQuery.noConflict();
-	</script>
-	<script src="//cdn.socket.io/socket.io-1.3.5.js"></script>
-	<!-- Socket.io Library -->
-	<script type="text/javascript" src="scripts/ancientbeast.js"></script>
-	<!-- Compiled Script -->
-
-	<script>
-		function CallCreature(shout) {
-			var thisSound = document.getElementById(shout);
-			thisSound.play();
-		}
-
-		// The website uses a different jQuery shortcut than the game, using jQuery object fixes that
-		jQuery(document).ready(function() {
-
-			// Show specific stat modifier (TODO: fix this since it's broken in-game)
-			var activate = function() {
-				var stat = jQuery(this).attr('stat');
-				var card = jQuery(this).parent().parent().parent().parent().parent();
-				if (typeof G != "undefined" && G instanceof Game) {
-					G.UI.showStatModifiers(stat);
-				}
-			};
-
-			// Show description of stats
-			jQuery(".stats").mouseenter(function() {
-				var card = jQuery(this).parent().siblings().find(".stats_desc");
-				jQuery(card).show();
-			});
-			// Show description of masteries
-			jQuery(".masteries").mouseenter(function() {
-				var card = jQuery(this).parent().siblings().find(".masteries_desc");
-				jQuery(card).show();
-			});
-			// Hide any descriptions
-			jQuery(".section").mouseleave(function() {
-				var card = jQuery(this).parent().siblings().find(".card_info");
-				jQuery(card).hide();
-			});
-			// Display stuff
-			jQuery(".card .numbers .stats").mouseenter(activate);
-			jQuery(".card .numbers .stats").click(activate);
-		});
-	</script>
+	<script src="scripts/libs/jquery.min.js"></script>
+	<script src="scripts/libs/jquery-ui.min.js"></script>
+	<script src="scripts/libs/phaser.min.js"></script>
+	<script src="scripts/libs/jquery.transit.js"></script>
+	<script src="scripts/libs/jquery.kinetic.min.js"></script>
+	<script src="scripts/libs/jquery.mousewheel.min.js"></script>
+	<script src="scripts/libs/prototype.min.js"></script>
+	<script src="scripts/libs/socket.io.js"></script>
+	<script src="scripts/ancientbeast.js"></script>
 </head>
 
 <body oncontextmenu="return false;">

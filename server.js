@@ -1,4 +1,5 @@
 // Setup basic express server
+var compression = require('compression');
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
@@ -45,4 +46,7 @@ function makeid() {
 server.listen(port, function() {
 	console.log('Server listening at port %d', port);
 });
-app.use(express.static('./deploy'));
+
+app.use(express.static('./deploy', {
+	maxAge: 86400000
+}));
