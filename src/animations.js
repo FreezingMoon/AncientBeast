@@ -2,15 +2,15 @@ var Animations = Class.create({
 
 	initialize: function() {},
 
-	movements : {
+	movements: {
 
 		savedMvtPoints: 0,
 
-		walk : function(crea,path,opts){
+		walk: function(crea, path, opts) {
 
-			if( opts.customMovementPoint > 0 ){
+			if (opts.customMovementPoint > 0) {
 
-				path = path.slice(0,opts.customMovementPoint);
+				path = path.slice(0, opts.customMovementPoint);
 				// For compatibility
 				this.savedMvtPoints = crea.remainingMove;
 				crea.remainingMove = opts.customMovementPoint;
@@ -30,19 +30,19 @@ var Animations = Class.create({
 				var hex = path[hexId];
 
 				if (hexId < path.length && (crea.remainingMove > 0 || opts.ignoreMovementPoint)) {
-					G.animations.movements.leaveHex(crea,hex,opts);
+					G.animations.movements.leaveHex(crea, hex, opts);
 				} else {
 					G.animations.movements.movementComplete(
 						crea, path[path.length - 1], anim_id, opts);
 					return;
 				}
 
-				var nextPos = G.grid.hexs[hex.y][hex.x-crea.size+1];
+				var nextPos = G.grid.hexs[hex.y][hex.x - crea.size + 1];
 				var speed = !opts.overrideSpeed ? crea.animation.walk_speed : opts.overrideSpeed;
 
 				var tween = G.Phaser.add.tween(crea.grp)
-				.to(nextPos.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
-				.start();
+					.to(nextPos.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
+					.start();
 
 				// Ignore traps for hover creatures, unless this is the last hex
 				var enterHexOpts = $j.extend({
@@ -57,11 +57,11 @@ var Animations = Class.create({
 					}
 
 					// Sound Effect
-					G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);
+					G.soundsys.playSound(G.soundLoaded[0], G.soundsys.effectsGainNode);
 
-					if(!opts.ignoreMovementPoint){
+					if (!opts.ignoreMovementPoint) {
 						crea.remainingMove--;
-						if(opts.customMovementPoint === 0) crea.travelDist++;
+						if (opts.customMovementPoint === 0) crea.travelDist++;
 					}
 
 					G.animations.movements.enterHex(crea, hex, enterHexOpts);
@@ -77,11 +77,11 @@ var Animations = Class.create({
 		},
 
 
-		fly : function(crea,path,opts){
+		fly: function(crea, path, opts) {
 
-			if( opts.customMovementPoint > 0 ){
+			if (opts.customMovementPoint > 0) {
 
-				path = path.slice(0,opts.customMovementPoint);
+				path = path.slice(0, opts.customMovementPoint);
 				// For compatibility
 				this.savedMvtPoints = crea.remainingMove;
 				crea.remainingMove = opts.customMovementPoint;
@@ -98,45 +98,46 @@ var Animations = Class.create({
 
 			var hex = path[0];
 
-			var start = G.grid.hexs[crea.y][crea.x-crea.size+1];
-			var currentHex = G.grid.hexs[hex.y][hex.x-crea.size+1];
+			var start = G.grid.hexs[crea.y][crea.x - crea.size + 1];
+			var currentHex = G.grid.hexs[hex.y][hex.x - crea.size + 1];
 
 			G.animations.movements.leaveHex(crea, start, opts);
 
 			var speed = !opts.overrideSpeed ? crea.animation.walk_speed : opts.overrideSpeed;
 
 			var tween = G.Phaser.add.tween(crea.grp)
-			.to(currentHex.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
-			.start();
+				.to(currentHex.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
+				.start();
 
 			tween.onComplete.add(function() {
 				// Sound Effect
-				G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);
+				G.soundsys.playSound(G.soundLoaded[0], G.soundsys.effectsGainNode);
 
-				if(!opts.ignoreMovementPoint){
+				if (!opts.ignoreMovementPoint) {
 					// Determine distance
 					var distance = 0;
 					var k = 0;
-					while(!distance && start != currentHex){
+					while (!distance && start != currentHex) {
 						k++;
-						if( start.adjacentHex(k).findPos(currentHex) ) distance = k;
+						if (start.adjacentHex(k).findPos(currentHex)) distance = k;
 					}
 
 					crea.remainingMove -= distance;
-					if(opts.customMovementPoint === 0) crea.travelDist += distance;
+					if (opts.customMovementPoint === 0) crea.travelDist += distance;
 				}
 
-				G.animations.movements.enterHex(crea,hex,opts);
-				G.animations.movements.movementComplete(crea,hex,anim_id,opts); return;
+				G.animations.movements.enterHex(crea, hex, opts);
+				G.animations.movements.movementComplete(crea, hex, anim_id, opts);
+				return;
 			});
 		},
 
 
-		teleport : function(crea,path,opts){
+		teleport: function(crea, path, opts) {
 
 			var hex = path[0];
 
-			var currentHex = G.grid.hexs[hex.y][hex.x-crea.size+1];
+			var currentHex = G.grid.hexs[hex.y][hex.x - crea.size + 1];
 
 			G.animations.movements.leaveHex(crea, currentHex, opts);
 
@@ -145,12 +146,14 @@ var Animations = Class.create({
 
 			// FadeOut
 			var tween = G.Phaser.add.tween(crea.grp)
-			.to({alpha: 0}, 500, Phaser.Easing.Linear.None)
-			.start();
+				.to({
+					alpha: 0
+				}, 500, Phaser.Easing.Linear.None)
+				.start();
 
 			tween.onComplete.add(function() {
 				// Sound Effect
-				G.soundsys.playSound(G.soundLoaded[0],G.soundsys.effectsGainNode);
+				G.soundsys.playSound(G.soundLoaded[0], G.soundsys.effectsGainNode);
 
 				// position
 				crea.grp.x = currentHex.displayPos.x;
@@ -158,26 +161,29 @@ var Animations = Class.create({
 
 				// FadeIn
 				var tween = G.Phaser.add.tween(crea.grp)
-				.to({alpha: 1}, 500, Phaser.Easing.Linear.None)
-				.start();
+					.to({
+						alpha: 1
+					}, 500, Phaser.Easing.Linear.None)
+					.start();
 
-				G.animations.movements.enterHex(crea,hex,opts);
-				G.animations.movements.movementComplete(crea,hex,anim_id,opts); return;
+				G.animations.movements.enterHex(crea, hex, opts);
+				G.animations.movements.movementComplete(crea, hex, anim_id, opts);
+				return;
 			});
 		},
 
-		push : function(crea,path,opts){
+		push: function(crea, path, opts) {
 			opts.pushed = true;
-			this.walk(crea,path,opts);
+			this.walk(crea, path, opts);
 		},
 
 		//--------Special Functions---------//
 
-		enterHex : function(crea,hex,opts){
+		enterHex: function(crea, hex, opts) {
 			crea.cleanHex();
-			crea.x		= hex.x - 0;
-			crea.y		= hex.y - 0;
-			crea.pos	= hex.pos;
+			crea.x = hex.x - 0;
+			crea.y = hex.y - 0;
+			crea.pos = hex.pos;
 			crea.updateHex();
 
 			G.triggersFn.onStepIn(crea, hex, opts);
@@ -189,16 +195,16 @@ var Animations = Class.create({
 			G.grid.orderCreatureZ();
 		},
 
-		leaveHex : function(crea,hex,opts){
-			if(!opts.pushed) crea.faceHex(hex,crea.hexagons[0]); // Determine facing
-			G.triggersFn.onStepOut(crea,crea.hexagons[0]); // Trigger
+		leaveHex: function(crea, hex, opts) {
+			if (!opts.pushed) crea.faceHex(hex, crea.hexagons[0]); // Determine facing
+			G.triggersFn.onStepOut(crea, crea.hexagons[0]); // Trigger
 
 			G.grid.orderCreatureZ();
 		},
 
-		movementComplete : function(crea,hex,anim_id,opts){
+		movementComplete: function(crea, hex, anim_id, opts) {
 
-			if(opts.customMovementPoint > 0){
+			if (opts.customMovementPoint > 0) {
 				crea.remainingMove = this.savedMvtPoints;
 			}
 
@@ -212,14 +218,18 @@ var Animations = Class.create({
 			//TODO reveal healh indicator
 			crea.healthShow();
 
-			G.triggersFn.onCreatureMove(crea,hex); // Trigger
+			G.triggersFn.onCreatureMove(crea, hex); // Trigger
 
-			crea.hexagons.each(function() {this.pickupDrop(crea);});
+			crea.hexagons.each(function() {
+				this.pickupDrop(crea);
+			});
 
 			G.grid.orderCreatureZ();
 
-			G.animationQueue.filter(function() { return (this!=anim_id); });
-			if( G.animationQueue.length === 0 ) G.freezedInput = false;
+			G.animationQueue.filter(function() {
+				return (this != anim_id);
+			});
+			if (G.animationQueue.length === 0) G.freezedInput = false;
 		}
 	}
 });

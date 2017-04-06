@@ -11,7 +11,7 @@ var CreatureQueue = Class.create({
 	addByInitiative: function(creature) {
 		for (var i = 0; i < this.nextQueue.length; i++) {
 			if (this.nextQueue[i].delayed ||
-					this.nextQueue[i].getInitiative() < creature.getInitiative()) {
+				this.nextQueue[i].getInitiative() < creature.getInitiative()) {
 				this.nextQueue.splice(i, 0, creature);
 				return;
 			}
