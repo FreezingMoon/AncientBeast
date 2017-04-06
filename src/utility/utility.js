@@ -1,6 +1,5 @@
 var util = util || {};
 
-util.calculatePercentageResult = function(value, percentage){
+util.calculatePercentageResult = function(value, percentage) {
 	return (value * percentage) / 100;
 }
-
