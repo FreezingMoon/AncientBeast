@@ -54,7 +54,7 @@ module.exports = function(grunt) {
 			phaser: {
 				files: [{
 					expand: true,
-					src: ['bower_components/phaser/build/phaser*.js'],
+					src: ['bower_components/phaser-ce/build/phaser*.js'],
 					dest: 'deploy/scripts/libs/',
 					filter: 'isFile',
 					flatten: true
