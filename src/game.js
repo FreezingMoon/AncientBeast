@@ -303,7 +303,7 @@ var Game = Class.create({
 		this.Phaser.scale.pageAlignHorizontally = true;
 		this.Phaser.scale.pageAlignVertically = true;
 		this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-		this.Phaser.scale.setScreenSize(true);
+		this.Phaser.scale.refresh();
 		this.Phaser.stage.disableVisibilityChange = true;
 		if (!this.Phaser.device.desktop) {
 			this.Phaser.stage.forcePortrait = true;
