@@ -1,13 +1,15 @@
 ### Ancient Beast ###
 # generated/copied css files
-deploy/css/**
+deploy/css
 
-# Concatenated game file
-deploy/scripts/ancientbeast.js
+# Deployable javascript (generated and copied from bower)
+deploy/scripts
 
 # DS_STORE FILES
 .DS_Store
 
+### Bower ###
+bower_components
 
 ### Node ###
 # Logs

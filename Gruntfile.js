@@ -3,13 +3,17 @@ module.exports = function(grunt) {
 	//grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-copy');
-	grunt.loadNpmTasks('assemble-less');
+	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-open');
 	grunt.loadNpmTasks('grunt-express-server');
+	// grunt.loadNpmTasks('grunt-uncss');
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		concat: {
+			options: {
+				banner: 'var $j = jQuery.noConflict();\n\n',
+			},
 			dist: {
 				src: [
 					"src/*.js",
@@ -31,9 +35,11 @@ module.exports = function(grunt) {
 			}
 		},
 		watch: {
-			files: 'src/**/*.js',
-			tasks: ['concat'],
-			styles: {
+			js: {
+				files: ['src/**/*.js'],
+				tasks: ['concat'],
+			},
+			css: {
 				files: ['src/less/**/*.less'], // which files to watch
 				tasks: ['less'],
 				options: {
@@ -42,14 +48,83 @@ module.exports = function(grunt) {
 			}
 
 		},
-
 		copy: {
 			// Copies the customized build of Phaser into the game
 			// http://phaser.io/tutorials/creating-custom-phaser-builds
-			main: {
+			phaser: {
 				files: [{
 					expand: true,
-					src: ['node_modules/phaser/build/phaser*.js'],
+					src: ['bower_components/phaser/build/phaser*.js'],
+					dest: 'deploy/scripts/libs/',
+					filter: 'isFile',
+					flatten: true
+				}]
+			},
+			// Copy jquery to the libs folder
+			jquery: {
+				files: [{
+					expand: true,
+					src: ['bower_components/jquery/jquery*.js'],
+					dest: 'deploy/scripts/libs/',
+					filter: 'isFile',
+					flatten: true
+				}]
+			},
+			// Copy jquery-ui to the libs folder
+			jquery_ui: {
+				files: [{
+					expand: true,
+					src: ['bower_components/jquery-ui/jquery-ui*.js'],
+					dest: 'deploy/scripts/libs/',
+					filter: 'isFile',
+					flatten: true
+				}]
+			},
+			// Copy jquery-mousewheel to the libs folder
+			jquery_mousewheel: {
+				files: [{
+					expand: true,
+					src: ['bower_components/jquery-mousewheel/jquery*.js'],
+					dest: 'deploy/scripts/libs/',
+					filter: 'isFile',
+					flatten: true
+				}]
+			},
+			// Copy jquery kinetic to the libs folder
+			jquery_kinectic: {
+				files: [{
+					expand: true,
+					src: ['bower_components/jquery.kinetic/jquery*.js'],
+					dest: 'deploy/scripts/libs/',
+					filter: 'isFile',
+					flatten: true
+				}]
+			},
+			// Copy jquery transit to the libs folder
+			jquery_transit: {
+				files: [{
+					expand: true,
+					src: ['bower_components/jquery.transit/jquery*.js'],
+					dest: 'deploy/scripts/libs/',
+					filter: 'isFile',
+					flatten: true
+				}]
+			},
+			// Copy Prototype  to the libs folder
+			prototypejs: {
+				files: [{
+					expand: true,
+					src: ['bower_components/prototypejs/dist/prototype*.js'],
+					dest: 'deploy/scripts/libs/',
+					filter: 'isFile',
+					flatten: true
+				}]
+			},
+			// Copy socket-io to the libs folder
+			socket_io: {
+				files: [{
+					expand: true,
+					src: ['bower_components/socket.io-client/socket*.js'],
 					dest: 'deploy/scripts/libs/',
 					filter: 'isFile',
 					flatten: true
@@ -66,32 +141,43 @@ module.exports = function(grunt) {
 				}]
 			}
 		},
-
 		open: {
 			dev: {
 				path: 'http://localhost:8080/index.html'
 			}
 		},
-
 		// Compile less files into deploy/css path.
 		less: {
-			options: {
-				paths: 'src/less',
-				// imports: {
-				//   reference: ['variables.less', 'mixins.less'],
-				// }
-			},
-			components: {
-				files: [{
-					expand: true,
-					cwd: 'src/less',
-					src: '*.less',
-					dest: 'deploy/css/',
-					ext: '.css'
-				}]
+			production: {
+				options: {
+					compress: true,
+					paths: ['src/less'],
+					plugins: [
+						// new(require('less-plugin-autoprefix'))({
+						// 	browsers: ["last 2 versions"]
+						// }),
+						new(require('less-plugin-clean-css'))({
+							inline: ['local', 'remote']
+						})
+					],
+				},
+				files: {
+					'deploy/css/main.css': 'src/less/main.less'
+				}
 			}
-		}
+		},
+		// This needs a bit of tweaking to work right but potentially huge savingsin CSS size -- ktiedt
+		// uncss: {
+		// 	dist: {
+		// 		files: {
+		// 			'deploy/css/main.css': ['deploy/index.html']
+		// 		},
+		// 		options: {
+		// 			report: 'min' // optional: include to report savings
+		// 		}
+		// 	}
+		// }
 	});
 
-	grunt.registerTask('default', ['concat', 'less', 'copy', 'express', 'open', 'watch']);
+	grunt.registerTask('default', ['concat', 'less', 'copy', /* 'uncss', */ 'express', 'open', 'watch']);
 };
