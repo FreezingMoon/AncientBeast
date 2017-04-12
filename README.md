@@ -54,6 +54,6 @@ The project is developed with the use of free open source cross platform applica
 
 ### Contribute
 <p>
-First off, you can easily and greatly help out by simply starring (upper right corner) and even pinning this project to your profile!
+You can easily and greatly help out by simply ★ starring it from the upper right corner and even pinning this repository to your profile!
 There are various ways in which you can help out the project. Check out the <a href="https://ancientbeast.com/contribute" target="_blank">"Make Your Contribution"</a> guide and get it going!
 </p>
