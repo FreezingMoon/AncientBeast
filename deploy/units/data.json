@@ -3332,7 +3332,7 @@
 				"upgrade": "Can also move large units.",
 				"costs": {
 					"energy": 0,
-					"movement": "1 or 2 points per hexagon"
+					"movement": "1-2 points per hexagon"
 				},
 				"animation_data": {
 					"duration": 500,
