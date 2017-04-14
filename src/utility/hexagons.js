@@ -741,21 +741,19 @@ var HexGrid = Class.create({
 	 * flipped
 	 */
 	getHexLine: function(x, y, dir, flipped) {
-		
-
 		switch (dir) {
 			case 0: // Upright
-				return G.grid.getHexMap(x, y - 8, 0, flipped, matrices.diagonalup()).reverse();
+				return G.grid.getHexMap(x, y - 8, 0, flipped, diagonalup).reverse();
 			case 1: // StraitForward
-				return G.grid.getHexMap(x, y, 0, flipped, matrices.straitrow());
+				return G.grid.getHexMap(x, y, 0, flipped, straitrow);
 			case 2: // Downright
-				return G.grid.getHexMap(x, y, 0, flipped, matrices.diagonaldown());
+				return G.grid.getHexMap(x, y, 0, flipped, diagonaldown);
 			case 3: // Downleft
-				return G.grid.getHexMap(x, y, -4, flipped, matrices.diagonalup());
+				return G.grid.getHexMap(x, y, -4, flipped, diagonalup);
 			case 4: // StraitBackward
-				return G.grid.getHexMap(x, y, 0, !flipped, matrices.straitrow());
+				return G.grid.getHexMap(x, y, 0, !flipped, straitrow);
 			case 5: // Upleft
-				return G.grid.getHexMap(x, y - 8, -4, flipped, matrices.diagonaldown()).reverse();
+				return G.grid.getHexMap(x, y - 8, -4, flipped, diagonaldown).reverse();
 			default:
 				return [];
 		}
@@ -921,7 +919,7 @@ var HexGrid = Class.create({
 
 		for (var y = 0; y < array.length; y++) {
 
-			array[y] = array[y].slice(0); // Copy row
+			array[y] = array[y].slice(0); // Copy Row
 
 			// Translating to flipped patern
 			if (flipped && y % 2 != 0) { // Odd rows
@@ -1671,3 +1669,484 @@ var Hex = Class.create({
 	}
 }); // End of Hex Class
 
+
+/*	Trap Class
+ *
+ *	Object containing hex informations, positions and DOM elements
+ *
+ */
+var Trap = Class.create({
+
+	/*	Constructor(x,y)
+	 *
+	 *	x : 			Integer : 	Hex coordinates
+	 *	y : 			Integer : 	Hex coordinates
+	 *
+	 */
+	initialize: function(x, y, type, effects, owner, opt) {
+		this.hex = G.grid.hexs[y][x];
+		this.type = type;
+		this.effects = effects;
+		this.owner = owner;
+
+		this.creationTurn = G.turn;
+
+		var o = {
+			turnLifetime: 0,
+			fullTurnLifetime: false,
+			ownerCreature: undefined, // Needed for fullTurnLifetime
+			destroyOnActivate: false,
+			typeOver: undefined,
+			destroyAnimation: undefined
+		};
+
+		$j.extend(this, o, opt);
+
+		// Register
+		G.grid.traps.push(this);
+		this.id = trapID++;
+		this.hex.trap = this;
+
+		for (var i = this.effects.length - 1; i >= 0; i--) {
+			this.effects[i].trap = this;
+		};
+
+		var spriteName = 'trap_' + type;
+		var pos = this.hex.originalDisplayPos;
+		this.display = G.grid.trapGroup.create(
+			pos.x + this.hex.width / 2, pos.y + 60, spriteName);
+		this.display.anchor.setTo(0.5);
+		if (this.typeOver) {
+			this.displayOver = G.grid.trapOverGroup.create(
+				pos.x + this.hex.width / 2, pos.y + 60, spriteName);
+			this.displayOver.anchor.setTo(0.5);
+			this.displayOver.scale.x *= -1;
+		}
+	},
+
+	destroy: function() {
+		var tweenDuration = 500;
+		var destroySprite = function(sprite, animation) {
+			if (animation === 'shrinkDown') {
+				sprite.anchor.y = 1;
+				sprite.y += sprite.height / 2;
+				var tween = G.Phaser.add.tween(sprite.scale)
+					.to({
+						y: 0
+					}, tweenDuration, Phaser.Easing.Linear.None)
+					.start();
+				tween.onComplete.add(function() {
+					this.destroy();
+				}, sprite);
+			} else {
+				sprite.destroy();
+			}
+		};
+		destroySprite(this.display, this.destroyAnimation);
+		if (this.displayOver) {
+			destroySprite(this.displayOver, this.destroyAnimation);
+		}
+
+		// Unregister
+		var i = G.grid.traps.indexOf(this);
+		G.grid.traps.splice(i, 1);
+		this.hex.trap = undefined;
+	},
+
+	hide: function(duration, timer) {
+		timer = timer - 0; // Avoid undefined
+		duration = duration - 0; // Avoid undefined
+		G.Phaser.add.tween(this.display).to({
+			alpha: 0
+		}, duration, Phaser.Easing.Linear.None)
+	},
+
+	show: function(duration) {
+		duration = duration - 0; // Avoid undefined
+		G.Phaser.add.tween(this.display).to({
+			alpha: 1
+		}, duration, Phaser.Easing.Linear.None)
+	},
+
+});
+
+
+/**
+ * Return a direction number given a delta x/y
+ * Deltas in [-1, 1] should be used, but due to creature size, x can be greater
+ * - delta x will be clamped for the calculation.
+ * Due to the hex grid, the starting y coordinate matters.
+ * @param {number} y - y coordinate to calculate from
+ * @param {number} dx - delta x
+ * @param {number} dy - delta y, in range [-1, 1]
+ * @return {number} the direction number
+ */
+function getDirectionFromDelta(y, dx, dy) {
+	// Due to target size, this could be off; limit dx
+	if (dx > 1) dx = 1;
+	if (dx < -1) dx = -1;
+	var dir;
+	if (dy === 0) {
+		if (dx === 1) {
+			dir = 1; // forward
+		} else { // dx === -1
+			dir = 4; // backward
+		}
+	} else {
+		// Hex grid corrections
+		if (y % 2 === 0 && dx < 1) {
+			dx++;
+		}
+		if (dx === 1) {
+			if (dy === -1) {
+				dir = 0; // upright
+			} else { // dy === 1
+				dir = 2; // downright
+			}
+		} else { // dx === 0
+			if (dy === 1) {
+				dir = 3; // downleft
+			} else { // dy === -1
+				dir = 5; // upleft
+			}
+		}
+	}
+	return dir;
+}
+
+/*	Array Prototypes
+ *
+ *	Extend Array type for more flexibility and ease of use
+ *
+ */
+
+/*	findPos(obj)
+ *
+ *	obj : 		Object : 	Anything with pos attribute. Could be Hex of Creature.
+ *
+ *	return : 	Object : 	Object found in the array. False if nothing
+ *
+ *	Find an object in the current Array based on its pos attribute
+ *
+ */
+Array.prototype.findPos = function(obj) {
+	for (var i = 0; i < this.length; i++) {
+		if (this[i].pos == obj.pos) {
+			return this[i];
+		}
+	}
+	return false;
+};
+
+
+/*	removePos(obj)
+ *
+ *	obj : 		Object : 	Anything with pos attribute. Could be Hex of Creature.
+ *
+ *	return : 	Boolean : 	True if success. False if failed.
+ *
+ *	Remove an object in the current Array based on its pos attribute
+ *
+ */
+Array.prototype.removePos = function(obj) {
+	for (var i = 0; i < this.length; i++) {
+		if (this[i].pos == obj.pos) {
+			this.splice(i, 1);
+			return true;
+		}
+	}
+	return false;
+};
+
+
+/*	each(f)
+ *
+ *	f : 		Function : 	Function to apply to each array's entry
+ *
+ *	Apply a function for each entries of the array
+ *
+ */
+Array.prototype.each = function(f) {
+	if (!f.apply) return;
+	for (var i = 0; i < this.length; i++) {
+		f.apply(this[i], [i, this]);
+	}
+	return this;
+};
+
+
+/*	filter(f)
+ *
+ *	f : 		Function : 	Function to apply to each array's entry
+ *
+ *	If f return false remove the element from the array
+ *
+ */
+Array.prototype.filter = function(f) {
+	if (!f.apply) return;
+	for (var i = 0; i < this.length; i++) {
+		if (!f.apply(this[i], [i, this])) {
+			this.splice(i, 1);
+			i--;
+		}
+	}
+	return this;
+};
+
+/*	filterCreature(includeCrea, stopOnCreature, id)
+ *	Filters in-place an array of hexes based on creatures.
+ * The array typically represents a linear sequence of hexes, to produce a
+ * subset/superset of hexes that contain or don't contain creatures.
+ *
+ *	includeCrea : 		Boolean : 	Add creature hexs to the array
+ *	stopOnCreature : 	Boolean : 	Cut the array when finding a creature
+ *	id : 				Integer : 	Creature id to remove
+ *
+ *	return : 		Array : 	filtered array
+ */
+Array.prototype.filterCreature = function(includeCrea, stopOnCreature, id) {
+		var creaHexs = [];
+
+		for (var i = 0; i < this.length; i++) {
+			if (this[i].creature instanceof Creature) {
+				if (!includeCrea || this[i].creature.id == id) {
+					if (this[i].creature.id == id) {
+						this.splice(i, 1);
+						i--;
+						continue;
+					} else {
+						this.splice(i, 1);
+						i--;
+					}
+				} else {
+					creaHexs = creaHexs.concat(this[i].creature.hexagons);
+				}
+				if (stopOnCreature) {
+					this.splice(i + 1, 99);
+					break;
+				}
+			}
+		}
+		return this.concat(creaHexs);
+	},
+
+
+	/*	extendToLeft(size)
+	 *
+	 *	size : 		Integer : 	Size to extend
+	 *
+	 *	return : 	Array : 	The hex array with all corresponding hexs at the left
+	 */
+	Array.prototype.extendToLeft = function(size) {
+		var ext = [];
+		for (var i = 0; i < this.length; i++) {
+			for (var j = 0; j < size; j++) {
+				// NOTE : This code produce array with doubles.
+				if (G.grid.hexExists(this[i].y, this[i].x - j))
+					ext.push(G.grid.hexs[this[i].y][this[i].x - j]);
+			}
+		}
+		return ext;
+	};
+
+
+/*	extendToLeft(size)
+ *
+ *	size : 		Integer : 	Size to extend
+ *
+ *	return : 	Array : 	The hex array with all corresponding hexs at the left
+ */
+Array.prototype.extendToRight = function(size) {
+	var ext = [];
+	for (var i = 0; i < this.length; i++) {
+		for (var j = 0; j < size; j++) {
+			// NOTE : This code produces array with doubles.
+			if (G.grid.hexExists(this[i].y, this[i].x + j))
+				ext.push(G.grid.hexs[this[i].y][this[i].x + j]);
+		}
+	}
+	return ext;
+};
+
+
+
+/*	each()
+ *
+ *	Return the last element of the array
+ *
+ */
+Array.prototype.last = function() {
+	return this[this.length - 1];
+};
+
+
+//-----------------//
+// USEFUL MATRICES //
+//-----------------//
+
+diagonalup = [
+	[0, 0, 0, 0, 1], // Origin line
+	[0, 0, 0, 0, 1],
+	[0, 0, 0, 1, 0],
+	[0, 0, 0, 1, 0],
+	[0, 0, 1, 0, 0],
+	[0, 0, 1, 0, 0],
+	[0, 1, 0, 0, 0],
+	[0, 1, 0, 0, 0],
+	[1, 0, 0, 0, 0]
+];
+
+diagonalup.origin = [4, 0];
+
+diagonaldown = [
+	[1, 0, 0, 0, 0], // Origin line
+	[0, 1, 0, 0, 0],
+	[0, 1, 0, 0, 0],
+	[0, 0, 1, 0, 0],
+	[0, 0, 1, 0, 0],
+	[0, 0, 0, 1, 0],
+	[0, 0, 0, 1, 0],
+	[0, 0, 0, 0, 1],
+	[0, 0, 0, 0, 1]
+];
+
+diagonaldown.origin = [0, 0];
+
+straitrow = [
+	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+]; // Origin line
+straitrow.origin = [0, 0];
+
+
+bellowrow = [
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Origin line
+	[0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+];
+
+bellowrow.origin = [0, 0];
+
+frontnback2hex = [
+	[0, 0, 0, 0],
+	[0, 1, 0, 1],
+	[1, 0, 0, 1], // Origin line
+	[0, 1, 0, 1]
+];
+
+frontnback2hex.origin = [2, 2];
+
+frontnback3hex = [
+	[0, 0, 0, 0, 0],
+	[0, 1, 0, 0, 1],
+	[1, 0, 0, 0, 1], // Origin line
+	[0, 1, 0, 0, 1]
+];
+
+frontnback3hex.origin = [3, 2];
+
+front2hex = [
+	[0, 0, 0, 0],
+	[0, 0, 0, 1],
+	[0, 0, 0, 1], // Origin line
+	[0, 0, 0, 1]
+];
+
+front2hex.origin = [2, 2];
+
+back2hex = [
+	[0, 0, 0, 0],
+	[0, 1, 0, 0],
+	[1, 0, 0, 0], // Origin line
+	[0, 1, 0, 0]
+];
+
+back2hex.origin = [2, 2];
+
+inlinefront2hex = [
+	[0, 0, 0, 0],
+	[0, 0, 0, 0],
+	[0, 0, 0, 1], // Origin line
+	[0, 0, 0, 0]
+];
+
+inlinefront2hex.origin = [2, 2];
+
+inlineback2hex = [
+	[0, 0, 0, 0],
+	[0, 0, 0, 0],
+	[1, 0, 0, 0], // Origin line
+	[0, 0, 0, 0]
+];
+
+inlineback2hex.origin = [2, 2];
+
+inlinefrontnback2hex = [
+	[0, 0, 0, 0],
+	[0, 0, 0, 0],
+	[1, 0, 0, 1], // Origin line
+	[0, 0, 0, 0]
+];
+
+inlinefrontnback2hex.origin = [2, 2];
+
+front1hex = [
+	[0, 0, 0],
+	[0, 0, 1],
+	[0, 0, 1], // Origin line
+	[0, 0, 1]
+];
+
+front1hex.origin = [1, 2];
+
+backtop1hex = [
+	[0, 0, 0],
+	[0, 1, 0],
+	[0, 0, 0], // Origin line
+	[0, 0, 0]
+];
+
+backtop1hex.origin = [1, 2];
+
+inlineback1hex = [
+	[0, 0, 0],
+	[0, 0, 0],
+	[1, 0, 0], // Origin line
+	[0, 0, 0]
+];
+
+inlineback1hex.origin = [1, 2];
+
+backbottom1hex = [
+	[0, 0, 0],
+	[0, 0, 0],
+	[0, 0, 0], // Origin line
+	[0, 1, 0]
+];
+
+backbottom1hex.origin = [1, 2];
+
+fronttop1hex = [
+	[0, 0, 0],
+	[0, 0, 1],
+	[0, 0, 0], // Origin line
+	[0, 0, 0]
+];
+
+fronttop1hex.origin = [1, 2];
+
+inlinefront1hex = [
+	[0, 0, 0],
+	[0, 0, 0],
+	[0, 0, 1], // Origin line
+	[0, 0, 0]
+];
+
+inlinefront1hex.origin = [1, 2];
+
+frontbottom1hex = [
+	[0, 0, 0],
+	[0, 0, 0],
+	[0, 0, 0], // Origin line
+	[0, 0, 1]
+];
+
+frontbottom1hex.origin = [1, 2];

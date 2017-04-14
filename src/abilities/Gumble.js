@@ -296,22 +296,22 @@ G.abilities[14] = [
 			var dir = [];
 			switch (args.direction) {
 				case 0: // Upright
-					dir = G.grid.getHexMap(target.x, target.y - 8, 0, target.flipped, matrices.diagonalup()).reverse();
+					dir = G.grid.getHexMap(target.x, target.y - 8, 0, target.flipped, diagonalup).reverse();
 					break;
 				case 1: // StraitForward
-					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.straitrow());
+					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, straitrow);
 					break;
 				case 2: // Downright
-					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.diagonaldown());
+					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, diagonaldown);
 					break;
 				case 3: // Downleft
-					dir = G.grid.getHexMap(target.x, target.y, -4, target.flipped, matrices.diagonalup());
+					dir = G.grid.getHexMap(target.x, target.y, -4, target.flipped, diagonalup);
 					break;
 				case 4: // StraitBackward
-					dir = G.grid.getHexMap(target.x, target.y, 0, !target.flipped, matrices.straitrow());
+					dir = G.grid.getHexMap(target.x, target.y, 0, !target.flipped, straitrow);
 					break;
 				case 5: // Upleft
-					dir = G.grid.getHexMap(target.x, target.y - 8, -4, target.flipped, matrices.diagonaldown()).reverse();
+					dir = G.grid.getHexMap(target.x, target.y - 8, -4, target.flipped, diagonaldown).reverse();
 					break;
 				default:
 					break;

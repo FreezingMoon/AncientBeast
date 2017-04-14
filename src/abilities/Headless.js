@@ -11,7 +11,7 @@ G.abilities[39] = [
 
 		_targetTeam: Team.enemy,
 		_getHexes: function() {
-			return this.creature.getHexMap(matrices.inlineback2hex());
+			return this.creature.getHexMap(inlineback2hex);
 		},
 
 		require: function() {
@@ -102,7 +102,7 @@ G.abilities[39] = [
 
 			//At least one target
 			if (!this.atLeastOneTarget(
-					crea.getHexMap(matrices.frontnback2hex()), {
+					crea.getHexMap(frontnback2hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -122,7 +122,7 @@ G.abilities[39] = [
 				team: this._targetTeam,
 				id: crea.id,
 				flipped: crea.flipped,
-				hexs: crea.getHexMap(matrices.frontnback2hex()),
+				hexs: crea.getHexMap(frontnback2hex),
 			});
 		},
 

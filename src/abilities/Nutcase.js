@@ -85,7 +85,7 @@ G.abilities[40] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(matrices.frontnback2hex()), {
+					this.creature.getHexMap(frontnback2hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -106,13 +106,13 @@ G.abilities[40] = [
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
-					hexs: this.creature.getHexMap(matrices.frontnback2hex())
+					hexs: this.creature.getHexMap(frontnback2hex)
 				});
 			} else {
 				// If upgraded, show choice of front and back hex groups
 				var choices = [
-					this.creature.getHexMap(matrices.front2hex()),
-					this.creature.getHexMap(matrices.back2hex())
+					this.creature.getHexMap(front2hex),
+					this.creature.getHexMap(back2hex)
 				];
 				G.grid.queryChoice({
 					fnOnSelect: function(choice, args) {
@@ -423,7 +423,7 @@ G.abilities[40] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(matrices.inlinefrontnback2hex()), {
+					this.creature.getHexMap(inlinefrontnback2hex), {
 						team: this._targetTeam,
 						optTest: function(creature) {
 							// Size restriction of 2 if unupgraded
@@ -446,7 +446,7 @@ G.abilities[40] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(matrices.inlinefrontnback2hex()),
+				hexs: this.creature.getHexMap(inlinefrontnback2hex),
 				optTest: function(creature) {
 					// Size restriction of 2 if unupgraded
 					return ability.isUpgraded() ? true : creature.size <= 2;
@@ -467,8 +467,6 @@ G.abilities[40] = [
 				1, // Area
 				[] // Effects
 			);
-
-			var inlinefront2hex = matrices.inlinefront2hex(); 
 
 			var trgIsInfront = (G.grid.getHexMap(crea.x - inlinefront2hex.origin[0], crea.y - inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == target);
 

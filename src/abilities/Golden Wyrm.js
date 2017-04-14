@@ -273,7 +273,7 @@ G.abilities[33] = [
 		require: function() {
 			if (!this.testRequirements()) return false;
 
-			var map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, matrices.frontnback2hex());
+			var map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, frontnback2hex);
 			// At least one target
 			if (!this.atLeastOneTarget(map, {
 					team: this._targetTeam
@@ -295,7 +295,7 @@ G.abilities[33] = [
 				team: this._targetTeam,
 				id: wyrm.id,
 				flipped: wyrm.flipped,
-				hexs: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, matrices.frontnback2hex()),
+				hexs: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, frontnback2hex),
 			});
 		},
 
