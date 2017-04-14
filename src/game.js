@@ -165,9 +165,9 @@ var Game = Class.create({
 		// // Music Loading
 		this.soundLoaded = {};
 		this.soundsys = new Soundsys();
-		for (i = 0; i < this.availableMusic.length; i++) {
-			this.soundsys.getSound("./music/" + this.availableMusic[i], i);
-		}
+		// for (i = 0; i < this.availableMusic.length; i++) {
+		// 	this.soundsys.getSound("./music/" + this.availableMusic[i], i);
+		// }
 
 		for (i = 0; i < this.soundEffects.length; i++) {
 			this.soundsys.getSound("./sounds/" + this.soundEffects[i], this.availableMusic.length + i);
