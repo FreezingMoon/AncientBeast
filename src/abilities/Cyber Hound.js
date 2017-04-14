@@ -23,7 +23,7 @@ G.abilities[31] = [
 
 		activate: function() {
 			// Check if there's an enemy creature in front
-			var hexesInFront = this.creature.getHexMap(inlinefront2hex);
+			var hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex());
 			if (hexesInFront.length < 1) return;
 			var target = hexesInFront[0].creature;
 			if (!target) return;
@@ -60,7 +60,7 @@ G.abilities[31] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(frontnback2hex), {
+					this.creature.getHexMap(matrices.frontnback2hex()), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -81,7 +81,7 @@ G.abilities[31] = [
 				team: this._targetTeam,
 				id: crea.id,
 				flipped: crea.player.flipped,
-				hexs: crea.getHexMap(frontnback2hex)
+				hexs: crea.getHexMap(matrices.frontnback2hex())
 			});
 		},
 
@@ -142,6 +142,9 @@ G.abilities[31] = [
 
 			var ability = this;
 			var crea = this.creature;
+
+			var straitrow = matrices.straitrow();
+		    var bellowrow = matrices.bellowrow();
 
 			var choices = [
 				//Front

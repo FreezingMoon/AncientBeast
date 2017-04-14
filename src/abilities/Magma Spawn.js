@@ -72,7 +72,7 @@ G.abilities[4] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(frontnback3hex), {
+					this.creature.getHexMap(matrices.frontnback3hex()), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -92,7 +92,7 @@ G.abilities[4] = [
 				team: this._targetTeam,
 				id: magmaSpawn.id,
 				flipped: magmaSpawn.flipped,
-				hexs: this.creature.getHexMap(frontnback3hex),
+				hexs: this.creature.getHexMap(matrices.frontnback3hex()),
 			});
 		},
 
