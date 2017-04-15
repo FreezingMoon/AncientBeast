@@ -47,7 +47,7 @@ G.abilities[12] = [
 		},
 
 		_getTriggerHexId: function(fromHex) {
-			var hexes = this.creature.getHexMap(front1hex);
+			var hexes = this.creature.getHexMap(matrices.front1hex);
 
 			// Find which hex we are hopping from
 			var id = -1;
@@ -65,13 +65,13 @@ G.abilities[12] = [
 			var hex;
 			switch (id) {
 				case 0:
-					hex = this.creature.getHexMap(backbottom1hex)[0];
+					hex = this.creature.getHexMap(matrices.backbottom1hex)[0];
 					break;
 				case 1:
-					hex = this.creature.getHexMap(inlineback1hex)[0];
+					hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
 					break;
 				case 2:
-					hex = this.creature.getHexMap(backtop1hex)[0];
+					hex = this.creature.getHexMap(matrices.backtop1hex)[0];
 					break;
 			}
 
@@ -79,7 +79,7 @@ G.abilities[12] = [
 			if (id !== 1 &&
 				(hex === undefined ||
 					!hex.isWalkable(this.creature.size, this.creature.id, true))) {
-				hex = this.creature.getHexMap(inlineback1hex)[0];
+				hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
 			}
 
 			if (hex !== undefined &&
@@ -204,28 +204,30 @@ G.abilities[12] = [
 			var ability = this;
 			ability.end();
 
+			
+
 			var target = path.last().creature;
 			// No blow size penalty if upgraded and target is frozen
 			var dist = 5 - (this.isUpgraded() && target.stats.frozen ? 0 : target.size);
 			var dir = [];
 			switch (args.direction) {
 				case 0: // Upright
-					dir = G.grid.getHexMap(target.x, target.y - 8, 0, target.flipped, diagonalup).reverse();
+					dir = G.grid.getHexMap(target.x, target.y - 8, 0, target.flipped, matrices.diagonalup).reverse();
 					break;
 				case 1: // StraitForward
-					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, straitrow);
+					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.straitrow);
 					break;
 				case 2: // Downright
-					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, diagonaldown);
+					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.diagonaldown);
 					break;
 				case 3: // Downleft
-					dir = G.grid.getHexMap(target.x, target.y, -4, target.flipped, diagonalup);
+					dir = G.grid.getHexMap(target.x, target.y, -4, target.flipped, matrices.diagonalup);
 					break;
 				case 4: // StraitBackward
-					dir = G.grid.getHexMap(target.x, target.y, 0, !target.flipped, straitrow);
+					dir = G.grid.getHexMap(target.x, target.y, 0, !target.flipped, matrices.straitrow);
 					break;
 				case 5: // Upleft
-					dir = G.grid.getHexMap(target.x, target.y - 8, -4, target.flipped, diagonaldown).reverse();
+					dir = G.grid.getHexMap(target.x, target.y - 8, -4, target.flipped, matrices.diagonaldown).reverse();
 					break;
 				default:
 					break;

@@ -68,7 +68,7 @@ G.abilities[9] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(frontnback2hex), {
+					this.creature.getHexMap(matrices.frontnback2hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -87,7 +87,7 @@ G.abilities[9] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(frontnback2hex),
+				hexs: this.creature.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -141,7 +141,7 @@ G.abilities[9] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(frontnback2hex), {
+					this.creature.getHexMap(matrices.frontnback2hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -160,7 +160,7 @@ G.abilities[9] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(frontnback2hex),
+				hexs: this.creature.getHexMap(matrices.frontnback2hex),
 			});
 		},
 

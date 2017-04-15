@@ -44,7 +44,7 @@ G.abilities[45] = [
 
 			if (!this.atLeastOneTarget(
 					G.grid.getHexMap(
-						this.creature.x - 3, this.creature.y - 2, 0, false, frontnback3hex), {
+						this.creature.x - 3, this.creature.y - 2, 0, false, matrices.frontnback3hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -65,7 +65,7 @@ G.abilities[45] = [
 				team: this._targetTeam,
 				id: chimera.id,
 				flipped: chimera.flipped,
-				hexs: G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, frontnback3hex),
+				hexs: G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, matrices.frontnback3hex),
 			});
 		},
 

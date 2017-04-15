@@ -11,7 +11,7 @@ G.abilities[39] = [
 
 		_targetTeam: Team.enemy,
 		_getHexes: function() {
-			return this.creature.getHexMap(inlineback2hex);
+			return this.creature.getHexMap(matrices.inlineback2hex);
 		},
 
 		require: function() {
@@ -102,7 +102,7 @@ G.abilities[39] = [
 
 			//At least one target
 			if (!this.atLeastOneTarget(
-					crea.getHexMap(frontnback2hex), {
+					crea.getHexMap(matrices.frontnback2hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -122,7 +122,7 @@ G.abilities[39] = [
 				team: this._targetTeam,
 				id: crea.id,
 				flipped: crea.flipped,
-				hexs: crea.getHexMap(frontnback2hex),
+				hexs: crea.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -346,24 +346,11 @@ G.abilities[39] = [
 
 		_getHexes: function() {
 			// extra range if upgraded
-			var hexes;
 			if (this.isUpgraded()) {
-				hexes = [
-					[0, 0, 0, 0, 0, 0],
-					[0, 1, 1, 1, 1, 1],
-					[0, 1, 1, 1, 1, 1], //origin line
-					[0, 1, 1, 1, 1, 1]
-				];
+				return matrices.headlessBoomerangUpgraded;
 			} else {
-				hexes = [
-					[0, 0, 0, 0, 0],
-					[0, 1, 1, 1, 1],
-					[0, 1, 1, 1, 1], //origin line
-					[0, 1, 1, 1, 1]
-				];
+				return matrices.headlessBoomerang;
 			}
-			hexes.origin = [0, 2];
-			return hexes;
 		},
 
 

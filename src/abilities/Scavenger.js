@@ -42,7 +42,7 @@ G.abilities[44] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(frontnback2hex), {
+					this.creature.getHexMap(matrices.frontnback2hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -61,7 +61,7 @@ G.abilities[44] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(frontnback2hex),
+				hexs: this.creature.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -109,7 +109,7 @@ G.abilities[44] = [
 			var ability = this;
 			var crea = this.creature;
 
-			var hexs = crea.getHexMap(inlinefrontnback2hex);
+			var hexs = crea.getHexMap(matrices.inlinefrontnback2hex);
 
 			if (hexs.length < 2) {
 				// At the border of the map
@@ -152,14 +152,14 @@ G.abilities[44] = [
 		query: function() {
 			var ability = this;
 			var crea = this.creature;
-
-			var hexs = crea.getHexMap(inlinefrontnback2hex);
+			
+			var hexs = crea.getHexMap(matrices.inlinefrontnback2hex);
 			var trg = hexs[0].creature || hexs[1].creature;
 
 			var distance = Math.floor(crea.remainingMove / trg.size);
 			var size = crea.size + trg.size;
 
-			var trgIsInfront = (G.grid.getHexMap(crea.x - inlinefront2hex.origin[0], crea.y - inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == trg);
+			var trgIsInfront = (G.grid.getHexMap(crea.x - matrices.inlinefront2hex.origin[0], crea.y - matrices.inlinefront2hex.origin[1], 0, false, matrices.inlinefront2hex)[0].creature == trg);
 
 			var select = function(hex, args) {
 				for (var i = 0; i < size; i++) {
@@ -265,7 +265,7 @@ G.abilities[44] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(frontnback2hex), {
+					this.creature.getHexMap(matrices.frontnback2hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -284,7 +284,7 @@ G.abilities[44] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(frontnback2hex),
+				hexs: this.creature.getHexMap(matrices.frontnback2hex),
 			});
 		},
 

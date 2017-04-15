@@ -268,7 +268,7 @@ var Game = Class.create({
 	loadFinish: function() {
 		var progress = this.Phaser.load.progress;
 		var loadingBarWidth = 348;
-		var progressWidth = util.calculatePercentageResult(loadingBarWidth, progress);
+		var progressWidth = math.calculatePercentageResult(loadingBarWidth, progress);
 		$j(".progress").css('width', progressWidth);
 
 		if (progress == 100) {
