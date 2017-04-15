@@ -668,7 +668,7 @@ body {
 	margin: 0 5px;
 	cursor: default;
 	display: inline-block;
-	background-image: url("../../interface/button.png");
+	background-image: url("../../interface/long_button.png");
 	background-repeat: no-repeat;
 }
 
@@ -1372,6 +1372,7 @@ span.pure {
 	left: 25%;
 	bottom: 10px;
 }
+
 @media (max-height: 525px) {
 	#gameTitle {
 		transform: rotate(90deg);
@@ -1380,7 +1381,10 @@ span.pure {
 		margin-top: 205;
 		padding: 0 105;
 	}
+
+	#settings { margin-top: -45px !important; }
 }
+
 @media (min-height: 1001px) {
 	#gameTitle {
 		transform: rotate(0deg);
@@ -1416,13 +1420,17 @@ a:hover {
 }
 
 #startButton {
-	background-image: url('../../interface/startButton1.png');
-	background-size: 145px;
+	background: transparent;
+	background-image: url('../../interface/small_button.png');
+	background-size: 190px;
+	border: 0;
+	width: 190px;
+	height: 74px;
 }
 
 #startButton:hover {
-	background-image: url('../../interface/startButton2.png');
-	background-size: 145px;
+	background-image: url('../../interface/small_button_h.png');
+	background-size: 190px;
 }
 
 .blink {
