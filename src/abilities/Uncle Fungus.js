@@ -80,7 +80,7 @@ G.abilities[3] = [
 
 			// At least one target
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(frontnback2hex), {
+					this.creature.getHexMap(matrices.frontnback2hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -100,7 +100,7 @@ G.abilities[3] = [
 				team: this._targetTeam,
 				id: uncle.id,
 				flipped: uncle.flipped,
-				hexs: uncle.getHexMap(frontnback2hex),
+				hexs: uncle.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -321,7 +321,7 @@ G.abilities[3] = [
 		require: function() {
 			if (!this.testRequirements()) return false;
 
-			var map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, frontnback2hex);
+			var map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, matrices.frontnback2hex);
 			// At least one target
 			if (!this.atLeastOneTarget(map, {
 					team: this._targetTeam
@@ -343,7 +343,7 @@ G.abilities[3] = [
 				team: this._targetTeam,
 				id: uncle.id,
 				flipped: uncle.flipped,
-				hexs: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, frontnback2hex),
+				hexs: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, matrices.frontnback2hex),
 			});
 		},
 
@@ -365,7 +365,7 @@ G.abilities[3] = [
 			if (this.isUpgraded() && !result.kill) {
 				var dx = target.x - this.creature.x;
 				var dy = target.y - this.creature.y;
-				var dir = getDirectionFromDelta(target.y, dx, dy);
+				var dir = pos.getDirectionFromDelta(target.y, dx, dy);
 				var hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
 				// The hex to knock back into is the second hex since the first is where
 				// they are currently

@@ -106,7 +106,7 @@ G.abilities[5] = [
 		},
 
 		_getHexes: function() {
-			return G.grid.getHexMap(this.creature.x - 3, this.creature.y - 2, 0, false, frontnback3hex);
+			return G.grid.getHexMap(this.creature.x - 3, this.creature.y - 2, 0, false, matrices.frontnback3hex);
 		}
 	},
 
@@ -177,7 +177,6 @@ G.abilities[5] = [
 						fullTurnLifetime: true,
 						ownerCreature: ability.creature,
 						destroyOnActivate: true,
-						typeOver: 'poisonous-vine',
 						destroyAnimation: 'shrinkDown'
 					}
 				);
@@ -334,7 +333,7 @@ G.abilities[5] = [
 		},
 
 		_getHexes: function() {
-			return G.grid.getHexMap(this.creature.x - 3, this.creature.y - 2, 0, false, frontnback3hex);
+			return G.grid.getHexMap(this.creature.x - 3, this.creature.y - 2, 0, false, matrices.frontnback3hex);
 		}
 	}
 

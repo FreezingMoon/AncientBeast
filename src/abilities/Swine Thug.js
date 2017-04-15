@@ -178,6 +178,9 @@ G.abilities[37] = [
 		require: function() {
 			if (!this.testRequirements()) return false;
 
+			var bellowrow = matrices.bellowrow;
+			var straitrow = matrices.straitrow;
+
 			var swine = this.creature;
 			var hexs = G.grid.getHexMap(swine.x, swine.y - 2, 0, false, bellowrow).filterCreature(true, true, swine.id, swine.team).concat(
 				G.grid.getHexMap(swine.x, swine.y, 0, false, straitrow).filterCreature(true, true, swine.id, swine.team),
@@ -196,6 +199,9 @@ G.abilities[37] = [
 
 		// 	query() :
 		query: function() {
+			var bellowrow = matrices.bellowrow;
+			var straitrow = matrices.straitrow;
+
 
 			var ability = this;
 			var swine = this.creature;
