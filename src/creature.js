@@ -979,6 +979,11 @@ var Creature = Class.create({
 	 *	return :	Object :	Contains damages dealed and if creature is killed or not
 	 */
 	takeDamage: function(damage, o) {
+		if (this.dead) {
+			G.log("%CreatureName" + this.id + "% is already dead, aborting takeDamage call.");
+			return;
+		}
+
 		var defaultOpt = {
 			ignoreRetaliation: false,
 			isFromTrap: false
