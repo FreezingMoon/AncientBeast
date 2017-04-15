@@ -183,8 +183,12 @@ G.abilities[7] = [
 			};
 
 			var requireFn = function() {
-				if (this.trap.hex.creature === 0) return false;
-				return this.trap.hex.creature.type !== ability.creature.type;
+				var hex = this.trap.hex,
+					creature = hex.creature,
+					type = creature && creature.type || null;
+
+				if (creature === 0) return false;
+				return type !== ability.creature.type;
 			};
 
 			var crea = this.creature;
