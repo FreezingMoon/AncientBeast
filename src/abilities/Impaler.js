@@ -177,7 +177,6 @@ G.abilities[5] = [
 						fullTurnLifetime: true,
 						ownerCreature: ability.creature,
 						destroyOnActivate: true,
-						typeOver: 'poisonous-vine',
 						destroyAnimation: 'shrinkDown'
 					}
 				);
