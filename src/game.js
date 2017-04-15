@@ -162,7 +162,7 @@ var Game = Class.create({
 
 		var i;
 
-		// // Music Loading
+		// Sounds
 		this.soundLoaded = {};
 		this.soundsys = new Soundsys();
 
