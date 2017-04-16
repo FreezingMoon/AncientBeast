@@ -182,6 +182,9 @@ G.abilities[31] = [
 			ability.end();
 
 			var crea = this.creature;
+			
+			var straitrow = matrices.straitrow;
+		    var bellowrow = matrices.bellowrow;
 
 			var rows;
 			if (choice.choiceId === 0) {

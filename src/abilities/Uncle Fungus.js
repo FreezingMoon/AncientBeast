@@ -276,9 +276,9 @@ G.abilities[3] = [
 		_getHexRange: function(stopOnCreature) {
 			// Get the hex range of this ability
 			var uncle = this.creature;
-			var forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, straitrow);
+			var forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, matrices.straitrow);
 			forward = forward.filterCreature(false, stopOnCreature, uncle.id);
-			var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, straitrow);
+			var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, matrices.straitrow);
 			backward = backward.filterCreature(false, stopOnCreature, uncle.id);
 			// Combine and sort by X, left to right
 			var hexes = forward.concat(backward).sort(function(a, b) {
