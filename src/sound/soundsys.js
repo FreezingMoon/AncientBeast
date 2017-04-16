@@ -40,7 +40,7 @@ var Soundsys = Class.create({
 	playMusic: function() {
 		//if(!window.AudioContext) return false;
 		//this.playSound(G.soundLoaded[0],this.musicGainNode);
-		// musicPlayer.playRandom();
+		musicPlayer.playRandom();
 	},
 
 	getSound: function(url, id) {
