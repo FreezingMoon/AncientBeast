@@ -469,9 +469,8 @@ var UI = Class.create({
 			});
 		}, 10);
 
-
-		if (G.turnTimePool) $j(".turntime").text(zfill(Math.floor(G.turnTimePool / 60), 2) + ":" + zfill(G.turnTimePool % 60, 2));
-		if (G.timePool) $j(".timepool").text(zfill(Math.floor(G.timePool / 60), 2) + ":" + zfill(G.timePool % 60, 2));
+		if (G.turnTimePool) $j(".turntime").text(time.getTimer(G.turnTimePool));
+		if (G.timePool) $j(".timepool").text(time.getTimer(G.timePool));
 
 		$j("#tabwrapper a").removeAttr("href"); // Empty links
 
@@ -1236,10 +1235,8 @@ var UI = Class.create({
 			var remainingTime = G.turnTimePool - Math.round((date - G.activeCreature.player.startTime) / 1000);
 			if (G.timePool > 0)
 				remainingTime = Math.min(remainingTime, Math.round((G.activeCreature.player.totalTimePool - (date - G.activeCreature.player.startTime)) / 1000));
-			var minutes = Math.floor(remainingTime / 60);
-			var seconds = remainingTime - minutes * 60;
 			var id = G.activeCreature.player.id;
-			$j(".p" + id + " .turntime").text(zfill(minutes, 2) + ":" + zfill(seconds, 2));
+			$j(".p" + id + " .turntime").text(time.getTimer(remainingTime));
 			// Time Alert
 			if (remainingTime < 6)
 				$j(".p" + id + " .turntime").addClass("alert");
@@ -1258,9 +1255,7 @@ var UI = Class.create({
 			G.players.each(function () {
 				var remainingTime = (this.id == G.activeCreature.player.id) ? this.totalTimePool - (date - this.startTime) : this.totalTimePool;
 				remainingTime = Math.max(Math.round(remainingTime / 1000), 0);
-				var minutes = Math.floor(remainingTime / 60);
-				var seconds = remainingTime - minutes * 60;
-				$j(".p" + this.id + " .timepool").text(zfill(minutes, 2) + ":" + zfill(seconds, 2));
+				$j(".p" + this.id + " .timepool").text(time.getTimer(remainingTime));
 			});
 
 			// Time Bar
