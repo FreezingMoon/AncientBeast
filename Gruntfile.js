@@ -1,4 +1,4 @@
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	//grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks('grunt-contrib-concat');
@@ -6,6 +6,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-open');
 	grunt.loadNpmTasks('grunt-express-server');
+	grunt.loadNpmTasks('main-bower-files');
 	// grunt.loadNpmTasks('grunt-uncss');
 
 	grunt.initConfig({
@@ -50,88 +51,15 @@ module.exports = function (grunt) {
 			}
 
 		},
+		bower: {
+			flat: { /* flat folder/file structure */
+				dest: 'deploy/scripts/libs',
+				options: {
+					env: process.env.NODE_ENV || "development"
+				}
+			}
+		},
 		copy: {
-			// Copies the customized build of Phaser into the game
-			// http://phaser.io/tutorials/creating-custom-phaser-builds
-			phaser: {
-				files: [{
-					expand: true,
-					src: ['bower_components/phaser-ce/build/phaser*.js'],
-					dest: 'deploy/scripts/libs/',
-					filter: 'isFile',
-					flatten: true
-				}]
-			},
-			// Copy jquery to the libs folder
-			jquery: {
-				files: [{
-					expand: true,
-					src: ['bower_components/jquery/jquery*.js'],
-					dest: 'deploy/scripts/libs/',
-					filter: 'isFile',
-					flatten: true
-				}]
-			},
-			// Copy jquery-ui to the libs folder
-			jquery_ui: {
-				files: [{
-					expand: true,
-					src: ['bower_components/jquery-ui/jquery-ui*.js'],
-					dest: 'deploy/scripts/libs/',
-					filter: 'isFile',
-					flatten: true
-				}]
-			},
-			// Copy jquery-mousewheel to the libs folder
-			jquery_mousewheel: {
-				files: [{
-					expand: true,
-					src: ['bower_components/jquery-mousewheel/jquery*.js'],
-					dest: 'deploy/scripts/libs/',
-					filter: 'isFile',
-					flatten: true
-				}]
-			},
-			// Copy jquery kinetic to the libs folder
-			jquery_kinectic: {
-				files: [{
-					expand: true,
-					src: ['bower_components/jquery.kinetic/jquery*.js'],
-					dest: 'deploy/scripts/libs/',
-					filter: 'isFile',
-					flatten: true
-				}]
-			},
-			// Copy jquery transit to the libs folder
-			jquery_transit: {
-				files: [{
-					expand: true,
-					src: ['bower_components/jquery.transit/jquery*.js'],
-					dest: 'deploy/scripts/libs/',
-					filter: 'isFile',
-					flatten: true
-				}]
-			},
-			// Copy Prototype  to the libs folder
-			prototypejs: {
-				files: [{
-					expand: true,
-					src: ['bower_components/prototypejs/dist/prototype*.js'],
-					dest: 'deploy/scripts/libs/',
-					filter: 'isFile',
-					flatten: true
-				}]
-			},
-			// Copy socket-io to the libs folder
-			socket_io: {
-				files: [{
-					expand: true,
-					src: ['bower_components/socket.io-client/socket*.js'],
-					dest: 'deploy/scripts/libs/',
-					filter: 'isFile',
-					flatten: true
-				}]
-			},
 			// Copies CSS files into deploy/css, these were previously in deploy/css
 			// but were moved to enabled gitignore to work more cleanly on that path.
 			css: {
@@ -158,7 +86,7 @@ module.exports = function (grunt) {
 						// new(require('less-plugin-autoprefix'))({
 						// 	browsers: ["last 2 versions"]
 						// }),
-						new (require('less-plugin-clean-css'))({
+						new(require('less-plugin-clean-css'))({
 							inline: ['local', 'remote']
 						})
 					],
@@ -181,5 +109,5 @@ module.exports = function (grunt) {
 		// }
 	});
 
-	grunt.registerTask('default', ['concat', 'less', 'copy', /* 'uncss', */ 'express', 'open', 'watch']);
+	grunt.registerTask('default', ['concat', 'less', 'copy', 'bower', /* 'uncss', */ 'express', 'open', 'watch']);
 };
