@@ -1372,7 +1372,6 @@ span.pure {
 	left: 25%;
 	bottom: 10px;
 }
-
 @media (max-height: 525px) {
 	#gameTitle {
 		transform: rotate(90deg);
@@ -1382,9 +1381,10 @@ span.pure {
 		padding: 0 105;
 	}
 
-	#settings { margin-top: -45px !important; }
+	#settings {
+		margin-top: -45px !important;
+	}
 }
-
 @media (min-height: 1001px) {
 	#gameTitle {
 		transform: rotate(0deg);
@@ -1505,23 +1505,18 @@ a:hover {
 #barLoader {
 	position: relative;
 	margin-left: -60px;
-}
+	background-image: url("../interface/loadingBar/barEmpty.png");
+	background-repeat: no-repeat;
+	height: 54px;
+	width: 355px;
 
-.loadingBar {
-	position: absolute;
-	left: 0;
-	top: 0;
-}
-
-.progress {
-	width: 0;
-	height: 53px;
-	margin-left: 3px;
-	-webkit-transition: 300ms linear;
-	-moz-transition: 300ms linear;
-	-o-transition: 300ms linear;
-	-ms-transition: 300ms linear;
-	transition: 300ms linear;
+	.progress {
+		display: block;
+		height: 100vh;
+		width: 0;
+		background-image: url("../interface/loadingBar/barProgress.png");
+		background-repeat: no-repeat;
+	}
 }
 /*--------------Scoreboard------------------*/
 #endscreen {
