@@ -1,4 +1,4 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	//grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks('grunt-contrib-concat');
@@ -16,10 +16,12 @@ module.exports = function(grunt) {
 			},
 			dist: {
 				src: [
-					"src/*.js",
+					"src/sound/**/*.js",
+					"src/ui/**/*.js",
 					"src/utility/**/*.js",
-					"src/abilities/**/*.js",
-					"src/network/**/*.js"
+					"src/network/**/*.js",
+					"src/*.js",
+					"src/abilities/**/*.js"
 				],
 				dest: 'deploy/scripts/<%= pkg.name %>.js'
 			}
@@ -156,7 +158,7 @@ module.exports = function(grunt) {
 						// new(require('less-plugin-autoprefix'))({
 						// 	browsers: ["last 2 versions"]
 						// }),
-						new(require('less-plugin-clean-css'))({
+						new (require('less-plugin-clean-css'))({
 							inline: ['local', 'remote']
 						})
 					],
