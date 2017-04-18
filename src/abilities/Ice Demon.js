@@ -177,13 +177,13 @@ G.abilities[6] = [
 		require: function() {
 			if (!this.testRequirements()) return false;
 
-			
+
 
 			var straitrow = matrices.straitrow;
 			var bellowrow = matrices.bellowrow;
 
 			var crea = this.creature;
-			var hexs = G.grid.getHexMap(crea.x + 2, crea.y - 2, 0, false, straitrow).filterCreature(true, true, crea.id, crea.team).concat(
+			var hexes = G.grid.getHexMap(crea.x + 2, crea.y - 2, 0, false, straitrow).filterCreature(true, true, crea.id, crea.team).concat(
 				G.grid.getHexMap(crea.x + 1, crea.y - 2, 0, false, bellowrow).filterCreature(true, true, crea.id, crea.team),
 				G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow).filterCreature(true, true, crea.id, crea.team),
 				G.grid.getHexMap(crea.x + 1, crea.y, 0, false, bellowrow).filterCreature(true, true, crea.id, crea.team),
@@ -195,7 +195,7 @@ G.abilities[6] = [
 				G.grid.getHexMap(crea.x - 1, crea.y, 2, true, bellowrow).filterCreature(true, true, crea.id, crea.team),
 				G.grid.getHexMap(crea.x - 2, crea.y + 2, 2, true, straitrow).filterCreature(true, true, crea.id, crea.team));
 
-			if (!this.atLeastOneTarget(hexs, {
+			if (!this.atLeastOneTarget(hexes, {
 					team: this._targetTeam
 				})) {
 				return false;
@@ -298,14 +298,14 @@ G.abilities[6] = [
 					var trg = path.last().creature;
 
 					var hex = (ability.creature.player.flipped) ?
-						G.grid.hexs[path.last().y][path.last().x + trg.size - 1] :
+						G.grid.hexes[path.last().y][path.last().x + trg.size - 1] :
 						path.last();
 
-					hex.adjacentHex(ability.radius).concat([hex]).each(function() {
-						if (this.creature instanceof Creature) {
-							this.overlayVisualState("creature selected player" + this.creature.team);
+					hex.adjacentHex(ability.radius).concat([hex]).forEach(function(item) {
+						if (item.creature instanceof Creature) {
+							item.overlayVisualState("creature selected player" + item.creature.team);
 						} else {
-							this.overlayVisualState("creature selected player" + G.activeCreature.team);
+							item.overlayVisualState("creature selected player" + G.activeCreature.team);
 						}
 					});
 				},
@@ -331,7 +331,7 @@ G.abilities[6] = [
 			var trg = path.last().creature;
 
 			var hex = (ability.creature.player.flipped) ?
-				G.grid.hexs[path.last().y][path.last().x + trg.size - 1] :
+				G.grid.hexes[path.last().y][path.last().x + trg.size - 1] :
 				path.last();
 
 			var trgs = ability.getTargets(hex.adjacentHex(ability.radius)

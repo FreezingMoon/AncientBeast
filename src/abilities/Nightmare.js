@@ -21,11 +21,12 @@ G.abilities[9] = [
 			// Check whether this ability is upgraded; if so then make sure all existing
 			// buffs include an offense buff
 			var ability = this;
-			this.creature.effects.each(function() {
-				if (this.name === ability._effectName) {
-					this.alterations.offense = ability._getOffenseBuff();
+			this.creature.effects.forEach(function(effect) {
+				if (effect.name === ability._effectName) {
+					effect.alterations.offense = ability._getOffenseBuff();
 				}
 			});
+
 			if (this.creature.remainingMove < this.creature.stats.movement) {
 				this.message = "The creature moved this round.";
 				return false;
@@ -87,7 +88,7 @@ G.abilities[9] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(matrices.frontnback2hex),
+				hexes: this.creature.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -160,7 +161,7 @@ G.abilities[9] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(matrices.frontnback2hex),
+				hexes: this.creature.getHexMap(matrices.frontnback2hex),
 			});
 		},
 

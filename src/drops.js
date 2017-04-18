@@ -12,7 +12,7 @@ var Drop = Class.create({
 		};
 		this.health = health;
 		this.energy = energy;
-		this.hex = G.grid.hexs[this.y][this.x];
+		this.hex = G.grid.hexes[this.y][this.x];
 
 		this.hex.drop = this;
 
