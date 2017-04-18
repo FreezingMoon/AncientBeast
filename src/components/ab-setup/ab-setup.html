@@ -172,49 +172,5 @@ Ancient Beast Game Setup
 		</form>
 	</template>
 
-	<script>
-		class MyElement extends Polymer.Element {
-			static get is() {
-				return 'ab-setup';
-			}
-			static get properties() {
-				return {
-					playerMode: {
-						type: Number,
-						value: 2
-					},
-					maxUnits: {
-						type: Number,
-						value: 3
-					},
-					dropsEnabled: {
-						type: Number,
-						value: 1
-					},
-					upgradeRounds: {
-						type: Number,
-						value: 3
-					},
-					maxPlasma: {
-						type: Number,
-						value: 30
-					},
-					turnTime: {
-						type: Number,
-						value: -1
-					},
-					timePool: {
-						type: Number,
-						value: -1,
-					},
-					combatLocation: {
-						type: String,
-						value: 'random'
-					}
-				};
-			}
-		}
-
-		window.customElements.define(MyElement.is, MyElement);
-	</script>
+	<script src="ab-setup.js"></script>
 </dom-module>
