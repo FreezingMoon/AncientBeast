@@ -812,22 +812,28 @@ var Game = Class.create({
 	triggerAbility: function(trigger, arg, retValue) {
 
 		// For triggered creature
-		arg[0].abilities.each(function() {
-			if (arg[0].dead === true) return;
-			if (G.triggers[trigger].test(this.getTrigger())) {
-				if (this.require(arg[1])) {
-					retValue = this.animation(arg[1]);
+		arg[0].abilities.forEach(function(ability) {
+			if (arg[0].dead === true) {
+				return;
+			}
+
+			if (G.triggers[trigger].test(ability.getTrigger())) {
+				if (ability.require(arg[1])) {
+					retValue = ability.animation(arg[1]);
 				}
 			}
 		});
 
 		// For other creatures
-		G.creatures.each(function() {
-			if (arg[0] === this || this.dead === true) return;
-			this.abilities.each(function() {
-				if (G.triggers[trigger + "_other"].test(this.getTrigger())) {
-					if (this.require(arg[1])) {
-						retValue = this.animation(arg[1], arg[0]);
+		G.creatures.forEach(function(creature) {
+			if (arg[0] === creature || creature.dead === true) {
+				return;
+			}
+
+			creature.abilities.forEach(function(ability) {
+				if (G.triggers[trigger + "_other"].test(ability.getTrigger())) {
+					if (ability.require(arg[1])) {
+						retValue = ability.animation(arg[1], arg[0]);
 					}
 				}
 			});
@@ -837,20 +843,26 @@ var Game = Class.create({
 	triggerEffect: function(trigger, arg, retValue) {
 
 		// For triggered creature
-		arg[0].effects.each(function() {
-			if (arg[0].dead === true) return;
-			if (G.triggers[trigger].test(this.trigger)) {
-				retValue = this.activate(arg[1]);
+		arg[0].effects.forEach(function(effect) {
+			if (arg[0].dead === true) {
+				return;
+			}
+
+			if (G.triggers[trigger].test(effect.trigger)) {
+				retValue = effect.activate(arg[1]);
 			}
 		});
 
 		// For other creatures
-		G.creatures.each(function() {
-			if (this instanceof Creature) {
-				if (arg[0] === this || this.dead === true) return;
-				this.effects.each(function() {
-					if (G.triggers[trigger + "_other"].test(this.trigger)) {
-						retValue = this.activate(arg[1]);
+		G.creatures.forEach(function(creature) {
+			if (creature instanceof Creature) {
+				if (arg[0] === creature || creature.dead === true) {
+					return;
+				}
+
+				creature.effects.forEach(function(effect) {
+					if (G.triggers[trigger + "_other"].test(effect.trigger)) {
+						retValue = effect.activate(arg[1]);
 					}
 				});
 			}
@@ -858,18 +870,20 @@ var Game = Class.create({
 	},
 
 	triggerTrap: function(trigger, arg) {
-		arg[0].hexagons.each(function() {
-			this.activateTrap(G.triggers[trigger], arg[0]);
+		arg[0].hexagons.forEach(function(hex) {
+			hex.activateTrap(G.triggers[trigger], arg[0]);
 		});
 	},
 
 	triggerDeleteEffect: function(trigger, creature) {
 		var effects;
+
 		if (creature == "all") {
 			effects = G.effects;
 		} else {
 			effects = creature.effects;
 		}
+
 		for (var i = 0; i < effects.length; i++) {
 			var effect = effects[i];
 			if (effect.turnLifetime > 0 && trigger === effect.deleteTrigger &&
@@ -1178,7 +1192,7 @@ var Game = Class.create({
 		G.clearOncePerDamageChain();
 		switch (o.action) {
 			case "move":
-				G.activeCreature.moveTo(G.grid.hexs[o.target.y][o.target.x], {
+				G.activeCreature.moveTo(G.grid.hexes[o.target.y][o.target.x], {
 					callback: opt.callback
 				});
 				break;
@@ -1200,7 +1214,7 @@ var Game = Class.create({
 			case "ability":
 				var args = $j.makeArray(o.args[1]);
 				if (o.target.type == "hex") {
-					args.unshift(G.grid.hexs[o.target.y][o.target.x]);
+					args.unshift(G.grid.hexes[o.target.y][o.target.x]);
 					G.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
 						arg: args
@@ -1214,10 +1228,10 @@ var Game = Class.create({
 					});
 				}
 				if (o.target.type == "array") {
-					var array = [];
-					o.target.array.each(function() {
-						array.push(G.grid.hexs[this.y][this.x]);
+					var array = o.target.array.map(function(item) {
+						return G.grid.hexes[item.y][item.x];
 					});
+
 					args.unshift(array);
 					G.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
@@ -1236,6 +1250,3 @@ function getImage(url) {
 
 	};
 }
-
-
-

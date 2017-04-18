@@ -65,7 +65,7 @@ G.abilities[45] = [
 				team: this._targetTeam,
 				id: chimera.id,
 				flipped: chimera.flipped,
-				hexs: G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, matrices.frontnback3hex),
+				hexes: G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, matrices.frontnback3hex),
 			});
 		},
 

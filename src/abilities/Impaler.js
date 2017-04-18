@@ -69,7 +69,7 @@ G.abilities[5] = [
 				team: this._targetTeam,
 				id: creature.id,
 				flipped: creature.flipped,
-				hexs: this._getHexes()
+				hexes: this._getHexes()
 			});
 		},
 
@@ -141,7 +141,7 @@ G.abilities[5] = [
 				team: this._targetTeam,
 				id: creature.id,
 				flipped: creature.flipped,
-				hexs: this._getHexes()
+				hexes: this._getHexes()
 			});
 		},
 
@@ -162,15 +162,15 @@ G.abilities[5] = [
 							});
 						// Hack: manually destroy traps so we don't activate multiple traps
 						// and see multiple logs etc.
-						target.hexagons.each(function() {
-							this.destroyTrap();
+						target.hexagons.forEach(function(hex) {
+							hex.destroyTrap();
 						});
 						effect.deleteEffect();
 					}
 				}
 			);
-			target.hexagons.each(function() {
-				this.createTrap(
+			target.hexagons.forEach(function(hex) {
+				hex.createTrap(
 					"poisonous-vine", [effect],
 					ability.creature.player, {
 						turnLifetime: lifetime,
@@ -185,7 +185,7 @@ G.abilities[5] = [
 
 		_getHexes: function() {
 			// Target a creature within 2 hex radius
-			var hexes = G.grid.hexs[this.creature.y][this.creature.x].adjacentHex(2);
+			var hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(2);
 			return hexes.extendToLeft(this.creature.size);
 		}
 	},
@@ -220,7 +220,7 @@ G.abilities[5] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this._getHexes()
+				hexes: this._getHexes()
 			});
 		},
 
@@ -289,11 +289,14 @@ G.abilities[5] = [
 				nextdmg = nextdmg.damages;
 
 				// Get next available targets
-				nextTargets = ability.getTargets(trg.adjacentHexs(1, true));
+				nextTargets = ability.getTargets(trg.adjacenthexes(1, true));
 
-				nextTargets.filter(function() {
-					if (this.hexsHit === undefined) return false; // Remove empty ids
-					return (targets.indexOf(this.target) == -1); // If this creature has already been hit
+				nextTargets = nextTargets.filter(function(item) {
+					if (item.hexesHit === undefined) {
+						return false; // Remove empty ids
+					}
+
+					return (targets.indexOf(item.target) == -1); // If this creature has already been hit
 				});
 
 				// If no target

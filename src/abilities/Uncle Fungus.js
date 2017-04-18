@@ -100,7 +100,7 @@ G.abilities[3] = [
 				team: this._targetTeam,
 				id: uncle.id,
 				flipped: uncle.flipped,
-				hexs: uncle.getHexMap(matrices.frontnback2hex),
+				hexes: uncle.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -154,9 +154,9 @@ G.abilities[3] = [
 			}
 
 			// Remove frogger bonus if its found
-			ability.creature.effects.each(function() {
-				if (this.name == "Frogger Bonus") {
-					this.deleteEffect();
+			ability.creature.effects.forEach(function(effect) {
+				if (effect.name == "Frogger Bonus") {
+					effect.deleteEffect();
 				}
 			});
 		},
@@ -196,7 +196,7 @@ G.abilities[3] = [
 			var stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
 			var hexes = this._getHexRange(stopOnCreature);
 
-			G.grid.queryHexs({
+			G.grid.queryhexes({
 				fnOnSelect: function() {
 					ability.fnOnSelect.apply(ability, arguments);
 				},
@@ -211,7 +211,7 @@ G.abilities[3] = [
 				size: uncle.size,
 				flipped: uncle.player.flipped,
 				id: uncle.id,
-				hexs: hexes,
+				hexes: hexes,
 				hexesDashed: [],
 				hideNonTarget: true
 			});
@@ -343,7 +343,7 @@ G.abilities[3] = [
 				team: this._targetTeam,
 				id: uncle.id,
 				flipped: uncle.flipped,
-				hexs: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, matrices.frontnback2hex),
+				hexes: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, matrices.frontnback2hex),
 			});
 		},
 
@@ -384,9 +384,9 @@ G.abilities[3] = [
 			}
 
 			// Remove Frogger Jump bonus if its found
-			ability.creature.effects.each(function() {
-				if (this.name == "Offense Bonus") {
-					this.deleteEffect();
+			ability.creature.effects.forEach(function(effect) {
+				if (effect.name == "Offense Bonus") {
+					effect.deleteEffect();
 				}
 			});
 		},

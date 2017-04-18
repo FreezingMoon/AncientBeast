@@ -37,7 +37,7 @@ var Animations = Class.create({
 					return;
 				}
 
-				var nextPos = G.grid.hexs[hex.y][hex.x - crea.size + 1];
+				var nextPos = G.grid.hexes[hex.y][hex.x - crea.size + 1];
 				var speed = !opts.overrideSpeed ? crea.animation.walk_speed : opts.overrideSpeed;
 
 				var tween = G.Phaser.add.tween(crea.grp)
@@ -98,8 +98,8 @@ var Animations = Class.create({
 
 			var hex = path[0];
 
-			var start = G.grid.hexs[crea.y][crea.x - crea.size + 1];
-			var currentHex = G.grid.hexs[hex.y][hex.x - crea.size + 1];
+			var start = G.grid.hexes[crea.y][crea.x - crea.size + 1];
+			var currentHex = G.grid.hexes[hex.y][hex.x - crea.size + 1];
 
 			G.animations.movements.leaveHex(crea, start, opts);
 
@@ -137,7 +137,7 @@ var Animations = Class.create({
 
 			var hex = path[0];
 
-			var currentHex = G.grid.hexs[hex.y][hex.x - crea.size + 1];
+			var currentHex = G.grid.hexes[hex.y][hex.x - crea.size + 1];
 
 			G.animations.movements.leaveHex(crea, currentHex, opts);
 
@@ -220,16 +220,21 @@ var Animations = Class.create({
 
 			G.triggersFn.onCreatureMove(crea, hex); // Trigger
 
-			crea.hexagons.each(function() {
-				this.pickupDrop(crea);
+			crea.hexagons.forEach(function(hex) {
+				hex.pickupDrop(crea);
 			});
 
 			G.grid.orderCreatureZ();
 
-			G.animationQueue.filter(function() {
-				return (this != anim_id);
+			var queue = G.animationQueue.filter(function(item) {
+				return (item != anim_id);
 			});
-			if (G.animationQueue.length === 0) G.freezedInput = false;
+
+			if (queue.length === 0) {
+				G.freezedInput = false;
+			}
+
+			G.animationQueue = queue;
 		}
 	}
 });

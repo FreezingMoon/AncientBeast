@@ -81,7 +81,7 @@ G.abilities[31] = [
 				team: this._targetTeam,
 				id: crea.id,
 				flipped: crea.player.flipped,
-				hexs: crea.getHexMap(matrices.frontnback2hex)
+				hexes: crea.getHexMap(matrices.frontnback2hex)
 			});
 		},
 
@@ -256,7 +256,7 @@ G.abilities[31] = [
 			var ability = this;
 			var crea = this.creature;
 
-			var hexs = G.grid.allHexs.slice(0); // Copy array
+			var hexes = G.grid.allhexes.slice(0); // Copy array
 
 			G.grid.queryCreature({
 				fnOnConfirm: function() {
@@ -265,7 +265,7 @@ G.abilities[31] = [
 				team: Team.enemy,
 				id: crea.id,
 				flipped: crea.player.flipped,
-				hexs: hexs
+				hexes: hexes
 			});
 		},
 
