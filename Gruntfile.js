@@ -6,7 +6,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-open');
 	grunt.loadNpmTasks('grunt-express-server');
-	grunt.loadNpmTasks('main-bower-files');
 	// grunt.loadNpmTasks('grunt-uncss');
 
 	grunt.initConfig({
@@ -48,15 +47,10 @@ module.exports = function(grunt) {
 				options: {
 					nospawn: true
 				}
-			}
-
-		},
-		bower: {
-			flat: { /* flat folder/file structure */
-				dest: 'deploy/scripts/libs',
-				options: {
-					env: process.env.NODE_ENV || "development"
-				}
+			},
+			components: {
+				files: ['src/components/**/*.js', 'src/components/**/*.html'],
+				tasks: ['copy:components']
 			}
 		},
 		copy: {
@@ -117,5 +111,5 @@ module.exports = function(grunt) {
 		// }
 	});
 
-	grunt.registerTask('default', ['concat', 'less', 'copy', 'bower', /* 'uncss', */ 'express', 'open', 'watch']);
+	grunt.registerTask('default', ['concat', 'less', 'copy', /* 'uncss', */ 'express', 'open', 'watch']);
 };

@@ -1,7 +1,7 @@
-<link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-tabs/paper-tabs.html">
-<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="/libs/polymer/polymer.html">
+<link rel="import" href="/libs/paper-button/paper-button.html">
+<link rel="import" href="/libs/paper-tabs/paper-tabs.html">
+<link rel="import" href="/libs/paper-tooltip/paper-tooltip.html">
 
 <!--
 `ab-setup`
@@ -12,15 +12,15 @@ Ancient Beast Game Setup
 
 <dom-module id="ab-setup">
 	<template>
-    <style>
-      :host {
-        display: flex;
+		<style>
+			:host {
+				display: flex;
 				flex-wrap: wrap;
 				flex-flow: row;
 				height: 447px;
 				width: 505px;
-        padding: 10px;
-				background-color: rgba(25,25,25,.8);
+				padding: 10px;
+				background-color: rgba(25, 25, 25, .8);
 				color: white;
 				font-weight: bold;
 				text-align: center;
@@ -68,108 +68,106 @@ Ancient Beast Game Setup
 				background-color: rgba(255, 0, 0, 0.5);
 				color: white;
 			}
-    </style>
-		<form id="form">
-			<div id="settings">
-				<div class="cont">
-					<paper-tooltip for="hotseatTip">[ Hotseat ]</paper-tooltip>
-					<h2 id="hotseatTip">Player Mode</h2>
-						<paper-tabs id="playerMode" attr-for-selected="value" selected="{{playerMode}}">
-							<paper-tab value="2">1 versus 1</paper-tab>
-							<paper-tab value="4">2 versus 2</paper-tab>
-						</paper-tabs>
-				</div>
-				<div class="cont">
-					<paper-tooltip for="psyhelmTip">[ Psyhelm limit ]</paper-tooltip>
-					<h2 id="psyhelmTip">Active Units</h2>
-						<paper-tabs id="activeUnits" attr-for-selected="value" selected="{{maxUnits}}">
-							<paper-tab value="1">1</paper-tab>
-							<paper-tab value="2">2</paper-tab>
-							<paper-tab value="3">3</paper-tab>
-							<paper-tab value="4">4</paper-tab>
-							<paper-tab value="5">5</paper-tab>
-							<paper-tab value="6">6</paper-tab>
-							<paper-tab value="7">7</paper-tab>
-						</paper-tabs>
-				</div>
-				<br>
-				<div class="cont">
-					<h2 id="drops">Unit Drops</h2>
-						<paper-tabs id="unitDrops" attr-for-selected="value" selected="{{dropsEnabled}}">
-							<paper-tab value="1">On</paper-tab>
-							<paper-tab value="0">Off</paper-tab>
-						</paper-tabs>
-					</span>
-				</div>
-				<div class="cont">
-					<paper-tooltip for="upgradesTip">[ Number of rounds or uses ]</paper-tooltip>
-					<h2 id="upgradesTip">Ability Upgrades</h2>
-						<paper-tabs id="abilityUpgrades" attr-for-selected="value" selected="{{upgradeRounds}}">
-							<paper-tab value="0">Enabled</paper-tab>
-							<paper-tab value="1">1</paper-tab>
-							<paper-tab value="2">2</paper-tab>
-							<paper-tab value="3">3</paper-tab>
-							<paper-tab value="4">4</paper-tab>
-							<paper-tab value="5">5</paper-tab>
-							<paper-tab value="-1">Diabled</paper-tab>
-						</paper-tabs>
-				</div>
-				<br>
-				<div class="cont">
-					<paper-tooltip for="plasmaTip">[ Used for unit materialization or shielding ]</paper-tooltip>
-					<h2 id="plasmaTip">Plasma Points</h2>
-						<paper-tabs id="plasmaPoints" attr-for-selected="value" selected="{{maxPlasma}}">
-							<paper-tab value="10">10</paper-tab>
-							<paper-tab value="20">20</paper-tab>
-							<paper-tab value="30">30</paper-tab>
-							<paper-tab value="40">40</paper-tab>
-							<paper-tab value="50">50</paper-tab>
-							<paper-tab value="60">60</paper-tab>
-							<paper-tab value="70">70</paper-tab>
-							<paper-tab value="80">80</paper-tab>
-							<paper-tab value="90">90</paper-tab>
-							<paper-tab value="100">100</paper-tab>
-							<paper-tab value="110">110</paper-tab>
-						</paper-tabs>
-				</div>
-				<br>
-				<div class="cont">
-					<paper-tooltip for="turnTimeTip">[ In seconds ]</paper-tooltip>
-					<h2 id="turnTimeTip">Turn Time</h2>
-						<paper-tabs id="turnTime" attr-for-selected="value" selected="{{turnTime}}">
-							<paper-tab value="20">20</paper-tab>
-							<paper-tab value="40">40</paper-tab>
-							<paper-tab value="60">60</paper-tab>
-							<paper-tab value="80">80</paper-tab>
-							<paper-tab value="99">99</paper-tab>
-							<paper-tab value="-1">&#8734;</paper-tab>
-						</paper-tabs>
-				</div>
-				<div class="cont">
-					<paper-tooltip for="timePoolTip">[ Minutes ]</paper-tooltip>
-					<h2 id="timePoolTip">Time Pools</h2>
-						<paper-tabs id="timePool" attr-for-selected="value" selected="{{timePool}}">
-							<paper-tab value="15">15</paper-tab>
-							<paper-tab value="20">20</paper-tab>
-							<paper-tab value="25">25</paper-tab>
-							<paper-tab value="30">30</paper-tab>
-							<paper-tab value="-1">&#8734;</paper-tab>
-						</paper-tabs>
-				</div>
-				<br>
-				<div class="cont">
-					<paper-tooltip for="combatLocationTip">[ No influence to the actual gameplay ]</paper-tooltip>
-					<h2 id="combatLocationTip">Combat Location</h2>
-					<paper-tabs id="combatLocation" attr-for-selected="value" selected="{{combatLocation}}">
-						<paper-tab value="random">Random Place</paper-tab>
-						<paper-tab value="Dark Forest">Dark Forest</paper-tab>
-						<paper-tab value="Frozen Skull">Frozen Skull</paper-tab>
-						<paper-tab value="Shadow Cave">Shadow Cave</paper-tab>
+		</style>
+		<div id="settings">
+			<div class="cont">
+				<paper-tooltip for="hotseatTip">[ Hotseat ]</paper-tooltip>
+				<h2 id="hotseatTip">Player Mode</h2>
+					<paper-tabs id="playerMode" attr-for-selected="value" selected="{{playerMode}}">
+						<paper-tab value="2">1 versus 1</paper-tab>
+						<paper-tab value="4">2 versus 2</paper-tab>
 					</paper-tabs>
-				</div>
-				<paper-button id="start" raised>Start</paper-button>
 			</div>
-		</form>
+			<div class="cont">
+				<paper-tooltip for="psyhelmTip">[ Psyhelm limit ]</paper-tooltip>
+				<h2 id="psyhelmTip">Active Units</h2>
+					<paper-tabs id="activeUnits" attr-for-selected="value" selected="{{maxUnits}}">
+						<paper-tab value="1">1</paper-tab>
+						<paper-tab value="2">2</paper-tab>
+						<paper-tab value="3">3</paper-tab>
+						<paper-tab value="4">4</paper-tab>
+						<paper-tab value="5">5</paper-tab>
+						<paper-tab value="6">6</paper-tab>
+						<paper-tab value="7">7</paper-tab>
+					</paper-tabs>
+			</div>
+			<br>
+			<div class="cont">
+				<h2 id="drops">Unit Drops</h2>
+					<paper-tabs id="unitDrops" attr-for-selected="value" selected="{{dropsEnabled}}">
+						<paper-tab value="1">On</paper-tab>
+						<paper-tab value="0">Off</paper-tab>
+					</paper-tabs>
+				</span>
+			</div>
+			<div class="cont">
+				<paper-tooltip for="upgradesTip">[ Number of rounds or uses ]</paper-tooltip>
+				<h2 id="upgradesTip">Ability Upgrades</h2>
+					<paper-tabs id="abilityUpgrades" attr-for-selected="value" selected="{{upgradeRounds}}">
+						<paper-tab value="0">Enabled</paper-tab>
+						<paper-tab value="1">1</paper-tab>
+						<paper-tab value="2">2</paper-tab>
+						<paper-tab value="3">3</paper-tab>
+						<paper-tab value="4">4</paper-tab>
+						<paper-tab value="5">5</paper-tab>
+						<paper-tab value="-1">Diabled</paper-tab>
+					</paper-tabs>
+			</div>
+			<br>
+			<div class="cont">
+				<paper-tooltip for="plasmaTip">[ Used for unit materialization or shielding ]</paper-tooltip>
+				<h2 id="plasmaTip">Plasma Points</h2>
+					<paper-tabs id="plasmaPoints" attr-for-selected="value" selected="{{maxPlasma}}">
+						<paper-tab value="10">10</paper-tab>
+						<paper-tab value="20">20</paper-tab>
+						<paper-tab value="30">30</paper-tab>
+						<paper-tab value="40">40</paper-tab>
+						<paper-tab value="50">50</paper-tab>
+						<paper-tab value="60">60</paper-tab>
+						<paper-tab value="70">70</paper-tab>
+						<paper-tab value="80">80</paper-tab>
+						<paper-tab value="90">90</paper-tab>
+						<paper-tab value="100">100</paper-tab>
+						<paper-tab value="110">110</paper-tab>
+					</paper-tabs>
+			</div>
+			<br>
+			<div class="cont">
+				<paper-tooltip for="turnTimeTip">[ In seconds ]</paper-tooltip>
+				<h2 id="turnTimeTip">Turn Time</h2>
+					<paper-tabs id="turnTime" attr-for-selected="value" selected="{{turnTime}}">
+						<paper-tab value="20">20</paper-tab>
+						<paper-tab value="40">40</paper-tab>
+						<paper-tab value="60">60</paper-tab>
+						<paper-tab value="80">80</paper-tab>
+						<paper-tab value="99">99</paper-tab>
+						<paper-tab value="-1">&#8734;</paper-tab>
+					</paper-tabs>
+			</div>
+			<div class="cont">
+				<paper-tooltip for="timePoolTip">[ Minutes ]</paper-tooltip>
+				<h2 id="timePoolTip">Time Pools</h2>
+					<paper-tabs id="timePool" attr-for-selected="value" selected="{{timePool}}">
+						<paper-tab value="15">15</paper-tab>
+						<paper-tab value="20">20</paper-tab>
+						<paper-tab value="25">25</paper-tab>
+						<paper-tab value="30">30</paper-tab>
+						<paper-tab value="-1">&#8734;</paper-tab>
+					</paper-tabs>
+			</div>
+			<br>
+			<div class="cont">
+				<paper-tooltip for="combatLocationTip">[ No influence to the actual gameplay ]</paper-tooltip>
+				<h2 id="combatLocationTip">Combat Location</h2>
+				<paper-tabs id="combatLocation" attr-for-selected="value" selected="{{combatLocation}}">
+					<paper-tab value="random">Random Place</paper-tab>
+					<paper-tab value="Dark Forest">Dark Forest</paper-tab>
+					<paper-tab value="Frozen Skull">Frozen Skull</paper-tab>
+					<paper-tab value="Shadow Cave">Shadow Cave</paper-tab>
+				</paper-tabs>
+			</div>
+			<paper-button id="start" on-tap="onTapStart" raised>Start</paper-button>
+		</div>
 	</template>
 
 	<script src="ab-setup.js"></script>
