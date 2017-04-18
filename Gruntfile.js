@@ -69,6 +69,14 @@ module.exports = function(grunt) {
 					src: ['**'],
 					dest: 'deploy/css',
 				}]
+			},
+			components: {
+				files: [{
+					expand: true,
+					cwd: 'src/components',
+					src: ['**'],
+					dest: 'deploy/components'
+				}]
 			}
 		},
 		open: {

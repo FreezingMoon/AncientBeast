@@ -2,6 +2,12 @@
 # generated/copied css files
 deploy/css
 
+# bower_components
+deploy/libs
+
+# components copied from src
+deploy/components
+
 # Deployable javascript (generated and copied from bower)
 deploy/scripts
 
