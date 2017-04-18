@@ -98,8 +98,7 @@ class AbSetup extends Polymer.Element {
 		var locations = this.$.combatLocation.items;
 
 		if (locations.length && this.combatLocation === 'random') {
-
-			var idx = Math.floor(Math.random() * locations.length - 1) + 1; // never want 0
+			var idx = Math.floor(Math.random() * (locations.length - 1)) + 1; // never want 0
 			this.combatLocation = locations[idx].value;
 		}
 
