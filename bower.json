@@ -29,12 +29,9 @@
     "prototypejs": "~1.7.1",
     "jquery-ui": "~1.11.1",
     "socket.io-client": "~1.3.5",
-    "polymer": "polymer/polymer#^2.0.0-rc.6",
-    "paper-button": "polymerelements/paper-button#2.0-preview",
-    "paper-tabs": "polymerelements/paper-tabs#2.0-preview",
-    "paper-tooltip": "polymerelements/paper-tooltip#2.0-preview"
-  },
-  "resolutions": {
-    "polymer": "^2.0.0-rc.6"
+    "polymer": "polymer#^2.0.0-rc.6",
+    "paper-button": "paper-button#2.0-preview",
+    "paper-tabs": "paper-tabs#2.0-preview",
+    "paper-tooltip": "paper-tooltip#2.0-preview"
   }
 }

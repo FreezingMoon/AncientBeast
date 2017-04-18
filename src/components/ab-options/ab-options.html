@@ -1,9 +1,8 @@
-<link rel="import" href="/libs/polymer/polymer-element.html">
-<link rel="import" href="/libs/polymer/lib/elements/dom-repeat.html">
-<link rel="import" href="/libs/paper-button/paper-button.html">
-<link rel="import" href="/libs/paper-button/paper-button.html">
-<link rel="import" href="/libs/paper-tabs/paper-tabs.html">
-<link rel="import" href="/libs/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../libs/polymer/polymer-element.html">
+<link rel="import" href="../../libs/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../libs/neon-animation/web-animations.html">
+<link rel="import" href="../../libs/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../libs/paper-tooltip/paper-tooltip.html">
 
 <!--
 `ab-setup`
@@ -15,14 +14,6 @@ Ancient Beast Game Setup
 <dom-module id="ab-options">
 	<template>
 		<style>
-			.host {
-				--paper-tab-ink: #096AC8;
-				--paper-tabs-selection-bar-color: #096AC8;
-				--paper-tab-content: {
-					font-weight: bold;
-				};
-			}
-
 			#wrapper {
 				background-color: rgba(25, 25, 25, .8);
 				display: block;
@@ -51,9 +42,11 @@ Ancient Beast Game Setup
 			<paper-tooltip for="header">[[tooltip]]</paper-tooltip>
 			<h2 id="header">[[title]]</h2>
 			<paper-tabs id="tabs" attr-for-selected="[[attrForSelected]]" selected="{{selected}}">
-				<template is="dom-repeat" items="{{items}}" observe="title value">
-					<paper-tab value="[[_attrForItemValue(item)]]" inner-h-t-m-l="[[_attrForItemTitle(item)]]"></paper-tab>
-				</template>
+				<dom-repeat items="[[items]]" observe="">
+					<template>
+						<paper-tab value="[[_attrForItemValue(item)]]" inner-h-t-m-l="[[_attrForItemTitle(item)]]"></paper-tab>
+					</template>
+				</dom-repeat>
 			</paper-tabs>
 		</div>
 	</template>
