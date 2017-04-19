@@ -1,5 +1,4 @@
-[
-	{
+[{
 		"id": 0,
 		"name": "Dark Priest",
 		"level": "-",
@@ -35,8 +34,7 @@
 			"offset-x": 0,
 			"offset-y": -164
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Plasma Field",
 				"desc": "Protects from most harmful abilities when unit not being currently active.",
 				"info": "-1 plasma for each countered attack.",
@@ -48,7 +46,7 @@
 				"requirements": {
 					"plasma": 1
 				}
-    		},
+			},
 			{
 				"title": "Electro Shocker",
 				"desc": "Does shock damage to a nearby unit. More effective versus larger enemies.",
@@ -60,7 +58,7 @@
 				"costs": {
 					"energy": 20
 				}
-    		},
+			},
 			{
 				"title": "Disruptor Beam",
 				"desc": "Does pure damage to a nearby unit, based on its missing health points.",
@@ -77,7 +75,7 @@
 					"energy": 20,
 					"plasma": "target unit size"
 				}
-    		},
+			},
 			{
 				"title": "Godlet Printer",
 				"desc": "Materializes a unit within 4 hexagons that will serve and obey given orders.",
@@ -87,8 +85,8 @@
 					"energy": 20,
 					"plasma": "unit size + level"
 				}
-    		}
-    	]
+			}
+		]
 	},
 	{
 		"id": 1,
@@ -121,13 +119,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Personal Space",
 				"desc": "Gains bonus stat points if there is an adjacent enemy unit when turn starts.",
 				"info": "50% offense and movement increase.",
 				"upgrade": "Bonus is increased to 100%."
-		},
+			},
 			{
 				"title": "Sword Slitter",
 				"desc": "Swift attack on any nearby enemy unit.",
@@ -140,7 +137,7 @@
 				"costs": {
 					"energy": 15
 				}
-		},
+			},
 			{
 				"title": "Pistol Shot",
 				"desc": "Delivers a medium ranged shot that can damage target up to 6 hexagons away.",
@@ -152,7 +149,7 @@
 				"costs": {
 					"energy": 15
 				}
-		},
+			},
 			{
 				"title": "Rifle Assassin",
 				"desc": "Very powerful long range attack that can strike up to 12 hexagons distance.",
@@ -164,8 +161,8 @@
 				"costs": {
 					"energy": 35
 				}
-		}
-        ]
+			}
+		]
 	},
 	{
 		"id": 2,
@@ -198,13 +195,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Back Stabs",
 				"desc": "Reduces some damage from behind and also harms rear melee attackers.",
 				"info": "30% rear damage reduction & return.",
 				"upgrade": "test"
-            },
+			},
 			{
 				"title": "Metallic Claws",
 				"desc": "Shreds nearby foe using its razor nails.",
@@ -213,7 +209,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Morning Star",
 				"desc": "Whips out its scepter like tail to bluntly punish a foe that is within 3 hexagons.",
@@ -222,7 +218,7 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Diving Shredder",
 				"desc": "Dives 6 empty hexagons or more while damaging side units from nearby rows.",
@@ -232,7 +228,7 @@
 					"energy": 30
 				}
 			}
-        ]
+		]
 	},
 	{
 		"id": 3,
@@ -276,8 +272,7 @@
 			"health": 5,
 			"energy": 10
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Toxic Spores",
 				"desc": "Any melee range enemy attackers will have their regrowth stat reduced a bit.",
 				"info": "-1 regrowth stat debuff that can stack.",
@@ -285,7 +280,7 @@
 				"effects": [{
 					"regrowth": -1
 				}]
-    		},
+			},
 			{
 				"title": "Supper Chomp",
 				"desc": "Takes a huge bite out of nearby foe, restoring a minor amount of health.",
@@ -300,7 +295,7 @@
 				"costs": {
 					"energy": 20
 				}
-    		},
+			},
 			{
 				"title": "Frogger Jump",
 				"desc": "Leaps in straight line over any traps, gaining bonus offense after jumping.",
@@ -312,7 +307,7 @@
 				"costs": {
 					"energy": 25
 				}
-    		},
+			},
 			{
 				"title": "Sabre Kick",
 				"desc": "Strikes a nearby foe using feet claws, doing nice versatile physical damage.",
@@ -326,8 +321,8 @@
 				"costs": {
 					"energy": 30
 				}
-    		}
-    	]
+			}
+		]
 	},
 	{
 		"id": 4,
@@ -371,8 +366,7 @@
 			"health": 15,
 			"energy": 10
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Boiling Point",
 				"desc": "Leaves 2 puddles of hot lava under, lasting 1 round or until stepped on.",
 				"info": "10 burn damage for each hexagon.",
@@ -380,7 +374,7 @@
 				"damages": {
 					"burn": 10
 				}
-		},
+			},
 			{
 				"title": "Pulverizing Hit",
 				"desc": "Smacks a foe with its very heavy hand, gaining bonus damage with every hit.",
@@ -393,7 +387,7 @@
 				"costs": {
 					"energy": 15
 				}
-		},
+			},
 			{
 				"title": "Cracked Earth",
 				"desc": "Smashes both fists into the ground, wreaking fierce havoc in area ahead.",
@@ -408,7 +402,7 @@
 				"costs": {
 					"energy": 20
 				}
-		},
+			},
 			{
 				"title": "Molten Hurl",
 				"desc": "Bowls itself into first inline foe, while destroying all the traps along the way.",
@@ -424,8 +418,8 @@
 				"costs": {
 					"energy": 30
 				}
-		}
-	]
+			}
+		]
 	},
 	{
 		"id": 5,
@@ -469,8 +463,7 @@
 			"health": 5,
 			"energy": 10
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Electrified Hair",
 				"desc": "Converts up to 1/4 of incoming shock damage into missing energy points.",
 				"info": "Conversion happens even if fatigued.",
@@ -478,7 +471,7 @@
 				"effects": [{
 					"special": "Converts ~25%%shock% into%energy%"
 				}]
-    		},
+			},
 			{
 				"title": "Hasted Javelin",
 				"desc": "Horn attack that restores all depleted movement points if it damages target.",
@@ -494,7 +487,7 @@
 				"costs": {
 					"energy": 15
 				}
-    		},
+			},
 			{
 				"title": "Poisonous Vine",
 				"desc": "Tangles a foe within 2 radius for a turn, causing it some damage if it will move.",
@@ -509,7 +502,7 @@
 				"costs": {
 					"energy": 20
 				}
-    		},
+			},
 			{
 				"title": "Chain Lightning",
 				"desc": "Releases a lightning bolt that will arch, shocking multiple adjacent creatures.",
@@ -522,7 +515,7 @@
 					"energy": 40
 				}
 			}
-    	]
+		]
 	},
 	{
 		"id": 6,
@@ -566,8 +559,7 @@
 			"health": 5,
 			"energy": 0
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Lamellar Body",
 				"desc": "Gains extra defense and frost mastery with every sloth unit on the battlefield.",
 				"info": "1 defense & 1 frost for every sloth unit.",
@@ -576,7 +568,7 @@
 					"defense": 1,
 					"frost": 1
 				}]
-		},
+			},
 			{
 				"title": "Flat Frons",
 				"desc": "Smashes a nearby foe with its big head. Shatters frozen target below 40 health.",
@@ -593,7 +585,7 @@
 				"costs": {
 					"energy": 25
 				}
-		},
+			},
 			{
 				"title": "Flake Convertor",
 				"desc": "Fatigued inline target within 5 range will get frozen and skip turn if not hit.",
@@ -608,7 +600,7 @@
 				"costs": {
 					"energy": 30
 				}
-		},
+			},
 			{
 				"title": "Falling Arrow",
 				"desc": "Performs 4 hexagon range attack that does extra damage to lower level units.",
@@ -624,9 +616,9 @@
 				"costs": {
 					"energy": 35
 				}
-		}
+			}
 		]
-    },
+	},
 	{
 		"id": 7,
 		"name": "Abolished",
@@ -669,13 +661,12 @@
 			"health": 5,
 			"energy": 5
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Burning Heart",
 				"desc": "Hits reduce the target's burn mastery.",
 				"info": "-1 burn mastery each successful strike.",
 				"upgrade": "1 burn mastery to self on hit."
-		},
+			},
 			{
 				"title": "Fiery Touch",
 				"desc": "Scratches and burns a distant enemy. This attack has 3 hexagons extra reach.",
@@ -688,7 +679,7 @@
 				"costs": {
 					"energy": 20
 				}
-		},
+			},
 			{
 				"title": "Wild Fire",
 				"desc": "Teleports within 6 hexagons range, leaving a firewall in the old location.",
@@ -703,7 +694,7 @@
 				"costs": {
 					"energy": 30
 				}
-		},
+			},
 			{
 				"title": "Greater Pyre",
 				"desc": "Meditates for a short period while causing burns to all adjacent units.",
@@ -715,9 +706,9 @@
 				"costs": {
 					"energy": 25
 				}
-		}
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 8,
 		"name": "Horn Head",
@@ -749,29 +740,28 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Life Support",
 				"desc": "Can act one more turn after being killed.",
 				"info": ""
-            },
+			},
 			{
 				"title": "Knuckle Nib",
 				"desc": "Smashes ringed head into a foe.",
 				"info": "8 pierce + 8 slash + 8 crush damage"
-            },
+			},
 			{
 				"title": "Meat Sickle",
 				"desc": "Drags a foe, doing bonus damage if it doesn't have any movement points.",
 				"info": "5 pierce damage per hexagon moved"
-            },
+			},
 			{
 				"title": "Dual Swipe",
 				"desc": "Slaps frontal units with both claws.",
 				"info": "15 slash + 15 crush damage per hit"
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 9,
 		"name": "Nightmare",
@@ -814,8 +804,7 @@
 			"health": 10,
 			"energy": 0
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Frigid Tower",
 				"desc": "Constantly increases offense and defense for every turn not moving.",
 				"info": "+5 frost and defense every round.",
@@ -824,7 +813,7 @@
 					"special": "(5%offense%, 5%defense%) each turn"
 				}],
 				"maxCharge": 10
-		},
+			},
 			{
 				"title": "Icy Talons",
 				"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
@@ -838,7 +827,7 @@
 				"costs": {
 					"energy": 14
 				}
-		},
+			},
 			{
 				"title": "Sudden Uppercut",
 				"desc": "Sucker punches a near enemy using limb, making him delay the next turn.",
@@ -851,7 +840,7 @@
 				"costs": {
 					"energy": 25
 				}
-		},
+			},
 			{
 				"title": "Icicle Spear",
 				"desc": "Launches an ice shard that can pierce through up to six hexagons distance.",
@@ -864,9 +853,9 @@
 				"costs": {
 					"energy": 30
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 10,
 		"name": "Troglodyte",
@@ -898,13 +887,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Inner Vision",
 				"desc": "Lack of sight forces the creature to focus on all of its remaining senses.",
 				"info": "+5 initiative for each passing round.",
 				"upgrade": "+20 offense bonus if first."
-            },
+			},
 			{
 				"title": "Tongue Poke",
 				"desc": "Hits nearby foe, crushing it if melee or pierces it if it is one hexagon distant.",
@@ -917,19 +905,19 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Subliminal Shout",
 				"desc": "Shock waves that affect a large area but do less damage the further away.",
 				"info": "10 sonic damage over 15 hexagons"
-            },
+			},
 			{
 				"title": "Psychic Blast",
 				"desc": "Focuses the power of mind in order to attack foes up to 4 hexagons distance.",
 				"info": "18 mental damage over 7 hexagons"
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 11,
 		"name": "Toxic Shroom",
@@ -961,8 +949,7 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Travel Waypoint",
 				"desc": "Transfers location with any of the tiny mushshrooms within movement range.",
 				"info": "Each swap will take 1 movement point.",
@@ -989,7 +976,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Tiny Mushroom",
 				"desc": "Drops a deadly shroom that acts either as a travel point or as a poisonous trap.",
@@ -1002,10 +989,10 @@
 				"costs": {
 					"energy": 20
 				}
-            }
+			}
 
-        ]
-    },
+		]
+	},
 	{
 		"id": 12,
 		"name": "Snow Bunny",
@@ -1048,14 +1035,13 @@
 			"health": 10,
 			"energy": 3
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Bunny Hop",
 				"desc": "Moves away one hexagon from first enemy that comes nearby frontally.",
 				"info": "Works only once every game round.",
 				"upgrade": "Can leap twice each round.",
 				"affectedByMatSickness": 1
-		},
+			},
 			{
 				"title": "Big Pliers",
 				"desc": "Dents nearby foe using his big teeth, doing a small mixture of damage to it.",
@@ -1069,7 +1055,7 @@
 				"costs": {
 					"energy": 18
 				}
-		},
+			},
 			{
 				"title": "Blowing Wind",
 				"desc": "Pushes away any unit for several hexagons, depending on its size.",
@@ -1081,7 +1067,7 @@
 				"costs": {
 					"energy": 20
 				}
-		},
+			},
 			{
 				"title": "Freezing Spit",
 				"desc": "Spits distant target with cold saliva. Bonus damage is based on distance.",
@@ -1094,9 +1080,9 @@
 				"costs": {
 					"energy": 25
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 13,
 		"name": "Swampler",
@@ -1128,8 +1114,7 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Natural Habitat",
 				"desc": "Initial spot will become a swamp home.",
 				"info": "+15 Poison mastery bonus while inside"
@@ -1159,8 +1144,8 @@
 					"poison": 15
 				}
 			}
-	]
-    },
+		]
+	},
 	{
 		"id": 14,
 		"name": "Gumble",
@@ -1203,25 +1188,24 @@
 			"health": 5,
 			"energy": 10
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Gooey Body",
 				"desc": "Receives bonus pierce, slash and crush masteries based on remaining health.",
 				"info": "3 bonus points each for every 7 health.",
-				"upgrade" : "Health threshold becomes 5."
-            },
+				"upgrade": "Health threshold becomes 5."
+			},
 			{
 				"title": "Gummy Mallet",
 				"desc": "Fully transforms himself into a large hammer to strike down nearby foes.",
 				"info": "10 crush damage done to 7 hexagons.",
-				"upgrade" : "Double damage to enemies.",
+				"upgrade": "Double damage to enemies.",
 				"damages": {
 					"crush": 10
 				},
 				"costs": {
 					"energy": 25
 				}
-            },
+			},
 			{
 				"title": "Royal Seal",
 				"desc": "Sticks chewing gum nearby to hinder any passing unit for a complete turn.",
@@ -1233,7 +1217,7 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Boom Box",
 				"desc": "Turns belly into a speaker, blasting one distant enemy, pushing it back a notch.",
@@ -1248,9 +1232,9 @@
 				"costs": {
 					"energy": 30
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 15,
 		"name": "Cycloper",
@@ -1282,13 +1266,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Explosive End",
 				"desc": "Instantly detonates when being killed, dealing damage to all adjacent units.",
 				"info": "10 burn + 10 crush + 10 sonic damage.",
 				"upgrade": "Detonates only nearby foes."
-            },
+			},
 			{
 				"title": "Optic Burst",
 				"desc": "Zaps a foe with the laser cannon eye. Does bigger damage at closer range.",
@@ -1297,7 +1280,7 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Tractor Beam",
 				"desc": "Pulls a distant unit several hexagons closer, depending on its overall size.",
@@ -1306,7 +1289,7 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Power Charge",
 				"desc": "Causes the next ability to deal double damage or have increased efficiency.",
@@ -1315,9 +1298,9 @@
 				"costs": {
 					"energy": 20
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 16,
 		"name": "Vulcan",
@@ -1349,13 +1332,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Ragnarok Day",
 				"desc": "Before dying, bombarding the whole battlefield after one complete round.",
 				"info": "5 crush + 15 burn damage to all units.",
 				"upgrade": "Does double damage now."
-            },
+			},
 			{
 				"title": "Frying Stare",
 				"desc": "Stares and splashes a nearby foe unit. Reduces the target's burn stat by two.",
@@ -1364,7 +1346,7 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Volcanic Artillery",
 				"desc": "A hot rock will hit target spot at the end of round, damaging a foe or the ground.",
@@ -1373,7 +1355,7 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Violent Fissures",
 				"desc": "Stomps the ground creating a fissure at target location, erupting existing ones.",
@@ -1382,9 +1364,9 @@
 				"costs": {
 					"energy": 20
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 17,
 		"name": "Razorback",
@@ -1416,13 +1398,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Spiked Fence",
 				"desc": "Melee attackers get severly punished, receiving some of the damage as well.",
 				"info": "1/4 melee damage returned (piercing).",
 				"upgrade": "Half melee damage returned."
-            },
+			},
 			{
 				"title": "Trident Forehead",
 				"desc": "Pokes nearby foe with its forehead, 200% damage if hitting same spot.",
@@ -1431,7 +1412,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Crocodile Clip",
 				"desc": "Bite cripples nearby foe for one turn, increasing ability energy cost by 25%.",
@@ -1440,7 +1421,7 @@
 				"costs": {
 					"energy": 30
 				}
-            },
+			},
 			{
 				"title": "Circular Saw",
 				"desc": "Travels in a straight line up to seven hexagons, cutting through all units.",
@@ -1449,9 +1430,9 @@
 				"costs": {
 					"energy": 40
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 18,
 		"name": "Sarcophag",
@@ -1483,13 +1464,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Rib Cage",
 				"desc": "Bonus points for every unit that dies.",
 				"info": "+6 defense & +6 meditation per stack.",
 				"upgrade": "9 regrowth when a unit dies."
-            },
+			},
 			{
 				"title": "Dark Grasp",
 				"desc": "Strikes a nearby foe using its claws, creating one Shadow Leech if it kills.",
@@ -1498,7 +1478,7 @@
 				"costs": {
 					"energy": 40
 				}
-            },
+			},
 			{
 				"title": "Fly Swarm",
 				"desc": "Distracts a unit, lowering its defense and meditation for a complete round.",
@@ -1507,7 +1487,7 @@
 				"costs": {
 					"energy": 30
 				}
-            },
+			},
 			{
 				"title": "Shadow Legion",
 				"desc": "Allows a long dead creature to come and fight again, as a shadow being.",
@@ -1516,9 +1496,9 @@
 				"costs": {
 					"energy": 20
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 19,
 		"name": "Miss Creeper",
@@ -1550,13 +1530,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Muscous Pillar",
 				"desc": "Any nearby killed units restore health based on their own total amount pool.",
 				"info": "5% of maximum health stat recovery.",
 				"upgrade": "Doubles the recovery bonus."
-            },
+			},
 			{
 				"title": "Carving Nails",
 				"desc": "Claw swipe gesture on a nearby foe.",
@@ -1565,7 +1544,7 @@
 				"costs": {
 					"energy": 10
 				}
-            },
+			},
 			{
 				"title": "Fatal Attraction",
 				"desc": "Causes a target foe within 6 hexagons to approach her at the start of its turn.",
@@ -1574,7 +1553,7 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Tendril Feet",
 				"desc": "All nearby foes have their movement restrained and take a bit of damage.",
@@ -1583,9 +1562,9 @@
 				"costs": {
 					"energy": 30
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 20,
 		"name": "Adaptation",
@@ -1617,29 +1596,28 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "High Voltage",
 				"desc": "Melee attackers receive damage for every hit and also lose energy points.",
 				"info": "5 shock damage that depletes energy."
-            },
+			},
 			{
 				"title": "Suction Cups",
 				"desc": "Crushes a frontal foe while draining a small amount of its maximum health.",
 				"info": "30 crush damage, 3 health transfered."
-            },
+			},
 			{
 				"title": "Hunting Net",
 				"desc": "Drags closer up to 3 distant units that are aligned on different parallel rows.",
 				"info": "Pull = 7 hexagons range - unit number"
-            },
+			},
 			{
 				"title": "Nitrogen Shower",
 				"desc": "Sprinkles a large frontal area with liquid nitrogen, doing cold damage.",
 				"info": "35 frost damage over 7 hexagons."
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 21,
 		"name": "Flayed",
@@ -1671,29 +1649,28 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Half Full",
 				"desc": "Can regenerate health up to double. Maximum health is still the initial one.",
 				"info": ""
-            },
+			},
 			{
 				"title": "Limb Scythe",
 				"desc": "Slashes a nearby foe, causing it to hemorrhage, losing health if moving.",
 				"info": "15 slash damage, -5 health / hexagon"
-            },
+			},
 			{
 				"title": "Sangvine Puke",
 				"desc": "Target's regrowth becomes lowered if it's a foe or increased if it's an ally.",
 				"info": "+/- 20 regrowth change for a round"
-            },
+			},
 			{
 				"title": "Symbiotic Tumor",
 				"desc": "Engulfs body into a meat cocoon. Current turn is ended by this ability.",
 				"info": "200% bonus defense and regrowth"
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 22,
 		"name": "Lava Mollusk",
@@ -1731,13 +1708,12 @@
 			"offset-x": 0,
 			"offset-y": -80
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Heat Haze",
 				"desc": "Nearby foes have their offense stat reduced, dealing way less damage.",
 				"info": "-25% offensive debuff while adjacent.",
 				"upgrade": "Hits on them do 3 extra burn."
-            },
+			},
 			{
 				"title": "Glowing Eye",
 				"desc": "Fries any targeted nearby foe, can also hit the smaller ones from sides as well.",
@@ -1749,7 +1725,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Covert Strike",
 				"desc": "Reaches any foe within 5 hexagons by digging with its tentacles, surprising it.",
@@ -1761,7 +1737,7 @@
 				"costs": {
 					"energy": 25
 				}
-            },
+			},
 			{
 				"title": "Crashing Globe",
 				"desc": "Catapults a flaming orb at any selected inline target, leaving it without cover.",
@@ -1774,10 +1750,10 @@
 				"costs": {
 					"energy": 30
 				}
-            }
+			}
 
-        ]
-    },
+		]
+	},
 	{
 		"id": 23,
 		"name": "Metal Face",
@@ -1809,13 +1785,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Protective Vest",
 				"desc": "Removes all negative effects received from other units at beginning of turn.",
 				"info": "Constantly purges any debuff effects.",
 				"upgrade": "Becomes immune to debuffs."
-            },
+			},
 			{
 				"title": "Spiked Cudgel",
 				"desc": "Transform hand into a deadly weapon, hitting a nearby foe, works all around.",
@@ -1824,7 +1799,7 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Penetrating Drill",
 				"desc": "Punctures nearby enemy to damage it some more or to harm foes beyond it.",
@@ -1833,7 +1808,7 @@
 				"costs": {
 					"energy": 25
 				}
-            },
+			},
 			{
 				"title": "Pointe Technique",
 				"desc": "Leaps on top of medium or large enemy within 6 range, staying there if killing it.",
@@ -1842,9 +1817,9 @@
 				"costs": {
 					"energy": 30
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 24,
 		"name": "Living Armor",
@@ -1876,13 +1851,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "First Aid",
 				"desc": "1/5 regrowth works even if fatigued. Works with the current modified stat.",
 				"info": "Applies to nearby allied units as well.",
 				"upgrade": "4 health recovery is assured."
-            },
+			},
 			{
 				"title": "Iron Fist",
 				"desc": "Punches a nearby foe with it's heavy armored hand, leaving quite a mark.",
@@ -1894,7 +1868,7 @@
 				"costs": {
 					"energy": 25
 				}
-            },
+			},
 			{
 				"title": "Bloody Greed",
 				"desc": "Powerful sword penetrating attack, affecting multiple inline hexagons.",
@@ -1906,7 +1880,7 @@
 				"costs": {
 					"energy": 30
 				}
-            },
+			},
 			{
 				"title": "Foot Tromp",
 				"desc": "Stomps the ground, causing nearby units to have their next turn delayed.",
@@ -1915,9 +1889,9 @@
 				"costs": {
 					"energy": 33
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 25,
 		"name": "Mr. Stitches",
@@ -1949,29 +1923,28 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Self Sewing",
 				"desc": "Partially repairs itself if not taking any damage at all for a whole game round.",
 				"info": "10% of total health recovered / round"
-            },
+			},
 			{
 				"title": "Razor Blade",
 				"desc": "Slices a nearby foe, keeping a sample.",
 				"info": "15 slash damage on every single strike"
-            },
+			},
 			{
 				"title": "Terrifying Stance",
 				"desc": "Causes a nearby foe to not be able to target Mr. Stitches directly for a turn.",
 				"info": ""
-            },
+			},
 			{
 				"title": "Voodoo Doll",
 				"desc": "Stabs itself, doing mental damage to any of the previously attacked units.",
 				"info": "20 mental damage to sampled foes"
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 26,
 		"name": "Moss Hound",
@@ -2003,42 +1976,41 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Immortal Wood",
 				"desc": "Resurrects itself the next round if no units are sitting on top of the corpse.",
 				"info": "Each time it will have 50% less health.",
-				"upgrade" : "Corpse will persist 3 rounds."
-		},
+				"upgrade": "Corpse will persist 3 rounds."
+			},
 			{
 				"title": "Stalagmite Teeth",
 				"desc": "Pierces nearby unit with its denture, striking larger targets multiple times.",
 				"info": "10 pierce damage, can do up to 2 hits.",
-				"upgrade" : "+1 one more maximum hit.",
+				"upgrade": "+1 one more maximum hit.",
 				"costs": {
 					"energy": 20
 				}
-		},
+			},
 			{
 				"title": "Waterfall Cannon",
 				"desc": "Powerful jet of water that damages & pushes back, has a 3 hexagons range.",
 				"info": "20 knocking crush damage, up to 2 hits.",
-				"upgrade" : "+2 hexagons range increase.",
+				"upgrade": "+2 hexagons range increase.",
 				"costs": {
 					"energy": 30
 				}
-		},
+			},
 			{
 				"title": "Thorny Weed",
 				"desc": "Nasty ivy grows at a free spot up to 5 hexagons away, waiting for a foe prey.",
 				"info": "9 pierce + 9 poison & 1 round entangle.",
-				"upgrade" : "Target unit for entangle only.",
+				"upgrade": "Target unit for entangle only.",
 				"costs": {
 					"energy": 35
 				}
-		}
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 27,
 		"name": "Sand Shrimp",
@@ -2070,30 +2042,29 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Evolved Organs",
 				"desc": "Recovers 30% of health lost only from the last hit taken when the turn starts.",
 				"info": "This ability also works when fatigued.",
-				"upgrade" : "Up to 50% health recovered."
-            },
+				"upgrade": "Up to 50% health recovered."
+			},
 			{
 				"title": "Squid Head",
 				"desc": "Chews on a nearby enemy, stealing 5 regrowth stat points for a single turn.",
 				"info": "25 crush damage, 5 regrowth transfer"
-            },
+			},
 			{
 				"title": "Tied Up",
 				"desc": "Binds together with a nearby enemy, denying it to move apart too far away.",
 				"info": "Up to 3 hexagons maximum distance"
-            },
+			},
 			{
 				"title": "Cloned Embryo",
 				"desc": "Creates a duplicate of himself, being able to be in multiple places at once.",
 				"info": "Duplicates share health and energy."
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 28,
 		"name": "Stomper",
@@ -2125,13 +2096,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Tankish Build",
 				"desc": "This unit becomes more durable as it gains one bonus defense every round.",
 				"info": "Maximum defense bonus capped at 40.",
 				"upgrade": "Two when no damage taken."
-		},
+			},
 			{
 				"title": "Seismic Stomp",
 				"desc": "Deals damage to a single nearby foe.",
@@ -2143,7 +2113,7 @@
 				"costs": {
 					"energy": 20
 				}
-		},
+			},
 			{
 				"title": "Stone Grinder",
 				"desc": "Leaps within 5 hexagons to squash two spots that are occupied by injured foes.",
@@ -2155,7 +2125,7 @@
 				"costs": {
 					"energy": 30
 				}
-		},
+			},
 			{
 				"title": "Coal Burp",
 				"desc": "Bombards an inline target with a hot coal projectile that breaks on impact.",
@@ -2168,9 +2138,9 @@
 				"costs": {
 					"energy": 30
 				}
-		}
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 29,
 		"name": "Gilded Maiden",
@@ -2202,13 +2172,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Banned Touch",
 				"desc": "Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
 				"info": "Units remain golden even if attacked.",
 				"upgrade": "Own attacks can turn to gold."
-		},
+			},
 			{
 				"title": "Ruby Sceptre",
 				"desc": "Pokes nearby foe using the neat staff. This attack has 1 hex extended reach.",
@@ -2221,7 +2190,7 @@
 				"costs": {
 					"energy": 10
 				}
-		},
+			},
 			{
 				"title": "Winged Sphere",
 				"desc": "Heals an ally or damages an enemy that is at the target location after one round.",
@@ -2233,7 +2202,7 @@
 				"costs": {
 					"energy": 30
 				}
-		},
+			},
 			{
 				"title": "Searing Light",
 				"desc": "Conjures an energy beam that causes multiple burning hits to first unit met.",
@@ -2245,9 +2214,9 @@
 				"costs": {
 					"energy": 40
 				}
-		}
-	]
-    },
+			}
+		]
+	},
 	{
 		"id": 30,
 		"name": "Papa Eggplant",
@@ -2279,13 +2248,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Small Version",
 				"desc": "Spawns a little hungry eggplant that chases nearest foe and then attacks.",
 				"info": "Grows into an adult if it kills two foes.",
 				"upgrade": "Needs only one kill or drop."
-            },
+			},
 			{
 				"title": "Having Dinner",
 				"desc": "Bites a nearby foe, regaining a small number of maximum health each hit.",
@@ -2298,7 +2266,7 @@
 					"energy": 10
 				}
 
-            },
+			},
 			{
 				"title": "Oral Snake",
 				"desc": "Drags nearby an inline unit up to five hexagons distance while damaging it.",
@@ -2311,7 +2279,7 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Flower Fury",
 				"desc": "Uses pony tail to whip and poison all adjacent units that strayed too close.",
@@ -2324,9 +2292,9 @@
 				"costs": {
 					"energy": 30
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 31,
 		"name": "Cyber Hound",
@@ -2369,8 +2337,7 @@
 			"health": 5,
 			"energy": 10
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Bad Doggie",
 				"desc": "Bites an adjacent inline enemy that's unfortunate to be there at turn start.",
 				"info": "12 pierce damage + 10 crush damage.",
@@ -2380,7 +2347,7 @@
 					"pierce": 12,
 					"crush": 10
 				}
-		},
+			},
 
 			{
 				"title": "Metal Hand",
@@ -2394,7 +2361,7 @@
 				"costs": {
 					"energy": 20
 				}
-		},
+			},
 			{
 				"title": "Rocket Launcher",
 				"desc": "Fires up to 3 missiles that travel long distances, striking individual targets.",
@@ -2407,7 +2374,7 @@
 				"costs": {
 					"energy": 40
 				}
-		},
+			},
 			{
 				"title": "Target Locking",
 				"desc": "Two of the rockets that didn't hit this round are redirected to a new target.",
@@ -2420,9 +2387,9 @@
 				"costs": {
 					"energy": 10
 				}
-		}
-	]
-    },
+			}
+		]
+	},
 	{
 		"id": 32,
 		"name": "Deep Beauty",
@@ -2454,13 +2421,12 @@
 		"animation": {
 			"walk_speed": 300
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Sea Horse",
 				"desc": "Meditation stat will be highly increased if being at full health, restoring energy.",
 				"info": "15 extra meditation points if full health.",
 				"upgrade": "Can now fully restore energy."
-            },
+			},
 			{
 				"title": "Sea Serpent",
 				"desc": "Hits a nearby area using its large tail, doing area damage over 2 hexagons.",
@@ -2469,7 +2435,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Tsunami Surge",
 				"desc": "Unleashes a very powerful water wave that will travel inline to hit first target.",
@@ -2478,7 +2444,7 @@
 				"costs": {
 					"energy": 20
 				}
-            },
+			},
 			{
 				"title": "Mirror Image",
 				"desc": "Creates a duplicate of an unit that will only have 1 health and die after a turn.",
@@ -2487,9 +2453,9 @@
 				"costs": {
 					"energy": 40
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 33,
 		"name": "Golden Wyrm",
@@ -2527,13 +2493,12 @@
 			"offset-x": -40,
 			"offset-y": -240
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Battle Cry",
 				"desc": "Roars at the beginning of the turn if took any damage in previous round.",
 				"info": "30 sonic damage to adjacent units.",
 				"upgrade": "Only roars if nearby foes."
-            },
+			},
 			{
 				"title": "Executioner Axe",
 				"desc": "Slashes a nearby foe, instantly killing it if it's under a certain health threshold.",
@@ -2542,7 +2507,7 @@
 				"costs": {
 					"energy": 25
 				}
-            },
+			},
 			{
 				"title": "Dragon Flight",
 				"desc": "Travels to a nearby location passing over obstacles at no movement cost.",
@@ -2551,7 +2516,7 @@
 				"costs": {
 					"energy": 30
 				}
-            },
+			},
 			{
 				"title": "Visible Stigmata",
 				"desc": "Rapidly transfers up to 50 health points to a nearby allied unit, this is non lethal.",
@@ -2560,9 +2525,9 @@
 				"costs": {
 					"energy": 50
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 34,
 		"name": "Bouncer",
@@ -2594,29 +2559,28 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Fearsome Unit",
 				"desc": "Nearby foes have their offense and defense reduced for a full round.",
 				"info": "-25% offense and defense debuff"
-            },
+			},
 			{
 				"title": "Wrist Scimitar",
 				"desc": "Slashes a nearby foe using its blade, disturbing its energy regeneration.",
 				"info": "25 slash damage, 1 meditation debuff"
-            },
+			},
 			{
 				"title": "Force Display",
 				"desc": "Switches the places of two nearby side units that are the same hexagonal size.",
 				"info": "8 crush damage to both swapped units"
-            },
+			},
 			{
 				"title": "Belt Swat",
 				"desc": "Pokes all the frontal nearby units, knocking them back one hexagon.",
 				"info": "20 crush damage plus knockback"
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 35,
 		"name": "Greedy Knight",
@@ -2648,33 +2612,32 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Bronze Armor",
 				"desc": "All incoming pierce, slash and crush types of damage are greatly reduced.",
 				"info": "+15% physical resistance to damage.",
 				"upgrade": "Double physical resistance."
-            },
+			},
 			{
 				"title": "Brass Mace",
 				"desc": "Does versatile damage to nearby foe.",
 				"info": "11 pierce + 10 crush + 9 slash damage.",
 				"upgrade": "+3 damage for each source."
-            },
+			},
 			{
 				"title": "Lion Thrust",
 				"desc": "Runs very fast towards an inline foe for up to 5 hexagons, greatly terrorizing it.",
 				"info": "20 mental damage when reaching foe.",
 				"upgrade": "20% extra offense / hexagon."
-            },
+			},
 			{
 				"title": "Defensive Stance",
 				"desc": "Will be extra vigilant, better protecting himself from attacks until the next turn.",
 				"info": "Reduces 9 damage from incoming hits.",
 				"upgrade": "Will stop penetrating attacks."
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 36,
 		"name": "Vertigo",
@@ -2706,29 +2669,28 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Pestilence Bug",
 				"desc": "All drops within 4 hexagons range are being picked at the beginning of turn.",
 				"info": ""
-            },
+			},
 			{
 				"title": "Gnarled Staff",
 				"desc": "Pokes nearby foe using wooden staff.",
 				"info": "15 crush damage, -5 crush stat debuff."
-            },
+			},
 			{
 				"title": "Rock Shard",
 				"desc": "Causes an obstable to erupt at an empty location within 6 hexagons.",
 				"info": "It can be destroyed with only 2 hits."
-            },
+			},
 			{
 				"title": "Furious Twister",
 				"desc": "Summons tornado that travels inline every round, bashing first creature.",
 				"info": "20 crush damage, 4 hexagons push."
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 37,
 		"name": "Swine Thug",
@@ -2771,8 +2733,7 @@
 			"offset-y": -150,
 			"offset-x": -21
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Spa Goggles",
 				"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
 				"info": "+5 regrowth & defense while on mud.",
@@ -2781,7 +2742,7 @@
 					"regrowth": 5,
 					"defense": 5
 				}]
-		},
+			},
 			{
 				"title": "Baseball Baton",
 				"desc": "Bashes baseball bat into a nearby foe, crushing it and pushing it 1 hexagon.",
@@ -2793,7 +2754,7 @@
 				"costs": {
 					"energy": 20
 				}
-		},
+			},
 			{
 				"title": "Ground Ball",
 				"desc": "Strikes a mud boulder towards a foe. Usable within one of the 3 inline rows.",
@@ -2806,7 +2767,7 @@
 				"costs": {
 					"energy": 25
 				}
-		},
+			},
 			{
 				"title": "Mud Bath",
 				"desc": "Orders a pile of mud over any hexagon, slowing any other units that walk over.",
@@ -2818,9 +2779,9 @@
 				"costs": {
 					"energy": 30
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 38,
 		"name": "Infernal",
@@ -2852,13 +2813,12 @@
 		"animation": {
 			"walk_speed": 600
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Crossed Bones",
 				"desc": "When this unit gets killed, it starts to restructure itself into a Lava Mollusk.",
 				"info": "The unit won't have any energy at first.",
 				"upgrade": "Unit starts with half energy."
-            },
+			},
 			{
 				"title": "Shark Aggression",
 				"desc": "Bytes a nearby foe, lowering its total maximum health by 1 with each strike.",
@@ -2867,7 +2827,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Crystal Therapy",
 				"desc": "Grows adjacent minerals that will buff regrowth & meditation of nearby units.",
@@ -2876,7 +2836,7 @@
 				"costs": {
 					"energy": 30
 				}
-            },
+			},
 			{
 				"title": "Charring Flame",
 				"desc": "Ranged attack that damages any of the first encountered units on several rows.",
@@ -2885,9 +2845,9 @@
 				"costs": {
 					"energy": 40
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 39,
 		"name": "Headless",
@@ -2930,12 +2890,11 @@
 			"health": 15,
 			"energy": 4
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Larva Infest",
 				"desc": "Strikes any rear foe at start & end of turn, infesting it with a big parasite.",
 				"info": "-5 endurance stat debuff, stackable.",
-				"upgrade" : "Instantly fatigues enemy.",
+				"upgrade": "Instantly fatigues enemy.",
 				"effects": [{
 					"special": "-5 %endurance% debuff, stackable."
 				}]
@@ -2944,7 +2903,7 @@
 				"title": "Cartilage Dagger",
 				"desc": "Hits nearby unit using frontal blade. Double damage if the foe is fatigued.",
 				"info": "11 pierce damage × 2 vs fatigued foe.",
-				"upgrade" : "Extra endurance is damage.",
+				"upgrade": "Extra endurance is damage.",
 				"damages": {
 					"special": "11%pierce% × 2 if target is fatigued."
 				},
@@ -2956,7 +2915,7 @@
 				"title": "Whip Move",
 				"desc": "Grasps a distant unit, pulling close to each other based on their relative size.",
 				"info": "Between 2 and 6 hexagons pull range.",
-				"upgrade" : "+2 maximum range increase.",
+				"upgrade": "+2 maximum range increase.",
 				"costs": {
 					"energy": 20
 				}
@@ -2965,15 +2924,15 @@
 				"title": "Boomerang Tool",
 				"desc": "Forms a new weapon out of blades and throws it away 5 hexagons, returning.",
 				"info": "10 slash damage over 15 hexagons x 2.",
-				"upgrade" : "+3 hexagons increased area.",
+				"upgrade": "+3 hexagons increased area.",
 				"damages": {
 					"special": "10%slash%, hits 2 times."
 				},
 				"costs": {
 					"energy": 24
 				}
-            }
-        ]
+			}
+		]
 	},
 	{
 		"id": 40,
@@ -3017,18 +2976,17 @@
 			"health": 8,
 			"energy": 0
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Tentacle Bush",
 				"desc": "Grabs hold of all the melee attackers, making them unable to move that turn.",
 				"info": "Becomes unmovable by most abilities.",
-				"upgrade" : "+5 energy to foe ability cost."
-		},
+				"upgrade": "+5 energy to foe ability cost."
+			},
 			{
 				"title": "Hammer Time",
 				"desc": "Nails a nearby unit using its hard head, making it take extra damage if moving.",
 				"info": "10 crush + 10 pierce damage & pinning.",
-				"upgrade" : "Attacks up to 3 frontal foes.",
+				"upgrade": "Attacks up to 3 frontal foes.",
 				"damages": {
 					"crush": 10,
 					"pierce": 10
@@ -3036,24 +2994,24 @@
 				"costs": {
 					"energy": 24
 				}
-		},
+			},
 			{
 				"title": "War Horn",
 				"desc": "Charges towards an inline foe, doing a bit of extra damage based on distance.",
 				"info": "11 pierce damage + 1 bonus / hexagon.",
-				"upgrade" : "Can also push the target foe.",
+				"upgrade": "Can also push the target foe.",
 				"damages": {
 					"pierce": 11
 				},
 				"costs": {
 					"energy": 26
 				}
-		},
+			},
 			{
 				"title": "Fishing Hook",
 				"desc": "Throws over a nearby foe, swapping places if it is small or medium sized.",
 				"info": "12 pierce + 12 crush damage & swap.",
-				"upgrade" : "Can also swap large units.",
+				"upgrade": "Can also swap large units.",
 				"damages": {
 					"pierce": 12,
 					"crush": 12
@@ -3061,8 +3019,8 @@
 				"costs": {
 					"energy": 29
 				}
-		}
-	]
+			}
+		]
 	},
 	{
 		"id": 41,
@@ -3095,28 +3053,27 @@
 		"animation": {
 			"walk_speed": 450
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Death Dealer",
 				"desc": "Gains bonus offense stat for every kill.",
 				"info": "+10 bonus offense if last hitting a unit"
-		},
+			},
 			{
 				"title": "Trap Jaw",
 				"desc": "Bites frontal foe, doing extra damage if the target breaks away during its turn.",
 				"info": "12 pierce damage, twice if it will move"
-		},
+			},
 			{
 				"title": "Spinal Tap",
 				"desc": "Strikes a frontal foe using back spikes, not allowing it to regenerate one turn.",
 				"info": "9 pierce + 9 poison damage, 0 regrowth"
-		},
+			},
 			{
 				"title": "Skull Bolt",
 				"desc": "Uses parts from units that died within 5 hexagons radius as a deadly projectile.",
 				"info": "40 crush + 10 poison damage per launch"
-		}
-	]
+			}
+		]
 	},
 	{
 		"id": 42,
@@ -3149,13 +3106,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Arm Shield",
 				"desc": "Reduces a fixed number of damage points from incoming basic attacks.",
 				"info": "10 damage points attack reduction.",
 				"upgrade": "Reduces from all abilities."
-		},
+			},
 			{
 				"title": "Mega Slicer",
 				"desc": "Slashes nearby foe using the claws. Target loses 3 defense permanently.",
@@ -3165,9 +3121,9 @@
 					"slash": 30
 				},
 				"costs": {
-						"energy": 30
+					"energy": 30
 				}
-		},
+			},
 			{
 				"title": "Screaming Bat",
 				"desc": "Flying fiend attack that will damage every single hexagon of current row.",
@@ -3178,9 +3134,9 @@
 					"mental": 9
 				},
 				"costs": {
-						"energy": 35
+					"energy": 35
 				}
-		},
+			},
 			{
 				"title": "Eclipsing Leap",
 				"desc": "Catapults itself to strike any enemy that has 3 inline hexagons available.",
@@ -3193,8 +3149,8 @@
 				"costs": {
 					"energy": 55
 				}
-		}
-	]
+			}
+		]
 	},
 	{
 		"id": 43,
@@ -3227,41 +3183,40 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Hot Ashes",
 				"desc": "If killed, leaves ashes behind that will reiginite it back to life if not stomped.",
 				"info": "1/3 hitpoints & energy for each stack.",
-				"upgrade" : "Full energy when it revives."
-		},
+				"upgrade": "Full energy when it revives."
+			},
 			{
 				"title": "Little Kindle",
 				"desc": "Releases a bonfire that will chase the closest foe at a low movement speed.",
 				"info": "25 burn damage and 3 hexagons move.",
-				"upgrade" : "+2 more Kindle movement.",
+				"upgrade": "+2 more Kindle movement.",
 				"costs": {
 					"energy": 25
 				}
-		},
+			},
 			{
 				"title": "Blazing Waves",
 				"desc": "Launches two burning streams which will scorch all the units they encounter.",
 				"info": "30 burn damage over 8 hexagons area.",
-				"upgrade" : "The attack becomes multi-hit.",
+				"upgrade": "The attack becomes multi-hit.",
 				"costs": {
 					"energy": 20
 				}
-		},
+			},
 			{
 				"title": "Extra Motion",
 				"desc": "The lust drives it to do double effort, acting again at the end of the round.",
 				"info": "This is usable if unit wasn't delayed.",
-				"upgrade" : "If killed it will die after turn.",
+				"upgrade": "If killed it will die after turn.",
 				"costs": {
 					"energy": 50
 				}
-		}
-	]
+			}
+		]
 	},
 	{
 		"id": 44,
@@ -3306,13 +3261,12 @@
 			"offset-x": 0,
 			"offset-y": -160
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Wing Feathers",
 				"desc": "Can fly to available locations within movement range, avoiding all traps.",
 				"info": "Safely travel towards new locations.",
 				"upgrade": "Flight over all units as well."
-		},
+			},
 			{
 				"title": "Slicing Pounce",
 				"desc": "Slashes nearby foe using its claws.",
@@ -3324,7 +3278,7 @@
 				"costs": {
 					"energy": 15
 				}
-		},
+			},
 			{
 				"title": "Escort Service",
 				"desc": "Carries over a frontal or rear small or medium unit to a free inline location.",
@@ -3338,7 +3292,7 @@
 					"duration": 500,
 					"delay": 500
 				}
-		},
+			},
 			{
 				"title": "Deadly Toxin",
 				"desc": "Bites a nearby enemy and poisons it, taking damage every turn until dead.",
@@ -3351,8 +3305,8 @@
 				"costs": {
 					"energy": 30
 				}
-		}
-	]
+			}
+		]
 	},
 	{
 		"id": 45,
@@ -3396,13 +3350,12 @@
 			"health": 2,
 			"energy": 14
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Cyclic Duality",
 				"desc": "Even when becoming fatigued, can still recharge up to half of meditation stat.",
 				"info": "This works with the existing unit stats.",
 				"upgrade": "Half regrowth regeneration."
-		},
+			},
 			{
 				"title": "Tooth Fairy",
 				"desc": "Both heads sink their teeth into a nearby enemy target, damaging it.",
@@ -3414,7 +3367,7 @@
 				"costs": {
 					"energy": 16
 				}
-		},
+			},
 			{
 				"title": "Disturbing Sound",
 				"desc": "Sings a very powerful musical note that doesn't get stopped by any dying units.",
@@ -3426,7 +3379,7 @@
 				"costs": {
 					"energy": 21
 				}
-		},
+			},
 			{
 				"title": "Battering Ram",
 				"desc": "Knocks a nearby unit up to 3 hexagons, launching it into the next one and so on.",
@@ -3438,8 +3391,8 @@
 				"costs": {
 					"energy": 30
 				}
-		}
-	]
+			}
+		]
 	},
 	{
 		"id": 46,
@@ -3472,13 +3425,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Palm Tree",
 				"desc": "This unit prefers to hide underground, revealing only the tail most of the time.",
 				"info": "Becomes immovable by enemy abilities.",
 				"upgrade": "Clears 1 debuff stack per turn."
-		},
+			},
 			{
 				"title": "Crab Pincer",
 				"desc": "Powerful attack done on a nearby foe.",
@@ -3487,7 +3439,7 @@
 				"costs": {
 					"energy": 15
 				}
-		},
+			},
 			{
 				"title": "Stinger Venom",
 				"desc": "Pokes any foe within 2 hexagons range, piercing and poisoning it for two turns.",
@@ -3496,7 +3448,7 @@
 				"costs": {
 					"energy": 25
 				}
-		},
+			},
 			{
 				"title": "Imbricated Scales",
 				"desc": "Launches a projectile that can split on impact, dealing 1/2 damage each side.",
@@ -3505,8 +3457,8 @@
 				"costs": {
 					"energy": 30
 				}
-		}
-	]
+			}
+		]
 	},
 	{
 		"id": 47,
@@ -3539,29 +3491,28 @@
 		"animation": {
 			"walk_speed": 400
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Frontal Aegis",
 				"desc": "Shield shaped head grants +9 defense bonus stat against any frontal attacks.",
 				"info": "Melee attackers are pushed a hexagon"
-            },
+			},
 			{
 				"title": "Lash Master",
 				"desc": "Slashes nearby foe using tongue, reducing its initiative for two turns.",
 				"info": "20 slash damage & -20 initiative stat"
-            },
+			},
 			{
 				"title": "Double Slap",
 				"desc": "Strikes up to two frontal nearby units that are positioned next to each other.",
 				"info": "20 crush damage to each unit being hit"
-            },
+			},
 			{
 				"title": "Meteor Slam",
 				"desc": "Regurgitates a sphere and throws it at any location within 8 hexagons range.",
 				"info": "20 crush + 10 burn damage per strike"
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 48,
 		"name": "Satyr",
@@ -3593,13 +3544,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Hard Headed",
 				"desc": "Frontal attacks cause way less damage.",
 				"info": "10 points frontal hit damage reduction",
 				"upgrade": "-1 offense stackable debuff."
-            },
+			},
 			{
 				"title": "Stiff Scissors",
 				"desc": "Stabs up to two nearby diagonal units.",
@@ -3608,7 +3558,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Flying Cleaver",
 				"desc": "Jumps over a nearby creature, slicing it with its large abdominal bone hatchet.",
@@ -3617,7 +3567,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Demon Hoof",
 				"desc": "Bashes nearby foe, pushing it back a couple hexagons, based on its size.",
@@ -3626,9 +3576,9 @@
 				"costs": {
 					"energy": 15
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 49,
 		"name": "Volpyr",
@@ -3660,13 +3610,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Gore Lust",
 				"desc": "Each successful hit increases both the offense and burn stats a single point.",
 				"info": "1 offense stat & 1 burn mastery on hit.",
 				"upgrade": "The bonus is tripled on kills."
-            },
+			},
 			{
 				"title": "Flaming Paw",
 				"desc": "Strikes an adjacent enemy, doing some extra burn damage to it consecutively.",
@@ -3675,7 +3624,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Bonfire Spring",
 				"desc": "Ranged attack that will push the target one hexagon or otherwise strike again.",
@@ -3684,7 +3633,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Unfriendly Flare",
 				"desc": "Diagonal fierce projectile that keeps bouncing each time it hits a creature.",
@@ -3693,9 +3642,9 @@
 				"costs": {
 					"energy": 15
 				}
-            }
-        ]
-    },
+			}
+		]
+	},
 	{
 		"id": 50,
 		"name": "Shadow Leech",
@@ -3727,13 +3676,12 @@
 		"animation": {
 			"walk_speed": 600
 		},
-		"ability_info": [
-			{
+		"ability_info": [{
 				"title": "Ethereal Shape",
 				"desc": "Passes through any obstacles and also takes only half of the incoming damage.",
 				"info": "Will not be able to stop over obstacles.",
 				"upgrade": "Causes delay to enemy units."
-            },
+			},
 			{
 				"title": "Palm Jaw",
 				"desc": "Bites nearby foe by using its own hand, stealing the energy points cost from it.",
@@ -3745,7 +3693,7 @@
 				"costs": {
 					"energy": 10
 				}
-            },
+			},
 			{
 				"title": "Sorrow Visions",
 				"desc": "Causes a foe within 5 hexagons to skip its next turn if not taking any damage.",
@@ -3757,7 +3705,7 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Sleeping Mummy",
 				"desc": "Meditative state that heals 20 points if not being disrupted for a whole round.",
@@ -3766,7 +3714,7 @@
 				"costs": {
 					"energy": 25
 				}
-            }
-        ]
-    }
+			}
+		]
+	}
 ]

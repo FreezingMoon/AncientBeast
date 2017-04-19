@@ -32,7 +32,7 @@ var Game = Class.create({
 	 *	playerMode :		Integer :	Number of player in the game
 	 *	activeCreature :	Creature :	Current active creature object reference
 	 *	creaIdCounter :		Integer :	Creature ID counter used for creature creation
-	 *	creatureDatas :		Array :		Array containing all datas for the creatures
+	 *	creatureData :		Array :		Array containing all data for the creatures
 	 *
 	 */
 
@@ -56,7 +56,7 @@ var Game = Class.create({
 		this.turn = 0;
 		this.queue = new CreatureQueue();
 		this.creaIdCounter = 1;
-		this.creatureDatas = [];
+		this.creatureData = [];
 		this.creatureJSON = [];
 		this.pause = false;
 		this.gameState = "initialized";
@@ -221,7 +221,7 @@ var Game = Class.create({
 		$j.getJSON("../units/data.json", function(json_in) {
 			G.creatureJSON = json_in;
 
-			G.creatureDatas = G.creatureJSON;
+			G.creatureData = G.creatureJSON;
 
 			for (var j = 0; j < G.loadedCreatures.length; j++) {
 
@@ -766,8 +766,8 @@ var Game = Class.create({
 	 *
 	 */
 	retreiveCreatureStats: function(type) {
-		for (var i = this.creatureDatas.length - 1; i >= 0; i--) {
-			if (this.creatureDatas[i].type == type) return this.creatureDatas[i];
+		for (var i = this.creatureData.length - 1; i >= 0; i--) {
+			if (this.creatureData[i].type == type) return this.creatureData[i];
 		}
 	},
 
