@@ -210,9 +210,10 @@ var UI = Class.create({
 			//console.log(keypressed); // For debugging
 
 			var prevD = false;
+			var modifierPressed = (e.metaKey || e.altKey || e.ctrlKey);
 
 			$j.each(hotkeys, function(k, v) {
-				if (v == keypressed) {
+				if (!modifierPressed && v == keypressed) {
 					// Context filter
 					if (G.UI.dashopen) {
 						switch (k) {
