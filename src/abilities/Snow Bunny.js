@@ -206,7 +206,7 @@ G.abilities[12] = [
 
 
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 			// No blow size penalty if upgraded and target is frozen
 			var dist = 5 - (this.isUpgraded() && target.stats.frozen ? 0 : target.size);
 			var dir = [];
@@ -303,8 +303,8 @@ G.abilities[12] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
-			var dist = path.slice(0).filterCreature(false, false).length;
+			var target = arrayUtils.last(path).creature;
+			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 
 			var emissionPoint = {
 				x: ability.creature.grp.x + 52,
@@ -350,7 +350,7 @@ G.abilities[12] = [
 		},
 
 		getAnimationData: function(path, args) {
-			var dist = path.slice(0).filterCreature(false, false).length;
+			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 			return {
 				duration: 500,
 				delay: 0,

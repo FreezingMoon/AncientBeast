@@ -225,7 +225,10 @@ G.abilities[44] = [
 			var start = G.grid.hexes[crea.y][crea.x];
 			while (!distance) {
 				k++;
-				if (start.adjacentHex(k).findPos(crea_dest)) distance = k;
+
+				if (arrayUtils.findPos(start.adjacentHex(k), crea_dest)) {
+					distance = k;
+				}
 			}
 
 			// Substract from movement points

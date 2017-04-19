@@ -283,7 +283,7 @@ G.abilities[14] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 			var melee = (path[0].creature === target);
 
 			var d = (melee) ? {
