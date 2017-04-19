@@ -700,7 +700,7 @@ var Creature = Class.create({
 
 
 		// Highlight final position
-		var last = path.last();
+		var last = arrayUtils.last(path);
 
 		creature.tracePosition({
 			x: last.x,
@@ -914,13 +914,14 @@ var Creature = Class.create({
 			var hexes = this.hexagons[0].adjacentHex(dist);
 			var lasthexes = this.hexagons[this.size - 1].adjacentHex(dist);
 			hexes.forEach(function(hex) {
-				if (creature.hexagons.findPos(hex)) {
-					hexes.removePos(hex);
+				if (arrayUtils.findPos(creature.hexagons, hex)) {
+					arrayUtils.removePos(hexes, hex);
 				} // Remove from array if own creature hex
 			});
+
 			lasthexes.forEach(function(hex) {
 				// If node doesnt already exist in final collection and if it's not own creature hex
-				if (!hexes.findPos(hex) && !creature.hexagons.findPos(hex)) {
+				if (!arrayUtils.findPos(hexes, hex) && !arrayUtils.findPos(creature.hexagons, hex)) {
 					hexes.push(hex);
 				}
 			});

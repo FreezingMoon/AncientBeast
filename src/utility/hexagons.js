@@ -144,7 +144,7 @@ var HexGrid = Class.create({
 			y: 0,
 			hexesDashed: [],
 			directions: [1, 1, 1, 1, 1, 1],
-			includeCrea: true,
+			includeCreature: true,
 			stopOnCreature: true,
 			dashedHexesAfterCreatureStop: true,
 			distance: 0,
@@ -176,7 +176,7 @@ var HexGrid = Class.create({
 			y: 0,
 			hexesDashed: [],
 			directions: [1, 1, 1, 1, 1, 1],
-			includeCrea: true,
+			includeCreature: true,
 			stopOnCreature: true,
 			dashedHexesAfterCreatureStop: true,
 			distance: 0,
@@ -221,7 +221,7 @@ var HexGrid = Class.create({
 					}
 				});
 
-				dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id);
+				arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
 
 				if (dir.length === 0) {
 					continue;
@@ -245,18 +245,18 @@ var HexGrid = Class.create({
 					}
 				}
 
-				if (o.stopOnCreature && o.includeCrea && (i === 1 || i === 4)) {
+				if (o.stopOnCreature && o.includeCreature && (i === 1 || i === 4)) {
 					// Only straight direction
-					if (dir.last().creature instanceof Creature) {
+					if (arrayUtils.last(dir).creature instanceof Creature) {
 						// Add full creature
-						var creature = dir.last().creature;
+						var creature = arrayUtils.last(dir).creature;
 						dir.pop();
 						dir = dir.concat(creature.hexagons);
 					}
 				}
 
 				dir.forEach(function(item) {
-					hexesDashed.removePos(item);
+					arrayUtils.removePos(hexesDashed, item);
 				});
 
 				o.hexesDashed = o.hexesDashed.concat(hexesDashed);
@@ -330,7 +330,7 @@ var HexGrid = Class.create({
 			else if (o.isDirectionsQuery) {
 				G.grid.forEachHex(function() {
 					if (o.choices[i][0].direction == this.direction)
-						o.hexesDashed.removePos(this);
+						arrayUtils.removePos(o.hexesDashed, this);
 				});
 			}
 		}
@@ -882,7 +882,7 @@ var HexGrid = Class.create({
 				hexes.push(G.grid.hexes[this.y][this.x]);
 		});
 
-		return hexes.extendToLeft(size);
+		return arrayUtils.extendToLeft(hexes, size);
 	},
 
 
@@ -905,7 +905,7 @@ var HexGrid = Class.create({
 			return hex.isWalkable(size, id, true);
 		});
 
-		return hexes.extendToLeft(size);
+		return arrayUtils.extendToLeft(hexes, size);
 	},
 
 

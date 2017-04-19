@@ -119,7 +119,10 @@ var Animations = Class.create({
 					var k = 0;
 					while (!distance && start != currentHex) {
 						k++;
-						if (start.adjacentHex(k).findPos(currentHex)) distance = k;
+
+						if (arrayUtils.findPos(start.adjacentHex(k), currentHex)) {
+							distance = k;
+						}
 					}
 
 					crea.remainingMove -= distance;

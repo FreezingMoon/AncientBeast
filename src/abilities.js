@@ -547,7 +547,7 @@ var Ability = Class.create({
 			x: this.creature.x,
 			y: this.creature.y,
 			directions: [1, 1, 1, 1, 1, 1],
-			includeCrea: true,
+			includeCreature: true,
 			stopOnCreature: true,
 			distance: 0,
 			sourceCreature: undefined,
@@ -574,7 +574,7 @@ var Ability = Class.create({
 
 			if (o.distance > 0) dir = dir.slice(0, o.distance + 1);
 
-			dir = dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id);
+			dir = arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
 			var isValid = this.atLeastOneTarget(dir, o);
 			outDirections.push(isValid ? 1 : 0);
 		}

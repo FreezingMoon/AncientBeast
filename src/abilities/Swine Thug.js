@@ -113,7 +113,7 @@ G.abilities[37] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 			var damage = new Damage(
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
@@ -184,12 +184,12 @@ G.abilities[37] = [
 			var straitrow = matrices.straitrow;
 
 			var swine = this.creature;
-			var hexes = G.grid.getHexMap(swine.x, swine.y - 2, 0, false, bellowrow).filterCreature(true, true, swine.id, swine.team).concat(
-				G.grid.getHexMap(swine.x, swine.y, 0, false, straitrow).filterCreature(true, true, swine.id, swine.team),
-				G.grid.getHexMap(swine.x, swine.y, 0, false, bellowrow).filterCreature(true, true, swine.id, swine.team),
-				G.grid.getHexMap(swine.x, swine.y - 2, 0, true, bellowrow).filterCreature(true, true, swine.id, swine.team),
-				G.grid.getHexMap(swine.x, swine.y, 0, true, straitrow).filterCreature(true, true, swine.id, swine.team),
-				G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow).filterCreature(true, true, swine.id, swine.team));
+			var hexes = arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y - 2, 0, false, bellowrow), true, true, swine.id, swine.team).concat(
+				arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, false, straitrow), true, true, swine.id, swine.team),
+				arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, false, bellowrow), true, true, swine.id, swine.team),
+				arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y - 2, 0, true, bellowrow), true, true, swine.id, swine.team),
+				arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, true, straitrow), true, true, swine.id, swine.team),
+				arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow), true, true, swine.id, swine.team));
 			if (!this.atLeastOneTarget(hexes, {
 					team: this._targetTeam
 				})) {
@@ -220,7 +220,7 @@ G.abilities[37] = [
 			];
 
 			choices.forEach(function(choice) {
-				choice.filterCreature(true, true, swine.id);
+				arrayUtils.filterCreature(choice, true, true, swine.id);
 			});
 
 			G.grid.queryChoice({
@@ -241,7 +241,7 @@ G.abilities[37] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 
 			// If upgraded, hits will debuff target with -1 meditation
 			if (this.isUpgraded()) {

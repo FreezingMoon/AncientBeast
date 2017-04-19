@@ -297,13 +297,13 @@ G.abilities[4] = [
 
 			// Movement
 			var hurl = function(_path) {
-				var target = _path.last().creature;
+				var target = arrayUtils.last(_path).creature;
 
 				var magmaHex = magmaSpawn.hexagons[
 					args.direction === 4 ? magmaSpawn.size - 1 : 0];
-				_path.filterCreature(false, false);
+				arrayUtils.filterCreature(_path, false, false);
 				_path.unshift(magmaHex); // Prevent error on empty path
-				var destination = _path.last();
+				var destination = arrayUtils.last(_path);
 				var x = destination.x + (args.direction === 4 ? magmaSpawn.size - 1 : 0);
 				destination = G.grid.hexes[destination.y][x];
 
@@ -332,8 +332,8 @@ G.abilities[4] = [
 						if (ability.isUpgraded() && targetKilled) {
 							var nextPath = G.grid.getHexLine(
 								target.x, target.y, args.direction, false);
-							nextPath.filterCreature(true, true, magmaSpawn.id);
-							var nextTarget = nextPath.last().creature;
+							arrayUtils.filterCreature(nextPath, true, true, magmaSpawn.id);
+							var nextTarget = arrayUtils.last(nextPath).creature;
 							// Continue only if there's a next enemy creature
 							if (nextTarget &&
 								isTeam(magmaSpawn, nextTarget, ability._targetTeam)) {

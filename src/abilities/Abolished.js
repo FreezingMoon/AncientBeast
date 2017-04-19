@@ -104,7 +104,7 @@ G.abilities[7] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 
 			var damage = new Damage(
 				ability.creature, // Attacker

@@ -257,10 +257,10 @@ G.abilities[40] = [
 					}
 					var line = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
 					o.choices[i].forEach(function(choice) {
-						line.removePos(choice);
+						arrayUtils.removePos(line, choice);
 					});
 
-					line.filterCreature(false, true, o.id);
+					arrayUtils.filterCreature(line, false, true, o.id);
 					o.hexesDashed = o.hexesDashed.concat(line);
 
 					// For each dashed hex, create a new choice composed of the original
@@ -270,15 +270,15 @@ G.abilities[40] = [
 					var newChoice = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
 					// Exclude creature
 					ability.creature.hexagons.forEach(function(hex) {
-						if (newChoice.findPos(hex)) {
-							newChoice.removePos(hex);
+						if (arrayUtils.findPos(newChoice, hex)) {
+							arrayUtils.removePos(newChoice, hex);
 						}
 					});
 
 					// Exclude hexes that don't exist in the original choice
 					for (j = 0; j < newChoice.length; j++) {
-						if (!o.choices[i].findPos(newChoice[j])) {
-							newChoice.removePos(newChoice[j]);
+						if (!arrayUtils.findPos(o.choices[i], newChoice[j])) {
+							arrayUtils.removePos(newChoice, newChoice[j]);
 							j--;
 						}
 					}
@@ -323,7 +323,7 @@ G.abilities[40] = [
 
 			// Move towards target if necessary
 			if (runPath.length > 0) {
-				var destination = runPath.last();
+				var destination = arrayUtils.last(runPath);
 				if (args.direction === 4) {
 					destination =
 						G.grid.hexes[destination.y][destination.x + this.creature.size - 1];
@@ -363,8 +363,9 @@ G.abilities[40] = [
 			var creature = this.creature;
 
 			var targetPushPath = pushPath.slice();
-			targetPushPath.filterCreature(false, false, creature.id);
-			targetPushPath.filterCreature(false, false, target.id);
+			// TODO: These two lines probably do not do anything since filterCreature() returns a new array...
+			arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
+			arrayUtils.filterCreature(targetPushPath, false, false, target.id);
 			if (targetPushPath.length === 0) {
 				return false;
 			}

@@ -213,8 +213,8 @@ G.abilities[39] = [
 					if (this._getMaxDistance() > 0) {
 						dir = dir.slice(0, this._getMaxDistance() + 1);
 					}
-					dir = dir.filterCreature(true, true, this.creature.id);
-					var target = dir.last().creature;
+					dir = arrayUtils.filterCreature(dir, true, true, this.creature.id);
+					var target = arrayUtils.last(dir).creature;
 					if (target.stats.moveable) {
 						validDirections[i] = 1;
 					}
@@ -270,7 +270,7 @@ G.abilities[39] = [
 		activate: function(path, args) {
 			var ability = this;
 			var crea = this.creature;
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 			path = path.filter(function(hex) {
 				return !hex.creature;
 			}); //remove creatures
@@ -278,7 +278,7 @@ G.abilities[39] = [
 
 			//Movement
 			var creature = (args.direction == 4) ? crea.hexagons[crea.size - 1] : crea.hexagons[0];
-			path.filterCreature(false, false);
+			arrayUtils.filterCreature(path, false, false);
 			var destination = null;
 			var destinationTarget = null;
 			if (target.size === 1) {
@@ -294,7 +294,7 @@ G.abilities[39] = [
 				}
 			} else {
 				// Large creature, pull self towards target
-				destination = path.last();
+				destination = arrayUtils.last(path);
 			}
 
 			var x;

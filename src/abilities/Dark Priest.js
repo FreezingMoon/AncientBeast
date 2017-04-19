@@ -266,7 +266,7 @@ G.abilities[0] = [
 				return item.isWalkable(crea.size, 0, false);
 			});
 
-			spawnRange = spawnRange.extendToLeft(crea.size);
+			spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size);
 
 			G.grid.queryHexes({
 				fnOnSelect: function() {
