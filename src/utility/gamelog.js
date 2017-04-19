@@ -1,25 +1,25 @@
 var Gamelog = Class.create({
 
 	initialize: function(id) {
-		this.datas = [];
+		this.data = [];
 		this.playing = false;
 		this.timeCursor = -1;
 	},
 
 	add: function(action) {
-		this.datas.push(action);
+		this.data.push(action);
 	},
 
 	play: function(log) {
 
 		if (log) {
-			this.datas = log;
+			this.data = log;
 		}
 
 		var fun = function() {
 			G.gamelog.timeCursor++;
-			if (G.debugMode) console.log(G.gamelog.timeCursor + "/" + G.gamelog.datas.length);
-			if (G.gamelog.timeCursor > G.gamelog.datas.length - 1) {
+			if (G.debugMode) console.log(G.gamelog.timeCursor + "/" + G.gamelog.data.length);
+			if (G.gamelog.timeCursor > G.gamelog.data.length - 1) {
 				G.activeCreature.queryMove(); // Avoid bug
 				return;
 			}
@@ -27,7 +27,7 @@ var Gamelog = Class.create({
 				if (!G.freezedInput && !G.turnThrottle) {
 					clearInterval(interval);
 					G.activeCreature.queryMove(); // Avoid bug
-					G.action(G.gamelog.datas[G.gamelog.timeCursor], {
+					G.action(G.gamelog.data[G.gamelog.timeCursor], {
 						callback: fun
 					});
 				}
@@ -40,8 +40,8 @@ var Gamelog = Class.create({
 		if (G.freezedInput || G.turnThrottle) return false;
 
 		G.gamelog.timeCursor++;
-		if (G.debugMode) console.log(G.gamelog.timeCursor + "/" + G.gamelog.datas.length);
-		if (G.gamelog.timeCursor > G.gamelog.datas.length - 1) {
+		if (G.debugMode) console.log(G.gamelog.timeCursor + "/" + G.gamelog.data.length);
+		if (G.gamelog.timeCursor > G.gamelog.data.length - 1) {
 			G.activeCreature.queryMove(); // Avoid bug
 			return;
 		}
@@ -49,7 +49,7 @@ var Gamelog = Class.create({
 			if (!G.freezedInput && !G.turnThrottle) {
 				clearInterval(interval);
 				G.activeCreature.queryMove(); // Avoid bug
-				G.action(G.gamelog.datas[G.gamelog.timeCursor], {
+				G.action(G.gamelog.data[G.gamelog.timeCursor], {
 					callback: function() {
 						G.activeCreature.queryMove();
 					}
@@ -59,6 +59,6 @@ var Gamelog = Class.create({
 	},
 
 	get: function() {
-		console.log(JSON.stringify(this.datas));
+		console.log(JSON.stringify(this.data));
 	}
 });
