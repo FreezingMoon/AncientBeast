@@ -104,7 +104,7 @@ G.abilities[12] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.adjacenthexes(1), {
+					this.creature.adjacentHexes(1), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -125,7 +125,7 @@ G.abilities[12] = [
 				team: this._targetTeam,
 				id: snowBunny.id,
 				flipped: snowBunny.player.flipped,
-				hexes: snowBunny.adjacenthexes(1),
+				hexes: snowBunny.adjacentHexes(1),
 			});
 		},
 

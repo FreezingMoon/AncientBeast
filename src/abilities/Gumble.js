@@ -164,7 +164,7 @@ G.abilities[14] = [
 			hexes = creature.hexagons.concat(G.grid.getFlyingRange(
 				creature.x, creature.y, range, creature.size, creature.id));
 
-			G.grid.queryhexes({
+			G.grid.queryHexes({
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
 				},

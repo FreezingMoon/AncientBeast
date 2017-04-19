@@ -59,9 +59,9 @@ body {
 }
 
 #creatureWrapper,
-#hexesdisplay,
+#hexesDisplay,
+#hexesOverlay,
 #hexesinput,
-#hexesoverlay,
 #trapWrapper {
 	position: relative;
 	top: 0;
@@ -77,9 +77,9 @@ body {
 	/* Opera */
 }
 
-#hexesdisplay,
-#hexesinput,
-#hexesoverlay {
+#hexesDisplay,
+#hexesOverlay,
+#hexesinput {
 	-webkit-transform: scaleY(0.75);
 	-moz-transform: scaleY(0.75);
 	-ms-transform: scaleY(0.75);
@@ -87,12 +87,12 @@ body {
 	transform: scaleY(0.75);
 }
 
-#hexesdisplay {
+#hexesDisplay {
 	z-index: 1;
 	opacity: 0.5;
 }
 
-#hexesoverlay {
+#hexesOverlay {
 	z-index: 2;
 }
 
@@ -117,7 +117,7 @@ body {
 	position: absolute;
 }
 
-#hexesdisplay .displayhex {
+#hexesDisplay .displayhex {
 	background: url("../grid/hex.png");
 	transition: opacity 250ms;
 	-moz-transition: opacity 250ms;
@@ -142,7 +142,7 @@ body {
 	/*text-shadow: 0px 0px 5px rgba(255, 255, 255, 0.7);*/
 }
 
-#hexesdisplay .displayhex.not-reachable {
+#hexesDisplay .displayhex.not-reachable {
 	opacity: 0;
 }
 
@@ -200,87 +200,87 @@ body {
 	cursor: default;
 }
 
-#hexesoverlay .displayhex.hover {
+#hexesOverlay .displayhex.hover {
 	z-index: 8;
 }
 
-#hexesdisplay .adj {
+#hexesDisplay .adj {
 	background: url("../grid/hex_path.png");
 	z-index: 5;
 	opacity: 1;
 }
 
-#hexesdisplay .displayhex.dashed {
+#hexesDisplay .displayhex.dashed {
 	background: url("../interface/hex_dashed.png");
 	z-index: 5;
 	opacity: 1 !important;
 }
 
-#hexesdisplay .displayhex.showGrid {
+#hexesDisplay .displayhex.showGrid {
 	opacity: 1 !important;
 }
 /*--------------------Players------------------*/
-#hexesdisplay .displayhex.creature {
+#hexesDisplay .displayhex.creature {
 	z-index: 6 !important;
 	opacity: 1 !important;
 }
 
-#hexesoverlay .displayhex.creature {
+#hexesOverlay .displayhex.creature {
 	z-index: 6 !important;
 	opacity: 1;
 }
 /*not working*/
-#hexesoverlay .displayhex.hover {
+#hexesOverlay .displayhex.hover {
 	background: url("../interface/cancel.png");
 }
 /*p0*/
-#hexesoverlay .displayhex.creature.player0.ownCreatureHexShade,
-#hexesoverlay .displayhex.hover.h_player0 {
+#hexesOverlay .displayhex.creature.player0.ownCreatureHexShade,
+#hexesOverlay .displayhex.hover.h_player0 {
 	background: url("../interface/hex_glowing_red.png") !important;
 }
 
-#hexesdisplay .displayhex.creature.player0,
-#hexesoverlay .displayhex.creature.active.player0,
-#hexesoverlay .displayhex.creature.selected.player0 {
+#hexesDisplay .displayhex.creature.player0,
+#hexesOverlay .displayhex.creature.active.player0,
+#hexesOverlay .displayhex.creature.selected.player0 {
 	background: url("../interface/hex_outline_red.png");
 }
 /*p1*/
-#hexesoverlay .displayhex.creature.player1.ownCreatureHexShade,
-#hexesoverlay .displayhex.hover.h_player1 {
+#hexesOverlay .displayhex.creature.player1.ownCreatureHexShade,
+#hexesOverlay .displayhex.hover.h_player1 {
 	background: url("../interface/hex_glowing_blue.png") !important;
 }
 
-#hexesdisplay .displayhex.creature.player1,
-#hexesoverlay .displayhex.creature.active.player1,
-#hexesoverlay .displayhex.creature.selected.player1 {
+#hexesDisplay .displayhex.creature.player1,
+#hexesOverlay .displayhex.creature.active.player1,
+#hexesOverlay .displayhex.creature.selected.player1 {
 	background: url("../interface/hex_outline_blue.png");
 }
 /*p2*/
-#hexesoverlay .displayhex.hover.h_player2 #hexesoverlay .displayhex.creature.player2.ownCreatureHexShade {
+#hexesOverlay .displayhex.hover.h_player2 #hexesOverlay .displayhex.creature.player2.ownCreatureHexShade {
 	background: url("../interface/hex_glowing_orange.png") !important;
 }
 
-#hexesdisplay .displayhex.creature.player2,
-#hexesoverlay .displayhex.creature.active.player2,
-#hexesoverlay .displayhex.creature.selected.player2 {
+#hexesDisplay .displayhex.creature.player2,
+#hexesOverlay .displayhex.creature.active.player2,
+#hexesOverlay .displayhex.creature.selected.player2 {
 	background: url("../interface/hex_outline_orange.png");
 }
 /*p3*/
-#hexesoverlay .displayhex.hover.h_player3 #hexesoverlay .displayhex.creature.player3.ownCreatureHexShade {
+#hexesOverlay .displayhex.hover.h_player3 #hexesOverlay .displayhex.creature.player3.ownCreatureHexShade {
 	background: url("../interface/hex_glowing_green.png") !important;
 }
 
-#hexesdisplay .displayhex.creature.player3,
-#hexesoverlay .displayhex.creature.active.player3,
-#hexesoverlay .displayhex.creature.selected.player3 {
+#hexesDisplay .displayhex.creature.player3,
+#hexesOverlay .displayhex.creature.active.player3,
+#hexesOverlay .displayhex.creature.selected.player3 {
 	background: url("../interface/hex_outline_green.png");
 }
 
-#hexesdisplay .displayhex.creature.hidden {
+#hexesDisplay .displayhex.creature.hidden {
 	opacity: 0 !important;
 }
 
-#hexesdisplay .displayhex.creature.dashed {
+#hexesDisplay .displayhex.creature.dashed {
 	background: url("../interface/hex_dashed.png");
 	z-index: 5;
 	opacity: 1 !important;

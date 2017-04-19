@@ -71,7 +71,7 @@ G.abilities[0] = [
 		require: function() {
 			if (!this.testRequirements()) return false;
 			if (!this.atLeastOneTarget(
-					this.creature.adjacenthexes(this.isUpgraded() ? 4 : 1), {
+					this.creature.adjacentHexes(this.isUpgraded() ? 4 : 1), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -92,7 +92,7 @@ G.abilities[0] = [
 				team: this._targetTeam,
 				id: dpriest.id,
 				flipped: dpriest.player.flipped,
-				hexes: dpriest.adjacenthexes(this.isUpgraded() ? 4 : 1),
+				hexes: dpriest.adjacentHexes(this.isUpgraded() ? 4 : 1),
 			});
 		},
 
@@ -129,7 +129,7 @@ G.abilities[0] = [
 		require: function() {
 			if (!this.testRequirements()) return false;
 
-			var range = this.creature.adjacenthexes(2);
+			var range = this.creature.adjacentHexes(2);
 
 			// At least one target
 			if (!this.atLeastOneTarget(range, {
@@ -174,7 +174,7 @@ G.abilities[0] = [
 				team: this._targetTeam,
 				id: dpriest.id,
 				flipped: dpriest.player.flipped,
-				hexes: dpriest.adjacenthexes(2),
+				hexes: dpriest.adjacentHexes(2),
 			});
 		},
 
@@ -252,7 +252,7 @@ G.abilities[0] = [
 			var ability = this;
 			var dpriest = this.creature;
 
-			G.grid.forEachhexes(function() {
+			G.grid.forEachHex(function() {
 				this.unsetReachable();
 			});
 
@@ -268,7 +268,7 @@ G.abilities[0] = [
 
 			spawnRange = spawnRange.extendToLeft(crea.size);
 
-			G.grid.queryhexes({
+			G.grid.queryHexes({
 				fnOnSelect: function() {
 					ability.fnOnSelect.apply(ability, arguments);
 				},

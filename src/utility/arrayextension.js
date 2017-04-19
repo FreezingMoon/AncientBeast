@@ -56,7 +56,7 @@ Array.prototype.removePos = function(obj) {
  *	return : 		Array : 	filtered array
  */
 Array.prototype.filterCreature = function(includeCrea, stopOnCreature, id) {
-		var creahexes = [];
+		var creatureHexes = [];
 
 		for (var i = 0; i < this.length; i++) {
 			if (this[i].creature instanceof Creature) {
@@ -70,7 +70,7 @@ Array.prototype.filterCreature = function(includeCrea, stopOnCreature, id) {
 						i--;
 					}
 				} else {
-					creahexes = creahexes.concat(this[i].creature.hexagons);
+					creatureHexes = creatureHexes.concat(this[i].creature.hexagons);
 				}
 				if (stopOnCreature) {
 					this.splice(i + 1, 99);
@@ -78,7 +78,7 @@ Array.prototype.filterCreature = function(includeCrea, stopOnCreature, id) {
 				}
 			}
 		}
-		return this.concat(creahexes);
+		return this.concat(creatureHexes);
 	},
 
 

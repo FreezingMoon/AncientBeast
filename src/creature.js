@@ -476,7 +476,7 @@ var Creature = Class.create({
 				confirmText: "Skip turn"
 			});
 		} else {
-			G.grid.queryhexes({
+			G.grid.queryHexes({
 				fnOnSelect: select,
 				fnOnConfirm: o.callback,
 				args: {
@@ -782,14 +782,14 @@ var Creature = Class.create({
 	},
 
 
-	/*	adjacenthexes(dist)
+	/*	adjacentHexes(dist)
 	 *
 	 *	dist :		Integer :	Distance in hexagons
 	 *
 	 *	return :	Array :		Array of adjacent hexagons
 	 *
 	 */
-	adjacenthexes: function(dist, clockwise) {
+	adjacentHexes: function(dist, clockwise) {
 
 		// TODO Review this algo to allow distance
 		if (!!clockwise) {
@@ -995,7 +995,7 @@ var Creature = Class.create({
 
 		// Determine if melee attack
 		damage.melee = false;
-		this.adjacenthexes(1).each(function() {
+		this.adjacentHexes(1).each(function() {
 			if (damage.attacker == this.creature) damage.melee = true;
 		});
 		damage.target = this;

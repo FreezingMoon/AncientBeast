@@ -20,10 +20,10 @@ G.abilities[33] = [
 		//	activate() :
 		activate: function() {
 			var creature = this.creature;
-			var targets = this.getTargets(this.creature.adjacenthexes(1));
+			var targets = this.getTargets(this.creature.adjacentHexes(1));
 
 			if (this.atLeastOneTarget(
-					this.creature.adjacenthexes(1), {
+					this.creature.adjacentHexes(1), {
 						team: this._targetTeam
 					})) {
 				this.end();
@@ -44,7 +44,7 @@ G.abilities[33] = [
 					var optArg = {
 						effectFn: function(effect, crea) {
 							var nearFungus = false;
-							crea.adjacenthexes(1).forEach(function(hex) {
+							crea.adjacentHexes(1).forEach(function(hex) {
 								if (trg.creature instanceof Creature) {
 									if (G.creatures[trg.creature] === effect.owner) {
 										nearFungus = true;
@@ -109,7 +109,7 @@ G.abilities[33] = [
 
 			//At least one target
 			if (!this.atLeastOneTarget(
-					this.creature.adjacenthexes(1), {
+					this.creature.adjacentHexes(1), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -211,7 +211,7 @@ G.abilities[33] = [
 				return wyrm.y == item.y;
 			});
 
-			G.grid.queryhexes({
+			G.grid.queryHexes({
 				fnOnSelect: function() {
 					ability.fnOnSelect.apply(ability, arguments);
 				},
