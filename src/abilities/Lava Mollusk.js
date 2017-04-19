@@ -25,7 +25,7 @@ G.abilities[22] = [
 		activate: function(damage) {
 			if (this.triggeredThisChain) return damage;
 
-			var targets = this.getTargets(this.creature.adjacenthexes(1));
+			var targets = this.getTargets(this.creature.adjacentHexes(1));
 			this.end();
 			this.triggeredThisChain = true;
 
@@ -137,7 +137,7 @@ G.abilities[22] = [
 			ability.end();
 
 
-			var targets = ability.getTargets(ability.creature.adjacenthexes(1));
+			var targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 			targets.forEach(function(item) {
 				if (!(item.target instanceof Creature)) {
@@ -174,7 +174,7 @@ G.abilities[22] = [
 					G.activeCreature.queryMove()
 				},
 				callbackStepIn: function() {
-					var targets = ability.getTargets(ability.creature.adjacenthexes(1));
+					var targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 					targets.forEach(function(item) {
 						if (!(item.target instanceof Creature)) {
@@ -233,7 +233,7 @@ G.abilities[22] = [
 			range.splice(head, 1);
 			range.splice(tail, 1);
 
-			G.grid.queryhexes({
+			G.grid.queryHexes({
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
 				},
@@ -241,10 +241,10 @@ G.abilities[22] = [
 					hex.adjacentHex(1).forEach(function(item) {
 						if (item.creature instanceof Creature) {
 							if (item.creature == crea) { //If it is abolished
-								crea.adjacenthexes(1).forEach(function(item2) {
+								crea.adjacentHexes(1).forEach(function(item2) {
 									if (item2.creature instanceof Creature) {
 										if (item2.creature == crea) { //If it is abolished
-											crea.adjacenthexes(1).overlayVisualState("creature selected weakDmg player" + item2.creature.team);
+											crea.adjacentHexes(1).overlayVisualState("creature selected weakDmg player" + item2.creature.team);
 											item2.overlayVisualState("creature selected weakDmg player" + item2.creature.team);
 										} else {
 											item2.overlayVisualState("creature selected weakDmg player" + item2.creature.team);

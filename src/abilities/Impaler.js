@@ -289,7 +289,7 @@ G.abilities[5] = [
 				nextdmg = nextdmg.damages;
 
 				// Get next available targets
-				nextTargets = ability.getTargets(trg.adjacenthexes(1, true));
+				nextTargets = ability.getTargets(trg.adjacentHexes(1, true));
 
 				nextTargets = nextTargets.filter(function(item) {
 					if (item.hexesHit === undefined) {

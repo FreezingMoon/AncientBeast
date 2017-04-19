@@ -163,7 +163,7 @@ G.abilities[7] = [
 			}
 
 
-			var targets = ability.getTargets(ability.creature.adjacenthexes(1));
+			var targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 			targets.forEach(function(item) {
 				if (!(item.target instanceof Creature)) {
@@ -240,9 +240,9 @@ G.abilities[7] = [
 
 			// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
 
-			var range = crea.adjacenthexes(1);
+			var range = crea.adjacentHexes(1);
 
-			G.grid.queryhexes({
+			G.grid.queryHexes({
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
 				},
@@ -268,7 +268,7 @@ G.abilities[7] = [
 			ability.end();
 
 			var crea = this.creature;
-			var aoe = crea.adjacenthexes(1);
+			var aoe = crea.adjacentHexes(1);
 			var targets = ability.getTargets(aoe);
 
 			if (this.isUpgraded()) this.damages.burn = 30;

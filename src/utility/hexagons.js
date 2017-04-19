@@ -102,7 +102,7 @@ var HexGrid = Class.create({
 
 		G.activeCreature.hint(o.confirmText, "confirm");
 
-		this.queryhexes({
+		this.queryHexes({
 			fnOnConfirm: function(hex, args) {
 				args.opt.fnOnConfirm(G.activeCreature, args.opt.args);
 			},
@@ -186,7 +186,7 @@ var HexGrid = Class.create({
 		o = $j.extend(defaultOpt, o);
 
 		// Clean Direction
-		G.grid.forEachhexes(function() {
+		G.grid.forEachHex(function() {
 			this.direction = -1;
 		});
 
@@ -328,14 +328,14 @@ var HexGrid = Class.create({
 
 			if (validChoice) hexes = hexes.concat(o.choices[i]);
 			else if (o.isDirectionsQuery) {
-				G.grid.forEachhexes(function() {
+				G.grid.forEachHex(function() {
 					if (o.choices[i][0].direction == this.direction)
 						o.hexesDashed.removePos(this);
 				});
 			}
 		}
 
-		this.queryhexes({
+		this.queryHexes({
 			fnOnConfirm: function(hex, args) {
 				// Determine which set of hexes (choice) the hex is part of
 				for (var i = 0; i < args.opt.choices.length; i++) {
@@ -435,7 +435,7 @@ var HexGrid = Class.create({
 
 		o.hexes = extended;
 
-		this.queryhexes({
+		this.queryHexes({
 			fnOnConfirm: function(hex, args) {
 				var crea = hex.creature;
 				args.opt.fnOnConfirm(crea, args.opt.args);
@@ -458,11 +458,11 @@ var HexGrid = Class.create({
 	},
 
 	redoLastQuery: function() {
-		this.queryhexes(this.lastQueryOpt);
+		this.queryHexes(this.lastQueryOpt);
 	},
 
 
-	/*	queryhexes(x, y, distance, size)
+	/*	queryHexes(x, y, distance, size)
 	 *
 	 *	fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexes.
 	 *	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
@@ -470,7 +470,7 @@ var HexGrid = Class.create({
 	 * 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
 	 *	hexes : 			Array : 	Reachable hexes
 	 */
-	queryhexes: function(o) {
+	queryHexes: function(o) {
 
 		var defaultOpt = {
 			fnOnConfirm: function(hex, args) {
@@ -501,7 +501,7 @@ var HexGrid = Class.create({
 		this.lastQueryOpt = $j.extend({}, o); // Copy Obj
 
 		// Block all hexes
-		this.forEachhexes(function() {
+		this.forEachHex(function() {
 			this.unsetReachable();
 			if (o.hideNonTarget) this.setNotTarget();
 			else this.unsetNotTarget();
@@ -674,7 +674,7 @@ var HexGrid = Class.create({
 		};
 
 
-		this.forEachhexes(function() {
+		this.forEachHex(function() {
 			this.onSelectFn = onSelectFn;
 			this.onConfirmFn = onConfirmFn;
 			this.onRightClickFn = onRightClickFn;
@@ -707,12 +707,12 @@ var HexGrid = Class.create({
 		}
 	},
 
-	/*	hideCreaturehexes()
+	/*	hideCreatureHexes()
 	 *
 	 *	Ghosts hexes with creatures
 	 *
 	 */
-	hideCreaturehexes: function(except) {
+	hideCreatureHexes: function(except) {
 		G.creatures.forEach(function(creature) {
 			if (creature instanceof Creature) {
 				var hide = true;
@@ -789,7 +789,7 @@ var HexGrid = Class.create({
 
 	/*	clearHexViewAlterations()
 	 *
-	 *	Removes all hex view alterations like hideCreaturehexes used
+	 *	Removes all hex view alterations like hideCreatureHexes used
 	 *	Squashes bugs by making sure all view alterations are removed
 	 *	on a change of ability/change of turn/etc
 	 *	If you make a new hex view alteration call the function to remove
@@ -876,7 +876,7 @@ var HexGrid = Class.create({
 
 		// Gather all the reachable hexes
 		var hexes = [];
-		this.forEachhexes(function() {
+		this.forEachHex(function() {
 			// If not Too far or Impossible to reach
 			if (this.g <= distance && this.g != 0)
 				hexes.push(G.grid.hexes[this.y][this.x]);
@@ -959,7 +959,7 @@ var HexGrid = Class.create({
 
 
 	showGrid: function(val) {
-		this.forEachhexes(function() {
+		this.forEachHex(function() {
 			if (this.creature) this.creature.xray(val);
 			if (this.drop) return;
 			if (val) this.displayVisualState("showGrid");
@@ -981,7 +981,7 @@ var HexGrid = Class.create({
 		}
 
 		// Block all hexes
-		this.forEachhexes(function() {
+		this.forEachHex(function() {
 			this.unsetReachable();
 		});
 
@@ -1055,13 +1055,13 @@ var HexGrid = Class.create({
 	//Shortcut functions//
 	//******************//
 
-	/*	forEachhexes(f)
+	/*	forEachHex(f)
 	 *
 	 *	f : Function : 	Function to execute
 	 *
 	 *	Execute f for each hexes
 	 */
-	forEachhexes: function(f) {
+	forEachHex: function(f) {
 		this.hexes.forEach(function(hex) {
 			hex.forEach(function(item) {
 				f.apply(item);
@@ -1102,12 +1102,12 @@ var HexGrid = Class.create({
 	 *	Shorcut for $allDispHex.removeClass()
 	 */
 	cleanDisplay: function(cssClass) {
-		this.forEachhexes(function() {
+		this.forEachHex(function() {
 			this.cleanDisplayVisualState(cssClass)
 		});
 	},
 	cleanOverlay: function(cssClass) {
-		this.forEachhexes(function() {
+		this.forEachHex(function() {
 			this.cleanOverlayVisualState(cssClass)
 		});
 	},

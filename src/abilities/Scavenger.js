@@ -180,7 +180,7 @@ G.abilities[44] = [
 
 			var x = (trgIsInfront ? crea.x + trg.size : crea.x);
 
-			G.grid.queryhexes({
+			G.grid.queryHexes({
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
 				}, // fnOnConfirm

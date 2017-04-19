@@ -196,7 +196,7 @@ G.abilities[3] = [
 			var stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
 			var hexes = this._getHexRange(stopOnCreature);
 
-			G.grid.queryhexes({
+			G.grid.queryHexes({
 				fnOnSelect: function() {
 					ability.fnOnSelect.apply(ability, arguments);
 				},
