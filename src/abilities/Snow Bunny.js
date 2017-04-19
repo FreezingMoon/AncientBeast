@@ -51,8 +51,8 @@ G.abilities[12] = [
 
 			// Find which hex we are hopping from
 			var id = -1;
-			fromHex.creature.hexagons.each(function() {
-				id = hexes.indexOf(this) > id ? hexes.indexOf(this) : id;
+			fromHex.creature.hexagons.forEach(function(hex) {
+				id = hexes.indexOf(hex) > id ? hexes.indexOf(hex) : id;
 			});
 
 			return id;
@@ -104,7 +104,7 @@ G.abilities[12] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.adjacentHexs(1), {
+					this.creature.adjacentHexes(1), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -125,7 +125,7 @@ G.abilities[12] = [
 				team: this._targetTeam,
 				id: snowBunny.id,
 				flipped: snowBunny.player.flipped,
-				hexs: snowBunny.adjacentHexs(1),
+				hexes: snowBunny.adjacentHexes(1),
 			});
 		},
 
@@ -204,9 +204,9 @@ G.abilities[12] = [
 			var ability = this;
 			ability.end();
 
-			
 
-			var target = path.last().creature;
+
+			var target = arrayUtils.last(path).creature;
 			// No blow size penalty if upgraded and target is frozen
 			var dist = 5 - (this.isUpgraded() && target.stats.frozen ? 0 : target.size);
 			var dir = [];
@@ -303,8 +303,8 @@ G.abilities[12] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
-			var dist = path.slice(0).filterCreature(false, false).length;
+			var target = arrayUtils.last(path).creature;
+			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 
 			var emissionPoint = {
 				x: ability.creature.grp.x + 52,
@@ -350,7 +350,7 @@ G.abilities[12] = [
 		},
 
 		getAnimationData: function(path, args) {
-			var dist = path.slice(0).filterCreature(false, false).length;
+			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 			return {
 				duration: 500,
 				delay: 0,

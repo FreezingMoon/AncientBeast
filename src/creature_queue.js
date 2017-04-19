@@ -22,8 +22,8 @@ var CreatureQueue = Class.create({
 		return this.queue.splice(0, 1)[0];
 	},
 	remove: function(creature) {
-		this.queue.removePos(creature);
-		this.nextQueue.removePos(creature);
+		arrayUtils.removePos(this.queue, creature);
+		arrayUtils.removePos(this.nextQueue, creature);
 	},
 	nextRound: function() {
 		// Copy next queue into current queue
@@ -43,11 +43,11 @@ var CreatureQueue = Class.create({
 	delay: function(creature) {
 		// Find out if the creature is in the current queue or next queue; remove
 		// it from the queue and replace it at the end
-		var inQueue = this.queue.removePos(creature) || creature === G.activeCreature;
+		var inQueue = arrayUtils.removePos(this.queue, creature) || creature === G.activeCreature;
 		var queue = this.queue;
 		if (!inQueue) {
 			queue = this.nextQueue;
-			this.nextQueue.removePos(creature);
+			arrayUtils.removePos(this.nextQueue, creature);
 		}
 		// Move creature to end of queue but in order w.r.t. other delayed creatures
 		for (var i = 0; i < queue.length; i++) {

@@ -15,14 +15,14 @@ var HexGrid = Class.create({
 	 *	//Jquery attributes
 	 *	$display : 		Grid container
 	 *	$creatureW : 	Creature Wrapper container
-	 *	$inptHexsW : 	Input Hexagons container
-	 *	$dispHexsW : 	Display Hexagons container
-	 *	$overHexsW : 	Overlay Hexagons container
+	 *	$inpthexesW : 	Input Hexagons container
+	 *	$disphexesW : 	Display Hexagons container
+	 *	$overhexesW : 	Overlay Hexagons container
 	 *	$allInptHex : 	Shortcut to all input hexagons DOM elements (for input events)
 	 *	$allDispHex : 	Shortcut to all display hexagons DOM elements (to change style of hexagons)
 	 *
 	 *	//Normal attributes
-	 *	hexs : 				Array : 	Contain all hexs in row arrays (hexs[y][x])
+	 *	hexes : 				Array : 	Contain all hexes in row arrays (hexes[y][x])
 	 *	lastClickedHex : 	Hex : 		Last hex clicked!
 	 *
 	 */
@@ -36,15 +36,15 @@ var HexGrid = Class.create({
 	initialize: function(opts) {
 		defaultOpt = {
 			nbrRow: 9,
-			nbrHexsPerRow: 16,
+			nbrhexesPerRow: 16,
 			firstRowFull: false,
 		}
 
 		opts = $j.extend(defaultOpt, opts);
 
-		this.hexs = new Array(); // Hex Array
+		this.hexes = new Array(); // Hex Array
 		this.traps = new Array(); // Traps Array
-		this.allHexs = new Array(); // All hexs
+		this.allhexes = new Array(); // All hexes
 		this.lastClickedHex = []; // Array of hexagons containing last calculated pathfinding
 
 		this.display = G.Phaser.add.group(undefined, "displayGrp");
@@ -55,37 +55,37 @@ var HexGrid = Class.create({
 		this.gridGroup.scale.set(1, 0.75);
 
 		this.trapGroup = G.Phaser.add.group(this.gridGroup, "trapGrp");
-		this.dispHexsGroup = G.Phaser.add.group(this.gridGroup, "dispHexsGrp");
-		this.overHexsGroup = G.Phaser.add.group(this.gridGroup, "overHexsGrp");
+		this.disphexesGroup = G.Phaser.add.group(this.gridGroup, "disphexesGrp");
+		this.overhexesGroup = G.Phaser.add.group(this.gridGroup, "overhexesGrp");
 		this.dropGroup = G.Phaser.add.group(this.display, "dropGrp");
 		this.creatureGroup = G.Phaser.add.group(this.display, "creaturesGrp");
 		// Parts of traps displayed over creatures
 		this.trapOverGroup = G.Phaser.add.group(this.display, "trapOverGrp");
 		this.trapOverGroup.scale.set(1, 0.75);
-		this.inptHexsGroup = G.Phaser.add.group(this.gridGroup, "inptHexsGrp");
+		this.inpthexesGroup = G.Phaser.add.group(this.gridGroup, "inpthexesGrp");
 
 		// Populate grid
 		for (var row = 0; row < opts.nbrRow; row++) {
-			this.hexs.push(new Array());
-			for (var hex = 0; hex < opts.nbrHexsPerRow; hex++) {
-				if (hex == opts.nbrHexsPerRow - 1) {
+			this.hexes.push(new Array());
+			for (var hex = 0; hex < opts.nbrhexesPerRow; hex++) {
+				if (hex == opts.nbrhexesPerRow - 1) {
 					if (row % 2 == 0 && !opts.firstRowFull) continue;
 					if (row % 2 == 1 && opts.firstRowFull) continue;
 				}
-				this.hexs[row][hex] = new Hex(hex, row, this);
-				this.allHexs.push(this.hexs[row][hex]);
+				this.hexes[row][hex] = new Hex(hex, row, this);
+				this.allhexes.push(this.hexes[row][hex]);
 			};
 		};
 
-		this.selectedHex = this.hexs[0][0];
+		this.selectedHex = this.hexes[0][0];
 	},
 
 	querySelf: function(o) {
 		var defaultOpt = {
 			fnOnConfirm: function(crea, args) {},
 			fnOnSelect: function(crea, args) {
-				crea.hexagons.each(function() {
-					this.overlayVisualState("creature selected player" + this.creature.team);
+				crea.hexagons.forEach(function(hex) {
+					hex.overlayVisualState("creature selected player" + hex.creature.team);
 				});
 			},
 			fnOnCancel: function() {
@@ -102,7 +102,7 @@ var HexGrid = Class.create({
 
 		G.activeCreature.hint(o.confirmText, "confirm");
 
-		this.queryHexs({
+		this.queryHexes({
 			fnOnConfirm: function(hex, args) {
 				args.opt.fnOnConfirm(G.activeCreature, args.opt.args);
 			},
@@ -115,7 +115,7 @@ var HexGrid = Class.create({
 			args: {
 				opt: o
 			},
-			hexs: G.activeCreature.hexagons,
+			hexes: G.activeCreature.hexagons,
 			hideNonTarget: true,
 			id: o.id
 		});
@@ -125,7 +125,7 @@ var HexGrid = Class.create({
 	 *
 	 *	Shortcut to queryChoice with specific directions
 	 *
-	 *	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexs.
+	 *	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexes.
 	 *	fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
 	 *	fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
 	 *	team : 				Team
@@ -144,7 +144,7 @@ var HexGrid = Class.create({
 			y: 0,
 			hexesDashed: [],
 			directions: [1, 1, 1, 1, 1, 1],
-			includeCrea: true,
+			includeCreature: true,
 			stopOnCreature: true,
 			dashedHexesAfterCreatureStop: true,
 			distance: 0,
@@ -176,7 +176,7 @@ var HexGrid = Class.create({
 			y: 0,
 			hexesDashed: [],
 			directions: [1, 1, 1, 1, 1, 1],
-			includeCrea: true,
+			includeCreature: true,
 			stopOnCreature: true,
 			dashedHexesAfterCreatureStop: true,
 			distance: 0,
@@ -186,7 +186,7 @@ var HexGrid = Class.create({
 		o = $j.extend(defaultOpt, o);
 
 		// Clean Direction
-		G.grid.forEachHexs(function() {
+		G.grid.forEachHex(function() {
 			this.direction = -1;
 		});
 
@@ -214,16 +214,18 @@ var HexGrid = Class.create({
 				}
 
 				var hexesDashed = [];
-				dir.each(function() {
-					this.direction = (o.flipped) ? 5 - i : i;
+				dir.forEach(function(item) {
+					item.direction = (o.flipped) ? 5 - i : i;
 					if (o.stopOnCreature && o.dashedHexesAfterCreatureStop) {
-						hexesDashed.push(this);
+						hexesDashed.push(item);
 					}
 				});
 
-				dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id);
+				arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
 
-				if (dir.length === 0) continue;
+				if (dir.length === 0) {
+					continue;
+				}
 
 				if (o.requireCreature) {
 					var validChoice = false;
@@ -243,18 +245,18 @@ var HexGrid = Class.create({
 					}
 				}
 
-				if (o.stopOnCreature && o.includeCrea && (i === 1 || i === 4)) {
+				if (o.stopOnCreature && o.includeCreature && (i === 1 || i === 4)) {
 					// Only straight direction
-					if (dir.last().creature instanceof Creature) {
+					if (arrayUtils.last(dir).creature instanceof Creature) {
 						// Add full creature
-						var creature = dir.last().creature;
+						var creature = arrayUtils.last(dir).creature;
 						dir.pop();
 						dir = dir.concat(creature.hexagons);
 					}
 				}
 
-				dir.each(function() {
-					hexesDashed.removePos(this);
+				dir.forEach(function(item) {
+					arrayUtils.removePos(hexesDashed, item);
 				});
 
 				o.hexesDashed = o.hexesDashed.concat(hexesDashed);
@@ -269,7 +271,7 @@ var HexGrid = Class.create({
 	/*
 	 *	queryChoice(o)
 	 *
-	 *	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexs.
+	 *	fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexes.
 	 *	fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
 	 *	fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
 	 *	requireCreature : 	Boolean : 	Disable a choice if it does not contain a creature matching the team argument
@@ -281,11 +283,11 @@ var HexGrid = Class.create({
 				G.activeCreature.queryMove();
 			},
 			fnOnSelect: function(choice, args) {
-				choice.each(function() {
-					if (this.creature instanceof Creature) {
-						this.overlayVisualState("creature selected player" + this.creature.team);
+				choice.forEach(function(item) {
+					if (item.creature instanceof Creature) {
+						item.overlayVisualState("creature selected player" + item.creature.team);
 					} else {
-						this.displayVisualState("adj");
+						item.displayVisualState("adj");
 					}
 
 				});
@@ -306,7 +308,7 @@ var HexGrid = Class.create({
 
 		o = $j.extend(defaultOpt, o);
 
-		var hexs = [];
+		var hexes = [];
 		for (var i = 0; i < o.choices.length; i++) {
 			var validChoice = true;
 
@@ -324,18 +326,18 @@ var HexGrid = Class.create({
 				}
 			}
 
-			if (validChoice) hexs = hexs.concat(o.choices[i]);
+			if (validChoice) hexes = hexes.concat(o.choices[i]);
 			else if (o.isDirectionsQuery) {
-				G.grid.forEachHexs(function() {
+				G.grid.forEachHex(function() {
 					if (o.choices[i][0].direction == this.direction)
-						o.hexesDashed.removePos(this);
+						arrayUtils.removePos(o.hexesDashed, this);
 				});
 			}
 		}
 
-		this.queryHexs({
+		this.queryHexes({
 			fnOnConfirm: function(hex, args) {
-				// Determine which set of hexs (choice) the hex is part of
+				// Determine which set of hexes (choice) the hex is part of
 				for (var i = 0; i < args.opt.choices.length; i++) {
 					for (var j = 0; j < args.opt.choices[i].length; j++) {
 						if (hex.pos == args.opt.choices[i][j].pos) {
@@ -347,7 +349,7 @@ var HexGrid = Class.create({
 				}
 			},
 			fnOnSelect: function(hex, args) {
-				// Determine which set of hexs (choice) the hex is part of
+				// Determine which set of hexes (choice) the hex is part of
 				for (var i = 0; i < args.opt.choices.length; i++) {
 					for (var j = 0; j < args.opt.choices[i].length; j++) {
 						if (hex.pos == args.opt.choices[i][j].pos) {
@@ -364,7 +366,7 @@ var HexGrid = Class.create({
 			args: {
 				opt: o
 			},
-			hexs: hexs,
+			hexes: hexes,
 			hexesDashed: o.hexesDashed,
 			flipped: o.flipped,
 			hideNonTarget: o.hideNonTarget,
@@ -374,7 +376,7 @@ var HexGrid = Class.create({
 
 	/* 	queryCreature(o)
 	 *
-	 *	fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexs.
+	 *	fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexes.
 	 *	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
 	 *	fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
 	 *	team : 			Team
@@ -399,7 +401,7 @@ var HexGrid = Class.create({
 				return true;
 			},
 			args: {},
-			hexs: [],
+			hexes: [],
 			hexesDashed: [],
 			flipped: false,
 			id: 0,
@@ -409,29 +411,31 @@ var HexGrid = Class.create({
 		o = $j.extend(defaultOpt, o);
 
 		// Exclude everything but the creatures
-		o.hexs.filter(function() {
-			if (this.creature instanceof Creature && this.creature.id != o.id) {
-
-				if (!o.optTest(this.creature)) return false;
+		o.hexes = o.hexes.filter(function(hex) {
+			if (hex.creature instanceof Creature && hex.creature.id != o.id) {
+				if (!o.optTest(hex.creature)) {
+					return false;
+				}
 
 				var creaSource = G.creatures[o.id];
-				var creaTarget = this.creature;
+				var creaTarget = hex.creature;
 
 				if (isTeam(creaSource, creaTarget, o.team)) {
 					return true;
 				}
 			}
+
 			return false;
 		});
 
 		var extended = [];
-		o.hexs.each(function() {
-			extended = extended.concat(this.creature.hexagons);
+		o.hexes.forEach(function(hex) {
+			extended = extended.concat(hex.creature.hexagons);
 		});
 
-		o.hexs = extended;
+		o.hexes = extended;
 
-		this.queryHexs({
+		this.queryHexes({
 			fnOnConfirm: function(hex, args) {
 				var crea = hex.creature;
 				args.opt.fnOnConfirm(crea, args.opt.args);
@@ -444,7 +448,7 @@ var HexGrid = Class.create({
 			args: {
 				opt: o
 			},
-			hexs: o.hexs,
+			hexes: o.hexes,
 			hexesDashed: o.hexesDashed,
 			flipped: o.flipped,
 			hideNonTarget: true,
@@ -454,19 +458,19 @@ var HexGrid = Class.create({
 	},
 
 	redoLastQuery: function() {
-		this.queryHexs(this.lastQueryOpt);
+		this.queryHexes(this.lastQueryOpt);
 	},
 
 
-	/*	queryHexs(x, y, distance, size)
+	/*	queryHexes(x, y, distance, size)
 	 *
-	 *	fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexs.
+	 *	fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexes.
 	 *	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
 	 *	fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
 	 * 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
-	 *	hexs : 			Array : 	Reachable hexs
+	 *	hexes : 			Array : 	Reachable hexes
 	 */
-	queryHexs: function(o) {
+	queryHexes: function(o) {
 
 		var defaultOpt = {
 			fnOnConfirm: function(hex, args) {
@@ -480,7 +484,7 @@ var HexGrid = Class.create({
 				G.activeCreature.queryMove();
 			},
 			args: {},
-			hexs: [],
+			hexes: [],
 			hexesDashed: [],
 			size: 1,
 			id: 0,
@@ -496,8 +500,8 @@ var HexGrid = Class.create({
 		// Save the last Query
 		this.lastQueryOpt = $j.extend({}, o); // Copy Obj
 
-		// Block all hexs
-		this.forEachHexs(function() {
+		// Block all hexes
+		this.forEachHex(function() {
 			this.unsetReachable();
 			if (o.hideNonTarget) this.setNotTarget();
 			else this.unsetNotTarget();
@@ -516,15 +520,15 @@ var HexGrid = Class.create({
 
 		if (!o.ownCreatureHexShade) {
 			if (o.id instanceof Array) {
-				o.id.each(function() {
-					G.creatures[this].hexagons.each(function() {
-						this.overlayVisualState('ownCreatureHexShade')
-					})
+				o.id.forEach(function(id) {
+					G.creatures[id].hexagons.forEach(function(hex) {
+						hex.overlayVisualState('ownCreatureHexShade')
+					});
 				});
 			} else {
 				if (o.id != 0) {
-					G.creatures[o.id].hexagons.each(function() {
-						this.overlayVisualState('ownCreatureHexShade')
+					G.creatures[o.id].hexagons.forEach(function(hex) {
+						hex.overlayVisualState('ownCreatureHexShade')
 					})
 				}
 			}
@@ -533,10 +537,12 @@ var HexGrid = Class.create({
 
 
 
-		// Set reachable the given hexs
-		o.hexs.each(function() {
-			this.setReachable();
-			if (o.hideNonTarget) this.unsetNotTarget();
+		// Set reachable the given hexes
+		o.hexes.forEach(function(hex) {
+			hex.setReachable();
+			if (o.hideNonTarget) {
+				hex.unsetNotTarget();
+			}
 		});
 
 
@@ -569,8 +575,8 @@ var HexGrid = Class.create({
 				var availablePos = false;
 
 				for (var i = 0; i < o.size; i++) { // Try next hexagons to see if they fits
-					if ((x + offset - i * mult >= G.grid.hexs[y].length) || (x + offset - i * mult < 0)) continue;
-					if (G.grid.hexs[y][x + offset - i * mult].isWalkable(o.size, o.id)) {
+					if ((x + offset - i * mult >= G.grid.hexes[y].length) || (x + offset - i * mult < 0)) continue;
+					if (G.grid.hexes[y][x + offset - i * mult].isWalkable(o.size, o.id)) {
 						x += offset - i * mult;
 						availablePos = true;
 						break;
@@ -583,7 +589,7 @@ var HexGrid = Class.create({
 				// 	return;
 				// }
 
-				hex = G.grid.hexs[y][x]; // New coords
+				hex = G.grid.hexes[y][x]; // New coords
 				var clickedtHex = hex;
 
 				G.activeCreature.faceHex(clickedtHex, undefined, true, true);
@@ -619,8 +625,8 @@ var HexGrid = Class.create({
 				if (G.grid.materialize_overlay) G.grid.materialize_overlay.alpha = 0;
 				if (hex.creature instanceof Creature) { // If creature
 					var crea = hex.creature;
-					crea.hexagons.each(function() {
-						this.overlayVisualState("hover h_player" + crea.team);
+					crea.hexagons.forEach(function(hex) {
+						hex.overlayVisualState("hover h_player" + crea.team);
 					});
 					G.UI.xrayQueue(crea.id);
 				} else { // If nothing
@@ -635,8 +641,8 @@ var HexGrid = Class.create({
 				var availablePos = false;
 
 				for (var i = 0; i < o.size; i++) { // Try next hexagons to see if they fit
-					if ((x + offset - i * mult >= G.grid.hexs[y].length) || (x + offset - i * mult < 0)) continue;
-					if (G.grid.hexs[y][x + offset - i * mult].isWalkable(o.size, o.id)) {
+					if ((x + offset - i * mult >= G.grid.hexes[y].length) || (x + offset - i * mult < 0)) continue;
+					if (G.grid.hexes[y][x + offset - i * mult].isWalkable(o.size, o.id)) {
 						x += offset - i * mult;
 						availablePos = true;
 						break;
@@ -649,7 +655,7 @@ var HexGrid = Class.create({
 				// 	return;
 				// }
 
-				hex = G.grid.hexs[y][x]; // New coords
+				hex = G.grid.hexes[y][x]; // New coords
 				o.fnOnSelect(hex, o.args);
 			}
 		};
@@ -668,7 +674,7 @@ var HexGrid = Class.create({
 		};
 
 
-		this.forEachHexs(function() {
+		this.forEachHex(function() {
 			this.onSelectFn = onSelectFn;
 			this.onConfirmFn = onConfirmFn;
 			this.onRightClickFn = onRightClickFn;
@@ -681,45 +687,45 @@ var HexGrid = Class.create({
 	 *
 	 *	hex : 	Hex : 	Hexagon to emphase
 	 *
-	 *	If hex contain creature call ghostOverlap for each creature hexs
+	 *	If hex contain creature call ghostOverlap for each creature hexes
 	 *
 	 */
 	xray: function(hex) {
 		// Clear previous ghost
-		G.creatures.each(function() {
-			if (this instanceof Creature) {
-				this.xray(false);
+		G.creatures.forEach(function(creature) {
+			if (creature instanceof Creature) {
+				creature.xray(false);
 			}
 		});
 
 		if (hex.creature instanceof Creature) {
-			hex.creature.hexagons.each(function() {
-				this.ghostOverlap();
+			hex.creature.hexagons.forEach(function(item) {
+				item.ghostOverlap();
 			});
 		} else {
 			hex.ghostOverlap();
 		}
 	},
 
-	/*	hideCreatureHexs()
+	/*	hideCreatureHexes()
 	 *
-	 *	Ghosts hexs with creatures
+	 *	Ghosts hexes with creatures
 	 *
 	 */
-	hideCreatureHexs: function(except) {
-		G.creatures.each(function() {
-			if (this instanceof Creature) {
+	hideCreatureHexes: function(except) {
+		G.creatures.forEach(function(creature) {
+			if (creature instanceof Creature) {
 				var hide = true;
 				if (except instanceof Creature) {
-					if (except.id == this.id) {
+					if (except.id == creature.id) {
 						hide = false;
 					}
 				}
 				if (hide) {
 					// this.$display.addClass("ghosted_hidden");
 					// this.$health.addClass("ghosted_hidden");
-					for (var i = 0; i < this.size; i++) {
-						if (this.hexagons[i]) {
+					for (var i = 0; i < creature.size; i++) {
+						if (creature.hexagons[i]) {
 							// this.hexagons[i].$display.hide();
 							// this.hexagons[i].$overlay.hide();
 						}
@@ -741,7 +747,7 @@ var HexGrid = Class.create({
 	 * flipped
 	 */
 	getHexLine: function(x, y, dir, flipped) {
-		
+
 
 		switch (dir) {
 			case 0: // Upright
@@ -761,17 +767,17 @@ var HexGrid = Class.create({
 		}
 	},
 
-	/*	showCreatureHexs()
+	/*	showCreaturehexes()
 	 *
-	 *	Unghosts hexs with creatures
+	 *	Unghosts hexes with creatures
 	 *
 	 */
-	showCreatureHexs: function() {
-		G.creatures.each(function() {
-			if (this instanceof Creature) {
+	showCreaturehexes: function() {
+		G.creatures.forEach(function(creature) {
+			if (creature instanceof Creature) {
 				// this.display.overlayVisualState("ghosted_hidden");
 				// this.health.overlayVisualState("ghosted_hidden");
-				for (var i = 0; i < this.size; i++) {
+				for (var i = 0; i < creature.size; i++) {
 					//if(this.hexagons[i]) {
 					//	this.hexagons[i].display.alpha = 1;
 					//	this.hexagons[i].overlay.alpha = 1;
@@ -783,7 +789,7 @@ var HexGrid = Class.create({
 
 	/*	clearHexViewAlterations()
 	 *
-	 *	Removes all hex view alterations like hideCreatureHexs used
+	 *	Removes all hex view alterations like hideCreatureHexes used
 	 *	Squashes bugs by making sure all view alterations are removed
 	 *	on a change of ability/change of turn/etc
 	 *	If you make a new hex view alteration call the function to remove
@@ -791,25 +797,25 @@ var HexGrid = Class.create({
 	 *
 	 */
 	clearHexViewAlterations: function() {
-		this.showCreatureHexs();
+		this.showCreaturehexes();
 	},
 
 	/*	updateDisplay()
 	 *
-	 *	Update overlay hexs with creature positions
+	 *	Update overlay hexes with creature positions
 	 *
 	 */
 	updateDisplay: function() {
 		this.cleanDisplay();
 		this.cleanOverlay();
-		this.hexs.each(function() {
-			this.each(function() {
-				if (this.creature instanceof Creature) {
-					if (this.creature.id == G.activeCreature.id) {
-						this.overlayVisualState("active creature player" + this.creature.team);
-						this.displayVisualState("creature player" + this.creature.team);
+		this.hexes.forEach(function(hex) {
+			hex.forEach(function(item) {
+				if (item.creature instanceof Creature) {
+					if (item.creature.id == G.activeCreature.id) {
+						item.overlayVisualState("active creature player" + item.creature.team);
+						item.displayVisualState("creature player" + item.creature.team);
 					} else {
-						this.displayVisualState("creature player" + this.creature.team);
+						item.displayVisualState("creature player" + item.creature.team);
 					}
 				}
 			});
@@ -826,8 +832,8 @@ var HexGrid = Class.create({
 	 *
 	 */
 	hexExists: function(y, x) {
-		if ((y >= 0) && (y < this.hexs.length)) {
-			if ((x >= 0) && (x < this.hexs[y].length)) return true;
+		if ((y >= 0) && (y < this.hexes.length)) {
+			if ((x >= 0) && (x < this.hexes[y].length)) return true;
 		}
 		return false;
 	},
@@ -859,24 +865,24 @@ var HexGrid = Class.create({
 	 *	size : 		Integer : 	Creature size
 	 *	id : 		Integer : 	Creature ID
 	 *
-	 *	return : 	Array : 	Set of the reachable hexs
+	 *	return : 	Array : 	Set of the reachable hexes
 	 */
 	getMovementRange: function(x, y, distance, size, id) {
-		//	Populate distance (hex.g) in hexs by asking an impossible
+		//	Populate distance (hex.g) in hexes by asking an impossible
 		//	destination to test all hexagons
 		this.cleanReachable(); // If not pathfinding will bug
 		this.cleanPathAttr(true); // Erase all pathfinding datas
-		astar.search(G.grid.hexs[y][x], new Hex(-2, -2, null), size, id);
+		astar.search(G.grid.hexes[y][x], new Hex(-2, -2, null), size, id);
 
-		// Gather all the reachable hexs
-		var hexs = [];
-		this.forEachHexs(function() {
+		// Gather all the reachable hexes
+		var hexes = [];
+		this.forEachHex(function() {
 			// If not Too far or Impossible to reach
 			if (this.g <= distance && this.g != 0)
-				hexs.push(G.grid.hexs[this.y][this.x]);
+				hexes.push(G.grid.hexes[this.y][this.x]);
 		});
 
-		return hexs.extendToLeft(size);
+		return arrayUtils.extendToLeft(hexes, size);
 	},
 
 
@@ -888,18 +894,18 @@ var HexGrid = Class.create({
 	 *	size : 		Integer : 	Creature size
 	 *	id : 		Integer : 	Creature ID
 	 *
-	 *	return : 	Array : 	Set of the reachable hexs
+	 *	return : 	Array : 	Set of the reachable hexes
 	 */
 	getFlyingRange: function(x, y, distance, size, id) {
 
-		// Gather all the reachable hexs
-		var hexs = G.grid.hexs[y][x].adjacentHex(distance);
+		// Gather all the reachable hexes
+		var hexes = G.grid.hexes[y][x].adjacentHex(distance);
 
-		hexs.filter(function() {
-			return this.isWalkable(size, id, true);
+		hexes = hexes.filter(function(hex) {
+			return hex.isWalkable(size, id, true);
 		});
 
-		return hexs.extendToLeft(size);
+		return arrayUtils.extendToLeft(hexes, size);
 	},
 
 
@@ -911,13 +917,13 @@ var HexGrid = Class.create({
 	 * 	offsetx : 	Integer : 	offset flipped for flipped players
 	 *	flipped : 	Boolean : 	If player is flipped or not
 	 *
-	 *	return : 	Array : 	Set of corresponding hexs
+	 *	return : 	Array : 	Set of corresponding hexes
 	 */
 	getHexMap: function(originx, originy, offsetx, flipped, array) { // Heavy logic in here
 
 		var array = array.slice(0); // Copy to not modify original
 		originx += (flipped) ? 1 - array[0].length - offsetx : -1 + offsetx;
-		var hexs = [];
+		var hexes = [];
 
 		for (var y = 0; y < array.length; y++) {
 
@@ -937,23 +943,23 @@ var HexGrid = Class.create({
 					array[y].splice(0, 1); // Remove first element
 			}
 
-			// Gathering hexs
+			// Gathering hexes
 			for (var x = 0; x < array[y].length; x++) {
 				if (!!array[y][x]) {
 					xfinal = (flipped) ? array[y].length - 1 - x : x; // Parse the array backward for flipped player
 					if (this.hexExists(originy + y, originx + xfinal)) {
-						hexs.push(this.hexs[originy + y][originx + xfinal]);
+						hexes.push(this.hexes[originy + y][originx + xfinal]);
 					}
 				}
 			}
 		}
 
-		return hexs;
+		return hexes;
 	},
 
 
 	showGrid: function(val) {
-		this.forEachHexs(function() {
+		this.forEachHex(function() {
 			if (this.creature) this.creature.xray(val);
 			if (this.drop) return;
 			if (val) this.displayVisualState("showGrid");
@@ -963,32 +969,32 @@ var HexGrid = Class.create({
 
 	showMovementRange: function(id) {
 		var crea = G.creatures[id];
-		var hexs;
+		var hexes;
 		if (crea.movementType() === "flying") {
-			hexs = this.getFlyingRange(
+			hexes = this.getFlyingRange(
 				crea.x, crea.y, crea.stats.movement, crea.size, crea.id
 			);
 		} else {
-			hexs = this.getMovementRange(
+			hexes = this.getMovementRange(
 				crea.x, crea.y, crea.stats.movement, crea.size, crea.id
 			);
 		}
 
-		// Block all hexs
-		this.forEachHexs(function() {
+		// Block all hexes
+		this.forEachHex(function() {
 			this.unsetReachable();
 		});
 
-		// Set reachable the given hexs
-		hexs.each(function() {
-			this.setReachable();
+		// Set reachable the given hexes
+		hexes.forEach(function(hex) {
+			hex.setReachable();
 		});
 
 	},
 
 	selectHexUp: function() {
 		if (this.hexExists(this.selectedHex.y - 1, this.selectedHex.x)) {
-			var hex = this.hexs[this.selectedHex.y - 1][this.selectedHex.x];
+			var hex = this.hexes[this.selectedHex.y - 1][this.selectedHex.x];
 			this.selectedHex = hex;
 			hex.onSelectFn();
 		}
@@ -996,7 +1002,7 @@ var HexGrid = Class.create({
 
 	selectHexDown: function() {
 		if (this.hexExists(this.selectedHex.y + 1, this.selectedHex.x)) {
-			var hex = this.hexs[this.selectedHex.y + 1][this.selectedHex.x];
+			var hex = this.hexes[this.selectedHex.y + 1][this.selectedHex.x];
 			this.selectedHex = hex;
 			hex.onSelectFn();
 		}
@@ -1004,7 +1010,7 @@ var HexGrid = Class.create({
 
 	selectHexLeft: function() {
 		if (this.hexExists(this.selectedHex.y, this.selectedHex.x - 1)) {
-			var hex = this.hexs[this.selectedHex.y][this.selectedHex.x - 1];
+			var hex = this.hexes[this.selectedHex.y][this.selectedHex.x - 1];
 			this.selectedHex = hex;
 			hex.onSelectFn();
 		}
@@ -1012,7 +1018,7 @@ var HexGrid = Class.create({
 
 	selectHexRight: function() {
 		if (this.hexExists(this.selectedHex.y, this.selectedHex.x + 1)) {
-			var hex = this.hexs[this.selectedHex.y][this.selectedHex.x + 1];
+			var hex = this.hexes[this.selectedHex.y][this.selectedHex.x + 1];
 			this.selectedHex = hex;
 			hex.onSelectFn();
 		}
@@ -1027,7 +1033,7 @@ var HexGrid = Class.create({
 
 		var index = 0;
 
-		for (var y = 0; y < this.hexs.length; y++) {
+		for (var y = 0; y < this.hexes.length; y++) {
 			for (var i = 1; i < G.creatures.length; i++) {
 
 				if (G.creatures[i].y == y) {
@@ -1049,16 +1055,16 @@ var HexGrid = Class.create({
 	//Shortcut functions//
 	//******************//
 
-	/*	forEachHexs(f)
+	/*	forEachHex(f)
 	 *
 	 *	f : Function : 	Function to execute
 	 *
-	 *	Execute f for each hexs
+	 *	Execute f for each hexes
 	 */
-	forEachHexs: function(f) {
-		this.hexs.each(function() {
-			this.each(function() {
-				f.apply(this);
+	forEachHex: function(f) {
+		this.hexes.forEach(function(hex) {
+			hex.forEach(function(item) {
+				f.apply(item);
 			});
 		});
 	},
@@ -1070,9 +1076,9 @@ var HexGrid = Class.create({
 	 *	Execute hex.cleanPathAttr() function for all the grid. Refer to the Hex class for more info
 	 */
 	cleanPathAttr: function(includeG) {
-		this.hexs.each(function() {
-			this.each(function() {
-				this.cleanPathAttr(includeG);
+		this.hexes.forEach(function(hex) {
+			hex.forEach(function(item) {
+				item.cleanPathAttr(includeG);
 			});
 		});
 	},
@@ -1082,9 +1088,9 @@ var HexGrid = Class.create({
 	 *	Execute hex.setReachable() function for all the grid. Refer to the Hex class for more info
 	 */
 	cleanReachable: function() {
-		this.hexs.each(function() {
-			this.each(function() {
-				this.setReachable();
+		this.hexes.forEach(function(hex) {
+			hex.forEach(function(item) {
+				item.setReachable();
 			});
 		});
 	},
@@ -1096,12 +1102,12 @@ var HexGrid = Class.create({
 	 *	Shorcut for $allDispHex.removeClass()
 	 */
 	cleanDisplay: function(cssClass) {
-		this.forEachHexs(function() {
+		this.forEachHex(function() {
 			this.cleanDisplayVisualState(cssClass)
 		});
 	},
 	cleanOverlay: function(cssClass) {
-		this.forEachHexs(function() {
+		this.forEachHex(function() {
 			this.cleanOverlayVisualState(cssClass)
 		});
 	},
@@ -1117,7 +1123,7 @@ var HexGrid = Class.create({
 
 		this.updateDisplay(); // Retrace players creatures
 
-		var creaHex = this.hexs[pos.y][pos.x - (creatureData.size - 1)];
+		var creaHex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
 
 		if (!G.grid.materialize_overlay) { // If sprite does not exists
 			// Adding sprite
@@ -1145,14 +1151,14 @@ var HexGrid = Class.create({
 		}
 
 		for (var i = 0; i < creatureData.size; i++) {
-			this.hexs[pos.y][pos.x - i].overlayVisualState("creature selected player" + G.activeCreature.team);
+			this.hexes[pos.y][pos.x - i].overlayVisualState("creature selected player" + G.activeCreature.team);
 		}
 	},
 
-	debugHex: function(hexs) {
+	debugHex: function(hexes) {
 		$j(".debug").remove();
 		var i = 0;
-		hexs.each(function() {
+		hexes.forEach(function(hex) {
 			var a = G.grid.$creatureW.append('<div class=".debug" id="debug' + i + '"></div>').children("#debug" + i);
 			a.css({
 				position: 'absolute',
@@ -1160,7 +1166,7 @@ var HexGrid = Class.create({
 				height: 20,
 				"background-color": 'yellow'
 			});
-			a.css(this.displayPos);
+			a.css(hex.displayPos);
 			i++;
 		});
 	}
@@ -1250,13 +1256,13 @@ var Hex = Class.create({
 
 			// 10px is the offset from the old version
 
-			this.display = grid.dispHexsGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
+			this.display = grid.disphexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
 			this.display.alpha = 0;
 
-			this.overlay = grid.overHexsGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
+			this.overlay = grid.overhexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
 			this.overlay.alpha = 0;
 
-			this.input = grid.inptHexsGroup.create(this.displayPos.x - 10, this.displayPos.y, 'input');
+			this.input = grid.inpthexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'input');
 			this.input.inputEnabled = true;
 			this.input.input.pixelPerfect = true;
 			this.input.input.pixelPerfectAlpha = 1;
@@ -1309,9 +1315,9 @@ var Hex = Class.create({
 	 *
 	 *	distance : 	integer : 	Distance form the current hex
 	 *
-	 *	return : 	Array : 	Array containing Hexs
+	 *	return : 	Array : 	Array containing hexes
 	 *
-	 *	This function return an array containing all hexs of the grid
+	 *	This function return an array containing all hexes of the grid
 	 * 	at the distance given of the current hex.
 	 *
 	 */
@@ -1336,8 +1342,8 @@ var Hex = Class.create({
 				if (deltaY == 0 && deltaX == 0) {
 					continue;
 				}
-				if (y < G.grid.hexs.length && y >= 0 && x < G.grid.hexs[y].length && x >= 0) { // Exclude inexisting hexs
-					adjHex.push(G.grid.hexs[y][x]);
+				if (y < G.grid.hexes.length && y >= 0 && x < G.grid.hexes[y].length && x >= 0) { // Exclude inexisting hexes
+					adjHex.push(G.grid.hexes[y][x]);
 				}
 			}
 		}
@@ -1347,7 +1353,7 @@ var Hex = Class.create({
 
 	/*	ghostOverlap()
 	 *
-	 *	add ghosted class to creature on hexs behind this hex
+	 *	add ghosted class to creature on hexes behind this hex
 	 *
 	 */
 	ghostOverlap: function() {
@@ -1356,15 +1362,15 @@ var Hex = Class.create({
 				if (i == 1) {
 					for (var j = 0; j <= 1; j++) {
 						if (G.grid.hexExists(this.y + i, this.x + j)) {
-							if (G.grid.hexs[this.y + i][this.x + j].creature instanceof Creature) {
-								var ghostedCreature = G.grid.hexs[this.y + i][this.x + j].creature;
+							if (G.grid.hexes[this.y + i][this.x + j].creature instanceof Creature) {
+								var ghostedCreature = G.grid.hexes[this.y + i][this.x + j].creature;
 							}
 						}
 					}
 				} else {
 					if (G.grid.hexExists(this.y + i, this.x)) {
-						if (G.grid.hexs[this.y + i][this.x].creature instanceof Creature) {
-							var ghostedCreature = G.grid.hexs[this.y + i][this.x].creature;
+						if (G.grid.hexes[this.y + i][this.x].creature instanceof Creature) {
+							var ghostedCreature = G.grid.hexes[this.y + i][this.x].creature;
 						}
 					}
 				}
@@ -1372,15 +1378,15 @@ var Hex = Class.create({
 				if (i == 1) {
 					for (var j = 0; j <= 1; j++) {
 						if (G.grid.hexExists(this.y + i, this.x - j)) {
-							if (G.grid.hexs[this.y + i][this.x - j].creature instanceof Creature) {
-								var ghostedCreature = G.grid.hexs[this.y + i][this.x - j].creature;
+							if (G.grid.hexes[this.y + i][this.x - j].creature instanceof Creature) {
+								var ghostedCreature = G.grid.hexes[this.y + i][this.x - j].creature;
 							}
 						}
 					}
 				} else {
 					if (G.grid.hexExists(this.y + i, this.x)) {
-						if (G.grid.hexs[this.y + i][this.x].creature instanceof Creature) {
-							var ghostedCreature = G.grid.hexs[this.y + i][this.x].creature;
+						if (G.grid.hexes[this.y + i][this.x].creature instanceof Creature) {
+							var ghostedCreature = G.grid.hexes[this.y + i][this.x].creature;
 						}
 					}
 				}
@@ -1422,8 +1428,8 @@ var Hex = Class.create({
 
 		for (var i = 0; i < size; i++) {
 			// For each Hex of the creature
-			if ((this.x - i) >= 0 && (this.x - i) < G.grid.hexs[this.y].length) { //if hex exists
-				var hex = G.grid.hexs[this.y][this.x - i];
+			if ((this.x - i) >= 0 && (this.x - i) < G.grid.hexes[this.y].length) { //if hex exists
+				var hex = G.grid.hexes[this.y][this.x - i];
 				// Verify if blocked. If it's blocked by one attribute, OR statement will keep it status
 				blocked = blocked || hex.blocked;
 				if (!ignoreReachable) {
@@ -1552,7 +1558,7 @@ var Hex = Class.create({
 		if (this.displayClasses.match(/0|1|2|3/)) {
 			var p = this.displayClasses.match(/0|1|2|3/);
 			this.display.loadTexture("hex_p" + p);
-			G.grid.dispHexsGroup.bringToTop(this.display);
+			G.grid.disphexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
 			this.display.loadTexture("hex_path");
 		} else if (this.displayClasses.match(/dashed/)) {
@@ -1580,7 +1586,7 @@ var Hex = Class.create({
 					align: "center"
 				});
 				this.coordText.anchor.setTo(0.5, 0.5);
-				G.grid.overHexsGroup.add(this.coordText);
+				G.grid.overhexesGroup.add(this.coordText);
 			}
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
@@ -1601,7 +1607,7 @@ var Hex = Class.create({
 			} else {
 				this.overlay.loadTexture("hex_p" + p);
 			}
-			G.grid.overHexsGroup.bringToTop(this.overlay);
+			G.grid.overhexesGroup.bringToTop(this.overlay);
 		} else {
 			this.overlay.loadTexture("cancel");
 		}
@@ -1631,15 +1637,19 @@ var Hex = Class.create({
 	},
 
 	activateTrap: function(trigger, target) {
-		if (!this.trap) return;
+		if (!this.trap) {
+			return;
+		}
+
 		var activated = false;
-		this.trap.effects.each(function() {
-			if (trigger.test(this.trigger) && this.requireFn()) {
+		this.trap.effects.forEach(function(effect) {
+			if (trigger.test(effect.trigger) && effect.requireFn()) {
 				G.log("Trap triggered");
-				this.activate(target);
+				effect.activate(target);
 				activated = true;
 			}
 		});
+
 		if (this.trap && this.trap.destroyOnActivate) {
 			this.destroyTrap();
 		}
@@ -1670,4 +1680,3 @@ var Hex = Class.create({
 		};
 	}
 }); // End of Hex Class
-

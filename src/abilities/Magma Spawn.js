@@ -92,7 +92,7 @@ G.abilities[4] = [
 				team: this._targetTeam,
 				id: magmaSpawn.id,
 				flipped: magmaSpawn.flipped,
-				hexs: this.creature.getHexMap(matrices.frontnback3hex),
+				hexes: this.creature.getHexMap(matrices.frontnback3hex),
 			});
 		},
 
@@ -189,12 +189,12 @@ G.abilities[4] = [
 
 
 		//	activate() :
-		activate: function(hexs, args) {
+		activate: function(hexes, args) {
 			var ability = this;
 			ability.end();
 
 			// Attack all creatures in area except for self
-			var targets = ability.getTargets(hexs);
+			var targets = ability.getTargets(hexes);
 			for (var i = 0; i < targets.length; i++) {
 				if (targets[i].target === this.creature) {
 					targets.splice(i, 1);
@@ -211,9 +211,9 @@ G.abilities[4] = [
 			// If upgraded, leave Boiling Point traps on all hexes that don't contain
 			// another creature
 			if (this.isUpgraded()) {
-				hexs.each(function() {
-					if (!this.creature || this.creature === ability.creature) {
-						ability.creature.abilities[0]._addTrap(this);
+				hexes.forEach(function(hex) {
+					if (!hex.creature || hex.creature === ability.creature) {
+						ability.creature.abilities[0]._addTrap(hex);
 					}
 				});
 			}
@@ -297,24 +297,27 @@ G.abilities[4] = [
 
 			// Movement
 			var hurl = function(_path) {
-				var target = _path.last().creature;
+				var target = arrayUtils.last(_path).creature;
 
 				var magmaHex = magmaSpawn.hexagons[
 					args.direction === 4 ? magmaSpawn.size - 1 : 0];
-				_path.filterCreature(false, false);
+				arrayUtils.filterCreature(_path, false, false);
 				_path.unshift(magmaHex); // Prevent error on empty path
-				var destination = _path.last();
+				var destination = arrayUtils.last(_path);
 				var x = destination.x + (args.direction === 4 ? magmaSpawn.size - 1 : 0);
-				destination = G.grid.hexs[destination.y][x];
+				destination = G.grid.hexes[destination.y][x];
 
 				magmaSpawn.moveTo(destination, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
 					callback: function() {
 						// Destroy traps along path
-						_path.each(function() {
-							if (!this.trap) return;
-							this.destroyTrap();
+						_path.forEach(function(hex) {
+							if (!hex.trap) {
+								return;
+							}
+
+							hex.destroyTrap();
 						});
 
 						var targetKilled = false;
@@ -329,8 +332,8 @@ G.abilities[4] = [
 						if (ability.isUpgraded() && targetKilled) {
 							var nextPath = G.grid.getHexLine(
 								target.x, target.y, args.direction, false);
-							nextPath.filterCreature(true, true, magmaSpawn.id);
-							var nextTarget = nextPath.last().creature;
+							arrayUtils.filterCreature(nextPath, true, true, magmaSpawn.id);
+							var nextTarget = arrayUtils.last(nextPath).creature;
 							// Continue only if there's a next enemy creature
 							if (nextTarget &&
 								isTeam(magmaSpawn, nextTarget, ability._targetTeam)) {

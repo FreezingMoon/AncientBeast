@@ -106,7 +106,7 @@ G.abilities[40] = [
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
-					hexs: this.creature.getHexMap(matrices.frontnback2hex)
+					hexes: this.creature.getHexMap(matrices.frontnback2hex)
 				});
 			} else {
 				// If upgraded, show choice of front and back hex groups
@@ -256,10 +256,11 @@ G.abilities[40] = [
 						}
 					}
 					var line = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
-					o.choices[i].each(function() {
-						line.removePos(this);
+					o.choices[i].forEach(function(choice) {
+						arrayUtils.removePos(line, choice);
 					});
-					line.filterCreature(false, true, o.id);
+
+					arrayUtils.filterCreature(line, false, true, o.id);
 					o.hexesDashed = o.hexesDashed.concat(line);
 
 					// For each dashed hex, create a new choice composed of the original
@@ -268,15 +269,16 @@ G.abilities[40] = [
 					// Get a new hex line so that the hexes are in the right order
 					var newChoice = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
 					// Exclude creature
-					ability.creature.hexagons.each(function() {
-						if (newChoice.findPos(this)) {
-							newChoice.removePos(this);
+					ability.creature.hexagons.forEach(function(hex) {
+						if (arrayUtils.findPos(newChoice, hex)) {
+							arrayUtils.removePos(newChoice, hex);
 						}
 					});
+
 					// Exclude hexes that don't exist in the original choice
 					for (j = 0; j < newChoice.length; j++) {
-						if (!o.choices[i].findPos(newChoice[j])) {
-							newChoice.removePos(newChoice[j]);
+						if (!arrayUtils.findPos(o.choices[i], newChoice[j])) {
+							arrayUtils.removePos(newChoice, newChoice[j]);
 							j--;
 						}
 					}
@@ -321,10 +323,10 @@ G.abilities[40] = [
 
 			// Move towards target if necessary
 			if (runPath.length > 0) {
-				var destination = runPath.last();
+				var destination = arrayUtils.last(runPath);
 				if (args.direction === 4) {
 					destination =
-						G.grid.hexs[destination.y][destination.x + this.creature.size - 1];
+						G.grid.hexes[destination.y][destination.x + this.creature.size - 1];
 				}
 
 				G.grid.cleanReachable();
@@ -361,8 +363,9 @@ G.abilities[40] = [
 			var creature = this.creature;
 
 			var targetPushPath = pushPath.slice();
-			targetPushPath.filterCreature(false, false, creature.id);
-			targetPushPath.filterCreature(false, false, target.id);
+			// TODO: These two lines probably do not do anything since filterCreature() returns a new array...
+			arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
+			arrayUtils.filterCreature(targetPushPath, false, false, target.id);
 			if (targetPushPath.length === 0) {
 				return false;
 			}
@@ -383,8 +386,8 @@ G.abilities[40] = [
 						var hex = pushPath[i];
 						var targetHex = targetPushPath[i];
 						if (args.direction === 4) {
-							hex = G.grid.hexs[hex.y][hex.x + creature.size - 1];
-							targetHex = G.grid.hexs[targetHex.y][targetHex.x + target.size - 1];
+							hex = G.grid.hexes[hex.y][hex.x + creature.size - 1];
+							targetHex = G.grid.hexes[targetHex.y][targetHex.x + target.size - 1];
 						}
 						ability._pushOneHex(target, hex, targetHex);
 						i++;
@@ -446,7 +449,7 @@ G.abilities[40] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(matrices.inlinefrontnback2hex),
+				hexes: this.creature.getHexMap(matrices.inlinefrontnback2hex),
 				optTest: function(creature) {
 					// Size restriction of 2 if unupgraded
 					return ability.isUpgraded() ? true : creature.size <= 2;
@@ -468,13 +471,13 @@ G.abilities[40] = [
 				[] // Effects
 			);
 
-			var inlinefront2hex = matrices.inlinefront2hex; 
+			var inlinefront2hex = matrices.inlinefront2hex;
 
 			var trgIsInfront = (G.grid.getHexMap(crea.x - inlinefront2hex.origin[0], crea.y - inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == target);
 
 			var creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
 			crea.moveTo(
-				G.grid.hexs[target.y][creaX], {
+				G.grid.hexes[target.y][creaX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
 					callback: function() {
@@ -486,7 +489,7 @@ G.abilities[40] = [
 			);
 			var targetX = crea.x + (trgIsInfront ? target.size - crea.size : 0);
 			target.moveTo(
-				G.grid.hexs[crea.y][targetX], {
+				G.grid.hexes[crea.y][targetX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
 					callback: function() {

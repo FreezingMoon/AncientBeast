@@ -39,10 +39,12 @@ G.abilities[39] = [
 
 			var targets = this.getTargets(this._getHexes());
 
-			targets.each(function() {
-				if (!(this.target instanceof Creature)) return;
+			targets.forEach(function(item) {
+				if (!(item.target instanceof Creature)) {
+					return;
+				}
 
-				var trg = this.target;
+				var trg = item.target;
 
 				if (ability.isUpgraded()) {
 					// Upgraded ability causes fatigue - endurance set to 0
@@ -74,8 +76,8 @@ G.abilities[39] = [
 							// Note: effect activate by default adds the effect on the target,
 							// but target already has this effect, so remove the trigger to
 							// prevent infinite addition of this effect.
-							this.trigger = "";
-							this.deleteEffect();
+							item.trigger = "";
+							item.deleteEffect();
 						}
 					}
 				);
@@ -122,7 +124,7 @@ G.abilities[39] = [
 				team: this._targetTeam,
 				id: crea.id,
 				flipped: crea.flipped,
-				hexs: crea.getHexMap(matrices.frontnback2hex),
+				hexes: crea.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -211,8 +213,8 @@ G.abilities[39] = [
 					if (this._getMaxDistance() > 0) {
 						dir = dir.slice(0, this._getMaxDistance() + 1);
 					}
-					dir = dir.filterCreature(true, true, this.creature.id);
-					var target = dir.last().creature;
+					dir = arrayUtils.filterCreature(dir, true, true, this.creature.id);
+					var target = arrayUtils.last(dir).creature;
 					if (target.stats.moveable) {
 						validDirections[i] = 1;
 					}
@@ -268,15 +270,15 @@ G.abilities[39] = [
 		activate: function(path, args) {
 			var ability = this;
 			var crea = this.creature;
-			var target = path.last().creature;
-			path = path.filter(function() {
-				return !this.creature;
+			var target = arrayUtils.last(path).creature;
+			path = path.filter(function(hex) {
+				return !hex.creature;
 			}); //remove creatures
 			ability.end();
 
 			//Movement
 			var creature = (args.direction == 4) ? crea.hexagons[crea.size - 1] : crea.hexagons[0];
-			path.filterCreature(false, false);
+			arrayUtils.filterCreature(path, false, false);
 			var destination = null;
 			var destinationTarget = null;
 			if (target.size === 1) {
@@ -292,14 +294,14 @@ G.abilities[39] = [
 				}
 			} else {
 				// Large creature, pull self towards target
-				destination = path.last();
+				destination = arrayUtils.last(path);
 			}
 
 			var x;
 			var hex;
 			if (destination !== null) {
 				x = (args.direction === 4) ? destination.x + crea.size - 1 : destination.x;
-				hex = G.grid.hexs[destination.y][x];
+				hex = G.grid.hexes[destination.y][x];
 				crea.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
@@ -315,7 +317,7 @@ G.abilities[39] = [
 			}
 			if (destinationTarget !== null) {
 				x = (args.direction === 1) ? destinationTarget.x + target.size - 1 : destinationTarget.x;
-				hex = G.grid.hexs[destinationTarget.y][x];
+				hex = G.grid.hexes[destinationTarget.y][x];
 				target.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
@@ -382,7 +384,7 @@ G.abilities[39] = [
 			});
 		},
 
-		activate: function(hexs) {
+		activate: function(hexes) {
 			var damages = {
 				slash: 10
 			};
@@ -394,7 +396,7 @@ G.abilities[39] = [
 				ability.creature, //Attacker
 				damages, //Damage Type
 				[], //Effects
-				ability.getTargets(hexs), //Targets
+				ability.getTargets(hexes), //Targets
 				true //Notriggers avoid double retailiation
 			);
 
@@ -402,7 +404,7 @@ G.abilities[39] = [
 				ability.creature, //Attacker
 				damages, //Damage Type
 				[], //Effects
-				ability.getTargets(hexs) //Targets
+				ability.getTargets(hexes) //Targets
 			);
 		},
 	}

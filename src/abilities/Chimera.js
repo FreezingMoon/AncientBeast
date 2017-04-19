@@ -65,7 +65,7 @@ G.abilities[45] = [
 				team: this._targetTeam,
 				id: chimera.id,
 				flipped: chimera.flipped,
-				hexs: G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, matrices.frontnback3hex),
+				hexes: G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, matrices.frontnback3hex),
 			});
 		},
 
@@ -136,7 +136,7 @@ G.abilities[45] = [
 
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 			var hexes = G.grid.getHexLine(
 				target.x, target.y, args.direction, target.flipped);
 
@@ -196,7 +196,7 @@ G.abilities[45] = [
 				distance: 1,
 				sourceCreature: this.creature,
 				directions: [1, 1, 1, 1, 1, 1],
-				includeCrea: true,
+				includeCreature: true,
 				stopOnCreature: true
 			});
 		},
@@ -306,7 +306,7 @@ G.abilities[45] = [
 				}
 			};
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 			var crush = this.damages.crush;
 			var range = 3;
 			knockback(target, crush, range);

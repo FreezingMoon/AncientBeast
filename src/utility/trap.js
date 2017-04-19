@@ -12,7 +12,7 @@ var Trap = Class.create({
 	 *
 	 */
 	initialize: function(x, y, type, effects, owner, opt) {
-		this.hex = G.grid.hexs[y][x];
+		this.hex = G.grid.hexes[y][x];
 		this.type = type;
 		this.effects = effects;
 		this.owner = owner;

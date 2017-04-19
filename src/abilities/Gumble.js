@@ -131,7 +131,7 @@ G.abilities[14] = [
 				if (isTeam(this.creature, targets[i].target, Team.enemy)) {
 					damages = enemyDamages;
 				}
-				var dmg = new Damage(this.creature, damages, targets[i].hexsHit, []);
+				var dmg = new Damage(this.creature, damages, targets[i].hexesHit, []);
 				kills += (targets[i].target.takeDamage(dmg).kill + 0);
 			}
 			if (kills > 1) {
@@ -164,14 +164,14 @@ G.abilities[14] = [
 			hexes = creature.hexagons.concat(G.grid.getFlyingRange(
 				creature.x, creature.y, range, creature.size, creature.id));
 
-			G.grid.queryHexs({
+			G.grid.queryHexes({
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
 				},
 				size: creature.size,
 				flipped: creature.player.flipped,
 				id: creature.id,
-				hexs:  hexes,
+				hexes:  hexes,
 				ownCreatureHexShade: true,
 				hideNonTarget: true
 			});
@@ -283,7 +283,7 @@ G.abilities[14] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 			var melee = (path[0].creature === target);
 
 			var d = (melee) ? {

@@ -172,13 +172,14 @@ var Ability = Class.create({
 			if (arguments[0] instanceof Array) {
 				var args = $j.extend({}, arguments);
 				delete args[0];
-				var array = [];
-				arguments[0].each(function() {
-					array.push({
-						x: this.x,
-						y: this.y
-					});
+
+				var array = arguments[0].map(function(item) {
+					return {
+						x: item.x,
+						y: item.y
+					};
 				});
+
 				G.gamelog.add({
 					action: "ability",
 					target: {
@@ -262,12 +263,15 @@ var Ability = Class.create({
 			}, animationData.delay);
 
 			setTimeout(function() {
-				G.animationQueue.filter(function() {
-					return (this != anim_id);
+				var queue = G.animationQueue.filter(function(item) {
+					return (item != anim_id);
 				});
-				if (G.animationQueue.length === 0) {
+
+				if (queue.length === 0) {
 					G.freezedInput = false;
 				}
+
+				G.animationQueue = queue;
 			}, animationData.duration);
 
 		} else {
@@ -284,30 +288,31 @@ var Ability = Class.create({
 	},
 
 
-	/*	getTargets(hexs)
+	/*	getTargets(hexes)
 	 *
-	 *	hexs : Array : Contains the targeted hexagons
+	 *	hexes : Array : Contains the targeted hexagons
 	 *
 	 *	return : Array : Contains the target units
 	 *
 	 */
-	getTargets: function(hexs) {
-		var targets = {};
-		hexs.each(function() { // For each hex
-			if (this.creature instanceof Creature) {
-				if (targets[this.creature.id] === undefined) {
-					targets[this.creature.id] = {
-						hexsHit: 0,
-						target: this.creature
+	getTargets: function(hexes) {
+		var targets = {},
+			targetsList = [];
+
+		hexes.forEach(function(item) { // For each hex
+			if (item.creature instanceof Creature) {
+				if (targets[item.creature.id] === undefined) {
+					targets[item.creature.id] = {
+						hexesHit: 0,
+						target: item.creature
 					};
+
+					targetsList.push(targets[item.creature.id]);
 				}
-				targets[this.creature.id].hexsHit += 1; // Unit has been found
+				targets[item.creature.id].hexesHit += 1; // Unit has been found
 			}
 		});
-		targetsList = [];
-		for (id in targets) {
-			targetsList.push(targets[id]);
-		}
+
 		return targetsList;
 	},
 
@@ -362,13 +367,13 @@ var Ability = Class.create({
 
 	/*	areaDamage(targets)
 	 *
-	 *	targets : Array : Example : target = [ { target: crea1, hexsHit: 2 }, { target: crea2, hexsHit: 1 } ]
+	 *	targets : Array : Example : target = [ { target: crea1, hexesHit: 2 }, { target: crea2, hexesHit: 1 } ]
 	 */
 	areaDamage: function(attacker, damages, effects, targets, ignoreRetaliation) {
 		var multiKill = 0;
 		for (var i = 0; i < targets.length; i++) {
 			if (targets[i] === undefined) continue;
-			dmg = new Damage(attacker, damages, targets[i].hexsHit, effects);
+			dmg = new Damage(attacker, damages, targets[i].hexesHit, effects);
 			var damageResult = targets[i].target.takeDamage(
 				dmg, {
 					ignoreRetaliation: ignoreRetaliation
@@ -542,7 +547,7 @@ var Ability = Class.create({
 			x: this.creature.x,
 			y: this.creature.y,
 			directions: [1, 1, 1, 1, 1, 1],
-			includeCrea: true,
+			includeCreature: true,
 			stopOnCreature: true,
 			distance: 0,
 			sourceCreature: undefined,
@@ -569,7 +574,7 @@ var Ability = Class.create({
 
 			if (o.distance > 0) dir = dir.slice(0, o.distance + 1);
 
-			dir = dir.filterCreature(o.includeCrea, o.stopOnCreature, o.id);
+			dir = arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
 			var isValid = this.atLeastOneTarget(dir, o);
 			outDirections.push(isValid ? 1 : 0);
 		}

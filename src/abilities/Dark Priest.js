@@ -71,7 +71,7 @@ G.abilities[0] = [
 		require: function() {
 			if (!this.testRequirements()) return false;
 			if (!this.atLeastOneTarget(
-					this.creature.adjacentHexs(this.isUpgraded() ? 4 : 1), {
+					this.creature.adjacentHexes(this.isUpgraded() ? 4 : 1), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -92,7 +92,7 @@ G.abilities[0] = [
 				team: this._targetTeam,
 				id: dpriest.id,
 				flipped: dpriest.player.flipped,
-				hexs: dpriest.adjacentHexs(this.isUpgraded() ? 4 : 1),
+				hexes: dpriest.adjacentHexes(this.isUpgraded() ? 4 : 1),
 			});
 		},
 
@@ -129,7 +129,7 @@ G.abilities[0] = [
 		require: function() {
 			if (!this.testRequirements()) return false;
 
-			var range = this.creature.adjacentHexs(2);
+			var range = this.creature.adjacentHexes(2);
 
 			// At least one target
 			if (!this.atLeastOneTarget(range, {
@@ -142,9 +142,12 @@ G.abilities[0] = [
 			var lowestCost = 99;
 			var targets = this.getTargets(range);
 
-			targets.each(function() {
-				if (!(this.target instanceof Creature)) return false;
-				if (lowestCost > this.target.size) lowestCost = this.target.size;
+			targets.forEach(function(item) {
+				if (item.target instanceof Creature) {
+					if (lowestCost > item.target.size) {
+						lowestCost = item.target.size;
+					}
+				}
 			});
 
 			if (this.creature.player.plasma < lowestCost) {
@@ -171,7 +174,7 @@ G.abilities[0] = [
 				team: this._targetTeam,
 				id: dpriest.id,
 				flipped: dpriest.player.flipped,
-				hexs: dpriest.adjacentHexs(2),
+				hexes: dpriest.adjacentHexes(2),
 			});
 		},
 
@@ -249,21 +252,23 @@ G.abilities[0] = [
 			var ability = this;
 			var dpriest = this.creature;
 
-			G.grid.forEachHexs(function() {
+			G.grid.forEachHex(function() {
 				this.unsetReachable();
 			});
 
 			var spawnRange = dpriest.hexagons[0].adjacentHex(this.summonRange);
 
-			spawnRange.each(function() {
-				this.setReachable();
+			spawnRange.forEach(function(item) {
+				item.setReachable();
 			});
-			spawnRange.filter(function() {
-				return this.isWalkable(crea.size, 0, false);
-			});
-			spawnRange = spawnRange.extendToLeft(crea.size);
 
-			G.grid.queryHexs({
+			spawnRange = spawnRange.filter(function(item) {
+				return item.isWalkable(crea.size, 0, false);
+			});
+
+			spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size);
+
+			G.grid.queryHexes({
 				fnOnSelect: function() {
 					ability.fnOnSelect.apply(ability, arguments);
 				},
@@ -279,7 +284,7 @@ G.abilities[0] = [
 				}, // OptionalArgs
 				size: crea.size,
 				flipped: dpriest.player.flipped,
-				hexs: spawnRange
+				hexes: spawnRange
 			});
 		},
 
