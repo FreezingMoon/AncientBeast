@@ -4,7 +4,6 @@
 		"level": "-",
 		"realm": "-",
 		"size": 1,
-		"type": "--",
 		"stats": {
 			"health": 100,
 			"regrowth": 1,
@@ -94,7 +93,6 @@
 		"level": 2,
 		"realm": "A",
 		"size": 1,
-		"type": "A2",
 		"set": "Alpha",
 		"stats": {
 			"health": 100,
@@ -170,7 +168,6 @@
 		"level": 6,
 		"realm": "G",
 		"size": 3,
-		"type": "G6",
 		"set": "Alpha",
 		"stats": {
 			"health": 223,
@@ -236,7 +233,6 @@
 		"level": 3,
 		"realm": "G",
 		"size": 2,
-		"type": "G3",
 		"set": "Alpha",
 		"stats": {
 			"health": 132,
@@ -330,7 +326,6 @@
 		"level": 3,
 		"realm": "L",
 		"size": 3,
-		"type": "L3",
 		"set": "Alpha",
 		"stats": {
 			"health": 124,
@@ -427,7 +422,6 @@
 		"level": 5,
 		"realm": "S",
 		"size": 3,
-		"type": "S5",
 		"set": "Alpha",
 		"stats": {
 			"health": 190,
@@ -523,7 +517,6 @@
 		"level": 7,
 		"realm": "S",
 		"size": 3,
-		"type": "S7",
 		"set": "Alpha",
 		"stats": {
 			"health": 245,
@@ -625,7 +618,6 @@
 		"level": 7,
 		"realm": "P",
 		"size": 3,
-		"type": "P7",
 		"set": "Alpha",
 		"stats": {
 			"health": 234,
@@ -715,7 +707,6 @@
 		"level": 5,
 		"realm": "W",
 		"size": 2,
-		"type": "W5",
 		"set": "Alpha",
 		"stats": {
 			"health": 205,
@@ -768,7 +759,6 @@
 		"level": 4,
 		"realm": "S",
 		"size": 2,
-		"type": "S4",
 		"set": "Alpha",
 		"stats": {
 			"health": 175,
@@ -862,7 +852,6 @@
 		"level": 3,
 		"realm": "P",
 		"size": 3,
-		"type": "P3",
 		"set": "Alpha",
 		"stats": {
 			"health": 110,
@@ -924,7 +913,6 @@
 		"level": 1,
 		"realm": "G",
 		"size": 1,
-		"type": "G1",
 		"set": "Alpha",
 		"stats": {
 			"health": 45,
@@ -999,7 +987,6 @@
 		"level": 1,
 		"realm": "S",
 		"size": 1,
-		"type": "S1",
 		"set": "Alpha",
 		"stats": {
 			"health": 55,
@@ -1089,7 +1076,6 @@
 		"level": 2,
 		"realm": "G",
 		"size": 1,
-		"type": "G2",
 		"set": "Alpha",
 		"stats": {
 			"health": 75,
@@ -1152,7 +1138,6 @@
 		"level": 1,
 		"realm": "P",
 		"size": 1,
-		"type": "P1",
 		"set": "Alpha",
 		"stats": {
 			"health": 70,
@@ -1241,7 +1226,6 @@
 		"level": 1,
 		"realm": "E",
 		"size": 2,
-		"type": "E1",
 		"set": "Alpha",
 		"stats": {
 			"health": 60,
@@ -1307,7 +1291,6 @@
 		"level": 5,
 		"realm": "L",
 		"size": 2,
-		"type": "L5",
 		"set": "Alpha",
 		"stats": {
 			"health": 155,
@@ -1373,7 +1356,6 @@
 		"level": 6,
 		"realm": "E",
 		"size": 2,
-		"type": "E6",
 		"set": "Alpha",
 		"stats": {
 			"health": 211,
@@ -1439,7 +1421,6 @@
 		"level": 7,
 		"realm": "W",
 		"size": 3,
-		"type": "W7",
 		"set": "Alpha",
 		"stats": {
 			"health": 217,
@@ -1505,7 +1486,6 @@
 		"level": 4,
 		"realm": "G",
 		"size": 1,
-		"type": "G4",
 		"set": "Alpha",
 		"stats": {
 			"health": 165,
@@ -1571,7 +1551,6 @@
 		"level": 6,
 		"realm": "S",
 		"size": 3,
-		"type": "S6",
 		"set": "Alpha",
 		"stats": {
 			"health": 220,
@@ -1624,7 +1603,6 @@
 		"level": 4,
 		"realm": "W",
 		"size": 2,
-		"type": "W4",
 		"set": "Alpha",
 		"stats": {
 			"health": 200,
@@ -1677,7 +1655,6 @@
 		"level": 1,
 		"realm": "L",
 		"size": 2,
-		"type": "L1",
 		"set": "Alpha",
 		"stats": {
 			"health": 65,
@@ -1760,7 +1737,6 @@
 		"level": 2,
 		"realm": "L",
 		"size": 2,
-		"type": "L2",
 		"set": "Alpha",
 		"stats": {
 			"health": 115,
@@ -1826,7 +1802,6 @@
 		"level": 6,
 		"realm": "A",
 		"size": 2,
-		"type": "A6",
 		"set": "Alpha",
 		"stats": {
 			"health": 199,
@@ -1898,7 +1873,6 @@
 		"level": 3,
 		"realm": "E",
 		"size": 1,
-		"type": "E3",
 		"set": "Alpha",
 		"stats": {
 			"health": 100,
@@ -1951,7 +1925,6 @@
 		"level": 7,
 		"realm": "G",
 		"size": 3,
-		"type": "G7",
 		"set": "Alpha",
 		"stats": {
 			"health": 256,
@@ -2017,7 +1990,6 @@
 		"level": 2,
 		"realm": "P",
 		"size": 3,
-		"type": "P2",
 		"set": "Alpha",
 		"stats": {
 			"health": 95,
@@ -2071,7 +2043,6 @@
 		"level": 4,
 		"realm": "P",
 		"size": 2,
-		"type": "P4",
 		"set": "Alpha",
 		"stats": {
 			"health": 135,
@@ -2147,7 +2118,6 @@
 		"level": 5,
 		"realm": "A",
 		"size": 1,
-		"type": "A5",
 		"set": "Alpha",
 		"stats": {
 			"health": 100,
@@ -2223,7 +2193,6 @@
 		"level": 5,
 		"realm": "G",
 		"size": 2,
-		"type": "G5",
 		"set": "Alpha",
 		"stats": {
 			"health": 193,
@@ -2301,7 +2270,6 @@
 		"level": 3,
 		"realm": "A",
 		"size": 2,
-		"type": "A3",
 		"set": "Alpha",
 		"stats": {
 			"health": 140,
@@ -2396,7 +2364,6 @@
 		"level": 3,
 		"realm": "S",
 		"size": 2,
-		"type": "S3",
 		"set": "Alpha",
 		"stats": {
 			"health": 120,
@@ -2462,7 +2429,6 @@
 		"level": 7,
 		"realm": "A",
 		"size": 3,
-		"type": "A7",
 		"set": "Alpha",
 		"stats": {
 			"health": 225,
@@ -2534,7 +2500,6 @@
 		"level": 2,
 		"realm": "S",
 		"size": 2,
-		"type": "S2",
 		"set": "Alpha",
 		"stats": {
 			"health": 125,
@@ -2587,7 +2552,6 @@
 		"level": 4,
 		"realm": "A",
 		"size": 1,
-		"type": "A4",
 		"set": "Alpha",
 		"stats": {
 			"health": 100,
@@ -2644,7 +2608,6 @@
 		"level": 4,
 		"realm": "E",
 		"size": 2,
-		"type": "E4",
 		"set": "Alpha",
 		"stats": {
 			"health": 170,
@@ -2697,7 +2660,6 @@
 		"level": 1,
 		"realm": "A",
 		"size": 1,
-		"type": "A1",
 		"set": "Alpha",
 		"stats": {
 			"health": 90,
@@ -2788,7 +2750,6 @@
 		"level": 4,
 		"realm": "L",
 		"size": 2,
-		"type": "L4",
 		"set": "Alpha",
 		"stats": {
 			"health": 150,
@@ -2854,7 +2815,6 @@
 		"level": 3,
 		"realm": "W",
 		"size": 2,
-		"type": "W3",
 		"set": "Alpha",
 		"stats": {
 			"health": 145,
@@ -2940,7 +2900,6 @@
 		"level": 1,
 		"realm": "W",
 		"size": 2,
-		"type": "W1",
 		"set": "Alpha",
 		"stats": {
 			"health": 85,
@@ -3028,7 +2987,6 @@
 		"level": 2,
 		"realm": "W",
 		"size": 2,
-		"type": "W2",
 		"set": "Alpha",
 		"stats": {
 			"health": 123,
@@ -3081,7 +3039,6 @@
 		"level": 7,
 		"realm": "E",
 		"size": 3,
-		"type": "E7",
 		"set": "Alpha",
 		"stats": {
 			"health": 222,
@@ -3158,7 +3115,6 @@
 		"level": 7,
 		"realm": "L",
 		"size": 3,
-		"type": "L7",
 		"set": "Alpha",
 		"stats": {
 			"health": 210,
@@ -3224,7 +3180,6 @@
 		"level": 2,
 		"realm": "E",
 		"size": 2,
-		"type": "E2",
 		"set": "Alpha",
 		"stats": {
 			"health": 80,
@@ -3314,7 +3269,6 @@
 		"level": 6,
 		"realm": "P",
 		"size": 3,
-		"type": "P6",
 		"set": "Alpha",
 		"stats": {
 			"health": 182,
@@ -3400,7 +3354,6 @@
 		"level": 5,
 		"realm": "E",
 		"size": 2,
-		"type": "E5",
 		"set": "Alpha",
 		"stats": {
 			"health": 186,
@@ -3466,7 +3419,6 @@
 		"level": 5,
 		"realm": "P",
 		"size": 3,
-		"type": "P5",
 		"set": "Alpha",
 		"stats": {
 			"health": 160,
@@ -3519,7 +3471,6 @@
 		"level": 6,
 		"realm": "W",
 		"size": 3,
-		"type": "W6",
 		"set": "Alpha",
 		"stats": {
 			"health": 214,
@@ -3585,7 +3536,6 @@
 		"level": 6,
 		"realm": "L",
 		"size": 3,
-		"type": "L6",
 		"set": "Alpha",
 		"stats": {
 			"health": 180,
@@ -3651,7 +3601,6 @@
 		"level": "S",
 		"realm": "W",
 		"size": 1,
-		"type": "WS",
 		"set": "Alpha",
 		"stats": {
 			"health": 40,
