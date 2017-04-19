@@ -221,30 +221,41 @@ var Game = Class.create({
 		$j.getJSON("../units/data.json", function(data) {
 			G.creatureData = data;
 
-			G.loadedCreatures.forEach((creatureId) => {
-				let data = G.creatureData[creatureId];
+			data.forEach((creature) => {
+				let creatureId = creature.id;
+				let creatureData = G.creatureData[creatureId];
+				let realm = creatureData.realm;
+				let level = creatureData.level;
+				let type = realm.toUpperCase() + level;
+				let name = creatureData.name;
 
+				creatureData.type = type;
+
+				if (G.loadedCreatures.indexOf(creatureId) === -1) {
+					// No need to load sounds and artwork
+					return;
+				}
 				// Load unit shouts
-				G.soundsys.getSound('../units/shouts/' + data.name + '.ogg', 1000 + creatureId);
+				G.soundsys.getSound('../units/shouts/' + name + '.ogg', 1000 + creatureId);
 
 				// Load artwork
-				getImage('../units/artwork/' + data.name + '.jpg');
+				getImage('../units/artwork/' + name + '.jpg');
 
-				if (data.name == "Dark Priest") {
+				if (name == "Dark Priest") {
 					for (var i = 0; i < dpcolor.length; i++) {
-						G.Phaser.load.image(data.name + dpcolor[i] + '_cardboard', '../units/cardboards/' + data.name + ' ' + dpcolor[i] + '.png');
-						getImage('../units/avatars/' + data.name + ' ' + dpcolor[i] + '.jpg');
+						G.Phaser.load.image(name + dpcolor[i] + '_cardboard', '../units/cardboards/' + name + ' ' + dpcolor[i] + '.png');
+						getImage('../units/avatars/' + name + ' ' + dpcolor[i] + '.jpg');
 					}
 				} else {
-					if (data.drop) {
-						G.Phaser.load.image('drop_' + data.drop.name, 'drops/' + data.drop.name + '.png');
+					if (creatureData.drop) {
+						G.Phaser.load.image('drop_' + creatureData.drop.name, 'drops/' + creatureData.drop.name + '.png');
 					}
-					G.Phaser.load.image(data.name + '_cardboard', '../units/cardboards/' + data.name + '.png');
-					getImage('../units/avatars/' + data.name + '.jpg');
+					G.Phaser.load.image(name + '_cardboard', '../units/cardboards/' + name + '.png');
+					getImage('../units/avatars/' + name + '.jpg');
 				}
 
 				// For code compatibility
-				G.availableCreatures[creatureId] = data.type;
+				G.availableCreatures[creatureId] = type;
 			});
 
 			G.Phaser.load.start();
