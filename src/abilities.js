@@ -12,8 +12,8 @@ var Ability = Class.create({
 		this.timesUsed = 0;
 		this.timesUsedThisTurn = 0;
 		this.token = 0;
-		var datas = G.retreiveCreatureStats(creature.type);
-		$j.extend(true, this, G.abilities[datas.id][abilityID], datas.ability_info[abilityID]);
+		var data = G.retreiveCreatureStats(creature.type);
+		$j.extend(true, this, G.abilities[data.id][abilityID], data.ability_info[abilityID]);
 		if (this.requirements === undefined && this.costs !== undefined) {
 			this.requirements = this.costs;
 		}

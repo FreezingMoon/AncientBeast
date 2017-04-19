@@ -871,7 +871,7 @@ var HexGrid = Class.create({
 		//	Populate distance (hex.g) in hexes by asking an impossible
 		//	destination to test all hexagons
 		this.cleanReachable(); // If not pathfinding will bug
-		this.cleanPathAttr(true); // Erase all pathfinding datas
+		this.cleanPathAttr(true); // Erase all pathfinding data
 		astar.search(G.grid.hexes[y][x], new Hex(-2, -2, null), size, id);
 
 		// Gather all the reachable hexes
