@@ -202,6 +202,10 @@ var UI = Class.create({
 			grid_confirm: 32 // Space
 		};
 
+		// Remove hex grid if window loses focus
+		$j(window).blur(function(e) {
+			G.grid.showGrid(false);
+		});
 		// Binding Hotkeys
 		$j(document).keydown(function(e) {
 			if (G.freezedInput) return;
