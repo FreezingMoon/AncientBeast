@@ -218,18 +218,14 @@ var Game = Class.create({
 		this.Phaser.load.image('background', "locations/" + this.background_image + "/bg.jpg");
 
 		// Get JSON files
-		$j.getJSON("../units/data.json", function(json_in) {
-			G.creatureJSON = json_in;
+		$j.getJSON("../units/data.json", function(data) {
+			G.creatureData = data;
 
-			G.creatureData = G.creatureJSON;
-
-			for (var j = 0; j < G.loadedCreatures.length; j++) {
-
-				var data = G.creatureJSON[G.loadedCreatures[j]];
-
+			G.loadedCreatures.forEach((creatureId) => {
+				let data = G.creatureData[creatureId];
 
 				// Load unit shouts
-				G.soundsys.getSound('../units/shouts/' + data.name + '.ogg', 1000 + G.loadedCreatures[j]);
+				G.soundsys.getSound('../units/shouts/' + data.name + '.ogg', 1000 + creatureId);
 
 				// Load artwork
 				getImage('../units/artwork/' + data.name + '.jpg');
@@ -248,8 +244,8 @@ var Game = Class.create({
 				}
 
 				// For code compatibility
-				G.availableCreatures[j] = data.type;
-			}
+				G.availableCreatures[creatureId] = data.type;
+			});
 
 			G.Phaser.load.start();
 		});
