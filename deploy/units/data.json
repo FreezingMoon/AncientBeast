@@ -962,7 +962,7 @@
 				"upgrade": "+1 round cloud persistency.",
 				"details": [
 					"Toxic Shroom is immune to all fumes, but will destroy them when passing through.",
-					"A noxious fume will completely override the enemy ones when using ability adjacent."
+					"New fumes will completely override old ones when using this ability adjacent."
 				],
 				"costs": {
 					"energy": 15
