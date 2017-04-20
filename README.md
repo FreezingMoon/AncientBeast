@@ -12,20 +12,18 @@
 ### Intro
 <p>
 <b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to acquire and items to equip onto, putting them to use in order to defeat your opponents.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
-<p>
-Ancient Beast is <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank">free</a>, <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank">open source</a> and developed by <a href="http://www.FreezingMoon.org" target="_blank" class="FM"><b>Freezing Moon</b></a> (and community). It uses web languages such as HTML, PHP and JavaScript, so that it's playable from any modern browser without the need of plugins.
-</p>
 
 ### Tools
 <p>
 The project is developed with the use of free open source cross platform applications and freeware services.
-<a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><b>Mega</b></a> comes in very handy when working on the game assets collaboratively, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group. There is no centralized forum, but you can use the various Disqus widgets around the website, our <a href="https://github.com/FreezingMoon/AncientBeast/issues" target="_blank"><b>Github issue tracker</b></a> or our <a href="http://forum.freegamedev.net/viewforum.php?f=70" target="_blank"><b>FreeGameDev subforum</b></a>.<br>
+<a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><b>Mega</b></a> comes in very handy when working on the game assets collaboratively, while <a href="https://github.com/FreezingMoon/AncientBeast" target="_blank"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com" target="_blank"><b>deviantArt</b></a> group. Drop by our <a href="https://discord.gg/x78rKen" target="_blank"><b>Discord chat</b></a> and become part of the community!<br>
 <a href="http://blender.org" target="_blank"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their own animations, which are rendered into sprites that are usually made into sprite-sheets as well as for other tasks.<br>
 <a href="http://krita.org" target="_blank"><b>Krita</b></a>, <a href="http://gimp.org" target="_blank"><b>Gimp</b></a> and <a href="http://mypaint.intilinux.com" target="_blank"><b>MyPaint</b></a> are useful for concept art, while <a href="http://inkscape.org" target="_blank"><b>Inkscape</b></a> is useful for creating vector ability icons.
 </p>
 
 <table style="font-size: 18px; font-weight: bold; margin: 0; padding: 0; margin-left: auto; margin-right: auto; text-align: center;">
 <tr align="center">
+	<td><a href="https://discord.gg/x78rKen" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/discord.png" style="display:block; width:99px; height:99px;" alt="discord">Discord</a></td>
 	<td><a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/mega.png" style="display:block; width:99px; height99px;" alt="mega">Mega</a></td>
 	<td><a href="http://Ancient-Beast.deviantart.com" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/deviantart.png" style="display:block; width:99px; height:99px;" alt="deviantart">deviantArt</a></td>
 	<td><a href="http://blender.org" target="_blank"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/blender.png" style="display:block; width:99px; height:99px;" alt="blender">Blender</a></td>
