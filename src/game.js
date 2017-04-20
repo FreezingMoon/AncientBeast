@@ -118,7 +118,7 @@ var Game = Class.create({
 				notarget: "No targets available.",
 				noplasma: "Not enough plasma.",
 				nopsy: "Psyhelm overload: too many units!",
-				alreadyused: "Ability already used.",
+				alreadyused: "This ability has already been used.",
 				toomuch: "Too much %stat%.",
 				notenough: "Not enough %stat%.",
 				notmoveable: "This creature cannot be moved.",
