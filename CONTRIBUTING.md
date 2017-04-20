@@ -43,7 +43,7 @@ To have the game properly set-up and opened in the default browser, simply run t
 ```
 grunt
 ```
-
+You should only use <a href="https://www.google.com/chrome/"><b>Google Chrome</b></a> or <a href="https://www.chromium.org"><b>Chromium</b></a>, as other browsers don't quite cut it. White testing you can right click the game's tab and mute it.
 Grunt will work in the background so that when you change any game scripts, the re-compile will occur.
 
 ---
