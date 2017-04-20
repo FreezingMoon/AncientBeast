@@ -47,12 +47,12 @@ G.abilities[12] = [
 		},
 
 		_getTriggerHexId: function(fromHex) {
-			var hexes = this.creature.getHexMap(front1hex);
+			var hexes = this.creature.getHexMap(matrices.front1hex);
 
 			// Find which hex we are hopping from
 			var id = -1;
-			fromHex.creature.hexagons.each(function() {
-				id = hexes.indexOf(this) > id ? hexes.indexOf(this) : id;
+			fromHex.creature.hexagons.forEach(function(hex) {
+				id = hexes.indexOf(hex) > id ? hexes.indexOf(hex) : id;
 			});
 
 			return id;
@@ -65,13 +65,13 @@ G.abilities[12] = [
 			var hex;
 			switch (id) {
 				case 0:
-					hex = this.creature.getHexMap(backbottom1hex)[0];
+					hex = this.creature.getHexMap(matrices.backbottom1hex)[0];
 					break;
 				case 1:
-					hex = this.creature.getHexMap(inlineback1hex)[0];
+					hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
 					break;
 				case 2:
-					hex = this.creature.getHexMap(backtop1hex)[0];
+					hex = this.creature.getHexMap(matrices.backtop1hex)[0];
 					break;
 			}
 
@@ -79,7 +79,7 @@ G.abilities[12] = [
 			if (id !== 1 &&
 				(hex === undefined ||
 					!hex.isWalkable(this.creature.size, this.creature.id, true))) {
-				hex = this.creature.getHexMap(inlineback1hex)[0];
+				hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
 			}
 
 			if (hex !== undefined &&
@@ -104,7 +104,7 @@ G.abilities[12] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.adjacentHexs(1), {
+					this.creature.adjacentHexes(1), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -125,7 +125,7 @@ G.abilities[12] = [
 				team: this._targetTeam,
 				id: snowBunny.id,
 				flipped: snowBunny.player.flipped,
-				hexs: snowBunny.adjacentHexs(1),
+				hexes: snowBunny.adjacentHexes(1),
 			});
 		},
 
@@ -204,28 +204,30 @@ G.abilities[12] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+
+
+			var target = arrayUtils.last(path).creature;
 			// No blow size penalty if upgraded and target is frozen
 			var dist = 5 - (this.isUpgraded() && target.stats.frozen ? 0 : target.size);
 			var dir = [];
 			switch (args.direction) {
 				case 0: // Upright
-					dir = G.grid.getHexMap(target.x, target.y - 8, 0, target.flipped, diagonalup).reverse();
+					dir = G.grid.getHexMap(target.x, target.y - 8, 0, target.flipped, matrices.diagonalup).reverse();
 					break;
 				case 1: // StraitForward
-					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, straitrow);
+					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.straitrow);
 					break;
 				case 2: // Downright
-					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, diagonaldown);
+					dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.diagonaldown);
 					break;
 				case 3: // Downleft
-					dir = G.grid.getHexMap(target.x, target.y, -4, target.flipped, diagonalup);
+					dir = G.grid.getHexMap(target.x, target.y, -4, target.flipped, matrices.diagonalup);
 					break;
 				case 4: // StraitBackward
-					dir = G.grid.getHexMap(target.x, target.y, 0, !target.flipped, straitrow);
+					dir = G.grid.getHexMap(target.x, target.y, 0, !target.flipped, matrices.straitrow);
 					break;
 				case 5: // Upleft
-					dir = G.grid.getHexMap(target.x, target.y - 8, -4, target.flipped, diagonaldown).reverse();
+					dir = G.grid.getHexMap(target.x, target.y - 8, -4, target.flipped, matrices.diagonaldown).reverse();
 					break;
 				default:
 					break;
@@ -301,8 +303,8 @@ G.abilities[12] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
-			var dist = path.slice(0).filterCreature(false, false).length;
+			var target = arrayUtils.last(path).creature;
+			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 
 			var emissionPoint = {
 				x: ability.creature.grp.x + 52,
@@ -348,7 +350,7 @@ G.abilities[12] = [
 		},
 
 		getAnimationData: function(path, args) {
-			var dist = path.slice(0).filterCreature(false, false).length;
+			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 			return {
 				duration: 500,
 				delay: 0,

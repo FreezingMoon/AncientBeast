@@ -23,7 +23,7 @@ G.abilities[31] = [
 
 		activate: function() {
 			// Check if there's an enemy creature in front
-			var hexesInFront = this.creature.getHexMap(inlinefront2hex);
+			var hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex);
 			if (hexesInFront.length < 1) return;
 			var target = hexesInFront[0].creature;
 			if (!target) return;
@@ -60,7 +60,7 @@ G.abilities[31] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(frontnback2hex), {
+					this.creature.getHexMap(matrices.frontnback2hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -81,7 +81,7 @@ G.abilities[31] = [
 				team: this._targetTeam,
 				id: crea.id,
 				flipped: crea.player.flipped,
-				hexs: crea.getHexMap(frontnback2hex)
+				hexes: crea.getHexMap(matrices.frontnback2hex)
 			});
 		},
 
@@ -143,15 +143,18 @@ G.abilities[31] = [
 			var ability = this;
 			var crea = this.creature;
 
+			var straitrow = matrices.straitrow;
+			var bellowrow = matrices.bellowrow;
+
 			var choices = [
 				//Front
-				G.grid.getHexMap(crea.x, crea.y - 2, 0, false, bellowrow).filterCreature(true, true, crea.id).concat(
-					G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow).filterCreature(true, true, crea.id),
-					G.grid.getHexMap(crea.x, crea.y, 0, false, bellowrow).filterCreature(true, true, crea.id)),
+				arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y - 2, 0, false, bellowrow), true, true, crea.id).concat(
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow), true, true, crea.id),
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y, 0, false, bellowrow), true, true, crea.id)),
 				//Behind
-				G.grid.getHexMap(crea.x - 1, crea.y - 2, 0, true, bellowrow).filterCreature(true, true, crea.id).concat(
-					G.grid.getHexMap(crea.x - 1, crea.y, 0, true, straitrow).filterCreature(true, true, crea.id),
-					G.grid.getHexMap(crea.x - 1, crea.y, 0, true, bellowrow).filterCreature(true, true, crea.id))
+				arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 1, crea.y - 2, 0, true, bellowrow), true, true, crea.id).concat(
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 1, crea.y, 0, true, straitrow), true, true, crea.id),
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 1, crea.y, 0, true, bellowrow), true, true, crea.id))
 			];
 
 			choices[0].choiceId = 0;
@@ -180,20 +183,23 @@ G.abilities[31] = [
 
 			var crea = this.creature;
 
+			var straitrow = matrices.straitrow;
+			var bellowrow = matrices.bellowrow;
+
 			var rows;
 			if (choice.choiceId === 0) {
 				// Front
 				rows = [
-					G.grid.getHexMap(crea.x, crea.y - 2, 0, false, bellowrow).filterCreature(true, true, crea.id),
-					G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow).filterCreature(true, true, crea.id),
-					G.grid.getHexMap(crea.x, crea.y, 0, false, bellowrow).filterCreature(true, true, crea.id)
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y - 2, 0, false, bellowrow), true, true, crea.id),
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow), true, true, crea.id),
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y, 0, false, bellowrow), true, true, crea.id)
 				];
 			} else {
 				// Back
 				rows = [
-					G.grid.getHexMap(crea.x - 1, crea.y - 2, 0, true, bellowrow).filterCreature(true, true, crea.id),
-					G.grid.getHexMap(crea.x - 1, crea.y, 0, true, straitrow).filterCreature(true, true, crea.id),
-					G.grid.getHexMap(crea.x - 1, crea.y, 0, true, bellowrow).filterCreature(true, true, crea.id)
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 1, crea.y - 2, 0, true, bellowrow), true, true, crea.id),
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 1, crea.y, 0, true, straitrow), true, true, crea.id),
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 1, crea.y, 0, true, bellowrow), true, true, crea.id)
 				];
 			}
 
@@ -250,7 +256,7 @@ G.abilities[31] = [
 			var ability = this;
 			var crea = this.creature;
 
-			var hexs = G.grid.allHexs.slice(0); // Copy array
+			var hexes = G.grid.allhexes.slice(0); // Copy array
 
 			G.grid.queryCreature({
 				fnOnConfirm: function() {
@@ -259,7 +265,7 @@ G.abilities[31] = [
 				team: Team.enemy,
 				id: crea.id,
 				flipped: crea.player.flipped,
-				hexs: hexs
+				hexes: hexes
 			});
 		},
 

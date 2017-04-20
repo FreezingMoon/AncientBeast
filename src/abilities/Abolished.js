@@ -104,7 +104,7 @@ G.abilities[7] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 
 			var damage = new Damage(
 				ability.creature, // Attacker
@@ -163,10 +163,12 @@ G.abilities[7] = [
 			}
 
 
-			var targets = ability.getTargets(ability.creature.adjacentHexs(1));
+			var targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
-			targets.each(function() {
-				if (!(this.target instanceof Creature)) return;
+			targets.forEach(function(item) {
+				if (!(item.target instanceof Creature)) {
+					return;
+				}
 			});
 
 			// Leave a Firewall in current location
@@ -183,15 +185,19 @@ G.abilities[7] = [
 			};
 
 			var requireFn = function() {
-				if (this.trap.hex.creature === 0) return false;
-				return this.trap.hex.creature.type !== ability.creature.type;
+				var hex = this.trap.hex,
+					creature = hex.creature,
+					type = creature && creature.type || null;
+
+				if (creature === 0) return false;
+				return type !== ability.creature.type;
 			};
 
 			var crea = this.creature;
-			crea.hexagons.each(function() {
-				this.createTrap("firewall", [
+			crea.hexagons.forEach(function(hex) {
+				hex.createTrap("firewall", [
 					new Effect(
-						"Firewall", crea, this, "onStepIn", {
+						"Firewall", crea, hex, "onStepIn", {
 							requireFn: requireFn,
 							effectFn: effectFn,
 							attacker: crea
@@ -234,23 +240,23 @@ G.abilities[7] = [
 
 			// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
 
-			var range = crea.adjacentHexs(1);
+			var range = crea.adjacentHexes(1);
 
-			G.grid.queryHexs({
+			G.grid.queryHexes({
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
 				},
 				fnOnSelect: function(hex, args) {
-					range.each(function() {
-						if (this.creature) {
-							this.overlayVisualState("creature selected weakDmg player" + this.creature.team);
+					range.forEach(function(item) {
+						if (item.creature) {
+							item.overlayVisualState("creature selected weakDmg player" + item.creature.team);
 						}
 					});
 					hex.cleanOverlayVisualState();
 					hex.overlayVisualState("creature selected player" + G.activeCreature.team);
 				},
 				id: this.creature.id,
-				hexs: range,
+				hexes: range,
 				hideNonTarget: true,
 			});
 		},
@@ -262,13 +268,13 @@ G.abilities[7] = [
 			ability.end();
 
 			var crea = this.creature;
-			var aoe = crea.adjacentHexs(1);
+			var aoe = crea.adjacentHexes(1);
 			var targets = ability.getTargets(aoe);
 
 			if (this.isUpgraded()) this.damages.burn = 30;
 
-			targets.each(function() {
-				this.target.takeDamage(new Damage(
+			targets.forEach(function(item) {
+				item.target.takeDamage(new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area

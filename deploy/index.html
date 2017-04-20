@@ -22,8 +22,7 @@
 	<div id="matchMaking">
 		<div id="loader"><img src="../interface/AB.gif">Loading
 			<div id="barLoader">
-				<img src="../interface/loadingBar/barEmpty.png">
-				<img class="loadingBar progress" src="../interface/loadingBar/barProgress.png">
+				<span class="progress"></span>
 			</div>
 		</div>
 		<div id="gameSetupContainer">
@@ -126,9 +125,9 @@
 				</div>
 				<br>
 				<br>
-				<div style="font-size: 1.5em !important; text-shadow: 2px 2px black;">
+				<div style="font-size: 1.5em !important; text-shadow: 2px 2px black; margin-top: -20px;">
 					<span class="blink">PRESS </span>
-					<input class="ui-state-error" id="startButton" style="border: rgba(180, 0, 0, 0.5) 2px solid;" type="submit" value="START">
+					<input class="startButton" id="startButton" type="submit" value="START">
 					<span class="blink"> BUTTON</span>
 				</div>
 			</form>
@@ -320,7 +319,7 @@
 										<span class="type" creature_type="" style="float: left; margin-left: 22px;"></span>
 										<a class="name" creature_name=""></a>
 										</span>
-										<span class="hexs" creature_size="" style="float: right; margin-right: 22px;"></span>
+										<span class="hexes" creature_size="" style="float: right; margin-right: 22px;"></span>
 									</div>
 								</div>
 							</div>

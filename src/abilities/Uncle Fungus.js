@@ -80,7 +80,7 @@ G.abilities[3] = [
 
 			// At least one target
 			if (!this.atLeastOneTarget(
-					this.creature.getHexMap(frontnback2hex), {
+					this.creature.getHexMap(matrices.frontnback2hex), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -100,7 +100,7 @@ G.abilities[3] = [
 				team: this._targetTeam,
 				id: uncle.id,
 				flipped: uncle.flipped,
-				hexs: uncle.getHexMap(frontnback2hex),
+				hexes: uncle.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -154,9 +154,9 @@ G.abilities[3] = [
 			}
 
 			// Remove frogger bonus if its found
-			ability.creature.effects.each(function() {
-				if (this.name == "Frogger Bonus") {
-					this.deleteEffect();
+			ability.creature.effects.forEach(function(effect) {
+				if (effect.name == "Frogger Bonus") {
+					effect.deleteEffect();
 				}
 			});
 		},
@@ -196,7 +196,7 @@ G.abilities[3] = [
 			var stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
 			var hexes = this._getHexRange(stopOnCreature);
 
-			G.grid.queryHexs({
+			G.grid.queryHexes({
 				fnOnSelect: function() {
 					ability.fnOnSelect.apply(ability, arguments);
 				},
@@ -211,7 +211,7 @@ G.abilities[3] = [
 				size: uncle.size,
 				flipped: uncle.player.flipped,
 				id: uncle.id,
-				hexs: hexes,
+				hexes: hexes,
 				hexesDashed: [],
 				hideNonTarget: true
 			});
@@ -276,10 +276,10 @@ G.abilities[3] = [
 		_getHexRange: function(stopOnCreature) {
 			// Get the hex range of this ability
 			var uncle = this.creature;
-			var forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, straitrow);
-			forward = forward.filterCreature(false, stopOnCreature, uncle.id);
-			var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, straitrow);
-			backward = backward.filterCreature(false, stopOnCreature, uncle.id);
+			var forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, matrices.straitrow);
+			forward = arrayUtils.filterCreature(forward, false, stopOnCreature, uncle.id);
+			var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, matrices.straitrow);
+			backward = arrayUtils.filterCreature(backward, false, stopOnCreature, uncle.id);
 			// Combine and sort by X, left to right
 			var hexes = forward.concat(backward).sort(function(a, b) {
 				return a.x - b.x;
@@ -321,7 +321,7 @@ G.abilities[3] = [
 		require: function() {
 			if (!this.testRequirements()) return false;
 
-			var map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, frontnback2hex);
+			var map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, matrices.frontnback2hex);
 			// At least one target
 			if (!this.atLeastOneTarget(map, {
 					team: this._targetTeam
@@ -343,7 +343,7 @@ G.abilities[3] = [
 				team: this._targetTeam,
 				id: uncle.id,
 				flipped: uncle.flipped,
-				hexs: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, frontnback2hex),
+				hexes: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, matrices.frontnback2hex),
 			});
 		},
 
@@ -365,7 +365,7 @@ G.abilities[3] = [
 			if (this.isUpgraded() && !result.kill) {
 				var dx = target.x - this.creature.x;
 				var dy = target.y - this.creature.y;
-				var dir = getDirectionFromDelta(target.y, dx, dy);
+				var dir = pos.getDirectionFromDelta(target.y, dx, dy);
 				var hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
 				// The hex to knock back into is the second hex since the first is where
 				// they are currently
@@ -384,9 +384,9 @@ G.abilities[3] = [
 			}
 
 			// Remove Frogger Jump bonus if its found
-			ability.creature.effects.each(function() {
-				if (this.name == "Offense Bonus") {
-					this.deleteEffect();
+			ability.creature.effects.forEach(function(effect) {
+				if (effect.name == "Offense Bonus") {
+					effect.deleteEffect();
 				}
 			});
 		},

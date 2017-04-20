@@ -202,6 +202,10 @@ var UI = Class.create({
 			grid_confirm: 32 // Space
 		};
 
+		// Remove hex grid if window loses focus
+		$j(window).blur(function(e) {
+			G.grid.showGrid(false);
+		});
 		// Binding Hotkeys
 		$j(document).keydown(function(e) {
 			if (G.freezedInput) return;
@@ -210,9 +214,10 @@ var UI = Class.create({
 			//console.log(keypressed); // For debugging
 
 			var prevD = false;
+			var modifierPressed = (e.metaKey || e.altKey || e.ctrlKey);
 
 			$j.each(hotkeys, function(k, v) {
-				if (v == keypressed) {
+				if (!modifierPressed && v == keypressed) {
 					// Context filter
 					if (G.UI.dashopen) {
 						switch (k) {
@@ -441,37 +446,33 @@ var UI = Class.create({
 
 			var opa = 0.5 + Math.floor((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.20) / 100)) / 4 * 100) / 100;
 
-			G.UI.buttons.each(function() {
-				this.$button.css("opacity", "");
+			G.UI.buttons.forEach(function(btn) {
+				btn.$button.css("opacity", "");
 
-				if (this.state == "glowing") {
-					this.$button.css("opacity", opa);
+				if (btn.state == "glowing") {
+					btn.$button.css("opacity", opa);
 				}
 			});
 
 			opaWeak = opa / 2;
 
-			G.grid.allHexs.each(function() {
+			G.grid.allhexes.forEach(function(hex) {
 
-				if (this.overlayClasses.match(/creature/)) {
-
-					if (this.overlayClasses.match(/selected|active/)) {
-
-						if (this.overlayClasses.match(/weakDmg/)) {
-
-							this.overlay.alpha = opaWeak;
+				if (hex.overlayClasses.match(/creature/)) {
+					if (hex.overlayClasses.match(/selected|active/)) {
+						if (hex.overlayClasses.match(/weakDmg/)) {
+							hex.overlay.alpha = opaWeak;
 							return;
 						}
 
-						this.overlay.alpha = opa;
+						hex.overlay.alpha = opa;
 					}
 				}
 			});
 		}, 10);
 
-
-		if (G.turnTimePool) $j(".turntime").text(zfill(Math.floor(G.turnTimePool / 60), 2) + ":" + zfill(G.turnTimePool % 60, 2));
-		if (G.timePool) $j(".timepool").text(zfill(Math.floor(G.timePool / 60), 2) + ":" + zfill(G.timePool % 60, 2));
+		if (G.turnTimePool) $j(".turntime").text(time.getTimer(G.turnTimePool));
+		if (G.timePool) $j(".timepool").text(time.getTimer(G.timePool));
 
 		$j("#tabwrapper a").removeAttr("href"); // Empty links
 
@@ -567,10 +568,10 @@ var UI = Class.create({
 			// Retreive the selected unit
 			var crea = undefined;
 			G.UI.selectedCreatureObj = undefined;
-			G.players[player].creatures.each(function() {
-				if (this.type == creatureType) {
-					crea = this;
-					G.UI.selectedCreatureObj = this;
+			G.players[player].creatures.forEach(function(creature) {
+				if (creature.type == creatureType) {
+					crea = creature;
+					G.UI.selectedCreatureObj = creature;
 				}
 			});
 
@@ -581,7 +582,7 @@ var UI = Class.create({
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
-			$j("#card .sideA .hexs").html(stats.size + "&#11041;");
+			$j("#card .sideA .hexes").html(stats.size + "&#11041;");
 
 			// Card B
 			$j("#card .sideB").css({
@@ -629,8 +630,8 @@ var UI = Class.create({
 			});
 
 			var summonedOrDead = false;
-			G.players[player].creatures.each(function() {
-				if (this.type == creatureType) {
+			G.players[player].creatures.forEach(function(creature) {
+				if (creature.type == creatureType) {
 					summonedOrDead = true;
 				}
 			});
@@ -709,7 +710,7 @@ var UI = Class.create({
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
-			$j("#card .sideA .hexs").text(stats.size + "H");
+			$j("#card .sideA .hexes").text(stats.size + "H");
 
 			// Card B
 			$j.each(stats.stats, function(key, value) {
@@ -770,22 +771,22 @@ var UI = Class.create({
 		$j("#musicplayerwrapper").hide();
 
 		// Change creature status
-		G.players[id].availableCreatures.each(function() {
-			G.UI.$grid.find(".vignette[creature='" + this + "']").removeClass("locked");
+		G.players[id].availableCreatures.forEach(function(creature) {
+			G.UI.$grid.find(".vignette[creature='" + creature + "']").removeClass("locked");
 
-			var lvl = this.substring(1, 2) - 0;
-			var size = G.retreiveCreatureStats(this).size - 0;
+			var lvl = creature.substring(1, 2) - 0;
+			var size = G.retreiveCreatureStats(creature).size - 0;
 			plasmaCost = lvl + size;
 
 			if (plasmaCost > G.players[id].plasma) {
-				G.UI.$grid.find(".vignette[creature='" + this + "']").addClass("notsummonable");
+				G.UI.$grid.find(".vignette[creature='" + creature + "']").addClass("notsummonable");
 			}
 		});
 
-		G.players[id].creatures.each(function() {
-			var $crea = G.UI.$grid.find(".vignette[creature='" + this.type + "']");
+		G.players[id].creatures.forEach(function(creature) {
+			var $crea = G.UI.$grid.find(".vignette[creature='" + creature.type + "']");
 			$crea.removeClass("notsummonable");
-			if (this.dead === true) {
+			if (creature.dead === true) {
 				$crea.addClass("dead");
 			} else {
 				$crea.addClass("queued");
@@ -1019,22 +1020,25 @@ var UI = Class.create({
 			G.UI.updateAbilityButtonsContent();
 
 			// Change ability buttons
-			G.UI.abilitiesButtons.each(function() {
-				var ab = creature.abilities[this.abilityId];
-				this.css.normal = {
-					"background-image": "url('../units/abilities/" + creature.name + " " + this.abilityId + ".svg')"
+			G.UI.abilitiesButtons.forEach(function(btn) {
+				var ab = creature.abilities[btn.abilityId];
+				btn.css.normal = {
+					"background-image": "url('../units/abilities/" + creature.name + " " + btn.abilityId + ".svg')"
 				};
-				var $desc = this.$button.next(".desc");
+				var $desc = btn.$button.next(".desc");
 				$desc.find("span.title").text(ab.title);
 				$desc.find("p").html(ab.desc);
 
-				this.click = function() {
-					if (G.UI.selectedAbility != this.abilityId) {
-						if (G.UI.dashopen) return false;
+				btn.click = function() {
+					if (G.UI.selectedAbility != btn.abilityId) {
+						if (G.UI.dashopen) {
+							return false;
+						}
+
 						G.grid.clearHexViewAlterations();
-						var ab = G.activeCreature.abilities[this.abilityId];
+						var ab = G.activeCreature.abilities[btn.abilityId];
 						// Passive ability icon can cycle between usable abilities
-						if (this.abilityId == 0) {
+						if (btn.abilityId == 0) {
 							var b = (G.UI.selectedAbility == -1) ? 4 : G.UI.selectedAbility;
 							for (var i = (b - 1); i > 0; i--) {
 								if (G.activeCreature.abilities[i].require() && !G.activeCreature.abilities[i].used) {
@@ -1042,12 +1046,13 @@ var UI = Class.create({
 								}
 							}
 						}
-						if (ab.require() == true && this.abilityId != 0) // Colored frame around selected ability
+
+						if (ab.require() == true && btn.abilityId != 0) // Colored frame around selected ability
 						{
-							G.UI.selectAbility(this.abilityId);
+							G.UI.selectAbility(btn.abilityId);
 						}
 						// Activate Ability
-						G.activeCreature.abilities[this.abilityId].use();
+						G.activeCreature.abilities[btn.abilityId].use();
 					} else {
 						G.grid.clearHexViewAlterations();
 						G.UI.selectAbility(-1);
@@ -1057,18 +1062,19 @@ var UI = Class.create({
 					}
 				};
 
-				this.mouseover = function() {
+				btn.mouseover = function() {
 					if (G.UI.selectedAbility == -1) {
-						G.UI.showAbilityCosts(this.abilityId);
+						G.UI.showAbilityCosts(btn.abilityId);
 					};
 				}
-				this.mouseleave = function() {
+				btn.mouseleave = function() {
 					if (G.UI.selectedAbility == -1) {
 						G.UI.hideAbilityCosts();
 					}
 				}
-				this.changeState(); // Apply changes
+				btn.changeState(); // Apply changes
 			});
+
 			G.UI.$activebox.children("#abilities").transition({
 				y: "0px"
 			}, 500, 'easeOutQuart'); // Show panel
@@ -1081,13 +1087,17 @@ var UI = Class.create({
 		var creature = G.activeCreature;
 
 		// Change ability buttons
-		this.abilitiesButtons.each(function() {
-			var ab = creature.abilities[this.abilityId];
-			var $desc = this.$button.next(".desc");
+		this.abilitiesButtons.forEach(function(btn) {
+			var ab = creature.abilities[btn.abilityId];
+			var $desc = btn.$button.next(".desc");
 
 			// Change the ability's frame when it gets upgraded
-			if (ab.isUpgraded()) this.$button.addClass('upgraded');
-			else this.$button.removeClass('upgraded');
+			if (ab.isUpgraded()) {
+				btn.$button.addClass('upgraded');
+			} else {
+				btn.$button.removeClass('upgraded');
+			}
+
 
 			// Add extra ability info
 			var $abilityInfo = $desc.find(".abilityinfo_content");
@@ -1236,10 +1246,8 @@ var UI = Class.create({
 			var remainingTime = G.turnTimePool - Math.round((date - G.activeCreature.player.startTime) / 1000);
 			if (G.timePool > 0)
 				remainingTime = Math.min(remainingTime, Math.round((G.activeCreature.player.totalTimePool - (date - G.activeCreature.player.startTime)) / 1000));
-			var minutes = Math.floor(remainingTime / 60);
-			var seconds = remainingTime - minutes * 60;
 			var id = G.activeCreature.player.id;
-			$j(".p" + id + " .turntime").text(zfill(minutes, 2) + ":" + zfill(seconds, 2));
+			$j(".p" + id + " .turntime").text(time.getTimer(remainingTime));
 			// Time Alert
 			if (remainingTime < 6)
 				$j(".p" + id + " .turntime").addClass("alert");
@@ -1255,12 +1263,10 @@ var UI = Class.create({
 
 		// TotalTimePool
 		if (G.timePool >= 0) {
-			G.players.each(function() {
-				var remainingTime = (this.id == G.activeCreature.player.id) ? this.totalTimePool - (date - this.startTime) : this.totalTimePool;
+			G.players.forEach(function(player) {
+				var remainingTime = (player.id == G.activeCreature.player.id) ? player.totalTimePool - (date - player.startTime) : player.totalTimePool;
 				remainingTime = Math.max(Math.round(remainingTime / 1000), 0);
-				var minutes = Math.floor(remainingTime / 60);
-				var seconds = remainingTime - minutes * 60;
-				$j(".p" + this.id + " .timepool").text(zfill(minutes, 2) + ":" + zfill(seconds, 2));
+				$j(".p" + player.id + " .timepool").text(time.getTimer(remainingTime));
 			});
 
 			// Time Bar
@@ -1486,26 +1492,34 @@ var UI = Class.create({
 		});
 
 		this.$queue.find('.vignette').not(".roundmarker").unbind("mousedown").unbind("mouseover").unbind("mouseleave").bind("mouseover", function() {
-			if (G.freezedInput) return;
+			if (G.freezedInput) {
+				return;
+			}
+
 			var creaID = $j(this).attr("creatureid") - 0;
 			G.grid.showMovementRange(creaID);
-			G.creatures.each(function() {
-				if (this instanceof Creature) {
-					this.xray(false);
-					if (this.id != creaID) {
-						this.xray(true);
+			G.creatures.forEach(function(creature) {
+				if (creature instanceof Creature) {
+					creature.xray(false);
+					if (creature.id != creaID) {
+						creature.xray(true);
 					}
 				}
 			});
+
 			G.UI.xrayQueue(creaID);
 		}).bind("mouseleave", function() { // On mouseleave cancel effect
-			if (G.freezedInput) return;
+			if (G.freezedInput) {
+				return;
+			}
+
 			G.grid.redoLastQuery();
-			G.creatures.each(function() {
-				if (this instanceof Creature) {
-					this.xray(false);
+			G.creatures.forEach(function(creature) {
+				if (creature instanceof Creature) {
+					creature.xray(false);
 				}
 			});
+
 			G.UI.xrayQueue(-1);
 		}).bind("mousedown", function() { // Show dash on click
 			if (G.freezedInput) return;
@@ -1522,36 +1536,37 @@ var UI = Class.create({
 
 	updateFatigue: function() {
 
-		G.creatures.each(function() {
-			if (this instanceof Creature) {
-				var textElement = $j('#queuewrapper .vignette[creatureid="' + this.id + '"]').children(".stats");
+		G.creatures.forEach(function(creature) {
+			if (creature instanceof Creature) {
+				var textElement = $j('#queuewrapper .vignette[creatureid="' + creature.id + '"]').children(".stats");
 				textElement.css({
 					background: 'black'
 				});
+
 				var text;
-				if (this.stats.frozen) {
+				if (creature.stats.frozen) {
 					text = "Frozen";
 					textElement.css({
 						background: 'darkturquoise'
 					});
-				} else if (this.materializationSickness) {
+				} else if (creature.materializationSickness) {
 					text = "Sickened";
-				} else if (this.protectedFromFatigue || this.stats.fatigueImmunity) {
+				} else if (creature.protectedFromFatigue || creature.stats.fatigueImmunity) {
 					text = "Protected";
-				} else if (this.endurance > 0) {
-					text = this.endurance + "/" + this.stats.endurance;
-				} else if (this.stats.endurance === 0) {
+				} else if (creature.endurance > 0) {
+					text = creature.endurance + "/" + creature.stats.endurance;
+				} else if (creature.stats.endurance === 0) {
 					text = "Fragile";
 					// Display message if the creature has first become fragile
-					if (this.fatigueText !== text) {
-						G.log("%CreatureName" + this.id + "% has become fragile");
+					if (creature.fatigueText !== text) {
+						G.log("%CreatureName" + creature.id + "% has become fragile");
 					}
 				} else {
 					text = "Fatigued";
 				}
 
-				if (this.type == "--") { // If Dark Priest
-					this.abilities[0].require(); // Update protectedFromFatigue
+				if (creature.type == "--") { // If Dark Priest
+					creature.abilities[0].require(); // Update protectedFromFatigue
 				}
 
 				textElement.text(text);
@@ -1561,175 +1576,4 @@ var UI = Class.create({
 
 	}
 
-});
-
-var Chat = Class.create({
-	/*	Constructor
-	 *
-	 *	Chat/Log Functions
-	 *
-	 */
-	initialize: function() {
-		this.$chat = $j("#chat");
-		this.$content = $j("#chatcontent");
-		this.$chat.bind('click', function() {
-			G.UI.chat.toggle();
-		});
-		$j("#combatwrapper, #toppanel, #dash, #endscreen").bind('click', function() {
-			G.UI.chat.hide();
-		});
-	},
-
-
-	show: function() {
-		this.$chat.addClass("focus");
-	},
-	hide: function() {
-		this.$chat.removeClass("focus");
-	},
-	toggle: function() {
-		this.$chat.toggleClass("focus");
-		this.$content.parent().scrollTop(this.$content.height());
-	},
-
-	addMsg: function(msg, htmlclass) {
-		var time = new Date(new Date() - G.startMatchTime);
-		this.$content.append("<p class='" + htmlclass + "'><i>" + zfill(time.getUTCHours(), 2) + ":" + zfill(time.getMinutes(), 2) + ":" + zfill(time.getSeconds(), 2) + "</i> " + msg + "</p>");
-		this.$content.parent().scrollTop(this.$content.height());
-	},
-});
-
-
-var Button = Class.create({
-	/*	Constructor
-	 *
-	 *	Create attributes and default buttons
-	 *
-	 */
-	initialize: function(opts) {
-
-		defaultOpts = {
-			click: function() {},
-			mouseover: function() {},
-			mouseleave: function() {},
-			clickable: true,
-			state: "normal", // disabled,normal,glowing,selected,active
-			$button: undefined,
-			attributes: {},
-			css: {
-				disabled: {},
-				glowing: {},
-				selected: {},
-				active: {},
-				normal: {},
-			}
-		};
-
-		opts = $j.extend(defaultOpts, opts);
-		$j.extend(this, opts);
-		this.changeState(this.state);
-	},
-
-
-	changeState: function(state) {
-		var btn = this;
-
-		state = state || this.state;
-		this.state = state;
-		this.$button.unbind("click").unbind("mouseover").unbind("mouseleave");
-		if (state != "disabled") {
-			this.$button.bind("click", function() {
-				if (G.freezedInput || !btn.clickable) return;
-				btn.click();
-			});
-			this.$button.bind("mouseover", function() {
-				if (G.freezedInput || !btn.clickable) return;
-				btn.mouseover();
-			});
-			this.$button.bind("mouseleave", function() {
-				if (G.freezedInput || !btn.clickable) return;
-				btn.mouseleave();
-			});
-		}
-		this.$button.removeClass("disabled glowing selected active noclick");
-		this.$button.css(this.css["normal"]);
-
-		if (state != "normal") {
-			this.$button.addClass(state);
-			this.$button.css(this.css[state]);
-		}
-	},
-
-	triggerClick: function() {
-		if (G.freezedInput || !this.clickable) return;
-		this.click();
-	},
-
-	triggerMouseover: function() {
-		if (G.freezedInput || !this.clickable) return;
-		this.mouseover();
-	},
-
-	triggerMouseleave: function() {
-		if (G.freezedInput || !this.clickable) return;
-		this.mouseleave();
-	},
-});
-
-var ProgessBar = Class.create({
-
-	initialize: function(opts) {
-		defaultOpts = {
-			height: 318,
-			width: 9,
-			color: "red",
-			$bar: undefined
-		};
-
-		opts = $j.extend(defaultOpts, opts);
-		$j.extend(this, opts);
-
-		this.$bar.append('<div class="previewbar"></div>');
-		this.$preview = this.$bar.children(".previewbar");
-
-		this.setSize(1);
-	},
-
-	/*	setSize
-	 *
-	 *	percentage :	Float :	Size between 0 and 1
-	 *
-	 */
-	setSize: function(percentage) {
-		this.$bar.css({
-			width: this.width,
-			height: this.height * percentage,
-			"background-color": this.color,
-		});
-	},
-
-	/*	animSize
-	 *
-	 *	percentage :	Float :	size between 0 and 1
-	 *
-	 */
-	animSize: function(percentage) {
-		this.$bar.transition({
-			queue: false,
-			width: this.width,
-			height: this.height * percentage,
-		}, 500, "linear");
-	},
-
-	/*	previewSize
-	 *
-	 *	percentage :	Float :	size between 0 and 1
-	 *
-	 */
-	previewSize: function(percentage) {
-		this.$preview.css({
-			width: this.width - 2,
-			height: (this.height - 2) * percentage,
-		}, 500, "linear");
-	}
 });

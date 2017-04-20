@@ -1,0 +1,18 @@
+{
+  "name": "AncientBeast",
+  "description": ":wolf: Turn Based Strategy Game. Master your beasts!",
+  "scripts": {
+  },
+  "env": {
+  },
+  "formation": {
+  },
+  "addons": [
+
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
