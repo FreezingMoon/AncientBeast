@@ -971,7 +971,7 @@
 			{
 				"title": "Curling Roots",
 				"desc": "Creates a small area of vines under self that alter the energy of all units on top.",
-				"info": "±4 energy points when own turn starts.",
+				"info": "±6 energy points when own turn starts.",
 				"upgrade": "Bonus for each spot affected.",
 				"costs": {
 					"energy": 20
