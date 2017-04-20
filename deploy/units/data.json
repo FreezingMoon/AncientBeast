@@ -919,7 +919,7 @@
 			"regrowth": 10,
 			"endurance": 20,
 			"energy": 70,
-			"meditation": 10,
+			"meditation": 6,
 			"initiative": 20,
 			"offense": 3,
 			"defense": 5,
@@ -939,9 +939,12 @@
 		},
 		"ability_info": [{
 				"title": "Travel Waypoint",
-				"desc": "Transfers location with any of the tiny mushshrooms within movement range.",
-				"info": "Each swap will take 1 movement point.",
-				"upgrade": "Gains unlimited swap range."
+				"desc": "Transfers to any location that is within movement range and also has roots on.",
+				"info": "The action will take 1 movement point.",
+				"upgrade": "Gains unlimited travel range.",
+				"details": [
+					"Toxic Shroom can only travel between own or allied roots."
+				]
 			},
 			{
 				"title": "Cap Knock",
@@ -953,33 +956,29 @@
 				}
 			},
 			{
-				"title": "Noxious Cloud",
+				"title": "Noxious Fumes",
 				"desc": "Releases several toxic clouds that can be inhaled, persisting for two rounds.",
 				"info": "10 adjacent poison damage for 2 turns.",
 				"upgrade": "+1 round cloud persistency.",
 				"details": [
-					"Toxic Shroom is immune to own clouds, but will destroy them when passing through.",
-					"A noxious cloud will completely override the enemy ones when using ability adjacent."
+					"Toxic Shroom is immune to all fumes, but will destroy them when passing through.",
+					"A noxious fume will completely override the enemy ones when using ability adjacent."
 				],
 				"costs": {
 					"energy": 15
 				}
-			},
+            },
 			{
-				"title": "Tiny Mushroom",
-				"desc": "Drops a deadly shroom that acts either as a travel point or as a poisonous trap.",
-				"info": "20 poison damage when stepped upon.",
-				"upgrade": "It can multiply if it kills units.",
-				"details": [
-					"Killing a small unit will cause the shroom to respawn while consuming any drops.",
-					"The bigger units killed by this trap will respawn shrooms throughout their size."
-				],
+				"title": "Curling Roots",
+				"desc": "Creates a small area of vines under self that alter the energy of all units on top.",
+				"info": "±4 energy points when own turn starts.",
+				"upgrade": "Bonus for each spot affected.",
 				"costs": {
 					"energy": 20
 				}
-			}
+            }
 
-		]
+        ]
 	},
 	{
 		"id": 12,
