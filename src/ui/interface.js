@@ -206,6 +206,10 @@ var UI = Class.create({
 		$j(window).blur(function(e) {
 			G.grid.showGrid(false);
 		});
+
+		// so we can get a reference back to UI w/o using globals, while inside the
+		// jQuery callbacks.
+		var self = this;
 		// Binding Hotkeys
 		$j(document).keydown(function(e) {
 			if (G.freezedInput) return;
@@ -249,8 +253,8 @@ var UI = Class.create({
 								G.UI.chat.hide();
 								break; // Close chat if opened
 							case "cycle":
-								G.UI.abilitiesButtons[0].triggerClick();
-								break; // TODO: Make this cycle through usable abilities
+								self.selectNextAbility();
+								break;
 							case "attack":
 								G.UI.abilitiesButtons[1].triggerClick();
 								break;
@@ -366,29 +370,10 @@ var UI = Class.create({
 				// Abilities
 			} else {
 				if (delta > 0) { // Wheel up
-					var b = (G.UI.selectedAbility == -1) ? 4 : G.UI.selectedAbility;
-
-					for (var i = (b - 1); i > 0; i--) {
-						if (G.activeCreature.abilities[i].require() && !G.activeCreature.abilities[i].used) {
-							G.UI.abilitiesButtons[i].triggerClick();
-							return;
-						}
-					}
-
-					G.activeCreature.queryMove();
+					self.selectNextAbility();
 					// TODO: Allow to cycle between the usable active abilities by pressing the passive one's icon
 				} else if (delta < 0) { // Wheel down
-					var b = (G.UI.selectedAbility == -1) ? 0 : G.UI.selectedAbility;
-
-					for (var i = (b + 1); i < 4; i++) {
-						if (G.activeCreature.abilities[i].require() && !G.activeCreature.abilities[i].used) {
-							G.UI.abilitiesButtons[i].triggerClick();
-							return;
-						}
-					}
-
-					G.activeCreature.queryMove();
-
+					self.selectPreviousAbility();
 				}
 			}
 		});
@@ -481,6 +466,31 @@ var UI = Class.create({
 		this.$dash.hide();
 	},
 
+	selectNextAbility: function() {
+		var b = (G.UI.selectedAbility == -1) ? 4 : G.UI.selectedAbility;
+
+		for (var i = (b - 1); i > 0; i--) {
+			if (G.activeCreature.abilities[i].require() && !G.activeCreature.abilities[i].used) {
+				G.UI.abilitiesButtons[i].triggerClick();
+				return;
+			}
+		}
+
+		G.activeCreature.queryMove();
+	},
+
+	selectPreviousAbility: function() {
+		var b = (G.UI.selectedAbility == -1) ? 0 : G.UI.selectedAbility;
+
+		for (var i = (b + 1); i < 4; i++) {
+			if (G.activeCreature.abilities[i].require() && !G.activeCreature.abilities[i].used) {
+				G.UI.abilitiesButtons[i].triggerClick();
+				return;
+			}
+		}
+
+		G.activeCreature.queryMove();
+	},
 
 	resizeDash: function() {
 		var zoom1 = $j("#cardwrapper").innerWidth() / $j("#card").outerWidth();
