@@ -201,7 +201,6 @@ var Ability = Class.create({
 	},
 
 	animation2: function(o) {
-
 		var opt = $j.extend({
 			callback: function() {},
 			arg: {},
@@ -225,6 +224,10 @@ var Ability = Class.create({
 		p1 += (this.creature.player.flipped) ? 5 : -5;
 		p2 += (this.creature.player.flipped) ? -5 : 5;
 
+		// Force creatures to face towards their target.
+		if (args[0]) {
+			this.creature.faceHex(args[0]);
+		}
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {
 			var anim_id = Math.random();
