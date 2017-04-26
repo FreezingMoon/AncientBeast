@@ -1,0 +1,82 @@
+<link rel="import" href="../../libs/polymer/polymer-element.html">
+<link rel="import" href="../../libs/polymer/lib/elements/dom-repeat.html">
+
+<!--
+`ab-setup`
+Ancient Beast Game Setup
+
+@demo demo/index.html
+-->
+
+<dom-module id="ab-playertab">
+    <template>
+        <style>
+            h3 {
+                font-size: 14px;
+                margin: 5px;
+                color: #fff;
+            }
+            
+            p {
+                display: block;
+                color: #fff;
+                font-size: 12px;
+                text-align: left;
+                cursor: pointer;
+                flex-grow: 1;
+                margin: 5px;
+            }
+            
+            .information {
+                margin-left: 110px;
+            }
+            
+            .player-tab {
+                display: flex;
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100px;
+                right: 100px;
+            }
+            
+            .player {
+                display: inline-block;
+                text-align: left;
+                cursor: pointer;
+                flex-grow: 1;
+            }
+            
+            .avatarFrame {
+                height: 100px;
+                width: 100px;
+                float: left;
+            }
+            
+            .avatar {
+                height: 100px;
+                width: 100px;
+                float: left;
+                background-size: 100% 100%;
+            }
+        </style>
+        <div class="player-tab">
+            <template is="dom-repeat" items="{{player}}" observe="">
+                <div class="player">
+                <div class="avatar" style="background-image: url('[[item.avatarImageUrl]]');">
+                    <img class="avatarFrame" alt="Player 1" src="interface/frame_[[item.color]].png"></img>
+                    </div>
+                    <div class="information">
+                        <h3>[[item.name]]</h3>
+                        <p>Score [[item.score]]</p>
+                        <p>Plasma [[item.plasma]] </p>
+                        <p>Units [[item.units]]</p>
+                        <p>Time [[item.time]]</p>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <script src="ab-playertab.js"></script>
+</dom-module>

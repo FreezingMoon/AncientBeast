@@ -1,0 +1,42 @@
+<link rel="import" href="../../libs/polymer/polymer-element.html">
+<link rel="import" href="../ab-playertab/ab-playertab.html">
+
+<!--
+`ab-setup`
+Ancient Beast Game Setup
+
+@demo demo/index.html
+-->
+
+<dom-module id="ab-dash">
+	<template> 
+		<style>
+			#wrapper {
+				background: rgba(0, 0, 0, .85);
+				width: 100%;
+				height: 100%;
+				position: fixed;
+				top: 0;
+				z-index: 3;
+			}
+			
+			.toggledash {
+				top: 0;
+				right: 0!important;
+				position: absolute;
+				height: 100px;
+				width: 100px;
+				cursor: pointer;
+				background-size: 100% 100%;
+			}
+			
+		</style>
+		<div id="wrapper" class="">
+			<div class="toggledash" on-click="hideDash" style="background-image: url(icons/close.svg);"></div>
+			<ab-playertab player="[[player]]"></ab-playertab>
+
+		</div>
+	</template>
+
+	<script src="ab-dash.js"></script>
+</dom-module>
