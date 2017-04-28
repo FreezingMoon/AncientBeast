@@ -12,12 +12,15 @@ G.abilities[37] = [
 
 		// 	require() :
 		require: function(hex) {
+
 			if (!this.testRequirements()) return false;
 
 			if (hex == undefined) hex = this.creature.hexagons[0];
 			this.message = "";
+
 			if (hex.trap) {
-				if (hex.trap.type == "mud-bath") {
+ 				if (hex.trap.type == "mud-bath") {
+					G.UI.abilitiesButtons[0].changeState('noclick');
 					return true;
 				}
 			}
