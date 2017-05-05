@@ -253,6 +253,7 @@ var UI = Class.create({
 								G.UI.chat.hide();
 								break; // Close chat if opened
 							case "cycle":
+
 								self.selectNextAbility();
 								break;
 							case "attack":
@@ -370,6 +371,7 @@ var UI = Class.create({
 				// Abilities
 			} else {
 				if (delta > 0) { // Wheel up
+
 					self.selectNextAbility();
 					// TODO: Allow to cycle between the usable active abilities by pressing the passive one's icon
 				} else if (delta < 0) { // Wheel down
