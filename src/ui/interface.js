@@ -383,13 +383,17 @@ var UI = Class.create({
 				$button: $j("#abilities > div:nth-child(" + (i + 1) + ") > .ability"),
 				abilityId: i,
 				css: {
-					disabled: {},
+					disabled: {
+						"cursor": "help"
+					},
 					glowing: {
 						"cursor": "pointer"
 					},
 					selected: {},
 					active: {},
-					noclick: {},
+					noclick: {
+						"cursor": "help"
+					},
 					normal: {
 						"cursor": "default"
 					},
