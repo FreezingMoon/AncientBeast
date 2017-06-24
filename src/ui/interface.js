@@ -671,7 +671,7 @@ var UI = Class.create({
 					this.materializeButton.click = function(e) {
 						G.UI.materializeToggled = true;
 						G.UI.selectAbility(3);
-						G.UI.closeDash(true);
+						G.UI.closeDash();
 						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
 					};
 					$j("#card .sideA").on("click", this.materializeButton.click);
