@@ -846,7 +846,7 @@ var UI = Class.create({
 
 	},
 
-	closeDash: function(materialize) {
+	closeDash: function() {
 		this.$dash.removeClass("active");
 		this.$dash.transition({
 			opacity: 0,
@@ -854,7 +854,7 @@ var UI = Class.create({
 		}, this.dashAnimSpeed, "linear", function() {
 			G.UI.$dash.hide();
 		});
-		if (!materialize && G.activeCreature) {
+		if (this.materializeToggled && G.activeCreature) {
 			G.activeCreature.queryMove();
 		}
 		this.dashopen = false;
