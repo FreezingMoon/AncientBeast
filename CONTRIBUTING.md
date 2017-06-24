@@ -24,6 +24,7 @@ After you've successfully installed the Node.js package, open up a terminal and 
 
 ```
 npm install -g grunt-cli
+npm install -g bower
 ```
 
 ### Installing Dependencies
@@ -34,7 +35,7 @@ npm install
 ```
 
 This will read `package.json` and install all of the gameplay established npm package dependencies.<br>
-The *npm install* command will also update any required dependencies if `package.json` file changes.
+The *npm install* command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, it is good practice to check both npm and bower dependencies before continuing to work again.
 
 ### Betatest Game
 
