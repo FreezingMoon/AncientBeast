@@ -383,13 +383,17 @@ var UI = Class.create({
 				$button: $j("#abilities > div:nth-child(" + (i + 1) + ") > .ability"),
 				abilityId: i,
 				css: {
-					disabled: {},
+					disabled: {
+						"cursor": "help"
+					},
 					glowing: {
 						"cursor": "pointer"
 					},
 					selected: {},
 					active: {},
-					noclick: {},
+					noclick: {
+						"cursor": "help"
+					},
 					normal: {
 						"cursor": "default"
 					},
@@ -671,7 +675,7 @@ var UI = Class.create({
 					this.materializeButton.click = function(e) {
 						G.UI.materializeToggled = true;
 						G.UI.selectAbility(3);
-						G.UI.closeDash(true);
+						G.UI.closeDash();
 						G.activeCreature.abilities[3].materialize(G.UI.selectedCreature);
 					};
 					$j("#card .sideA").on("click", this.materializeButton.click);
@@ -846,7 +850,7 @@ var UI = Class.create({
 
 	},
 
-	closeDash: function(materialize) {
+	closeDash: function() {
 		this.$dash.removeClass("active");
 		this.$dash.transition({
 			opacity: 0,
@@ -854,7 +858,7 @@ var UI = Class.create({
 		}, this.dashAnimSpeed, "linear", function() {
 			G.UI.$dash.hide();
 		});
-		if (!materialize && G.activeCreature) {
+		if (this.materializeToggled && G.activeCreature) {
 			G.activeCreature.queryMove();
 		}
 		this.dashopen = false;
