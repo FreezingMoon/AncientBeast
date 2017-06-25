@@ -706,7 +706,7 @@ var UI = Class.create({
 
 					// Bind button
 					this.materializeButton.click = function(e) {
-						G.UI.showCreature("--", G.activeCreature.player.id);
+						G.UI.showCreature(creatureType, G.activeCreature.player.id);
 					};
 					$j("#card .sideA").on("click", this.materializeButton.click);
 					$j("#card .sideA").removeClass("disabled");
