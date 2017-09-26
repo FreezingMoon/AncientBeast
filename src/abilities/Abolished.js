@@ -5,7 +5,7 @@
  */
 G.abilities[7] = [
 
-	// 	First Ability: Burning Heart
+	// 	First Ability: Burning Spirit
 	{
 		trigger: "onOtherDamage",
 
@@ -27,28 +27,28 @@ G.abilities[7] = [
 			}
 
 			target.addEffect(new Effect(
-				"Burning Heart", //Name
-				this.creature, //Caster
-				target, //Target
-				"", //Trigger
+				"Burning Spirit", // Name
+				this.creature, // Caster
+				target, // Target
+				"", // Trigger
 				{
 					alterations: {
 						burn: -1
 					}
-				} //Optional arguments
+				} // Optional arguments
 			));
 			target.stats.burn -= 1;
 			if (this.isUpgraded()) {
 				this.creature.addEffect(new Effect(
-					"Burning Heart", //Name
-					this.creature, //Caster
-					this.creature, //Target
-					"", //Trigger
+					"Burning Heart", // Name
+					this.creature, // Caster
+					this.creature, // Target
+					"", // Trigger
 					{
 						alterations: {
 							burn: 1
 						}
-					} //Optional arguments
+					} // Optional arguments
 				));
 			}
 		},

@@ -654,7 +654,7 @@
 			"energy": 5
 		},
 		"ability_info": [{
-				"title": "Burning Heart",
+				"title": "Burning Spirit",
 				"desc": "Hits reduce the target's burn mastery.",
 				"info": "-1 burn mastery each successful strike.",
 				"upgrade": "1 burn mastery to self on hit."
