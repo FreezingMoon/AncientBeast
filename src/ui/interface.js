@@ -28,7 +28,7 @@ var UI = Class.create({
 	 *	Create attributes and default buttons
 	 *
 	 */
-	initialize: function() {
+	initialize: function () {
 		this.$display = $j("#ui");
 		this.$queue = $j("#queuewrapper");
 		this.$dash = $j("#dash");
@@ -45,7 +45,7 @@ var UI = Class.create({
 		// Dash Button
 		this.btnToggleDash = new Button({
 			$button: $j(".toggledash"),
-			click: function(e) {
+			click: function (e) {
 				G.UI.toggleDash();
 			},
 		});
@@ -54,7 +54,7 @@ var UI = Class.create({
 		// Audio Button
 		this.btnAudio = new Button({
 			$button: $j("#audio.button"),
-			click: function(e) {
+			click: function (e) {
 				if (!G.UI.dashopen) {
 					G.UI.showMusicPlayer();
 				}
@@ -65,7 +65,7 @@ var UI = Class.create({
 		// Skip Turn Button
 		this.btnSkipTurn = new Button({
 			$button: $j("#skip.button"),
-			click: function(e) {
+			click: function (e) {
 				if (!G.UI.dashopen) {
 					if (G.turnThrottle) return;
 					G.gamelog.add({
@@ -80,7 +80,7 @@ var UI = Class.create({
 		// Delay Unit Button
 		this.btnDelay = new Button({
 			$button: $j("#delay.button"),
-			click: function(e) {
+			click: function (e) {
 				if (!G.UI.dashopen) {
 					if (G.turnThrottle) return;
 					if (G.activeCreature.hasWait ||
@@ -100,7 +100,7 @@ var UI = Class.create({
 		// Flee Match Button
 		this.btnFlee = new Button({
 			$button: $j("#flee.button"),
-			click: function(e) {
+			click: function (e) {
 				if (!G.UI.dashopen) {
 					if (G.turn < G.minimumTurnBeforeFleeing) {
 						alert("You cannot flee the match in the first 10 rounds.");
@@ -141,7 +141,7 @@ var UI = Class.create({
 			color: "grey"
 		});
 
-		this.showAbilityCosts = function(abilityId) {
+		this.showAbilityCosts = function (abilityId) {
 			var creature = G.activeCreature;
 			var ab = creature.abilities[abilityId];
 			if (ab.costs !== undefined) {
@@ -159,7 +159,7 @@ var UI = Class.create({
 			}
 		};
 
-		this.hideAbilityCosts = function() {
+		this.hideAbilityCosts = function () {
 			G.UI.energyBar.previewSize(0);
 			G.UI.healthBar.previewSize(0);
 		};
@@ -170,7 +170,7 @@ var UI = Class.create({
 			value: 5,
 			min: 0,
 			max: 10,
-			slide: function(event, ui) {
+			slide: function (event, ui) {
 				G.soundsys.setEffectsVolume(ui.value / 5);
 			}
 		});
@@ -203,7 +203,7 @@ var UI = Class.create({
 		};
 
 		// Remove hex grid if window loses focus
-		$j(window).blur(function(e) {
+		$j(window).blur(function (e) {
 			G.grid.showGrid(false);
 		});
 
@@ -211,7 +211,7 @@ var UI = Class.create({
 		// jQuery callbacks.
 		var self = this;
 		// Binding Hotkeys
-		$j(document).keydown(function(e) {
+		$j(document).keydown(function (e) {
 			if (G.freezedInput) return;
 
 			var keypressed = e.keyCode || e.which;
@@ -220,7 +220,7 @@ var UI = Class.create({
 			var prevD = false;
 			var modifierPressed = (e.metaKey || e.altKey || e.ctrlKey);
 
-			$j.each(hotkeys, function(k, v) {
+			$j.each(hotkeys, function (k, v) {
 				if (!modifierPressed && v == keypressed) {
 					// Context filter
 					if (G.UI.dashopen) {
@@ -316,12 +316,12 @@ var UI = Class.create({
 			}
 		});
 
-		$j(document).keyup(function(e) {
+		$j(document).keyup(function (e) {
 			if (G.freezedInput) return;
 
 			var keypressed = e.keyCode || e.which;
 
-			$j.each(hotkeys, function(k, v) {
+			$j.each(hotkeys, function (k, v) {
 				if (v == keypressed) {
 					switch (k) {
 						case "show_grid":
@@ -333,7 +333,7 @@ var UI = Class.create({
 		});
 
 		// Mouse Shortcut
-		$j("#dash").bind('mousedown', function(e) {
+		$j("#dash").bind('mousedown', function (e) {
 			if (G.freezedInput) return;
 
 			switch (e.which) {
@@ -356,7 +356,7 @@ var UI = Class.create({
 		});
 		// TODO: Function to exit dash via Tab or Esc hotkeys
 
-		$j("#combatwrapper, #dash, #toppanel").bind('mousewheel', function(e, delta, deltaX, deltaY) {
+		$j("#combatwrapper, #dash, #toppanel").bind('mousewheel', function (e, delta, deltaX, deltaY) {
 			if (G.freezedInput) return;
 
 			// Dash
@@ -431,11 +431,11 @@ var UI = Class.create({
 		this.materializeToggled = false;
 		this.dashopen = false;
 
-		this.glowInterval = setInterval(function() {
+		this.glowInterval = setInterval(function () {
 
 			var opa = 0.5 + Math.floor((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.20) / 100)) / 4 * 100) / 100;
 
-			G.UI.buttons.forEach(function(btn) {
+			G.UI.buttons.forEach(function (btn) {
 				btn.$button.css("opacity", "");
 
 				if (btn.state == "glowing") {
@@ -445,7 +445,7 @@ var UI = Class.create({
 
 			opaWeak = opa / 2;
 
-			G.grid.allhexes.forEach(function(hex) {
+			G.grid.allhexes.forEach(function (hex) {
 
 				if (hex.overlayClasses.match(/creature/)) {
 					if (hex.overlayClasses.match(/selected|active/)) {
@@ -470,7 +470,7 @@ var UI = Class.create({
 		this.$dash.hide();
 	},
 
-	selectNextAbility: function() {
+	selectNextAbility: function () {
 		var b = (G.UI.selectedAbility == -1) ? 4 : G.UI.selectedAbility;
 
 		for (var i = (b - 1); i > 0; i--) {
@@ -483,7 +483,7 @@ var UI = Class.create({
 		G.activeCreature.queryMove();
 	},
 
-	selectPreviousAbility: function() {
+	selectPreviousAbility: function () {
 		var b = (G.UI.selectedAbility == -1) ? 0 : G.UI.selectedAbility;
 
 		for (var i = (b + 1); i < 4; i++) {
@@ -496,7 +496,7 @@ var UI = Class.create({
 		G.activeCreature.queryMove();
 	},
 
-	resizeDash: function() {
+	resizeDash: function () {
 		var zoom1 = $j("#cardwrapper").innerWidth() / $j("#card").outerWidth();
 		var zoom2 = $j("#cardwrapper").innerHeight() / ($j("#card").outerHeight() + $j("#materialize_button").outerHeight());
 		var zoom = Math.min(zoom1, zoom2);
@@ -521,7 +521,7 @@ var UI = Class.create({
 	},
 
 
-	/*	yoel showCreature(creatureType, player)
+	/*	showCreature(creatureType, player)
 	 *
 	 *	creatureType :	String :	Creature type
 	 *	player :		Integer :	Player ID
@@ -529,7 +529,7 @@ var UI = Class.create({
 	 *	Query a creature in the available creatures of the active player
 	 *
 	 */
-	showCreature: function(creatureType, player) {
+	showCreature: function (creatureType, player) {
 
 		if (!this.dashopen) {
 			this.$dash.show().css("opacity", 0);
@@ -551,7 +551,7 @@ var UI = Class.create({
 		this.changePlayerTab(G.activeCreature.team);
 		this.resizeDash();
 
-		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click', function(e) {
+		this.$dash.children("#playertabswrapper").children(".playertabs").unbind('click').bind('click', function (e) {
 			if (G.freezedInput) return;
 			G.UI.showCreature("--", $j(this).attr("player") - 0);
 		});
@@ -582,7 +582,7 @@ var UI = Class.create({
 			// Retreive the selected unit
 			var crea = undefined;
 			G.UI.selectedCreatureObj = undefined;
-			G.players[player].creatures.forEach(function(creature) {
+			G.players[player].creatures.forEach(function (creature) {
 				if (creature.type == creatureType) {
 					crea = creature;
 					G.UI.selectedCreatureObj = creature;
@@ -602,7 +602,7 @@ var UI = Class.create({
 			$j("#card .sideB").css({
 				"background-image": "url('../cards/margin.png'), url('../cards/" + stats.type.substring(0, 1) + ".jpg')"
 			});
-			$j.each(stats.stats, function(key, value) {
+			$j.each(stats.stats, function (key, value) {
 				var $stat = $j("#card .sideB ." + key + " .value");
 				$stat.removeClass("buff debuff");
 				if (crea) {
@@ -626,7 +626,7 @@ var UI = Class.create({
 					$stat.text(value);
 				}
 			});
-			$j.each(G.abilities[stats.id], function(key, value) {
+			$j.each(G.abilities[stats.id], function (key, value) {
 				$ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
 				$ability.children('.icon').css({
 					"background-image": "url('../units/abilities/" + stats.name + " " + key + ".svg')"
@@ -635,7 +635,7 @@ var UI = Class.create({
 				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").text(stats.ability_info[key].info);
 				$ability.children(".wrapper").children(".info").children("#upgrade").text("Upgrade: " + stats.ability_info[key].upgrade);
-			//	console.log("test "+creatureType);
+
 				if (key !== 0) {
 					$ability.children(".wrapper").children(".info").children("#cost").text(" - costs " + stats.ability_info[key].costs.energy + " energy pts.");
 				} else {
@@ -644,7 +644,7 @@ var UI = Class.create({
 			});
 
 			var summonedOrDead = false;
-			G.players[player].creatures.forEach(function(creature) {
+			G.players[player].creatures.forEach(function (creature) {
 				if (creature.type == creatureType) {
 					summonedOrDead = true;
 				}
@@ -672,7 +672,7 @@ var UI = Class.create({
 					$j('#materialize_button p').text("Materialize unit at target location for " + plasmaCost + " plasma");
 
 					// Bind button
-					this.materializeButton.click = function(e) {
+					this.materializeButton.click = function (e) {
 						G.UI.materializeToggled = true;
 						G.UI.selectAbility(3);
 						G.UI.closeDash();
@@ -705,7 +705,7 @@ var UI = Class.create({
 					$j('#materialize_button p').text("Switch to your own tab to be able to materialize");
 
 					// Bind button
-					this.materializeButton.click = function(e) {
+					this.materializeButton.click = function (e) {
 						G.UI.showCreature(creatureType, G.activeCreature.player.id);
 					};
 					$j("#card .sideA").on("click", this.materializeButton.click);
@@ -727,14 +727,14 @@ var UI = Class.create({
 			$j("#card .sideA .hexes").text(stats.size + "H");
 
 			// Card B
-			$j.each(stats.stats, function(key, value) {
+			$j.each(stats.stats, function (key, value) {
 				var $stat = $j("#card .sideB ." + key + " .value");
 				$stat.removeClass("buff debuff");
 				$stat.text(value);
 			});
 
 			// Abilities
-			$j.each(stats.ability_info, function(key, value) {
+			$j.each(stats.ability_info, function (key, value) {
 				$ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
 				$ability.children('.icon').css({
 					"background-image": "url('../units/abilities/" + stats.name + " " + key + ".svg')"
@@ -742,15 +742,14 @@ var UI = Class.create({
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").html(stats.ability_info[key].desc);
 				$ability.children(".wrapper").children(".info").children("#info").html(stats.ability_info[key].info);
-				if( stats.ability_info[key].upgrade)//if thers an upgrade at all
+				if (stats.ability_info[key].upgrade) // Check for an upgrade
 				{
 					$ability.children(".wrapper").children(".info").children("#upgrade").text("Upgrade: " + stats.ability_info[key].upgrade);
-				}else
-				{
-					$ability.children(".wrapper").children(".info").children("#upgrade").text(" " );
+				} else {
+					$ability.children(".wrapper").children(".info").children("#upgrade").text(" ");
 				}
-			//console.log("test2 "+creatureType);
-			
+				//console.log("test2 "+creatureType);
+
 			});
 
 			// Materialize button
@@ -761,7 +760,7 @@ var UI = Class.create({
 	},
 
 
-	selectAbility: function(i) {
+	selectAbility: function (i) {
 		this.checkAbilities();
 		this.selectedAbility = i;
 		if (i > -1) {
@@ -780,7 +779,7 @@ var UI = Class.create({
 	 *	Change to the specified player tab in the dash
 	 *
 	 */
-	changePlayerTab: function(id) {
+	changePlayerTab: function (id) {
 		this.selectedPlayer = id;
 		this.$dash // Dash class
 			.removeClass("selected0 selected1 selected2 selected3")
@@ -794,7 +793,7 @@ var UI = Class.create({
 		$j("#musicplayerwrapper").hide();
 
 		// Change creature status
-		G.players[id].availableCreatures.forEach(function(creature) {
+		G.players[id].availableCreatures.forEach(function (creature) {
 			G.UI.$grid.find(".vignette[creature='" + creature + "']").removeClass("locked");
 
 			var lvl = creature.substring(1, 2) - 0;
@@ -806,7 +805,7 @@ var UI = Class.create({
 			}
 		});
 
-		G.players[id].creatures.forEach(function(creature) {
+		G.players[id].creatures.forEach(function (creature) {
 			var $crea = G.UI.$grid.find(".vignette[creature='" + creature.type + "']");
 			$crea.removeClass("notsummonable");
 			if (creature.dead === true) {
@@ -817,7 +816,7 @@ var UI = Class.create({
 		});
 
 		// Bind creature vignette click
-		this.$grid.find(".vignette").unbind('click').bind("click", function(e) {
+		this.$grid.find(".vignette").unbind('click').bind("click", function (e) {
 			e.preventDefault();
 			if (G.freezedInput) return;
 
@@ -825,14 +824,14 @@ var UI = Class.create({
 				G.UI.$dash.children("#tooltip").text("Creature locked.");
 			}
 
-			var ct = $j(this).attr("creature");//creatureType
+			var ct = $j(this).attr("creature"); //creatureType
 			//console.log(creatureType);
 			G.UI.showCreature(ct, G.UI.selectedPlayer);
 		});
 
 	},
 
-	showMusicPlayer: function() {
+	showMusicPlayer: function () {
 		this.$dash.addClass("active");
 
 		this.showCreature(G.activeCreature.type, G.activeCreature.team);
@@ -851,7 +850,7 @@ var UI = Class.create({
 	 *	Show the dash and hide some buttons
 	 *
 	 */
-	toggleDash: function() {
+	toggleDash: function () {
 		if (!this.$dash.hasClass("active")) {
 			this.showCreature(G.activeCreature.type, G.activeCreature.team);
 		} else {
@@ -860,12 +859,12 @@ var UI = Class.create({
 
 	},
 
-	closeDash: function() {
+	closeDash: function () {
 		this.$dash.removeClass("active");
 		this.$dash.transition({
 			opacity: 0,
 			queue: false
-		}, this.dashAnimSpeed, "linear", function() {
+		}, this.dashAnimSpeed, "linear", function () {
 			G.UI.$dash.hide();
 		});
 		if (this.materializeToggled && G.activeCreature) {
@@ -875,7 +874,7 @@ var UI = Class.create({
 		this.materializeToggled = false;
 	},
 
-	gridSelectUp: function() {
+	gridSelectUp: function () {
 		var b = G.UI.selectedCreature;
 
 		if (b == "--") {
@@ -891,7 +890,7 @@ var UI = Class.create({
 		}
 	},
 
-	gridSelectDown: function() {
+	gridSelectDown: function () {
 		var b = G.UI.selectedCreature;
 
 		if (b == "--") {
@@ -907,7 +906,7 @@ var UI = Class.create({
 		}
 	},
 
-	gridSelectLeft: function() {
+	gridSelectLeft: function () {
 		var b = (G.UI.selectedCreature == "--") ? "A0" : G.UI.selectedCreature;
 
 		if (b[1] - 1 < 1) { // End of row
@@ -917,7 +916,7 @@ var UI = Class.create({
 		}
 	},
 
-	gridSelectRight: function() {
+	gridSelectRight: function () {
 		var b = (G.UI.selectedCreature == "--") ? "A8" : G.UI.selectedCreature;
 
 		if (b[1] - 0 + 1 > 7) { // End of row
@@ -927,7 +926,7 @@ var UI = Class.create({
 		}
 	},
 
-	gridSelectNext: function() {
+	gridSelectNext: function () {
 		var b = (G.UI.selectedCreature == "--") ? "A0" : G.UI.selectedCreature;
 
 		if (b[1] - 0 + 1 > 7) { // End of row
@@ -975,7 +974,7 @@ var UI = Class.create({
 		G.UI.gridSelectNext();
 	},
 
-	gridSelectPrevious: function() {
+	gridSelectPrevious: function () {
 		var b = (G.UI.selectedCreature == "--") ? "W8" : G.UI.selectedCreature;
 
 		if (b[1] - 1 < 1) { // End of row
@@ -1028,14 +1027,14 @@ var UI = Class.create({
 	 *	Update activebox with new current creature's abilities
 	 *
 	 */
-	updateActivebox: function() {
+	updateActivebox: function () {
 		var creature = G.activeCreature;
 		var $abilitiesButtons = $j("#abilities .ability");
 		$abilitiesButtons.unbind("click");
 
 		this.$activebox.find("#abilities").clearQueue().transition({
 			y: "-420px"
-		}, 500, 'easeInQuart', function() { // Hide panel
+		}, 500, 'easeInQuart', function () { // Hide panel
 			$j(this).removeClass("p0 p1 p2 p3").addClass("p" + creature.player.id);
 
 			G.UI.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
@@ -1044,7 +1043,7 @@ var UI = Class.create({
 			G.UI.updateAbilityButtonsContent();
 
 			// Change ability buttons
-			G.UI.abilitiesButtons.forEach(function(btn) {
+			G.UI.abilitiesButtons.forEach(function (btn) {
 				var ab = creature.abilities[btn.abilityId];
 				btn.css.normal = {
 					"background-image": "url('../units/abilities/" + creature.name + " " + btn.abilityId + ".svg')"
@@ -1053,7 +1052,7 @@ var UI = Class.create({
 				$desc.find("span.title").text(ab.title);
 				$desc.find("p").html(ab.desc);
 
-				btn.click = function() {
+				btn.click = function () {
 					if (G.UI.selectedAbility != btn.abilityId) {
 						if (G.UI.dashopen) {
 							return false;
@@ -1086,12 +1085,12 @@ var UI = Class.create({
 					}
 				};
 
-				btn.mouseover = function() {
+				btn.mouseover = function () {
 					if (G.UI.selectedAbility == -1) {
 						G.UI.showAbilityCosts(btn.abilityId);
 					};
 				}
-				btn.mouseleave = function() {
+				btn.mouseleave = function () {
 					if (G.UI.selectedAbility == -1) {
 						G.UI.hideAbilityCosts();
 					}
@@ -1107,11 +1106,11 @@ var UI = Class.create({
 		this.updateInfos();
 	},
 
-	updateAbilityButtonsContent: function() {
+	updateAbilityButtonsContent: function () {
 		var creature = G.activeCreature;
 
 		// Change ability buttons
-		this.abilitiesButtons.forEach(function(btn) {
+		this.abilitiesButtons.forEach(function (btn) {
 			var ab = creature.abilities[btn.abilityId];
 			var $desc = btn.$button.next(".desc");
 
@@ -1169,7 +1168,7 @@ var UI = Class.create({
 		});
 	},
 
-	checkAbilities: function() {
+	checkAbilities: function () {
 		var oneUsableAbility = false;
 
 		for (var i = 0; i < 4; i++) {
@@ -1222,7 +1221,7 @@ var UI = Class.create({
 	/*	updateInfos()
 	 *
 	 */
-	updateInfos: function() {
+	updateInfos: function () {
 		$j("#playerbutton, #playerinfo")
 			.removeClass("p0 p1 p2 p3")
 			.addClass("p" + G.activeCreature.player.id);
@@ -1232,7 +1231,7 @@ var UI = Class.create({
 		$j("#playerinfo .units span").text(G.activeCreature.player.getNbrOfCreatures() + " / " + G.creaLimitNbr); // TODO: Needs to update instantly!
 	},
 
-	showStatModifiers: function(stat) { // Broken and deprecated
+	showStatModifiers: function (stat) { // Broken and deprecated
 
 		if (G.UI.selectedCreatureObj instanceof Creature) {
 			var buffDebuff = G.UI.selectedCreatureObj.getBuffDebuff(stat);
@@ -1240,13 +1239,13 @@ var UI = Class.create({
 			// Might not be needed
 			$j(card).find("." + stat + " .modifiers").html("");
 			// Effects
-			$j.each(buffDebuff.objs.effects, function(key, value) {
+			$j.each(buffDebuff.objs.effects, function (key, value) {
 				//var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
 				if (value.alterations[stat]) $j(card).find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
 				atLeastOneBuff = true;
 			});
 			// Drops
-			$j.each(buffDebuff.objs.drops, function(key, value) {
+			$j.each(buffDebuff.objs.drops, function (key, value) {
 				//var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
 				if (value.alterations[stat]) $j(card).find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
 				atLeastOneBuff = true;
@@ -1262,7 +1261,7 @@ var UI = Class.create({
 	/*	updateTimer()
 	 *
 	 */
-	updateTimer: function() {
+	updateTimer: function () {
 		var date = new Date() - G.pauseTime;
 
 		// TurnTimePool
@@ -1287,7 +1286,7 @@ var UI = Class.create({
 
 		// TotalTimePool
 		if (G.timePool >= 0) {
-			G.players.forEach(function(player) {
+			G.players.forEach(function (player) {
 				var remainingTime = (player.id == G.activeCreature.player.id) ? player.totalTimePool - (date - player.startTime) : player.totalTimePool;
 				remainingTime = Math.max(Math.round(remainingTime / 1000), 0);
 				$j(".p" + player.id + " .timepool").text(time.getTimer(remainingTime));
@@ -1308,7 +1307,7 @@ var UI = Class.create({
 	 *	Delete and add element to the Queue container based on the game's queues
 	 *
 	 */
-	updateQueueDisplay: function(excludeActiveCreature) { // Ugly as hell need rewrite
+	updateQueueDisplay: function (excludeActiveCreature) { // Ugly as hell need rewrite
 
 		if (G.queue.isNextEmpty() || !G.activeCreature) return false; // Abort to avoid infinite loop
 
@@ -1323,13 +1322,13 @@ var UI = Class.create({
 		// Updating
 		var $vignettes = this.$queue.find('.vignette[verified!="-1"]').attr("verified", 0);
 
-		var deleteVignette = function(vignette) {
+		var deleteVignette = function (vignette) {
 
 			if ($j(vignette).hasClass("roundmarker")) {
 				$j(vignette).attr("verified", -1).transition({
 					x: -80,
 					queue: false
-				}, queueAnimSpeed, transition, function() {
+				}, queueAnimSpeed, transition, function () {
 					this.remove();
 				});
 			} else {
@@ -1337,14 +1336,14 @@ var UI = Class.create({
 					$j(vignette).attr("verified", -1).transition({
 						x: -100,
 						queue: false
-					}, queueAnimSpeed, transition, function() {
+					}, queueAnimSpeed, transition, function () {
 						this.remove();
 					});
 				} else {
 					$j(vignette).attr("verified", -1).transition({
 						x: "-=80",
 						queue: false
-					}, queueAnimSpeed, transition, function() {
+					}, queueAnimSpeed, transition, function () {
 						this.remove();
 					});
 				}
@@ -1354,7 +1353,7 @@ var UI = Class.create({
 			$vignettes = G.UI.$queue.find('.vignette[verified!="-1"]');
 		};
 
-		var appendVignette = function(pos, vignette) {
+		var appendVignette = function (pos, vignette) {
 			var $v, index, offset;
 			// Create element
 			if ($vignettes.length === 0) {
@@ -1385,9 +1384,9 @@ var UI = Class.create({
 			$vignettes = G.UI.$queue.find('.vignette[verified != "-1"]');
 		};
 
-		var updatePos = function() {
+		var updatePos = function () {
 
-			$vignettes.each(function() {
+			$vignettes.each(function () {
 				var index = $j(this).index('#queuewrapper .vignette[verified != "-1"]');
 				var offset = (index - (!!index)) * 80 + (!!index) * 100;
 				$j(this).css({
@@ -1399,7 +1398,7 @@ var UI = Class.create({
 			});
 		};
 
-		this.$queue.find('.vignette[verified != "-1"]').each(function() {
+		this.$queue.find('.vignette[verified != "-1"]').each(function () {
 			if ($j(this).attr("turn") < G.turn) {
 				deleteVignette(this);
 			}
@@ -1454,7 +1453,7 @@ var UI = Class.create({
 						}
 
 						// Check if the vignette exists at all; if not delete
-						if (!isNaN(vid) && $j.grep(completeQueue, function(item) {
+						if (!isNaN(vid) && $j.grep(completeQueue, function (item) {
 								return item.id === vid;
 							}).length === 0) {
 							deleteVignette(v);
@@ -1509,20 +1508,20 @@ var UI = Class.create({
 
 		// Add mouseover effect
 
-		this.$queue.find('.vignette.roundmarker').unbind("mouseover").unbind("mouseleave").bind("mouseover", function() {
+		this.$queue.find('.vignette.roundmarker').unbind("mouseover").unbind("mouseleave").bind("mouseover", function () {
 			G.grid.showGrid(true);
-		}).bind("mouseleave", function() {
+		}).bind("mouseleave", function () {
 			G.grid.showGrid(false);
 		});
 
-		this.$queue.find('.vignette').not(".roundmarker").unbind("mousedown").unbind("mouseover").unbind("mouseleave").bind("mouseover", function() {
+		this.$queue.find('.vignette').not(".roundmarker").unbind("mousedown").unbind("mouseover").unbind("mouseleave").bind("mouseover", function () {
 			if (G.freezedInput) {
 				return;
 			}
 
 			var creaID = $j(this).attr("creatureid") - 0;
 			G.grid.showMovementRange(creaID);
-			G.creatures.forEach(function(creature) {
+			G.creatures.forEach(function (creature) {
 				if (creature instanceof Creature) {
 					creature.xray(false);
 					if (creature.id != creaID) {
@@ -1532,20 +1531,20 @@ var UI = Class.create({
 			});
 
 			G.UI.xrayQueue(creaID);
-		}).bind("mouseleave", function() { // On mouseleave cancel effect
+		}).bind("mouseleave", function () { // On mouseleave cancel effect
 			if (G.freezedInput) {
 				return;
 			}
 
 			G.grid.redoLastQuery();
-			G.creatures.forEach(function(creature) {
+			G.creatures.forEach(function (creature) {
 				if (creature instanceof Creature) {
 					creature.xray(false);
 				}
 			});
 
 			G.UI.xrayQueue(-1);
-		}).bind("mousedown", function() { // Show dash on click
+		}).bind("mousedown", function () { // Show dash on click
 			if (G.freezedInput) return;
 			var creaID = $j(this).attr("creatureid") - 0;
 			G.UI.showCreature(G.creatures[creaID].type, G.creatures[creaID].player.id);
@@ -1553,14 +1552,14 @@ var UI = Class.create({
 
 	},
 
-	xrayQueue: function(creaID) {
+	xrayQueue: function (creaID) {
 		this.$queue.find('.vignette').removeClass("xray");
 		if (creaID > 0) this.$queue.find('.vignette[creatureid="' + creaID + '"]').addClass("xray");
 	},
 
-	updateFatigue: function() {
+	updateFatigue: function () {
 
-		G.creatures.forEach(function(creature) {
+		G.creatures.forEach(function (creature) {
 			if (creature instanceof Creature) {
 				var textElement = $j('#queuewrapper .vignette[creatureid="' + creature.id + '"]').children(".stats");
 				textElement.css({
