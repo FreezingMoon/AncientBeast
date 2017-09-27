@@ -22,7 +22,7 @@ G.abilities[4] = [
 			this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
 			
 			// SFX
-			music = G.Phaser.add.audio('magma0');
+			music = G.Phaser.add.audio('MagmaSpawn0');
 			music.play();
 		},
 

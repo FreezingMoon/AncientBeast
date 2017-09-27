@@ -188,7 +188,7 @@ var Game = Class.create({
 		}
 
 		// Ability SFX
-		this.Phaser.load.audio('magma0', './units/sfx/Magma Spawn 0.ogg');
+		this.Phaser.load.audio('MagmaSpawn0', './units/sfx/Magma Spawn 0.ogg');
 
 		// Grid
 		this.Phaser.load.image('hex', './interface/hex.png');
