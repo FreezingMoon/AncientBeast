@@ -21,8 +21,8 @@ G.abilities[4] = [
 			this._addTrap(this.creature.hexagons[1]);
 			this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
 			
-			//yoel edit sound effect
-			music = G.Phaser.add.audio('ymagma');
+			// SFX
+			music = G.Phaser.add.audio('magma0');
 			music.play();
 		},
 

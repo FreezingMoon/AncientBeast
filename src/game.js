@@ -5,7 +5,7 @@
  *
  *	NOTE: Constructor does nothing because the G object must be defined
  *	before creating other classes instances. The game setup is triggered
- *	to really start the game
+ *	to really start the game.
  *
  */
 
@@ -173,7 +173,7 @@ var Game = Class.create({
 
 		this.Phaser.load.onFileComplete.add(G.loadFinish, G);
 
-		// Health
+		// Health SFX
 		var playerColors = ['red', 'blue', 'orange', 'green'];
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image(
@@ -186,8 +186,10 @@ var Game = Class.create({
 				'p' + i + '_frozen',
 				'./interface/rectangle_frozen_' + playerColors[i] + '.png');
 		}
-		//Sounds
-		this.Phaser.load.audio('ymagma', './units/sfx/Magma Spawn 0.ogg');//yoel edit
+
+		// Ability SFX
+		this.Phaser.load.audio('magma0', './units/sfx/Magma Spawn 0.ogg');
+
 		// Grid
 		this.Phaser.load.image('hex', './interface/hex.png');
 		this.Phaser.load.image('hex_dashed', './interface/hex_dashed.png');
