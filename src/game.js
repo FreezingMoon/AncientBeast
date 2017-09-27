@@ -5,7 +5,7 @@
  *
  *	NOTE: Constructor does nothing because the G object must be defined
  *	before creating other classes instances. The game setup is triggered
- *	to really start the game
+ *	to really start the game.
  *
  */
 var Game = Class.create({
