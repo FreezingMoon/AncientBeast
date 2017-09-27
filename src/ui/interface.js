@@ -748,8 +748,6 @@ var UI = Class.create({
 				} else {
 					$ability.children(".wrapper").children(".info").children("#upgrade").text(" ");
 				}
-				//console.log("test2 "+creatureType);
-
 			});
 
 			// Materialize button
