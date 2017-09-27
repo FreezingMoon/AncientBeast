@@ -5,9 +5,10 @@
  *
  *	NOTE: Constructor does nothing because the G object must be defined
  *	before creating other classes instances. The game setup is triggered
- *	to really start the game.
+ *	to really start the game
  *
  */
+
 var Game = Class.create({
 	/*	Attributes
 	 *
@@ -134,7 +135,7 @@ var Game = Class.create({
 	},
 
 
-	/*	loadGame(setupOpt)
+	/*	loadGame(setupOpt) preload
 	 *
 	 *	setupOpt :	Object :	Setup options from matchmaking menu
 	 *
@@ -185,7 +186,8 @@ var Game = Class.create({
 				'p' + i + '_frozen',
 				'./interface/rectangle_frozen_' + playerColors[i] + '.png');
 		}
-
+		//Sounds
+		this.Phaser.load.audio('ymagma', './units/sfx/Magma Spawn 0.ogg');//yoel edit
 		// Grid
 		this.Phaser.load.image('hex', './interface/hex.png');
 		this.Phaser.load.image('hex_dashed', './interface/hex_dashed.png');
