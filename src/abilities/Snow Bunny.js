@@ -315,7 +315,7 @@ G.abilities[12] = [
 				y: target.grp.y - 20
 			};
 			var sprite = G.grid.creatureGroup.create(
-				emissionPoint.x, emissionPoint.y, 'effects_freezing-spit');
+				emissionPoint.x, emissionPoint.y, 'effects_fiery-touch');
 			sprite.anchor.setTo(0.5);
 			sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
 			var duration = dist * 75;
