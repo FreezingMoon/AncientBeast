@@ -5,7 +5,7 @@
  *
  *	NOTE: Constructor does nothing because the G object must be defined
  *	before creating other classes instances. The game setup is triggered
- *	to really start the game.
+ *	to really start the game
  *
  */
 
@@ -173,7 +173,7 @@ var Game = Class.create({
 
 		this.Phaser.load.onFileComplete.add(G.loadFinish, G);
 
-		// Health SFX
+		// Health
 		var playerColors = ['red', 'blue', 'orange', 'green'];
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image(
@@ -186,10 +186,8 @@ var Game = Class.create({
 				'p' + i + '_frozen',
 				'./interface/rectangle_frozen_' + playerColors[i] + '.png');
 		}
-
-		// Ability SFX
-		this.Phaser.load.audio('MagmaSpawn0', './units/sfx/Magma Spawn 0.ogg');
-
+		//Sounds
+		this.Phaser.load.audio('ymagma', './units/sfx/Magma Spawn 0.ogg');//yoel edit
 		// Grid
 		this.Phaser.load.image('hex', './interface/hex.png');
 		this.Phaser.load.image('hex_dashed', './interface/hex_dashed.png');
@@ -216,7 +214,7 @@ var Game = Class.create({
 		// Effects
 		this.Phaser.load.image('effects_fiery-touch', './units/sprites/Abolished - Fiery Touch.png');
 		this.Phaser.load.image('effects_fissure-vent', './units/sprites/Magma Spawn - Fissure Vent.png');
-		this.Phaser.load.image('effects_freezing-spit', './units/sprites/Snow Bunny - Freezing Spit.png');
+		this.Phaser.load.image('effects_freezing-spit', './units/sprites/Abolished - Fiery Touch.png');
 
 		// Background
 		this.Phaser.load.image('background', "locations/" + this.background_image + "/bg.jpg");
