@@ -959,8 +959,8 @@ var Creature = Class.create({
 		this.updateHealth(isRegrowth);
 
 		if (amount > 0) {
-			if (isRegrowth) this.hint(amount + " ♥", 'healing d' + amount);
-			else this.hint(amount, 'healing d' + amount);
+			if (isRegrowth) this.hint("+"+amount + " ♥", 'healing d' + amount);
+			else this.hint("+"+amount, 'healing d' + amount);
 			G.log("%CreatureName" + this.id + "% recovers +" + amount + " health");
 		} else if (amount === 0) {
 			if (isRegrowth) this.hint("♦", 'msg_effects');
