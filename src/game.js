@@ -1,6 +1,6 @@
 /*	Game Class
  *
- *	Game contains all Game element and Game mechanism function.
+ *	Game contains all Game element and Game mechanism function
  *	Its the root element and defined only one time through the G variable.
  *
  *	NOTE: Constructor does nothing because the G object must be defined
