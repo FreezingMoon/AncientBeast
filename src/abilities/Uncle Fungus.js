@@ -148,7 +148,7 @@ G.abilities[3] = [
 									regrowth: amount
 								}
 							} // Optional arguments
-						), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", //Custom Log
+						), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", // Custom Log
 						"Regrowth++"); // Custom Hint
 				}
 			}
