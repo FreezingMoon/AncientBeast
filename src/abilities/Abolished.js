@@ -105,14 +105,19 @@ G.abilities[7] = [
 			ability.end();
 
 			var target = arrayUtils.last(path).creature;
-
-			var damage = new Damage(
-				ability.creature, // Attacker
-				ability.damages, // Damage Type
-				1, // Area
-				[] // Effects
-			);
-			target.takeDamage(damage);
+			projectile_inst = G.projectile(this,target,'effects_freezing-spit',path,args);
+			tween = projectile_inst[0];
+			sprite = projectile_inst[1];
+			
+			tween.onComplete.add(function() {
+				var damage = new Damage(
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
+					1, // Area
+					[] // Effects
+				);
+				target.takeDamage(damage);
+			}, sprite);//end tween.onComplete
 		},
 	},
 
