@@ -305,7 +305,7 @@ G.abilities[12] = [
 			ability.end();
 			var target = arrayUtils.last(path).creature;
 			
-			projectile_inst = G.projectile(this,target,'effects_freezing-spit',path,args);
+			projectile_inst = G.animations.projectile(this,target,'effects_freezing-spit',path,args,52,-20);
 			tween = projectile_inst[0];
 			sprite = projectile_inst[1];
 			dist = projectile_inst[2];
@@ -331,7 +331,7 @@ G.abilities[12] = [
 					target.updateHealth();
 					G.UI.updateFatigue();
 				}
-			}, sprite);
+			}, sprite); // End tween.onComplete
 		},
 		getAnimationData: function(path, args) {
 			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;

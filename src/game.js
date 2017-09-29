@@ -1252,33 +1252,7 @@ var Game = Class.create({
 		}
 	},
 	
-		projectile:function(this_2,target,sprite_id,path,args){
-		
-		
-		 var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
-
-		var emissionPoint = {
-					x: this_2.creature.grp.x + 52,
-					y: this_2.creature.grp.y - 20
-				};
-
-		var targetPoint = {
-					x: target.grp.x + 52,
-					y: target.grp.y - 20
-				};
-		var sprite = G.grid.creatureGroup.create(
-					emissionPoint.x, emissionPoint.y, sprite_id);//sprite id here
-				sprite.anchor.setTo(0.5);
-				sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
-				var duration = dist * 75;
-				var tween = G.Phaser.add.tween(sprite)
-					.to({
-						x: targetPoint.x,
-						y: targetPoint.y
-					}, duration, Phaser.Easing.Linear.None)
-					.start();
-		return [tween,sprite,dist];
-	},//end projectile
+	
 });
 
 function getImage(url) {

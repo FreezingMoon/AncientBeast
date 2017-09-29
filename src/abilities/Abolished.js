@@ -105,11 +105,12 @@ G.abilities[7] = [
 			ability.end();
 
 			var target = arrayUtils.last(path).creature;
-			projectile_inst = G.projectile(this,target,'effects_fiery-touch',path,args);
+			projectile_inst = G.animations.projectile(this,target,'effects_fiery-touch',path,args,200,-20);
 			tween = projectile_inst[0];
 			sprite = projectile_inst[1];
 			
 			tween.onComplete.add(function() {
+				
 				var damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
@@ -117,7 +118,9 @@ G.abilities[7] = [
 					[] // Effects
 				);
 				target.takeDamage(damage);
-			}, sprite);//end tween.onComplete
+				
+				this.destroy();
+			}, sprite); // End tween.onComplete
 		},
 	},
 
