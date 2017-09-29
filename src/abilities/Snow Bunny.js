@@ -298,33 +298,18 @@ G.abilities[12] = [
 		},
 
 
+		
 		//	activate() :
 		activate: function(path, args) {
 			var ability = this;
 			ability.end();
-
 			var target = arrayUtils.last(path).creature;
-			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
-
-			var emissionPoint = {
-				x: ability.creature.grp.x + 52,
-				y: ability.creature.grp.y - 20
-			};
-			var targetPoint = {
-				x: target.grp.x + 52,
-				y: target.grp.y - 20
-			};
-			var sprite = G.grid.creatureGroup.create(
-				emissionPoint.x, emissionPoint.y, 'effects_freezing-spit');
-			sprite.anchor.setTo(0.5);
-			sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
-			var duration = dist * 75;
-			var tween = G.Phaser.add.tween(sprite)
-				.to({
-					x: targetPoint.x,
-					y: targetPoint.y
-				}, duration, Phaser.Easing.Linear.None)
-				.start();
+			
+			projectileInstance  = G.animations.projectile(this, target, 'effects_freezing-spit', path,args, 52, -20);
+			tween = projectileInstance [0];
+			sprite = projectileInstance [1];
+			dist = projectileInstance [2];
+			
 			tween.onComplete.add(function() {
 				this.destroy();
 
@@ -346,9 +331,8 @@ G.abilities[12] = [
 					target.updateHealth();
 					G.UI.updateFatigue();
 				}
-			}, sprite);
+			}, sprite); // End tween.onComplete
 		},
-
 		getAnimationData: function(path, args) {
 			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 			return {

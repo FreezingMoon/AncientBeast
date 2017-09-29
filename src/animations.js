@@ -239,5 +239,32 @@ var Animations = Class.create({
 
 			G.animationQueue = queue;
 		}
-	}
+	},
+	projectile:function(this_2,target,sprite_id,path,args,start_x,start_y){
+		
+		
+		 var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
+
+		var emissionPoint = {
+					x: this_2.creature.grp.x + start_x,
+					y: this_2.creature.grp.y + start_y
+				};
+				
+		var targetPoint = {
+					x: target.grp.x + 52,
+					y: target.grp.y - 20
+				};
+		var sprite = G.grid.creatureGroup.create(
+					emissionPoint.x, emissionPoint.y, sprite_id); // Sprite id here
+				sprite.anchor.setTo(0.5);
+				sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
+				var duration = dist * 75;
+				var tween = G.Phaser.add.tween(sprite)
+					.to({
+						x: targetPoint.x,
+						y: targetPoint.y
+					}, duration, Phaser.Easing.Linear.None)
+					.start();
+		return [tween,sprite,dist];
+	}, // End projectile
 });
