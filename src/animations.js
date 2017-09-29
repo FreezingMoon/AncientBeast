@@ -255,7 +255,7 @@ var Animations = Class.create({
 					y: target.grp.y - 20
 				};
 		var sprite = G.grid.creatureGroup.create(
-					emissionPoint.x, emissionPoint.y, sprite_id); //Sprite id here
+					emissionPoint.x, emissionPoint.y, sprite_id); // Sprite id here
 				sprite.anchor.setTo(0.5);
 				sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
 				var duration = dist * 75;
@@ -266,5 +266,5 @@ var Animations = Class.create({
 					}, duration, Phaser.Easing.Linear.None)
 					.start();
 		return [tween,sprite,dist];
-	}, //End projectile
+	}, // End projectile
 });
