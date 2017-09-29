@@ -105,7 +105,7 @@ G.abilities[7] = [
 			ability.end();
 
 			var target = arrayUtils.last(path).creature;
-			projectile_inst = G.projectile(this,target,'effects_freezing-spit',path,args);
+			projectile_inst = G.projectile(this,target,'effects_fiery-touch',path,args);
 			tween = projectile_inst[0];
 			sprite = projectile_inst[1];
 			
