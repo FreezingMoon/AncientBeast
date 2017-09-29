@@ -105,9 +105,9 @@ G.abilities[7] = [
 			ability.end();
 
 			var target = arrayUtils.last(path).creature;
-			projectile_inst = G.animations.projectile(this,target,'effects_fiery-touch',path,args,200,-20);
-			tween = projectile_inst[0];
-			sprite = projectile_inst[1];
+			projectileInstance = G.animations.projectile(this, target, 'effects_fiery-touch', path, args, 200, -20);
+			tween = projectileInstance[0];
+			sprite = projectileInstance[1];
 			
 			tween.onComplete.add(function() {
 				

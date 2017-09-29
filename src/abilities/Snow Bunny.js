@@ -305,10 +305,10 @@ G.abilities[12] = [
 			ability.end();
 			var target = arrayUtils.last(path).creature;
 			
-			projectile_inst = G.animations.projectile(this,target,'effects_freezing-spit',path,args,52,-20);
-			tween = projectile_inst[0];
-			sprite = projectile_inst[1];
-			dist = projectile_inst[2];
+			projectileInstance  = G.animations.projectile(this, target, 'effects_freezing-spit', path,args, 52, -20);
+			tween = projectileInstance [0];
+			sprite = projectileInstance [1];
+			dist = projectileInstance [2];
 			
 			tween.onComplete.add(function() {
 				this.destroy();
