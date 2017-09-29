@@ -822,9 +822,8 @@ var UI = Class.create({
 				G.UI.$dash.children("#tooltip").text("Creature locked.");
 			}
 
-			var ct = $j(this).attr("creature"); //creatureType
-			//console.log(creatureType);
-			G.UI.showCreature(ct, G.UI.selectedPlayer);
+			var creatureType = $j(this).attr("creature"); // CreatureType
+			G.UI.showCreature(creatureType, G.UI.selectedPlayer);
 		});
 
 	},
