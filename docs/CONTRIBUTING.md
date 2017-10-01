@@ -57,7 +57,8 @@ For a more comprehensive guide on how to help out the project, you can check out
 If you encounter any problems with the version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues), try to avoid duplicates.<br>
 Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues.<br>
 You can use this function from the browser console window in order to fetch the log `G.gamelog.get()`.<br>
-To replay a match, you can start a new game and paste the log between brackets of `G.gamelog.play()`.
+To replay a match, you can start a new game and paste the log between brackets of `G.gamelog.play()`.<br>
+In order to open up Google Chrome browser's console, you can simply press `Ctrl + Shift + j` hotkeys.
 
 ### Patch Game
 The main coding language used is Javascript, feel free to create patches and propose them by making a Pull Request.
