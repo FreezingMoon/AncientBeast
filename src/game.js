@@ -1251,6 +1251,8 @@ var Game = Class.create({
 				break;
 		}
 	},
+	
+	
 });
 
 function getImage(url) {
