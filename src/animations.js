@@ -213,12 +213,12 @@ var Animations = Class.create({
 
 			G.grid.updateDisplay();
 
-			//TODO turn around animation
+			// TODO: Turn around animation
 			if (opts.turnAroundOnComplete) {
 				crea.facePlayerDefault();
 			}
 
-			//TODO reveal healh indicator
+			// TODO: Reveal healh indicator
 			crea.healthShow();
 
 			G.triggersFn.onCreatureMove(crea, hex); // Trigger
@@ -240,7 +240,7 @@ var Animations = Class.create({
 			G.animationQueue = queue;
 		}
 	},
-	projectile:function(this_2,target,sprite_id,path,args,start_x,start_y){
+	projectile: function(this_2, target, sprite_id, path,args, start_x, start_y) {
 		
 		
 		 var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
