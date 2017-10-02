@@ -92,7 +92,7 @@ G.abilities[3] = [
 		query: function() {
 			var uncle = this.creature;
 			var ability = this;
-
+		
 			G.grid.queryCreature({
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
@@ -108,8 +108,16 @@ G.abilities[3] = [
 		// activate() :
 		activate: function(target, args) {
 			var ability = this;
+			var uncle = this.creature;
 			ability.end();
-
+			
+			// If max health or more
+			if(uncle.stats.health >= uncle.baseStats.health)
+			{
+				//burp
+				uncle.hint("burp!", "msg_effects");
+			}
+			
 			var damage = new Damage(
 				ability.creature, // Attacker
 				ability.damages, // Damage type
