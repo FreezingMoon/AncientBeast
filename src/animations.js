@@ -218,7 +218,7 @@ var Animations = Class.create({
 				crea.facePlayerDefault();
 			}
 
-			// TODO: Reveal healh indicator
+			// TODO: Reveal health indicator
 			crea.healthShow();
 
 			G.triggersFn.onCreatureMove(crea, hex); // Trigger
