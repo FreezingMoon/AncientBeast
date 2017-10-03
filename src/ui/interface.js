@@ -864,7 +864,7 @@ var UI = Class.create({
 		}, this.dashAnimSpeed, "linear", function () {
 			G.UI.$dash.hide();
 		});
-		if (this.materializeToggled && G.activeCreature) {
+		if (this.materializeToggled && G.activeCreature && G.UI.selectedCreature === "--") {
 			G.activeCreature.queryMove();
 		}
 		this.dashopen = false;
