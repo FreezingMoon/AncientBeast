@@ -35,7 +35,9 @@ npm install
 ```
 
 This will read `package.json` and install all of the gameplay established npm package dependencies.<br>
-The *npm install* command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, it is good practice to check both npm and bower dependencies before continuing to work again.
+The *npm install* command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, it is good practice to check both npm and bower dependencies before continuing to work again.<br>
+
+If you're using Windows operating system and getting errors, try to `Run as administrator` or to disable your anti-virus.
 
 ### Betatest Game
 
