@@ -1075,10 +1075,10 @@ var UI = Class.create({
 						G.activeCreature.abilities[btn.abilityId].use();
 					} else {
 						G.grid.clearHexViewAlterations();
-						G.UI.selectAbility(-1);
 						// Cancel Ability
 						G.UI.closeDash();
 						G.activeCreature.queryMove();
+						G.UI.selectAbility(-1);
 					}
 				};
 
