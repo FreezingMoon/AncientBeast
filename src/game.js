@@ -269,6 +269,7 @@ var Game = Class.create({
 	startLoading: function() {
 		$j("#gameSetupContainer").hide();
 		$j("#loader").show();
+		$j("body").css("cursor", "wait");
 	},
 
 	loadFinish: function() {
@@ -280,6 +281,7 @@ var Game = Class.create({
 		if (progress == 100) {
 			setTimeout(function() {
 				$j("#loader").hide();
+				$j("body").css("cursor", "default");
 				G.setup(G.playerMode);
 			}, 1000)
 		}
