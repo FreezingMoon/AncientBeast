@@ -50,7 +50,7 @@ The project is developed with the use of free open source cross platform applica
 </tr>
 </table>
 
-### [Contribute](docs/CONTRIBUTING.md)
+### [Contribute](docs/CONTRIBUTING.md#readme)
 <p>
 You can help out the project by just ★ starring this repository from the <a href="#">upper right corner</a> and also by pinning it to your profile.
 There are more ways in which you can help out this project, check out the <a href="https://ancientbeast.com/contribute">"Make Your Contribution"</a> guide to get things going!</p>
