@@ -37,7 +37,6 @@ var Game = Class.create({
 	 *
 	 */
 
-
 	/*	Constructor
 	 *
 	 *	Only creates few attributes
@@ -113,7 +112,9 @@ var Game = Class.create({
 			}
 		});
 
-		// Msg (TODO External file)
+		// Messages
+		// TODO: Move strings to external file in order to be able to support translations
+		// https://github.com/FreezingMoon/AncientBeast/issues/923
 		this.msg = {
 			abilities: {
 				notarget: "No targets available.",
@@ -133,7 +134,6 @@ var Game = Class.create({
 			}
 		};
 	},
-
 
 	/*	loadGame(setupOpt) preload
 	 *
@@ -186,6 +186,7 @@ var Game = Class.create({
 				'p' + i + '_frozen',
 				'./interface/rectangle_frozen_' + playerColors[i] + '.png');
 		}
+
 		// Ability SFX
 		this.Phaser.load.audio('MagmaSpawn0', './units/sfx/Magma Spawn 0.ogg');
 		
@@ -296,7 +297,6 @@ var Game = Class.create({
 			//G.Phaser.debug.renderSpriteBounds(G.creatures[i].sprite);
 		}
 	},
-
 
 	/*	Setup(playerMode)
 	 *
@@ -437,36 +437,16 @@ var Game = Class.create({
 		G.soundsys.playMusic();
 	},
 
-
 	/*	resizeCombatFrame()
 	 *
 	 *	Resizes the combat frame
 	 *
 	 */
 	resizeCombatFrame: function() {
-		//TODO to fix or to delete this unused code
-
-		// if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ) {
-		//	// $j("#tabwrapper").css({scale: $j(window).height() / 1080});
-		//	this.$combatFrame.css({
-		//		scale: $j(window).height() / 1080,
-		//		"margin-left": -1920*($j(window).height()/1080)/2,
-		//		"margin-top": -1080*($j(window).height()/1080)/2,
-		//	});
-		// }else{
-		//	// $j("#tabwrapper").css({scale: $j(window).width() / 1080});
-		//	this.$combatFrame.css({
-		//		scale: $j(window).width() / 1920,
-		//		"margin-left": -1920*($j(window).width()/1920)/2,
-		//		"margin-top": -1080*($j(window).width()/1920)/2,
-		//	});
-		// }
-
 		if ($j("#cardwrapper").width() < $j("#card").width()) {
 			$j("#cardwrapper_inner").width();
 		}
 	},
-
 
 	/*	nextRound()
 	 *
@@ -491,7 +471,6 @@ var Game = Class.create({
 
 		this.nextCreature();
 	},
-
 
 	/*	nextCreature()
 	 *
@@ -608,7 +587,6 @@ var Game = Class.create({
 		}
 	},
 
-
 	/*	skipTurn()
 	 *
 	 *	Ends turn for the current unit
@@ -648,7 +626,6 @@ var Game = Class.create({
 		this.activeCreature.deactivate(false);
 		this.nextCreature();
 	},
-
 
 	/*	delayCreature()
 	 *
@@ -770,7 +747,6 @@ var Game = Class.create({
 			}
 		}
 	},
-
 
 	/*	retreiveCreatureStats(type)
 	 *
@@ -1037,7 +1013,6 @@ var Game = Class.create({
 		}
 	},
 
-
 	findCreature: function(o) {
 		var o = $j.extend({
 			team: -1, // No team
@@ -1113,7 +1088,7 @@ var Game = Class.create({
 			var $table = $j("#endscreen table tbody");
 		}
 
-		// FILLING THE BOARD
+		// Filling the board
 		for (var i = 0; i < this.playerMode; i++) { // Each player
 
 			// TimeBonus
