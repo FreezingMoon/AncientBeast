@@ -1,7 +1,7 @@
 /*	Game Class
  *
- *	Game contains all Game element and Game mechanism function.
- *	Its the root element and defined only one time through the G variable.
+ *	Game contains all Game elements and Game mechanisms functions.
+ *	It's the root element and defined only one time through the G variable.
  *
  *	NOTE: Constructor does nothing because the G object must be defined
  *	before creating other classes instances. The game setup is triggered
@@ -12,25 +12,25 @@
 var Game = Class.create({
 	/*	Attributes
 	 *
-	 *	NOTE : attributes and variables starting with $ are jquery elements
-	 *	and jquery functions can be called dirrectly from them.
+	 *	NOTE : attributes and variables starting with $ are jQuery elements
+	 *	and jQuery functions can be called directly from them.
 	 *
-	 *	// Jquery attributes
+	 *	// jQuery attributes
 	 *	$combatFrame :	Combat element containing all graphics except the UI
 	 *
 	 *	// Game elements
-	 *	players :			Array :	Containing Player objects ordered by player ID (0 to 3)
-	 *	creatures :			Array :	Contain creatures (creatures[creature.id]) start at index 1
+	 *	players :			Array :	Contains Player objects ordered by player ID (0 to 3)
+	 *	creatures :			Array :	Contains Creature objects (creatures[creature.id]) start at index 1
 	 *
 	 *	grid :				Grid :	Grid object
 	 *	UI :				UI :	UI object
 	 *
 	 *	queue :				CreatureQueue :	queue of creatures to manage phase order
 	 *
-	 *	turn :				Integer :	Number of the current turn
+	 *	turn :				Integer :	Current's turn number
 	 *
 	 *	// Normal attributes
-	 *	playerMode :		Integer :	Number of player in the game
+	 *	playerMode :		Integer :	Number of players in the game
 	 *	activeCreature :	Creature :	Current active creature object reference
 	 *	creaIdCounter :		Integer :	Creature ID counter used for creature creation
 	 *	creatureData :		Array :		Array containing all data for the creatures
@@ -40,7 +40,7 @@ var Game = Class.create({
 
 	/*	Constructor
 	 *
-	 *	Only create few attributes
+	 *	Only creates few attributes
 	 *
 	 */
 	initialize: function() {
@@ -128,7 +128,7 @@ var Game = Class.create({
 			},
 			ui: {
 				dash: {
-					materialize_overload: "Overload! Maximum number of units controlled",
+					materialize_overload: "Overload! Maximum number of units controlled reached.",
 				}
 			}
 		};
@@ -139,7 +139,7 @@ var Game = Class.create({
 	 *
 	 *	setupOpt :	Object :	Setup options from matchmaking menu
 	 *
-	 *	Load all required game files
+	 *	Loads all required game files
 	 */
 	loadGame: function(setupOpt) {
 		var defaultOpt = {
@@ -220,7 +220,7 @@ var Game = Class.create({
 		// Background
 		this.Phaser.load.image('background', "locations/" + this.background_image + "/bg.jpg");
 
-		// Get JSON files
+		// Gets JSON files
 		$j.getJSON("../units/data.json", function(data) {
 			G.creatureData = data;
 
@@ -238,10 +238,10 @@ var Game = Class.create({
 					// No need to load sounds and artwork
 					return;
 				}
-				// Load unit shouts
+				// Loads unit shouts
 				G.soundsys.getSound('../units/shouts/' + name + '.ogg', 1000 + creatureId);
 
-				// Load artwork
+				// Loads artwork
 				getImage('../units/artwork/' + name + '.jpg');
 
 				if (name == "Dark Priest") {
@@ -302,7 +302,7 @@ var Game = Class.create({
 	 *
 	 *	playerMode :		Integer :	Ideally 2 or 4, number of players to setup the game
 	 *
-	 *	Launch the game with the given number of player.
+	 *	Launches the game with the given number of player.
 	 *
 	 */
 	setup: function(playerMode) {
@@ -335,27 +335,27 @@ var Game = Class.create({
 			}
 		}, G);
 
-		// Reseting global counters
+		// Resets global counters
 		trapID = 0;
 		effectId = 0;
 		dropID = 0;
 		this.creaIdCounter = 1;
 
-		this.grid = new HexGrid(); // Creating Hexgrid
+		this.grid = new HexGrid(); // Creates Hexgrid
 
 		this.startMatchTime = new Date();
 
 		this.$combatFrame = $j("#combatframe");
 		this.$combatFrame.show();
 
-		// Remove loading screen
+		// Removes loading screen
 		$j("#matchMaking").hide();
 
 		for (var i = 0; i < playerMode; i++) {
 			var player = new Player(i);
 			this.players.push(player);
 
-			// Starting position
+			//Players's starting position
 			var pos = {};
 			if (playerMode > 2) { // If 4 players
 				switch (player.id) {
@@ -405,9 +405,9 @@ var Game = Class.create({
 
 		}
 
-		this.activeCreature = this.players[0].creatures[0]; // Prevent errors
+		this.activeCreature = this.players[0].creatures[0]; // Prevents errors
 
-		this.UI = new UI(); // Creating UI not before because certain function requires creature to exists
+		this.UI = new UI(); // Creating UI (not before because some functions requires creatures to exist).
 
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = "playing";
@@ -421,10 +421,10 @@ var Game = Class.create({
 
 		this.nextCreature();
 
-		G.resizeCombatFrame(); // Resize while the game start
+		G.resizeCombatFrame(); // Resizes while the game is starting
 		G.UI.resizeDash();
 
-		// Resize event
+		// Resizes event
 		$j(window).resize(function() {
 			// Throttle down to 1 event every 500ms of inactivity
 			clearTimeout(this.windowResizeTimeout);
@@ -440,10 +440,12 @@ var Game = Class.create({
 
 	/*	resizeCombatFrame()
 	 *
-	 *	Resize the combat frame
+	 *	Resizes the combat frame
 	 *
 	 */
 	resizeCombatFrame: function() {
+		//TO DO to fix or to delete this unused code
+
 		// if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ) {
 		//	// $j("#tabwrapper").css({scale: $j(window).height() / 1080});
 		//	this.$combatFrame.css({
@@ -468,7 +470,7 @@ var Game = Class.create({
 
 	/*	nextRound()
 	 *
-	 *	Replace the current Queue with the next queue.
+	 *	Replaces the current Queue with the next queue.
 	 *
 	 */
 	nextRound: function() {
@@ -477,7 +479,7 @@ var Game = Class.create({
 		this.log("Round " + this.turn, "roundmarker");
 		this.queue.nextRound();
 
-		// Resetting values
+		// Resets values
 		for (var i = 0; i < this.creatures.length; i++) {
 			if (this.creatures[i] instanceof Creature) {
 				this.creatures[i].delayable = true;
@@ -493,13 +495,13 @@ var Game = Class.create({
 
 	/*	nextCreature()
 	 *
-	 *	Activate the next creature in queue
+	 *	Activates the next creature from queue
 	 *
 	 */
 	nextCreature: function() {
 		G.UI.closeDash();
 		G.UI.btnToggleDash.changeState("normal");
-		G.grid.xray(new Hex(-1, -1)); // Clear Xray
+		G.grid.xray(new Hex(-1, -1)); // Clears Xray
 
 		if (this.gameState == "ended") return;
 
@@ -513,8 +515,8 @@ var Game = Class.create({
 					var differentPlayer = false;
 
 					if (G.queue.isCurrentEmpty()) {
-						G.nextRound(); // Go to next Round
-						return; // End function
+						G.nextRound(); // Switches to next Round
+						return; // Ends function
 					} else {
 						var next = G.queue.dequeue();
 						if (G.activeCreature) {
@@ -523,8 +525,8 @@ var Game = Class.create({
 							differentPlayer = true;
 						}
 						var last = G.activeCreature;
-						G.activeCreature = next; // Set new creature active
-						// Update health displays due to active creature change
+						G.activeCreature = next; // Sets new  active creature
+						// Updates health display due to active creature change
 						last.updateHealth();
 					}
 
@@ -541,7 +543,7 @@ var Game = Class.create({
 					G.log("Active Creature : %CreatureName" + G.activeCreature.id + "%");
 					G.activeCreature.activate();
 
-					// Show mini tutorial in the first round for each player
+					// Shows mini tutorial in the first round for each player
 					if (G.turn == 1) {
 						G.log("The active unit has a flashing hexagon");
 						G.log("It uses a plasma field to protect itself");
@@ -554,7 +556,7 @@ var Game = Class.create({
 						G.log("%CreatureName" + G.activeCreature.id + "%, press here to toggle tutorial!");
 					}
 
-					// Update UI to match new creature
+					// Updates UI to match new creature
 					G.UI.updateActivebox();
 					G.updateQueueDisplay();
 				}
@@ -572,7 +574,7 @@ var Game = Class.create({
 	 *
 	 *	obj :	Any :	Any variable to display in console and game log
 	 *
-	 *	Display obj in the console log and in the game log
+	 *	Displays obj on the console log and on the game log
 	 *
 	 */
 	log: function(obj, htmlclass) {
@@ -609,7 +611,7 @@ var Game = Class.create({
 
 	/*	skipTurn()
 	 *
-	 *	End turn for the current unit
+	 *	Ends turn for the current unit
 	 *
 	 */
 	skipTurn: function(o) {
@@ -650,7 +652,7 @@ var Game = Class.create({
 
 	/*	delayCreature()
 	 *
-	 *	Delay the action turn of the current creature
+	 *	Delays the action turn of the current creature
 	 *
 	 */
 	delayCreature: function(o) {
@@ -710,13 +712,13 @@ var Game = Class.create({
 
 		p.totalTimePool = Math.max(p.totalTimePool, 0); // Clamp
 
-		// Check all timepool
-		var playerStillHaveTime = (this.timePool > 0) ? false : true; // So check is always true for infinite time
+		// Checks all timepool
+		var playerStillHaveTime = (this.timePool > 0) ? false : true; //Check is always true for infinite time
 		for (var i = 0; i < this.playerMode; i++) { // Each player
 			playerStillHaveTime = (this.players[i].totalTimePool > 0) || playerStillHaveTime;
 		}
 
-		// Check Match Time
+		// Checks Match Time
 		if (!playerStillHaveTime) {
 			G.endGame();
 			return;
@@ -724,7 +726,7 @@ var Game = Class.create({
 
 		G.UI.updateTimer();
 
-		if (this.timePool > 0 && this.turnTimePool > 0) { // Turn time and timepool not infinite
+		if (this.timePool > 0 && this.turnTimePool > 0) { // Turns time and timepool not infinite
 			if ((date - p.startTime) / 1000 > this.turnTimePool || p.totalTimePool - (date - p.startTime) < 0) {
 				if (p.totalTimePool - (date - p.startTime) < 0)
 					p.deactivate(); // Only if timepool is empty
@@ -740,7 +742,7 @@ var Game = Class.create({
 					this.activeCreature.hint(Math.ceil(this.turnTimePool - ((date - p.startTime) / 1000)), msgStyle);
 				}
 			}
-		} else if (this.turnTimePool > 0) { // Turn time not infinite
+		} else if (this.turnTimePool > 0) { // Turns time not infinite
 			if ((date - p.startTime) / 1000 > this.turnTimePool) {
 				G.skipTurn();
 				return;
@@ -772,7 +774,7 @@ var Game = Class.create({
 
 	/*	retreiveCreatureStats(type)
 	 *
-	 *	type :	String :	Creature type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
+	 *	type :	String :	Creature's type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
 	 *
 	 *	Query the database for creature stats
 	 *
@@ -901,7 +903,7 @@ var Game = Class.create({
 			if (effect.turnLifetime > 0 && trigger === effect.deleteTrigger &&
 				G.turn - effect.creationTurn >= effect.turnLifetime) {
 				effect.deleteEffect();
-				// Update UI in case effect changes it
+				// Updates UI in case effect changes it
 				if (effect.target) {
 					effect.target.updateHealth();
 				}
@@ -915,8 +917,8 @@ var Game = Class.create({
 		onStepIn: function(creature, hex, opts) {
 			G.triggerAbility("onStepIn", arguments);
 			G.triggerEffect("onStepIn", arguments);
-			// Check traps last; this is because traps add effects triggered by
-			// this event, which get triggered again via G.triggerEffect. Otherwise
+			// Checks traps last; this is because traps adds effects triggered by
+			// this event, which gets triggered again via G.triggerEffect. Otherwise
 			// the trap's effects will be triggered twice.
 			if (!opts || !opts.ignoreTraps) {
 				G.triggerTrap("onStepIn", arguments);
@@ -926,8 +928,8 @@ var Game = Class.create({
 		onStepOut: function(creature, hex, callback) {
 			G.triggerAbility("onStepOut", arguments);
 			G.triggerEffect("onStepOut", arguments);
-			// Check traps last; this is because traps add effects triggered by
-			// this event, which get triggered again via G.triggerEffect. Otherwise
+			// Checks traps last; this is because traps add effects triggered by
+			// this event, which gets triggered again via G.triggerEffect. Otherwise
 			// the trap's effects will be triggered twice.
 			G.triggerTrap("onStepOut", arguments);
 		},
@@ -979,7 +981,7 @@ var Game = Class.create({
 			var i;
 			G.triggerAbility("onCreatureDeath", arguments);
 			G.triggerEffect("onCreatureDeath", [creature, creature]);
-			// Look for traps owned by this creature and destroy them
+			// Looks for traps owned by this creature and destroy them
 			for (i = 0; i < G.grid.traps.length; i++) {
 				var trap = G.grid.traps[i];
 				if (trap === undefined) continue;
@@ -989,7 +991,7 @@ var Game = Class.create({
 					i--;
 				}
 			}
-			// Look for effects owned by this creature and destroy them if necessary
+			// Looks for effects owned by this creature and destroy them if necessary
 			for (i = 0; i < G.effects.length; i++) {
 				var effect = G.effects[i];
 				if (effect.owner === creature && effect.deleteOnOwnerDeath) {
@@ -1089,24 +1091,24 @@ var Game = Class.create({
 
 	/*	endGame()
 	 *
-	 *	End the game and print stats
+	 *	Ends the game and prints stats
 	 *
 	 */
 	endGame: function() {
 		this.stopTimer();
 		this.gameState = "ended";
 
-		// Calculate The time cost of the end turn
+		// Calculates The time cost of the end turn
 		var skipTurn = new Date();
 		var p = this.activeCreature.player;
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
 
-		// Show Score Table
+		// Shows Score Table
 		$j("#endscreen").show();
 
 		var $table = $j("#endscreen table tbody");
 
-		if (this.playerMode == 2) { // If Only 2 players remove the other 2 columns
+		if (this.playerMode == 2) { // If Only 2 players, unnecessary columns are deleted
 			$table.children("tr").children("td:nth-child(even)").remove();
 			var $table = $j("#endscreen table tbody");
 		}
@@ -1150,14 +1152,14 @@ var Game = Class.create({
 			//----------Display-----------//
 			var colId = (this.playerMode > 2) ? (i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3)) : i + 2;
 
-			// Change Name
-			$table.children("tr.player_name").children("td:nth-child(" + colId + ")") // Weird expression swap 2nd and 3rd player
+			// Changes Name
+			$table.children("tr.player_name").children("td:nth-child(" + colId + ")") // Weird expression swaps 2nd and 3rd player
 				.text(this.players[i].name);
 
-			//Change score
+			//Changes score
 			$j.each(this.players[i].getScore(), function(index, val) {
 				var text = (val === 0 && index !== "total") ? "--" : val;
-				$table.children("tr." + index).children("td:nth-child(" + colId + ")") // Weird expression swap 2nd and 3rd player
+				$table.children("tr." + index).children("td:nth-child(" + colId + ")") // Weird expression swaps 2nd and 3rd player
 					.text(text);
 			});
 		}
