@@ -128,7 +128,7 @@ var Game = Class.create({
 			},
 			ui: {
 				dash: {
-					materialize_overload: "Overload! Maximum number of units controlled reached.",
+					materialize_overload: "Overload! Maximum number of units controlled",
 				}
 			}
 		};
@@ -355,7 +355,7 @@ var Game = Class.create({
 			var player = new Player(i);
 			this.players.push(player);
 
-			//Players's starting position
+			// Players's starting position
 			var pos = {};
 			if (playerMode > 2) { // If 4 players
 				switch (player.id) {
@@ -407,7 +407,7 @@ var Game = Class.create({
 
 		this.activeCreature = this.players[0].creatures[0]; // Prevents errors
 
-		this.UI = new UI(); // Creating UI (not before because some functions requires creatures to exist).
+		this.UI = new UI(); // Creating UI (not before because some functions requires creatures to exist)
 
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = "playing";
@@ -444,7 +444,7 @@ var Game = Class.create({
 	 *
 	 */
 	resizeCombatFrame: function() {
-		//TO DO to fix or to delete this unused code
+		//TODO to fix or to delete this unused code
 
 		// if( ($j(window).width() / 1920) > ($j(window).height() / 1080) ) {
 		//	// $j("#tabwrapper").css({scale: $j(window).height() / 1080});
@@ -713,7 +713,7 @@ var Game = Class.create({
 		p.totalTimePool = Math.max(p.totalTimePool, 0); // Clamp
 
 		// Checks all timepool
-		var playerStillHaveTime = (this.timePool > 0) ? false : true; //Check is always true for infinite time
+		var playerStillHaveTime = (this.timePool > 0) ? false : true; // Check is always true for infinite time
 		for (var i = 0; i < this.playerMode; i++) { // Each player
 			playerStillHaveTime = (this.players[i].totalTimePool > 0) || playerStillHaveTime;
 		}
@@ -1156,7 +1156,7 @@ var Game = Class.create({
 			$table.children("tr.player_name").children("td:nth-child(" + colId + ")") // Weird expression swaps 2nd and 3rd player
 				.text(this.players[i].name);
 
-			//Changes score
+			// Changes score
 			$j.each(this.players[i].getScore(), function(index, val) {
 				var text = (val === 0 && index !== "total") ? "--" : val;
 				$table.children("tr." + index).children("td:nth-child(" + colId + ")") // Weird expression swaps 2nd and 3rd player
