@@ -1,6 +1,6 @@
-/*	Ability Class
+/* Ability Class
  *
- *	Class parsing function from creature abilities
+ * Class parsing function from creature abilities
  *
  */
 var Ability = Class.create({
@@ -66,7 +66,7 @@ var Ability = Class.create({
 
 	/* use()
 	 *
-	 *	Test and use the ability
+	 * Test and use the ability
 	 *
 	 */
 	use: function() {
@@ -82,9 +82,9 @@ var Ability = Class.create({
 		return this.query();
 	},
 
-	/*	end()
+	/* end()
 	 *
-	 *	End the ability. Must be called at the end of each ability function;
+	 * End the ability. Must be called at the end of each ability function;
 	 *
 	 */
 	end: function(desableLogMsg, deferedEnding) {
@@ -100,9 +100,9 @@ var Ability = Class.create({
 		}
 	},
 
-	/*	setUsed(val)
+	/* setUsed(val)
 	 *
-	 *	val :	Boolean :	set the used attriute to the desired value
+	 * val : Boolean : set the used attriute to the desired value
 	 *
 	 */
 	setUsed: function(val) {
@@ -133,9 +133,9 @@ var Ability = Class.create({
 		G.UI.updateAbilityButtonsContent();
 	},
 
-	/*	animation()
+	/* animation()
 	 *
-	 *	Animate the creature
+	 * Animate the creature
 	 *
 	 */
 	animation: function() {
@@ -291,11 +291,11 @@ var Ability = Class.create({
 	},
 
 
-	/*	getTargets(hexes)
+	/* getTargets(hexes)
 	 *
-	 *	hexes : Array : Contains the targeted hexagons
+	 * hexes : Array : Contains the targeted hexagons
 	 *
-	 *	return : Array : Contains the target units
+	 * return : Array : Contains the target units
 	 *
 	 */
 	getTargets: function(hexes) {
@@ -368,9 +368,9 @@ var Ability = Class.create({
 		return string;
 	},
 
-	/*	areaDamage(targets)
+	/* areaDamage(targets)
 	 *
-	 *	targets : Array : Example : target = [ { target: crea1, hexesHit: 2 }, { target: crea2, hexesHit: 1 } ]
+	 * targets : Array : Example : target = [ { target: crea1, hexesHit: 2 }, { target: crea2, hexesHit: 1 } ]
 	 */
 	areaDamage: function(attacker, damages, effects, targets, ignoreRetaliation) {
 		var multiKill = 0;
@@ -415,11 +415,11 @@ var Ability = Class.create({
 	},
 
 
-	/*	testRequirements()
+	/* testRequirements()
 	 *
-	 *	test the requirement for this abilities. negatives values mean maximum value of the stat
-	 *	For instance : energy = -5 means energy must be lower than 5.
-	 *	If one requirement fails it returns false.
+	 * test the requirement for this abilities. negatives values mean maximum value of the stat
+	 * For instance : energy = -5 means energy must be lower than 5.
+	 * If one requirement fails it returns false.
 	 */
 	testRequirements: function() {
 		var def = {
@@ -607,16 +607,15 @@ abilities = []; // Array containing all javascript methods for abilities
 /*
  * Damage Class
  *
- * TODO this documentation needs to be updated with things that are determined dynamically like #melee and #counter
+ * TODO: This documentation needs to be updated with things that are determined dynamically like #melee and #counter
  */
 var Damage = Class.create({
 
 	/**
-	 *
-	 *	attacker :	Creature : Unit that initiated the damage
-	 *	damages :	Object : Object containing the damage by type {frost : 5} for example
-	 *	area :	Integer : Number of hexagons being hit
-	 *	effects :	Array : Contains Effect object to apply to the target
+	 * attacker : Creature : Unit that initiated the damage
+	 * damages : Object : Object containing the damage by type {frost : 5} for example
+	 * area : Integer : Number of hexagons being hit
+	 * effects : Array : Contains Effect object to apply to the target
 	 */
 	initialize: function(attacker, damages, area, effects) {
 		this.attacker = attacker;
@@ -638,14 +637,14 @@ var Damage = Class.create({
 			total: 0
 		};
 
-		// DAMAGE CALCULATION
+		// Damage calculation
 		$j.each(this.damages, function(key, value) {
 			var points;
 			if (key == "pure") { // Bypass defense calculation
 				points = value;
 			} else {
 				points = Math.round(value * (1 + (atk.offense - trg.defense / dmg.area + atk[key] - trg[key]) / 100));
-				//For Debuging
+				// For debugging purposes
 				if (G.debugMode) console.log("damage = " + value + key + "dmg * (1 + (" + atk.offense + "atkoffense - " + trg.defense + "trgdefense / " + dmg.area + "area + " + atk[key] + "atk" + key + " - " + trg[key] + "trg" + key + " )/100)");
 			}
 			returnObj[key] = points;
