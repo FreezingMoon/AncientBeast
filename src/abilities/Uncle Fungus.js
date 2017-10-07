@@ -245,7 +245,7 @@ G.abilities[3] = [
 			ability.creature.moveTo(hex, {
 				ignoreMovementPoint: true,
 				ignorePath: true,
-				callback: function () {
+				callback: function() {
 					// Shake the screen upon landing to simulate the jump
 					G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
