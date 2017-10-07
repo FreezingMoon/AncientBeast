@@ -263,10 +263,8 @@ var HexGrid = Class.create({
 				o.choices.push(dir);
 			}
 		}
-
 		return o;
 	},
-
 
 	/*
 	 *	queryChoice(o)
@@ -461,14 +459,13 @@ var HexGrid = Class.create({
 		this.queryHexes(this.lastQueryOpt);
 	},
 
-
 	/*	queryHexes(x, y, distance, size)
 	 *
 	 *	fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexes.
 	 *	fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
 	 *	fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
 	 * 	args : 			Object : 	Object given to the events function (to easily pass variable for these function)
-	 *	hexes : 			Array : 	Reachable hexes
+	 *	hexes : 		Array : 	Reachable hexes
 	 */
 	queryHexes: function(o) {
 
@@ -534,9 +531,6 @@ var HexGrid = Class.create({
 			}
 		}
 
-
-
-
 		// Set reachable the given hexes
 		o.hexes.forEach(function(hex) {
 			hex.setReachable();
@@ -544,7 +538,6 @@ var HexGrid = Class.create({
 				hex.unsetNotTarget();
 			}
 		});
-
 
 		// ONCLICK
 		var onConfirmFn = function() {
@@ -605,7 +598,6 @@ var HexGrid = Class.create({
 
 			}
 		};
-
 
 		// ONMOUSEOVER
 		var onSelectFn = function() {
@@ -682,7 +674,6 @@ var HexGrid = Class.create({
 
 	},
 
-
 	/*	xray(hex)
 	 *
 	 *	hex : 	Hex : 	Hexagon to emphase
@@ -747,8 +738,6 @@ var HexGrid = Class.create({
 	 * flipped
 	 */
 	getHexLine: function(x, y, dir, flipped) {
-
-
 		switch (dir) {
 			case 0: // Upright
 				return G.grid.getHexMap(x, y - 8, 0, flipped, matrices.diagonalup).reverse();
@@ -822,7 +811,6 @@ var HexGrid = Class.create({
 		});
 	},
 
-
 	/*	hexExists(y, x)
 	 *
 	 *	x : 	Integer : 	Coordinates to test
@@ -837,7 +825,6 @@ var HexGrid = Class.create({
 		}
 		return false;
 	},
-
 
 	/*	isHexIn(hex, hexArray)
 	 *
@@ -855,7 +842,6 @@ var HexGrid = Class.create({
 		}
 		return false;
 	},
-
 
 	/* 	getMovementRange(x, y, distance, size, id)
 	 *
@@ -885,7 +871,6 @@ var HexGrid = Class.create({
 		return arrayUtils.extendToLeft(hexes, size);
 	},
 
-
 	/* 	getFlyingRange(x,y,distance,size,id)
 	 *
 	 *	x : 		Integer : 	Start position
@@ -908,8 +893,7 @@ var HexGrid = Class.create({
 		return arrayUtils.extendToLeft(hexes, size);
 	},
 
-
-	/*	getHexMap(originx,originy,array)
+	/*	getHexMap(originx, originy, array)
 	 *
 	 *	array : 	Array : 	2-dimentions Array containing 0 or 1 (boolean)
 	 *	originx : 	Integer : 	Position of the array on the grid
@@ -956,7 +940,6 @@ var HexGrid = Class.create({
 
 		return hexes;
 	},
-
 
 	showGrid: function(val) {
 		this.forEachHex(function() {
@@ -1138,7 +1121,6 @@ var HexGrid = Class.create({
 			}
 		}
 
-
 		// Placing sprite
 		this.materialize_overlay.x = creaHex.displayPos.x + ((!player.flipped) ? creatureData.display["offset-x"] : 90 * creatureData.size - this.materialize_overlay.texture.width - creatureData.display["offset-x"]) + this.materialize_overlay.texture.width / 2;
 		this.materialize_overlay.y = creaHex.displayPos.y + creatureData.display["offset-y"] + this.materialize_overlay.texture.height;
@@ -1172,7 +1154,6 @@ var HexGrid = Class.create({
 	}
 
 }); // End of HexGrid Class
-
 
 /*	Hex Class
  *
@@ -1208,7 +1189,6 @@ var Hex = Class.create({
 	 *	displayPos : 	Object : 	Pos object to position creature with absolute coordinates {left,top}
 	 *
 	 */
-
 
 	/*	Constructor(x,y)
 	 *
@@ -1310,7 +1290,6 @@ var Hex = Class.create({
 		this.trap = undefined;
 	},
 
-
 	/*	adjacentHex(distance)
 	 *
 	 *	distance : 	integer : 	Distance form the current hex
@@ -1349,7 +1328,6 @@ var Hex = Class.create({
 		}
 		return adjHex;
 	},
-
 
 	/*	ghostOverlap()
 	 *
@@ -1397,7 +1375,6 @@ var Hex = Class.create({
 		};
 	},
 
-
 	/*	cleanPathAttr(includeG)
 	 *
 	 *	includeG : 	Boolean : 	Set includeG to True if you change the start of the calculated path.
@@ -1412,7 +1389,6 @@ var Hex = Class.create({
 		this.h = 0;
 		this.pathparent = null;
 	},
-
 
 	/*	isWalkable(size, id)
 	 *
@@ -1510,7 +1486,6 @@ var Hex = Class.create({
 		this.updateStyle();
 	},
 
-
 	/*	setReachable()
 	 *
 	 *	Set Hex.reachable to True for this hex and change $display class
@@ -1533,7 +1508,6 @@ var Hex = Class.create({
 		this.updateStyle();
 	},
 
-
 	unsetNotTarget: function() {
 		this.displayClasses = this.displayClasses.replace(/\bhidden\b/g, '');
 		this.updateStyle();
@@ -1545,9 +1519,7 @@ var Hex = Class.create({
 	},
 
 	updateStyle: function() {
-
 		// Display Hex
-
 		var targetAlpha = 0;
 
 		targetAlpha = this.reachable || !!this.displayClasses.match(/creature/g);
@@ -1576,7 +1548,6 @@ var Hex = Class.create({
 		// 		.start();
 		// }
 
-
 		// Display Coord
 		if (!!this.displayClasses.match(/showGrid/g)) {
 			if (!(this.coordText && this.coordText.exists)) {
@@ -1592,9 +1563,7 @@ var Hex = Class.create({
 			this.coordText.destroy();
 		}
 
-
 		// Overlay Hex
-
 		var targetAlpha = 0;
 
 		targetAlpha = !!this.overlayClasses.match(/hover|creature/g);
@@ -1613,7 +1582,6 @@ var Hex = Class.create({
 		}
 
 		this.overlay.alpha = targetAlpha;
-
 	},
 
 	/**
@@ -1663,7 +1631,6 @@ var Hex = Class.create({
 	},
 
 	//---------DROP FUNCTION---------//
-
 	pickupDrop: function(crea) {
 		if (!this.drop) return;
 		this.drop.pickup(crea);
