@@ -241,14 +241,14 @@ G.abilities[3] = [
 				}
 			}
 
-			// Shake the screen to simulate the jump
-			G.Phaser.camera.shake(0.01, this._getHexRange(false) * 50, true, this.Phaser.camera.SHAKE_VERTICAL, true);
-
 			// Jump directly to hex
 			ability.creature.moveTo(hex, {
 				ignoreMovementPoint: true,
 				ignorePath: true,
-				callback: function() {
+				callback: function () {
+					// Shake the screen upon landing to simulate the jump
+					G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+
 					G.triggersFn.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
 					var interval = setInterval(function() {
