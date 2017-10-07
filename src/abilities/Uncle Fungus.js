@@ -241,6 +241,9 @@ G.abilities[3] = [
 				}
 			}
 
+			// Shake the screen to simulate the jump
+			G.Phaser.camera.shake(0.01, this._getHexRange(false) * 50, true, this.Phaser.camera.SHAKE_VERTICAL, true);
+
 			// Jump directly to hex
 			ability.creature.moveTo(hex, {
 				ignoreMovementPoint: true,
