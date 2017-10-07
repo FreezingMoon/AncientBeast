@@ -224,7 +224,7 @@ var Ability = Class.create({
 		p1 += (this.creature.player.flipped) ? 5 : -5;
 		p2 += (this.creature.player.flipped) ? -5 : 5;
 
-		// Force creatures to face towards their target.
+		// Force creatures to face towards their target
 		if (args[0]) {
 			var hexToFace = (args[0] instanceof Array) ? args[0][0] : args[0];
 			this.creature.faceHex(hexToFace);
