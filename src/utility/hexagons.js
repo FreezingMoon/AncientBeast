@@ -12,7 +12,7 @@ var HexGrid = Class.create({
 	 *	NOTE : attributes and variables starting with $ are jquery element
 	 *	and jquery function can be called dirrectly from them.
 	 *
-	 *	//Jquery attributes
+	 *	// Jquery attributes
 	 *	$display : 		Grid container
 	 *	$creatureW : 	Creature Wrapper container
 	 *	$inpthexesW : 	Input Hexagons container
@@ -21,7 +21,7 @@ var HexGrid = Class.create({
 	 *	$allInptHex : 	Shortcut to all input hexagons DOM elements (for input events)
 	 *	$allDispHex : 	Shortcut to all display hexagons DOM elements (to change style of hexagons)
 	 *
-	 *	//Normal attributes
+	 *	// Normal attributes
 	 *	hexes : 				Array : 	Contain all hexes in row arrays (hexes[y][x])
 	 *	lastClickedHex : 	Hex : 		Last hex clicked!
 	 *
