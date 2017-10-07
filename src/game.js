@@ -1,44 +1,46 @@
-/* Game Class
+/*	Game Class
  *
- * Game contains all Game elements and functions.
- * It's the root element and defined only one time through the G variable.
+ *	Game contains all Game elements and functions.
+ *	It's the root element and defined only one time through the G variable.
  *
- * NOTE: Constructor does nothing because the G object must be defined
- * before creating other class instances. The game setup is triggered
- * to really start the game.
+ *	NOTE: Constructor does nothing because the G object must be defined
+ *	before creating other class instances. The game setup is triggered
+ *	to really start the game.
  *
  */
 
 var Game = Class.create({
-	/* Attributes
+	/*	Attributes
 	 *
-	 * NOTE : attributes and variables starting with $ are jQuery elements
-	 * and jQuery functions can be called directly from them.
+	 *	NOTE : attributes and variables starting with $ are jQuery elements
+	 *	and jQuery functions can be called directly from them.
 	 *
-	 * // jQuery attributes
-	 * $combatFrame : Combat element containing all graphics except the UI
+	 *	// jQuery attributes
+	 *	$combatFrame :	Combat element containing all graphics except the UI
 	 *
-	 * // Game elements
-	 * players : Array : Contains Player objects ordered by player ID (0 to 3)
-	 * creatures : Array : Contains Creature objects (creatures[creature.id]) start at index 1
+	 *	// Game elements
+	 *	players :			Array :	Contains Player objects ordered by player ID (0 to 3)
+	 *	creatures :			Array :	Contains Creature objects (creatures[creature.id]) start at index 1
 	 *
-	 * grid : Grid : Grid object
-	 * UI : UI : UI object
+	 *	grid :				Grid :	Grid object
+	 *	UI :				UI :	UI object
 	 *
-	 * queue : CreatureQueue : queue of creatures to manage phase order
+	 *	queue :				CreatureQueue :	queue of creatures to manage phase order
 	 *
-	 * turn : Integer : Current's turn number
+	 *	turn :				Integer :	Current's turn number
 	 *
-	 * // Normal attributes
-	 * playerMode : Integer : Number of players in the game
-	 * activeCreature : Creature : Current active creature object reference
-	 * creaIdCounter : Integer : Creature ID counter used for creature creation
-	 * creatureData : Array : Array containing all data for the creatures
+	 *	// Normal attributes
+	 *	playerMode :		Integer :	Number of players in the game
+	 *	activeCreature :	Creature :	Current active creature object reference
+	 *	creaIdCounter :		Integer :	Creature ID counter used for creature creation
+	 *	creatureData :		Array :		Array containing all data for the creatures
+	 *
 	 */
 
-	/* Constructor
+	/*	Constructor
 	 *
-	 * Initialize a few properties
+	 *	Initialize a few properties
+	 *
 	 */
 	initialize: function() {
 		this.abilities = [];
@@ -133,11 +135,11 @@ var Game = Class.create({
 		};
 	},
 
-	/* loadGame(setupOpt) preload
+	/*	loadGame(setupOpt) preload
 	 *
-	 * setupOpt : Object : Setup options from matchmaking menu
+	 *	setupOpt :	Object :	Setup options from matchmaking menu
 	 *
-	 * Load all required game files
+	 *	Load all required game files
 	 */
 	loadGame: function(setupOpt) {
 		var defaultOpt = {
@@ -296,11 +298,11 @@ var Game = Class.create({
 		}
 	},
 
-	/* Setup(playerMode)
+	/*	Setup(playerMode)
 	 *
-	 * playerMode : Integer : Ideally 2 or 4, number of players to configure
+	 *	playerMode :		Integer :	Ideally 2 or 4, number of players to configure
 	 *
-	 * Launches the game with the given number of player.
+	 *	Launch the game with the given number of player.
 	 *
 	 */
 	setup: function(playerMode) {
@@ -435,9 +437,9 @@ var Game = Class.create({
 		G.soundsys.playMusic();
 	},
 
-	/* resizeCombatFrame()
+	/*	resizeCombatFrame()
 	 *
-	 * Resize the combat frame
+	 *	Resize the combat frame
 	 */
 	resizeCombatFrame: function() {
 		if ($j("#cardwrapper").width() < $j("#card").width()) {
@@ -445,9 +447,9 @@ var Game = Class.create({
 		}
 	},
 
-	/* nextRound()
+	/*	nextRound()
 	 *
-	 * Replace the current queue with the next queue.
+	 *	Replace the current queue with the next queue
 	 */
 	nextRound: function() {
 		G.grid.clearHexViewAlterations();
@@ -468,9 +470,9 @@ var Game = Class.create({
 		this.nextCreature();
 	},
 
-	/* nextCreature()
+	/*	nextCreature()
 	 *
-	 * Activate the next creature in queue
+	 *	Activate the next creature in queue
 	 */
 	nextCreature: function() {
 		G.UI.closeDash();
@@ -544,11 +546,11 @@ var Game = Class.create({
 		}
 	},
 
-	/* log(obj)
+	/*	log(obj)
 	 *
-	 * obj : Any : Any variable to display in console and game log
+	 *	obj :	Any :	Any variable to display in console and game log
 	 *
-	 * Displays obj in the console log and in the game log
+	 *	Display obj in the console log and in the game log
 	 */
 	log: function(obj, htmlclass) {
 		// Formating
@@ -581,9 +583,9 @@ var Game = Class.create({
 		}
 	},
 
-	/* skipTurn()
+	/*	skipTurn()
 	 *
-	 * End turn for the current unit
+	 *	End turn for the current unit
 	 */
 	skipTurn: function(o) {
 		if (G.turnThrottle) return;
@@ -620,9 +622,9 @@ var Game = Class.create({
 		this.nextCreature();
 	},
 
-	/* delayCreature()
+	/*	delayCreature()
 	 *
-	 * Delay the action turn of the current creature
+	 *	Delay the action turn of the current creature
 	 */
 	delayCreature: function(o) {
 		if (G.turnThrottle) return;
@@ -739,11 +741,11 @@ var Game = Class.create({
 		}
 	},
 
-	/* retreiveCreatureStats(type)
+	/*	retreiveCreatureStats(type)
 	 *
-	 * type : String : Creature's type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
+	 *	type :	String :	Creature's type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
 	 *
-	 * Query the database for creature stats
+	 *	Query the database for creature stats
 	 */
 	retreiveCreatureStats: function(type) {
 		for (var i = this.creatureData.length - 1; i >= 0; i--) {
@@ -1054,9 +1056,9 @@ var Game = Class.create({
 		}
 	},
 
-	/* endGame()
+	/*	endGame()
 	 *
-	 * End the game and print stats
+	 *	End the game and print stats
 	 */
 	endGame: function() {
 		this.stopTimer();
