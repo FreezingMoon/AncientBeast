@@ -98,7 +98,7 @@ var HexGrid = Class.create({
 
 		o = $j.extend(defaultOpt, o);
 
-		//o.fnOnConfirm(G.activeCreature,o.args); // Autoconfirm
+		//o.fnOnConfirm(G.activeCreature,o.args); // Auto-confirm
 
 		G.activeCreature.hint(o.confirmText, "confirm");
 
