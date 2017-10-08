@@ -1,5 +1,5 @@
 [![Play Ancient Beast](http://img.shields.io/badge/play-Ancient%20Beast-red.svg)](https://play.AncientBeast.com)
-[![Donate via Patreon](http://img.shields.io/badge/join-Discord-blue.svg)](https://discord.gg/x78rKen)
+[![Donate via Patreon](http://img.shields.io/badge/join-Discord-blue.svg)](https://discord.me/AncientBeast)
 [![Donate via PayPal](http://img.shields.io/badge/donate-PayPal-yellow.svg)](https://www.paypal.me/AncientBeast)
 [![Donate via Patreon](http://img.shields.io/badge/donate-Patreon-orange.svg)](https://www.patreon.com/FreezingMoon)
 [![Donate bia Bountysource](https://www.bountysource.com/badge/team?team_id=44509&style=bounties_received)](https://www.bountysource.com/teams/ancientbeast/issues)
