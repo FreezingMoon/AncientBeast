@@ -225,9 +225,8 @@ var Ability = Class.create({
 		p2 += (this.creature.player.flipped) ? -5 : 5;
 
 		// Force creatures to face towards their target
-		if (args[0]) {
-			var hexToFace = (args[0] instanceof Array) ? args[0][0] : args[0];
-			this.creature.faceHex(hexToFace);
+		if (args[0] instanceof Creature) {
+			this.creature.faceHex(args[0]);
 		}
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {
