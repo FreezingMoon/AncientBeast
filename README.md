@@ -52,5 +52,6 @@ The project is developed with the use of free open source cross platform applica
 
 ### [Contribute](docs/CONTRIBUTING.md#readme)
 <p>
-You can help out the project by just ★ starring this repository from the <a href="#">upper right corner</a> and also by pinning it to your profile.
-There are more ways in which you can help out this project, check out the <a href="https://ancientbeast.com/contribute">"Make Your Contribution"</a> guide to get things going!</p>
+You can help out the project by just ★ starring this repository from the <a href="#">upper right corner</a> and also by pinning it to your profile.<br>
+If you wish to set-up a local copy of the game in order to patch it, go read the "<a href="https://github.com/FreezingMoon/AncientBeast/blob/master/docs/CONTRIBUTING.md#readme">CONTRIBUTING.md</a>" file from this repository.<br>
+There are more ways in which you can help out this project, check out the "<a href="https://ancientbeast.com/contribute" target="_blank">Make Your Contribution</a>" guide to get things going!</p>
