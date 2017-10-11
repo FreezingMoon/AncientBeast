@@ -873,7 +873,7 @@ var UI = Class.create({
 			availableTypes.some(creature => {
 				const lvl = creature.substring(1, 2) - 0;
 				const size = G.retreiveCreatureStats(creature).size - 0;
-				plasmaCost = lvl + size;
+				const plasmaCost = lvl + size;
 				return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
 			});
 			this.showCreature(typeToPass, G.activeCreature.team);
