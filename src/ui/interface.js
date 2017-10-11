@@ -853,7 +853,33 @@ var UI = Class.create({
 		} else {
 			this.closeDash();
 		}
+	},
 
+	godletToggle: function() {
+		if (!this.$dash.hasClass("active")) {
+			const activePlayer = G.players[G.activeCreature.player.id];
+			const typeMap = activePlayer.availableCreatures.filter(el => el.length);
+			const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type)
+			const availableTypes = typeMap.filter(el => !deadOrSummonedTypes.includes(el))
+			// optional: randomize array, grab a new creature every toggle
+			for (let i = availableTypes.length - 1; i > 0; i--) {
+				let j = Math.floor(Math.random() * (i + 1));
+				let temp = availableTypes[i];
+				availableTypes[i] = availableTypes[j];
+				availableTypes[j] = temp;
+			}
+			// grab the first creature we can afford (if none, default to priest)
+			let typeToPass = "--";
+			availableTypes.some(creature => {
+				const lvl = creature.substring(1, 2) - 0;
+				const size = G.retreiveCreatureStats(creature).size - 0;
+				plasmaCost = lvl + size;
+				return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
+			});
+			this.showCreature(typeToPass, G.activeCreature.team);
+		} else {
+			this.closeDash();
+		}
 	},
 
 	closeDash: function () {
