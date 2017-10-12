@@ -847,36 +847,31 @@ var UI = Class.create({
 	 *	Show the dash and hide some buttons
 	 *
 	 */
-	toggleDash: function () {
+	toggleDash: function (toggledByGodlet) {
 		if (!this.$dash.hasClass("active")) {
-			this.showCreature(G.activeCreature.type, G.activeCreature.team);
-		} else {
-			this.closeDash();
-		}
-	},
-
-	godletToggle: function() {
-		if (!this.$dash.hasClass("active")) {
-			const activePlayer = G.players[G.activeCreature.player.id];
-			const typeMap = activePlayer.availableCreatures.filter(el => el.length);
-			const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type)
-			const availableTypes = typeMap.filter(el => !deadOrSummonedTypes.includes(el))
-			// optional: randomize array, grab a new creature every toggle
-			for (let i = availableTypes.length - 1; i > 0; i--) {
-				let j = Math.floor(Math.random() * (i + 1));
-				let temp = availableTypes[i];
-				availableTypes[i] = availableTypes[j];
-				availableTypes[j] = temp;
+			if (toggledByGodlet) {
+				const activePlayer = G.players[G.activeCreature.player.id];
+				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type)
+				const availableTypes = activePlayer.availableCreatures.filter(el => !deadOrSummonedTypes.includes(el))
+				// Optional: randomize array to grab a new creature every toggle
+				for (let i = availableTypes.length - 1; i > 0; i--) {
+					let j = Math.floor(Math.random() * (i + 1));
+					let temp = availableTypes[i];
+					availableTypes[i] = availableTypes[j];
+					availableTypes[j] = temp;
+				}
+				// Grab the first creature we can afford (if none, default to priest)
+				let typeToPass = "--";
+				availableTypes.some(creature => {
+					const lvl = creature.substring(1, 2) - 0;
+					const size = G.retreiveCreatureStats(creature).size - 0;
+					const plasmaCost = lvl + size;
+					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
+				});
+				this.showCreature(typeToPass, G.activeCreature.team);
+			} else {
+				this.showCreature(G.activeCreature.type, G.activeCreature.team);
 			}
-			// grab the first creature we can afford (if none, default to priest)
-			let typeToPass = "--";
-			availableTypes.some(creature => {
-				const lvl = creature.substring(1, 2) - 0;
-				const size = G.retreiveCreatureStats(creature).size - 0;
-				const plasmaCost = lvl + size;
-				return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
-			});
-			this.showCreature(typeToPass, G.activeCreature.team);
 		} else {
 			this.closeDash();
 		}
