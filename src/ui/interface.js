@@ -847,9 +847,9 @@ var UI = Class.create({
 	 *	Show the dash and hide some buttons
 	 *
 	 */
-	toggleDash: function (toggledByGodlet) {
+	toggleDash: function (randomize) {
 		if (!this.$dash.hasClass("active")) {
-			if (toggledByGodlet) {
+			if (randomize) {
 				const activePlayer = G.players[G.activeCreature.player.id];
 				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type)
 				const availableTypes = activePlayer.availableCreatures.filter(el => !deadOrSummonedTypes.includes(el))
