@@ -599,6 +599,17 @@ var HexGrid = Class.create({
 			}
 		};
 
+		
+		var onHoverOffFn = function() {
+			var hex = this;
+			if (hex.creature instanceof Creature) { // toggle hover off event
+				var crea = hex.creature;
+				if(crea.type == "--" && crea === G.activeCreature){ // the plasma would have been displayed so now display the health again
+					crea.updateHealth();
+				}
+			}
+		}
+		
 		// ONMOUSEOVER
 		var onSelectFn = function() {
 			var hex = this;
@@ -611,12 +622,15 @@ var HexGrid = Class.create({
 			// Clear display and overlay
 			G.grid.updateDisplay();
 			G.UI.xrayQueue(-1);
-
+			
 			// Not reachable hex
 			if (!hex.reachable) {
 				if (G.grid.materialize_overlay) G.grid.materialize_overlay.alpha = 0;
 				if (hex.creature instanceof Creature) { // If creature
 					var crea = hex.creature;
+					if(crea.type == "--" && crea === G.activeCreature){
+						crea.displayPlasma();
+					}
 					crea.hexagons.forEach(function(hex) {
 						hex.overlayVisualState("hover h_player" + crea.team);
 					});
@@ -668,6 +682,7 @@ var HexGrid = Class.create({
 
 		this.forEachHex(function() {
 			this.onSelectFn = onSelectFn;
+			this.onHoverOffFn = onHoverOffFn;
 			this.onConfirmFn = onConfirmFn;
 			this.onRightClickFn = onRightClickFn;
 		});
@@ -1260,6 +1275,7 @@ var Hex = Class.create({
 				G.grid.redoLastQuery();
 				G.grid.xray(new Hex(-1, -1)); // Clear Xray
 				G.UI.xrayQueue(-1); // Clear Xray Queue
+				this.onHoverOffFn();
 			}, this);
 
 			this.input.events.onInputUp.add(function(Sprite, Pointer) {
@@ -1284,6 +1300,7 @@ var Hex = Class.create({
 		this.displayPos.y = this.displayPos.y * .75 + 30;
 
 		this.onSelectFn = function() {};
+		this.onHoverOffFn = function() {};
 		this.onConfirmFn = function() {};
 		this.onRightClickFn = function() {};
 
