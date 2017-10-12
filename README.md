@@ -5,6 +5,7 @@
 [![Donate bia Bountysource](https://www.bountysource.com/badge/team?team_id=44509&style=bounties_received)](https://www.bountysource.com/teams/ancientbeast/issues)
 [![Flattr this Project](http://img.shields.io/badge/donate-Flattr-green.svg)](https://flattr.com/thing/126547/Ancient-Beast)
 [![First timers only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg)](http://www.firsttimersonly.com)
+[![Code Triagers Badge](https://www.codetriage.com/freezingmoon/ancientbeast/badges/users.svg)](https://www.codetriage.com/freezingmoon/ancientbeast)
 
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/media/screenshots/v0.3%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** *Chuck Palahniuk*
