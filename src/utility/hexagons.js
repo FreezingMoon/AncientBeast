@@ -818,8 +818,6 @@ var HexGrid = Class.create({
 					if (item.creature.id == G.activeCreature.id) {
 						item.overlayVisualState("active creature player" + item.creature.team);
 						item.displayVisualState("creature player" + item.creature.team);
-					} else {
-						item.displayVisualState("creature player" + item.creature.team);
 					}
 				}
 			});
