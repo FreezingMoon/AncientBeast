@@ -10,11 +10,11 @@ var Creature = Class.create({
 	 *	NOTE : attributes and variables starting with $ are jquery element
 	 *	and jquery function can be called dirrectly from them.
 	 *
-	 *	//Jquery attributes
+	 *	// Jquery attributes
 	 *	$display :		Creature representation
 	 *	$effects :		Effects container (inside $display)
 	 *
-	 *	//Normal attributes
+	 *	// Normal attributes
 	 *	x :				Integer :	Hex coordinates
 	 *	y :				Integer :	Hex coordinates
 	 *	pos :			Object :	Pos object for hex comparison {x,y}
@@ -164,7 +164,7 @@ var Creature = Class.create({
 			});
 		this.healthIndicatorText.anchor.setTo(0.5, 0.5);
 		this.healthIndicatorGroup.add(this.healthIndicatorText);
-		// Hide It
+		// Hide it
 		this.healthIndicatorGroup.alpha = 0;
 
 		// State variable for displaying endurance/fatigue text
@@ -959,8 +959,8 @@ var Creature = Class.create({
 		this.updateHealth(isRegrowth);
 
 		if (amount > 0) {
-			if (isRegrowth) this.hint(amount + " ♥", 'healing d' + amount);
-			else this.hint(amount, 'healing d' + amount);
+			if (isRegrowth) this.hint("+" + amount + " ♥", 'healing d' + amount);
+			else this.hint("+" + amount, 'healing d' + amount);
 			G.log("%CreatureName" + this.id + "% recovers +" + amount + " health");
 		} else if (amount === 0) {
 			if (isRegrowth) this.hint("♦", 'msg_effects');
@@ -1099,21 +1099,21 @@ var Creature = Class.create({
 			G.UI.healthBar.animSize(this.health / this.stats.health);
 		}
 
-		// Dark Priest plasma shield when inactive
-		if (this.type == "--" && this.player.plasma > 0 &&
-			this !== G.activeCreature) {
+		if (this.stats.frozen) {
+			this.healthIndicatorSprite.loadTexture("p" + this.team + "_frozen");
+		} else {
+			this.healthIndicatorSprite.loadTexture("p" + this.team + "_health");
+		}
+		this.healthIndicatorText.setText(this.health);
+	},
+	
+	displayPlasma: function(){
+		if (this.type == "--" && this.player.plasma > 0) {
 			this.healthIndicatorSprite.loadTexture("p" + this.team + "_plasma");
 			this.healthIndicatorText.setText(this.player.plasma);
-		} else {
-			if (this.stats.frozen) {
-				this.healthIndicatorSprite.loadTexture("p" + this.team + "_frozen");
-			} else {
-				this.healthIndicatorSprite.loadTexture("p" + this.team + "_health");
-			}
-			this.healthIndicatorText.setText(this.health);
 		}
 	},
-
+	
 	addFatigue: function(dmgAmount) {
 		if (!this.stats.fatigueImmunity) {
 			this.endurance -= dmgAmount;

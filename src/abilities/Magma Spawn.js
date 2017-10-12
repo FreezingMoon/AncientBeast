@@ -20,6 +20,10 @@ G.abilities[4] = [
 			// Leave two traps behind
 			this._addTrap(this.creature.hexagons[1]);
 			this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
+			
+			// SFX
+			music = G.Phaser.add.audio('MagmaSpawn0');
+			music.play();
 		},
 
 		_addTrap: function(hex) {

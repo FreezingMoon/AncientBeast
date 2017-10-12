@@ -148,7 +148,7 @@ G.abilities[3] = [
 									regrowth: amount
 								}
 							} // Optional arguments
-						), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", //Custom Log
+						), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", // Custom Log
 						"Regrowth++"); // Custom Hint
 				}
 			}
@@ -246,6 +246,9 @@ G.abilities[3] = [
 				ignoreMovementPoint: true,
 				ignorePath: true,
 				callback: function() {
+					// Shake the screen upon landing to simulate the jump
+					G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+
 					G.triggersFn.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
 					var interval = setInterval(function() {

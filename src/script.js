@@ -8,7 +8,21 @@ $j(document).ready(function() {
 
 	$j("form#gameSetup").submit(function(e) {
 		e.preventDefault(); // Prevent submit
-		var gameconfig = {
+		var gameconfig = getGameConfig();
+
+
+		if (gameconfig.background_image == "random") {
+			var index = Math.floor(Math.random() * ($j('input[name="combatLocation"]').length - 1)) + 1; // nth-child indices start at 1
+			gameconfig.background_image = $j('input[name="combatLocation"]').slice(index, index + 1).attr("value");
+		}
+		G.loadGame(gameconfig);
+		return false; // Prevent submit
+	});
+});
+
+
+function getGameConfig() {
+	return {
 			playerMode: $j('input[name="playerMode"]:checked').val() - 0,
 			creaLimitNbr: $j('input[name="activeUnits"]:checked').val() - 0, // DP counts as One
 			unitDrops: $j('input[name="unitDrops"]:checked').val() - 0,
@@ -19,12 +33,12 @@ $j(document).ready(function() {
 			background_image: $j('input[name="combatLocation"]:checked').val(),
 
 		};
+}
 
-		if (gameconfig.background_image == "random") {
-			var index = Math.floor(Math.random() * ($j('input[name="combatLocation"]').length - 1)) + 1; // nth-child indices start at 1
-			gameconfig.background_image = $j('input[name="combatLocation"]').slice(index, index + 1).attr("value");
-		}
-		G.loadGame(gameconfig);
-		return false; // Prevent submit
-	});
-});
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
