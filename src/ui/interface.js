@@ -36,7 +36,7 @@ var UI = Class.create({
 		this.$activebox = $j("#activebox");
 
 		// Chat
-		this.chat = new Chat();
+		this.chat = new Chat(G);
 
 		// Buttons Objects
 		this.buttons = [];
