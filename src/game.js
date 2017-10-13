@@ -44,7 +44,7 @@ var Game = class Game {
 			id: 0
 		};
 
-		this.animations = new Animations();
+		this.animations = new Animations(this);
 		this.turn = 0;
 		this.queue = new CreatureQueue(this);
 		this.creatureIdCounter = 1;

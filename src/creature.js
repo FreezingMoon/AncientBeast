@@ -668,7 +668,7 @@ var Creature = class Creature {
 
 			this.travelDist = 0;
 
-			game.animations.movements[opts.animation](this, path, opts);
+			game.animations[opts.animation](this, path, opts);
 		} else {
 			game.log("This creature cannot be moved");
 		}
