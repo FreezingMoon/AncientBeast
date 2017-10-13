@@ -46,7 +46,7 @@ var Game = class Game {
 
 		this.animations = new Animations();
 		this.turn = 0;
-		this.queue = new CreatureQueue();
+		this.queue = new CreatureQueue(this);
 		this.creatureIdCounter = 1;
 		this.creatureData = [];
 		this.creatureJSON = [];
