@@ -44,7 +44,7 @@ var Creature = Class.create({
 	initialize: function(obj) {
 		// Engine
 		this.name = obj.name;
-		this.id = G.creaIdCounter++;
+		this.id = G.creatureIdCounter++;
 		this.x = obj.x - 0;
 		this.y = obj.y - 0;
 		this.pos = {
@@ -250,7 +250,7 @@ var Creature = Class.create({
 		crea.noActionPossible = false;
 
 		var varReset = function() {
-			G.triggersFn.onReset(crea);
+			G.onReset(crea);
 			// Variables reset
 			crea.updateAlteration();
 			crea.remainingMove = crea.stats.movement;
@@ -305,7 +305,7 @@ var Creature = Class.create({
 			varReset();
 
 			// Trigger
-			G.triggersFn.onStartPhase(crea);
+			G.onStartPhase(crea);
 		}
 
 		this.materializationSickness = false;
@@ -339,7 +339,7 @@ var Creature = Class.create({
 		// Effects triggers
 		if (!wait) {
 			this.turnsActive += 1;
-			G.triggersFn.onEndPhase(this);
+			G.onEndPhase(this);
 		}
 
 		this.delayable = false;
@@ -971,7 +971,7 @@ var Creature = Class.create({
 			G.log("%CreatureName" + this.id + "% loses " + amount + " health");
 		}
 
-		G.triggersFn.onHeal(this, amount);
+		G.onHeal(this, amount);
 	},
 
 
@@ -1003,8 +1003,8 @@ var Creature = Class.create({
 		damage.isFromTrap = o.isFromTrap;
 
 		// Trigger
-		G.triggersFn.onUnderAttack(this, damage);
-		G.triggersFn.onAttack(damage.attacker, damage);
+		G.onUnderAttack(this, damage);
+		G.onAttack(damage.attacker, damage);
 
 		// Calculation
 		if (damage.status === "") {
@@ -1061,7 +1061,7 @@ var Creature = Class.create({
 
 			// Trigger
 			if (!o.ignoreRetaliation) {
-				G.triggersFn.onDamage(this, damage);
+				G.onDamage(this, damage);
 			}
 
 			return {
@@ -1106,14 +1106,14 @@ var Creature = Class.create({
 		}
 		this.healthIndicatorText.setText(this.health);
 	},
-	
-	displayPlasma: function(){
+
+	displayPlasma: function() {
 		if (this.type == "--" && this.player.plasma > 0) {
 			this.healthIndicatorSprite.loadTexture("p" + this.team + "_plasma");
 			this.healthIndicatorText.setText(this.player.plasma);
 		}
 	},
-	
+
 	addFatigue: function(dmgAmount) {
 		if (!this.stats.fatigueImmunity) {
 			this.endurance -= dmgAmount;
@@ -1137,7 +1137,7 @@ var Creature = Class.create({
 		effect.target = this;
 		this.effects.push(effect);
 
-		G.triggersFn.onEffectAttach(this, effect);
+		G.onEffectAttach(this, effect);
 
 		this.updateAlteration();
 
@@ -1331,7 +1331,7 @@ var Creature = Class.create({
 		this.dead = true;
 
 		// Triggers
-		G.triggersFn.onCreatureDeath(this);
+		G.onCreatureDeath(this);
 
 		this.killer = killer.player;
 		var isDeny = (this.killer.flipped == this.player.flipped);

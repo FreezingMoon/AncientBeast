@@ -12,7 +12,7 @@ var Effect = Class.create({
 	 *	@param {object} optArgs: dictionary of optional arguments
 	 */
 	initialize: function(name, owner, target, trigger, optArgs) {
-		this.id = effectId++;
+		this.id = G.effectId++;
 
 		this.name = name;
 		this.owner = owner;

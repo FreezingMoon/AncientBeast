@@ -19,7 +19,7 @@ G.abilities[37] = [
 			this.message = "";
 
 			if (hex.trap) {
- 				if (hex.trap.type == "mud-bath") {
+				if (hex.trap.type == "mud-bath") {
 					G.UI.abilitiesButtons[0].changeState('noclick');
 					return true;
 				}
@@ -382,7 +382,7 @@ G.abilities[37] = [
 			// Trigger trap immediately if on self
 			if (isSelf) {
 				// onCreatureMove is Spa Goggles' trigger event
-				G.triggersFn.onCreatureMove(swine, hex);
+				G.onCreatureMove(swine, hex);
 			}
 
 		},

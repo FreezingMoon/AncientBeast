@@ -1,61 +1,53 @@
-/*	Game Class
+/* Game Class
  *
- *	Game contains all Game elements and functions.
- *	It's the root element and defined only one time through the G variable.
+ * Game contains all Game elements and functions.
+ * It's the root element and defined only one time through the G variable.
  *
- *	NOTE: Constructor does nothing because the G object must be defined
- *	before creating other class instances. The game setup is triggered
- *	to really start the game.
- *
+ * NOTE: Constructor does nothing because the G object must be defined
+ * before creating other class instances. The game setup is triggered
+ * to really start the game.
  */
 
-var Game = Class.create({
-	/*	Attributes
+var Game = class Game {
+	/* Attributes
 	 *
-	 *	NOTE : attributes and variables starting with $ are jQuery elements
-	 *	and jQuery functions can be called directly from them.
+	 * NOTE : attributes and variables starting with $ are jQuery elements
+	 * and jQuery functions can be called directly from them.
 	 *
-	 *	// jQuery attributes
-	 *	$combatFrame :	Combat element containing all graphics except the UI
+	 * // jQuery attributes
+	 * $combatFrame :	Combat element containing all graphics except the UI
 	 *
-	 *	// Game elements
-	 *	players :			Array :	Contains Player objects ordered by player ID (0 to 3)
-	 *	creatures :			Array :	Contains Creature objects (creatures[creature.id]) start at index 1
+	 * // Game elements
+	 * players :			Array :	Contains Player objects ordered by player ID (0 to 3)
+	 * creatures :			Array :	Contains Creature objects (creatures[creature.id]) start at index 1
 	 *
-	 *	grid :				Grid :	Grid object
-	 *	UI :				UI :	UI object
+	 * grid :				Grid :	Grid object
+	 * UI :				UI :	UI object
 	 *
-	 *	queue :				CreatureQueue :	queue of creatures to manage phase order
+	 * queue :				CreatureQueue :	queue of creatures to manage phase order
 	 *
-	 *	turn :				Integer :	Current's turn number
+	 * turn :				Integer :	Current's turn number
 	 *
-	 *	// Normal attributes
-	 *	playerMode :		Integer :	Number of players in the game
-	 *	activeCreature :	Creature :	Current active creature object reference
-	 *	creaIdCounter :		Integer :	Creature ID counter used for creature creation
-	 *	creatureData :		Array :		Array containing all data for the creatures
-	 *
-	 */
-
-	/*	Constructor
-	 *
-	 *	Initialize a few properties
+	 * // Normal attributes
+	 * playerMode :		Integer :	Number of players in the game
+	 * activeCreature :	Creature :	Current active creature object reference
+	 * creatureIdCounter :		Integer :	Creature ID counter used for creature creation
+	 * creatureData :		Array :		Array containing all data for the creatures
 	 *
 	 */
-	initialize: function() {
+	constructor() {
 		this.abilities = [];
 		this.players = [];
-		this.p = this.players; // Convenience
 		this.creatures = [];
-		this.c = this.creatures; // Convenience
 		this.effects = [];
 		this.activeCreature = {
 			id: 0
 		};
+
 		this.animations = new Animations();
 		this.turn = 0;
 		this.queue = new CreatureQueue();
-		this.creaIdCounter = 1;
+		this.creatureIdCounter = 1;
 		this.creatureData = [];
 		this.creatureJSON = [];
 		this.pause = false;
@@ -104,12 +96,8 @@ var Game = Class.create({
 
 		// Phaser
 		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
-			update: function() {
-				G.phaserUpdate();
-			},
-			render: function() {
-				G.phaserRender();
-			}
+			update: this.phaserUpdate.bind(this),
+			render: this.phaserRender.bind(this)
 		});
 
 		// Messages
@@ -133,48 +121,131 @@ var Game = Class.create({
 				}
 			}
 		};
-	},
 
-	/*	loadGame(setupOpt) preload
-	 *
-	 *	setupOpt :	Object :	Setup options from matchmaking menu
-	 *
-	 *	Load all required game files
-	 */
-	loadGame: function(setupOpt) {
-		var defaultOpt = {
-			playerMode: 2,
-			creaLimitNbr: 7,
-			unitDrops: 1,
-			abilityUpgrades: 4,
-			plasma_amount: 50,
-			turnTimePool: 60,
-			timePool: 5 * 60,
-			background_image: "Frozen Skull",
+		/* Regex Test for triggers */
+		this.triggers = {
+			onStepIn: /\bonStepIn\b/,
+			onStepOut: /\bonStepOut\b/,
+			onReset: /\bonReset\b/,
+			onStartPhase: /\bonStartPhase\b/,
+			onEndPhase: /\bonEndPhase\b/,
+			onMovement: /\bonMovement\b/,
+			onUnderAttack: /\bonUnderAttack\b/,
+			onDamage: /\bonDamage\b/,
+			onHeal: /\bonHeal\b/,
+			onAttack: /\bonAttack\b/,
+			onCreatureMove: /\bonCreatureMove\b/,
+			onCreatureDeath: /\bonCreatureDeath\b/,
+			onCreatureSummon: /\bonCreatureSummon\b/,
+
+			onStepIn_other: /\bonOtherStepIn\b/,
+			onStepOut_other: /\bonOtherStepOut\b/,
+			onReset_other: /\bonOtherReset\b/,
+			onStartPhase_other: /\bonOtherStartPhase\b/,
+			onEndPhase_other: /\bonOtherEndPhase\b/,
+			onMovement_other: /\bonOtherMovement\b/,
+			onAttack_other: /\bonOtherAttack\b/,
+			onDamage_other: /\bonOtherDamage\b/,
+			onHeal_other: /\bonOtherHeal\b/,
+			onUnderAttack_other: /\bonOtherUnderAttack\b/,
+			onCreatureMove_other: /\bonOtherCreatureMove\b/,
+			onCreatureDeath_other: /\bonOtherCreatureDeath\b/,
+			onCreatureSummon_other: /\bonOtherCreatureSummon\b/,
+
+			onEffectAttach: /\bonEffectAttach\b/,
+			onEffectAttach_other: /\bonOtherEffectAttach\b/,
+
+			onStartOfRound: /\bonStartOfRound\b/,
+			onQuery: /\bonQuery\b/,
+			oncePerDamageChain: /\boncePerDamageChain\b/
 		};
+	}
+
+	dataLoaded(data) {
+		let dpcolor = ["blue", "orange", "green", "red"];
+
+		this.creatureData = data;
+
+		data.forEach((creature, idx, arr) => {
+			let creatureId = creature.id,
+				realm = creature.realm,
+				level = creature.level,
+				type = realm.toUpperCase() + level,
+				name = creature.name,
+				count,
+				i;
+
+			creature.type = type;
+
+			if (this.loadedCreatures.indexOf(creatureId) === -1) {
+				// No need to load sounds and artwork
+				return;
+			}
+			// Load unit shouts
+			this.soundsys.getSound('../units/shouts/' + name + '.ogg', 1000 + creatureId);
+
+			// Load artwork
+			this.getImage('../units/artwork/' + name + '.jpg');
+
+			if (name == "Dark Priest") {
+				for (i = 0, count = dpcolor.length; i < count; i++) {
+					this.Phaser.load.image(name + dpcolor[i] + '_cardboard', '../units/cardboards/' + name + ' ' + dpcolor[i] + '.png');
+					this.getImage('../units/avatars/' + name + ' ' + dpcolor[i] + '.jpg');
+				}
+			} else {
+				if (creature.drop) {
+					this.Phaser.load.image('drop_' + creature.drop.name, 'drops/' + creature.drop.name + '.png');
+				}
+
+				this.Phaser.load.image(name + '_cardboard', '../units/cardboards/' + name + '.png');
+				this.getImage('../units/avatars/' + name + '.jpg');
+			}
+
+			// For code compatibility
+			this.availableCreatures[creatureId] = type;
+		});
+
+		this.Phaser.load.start();
+	}
+
+	/* loadGame(setupOpt) preload
+	 *
+	 * setupOpt :	Object :	Setup options from matchmaking menu
+	 *
+	 * Load all required game files
+	 */
+	loadGame(setupOpt) {
+		let totalSoundEffects = this.soundEffects.length,
+			defaultOpt = {
+				playerMode: 2,
+				creaLimitNbr: 7,
+				unitDrops: 1,
+				abilityUpgrades: 4,
+				plasma_amount: 50,
+				turnTimePool: 60,
+				timePool: 5 * 60,
+				background_image: "Frozen Skull",
+			},
+			i;
 
 		this.gameState = "loading";
 		// setupOpt = $j.extend(defaultOpt, setupOpt);
 		$j.extend(this, setupOpt);
 
-		G.startLoading();
-
-		dpcolor = ["blue", "orange", "green", "red"];
-
-		var i;
+		this.startLoading();
 
 		// Sounds
 		this.soundLoaded = {};
 		this.soundsys = new Soundsys();
 
-		for (i = 0; i < this.soundEffects.length; i++) {
+		for (i = 0; i < totalSoundEffects; i++) {
 			this.soundsys.getSound("./sounds/" + this.soundEffects[i], this.availableMusic.length + i);
 		}
 
-		this.Phaser.load.onFileComplete.add(G.loadFinish, G);
+		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
 
 		// Health
-		var playerColors = ['red', 'blue', 'orange', 'green'];
+		let playerColors = ['red', 'blue', 'orange', 'green'];
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image(
 				'p' + i + '_health',
@@ -222,90 +293,55 @@ var Game = Class.create({
 		this.Phaser.load.image('background', "locations/" + this.background_image + "/bg.jpg");
 
 		// Get JSON files
-		$j.getJSON("../units/data.json", function(data) {
-			G.creatureData = data;
+		$j.getJSON("../units/data.json", this.dataLoaded.bind(this));
+	}
 
-			data.forEach((creature) => {
-				let creatureId = creature.id;
-				let creatureData = G.creatureData[creatureId];
-				let realm = creatureData.realm;
-				let level = creatureData.level;
-				let type = realm.toUpperCase() + level;
-				let name = creatureData.name;
-
-				creatureData.type = type;
-
-				if (G.loadedCreatures.indexOf(creatureId) === -1) {
-					// No need to load sounds and artwork
-					return;
-				}
-				// Load unit shouts
-				G.soundsys.getSound('../units/shouts/' + name + '.ogg', 1000 + creatureId);
-
-				// Load artwork
-				getImage('../units/artwork/' + name + '.jpg');
-
-				if (name == "Dark Priest") {
-					for (var i = 0; i < dpcolor.length; i++) {
-						G.Phaser.load.image(name + dpcolor[i] + '_cardboard', '../units/cardboards/' + name + ' ' + dpcolor[i] + '.png');
-						getImage('../units/avatars/' + name + ' ' + dpcolor[i] + '.jpg');
-					}
-				} else {
-					if (creatureData.drop) {
-						G.Phaser.load.image('drop_' + creatureData.drop.name, 'drops/' + creatureData.drop.name + '.png');
-					}
-					G.Phaser.load.image(name + '_cardboard', '../units/cardboards/' + name + '.png');
-					getImage('../units/avatars/' + name + '.jpg');
-				}
-
-				// For code compatibility
-				G.availableCreatures[creatureId] = type;
-			});
-
-			G.Phaser.load.start();
-		});
-
-	},
-
-	startLoading: function() {
+	startLoading() {
 		$j("#gameSetupContainer").hide();
 		$j("#loader").show();
 		$j("body").css("cursor", "wait");
-	},
+	}
 
-	loadFinish: function() {
-		var progress = this.Phaser.load.progress;
-		var loadingBarWidth = 355;
-		var progressWidth = progress + '%';
+	loadFinish() {
+		let progress = this.Phaser.load.progress,
+			loadingBarWidth = 355,
+			progressWidth = progress + '%';
+
 		$j("#barLoader .progress").css('width', progressWidth);
 
 		if (progress == 100) {
-			setTimeout(function() {
+			setTimeout(() => {
 				$j("#loader").hide();
 				$j("body").css("cursor", "default");
-				G.setup(G.playerMode);
+				this.setup(this.playerMode);
 			}, 1000)
 		}
-	},
+	}
 
-	phaserUpdate: function() {
-		if (this.gameState != "playing") return;
-	},
+	phaserUpdate() {
+		if (this.gameState != "playing") {
+			return;
+		}
+	}
 
-	phaserRender: function() {
-		for (var i = 1; i < G.creatures.length; i++) {
+	phaserRender() {
+		let count = this.creatures.length,
+			i;
+
+		for (i = 1; i < count; i++) {
 			//G.Phaser.debug.renderSpriteBounds(G.creatures[i].sprite);
 		}
-	},
+	}
 
-	/*	Setup(playerMode)
+	/* Setup(playerMode)
 	 *
-	 *	playerMode :		Integer :	Ideally 2 or 4, number of players to configure
+	 * playerMode :		Integer :	Ideally 2 or 4, number of players to configure
 	 *
-	 *	Launch the game with the given number of player.
+	 * Launch the game with the given number of player.
 	 *
 	 */
-	setup: function(playerMode) {
+	setup(playerMode) {
+		let bg, i;
 
 		// Phaser
 		this.Phaser.scale.pageAlignHorizontally = true;
@@ -313,14 +349,18 @@ var Game = Class.create({
 		this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 		this.Phaser.scale.refresh();
 		this.Phaser.stage.disableVisibilityChange = true;
+
 		if (!this.Phaser.device.desktop) {
 			this.Phaser.stage.forcePortrait = true;
 		}
 
-		var bg = this.Phaser.add.sprite(0, 0, 'background');
+		bg = this.Phaser.add.sprite(0, 0, 'background');
 		bg.inputEnabled = true;
-		bg.events.onInputUp.add(function(Sprite, Pointer) {
-			if (G.freezedInput || G.UI.dashopen) return;
+		bg.events.onInputUp.add((Sprite, Pointer) => {
+			if (this.freezedInput || this.UI.dashopen) {
+				return;
+			}
+
 			switch (Pointer.button) {
 				case 0:
 					// Left mouse button pressed
@@ -330,16 +370,16 @@ var Game = Class.create({
 					break;
 				case 2:
 					// Right mouse button pressed
-					G.UI.showCreature(G.activeCreature.type, G.activeCreature.player.id);
+					this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id);
 					break;
 			}
-		}, G);
+		}, this);
 
 		// Reset global counters
-		trapID = 0;
-		effectId = 0;
-		dropID = 0;
-		this.creaIdCounter = 1;
+		this.trapId = 0;
+		this.effectId = 0;
+		this.dropId = 0;
+		this.creatureIdCounter = 1;
 
 		this.grid = new HexGrid(); // Create Hexgrid
 
@@ -351,12 +391,13 @@ var Game = Class.create({
 		// Remove loading screen
 		$j("#matchMaking").hide();
 
-		for (var i = 0; i < playerMode; i++) {
-			var player = new Player(i, G);
+		for (i = 0; i < playerMode; i++) {
+			let player = new Player(i, this);
 			this.players.push(player);
 
 			// Initialize players' starting positions
-			var pos = {};
+			let pos = {};
+
 			if (playerMode > 2) { // If 4 players
 				switch (player.id) {
 					case 0:
@@ -402,7 +443,6 @@ var Game = Class.create({
 			}
 
 			player.summon("--", pos); // Summon Dark Priest
-
 		}
 
 		this.activeCreature = this.players[0].creatures[0]; // Prevent errors
@@ -415,180 +455,194 @@ var Game = Class.create({
 		this.log("Welcome to Ancient Beast pre-Alpha");
 		this.log("Setting up a " + playerMode + " player match");
 
-		this.timeInterval = setInterval(function() {
-			G.checkTime();
-		}, G.checkTimeFrequency);
+		this.timeInterval = setInterval(() => {
+			this.checkTime();
+		}, this.checkTimeFrequency);
 
 		this.nextCreature();
 
-		G.resizeCombatFrame(); // Resize while the game is starting
-		G.UI.resizeDash();
+		this.resizeCombatFrame(); // Resize while the game is starting
+		this.UI.resizeDash();
 
 		// Handle resize events
-		$j(window).resize(function() {
+		$j(window).resize(() => {
 			// Throttle down to 1 event every 100ms of inactivity
 			clearTimeout(this.windowResizeTimeout);
-			this.windowResizeTimeout = setTimeout(function() {
-				G.resizeCombatFrame();
-				G.UI.resizeDash();
+			this.windowResizeTimeout = setTimeout(() => {
+				this.resizeCombatFrame();
+				this.UI.resizeDash();
 			}, 100);
 		});
 
-		G.soundsys.playMusic();
-	},
+		this.soundsys.playMusic();
+	}
 
-	/*	resizeCombatFrame()
+	/* resizeCombatFrame()
 	 *
-	 *	Resize the combat frame
+	 * Resize the combat frame
 	 */
-	resizeCombatFrame: function() {
+	resizeCombatFrame() {
 		if ($j("#cardwrapper").width() < $j("#card").width()) {
 			$j("#cardwrapper_inner").width();
 		}
-	},
+	}
 
-	/*	nextRound()
+	/* nextRound()
 	 *
-	 *	Replace the current queue with the next queue
+	 * Replace the current queue with the next queue
 	 */
-	nextRound: function() {
-		G.grid.clearHexViewAlterations();
+	nextRound() {
+		let totalCreatures = this.creatures.length,
+			i;
+
+		this.grid.clearHexViewAlterations();
 		this.turn++;
 		this.log("Round " + this.turn, "roundmarker");
 		this.queue.nextRound();
 
 		// Resets values
-		for (var i = 0; i < this.creatures.length; i++) {
+		for (i = 0; i < totalCreatures; i++) {
 			if (this.creatures[i] instanceof Creature) {
 				this.creatures[i].delayable = true;
 				this.creatures[i].delayed = false;
 			}
 		}
 
-		G.triggersFn.onStartOfRound();
+		this.onStartOfRound();
 
 		this.nextCreature();
-	},
+	}
 
-	/*	nextCreature()
+	/* nextCreature()
 	 *
-	 *	Activate the next creature in queue
+	 * Activate the next creature in queue
 	 */
-	nextCreature: function() {
-		G.UI.closeDash();
-		G.UI.btnToggleDash.changeState("normal");
-		G.grid.xray(new Hex(-1, -1)); // Clear Xray
+	nextCreature() {
+		this.UI.closeDash();
+		this.UI.btnToggleDash.changeState("normal");
+		this.grid.xray(new Hex(-1, -1)); // Clear Xray
 
-		if (this.gameState == "ended") return;
+		if (this.gameState == "ended") {
+			return;
+		}
 
-		G.stopTimer();
+		this.stopTimer();
 		// Delay
-		setTimeout(function() {
-			var interval = setInterval(function() {
-				if (!G.freezedInput) {
+		setTimeout(() => {
+			let interval = setInterval(() => {
+				if (!this.freezedInput) {
 					clearInterval(interval);
 
-					var differentPlayer = false;
+					let differentPlayer = false;
 
-					if (G.queue.isCurrentEmpty()) {
-						G.nextRound(); // Switch to the next Round
+					if (this.queue.isCurrentEmpty()) {
+						this.nextRound(); // Switch to the next Round
 						return;
 					} else {
-						var next = G.queue.dequeue();
-						if (G.activeCreature) {
-							differentPlayer = G.activeCreature.player != next.player;
+						let next = this.queue.dequeue();
+						if (this.activeCreature) {
+							differentPlayer = this.activeCreature.player != next.player;
 						} else {
 							differentPlayer = true;
 						}
-						var last = G.activeCreature;
-						G.activeCreature = next; // Set new activeCreature
+
+						let last = this.activeCreature;
+						this.activeCreature = next; // Set new activeCreature
 						// Update health display due to active creature change
 						last.updateHealth();
 					}
 
-					if (G.activeCreature.player.hasLost) {
-						G.nextCreature();
+					if (this.activeCreature.player.hasLost) {
+						this.nextCreature();
 						return;
 					}
 
 					// Play heartbeat sound on other player's turn
 					if (differentPlayer) {
-						G.soundsys.playSound(G.soundLoaded[4], G.soundsys.heartbeatGainNode);
+						this.soundsys.playSound(this.soundLoaded[4], this.soundsys.heartbeatGainNode);
 					}
 
-					G.log("Active Creature : %CreatureName" + G.activeCreature.id + "%");
-					G.activeCreature.activate();
+					this.log("Active Creature : %CreatureName" + this.activeCreature.id + "%");
+					this.activeCreature.activate();
 
 					// Show mini tutorial in the first round for each player
-					if (G.turn == 1) {
-						G.log("The active unit has a flashing hexagon");
-						G.log("It uses a plasma field to protect itself");
-						G.log("Its portrait is displayed in the upper left");
-						G.log("Under the portrait are the unit's abilities");
-						G.log("The ones with flashing icons are usable");
-						G.log("Use the last one to materialize a unit");
-						G.log("Making units drains your plasma points");
-						G.log("Press the hourglass icon to skip the turn");
-						G.log("%CreatureName" + G.activeCreature.id + "%, press here to toggle tutorial!");
+					if (this.turn == 1) {
+						this.log("The active unit has a flashing hexagon");
+						this.log("It uses a plasma field to protect itself");
+						this.log("Its portrait is displayed in the upper left");
+						this.log("Under the portrait are the unit's abilities");
+						this.log("The ones with flashing icons are usable");
+						this.log("Use the last one to materialize a unit");
+						this.log("Making units drains your plasma points");
+						this.log("Press the hourglass icon to skip the turn");
+						this.log("%CreatureName" + this.activeCreature.id + "%, press here to toggle tutorial!");
 					}
 
 					// Updates UI to match new creature
-					G.UI.updateActivebox();
-					G.updateQueueDisplay();
+					this.UI.updateActivebox();
+					this.updateQueueDisplay();
 				}
 			}, 50);
 		}, 300);
-	},
+	}
 
-	updateQueueDisplay: function(excludeActiveCreature) {
+	updateQueueDisplay(excludeActiveCreature) {
 		if (this.UI) {
 			this.UI.updateQueueDisplay(excludeActiveCreature);
 		}
-	},
+	}
 
-	/*	log(obj)
+	/* log(obj)
 	 *
-	 *	obj :	Any :	Any variable to display in console and game log
+	 * obj :	Any :	Any variable to display in console and game log
 	 *
-	 *	Display obj in the console log and in the game log
+	 * Display obj in the console log and in the game log
 	 */
-	log: function(obj, htmlclass) {
+	log(obj, htmlclass) {
 		// Formating
-		var stringConsole = obj;
-		var stringLog = obj;
-		for (var i = 0; i < this.creatures.length; i++) {
-			if (this.creatures[i] instanceof Creature) {
-				stringConsole = stringConsole.replace("%CreatureName" + i + "%", this.creatures[i].player.name + "'s " + this.creatures[i].name);
-				stringLog = stringLog.replace("%CreatureName" + i + "%", "<span class='" + this.creatures[i].player.color + "'>" + this.creatures[i].name + "</span>");
+		let stringConsole = obj,
+			stringLog = obj,
+			totalCreatures = this.creatures.length,
+			creature,
+			i;
+
+		for (i = 0; i < totalCreatures; i++) {
+			creature = this.creatures[i];
+
+			if (creature instanceof Creature) {
+				stringConsole = stringConsole.replace("%CreatureName" + i + "%", creature.player.name + "'s " + creature.name);
+				stringLog = stringLog.replace("%CreatureName" + i + "%", "<span class='" + creature.player.color + "'>" + creature.name + "</span>");
 			}
 		}
 
 		console.log(stringConsole);
 		this.UI.chat.addMsg(stringLog, htmlclass);
-	},
+	}
 
-	togglePause: function() {
-		if (G.freezedInput && G.pause) {
-			G.pause = false;
-			G.freezedInput = false;
-			G.pauseTime += new Date() - G.pauseStartTime;
+	togglePause() {
+		if (this.freezedInput && this.pause) {
+			this.pause = false;
+			this.freezedInput = false;
+			this.pauseTime += new Date() - this.pauseStartTime;
 			$j("#pause").remove();
-			G.startTimer();
-		} else if (!G.pause && !G.freezedInput) {
-			G.pause = true;
-			G.freezedInput = true;
-			G.pauseStartTime = new Date();
-			G.stopTimer();
+			this.startTimer();
+		} else if (!this.pause && !this.freezedInput) {
+			this.pause = true;
+			this.freezedInput = true;
+			this.pauseStartTime = new Date();
+			this.stopTimer();
 			$j("#ui").append('<div id="pause">Pause</div>');
 		}
-	},
+	}
 
-	/*	skipTurn()
+	/* skipTurn()
 	 *
-	 *	End turn for the current unit
+	 * End turn for the current unit
 	 */
-	skipTurn: function(o) {
-		if (G.turnThrottle) return;
+	skipTurn(o) {
+		if (this.turnThrottle) {
+			return;
+		}
 
 		o = $j.extend({
 			callback: function() {},
@@ -596,41 +650,46 @@ var Game = Class.create({
 			tooltip: 'Skipped'
 		}, o);
 
-		G.turnThrottle = true;
-		G.UI.btnSkipTurn.changeState("disabled");
-		G.UI.btnDelay.changeState("disabled");
+		this.turnThrottle = true;
+		this.UI.btnSkipTurn.changeState("disabled");
+		this.UI.btnDelay.changeState("disabled");
 
-		if (!o.noTooltip) G.activeCreature.hint(o.tooltip, "msg_effects");
+		if (!o.noTooltip) {
+			this.activeCreature.hint(o.tooltip, "msg_effects");
+		}
 
-		setTimeout(function() {
-			G.turnThrottle = false;
-			G.UI.btnSkipTurn.changeState("normal");
-			if (!G.activeCreature.hasWait &&
-				G.activeCreature.delayable &&
-				!G.queue.isCurrentEmpty()) {
-				G.UI.btnDelay.changeState("normal");
+		setTimeout(() => {
+			this.turnThrottle = false;
+			this.UI.btnSkipTurn.changeState("normal");
+
+			if (!this.activeCreature.hasWait && this.activeCreature.delayable && !this.queue.isCurrentEmpty()) {
+				this.UI.btnDelay.changeState("normal");
 			}
+
 			o.callback.apply();
 		}, 1000);
-		G.grid.clearHexViewAlterations();
+
+		this.grid.clearHexViewAlterations();
 		this.activeCreature.facePlayerDefault();
-		var skipTurn = new Date();
-		var p = this.activeCreature.player;
+
+		let skipTurn = new Date();
+		let p = this.activeCreature.player;
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
-		G.pauseTime = 0;
+		this.pauseTime = 0;
 		this.activeCreature.deactivate(false);
 		this.nextCreature();
-	},
+	}
 
-	/*	delayCreature()
+	/* delayCreature()
 	 *
-	 *	Delay the action turn of the current creature
+	 * Delay the action turn of the current creature
 	 */
-	delayCreature: function(o) {
-		if (G.turnThrottle) return;
-		if (this.activeCreature.hasWait ||
-			!this.activeCreature.delayable ||
-			G.queue.isCurrentEmpty()) {
+	delayCreature(o) {
+		if (this.turnThrottle) {
+			return;
+		}
+
+		if (this.activeCreature.hasWait || !this.activeCreature.delayable || this.queue.isCurrentEmpty()) {
 			return;
 		}
 
@@ -638,236 +697,214 @@ var Game = Class.create({
 			callback: function() {},
 		}, o);
 
-		G.turnThrottle = true;
-		G.UI.btnSkipTurn.changeState("disabled");
-		G.UI.btnDelay.changeState("disabled");
+		this.turnThrottle = true;
+		this.UI.btnSkipTurn.changeState("disabled");
+		this.UI.btnDelay.changeState("disabled");
 
-		setTimeout(function() {
-			G.turnThrottle = false;
-			G.UI.btnSkipTurn.changeState("normal");
-			if (!G.activeCreature.hasWait &&
-				G.activeCreature.delayable &&
-				!G.queue.isCurrentEmpty()) {
-				G.UI.btnDelay.changeState("normal");
+		setTimeout(() => {
+			this.turnThrottle = false;
+			this.UI.btnSkipTurn.changeState("normal");
+			if (!this.activeCreature.hasWait && this.activeCreature.delayable && !this.queue.isCurrentEmpty()) {
+				this.UI.btnDelay.changeState("normal");
 			}
+
 			o.callback.apply();
 		}, 1000);
-		var skipTurn = new Date();
-		var p = this.activeCreature.player;
+
+		let skipTurn = new Date(),
+			p = this.activeCreature.player;
+
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
 		this.activeCreature.wait();
 		this.nextCreature();
-	},
+	}
 
-	startTimer: function() {
+	startTimer() {
 		clearInterval(this.timeInterval);
-		this.activeCreature.player.startTime = new Date() - G.pauseTime;
-		G.checkTime();
-		this.timeInterval = setInterval(function() {
-			G.checkTime();
-		}, G.checkTimeFrequency);
-	},
+		this.activeCreature.player.startTime = new Date() - this.pauseTime;
+		this.checkTime();
 
-	stopTimer: function() {
+		this.timeInterval = setInterval(() => {
+			this.checkTime();
+		}, this.checkTimeFrequency);
+	}
+
+	stopTimer() {
 		clearInterval(this.timeInterval);
-	},
+	}
 
 	/* checkTime()
 	 */
-	checkTime: function() {
-		var date = new Date() - G.pauseTime;
-		var p = this.activeCreature.player;
-		var alertTime = 5; // In seconds
-		var msgStyle = "msg_effects";
+	checkTime() {
+		let date = new Date() - this.pauseTime,
+			p = this.activeCreature.player,
+			alertTime = 5, // In seconds
+			msgStyle = "msg_effects",
+			totalPlayers = this.playerMode,
+			i;
 
 		p.totalTimePool = Math.max(p.totalTimePool, 0); // Clamp
 
 		// Check all timepools
-		var playerStillHaveTime = (this.timePool > 0) ? false : true; // Check is always true for infinite time
-		for (var i = 0; i < this.playerMode; i++) { // Each player
+		// Check is always true for infinite time
+		let playerStillHaveTime = (this.timePool > 0) ? false : true;
+		for (i = 0; i < totalPlayers; i++) { // Each player
 			playerStillHaveTime = (this.players[i].totalTimePool > 0) || playerStillHaveTime;
 		}
 
 		// Check Match Time
 		if (!playerStillHaveTime) {
-			G.endGame();
+			this.endGame();
 			return;
 		}
 
-		G.UI.updateTimer();
+		this.UI.updateTimer();
 
-		if (this.timePool > 0 && this.turnTimePool > 0) { // Turn time and timepool not infinite
+		// Turn time and timepool not infinite
+		if (this.timePool > 0 && this.turnTimePool > 0) {
 			if ((date - p.startTime) / 1000 > this.turnTimePool || p.totalTimePool - (date - p.startTime) < 0) {
-				if (p.totalTimePool - (date - p.startTime) < 0)
+				if (p.totalTimePool - (date - p.startTime) < 0) {
 					p.deactivate(); // Only if timepool is empty
+				}
+
 				G.skipTurn();
 				return;
 			} else {
 				if ((p.totalTimePool - (date - p.startTime)) / 1000 < alertTime) {
 					msgStyle = "damage";
 				}
-				if (this.turnTimePool - ((date - p.startTime) / 1000) < alertTime && G.UI.dashopen) {
+
+				if (this.turnTimePool - ((date - p.startTime) / 1000) < alertTime && this.UI.dashopen) {
 					// Alert
-					G.UI.btnToggleDash.changeState("glowing");
+					this.UI.btnToggleDash.changeState("glowing");
 					this.activeCreature.hint(Math.ceil(this.turnTimePool - ((date - p.startTime) / 1000)), msgStyle);
 				}
 			}
 		} else if (this.turnTimePool > 0) { // Turn time is not infinite
 			if ((date - p.startTime) / 1000 > this.turnTimePool) {
-				G.skipTurn();
+				this.skipTurn();
 				return;
 			} else {
-				if (this.turnTimePool - ((date - p.startTime) / 1000) < alertTime && G.UI.dashopen) {
+				if (this.turnTimePool - ((date - p.startTime) / 1000) < alertTime && this.UI.dashopen) {
 					// Alert
-					G.UI.btnToggleDash.changeState("glowing");
+					this.UI.btnToggleDash.changeState("glowing");
 					this.activeCreature.hint(Math.ceil(this.turnTimePool - ((date - p.startTime) / 1000)), msgStyle);
 				}
 			}
 		} else if (this.timePool > 0) { // Timepool is not infinite
 			if (p.totalTimePool - (date - p.startTime) < 0) {
 				p.deactivate();
-				G.skipTurn();
+				this.skipTurn();
 				return;
 			} else {
 				if (p.totalTimePool - (date - p.startTime) < alertTime) {
 					msgStyle = "damage";
 				}
-				if (this.turnTimePool - ((date - p.startTime) / 1000) < alertTime && G.UI.dashopen) {
+
+				if (this.turnTimePool - ((date - p.startTime) / 1000) < alertTime && this.UI.dashopen) {
 					// Alert
-					G.UI.btnToggleDash.changeState("glowing");
+					this.UI.btnToggleDash.changeState("glowing");
 					this.activeCreature.hint(Math.ceil(this.turnTimePool - ((date - p.startTime) / 1000)), msgStyle);
 				}
 			}
 		}
-	},
+	}
 
-	/*	retreiveCreatureStats(type)
+	/* retreiveCreatureStats(type)
 	 *
-	 *	type :	String :	Creature's type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
+	 * type :	String :	Creature's type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
 	 *
-	 *	Query the database for creature stats
+	 * Query the database for creature stats
 	 */
-	retreiveCreatureStats: function(type) {
-		for (var i = this.creatureData.length - 1; i >= 0; i--) {
-			if (this.creatureData[i].type == type) return this.creatureData[i];
+	retreiveCreatureStats(type) {
+		let totalCreatures = this.creatureData.length,
+			i;
+
+		for (i = totalCreatures - 1; i >= 0; i--) {
+			if (this.creatureData[i].type == type) {
+				return this.creatureData[i];
+			}
 		}
-	},
+	}
 
-	/* Regex Test for triggers */
-	triggers: {
-		onStepIn: /\bonStepIn\b/,
-		onStepOut: /\bonStepOut\b/,
-		onReset: /\bonReset\b/,
-		onStartPhase: /\bonStartPhase\b/,
-		onEndPhase: /\bonEndPhase\b/,
-		onMovement: /\bonMovement\b/,
-		onUnderAttack: /\bonUnderAttack\b/,
-		onDamage: /\bonDamage\b/,
-		onHeal: /\bonHeal\b/,
-		onAttack: /\bonAttack\b/,
-		onCreatureMove: /\bonCreatureMove\b/,
-		onCreatureDeath: /\bonCreatureDeath\b/,
-		onCreatureSummon: /\bonCreatureSummon\b/,
-
-		onStepIn_other: /\bonOtherStepIn\b/,
-		onStepOut_other: /\bonOtherStepOut\b/,
-		onReset_other: /\bonOtherReset\b/,
-		onStartPhase_other: /\bonOtherStartPhase\b/,
-		onEndPhase_other: /\bonOtherEndPhase\b/,
-		onMovement_other: /\bonOtherMovement\b/,
-		onAttack_other: /\bonOtherAttack\b/,
-		onDamage_other: /\bonOtherDamage\b/,
-		onHeal_other: /\bonOtherHeal\b/,
-		onUnderAttack_other: /\bonOtherUnderAttack\b/,
-		onCreatureMove_other: /\bonOtherCreatureMove\b/,
-		onCreatureDeath_other: /\bonOtherCreatureDeath\b/,
-		onCreatureSummon_other: /\bonOtherCreatureSummon\b/,
-
-		onEffectAttach: /\bonEffectAttach\b/,
-		onEffectAttach_other: /\bonOtherEffectAttach\b/,
-
-		onStartOfRound: /\bonStartOfRound\b/,
-		onQuery: /\bonQuery\b/,
-		oncePerDamageChain: /\boncePerDamageChain\b/
-	},
-
-	triggerAbility: function(trigger, arg, retValue) {
+	triggerAbility(trigger, arg, retValue) {
+		let [triggeredCreature, required] = arg;
 
 		// For triggered creature
-		arg[0].abilities.forEach(function(ability) {
-			if (arg[0].dead === true) {
+		triggeredCreature.abilities.forEach((ability) => {
+			if (triggeredCreature.dead === true) {
 				return;
 			}
 
-			if (G.triggers[trigger].test(ability.getTrigger())) {
-				if (ability.require(arg[1])) {
-					retValue = ability.animation(arg[1]);
+			if (this.triggers[trigger].test(ability.getTrigger())) {
+				if (ability.require(required)) {
+					retValue = ability.animation(required);
 				}
 			}
 		});
 
 		// For other creatures
-		G.creatures.forEach(function(creature) {
-			if (arg[0] === creature || creature.dead === true) {
+		this.creatures.forEach((creature) => {
+			if (triggeredCreature === creature || creature.dead === true) {
 				return;
 			}
 
-			creature.abilities.forEach(function(ability) {
-				if (G.triggers[trigger + "_other"].test(ability.getTrigger())) {
-					if (ability.require(arg[1])) {
-						retValue = ability.animation(arg[1], arg[0]);
+			creature.abilities.forEach((ability) => {
+				if (this.triggers[trigger + "_other"].test(ability.getTrigger())) {
+					if (ability.require(required)) {
+						retValue = ability.animation(required, triggedCreature);
 					}
 				}
 			});
 		});
-	},
+	}
 
-	triggerEffect: function(trigger, arg, retValue) {
+	triggerEffect(trigger, arg, retValue) {
+		let [triggeredCreature, required] = arg;
 
 		// For triggered creature
-		arg[0].effects.forEach(function(effect) {
-			if (arg[0].dead === true) {
+		triggeredCreature.effects.forEach((effect) => {
+			if (triggeredCreature.dead === true) {
 				return;
 			}
 
-			if (G.triggers[trigger].test(effect.trigger)) {
-				retValue = effect.activate(arg[1]);
+			if (this.triggers[trigger].test(effect.trigger)) {
+				retValue = effect.activate(required);
 			}
 		});
 
 		// For other creatures
-		G.creatures.forEach(function(creature) {
+		this.creatures.forEach((creature) => {
 			if (creature instanceof Creature) {
-				if (arg[0] === creature || creature.dead === true) {
+				if (triggeredCreature === creature || creature.dead === true) {
 					return;
 				}
 
-				creature.effects.forEach(function(effect) {
-					if (G.triggers[trigger + "_other"].test(effect.trigger)) {
-						retValue = effect.activate(arg[1]);
+				creature.effects.forEach((effect) => {
+					if (this.triggers[trigger + "_other"].test(effect.trigger)) {
+						retValue = effect.activate(required);
 					}
 				});
 			}
 		});
-	},
+	}
 
-	triggerTrap: function(trigger, arg) {
-		arg[0].hexagons.forEach(function(hex) {
-			hex.activateTrap(G.triggers[trigger], arg[0]);
+	triggerTrap(trigger, arg) {
+		let [triggeredCreature, required] = arg;
+
+		triggeredCreature.hexagons.forEach((hex) => {
+			hex.activateTrap(this.triggers[trigger], triggeredCreature);
 		});
-	},
+	}
 
-	triggerDeleteEffect: function(trigger, creature) {
-		var effects;
+	triggerDeleteEffect(trigger, creature) {
+		let effects = (creature == "all") ? this.effects : creature.effects,
+			totalEffects = effects.length,
+			i;
 
-		if (creature == "all") {
-			effects = G.effects;
-		} else {
-			effects = creature.effects;
-		}
+		for (i = 0; i < totalEffects; i++) {
+			let effect = effects[i];
 
-		for (var i = 0; i < effects.length; i++) {
-			var effect = effects[i];
 			if (effect.turnLifetime > 0 && trigger === effect.deleteTrigger &&
 				G.turn - effect.creationTurn >= effect.turnLifetime) {
 				effect.deleteEffect();
@@ -875,213 +912,259 @@ var Game = Class.create({
 				if (effect.target) {
 					effect.target.updateHealth();
 				}
+
 				i--;
 			}
 		}
-	},
+	}
 
-	triggersFn: {
+	onStepIn(creature, hex, opts) {
+		this.triggerAbility("onStepIn", arguments);
+		this.triggerEffect("onStepIn", arguments);
+		// Check traps last; this is because traps adds effects triggered by
+		// this event, which gets triggered again via G.triggerEffect. Otherwise
+		// the trap's effects will be triggered twice.
+		if (!opts || !opts.ignoreTraps) {
+			this.triggerTrap("onStepIn", arguments);
+		}
+	}
 
-		onStepIn: function(creature, hex, opts) {
-			G.triggerAbility("onStepIn", arguments);
-			G.triggerEffect("onStepIn", arguments);
-			// Check traps last; this is because traps adds effects triggered by
-			// this event, which gets triggered again via G.triggerEffect. Otherwise
-			// the trap's effects will be triggered twice.
-			if (!opts || !opts.ignoreTraps) {
-				G.triggerTrap("onStepIn", arguments);
+	onStepOut(creature, hex, callback) {
+		this.triggerAbility("onStepOut", arguments);
+		this.triggerEffect("onStepOut", arguments);
+		// Check traps last; this is because traps add effects triggered by
+		// this event, which gets triggered again via G.triggerEffect. Otherwise
+		// the trap's effects will be triggered twice.
+		this.triggerTrap("onStepOut", arguments);
+	}
+
+	onReset(creature) {
+		this.triggerDeleteEffect("onReset", creature);
+		this.triggerAbility("onReset", arguments);
+		this.triggerEffect("onReset", [creature, creature]);
+	}
+
+	onStartPhase(creature, callback) {
+		let totalTraps = this.grid.traps.length,
+			trap,
+			i;
+
+		for (i = 0; i < totalTraps; i++) {
+			trap = this.grid.traps[i];
+
+			if (trap === undefined) {
+				continue;
 			}
-		},
 
-		onStepOut: function(creature, hex, callback) {
-			G.triggerAbility("onStepOut", arguments);
-			G.triggerEffect("onStepOut", arguments);
-			// Check traps last; this is because traps add effects triggered by
-			// this event, which gets triggered again via G.triggerEffect. Otherwise
-			// the trap's effects will be triggered twice.
-			G.triggerTrap("onStepOut", arguments);
-		},
-
-		onReset: function(creature) {
-			G.triggerDeleteEffect("onReset", creature);
-			G.triggerAbility("onReset", arguments);
-			G.triggerEffect("onReset", [creature, creature]);
-		},
-
-		onStartPhase: function(creature, callback) {
-			for (var i = 0; i < G.grid.traps.length; i++) {
-				trap = G.grid.traps[i];
-				if (trap === undefined) continue;
-				if (trap.turnLifetime > 0) {
-					if (G.turn - trap.creationTurn >= trap.turnLifetime) {
-						if (trap.fullTurnLifetime) {
-							if (trap.ownerCreature == G.activeCreature) {
-								trap.destroy();
-								i--;
-							}
-						} else {
+			if (trap.turnLifetime > 0) {
+				if (this.turn - trap.creationTurn >= trap.turnLifetime) {
+					if (trap.fullTurnLifetime) {
+						if (trap.ownerCreature == G.activeCreature) {
 							trap.destroy();
 							i--;
 						}
+					} else {
+						trap.destroy();
+						i--;
 					}
 				}
 			}
-			G.triggerDeleteEffect("onStartPhase", creature);
-			G.triggerAbility("onStartPhase", arguments);
-			G.triggerEffect("onStartPhase", [creature, creature]);
-		},
-
-		onEndPhase: function(creature, callback) {
-			G.triggerDeleteEffect("onEndPhase", creature);
-			G.triggerAbility("onEndPhase", arguments);
-			G.triggerEffect("onEndPhase", [creature, creature]);
-		},
-
-		onStartOfRound: function(creature, callback) {
-			G.triggerDeleteEffect("onStartOfRound", "all");
-		},
-
-		onCreatureMove: function(creature, hex, callback) {
-			G.triggerAbility("onCreatureMove", arguments);
-		},
-
-		onCreatureDeath: function(creature, callback) {
-			var i;
-			G.triggerAbility("onCreatureDeath", arguments);
-			G.triggerEffect("onCreatureDeath", [creature, creature]);
-			// Looks for traps owned by this creature and destroy them
-			for (i = 0; i < G.grid.traps.length; i++) {
-				var trap = G.grid.traps[i];
-				if (trap === undefined) continue;
-				if (trap.turnLifetime > 0 && trap.fullTurnLifetime &&
-					trap.ownerCreature == creature) {
-					trap.destroy();
-					i--;
-				}
-			}
-			// Look for effects owned by this creature and destroy them if necessary
-			for (i = 0; i < G.effects.length; i++) {
-				var effect = G.effects[i];
-				if (effect.owner === creature && effect.deleteOnOwnerDeath) {
-					effect.deleteEffect();
-					// Update UI in case effect changes it
-					if (effect.target) {
-						effect.target.updateHealth();
-					}
-					i--;
-				}
-			}
-		},
-
-		onCreatureSummon: function(creature, callback) {
-			G.triggerAbility("onCreatureSummon", [creature, creature, callback]);
-			G.triggerEffect("onCreatureSummon", [creature, creature]);
-		},
-
-		onEffectAttach: function(creature, effect, callback) {
-			G.triggerEffect("onEffectAttach", [creature, effect]);
-		},
-
-
-		onUnderAttack: function(creature, damage) {
-			G.triggerAbility("onUnderAttack", arguments, damage);
-			G.triggerEffect("onUnderAttack", arguments, damage);
-			return damage;
-		},
-
-		onDamage: function(creature, damage) {
-			G.triggerAbility("onDamage", arguments);
-			G.triggerEffect("onDamage", arguments);
-		},
-
-		onHeal: function(creature, amount) {
-			G.triggerAbility("onHeal", arguments);
-			G.triggerEffect("onHeal", arguments);
-		},
-
-		onAttack: function(creature, damage) {
-			damage = G.triggerAbility("onAttack", arguments, damage);
-			damage = G.triggerEffect("onAttack", arguments, damage);
 		}
-	},
 
-	findCreature: function(o) {
-		var o = $j.extend({
-			team: -1, // No team
-			type: "--" // Dark Priest
-		}, o);
+		this.triggerDeleteEffect("onStartPhase", creature);
+		this.triggerAbility("onStartPhase", arguments);
+		this.triggerEffect("onStartPhase", [creature, creature]);
+	}
 
-		var ret = [];
+	onEndPhase(creature, callback) {
+		this.triggerDeleteEffect("onEndPhase", creature);
+		this.triggerAbility("onEndPhase", arguments);
+		this.triggerEffect("onEndPhase", [creature, creature]);
+	}
 
-		for (var i = 0; i < this.creatures.length; i++) {
-			if (this.creatures[i] instanceof Creature) {
-				var match = true;
+	onStartOfRound(creature, callback) {
+		this.triggerDeleteEffect("onStartOfRound", "all");
+	}
+
+	onCreatureMove(creature, hex, callback) {
+		this.triggerAbility("onCreatureMove", arguments);
+	}
+
+	onCreatureDeath(creature, callback) {
+		let totalTraps = this.grid.traps.length,
+			totalEffects = this.effects.length,
+			trap,
+			effect,
+			i;
+
+		this.triggerAbility("onCreatureDeath", arguments);
+		this.triggerEffect("onCreatureDeath", [creature, creature]);
+		// Looks for traps owned by this creature and destroy them
+		for (i = 0; i < totalTraps; i++) {
+			trap = this.grid.traps[i];
+
+			if (trap === undefined) {
+				continue;
+			}
+
+			if (trap.turnLifetime > 0 && trap.fullTurnLifetime &&
+				trap.ownerCreature == creature) {
+				trap.destroy();
+				i--;
+			}
+		}
+		// Look for effects owned by this creature and destroy them if necessary
+		for (i = 0; i < totalEffects; i++) {
+			effect = this.effects[i];
+			if (effect.owner === creature && effect.deleteOnOwnerDeath) {
+				effect.deleteEffect();
+				// Update UI in case effect changes it
+				if (effect.target) {
+					effect.target.updateHealth();
+				}
+				i--;
+			}
+		}
+	}
+
+	onCreatureSummon(creature, callback) {
+		this.triggerAbility("onCreatureSummon", [creature, creature, callback]);
+		this.triggerEffect("onCreatureSummon", [creature, creature]);
+	}
+
+	onEffectAttach(creature, effect, callback) {
+		this.triggerEffect("onEffectAttach", [creature, effect]);
+	}
+
+
+	onUnderAttack(creature, damage) {
+		this.triggerAbility("onUnderAttack", arguments, damage);
+		this.triggerEffect("onUnderAttack", arguments, damage);
+		return damage;
+	}
+
+	onDamage(creature, damage) {
+		this.triggerAbility("onDamage", arguments);
+		this.triggerEffect("onDamage", arguments);
+	}
+
+	onHeal(creature, amount) {
+		this.triggerAbility("onHeal", arguments);
+		this.triggerEffect("onHeal", arguments);
+	}
+
+	onAttack(creature, damage) {
+		damage = this.triggerAbility("onAttack", arguments, damage);
+		damage = this.triggerEffect("onAttack", arguments, damage);
+	}
+
+	findCreature(o) {
+		let ret = [],
+			o = $j.extend({
+				team: -1, // No team
+				type: "--" // Dark Priest
+			}, o),
+			creatures = this.creatures,
+			totalCreeatures = creatures.length,
+			creature,
+			match,
+			wrongTeam,
+			i;
+
+		for (i = 0; i < totalCreatures; i++) {
+			creature = creatures[i];
+
+			if (creature instanceof Creature) {
+				match = true;
+
 				$j.each(o, function(key, val) {
-
 					if (key == "team") {
-						if (val == -1) return;
+						if (val == -1) {
+							return;
+						}
 
 						if (val instanceof Array) {
-							var wrongTeam = true;
-							if (val.indexOf(G.creatures[i][key]) != -1) {
+							wrongTeam = true;
+							if (val.indexOf(creature[key]) != -1) {
 								wrongTeam = false;
 							}
-							if (wrongTeam) match = false;
+
+							if (wrongTeam) {
+								match = false;
+							}
+
 							return;
 						}
 					}
 
-					if (G.creatures[i][key] != val) {
+					if (creature[key] != val) {
 						match = false;
 					}
 				});
-				if (match) ret.push(this.creatures[i]);
-			}
-		}
 
-		return ret;
-	},
-
-	clearOncePerDamageChain: function() {
-		for (var i = this.creatures.length - 1; i >= 0; i--) {
-			if (this.creatures[i] instanceof Creature) {
-				for (var j = this.creatures[i].abilities.length - 1; j >= 0; j--) {
-					this.creatures[i].abilities[j].triggeredThisChain = false;
+				if (match) {
+					ret.push(creature);
 				}
 			}
 		}
 
-		for (var i = 0; i < G.effects.length; i++) {
-			G.effects[i].triggeredThisChain = false;
-		}
-	},
+		return ret;
+	}
 
-	/*	endGame()
+	clearOncePerDamageChain() {
+		let creatures = this.creatures,
+			totalCreatures = creatures.length,
+			totalEffects = this.effects.length,
+			creature,
+			totalAbilities,
+
+			i,
+			j;
+
+		for (i = totalCreatures - 1; i >= 0; i--) {
+			creature = this.creatures[i];
+
+			if (creature instanceof Creature) {
+				totalAbilities = creature.abilities.length;
+
+				for (j = totalAbilities - 1; j >= 0; j--) {
+					creature.abilities[j].triggeredThisChain = false;
+				}
+			}
+		}
+
+		for (i = 0; i < totalEffects; i++) {
+			this.effects[i].triggeredThisChain = false;
+		}
+	}
+
+	/* endGame()
 	 *
-	 *	End the game and print stats
+	 * End the game and print stats
 	 */
-	endGame: function() {
+	endGame() {
 		this.stopTimer();
 		this.gameState = "ended";
 
 		// Calculate the time cost of the last turn
-		var skipTurn = new Date();
-		var p = this.activeCreature.player;
+		let skipTurn = new Date(),
+			p = this.activeCreature.player;
+
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
 
 		// Show Score Table
 		$j("#endscreen").show();
 
-		var $table = $j("#endscreen table tbody");
+		let $table = $j("#endscreen table tbody");
 
-		if (this.playerMode == 2) { // Delete uncessary columns if only 2 players
+		// Delete uncessary columns if only 2 players
+		if (this.playerMode == 2) {
 			$table.children("tr").children("td:nth-child(even)").remove();
-			var $table = $j("#endscreen table tbody");
+			$table = $j("#endscreen table tbody");
 		}
 
 		// Fill the board
-		for (var i = 0; i < this.playerMode; i++) { // Each player
-
+		for (let i = 0; i < this.playerMode; i++) { // Each player
 			// TimeBonus
 			if (this.timePool > 0) {
 				this.players[i].bonusTimePool = Math.round(this.players[i].totalTimePool / 1000);
@@ -1096,8 +1179,8 @@ var Game = Class.create({
 			}
 
 			// Surviving Creature Bonus
-			var immortal = true;
-			for (var j = 0; j < this.players[i].creatures.length; j++) {
+			let immortal = true;
+			for (let j = 0; j < this.players[i].creatures.length; j++) {
 				if (!this.players[i].creatures[j].dead) {
 					if (this.players[i].creatures[j].type != "--") {
 						this.players[i].score.push({
@@ -1122,7 +1205,7 @@ var Game = Class.create({
 			}
 
 			//----------Display-----------//
-			var colId = (this.playerMode > 2) ? (i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3)) : i + 2;
+			let colId = (this.playerMode > 2) ? (i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3)) : i + 2;
 
 			// Change Name
 			$table.children("tr.player_name").children("td:nth-child(" + colId + ")") // Weird expression swaps 2nd and 3rd player
@@ -1130,7 +1213,7 @@ var Game = Class.create({
 
 			// Change score
 			$j.each(this.players[i].getScore(), function(index, val) {
-				var text = (val === 0 && index !== "total") ? "--" : val;
+				let text = (val === 0 && index !== "total") ? "--" : val;
 				$table.children("tr." + index).children("td:nth-child(" + colId + ")") // Weird expression swaps 2nd and 3rd player
 					.text(text);
 			});
@@ -1138,8 +1221,8 @@ var Game = Class.create({
 
 		// Declare winner
 		if (this.playerMode > 2) { // 2 vs 2
-			var score1 = this.players[0].getScore().total + this.players[2].getScore().total;
-			var score2 = this.players[1].getScore().total + this.players[3].getScore().total;
+			let score1 = this.players[0].getScore().total + this.players[2].getScore().total,
+				score2 = this.players[1].getScore().total + this.players[3].getScore().total;
 
 			if (score1 > score2) {
 				// Left side wins
@@ -1152,8 +1235,8 @@ var Game = Class.create({
 				$j("#endscreen p").text("Draw!");
 			}
 		} else { // 1 vs 1
-			var score1 = this.players[0].getScore().total;
-			var score2 = this.players[1].getScore().total;
+			let score1 = this.players[0].getScore().total,
+				score2 = this.players[1].getScore().total;
 
 			if (score1 > score2) {
 				// Left side wins
@@ -1166,75 +1249,75 @@ var Game = Class.create({
 				$j("#endscreen p").text("Draw!");
 			}
 		}
-	},
+	}
 
-	action: function(o, opt) {
+	action(o, opt) {
 
-		var defaultOpt = {
+		let defaultOpt = {
 			callback: function() {},
 		};
+
 		opt = $j.extend(defaultOpt, opt);
 
-		G.clearOncePerDamageChain();
+		this.clearOncePerDamageChain();
 		switch (o.action) {
 			case "move":
-				G.activeCreature.moveTo(G.grid.hexes[o.target.y][o.target.x], {
+				this.activeCreature.moveTo(G.grid.hexes[o.target.y][o.target.x], {
 					callback: opt.callback
 				});
 				break;
 			case "skip":
-				G.skipTurn({
+				this.skipTurn({
 					callback: opt.callback
 				});
 				break;
 			case "delay":
-				G.delayCreature({
+				this.delayCreature({
 					callback: opt.callback
 				});
 				break;
 			case "flee":
-				G.activeCreature.player.flee({
+				this.activeCreature.player.flee({
 					callback: opt.callback
 				});
 				break;
 			case "ability":
-				var args = $j.makeArray(o.args[1]);
+				let args = $j.makeArray(o.args[1]);
+
 				if (o.target.type == "hex") {
-					args.unshift(G.grid.hexes[o.target.y][o.target.x]);
-					G.activeCreature.abilities[o.id].animation2({
+					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
+					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
 						arg: args
 					});
 				}
+
 				if (o.target.type == "creature") {
-					args.unshift(G.creatures[o.target.crea]);
-					G.activeCreature.abilities[o.id].animation2({
+					args.unshift(this.creatures[o.target.crea]);
+					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
 						arg: args
 					});
 				}
+
 				if (o.target.type == "array") {
-					var array = o.target.array.map(function(item) {
-						return G.grid.hexes[item.y][item.x];
-					});
+					let array = o.target.array.map((item) => this.grid.hexes[item.y][item.x]);
 
 					args.unshift(array);
-					G.activeCreature.abilities[o.id].animation2({
+					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
 						arg: args
 					});
 				}
 				break;
 		}
-	},
+	}
 
-
-});
-
-function getImage(url) {
-	var img = new Image();
-	img.src = url;
-	img.onload = function() {
-		// No-op
-	};
-}
+	getImage(url) {
+		let img = new Image();
+		img.src = url;
+		img.onload = function() {
+			// No-op
+		};
+	}
+};

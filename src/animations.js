@@ -189,7 +189,7 @@ var Animations = Class.create({
 			crea.pos = hex.pos;
 			crea.updateHex();
 
-			G.triggersFn.onStepIn(crea, hex, opts);
+			G.onStepIn(crea, hex, opts);
 
 			crea.pickupDrop();
 
@@ -200,7 +200,7 @@ var Animations = Class.create({
 
 		leaveHex: function(crea, hex, opts) {
 			if (!opts.pushed) crea.faceHex(hex, crea.hexagons[0]); // Determine facing
-			G.triggersFn.onStepOut(crea, crea.hexagons[0]); // Trigger
+			G.onStepOut(crea, crea.hexagons[0]); // Trigger
 
 			G.grid.orderCreatureZ();
 		},
@@ -221,7 +221,7 @@ var Animations = Class.create({
 			// TODO: Reveal health indicator
 			crea.healthShow();
 
-			G.triggersFn.onCreatureMove(crea, hex); // Trigger
+			G.onCreatureMove(crea, hex); // Trigger
 
 			crea.hexagons.forEach(function(hex) {
 				hex.pickupDrop(crea);
@@ -240,31 +240,31 @@ var Animations = Class.create({
 			G.animationQueue = queue;
 		}
 	},
-	projectile: function(this_2, target, sprite_id, path,args, start_x, start_y) {
-		
-		
-		 var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
+	projectile: function(this_2, target, sprite_id, path, args, start_x, start_y) {
+
+
+		var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 
 		var emissionPoint = {
-					x: this_2.creature.grp.x + start_x,
-					y: this_2.creature.grp.y + start_y
-				};
-				
+			x: this_2.creature.grp.x + start_x,
+			y: this_2.creature.grp.y + start_y
+		};
+
 		var targetPoint = {
-					x: target.grp.x + 52,
-					y: target.grp.y - 20
-				};
+			x: target.grp.x + 52,
+			y: target.grp.y - 20
+		};
 		var sprite = G.grid.creatureGroup.create(
-					emissionPoint.x, emissionPoint.y, sprite_id); // Sprite id here
-				sprite.anchor.setTo(0.5);
-				sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
-				var duration = dist * 75;
-				var tween = G.Phaser.add.tween(sprite)
-					.to({
-						x: targetPoint.x,
-						y: targetPoint.y
-					}, duration, Phaser.Easing.Linear.None)
-					.start();
-		return [tween,sprite,dist];
+			emissionPoint.x, emissionPoint.y, sprite_id); // Sprite id here
+		sprite.anchor.setTo(0.5);
+		sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
+		var duration = dist * 75;
+		var tween = G.Phaser.add.tween(sprite)
+			.to({
+				x: targetPoint.x,
+				y: targetPoint.y
+			}, duration, Phaser.Easing.Linear.None)
+			.start();
+		return [tween, sprite, dist];
 	}, // End projectile
 });

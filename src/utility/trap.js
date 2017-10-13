@@ -32,7 +32,7 @@ var Trap = Class.create({
 
 		// Register
 		G.grid.traps.push(this);
-		this.id = trapID++;
+		this.id = G.trapId++;
 		this.hex.trap = this;
 
 		for (var i = this.effects.length - 1; i >= 0; i--) {

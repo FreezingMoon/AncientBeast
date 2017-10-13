@@ -83,7 +83,7 @@ var Player = class Player {
 		this.creatures.push(creature);
 		creature.summon();
 		game.grid.updateDisplay(); // Retrace players creatures
-		game.triggersFn.onCreatureSummon(creature);
+		game.onCreatureSummon(creature);
 	}
 
 	/* flee()

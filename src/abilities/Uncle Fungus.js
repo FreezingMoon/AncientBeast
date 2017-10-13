@@ -249,7 +249,7 @@ G.abilities[3] = [
 					// Shake the screen upon landing to simulate the jump
 					G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-					G.triggersFn.onStepIn(ability.creature, ability.creature.hexagons[0]);
+					G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
 					var interval = setInterval(function() {
 						if (!G.freezedInput) {

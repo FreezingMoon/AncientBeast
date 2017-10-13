@@ -3,7 +3,7 @@ var Drop = Class.create({
 	initialize: function(name, health, energy, x, y) {
 
 		this.name = name;
-		this.id = dropID++;
+		this.id = G.dropId++;
 		this.x = x;
 		this.y = y;
 		this.pos = {
