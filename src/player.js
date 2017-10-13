@@ -79,7 +79,7 @@ var Player = class Player {
 			}
 		}
 
-		creature = new Creature(data);
+		creature = new Creature(data, game);
 		this.creatures.push(creature);
 		creature.summon();
 		game.grid.updateDisplay(); // Retrace players creatures
