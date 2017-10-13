@@ -72,7 +72,8 @@ G.abilities[33] = [
 						creature, // Caster
 						trg, // Target
 						"onStartPhase", // Trigger
-						optArg // Optional arguments
+						optArg, // Optional arguments
+						G
 					);
 
 					var validTarget = true;
@@ -169,7 +170,8 @@ G.abilities[33] = [
 						alterations: {
 							regrowth: Math.round(dmg.damages.total / 4)
 						}
-					} //Optional arguments
+					}, //Optional arguments
+					G
 				));
 			}
 
@@ -252,7 +254,8 @@ G.abilities[33] = [
 					alterations: {
 						offense: 25
 					}
-				} // Optional arguments
+				}, // Optional arguments
+				G
 			));
 		},
 	},

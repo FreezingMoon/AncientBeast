@@ -54,7 +54,8 @@ G.abilities[3] = [
 				creature, // Caster
 				target, // Target
 				"", // Trigger
-				optArg // Optional arguments
+				optArg, // Optional arguments
+				G
 			);
 
 			target.addEffect(effect, undefined, "Contaminated");
@@ -147,7 +148,8 @@ G.abilities[3] = [
 								alterations: {
 									regrowth: amount
 								}
-							} // Optional arguments
+							}, // Optional arguments
+							G
 						), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", // Custom Log
 						"Regrowth++"); // Custom Hint
 				}
@@ -272,7 +274,8 @@ G.abilities[3] = [
 						effect.deleteEffect();
 					},
 					alterations: ability.effects[0]
-				} // Optional arguments
+				}, // Optional arguments
+				G
 			));
 		},
 

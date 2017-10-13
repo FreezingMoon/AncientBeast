@@ -35,7 +35,8 @@ G.abilities[7] = [
 					alterations: {
 						burn: -1
 					}
-				} // Optional arguments
+				}, // Optional arguments
+				G
 			));
 			target.stats.burn -= 1;
 			if (this.isUpgraded()) {
@@ -48,7 +49,8 @@ G.abilities[7] = [
 						alterations: {
 							burn: 1
 						}
-					} // Optional arguments
+					}, // Optional arguments
+					G
 				));
 			}
 		},
@@ -108,9 +110,9 @@ G.abilities[7] = [
 			projectileInstance = G.animations.projectile(this, target, 'effects_fiery-touch', path, args, 200, -20);
 			tween = projectileInstance[0];
 			sprite = projectileInstance[1];
-			
+
 			tween.onComplete.add(function() {
-				
+
 				var damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
@@ -118,7 +120,7 @@ G.abilities[7] = [
 					[] // Effects
 				);
 				target.takeDamage(damage);
-				
+
 				this.destroy();
 			}, sprite); // End tween.onComplete
 		},
@@ -209,7 +211,8 @@ G.abilities[7] = [
 							requireFn: requireFn,
 							effectFn: effectFn,
 							attacker: crea
-						}
+						},
+						G
 					),
 				], crea.player, {
 					turnLifetime: 1,

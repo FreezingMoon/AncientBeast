@@ -45,7 +45,8 @@ G.abilities[40] = [
 					this.creature, // Caster
 					damage.attacker, // Target
 					"", // Trigger
-					o
+					o,
+					G
 				)]
 			);
 			counterDamage.counter = true;
@@ -67,7 +68,8 @@ G.abilities[40] = [
 						},
 						deleteTrigger: "onStartPhase",
 						turnLifetime: 1
-					}
+					},
+					G
 				));
 			}
 		}
@@ -187,7 +189,8 @@ G.abilities[40] = [
 							}, 1, []));
 						effect.deleteEffect();
 					}
-				}
+				},
+				G
 			);
 
 			var damage = new Damage(

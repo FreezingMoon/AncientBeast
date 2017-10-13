@@ -77,7 +77,7 @@ G.abilities[44] = [
 					alterations: {
 						offense: -1
 					}
-				});
+				}, G);
 				target.addEffect(effect);
 				G.log("%CreatureName" + target.id + "%'s offense is lowered by 1");
 			}
@@ -326,7 +326,7 @@ G.abilities[44] = [
 						}, 1, []
 					));
 				}
-			});
+			}, G);
 			target.replaceEffect(effect);
 			G.log("%CreatureName" + target.id + "% is poisoned by " + this.title);
 

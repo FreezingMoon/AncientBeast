@@ -42,7 +42,8 @@ G.abilities[14] = [
 					deleteTrigger: "",
 					stackable: false,
 					noLog: noLog
-				}
+				},
+				G
 			));
 			if (!noLog) {
 				G.log("%CreatureName" + this.creature.id + "% receives " + bonus + " pierce, slash and crush");
@@ -206,7 +207,8 @@ G.abilities[14] = [
 						},
 						deleteTrigger: "onStartPhase",
 						turnLifetime: 1
-					}
+					},
+					G
 				);
 
 				var trap = hex.createTrap(

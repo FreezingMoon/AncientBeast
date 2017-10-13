@@ -160,7 +160,8 @@ G.abilities[22] = [
 						ability.creature, //Caster
 						trg, //Target
 						"", //Trigger
-						optArg //Optional arguments
+						optArg, //Optional arguments
+						G
 					);
 					trg.addEffect(effect);
 				}
@@ -197,7 +198,8 @@ G.abilities[22] = [
 								ability.creature, //Caster
 								trg, //Target
 								"", //Trigger
-								optArg //Optional arguments
+								optArg, //Optional arguments
+								G
 							);
 							trg.addEffect(effect, "%CreatureName" + trg.id + "% got roasted : -1 burn stat debuff");
 						}

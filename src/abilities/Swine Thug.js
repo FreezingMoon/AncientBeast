@@ -47,7 +47,7 @@ G.abilities[37] = [
 			}
 			var effect = new Effect("Spa Goggles", this.creature, this.creature, "mud-bath", {
 				alterations: alterations
-			});
+			}, G);
 			this.creature.addEffect(effect);
 
 			// Log message, assume that all buffs are the same amount, and there are
@@ -252,7 +252,7 @@ G.abilities[37] = [
 					alterations: {
 						meditation: -1
 					}
-				});
+				}, G);
 				target.addEffect(effect);
 				G.log("%CreatureName" + target.id + "%'s meditation is lowered by 1");
 			}
@@ -372,7 +372,8 @@ G.abilities[37] = [
 						effectFn: function(effect, crea) {
 							crea.remainingMove--;
 						},
-					}
+					},
+					G
 				),
 			];
 

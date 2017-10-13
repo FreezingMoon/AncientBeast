@@ -49,7 +49,8 @@ G.abilities[9] = [
 							offense: this._getOffenseBuff()
 						},
 						stackable: true
-					}
+					},
+					G
 				)
 			);
 		}
@@ -119,7 +120,8 @@ G.abilities[9] = [
 								frost: -1
 							},
 							stackable: true
-						}
+						},
+						G
 					)
 				] //Effects
 			);
@@ -185,7 +187,8 @@ G.abilities[9] = [
 						stackable: true,
 						turnLifetime: 1,
 						deleteTrigger: "onStartPhase"
-					}
+					},
+					G
 				));
 			}
 			var damage = new Damage(

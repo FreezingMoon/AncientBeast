@@ -167,7 +167,8 @@ G.abilities[5] = [
 						});
 						effect.deleteEffect();
 					}
-				}
+				},
+				G
 			);
 			target.hexagons.forEach(function(hex) {
 				hex.createTrap(
@@ -269,7 +270,8 @@ G.abilities[5] = [
 							},
 							deleteTrigger: "onEndPhase",
 							noLog: true
-						}
+						},
+						G
 					));
 				}
 

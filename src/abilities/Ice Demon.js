@@ -49,7 +49,8 @@ G.abilities[6] = [
 								},
 								alterations: ability.effects[0],
 								noLog: true
-							} // Optional arguments
+							}, // Optional arguments
+							G
 						);
 						crea.addEffect(effect);
 					}
@@ -357,7 +358,8 @@ G.abilities[6] = [
 						effect.target.stats.frozen = true;
 						this.deleteEffect();
 					}
-				}
+				},
+				G
 			);
 
 			ability.areaDamage(

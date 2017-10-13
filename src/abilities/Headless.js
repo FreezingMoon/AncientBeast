@@ -71,7 +71,8 @@ G.abilities[39] = [
 									alterations: {
 										endurance: -5
 									}
-								}
+								},
+								G
 							));
 							// Note: effect activate by default adds the effect on the target,
 							// but target already has this effect, so remove the trigger to
@@ -79,7 +80,8 @@ G.abilities[39] = [
 							item.trigger = "";
 							item.deleteEffect();
 						}
-					}
+					},
+					G
 				);
 
 				trg.addEffect(effect, "%CreatureName" + trg.id + "% has been infested");
