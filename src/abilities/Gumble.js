@@ -132,7 +132,7 @@ G.abilities[14] = [
 				if (isTeam(this.creature, targets[i].target, Team.enemy)) {
 					damages = enemyDamages;
 				}
-				var dmg = new Damage(this.creature, damages, targets[i].hexesHit, []);
+				var dmg = new Damage(this.creature, damages, targets[i].hexesHit, [], G);
 				kills += (targets[i].target.takeDamage(dmg).kill + 0);
 			}
 			if (kills > 1) {
@@ -332,7 +332,8 @@ G.abilities[14] = [
 				ability.creature, // Attacker
 				d, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			var result = target.takeDamage(damage, {

@@ -1123,7 +1123,7 @@ var UI = Class.create({
 			var $abilityInfo = $desc.find(".abilityinfo_content");
 			$abilityInfo.find(".info").remove();
 
-			var costs_string = ab.getFormatedCosts();
+			var costs_string = ab.getFormattedCosts();
 			if (costs_string) {
 				$abilityInfo.append(
 					'<div class="info costs">' +
@@ -1131,7 +1131,7 @@ var UI = Class.create({
 					'</div>'
 				);
 			}
-			var dmg_string = ab.getFormatedDamages();
+			var dmg_string = ab.getFormattedDamages();
 			if (dmg_string) {
 				$abilityInfo.append(
 					'<div class="info damages">' +
@@ -1139,7 +1139,7 @@ var UI = Class.create({
 					'</div>'
 				);
 			}
-			var special_string = ab.getFormatedEffects();
+			var special_string = ab.getFormattedEffects();
 			if (special_string) {
 				$abilityInfo.append(
 					'<div class="info special">' +
@@ -1237,13 +1237,13 @@ var UI = Class.create({
 			$j(card).find("." + stat + " .modifiers").html("");
 			// Effects
 			$j.each(buffDebuff.objs.effects, function (key, value) {
-				//var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
+				//var string = G.UI.selectedCreatureObj.abilities[0].getFormattedDamages(value.alterations);
 				if (value.alterations[stat]) $j(card).find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
 				atLeastOneBuff = true;
 			});
 			// Drops
 			$j.each(buffDebuff.objs.drops, function (key, value) {
-				//var string = G.UI.selectedCreatureObj.abilities[0].getFormatedDamages(value.alterations);
+				//var string = G.UI.selectedCreatureObj.abilities[0].getFormattedDamages(value.alterations);
 				if (value.alterations[stat]) $j(card).find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
 				atLeastOneBuff = true;
 			});

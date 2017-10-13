@@ -109,7 +109,7 @@ G.abilities[9] = [
 			var damage = new Damage(
 				ability.creature, // Attacker
 				damages, // Damage Type
-				1, //Area
+				1, // Area
 				[
 					new Effect(
 						this.title,
@@ -123,7 +123,8 @@ G.abilities[9] = [
 						},
 						G
 					)
-				] //Effects
+				], // Effects
+				G
 			);
 
 			target.takeDamage(damage);
@@ -192,10 +193,11 @@ G.abilities[9] = [
 				));
 			}
 			var damage = new Damage(
-				ability.creature, //Attacker
-				ability.damages, //Damage Type
-				1, //Area
-				effects
+				ability.creature, // Attacker
+				ability.damages, // Damage Type
+				1, // Area
+				effects,
+				G
 			);
 
 			var result = target.takeDamage(damage);
@@ -282,10 +284,11 @@ G.abilities[9] = [
 
 					//Damage
 					var damage = new Damage(
-						ability.creature, //Attacker
-						d, //Damage Type
-						1, //Area
-						[] //Effects
+						ability.creature, // Attacker
+						d, // Damage Type
+						1, // Area
+						[], // Effects
+						G
 					);
 
 					var result = trg.takeDamage(damage);

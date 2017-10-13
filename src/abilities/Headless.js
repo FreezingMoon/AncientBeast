@@ -139,7 +139,7 @@ G.abilities[39] = [
 			var d = {
 				pierce: 11
 			};
-			//Bonus for fatigued foe
+			// Bonus for fatigued foe
 			d.pierce = target.endurance <= 0 ? d.pierce * 2 : d.pierce;
 			// Extra pierce damage if upgraded
 			if (this.isUpgraded()) {
@@ -151,9 +151,10 @@ G.abilities[39] = [
 
 			var damage = new Damage(
 				ability.creature, //Attacker
-				d, //Damage Type
-				1, //Area
-				[] //Effects
+				d, // Damage Type
+				1, // Area
+				[], // Effects
+				G
 			);
 
 			var dmg = target.takeDamage(damage);

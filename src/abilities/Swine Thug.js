@@ -121,7 +121,8 @@ G.abilities[37] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			var result = target.takeDamage(damage);
 			// Knock the target back if they are still alive
@@ -261,7 +262,8 @@ G.abilities[37] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 		},

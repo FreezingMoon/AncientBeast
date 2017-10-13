@@ -117,7 +117,8 @@ G.abilities[7] = [
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
-					[] // Effects
+					[], // Effects
+					G
 				);
 				target.takeDamage(damage);
 
@@ -188,7 +189,7 @@ G.abilities[7] = [
 					creature = creatureOrHex.creature;
 				}
 				creature.takeDamage(
-					new Damage(effect.attacker, ability.damages, 1, []), {
+					new Damage(effect.attacker, ability.damages, 1, [], G), {
 						isFromTrap: true
 					});
 				this.trap.destroy();
@@ -289,7 +290,8 @@ G.abilities[7] = [
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
-					[] // Effects
+					[], // Effects
+					G
 				));
 			});
 

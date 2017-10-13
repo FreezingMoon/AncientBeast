@@ -151,7 +151,8 @@ G.abilities[33] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			var dmg = target.takeDamage(damage);
@@ -311,10 +312,11 @@ G.abilities[33] = [
 			ability.end();
 
 			var damage = new Damage(
-				ability.creature, //Attacker
-				ability.damages, //Damage Type
-				1, //Area
-				[] //Effects
+				ability.creature, // Attacker
+				ability.damages, // Damage Type
+				1, // Area
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 

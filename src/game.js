@@ -852,7 +852,7 @@ var Game = class Game {
 			creature.abilities.forEach((ability) => {
 				if (this.triggers[trigger + "_other"].test(ability.getTrigger())) {
 					if (ability.require(required)) {
-						retValue = ability.animation(required, triggedCreature);
+						retValue = ability.animation(required, triggeredCreature);
 					}
 				}
 			});

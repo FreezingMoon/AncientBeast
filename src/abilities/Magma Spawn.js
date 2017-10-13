@@ -43,7 +43,7 @@ G.abilities[4] = [
 							},
 							effectFn: function(effect, target) {
 								target.takeDamage(
-									new Damage(effect.attacker, ability.damages, 1, []), {
+									new Damage(effect.attacker, ability.damages, 1, [], G), {
 										isFromTrap: true
 									});
 								this.trap.destroy();
@@ -124,7 +124,8 @@ G.abilities[4] = [
 				ability.creature, // Attacker
 				d, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 
@@ -291,7 +292,8 @@ G.abilities[4] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			// Destroy traps currently under self
