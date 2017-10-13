@@ -352,7 +352,7 @@ var Game = Class.create({
 		$j("#matchMaking").hide();
 
 		for (var i = 0; i < playerMode; i++) {
-			var player = new Player(i);
+			var player = new Player(i, G);
 			this.players.push(player);
 
 			// Initialize players' starting positions

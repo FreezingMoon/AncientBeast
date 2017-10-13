@@ -1,99 +1,112 @@
-/*	Player Class
+/* Player Class
  *
- *	Player object with attributes
+ * Player object with attributes
  *
  */
-var Player = Class.create({
-	/*	Attributes
+var Player = function(id, game) {
+	/* Attributes
 	 *
-	 *	id :		Integer :	Id of the player 1, 2, 3 or 4
-	 *	creature :	Array :		Array containing players creatures
-	 *	plasma :	Integer :	Plasma amount for the player
-	 *	flipped :	Boolean :	Player side of the battlefield (affects displayed creature)
+	 * id :		Integer :	Id of the player 1, 2, 3 or 4
+	 * creature :	Array :		Array containing players creatures
+	 * plasma :	Integer :	Plasma amount for the player
+	 * flipped :	Boolean :	Player side of the battlefield (affects displayed creature)
 	 *
 	 */
-	initialize: function(id) {
-		this.id = id;
-		this.creatures = [];
-		this.name = "Player" + (id + 1);
-		this.color =
-			(this.id === 0) ? "red" :
-			(this.id == 1) ? "blue" :
-			(this.id == 2) ? "orange" :
-			"green";
-		this.avatar = "../units/avatars/Dark Priest " + this.color + ".jpg";
-		this.score = [];
-		this.plasma = G.plasma_amount;
-		this.flipped = !!(id % 2); // Convert odd/even to true/false
-		this.availableCreatures = G.availableCreatures;
-		this.hasLost = false;
-		this.hasFleed = false;
-		this.bonusTimePool = 0;
-		this.totalTimePool = G.timePool * 1000;
-		this.startTime = new Date();
+	this.id = id;
+	this.game = game;
+	this.creatures = [];
+	this.name = "Player" + (id + 1);
+	this.color =
+		(this.id === 0) ? "red" :
+		(this.id == 1) ? "blue" :
+		(this.id == 2) ? "orange" :
+		"green";
+	this.avatar = "../units/avatars/Dark Priest " + this.color + ".jpg";
+	this.score = [];
+	this.plasma = game.plasma_amount;
+	this.flipped = !!(id % 2); // Convert odd/even to true/false
+	this.availableCreatures = game.availableCreatures;
+	this.hasLost = false;
+	this.hasFleed = false;
+	this.bonusTimePool = 0;
+	this.totalTimePool = game.timePool * 1000;
+	this.startTime = new Date();
 
-		this.score = [{
-			type: "timebonus"
-		}];
-	},
+	this.score = [{
+		type: "timebonus"
+	}];
+};
 
+// TODO: Is this even right? it should be off by 1 based on this code...
+Player.prototype.getNbrOfCreatures = function() {
+	var nbr = -1,
+		creatures = this.creatures,
+		count = creatures.length,
+		creature;
 
-	getNbrOfCreatures: function() {
-		var nbr = -1;
-		for (var i = 0; i < this.creatures.length; i++) {
-			var crea = this.creatures[i];
-			if (!crea.dead && !crea.undead) nbr++;
+	for (var i = 0; i < count; i++) {
+		creature = creatures[i];
+
+		if (!creature.dead && !creature.undead) {
+			nbr++;
 		}
-		return nbr;
-	},
+	}
+
+	return nbr;
+};
 
 
-	/*	summon(type,pos)
-	 *
-	 *	type :	String :	Creature type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
-	 *	pos :	Object :	Position {x,y}
-	 *
-	 */
-	summon: function(type, pos) {
-		var data = G.retreiveCreatureStats(type);
-		data = $j.extend(data, pos, {
-			team: this.id
-		}); // Create the full data for creature creation
-		for (var i = G.creatureJSON.length - 1; i >= 0; i--) {
-			if (
-				G.creatureJSON[i].type == type &&
-				i !== 0) // Avoid Dark Priest shout at the begining of a match
-			{
-				G.soundsys.playSound(G.soundLoaded[1000 + i], G.soundsys.announcerGainNode);
-			}
+/* summon(type,pos)
+ *
+ * type :	String :	Creature type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
+ * pos :	Object :	Position {x,y}
+ *
+ */
+Player.prototype.summon = function(type, pos) {
+	var game = this.game,
+		data = game.retreiveCreatureStats(type);
+
+	data = $j.extend(data, pos, {
+		team: this.id
+	}); // Create the full data for creature creation
+
+	for (var i = game.creatureJSON.length - 1; i >= 0; i--) {
+		// Avoid Dark Priest shout at the begining of a match
+		if (game.creatureJSON[i].type == type && i !== 0) {
+			game.soundsys.playSound(game.soundLoaded[1000 + i], game.soundsys.announcerGainNode);
 		}
-		var creature = new Creature(data);
-		this.creatures.push(creature);
-		creature.summon();
-		G.grid.updateDisplay(); // Retrace players creatures
-		G.triggersFn.onCreatureSummon(creature);
-	},
+	}
 
-	/*	flee()
-	 *
-	 *	Ask if the player want to flee the match
-	 *
-	 */
-	flee: function(o) {
-		this.hasFleed = true;
-		this.deactivate();
-		G.skipTurn(o);
-	},
+	var creature = new Creature(data);
+	this.creatures.push(creature);
+	creature.summon();
+	game.grid.updateDisplay(); // Retrace players creatures
+	game.triggersFn.onCreatureSummon(creature);
+};
+
+/* flee()
+ *
+ * Ask if the player wants to flee the match
+ *
+ */
+Player.prototype.flee = function(o) {
+	this.hasFled = true;
+	this.deactivate();
+	this.game.skipTurn(o);
+};
 
 
-	/*	getScore()
-	 *
-	 *	return :	Integer :	The current score of the player
-	 *
-	 *	Return the total of the score events.
-	 */
-	getScore: function() {
-		var totalScore = {
+/*	getScore()
+ *
+ * return :	Integer :	The current score of the player
+ *
+ * Return the total of the score events.
+ */
+Player.prototype.getScore = function() {
+	var total = this.score.length,
+		s = {},
+		points,
+		totalScore = {
 			firstKill: 0,
 			kill: 0,
 			deny: 0,
@@ -106,105 +119,120 @@ var Player = Class.create({
 			immortal: 0,
 			total: 0,
 		};
-		for (var i = 0; i < this.score.length; i++) {
-			var s = this.score[i];
-			var points = 0;
-			switch (s.type) {
-				case "firstKill":
-					points += 20;
-					break;
-				case "kill":
-					points += s.creature.level * 5;
-					break;
-				case "combo":
-					points += s.kills * 5;
-					break;
-				case "humiliation":
-					points += 50;
-					break;
-				case "annihilation":
-					points += 100;
-					break;
-				case "deny":
-					points += -1 * s.creature.size * 5;
-					break;
-				case "timebonus":
-					points += Math.round(this.bonusTimePool * 0.5);
-					break;
-				case "nofleeing":
-					points += 25;
-					break;
-				case "creaturebonus":
-					points += s.creature.level * 5;
-					break;
-				case "darkpriestbonus":
-					points += 50;
-					break;
-				case "immortal":
-					points += 100;
-					break;
-			}
-			totalScore[s.type] += points;
-			totalScore.total += points;
-		}
-		return totalScore;
-	},
 
-	/*	isLeader()
-	 *
-	 *	Test if the player has the greater score.
-	 *	Return true if in lead. False if not.
-	 */
-	isLeader: function() {
+	for (var i = 0; i < total; i++) {
+		s = this.score[i];
+		points = 0;
 
-		for (var i = 0; i < G.playerMode; i++) { // Each player
-			// If someone has a higher score
-			if (G.players[i].getScore().total > this.getScore().total) {
-				return false; // He's not in lead
-			}
+		switch (s.type) {
+			case "firstKill":
+				points += 20;
+				break;
+			case "kill":
+				points += s.creature.level * 5;
+				break;
+			case "combo":
+				points += s.kills * 5;
+				break;
+			case "humiliation":
+				points += 50;
+				break;
+			case "annihilation":
+				points += 100;
+				break;
+			case "deny":
+				points += -1 * s.creature.size * 5;
+				break;
+			case "timebonus":
+				points += Math.round(this.bonusTimePool * 0.5);
+				break;
+			case "nofleeing":
+				points += 25;
+				break;
+			case "creaturebonus":
+				points += s.creature.level * 5;
+				break;
+			case "darkpriestbonus":
+				points += 50;
+				break;
+			case "immortal":
+				points += 100;
+				break;
 		}
 
-		return true; // If nobody has a better score he's in lead
-	},
+		totalScore[s.type] += points;
+		totalScore.total += points;
+	}
 
+	return totalScore;
+};
 
-	/*	isAnnihilated()
-	 *
-	 *	A player is considered annihilated if all his creatures are dead DP included
-	 */
-	isAnnihilated: function() {
-		var annihilated = (this.creatures.length > 1);
-		// annihilated is false if only one creature is not dead
-		for (var i = 0; i < this.creatures.length; i++) {
-			annihilated = annihilated && this.creatures[i].dead;
+/*	isLeader()
+ *
+ * Test if the player has the greater score.
+ * Return true if in lead. False if not.
+ *
+ * TODO: This is also wrong, because it allows for ties to result in a "leader".
+ */
+Player.prototype.isLeader = function() {
+	var game = this.game;
+
+	for (var i = 0; i < game.playerMode; i++) { // Each player
+		// If someone has a higher score
+		if (game.players[i].getScore().total > this.getScore().total) {
+			return false; // He's not in lead
 		}
-		return annihilated;
-	},
+	}
 
-	/* deactivate()
-	 *
-	 *	Remove all player's creature from the queue
-	 */
-	deactivate: function() {
-		this.hasLost = true;
+	return true; // If nobody has a better score he's in lead
+};
 
-		// Remove all player creatures from queues
-		for (var i = 1; i < G.creatures.length; i++) {
-			var crea = G.creatures[i];
-			if (crea.player.id == this.id) {
-				G.queue.remove(crea);
-			}
+
+/*	isAnnihilated()
+ *
+ *	A player is considered annihilated if all his creatures are dead DP included
+ */
+Player.prototype.isAnnihilated = function() {
+	// annihilated is false if only one creature is not dead
+	var annihilated = (this.creatures.length > 1),
+		count = this.creatures.length;
+
+	for (var i = 0; i < count; i++) {
+		annihilated = annihilated && this.creatures[i].dead;
+	}
+
+	return annihilated;
+};
+
+/* deactivate()
+ *
+ *	Remove all player's creature from the queue
+ */
+Player.prototype.deactivate = function() {
+	var game = this.game,
+		count = game.creatures.length,
+		creature;
+
+	this.hasLost = true;
+
+	// Remove all player creatures from queues
+	for (var i = 1; i < count; i++) {
+		creature = game.creatures[i];
+
+		if (creature.player.id == this.id) {
+			game.queue.remove(crea);
 		}
-		G.updateQueueDisplay();
+	}
 
-		// Test if allie Dark Priest is dead
-		if (G.playerMode > 2) {
-			// 2vs2
-			if (G.players[(this.id + 2) % 4].hasLost)
-				G.endGame();
-		} else {
-			// 1vs1
-			G.endGame();
-		}
-	},
-});
+	game.updateQueueDisplay();
+
+	// Test if allie Dark Priest is dead
+	if (game.playerMode > 2) {
+		// 2 vs 2
+		if (game.players[(this.id + 2) % 4].hasLost)
+			game.endGame();
+	} else {
+		// 1 vs 1
+		game.endGame();
+	}
+};
