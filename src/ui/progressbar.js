@@ -1,5 +1,5 @@
-var ProgessBar = class ProgressBar {
-	constructor(opts) {
+var ProgressBar = class ProgressBar {
+	constructor(opts, game) {
 		let defaultOpts = {
 			height: 318,
 			width: 9,
