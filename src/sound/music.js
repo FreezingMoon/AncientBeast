@@ -4,9 +4,6 @@ jQuery(document).ready(function() {
 
 var musicPlayer = {
 	init: function() {
-
-		var mp = this;
-
 		this.current = 0;
 		this.audio = jQuery('#audio')[0];
 		this.playlist = jQuery('#playlist');
@@ -18,52 +15,55 @@ var musicPlayer = {
 		this.audio.volume = .25;
 		this.audio.pause();
 
-		jQuery('#mp_shuffle').addClass("active").click(function(e) {
-			jQuery(this).toggleClass("active");
-			mp.shuffle = !mp.shuffle;
+		jQuery('#mp_shuffle').addClass("active").click((e) => {
+			jQuery(e.currentTarget).toggleClass("active");
+			this.shuffle = !this.shuffle;
 		});
 
-		this.playlist.find('a').click(function(e) {
+		this.playlist.find('a').click((e) => {
 			e.preventDefault();
-			mp.current = jQuery(this).parent().index();
-			mp.run(jQuery(this));
+			this.current = jQuery(e.currentTarget).parent().index();
+			this.run(jQuery(e.currentTarget));
 		});
 
-		this.audio.addEventListener('ended', function(e) {
-			if (mp.shuffle) {
-				mp.playRandom();
+		this.audio.addEventListener('ended', (e) => {
+			if (this.shuffle) {
+				this.playRandom();
 			} else {
-				mp.playNext();
+				this.playNext();
 			}
 		});
 	},
 
 	playRandom: function() {
+		let rand;
 		do {
-			var rand = Math.floor(Math.random() * (this.tracks.length - 1));
+			rand = Math.floor(Math.random() * (this.tracks.length - 1));
 		} while (rand == this.current); // Don't play the same track twice in a row
+
 		this.current = rand;
-		var link = this.playlist.find('a')[this.current];
+		let link = this.playlist.find('a')[this.current];
 		this.run(jQuery(link));
 	},
 
 	playNext: function() {
 		this.current++;
+
 		if (this.current == this.tracks.length && this.repeat) {
 			this.current = 0;
 		}
-		var link = this.playlist.find('a')[this.current];
+
+		let link = this.playlist.find('a')[this.current];
 		this.run(jQuery(link));
 	},
 
 	run: function(link) {
 		// Style the active track in the playlist
-		par = link.parent();
-		par.addClass('active').siblings().removeClass('active');
+		let par = link.parent();
 
+		par.addClass('active').siblings().removeClass('active');
 		this.audio.src = link.attr("href");
 		this.audio.load();
 		this.audio.play();
 	}
-
 };
