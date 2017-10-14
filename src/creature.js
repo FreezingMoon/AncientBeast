@@ -1099,6 +1099,22 @@ var Creature = Class.create({
 			G.UI.healthBar.animSize(this.health / this.stats.health);
 		}
 
+		// Dark Priest plasma shield when inactive
+ 		if (this.type == "--") {
+			if(this.hasCreaturePlayerGotPlasma() && this !== G.activeCreature){
+				this.displayPlasmaShield();
+			}
+			else{
+				this.displayHealthStats()
+			}
+		}
+		else{
+			this.displayHealthStats();
+		}
+		
+	},
+	
+	displayHealthStats: function(){
 		if (this.stats.frozen) {
 			this.healthIndicatorSprite.loadTexture("p" + this.team + "_frozen");
 		} else {
@@ -1107,11 +1123,13 @@ var Creature = Class.create({
 		this.healthIndicatorText.setText(this.health);
 	},
 	
-	displayPlasma: function(){
-		if (this.type == "--" && this.player.plasma > 0) {
-			this.healthIndicatorSprite.loadTexture("p" + this.team + "_plasma");
-			this.healthIndicatorText.setText(this.player.plasma);
-		}
+	displayPlasmaShield: function(){
+		this.healthIndicatorSprite.loadTexture("p" + this.team + "_plasma");
+		this.healthIndicatorText.setText(this.player.plasma);
+	},
+	
+	hasCreaturePlayerGotPlasma : function(){
+		return this.player.plasma > 0;
 	},
 	
 	addFatigue: function(dmgAmount) {

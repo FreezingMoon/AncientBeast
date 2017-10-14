@@ -308,6 +308,7 @@ G.abilities[0] = [
 			ability.end();
 
 			ability.creature.player.summon(creature, pos);
+			ability.creature.queryMove(); 
 		},
 	}
 
