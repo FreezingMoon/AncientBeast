@@ -1032,11 +1032,12 @@ var Creature = class Creature {
 		o = $j.extend(defaultOpt, o);
 		// Determine if melee attack
 		damage.melee = false;
-		this.adjacentHexes(1).each(() => {
-			if (damage.attacker == this.creature) {
+		this.adjacentHexes(1).forEach((hex) => {
+			if (damage.attacker == hex.creature) {
 				damage.melee = true;
 			}
 		});
+
 		damage.target = this;
 		damage.isFromTrap = o.isFromTrap;
 
@@ -1147,6 +1148,19 @@ var Creature = class Creature {
 			game.UI.healthBar.animSize(this.health / this.stats.health);
 		}
 
+		// Dark Priest plasma shield when inactive
+		if (this.type == "--") {
+			if (this.hasCreaturePlayerGotPlasma() && this !== game.activeCreature) {
+				this.displayPlasmaShield();
+			} else {
+				this.displayHealthStats()
+			}
+		} else {
+			this.displayHealthStats();
+		}
+	}
+
+	displayHealthStats() {
 		if (this.stats.frozen) {
 			this.healthIndicatorSprite.loadTexture("p" + this.team + "_frozen");
 		} else {
@@ -1156,11 +1170,13 @@ var Creature = class Creature {
 		this.healthIndicatorText.setText(this.health);
 	}
 
-	displayPlasma() {
-		if (this.type == "--" && this.player.plasma > 0) {
-			this.healthIndicatorSprite.loadTexture("p" + this.team + "_plasma");
-			this.healthIndicatorText.setText(this.player.plasma);
-		}
+	displayPlasmaShield() {
+		this.healthIndicatorSprite.loadTexture("p" + this.team + "_plasma");
+		this.healthIndicatorText.setText(this.player.plasma);
+	}
+
+	hasCreaturePlayerGotPlasma() {
+		return this.player.plasma > 0;
 	}
 
 	addFatigue(dmgAmount) {

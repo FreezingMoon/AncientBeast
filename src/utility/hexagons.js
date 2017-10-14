@@ -609,7 +609,7 @@ var HexGrid = class HexGrid {
 		let onHoverOffFn = (hex) => {
 			if (hex.creature instanceof Creature) { // toggle hover off event
 				let creature = hex.creature;
-				if (creature.type == "--" && creature === game.activeCreature) { // the plasma would have been displayed so now display the health again
+				if (creature.type == "--") { // the plasma would have been displayed so now display the health again
 					creature.updateHealth();
 				}
 			}
@@ -635,10 +635,15 @@ var HexGrid = class HexGrid {
 
 				if (hex.creature instanceof Creature) { // If creature
 					let creature = hex.creature;
-					if (creature.type == "--" && creature === game.activeCreature) {
-						creature.displayPlasma();
+					if (creature.type == "--") { // this should probably be extracted outside of the not reachable condition
+						if (creature === game.activeCreature) {
+							if (creature.hasCreaturePlayerGotPlasma()) {
+								creature.displayPlasmaShield();
+							}
+						} else { // inactive priest, so display his health on hover
+							creature.displayHealthStats();
+						}
 					}
-
 					creature.hexagons.forEach((hex) => {
 						hex.overlayVisualState("hover h_player" + creature.team);
 					});

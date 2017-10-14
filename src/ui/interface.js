@@ -1567,22 +1567,38 @@ var UI = class UI {
 			}
 
 			let creaID = $j(e.currentTarget).attr("creatureid") - 0;
-			game.grid.showMovementRange(creaID);
 			game.creatures.forEach((creature) => {
 				if (creature instanceof Creature) {
 					creature.xray(false);
 
 					if (creature.id != creaID) {
 						creature.xray(true);
+						creature.hexagons.forEach((hex) => {
+							hex.cleanOverlayVisualState();
+						});
+					} else {
+						creature.hexagons.forEach((hex) => {
+							hex.overlayVisualState("hover h_player" + creature.team);
+						});
 					}
 				}
 			});
 
+			this.showMovementRange(creaID);
 			this.xrayQueue(creaID);
 		}).bind("mouseleave", (e) => { // On mouseleave cancel effect
 			if (game.freezedInput) {
 				return;
 			}
+
+			// the mouse over adds a coloured hex to the creature, so when we mouse leave we have to remove them
+			game.creatures.forEach((creature) => {
+				if (creature instanceof Creature) {
+					creature.hexagons.forEach((hex) => {
+						hex.cleanOverlayVisualState();
+					});
+				}
+			});
 
 			game.grid.redoLastQuery();
 			game.creatures.forEach((creature) => {
