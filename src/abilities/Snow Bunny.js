@@ -252,6 +252,8 @@ G.abilities[12] = [
 				},
 				animation: "push",
 			});
+			
+			G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 		},
 	},
 
