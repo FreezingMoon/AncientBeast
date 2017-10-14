@@ -604,7 +604,7 @@ var HexGrid = Class.create({
 			var hex = this;
 			if (hex.creature instanceof Creature) { // toggle hover off event
 				var crea = hex.creature;
-				if(crea.type == "--" && crea === G.activeCreature){ // the plasma would have been displayed so now display the health again
+				if(crea.type == "--"){ // the plasma would have been displayed so now display the health again
 					crea.updateHealth();
 				}
 			}
@@ -628,8 +628,15 @@ var HexGrid = Class.create({
 				if (G.grid.materialize_overlay) G.grid.materialize_overlay.alpha = 0;
 				if (hex.creature instanceof Creature) { // If creature
 					var crea = hex.creature;
-					if(crea.type == "--" && crea === G.activeCreature){
-						crea.displayPlasma();
+					if(crea.type == "--"){ // this should probably be extracted outside of the not reachable condition
+						if(crea === G.activeCreature){
+							if(crea.hasCreaturePlayerGotPlasma()){
+								crea.displayPlasmaShield();
+							}
+						}
+						else{ // inactive priest, so display his health on hover
+							crea.displayHealthStats();
+						}
 					}
 					crea.hexagons.forEach(function(hex) {
 						hex.overlayVisualState("hover h_player" + crea.team);
