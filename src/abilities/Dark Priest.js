@@ -272,7 +272,7 @@ G.abilities[0] = [
 			spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size);
 
 			G.grid.queryHexes({
-				fnOnSelect: function() {;
+				fnOnSelect: function() {
 					ability.fnOnSelect.apply(ability, arguments);
 				},
 				fnOnCancel: function() {
