@@ -1569,6 +1569,18 @@ var UI = Class.create({
 		this.$queue.find('.vignette').removeClass("xray");
 		if (creaID > 0) this.$queue.find('.vignette[creatureid="' + creaID + '"]').addClass("xray");
 	},
+	
+	bouncexrayQueue: function (creaID) {
+		this.$queue.find('.vignette').removeClass("xray");
+		$j("canvas").css("cursor", "n-resize");
+		if (creaID > 0) 
+			this.$queue.find('.vignette[creatureid="' + creaID + '"]').addClass("xray")
+			.effect( "bounce", { distance:-20,times: 1 },400,
+				function(){
+					$j("canvas").css("cursor", "pointer");
+				}
+			);
+	},
 
 	updateFatigue: function () {
 

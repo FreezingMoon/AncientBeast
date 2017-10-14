@@ -552,8 +552,7 @@ var HexGrid = Class.create({
 			if (!hex.reachable) {
 				G.grid.lastClickedHex = [];
 				if (hex.creature instanceof Creature) { // If creature
-					var crea = hex.creature;
-					// G.UI.showCreature(crea.type,crea.team);
+					onCreatureHover(hex.creature,(G.activeCreature !== hex.creature)?G.UI.bouncexrayQueue.bind(G.UI):G.UI.xrayQueue.bind(G.UI));
 				} else { // If nothing
 					o.fnOnCancel(hex, o.args); // ON CANCEL
 				}
@@ -627,21 +626,7 @@ var HexGrid = Class.create({
 			if (!hex.reachable) {
 				if (G.grid.materialize_overlay) G.grid.materialize_overlay.alpha = 0;
 				if (hex.creature instanceof Creature) { // If creature
-					var crea = hex.creature;
-					if(crea.type == "--"){ // this should probably be extracted outside of the not reachable condition
-						if(crea === G.activeCreature){
-							if(crea.hasCreaturePlayerGotPlasma()){
-								crea.displayPlasmaShield();
-							}
-						}
-						else{ // inactive priest, so display his health on hover
-							crea.displayHealthStats();
-						}
-					}
-					crea.hexagons.forEach(function(hex) {
-						hex.overlayVisualState("hover h_player" + crea.team);
-					});
-					G.UI.xrayQueue(crea.id);
+					onCreatureHover(hex.creature,G.UI.xrayQueue.bind(G.UI));
 				} else { // If nothing
 					hex.overlayVisualState("hover");
 				}
@@ -685,6 +670,23 @@ var HexGrid = Class.create({
 				G.UI.showCreature(G.activeCreature.type, G.activeCreature.player.id);
 			}
 		};
+		
+		var onCreatureHover = function(crea, queueEffect){
+			if(crea.type == "--"){ // this should probably be extracted outside of the not reachable condition
+				if(crea === G.activeCreature){
+					if(crea.hasCreaturePlayerGotPlasma()){
+						crea.displayPlasmaShield();
+					}
+				}
+				else{ // inactive priest, so display his health on hover
+					crea.displayHealthStats();
+				}
+			}
+			crea.hexagons.forEach(function(hex) {
+				hex.overlayVisualState("hover h_player" + crea.team);
+			});
+			queueEffect(crea.id);
+		}
 
 
 		this.forEachHex(function() {
