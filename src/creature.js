@@ -630,22 +630,21 @@ var Creature = class Creature {
 	 */
 	moveTo(hex, opts) {
 		let game = this.game,
+			defaultOpt = {
+				callback: function() {
+					return true;
+				},
+				callbackStepIn: function() {
+					return true;
+				},
+				animation: this.movementType() === "flying" ? "fly" : "walk",
+				ignoreMovementPoint: false,
+				ignorePath: false,
+				customMovementPoint: 0,
+				overrideSpeed: 0,
+				turnAroundOnComplete: true
+			},
 			path;
-
-		defaultOpt = {
-			callback: function() {
-				return true;
-			},
-			callbackStepIn: function() {
-				return true;
-			},
-			animation: this.movementType() === "flying" ? "fly" : "walk",
-			ignoreMovementPoint: false,
-			ignorePath: false,
-			customMovementPoint: 0,
-			overrideSpeed: 0,
-			turnAroundOnComplete: true
-		};
 
 		opts = $j.extend(defaultOpt, opts);
 

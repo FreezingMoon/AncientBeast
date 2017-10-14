@@ -255,8 +255,8 @@ G.abilities[0] = [
 			var ability = this;
 			var dpriest = this.creature;
 
-			G.grid.forEachHex(function() {
-				this.unsetReachable();
+			G.grid.forEachHex(function(hex) {
+				hex.unsetReachable();
 			});
 
 			var spawnRange = dpriest.hexagons[0].adjacentHex(this.summonRange);
@@ -272,7 +272,7 @@ G.abilities[0] = [
 			spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size);
 
 			G.grid.queryHexes({
-				fnOnSelect: function() {
+				fnOnSelect: function() {;
 					ability.fnOnSelect.apply(ability, arguments);
 				},
 				fnOnCancel: function() {

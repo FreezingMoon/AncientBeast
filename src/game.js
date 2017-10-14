@@ -381,7 +381,7 @@ var Game = class Game {
 		this.dropId = 0;
 		this.creatureIdCounter = 1;
 
-		this.grid = new HexGrid(); // Create Hexgrid
+		this.grid = new HexGrid({}, this); // Create Hexgrid
 
 		this.startMatchTime = new Date();
 
@@ -520,7 +520,7 @@ var Game = class Game {
 	nextCreature() {
 		this.UI.closeDash();
 		this.UI.btnToggleDash.changeState("normal");
-		this.grid.xray(new Hex(-1, -1)); // Clear Xray
+		this.grid.xray(new Hex(-1, -1, null, this)); // Clear Xray
 
 		if (this.gameState == "ended") {
 			return;
