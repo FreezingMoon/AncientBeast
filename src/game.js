@@ -236,7 +236,7 @@ var Game = class Game {
 
 		// Sounds
 		this.soundLoaded = {};
-		this.soundsys = new Soundsys();
+		this.soundsys = new SoundSys({}, this);
 
 		for (i = 0; i < totalSoundEffects; i++) {
 			this.soundsys.getSound("./sounds/" + this.soundEffects[i], this.availableMusic.length + i);
