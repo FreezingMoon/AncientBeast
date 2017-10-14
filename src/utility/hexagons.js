@@ -599,17 +599,17 @@ var HexGrid = Class.create({
 			}
 		};
 
-		
+
 		var onHoverOffFn = function() {
 			var hex = this;
 			if (hex.creature instanceof Creature) { // toggle hover off event
 				var crea = hex.creature;
-				if(crea.type == "--" && crea === G.activeCreature){ // the plasma would have been displayed so now display the health again
+				if (crea.type == "--" && crea === G.activeCreature) { // the plasma would have been displayed so now display the health again
 					crea.updateHealth();
 				}
 			}
 		}
-		
+
 		// ONMOUSEOVER
 		var onSelectFn = function() {
 			var hex = this;
@@ -622,13 +622,13 @@ var HexGrid = Class.create({
 			// Clear display and overlay
 			G.grid.updateDisplay();
 			G.UI.xrayQueue(-1);
-			
+
 			// Not reachable hex
 			if (!hex.reachable) {
 				if (G.grid.materialize_overlay) G.grid.materialize_overlay.alpha = 0;
 				if (hex.creature instanceof Creature) { // If creature
 					var crea = hex.creature;
-					if(crea.type == "--" && crea === G.activeCreature){
+					if (crea.type == "--" && crea === G.activeCreature) {
 						crea.displayPlasma();
 					}
 					crea.hexagons.forEach(function(hex) {
@@ -1615,7 +1615,7 @@ var Hex = Class.create({
 	 */
 	createTrap: function(type, effects, owner, opt) {
 		if (!!this.trap) this.destroyTrap();
-		this.trap = new Trap(this.x, this.y, type, effects, owner, opt);
+		this.trap = new Trap(this.x, this.y, type, effects, owner, opt, G);
 		return this.trap;
 	},
 
