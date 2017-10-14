@@ -4,7 +4,6 @@
  * Should only have one instance during the game.
  *
  */
-
 var HexGrid = class HexGrid {
 	/* Attributes
 	 *

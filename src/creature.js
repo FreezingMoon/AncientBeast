@@ -4,7 +4,6 @@
  *
  */
 var Creature = class Creature {
-
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jquery element
