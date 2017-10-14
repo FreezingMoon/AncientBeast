@@ -1555,18 +1555,18 @@ var UI = class UI {
 
 		// Add mouseover effect
 
-		this.$queue.find('.vignette.roundmarker').unbind("mouseover").unbind("mouseleave").bind("mouseover", () => {
+		this.$queue.find('.vignette.roundmarker').unbind("mouseover").unbind("mouseleave").bind("mouseover", (e) => {
 			game.grid.showGrid(true);
-		}).bind("mouseleave", () => {
+		}).bind("mouseleave", (e) => {
 			game.grid.showGrid(false);
 		});
 
-		this.$queue.find('.vignette').not(".roundmarker").unbind("mousedown").unbind("mouseover").unbind("mouseleave").bind("mouseover", () => {
+		this.$queue.find('.vignette').not(".roundmarker").unbind("mousedown").unbind("mouseover").unbind("mouseleave").bind("mouseover", (e) => {
 			if (game.freezedInput) {
 				return;
 			}
 
-			let creaID = $j(this).attr("creatureid") - 0;
+			let creaID = $j(e.currentTarget).attr("creatureid") - 0;
 			game.grid.showMovementRange(creaID);
 			game.creatures.forEach((creature) => {
 				if (creature instanceof Creature) {
@@ -1579,7 +1579,7 @@ var UI = class UI {
 			});
 
 			this.xrayQueue(creaID);
-		}).bind("mouseleave", () => { // On mouseleave cancel effect
+		}).bind("mouseleave", (e) => { // On mouseleave cancel effect
 			if (game.freezedInput) {
 				return;
 			}
@@ -1592,12 +1592,12 @@ var UI = class UI {
 			});
 
 			this.xrayQueue(-1);
-		}).bind("mousedown", () => { // Show dash on click
+		}).bind("mousedown", (e) => { // Show dash on click
 			if (game.freezedInput) {
 				return;
 			}
 
-			let creaID = $j(this).attr("creatureid") - 0;
+			let creaID = $j(e.currentTarget).attr("creatureid") - 0;
 			this.showCreature(game.creatures[creaID].type, game.creatures[creaID].player.id);
 		});
 	}
