@@ -49,7 +49,8 @@ G.abilities[6] = [
 								},
 								alterations: ability.effects[0],
 								noLog: true
-							} // Optional arguments
+							}, // Optional arguments
+							G
 						);
 						crea.addEffect(effect);
 					}
@@ -156,9 +157,10 @@ G.abilities[6] = [
 
 			var damage = new Damage(
 				ability.creature, //Attacker
-				d, //Damage Type
-				1, //Area
-				[] //Effects
+				d, // Damage Type
+				1, // Area
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 		},
@@ -255,7 +257,8 @@ G.abilities[6] = [
 							ability.creature, // Attacker
 							ability.damages1, // Damage Type
 							1, // Area
-							[] // Effects
+							[], // Effects
+							G
 						)
 					);
 
@@ -357,7 +360,8 @@ G.abilities[6] = [
 						effect.target.stats.frozen = true;
 						this.deleteEffect();
 					}
-				}
+				},
+				G
 			);
 
 			ability.areaDamage(

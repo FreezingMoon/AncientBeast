@@ -94,7 +94,8 @@ G.abilities[5] = [
 				ability.creature, // Attacker
 				finalDmg, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			var result = target.takeDamage(damage);
 			// Recharge movement if any damage dealt
@@ -157,7 +158,7 @@ G.abilities[5] = [
 					effectFn: function(effect) {
 						G.log("%CreatureName" + effect.target.id + "% is hit by " + effect.name);
 						effect.target.takeDamage(
-							new Damage(effect.owner, damages, 1, []), {
+							new Damage(effect.owner, damages, 1, [], G), {
 								isFromTrap: true
 							});
 						// Hack: manually destroy traps so we don't activate multiple traps
@@ -167,7 +168,8 @@ G.abilities[5] = [
 						});
 						effect.deleteEffect();
 					}
-				}
+				},
+				G
 			);
 			target.hexagons.forEach(function(hex) {
 				hex.createTrap(
@@ -269,7 +271,8 @@ G.abilities[5] = [
 							},
 							deleteTrigger: "onEndPhase",
 							noLog: true
-						}
+						},
+						G
 					));
 				}
 
@@ -277,7 +280,8 @@ G.abilities[5] = [
 					ability.creature, // Attacker
 					nextdmg, // Damage Type
 					1, // Area
-					[] // Effects
+					[], // Effects
+					G
 				);
 				nextdmg = trg.takeDamage(damage);
 

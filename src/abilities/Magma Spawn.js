@@ -20,7 +20,7 @@ G.abilities[4] = [
 			// Leave two traps behind
 			this._addTrap(this.creature.hexagons[1]);
 			this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
-			
+
 			// SFX
 			music = G.Phaser.add.audio('MagmaSpawn0');
 			music.play();
@@ -43,14 +43,15 @@ G.abilities[4] = [
 							},
 							effectFn: function(effect, target) {
 								target.takeDamage(
-									new Damage(effect.attacker, ability.damages, 1, []), {
+									new Damage(effect.attacker, ability.damages, 1, [], G), {
 										isFromTrap: true
 									});
 								this.trap.destroy();
 								effect.deleteEffect();
 							},
 							attacker: this.creature
-						}
+						},
+						G
 					)
 				],
 				this.creature.player, {
@@ -123,7 +124,8 @@ G.abilities[4] = [
 				ability.creature, // Attacker
 				d, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 
@@ -143,7 +145,8 @@ G.abilities[4] = [
 					"", {
 						deleteTrigger: "",
 						stackable: true
-					}
+					},
+					G
 				));
 			}
 		},
@@ -289,7 +292,8 @@ G.abilities[4] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			// Destroy traps currently under self

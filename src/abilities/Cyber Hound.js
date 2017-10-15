@@ -37,7 +37,8 @@ G.abilities[31] = [
 				this.creature, // Attacker
 				this.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 
@@ -95,7 +96,8 @@ G.abilities[31] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 
@@ -218,7 +220,8 @@ G.abilities[31] = [
 					ability.creature, //Attacker
 					ability.damages, //Damage Type
 					1, //Area
-					[] //Effects
+					[], //Effects
+					G
 				);
 				target.takeDamage(damage);
 			}
@@ -296,7 +299,8 @@ G.abilities[31] = [
 				ability.creature, // Attacker
 				damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 		}

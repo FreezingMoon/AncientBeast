@@ -54,7 +54,8 @@ G.abilities[3] = [
 				creature, // Caster
 				target, // Target
 				"", // Trigger
-				optArg // Optional arguments
+				optArg, // Optional arguments
+				G
 			);
 
 			target.addEffect(effect, undefined, "Contaminated");
@@ -114,7 +115,8 @@ G.abilities[3] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			var dmg = target.takeDamage(damage);
@@ -147,7 +149,8 @@ G.abilities[3] = [
 								alterations: {
 									regrowth: amount
 								}
-							} // Optional arguments
+							}, // Optional arguments
+							G
 						), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", // Custom Log
 						"Regrowth++"); // Custom Hint
 				}
@@ -249,7 +252,7 @@ G.abilities[3] = [
 					// Shake the screen upon landing to simulate the jump
 					G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-					G.triggersFn.onStepIn(ability.creature, ability.creature.hexagons[0]);
+					G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
 					var interval = setInterval(function() {
 						if (!G.freezedInput) {
@@ -272,7 +275,8 @@ G.abilities[3] = [
 						effect.deleteEffect();
 					},
 					alterations: ability.effects[0]
-				} // Optional arguments
+				}, // Optional arguments
+				G
 			));
 		},
 
@@ -360,7 +364,8 @@ G.abilities[3] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			var result = target.takeDamage(damage);
 

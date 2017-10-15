@@ -1,270 +1,271 @@
-var Animations = Class.create({
+let Animations = class Animations {
+	constructor(game) {
+		this.game = game;
+		this.movementPoints = 0;
+	}
 
-	initialize: function() {},
+	walk(creature, path, opts) {
+		let game = this.game;
 
-	movements: {
+		if (opts.customMovementPoint > 0) {
+			path = path.slice(0, opts.customMovementPoint);
+			// For compatibility
+			this.movementPoints = creature.remainingMove;
+			creature.remainingMove = opts.customMovementPoint;
+		}
 
-		savedMvtPoints: 0,
+		game.freezedInput = true;
 
-		walk: function(crea, path, opts) {
+		let anim_id = Math.random();
+		game.animationQueue.push(anim_id);
 
-			if (opts.customMovementPoint > 0) {
+		let hexId = 0;
 
-				path = path.slice(0, opts.customMovementPoint);
-				// For compatibility
-				this.savedMvtPoints = crea.remainingMove;
-				crea.remainingMove = opts.customMovementPoint;
+		creature.healthHide();
+
+		let anim = function() {
+			let hex = path[hexId];
+
+			if (hexId < path.length && (creature.remainingMove > 0 || opts.ignoreMovementPoint)) {
+				this.leaveHex(creature, hex, opts);
+			} else {
+				this.movementComplete(creature, path[path.length - 1], anim_id, opts);
+				return;
 			}
 
-			G.freezedInput = true;
+			let nextPos = game.grid.hexes[hex.y][hex.x - creature.size + 1];
+			let speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
 
-			var anim_id = Math.random();
-			G.animationQueue.push(anim_id);
+			let tween = game.Phaser.add.tween(creature.grp)
+				.to(nextPos.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
+				.start();
 
-			var hexId = 0;
+			// Ignore traps for hover creatures, unless this is the last hex
+			let enterHexOpts = $j.extend({
+				ignoreTraps: creature.movementType() !== "normal" && hexId < path.length - 1
+			}, opts);
 
-			crea.healthHide();
-
-			var anim = function() {
-
-				var hex = path[hexId];
-
-				if (hexId < path.length && (crea.remainingMove > 0 || opts.ignoreMovementPoint)) {
-					G.animations.movements.leaveHex(crea, hex, opts);
-				} else {
-					G.animations.movements.movementComplete(
-						crea, path[path.length - 1], anim_id, opts);
+			tween.onComplete.add(() => {
+				if (creature.dead) {
+					// Stop moving if creature has died while moving
+					this.movementComplete(creature, hex, anim_id, opts);
 					return;
 				}
 
-				var nextPos = G.grid.hexes[hex.y][hex.x - crea.size + 1];
-				var speed = !opts.overrideSpeed ? crea.animation.walk_speed : opts.overrideSpeed;
-
-				var tween = G.Phaser.add.tween(crea.grp)
-					.to(nextPos.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
-					.start();
-
-				// Ignore traps for hover creatures, unless this is the last hex
-				var enterHexOpts = $j.extend({
-					ignoreTraps: crea.movementType() !== "normal" && hexId < path.length - 1
-				}, opts);
-				tween.onComplete.add(function() {
-
-					if (crea.dead) {
-						// Stop moving if creature has died while moving
-						G.animations.movements.movementComplete(crea, hex, anim_id, opts);
-						return;
-					}
-
-					// Sound Effect
-					G.soundsys.playSound(G.soundLoaded[0], G.soundsys.effectsGainNode);
-
-					if (!opts.ignoreMovementPoint) {
-						crea.remainingMove--;
-						if (opts.customMovementPoint === 0) crea.travelDist++;
-					}
-
-					G.animations.movements.enterHex(crea, hex, enterHexOpts);
-
-
-					anim(); // Next tween
-				});
-
-				hexId++;
-			};
-
-			anim();
-		},
-
-
-		fly: function(crea, path, opts) {
-
-			if (opts.customMovementPoint > 0) {
-
-				path = path.slice(0, opts.customMovementPoint);
-				// For compatibility
-				this.savedMvtPoints = crea.remainingMove;
-				crea.remainingMove = opts.customMovementPoint;
-			}
-
-			G.freezedInput = true;
-
-			var anim_id = Math.random();
-			G.animationQueue.push(anim_id);
-
-			var hexId = 0;
-
-			crea.healthHide();
-
-			var hex = path[0];
-
-			var start = G.grid.hexes[crea.y][crea.x - crea.size + 1];
-			var currentHex = G.grid.hexes[hex.y][hex.x - crea.size + 1];
-
-			G.animations.movements.leaveHex(crea, start, opts);
-
-			var speed = !opts.overrideSpeed ? crea.animation.walk_speed : opts.overrideSpeed;
-
-			var tween = G.Phaser.add.tween(crea.grp)
-				.to(currentHex.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
-				.start();
-
-			tween.onComplete.add(function() {
 				// Sound Effect
-				G.soundsys.playSound(G.soundLoaded[0], G.soundsys.effectsGainNode);
+				game.soundsys.playSound(game.soundLoaded[0], game.soundsys.effectsGainNode);
 
 				if (!opts.ignoreMovementPoint) {
-					// Determine distance
-					var distance = 0;
-					var k = 0;
-					while (!distance && start != currentHex) {
-						k++;
+					creature.remainingMove--;
 
-						if (arrayUtils.findPos(start.adjacentHex(k), currentHex)) {
-							distance = k;
-						}
+					if (opts.customMovementPoint === 0) {
+						creature.travelDist++;
 					}
-
-					crea.remainingMove -= distance;
-					if (opts.customMovementPoint === 0) crea.travelDist += distance;
 				}
 
-				G.animations.movements.enterHex(crea, hex, opts);
-				G.animations.movements.movementComplete(crea, hex, anim_id, opts);
-				return;
+				this.enterHex(creature, hex, enterHexOpts);
+
+				anim(); // Next tween
 			});
-		},
+
+			hexId++;
+		}.bind(this);
+
+		anim();
+	}
 
 
-		teleport: function(crea, path, opts) {
+	fly(creature, path, opts) {
+		let game = this.game;
 
-			var hex = path[0];
+		if (opts.customMovementPoint > 0) {
+			path = path.slice(0, opts.customMovementPoint);
+			// For compatibility
+			this.movementPoints = creature.remainingMove;
+			creature.remainingMove = opts.customMovementPoint;
+		}
 
-			var currentHex = G.grid.hexes[hex.y][hex.x - crea.size + 1];
+		game.freezedInput = true;
 
-			G.animations.movements.leaveHex(crea, currentHex, opts);
+		let anim_id = Math.random();
+		game.animationQueue.push(anim_id);
 
-			var anim_id = Math.random();
-			G.animationQueue.push(anim_id);
+		let hexId = 0;
 
-			// FadeOut
-			var tween = G.Phaser.add.tween(crea.grp)
+		creature.healthHide();
+
+		let hex = path[0];
+
+		let start = game.grid.hexes[creature.y][creature.x - creature.size + 1];
+		let currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
+
+		this.leaveHex(creature, start, opts);
+
+		let speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
+
+		let tween = game.Phaser.add.tween(creature.grp)
+			.to(currentHex.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
+			.start();
+
+		tween.onComplete.add(() => {
+			// Sound Effect
+			game.soundsys.playSound(game.soundLoaded[0], game.soundsys.effectsGainNode);
+
+			if (!opts.ignoreMovementPoint) {
+				// Determine distance
+				let distance = 0;
+				let k = 0;
+				while (!distance && start != currentHex) {
+					k++;
+
+					if (arrayUtils.findPos(start.adjacentHex(k), currentHex)) {
+						distance = k;
+					}
+				}
+
+				creature.remainingMove -= distance;
+				if (opts.customMovementPoint === 0) {
+					creature.travelDist += distance;
+				}
+			}
+
+			this.enterHex(creature, hex, opts);
+			this.movementComplete(creature, hex, anim_id, opts);
+			return;
+		});
+	}
+
+	teleport(creature, path, opts) {
+		let game = this.game,
+			hex = path[0],
+			currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
+
+		this.leaveHex(creature, currentHex, opts);
+
+		let anim_id = Math.random();
+		game.animationQueue.push(anim_id);
+
+		// FadeOut
+		let tween = game.Phaser.add.tween(creature.grp)
+			.to({
+				alpha: 0
+			}, 500, Phaser.Easing.Linear.None)
+			.start();
+
+		tween.onComplete.add(() => {
+			// Sound Effect
+			game.soundsys.playSound(game.soundLoaded[0], game.soundsys.effectsGainNode);
+
+			// position
+			creature.grp.x = currentHex.displayPos.x;
+			creature.grp.y = currentHex.displayPos.y;
+
+			// FadeIn
+			let tween = game.Phaser.add.tween(creature.grp)
 				.to({
-					alpha: 0
+					alpha: 1
 				}, 500, Phaser.Easing.Linear.None)
 				.start();
 
-			tween.onComplete.add(function() {
-				// Sound Effect
-				G.soundsys.playSound(G.soundLoaded[0], G.soundsys.effectsGainNode);
+			this.enterHex(creature, hex, opts);
+			this.movementComplete(creature, hex, anim_id, opts);
+			return;
+		});
+	}
 
-				// position
-				crea.grp.x = currentHex.displayPos.x;
-				crea.grp.y = currentHex.displayPos.y;
+	push(creature, path, opts) {
+		opts.pushed = true;
+		this.walk(creature, path, opts);
+	}
 
-				// FadeIn
-				var tween = G.Phaser.add.tween(crea.grp)
-					.to({
-						alpha: 1
-					}, 500, Phaser.Easing.Linear.None)
-					.start();
+	//--------Special Functions---------//
 
-				G.animations.movements.enterHex(crea, hex, opts);
-				G.animations.movements.movementComplete(crea, hex, anim_id, opts);
-				return;
-			});
-		},
+	enterHex(creature, hex, opts) {
+		let game = this.game;
 
-		push: function(crea, path, opts) {
-			opts.pushed = true;
-			this.walk(crea, path, opts);
-		},
+		creature.cleanHex();
+		creature.x = hex.x - 0;
+		creature.y = hex.y - 0;
+		creature.pos = hex.pos;
+		creature.updateHex();
 
-		//--------Special Functions---------//
+		game.onStepIn(creature, hex, opts);
 
-		enterHex: function(crea, hex, opts) {
-			crea.cleanHex();
-			crea.x = hex.x - 0;
-			crea.y = hex.y - 0;
-			crea.pos = hex.pos;
-			crea.updateHex();
+		creature.pickupDrop();
 
-			G.triggersFn.onStepIn(crea, hex, opts);
+		opts.callbackStepIn(hex);
 
-			crea.pickupDrop();
+		game.grid.orderCreatureZ();
+	}
 
-			opts.callbackStepIn(hex);
+	leaveHex(creature, hex, opts) {
+		let game = this.game;
 
-			G.grid.orderCreatureZ();
-		},
-
-		leaveHex: function(crea, hex, opts) {
-			if (!opts.pushed) crea.faceHex(hex, crea.hexagons[0]); // Determine facing
-			G.triggersFn.onStepOut(crea, crea.hexagons[0]); // Trigger
-
-			G.grid.orderCreatureZ();
-		},
-
-		movementComplete: function(crea, hex, anim_id, opts) {
-
-			if (opts.customMovementPoint > 0) {
-				crea.remainingMove = this.savedMvtPoints;
-			}
-
-			G.grid.updateDisplay();
-
-			// TODO: Turn around animation
-			if (opts.turnAroundOnComplete) {
-				crea.facePlayerDefault();
-			}
-
-			// TODO: Reveal health indicator
-			crea.healthShow();
-
-			G.triggersFn.onCreatureMove(crea, hex); // Trigger
-
-			crea.hexagons.forEach(function(hex) {
-				hex.pickupDrop(crea);
-			});
-
-			G.grid.orderCreatureZ();
-
-			var queue = G.animationQueue.filter(function(item) {
-				return (item != anim_id);
-			});
-
-			if (queue.length === 0) {
-				G.freezedInput = false;
-			}
-
-			G.animationQueue = queue;
+		if (!opts.pushed) {
+			creature.faceHex(hex, creature.hexagons[0]); // Determine facing
 		}
-	},
-	projectile: function(this_2, target, sprite_id, path,args, start_x, start_y) {
-		
-		
-		 var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 
-		var emissionPoint = {
-					x: this_2.creature.grp.x + start_x,
-					y: this_2.creature.grp.y + start_y
-				};
-				
-		var targetPoint = {
-					x: target.grp.x + 52,
-					y: target.grp.y - 20
-				};
-		var sprite = G.grid.creatureGroup.create(
-					emissionPoint.x, emissionPoint.y, sprite_id); // Sprite id here
-				sprite.anchor.setTo(0.5);
-				sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
-				var duration = dist * 75;
-				var tween = G.Phaser.add.tween(sprite)
-					.to({
-						x: targetPoint.x,
-						y: targetPoint.y
-					}, duration, Phaser.Easing.Linear.None)
-					.start();
-		return [tween,sprite,dist];
-	}, // End projectile
-});
+		game.onStepOut(creature, creature.hexagons[0]); // Trigger
+		game.grid.orderCreatureZ();
+	}
+
+	movementComplete(creature, hex, anim_id, opts) {
+		let game = this.game;
+
+		if (opts.customMovementPoint > 0) {
+			creature.remainingMove = this.movementPoints;
+		}
+
+		game.grid.updateDisplay();
+		// TODO: Turn around animation
+		if (opts.turnAroundOnComplete) {
+			creature.facePlayerDefault();
+		}
+
+		// TODO: Reveal health indicator
+		creature.healthShow();
+
+		game.onCreatureMove(creature, hex); // Trigger
+
+		creature.hexagons.forEach((hex) => {
+			hex.pickupDrop(creature);
+		});
+
+		game.grid.orderCreatureZ();
+
+		let queue = game.animationQueue.filter((item) => item != anim_id);
+
+		if (queue.length === 0) {
+			game.freezedInput = false;
+		}
+
+		game.animationQueue = queue;
+	}
+
+	projectile(this_2, target, sprite_id, path, args, start_x, start_y) {
+		let game = this.game,
+			dist = arrayUtils.filterCreature(path.slice(0), false, false).length,
+			emissionPoint = {
+				x: this_2.creature.grp.x + start_x,
+				y: this_2.creature.grp.y + start_y
+			},
+			targetPoint = {
+				x: target.grp.x + 52,
+				y: target.grp.y - 20
+			},
+			// Sprite id here
+			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, sprite_id),
+			duration = dist * 75;
+
+		sprite.anchor.setTo(0.5);
+		sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
+		let tween = game.Phaser.add.tween(sprite)
+			.to({
+				x: targetPoint.x,
+				y: targetPoint.y
+			}, duration, Phaser.Easing.Linear.None)
+			.start();
+
+		return [tween, sprite, dist];
+	}
+}
