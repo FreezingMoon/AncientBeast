@@ -91,10 +91,11 @@ G.abilities[22] = [
 			var target = arrayUtils.last(path).creature;
 
 			var damage = new Damage(
-				ability.creature, //Attacker
-				ability.damages, //Damage Type
-				1, //Area
-				[] //Effects
+				ability.creature, // Attacker
+				ability.damages, // Damage Type
+				1, // Area
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 		},
@@ -160,7 +161,8 @@ G.abilities[22] = [
 						ability.creature, //Caster
 						trg, //Target
 						"", //Trigger
-						optArg //Optional arguments
+						optArg, //Optional arguments
+						G
 					);
 					trg.addEffect(effect);
 				}
@@ -197,7 +199,8 @@ G.abilities[22] = [
 								ability.creature, //Caster
 								trg, //Target
 								"", //Trigger
-								optArg //Optional arguments
+								optArg, //Optional arguments
+								G
 							);
 							trg.addEffect(effect, "%CreatureName" + trg.id + "% got roasted : -1 burn stat debuff");
 						}
@@ -286,10 +289,11 @@ G.abilities[22] = [
 
 			if (hex.creature instanceof Creature) {
 				hex.creature.takeDamage(new Damage(
-					ability.creature, //Attacker
-					ability.damages1, //Damage Type
-					1, //Area
-					[] //Effects
+					ability.creature, // Attacker
+					ability.damages1, // Damage Type
+					1, // Area
+					[], // Effects
+					G
 				));
 			}
 

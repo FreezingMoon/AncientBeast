@@ -1,18 +1,21 @@
-var Soundsys = Class.create({
+var SoundSys = class SoundSys {
+	constructor(o, game) {
+		this.game = game;
 
-	initialize: function(o) {
 		o = $j.extend({
 			music_volume: 0.1,
 			effects_volume: 0.6,
 			heartbeats_volume: 0.3,
 			announcer_volume: 0.6
-		}, o);
+		}, o || {});
 
 		$j.extend(this, o);
 
 		window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
-		if (!window.AudioContext) return false;
+		if (!window.AudioContext) {
+			return false;
+		}
 
 		this.context = new AudioContext();
 
@@ -35,40 +38,41 @@ var Soundsys = Class.create({
 		this.announcerGainNode = this.context.createGain();
 		this.announcerGainNode.connect(this.context.destination);
 		this.announcerGainNode.gain.value = this.announcer_volume;
-	},
+	}
 
-	playMusic: function() {
-		//if(!window.AudioContext) return false;
-		//this.playSound(G.soundLoaded[0],this.musicGainNode);
+	playMusic() {
 		musicPlayer.playRandom();
-	},
+	}
 
-	getSound: function(url, id) {
-		var id = id;
-		bufferLoader = new BufferLoader(this.context, [url], function(arraybuffer) {
-			G.soundLoaded[id] = arraybuffer[0];
+	getSound(url, id) {
+		let bufferLoader = new BufferLoader(this.context, [url], (arraybuffer) => {
+			this.game.soundLoaded[id] = arraybuffer[0];
 		});
 
 		bufferLoader.load();
-	},
+	}
 
-	playSound: function(sound, node, o) {
-		if (!window.AudioContext) return false;
+	playSound(sound, node, o) {
+		if (!window.AudioContext) {
+			return false;
+		}
+
 		o = $j.extend({
 			music_volume: 1,
 			effects_volume: 1,
 		}, o);
 
-		var source = this.context.createBufferSource();
+		let source = this.context.createBufferSource();
 		source.buffer = sound;
 		source.connect(node);
 		source.start(0);
-		return source;
-	},
 
-	setEffectsVolume: function(value) {
+		return source;
+	}
+
+	setEffectsVolume(value) {
 		this.effectsGainNode.gain.value = this.effects_volume * value;
 		this.heartbeatGainNode.gain.value = this.heartbeats_volume * value;
 		this.announcerGainNode.gain.value = this.announcer_volume * value;
 	}
-});
+};

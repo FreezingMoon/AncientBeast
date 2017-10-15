@@ -1,12 +1,13 @@
-var Button = Class.create({
+var Button = class Button {
 	/*	Constructor
 	 *
 	 *	Create attributes and default buttons
 	 *
 	 */
-	initialize: function(opts) {
+	constructor(opts, game) {
+		this.game = game;
 
-		defaultOpts = {
+		let defaultOpts = {
 			click: function() {},
 			mouseover: function() {},
 			mouseleave: function() {},
@@ -26,29 +27,40 @@ var Button = Class.create({
 		opts = $j.extend(defaultOpts, opts);
 		$j.extend(this, opts);
 		this.changeState(this.state);
-	},
+	}
 
-
-	changeState: function(state) {
-		var btn = this;
+	changeState(state) {
+		let game = this.game;
 
 		state = state || this.state;
 		this.state = state;
 		this.$button.unbind("click").unbind("mouseover").unbind("mouseleave");
+
 		if (state != "disabled") {
-			this.$button.bind("click", function() {
-				if (G.freezedInput || !btn.clickable) return;
-				btn.click();
+			this.$button.bind("click", () => {
+				if (game.freezedInput || !this.clickable) {
+					return;
+				}
+
+				this.click();
 			});
-			this.$button.bind("mouseover", function() {
-				if (G.freezedInput || !btn.clickable) return;
-				btn.mouseover();
+			this.$button.bind("mouseover", () => {
+				if (game.freezedInput || !this.clickable) {
+					return;
+				}
+
+				this.mouseover();
 			});
-			this.$button.bind("mouseleave", function() {
-				if (G.freezedInput || !btn.clickable) return;
-				btn.mouseleave();
+
+			this.$button.bind("mouseleave", () => {
+				if (game.freezedInput || !this.clickable) {
+					return;
+				}
+
+				this.mouseleave();
 			});
 		}
+
 		this.$button.removeClass("disabled glowing selected active noclick");
 		this.$button.css(this.css["normal"]);
 
@@ -56,20 +68,29 @@ var Button = Class.create({
 			this.$button.addClass(state);
 			this.$button.css(this.css[state]);
 		}
-	},
+	}
 
-	triggerClick: function() {
-		if (G.freezedInput || !this.clickable) return;
+	triggerClick() {
+		if (this.game.freezedInput || !this.clickable) {
+			return;
+		}
+
 		this.click();
-	},
+	}
 
-	triggerMouseover: function() {
-		if (G.freezedInput || !this.clickable) return;
+	triggerMouseover() {
+		if (this.game.freezedInput || !this.clickable) {
+			return;
+		}
+
 		this.mouseover();
-	},
+	}
 
-	triggerMouseleave: function() {
-		if (G.freezedInput || !this.clickable) return;
+	triggerMouseleave() {
+		if (this.game.freezedInput || !this.clickable) {
+			return;
+		}
+
 		this.mouseleave();
-	},
-});
+	}
+}

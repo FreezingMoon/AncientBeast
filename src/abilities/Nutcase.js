@@ -45,8 +45,10 @@ G.abilities[40] = [
 					this.creature, // Caster
 					damage.attacker, // Target
 					"", // Trigger
-					o
-				)]
+					o,
+					G
+				)],
+				G
 			);
 			counterDamage.counter = true;
 			damage.attacker.takeDamage(counterDamage);
@@ -67,7 +69,8 @@ G.abilities[40] = [
 						},
 						deleteTrigger: "onStartPhase",
 						turnLifetime: 1
-					}
+					},
+					G
 				));
 			}
 		}
@@ -184,17 +187,19 @@ G.abilities[40] = [
 						effect.target.takeDamage(new Damage(
 							effect.owner, {
 								pierce: ability.damages.pierce
-							}, 1, []));
+							}, 1, [], G));
 						effect.deleteEffect();
 					}
-				}
+				},
+				G
 			);
 
 			var damage = new Damage(
 				this.creature, // Attacker
 				this.damages, // Damage Type
 				1, // Area
-				[effect] // Effects
+				[effect], // Effects
+				G
 			);
 
 			target.takeDamage(damage);
@@ -319,7 +324,7 @@ G.abilities[40] = [
 			// Calculate damage, extra damage per hex distance
 			var damages = $j.extend({}, this.damages);
 			damages.pierce += runPath.length;
-			var damage = new Damage(this.creature, damages, 1, []);
+			var damage = new Damage(this.creature, damages, 1, [], G);
 
 			// Move towards target if necessary
 			if (runPath.length > 0) {
@@ -468,7 +473,8 @@ G.abilities[40] = [
 				crea, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			var inlinefront2hex = matrices.inlinefront2hex;

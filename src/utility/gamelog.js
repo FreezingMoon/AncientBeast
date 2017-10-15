@@ -1,87 +1,114 @@
-var Gamelog = Class.create({
-
-	initialize: function (id) {
+var GameLog = class GameLog {
+	constructor(id, game) {
+		this.game = game;
 		this.data = [];
 		this.playing = false;
 		this.timeCursor = -1;
 		this.gameConfig = {};
-	},
+	}
 
-	add: function (action) {
+	add(action) {
 		this.data.push(action);
-	},
+	}
 
-	config: function (config) {
-		if (G.gameState != 'initialized') {
+	config(config) {
+		let game = this.game;
+
+		if (game.gameState != 'initialized') {
 			alert('To set the game config, you need to be in the setup screen');
-		}
-		else {
-			G.loadGame(config);
+		} else {
+			game.loadGame(config);
 			this.gameConfig = config;
-		}
-	},
 
-	play: function (log) {
+			// TODO: We should be able to initiate this w/o manipulating the DOM -- However,
+			// currently "random" BG is processed on Submit. -- ktiedt
+			let btn = jQuery('#startButton');
+			if (btn.length === 1) {
+				btn.click();
+			}
+		}
+	}
+
+	play(log) {
+		let game = this.game,
+			config,
+			data;
+
+		if (typeof log == "object" && !log.length) {
+			data = log.log;
+			config = log.config;
+			this.data = data;
+			return this.config(config);
+		}
 
 		if (log) {
 			this.data = log;
 		}
 
-		var fun = function () {
-			G.gamelog.timeCursor++;
-			if (G.debugMode) console.log(G.gamelog.timeCursor + "/" + G.gamelog.data.length);
-			if (G.gamelog.timeCursor > G.gamelog.data.length - 1) {
-				G.activeCreature.queryMove(); // Avoid bug
+		let fun = () => {
+			this.timeCursor++;
+
+			if (game.debugMode) {
+				console.log(this.timeCursor + "/" + this.data.length);
+			}
+
+			if (this.timeCursor > this.data.length - 1) {
+				game.activeCreature.queryMove(); // Avoid bug
 				return;
 			}
-			var interval = setInterval(function () {
-				if (!G.freezedInput && !G.turnThrottle) {
+
+			let interval = setInterval(() => {
+				if (!game.freezedInput && !game.turnThrottle) {
 					clearInterval(interval);
-					G.activeCreature.queryMove(); // Avoid bug
-					G.action(G.gamelog.data[G.gamelog.timeCursor], {
+					game.activeCreature.queryMove(); // Avoid bug
+					game.action(this.data[this.timeCursor], {
 						callback: fun
 					});
 				}
 			}, 100);
 		};
+
 		fun();
-	},
+	}
 
-	next: function () {
-		if (G.freezedInput || G.turnThrottle) return false;
+	next() {
+		let game = this.game;
 
-		G.gamelog.timeCursor++;
-		if (G.debugMode) console.log(G.gamelog.timeCursor + "/" + G.gamelog.data.length);
-		if (G.gamelog.timeCursor > G.gamelog.data.length - 1) {
-			G.activeCreature.queryMove(); // Avoid bug
+		if (game.freezedInput || game.turnThrottle) {
+			return false;
+		}
+
+		this.timeCursor++;
+		if (game.debugMode) {
+			console.log(this.timeCursor + "/" + this.data.length);
+		}
+
+		if (this.timeCursor > this.data.length - 1) {
+			game.activeCreature.queryMove(); // Avoid bug
 			return;
 		}
-		var interval = setInterval(function () {
-			if (!G.freezedInput && !G.turnThrottle) {
+
+		let interval = setInterval(() => {
+			if (!game.freezedInput && !game.turnThrottle) {
 				clearInterval(interval);
-				G.activeCreature.queryMove(); // Avoid bug
-				G.action(G.gamelog.data[G.gamelog.timeCursor], {
-					callback: function () {
-						G.activeCreature.queryMove();
+				game.activeCreature.queryMove(); // Avoid bug
+				game.action(this.data[this.timeCursor], {
+					callback: function() {
+						game.activeCreature.queryMove();
 					}
 				});
 			}
 		}, 100);
-	},
-
-	get: function () {
-		var config = {};
-		if(isEmpty(this.gameConfig)){
-			config = getGameConfig();
-		}
-
-		else {
-			config = this.gameConfig;
-		}
-
-		console.log('Config :' + JSON.stringify(config))
-		console.log('Gamelog :' + JSON.stringify(this.data));
 	}
-});
 
+	get() {
+		let config = isEmpty(this.gameConfig) ? getGameConfig() : this.gameConfig,
+			output = {
+				config: config,
+				log: this.data
+			};
 
+		console.log('GameData :' + JSON.stringify(output));
+		return output;
+	}
+};

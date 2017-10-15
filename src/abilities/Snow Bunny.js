@@ -150,7 +150,8 @@ G.abilities[12] = [
 				ability.creature, // Attacker
 				damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 		},
@@ -252,6 +253,8 @@ G.abilities[12] = [
 				},
 				animation: "push",
 			});
+			
+			G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 		},
 	},
 
@@ -298,18 +301,18 @@ G.abilities[12] = [
 		},
 
 
-		
+
 		//	activate() :
 		activate: function(path, args) {
 			var ability = this;
 			ability.end();
 			var target = arrayUtils.last(path).creature;
-			
-			projectileInstance  = G.animations.projectile(this, target, 'effects_freezing-spit', path,args, 52, -20);
-			tween = projectileInstance [0];
-			sprite = projectileInstance [1];
-			dist = projectileInstance [2];
-			
+
+			projectileInstance = G.animations.projectile(this, target, 'effects_freezing-spit', path, args, 52, -20);
+			tween = projectileInstance[0];
+			sprite = projectileInstance[1];
+			dist = projectileInstance[2];
+
 			tween.onComplete.add(function() {
 				this.destroy();
 
@@ -321,7 +324,8 @@ G.abilities[12] = [
 					ability.creature, // Attacker
 					dmg, // Damage Type
 					1, // Area
-					[]
+					[],
+					G
 				);
 				var damageResult = target.takeDamage(damage);
 
