@@ -231,10 +231,10 @@ let Ability = class Ability {
 				arg: {},
 			}, o),
 			args = opt.arg,
-			activateAbility = function() {
-				this.activate.apply(this, args);
+			activateAbility = () => {
+				this.activate(args[0], args[1]);
 				this.postActivate();
-			}.bind(this);
+			};
 
 		game.freezedInput = true;
 

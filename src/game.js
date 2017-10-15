@@ -57,7 +57,7 @@ var Game = class Game {
 		this.availableCreatures = [];
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;
-		this.gamelog = new Gamelog(this);
+		this.gamelog = new GameLog(null, this);
 		this.debugMode = false;
 		this.realms = ["A", "E", "G", "L", "P", "S", "W"];
 		this.loadedCreatures = [
@@ -228,6 +228,7 @@ var Game = class Game {
 			},
 			i;
 
+		this.gamelog.gameConfig = setupOpt;
 		this.gameState = "loading";
 		// setupOpt = $j.extend(defaultOpt, setupOpt);
 		$j.extend(this, setupOpt);
@@ -475,6 +476,14 @@ var Game = class Game {
 		});
 
 		this.soundsys.playMusic();
+		if (this.gamelog.data) {
+			// TODO: Remove the need for a timeout here by having a proper
+			// "game is ready to play" event that can trigger log replays if
+			// they are queued. -- ktiedt
+			setTimeout(() => {
+				this.gamelog.play.apply(this.gamelog);
+			}, 1000);
+		}
 	}
 
 	/* resizeCombatFrame()

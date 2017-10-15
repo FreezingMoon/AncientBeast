@@ -1584,7 +1584,7 @@ var UI = class UI {
 				}
 			});
 
-			this.showMovementRange(creaID);
+			game.grid.showMovementRange(creaID);
 			this.xrayQueue(creaID);
 		}).bind("mouseleave", (e) => { // On mouseleave cancel effect
 			if (game.freezedInput) {
