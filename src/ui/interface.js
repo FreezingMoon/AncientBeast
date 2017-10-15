@@ -1624,6 +1624,18 @@ var UI = class UI {
 			this.$queue.find('.vignette[creatureid="' + creaID + '"]').addClass("xray");
 		}
 	}
+	
+	bouncexrayQueue(creaID) {
+	    this.xrayQueue(creaID);
+		if (creaID > 0) 
+			var $queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
+			if($queueItem.length > 0 && $queueItem.data("playingEffect") != true) {
+			    $queueItem.data("playingEffect",true);
+                $queueItem.effect( "bounce", { distance:-20,times: 1 },400,
+                    setTimeout(function(){$queueItem.data("playingEffect",false); }, 600)
+                );
+			}
+	}
 
 	updateFatigue() {
 		let game = this.game;

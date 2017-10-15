@@ -559,13 +559,13 @@ var HexGrid = class HexGrid {
 
 			// Clear display and overlay
 			this.updateDisplay();
+            $j("canvas").css("cursor", "pointer");
 
 			// Not reachable hex
 			if (!hex.reachable) {
 				this.lastClickedHex = [];
 				if (hex.creature instanceof Creature) { // If creature
-					let creature = hex.creature;
-					// G.UI.showCreature(crea.type,crea.team);
+					onCreatureHover(hex.creature, (game.activeCreature !== hex.creature) ? game.UI.bouncexrayQueue.bind(game.UI) : game.UI.xrayQueue.bind(game.UI));
 				} else { // If nothing
 					o.fnOnCancel(hex, o.args); // ON CANCEL
 				}
@@ -625,6 +625,7 @@ var HexGrid = class HexGrid {
 			// Clear display and overlay
 			this.updateDisplay();
 			game.UI.xrayQueue(-1);
+			$j("canvas").css("cursor", "pointer");
 
 			// Not reachable hex
 			if (!hex.reachable) {
@@ -633,21 +634,7 @@ var HexGrid = class HexGrid {
 				}
 
 				if (hex.creature instanceof Creature) { // If creature
-					let creature = hex.creature;
-					if (creature.type == "--") { // this should probably be extracted outside of the not reachable condition
-						if (creature === game.activeCreature) {
-							if (creature.hasCreaturePlayerGotPlasma()) {
-								creature.displayPlasmaShield();
-							}
-						} else { // inactive priest, so display his health on hover
-							creature.displayHealthStats();
-						}
-					}
-					creature.hexagons.forEach((hex) => {
-						hex.overlayVisualState("hover h_player" + creature.team);
-					});
-
-					game.UI.xrayQueue(creature.id);
+					onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI));
 				} else { // If nothing
 					hex.overlayVisualState("hover");
 				}
@@ -685,6 +672,25 @@ var HexGrid = class HexGrid {
 				game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id);
 			}
 		};
+		
+		let onCreatureHover = (creature, queueEffect) => {
+			if (creature.type == "--") {
+				if (creature === game.activeCreature) {
+					if (creature.hasCreaturePlayerGotPlasma()) {
+						creature.displayPlasmaShield();
+					}
+				} else {
+					creature.displayHealthStats();
+				}
+			}
+			if (creature !== game.activeCreature) {
+			    $j("canvas").css("cursor", "n-resize");
+			}
+			creature.hexagons.forEach((hex) => {
+				hex.overlayVisualState("hover h_player" + creature.team);
+			});
+			queueEffect(creature.id);
+		}
 
 
 		this.forEachHex((hex) => {
@@ -905,7 +911,7 @@ var HexGrid = class HexGrid {
 	 */
 	getFlyingRange(x, y, distance, size, id) {
 		// Gather all the reachable hexes
-		let hexes = this.this.hexes[y][x].adjacentHex(distance);
+		let hexes = this.hexes[y][x].adjacentHex(distance);
 
 		hexes = hexes.filter((hex) => hex.isWalkable(size, id, true));
 
@@ -1167,7 +1173,7 @@ var HexGrid = class HexGrid {
 
 		$j(".debug").remove();
 		hexes.forEach((hex) => {
-			let a = this.this.$creatureW.append('<div class=".debug" id="debug' + i + '"></div>').children("#debug" + i);
+			let a = this.$creatureW.append('<div class=".debug" id="debug' + i + '"></div>').children("#debug" + i);
 
 			a.css({
 				position: 'absolute',
