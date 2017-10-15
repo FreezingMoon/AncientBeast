@@ -1,5 +1,5 @@
 /** Initialize the game global variable */
-var G = new Game();
+var G = new Game("0.3");
 /*****************************************/
 
 $j(document).ready(function() {
@@ -22,7 +22,7 @@ $j(document).ready(function() {
 
 
 function getGameConfig() {
-	return {
+	let defaultConfig = {
 			playerMode: $j('input[name="playerMode"]:checked').val() - 0,
 			creaLimitNbr: $j('input[name="activeUnits"]:checked').val() - 0, // DP counts as One
 			unitDrops: $j('input[name="unitDrops"]:checked').val() - 0,
@@ -31,14 +31,16 @@ function getGameConfig() {
 			turnTimePool: $j('input[name="turnTime"]:checked').val() - 0,
 			timePool: $j('input[name="timePool"]:checked').val() * 60,
 			background_image: $j('input[name="combatLocation"]:checked').val(),
+		},
+		config = G.gamelog.gameConfig || defaultConfig;
 
-		};
+	return config;
 }
 
 function isEmpty(obj) {
-    for(var key in obj) {
-        if(obj.hasOwnProperty(key))
-            return false;
-    }
-    return true;
+	for (var key in obj) {
+		if (obj.hasOwnProperty(key))
+			return false;
+	}
+	return true;
 }

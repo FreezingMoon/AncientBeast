@@ -35,7 +35,8 @@ var Game = class Game {
 	 * creatureData :		Array :		Array containing all data for the creatures
 	 *
 	 */
-	constructor() {
+	constructor(version) {
+		this.version = version || "dev";
 		this.abilities = [];
 		this.players = [];
 		this.creatures = [];
