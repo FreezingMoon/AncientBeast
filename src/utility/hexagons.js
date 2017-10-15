@@ -1680,7 +1680,7 @@ var Hex = class Hex {
 			return;
 		}
 
-		this.drop.pickup(crea);
+		this.drop.pickup(creature);
 	}
 
 	/**
