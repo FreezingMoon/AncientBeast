@@ -4,7 +4,8 @@ var GameLog = class GameLog {
 		this.data = [];
 		this.playing = false;
 		this.timeCursor = -1;
-		this.gameConfig = {};
+		// Set this to null so we can properly decide between form based config or log based config.
+		this.gameConfig = null;
 	}
 
 	add(action) {
