@@ -39,6 +39,12 @@ var GameLog = class GameLog {
 			config = log.config;
 			this.data = data;
 			return this.config(config);
+		} else if (typeof log == "string") {
+			let results = log.match(/^AB-(dev|[0-9.]+):(.+)$/);
+			if (results) {
+				log = JSON.parse(atob(results[2]));
+				return this.play(log);
+			}
 		}
 
 		if (log) {
@@ -101,14 +107,29 @@ var GameLog = class GameLog {
 		}, 100);
 	}
 
-	get() {
+	get(state) {
 		let config = isEmpty(this.gameConfig) ? getGameConfig() : this.gameConfig,
-			output = {
+			dict = {
 				config: config,
 				log: this.data
-			};
+			},
+			json = JSON.stringify(dict),
+			hash = "AB-" + this.game.version + ":" + btoa(JSON.stringify(dict)),
+			output,
+			strOutput;
 
-		console.log('GameData :' + JSON.stringify(output));
+		switch (state) {
+			case "json":
+				output = dict;
+				strOutput = json;
+				break;
+			case "hash":
+			default:
+				output = hash;
+				strOutput = hash;
+		}
+
+		console.log("GameData: " + strOutput);
 		return output;
 	}
 };
