@@ -1,4 +1,4 @@
-var Gamelog = class GameLog {
+var GameLog = class GameLog {
 	constructor(id, game) {
 		this.game = game;
 		this.data = [];
@@ -19,11 +19,27 @@ var Gamelog = class GameLog {
 		} else {
 			game.loadGame(config);
 			this.gameConfig = config;
+
+			// TODO: We should be able to initiate this w/o manipulating the DOM -- However,
+			// currently "random" BG is processed on Submit. -- ktiedt
+			let btn = jQuery('#startButton');
+			if (btn.length === 1) {
+				btn.click();
+			}
 		}
 	}
 
 	play(log) {
-		let game = this.game;
+		let game = this.game,
+			config,
+			data;
+
+		if (typeof log == "object" && !log.length) {
+			data = log.log;
+			config = log.config;
+			this.data = data;
+			return this.config(config);
+		}
 
 		if (log) {
 			this.data = log;
@@ -86,15 +102,13 @@ var Gamelog = class GameLog {
 	}
 
 	get() {
-		let config = {};
+		let config = isEmpty(this.gameConfig) ? getGameConfig() : this.gameConfig,
+			output = {
+				config: config,
+				log: this.data
+			};
 
-		if (isEmpty(this.gameConfig)) {
-			config = getGameConfig();
-		} else {
-			config = this.gameConfig;
-		}
-
-		console.log('Config :' + JSON.stringify(config))
-		console.log('Gamelog :' + JSON.stringify(this.data));
+		console.log('GameData :' + JSON.stringify(output));
+		return output;
 	}
 };
