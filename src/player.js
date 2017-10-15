@@ -222,7 +222,7 @@ var Player = class Player {
 			creature = game.creatures[i];
 
 			if (creature.player.id == this.id) {
-				game.queue.remove(crea);
+				game.queue.remove(creature);
 			}
 		}
 
