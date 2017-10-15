@@ -71,7 +71,8 @@ G.abilities[39] = [
 									alterations: {
 										endurance: -5
 									}
-								}
+								},
+								G
 							));
 							// Note: effect activate by default adds the effect on the target,
 							// but target already has this effect, so remove the trigger to
@@ -79,7 +80,8 @@ G.abilities[39] = [
 							item.trigger = "";
 							item.deleteEffect();
 						}
-					}
+					},
+					G
 				);
 
 				trg.addEffect(effect, "%CreatureName" + trg.id + "% has been infested");
@@ -137,7 +139,7 @@ G.abilities[39] = [
 			var d = {
 				pierce: 11
 			};
-			//Bonus for fatigued foe
+			// Bonus for fatigued foe
 			d.pierce = target.endurance <= 0 ? d.pierce * 2 : d.pierce;
 			// Extra pierce damage if upgraded
 			if (this.isUpgraded()) {
@@ -149,9 +151,10 @@ G.abilities[39] = [
 
 			var damage = new Damage(
 				ability.creature, //Attacker
-				d, //Damage Type
-				1, //Area
-				[] //Effects
+				d, // Damage Type
+				1, // Area
+				[], // Effects
+				G
 			);
 
 			var dmg = target.takeDamage(damage);

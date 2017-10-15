@@ -32,7 +32,8 @@ G.abilities[0] = [
 						pure: 5
 					}, // Damage Type
 					1, // Area
-					[] // Effects
+					[], // Effects
+					G
 				);
 				counter.counter = true;
 				G.activeCreature.takeDamage(counter);
@@ -109,7 +110,8 @@ G.abilities[0] = [
 				ability.creature, // Attacker
 				damageAmount, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			target.takeDamage(damage);
@@ -196,7 +198,8 @@ G.abilities[0] = [
 					pure: damage
 				}, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			ability.end();
@@ -252,8 +255,8 @@ G.abilities[0] = [
 			var ability = this;
 			var dpriest = this.creature;
 
-			G.grid.forEachHex(function() {
-				this.unsetReachable();
+			G.grid.forEachHex(function(hex) {
+				hex.unsetReachable();
 			});
 
 			var spawnRange = dpriest.hexagons[0].adjacentHex(this.summonRange);
