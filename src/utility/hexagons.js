@@ -674,16 +674,16 @@ var HexGrid = class HexGrid {
 		};
 		
 		let onCreatureHover = (creature, queueEffect) => {
-			if (creature.type == "--"){
-				if (creature === game.activeCreature){
-					if (creature.hasCreaturePlayerGotPlasma()){
+			if (creature.type == "--") {
+				if (creature === game.activeCreature) {
+					if (creature.hasCreaturePlayerGotPlasma()) {
 						creature.displayPlasmaShield();
 					}
-				} else{
+				} else {
 					creature.displayHealthStats();
 				}
 			}
-			if (creature !== game.activeCreature){
+			if (creature !== game.activeCreature) {
 			    $j("canvas").css("cursor", "n-resize");
 			}
 			creature.hexagons.forEach((hex) => {
