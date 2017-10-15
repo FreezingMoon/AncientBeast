@@ -45,6 +45,7 @@ var Game = class Game {
 			id: 0
 		};
 
+		this.preventSetup = true;
 		this.animations = new Animations(this);
 		this.turn = 0;
 		this.queue = new CreatureQueue(this);
@@ -313,10 +314,13 @@ var Game = class Game {
 
 		if (progress == 100) {
 			setTimeout(() => {
-				$j("#loader").hide();
-				$j("body").css("cursor", "default");
-				this.setup(this.playerMode);
-			}, 1000)
+				this.gameState = "loaded";
+
+				// Do not call setup if we are not active.
+				if (!this.preventSetup) {
+					this.setup(this.playerMode);
+				}
+			}, 100)
 		}
 	}
 
@@ -333,6 +337,33 @@ var Game = class Game {
 		for (i = 1; i < count; i++) {
 			//G.Phaser.debug.renderSpriteBounds(G.creatures[i].sprite);
 		}
+	}
+
+	// Catch the browser being made inactive to prevent initial rendering bugs.
+	onBlur() {
+		this.preventSetup = true;
+	}
+
+	// Catch the browser coming back into focus so we can render the game board.
+	onFocus() {
+		this.preventSetup = false;
+		// If loaded, call maybeSetup with a tiny delay to prevent rendering issues.
+		if (this.gameState == "loaded") {
+			setTimeout(() => {
+				this.maybeSetup();
+			}, 100);
+		}
+	}
+
+	// If no red flags, remove the loading bar and begin rendering the game.
+	maybeSetup() {
+		if (this.preventSetup) {
+			return;
+		}
+
+		$j("#loader").hide();
+		$j("body").css("cursor", "default");
+		this.setup(this.playerMode);
 	}
 
 	/* Setup(playerMode)

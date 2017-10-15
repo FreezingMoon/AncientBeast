@@ -2,24 +2,28 @@
 var G = new Game("0.3");
 /*****************************************/
 
-$j(document).ready(function() {
+$j(document).ready(() => {
 	$j(".typeRadio").buttonset();
 	$j("#startButton").button();
 
-	$j("form#gameSetup").submit(function(e) {
+	// Disable initial game setup until browser tab has focus
+	window.addEventListener("blur", G.onBlur.bind(G), false);
+	window.addEventListener("focus", G.onFocus.bind(G), false);
+	$j("form#gameSetup").submit((e) => {
 		e.preventDefault(); // Prevent submit
 		var gameconfig = getGameConfig();
 
 
 		if (gameconfig.background_image == "random") {
-			var index = Math.floor(Math.random() * ($j('input[name="combatLocation"]').length - 1)) + 1; // nth-child indices start at 1
+			// nth-child indices start at 1
+			var index = Math.floor(Math.random() * ($j('input[name="combatLocation"]').length - 1)) + 1;
 			gameconfig.background_image = $j('input[name="combatLocation"]').slice(index, index + 1).attr("value");
 		}
+
 		G.loadGame(gameconfig);
 		return false; // Prevent submit
 	});
 });
-
 
 function getGameConfig() {
 	let defaultConfig = {
