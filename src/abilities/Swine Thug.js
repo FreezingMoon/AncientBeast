@@ -19,7 +19,7 @@ G.abilities[37] = [
 			this.message = "";
 
 			if (hex.trap) {
- 				if (hex.trap.type == "mud-bath") {
+				if (hex.trap.type == "mud-bath") {
 					G.UI.abilitiesButtons[0].changeState('noclick');
 					return true;
 				}
@@ -47,7 +47,7 @@ G.abilities[37] = [
 			}
 			var effect = new Effect("Spa Goggles", this.creature, this.creature, "mud-bath", {
 				alterations: alterations
-			});
+			}, G);
 			this.creature.addEffect(effect);
 
 			// Log message, assume that all buffs are the same amount, and there are
@@ -121,7 +121,8 @@ G.abilities[37] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			var result = target.takeDamage(damage);
 			// Knock the target back if they are still alive
@@ -252,7 +253,7 @@ G.abilities[37] = [
 					alterations: {
 						meditation: -1
 					}
-				});
+				}, G);
 				target.addEffect(effect);
 				G.log("%CreatureName" + target.id + "%'s meditation is lowered by 1");
 			}
@@ -261,7 +262,8 @@ G.abilities[37] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 		},
@@ -372,7 +374,8 @@ G.abilities[37] = [
 						effectFn: function(effect, crea) {
 							crea.remainingMove--;
 						},
-					}
+					},
+					G
 				),
 			];
 
@@ -382,7 +385,7 @@ G.abilities[37] = [
 			// Trigger trap immediately if on self
 			if (isSelf) {
 				// onCreatureMove is Spa Goggles' trigger event
-				G.triggersFn.onCreatureMove(swine, hex);
+				G.onCreatureMove(swine, hex);
 			}
 
 		},

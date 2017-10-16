@@ -49,7 +49,8 @@ G.abilities[9] = [
 							offense: this._getOffenseBuff()
 						},
 						stackable: true
-					}
+					},
+					G
 				)
 			);
 		}
@@ -108,7 +109,7 @@ G.abilities[9] = [
 			var damage = new Damage(
 				ability.creature, // Attacker
 				damages, // Damage Type
-				1, //Area
+				1, // Area
 				[
 					new Effect(
 						this.title,
@@ -119,9 +120,11 @@ G.abilities[9] = [
 								frost: -1
 							},
 							stackable: true
-						}
+						},
+						G
 					)
-				] //Effects
+				], // Effects
+				G
 			);
 
 			target.takeDamage(damage);
@@ -185,14 +188,16 @@ G.abilities[9] = [
 						stackable: true,
 						turnLifetime: 1,
 						deleteTrigger: "onStartPhase"
-					}
+					},
+					G
 				));
 			}
 			var damage = new Damage(
-				ability.creature, //Attacker
-				ability.damages, //Damage Type
-				1, //Area
-				effects
+				ability.creature, // Attacker
+				ability.damages, // Damage Type
+				1, // Area
+				effects,
+				G
 			);
 
 			var result = target.takeDamage(damage);
@@ -279,10 +284,11 @@ G.abilities[9] = [
 
 					//Damage
 					var damage = new Damage(
-						ability.creature, //Attacker
-						d, //Damage Type
-						1, //Area
-						[] //Effects
+						ability.creature, // Attacker
+						d, // Damage Type
+						1, // Area
+						[], // Effects
+						G
 					);
 
 					var result = trg.takeDamage(damage);

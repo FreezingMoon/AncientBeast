@@ -80,7 +80,8 @@ G.abilities[45] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 			if (this.isUpgraded()) {
@@ -144,7 +145,8 @@ G.abilities[45] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			result = target.takeDamage(damage);
 
@@ -171,7 +173,8 @@ G.abilities[45] = [
 						sonic: sonic
 					}, // Damage Type
 					1, // Area
-					[] // Effects
+					[], // Effects
+					G
 				);
 				result = target.takeDamage(damage);
 			}

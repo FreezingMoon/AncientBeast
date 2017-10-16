@@ -77,7 +77,7 @@ G.abilities[44] = [
 					alterations: {
 						offense: -1
 					}
-				});
+				}, G);
 				target.addEffect(effect);
 				G.log("%CreatureName" + target.id + "%'s offense is lowered by 1");
 			}
@@ -86,7 +86,8 @@ G.abilities[44] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			target.takeDamage(damage);
@@ -307,10 +308,11 @@ G.abilities[44] = [
 			}
 
 			var damage = new Damage(
-				ability.creature, //Attacker
-				damages, //Damage Type
-				1, //Area
-				[] //Effects
+				ability.creature, // Attacker
+				damages, // Damage Type
+				1, // Area
+				[], // Effects
+				G
 			);
 
 			target.takeDamage(damage);
@@ -323,10 +325,10 @@ G.abilities[44] = [
 					creature.takeDamage(new Damage(
 						effect.owner, {
 							poison: ability.damages.poison
-						}, 1, []
+						}, 1, [], G
 					));
 				}
-			});
+			}, G);
 			target.replaceEffect(effect);
 			G.log("%CreatureName" + target.id + "% is poisoned by " + this.title);
 
