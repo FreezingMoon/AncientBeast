@@ -238,7 +238,7 @@ G.abilities[0] = [
 
 			// Ask the creature to summon
 			G.UI.materializeToggled = true;
-			G.UI.toggleDash();
+			G.UI.toggleDash('randomize');
 		},
 
 		fnOnSelect: function(hex, args) {
