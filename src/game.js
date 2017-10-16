@@ -955,6 +955,7 @@ var Game = class Game {
 				}
 
 				i--;
+				totalEffects--;
 			}
 		}
 	}
