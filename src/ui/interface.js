@@ -858,10 +858,11 @@ var UI = class UI {
 	/* toggleDash()
 	 *
 	 * Show the dash and hide some buttons
+	 * Takes optional 'randomize' parameter to select a random creature from the grid.
 	 */
 
-	toggleDash: function (randomize) {
-    let game = this.game;
+	toggleDash(randomize) {
+    		let game = this.game;
 		if (!this.$dash.hasClass("active")) {
 			if (randomize) {
 				const activePlayer = game.players[game.activeCreature.player.id];
@@ -889,8 +890,7 @@ var UI = class UI {
 		} else {
 			this.closeDash();
 		}
-	},
-
+	}
 
 	closeDash() {
 		let game = this.game;
