@@ -901,9 +901,11 @@ var UI = class UI {
 		}, this.dashAnimSpeed, "linear", () => {
 			this.$dash.hide();
 		});
+		
 		if (this.materializeToggled && game.activeCreature && game.activeCreature.type === "--") {
 			game.activeCreature.queryMove();
 		}
+		
 		this.dashopen = false;
 		this.materializeToggled = false;
 	}
@@ -1702,3 +1704,4 @@ var UI = class UI {
 		});
 	}
 };
+
