@@ -863,6 +863,7 @@ var UI = class UI {
 
 	toggleDash(randomize) {
     		let game = this.game;
+		
 		if (!this.$dash.hasClass("active")) {
 			if (randomize) {
 				const activePlayer = game.players[game.activeCreature.player.id];
@@ -894,6 +895,7 @@ var UI = class UI {
 
 	closeDash() {
 		let game = this.game;
+		
 		this.$dash.removeClass("active");
 		this.$dash.transition({
 			opacity: 0,
