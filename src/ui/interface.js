@@ -1653,12 +1653,14 @@ var UI = class UI {
 	
 	bouncexrayQueue(creaID) {
 	    this.xrayQueue(creaID);
-		if (creaID > 0) 
-			var $queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
-			if($queueItem.length > 0 && $queueItem.data("playingEffect") != true) {
-			    $queueItem.data("playingEffect",true);
-                $queueItem.effect( "bounce", { distance:-20,times: 1 },400,
-                    setTimeout(function(){$queueItem.data("playingEffect",false); }, 600)
+		if ( creaID > 0 )
+			var $queueItem = this.$queue.find( '.vignette[creatureid="' + creaID + '"]:first' );
+			if ( $queueItem.length > 0 ) {
+                $queueItem.stop();
+                $queueItem.animate(
+                    { top: "+=30px" }, 200, "", function () {
+                        this.animate( { top: "-="+this.css("top") }, 100 );
+                    }.bind( $queueItem )
                 );
 			}
 	}
