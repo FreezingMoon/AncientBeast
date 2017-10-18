@@ -1627,24 +1627,15 @@ var UI = class UI {
 	
 	bouncexrayQueue(creaID) {
 	    this.xrayQueue(creaID);
-		if (creaID > 0) 
-			var $queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
-			if ($queueItem.length > 0) {
-			    if ($queueItem.data("playingEffect") != true) {
-                    $queueItem.data("playingEffect",true);
-                    var multipleClickCount = $queueItem.data("multipleClickCount")?$queueItem.data("multipleClickCount"):1;
-                    $queueItem.effect( "bounce", { distance:(-20)-(20*multipleClickCount),times: 1 },400,
-                        setTimeout(function(){$queueItem.data("playingEffect",false); }, 600)
-                    );
-                    $queueItem.data("multipleClickCount",0);
-                } else {
-                    var multipleClickCount = $queueItem.data("multipleClickCount");
-                    if (multipleClickCount) {
-                        $queueItem.data("multipleClickCount",++multipleClickCount);
-                    } else {
-                        $queueItem.data("multipleClickCount",1);
-                    }
-                }
+		if ( creaID > 0 )
+			var $queueItem = this.$queue.find( '.vignette[creatureid="' + creaID + '"]:first' );
+			if ( $queueItem.length > 0 ) {
+                $queueItem.stop();
+                $queueItem.animate(
+                    { top: "+=30px" }, 200, "", function () {
+                        this.animate( { top: "-="+this.css("top") }, 100 );
+                    }.bind( $queueItem )
+                );
 			}
 	}
 
