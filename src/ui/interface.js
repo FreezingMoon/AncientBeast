@@ -863,7 +863,7 @@ var UI = class UI {
 
 	toggleDash(randomize) {
     		let game = this.game;
-		
+
 		if (!this.$dash.hasClass("active")) {
 			if (randomize) {
 				const activePlayer = game.players[game.activeCreature.player.id];
@@ -895,7 +895,7 @@ var UI = class UI {
 
 	closeDash() {
 		let game = this.game;
-		
+
 		this.$dash.removeClass("active");
 		this.$dash.transition({
 			opacity: 0,
@@ -903,11 +903,11 @@ var UI = class UI {
 		}, this.dashAnimSpeed, "linear", () => {
 			this.$dash.hide();
 		});
-		
+
 		if (this.materializeToggled && game.activeCreature && game.activeCreature.type === "--") {
 			game.activeCreature.queryMove();
 		}
-		
+
 		this.dashopen = false;
 		this.materializeToggled = false;
 	}
@@ -1091,7 +1091,7 @@ var UI = class UI {
 		this.$activebox.find("#abilities").clearQueue().transition({
 			y: "-420px"
 		}, 500, 'easeInQuart', () => { // Hide panel
-			$j(this).removeClass("p0 p1 p2 p3").addClass("p" + creature.player.id);
+			$j('#abilities').removeClass("p0 p1 p2 p3").addClass("p" + creature.player.id);
 
 			this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 			this.healthBar.setSize(creature.oldHealth / creature.stats.health);
@@ -1650,7 +1650,7 @@ var UI = class UI {
 			this.$queue.find('.vignette[creatureid="' + creaID + '"]').addClass("xray");
 		}
 	}
-	
+
 	bouncexrayQueue(creaID) {
 	    this.xrayQueue(creaID);
 		if ( creaID > 0 )
@@ -1708,4 +1708,3 @@ var UI = class UI {
 		});
 	}
 };
-
