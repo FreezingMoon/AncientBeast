@@ -627,16 +627,16 @@ var HexGrid = class HexGrid {
 			game.UI.xrayQueue(-1);
 			$j("canvas").css("cursor", "pointer");
 
+            if (hex.creature instanceof Creature) { // If creature
+                onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI));
+            } else { // If nothing
+                hex.overlayVisualState("hover");
+            }
+
 			// Not reachable hex
 			if (!hex.reachable) {
 				if (hex.materialize_overlay) {
 					hex.materialize_overlay.alpha = 0;
-				}
-
-				if (hex.creature instanceof Creature) { // If creature
-					onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI));
-				} else { // If nothing
-					hex.overlayVisualState("hover");
 				}
 			} else { // Reachable hex
 				//Offset Pos
