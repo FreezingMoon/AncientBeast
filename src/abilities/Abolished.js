@@ -5,7 +5,7 @@
  */
 G.abilities[7] = [
 
-	// 	First Ability: Burning Heart
+	// 	First Ability: Burning Spirit
 	{
 		trigger: "onOtherDamage",
 
@@ -27,28 +27,30 @@ G.abilities[7] = [
 			}
 
 			target.addEffect(new Effect(
-				"Burning Heart", //Name
-				this.creature, //Caster
-				target, //Target
-				"", //Trigger
+				"Burning Spirit", // Name
+				this.creature, // Caster
+				target, // Target
+				"", // Trigger
 				{
 					alterations: {
 						burn: -1
 					}
-				} //Optional arguments
+				}, // Optional arguments
+				G
 			));
 			target.stats.burn -= 1;
 			if (this.isUpgraded()) {
 				this.creature.addEffect(new Effect(
-					"Burning Heart", //Name
-					this.creature, //Caster
-					this.creature, //Target
-					"", //Trigger
+					"Burning Heart", // Name
+					this.creature, // Caster
+					this.creature, // Target
+					"", // Trigger
 					{
 						alterations: {
 							burn: 1
 						}
-					} //Optional arguments
+					}, // Optional arguments
+					G
 				));
 			}
 		},
@@ -104,15 +106,24 @@ G.abilities[7] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
+			projectileInstance = G.animations.projectile(this, target, 'effects_fiery-touch', path, args, 200, -20);
+			tween = projectileInstance[0];
+			sprite = projectileInstance[1];
 
-			var damage = new Damage(
-				ability.creature, // Attacker
-				ability.damages, // Damage Type
-				1, // Area
-				[] // Effects
-			);
-			target.takeDamage(damage);
+			tween.onComplete.add(function() {
+
+				var damage = new Damage(
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
+					1, // Area
+					[], // Effects
+					G
+				);
+				target.takeDamage(damage);
+
+				this.destroy();
+			}, sprite); // End tween.onComplete
 		},
 	},
 
@@ -163,10 +174,12 @@ G.abilities[7] = [
 			}
 
 
-			var targets = ability.getTargets(ability.creature.adjacentHexs(1));
+			var targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
-			targets.each(function() {
-				if (!(this.target instanceof Creature)) return;
+			targets.forEach(function(item) {
+				if (!(item.target instanceof Creature)) {
+					return;
+				}
 			});
 
 			// Leave a Firewall in current location
@@ -176,7 +189,7 @@ G.abilities[7] = [
 					creature = creatureOrHex.creature;
 				}
 				creature.takeDamage(
-					new Damage(effect.attacker, ability.damages, 1, []), {
+					new Damage(effect.attacker, ability.damages, 1, [], G), {
 						isFromTrap: true
 					});
 				this.trap.destroy();
@@ -192,14 +205,15 @@ G.abilities[7] = [
 			};
 
 			var crea = this.creature;
-			crea.hexagons.each(function() {
-				this.createTrap("firewall", [
+			crea.hexagons.forEach(function(hex) {
+				hex.createTrap("firewall", [
 					new Effect(
-						"Firewall", crea, this, "onStepIn", {
+						"Firewall", crea, hex, "onStepIn", {
 							requireFn: requireFn,
 							effectFn: effectFn,
 							attacker: crea
-						}
+						},
+						G
 					),
 				], crea.player, {
 					turnLifetime: 1,
@@ -238,23 +252,23 @@ G.abilities[7] = [
 
 			// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
 
-			var range = crea.adjacentHexs(1);
+			var range = crea.adjacentHexes(1);
 
-			G.grid.queryHexs({
+			G.grid.queryHexes({
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
 				},
 				fnOnSelect: function(hex, args) {
-					range.each(function() {
-						if (this.creature) {
-							this.overlayVisualState("creature selected weakDmg player" + this.creature.team);
+					range.forEach(function(item) {
+						if (item.creature) {
+							item.overlayVisualState("creature selected weakDmg player" + item.creature.team);
 						}
 					});
 					hex.cleanOverlayVisualState();
 					hex.overlayVisualState("creature selected player" + G.activeCreature.team);
 				},
 				id: this.creature.id,
-				hexs: range,
+				hexes: range,
 				hideNonTarget: true,
 			});
 		},
@@ -266,17 +280,18 @@ G.abilities[7] = [
 			ability.end();
 
 			var crea = this.creature;
-			var aoe = crea.adjacentHexs(1);
+			var aoe = crea.adjacentHexes(1);
 			var targets = ability.getTargets(aoe);
 
 			if (this.isUpgraded()) this.damages.burn = 30;
 
-			targets.each(function() {
-				this.target.takeDamage(new Damage(
+			targets.forEach(function(item) {
+				item.target.takeDamage(new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
-					[] // Effects
+					[], // Effects
+					G
 				));
 			});
 

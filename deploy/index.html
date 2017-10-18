@@ -14,7 +14,6 @@
 	<script src="scripts/libs/jquery.transit.js"></script>
 	<script src="scripts/libs/jquery.kinetic.min.js"></script>
 	<script src="scripts/libs/jquery.mousewheel.min.js"></script>
-	<script src="scripts/libs/prototype.min.js"></script>
 	<script src="scripts/libs/socket.io.js"></script>
 	<script src="scripts/ancientbeast.js"></script>
 </head>
@@ -23,8 +22,7 @@
 	<div id="matchMaking">
 		<div id="loader"><img src="../interface/AB.gif">Loading
 			<div id="barLoader">
-				<img src="../interface/loadingBar/barEmpty.png">
-				<img class="loadingBar progress" src="../interface/loadingBar/barProgress.png">
+				<span class="progress"></span>
 			</div>
 		</div>
 		<div id="gameSetupContainer">
@@ -318,10 +316,10 @@
 									<!-- Card Anchor -->
 									<div style="height: 100%;"></div>
 									<div class="section info sin-">
-										<span class="type" creature_type="" style="float: left; margin-left: 22px;"></span>
+										<span class="creature-meta type" creature_type=""></span>
 										<a class="name" creature_name=""></a>
 										</span>
-										<span class="hexs" creature_size="" style="float: right; margin-right: 22px;"></span>
+										<span class="creature-meta hexes" creature_size=""></span>
 									</div>
 								</div>
 							</div>
@@ -610,7 +608,7 @@
 							<div class="overlay"></div>
 							<div class="border"></div>
 						</a>
-						<a href="#Vulcan" class="vignette realmL typeL5" creature="L">
+						<a href="#Vulcan" class="vignette realmL typeL5" creature="L5">
 							<div class="tooltip">
 								<div class="content">Vulcan</div>
 							</div>

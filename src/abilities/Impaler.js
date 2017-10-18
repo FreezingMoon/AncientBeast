@@ -69,7 +69,7 @@ G.abilities[5] = [
 				team: this._targetTeam,
 				id: creature.id,
 				flipped: creature.flipped,
-				hexs: this._getHexes()
+				hexes: this._getHexes()
 			});
 		},
 
@@ -94,7 +94,8 @@ G.abilities[5] = [
 				ability.creature, // Attacker
 				finalDmg, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			var result = target.takeDamage(damage);
 			// Recharge movement if any damage dealt
@@ -141,7 +142,7 @@ G.abilities[5] = [
 				team: this._targetTeam,
 				id: creature.id,
 				flipped: creature.flipped,
-				hexs: this._getHexes()
+				hexes: this._getHexes()
 			});
 		},
 
@@ -157,20 +158,21 @@ G.abilities[5] = [
 					effectFn: function(effect) {
 						G.log("%CreatureName" + effect.target.id + "% is hit by " + effect.name);
 						effect.target.takeDamage(
-							new Damage(effect.owner, damages, 1, []), {
+							new Damage(effect.owner, damages, 1, [], G), {
 								isFromTrap: true
 							});
 						// Hack: manually destroy traps so we don't activate multiple traps
 						// and see multiple logs etc.
-						target.hexagons.each(function() {
-							this.destroyTrap();
+						target.hexagons.forEach(function(hex) {
+							hex.destroyTrap();
 						});
 						effect.deleteEffect();
 					}
-				}
+				},
+				G
 			);
-			target.hexagons.each(function() {
-				this.createTrap(
+			target.hexagons.forEach(function(hex) {
+				hex.createTrap(
 					"poisonous-vine", [effect],
 					ability.creature.player, {
 						turnLifetime: lifetime,
@@ -185,8 +187,8 @@ G.abilities[5] = [
 
 		_getHexes: function() {
 			// Target a creature within 2 hex radius
-			var hexes = G.grid.hexs[this.creature.y][this.creature.x].adjacentHex(2);
-			return hexes.extendToLeft(this.creature.size);
+			var hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(2);
+			return arrayUtils.extendToLeft(hexes, this.creature.size);
 		}
 	},
 
@@ -220,7 +222,7 @@ G.abilities[5] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this._getHexes()
+				hexes: this._getHexes()
 			});
 		},
 
@@ -269,7 +271,8 @@ G.abilities[5] = [
 							},
 							deleteTrigger: "onEndPhase",
 							noLog: true
-						}
+						},
+						G
 					));
 				}
 
@@ -277,7 +280,8 @@ G.abilities[5] = [
 					ability.creature, // Attacker
 					nextdmg, // Damage Type
 					1, // Area
-					[] // Effects
+					[], // Effects
+					G
 				);
 				nextdmg = trg.takeDamage(damage);
 
@@ -289,11 +293,14 @@ G.abilities[5] = [
 				nextdmg = nextdmg.damages;
 
 				// Get next available targets
-				nextTargets = ability.getTargets(trg.adjacentHexs(1, true));
+				nextTargets = ability.getTargets(trg.adjacentHexes(1, true));
 
-				nextTargets.filter(function() {
-					if (this.hexsHit === undefined) return false; // Remove empty ids
-					return (targets.indexOf(this.target) == -1); // If this creature has already been hit
+				nextTargets = nextTargets.filter(function(item) {
+					if (item.hexesHit === undefined) {
+						return false; // Remove empty ids
+					}
+
+					return (targets.indexOf(item.target) == -1); // If this creature has already been hit
 				});
 
 				// If no target

@@ -20,10 +20,10 @@ G.abilities[33] = [
 		//	activate() :
 		activate: function() {
 			var creature = this.creature;
-			var targets = this.getTargets(this.creature.adjacentHexs(1));
+			var targets = this.getTargets(this.creature.adjacentHexes(1));
 
 			if (this.atLeastOneTarget(
-					this.creature.adjacentHexs(1), {
+					this.creature.adjacentHexes(1), {
 						team: this._targetTeam
 					})) {
 				this.end();
@@ -32,30 +32,32 @@ G.abilities[33] = [
 				return false;
 			}
 
-			targets.each(function() {
-				if (!(this.target instanceof Creature)) return;
+			targets.forEach(function(item) {
+				if (!(item.target instanceof Creature)) {
+					return;
+				}
 
-				var trg = this.target;
+				var trg = item.target;
 
-				if (isTeam(creature, trg, this._targetTeam)) {
+				if (isTeam(creature, trg, item._targetTeam)) {
 
 					var optArg = {
 						effectFn: function(effect, crea) {
 							var nearFungus = false;
-							crea.adjacentHexs(1).each(function() {
+							crea.adjacentHexes(1).forEach(function(hex) {
 								if (trg.creature instanceof Creature) {
-									if (G.creatures[trg.creature] === effect.owner)
+									if (G.creatures[trg.creature] === effect.owner) {
 										nearFungus = true;
+									}
 								}
 							});
 
 							if (!nearFungus) {
-								for (var i = 0; i < crea.effects.length; i++) {
-									if (crea.effects[i].name == "Contaminated") {
-										crea.effects[i].deleteEffect();
-										break;
+								crea.effects.forEach(function(effect) {
+									if (effect.name == "Contaminated") {
+										effect.deleteEffect();
 									}
-								}
+								});
 							}
 						},
 						alterations: {
@@ -70,13 +72,14 @@ G.abilities[33] = [
 						creature, // Caster
 						trg, // Target
 						"onStartPhase", // Trigger
-						optArg // Optional arguments
+						optArg, // Optional arguments
+						G
 					);
 
 					var validTarget = true;
-					trg.effects.each(function() {
-						if (this.name == "Contaminated") {
-							if (this.turn == G.turn)
+					trg.effects.forEach(function(effect) {
+						if (effect.name == "Contaminated") {
+							if (effect.turn == G.turn)
 								validTarget = false;
 						}
 					});
@@ -107,7 +110,7 @@ G.abilities[33] = [
 
 			//At least one target
 			if (!this.atLeastOneTarget(
-					this.creature.adjacentHexs(1), {
+					this.creature.adjacentHexes(1), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -134,7 +137,7 @@ G.abilities[33] = [
 				team: this._targetTeam,
 				id: wyrm.id,
 				flipped: wyrm.flipped,
-				hexs: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, map),
+				hexes: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, map),
 			});
 		},
 
@@ -148,7 +151,8 @@ G.abilities[33] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			var dmg = target.takeDamage(damage);
@@ -167,13 +171,14 @@ G.abilities[33] = [
 						alterations: {
 							regrowth: Math.round(dmg.damages.total / 4)
 						}
-					} //Optional arguments
+					}, //Optional arguments
+					G
 				));
 			}
 
 			//remove frogger bonus if its found
-			ability.creature.effects.each(function() {
-				if (this.name == "Frogger Bonus") {
+			ability.creature.effects.forEach(function(effect) {
+				if (effect.name == "Frogger Bonus") {
 					this.deleteEffect();
 				}
 			});
@@ -205,11 +210,11 @@ G.abilities[33] = [
 			var wyrm = this.creature;
 
 			var range = G.grid.getFlyingRange(wyrm.x, wyrm.y, 50, wyrm.size, wyrm.id);
-			range.filter(function() {
-				return wyrm.y == this.y;
+			rnage = range.filter(function(item) {
+				return wyrm.y == item.y;
 			});
 
-			G.grid.queryHexs({
+			G.grid.queryHexes({
 				fnOnSelect: function() {
 					ability.fnOnSelect.apply(ability, arguments);
 				},
@@ -219,7 +224,7 @@ G.abilities[33] = [
 				size:  wyrm.size,
 				flipped:  wyrm.player.flipped,
 				id:  wyrm.id,
-				hexs: range,
+				hexes: range,
 			});
 		},
 
@@ -250,7 +255,8 @@ G.abilities[33] = [
 					alterations: {
 						offense: 25
 					}
-				} // Optional arguments
+				}, // Optional arguments
+				G
 			));
 		},
 	},
@@ -295,7 +301,7 @@ G.abilities[33] = [
 				team: this._targetTeam,
 				id: wyrm.id,
 				flipped: wyrm.flipped,
-				hexs: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, matrices.frontnback2hex),
+				hexes: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, matrices.frontnback2hex),
 			});
 		},
 
@@ -306,17 +312,18 @@ G.abilities[33] = [
 			ability.end();
 
 			var damage = new Damage(
-				ability.creature, //Attacker
-				ability.damages, //Damage Type
-				1, //Area
-				[] //Effects
+				ability.creature, // Attacker
+				ability.damages, // Damage Type
+				1, // Area
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 
 			//remove frogger bonus if its found
-			ability.creature.effects.each(function() {
-				if (this.name == "Offense++") {
-					this.deleteEffect();
+			ability.creature.effects.forEach(function(item) {
+				if (item.name == "Offense++") {
+					item.deleteEffect();
 				}
 			});
 		},

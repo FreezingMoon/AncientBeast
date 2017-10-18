@@ -25,7 +25,7 @@ G.abilities[22] = [
 		activate: function(damage) {
 			if (this.triggeredThisChain) return damage;
 
-			var targets = this.getTargets(this.creature.adjacentHexs(1));
+			var targets = this.getTargets(this.creature.adjacentHexes(1));
 			this.end();
 			this.triggeredThisChain = true;
 
@@ -88,13 +88,14 @@ G.abilities[22] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 
 			var damage = new Damage(
-				ability.creature, //Attacker
-				ability.damages, //Damage Type
-				1, //Area
-				[] //Effects
+				ability.creature, // Attacker
+				ability.damages, // Damage Type
+				1, // Area
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 		},
@@ -137,15 +138,16 @@ G.abilities[22] = [
 			ability.end();
 
 
-			var targets = ability.getTargets(ability.creature.adjacentHexs(1));
+			var targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
-			targets.each(function() {
+			targets.forEach(function(item) {
+				if (!(item.target instanceof Creature)) {
+					return;
+				}
 
-				if (!(this.target instanceof Creature)) return;
+				var trg = item.target;
 
-				var trg = this.target;
-
-				if (isTeam(ability.creature, trg, this._targetTeam)) {
+				if (isTeam(ability.creature, trg, item._targetTeam)) {
 
 					var optArg = {
 						alterations: {
@@ -159,7 +161,8 @@ G.abilities[22] = [
 						ability.creature, //Caster
 						trg, //Target
 						"", //Trigger
-						optArg //Optional arguments
+						optArg, //Optional arguments
+						G
 					);
 					trg.addEffect(effect);
 				}
@@ -173,14 +176,16 @@ G.abilities[22] = [
 					G.activeCreature.queryMove()
 				},
 				callbackStepIn: function() {
-					var targets = ability.getTargets(ability.creature.adjacentHexs(1));
+					var targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
-					targets.each(function() {
-						if (!(this.target instanceof Creature)) return;
+					targets.forEach(function(item) {
+						if (!(item.target instanceof Creature)) {
+							return;
+						}
 
-						var trg = this.target;
+						var trg = item.target;
 
-						if (isTeam(ability.creature, trg, this._targetTeam)) {
+						if (isTeam(ability.creature, trg, item._targetTeam)) {
 
 							var optArg = {
 								alterations: {
@@ -194,7 +199,8 @@ G.abilities[22] = [
 								ability.creature, //Caster
 								trg, //Target
 								"", //Trigger
-								optArg //Optional arguments
+								optArg, //Optional arguments
+								G
 							);
 							trg.addEffect(effect, "%CreatureName" + trg.id + "% got roasted : -1 burn stat debuff");
 						}
@@ -230,31 +236,31 @@ G.abilities[22] = [
 			range.splice(head, 1);
 			range.splice(tail, 1);
 
-			G.grid.queryHexs({
+			G.grid.queryHexes({
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
 				},
 				fnOnSelect: function(hex, args) {
-					hex.adjacentHex(1).each(function() {
-						if (this.creature instanceof Creature) {
-							if (this.creature == crea) { //If it is abolished
-								crea.adjacentHexs(1).each(function() {
-									if (this.creature instanceof Creature) {
-										if (this.creature == crea) { //If it is abolished
-											crea.adjacentHexs(1).overlayVisualState("creature selected weakDmg player" + this.creature.team);
-											this.overlayVisualState("creature selected weakDmg player" + this.creature.team);
+					hex.adjacentHex(1).forEach(function(item) {
+						if (item.creature instanceof Creature) {
+							if (item.creature == crea) { //If it is abolished
+								crea.adjacentHexes(1).forEach(function(item2) {
+									if (item2.creature instanceof Creature) {
+										if (item2.creature == crea) { //If it is abolished
+											crea.adjacentHexes(1).overlayVisualState("creature selected weakDmg player" + item2.creature.team);
+											item2.overlayVisualState("creature selected weakDmg player" + item2.creature.team);
 										} else {
-											this.overlayVisualState("creature selected weakDmg player" + this.creature.team);
+											item2.overlayVisualState("creature selected weakDmg player" + item2.creature.team);
 										}
 									} else {
-										this.overlayVisualState("creature selected weakDmg player" + G.activeCreature.team);
+										item2.overlayVisualState("creature selected weakDmg player" + G.activeCreature.team);
 									}
 								});
 							} else {
-								this.overlayVisualState("creature selected weakDmg player" + this.creature.team);
+								item.overlayVisualState("creature selected weakDmg player" + item.creature.team);
 							}
 						} else {
-							this.overlayVisualState("creature selected weakDmg player" + G.activeCreature.team);
+							item.overlayVisualState("creature selected weakDmg player" + G.activeCreature.team);
 						}
 					});
 
@@ -266,7 +272,7 @@ G.abilities[22] = [
 					}
 				},
 				id: this.creature.id,
-				hexs: range,
+				hexes: range,
 				hideNonTarget: true,
 			});
 		},
@@ -283,10 +289,11 @@ G.abilities[22] = [
 
 			if (hex.creature instanceof Creature) {
 				hex.creature.takeDamage(new Damage(
-					ability.creature, //Attacker
-					ability.damages1, //Damage Type
-					1, //Area
-					[] //Effects
+					ability.creature, // Attacker
+					ability.damages1, // Damage Type
+					1, // Area
+					[], // Effects
+					G
 				));
 			}
 

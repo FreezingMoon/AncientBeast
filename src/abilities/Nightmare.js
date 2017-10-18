@@ -21,11 +21,12 @@ G.abilities[9] = [
 			// Check whether this ability is upgraded; if so then make sure all existing
 			// buffs include an offense buff
 			var ability = this;
-			this.creature.effects.each(function() {
-				if (this.name === ability._effectName) {
-					this.alterations.offense = ability._getOffenseBuff();
+			this.creature.effects.forEach(function(effect) {
+				if (effect.name === ability._effectName) {
+					effect.alterations.offense = ability._getOffenseBuff();
 				}
 			});
+
 			if (this.creature.remainingMove < this.creature.stats.movement) {
 				this.message = "The creature moved this round.";
 				return false;
@@ -48,7 +49,8 @@ G.abilities[9] = [
 							offense: this._getOffenseBuff()
 						},
 						stackable: true
-					}
+					},
+					G
 				)
 			);
 		}
@@ -87,7 +89,7 @@ G.abilities[9] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(matrices.frontnback2hex),
+				hexes: this.creature.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -107,7 +109,7 @@ G.abilities[9] = [
 			var damage = new Damage(
 				ability.creature, // Attacker
 				damages, // Damage Type
-				1, //Area
+				1, // Area
 				[
 					new Effect(
 						this.title,
@@ -118,9 +120,11 @@ G.abilities[9] = [
 								frost: -1
 							},
 							stackable: true
-						}
+						},
+						G
 					)
-				] //Effects
+				], // Effects
+				G
 			);
 
 			target.takeDamage(damage);
@@ -160,7 +164,7 @@ G.abilities[9] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(matrices.frontnback2hex),
+				hexes: this.creature.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -184,14 +188,16 @@ G.abilities[9] = [
 						stackable: true,
 						turnLifetime: 1,
 						deleteTrigger: "onStartPhase"
-					}
+					},
+					G
 				));
 			}
 			var damage = new Damage(
-				ability.creature, //Attacker
-				ability.damages, //Damage Type
-				1, //Area
-				effects
+				ability.creature, // Attacker
+				ability.damages, // Damage Type
+				1, // Area
+				effects,
+				G
 			);
 
 			var result = target.takeDamage(damage);
@@ -278,10 +284,11 @@ G.abilities[9] = [
 
 					//Damage
 					var damage = new Damage(
-						ability.creature, //Attacker
-						d, //Damage Type
-						1, //Area
-						[] //Effects
+						ability.creature, // Attacker
+						d, // Damage Type
+						1, // Area
+						[], // Effects
+						G
 					);
 
 					var result = trg.takeDamage(damage);

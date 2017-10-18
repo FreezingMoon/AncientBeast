@@ -61,7 +61,7 @@ G.abilities[44] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(matrices.frontnback2hex),
+				hexes: this.creature.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -77,7 +77,7 @@ G.abilities[44] = [
 					alterations: {
 						offense: -1
 					}
-				});
+				}, G);
 				target.addEffect(effect);
 				G.log("%CreatureName" + target.id + "%'s offense is lowered by 1");
 			}
@@ -86,7 +86,8 @@ G.abilities[44] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			target.takeDamage(damage);
@@ -109,31 +110,34 @@ G.abilities[44] = [
 			var ability = this;
 			var crea = this.creature;
 
-			var hexs = crea.getHexMap(matrices.inlinefrontnback2hex);
+			var hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
 
-			if (hexs.length < 2) {
+			if (hexes.length < 2) {
 				// At the border of the map
 				return false;
 			}
 
-			if (hexs[0].creature && hexs[1].creature) {
+			if (hexes[0].creature && hexes[1].creature) {
 				// Sandwiched
 				return false;
 			}
 
 			// Cannot escort large (size > 2) creatures unless ability is upgraded
-			hexs.filter(function() {
-				if (!this.creature) return false;
-				return this.creature.size < 3 || ability.isUpgraded();
+			hexes = hexes.filter(function(hex) {
+				if (!hex.creature) {
+					return false;
+				}
+
+				return hex.creature.size < 3 || ability.isUpgraded();
 			});
 
-			if (!this.atLeastOneTarget(hexs, {
+			if (!this.atLeastOneTarget(hexes, {
 					team: this._targetTeam
 				})) {
 				return false;
 			}
 
-			var trg = hexs[0].creature || hexs[1].creature;
+			var trg = hexes[0].creature || hexes[1].creature;
 
 			if (!trg.stats.moveable) {
 				this.message = "Target is not moveable.";
@@ -152,9 +156,9 @@ G.abilities[44] = [
 		query: function() {
 			var ability = this;
 			var crea = this.creature;
-			
-			var hexs = crea.getHexMap(matrices.inlinefrontnback2hex);
-			var trg = hexs[0].creature || hexs[1].creature;
+
+			var hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
+			var trg = hexes[0].creature || hexes[1].creature;
 
 			var distance = Math.floor(crea.remainingMove / trg.size);
 			var size = crea.size + trg.size;
@@ -164,7 +168,7 @@ G.abilities[44] = [
 			var select = function(hex, args) {
 				for (var i = 0; i < size; i++) {
 					if (!G.grid.hexExists(hex.y, hex.x - i)) continue;
-					var h = G.grid.hexs[hex.y][hex.x - i];
+					var h = G.grid.hexes[hex.y][hex.x - i];
 					var color;
 					if (trgIsInfront) {
 						color = i < trg.size ? trg.team : crea.team;
@@ -177,7 +181,7 @@ G.abilities[44] = [
 
 			var x = (trgIsInfront ? crea.x + trg.size : crea.x);
 
-			G.grid.queryHexs({
+			G.grid.queryHexes({
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
 				}, // fnOnConfirm
@@ -186,11 +190,11 @@ G.abilities[44] = [
 				id: [crea.id, trg.id],
 				size: size,
 				flipped: crea.player.flipped,
-				hexs: G.grid.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id]).filter(function() {
-					return crea.y == this.y &&
+				hexes: G.grid.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id]).filter(function(item) {
+					return crea.y == item.y &&
 						(trgIsInfront ?
-							this.x < x :
-							this.x > x - crea.size - trg.size + 1
+							item.x < x :
+							item.x > x - crea.size - trg.size + 1
 						);
 				}),
 				args: {
@@ -213,16 +217,19 @@ G.abilities[44] = [
 
 			var trgIF = args.trgIsInfront;
 
-			var crea_dest = G.grid.hexs[hex.y][trgIF ? hex.x - trg.size : hex.x];
-			var trg_dest = G.grid.hexs[hex.y][trgIF ? hex.x : hex.x - crea.size];
+			var crea_dest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
+			var trg_dest = G.grid.hexes[hex.y][trgIF ? hex.x : hex.x - crea.size];
 
 			// Determine distance
 			var distance = 0;
 			var k = 0;
-			var start = G.grid.hexs[crea.y][crea.x];
+			var start = G.grid.hexes[crea.y][crea.x];
 			while (!distance) {
 				k++;
-				if (start.adjacentHex(k).findPos(crea_dest)) distance = k;
+
+				if (arrayUtils.findPos(start.adjacentHex(k), crea_dest)) {
+					distance = k;
+				}
 			}
 
 			// Substract from movement points
@@ -284,7 +291,7 @@ G.abilities[44] = [
 				team: this._targetTeam,
 				id: this.creature.id,
 				flipped: this.creature.flipped,
-				hexs: this.creature.getHexMap(matrices.frontnback2hex),
+				hexes: this.creature.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -301,10 +308,11 @@ G.abilities[44] = [
 			}
 
 			var damage = new Damage(
-				ability.creature, //Attacker
-				damages, //Damage Type
-				1, //Area
-				[] //Effects
+				ability.creature, // Attacker
+				damages, // Damage Type
+				1, // Area
+				[], // Effects
+				G
 			);
 
 			target.takeDamage(damage);
@@ -317,10 +325,10 @@ G.abilities[44] = [
 					creature.takeDamage(new Damage(
 						effect.owner, {
 							poison: ability.damages.poison
-						}, 1, []
+						}, 1, [], G
 					));
 				}
-			});
+			}, G);
 			target.replaceEffect(effect);
 			G.log("%CreatureName" + target.id + "% is poisoned by " + this.title);
 

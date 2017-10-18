@@ -51,8 +51,8 @@ G.abilities[12] = [
 
 			// Find which hex we are hopping from
 			var id = -1;
-			fromHex.creature.hexagons.each(function() {
-				id = hexes.indexOf(this) > id ? hexes.indexOf(this) : id;
+			fromHex.creature.hexagons.forEach(function(hex) {
+				id = hexes.indexOf(hex) > id ? hexes.indexOf(hex) : id;
 			});
 
 			return id;
@@ -104,7 +104,7 @@ G.abilities[12] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.adjacentHexs(1), {
+					this.creature.adjacentHexes(1), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -125,7 +125,7 @@ G.abilities[12] = [
 				team: this._targetTeam,
 				id: snowBunny.id,
 				flipped: snowBunny.player.flipped,
-				hexs: snowBunny.adjacentHexs(1),
+				hexes: snowBunny.adjacentHexes(1),
 			});
 		},
 
@@ -150,7 +150,8 @@ G.abilities[12] = [
 				ability.creature, // Attacker
 				damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 		},
@@ -204,9 +205,9 @@ G.abilities[12] = [
 			var ability = this;
 			ability.end();
 
-			
 
-			var target = path.last().creature;
+
+			var target = arrayUtils.last(path).creature;
 			// No blow size penalty if upgraded and target is frozen
 			var dist = 5 - (this.isUpgraded() && target.stats.frozen ? 0 : target.size);
 			var dir = [];
@@ -252,6 +253,8 @@ G.abilities[12] = [
 				},
 				animation: "push",
 			});
+			
+			G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 		},
 	},
 
@@ -298,33 +301,18 @@ G.abilities[12] = [
 		},
 
 
+
 		//	activate() :
 		activate: function(path, args) {
 			var ability = this;
 			ability.end();
+			var target = arrayUtils.last(path).creature;
 
-			var target = path.last().creature;
-			var dist = path.slice(0).filterCreature(false, false).length;
+			projectileInstance = G.animations.projectile(this, target, 'effects_freezing-spit', path, args, 52, -20);
+			tween = projectileInstance[0];
+			sprite = projectileInstance[1];
+			dist = projectileInstance[2];
 
-			var emissionPoint = {
-				x: ability.creature.grp.x + 52,
-				y: ability.creature.grp.y - 20
-			};
-			var targetPoint = {
-				x: target.grp.x + 52,
-				y: target.grp.y - 20
-			};
-			var sprite = G.grid.creatureGroup.create(
-				emissionPoint.x, emissionPoint.y, 'effects_freezing-spit');
-			sprite.anchor.setTo(0.5);
-			sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
-			var duration = dist * 75;
-			var tween = G.Phaser.add.tween(sprite)
-				.to({
-					x: targetPoint.x,
-					y: targetPoint.y
-				}, duration, Phaser.Easing.Linear.None)
-				.start();
 			tween.onComplete.add(function() {
 				this.destroy();
 
@@ -336,7 +324,8 @@ G.abilities[12] = [
 					ability.creature, // Attacker
 					dmg, // Damage Type
 					1, // Area
-					[]
+					[],
+					G
 				);
 				var damageResult = target.takeDamage(damage);
 
@@ -346,11 +335,10 @@ G.abilities[12] = [
 					target.updateHealth();
 					G.UI.updateFatigue();
 				}
-			}, sprite);
+			}, sprite); // End tween.onComplete
 		},
-
 		getAnimationData: function(path, args) {
-			var dist = path.slice(0).filterCreature(false, false).length;
+			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 			return {
 				duration: 500,
 				delay: 0,

@@ -1,26 +1,26 @@
 /*
  * Effect Class
  */
-var Effect = Class.create({
-
+var Effect = class Effect {
 	/* Constructor(name, owner, target, trigger, optArgs)
 	 *
-	 * @param {string} name: name of the effect
-	 *	owner :	Creature : Creature that casted the effect
-	 *	target :	Object : Creature or Hex : the object that possess the effect
-	 *	trigger :	String : Event that trigger the effect
-	 *	@param {object} optArgs: dictionary of optional arguments
+	 * name: name of the effect
+	 * owner :	Creature : Creature that casted the effect
+	 * target :	Object : Creature or Hex : the object that possess the effect
+	 * trigger :	String : Event that trigger the effect
+	 * optArgs: dictionary of optional arguments
 	 */
-	initialize: function(name, owner, target, trigger, optArgs) {
-		this.id = effectId++;
+	constructor(name, owner, target, trigger, optArgs, game) {
+		this.id = game.effectId++;
+		this.game = game;
 
 		this.name = name;
 		this.owner = owner;
 		this.target = target;
 		this.trigger = trigger;
-		this.creationTurn = G.turn;
+		this.creationTurn = game.turn;
 
-		var args = $j.extend({
+		let args = $j.extend({
 			// Default Arguments
 			requireFn: function() {
 				return true;
@@ -37,29 +37,37 @@ var Effect = Class.create({
 
 		$j.extend(this, args);
 
-		G.effects.push(this);
-	},
+		game.effects.push(this);
+	}
 
-	animation: function() {
+	animation() {
 		this.activate.apply(this, arguments);
-	},
+	}
 
-	activate: function(arg) {
-		if (!this.requireFn(arg)) return false;
-		if (!this.noLog) console.log("Effect " + this.name + " triggered");
+	activate(arg) {
+		if (!this.requireFn(arg)) {
+			return false;
+		}
+
+		if (!this.noLog) {
+			console.log("Effect " + this.name + " triggered");
+		}
+
 		if (arg instanceof Creature) {
 			arg.addEffect(this);
 		}
-		this.effectFn(this, arg);
-	},
 
-	deleteEffect: function() {
-		var i = this.target.effects.indexOf(this);
+		this.effectFn(this, arg);
+	}
+
+	deleteEffect() {
+		let i = this.target.effects.indexOf(this),
+			game = this.game;
+
 		this.target.effects.splice(i, 1);
-		i = G.effects.indexOf(this);
-		G.effects.splice(i, 1);
+		i = game.effects.indexOf(this);
+		game.effects.splice(i, 1);
 		this.target.updateAlteration();
 		console.log("Effect " + this.name + " deleted");
-	},
-
-});
+	}
+};

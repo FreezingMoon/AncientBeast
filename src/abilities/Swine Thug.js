@@ -12,22 +12,27 @@ G.abilities[37] = [
 
 		// 	require() :
 		require: function(hex) {
+
 			if (!this.testRequirements()) return false;
 
 			if (hex == undefined) hex = this.creature.hexagons[0];
 			this.message = "";
+
 			if (hex.trap) {
 				if (hex.trap.type == "mud-bath") {
+					G.UI.abilitiesButtons[0].changeState('noclick');
 					return true;
 				}
 			}
 
 			this.message = "Not in a mud bath.";
 
-			this.creature.effects.each(function() {
-				if (this.trigger == "mud-bath")
-					this.deleteEffect();
+			this.creature.effects.forEach(function(effect) {
+				if (effect.trigger == "mud-bath") {
+					effect.deleteEffect();
+				}
 			});
+
 			return false;
 		},
 
@@ -42,7 +47,7 @@ G.abilities[37] = [
 			}
 			var effect = new Effect("Spa Goggles", this.creature, this.creature, "mud-bath", {
 				alterations: alterations
-			});
+			}, G);
 			this.creature.addEffect(effect);
 
 			// Log message, assume that all buffs are the same amount, and there are
@@ -77,7 +82,7 @@ G.abilities[37] = [
 			if (!this.testRequirements()) return false;
 
 			if (!this.atLeastOneTarget(
-					this.creature.adjacentHexs(1), {
+					this.creature.adjacentHexes(1), {
 						team: this._targetTeam
 					})) {
 				return false;
@@ -111,12 +116,13 @@ G.abilities[37] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 			var damage = new Damage(
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			var result = target.takeDamage(damage);
 			// Knock the target back if they are still alive
@@ -142,7 +148,7 @@ G.abilities[37] = [
 					// The target must be completely over mud baths to keep sliding
 					var mudSlide = true;
 					for (var j = 0; j < target.size; j++) {
-						var mudHex = G.grid.hexs[hex.y][hex.x - j];
+						var mudHex = G.grid.hexes[hex.y][hex.x - j];
 						if (!mudHex.trap || mudHex.trap.type !== "mud-bath") {
 							mudSlide = false;
 							break;
@@ -182,13 +188,13 @@ G.abilities[37] = [
 			var straitrow = matrices.straitrow;
 
 			var swine = this.creature;
-			var hexs = G.grid.getHexMap(swine.x, swine.y - 2, 0, false, bellowrow).filterCreature(true, true, swine.id, swine.team).concat(
-				G.grid.getHexMap(swine.x, swine.y, 0, false, straitrow).filterCreature(true, true, swine.id, swine.team),
-				G.grid.getHexMap(swine.x, swine.y, 0, false, bellowrow).filterCreature(true, true, swine.id, swine.team),
-				G.grid.getHexMap(swine.x, swine.y - 2, 0, true, bellowrow).filterCreature(true, true, swine.id, swine.team),
-				G.grid.getHexMap(swine.x, swine.y, 0, true, straitrow).filterCreature(true, true, swine.id, swine.team),
-				G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow).filterCreature(true, true, swine.id, swine.team));
-			if (!this.atLeastOneTarget(hexs, {
+			var hexes = arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y - 2, 0, false, bellowrow), true, true, swine.id, swine.team).concat(
+				arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, false, straitrow), true, true, swine.id, swine.team),
+				arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, false, bellowrow), true, true, swine.id, swine.team),
+				arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y - 2, 0, true, bellowrow), true, true, swine.id, swine.team),
+				arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, true, straitrow), true, true, swine.id, swine.team),
+				arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow), true, true, swine.id, swine.team));
+			if (!this.atLeastOneTarget(hexes, {
 					team: this._targetTeam
 				})) {
 				return false;
@@ -217,8 +223,8 @@ G.abilities[37] = [
 				G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow),
 			];
 
-			choices.each(function() {
-				this.filterCreature(true, true, swine.id);
+			choices.forEach(function(choice) {
+				arrayUtils.filterCreature(choice, true, true, swine.id);
 			});
 
 			G.grid.queryChoice({
@@ -239,7 +245,7 @@ G.abilities[37] = [
 			var ability = this;
 			ability.end();
 
-			var target = path.last().creature;
+			var target = arrayUtils.last(path).creature;
 
 			// If upgraded, hits will debuff target with -1 meditation
 			if (this.isUpgraded()) {
@@ -247,7 +253,7 @@ G.abilities[37] = [
 					alterations: {
 						meditation: -1
 					}
-				});
+				}, G);
 				target.addEffect(effect);
 				G.log("%CreatureName" + target.id + "%'s meditation is lowered by 1");
 			}
@@ -256,7 +262,8 @@ G.abilities[37] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			target.takeDamage(damage);
 		},
@@ -302,21 +309,22 @@ G.abilities[37] = [
 			// Check if the ability is upgraded because then the self cast energy cost is less
 			var selfOnly = this.isUpgraded() && this.creature.energy < this._energyNormal;
 
-			var hexs = [];
+			var hexes = [];
 			if (!selfOnly) {
-				// Gather all the reachable hexs, including the current one
-				hexs = G.grid.getFlyingRange(swine.x, swine.y, 50, 1, 0);
+				// Gather all the reachable hexes, including the current one
+				hexes = G.grid.getFlyingRange(swine.x, swine.y, 50, 1, 0);
 			}
-			hexs.push(G.grid.hexs[swine.y][swine.x]);
+			hexes.push(G.grid.hexes[swine.y][swine.x]);
 
-			//TODO: Filtering corpse hexs
-			hexs.filter(function() {
-				return true;
-			});
+			//TODO: Filtering corpse hexes
+			//TODO: Add this code back in when its actually used.
+			// hexes = hexes.filter(function(hex) {
+			// 	return true;
+			// });
 
-			G.grid.hideCreatureHexs(this.creature);
+			G.grid.hideCreatureHexes(this.creature);
 
-			G.grid.queryHexs({
+			G.grid.queryHexes({
 				fnOnCancel: function() {
 					G.activeCreature.queryMove();
 					G.grid.clearHexViewAlterations();
@@ -324,7 +332,7 @@ G.abilities[37] = [
 				fnOnConfirm: function() {
 					ability.animation.apply(ability, arguments);
 				},
-				hexs: hexs,
+				hexes: hexes,
 				hideNonTarget: true
 			});
 		},
@@ -366,7 +374,8 @@ G.abilities[37] = [
 						effectFn: function(effect, crea) {
 							crea.remainingMove--;
 						},
-					}
+					},
+					G
 				),
 			];
 
@@ -376,7 +385,7 @@ G.abilities[37] = [
 			// Trigger trap immediately if on self
 			if (isSelf) {
 				// onCreatureMove is Spa Goggles' trigger event
-				G.triggersFn.onCreatureMove(swine, hex);
+				G.onCreatureMove(swine, hex);
 			}
 
 		},

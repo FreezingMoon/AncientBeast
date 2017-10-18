@@ -24,6 +24,7 @@ After you've successfully installed the Node.js package, open up a terminal and 
 
 ```
 npm install -g grunt-cli
+npm install -g bower
 ```
 
 ### Installing Dependencies
@@ -34,7 +35,9 @@ npm install
 ```
 
 This will read `package.json` and install all of the gameplay established npm package dependencies.<br>
-The *npm install* command will also update any required dependencies if `package.json` file changes.
+The *npm install* command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, it is good practice to check both npm and bower dependencies before continuing to work again.<br>
+
+If you're using Windows operating system and getting errors, try to `Run as administrator` or to disable your anti-virus.
 
 ### Betatest Game
 
@@ -43,7 +46,7 @@ To have the game properly set-up and opened in the default browser, simply run t
 ```
 grunt
 ```
-
+You should only use <a href="https://www.google.com/chrome/"><b>Google Chrome</b></a> or <a href="https://www.chromium.org"><b>Chromium</b></a>, as other browsers don't quite cut it. White testing you can right click the game tab and mute it.
 Grunt will work in the background so that when you change any game scripts, the re-compile will occur.
 
 ---
@@ -56,7 +59,8 @@ For a more comprehensive guide on how to help out the project, you can check out
 If you encounter any problems with the version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues), try to avoid duplicates.<br>
 Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues.<br>
 You can use this function from the browser console window in order to fetch the log `G.gamelog.get()`.<br>
-To replay a match, you can start a new game and paste the log between brackets of `G.gamelog.play()`.
+To replay a match, you can start a new game and paste the log between brackets of `G.gamelog.play()`.<br>
+In order to open up Google Chrome browser's console, you can simply press `Ctrl + Shift + j` hotkeys.
 
 ### Patch Game
 The main coding language used is Javascript, feel free to create patches and propose them by making a Pull Request.

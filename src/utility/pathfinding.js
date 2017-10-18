@@ -35,14 +35,14 @@ var astar = {
 			}
 
 			// Normal case -- move currentNode from open to closed, process each of its neighbors
-			openList.removePos(currentNode);
+			arrayUtils.removePos(openList, currentNode);
 			closedList.push(currentNode);
 			var neighbors = currentNode.adjacentHex(1);
 
 			for (var i = 0; i < neighbors.length; i++) {
 				var neighbor = neighbors[i];
 
-				if (closedList.findPos(neighbor) || !neighbor.isWalkable(creatureSize, creatureId)) {
+				if (arrayUtils.findPos(closedList, neighbor) || !neighbor.isWalkable(creatureSize, creatureId)) {
 					// Not a valid node to process, skip to next neighbor
 					continue;
 				}
@@ -53,7 +53,7 @@ var astar = {
 				var gScoreIsBest = false;
 
 
-				if (!openList.findPos(neighbor)) {
+				if (!arrayUtils.findPos(openList, neighbor)) {
 					// This the the first time we have arrived at this node, it must be the best
 					// Also, we need to take the h (heuristic) score since we haven't done so yet
 

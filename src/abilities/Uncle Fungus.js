@@ -54,7 +54,8 @@ G.abilities[3] = [
 				creature, // Caster
 				target, // Target
 				"", // Trigger
-				optArg // Optional arguments
+				optArg, // Optional arguments
+				G
 			);
 
 			target.addEffect(effect, undefined, "Contaminated");
@@ -100,7 +101,7 @@ G.abilities[3] = [
 				team: this._targetTeam,
 				id: uncle.id,
 				flipped: uncle.flipped,
-				hexs: uncle.getHexMap(matrices.frontnback2hex),
+				hexes: uncle.getHexMap(matrices.frontnback2hex),
 			});
 		},
 
@@ -114,7 +115,8 @@ G.abilities[3] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 
 			var dmg = target.takeDamage(damage);
@@ -147,16 +149,17 @@ G.abilities[3] = [
 								alterations: {
 									regrowth: amount
 								}
-							} // Optional arguments
-						), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", //Custom Log
+							}, // Optional arguments
+							G
+						), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", // Custom Log
 						"Regrowth++"); // Custom Hint
 				}
 			}
 
 			// Remove frogger bonus if its found
-			ability.creature.effects.each(function() {
-				if (this.name == "Frogger Bonus") {
-					this.deleteEffect();
+			ability.creature.effects.forEach(function(effect) {
+				if (effect.name == "Frogger Bonus") {
+					effect.deleteEffect();
 				}
 			});
 		},
@@ -196,7 +199,7 @@ G.abilities[3] = [
 			var stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
 			var hexes = this._getHexRange(stopOnCreature);
 
-			G.grid.queryHexs({
+			G.grid.queryHexes({
 				fnOnSelect: function() {
 					ability.fnOnSelect.apply(ability, arguments);
 				},
@@ -211,7 +214,7 @@ G.abilities[3] = [
 				size: uncle.size,
 				flipped: uncle.player.flipped,
 				id: uncle.id,
-				hexs: hexes,
+				hexes: hexes,
 				hexesDashed: [],
 				hideNonTarget: true
 			});
@@ -246,7 +249,10 @@ G.abilities[3] = [
 				ignoreMovementPoint: true,
 				ignorePath: true,
 				callback: function() {
-					G.triggersFn.onStepIn(ability.creature, ability.creature.hexagons[0]);
+					// Shake the screen upon landing to simulate the jump
+					G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+
+					G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
 					var interval = setInterval(function() {
 						if (!G.freezedInput) {
@@ -269,7 +275,8 @@ G.abilities[3] = [
 						effect.deleteEffect();
 					},
 					alterations: ability.effects[0]
-				} // Optional arguments
+				}, // Optional arguments
+				G
 			));
 		},
 
@@ -277,9 +284,9 @@ G.abilities[3] = [
 			// Get the hex range of this ability
 			var uncle = this.creature;
 			var forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, matrices.straitrow);
-			forward = forward.filterCreature(false, stopOnCreature, uncle.id);
+			forward = arrayUtils.filterCreature(forward, false, stopOnCreature, uncle.id);
 			var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, matrices.straitrow);
-			backward = backward.filterCreature(false, stopOnCreature, uncle.id);
+			backward = arrayUtils.filterCreature(backward, false, stopOnCreature, uncle.id);
 			// Combine and sort by X, left to right
 			var hexes = forward.concat(backward).sort(function(a, b) {
 				return a.x - b.x;
@@ -343,7 +350,7 @@ G.abilities[3] = [
 				team: this._targetTeam,
 				id: uncle.id,
 				flipped: uncle.flipped,
-				hexs: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, matrices.frontnback2hex),
+				hexes: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, matrices.frontnback2hex),
 			});
 		},
 
@@ -357,7 +364,8 @@ G.abilities[3] = [
 				ability.creature, // Attacker
 				ability.damages, // Damage Type
 				1, // Area
-				[] // Effects
+				[], // Effects
+				G
 			);
 			var result = target.takeDamage(damage);
 
@@ -384,9 +392,9 @@ G.abilities[3] = [
 			}
 
 			// Remove Frogger Jump bonus if its found
-			ability.creature.effects.each(function() {
-				if (this.name == "Offense Bonus") {
-					this.deleteEffect();
+			ability.creature.effects.forEach(function(effect) {
+				if (effect.name == "Offense Bonus") {
+					effect.deleteEffect();
 				}
 			});
 		},
