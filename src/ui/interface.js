@@ -697,8 +697,9 @@ var UI = class UI {
 					$j('#materialize_button p').text("Materialize unit at target location for " + plasmaCost + " plasma");
 
 					// Bind button
+
 					this.materializeButton.click = (e) => {
-						this.materializeToggled = true;
+						this.materializeToggled = false;
 						this.selectAbility(3);
 						this.closeDash();
 						activeCreature.abilities[3].materialize(this.selectedCreature);
@@ -857,12 +858,36 @@ var UI = class UI {
 	/* toggleDash()
 	 *
 	 * Show the dash and hide some buttons
+	 * Takes optional 'randomize' parameter to select a random creature from the grid.
 	 */
-	toggleDash() {
-		let game = this.game;
 
+	toggleDash(randomize) {
+    		let game = this.game;
+		
 		if (!this.$dash.hasClass("active")) {
-			this.showCreature(game.activeCreature.type, game.activeCreature.team);
+			if (randomize) {
+				const activePlayer = game.players[game.activeCreature.player.id];
+				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type)
+				const availableTypes = activePlayer.availableCreatures.filter(el => !deadOrSummonedTypes.includes(el))
+				// Optional: randomize array to grab a new creature every toggle
+				for (let i = availableTypes.length - 1; i > 0; i--) {
+					let j = Math.floor(Math.random() * (i + 1));
+					let temp = availableTypes[i];
+					availableTypes[i] = availableTypes[j];
+					availableTypes[j] = temp;
+				}
+				// Grab the first creature we can afford (if none, default to priest)
+				let typeToPass = "--";
+				availableTypes.some(creature => {
+					const lvl = creature.substring(1, 2) - 0;
+					const size = game.retreiveCreatureStats(creature).size - 0;
+					const plasmaCost = lvl + size;
+					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
+				});
+				this.showCreature(typeToPass, game.activeCreature.team);
+			} else {
+				this.showCreature(game.activeCreature.type, game.activeCreature.team);
+			}
 		} else {
 			this.closeDash();
 		}
@@ -870,7 +895,7 @@ var UI = class UI {
 
 	closeDash() {
 		let game = this.game;
-
+		
 		this.$dash.removeClass("active");
 		this.$dash.transition({
 			opacity: 0,
@@ -878,10 +903,11 @@ var UI = class UI {
 		}, this.dashAnimSpeed, "linear", () => {
 			this.$dash.hide();
 		});
-
-		if (this.materializeToggled && game.activeCreature && this.selectedCreature === "--") {
+		
+		if (this.materializeToggled && game.activeCreature && game.activeCreature.type === "--") {
 			game.activeCreature.queryMove();
 		}
+		
 		this.dashopen = false;
 		this.materializeToggled = false;
 	}
@@ -1680,3 +1706,4 @@ var UI = class UI {
 		});
 	}
 };
+
