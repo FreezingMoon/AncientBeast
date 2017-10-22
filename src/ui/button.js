@@ -34,7 +34,6 @@ var Button = class Button {
 
 		state = state || this.state;
 		this.state = state;
-		this.$button.unbind("click").unbind("mouseover").unbind("mouseleave");
 
 		if (state != "disabled") {
 			this.$button.bind("click", () => {
