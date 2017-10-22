@@ -34,6 +34,7 @@ var Button = class Button {
 
 		state = state || this.state;
 		this.state = state;
+		this.$button.unbind("click").unbind("mouseover").unbind("mouseleave");
 
 		if (state != "disabled") {
 			this.$button.bind("click", () => {
@@ -43,22 +44,23 @@ var Button = class Button {
 
 				this.click();
 			});
-			this.$button.bind("mouseover", () => {
-				if (game.freezedInput || !this.clickable) {
-					return;
-				}
-
-				this.mouseover();
-			});
-
-			this.$button.bind("mouseleave", () => {
-				if (game.freezedInput || !this.clickable) {
-					return;
-				}
-
-				this.mouseleave();
-			});
 		}
+		
+		this.$button.bind("mouseover", () => {
+			if (game.freezedInput || !this.clickable) {
+				return;
+			}
+
+			this.mouseover();
+		});
+
+		this.$button.bind("mouseleave", () => {
+			if (game.freezedInput || !this.clickable) {
+				return;
+			}
+
+			this.mouseleave();
+		});
 
 		this.$button.removeClass("disabled glowing selected active noclick");
 		this.$button.css(this.css["normal"]);
