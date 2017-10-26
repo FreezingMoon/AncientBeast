@@ -160,6 +160,9 @@ var Player = class Player {
 				case "immortal":
 					points += 100;
 					break;
+				case "pickupDrop":
+					points += 2;
+					break;
 			}
 
 			totalScore[s.type] += points;
