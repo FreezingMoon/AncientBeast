@@ -46,6 +46,9 @@ var Drop = class Drop {
 			creature.energy += this.energy;
 			game.log("%CreatureName" + creature.id + "% gains " + this.energy + " energy");
 		}
+		creature.player.score.push({
+		    type: "pickupDrop"
+		});
 
 		creature.updateAlteration(); // Will cap the stats
 
