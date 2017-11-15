@@ -504,6 +504,7 @@ var HexGrid = class HexGrid {
 		// Save the last Query
 		this.lastQueryOpt = $j.extend({}, o); // Copy Obj
 
+        this.updateDisplay();
 		// Block all hexes
 		this.forEachHex((hex) => {
 			hex.unsetReachable();
@@ -565,7 +566,7 @@ var HexGrid = class HexGrid {
 			if (!hex.reachable) {
 				this.lastClickedHex = [];
 				if (hex.creature instanceof Creature) { // If creature
-					onCreatureHover(hex.creature, (game.activeCreature !== hex.creature) ? game.UI.bouncexrayQueue.bind(game.UI) : game.UI.xrayQueue.bind(game.UI));
+					onCreatureHover(hex.creature, (game.activeCreature !== hex.creature) ? game.UI.bouncexrayQueue.bind(game.UI) : game.UI.xrayQueue.bind(game.UI), hex );
 				} else { // If nothing
 					o.fnOnCancel(hex, o.args); // ON CANCEL
 				}
@@ -628,7 +629,7 @@ var HexGrid = class HexGrid {
 			$j("canvas").css("cursor", "pointer");
 
             if (hex.creature instanceof Creature) { // If creature
-                onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI));
+                onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex );
             } else { // If nothing
                 hex.overlayVisualState("hover");
             }
@@ -673,7 +674,7 @@ var HexGrid = class HexGrid {
 			}
 		};
 		
-		let onCreatureHover = (creature, queueEffect) => {
+		let onCreatureHover = (creature, queueEffect, hex) => {
 			if (creature.type == "--") {
 				if (creature === game.activeCreature) {
 					if (creature.hasCreaturePlayerGotPlasma()) {
@@ -683,12 +684,16 @@ var HexGrid = class HexGrid {
 					creature.displayHealthStats();
 				}
 			}
-			if (creature !== game.activeCreature) {
-			    $j("canvas").css("cursor", "n-resize");
-			}
 			creature.hexagons.forEach((hex) => {
-				hex.overlayVisualState("hover h_player" + creature.team);
-			});
+                hex.overlayVisualState("hover h_player" + creature.team);
+            });
+			if ( creature !== game.activeCreature ) {
+			    if( !hex.reachable ) {
+			        $j("canvas").css("cursor", "n-resize");
+			    } else {
+			        hex.displayVisualState( "creature player" + hex.creature.team );
+			    }
+			}
 			queueEffect(creature.id);
 		}
 
@@ -834,6 +839,17 @@ var HexGrid = class HexGrid {
 				}
 			});
 		});
+
+		// targeting for abilities
+		if (this.lastQueryOpt && this.lastQueryOpt.hexes) {
+		    this.lastQueryOpt.hexes.forEach( (hex) => {
+                if (hex.creature instanceof Creature) {
+                    if (hex.creature.id != this.game.activeCreature.id ) {
+                        hex.overlayVisualState( "hover h_player" + hex.creature.team );
+                    }
+                }
+            });
+		}
 	}
 
 	/* hexExists(y, x)
