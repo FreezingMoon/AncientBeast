@@ -515,7 +515,7 @@ var Creature = class Creature {
 			x: hex.x,
 			y: hex.y,
 			overlayClass: "hover h_player" + this.team,
-			updateDisplayClean:false
+			updateDisplayClean: false
 		});
 	}
 
