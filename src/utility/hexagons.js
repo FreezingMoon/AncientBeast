@@ -397,7 +397,8 @@ var HexGrid = class HexGrid {
 				},
 				fnOnSelect: (creature, args) => {
 					creature.tracePosition({
-						overlayClass: "creature selected player" + creature.team
+						overlayClass: "creature selected player" + creature.team,
+						updateDisplayClean: false
 					});
 				},
 				fnOnCancel: (hex, args) => {
