@@ -514,7 +514,8 @@ var Creature = class Creature {
 		this.tracePosition({
 			x: hex.x,
 			y: hex.y,
-			overlayClass: "hover h_player" + this.team
+			overlayClass: "hover h_player" + this.team,
+			updateDisplayClean: false
 		});
 	}
 
@@ -703,7 +704,8 @@ var Creature = class Creature {
 			this.tracePosition({
 				x: item.x,
 				y: item.y,
-				displayClass: "adj"
+				displayClass: "adj",
+				updateDisplayClean: false
 			});
 		}); // Trace path
 
@@ -714,7 +716,8 @@ var Creature = class Creature {
 		this.tracePosition({
 			x: last.x,
 			y: last.y,
-			overlayClass: "creature moveto selected player" + this.team
+			overlayClass: "creature moveto selected player" + this.team,
+			updateDisplayClean: false
 		});
 	}
 
@@ -725,9 +728,14 @@ var Creature = class Creature {
 			y: this.y,
 			overlayClass: "",
 			displayClass: "",
+			updateDisplayClean: true
 		};
 
 		args = $j.extend(defaultArgs, args);
+
+        if (args.updateDisplayClean) {
+            this.game.grid.updateDisplay();
+        }
 
 		for (let i = 0; i < this.size; i++) {
 			let hex = this.game.grid.hexes[args.y][args.x - i];
