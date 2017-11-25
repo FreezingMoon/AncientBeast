@@ -1,3 +1,15 @@
+import * as jquery from 'jquery';
+// Load phaser (https://github.com/photonstorm/phaser/issues/1974)
+import PIXI from 'expose-loader?PIXI!phaser-ce/build/custom/pixi.js';
+import p2 from 'expose-loader?p2!phaser-ce/build/custom/p2.js';
+import Phaser from 'expose-loader?Phaser!phaser-ce/build/custom/phaser-split.js';
+
+import { Game } from './game';
+
+// Export stuff that needs to be on the window object (Hack)
+window.$j1 = jquery;
+window.Phaser = Phaser;
+
 /** Initialize the game global variable */
 var G = new Game("0.3");
 /*****************************************/
@@ -27,15 +39,15 @@ $j(document).ready(() => {
 
 function getGameConfig() {
 	let defaultConfig = {
-			playerMode: $j('input[name="playerMode"]:checked').val() - 0,
-			creaLimitNbr: $j('input[name="activeUnits"]:checked').val() - 0, // DP counts as One
-			unitDrops: $j('input[name="unitDrops"]:checked').val() - 0,
-			abilityUpgrades: $j('input[name="abilityUpgrades"]:checked').val() - 0,
-			plasma_amount: $j('input[name="plasmaPoints"]:checked').val() - 0,
-			turnTimePool: $j('input[name="turnTime"]:checked').val() - 0,
-			timePool: $j('input[name="timePool"]:checked').val() * 60,
-			background_image: $j('input[name="combatLocation"]:checked').val(),
-		},
+		playerMode: $j('input[name="playerMode"]:checked').val() - 0,
+		creaLimitNbr: $j('input[name="activeUnits"]:checked').val() - 0, // DP counts as One
+		unitDrops: $j('input[name="unitDrops"]:checked').val() - 0,
+		abilityUpgrades: $j('input[name="abilityUpgrades"]:checked').val() - 0,
+		plasma_amount: $j('input[name="plasmaPoints"]:checked').val() - 0,
+		turnTimePool: $j('input[name="turnTime"]:checked').val() - 0,
+		timePool: $j('input[name="timePool"]:checked').val() * 60,
+		background_image: $j('input[name="combatLocation"]:checked').val(),
+	},
 		config = G.gamelog.gameConfig || defaultConfig;
 
 	return config;

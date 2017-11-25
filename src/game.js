@@ -8,7 +8,7 @@
  * to really start the game.
  */
 
-var Game = class Game {
+export class Game {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jQuery elements
