@@ -844,7 +844,7 @@ var HexGrid = class HexGrid {
 	 * Update overlay hexes with creature positions
 	 */
 	updateDisplay () {
-	    this.cleanDisplay();
+	this.cleanDisplay();
         this.cleanOverlay();
         this.hexes.forEach((hex) => {
             hex.forEach((item) => {
