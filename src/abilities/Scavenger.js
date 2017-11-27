@@ -239,7 +239,6 @@ G.abilities[44] = [
 				animation: "fly",
 				callback: function() {
 					trg.updateHex();
-					G.grid.updateDisplay();
 				},
 				ignoreMovementPoint: true
 			});
@@ -248,7 +247,6 @@ G.abilities[44] = [
 				animation: "fly",
 				callback: function() {
 					ability.creature.updateHex();
-					G.grid.updateDisplay();
 					ability.creature.queryMove();
 				},
 				ignoreMovementPoint: true,

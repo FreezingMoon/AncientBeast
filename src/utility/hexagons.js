@@ -289,7 +289,7 @@ var HexGrid = class HexGrid {
 				fnOnSelect: (choice, args) => {
 					choice.forEach((item) => {
 						if (item.creature instanceof Creature) {
-							item.overlayVisualState("creature selected player" + item.creature.team);
+							item.displayVisualState("creature selected player" + item.creature.team);
 						} else {
 							item.displayVisualState("adj");
 						}
@@ -376,7 +376,8 @@ var HexGrid = class HexGrid {
 			hexesDashed: o.hexesDashed,
 			flipped: o.flipped,
 			hideNonTarget: o.hideNonTarget,
-			id: o.id
+			id: o.id,
+			fillHexOnHover:false
 		});
 	}
 
@@ -397,8 +398,7 @@ var HexGrid = class HexGrid {
 				},
 				fnOnSelect: (creature, args) => {
 					creature.tracePosition({
-						overlayClass: "creature selected player" + creature.team,
-						updateDisplayClean: false
+						overlayClass: "creature selected player" + creature.team
 					});
 				},
 				fnOnCancel: (hex, args) => {
@@ -496,6 +496,8 @@ var HexGrid = class HexGrid {
 				flipped: false,
 				hideNonTarget: false,
 				ownCreatureHexShade: false,
+				targeting:true,
+				fillHexOnHover:true,
 			};
 
 		o = $j.extend(defaultOpt, o);
@@ -552,6 +554,16 @@ var HexGrid = class HexGrid {
 			if (o.hideNonTarget) {
 				hex.unsetNotTarget();
 			}
+			if(o.targeting){
+                if (hex.creature instanceof Creature) {
+                    if (hex.creature.id != this.game.activeCreature.id ) {
+                        hex.overlayVisualState("hover h_player" + hex.creature.team);
+                    }
+                }
+                else{
+                    hex.overlayVisualState("hover h_player" + this.game.activeCreature.team);
+                }
+			}
 		});
 
 		// ONCLICK
@@ -560,7 +572,6 @@ var HexGrid = class HexGrid {
 				x = hex.x;
 
 			// Clear display and overlay
-			this.updateDisplay();
             $j("canvas").css("cursor", "pointer");
 
 			// Not reachable hex
@@ -625,14 +636,14 @@ var HexGrid = class HexGrid {
 			this.xray(hex);
 
 			// Clear display and overlay
-			this.updateDisplay();
 			game.UI.xrayQueue(-1);
 			$j("canvas").css("cursor", "pointer");
 
             if (hex.creature instanceof Creature) { // If creature
                 onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex );
-            } else { // If nothing
-                hex.overlayVisualState("hover");
+            } else if (o.fillHexOnHover && hex.reachable) {
+                this.cleanHex(hex);
+                hex.displayVisualState( "creature player" + this.game.activeCreature.team );
             }
 
 			// Not reachable hex
@@ -685,13 +696,13 @@ var HexGrid = class HexGrid {
 					creature.displayHealthStats();
 				}
 			}
-			creature.hexagons.forEach((hex) => {
+			creature.hexagons.forEach((hex) => { // flashing outline
                 hex.overlayVisualState("hover h_player" + creature.team);
             });
 			if ( creature !== game.activeCreature ) {
 			    if( !hex.reachable ) {
 			        $j("canvas").css("cursor", "n-resize");
-			    } else {
+			    } else { // filled hex with color
 			        hex.displayVisualState( "creature player" + hex.creature.team );
 			    }
 			}
@@ -823,34 +834,28 @@ var HexGrid = class HexGrid {
 		this.showCreaturehexes();
 	}
 
+    cleanHex (hex) {
+        hex.cleanDisplayVisualState()
+        hex.cleanOverlayVisualState()
+    }
+
 	/* updateDisplay()
 	 *
 	 * Update overlay hexes with creature positions
 	 */
-	updateDisplay() {
-		this.cleanDisplay();
-		this.cleanOverlay();
-		this.hexes.forEach((hex) => {
-			hex.forEach((item) => {
-				if (item.creature instanceof Creature) {
-					if (item.creature.id == this.game.activeCreature.id) {
-						item.overlayVisualState("active creature player" + item.creature.team);
-						item.displayVisualState("creature player" + item.creature.team);
-					}
-				}
-			});
-		});
-
-		// targeting for abilities
-		if (this.lastQueryOpt && this.lastQueryOpt.hexes) {
-		    this.lastQueryOpt.hexes.forEach( (hex) => {
-                if (hex.creature instanceof Creature) {
-                    if (hex.creature.id != this.game.activeCreature.id ) {
-                        hex.overlayVisualState( "hover h_player" + hex.creature.team );
+	updateDisplay () {
+	    this.cleanDisplay();
+        this.cleanOverlay();
+        this.hexes.forEach((hex) => {
+            hex.forEach((item) => {
+                if (item.creature instanceof Creature) {
+                    if (item.creature.id == this.game.activeCreature.id) {
+                        item.overlayVisualState("active creature player" + item.creature.team);
+                        item.displayVisualState("creature player" + item.creature.team);
                     }
                 }
             });
-		}
+        });
 	}
 
 	/* hexExists(y, x)
@@ -1155,7 +1160,6 @@ var HexGrid = class HexGrid {
 		let game = this.game,
 			hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
 
-		this.updateDisplay(); // Retrace players creatures
 		if (!this.materialize_overlay) { // If sprite does not exists
 			// Adding sprite
 			this.materialize_overlay = this.creatureGroup.create(0, 0, creatureData.name + '_cardboard');
@@ -1181,7 +1185,9 @@ var HexGrid = class HexGrid {
 		}
 
 		for (let i = 0, size = creatureData.size; i < size; i++) {
-			this.hexes[pos.y][pos.x - i].overlayVisualState("creature selected player" + game.activeCreature.team);
+		    let hexInstance = this.hexes[pos.y][pos.x - i];
+		    this.cleanHex(hexInstance)
+			hexInstance.overlayVisualState("creature selected player" + game.activeCreature.team);
 		}
 	}
 

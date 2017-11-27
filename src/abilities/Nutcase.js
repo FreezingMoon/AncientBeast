@@ -488,7 +488,6 @@ G.abilities[40] = [
 					ignoreMovementPoint: true,
 					callback: function() {
 						crea.updateHex();
-						G.grid.updateDisplay();
 						crea.queryMove();
 					}
 				}
@@ -500,7 +499,6 @@ G.abilities[40] = [
 					ignoreMovementPoint: true,
 					callback: function() {
 						target.updateHex();
-						G.grid.updateDisplay();
 						target.takeDamage(damage);
 					}
 				}

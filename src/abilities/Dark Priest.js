@@ -235,7 +235,6 @@ G.abilities[0] = [
 		// 	query() :
 		query: function() {
 			var ability = this;
-			G.grid.updateDisplay(); // Retrace players creatures
 
 			if (this.isUpgraded()) this.summonRange = 6;
 

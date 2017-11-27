@@ -148,6 +148,7 @@ G.abilities[7] = [
 
 			// Teleport to any hex within range except for the current hex
 			crea.queryMove({
+			    targeting:true,
 				noPath: true,
 				isAbility: true,
 				range: G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
