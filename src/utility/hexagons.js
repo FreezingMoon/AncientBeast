@@ -377,7 +377,7 @@ var HexGrid = class HexGrid {
 			flipped: o.flipped,
 			hideNonTarget: o.hideNonTarget,
 			id: o.id,
-			fillHexOnHover:false
+			fillHexOnHover: false
 		});
 	}
 
@@ -496,8 +496,8 @@ var HexGrid = class HexGrid {
 				flipped: false,
 				hideNonTarget: false,
 				ownCreatureHexShade: false,
-				targeting:true,
-				fillHexOnHover:true,
+				targeting: true,
+				fillHexOnHover: true,
 			};
 
 		o = $j.extend(defaultOpt, o);
@@ -554,7 +554,7 @@ var HexGrid = class HexGrid {
 			if (o.hideNonTarget) {
 				hex.unsetNotTarget();
 			}
-			if(o.targeting){
+			if(o.targeting) {
                 if (hex.creature instanceof Creature) {
                     if (hex.creature.id != this.game.activeCreature.id ) {
                         hex.overlayVisualState("hover h_player" + hex.creature.team);
@@ -696,13 +696,13 @@ var HexGrid = class HexGrid {
 					creature.displayHealthStats();
 				}
 			}
-			creature.hexagons.forEach((hex) => { // flashing outline
+			creature.hexagons.forEach((hex) => { // Flashing outline
                 hex.overlayVisualState("hover h_player" + creature.team);
             });
 			if ( creature !== game.activeCreature ) {
 			    if( !hex.reachable ) {
 			        $j("canvas").css("cursor", "n-resize");
-			    } else { // filled hex with color
+			    } else { // Filled hex with color
 			        hex.displayVisualState( "creature player" + hex.creature.team );
 			    }
 			}
