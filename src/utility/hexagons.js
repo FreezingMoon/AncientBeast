@@ -836,8 +836,8 @@ var HexGrid = class HexGrid {
 	}
 
     cleanHex (hex) {
-   	hex.cleanDisplayVisualState()
-    	hex.cleanOverlayVisualState()
+   	    hex.cleanDisplayVisualState();
+    	hex.cleanOverlayVisualState();
     }
 
 	/* updateDisplay()

@@ -175,6 +175,7 @@ G.abilities[44] = [
 					} else {
 						color = i > 1 ? trg.team : crea.team;
 					}
+					G.grid.cleanHex(h);
 					h.overlayVisualState("creature moveto selected player" + color);
 				}
 			};
@@ -200,7 +201,8 @@ G.abilities[44] = [
 				args: {
 					trg: trg.id,
 					trgIsInfront: trgIsInfront
-				}
+				},
+				fillHexOnHover: false
 			});
 		},
 
