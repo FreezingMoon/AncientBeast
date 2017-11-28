@@ -121,7 +121,7 @@ G.abilities[22] = [
 			var crea = this.creature;
 
 			crea.queryMove({
-			    targeting:true,
+				targeting: true,
 				noPath: true,
 				isAbility: true,
 				range: G.grid.getFlyingRange(crea.x, crea.y, 50, crea.size, crea.id),
