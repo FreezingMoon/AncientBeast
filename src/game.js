@@ -1,7 +1,8 @@
-import {Animations} from './animations';
-import {CreatureQueue} from './creature_queue';
-import {GameLog} from './utility/gamelog';
-import {SoundSys} from './sound/soundsys';
+import { Animations } from './animations';
+import { CreatureQueue } from './creature_queue';
+import { GameLog } from './utility/gamelog';
+import { SoundSys } from './sound/soundsys';
+import { HexGrid } from './utility/hexgrid';
 
 import stepSound from "./assets/sounds/step.ogg";
 import swing1Sound from "./assets/sounds/step.ogg";
@@ -57,7 +58,6 @@ export class Game {
 		this.activeCreature = {
 			id: 0
 		};
-		debugger;
 		this.preventSetup = true;
 		this.animations = new Animations(this);
 		this.turn = 0;
@@ -83,7 +83,7 @@ export class Game {
 			45, // Chimera
 			12, // Snow Bunny
 			5, // Impaler
-			14, // Gumble
+			1, // Gumble
 			7, // Abolished
 			40, // Nutcase
 			9, // Nightmare
@@ -699,7 +699,7 @@ export class Game {
 		}
 
 		o = $j.extend({
-			callback: function() {},
+			callback: function () { },
 			noTooltip: false,
 			tooltip: 'Skipped'
 		}, o);
@@ -748,7 +748,7 @@ export class Game {
 		}
 
 		o = $j.extend({
-			callback: function() {},
+			callback: function () { },
 		}, o);
 
 		this.turnThrottle = true;
@@ -1132,7 +1132,7 @@ export class Game {
 			if (creature instanceof Creature) {
 				match = true;
 
-				$j.each(o, function(key, val) {
+				$j.each(o, function (key, val) {
 					if (key == "team") {
 						if (val == -1) {
 							return;
@@ -1267,7 +1267,7 @@ export class Game {
 				.text(this.players[i].name);
 
 			// Change score
-			$j.each(this.players[i].getScore(), function(index, val) {
+			$j.each(this.players[i].getScore(), function (index, val) {
 				let text = (val === 0 && index !== "total") ? "--" : val;
 				$table.children("tr." + index).children("td:nth-child(" + colId + ")") // Weird expression swaps 2nd and 3rd player
 					.text(text);
@@ -1309,7 +1309,7 @@ export class Game {
 	action(o, opt) {
 
 		let defaultOpt = {
-			callback: function() {},
+			callback: function () { },
 		};
 
 		opt = $j.extend(defaultOpt, opt);
@@ -1371,7 +1371,7 @@ export class Game {
 	getImage(url) {
 		let img = new Image();
 		img.src = url;
-		img.onload = function() {
+		img.onload = function () {
 			// No-op
 		};
 	}
