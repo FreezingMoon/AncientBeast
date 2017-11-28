@@ -118,7 +118,7 @@ var GameLog = class GameLog {
 			hash = "AB-" + this.game.version + ":" + btoa(JSON.stringify(dict)),
 			output,
 			strOutput;
-			
+
 		switch (state) {
 			case "json":
 				output = dict;
