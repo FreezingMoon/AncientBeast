@@ -3,14 +3,28 @@ import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
 import { SoundSys } from './sound/soundsys';
 import { HexGrid } from './utility/hexgrid';
+import dataJson from './assets/units/data.json';
 
+// Sounds
 import stepSound from "./assets/sounds/step.ogg";
 import swing1Sound from "./assets/sounds/step.ogg";
 import swing2Sound from "./assets/sounds/step.ogg";
 import swing3Sound from "./assets/sounds/step.ogg";
 import heartbeatSound from "./assets/sounds/step.ogg";
+import magmaSpawn0Sound from "./assets/units/sfx/Magma Spawn 0.ogg";
 
-import dataJson from './assets/units/data.json';
+// Images
+import hexPng from "./assets/interface/hex.png";
+import hexDashedPng from "./assets/interface/hex_dashed.png";
+import hexPathPng from "./assets/interface/hex_path.png";
+import cancelPng from "./assets/interface/cancel.png";
+import hexInputPng from "./assets/interface/hex_input.png";
+import gumblePng from './assets/units/sprites/Gumble - Royal Seal.png';
+import swinePng from './assets/units/sprites/Swine Thug - Mud Bath.png';
+import magmaSpawnPng from './assets/units/sprites/Magma Spawn - Scorched Ground.png';
+import impalerPng from './assets/units/sprites/Impaler - Poisonous Vine.png';
+import abolishedPng from './assets/units/sprites/Abolished - Fiery Touch.png';
+import snowBunnyPng from './assets/units/sprites/Snow Bunny - Freezing Spit.png';
 
 /* Game Class
  *
@@ -197,7 +211,7 @@ export class Game {
 				return;
 			}
 			// Load unit shouts
-			this.soundsys.getSound('../units/shouts/' + name + '.ogg', 1000 + creatureId);
+			this.soundsys.getSound('../assets/units/shouts/' + name + '.ogg', 1000 + creatureId);
 
 			// Load artwork
 			this.getImage('../units/artwork/' + name + '.jpg');
@@ -275,14 +289,14 @@ export class Game {
 		}
 
 		// Ability SFX
-		this.Phaser.load.audio('MagmaSpawn0', './units/sfx/Magma Spawn 0.ogg');
+		this.Phaser.load.audio('MagmaSpawn0', magmaSpawn0Sound);
 
 		// Grid
-		this.Phaser.load.image('hex', './interface/hex.png');
-		this.Phaser.load.image('hex_dashed', './interface/hex_dashed.png');
-		this.Phaser.load.image('hex_path', './interface/hex_path.png');
-		this.Phaser.load.image('cancel', './interface/cancel.png');
-		this.Phaser.load.image('input', './interface/hex_input.png');
+		this.Phaser.load.image('hex', hexPng);
+		this.Phaser.load.image('hex_dashed', hexDashedPng);
+		this.Phaser.load.image('hex_path', hexPathPng);
+		this.Phaser.load.image('cancel', cancelPng);
+		this.Phaser.load.image('input', hexInputPng);
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image(
 				'hex_p' + i,
@@ -294,16 +308,16 @@ export class Game {
 
 		// Traps
 		// TODO: Load these sprites only after the specific unit has been materialized
-		this.Phaser.load.image('trap_royal-seal', './units/sprites/Gumble - Royal Seal.png');
-		this.Phaser.load.image('trap_mud-bath', './units/sprites/Swine Thug - Mud Bath.png');
-		this.Phaser.load.image('trap_scorched-ground', './units/sprites/Magma Spawn - Scorched Ground.png');
-		this.Phaser.load.image('trap_firewall', './units/sprites/Magma Spawn - Scorched Ground.png');
-		this.Phaser.load.image('trap_poisonous-vine', './units/sprites/Impaler - Poisonous Vine.png');
+		this.Phaser.load.image('trap_royal-seal', gumblePng);
+		this.Phaser.load.image('trap_mud-bath', swinePng);
+		this.Phaser.load.image('trap_scorched-ground', magmaSpawnPng);
+		this.Phaser.load.image('trap_firewall', magmaSpawnPng);
+		this.Phaser.load.image('trap_poisonous-vine', impalerPng);
 
 		// Effects
-		this.Phaser.load.image('effects_fiery-touch', './units/sprites/Abolished - Fiery Touch.png');
-		this.Phaser.load.image('effects_fissure-vent', './units/sprites/Magma Spawn - Fissure Vent.png');
-		this.Phaser.load.image('effects_freezing-spit', './units/sprites/Snow Bunny - Freezing Spit.png');
+		this.Phaser.load.image('effects_fiery-touch', abolishedPng);
+		this.Phaser.load.image('effects_fissure-vent', magmaSpawnPng);
+		this.Phaser.load.image('effects_freezing-spit', snowBunnyPng);
 
 		// Background
 		this.Phaser.load.image('background', "locations/" + this.background_image + "/bg.jpg");
