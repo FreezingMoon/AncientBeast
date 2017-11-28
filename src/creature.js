@@ -3,7 +3,7 @@
  * Creature contains all creatures properties and attacks
  *
  */
-var Creature = class Creature {
+export class Creature {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jquery element

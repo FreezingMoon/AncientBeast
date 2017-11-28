@@ -1,4 +1,4 @@
-var GameLog = class GameLog {
+export class GameLog {
 	constructor(id, game) {
 		this.game = game;
 		this.data = [];

@@ -24,7 +24,7 @@
 		"html-webpack-plugin": "^2.30.1",
 		"jquery": "1.12.4",
 		"jquery-mousewheel": "3.1.13",
-		"jquery-ui": "1.12.1",
+		"jquery-ui-dist": "^1.12.1",
 		"jquery.kinetic": "2.2.4",
 		"jquery.transit": "0.9.12",
 		"phaser-ce": "2.7.10",

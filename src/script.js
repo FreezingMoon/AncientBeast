@@ -1,4 +1,7 @@
+// Import jquery related stuff
 import * as jquery from 'jquery';
+import 'jquery-ui';
+
 // Load phaser (https://github.com/photonstorm/phaser/issues/1974)
 import PIXI from 'expose-loader?PIXI!phaser-ce/build/custom/pixi.js';
 import p2 from 'expose-loader?p2!phaser-ce/build/custom/p2.js';
@@ -9,7 +12,7 @@ import { Game } from './game';
 import './style/main.less';
 
 // Export stuff that needs to be on the window object (Hack)
-window.$j1 = jquery;
+window.$j = jquery;
 window.Phaser = Phaser;
 
 /** Initialize the game global variable */

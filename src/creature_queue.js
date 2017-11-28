@@ -1,4 +1,4 @@
-var CreatureQueue = class CreatureQueue {
+export class CreatureQueue {
 	constructor(game) {
 		this.game = game;
 		this.queue = [];

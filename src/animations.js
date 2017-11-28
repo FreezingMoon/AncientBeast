@@ -1,4 +1,4 @@
-let Animations = class Animations {
+export class Animations {
 	constructor(game) {
 		this.game = game;
 		this.movementPoints = 0;

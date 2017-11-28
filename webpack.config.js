@@ -47,6 +47,11 @@ module.exports = {
             }
         ]
     },
+    resolve: {
+        alias: {
+            'jquery-ui': 'jquery-ui-dist/jquery-ui.js'
+        }
+    },
     plugins: [
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, 'src', 'index.html'),

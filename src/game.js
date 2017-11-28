@@ -1,3 +1,7 @@
+import {Animations} from './animations';
+import {CreatureQueue} from './creature_queue';
+import {GameLog} from './utility/gamelog';
+
 /* Game Class
  *
  * Game contains all Game elements and functions.
