@@ -5,20 +5,18 @@
 	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
 
 	<title>Ancient Beast 0.3</title>
-
-	<script src="scripts/ancientbeast.js"></script>
 </head>
 
 <body oncontextmenu="return false;">
 	<div id="matchMaking">
-		<div id="loader"><img src="../interface/AB.gif">Loading
+		<div id="loader"><img src="<%=require('./interface/AB.gif')%>">Loading
 			<div id="barLoader">
 				<span class="progress"></span>
 			</div>
 		</div>
 		<div id="gameSetupContainer">
 			<div id="gameTitle">
-				<a href="https://AncientBeast.com"><img src="../interface/AncientBeast.png"></a>
+				<a href="https://AncientBeast.com"><img src="<%= require('./interface/AncientBeast.png') %>"></a>
 			</div>
 			<div id="warning">WARNING: For the best gameplay experience use <a href="https://www.google.com/chrome" target="_blank">Google Chrome</a>!</div>
 			<form id="gameSetup">
