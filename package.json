@@ -20,7 +20,6 @@
 	],
 	"dependencies": {
 		"compression": "^1.6.2",
-		"expose-loader": "^0.7.4",
 		"express": "^4.13.4",
 		"jquery": "1.12.4",
 		"jquery-mousewheel": "3.1.13",
@@ -32,6 +31,13 @@
 		"socket.io-client": "1.3.5"
 	},
 	"devDependencies": {
+		"css-loader": "^0.28.7",
+		"expose-loader": "^0.7.4",
+		"extract-text-webpack-plugin": "^3.0.2",
+		"file-loader": "^1.1.5",
+		"less": "^2.7.3",
+		"less-loader": "^4.0.5",
+		"style-loader": "^0.19.0",
 		"webpack": "^3.8.1"
 	},
 	"scripts": {

@@ -5,6 +5,8 @@ import p2 from 'expose-loader?p2!phaser-ce/build/custom/p2.js';
 import Phaser from 'expose-loader?Phaser!phaser-ce/build/custom/phaser-split.js';
 
 import { Game } from './game';
+//import './units/abilities/Bouncer 0.svg'
+import './style/main.less';
 
 // Export stuff that needs to be on the window object (Hack)
 window.$j1 = jquery;
