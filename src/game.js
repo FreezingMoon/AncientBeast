@@ -1,6 +1,15 @@
 import {Animations} from './animations';
 import {CreatureQueue} from './creature_queue';
 import {GameLog} from './utility/gamelog';
+import {SoundSys} from './sound/soundsys';
+
+import stepSound from "./assets/sounds/step.ogg";
+import swing1Sound from "./assets/sounds/step.ogg";
+import swing2Sound from "./assets/sounds/step.ogg";
+import swing3Sound from "./assets/sounds/step.ogg";
+import heartbeatSound from "./assets/sounds/step.ogg";
+
+import dataJson from './assets/units/data.json';
 
 /* Game Class
  *
@@ -48,7 +57,7 @@ export class Game {
 		this.activeCreature = {
 			id: 0
 		};
-
+		debugger;
 		this.preventSetup = true;
 		this.animations = new Animations(this);
 		this.turn = 0;
@@ -87,11 +96,11 @@ export class Game {
 		];
 		this.availableMusic = [];
 		this.soundEffects = [
-			"step.ogg",
-			"swing.ogg",
-			"swing2.ogg",
-			"swing3.ogg",
-			"heartbeat.ogg",
+			stepSound,
+			swing1Sound,
+			swing2Sound,
+			swing3Sound,
+			heartbeatSound
 		];
 		this.inputMethod = "Mouse";
 
@@ -246,7 +255,7 @@ export class Game {
 		this.soundsys = new SoundSys({}, this);
 
 		for (i = 0; i < totalSoundEffects; i++) {
-			this.soundsys.getSound("./sounds/" + this.soundEffects[i], this.availableMusic.length + i);
+			this.soundsys.getSound(this.soundEffects[i], this.availableMusic.length + i);
 		}
 
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
@@ -300,7 +309,7 @@ export class Game {
 		this.Phaser.load.image('background', "locations/" + this.background_image + "/bg.jpg");
 
 		// Get JSON files
-		$j.getJSON("../units/data.json", this.dataLoaded.bind(this));
+		this.dataLoaded(dataJson);
 	}
 
 	startLoading() {

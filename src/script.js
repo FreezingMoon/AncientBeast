@@ -8,7 +8,10 @@ import p2 from 'expose-loader?p2!phaser-ce/build/custom/p2.js';
 import Phaser from 'expose-loader?Phaser!phaser-ce/build/custom/phaser-split.js';
 
 import { Game } from './game';
-//import './units/abilities/Bouncer 0.svg'
+import { musicPlayer } from './sound/music';
+
+
+// Load the stylesheet
 import './style/main.less';
 
 // Export stuff that needs to be on the window object (Hack)
@@ -22,6 +25,9 @@ var G = new Game("0.3");
 $j(document).ready(() => {
 	$j(".typeRadio").buttonset();
 	$j("#startButton").button();
+
+	// Start the musicplayer
+	musicPlayer.init();
 
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener("blur", G.onBlur.bind(G), false);

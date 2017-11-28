@@ -1,8 +1,6 @@
-jQuery(document).ready(function() {
-	musicPlayer.init();
-});
+import * as jQuery from 'jquery';
 
-var musicPlayer = {
+export const musicPlayer = {
 	init: function() {
 		this.current = 0;
 		this.audio = jQuery('#audio')[0];
