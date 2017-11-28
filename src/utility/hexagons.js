@@ -651,6 +651,7 @@ var HexGrid = class HexGrid {
 				if (hex.materialize_overlay) {
 					hex.materialize_overlay.alpha = 0;
 				}
+				hex.overlayVisualState("hover");
 			} else { // Reachable hex
 				//Offset Pos
 				let offset = (o.flipped) ? o.size - 1 : 0,
