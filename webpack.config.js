@@ -1,12 +1,10 @@
 const path = require('path');
-
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const extractLess = new ExtractTextPlugin(path.resolve(__dirname, 'deploy', 'css', 'main.css'));
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: path.resolve(__dirname, 'src', 'script.js'),
     output: {
-        path: path.resolve(__dirname, 'deploy/scripts'),
+        path: path.resolve(__dirname, 'deploy/'),
         filename: 'ancientbeast.js'
     },
     module: {
@@ -50,7 +48,9 @@ module.exports = {
         ]
     },
     plugins: [
-        extractLess
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, 'src', 'index.html')
+        }),
     ],
     devtool: 'cheap-source-map'
 }

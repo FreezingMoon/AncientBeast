@@ -1,9 +1,6 @@
 ### Ancient Beast ###
-# generated/copied css files
-deploy/css
-
-# Deployable javascript (generated and copied from bower)
-deploy/scripts
+# generated files
+deploy/
 
 # DS_STORE FILES
 .DS_Store
