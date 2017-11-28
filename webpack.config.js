@@ -5,5 +5,6 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'deploy/scripts'),
         filename: 'ancientbeast.js'
-    }
+    },
+    devtool: 'cheap-source-map'
 }
