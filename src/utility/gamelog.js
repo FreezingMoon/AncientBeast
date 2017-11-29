@@ -124,6 +124,10 @@ var GameLog = class GameLog {
 				output = dict;
 				strOutput = json;
 				break;
+			case "save":
+				var fileName = new Date().toISOString().slice(0,10);
+				this.saveFile(JSON.stringify(dict.log), fileName + ".AB");
+				break;
 			case "hash":
 			default:
 				output = hash;
@@ -133,4 +137,18 @@ var GameLog = class GameLog {
 		console.log("GameData: " + strOutput);
 		return output;
 	}
+
+	saveFile(data, fileName) {
+		var a = document.createElement("a");
+		var file = new Blob([data]);
+		var url = URL.createObjectURL(file);
+		a.href = url;
+		a.download = fileName;
+		document.body.appendChild(a);
+		a.click();
+		setTimeout(function() {
+			document.body.removeChild(a);
+			window.URL.revokeObjectURL(url);  
+		}, 0); 
+	};
 };
