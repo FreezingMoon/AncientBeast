@@ -474,6 +474,7 @@ var HexGrid = class HexGrid {
 	 * fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
 	 * args : 			Object : 	Object given to the events function (to easily pass variable for these function)
 	 * hexes : 		Array : 	Reachable hexes
+	 * callbackAfterQueryHexes : 		Function : 	empty function to be overridden with custom logic to execute after queryHexes
 	 */
 	queryHexes(o) {
 		let game = this.game,
@@ -487,6 +488,9 @@ var HexGrid = class HexGrid {
 				},
 				fnOnCancel: (hex, args) => {
 					game.activeCreature.queryMove();
+				},
+				callbackAfterQueryHexes: () => {
+				    // empty function to be overridden with custom logic to execute after queryHexes
 				},
 				args: {},
 				hexes: [],
@@ -565,6 +569,10 @@ var HexGrid = class HexGrid {
                 }
 			}
 		});
+
+        if(o.callbackAfterQueryHexes){
+            o.callbackAfterQueryHexes();
+        }
 
 		// ONCLICK
 		let onConfirmFn = (hex) => {

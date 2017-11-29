@@ -166,6 +166,14 @@ G.abilities[44] = [
 			var trgIsInfront = (G.grid.getHexMap(crea.x - matrices.inlinefront2hex.origin[0], crea.y - matrices.inlinefront2hex.origin[1], 0, false, matrices.inlinefront2hex)[0].creature == trg);
 
 			var select = function(hex, args) {
+			    for(var i =0 ; i < trg.hexagons.length;i++){
+			        G.grid.cleanHex(trg.hexagons[i])
+			        trg.hexagons[i].overlayVisualState("hover h_player" + trg.team);
+			    }
+			    for(var i =0 ; i < crea.hexagons.length;i++){
+			        G.grid.cleanHex(crea.hexagons[i])
+			        crea.hexagons[i].overlayVisualState("hover h_player" + crea.team);
+			    }
 				for (var i = 0; i < size; i++) {
 					if (!G.grid.hexExists(hex.y, hex.x - i)) continue;
 					var h = G.grid.hexes[hex.y][hex.x - i];
@@ -176,7 +184,8 @@ G.abilities[44] = [
 						color = i > 1 ? trg.team : crea.team;
 					}
 					G.grid.cleanHex(h);
-					h.overlayVisualState("creature moveto selected player" + color);
+					h.overlayVisualState("active creature player" + color);
+                    h.displayVisualState("creature player" + color);
 				}
 			};
 
@@ -202,6 +211,12 @@ G.abilities[44] = [
 					trg: trg.id,
 					trgIsInfront: trgIsInfront
 				},
+				callbackAfterQueryHexes: () => {
+                    for(var i =0 ; i < trg.hexagons.length;i++){
+                        G.grid.cleanHex(trg.hexagons[i])
+                        trg.hexagons[i].overlayVisualState("hover h_player" + trg.team);
+                    }
+                },
 				fillHexOnHover: false
 			});
 		},
