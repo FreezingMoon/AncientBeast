@@ -700,7 +700,8 @@ var Creature = class Creature {
 			this.tracePosition({
 				x: item.x,
 				y: item.y,
-				displayClass: "adj"
+				displayClass: "adj",
+				drawOverCreatureTiles: false
 			});
 		}); // Trace path
 
@@ -712,6 +713,7 @@ var Creature = class Creature {
 			x: last.x,
 			y: last.y,
 			overlayClass: "creature moveto selected player" + this.team,
+			drawOverCreatureTiles: false
 		});
 	}
 
@@ -722,15 +724,28 @@ var Creature = class Creature {
 			y: this.y,
 			overlayClass: "",
 			displayClass: "",
+			drawOverCreatureTiles: true
 		};
 
 		args = $j.extend(defaultArgs, args);
 
 		for (let i = 0; i < this.size; i++) {
-			let hex = this.game.grid.hexes[args.y][args.x - i];
-			this.game.grid.cleanHex(hex);
-			hex.overlayVisualState(args.overlayClass);
-			hex.displayVisualState(args.displayClass);
+		    let canDraw = true;
+
+            if(!args.drawOverCreatureTiles){ // then check to ensure this is not a creature tile
+                for(let j = 0; j < this.hexagons.length;j++){
+                    if(this.hexagons[j].x == args.x-i && this.hexagons[j].y == args.y){
+                        canDraw = false;
+                        break;
+                    }
+                }
+            }
+            if(canDraw){
+                let hex = this.game.grid.hexes[args.y][args.x - i];
+                this.game.grid.cleanHex(hex);
+                hex.overlayVisualState(args.overlayClass);
+                hex.displayVisualState(args.displayClass);
+			}
 		}
 	}
 
