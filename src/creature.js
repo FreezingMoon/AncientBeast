@@ -194,7 +194,6 @@ var Creature = class Creature {
 		game.queue.addByInitiative(this);
 		game.updateQueueDisplay();
 
-		game.grid.updateDisplay(); // Retrace players creatures
 		game.grid.orderCreatureZ();
 
 		if (game.grid.materialize_overlay) {
@@ -332,7 +331,6 @@ var Creature = class Creature {
 
 		this.hasWait = this.delayed = !!wait;
 		this.stats.frozen = false;
-		game.grid.updateDisplay(); // Retrace players creatures
 
 		// Effects triggers
 		if (!wait) {
@@ -408,6 +406,7 @@ var Creature = class Creature {
 		}
 
 		o = $j.extend({
+			targeting:false,
 			noPath: false,
 			isAbility: false,
 			ownCreatureHexShade: true,
@@ -449,7 +448,6 @@ var Creature = class Creature {
 			game.UI.updateQueueDisplay();
 		}
 
-		game.grid.updateDisplay(); //Retrace players creatures
 		game.grid.orderCreatureZ();
 		this.facePlayerDefault();
 		this.updateHealth();
@@ -491,7 +489,8 @@ var Creature = class Creature {
 				flipped: this.player.flipped,
 				id: this.id,
 				hexes:  o.range,
-				ownCreatureHexShade: o.ownCreatureHexShade
+				ownCreatureHexShade: o.ownCreatureHexShade,
+				targeting: o.targeting
 			});
 		}
 	}
@@ -514,8 +513,7 @@ var Creature = class Creature {
 		this.tracePosition({
 			x: hex.x,
 			y: hex.y,
-			overlayClass: "hover h_player" + this.team,
-			updateDisplayClean: false
+			overlayClass: "hover h_player" + this.team
 		});
 	}
 
@@ -694,8 +692,6 @@ var Creature = class Creature {
 			y = hex.y,
 			path = this.calculatePath(x, y); // Store path in grid to be able to compare it later
 
-		game.grid.updateDisplay(); // Retrace players creatures
-
 		if (path.length === 0) {
 			return; // Break if empty path
 		}
@@ -705,7 +701,7 @@ var Creature = class Creature {
 				x: item.x,
 				y: item.y,
 				displayClass: "adj",
-				updateDisplayClean: false
+				drawOverCreatureTiles: false
 			});
 		}); // Trace path
 
@@ -717,7 +713,7 @@ var Creature = class Creature {
 			x: last.x,
 			y: last.y,
 			overlayClass: "creature moveto selected player" + this.team,
-			updateDisplayClean: false
+			drawOverCreatureTiles: false
 		});
 	}
 
@@ -728,19 +724,28 @@ var Creature = class Creature {
 			y: this.y,
 			overlayClass: "",
 			displayClass: "",
-			updateDisplayClean: true
+			drawOverCreatureTiles: true
 		};
 
 		args = $j.extend(defaultArgs, args);
 
-        if (args.updateDisplayClean) {
-            this.game.grid.updateDisplay();
-        }
-
 		for (let i = 0; i < this.size; i++) {
-			let hex = this.game.grid.hexes[args.y][args.x - i];
-			hex.overlayVisualState(args.overlayClass);
-			hex.displayVisualState(args.displayClass);
+		    let canDraw = true;
+
+            if(!args.drawOverCreatureTiles){ // then check to ensure this is not a creature tile
+                for(let j = 0; j < this.hexagons.length;j++){
+                    if(this.hexagons[j].x == args.x-i && this.hexagons[j].y == args.y){
+                        canDraw = false;
+                        break;
+                    }
+                }
+            }
+            if(canDraw){
+                let hex = this.game.grid.hexes[args.y][args.x - i];
+                this.game.grid.cleanHex(hex);
+                hex.overlayVisualState(args.overlayClass);
+                hex.displayVisualState(args.displayClass);
+			}
 		}
 	}
 

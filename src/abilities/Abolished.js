@@ -148,6 +148,7 @@ G.abilities[7] = [
 
 			// Teleport to any hex within range except for the current hex
 			crea.queryMove({
+				targeting: true,
 				noPath: true,
 				isAbility: true,
 				range: G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
@@ -240,6 +241,8 @@ G.abilities[7] = [
 		//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 		trigger: "onQuery",
 
+        directions: [1, 1, 1, 1, 1, 1],
+
 		// 	require() :
 		require: function() {
 			return this.testRequirements();
@@ -252,25 +255,19 @@ G.abilities[7] = [
 
 			// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
 
-			var range = crea.adjacentHexes(1);
+			var range = [];
+			range[0] = crea.adjacentHexes(1);
 
-			G.grid.queryHexes({
-				fnOnConfirm: function() {
-					ability.animation.apply(ability, arguments);
-				},
-				fnOnSelect: function(hex, args) {
-					range.forEach(function(item) {
-						if (item.creature) {
-							item.overlayVisualState("creature selected weakDmg player" + item.creature.team);
-						}
-					});
-					hex.cleanOverlayVisualState();
-					hex.overlayVisualState("creature selected player" + G.activeCreature.team);
-				},
-				id: this.creature.id,
-				hexes: range,
-				hideNonTarget: true,
-			});
+            G.grid.queryChoice({
+                fnOnConfirm: function() {
+                    ability.animation.apply(ability, arguments);
+                },
+                flipped: crea.player.flipped,
+                team: this._targetTeam,
+                id: this.creature.id,
+                requireCreature: false,
+                choices:range
+            });
 		},
 
 
