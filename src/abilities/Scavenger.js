@@ -168,7 +168,7 @@ G.abilities[44] = [
 			var select = function(hex, args) {
 			    for(var i =0 ; i < trg.hexagons.length;i++){
 			        G.grid.cleanHex(trg.hexagons[i])
-			        trg.hexagons[i].overlayVisualState("hover h_player" + trg.team);
+			        trg.hexagons[i].displayVisualState("dashed");
 			    }
 			    for(var i =0 ; i < crea.hexagons.length;i++){
 			        G.grid.cleanHex(crea.hexagons[i])
@@ -214,7 +214,7 @@ G.abilities[44] = [
 				callbackAfterQueryHexes: () => {
                     for(var i =0 ; i < trg.hexagons.length;i++){
                         G.grid.cleanHex(trg.hexagons[i])
-                        trg.hexagons[i].overlayVisualState("hover h_player" + trg.team);
+                        trg.hexagons[i].displayVisualState("dashed");
                     }
                 },
 				fillHexOnHover: false
