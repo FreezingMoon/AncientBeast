@@ -97,7 +97,7 @@ export class Game {
 			45, // Chimera
 			12, // Snow Bunny
 			5, // Impaler
-			1, // Gumble
+			14, // Gumble
 			7, // Abolished
 			40, // Nutcase
 			9, // Nightmare
