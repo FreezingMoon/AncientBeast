@@ -216,7 +216,6 @@ let Animations = class Animations {
 			creature.remainingMove = this.movementPoints;
 		}
 
-		game.grid.updateDisplay();
 		// TODO: Turn around animation
 		if (opts.turnAroundOnComplete) {
 			creature.facePlayerDefault();
