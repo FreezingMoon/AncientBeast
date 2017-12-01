@@ -58,5 +58,5 @@ module.exports = {
             favicon: path.resolve(__dirname, 'src', 'assets', 'favicon.ico')
         }),
     ],
-    devtool: 'cheap-eval-source-map'
+    devtool: 'cheap-eval-sourcemap'
 }
