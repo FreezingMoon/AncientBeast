@@ -43,7 +43,7 @@
 		"webpack": "^3.8.1"
 	},
 	"scripts": {
-		"generateManifest": "node src/manifestGenerator.js",
+		"generateManifest": "node manifestGenerator.js",
 		"test": "echo 'Error: no test specified' && exit 1"
 	}
 }

@@ -38,7 +38,7 @@ function fileToEntity(filePath) {
     const name = path.basename(filePath, extension);
     return {
         name,
-        url: path.relative(__dirname, filePath)
+        url: path.relative(path.join(__dirname, "src"), filePath)
     }
 }
 
@@ -99,11 +99,11 @@ function writeToString(tree, root = false) {
     return string;
 }
 
-readDirectory(path.join(__dirname, "assets"))
+readDirectory(path.join(__dirname, "src", "assets"))
     // Generate the javascript
     .then(result => `module.exports = ${writeToString(result, true)}`)
     // Format the javascript so it"s readable
     .then(prettier.format)
     // We only need to write one file so it doesnt matter that it"s sync
-    .then(result => fs.writeFileSync(path.resolve(__dirname, "manifest.js"), result))
+    .then(result => fs.writeFileSync(path.resolve(__dirname, "src", "manifest.js"), result))
     .catch(console.error);
