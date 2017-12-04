@@ -198,7 +198,7 @@ export class Game {
 			// Load artwork
 			this.getImage(getUrl('units/artwork/' + name));
 
-			if (name == "`Dark Priest`") {
+			if (name == "Dark Priest") {
 				for (i = 0, count = dpcolor.length; i < count; i++) {
 					this.Phaser.load.image(name + dpcolor[i] + '_cardboard', getUrl('units/cardboards/' + name + ' ' + dpcolor[i]));
 					this.getImage(getUrl('units/avatars/' + name + ' ' + dpcolor[i]));
