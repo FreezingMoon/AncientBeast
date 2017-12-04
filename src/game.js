@@ -3,28 +3,8 @@ import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
 import { SoundSys } from './sound/soundsys';
 import { HexGrid } from './utility/hexgrid';
+import { getUrl } from "./assetLoader";
 import dataJson from './assets/units/data.json';
-
-// Sounds
-import stepSound from "./assets/sounds/step.ogg";
-import swing1Sound from "./assets/sounds/step.ogg";
-import swing2Sound from "./assets/sounds/step.ogg";
-import swing3Sound from "./assets/sounds/step.ogg";
-import heartbeatSound from "./assets/sounds/step.ogg";
-import magmaSpawn0Sound from "./assets/units/sfx/Magma Spawn 0.ogg";
-
-// Images
-import hexPng from "./assets/interface/hex.png";
-import hexDashedPng from "./assets/interface/hex_dashed.png";
-import hexPathPng from "./assets/interface/hex_path.png";
-import cancelPng from "./assets/interface/cancel.png";
-import hexInputPng from "./assets/interface/hex_input.png";
-import gumblePng from './assets/units/sprites/Gumble - Royal Seal.png';
-import swinePng from './assets/units/sprites/Swine Thug - Mud Bath.png';
-import magmaSpawnPng from './assets/units/sprites/Magma Spawn - Scorched Ground.png';
-import impalerPng from './assets/units/sprites/Impaler - Poisonous Vine.png';
-import abolishedPng from './assets/units/sprites/Abolished - Fiery Touch.png';
-import snowBunnyPng from './assets/units/sprites/Snow Bunny - Freezing Spit.png';
 
 /* Game Class
  *
@@ -110,11 +90,11 @@ export class Game {
 		];
 		this.availableMusic = [];
 		this.soundEffects = [
-			stepSound,
-			swing1Sound,
-			swing2Sound,
-			swing3Sound,
-			heartbeatSound
+			"sounds/step",
+			"sounds/swing",
+			"sounds/swing2",
+			"sounds/swing3",
+			"sounds/heartbeat"
 		];
 		this.inputMethod = "Mouse";
 
@@ -211,23 +191,23 @@ export class Game {
 				return;
 			}
 			// Load unit shouts
-			this.soundsys.getSound('../assets/units/shouts/' + name + '.ogg', 1000 + creatureId);
+			this.soundsys.getSound(getUrl('units/shouts/' + name), 1000 + creatureId);
 
 			// Load artwork
-			this.getImage('../units/artwork/' + name + '.jpg');
+			this.getImage(getUrl('units/artwork/' + name));
 
 			if (name == "Dark Priest") {
 				for (i = 0, count = dpcolor.length; i < count; i++) {
-					this.Phaser.load.image(name + dpcolor[i] + '_cardboard', '../units/cardboards/' + name + ' ' + dpcolor[i] + '.png');
-					this.getImage('../units/avatars/' + name + ' ' + dpcolor[i] + '.jpg');
+					this.Phaser.load.image(name + dpcolor[i] + '_cardboard', getUrl('units/cardboards/' + name + ' ' + dpcolor[i]));
+					this.getImage(getUrl('units/avatars/' + name + ' ' + dpcolor[i]));
 				}
 			} else {
 				if (creature.drop) {
-					this.Phaser.load.image('drop_' + creature.drop.name, 'drops/' + creature.drop.name + '.png');
+					this.Phaser.load.image('drop_' + creature.drop.name, getUrl("drops/" + creature.drop.name));
 				}
 
-				this.Phaser.load.image(name + '_cardboard', '../units/cardboards/' + name + '.png');
-				this.getImage('../units/avatars/' + name + '.jpg');
+				this.Phaser.load.image(name + '_cardboard', getUrl('units/cardboards/' + name));
+				this.getImage(getUrl('units/avatars/' + name));
 			}
 
 			// For code compatibility
@@ -269,7 +249,7 @@ export class Game {
 		this.soundsys = new SoundSys({}, this);
 
 		for (i = 0; i < totalSoundEffects; i++) {
-			this.soundsys.getSound(this.soundEffects[i], this.availableMusic.length + i);
+			this.soundsys.getSound(getUrl(this.soundEffects[i]), this.availableMusic.length + i);
 		}
 
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
@@ -279,48 +259,50 @@ export class Game {
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image(
 				'p' + i + '_health',
-				'./interface/rectangle_' + playerColors[i] + '.png');
+				getUrl('interface/rectangle_' + playerColors[i]));
 			this.Phaser.load.image(
 				'p' + i + '_plasma',
-				'./interface/capsule_' + playerColors[i] + '.png');
+				getUrl('interface/capsule_' + playerColors[i]));
 			this.Phaser.load.image(
 				'p' + i + '_frozen',
-				'./interface/rectangle_frozen_' + playerColors[i] + '.png');
+				getUrl('interface/rectangle_frozen_' + playerColors[i]));
 		}
 
 		// Ability SFX
-		this.Phaser.load.audio('MagmaSpawn0', magmaSpawn0Sound);
+		this.Phaser.load.audio('MagmaSpawn0', getUrl("units/sfx/Magma Spawn 0"));
 
 		// Grid
-		this.Phaser.load.image('hex', hexPng);
-		this.Phaser.load.image('hex_dashed', hexDashedPng);
-		this.Phaser.load.image('hex_path', hexPathPng);
-		this.Phaser.load.image('cancel', cancelPng);
-		this.Phaser.load.image('input', hexInputPng);
+		this.Phaser.load.image('hex', getUrl("interface/hex"));
+		this.Phaser.load.image('hex_dashed', getUrl("interface/hex_dashed"));
+		this.Phaser.load.image('hex_path', getUrl("interface/hex_path"));
+		this.Phaser.load.image('cancel', getUrl("interface/cancel"));
+		this.Phaser.load.image('input', getUrl("interface/hex_input"));
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image(
 				'hex_p' + i,
-				'./interface/hex_glowing_' + playerColors[i] + '.png');
+				getUrl('interface/hex_glowing_' + playerColors[i])
+			);
 			this.Phaser.load.image(
 				'hex_hover_p' + i,
-				'./interface/hex_outline_' + playerColors[i] + '.png');
+				getUrl('interface/hex_outline_' + playerColors[i])
+			);
 		}
 
 		// Traps
 		// TODO: Load these sprites only after the specific unit has been materialized
-		this.Phaser.load.image('trap_royal-seal', gumblePng);
-		this.Phaser.load.image('trap_mud-bath', swinePng);
-		this.Phaser.load.image('trap_scorched-ground', magmaSpawnPng);
-		this.Phaser.load.image('trap_firewall', magmaSpawnPng);
-		this.Phaser.load.image('trap_poisonous-vine', impalerPng);
+		this.Phaser.load.image('trap_royal-seal', getUrl('units/sprites/Gumble - Royal Seal'));
+		this.Phaser.load.image('trap_mud-bath', getUrl("units/sprites/Swine Thug - Mud Bath"));
+		this.Phaser.load.image('trap_scorched-ground', getUrl("units/sprites/Magma Spawn - Scorched Ground"));
+		this.Phaser.load.image('trap_firewall', getUrl("units/sprites/Magma Spawn - Scorched Ground"));
+		this.Phaser.load.image('trap_poisonous-vine', getUrl("units/sprites/Impaler - Poisonous Vine"));
 
 		// Effects
-		this.Phaser.load.image('effects_fiery-touch', abolishedPng);
-		this.Phaser.load.image('effects_fissure-vent', magmaSpawnPng);
-		this.Phaser.load.image('effects_freezing-spit', snowBunnyPng);
+		this.Phaser.load.image('effects_fiery-touch', getUrl("units/sprites/Abolished - Fiery Touch"));
+		this.Phaser.load.image('effects_fissure-vent', getUrl("units/sprites/Magma Spawn - Scorched Ground"));
+		this.Phaser.load.image('effects_freezing-spit', getUrl("units/sprites/Snow Bunny - Freezing Spit"));
 
 		// Background
-		this.Phaser.load.image('background', "locations/" + this.background_image + "/bg.jpg");
+		this.Phaser.load.image('background', getUrl("locations/" + this.background_image + "/bg"));
 
 		// Get JSON files
 		this.dataLoaded(dataJson);
