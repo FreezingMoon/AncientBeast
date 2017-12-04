@@ -130,7 +130,7 @@ export class Creature {
 					(this.team === 2) ? "orange" : "green";
 
 		// Creature Container
-		this.grp = game.Phaser.add.group(G.grid.creatureGroup, "creatureGrp_" + this.id);
+		this.grp = game.Phaser.add.group(game.grid.creatureGroup, "creatureGrp_" + this.id);
 		this.grp.alpha = 0;
 		// Adding sprite
 		this.sprite = this.grp.create(0, 0, this.name + dp + '_cardboard');
@@ -157,7 +157,7 @@ export class Creature {
 			49,
 			"p" + this.team + '_health');
 		// Add text
-		this.healthIndicatorText = G.Phaser.add.text(
+		this.healthIndicatorText = game.Phaser.add.text(
 			this.player.flipped ? 45 : 45 + 90 * (this.size - 1),
 			63,
 			this.health, {
@@ -413,7 +413,7 @@ export class Creature {
 			noPath: false,
 			isAbility: false,
 			ownCreatureHexShade: true,
-			range: G.grid.getMovementRange(
+			range: game.grid.getMovementRange(
 				this.x, this.y, remainingMove, this.size, this.id),
 			callback: function (hex, args) {
 				if (hex.x == args.creature.x && hex.y == args.creature.y) {
@@ -775,8 +775,8 @@ export class Creature {
 	 *
 	 */
 	calcOffset(x, y) {
-		let offset = (G.players[this.team].flipped) ? this.size - 1 : 0,
-			mult = (G.players[this.team].flipped) ? 1 : -1, // For FLIPPED player
+		let offset = (game.players[this.team].flipped) ? this.size - 1 : 0,
+			mult = (game.players[this.team].flipped) ? 1 : -1, // For FLIPPED player
 			game = this.game;
 
 		for (let i = 0; i < this.size; i++) { // Try next hexagons to see if they fit

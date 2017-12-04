@@ -1,4 +1,5 @@
 import { Hex } from './hex';
+import { Creature } from '../creature';
 
 /* HexGrid Class
  *
@@ -99,7 +100,7 @@ export class HexGrid {
 
 		o = $j.extend(defaultOpt, o);
 
-		//o.fnOnConfirm(G.activeCreature,o.args); // Auto-confirm
+		//o.fnOnConfirm(game.activeCreature,o.args); // Auto-confirm
 
 		game.activeCreature.hint(o.confirmText, "confirm");
 
@@ -238,7 +239,7 @@ export class HexGrid {
 						let creaTarget = dir[j].creature;
 
 						if (creaTarget instanceof Creature && creaTarget.id !== o.id) {
-							let creaSource = G.creatures[o.id];
+							let creaSource = game.creatures[o.id];
 							if (isTeam(creaSource, creaTarget, o.team)) {
 								validChoice = true;
 								break;
@@ -322,7 +323,7 @@ export class HexGrid {
 				// Search each hex for a creature that matches the team argument
 				for (let j = 0, len = o.choices[i].length; j < len; j++) {
 					if (o.choices[i][j].creature instanceof Creature && o.choices[i][j].creature != o.id) {
-						let creaSource = G.creatures[o.id],
+						let creaSource = game.creatures[o.id],
 							creaTarget = o.choices[i][j].creature;
 
 						if (isTeam(creaSource, creaTarget, o.team)) {
@@ -1083,7 +1084,7 @@ export class HexGrid {
 				this.creatureGroup.addAt(this.materialize_overlay, index++);
 			}
 		};
-		// G.grid.creatureGroup.sort();
+		// game.grid.creatureGroup.sort();
 	}
 
 	//******************//
@@ -1149,7 +1150,7 @@ export class HexGrid {
 	/* previewCreature(creatureData)
 	 *
 	 * pos : 			Object : 	Coordinates {x,y}
-	 * creatureData : 	Object : 	Object containing info from the database (G.retreiveCreatureStats)
+	 * creatureData : 	Object : 	Object containing info from the database (game.retreiveCreatureStats)
 	 *
 	 * Draw a preview of the creature at the given coordinates
 	 */
