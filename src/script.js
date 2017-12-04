@@ -10,7 +10,6 @@ import Phaser from 'expose-loader?Phaser!phaser-ce/build/custom/phaser-split.js'
 import { Game } from './game';
 import { musicPlayer } from './sound/music';
 
-
 // Load the stylesheet
 import './style/main.less';
 
