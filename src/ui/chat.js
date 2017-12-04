@@ -1,4 +1,8 @@
-let Chat = class Chat {
+import * as $j from "jquery";
+import * as time from "../utility/time";
+import * as str from "../utility/string";
+
+export class Chat {
 	/* Constructor
 	 *
 	 * Chat/Log Functions

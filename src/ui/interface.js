@@ -1,7 +1,13 @@
-/* Class UI
+import * as $j from "jquery";
+import { Button } from "./button";
+import { Chat } from "./chat";
+import { ProgressBar } from "./progressbar";
+import * as time from "../utility/time";
+
+/** 
+ * Class UI
  *
  * Object containing UI DOM element, update functions and event managment on UI.
- *
  */
 export class UI {
 	/* Attributes
@@ -862,7 +868,7 @@ export class UI {
 	 */
 
 	toggleDash(randomize) {
-    		let game = this.game;
+		let game = this.game;
 
 		if (!this.$dash.hasClass("active")) {
 			if (randomize) {
@@ -1652,17 +1658,17 @@ export class UI {
 	}
 
 	bouncexrayQueue(creaID) {
-	    this.xrayQueue(creaID);
-		if ( creaID > 0 )
-			var $queueItem = this.$queue.find( '.vignette[creatureid="' + creaID + '"]:first' );
-			if ( $queueItem.length > 0 ) {
-                $queueItem.stop();
-                $queueItem.animate(
-                    { top: "+=30px" }, 200, "", function () {
-                        this.animate( { top: "-="+this.css("top") }, 100 );
-                    }.bind( $queueItem )
-                );
-			}
+		this.xrayQueue(creaID);
+		if (creaID > 0)
+			var $queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
+		if ($queueItem.length > 0) {
+			$queueItem.stop();
+			$queueItem.animate(
+				{ top: "+=30px" }, 200, "", function () {
+					this.animate({ top: "-=" + this.css("top") }, 100);
+				}.bind($queueItem)
+			);
+		}
 	}
 
 	updateFatigue() {

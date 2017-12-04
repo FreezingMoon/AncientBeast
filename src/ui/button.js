@@ -1,5 +1,8 @@
-var Button = class Button {
-	/*	Constructor
+import * as $j from "jquery";
+
+export class Button {
+	/**	
+	 * Constructor
 	 *
 	 *	Create attributes and default buttons
 	 *
@@ -8,9 +11,9 @@ var Button = class Button {
 		this.game = game;
 
 		let defaultOpts = {
-			click: function() {},
-			mouseover: function() {},
-			mouseleave: function() {},
+			click: function () { },
+			mouseover: function () { },
+			mouseleave: function () { },
 			clickable: true,
 			state: "normal", // disabled,normal,glowing,selected,active
 			$button: undefined,
@@ -45,7 +48,7 @@ var Button = class Button {
 				this.click();
 			});
 		}
-		
+
 		this.$button.bind("mouseover", () => {
 			if (game.freezedInput || !this.clickable) {
 				return;

@@ -6,6 +6,7 @@ import { HexGrid } from './utility/hexgrid';
 import { getUrl } from "./assetLoader";
 import { Player } from "./player";
 import { UI } from "./ui/interface";
+import { Creature } from "./creature";
 import dataJson from './assets/units/data.json';
 
 /* Game Class
