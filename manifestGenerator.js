@@ -101,7 +101,7 @@ function writeToString(tree, root = false) {
 
 readDirectory(path.join(__dirname, "src", "assets"))
     // Generate the javascript
-    .then(result => `module.exports = ${writeToString(result, true)}`)
+    .then(result => `export default ${writeToString(result, true)}`)
     // Format the javascript so it"s readable
     .then(prettier.format)
     // We only need to write one file so it doesnt matter that it"s sync
