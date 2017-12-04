@@ -1,9 +1,9 @@
-import { Ability } from "./abilities";
+import { Ability } from "./ability";
 
-/* Creature Class
+/** 
+ * Creature Class
  *
  * Creature contains all creatures properties and attacks
- *
  */
 export class Creature {
 	/* Attributes
