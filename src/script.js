@@ -13,12 +13,52 @@ import { musicPlayer } from './sound/music';
 // Load the stylesheet
 import './style/main.less';
 
+// Abilities
+import abolishedAbilitiesGenerator from "./abilities/Abolished";
+import chimeraAbilitiesGenerator from "./abilities/Chimera";
+import cyberHoundAbilitiesGenerator from "./abilities/Cyber-Hound";
+import darkPriestAbilitiesGenerator from "./abilities/Dark-Priest";
+import goldenWyrmAbilitiesGenerator from "./abilities/Golden-Wyrm";
+import gumbleAbilitiesGenerator from "./abilities/Gumble";
+import iceDemonAbilitiesGenerator from "./abilities/Ice-Demon";
+import impalerAbilitiesGenerator from "./abilities/Impaler";
+import lavaMolluskAbilitiesGenerator from "./abilities/Lava-Mollusk";
+import magmaSpawnAbilitiesGenerator from "./abilities/Magma-Spawn";
+import nightmareAbilitiesGenerator from "./abilities/Nightmare";
+import nutcaseAbilitiesGenerator from "./abilities/Nutcase";
+import scavengerAbilitiesGenerator from "./abilities/Scavenger";
+import snowBunnyAbilitiesGenerator from "./abilities/Snow-Bunny";
+import swineThugAbilitiesGenerator from "./abilities/Swine-Thug";
+import uncleFungusAbilitiesGenerator from "./abilities/Uncle-Fungus";
+
+
 // Export stuff that needs to be on the window object (Hack)
 window.$j = jquery;
 window.Phaser = Phaser;
 
-/** Initialize the game global variable */
-window.G = new Game("0.3");
+// Create the game
+const G = new Game("0.3");
+
+// Load the abilities
+const abilitiesGenerators = [
+	abolishedAbilitiesGenerator,
+	chimeraAbilitiesGenerator,
+	cyberHoundAbilitiesGenerator,
+	darkPriestAbilitiesGenerator,
+	goldenWyrmAbilitiesGenerator,
+	gumbleAbilitiesGenerator,
+	iceDemonAbilitiesGenerator,
+	impalerAbilitiesGenerator,
+	lavaMolluskAbilitiesGenerator,
+	magmaSpawnAbilitiesGenerator,
+	nightmareAbilitiesGenerator,
+	nutcaseAbilitiesGenerator,
+	scavengerAbilitiesGenerator,
+	snowBunnyAbilitiesGenerator,
+	swineThugAbilitiesGenerator,
+	uncleFungusAbilitiesGenerator,
+];
+abilitiesGenerators.forEach(generator => generator(G));
 
 $j(document).ready(() => {
 	$j(".typeRadio").buttonset();

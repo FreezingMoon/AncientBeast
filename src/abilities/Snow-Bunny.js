@@ -1,8 +1,11 @@
-/*
- *
- *	Snow Bunny abilities
- *
+import { Damage } from "../damage";
+import { Team } from "../utility/team";
+
+/**
+ * Creates the abilities
+ * @param {Object} G the game object 
  */
+export default (G) => {
 G.abilities[12] = [
 
 	// 	First Ability: Bunny Hop
@@ -348,3 +351,4 @@ G.abilities[12] = [
 	}
 
 ];
+};
