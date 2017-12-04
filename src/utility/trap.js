@@ -1,9 +1,12 @@
-/* Trap Class
+import * as $j from "jquery";
+
+/** 
+ * Trap Class
  *
  * Object containing hex informations, positions and DOM elements
  *
  */
-var Trap = class Trap {
+export class Trap {
 	/* Constructor(x,y)
 	 *
 	 * x : 			Integer : 	Hex coordinates

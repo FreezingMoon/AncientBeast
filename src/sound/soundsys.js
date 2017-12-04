@@ -43,7 +43,7 @@ export class SoundSys {
 	}
 
 	playMusic() {
-		musicPlayer.playRandom();
+		this.game.musicPlayer.playRandom();
 	}
 
 	getSound(url, id) {

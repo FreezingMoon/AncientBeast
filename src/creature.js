@@ -1,4 +1,5 @@
 import { Ability } from "./ability";
+import { search } from "./utility/pathfinding";
 
 /** 
  * Creature Class
@@ -757,7 +758,7 @@ export class Creature {
 	calculatePath(x, y) {
 		let game = this.game;
 
-		return astar.search(
+		return search(
 			game.grid.hexes[this.y][this.x],
 			game.grid.hexes[y][x],
 			this.size,

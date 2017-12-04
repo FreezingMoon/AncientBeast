@@ -2,6 +2,8 @@ import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
 import { SoundSys } from './sound/soundsys';
+import { MusicPlayer } from "./sound/musicplayer";
+import { Hex } from "./utility/hex";
 import { HexGrid } from './utility/hexgrid';
 import { getUrl } from "./assetLoader";
 import { Player } from "./player";
@@ -248,9 +250,10 @@ export class Game {
 		this.startLoading();
 
 		// Sounds
+		this.musicPlayer = new MusicPlayer();
 		this.soundLoaded = {};
 		this.soundsys = new SoundSys({}, this);
-
+		
 		for (i = 0; i < totalSoundEffects; i++) {
 			this.soundsys.getSound(getUrl(this.soundEffects[i]), this.availableMusic.length + i);
 		}

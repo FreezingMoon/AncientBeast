@@ -3,6 +3,8 @@ import { Button } from "./button";
 import { Chat } from "./chat";
 import { ProgressBar } from "./progressbar";
 import * as time from "../utility/time";
+import { Creature } from "../creature";
+import {getUrl} from "../assetLoader";
 
 /** 
  * Class UI
@@ -594,7 +596,7 @@ export class UI {
 
 		// Update player info
 		for (let i = game.players.length - 1; i >= 0; i--) {
-			$j("#dash .playertabs.p" + i + " .vignette").css("background-image", "url('" + game.players[i].avatar + "')");
+			$j("#dash .playertabs.p" + i + " .vignette").css("background-image", "url(" + game.players[i].avatar + "')");
 			$j("#dash .playertabs.p" + i + " .name").text(game.players[i].name);
 			$j("#dash .playertabs.p" + i + " .plasma").text("Plasma " + game.players[i].plasma);
 			$j("#dash .playertabs.p" + i + " .score").text("Score " + game.players[i].getScore().total);
@@ -625,7 +627,7 @@ export class UI {
 
 			// Card A
 			$j("#card .sideA").css({
-				"background-image": "url('../cards/margin.png'), url('../units/artwork/" + stats.name + ".jpg')"
+				"background-image": `url('${getUrl('cards/margin')}'), url('${getUrl("units/artwork/" + stats.name)})`
 			});
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
@@ -634,7 +636,7 @@ export class UI {
 
 			// Card B
 			$j("#card .sideB").css({
-				"background-image": "url('../cards/margin.png'), url('../cards/" + stats.type.substring(0, 1) + ".jpg')"
+				"background-image": `url('${getUrl("cards/margin")}'), url('${getUrl("cards/" + stats.type.substring(0, 1))}')`
 			});
 			$j.each(stats.stats, (key, value) => {
 				let $stat = $j("#card .sideB ." + key + " .value");
@@ -663,7 +665,7 @@ export class UI {
 			$j.each(game.abilities[stats.id], (key, value) => {
 				let $ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
 				$ability.children('.icon').css({
-					"background-image": "url('../units/abilities/" + stats.name + " " + key + ".svg')"
+					"background-image": `url('${getUrl("units/abilities/" + stats.name + " " + key)}')`
 				});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
@@ -736,7 +738,7 @@ export class UI {
 		} else {
 			// Card A
 			$j("#card .sideA").css({
-				"background-image": "url('../cards/margin.png'), url('../units/artwork/" + stats.name + ".jpg')"
+				"background-image": `url(${getUrl('cards/margin.png')}'), url(${getUrl("units/artwork/" + stats.name)})`
 			});
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
@@ -754,7 +756,7 @@ export class UI {
 			$j.each(stats.ability_info, (key, value) => {
 				let $ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
 				$ability.children('.icon').css({
-					"background-image": "url('../units/abilities/" + stats.name + " " + key + ".svg')"
+					"background-image": `url('${getUrl("../units/abilities/" + stats.name + " " + key)}')`
 				});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").html(stats.ability_info[key].desc);
@@ -1107,11 +1109,11 @@ export class UI {
 			this.abilitiesButtons.forEach((btn) => {
 				let ab = creature.abilities[btn.abilityId];
 				btn.css.normal = {
-					"background-image": "url('../units/abilities/" + creature.name + " " + btn.abilityId + ".svg')"
+					"background-image": `url(${getUrl("units/abilities/" + creature.name + " " + btn.abilityId)})`
 				};
 				let $desc = btn.$button.next(".desc");
 				$desc.find("span.title").text(ab.title);
-				$desc.find("p").html(ab.desc);
+				$desc.find("p").html(ab.desc); 
 
 				btn.click = () => {
 					if (this.selectedAbility != btn.abilityId) {

@@ -1,6 +1,7 @@
 // Import jquery related stuff
 import * as jquery from 'jquery';
 import 'jquery-ui';
+import 'jquery.transit';
 
 // Load phaser (https://github.com/photonstorm/phaser/issues/1974)
 import PIXI from 'expose-loader?PIXI!phaser-ce/build/custom/pixi.js';
@@ -8,7 +9,6 @@ import p2 from 'expose-loader?p2!phaser-ce/build/custom/p2.js';
 import Phaser from 'expose-loader?Phaser!phaser-ce/build/custom/phaser-split.js';
 
 import { Game } from './game';
-import { musicPlayer } from './sound/music';
 
 // Load the stylesheet
 import './style/main.less';
@@ -63,9 +63,6 @@ abilitiesGenerators.forEach(generator => generator(G));
 $j(document).ready(() => {
 	$j(".typeRadio").buttonset();
 	$j("#startButton").button();
-
-	// Start the musicplayer
-	musicPlayer.init();
 
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener("blur", G.onBlur.bind(G), false);

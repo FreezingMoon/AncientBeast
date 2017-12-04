@@ -1,4 +1,8 @@
-/* Hex Class
+import { Trap } from "./trap";
+import { Creature } from "../creature";
+
+/** 
+ * Hex Class
  *
  * Object containing hex informations, positions and DOM elements
  */

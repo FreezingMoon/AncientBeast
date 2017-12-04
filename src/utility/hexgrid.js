@@ -1,5 +1,6 @@
 import { Hex } from './hex';
 import { Creature } from '../creature';
+import { search } from "./pathfinding";
 
 /* HexGrid Class
  *
@@ -906,7 +907,7 @@ export class HexGrid {
 		//	destination to test all hexagons
 		this.cleanReachable(); // If not pathfinding will bug
 		this.cleanPathAttr(true); // Erase all pathfinding data
-		astar.search(this.hexes[y][x], new Hex(-2, -2, null, this.game), size, id);
+		search(this.hexes[y][x], new Hex(-2, -2, null, this.game), size, id);
 
 		// Gather all the reachable hexes
 		let hexes = [];

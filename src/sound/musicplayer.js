@@ -1,7 +1,7 @@
 import * as jQuery from 'jquery';
 
-export const musicPlayer = {
-	init: function() {
+export class MusicPlayer {
+	constructor() {
 		this.current = 0;
 		this.audio = jQuery('#audio')[0];
 		this.playlist = jQuery('#playlist');
@@ -31,9 +31,9 @@ export const musicPlayer = {
 				this.playNext();
 			}
 		});
-	},
+	}
 
-	playRandom: function() {
+	playRandom() {
 		let rand;
 		do {
 			rand = Math.floor(Math.random() * (this.tracks.length - 1));
@@ -42,9 +42,9 @@ export const musicPlayer = {
 		this.current = rand;
 		let link = this.playlist.find('a')[this.current];
 		this.run(jQuery(link));
-	},
+	}
 
-	playNext: function() {
+	playNext() {
 		this.current++;
 
 		if (this.current == this.tracks.length && this.repeat) {
@@ -53,9 +53,9 @@ export const musicPlayer = {
 
 		let link = this.playlist.find('a')[this.current];
 		this.run(jQuery(link));
-	},
+	}
 
-	run: function(link) {
+	run(link) {
 		// Style the active track in the playlist
 		let par = link.parent();
 
