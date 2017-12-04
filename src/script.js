@@ -18,8 +18,7 @@ window.$j = jquery;
 window.Phaser = Phaser;
 
 /** Initialize the game global variable */
-var G = new Game("0.3");
-/*****************************************/
+window.G = new Game("0.3");
 
 $j(document).ready(() => {
 	$j(".typeRadio").buttonset();

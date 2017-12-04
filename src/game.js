@@ -4,6 +4,8 @@ import { GameLog } from './utility/gamelog';
 import { SoundSys } from './sound/soundsys';
 import { HexGrid } from './utility/hexgrid';
 import { getUrl } from "./assetLoader";
+import { Player } from "./player";
+import { UI } from "./ui/interface";
 import dataJson from './assets/units/data.json';
 
 /* Game Class
@@ -196,7 +198,7 @@ export class Game {
 			// Load artwork
 			this.getImage(getUrl('units/artwork/' + name));
 
-			if (name == "Dark Priest") {
+			if (name == "`Dark Priest`") {
 				for (i = 0, count = dpcolor.length; i < count; i++) {
 					this.Phaser.load.image(name + dpcolor[i] + '_cardboard', getUrl('units/cardboards/' + name + ' ' + dpcolor[i]));
 					this.getImage(getUrl('units/avatars/' + name + ' ' + dpcolor[i]));

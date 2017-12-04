@@ -3,7 +3,7 @@
  * Class parsing function from creature abilities
  *
  */
-let Ability = class Ability {
+export class Ability {
 	constructor(creature, abilityID, game) {
 		this.creature = creature;
 		this.game = game;
@@ -227,7 +227,7 @@ let Ability = class Ability {
 	animation2(o) {
 		let game = this.game,
 			opt = $j.extend({
-				callback: function() {},
+				callback: function () { },
 				arg: {},
 			}, o),
 			args = opt.arg,
@@ -434,7 +434,7 @@ let Ability = class Ability {
 	atLeastOneTarget(hexes, o) {
 		let defaultOpt = {
 			team: Team.both,
-			optTest: function(creature) {
+			optTest: function (creature) {
 				return true;
 			}
 		};
@@ -569,7 +569,7 @@ let Ability = class Ability {
 		}
 
 		$j.each(this.costs, (key, value) => {
-			if (typeof(value) == "number") {
+			if (typeof (value) == "number") {
 				if (key == 'health') {
 					creature.hint(value, 'damage d' + value);
 					game.log("%CreatureName" + creature.id + "% loses " + value + " health");
@@ -666,7 +666,7 @@ let Ability = class Ability {
  *
  * TODO: This documentation needs to be updated with things that are determined dynamically like #melee and #counter
  */
-let Damage = class Damage {
+export class Damage {
 	/**
 	 * attacker : Creature : Unit that initiated the damage
 	 * damages : Object : Object containing the damage by type {frost : 5} for example

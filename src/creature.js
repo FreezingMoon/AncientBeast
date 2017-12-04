@@ -1,3 +1,5 @@
+import { Ability } from "./abilities";
+
 /* Creature Class
  *
  * Creature contains all creatures properties and attacks
@@ -124,8 +126,8 @@ export class Creature {
 
 		let dp = (this.type !== "--") ? "" :
 			(this.team === 0) ? "red" :
-			(this.team === 1) ? "blue" :
-			(this.team === 2) ? "orange" : "green";
+				(this.team === 1) ? "blue" :
+					(this.team === 2) ? "orange" : "green";
 
 		// Creature Container
 		this.grp = game.Phaser.add.group(G.grid.creatureGroup, "creatureGrp_" + this.id);
@@ -247,7 +249,7 @@ export class Creature {
 
 		let game = this.game;
 		let stats = this.stats;
-		let varReset = function() {
+		let varReset = function () {
 			this.game.onReset(this);
 			// Variables reset
 			this.updateAlteration();
@@ -413,7 +415,7 @@ export class Creature {
 			ownCreatureHexShade: true,
 			range: G.grid.getMovementRange(
 				this.x, this.y, remainingMove, this.size, this.id),
-			callback: function(hex, args) {
+			callback: function (hex, args) {
 				if (hex.x == args.creature.x && hex.y == args.creature.y) {
 					// Prevent null movement
 					game.activeCreature.queryMove();
@@ -431,7 +433,7 @@ export class Creature {
 				game.UI.btnDelay.changeState("disabled");
 				args.creature.moveTo(hex, {
 					animation: args.creature.movementType() === "flying" ? "fly" : "walk",
-					callback: function() {
+					callback: function () {
 						game.activeCreature.queryMove();
 					}
 				});
@@ -459,10 +461,10 @@ export class Creature {
 				this.x, this.y, remainingMove, this.size, this.id);
 		}
 
-		let selectNormal = function(hex, args) {
+		let selectNormal = function (hex, args) {
 			args.creature.tracePath(hex);
 		};
-		let selectFlying = function(hex, args) {
+		let selectFlying = function (hex, args) {
 			args.creature.tracePosition({
 				x: hex.x,
 				y: hex.y,
@@ -473,10 +475,10 @@ export class Creature {
 
 		if (this.noActionPossible) {
 			game.grid.querySelf({
-				fnOnConfirm: function() {
+				fnOnConfirm: function () {
 					game.UI.btnSkipTurn.click();
 				},
-				fnOnCancel: function() {},
+				fnOnCancel: function () { },
 				confirmText: "Skip turn"
 			});
 		} else {
@@ -490,7 +492,7 @@ export class Creature {
 				size: this.size,
 				flipped: this.player.flipped,
 				id: this.id,
-				hexes:  o.range,
+				hexes: o.range,
 				ownCreatureHexShade: o.ownCreatureHexShade
 			});
 		}
@@ -631,10 +633,10 @@ export class Creature {
 	moveTo(hex, opts) {
 		let game = this.game,
 			defaultOpt = {
-				callback: function() {
+				callback: function () {
 					return true;
 				},
-				callbackStepIn: function() {
+				callbackStepIn: function () {
 					return true;
 				},
 				animation: this.movementType() === "flying" ? "fly" : "walk",
@@ -733,9 +735,9 @@ export class Creature {
 
 		args = $j.extend(defaultArgs, args);
 
-        if (args.updateDisplayClean) {
-            this.game.grid.updateDisplay();
-        }
+		if (args.updateDisplayClean) {
+			this.game.grid.updateDisplay();
+		}
 
 		for (let i = 0; i < this.size; i++) {
 			let hex = this.game.grid.hexes[args.y][args.x - i];
@@ -823,109 +825,109 @@ export class Creature {
 
 			if (this.size == 1) {
 				c = [{
-						y: this.y,
-						x: this.x + 1
-					},
-					{
-						y: this.y - 1,
-						x: this.x + o
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 1 + o
-					},
-					{
-						y: this.y,
-						x: this.x - 1
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 1 + o
-					},
-					{
-						y: this.y + 1,
-						x: this.x + o
-					}
+					y: this.y,
+					x: this.x + 1
+				},
+				{
+					y: this.y - 1,
+					x: this.x + o
+				},
+				{
+					y: this.y - 1,
+					x: this.x - 1 + o
+				},
+				{
+					y: this.y,
+					x: this.x - 1
+				},
+				{
+					y: this.y + 1,
+					x: this.x - 1 + o
+				},
+				{
+					y: this.y + 1,
+					x: this.x + o
+				}
 				];
 			}
 
 			if (this.size == 2) {
 				c = [{
-						y: this.y,
-						x: this.x + 1
-					},
-					{
-						y: this.y - 1,
-						x: this.x + o
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 1 + o
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 2 + o
-					},
-					{
-						y: this.y,
-						x: this.x - 2
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 2 + o
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 1 + o
-					},
-					{
-						y: this.y + 1,
-						x: this.x + o
-					}
+					y: this.y,
+					x: this.x + 1
+				},
+				{
+					y: this.y - 1,
+					x: this.x + o
+				},
+				{
+					y: this.y - 1,
+					x: this.x - 1 + o
+				},
+				{
+					y: this.y - 1,
+					x: this.x - 2 + o
+				},
+				{
+					y: this.y,
+					x: this.x - 2
+				},
+				{
+					y: this.y + 1,
+					x: this.x - 2 + o
+				},
+				{
+					y: this.y + 1,
+					x: this.x - 1 + o
+				},
+				{
+					y: this.y + 1,
+					x: this.x + o
+				}
 				];
 			}
 
 			if (this.size == 3) {
 				c = [{
-						y: this.y,
-						x: this.x + 1
-					},
-					{
-						y: this.y - 1,
-						x: this.x + o
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 1 + o
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 2 + o
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 3 + o
-					},
-					{
-						y: this.y,
-						x: this.x - 3
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 3 + o
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 2 + o
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 1 + o
-					},
-					{
-						y: this.y + 1,
-						x: this.x + o
-					}
+					y: this.y,
+					x: this.x + 1
+				},
+				{
+					y: this.y - 1,
+					x: this.x + o
+				},
+				{
+					y: this.y - 1,
+					x: this.x - 1 + o
+				},
+				{
+					y: this.y - 1,
+					x: this.x - 2 + o
+				},
+				{
+					y: this.y - 1,
+					x: this.x - 3 + o
+				},
+				{
+					y: this.y,
+					x: this.x - 3
+				},
+				{
+					y: this.y + 1,
+					x: this.x - 3 + o
+				},
+				{
+					y: this.y + 1,
+					x: this.x - 2 + o
+				},
+				{
+					y: this.y + 1,
+					x: this.x - 1 + o
+				},
+				{
+					y: this.y + 1,
+					x: this.x + o
+				}
 				];
 			}
 
@@ -1298,7 +1300,7 @@ export class Creature {
 				grpHintElem.tweenAlpha = game.Phaser.add.tween(grpHintElem).to({
 					alpha: 0
 				}, tooltipSpeed, tooltipTransition).start();
-				grpHintElem.tweenAlpha.onComplete.add(function() {
+				grpHintElem.tweenAlpha.onComplete.add(function () {
 					this.destroy();
 				}, grpHintElem);
 			}
@@ -1327,7 +1329,7 @@ export class Creature {
 				.to({
 					alpha: 0
 				}, tooltipSpeed, tooltipTransition).start();
-			hint.tweenAlpha.onComplete.add(function() {
+			hint.tweenAlpha.onComplete.add(function () {
 				this.destroy();
 			}, hint);
 		}
@@ -1543,7 +1545,7 @@ export class Creature {
 				drops: []
 			};
 
-		let addToBuffObjs = function(obj) {
+		let addToBuffObjs = function (obj) {
 			if (obj instanceof Effect) {
 				buffObjs.effects.push(obj);
 			} else if (obj instanceof Drop) {

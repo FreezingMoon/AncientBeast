@@ -3,7 +3,7 @@
  * Object containing UI DOM element, update functions and event managment on UI.
  *
  */
-var UI = class UI {
+export class UI {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jquery element
