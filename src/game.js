@@ -253,7 +253,7 @@ export class Game {
 		this.musicPlayer = new MusicPlayer();
 		this.soundLoaded = {};
 		this.soundsys = new SoundSys({}, this);
-		
+
 		for (i = 0; i < totalSoundEffects; i++) {
 			this.soundsys.getSound(getUrl(this.soundEffects[i]), this.availableMusic.length + i);
 		}

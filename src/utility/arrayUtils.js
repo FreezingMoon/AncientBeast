@@ -1,4 +1,4 @@
-import {Creature} from "../creature";
+import { Creature } from "../creature";
 
 /* findPos(arr, obj)
  * Find an object in the current Array based on its pos attribute
