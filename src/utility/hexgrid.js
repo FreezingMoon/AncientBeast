@@ -910,7 +910,7 @@ export class HexGrid {
 		//	destination to test all hexagons
 		this.cleanReachable(); // If not pathfinding will bug
 		this.cleanPathAttr(true); // Erase all pathfinding data
-		search(this.hexes[y][x], new Hex(-2, -2, null, this.game), size, id);
+		search(this.hexes[y][x], new Hex(-2, -2, null, this.game), size, id, this.game.grid);
 
 		// Gather all the reachable hexes
 		let hexes = [];

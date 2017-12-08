@@ -766,7 +766,9 @@ export class Creature {
 			game.grid.hexes[this.y][this.x],
 			game.grid.hexes[y][x],
 			this.size,
-			this.id); // Calculate path
+			this.id,
+			this.game.grid
+		); // Calculate path
 	}
 
 	/* calcOffset(x,y)

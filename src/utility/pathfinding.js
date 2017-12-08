@@ -1,5 +1,7 @@
+import * as arrayUtils from "./arrayUtils";
+
 // Start and end must be Hex type
-export function search(start, end, creatureSize, creatureId) {
+export function search(start, end, creatureSize, creatureId, grid) {
 	var openList = [];
 	var closedList = [];
 	openList.push(start);
@@ -28,10 +30,9 @@ export function search(start, end, creatureSize, creatureId) {
 				ret.push(curr);
 				curr = curr.pathparent;
 			}
-			G.grid.cleanPathAttr(false);
+			grid.cleanPathAttr(false);
 			return ret.reverse();
 		}
-
 		// Normal case -- move currentNode from open to closed, process each of its neighbors
 		arrayUtils.removePos(openList, currentNode);
 		closedList.push(currentNode);
@@ -73,7 +74,7 @@ export function search(start, end, creatureSize, creatureId) {
 			}
 		}
 	}
-	G.grid.cleanPathAttr(false);
+	grid.cleanPathAttr(false);
 	// No result was found -- empty array signifies failure to find path
 	return [];
 }
