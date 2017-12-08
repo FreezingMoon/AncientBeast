@@ -1,5 +1,9 @@
 import { Ability } from "./ability";
 import { search } from "./utility/pathfinding";
+import { Hex } from "./utility/hex";
+import * as arrayUtils from "./utility/arrayUtils";
+import { Drop } from "./drops";
+import { Effect } from "./effect";
 
 /** 
  * Creature Class
@@ -934,8 +938,7 @@ export class Creature {
 
 			let total = c.length;
 			for (let i = 0; i < total; i++) {
-				x = c[i].x;
-				y = c[i].y;
+				const { x, y } = c[i];
 				if (game.grid.hexExists(y, x)) {
 					hexes.push(game.grid.hexes[y][x]);
 				}
@@ -1014,7 +1017,7 @@ export class Creature {
 				this.hint(amount, 'damage d ' + amount);
 			}
 
-			gamee.log("%CreatureName" + this.id + "% loses " + amount + " health");
+			game.log("%CreatureName" + this.id + "% loses " + amount + " health");
 		}
 
 		game.onHeal(this, amount);
