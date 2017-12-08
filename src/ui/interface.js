@@ -4,7 +4,7 @@ import { Chat } from "./chat";
 import { ProgressBar } from "./progressbar";
 import * as time from "../utility/time";
 import { Creature } from "../creature";
-import {getUrl} from "../assetLoader";
+import { getUrl } from "../assetLoader";
 
 /** 
  * Class UI
@@ -596,7 +596,7 @@ export class UI {
 
 		// Update player info
 		for (let i = game.players.length - 1; i >= 0; i--) {
-			$j("#dash .playertabs.p" + i + " .vignette").css("background-image", "url(" + game.players[i].avatar + "')");
+			$j("#dash .playertabs.p" + i + " .vignette").css("background-image", `url("${game.players[i].avatar}")`);
 			$j("#dash .playertabs.p" + i + " .name").text(game.players[i].name);
 			$j("#dash .playertabs.p" + i + " .plasma").text("Plasma " + game.players[i].plasma);
 			$j("#dash .playertabs.p" + i + " .score").text("Score " + game.players[i].getScore().total);
@@ -1109,11 +1109,11 @@ export class UI {
 			this.abilitiesButtons.forEach((btn) => {
 				let ab = creature.abilities[btn.abilityId];
 				btn.css.normal = {
-					"background-image": `url(${getUrl("units/abilities/" + creature.name + " " + btn.abilityId)})`
+					"background-image": `url('${getUrl("units/abilities/" + creature.name + " " + btn.abilityId)}')`
 				};
 				let $desc = btn.$button.next(".desc");
 				$desc.find("span.title").text(ab.title);
-				$desc.find("p").html(ab.desc); 
+				$desc.find("p").html(ab.desc);
 
 				btn.click = () => {
 					if (this.selectedAbility != btn.abilityId) {
@@ -1246,7 +1246,7 @@ export class UI {
 			ab.message = "";
 			let req = ab.require();
 			ab.message = (ab.used) ? game.msg.abilities.alreadyused : ab.message;
-			
+
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
 				let b = (this.selectedAbility == -1) ? 4 : this.selectedAbility; // Checking usable abilities
@@ -1259,7 +1259,7 @@ export class UI {
 					}
 				}
 			}
-			if(ab.message == game.msg.abilities.passivecycle){
+			if (ab.message == game.msg.abilities.passivecycle) {
 				this.abilitiesButtons[i].changeState("glowing");
 			}
 			else if ((req && !ab.used && ab.trigger == "onQuery")) {
