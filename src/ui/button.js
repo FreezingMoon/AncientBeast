@@ -12,7 +12,7 @@ var Button = class Button {
 			mouseover: function() {},
 			mouseleave: function() {},
 			clickable: true,
-			state: "normal", // disabled,normal,glowing,selected,active
+			state: "normal", // disabled, normal, glowing, selected, active
 			$button: undefined,
 			attributes: {},
 			css: {
