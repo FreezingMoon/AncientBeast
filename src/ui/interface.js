@@ -1312,12 +1312,12 @@ export class UI {
 			let atLeastOneBuff = false;
 
 			// Might not be needed
-			$j(card).find("." + stat + " .modifiers").html("");
+			$j("#card").find("." + stat + " .modifiers").html("");
 			// Effects
 			$j.each(buffDebuff.objs.effects, (key, value) => {
 				//let string = this.selectedCreatureObj.abilities[0].getFormattedDamages(value.alterations);
 				if (value.alterations[stat]) {
-					$j(card).find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
+					$j("#card").find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
 				}
 
 				atLeastOneBuff = true;
@@ -1326,14 +1326,14 @@ export class UI {
 			$j.each(buffDebuff.objs.drops, (key, value) => {
 				//let string = this.selectedCreatureObj.abilities[0].getFormattedDamages(value.alterations);
 				if (value.alterations[stat]) {
-					$j(card).find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
+					$j("#card").find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
 				}
 
 				atLeastOneBuff = true;
 			});
 
 			if (!atLeastOneBuff) {
-				$j(card).find("." + stat + " .modifiers").html('This stat doesn\'t have any modifiers');
+				$j("#card").find("." + stat + " .modifiers").html('This stat doesn\'t have any modifiers');
 			}
 		}
 	}
