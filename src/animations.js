@@ -1,3 +1,5 @@
+import * as arrayUtils from "./utility/arrayUtils";
+
 export class Animations {
 	constructor(game) {
 		this.game = game;
