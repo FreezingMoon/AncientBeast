@@ -196,7 +196,7 @@ export default (G) => {
 			_getHexes: function () {
 				// Target a creature within 2 hex radius
 				var hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(2);
-				return arrayUtils.extendToLeft(hexes, this.creature.size);
+				return arrayUtils.extendToLeft(hexes, this.creature.size, G.grid);
 			}
 		},
 

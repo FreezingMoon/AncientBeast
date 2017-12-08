@@ -274,7 +274,7 @@ export default (G) => {
 					return item.isWalkable(crea.size, 0, false);
 				});
 
-				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size);
+				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);
 
 				G.grid.queryHexes({
 					fnOnSelect: function () {

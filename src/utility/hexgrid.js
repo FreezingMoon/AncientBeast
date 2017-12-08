@@ -920,7 +920,7 @@ export class HexGrid {
 				hexes.push(this.hexes[hex.y][hex.x]);
 		});
 
-		return arrayUtils.extendToLeft(hexes, size);
+		return arrayUtils.extendToLeft(hexes, size, this.game.grid);
 	}
 
 	/* getFlyingRange(x,y,distance,size,id)
@@ -939,7 +939,7 @@ export class HexGrid {
 
 		hexes = hexes.filter((hex) => hex.isWalkable(size, id, true));
 
-		return arrayUtils.extendToLeft(hexes, size);
+		return arrayUtils.extendToLeft(hexes, size, this.game.grid);
 	}
 
 	/* getHexMap(originx, originy, array)

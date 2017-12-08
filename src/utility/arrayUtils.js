@@ -80,14 +80,14 @@ export function filterCreature(arr, includeCreature, stopOnCreature, id) {
  *
  * return: Array: The hex array with all corresponding hexes at the left
  */
-export function extendToLeft(arr, size) {
+export function extendToLeft(arr, size, grid) {
 	var ext = [];
 
 	for (var i = 0; i < arr.length; i++) {
 		for (var j = 0; j < size; j++) {
 			// NOTE : This code produce array with doubles.
-			if (G.grid.hexExists(arr[i].y, arr[i].x - j))
-				ext.push(G.grid.hexes[arr[i].y][arr[i].x - j]);
+			if (grid.hexExists(arr[i].y, arr[i].x - j))
+				ext.push(grid.hexes[arr[i].y][arr[i].x - j]);
 		}
 	}
 
@@ -100,14 +100,14 @@ export function extendToLeft(arr, size) {
  *
  * return: Array: The hex array with all corresponding hexes at the left
  */
-export function extendToRight(arr, size) {
+export function extendToRight(arr, size, grid) {
 	var ext = [];
 
 	for (var i = 0; i < arr.length; i++) {
 		for (var j = 0; j < size; j++) {
 			// NOTE : This code produces array with doubles.
-			if (G.grid.hexExists(arr[i].y, arr[i].x + j))
-				ext.push(G.grid.hexes[arr[i].y][arr[i].x + j]);
+			if (grid.hexExists(arr[i].y, arr[i].x + j))
+				ext.push(grid.hexes[arr[i].y][arr[i].x + j]);
 		}
 	}
 
