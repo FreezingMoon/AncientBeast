@@ -823,7 +823,7 @@ export class Game {
 					p.deactivate(); // Only if timepool is empty
 				}
 
-				G.skipTurn();
+				this.skipTurn();
 				return;
 			} else {
 				if ((p.totalTimePool - (date - p.startTime)) / 1000 < alertTime) {
@@ -962,7 +962,7 @@ export class Game {
 			let effect = effects[i];
 
 			if (effect.turnLifetime > 0 && trigger === effect.deleteTrigger &&
-				G.turn - effect.creationTurn >= effect.turnLifetime) {
+				this.turn - effect.creationTurn >= effect.turnLifetime) {
 				effect.deleteEffect();
 				// Updates UI in case effect changes it
 				if (effect.target) {
@@ -1016,7 +1016,7 @@ export class Game {
 			if (trap.turnLifetime > 0) {
 				if (this.turn - trap.creationTurn >= trap.turnLifetime) {
 					if (trap.fullTurnLifetime) {
-						if (trap.ownerCreature == G.activeCreature) {
+						if (trap.ownerCreature == this.activeCreature) {
 							trap.destroy();
 							i--;
 						}
@@ -1117,12 +1117,12 @@ export class Game {
 
 	findCreature(o) {
 		let ret = [],
-			o = $j.extend({
+			o2 = $j.extend({
 				team: -1, // No team
 				type: "--" // Dark Priest
 			}, o),
 			creatures = this.creatures,
-			totalCreeatures = creatures.length,
+			totalCreatures = creatures.length,
 			creature,
 			match,
 			wrongTeam,
@@ -1134,7 +1134,7 @@ export class Game {
 			if (creature instanceof Creature) {
 				match = true;
 
-				$j.each(o, function (key, val) {
+				$j.each(o2, function (key, val) {
 					if (key == "team") {
 						if (val == -1) {
 							return;
@@ -1319,7 +1319,7 @@ export class Game {
 		this.clearOncePerDamageChain();
 		switch (o.action) {
 			case "move":
-				this.activeCreature.moveTo(G.grid.hexes[o.target.y][o.target.x], {
+				this.activeCreature.moveTo(this.grid.hexes[o.target.y][o.target.x], {
 					callback: opt.callback
 				});
 				break;
