@@ -13,30 +13,15 @@ module.exports = {
                 test: /\.less$/,
                 use: [
                     'style-loader',
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            sourceMap: true
-                        }
-                    },
-                    {
-                        loader: 'less-loader',
-                        options: {
-                            sourceMap: true,
-                        }
-                    }
+                    'css-loader',
+                    'less-loader',
                 ]
             },
             {
                 test: /\.css$/,
                 use: [
                     'style-loader',
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            sourceMap: true
-                        }
-                    }
+                    'css-loader',
                 ]
             },
             {
@@ -49,13 +34,14 @@ module.exports = {
     },
     resolve: {
         alias: {
+            Assets: path.resolve(__dirname, 'assets/'),
             'jquery-ui': 'jquery-ui-dist/jquery-ui.js'
         }
     },
     plugins: [
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, 'src', 'index.html'),
-            favicon: path.resolve(__dirname, 'src', 'assets', 'favicon.ico')
+            favicon: path.resolve(__dirname, 'assets', 'favicon.ico')
         }),
     ],
     devtool: 'cheap-eval-sourcemap'
