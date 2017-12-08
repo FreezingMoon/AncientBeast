@@ -2,7 +2,7 @@ import { Hex } from './hex';
 import { Creature } from '../creature';
 import { search } from "./pathfinding";
 import * as matrices from './matrices';
-import {Team, isTeam} from "./team";
+import { Team, isTeam } from "./team";
 import * as arrayUtils from "./arrayUtils";
 
 /* HexGrid Class
@@ -296,7 +296,7 @@ export class HexGrid {
 				fnOnSelect: (choice, args) => {
 					choice.forEach((item) => {
 						if (item.creature instanceof Creature) {
-							item.overlayVisualState("creature selected player" + item.creature.team);
+							item.displayVisualState("creature selected player" + item.creature.team);
 						} else {
 							item.displayVisualState("adj");
 						}
@@ -383,7 +383,8 @@ export class HexGrid {
 			hexesDashed: o.hexesDashed,
 			flipped: o.flipped,
 			hideNonTarget: o.hideNonTarget,
-			id: o.id
+			id: o.id,
+			fillHexOnHover: false
 		});
 	}
 
@@ -404,8 +405,7 @@ export class HexGrid {
 				},
 				fnOnSelect: (creature, args) => {
 					creature.tracePosition({
-						overlayClass: "creature selected player" + creature.team,
-						updateDisplayClean: false
+						overlayClass: "creature selected player" + creature.team
 					});
 				},
 				fnOnCancel: (hex, args) => {
@@ -481,6 +481,7 @@ export class HexGrid {
 	 * fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
 	 * args : 			Object : 	Object given to the events function (to easily pass variable for these function)
 	 * hexes : 		Array : 	Reachable hexes
+	 * callbackAfterQueryHexes : 		Function : 	empty function to be overridden with custom logic to execute after queryHexes
 	 */
 	queryHexes(o) {
 		let game = this.game,
@@ -495,6 +496,9 @@ export class HexGrid {
 				fnOnCancel: (hex, args) => {
 					game.activeCreature.queryMove();
 				},
+				callbackAfterQueryHexes: () => {
+					// empty function to be overridden with custom logic to execute after queryHexes
+				},
 				args: {},
 				hexes: [],
 				hexesDashed: [],
@@ -503,6 +507,8 @@ export class HexGrid {
 				flipped: false,
 				hideNonTarget: false,
 				ownCreatureHexShade: false,
+				targeting: true,
+				fillHexOnHover: true,
 			};
 
 		o = $j.extend(defaultOpt, o);
@@ -559,7 +565,21 @@ export class HexGrid {
 			if (o.hideNonTarget) {
 				hex.unsetNotTarget();
 			}
+			if (o.targeting) {
+				if (hex.creature instanceof Creature) {
+					if (hex.creature.id != this.game.activeCreature.id) {
+						hex.overlayVisualState("hover h_player" + hex.creature.team);
+					}
+				}
+				else {
+					hex.overlayVisualState("hover h_player" + this.game.activeCreature.team);
+				}
+			}
 		});
+
+		if (o.callbackAfterQueryHexes) {
+			o.callbackAfterQueryHexes();
+		}
 
 		// ONCLICK
 		let onConfirmFn = (hex) => {
@@ -567,7 +587,6 @@ export class HexGrid {
 				x = hex.x;
 
 			// Clear display and overlay
-			this.updateDisplay();
 			$j("canvas").css("cursor", "pointer");
 
 			// Not reachable hex
@@ -632,14 +651,14 @@ export class HexGrid {
 			this.xray(hex);
 
 			// Clear display and overlay
-			this.updateDisplay();
 			game.UI.xrayQueue(-1);
 			$j("canvas").css("cursor", "pointer");
 
 			if (hex.creature instanceof Creature) { // If creature
 				onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex);
-			} else { // If nothing
-				hex.overlayVisualState("hover");
+			} else if (o.fillHexOnHover && hex.reachable) {
+				this.cleanHex(hex);
+				hex.displayVisualState("creature player" + this.game.activeCreature.team);
 			}
 
 			// Not reachable hex
@@ -647,6 +666,7 @@ export class HexGrid {
 				if (hex.materialize_overlay) {
 					hex.materialize_overlay.alpha = 0;
 				}
+				hex.overlayVisualState("hover");
 			} else { // Reachable hex
 				//Offset Pos
 				let offset = (o.flipped) ? o.size - 1 : 0,
@@ -692,13 +712,13 @@ export class HexGrid {
 					creature.displayHealthStats();
 				}
 			}
-			creature.hexagons.forEach((hex) => {
+			creature.hexagons.forEach((hex) => { // Flashing outline
 				hex.overlayVisualState("hover h_player" + creature.team);
 			});
 			if (creature !== game.activeCreature) {
 				if (!hex.reachable) {
 					$j("canvas").css("cursor", "n-resize");
-				} else {
+				} else { // Filled hex with color
 					hex.displayVisualState("creature player" + hex.creature.team);
 				}
 			}
@@ -830,6 +850,11 @@ export class HexGrid {
 		this.showCreaturehexes();
 	}
 
+	cleanHex(hex) {
+		hex.cleanDisplayVisualState();
+		hex.cleanOverlayVisualState();
+	}
+
 	/* updateDisplay()
 	 *
 	 * Update overlay hexes with creature positions
@@ -847,17 +872,6 @@ export class HexGrid {
 				}
 			});
 		});
-
-		// targeting for abilities
-		if (this.lastQueryOpt && this.lastQueryOpt.hexes) {
-			this.lastQueryOpt.hexes.forEach((hex) => {
-				if (hex.creature instanceof Creature) {
-					if (hex.creature.id != this.game.activeCreature.id) {
-						hex.overlayVisualState("hover h_player" + hex.creature.team);
-					}
-				}
-			});
-		}
 	}
 
 	/* hexExists(y, x)
@@ -1162,7 +1176,6 @@ export class HexGrid {
 		let game = this.game,
 			hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
 
-		this.updateDisplay(); // Retrace players creatures
 		if (!this.materialize_overlay) { // If sprite does not exists
 			// Adding sprite
 			this.materialize_overlay = this.creatureGroup.create(0, 0, creatureData.name + '_cardboard');
@@ -1188,7 +1201,9 @@ export class HexGrid {
 		}
 
 		for (let i = 0, size = creatureData.size; i < size; i++) {
-			this.hexes[pos.y][pos.x - i].overlayVisualState("creature selected player" + game.activeCreature.team);
+			let hexInstance = this.hexes[pos.y][pos.x - i];
+			this.cleanHex(hexInstance)
+			hexInstance.overlayVisualState("creature selected player" + game.activeCreature.team);
 		}
 	}
 

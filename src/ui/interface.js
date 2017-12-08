@@ -1246,19 +1246,10 @@ export class UI {
 			ab.message = "";
 			let req = ab.require();
 			ab.message = (ab.used) ? game.msg.abilities.alreadyused : ab.message;
-			if (req && !ab.used && ab.trigger == "onQuery") {
-				this.abilitiesButtons[i].changeState("glowing");
-				oneUsableAbility = true;
-			} else if (ab.message == game.msg.abilities.notarget || (ab.trigger != "onQuery" && req && !ab.used)) {
-				this.abilitiesButtons[i].changeState("noclick");
-			} else {
-				this.abilitiesButtons[i].changeState("disabled");
-			}
-
+			
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
 				let b = (this.selectedAbility == -1) ? 4 : this.selectedAbility; // Checking usable abilities
-
 				for (let j = (b - 1); j > 0; j--) {
 					if (game.activeCreature.abilities[j].require() && !game.activeCreature.abilities[j].used) {
 						ab.message = game.msg.abilities.passivecycle; // Message if there is any usable abilities
@@ -1268,6 +1259,19 @@ export class UI {
 					}
 				}
 			}
+			if(ab.message == game.msg.abilities.passivecycle){
+				this.abilitiesButtons[i].changeState("glowing");
+			}
+			else if ((req && !ab.used && ab.trigger == "onQuery")) {
+				this.abilitiesButtons[i].changeState("glowing");
+				oneUsableAbility = true;
+			}
+			else if (ab.message == game.msg.abilities.notarget || (ab.trigger != "onQuery" && req && !ab.used)) {
+				this.abilitiesButtons[i].changeState("noclick");
+			} else {
+				this.abilitiesButtons[i].changeState("disabled");
+			}
+
 
 			// Charge
 			this.abilitiesButtons[i].$button.next(".desc").find(".charge").remove();

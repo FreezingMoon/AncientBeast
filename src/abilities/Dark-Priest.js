@@ -1,7 +1,7 @@
 import { Damage } from "../damage";
 import { Team } from "../utility/team";
 import * as arrayUtils from "../utility/arrayUtils";
-import {Creature} from "../creature";
+import { Creature } from "../creature";
 
 /**
  * Creates the abilities
@@ -9,7 +9,6 @@ import {Creature} from "../creature";
  */
 export default (G) => {
 	G.abilities[0] = [
-
 		// 	First Ability: Plasma Field
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -240,7 +239,6 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 				var ability = this;
-				G.grid.updateDisplay(); // Retrace players creatures
 
 				if (this.isUpgraded()) this.summonRange = 6;
 

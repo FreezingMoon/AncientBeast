@@ -489,6 +489,7 @@ export default (G) => {
 
 				var trgIsInfront = (G.grid.getHexMap(crea.x - inlinefront2hex.origin[0], crea.y - inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == target);
 
+
 				var creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
 				crea.moveTo(
 					G.grid.hexes[target.y][creaX], {
@@ -496,7 +497,6 @@ export default (G) => {
 						ignoreMovementPoint: true,
 						callback: function () {
 							crea.updateHex();
-							G.grid.updateDisplay();
 							crea.queryMove();
 						}
 					}
@@ -508,13 +508,11 @@ export default (G) => {
 						ignoreMovementPoint: true,
 						callback: function () {
 							target.updateHex();
-							G.grid.updateDisplay();
 							target.takeDamage(damage);
 						}
 					}
 				);
 			},
 		}
-
 	];
 };

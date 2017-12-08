@@ -126,7 +126,7 @@ export class Game {
 				toomuch: "Too much %stat%.",
 				notenough: "Not enough %stat%.",
 				notmoveable: "This creature cannot be moved.",
-				passivecycle: "Switch between any usable abilities.",
+				passivecycle: "Switches between any usable abilities.",
 				passiveunavailable: "No usable abilities to switch to."
 			},
 			ui: {
