@@ -1,9 +1,4 @@
-//-----------------//
-// USEFUL MATRICES //
-//-----------------//
-var matrices = matrices || {};
-
-matrices.diagonalup = [
+export const diagonalup = [
     [0, 0, 0, 0, 1], // Origin line
     [0, 0, 0, 0, 1],
     [0, 0, 0, 1, 0],
@@ -15,9 +10,9 @@ matrices.diagonalup = [
     [1, 0, 0, 0, 0]
 ];
 
-matrices.diagonalup.origin = [4, 0];
+diagonalup.origin = [4, 0];
 
-matrices.diagonaldown = [
+export const diagonaldown = [
     [1, 0, 0, 0, 0], // Origin line
     [0, 1, 0, 0, 0],
     [0, 1, 0, 0, 0],
@@ -29,159 +24,159 @@ matrices.diagonaldown = [
     [0, 0, 0, 0, 1]
 ];
 
-matrices.diagonaldown.origin = [0, 0];
+diagonaldown.origin = [0, 0];
 
-matrices.straitrow = [
+export const straitrow = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]; // Origin line
-matrices.straitrow.origin = [0, 0];
+straitrow.origin = [0, 0];
 
 
-matrices.bellowrow = [
+export const bellowrow = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Origin line
     [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
 
-matrices.bellowrow.origin = [0, 0];
+bellowrow.origin = [0, 0];
 
-matrices.frontnback2hex = [
+export const frontnback2hex = [
     [0, 0, 0, 0],
     [0, 1, 0, 1],
     [1, 0, 0, 1], // Origin line
     [0, 1, 0, 1]
 ];
 
-matrices.frontnback2hex.origin = [2, 2];
+frontnback2hex.origin = [2, 2];
 
-matrices.frontnback3hex = [
+export const frontnback3hex = [
     [0, 0, 0, 0, 0],
     [0, 1, 0, 0, 1],
     [1, 0, 0, 0, 1], // Origin line
     [0, 1, 0, 0, 1]
 ];
 
-matrices.frontnback3hex.origin = [3, 2];
+frontnback3hex.origin = [3, 2];
 
-matrices.front2hex = [
+export const front2hex = [
     [0, 0, 0, 0],
     [0, 0, 0, 1],
     [0, 0, 0, 1], // Origin line
     [0, 0, 0, 1]
 ];
 
-matrices.front2hex.origin = [2, 2];
+front2hex.origin = [2, 2];
 
-matrices.back2hex = [
+export const back2hex = [
     [0, 0, 0, 0],
     [0, 1, 0, 0],
     [1, 0, 0, 0], // Origin line
     [0, 1, 0, 0]
 ];
 
-matrices.back2hex.origin = [2, 2];
+back2hex.origin = [2, 2];
 
-matrices.inlinefront2hex = [
+export const inlinefront2hex = [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 1], // Origin line
     [0, 0, 0, 0]
 ];
 
-matrices.inlinefront2hex.origin = [2, 2];
+inlinefront2hex.origin = [2, 2];
 
-matrices.inlineback2hex = [
+export const inlineback2hex = [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [1, 0, 0, 0], // Origin line
     [0, 0, 0, 0]
 ];
 
-matrices.inlineback2hex.origin = [2, 2];
+inlineback2hex.origin = [2, 2];
 
-matrices.inlinefrontnback2hex = [
+export const inlinefrontnback2hex = [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [1, 0, 0, 1], // Origin line
     [0, 0, 0, 0]
 ];
 
-matrices.inlinefrontnback2hex.origin = [2, 2];
+inlinefrontnback2hex.origin = [2, 2];
 
-matrices.front1hex = [
+export const front1hex = [
     [0, 0, 0],
     [0, 0, 1],
     [0, 0, 1], // Origin line
     [0, 0, 1]
 ];
 
-matrices.front1hex.origin = [1, 2];
+front1hex.origin = [1, 2];
 
-matrices.backtop1hex = [
+export const backtop1hex = [
     [0, 0, 0],
     [0, 1, 0],
     [0, 0, 0], // Origin line
     [0, 0, 0]
 ];
 
-matrices.backtop1hex.origin = [1, 2];
+backtop1hex.origin = [1, 2];
 
-matrices.inlineback1hex = [
+export const inlineback1hex = [
     [0, 0, 0],
     [0, 0, 0],
     [1, 0, 0], // Origin line
     [0, 0, 0]
 ];
 
-matrices.inlineback1hex.origin = [1, 2];
+inlineback1hex.origin = [1, 2];
 
-matrices.backbottom1hex = [
+export const backbottom1hex = [
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0], // Origin line
     [0, 1, 0]
 ];
 
-matrices.backbottom1hex.origin = [1, 2];
+backbottom1hex.origin = [1, 2];
 
-matrices.fronttop1hex = [
+export const fronttop1hex = [
     [0, 0, 0],
     [0, 0, 1],
     [0, 0, 0], // Origin line
     [0, 0, 0]
 ];
 
-matrices.fronttop1hex.origin = [1, 2];
+fronttop1hex.origin = [1, 2];
 
-matrices.inlinefront1hex = [
+export const inlinefront1hex = [
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 1], // Origin line
     [0, 0, 0]
 ];
 
-matrices.inlinefront1hex.origin = [1, 2];
+inlinefront1hex.origin = [1, 2];
 
-matrices.frontbottom1hex = [
+export const frontbottom1hex = [
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0], // Origin line
     [0, 0, 1]
 ];
 
-matrices.frontbottom1hex.origin = [1, 2];
+frontbottom1hex.origin = [1, 2];
 
 
-matrices.headlessBoomerang = [
+export const headlessBoomerang = [
     [0, 0, 0, 0, 0],
     [0, 1, 1, 1, 1],
     [0, 1, 1, 1, 1], //origin line
     [0, 1, 1, 1, 1]
 ];
 
-matrices.headlessBoomerang.origin = [0, 2];
+headlessBoomerang.origin = [0, 2];
 
 
-matrices.headlessBoomerangUpgraded = [
+export const headlessBoomerangUpgraded = [
     [0, 0, 0, 0, 0, 0],
     [0, 1, 1, 1, 1, 1],
     [0, 1, 1, 1, 1, 1], //origin line
@@ -189,4 +184,4 @@ matrices.headlessBoomerangUpgraded = [
 ];
 
 
-matrices.headlessBoomerangUpgraded.origin = [0, 2];
+headlessBoomerangUpgraded.origin = [0, 2];
