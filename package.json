@@ -44,8 +44,9 @@
 		"webpack": "^3.8.1"
 	},
 	"scripts": {
+		"build": "yarn run generateManifest && webpack",
+		"dev": "webpack --watch",
 		"lint": "eslint src/**/*.js",
-		"generateManifest": "node manifestGenerator.js",
-		"test": "echo 'Error: no test specified' && exit 1"
+		"generateManifest": "node manifestGenerator.js"
 	}
 }
