@@ -1,5 +1,4 @@
-// Arrayextensions re-imagined as a utility object.
-var arrayUtils = arrayUtils || {};
+import {Creature} from "../creature";
 
 /* findPos(arr, obj)
  * Find an object in the current Array based on its pos attribute
@@ -9,7 +8,7 @@ var arrayUtils = arrayUtils || {};
  *
  * return: Object: Object found in the array. False if nothing.
  */
-arrayUtils.findPos = function(arr, obj) {
+export function findPos(arr, obj) {
 	for (var i = 0; i < arr.length; i++) {
 		if (arr[i].pos == obj.pos) {
 			return arr[i];
@@ -27,7 +26,7 @@ arrayUtils.findPos = function(arr, obj) {
  *
  * return: Boolean: True if success. False if failed.
  */
-arrayUtils.removePos = function(arr, obj) {
+export function removePos(arr, obj) {
 	for (var i = 0; i < arr.length; i++) {
 		if (arr[i].pos == obj.pos) {
 			arr.splice(i, 1);
@@ -49,9 +48,8 @@ arrayUtils.removePos = function(arr, obj) {
  *
  * return: Array: filtered array
  */
-arrayUtils.filterCreature = function(arr, includeCreature, stopOnCreature, id) {
+export function filterCreature(arr, includeCreature, stopOnCreature, id) {
 	var creatureHexes = [];
-
 	for (var i = 0; i < arr.length; i++) {
 		if (arr[i].creature instanceof Creature) {
 			if (!includeCreature || arr[i].creature.id == id) {
@@ -82,7 +80,7 @@ arrayUtils.filterCreature = function(arr, includeCreature, stopOnCreature, id) {
  *
  * return: Array: The hex array with all corresponding hexes at the left
  */
-arrayUtils.extendToLeft = function(arr, size) {
+export function extendToLeft(arr, size) {
 	var ext = [];
 
 	for (var i = 0; i < arr.length; i++) {
@@ -102,7 +100,7 @@ arrayUtils.extendToLeft = function(arr, size) {
  *
  * return: Array: The hex array with all corresponding hexes at the left
  */
-arrayUtils.extendToRight = function(arr, size) {
+export function extendToRight(arr, size) {
 	var ext = [];
 
 	for (var i = 0; i < arr.length; i++) {
@@ -121,6 +119,6 @@ arrayUtils.extendToRight = function(arr, size) {
  * Return the last element of the array
  *
  */
-arrayUtils.last = function(arr) {
+export function last(arr) {
 	return arr[arr.length - 1];
 };
