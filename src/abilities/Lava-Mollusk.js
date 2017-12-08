@@ -1,5 +1,9 @@
 import { Damage } from "../damage";
 import { Team } from "../utility/team";
+import * as arrayUtils from "../utility/arrayUtils";
+import { Creature } from "../creature";
+import { Effect } from "../effect";
+import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
@@ -230,7 +234,7 @@ export default (G) => {
 				var ability = this;
 				var crea = this.creature;
 
-				inRangeCreatures = crea.hexagons[1].adjacentHex(4);;
+				var inRangeCreatures = crea.hexagons[1].adjacentHex(4);;
 
 				var range = crea.hexagons[1].adjacentHex(3);
 

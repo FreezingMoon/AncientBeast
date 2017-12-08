@@ -1,5 +1,8 @@
 import { Damage } from "../damage";
 import { Team } from "../utility/team";
+import * as matrices from "../utility/matrices";
+import * as arrayUtils from "../utility/arrayUtils";
+import { Effect } from "../effect";
 
 /**
  * Creates the abilities

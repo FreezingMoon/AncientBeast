@@ -1,5 +1,9 @@
 import { Damage } from "../damage";
 import { Team } from "../utility/team";
+import * as matrices from "../utility/matrices";
+import * as arrayUtils from "../utility/arrayUtils";
+import { Effect } from "../effect";
+import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
@@ -311,10 +315,10 @@ G.abilities[12] = [
 			ability.end();
 			var target = arrayUtils.last(path).creature;
 
-			projectileInstance = G.animations.projectile(this, target, 'effects_freezing-spit', path, args, 52, -20);
-			tween = projectileInstance[0];
-			sprite = projectileInstance[1];
-			dist = projectileInstance[2];
+			var projectileInstance = G.animations.projectile(this, target, 'effects_freezing-spit', path, args, 52, -20);
+			var tween = projectileInstance[0];
+			var sprite = projectileInstance[1];
+			var dist = projectileInstance[2];
 
 			tween.onComplete.add(function() {
 				this.destroy();

@@ -1,5 +1,10 @@
 import { Damage } from "../damage";
 import { Team } from "../utility/team";
+import * as matrices from "../utility/matrices";
+import * as arrayUtils from "../utility/arrayUtils";
+import { Creature } from "../creature";
+import { Effect } from "../effect";
+import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
@@ -165,7 +170,7 @@ export default (G) => {
 
 				// Upgraded Royal Seal can target up to 3 hexagons range
 				var range = this.isUpgraded() ? 3 : 1;
-				hexes = creature.hexagons.concat(G.grid.getFlyingRange(
+				var hexes = creature.hexagons.concat(G.grid.getFlyingRange(
 					creature.x, creature.y, range, creature.size, creature.id));
 
 				G.grid.queryHexes({

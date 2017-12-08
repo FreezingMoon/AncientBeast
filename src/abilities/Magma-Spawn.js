@@ -1,5 +1,9 @@
 import { Damage } from "../damage";
 import { Team } from "../utility/team";
+import * as matrices from "../utility/matrices";
+import * as arrayUtils from "../utility/arrayUtils";
+import { Effect } from "../effect";
+import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
@@ -25,7 +29,7 @@ export default (G) => {
 				this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
 
 				// SFX
-				music = G.Phaser.add.audio('MagmaSpawn0');
+				var music = G.Phaser.add.audio('MagmaSpawn0');
 				music.play();
 			},
 

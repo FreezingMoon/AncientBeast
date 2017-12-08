@@ -1,6 +1,9 @@
 import { Damage } from "../damage";
 import { Team } from "../utility/team";
-
+import * as matrices from "../utility/matrices";
+import * as arrayUtils from "../utility/arrayUtils";
+import { Effect } from "../effect";
+import { getDirectionFromDelta } from "../utility/position";
 /**
  * Creates the abilities
  * @param {Object} G the game object 
@@ -317,9 +320,6 @@ export default (G) => {
 				return this.timesUsedThisTurn === 1;
 			}
 		},
-
-
-
 		// Fourth Ability: Sabre Kick
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -376,7 +376,7 @@ export default (G) => {
 				if (this.isUpgraded() && !result.kill) {
 					var dx = target.x - this.creature.x;
 					var dy = target.y - this.creature.y;
-					var dir = pos.getDirectionFromDelta(target.y, dx, dy);
+					var dir = getDirectionFromDelta(target.y, dx, dy);
 					var hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
 					// The hex to knock back into is the second hex since the first is where
 					// they are currently

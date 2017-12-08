@@ -1,5 +1,10 @@
 import { Damage } from "../damage";
 import { Team } from "../utility/team";
+import * as matrices from "../utility/matrices";
+import * as arrayUtils from "../utility/arrayUtils";
+import { Creature } from "../creature";
+import { Effect } from "../effect";
+import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
@@ -217,17 +222,17 @@ export default (G) => {
 
 				var choices = [
 					//Front
-					arrayUtils.filterCreature(G.grid.getHexMap(crea.x + 2, crea.y - 2, 0, false, straitrow), true, true, crea.id, crea.team).concat(
-						arrayUtils.filterCreature(G.grid.getHexMap(crea.x + 1, crea.y - 2, 0, false, bellowrow), true, true, crea.id, crea.team),
-						arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow), true, true, crea.id, crea.team),
-						arrayUtils.filterCreature(G.grid.getHexMap(crea.x + 1, crea.y, 0, false, bellowrow), true, true, crea.id, crea.team),
-						arrayUtils.filterCreature(G.grid.getHexMap(crea.x + 2, crea.y + 2, 0, false, straitrow), true, true, crea.id, crea.team)),
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x + 2, crea.y - 2, 0, false, matrices.straitrow), true, true, crea.id, crea.team).concat(
+						arrayUtils.filterCreature(G.grid.getHexMap(crea.x + 1, crea.y - 2, 0, false, matrices.bellowrow), true, true, crea.id, crea.team),
+						arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y, 0, false, matrices.straitrow), true, true, crea.id, crea.team),
+						arrayUtils.filterCreature(G.grid.getHexMap(crea.x + 1, crea.y, 0, false, matrices.bellowrow), true, true, crea.id, crea.team),
+						arrayUtils.filterCreature(G.grid.getHexMap(crea.x + 2, crea.y + 2, 0, false, matrices.straitrow), true, true, crea.id, crea.team)),
 					//Behind
-					arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 2, crea.y - 2, 2, true, straitrow), true, true, crea.id, crea.team).concat(
-						arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 1, crea.y - 2, 2, true, bellowrow), true, true, crea.id, crea.team),
-						arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y, 2, true, straitrow), true, true, crea.id, crea.team),
-						arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 1, crea.y, 2, true, bellowrow), true, true, crea.id, crea.team),
-						arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 2, crea.y + 2, 2, true, straitrow), true, true, crea.id, crea.team))
+					arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 2, crea.y - 2, 2, true, matrices.straitrow), true, true, crea.id, crea.team).concat(
+						arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 1, crea.y - 2, 2, true, matrices.bellowrow), true, true, crea.id, crea.team),
+						arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y, 2, true, matrices.straitrow), true, true, crea.id, crea.team),
+						arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 1, crea.y, 2, true, matrices.bellowrow), true, true, crea.id, crea.team),
+						arrayUtils.filterCreature(G.grid.getHexMap(crea.x - 2, crea.y + 2, 2, true, matrices.straitrow), true, true, crea.id, crea.team))
 				];
 
 				G.grid.queryChoice({

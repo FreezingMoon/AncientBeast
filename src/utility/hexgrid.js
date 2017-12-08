@@ -1,6 +1,9 @@
 import { Hex } from './hex';
 import { Creature } from '../creature';
 import { search } from "./pathfinding";
+import * as matrices from './matrices';
+import {Team, isTeam} from "./team";
+import * as arrayUtils from "./arrayUtils";
 
 /* HexGrid Class
  *
