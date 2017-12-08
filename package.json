@@ -33,6 +33,7 @@
 	},
 	"devDependencies": {
 		"css-loader": "^0.28.7",
+		"eslint": "^4.12.1",
 		"expose-loader": "^0.7.4",
 		"extract-text-webpack-plugin": "^3.0.2",
 		"file-loader": "^1.1.5",
@@ -43,6 +44,7 @@
 		"webpack": "^3.8.1"
 	},
 	"scripts": {
+		"lint": "eslint src/**/*.js",
 		"generateManifest": "node manifestGenerator.js",
 		"test": "echo 'Error: no test specified' && exit 1"
 	}
