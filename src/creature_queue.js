@@ -1,3 +1,5 @@
+import * as arrayUtils from "./utility/arrayUtils";
+
 export class CreatureQueue {
 	constructor(game) {
 		this.game = game;
