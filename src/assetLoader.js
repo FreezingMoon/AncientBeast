@@ -10,7 +10,7 @@ export function getUrl(path) {
     }
 
     // Check if path is empty
-    if (path === []) {
+    if (path.length === 0) {
         throw new Error("Path cannot be empty");
     }
 
