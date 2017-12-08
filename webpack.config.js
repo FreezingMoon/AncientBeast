@@ -34,7 +34,7 @@ module.exports = {
     },
     resolve: {
         alias: {
-            Assets: path.resolve(__dirname, 'assets/'),
+            assets: path.resolve(__dirname, 'assets/'),
             'jquery-ui': 'jquery-ui-dist/jquery-ui.js'
         }
     },

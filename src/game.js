@@ -9,7 +9,7 @@ import { getUrl } from "./assetLoader";
 import { Player } from "./player";
 import { UI } from "./ui/interface";
 import { Creature } from "./creature";
-import dataJson from "Assets/units/data.json";
+import dataJson from "assets/units/data.json";
 
 /* Game Class
  *

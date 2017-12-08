@@ -78,7 +78,7 @@ const dirToString = (dirEntity) => `{id: "${dirEntity.name}", children:[${dirEnt
  * Convert an file entity to a string
  * @param {Object} fileEntity Entity to write to string
  */
-const fileToString = (fileEntity) => `{id: "${fileEntity.name}", url: require("Assets/${fileEntity.url}") }`;
+const fileToString = (fileEntity) => `{id: "${fileEntity.name}", url: require("assets/${fileEntity.url}") }`;
 
 /**
  * Convert a tree of entities to a string
