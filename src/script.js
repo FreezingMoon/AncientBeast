@@ -1,6 +1,7 @@
 // Import jquery related stuff
 import * as jquery from 'jquery';
-import 'jquery-ui';
+import 'jquery-ui/ui/widgets/button';
+import 'jquery-ui/ui/widgets/slider';
 import 'jquery.transit';
 
 // Load phaser (https://github.com/photonstorm/phaser/issues/1974)
