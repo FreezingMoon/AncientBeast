@@ -1,7 +1,5 @@
-var Drop = class Drop {
-
+export class Drop {
 	constructor(name, health, energy, x, y, game) {
-
 		this.name = name;
 		this.game = game;
 		this.id = game.dropId++;

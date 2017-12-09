@@ -1,9 +1,17 @@
-/* Class UI
+import * as $j from "jquery";
+import { Button } from "./button";
+import { Chat } from "./chat";
+import { ProgressBar } from "./progressbar";
+import * as time from "../utility/time";
+import { Creature } from "../creature";
+import { getUrl } from "../assetLoader";
+
+/** 
+ * Class UI
  *
  * Object containing UI DOM element, update functions and event managment on UI.
- *
  */
-var UI = class UI {
+export class UI {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jquery element
@@ -588,7 +596,7 @@ var UI = class UI {
 
 		// Update player info
 		for (let i = game.players.length - 1; i >= 0; i--) {
-			$j("#dash .playertabs.p" + i + " .vignette").css("background-image", "url('" + game.players[i].avatar + "')");
+			$j("#dash .playertabs.p" + i + " .vignette").css("background-image", `url("${game.players[i].avatar}")`);
 			$j("#dash .playertabs.p" + i + " .name").text(game.players[i].name);
 			$j("#dash .playertabs.p" + i + " .plasma").text("Plasma " + game.players[i].plasma);
 			$j("#dash .playertabs.p" + i + " .score").text("Score " + game.players[i].getScore().total);
@@ -619,7 +627,7 @@ var UI = class UI {
 
 			// Card A
 			$j("#card .sideA").css({
-				"background-image": "url('../cards/margin.png'), url('../units/artwork/" + stats.name + ".jpg')"
+				"background-image": `url('${getUrl('cards/margin')}'), url('${getUrl("units/artwork/" + stats.name)}')`
 			});
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
@@ -628,7 +636,7 @@ var UI = class UI {
 
 			// Card B
 			$j("#card .sideB").css({
-				"background-image": "url('../cards/margin.png'), url('../cards/" + stats.type.substring(0, 1) + ".jpg')"
+				"background-image": `url('${getUrl("cards/margin")}'), url('${getUrl("cards/" + stats.type.substring(0, 1))}')`
 			});
 			$j.each(stats.stats, (key, value) => {
 				let $stat = $j("#card .sideB ." + key + " .value");
@@ -657,7 +665,7 @@ var UI = class UI {
 			$j.each(game.abilities[stats.id], (key, value) => {
 				let $ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
 				$ability.children('.icon').css({
-					"background-image": "url('../units/abilities/" + stats.name + " " + key + ".svg')"
+					"background-image": `url('${getUrl("units/abilities/" + stats.name + " " + key)}')`
 				});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
@@ -730,7 +738,7 @@ var UI = class UI {
 		} else {
 			// Card A
 			$j("#card .sideA").css({
-				"background-image": "url('../cards/margin.png'), url('../units/artwork/" + stats.name + ".jpg')"
+				"background-image": `url(${getUrl('cards/margin.png')}'), url(${getUrl("units/artwork/" + stats.name)})`
 			});
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
@@ -748,7 +756,7 @@ var UI = class UI {
 			$j.each(stats.ability_info, (key, value) => {
 				let $ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
 				$ability.children('.icon').css({
-					"background-image": "url('../units/abilities/" + stats.name + " " + key + ".svg')"
+					"background-image": `url('${getUrl("units/abilities/" + stats.name + " " + key)}')`
 				});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").html(stats.ability_info[key].desc);
@@ -862,7 +870,7 @@ var UI = class UI {
 	 */
 
 	toggleDash(randomize) {
-    		let game = this.game;
+		let game = this.game;
 
 		if (!this.$dash.hasClass("active")) {
 			if (randomize) {
@@ -1101,7 +1109,7 @@ var UI = class UI {
 			this.abilitiesButtons.forEach((btn) => {
 				let ab = creature.abilities[btn.abilityId];
 				btn.css.normal = {
-					"background-image": "url('../units/abilities/" + creature.name + " " + btn.abilityId + ".svg')"
+					"background-image": `url('${getUrl("units/abilities/" + creature.name + " " + btn.abilityId)}')`
 				};
 				let $desc = btn.$button.next(".desc");
 				$desc.find("span.title").text(ab.title);
@@ -1238,7 +1246,7 @@ var UI = class UI {
 			ab.message = "";
 			let req = ab.require();
 			ab.message = (ab.used) ? game.msg.abilities.alreadyused : ab.message;
-			
+
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
 				let b = (this.selectedAbility == -1) ? 4 : this.selectedAbility; // Checking usable abilities
@@ -1251,7 +1259,7 @@ var UI = class UI {
 					}
 				}
 			}
-			if(ab.message == game.msg.abilities.passivecycle){
+			if (ab.message == game.msg.abilities.passivecycle) {
 				this.abilitiesButtons[i].changeState("glowing");
 			}
 			else if ((req && !ab.used && ab.trigger == "onQuery")) {
@@ -1308,12 +1316,12 @@ var UI = class UI {
 			let atLeastOneBuff = false;
 
 			// Might not be needed
-			$j(card).find("." + stat + " .modifiers").html("");
+			$j("#card").find("." + stat + " .modifiers").html("");
 			// Effects
 			$j.each(buffDebuff.objs.effects, (key, value) => {
 				//let string = this.selectedCreatureObj.abilities[0].getFormattedDamages(value.alterations);
 				if (value.alterations[stat]) {
-					$j(card).find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
+					$j("#card").find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
 				}
 
 				atLeastOneBuff = true;
@@ -1322,14 +1330,14 @@ var UI = class UI {
 			$j.each(buffDebuff.objs.drops, (key, value) => {
 				//let string = this.selectedCreatureObj.abilities[0].getFormattedDamages(value.alterations);
 				if (value.alterations[stat]) {
-					$j(card).find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
+					$j("#card").find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
 				}
 
 				atLeastOneBuff = true;
 			});
 
 			if (!atLeastOneBuff) {
-				$j(card).find("." + stat + " .modifiers").html('This stat doesn\'t have any modifiers');
+				$j("#card").find("." + stat + " .modifiers").html('This stat doesn\'t have any modifiers');
 			}
 		}
 	}
@@ -1656,17 +1664,17 @@ var UI = class UI {
 	}
 
 	bouncexrayQueue(creaID) {
-	    this.xrayQueue(creaID);
-		if ( creaID > 0 )
-			var $queueItem = this.$queue.find( '.vignette[creatureid="' + creaID + '"]:first' );
-			if ( $queueItem.length > 0 ) {
-                $queueItem.stop();
-                $queueItem.animate(
-                    { top: "+=30px" }, 200, "", function () {
-                        this.animate( { top: "-="+this.css("top") }, 100 );
-                    }.bind( $queueItem )
-                );
-			}
+		this.xrayQueue(creaID);
+		if (creaID > 0)
+			var $queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
+		if ($queueItem.length > 0) {
+			$queueItem.stop();
+			$queueItem.animate(
+				{ top: "+=30px" }, 200, "", function () {
+					this.animate({ top: "-=" + this.css("top") }, 100);
+				}.bind($queueItem)
+			);
+		}
 	}
 
 	updateFatigue() {

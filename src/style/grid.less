@@ -1,0 +1,139 @@
+#creaturegrid {
+	display: block;
+	height: 700px;
+	width: 700px;
+	margin: 0 auto;
+	line-height: 0;
+	background-image: url("~assets/interface/set.png");
+	background-size: 100%;
+	padding: 27px;
+	transform-origin: 0 0;
+	-ms-transform-origin: 0 0;
+	/* IE 9 */
+	-webkit-transform-origin: 0 0;
+	/* Safari and Chrome */
+	-moz-transform-origin: 0 0;
+	/* Firefox */
+	-o-transform-origin: 0 0;
+	/* Opera */
+}
+
+#creaturegrid .vignette,
+.vignette div.border,
+.vignette div.overlay {
+	height: 100px;
+	width: 100px;
+	background-size: 100% 100%;
+	position: relative;
+	display: inline-block;
+	overflow: hidden;
+}
+
+#creaturegrid .vignette div.overlay {
+	display: block;
+	position: absolute;
+	opacity: 0.75;
+	z-index: 1;
+}
+
+#creaturegrid .vignette div.border {
+	display: block;
+	position: absolute;
+	background-image: url("~assets/interface/frame_gothic.png");
+	z-index: 2;
+}
+
+#creaturegrid .vignette.active div.border,
+#creaturegrid .vignette:hover div.border {
+	background-image: url("~assets/interface/frame.png");
+}
+
+#creaturegrid .vignette.dead div.overlay {
+	background-image: url("~assets/icons/dead.svg");
+}
+
+#creaturegrid .vignette.notsummonable div.overlay {
+	background-image: url("~assets/icons/plasma.svg");
+}
+
+#creaturegrid .vignette.locked div.overlay {
+	background-image: url("~assets/icons/locked.svg");
+}
+
+#creaturegrid .vignette.queued div.overlay {
+	background-image: url("~assets/icons/queue.svg");
+	animation: pulse0106 750ms infinite alternate;
+	-webkit-animation: pulse0106 750ms infinite alternate;
+	-moz-animation: pulse0106 750ms infinite alternate;
+	-o-animation: pulse0106 750ms infinite alternate;
+}
+
+#creaturegrid .vignette .tooltip {
+	position: absolute;
+	z-index: 3;
+	bottom: 0;
+	transition: bottom 150ms;
+	-ms-transition: bottom 150ms;
+	-moz-transition: bottom 150ms;
+	/* Firefox 4 */
+	-webkit-transition: bottom 150ms;
+	/* Safari and Chrome */
+	-o-transition: bottom 150ms;
+	/* Opera */
+}
+
+#creaturegrid .vignette:hover .tooltip {
+	position: absolute;
+	bottom: 20px;
+	left: 0;
+	display: block;
+	z-index: 3;
+}
+
+#dash #creaturegrid .tooltip .content {
+	width: 100px;
+}
+
+#creaturegrid .tooltip .content {
+	position: absolute;
+	display: block;
+	width: 128px;
+	font-size: 85%;
+	text-align: center;
+	padding: 4px 2px;
+	box-sizing: border-box;
+	color: white;
+	background: rgba(0, 0, 0, 0.8);
+	line-height: 10px;
+	border: 1px solid #555;
+}
+
+#creaturegrid {
+	.realmA .content {
+		text-shadow: 0 0 5px gold;
+	}
+
+	.realmE .content {
+		text-shadow: 0 0 5px orange;
+	}
+
+	.realmG .content {
+		text-shadow: 0 0 5px green;
+	}
+
+	.realmL .content {
+		text-shadow: 0 0 5px red;
+	}
+
+	.realmP .content {
+		text-shadow: 0 0 5px violet;
+	}
+
+	.realmS .content {
+		text-shadow: 0 0 5px blue;
+	}
+
+	.realmW .content {
+		text-shadow: 0 0 5px indigo;
+	}
+}

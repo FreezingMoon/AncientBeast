@@ -1,7 +1,9 @@
+import { Creature } from "./creature";
+
 /*
  * Effect Class
  */
-var Effect = class Effect {
+export class Effect {
 	/* Constructor(name, owner, target, trigger, optArgs)
 	 *
 	 * name: name of the effect

@@ -1,4 +1,7 @@
-var GameLog = class GameLog {
+import * as jQuery from "jquery";
+import { isEmpty, getGameConfig } from "../script";
+
+export class GameLog {
 	constructor(id, game) {
 		this.game = game;
 		this.data = [];

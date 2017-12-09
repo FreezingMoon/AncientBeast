@@ -1,11 +1,11 @@
-var Team = Object.freeze({
+export const Team = Object.freeze({
 	enemy: 1,
 	ally: 2,
 	same: 3,
 	both: 4
 });
 
-function isTeam(creature1, creature2, team) {
+export function isTeam(creature1, creature2, team) {
 	switch (team) {
 		case Team.enemy:
 			return creature1.team % 2 !== creature2.team % 2;

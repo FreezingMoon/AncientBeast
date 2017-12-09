@@ -1,4 +1,6 @@
-let Animations = class Animations {
+import * as arrayUtils from "./utility/arrayUtils";
+
+export class Animations {
 	constructor(game) {
 		this.game = game;
 		this.movementPoints = 0;

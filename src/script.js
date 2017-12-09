@@ -1,6 +1,65 @@
-/** Initialize the game global variable */
-var G = new Game("0.3");
-/*****************************************/
+// Import jquery related stuff
+import * as jquery from 'jquery';
+import 'jquery-ui/ui/widgets/button';
+import 'jquery-ui/ui/widgets/slider';
+import 'jquery.transit';
+
+// Load phaser (https://github.com/photonstorm/phaser/issues/1974)
+import PIXI from 'expose-loader?PIXI!phaser-ce/build/custom/pixi.js';
+import p2 from 'expose-loader?p2!phaser-ce/build/custom/p2.js';
+import Phaser from 'expose-loader?Phaser!phaser-ce/build/custom/phaser-split.js';
+
+import { Game } from './game';
+
+// Load the stylesheet
+import './style/main.less';
+
+// Abilities
+import abolishedAbilitiesGenerator from "./abilities/Abolished";
+import chimeraAbilitiesGenerator from "./abilities/Chimera";
+import cyberHoundAbilitiesGenerator from "./abilities/Cyber-Hound";
+import darkPriestAbilitiesGenerator from "./abilities/Dark-Priest";
+import goldenWyrmAbilitiesGenerator from "./abilities/Golden-Wyrm";
+import gumbleAbilitiesGenerator from "./abilities/Gumble";
+import iceDemonAbilitiesGenerator from "./abilities/Ice-Demon";
+import impalerAbilitiesGenerator from "./abilities/Impaler";
+import lavaMolluskAbilitiesGenerator from "./abilities/Lava-Mollusk";
+import magmaSpawnAbilitiesGenerator from "./abilities/Magma-Spawn";
+import nightmareAbilitiesGenerator from "./abilities/Nightmare";
+import nutcaseAbilitiesGenerator from "./abilities/Nutcase";
+import scavengerAbilitiesGenerator from "./abilities/Scavenger";
+import snowBunnyAbilitiesGenerator from "./abilities/Snow-Bunny";
+import swineThugAbilitiesGenerator from "./abilities/Swine-Thug";
+import uncleFungusAbilitiesGenerator from "./abilities/Uncle-Fungus";
+
+
+// Export stuff that needs to be on the window object (Hack)
+window.$j = jquery;
+window.Phaser = Phaser;
+
+// Create the game
+const G = new Game("0.3");
+
+// Load the abilitreate any new language but...ies
+const abilitiesGenerators = [
+	abolishedAbilitiesGenerator,
+	chimeraAbilitiesGenerator,
+	cyberHoundAbilitiesGenerator,
+	darkPriestAbilitiesGenerator,
+	goldenWyrmAbilitiesGenerator,
+	gumbleAbilitiesGenerator,
+	iceDemonAbilitiesGenerator,
+	impalerAbilitiesGenerator,
+	lavaMolluskAbilitiesGenerator,
+	magmaSpawnAbilitiesGenerator,
+	nightmareAbilitiesGenerator,
+	nutcaseAbilitiesGenerator,
+	scavengerAbilitiesGenerator,
+	snowBunnyAbilitiesGenerator,
+	swineThugAbilitiesGenerator,
+	uncleFungusAbilitiesGenerator,
+];
+abilitiesGenerators.forEach(generator => generator(G));
 
 $j(document).ready(() => {
 	$j(".typeRadio").buttonset();
@@ -25,23 +84,23 @@ $j(document).ready(() => {
 	});
 });
 
-function getGameConfig() {
+export function getGameConfig() {
 	let defaultConfig = {
-			playerMode: $j('input[name="playerMode"]:checked').val() - 0,
-			creaLimitNbr: $j('input[name="activeUnits"]:checked').val() - 0, // DP counts as One
-			unitDrops: $j('input[name="unitDrops"]:checked').val() - 0,
-			abilityUpgrades: $j('input[name="abilityUpgrades"]:checked').val() - 0,
-			plasma_amount: $j('input[name="plasmaPoints"]:checked').val() - 0,
-			turnTimePool: $j('input[name="turnTime"]:checked').val() - 0,
-			timePool: $j('input[name="timePool"]:checked').val() * 60,
-			background_image: $j('input[name="combatLocation"]:checked').val(),
-		},
+		playerMode: $j('input[name="playerMode"]:checked').val() - 0,
+		creaLimitNbr: $j('input[name="activeUnits"]:checked').val() - 0, // DP counts as One
+		unitDrops: $j('input[name="unitDrops"]:checked').val() - 0,
+		abilityUpgrades: $j('input[name="abilityUpgrades"]:checked').val() - 0,
+		plasma_amount: $j('input[name="plasmaPoints"]:checked').val() - 0,
+		turnTimePool: $j('input[name="turnTime"]:checked').val() - 0,
+		timePool: $j('input[name="timePool"]:checked').val() * 60,
+		background_image: $j('input[name="combatLocation"]:checked').val(),
+	},
 		config = G.gamelog.gameConfig || defaultConfig;
 
 	return config;
 }
 
-function isEmpty(obj) {
+export function isEmpty(obj) {
 	for (var key in obj) {
 		if (obj.hasOwnProperty(key))
 			return false;

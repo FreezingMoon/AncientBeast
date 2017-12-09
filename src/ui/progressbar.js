@@ -1,4 +1,6 @@
-var ProgressBar = class ProgressBar {
+import * as $j from "jquery";
+
+export class ProgressBar {
 	constructor(opts, game) {
 		let defaultOpts = {
 			height: 318,

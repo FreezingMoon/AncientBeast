@@ -1,6 +1,3 @@
-var pos = pos || {};
-
-
 /**
  * Return a direction number given a delta x/y
  * Deltas in [-1, 1] should be used, but due to creature size, x can be greater
@@ -11,7 +8,7 @@ var pos = pos || {};
  * @param {number} dy - delta y, in range [-1, 1]
  * @return {number} the direction number
  */
-pos.getDirectionFromDelta = function(y, dx, dy) {
+export function getDirectionFromDelta(y, dx, dy) {
 	// Due to target size, this could be off; limit dx
 	if (dx > 1) dx = 1;
 	if (dx < -1) dx = -1;

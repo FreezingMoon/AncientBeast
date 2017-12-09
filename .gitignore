@@ -1,9 +1,7 @@
 ### Ancient Beast ###
-# generated/copied css files
-deploy/css
-
-# Deployable javascript (generated and copied from bower)
-deploy/scripts
+# generated files
+deploy/
+src/manifest.js
 
 # DS_STORE FILES
 .DS_Store
@@ -127,3 +125,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 /.vs
+
+# VSCode
+.vscode/

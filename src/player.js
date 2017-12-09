@@ -1,9 +1,11 @@
-/* Player Class
- *
+import { getUrl } from './assetLoader';
+import { Creature } from './creature';
+
+/** 
+ * Player Class
  * Player object with attributes
- *
  */
-var Player = class Player {
+export class Player {
 	constructor(id, game) {
 		/* Attributes
 		 *
@@ -17,12 +19,21 @@ var Player = class Player {
 		this.game = game;
 		this.creatures = [];
 		this.name = "Player" + (id + 1);
-		this.color =
-			(this.id === 0) ? "red" :
-			(this.id == 1) ? "blue" :
-			(this.id == 2) ? "orange" :
-			"green";
-		this.avatar = "../units/avatars/Dark Priest " + this.color + ".jpg";
+		switch (id) {
+			case 0:
+				this.color = "red";
+				break;
+			case 1:
+				this.color = "blue";
+				break;
+			case 2:
+				this.color = "orange";
+				break;
+			default:
+				this.color = "green";
+				break;
+		}
+		this.avatar = getUrl("units/avatars/Dark Priest " + this.color);
 		this.score = [];
 		this.plasma = game.plasma_amount;
 		this.flipped = !!(id % 2); // Convert odd/even to true/false

@@ -1,4 +1,6 @@
-var SoundSys = class SoundSys {
+import { BufferLoader } from "./bufferloader";
+
+export class SoundSys {
 	constructor(o, game) {
 		this.game = game;
 
@@ -41,7 +43,7 @@ var SoundSys = class SoundSys {
 	}
 
 	playMusic() {
-		musicPlayer.playRandom();
+		this.game.musicPlayer.playRandom();
 	}
 
 	getSound(url, id) {

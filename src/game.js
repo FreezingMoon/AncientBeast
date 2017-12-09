@@ -1,3 +1,16 @@
+import { Animations } from './animations';
+import { CreatureQueue } from './creature_queue';
+import { GameLog } from './utility/gamelog';
+import { SoundSys } from './sound/soundsys';
+import { MusicPlayer } from "./sound/musicplayer";
+import { Hex } from "./utility/hex";
+import { HexGrid } from './utility/hexgrid';
+import { getUrl } from "./assetLoader";
+import { Player } from "./player";
+import { UI } from "./ui/interface";
+import { Creature } from "./creature";
+import dataJson from "assets/units/data.json";
+
 /* Game Class
  *
  * Game contains all Game elements and functions.
@@ -8,7 +21,7 @@
  * to really start the game.
  */
 
-var Game = class Game {
+export class Game {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jQuery elements
@@ -44,7 +57,6 @@ var Game = class Game {
 		this.activeCreature = {
 			id: 0
 		};
-
 		this.preventSetup = true;
 		this.animations = new Animations(this);
 		this.turn = 0;
@@ -83,11 +95,11 @@ var Game = class Game {
 		];
 		this.availableMusic = [];
 		this.soundEffects = [
-			"step.ogg",
-			"swing.ogg",
-			"swing2.ogg",
-			"swing3.ogg",
-			"heartbeat.ogg",
+			"sounds/step",
+			"sounds/swing",
+			"sounds/swing2",
+			"sounds/swing3",
+			"sounds/heartbeat"
 		];
 		this.inputMethod = "Mouse";
 
@@ -184,23 +196,23 @@ var Game = class Game {
 				return;
 			}
 			// Load unit shouts
-			this.soundsys.getSound('../units/shouts/' + name + '.ogg', 1000 + creatureId);
+			this.soundsys.getSound(getUrl('units/shouts/' + name), 1000 + creatureId);
 
 			// Load artwork
-			this.getImage('../units/artwork/' + name + '.jpg');
+			this.getImage(getUrl('units/artwork/' + name));
 
 			if (name == "Dark Priest") {
 				for (i = 0, count = dpcolor.length; i < count; i++) {
-					this.Phaser.load.image(name + dpcolor[i] + '_cardboard', '../units/cardboards/' + name + ' ' + dpcolor[i] + '.png');
-					this.getImage('../units/avatars/' + name + ' ' + dpcolor[i] + '.jpg');
+					this.Phaser.load.image(name + dpcolor[i] + '_cardboard', getUrl('units/cardboards/' + name + ' ' + dpcolor[i]));
+					this.getImage(getUrl('units/avatars/' + name + ' ' + dpcolor[i]));
 				}
 			} else {
 				if (creature.drop) {
-					this.Phaser.load.image('drop_' + creature.drop.name, 'drops/' + creature.drop.name + '.png');
+					this.Phaser.load.image('drop_' + creature.drop.name, getUrl("drops/" + creature.drop.name));
 				}
 
-				this.Phaser.load.image(name + '_cardboard', '../units/cardboards/' + name + '.png');
-				this.getImage('../units/avatars/' + name + '.jpg');
+				this.Phaser.load.image(name + '_cardboard', getUrl('units/cardboards/' + name));
+				this.getImage(getUrl('units/avatars/' + name));
 			}
 
 			// For code compatibility
@@ -238,11 +250,12 @@ var Game = class Game {
 		this.startLoading();
 
 		// Sounds
+		this.musicPlayer = new MusicPlayer();
 		this.soundLoaded = {};
 		this.soundsys = new SoundSys({}, this);
 
 		for (i = 0; i < totalSoundEffects; i++) {
-			this.soundsys.getSound("./sounds/" + this.soundEffects[i], this.availableMusic.length + i);
+			this.soundsys.getSound(getUrl(this.soundEffects[i]), this.availableMusic.length + i);
 		}
 
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
@@ -252,51 +265,53 @@ var Game = class Game {
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image(
 				'p' + i + '_health',
-				'./interface/rectangle_' + playerColors[i] + '.png');
+				getUrl('interface/rectangle_' + playerColors[i]));
 			this.Phaser.load.image(
 				'p' + i + '_plasma',
-				'./interface/capsule_' + playerColors[i] + '.png');
+				getUrl('interface/capsule_' + playerColors[i]));
 			this.Phaser.load.image(
 				'p' + i + '_frozen',
-				'./interface/rectangle_frozen_' + playerColors[i] + '.png');
+				getUrl('interface/rectangle_frozen_' + playerColors[i]));
 		}
 
 		// Ability SFX
-		this.Phaser.load.audio('MagmaSpawn0', './units/sfx/Magma Spawn 0.ogg');
+		this.Phaser.load.audio('MagmaSpawn0', getUrl("units/sfx/Magma Spawn 0"));
 
 		// Grid
-		this.Phaser.load.image('hex', './interface/hex.png');
-		this.Phaser.load.image('hex_dashed', './interface/hex_dashed.png');
-		this.Phaser.load.image('hex_path', './interface/hex_path.png');
-		this.Phaser.load.image('cancel', './interface/cancel.png');
-		this.Phaser.load.image('input', './interface/hex_input.png');
+		this.Phaser.load.image('hex', getUrl("interface/hex"));
+		this.Phaser.load.image('hex_dashed', getUrl("interface/hex_dashed"));
+		this.Phaser.load.image('hex_path', getUrl("interface/hex_path"));
+		this.Phaser.load.image('cancel', getUrl("interface/cancel"));
+		this.Phaser.load.image('input', getUrl("interface/hex_input"));
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image(
 				'hex_p' + i,
-				'./interface/hex_glowing_' + playerColors[i] + '.png');
+				getUrl('interface/hex_glowing_' + playerColors[i])
+			);
 			this.Phaser.load.image(
 				'hex_hover_p' + i,
-				'./interface/hex_outline_' + playerColors[i] + '.png');
+				getUrl('interface/hex_outline_' + playerColors[i])
+			);
 		}
 
 		// Traps
 		// TODO: Load these sprites only after the specific unit has been materialized
-		this.Phaser.load.image('trap_royal-seal', './units/sprites/Gumble - Royal Seal.png');
-		this.Phaser.load.image('trap_mud-bath', './units/sprites/Swine Thug - Mud Bath.png');
-		this.Phaser.load.image('trap_scorched-ground', './units/sprites/Magma Spawn - Scorched Ground.png');
-		this.Phaser.load.image('trap_firewall', './units/sprites/Magma Spawn - Scorched Ground.png');
-		this.Phaser.load.image('trap_poisonous-vine', './units/sprites/Impaler - Poisonous Vine.png');
+		this.Phaser.load.image('trap_royal-seal', getUrl('units/sprites/Gumble - Royal Seal'));
+		this.Phaser.load.image('trap_mud-bath', getUrl("units/sprites/Swine Thug - Mud Bath"));
+		this.Phaser.load.image('trap_scorched-ground', getUrl("units/sprites/Magma Spawn - Scorched Ground"));
+		this.Phaser.load.image('trap_firewall', getUrl("units/sprites/Magma Spawn - Scorched Ground"));
+		this.Phaser.load.image('trap_poisonous-vine', getUrl("units/sprites/Impaler - Poisonous Vine"));
 
 		// Effects
-		this.Phaser.load.image('effects_fiery-touch', './units/sprites/Abolished - Fiery Touch.png');
-		this.Phaser.load.image('effects_fissure-vent', './units/sprites/Magma Spawn - Fissure Vent.png');
-		this.Phaser.load.image('effects_freezing-spit', './units/sprites/Snow Bunny - Freezing Spit.png');
+		this.Phaser.load.image('effects_fiery-touch', getUrl("units/sprites/Abolished - Fiery Touch"));
+		this.Phaser.load.image('effects_fissure-vent', getUrl("units/sprites/Magma Spawn - Scorched Ground"));
+		this.Phaser.load.image('effects_freezing-spit', getUrl("units/sprites/Snow Bunny - Freezing Spit"));
 
 		// Background
-		this.Phaser.load.image('background', "locations/" + this.background_image + "/bg.jpg");
+		this.Phaser.load.image('background', getUrl("locations/" + this.background_image + "/bg"));
 
 		// Get JSON files
-		$j.getJSON("../units/data.json", this.dataLoaded.bind(this));
+		this.dataLoaded(dataJson);
 	}
 
 	startLoading() {
@@ -686,7 +701,7 @@ var Game = class Game {
 		}
 
 		o = $j.extend({
-			callback: function() {},
+			callback: function () { },
 			noTooltip: false,
 			tooltip: 'Skipped'
 		}, o);
@@ -735,7 +750,7 @@ var Game = class Game {
 		}
 
 		o = $j.extend({
-			callback: function() {},
+			callback: function () { },
 		}, o);
 
 		this.turnThrottle = true;
@@ -808,7 +823,7 @@ var Game = class Game {
 					p.deactivate(); // Only if timepool is empty
 				}
 
-				G.skipTurn();
+				this.skipTurn();
 				return;
 			} else {
 				if ((p.totalTimePool - (date - p.startTime)) / 1000 < alertTime) {
@@ -947,7 +962,7 @@ var Game = class Game {
 			let effect = effects[i];
 
 			if (effect.turnLifetime > 0 && trigger === effect.deleteTrigger &&
-				G.turn - effect.creationTurn >= effect.turnLifetime) {
+				this.turn - effect.creationTurn >= effect.turnLifetime) {
 				effect.deleteEffect();
 				// Updates UI in case effect changes it
 				if (effect.target) {
@@ -1001,7 +1016,7 @@ var Game = class Game {
 			if (trap.turnLifetime > 0) {
 				if (this.turn - trap.creationTurn >= trap.turnLifetime) {
 					if (trap.fullTurnLifetime) {
-						if (trap.ownerCreature == G.activeCreature) {
+						if (trap.ownerCreature == this.activeCreature) {
 							trap.destroy();
 							i--;
 						}
@@ -1102,12 +1117,12 @@ var Game = class Game {
 
 	findCreature(o) {
 		let ret = [],
-			o = $j.extend({
+			o2 = $j.extend({
 				team: -1, // No team
 				type: "--" // Dark Priest
 			}, o),
 			creatures = this.creatures,
-			totalCreeatures = creatures.length,
+			totalCreatures = creatures.length,
 			creature,
 			match,
 			wrongTeam,
@@ -1119,7 +1134,7 @@ var Game = class Game {
 			if (creature instanceof Creature) {
 				match = true;
 
-				$j.each(o, function(key, val) {
+				$j.each(o2, function (key, val) {
 					if (key == "team") {
 						if (val == -1) {
 							return;
@@ -1254,7 +1269,7 @@ var Game = class Game {
 				.text(this.players[i].name);
 
 			// Change score
-			$j.each(this.players[i].getScore(), function(index, val) {
+			$j.each(this.players[i].getScore(), function (index, val) {
 				let text = (val === 0 && index !== "total") ? "--" : val;
 				$table.children("tr." + index).children("td:nth-child(" + colId + ")") // Weird expression swaps 2nd and 3rd player
 					.text(text);
@@ -1296,7 +1311,7 @@ var Game = class Game {
 	action(o, opt) {
 
 		let defaultOpt = {
-			callback: function() {},
+			callback: function () { },
 		};
 
 		opt = $j.extend(defaultOpt, opt);
@@ -1304,7 +1319,7 @@ var Game = class Game {
 		this.clearOncePerDamageChain();
 		switch (o.action) {
 			case "move":
-				this.activeCreature.moveTo(G.grid.hexes[o.target.y][o.target.x], {
+				this.activeCreature.moveTo(this.grid.hexes[o.target.y][o.target.x], {
 					callback: opt.callback
 				});
 				break;
@@ -1358,7 +1373,7 @@ var Game = class Game {
 	getImage(url) {
 		let img = new Image();
 		img.src = url;
-		img.onload = function() {
+		img.onload = function () {
 			// No-op
 		};
 	}

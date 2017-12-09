@@ -1,6 +1,3 @@
-var time = time || {};	
-    
-time.getTimer = function (number) {
-    return str.zfill(Math.floor(number / 60), 2) + ":" + str.zfill(number % 60, 2);
-}
-        
+import { zfill } from "./string";
+
+export const getTimer = (number) => zfill(Math.floor(number / 60), 2) + ":" + zfill(number % 60, 2);
