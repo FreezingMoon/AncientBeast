@@ -627,7 +627,7 @@ export class UI {
 
 			// Card A
 			$j("#card .sideA").css({
-				"background-image": `url('${getUrl('cards/margin')}'), url('${getUrl("units/artwork/" + stats.name)})`
+				"background-image": `url('${getUrl('cards/margin')}'), url('${getUrl("units/artwork/" + stats.name)}')`
 			});
 			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
@@ -756,7 +756,7 @@ export class UI {
 			$j.each(stats.ability_info, (key, value) => {
 				let $ability = $j("#card .sideB .abilities .ability:eq(" + key + ")");
 				$ability.children('.icon').css({
-					"background-image": `url('${getUrl("../units/abilities/" + stats.name + " " + key)}')`
+					"background-image": `url('${getUrl("units/abilities/" + stats.name + " " + key)}')`
 				});
 				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
 				$ability.children(".wrapper").children(".info").children("#desc").html(stats.ability_info[key].desc);
