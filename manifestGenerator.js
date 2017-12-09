@@ -8,7 +8,7 @@ const prettier = require("prettier");
 
 /**
  * Read the directory
-    entry: path.resolve(__dirname, 'src', 'script.js'),
+ * 
  * @param {string} dirPath the path of the directory 
  */
 async function readDirectory(dirPath) {
