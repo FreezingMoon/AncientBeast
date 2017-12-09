@@ -41,10 +41,13 @@
 		"less-loader": "^4.0.5",
 		"prettier": "^1.8.2",
 		"style-loader": "^0.19.0",
-		"webpack": "^3.8.1"
+		"uglifyjs-webpack-plugin": "^1.1.2",
+		"webpack": "^3.8.1",
+		"webpack-merge": "^4.1.1"
 	},
 	"scripts": {
-		"build": "yarn run generateManifest && webpack",
+		"build": "yarn run generateManifest && webpack --env.production",
+		"build:dev": "yarn run generateManifest && webpack",
 		"dev": "webpack --watch",
 		"lint": "eslint src/**/*.js",
 		"generateManifest": "node manifestGenerator.js"
