@@ -2,7 +2,7 @@
 	"name": "AncientBeast",
 	"description": ":wolf: Turn Based Strategy Game. Master your beasts!",
 	"scripts": {
-		"build": "yarn run generateManifest && webpack --env.production"
+		"postinstall": "yarn run generateManifest && webpack --env.production"
 	},
 	"env": {
 	},
