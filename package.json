@@ -49,6 +49,7 @@
 		"node": ">=8"
 	},
 	"scripts": {
+		"postinstall": "npm rebuild node-sass"
 		"build": "yarn run generateManifest && webpack --env.production",
 		"build:dev": "yarn run generateManifest && webpack",
 		"dev": "webpack --watch",
