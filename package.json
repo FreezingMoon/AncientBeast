@@ -52,7 +52,8 @@
 		"build": "yarn run generateManifest && webpack --env.production",
 		"build:dev": "yarn run generateManifest && webpack",
 		"dev": "webpack --watch",
+		"generateManifest": "node manifestGenerator.js",
 		"lint": "eslint src/**/*.js",
-		"generateManifest": "node manifestGenerator.js"
+		"postinstall": "yarn run build"
 	}
 }
