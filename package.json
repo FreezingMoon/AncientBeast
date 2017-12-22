@@ -49,7 +49,7 @@
 		"node": ">=8"
 	},
 	"scripts": {
-		"start": "node server.js"
+		"start": "node server.js",
 		"postinstall": "npm rebuild node-sass",
 		"build": "yarn run generateManifest && webpack --env.production",
 		"build:dev": "yarn run generateManifest && webpack",
