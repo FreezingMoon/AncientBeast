@@ -49,6 +49,7 @@
 		"node": ">=8"
 	},
 	"scripts": {
+		"start": "node server.js",
 		"postinstall": "webpack -p --config ./webpack.prod.config.js --progress",
 		"build": "yarn run generateManifest && webpack --env.production",
 		"build:dev": "yarn run generateManifest && webpack",
