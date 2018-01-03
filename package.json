@@ -50,7 +50,7 @@
 	},
 	"scripts": {
 		"start": "node server.js",
-		"postinstall": "webpack -p --config ./webpack.prod.config.js --progress",
+		"postinstall": "webpack -p --config ./webpack.config.js --progress",
 		"build": "yarn run generateManifest && webpack --env.production",
 		"build:dev": "yarn run generateManifest && webpack",
 		"dev": "webpack --watch",
