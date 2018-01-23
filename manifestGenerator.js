@@ -103,6 +103,8 @@ function writeToString(tree, root = false) {
 readDirectory(path.join(__dirname, "assets"))
     // Generate the javascript
     .then(result => `export default ${writeToString(result, true)}`)
+    // Add path fix for windows
+    .then(result => result.replace(/\\/g,'\\\\'))
     // Format the javascript so it"s readable
     .then(prettier.format)
     // We only need to write one file so it doesnt matter that it"s sync
