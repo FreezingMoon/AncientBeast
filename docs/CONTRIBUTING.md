@@ -6,48 +6,43 @@ It's very easy to set-up a local server in order to test and contribute to the d
 It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, named [Phaser](http://phaser.io).
 
 ### Recommended Tool
-If you're not very keen on using git from the CLI, I recomment using [Git Cola](https://git-cola.github.io) for cloning the project and creating patches.
+If you're not very keen on using git from the CLI, I highly recommend using [Visual Studio Code](https://code.visualstudio.com/download),  for cloning the project and creating patches. [VSC](https://code.visualstudio.com/download) is free open source and cross platform, integrates nicely with git and has useful extensions.
 
 ### Fork Project
 You can create a clone of the project by using git from CLI or with the use of a tool, like the one recommended above.
 ```
 https://github.com/FreezingMoon/AncientBeast.git
 ```
+In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P` hotkey and search for `Git: Clone`, you will get a field where you can simply input the link above.
 
 ---
 
 ### Package Requirements
-First Install [NodeJS](http://nodejs.org). Linux users: if you installed from repository, you might need to create a path link.
+First install (or make sure you have) the latest LTS version of  [Node.js](http://nodejs.org). Linux users: if you installed from repository, you *might* need to create a path link.
 
-### Grunt Setup
-After you've successfully installed the Node.js package, open up a terminal and use the next command:
-
-```
-npm install -g grunt-cli
-npm install -g bower
-```
+### Yarn Setup
+After you've successfully installed the Node.js package, proceed with installing the latest version of [Yarn](https://yarnpkg.com/en/docs/install), which is our tool of choice for package dependency management.
 
 ### Installing Dependencies
-Still in the terminal, use the following command in order to easily install all project dependencies:
+In the terminal (`Ctrl + ~` in [VCS](https://code.visualstudio.com/download)), use the following command in order to easily install all the project dependencies:
 
 ```
-npm install
+yarn build:dev
 ```
 
-This will read `package.json` and install all of the gameplay established npm package dependencies.<br>
-The *npm install* command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, it is good practice to check both npm and bower dependencies before continuing to work again.<br>
+This will read `package.json` and install all of the gameplay established yarn package dependencies.<br>
+The *yarn build:dev* command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again.<br>
 
-If you're using Windows operating system and getting errors, try to `Run as administrator` or to disable your anti-virus.
+If you're using Windows operating system and getting errors, have your desired tool `Run as administrator` or to disable your anti-virus.
 
 ### Betatest Game
 
 To have the game properly set-up and opened in the default browser, simply run this terminal command:
 
 ```
-grunt
+yarn start
 ```
 You should only use <a href="https://www.google.com/chrome/"><b>Google Chrome</b></a> or <a href="https://www.chromium.org"><b>Chromium</b></a>, as other browsers don't quite cut it. White testing you can right click the game tab and mute it.
-Grunt will work in the background so that when you change any game scripts, the re-compile will occur.
 
 ---
 
