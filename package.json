@@ -46,9 +46,12 @@
 		"webpack-merge": "^4.1.1"
 	},
 	"engines": {
-		"node": ">=8"
+		"node": "9.3.0",
+		"npm": "5.5.1"
 	},
 	"scripts": {
+		"start": "node server.js",
+		"postinstall": "webpack -p --config ./webpack.config.js --progress",
 		"build": "yarn run generateManifest && webpack --env.production",
 		"build:dev": "yarn run generateManifest && webpack",
 		"dev": "webpack --watch",
