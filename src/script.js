@@ -40,7 +40,7 @@ window.Phaser = Phaser;
 // Create the game
 const G = new Game("0.3");
 
-// Load the abilitreate any new language but...ies
+// Load the abilities
 const abilitiesGenerators = [
 	abolishedAbilitiesGenerator,
 	chimeraAbilitiesGenerator,
