@@ -6,7 +6,7 @@ import * as time from "../utility/time";
 import { Creature } from "../creature";
 import { getUrl } from "../assetLoader";
 
-/** 
+/**
  * Class UI
  *
  * Object containing UI DOM element, update functions and event managment on UI.
@@ -415,6 +415,19 @@ export class UI {
 				},
 			}
 		}, game);
+
+		this.$dash.find('.section.numbers .stat').bind('mouseover', (event) => {
+			let $section = $j(event.target).closest('.section');
+			let which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
+			$j(which).addClass('shown');
+		});
+
+		this.$dash.find('.section.numbers .stat').bind('mouseleave', (event) => {
+			let $section = $j(event.target).closest('.section');
+			let which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
+			debugger;
+			$j(which).removeClass('shown');
+		});
 
 		this.$dash.children("#playertabswrapper").addClass("numplayer" + game.playerMode);
 
@@ -1261,12 +1274,10 @@ export class UI {
 			}
 			if (ab.message == game.msg.abilities.passivecycle) {
 				this.abilitiesButtons[i].changeState("glowing");
-			}
-			else if ((req && !ab.used && ab.trigger == "onQuery")) {
+			} else if ((req && !ab.used && ab.trigger == "onQuery")) {
 				this.abilitiesButtons[i].changeState("glowing");
 				oneUsableAbility = true;
-			}
-			else if (ab.message == game.msg.abilities.notarget || (ab.trigger != "onQuery" && req && !ab.used)) {
+			} else if (ab.message == game.msg.abilities.notarget || (ab.trigger != "onQuery" && req && !ab.used)) {
 				this.abilitiesButtons[i].changeState("noclick");
 			} else {
 				this.abilitiesButtons[i].changeState("disabled");
@@ -1669,11 +1680,13 @@ export class UI {
 			var $queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
 		if ($queueItem.length > 0) {
 			$queueItem.stop();
-			$queueItem.animate(
-				{ top: "+=30px" }, 200, "", function () {
-					this.animate({ top: "-=" + this.css("top") }, 100);
-				}.bind($queueItem)
-			);
+			$queueItem.animate({
+				top: "+=30px"
+			}, 200, "", function() {
+				this.animate({
+					top: "-=" + this.css("top")
+				}, 100);
+			}.bind($queueItem));
 		}
 	}
 

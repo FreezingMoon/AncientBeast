@@ -479,20 +479,24 @@ body {
 .alert {
 	color: red;
 }
-
 // Card anchor refactor
+
 div.section.info {
 	position: relative;
+
 	span.creature-meta {
 		position: absolute;
 		top: 50%;
 		transform: translateY(-50%);
 		font-size: 21px;
+
 		&.type {
 			left: 22px;
 		}
+
 		&.hexes {
 			right: 22px;
+
 			span {
 				font-size: 18px;
 				position: relative;
@@ -500,6 +504,7 @@ div.section.info {
 				padding-left: 5px;
 			}
 		}
+
 		a.name {
 			left: 50%;
 			transform: translate(-50%, -50%);
@@ -1452,7 +1457,7 @@ a {
 
 #startButton {
 	background: transparent;
-	background-image: url('~assets/interface/small_button.png');
+	background-image: url("~assets/interface/small_button.png");
 	background-size: 190px;
 	border: 0;
 	width: 190px;
@@ -1683,4 +1688,9 @@ a {
 	display: inline-block;
 	margin: 0 10px;
 	width: 300px;
+}
+
+.shown {
+	display: block !important;
+	z-index: 10;
 }
