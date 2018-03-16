@@ -1,10 +1,10 @@
 import * as $j from "jquery";
-import Button from "./button";
-import Chat from "./chat";
-import ProgressBar from "./progressbar";
+import { Button } from "./button";
+import { Chat } from "./chat";
+import { ProgressBar } from "./progressbar";
 import * as time from "../utility/time";
-import Creature from "../creature";
-import getUrl from "../assetLoader";
+import { Creature } from "../creature";
+import { getUrl } from "../assetLoader";
 
 /**
  * Class UI
