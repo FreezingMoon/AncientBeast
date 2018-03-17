@@ -59,12 +59,16 @@ In order to open up Google Chrome browser's console, you can simply press `Ctrl 
 
 ### Patch Game
 The main coding language used is Javascript, feel free to create patches and propose them by making a Pull Request.
-You should look around on GitHub Issue tracker for open issues, priority being the ones that are assigned to the next [milestone](https://github.com/FreezingMoon/AncientBeast/milestones) and are tagged "[Priority](https://github.com/FreezingMoon/AncientBeast/labels/Priority)", while also lacking the "[Brainstorm](https://github.com/FreezingMoon/AncientBeast/labels/Brainstorm)" tag. You can ping [DreadKnight](https://github.com/DreadKnight) in the [Discord server](https://discord.gg/x78rKen) in order to be assigned to something specific, otherwise you can comment on a specific issue in order to receive the green light for it, making sure there's nobody else currently working on the issue or that design hasn't changed and a patch is still required. The game engine we're using is the [community edition](https://github.com/photonstorm/phaser-ce) of [Phaser](https://github.com/photonstorm/phaser), which has nice [online documentation](https://photonstorm.github.io/phaser-ce).
+You should look around on GitHub Issue tracker for open issues, priority being the ones that are assigned to the next [milestone](https://github.com/FreezingMoon/AncientBeast/milestones) and are tagged "[Priority](https://github.com/FreezingMoon/AncientBeast/labels/Priority)", while also lacking the "[Brainstorm](https://github.com/FreezingMoon/AncientBeast/labels/Brainstorm)" tag. You can ping [DreadKnight](https://github.com/DreadKnight) in the [Discord server](https://discord.gg/x78rKen) in order to be assigned to something specific, otherwise you can comment on a specific issue in order to receive the green light for it, making sure there's nobody else currently working on the issue or that design hasn't changed and a patch is still required. The game engine we're using is the [community edition](https://github.com/photonstorm/phaser-ce) of [Phaser](https://github.com/photonstorm/phaser), which is free open source and has very nice [documentation](https://photonstorm.github.io/phaser-ce).
 
-In order to patch the game and constantly test it, run it using the next command, which will keep track of changed files:
-`yarn run start:dev`. Keep in mind that you'll have to refresh the webpage after changes. 
+In order to patch the game & constantly test it, run it using this command, which will keep track of changes:
 
-Make sure the browser doesn't cache the game by using `Ctrl + Shift + J`, going to the **Network** tab and checking **Disable cache**.
+```
+yarn start:dev
+```
+
+Keep in mind that you'll have to refresh the webpage after making changes. Make sure to disable browser caching by using `Ctrl + Shift + j`, then going to the **Network** tab and checking **Disable cache**.
+
 ![Chrome dev tools](https://i.stack.imgur.com/Grwsc.png)
 
 ### Next Step
