@@ -19,31 +19,33 @@
 		"phaser"
 	],
 	"dependencies": {
-		"compression": "^1.6.2",
-		"express": "^4.13.4",
-		"html-webpack-plugin": "^2.30.1",
-		"jquery": "1.12.4",
+		"compression": "^1.7.2",
+		"express": "^4.16.3",
+		"jquery": "3.3.1",
 		"jquery-mousewheel": "3.1.13",
 		"jquery-ui": "^1.12.1",
 		"jquery.kinetic": "2.2.4",
 		"jquery.transit": "0.9.12",
-		"phaser-ce": "2.7.10",
-		"socket.io": "^1.3.5",
-		"socket.io-client": "1.3.5"
+		"phaser-ce": "2.10.2",
+		"socket.io": "^2.0.4",
+		"socket.io-client": "2.0.4"
 	},
 	"devDependencies": {
-		"css-loader": "^0.28.7",
-		"eslint": "^4.12.1",
-		"expose-loader": "^0.7.4",
+		"css-loader": "^0.28.11",
+		"eslint": "^4.19.0",
+		"expose-loader": "^0.7.5",
 		"extract-text-webpack-plugin": "^3.0.2",
-		"file-loader": "^1.1.5",
-		"less": "^2.7.3",
-		"less-loader": "^4.0.5",
-		"prettier": "^1.8.2",
-		"style-loader": "^0.19.0",
-		"uglifyjs-webpack-plugin": "^1.1.2",
-		"webpack": "^3.8.1",
-		"webpack-merge": "^4.1.1"
+		"file-loader": "^1.1.11",
+		"html-webpack-plugin": "3",
+		"less": "^3.0.1",
+		"less-loader": "^4.1.0",
+		"prettier": "^1.11.1",
+		"style-loader": "^0.20.3",
+		"uglifyjs-webpack-plugin": "^1.2.4",
+		"webpack": "^4.1.1",
+		"webpack-cli": "^2.0.12",
+		"webpack-merge": "^4.1.2",
+		"webpack-serve": "^0.2.0"
 	},
 	"engines": {
 		"node": ">=8"
@@ -51,7 +53,7 @@
 	"scripts": {
 		"build": "yarn run generateManifest && webpack --env.production",
 		"build:dev": "yarn run generateManifest && webpack",
-		"dev": "webpack --watch",
+		"start:dev": "webpack-serve --config ./webpack.config.js --no-hot",
 		"generateManifest": "node manifestGenerator.js",
 		"lint": "eslint src/**/*.js",
 		"postinstall": "yarn run build"
