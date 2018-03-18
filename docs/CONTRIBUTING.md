@@ -36,7 +36,7 @@ yarn install
 ```
 
 This will read `package.json` and install all of the gameplay established yarn package dependencies.<br>
-The `yarn build:dev` command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again.<br>
+The `yarn build:dev` command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again, which will also compile the project, same as the `yarn build:dev` command.<br>
 
 If you're using Windows operating system and getting errors, have your desired tool `Run as administrator` or to disable your anti-virus.
 
@@ -71,7 +71,7 @@ If you encounter any problems with the version, you can report them to our [GitH
 Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues.<br>
 You can use this function from the browser console window in order to fetch the log `G.gamelog.get()`.<br>
 To replay a match, you can start a new game and paste the log between brackets of `G.gamelog.play()`.<br>
-In order to open up Google Chrome browser's console, you can simply press `Ctrl + Shift + j` hotkeys.
+In order to open up Google Chrome browser's console, you can simply press `Ctrl + Shift + J` hotkeys.
 
 ### Patch Game
 
@@ -84,7 +84,7 @@ In order to patch the game and constantly test it, run it using this command, wh
 yarn start:dev
 ```
 
-Keep in mind that you'll have to refresh the webpage after making changes. Make sure to disable browser caching by using `Ctrl + Shift + j`, then going to the **Network** tab and checking **Disable cache**.
+Keep in mind that you'll have to refresh the webpage after making changes. Make sure to disable browser caching by using `Ctrl + Shift + J`, then going to the **Network** tab and checking **Disable cache**.
 
 ![Chrome dev tools](https://i.stack.imgur.com/Grwsc.png)
 
