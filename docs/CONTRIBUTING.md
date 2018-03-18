@@ -4,12 +4,12 @@ You can help out the project by just ★ starring this repository from the upper
 
 ## Getting Started
 
-It's very easy to set-up a local server in order to test and contribute to the development version of the game.<br>
+It's very easy to set-up a local server in order to test and contribute to the development version of this game project.<br>
 It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, named [Phaser](http://phaser.io).
 
 ### Recommended Tool
 
-If you're not very keen on using git from the CLI, I highly recommend using [Visual Studio Code](https://code.visualstudio.com/download),  for cloning the project and creating patches. [VSC](https://code.visualstudio.com/download) is free open source and cross platform, integrates nicely with git and has useful extensions.
+If you're not very keen on using git from the CLI, I highly recommend using [Visual Studio Code](https://code.visualstudio.com/download),  for cloning the project and creating patches. [VSC](https://code.visualstudio.com/download) is free open source and cross platform, has very nice git integration and useful extensions.
 
 ### Fork Project
 
@@ -17,13 +17,15 @@ You can create a clone of the project by using git from CLI or with the use of a
 ```
 https://github.com/FreezingMoon/AncientBeast.git
 ```
-In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P` hotkey and search for `Git: Clone`, you will get a field where you can simply input the link above.
+In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P` hotkey, search for `Git: Clone` and then input the link in the given field.
 
 ---
 
 ### Package Requirements
 
-First install (or make sure you have) the latest LTS version of  [Node.js](http://nodejs.org). Linux users: if you installed from repository, you *might* need to create a path link.
+First install (or make sure you have) the latest LTS version of  [Node.js](http://nodejs.org).
+
+Linux users: if you installed from repository, you *might* need to create a path link.
 
 After you've successfully installed the Node.js package, proceed with installing the latest version of [Yarn](https://yarnpkg.com/en/docs/install), which is our tool of choice for package dependency management.
 
@@ -67,7 +69,7 @@ For a more comprehensive guide on how to help out the project, you can check out
 
 ### Report Issues
 
-If you encounter any problems with the version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues), try to avoid duplicates.<br>
+If you encounter any problems with the version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues).<br>
 Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues.<br>
 You can use this function from the browser console window in order to fetch the log `G.gamelog.get()`.<br>
 To replay a match, you can start a new game and paste the log between brackets of `G.gamelog.play()`.<br>
