@@ -38,11 +38,11 @@ yarn install
 This will read `package.json` and install all of the gameplay established yarn package dependencies.<br>
 The `yarn install` command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again, which will also compile the project, same as the `yarn build:dev` command.<br>
 
-If you're using Windows operating system and getting errors, have your desired tool `Run as administrator` or to disable your anti-virus.
+If you're using Windows OS and getting errors, have your desired tool `Run as administrator` or to disable your anti-virus.
 
 ### Compile Project
 
-In order to build the development version of the game, run the following command (it will take a bit of time):
+In order to build the development version of the game (also done by `yarn install`), run the following command:
 
 ```
 yarn build:dev
