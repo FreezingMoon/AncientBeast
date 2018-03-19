@@ -36,11 +36,16 @@ export class Ability {
 	 * Whether this ability upgrades after a certain number of uses. Otherwise it
 	 * upgrades after a certain number of rounds.
 	 * By default, this applies to active (onQuery) abilities.
+	 * @return {boolean} Is upgrade per use.
 	 */
 	isUpgradedPerUse() {
 		return this.trigger === 'onQuery';
 	}
 
+	/**
+	 * Number of uses left before ability upgrades.
+	 * @return {number} Uses left before upgrade.
+	 */
 	usesLeftBeforeUpgrade() {
 		let game = this.game;
 
@@ -51,10 +56,18 @@ export class Ability {
 		return game.abilityUpgrades - this.creature.turnsActive;
 	}
 
+	/**
+	 * Is this ability upgraded.
+	 * @return {boolean} Is upgraded?
+	 */
 	isUpgraded() {
 		return !this.hasUpgrade() ? false : this.usesLeftBeforeUpgrade() <= 0;
 	}
 
+	/**
+	 * Get the trigger method for this ablity.
+	 * @return {string|Function} Trigger
+	 */
 	getTrigger() {
 		if (this.trigger !== undefined) {
 			return this.trigger;
@@ -67,6 +80,7 @@ export class Ability {
 
 	/**
 	 * Reset ability at start of turn.
+	 * @return {void}
 	 */
 	reset() {
 		this.setUsed(false);
@@ -74,8 +88,7 @@ export class Ability {
 		this.timesUsedThisTurn = 0;
 	}
 
-	/* use()
-	 *
+	/*
 	 * Test and use the ability
 	 *
 	 */
@@ -98,8 +111,7 @@ export class Ability {
 		return this.query();
 	}
 
-	/* end()
-	 *
+	/*
 	 * End the ability. Must be called at the end of each ability function;
 	 *
 	 */
@@ -122,10 +134,10 @@ export class Ability {
 		}
 	}
 
-	/* setUsed(val)
-	 *
-	 * val : Boolean : set the used attriute to the desired value
-	 *
+	/**
+	 * Set the value of the used attribute
+	 * @param {boolean} val Value to set.
+	 * @return {void}
 	 */
 	setUsed(val) {
 		let game = this.game;
@@ -150,6 +162,7 @@ export class Ability {
 	/**
 	 * Called after activate(); primarily to set times used so that isUpgraded is
 	 * correct within activate().
+	 * @return {void}
 	 */
 	postActivate() {
 		this.timesUsed++;
@@ -158,10 +171,9 @@ export class Ability {
 		this.game.UI.updateAbilityButtonsContent();
 	}
 
-	/* animation()
-	 *
+	/**
 	 * Animate the creature
-	 *
+	 * @return {void}
 	 */
 	animation() {
 		let game = this.game;
@@ -225,6 +237,11 @@ export class Ability {
 		});
 	}
 
+	/**
+	 * Helper to animation method.
+	 * @param {Object} o Animation object to extend.
+	 * @return {void}
+	 */
 	animation2(o) {
 		let game = this.game,
 			opt = $j.extend({ callback: function() {}, arg: {} }, o),
@@ -250,9 +267,9 @@ export class Ability {
 		}
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {
-			let anim_id = Math.random();
+			let animId = Math.random();
 
-			game.animationQueue.push(anim_id);
+			game.animationQueue.push(animId);
 
 			let animationData = {
 				duration: 500,
@@ -261,11 +278,11 @@ export class Ability {
 			};
 
 			if (this.getAnimationData) {
-				animationData = $j.extend(animationData, this.getAnimationData.apply(this, args));
+				animationData = $j.extend(animationData, this.getAnimationData(...args));
 			}
 
 			if (animationData.activateAnimation) {
-				let tween = game.Phaser.add
+				game.Phaser.add
 					.tween(this.creature.sprite)
 					.to({ x: p1 }, 250, Phaser.Easing.Linear.None)
 					.to({ x: p2 }, 100, Phaser.Easing.Linear.None)
@@ -281,7 +298,7 @@ export class Ability {
 			}, animationData.delay);
 
 			setTimeout(() => {
-				let queue = game.animationQueue.filter(item => item != anim_id);
+				let queue = game.animationQueue.filter(item => item != animId);
 
 				if (queue.length === 0) {
 					game.freezedInput = false;
@@ -302,10 +319,10 @@ export class Ability {
 		}, 100);
 	}
 
-	/* getTargets(hexes)
-	 *
-	 * hexes : Array : Contains the targeted hexagons
-	 * return : Array : Contains the target units
+	/**
+	 * Get an array of units in this collection of hexes.
+	 * @param {Array} hexes The targeted hexes.
+	 * @return {Array} Targest in these hexes
 	 */
 	getTargets(hexes) {
 		let targets = {},
@@ -326,10 +343,19 @@ export class Ability {
 		return targetsList;
 	}
 
+	/**
+	 * Return a formatted cost.
+	 * @return {string|Boolean} cost
+	 */
 	getFormattedCosts() {
 		return !this.costs ? false : this.getFormattedDamages(this.costs);
 	}
 
+	/**
+	 * Return formatted damages.
+	 * @param {Object} obj Damage object.
+	 * @return {boolean|string} damage
+	 */
 	getFormattedDamages(obj) {
 		if (!this.damages && !obj) {
 			return false;
@@ -364,6 +390,10 @@ export class Ability {
 		});
 	}
 
+	/**
+	 * Get formattted effects.
+	 * @return {boolean|string} effect
+	 */
 	getFormattedEffects() {
 		let string = '';
 
@@ -393,8 +423,7 @@ export class Ability {
 		return string;
 	}
 
-	/* areaDamage(targets)
-	 *
+	/*
 	 * targets : Array : Example : target = [ { target: crea1, hexesHit: 2 }, { target: crea2, hexesHit: 1 } ]
 	 */
 	areaDamage(attacker, damages, effects, targets, ignoreRetaliation) {
@@ -419,13 +448,14 @@ export class Ability {
 	/**
 	 * Return whether there is at least one creature in the hexes that satisfies
 	 * various conditions, e.g. team.
-	 * hexes - Hex grid
-	 * o - tests
+	 * @param {Array} hexes Array of hexes
+	 * @param {Object} o Options
+	 * @return {boolean} At least one target.
 	 */
 	atLeastOneTarget(hexes, o) {
 		let defaultOpt = {
 			team: Team.both,
-			optTest: function(creature) {
+			optTest: function() {
 				return true;
 			}
 		};
@@ -445,11 +475,11 @@ export class Ability {
 		return false;
 	}
 
-	/* testRequirements()
-	 *
+	/**
 	 * Test the requirement for this ability. Negative values mean maximum value of the stat.
 	 * For instance : energy = -5 means energy must be lower than 5.
 	 * If one requirement fails it returns false.
+	 * @return {boolean} Return true if ability requirements are met.
 	 */
 	testRequirements() {
 		let game = this.game,
@@ -479,7 +509,6 @@ export class Ability {
 					mental: 0
 				}
 			},
-			r = this.requirements || this.costs,
 			req = $j.extend(def, this.requirements),
 			abilityMsgs = game.msg.abilities;
 
@@ -581,8 +610,8 @@ export class Ability {
 	/**
 	 * Test and get directions where there are valid targets in directions, using
 	 * direction queries
-	 * o - dict of arguments for direction query
-	 * returns array of ints, length of total directions, 1 if direction valid else 0
+	 * @param {Object} o Dict of arguments for direction query
+	 * @return {Array} array of ints, length of total directions, 1 if direction valid else 0
 	 */
 	testDirections(o) {
 		let defaultOpt = {
@@ -634,8 +663,8 @@ export class Ability {
 
 	/**
 	 * Test whether there are valid targets in directions, using direction queries
-	 * o - dict of arguments for direction query
-	 * rreturns true if valid targets in at least one direction, else false
+	 * @param {Object} o Dict of arguments for direction query.
+	 * @return {boolean} true if valid targets in at least one direction, else false
 	 */
 	testDirection(o) {
 		let directions = this.testDirections(o);
