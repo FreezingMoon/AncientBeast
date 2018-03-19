@@ -1,5 +1,5 @@
-import { Trap } from "./trap";
-import { Creature } from "../creature";
+import { Trap } from './trap';
+import { Creature } from '../creature';
 
 /**
  * Hex Class
@@ -40,13 +40,13 @@ export class Hex {
 	 * y : 			Integer : 	Hex coordinates
 	 */
 	constructor(x, y, grid, game) {
-		this.game = grid && grid.game || game;
+		this.game = (grid && grid.game) || game;
 		this.grid = grid;
 		this.x = x;
 		this.y = y;
 		this.pos = {
 			x: x,
-			y: y
+			y: y,
 		};
 		this.coord = String.fromCharCode(64 + this.y + 1) + (this.x + 1);
 		game = this.game;
@@ -62,15 +62,15 @@ export class Hex {
 		this.reachable = true;
 		this.direction = -1; // Used for queryDirection
 		this.drop = undefined; // Drop items
-		this.displayClasses = "";
-		this.overlayClasses = "";
+		this.displayClasses = '';
+		this.overlayClasses = '';
 
 		// Horizontal hex grid, width is distance between opposite sides
 		this.width = 90;
 		this.height = this.width / Math.sqrt(3) * 2 * 0.75;
 		this.displayPos = {
-			x: ((y % 2 === 0) ? x + 0.5 : x) * this.width,
-			y: y * this.height
+			x: (y % 2 === 0 ? x + 0.5 : x) * this.width,
+			y: y * this.height,
 		};
 
 		this.originalDisplayPos = $j.extend({}, this.displayPos);
@@ -78,7 +78,6 @@ export class Hex {
 		this.tween = null;
 
 		if (grid) {
-
 			// 10px is the offset from the old version
 
 			this.display = grid.disphexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
@@ -133,15 +132,14 @@ export class Hex {
 						break;
 				}
 			}, this);
-
 		}
 
 		this.displayPos.y = this.displayPos.y * 0.75 + 30;
 
-		this.onSelectFn = function () { };
-		this.onHoverOffFn = function () { };
-		this.onConfirmFn = function () { };
-		this.onRightClickFn = function () { };
+		this.onSelectFn = function() {};
+		this.onHoverOffFn = function() {};
+		this.onConfirmFn = function() {};
+		this.onRightClickFn = function() {};
 
 		this.trap = undefined;
 	}
@@ -182,7 +180,8 @@ export class Hex {
 					continue;
 				}
 
-				if (y < this.grid.hexes.length && y >= 0 && x < this.grid.hexes[y].length && x >= 0) { // Exclude inexisting hexes
+				if (y < this.grid.hexes.length && y >= 0 && x < this.grid.hexes[y].length && x >= 0) {
+					// Exclude inexisting hexes
 					adjHex.push(this.grid.hexes[y][x]);
 				}
 			}
@@ -249,7 +248,7 @@ export class Hex {
 	 */
 	cleanPathAttr(includeG) {
 		this.f = 0;
-		this.g = (includeG) ? 0 : this.g;
+		this.g = includeG ? 0 : this.g;
 		this.h = 0;
 		this.pathparent = null;
 	}
@@ -267,7 +266,8 @@ export class Hex {
 
 		for (let i = 0; i < size; i++) {
 			// For each Hex of the creature
-			if ((this.x - i) >= 0 && (this.x - i) < this.grid.hexes[this.y].length) { //if hex exists
+			if (this.x - i >= 0 && this.x - i < this.grid.hexes[this.y].length) {
+				//if hex exists
 				let hex = this.grid.hexes[this.y][this.x - i];
 				// Verify if blocked. If it's blocked by one attribute, OR statement will keep it status
 				blocked = blocked || hex.blocked;
@@ -279,9 +279,9 @@ export class Hex {
 				let isNotMovingCreature;
 				if (hex.creature instanceof Creature) {
 					if (id instanceof Array) {
-						isNotMovingCreature = (id.indexOf(hex.creature.id) == -1);
+						isNotMovingCreature = id.indexOf(hex.creature.id) == -1;
 					} else {
-						isNotMovingCreature = (hex.creature.id != id);
+						isNotMovingCreature = hex.creature.id != id;
 					}
 
 					blocked = blocked || isNotMovingCreature; // Not blocked if this block contains the moving creature
@@ -300,8 +300,8 @@ export class Hex {
 	 * Change the appearance of the overlay hex
 	 */
 	overlayVisualState(classes) {
-		classes = (classes) ? classes : "";
-		this.overlayClasses += " " + classes + " ";
+		classes = classes ? classes : '';
+		this.overlayClasses += ' ' + classes + ' ';
 		this.updateStyle();
 	}
 
@@ -310,8 +310,8 @@ export class Hex {
 	 * Change the appearance of the display hex
 	 */
 	displayVisualState(classes) {
-		classes = (classes) ? classes : "";
-		this.displayClasses += " " + classes + " ";
+		classes = classes ? classes : '';
+		this.displayClasses += ' ' + classes + ' ';
 		this.updateStyle();
 	}
 
@@ -320,11 +320,13 @@ export class Hex {
 	 * Clear the appearance of the overlay hex
 	 */
 	cleanOverlayVisualState(classes) {
-		classes = classes || "creature weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3";
+		classes =
+			classes ||
+			'creature weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3';
 		let a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
-			let regex = new RegExp("\\b" + a[i] + "\\b", 'g');
+			let regex = new RegExp('\\b' + a[i] + '\\b', 'g');
 			this.overlayClasses = this.overlayClasses.replace(regex, '');
 		}
 
@@ -336,11 +338,11 @@ export class Hex {
 	 * Clear the appearance of the display hex
 	 */
 	cleanDisplayVisualState(classes) {
-		classes = classes || "adj hover creature player0 player1 player2 player3";
+		classes = classes || 'adj hover creature player0 player1 player2 player3';
 		let a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
-			let regex = new RegExp("\\b" + a[i] + "\\b", 'g');
+			let regex = new RegExp('\\b' + a[i] + '\\b', 'g');
 			this.displayClasses = this.displayClasses.replace(regex, '');
 		}
 
@@ -373,7 +375,7 @@ export class Hex {
 	}
 
 	setNotTarget() {
-		this.displayClasses += " hidden ";
+		this.displayClasses += ' hidden ';
 		this.updateStyle();
 	}
 
@@ -387,14 +389,14 @@ export class Hex {
 
 		if (this.displayClasses.match(/0|1|2|3/)) {
 			let p = this.displayClasses.match(/0|1|2|3/);
-			this.display.loadTexture("hex_p" + p);
+			this.display.loadTexture('hex_p' + p);
 			this.grid.disphexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
-			this.display.loadTexture("hex_path");
+			this.display.loadTexture('hex_path');
 		} else if (this.displayClasses.match(/dashed/)) {
-			this.display.loadTexture("hex_dashed");
+			this.display.loadTexture('hex_dashed');
 		} else {
-			this.display.loadTexture("hex");
+			this.display.loadTexture('hex');
 		}
 
 		this.display.alpha = targetAlpha;
@@ -407,13 +409,18 @@ export class Hex {
 		// }
 
 		// Display Coord
-		if ((this.displayClasses.match(/showGrid/g))) {
+		if (this.displayClasses.match(/showGrid/g)) {
 			if (!(this.coordText && this.coordText.exists)) {
-				this.coordText = this.game.Phaser.add.text(this.originalDisplayPos.x + 45, this.originalDisplayPos.y + 63, this.coord, {
-					font: "30pt Play",
-					fill: "#000000",
-					align: "center"
-				});
+				this.coordText = this.game.Phaser.add.text(
+					this.originalDisplayPos.x + 45,
+					this.originalDisplayPos.y + 63,
+					this.coord,
+					{
+						font: '30pt Play',
+						fill: '#000000',
+						align: 'center',
+					}
+				);
 				this.coordText.anchor.setTo(0.5, 0.5);
 				this.grid.overhexesGroup.add(this.coordText);
 			}
@@ -428,14 +435,14 @@ export class Hex {
 			let p = this.overlayClasses.match(/0|1|2|3/);
 
 			if (this.overlayClasses.match(/hover/)) {
-				this.overlay.loadTexture("hex_hover_p" + p);
+				this.overlay.loadTexture('hex_hover_p' + p);
 			} else {
-				this.overlay.loadTexture("hex_p" + p);
+				this.overlay.loadTexture('hex_p' + p);
 			}
 
 			this.grid.overhexesGroup.bringToTop(this.overlay);
 		} else {
-			this.overlay.loadTexture("cancel");
+			this.overlay.loadTexture('cancel');
 		}
 
 		this.overlay.alpha = targetAlpha;
@@ -473,7 +480,7 @@ export class Hex {
 		let activated = false;
 		this.trap.effects.forEach(effect => {
 			if (trigger.test(effect.trigger) && effect.requireFn()) {
-				this.game.log("Trap triggered");
+				this.game.log('Trap triggered');
 				effect.activate(target);
 				activated = true;
 			}
@@ -510,7 +517,7 @@ export class Hex {
 	toJSON() {
 		return {
 			x: this.x,
-			y: this.y
+			y: this.y,
 		};
 	}
 } // End of Hex Class

@@ -1,10 +1,10 @@
-import { Damage } from "../damage";
-import { Team } from "../utility/team";
-import * as matrices from "../utility/matrices";
-import * as arrayUtils from "../utility/arrayUtils";
-import { Creature } from "../creature";
-import { Effect } from "../effect";
-import { isTeam } from "../utility/team";
+import { Damage } from '../damage';
+import { Team } from '../utility/team';
+import * as matrices from '../utility/matrices';
+import * as arrayUtils from '../utility/arrayUtils';
+import { Creature } from '../creature';
+import { Effect } from '../effect';
+import { isTeam } from '../utility/team';
 
 /**
  * Creates the abilities
@@ -12,23 +12,22 @@ import { isTeam } from "../utility/team";
  */
 export default G => {
 	G.abilities[5] = [
-
 		// 	First Ability: Electrified Hair
 		{
-			trigger: "onUnderAttack",
+			trigger: 'onUnderAttack',
 
-			require: function () {
+			require: function() {
 				// Always true to highlight ability
 				return true;
 			},
 
-			activate: function (damage) {
+			activate: function(damage) {
 				if (damage === undefined) {
-return false;
-}
+					return false;
+				}
 				if (!damage.damages.shock) {
- return false;
-}
+					return false;
+				}
 				this.end();
 				let converted = Math.floor(damage.damages.shock / 4);
 				// Lower damage
@@ -42,59 +41,67 @@ return false;
 				if (this.isUpgraded() && energyOverflow > 0) {
 					this.creature.heal(energyOverflow);
 				}
-				G.log("%CreatureName" + this.creature.id + "% absorbs " + converted + " shock damage into energy");
+				G.log(
+					'%CreatureName' +
+						this.creature.id +
+						'% absorbs ' +
+						converted +
+						' shock damage into energy'
+				);
 				return damage;
-			}
+			},
 		},
-
 
 		// 	Second Ability: Hasted Javelin
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
-return false;
-}
+					return false;
+				}
 
-				if (!this.atLeastOneTarget(this._getHexes(), {
-					team: this._targetTeam
-				})) {
+				if (
+					!this.atLeastOneTarget(this._getHexes(), {
+						team: this._targetTeam,
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			// 	query() :
-			query: function () {
-
+			query: function() {
 				let ability = this;
 				let creature = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: creature.id,
 					flipped: creature.flipped,
-					hexes: this._getHexes()
+					hexes: this._getHexes(),
 				});
 			},
 
-
 			//	activate() :
-			activate: function (target, args) {
+			activate: function(target, args) {
 				let ability = this;
 				ability.end();
 
-				let finalDmg = $j.extend({
-					poison: 0
-				}, ability.damages1);
+				let finalDmg = $j.extend(
+					{
+						poison: 0,
+					},
+					ability.damages1
+				);
 
 				// Poison Bonus if upgraded
 				if (this.isUpgraded()) {
@@ -114,51 +121,58 @@ return false;
 				// Recharge movement if any damage dealt
 				if (result.damages && result.damages.total > 0) {
 					this.creature.remainingMove = this.creature.stats.movement;
-					G.log("%CreatureName" + this.creature.id + "%'s movement recharged");
+					G.log('%CreatureName' + this.creature.id + "%'s movement recharged");
 					G.activeCreature.queryMove();
 				}
 			},
 
-			_getHexes: function () {
-				return G.grid.getHexMap(this.creature.x - 3, this.creature.y - 2, 0, false, matrices.frontnback3hex);
-			}
+			_getHexes: function() {
+				return G.grid.getHexMap(
+					this.creature.x - 3,
+					this.creature.y - 2,
+					0,
+					false,
+					matrices.frontnback3hex
+				);
+			},
 		},
-
 
 		// 	Thirt Ability: Poisonous Vine
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
-				if (!this.atLeastOneTarget(this._getHexes(), {
-					team: this._targetTeam
-				})) {
+			require: function() {
+				if (
+					!this.atLeastOneTarget(this._getHexes(), {
+						team: this._targetTeam,
+					})
+				) {
 					return false;
 				}
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let creature = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: creature.id,
 					flipped: creature.flipped,
-					hexes: this._getHexes()
+					hexes: this._getHexes(),
 				});
 			},
 
-			activate: function (target) {
+			activate: function(target) {
 				this.end();
 				let damages = this.damages;
 				// Last 1 turn, or indefinitely if upgraded
@@ -166,82 +180,82 @@ return false;
 				let ability = this;
 				// Add a trap to every hex of the target
 				let effect = new Effect(
-					ability.title, ability.creature, this, "onStepOut", {
-						effectFn: function (effect) {
-							G.log("%CreatureName" + effect.target.id + "% is hit by " + effect.name);
-							effect.target.takeDamage(
-								new Damage(effect.owner, damages, 1, [], G), {
-									isFromTrap: true
-								});
+					ability.title,
+					ability.creature,
+					this,
+					'onStepOut',
+					{
+						effectFn: function(effect) {
+							G.log('%CreatureName' + effect.target.id + '% is hit by ' + effect.name);
+							effect.target.takeDamage(new Damage(effect.owner, damages, 1, [], G), {
+								isFromTrap: true,
+							});
 							// Hack: manually destroy traps so we don't activate multiple traps
 							// and see multiple logs etc.
-							target.hexagons.forEach(function (hex) {
+							target.hexagons.forEach(function(hex) {
 								hex.destroyTrap();
 							});
 							effect.deleteEffect();
-						}
+						},
 					},
 					G
 				);
-				target.hexagons.forEach(function (hex) {
-					hex.createTrap(
-						"poisonous-vine", [effect],
-						ability.creature.player, {
-							turnLifetime: lifetime,
-							fullTurnLifetime: true,
-							ownerCreature: ability.creature,
-							destroyOnActivate: true,
-							destroyAnimation: 'shrinkDown'
-						}
-					);
+				target.hexagons.forEach(function(hex) {
+					hex.createTrap('poisonous-vine', [effect], ability.creature.player, {
+						turnLifetime: lifetime,
+						fullTurnLifetime: true,
+						ownerCreature: ability.creature,
+						destroyOnActivate: true,
+						destroyAnimation: 'shrinkDown',
+					});
 				});
 			},
 
-			_getHexes: function () {
+			_getHexes: function() {
 				// Target a creature within 2 hex radius
 				let hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(2);
 				return arrayUtils.extendToLeft(hexes, this.creature.size, G.grid);
-			}
+			},
 		},
-
 
 		//	Fourth Ability: Chain Lightning
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.both,
 
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
- return false;
-}
-				if (!this.atLeastOneTarget(this._getHexes(), {
-					team: this._targetTeam
-				})) {
+					return false;
+				}
+				if (
+					!this.atLeastOneTarget(this._getHexes(), {
+						team: this._targetTeam,
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			//	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
-					hexes: this._getHexes()
+					hexes: this._getHexes(),
 				});
 			},
 
-
 			//	activate() :
-			activate: function (target) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -256,37 +270,39 @@ return false;
 					// If upgraded and the target is an ally, protect it with an effect that
 					// reduces the damage to guarantee at least 1 health remaining
 					if (this.isUpgraded() && isTeam(this.creature, trg, Team.ally)) {
-						trg.addEffect(new Effect(
-							this.title,
-							this.creature,
-							trg,
-							"onUnderAttack", {
-								effectFn: function (effect, damage) {
-									// Simulate the damage to determine how much damage would have
-									// been dealt; then reduce the damage so that it will not kill
-									while (true) {
-										let dmg = damage.applyDamage();
-										// If we can't reduce any further, give up and have the damage
-										// be zero
-										if (dmg.total <= 0 || damage.damages.shock <= 0 ||
-											trg.health <= 1) {
-											damage.damages = {
-												shock: 0
-											};
-											break;
-										} else if (dmg.total >= trg.health) {
-											// Too much damage, would have killed; reduce and try again
-											damage.damages.shock--;
-										} else {
-											break;
+						trg.addEffect(
+							new Effect(
+								this.title,
+								this.creature,
+								trg,
+								'onUnderAttack',
+								{
+									effectFn: function(effect, damage) {
+										// Simulate the damage to determine how much damage would have
+										// been dealt; then reduce the damage so that it will not kill
+										while (true) {
+											let dmg = damage.applyDamage();
+											// If we can't reduce any further, give up and have the damage
+											// be zero
+											if (dmg.total <= 0 || damage.damages.shock <= 0 || trg.health <= 1) {
+												damage.damages = {
+													shock: 0,
+												};
+												break;
+											} else if (dmg.total >= trg.health) {
+												// Too much damage, would have killed; reduce and try again
+												damage.damages.shock--;
+											} else {
+												break;
+											}
 										}
-									}
+									},
+									deleteTrigger: 'onEndPhase',
+									noLog: true,
 								},
-								deleteTrigger: "onEndPhase",
-								noLog: true
-							},
-							G
-						));
+								G
+							)
+						);
 					}
 
 					let damage = new Damage(
@@ -299,60 +315,63 @@ return false;
 					nextdmg = trg.takeDamage(damage);
 
 					if (nextdmg.damages === undefined) {
-break;
-} // If attack is dodge
+						break;
+					} // If attack is dodge
 					if (nextdmg.kill) {
-break;
-} // If target is killed
+						break;
+					} // If target is killed
 					if (nextdmg.damages.total <= 0) {
- break;
-} // If damage is too weak
-					if (nextdmg.damageObj.status !== "") {
- break;
-}
+						break;
+					} // If damage is too weak
+					if (nextdmg.damageObj.status !== '') {
+						break;
+					}
 					delete nextdmg.damages.total;
 					nextdmg = nextdmg.damages;
 
 					// Get next available targets
 					let nextTargets = ability.getTargets(trg.adjacentHexes(1, true));
 
-					nextTargets = nextTargets.filter(function (item) {
+					nextTargets = nextTargets.filter(function(item) {
 						if (item.hexesHit === undefined) {
 							return false; // Remove empty ids
 						}
 
-						return (targets.indexOf(item.target) == -1); // If this creature has already been hit
+						return targets.indexOf(item.target) == -1; // If this creature has already been hit
 					});
 
 					// If no target
 					if (nextTargets.length === 0) {
-break;
-}
+						break;
+					}
 
 					// Best Target
 					let bestTarget = {
 						size: 0,
 						stats: {
 							defense: -99999,
-							shock: -99999
-						}
+							shock: -99999,
+						},
 					};
-					for (let j = 0; j < nextTargets.length; j++) { // For each creature
-						if (typeof nextTargets[j] == "undefined") {
-continue;
-} // Skip empty ids.
+					for (let j = 0; j < nextTargets.length; j++) {
+						// For each creature
+						if (typeof nextTargets[j] == 'undefined') {
+							continue;
+						} // Skip empty ids.
 
 						let t = nextTargets[j].target;
 						// Compare to best target
 						if (t.stats.shock > bestTarget.stats.shock) {
-							if ((t == ability.creature && nextTargets.length == 1) || // If target is chimera and the only target
-								t != ability.creature) { // Or this is not chimera
+							if (
+								(t == ability.creature && nextTargets.length == 1) || // If target is chimera and the only target
+								t != ability.creature
+							) {
+								// Or this is not chimera
 								bestTarget = t;
 							}
 						} else {
 							continue;
 						}
-
 					}
 
 					if (bestTarget instanceof Creature) {
@@ -361,13 +380,17 @@ continue;
 						break;
 					}
 				}
-
 			},
 
-			_getHexes: function () {
-				return G.grid.getHexMap(this.creature.x - 3, this.creature.y - 2, 0, false, matrices.frontnback3hex);
-			}
-		}
-
+			_getHexes: function() {
+				return G.grid.getHexMap(
+					this.creature.x - 3,
+					this.creature.y - 2,
+					0,
+					false,
+					matrices.frontnback3hex
+				);
+			},
+		},
 	];
 };

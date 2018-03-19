@@ -13,16 +13,18 @@ export class MusicPlayer {
 		this.audio.volume = 0.25;
 		this.audio.pause();
 
-		jQuery('#mp_shuffle').addClass("active")
-.click(e => {
-			jQuery(e.currentTarget).toggleClass("active");
-			this.shuffle = !this.shuffle;
-		});
+		jQuery('#mp_shuffle')
+			.addClass('active')
+			.click(e => {
+				jQuery(e.currentTarget).toggleClass('active');
+				this.shuffle = !this.shuffle;
+			});
 
 		this.playlist.find('a').click(e => {
 			e.preventDefault();
-			this.current = jQuery(e.currentTarget).parent()
-.index();
+			this.current = jQuery(e.currentTarget)
+				.parent()
+				.index();
 			this.run(jQuery(e.currentTarget));
 		});
 
@@ -61,9 +63,11 @@ export class MusicPlayer {
 		// Style the active track in the playlist
 		let par = link.parent();
 
-		par.addClass('active').siblings()
-.removeClass('active');
-		this.audio.src = link.attr("href");
+		par
+			.addClass('active')
+			.siblings()
+			.removeClass('active');
+		this.audio.src = link.attr('href');
 		this.audio.load();
 		this.audio.play();
 	}

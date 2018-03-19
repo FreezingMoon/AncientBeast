@@ -1,4 +1,4 @@
-import { Creature } from "../creature";
+import { Creature } from '../creature';
 
 /* findPos(arr, obj)
  * Find an object in the current Array based on its pos attribute
@@ -87,8 +87,8 @@ export function extendToLeft(arr, size, grid) {
 		for (let j = 0; j < size; j++) {
 			// NOTE : This code produce array with doubles.
 			if (grid.hexExists(arr[i].y, arr[i].x - j)) {
- ext.push(grid.hexes[arr[i].y][arr[i].x - j]);
-}
+				ext.push(grid.hexes[arr[i].y][arr[i].x - j]);
+			}
 		}
 	}
 
@@ -108,8 +108,8 @@ export function extendToRight(arr, size, grid) {
 		for (let j = 0; j < size; j++) {
 			// NOTE : This code produces array with doubles.
 			if (grid.hexExists(arr[i].y, arr[i].x + j)) {
- ext.push(grid.hexes[arr[i].y][arr[i].x + j]);
-}
+				ext.push(grid.hexes[arr[i].y][arr[i].x + j]);
+			}
 		}
 	}
 

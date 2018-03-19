@@ -1,12 +1,12 @@
-import * as $j from "jquery";
+import * as $j from 'jquery';
 
 export class ProgressBar {
 	constructor(opts, game) {
 		let defaultOpts = {
 			height: 318,
 			width: 9,
-			color: "red",
-			$bar: undefined
+			color: 'red',
+			$bar: undefined,
 		};
 
 		this.game = game;
@@ -14,7 +14,7 @@ export class ProgressBar {
 		$j.extend(this, opts);
 
 		this.$bar.append('<div class="previewbar"></div>');
-		this.$preview = this.$bar.children(".previewbar");
+		this.$preview = this.$bar.children('.previewbar');
 
 		this.setSize(1);
 	}
@@ -28,7 +28,7 @@ export class ProgressBar {
 		this.$bar.css({
 			width: this.width,
 			height: this.height * percentage,
-			"background-color": this.color,
+			'background-color': this.color,
 		});
 	}
 
@@ -38,11 +38,15 @@ export class ProgressBar {
 	 *
 	 */
 	animSize(percentage) {
-		this.$bar.transition({
-			queue: false,
-			width: this.width,
-			height: this.height * percentage,
-		}, 500, "linear");
+		this.$bar.transition(
+			{
+				queue: false,
+				width: this.width,
+				height: this.height * percentage,
+			},
+			500,
+			'linear'
+		);
 	}
 
 	/* previewSize
@@ -51,9 +55,13 @@ export class ProgressBar {
 	 *
 	 */
 	previewSize(percentage) {
-		this.$preview.css({
-			width: this.width - 2,
-			height: (this.height - 2) * percentage,
-		}, 500, "linear");
+		this.$preview.css(
+			{
+				width: this.width - 2,
+				height: (this.height - 2) * percentage,
+			},
+			500,
+			'linear'
+		);
 	}
 }

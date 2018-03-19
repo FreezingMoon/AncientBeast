@@ -1,8 +1,8 @@
-import { Damage } from "../damage";
-import { Team } from "../utility/team";
-import * as matrices from "../utility/matrices";
-import { Creature } from "../creature";
-import { Effect } from "../effect";
+import { Damage } from '../damage';
+import { Team } from '../utility/team';
+import * as matrices from '../utility/matrices';
+import { Creature } from '../creature';
+import { Effect } from '../effect';
 
 /**
  * Creates the abilities
@@ -10,87 +10,86 @@ import { Effect } from "../effect";
  */
 export default G => {
 	G.abilities[9] = [
-
 		// 	First Ability: Frigid Tower
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onEndPhase",
+			trigger: 'onEndPhase',
 
 			_effectName: 'Frostified',
 
-			_getOffenseBuff: function () {
+			_getOffenseBuff: function() {
 				return this.isUpgraded() ? 5 : 0;
 			},
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				// Check whether this ability is upgraded; if so then make sure all existing
 				// buffs include an offense buff
 				let ability = this;
-				this.creature.effects.forEach(function (effect) {
+				this.creature.effects.forEach(function(effect) {
 					if (effect.name === ability._effectName) {
 						effect.alterations.offense = ability._getOffenseBuff();
 					}
 				});
 
 				if (this.creature.remainingMove < this.creature.stats.movement) {
-					this.message = "The creature moved this round.";
+					this.message = 'The creature moved this round.';
 					return false;
 				}
 				return this.testRequirements();
 			},
 
 			//	activate() :
-			activate: function () {
-
+			activate: function() {
 				this.creature.addEffect(
 					new Effect(
 						this._effectName,
 						this.creature,
 						this.creature,
-						"", {
+						'',
+						{
 							alterations: {
 								frost: 5,
 								defense: 5,
-								offense: this._getOffenseBuff()
+								offense: this._getOffenseBuff(),
 							},
-							stackable: true
+							stackable: true,
 						},
 						G
 					)
 				);
-			}
+			},
 		},
-
 
 		// 	Second Ability: Icy Talons
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
-return false;
-}
+					return false;
+				}
 
-				if (!this.atLeastOneTarget(
-					this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
-					})) {
+				if (
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+						team: this._targetTeam,
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -100,16 +99,17 @@ return false;
 				});
 			},
 
-
 			//	activate() :
-			activate: function (target, args) {
+			activate: function(target, args) {
 				let ability = this;
 				ability.end();
 
 				// Upgraded ability does pierce damage to smaller size or level targets
 				let damages = ability.damages;
-				if (!this.isUpgraded() ||
-					!(target.size < this.creature.size || target.level < this.creature.level)) {
+				if (
+					!this.isUpgraded() ||
+					!(target.size < this.creature.size || target.level < this.creature.level)
+				) {
 					damages.pierce = 0;
 				}
 
@@ -122,14 +122,15 @@ return false;
 							this.title,
 							this.creature,
 							this.target,
-							"", {
+							'',
+							{
 								alterations: {
-									frost: -1
+									frost: -1,
 								},
-								stackable: true
+								stackable: true,
 							},
 							G
-						)
+						),
 					], // Effects
 					G
 				);
@@ -138,35 +139,35 @@ return false;
 			},
 		},
 
-
 		// 	Third Ability: Sudden Uppercut
 		{
 			//	Type : Can be "onQuery","onStartPhase","onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
-return false;
-}
+					return false;
+				}
 
-				if (!this.atLeastOneTarget(
-					this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
-					})) {
+				if (
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+						team: this._targetTeam,
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -176,29 +177,31 @@ return false;
 				});
 			},
 
-
 			//	activate() :
-			activate: function (target, args) {
+			activate: function(target, args) {
 				let ability = this;
 				ability.end();
 
 				let effects = [];
 				// Upgraded ability adds a -10 defense debuff
 				if (this.isUpgraded()) {
-					effects.push(new Effect(
-						this.title,
-						this.creature,
-						target,
-						"", {
-							alterations: {
-								defense: -10
+					effects.push(
+						new Effect(
+							this.title,
+							this.creature,
+							target,
+							'',
+							{
+								alterations: {
+									defense: -10,
+								},
+								stackable: true,
+								turnLifetime: 1,
+								deleteTrigger: 'onStartPhase',
 							},
-							stackable: true,
-							turnLifetime: 1,
-							deleteTrigger: "onStartPhase"
-						},
-						G
-					));
+							G
+						)
+					);
 				}
 				let damage = new Damage(
 					ability.creature, // Attacker
@@ -210,57 +213,58 @@ return false;
 
 				let result = target.takeDamage(damage);
 
-				if (result.kill || result.damageObj.status !== "") {
- return;
-}
+				if (result.kill || result.damageObj.status !== '') {
+					return;
+				}
 
 				target.delay();
 			},
 		},
 
-
 		// 	Fourth Ability: Icicle Spear
 		{
 			//	Type : Can be "onQuery","onStartPhase","onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			directions: [1, 1, 1, 1, 1, 1],
 			_targetTeam: Team.both,
 
-			_getDistance: function () {
+			_getDistance: function() {
 				// Upgraded ability has infinite range
 				return this.isUpgraded() ? 0 : 6;
 			},
 
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
-return false;
-}
+					return false;
+				}
 
 				let crea = this.creature;
-				let x = (crea.player.flipped) ? crea.x - crea.size + 1 : crea.x;
+				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
-				if (!this.testDirection({
-					team: this._targetTeam,
-					x: x,
-					directions: this.directions,
-					distance: this._getDistance(),
-					stopOnCreature: false
-				})) {
+				if (
+					!this.testDirection({
+						team: this._targetTeam,
+						x: x,
+						directions: this.directions,
+						distance: this._getDistance(),
+						stopOnCreature: false,
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let crea = this.creature;
 
-				let x = (crea.player.flipped) ? crea.x - crea.size + 1 : crea.x;
+				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -270,13 +274,12 @@ return false;
 					y: crea.y,
 					directions: this.directions,
 					distance: this._getDistance(),
-					stopOnCreature: false
+					stopOnCreature: false,
 				});
 			},
 
-
 			//	activate() :
-			activate: function (path, args) {
+			activate: function(path, args) {
 				let ability = this;
 
 				ability.end();
@@ -287,7 +290,7 @@ return false;
 
 						let d = {
 							pierce: ability.damages.pierce,
-							frost: 6 - i
+							frost: 6 - i,
 						};
 						if (d.frost < 0) {
 							d.frost = 0;
@@ -305,13 +308,15 @@ return false;
 						let result = trg.takeDamage(damage);
 
 						// Stop propagating if no damage dealt
-						if (result.damageObj.status === "Shielded" ||
-							(result.damages && result.damages.total <= 0)) {
+						if (
+							result.damageObj.status === 'Shielded' ||
+							(result.damages && result.damages.total <= 0)
+						) {
 							break;
 						}
 					}
 				}
-			}
-		}
+			},
+		},
 	];
 };

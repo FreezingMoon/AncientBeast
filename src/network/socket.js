@@ -1,4 +1,4 @@
-import * as io from "socket.io-client";
+import * as io from 'socket.io-client';
 
 let socket = io();
 let server = {};
@@ -7,11 +7,10 @@ let server = {};
 socket.on('login', function(data) {
 	server.connected = true;
 	// Display the welcome message
-	let message = "Connected To Game Server as user: " + data;
+	let message = 'Connected To Game Server as user: ' + data;
 	server.userName = data;
 	console.log(message);
 });
-
 
 // Whenever the server emits 'user joined', log it in the chat body
 socket.on('user joined', function(data) {

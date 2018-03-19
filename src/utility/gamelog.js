@@ -1,5 +1,5 @@
-import * as jQuery from "jquery";
-import { isEmpty, getGameConfig } from "../script";
+import * as jQuery from 'jquery';
+import { getGameConfig, isEmpty } from '../script';
 
 export class GameLog {
 	constructor(id, game) {
@@ -38,12 +38,12 @@ export class GameLog {
 			config,
 			data;
 
-		if (typeof log == "object" && !log.length) {
+		if (typeof log == 'object' && !log.length) {
 			data = log.log;
 			config = log.config;
 			this.data = data;
 			return this.config(config);
-		} else if (typeof log == "string") {
+		} else if (typeof log == 'string') {
 			let results = log.match(/^AB-(dev|[0-9.]+):(.+)$/);
 			if (results) {
 				log = JSON.parse(atob(results[2]));
@@ -59,7 +59,7 @@ export class GameLog {
 			this.timeCursor++;
 
 			if (game.debugMode) {
-				console.log(this.timeCursor + "/" + this.data.length);
+				console.log(this.timeCursor + '/' + this.data.length);
 			}
 
 			if (this.timeCursor > this.data.length - 1) {
@@ -72,7 +72,7 @@ export class GameLog {
 					clearInterval(interval);
 					game.activeCreature.queryMove(); // Avoid bug
 					game.action(this.data[this.timeCursor], {
-						callback: fun
+						callback: fun,
 					});
 				}
 			}, 100);
@@ -90,7 +90,7 @@ export class GameLog {
 
 		this.timeCursor++;
 		if (game.debugMode) {
-			console.log(this.timeCursor + "/" + this.data.length);
+			console.log(this.timeCursor + '/' + this.data.length);
 		}
 
 		if (this.timeCursor > this.data.length - 1) {
@@ -105,7 +105,7 @@ export class GameLog {
 				game.action(this.data[this.timeCursor], {
 					callback: function() {
 						game.activeCreature.queryMove();
-					}
+					},
 				});
 			}
 		}, 100);
@@ -115,35 +115,35 @@ export class GameLog {
 		let config = isEmpty(this.gameConfig) ? getGameConfig() : this.gameConfig,
 			dict = {
 				config: config,
-				log: this.data
+				log: this.data,
 			},
 			json = JSON.stringify(dict),
-			hash = "AB-" + this.game.version + ":" + btoa(JSON.stringify(dict)),
+			hash = 'AB-' + this.game.version + ':' + btoa(JSON.stringify(dict)),
 			output,
 			strOutput;
 
 		switch (state) {
-			case "json":
+			case 'json':
 				output = dict;
 				strOutput = json;
 				break;
-			case "save":
+			case 'save':
 				var fileName = new Date().toISOString()
 .slice(0, 10);
-				this.saveFile(JSON.stringify(dict.log), fileName + ".AB");
+				this.saveFile(JSON.stringify(dict.log), fileName + '.AB');
 				break;
-			case "hash":
+			case 'hash':
 			default:
 				output = hash;
 				strOutput = hash;
 		}
 
-		console.log("GameData: " + strOutput);
+		console.log('GameData: ' + strOutput);
 		return output;
 	}
 
 	saveFile(data, fileName) {
-		let a = document.createElement("a");
+		let a = document.createElement('a');
 		let file = new Blob([data]);
 		let url = URL.createObjectURL(file);
 		a.href = url;

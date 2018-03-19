@@ -1,7 +1,7 @@
-import { Damage } from "../damage";
-import { Team } from "../utility/team";
-import * as matrices from "../utility/matrices";
-import * as arrayUtils from "../utility/arrayUtils";
+import { Damage } from '../damage';
+import { Team } from '../utility/team';
+import * as matrices from '../utility/matrices';
+import * as arrayUtils from '../utility/arrayUtils';
 
 /**
  * Creates the abilities
@@ -11,14 +11,14 @@ export default G => {
 	G.abilities[45] = [
 		// 	First Ability: Cyclic Duality
 		{
-			trigger: "onReset",
+			trigger: 'onReset',
 
 			//	require() :
-			require: function () {
+			require: function() {
 				return this.testRequirements();
 			},
 
-			activate: function () {
+			activate: function() {
 				// Only activate when fatigued
 				if (!this.creature.isFatigued()) {
 					return;
@@ -30,28 +30,36 @@ export default G => {
 				if (this.creature.stats.meditation > 0) {
 					this.creature.recharge(Math.floor(this.creature.stats.meditation / 2));
 				}
-			}
+			},
 		},
-
 
 		//	Second Ability: Tooth Fairy
 		{
 			//	Type : Can be "onQuery","onStartPhase","onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			//	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
- return false;
-}
+					return false;
+				}
 
-				if (!this.atLeastOneTarget(
-					G.grid.getHexMap(
-						this.creature.x - 3, this.creature.y - 2, 0, false, matrices.frontnback3hex), {
-						team: this._targetTeam
-					})) {
+				if (
+					!this.atLeastOneTarget(
+						G.grid.getHexMap(
+							this.creature.x - 3,
+							this.creature.y - 2,
+							0,
+							false,
+							matrices.frontnback3hex
+						),
+						{
+							team: this._targetTeam,
+						}
+					)
+				) {
 					return false;
 				}
 
@@ -59,12 +67,12 @@ export default G => {
 			},
 
 			//	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -74,9 +82,8 @@ export default G => {
 				});
 			},
 
-
 			//	activate() :
-			activate: function (target, args) {
+			activate: function(target, args) {
 				let ability = this;
 
 				ability.end();
@@ -99,32 +106,34 @@ export default G => {
 		//	Third Ability: Disturbing Sound
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.both,
 
 			//	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
-return false;
-}
+					return false;
+				}
 
-				if (!this.testDirection({
-					team: this._targetTeam,
-					sourceCreature: this.creature
-				})) {
+				if (
+					!this.testDirection({
+						team: this._targetTeam,
+						sourceCreature: this.creature,
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			//	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					flipped: chimera.player.flipped,
@@ -133,20 +142,18 @@ return false;
 					requireCreature: true,
 					x: chimera.x,
 					y: chimera.y,
-					sourceCreature: chimera
+					sourceCreature: chimera,
 				});
 			},
 
-
 			//	activate() :
-			activate: function (path, args) {
+			activate: function(path, args) {
 				let ability = this;
 
 				ability.end();
 
 				let target = arrayUtils.last(path).creature;
-				let hexes = G.grid.getHexLine(
-					target.x, target.y, args.direction, target.flipped);
+				let hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
 
 				let damage = new Damage(
 					ability.creature, // Attacker
@@ -177,7 +184,7 @@ return false;
 					damage = new Damage(
 						ability.creature, // Attacker
 						{
-							sonic: sonic
+							sonic: sonic,
 						}, // Damage Type
 						1, // Area
 						[], // Effects
@@ -185,17 +192,17 @@ return false;
 					);
 					result = target.takeDamage(damage);
 				}
-			}
+			},
 		},
 
 		// Fourth Ability: Battering Ram
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.both,
 
-			_getDirections: function () {
+			_getDirections: function() {
 				return this.testDirections({
 					flipped: this.creature.player.flipped,
 					team: this._targetTeam,
@@ -207,19 +214,19 @@ return false;
 					sourceCreature: this.creature,
 					directions: [1, 1, 1, 1, 1, 1],
 					includeCreature: true,
-					stopOnCreature: true
+					stopOnCreature: true,
 				});
 			},
 
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
- return false;
-}
+					return false;
+				}
 
 				let directions = this._getDirections();
 				for (let i = 0; i < directions.length; i++) {
 					if (directions[i] === 1) {
-						this.message = "";
+						this.message = '';
 						return true;
 					}
 				}
@@ -228,12 +235,12 @@ return false;
 			},
 
 			//	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					flipped: chimera.player.flipped,
@@ -243,19 +250,19 @@ return false;
 					requireCreature: true,
 					x: chimera.x,
 					y: chimera.y,
-					sourceCreature: chimera
+					sourceCreature: chimera,
 				});
 			},
 
-			activate: function (path, args) {
+			activate: function(path, args) {
 				let ability = this;
 				this.end();
 
-				var knockback = function (_target, _crush, _range) {
+				var knockback = function(_target, _crush, _range) {
 					let damage = new Damage(
 						ability.creature, // Attacker
 						{
-							crush: _crush
+							crush: _crush,
 						}, // Damage Type
 						1, // Area
 						[] // Effects
@@ -266,8 +273,7 @@ return false;
 						return;
 					}
 					// See how far we can knock the target back
-					let hexes = G.grid.getHexLine(
-						_target.x, _target.y, args.direction, false);
+					let hexes = G.grid.getHexLine(_target.x, _target.y, args.direction, false);
 					// Skip the first hex as it is the same hex as the target
 					hexes = hexes.splice(1, _range + 1);
 					let hex = null;
@@ -277,21 +283,20 @@ return false;
 						nextHex = hexes[i];
 						// Check that the next knockback hex is valid
 						if (i === hexes.length - 1) {
-break;
-}
+							break;
+						}
 						if (!hexes[i].isWalkable(_target.size, _target.id, true)) {
-break;
-}
+							break;
+						}
 						hex = hexes[i];
 					}
 
-					let knockbackEnd = function () {
+					let knockbackEnd = function() {
 						// Special case when hitting left: the next hex is still the same
 						// creature, so continue in this direction until we reach the next
 						// creature
 						if (nextHex.creature === _target && args.direction === 4) {
-							let nextHexes = G.grid.getHexLine(
-								_target.x, _target.y, args.direction, false);
+							let nextHexes = G.grid.getHexLine(_target.x, _target.y, args.direction, false);
 							nextHexes = nextHexes.splice(_target.size);
 							if (nextHexes.length > 0) {
 								nextHex = nextHexes[0];
@@ -314,7 +319,7 @@ break;
 							ignoreMovementPoint: true,
 							ignorePath: true,
 							overrideSpeed: 400, // Custom speed for knockback
-							animation: "push"
+							animation: 'push',
 						});
 					} else {
 						// No knockback distance, but there may be a creature behind the target
@@ -326,7 +331,7 @@ break;
 				let crush = this.damages.crush;
 				let range = 3;
 				knockback(target, crush, range);
-			}
-		}
+			},
+		},
 	];
 };

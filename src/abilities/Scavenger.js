@@ -1,8 +1,8 @@
-import { Damage } from "../damage";
-import { Team } from "../utility/team";
-import * as matrices from "../utility/matrices";
-import * as arrayUtils from "../utility/arrayUtils";
-import { Effect } from "../effect";
+import { Damage } from '../damage';
+import { Team } from '../utility/team';
+import * as matrices from '../utility/matrices';
+import * as arrayUtils from '../utility/arrayUtils';
+import { Effect } from '../effect';
 
 /**
  * Creates the abilities
@@ -15,7 +15,6 @@ export default G => {
 	 *
 	 */
 	G.abilities[44] = [
-
 		// 	First Ability: Wing Feathers
 		{
 			/**
@@ -23,51 +22,51 @@ export default G => {
 			 * Movement type is "hover" unless this ability is upgraded, then it's "flying"
 			 * @return {string} movement type, "hover" or "flying"
 			 */
-			movementType: function () {
-				return this.isUpgraded() ? "flying" : this.creature._movementType;
+			movementType: function() {
+				return this.isUpgraded() ? 'flying' : this.creature._movementType;
 			},
 
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "",
+			trigger: '',
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				return true;
 			},
 
 			//	activate() :
-			activate: function () { },
+			activate: function() {},
 		},
-
 
 		// 	Second Ability: Slicing Pounce
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
-return false;
-}
+					return false;
+				}
 
-				if (!this.atLeastOneTarget(
-					this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
-					})) {
+				if (
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+						team: this._targetTeam,
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -77,21 +76,27 @@ return false;
 				});
 			},
 
-
 			//	activate() :
-			activate: function (target, args) {
+			activate: function(target, args) {
 				let ability = this;
 				ability.end();
 
 				// If upgraded, hits will debuff target with -1 offense
 				if (this.isUpgraded()) {
-					let effect = new Effect("Slicing Pounce", ability.creature, target, "onDamage", {
-						alterations: {
-							offense: -1
-						}
-					}, G);
+					let effect = new Effect(
+						'Slicing Pounce',
+						ability.creature,
+						target,
+						'onDamage',
+						{
+							alterations: {
+								offense: -1,
+							},
+						},
+						G
+					);
 					target.addEffect(effect);
-					G.log("%CreatureName" + target.id + "%'s offense is lowered by 1");
+					G.log('%CreatureName' + target.id + "%'s offense is lowered by 1");
 				}
 
 				let damage = new Damage(
@@ -106,19 +111,18 @@ return false;
 			},
 		},
 
-
 		// 	Third Ability: Escort Service
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.both,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
- return false;
-}
+					return false;
+				}
 
 				let ability = this;
 				let crea = this.creature;
@@ -136,7 +140,7 @@ return false;
 				}
 
 				// Cannot escort large (size > 2) creatures unless ability is upgraded
-				hexes = hexes.filter(function (hex) {
+				hexes = hexes.filter(function(hex) {
 					if (!hex.creature) {
 						return false;
 					}
@@ -144,29 +148,31 @@ return false;
 					return hex.creature.size < 3 || ability.isUpgraded();
 				});
 
-				if (!this.atLeastOneTarget(hexes, {
-					team: this._targetTeam
-				})) {
+				if (
+					!this.atLeastOneTarget(hexes, {
+						team: this._targetTeam,
+					})
+				) {
 					return false;
 				}
 
 				let trg = hexes[0].creature || hexes[1].creature;
 
 				if (!trg.stats.moveable) {
-					this.message = "Target is not moveable.";
+					this.message = 'Target is not moveable.';
 					return false;
 				}
 
 				if (crea.remainingMove < trg.size) {
 					//Not enough move points
-					this.message = "Not enough movement points.";
+					this.message = 'Not enough movement points.';
 					return false;
 				}
 
 				return true;
 			},
 
-			query: function () {
+			query: function() {
 				let ability = this;
 				let crea = this.creature;
 
@@ -176,21 +182,28 @@ return false;
 				let distance = Math.floor(crea.remainingMove / trg.size);
 				let size = crea.size + trg.size;
 
-				let trgIsInfront = (G.grid.getHexMap(crea.x - matrices.inlinefront2hex.origin[0], crea.y - matrices.inlinefront2hex.origin[1], 0, false, matrices.inlinefront2hex)[0].creature == trg);
+				let trgIsInfront =
+					G.grid.getHexMap(
+						crea.x - matrices.inlinefront2hex.origin[0],
+						crea.y - matrices.inlinefront2hex.origin[1],
+						0,
+						false,
+						matrices.inlinefront2hex
+					)[0].creature == trg;
 
-				let select = function (hex, args) {
+				let select = function(hex, args) {
 					for (var i = 0; i < trg.hexagons.length; i++) {
 						G.grid.cleanHex(trg.hexagons[i]);
-						trg.hexagons[i].displayVisualState("dashed");
+						trg.hexagons[i].displayVisualState('dashed');
 					}
 					for (var i = 0; i < crea.hexagons.length; i++) {
 						G.grid.cleanHex(crea.hexagons[i]);
-						crea.hexagons[i].overlayVisualState("hover h_player" + crea.team);
+						crea.hexagons[i].overlayVisualState('hover h_player' + crea.team);
 					}
 					for (var i = 0; i < size; i++) {
 						if (!G.grid.hexExists(hex.y, hex.x - i)) {
- continue;
-}
+							continue;
+						}
 						let h = G.grid.hexes[hex.y][hex.x - i];
 						var color;
 						if (trgIsInfront) {
@@ -199,15 +212,15 @@ return false;
 							color = i > 1 ? trg.team : crea.team;
 						}
 						G.grid.cleanHex(h);
-						h.overlayVisualState("active creature player" + color);
-						h.displayVisualState("creature player" + color);
+						h.overlayVisualState('active creature player' + color);
+						h.displayVisualState('creature player' + color);
 					}
 				};
 
-				let x = (trgIsInfront ? crea.x + trg.size : crea.x);
+				let x = trgIsInfront ? crea.x + trg.size : crea.x;
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					fnOnSelect: select, // fnOnSelect,
@@ -215,29 +228,30 @@ return false;
 					id: [crea.id, trg.id],
 					size: size,
 					flipped: crea.player.flipped,
-					hexes: G.grid.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id]).filter(function (item) {
-						return crea.y == item.y &&
-							(trgIsInfront
-								? item.x < x
-								: item.x > x - crea.size - trg.size + 1
+					hexes: G.grid
+						.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
+						.filter(function(item) {
+							return (
+								crea.y == item.y &&
+								(trgIsInfront ? item.x < x : item.x > x - crea.size - trg.size + 1)
 							);
-					}),
+						}),
 					args: {
 						trg: trg.id,
-						trgIsInfront: trgIsInfront
+						trgIsInfront: trgIsInfront,
 					},
 					callbackAfterQueryHexes: () => {
 						for (let i = 0; i < trg.hexagons.length; i++) {
 							G.grid.cleanHex(trg.hexagons[i]);
-							trg.hexagons[i].displayVisualState("dashed");
+							trg.hexagons[i].displayVisualState('dashed');
 						}
 					},
-					fillHexOnHover: false
+					fillHexOnHover: false,
 				});
 			},
 
 			//	activate() :
-			activate: function (hex, args) {
+			activate: function(hex, args) {
 				let ability = this;
 				ability.end();
 
@@ -267,54 +281,54 @@ return false;
 				crea.remainingMove -= distance * trg.size;
 
 				crea.moveTo(crea_dest, {
-					animation: "fly",
-					callback: function () {
+					animation: 'fly',
+					callback: function() {
 						trg.updateHex();
 					},
-					ignoreMovementPoint: true
+					ignoreMovementPoint: true,
 				});
 
 				trg.moveTo(trg_dest, {
-					animation: "fly",
-					callback: function () {
+					animation: 'fly',
+					callback: function() {
 						ability.creature.updateHex();
 						ability.creature.queryMove();
 					},
 					ignoreMovementPoint: true,
-					overrideSpeed: crea.animation.walk_speed
+					overrideSpeed: crea.animation.walk_speed,
 				});
-
 			},
 		},
 
 		// 	Fourth Ability: Deadly Toxin
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
-return false;
-}
+					return false;
+				}
 
-				if (!this.atLeastOneTarget(
-					this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
-					})) {
+				if (
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+						team: this._targetTeam,
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -324,9 +338,8 @@ return false;
 				});
 			},
 
-
 			//	activate() :
-			activate: function (target, args) {
+			activate: function(target, args) {
 				let ability = this;
 				ability.end();
 
@@ -347,22 +360,35 @@ return false;
 				target.takeDamage(damage);
 
 				// Add poison damage debuff
-				let effect = new Effect(this.title, this.creature, target, "onStartPhase", {
-					stackable: false,
-					effectFn: function (effect, creature) {
-						G.log("%CreatureName" + creature.id + "% is affected by " + ability.title);
-						creature.takeDamage(new Damage(
-							effect.owner, {
-								poison: ability.damages.poison
-							}, 1, [], G
-						));
-					}
-				}, G);
+				let effect = new Effect(
+					this.title,
+					this.creature,
+					target,
+					'onStartPhase',
+					{
+						stackable: false,
+						effectFn: function(effect, creature) {
+							G.log('%CreatureName' + creature.id + '% is affected by ' + ability.title);
+							creature.takeDamage(
+								new Damage(
+									effect.owner,
+									{
+										poison: ability.damages.poison,
+									},
+									1,
+									[],
+									G
+								)
+							);
+						},
+					},
+					G
+				);
 				target.replaceEffect(effect);
-				G.log("%CreatureName" + target.id + "% is poisoned by " + this.title);
+				G.log('%CreatureName' + target.id + '% is poisoned by ' + this.title);
 
 				G.UI.checkAbilities();
 			},
-		}
+		},
 	];
 };

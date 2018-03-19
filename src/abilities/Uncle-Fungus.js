@@ -1,33 +1,32 @@
-import { Damage } from "../damage";
-import { Team } from "../utility/team";
-import * as matrices from "../utility/matrices";
-import * as arrayUtils from "../utility/arrayUtils";
-import { Effect } from "../effect";
-import { getDirectionFromDelta } from "../utility/position";
+import { Damage } from '../damage';
+import { Team } from '../utility/team';
+import * as matrices from '../utility/matrices';
+import * as arrayUtils from '../utility/arrayUtils';
+import { Effect } from '../effect';
+import { getDirectionFromDelta } from '../utility/position';
 /**
  * Creates the abilities
  * @param {Object} G the game object
  */
 export default G => {
 	G.abilities[3] = [
-
 		// First Ability: Toxic Spores
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			triggerFunc: function () {
+			triggerFunc: function() {
 				if (this.isUpgraded()) {
-					return "onUnderAttack onAttack";
+					return 'onUnderAttack onAttack';
 				}
-				return "onUnderAttack";
+				return 'onUnderAttack';
 			},
 
 			priority: 10,
 
 			// require() :
-			require: function (damage) {
+			require: function(damage) {
 				if (!this.testRequirements()) {
- return false;
-}
+					return false;
+				}
 
 				// Check that attack is melee from actual creature, not from trap
 				if (damage && damage.melee !== undefined) {
@@ -38,13 +37,13 @@ export default G => {
 			},
 
 			// activate() :
-			activate: function (damage) {
+			activate: function(damage) {
 				let ability = this;
 				let creature = this.creature;
 
 				if (!damage || !damage.melee) {
- return;
-}
+					return;
+				}
 
 				// ability may trigger both onAttack and onUnderAttack;
 				// the target should be the other creature
@@ -53,7 +52,7 @@ export default G => {
 				let optArg = {
 					alterations: ability.effects[0],
 					creationTurn: G.turn - 1,
-					stackable: true
+					stackable: true,
 				};
 
 				ability.end();
@@ -63,50 +62,52 @@ export default G => {
 					ability.title, // Name
 					creature, // Caster
 					target, // Target
-					"", // Trigger
+					'', // Trigger
 					optArg, // Optional arguments
 					G
 				);
 
-				target.addEffect(effect, undefined, "Contaminated");
+				target.addEffect(effect, undefined, 'Contaminated');
 
-				G.log("%CreatureName" + target.id + "%'s regrowth is lowered by " + ability.effects[0].regrowth);
+				G.log(
+					'%CreatureName' + target.id + "%'s regrowth is lowered by " + ability.effects[0].regrowth
+				);
 
 				ability.setUsed(false); // Infinite triggering
 			},
 		},
 
-
 		//	Second Ability: Supper Chomp
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			// require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
- return false;
-}
+					return false;
+				}
 
 				// At least one target
-				if (!this.atLeastOneTarget(
-					this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
-					})) {
+				if (
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+						team: this._targetTeam,
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			// query() :
-			query: function () {
+			query: function() {
 				let uncle = this.creature;
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -116,9 +117,8 @@ export default G => {
 				});
 			},
 
-
 			// activate() :
-			activate: function (target, args) {
+			activate: function(target, args) {
 				let ability = this;
 				ability.end();
 
@@ -132,8 +132,7 @@ export default G => {
 
 				let dmg = target.takeDamage(damage);
 
-				if (dmg.damageObj.status === "") {
-
+				if (dmg.damageObj.status === '') {
 					let amount = Math.max(Math.round(dmg.damages.total / 2), 1);
 
 					// If upgraded, heal immediately up to the amount of health lost so far;
@@ -149,40 +148,42 @@ export default G => {
 
 					// Regrowth bonus
 					if (amount > 0) {
-						ability.creature.addEffect(new Effect(
-							ability.title, // Name
-							ability.creature, // Caster
-							ability.creature, // Target
-							"", // Trigger
-							{
-								turnLifetime: 1,
-								deleteTrigger: "onStartPhase",
-								alterations: {
-									regrowth: amount
-								}
-							}, // Optional arguments
-							G
-						), "%CreatureName" + ability.creature.id + "% gained " + amount + " regrowth for now", // Custom Log
-							"Regrowth++"); // Custom Hint
+						ability.creature.addEffect(
+							new Effect(
+								ability.title, // Name
+								ability.creature, // Caster
+								ability.creature, // Target
+								'', // Trigger
+								{
+									turnLifetime: 1,
+									deleteTrigger: 'onStartPhase',
+									alterations: {
+										regrowth: amount,
+									},
+								}, // Optional arguments
+								G
+							),
+							'%CreatureName' + ability.creature.id + '% gained ' + amount + ' regrowth for now', // Custom Log
+							'Regrowth++'
+						); // Custom Hint
 					}
 				}
 
 				// Remove frogger bonus if its found
-				ability.creature.effects.forEach(function (effect) {
-					if (effect.name == "Frogger Bonus") {
+				ability.creature.effects.forEach(function(effect) {
+					if (effect.name == 'Frogger Bonus') {
 						effect.deleteEffect();
 					}
 				});
 			},
 		},
 
-
 		// Third Ability: Frogger Jump
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
-			require: function () {
+			require: function() {
 				// Must be able to move
 				if (!this.creature.stats.moveable) {
 					this.message = G.msg.abilities.notmoveable;
@@ -191,16 +192,16 @@ export default G => {
 				return this.testRequirements() && this.creature.stats.moveable;
 			},
 
-			fnOnSelect: function (hex, args) {
+			fnOnSelect: function(hex, args) {
 				this.creature.tracePosition({
 					x: hex.x,
 					y: hex.y,
-					overlayClass: "creature moveto selected player" + this.creature.team
+					overlayClass: 'creature moveto selected player' + this.creature.team,
 				});
 			},
 
 			// query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let uncle = this.creature;
 
@@ -210,10 +211,10 @@ export default G => {
 				let hexes = this._getHexRange(stopOnCreature);
 
 				G.grid.queryHexes({
-					fnOnSelect: function () {
+					fnOnSelect: function() {
 						ability.fnOnSelect(...arguments);
 					},
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						if (arguments[0].x == ability.creature.x && arguments[0].y == ability.creature.y) {
 							// Prevent null movement
 							ability.query();
@@ -226,14 +227,12 @@ export default G => {
 					id: uncle.id,
 					hexes: hexes,
 					hexesDashed: [],
-					hideNonTarget: true
+					hideNonTarget: true,
 				});
 			},
 
-
 			// activate() :
-			activate: function (hex, args) {
-
+			activate: function(hex, args) {
 				let ability = this;
 				ability.end(false, true); // Defered ending
 
@@ -258,39 +257,41 @@ export default G => {
 				ability.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function () {
+					callback: function() {
 						// Shake the screen upon landing to simulate the jump
 						G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
-						var interval = setInterval(function () {
+						var interval = setInterval(function() {
 							if (!G.freezedInput) {
 								clearInterval(interval);
 								G.UI.selectAbility(-1);
 								G.activeCreature.queryMove();
 							}
 						}, 100);
-					}
+					},
 				});
 
 				// Frogger Leap bonus
-				ability.creature.addEffect(new Effect(
-					"Offense Bonus", // Name
-					ability.creature, // Caster
-					ability.creature, // Target
-					"onStepIn onEndPhase", // Trigger
-					{
-						effectFn: function (effect, crea) {
-							effect.deleteEffect();
-						},
-						alterations: ability.effects[0]
-					}, // Optional arguments
-					G
-				));
+				ability.creature.addEffect(
+					new Effect(
+						'Offense Bonus', // Name
+						ability.creature, // Caster
+						ability.creature, // Target
+						'onStepIn onEndPhase', // Trigger
+						{
+							effectFn: function(effect, crea) {
+								effect.deleteEffect();
+							},
+							alterations: ability.effects[0],
+						}, // Optional arguments
+						G
+					)
+				);
 			},
 
-			_getHexRange: function (stopOnCreature) {
+			_getHexRange: function(stopOnCreature) {
 				// Get the hex range of this ability
 				let uncle = this.creature;
 				let forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, matrices.straitrow);
@@ -298,7 +299,7 @@ export default G => {
 				let backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, matrices.straitrow);
 				backward = arrayUtils.filterCreature(backward, false, stopOnCreature, uncle.id);
 				// Combine and sort by X, left to right
-				let hexes = forward.concat(backward).sort(function (a, b) {
+				let hexes = forward.concat(backward).sort(function(a, b) {
 					return a.x - b.x;
 				});
 				// Filter out any hexes that cannot accomodate the creature's size
@@ -320,40 +321,48 @@ export default G => {
 				return hexes;
 			},
 
-			_isSecondLowJump: function () {
+			_isSecondLowJump: function() {
 				return this.timesUsedThisTurn === 1;
-			}
+			},
 		},
 		// Fourth Ability: Sabre Kick
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			// require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
-return false;
-}
+					return false;
+				}
 
-				let map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, matrices.frontnback2hex);
+				let map = G.grid.getHexMap(
+					this.creature.x - 2,
+					this.creature.y - 2,
+					0,
+					false,
+					matrices.frontnback2hex
+				);
 				// At least one target
-				if (!this.atLeastOneTarget(map, {
-					team: this._targetTeam
-				})) {
+				if (
+					!this.atLeastOneTarget(map, {
+						team: this._targetTeam,
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			// query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let uncle = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -363,9 +372,8 @@ return false;
 				});
 			},
 
-
 			// activate() :
-			activate: function (target, args) {
+			activate: function(target, args) {
 				let ability = this;
 				ability.end();
 
@@ -386,27 +394,26 @@ return false;
 					let hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
 					// The hex to knock back into is the second hex since the first is where
 					// they are currently
-					if (hexes.length >= 2 &&
-						hexes[1].isWalkable(target.size, target.id, true)) {
+					if (hexes.length >= 2 && hexes[1].isWalkable(target.size, target.id, true)) {
 						target.moveTo(hexes[1], {
-							callback: function () {
+							callback: function() {
 								G.activeCreature.queryMove();
 							},
 							ignoreMovementPoint: true,
 							ignorePath: true,
 							overrideSpeed: 500, // Custom speed for knockback
-							animation: "push"
+							animation: 'push',
 						});
 					}
 				}
 
 				// Remove Frogger Jump bonus if its found
-				ability.creature.effects.forEach(function (effect) {
-					if (effect.name == "Offense Bonus") {
+				ability.creature.effects.forEach(function(effect) {
+					if (effect.name == 'Offense Bonus') {
 						effect.deleteEffect();
 					}
 				});
 			},
-		}
+		},
 	];
 };

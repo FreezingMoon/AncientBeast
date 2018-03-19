@@ -11,8 +11,8 @@ export class BufferLoader {
 		// Load buffer asynchronously
 		let request = new XMLHttpRequest();
 
-		request.open("GET", url, true);
-		request.responseType = "arraybuffer";
+		request.open('GET', url, true);
+		request.responseType = 'arraybuffer';
 
 		request.onload = () => {
 			// Asynchronously decode the audio file data in request.response

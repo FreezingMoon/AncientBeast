@@ -11,16 +11,17 @@
 export function getDirectionFromDelta(y, dx, dy) {
 	// Due to target size, this could be off; limit dx
 	if (dx > 1) {
- dx = 1;
-}
+		dx = 1;
+	}
 	if (dx < -1) {
- dx = -1;
-}
+		dx = -1;
+	}
 	let dir;
 	if (dy === 0) {
 		if (dx === 1) {
 			dir = 1; // forward
-		} else { // dx === -1
+		} else {
+			// dx === -1
 			dir = 4; // backward
 		}
 	} else {
@@ -31,13 +32,16 @@ export function getDirectionFromDelta(y, dx, dy) {
 		if (dx === 1) {
 			if (dy === -1) {
 				dir = 0; // upright
-			} else { // dy === 1
+			} else {
+				// dy === 1
 				dir = 2; // downright
 			}
-		} else { // dx === 0
+		} else {
+			// dx === 0
 			if (dy === 1) {
 				dir = 3; // downleft
-			} else { // dy === -1
+			} else {
+				// dy === -1
 				dir = 5; // upleft
 			}
 		}

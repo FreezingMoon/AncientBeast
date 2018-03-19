@@ -1,4 +1,4 @@
-import * as arrayUtils from "./arrayUtils";
+import * as arrayUtils from './arrayUtils';
 
 // Start and end must be Hex type
 export function search(start, end, creatureSize, creatureId, grid) {
@@ -12,7 +12,6 @@ export function search(start, end, creatureSize, creatureId, grid) {
 	}
 
 	while (openList.length > 0) {
-
 		// Grab the lowest f(x) to process next
 		let lowInd = 0;
 		for (var i = 0; i < openList.length; i++) {
@@ -41,7 +40,10 @@ export function search(start, end, creatureSize, creatureId, grid) {
 		for (var i = 0; i < neighbors.length; i++) {
 			let neighbor = neighbors[i];
 
-			if (arrayUtils.findPos(closedList, neighbor) || !neighbor.isWalkable(creatureSize, creatureId)) {
+			if (
+				arrayUtils.findPos(closedList, neighbor) ||
+				!neighbor.isWalkable(creatureSize, creatureId)
+			) {
 				// Not a valid node to process, skip to next neighbor
 				continue;
 			}
@@ -50,7 +52,6 @@ export function search(start, end, creatureSize, creatureId, grid) {
 			//	 the path we have arrived at this neighbor is the shortest one we have seen yet
 			let gScore = currentNode.g + 1; // 1 is the distance from a node to it's neighbor
 			let gScoreIsBest = false;
-
 
 			if (!arrayUtils.findPos(openList, neighbor)) {
 				// This the the first time we have arrived at this node, it must be the best
