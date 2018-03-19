@@ -1,9 +1,9 @@
 import * as $j from 'jquery';
-import { Damage } from "../damage";
-import { Team, isTeam } from "../utility/team";
-import * as matrices from "../utility/matrices";
-import * as arrayUtils from "../utility/arrayUtils";
-import { Effect } from "../effect";
+import { Damage } from '../damage';
+import { Team, isTeam } from '../utility/team';
+import * as matrices from '../utility/matrices';
+import * as arrayUtils from '../utility/arrayUtils';
+import { Effect } from '../effect';
 
 /**
  * Creates the abilities
@@ -241,20 +241,17 @@ export default G => {
 					default:
 						break;
 				}
-			}
 
-			target.moveTo(hex, {
-				ignoreMovementPoint: true,
-				ignorePath: true,
-				callback: function() {
-					G.activeCreature.queryMove();
-				},
-				animation: "push",
-			});
+				target.moveTo(hex, {
+					ignoreMovementPoint: true,
+					ignorePath: true,
+					callback: function() {
+						G.activeCreature.queryMove();
+					},
+					animation: 'push'
+				});
 
-			G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
-		},
-	},
+				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				dir = dir.slice(0, dist + 1);
 
@@ -375,7 +372,5 @@ export default G => {
 				};
 			}
 		}
-	}
-
-];
+	];
 };

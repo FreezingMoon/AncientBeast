@@ -13,14 +13,18 @@ export class MusicPlayer {
 		this.audio.volume = 0.25;
 		this.audio.pause();
 
-		$j('#mp_shuffle').addClass("active").click((e) => {
-			$j(e.currentTarget).toggleClass("active");
-			this.shuffle = !this.shuffle;
-		});
+		$j('#mp_shuffle')
+			.addClass('active')
+			.click(e => {
+				$j(e.currentTarget).toggleClass('active');
+				this.shuffle = !this.shuffle;
+			});
 
 		this.playlist.find('a').click(e => {
 			e.preventDefault();
-			this.current = $j(e.currentTarget).parent().index();
+			this.current = $j(e.currentTarget)
+				.parent()
+				.index();
 			this.run($j(e.currentTarget));
 		});
 

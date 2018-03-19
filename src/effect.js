@@ -1,5 +1,5 @@
 import * as $j from 'jquery';
-import { Creature } from "./creature";
+import { Creature } from './creature';
 
 /*
  * Effect Class
@@ -23,20 +23,23 @@ export class Effect {
 		this.trigger = trigger;
 		this.creationTurn = game.turn;
 
-		let args = $j.extend({
-			// Default Arguments
-			requireFn: function() {
-				return true;
+		let args = $j.extend(
+			{
+				// Default Arguments
+				requireFn: function() {
+					return true;
+				},
+				effectFn: function() {},
+				alterations: {},
+				turnLifetime: 0,
+				deleteTrigger: 'onStartOfRound',
+				stackable: true,
+				noLog: false,
+				specialHint: undefined, // Special hint for log
+				deleteOnOwnerDeath: false
 			},
-			effectFn: function() {},
-			alterations: {},
-			turnLifetime: 0,
-			deleteTrigger: "onStartOfRound",
-			stackable: true,
-			noLog: false,
-			specialHint: undefined, // Special hint for log
-			deleteOnOwnerDeath: false
-		}, optArgs);
+			optArgs
+		);
 
 		$j.extend(this, args);
 
@@ -53,7 +56,7 @@ export class Effect {
 		}
 
 		if (!this.noLog) {
-			console.log("Effect " + this.name + " triggered");
+			console.log('Effect ' + this.name + ' triggered');
 		}
 
 		if (arg instanceof Creature) {
@@ -71,6 +74,6 @@ export class Effect {
 		i = game.effects.indexOf(this);
 		game.effects.splice(i, 1);
 		this.target.updateAlteration();
-		console.log("Effect " + this.name + " deleted");
+		console.log('Effect ' + this.name + ' deleted');
 	}
-};
+}

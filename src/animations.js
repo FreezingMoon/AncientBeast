@@ -1,5 +1,5 @@
 import * as $j from 'jquery';
-import * as arrayUtils from "./utility/arrayUtils";
+import * as arrayUtils from './utility/arrayUtils';
 
 export class Animations {
 	constructor(game) {
@@ -39,14 +39,18 @@ export class Animations {
 			let nextPos = game.grid.hexes[hex.y][hex.x - creature.size + 1];
 			let speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
 
-			let tween = game.Phaser.add.tween(creature.grp)
+			let tween = game.Phaser.add
+				.tween(creature.grp)
 				.to(nextPos.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
 				.start();
 
 			// Ignore traps for hover creatures, unless this is the last hex
-			let enterHexOpts = $j.extend({
-				ignoreTraps: creature.movementType() !== "normal" && hexId < path.length - 1
-			}, opts);
+			let enterHexOpts = $j.extend(
+				{
+					ignoreTraps: creature.movementType() !== 'normal' && hexId < path.length - 1
+				},
+				opts
+			);
 
 			tween.onComplete.add(() => {
 				if (creature.dead) {
@@ -77,7 +81,6 @@ export class Animations {
 		anim();
 	}
 
-
 	fly(creature, path, opts) {
 		let game = this.game;
 
@@ -106,7 +109,8 @@ export class Animations {
 
 		let speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
 
-		let tween = game.Phaser.add.tween(creature.grp)
+		let tween = game.Phaser.add
+			.tween(creature.grp)
 			.to(currentHex.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
 			.start();
 
@@ -149,10 +153,15 @@ export class Animations {
 		game.animationQueue.push(anim_id);
 
 		// FadeOut
-		let tween = game.Phaser.add.tween(creature.grp)
-			.to({
-				alpha: 0
-			}, 500, Phaser.Easing.Linear.None)
+		let tween = game.Phaser.add
+			.tween(creature.grp)
+			.to(
+				{
+					alpha: 0
+				},
+				500,
+				Phaser.Easing.Linear.None
+			)
 			.start();
 
 		tween.onComplete.add(() => {
@@ -164,10 +173,15 @@ export class Animations {
 			creature.grp.y = currentHex.displayPos.y;
 
 			// FadeIn
-			let tween = game.Phaser.add.tween(creature.grp)
-				.to({
-					alpha: 1
-				}, 500, Phaser.Easing.Linear.None)
+			let tween = game.Phaser.add
+				.tween(creature.grp)
+				.to(
+					{
+						alpha: 1
+					},
+					500,
+					Phaser.Easing.Linear.None
+				)
 				.start();
 
 			this.enterHex(creature, hex, opts);
@@ -229,13 +243,13 @@ export class Animations {
 
 		game.onCreatureMove(creature, hex); // Trigger
 
-		creature.hexagons.forEach((hex) => {
+		creature.hexagons.forEach(hex => {
 			hex.pickupDrop(creature);
 		});
 
 		game.grid.orderCreatureZ();
 
-		let queue = game.animationQueue.filter((item) => item != anim_id);
+		let queue = game.animationQueue.filter(item => item != anim_id);
 
 		if (queue.length === 0) {
 			game.freezedInput = false;
@@ -261,11 +275,16 @@ export class Animations {
 
 		sprite.anchor.setTo(0.5);
 		sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
-		let tween = game.Phaser.add.tween(sprite)
-			.to({
-				x: targetPoint.x,
-				y: targetPoint.y
-			}, duration, Phaser.Easing.Linear.None)
+		let tween = game.Phaser.add
+			.tween(sprite)
+			.to(
+				{
+					x: targetPoint.x,
+					y: targetPoint.y
+				},
+				duration,
+				Phaser.Easing.Linear.None
+			)
 			.start();
 
 		return [tween, sprite, dist];

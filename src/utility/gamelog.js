@@ -1,8 +1,5 @@
-import * as $j from "jquery";
-import {
-	isEmpty,
-	getGameConfig
-} from "../script";
+import * as $j from 'jquery';
+import { isEmpty, getGameConfig } from '../script';
 
 export class GameLog {
 	constructor(id, game) {
@@ -130,9 +127,9 @@ export class GameLog {
 				output = dict;
 				strOutput = json;
 				break;
-			case "save":
+			case 'save':
 				var fileName = new Date().toISOString().slice(0, 10);
-				this.saveFile(JSON.stringify(dict.log), fileName + ".AB");
+				this.saveFile(JSON.stringify(dict.log), fileName + '.AB');
 				break;
 			case 'hash':
 			default:
@@ -156,5 +153,5 @@ export class GameLog {
 			document.body.removeChild(a);
 			window.URL.revokeObjectURL(url);
 		}, 0);
-	};
-};
+	}
+}

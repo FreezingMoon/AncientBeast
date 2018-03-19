@@ -41,8 +41,9 @@
 		"husky": "^0.14.3",
 		"less": "^3.0.1",
 		"less-loader": "^4.1.0",
-		"precise-commits": "^1.0.2",
+		"lint-staged": "^7.0.0",
 		"prettier": "^1.11.1",
+		"prettier-eslint-cli": "^4.7.1",
 		"style-loader": "^0.20.3",
 		"uglifyjs-webpack-plugin": "^1.2.4",
 		"webpack": "^4.1.1",
@@ -58,9 +59,19 @@
 		"start:dev": "webpack-serve --config ./webpack.config.js --no-hot",
 		"generateManifest": "node manifestGenerator.js",
 		"lint": "eslint src/**/*.js",
+		"format": "prettier-eslint --write \"src/**/*.js\"",
 		"postinstall": "scripts/postinstall.sh",
-		"precise-commits": "precise-commits",
-		"precommit": "yarn run precise-commits",
-		"eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check"
+		"precommit": "lint-staged",
+		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check"
+	},
+	"lint-staged": {
+		"*.{js,json,less,md}": [
+			"prettier --write",
+			"git add"
+		],
+		"*.js": [
+			"eslint -c .eslintrc.json --fix",
+			"git add"
+		]
 	}
 }

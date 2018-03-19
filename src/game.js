@@ -3,14 +3,14 @@ import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
 import { SoundSys } from './sound/soundsys';
-import { MusicPlayer } from "./sound/musicplayer";
-import { Hex } from "./utility/hex";
+import { MusicPlayer } from './sound/musicplayer';
+import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
-import { getUrl } from "./assetLoader";
-import { Player } from "./player";
-import { UI } from "./ui/interface";
-import { Creature } from "./creature";
-import dataJson from "assets/units/data.json";
+import { getUrl } from './assetLoader';
+import { Player } from './player';
+import { UI } from './ui/interface';
+import { Creature } from './creature';
+import dataJson from 'assets/units/data.json';
 
 /* Game Class
  *
@@ -50,7 +50,7 @@ export default class Game {
 	 *
 	 */
 	constructor(version) {
-		this.version = version || "dev";
+		this.version = version || 'dev';
 		this.abilities = [];
 		this.players = [];
 		this.creatures = [];
@@ -66,7 +66,7 @@ export default class Game {
 		this.creatureData = [];
 		this.creatureJSON = [];
 		this.pause = false;
-		this.gameState = "initialized";
+		this.gameState = 'initialized';
 		this.pauseTime = 0;
 		this.minimumTurnBeforeFleeing = 12;
 		this.availableCreatures = [];
@@ -74,7 +74,7 @@ export default class Game {
 		this.checkTimeFrequency = 1000;
 		this.gamelog = new GameLog(null, this);
 		this.debugMode = false;
-		this.realms = ["A", "E", "G", "L", "P", "S", "W"];
+		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
 		this.loadedCreatures = [
 			0, // Dark Priest
 			37, // Swine Thug
@@ -89,20 +89,20 @@ export default class Game {
 			9, // Nightmare
 			39, // Headless
 			44, // Scavenger
-			31, // Cyber Hound
+			31 // Cyber Hound
 			//6, // Ice Demon
 			//22, // Lava Mollusk
 			//33, // Golden Wyrm
 		];
 		this.availableMusic = [];
 		this.soundEffects = [
-			"sounds/step",
-			"sounds/swing",
-			"sounds/swing2",
-			"sounds/swing3",
-			"sounds/heartbeat"
+			'sounds/step',
+			'sounds/swing',
+			'sounds/swing2',
+			'sounds/swing3',
+			'sounds/heartbeat'
 		];
-		this.inputMethod = "Mouse";
+		this.inputMethod = 'Mouse';
 
 		// Gameplay properties
 		this.firstKill = false;
@@ -120,19 +120,19 @@ export default class Game {
 		// https://github.com/FreezingMoon/AncientBeast/issues/923
 		this.msg = {
 			abilities: {
-				notarget: "No targets available.",
-				noplasma: "Not enough plasma.",
-				nopsy: "Psyhelm overload: too many units!",
-				alreadyused: "This ability has already been used.",
-				toomuch: "Too much %stat%.",
-				notenough: "Not enough %stat%.",
-				notmoveable: "This creature cannot be moved.",
-				passivecycle: "Switches between any usable abilities.",
-				passiveunavailable: "No usable abilities to switch to."
+				notarget: 'No targets available.',
+				noplasma: 'Not enough plasma.',
+				nopsy: 'Psyhelm overload: too many units!',
+				alreadyused: 'This ability has already been used.',
+				toomuch: 'Too much %stat%.',
+				notenough: 'Not enough %stat%.',
+				notmoveable: 'This creature cannot be moved.',
+				passivecycle: 'Switches between any usable abilities.',
+				passiveunavailable: 'No usable abilities to switch to.'
 			},
 			ui: {
 				dash: {
-					materialize_overload: "Overload! Maximum number of units controlled",
+					materialize_overload: 'Overload! Maximum number of units controlled'
 				}
 			}
 		};
@@ -177,7 +177,7 @@ export default class Game {
 	}
 
 	dataLoaded(data) {
-		let dpcolor = ["blue", "orange", "green", "red"];
+		let dpcolor = ['blue', 'orange', 'green', 'red'];
 
 		this.creatureData = data;
 
@@ -202,14 +202,20 @@ export default class Game {
 			// Load artwork
 			this.getImage(getUrl('units/artwork/' + name));
 
-			if (name == "Dark Priest") {
+			if (name == 'Dark Priest') {
 				for (i = 0, count = dpcolor.length; i < count; i++) {
-					this.Phaser.load.image(name + dpcolor[i] + '_cardboard', getUrl('units/cardboards/' + name + ' ' + dpcolor[i]));
+					this.Phaser.load.image(
+						name + dpcolor[i] + '_cardboard',
+						getUrl('units/cardboards/' + name + ' ' + dpcolor[i])
+					);
 					this.getImage(getUrl('units/avatars/' + name + ' ' + dpcolor[i]));
 				}
 			} else {
 				if (creature.drop) {
-					this.Phaser.load.image('drop_' + creature.drop.name, getUrl("drops/" + creature.drop.name));
+					this.Phaser.load.image(
+						'drop_' + creature.drop.name,
+						getUrl('drops/' + creature.drop.name)
+					);
 				}
 
 				this.Phaser.load.image(name + '_cardboard', getUrl('units/cardboards/' + name));
@@ -239,12 +245,12 @@ export default class Game {
 				plasma_amount: 50,
 				turnTimePool: 60,
 				timePool: 5 * 60,
-				background_image: "Frozen Skull",
+				background_image: 'Frozen Skull'
 			},
 			i;
 
 		this.gamelog.gameConfig = setupOpt;
-		this.gameState = "loading";
+		this.gameState = 'loading';
 		// setupOpt = $j.extend(defaultOpt, setupOpt);
 		$j.extend(this, setupOpt);
 
@@ -264,61 +270,61 @@ export default class Game {
 		// Health
 		let playerColors = ['red', 'blue', 'orange', 'green'];
 		for (i = 0; i < 4; i++) {
-			this.Phaser.load.image(
-				'p' + i + '_health',
-				getUrl('interface/rectangle_' + playerColors[i]));
-			this.Phaser.load.image(
-				'p' + i + '_plasma',
-				getUrl('interface/capsule_' + playerColors[i]));
+			this.Phaser.load.image('p' + i + '_health', getUrl('interface/rectangle_' + playerColors[i]));
+			this.Phaser.load.image('p' + i + '_plasma', getUrl('interface/capsule_' + playerColors[i]));
 			this.Phaser.load.image(
 				'p' + i + '_frozen',
-				getUrl('interface/rectangle_frozen_' + playerColors[i]));
+				getUrl('interface/rectangle_frozen_' + playerColors[i])
+			);
 		}
 
 		// Ability SFX
-		this.Phaser.load.audio('MagmaSpawn0', getUrl("units/sfx/Magma Spawn 0"));
+		this.Phaser.load.audio('MagmaSpawn0', getUrl('units/sfx/Magma Spawn 0'));
 
 		// Grid
-		this.Phaser.load.image('hex', getUrl("interface/hex"));
-		this.Phaser.load.image('hex_dashed', getUrl("interface/hex_dashed"));
-		this.Phaser.load.image('hex_path', getUrl("interface/hex_path"));
-		this.Phaser.load.image('cancel', getUrl("interface/cancel"));
-		this.Phaser.load.image('input', getUrl("interface/hex_input"));
+		this.Phaser.load.image('hex', getUrl('interface/hex'));
+		this.Phaser.load.image('hex_dashed', getUrl('interface/hex_dashed'));
+		this.Phaser.load.image('hex_path', getUrl('interface/hex_path'));
+		this.Phaser.load.image('cancel', getUrl('interface/cancel'));
+		this.Phaser.load.image('input', getUrl('interface/hex_input'));
 		for (i = 0; i < 4; i++) {
-			this.Phaser.load.image(
-				'hex_p' + i,
-				getUrl('interface/hex_glowing_' + playerColors[i])
-			);
-			this.Phaser.load.image(
-				'hex_hover_p' + i,
-				getUrl('interface/hex_outline_' + playerColors[i])
-			);
+			this.Phaser.load.image('hex_p' + i, getUrl('interface/hex_glowing_' + playerColors[i]));
+			this.Phaser.load.image('hex_hover_p' + i, getUrl('interface/hex_outline_' + playerColors[i]));
 		}
 
 		// Traps
 		// TODO: Load these sprites only after the specific unit has been materialized
 		this.Phaser.load.image('trap_royal-seal', getUrl('units/sprites/Gumble - Royal Seal'));
-		this.Phaser.load.image('trap_mud-bath', getUrl("units/sprites/Swine Thug - Mud Bath"));
-		this.Phaser.load.image('trap_scorched-ground', getUrl("units/sprites/Magma Spawn - Scorched Ground"));
-		this.Phaser.load.image('trap_firewall', getUrl("units/sprites/Magma Spawn - Scorched Ground"));
-		this.Phaser.load.image('trap_poisonous-vine', getUrl("units/sprites/Impaler - Poisonous Vine"));
+		this.Phaser.load.image('trap_mud-bath', getUrl('units/sprites/Swine Thug - Mud Bath'));
+		this.Phaser.load.image(
+			'trap_scorched-ground',
+			getUrl('units/sprites/Magma Spawn - Scorched Ground')
+		);
+		this.Phaser.load.image('trap_firewall', getUrl('units/sprites/Magma Spawn - Scorched Ground'));
+		this.Phaser.load.image('trap_poisonous-vine', getUrl('units/sprites/Impaler - Poisonous Vine'));
 
 		// Effects
-		this.Phaser.load.image('effects_fiery-touch', getUrl("units/sprites/Abolished - Fiery Touch"));
-		this.Phaser.load.image('effects_fissure-vent', getUrl("units/sprites/Magma Spawn - Scorched Ground"));
-		this.Phaser.load.image('effects_freezing-spit', getUrl("units/sprites/Snow Bunny - Freezing Spit"));
+		this.Phaser.load.image('effects_fiery-touch', getUrl('units/sprites/Abolished - Fiery Touch'));
+		this.Phaser.load.image(
+			'effects_fissure-vent',
+			getUrl('units/sprites/Magma Spawn - Scorched Ground')
+		);
+		this.Phaser.load.image(
+			'effects_freezing-spit',
+			getUrl('units/sprites/Snow Bunny - Freezing Spit')
+		);
 
 		// Background
-		this.Phaser.load.image('background', getUrl("locations/" + this.background_image + "/bg"));
+		this.Phaser.load.image('background', getUrl('locations/' + this.background_image + '/bg'));
 
 		// Get JSON files
 		this.dataLoaded(dataJson);
 	}
 
 	startLoading() {
-		$j("#gameSetupContainer").hide();
-		$j("#loader").show();
-		$j("body").css("cursor", "wait");
+		$j('#gameSetupContainer').hide();
+		$j('#loader').show();
+		$j('body').css('cursor', 'wait');
 	}
 
 	loadFinish() {
@@ -326,22 +332,22 @@ export default class Game {
 			loadingBarWidth = 355,
 			progressWidth = progress + '%';
 
-		$j("#barLoader .progress").css('width', progressWidth);
+		$j('#barLoader .progress').css('width', progressWidth);
 
 		if (progress == 100) {
 			setTimeout(() => {
-				this.gameState = "loaded";
+				this.gameState = 'loaded';
 
 				// Do not call setup if we are not active.
 				if (!this.preventSetup) {
 					this.setup(this.playerMode);
 				}
-			}, 100)
+			}, 100);
 		}
 	}
 
 	phaserUpdate() {
-		if (this.gameState != "playing") {
+		if (this.gameState != 'playing') {
 			return;
 		}
 	}
@@ -364,7 +370,7 @@ export default class Game {
 	onFocus() {
 		this.preventSetup = false;
 		// If loaded, call maybeSetup with a tiny delay to prevent rendering issues.
-		if (this.gameState == "loaded") {
+		if (this.gameState == 'loaded') {
 			setTimeout(() => {
 				this.maybeSetup();
 			}, 100);
@@ -377,8 +383,8 @@ export default class Game {
 			return;
 		}
 
-		$j("#loader").hide();
-		$j("body").css("cursor", "default");
+		$j('#loader').hide();
+		$j('body').css('cursor', 'default');
 		this.setup(this.playerMode);
 	}
 
@@ -434,11 +440,11 @@ export default class Game {
 
 		this.startMatchTime = new Date();
 
-		this.$combatFrame = $j("#combatframe");
+		this.$combatFrame = $j('#combatframe');
 		this.$combatFrame.show();
 
 		// Remove loading screen
-		$j("#matchMaking").hide();
+		$j('#matchMaking').hide();
 
 		for (i = 0; i < playerMode; i++) {
 			let player = new Player(i, this);
@@ -447,7 +453,8 @@ export default class Game {
 			// Initialize players' starting positions
 			let pos = {};
 
-			if (playerMode > 2) { // If 4 players
+			if (playerMode > 2) {
+				// If 4 players
 				switch (player.id) {
 					case 0:
 						pos = {
@@ -474,7 +481,8 @@ export default class Game {
 						};
 						break;
 				}
-			} else { // If 2 players
+			} else {
+				// If 2 players
 				switch (player.id) {
 					case 0:
 						pos = {
@@ -491,7 +499,7 @@ export default class Game {
 				}
 			}
 
-			player.summon("--", pos); // Summon Dark Priest
+			player.summon('--', pos); // Summon Dark Priest
 		}
 
 		this.activeCreature = this.players[0].creatures[0]; // Prevent errors
@@ -499,10 +507,10 @@ export default class Game {
 		this.UI = new UI(this); // Create UI (not before because some functions require creatures to already exist)
 
 		// DO NOT CALL LOG BEFORE UI CREATION
-		this.gameState = "playing";
+		this.gameState = 'playing';
 
-		this.log("Welcome to Ancient Beast pre-Alpha");
-		this.log("Setting up a " + playerMode + " player match");
+		this.log('Welcome to Ancient Beast pre-Alpha');
+		this.log('Setting up a ' + playerMode + ' player match');
 
 		this.timeInterval = setInterval(() => {
 			this.checkTime();
@@ -539,8 +547,8 @@ export default class Game {
 	 * Resize the combat frame
 	 */
 	resizeCombatFrame() {
-		if ($j("#cardwrapper").width() < $j("#card").width()) {
-			$j("#cardwrapper_inner").width();
+		if ($j('#cardwrapper').width() < $j('#card').width()) {
+			$j('#cardwrapper_inner').width();
 		}
 	}
 
@@ -554,7 +562,7 @@ export default class Game {
 
 		this.grid.clearHexViewAlterations();
 		this.turn++;
-		this.log("Round " + this.turn, "roundmarker");
+		this.log('Round ' + this.turn, 'roundmarker');
 		this.queue.nextRound();
 
 		// Resets values
@@ -576,10 +584,10 @@ export default class Game {
 	 */
 	nextCreature() {
 		this.UI.closeDash();
-		this.UI.btnToggleDash.changeState("normal");
+		this.UI.btnToggleDash.changeState('normal');
 		this.grid.xray(new Hex(-1, -1, null, this)); // Clear Xray
 
-		if (this.gameState == "ended") {
+		if (this.gameState == 'ended') {
 			return;
 		}
 
@@ -619,20 +627,22 @@ export default class Game {
 						this.soundsys.playSound(this.soundLoaded[4], this.soundsys.heartbeatGainNode);
 					}
 
-					this.log("Active Creature : %CreatureName" + this.activeCreature.id + "%");
+					this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
 					this.activeCreature.activate();
 
 					// Show mini tutorial in the first round for each player
 					if (this.turn == 1) {
-						this.log("The active unit has a flashing hexagon");
-						this.log("It uses a plasma field to protect itself");
-						this.log("Its portrait is displayed in the upper left");
+						this.log('The active unit has a flashing hexagon');
+						this.log('It uses a plasma field to protect itself');
+						this.log('Its portrait is displayed in the upper left');
 						this.log("Under the portrait are the unit's abilities");
-						this.log("The ones with flashing icons are usable");
-						this.log("Use the last one to materialize a unit");
-						this.log("Making units drains your plasma points");
-						this.log("Press the hourglass icon to skip the turn");
-						this.log("%CreatureName" + this.activeCreature.id + "%, press here to toggle tutorial!");
+						this.log('The ones with flashing icons are usable');
+						this.log('Use the last one to materialize a unit');
+						this.log('Making units drains your plasma points');
+						this.log('Press the hourglass icon to skip the turn');
+						this.log(
+							'%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!'
+						);
 					}
 
 					// Updates UI to match new creature
@@ -667,8 +677,14 @@ export default class Game {
 			creature = this.creatures[i];
 
 			if (creature instanceof Creature) {
-				stringConsole = stringConsole.replace("%CreatureName" + i + "%", creature.player.name + "'s " + creature.name);
-				stringLog = stringLog.replace("%CreatureName" + i + "%", "<span class='" + creature.player.color + "'>" + creature.name + "</span>");
+				stringConsole = stringConsole.replace(
+					'%CreatureName' + i + '%',
+					creature.player.name + "'s " + creature.name
+				);
+				stringLog = stringLog.replace(
+					'%CreatureName' + i + '%',
+					"<span class='" + creature.player.color + "'>" + creature.name + '</span>'
+				);
 			}
 		}
 
@@ -681,14 +697,14 @@ export default class Game {
 			this.pause = false;
 			this.freezedInput = false;
 			this.pauseTime += new Date() - this.pauseStartTime;
-			$j("#pause").remove();
+			$j('#pause').remove();
 			this.startTimer();
 		} else if (!this.pause && !this.freezedInput) {
 			this.pause = true;
 			this.freezedInput = true;
 			this.pauseStartTime = new Date();
 			this.stopTimer();
-			$j("#ui").append('<div id="pause">Pause</div>');
+			$j('#ui').append('<div id="pause">Pause</div>');
 		}
 	}
 
@@ -701,26 +717,33 @@ export default class Game {
 			return;
 		}
 
-		o = $j.extend({
-			callback: function () { },
-			noTooltip: false,
-			tooltip: 'Skipped'
-		}, o);
+		o = $j.extend(
+			{
+				callback: function() {},
+				noTooltip: false,
+				tooltip: 'Skipped'
+			},
+			o
+		);
 
 		this.turnThrottle = true;
-		this.UI.btnSkipTurn.changeState("disabled");
-		this.UI.btnDelay.changeState("disabled");
+		this.UI.btnSkipTurn.changeState('disabled');
+		this.UI.btnDelay.changeState('disabled');
 
 		if (!o.noTooltip) {
-			this.activeCreature.hint(o.tooltip, "msg_effects");
+			this.activeCreature.hint(o.tooltip, 'msg_effects');
 		}
 
 		setTimeout(() => {
 			this.turnThrottle = false;
-			this.UI.btnSkipTurn.changeState("normal");
+			this.UI.btnSkipTurn.changeState('normal');
 
-			if (!this.activeCreature.hasWait && this.activeCreature.delayable && !this.queue.isCurrentEmpty()) {
-				this.UI.btnDelay.changeState("normal");
+			if (
+				!this.activeCreature.hasWait &&
+				this.activeCreature.delayable &&
+				!this.queue.isCurrentEmpty()
+			) {
+				this.UI.btnDelay.changeState('normal');
 			}
 
 			o.callback.apply();
@@ -746,23 +769,34 @@ export default class Game {
 			return;
 		}
 
-		if (this.activeCreature.hasWait || !this.activeCreature.delayable || this.queue.isCurrentEmpty()) {
+		if (
+			this.activeCreature.hasWait ||
+			!this.activeCreature.delayable ||
+			this.queue.isCurrentEmpty()
+		) {
 			return;
 		}
 
-		o = $j.extend({
-			callback: function () { },
-		}, o);
+		o = $j.extend(
+			{
+				callback: function() {}
+			},
+			o
+		);
 
 		this.turnThrottle = true;
-		this.UI.btnSkipTurn.changeState("disabled");
-		this.UI.btnDelay.changeState("disabled");
+		this.UI.btnSkipTurn.changeState('disabled');
+		this.UI.btnDelay.changeState('disabled');
 
 		setTimeout(() => {
 			this.turnThrottle = false;
-			this.UI.btnSkipTurn.changeState("normal");
-			if (!this.activeCreature.hasWait && this.activeCreature.delayable && !this.queue.isCurrentEmpty()) {
-				this.UI.btnDelay.changeState("normal");
+			this.UI.btnSkipTurn.changeState('normal');
+			if (
+				!this.activeCreature.hasWait &&
+				this.activeCreature.delayable &&
+				!this.queue.isCurrentEmpty()
+			) {
+				this.UI.btnDelay.changeState('normal');
 			}
 
 			o.callback.apply();
@@ -796,7 +830,7 @@ export default class Game {
 		let date = new Date() - this.pauseTime,
 			p = this.activeCreature.player,
 			alertTime = 5, // In seconds
-			msgStyle = "msg_effects",
+			msgStyle = 'msg_effects',
 			totalPlayers = this.playerMode,
 			i;
 
@@ -804,9 +838,10 @@ export default class Game {
 
 		// Check all timepools
 		// Check is always true for infinite time
-		let playerStillHaveTime = (this.timePool > 0) ? false : true;
-		for (i = 0; i < totalPlayers; i++) { // Each player
-			playerStillHaveTime = (this.players[i].totalTimePool > 0) || playerStillHaveTime;
+		let playerStillHaveTime = this.timePool > 0 ? false : true;
+		for (i = 0; i < totalPlayers; i++) {
+			// Each player
+			playerStillHaveTime = this.players[i].totalTimePool > 0 || playerStillHaveTime;
 		}
 
 		// Check Match Time
@@ -819,7 +854,10 @@ export default class Game {
 
 		// Turn time and timepool not infinite
 		if (this.timePool > 0 && this.turnTimePool > 0) {
-			if ((date - p.startTime) / 1000 > this.turnTimePool || p.totalTimePool - (date - p.startTime) < 0) {
+			if (
+				(date - p.startTime) / 1000 > this.turnTimePool ||
+				p.totalTimePool - (date - p.startTime) < 0
+			) {
 				if (p.totalTimePool - (date - p.startTime) < 0) {
 					p.deactivate(); // Only if timepool is empty
 				}
@@ -828,40 +866,51 @@ export default class Game {
 				return;
 			} else {
 				if ((p.totalTimePool - (date - p.startTime)) / 1000 < alertTime) {
-					msgStyle = "damage";
+					msgStyle = 'damage';
 				}
 
-				if (this.turnTimePool - ((date - p.startTime) / 1000) < alertTime && this.UI.dashopen) {
+				if (this.turnTimePool - (date - p.startTime) / 1000 < alertTime && this.UI.dashopen) {
 					// Alert
-					this.UI.btnToggleDash.changeState("glowing");
-					this.activeCreature.hint(Math.ceil(this.turnTimePool - ((date - p.startTime) / 1000)), msgStyle);
+					this.UI.btnToggleDash.changeState('glowing');
+					this.activeCreature.hint(
+						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
+						msgStyle
+					);
 				}
 			}
-		} else if (this.turnTimePool > 0) { // Turn time is not infinite
+		} else if (this.turnTimePool > 0) {
+			// Turn time is not infinite
 			if ((date - p.startTime) / 1000 > this.turnTimePool) {
 				this.skipTurn();
 				return;
 			} else {
-				if (this.turnTimePool - ((date - p.startTime) / 1000) < alertTime && this.UI.dashopen) {
+				if (this.turnTimePool - (date - p.startTime) / 1000 < alertTime && this.UI.dashopen) {
 					// Alert
-					this.UI.btnToggleDash.changeState("glowing");
-					this.activeCreature.hint(Math.ceil(this.turnTimePool - ((date - p.startTime) / 1000)), msgStyle);
+					this.UI.btnToggleDash.changeState('glowing');
+					this.activeCreature.hint(
+						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
+						msgStyle
+					);
 				}
 			}
-		} else if (this.timePool > 0) { // Timepool is not infinite
+		} else if (this.timePool > 0) {
+			// Timepool is not infinite
 			if (p.totalTimePool - (date - p.startTime) < 0) {
 				p.deactivate();
 				this.skipTurn();
 				return;
 			} else {
 				if (p.totalTimePool - (date - p.startTime) < alertTime) {
-					msgStyle = "damage";
+					msgStyle = 'damage';
 				}
 
-				if (this.turnTimePool - ((date - p.startTime) / 1000) < alertTime && this.UI.dashopen) {
+				if (this.turnTimePool - (date - p.startTime) / 1000 < alertTime && this.UI.dashopen) {
 					// Alert
-					this.UI.btnToggleDash.changeState("glowing");
-					this.activeCreature.hint(Math.ceil(this.turnTimePool - ((date - p.startTime) / 1000)), msgStyle);
+					this.UI.btnToggleDash.changeState('glowing');
+					this.activeCreature.hint(
+						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
+						msgStyle
+					);
 				}
 			}
 		}
@@ -888,7 +937,7 @@ export default class Game {
 		let [triggeredCreature, required] = arg;
 
 		// For triggered creature
-		triggeredCreature.abilities.forEach((ability) => {
+		triggeredCreature.abilities.forEach(ability => {
 			if (triggeredCreature.dead === true) {
 				return;
 			}
@@ -901,13 +950,13 @@ export default class Game {
 		});
 
 		// For other creatures
-		this.creatures.forEach((creature) => {
+		this.creatures.forEach(creature => {
 			if (triggeredCreature === creature || creature.dead === true) {
 				return;
 			}
 
-			creature.abilities.forEach((ability) => {
-				if (this.triggers[trigger + "_other"].test(ability.getTrigger())) {
+			creature.abilities.forEach(ability => {
+				if (this.triggers[trigger + '_other'].test(ability.getTrigger())) {
 					if (ability.require(required)) {
 						retValue = ability.animation(required, triggeredCreature);
 					}
@@ -920,7 +969,7 @@ export default class Game {
 		let [triggeredCreature, required] = arg;
 
 		// For triggered creature
-		triggeredCreature.effects.forEach((effect) => {
+		triggeredCreature.effects.forEach(effect => {
 			if (triggeredCreature.dead === true) {
 				return;
 			}
@@ -931,14 +980,14 @@ export default class Game {
 		});
 
 		// For other creatures
-		this.creatures.forEach((creature) => {
+		this.creatures.forEach(creature => {
 			if (creature instanceof Creature) {
 				if (triggeredCreature === creature || creature.dead === true) {
 					return;
 				}
 
-				creature.effects.forEach((effect) => {
-					if (this.triggers[trigger + "_other"].test(effect.trigger)) {
+				creature.effects.forEach(effect => {
+					if (this.triggers[trigger + '_other'].test(effect.trigger)) {
 						retValue = effect.activate(required);
 					}
 				});
@@ -949,21 +998,24 @@ export default class Game {
 	triggerTrap(trigger, arg) {
 		let [triggeredCreature, required] = arg;
 
-		triggeredCreature.hexagons.forEach((hex) => {
+		triggeredCreature.hexagons.forEach(hex => {
 			hex.activateTrap(this.triggers[trigger], triggeredCreature);
 		});
 	}
 
 	triggerDeleteEffect(trigger, creature) {
-		let effects = (creature == "all") ? this.effects : creature.effects,
+		let effects = creature == 'all' ? this.effects : creature.effects,
 			totalEffects = effects.length,
 			i;
 
 		for (i = 0; i < totalEffects; i++) {
 			let effect = effects[i];
 
-			if (effect.turnLifetime > 0 && trigger === effect.deleteTrigger &&
-				this.turn - effect.creationTurn >= effect.turnLifetime) {
+			if (
+				effect.turnLifetime > 0 &&
+				trigger === effect.deleteTrigger &&
+				this.turn - effect.creationTurn >= effect.turnLifetime
+			) {
 				effect.deleteEffect();
 				// Updates UI in case effect changes it
 				if (effect.target) {
@@ -977,29 +1029,29 @@ export default class Game {
 	}
 
 	onStepIn(creature, hex, opts) {
-		this.triggerAbility("onStepIn", arguments);
-		this.triggerEffect("onStepIn", arguments);
+		this.triggerAbility('onStepIn', arguments);
+		this.triggerEffect('onStepIn', arguments);
 		// Check traps last; this is because traps adds effects triggered by
 		// this event, which gets triggered again via G.triggerEffect. Otherwise
 		// the trap's effects will be triggered twice.
 		if (!opts || !opts.ignoreTraps) {
-			this.triggerTrap("onStepIn", arguments);
+			this.triggerTrap('onStepIn', arguments);
 		}
 	}
 
 	onStepOut(creature, hex, callback) {
-		this.triggerAbility("onStepOut", arguments);
-		this.triggerEffect("onStepOut", arguments);
+		this.triggerAbility('onStepOut', arguments);
+		this.triggerEffect('onStepOut', arguments);
 		// Check traps last; this is because traps add effects triggered by
 		// this event, which gets triggered again via G.triggerEffect. Otherwise
 		// the trap's effects will be triggered twice.
-		this.triggerTrap("onStepOut", arguments);
+		this.triggerTrap('onStepOut', arguments);
 	}
 
 	onReset(creature) {
-		this.triggerDeleteEffect("onReset", creature);
-		this.triggerAbility("onReset", arguments);
-		this.triggerEffect("onReset", [creature, creature]);
+		this.triggerDeleteEffect('onReset', creature);
+		this.triggerAbility('onReset', arguments);
+		this.triggerEffect('onReset', [creature, creature]);
 	}
 
 	onStartPhase(creature, callback) {
@@ -1029,23 +1081,23 @@ export default class Game {
 			}
 		}
 
-		this.triggerDeleteEffect("onStartPhase", creature);
-		this.triggerAbility("onStartPhase", arguments);
-		this.triggerEffect("onStartPhase", [creature, creature]);
+		this.triggerDeleteEffect('onStartPhase', creature);
+		this.triggerAbility('onStartPhase', arguments);
+		this.triggerEffect('onStartPhase', [creature, creature]);
 	}
 
 	onEndPhase(creature, callback) {
-		this.triggerDeleteEffect("onEndPhase", creature);
-		this.triggerAbility("onEndPhase", arguments);
-		this.triggerEffect("onEndPhase", [creature, creature]);
+		this.triggerDeleteEffect('onEndPhase', creature);
+		this.triggerAbility('onEndPhase', arguments);
+		this.triggerEffect('onEndPhase', [creature, creature]);
 	}
 
 	onStartOfRound(creature, callback) {
-		this.triggerDeleteEffect("onStartOfRound", "all");
+		this.triggerDeleteEffect('onStartOfRound', 'all');
 	}
 
 	onCreatureMove(creature, hex, callback) {
-		this.triggerAbility("onCreatureMove", arguments);
+		this.triggerAbility('onCreatureMove', arguments);
 	}
 
 	onCreatureDeath(creature, callback) {
@@ -1055,8 +1107,8 @@ export default class Game {
 			effect,
 			i;
 
-		this.triggerAbility("onCreatureDeath", arguments);
-		this.triggerEffect("onCreatureDeath", [creature, creature]);
+		this.triggerAbility('onCreatureDeath', arguments);
+		this.triggerEffect('onCreatureDeath', [creature, creature]);
 		// Looks for traps owned by this creature and destroy them
 		for (i = 0; i < totalTraps; i++) {
 			trap = this.grid.traps[i];
@@ -1065,8 +1117,7 @@ export default class Game {
 				continue;
 			}
 
-			if (trap.turnLifetime > 0 && trap.fullTurnLifetime &&
-				trap.ownerCreature == creature) {
+			if (trap.turnLifetime > 0 && trap.fullTurnLifetime && trap.ownerCreature == creature) {
 				trap.destroy();
 				i--;
 			}
@@ -1086,42 +1137,44 @@ export default class Game {
 	}
 
 	onCreatureSummon(creature, callback) {
-		this.triggerAbility("onCreatureSummon", [creature, creature, callback]);
-		this.triggerEffect("onCreatureSummon", [creature, creature]);
+		this.triggerAbility('onCreatureSummon', [creature, creature, callback]);
+		this.triggerEffect('onCreatureSummon', [creature, creature]);
 	}
 
 	onEffectAttach(creature, effect, callback) {
-		this.triggerEffect("onEffectAttach", [creature, effect]);
+		this.triggerEffect('onEffectAttach', [creature, effect]);
 	}
 
-
 	onUnderAttack(creature, damage) {
-		this.triggerAbility("onUnderAttack", arguments, damage);
-		this.triggerEffect("onUnderAttack", arguments, damage);
+		this.triggerAbility('onUnderAttack', arguments, damage);
+		this.triggerEffect('onUnderAttack', arguments, damage);
 		return damage;
 	}
 
 	onDamage(creature, damage) {
-		this.triggerAbility("onDamage", arguments);
-		this.triggerEffect("onDamage", arguments);
+		this.triggerAbility('onDamage', arguments);
+		this.triggerEffect('onDamage', arguments);
 	}
 
 	onHeal(creature, amount) {
-		this.triggerAbility("onHeal", arguments);
-		this.triggerEffect("onHeal", arguments);
+		this.triggerAbility('onHeal', arguments);
+		this.triggerEffect('onHeal', arguments);
 	}
 
 	onAttack(creature, damage) {
-		damage = this.triggerAbility("onAttack", arguments, damage);
-		damage = this.triggerEffect("onAttack", arguments, damage);
+		damage = this.triggerAbility('onAttack', arguments, damage);
+		damage = this.triggerEffect('onAttack', arguments, damage);
 	}
 
 	findCreature(o) {
 		let ret = [],
-			o2 = $j.extend({
-				team: -1, // No team
-				type: "--" // Dark Priest
-			}, o),
+			o2 = $j.extend(
+				{
+					team: -1, // No team
+					type: '--' // Dark Priest
+				},
+				o
+			),
 			creatures = this.creatures,
 			totalCreatures = creatures.length,
 			creature,
@@ -1135,8 +1188,8 @@ export default class Game {
 			if (creature instanceof Creature) {
 				match = true;
 
-				$j.each(o2, function (key, val) {
-					if (key == "team") {
+				$j.each(o2, function(key, val) {
+					if (key == 'team') {
 						if (val == -1) {
 							return;
 						}
@@ -1175,7 +1228,6 @@ export default class Game {
 			totalEffects = this.effects.length,
 			creature,
 			totalAbilities,
-
 			i,
 			j;
 
@@ -1202,7 +1254,7 @@ export default class Game {
 	 */
 	endGame() {
 		this.stopTimer();
-		this.gameState = "ended";
+		this.gameState = 'ended';
 
 		// Calculate the time cost of the last turn
 		let skipTurn = new Date(),
@@ -1211,18 +1263,22 @@ export default class Game {
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
 
 		// Show Score Table
-		$j("#endscreen").show();
+		$j('#endscreen').show();
 
-		let $table = $j("#endscreen table tbody");
+		let $table = $j('#endscreen table tbody');
 
 		// Delete uncessary columns if only 2 players
 		if (this.playerMode == 2) {
-			$table.children("tr").children("td:nth-child(even)").remove();
-			$table = $j("#endscreen table tbody");
+			$table
+				.children('tr')
+				.children('td:nth-child(even)')
+				.remove();
+			$table = $j('#endscreen table tbody');
 		}
 
 		// Fill the board
-		for (let i = 0; i < this.playerMode; i++) { // Each player
+		for (let i = 0; i < this.playerMode; i++) {
+			// Each player
 			// TimeBonus
 			if (this.timePool > 0) {
 				this.players[i].bonusTimePool = Math.round(this.players[i].totalTimePool / 1000);
@@ -1232,7 +1288,7 @@ export default class Game {
 			// No fleeing
 			if (!this.players[i].hasFled && !this.players[i].hasLost) {
 				this.players[i].score.push({
-					type: "nofleeing"
+					type: 'nofleeing'
 				});
 			}
 
@@ -1240,14 +1296,15 @@ export default class Game {
 			let immortal = true;
 			for (let j = 0; j < this.players[i].creatures.length; j++) {
 				if (!this.players[i].creatures[j].dead) {
-					if (this.players[i].creatures[j].type != "--") {
+					if (this.players[i].creatures[j].type != '--') {
 						this.players[i].score.push({
-							type: "creaturebonus",
+							type: 'creaturebonus',
 							creature: this.players[i].creatures[j]
 						});
-					} else { // Dark Priest Bonus
+					} else {
+						// Dark Priest Bonus
 						this.players[i].score.push({
-							type: "darkpriestbonus"
+							type: 'darkpriestbonus'
 						});
 					}
 				} else {
@@ -1256,93 +1313,103 @@ export default class Game {
 			}
 
 			// Immortal
-			if (immortal && this.players[i].creatures.length > 1) { // At least 1 creature summoned
+			if (immortal && this.players[i].creatures.length > 1) {
+				// At least 1 creature summoned
 				this.players[i].score.push({
-					type: "immortal"
+					type: 'immortal'
 				});
 			}
 
 			//----------Display-----------//
-			let colId = (this.playerMode > 2) ? (i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3)) : i + 2;
+			let colId = this.playerMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
 
 			// Change Name
-			$table.children("tr.player_name").children("td:nth-child(" + colId + ")") // Weird expression swaps 2nd and 3rd player
+			$table
+				.children('tr.player_name')
+				.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
 				.text(this.players[i].name);
 
 			// Change score
-			$j.each(this.players[i].getScore(), function (index, val) {
-				let text = (val === 0 && index !== "total") ? "--" : val;
-				$table.children("tr." + index).children("td:nth-child(" + colId + ")") // Weird expression swaps 2nd and 3rd player
+			$j.each(this.players[i].getScore(), function(index, val) {
+				let text = val === 0 && index !== 'total' ? '--' : val;
+				$table
+					.children('tr.' + index)
+					.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
 					.text(text);
 			});
 		}
 
 		// Declare winner
-		if (this.playerMode > 2) { // 2 vs 2
+		if (this.playerMode > 2) {
+			// 2 vs 2
 			let score1 = this.players[0].getScore().total + this.players[2].getScore().total,
 				score2 = this.players[1].getScore().total + this.players[3].getScore().total;
 
 			if (score1 > score2) {
 				// Left side wins
-				$j("#endscreen p").text(this.players[0].name + " and " + this.players[2].name + " won the match!");
+				$j('#endscreen p').text(
+					this.players[0].name + ' and ' + this.players[2].name + ' won the match!'
+				);
 			} else if (score1 < score2) {
 				// Right side wins
-				$j("#endscreen p").text(this.players[1].name + " and " + this.players[3].name + " won the match!");
+				$j('#endscreen p').text(
+					this.players[1].name + ' and ' + this.players[3].name + ' won the match!'
+				);
 			} else if (score1 == score2) {
 				// Draw
-				$j("#endscreen p").text("Draw!");
+				$j('#endscreen p').text('Draw!');
 			}
-		} else { // 1 vs 1
+		} else {
+			// 1 vs 1
 			let score1 = this.players[0].getScore().total,
 				score2 = this.players[1].getScore().total;
 
 			if (score1 > score2) {
 				// Left side wins
-				$j("#endscreen p").text(this.players[0].name + " won the match!");
+				$j('#endscreen p').text(this.players[0].name + ' won the match!');
 			} else if (score1 < score2) {
 				// Right side wins
-				$j("#endscreen p").text(this.players[1].name + " won the match!");
+				$j('#endscreen p').text(this.players[1].name + ' won the match!');
 			} else if (score1 == score2) {
 				// Draw
-				$j("#endscreen p").text("Draw!");
+				$j('#endscreen p').text('Draw!');
 			}
 		}
 	}
 
 	action(o, opt) {
-
 		let defaultOpt = {
-			callback: function () { },
+			callback: function() {}
 		};
 
 		opt = $j.extend(defaultOpt, opt);
 
 		this.clearOncePerDamageChain();
 		switch (o.action) {
-			case "move":
+			case 'move':
 				this.activeCreature.moveTo(this.grid.hexes[o.target.y][o.target.x], {
 					callback: opt.callback
 				});
 				break;
-			case "skip":
+			case 'skip':
 				this.skipTurn({
 					callback: opt.callback
 				});
 				break;
-			case "delay":
+			case 'delay':
 				this.delayCreature({
 					callback: opt.callback
 				});
 				break;
-			case "flee":
+			case 'flee':
 				this.activeCreature.player.flee({
 					callback: opt.callback
 				});
 				break;
-			case "ability":
+			case 'ability':
 				let args = $j.makeArray(o.args[1]);
 
-				if (o.target.type == "hex") {
+				if (o.target.type == 'hex') {
 					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
@@ -1350,7 +1417,7 @@ export default class Game {
 					});
 				}
 
-				if (o.target.type == "creature") {
+				if (o.target.type == 'creature') {
 					args.unshift(this.creatures[o.target.crea]);
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
@@ -1358,8 +1425,8 @@ export default class Game {
 					});
 				}
 
-				if (o.target.type == "array") {
-					let array = o.target.array.map((item) => this.grid.hexes[item.y][item.x]);
+				if (o.target.type == 'array') {
+					let array = o.target.array.map(item => this.grid.hexes[item.y][item.x]);
 
 					args.unshift(array);
 					this.activeCreature.abilities[o.id].animation2({
@@ -1374,8 +1441,8 @@ export default class Game {
 	getImage(url) {
 		let img = new Image();
 		img.src = url;
-		img.onload = function () {
+		img.onload = function() {
 			// No-op
 		};
 	}
-};
+}

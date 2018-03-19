@@ -1263,4 +1263,4 @@ export class HexGrid {
 			i++;
 		});
 	}
-};
+}

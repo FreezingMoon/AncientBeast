@@ -1,6 +1,6 @@
+import * as $j from 'jquery';
 import { getUrl } from './assetLoader';
 import { Creature } from './creature';
-import * as $j from 'jquery';
 
 /**
  * Player Class
@@ -47,8 +47,8 @@ export class Player {
 
 		this.score = [
 			{
-				type: 'timebonus',
-			},
+				type: 'timebonus'
+			}
 		];
 	}
 
@@ -82,7 +82,7 @@ export class Player {
 			creature;
 
 		data = $j.extend(data, pos, {
-			team: this.id,
+			team: this.id
 		}); // Create the full data for creature creation
 
 		for (let i = game.creatureJSON.length - 1; i >= 0; i--) {
@@ -130,7 +130,7 @@ export class Player {
 				creaturebonus: 0,
 				darkpriestbonus: 0,
 				immortal: 0,
-				total: 0,
+				total: 0
 			};
 
 		for (let i = 0; i < total; i++) {

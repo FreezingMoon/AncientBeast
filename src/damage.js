@@ -16,7 +16,7 @@ export class Damage {
 		this.game = game;
 		this.attacker = attacker;
 		this.damages = damages;
-		this.status = "";
+		this.status = '';
 		this.effects = effects;
 		this.area = area;
 		// Whether this is counter-damage
@@ -36,13 +36,35 @@ export class Damage {
 		$j.each(this.damages, (key, value) => {
 			let points;
 
-			if (key == "pure") { // Bypass defense calculation
+			if (key == 'pure') {
+				// Bypass defense calculation
 				points = value;
 			} else {
-				points = Math.round(value * (1 + (atk.offense - trg.defense / this.area + atk[key] - trg[key]) / 100));
+				points = Math.round(
+					value * (1 + (atk.offense - trg.defense / this.area + atk[key] - trg[key]) / 100)
+				);
 				// For debugging purposes
 				if (this.game.debugMode) {
-					console.log("damage = " + value + key + "dmg * (1 + (" + atk.offense + "atkoffense - " + trg.defense + "trgdefense / " + this.area + "area + " + atk[key] + "atk" + key + " - " + trg[key] + "trg" + key + " )/100)");
+					console.log(
+						'damage = ' +
+							value +
+							key +
+							'dmg * (1 + (' +
+							atk.offense +
+							'atkoffense - ' +
+							trg.defense +
+							'trgdefense / ' +
+							this.area +
+							'area + ' +
+							atk[key] +
+							'atk' +
+							key +
+							' - ' +
+							trg[key] +
+							'trg' +
+							key +
+							' )/100)'
+					);
 				}
 			}
 
@@ -54,4 +76,4 @@ export class Damage {
 
 		return returnObj;
 	}
-};
+}
