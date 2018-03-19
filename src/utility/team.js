@@ -10,9 +10,9 @@ export function isTeam(creature1, creature2, team) {
 		case Team.enemy:
 			return creature1.team % 2 !== creature2.team % 2;
 		case Team.ally:
-			return creaSource.team % 2 === creaTarget.team % 2;
+			return creature1.team % 2 === creature2.team % 2;
 		case Team.same:
-			return creaSource.team === creaTarget.team;
+			return creature1.team === creature2.team;
 		case Team.both:
 			return true;
 	}

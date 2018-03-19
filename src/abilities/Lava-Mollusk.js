@@ -1,13 +1,12 @@
 import { Damage } from "../damage";
-import { Team } from "../utility/team";
+import { Team, isTeam } from "../utility/team";
 import * as arrayUtils from "../utility/arrayUtils";
 import { Creature } from "../creature";
 import { Effect } from "../effect";
-import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
 export default (G) => {
 	G.abilities[22] = [

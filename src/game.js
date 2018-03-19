@@ -22,7 +22,7 @@ import dataJson from "assets/units/data.json";
  * to really start the game.
  */
 
-export class Game {
+export default class Game {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jQuery elements

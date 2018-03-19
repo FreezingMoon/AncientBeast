@@ -1,14 +1,12 @@
 import { Damage } from "../damage";
-import { Team } from "../utility/team";
+import { Team, isTeam } from "../utility/team";
 import * as matrices from "../utility/matrices";
-import * as arrayUtils from "../utility/arrayUtils";
 import { Creature } from "../creature";
 import { Effect } from "../effect";
-import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
 export default (G) => {
 	G.abilities[33] = [
@@ -218,7 +216,7 @@ export default (G) => {
 
 				var range = G.grid.getFlyingRange(wyrm.x, wyrm.y, 50, wyrm.size, wyrm.id)
 					.filter(item => wyrm.item == item.y);
-				
+
 				G.grid.queryHexes({
 					fnOnSelect: function () {
 						ability.fnOnSelect.apply(ability, arguments);
