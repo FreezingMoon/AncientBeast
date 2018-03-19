@@ -1,3 +1,4 @@
+import * as $j from 'jquery';
 import { Damage } from "../damage";
 import { Team } from "../utility/team";
 import * as matrices from "../utility/matrices";
@@ -7,7 +8,7 @@ import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
 export default (G) => {
 G.abilities[12] = [
@@ -260,7 +261,7 @@ G.abilities[12] = [
 				},
 				animation: "push",
 			});
-			
+
 			G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 		},
 	},

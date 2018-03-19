@@ -1,3 +1,5 @@
+import * as $j from 'jquery';
+
 /*
  * Damage Class
  *

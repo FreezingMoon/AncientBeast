@@ -1,5 +1,8 @@
-import * as jQuery from "jquery";
-import { isEmpty, getGameConfig } from "../script";
+import * as $j from "jquery";
+import {
+	isEmpty,
+	getGameConfig
+} from "../script";
 
 export class GameLog {
 	constructor(id, game) {
@@ -128,7 +131,7 @@ export class GameLog {
 				strOutput = json;
 				break;
 			case "save":
-				var fileName = new Date().toISOString().slice(0,10);
+				var fileName = new Date().toISOString().slice(0, 10);
 				this.saveFile(JSON.stringify(dict.log), fileName + ".AB");
 				break;
 			case "hash":
@@ -151,7 +154,7 @@ export class GameLog {
 		a.click();
 		setTimeout(function() {
 			document.body.removeChild(a);
-			window.URL.revokeObjectURL(url);  
-		}, 0); 
+			window.URL.revokeObjectURL(url);
+		}, 0);
 	};
 };

@@ -1,3 +1,4 @@
+import * as $j from 'jquery';
 import { Damage } from "../damage";
 import { Team } from "../utility/team";
 import * as matrices from "../utility/matrices";
@@ -8,7 +9,7 @@ import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
 export default (G) => {
 	G.abilities[40] = [

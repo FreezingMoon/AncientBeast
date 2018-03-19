@@ -1,3 +1,4 @@
+import * as $j from 'jquery';
 import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
