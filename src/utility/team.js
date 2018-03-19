@@ -2,7 +2,7 @@ export const Team = Object.freeze({
 	enemy: 1,
 	ally: 2,
 	same: 3,
-	both: 4,
+	both: 4
 });
 
 export function isTeam(creature1, creature2, team) {

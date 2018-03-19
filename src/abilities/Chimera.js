@@ -30,7 +30,7 @@ export default G => {
 				if (this.creature.stats.meditation > 0) {
 					this.creature.recharge(Math.floor(this.creature.stats.meditation / 2));
 				}
-			},
+			}
 		},
 
 		//	Second Ability: Tooth Fairy
@@ -56,7 +56,7 @@ export default G => {
 							matrices.frontnback3hex
 						),
 						{
-							team: this._targetTeam,
+							team: this._targetTeam
 						}
 					)
 				) {
@@ -78,7 +78,7 @@ export default G => {
 					team: this._targetTeam,
 					id: chimera.id,
 					flipped: chimera.flipped,
-					hexes: G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, matrices.frontnback3hex),
+					hexes: G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, matrices.frontnback3hex)
 				});
 			},
 
@@ -100,7 +100,7 @@ export default G => {
 					// Second attack
 					target.takeDamage(damage);
 				}
-			},
+			}
 		},
 
 		//	Third Ability: Disturbing Sound
@@ -119,7 +119,7 @@ export default G => {
 				if (
 					!this.testDirection({
 						team: this._targetTeam,
-						sourceCreature: this.creature,
+						sourceCreature: this.creature
 					})
 				) {
 					return false;
@@ -142,7 +142,7 @@ export default G => {
 					requireCreature: true,
 					x: chimera.x,
 					y: chimera.y,
-					sourceCreature: chimera,
+					sourceCreature: chimera
 				});
 			},
 
@@ -184,7 +184,7 @@ export default G => {
 					damage = new Damage(
 						ability.creature, // Attacker
 						{
-							sonic: sonic,
+							sonic: sonic
 						}, // Damage Type
 						1, // Area
 						[], // Effects
@@ -192,7 +192,7 @@ export default G => {
 					);
 					result = target.takeDamage(damage);
 				}
-			},
+			}
 		},
 
 		// Fourth Ability: Battering Ram
@@ -214,7 +214,7 @@ export default G => {
 					sourceCreature: this.creature,
 					directions: [1, 1, 1, 1, 1, 1],
 					includeCreature: true,
-					stopOnCreature: true,
+					stopOnCreature: true
 				});
 			},
 
@@ -250,7 +250,7 @@ export default G => {
 					requireCreature: true,
 					x: chimera.x,
 					y: chimera.y,
-					sourceCreature: chimera,
+					sourceCreature: chimera
 				});
 			},
 
@@ -262,7 +262,7 @@ export default G => {
 					let damage = new Damage(
 						ability.creature, // Attacker
 						{
-							crush: _crush,
+							crush: _crush
 						}, // Damage Type
 						1, // Area
 						[] // Effects
@@ -319,7 +319,7 @@ export default G => {
 							ignoreMovementPoint: true,
 							ignorePath: true,
 							overrideSpeed: 400, // Custom speed for knockback
-							animation: 'push',
+							animation: 'push'
 						});
 					} else {
 						// No knockback distance, but there may be a creature behind the target
@@ -331,7 +331,7 @@ export default G => {
 				let crush = this.damages.crush;
 				let range = 3;
 				knockback(target, crush, range);
-			},
-		},
+			}
+		}
 	];
 };

@@ -55,7 +55,7 @@ export class UI {
 				$button: $j('.toggledash'),
 				click: e => {
 					this.toggleDash();
-				},
+				}
 			},
 			game
 		);
@@ -69,7 +69,7 @@ export class UI {
 					if (!this.dashopen) {
 						this.showMusicPlayer();
 					}
-				},
+				}
 			},
 			game
 		);
@@ -86,11 +86,11 @@ export class UI {
 						}
 
 						game.gamelog.add({
-							action: 'skip',
+							action: 'skip'
 						});
 						game.skipTurn();
 					}
-				},
+				}
 			},
 			game
 		);
@@ -114,11 +114,11 @@ export class UI {
 						}
 
 						game.gamelog.add({
-							action: 'delay',
+							action: 'delay'
 						});
 						game.delayCreature();
 					}
-				},
+				}
 			},
 			game
 		);
@@ -142,13 +142,13 @@ export class UI {
 
 						if (window.confirm('Are you sure you want to flee the match?')) {
 							game.gamelog.add({
-								action: 'flee',
+								action: 'flee'
 							});
 							game.activeCreature.player.flee();
 						}
 					}
 				},
-				state: 'disabled',
+				state: 'disabled'
 			},
 			game
 		);
@@ -158,7 +158,7 @@ export class UI {
 		this.healthBar = new ProgressBar(
 			{
 				$bar: $j('#leftpanel .progressbar .bar.healthbar'),
-				color: 'red',
+				color: 'red'
 			},
 			game
 		);
@@ -166,7 +166,7 @@ export class UI {
 		this.energyBar = new ProgressBar(
 			{
 				$bar: $j('#leftpanel .progressbar .bar.energybar'),
-				color: 'yellow',
+				color: 'yellow'
 			},
 			game
 		);
@@ -174,7 +174,7 @@ export class UI {
 		this.timeBar = new ProgressBar(
 			{
 				$bar: $j('#rightpanel .progressbar .timebar'),
-				color: 'white',
+				color: 'white'
 			},
 			game
 		);
@@ -182,7 +182,7 @@ export class UI {
 		this.poolBar = new ProgressBar(
 			{
 				$bar: $j('#rightpanel .progressbar .poolbar'),
-				color: 'grey',
+				color: 'grey'
 			},
 			game
 		);
@@ -195,7 +195,7 @@ export class UI {
 			max: 10,
 			slide: (event, ui) => {
 				game.soundsys.setEffectsVolume(ui.value / 5);
-			},
+			}
 		});
 
 		let hotkeys = {
@@ -222,7 +222,7 @@ export class UI {
 			grid_down: 40, // Down arrow
 			grid_left: 37, // Left arrow
 			grid_right: 39, // Right arrow
-			grid_confirm: 32, // Space
+			grid_confirm: 32 // Space
 		};
 
 		// Remove hex grid if window loses focus
@@ -418,20 +418,20 @@ export class UI {
 					abilityId: i,
 					css: {
 						disabled: {
-							cursor: 'help',
+							cursor: 'help'
 						},
 						glowing: {
-							cursor: 'pointer',
+							cursor: 'pointer'
 						},
 						selected: {},
 						active: {},
 						noclick: {
-							cursor: 'help',
+							cursor: 'help'
 						},
 						normal: {
-							cursor: 'default',
-						},
-					},
+							cursor: 'default'
+						}
+					}
 				},
 				game
 			);
@@ -445,15 +445,15 @@ export class UI {
 				css: {
 					disabled: {},
 					glowing: {
-						cursor: 'pointer',
+						cursor: 'pointer'
 					},
 					selected: {},
 					active: {},
 					noclick: {},
 					normal: {
-						cursor: 'default',
-					},
-				},
+						cursor: 'default'
+					}
+				}
 			},
 			game
 		);
@@ -595,7 +595,7 @@ export class UI {
 			scale: zoom,
 			left: ($j('#cardwrapper').innerWidth() - $j('#card').innerWidth() * zoom) / 2,
 			position: 'absolute',
-			margin: 0,
+			margin: 0
 		});
 
 		zoom1 = $j('#creaturegridwrapper').innerWidth() / $j('#creaturegrid').innerWidth();
@@ -606,7 +606,7 @@ export class UI {
 			scale: zoom,
 			left: ($j('#creaturegridwrapper').innerWidth() - $j('#creaturegrid').innerWidth() * zoom) / 2,
 			position: 'absolute',
-			margin: 0,
+			margin: 0
 		});
 	}
 
@@ -625,7 +625,7 @@ export class UI {
 			this.$dash.show().css('opacity', 0);
 			this.$dash.transition(
 				{
-					opacity: 1,
+					opacity: 1
 				},
 				this.dashAnimSpeed,
 				'linear'
@@ -703,7 +703,7 @@ export class UI {
 			$j('#card .sideA').css({
 				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
 					'units/artwork/' + stats.name
-				)}')`,
+				)}')`
 			});
 			$j('#card .sideA .section.info')
 				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
@@ -716,7 +716,7 @@ export class UI {
 			$j('#card .sideB').css({
 				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
 					'cards/' + stats.type.substring(0, 1)
-				)}')`,
+				)}')`
 			});
 			$j.each(stats.stats, (key, value) => {
 				let $stat = $j('#card .sideB .' + key + ' .value');
@@ -751,7 +751,7 @@ export class UI {
 			$j.each(game.abilities[stats.id], (key, value) => {
 				let $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
 				$ability.children('.icon').css({
-					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
+					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`
 				});
 				$ability
 					.children('.wrapper')
@@ -863,7 +863,7 @@ export class UI {
 			$j('#card .sideA').css({
 				'background-image': `url(${getUrl('cards/margin.png')}'), url(${getUrl(
 					'units/artwork/' + stats.name
-				)})`,
+				)})`
 			});
 			$j('#card .sideA .section.info')
 				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
@@ -883,7 +883,7 @@ export class UI {
 			$j.each(stats.ability_info, (key, value) => {
 				let $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
 				$ability.children('.icon').css({
-					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
+					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`
 				});
 				$ability
 					.children('.wrapper')
@@ -1065,7 +1065,7 @@ export class UI {
 		this.$dash.transition(
 			{
 				opacity: 0,
-				queue: false,
+				queue: false
 			},
 			this.dashAnimSpeed,
 			'linear',
@@ -1275,7 +1275,7 @@ export class UI {
 			.clearQueue()
 			.transition(
 				{
-					y: '-420px',
+					y: '-420px'
 				},
 				500,
 				'easeInQuart',
@@ -1295,7 +1295,7 @@ export class UI {
 						btn.css.normal = {
 							'background-image': `url('${getUrl(
 								'units/abilities/' + creature.name + ' ' + btn.abilityId
-							)}')`,
+							)}')`
 						};
 						let $desc = btn.$button.next('.desc');
 						$desc.find('span.title').text(ab.title);
@@ -1354,7 +1354,7 @@ export class UI {
 
 					this.$activebox.children('#abilities').transition(
 						{
-							y: '0px',
+							y: '0px'
 						},
 						500,
 						'easeOutQuart'
@@ -1644,7 +1644,7 @@ export class UI {
 
 		// Set transition duration for stat indicators
 		this.$queue.find('.vignette .stats').css({
-			transition: 'height ' + queueAnimSpeed + 'ms',
+			transition: 'height ' + queueAnimSpeed + 'ms'
 		});
 
 		// Updating
@@ -1657,7 +1657,7 @@ export class UI {
 					.transition(
 						{
 							x: -80,
-							queue: false,
+							queue: false
 						},
 						queueAnimSpeed,
 						transition,
@@ -1672,7 +1672,7 @@ export class UI {
 						.transition(
 							{
 								x: -100,
-								queue: false,
+								queue: false
 							},
 							queueAnimSpeed,
 							transition,
@@ -1686,7 +1686,7 @@ export class UI {
 						.transition(
 							{
 								x: '-=80',
-								queue: false,
+								queue: false
 							},
 							queueAnimSpeed,
 							transition,
@@ -1722,11 +1722,11 @@ export class UI {
 			$v
 				.attr('verified', 1)
 				.css({
-					x: offset,
+					x: offset
 				})
 				.transition(
 					{
-						queue: true,
+						queue: true
 					},
 					queueAnimSpeed,
 					transition
@@ -1742,12 +1742,12 @@ export class UI {
 				let offset = (index - Boolean(index)) * 80 + Boolean(index) * 100;
 				$j(vignette)
 					.css({
-						'z-index': 0 - index,
+						'z-index': 0 - index
 					})
 					.transition(
 						{
 							x: offset,
-							queue: false,
+							queue: false
 						},
 						queueAnimSpeed,
 						transition
@@ -1871,12 +1871,12 @@ export class UI {
 			.clearQueue()
 			.addClass('active')
 			.css({
-				transformOrigin: '0px 0px',
+				transformOrigin: '0px 0px'
 			})
 			.transition(
 				{
 					scale: 1.25,
-					x: 0,
+					x: 0
 				},
 				queueAnimSpeed,
 				transition
@@ -1978,14 +1978,14 @@ export class UI {
 			$queueItem.stop();
 			$queueItem.animate(
 				{
-					top: '+=30px',
+					top: '+=30px'
 				},
 				200,
 				'',
 				function() {
 					this.animate(
 						{
-							top: '-=' + this.css('top'),
+							top: '-=' + this.css('top')
 						},
 						100
 					);
@@ -2004,14 +2004,14 @@ export class UI {
 				);
 
 				textElement.css({
-					background: 'black',
+					background: 'black'
 				});
 
 				let text;
 				if (creature.stats.frozen) {
 					text = 'Frozen';
 					textElement.css({
-						background: 'darkturquoise',
+						background: 'darkturquoise'
 					});
 				} else if (creature.materializationSickness) {
 					text = 'Sickened';

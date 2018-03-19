@@ -9,7 +9,7 @@ export class SoundSys {
 				music_volume: 0.1,
 				effects_volume: 0.6,
 				heartbeats_volume: 0.3,
-				announcer_volume: 0.6,
+				announcer_volume: 0.6
 			},
 			o || {}
 		);
@@ -65,7 +65,7 @@ export class SoundSys {
 		o = $j.extend(
 			{
 				music_volume: 1,
-				effects_volume: 1,
+				effects_volume: 1
 			},
 			o
 		);

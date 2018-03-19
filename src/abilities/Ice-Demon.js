@@ -52,7 +52,7 @@ export default G => {
 										let iceDemonArray = G.findCreature({
 											type: 'S7', // Ice Demon
 											dead: false, // Still Alive
-											team: [1 - trg.team % 2, 1 - trg.team % 2 + 2], // Oposite team
+											team: [1 - trg.team % 2, 1 - trg.team % 2 + 2] // Oposite team
 										});
 
 										if (iceDemonArray.length == 0) {
@@ -60,7 +60,7 @@ export default G => {
 										}
 									},
 									alterations: ability.effects[0],
-									noLog: true,
+									noLog: true
 								}, // Optional arguments
 								G
 							);
@@ -68,7 +68,7 @@ export default G => {
 						}
 					}
 				}
-			},
+			}
 		},
 
 		// 	Second Ability: Head Bash
@@ -88,7 +88,7 @@ export default G => {
 					!this.testDirection({
 						team: this._targetTeam,
 						distance: this.distance,
-						sourceCreature: this.creature,
+						sourceCreature: this.creature
 					})
 				) {
 					return false;
@@ -112,7 +112,7 @@ export default G => {
 					x: crea.x,
 					y: crea.y,
 					distance: this.distance,
-					sourceCreature: crea,
+					sourceCreature: crea
 				});
 			},
 
@@ -162,7 +162,7 @@ export default G => {
 							callback: function() {
 								G.activeCreature.queryMove();
 							},
-							animation: 'push',
+							animation: 'push'
 						});
 						pushed = true;
 					}
@@ -181,7 +181,7 @@ export default G => {
 					G
 				);
 				target.takeDamage(damage);
-			},
+			}
 		},
 
 		// 	Thirt Ability: Snow Storm
@@ -278,7 +278,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(hexes, {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -370,7 +370,7 @@ export default G => {
 								crea.id,
 								crea.team
 							)
-						),
+						)
 				];
 
 				G.grid.queryChoice({
@@ -381,7 +381,7 @@ export default G => {
 					requireCreature: 1,
 					id: crea.id,
 					flipped: crea.flipped,
-					choices: choices,
+					choices: choices
 				});
 			},
 
@@ -412,7 +412,7 @@ export default G => {
 						creaturesHit.push(choice[i].creature);
 					}
 				}
-			},
+			}
 		},
 
 		// 	Fourth Ability: Frozen Orb
@@ -432,7 +432,7 @@ export default G => {
 					!this.testDirection({
 						team: this._targetTeam,
 						directions: this.directions,
-						sourceCreature: this.creature,
+						sourceCreature: this.creature
 					})
 				) {
 					return false;
@@ -473,7 +473,7 @@ export default G => {
 					requireCreature: true,
 					x: crea.x,
 					y: crea.y,
-					sourceCreature: crea,
+					sourceCreature: crea
 				});
 			},
 
@@ -509,7 +509,7 @@ export default G => {
 						effectFn: function(effect) {
 							effect.target.stats.frozen = true;
 							this.deleteEffect();
-						},
+						}
 					},
 					G
 				);
@@ -520,7 +520,7 @@ export default G => {
 					[effect], // Effects
 					trgs
 				);
-			},
-		},
+			}
+		}
 	];
 };

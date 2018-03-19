@@ -26,7 +26,7 @@ export default G => {
 				}
 				if (damage == undefined) {
 					damage = {
-						type: 'target',
+						type: 'target'
 					};
 				} // For the test function to work
 				//if( this.triggeredThisChain ) return false;
@@ -51,7 +51,7 @@ export default G => {
 				);
 
 				return damage;
-			},
+			}
 		},
 
 		// 	Second Ability: Fiery Claw
@@ -71,7 +71,7 @@ export default G => {
 					!this.testDirection({
 						team: this._targetTeam,
 						distance: this.distance,
-						sourceCreature: this.creature,
+						sourceCreature: this.creature
 					})
 				) {
 					return false;
@@ -95,7 +95,7 @@ export default G => {
 					x: crea.x,
 					y: crea.y,
 					distance: this.distance,
-					sourceCreature: crea,
+					sourceCreature: crea
 				});
 			},
 
@@ -114,7 +114,7 @@ export default G => {
 					G
 				);
 				target.takeDamage(damage);
-			},
+			}
 		},
 
 		// 	Thirt Ability: Burning Eye
@@ -141,7 +141,7 @@ export default G => {
 					callback: function() {
 						delete arguments[1];
 						ability.animation(...arguments);
-					},
+					}
 				});
 			},
 
@@ -162,8 +162,8 @@ export default G => {
 					if (isTeam(ability.creature, trg, item._targetTeam)) {
 						let optArg = {
 							alterations: {
-								burn: -1,
-							},
+								burn: -1
+							}
 						};
 
 						//Roasted effect
@@ -199,8 +199,8 @@ export default G => {
 							if (isTeam(ability.creature, trg, item._targetTeam)) {
 								let optArg = {
 									alterations: {
-										burn: -1,
-									},
+										burn: -1
+									}
 								};
 
 								//Roasted effect
@@ -218,9 +218,9 @@ export default G => {
 								);
 							}
 						});
-					},
+					}
 				});
-			},
+			}
 		},
 
 		// 	Fourth Ability: Fire Ball
@@ -296,7 +296,7 @@ export default G => {
 					},
 					id: this.creature.id,
 					hexes: range,
-					hideNonTarget: true,
+					hideNonTarget: true
 				});
 			},
 
@@ -327,7 +327,7 @@ export default G => {
 					[], //Effects
 					targets
 				);
-			},
-		},
+			}
+		}
 	];
 };

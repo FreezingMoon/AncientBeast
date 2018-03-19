@@ -31,7 +31,7 @@ export default G => {
 
 				if (
 					this.atLeastOneTarget(this.creature.adjacentHexes(1), {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					this.end();
@@ -68,9 +68,9 @@ export default G => {
 								}
 							},
 							alterations: {
-								regrowth: -5,
+								regrowth: -5
 							},
-							turn: G.turn,
+							turn: G.turn
 						};
 
 						//Spore Contamination
@@ -97,7 +97,7 @@ export default G => {
 						}
 					}
 				});
-			},
+			}
 		},
 
 		// 	Second Ability: Executioner Axe
@@ -106,7 +106,7 @@ export default G => {
 			trigger: 'onQuery',
 
 			damages: {
-				slash: 40,
+				slash: 40
 			},
 			_targetTeam: Team.enemy,
 
@@ -119,7 +119,7 @@ export default G => {
 				//At least one target
 				if (
 					!this.atLeastOneTarget(this.creature.adjacentHexes(1), {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -136,7 +136,7 @@ export default G => {
 					[0, 0, 0, 0],
 					[0, 1, 0, 1],
 					[1, 0, 0, 1], //origin line
-					[0, 1, 0, 1],
+					[0, 1, 0, 1]
 				];
 
 				G.grid.queryCreature({
@@ -146,7 +146,7 @@ export default G => {
 					team: this._targetTeam,
 					id: wyrm.id,
 					flipped: wyrm.flipped,
-					hexes: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, map),
+					hexes: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, map)
 				});
 			},
 
@@ -178,8 +178,8 @@ export default G => {
 									effect.deleteEffect();
 								},
 								alterations: {
-									regrowth: Math.round(dmg.damages.total / 4),
-								},
+									regrowth: Math.round(dmg.damages.total / 4)
+								}
 							}, //Optional arguments
 							G
 						)
@@ -192,7 +192,7 @@ export default G => {
 						this.deleteEffect();
 					}
 				});
-			},
+			}
 		},
 
 		// 	Third Ability: Dragon Flight
@@ -208,7 +208,7 @@ export default G => {
 				this.creature.tracePosition({
 					x: hex.x,
 					y: hex.y,
-					overlayClass: 'creature moveto selected player' + this.creature.team,
+					overlayClass: 'creature moveto selected player' + this.creature.team
 				});
 			},
 
@@ -231,7 +231,7 @@ export default G => {
 					size: wyrm.size,
 					flipped: wyrm.player.flipped,
 					id: wyrm.id,
-					hexes: range,
+					hexes: range
 				});
 			},
 
@@ -245,7 +245,7 @@ export default G => {
 					ignorePath: true,
 					callback: function() {
 						G.activeCreature.queryMove();
-					},
+					}
 				});
 
 				// Frogger Leap bonus
@@ -260,13 +260,13 @@ export default G => {
 								effect.deleteEffect();
 							},
 							alterations: {
-								offense: 25,
-							},
+								offense: 25
+							}
 						}, // Optional arguments
 						G
 					)
 				);
-			},
+			}
 		},
 
 		// 	Fourth Ability: Battle Cry
@@ -277,7 +277,7 @@ export default G => {
 			damages: {
 				pierce: 15,
 				slash: 10,
-				crush: 5,
+				crush: 5
 			},
 			_targetTeam: Team.enemy,
 
@@ -297,7 +297,7 @@ export default G => {
 				// At least one target
 				if (
 					!this.atLeastOneTarget(map, {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -317,7 +317,7 @@ export default G => {
 					team: this._targetTeam,
 					id: wyrm.id,
 					flipped: wyrm.flipped,
-					hexes: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, matrices.frontnback2hex),
+					hexes: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, matrices.frontnback2hex)
 				});
 			},
 
@@ -341,7 +341,7 @@ export default G => {
 						item.deleteEffect();
 					}
 				});
-			},
-		},
+			}
+		}
 	];
 };

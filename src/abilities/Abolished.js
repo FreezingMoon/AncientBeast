@@ -18,8 +18,9 @@ export default G => {
 					return false;
 				}
 				if (damage === undefined) {
-					damage = { // NOTE : This code produce array with doubles.
-						type: 'target',
+					damage = {
+						// NOTE : This code produce array with doubles.
+						type: 'target'
 					}; // For the test function to work
 				}
 				return true;
@@ -37,8 +38,8 @@ export default G => {
 						'', // Trigger
 						{
 							alterations: {
-								burn: -1,
-							},
+								burn: -1
+							}
 						}, // Optional arguments
 						G
 					)
@@ -53,14 +54,14 @@ export default G => {
 							'', // Trigger
 							{
 								alterations: {
-									burn: 1,
-								},
+									burn: 1
+								}
 							}, // Optional arguments
 							G
 						)
 					);
 				}
-			},
+			}
 		},
 		// Fiery touch
 		{
@@ -77,7 +78,7 @@ export default G => {
 					!this.testDirection({
 						team: this._targetTeam,
 						distance: this.distance,
-						sourceCreature: this.creature,
+						sourceCreature: this.creature
 					})
 				) {
 					return false;
@@ -103,7 +104,7 @@ export default G => {
 					x: crea.x,
 					y: crea.y,
 					distance: this.distance,
-					sourceCreature: crea,
+					sourceCreature: crea
 				});
 			},
 			activate(path, args) {
@@ -135,7 +136,7 @@ export default G => {
 
 					this.destroy();
 				}, sprite); // End tween.onComplete
-			},
+			}
 		},
 		// Wild Fire
 		{
@@ -162,7 +163,7 @@ export default G => {
 						}
 						delete arguments[1];
 						ability.animation(...arguments);
-					},
+					}
 				});
 			},
 			activate(hex, args) {
@@ -188,7 +189,7 @@ export default G => {
 						creature = creatureOrHex.creature;
 					}
 					creature.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
-						isFromTrap: true,
+						isFromTrap: true
 					});
 					this.trap.destroy();
 				};
@@ -217,16 +218,16 @@ export default G => {
 								{
 									requireFn: requireFn,
 									effectFn: effectFn,
-									attacker: crea,
+									attacker: crea
 								},
 								G
-							),
+							)
 						],
 						crea.player,
 						{
 							turnLifetime: 1,
 							ownerCreature: crea,
-							fullTurnLifetime: true,
+							fullTurnLifetime: true
 						}
 					);
 				});
@@ -237,9 +238,9 @@ export default G => {
 					animation: 'teleport',
 					callback: function() {
 						G.activeCreature.queryMove();
-					},
+					}
 				});
-			},
+			}
 		},
 		// Greater Pyre
 		{
@@ -271,7 +272,7 @@ export default G => {
 					},
 					id: this.creature.id,
 					hexes: range,
-					hideNonTarget: true,
+					hideNonTarget: true
 				});
 			},
 			activate(hex, args) {
@@ -297,7 +298,7 @@ export default G => {
 						)
 					);
 				});
-			},
-		},
+			}
+		}
 	];
 };

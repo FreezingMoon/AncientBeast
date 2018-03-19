@@ -54,7 +54,7 @@ export default G => {
 
 				// Keep highlighted in UI
 				this.setUsed(false);
-			},
+			}
 		},
 
 		// 	Second Ability: Metal Hand
@@ -72,7 +72,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -92,7 +92,7 @@ export default G => {
 					team: this._targetTeam,
 					id: crea.id,
 					flipped: crea.player.flipped,
-					hexes: crea.getHexMap(matrices.frontnback2hex),
+					hexes: crea.getHexMap(matrices.frontnback2hex)
 				});
 			},
 
@@ -125,7 +125,7 @@ export default G => {
 							'%'
 					);
 				}
-			},
+			}
 		},
 
 		// 	Third Ability: Rocket Launcher
@@ -137,17 +137,17 @@ export default G => {
 				// Recalculate energy requirements/costs based on whether this is ugpraded
 				if (this.isUpgraded()) {
 					this.requirements = {
-						energy: 30,
+						energy: 30
 					};
 					this.costs = {
-						energy: 30,
+						energy: 30
 					};
 				} else {
 					this.requirements = {
-						energy: 40,
+						energy: 40
 					};
 					this.costs = {
-						energy: 40,
+						energy: 40
 					};
 				}
 				return this.testRequirements();
@@ -205,7 +205,7 @@ export default G => {
 								true,
 								crea.id
 							)
-						),
+						)
 				];
 
 				choices[0].choiceId = 0;
@@ -222,7 +222,7 @@ export default G => {
 					team: Team.both,
 					id: crea.id,
 					requireCreature: false,
-					choices: choices,
+					choices: choices
 				});
 			},
 
@@ -257,7 +257,7 @@ export default G => {
 							true,
 							true,
 							crea.id
-						),
+						)
 					];
 				} else {
 					// Back
@@ -279,7 +279,7 @@ export default G => {
 							true,
 							true,
 							crea.id
-						),
+						)
 					];
 				}
 
@@ -307,7 +307,7 @@ export default G => {
 				}
 
 				G.UI.checkAbilities();
-			},
+			}
 		},
 
 		// 	Fourth Ability: Target Locking
@@ -343,7 +343,7 @@ export default G => {
 					team: Team.enemy,
 					id: crea.id,
 					flipped: crea.player.flipped,
-					hexes: hexes,
+					hexes: hexes
 				});
 			},
 
@@ -377,7 +377,7 @@ export default G => {
 					G
 				);
 				target.takeDamage(damage);
-			},
-		},
+			}
+		}
 	];
 };

@@ -6,7 +6,7 @@ export class ProgressBar {
 			height: 318,
 			width: 9,
 			color: 'red',
-			$bar: undefined,
+			$bar: undefined
 		};
 
 		this.game = game;
@@ -28,7 +28,7 @@ export class ProgressBar {
 		this.$bar.css({
 			width: this.width,
 			height: this.height * percentage,
-			'background-color': this.color,
+			'background-color': this.color
 		});
 	}
 
@@ -42,7 +42,7 @@ export class ProgressBar {
 			{
 				queue: false,
 				width: this.width,
-				height: this.height * percentage,
+				height: this.height * percentage
 			},
 			500,
 			'linear'
@@ -58,7 +58,7 @@ export class ProgressBar {
 		this.$preview.css(
 			{
 				width: this.width - 2,
-				height: (this.height - 2) * percentage,
+				height: (this.height - 2) * percentage
 			},
 			500,
 			'linear'

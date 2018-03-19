@@ -46,7 +46,7 @@ export class Hex {
 		this.y = y;
 		this.pos = {
 			x: x,
-			y: y,
+			y: y
 		};
 		this.coord = String.fromCharCode(64 + this.y + 1) + (this.x + 1);
 		game = this.game;
@@ -70,7 +70,7 @@ export class Hex {
 		this.height = this.width / Math.sqrt(3) * 2 * 0.75;
 		this.displayPos = {
 			x: (y % 2 === 0 ? x + 0.5 : x) * this.width,
-			y: y * this.height,
+			y: y * this.height
 		};
 
 		this.originalDisplayPos = $j.extend({}, this.displayPos);
@@ -418,7 +418,7 @@ export class Hex {
 					{
 						font: '30pt Play',
 						fill: '#000000',
-						align: 'center',
+						align: 'center'
 					}
 				);
 				this.coordText.anchor.setTo(0.5, 0.5);
@@ -517,7 +517,7 @@ export class Hex {
 	toJSON() {
 		return {
 			x: this.x,
-			y: this.y,
+			y: this.y
 		};
 	}
 } // End of Hex Class

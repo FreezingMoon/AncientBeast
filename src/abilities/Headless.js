@@ -23,7 +23,7 @@ export default G => {
 			require: function() {
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -38,7 +38,7 @@ export default G => {
 
 				if (
 					this.atLeastOneTarget(this._getHexes(), {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					this.end();
@@ -81,8 +81,8 @@ export default G => {
 											deleteTrigger: '',
 											stackable: true,
 											alterations: {
-												endurance: -5,
-											},
+												endurance: -5
+											}
 										},
 										G
 									)
@@ -92,14 +92,14 @@ export default G => {
 								// prevent infinite addition of this effect.
 								item.trigger = '';
 								item.deleteEffect();
-							},
+							}
 						},
 						G
 					);
 
 					trg.addEffect(effect, '%CreatureName' + trg.id + '% has been infested');
 				});
-			},
+			}
 		},
 
 		// 	Second Ability: Cartilage Dagger
@@ -120,7 +120,7 @@ export default G => {
 				//At least one target
 				if (
 					!this.atLeastOneTarget(crea.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -140,7 +140,7 @@ export default G => {
 					team: this._targetTeam,
 					id: crea.id,
 					flipped: crea.flipped,
-					hexes: crea.getHexMap(matrices.frontnback2hex),
+					hexes: crea.getHexMap(matrices.frontnback2hex)
 				});
 			},
 
@@ -150,7 +150,7 @@ export default G => {
 				ability.end();
 
 				let d = {
-					pierce: 11,
+					pierce: 11
 				};
 				// Bonus for fatigued foe
 				d.pierce = target.endurance <= 0 ? d.pierce * 2 : d.pierce;
@@ -171,7 +171,7 @@ export default G => {
 				);
 
 				let dmg = target.takeDamage(damage);
-			},
+			}
 		},
 
 		// 	Third Ability: Whip Move
@@ -206,14 +206,14 @@ export default G => {
 						x: x,
 						directions: directions,
 						distance: this._minDistance,
-						sourceCreature: crea,
+						sourceCreature: crea
 					});
 					let testMax = this.testDirection({
 						team: this._targetTeam,
 						x: x,
 						directions: directions,
 						distance: this._getMaxDistance(),
-						sourceCreature: crea,
+						sourceCreature: crea
 					});
 					if (!testMin && testMax) {
 						// Target needs to be moveable
@@ -285,7 +285,7 @@ export default G => {
 					x: crea.x,
 					y: crea.y,
 					directions: this._getValidDirections(),
-					distance: this._getMaxDistance(),
+					distance: this._getMaxDistance()
 				});
 			},
 
@@ -335,7 +335,7 @@ export default G => {
 									G.activeCreature.queryMove();
 								}
 							}, 100);
-						},
+						}
 					});
 				}
 				if (destinationTarget !== null) {
@@ -351,10 +351,10 @@ export default G => {
 									G.activeCreature.queryMove();
 								}
 							}, 100);
-						},
+						}
 					});
 				}
-			},
+			}
 		},
 
 		// 	Fourth Ability: Boomerang Tool
@@ -364,7 +364,7 @@ export default G => {
 
 			damages: {
 				slash: 10,
-				crush: 5,
+				crush: 5
 			},
 
 			_getHexes: function() {
@@ -399,13 +399,13 @@ export default G => {
 					requireCreature: 0,
 					id: crea.id,
 					flipped: crea.player.flipped,
-					choices: [crea.getHexMap(hexes), crea.getHexMap(hexes, true)],
+					choices: [crea.getHexMap(hexes), crea.getHexMap(hexes, true)]
 				});
 			},
 
 			activate: function(hexes) {
 				let damages = {
-					slash: 10,
+					slash: 10
 				};
 
 				let ability = this;
@@ -425,7 +425,7 @@ export default G => {
 					[], //Effects
 					ability.getTargets(hexes) //Targets
 				);
-			},
-		},
+			}
+		}
 	];
 };

@@ -51,14 +51,14 @@ export default G => {
 							alterations: {
 								frost: 5,
 								defense: 5,
-								offense: this._getOffenseBuff(),
+								offense: this._getOffenseBuff()
 							},
-							stackable: true,
+							stackable: true
 						},
 						G
 					)
 				);
-			},
+			}
 		},
 
 		// 	Second Ability: Icy Talons
@@ -76,7 +76,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -95,7 +95,7 @@ export default G => {
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback2hex),
+					hexes: this.creature.getHexMap(matrices.frontnback2hex)
 				});
 			},
 
@@ -125,18 +125,18 @@ export default G => {
 							'',
 							{
 								alterations: {
-									frost: -1,
+									frost: -1
 								},
-								stackable: true,
+								stackable: true
 							},
 							G
-						),
+						)
 					], // Effects
 					G
 				);
 
 				target.takeDamage(damage);
-			},
+			}
 		},
 
 		// 	Third Ability: Sudden Uppercut
@@ -154,7 +154,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -173,7 +173,7 @@ export default G => {
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback2hex),
+					hexes: this.creature.getHexMap(matrices.frontnback2hex)
 				});
 			},
 
@@ -193,11 +193,11 @@ export default G => {
 							'',
 							{
 								alterations: {
-									defense: -10,
+									defense: -10
 								},
 								stackable: true,
 								turnLifetime: 1,
-								deleteTrigger: 'onStartPhase',
+								deleteTrigger: 'onStartPhase'
 							},
 							G
 						)
@@ -218,7 +218,7 @@ export default G => {
 				}
 
 				target.delay();
-			},
+			}
 		},
 
 		// 	Fourth Ability: Icicle Spear
@@ -248,7 +248,7 @@ export default G => {
 						x: x,
 						directions: this.directions,
 						distance: this._getDistance(),
-						stopOnCreature: false,
+						stopOnCreature: false
 					})
 				) {
 					return false;
@@ -274,7 +274,7 @@ export default G => {
 					y: crea.y,
 					directions: this.directions,
 					distance: this._getDistance(),
-					stopOnCreature: false,
+					stopOnCreature: false
 				});
 			},
 
@@ -290,7 +290,7 @@ export default G => {
 
 						let d = {
 							pierce: ability.damages.pierce,
-							frost: 6 - i,
+							frost: 6 - i
 						};
 						if (d.frost < 0) {
 							d.frost = 0;
@@ -316,7 +316,7 @@ export default G => {
 						}
 					}
 				}
-			},
-		},
+			}
+		}
 	];
 };

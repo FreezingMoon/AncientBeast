@@ -52,7 +52,7 @@ export default G => {
 				let optArg = {
 					alterations: ability.effects[0],
 					creationTurn: G.turn - 1,
-					stackable: true,
+					stackable: true
 				};
 
 				ability.end();
@@ -74,7 +74,7 @@ export default G => {
 				);
 
 				ability.setUsed(false); // Infinite triggering
-			},
+			}
 		},
 
 		//	Second Ability: Supper Chomp
@@ -93,7 +93,7 @@ export default G => {
 				// At least one target
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -113,7 +113,7 @@ export default G => {
 					team: this._targetTeam,
 					id: uncle.id,
 					flipped: uncle.flipped,
-					hexes: uncle.getHexMap(matrices.frontnback2hex),
+					hexes: uncle.getHexMap(matrices.frontnback2hex)
 				});
 			},
 
@@ -158,8 +158,8 @@ export default G => {
 									turnLifetime: 1,
 									deleteTrigger: 'onStartPhase',
 									alterations: {
-										regrowth: amount,
-									},
+										regrowth: amount
+									}
 								}, // Optional arguments
 								G
 							),
@@ -175,7 +175,7 @@ export default G => {
 						effect.deleteEffect();
 					}
 				});
-			},
+			}
 		},
 
 		// Third Ability: Frogger Jump
@@ -196,7 +196,7 @@ export default G => {
 				this.creature.tracePosition({
 					x: hex.x,
 					y: hex.y,
-					overlayClass: 'creature moveto selected player' + this.creature.team,
+					overlayClass: 'creature moveto selected player' + this.creature.team
 				});
 			},
 
@@ -227,7 +227,7 @@ export default G => {
 					id: uncle.id,
 					hexes: hexes,
 					hexesDashed: [],
-					hideNonTarget: true,
+					hideNonTarget: true
 				});
 			},
 
@@ -270,7 +270,7 @@ export default G => {
 								G.activeCreature.queryMove();
 							}
 						}, 100);
-					},
+					}
 				});
 
 				// Frogger Leap bonus
@@ -284,7 +284,7 @@ export default G => {
 							effectFn: function(effect, crea) {
 								effect.deleteEffect();
 							},
-							alterations: ability.effects[0],
+							alterations: ability.effects[0]
 						}, // Optional arguments
 						G
 					)
@@ -323,7 +323,7 @@ export default G => {
 
 			_isSecondLowJump: function() {
 				return this.timesUsedThisTurn === 1;
-			},
+			}
 		},
 		// Fourth Ability: Sabre Kick
 		{
@@ -348,7 +348,7 @@ export default G => {
 				// At least one target
 				if (
 					!this.atLeastOneTarget(map, {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -368,7 +368,7 @@ export default G => {
 					team: this._targetTeam,
 					id: uncle.id,
 					flipped: uncle.flipped,
-					hexes: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, matrices.frontnback2hex),
+					hexes: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, matrices.frontnback2hex)
 				});
 			},
 
@@ -402,7 +402,7 @@ export default G => {
 							ignoreMovementPoint: true,
 							ignorePath: true,
 							overrideSpeed: 500, // Custom speed for knockback
-							animation: 'push',
+							animation: 'push'
 						});
 					}
 				}
@@ -413,7 +413,7 @@ export default G => {
 						effect.deleteEffect();
 					}
 				});
-			},
-		},
+			}
+		}
 	];
 };

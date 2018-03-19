@@ -65,7 +65,7 @@ export default G => {
 					this.creature,
 					'mud-bath',
 					{
-						alterations: alterations,
+						alterations: alterations
 					},
 					G
 				);
@@ -86,7 +86,7 @@ export default G => {
 				}
 				log += '+' + amount;
 				G.log(log);
-			},
+			}
 		},
 
 		// 	Second Ability: Baseball Baton
@@ -104,7 +104,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(this.creature.adjacentHexes(1), {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -129,7 +129,7 @@ export default G => {
 					y: swine.y,
 					sourceCreature: swine,
 					stopOnCreature: false,
-					distance: 1,
+					distance: 1
 				});
 			},
 
@@ -190,11 +190,11 @@ export default G => {
 							ignoreMovementPoint: true,
 							ignorePath: true,
 							overrideSpeed: 1200, // Custom speed for knockback
-							animation: 'push',
+							animation: 'push'
 						});
 					}
 				}
-			},
+			}
 		},
 
 		// 	Third Ability: Ground Ball
@@ -261,7 +261,7 @@ export default G => {
 					);
 				if (
 					!this.atLeastOneTarget(hexes, {
-						team: this._targetTeam,
+						team: this._targetTeam
 					})
 				) {
 					return false;
@@ -286,7 +286,7 @@ export default G => {
 					// Behind
 					G.grid.getHexMap(swine.x, swine.y - 2, 0, true, bellowrow),
 					G.grid.getHexMap(swine.x, swine.y, 0, true, straitrow),
-					G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow),
+					G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow)
 				];
 
 				choices.forEach(function(choice) {
@@ -301,7 +301,7 @@ export default G => {
 					requireCreature: 1,
 					id: swine.id,
 					flipped: swine.flipped,
-					choices: choices,
+					choices: choices
 				});
 			},
 
@@ -321,8 +321,8 @@ export default G => {
 						'onDamage',
 						{
 							alterations: {
-								meditation: -1,
-							},
+								meditation: -1
+							}
 						},
 						G
 					);
@@ -338,7 +338,7 @@ export default G => {
 					G
 				);
 				target.takeDamage(damage);
-			},
+			}
 		},
 
 		// 	Fourth Ability: Mud Bath
@@ -353,17 +353,17 @@ export default G => {
 				// If ability is upgraded, self cast energy cost is less
 				if (this.isUpgraded()) {
 					this.requirements = {
-						energy: this._energySelfUpgraded,
+						energy: this._energySelfUpgraded
 					};
 					this.costs = {
-						energy: this._energySelfUpgraded,
+						energy: this._energySelfUpgraded
 					};
 				} else {
 					this.requirements = {
-						energy: this._energyNormal,
+						energy: this._energyNormal
 					};
 					this.costs = {
-						energy: this._energyNormal,
+						energy: this._energyNormal
 					};
 				}
 				return this.testRequirements();
@@ -402,7 +402,7 @@ export default G => {
 						ability.animation(...arguments);
 					},
 					hexes: hexes,
-					hideNonTarget: true,
+					hideNonTarget: true
 				});
 			},
 
@@ -416,17 +416,17 @@ export default G => {
 				let isSelf = hex.x === swine.x && hex.y === swine.y;
 				if (this.isUpgraded() && isSelf) {
 					this.requirements = {
-						energy: this._energySelfUpgraded,
+						energy: this._energySelfUpgraded
 					};
 					this.costs = {
-						energy: this._energySelfUpgraded,
+						energy: this._energySelfUpgraded
 					};
 				} else {
 					this.requirements = {
-						energy: this._energyNormal,
+						energy: this._energyNormal
 					};
 					this.costs = {
-						energy: this._energyNormal,
+						energy: this._energyNormal
 					};
 				}
 
@@ -447,10 +447,10 @@ export default G => {
 							},
 							effectFn: function(effect, crea) {
 								crea.remainingMove--;
-							},
+							}
 						},
 						G
-					),
+					)
 				];
 
 				hex.createTrap('mud-bath', effects, ability.creature.player);
@@ -460,7 +460,7 @@ export default G => {
 					// onCreatureMove is Spa Goggles' trigger event
 					G.onCreatureMove(swine, hex);
 				}
-			},
-		},
+			}
+		}
 	];
 };
