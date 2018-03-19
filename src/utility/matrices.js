@@ -26,9 +26,7 @@ export const diagonaldown = [
 
 diagonaldown.origin = [0, 0];
 
-export const straitrow = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-]; // Origin line
+export const straitrow = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]; // Origin line
 straitrow.origin = [0, 0];
 
 

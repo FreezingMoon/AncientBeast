@@ -52,7 +52,7 @@ export class UI {
 		// Dash Button
 		this.btnToggleDash = new Button({
 			$button: $j(".toggledash"),
-			click: (e) => {
+			click: e => {
 				this.toggleDash();
 			},
 		}, game);
@@ -61,7 +61,7 @@ export class UI {
 		// Audio Button
 		this.btnAudio = new Button({
 			$button: $j("#audio.button"),
-			click: (e) => {
+			click: e => {
 				if (!this.dashopen) {
 					this.showMusicPlayer();
 				}
@@ -72,7 +72,7 @@ export class UI {
 		// Skip Turn Button
 		this.btnSkipTurn = new Button({
 			$button: $j("#skip.button"),
-			click: (e) => {
+			click: e => {
 				if (!this.dashopen) {
 					if (game.turnThrottle) {
 						return;
@@ -90,7 +90,7 @@ export class UI {
 		// Delay Unit Button
 		this.btnDelay = new Button({
 			$button: $j("#delay.button"),
-			click: (e) => {
+			click: e => {
 				if (!this.dashopen) {
 					let creature = game.activeCreature;
 
@@ -110,7 +110,7 @@ export class UI {
 		// Flee Match Button
 		this.btnFlee = new Button({
 			$button: $j("#flee.button"),
-			click: (e) => {
+			click: e => {
 				if (!this.dashopen) {
 					if (game.turn < game.minimumTurnBeforeFleeing) {
 						alert("You cannot flee the match in the first 10 rounds.");
@@ -194,12 +194,12 @@ export class UI {
 		};
 
 		// Remove hex grid if window loses focus
-		$j(window).blur((e) => {
+		$j(window).blur(e => {
 			game.grid.showGrid(false);
 		});
 
 		// Binding Hotkeys
-		$j(document).keydown((e) => {
+		$j(document).keydown(e => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -308,7 +308,7 @@ export class UI {
 			}
 		});
 
-		$j(document).keyup((e) => {
+		$j(document).keyup(e => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -327,7 +327,7 @@ export class UI {
 		});
 
 		// Mouse Shortcut
-		$j("#dash").bind('mousedown', (e) => {
+		$j("#dash").bind('mousedown', e => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -416,16 +416,16 @@ export class UI {
 			}
 		}, game);
 
-		this.$dash.find('.section.numbers .stat').bind('mouseover', (event) => {
+		this.$dash.find('.section.numbers .stat').bind('mouseover', event => {
 			let $section = $j(event.target).closest('.section');
 			let which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
 			$j(which).addClass('shown');
 		});
 
-		this.$dash.find('.section.numbers .stat').bind('mouseleave', (event) => {
+		this.$dash.find('.section.numbers .stat').bind('mouseleave', event => {
 			let $section = $j(event.target).closest('.section');
 			let which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
-			debugger;
+
 			$j(which).removeClass('shown');
 		});
 
@@ -444,7 +444,7 @@ export class UI {
 		this.glowInterval = setInterval(() => {
 			let opa = 0.5 + Math.floor((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.20) / 100)) / 4 * 100) / 100;
 
-			this.buttons.forEach((btn) => {
+			this.buttons.forEach(btn => {
 				btn.$button.css("opacity", "");
 
 				if (btn.state == "glowing") {
@@ -454,7 +454,7 @@ export class UI {
 
 			let opaWeak = opa / 2;
 
-			game.grid.allhexes.forEach((hex) => {
+			game.grid.allhexes.forEach(hex => {
 				if (hex.overlayClasses.match(/creature/)) {
 					if (hex.overlayClasses.match(/selected|active/)) {
 						if (hex.overlayClasses.match(/weakDmg/)) {
@@ -599,7 +599,7 @@ export class UI {
 			.children("#playertabswrapper")
 			.children(".playertabs")
 			.unbind('click')
-			.bind('click', (e) => {
+			.bind('click', e => {
 				if (game.freezedInput) {
 					return;
 				}
@@ -622,7 +622,8 @@ export class UI {
 		}
 
 		this.$grid.children(".vignette").removeClass("active")
-			.filter("[creature='" + creatureType + "']").addClass("active");
+			.filter("[creature='" + creatureType + "']")
+.addClass("active");
 
 		this.selectedCreature = creatureType;
 
@@ -632,7 +633,7 @@ export class UI {
 		if ($j.inArray(creatureType, game.players[player].availableCreatures) > 0 || creatureType == "--") {
 			// Retreive the selected unit
 			this.selectedCreatureObj = undefined;
-			game.players[player].creatures.forEach((creature) => {
+			game.players[player].creatures.forEach(creature => {
 				if (creature.type == creatureType) {
 					this.selectedCreatureObj = creature;
 				}
@@ -642,7 +643,8 @@ export class UI {
 			$j("#card .sideA").css({
 				"background-image": `url('${getUrl('cards/margin')}'), url('${getUrl("units/artwork/" + stats.name)}')`
 			});
-			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
+			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW")
+.addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
 			$j("#card .sideA .hexes").html(stats.size + '<span>&#11041;</span>');
@@ -680,20 +682,32 @@ export class UI {
 				$ability.children('.icon').css({
 					"background-image": `url('${getUrl("units/abilities/" + stats.name + " " + key)}')`
 				});
-				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
-				$ability.children(".wrapper").children(".info").children("#desc").text(stats.ability_info[key].desc);
-				$ability.children(".wrapper").children(".info").children("#info").text(stats.ability_info[key].info);
-				$ability.children(".wrapper").children(".info").children("#upgrade").text("Upgrade: " + stats.ability_info[key].upgrade);
+				$ability.children(".wrapper").children(".info")
+.children("h3")
+.text(stats.ability_info[key].title);
+				$ability.children(".wrapper").children(".info")
+.children("#desc")
+.text(stats.ability_info[key].desc);
+				$ability.children(".wrapper").children(".info")
+.children("#info")
+.text(stats.ability_info[key].info);
+				$ability.children(".wrapper").children(".info")
+.children("#upgrade")
+.text("Upgrade: " + stats.ability_info[key].upgrade);
 
 				if (key !== 0) {
-					$ability.children(".wrapper").children(".info").children("#cost").text(" - costs " + stats.ability_info[key].costs.energy + " energy pts.");
+					$ability.children(".wrapper").children(".info")
+.children("#cost")
+.text(" - costs " + stats.ability_info[key].costs.energy + " energy pts.");
 				} else {
-					$ability.children(".wrapper").children(".info").children("#cost").text(" - this ability is passive.");
+					$ability.children(".wrapper").children(".info")
+.children("#cost")
+.text(" - this ability is passive.");
 				}
 			});
 
 			let summonedOrDead = false;
-			game.players[player].creatures.forEach((creature) => {
+			game.players[player].creatures.forEach(creature => {
 				if (creature.type == creatureType) {
 					summonedOrDead = true;
 				}
@@ -701,7 +715,8 @@ export class UI {
 
 			// Materialize button
 			this.materializeButton.changeState("disabled");
-			$j("#card .sideA").addClass("disabled").unbind("click");
+			$j("#card .sideA").addClass("disabled")
+.unbind("click");
 
 			let activeCreature = game.activeCreature;
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
@@ -719,7 +734,7 @@ export class UI {
 
 					// Bind button
 
-					this.materializeButton.click = (e) => {
+					this.materializeButton.click = e => {
 						this.materializeToggled = false;
 						this.selectAbility(3);
 						this.closeDash();
@@ -740,7 +755,7 @@ export class UI {
 					$j('#materialize_button p').text("Switch to your own tab to be able to materialize");
 
 					// Bind button
-					this.materializeButton.click = (e) => {
+					this.materializeButton.click = e => {
 						this.showCreature(creatureType, activeCreature.player.id);
 					};
 					$j("#card .sideA").on("click", this.materializeButton.click);
@@ -753,7 +768,8 @@ export class UI {
 			$j("#card .sideA").css({
 				"background-image": `url(${getUrl('cards/margin.png')}'), url(${getUrl("units/artwork/" + stats.name)})`
 			});
-			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW").addClass("sin" + stats.type.substring(0, 1));
+			$j("#card .sideA .section.info").removeClass("sin- sinA sinE sinG sinL sinP sinS sinW")
+.addClass("sin" + stats.type.substring(0, 1));
 			$j("#card .sideA .type").text(stats.type);
 			$j("#card .sideA .name").text(stats.name);
 			$j("#card .sideA .hexes").text(stats.size + "H");
@@ -771,20 +787,32 @@ export class UI {
 				$ability.children('.icon').css({
 					"background-image": `url('${getUrl("units/abilities/" + stats.name + " " + key)}')`
 				});
-				$ability.children(".wrapper").children(".info").children("h3").text(stats.ability_info[key].title);
-				$ability.children(".wrapper").children(".info").children("#desc").html(stats.ability_info[key].desc);
-				$ability.children(".wrapper").children(".info").children("#info").html(stats.ability_info[key].info);
+				$ability.children(".wrapper").children(".info")
+.children("h3")
+.text(stats.ability_info[key].title);
+				$ability.children(".wrapper").children(".info")
+.children("#desc")
+.html(stats.ability_info[key].desc);
+				$ability.children(".wrapper").children(".info")
+.children("#info")
+.html(stats.ability_info[key].info);
 				// Check for an upgrade
 				if (stats.ability_info[key].upgrade) {
-					$ability.children(".wrapper").children(".info").children("#upgrade").text("Upgrade: " + stats.ability_info[key].upgrade);
+					$ability.children(".wrapper").children(".info")
+.children("#upgrade")
+.text("Upgrade: " + stats.ability_info[key].upgrade);
 				} else {
-					$ability.children(".wrapper").children(".info").children("#upgrade").text(" ");
+					$ability.children(".wrapper").children(".info")
+.children("#upgrade")
+.text(" ");
 				}
 			});
 
 			// Materialize button
-			$j('#materialize_button').removeClass("glowing").unbind('click');
-			$j("#card .sideA").addClass("disabled").unbind('click');
+			$j('#materialize_button').removeClass("glowing")
+.unbind('click');
+			$j("#card .sideA").addClass("disabled")
+.unbind('click');
 			$j('#materialize_button p').text("This unit is currently under heavy development");
 		}
 	}
@@ -823,7 +851,7 @@ export class UI {
 		$j("#musicplayerwrapper").hide();
 
 		// Change creature status
-		game.players[id].availableCreatures.forEach((creature) => {
+		game.players[id].availableCreatures.forEach(creature => {
 			this.$grid.find(".vignette[creature='" + creature + "']").removeClass("locked");
 
 			let lvl = creature.substring(1, 2) - 0,
@@ -835,7 +863,7 @@ export class UI {
 			}
 		});
 
-		game.players[id].creatures.forEach((creature) => {
+		game.players[id].creatures.forEach(creature => {
 			let $crea = this.$grid.find(".vignette[creature='" + creature.type + "']");
 
 			$crea.removeClass("notsummonable");
@@ -847,7 +875,8 @@ export class UI {
 		});
 
 		// Bind creature vignette click
-		this.$grid.find(".vignette").unbind('click').bind("click", (e) => {
+		this.$grid.find(".vignette").unbind('click')
+.bind("click", e => {
 			e.preventDefault();
 			if (game.freezedInput) {
 				return;
@@ -888,8 +917,8 @@ export class UI {
 		if (!this.$dash.hasClass("active")) {
 			if (randomize) {
 				const activePlayer = game.players[game.activeCreature.player.id];
-				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type)
-				const availableTypes = activePlayer.availableCreatures.filter(el => !deadOrSummonedTypes.includes(el))
+				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
+				const availableTypes = activePlayer.availableCreatures.filter(el => !deadOrSummonedTypes.includes(el));
 				// Optional: randomize array to grab a new creature every toggle
 				for (let i = availableTypes.length - 1; i > 0; i--) {
 					let j = Math.floor(Math.random() * (i + 1));
@@ -1109,17 +1138,19 @@ export class UI {
 			$abilitiesButtons = $j("#abilities .ability");
 
 		$abilitiesButtons.unbind("click");
-		this.$activebox.find("#abilities").clearQueue().transition({
+		this.$activebox.find("#abilities").clearQueue()
+.transition({
 			y: "-420px"
 		}, 500, 'easeInQuart', () => { // Hide panel
-			$j('#abilities').removeClass("p0 p1 p2 p3").addClass("p" + creature.player.id);
+			$j('#abilities').removeClass("p0 p1 p2 p3")
+.addClass("p" + creature.player.id);
 
 			this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 			this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 			this.updateAbilityButtonsContent();
 
 			// Change ability buttons
-			this.abilitiesButtons.forEach((btn) => {
+			this.abilitiesButtons.forEach(btn => {
 				let ab = creature.abilities[btn.abilityId];
 				btn.css.normal = {
 					"background-image": `url('${getUrl("units/abilities/" + creature.name + " " + btn.abilityId)}')`
@@ -1164,7 +1195,7 @@ export class UI {
 				btn.mouseover = () => {
 					if (this.selectedAbility == -1) {
 						this.showAbilityCosts(btn.abilityId);
-					};
+					}
 				};
 
 				btn.mouseleave = () => {
@@ -1189,7 +1220,7 @@ export class UI {
 			creature = game.activeCreature;
 
 		// Change ability buttons
-		this.abilitiesButtons.forEach((btn) => {
+		this.abilitiesButtons.forEach(btn => {
 			let ab = creature.abilities[btn.abilityId];
 			let $desc = btn.$button.next(".desc");
 
@@ -1285,13 +1316,15 @@ export class UI {
 
 
 			// Charge
-			this.abilitiesButtons[i].$button.next(".desc").find(".charge").remove();
+			this.abilitiesButtons[i].$button.next(".desc").find(".charge")
+.remove();
 			if (ab.getCharge !== undefined) {
 				this.abilitiesButtons[i].$button.next(".desc").append('<div class="charge">Charge : ' + ab.getCharge().value + "/" + ab.getCharge().max + '</div>');
 			}
 
 			// Message
-			this.abilitiesButtons[i].$button.next(".desc").find(".message").remove();
+			this.abilitiesButtons[i].$button.next(".desc").find(".message")
+.remove();
 			if (ab.message !== "") {
 				this.abilitiesButtons[i].$button.next(".desc").append('<div class="message">' + ab.message + '</div>');
 			}
@@ -1327,12 +1360,14 @@ export class UI {
 			let atLeastOneBuff = false;
 
 			// Might not be needed
-			$j("#card").find("." + stat + " .modifiers").html("");
+			$j("#card").find("." + stat + " .modifiers")
+.html("");
 			// Effects
 			$j.each(buffDebuff.objs.effects, (key, value) => {
 				//let string = this.selectedCreatureObj.abilities[0].getFormattedDamages(value.alterations);
 				if (value.alterations[stat]) {
-					$j("#card").find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
+					$j("#card").find("." + stat + " .modifiers")
+.append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
 				}
 
 				atLeastOneBuff = true;
@@ -1341,14 +1376,16 @@ export class UI {
 			$j.each(buffDebuff.objs.drops, (key, value) => {
 				//let string = this.selectedCreatureObj.abilities[0].getFormattedDamages(value.alterations);
 				if (value.alterations[stat]) {
-					$j("#card").find("." + stat + " .modifiers").append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
+					$j("#card").find("." + stat + " .modifiers")
+.append("<div>" + value.name + " : " + (value.alterations[stat] > 0 ? "+" : "") + value.alterations[stat] + "</div>");
 				}
 
 				atLeastOneBuff = true;
 			});
 
 			if (!atLeastOneBuff) {
-				$j("#card").find("." + stat + " .modifiers").html('This stat doesn\'t have any modifiers');
+				$j("#card").find("." + stat + " .modifiers")
+.html('This stat doesn\'t have any modifiers');
 			}
 		}
 	}
@@ -1385,7 +1422,7 @@ export class UI {
 
 		// TotalTimePool
 		if (game.timePool >= 0) {
-			game.players.forEach((player) => {
+			game.players.forEach(player => {
 				let remainingTime = (player.id == game.activeCreature.player.id) ? player.totalTimePool - (date - player.startTime) : player.totalTimePool;
 				remainingTime = Math.max(Math.round(remainingTime / 1000), 0);
 				$j(".p" + player.id + " .timepool").text(time.getTimer(remainingTime));
@@ -1423,10 +1460,11 @@ export class UI {
 		// Updating
 		let $vignettes = this.$queue.find('.vignette[verified!="-1"]').attr("verified", 0);
 
-		let deleteVignette = (vignette) => {
+		let deleteVignette = vignette => {
 
 			if ($j(vignette).hasClass("roundmarker")) {
-				$j(vignette).attr("verified", -1).transition({
+				$j(vignette).attr("verified", -1)
+.transition({
 					x: -80,
 					queue: false
 				}, queueAnimSpeed, transition, () => {
@@ -1434,14 +1472,16 @@ export class UI {
 				});
 			} else {
 				if ($j(vignette).hasClass("active")) {
-					$j(vignette).attr("verified", -1).transition({
+					$j(vignette).attr("verified", -1)
+.transition({
 						x: -100,
 						queue: false
 					}, queueAnimSpeed, transition, () => {
 						vignette.remove();
 					});
 				} else {
-					$j(vignette).attr("verified", -1).transition({
+					$j(vignette).attr("verified", -1)
+.transition({
 						x: "-=80",
 						queue: false
 					}, queueAnimSpeed, transition, () => {
@@ -1460,15 +1500,15 @@ export class UI {
 			if ($vignettes.length === 0) {
 				$v = $j(vignette).prependTo(this.$queue);
 				index = $v.index('#queuewrapper .vignette[verified != "-1"]');
-				offset = (index - (!!index)) * 80 + (!!index) * 100 - 80;
+				offset = (index - (Boolean(index))) * 80 + (Boolean(index)) * 100 - 80;
 			} else if ($vignettes[pos]) {
 				$v = $j(vignette).insertAfter($vignettes[pos]);
 				index = $v.index('#queuewrapper .vignette[verified != "-1"]');
-				offset = (index - (!!index)) * 80 + (!!index) * 100 - 80;
+				offset = (index - (Boolean(index))) * 80 + (Boolean(index)) * 100 - 80;
 			} else {
 				$v = $j(vignette).appendTo(this.$queue);
 				index = $v.index('#queuewrapper .vignette[verified != "-1"]');
-				offset = (index - (!!index)) * 80 + (!!index) * 100 + 1000;
+				offset = (index - (Boolean(index))) * 80 + (Boolean(index)) * 100 + 1000;
 			}
 
 			// Animation
@@ -1487,10 +1527,11 @@ export class UI {
 		let updatePos = () => {
 			$vignettes.each((pos, vignette) => {
 				let index = $j(vignette).index('#queuewrapper .vignette[verified != "-1"]');
-				let offset = (index - (!!index)) * 80 + (!!index) * 100;
+				let offset = (index - (Boolean(index))) * 80 + (Boolean(index)) * 100;
 				$j(vignette).css({
 					"z-index": 0 - index
-				}).transition({
+				})
+.transition({
 					x: offset,
 					queue: false
 				}, queueAnimSpeed, transition);
@@ -1550,7 +1591,7 @@ export class UI {
 						}
 
 						// Check if the vignette exists at all; if not delete
-						if (!isNaN(vid) && $j.grep(completeQueue, (item) => item.id === vid).length === 0) {
+						if (!isNaN(vid) && $j.grep(completeQueue, item => item.id === vid).length === 0) {
 							deleteVignette(v);
 							continue;
 						}
@@ -1593,7 +1634,9 @@ export class UI {
 		// Set active creature
 		this.$queue.find('.vignette.active').removeClass("active"); // Avoid bugs
 		this.$queue.find('.vignette[verified="1"]')
-			.first().clearQueue().addClass("active")
+			.first()
+.clearQueue()
+.addClass("active")
 			.css({
 				transformOrigin: '0px 0px'
 			})
@@ -1604,29 +1647,36 @@ export class UI {
 
 		// Add mouseover effect
 
-		this.$queue.find('.vignette.roundmarker').unbind("mouseover").unbind("mouseleave").bind("mouseover", (e) => {
+		this.$queue.find('.vignette.roundmarker').unbind("mouseover")
+.unbind("mouseleave")
+.bind("mouseover", e => {
 			game.grid.showGrid(true);
-		}).bind("mouseleave", (e) => {
+		})
+.bind("mouseleave", e => {
 			game.grid.showGrid(false);
 		});
 
-		this.$queue.find('.vignette').not(".roundmarker").unbind("mousedown").unbind("mouseover").unbind("mouseleave").bind("mouseover", (e) => {
+		this.$queue.find('.vignette').not(".roundmarker")
+.unbind("mousedown")
+.unbind("mouseover")
+.unbind("mouseleave")
+.bind("mouseover", e => {
 			if (game.freezedInput) {
 				return;
 			}
 
 			let creaID = $j(e.currentTarget).attr("creatureid") - 0;
-			game.creatures.forEach((creature) => {
+			game.creatures.forEach(creature => {
 				if (creature instanceof Creature) {
 					creature.xray(false);
 
 					if (creature.id != creaID) {
 						creature.xray(true);
-						creature.hexagons.forEach((hex) => {
+						creature.hexagons.forEach(hex => {
 							hex.cleanOverlayVisualState();
 						});
 					} else {
-						creature.hexagons.forEach((hex) => {
+						creature.hexagons.forEach(hex => {
 							hex.overlayVisualState("hover h_player" + creature.team);
 						});
 					}
@@ -1635,29 +1685,31 @@ export class UI {
 
 			game.grid.showMovementRange(creaID);
 			this.xrayQueue(creaID);
-		}).bind("mouseleave", (e) => { // On mouseleave cancel effect
+		})
+.bind("mouseleave", e => { // On mouseleave cancel effect
 			if (game.freezedInput) {
 				return;
 			}
 
 			// the mouse over adds a coloured hex to the creature, so when we mouse leave we have to remove them
-			game.creatures.forEach((creature) => {
+			game.creatures.forEach(creature => {
 				if (creature instanceof Creature) {
-					creature.hexagons.forEach((hex) => {
+					creature.hexagons.forEach(hex => {
 						hex.cleanOverlayVisualState();
 					});
 				}
 			});
 
 			game.grid.redoLastQuery();
-			game.creatures.forEach((creature) => {
+			game.creatures.forEach(creature => {
 				if (creature instanceof Creature) {
 					creature.xray(false);
 				}
 			});
 
 			this.xrayQueue(-1);
-		}).bind("mousedown", (e) => { // Show dash on click
+		})
+.bind("mousedown", e => { // Show dash on click
 			if (game.freezedInput) {
 				return;
 			}
@@ -1676,8 +1728,9 @@ export class UI {
 
 	bouncexrayQueue(creaID) {
 		this.xrayQueue(creaID);
-		if (creaID > 0)
-			var $queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
+		if (creaID > 0) {
+var $queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
+}
 		if ($queueItem.length > 0) {
 			$queueItem.stop();
 			$queueItem.animate({
@@ -1693,7 +1746,7 @@ export class UI {
 	updateFatigue() {
 		let game = this.game;
 
-		game.creatures.forEach((creature) => {
+		game.creatures.forEach(creature => {
 			if (creature instanceof Creature) {
 				let textElement = $j('#queuewrapper .vignette[creatureid="' + creature.id + '"]').children(".stats");
 
@@ -1732,4 +1785,4 @@ export class UI {
 			}
 		});
 	}
-};
+}

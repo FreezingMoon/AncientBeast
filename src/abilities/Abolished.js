@@ -6,18 +6,20 @@ import * as arrayUtils from "../utility/arrayUtils";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	G.abilities[7] = [
 		//burningSpirit
 		{
 			trigger: "onOtherDamage",
 			require(damage) {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 				if (damage === undefined) {
-					damage			// NOTE : This code produce array with doubles.
-						= {
+					damage =			// NOTE : This code produce array with doubles.
+						{
 							type: "target"
 						}; // For the test function to work
 				}
@@ -64,7 +66,9 @@ export default (G) => {
 			distance: 3,
 			_targetTeam: Team.enemy,
 			require() {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+return false;
+}
 
 				if (!this.testDirection({
 					team: this._targetTeam,
@@ -76,14 +80,16 @@ export default (G) => {
 				return true;
 			},
 			query() {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
-				if (this.isUpgraded()) this.distance = 5;
+				if (this.isUpgraded()) {
+ this.distance = 5;
+}
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,
@@ -96,16 +102,16 @@ export default (G) => {
 				});
 			},
 			activate(path, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var target = arrayUtils.last(path).creature;
-				var projectileInstance = G.animations.projectile(this, target, 'effects_fiery-touch', path, args, 200, -20);
-				var tween = projectileInstance[0];
-				var sprite = projectileInstance[1];
+				let target = arrayUtils.last(path).creature;
+				let projectileInstance = G.animations.projectile(this, target, 'effects_fiery-touch', path, args, 200, -20);
+				let tween = projectileInstance[0];
+				let sprite = projectileInstance[1];
 
 				tween.onComplete.add(function () {
-					var damage = new Damage(
+					let damage = new Damage(
 						ability.creature, // Attacker
 						ability.damages, // Damage Type
 						1, // Area
@@ -127,8 +133,8 @@ export default (G) => {
 				return this.testRequirements();
 			},
 			query() {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
 				// Teleport to any hex within range except for the current hex
 				crea.queryMove({
@@ -142,12 +148,12 @@ export default (G) => {
 							return;
 						}
 						delete arguments[1];
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					}
 				});
 			},
 			activate(hex, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
 				if (this.isUpgraded()) {
@@ -155,7 +161,7 @@ export default (G) => {
 				}
 
 
-				var targets = ability.getTargets(ability.creature.adjacentHexes(1));
+				let targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 				targets.forEach(function (item) {
 					if (!(item.target instanceof Creature)) {
@@ -164,8 +170,8 @@ export default (G) => {
 				});
 
 				// Leave a Firewall in current location
-				var effectFn = function (effect, creatureOrHex) {
-					var creature = creatureOrHex;
+				let effectFn = function (effect, creatureOrHex) {
+					let creature = creatureOrHex;
 					if (!(creatureOrHex instanceof Creature)) {
 						creature = creatureOrHex.creature;
 					}
@@ -176,16 +182,18 @@ export default (G) => {
 					this.trap.destroy();
 				};
 
-				var requireFn = function () {
-					var hex = this.trap.hex,
+				let requireFn = function () {
+					let hex = this.trap.hex,
 						creature = hex.creature,
 						type = creature && creature.type || null;
 
-					if (creature === 0) return false;
+					if (creature === 0) {
+ return false;
+}
 					return type !== ability.creature.type;
 				};
 
-				var crea = this.creature;
+				let crea = this.creature;
 				crea.hexagons.forEach(function (hex) {
 					hex.createTrap("firewall", [
 						new Effect(
@@ -221,16 +229,16 @@ export default (G) => {
 				return this.testRequirements();
 			},
 			query() {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
 				// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
 
-				var range = crea.adjacentHexes(1);
+				let range = crea.adjacentHexes(1);
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					fnOnSelect: function (hex, args) {
 						range.forEach(function (item) {
@@ -247,14 +255,16 @@ export default (G) => {
 				});
 			},
 			activate(hex, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var crea = this.creature;
-				var aoe = crea.adjacentHexes(1);
-				var targets = ability.getTargets(aoe);
+				let crea = this.creature;
+				let aoe = crea.adjacentHexes(1);
+				let targets = ability.getTargets(aoe);
 
-				if (this.isUpgraded()) this.damages.burn = 30;
+				if (this.isUpgraded()) {
+ this.damages.burn = 30;
+}
 
 				targets.forEach(function (item) {
 					item.target.takeDamage(new Damage(

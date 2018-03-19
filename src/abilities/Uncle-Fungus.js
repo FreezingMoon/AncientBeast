@@ -6,9 +6,9 @@ import { Effect } from "../effect";
 import { getDirectionFromDelta } from "../utility/position";
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	G.abilities[3] = [
 
 		// First Ability: Toxic Spores
@@ -25,7 +25,9 @@ export default (G) => {
 
 			// require() :
 			require: function (damage) {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 
 				// Check that attack is melee from actual creature, not from trap
 				if (damage && damage.melee !== undefined) {
@@ -37,16 +39,18 @@ export default (G) => {
 
 			// activate() :
 			activate: function (damage) {
-				var ability = this;
-				var creature = this.creature;
+				let ability = this;
+				let creature = this.creature;
 
-				if (!damage || !damage.melee) return;
+				if (!damage || !damage.melee) {
+ return;
+}
 
 				// ability may trigger both onAttack and onUnderAttack;
 				// the target should be the other creature
-				var target = damage.attacker === creature ? damage.target : damage.attacker;
+				let target = damage.attacker === creature ? damage.target : damage.attacker;
 
-				var optArg = {
+				let optArg = {
 					alterations: ability.effects[0],
 					creationTurn: G.turn - 1,
 					stackable: true
@@ -55,7 +59,7 @@ export default (G) => {
 				ability.end();
 
 				// Spore Contamination
-				var effect = new Effect(
+				let effect = new Effect(
 					ability.title, // Name
 					creature, // Caster
 					target, // Target
@@ -73,7 +77,6 @@ export default (G) => {
 		},
 
 
-
 		//	Second Ability: Supper Chomp
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -83,7 +86,9 @@ export default (G) => {
 
 			// require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 
 				// At least one target
 				if (!this.atLeastOneTarget(
@@ -97,12 +102,12 @@ export default (G) => {
 
 			// query() :
 			query: function () {
-				var uncle = this.creature;
-				var ability = this;
+				let uncle = this.creature;
+				let ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: uncle.id,
@@ -114,10 +119,10 @@ export default (G) => {
 
 			// activate() :
 			activate: function (target, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage type
 					1, // Area
@@ -125,18 +130,18 @@ export default (G) => {
 					G
 				);
 
-				var dmg = target.takeDamage(damage);
+				let dmg = target.takeDamage(damage);
 
 				if (dmg.damageObj.status === "") {
 
-					var amount = Math.max(Math.round(dmg.damages.total / 2), 1);
+					let amount = Math.max(Math.round(dmg.damages.total / 2), 1);
 
 					// If upgraded, heal immediately up to the amount of health lost so far;
 					// use the remainder as regrowth
 					if (this.isUpgraded()) {
-						var healthLost = this.creature.stats.health - this.creature.health;
+						let healthLost = this.creature.stats.health - this.creature.health;
 						if (healthLost > 0) {
-							var healAmount = Math.min(amount, healthLost);
+							let healAmount = Math.min(amount, healthLost);
 							amount -= healAmount;
 							this.creature.heal(healAmount, false);
 						}
@@ -172,7 +177,6 @@ export default (G) => {
 		},
 
 
-
 		// Third Ability: Frogger Jump
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -197,17 +201,17 @@ export default (G) => {
 
 			// query() :
 			query: function () {
-				var ability = this;
-				var uncle = this.creature;
+				let ability = this;
+				let uncle = this.creature;
 
 				// Don't jump over creatures if we're not upgraded, or we are in a second
 				// "low" jump
-				var stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
-				var hexes = this._getHexRange(stopOnCreature);
+				let stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
+				let hexes = this._getHexRange(stopOnCreature);
 
 				G.grid.queryHexes({
 					fnOnSelect: function () {
-						ability.fnOnSelect.apply(ability, arguments);
+						ability.fnOnSelect(...arguments);
 					},
 					fnOnConfirm: function () {
 						if (arguments[0].x == ability.creature.x && arguments[0].y == ability.creature.y) {
@@ -215,7 +219,7 @@ export default (G) => {
 							ability.query();
 							return;
 						}
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					size: uncle.size,
 					flipped: uncle.player.flipped,
@@ -230,7 +234,7 @@ export default (G) => {
 			// activate() :
 			activate: function (hex, args) {
 
-				var ability = this;
+				let ability = this;
 				ability.end(false, true); // Defered ending
 
 				// If upgraded and we haven't leapt over creatures/obstacles, allow a second
@@ -238,9 +242,9 @@ export default (G) => {
 				if (this.isUpgraded() && !this._isSecondLowJump()) {
 					// Check if we've leapt over creatures by finding all "low" jumps (jumps
 					// not over creatures), and finding whether this jump was a "low" one
-					var lowJumpHexes = this._getHexRange(true);
-					var isLowJump = false;
-					for (var i = 0; i < lowJumpHexes.length; i++) {
+					let lowJumpHexes = this._getHexRange(true);
+					let isLowJump = false;
+					for (let i = 0; i < lowJumpHexes.length; i++) {
 						if (lowJumpHexes[i].x === hex.x && lowJumpHexes[i].y === hex.y) {
 							isLowJump = true;
 						}
@@ -288,18 +292,18 @@ export default (G) => {
 
 			_getHexRange: function (stopOnCreature) {
 				// Get the hex range of this ability
-				var uncle = this.creature;
-				var forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, matrices.straitrow);
+				let uncle = this.creature;
+				let forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, matrices.straitrow);
 				forward = arrayUtils.filterCreature(forward, false, stopOnCreature, uncle.id);
-				var backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, matrices.straitrow);
+				let backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, matrices.straitrow);
 				backward = arrayUtils.filterCreature(backward, false, stopOnCreature, uncle.id);
 				// Combine and sort by X, left to right
-				var hexes = forward.concat(backward).sort(function (a, b) {
+				let hexes = forward.concat(backward).sort(function (a, b) {
 					return a.x - b.x;
 				});
 				// Filter out any hexes that cannot accomodate the creature's size
-				var run = 0;
-				for (var i = 0; i < hexes.length; i++) {
+				let run = 0;
+				for (let i = 0; i < hexes.length; i++) {
 					if (i === 0 || hexes[i - 1].x + 1 === hexes[i].x) {
 						run++;
 					} else {
@@ -329,9 +333,11 @@ export default (G) => {
 
 			// require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+return false;
+}
 
-				var map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, matrices.frontnback2hex);
+				let map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, matrices.frontnback2hex);
 				// At least one target
 				if (!this.atLeastOneTarget(map, {
 					team: this._targetTeam
@@ -343,12 +349,12 @@ export default (G) => {
 
 			// query() :
 			query: function () {
-				var ability = this;
-				var uncle = this.creature;
+				let ability = this;
+				let uncle = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: uncle.id,
@@ -360,24 +366,24 @@ export default (G) => {
 
 			// activate() :
 			activate: function (target, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G
 				);
-				var result = target.takeDamage(damage);
+				let result = target.takeDamage(damage);
 
 				// If upgraded, knock back target by 1 hex
 				if (this.isUpgraded() && !result.kill) {
-					var dx = target.x - this.creature.x;
-					var dy = target.y - this.creature.y;
-					var dir = getDirectionFromDelta(target.y, dx, dy);
-					var hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
+					let dx = target.x - this.creature.x;
+					let dy = target.y - this.creature.y;
+					let dir = getDirectionFromDelta(target.y, dx, dy);
+					let hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
 					// The hex to knock back into is the second hex since the first is where
 					// they are currently
 					if (hexes.length >= 2 &&

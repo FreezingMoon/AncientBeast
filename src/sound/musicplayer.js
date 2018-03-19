@@ -10,21 +10,23 @@ export class MusicPlayer {
 		this.repeat = true;
 		this.shuffle = true;
 
-		this.audio.volume = .25;
+		this.audio.volume = 0.25;
 		this.audio.pause();
 
-		jQuery('#mp_shuffle').addClass("active").click((e) => {
+		jQuery('#mp_shuffle').addClass("active")
+.click(e => {
 			jQuery(e.currentTarget).toggleClass("active");
 			this.shuffle = !this.shuffle;
 		});
 
-		this.playlist.find('a').click((e) => {
+		this.playlist.find('a').click(e => {
 			e.preventDefault();
-			this.current = jQuery(e.currentTarget).parent().index();
+			this.current = jQuery(e.currentTarget).parent()
+.index();
 			this.run(jQuery(e.currentTarget));
 		});
 
-		this.audio.addEventListener('ended', (e) => {
+		this.audio.addEventListener('ended', e => {
 			if (this.shuffle) {
 				this.playRandom();
 			} else {
@@ -59,9 +61,10 @@ export class MusicPlayer {
 		// Style the active track in the playlist
 		let par = link.parent();
 
-		par.addClass('active').siblings().removeClass('active');
+		par.addClass('active').siblings()
+.removeClass('active');
 		this.audio.src = link.attr("href");
 		this.audio.load();
 		this.audio.play();
 	}
-};
+}

@@ -8,9 +8,9 @@ import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	G.abilities[33] = [
 		// 	First Ability: Percussion Spear
 		{
@@ -26,8 +26,8 @@ export default (G) => {
 
 			//	activate() :
 			activate: function () {
-				var creature = this.creature;
-				var targets = this.getTargets(this.creature.adjacentHexes(1));
+				let creature = this.creature;
+				let targets = this.getTargets(this.creature.adjacentHexes(1));
 
 				if (this.atLeastOneTarget(
 					this.creature.adjacentHexes(1), {
@@ -44,13 +44,13 @@ export default (G) => {
 						return;
 					}
 
-					var trg = item.target;
+					let trg = item.target;
 
 					if (isTeam(creature, trg, item._targetTeam)) {
 
-						var optArg = {
+						let optArg = {
 							effectFn: function (effect, crea) {
-								var nearFungus = false;
+								let nearFungus = false;
 								crea.adjacentHexes(1).forEach(function (hex) {
 									if (trg.creature instanceof Creature) {
 										if (G.creatures[trg.creature] === effect.owner) {
@@ -74,7 +74,7 @@ export default (G) => {
 						};
 
 						//Spore Contamination
-						var effect = new Effect(
+						let effect = new Effect(
 							"Contaminated", // Name
 							creature, // Caster
 							trg, // Target
@@ -83,11 +83,12 @@ export default (G) => {
 							G
 						);
 
-						var validTarget = true;
+						let validTarget = true;
 						trg.effects.forEach(function (effect) {
 							if (effect.name == "Contaminated") {
-								if (effect.turn == G.turn)
-									validTarget = false;
+								if (effect.turn == G.turn) {
+validTarget = false;
+}
 							}
 						});
 
@@ -98,7 +99,6 @@ export default (G) => {
 				});
 			},
 		},
-
 
 
 		// 	Second Ability: Executioner Axe
@@ -113,7 +113,9 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+return false;
+}
 
 				//At least one target
 				if (!this.atLeastOneTarget(
@@ -127,10 +129,10 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var wyrm = this.creature;
-				var ability = this;
+				let wyrm = this.creature;
+				let ability = this;
 
-				var map = [
+				let map = [
 					[0, 0, 0, 0],
 					[0, 1, 0, 1],
 					[1, 0, 0, 1], //origin line
@@ -139,7 +141,7 @@ export default (G) => {
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: wyrm.id,
@@ -151,10 +153,10 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -162,7 +164,7 @@ export default (G) => {
 					G
 				);
 
-				var dmg = target.takeDamage(damage);
+				let dmg = target.takeDamage(damage);
 
 				if (dmg.status == "") {
 					// Regrowth bonus
@@ -193,7 +195,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Third Ability: Dragon Flight
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -208,23 +209,23 @@ export default (G) => {
 					x: hex.x,
 					y: hex.y,
 					overlayClass: "creature moveto selected player" + this.creature.team
-				})
+				});
 			},
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var wyrm = this.creature;
+				let ability = this;
+				let wyrm = this.creature;
 
-				var range = G.grid.getFlyingRange(wyrm.x, wyrm.y, 50, wyrm.size, wyrm.id)
+				let range = G.grid.getFlyingRange(wyrm.x, wyrm.y, 50, wyrm.size, wyrm.id)
 					.filter(item => wyrm.item == item.y);
-				
+
 				G.grid.queryHexes({
 					fnOnSelect: function () {
-						ability.fnOnSelect.apply(ability, arguments);
+						ability.fnOnSelect(...arguments);
 					},
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					size: wyrm.size,
 					flipped: wyrm.player.flipped,
@@ -236,7 +237,7 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
 				ability.creature.moveTo(hex, {
@@ -267,7 +268,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Fourth Ability: Battle Cry
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -282,9 +282,11 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 
-				var map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, matrices.frontnback2hex);
+				let map = G.grid.getHexMap(this.creature.x - 2, this.creature.y - 2, 0, false, matrices.frontnback2hex);
 				// At least one target
 				if (!this.atLeastOneTarget(map, {
 					team: this._targetTeam
@@ -296,12 +298,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var wyrm = this.creature;
+				let ability = this;
+				let wyrm = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: wyrm.id,
@@ -313,10 +315,10 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area

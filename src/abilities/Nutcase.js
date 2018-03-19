@@ -8,9 +8,9 @@ import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	G.abilities[40] = [
 
 		//	First Ability: Tentacle Bush
@@ -24,15 +24,21 @@ export default (G) => {
 
 			activate: function (damage) {
 				// Must take melee damage from a non-trap source
-				if (damage === undefined) return false;
-				if (!damage.melee) return false;
-				if (damage.isFromTrap) return false;
+				if (damage === undefined) {
+return false;
+}
+				if (!damage.melee) {
+ return false;
+}
+				if (damage.isFromTrap) {
+ return false;
+}
 
-				var ability = this;
+				let ability = this;
 				ability.end();
 
 				// Target becomes unmoveable until end of their phase
-				var o = {
+				let o = {
 					alterations: {
 						moveable: false
 					},
@@ -47,15 +53,17 @@ export default (G) => {
 					o.alterations.reqEnergy = 5;
 				}
 				// Create a zero damage with debuff
-				var counterDamage = new Damage(
-					this.creature, {}, 1, [new Effect(
+				let counterDamage = new Damage(
+					this.creature, {}, 1, [
+new Effect(
 						this.title,
 						this.creature, // Caster
 						damage.attacker, // Target
 						"", // Trigger
 						o,
 						G
-					)],
+					)
+],
 					G
 				);
 				counterDamage.counter = true;
@@ -93,7 +101,9 @@ export default (G) => {
 
 			//	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+return false;
+}
 
 				if (!this.atLeastOneTarget(
 					this.creature.getHexMap(matrices.frontnback2hex), {
@@ -107,12 +117,12 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
-				var ability = this;
+				let ability = this;
 
 				if (!this.isUpgraded()) {
 					G.grid.queryCreature({
 						fnOnConfirm: function () {
-							ability.animation.apply(ability, arguments);
+							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
 						id: this.creature.id,
@@ -121,7 +131,7 @@ export default (G) => {
 					});
 				} else {
 					// If upgraded, show choice of front and back hex groups
-					var choices = [
+					let choices = [
 						this.creature.getHexMap(matrices.front2hex),
 						this.creature.getHexMap(matrices.back2hex)
 					];
@@ -132,7 +142,7 @@ export default (G) => {
 								"creature selected player" + G.activeCreature.team);
 						},
 						fnOnConfirm: function () {
-							ability.animation.apply(ability, arguments);
+							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
 						id: this.creature.id,
@@ -142,7 +152,7 @@ export default (G) => {
 			},
 
 			activate: function (targetOrChoice, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
 				if (!this.isUpgraded()) {
@@ -155,13 +165,13 @@ export default (G) => {
 					//   - front choice (choice 0) and not bottom hex chosen, or
 					//   - back choice (choice 1) and top hex chosen
 					// - otherwise, y descending
-					var isFrontChoice = args.choiceIndex === 0;
-					var yCoords = targetOrChoice.map(function (hex) {
+					let isFrontChoice = args.choiceIndex === 0;
+					let yCoords = targetOrChoice.map(function (hex) {
 						return hex.y;
 					});
-					var yMin = Math.min.apply(null, yCoords);
-					var yMax = Math.max.apply(null, yCoords);
-					var yAscending;
+					let yMin = Math.min.apply(null, yCoords);
+					let yMax = Math.max.apply(null, yCoords);
+					let yAscending;
 					if (isFrontChoice) {
 						yAscending = args.hex.y !== yMax;
 					} else {
@@ -170,8 +180,8 @@ export default (G) => {
 					targetOrChoice.sort(function (a, b) {
 						return yAscending ? a.y - b.y : b.y - a.y;
 					});
-					for (var i = 0; i < targetOrChoice.length; i++) {
-						var target = targetOrChoice[i].creature;
+					for (let i = 0; i < targetOrChoice.length; i++) {
+						let target = targetOrChoice[i].creature;
 						// only attack enemies
 						if (!target || !isTeam(this.creature, target, this._targetTeam)) {
 							continue;
@@ -182,10 +192,10 @@ export default (G) => {
 			},
 
 			_activateOnTarget: function (target) {
-				var ability = this;
+				let ability = this;
 
 				// Target takes pierce damage if it ever moves
-				var effect = new Effect(
+				let effect = new Effect(
 					"Hammered", // Name
 					this.creature, // Caster
 					target, // Target
@@ -202,7 +212,7 @@ export default (G) => {
 					G
 				);
 
-				var damage = new Damage(
+				let damage = new Damage(
 					this.creature, // Attacker
 					this.damages, // Damage Type
 					1, // Area
@@ -223,7 +233,9 @@ export default (G) => {
 
 			//	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 				if (!this.testDirection({
 					team: this._targetTeam,
 					directions: this._directions
@@ -234,11 +246,11 @@ export default (G) => {
 			},
 
 			query: function () {
-				var ability = this;
+				let ability = this;
 
-				var o = {
+				let o = {
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					requireCreature: true,
@@ -255,13 +267,13 @@ export default (G) => {
 					// Create custom choices containing normal directions plus hex choices
 					// past the first creature, extending up to the next obstacle
 					o = G.grid.getDirectionChoices(o);
-					var newChoices = [];
-					for (var i = 0; i < o.choices.length; i++) {
+					let newChoices = [];
+					for (let i = 0; i < o.choices.length; i++) {
 						var j;
-						var direction = o.choices[i][0].direction;
+						let direction = o.choices[i][0].direction;
 
 						// Add dashed hexes up to the next obstacle for this direction choice
-						var fx = 0;
+						let fx = 0;
 						if (o.sourceCreature instanceof Creature) {
 							if ((!o.sourceCreature.player.flipped && direction > 2) ||
 								(o.sourceCreature.player.flipped && direction < 3)) {
@@ -308,8 +320,8 @@ export default (G) => {
 			},
 
 			activate: function (path, args) {
-				var i;
-				var ability = this;
+				let i;
+				let ability = this;
 				this.end();
 
 				// Find:
@@ -317,9 +329,9 @@ export default (G) => {
 				// - the run path which is up to the creature
 				// - the push paths which start from the last creature hex and continues to
 				//   the rest of the path
-				var target;
-				var runPath;
-				var pushPath = [];
+				let target;
+				let runPath;
+				let pushPath = [];
 				for (i = 0; i < path.length; i++) {
 					if (path[i].creature) {
 						target = path[i].creature;
@@ -330,13 +342,13 @@ export default (G) => {
 				}
 
 				// Calculate damage, extra damage per hex distance
-				var damages = $j.extend({}, this.damages);
+				let damages = $j.extend({}, this.damages);
 				damages.pierce += runPath.length;
-				var damage = new Damage(this.creature, damages, 1, [], G);
+				let damage = new Damage(this.creature, damages, 1, [], G);
 
 				// Move towards target if necessary
 				if (runPath.length > 0) {
-					var destination = arrayUtils.last(runPath);
+					let destination = arrayUtils.last(runPath);
 					if (args.direction === 4) {
 						destination =
 							G.grid.hexes[destination.y][destination.x + this.creature.size - 1];
@@ -372,10 +384,10 @@ export default (G) => {
 			},
 
 			_pushTarget: function (target, pushPath, args) {
-				var ability = this;
-				var creature = this.creature;
+				let ability = this;
+				let creature = this.creature;
 
-				var targetPushPath = pushPath.slice();
+				let targetPushPath = pushPath.slice();
 				// TODO: These two lines probably do not do anything since filterCreature() returns a new array...
 				arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
 				arrayUtils.filterCreature(targetPushPath, false, false, target.id);
@@ -386,7 +398,7 @@ export default (G) => {
 				// Push the creature one hex at a time
 				// As we need to move creatures simultaneously, we can't use the normal path
 				// calculation as the target blocks the path
-				var i = 0;
+				let i = 0;
 				var interval = setInterval(function () {
 					if (!G.freezedInput) {
 						if (i === targetPushPath.length ||
@@ -396,8 +408,8 @@ export default (G) => {
 							creature.facePlayerDefault();
 							G.activeCreature.queryMove();
 						} else {
-							var hex = pushPath[i];
-							var targetHex = targetPushPath[i];
+							let hex = pushPath[i];
+							let targetHex = targetPushPath[i];
 							if (args.direction === 4) {
 								hex = G.grid.hexes[hex.y][hex.x + creature.size - 1];
 								targetHex = G.grid.hexes[targetHex.y][targetHex.x + target.size - 1];
@@ -412,7 +424,7 @@ export default (G) => {
 			},
 
 			_pushOneHex: function (target, hex, targetHex) {
-				var opts = {
+				let opts = {
 					overrideSpeed: 100,
 					ignorePath: true,
 					ignoreMovementPoint: true,
@@ -435,8 +447,10 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			require: function () {
-				var ability = this;
-				if (!this.testRequirements()) return false;
+				let ability = this;
+				if (!this.testRequirements()) {
+return false;
+}
 
 				if (!this.atLeastOneTarget(
 					this.creature.getHexMap(matrices.inlinefrontnback2hex), {
@@ -453,11 +467,11 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
-				var ability = this;
+				let ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -473,11 +487,11 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target, args) {
-				var ability = this;
-				var crea = ability.creature;
+				let ability = this;
+				let crea = ability.creature;
 				ability.end();
 
-				var damage = new Damage(
+				let damage = new Damage(
 					crea, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -485,12 +499,12 @@ export default (G) => {
 					G
 				);
 
-				var inlinefront2hex = matrices.inlinefront2hex;
+				let inlinefront2hex = matrices.inlinefront2hex;
 
-				var trgIsInfront = (G.grid.getHexMap(crea.x - inlinefront2hex.origin[0], crea.y - inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == target);
+				let trgIsInfront = (G.grid.getHexMap(crea.x - inlinefront2hex.origin[0], crea.y - inlinefront2hex.origin[1], 0, false, inlinefront2hex)[0].creature == target);
 
 
-				var creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
+				let creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
 				crea.moveTo(
 					G.grid.hexes[target.y][creaX], {
 						ignorePath: true,
@@ -501,7 +515,7 @@ export default (G) => {
 						}
 					}
 				);
-				var targetX = crea.x + (trgIsInfront ? target.size - crea.size : 0);
+				let targetX = crea.x + (trgIsInfront ? target.size - crea.size : 0);
 				target.moveTo(
 					G.grid.hexes[crea.y][targetX], {
 						ignorePath: true,

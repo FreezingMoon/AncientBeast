@@ -7,9 +7,9 @@ import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	G.abilities[31] = [
 
 		// 	First Ability: Bad Doggie
@@ -30,17 +30,21 @@ export default (G) => {
 
 			activate: function () {
 				// Check if there's an enemy creature in front
-				var hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex);
-				if (hexesInFront.length < 1) return;
-				var target = hexesInFront[0].creature;
-				if (!target) return;
+				let hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex);
+				if (hexesInFront.length < 1) {
+return;
+}
+				let target = hexesInFront[0].creature;
+				if (!target) {
+ return;
+}
 				if (!isTeam(this.creature, target, Team.enemy)) {
 					return;
 				}
 
 				this.end();
 
-				var damage = new Damage(
+				let damage = new Damage(
 					this.creature, // Attacker
 					this.damages, // Damage Type
 					1, // Area
@@ -55,7 +59,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Second Ability: Metal Hand
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -65,7 +68,9 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+return false;
+}
 
 				if (!this.atLeastOneTarget(
 					this.creature.getHexMap(matrices.frontnback2hex), {
@@ -79,12 +84,12 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: this._targetTeam,
 					id: crea.id,
@@ -96,10 +101,10 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -110,7 +115,7 @@ export default (G) => {
 
 				// If upgrade, also steal up to 8 energy
 				if (this.isUpgraded()) {
-					var energySteal = Math.min(8, target.energy);
+					let energySteal = Math.min(8, target.energy);
 					target.energy -= energySteal;
 					this.creature.recharge(energySteal);
 					G.log("%CreatureName" + this.creature.id + "% steals " + energySteal +
@@ -118,7 +123,6 @@ export default (G) => {
 				}
 			},
 		},
-
 
 
 		// 	Third Ability: Rocket Launcher
@@ -149,13 +153,13 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
-				var straitrow = matrices.straitrow;
-				var bellowrow = matrices.bellowrow;
+				let straitrow = matrices.straitrow;
+				let bellowrow = matrices.bellowrow;
 
-				var choices = [
+				let choices = [
 					//Front
 					arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y - 2, 0, false, bellowrow), true, true, crea.id).concat(
 						arrayUtils.filterCreature(G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow), true, true, crea.id),
@@ -175,7 +179,7 @@ export default (G) => {
 						G.grid.clearHexViewAlterations();
 					},
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: Team.both,
 					id: crea.id,
@@ -187,15 +191,15 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (choice, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var crea = this.creature;
+				let crea = this.creature;
 
-				var straitrow = matrices.straitrow;
-				var bellowrow = matrices.bellowrow;
+				let straitrow = matrices.straitrow;
+				let bellowrow = matrices.bellowrow;
 
-				var rows;
+				let rows;
 				if (choice.choiceId === 0) {
 					// Front
 					rows = [
@@ -213,7 +217,7 @@ export default (G) => {
 				}
 
 
-				for (var i = 0; i < rows.length; i++) {
+				for (let i = 0; i < rows.length; i++) {
 					if (rows[i].length === 0 ||
 						!(rows[i][rows[i].length - 1].creature instanceof Creature)) {
 						//Miss
@@ -221,9 +225,9 @@ export default (G) => {
 						continue;
 					}
 
-					var target = rows[i][rows[i].length - 1].creature;
+					let target = rows[i][rows[i].length - 1].creature;
 
-					var damage = new Damage(
+					let damage = new Damage(
 						ability.creature, //Attacker
 						ability.damages, //Damage Type
 						1, //Area
@@ -242,7 +246,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Fourth Ability: Target Locking
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -250,7 +253,9 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+return false;
+}
 
 				if (this.creature.abilities[2].token === 0) {
 					this.message = "No rocket launched.";
@@ -263,14 +268,14 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
-				var hexes = G.grid.allhexes.slice(0); // Copy array
+				let hexes = G.grid.allhexes.slice(0); // Copy array
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: Team.enemy,
 					id: crea.id,
@@ -282,27 +287,27 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (crea, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var target = crea;
+				let target = crea;
 
 				// Use all rockets if upgraded, or up to 2 if not
-				var rocketLauncherAbility = this.creature.abilities[2];
-				var rocketsToUse = rocketLauncherAbility.token;
+				let rocketLauncherAbility = this.creature.abilities[2];
+				let rocketsToUse = rocketLauncherAbility.token;
 				if (!this.isUpgraded()) {
 					rocketsToUse = Math.min(rocketsToUse, 2);
 				}
 				rocketLauncherAbility.token -= rocketsToUse;
 
 				// Multiply damage by number of rockets
-				var damages = $j.extend({}, rocketLauncherAbility.damages);
-				for (var key in damages) {
+				let damages = $j.extend({}, rocketLauncherAbility.damages);
+				for (let key in damages) {
 					damages[key] *= rocketsToUse;
 				}
 
 				G.log("%CreatureName" + this.creature.id + "% redirects " + rocketsToUse + " rocket(s)");
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					damages, // Damage Type
 					1, // Area

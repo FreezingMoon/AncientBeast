@@ -7,9 +7,9 @@ import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 G.abilities[12] = [
 
 	// 	First Ability: Bunny Hop
@@ -34,7 +34,7 @@ G.abilities[12] = [
 
 		//	activate() :
 		activate: function(destHex) {
-			var ability = this;
+			let ability = this;
 			ability.end();
 
 			this.creature.moveTo(
@@ -54,10 +54,10 @@ G.abilities[12] = [
 		},
 
 		_getTriggerHexId: function(fromHex) {
-			var hexes = this.creature.getHexMap(matrices.front1hex);
+			let hexes = this.creature.getHexMap(matrices.front1hex);
 
 			// Find which hex we are hopping from
-			var id = -1;
+			let id = -1;
 			fromHex.creature.hexagons.forEach(function(hex) {
 				id = hexes.indexOf(hex) > id ? hexes.indexOf(hex) : id;
 			});
@@ -66,10 +66,10 @@ G.abilities[12] = [
 		},
 
 		_getHopHex: function(fromHex) {
-			var id = this._getTriggerHexId(fromHex);
+			let id = this._getTriggerHexId(fromHex);
 
 			// Try to hop away
-			var hex;
+			let hex;
 			switch (id) {
 				case 0:
 					hex = this.creature.getHexMap(matrices.backbottom1hex)[0];
@@ -98,7 +98,6 @@ G.abilities[12] = [
 	},
 
 
-
 	// 	Second Ability: Big Pliers
 	{
 		//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -108,7 +107,9 @@ G.abilities[12] = [
 
 		// 	require() :
 		require: function() {
-			if (!this.testRequirements()) return false;
+			if (!this.testRequirements()) {
+return false;
+}
 
 			if (!this.atLeastOneTarget(
 					this.creature.adjacentHexes(1), {
@@ -122,12 +123,12 @@ G.abilities[12] = [
 		// 	query() :
 		query: function() {
 
-			var ability = this;
-			var snowBunny = this.creature;
+			let ability = this;
+			let snowBunny = this.creature;
 
 			G.grid.queryCreature({
 				fnOnConfirm: function() {
-					ability.animation.apply(ability, arguments);
+					ability.animation(...arguments);
 				},
 				team: this._targetTeam,
 				id: snowBunny.id,
@@ -139,21 +140,21 @@ G.abilities[12] = [
 
 		//	activate() :
 		activate: function(target, args) {
-			var ability = this;
+			let ability = this;
 			ability.end();
 
-			var damages = ability.damages;
+			let damages = ability.damages;
 			// If upgraded, do pure damage against frozen targets
 			if (this.isUpgraded() && target.stats.frozen) {
 				damages = {
 					pure: 0
 				};
-				for (var type in ability.damages) {
+				for (let type in ability.damages) {
 					damages.pure += ability.damages[type];
 				}
 			}
 
-			var damage = new Damage(
+			let damage = new Damage(
 				ability.creature, // Attacker
 				damages, // Damage Type
 				1, // Area
@@ -163,7 +164,6 @@ G.abilities[12] = [
 			target.takeDamage(damage);
 		},
 	},
-
 
 
 	// 	Third Ability: Blowing Wind
@@ -176,7 +176,9 @@ G.abilities[12] = [
 
 		// 	require() :
 		require: function() {
-			if (!this.testRequirements()) return false;
+			if (!this.testRequirements()) {
+ return false;
+}
 
 			if (!this.testDirection({
 					team: this._targetTeam,
@@ -189,12 +191,12 @@ G.abilities[12] = [
 
 		// 	query() :
 		query: function() {
-			var ability = this;
-			var snowBunny = this.creature;
+			let ability = this;
+			let snowBunny = this.creature;
 
 			G.grid.queryDirection({
 				fnOnConfirm: function() {
-					ability.animation.apply(ability, arguments);
+					ability.animation(...arguments);
 				},
 				flipped: snowBunny.player.flipped,
 				team: this._targetTeam,
@@ -209,15 +211,14 @@ G.abilities[12] = [
 
 		//	activate() :
 		activate: function(path, args) {
-			var ability = this;
+			let ability = this;
 			ability.end();
 
 
-
-			var target = arrayUtils.last(path).creature;
+			let target = arrayUtils.last(path).creature;
 			// No blow size penalty if upgraded and target is frozen
-			var dist = 5 - (this.isUpgraded() && target.stats.frozen ? 0 : target.size);
-			var dir = [];
+			let dist = 5 - (this.isUpgraded() && target.stats.frozen ? 0 : target.size);
+			let dir = [];
 			switch (args.direction) {
 				case 0: // Upright
 					dir = G.grid.getHexMap(target.x, target.y - 8, 0, target.flipped, matrices.diagonalup).reverse();
@@ -243,8 +244,8 @@ G.abilities[12] = [
 
 			dir = dir.slice(0, dist + 1);
 
-			var hex = target.hexagons[0];
-			for (var j = 0; j < dir.length; j++) {
+			let hex = target.hexagons[0];
+			for (let j = 0; j < dir.length; j++) {
 				if (dir[j].isWalkable(target.size, target.id, true)) {
 					hex = dir[j];
 				} else {
@@ -260,11 +261,10 @@ G.abilities[12] = [
 				},
 				animation: "push",
 			});
-			
+
 			G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 		},
 	},
-
 
 
 	// 	Fourth Ability: Freezing Spit
@@ -276,7 +276,9 @@ G.abilities[12] = [
 
 		// 	require() :
 		require: function() {
-			if (!this.testRequirements()) return false;
+			if (!this.testRequirements()) {
+return false;
+}
 
 			if (!this.testDirection({
 					team: this._targetTeam,
@@ -290,12 +292,12 @@ G.abilities[12] = [
 		// 	query() :
 		query: function() {
 
-			var ability = this;
-			var snowBunny = this.creature;
+			let ability = this;
+			let snowBunny = this.creature;
 
 			G.grid.queryDirection({
 				fnOnConfirm: function() {
-					ability.animation.apply(ability, arguments);
+					ability.animation(...arguments);
 				},
 				flipped: snowBunny.player.flipped,
 				team: this._targetTeam,
@@ -308,33 +310,32 @@ G.abilities[12] = [
 		},
 
 
-
 		//	activate() :
 		activate: function(path, args) {
-			var ability = this;
+			let ability = this;
 			ability.end();
-			var target = arrayUtils.last(path).creature;
+			let target = arrayUtils.last(path).creature;
 
-			var projectileInstance = G.animations.projectile(this, target, 'effects_freezing-spit', path, args, 52, -20);
-			var tween = projectileInstance[0];
-			var sprite = projectileInstance[1];
-			var dist = projectileInstance[2];
+			let projectileInstance = G.animations.projectile(this, target, 'effects_freezing-spit', path, args, 52, -20);
+			let tween = projectileInstance[0];
+			let sprite = projectileInstance[1];
+			let dist = projectileInstance[2];
 
 			tween.onComplete.add(function() {
 				this.destroy();
 
 				// Copy to not alter ability strength
-				var dmg = $j.extend({}, ability.damages);
+				let dmg = $j.extend({}, ability.damages);
 				dmg.crush += 3 * dist; // Add distance to crush damage
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					dmg, // Damage Type
 					1, // Area
 					[],
 					G
 				);
-				var damageResult = target.takeDamage(damage);
+				let damageResult = target.takeDamage(damage);
 
 				// If upgraded and melee range, freeze the target
 				if (ability.isUpgraded() && damageResult.damageObj.melee) {
@@ -345,7 +346,7 @@ G.abilities[12] = [
 			}, sprite); // End tween.onComplete
 		},
 		getAnimationData: function(path, args) {
-			var dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
+			let dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 			return {
 				duration: 500,
 				delay: 0,

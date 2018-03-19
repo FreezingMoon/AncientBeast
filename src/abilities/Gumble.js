@@ -8,9 +8,9 @@ import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	G.abilities[14] = [
 
 		// 	First Ability: Gooey Body
@@ -29,15 +29,15 @@ export default (G) => {
 				}
 				// Attach a permanent effect that gives Gumble stat buffs
 				// Bonus points to pierce, slash and crush based on remaining health
-				var healthBonusDivisor = this.isUpgraded() ? 5 : 7;
-				var bonus = Math.floor(this.creature.health / healthBonusDivisor * 3);
+				let healthBonusDivisor = this.isUpgraded() ? 5 : 7;
+				let bonus = Math.floor(this.creature.health / healthBonusDivisor * 3);
 				// Log whenever the bonus applied changes
-				var noLog = bonus == this._lastBonus;
+				let noLog = bonus == this._lastBonus;
 				this._lastBonus = bonus;
-				var statsToApplyBonus = ['pierce', 'slash', 'crush'];
-				var alterations = {};
-				for (var i = 0; i < statsToApplyBonus.length; i++) {
-					var key = statsToApplyBonus[i];
+				let statsToApplyBonus = ['pierce', 'slash', 'crush'];
+				let alterations = {};
+				for (let i = 0; i < statsToApplyBonus.length; i++) {
+					let key = statsToApplyBonus[i];
 					alterations[key] = bonus;
 				}
 				this.creature.replaceEffect(new Effect(
@@ -74,18 +74,18 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
+				let ability = this;
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
 				// center of each area is two hexes away. Each area can be chosen regardless
 				// of whether targets are within.
-				var area = [
+				let area = [
 					[1, 1],
 					[1, 1, 1],
 					[1, 1]
 				];
-				var dx = this.creature.y % 2 !== 0 ? -1 : 0;
-				var dy = -1;
-				var choices = [
+				let dx = this.creature.y % 2 !== 0 ? -1 : 0;
+				let dy = -1;
+				let choices = [
 					G.grid.getHexMap(
 						this.creature.x + 1 + dx, this.creature.y - 2 + dy, 0, false, area), // up-right
 					G.grid.getHexMap(
@@ -111,7 +111,7 @@ export default (G) => {
 						G.grid.clearHexViewAlterations();
 					},
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: Team.both,
 					id: this.creature.id,
@@ -121,26 +121,28 @@ export default (G) => {
 			},
 
 			activate: function (hexes, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var targets = ability.getTargets(hexes);
+				let targets = ability.getTargets(hexes);
 				// Deal double damage to enemies if upgraded
-				var enemyDamages = $j.extend({}, ability.damages);
+				let enemyDamages = $j.extend({}, ability.damages);
 				if (this.isUpgraded()) {
-					for (var k in enemyDamages) {
+					for (let k in enemyDamages) {
 						enemyDamages[k] *= 2;
 					}
 				}
 				// See areaDamage()
-				var kills = 0;
-				for (var i = 0; i < targets.length; i++) {
-					if (targets[i] === undefined) continue;
-					var damages = this.damages;
+				let kills = 0;
+				for (let i = 0; i < targets.length; i++) {
+					if (targets[i] === undefined) {
+continue;
+}
+					let damages = this.damages;
 					if (isTeam(this.creature, targets[i].target, Team.enemy)) {
 						damages = enemyDamages;
 					}
-					var dmg = new Damage(this.creature, damages, targets[i].hexesHit, [], G);
+					let dmg = new Damage(this.creature, damages, targets[i].hexesHit, [], G);
 					kills += (targets[i].target.takeDamage(dmg).kill + 0);
 				}
 				if (kills > 1) {
@@ -165,17 +167,17 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var creature = this.creature;
+				let ability = this;
+				let creature = this.creature;
 
 				// Upgraded Royal Seal can target up to 3 hexagons range
-				var range = this.isUpgraded() ? 3 : 1;
-				var hexes = creature.hexagons.concat(G.grid.getFlyingRange(
+				let range = this.isUpgraded() ? 3 : 1;
+				let hexes = creature.hexagons.concat(G.grid.getFlyingRange(
 					creature.x, creature.y, range, creature.size, creature.id));
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					size: creature.size,
 					flipped: creature.player.flipped,
@@ -190,14 +192,14 @@ export default (G) => {
 			//	activate() :
 			activate: function (hex) {
 				this.end();
-				var ability = this;
+				let ability = this;
 
-				var makeSeal = function () {
-					var effect = new Effect(
+				let makeSeal = function () {
+					let effect = new Effect(
 						"Royal Seal", ability.creature, hex, "onStepIn", {
 							// Gumbles immune
 							requireFn: function () {
-								var crea = this.trap.hex.creature;
+								let crea = this.trap.hex.creature;
 								return crea && crea.type !== this.owner.type;
 							},
 							effectFn: function (effect, crea) {
@@ -219,7 +221,7 @@ export default (G) => {
 						G
 					);
 
-					var trap = hex.createTrap(
+					let trap = hex.createTrap(
 						"royal-seal", [effect], ability.creature.player, {
 							ownerCreature: ability.creature,
 							fullTurnLifetime: true
@@ -257,7 +259,9 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 
 				if (!this.testDirection({
 					team: this._targetTeam,
@@ -270,12 +274,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,
@@ -290,20 +294,20 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var target = arrayUtils.last(path).creature;
-				var melee = (path[0].creature === target);
+				let target = arrayUtils.last(path).creature;
+				let melee = (path[0].creature === target);
 
-				var d = (melee) ? {
+				let d = (melee) ? {
 					sonic: 20,
 					crush: 10
 				} : {
 						sonic: 20
 					};
 
-				var dir = [];
+				let dir = [];
 				switch (args.direction) {
 					case 0: // Upright
 						dir = G.grid.getHexMap(target.x, target.y - 8, 0, target.flipped, matrices.diagonalup).reverse();
@@ -327,7 +331,7 @@ export default (G) => {
 						break;
 				}
 
-				var canKnockBack = dir.length > 1 &&
+				let canKnockBack = dir.length > 1 &&
 					dir[1].isWalkable(target.size, target.id, true) &&
 					target.stats.moveable;
 
@@ -336,7 +340,7 @@ export default (G) => {
 					d.sonic += 10;
 				}
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					d, // Damage Type
 					1, // Area
@@ -344,11 +348,13 @@ export default (G) => {
 					G
 				);
 
-				var result = target.takeDamage(damage, {
+				let result = target.takeDamage(damage, {
 					ignoreRetaliation: true
 				});
 
-				if (result.kill) return; // if creature die stop here
+				if (result.kill) {
+return;
+} // if creature die stop here
 
 				// Knockback the target 1 hex
 				if (canKnockBack) {

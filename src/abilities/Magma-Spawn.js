@@ -7,9 +7,9 @@ import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	G.abilities[4] = [
 
 		// 	First Ability: Boiling Point
@@ -29,22 +29,24 @@ export default (G) => {
 				this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
 
 				// SFX
-				var music = G.Phaser.add.audio('MagmaSpawn0');
+				let music = G.Phaser.add.audio('MagmaSpawn0');
 				music.play();
 			},
 
 			_addTrap: function (hex) {
-				var ability = this;
+				let ability = this;
 
 				// Traps last forever if upgraded, otherwise 1 turn
-				var lifetime = this.isUpgraded() ? 0 : 1;
+				let lifetime = this.isUpgraded() ? 0 : 1;
 
 				hex.createTrap(
 					"scorched-ground", [
 						new Effect(
 							this.title, this.creature, hex, "onStepIn", {
 								requireFn: function () {
-									if (!this.trap.hex.creature) return false;
+									if (!this.trap.hex.creature) {
+return false;
+}
 									// Magma Spawn immune to Scorched Ground
 									return this.trap.hex.creature.id !== ability.creature.id;
 								},
@@ -81,7 +83,9 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 
 				if (!this.atLeastOneTarget(
 					this.creature.getHexMap(matrices.frontnback3hex), {
@@ -94,12 +98,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var magmaSpawn = this.creature;
+				let ability = this;
+				let magmaSpawn = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: magmaSpawn.id,
@@ -109,16 +113,16 @@ export default (G) => {
 			},
 
 			activate: function (target, args) {
-				var i;
-				var ability = this;
+				let i;
+				let ability = this;
 				ability.end();
 
-				var d = {
+				let d = {
 					burn: this.damages.burn,
 					crush: this.damages.crush
 				};
 				// Deal extra burn damage based on number of stacks
-				var stacksExisting = 0;
+				let stacksExisting = 0;
 				for (i = 0; i < target.effects.length; i++) {
 					if (target.effects[i].name === this.title &&
 						target.effects[i].owner === this.creature) {
@@ -127,7 +131,7 @@ export default (G) => {
 				}
 				d.burn += stacksExisting * this.damages.burn;
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					d, // Damage Type
 					1, // Area
@@ -137,7 +141,7 @@ export default (G) => {
 				target.takeDamage(damage);
 
 				// Add attack stacks
-				var stacksToAdd = 1;
+				let stacksToAdd = 1;
 				// If upgraded, extra stacks if hitting the same target
 				if (this.isUpgraded() && target.id === this._lastTargetId) {
 					stacksToAdd = 2;
@@ -160,7 +164,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Thirt Ability: Cracked Earth
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -180,14 +183,14 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var magmaSpawn = this.creature;
+				let ability = this;
+				let magmaSpawn = this.creature;
 
 				this.map.origin = [0, 2];
 
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: Team.both,
 					requireCreature: 0,
@@ -204,12 +207,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hexes, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
 				// Attack all creatures in area except for self
-				var targets = ability.getTargets(hexes);
-				for (var i = 0; i < targets.length; i++) {
+				let targets = ability.getTargets(hexes);
+				for (let i = 0; i < targets.length; i++) {
 					if (targets[i].target === this.creature) {
 						targets.splice(i, 1);
 						break;
@@ -235,7 +238,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Fourth Ability: Molten Hurl
 		{
 			//	Type : Can be "onQuery","onStartPhase","onDamage"
@@ -245,7 +247,9 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 
 				// Creature must be moveable
 				if (!this.creature.stats.moveable) {
@@ -253,8 +257,8 @@ export default (G) => {
 					return false;
 				}
 
-				var magmaSpawn = this.creature;
-				var x = (magmaSpawn.player.flipped) ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+				let magmaSpawn = this.creature;
+				let x = (magmaSpawn.player.flipped) ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
 
 				if (!this.testDirection({
 					team: this._targetTeam,
@@ -268,14 +272,14 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var magmaSpawn = this.creature;
+				let ability = this;
+				let magmaSpawn = this.creature;
 
-				var x = (magmaSpawn.player.flipped) ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+				let x = (magmaSpawn.player.flipped) ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: magmaSpawn.id,
@@ -289,13 +293,13 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				var ability = this;
-				var magmaSpawn = this.creature;
+				let ability = this;
+				let magmaSpawn = this.creature;
 
 				ability.end(false, true);
 
 				// Damage
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -304,7 +308,7 @@ export default (G) => {
 				);
 
 				// Destroy traps currently under self
-				for (var i = 0; i < this.creature.hexagons.length; i++) {
+				for (let i = 0; i < this.creature.hexagons.length; i++) {
 					if (this.creature.hexagons[i].trap) {
 						this.creature.hexagons[i].destroyTrap();
 					}
@@ -312,14 +316,14 @@ export default (G) => {
 
 				// Movement
 				var hurl = function (_path) {
-					var target = arrayUtils.last(_path).creature;
+					let target = arrayUtils.last(_path).creature;
 
-					var magmaHex = magmaSpawn.hexagons[
+					let magmaHex = magmaSpawn.hexagons[
 						args.direction === 4 ? magmaSpawn.size - 1 : 0];
 					arrayUtils.filterCreature(_path, false, false);
 					_path.unshift(magmaHex); // Prevent error on empty path
-					var destination = arrayUtils.last(_path);
-					var x = destination.x + (args.direction === 4 ? magmaSpawn.size - 1 : 0);
+					let destination = arrayUtils.last(_path);
+					let x = destination.x + (args.direction === 4 ? magmaSpawn.size - 1 : 0);
 					destination = G.grid.hexes[destination.y][x];
 
 					magmaSpawn.moveTo(destination, {
@@ -335,20 +339,20 @@ export default (G) => {
 								hex.destroyTrap();
 							});
 
-							var targetKilled = false;
+							let targetKilled = false;
 							if (target !== undefined) {
-								var ret = target.takeDamage(damage, true);
+								let ret = target.takeDamage(damage, true);
 								targetKilled = ret.kill;
 							}
 
 							// If upgraded and target killed, keep going in the same direction and
 							// find the next target to move into
-							var continueHurl = false;
+							let continueHurl = false;
 							if (ability.isUpgraded() && targetKilled) {
-								var nextPath = G.grid.getHexLine(
+								let nextPath = G.grid.getHexLine(
 									target.x, target.y, args.direction, false);
 								arrayUtils.filterCreature(nextPath, true, true, magmaSpawn.id);
-								var nextTarget = arrayUtils.last(nextPath).creature;
+								let nextTarget = arrayUtils.last(nextPath).creature;
 								// Continue only if there's a next enemy creature
 								if (nextTarget &&
 									isTeam(magmaSpawn, nextTarget, ability._targetTeam)) {

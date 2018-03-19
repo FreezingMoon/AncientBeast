@@ -1,13 +1,13 @@
 import * as io from "socket.io-client";
 
-var socket = io();
-var server = {};
+let socket = io();
+let server = {};
 
 // Whenever the server emits 'login', log the login message
 socket.on('login', function(data) {
 	server.connected = true;
 	// Display the welcome message
-	var message = "Connected To Game Server as user: " + data;
+	let message = "Connected To Game Server as user: " + data;
 	server.userName = data;
 	console.log(message);
 });

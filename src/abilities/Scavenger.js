@@ -6,9 +6,9 @@ import { Effect } from "../effect";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	/*
 	 *
 	 *	Scavenger abilities
@@ -40,7 +40,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Second Ability: Slicing Pounce
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -50,7 +49,9 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+return false;
+}
 
 				if (!this.atLeastOneTarget(
 					this.creature.getHexMap(matrices.frontnback2hex), {
@@ -63,11 +64,11 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
+				let ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -79,12 +80,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
 				// If upgraded, hits will debuff target with -1 offense
 				if (this.isUpgraded()) {
-					var effect = new Effect("Slicing Pounce", ability.creature, target, "onDamage", {
+					let effect = new Effect("Slicing Pounce", ability.creature, target, "onDamage", {
 						alterations: {
 							offense: -1
 						}
@@ -93,7 +94,7 @@ export default (G) => {
 					G.log("%CreatureName" + target.id + "%'s offense is lowered by 1");
 				}
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -106,7 +107,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Third Ability: Escort Service
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -116,12 +116,14 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
-				var hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
+				let hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
 
 				if (hexes.length < 2) {
 					// At the border of the map
@@ -148,7 +150,7 @@ export default (G) => {
 					return false;
 				}
 
-				var trg = hexes[0].creature || hexes[1].creature;
+				let trg = hexes[0].creature || hexes[1].creature;
 
 				if (!trg.stats.moveable) {
 					this.message = "Target is not moveable.";
@@ -165,29 +167,31 @@ export default (G) => {
 			},
 
 			query: function () {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
-				var hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
-				var trg = hexes[0].creature || hexes[1].creature;
+				let hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
+				let trg = hexes[0].creature || hexes[1].creature;
 
-				var distance = Math.floor(crea.remainingMove / trg.size);
-				var size = crea.size + trg.size;
+				let distance = Math.floor(crea.remainingMove / trg.size);
+				let size = crea.size + trg.size;
 
-				var trgIsInfront = (G.grid.getHexMap(crea.x - matrices.inlinefront2hex.origin[0], crea.y - matrices.inlinefront2hex.origin[1], 0, false, matrices.inlinefront2hex)[0].creature == trg);
+				let trgIsInfront = (G.grid.getHexMap(crea.x - matrices.inlinefront2hex.origin[0], crea.y - matrices.inlinefront2hex.origin[1], 0, false, matrices.inlinefront2hex)[0].creature == trg);
 
-				var select = function (hex, args) {
+				let select = function (hex, args) {
 					for (var i = 0; i < trg.hexagons.length; i++) {
-						G.grid.cleanHex(trg.hexagons[i])
+						G.grid.cleanHex(trg.hexagons[i]);
 						trg.hexagons[i].displayVisualState("dashed");
 					}
 					for (var i = 0; i < crea.hexagons.length; i++) {
-						G.grid.cleanHex(crea.hexagons[i])
+						G.grid.cleanHex(crea.hexagons[i]);
 						crea.hexagons[i].overlayVisualState("hover h_player" + crea.team);
 					}
 					for (var i = 0; i < size; i++) {
-						if (!G.grid.hexExists(hex.y, hex.x - i)) continue;
-						var h = G.grid.hexes[hex.y][hex.x - i];
+						if (!G.grid.hexExists(hex.y, hex.x - i)) {
+ continue;
+}
+						let h = G.grid.hexes[hex.y][hex.x - i];
 						var color;
 						if (trgIsInfront) {
 							color = i < trg.size ? trg.team : crea.team;
@@ -200,11 +204,11 @@ export default (G) => {
 					}
 				};
 
-				var x = (trgIsInfront ? crea.x + trg.size : crea.x);
+				let x = (trgIsInfront ? crea.x + trg.size : crea.x);
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					}, // fnOnConfirm
 					fnOnSelect: select, // fnOnSelect,
 					team: this._targetTeam,
@@ -213,9 +217,9 @@ export default (G) => {
 					flipped: crea.player.flipped,
 					hexes: G.grid.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id]).filter(function (item) {
 						return crea.y == item.y &&
-							(trgIsInfront ?
-								item.x < x :
-								item.x > x - crea.size - trg.size + 1
+							(trgIsInfront
+								? item.x < x
+								: item.x > x - crea.size - trg.size + 1
 							);
 					}),
 					args: {
@@ -223,8 +227,8 @@ export default (G) => {
 						trgIsInfront: trgIsInfront
 					},
 					callbackAfterQueryHexes: () => {
-						for (var i = 0; i < trg.hexagons.length; i++) {
-							G.grid.cleanHex(trg.hexagons[i])
+						for (let i = 0; i < trg.hexagons.length; i++) {
+							G.grid.cleanHex(trg.hexagons[i]);
 							trg.hexagons[i].displayVisualState("dashed");
 						}
 					},
@@ -234,23 +238,23 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var crea = this.creature;
+				let crea = this.creature;
 
-				var trg = G.creatures[args.trg];
-				var size = crea.size + trg.size;
+				let trg = G.creatures[args.trg];
+				let size = crea.size + trg.size;
 
-				var trgIF = args.trgIsInfront;
+				let trgIF = args.trgIsInfront;
 
-				var crea_dest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
-				var trg_dest = G.grid.hexes[hex.y][trgIF ? hex.x : hex.x - crea.size];
+				let crea_dest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
+				let trg_dest = G.grid.hexes[hex.y][trgIF ? hex.x : hex.x - crea.size];
 
 				// Determine distance
-				var distance = 0;
-				var k = 0;
-				var start = G.grid.hexes[crea.y][crea.x];
+				let distance = 0;
+				let k = 0;
+				let start = G.grid.hexes[crea.y][crea.x];
 				while (!distance) {
 					k++;
 
@@ -292,7 +296,9 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+return false;
+}
 
 				if (!this.atLeastOneTarget(
 					this.creature.getHexMap(matrices.frontnback2hex), {
@@ -305,11 +311,11 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
+				let ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -321,16 +327,16 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
 				// Don't perform poison damage unless upgraded
-				var damages = $j.extend({}, ability.damages);
+				let damages = $j.extend({}, ability.damages);
 				if (!this.isUpgraded()) {
 					delete damages.poison;
 				}
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					damages, // Damage Type
 					1, // Area
@@ -341,7 +347,7 @@ export default (G) => {
 				target.takeDamage(damage);
 
 				// Add poison damage debuff
-				var effect = new Effect(this.title, this.creature, target, "onStartPhase", {
+				let effect = new Effect(this.title, this.creature, target, "onStartPhase", {
 					stackable: false,
 					effectFn: function (effect, creature) {
 						G.log("%CreatureName" + creature.id + "% is affected by " + ability.title);

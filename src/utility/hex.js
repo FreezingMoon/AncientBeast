@@ -1,7 +1,7 @@
 import { Trap } from "./trap";
 import { Creature } from "../creature";
 
-/** 
+/**
  * Hex Class
  *
  * Object containing hex informations, positions and DOM elements
@@ -136,7 +136,7 @@ export class Hex {
 
 		}
 
-		this.displayPos.y = this.displayPos.y * .75 + 30;
+		this.displayPos.y = this.displayPos.y * 0.75 + 30;
 
 		this.onSelectFn = function () { };
 		this.onHoverOffFn = function () { };
@@ -237,7 +237,7 @@ export class Hex {
 			if (ghostedCreature instanceof Creature) {
 				ghostedCreature.xray(true);
 			}
-		};
+		}
 	}
 
 	/* cleanPathAttr(includeG)
@@ -290,7 +290,7 @@ export class Hex {
 				// Blocked by grid boundaries
 				blocked = true;
 			}
-		};
+		}
 
 		return !blocked; // Its walkable if it's NOT blocked
 	}
@@ -326,7 +326,7 @@ export class Hex {
 		for (let i = 0, len = a.length; i < len; i++) {
 			let regex = new RegExp("\\b" + a[i] + "\\b", 'g');
 			this.overlayClasses = this.overlayClasses.replace(regex, '');
-		};
+		}
 
 		this.updateStyle();
 	}
@@ -342,7 +342,7 @@ export class Hex {
 		for (let i = 0, len = a.length; i < len; i++) {
 			let regex = new RegExp("\\b" + a[i] + "\\b", 'g');
 			this.displayClasses = this.displayClasses.replace(regex, '');
-		};
+		}
 
 		this.updateStyle();
 	}
@@ -379,11 +379,11 @@ export class Hex {
 
 	updateStyle() {
 		// Display Hex
-		let targetAlpha = this.reachable || !!this.displayClasses.match(/creature/g);
+		let targetAlpha = this.reachable || Boolean(this.displayClasses.match(/creature/g));
 
 		targetAlpha = !this.displayClasses.match(/hidden/g) && targetAlpha;
-		targetAlpha = !!this.displayClasses.match(/showGrid/g) || targetAlpha;
-		targetAlpha = !!this.displayClasses.match(/dashed/g) || targetAlpha;
+		targetAlpha = Boolean(this.displayClasses.match(/showGrid/g)) || targetAlpha;
+		targetAlpha = Boolean(this.displayClasses.match(/dashed/g)) || targetAlpha;
 
 		if (this.displayClasses.match(/0|1|2|3/)) {
 			let p = this.displayClasses.match(/0|1|2|3/);
@@ -407,7 +407,7 @@ export class Hex {
 		// }
 
 		// Display Coord
-		if (!!this.displayClasses.match(/showGrid/g)) {
+		if ((this.displayClasses.match(/showGrid/g))) {
 			if (!(this.coordText && this.coordText.exists)) {
 				this.coordText = this.game.Phaser.add.text(this.originalDisplayPos.x + 45, this.originalDisplayPos.y + 63, this.coord, {
 					font: "30pt Play",
@@ -422,7 +422,7 @@ export class Hex {
 		}
 
 		// Overlay Hex
-		targetAlpha = !!this.overlayClasses.match(/hover|creature/g);
+		targetAlpha = Boolean(this.overlayClasses.match(/hover|creature/g));
 
 		if (this.overlayClasses.match(/0|1|2|3/)) {
 			let p = this.overlayClasses.match(/0|1|2|3/);
@@ -457,7 +457,7 @@ export class Hex {
 	 * returns Trap
 	 */
 	createTrap(type, effects, owner, opt) {
-		if (!!this.trap) {
+		if (this.trap) {
 			this.destroyTrap();
 		}
 
@@ -471,7 +471,7 @@ export class Hex {
 		}
 
 		let activated = false;
-		this.trap.effects.forEach((effect) => {
+		this.trap.effects.forEach(effect => {
 			if (trigger.test(effect.trigger) && effect.requireFn()) {
 				this.game.log("Trap triggered");
 				effect.activate(target);
@@ -513,4 +513,4 @@ export class Hex {
 			y: this.y
 		};
 	}
-}; // End of Hex Class
+} // End of Hex Class

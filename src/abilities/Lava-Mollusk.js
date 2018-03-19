@@ -7,9 +7,9 @@ import { isTeam } from "../utility/team";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	G.abilities[22] = [
 
 		// 	First Ability: Greater Pyre
@@ -19,20 +19,28 @@ export default (G) => {
 
 			// 	require() :
 			require: function (damage) {
-				if (this.used) return false;
-				if (!this.testRequirements()) return false;
-				if (damage == undefined) damage = {
+				if (this.used) {
+return false;
+}
+				if (!this.testRequirements()) {
+ return false;
+}
+				if (damage == undefined) {
+ damage = {
 					type: "target"
-				}; // For the test function to work
+				};
+} // For the test function to work
 				//if( this.triggeredThisChain ) return false;
 				return true;
 			},
 
 			//	activate() :
 			activate: function (damage) {
-				if (this.triggeredThisChain) return damage;
+				if (this.triggeredThisChain) {
+return damage;
+}
 
-				var targets = this.getTargets(this.creature.adjacentHexes(1));
+				let targets = this.getTargets(this.creature.adjacentHexes(1));
 				this.end();
 				this.triggeredThisChain = true;
 
@@ -58,7 +66,9 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 				if (!this.testDirection({
 					team: this._targetTeam,
 					distance: this.distance,
@@ -71,12 +81,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,
@@ -92,12 +102,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var target = arrayUtils.last(path).creature;
+				let target = arrayUtils.last(path).creature;
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -107,7 +117,6 @@ export default (G) => {
 				target.takeDamage(damage);
 			},
 		},
-
 
 
 		// 	Thirt Ability: Burning Eye
@@ -124,8 +133,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
 				crea.queryMove({
 					noPath: true,
@@ -133,7 +142,7 @@ export default (G) => {
 					range: G.grid.getFlyingRange(crea.x, crea.y, 50, crea.size, crea.id),
 					callback: function () {
 						delete arguments[1];
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 				});
 			},
@@ -141,29 +150,29 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
 
-				var targets = ability.getTargets(ability.creature.adjacentHexes(1));
+				let targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 				targets.forEach(function (item) {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
 
-					var trg = item.target;
+					let trg = item.target;
 
 					if (isTeam(ability.creature, trg, item._targetTeam)) {
 
-						var optArg = {
+						let optArg = {
 							alterations: {
 								burn: -1
 							}
 						};
 
 						//Roasted effect
-						var effect = new Effect(
+						let effect = new Effect(
 							"Roasted", //Name
 							ability.creature, //Caster
 							trg, //Target
@@ -180,28 +189,28 @@ export default (G) => {
 					ignorePath: true,
 					animation: "teleport",
 					callback: function () {
-						G.activeCreature.queryMove()
+						G.activeCreature.queryMove();
 					},
 					callbackStepIn: function () {
-						var targets = ability.getTargets(ability.creature.adjacentHexes(1));
+						let targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 						targets.forEach(function (item) {
 							if (!(item.target instanceof Creature)) {
 								return;
 							}
 
-							var trg = item.target;
+							let trg = item.target;
 
 							if (isTeam(ability.creature, trg, item._targetTeam)) {
 
-								var optArg = {
+								let optArg = {
 									alterations: {
 										burn: -1
 									}
 								};
 
 								//Roasted effect
-								var effect = new Effect(
+								let effect = new Effect(
 									"Roasted", //Name
 									ability.creature, //Caster
 									trg, //Target
@@ -211,12 +220,11 @@ export default (G) => {
 								);
 								trg.addEffect(effect, "%CreatureName" + trg.id + "% got roasted : -1 burn stat debuff");
 							}
-						})
+						});
 					},
 				});
 			},
 		},
-
 
 
 		// 	Fourth Ability: Fire Ball
@@ -231,21 +239,21 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
-				var inRangeCreatures = crea.hexagons[1].adjacentHex(4);;
+				let inRangeCreatures = crea.hexagons[1].adjacentHex(4);
 
-				var range = crea.hexagons[1].adjacentHex(3);
+				let range = crea.hexagons[1].adjacentHex(3);
 
-				var head = range.indexOf(crea.hexagons[0]);
-				var tail = range.indexOf(crea.hexagons[2]);
+				let head = range.indexOf(crea.hexagons[0]);
+				let tail = range.indexOf(crea.hexagons[2]);
 				range.splice(head, 1);
 				range.splice(tail, 1);
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					fnOnSelect: function (hex, args) {
 						hex.adjacentHex(1).forEach(function (item) {
@@ -287,12 +295,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var aoe = hex.adjacentHex(1);
+				let aoe = hex.adjacentHex(1);
 
-				var targets = ability.getTargets(aoe);
+				let targets = ability.getTargets(aoe);
 
 				if (hex.creature instanceof Creature) {
 					hex.creature.takeDamage(new Damage(

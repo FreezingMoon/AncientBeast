@@ -5,9 +5,9 @@ import { Creature } from "../creature";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	G.abilities[0] = [
 		// 	First Ability: Plasma Field
 		{
@@ -30,7 +30,7 @@ export default (G) => {
 
 				if (this.isUpgraded() && damage.melee && !damage.counter) {
 					//counter damage
-					var counter = new Damage(
+					let counter = new Damage(
 						this.creature, // Attacker
 						{
 							pure: 5
@@ -64,7 +64,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Second Ability: Electro Shocker
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -74,7 +73,9 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 				if (!this.atLeastOneTarget(
 					this.creature.adjacentHexes(this.isUpgraded() ? 4 : 1), {
 						team: this._targetTeam
@@ -87,12 +88,12 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 
-				var ability = this;
-				var dpriest = this.creature;
+				let ability = this;
+				let dpriest = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: dpriest.id,
@@ -103,14 +104,14 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var damageAmount = {
+				let damageAmount = {
 					shock: 12 * target.size
 				};
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					damageAmount, // Damage Type
 					1, // Area
@@ -123,7 +124,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Third Ability: Disruptor Beam
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -133,9 +133,11 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 
-				var range = this.creature.adjacentHexes(2);
+				let range = this.creature.adjacentHexes(2);
 
 				// At least one target
 				if (!this.atLeastOneTarget(range, {
@@ -145,8 +147,8 @@ export default (G) => {
 				}
 
 				// Search Lowest target cost
-				var lowestCost = 99;
-				var targets = this.getTargets(range);
+				let lowestCost = 99;
+				let targets = this.getTargets(range);
 
 				targets.forEach(function (item) {
 					if (item.target instanceof Creature) {
@@ -167,12 +169,12 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 
-				var ability = this;
-				var dpriest = this.creature;
+				let ability = this;
+				let dpriest = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					optTest: function (creature) {
 						return creature.size <= dpriest.player.plasma;
@@ -186,13 +188,15 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var plasmaCost = target.size;
-				var damage = target.baseStats.health - target.health;
+				let plasmaCost = target.size;
+				let damage = target.baseStats.health - target.health;
 
-				if (this.isUpgraded() && damage < 40) damage = 40;
+				if (this.isUpgraded() && damage < 40) {
+ damage = 40;
+}
 
 				ability.creature.player.plasma -= plasmaCost;
 
@@ -213,7 +217,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Fourth Ability: Godlet Printer
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -221,7 +224,9 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 
 				if (this.creature.player.plasma <= 1) {
 					this.message = G.msg.abilities.noplasma;
@@ -238,9 +243,11 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
+				let ability = this;
 
-				if (this.isUpgraded()) this.summonRange = 6;
+				if (this.isUpgraded()) {
+ this.summonRange = 6;
+}
 
 				// Ask the creature to summon
 				G.UI.materializeToggled = true;
@@ -248,21 +255,21 @@ export default (G) => {
 			},
 
 			fnOnSelect: function (hex, args) {
-				var crea = G.retreiveCreatureStats(args.creature);
+				let crea = G.retreiveCreatureStats(args.creature);
 				G.grid.previewCreature(hex.pos, crea, this.creature.player);
 			},
 
 			// Callback function to queryCreature
 			materialize: function (creature) {
-				var crea = G.retreiveCreatureStats(creature);
-				var ability = this;
-				var dpriest = this.creature;
+				let crea = G.retreiveCreatureStats(creature);
+				let ability = this;
+				let dpriest = this.creature;
 
 				G.grid.forEachHex(function (hex) {
 					hex.unsetReachable();
 				});
 
-				var spawnRange = dpriest.hexagons[0].adjacentHex(this.summonRange);
+				let spawnRange = dpriest.hexagons[0].adjacentHex(this.summonRange);
 
 				spawnRange.forEach(function (item) {
 					item.setReachable();
@@ -276,13 +283,13 @@ export default (G) => {
 
 				G.grid.queryHexes({
 					fnOnSelect: function () {
-						ability.fnOnSelect.apply(ability, arguments);
+						ability.fnOnSelect(...arguments);
 					},
 					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 					},
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					args: {
 						creature: creature,
@@ -296,13 +303,13 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex, args) {
-				var creature = args.creature;
-				var ability = this;
+				let creature = args.creature;
+				let ability = this;
 
-				var creaStats = G.retreiveCreatureStats(creature);
-				var dpriest = this.creature;
+				let creaStats = G.retreiveCreatureStats(creature);
+				let dpriest = this.creature;
 
-				var pos = {
+				let pos = {
 					x: hex.x,
 					y: hex.y
 				};

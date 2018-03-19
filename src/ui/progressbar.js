@@ -56,4 +56,4 @@ export class ProgressBar {
 			height: (this.height - 2) * percentage,
 		}, 500, "linear");
 	}
-};
+}

@@ -10,9 +10,13 @@
  */
 export function getDirectionFromDelta(y, dx, dy) {
 	// Due to target size, this could be off; limit dx
-	if (dx > 1) dx = 1;
-	if (dx < -1) dx = -1;
-	var dir;
+	if (dx > 1) {
+ dx = 1;
+}
+	if (dx < -1) {
+ dx = -1;
+}
+	let dir;
 	if (dy === 0) {
 		if (dx === 1) {
 			dir = 1; // forward

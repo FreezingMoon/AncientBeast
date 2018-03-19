@@ -1,6 +1,6 @@
 import * as $j from "jquery";
 
-/** 
+/**
  * Trap Class
  *
  * Object containing hex informations, positions and DOM elements
@@ -39,7 +39,7 @@ export class Trap {
 
 		for (let i = this.effects.length - 1; i >= 0; i--) {
 			this.effects[i].trap = this;
-		};
+		}
 
 		let spriteName = 'trap_' + type;
 		let pos = this.hex.originalDisplayPos;
@@ -91,13 +91,13 @@ export class Trap {
 		duration = duration - 0; // Avoid undefined
 		this.game.Phaser.add.tween(this.display).to({
 			alpha: 0
-		}, duration, Phaser.Easing.Linear.None)
+		}, duration, Phaser.Easing.Linear.None);
 	}
 
 	show(duration) {
 		duration = duration - 0; // Avoid undefined
 		this.game.Phaser.add.tween(this.display).to({
 			alpha: 1
-		}, duration, Phaser.Easing.Linear.None)
+		}, duration, Phaser.Easing.Linear.None);
 	}
-};
+}

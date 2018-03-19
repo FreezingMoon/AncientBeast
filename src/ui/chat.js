@@ -40,4 +40,4 @@ export class Chat {
 		this.$content.append("<p class='" + htmlclass + "'><i>" + str.zfill(time.getUTCHours(), 2) + ":" + str.zfill(time.getMinutes(), 2) + ":" + str.zfill(time.getSeconds(), 2) + "</i> " + msg + "</p>");
 		this.$content.parent().scrollTop(this.$content.height());
 	}
-};
+}

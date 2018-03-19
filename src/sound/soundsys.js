@@ -47,7 +47,7 @@ export class SoundSys {
 	}
 
 	getSound(url, id) {
-		let bufferLoader = new BufferLoader(this.context, [url], (arraybuffer) => {
+		let bufferLoader = new BufferLoader(this.context, [url], arraybuffer => {
 			this.game.soundLoaded[id] = arraybuffer[0];
 		});
 
@@ -77,4 +77,4 @@ export class SoundSys {
 		this.heartbeatGainNode.gain.value = this.heartbeats_volume * value;
 		this.announcerGainNode.gain.value = this.announcer_volume * value;
 	}
-};
+}

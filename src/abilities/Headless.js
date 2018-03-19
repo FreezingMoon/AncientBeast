@@ -7,9 +7,9 @@ import { Effect } from "../effect";
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	G.abilities[39] = [
 
 		// 	First Ability: Larva Infest
@@ -32,8 +32,8 @@ export default (G) => {
 
 			//	activate() :
 			activate: function () {
-				var ability = this;
-				var creature = this.creature;
+				let ability = this;
+				let creature = this.creature;
 
 				if (this.atLeastOneTarget(this._getHexes(), {
 					team: this._targetTeam
@@ -44,14 +44,14 @@ export default (G) => {
 					return false;
 				}
 
-				var targets = this.getTargets(this._getHexes());
+				let targets = this.getTargets(this._getHexes());
 
 				targets.forEach(function (item) {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
 
-					var trg = item.target;
+					let trg = item.target;
 
 					if (ability.isUpgraded()) {
 						// Upgraded ability causes fatigue - endurance set to 0
@@ -60,7 +60,7 @@ export default (G) => {
 
 					// Add an effect that triggers on the target's start phase and adds the
 					// debuff
-					var effect = new Effect(
+					let effect = new Effect(
 						ability.title, // Name
 						creature, // Caster
 						trg, // Target
@@ -97,7 +97,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Second Ability: Cartilage Dagger
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -107,9 +106,11 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				var crea = this.creature;
+				let crea = this.creature;
 
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+return false;
+}
 
 				//At least one target
 				if (!this.atLeastOneTarget(
@@ -123,12 +124,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: crea.id,
@@ -140,23 +141,23 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target, args) {
-				var ability = this;
+				let ability = this;
 				ability.end();
 
-				var d = {
+				let d = {
 					pierce: 11
 				};
 				// Bonus for fatigued foe
 				d.pierce = target.endurance <= 0 ? d.pierce * 2 : d.pierce;
 				// Extra pierce damage if upgraded
 				if (this.isUpgraded()) {
-					var bonus = this.creature.stats.endurance - target.stats.endurance;
+					let bonus = this.creature.stats.endurance - target.stats.endurance;
 					if (bonus > 0) {
 						d.pierce += bonus;
 					}
 				}
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, //Attacker
 					d, // Damage Type
 					1, // Area
@@ -164,10 +165,9 @@ export default (G) => {
 					G
 				);
 
-				var dmg = target.takeDamage(damage);
+				let dmg = target.takeDamage(damage);
 			},
 		},
-
 
 
 		// 	Third Ability: Whip Move
@@ -188,23 +188,23 @@ export default (G) => {
 			_getValidDirections: function () {
 				// Get all directions where there are no targets within min distance,
 				// and a target within max distance
-				var crea = this.creature;
-				var x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
-				var validDirections = [0, 0, 0, 0, 0, 0];
-				for (var i = 0; i < this.directions.length; i++) {
+				let crea = this.creature;
+				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
+				let validDirections = [0, 0, 0, 0, 0, 0];
+				for (let i = 0; i < this.directions.length; i++) {
 					if (this.directions[i] === 0) {
 						continue;
 					}
-					var directions = [0, 0, 0, 0, 0, 0];
+					let directions = [0, 0, 0, 0, 0, 0];
 					directions[i] = 1;
-					var testMin = this.testDirection({
+					let testMin = this.testDirection({
 						team: this._targetTeam,
 						x: x,
 						directions: directions,
 						distance: this._minDistance,
 						sourceCreature: crea
 					});
-					var testMax = this.testDirection({
+					let testMax = this.testDirection({
 						team: this._targetTeam,
 						x: x,
 						directions: directions,
@@ -213,18 +213,18 @@ export default (G) => {
 					});
 					if (!testMin && testMax) {
 						// Target needs to be moveable
-						var fx = 0;
+						let fx = 0;
 						if ((!this.creature.player.flipped && i > 2) ||
 							(this.creature.player.flipped && i < 3)) {
 							fx = -1 * (this.creature.size - 1);
 						}
-						var dir = G.grid.getHexLine(
+						let dir = G.grid.getHexLine(
 							this.creature.x + fx, this.creature.y, i, this.creature.player.flipped);
 						if (this._getMaxDistance() > 0) {
 							dir = dir.slice(0, this._getMaxDistance() + 1);
 						}
 						dir = arrayUtils.filterCreature(dir, true, true, this.creature.id);
-						var target = arrayUtils.last(dir).creature;
+						let target = arrayUtils.last(dir).creature;
 						if (target.stats.moveable) {
 							validDirections[i] = 1;
 						}
@@ -234,7 +234,9 @@ export default (G) => {
 			},
 
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+return false;
+}
 
 				// Creature must be moveable
 				if (!this.creature.stats.moveable) {
@@ -244,7 +246,7 @@ export default (G) => {
 
 				// There must be at least one direction where there is a target within
 				// min/max range
-				var validDirections = this._getValidDirections();
+				let validDirections = this._getValidDirections();
 				if (!validDirections.some(function (e) {
 					return e === 1;
 				})) {
@@ -257,12 +259,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: crea.id,
@@ -278,26 +280,26 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				var ability = this;
-				var crea = this.creature;
-				var target = arrayUtils.last(path).creature;
+				let ability = this;
+				let crea = this.creature;
+				let target = arrayUtils.last(path).creature;
 				path = path.filter(function (hex) {
 					return !hex.creature;
 				}); //remove creatures
 				ability.end();
 
 				//Movement
-				var creature = (args.direction == 4) ? crea.hexagons[crea.size - 1] : crea.hexagons[0];
+				let creature = (args.direction == 4) ? crea.hexagons[crea.size - 1] : crea.hexagons[0];
 				arrayUtils.filterCreature(path, false, false);
-				var destination = null;
-				var destinationTarget = null;
+				let destination = null;
+				let destinationTarget = null;
 				if (target.size === 1) {
 					// Small creature, pull target towards self
 					destinationTarget = path.first();
 				} else if (target.size === 2) {
 					// Medium creature, pull self and target towards each other half way,
 					// rounding upwards for self (self move one extra hex if required)
-					var midpoint = Math.floor((path.length - 1) / 2);
+					let midpoint = Math.floor((path.length - 1) / 2);
 					destination = path[midpoint];
 					if (midpoint < path.length - 1) {
 						destinationTarget = path[midpoint + 1];
@@ -307,8 +309,8 @@ export default (G) => {
 					destination = arrayUtils.last(path);
 				}
 
-				var x;
-				var hex;
+				let x;
+				let hex;
 				if (destination !== null) {
 					x = (args.direction === 4) ? destination.x + crea.size - 1 : destination.x;
 					hex = G.grid.hexes[destination.y][x];
@@ -345,7 +347,6 @@ export default (G) => {
 		},
 
 
-
 		// 	Fourth Ability: Boomerang Tool
 		{
 			//	Type : Can be "onQuery","onStartPhase","onDamage"
@@ -368,20 +369,22 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) return false;
+				if (!this.testRequirements()) {
+ return false;
+}
 				return true;
 			},
 
 			// 	query() :
 			query: function () {
-				var ability = this;
-				var crea = this.creature;
+				let ability = this;
+				let crea = this.creature;
 
-				var hexes = this._getHexes();
+				let hexes = this._getHexes();
 
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+						ability.animation(...arguments);
 					},
 					team: Team.both,
 					requireCreature: 0,
@@ -395,11 +398,11 @@ export default (G) => {
 			},
 
 			activate: function (hexes) {
-				var damages = {
+				let damages = {
 					slash: 10
 				};
 
-				var ability = this;
+				let ability = this;
 				ability.end();
 
 				ability.areaDamage(

@@ -1,7 +1,7 @@
 import * as $j from "jquery";
 
 export class Button {
-	/**	
+	/**
 	 * Constructor
 	 *
 	 *	Create attributes and default buttons
@@ -37,7 +37,8 @@ export class Button {
 
 		state = state || this.state;
 		this.state = state;
-		this.$button.unbind("click").unbind("mouseover").unbind("mouseleave");
+		this.$button.unbind("click").unbind("mouseover")
+.unbind("mouseleave");
 
 		if (state != "disabled") {
 			this.$button.bind("click", () => {
@@ -66,7 +67,7 @@ export class Button {
 		});
 
 		this.$button.removeClass("disabled glowing selected active noclick");
-		this.$button.css(this.css["normal"]);
+		this.$button.css(this.css.normal);
 
 		if (state != "normal") {
 			this.$button.addClass(state);
