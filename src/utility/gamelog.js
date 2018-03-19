@@ -1,5 +1,8 @@
-import * as jQuery from 'jquery';
-import { getGameConfig, isEmpty } from '../script';
+import * as $j from "jquery";
+import {
+	isEmpty,
+	getGameConfig
+} from "../script";
 
 export class GameLog {
 	constructor(id, game) {
@@ -26,7 +29,7 @@ export class GameLog {
 
 			// TODO: We should be able to initiate this w/o manipulating the DOM -- However,
 			// currently "random" BG is processed on Submit. -- ktiedt
-			let btn = jQuery('#startButton');
+			let btn = $j('#startButton');
 			if (btn.length === 1) {
 				btn.click();
 			}
@@ -127,9 +130,9 @@ export class GameLog {
 				output = dict;
 				strOutput = json;
 				break;
-			case 'save':
+			case "save":
 				var fileName = new Date().toISOString().slice(0, 10);
-				this.saveFile(JSON.stringify(dict.log), fileName + '.AB');
+				this.saveFile(JSON.stringify(dict.log), fileName + ".AB");
 				break;
 			case 'hash':
 			default:
@@ -153,5 +156,5 @@ export class GameLog {
 			document.body.removeChild(a);
 			window.URL.revokeObjectURL(url);
 		}, 0);
-	}
-}
+	};
+};

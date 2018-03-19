@@ -1,10 +1,11 @@
+import * as $j from 'jquery';
 import { Damage } from "./damage";
 import { Hex } from "./utility/hex";
 import { Creature } from "./creature";
 import { isTeam, Team } from "./utility/team";
 import * as arrayUtils from "./utility/arrayUtils";
 
-/** 
+/**
  * Ability Class
  *
  * Class parsing function from creature abilities
@@ -664,4 +665,3 @@ export class Ability {
 		return false;
 	}
 }
-

@@ -1,5 +1,6 @@
-import { Trap } from './trap';
-import { Creature } from '../creature';
+import * as $j from 'jquery';
+import { Trap } from "./trap";
+import { Creature } from "../creature";
 
 /**
  * Hex Class

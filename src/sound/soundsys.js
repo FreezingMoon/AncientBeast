@@ -1,4 +1,5 @@
-import { BufferLoader } from './bufferloader';
+import * as $j from 'jquery';
+import { BufferLoader } from "./bufferloader";
 
 export class SoundSys {
 	constructor(o, game) {

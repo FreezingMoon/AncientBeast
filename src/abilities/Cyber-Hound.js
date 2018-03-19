@@ -1,9 +1,9 @@
-import { Damage } from '../damage';
-import { Team } from '../utility/team';
-import * as matrices from '../utility/matrices';
-import * as arrayUtils from '../utility/arrayUtils';
-import { Creature } from '../creature';
-import { isTeam } from '../utility/team';
+import * as $j from 'jquery';
+import { Damage } from "../damage";
+import { Team, isTeam } from "../utility/team";
+import * as matrices from "../utility/matrices";
+import * as arrayUtils from "../utility/arrayUtils";
+import { Creature } from "../creature";
 
 /**
  * Creates the abilities
