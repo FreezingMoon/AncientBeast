@@ -1,16 +1,21 @@
 {
-    "parserOptions": {
-        "ecmaVersion": 6,
-        "sourceType": "module"
-    },
-    "env": {
-        "browser": true
-    },
-    "globals": {
-        "Phaser": true,
-        "$j": true
-    },
-    "rules": {
-        "no-undef": "error"
-    }
+	"plugins": ["prettier"],
+	"extends": [
+		"prettier",
+		"plugin:prettier/recommended"
+	],
+	"rules": {
+		"prettier/prettier": "error",
+		"no-undef": "error"
+	},
+	"parserOptions": {
+		"ecmaVersion": 6,
+		"sourceType": "module"
+	},
+	"env": {
+		"browser": true
+	},
+	"globals": {
+		"Phaser": true
+	}
 }

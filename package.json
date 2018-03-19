@@ -20,6 +20,7 @@
 	],
 	"dependencies": {
 		"compression": "^1.7.2",
+		"expose-loader": "^0.7.5",
 		"express": "^4.16.3",
 		"jquery": "3.3.1",
 		"jquery-mousewheel": "3.1.13",
@@ -33,17 +34,18 @@
 	"devDependencies": {
 		"css-loader": "^0.28.11",
 		"eslint": "^4.19.0",
-		"expose-loader": "^0.7.5",
-		"extract-text-webpack-plugin": "^3.0.2",
+		"eslint-config-prettier": "^2.9.0",
+		"eslint-plugin-prettier": "^2.6.0",
 		"file-loader": "^1.1.11",
-		"html-webpack-plugin": "3",
+		"html-webpack-plugin": "^3.0.6",
+		"husky": "^0.14.3",
 		"less": "^3.0.1",
 		"less-loader": "^4.1.0",
+		"precise-commits": "^1.0.2",
 		"prettier": "^1.11.1",
 		"style-loader": "^0.20.3",
 		"uglifyjs-webpack-plugin": "^1.2.4",
 		"webpack": "^4.1.1",
-		"webpack-cli": "^2.0.12",
 		"webpack-merge": "^4.1.2",
 		"webpack-serve": "^0.2.0"
 	},
@@ -56,6 +58,9 @@
 		"start:dev": "webpack-serve --config ./webpack.config.js --no-hot",
 		"generateManifest": "node manifestGenerator.js",
 		"lint": "eslint src/**/*.js",
-		"postinstall": "yarn run build"
+		"postinstall": "scripts/postinstall.sh",
+		"precise-commits": "precise-commits",
+		"precommit": "yarn run precise-commits",
+		"eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check"
 	}
 }
