@@ -65,13 +65,16 @@
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check"
 	},
 	"lint-staged": {
-		"*.{js,json,less,md}": [
-			"prettier --write",
-			"git add"
-		],
-		"*.js": [
-			"eslint -c .eslintrc.json --fix",
-			"git add"
-		]
+		"concurrent": false,
+		"linters": {
+			"*.{js,json,less,md}": [
+				"prettier --write",
+				"git add"
+			],
+			"*.js": [
+				"eslint -c .eslintrc.json --fix",
+				"git add"
+			]
+		}
 	}
 }
