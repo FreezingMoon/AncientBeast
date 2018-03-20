@@ -58,7 +58,7 @@ export default class Game {
 		this.activeCreature = {
 			id: 0
 		};
-		this.preventSetup = true;
+		this.preventSetup = false;
 		this.animations = new Animations(this);
 		this.turn = 0;
 		this.queue = new CreatureQueue(this);
@@ -181,7 +181,7 @@ export default class Game {
 
 		this.creatureData = data;
 
-		data.forEach((creature, idx, arr) => {
+		data.forEach(creature => {
 			let creatureId = creature.id,
 				realm = creature.realm,
 				level = creature.level,
@@ -237,16 +237,16 @@ export default class Game {
 	 */
 	loadGame(setupOpt) {
 		let totalSoundEffects = this.soundEffects.length,
-			defaultOpt = {
-				playerMode: 2,
-				creaLimitNbr: 7,
-				unitDrops: 1,
-				abilityUpgrades: 4,
-				plasma_amount: 50,
-				turnTimePool: 60,
-				timePool: 5 * 60,
-				background_image: 'Frozen Skull'
-			},
+			// defaultOpt = {
+			// 	playerMode: 2,
+			// 	creaLimitNbr: 7,
+			// 	unitDrops: 1,
+			// 	abilityUpgrades: 4,
+			// 	plasma_amount: 50,
+			// 	turnTimePool: 60,
+			// 	timePool: 5 * 60,
+			// 	background_image: 'Frozen Skull'
+			// },
 			i;
 
 		this.gamelog.gameConfig = setupOpt;
@@ -329,7 +329,6 @@ export default class Game {
 
 	loadFinish() {
 		let progress = this.Phaser.load.progress,
-			loadingBarWidth = 355,
 			progressWidth = progress + '%';
 
 		$j('#barLoader .progress').css('width', progressWidth);
@@ -963,6 +962,8 @@ export default class Game {
 				}
 			});
 		});
+
+		return retValue;
 	}
 
 	triggerEffect(trigger, arg, retValue) {
@@ -993,10 +994,12 @@ export default class Game {
 				});
 			}
 		});
+
+		return retValue;
 	}
 
 	triggerTrap(trigger, arg) {
-		let [triggeredCreature, required] = arg;
+		let [triggeredCreature] = arg;
 
 		triggeredCreature.hexagons.forEach(hex => {
 			hex.activateTrap(this.triggers[trigger], triggeredCreature);
@@ -1039,7 +1042,8 @@ export default class Game {
 		}
 	}
 
-	onStepOut(creature, hex, callback) {
+	// creature, hex, callback -- removed from definition because we are using arguments.
+	onStepOut() {
 		this.triggerAbility('onStepOut', arguments);
 		this.triggerEffect('onStepOut', arguments);
 		// Check traps last; this is because traps add effects triggered by
@@ -1054,8 +1058,10 @@ export default class Game {
 		this.triggerEffect('onReset', [creature, creature]);
 	}
 
-	onStartPhase(creature, callback) {
-		let totalTraps = this.grid.traps.length,
+	// creature, callback - removed because using arguments.
+	onStartPhase() {
+		let creature = arguments[0],
+			totalTraps = this.grid.traps.length,
 			trap,
 			i;
 
@@ -1086,22 +1092,29 @@ export default class Game {
 		this.triggerEffect('onStartPhase', [creature, creature]);
 	}
 
-	onEndPhase(creature, callback) {
+	// creature, callback -- removed because we are using arguments
+	onEndPhase() {
+		let creature = arguments[0];
+
 		this.triggerDeleteEffect('onEndPhase', creature);
 		this.triggerAbility('onEndPhase', arguments);
 		this.triggerEffect('onEndPhase', [creature, creature]);
 	}
 
-	onStartOfRound(creature, callback) {
+	// creature, callback -- removed because not used.
+	onStartOfRound() {
 		this.triggerDeleteEffect('onStartOfRound', 'all');
 	}
 
-	onCreatureMove(creature, hex, callback) {
+	// creature, hex, callback -- removed because using arguments.
+	onCreatureMove() {
 		this.triggerAbility('onCreatureMove', arguments);
 	}
 
-	onCreatureDeath(creature, callback) {
-		let totalTraps = this.grid.traps.length,
+	// creature, callback -- removed because using arguments
+	onCreatureDeath() {
+		let creature = arguments[0],
+			totalTraps = this.grid.traps.length,
 			totalEffects = this.effects.length,
 			trap,
 			effect,
@@ -1141,7 +1154,8 @@ export default class Game {
 		this.triggerEffect('onCreatureSummon', [creature, creature]);
 	}
 
-	onEffectAttach(creature, effect, callback) {
+	// creature, effect, callback -- removed callback because not used.
+	onEffectAttach(creature, effect) {
 		this.triggerEffect('onEffectAttach', [creature, effect]);
 	}
 
@@ -1151,19 +1165,21 @@ export default class Game {
 		return damage;
 	}
 
-	onDamage(creature, damage) {
+	// creature, damage -- removed because used arguments.
+	onDamage() {
 		this.triggerAbility('onDamage', arguments);
 		this.triggerEffect('onDamage', arguments);
 	}
 
-	onHeal(creature, amount) {
+	// creature, amount -- removed because used arguments
+	onHeal() {
 		this.triggerAbility('onHeal', arguments);
 		this.triggerEffect('onHeal', arguments);
 	}
 
 	onAttack(creature, damage) {
-		damage = this.triggerAbility('onAttack', arguments, damage);
-		damage = this.triggerEffect('onAttack', arguments, damage);
+		this.triggerAbility('onAttack', arguments, damage);
+		this.triggerEffect('onAttack', arguments, damage);
 	}
 
 	findCreature(o) {
@@ -1406,7 +1422,7 @@ export default class Game {
 					callback: opt.callback
 				});
 				break;
-			case 'ability':
+			case 'ability': {
 				let args = $j.makeArray(o.args[1]);
 
 				if (o.target.type == 'hex') {
@@ -1435,6 +1451,7 @@ export default class Game {
 					});
 				}
 				break;
+			}
 		}
 	}
 

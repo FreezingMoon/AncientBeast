@@ -1,27 +1,17 @@
 const path = require('path');
-const webpack = require('webpack');
-const merge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
-// Are we in production
-const production = process.env.production;
-
-const baseSettings = {
+const settings = {
 	entry: path.resolve(__dirname, 'src', 'script.js'),
 	output: {
 		path: path.resolve(__dirname, 'deploy/'),
-		filename: 'ancientbeast.js'
+		filename: 'ancientbeast.js',
+		publicPath: '/'
 	},
+	devtool: 'inline-source-map',
 	optimization: {
 		splitChunks: {
-			cacheGroups: {
-				vendor: {
-					test: 'vendor',
-					name: 'vendor',
-					enforce: true
-				}
-			}
+			cacheGroups: {}
 		}
 	},
 	module: {
@@ -54,18 +44,6 @@ const baseSettings = {
 	]
 };
 
-const prodSettings = {
-	plugins: [
-		new UglifyJSPlugin(),
-		new webpack.DefinePlugin({
-			'process.env.NODE_ENV': JSON.stringify('production')
-		})
-	]
-};
-
-const devSettings = {
-	devtool: 'cheap-module-eval-source-map'
-};
-
 // Create either a production or development build depending on the `production` env setting
-module.exports = merge(baseSettings, production ? prodSettings : devSettings);
+
+module.exports = settings;

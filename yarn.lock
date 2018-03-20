@@ -7317,7 +7317,7 @@ webpack-cli@^2.0.12:
     yeoman-environment "^2.0.0"
     yeoman-generator "^2.0.3"
 
-webpack-dev-middleware@^3.0.0:
+webpack-dev-middleware@^3.0.0, webpack-dev-middleware@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/webpack-dev-middleware/-/webpack-dev-middleware-3.0.1.tgz#7ffd6d0192883c83d3f262e8d7dec822493c6166"
   dependencies:
