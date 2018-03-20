@@ -68,4 +68,4 @@ const devSettings = {
 };
 
 // Create either a production or development build depending on the `production` env setting
-module.exports = merge(baseSettings, production ? devSettings : prodSettings);
+module.exports = merge(baseSettings, production ? prodSettings : devSettings);
