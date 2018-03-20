@@ -45,8 +45,7 @@
 		"uglifyjs-webpack-plugin": "^1.2.4",
 		"webpack": "^4.1.1",
 		"webpack-dev-middleware": "^3.0.1",
-		"webpack-merge": "^4.1.2",
-		"webpack-serve": "^0.2.0"
+		"webpack-merge": "^4.1.2"
 	},
 	"engines": {
 		"node": ">=8"
