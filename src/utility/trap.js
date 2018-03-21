@@ -1,6 +1,6 @@
-import * as $j from "jquery";
+import * as $j from 'jquery';
 
-/** 
+/**
  * Trap Class
  *
  * Object containing hex informations, positions and DOM elements
@@ -39,7 +39,7 @@ export class Trap {
 
 		for (let i = this.effects.length - 1; i >= 0; i--) {
 			this.effects[i].trap = this;
-		};
+		}
 
 		let spriteName = 'trap_' + type;
 		let pos = this.hex.originalDisplayPos;
@@ -48,7 +48,11 @@ export class Trap {
 		this.display.anchor.setTo(0.5);
 
 		if (this.typeOver) {
-			this.displayOver = game.grid.trapOverGroup.create(pos.x + this.hex.width / 2, pos.y + 60, spriteName);
+			this.displayOver = game.grid.trapOverGroup.create(
+				pos.x + this.hex.width / 2,
+				pos.y + 60,
+				spriteName
+			);
 			this.displayOver.anchor.setTo(0.5);
 			this.displayOver.scale.x *= -1;
 		}
@@ -62,10 +66,15 @@ export class Trap {
 					sprite.anchor.y = 1;
 					sprite.y += sprite.height / 2;
 
-					let tween = game.Phaser.add.tween(sprite.scale)
-						.to({
-							y: 0
-						}, tweenDuration, Phaser.Easing.Linear.None)
+					let tween = game.Phaser.add
+						.tween(sprite.scale)
+						.to(
+							{
+								y: 0
+							},
+							tweenDuration,
+							Phaser.Easing.Linear.None
+						)
 						.start();
 					tween.onComplete.add(() => {
 						this.destroy();
@@ -89,15 +98,23 @@ export class Trap {
 	hide(duration, timer) {
 		timer = timer - 0; // Avoid undefined
 		duration = duration - 0; // Avoid undefined
-		this.game.Phaser.add.tween(this.display).to({
-			alpha: 0
-		}, duration, Phaser.Easing.Linear.None)
+		this.game.Phaser.add.tween(this.display).to(
+			{
+				alpha: 0
+			},
+			duration,
+			Phaser.Easing.Linear.None
+		);
 	}
 
 	show(duration) {
 		duration = duration - 0; // Avoid undefined
-		this.game.Phaser.add.tween(this.display).to({
-			alpha: 1
-		}, duration, Phaser.Easing.Linear.None)
+		this.game.Phaser.add.tween(this.display).to(
+			{
+				alpha: 1
+			},
+			duration,
+			Phaser.Easing.Linear.None
+		);
 	}
-};
+}

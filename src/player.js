@@ -1,7 +1,8 @@
+import * as $j from 'jquery';
 import { getUrl } from './assetLoader';
 import { Creature } from './creature';
 
-/** 
+/**
  * Player Class
  * Player object with attributes
  */
@@ -18,25 +19,25 @@ export class Player {
 		this.id = id;
 		this.game = game;
 		this.creatures = [];
-		this.name = "Player" + (id + 1);
+		this.name = 'Player' + (id + 1);
 		switch (id) {
 			case 0:
-				this.color = "red";
+				this.color = 'red';
 				break;
 			case 1:
-				this.color = "blue";
+				this.color = 'blue';
 				break;
 			case 2:
-				this.color = "orange";
+				this.color = 'orange';
 				break;
 			default:
-				this.color = "green";
+				this.color = 'green';
 				break;
 		}
-		this.avatar = getUrl("units/avatars/Dark Priest " + this.color);
+		this.avatar = getUrl('units/avatars/Dark Priest ' + this.color);
 		this.score = [];
 		this.plasma = game.plasma_amount;
-		this.flipped = !!(id % 2); // Convert odd/even to true/false
+		this.flipped = Boolean(id % 2); // Convert odd/even to true/false
 		this.availableCreatures = game.availableCreatures;
 		this.hasLost = false;
 		this.hasFled = false;
@@ -44,9 +45,11 @@ export class Player {
 		this.totalTimePool = game.timePool * 1000;
 		this.startTime = new Date();
 
-		this.score = [{
-			type: "timebonus"
-		}];
+		this.score = [
+			{
+				type: 'timebonus'
+			}
+		];
 	}
 
 	// TODO: Is this even right? it should be off by 1 based on this code...
@@ -66,7 +69,6 @@ export class Player {
 
 		return nbr;
 	}
-
 
 	/* summon(type, pos)
 	 *
@@ -107,7 +109,6 @@ export class Player {
 		this.game.skipTurn(o);
 	}
 
-
 	/* getScore()
 	 *
 	 * return :	Integer :	The current score of the player
@@ -129,7 +130,7 @@ export class Player {
 				creaturebonus: 0,
 				darkpriestbonus: 0,
 				immortal: 0,
-				total: 0,
+				total: 0
 			};
 
 		for (let i = 0; i < total; i++) {
@@ -137,40 +138,40 @@ export class Player {
 			points = 0;
 
 			switch (s.type) {
-				case "firstKill":
+				case 'firstKill':
 					points += 20;
 					break;
-				case "kill":
+				case 'kill':
 					points += s.creature.level * 5;
 					break;
-				case "combo":
+				case 'combo':
 					points += s.kills * 5;
 					break;
-				case "humiliation":
+				case 'humiliation':
 					points += 50;
 					break;
-				case "annihilation":
+				case 'annihilation':
 					points += 100;
 					break;
-				case "deny":
+				case 'deny':
 					points += -1 * s.creature.size * 5;
 					break;
-				case "timebonus":
+				case 'timebonus':
 					points += Math.round(this.bonusTimePool * 0.5);
 					break;
-				case "nofleeing":
+				case 'nofleeing':
 					points += 25;
 					break;
-				case "creaturebonus":
+				case 'creaturebonus':
 					points += s.creature.level * 5;
 					break;
-				case "darkpriestbonus":
+				case 'darkpriestbonus':
 					points += 50;
 					break;
-				case "immortal":
+				case 'immortal':
 					points += 100;
 					break;
-				case "pickupDrop":
+				case 'pickupDrop':
 					points += 2;
 					break;
 			}
@@ -192,7 +193,8 @@ export class Player {
 	isLeader() {
 		let game = this.game;
 
-		for (let i = 0; i < game.playerMode; i++) { // Each player
+		for (let i = 0; i < game.playerMode; i++) {
+			// Each player
 			// If someone has a higher score
 			if (game.players[i].getScore().total > this.getScore().total) {
 				return false; // He's not in lead
@@ -202,14 +204,13 @@ export class Player {
 		return true; // If nobody has a better score he's in lead
 	}
 
-
 	/* isAnnihilated()
 	 *
 	 * A player is considered annihilated if all his creatures are dead DP included
 	 */
 	isAnnihilated() {
 		// annihilated is false if only one creature is not dead
-		let annihilated = (this.creatures.length > 1),
+		let annihilated = this.creatures.length > 1,
 			count = this.creatures.length;
 
 		for (let i = 0; i < count; i++) {
@@ -244,8 +245,9 @@ export class Player {
 		// Test if allie Dark Priest is dead
 		if (game.playerMode > 2) {
 			// 2 vs 2
-			if (game.players[(this.id + 2) % 4].hasLost)
+			if (game.players[(this.id + 2) % 4].hasLost) {
 				game.endGame();
+			}
 		} else {
 			// 1 vs 1
 			game.endGame();

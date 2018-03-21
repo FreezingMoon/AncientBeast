@@ -1,7 +1,7 @@
-import * as $j from "jquery";
+import * as $j from 'jquery';
 
 export class Button {
-	/**	
+	/**
 	 * Constructor
 	 *
 	 *	Create attributes and default buttons
@@ -11,11 +11,11 @@ export class Button {
 		this.game = game;
 
 		let defaultOpts = {
-			click: function () { },
-			mouseover: function () { },
-			mouseleave: function () { },
+			click: function() {},
+			mouseover: function() {},
+			mouseleave: function() {},
 			clickable: true,
-			state: "normal", // disabled, normal, glowing, selected, active
+			state: 'normal', // disabled, normal, glowing, selected, active
 			$button: undefined,
 			attributes: {},
 			css: {
@@ -23,7 +23,7 @@ export class Button {
 				glowing: {},
 				selected: {},
 				active: {},
-				normal: {},
+				normal: {}
 			}
 		};
 
@@ -37,10 +37,13 @@ export class Button {
 
 		state = state || this.state;
 		this.state = state;
-		this.$button.unbind("click").unbind("mouseover").unbind("mouseleave");
+		this.$button
+			.unbind('click')
+			.unbind('mouseover')
+			.unbind('mouseleave');
 
-		if (state != "disabled") {
-			this.$button.bind("click", () => {
+		if (state != 'disabled') {
+			this.$button.bind('click', () => {
 				if (game.freezedInput || !this.clickable) {
 					return;
 				}
@@ -49,7 +52,7 @@ export class Button {
 			});
 		}
 
-		this.$button.bind("mouseover", () => {
+		this.$button.bind('mouseover', () => {
 			if (game.freezedInput || !this.clickable) {
 				return;
 			}
@@ -57,7 +60,7 @@ export class Button {
 			this.mouseover();
 		});
 
-		this.$button.bind("mouseleave", () => {
+		this.$button.bind('mouseleave', () => {
 			if (game.freezedInput || !this.clickable) {
 				return;
 			}
@@ -65,10 +68,10 @@ export class Button {
 			this.mouseleave();
 		});
 
-		this.$button.removeClass("disabled glowing selected active noclick");
-		this.$button.css(this.css["normal"]);
+		this.$button.removeClass('disabled glowing selected active noclick');
+		this.$button.css(this.css.normal);
 
-		if (state != "normal") {
+		if (state != 'normal') {
 			this.$button.addClass(state);
 			this.$button.css(this.css[state]);
 		}

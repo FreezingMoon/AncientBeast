@@ -11,14 +11,14 @@ export class BufferLoader {
 		// Load buffer asynchronously
 		let request = new XMLHttpRequest();
 
-		request.open("GET", url, true);
-		request.responseType = "arraybuffer";
+		request.open('GET', url, true);
+		request.responseType = 'arraybuffer';
 
 		request.onload = () => {
 			// Asynchronously decode the audio file data in request.response
 			this.context.decodeAudioData(
 				request.response,
-				(buffer) => {
+				buffer => {
 					if (!buffer) {
 						alert('error decoding file data: ' + url);
 						return;
@@ -29,7 +29,7 @@ export class BufferLoader {
 						this.onload(this.bufferList);
 					}
 				},
-				(error) => {
+				error => {
 					console.error('decodeAudioData error', error);
 				}
 			);
@@ -47,4 +47,4 @@ export class BufferLoader {
 			this.loadBuffer(this.urlList[i], i);
 		}
 	}
-};
+}

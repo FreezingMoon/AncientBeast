@@ -1,10 +1,11 @@
-import { Damage } from "./damage";
-import { Hex } from "./utility/hex";
-import { Creature } from "./creature";
-import { isTeam, Team } from "./utility/team";
-import * as arrayUtils from "./utility/arrayUtils";
+import * as $j from 'jquery';
+import { Damage } from './damage';
+import { Hex } from './utility/hex';
+import { Creature } from './creature';
+import { isTeam, Team } from './utility/team';
+import * as arrayUtils from './utility/arrayUtils';
 
-/** 
+/**
  * Ability Class
  *
  * Class parsing function from creature abilities
@@ -35,11 +36,16 @@ export class Ability {
 	 * Whether this ability upgrades after a certain number of uses. Otherwise it
 	 * upgrades after a certain number of rounds.
 	 * By default, this applies to active (onQuery) abilities.
+	 * @return {boolean} Is upgrade per use.
 	 */
 	isUpgradedPerUse() {
-		return this.trigger === "onQuery";
+		return this.trigger === 'onQuery';
 	}
 
+	/**
+	 * Number of uses left before ability upgrades.
+	 * @return {number} Uses left before upgrade.
+	 */
 	usesLeftBeforeUpgrade() {
 		let game = this.game;
 
@@ -50,10 +56,18 @@ export class Ability {
 		return game.abilityUpgrades - this.creature.turnsActive;
 	}
 
+	/**
+	 * Is this ability upgraded.
+	 * @return {boolean} Is upgraded?
+	 */
 	isUpgraded() {
 		return !this.hasUpgrade() ? false : this.usesLeftBeforeUpgrade() <= 0;
 	}
 
+	/**
+	 * Get the trigger method for this ablity.
+	 * @return {string|Function} Trigger
+	 */
 	getTrigger() {
 		if (this.trigger !== undefined) {
 			return this.trigger;
@@ -66,6 +80,7 @@ export class Ability {
 
 	/**
 	 * Reset ability at start of turn.
+	 * @return {void}
 	 */
 	reset() {
 		this.setUsed(false);
@@ -73,32 +88,30 @@ export class Ability {
 		this.timesUsedThisTurn = 0;
 	}
 
-	/* use()
-	 *
+	/*
 	 * Test and use the ability
 	 *
 	 */
 	use() {
 		let game = this.game;
 
-		if (this.getTrigger() !== "onQuery" || !this.require()) {
+		if (this.getTrigger() !== 'onQuery' || !this.require()) {
 			return;
 		}
 
 		if (this.used === true) {
-			game.log("Ability already used!");
+			game.log('Ability already used!');
 			return;
 		}
 
 		game.grid.clearHexViewAlterations();
 		game.clearOncePerDamageChain();
-		game.activeCreature.hint(this.title, "msg_effects");
+		game.activeCreature.hint(this.title, 'msg_effects');
 
 		return this.query();
 	}
 
-	/* end()
-	 *
+	/*
 	 * End the ability. Must be called at the end of each ability function;
 	 *
 	 */
@@ -106,25 +119,25 @@ export class Ability {
 		let game = this.game;
 
 		if (!desableLogMsg) {
-			game.log("%CreatureName" + this.creature.id + "% uses " + this.title);
+			game.log('%CreatureName' + this.creature.id + '% uses ' + this.title);
 		}
 
 		this.applyCost();
 		this.setUsed(true); // Should always be here
 		game.UI.updateInfos(); // Just in case
-		game.UI.btnDelay.changeState("disabled");
+		game.UI.btnDelay.changeState('disabled');
 		game.activeCreature.delayable = false;
 		game.UI.selectAbility(-1);
 
-		if (this.getTrigger() === "onQuery" && !deferedEnding) {
+		if (this.getTrigger() === 'onQuery' && !deferedEnding) {
 			game.activeCreature.queryMove();
 		}
 	}
 
-	/* setUsed(val)
-	 *
-	 * val : Boolean : set the used attriute to the desired value
-	 *
+	/**
+	 * Set the value of the used attribute
+	 * @param {boolean} val Value to set.
+	 * @return {void}
 	 */
 	setUsed(val) {
 		let game = this.game;
@@ -133,13 +146,14 @@ export class Ability {
 			this.used = true;
 			// Avoid dimmed passive for current creature
 			if (this.creature.id == game.activeCreature.id) {
-				game.UI.abilitiesButtons[this.id].changeState("disabled");
+				game.UI.abilitiesButtons[this.id].changeState('disabled');
 			}
 		} else {
 			this.used = false;
 			if (this.creature.id == game.activeCreature.id) {
-				if (this.id !== 0) { // Passive
-					game.UI.abilitiesButtons[this.id].changeState("normal");
+				if (this.id !== 0) {
+					// Passive
+					game.UI.abilitiesButtons[this.id].changeState('normal');
 				}
 			}
 		}
@@ -148,6 +162,7 @@ export class Ability {
 	/**
 	 * Called after activate(); primarily to set times used so that isUpgraded is
 	 * correct within activate().
+	 * @return {void}
 	 */
 	postActivate() {
 		this.timesUsed++;
@@ -156,10 +171,9 @@ export class Ability {
 		this.game.UI.updateAbilityButtonsContent();
 	}
 
-	/* animation()
-	 *
+	/**
 	 * Animate the creature
-	 *
+	 * @return {void}
 	 */
 	animation() {
 		let game = this.game;
@@ -170,9 +184,9 @@ export class Ability {
 				let args = $j.extend({}, arguments);
 				delete args[0];
 				game.gamelog.add({
-					action: "ability",
+					action: 'ability',
 					target: {
-						type: "hex",
+						type: 'hex',
 						x: arguments[0].x,
 						y: arguments[0].y
 					},
@@ -185,9 +199,9 @@ export class Ability {
 				let args = $j.extend({}, arguments);
 				delete args[0];
 				game.gamelog.add({
-					action: "ability",
+					action: 'ability',
 					target: {
-						type: "creature",
+						type: 'creature',
 						crea: arguments[0].id
 					},
 					id: this.id,
@@ -199,17 +213,12 @@ export class Ability {
 				let args = $j.extend({}, arguments);
 				delete args[0];
 
-				let array = arguments[0].map((item) => {
-					return {
-						x: item.x,
-						y: item.y
-					}
-				});
+				let array = arguments[0].map(item => ({ x: item.x, y: item.y }));
 
 				game.gamelog.add({
-					action: "ability",
+					action: 'ability',
 					target: {
-						type: "array",
+						type: 'array',
 						array: array
 					},
 					id: this.id,
@@ -228,12 +237,14 @@ export class Ability {
 		});
 	}
 
+	/**
+	 * Helper to animation method.
+	 * @param {Object} o Animation object to extend.
+	 * @return {void}
+	 */
 	animation2(o) {
 		let game = this.game,
-			opt = $j.extend({
-				callback: function () { },
-				arg: {},
-			}, o),
+			opt = $j.extend({ callback: function() {}, arg: {} }, o),
 			args = opt.arg,
 			activateAbility = () => {
 				this.activate(args[0], args[1]);
@@ -247,8 +258,8 @@ export class Ability {
 		let p1 = p0;
 		let p2 = p0;
 
-		p1 += (this.creature.player.flipped) ? 5 : -5;
-		p2 += (this.creature.player.flipped) ? -5 : 5;
+		p1 += this.creature.player.flipped ? 5 : -5;
+		p2 += this.creature.player.flipped ? -5 : 5;
 
 		// Force creatures to face towards their target
 		if (args[0] instanceof Creature) {
@@ -256,9 +267,9 @@ export class Ability {
 		}
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {
-			let anim_id = Math.random();
+			let animId = Math.random();
 
-			game.animationQueue.push(anim_id);
+			game.animationQueue.push(animId);
 
 			let animationData = {
 				duration: 500,
@@ -267,21 +278,15 @@ export class Ability {
 			};
 
 			if (this.getAnimationData) {
-				animationData = $j.extend(
-					animationData, this.getAnimationData.apply(this, args));
+				animationData = $j.extend(animationData, this.getAnimationData(...args));
 			}
 
 			if (animationData.activateAnimation) {
-				let tween = game.Phaser.add.tween(this.creature.sprite)
-					.to({
-						x: p1
-					}, 250, Phaser.Easing.Linear.None)
-					.to({
-						x: p2
-					}, 100, Phaser.Easing.Linear.None)
-					.to({
-						x: p0
-					}, 150, Phaser.Easing.Linear.None)
+				game.Phaser.add
+					.tween(this.creature.sprite)
+					.to({ x: p1 }, 250, Phaser.Easing.Linear.None)
+					.to({ x: p2 }, 100, Phaser.Easing.Linear.None)
+					.to({ x: p0 }, 150, Phaser.Easing.Linear.None)
 					.start();
 			}
 
@@ -293,7 +298,7 @@ export class Ability {
 			}, animationData.delay);
 
 			setTimeout(() => {
-				let queue = game.animationQueue.filter((item) => item != anim_id);
+				let queue = game.animationQueue.filter(item => item != animId);
 
 				if (queue.length === 0) {
 					game.freezedInput = false;
@@ -314,22 +319,19 @@ export class Ability {
 		}, 100);
 	}
 
-	/* getTargets(hexes)
-	 *
-	 * hexes : Array : Contains the targeted hexagons
-	 * return : Array : Contains the target units
+	/**
+	 * Get an array of units in this collection of hexes.
+	 * @param {Array} hexes The targeted hexes.
+	 * @return {Array} Targest in these hexes
 	 */
 	getTargets(hexes) {
 		let targets = {},
 			targetsList = [];
 
-		hexes.forEach((item) => {
+		hexes.forEach(item => {
 			if (item.creature instanceof Creature) {
 				if (targets[item.creature.id] === undefined) {
-					targets[item.creature.id] = {
-						hexesHit: 0,
-						target: item.creature
-					};
+					targets[item.creature.id] = { hexesHit: 0, target: item.creature };
 
 					targetsList.push(targets[item.creature.id]);
 				}
@@ -341,10 +343,19 @@ export class Ability {
 		return targetsList;
 	}
 
+	/**
+	 * Return a formatted cost.
+	 * @return {string|Boolean} cost
+	 */
 	getFormattedCosts() {
 		return !this.costs ? false : this.getFormattedDamages(this.costs);
 	}
 
+	/**
+	 * Return formatted damages.
+	 * @param {Object} obj Damage object.
+	 * @return {boolean|string} damage
+	 */
 	getFormattedDamages(obj) {
 		if (!this.damages && !obj) {
 			return false;
@@ -352,13 +363,16 @@ export class Ability {
 
 		obj = obj || this.damages;
 
-		let string = "",
+		let string = '',
 			creature = this.creature;
 
 		$j.each(obj, (key, value) => {
-			if (key == "special") {
+			if (key == 'special') {
 				// TODO: don't manually list all the stats and masteries when needed
-				string += value.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g, '<span class="$1"></span>');
+				string += value.replace(
+					/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,
+					'<span class="$1"></span>'
+				);
 				return;
 			}
 
@@ -366,18 +380,22 @@ export class Ability {
 				value += creature.stats.reqEnergy;
 			}
 
-			if (string !== "") {
-				string += ", ";
+			if (string !== '') {
+				string += ', ';
 			}
 
-			string += (value + '<span class="' + key + '"></span>');
-		});
+			string += value + '<span class="' + key + '"></span>';
 
-		return string;
+			return string;
+		});
 	}
 
+	/**
+	 * Get formattted effects.
+	 * @return {boolean|string} effect
+	 */
 	getFormattedEffects() {
-		let string = "";
+		let string = '';
 
 		if (!this.effects) {
 			return false;
@@ -386,24 +404,26 @@ export class Ability {
 		for (let i = this.effects.length - 1; i >= 0; i--) {
 			if (this.effects[i].special) {
 				// TODO: don't manually list all the stats and masteries when needed
-				string += this.effects[i].special.replace(/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g, '<span class="$1"></span>');
+				string += this.effects[i].special.replace(
+					/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,
+					'<span class="$1"></span>'
+				);
 				continue;
 			}
 
 			$j.each(this.effects[i], (key, value) => {
-				if (string !== "") {
-					string += ", ";
+				if (string !== '') {
+					string += ', ';
 				}
 
-				string += (value + '<span class="' + key + '"></span>');
+				string += value + '<span class="' + key + '"></span>';
 			});
 		}
 
 		return string;
 	}
 
-	/* areaDamage(targets)
-	 *
+	/*
 	 * targets : Array : Example : target = [ { target: crea1, hexesHit: 2 }, { target: crea2, hexesHit: 1 } ]
 	 */
 	areaDamage(attacker, damages, effects, targets, ignoreRetaliation) {
@@ -414,31 +434,28 @@ export class Ability {
 			}
 
 			let dmg = new Damage(attacker, damages, targets[i].hexesHit, effects, this.game);
-			let damageResult = targets[i].target.takeDamage(
-				dmg, {
-					ignoreRetaliation: ignoreRetaliation
-				});
+			let damageResult = targets[i].target.takeDamage(dmg, {
+				ignoreRetaliation: ignoreRetaliation
+			});
 			multiKill += damageResult.kill + 0;
 		}
 
 		if (multiKill > 1) {
-			attacker.player.score.push({
-				type: "combo",
-				kills: multiKill
-			});
+			attacker.player.score.push({ type: 'combo', kills: multiKill });
 		}
 	}
 
 	/**
 	 * Return whether there is at least one creature in the hexes that satisfies
 	 * various conditions, e.g. team.
-	 * hexes - Hex grid
-	 * o - tests
+	 * @param {Array} hexes Array of hexes
+	 * @param {Object} o Options
+	 * @return {boolean} At least one target.
 	 */
 	atLeastOneTarget(hexes, o) {
 		let defaultOpt = {
 			team: Team.both,
-			optTest: function (creature) {
+			optTest: function() {
 				return true;
 			}
 		};
@@ -458,11 +475,11 @@ export class Ability {
 		return false;
 	}
 
-	/* testRequirements()
-	 *
+	/**
 	 * Test the requirement for this ability. Negative values mean maximum value of the stat.
 	 * For instance : energy = -5 means energy must be lower than 5.
 	 * If one requirement fails it returns false.
+	 * @return {boolean} Return true if ability requirements are met.
 	 */
 	testRequirements() {
 		let game = this.game,
@@ -489,22 +506,21 @@ export class Ability {
 					frost: 0,
 					poison: 0,
 					sonic: 0,
-					mental: 0,
-				},
+					mental: 0
+				}
 			},
-			r = this.requirements || this.costs,
 			req = $j.extend(def, this.requirements),
 			abilityMsgs = game.msg.abilities;
 
 		// Plasma
 		if (req.plasma > 0) {
 			if (this.creature.player.plasma < req.plasma) {
-				this.message = abilityMsgs.notenough.replace("%stat%", "plasma");
+				this.message = abilityMsgs.notenough.replace('%stat%', 'plasma');
 				return false;
 			}
 		} else if (req.plasma < 0) {
 			if (this.creature.player.plasma > -req.plasma) {
-				this.message = abilityMsgs.toomuch.replace("%stat%", "plasma");
+				this.message = abilityMsgs.toomuch.replace('%stat%', 'plasma');
 				return false;
 			}
 		}
@@ -513,12 +529,12 @@ export class Ability {
 		let reqEnergy = req.energy + this.creature.stats.reqEnergy;
 		if (reqEnergy > 0) {
 			if (this.creature.energy < reqEnergy) {
-				this.message = abilityMsgs.notenough.replace("%stat%", "energy");
+				this.message = abilityMsgs.notenough.replace('%stat%', 'energy');
 				return false;
 			}
 		} else if (reqEnergy < 0) {
 			if (this.creature.energy > -reqEnergy) {
-				this.message = abilityMsgs.toomuch.replace("%stat%", "energy");
+				this.message = abilityMsgs.toomuch.replace('%stat%', 'energy');
 				return false;
 			}
 		}
@@ -526,12 +542,12 @@ export class Ability {
 		// Endurance
 		if (req.endurance > 0) {
 			if (this.creature.endurance < req.endurance) {
-				this.message = abilityMsgs.notenough.replace("%stat%", "endurance");
+				this.message = abilityMsgs.notenough.replace('%stat%', 'endurance');
 				return false;
 			}
 		} else if (req.endurance < 0) {
 			if (this.creature.endurance > -req.endurance) {
-				this.message = abilityMsgs.toomuch.replace("%stat%", "endurance");
+				this.message = abilityMsgs.toomuch.replace('%stat%', 'endurance');
 				return false;
 			}
 		}
@@ -539,12 +555,12 @@ export class Ability {
 		// Health
 		if (req.health > 0) {
 			if (this.creature.health <= req.health) {
-				this.message = abilityMsgs.notenough.replace("%stat%", "health");
+				this.message = abilityMsgs.notenough.replace('%stat%', 'health');
 				return false;
 			}
 		} else if (req.health < 0) {
 			if (this.creature.health > -req.health) {
-				this.message = abilityMsgs.toomuch.replace("%stat%", "health");
+				this.message = abilityMsgs.toomuch.replace('%stat%', 'health');
 				return false;
 			}
 		}
@@ -573,10 +589,10 @@ export class Ability {
 		}
 
 		$j.each(this.costs, (key, value) => {
-			if (typeof (value) == "number") {
+			if (typeof value == 'number') {
 				if (key == 'health') {
 					creature.hint(value, 'damage d' + value);
-					game.log("%CreatureName" + creature.id + "% loses " + value + " health");
+					game.log('%CreatureName' + creature.id + '% loses ' + value + ' health');
 				} else if (key === 'energy') {
 					value += creature.stats.reqEnergy;
 				}
@@ -594,8 +610,8 @@ export class Ability {
 	/**
 	 * Test and get directions where there are valid targets in directions, using
 	 * direction queries
-	 * o - dict of arguments for direction query
-	 * returns array of ints, length of total directions, 1 if direction valid else 0
+	 * @param {Object} o Dict of arguments for direction query
+	 * @return {Array} array of ints, length of total directions, 1 if direction valid else 0
 	 */
 	testDirections(o) {
 		let defaultOpt = {
@@ -608,7 +624,7 @@ export class Ability {
 			includeCreature: true,
 			stopOnCreature: true,
 			distance: 0,
-			sourceCreature: undefined,
+			sourceCreature: undefined
 		};
 
 		o = $j.extend(defaultOpt, o);
@@ -647,15 +663,15 @@ export class Ability {
 
 	/**
 	 * Test whether there are valid targets in directions, using direction queries
-	 * o - dict of arguments for direction query
-	 * rreturns true if valid targets in at least one direction, else false
+	 * @param {Object} o Dict of arguments for direction query.
+	 * @return {boolean} true if valid targets in at least one direction, else false
 	 */
 	testDirection(o) {
 		let directions = this.testDirections(o);
 
 		for (let i = 0, len = directions.length; i < len; i++) {
 			if (directions[i] === 1) {
-				this.message = "";
+				this.message = '';
 				return true;
 			}
 		}
@@ -664,4 +680,3 @@ export class Ability {
 		return false;
 	}
 }
-

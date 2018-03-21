@@ -1,4 +1,4 @@
-import * as arrayUtils from "./utility/arrayUtils";
+import * as arrayUtils from './utility/arrayUtils';
 
 export class CreatureQueue {
 	constructor(game) {
@@ -73,4 +73,4 @@ export class CreatureQueue {
 
 		queue.push(creature);
 	}
-};
+}
