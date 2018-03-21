@@ -8,7 +8,7 @@ const compiler = webpack(config);
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = process.env.PORT || 8080;
-const ip = process.env.IP || '127.0.0.1';
+const ip = process.env.IP || null; // Use specified IP to bind to otherwise, bind to default for the API.
 // const gameManager = require('./server/gamemanager.js');
 const qManager = require('./server/queuemanager.js');
 
