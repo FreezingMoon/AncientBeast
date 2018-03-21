@@ -52,13 +52,15 @@ yarn build:dev
 
 ### Betatest Game
 
-To have the game properly set-up and opened in the default browser, simply run this terminal command:
+To have the game up and running, simply run this command in the terminal, it will copy the link to the clipboard:
 
 ```
 yarn start
 ```
 
-You should only use <a href="https://www.google.com/chrome/"><b>Google Chrome</b></a> or <a href="https://www.chromium.org"><b>Chromium</b></a>, as other browsers don't quite cut it. White testing you can right click the game tab and mute it.
+You should open the game link using <a href="https://www.google.com/chrome/"><b>Google Chrome</b></a> or <a href="https://www.chromium.org"><b>Chromium</b></a>, as other browsers don't usually quite cut it.
+
+White testing you can right click the game tab and mute it.
 
 ---
 
@@ -69,7 +71,7 @@ For a more comprehensive guide on how to help out the project, you can check out
 
 ### Report Issues
 
-If you encounter any problems with the version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues).<br>
+If you encounter any problems with this version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues).<br>
 Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues.<br>
 You can use this function from the browser console window in order to fetch the log `G.gamelog.get()`.<br>
 To replay a match, you can start a new game and paste the log between brackets of `G.gamelog.play()`.<br>
