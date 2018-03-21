@@ -7,13 +7,15 @@
 [![Code Triagers Badge](https://www.codetriage.com/freezingmoon/ancientbeast/badges/users.svg)](https://www.codetriage.com/freezingmoon/ancientbeast)
 
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/media/screenshots/v0.3%20Dark%20Forest.jpg)
-**"We all die. The goal isn't to live forever. The goal is to create something that will."** *Chuck Palahniuk*
+**"We all die. The goal isn't to live forever. The goal is to create something that will."** _Chuck Palahniuk_
 
 ### Intro
+
 <p>
 <b>Ancient Beast</b> is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to acquire and items to equip onto, putting them to use in order to defeat your opponents.<br>This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 
 ### Tools
+
 <p>
 The project is developed with the use of free open source cross platform applications and freeware services.
 <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"><b>Mega</b></a> comes in very handy when working on the game assets collaboratively, while <a href="https://github.com/FreezingMoon/AncientBeast"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com"><b>deviantArt</b></a> group. Drop by our <a href="https://discord.gg/x78rKen"><b>Discord chat</b></a> and be a part of the community!<br>
@@ -35,6 +37,7 @@ The project is developed with the use of free open source cross platform applica
 </table>
 
 ### License
+
 <table border=1 width=100%>
 <tr>
 	<td><a href="http://www.FreezingMoon.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
@@ -51,6 +54,7 @@ The project is developed with the use of free open source cross platform applica
 </table>
 
 ### [Contribute](docs/CONTRIBUTING.md#readme)
+
 <p>
 You can help out the project by just ★ starring this repository from the <a href="#">upper right corner</a> and also by pinning it to your profile.<br>
 If you wish to set-up a local copy of the game in order to patch it, go read the "<a href="https://github.com/FreezingMoon/AncientBeast/blob/master/docs/CONTRIBUTING.md#readme">CONTRIBUTING.md</a>" file from this repository.<br>

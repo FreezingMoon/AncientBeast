@@ -1042,8 +1042,8 @@ export default class Game {
 		}
 	}
 
-	// creature, hex, callback -- removed from definition because we are using arguments.
-	onStepOut() {
+	// Removed individual args from definition because we are using the arguments variable.
+	onStepOut(/* creature, hex, callback */) {
 		this.triggerAbility('onStepOut', arguments);
 		this.triggerEffect('onStepOut', arguments);
 		// Check traps last; this is because traps add effects triggered by
@@ -1058,8 +1058,8 @@ export default class Game {
 		this.triggerEffect('onReset', [creature, creature]);
 	}
 
-	// creature, callback - removed because using arguments.
-	onStartPhase() {
+	// Removed individual args from definition because we are using the arguments variable.
+	onStartPhase(/* creature, callback */) {
 		let creature = arguments[0],
 			totalTraps = this.grid.traps.length,
 			trap,
@@ -1092,8 +1092,8 @@ export default class Game {
 		this.triggerEffect('onStartPhase', [creature, creature]);
 	}
 
-	// creature, callback -- removed because we are using arguments
-	onEndPhase() {
+	// Removed individual args from definition because we are using the arguments variable.
+	onEndPhase(/* creature, callback */) {
 		let creature = arguments[0];
 
 		this.triggerDeleteEffect('onEndPhase', creature);
@@ -1101,18 +1101,18 @@ export default class Game {
 		this.triggerEffect('onEndPhase', [creature, creature]);
 	}
 
-	// creature, callback -- removed because not used.
-	onStartOfRound() {
+	// Removed individual args from definition because we are using the arguments variable.
+	onStartOfRound(/* creature, callback */) {
 		this.triggerDeleteEffect('onStartOfRound', 'all');
 	}
 
-	// creature, hex, callback -- removed because using arguments.
-	onCreatureMove() {
+	// Removed individual args from definition because we are using the arguments variable.
+	onCreatureMove(/* creature, hex, callback */) {
 		this.triggerAbility('onCreatureMove', arguments);
 	}
 
-	// creature, callback -- removed because using arguments
-	onCreatureDeath() {
+	// Removed individual args from definition because we are using the arguments variable.
+	onCreatureDeath(/* creature, callback */) {
 		let creature = arguments[0],
 			totalTraps = this.grid.traps.length,
 			totalEffects = this.effects.length,
@@ -1154,8 +1154,8 @@ export default class Game {
 		this.triggerEffect('onCreatureSummon', [creature, creature]);
 	}
 
-	// creature, effect, callback -- removed callback because not used.
-	onEffectAttach(creature, effect) {
+	// Removed individual args from definition because we are using the arguments variable.
+	onEffectAttach(creature, effect /*, callback */) {
 		this.triggerEffect('onEffectAttach', [creature, effect]);
 	}
 
@@ -1165,14 +1165,14 @@ export default class Game {
 		return damage;
 	}
 
-	// creature, damage -- removed because used arguments.
-	onDamage() {
+	// Removed individual args from definition because we are using the arguments variable.
+	onDamage(/* creature, damage */) {
 		this.triggerAbility('onDamage', arguments);
 		this.triggerEffect('onDamage', arguments);
 	}
 
-	// creature, amount -- removed because used arguments
-	onHeal() {
+	// Removed individual args from definition because we are using the arguments variable.
+	onHeal(/* creature, amount */) {
 		this.triggerAbility('onHeal', arguments);
 		this.triggerEffect('onHeal', arguments);
 	}
