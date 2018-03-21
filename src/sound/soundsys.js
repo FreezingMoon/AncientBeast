@@ -1,15 +1,19 @@
-import { BufferLoader } from "./bufferloader";
+import * as $j from 'jquery';
+import { BufferLoader } from './bufferloader';
 
 export class SoundSys {
 	constructor(o, game) {
 		this.game = game;
 
-		o = $j.extend({
-			music_volume: 0.1,
-			effects_volume: 0.6,
-			heartbeats_volume: 0.3,
-			announcer_volume: 0.6
-		}, o || {});
+		o = $j.extend(
+			{
+				music_volume: 0.1,
+				effects_volume: 0.6,
+				heartbeats_volume: 0.3,
+				announcer_volume: 0.6
+			},
+			o || {}
+		);
 
 		$j.extend(this, o);
 
@@ -47,7 +51,7 @@ export class SoundSys {
 	}
 
 	getSound(url, id) {
-		let bufferLoader = new BufferLoader(this.context, [url], (arraybuffer) => {
+		let bufferLoader = new BufferLoader(this.context, [url], arraybuffer => {
 			this.game.soundLoaded[id] = arraybuffer[0];
 		});
 
@@ -59,10 +63,13 @@ export class SoundSys {
 			return false;
 		}
 
-		o = $j.extend({
-			music_volume: 1,
-			effects_volume: 1,
-		}, o);
+		o = $j.extend(
+			{
+				music_volume: 1,
+				effects_volume: 1
+			},
+			o
+		);
 
 		let source = this.context.createBufferSource();
 		source.buffer = sound;
@@ -77,4 +84,4 @@ export class SoundSys {
 		this.heartbeatGainNode.gain.value = this.heartbeats_volume * value;
 		this.announcerGainNode.gain.value = this.announcer_volume * value;
 	}
-};
+}

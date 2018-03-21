@@ -1,9 +1,9 @@
-import * as arrayUtils from "./arrayUtils";
+import * as arrayUtils from './arrayUtils';
 
 // Start and end must be Hex type
 export function search(start, end, creatureSize, creatureId, grid) {
-	var openList = [];
-	var closedList = [];
+	let openList = [];
+	let closedList = [];
 	openList.push(start);
 
 	if (start == end) {
@@ -12,20 +12,19 @@ export function search(start, end, creatureSize, creatureId, grid) {
 	}
 
 	while (openList.length > 0) {
-
 		// Grab the lowest f(x) to process next
-		var lowInd = 0;
+		let lowInd = 0;
 		for (var i = 0; i < openList.length; i++) {
 			if (openList[i].f < openList[lowInd].f) {
 				lowInd = i;
 			}
 		}
-		var currentNode = openList[lowInd];
+		let currentNode = openList[lowInd];
 
 		// End case -- result has been found, return the traced path
 		if (currentNode.pos == end.pos) {
-			var curr = currentNode;
-			var ret = [];
+			let curr = currentNode;
+			let ret = [];
 			while (curr.pathparent) {
 				ret.push(curr);
 				curr = curr.pathparent;
@@ -36,21 +35,23 @@ export function search(start, end, creatureSize, creatureId, grid) {
 		// Normal case -- move currentNode from open to closed, process each of its neighbors
 		arrayUtils.removePos(openList, currentNode);
 		closedList.push(currentNode);
-		var neighbors = currentNode.adjacentHex(1);
+		let neighbors = currentNode.adjacentHex(1);
 
 		for (var i = 0; i < neighbors.length; i++) {
-			var neighbor = neighbors[i];
+			let neighbor = neighbors[i];
 
-			if (arrayUtils.findPos(closedList, neighbor) || !neighbor.isWalkable(creatureSize, creatureId)) {
+			if (
+				arrayUtils.findPos(closedList, neighbor) ||
+				!neighbor.isWalkable(creatureSize, creatureId)
+			) {
 				// Not a valid node to process, skip to next neighbor
 				continue;
 			}
 
 			// g score is the shortest distance from start to current node, we need to check if
 			//	 the path we have arrived at this neighbor is the shortest one we have seen yet
-			var gScore = currentNode.g + 1; // 1 is the distance from a node to it's neighbor
-			var gScoreIsBest = false;
-
+			let gScore = currentNode.g + 1; // 1 is the distance from a node to it's neighbor
+			let gScoreIsBest = false;
 
 			if (!arrayUtils.findPos(openList, neighbor)) {
 				// This the the first time we have arrived at this node, it must be the best
@@ -81,8 +82,8 @@ export function search(start, end, creatureSize, creatureId, grid) {
 
 export function heuristic(pos0, pos1) {
 	// This is the Manhattan distance
-	var d1 = Math.abs(pos1.x - pos0.x);
-	var d2 = Math.abs(pos1.y - pos0.y);
+	let d1 = Math.abs(pos1.x - pos0.x);
+	let d2 = Math.abs(pos1.y - pos0.y);
 	return 0; // Dijkstra algo "better" but slower
 	//return d1 + d2; // Not good for range prediction
 }

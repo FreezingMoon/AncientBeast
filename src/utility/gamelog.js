@@ -1,5 +1,5 @@
-import * as jQuery from "jquery";
-import { isEmpty, getGameConfig } from "../script";
+import * as $j from 'jquery';
+import { isEmpty, getGameConfig } from '../script';
 
 export class GameLog {
 	constructor(id, game) {
@@ -26,7 +26,7 @@ export class GameLog {
 
 			// TODO: We should be able to initiate this w/o manipulating the DOM -- However,
 			// currently "random" BG is processed on Submit. -- ktiedt
-			let btn = jQuery('#startButton');
+			let btn = $j('#startButton');
 			if (btn.length === 1) {
 				btn.click();
 			}
@@ -38,12 +38,12 @@ export class GameLog {
 			config,
 			data;
 
-		if (typeof log == "object" && !log.length) {
+		if (typeof log == 'object' && !log.length) {
 			data = log.log;
 			config = log.config;
 			this.data = data;
 			return this.config(config);
-		} else if (typeof log == "string") {
+		} else if (typeof log == 'string') {
 			let results = log.match(/^AB-(dev|[0-9.]+):(.+)$/);
 			if (results) {
 				log = JSON.parse(atob(results[2]));
@@ -59,7 +59,7 @@ export class GameLog {
 			this.timeCursor++;
 
 			if (game.debugMode) {
-				console.log(this.timeCursor + "/" + this.data.length);
+				console.log(this.timeCursor + '/' + this.data.length);
 			}
 
 			if (this.timeCursor > this.data.length - 1) {
@@ -90,7 +90,7 @@ export class GameLog {
 
 		this.timeCursor++;
 		if (game.debugMode) {
-			console.log(this.timeCursor + "/" + this.data.length);
+			console.log(this.timeCursor + '/' + this.data.length);
 		}
 
 		if (this.timeCursor > this.data.length - 1) {
@@ -118,40 +118,40 @@ export class GameLog {
 				log: this.data
 			},
 			json = JSON.stringify(dict),
-			hash = "AB-" + this.game.version + ":" + btoa(JSON.stringify(dict)),
+			hash = 'AB-' + this.game.version + ':' + btoa(JSON.stringify(dict)),
 			output,
 			strOutput;
 
 		switch (state) {
-			case "json":
+			case 'json':
 				output = dict;
 				strOutput = json;
 				break;
-			case "save":
-				var fileName = new Date().toISOString().slice(0,10);
-				this.saveFile(JSON.stringify(dict.log), fileName + ".AB");
+			case 'save':
+				var fileName = new Date().toISOString().slice(0, 10);
+				this.saveFile(JSON.stringify(dict.log), fileName + '.AB');
 				break;
-			case "hash":
+			case 'hash':
 			default:
 				output = hash;
 				strOutput = hash;
 		}
 
-		console.log("GameData: " + strOutput);
+		console.log('GameData: ' + strOutput);
 		return output;
 	}
 
 	saveFile(data, fileName) {
-		var a = document.createElement("a");
-		var file = new Blob([data]);
-		var url = URL.createObjectURL(file);
+		let a = document.createElement('a');
+		let file = new Blob([data]);
+		let url = URL.createObjectURL(file);
 		a.href = url;
 		a.download = fileName;
 		document.body.appendChild(a);
 		a.click();
 		setTimeout(function() {
 			document.body.removeChild(a);
-			window.URL.revokeObjectURL(url);  
-		}, 0); 
-	};
-};
+			window.URL.revokeObjectURL(url);
+		}, 0);
+	}
+}

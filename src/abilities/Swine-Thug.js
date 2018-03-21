@@ -1,46 +1,49 @@
-import { Damage } from "../damage";
-import { Team } from "../utility/team";
-import * as matrices from "../utility/matrices";
-import * as arrayUtils from "../utility/arrayUtils";
-import { Creature } from "../creature";
-import { Effect } from "../effect";
+import * as $j from 'jquery';
+import { Damage } from '../damage';
+import { Team } from '../utility/team';
+import * as matrices from '../utility/matrices';
+import * as arrayUtils from '../utility/arrayUtils';
+import { Creature } from '../creature';
+import { Effect } from '../effect';
 
 /**
  * Creates the abilities
- * @param {Object} G the game object 
+ * @param {Object} G the game object
  */
-export default (G) => {
+export default G => {
 	/*
 	 *
 	 *	Swine Thug abilities
 	 *
 	 */
 	G.abilities[37] = [
-
 		// 	First Ability: Spa Goggles
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onCreatureMove",
+			trigger: 'onCreatureMove',
 
 			// 	require() :
-			require: function (hex) {
+			require: function(hex) {
+				if (!this.testRequirements()) {
+					return false;
+				}
 
-				if (!this.testRequirements()) return false;
-
-				if (hex == undefined) hex = this.creature.hexagons[0];
-				this.message = "";
+				if (hex == undefined) {
+					hex = this.creature.hexagons[0];
+				}
+				this.message = '';
 
 				if (hex.trap) {
-					if (hex.trap.type == "mud-bath") {
+					if (hex.trap.type == 'mud-bath') {
 						G.UI.abilitiesButtons[0].changeState('noclick');
 						return true;
 					}
 				}
 
-				this.message = "Not in a mud bath.";
+				this.message = 'Not in a mud bath.';
 
-				this.creature.effects.forEach(function (effect) {
-					if (effect.trigger == "mud-bath") {
+				this.creature.effects.forEach(function(effect) {
+					if (effect.trigger == 'mud-bath') {
 						effect.deleteEffect();
 					}
 				});
@@ -49,68 +52,75 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (hex) {
-				var alterations = $j.extend({}, this.effects[0]);
+			activate: function(hex) {
+				let alterations = $j.extend({}, this.effects[0]);
 				// Double effect if upgraded
 				if (this.isUpgraded()) {
 					for (var k in alterations) {
 						alterations[k] = alterations[k] * 2;
 					}
 				}
-				var effect = new Effect("Spa Goggles", this.creature, this.creature, "mud-bath", {
-					alterations: alterations
-				}, G);
+				let effect = new Effect(
+					'Spa Goggles',
+					this.creature,
+					this.creature,
+					'mud-bath',
+					{
+						alterations: alterations
+					},
+					G
+				);
 				this.creature.addEffect(effect);
 
 				// Log message, assume that all buffs are the same amount, and there are
 				// only two buffs (otherwise the grammar doesn't make sense)
-				var log = "%CreatureName" + this.creature.id + "%'s ";
-				var first = true;
-				var amount;
+				let log = '%CreatureName' + this.creature.id + "%'s ";
+				let first = true;
+				let amount;
 				for (var k in alterations) {
 					if (!first) {
-						log += "and ";
+						log += 'and ';
 					}
-					log += k + " ";
+					log += k + ' ';
 					first = false;
 					amount = alterations[k];
 				}
-				log += "+" + amount;
+				log += '+' + amount;
 				G.log(log);
-			},
+			}
 		},
-
-
 
 		// 	Second Ability: Baseball Baton
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
-				if (!this.testRequirements()) return false;
+			require: function() {
+				if (!this.testRequirements()) {
+					return false;
+				}
 
-				if (!this.atLeastOneTarget(
-					this.creature.adjacentHexes(1), {
+				if (
+					!this.atLeastOneTarget(this.creature.adjacentHexes(1), {
 						team: this._targetTeam
-					})) {
+					})
+				) {
 					return false;
 				}
 				return true;
 			},
 
 			// 	query() :
-			query: function () {
-
-				var ability = this;
-				var swine = this.creature;
+			query: function() {
+				let ability = this;
+				let swine = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+					fnOnConfirm: function() {
+						ability.animation(...arguments);
 					},
 					flipped: swine.player.flipped,
 					team: this._targetTeam,
@@ -124,19 +134,19 @@ export default (G) => {
 				});
 			},
 
-			activate: function (path, args) {
-				var ability = this;
+			activate: function(path, args) {
+				let ability = this;
 				ability.end();
 
-				var target = arrayUtils.last(path).creature;
-				var damage = new Damage(
+				let target = arrayUtils.last(path).creature;
+				let damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G
 				);
-				var result = target.takeDamage(damage);
+				let result = target.takeDamage(damage);
 				// Knock the target back if they are still alive
 				if (!result.kill) {
 					// See how far we can knock the target back
@@ -145,70 +155,116 @@ export default (G) => {
 
 					// See how far the target can be knocked back
 					// Skip the first hex as it is the same hex as the target
-					var hexes = G.grid.getHexLine(
-						target.x, target.y, args.direction, target.flipped);
+					let hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
 					hexes.splice(0, 1);
-					var hex = null;
-					for (var i = 0; i < hexes.length; i++) {
+					let hex = null;
+					for (let i = 0; i < hexes.length; i++) {
 						// Check that the next knockback hex is valid
-						if (!hexes[i].isWalkable(target.size, target.id, true)) break;
+						if (!hexes[i].isWalkable(target.size, target.id, true)) {
+							break;
+						}
 
 						hex = hexes[i];
 
-						if (!this.isUpgraded()) break;
+						if (!this.isUpgraded()) {
+							break;
+						}
 						// Check if we are over a mud bath
 						// The target must be completely over mud baths to keep sliding
-						var mudSlide = true;
-						for (var j = 0; j < target.size; j++) {
-							var mudHex = G.grid.hexes[hex.y][hex.x - j];
-							if (!mudHex.trap || mudHex.trap.type !== "mud-bath") {
+						let mudSlide = true;
+						for (let j = 0; j < target.size; j++) {
+							let mudHex = G.grid.hexes[hex.y][hex.x - j];
+							if (!mudHex.trap || mudHex.trap.type !== 'mud-bath') {
 								mudSlide = false;
 								break;
 							}
 						}
-						if (!mudSlide) break;
+						if (!mudSlide) {
+							break;
+						}
 					}
 					if (hex !== null) {
 						target.moveTo(hex, {
-							callback: function () {
+							callback: function() {
 								G.activeCreature.queryMove();
 							},
 							ignoreMovementPoint: true,
 							ignorePath: true,
 							overrideSpeed: 1200, // Custom speed for knockback
-							animation: "push",
+							animation: 'push'
 						});
 					}
 				}
-			},
+			}
 		},
-
-
 
 		// 	Third Ability: Ground Ball
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
-				if (!this.testRequirements()) return false;
+			require: function() {
+				if (!this.testRequirements()) {
+					return false;
+				}
 
-				var bellowrow = matrices.bellowrow;
-				var straitrow = matrices.straitrow;
+				let bellowrow = matrices.bellowrow;
+				let straitrow = matrices.straitrow;
 
-				var swine = this.creature;
-				var hexes = arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y - 2, 0, false, bellowrow), true, true, swine.id, swine.team).concat(
-					arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, false, straitrow), true, true, swine.id, swine.team),
-					arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, false, bellowrow), true, true, swine.id, swine.team),
-					arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y - 2, 0, true, bellowrow), true, true, swine.id, swine.team),
-					arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, true, straitrow), true, true, swine.id, swine.team),
-					arrayUtils.filterCreature(G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow), true, true, swine.id, swine.team));
-				if (!this.atLeastOneTarget(hexes, {
-					team: this._targetTeam
-				})) {
+				let swine = this.creature;
+				let hexes = arrayUtils
+					.filterCreature(
+						G.grid.getHexMap(swine.x, swine.y - 2, 0, false, bellowrow),
+						true,
+						true,
+						swine.id,
+						swine.team
+					)
+					.concat(
+						arrayUtils.filterCreature(
+							G.grid.getHexMap(swine.x, swine.y, 0, false, straitrow),
+							true,
+							true,
+							swine.id,
+							swine.team
+						),
+						arrayUtils.filterCreature(
+							G.grid.getHexMap(swine.x, swine.y, 0, false, bellowrow),
+							true,
+							true,
+							swine.id,
+							swine.team
+						),
+						arrayUtils.filterCreature(
+							G.grid.getHexMap(swine.x, swine.y - 2, 0, true, bellowrow),
+							true,
+							true,
+							swine.id,
+							swine.team
+						),
+						arrayUtils.filterCreature(
+							G.grid.getHexMap(swine.x, swine.y, 0, true, straitrow),
+							true,
+							true,
+							swine.id,
+							swine.team
+						),
+						arrayUtils.filterCreature(
+							G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow),
+							true,
+							true,
+							swine.id,
+							swine.team
+						)
+					);
+				if (
+					!this.atLeastOneTarget(hexes, {
+						team: this._targetTeam
+					})
+				) {
 					return false;
 				}
 
@@ -216,15 +272,14 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
-				var bellowrow = matrices.bellowrow;
-				var straitrow = matrices.straitrow;
+			query: function() {
+				let bellowrow = matrices.bellowrow;
+				let straitrow = matrices.straitrow;
 
+				let ability = this;
+				let swine = this.creature;
 
-				var ability = this;
-				var swine = this.creature;
-
-				var choices = [
+				let choices = [
 					// Front
 					G.grid.getHexMap(swine.x, swine.y - 2, 0, false, bellowrow),
 					G.grid.getHexMap(swine.x, swine.y, 0, false, straitrow),
@@ -232,45 +287,51 @@ export default (G) => {
 					// Behind
 					G.grid.getHexMap(swine.x, swine.y - 2, 0, true, bellowrow),
 					G.grid.getHexMap(swine.x, swine.y, 0, true, straitrow),
-					G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow),
+					G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow)
 				];
 
-				choices.forEach(function (choice) {
+				choices.forEach(function(choice) {
 					arrayUtils.filterCreature(choice, true, true, swine.id);
 				});
 
 				G.grid.queryChoice({
-					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+					fnOnConfirm: function() {
+						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: this._targetTeam,
 					requireCreature: 1,
 					id: swine.id,
 					flipped: swine.flipped,
-					choices: choices,
+					choices: choices
 				});
 			},
 
-
 			//	activate() :
-			activate: function (path, args) {
-				var ability = this;
+			activate: function(path, args) {
+				let ability = this;
 				ability.end();
 
-				var target = arrayUtils.last(path).creature;
+				let target = arrayUtils.last(path).creature;
 
 				// If upgraded, hits will debuff target with -1 meditation
 				if (this.isUpgraded()) {
-					var effect = new Effect("Ground Ball", ability.creature, target, "onDamage", {
-						alterations: {
-							meditation: -1
-						}
-					}, G);
+					let effect = new Effect(
+						'Ground Ball',
+						ability.creature,
+						target,
+						'onDamage',
+						{
+							alterations: {
+								meditation: -1
+							}
+						},
+						G
+					);
 					target.addEffect(effect);
-					G.log("%CreatureName" + target.id + "%'s meditation is lowered by 1");
+					G.log('%CreatureName' + target.id + "%'s meditation is lowered by 1");
 				}
 
-				var damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -278,20 +339,18 @@ export default (G) => {
 					G
 				);
 				target.takeDamage(damage);
-			},
+			}
 		},
-
-
 
 		// 	Fourth Ability: Mud Bath
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: "onQuery",
+			trigger: 'onQuery',
 
 			_energyNormal: 30,
 			_energySelfUpgraded: 10,
 
-			require: function () {
+			require: function() {
 				// If ability is upgraded, self cast energy cost is less
 				if (this.isUpgraded()) {
 					this.requirements = {
@@ -312,16 +371,15 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
-
-				var ability = this;
-				var swine = this.creature;
-				var size = 1;
+			query: function() {
+				let ability = this;
+				let swine = this.creature;
+				let size = 1;
 
 				// Check if the ability is upgraded because then the self cast energy cost is less
-				var selfOnly = this.isUpgraded() && this.creature.energy < this._energyNormal;
+				let selfOnly = this.isUpgraded() && this.creature.energy < this._energyNormal;
 
-				var hexes = [];
+				let hexes = [];
 				if (!selfOnly) {
 					// Gather all the reachable hexes, including the current one
 					hexes = G.grid.getFlyingRange(swine.x, swine.y, 50, 1, 0);
@@ -337,27 +395,26 @@ export default (G) => {
 				G.grid.hideCreatureHexes(this.creature);
 
 				G.grid.queryHexes({
-					fnOnCancel: function () {
+					fnOnCancel: function() {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: function () {
-						ability.animation.apply(ability, arguments);
+					fnOnConfirm: function() {
+						ability.animation(...arguments);
 					},
 					hexes: hexes,
 					hideNonTarget: true
 				});
 			},
 
-
 			//	activate() :
-			activate: function (hex, args) {
+			activate: function(hex, args) {
 				G.grid.clearHexViewAlterations();
-				var ability = this;
-				var swine = this.creature;
+				let ability = this;
+				let swine = this.creature;
 
 				// If upgraded and cast on self, cost is less
-				var isSelf = hex.x === swine.x && hex.y === swine.y;
+				let isSelf = hex.x === swine.x && hex.y === swine.y;
 				if (this.isUpgraded() && isSelf) {
 					this.requirements = {
 						energy: this._energySelfUpgraded
@@ -376,32 +433,35 @@ export default (G) => {
 
 				ability.end();
 
-				var effects = [
+				let effects = [
 					new Effect(
-						"Slow Down", ability.creature, hex, "onStepIn", {
-							requireFn: function () {
-								if (!this.trap.hex.creature) return false;
-								return this.trap.hex.creature.type != "A1";
+						'Slow Down',
+						ability.creature,
+						hex,
+						'onStepIn',
+						{
+							requireFn: function() {
+								if (!this.trap.hex.creature) {
+									return false;
+								}
+								return this.trap.hex.creature.type != 'A1';
 							},
-							effectFn: function (effect, crea) {
+							effectFn: function(effect, crea) {
 								crea.remainingMove--;
-							},
+							}
 						},
 						G
-					),
+					)
 				];
 
-
-				hex.createTrap("mud-bath", effects, ability.creature.player);
+				hex.createTrap('mud-bath', effects, ability.creature.player);
 
 				// Trigger trap immediately if on self
 				if (isSelf) {
 					// onCreatureMove is Spa Goggles' trigger event
 					G.onCreatureMove(swine, hex);
 				}
-
-			},
+			}
 		}
-
 	];
 };
