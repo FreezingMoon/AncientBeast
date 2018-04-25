@@ -1,8 +1,11 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-let settings = {};
+const variables = require('./webpack.var');
 
-if (process.env.NODE_ENV === 'production') {
+let settings = {};
+console.log('STRING:', process.env.NODE_ENV);
+if (process.env.NODE_ENV) {
+	console.log(1);
 	settings = {
 		entry: path.resolve(__dirname, 'src', 'script.js'),
 		output: {
@@ -41,11 +44,13 @@ if (process.env.NODE_ENV === 'production') {
 		plugins: [
 			new HtmlWebpackPlugin({
 				template: path.resolve(__dirname, 'src', 'index.html'),
-				favicon: path.resolve(__dirname, 'assets', 'favicon.ico')
+				favicon: path.resolve(__dirname, 'assets', 'favicon.ico'),
+				google: variables.google
 			})
 		]
 	};
 } else {
+	console.log(2);
 	settings = {
 		entry: path.resolve(__dirname, 'src', 'script.js'),
 		output: {
@@ -83,11 +88,12 @@ if (process.env.NODE_ENV === 'production') {
 		},
 		plugins: [
 			new HtmlWebpackPlugin({
-				template: path.resolve(__dirname, 'src', 'index.dev.html'),
-				favicon: path.resolve(__dirname, 'assets', 'favicon.ico')
+				template: path.resolve(__dirname, 'src', 'index.html'),
+				favicon: path.resolve(__dirname, 'assets', 'favicon.ico'),
+				google: ''
 			})
 		]
 	};
 }
-// Create either a production or development build depending on the `production` env setting
+console.log(settings.plugins);
 module.exports = settings;
