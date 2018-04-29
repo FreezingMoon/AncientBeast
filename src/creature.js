@@ -245,6 +245,7 @@ export class Creature {
 
 		// Pickup drop
 		this.pickupDrop();
+		this.hint(this.name, 'creature_name');
 	}
 
 	healthHide() {
@@ -1326,6 +1327,10 @@ export class Creature {
 			},
 			msg_effects: {
 				fill: '#ffff00'
+			},
+			creature_name: {
+				fill: '#ffffff',
+				stroke: '#AAAAAA'
 			}
 		};
 
