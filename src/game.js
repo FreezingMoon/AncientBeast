@@ -561,7 +561,7 @@ export default class Game {
 
 		this.grid.clearHexViewAlterations();
 		this.turn++;
-		this.log('Round ' + this.turn, 'roundmarker');
+		this.log('Round ' + this.turn, 'roundmarker', true);
 		this.queue.nextRound();
 
 		// Resets values
@@ -664,7 +664,7 @@ export default class Game {
 	 *
 	 * Display obj in the console log and in the game log
 	 */
-	log(obj, htmlclass) {
+	log(obj, htmlclass, ifNoTimestamp = false) {
 		// Formating
 		let stringConsole = obj,
 			stringLog = obj,
@@ -688,7 +688,7 @@ export default class Game {
 		}
 
 		console.log(stringConsole);
-		this.UI.chat.addMsg(stringLog, htmlclass);
+		this.UI.chat.addMsg(stringLog, htmlclass, ifNoTimestamp);
 	}
 
 	togglePause() {

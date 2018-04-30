@@ -47,26 +47,20 @@ export class Chat {
 		);
 	}
 
-	createHTMLTemplate(msgTime, msg, amount, ifOuter = true, htmlClass = '') {
+	createHTMLTemplate(msg, amount, msgTime = null, ifOuter = true, htmlClass = '') {
+		let timeTemplate = msgTime ? '<i>' + msgTime + '</i> ' : '',
+			amountTemplate = amount > 1 ? ' [ ' + amount + 'x ]' : '';
+
 		if (ifOuter) {
-			return (
-				"<p class='" +
-				htmlClass +
-				"'><i>" +
-				msgTime +
-				'</i> ' +
-				msg +
-				(amount > 1 ? ' [ ' + amount + 'x ]' : '') +
-				'</p>'
-			);
+			return "<p class='" + htmlClass + "'>" + timeTemplate + msg + amountTemplate + '</p>';
 		} else {
-			return '<i>' + msgTime + '</i> ' + msg + (amount > 1 ? ' [ ' + amount + 'x ]' : '');
+			return timeTemplate + msg + amountTemplate;
 		}
 	}
 
-	addMsg(msg, htmlClass) {
+	addMsg(msg, htmlClass, ifNoTimestamp = false) {
 		let messagesNo = this.messages.length;
-		let currentTime = this.getCurrentTime();
+		let currentTime = ifNoTimestamp ? null : this.getCurrentTime();
 
 		// Check if the last message was the same as the current one
 		if (this.messages[messagesNo - 1] && this.messages[messagesNo - 1].message === msg) {
@@ -74,7 +68,7 @@ export class Chat {
 			lastMessage.amount++;
 			lastMessage.time = currentTime;
 			$j(lastMessage.DOMObject).html(
-				this.createHTMLTemplate(currentTime, msg, lastMessage.amount, false)
+				this.createHTMLTemplate(msg, lastMessage.amount, currentTime, false)
 			);
 		} else {
 			this.messages.push({
@@ -82,7 +76,7 @@ export class Chat {
 				amount: 1,
 				time: currentTime,
 				class: htmlClass,
-				DOMObject: $j.parseHTML(this.createHTMLTemplate(currentTime, msg, 1, true, htmlClass))
+				DOMObject: $j.parseHTML(this.createHTMLTemplate(msg, 1, currentTime, true, htmlClass))
 			});
 
 			//Append the last message's DOM object
