@@ -84,10 +84,10 @@ export class Chat {
 				class: htmlClass,
 				DOMObject: $j.parseHTML(this.createHTMLTemplate(currentTime, msg, 1, true, htmlClass))
 			});
+
+			//Append the last message's DOM object
 			this.$content.append(this.messages[this.messages.length - 1].DOMObject);
 		}
-
-		//Append the last messages DOM object
 
 		this.$content.parent().scrollTop(this.$content.height());
 	}
