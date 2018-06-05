@@ -54,7 +54,7 @@
 		"build": "yarn run generateManifest && webpack --mode=production",
 		"build:dev": "yarn run generateManifest && webpack --mode=development",
 		"start": "NODE_ENV=production node server.js",
-		"start:dev": "node server.js",
+		"start:dev": "NODE_ENV=development node server.js",
 		"generateManifest": "node manifestGenerator.js",
 		"lint": "eslint -c .eslintrc.json src/**/*.js",
 		"lint-fix": "eslint -c .eslintrc.json src/**/*.js --fix",
