@@ -11,6 +11,9 @@ import { Player } from './player';
 import { UI } from './ui/interface';
 import { Creature } from './creature';
 import dataJson from 'assets/units/data.json';
+import 'pixi';
+import 'p2';
+import Phaser from 'phaser';
 
 /* Game Class
  *
