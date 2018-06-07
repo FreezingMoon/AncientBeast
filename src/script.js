@@ -3,12 +3,6 @@ import * as $j from 'jquery';
 import 'jquery-ui/ui/widgets/button';
 import 'jquery-ui/ui/widgets/slider';
 import 'jquery.transit';
-
-// Load phaser (https://github.com/photonstorm/phaser/issues/1974)
-import PIXI from 'expose-loader?PIXI!phaser-ce/build/custom/pixi.js';
-import p2 from 'expose-loader?p2!phaser-ce/build/custom/p2.js';
-import Phaser from 'expose-loader?Phaser!phaser-ce/build/custom/phaser-split.js';
-
 import Game from './game';
 
 // Load the stylesheet
@@ -80,6 +74,10 @@ $j(document).ready(() => {
 	});
 });
 
+/**
+ * Generate game config from form and return it.
+ * @return {Object} The game config.
+ */
 export function getGameConfig() {
 	let defaultConfig = {
 			playerMode: $j('input[name="playerMode"]:checked').val() - 0,
@@ -96,11 +94,17 @@ export function getGameConfig() {
 	return config;
 }
 
+/**
+ * Return true if an object has no keys.
+ * @param {Object} obj The object to test.
+ * @return {boolean} Empty or not.
+ */
 export function isEmpty(obj) {
 	for (let key in obj) {
-		if (obj.hasOwnProperty(key)) {
+		if (Object.prototype.hasOwnProperty.call(obj, key)) {
 			return false;
 		}
 	}
+
 	return true;
 }
