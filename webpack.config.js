@@ -16,8 +16,8 @@ module.exports = (env, argv) => {
 		entry: path.resolve(__dirname, 'src', 'script.js'),
 		output: {
 			path: path.resolve(__dirname, 'deploy/'),
-			filename: '[name].bundle.js',
-			chunkFilename: '[id].chunk.js',
+			filename: 'ancientbeast.js',
+			// chunkFilename: '[id].chunk.js',
 			publicPath: '/'
 		},
 		devtool: 'inline-source-map',
