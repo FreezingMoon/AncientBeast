@@ -37,7 +37,8 @@
 		"socket.io-client": "2.0.4",
 		"style-loader": "^0.20.3",
 		"webpack-cli": "^2.0.12",
-		"webpack-merge": "^4.1.2"
+		"webpack-merge": "^4.1.2",
+		"cross-env": "^5.1.6"
 	},
 	"devDependencies": {
 		"eslint": "^4.19.0",
@@ -57,8 +58,8 @@
 	"scripts": {
 		"build": "yarn run generateManifest && webpack --mode=production",
 		"build:dev": "yarn run generateManifest && webpack --mode=development",
-		"start": "NODE_ENV=production node server.js",
-		"start:dev": "NODE_ENV=development node server.js",
+		"start": "cross-env NODE_ENV=production node server.js",
+		"start:dev": "cross-env NODE_ENV=development node server.js",
 		"generateManifest": "node manifestGenerator.js",
 		"lint": "eslint -c .eslintrc.json src/**/*.js",
 		"lint-fix": "eslint -c .eslintrc.json src/**/*.js --fix",
