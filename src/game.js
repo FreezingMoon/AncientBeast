@@ -401,6 +401,7 @@ export default class Game {
 		let bg, i;
 
 		// Phaser
+		this.Phaser.scale.parentIsWindow = true;
 		this.Phaser.scale.pageAlignHorizontally = true;
 		this.Phaser.scale.pageAlignVertically = true;
 		this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
