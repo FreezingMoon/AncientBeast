@@ -390,20 +390,20 @@ export class UI {
 
 			// Dash
 			if (this.dashopen) {
-				if (e.originalEvent.deltaY > 0) {
+				if (e.originalEvent.deltaY < 0) {
 					// Wheel up
 					this.gridSelectPrevious();
-				} else if (e.originalEvent.deltaY < 0) {
+				} else if (e.originalEvent.deltaY > 0) {
 					// Wheel down
 					this.gridSelectNext();
 				}
 				// Abilities
 			} else {
-				if (e.originalEvent.deltaY > 0) {
+				if (e.originalEvent.deltaY < 0) {
 					// Wheel up
 					this.selectNextAbility();
 					// TODO: Allow to cycle between the usable active abilities by pressing the passive one's icon
-				} else if (e.originalEvent.deltaY < 0) {
+				} else if (e.originalEvent.deltaY > 0) {
 					// Wheel down
 					this.selectPreviousAbility();
 				}
