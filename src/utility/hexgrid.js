@@ -676,6 +676,8 @@ export class HexGrid {
 					hex.materialize_overlay.alpha = 0;
 				}
 				hex.overlayVisualState('hover');
+
+				$j('canvas').css('cursor', 'not-allowed');
 			} else {
 				// Reachable hex
 				//Offset Pos
