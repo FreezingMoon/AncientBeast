@@ -621,7 +621,6 @@ export class UI {
 	 */
 	showCreature(creatureType, player) {
 		let game = this.game;
-		let that = this;
 
 		if (!this.dashopen) {
 			this.$dash.show().css('opacity', 0);
@@ -651,12 +650,12 @@ export class UI {
 			.children('#playertabswrapper')
 			.children('.playertabs')
 			.unbind('click')
-			.bind('click', function() {
+			.bind('click', e => {
 				if (game.freezedInput) {
 					return;
 				}
 
-				that.showCreature('--', $j(this).attr('player') - 0);
+				this.showCreature('--', $j(e.currentTarget).attr('player') - 0);
 			});
 
 		// Update player info
