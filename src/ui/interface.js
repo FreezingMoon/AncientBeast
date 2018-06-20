@@ -383,7 +383,7 @@ export class UI {
 			}
 		});
 		// TODO: Function to exit dash via Tab or Esc hotkeys
-		$j('#combatwrapper, #dash, #toppanel').bind('wheel', (e) => {
+		$j('#combatwrapper, #dash, #toppanel').bind('wheel', e => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -621,6 +621,7 @@ export class UI {
 	 */
 	showCreature(creatureType, player) {
 		let game = this.game;
+		let that = this;
 
 		if (!this.dashopen) {
 			this.$dash.show().css('opacity', 0);
@@ -650,12 +651,12 @@ export class UI {
 			.children('#playertabswrapper')
 			.children('.playertabs')
 			.unbind('click')
-			.bind('click', e => {
+			.bind('click', function() {
 				if (game.freezedInput) {
 					return;
 				}
 
-				this.showCreature('--', $j(this).attr('player') - 0);
+				that.showCreature('--', $j(this).attr('player') - 0);
 			});
 
 		// Update player info
