@@ -103,8 +103,8 @@ export class Hex {
 				this.onSelectFn(this);
 			}, this);
 
-			this.input.events.onInputOut.add(() => {
-				if (game.freezedInput || game.UI.dashopen) {
+			this.input.events.onInputOut.add((_, pointer) => {
+				if (game.freezedInput || game.UI.dashopen || !pointer.withinGame) {
 					return;
 				}
 
