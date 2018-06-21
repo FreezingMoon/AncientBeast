@@ -1420,10 +1420,7 @@ span.pure {
 #version {
 	font-weight: bold;
 	text-shadow: 2px 2px black;
-	position: absolute;
-	right: 25%;
-	left: 25%;
-	bottom: 10px;
+	margin-bottom: 10px;
 }
 @media (max-height: 525px) {
 	#gameTitle {
@@ -1461,12 +1458,18 @@ a {
 #settings {
 }
 
-#gameSetupContainer #gameSetup {
-	position: absolute;
-	display: block;
-	left: 50%;
-	top: 50%;
-	margin: -175px 0 0 -255px;
+#gameSetupContainer {
+        display: flex;
+	flex-direction: column;
+	height: 100vh;
+}
+
+#gameSetup {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 #startButton {
