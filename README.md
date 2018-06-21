@@ -31,7 +31,7 @@ The project is developed with the use of free open source cross platform applica
 	<td><a href="http://blender.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/blender.png" style="display:block; width:99px; height:99px;" alt="blender">Blender</a></td>
 	<td><a href="http://krita.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/krita.png" style="display:block; width:99px; height:99px;" alt="krita">Krita</a></td>
 	<td><a href="http://gimp.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/gimp.png" style="display:block; width:99px; height:99px;" alt="gimp">Gimp</a></td>
-	<td><a href="http://mypaint.intilinux.com"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/mypaint.png" style="display:block; width:99px; height:99px;" alt="mypaint">Mypaint</a></td>
+	<td><a href="http://mypaint.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/mypaint.png" style="display:block; width:99px; height:99px;" alt="mypaint">Mypaint</a></td>
 	<td><a href="http://inkscape.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/inkscape.png" style="display:block; width:99px; height:99px;" alt="inkscape">Inkscape</a></td>
 </tr>
 </table>
