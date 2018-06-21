@@ -1865,7 +1865,6 @@ export class UI {
 		this.updateFatigue();
 
 		// Set active creature
-		this.$queue.find('.vignette.active').removeClass('active'); // Avoid bugs
 		this.$queue
 			.find('.vignette[verified="1"]')
 			.first()
