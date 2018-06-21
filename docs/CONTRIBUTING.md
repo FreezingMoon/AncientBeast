@@ -9,23 +9,25 @@ It uses web languages like HTML, CSS, Javascript and Node.js. The game engine us
 
 ### Recommended Tool
 
-If you're not very keen on using git from the CLI, I highly recommend using [Visual Studio Code](https://code.visualstudio.com/download),  for cloning the project and creating patches. [VSC](https://code.visualstudio.com/download) is free open source and cross platform, has very nice git integration and useful extensions.
+If you're not very keen on using git from the CLI, I highly recommend using [Visual Studio Code](https://code.visualstudio.com/download), for cloning the project and creating patches. [VSC](https://code.visualstudio.com/download) is free open source and cross platform, has very nice git integration and useful extensions.
 
 ### Fork Project
 
 You can create a clone of the project by using git from CLI or with the use of a tool, like the one recommended above.
+
 ```
 https://github.com/FreezingMoon/AncientBeast.git
 ```
+
 In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P` hotkey, search for `Git: Clone` and then input the link in the given field.
 
 ---
 
 ### Package Requirements
 
-First install (or make sure you have) the latest LTS version of  [Node.js](http://nodejs.org).
+First install (or make sure you have) the latest LTS version of [Node.js](http://nodejs.org).
 
-Linux users: if you installed from repository, you *might* need to create a path link.
+Linux users: if you installed from repository, you _might_ need to create a path link.
 
 After you've successfully installed the Node.js package, proceed with installing the latest version of [Yarn](https://yarnpkg.com/en/docs/install), which is our tool of choice for package dependency management.
 
@@ -60,7 +62,9 @@ yarn start
 
 You should open the game link using <a href="https://www.google.com/chrome/"><b>Google Chrome</b></a> or <a href="https://www.chromium.org"><b>Chromium</b></a>, as other browsers don't usually quite cut it.
 
-White testing you can right click the game tab and mute it.
+You can always test the latest master without any hassle from https://ancientbeast-beta.herokuapp.com deploy.
+
+A handy tip while testing: you can right click the game tab and mute it by simply clicking the `Mute site` option.
 
 ---
 
@@ -97,6 +101,7 @@ Keep in mind that you'll have to refresh the webpage after making changes. Make 
 You are free to browse [existing issues](https://github.com/FreezingMoon/AncientBeast/issues) and comment on the ones that you want to take a swing at in order to make sure the issue is still relevant and that nobody else is working on it. You can also drop by the project's [Discord server](https://discord.gg/x78rKen) and mention your skills and that you're interested in helping out; you'll be assigned to a specific issue. When you're done, simply create a **Pull Request**, note that you might need to pull in from master repository before doing so. Your patches will get reviewed and tested, if there are issues with them you'll receive feedback in order to make corrections, otherwise your pull request will get approved and merged into the master branch and you'll getting you credited for your work.
 
 ---
+
 ## More Ways
 
 Coding is not the only thing required in order to make this project as awesome as possible, see the [How to Contribute](http://ancientbeast.com/contribute) guide.
