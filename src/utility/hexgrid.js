@@ -665,20 +665,13 @@ export class HexGrid {
 			if (hex.creature instanceof Creature) {
 				// If creature
 				onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex);
-			} else if (o.fillHexOnHover && hex.reachable) {
-				this.cleanHex(hex);
-				hex.displayVisualState('creature player' + this.game.activeCreature.team);
-			}
-
-			// Not reachable hex
-			if (!hex.reachable) {
-				if (hex.materialize_overlay) {
-					hex.materialize_overlay.alpha = 0;
+			} else if (hex.reachable) {
+				if (o.fillHexOnHover) {
+					this.cleanHex(hex);
+					hex.displayVisualState('creature player' + this.game.activeCreature.team);
 				}
-				hex.overlayVisualState('hover');
-			} else {
-				// Reachable hex
-				//Offset Pos
+
+				// Offset Pos
 				let offset = o.flipped ? o.size - 1 : 0,
 					mult = o.flipped ? 1 : -1, // For flipped player
 					availablePos = false;
@@ -698,6 +691,13 @@ export class HexGrid {
 
 				hex = this.hexes[y][x]; // New coords
 				o.fnOnSelect(hex, o.args);
+			} else if (!hex.reachable) {
+				if (hex.materialize_overlay) {
+					hex.materialize_overlay.alpha = 0;
+				}
+				hex.overlayVisualState('hover');
+
+				$j('canvas').css('cursor', 'not-allowed');
 			}
 		};
 
