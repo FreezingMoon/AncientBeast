@@ -383,27 +383,27 @@ export class UI {
 			}
 		});
 		// TODO: Function to exit dash via Tab or Esc hotkeys
-		$j('#combatwrapper, #dash, #toppanel').bind('wheel', (e) => {
+		$j('#combatwrapper, #dash, #toppanel').bind('wheel', e => {
 			if (game.freezedInput) {
 				return;
 			}
 
 			// Dash
 			if (this.dashopen) {
-				if (e.originalEvent.deltaY > 0) {
+				if (e.originalEvent.deltaY < 0) {
 					// Wheel up
 					this.gridSelectPrevious();
-				} else if (e.originalEvent.deltaY < 0) {
+				} else if (e.originalEvent.deltaY > 0) {
 					// Wheel down
 					this.gridSelectNext();
 				}
 				// Abilities
 			} else {
-				if (e.originalEvent.deltaY > 0) {
+				if (e.originalEvent.deltaY < 0) {
 					// Wheel up
 					this.selectNextAbility();
 					// TODO: Allow to cycle between the usable active abilities by pressing the passive one's icon
-				} else if (e.originalEvent.deltaY < 0) {
+				} else if (e.originalEvent.deltaY > 0) {
 					// Wheel down
 					this.selectPreviousAbility();
 				}
@@ -655,7 +655,7 @@ export class UI {
 					return;
 				}
 
-				this.showCreature('--', $j(this).attr('player') - 0);
+				this.showCreature('--', $j(e.currentTarget).attr('player') - 0);
 			});
 
 		// Update player info
