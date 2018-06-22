@@ -1393,7 +1393,7 @@ span.pure {
 }
 
 .ui-button {
-	   padding: .3em .8em;
+	padding: 0.3em 0.8em;
 }
 
 #gameTitle {
@@ -1415,6 +1415,7 @@ span.pure {
 	font-weight: bold;
 	text-shadow: 2px 2px black;
 	padding-bottom: 10px;
+	padding-top: 10px;
 }
 
 #version {
@@ -1422,22 +1423,13 @@ span.pure {
 	text-shadow: 2px 2px black;
 	margin-bottom: 10px;
 }
-@media (max-height: 525px) {
+@media (max-height: 650px) {
 	#gameTitle {
 		transform: rotate(90deg);
-		vertical-align: middle;
-		position: fixed;
-		margin-top: 205;
-		padding: 0 105;
-	}
-
-	#settings {
-		margin-top: -45px !important;
-	}
-}
-@media (min-height: 1001px) {
-	#gameTitle {
-		transform: rotate(0deg);
+		position: absolute;
+		top: 0;
+		right: 0;
+		margin-top: 205px;
 	}
 }
 
@@ -1459,8 +1451,9 @@ a {
 }
 
 #gameSetupContainer {
-        display: flex;
+	display: flex;
 	flex-direction: column;
+	flex-wrap: wrap;
 	height: 100vh;
 }
 
