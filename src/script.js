@@ -26,8 +26,17 @@ import snowBunnyAbilitiesGenerator from './abilities/Snow-Bunny';
 import swineThugAbilitiesGenerator from './abilities/Swine-Thug';
 import uncleFungusAbilitiesGenerator from './abilities/Uncle-Fungus';
 
+// Generic object we can decorate with helper methods to simply dev and user experience.
+// TODO: Expose this in a less hacky way.
+let AB = {};
 // Create the game
 const G = new Game('0.3');
+// Helper properties and methods for retrieving and playing back game logs.
+// TODO: Expose these in a less hacky way too.
+AB.currentGame = G;
+AB.getLog = AB.currentGame.gamelog.get.bind(AB.currentGame.gamelog);
+AB.restoreGame = AB.currentGame.gamelog.play.bind(AB.currentGame.gamelog);
+window.AB = AB;
 
 // Load the abilities
 const abilitiesGenerators = [
