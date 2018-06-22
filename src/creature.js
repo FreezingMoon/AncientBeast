@@ -1620,10 +1620,6 @@ export class Creature {
 
 		// As hex occupation changes, path must be recalculated for the current creature not the dying one
 		game.activeCreature.queryMove();
-
-		// Queue cleaning
-		game.UI.updateActivebox();
-		game.UI.updateQueueDisplay(); // Just in case
 	}
 
 	isFatigued() {
