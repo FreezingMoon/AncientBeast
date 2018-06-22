@@ -130,7 +130,8 @@ export class Player {
 				creaturebonus: 0,
 				darkpriestbonus: 0,
 				immortal: 0,
-				total: 0
+				total: 0,
+				pickupDrop: 0
 			};
 
 		for (let i = 0; i < total; i++) {
