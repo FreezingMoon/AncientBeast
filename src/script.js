@@ -25,6 +25,7 @@ import scavengerAbilitiesGenerator from './abilities/Scavenger';
 import snowBunnyAbilitiesGenerator from './abilities/Snow-Bunny';
 import swineThugAbilitiesGenerator from './abilities/Swine-Thug';
 import uncleFungusAbilitiesGenerator from './abilities/Uncle-Fungus';
+import headlessAbilitiesGenerator from './abilities/Headless';
 
 // Generic object we can decorate with helper methods to simply dev and user experience.
 // TODO: Expose this in a less hacky way.
@@ -55,7 +56,8 @@ const abilitiesGenerators = [
 	scavengerAbilitiesGenerator,
 	snowBunnyAbilitiesGenerator,
 	swineThugAbilitiesGenerator,
-	uncleFungusAbilitiesGenerator
+	uncleFungusAbilitiesGenerator,
+	headlessAbilitiesGenerator
 ];
 abilitiesGenerators.forEach(generator => generator(G));
 
