@@ -78,7 +78,7 @@ export class Button {
 	}
 
 	triggerClick() {
-		if (this.game.freezedInput || !this.clickable) {
+		if (this.game.freezedInput || !this.clickable || this.state === 'disabled') {
 			return;
 		}
 

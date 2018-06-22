@@ -265,7 +265,8 @@ export default G => {
 							crush: _crush
 						}, // Damage Type
 						1, // Area
-						[] // Effects
+						[], // Effects
+						G
 					);
 					let result = _target.takeDamage(damage);
 					// Knock the target back if they are still alive and there is enough range
