@@ -1308,7 +1308,7 @@ export default class Game {
 			//-------End bonuses--------//
 
 			// No fleeing
-			if (!this.players[i].hasFled && !this.players[i].hasLost) {
+			if (!this.players[i].hasFled) {
 				this.players[i].score.push({
 					type: 'nofleeing'
 				});
