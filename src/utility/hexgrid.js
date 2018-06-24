@@ -665,7 +665,9 @@ export class HexGrid {
 			if (hex.creature instanceof Creature) {
 				// If creature
 				onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex);
-			} else if (hex.reachable) {
+			}
+
+			if (hex.reachable) {
 				if (o.fillHexOnHover) {
 					this.cleanHex(hex);
 					hex.displayVisualState('creature player' + this.game.activeCreature.team);
