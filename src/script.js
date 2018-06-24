@@ -65,6 +65,17 @@ $j(document).ready(() => {
 	$j('.typeRadio').buttonset();
 	$j('#startButton').button();
 
+	// Select a random starting location
+	const locationSelector = $j("input[name='combatLocation']");
+	const randomLocationIndex = Math.floor(Math.random() * locationSelector.length);
+	locationSelector
+		.eq(randomLocationIndex)
+		.prop('checked', true)
+		.trigger('click');
+
+	// refresh the buttonset UI so that newly checked location is displayed
+	$j('.typeRadio').buttonset('refresh');
+
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);
