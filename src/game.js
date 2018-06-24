@@ -340,6 +340,8 @@ export default class Game {
 			setTimeout(() => {
 				this.gameState = 'loaded';
 
+				$j('body').css('cursor', 'default');
+
 				// Do not call setup if we are not active.
 				if (!this.preventSetup) {
 					this.setup(this.playerMode);

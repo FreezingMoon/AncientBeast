@@ -358,35 +358,39 @@ export default G => {
 					G
 				);
 
-				target.takeDamage(damage);
+				let result = target.takeDamage(damage);
 
-				// Add poison damage debuff
-				let effect = new Effect(
-					this.title,
-					this.creature,
-					target,
-					'onStartPhase',
-					{
-						stackable: false,
-						effectFn: function(effect, creature) {
-							G.log('%CreatureName' + creature.id + '% is affected by ' + ability.title);
-							creature.takeDamage(
-								new Damage(
-									effect.owner,
-									{
-										poison: ability.damages.poison
-									},
-									1,
-									[],
-									G
-								)
-							);
-						}
-					},
-					G
-				);
-				target.replaceEffect(effect);
-				G.log('%CreatureName' + target.id + '% is poisoned by ' + this.title);
+				if (result.damageObj.status !== 'Shielded') {
+					// Add poison damage debuff
+					let effect = new Effect(
+						this.title,
+						this.creature,
+						target,
+						'onStartPhase',
+						{
+							stackable: false,
+							effectFn: function(effect, creature) {
+								G.log('%CreatureName' + creature.id + '% is affected by ' + ability.title);
+								creature.takeDamage(
+									new Damage(
+										effect.owner,
+										{
+											poison: ability.damages.poison
+										},
+										1,
+										[],
+										G
+									)
+								);
+							}
+						},
+						G
+					);
+
+					target.replaceEffect(effect);
+
+					G.log('%CreatureName' + target.id + '% is poisoned by ' + this.title);
+				}
 
 				G.UI.checkAbilities();
 			}
