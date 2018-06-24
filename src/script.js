@@ -65,22 +65,27 @@ $j(document).ready(() => {
 	$j('.typeRadio').buttonset();
 	$j('#startButton').button();
 
+	// Select a random starting location
+	const locationSelector = $j("input[name='combatLocation']");
+	const randomLocationIndex = Math.floor(Math.random() * locationSelector.length);
+	locationSelector
+		.eq(randomLocationIndex)
+		.prop('checked', true)
+		.trigger('click');
+
+	// refresh the buttonset UI so that newly checked location is displayed
+	$j('.typeRadio').buttonset('refresh');
+
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 	$j('form#gameSetup').submit(e => {
 		e.preventDefault(); // Prevent submit
+
 		let gameconfig = getGameConfig();
 
-		if (gameconfig.background_image == 'random') {
-			// nth-child indices start at 1
-			let index = Math.floor(Math.random() * ($j('input[name="combatLocation"]').length - 1)) + 1;
-			gameconfig.background_image = $j('input[name="combatLocation"]')
-				.slice(index, index + 1)
-				.attr('value');
-		}
-
 		G.loadGame(gameconfig);
+
 		return false; // Prevent submit
 	});
 });
