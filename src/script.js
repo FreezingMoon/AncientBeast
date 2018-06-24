@@ -81,17 +81,11 @@ $j(document).ready(() => {
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 	$j('form#gameSetup').submit(e => {
 		e.preventDefault(); // Prevent submit
+
 		let gameconfig = getGameConfig();
 
-		if (gameconfig.background_image == 'random') {
-			// nth-child indices start at 1
-			let index = Math.floor(Math.random() * ($j('input[name="combatLocation"]').length - 1)) + 1;
-			gameconfig.background_image = $j('input[name="combatLocation"]')
-				.slice(index, index + 1)
-				.attr('value');
-		}
-
 		G.loadGame(gameconfig);
+
 		return false; // Prevent submit
 	});
 });
