@@ -278,9 +278,9 @@ export class UI {
 							case 'dash_right':
 								this.gridSelectRight();
 								break;
-						        case 'scoreboard':
-							        this.toggleScoreboard();
-							        break;
+							case 'scoreboard':
+								this.toggleScoreboard();
+								break;
 						}
 					} else {
 						switch (k) {
@@ -340,9 +340,9 @@ export class UI {
 							case 'grid_confirm':
 								game.grid.confirmHex();
 								break;
-						        case 'scoreboard':
-							        this.toggleScoreboard();
-							        break;
+							case 'scoreboard':
+								this.toggleScoreboard();
+								break;
 						}
 					}
 
@@ -1054,7 +1054,7 @@ export class UI {
 
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
 
-		let $table = $j('#endscreen table tbody');
+		let $table = $j('#scoreboard table tbody');
 
 		// Delete uncessary columns if only 2 players
 		if (game.playerMode == 2) {
@@ -1062,7 +1062,7 @@ export class UI {
 				.children('tr')
 				.children('td:nth-child(even)')
 				.remove();
-			$table = $j('#endscreen table tbody');
+			$table = $j('#scoreboard table tbody');
 		}
 
 		// Fill the board
@@ -1136,36 +1136,36 @@ export class UI {
 			if (game.playerMode > 2) {
 				// 2 vs 2
 				let score1 = game.players[0].getScore().total + game.players[2].getScore().total,
-				    score2 = game.players[1].getScore().total + game.players[3].getScore().total;
+					score2 = game.players[1].getScore().total + game.players[3].getScore().total;
 
 				if (score1 > score2) {
 					// Left side wins
-					$j('#endscreen p').text(
+					$j('#scoreboard p').text(
 						game.players[0].name + ' and ' + game.players[2].name + ' won the match!'
 					);
 				} else if (score1 < score2) {
 					// Right side wins
-					$j('#endscreen p').text(
+					$j('#scoreboard p').text(
 						game.players[1].name + ' and ' + game.players[3].name + ' won the match!'
 					);
 				} else if (score1 == score2) {
 					// Draw
-					$j('#endscreen p').text('Draw!');
+					$j('#scoreboard p').text('Draw!');
 				}
 			} else {
 				// 1 vs 1
 				let score1 = game.players[0].getScore().total,
-				    score2 = game.players[1].getScore().total;
+					score2 = game.players[1].getScore().total;
 
 				if (score1 > score2) {
 					// Left side wins
-					$j('#endscreen p').text(game.players[0].name + ' won the match!');
+					$j('#scoreboard p').text(game.players[0].name + ' won the match!');
 				} else if (score1 < score2) {
 					// Right side wins
-					$j('#endscreen p').text(game.players[1].name + ' won the match!');
+					$j('#scoreboard p').text(game.players[1].name + ' won the match!');
 				} else if (score1 == score2) {
 					// Draw
-					$j('#endscreen p').text('Draw!');
+					$j('#scoreboard p').text('Draw!');
 				}
 			}
 		}
