@@ -648,6 +648,8 @@ export class HexGrid {
 					creature.updateHealth();
 				}
 			}
+
+			$j('canvas').css('cursor', 'default');
 		};
 
 		// ONMOUSEOVER
