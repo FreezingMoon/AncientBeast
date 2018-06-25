@@ -1,4 +1,5 @@
-[{
+[
+	{
 		"id": 0,
 		"name": "Dark Priest",
 		"level": "-",
@@ -33,7 +34,8 @@
 			"offset-x": 0,
 			"offset-y": -164
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Plasma Field",
 				"desc": "Protects from most harmful abilities when unit not being currently active.",
 				"info": "-1 plasma for each countered attack.",
@@ -117,7 +119,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Personal Space",
 				"desc": "Gains bonus stat points if there is an adjacent enemy unit when turn starts.",
 				"info": "50% offense and movement increase.",
@@ -192,7 +195,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Back Stabs",
 				"desc": "Reduces some damage from behind and also harms rear melee attackers.",
 				"info": "30% rear damage reduction & return.",
@@ -209,7 +213,8 @@
 			},
 			{
 				"title": "Morning Star",
-				"desc": "Whips out its scepter like tail to bluntly punish a foe that is within 3 hexagons.",
+				"desc":
+					"Whips out its scepter like tail to bluntly punish a foe that is within 3 hexagons.",
 				"info": "15 pierce + 15 crush damage on strike.",
 				"upgrade": "test",
 				"costs": {
@@ -268,23 +273,28 @@
 			"health": 5,
 			"energy": 10
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Toxic Spores",
 				"desc": "Any melee range enemy attackers will have their regrowth stat reduced a bit.",
 				"info": "-1 regrowth stat debuff that can stack.",
 				"upgrade": "Hitting a foe will debuff too.",
-				"effects": [{
-					"regrowth": -1
-				}]
+				"effects": [
+					{
+						"regrowth": -1
+					}
+				]
 			},
 			{
 				"title": "Supper Chomp",
 				"desc": "Takes a huge bite out of nearby foe, restoring a minor amount of health.",
 				"info": "20 pierce damage, 1/2 as regrowth.",
 				"upgrade": "Instant healing until full.",
-				"effects": [{
-					"special": "1/2 of damages as %regrowth%"
-				}],
+				"effects": [
+					{
+						"special": "1/2 of damages as %regrowth%"
+					}
+				],
 				"damages": {
 					"pierce": 20
 				},
@@ -297,9 +307,11 @@
 				"desc": "Leaps in straight line over any traps, gaining bonus offense after jumping.",
 				"info": "+25 offense for next hit after landing.",
 				"upgrade": "Leaps units or jumps twice.",
-				"effects": [{
-					"offense": 25
-				}],
+				"effects": [
+					{
+						"offense": 25
+					}
+				],
 				"costs": {
 					"energy": 25
 				}
@@ -361,7 +373,8 @@
 			"health": 15,
 			"energy": 10
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Boiling Point",
 				"desc": "Leaves 2 puddles of hot lava under, lasting 1 round or until stepped on.",
 				"info": "10 burn damage for each hexagon.",
@@ -407,9 +420,11 @@
 					"crush": 10,
 					"burn": 5
 				},
-				"effects": [{
-					"special": "travels toward inline unit"
-				}],
+				"effects": [
+					{
+						"special": "travels toward inline unit"
+					}
+				],
 				"costs": {
 					"energy": 30
 				}
@@ -457,14 +472,17 @@
 			"health": 5,
 			"energy": 10
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Electrified Hair",
 				"desc": "Converts up to 1/4 of incoming shock damage into missing energy points.",
 				"info": "Conversion happens even if fatigued.",
 				"upgrade": "Overflowing energy heals.",
-				"effects": [{
-					"special": "Converts ~25%%shock% into%energy%"
-				}]
+				"effects": [
+					{
+						"special": "Converts ~25%%shock% into%energy%"
+					}
+				]
 			},
 			{
 				"title": "Hasted Javelin",
@@ -487,9 +505,11 @@
 				"desc": "Tangles a foe within 2 radius for a turn, causing it some damage if it will move.",
 				"info": "25 poison damage triggered if moving.",
 				"upgrade": "The vine will last indefinitely.",
-				"effects": [{
-					"special": "25 poison damage if moving"
-				}],
+				"effects": [
+					{
+						"special": "25 poison damage if moving"
+					}
+				],
 				"damages": {
 					"poison": 25
 				},
@@ -552,15 +572,18 @@
 			"health": 5,
 			"energy": 0
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Lamellar Body",
 				"desc": "Gains extra defense and frost mastery with every sloth unit on the battlefield.",
 				"info": "1 defense & 1 frost for every sloth unit.",
 				"upgrade": "Gains 1 regrowth stat as well.",
-				"effects": [{
-					"defense": 1,
-					"frost": 1
-				}]
+				"effects": [
+					{
+						"defense": 1,
+						"frost": 1
+					}
+				]
 			},
 			{
 				"title": "Flat Frons",
@@ -653,7 +676,8 @@
 			"health": 5,
 			"energy": 5
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Burning Spirit",
 				"desc": "Hits reduce the target's burn mastery.",
 				"info": "-1 burn mastery each successful strike.",
@@ -663,7 +687,7 @@
 				"title": "Fiery Touch",
 				"desc": "Scratches and burns a distant enemy. This attack has 3 hexagons extra reach.",
 				"info": "10 slash + 10 burn damage for each hit.",
-				"upgrade": "Doubles the hexagon range.",
+				"upgrade": "Double range for the burn hit.",
 				"damages": {
 					"slash": 10,
 					"burn": 10
@@ -677,9 +701,11 @@
 				"desc": "Teleports within 6 hexagons range, leaving a firewall in the old location.",
 				"info": "3 x 10 burn damage per each hexagon.",
 				"upgrade": "Increased range each usage.",
-				"effects": [{
-					"special": "10 %burn% damage per hex"
-				}],
+				"effects": [
+					{
+						"special": "10 %burn% damage per hex"
+					}
+				],
 				"damages": {
 					"burn": 10
 				},
@@ -731,7 +757,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Life Support",
 				"desc": "Can act one more turn after being killed.",
 				"info": ""
@@ -794,14 +821,17 @@
 			"health": 10,
 			"energy": 0
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Frigid Tower",
 				"desc": "Constantly increases offense and defense for every turn not moving.",
 				"info": "+5 frost and defense every round.",
 				"upgrade": "+5 offense stat per turn.",
-				"effects": [{
-					"special": "(5%offense%, 5%defense%) each turn"
-				}],
+				"effects": [
+					{
+						"special": "(5%offense%, 5%defense%) each turn"
+					}
+				],
 				"maxCharge": 10
 			},
 			{
@@ -876,7 +906,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Inner Vision",
 				"desc": "Lack of sight forces the creature to focus on all of its remaining senses.",
 				"info": "+5 initiative for each passing round.",
@@ -937,14 +968,13 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Travel Waypoint",
 				"desc": "Transfers to any location that is within movement range and also has roots on.",
 				"info": "The action will take 1 movement point.",
 				"upgrade": "Gains unlimited travel range.",
-				"details": [
-					"Toxic Shroom can only travel between own or allied roots."
-				]
+				"details": ["Toxic Shroom can only travel between own or allied roots."]
 			},
 			{
 				"title": "Cap Knock",
@@ -967,18 +997,18 @@
 				"costs": {
 					"energy": 15
 				}
-            },
+			},
 			{
 				"title": "Curling Roots",
-				"desc": "Creates a small area of vines under self that alter the energy of all units on top.",
+				"desc":
+					"Creates a small area of vines under self that alter the energy of all units on top.",
 				"info": "±6 energy points when own turn starts.",
 				"upgrade": "Bonus for each spot affected.",
 				"costs": {
 					"energy": 20
 				}
-            }
-
-        ]
+			}
+		]
 	},
 	{
 		"id": 12,
@@ -1021,7 +1051,8 @@
 			"health": 10,
 			"energy": 3
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Bunny Hop",
 				"desc": "Moves away one hexagon from first enemy that comes nearby frontally.",
 				"info": "Works only once every game round.",
@@ -1047,9 +1078,11 @@
 				"desc": "Pushes away any unit for several hexagons, depending on its size.",
 				"info": "Range = 5 hexagons - creature size.",
 				"upgrade": "No penalty vs frozen foes.",
-				"effects": [{
-					"special": "Range = 5 hexagons - creature size."
-				}],
+				"effects": [
+					{
+						"special": "Range = 5 hexagons - creature size."
+					}
+				],
 				"costs": {
 					"energy": 20
 				}
@@ -1099,7 +1132,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Natural Habitat",
 				"desc": "Initial spot will become a swamp home.",
 				"info": "+15 Poison mastery bonus while inside"
@@ -1172,7 +1206,8 @@
 			"health": 5,
 			"energy": 10
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Gooey Body",
 				"desc": "Receives bonus pierce, slash and crush masteries based on remaining health.",
 				"info": "3 bonus points each for every 7 health.",
@@ -1195,9 +1230,11 @@
 				"desc": "Sticks chewing gum nearby to hinder any passing unit for a complete turn.",
 				"info": "Does not affect self but affects allies.",
 				"upgrade": "Can leap within 3 hexagons.",
-				"effects": [{
-					"special": "%movement% is set to 0 for a turn."
-				}],
+				"effects": [
+					{
+						"special": "%movement% is set to 0 for a turn."
+					}
+				],
 				"costs": {
 					"energy": 20
 				}
@@ -1210,9 +1247,11 @@
 				"damages": {
 					"special": "20%sonic%+ 10%crush%if melee"
 				},
-				"effects": [{
-					"special": "One hexagon knockback."
-				}],
+				"effects": [
+					{
+						"special": "One hexagon knockback."
+					}
+				],
 				"costs": {
 					"energy": 30
 				}
@@ -1249,7 +1288,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Explosive End",
 				"desc": "Instantly detonates when being killed, dealing damage to all adjacent units.",
 				"info": "10 burn + 10 crush + 10 sonic damage.",
@@ -1314,7 +1354,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Ragnarok Day",
 				"desc": "Before dying, bombarding the whole battlefield after one complete round.",
 				"info": "5 crush + 15 burn damage to all units.",
@@ -1331,7 +1372,8 @@
 			},
 			{
 				"title": "Volcanic Artillery",
-				"desc": "A hot rock will hit target spot at the end of round, damaging a foe or the ground.",
+				"desc":
+					"A hot rock will hit target spot at the end of round, damaging a foe or the ground.",
 				"info": "20 crush + 20 burn damage or a fissure.",
 				"upgrade": "Ability becomes usable twice.",
 				"costs": {
@@ -1379,7 +1421,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Spiked Fence",
 				"desc": "Melee attackers get severly punished, receiving some of the damage as well.",
 				"info": "1/4 melee damage returned (piercing).",
@@ -1444,7 +1487,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Rib Cage",
 				"desc": "Bonus points for every unit that dies.",
 				"info": "+6 defense & +6 meditation per stack.",
@@ -1509,7 +1553,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Muscous Pillar",
 				"desc": "Any nearby killed units restore health based on their own total amount pool.",
 				"info": "5% of maximum health stat recovery.",
@@ -1574,7 +1619,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "High Voltage",
 				"desc": "Melee attackers receive damage for every hit and also lose energy points.",
 				"info": "5 shock damage that depletes energy."
@@ -1626,7 +1672,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Half Full",
 				"desc": "Can regenerate health up to double. Maximum health is still the initial one.",
 				"info": ""
@@ -1684,7 +1731,8 @@
 			"offset-x": 0,
 			"offset-y": -80
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Heat Haze",
 				"desc": "Nearby foes have their offense stat reduced, dealing way less damage.",
 				"info": "-25% offensive debuff while adjacent.",
@@ -1727,7 +1775,6 @@
 					"energy": 30
 				}
 			}
-
 		]
 	},
 	{
@@ -1760,7 +1807,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Protective Vest",
 				"desc": "Removes all negative effects received from other units at beginning of turn.",
 				"info": "Constantly purges any debuff effects.",
@@ -1786,7 +1834,8 @@
 			},
 			{
 				"title": "Pointe Technique",
-				"desc": "Leaps on top of medium or large enemy within 6 range, staying there if killing it.",
+				"desc":
+					"Leaps on top of medium or large enemy within 6 range, staying there if killing it.",
 				"info": "The target unit takes 30 pierce damage.",
 				"upgrade": "Range becomes 10 hexagons.",
 				"costs": {
@@ -1825,7 +1874,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "First Aid",
 				"desc": "1/5 regrowth works even if fatigued. Works with the current modified stat.",
 				"info": "Applies to nearby allied units as well.",
@@ -1896,7 +1946,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Self Sewing",
 				"desc": "Partially repairs itself if not taking any damage at all for a whole game round.",
 				"info": "10% of total health recovered / round"
@@ -1948,7 +1999,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Immortal Wood",
 				"desc": "Resurrects itself the next round if no units are sitting on top of the corpse.",
 				"info": "Each time it will have 50% less health.",
@@ -2013,7 +2065,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Evolved Organs",
 				"desc": "Recovers 30% of health lost only from the last hit taken when the turn starts.",
 				"info": "This ability also works when fatigued.",
@@ -2066,7 +2119,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Tankish Build",
 				"desc": "This unit becomes more durable as it gains one bonus defense every round.",
 				"info": "Maximum defense bonus capped at 40.",
@@ -2141,9 +2195,11 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Banned Touch",
-				"desc": "Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
+				"desc":
+					"Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
 				"info": "Units remain golden even if attacked.",
 				"upgrade": "Own attacks can turn to gold."
 			},
@@ -2216,7 +2272,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Small Version",
 				"desc": "Spawns a little hungry eggplant that chases nearest foe and then attacks.",
 				"info": "Grows into an adult if it kills two foes.",
@@ -2233,7 +2290,6 @@
 				"costs": {
 					"energy": 10
 				}
-
 			},
 			{
 				"title": "Oral Snake",
@@ -2304,7 +2360,8 @@
 			"health": 5,
 			"energy": 10
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Bad Doggie",
 				"desc": "Bites an adjacent inline enemy that's unfortunate to be there at turn start.",
 				"info": "12 pierce damage + 10 crush damage.",
@@ -2387,9 +2444,11 @@
 		"animation": {
 			"walk_speed": 300
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Sea Horse",
-				"desc": "Meditation stat will be highly increased if being at full health, restoring energy.",
+				"desc":
+					"Meditation stat will be highly increased if being at full health, restoring energy.",
 				"info": "15 extra meditation points if full health.",
 				"upgrade": "Can now fully restore energy."
 			},
@@ -2458,7 +2517,8 @@
 			"offset-x": -40,
 			"offset-y": -240
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Battle Cry",
 				"desc": "Roars at the beginning of the turn if took any damage in previous round.",
 				"info": "30 sonic damage to adjacent units.",
@@ -2466,7 +2526,8 @@
 			},
 			{
 				"title": "Executioner Axe",
-				"desc": "Slashes a nearby foe, instantly killing it if it's under a certain health threshold.",
+				"desc":
+					"Slashes a nearby foe, instantly killing it if it's under a certain health threshold.",
 				"info": "30 slash damage, 45 health threshold.",
 				"upgrade": "Usable again on killing strike.",
 				"costs": {
@@ -2484,7 +2545,8 @@
 			},
 			{
 				"title": "Visible Stigmata",
-				"desc": "Rapidly transfers up to 50 health points to a nearby allied unit, this is non lethal.",
+				"desc":
+					"Rapidly transfers up to 50 health points to a nearby allied unit, this is non lethal.",
 				"info": "Usage requires being at least 25 health.",
 				"upgrade": "+10 regrowth bonus each use.",
 				"costs": {
@@ -2523,7 +2585,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Fearsome Unit",
 				"desc": "Nearby foes have their offense and defense reduced for a full round.",
 				"info": "-25% offense and defense debuff"
@@ -2575,7 +2638,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Bronze Armor",
 				"desc": "All incoming pierce, slash and crush types of damage are greatly reduced.",
 				"info": "+15% physical resistance to damage.",
@@ -2589,13 +2653,15 @@
 			},
 			{
 				"title": "Lion Thrust",
-				"desc": "Runs very fast towards an inline foe for up to 5 hexagons, greatly terrorizing it.",
+				"desc":
+					"Runs very fast towards an inline foe for up to 5 hexagons, greatly terrorizing it.",
 				"info": "20 mental damage when reaching foe.",
 				"upgrade": "20% extra offense / hexagon."
 			},
 			{
 				"title": "Defensive Stance",
-				"desc": "Will be extra vigilant, better protecting himself from attacks until the next turn.",
+				"desc":
+					"Will be extra vigilant, better protecting himself from attacks until the next turn.",
 				"info": "Reduces 9 damage from incoming hits.",
 				"upgrade": "Will stop penetrating attacks."
 			}
@@ -2631,7 +2697,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Pestilence Bug",
 				"desc": "All drops within 4 hexagons range are being picked at the beginning of turn.",
 				"info": ""
@@ -2694,15 +2761,18 @@
 			"offset-y": -150,
 			"offset-x": -21
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Spa Goggles",
 				"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
 				"info": "+5 regrowth & defense while on mud.",
 				"upgrade": "Doubles both stat bonuses.",
-				"effects": [{
-					"regrowth": 5,
-					"defense": 5
-				}]
+				"effects": [
+					{
+						"regrowth": 5,
+						"defense": 5
+					}
+				]
 			},
 			{
 				"title": "Baseball Baton",
@@ -2734,9 +2804,11 @@
 				"desc": "Orders a pile of mud over any hexagon, slowing any other units that walk over.",
 				"info": "-1 movement point, on free spot or self.",
 				"upgrade": "10 energy cost if used on self.",
-				"effects": [{
-					"special": "-1 %movement%"
-				}],
+				"effects": [
+					{
+						"special": "-1 %movement%"
+					}
+				],
 				"costs": {
 					"energy": 30
 				}
@@ -2773,7 +2845,8 @@
 		"animation": {
 			"walk_speed": 600
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Crossed Bones",
 				"desc": "When this unit gets killed, it starts to restructure itself into a Lava Mollusk.",
 				"info": "The unit won't have any energy at first.",
@@ -2849,14 +2922,17 @@
 			"health": 15,
 			"energy": 4
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Larva Infest",
 				"desc": "Strikes any rear foe at start & end of turn, infesting it with a big parasite.",
 				"info": "-5 endurance stat debuff, stackable.",
 				"upgrade": "Instantly fatigues enemy.",
-				"effects": [{
-					"special": "-5 %endurance% debuff, stackable."
-				}]
+				"effects": [
+					{
+						"special": "-5 %endurance% debuff, stackable."
+					}
+				]
 			},
 			{
 				"title": "Cartilage Dagger",
@@ -2934,7 +3010,8 @@
 			"health": 8,
 			"energy": 0
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Tentacle Bush",
 				"desc": "Grabs hold of all the melee attackers, making them unable to move that turn.",
 				"info": "Becomes unmovable by most abilities.",
@@ -3010,7 +3087,8 @@
 		"animation": {
 			"walk_speed": 450
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Death Dealer",
 				"desc": "Gains bonus offense stat for every kill.",
 				"info": "+10 bonus offense if last hitting a unit"
@@ -3062,7 +3140,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Arm Shield",
 				"desc": "Reduces a fixed number of damage points from incoming basic attacks.",
 				"info": "10 damage points attack reduction.",
@@ -3138,9 +3217,11 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Hot Ashes",
-				"desc": "If killed, leaves ashes behind that will reiginite it back to life if not stomped.",
+				"desc":
+					"If killed, leaves ashes behind that will reiginite it back to life if not stomped.",
 				"info": "1/3 hitpoints & energy for each stack.",
 				"upgrade": "Full energy when it revives."
 			},
@@ -3215,7 +3296,8 @@
 			"offset-x": 0,
 			"offset-y": -160
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Wing Feathers",
 				"desc": "Can fly to available locations within movement range, avoiding all traps.",
 				"info": "Safely travel towards new locations.",
@@ -3303,7 +3385,8 @@
 			"health": 2,
 			"energy": 14
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Cyclic Duality",
 				"desc": "Even when becoming fatigued, can still recharge up to half of meditation stat.",
 				"info": "This works with the existing unit stats.",
@@ -3377,7 +3460,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Palm Tree",
 				"desc": "This unit prefers to hide underground, revealing only the tail most of the time.",
 				"info": "Becomes immovable by enemy abilities.",
@@ -3442,7 +3526,8 @@
 		"animation": {
 			"walk_speed": 400
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Frontal Aegis",
 				"desc": "Shield shaped head grants +9 defense bonus stat against any frontal attacks.",
 				"info": "Melee attackers are pushed a hexagon"
@@ -3494,7 +3579,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Hard Headed",
 				"desc": "Frontal attacks cause way less damage.",
 				"info": "10 points frontal hit damage reduction",
@@ -3559,7 +3645,8 @@
 		"animation": {
 			"walk_speed": 500
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Gore Lust",
 				"desc": "Each successful hit increases both the offense and burn stats a single point.",
 				"info": "1 offense stat & 1 burn mastery on hit.",
@@ -3624,7 +3711,8 @@
 		"animation": {
 			"walk_speed": 600
 		},
-		"ability_info": [{
+		"ability_info": [
+			{
 				"title": "Ethereal Shape",
 				"desc": "Passes through any obstacles and also takes only half of the incoming damage.",
 				"info": "Will not be able to stop over obstacles.",

@@ -25,9 +25,19 @@ import scavengerAbilitiesGenerator from './abilities/Scavenger';
 import snowBunnyAbilitiesGenerator from './abilities/Snow-Bunny';
 import swineThugAbilitiesGenerator from './abilities/Swine-Thug';
 import uncleFungusAbilitiesGenerator from './abilities/Uncle-Fungus';
+import headlessAbilitiesGenerator from './abilities/Headless';
 
+// Generic object we can decorate with helper methods to simply dev and user experience.
+// TODO: Expose this in a less hacky way.
+let AB = {};
 // Create the game
 const G = new Game('0.3');
+// Helper properties and methods for retrieving and playing back game logs.
+// TODO: Expose these in a less hacky way too.
+AB.currentGame = G;
+AB.getLog = AB.currentGame.gamelog.get.bind(AB.currentGame.gamelog);
+AB.restoreGame = AB.currentGame.gamelog.play.bind(AB.currentGame.gamelog);
+window.AB = AB;
 
 // Load the abilities
 const abilitiesGenerators = [
@@ -46,7 +56,8 @@ const abilitiesGenerators = [
 	scavengerAbilitiesGenerator,
 	snowBunnyAbilitiesGenerator,
 	swineThugAbilitiesGenerator,
-	uncleFungusAbilitiesGenerator
+	uncleFungusAbilitiesGenerator,
+	headlessAbilitiesGenerator
 ];
 abilitiesGenerators.forEach(generator => generator(G));
 
@@ -54,22 +65,27 @@ $j(document).ready(() => {
 	$j('.typeRadio').buttonset();
 	$j('#startButton').button();
 
+	// Select a random combat location
+	const locationSelector = $j("input[name='combatLocation']");
+	const randomLocationIndex = Math.floor(Math.random() * locationSelector.length);
+	locationSelector
+		.eq(randomLocationIndex)
+		.prop('checked', true)
+		.trigger('click');
+
+	// Refresh the buttonset UI so that newly checked location is displayed
+	$j('.typeRadio').buttonset('refresh');
+
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 	$j('form#gameSetup').submit(e => {
 		e.preventDefault(); // Prevent submit
+
 		let gameconfig = getGameConfig();
 
-		if (gameconfig.background_image == 'random') {
-			// nth-child indices start at 1
-			let index = Math.floor(Math.random() * ($j('input[name="combatLocation"]').length - 1)) + 1;
-			gameconfig.background_image = $j('input[name="combatLocation"]')
-				.slice(index, index + 1)
-				.attr('value');
-		}
-
 		G.loadGame(gameconfig);
+
 		return false; // Prevent submit
 	});
 });

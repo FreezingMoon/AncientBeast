@@ -41,6 +41,7 @@ export class UI {
 		this.$dash = $j('#dash');
 		this.$grid = $j('#creaturegrid');
 		this.$activebox = $j('#activebox');
+		this.$scoreboard = $j('#scoreboardwrapper');
 
 		// Chat
 		this.chat = new Chat(game);
@@ -60,6 +61,15 @@ export class UI {
 			game
 		);
 		this.buttons.push(this.btnToggleDash);
+
+		// Score Button
+		this.btnToggleScore = new Button(
+			{
+				$button: $j('.togglescore'),
+				click: () => this.toggleScoreboard()
+			},
+			game
+		);
 
 		// Audio Button
 		this.btnAudio = new Button(
@@ -199,7 +209,7 @@ export class UI {
 		});
 
 		let hotkeys = {
-			overview: 9, // Tab TODO: This should open/close score screen
+			scoreboard: 84, // T : This opens/closes the scoreboard
 			cycle: 81, // Q TODO: Make this work
 			attack: 87, // W
 			ability: 69, // E
@@ -273,7 +283,8 @@ export class UI {
 						switch (k) {
 							case 'close':
 								this.chat.hide();
-								break; // Close chat if opened
+								this.$scoreboard.hide();
+								break; // Close chat and/or scoreboard if opened
 							case 'cycle':
 								this.selectNextAbility();
 								break;
@@ -326,6 +337,9 @@ export class UI {
 
 							case 'grid_confirm':
 								game.grid.confirmHex();
+								break;
+							case 'scoreboard':
+								this.toggleScoreboard();
 								break;
 						}
 					}
@@ -1017,6 +1031,132 @@ export class UI {
 
 		$j('#tabwrapper').hide();
 		$j('#musicplayerwrapper').show();
+	}
+
+	toggleScoreboard(gameOver) {
+		let game = this.game;
+
+		// If the scoreboard is already displayed, hide it and return
+		if (this.$scoreboard.is(':visible')) {
+			this.$scoreboard.hide();
+
+			return;
+		}
+
+		// Configure scoreboard data
+		this.$scoreboard.find('#scoreboardTitle').text('Current Score');
+
+		// Calculate the time cost of the last turn
+		let skipTurn = new Date(),
+			p = game.activeCreature.player;
+
+		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
+
+		let $table = $j('#scoreboard table tbody');
+
+		// Write table for number players
+
+		// Clear table
+		const tableMeta = [
+			{ cls: 'player_name', title: 'Players' },
+			{ cls: 'firstKill', title: 'First blood' },
+			{ cls: 'kill', title: 'Kills' },
+			{ cls: 'combo', title: 'Combos' },
+			{ cls: 'humiliation', title: 'Humiliation' },
+			{ cls: 'annihilation', title: 'Annihilation' },
+			{ cls: 'deny', title: 'Denies' },
+			{ cls: 'pickupDrop', title: 'Drops picked' },
+			{ cls: 'timebonus', title: 'Time Bonus' },
+			{ cls: 'nofleeing', title: 'No Fleeing' },
+			{ cls: 'creaturebonus', title: 'Survivor Units' },
+			{ cls: 'darkpriestbonus', title: 'Survivor Dark Priest' },
+			{ cls: 'immortal', title: 'Immortal' },
+			{ cls: 'total', title: 'Total' }
+		];
+
+		tableMeta.forEach(row => {
+			$table
+				.find(`tr.${row.cls}`)
+				.empty()
+				.html(`<td>${row.title}`);
+
+			// Add cells for each player
+			for (let i = 0; i < game.playerMode; i++) {
+				$table.find(`tr.${row.cls}`).append('<td>--</td>');
+			}
+		});
+
+		// Fill the board
+		for (let i = 0; i < game.playerMode; i++) {
+			// Each player
+			// TimeBonus
+			if (game.timePool > 0) {
+				game.players[i].bonusTimePool = Math.round(game.players[i].totalTimePool / 1000);
+			}
+
+			//----------Display-----------//
+			let colId = game.playerMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
+
+			// Change Name
+			$table
+				.children('tr.player_name')
+				.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
+				.text(game.players[i].name);
+
+			// Change score
+			$j.each(game.players[i].getScore(), function(index, val) {
+				let text = val === 0 && index !== 'total' ? '--' : val;
+				$table
+					.children('tr.' + index)
+					.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
+					.text(text);
+			});
+		}
+
+		if (gameOver) {
+			// Set title
+			this.$scoreboard.find('#scoreboardTitle').text('Match Over');
+
+			// Declare winner
+			if (game.playerMode > 2) {
+				// 2 vs 2
+				let score1 = game.players[0].getScore().total + game.players[2].getScore().total,
+					score2 = game.players[1].getScore().total + game.players[3].getScore().total;
+
+				if (score1 > score2) {
+					// Left side wins
+					$j('#scoreboard p').text(
+						game.players[0].name + ' and ' + game.players[2].name + ' won the match!'
+					);
+				} else if (score1 < score2) {
+					// Right side wins
+					$j('#scoreboard p').text(
+						game.players[1].name + ' and ' + game.players[3].name + ' won the match!'
+					);
+				} else if (score1 == score2) {
+					// Draw
+					$j('#scoreboard p').text('Draw!');
+				}
+			} else {
+				// 1 vs 1
+				let score1 = game.players[0].getScore().total,
+					score2 = game.players[1].getScore().total;
+
+				if (score1 > score2) {
+					// Left side wins
+					$j('#scoreboard p').text(game.players[0].name + ' won the match!');
+				} else if (score1 < score2) {
+					// Right side wins
+					$j('#scoreboard p').text(game.players[1].name + ' won the match!');
+				} else if (score1 == score2) {
+					// Draw
+					$j('#scoreboard p').text('Draw!');
+				}
+			}
+		}
+
+		// Finally, show the scoreboard
+		this.$scoreboard.show();
 	}
 
 	/* toggleDash()
@@ -1865,7 +2005,6 @@ export class UI {
 		this.updateFatigue();
 
 		// Set active creature
-		this.$queue.find('.vignette.active').removeClass('active'); // Avoid bugs
 		this.$queue
 			.find('.vignette[verified="1"]')
 			.first()
