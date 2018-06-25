@@ -209,7 +209,7 @@ export class UI {
 		});
 
 		let hotkeys = {
-			scoreboard: 9, // Tab: This opens/closes the scoreboard
+			scoreboard: 84, // T : This opens/closes the scoreboard
 			cycle: 81, // Q TODO: Make this work
 			attack: 87, // W
 			ability: 69, // E
@@ -278,15 +278,13 @@ export class UI {
 							case 'dash_right':
 								this.gridSelectRight();
 								break;
-							case 'scoreboard':
-								this.toggleScoreboard();
-								break;
 						}
 					} else {
 						switch (k) {
 							case 'close':
 								this.chat.hide();
-								break; // Close chat if opened
+								this.$scoreboard.hide();
+								break; // Close chat and/or scoreboard if opened
 							case 'cycle':
 								this.selectNextAbility();
 								break;
@@ -1056,14 +1054,37 @@ export class UI {
 
 		let $table = $j('#scoreboard table tbody');
 
-		// Delete uncessary columns if only 2 players
-		if (game.playerMode == 2) {
+		// Write table for number players
+
+		// Clear table
+		const tableMeta = [
+			{ cls: 'player_name', title: 'Players' },
+			{ cls: 'firstKill', title: 'First blood' },
+			{ cls: 'kill', title: 'Kills' },
+			{ cls: 'combo', title: 'Combos' },
+			{ cls: 'humiliation', title: 'Humiliation' },
+			{ cls: 'annihilation', title: 'Annihilation' },
+			{ cls: 'deny', title: 'Denies' },
+			{ cls: 'pickupDrop', title: 'Drops picked' },
+			{ cls: 'timebonus', title: 'Time Bonus' },
+			{ cls: 'nofleeing', title: 'No Fleeing' },
+			{ cls: 'creaturebonus', title: 'Survivor Units' },
+			{ cls: 'darkpriestbonus', title: 'Survivor Dark Priest' },
+			{ cls: 'immortal', title: 'Immortal' },
+			{ cls: 'total', title: 'Total' }
+		];
+
+		tableMeta.forEach(row => {
 			$table
-				.children('tr')
-				.children('td:nth-child(even)')
-				.remove();
-			$table = $j('#scoreboard table tbody');
-		}
+				.find(`tr.${row.cls}`)
+				.empty()
+				.html(`<td>${row.title}`);
+
+			// Add cells for each player
+			for (let i = 0; i < game.playerMode; i++) {
+				$table.find(`tr.${row.cls}`).append('<td>--</td>');
+			}
+		});
 
 		// Fill the board
 		for (let i = 0; i < game.playerMode; i++) {
@@ -1071,42 +1092,6 @@ export class UI {
 			// TimeBonus
 			if (game.timePool > 0) {
 				game.players[i].bonusTimePool = Math.round(game.players[i].totalTimePool / 1000);
-			}
-			//-------End bonuses--------//
-
-			// No fleeing
-			if (!game.players[i].hasFled) {
-				game.players[i].score.push({
-					type: 'nofleeing'
-				});
-			}
-
-			// Surviving Creature Bonus
-			let immortal = true;
-			for (let j = 0; j < game.players[i].creatures.length; j++) {
-				if (!game.players[i].creatures[j].dead) {
-					if (game.players[i].creatures[j].type != '--') {
-						game.players[i].score.push({
-							type: 'creaturebonus',
-							creature: game.players[i].creatures[j]
-						});
-					} else {
-						// Dark Priest Bonus
-						game.players[i].score.push({
-							type: 'darkpriestbonus'
-						});
-					}
-				} else {
-					immortal = false;
-				}
-			}
-
-			// Immortal
-			if (immortal && game.players[i].creatures.length > 1) {
-				// At least 1 creature summoned
-				game.players[i].score.push({
-					type: 'immortal'
-				});
 			}
 
 			//----------Display-----------//
