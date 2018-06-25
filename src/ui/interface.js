@@ -210,6 +210,7 @@ export class UI {
 
 		let hotkeys = {
 			scoreboard: 84, // T : This opens/closes the scoreboard
+			overview: 71, // G : Toggle dash
 			cycle: 81, // Q TODO: Make this work
 			attack: 87, // W
 			ability: 69, // E
@@ -258,6 +259,7 @@ export class UI {
 					if (this.dashopen) {
 						switch (k) {
 							case 'close':
+						        case 'overview':
 								this.closeDash();
 								break;
 							case 'ultimate':
