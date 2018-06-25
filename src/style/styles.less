@@ -1393,7 +1393,7 @@ span.pure {
 }
 
 .ui-button {
-	   padding: .3em .8em;
+	padding: 0.3em 0.8em;
 }
 
 #gameTitle {
@@ -1573,7 +1573,7 @@ a {
 	}
 }
 /*--------------Scoreboard------------------*/
-#endscreen {
+#scoreboardwrapper {
 	width: 100%;
 	height: 100%;
 	position: absolute;
@@ -1591,6 +1591,21 @@ a {
 	margin: 30px auto 0;
 	background: black;
 	border: 2px grey solid;
+}
+
+#scoreboardReturn {
+	top: 0;
+	right: 0 !important;
+	position: absolute;
+	height: 100px;
+	width: 100px;
+	background-image: url('~assets/icons/close.svg');
+}
+
+#scoreboardReturn:before {
+	height: 100px;
+	width: 100px;
+	background-image: url('~assets/interface/frame.png');
 }
 
 #scoreboard table {

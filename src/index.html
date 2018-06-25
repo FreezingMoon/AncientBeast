@@ -125,9 +125,10 @@
 		</div>
 	</div>
 	<div id="ui" style="display: none;">
-		<div id="endscreen" style="display: none;">
-			<div id="scoreboard">
-				<h1>Match Over</h1>
+		<div id="scoreboardwrapper" style="display: none;">
+		    <div id="scoreboard">
+			<div id="scoreboardReturn" class="togglescore button"></div>
+			<h1 id="scoreboardTitle"></h1>
 				<table id="score">
 					<tbody>
 						<tr class="player_name">
@@ -806,7 +807,7 @@
 			<div id="queue">
 				<div id="queuewrapper"></div>
 			</div>
-			<div id="playerbutton" class="toggledash vignette active frame">
+			<div id="playerbutton" class="togglescore vignette active frame">
 				<div class="frame"></div>
 				<div id="playerinfo">
 					<p class="name"></p>
