@@ -710,7 +710,7 @@
 					"burn": 10
 				},
 				"costs": {
-					"energy": 30
+					"energy": 25
 				}
 			},
 			{
@@ -722,7 +722,7 @@
 					"burn": 20
 				},
 				"costs": {
-					"energy": 25
+					"energy": 30
 				}
 			}
 		]
