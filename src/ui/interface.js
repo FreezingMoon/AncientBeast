@@ -54,7 +54,7 @@ export class UI {
 		this.btnToggleDash = new Button(
 			{
 				$button: $j('.toggledash'),
-				click: e => {
+				click: () => {
 					this.toggleDash();
 				}
 			},
@@ -75,7 +75,7 @@ export class UI {
 		this.btnAudio = new Button(
 			{
 				$button: $j('#audio.button'),
-				click: e => {
+				click: () => {
 					if (!this.dashopen) {
 						this.showMusicPlayer();
 					}
@@ -89,7 +89,7 @@ export class UI {
 		this.btnSkipTurn = new Button(
 			{
 				$button: $j('#skip.button'),
-				click: e => {
+				click: () => {
 					if (!this.dashopen) {
 						if (game.turnThrottle) {
 							return;
@@ -110,7 +110,7 @@ export class UI {
 		this.btnDelay = new Button(
 			{
 				$button: $j('#delay.button'),
-				click: e => {
+				click: () => {
 					if (!this.dashopen) {
 						let creature = game.activeCreature;
 
@@ -138,7 +138,7 @@ export class UI {
 		this.btnFlee = new Button(
 			{
 				$button: $j('#flee.button'),
-				click: e => {
+				click: () => {
 					if (!this.dashopen) {
 						if (game.turn < game.minimumTurnBeforeFleeing) {
 							alert('You cannot flee the match in the first 10 rounds.');
@@ -237,7 +237,7 @@ export class UI {
 		};
 
 		// Remove hex grid if window loses focus
-		$j(window).blur(e => {
+		$j(window).blur(() => {
 			game.grid.showGrid(false);
 		});
 
@@ -259,7 +259,7 @@ export class UI {
 					if (this.dashopen) {
 						switch (k) {
 							case 'close':
-						        case 'overview':
+							case 'overview':
 								this.closeDash();
 								break;
 							case 'ultimate':
@@ -765,7 +765,7 @@ export class UI {
 					$stat.text(value);
 				}
 			});
-			$j.each(game.abilities[stats.id], (key, value) => {
+			$j.each(game.abilities[stats.id], key => {
 				let $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
 				$ability.children('.icon').css({
 					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`
@@ -842,7 +842,7 @@ export class UI {
 
 					// Bind button
 
-					this.materializeButton.click = e => {
+					this.materializeButton.click = () => {
 						this.materializeToggled = false;
 						this.selectAbility(3);
 						this.closeDash();
@@ -867,7 +867,7 @@ export class UI {
 					$j('#materialize_button p').text('Switch to your own tab to be able to materialize');
 
 					// Bind button
-					this.materializeButton.click = e => {
+					this.materializeButton.click = () => {
 						this.showCreature(creatureType, activeCreature.player.id);
 					};
 					$j('#card .sideA').on('click', this.materializeButton.click);
@@ -897,7 +897,7 @@ export class UI {
 			});
 
 			// Abilities
-			$j.each(stats.ability_info, (key, value) => {
+			$j.each(stats.ability_info, key => {
 				let $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
 				$ability.children('.icon').css({
 					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`
@@ -1451,7 +1451,7 @@ export class UI {
 								}
 
 								game.grid.clearHexViewAlterations();
-								let ab = game.activeCreature.abilities[btn.abilityId];
+								let ability = game.activeCreature.abilities[btn.abilityId];
 								// Passive ability icon can cycle between usable abilities
 								if (btn.abilityId == 0) {
 									let b = this.selectedAbility == -1 ? 4 : this.selectedAbility;
@@ -1466,7 +1466,7 @@ export class UI {
 								}
 
 								// Colored frame around selected ability
-								if (ab.require() == true && btn.abilityId != 0) {
+								if (ability.require() == true && btn.abilityId != 0) {
 									this.selectAbility(btn.abilityId);
 								}
 								// Activate Ability
@@ -1528,21 +1528,19 @@ export class UI {
 			let $abilityInfo = $desc.find('.abilityinfo_content');
 			$abilityInfo.find('.info').remove();
 
-			let costs_string = ab.getFormattedCosts();
-			if (costs_string) {
-				$abilityInfo.append('<div class="info costs">' + 'Costs : ' + costs_string + '</div>');
+			let costsString = ab.getFormattedCosts();
+			if (costsString) {
+				$abilityInfo.append('<div class="info costs">Costs : ' + costsString + '</div>');
 			}
 
-			let dmg_string = ab.getFormattedDamages();
-			if (dmg_string) {
-				$abilityInfo.append('<div class="info damages">' + 'Damages : ' + dmg_string + '</div>');
+			let dmgString = ab.getFormattedDamages();
+			if (dmgString) {
+				$abilityInfo.append('<div class="info damages">Damages : ' + dmgString + '</div>');
 			}
 
-			let special_string = ab.getFormattedEffects();
-			if (special_string) {
-				$abilityInfo.append(
-					'<div class="info special">' + 'Effects : ' + special_string + '</div>'
-				);
+			let specialString = ab.getFormattedEffects();
+			if (specialString) {
+				$abilityInfo.append('<div class="info special">Effects : ' + specialString + '</div>');
 			}
 
 			if (ab.hasUpgrade()) {
@@ -1556,7 +1554,7 @@ export class UI {
 					);
 				}
 
-				$abilityInfo.append('<div class="info upgrade">' + 'Upgrade : ' + ab.upgrade + '</div>');
+				$abilityInfo.append('<div class="info upgrade">Upgrade : ' + ab.upgrade + '</div>');
 			}
 		});
 	}
@@ -1958,7 +1956,7 @@ export class UI {
 					while (true) {
 						let v = $vignettes[i];
 						let $v = $j(v);
-						let vid = parseInt($v.attr('creatureid'));
+						let vid = parseInt($v.attr('creatureid'), 10);
 
 						if (vid === completeQueue[i].id) {
 							break;
@@ -2030,10 +2028,10 @@ export class UI {
 			.find('.vignette.roundmarker')
 			.unbind('mouseover')
 			.unbind('mouseleave')
-			.bind('mouseover', e => {
+			.bind('mouseover', () => {
 				game.grid.showGrid(true);
 			})
-			.bind('mouseleave', e => {
+			.bind('mouseleave', () => {
 				game.grid.showGrid(false);
 			});
 
@@ -2069,7 +2067,7 @@ export class UI {
 				game.grid.showMovementRange(creaID);
 				this.xrayQueue(creaID);
 			})
-			.bind('mouseleave', e => {
+			.bind('mouseleave', () => {
 				// On mouseleave cancel effect
 				if (game.freezedInput) {
 					return;
@@ -2113,9 +2111,13 @@ export class UI {
 
 	bouncexrayQueue(creaID) {
 		this.xrayQueue(creaID);
+
+		let $queueItem = [];
+
 		if (creaID > 0) {
-			var $queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
+			$queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
 		}
+
 		if ($queueItem.length > 0) {
 			$queueItem.stop();
 			$queueItem.animate(
@@ -2124,14 +2126,14 @@ export class UI {
 				},
 				200,
 				'',
-				function() {
+				() => {
 					this.animate(
 						{
 							top: '-=' + this.css('top')
 						},
 						100
 					);
-				}.bind($queueItem)
+				}
 			);
 		}
 	}

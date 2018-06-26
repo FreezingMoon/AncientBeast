@@ -122,13 +122,14 @@ export class GameLog {
 			output,
 			strOutput;
 
+		let fileName = new Date().toISOString().slice(0, 10);
+
 		switch (state) {
 			case 'json':
 				output = dict;
 				strOutput = json;
 				break;
 			case 'save':
-				var fileName = new Date().toISOString().slice(0, 10);
 				this.saveFile(JSON.stringify(dict.log), fileName + '.AB');
 				break;
 			case 'hash':

@@ -449,12 +449,13 @@ export class Hex {
 		this.overlay.alpha = targetAlpha;
 	}
 
-	/**
-	 * Add a trap to a hex.
-	 * type - name of sprite to use; see Phaser.load.image usage
-	 * effects - effects to activate when trap triggered
-	 * owner - owner of trap
-	 * opt - optional arguments merged into the Trap object
+	/** Add a trap to a hex.
+	 * @param {string} type - name of sprite to use; see Phaser.load.image usage
+	 * @param {?} effects - effects to activate when trap triggered
+	 * @param {?} owner - owner of trap
+	 * @param {?} opt - optional arguments merged into the Trap object
+	 *
+	 * @returns {Trap} trap
 	 *
 	 * Examples:
 	 * - turnLifetime
@@ -462,7 +463,6 @@ export class Hex {
 	 * - ownerCreature
 	 * - destroyOnActivate
 	 * - typeOver
-	 * returns Trap
 	 */
 	createTrap(type, effects, owner, opt) {
 		if (this.trap) {
@@ -478,12 +478,10 @@ export class Hex {
 			return;
 		}
 
-		let activated = false;
 		this.trap.effects.forEach(effect => {
 			if (trigger.test(effect.trigger) && effect.requireFn()) {
 				this.game.log('Trap triggered');
 				effect.activate(target);
-				activated = true;
 			}
 		});
 
@@ -514,6 +512,10 @@ export class Hex {
 	/**
 	 * Override toJSON to avoid circular references when outputting to game log
 	 * Used by game log only
+	 *
+	 * @returns {Object} coordinates
+	 * @returns {number} coordinates.x
+	 * @returns {number} coordinates.y
 	 */
 	toJSON() {
 		return {

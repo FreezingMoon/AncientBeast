@@ -14,7 +14,7 @@ export function search(start, end, creatureSize, creatureId, grid) {
 	while (openList.length > 0) {
 		// Grab the lowest f(x) to process next
 		let lowInd = 0;
-		for (var i = 0; i < openList.length; i++) {
+		for (let i = 0; i < openList.length; i++) {
 			if (openList[i].f < openList[lowInd].f) {
 				lowInd = i;
 			}
@@ -37,7 +37,7 @@ export function search(start, end, creatureSize, creatureId, grid) {
 		closedList.push(currentNode);
 		let neighbors = currentNode.adjacentHex(1);
 
-		for (var i = 0; i < neighbors.length; i++) {
+		for (let i = 0; i < neighbors.length; i++) {
 			let neighbor = neighbors[i];
 
 			if (
@@ -80,10 +80,11 @@ export function search(start, end, creatureSize, creatureId, grid) {
 	return [];
 }
 
-export function heuristic(pos0, pos1) {
+// TODO: clean this up
+export function heuristic(/* pos0, pos1 */) {
 	// This is the Manhattan distance
-	let d1 = Math.abs(pos1.x - pos0.x);
-	let d2 = Math.abs(pos1.y - pos0.y);
+	// let d1 = Math.abs(pos1.x - pos0.x);
+	// let d2 = Math.abs(pos1.y - pos0.y);
 	return 0; // Dijkstra algo "better" but slower
 	//return d1 + d2; // Not good for range prediction
 }

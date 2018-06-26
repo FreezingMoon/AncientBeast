@@ -58,18 +58,10 @@ export class SoundSys {
 		bufferLoader.load();
 	}
 
-	playSound(sound, node, o) {
+	playSound(sound, node) {
 		if (!window.AudioContext) {
 			return false;
 		}
-
-		o = $j.extend(
-			{
-				music_volume: 1,
-				effects_volume: 1
-			},
-			o
-		);
 
 		let source = this.context.createBufferSource();
 		source.buffer = sound;
