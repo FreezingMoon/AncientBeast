@@ -95,8 +95,7 @@ export class Trap {
 		this.hex.trap = undefined;
 	}
 
-	hide(duration, timer) {
-		timer = timer - 0; // Avoid undefined
+	hide(duration) {
 		duration = duration - 0; // Avoid undefined
 		this.game.Phaser.add.tween(this.display).to(
 			{

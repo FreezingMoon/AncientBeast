@@ -46,9 +46,9 @@ export class HexGrid {
 		opts = $j.extend(defaultOpt, opts);
 
 		this.game = game;
-		this.hexes = new Array(); // Hex Array
-		this.traps = new Array(); // Traps Array
-		this.allhexes = new Array(); // All hexes
+		this.hexes = []; // Hex Array
+		this.traps = []; // Traps Array
+		this.allhexes = []; // All hexes
 		this.lastClickedHex = []; // Array of hexagons containing last calculated pathfinding
 
 		this.display = game.Phaser.add.group(undefined, 'displayGrp');
@@ -70,7 +70,7 @@ export class HexGrid {
 
 		// Populate grid
 		for (let row = 0; row < opts.nbrRow; row++) {
-			this.hexes.push(new Array());
+			this.hexes.push([]);
 			for (let hex = 0, len = opts.nbrhexesPerRow; hex < len; hex++) {
 				if (hex == opts.nbrhexesPerRow - 1) {
 					if ((row % 2 == 0 && !opts.firstRowFull) || (row % 2 == 1 && opts.firstRowFull)) {
@@ -89,8 +89,8 @@ export class HexGrid {
 	querySelf(o) {
 		let game = this.game,
 			defaultOpt = {
-				fnOnConfirm: (creature, args) => {},
-				fnOnSelect: (creature, args) => {
+				fnOnConfirm: () => {},
+				fnOnSelect: creature => {
 					creature.hexagons.forEach(hex => {
 						hex.overlayVisualState('creature selected player' + hex.creature.team);
 					});
@@ -142,24 +142,6 @@ export class HexGrid {
 	 * args : 				Object : 	Object given to the events function (to easily pass variable for these function)
 	 */
 	queryDirection(o) {
-		let game = this.game,
-			defaultOpt = {
-				team: Team.enemy,
-				requireCreature: true,
-				id: 0,
-				flipped: false,
-				x: 0,
-				y: 0,
-				hexesDashed: [],
-				directions: [1, 1, 1, 1, 1, 1],
-				includeCreature: true,
-				stopOnCreature: true,
-				dashedHexesAfterCreatureStop: true,
-				distance: 0,
-				minDistance: 0,
-				sourceCreature: undefined
-			};
-
 		// This is alway true
 		o.isDirectionsQuery = true;
 		o = this.getDirectionChoices(o);
@@ -169,8 +151,8 @@ export class HexGrid {
 	/**
 	 * Get an object that contains the choices and hexesDashed for a direction
 	 * query.
-	 * @param {Object} o
-	 * @returns {Object}
+	 * @param {Object} o ?
+	 * @returns {Object} ?
 	 */
 	getDirectionChoices(o) {
 		let game = this.game,
@@ -240,7 +222,7 @@ export class HexGrid {
 				if (o.requireCreature) {
 					let validChoice = false;
 					// Search each hex for a creature that matches the team argument
-					for (let j = 0, len = dir.length; j < len; j++) {
+					for (let j = 0; j < dir.length; j++) {
 						let creaTarget = dir[j].creature;
 
 						if (creaTarget instanceof Creature && creaTarget.id !== o.id) {
@@ -291,10 +273,10 @@ export class HexGrid {
 	queryChoice(o) {
 		let game = this.game,
 			defaultOpt = {
-				fnOnConfirm: (choice, args) => {
+				fnOnConfirm: () => {
 					game.activeCreature.queryMove();
 				},
-				fnOnSelect: (choice, args) => {
+				fnOnSelect: choice => {
 					choice.forEach(item => {
 						if (item.creature instanceof Creature) {
 							item.displayVisualState('creature selected player' + item.creature.team);
@@ -303,7 +285,7 @@ export class HexGrid {
 						}
 					});
 				},
-				fnOnCancel: (hex, args) => {
+				fnOnCancel: () => {
 					game.activeCreature.queryMove();
 				},
 				team: Team.enemy,
@@ -326,7 +308,7 @@ export class HexGrid {
 			if (o.requireCreature) {
 				validChoice = false;
 				// Search each hex for a creature that matches the team argument
-				for (let j = 0, len = o.choices[i].length; j < len; j++) {
+				for (let j = 0; j < o.choices[i].length; j++) {
 					if (o.choices[i][j].creature instanceof Creature && o.choices[i][j].creature != o.id) {
 						let creaSource = game.creatures[o.id],
 							creaTarget = o.choices[i][j].creature;
@@ -401,18 +383,18 @@ export class HexGrid {
 	queryCreature(o) {
 		let game = this.game,
 			defaultOpt = {
-				fnOnConfirm: (creature, args) => {
+				fnOnConfirm: () => {
 					game.activeCreature.queryMove();
 				},
-				fnOnSelect: (creature, args) => {
+				fnOnSelect: creature => {
 					creature.tracePosition({
 						overlayClass: 'creature selected player' + creature.team
 					});
 				},
-				fnOnCancel: (hex, args) => {
+				fnOnCancel: () => {
 					game.activeCreature.queryMove();
 				},
-				optTest: creature => true,
+				optTest: () => true,
 				args: {},
 				hexes: [],
 				hexesDashed: [],
@@ -485,14 +467,14 @@ export class HexGrid {
 	queryHexes(o) {
 		let game = this.game,
 			defaultOpt = {
-				fnOnConfirm: (hex, args) => {
+				fnOnConfirm: () => {
 					game.activeCreature.queryMove();
 				},
-				fnOnSelect: (hex, args) => {
+				fnOnSelect: hex => {
 					game.activeCreature.faceHex(hex, undefined, true);
 					hex.overlayVisualState('creature selected player' + game.activeCreature.team);
 				},
-				fnOnCancel: (hex, args) => {
+				fnOnCancel: () => {
 					game.activeCreature.queryMove();
 				},
 				callbackAfterQueryHexes: () => {
@@ -579,6 +561,31 @@ export class HexGrid {
 			o.callbackAfterQueryHexes();
 		}
 
+		let onCreatureHover = (creature, queueEffect, hex) => {
+			if (creature.type == '--') {
+				if (creature === game.activeCreature) {
+					if (creature.hasCreaturePlayerGotPlasma()) {
+						creature.displayPlasmaShield();
+					}
+				} else {
+					creature.displayHealthStats();
+				}
+			}
+			creature.hexagons.forEach(h => {
+				// Flashing outline
+				h.overlayVisualState('hover h_player' + creature.team);
+			});
+			if (creature !== game.activeCreature) {
+				if (!hex.reachable) {
+					$j('canvas').css('cursor', 'n-resize');
+				} else {
+					// Filled hex with color
+					hex.displayVisualState('creature player' + hex.creature.team);
+				}
+			}
+			queueEffect(creature.id);
+		};
+
 		// ONCLICK
 		let onConfirmFn = hex => {
 			let y = hex.y,
@@ -607,8 +614,7 @@ export class HexGrid {
 				// Reachable hex
 				// Offset Pos
 				let offset = o.flipped ? o.size - 1 : 0,
-					mult = o.flipped ? 1 : -1, // For flipped player
-					availablePos = false;
+					mult = o.flipped ? 1 : -1; // For flipped player
 
 				for (let i = 0, size = o.size; i < size; i++) {
 					// Try next hexagons to see if they fits
@@ -618,7 +624,6 @@ export class HexGrid {
 
 					if (this.hexes[y][x + offset - i * mult].isWalkable(o.size, o.id)) {
 						x += offset - i * mult;
-						availablePos = true;
 						break;
 					}
 				}
@@ -677,8 +682,7 @@ export class HexGrid {
 
 				// Offset Pos
 				let offset = o.flipped ? o.size - 1 : 0,
-					mult = o.flipped ? 1 : -1, // For flipped player
-					availablePos = false;
+					mult = o.flipped ? 1 : -1; // For flipped player
 
 				for (let i = 0, size = o.size; i < size; i++) {
 					// Try next hexagons to see if they fit
@@ -688,7 +692,6 @@ export class HexGrid {
 
 					if (this.hexes[y][x + offset - i * mult].isWalkable(o.size, o.id)) {
 						x += offset - i * mult;
-						availablePos = true;
 						break;
 					}
 				}
@@ -707,40 +710,12 @@ export class HexGrid {
 
 		// ONRIGHTCLICK
 		let onRightClickFn = () => {
-			let y = this.y,
-				x = this.x;
-
 			if (this.creature instanceof Creature) {
 				// If creature
 				game.UI.showCreature(this.creature.type, this.creature.player.id);
 			} else {
 				game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id);
 			}
-		};
-
-		let onCreatureHover = (creature, queueEffect, hex) => {
-			if (creature.type == '--') {
-				if (creature === game.activeCreature) {
-					if (creature.hasCreaturePlayerGotPlasma()) {
-						creature.displayPlasmaShield();
-					}
-				} else {
-					creature.displayHealthStats();
-				}
-			}
-			creature.hexagons.forEach(hex => {
-				// Flashing outline
-				hex.overlayVisualState('hover h_player' + creature.team);
-			});
-			if (creature !== game.activeCreature) {
-				if (!hex.reachable) {
-					$j('canvas').css('cursor', 'n-resize');
-				} else {
-					// Filled hex with color
-					hex.displayVisualState('creature player' + hex.creature.team);
-				}
-			}
-			queueEffect(creature.id);
 		};
 
 		this.forEachHex(hex => {
@@ -1011,7 +986,7 @@ export class HexGrid {
 			}
 
 			// Gathering hexes
-			for (let x = 0, len = array[y].length; x < len; x++) {
+			for (let x = 0; x < array[y].length; x++) {
 				if (array[y][x]) {
 					let xfinal = flipped ? array[y].length - 1 - x : x; // Parse the array backward for flipped player
 					if (this.hexExists(originy + y, originx + xfinal)) {

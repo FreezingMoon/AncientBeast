@@ -61,20 +61,19 @@ export class Drop {
 
 		creature.updateAlteration(); // Will cap the stats
 
-		let drop = this,
-			tween = game.Phaser.add
-				.tween(this.display)
-				.to(
-					{
-						alpha: 0
-					},
-					500,
-					Phaser.Easing.Linear.None
-				)
-				.start();
+		let tween = game.Phaser.add
+			.tween(this.display)
+			.to(
+				{
+					alpha: 0
+				},
+				500,
+				Phaser.Easing.Linear.None
+			)
+			.start();
 
-		tween.onComplete.add(function() {
-			drop.display.destroy();
+		tween.onComplete.add(() => {
+			this.display.destroy();
 		});
 	}
 }

@@ -34,7 +34,7 @@ module.exports = {
 		'for-direction': 'error',
 		'func-name-matching': 'error',
 		'func-names': ['error', 'never'],
-		'func-style': ['error', 'declaration'],
+		'func-style': ['error', 'declaration', { allowArrowFunctions: true }],
 		'function-paren-newline': 'off',
 		'getter-return': 'error',
 		'global-require': 'error',

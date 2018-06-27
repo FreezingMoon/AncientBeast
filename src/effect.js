@@ -46,8 +46,8 @@ export class Effect {
 		game.effects.push(this);
 	}
 
-	animation() {
-		this.activate.apply(this, arguments);
+	animation(...args) {
+		this.activate(...args);
 	}
 
 	activate(arg) {

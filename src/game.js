@@ -1279,40 +1279,41 @@ export default class Game {
 		this.gameState = 'ended';
 
 		//-------End bonuses--------//
-
-		// No fleeing
-		if (!game.players[i].hasFled) {
-			game.players[i].score.push({
-				type: 'nofleeing'
-			});
-		}
-
-		// Surviving Creature Bonus
-		let immortal = true;
-		for (let j = 0; j < game.players[i].creatures.length; j++) {
-			if (!game.players[i].creatures[j].dead) {
-				if (game.players[i].creatures[j].type != '--') {
-					game.players[i].score.push({
-						type: 'creaturebonus',
-						creature: game.players[i].creatures[j]
-					});
-				} else {
-					// Dark Priest Bonus
-					game.players[i].score.push({
-						type: 'darkpriestbonus'
-					});
-				}
-			} else {
-				immortal = false;
+		for (let i = 0; i < this.playerMode; i++) {
+			// No fleeing
+			if (!this.players[i].hasFled) {
+				this.players[i].score.push({
+					type: 'nofleeing'
+				});
 			}
-		}
 
-		// Immortal
-		if (immortal && game.players[i].creatures.length > 1) {
-			// At least 1 creature summoned
-			game.players[i].score.push({
-				type: 'immortal'
-			});
+			// Surviving Creature Bonus
+			let immortal = true;
+			for (let j = 0; j < this.players[i].creatures.length; j++) {
+				if (!this.players[i].creatures[j].dead) {
+					if (this.players[i].creatures[j].type != '--') {
+						this.players[i].score.push({
+							type: 'creaturebonus',
+							creature: this.players[i].creatures[j]
+						});
+					} else {
+						// Dark Priest Bonus
+						this.players[i].score.push({
+							type: 'darkpriestbonus'
+						});
+					}
+				} else {
+					immortal = false;
+				}
+			}
+
+			// Immortal
+			if (immortal && this.players[i].creatures.length > 1) {
+				// At least 1 creature summoned
+				this.players[i].score.push({
+					type: 'immortal'
+				});
+			}
 		}
 
 		this.UI.toggleScoreboard(true);

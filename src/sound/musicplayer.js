@@ -28,7 +28,7 @@ export class MusicPlayer {
 			this.run($j(e.currentTarget));
 		});
 
-		this.audio.addEventListener('ended', e => {
+		this.audio.addEventListener('ended', () => {
 			if (this.shuffle) {
 				this.playRandom();
 			} else {
