@@ -4,9 +4,9 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[4] = [
@@ -116,7 +116,7 @@ export default G => {
 				});
 			},
 
-			activate: function(target, args) {
+			activate: function(target) {
 				let i;
 				let ability = this;
 				ability.end();
@@ -206,7 +206,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(hexes, args) {
+			activate: function(hexes) {
 				let ability = this;
 				ability.end();
 
@@ -315,7 +315,7 @@ export default G => {
 				}
 
 				// Movement
-				var hurl = function(_path) {
+				let hurl = _path => {
 					let target = arrayUtils.last(_path).creature;
 
 					let magmaHex = magmaSpawn.hexagons[args.direction === 4 ? magmaSpawn.size - 1 : 0];
@@ -358,7 +358,7 @@ export default G => {
 								}
 							}
 							if (!continueHurl) {
-								var interval = setInterval(function() {
+								let interval = setInterval(function() {
 									if (!G.freezedInput) {
 										clearInterval(interval);
 										G.UI.selectAbility(-1);

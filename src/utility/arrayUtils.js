@@ -1,12 +1,12 @@
 import { Creature } from '../creature';
 
-/* findPos(arr, obj)
+/** findPos
  * Find an object in the current Array based on its pos attribute
  *
- * arr: Array: The array to look for obj in.
- * obj: Object: Anything with pos attribute. Could be Hex of Creature.
+ * @param {array} arr: The array to look for obj in.
+ * @param {Object} obj: Anything with pos attribute. Could be Hex of Creature.
  *
- * return: Object: Object found in the array. False if nothing.
+ * @returns {Object} Object found in the array. False if nothing.
  */
 export function findPos(arr, obj) {
 	for (let i = 0; i < arr.length; i++) {
@@ -18,13 +18,13 @@ export function findPos(arr, obj) {
 	return false;
 }
 
-/* removePos(arr, obj)
+/** removePos
  * Remove an object in arr based on its pos attribute.
  *
- * arr: Array: The array to look for obj in.
- * obj: Object: Anything with pos attribute. Could be Hex of Creature.
+ * @param {array} arr: The array to look for obj in.
+ * @param {Object} obj: Anything with pos attribute. Could be Hex of Creature.
  *
- * return: Boolean: True if success. False if failed.
+ * @returns {boolean} True if success. False if failed.
  */
 export function removePos(arr, obj) {
 	for (let i = 0; i < arr.length; i++) {
@@ -37,16 +37,17 @@ export function removePos(arr, obj) {
 	return false;
 }
 
-/* filterCreature(arr, includeCreature, stopOnCreature, id)
+/** filterCreature
  * Filters in-place an array of hexes based on creatures.
  * The array typically represents a linear sequence of hexes, to produce a
  * subset/superset of hexes that contain or don't contain creatures.
  *
- * includeCreature: Boolean: Add creature hexes to the array
- * stopOnCreature: Boolean: Cut the array when finding a creature
- * id: Integer: Creature id to remove
+ * @param {array} arr ?
+ * @param {boolean} includeCreature: Add creature hexes to the array
+ * @param {boolean} stopOnCreature: Cut the array when finding a creature
+ * @param {number} id: Creature id to remove
  *
- * return: Array: filtered array
+ * @returns {array} filtered array
  */
 export function filterCreature(arr, includeCreature, stopOnCreature, id) {
 	let creatureHexes = [];
@@ -74,11 +75,13 @@ export function filterCreature(arr, includeCreature, stopOnCreature, id) {
 	return arr.concat(creatureHexes);
 }
 
-/* extendToLeft(arr, size)
+/** extendToLeft
  *
- * size: Integer: Size to extend
+ * @param {array} arr ?
+ * @param {number} size: Size to extend
+ * @param {?} grid ?
  *
- * return: Array: The hex array with all corresponding hexes at the left
+ * @returns {array} The hex array with all corresponding hexes at the left
  */
 export function extendToLeft(arr, size, grid) {
 	let ext = [];
@@ -95,11 +98,13 @@ export function extendToLeft(arr, size, grid) {
 	return ext;
 }
 
-/* extendToRight(arr, size)
+/** extendToRight
  *
- * size: Integer: Size to extend
+ * @param {array} arr ?
+ * @param {number} size: Size to extend
+ * @param {?} grid ?
  *
- * return: Array: The hex array with all corresponding hexes at the left
+ * @returns {array} The hex array with all corresponding hexes at the left
  */
 export function extendToRight(arr, size, grid) {
 	let ext = [];
@@ -116,10 +121,9 @@ export function extendToRight(arr, size, grid) {
 	return ext;
 }
 
-/*	last(arr)
- *
- * Return the last element of the array
- *
+/** last
+ * @param {array} arr ?
+ * @returns {?} return the last element of the array
  */
 export function last(arr) {
 	return arr[arr.length - 1];

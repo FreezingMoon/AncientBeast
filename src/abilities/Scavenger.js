@@ -5,9 +5,9 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	/*
@@ -78,7 +78,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -192,21 +192,21 @@ export default G => {
 						matrices.inlinefront2hex
 					)[0].creature == trg;
 
-				let select = function(hex, args) {
-					for (var i = 0; i < trg.hexagons.length; i++) {
+				let select = hex => {
+					for (let i = 0; i < trg.hexagons.length; i++) {
 						G.grid.cleanHex(trg.hexagons[i]);
 						trg.hexagons[i].displayVisualState('dashed');
 					}
-					for (var i = 0; i < crea.hexagons.length; i++) {
+					for (let i = 0; i < crea.hexagons.length; i++) {
 						G.grid.cleanHex(crea.hexagons[i]);
 						crea.hexagons[i].overlayVisualState('hover h_player' + crea.team);
 					}
-					for (var i = 0; i < size; i++) {
+					for (let i = 0; i < size; i++) {
 						if (!G.grid.hexExists(hex.y, hex.x - i)) {
 							continue;
 						}
 						let h = G.grid.hexes[hex.y][hex.x - i];
-						var color;
+						let color;
 						if (trgIsInfront) {
 							color = i < trg.size ? trg.team : crea.team;
 						} else {
@@ -259,12 +259,11 @@ export default G => {
 				let crea = this.creature;
 
 				let trg = G.creatures[args.trg];
-				let size = crea.size + trg.size;
 
 				let trgIF = args.trgIsInfront;
 
-				let crea_dest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
-				let trg_dest = G.grid.hexes[hex.y][trgIF ? hex.x : hex.x - crea.size];
+				let creaDest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
+				let trgDest = G.grid.hexes[hex.y][trgIF ? hex.x : hex.x - crea.size];
 
 				// Determine distance
 				let distance = 0;
@@ -273,7 +272,7 @@ export default G => {
 				while (!distance) {
 					k++;
 
-					if (arrayUtils.findPos(start.adjacentHex(k), crea_dest)) {
+					if (arrayUtils.findPos(start.adjacentHex(k), creaDest)) {
 						distance = k;
 					}
 				}
@@ -281,7 +280,7 @@ export default G => {
 				// Substract from movement points
 				crea.remainingMove -= distance * trg.size;
 
-				crea.moveTo(crea_dest, {
+				crea.moveTo(creaDest, {
 					animation: 'fly',
 					callback: function() {
 						trg.updateHex();
@@ -289,7 +288,7 @@ export default G => {
 					ignoreMovementPoint: true
 				});
 
-				trg.moveTo(trg_dest, {
+				trg.moveTo(trgDest, {
 					animation: 'fly',
 					callback: function() {
 						ability.creature.updateHex();
@@ -340,7 +339,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -369,11 +368,11 @@ export default G => {
 						'onStartPhase',
 						{
 							stackable: false,
-							effectFn: function(effect, creature) {
+							effectFn: function(eff, creature) {
 								G.log('%CreatureName' + creature.id + '% is affected by ' + ability.title);
 								creature.takeDamage(
 									new Damage(
-										effect.owner,
+										eff.owner,
 										{
 											poison: ability.damages.poison
 										},

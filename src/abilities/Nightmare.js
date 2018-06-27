@@ -4,9 +4,9 @@ import * as matrices from '../utility/matrices';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[9] = [
@@ -100,7 +100,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -178,7 +178,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -279,7 +279,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path, args) {
+			activate: function(path) {
 				let ability = this;
 
 				ability.end();

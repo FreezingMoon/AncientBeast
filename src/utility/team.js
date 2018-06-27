@@ -5,6 +5,12 @@ export const Team = Object.freeze({
 	both: 4
 });
 
+/** isTeam
+ * @param {?} creature1 ?
+ * @param {?} creature2 ?
+ * @param {?} team ?
+ * @returns {boolean} ?
+ */
 export function isTeam(creature1, creature2, team) {
 	switch (team) {
 		case Team.enemy:

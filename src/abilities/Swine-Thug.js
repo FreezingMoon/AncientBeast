@@ -3,12 +3,11 @@ import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
-import { Creature } from '../creature';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	/*
@@ -52,12 +51,14 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(hex) {
+			activate: function() {
 				let alterations = $j.extend({}, this.effects[0]);
 				// Double effect if upgraded
 				if (this.isUpgraded()) {
-					for (var k in alterations) {
-						alterations[k] = alterations[k] * 2;
+					for (let k in alterations) {
+						if ({}.hasOwnProperty.call(alterations, k)) {
+							alterations[k] = alterations[k] * 2;
+						}
 					}
 				}
 				let effect = new Effect(
@@ -77,13 +78,15 @@ export default G => {
 				let log = '%CreatureName' + this.creature.id + "%'s ";
 				let first = true;
 				let amount;
-				for (var k in alterations) {
-					if (!first) {
-						log += 'and ';
+				for (let k in alterations) {
+					if ({}.hasOwnProperty.call(alterations, k)) {
+						if (!first) {
+							log += 'and ';
+						}
+						log += k + ' ';
+						first = false;
+						amount = alterations[k];
 					}
-					log += k + ' ';
-					first = false;
-					amount = alterations[k];
 				}
 				log += '+' + amount;
 				G.log(log);
@@ -307,7 +310,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path, args) {
+			activate: function(path) {
 				let ability = this;
 				ability.end();
 
@@ -374,7 +377,6 @@ export default G => {
 			query: function() {
 				let ability = this;
 				let swine = this.creature;
-				let size = 1;
 
 				// Check if the ability is upgraded because then the self cast energy cost is less
 				let selfOnly = this.isUpgraded() && this.creature.energy < this._energyNormal;
@@ -408,7 +410,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(hex, args) {
+			activate: function(hex) {
 				G.grid.clearHexViewAlterations();
 				let ability = this;
 				let swine = this.creature;

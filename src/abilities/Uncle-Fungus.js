@@ -4,9 +4,10 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getDirectionFromDelta } from '../utility/position';
-/**
- * Creates the abilities
+
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[3] = [
@@ -118,7 +119,7 @@ export default G => {
 			},
 
 			// activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -192,7 +193,7 @@ export default G => {
 				return this.testRequirements() && this.creature.stats.moveable;
 			},
 
-			fnOnSelect: function(hex, args) {
+			fnOnSelect: function(hex) {
 				this.creature.tracePosition({
 					x: hex.x,
 					y: hex.y,
@@ -232,7 +233,7 @@ export default G => {
 			},
 
 			// activate() :
-			activate: function(hex, args) {
+			activate: function(hex) {
 				let ability = this;
 				ability.end(false, true); // Defered ending
 
@@ -263,7 +264,7 @@ export default G => {
 
 						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
-						var interval = setInterval(function() {
+						let interval = setInterval(function() {
 							if (!G.freezedInput) {
 								clearInterval(interval);
 								G.UI.selectAbility(-1);
@@ -281,7 +282,7 @@ export default G => {
 						ability.creature, // Target
 						'onStepIn onEndPhase', // Trigger
 						{
-							effectFn: function(effect, crea) {
+							effectFn: function(effect) {
 								effect.deleteEffect();
 							},
 							alterations: ability.effects[0]
@@ -373,7 +374,7 @@ export default G => {
 			},
 
 			// activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
