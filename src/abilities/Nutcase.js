@@ -6,9 +6,9 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[40] = [
@@ -206,10 +206,10 @@ export default G => {
 					target, // Target
 					'onStepOut', // Trigger
 					{
-						effectFn: function(effect) {
-							effect.target.takeDamage(
+						effectFn: function(eff) {
+							eff.target.takeDamage(
 								new Damage(
-									effect.owner,
+									eff.owner,
 									{
 										pierce: ability.damages.pierce
 									},
@@ -218,7 +218,7 @@ export default G => {
 									G
 								)
 							);
-							effect.deleteEffect();
+							eff.deleteEffect();
 						}
 					},
 					G
@@ -283,7 +283,7 @@ export default G => {
 					o = G.grid.getDirectionChoices(o);
 					let newChoices = [];
 					for (let i = 0; i < o.choices.length; i++) {
-						var j;
+						let j;
 						let direction = o.choices[i][0].direction;
 
 						// Add dashed hexes up to the next obstacle for this direction choice
@@ -296,7 +296,7 @@ export default G => {
 								fx = -(o.sourceCreature.size - 1);
 							}
 						}
-						var line = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
+						let line = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
 						o.choices[i].forEach(function(choice) {
 							arrayUtils.removePos(line, choice);
 						});
@@ -308,7 +308,7 @@ export default G => {
 						// choice, extended up to and including the dashed hex. This will be the
 						// choice that pushes the target up to that hex.
 						// Get a new hex line so that the hexes are in the right order
-						var newChoice = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
+						let newChoice = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
 						// Exclude creature
 						ability.creature.hexagons.forEach(function(hex) {
 							if (arrayUtils.findPos(newChoice, hex)) {
@@ -374,7 +374,7 @@ export default G => {
 						overrideSpeed: 100,
 						ignoreMovementPoint: true,
 						callback: function() {
-							var interval = setInterval(function() {
+							let interval = setInterval(function() {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 
@@ -414,7 +414,7 @@ export default G => {
 				// As we need to move creatures simultaneously, we can't use the normal path
 				// calculation as the target blocks the path
 				let i = 0;
-				var interval = setInterval(function() {
+				let interval = setInterval(function() {
 					if (!G.freezedInput) {
 						if (
 							i === targetPushPath.length ||
@@ -511,7 +511,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				let crea = ability.creature;
 				ability.end();

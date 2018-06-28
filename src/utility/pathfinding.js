@@ -1,6 +1,13 @@
 import * as arrayUtils from './arrayUtils';
 
-// Start and end must be Hex type
+/** search
+ * @param {Hex} start ?
+ * @param {Hex} end ?
+ * @param {?} creatureSize ?
+ * @param {?} creatureId ?
+ * @param {?} grid ?
+ * @returns {?} ?
+ */
 export function search(start, end, creatureSize, creatureId, grid) {
 	let openList = [];
 	let closedList = [];
@@ -58,7 +65,7 @@ export function search(start, end, creatureSize, creatureId, grid) {
 				// Also, we need to take the h (heuristic) score since we haven't done so yet
 
 				gScoreIsBest = true;
-				neighbor.h = heuristic(neighbor.pos, end.pos);
+				neighbor.h = 0;
 				openList.push(neighbor);
 			} else if (gScore < neighbor.g) {
 				// We have already seen the node, but last time it had a worse g (distance from start)
@@ -78,13 +85,4 @@ export function search(start, end, creatureSize, creatureId, grid) {
 	grid.cleanPathAttr(false);
 	// No result was found -- empty array signifies failure to find path
 	return [];
-}
-
-// TODO: clean this up
-export function heuristic(/* pos0, pos1 */) {
-	// This is the Manhattan distance
-	// let d1 = Math.abs(pos1.x - pos0.x);
-	// let d2 = Math.abs(pos1.y - pos0.y);
-	return 0; // Dijkstra algo "better" but slower
-	//return d1 + d2; // Not good for range prediction
 }

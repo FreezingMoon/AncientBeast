@@ -4,9 +4,9 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[22] = [
@@ -99,7 +99,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path, args) {
+			activate: function(path) {
 				let ability = this;
 				ability.end();
 
@@ -145,7 +145,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(hex, args) {
+			activate: function(hex) {
 				let ability = this;
 				ability.end();
 
@@ -186,9 +186,9 @@ export default G => {
 						G.activeCreature.queryMove();
 					},
 					callbackStepIn: function() {
-						let targets = ability.getTargets(ability.creature.adjacentHexes(1));
+						let callbackTargets = ability.getTargets(ability.creature.adjacentHexes(1));
 
-						targets.forEach(function(item) {
+						callbackTargets.forEach(function(item) {
 							if (!(item.target instanceof Creature)) {
 								return;
 							}
@@ -237,8 +237,6 @@ export default G => {
 				let ability = this;
 				let crea = this.creature;
 
-				let inRangeCreatures = crea.hexagons[1].adjacentHex(4);
-
 				let range = crea.hexagons[1].adjacentHex(3);
 
 				let head = range.indexOf(crea.hexagons[0]);
@@ -250,7 +248,7 @@ export default G => {
 					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
-					fnOnSelect: function(hex, args) {
+					fnOnSelect: function(hex) {
 						hex.adjacentHex(1).forEach(function(item) {
 							if (item.creature instanceof Creature) {
 								if (item.creature == crea) {
@@ -300,7 +298,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(hex, args) {
+			activate: function(hex) {
 				let ability = this;
 				ability.end();
 

@@ -3,11 +3,10 @@ import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
-import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[12] = [
@@ -136,7 +135,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -147,7 +146,9 @@ export default G => {
 						pure: 0
 					};
 					for (let type in ability.damages) {
-						damages.pure += ability.damages[type];
+						if ({}.hasOwnProperty.call(ability.damages, type)) {
+							damages.pure += ability.damages[type];
+						}
 					}
 				}
 
@@ -242,6 +243,8 @@ export default G => {
 						break;
 				}
 
+				let hex = target.hexagons[0];
+
 				target.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
@@ -255,7 +258,6 @@ export default G => {
 
 				dir = dir.slice(0, dist + 1);
 
-				let hex = target.hexagons[0];
 				for (let j = 0; j < dir.length; j++) {
 					if (dir[j].isWalkable(target.size, target.id, true)) {
 						hex = dir[j];
@@ -340,6 +342,7 @@ export default G => {
 				let dist = projectileInstance[2];
 
 				tween.onComplete.add(function() {
+					// this refers to the animation object, _not_ the ability
 					this.destroy();
 
 					// Copy to not alter ability strength
@@ -363,8 +366,7 @@ export default G => {
 					}
 				}, sprite); // End tween.onComplete
 			},
-			getAnimationData: function(path, args) {
-				let dist = arrayUtils.filterCreature(path.slice(0), false, false).length;
+			getAnimationData: function() {
 				return {
 					duration: 500,
 					delay: 0,
