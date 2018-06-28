@@ -342,7 +342,8 @@ export default G => {
 				let dist = projectileInstance[2];
 
 				tween.onComplete.add(function() {
-					ability.destroy();
+					// this refers to the animation object, _not_ the ability
+					this.destroy();
 
 					// Copy to not alter ability strength
 					let dmg = $j.extend({}, ability.damages);
