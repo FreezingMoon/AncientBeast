@@ -1,7 +1,7 @@
 /** Zfill like in python
- * @param {?} num ?
- * @param {?} size ?
- * @returns {?} ?
+ * @param {number} num ?
+ * @param {number} size ?
+ * @returns {string} ?
  */
 export function zfill(num, size) {
 	let s = '000000000' + num;

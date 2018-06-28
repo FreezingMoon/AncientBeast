@@ -451,9 +451,9 @@ export class Hex {
 
 	/** Add a trap to a hex.
 	 * @param {string} type - name of sprite to use; see Phaser.load.image usage
-	 * @param {?} effects - effects to activate when trap triggered
-	 * @param {?} owner - owner of trap
-	 * @param {?} opt - optional arguments merged into the Trap object
+	 * @param {array} effects - effects to activate when trap triggered
+	 * @param {Object} owner - owner of trap
+	 * @param {Object} opt - optional arguments merged into the Trap object
 	 *
 	 * @returns {Trap} trap
 	 *
