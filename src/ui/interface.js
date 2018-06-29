@@ -252,6 +252,8 @@ export class UI {
 
 			let prevD = false;
 			let modifierPressed = e.metaKey || e.altKey || e.ctrlKey;
+			let activeAbilityBool =
+				this.activeAbility && !this.$scoreboard.is(':visible') && !this.chat.isOpen;
 
 			$j.each(hotkeys, (k, v) => {
 				if (!modifierPressed && v == keypressed) {
@@ -279,6 +281,17 @@ export class UI {
 								break;
 							case 'dash_right':
 								this.gridSelectRight();
+								break;
+						}
+						/* Check to see if scoreboard or chat is open first before
+						 * cancelling the active ability when using Esc hotkey
+             */
+					} else if (activeAbilityBool) {
+						switch (k) {
+							case 'close':
+								game.grid.clearHexViewAlterations();
+								game.activeCreature.queryMove();
+								this.selectAbility(-1);
 								break;
 						}
 					} else {
@@ -951,8 +964,10 @@ export class UI {
 		if (i > -1) {
 			this.showAbilityCosts(i);
 			this.abilitiesButtons[i].changeState('active');
+			this.activeAbility = true;
 		} else {
 			this.hideAbilityCosts();
+			this.activeAbility = false;
 		}
 	}
 

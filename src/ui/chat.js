@@ -17,6 +17,7 @@ export class Chat {
 			game.UI.chat.toggle();
 		});
 		this.messages = [];
+		this.isOpen = false;
 
 		$j('#combatwrapper, #toppanel, #dash, #endscreen').bind('click', () => {
 			game.UI.chat.hide();
@@ -25,15 +26,18 @@ export class Chat {
 
 	show() {
 		this.$chat.addClass('focus');
+		this.isOpen = true;
 	}
 
 	hide() {
 		this.$chat.removeClass('focus');
+		this.isOpen = false;
 	}
 
 	toggle() {
 		this.$chat.toggleClass('focus');
 		this.$content.parent().scrollTop(this.$content.height());
+		this.isOpen = !this.isOpen;
 	}
 
 	getCurrentTime() {
