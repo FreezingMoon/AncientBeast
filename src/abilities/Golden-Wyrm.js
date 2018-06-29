@@ -4,9 +4,9 @@ import * as matrices from '../utility/matrices';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[33] = [
@@ -49,7 +49,7 @@ export default G => {
 						let optArg = {
 							effectFn: function(effect, crea) {
 								let nearFungus = false;
-								crea.adjacentHexes(1).forEach(function(hex) {
+								crea.adjacentHexes(1).forEach(function() {
 									if (trg.creature instanceof Creature) {
 										if (G.creatures[trg.creature] === effect.owner) {
 											nearFungus = true;
@@ -58,9 +58,9 @@ export default G => {
 								});
 
 								if (!nearFungus) {
-									crea.effects.forEach(function(effect) {
-										if (effect.name == 'Contaminated') {
-											effect.deleteEffect();
+									crea.effects.forEach(function(eff) {
+										if (eff.name == 'Contaminated') {
+											eff.deleteEffect();
 										}
 									});
 								}
@@ -82,9 +82,9 @@ export default G => {
 						);
 
 						let validTarget = true;
-						trg.effects.forEach(function(effect) {
-							if (effect.name == 'Contaminated') {
-								if (effect.turn == G.turn) {
+						trg.effects.forEach(function(eff) {
+							if (eff.name == 'Contaminated') {
+								if (eff.turn == G.turn) {
 									validTarget = false;
 								}
 							}
@@ -149,7 +149,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -172,7 +172,7 @@ export default G => {
 							ability.creature, // Target
 							'onStartPhase', // Trigger
 							{
-								effectFn: function(effect, crea) {
+								effectFn: function(effect) {
 									effect.deleteEffect();
 								},
 								alterations: {
@@ -202,7 +202,7 @@ export default G => {
 				return this.testRequirements();
 			},
 
-			fnOnSelect: function(hex, args) {
+			fnOnSelect: function(hex) {
 				this.creature.tracePosition({
 					x: hex.x,
 					y: hex.y,
@@ -234,7 +234,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(hex, args) {
+			activate: function(hex) {
 				let ability = this;
 				ability.end();
 
@@ -254,7 +254,7 @@ export default G => {
 						ability.creature, // Target
 						'onStepIn onEndPhase', // Trigger
 						{
-							effectFn: function(effect, crea) {
+							effectFn: function(effect) {
 								effect.deleteEffect();
 							},
 							alterations: {
@@ -320,7 +320,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 

@@ -3,9 +3,9 @@ import { Team } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[0] = [
@@ -15,7 +15,7 @@ export default G => {
 			trigger: 'onUnderAttack',
 
 			// 	require() :
-			require: function(damage) {
+			require: function() {
 				this.setUsed(false); // Can be triggered multiple times
 				this.creature.protectedFromFatigue = this.testRequirements();
 				return this.creature.protectedFromFatigue;
@@ -101,7 +101,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -185,7 +185,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -240,8 +240,6 @@ export default G => {
 
 			// 	query() :
 			query: function() {
-				let ability = this;
-
 				if (this.isUpgraded()) {
 					this.summonRange = 6;
 				}
@@ -302,9 +300,6 @@ export default G => {
 			activate: function(hex, args) {
 				let creature = args.creature;
 				let ability = this;
-
-				let creaStats = G.retreiveCreatureStats(creature);
-				let dpriest = this.creature;
 
 				let pos = {
 					x: hex.x,

@@ -3,9 +3,9 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[45] = [
@@ -83,7 +83,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 
 				ability.end();
@@ -258,7 +258,7 @@ export default G => {
 				let ability = this;
 				this.end();
 
-				var knockback = function(_target, _crush, _range) {
+				let knockback = (_target, _crush, _range) => {
 					let damage = new Damage(
 						ability.creature, // Attacker
 						{
@@ -292,7 +292,7 @@ export default G => {
 						hex = hexes[i];
 					}
 
-					let knockbackEnd = function() {
+					let knockbackEnd = () => {
 						// Special case when hitting left: the next hex is still the same
 						// creature, so continue in this direction until we reach the next
 						// creature

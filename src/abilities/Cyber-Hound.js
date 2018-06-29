@@ -5,9 +5,9 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[31] = [
@@ -97,7 +97,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -227,7 +227,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(choice, args) {
+			activate: function(choice) {
 				let ability = this;
 				ability.end();
 
@@ -348,7 +348,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(crea, args) {
+			activate: function(crea) {
 				let ability = this;
 				ability.end();
 
@@ -365,7 +365,9 @@ export default G => {
 				// Multiply damage by number of rockets
 				let damages = $j.extend({}, rocketLauncherAbility.damages);
 				for (let key in damages) {
-					damages[key] *= rocketsToUse;
+					if ({}.hasOwnProperty.call(damages, key)) {
+						damages[key] *= rocketsToUse;
+					}
 				}
 
 				G.log('%CreatureName' + this.creature.id + '% redirects ' + rocketsToUse + ' rocket(s)');
