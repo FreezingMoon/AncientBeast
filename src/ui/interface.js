@@ -282,6 +282,14 @@ export class UI {
 							case 'dash_right':
 								this.gridSelectRight();
 								break;
+							case 'scoreboard':
+								this.closeDash();
+								this.toggleScoreboard();
+								break;
+							case 'audio':
+								this.closeDash();
+								this.btnAudio.triggerClick();
+								break;
 						}
 						/* Check to see if scoreboard or chat is open first before
 						 * cancelling the active ability when using Esc hotkey
@@ -516,7 +524,7 @@ export class UI {
 		this.glowInterval = setInterval(() => {
 			let opa =
 				0.5 +
-				Math.floor((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4 * 100) / 100;
+				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
 
 			this.buttons.forEach(btn => {
 				btn.$button.css('opacity', '');
@@ -1186,6 +1194,9 @@ export class UI {
 		let game = this.game;
 
 		if (!this.$dash.hasClass('active')) {
+			// If the scoreboard is displayed, hide it
+			if (this.$scoreboard.is(':visible')) this.$scoreboard.hide();
+
 			if (randomize) {
 				const activePlayer = game.players[game.activeCreature.player.id];
 				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
@@ -1875,8 +1886,7 @@ export class UI {
 			}
 
 			// Animation
-			$v
-				.attr('verified', 1)
+			$v.attr('verified', 1)
 				.css({
 					x: offset
 				})
