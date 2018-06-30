@@ -75,11 +75,7 @@ export class UI {
 		this.btnAudio = new Button(
 			{
 				$button: $j('#audio.button'),
-				click: () => {
-					if (!this.dashopen) {
-						this.showMusicPlayer();
-					}
-				}
+				click: () => this.showMusicPlayer()
 			},
 			game
 		);
@@ -282,13 +278,12 @@ export class UI {
 							case 'dash_right':
 								this.gridSelectRight();
 								break;
+							case 'audio':
+								this.btnAudio.triggerClick();
+								break;
 							case 'scoreboard':
 								this.closeDash();
 								this.toggleScoreboard();
-								break;
-							case 'audio':
-								this.closeDash();
-								this.btnAudio.triggerClick();
 								break;
 						}
 						/* Check to see if scoreboard or chat is open first before
@@ -1046,6 +1041,9 @@ export class UI {
 
 	showMusicPlayer() {
 		let game = this.game;
+
+        // If the scoreboard is displayed, hide it
+        if (this.$scoreboard.is(':visible')) this.$scoreboard.hide();
 
 		this.$dash.addClass('active');
 		this.showCreature(game.activeCreature.type, game.activeCreature.team);
