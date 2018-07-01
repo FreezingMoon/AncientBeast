@@ -2141,9 +2141,9 @@ export class UI {
 				200,
 				'',
 				() => {
-					this.animate(
+					$queueItem.animate(
 						{
-							top: '-=' + this.css('top')
+							top: '-=' + $queueItem.css('top')
 						},
 						100
 					);

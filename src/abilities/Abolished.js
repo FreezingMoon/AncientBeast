@@ -4,9 +4,9 @@ import { Creature } from '../creature';
 import { Effect } from '../effect';
 import * as arrayUtils from '../utility/arrayUtils';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[7] = [
@@ -166,7 +166,7 @@ export default G => {
 					}
 				});
 			},
-			activate(hex, args) {
+			activate(hex) {
 				let ability = this;
 				ability.end();
 
@@ -195,8 +195,7 @@ export default G => {
 				};
 
 				let requireFn = function() {
-					let hex = this.trap.hex,
-						creature = hex.creature,
+					let creature = this.trap.hex.creature,
 						type = (creature && creature.type) || null;
 
 					if (creature === 0) {
@@ -206,14 +205,14 @@ export default G => {
 				};
 
 				let crea = this.creature;
-				crea.hexagons.forEach(function(hex) {
-					hex.createTrap(
+				crea.hexagons.forEach(function(h) {
+					h.createTrap(
 						'firewall',
 						[
 							new Effect(
 								'Firewall',
 								crea,
-								hex,
+								h,
 								'onStepIn',
 								{
 									requireFn: requireFn,
@@ -261,7 +260,7 @@ export default G => {
 					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
-					fnOnSelect: function(hex, args) {
+					fnOnSelect: function(hex) {
 						range.forEach(function(item) {
 							if (item.creature) {
 								item.overlayVisualState('creature selected weakDmg player' + item.creature.team);
@@ -275,7 +274,7 @@ export default G => {
 					hideNonTarget: true
 				});
 			},
-			activate(hex, args) {
+			activate() {
 				let ability = this;
 				ability.end();
 

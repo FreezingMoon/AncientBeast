@@ -5,9 +5,9 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[14] = [
@@ -111,7 +111,7 @@ export default G => {
 				});
 			},
 
-			activate: function(hexes, args) {
+			activate: function(hexes) {
 				let ability = this;
 				ability.end();
 
@@ -120,7 +120,9 @@ export default G => {
 				let enemyDamages = $j.extend({}, ability.damages);
 				if (this.isUpgraded()) {
 					for (let k in enemyDamages) {
-						enemyDamages[k] *= 2;
+						if ({}.hasOwnProperty.call(enemyDamages, k)) {
+							enemyDamages[k] *= 2;
+						}
 					}
 				}
 				// See areaDamage()
@@ -196,7 +198,7 @@ export default G => {
 								let crea = this.trap.hex.creature;
 								return crea && crea.type !== this.owner.type;
 							},
-							effectFn: function(effect, crea) {
+							effectFn: function(_, crea) {
 								if (this.trap.turnLifetime === 0) {
 									crea.remainingMove = 0;
 									// Destroy the trap on the trapped creature's turn
