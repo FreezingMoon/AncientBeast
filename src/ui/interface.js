@@ -286,8 +286,8 @@ export class UI {
 					} else {
 						switch (k) {
 							case 'close':
-								/* Check to see if scoreboard or chat is open first before
-								 * cancelling the active ability when using Esc hotkey
+								/* Check to see if dash view or chat are open first before
+								 * canceling the active ability when using Esc hotkey
 								 */
 								if (activeAbilityBool) {
 									game.grid.clearHexViewAlterations();
@@ -298,7 +298,7 @@ export class UI {
 
 								this.chat.hide();
 								this.$scoreboard.hide();
-								break; // Close chat and/or scoreboard if opened
+								break; // Close chat and/or dash view if open
 							case 'cycle':
 								this.selectNextAbility();
 								break;
