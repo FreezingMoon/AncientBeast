@@ -6,9 +6,9 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[6] = [
@@ -46,8 +46,8 @@ export default G => {
 								crea, // Target
 								'onOtherCreatureDeath', // Trigger
 								{
-									effectFn: function(effect, crea) {
-										let trg = effect.target;
+									effectFn: function(eff) {
+										let trg = eff.target;
 
 										let iceDemonArray = G.findCreature({
 											type: 'S7', // Ice Demon
@@ -117,7 +117,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path, args) {
+			activate: function(path) {
 				let ability = this;
 				ability.end();
 
@@ -386,9 +386,8 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(choice, args) {
+			activate: function(choice) {
 				let ability = this;
-				let crea = this.creature;
 
 				let creaturesHit = [];
 
@@ -446,7 +445,7 @@ export default G => {
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnSelect: function(path, args) {
+					fnOnSelect: function(path) {
 						let trg = arrayUtils.last(path).creature;
 
 						let hex = ability.creature.player.flipped
@@ -478,7 +477,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path, args) {
+			activate: function(path) {
 				let ability = this;
 				ability.end();
 
@@ -506,8 +505,8 @@ export default G => {
 					undefined, // Target
 					'', // Trigger
 					{
-						effectFn: function(effect) {
-							effect.target.stats.frozen = true;
+						effectFn: function(eff) {
+							eff.target.stats.frozen = true;
 							this.deleteEffect();
 						}
 					},

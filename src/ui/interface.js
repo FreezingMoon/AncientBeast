@@ -313,9 +313,19 @@ export class UI {
 					} else {
 						switch (k) {
 							case 'close':
+								/* Check to see if dash view or chat are open first before
+								 * canceling the active ability when using Esc hotkey
+								 */
+								if (activeAbilityBool) {
+									game.grid.clearHexViewAlterations();
+									game.activeCreature.queryMove();
+									this.selectAbility(-1);
+									break;
+								}
+
 								this.chat.hide();
 								this.$scoreboard.hide();
-								break; // Close chat and/or scoreboard if opened
+								break; // Close chat and/or dash view if open
 							case 'cycle':
 								this.selectNextAbility();
 								break;
@@ -2205,9 +2215,9 @@ export class UI {
 				200,
 				'',
 				() => {
-					this.animate(
+					$queueItem.animate(
 						{
-							top: '-=' + this.css('top')
+							top: '-=' + $queueItem.css('top')
 						},
 						100
 					);

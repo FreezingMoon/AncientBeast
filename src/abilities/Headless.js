@@ -5,9 +5,9 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[39] = [
@@ -145,7 +145,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -170,7 +170,7 @@ export default G => {
 					G
 				);
 
-				let dmg = target.takeDamage(damage);
+				target.takeDamage(damage);
 			}
 		},
 
@@ -300,7 +300,6 @@ export default G => {
 				ability.end();
 
 				//Movement
-				let creature = args.direction == 4 ? crea.hexagons[crea.size - 1] : crea.hexagons[0];
 				arrayUtils.filterCreature(path, false, false);
 				let destination = null;
 				let destinationTarget = null;
@@ -329,7 +328,7 @@ export default G => {
 						ignoreMovementPoint: true,
 						ignorePath: true,
 						callback: function() {
-							var interval = setInterval(function() {
+							let interval = setInterval(function() {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
@@ -345,7 +344,7 @@ export default G => {
 						ignoreMovementPoint: true,
 						ignorePath: true,
 						callback: function() {
-							var interval = setInterval(function() {
+							let interval = setInterval(function() {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();

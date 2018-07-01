@@ -6,9 +6,9 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 
-/**
- * Creates the abilities
+/** Creates the abilities
  * @param {Object} G the game object
+ * @return {void}
  */
 export default G => {
 	G.abilities[5] = [
@@ -92,7 +92,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target, args) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -185,9 +185,9 @@ export default G => {
 					this,
 					'onStepOut',
 					{
-						effectFn: function(effect) {
-							G.log('%CreatureName' + effect.target.id + '% is hit by ' + effect.name);
-							effect.target.takeDamage(new Damage(effect.owner, damages, 1, [], G), {
+						effectFn: function(eff) {
+							G.log('%CreatureName' + eff.target.id + '% is hit by ' + eff.name);
+							eff.target.takeDamage(new Damage(eff.owner, damages, 1, [], G), {
 								isFromTrap: true
 							});
 							// Hack: manually destroy traps so we don't activate multiple traps
@@ -195,7 +195,7 @@ export default G => {
 							target.hexagons.forEach(function(hex) {
 								hex.destroyTrap();
 							});
-							effect.deleteEffect();
+							eff.deleteEffect();
 						}
 					},
 					G
@@ -265,7 +265,7 @@ export default G => {
 
 				// For each Target
 				for (let i = 0; i < targets.length; i++) {
-					var trg = targets[i];
+					let trg = targets[i];
 
 					// If upgraded and the target is an ally, protect it with an effect that
 					// reduces the damage to guarantee at least 1 health remaining
