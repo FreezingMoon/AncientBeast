@@ -67,7 +67,7 @@ export default G => {
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
-			distance: 4,
+			distance: 3,
 			_targetTeam: Team.enemy,
 			require() {
 				if (!this.testRequirements()) {
