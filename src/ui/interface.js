@@ -55,7 +55,13 @@ export class UI {
 			{
 				$button: $j('.toggledash'),
 				click: () => {
-					this.toggleDash();
+                    // if dash is open and audio player is visible, just show creatures
+                    if (this.dashopen && ($j('#musicplayerwrapper').is(':visible'))) {
+                        $j('#musicplayerwrapper').hide();
+                        this.showCreature(game.activeCreature.type, game.activeCreature.team);
+                    } else {
+					   this.toggleDash();
+                    }
 				}
 			},
 			game
@@ -76,7 +82,7 @@ export class UI {
 			{
 				$button: $j('#audio.button'),
 				click: () => {
-					// if audio element was already active, hide dash
+					// if audio element was already active, close dash
 					if ($j('#musicplayerwrapper').is(':visible')) {
 						this.closeDash();
 					} else {
@@ -265,7 +271,7 @@ export class UI {
 						switch (k) {
 							case 'close':
 							case 'overview':
-								this.closeDash();
+								this.btnToggleDash.triggerClick();
 								break;
 							case 'ultimate':
 								this.closeDash();
