@@ -13,27 +13,27 @@ import { getUrl } from '../assetLoader';
  */
 export class UI {
 	/* Attributes
-	 *
-	 * NOTE : attributes and variables starting with $ are jquery element
-	 * and jquery function can be called dirrectly from them.
-	 *
-	 * $display :		UI container
-	 * $queue :		Queue container
-	 * $textbox :		Chat and log container
-	 * $activebox :	Current active creature panel (left panel) container
-	 * $dash :			Overview container
-	 * $grid :			Creature grid container
-	 *
-	 * selectedCreature :	String :	ID of the visible creature card
-	 * selectedPlayer :	Integer :	ID of the selected player in the dash
-	 *
-	 */
+     *
+     * NOTE : attributes and variables starting with $ are jquery element
+     * and jquery function can be called dirrectly from them.
+     *
+     * $display :		UI container
+     * $queue :		Queue container
+     * $textbox :		Chat and log container
+     * $activebox :	Current active creature panel (left panel) container
+     * $dash :			Overview container
+     * $grid :			Creature grid container
+     *
+     * selectedCreature :	String :	ID of the visible creature card
+     * selectedPlayer :	Integer :	ID of the selected player in the dash
+     *
+     */
 
 	/* Constructor
-	 *
-	 * Create attributes and default buttons
-	 *
-	 */
+     *
+     * Create attributes and default buttons
+     *
+     */
 	constructor(game) {
 		this.game = game;
 		this.$display = $j('#ui');
@@ -55,7 +55,13 @@ export class UI {
 			{
 				$button: $j('.toggledash'),
 				click: () => {
-					this.toggleDash();
+                    // if dash is open and audio player is visible, just show creatures
+                    if (this.dashopen && ($j('#musicplayerwrapper').is(':visible'))) {
+                        $j('#musicplayerwrapper').hide();
+                        this.showCreature(game.activeCreature.type, game.activeCreature.team);
+                    } else {
+					   this.toggleDash();
+                    }
 				}
 			},
 			game
@@ -76,7 +82,10 @@ export class UI {
 			{
 				$button: $j('#audio.button'),
 				click: () => {
-					if (!this.dashopen) {
+					// if audio element was already active, close dash
+					if ($j('#musicplayerwrapper').is(':visible')) {
+						this.closeDash();
+					} else {
 						this.showMusicPlayer();
 					}
 				}
@@ -262,7 +271,7 @@ export class UI {
 						switch (k) {
 							case 'close':
 							case 'overview':
-								this.closeDash();
+								this.btnToggleDash.triggerClick();
 								break;
 							case 'ultimate':
 								this.closeDash();
@@ -281,6 +290,24 @@ export class UI {
 								break;
 							case 'dash_right':
 								this.gridSelectRight();
+								break;
+							case 'audio':
+								this.btnAudio.triggerClick();
+								break;
+							case 'scoreboard':
+								this.closeDash();
+								this.toggleScoreboard();
+								break;
+						}
+						/* Check to see if scoreboard or chat is open first before
+                         * cancelling the active ability when using Esc hotkey
+                         */
+					} else if (activeAbilityBool) {
+						switch (k) {
+							case 'close':
+								game.grid.clearHexViewAlterations();
+								game.activeCreature.queryMove();
+								this.selectAbility(-1);
 								break;
 						}
 					} else {
@@ -515,7 +542,7 @@ export class UI {
 		this.glowInterval = setInterval(() => {
 			let opa =
 				0.5 +
-				Math.floor((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4 * 100) / 100;
+				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
 
 			this.buttons.forEach(btn => {
 				btn.$button.css('opacity', '');
@@ -640,13 +667,13 @@ export class UI {
 	}
 
 	/* showCreature(creatureType, player)
-	 *
-	 * creatureType :	String :	Creature type
-	 * player :		Integer :	Player ID
-	 *
-	 * Query a creature in the available creatures of the active player
-	 *
-	 */
+     *
+     * creatureType :	String :	Creature type
+     * player :		Integer :	Player ID
+     *
+     * Query a creature in the available creatures of the active player
+     *
+     */
 	showCreature(creatureType, player) {
 		let game = this.game;
 
@@ -971,11 +998,11 @@ export class UI {
 	}
 
 	/* changePlayerTab(id)
-	 *
-	 * id :	Integer :	player id
-	 *
-	 * Change to the specified player tab in the dash
-	 */
+     *
+     * id :	Integer :	player id
+     *
+     * Change to the specified player tab in the dash
+     */
 	changePlayerTab(id) {
 		let game = this.game;
 
@@ -1038,6 +1065,9 @@ export class UI {
 	showMusicPlayer() {
 		let game = this.game;
 
+		// If the scoreboard is displayed, hide it
+		if (this.$scoreboard.is(':visible')) this.$scoreboard.hide();
+
 		this.$dash.addClass('active');
 		this.showCreature(game.activeCreature.type, game.activeCreature.team);
 		this.selectedPlayer = -1;
@@ -1074,20 +1104,62 @@ export class UI {
 
 		// Clear table
 		const tableMeta = [
-			{ cls: 'player_name', title: 'Players' },
-			{ cls: 'firstKill', title: 'First blood' },
-			{ cls: 'kill', title: 'Kills' },
-			{ cls: 'combo', title: 'Combos' },
-			{ cls: 'humiliation', title: 'Humiliation' },
-			{ cls: 'annihilation', title: 'Annihilation' },
-			{ cls: 'deny', title: 'Denies' },
-			{ cls: 'pickupDrop', title: 'Drops picked' },
-			{ cls: 'timebonus', title: 'Time Bonus' },
-			{ cls: 'nofleeing', title: 'No Fleeing' },
-			{ cls: 'creaturebonus', title: 'Survivor Units' },
-			{ cls: 'darkpriestbonus', title: 'Survivor Dark Priest' },
-			{ cls: 'immortal', title: 'Immortal' },
-			{ cls: 'total', title: 'Total' }
+			{
+				cls: 'player_name',
+				title: 'Players'
+			},
+			{
+				cls: 'firstKill',
+				title: 'First blood'
+			},
+			{
+				cls: 'kill',
+				title: 'Kills'
+			},
+			{
+				cls: 'combo',
+				title: 'Combos'
+			},
+			{
+				cls: 'humiliation',
+				title: 'Humiliation'
+			},
+			{
+				cls: 'annihilation',
+				title: 'Annihilation'
+			},
+			{
+				cls: 'deny',
+				title: 'Denies'
+			},
+			{
+				cls: 'pickupDrop',
+				title: 'Drops picked'
+			},
+			{
+				cls: 'timebonus',
+				title: 'Time Bonus'
+			},
+			{
+				cls: 'nofleeing',
+				title: 'No Fleeing'
+			},
+			{
+				cls: 'creaturebonus',
+				title: 'Survivor Units'
+			},
+			{
+				cls: 'darkpriestbonus',
+				title: 'Survivor Dark Priest'
+			},
+			{
+				cls: 'immortal',
+				title: 'Immortal'
+			},
+			{
+				cls: 'total',
+				title: 'Total'
+			}
 		];
 
 		tableMeta.forEach(row => {
@@ -1176,15 +1248,18 @@ export class UI {
 	}
 
 	/* toggleDash()
-	 *
-	 * Show the dash and hide some buttons
-	 * Takes optional 'randomize' parameter to select a random creature from the grid.
-	 */
+     *
+     * Show the dash and hide some buttons
+     * Takes optional 'randomize' parameter to select a random creature from the grid.
+     */
 
 	toggleDash(randomize) {
 		let game = this.game;
 
 		if (!this.$dash.hasClass('active')) {
+			// If the scoreboard is displayed, hide it
+			if (this.$scoreboard.is(':visible')) this.$scoreboard.hide();
+
 			if (randomize) {
 				const activePlayer = game.players[game.activeCreature.player.id];
 				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
@@ -1418,9 +1493,9 @@ export class UI {
 	}
 
 	/* updateActiveBox()
-	 *
-	 * Update activebox with new current creature's abilities
-	 */
+     *
+     * Update activebox with new current creature's abilities
+     */
 	updateActivebox() {
 		let game = this.game,
 			creature = game.activeCreature,
@@ -1650,7 +1725,7 @@ export class UI {
 	}
 
 	/* updateInfos()
-	 */
+     */
 	updateInfos() {
 		let game = this.game;
 
@@ -1722,7 +1797,7 @@ export class UI {
 	}
 
 	/* updateTimer()
-	 */
+     */
 	updateTimer() {
 		let game = this.game,
 			date = new Date() - game.pauseTime;
@@ -1782,10 +1857,10 @@ export class UI {
 	}
 
 	/* updateQueueDisplay()
-	 *
-	 * Delete and add element to the Queue container based on the game's queues
-	 * TODO: Ugly as hell need rewrite
-	 */
+     *
+     * Delete and add element to the Queue container based on the game's queues
+     * TODO: Ugly as hell need rewrite
+     */
 	updateQueueDisplay(excludeActiveCreature) {
 		let game = this.game;
 
@@ -1874,8 +1949,7 @@ export class UI {
 			}
 
 			// Animation
-			$v
-				.attr('verified', 1)
+			$v.attr('verified', 1)
 				.css({
 					x: offset
 				})
