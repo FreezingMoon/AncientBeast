@@ -1120,39 +1120,30 @@ export default class Game {
 	// Removed individual args from definition because we are using the arguments variable.
 	onCreatureDeath(/* creature, callback */) {
 		let creature = arguments[0],
-			totalTraps = this.grid.traps.length,
-			totalEffects = this.effects.length,
 			trap,
 			effect,
 			i;
 
 		this.triggerAbility('onCreatureDeath', arguments);
 		this.triggerEffect('onCreatureDeath', [creature, creature]);
+
 		// Looks for traps owned by this creature and destroy them
-		for (i = 0; i < totalTraps; i++) {
-			trap = this.grid.traps[i];
+		this.grid.traps
+			.filter(
+				trap => trap.turnLifetime > 0 && trap.fullTurnLifetime && trap.ownerCreature == creature
+			)
+			.forEach(trap => trap.destroy());
 
-			if (trap === undefined) {
-				continue;
-			}
-
-			if (trap.turnLifetime > 0 && trap.fullTurnLifetime && trap.ownerCreature == creature) {
-				trap.destroy();
-				i--;
-			}
-		}
 		// Look for effects owned by this creature and destroy them if necessary
-		for (i = 0; i < totalEffects; i++) {
-			effect = this.effects[i];
-			if (effect.owner === creature && effect.deleteOnOwnerDeath) {
+		this.effects
+			.filter(effect => effect.owner === creature && effect.deleteOnOwnerDeath)
+			.forEach(effect => {
 				effect.deleteEffect();
 				// Update UI in case effect changes it
 				if (effect.target) {
 					effect.target.updateHealth();
 				}
-				i--;
-			}
-		}
+			});
 	}
 
 	onCreatureSummon(creature, callback) {
