@@ -55,13 +55,13 @@ export class UI {
 			{
 				$button: $j('.toggledash'),
 				click: () => {
-                    // if dash is open and audio player is visible, just show creatures
-                    if (this.dashopen && ($j('#musicplayerwrapper').is(':visible'))) {
-                        $j('#musicplayerwrapper').hide();
-                        this.showCreature(game.activeCreature.type, game.activeCreature.team);
-                    } else {
-					   this.toggleDash();
-                    }
+					// if dash is open and audio player is visible, just show creatures
+					if (this.dashopen && $j('#musicplayerwrapper').is(':visible')) {
+						$j('#musicplayerwrapper').hide();
+						this.showCreature(game.activeCreature.type, game.activeCreature.team);
+					} else {
+						this.toggleDash();
+					}
 				}
 			},
 			game
@@ -542,7 +542,7 @@ export class UI {
 		this.glowInterval = setInterval(() => {
 			let opa =
 				0.5 +
-				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
+				Math.floor((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4 * 100) / 100;
 
 			this.buttons.forEach(btn => {
 				btn.$button.css('opacity', '');
@@ -1949,7 +1949,8 @@ export class UI {
 			}
 
 			// Animation
-			$v.attr('verified', 1)
+			$v
+				.attr('verified', 1)
 				.css({
 					x: offset
 				})
