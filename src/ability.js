@@ -167,8 +167,25 @@ export class Ability {
 	postActivate() {
 		this.timesUsed++;
 		this.timesUsedThisTurn++;
+
 		// Update upgrade information
 		this.game.UI.updateAbilityButtonsContent();
+
+		// Configure score update for player
+		// When the ability is upgraded, add a single score bonus unique to that ability
+		if (this.isUpgraded()) {
+			// Upgrade bonus uniqueness managed by preventing multiple bonuses
+			// with the same ability ID
+			const bonus ={
+				type: 'upgrade',
+				ability: this.id
+			};
+
+			// Only add the bonus when it has not already been awarded
+			if (!this.creature.player.score.find(b => b.type === bonus.type && b.ability === bonus.ability)) {
+				this.creature.player.score.push(bonus);
+			}
+		}
 	}
 
 	/**

@@ -131,7 +131,8 @@ export class Player {
 				darkpriestbonus: 0,
 				immortal: 0,
 				total: 0,
-				pickupDrop: 0
+				pickupDrop: 0,
+				upgrade: 0
 			};
 
 		for (let i = 0; i < total; i++) {
@@ -175,6 +176,9 @@ export class Player {
 				case 'pickupDrop':
 					points += 2;
 					break;
+			case 'upgrade':
+				points += 1;
+				break;
 			}
 
 			totalScore[s.type] += points;
