@@ -39,7 +39,7 @@
 				"title": "Plasma Field",
 				"desc": "Protects from most harmful abilities when unit not being currently active.",
 				"info": "-1 plasma for each countered attack.",
-				"upgrade": "5 pure damage counter hit.",
+				"upgrade": "9 pure damage counter hit.",
 				"costs": {
 					"plasma": 1,
 					"special": "per countered attack"

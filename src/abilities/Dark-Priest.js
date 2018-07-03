@@ -33,7 +33,7 @@ export default G => {
 					let counter = new Damage(
 						this.creature, // Attacker
 						{
-							pure: 5
+							pure: 9
 						}, // Damage Type
 						1, // Area
 						[], // Effects
