@@ -83,7 +83,7 @@ For a more comprehensive guide on how to help out the project, you can check out
 
 ### Report Issues
 
-If you encounter any problems with this version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues). 
+If you encounter any problems with this version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues).
 Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues.  
 You can use this function from the browser console window in order to fetch the match log `AB.getLog()`.
 In order to open up Google Chrome browser's console, you can simply press `Ctrl + Shift + J` hotkeys.
@@ -109,7 +109,7 @@ yarn start:dev
 
 Keep in mind that you'll have to refresh the webpage after making changes. Make sure to disable browser caching by using `Ctrl + Shift + J`, then going to the **Network** tab and checking **Disable cache**.
 
-![Chrome dev tools](https://i.stack.imgur.com/Grwsc.png)
+![disable cache](/docs/img/disable-cache.png)
 
 ### Next Step
 
