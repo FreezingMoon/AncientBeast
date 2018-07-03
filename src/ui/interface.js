@@ -1157,6 +1157,10 @@ export class UI {
 				title: 'Immortal'
 			},
 			{
+				cls: 'upgrade',
+				title: 'Ability Upgrades'
+			},
+			{
 				cls: 'total',
 				title: 'Total'
 			}
@@ -1166,7 +1170,7 @@ export class UI {
 			$table
 				.find(`tr.${row.cls}`)
 				.empty()
-				.html(`<td>${row.title}`);
+				.html(`<td>${row.title}</td>`);
 
 			// Add cells for each player
 			for (let i = 0; i < game.playerMode; i++) {
