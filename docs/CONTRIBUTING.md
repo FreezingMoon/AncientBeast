@@ -4,7 +4,7 @@ You can help out the project by just ★ starring this repository from the upper
 
 ## Getting Started
 
-It's very easy to set-up a local server in order to test and contribute to the development version of this game project.<br>
+It's very easy to set-up a local server in order to test and contribute to the development version of this game project.
 It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, named [Phaser](http://phaser.io).
 
 ### Recommended Tool
@@ -15,8 +15,8 @@ If you're not very keen on using git from the CLI, I highly recommend using [Vis
 
 You can create a clone of the project by using git from CLI or with the use of a tool, like the one recommended above.
 
-```
-https://github.com/FreezingMoon/AncientBeast.git
+```sh
+$ git clone https://github.com/FreezingMoon/AncientBeast.git
 ```
 
 In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P` hotkey, search for `Git: Clone` and then input the link in the given field.
@@ -25,22 +25,28 @@ In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P
 
 ### Package Requirements
 
-First install (or make sure you have) the latest LTS version of [Node.js](http://nodejs.org).
+First install (or make sure you have) the latest LTS version of [Node.js](http://nodejs.org). `nvm` is a tool that makes it easy to manage local node installations. You can [find installation instructions here](https://github.com/creationix/nvm#installation), and use it like:
 
-Linux users: if you installed from repository, you _might_ need to create a path link.
+```sh
+$ nvm install 8  # if 8 is the latest LTS release
+$ nvm use 8  # to use 8 now
+$ nvm alias default 8  # to make 8 your default
+```
 
-After you've successfully installed the Node.js package, proceed with installing the latest version of [Yarn](https://yarnpkg.com/en/docs/install), which is our tool of choice for package dependency management.
+NB: Linux users: if you installed from repository, you _might_ need to create a path link.
+
+After you've successfully installed the Node.js package, proceed with installing the latest version of [Yarn](https://yarnpkg.com/en/docs/install), which is our tool of choice for package dependency management. Typically, this should consist of running `npm install -g yarn`.
 
 ### Installing Dependencies
 
 In the terminal (`Ctrl + ~` in [VCS](https://code.visualstudio.com/download)), use the following command in order to easily install all the project dependencies:
 
-```
-yarn install
+```sh
+$ yarn install
 ```
 
-This will read `package.json` and install all of the gameplay established yarn package dependencies.<br>
-The `yarn install` command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again, which will also compile the project, same as the `yarn build:dev` command.<br>
+This will read `package.json` and install all of the gameplay established yarn package dependencies.
+The `yarn install` command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again, which will also compile the project, same as the `yarn build:dev` command.
 
 If you're using Windows OS and getting errors, have your desired tool `Run as administrator` or to disable your anti-virus.
 
@@ -48,21 +54,23 @@ If you're using Windows OS and getting errors, have your desired tool `Run as ad
 
 In order to build the development version of the game (also done by `yarn install`), run the following command:
 
+```sh
+$ yarn build:dev
 ```
-yarn build:dev
-```
+
+If you receive errors about the manifest or assets loading, try running `yarn generateManifest`. This will create an assets manifest file for the app.
 
 ### Betatest Game
 
 To have the game up and running, simply run this command in the terminal, it will copy the link to the clipboard:
 
-```
-yarn start
+```sh
+$ yarn start
 ```
 
-You should open the game link using <a href="https://www.google.com/chrome/"><b>Google Chrome</b></a> or <a href="https://www.chromium.org"><b>Chromium</b></a>, as other browsers don't usually quite cut it.
+You should open the game link using [Chromium](https://www.chromium.org) or [Google Chrome](https://www.google.com/chrome/), as support for other browsers is not guaranteed.
 
-You can always test the latest master without any hassle from https://ancientbeast-beta.herokuapp.com deploy.
+You can always [test the latest master without any hassle here](https://ancientbeast-beta.herokuapp.com).
 
 A handy tip while testing: you can right click the game tab and mute it by simply clicking the `Mute site` option.
 
@@ -70,15 +78,22 @@ A handy tip while testing: you can right click the game tab and mute it by simpl
 
 ## Getting Involved
 
-After you've playtested the development version of the game, there are 2 main ways you can contribute to the project.<br>
+After you've playtested the development version of the game, there are 2 main ways you can contribute to the project.
 For a more comprehensive guide on how to help out the project, you can check out the [Make Your Contribution](https://AncientBeast.com/contribute) guide.
 
 ### Report Issues
 
-If you encounter any problems with this version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues).<br>
-Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues.<br>
-You can use this function from the browser console window in order to fetch the match log `AB.getLog()`.<br>
-To replay a match, you can start a new game and paste the log between brackets of `AB.restoreGame()`.<br>
+If you encounter any problems with this version, you can report them to our [GitHub Issue tracker](https://github.com/FreezingMoon/AncientBeast/issues). 
+Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues. 
+You can use this function from the browser console window in order to fetch the match log `AB.getLog()`.
+
+![example get log](/docs/img/example-get-game-log.png)
+
+To replay a match, load the site, but do not click "Start Game." Paste the log between brackets of `AB.restoreGame()`. NB: You may need to return focus to the browser by clicking _into_ the game after running `restoreGame`. Otherwise, you may experience a loading bar that does not disappear.
+
+![example restore log](/docs/img/example-restore-game-log.png)
+
+
 In order to open up Google Chrome browser's console, you can simply press `Ctrl + Shift + J` hotkeys.
 
 ### Patch Game
@@ -88,8 +103,8 @@ You should look around on GitHub Issue tracker for open issues, priority being t
 
 In order to patch the game and constantly test it, run it using this command, which will keep track of any file changes:
 
-```
-yarn start:dev
+```sh
+$ yarn start:dev
 ```
 
 Keep in mind that you'll have to refresh the webpage after making changes. Make sure to disable browser caching by using `Ctrl + Shift + J`, then going to the **Network** tab and checking **Disable cache**.
