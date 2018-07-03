@@ -192,6 +192,7 @@ export default G => {
 						isFromTrap: true
 					});
 					this.trap.destroy();
+					effect.deleteEffect();
 				};
 
 				let requireFn = function() {
