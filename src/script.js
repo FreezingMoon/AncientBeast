@@ -79,6 +79,10 @@ $j(document).ready(() => {
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);
+
+	// Focus the form to enable "press enter to start the game" functionality
+	$j('#p2').focus();
+
 	$j('form#gameSetup').submit(e => {
 		e.preventDefault(); // Prevent submit
 
