@@ -263,9 +263,8 @@ export default G => {
 					},
 					fnOnSelect: function(hex) {
 						range.forEach(function(item) {
-							if (item.creature) {
-								item.overlayVisualState('creature selected weakDmg player' + item.creature.team);
-							}
+							item.cleanOverlayVisualState();
+							item.overlayVisualState('creature selected player' + G.activeCreature.team);
 						});
 						hex.cleanOverlayVisualState();
 						hex.overlayVisualState('creature selected player' + G.activeCreature.team);
