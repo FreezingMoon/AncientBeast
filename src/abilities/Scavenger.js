@@ -379,7 +379,8 @@ export default G => {
 										1,
 										[],
 										G
-									)
+									),
+									{ isFromTrap: true }
 								);
 							}
 						},
