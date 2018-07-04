@@ -19,13 +19,13 @@ You can create a clone of the project by using git from CLI or with the use of a
 git clone https://github.com/FreezingMoon/AncientBeast.git
 ```
 
-In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P` hotkey, search for `Git: Clone` and then input just the link in the given field.
+In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P` hotkey, search for `Git: Clone` and then input [just the link](https://github.com/FreezingMoon/AncientBeast.git) in the given field.
 
 ---
 
 ### Package Requirements
 
-First install (or make sure you have) the latest LTS version of [Node.js](http://nodejs.org). `nvm` is a tool that makes it easy to manage local node installations. You can [find installation instructions here](https://github.com/creationix/nvm#installation), and use it like:
+First install (or make sure you have) the latest LTS version of [Node.js](http://nodejs.org). In case you need to have different versions of it for other projects as well, you should definitely use `nvm` (Node version manager), which is a tool that makes it easy to manage multiple local Node installations. You can [find installation instructions here](https://github.com/creationix/nvm#installation), and then use it like:
 
 ```sh
 nvm install 8  # if 8 is the latest LTS release
