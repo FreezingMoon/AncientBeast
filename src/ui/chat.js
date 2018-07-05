@@ -22,6 +22,8 @@ export class Chat {
 		$j('#combatwrapper, #toppanel, #dash, #endscreen').bind('click', () => {
 			game.UI.chat.hide();
 		});
+
+		this.show();
 	}
 
 	show() {
