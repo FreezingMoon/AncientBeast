@@ -134,7 +134,7 @@ export default G => {
 				let dmg = target.takeDamage(damage);
 
 				if (dmg.damageObj.status === '') {
-					let amount = Math.max(Math.round(dmg.damages.total / 2), 1);
+					let amount = dmg.damages.total;
 
 					// If upgraded, heal immediately up to the amount of health lost so far;
 					// use the remainder as regrowth
@@ -164,9 +164,9 @@ export default G => {
 								}, // Optional arguments
 								G
 							),
-							'%CreatureName' + ability.creature.id + '% gained ' + amount + ' regrowth for now', // Custom Log
+							'%CreatureName' + ability.creature.id + '% gained ' + amount + ' regrowth for now', // Custom log
 							'Regrowth++'
-						); // Custom Hint
+						); // Custom hint
 					}
 				}
 

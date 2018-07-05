@@ -240,12 +240,12 @@
 		"size": 2,
 		"set": "Alpha",
 		"stats": {
-			"health": 132,
+			"health": 113,
 			"regrowth": 4,
-			"endurance": 55,
-			"energy": 75,
-			"meditation": 25,
-			"initiative": 80,
+			"endurance": 36,
+			"energy": 55,
+			"meditation": 45,
+			"initiative": 90,
 			"offense": 12,
 			"defense": 4,
 			"movement": 2,
@@ -287,12 +287,12 @@
 			},
 			{
 				"title": "Supper Chomp",
-				"desc": "Takes a huge bite out of nearby foe, restoring a minor amount of health.",
-				"info": "20 pierce damage, 1/2 as regrowth.",
+				"desc": "Takes a huge bite out of nearby foe, restoring the same amount of health.",
+				"info": "20 pierce damage, as regrowth too.",
 				"upgrade": "Instant healing until full.",
 				"effects": [
 					{
-						"special": "1/2 of damages as %regrowth%"
+						"special": "100% of damage as %regrowth%"
 					}
 				],
 				"damages": {
