@@ -144,7 +144,10 @@ export class Player {
 					points += 20;
 					break;
 				case 'kill':
-					points += s.creature.level * 5;
+					// Prevent issues with non-leveled creatures, e.g. Dark Priest
+					if (s.creature.level) {
+						points += s.creature.level * 5;
+					}
 					break;
 				case 'combo':
 					points += s.kills * 5;
@@ -176,9 +179,9 @@ export class Player {
 				case 'pickupDrop':
 					points += 2;
 					break;
-			case 'upgrade':
-				points += 1;
-				break;
+				case 'upgrade':
+					points += 1;
+					break;
 			}
 
 			totalScore[s.type] += points;
