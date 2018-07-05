@@ -176,9 +176,9 @@ export class Player {
 				case 'pickupDrop':
 					points += 2;
 					break;
-			case 'upgrade':
-				points += 1;
-				break;
+				case 'upgrade':
+					points += 1;
+					break;
 			}
 
 			totalScore[s.type] += points;

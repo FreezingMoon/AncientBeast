@@ -176,15 +176,16 @@ export class Ability {
 		if (this.isUpgraded()) {
 			// Upgrade bonus uniqueness managed by preventing multiple bonuses
 			// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the creature ID
-			const bonus ={
+			const bonus = {
 				type: 'upgrade',
 				ability: this.id,
 				creature: this.creature.id
 			};
 
-			const find = scorePart => scorePart.type === bonus.type &&
-			      scorePart.ability === bonus.ability &&
-			      scorePart.creature === bonus.creature;
+			const find = scorePart =>
+				scorePart.type === bonus.type &&
+				scorePart.ability === bonus.ability &&
+				scorePart.creature === bonus.creature;
 
 			// Only add the bonus when it has not already been awarded
 			if (!this.creature.player.score.find(find)) {

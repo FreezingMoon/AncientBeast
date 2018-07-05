@@ -129,10 +129,24 @@ export class Creature {
 
 		this.updateHex();
 
-		let dp =
-			this.type !== '--'
-				? ''
-				: this.team === 0 ? 'red' : this.team === 1 ? 'blue' : this.team === 2 ? 'orange' : 'green';
+		let dp = '';
+
+		if (this.type === '--') {
+			switch (this.team) {
+				case 0:
+					dp = 'red';
+					break;
+				case 1:
+					dp = 'blue';
+					break;
+				case 2:
+					dp = 'orange';
+					break;
+				case 3:
+					dp = 'green';
+					break;
+			}
+		}
 
 		// Creature Container
 		this.grp = game.Phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + this.id);
@@ -309,7 +323,7 @@ export class Creature {
 		// Frozen effect
 		if (stats.frozen) {
 			varReset();
-			var interval = setInterval(() => {
+			let interval = setInterval(() => {
 				if (!game.turnThrottle) {
 					clearInterval(interval);
 					game.skipTurn({
@@ -329,7 +343,7 @@ export class Creature {
 
 		this.materializationSickness = false;
 
-		var interval = setInterval(() => {
+		let interval = setInterval(() => {
 			if (!game.freezedInput) {
 				clearInterval(interval);
 				if (game.turn >= game.minimumTurnBeforeFleeing) {
@@ -351,8 +365,8 @@ export class Creature {
 	 */
 	deactivate(wait) {
 		let game = this.game;
-
-		this.hasWait = this.delayed = Boolean(wait);
+		this.delayed = Boolean(wait);
+		this.hasWait = this.delayed;
 		this.stats.frozen = false;
 
 		// Effects triggers
@@ -618,10 +632,12 @@ export class Creature {
 			}
 		}
 
+		let flipped;
+
 		if (facefrom.y % 2 === 0) {
-			var flipped = faceto.x <= facefrom.x;
+			flipped = faceto.x <= facefrom.x;
 		} else {
-			var flipped = faceto.x < facefrom.x;
+			flipped = faceto.x < facefrom.x;
 		}
 
 		if (flipped) {
@@ -722,8 +738,7 @@ export class Creature {
 	 *
 	 */
 	tracePath(hex) {
-		let game = this.game,
-			x = hex.x,
+		let x = hex.x,
 			y = hex.y,
 			path = this.calculatePath(x, y); // Store path in grid to be able to compare it later
 
@@ -814,9 +829,9 @@ export class Creature {
 	 *
 	 */
 	calcOffset(x, y) {
-		let offset = game.players[this.team].flipped ? this.size - 1 : 0,
-			mult = game.players[this.team].flipped ? 1 : -1, // For FLIPPED player
-			game = this.game;
+		let game = this.game,
+			offset = game.players[this.team].flipped ? this.size - 1 : 0,
+			mult = game.players[this.team].flipped ? 1 : -1; // For FLIPPED player
 
 		for (let i = 0; i < this.size; i++) {
 			// Try next hexagons to see if they fit
@@ -1007,9 +1022,10 @@ export class Creature {
 		}
 	}
 
-	/**
+	/** recharge
+	 * @param {number} amount: amount of energy to restore
+	 * @return {void}
 	 * Restore energy up to the max limit
-	 * amount: amount of energy to restore
 	 */
 	recharge(amount) {
 		this.energy = Math.min(this.stats.energy, this.energy + amount);
@@ -1276,12 +1292,13 @@ export class Creature {
 		}
 	}
 
-	/**
+	/** replaceEffect
 	 * Add effect, but if the effect is already attached, replace it with the new
 	 * effect.
 	 * Note that for stackable effects, this is the same as addEffect()
 	 *
-	 * effect - the effect to add
+	 * @param {Effect} effect: the effect to add
+	 * @return {void}
 	 */
 	replaceEffect(effect) {
 		if (!effect.stackable && this.findEffect(effect.name).length !== 0) {
@@ -1291,10 +1308,11 @@ export class Creature {
 		this.addEffect(effect);
 	}
 
-	/**
+	/** removeEffect
 	 * Remove an effect by name
 	 *
-	 * name - name of effect
+	 * @param {string} name: name of effect
+	 * @return {void}
 	 */
 	removeEffect(name) {
 		let totalEffects = this.effects.length;
@@ -1649,7 +1667,6 @@ export class Creature {
 
 	getBuffDebuff(stat) {
 		let buffDebuffArray = this.effects.concat(this.dropCollection),
-			buff = 0,
 			debuff = 0,
 			buffObjs = {
 				effects: [],
@@ -1712,7 +1729,7 @@ export class Creature {
 		});
 
 		return {
-			buff: buff,
+			buff: 0,
 			debuff: debuff,
 			objs: buffObjs
 		};

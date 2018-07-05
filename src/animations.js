@@ -19,8 +19,8 @@ export class Animations {
 
 		game.freezedInput = true;
 
-		let anim_id = Math.random();
-		game.animationQueue.push(anim_id);
+		let animId = Math.random();
+		game.animationQueue.push(animId);
 
 		let hexId = 0;
 
@@ -32,7 +32,7 @@ export class Animations {
 			if (hexId < path.length && (creature.remainingMove > 0 || opts.ignoreMovementPoint)) {
 				this.leaveHex(creature, hex, opts);
 			} else {
-				this.movementComplete(creature, path[path.length - 1], anim_id, opts);
+				this.movementComplete(creature, path[path.length - 1], animId, opts);
 				return;
 			}
 
@@ -41,7 +41,7 @@ export class Animations {
 
 			let tween = game.Phaser.add
 				.tween(creature.grp)
-				.to(nextPos.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
+				.to(nextPos.displayPos, parseInt(speed, 10), Phaser.Easing.Linear.None)
 				.start();
 
 			// Ignore traps for hover creatures, unless this is the last hex
@@ -55,7 +55,7 @@ export class Animations {
 			tween.onComplete.add(() => {
 				if (creature.dead) {
 					// Stop moving if creature has died while moving
-					this.movementComplete(creature, hex, anim_id, opts);
+					this.movementComplete(creature, hex, animId, opts);
 					return;
 				}
 
@@ -93,10 +93,8 @@ export class Animations {
 
 		game.freezedInput = true;
 
-		let anim_id = Math.random();
-		game.animationQueue.push(anim_id);
-
-		let hexId = 0;
+		let animId = Math.random();
+		game.animationQueue.push(animId);
 
 		creature.healthHide();
 
@@ -111,7 +109,7 @@ export class Animations {
 
 		let tween = game.Phaser.add
 			.tween(creature.grp)
-			.to(currentHex.displayPos, parseInt(speed), Phaser.Easing.Linear.None)
+			.to(currentHex.displayPos, parseInt(speed, 10), Phaser.Easing.Linear.None)
 			.start();
 
 		tween.onComplete.add(() => {
@@ -122,7 +120,7 @@ export class Animations {
 				// Determine distance
 				let distance = 0;
 				let k = 0;
-				while (!distance && start != currentHex) {
+				while (!distance) {
 					k++;
 
 					if (arrayUtils.findPos(start.adjacentHex(k), currentHex)) {
@@ -137,7 +135,7 @@ export class Animations {
 			}
 
 			this.enterHex(creature, hex, opts);
-			this.movementComplete(creature, hex, anim_id, opts);
+			this.movementComplete(creature, hex, animId, opts);
 			return;
 		});
 	}
@@ -149,8 +147,8 @@ export class Animations {
 
 		this.leaveHex(creature, currentHex, opts);
 
-		let anim_id = Math.random();
-		game.animationQueue.push(anim_id);
+		let animId = Math.random();
+		game.animationQueue.push(animId);
 
 		// FadeOut
 		let tween = game.Phaser.add
@@ -173,7 +171,7 @@ export class Animations {
 			creature.grp.y = currentHex.displayPos.y;
 
 			// FadeIn
-			let tween = game.Phaser.add
+			game.Phaser.add
 				.tween(creature.grp)
 				.to(
 					{
@@ -185,7 +183,7 @@ export class Animations {
 				.start();
 
 			this.enterHex(creature, hex, opts);
-			this.movementComplete(creature, hex, anim_id, opts);
+			this.movementComplete(creature, hex, animId, opts);
 			return;
 		});
 	}
@@ -226,7 +224,7 @@ export class Animations {
 		game.grid.orderCreatureZ();
 	}
 
-	movementComplete(creature, hex, anim_id, opts) {
+	movementComplete(creature, hex, animId, opts) {
 		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
@@ -243,13 +241,13 @@ export class Animations {
 
 		game.onCreatureMove(creature, hex); // Trigger
 
-		creature.hexagons.forEach(hex => {
-			hex.pickupDrop(creature);
+		creature.hexagons.forEach(h => {
+			h.pickupDrop(creature);
 		});
 
 		game.grid.orderCreatureZ();
 
-		let queue = game.animationQueue.filter(item => item != anim_id);
+		let queue = game.animationQueue.filter(item => item != animId);
 
 		if (queue.length === 0) {
 			game.freezedInput = false;
@@ -258,19 +256,19 @@ export class Animations {
 		game.animationQueue = queue;
 	}
 
-	projectile(this_2, target, sprite_id, path, args, start_x, start_y) {
+	projectile(this2, target, spriteId, path, args, startX, startY) {
 		let game = this.game,
 			dist = arrayUtils.filterCreature(path.slice(0), false, false).length,
 			emissionPoint = {
-				x: this_2.creature.grp.x + start_x,
-				y: this_2.creature.grp.y + start_y
+				x: this2.creature.grp.x + startX,
+				y: this2.creature.grp.y + startY
 			},
 			targetPoint = {
 				x: target.grp.x + 52,
 				y: target.grp.y - 20
 			},
 			// Sprite id here
-			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, sprite_id),
+			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, spriteId),
 			duration = dist * 75;
 
 		sprite.anchor.setTo(0.5);

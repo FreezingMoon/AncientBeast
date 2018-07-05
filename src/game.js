@@ -1119,10 +1119,7 @@ export default class Game {
 
 	// Removed individual args from definition because we are using the arguments variable.
 	onCreatureDeath(/* creature, callback */) {
-		let creature = arguments[0],
-			trap,
-			effect,
-			i;
+		let creature = arguments[0];
 
 		this.triggerAbility('onCreatureDeath', arguments);
 		this.triggerEffect('onCreatureDeath', [creature, creature]);
