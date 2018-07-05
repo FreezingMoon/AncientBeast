@@ -176,15 +176,16 @@ export class Ability {
 		if (this.isUpgraded()) {
 			// Upgrade bonus uniqueness managed by preventing multiple bonuses
 			// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the creature ID
-			const bonus ={
+			const bonus = {
 				type: 'upgrade',
 				ability: this.id,
 				creature: this.creature.id
 			};
 
-			const find = scorePart => scorePart.type === bonus.type &&
-			      scorePart.ability === bonus.ability &&
-			      scorePart.creature === bonus.creature;
+			const find = scorePart =>
+				scorePart.type === bonus.type &&
+				scorePart.ability === bonus.ability &&
+				scorePart.creature === bonus.creature;
 
 			// Only add the bonus when it has not already been awarded
 			if (!this.creature.player.score.find(find)) {
@@ -370,7 +371,11 @@ export class Ability {
 	 * @return {string|Boolean} cost
 	 */
 	getFormattedCosts() {
-		return !this.costs ? false : this.getFormattedDamages(this.costs);
+		if (this.costs) {
+			return this.getFormattedDamages(this.costs);
+		}
+
+		return false;
 	}
 
 	/**
@@ -379,11 +384,11 @@ export class Ability {
 	 * @return {boolean|string} damage
 	 */
 	getFormattedDamages(obj) {
-		if (!this.damages && !obj) {
+		obj = obj || this.damages;
+
+		if (!obj) {
 			return false;
 		}
-
-		obj = obj || this.damages;
 
 		let string = '',
 			creature = this.creature;
@@ -407,9 +412,9 @@ export class Ability {
 			}
 
 			string += value + '<span class="' + key + '"></span>';
-
-			return string;
 		});
+
+		return string;
 	}
 
 	/**
