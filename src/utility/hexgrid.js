@@ -709,10 +709,9 @@ export class HexGrid {
 		};
 
 		// ONRIGHTCLICK
-		let onRightClickFn = () => {
-			if (this.creature instanceof Creature) {
-				// If creature
-				game.UI.showCreature(this.creature.type, this.creature.player.id);
+		let onRightClickFn = hex => {
+			if (hex.creature instanceof Creature) {
+				game.UI.showCreature(hex.creature.type, hex.creature.player.id);
 			} else {
 				game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id);
 			}
