@@ -7,7 +7,9 @@ export class CreatureQueue {
 		this.nextQueue = [];
 	}
 
-	/**
+	/** addByInitiative
+	 * @param {Object} creature Creature
+	 * @returns {void}
 	 * Add a creature to the next turn's queue by initiative
 	 * creature - The creature to add
 	 */

@@ -1,8 +1,9 @@
 import Manifest from './manifest';
 
-/**
+/** getUrl
  *
  * @param {String | Array} path path to the string
+ * @return {?} ? ?
  */
 export function getUrl(path) {
 	if (typeof path === 'string') {
@@ -17,7 +18,7 @@ export function getUrl(path) {
 	// prev = children (starts with the manifest)
 	// current = what we are looking at now
 	return path.reduce((prev, current) => {
-		const entity = prev.find(entity => entity.id === current);
+		const entity = prev.find(e => e.id === current);
 		if (entity === undefined) {
 			throw new Error(`Could not find asset with path: ${path.join('/')}`);
 		}

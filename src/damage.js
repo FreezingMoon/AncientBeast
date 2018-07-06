@@ -1,16 +1,16 @@
 import * as $j from 'jquery';
 
-/*
- * Damage Class
+/* Damage Class
  *
  * TODO: This documentation needs to be updated with things that are determined dynamically like #melee and #counter
  */
 export class Damage {
-	/**
-	 * attacker : Creature : Unit that initiated the damage
-	 * damages : Object : Object containing the damage by type {frost : 5} for example
-	 * area : Integer : Number of hexagons being hit
-	 * effects : Array : Contains Effect object to apply to the target
+	/** Constructor
+	 * @param {Creature} attacker Unit that initiated the damage
+	 * @param {Object} damages Object containing the damage by type {frost : 5} for example
+	 * @param {number} area Number of hexagons being hit
+	 * @param {array} effects Contains Effect object to apply to the target
+	 * @param {Object} game Game object
 	 */
 	constructor(attacker, damages, area, effects, game) {
 		this.game = game;
