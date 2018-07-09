@@ -299,17 +299,6 @@ export class UI {
 								this.toggleScoreboard();
 								break;
 						}
-						/* Check to see if scoreboard or chat is open first before
-                         * cancelling the active ability when using Esc hotkey
-                         */
-					} else if (activeAbilityBool) {
-						switch (k) {
-							case 'close':
-								game.grid.clearHexViewAlterations();
-								game.activeCreature.queryMove();
-								this.selectAbility(-1);
-								break;
-						}
 					} else {
 						switch (k) {
 							case 'close':
