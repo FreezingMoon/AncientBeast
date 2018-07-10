@@ -597,7 +597,7 @@ export class UI {
 		this.healthBar.previewSize(0);
 	}
 
-	selectNextAbility() {
+	selectPreviousAbility() {
 		let game = this.game,
 			b = this.selectedAbility == -1 ? 4 : this.selectedAbility;
 
@@ -613,7 +613,7 @@ export class UI {
 		game.activeCreature.queryMove();
 	}
 
-	selectPreviousAbility() {
+	selectNextAbility() {
 		let game = this.game,
 			b = this.selectedAbility == -1 ? 0 : this.selectedAbility;
 
