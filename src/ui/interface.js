@@ -299,17 +299,6 @@ export class UI {
 								this.toggleScoreboard();
 								break;
 						}
-						/* Check to see if scoreboard or chat is open first before
-                         * cancelling the active ability when using Esc hotkey
-                         */
-					} else if (activeAbilityBool) {
-						switch (k) {
-							case 'close':
-								game.grid.clearHexViewAlterations();
-								game.activeCreature.queryMove();
-								this.selectAbility(-1);
-								break;
-						}
 					} else {
 						switch (k) {
 							case 'close':
@@ -608,7 +597,7 @@ export class UI {
 		this.healthBar.previewSize(0);
 	}
 
-	selectNextAbility() {
+	selectPreviousAbility() {
 		let game = this.game,
 			b = this.selectedAbility == -1 ? 4 : this.selectedAbility;
 
@@ -624,7 +613,7 @@ export class UI {
 		game.activeCreature.queryMove();
 	}
 
-	selectPreviousAbility() {
+	selectNextAbility() {
 		let game = this.game,
 			b = this.selectedAbility == -1 ? 0 : this.selectedAbility;
 
