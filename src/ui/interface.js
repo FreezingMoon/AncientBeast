@@ -445,11 +445,11 @@ export class UI {
 			} else {
 				if (e.originalEvent.deltaY < 0) {
 					// Wheel up
-					this.selectNextAbility();
+					this.selectPreviousAbility();
 					// TODO: Allow to cycle between the usable active abilities by pressing the passive one's icon
 				} else if (e.originalEvent.deltaY > 0) {
 					// Wheel down
-					this.selectPreviousAbility();
+					this.selectNextAbility();
 				}
 			}
 
