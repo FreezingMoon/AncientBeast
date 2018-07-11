@@ -645,6 +645,7 @@ export default class Game {
 						this.log('Use the last one to materialize a unit');
 						this.log('Making units drains your plasma points');
 						this.log('Press the hourglass icon to skip the turn');
+						this.log('Press Enter/Return to toggle this log');
 						this.log(
 							'%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!'
 						);
