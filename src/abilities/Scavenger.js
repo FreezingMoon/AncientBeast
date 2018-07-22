@@ -24,7 +24,7 @@ export default G => {
 			 * @return {string} movement type, "hover" or "flying"
 			 */
 			movementType: function() {
-				return 'flying'
+				return 'flying';
 			},
 
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
