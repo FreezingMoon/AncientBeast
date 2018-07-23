@@ -436,7 +436,7 @@ export class Hex {
 			let p = this.overlayClasses.match(/0|1|2|3/);
 
 			if (this.overlayClasses.match(/hover/)) {
-				this.overlay.loadTexture('hex_hover_p' + p);
+				this.overlay.loadTexture('hex_path');
 			} else {
 				this.overlay.loadTexture('hex_p' + p);
 			}
