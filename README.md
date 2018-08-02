@@ -35,9 +35,20 @@ The project is developed with the use of free open source cross platform applica
 
 ### License
 
-|![https://www.FreezingMoon.org](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png)|Ancient Beast name and logo are trademarks of Freezing Moon. Respect the developers and their work!|
-|![https://creativecommons.org/licenses/by-sa/3.0](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png)|[CC-BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0): Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.|
-|![https://www.gnu.org/licenses/agpl-3.0.html](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png)|[AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.html): The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.|
+<table border=1 width=100%>
+<tr>
+	<td><a href="http://www.FreezingMoon.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
+	<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
+</tr>
+<tr>
+	<td><a href="http://creativecommons.org/licenses/by-sa/3.0"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td>
+	<td><a href="http://creativecommons.org/licenses/by-sa/3.0">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
+</tr>
+<tr>
+	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
+	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
+</tr>
+</table>
 
 ### [Contribute](docs/CONTRIBUTING.md#readme)
 
