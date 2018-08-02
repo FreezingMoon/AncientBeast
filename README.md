@@ -18,7 +18,7 @@
 The project is developed with the use of free open source cross platform applications and freeware services.
 [Mega](https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA) comes in very handy when working on the game assets collaboratively, while [GitHub](https://github.com/FreezingMoon/AncientBeast) handles the code part and stores the final assets. Art contributions can be made as well in our [deviantArt](https://Ancient-Beast.deviantArt.com) group. Drop by our [Discord chat](https://discord.me/AncientBeast) and be a part of the community!  
 [Blender](https://blender.org) is being used for creating most of the assets, such as combat locations, creatures and their own animations, which are rendered into sprites that are usually made into sprite-sheets using our [Spritify](https://github.com/Fweeb/blender_spritify) add-on, as well as for many other tasks.  
-[Krita](https://krita.org), [Gimp](https://gimp.org) and [MyPaint](http://mypaint.org) are useful for concept art, while [Inkscape](http://inkscape.org) is useful for creating vector ability icons.
+[Krita](https://krita.org), [Gimp](https://gimp.org) and [MyPaint](http://mypaint.org) are useful for concept art, while [Inkscape](http://inkscape.org) is useful for creating the vector creature ability icons.
 
 <table style="font-size: 18px; font-weight: bold; margin: 0; padding: 0; margin-left: auto; margin-right: auto; text-align: center;">
 <tr align="center">
@@ -35,20 +35,9 @@ The project is developed with the use of free open source cross platform applica
 
 ### License
 
-<table border=1 width=100%>
-<tr>
-	<td><a href="http://www.FreezingMoon.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
-	<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
-</tr>
-<tr>
-	<td><a href="http://creativecommons.org/licenses/by-sa/3.0"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td>
-	<td><a href="http://creativecommons.org/licenses/by-sa/3.0">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
-</tr>
-<tr>
-	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
-	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
-</tr>
-</table>
+|![https://www.FreezingMoon.org](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png)|Ancient Beast name and logo are trademarks of Freezing Moon. Respect the developers and their work!|
+|![https://creativecommons.org/licenses/by-sa/3.0](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png)|[CC-BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0): Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.|
+|![https://www.gnu.org/licenses/agpl-3.0.html](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png)|[AGPL 3.0](https://www.gnu.org/licenses/agpl-3.0.html): The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.|
 
 ### [Contribute](docs/CONTRIBUTING.md#readme)
 
