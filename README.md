@@ -19,7 +19,7 @@
 <p>
 The project is developed with the use of free open source cross platform applications and freeware services.
 <a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"><b>Mega</b></a> comes in very handy when working on the game assets collaboratively, while <a href="https://github.com/FreezingMoon/AncientBeast"><b>Github</b></a> handles the code part and stores the final assets. Art contributions can be made as well in our <a href="http://Ancient-Beast.deviantart.com"><b>deviantArt</b></a> group. Drop by our <a href="https://discord.gg/x78rKen"><b>Discord chat</b></a> and be a part of the community!<br>
-<a href="http://blender.org"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their own animations, which are rendered into sprites that are usually made into sprite-sheets as well as for other tasks.<br>
+<a href="http://blender.org"><b>Blender</b></a> is being used for creating most of the assets, such as combat locations, creatures and their own animations, which are rendered into sprites that are usually made into sprite-sheets using our [Spritify](https://github.com/Fweeb/blender_spritify) add-on, as well as for many other tasks.<br>
 <a href="http://krita.org"><b>Krita</b></a>, <a href="http://gimp.org"><b>Gimp</b></a> and <a href="http://mypaint.org"><b>MyPaint</b></a> are useful for concept art, while <a href="http://inkscape.org"><b>Inkscape</b></a> is useful for creating vector ability icons.
 </p>
 
