@@ -50,6 +50,10 @@ export class SoundSys {
 		this.game.musicPlayer.playRandom();
 	}
 
+	stopMusic() {
+		this.game.musicPlayer.stopMusic();
+	}
+
 	getSound(url, id) {
 		let bufferLoader = new BufferLoader(this.context, [url], arraybuffer => {
 			this.game.soundLoaded[id] = arraybuffer[0];
