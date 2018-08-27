@@ -71,4 +71,8 @@ export class MusicPlayer {
 		this.audio.load();
 		this.audio.play();
 	}
+
+	stopMusic() {
+		this.audio.pause();
+	}
 }

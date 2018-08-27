@@ -103,7 +103,8 @@ export default class Game {
 			'sounds/swing',
 			'sounds/swing2',
 			'sounds/swing3',
-			'sounds/heartbeat'
+			'sounds/heartbeat',
+			'sounds/drums'
 		];
 		this.inputMethod = 'Mouse';
 
@@ -1263,6 +1264,9 @@ export default class Game {
 	 * End the game and print stats
 	 */
 	endGame() {
+		this.soundsys.stopMusic();
+		this.soundsys.playSound(this.soundLoaded[5], this.soundsys.effectsGainNode);
+
 		this.stopTimer();
 		this.gameState = 'ended';
 
