@@ -318,6 +318,10 @@ export default class Game {
 			getUrl('units/sprites/Snow Bunny - Freezing Spit')
 		);
 
+		this.Phaser.load.image(
+			'effects_disturbing-sound',
+			getUrl('units/sprites/Chimera - Disturbing Sound')
+		);
 		// Background
 		this.Phaser.load.image('background', getUrl('locations/' + this.background_image + '/bg'));
 
