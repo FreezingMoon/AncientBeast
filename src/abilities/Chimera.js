@@ -1,4 +1,3 @@
-import * as $j from 'jquery';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
@@ -153,7 +152,6 @@ export default G => {
 				let ability = this;
 				ability.end();
 				let target = arrayUtils.last(path).creature;
-
 				let projectileInstance = G.animations.projectile(
 					this,
 					target,
@@ -166,30 +164,48 @@ export default G => {
 
 				let tween = projectileInstance[0];
 				let sprite = projectileInstance[1];
-				let dist = projectileInstance[2];
 
 				tween.onComplete.add(function() {
 					// this refers to the animation object, _not_ the ability
 					this.destroy();
-
-					// Copy to not alter ability strength
-					let dmg = $j.extend({}, ability.damages);
-					dmg.crush += 3 * dist; // Add distance to crush damage
+					let hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
 
 					let damage = new Damage(
 						ability.creature, // Attacker
-						dmg, // Damage Type
+						ability.damages, // Damage Type
 						1, // Area
-						[],
+						[], // Effects
 						G
 					);
-					let damageResult = target.takeDamage(damage);
+					let result = target.takeDamage(damage);
+					let i = 0;
 
-					// If upgraded and melee range, freeze the target
-					if (ability.isUpgraded() && damageResult.damageObj.melee) {
-						target.stats.frozen = true;
-						target.updateHealth();
-						G.UI.updateFatigue();
+					while (result.kill) {
+						i++;
+						if (i >= hexes.length) {
+							break;
+						}
+						let hex = hexes[i];
+						if (!hex.creature) {
+							continue;
+						}
+						target = hex.creature;
+
+						// extra sonic damage if upgraded
+						let sonic = ability.damages.sonic + (this.isUpgraded() ? 9 : 0);
+						if (sonic <= 0) {
+							break;
+						}
+						damage = new Damage(
+							ability.creature, // Attacker
+							{
+								sonic: sonic
+							}, // Damage Type
+							1, // Area
+							[], // Effects
+							G
+						);
+						result = target.takeDamage(damage);
 					}
 				}, sprite); // End tween.onComplete
 			},
