@@ -331,7 +331,9 @@ export class Ability {
 			}, animationData.duration);
 		} else {
 			activateAbility();
-			game.freezedInput = false;
+			if (game.animationQueue.length === 0) {
+				game.freezedInput = false;
+			}
 		}
 
 		let interval = setInterval(() => {
