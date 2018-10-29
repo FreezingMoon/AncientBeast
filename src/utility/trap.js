@@ -77,7 +77,7 @@ export class Trap {
 						)
 						.start();
 					tween.onComplete.add(() => {
-						this.destroy();
+						sprite.destroy();
 					}, sprite);
 				} else {
 					sprite.destroy();
