@@ -103,7 +103,7 @@ export class Animations {
 		let start = game.grid.hexes[creature.y][creature.x - creature.size + 1];
 		let currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
 
-		this.leaveHex(creature, start, opts);
+		this.leaveHex(creature, currentHex, opts);
 
 		let speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
 
