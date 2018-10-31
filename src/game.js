@@ -619,8 +619,10 @@ export default class Game {
 
 						let last = this.activeCreature;
 						this.activeCreature = next; // Set new activeCreature
-						// Update health display due to active creature change
-						last.updateHealth();
+
+						if (!last.dead) {
+							last.updateHealth(); // Update health display due to active creature change
+						}
 					}
 
 					if (this.activeCreature.player.hasLost) {
