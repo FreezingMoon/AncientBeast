@@ -249,7 +249,7 @@ export default class Game {
 			// 	plasma_amount: 50,
 			// 	turnTimePool: 60,
 			// 	timePool: 5 * 60,
-			// 	background_image: 'Frozen Skull'
+			// 	background_image: 'Frozen Wall'
 			// },
 			i;
 

@@ -56,8 +56,8 @@ export class UI {
 				$button: $j('.toggledash'),
 				click: () => {
 					// if dash is open and audio player is visible, just show creatures
-					if (this.dashopen && $j('#musicplayerwrapper').is(':visible')) {
-						$j('#musicplayerwrapper').hide();
+					if (this.dashopen && this.musicOpen) {
+						this.closeMusicPlayer();
 						this.showCreature(game.activeCreature.type, game.activeCreature.team);
 					} else {
 						this.toggleDash();
@@ -83,8 +83,9 @@ export class UI {
 				$button: $j('#audio.button'),
 				click: () => {
 					// if audio element was already active, close dash
-					if ($j('#musicplayerwrapper').is(':visible')) {
-						this.closeDash();
+					if (this.musicOpen) {
+						// This calls closeMusicPlayer() if needed.
+						this.btnToggleDash.triggerClick();
 					} else {
 						this.showMusicPlayer();
 					}
@@ -267,7 +268,14 @@ export class UI {
 			$j.each(hotkeys, (k, v) => {
 				if (!modifierPressed && v == keypressed) {
 					// Context filter
-					if (this.dashopen) {
+					if (this.musicOpen) {
+						switch (k) {
+							case 'ultimate':
+							case 'close':
+								this.btnAudio.triggerClick();
+								break;
+						}
+					} else if (this.dashopen) {
 						switch (k) {
 							case 'close':
 							case 'overview':
@@ -1006,7 +1014,7 @@ export class UI {
 			.addClass('locked');
 
 		$j('#tabwrapper').show();
-		$j('#musicplayerwrapper').hide();
+		this.closeMusicPlayer();
 
 		// Change creature status
 		game.players[id].availableCreatures.forEach(creature => {
@@ -1066,6 +1074,12 @@ export class UI {
 
 		$j('#tabwrapper').hide();
 		$j('#musicplayerwrapper').show();
+		this.musicOpen = true;
+	}
+
+	closeMusicPlayer() {
+		$j('#musicplayerwrapper').hide();
+		this.musicOpen = false;
 	}
 
 	toggleScoreboard(gameOver) {
