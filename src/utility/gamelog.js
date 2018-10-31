@@ -133,9 +133,13 @@ export class GameLog {
 				this.saveFile(JSON.stringify(dict.log), fileName + '.AB');
 				break;
 			case 'hash':
-			default:
 				output = hash;
 				strOutput = hash;
+				break;
+			case 'simple':
+			default:
+				output = `AB.restoreGame('${hash}')`;
+				strOutput = output;
 		}
 
 		console.log('GameData: ' + strOutput);
