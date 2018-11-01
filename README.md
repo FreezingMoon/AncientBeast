@@ -13,6 +13,22 @@
 
 **Ancient Beast** is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to acquire and items to equip onto, putting them to use in order to defeat your opponents. This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 
+### [Roadmap](https://github.com/FreezingMoon/AncientBeast/milestone/4)
+
+We're working hard on next version, 0.4, codenamed `Bounty Hunter`.
+What we're aiming for are the following:
+
+* 3 new playable creatures
+* balancing of old creatures
+* sound effects for actions
+* sprites for ranged attacks
+* initial translation support
+* many user interface tweaks
+* lots of usability enhancements
+* a ton of bug fixes all around
+
+You can check it out via our auto-deployed Heroku build: https://ancientbeast-beta.herokuapp.com [ Unstable! ]
+
 ### [Contribute](docs/CONTRIBUTING.md#readme)
 
 You can help out the project by just ★ starring this repository from the [upper right corner](#) and also by pinning it to your profile.  
