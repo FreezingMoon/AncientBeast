@@ -68,7 +68,7 @@ To have the game up and running, simply run this command in the terminal, it wil
 yarn start
 ```
 
-You should open the game link using [Chromium](https://www.chromium.org) or [Google Chrome](https://www.google.com/chrome), as support for other browsers is not guaranteed.
+You should open the game link using [Chromium](https://chromium.org) or [Google Chrome](https://google.com/chrome), as support for other browsers is not guaranteed.
 
 You can always [test the latest master without any hassle here](https://ancientbeast-beta.herokuapp.com).
 
