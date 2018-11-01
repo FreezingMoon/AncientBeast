@@ -375,6 +375,14 @@ export class UI {
 					}
 
 					prevD = true;
+				} else {
+					if (modifierPressed && (e.metaKey || e.ctrlKey)) {
+						if (keypressed === hotkeys.skip) {
+							this.game.gamelog.get('save');
+							e.preventDefault();
+							e.stopPropagation();
+						}
+					}
 				}
 			});
 
