@@ -46,7 +46,7 @@ The project is developed with the use of free open source cross platform applica
 <table style="font-size: 18px; font-weight: bold; margin: 0; padding: 0; margin-left: auto; margin-right: auto; text-align: center;">
 <tr align="center">
 	<td><a href="https://discord.gg/x78rKen"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/discord.png" style="display:block; width:99px; height:99px;" alt="discord">Discord</a></td>
-	<td><a href="https://mega.co.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/mega.png" style="display:block; width:99px; height99px;" alt="mega">Mega</a></td>
+	<td><a href="https://mega.nz/#F!GAJAjAzL!AhBUayQndZbH_j2IL2B-nA"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/mega.png" style="display:block; width:99px; height99px;" alt="mega">Mega</a></td>
 	<td><a href="http://Ancient-Beast.deviantart.com"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/deviantart.png" style="display:block; width:99px; height:99px;" alt="deviantart">deviantArt</a></td>
 	<td><a href="http://blender.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/blender.png" style="display:block; width:99px; height:99px;" alt="blender">Blender</a></td>
 	<td><a href="http://krita.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/krita.png" style="display:block; width:99px; height:99px;" alt="krita">Krita</a></td>
