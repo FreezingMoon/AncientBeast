@@ -85,9 +85,9 @@ export class Player {
 			team: this.id
 		}); // Create the full data for creature creation
 
-		for (let i = game.creatureJSON.length - 1; i >= 0; i--) {
+		for (let i = game.creatureData.length - 1; i >= 0; i--) {
 			// Avoid Dark Priest shout at the begining of a match
-			if (game.creatureJSON[i].type == type && i !== 0) {
+			if (game.creatureData[i].type == type && i !== 0) {
 				game.soundsys.playSound(game.soundLoaded[1000 + i], game.soundsys.announcerGainNode);
 			}
 		}
