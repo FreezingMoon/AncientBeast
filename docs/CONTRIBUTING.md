@@ -87,7 +87,7 @@ If you encounter any problems with this version, you can report them to our [Git
 Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues. You can use the `AB.getLog()` function from the browser console window in order to fetch current match log.
 In order to open up Google Chrome browser's console, you can simply press `Ctrl + Shift + J` hotkeys. To replay a match, you'll have to be in the pre-match screen, paste its log in the console and then press the `Return` key.
 
-![example restore log](/docs/img/example-restore-game-log.png)
+![example restore log](/docs/img/game-log.png)
 
 ### Patch Game
 
