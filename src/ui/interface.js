@@ -881,6 +881,8 @@ export class UI {
 					this.materializeButton.changeState('glowing');
 				}
 			} else {
+				// Make sure there is no click events, we'll re-declare it as needed.
+				$j('#materialize_button').off('click');
 				if (
 					activeCreature.player.id === player &&
 					activeCreature.type === '--' &&
@@ -889,6 +891,11 @@ export class UI {
 					$j('#materialize_button p').text('Materialization has already been used this round');
 				} else if (activeCreature.player.id === player && activeCreature.type === '--') {
 					$j('#materialize_button p').text('Please select an available unit from the left grid');
+					$j('#materialize_button').on('click', () => {
+						// Remove active class to 'fake' toggleDash into randomly picking a creature for us.
+						this.$dash.removeClass('active');
+						this.toggleDash(true);
+					});
 				} else if (activeCreature.type != '--') {
 					$j('#materialize_button p').text('The current active unit cannot materialize others');
 				} else if (activeCreature.type === '--' && activeCreature.player.id != player) {
