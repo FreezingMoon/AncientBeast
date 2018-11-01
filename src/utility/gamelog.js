@@ -122,7 +122,8 @@ export class GameLog {
 			output,
 			strOutput;
 
-		let fileName = 'AB-' + this.game.version + ':' + new Date().toISOString().slice(0, 10);
+		let today = new Date().toISOString().slice(0, 10);
+		let fileName = `AB-${this.game.version}:${today}`;
 
 		switch (state) {
 			case 'json':
@@ -130,7 +131,12 @@ export class GameLog {
 				strOutput = json;
 				break;
 			case 'save':
-				this.saveFile(JSON.stringify(dict.log), fileName + '.AB');
+				// Do not allow this to happen more than once per second.
+				if (this._debounce) {
+					return;
+				}
+
+				this.saveFile(JSON.stringify(dict.log), `${fileName}.AB`);
 				break;
 			case 'hash':
 				output = hash;
@@ -147,6 +153,8 @@ export class GameLog {
 	}
 
 	saveFile(data, fileName) {
+		// Set a trap to block consecutive calls within one second.
+		this._debounce = new Date().valueOf();
 		let a = document.createElement('a');
 		let file = new Blob([data]);
 		let url = URL.createObjectURL(file);
@@ -154,9 +162,11 @@ export class GameLog {
 		a.download = fileName;
 		document.body.appendChild(a);
 		a.click();
-		setTimeout(function() {
+		setTimeout(() => {
 			document.body.removeChild(a);
 			window.URL.revokeObjectURL(url);
-		}, 0);
+			// Remove trap to allow future save calls.
+			this._debounce = null;
+		}, 1000);
 	}
 }
