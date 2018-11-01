@@ -13,6 +13,29 @@
 
 **Ancient Beast** is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to acquire and items to equip onto, putting them to use in order to defeat your opponents. This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 
+### [Contribute](docs/CONTRIBUTING.md#readme)
+
+You can help out the project by just ★ starring this repository from the [upper right corner](#) and also by pinning it to your profile.  
+If you wish to set-up a local copy of the game in order to patch it, go read the ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/docs/CONTRIBUTING.md#readme) file from this repository.  
+There are more ways in which you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide to get things going!
+
+### License
+
+<table border=1 width=100%>
+<tr>
+	<td><a href="http://www.FreezingMoon.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
+	<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
+</tr>
+<tr>
+	<td><a href="http://creativecommons.org/licenses/by-sa/3.0"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td>
+	<td><a href="http://creativecommons.org/licenses/by-sa/3.0">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
+</tr>
+<tr>
+	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
+	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
+</tr>
+</table>
+
 ### Tools
 
 The project is developed with the use of free open source cross platform applications and freeware services.
@@ -32,26 +55,3 @@ The project is developed with the use of free open source cross platform applica
 	<td><a href="http://inkscape.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/tools/inkscape.png" style="display:block; width:99px; height:99px;" alt="inkscape">Inkscape</a></td>
 </tr>
 </table>
-
-### License
-
-<table border=1 width=100%>
-<tr>
-	<td><a href="http://www.FreezingMoon.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
-	<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
-</tr>
-<tr>
-	<td><a href="http://creativecommons.org/licenses/by-sa/3.0"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png" alt="CC-BY-SA 3.0"></a></td>
-	<td><a href="http://creativecommons.org/licenses/by-sa/3.0">CC-BY-SA 3.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
-</tr>
-<tr>
-	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
-	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
-</tr>
-</table>
-
-### [Contribute](docs/CONTRIBUTING.md#readme)
-
-You can help out the project by just ★ starring this repository from the [upper right corner](#) and also by pinning it to your profile.  
-If you wish to set-up a local copy of the game in order to patch it, go read the ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/docs/CONTRIBUTING.md#readme) file from this repository.  
-There are more ways in which you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide to get things going!
