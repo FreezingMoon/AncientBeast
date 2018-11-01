@@ -67,7 +67,6 @@ export default class Game {
 		this.queue = new CreatureQueue(this);
 		this.creatureIdCounter = 1;
 		this.creatureData = [];
-		this.creatureJSON = [];
 		this.pause = false;
 		this.gameState = 'initialized';
 		this.pauseTime = 0;
