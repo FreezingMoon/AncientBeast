@@ -122,7 +122,7 @@ export class GameLog {
 			output,
 			strOutput;
 
-		let fileName = new Date().toISOString().slice(0, 10);
+		let fileName = 'AB-' + this.game.version + ':' + new Date().toISOString().slice(0, 10);
 
 		switch (state) {
 			case 'json':
