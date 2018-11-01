@@ -899,6 +899,7 @@ export class UI {
 					$j('#materialize_button p').text('Materialization has already been used this round');
 				} else if (activeCreature.player.id === player && activeCreature.type === '--') {
 					$j('#materialize_button p').text('Please select an available unit from the left grid');
+					this.materializeButton.changeState('glowing');
 					$j('#materialize_button').on('click', () => {
 						// Remove active class to 'fake' toggleDash into randomly picking a creature for us.
 						this.$dash.removeClass('active');
