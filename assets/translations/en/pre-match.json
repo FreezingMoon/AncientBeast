@@ -18,5 +18,6 @@
 	"off": "Off",
 	"versus": "versus",
 	"enabled": "Enabled",
-	"disabled": "Disabled"
+	"disabled": "Disabled",
+	"unstable": "Switch to development version? Very unstable!"
 }
