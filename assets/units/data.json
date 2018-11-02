@@ -259,6 +259,11 @@
 			"sonic": 5,
 			"mental": 3
 		},
+		"drop": {
+			"name": "frog leg",
+			"energy": 10,
+			"movement": 1
+		},
 		"display": {
 			"width": 165,
 			"height": 195,
@@ -267,11 +272,6 @@
 		},
 		"animation": {
 			"walk_speed": 360
-		},
-		"drop": {
-			"name": "frog leg",
-			"energy": 10,
-			"movement": 1
 		},
 		"ability_info": [
 			{
@@ -359,6 +359,12 @@
 			"sonic": 4,
 			"mental": 0
 		},
+		"drop": {
+			"name": "apple",
+			"health": 10,
+			"energy": 5,
+			"poison": 3
+		},
 		"animation": {
 			"walk_speed": 500
 		},
@@ -367,10 +373,6 @@
 			"width": 206,
 			"offset-y": -121,
 			"offset-x": 28
-		},
-		"drop": {
-			"name": "apple",
-			"health": 10
 		},
 		"ability_info": [
 			{
@@ -457,6 +459,11 @@
 			"sonic": 6,
 			"mental": 10
 		},
+		"drop": {
+			"name": "fish",
+			"initiative": 5,
+			"frost": 5
+		},
 		"animation": {
 			"walk_speed": 200
 		},
@@ -465,11 +472,6 @@
 			"height": 212,
 			"offset-x": 28,
 			"offset-y": -181
-		},
-		"drop": {
-			"name": "fish",
-			"initiative": 5,
-			"frost": 5
 		},
 		"ability_info": [
 			{
@@ -557,6 +559,11 @@
 			"sonic": 4,
 			"mental": 15
 		},
+		"drop": {
+			"name": "snow flake",
+			"meditation": 5,
+			"frost": 10
+		},
 		"display": {
 			"width": 240,
 			"height": 240,
@@ -565,11 +572,6 @@
 		},
 		"animation": {
 			"walk_speed": 350
-		},
-		"drop": {
-			"name": "snow flake",
-			"meditation": 5,
-			"frost": 10
 		},
 		"ability_info": [
 			{
@@ -661,6 +663,11 @@
 			"sonic": 6,
 			"mental": 8
 		},
+		"drop": {
+			"name": "radish",
+			"health": 1,
+			"burn": 5
+		},
 		"animation": {
 			"walk_speed": 500
 		},
@@ -669,11 +676,6 @@
 			"height": 277,
 			"offset-x": 0,
 			"offset-y": -235
-		},
-		"drop": {
-			"name": "radish",
-			"health": 1,
-			"burn": 5
 		},
 		"ability_info": [
 			{
@@ -806,6 +808,13 @@
 			"sonic": 5,
 			"mental": 15
 		},
+		"drop": {
+			"name": "milk bottle",
+			"health": 5,
+			"energy": 5,
+			"offense": 5,
+			"defense": 5
+		},
 		"animation": {
 			"walk_speed": 500
 		},
@@ -814,13 +823,6 @@
 			"height": 250,
 			"offset-x": 5,
 			"offset-y": -215
-		},
-		"drop": {
-			"name": "milk bottle",
-			"health": 5,
-			"energy": 5,
-			"offense": 5,
-			"defense": 5
 		},
 		"ability_info": [
 			{
@@ -1038,6 +1040,13 @@
 			"sonic": 0,
 			"mental": 0
 		},
+		"drop": {
+			"name": "carrot",
+			"health": 4,
+			"energy": 2,
+			"initiative": 10,
+			"poison": 3
+		},
 		"animation": {
 			"walk_speed": 500
 		},
@@ -1046,13 +1055,6 @@
 			"height": 135,
 			"offset-x": -5,
 			"offset-y": -100
-		},
-		"drop": {
-			"name": "carrot",
-			"health": 4,
-			"energy": 2,
-			"initiative": 10,
-			"poison": 3
 		},
 		"ability_info": [
 			{
@@ -1195,6 +1197,12 @@
 			"sonic": 12,
 			"mental": 4
 		},
+		"drop": {
+			"name": "cherry",
+			"health": 1,
+			"energy": 1,
+			"mental": 4
+		},
 		"animation": {
 			"walk_speed": 500
 		},
@@ -1203,12 +1211,6 @@
 			"height": 115,
 			"offset-x": -10,
 			"offset-y": -75
-		},
-		"drop": {
-			"name": "cherry",
-			"health": 1,
-			"energy": 1,
-			"mental": 4
 		},
 		"ability_info": [
 			{
@@ -2120,6 +2122,12 @@
 			"sonic": 5,
 			"mental": 0
 		},
+		"drop": {
+			"name": "bread",
+			"health": 5,
+			"endurance": 5,
+			"energy": 5
+		},
 		"animation": {
 			"walk_speed": 400
 		},
@@ -2128,12 +2136,6 @@
 			"height": 176,
 			"offset-x": -3,
 			"offset-y": -140
-		},
-		"drop": {
-			"name": "bread",
-			"health": 5,
-			"endurance": 5,
-			"energy": 5
 		},
 		"ability_info": [
 			{
@@ -2362,6 +2364,11 @@
 			"sonic": 4,
 			"mental": 5
 		},
+		"drop": {
+			"name": "fang",
+			"offense": 10,
+			"defense": 5
+		},
 		"display": {
 			"width": 160,
 			"height": 210,
@@ -2370,11 +2377,6 @@
 		},
 		"animation": {
 			"walk_speed": 500
-		},
-		"drop": {
-			"name": "fang",
-			"offense": 10,
-			"defense": 5
 		},
 		"ability_info": [
 			{
@@ -2523,6 +2525,13 @@
 			"poison": 10,
 			"sonic": 15,
 			"mental": 15
+		},
+		"drop": {
+			"name": "lemon",
+			"energy": 15,
+			"movement": 1,
+			"initiative": 10,
+			"shock": 5
 		},
 		"animation": {
 			"walk_speed": 450
@@ -2925,6 +2934,12 @@
 			"sonic": 8,
 			"mental": 0
 		},
+		"drop": {
+			"name": "yellow pepper",
+			"health": 3,
+			"regrowth": 2,
+			"energy": 4
+		},
 		"display": {
 			"width": 175,
 			"height": 215,
@@ -2933,12 +2948,6 @@
 		},
 		"animation": {
 			"walk_speed": 300
-		},
-		"drop": {
-			"name": "yellow pepper",
-			"health": 3,
-			"regrowth": 2,
-			"energy": 4
 		},
 		"ability_info": [
 			{
@@ -3014,6 +3023,13 @@
 			"sonic": 4,
 			"mental": 2
 		},
+		"drop": {
+			"name": "nut",
+			"defense": 6,
+			"pierce": 2,
+			"slash": 2,
+			"crush": 2
+		},
 		"display": {
 			"width": 155,
 			"height": 210,
@@ -3022,13 +3038,6 @@
 		},
 		"animation": {
 			"walk_speed": 360
-		},
-		"drop": {
-			"name": "nut",
-			"defense": 6,
-			"pierce": 2,
-			"slash": 2,
-			"crush": 2
 		},
 		"ability_info": [
 			{
@@ -3157,6 +3166,11 @@
 			"sonic": 20,
 			"mental": 20
 		},
+		"drop": {
+			"name": "change",
+			"health": 10,
+			"energy": 3
+		},
 		"animation": {
 			"walk_speed": 450
 		},
@@ -3165,11 +3179,6 @@
 			"height": 135,
 			"offset-x": 0,
 			"offset-y": 0
-		},
-		"drop": {
-			"name": "change",
-			"health": 10,
-			"energy": 3
 		},
 		"ability_info": [
 			{
@@ -3312,15 +3321,15 @@
 			"sonic": 6,
 			"mental": 6
 		},
-		"movementType": "hover",
-		"animation": {
-			"walk_speed": 180
-		},
 		"drop": {
 			"name": "feather",
 			"initiative": 15,
 			"movement": 1,
 			"defense": 2
+		},
+		"movementType": "hover",
+		"animation": {
+			"walk_speed": 180
 		},
 		"display": {
 			"width": 195,
@@ -3403,6 +3412,12 @@
 			"sonic": 15,
 			"mental": 12
 		},
+		"drop": {
+			"name": "bat wing",
+			"initiative": 5,
+			"movement": 2,
+			"sonic": 4
+		},
 		"animation": {
 			"walk_speed": 500
 		},
@@ -3411,12 +3426,6 @@
 			"height": 220,
 			"offset-x": -12,
 			"offset-y": -183
-		},
-		"drop": {
-			"name": "bat wing",
-			"initiative": 5,
-			"movement": 2,
-			"sonic": 4
 		},
 		"ability_info": [
 			{
