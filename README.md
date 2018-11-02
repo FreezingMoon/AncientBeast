@@ -18,8 +18,9 @@
 We're working hard on next version, 0.4, codenamed `Bounty Hunter`.
 What we're aiming for are the following:
 
-* 3 new playable creatures
-* balancing of old creatures
+* 4 new playable creatures
+* revamping some abilities
+* balancing creatures stats
 * sound effects for actions
 * sprites for ranged attacks
 * initial translation support
