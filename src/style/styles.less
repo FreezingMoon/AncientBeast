@@ -1401,6 +1401,7 @@ span.pure {
 	display: inline-block;
 	vertical-align: top;
 	transform: rotate(0deg);
+	padding-top: 5%;
 }
 
 #gameTitle:hover {
@@ -1411,23 +1412,11 @@ span.pure {
 	-ms-filter: brightness(120%);
 }
 
-#warning {
-	color: red;
-	font-weight: bold;
-	text-shadow: 2px 2px black;
-	padding-bottom: 10px;
-	padding-top: 10px;
-}
-
-#warning a {
-	color: red;
-	text-decoration: none;
-}
-
 #version {
 	font-weight: bold;
 	text-shadow: 2px 2px black;
 	margin-bottom: 10px;
+	color: grey;
 }
 @media (max-height: 650px) {
 	#gameTitle {
@@ -1446,14 +1435,21 @@ a {
 #settings,
 .cont {
 	display: inline-block;
-	background: rgba(25, 25, 25, 0.8);
-	border: rgba(0, 105, 185, 0.3) 1px solid;
+	background: #191919cc;
+	border: #7a7a7a 1px solid;
 	border-radius: 7px;
 	margin: 2px;
 	padding: 5px;
 }
 
-#settings {
+.divFrame {
+	border: 40px solid transparent !important;
+	border-image: url('~assets/interface/div.png') 40 fill stretch !important;
+	background: none;
+	position: relative;
+	overflow: visible;
+	margin: 0 0 10px;
+	padding: 0;
 }
 
 #gameSetupContainer {
