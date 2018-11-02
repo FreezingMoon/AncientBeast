@@ -269,9 +269,9 @@
 			"walk_speed": 360
 		},
 		"drop": {
-			"name": "Frog Leg",
-			"health": 5,
-			"energy": 10
+			"name": "frog leg",
+			"energy": 10,
+			"movement": 1
 		},
 		"ability_info": [
 			{
@@ -369,9 +369,8 @@
 			"offset-x": 28
 		},
 		"drop": {
-			"name": "Apple",
-			"health": 15,
-			"energy": 10
+			"name": "apple",
+			"health": 10
 		},
 		"ability_info": [
 			{
@@ -468,9 +467,9 @@
 			"offset-y": -181
 		},
 		"drop": {
-			"name": "Fish",
-			"health": 5,
-			"energy": 10
+			"name": "fish",
+			"initiative": 5,
+			"frost": 5
 		},
 		"ability_info": [
 			{
@@ -568,9 +567,9 @@
 			"walk_speed": 350
 		},
 		"drop": {
-			"name": "Snow Flake",
-			"health": 5,
-			"energy": 0
+			"name": "snow flake",
+			"meditation": 5,
+			"frost": 10
 		},
 		"ability_info": [
 			{
@@ -672,9 +671,9 @@
 			"offset-y": -235
 		},
 		"drop": {
-			"name": "Radish",
-			"health": 5,
-			"energy": 5
+			"name": "radish",
+			"health": 1,
+			"burn": 5
 		},
 		"ability_info": [
 			{
@@ -817,9 +816,11 @@
 			"offset-y": -215
 		},
 		"drop": {
-			"name": "Milk Bottle",
-			"health": 10,
-			"energy": 0
+			"name": "milk bottle",
+			"health": 5,
+			"energy": 5,
+			"offense": 5,
+			"defense": 5
 		},
 		"ability_info": [
 			{
@@ -1047,9 +1048,11 @@
 			"offset-y": -100
 		},
 		"drop": {
-			"name": "Carrot",
-			"health": 10,
-			"energy": 3
+			"name": "carrot",
+			"health": 4,
+			"energy": 2,
+			"initiative": 10,
+			"poison": 3
 		},
 		"ability_info": [
 			{
@@ -1202,9 +1205,10 @@
 			"offset-y": -75
 		},
 		"drop": {
-			"name": "Cherry",
-			"health": 5,
-			"energy": 10
+			"name": "cherry",
+			"health": 1,
+			"energy": 1,
+			"mental": 4
 		},
 		"ability_info": [
 			{
@@ -2126,9 +2130,10 @@
 			"offset-y": -140
 		},
 		"drop": {
-			"name": "Bread",
-			"energy": 5,
-			"defense": 5
+			"name": "bread",
+			"health": 5,
+			"endurance": 5,
+			"energy": 5
 		},
 		"ability_info": [
 			{
@@ -2367,9 +2372,9 @@
 			"walk_speed": 500
 		},
 		"drop": {
-			"name": "Fang",
-			"health": 5,
-			"energy": 10
+			"name": "fang",
+			"offense": 10,
+			"defense": 5
 		},
 		"ability_info": [
 			{
@@ -2759,8 +2764,9 @@
 			"mental": 2
 		},
 		"drop": {
-			"name": "Meat",
-			"health": 20,
+			"name": "meat",
+			"health": 15,
+			"endurance": 3,
 			"energy": 5
 		},
 		"animation": {
@@ -2929,8 +2935,9 @@
 			"walk_speed": 300
 		},
 		"drop": {
-			"name": "Yellow Pepper",
-			"health": 15,
+			"name": "yellow pepper",
+			"health": 3,
+			"regrowth": 2,
 			"energy": 4
 		},
 		"ability_info": [
@@ -3017,9 +3024,11 @@
 			"walk_speed": 360
 		},
 		"drop": {
-			"name": "Nut",
-			"health": 8,
-			"energy": 0
+			"name": "nut",
+			"defense": 6,
+			"pierce": 2,
+			"slash": 2,
+			"crush": 2
 		},
 		"ability_info": [
 			{
@@ -3158,7 +3167,7 @@
 			"offset-y": 0
 		},
 		"drop": {
-			"name": "Carrot",
+			"name": "change",
 			"health": 10,
 			"energy": 3
 		},
@@ -3308,9 +3317,10 @@
 			"walk_speed": 180
 		},
 		"drop": {
-			"name": "Feather",
-			"health": 1,
-			"energy": 9
+			"name": "feather",
+			"initiative": 15,
+			"movement": 1,
+			"defense": 2
 		},
 		"display": {
 			"width": 195,
@@ -3403,9 +3413,10 @@
 			"offset-y": -183
 		},
 		"drop": {
-			"name": "Bat Wing",
-			"health": 2,
-			"energy": 14
+			"name": "bat wing",
+			"initiative": 5,
+			"movement": 2,
+			"sonic": 4
 		},
 		"ability_info": [
 			{
