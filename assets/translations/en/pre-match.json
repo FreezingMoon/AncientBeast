@@ -1,5 +1,4 @@
 {
-	"warning": "WARNING: For the best gameplay experience use",
 	"mode": "Player Mode [ Hotseat ]",
 	"units": "Active Units [ Psyhelm limit ]",
 	"drops": "Unit Drops",
@@ -15,8 +14,6 @@
 	"press": "PRESS",
 	"start": "START",
 	"button": "BUTTON",
-	"version": "Version",
-	"alpha": "Alpha",
 	"on": "On",
 	"off": "Off",
 	"versus": "versus",
