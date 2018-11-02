@@ -19,6 +19,8 @@ We're working hard on next version, 0.4, codenamed `Bounty Hunter`.
 What we're aiming for are the following:
 
 * 5 new playable creatures
+* 3 epic new combat tracks
+* one new combat location
 * revamping some abilities
 * balancing creatures stats
 * sound effects for actions
@@ -27,6 +29,9 @@ What we're aiming for are the following:
 * many user interface tweaks
 * lots of usability enhancements
 * a ton of bug fixes all around
+* partial code base restructuring
+* development workflow improvements
+* more project lore & documentation
 
 You can check it out via our auto-deployed Heroku build: https://ancientbeast-beta.herokuapp.com [ Unstable! ]
 
