@@ -2117,7 +2117,18 @@
 			"mental": 0
 		},
 		"animation": {
-			"walk_speed": 500
+			"walk_speed": 400
+		},
+		"display": {
+			"width": 180,
+			"height": 176,
+			"offset-x": -3,
+			"offset-y": -140
+		},
+		"drop": {
+			"name": "Bread",
+			"energy": 5,
+			"defense": 5
 		},
 		"ability_info": [
 			{
@@ -3138,7 +3149,18 @@
 			"mental": 20
 		},
 		"animation": {
-			"walk_speed": 500
+			"walk_speed": 450
+		},
+		"display": {
+			"width": 95,
+			"height": 135,
+			"offset-x": 0,
+			"offset-y": 0
+		},
+		"drop": {
+			"name": "Carrot",
+			"health": 10,
+			"energy": 3
 		},
 		"ability_info": [
 			{
