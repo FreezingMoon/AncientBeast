@@ -230,7 +230,7 @@ export default G => {
 						return true;
 					}
 				}
-				this.message = G.msg.abilities.notarget;
+				this.message = G.msg.abilities.noTarget;
 				return false;
 			},
 

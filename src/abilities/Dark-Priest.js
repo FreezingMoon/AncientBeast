@@ -158,7 +158,7 @@ export default G => {
 				});
 
 				if (this.creature.player.plasma < lowestCost) {
-					this.message = G.msg.abilities.noplasma;
+					this.message = G.msg.abilities.noPlasma;
 					return false;
 				}
 
@@ -226,11 +226,11 @@ export default G => {
 				}
 
 				if (this.creature.player.plasma <= 1) {
-					this.message = G.msg.abilities.noplasma;
+					this.message = G.msg.abilities.noPlasma;
 					return false;
 				}
 				if (this.creature.player.getNbrOfCreatures() == G.creaLimitNbr) {
-					this.message = G.msg.abilities.nopsy;
+					this.message = G.msg.abilities.noPsy;
 					return false;
 				}
 				return true;

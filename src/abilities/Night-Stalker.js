@@ -187,7 +187,7 @@ export default G => {
 			require: function() {
 				// Must be able to move
 				if (!this.creature.stats.moveable) {
-					this.message = G.msg.abilities.notMoveable;
+					this.message = G.msg.abilities.notmoveable;
 					return false;
 				}
 				return this.testRequirements() && this.creature.stats.moveable;

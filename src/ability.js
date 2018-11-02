@@ -500,7 +500,7 @@ export class Ability {
 			return true;
 		}
 
-		this.message = this.game.msg.abilities.notarget;
+		this.message = this.game.msg.abilities.noTarget;
 		return false;
 	}
 
@@ -544,12 +544,12 @@ export class Ability {
 		// Plasma
 		if (req.plasma > 0) {
 			if (this.creature.player.plasma < req.plasma) {
-				this.message = abilityMsgs.notenough.replace('%stat%', 'plasma');
+				this.message = abilityMsgs.notEnough.replace('%stat%', 'plasma');
 				return false;
 			}
 		} else if (req.plasma < 0) {
 			if (this.creature.player.plasma > -req.plasma) {
-				this.message = abilityMsgs.toomuch.replace('%stat%', 'plasma');
+				this.message = abilityMsgs.tooMuch.replace('%stat%', 'plasma');
 				return false;
 			}
 		}
@@ -558,12 +558,12 @@ export class Ability {
 		let reqEnergy = req.energy + this.creature.stats.reqEnergy;
 		if (reqEnergy > 0) {
 			if (this.creature.energy < reqEnergy) {
-				this.message = abilityMsgs.notenough.replace('%stat%', 'energy');
+				this.message = abilityMsgs.notEnough.replace('%stat%', 'energy');
 				return false;
 			}
 		} else if (reqEnergy < 0) {
 			if (this.creature.energy > -reqEnergy) {
-				this.message = abilityMsgs.toomuch.replace('%stat%', 'energy');
+				this.message = abilityMsgs.tooMuch.replace('%stat%', 'energy');
 				return false;
 			}
 		}
@@ -571,12 +571,12 @@ export class Ability {
 		// Endurance
 		if (req.endurance > 0) {
 			if (this.creature.endurance < req.endurance) {
-				this.message = abilityMsgs.notenough.replace('%stat%', 'endurance');
+				this.message = abilityMsgs.notEnough.replace('%stat%', 'endurance');
 				return false;
 			}
 		} else if (req.endurance < 0) {
 			if (this.creature.endurance > -req.endurance) {
-				this.message = abilityMsgs.toomuch.replace('%stat%', 'endurance');
+				this.message = abilityMsgs.tooMuch.replace('%stat%', 'endurance');
 				return false;
 			}
 		}
@@ -584,12 +584,12 @@ export class Ability {
 		// Health
 		if (req.health > 0) {
 			if (this.creature.health <= req.health) {
-				this.message = abilityMsgs.notenough.replace('%stat%', 'health');
+				this.message = abilityMsgs.notEnough.replace('%stat%', 'health');
 				return false;
 			}
 		} else if (req.health < 0) {
 			if (this.creature.health > -req.health) {
-				this.message = abilityMsgs.toomuch.replace('%stat%', 'health');
+				this.message = abilityMsgs.tooMuch.replace('%stat%', 'health');
 				return false;
 			}
 		}
@@ -705,7 +705,7 @@ export class Ability {
 			}
 		}
 
-		this.message = this.game.msg.abilities.notarget;
+		this.message = this.game.msg.abilities.noTarget;
 		return false;
 	}
 }

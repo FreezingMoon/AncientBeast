@@ -125,19 +125,19 @@ export default class Game {
 		// https://github.com/FreezingMoon/AncientBeast/issues/923
 		this.msg = {
 			abilities: {
-				notarget: 'No targets available.',
-				noplasma: 'Not enough plasma.',
-				nopsy: 'Psyhelm overload: too many units!',
-				alreadyused: 'This ability has already been used.',
-				toomuch: 'Too much %stat%.',
-				notenough: 'Not enough %stat%.',
-				notmoveable: 'This creature cannot be moved.',
-				passivecycle: 'Switches between any usable abilities.',
-				passiveunavailable: 'No usable abilities to switch to.'
+				noTarget: 'No targets available.',
+				noPlasma: 'Not enough plasma.',
+				noPsy: 'Psyhelm overload: too many units!',
+				alreadyUsed: 'This ability has already been used.',
+				tooMuch: 'Too much %stat%.',
+				notEnough: 'Not enough %stat%.',
+				notMoveable: 'This creature cannot be moved.',
+				passiveCycle: 'Switches between any usable abilities.',
+				passiveUnavailable: 'No usable abilities to switch to.'
 			},
 			ui: {
 				dash: {
-					materialize_overload: 'Overload! Maximum number of units controlled'
+					materializeOverload: 'Overload! Maximum number of units controlled'
 				}
 			}
 		};

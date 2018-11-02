@@ -857,7 +857,7 @@ export class UI {
 
 			let activeCreature = game.activeCreature;
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
-				$j('#materialize_button p').text(game.msg.dash.materialize_overload);
+				$j('#materialize_button p').text(game.msg.dash.materializeOverload);
 			} else if (
 				!summonedOrDead &&
 				activeCreature.player.id === player &&
@@ -1665,7 +1665,7 @@ export class UI {
 			let ab = game.activeCreature.abilities[i];
 			ab.message = '';
 			let req = ab.require();
-			ab.message = ab.used ? game.msg.abilities.alreadyused : ab.message;
+			ab.message = ab.used ? game.msg.abilities.alreadyUsed : ab.message;
 
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
@@ -1675,20 +1675,20 @@ export class UI {
 						game.activeCreature.abilities[j].require() &&
 						!game.activeCreature.abilities[j].used
 					) {
-						ab.message = game.msg.abilities.passivecycle; // Message if there is any usable abilities
+						ab.message = game.msg.abilities.passiveCycle; // Message if there is any usable abilities
 						break;
 					} else {
-						ab.message = game.msg.abilities.passiveunavailable; // Message if there is no usable abilities
+						ab.message = game.msg.abilities.passiveUnavailable; // Message if there is no usable abilities
 					}
 				}
 			}
-			if (ab.message == game.msg.abilities.passivecycle) {
+			if (ab.message == game.msg.abilities.passiveCycle) {
 				this.abilitiesButtons[i].changeState('glowing');
 			} else if (req && !ab.used && ab.trigger == 'onQuery') {
 				this.abilitiesButtons[i].changeState('glowing');
 				oneUsableAbility = true;
 			} else if (
-				ab.message == game.msg.abilities.notarget ||
+				ab.message == game.msg.abilities.noTarget ||
 				(ab.trigger != 'onQuery' && req && !ab.used)
 			) {
 				this.abilitiesButtons[i].changeState('noclick');

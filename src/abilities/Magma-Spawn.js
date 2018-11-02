@@ -252,7 +252,7 @@ export default G => {
 
 				// Creature must be moveable
 				if (!this.creature.stats.moveable) {
-					this.message = G.msg.abilities.notmoveable;
+					this.message = G.msg.abilities.notMoveable;
 					return false;
 				}
 
