@@ -10,14 +10,14 @@
 
 <body oncontextmenu="return false;">
 	<div id="matchMaking">
-		<div id="loader"><img src="<%=require('assets/interface/AB.gif')%>" width="32" height="32">Loading
+		<div id="loader"><img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32">Loading
 			<div id="barLoader">
 				<span class="progress"></span>
 			</div>
 		</div>
 		<div id="gameSetupContainer">
 			<div id="gameTitle">
-				<a href="https://AncientBeast.com"><img src="<%=require('assets/interface/AncientBeast.png')%>" width="555" height="125"></a>
+				<a href="https://AncientBeast.com"><img src="<%= require('assets/interface/AncientBeast.png') %>" width="555" height="125"></a>
 			</div>
 			<form id="gameSetup">
 				<div class="divFrame">
@@ -798,7 +798,7 @@
 
 			<div id="musicplayerwrapper">
 				<!-- TODO: This list needs to be generated procedually, perhaps using Grunt -->
-				<audio id="audio" preload="auto" controls="" style="width: 890px;"><source src="<%= require('assets/music/Distant_Realms_by_Moonthief.ogg')%>"> Your browser does not support the audio element.</audio><a style="cursor:pointer;" id="mp_shuffle">Shuffle</a>
+				<audio id="audio" preload="auto" controls="" style="width: 890px;"></audio><a style="cursor:pointer;" id="mp_shuffle">Shuffle</a>
 				<ul id="playlist" style="list-style-type:none; padding-left:0px;">
 					<li class="active"><a href="<%= require('assets/music/Castle_Black_by_Agret_Brisignr.ogg') %>">Castle Black by Agret Brisignr</a></li>
 					<li class="active"><a href="<%= require('assets/music/City_of_Sand_by_Agret_Brisignr.ogg') %>">City of Sand by Agret Brisignr</a></li>
