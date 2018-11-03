@@ -92,11 +92,11 @@ export default class Game {
 			39, // Headless
 			44, // Scavenger
 			31, // Cyber Hound
-			22, // Lava Mollusk
 			28, // Stomper
-			42, // Night Stalker
 			6, // Ice Demon
 			33 // Golden Wyrm
+			//22, // Lava Mollusk
+			//42, // Night Stalker
 		];
 		this.availableMusic = [];
 		this.soundEffects = [
