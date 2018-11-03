@@ -3,6 +3,11 @@
 	"name": "Ancient Beast",
 	"icons": [
 		{
+			"src": "favicon.ico",
+			"type": "image/x-icon",
+			"sizes": "64x64"
+		},
+		{
 			"src": "/images/icons-128.png",
 			"type": "image/png",
 			"sizes": "128x128"
