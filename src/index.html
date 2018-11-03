@@ -20,28 +20,29 @@
 				<a href="https://AncientBeast.com"><img src="<%= require('assets/interface/AncientBeast.png') %>" width="555" height="125"></a>
 			</div>
 			<form id="gameSetup">
-				<div class="divFrame">
-					<div class="cont">
-						<span id="translations" class="typeRadio">
+				<div class="setupFrame">
+					<div class="gameOption">
+						<div id="translations" class="typeRadio">
 							<input type="radio" id="emoji" name="language" value="em"><label for="emoji">💀</label>
 							<input type="radio" id="english" name="language" value="en" checked><label for="english">English</label>
 							<input type="radio" id="french" name="language" value="fr"><label for="french">Français</label>
 							<input type="radio" id="german" name="language" value="de"><label for="german">Deutsch</label>
 							<input type="radio" id="spanish" name="language" value="es"><label for="spanish">Español</label>
 							<input type="radio" id="romana" name="language" value="ro"><label for="romana">Română</label>
-						</span>
+						</div>
 					</div>
-					<br>
-					<div class="cont">
+
+					<div class="gameOption">
 						<h2>Player Mode [ Hotseat ]</h2>
-						<span id="playerMode" class="typeRadio">
+						<div id="playerMode" class="typeRadio">
 							<input type="radio" id="p2" name="playerMode" value="2" checked><label for="p2">1 versus 1</label>
 							<input type="radio" id="p4" name="playerMode" value="4"><label for="p4">2 versus 2</label>
-						</span>
+						</div>
 					</div>
-					<div class="cont">
+
+					<div class="gameOption">
 						<h2>Active Units [ Psyhelm limit ]</h2>
-						<span id="activeUnits" class="typeRadio">
+						<div id="activeUnits" class="typeRadio">
 							<input type="radio" id="activeUnitsOpt1" name="activeUnits" value="1"><label for="activeUnitsOpt1">1</label>
 							<input type="radio" id="activeUnitsOpt2" name="activeUnits" value="2"><label for="activeUnitsOpt2">2</label>
 							<input type="radio" id="activeUnitsOpt3" name="activeUnits" value="3" checked><label for="activeUnitsOpt3">3</label>
@@ -49,19 +50,20 @@
 							<input type="radio" id="activeUnitsOpt5" name="activeUnits" value="5"><label for="activeUnitsOpt5">5</label>
 							<input type="radio" id="activeUnitsOpt6" name="activeUnits" value="6"><label for="activeUnitsOpt6">6</label>
 							<input type="radio" id="activeUnitsOpt7" name="activeUnits" value="7"><label for="activeUnitsOpt7">7</label>
-						</span>
+						</div>
 					</div>
-					<br>
-					<div class="cont">
+
+					<div class="gameOption">
 						<h2>Unit Drops</h2>
-						<span id="unitDrops" class="typeRadio">
+						<div id="unitDrops" class="typeRadio">
 							<input type="radio" id="unitDropsOn" name="unitDrops" value="1" checked><label for="unitDropsOn">On</label>
 							<input type="radio" id="unitDropsOff" name="unitDrops" value="0"><label for="unitDropsOff">Off</label>
-						</span>
+						</div>
 					</div>
-					<div class="cont">
+
+					<div class="gameOption">
 						<h2>Ability Upgrades [ number of rounds or uses ]</h2>
-						<span id="abilityUpgrades" class="typeRadio">
+						<div id="abilityUpgrades" class="typeRadio">
 							<input type="radio" id="abilityUpgrade1" name="abilityUpgrades" value="0"><label for="abilityUpgrade1">Enabled</label>
 							<input type="radio" id="abilityUpgrade2" name="abilityUpgrades" value="1"><label for="abilityUpgrade2">1</label>
 							<input type="radio" id="abilityUpgrade3" name="abilityUpgrades" value="2"><label for="abilityUpgrade3">2</label>
@@ -69,12 +71,12 @@
 							<input type="radio" id="abilityUpgrade5" name="abilityUpgrades" value="4"><label for="abilityUpgrade5">4</label>
 							<input type="radio" id="abilityUpgrade6" name="abilityUpgrades" value="5"><label for="abilityUpgrade6">5</label>
 							<input type="radio" id="abilityUpgrade7" name="abilityUpgrades" value="-1"><label for="abilityUpgrade7">Disabled</label>
-						</span>
+						</div>
 					</div>
-					<br>
-					<div class="cont">
+
+					<div class="gameOption">
 						<h2>Plasma Points [ used for unit materialization or shielding ]</h2>
-						<span id="plasmaPoints" class="typeRadio">
+						<div id="plasmaPoints" class="typeRadio">
 							<input type="radio" id="plasmaPointsOpt1" name="plasmaPoints" value="10"><label for="plasmaPointsOpt1">10</label>
 							<input type="radio" id="plasmaPointsOpt2" name="plasmaPoints" value="20"><label for="plasmaPointsOpt2">20</label>
 							<input type="radio" id="plasmaPointsOpt3" name="plasmaPoints" value="30" checked><label for="plasmaPointsOpt3">30</label>
@@ -86,44 +88,45 @@
 							<input type="radio" id="plasmaPointsOpt9" name="plasmaPoints" value="90"><label for="plasmaPointsOpt9">90</label>
 							<input type="radio" id="plasmaPointsOpt10" name="plasmaPoints" value="100"><label for="plasmaPointsOpt10">100</label>
 							<input type="radio" id="plasmaPointsOpt11" name="plasmaPoints" value="110"><label for="plasmaPointsOpt11">110</label>
-						</span>
+						</div>
+					</div>
 
-					</div>
-					<br>
-					<div class="cont">
+					<div class="gameOption">
 						<h2>Turn Time [ seconds ]</h2>
-						<span id="turnTime" class="typeRadio">
-								<input type="radio" id="turnTimeOpt1" name="turnTime" value="20"><label for="turnTimeOpt1">20</label>
-								<input type="radio" id="turnTimeOpt2" name="turnTime" value="40"><label for="turnTimeOpt2">40</label>
-								<input type="radio" id="turnTimeOpt3" name="turnTime" value="60"><label for="turnTimeOpt3">60</label>
-								<input type="radio" id="turnTimeOpt4" name="turnTime" value="80"><label for="turnTimeOpt4">80</label>
-								<input type="radio" id="turnTimeOpt5" name="turnTime" value="99"><label for="turnTimeOpt5">99</label>
-								<input type="radio" id="turnTimeOpt6" name="turnTime" value="-1"  checked><label for="turnTimeOpt6">&#8734;</label>
-							</span>
+						<div id="turnTime" class="typeRadio">
+							<input type="radio" id="turnTimeOpt1" name="turnTime" value="20"><label for="turnTimeOpt1">20</label>
+							<input type="radio" id="turnTimeOpt2" name="turnTime" value="40"><label for="turnTimeOpt2">40</label>
+							<input type="radio" id="turnTimeOpt3" name="turnTime" value="60"><label for="turnTimeOpt3">60</label>
+							<input type="radio" id="turnTimeOpt4" name="turnTime" value="80"><label for="turnTimeOpt4">80</label>
+							<input type="radio" id="turnTimeOpt5" name="turnTime" value="99"><label for="turnTimeOpt5">99</label>
+							<input type="radio" id="turnTimeOpt6" name="turnTime" value="-1" checked><label for="turnTimeOpt6">&#8734;</label>
+						</div>
 					</div>
-					<div class="cont">
+
+					<div class="gameOption">
 						<h2>Time Pools [ minutes ]</h2>
-						<span id="timePool" class="typeRadio">
-								<!-- <input type="radio" id="timePoolOpt0" name="timePool" value="1" ><label for="timePoolOpt0">1 min</label> -->
-								<input type="radio" id="timePoolOpt1" name="timePool" value="15"><label for="timePoolOpt1">15</label>
-								<input type="radio" id="timePoolOpt2" name="timePool" value="20"><label for="timePoolOpt2">20</label>
-								<input type="radio" id="timePoolOpt3" name="timePool" value="25"><label for="timePoolOpt3">25</label>
-								<input type="radio" id="timePoolOpt4" name="timePool" value="30"><label for="timePoolOpt4">30</label>
-								<input type="radio" id="timePoolOpt5" name="timePool" value="-1" checked><label for="timePoolOpt5">&#8734;</label>
-							</span>
+						<div id="timePool" class="typeRadio">
+							<!-- <input type="radio" id="timePoolOpt0" name="timePool" value="1" ><label for="timePoolOpt0">1 min</label> -->
+							<input type="radio" id="timePoolOpt1" name="timePool" value="15"><label for="timePoolOpt1">15</label>
+							<input type="radio" id="timePoolOpt2" name="timePool" value="20"><label for="timePoolOpt2">20</label>
+							<input type="radio" id="timePoolOpt3" name="timePool" value="25"><label for="timePoolOpt3">25</label>
+							<input type="radio" id="timePoolOpt4" name="timePool" value="30"><label for="timePoolOpt4">30</label>
+							<input type="radio" id="timePoolOpt5" name="timePool" value="-1" checked><label for="timePoolOpt5">&#8734;</label>
+						</div>
 					</div>
-					<br>
-					<div class="cont">
+
+					<div class="gameOption">
 						<h2>Combat Location [ no influence to the actual gameplay ]</h2>
-						<span id="combatLocation" class="typeRadio">
-								<input type="radio" id="bgOpt1" name="combatLocation" value="Dark Forest"><label for="bgOpt1">Dark Forest</label>
-								<input type="radio" id="bgOpt2" name="combatLocation" value="Frozen Wall"><label for="bgOpt2">Frozen Wall</label>
-								<input type="radio" id="bgOpt3" name="combatLocation" value="Shadow Cave"><label for="bgOpt3">Shadow Cave</label>
-								<input type="radio" id="bgOpt4" name="combatLocation" value="Dragon Bones"><label for="bgOpt4">Dragon Bones</label>
-							</span>
+						<div id="combatLocation" class="typeRadio">
+							<input type="radio" id="bgOpt1" name="combatLocation" value="Dark Forest"><label for="bgOpt1">Dark Forest</label>
+							<input type="radio" id="bgOpt2" name="combatLocation" value="Frozen Wall"><label for="bgOpt2">Frozen Wall</label>
+							<input type="radio" id="bgOpt3" name="combatLocation" value="Shadow Cave"><label for="bgOpt3">Shadow Cave</label>
+							<input type="radio" id="bgOpt4" name="combatLocation" value="Dragon Bones"><label for="bgOpt4">Dragon Bones</label>
+						</div>
 					</div>
 				</div>
-				<div style="font-size: 1.5em !important; text-shadow: 2px 2px black;">
+
+				<div class="startButtonWrapper">
 					<span class="blink">PRESS </span>
 					<input class="startButton" id="startButton" type="submit" value="START">
 					<span class="blink"> BUTTON</span>
@@ -132,11 +135,11 @@
 			<div id="version"><a href="https://ancientbeast-beta.herokuapp.com" title="Switch to development version? Very unstable!">v0.4-alpha</a></div>
 		</div>
 	</div>
-	<div id="ui" style="display: none;">
-		<div id="scoreboardwrapper" style="display: none;">
-		    <div id="scoreboard">
-			<div id="scoreboardReturn" class="togglescore button"></div>
-			<h1 id="scoreboardTitle"></h1>
+	<div id="ui">
+		<div id="scoreboardwrapper">
+			<div id="scoreboard">
+				<div id="scoreboardReturn" class="togglescore button"></div>
+				<h1 id="scoreboardTitle"></h1>
 				<table id="score">
 					<tbody>
 						<tr class="player_name">
@@ -231,11 +234,11 @@
 							<td>--</td>
 						</tr>
 						<tr class="upgrade">
-						    <td>Ability Upgrades</td>
-						    <td>--</td>
-						    <td>--</td>
-						    <td>--</td>
-						    <td>--</td>
+							<td>Ability Upgrades</td>
+							<td>--</td>
+							<td>--</td>
+							<td>--</td>
+							<td>--</td>
 						</tr>
 						<tr class="total">
 							<td>Total</td>
@@ -339,23 +342,32 @@
 							<div class="card sideB" style="background-image: url('<%=require(`assets/cards/margin.png`)%>'), url();">
 								<div class="section numbers stats">
 									<div stat="health" class="stat health" title="Health">
-										<div class="icon health"></div><br><span class="value">0</span></div>
+										<div class="icon health"></div><br><span class="value">0</span>
+									</div>
 									<div stat="regrowth" class="stat regrowth" title="Regrowth">
-										<div class="icon regrowth"></div><br><span class="value">0</span></div>
+										<div class="icon regrowth"></div><br><span class="value">0</span>
+									</div>
 									<div stat="endurance" class="stat endurance" title="Endurance">
-										<div class="icon endurance"></div><br><span class="value">0</span></div>
+										<div class="icon endurance"></div><br><span class="value">0</span>
+									</div>
 									<div stat="energy" class="stat energy" title="Energy">
-										<div class="icon energy"></div><br><span class="value">0</span></div>
+										<div class="icon energy"></div><br><span class="value">0</span>
+									</div>
 									<div stat="meditation" class="stat meditation" title="Meditation">
-										<div class="icon meditation"></div><br><span class="value">0</span></div>
+										<div class="icon meditation"></div><br><span class="value">0</span>
+									</div>
 									<div stat="initiative" class="stat initiative" title="Initiative">
-										<div class="icon initiative"></div><br><span class="value">0</span></div>
+										<div class="icon initiative"></div><br><span class="value">0</span>
+									</div>
 									<div stat="offense" class="stat offense" title="Offense">
-										<div class="icon offense"></div><br><span class="value">0</span></div>
+										<div class="icon offense"></div><br><span class="value">0</span>
+									</div>
 									<div stat="defense" class="stat defense" title="Defense">
-										<div class="icon defense"></div><br><span class="value">0</span></div>
+										<div class="icon defense"></div><br><span class="value">0</span>
+									</div>
 									<div stat="movement" class="stat movement" title="Movement">
-										<div class="icon movement"></div><br><span class="value">0</span></div>
+										<div class="icon movement"></div><br><span class="value">0</span>
+									</div>
 								</div>
 								<div class="section abilities">
 									<div class="ability">
@@ -417,23 +429,32 @@
 								</div>
 								<div class="section numbers masteries">
 									<div stat="pierce" class="stat pierce" title="Pierce">
-										<div class="icon pierce"></div><br><span class="value">0</span></div>
+										<div class="icon pierce"></div><br><span class="value">0</span>
+									</div>
 									<div stat="slash" class="stat slash" title="Slash">
-										<div class="icon slash"></div><br><span class="value">0</span></div>
+										<div class="icon slash"></div><br><span class="value">0</span>
+									</div>
 									<div stat="crush" class="stat crush" title="Crush">
-										<div class="icon crush"></div><br><span class="value">0</span></div>
+										<div class="icon crush"></div><br><span class="value">0</span>
+									</div>
 									<div stat="shock" class="stat shock" title="Shock">
-										<div class="icon shock"></div><br><span class="value">0</span></div>
+										<div class="icon shock"></div><br><span class="value">0</span>
+									</div>
 									<div stat="burn" class="stat burn" title="Burn">
-										<div class="icon burn"></div><br><span class="value">0</span></div>
+										<div class="icon burn"></div><br><span class="value">0</span>
+									</div>
 									<div stat="frost" class="stat frost" title="Frost">
-										<div class="icon frost"></div><br><span class="value">0</span></div>
+										<div class="icon frost"></div><br><span class="value">0</span>
+									</div>
 									<div stat="poison" class="stat poison" title="Poison">
-										<div class="icon poison"></div><br><span class="value">0</span></div>
+										<div class="icon poison"></div><br><span class="value">0</span>
+									</div>
 									<div stat="sonic" class="stat sonic" title="Sonic">
-										<div class="icon sonic"></div><br><span class="value">0</span></div>
+										<div class="icon sonic"></div><br><span class="value">0</span>
+									</div>
 									<div stat="mental" class="stat mental" title="Mental">
-										<div class="icon mental"></div><br><span class="value">0</span></div>
+										<div class="icon mental"></div><br><span class="value">0</span>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -705,93 +726,93 @@
 							</div>
 							<div class="overlay"></div>
 							<div class="border"></div>
-							</a>
-							<a href="#Deep_Beauty" class="vignette realmS typeS3" creature="S3">
-								<div class="tooltip">
-									<div class="content">Deep Beauty</div>
-								</div>
-								<div class="overlay"></div>
-								<div class="border"></div>
-							</a>
-							<a href="#Nightmare" class="vignette realmS typeS4" creature="S4">
-								<div class="tooltip">
-									<div class="content">Nightmare</div>
-								</div>
-								<div class="overlay"></div>
-								<div class="border"></div>
-							</a>
-							<a href="#Impaler" class="vignette realmS typeS5" creature="S5">
-								<div class="tooltip">
-									<div class="content">Impaler</div>
-								</div>
-								<div class="overlay"></div>
-								<div class="border"></div>
-							</a>
-							<a href="#Adaptation" class="vignette
+						</a>
+						<a href="#Deep_Beauty" class="vignette realmS typeS3" creature="S3">
+							<div class="tooltip">
+								<div class="content">Deep Beauty</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Nightmare" class="vignette realmS typeS4" creature="S4">
+							<div class="tooltip">
+								<div class="content">Nightmare</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Impaler" class="vignette realmS typeS5" creature="S5">
+							<div class="tooltip">
+								<div class="content">Impaler</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Adaptation" class="vignette
 								realmS typeS6" creature="S6">
-								<div class="tooltip">
-									<div class="content">Adaptation</div>
-								</div>
-								<div class="overlay"></div>
-								<div class="border"></div>
-								</a>
-								<a href="#Ice_Demon" class="vignette realmS typeS7" creature="S7">
-									<div class="tooltip">
-										<div class="content">Ice Demon</div>
-									</div>
-									<div class="overlay"></div>
-									<div class="border"></div>
-								</a>
-								<a href="#Nutcase" class="vignette realmW typeW1" creature="W1">
-									<div class="tooltip">
-										<div class="content">Nutcase</div>
-									</div>
-									<div class="overlay"></div>
-									<div class="border"></div>
-								</a>
-								<a href="#Flesh_Cleanser" class="vignette realmW typeW2" creature="W2">
-									<div class="tooltip">
-										<div class="content">Flesh Cleanser</div>
-									</div>
-									<div class="overlay"></div>
-									<div class="border"></div>
-								</a>
-								<a href="#Headless" class="vignette realmW typeW3" creature="W3">
-									<div class="tooltip">
-										<div class="content">Headless</div>
-									</div>
-									<div class="overlay"></div>
-									<div class="border"></div>
-								</a>
-								<a href="#Flayed" class="vignette realmW typeW4" creature="W4">
-									<div class="tooltip">
-										<div class="content">Flayed</div>
-									</div>
-									<div class="overlay"></div>
-									<div class="border"></div>
-								</a>
-								<a href="#Horn_Head" class="vignette realmW typeW5" creature="W5">
-									<div class="tooltip">
-										<div class="content">Horn Head</div>
-									</div>
-									<div class="overlay"></div>
-									<div class="border"></div>
-								</a>
-								<a href="#Satyr" class="vignette realmW typeW6" creature="W6">
-									<div class="tooltip">
-										<div class="content">Satyr</div>
-									</div>
-									<div class="overlay"></div>
-									<div class="border"></div>
-								</a>
-								<a href="#Sarcophag" class="vignette realmW
+							<div class="tooltip">
+								<div class="content">Adaptation</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Ice_Demon" class="vignette realmS typeS7" creature="S7">
+							<div class="tooltip">
+								<div class="content">Ice Demon</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Nutcase" class="vignette realmW typeW1" creature="W1">
+							<div class="tooltip">
+								<div class="content">Nutcase</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Flesh_Cleanser" class="vignette realmW typeW2" creature="W2">
+							<div class="tooltip">
+								<div class="content">Flesh Cleanser</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Headless" class="vignette realmW typeW3" creature="W3">
+							<div class="tooltip">
+								<div class="content">Headless</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Flayed" class="vignette realmW typeW4" creature="W4">
+							<div class="tooltip">
+								<div class="content">Flayed</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Horn_Head" class="vignette realmW typeW5" creature="W5">
+							<div class="tooltip">
+								<div class="content">Horn Head</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Satyr" class="vignette realmW typeW6" creature="W6">
+							<div class="tooltip">
+								<div class="content">Satyr</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
+						<a href="#Sarcophag" class="vignette realmW
 								typeW7" creature="W7">
-									<div class="tooltip">
-										<div class="content">Sarcophag</div>
-									</div>
-									<div class="overlay"></div>
-									<div class="border"></div>
-									</a>
+							<div class="tooltip">
+								<div class="content">Sarcophag</div>
+							</div>
+							<div class="overlay"></div>
+							<div class="border"></div>
+						</a>
 					</div>
 				</div>
 			</div>
