@@ -1421,7 +1421,6 @@ span.pure {
 	color: grey;
 	text-decoration: none;
 }
-
 @media (max-height: 650px) {
 	#gameTitle {
 		transform: rotate(90deg);
@@ -1436,64 +1435,134 @@ a {
 	color: white;
 }
 
-#settings,
-.cont {
-	display: inline-block;
-	background: #191919cc;
-	border: #7a7a7a 1px solid;
-	border-radius: 7px;
-	margin: 2px;
-	padding: 5px;
-}
-
-.divFrame {
-	border: 40px solid transparent !important;
-	border-image: url('~assets/interface/div.png') 40 fill stretch !important;
-	background: none;
-	position: relative;
-	overflow: visible;
-	margin: 0 0 10px;
-	padding: 0;
-}
-
-#gameSetupContainer {
-	display: flex;
-	flex-direction: column;
-	flex-wrap: wrap;
-	height: 100vh;
-}
-
-#gameSetup {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-}
-
-#startButton {
-	background: transparent;
-	background-image: url('~assets/interface/small_button.png');
-	background-size: 190px;
-	border: 0;
-	width: 190px;
-	height: 74px;
-}
-
-#startButton:hover {
-	filter: brightness(135%);
-}
-
-#startButton:focus {
-	outline: 0;
+#matchMaking {
+	width: 100%;
+	height: 100%;
+	min-height: 510px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 99;
+	text-align: center;
+	background: black url('~assets/interface/Reaper.jpg') no-repeat center top;
+	background-size: cover;
 	color: white;
-}
 
-.blink {
-	padding: 0;
-	font-weight: bold;
-	animation: fading 2.5s infinite;
-	-webkit-animation: fading 2.5s infinite;
+	#loader {
+		width: 200px;
+		height: 50px;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		margin-left: -100px;
+		margin-top: -2px;
+		line-height: 50px;
+		font-size: 40px;
+		display: none;
+
+		#barLoader {
+			position: relative;
+			margin-left: -60px;
+			background-image: url('~assets/interface/loadingEmpty.png');
+			background-repeat: no-repeat;
+			height: 54px;
+			width: 355px;
+
+			.progress {
+				display: block;
+				height: 100vh;
+				width: 0;
+				background-image: url('~assets/interface/loadingFull.png');
+				background-repeat: no-repeat;
+			}
+		}
+	}
+
+	#gameSetupContainer {
+		display: flex;
+		flex-direction: column;
+		flex-wrap: wrap;
+		height: 100vh;
+
+		#gameSetup {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+
+			.setupFrame {
+				border: 40px solid transparent !important;
+				border-image: url('~assets/interface/div.png') 40 fill stretch !important;
+				background: none;
+				position: relative;
+				overflow: visible;
+				margin: 0 0 10px;
+				padding: 0;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				width: 495px;
+
+				.gameOption {
+					background: #191919cc;
+					border: #7a7a7a 1px solid;
+					border-radius: 7px;
+					margin: 2px;
+					padding: 5px;
+					display: flex;
+					flex-direction: column;
+					flex-grow: 1;
+					justify-content: center;
+
+					h2 {
+						margin: 5px;
+						font-size: 1em;
+					}
+
+					.typeRadio {
+						white-space: nowrap;
+						display: flex;
+						flex-grow: 1;
+
+						.ui-button {
+							flex-grow: 1;
+						}
+					}
+				}
+			}
+
+			.startButtonWrapper {
+				font-size: 1.5em;
+				text-shadow: 2px 2px black;
+
+				.blink {
+					padding: 0;
+					font-weight: bold;
+					animation: fading 2.5s infinite;
+					-webkit-animation: fading 2.5s infinite;
+				}
+
+				#startButton {
+					background: transparent;
+					background-image: url('~assets/interface/small_button.png');
+					background-size: 190px;
+					border: 0;
+					width: 190px;
+					height: 74px;
+
+					&:hover {
+						filter: brightness(135%);
+					}
+
+					&:focus {
+						outline: 0;
+						color: white;
+					}
+				}
+			}
+		}
+	}
 }
 @keyframes fading {
 	0% {
@@ -1522,108 +1591,59 @@ a {
 	}
 }
 
-#gameSetup .cont h2 {
-	margin: 5px;
-	font-size: 1em;
-}
-
-#gameSetup .typeradio {
-	white-space: nowrap;
-}
-
-#matchMaking {
-	width: 100%;
-	height: 100%;
-	min-height: 510px;
-	position: absolute;
-	left: 0;
-	top: 0;
-	z-index: 99;
-	text-align: center;
-	background: black url('~assets/interface/Reaper.jpg') no-repeat center top;
-	background-size: cover;
-	color: white;
-}
-
-#loader {
-	width: 200px;
-	height: 50px;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	margin-left: -100px;
-	margin-top: -2px;
-	line-height: 50px;
-	font-size: 40px;
+#ui {
 	display: none;
-}
+	/*--------------Scoreboard------------------*/
+	#scoreboardwrapper {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		left: 0;
+		top: 0;
+		z-index: 100;
+		display: none;
+		background: rgba(0, 0, 0, 0.8);
 
-#barLoader {
-	position: relative;
-	margin-left: -60px;
-	background-image: url('~assets/interface/loadingEmpty.png');
-	background-repeat: no-repeat;
-	height: 54px;
-	width: 355px;
+		#scoreboard {
+			width: 450px;
+			height: 480px;
+			color: white;
+			margin: 30px auto 0;
+			background: black;
+			border: 2px grey solid;
 
-	.progress {
-		display: block;
-		height: 100vh;
-		width: 0;
-		background-image: url('~assets/interface/loadingFull.png');
-		background-repeat: no-repeat;
+			#scoreboardReturn {
+				top: 0;
+				right: 0 !important;
+				position: absolute;
+				height: 100px;
+				width: 100px;
+				background-image: url('~assets/icons/close.svg');
+
+				&:before {
+					height: 100px;
+					width: 100px;
+					background-image: url('~assets/interface/frame.png');
+				}
+			}
+
+			table {
+				color: white;
+				text-align: center;
+				margin: auto;
+			}
+
+			h1 {
+				text-align: center;
+			}
+
+			p {
+				text-align: center;
+				font-size: 18px;
+				font-weight: bold;
+			}
+		}
 	}
-}
-/*--------------Scoreboard------------------*/
-#scoreboardwrapper {
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	left: 0;
-	top: 0;
-	z-index: 100;
-	display: block;
-	background: rgba(0, 0, 0, 0.8);
-}
-
-#scoreboard {
-	width: 450px;
-	height: 480px;
-	color: white;
-	margin: 30px auto 0;
-	background: black;
-	border: 2px grey solid;
-}
-
-#scoreboardReturn {
-	top: 0;
-	right: 0 !important;
-	position: absolute;
-	height: 100px;
-	width: 100px;
-	background-image: url('~assets/icons/close.svg');
-}
-
-#scoreboardReturn:before {
-	height: 100px;
-	width: 100px;
-	background-image: url('~assets/interface/frame.png');
-}
-
-#scoreboard table {
-	color: white;
-	text-align: center;
-	margin: auto;
-}
-
-#scoreboard h1 {
-	text-align: center;
-}
-
-#scoreboard p {
-	text-align: center;
-	font-size: 18px;
-	font-weight: bold;
 }
 /*--------------------TRAPS--------------------*/
 .trap {
