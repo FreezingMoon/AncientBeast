@@ -1,6 +1,5 @@
 // Import jquery related stuff
 import * as $j from 'jquery';
-import 'jquery-ui/ui/widgets/button';
 import 'jquery-ui/ui/widgets/slider';
 import 'jquery.transit';
 import Game from './game';
@@ -62,8 +61,11 @@ const abilitiesGenerators = [
 abilitiesGenerators.forEach(generator => generator(G));
 
 $j(document).ready(() => {
-	$j('.typeRadio').buttonset();
-	$j('#startButton').button();
+	let scrim = $j('.scrim');
+	scrim.on('transitionend', function() {
+		scrim.remove();
+	});
+	scrim.removeClass('loading');
 
 	// Select a random combat location
 	const locationSelector = $j("input[name='combatLocation']");
@@ -72,9 +74,6 @@ $j(document).ready(() => {
 		.eq(randomLocationIndex)
 		.prop('checked', true)
 		.trigger('click');
-
-	// Refresh the buttonset UI so that newly checked location is displayed
-	$j('.typeRadio').buttonset('refresh');
 
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener('blur', G.onBlur.bind(G), false);
