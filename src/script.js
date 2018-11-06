@@ -80,7 +80,7 @@ $j(document).ready(() => {
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 
 	// Focus the form to enable "press enter to start the game" functionality
-	$j('input[type="radio"]').focus();
+	$j('#p2').focus();
 
 	$j('form#gameSetup').submit(e => {
 		e.preventDefault(); // Prevent submit
