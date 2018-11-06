@@ -1,0 +1,186 @@
+body {
+	background: black url('~assets/interface/skulls.jpg') repeat;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+	font-family: 'Play', sans-serif;
+}
+
+* {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: moz-none;
+	-ms-user-select: none;
+	user-select: none;
+}
+@keyframes fading {
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.1;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+@-webkit-keyframes fading {
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.1;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+#gameSetupContainer {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	height: 100vh;
+
+	#gameSetup {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+
+		.setupFrame {
+			border: 40px solid transparent !important;
+			border-image: url('~assets/interface/div.png') 40 fill stretch !important;
+			background: none;
+			position: relative;
+			overflow: visible;
+			margin: 0 0 10px;
+			padding: 0;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			width: 495px;
+
+			.gameOption {
+				background: #191919cc;
+				border: #7a7a7a 1px solid;
+				border-radius: 7px;
+				margin: 2px;
+				padding: 5px;
+				display: flex;
+				flex-direction: column;
+				flex-grow: 1;
+				justify-content: center;
+
+				h2 {
+					margin: 5px;
+					font-size: 1em;
+				}
+
+				.typeRadio {
+					white-space: nowrap;
+					display: flex;
+					flex-grow: 1;
+
+					input[type='radio'] {
+						border: 0;
+						clip: rect(0 0 0 0);
+						height: 1px;
+						margin: -1px;
+						overflow: hidden;
+						padding: 0;
+						position: absolute;
+						width: 1px;
+
+						&:checked + label {
+							border: 1px solid #c80909;
+							background: #292929;
+							font-weight: bold;
+							color: #f55;
+							z-index: 9999;
+						}
+
+						&:focus + label {
+							box-shadow: 0 0 3px 1px rgb(214, 98, 94);
+						}
+					}
+
+					label {
+						flex-grow: 1;
+						border: 1px solid #333333;
+						background: #333333;
+						font-weight: bold;
+						color: #ffffff;
+						float: left;
+						margin-left: 0;
+						margin-right: 0;
+						line-height: 26px;
+
+						&:hover {
+							border: 1px solid #222222;
+							background: #a32d00;
+							font-weight: bold;
+							color: #ffffff;
+						}
+
+						&:active {
+							border: 1px solid #c80909;
+							background: #292929;
+							font-weight: bold;
+							color: #f55;
+						}
+
+						&:first-of-type {
+							border-top-left-radius: 4px;
+							border-bottom-left-radius: 4px;
+						}
+
+						&:last-of-type {
+							border-top-right-radius: 4px;
+							border-bottom-right-radius: 4px;
+						}
+					}
+				}
+			}
+		}
+
+		.startButtonWrapper {
+			font-size: 1.5em;
+			text-shadow: 2px 2px black;
+
+			.blink {
+				padding: 0;
+				font-weight: bold;
+				animation: fading 2.5s infinite;
+				-webkit-animation: fading 2.5s infinite;
+			}
+
+			#startButton {
+				background: transparent;
+				background-image: url('~assets/interface/small_button.png');
+				background-size: 190px;
+				border: 0;
+				width: 190px;
+				height: 74px;
+				color: #ffffff;
+				font-size: 0.9em;
+				font-weight: bold;
+
+				&:hover {
+					filter: brightness(135%);
+				}
+
+				&:focus {
+					outline: 0;
+					color: white;
+				}
+			}
+		}
+	}
+}
