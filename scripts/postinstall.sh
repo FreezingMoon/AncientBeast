@@ -3,5 +3,5 @@
 
 if [ "$NODE_ENV" == "production" ]
 then
-	yarn run build
+	npm run build
 fi
