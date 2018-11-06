@@ -35,37 +35,35 @@ nvm alias default 8  # to make 8 your default
 
 Note for Linux users: if you installed from repository, you _might_ need to create a path link.
 
-After you've successfully installed the Node.js package, proceed with installing the latest version of [Yarn](https://yarnpkg.com/en/docs/install), which is our tool of choice for package dependency management. Typically, this should consist of running `npm install -g yarn`.
-
 ### Installing Dependencies
 
 In the terminal (`Ctrl + ~` in [VCS](https://code.visualstudio.com/download)), use the following command in order to easily install all the project dependencies:
 
 ```sh
-yarn install
+npm install
 ```
 
-This will read `package.json` and install all of the gameplay established yarn package dependencies.  
-The `yarn install` command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again, which will also compile the project, same as the `yarn build:dev` command.
+This will read `package.json` and install all of the gameplay established npm package dependencies.  
+The `npm install` command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again, which will also compile the project, same as the `npm run build:dev` command.
 
 If you're using Windows OS and getting errors, have your desired tool `Run as administrator` or to disable your anti-virus.
 
 ### Compile Project
 
-In order to build the development version of the game (also done by `yarn install`), run the following command:
+In order to build the development version of the game (also done by `npm install`), run the following command:
 
 ```sh
-yarn build:dev
+npm run build:dev
 ```
 
-If you receive errors about the manifest or assets loading, try running `yarn generateManifest`. This will create an assets manifest file for the app.
+If you receive errors about the manifest or assets loading, try running `npm run generateManifest`. This will create an assets manifest file for the app.
 
-### Betatest Game
+### Beta Test Game
 
 To have the game up and running, simply run this command in the terminal, it will copy the link to the clipboard:
 
 ```sh
-yarn start
+npm run start
 ```
 
 You should open the game link using [Chromium](https://chromium.org) or [Google Chrome](https://google.com/chrome), as support for other browsers is not guaranteed.
@@ -97,7 +95,7 @@ You should look around on GitHub Issue tracker for open issues, priority being t
 In order to patch the game and constantly test it, run it using this command, which will keep track of any file changes:
 
 ```sh
-yarn start:dev
+npm run start:dev
 ```
 
 Keep in mind that you'll have to refresh the webpage after making changes. Make sure to disable browser caching by using `Ctrl + Shift + J`, then going to the **Network** tab and checking **Disable cache**.
