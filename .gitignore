@@ -6,9 +6,6 @@ src/manifest.js
 # DS_STORE FILES
 .DS_Store
 
-### Bower ###
-bower_components
-
 ### Node ###
 # Logs
 logs

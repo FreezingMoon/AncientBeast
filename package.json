@@ -51,8 +51,8 @@
 		"node": ">=8"
 	},
 	"scripts": {
-		"build": "yarn run generateManifest && webpack --mode=production",
-		"build:dev": "yarn run generateManifest && webpack --mode=development",
+		"build": "npm run generateManifest && webpack --mode=production",
+		"build:dev": "npm run generateManifest && webpack --mode=development",
 		"start": "cross-env NODE_ENV=production node server.js",
 		"start:dev": "cross-env NODE_ENV=development node server.js",
 		"generateManifest": "node manifestGenerator.js",
@@ -62,7 +62,7 @@
 		"postinstall": "scripts/postinstall.sh",
 		"precommit": "lint-staged",
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check",
-		"test": "yarn run lint && yarn run build"
+		"test": "npm run lint && npm run build"
 	},
 	"lint-staged": {
 		"concurrent": false,
