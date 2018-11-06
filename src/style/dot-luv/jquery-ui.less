@@ -64,25 +64,6 @@
 	width: 100%;
 	height: 100%;
 }
-.ui-accordion .ui-accordion-header {
-	display: block;
-	cursor: pointer;
-	position: relative;
-	margin: 2px 0 0 0;
-	padding: 0.5em 0.5em 0.5em 0.7em;
-	font-size: 100%;
-}
-.ui-accordion .ui-accordion-content {
-	padding: 1em 2.2em;
-	border-top: 0;
-	overflow: auto;
-}
-.ui-autocomplete {
-	position: absolute;
-	top: 0;
-	left: 0;
-	cursor: default;
-}
 .ui-menu {
 	list-style: none;
 	padding: 0;
@@ -153,14 +134,6 @@
 .ui-button:hover,
 .ui-button:active {
 	text-decoration: none;
-}
-
-/* to make room for the icon, a width needs to be set here */
-.ui-button-icon-only {
-	width: 2em;
-	box-sizing: border-box;
-	text-indent: -9999px;
-	white-space: nowrap;
 }
 
 /* no icon support for input elements */
@@ -277,6 +250,53 @@ button.ui-button::-moz-focus-inner {
 	pointer-events: none;
 }
 
+.ui-widget.ui-widget-content {
+	border: 1px solid #000;
+}
+.ui-widget-content {
+	border: 1px solid #000;
+	background: #2b2b2b;
+	color: #333333;
+}
+.ui-slider {
+	position: relative;
+	text-align: left;
+}
+.ui-slider .ui-slider-handle {
+	position: absolute;
+	z-index: 2;
+	width: 1.2em;
+	height: 1.2em;
+	cursor: default;
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.ui-slider .ui-slider-range {
+	position: absolute;
+	z-index: 1;
+	font-size: 0.7em;
+	display: block;
+	border: 0;
+	background-position: 0 0;
+}
+.ui-slider-horizontal {
+	height: 0.8em;
+}
+.ui-slider-horizontal .ui-slider-handle {
+	top: -0.3em;
+	margin-left: -0.6em;
+}
+.ui-slider-horizontal .ui-slider-range {
+	top: 0;
+	height: 100%;
+}
+.ui-slider-horizontal .ui-slider-range-min {
+	left: 0;
+}
+.ui-slider-horizontal .ui-slider-range-max {
+	right: 0;
+}
+
 /* Interaction states
 ----------------------------------*/
 .ui-state-default,
@@ -289,9 +309,8 @@ works properly when clicked or hovered */
 html .ui-button.ui-state-disabled:hover,
 html .ui-button.ui-state-disabled:active {
 	border: 1px solid #333333;
-	background: #333333 url('./images/ui-bg_dots-small_20_333333_2x2.png') 50% 50% repeat;
+	background: #333333;
 	font-weight: bold;
-	color: #ffffff;
 }
 .ui-state-default a,
 .ui-state-default a:link,
