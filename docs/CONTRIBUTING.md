@@ -28,9 +28,9 @@ In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P
 First install (or make sure you have) the latest LTS version of [Node.js](http://nodejs.org). In case you need to have different versions of it for other projects as well, you should definitely use `nvm` (Node version manager), which is a tool that makes it easy to manage multiple local Node installations. You can [find installation instructions here](https://github.com/creationix/nvm#installation), and then use it like:
 
 ```sh
-nvm install 8  # if 8 is the latest LTS release
-nvm use 8  # to use 8 now
-nvm alias default 8  # to make 8 your default
+nvm install --lts  # This will always install the latest LTS release.
+nvm use --lts  # to use latest LTS now.
+nvm alias default  # to make latest LTS your default
 ```
 
 Note for Linux users: if you installed from repository, you _might_ need to create a path link.
