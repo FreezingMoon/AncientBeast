@@ -55,7 +55,7 @@
 		"build:dev": "npm run generateManifest && webpack --mode=development",
 		"start": "cross-env NODE_ENV=production node server.js",
 		"start:dev": "cross-env NODE_ENV=development node server.js",
-		"generateManifest": "node manifestGenerator.js",
+		"generateManifest": "node ./manifestGenerator.js",
 		"lint": "eslint -c .eslintrc.json --ignore-pattern manifest.js src/*.js src/**/*.js",
 		"lint-fix": "eslint -c .eslintrc.json --fix --ignore-pattern manifest.js src/*.js src/**/*.js",
 		"format": "prettier-eslint --write \"src/**/*.js\"",
