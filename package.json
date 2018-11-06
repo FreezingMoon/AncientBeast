@@ -15,6 +15,7 @@
 	},
 	"keywords": ["game", "strategy", "phaser"],
 	"dependencies": {
+		"cross-env": "^5.1.6",
 		"compression": "^1.7.2",
 		"express": "^4.16.3",
 		"jquery": "3.3.1",
@@ -29,7 +30,6 @@
 		"webpack-merge": "^4.1.2"
 	},
 	"devDependencies": {
-		"cross-env": "^5.1.6",
 		"css-loader": "^0.28.11",
 		"eslint": "^4.19.0",
 		"eslint-config-prettier": "^2.9.0",
