@@ -29,11 +29,11 @@ First install (or make sure you have) the latest LTS version of [Node.js](http:/
 
 ```sh
 nvm install --lts  # This will always install the latest LTS release.
-nvm use --lts  # to use latest LTS now.
-nvm alias default  # to make latest LTS your default
+nvm use --lts  # Use latest LTS now.
+nvm alias default  # Make latest LTS your default.
 ```
 
-Note for Linux users: if you installed from repository, you _might_ need to create a path link.
+`LTS` stands for `Long Term Support`, meaning it's a rather stable and hopefully non-problematic version.
 
 ### Installing Dependencies
 
@@ -46,8 +46,6 @@ npm install
 This will read `package.json` and install all of the gameplay established npm package dependencies.  
 The `npm install` command will also update any required dependencies if `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again, which will also compile the project, same as the `npm run build:dev` command.
 
-If you're using Windows OS and getting errors, have your desired tool `Run as administrator` or to disable your anti-virus.
-
 ### Compile Project
 
 In order to build the development version of the game (also done by `npm install`), run the following command:
@@ -58,17 +56,21 @@ npm run build:dev
 
 If you receive errors about the manifest or assets loading, try running `npm run generateManifest`. This will create an assets manifest file for the app.
 
-### Beta Test Game
+### Beta Testing
 
-To have the game up and running, simply run this command in the terminal, it will copy the link to the clipboard:
+To have the game up and running on your local machine, simply run this command in the terminal:
 
 ```sh
 npm run start
 ```
 
-You should open the game link using [Chromium](https://chromium.org) or [Google Chrome](https://google.com/chrome), as support for other browsers is not guaranteed.
+Then access it using [Chromium](https://chromium.org) or [Google Chrome](https://google.com/chrome), as support for other browsers is not guaranteed:
 
-You can always [test the latest master without any hassle here](https://ancientbeast-beta.herokuapp.com).
+```
+localhost:8080
+```
+
+You can always test the latest master without any hassle from our auto-deployed [Heroku app](https://ancientbeast-beta.herokuapp.com).
 
 A handy tip while testing: you can right click the game tab and mute it by simply clicking the `Mute site` option.
 
@@ -96,6 +98,12 @@ In order to patch the game and constantly test it, run it using this command, wh
 
 ```sh
 npm run start:dev
+```
+
+Then access it using [Chromium](https://chromium.org) or [Google Chrome](https://google.com/chrome), as support for other browsers is not guaranteed:
+
+```
+localhost:8080
 ```
 
 Keep in mind that you'll have to refresh the webpage after making changes. Make sure to disable browser caching by using `Ctrl + Shift + J`, then going to the **Network** tab and checking **Disable cache**.
