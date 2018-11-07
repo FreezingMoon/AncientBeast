@@ -6,9 +6,27 @@
 	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
 
 	<title>Ancient Beast 0.3</title>
+	<style>
+		.scrim.loading {
+			opacity: 1;
+		}
+
+		.scrim {
+			height: 100vh;
+			width: 100vw;
+			background-color: black;
+			position: absolute;
+			top: 0;
+			left: 0;
+			transition: opacity 0.5s ease-in;
+			opacity: 0;
+			z-index: 999999999;
+		}
+	</style>
 </head>
 
 <body oncontextmenu="return false;">
+	<div class="scrim loading"></div>
 	<div id="matchMaking">
 		<div id="loader"><img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32">Loading
 			<div id="barLoader">
@@ -965,5 +983,4 @@
 	<!--Google Analytics-->
 	<%= JSON.stringify(htmlWebpackPlugin.options.google) %>
 </body>
-
 </html>
