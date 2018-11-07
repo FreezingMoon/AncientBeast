@@ -24,17 +24,6 @@
 }
 
 #grid {
-	/* Old perspective grid code
-	-webkit-perspective: 3000px;
-	-webkit-perspective-origin: 50% 50%;
-	-moz-perspective: 3000px;
-	-moz-perspective-origin: 50% 50%;
-	-ms-perspective: 3000px;
-	-ms-perspective-origin: 50% 50%;
-	-o-perspective: 3000px;
-	-o-perspective-origin: 50% 50%;
-	perspective: 3000px;
-	perspective-origin: 50% 50%;*/
 	width: 90.1em;
 	height: 45em;
 	position: relative;
@@ -51,14 +40,10 @@
 	top: 0;
 	left: 0;
 	transform-origin: 45.05em 22.5em;
-	-ms-transform-origin: 45.05em 22.5em;
-	/* IE 9 */
 	-webkit-transform-origin: 45.05em 22.5em;
 	/* Safari and Chrome */
 	-moz-transform-origin: 45.05em 22.5em;
 	/* Firefox */
-	-o-transform-origin: 45.05em 22.5em;
-	/* Opera */
 }
 
 #hexesDisplay,
@@ -109,8 +94,6 @@
 	-webkit-transition: opacity 250ms;
 	/* Safari and Chrome */
 	-ms-transition: opacity 250ms;
-	-o-transition: opacity 250ms;
-	/* Opera */
 }
 
 .displayhex {
@@ -123,7 +106,6 @@
 	line-height: 52px;
 	text-align: center;
 	font-size: 35px;
-	/*text-shadow: 0px 0px 5px rgba(255, 255, 255, 0.7);*/
 }
 
 #hexesDisplay .displayhex.not-reachable {
@@ -154,28 +136,20 @@
 	position: relative;
 	content: '';
 	transform: rotate(-60deg);
-	-ms-transform: rotate(-60deg);
-	/* IE 9 */
 	-moz-transform: rotate(-60deg);
 	/* Firefox */
 	-webkit-transform: rotate(-60deg);
 	/* Safari and Chrome */
-	-o-transform: rotate(-60deg);
-	/* Opera */
 }
 
 #hexesinput .hex div:after {
 	position: absolute;
 	content: '';
 	transform: rotate(60deg);
-	-ms-transform: rotate(60deg);
-	/* IE 9 */
 	-moz-transform: rotate(60deg);
 	/* Firefox */
 	-webkit-transform: rotate(60deg);
 	/* Safari and Chrome */
-	-o-transform: rotate(60deg);
-	/* Opera */
 }
 
 #hexesinput .hex.not-reachable div,
@@ -203,6 +177,7 @@
 #hexesDisplay .displayhex.showGrid {
 	opacity: 1 !important;
 }
+
 /*--------------------Players------------------*/
 #hexesDisplay .displayhex.creature {
 	z-index: 6 !important;
@@ -213,10 +188,11 @@
 	z-index: 6 !important;
 	opacity: 1;
 }
-/*not working*/
+
 #hexesOverlay .displayhex.hover {
 	background: url('~assets/interface/cancel.png');
 }
+
 /*p0*/
 #hexesOverlay .displayhex.creature.player0.ownCreatureHexShade,
 #hexesOverlay .displayhex.hover.h_player0 {
@@ -228,6 +204,7 @@
 #hexesOverlay .displayhex.creature.selected.player0 {
 	background: url('~assets/interface/hex_outline_red.png');
 }
+
 /*p1*/
 #hexesOverlay .displayhex.creature.player1.ownCreatureHexShade,
 #hexesOverlay .displayhex.hover.h_player1 {
@@ -239,6 +216,7 @@
 #hexesOverlay .displayhex.creature.selected.player1 {
 	background: url('~assets/interface/hex_outline_blue.png');
 }
+
 /*p2*/
 #hexesOverlay
 	.displayhex.hover.h_player2
@@ -252,6 +230,7 @@
 #hexesOverlay .displayhex.creature.selected.player2 {
 	background: url('~assets/interface/hex_outline_orange.png');
 }
+
 /*p3*/
 #hexesOverlay
 	.displayhex.hover.h_player3
@@ -275,6 +254,7 @@
 	z-index: 5;
 	opacity: 1 !important;
 }
+
 /*------------------Creatures------------------*/
 #creatureWrapper .creature .effects {
 	position: absolute;
@@ -297,20 +277,14 @@
 	-ms-transition: opacity 500ms;
 	-webkit-transition: opacity 500ms;
 	/* Safari and Chrome */
-	-o-transition: opacity 500ms;
-	/* Opera */
 }
 
 #creatureWrapper div.creature.flipped {
 	transform: scale(-1, 1);
-	-ms-transform: scale(-1, 1);
-	/* IE 9 */
 	-moz-transform: scale(-1, 1);
 	/* Firefox */
 	-webkit-transform: scale(-1, 1);
 	/* Safari and Chrome */
-	-o-transform: scale(-1, 1);
-	/* Opera */
 }
 
 #creatureWrapper .creature {
@@ -320,8 +294,6 @@
 	/* Firefox 4 */
 	-webkit-transition: opacity 500ms;
 	/* Safari and Chrome */
-	-o-transition: opacity 500ms;
-	/* Opera */
 }
 
 .creature.ghosted {
@@ -335,6 +307,7 @@
 .creature.dead {
 	opacity: 0 !important;
 }
+
 /*-----------------Drops-------------------*/
 .drop {
 	position: absolute;
@@ -343,6 +316,7 @@
 	width: 50px;
 	height: 50px;
 }
+
 /*-----------------UI-------------------*/
 #ui {
 	top: 0;
@@ -501,6 +475,7 @@ div.section.info {
 		}
 	}
 }
+
 /*-------------------dash-------------------*/
 #dash {
 	background: rgba(0, 0, 0, 0.85);
@@ -515,8 +490,6 @@ div.section.info {
 	/* Firefox 4 */
 	-webkit-transition: top 250ms;
 	/* Safari and Chrome */
-	-o-transition: top 250ms;
-	/* Opera */
 }
 
 #dash #tooltip {
@@ -671,14 +644,10 @@ div.section.info {
 
 #cardwrapper_inner {
 	transform-origin: 0 0;
-	-ms-transform-origin: 0 0;
-	/* IE 9 */
 	-webkit-transform-origin: 0 0;
 	/* Safari and Chrome */
 	-moz-transform-origin: 0 0;
 	/* Firefox */
-	-o-transform-origin: 0 0;
-	/* Opera */
 }
 
 #card {
@@ -720,6 +689,7 @@ div.section.info {
 .debuff {
 	color: red;
 }
+
 /*-------------------Queue-------------------*/
 #queuewrapper {
 	display: block;
@@ -765,8 +735,6 @@ div.section.info {
 	/* Firefox 4 */
 	-webkit-transition: opacity 300ms;
 	/* Safari and Chrome */
-	-o-transition: opacity 300ms;
-	/* Opera */
 }
 
 .vignette .stats {
@@ -797,7 +765,7 @@ div.section.info {
 	height: 100px;
 	width: 100px;
 }
-/*#queue .vignette.hidden,#queue .vignette.hidden div{ width: 0px; height: 80px; }*/
+
 .vignette .overlay_frame {
 	background-image: url('~assets/interface/frame_white.png');
 	opacity: 0;
@@ -851,6 +819,7 @@ div.section.info {
 	background-image: url('~assets/interface/frame.png'), url('~assets/interface/round.jpg');
 	cursor: help;
 }
+
 /*-----------PAUSE OVERLAY-------------*/
 /* Pause has been disabled from game */
 #pause {
@@ -868,6 +837,7 @@ div.section.info {
 	box-sizing: border-box;
 	background-color: rgba(0, 0, 0, 0.8);
 }
+
 /*---------------TEXTBOX--------------*/
 #chat {
 	width: 450px;
@@ -886,8 +856,6 @@ div.section.info {
 	/* Firefox 4 */
 	-webkit-transition: all 500ms;
 	/* Safari and Chrome */
-	-o-transition: all 500ms;
-	/* Opera */
 }
 
 #chatbox::-webkit-scrollbar {
@@ -923,8 +891,6 @@ div.section.info {
 	/* Firefox 4 */
 	-webkit-transition: height 500ms;
 	/* Safari and Chrome */
-	-o-transition: height 500ms;
-	/* Opera */
 }
 
 #chat.focus #chatbox #chatcontent {
@@ -995,6 +961,7 @@ div.section.info {
 	color: #aaa;
 	margin: 0 5px;
 }
+
 /*---------------ACTIVE UNIT--------------*/
 #activebox {
 	position: relative;
@@ -1100,6 +1067,7 @@ div.section.info {
 	left: -259px;
 	text-align: right;
 }
+
 /*-----------------Costs and damages-------------------*/
 .abilityinfo_content > .info {
 	margin: 2px 10px;
@@ -1210,6 +1178,7 @@ span.mental {
 span.pure {
 	background-image: url('~assets/stats/pure.svg');
 }
+
 /*-----------------Animations-------------------*/
 /*Pulse between .6 and .1 opacity*/
 @keyframes pulse0106 {
@@ -1248,6 +1217,7 @@ span.pure {
 		opacity: 0.6;
 	}
 }
+
 /*Pulse between .8 and 1 opacity*/
 @keyframes pulse0510 {
 	0% {
@@ -1285,6 +1255,7 @@ span.pure {
 		opacity: 1;
 	}
 }
+
 /*Pulse between .8 and 1 opacity*/
 @keyframes pulse0205 {
 	0% {
@@ -1295,6 +1266,7 @@ span.pure {
 		opacity: 0.5;
 	}
 }
+
 @-moz-keyframes pulse0205 {
 	0% {
 		opacity: 0.2;
@@ -1304,6 +1276,7 @@ span.pure {
 		opacity: 0.5;
 	}
 }
+
 @-webkit-keyframes pulse0205 {
 	0% {
 		opacity: 0.2;
@@ -1313,6 +1286,7 @@ span.pure {
 		opacity: 0.5;
 	}
 }
+
 @-o-keyframes pulse0205 {
 	0% {
 		opacity: 0.2;
@@ -1322,6 +1296,7 @@ span.pure {
 		opacity: 0.5;
 	}
 }
+
 @keyframes glowingtext {
 	0% {
 		text-shadow: none;
@@ -1331,6 +1306,7 @@ span.pure {
 		text-shadow: #f00 0 2px 19px, #f00 0 2px 78px;
 	}
 }
+
 @-moz-keyframes glowingtext {
 	0% {
 		text-shadow: none;
@@ -1340,6 +1316,7 @@ span.pure {
 		text-shadow: #f00 0 2px 19px, #f00 0 2px 78px;
 	}
 }
+
 @-webkit-keyframes glowingtext {
 	0% {
 		text-shadow: none;
@@ -1349,6 +1326,7 @@ span.pure {
 		text-shadow: #f00 0 2px 19px, #f00 0 2px 78px;
 	}
 }
+
 @-o-keyframes glowingtext {
 	0% {
 		text-shadow: none;
@@ -1358,6 +1336,7 @@ span.pure {
 		text-shadow: #f00 0 2px 19px, #f00 0 2px 78px;
 	}
 }
+
 /*----------------Game setup--------------*/
 /*Overiding JqueryUI Theme*/
 .ui-widget {
@@ -1404,6 +1383,7 @@ span.pure {
 	color: grey;
 	text-decoration: none;
 }
+
 @media (max-height: 650px) {
 	#gameTitle {
 		transform: rotate(90deg);
@@ -1516,6 +1496,7 @@ a {
 		}
 	}
 }
+
 /*--------------------TRAPS--------------------*/
 .trap {
 	width: 90px;
@@ -1532,14 +1513,10 @@ a {
 	-o-transform: scaleY(0.75);
 	transform: scaleY(0.75);
 	transform-origin: 0 30%;
-	-ms-transform-origin: 0 30%;
-	/* IE 9 */
 	-webkit-transform-origin: 0 30%;
 	/* Safari and Chrome */
 	-moz-transform-origin: 0 30%;
 	/* Firefox */
-	-o-transform-origin: 0 30%;
-	/* Opera */
 }
 
 .trap.mud-bath {
@@ -1557,6 +1534,7 @@ a {
 .trap.firewall {
 	background: url('~assets/units/sprites/Magma Spawn - Scorched Ground.png');
 }
+
 /*------------------Progress Bars-------------------*/
 .progressbar {
 	display: block;
