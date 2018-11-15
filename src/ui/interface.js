@@ -1106,7 +1106,7 @@ export class UI {
 			return;
 		}
 
-		//BasedEnergy Edit: Binding the click outside of the scoreboard to the scoreboard closing
+		// Binding the click outside of the scoreboard to close the view
 		this.$scoreboard.bind('click', this.easyScoreClose);
 
 		// Configure scoreboard data
