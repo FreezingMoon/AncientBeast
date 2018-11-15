@@ -1480,8 +1480,9 @@ a {
 			height: 480px;
 			color: white;
 			margin: 30px auto 0;
-			background: black;
-			border: 2px grey solid;
+
+			border: 40px solid transparent !important;
+			border-image: url('~assets/interface/div.png') 40 fill stretch !important;
 
 			#scoreboardReturn {
 				top: 0;
@@ -1514,13 +1515,11 @@ a {
 				font-weight: bold;
 			}
 
-			/*-----BaseEnergy Edit : Make sure pointer stays normal on scoreboard-----*/
 			&:hover {
 				cursor: default;
 			}
 		}
 
-		/*-----BaseEnergy Edit : Fix for "cursor would turn to pointer"-----*/
 		&:hover {
 			cursor: pointer;
 		}
