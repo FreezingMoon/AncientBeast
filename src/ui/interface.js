@@ -1084,12 +1084,12 @@ export class UI {
 		$j('#musicplayerwrapper').show();
 	}
 
-	//BasedEnergy Edit: Function to close scoreboard if pressed outside of it
+	// Function to close scoreboard if pressing outside of it
 	easyScoreClose(e) {
 		let score = $j('#scoreboard');
 		let scoreboard = $j('#scoreboardwrapper');
 
-		// if the target of the click isn't the scoreboard nor a descendant of the scoreboard
+		// Check if the target of the click isn't the scoreboard nor a descendant of it
 		if (!score.is(e.target) && score.has(e.target).length === 0) {
 			scoreboard.unbind('click', this.easyScoreClose);
 			scoreboard.hide();
@@ -1106,7 +1106,7 @@ export class UI {
 			return;
 		}
 
-		//BasedEnergy Edit: Binding the click outside of the scoreboard to the scoreboard closing
+		// Binding the click outside of the scoreboard to close the view
 		this.$scoreboard.bind('click', this.easyScoreClose);
 
 		// Configure scoreboard data
