@@ -242,23 +242,11 @@ export default class Game {
 	 */
 	loadGame(setupOpt) {
 		let totalSoundEffects = this.soundEffects.length,
-			// defaultOpt = {
-			// 	playerMode: 2,
-			// 	creaLimitNbr: 7,
-			// 	unitDrops: 1,
-			// 	abilityUpgrades: 4,
-			// 	plasma_amount: 50,
-			// 	turnTimePool: 60,
-			// 	timePool: 5 * 60,
-			// 	background_image: 'Frozen Skull'
-			// },
 			i;
 
 		this.gamelog.gameConfig = setupOpt;
 		this.gameState = 'loading';
-		// setupOpt = $j.extend(defaultOpt, setupOpt);
 		$j.extend(this, setupOpt);
-
 		this.startLoading();
 
 		// Sounds
@@ -298,7 +286,6 @@ export default class Game {
 		}
 
 		// Traps
-		// TODO: Load these sprites only after the specific unit has been materialized
 		this.Phaser.load.image('trap_royal-seal', getUrl('units/sprites/Gumble - Royal Seal'));
 		this.Phaser.load.image('trap_mud-bath', getUrl('units/sprites/Swine Thug - Mud Bath'));
 		this.Phaser.load.image(
