@@ -1073,6 +1073,18 @@ export class UI {
 		$j('#musicplayerwrapper').show();
 	}
 
+	// Function to close scoreboard if pressing outside of it
+	easyScoreClose(e) {
+		let score = $j('#scoreboard');
+		let scoreboard = $j('#scoreboardwrapper');
+
+		// Check if the target of the click isn't the scoreboard nor a descendant of it
+		if (!score.is(e.target) && score.has(e.target).length === 0) {
+			scoreboard.unbind('click', this.easyScoreClose);
+			scoreboard.hide();
+		}
+	}
+
 	toggleScoreboard(gameOver) {
 		let game = this.game;
 
@@ -1082,6 +1094,9 @@ export class UI {
 
 			return;
 		}
+
+		// Binding the click outside of the scoreboard to close the view
+		this.$scoreboard.bind('click', this.easyScoreClose);
 
 		// Configure scoreboard data
 		this.$scoreboard.find('#scoreboardTitle').text('Current Score');
