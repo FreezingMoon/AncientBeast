@@ -206,6 +206,14 @@ export class UI {
 			game
 		);
 
+		// Sound Effects slider
+		let slider = document.getElementById('sfx');
+		slider.addEventListener('input', sliderChange);
+		/** @returns {number} Makes slider control sfx */
+		function sliderChange() {
+			game.soundsys.setEffectsVolume(this.value);
+		}
+
 		let hotkeys = {
 			scoreboard: 84, // T : This toggles the scoreboard
 			overview: 71, // G : Toggle dash
@@ -1060,7 +1068,9 @@ export class UI {
 		let game = this.game;
 
 		// If the scoreboard is displayed, hide it
-		if (this.$scoreboard.is(':visible')) this.$scoreboard.hide();
+		if (this.$scoreboard.is(':visible')) {
+			this.$scoreboard.hide();
+		}
 
 		this.$dash.addClass('active');
 		this.showCreature(game.activeCreature.type, game.activeCreature.team);
@@ -1271,7 +1281,9 @@ export class UI {
 
 		if (!this.$dash.hasClass('active')) {
 			// If the scoreboard is displayed, hide it
-			if (this.$scoreboard.is(':visible')) this.$scoreboard.hide();
+			if (this.$scoreboard.is(':visible')) {
+				this.$scoreboard.hide();
+			}
 
 			if (randomize) {
 				const activePlayer = game.players[game.activeCreature.player.id];
