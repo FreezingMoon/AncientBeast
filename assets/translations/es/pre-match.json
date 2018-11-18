@@ -1,0 +1,23 @@
+{
+	"mode": "Modo de Juego [ Hotseat ]",
+	"units": "Unidades Activas [ límite de Psyhelm ]",
+	"drops": "Botines",
+	"upgrades": "Mejoras de Habilidad [ número de rondas o usos ]",
+	"plasma": "Puntos de Plasma [ para materialización de unidades o blindaje ]",
+	"turn": "Tiempo por Turno [ segundos ]",
+	"pool": "Tiempo de Juego [ minutos ]",
+	"location": "Ubicación del combate [ no afecta a la jugabilidad ]",
+	"dark_forest": "Bosque Oscuro",
+	"frozen_wall": "Muro de Hielo",
+	"shadow_cave": "Cueva Sombría",
+	"dragon_bones": "Huesos de Dragón",
+	"press": "PULSA",
+	"start": "INICIO",
+	"button": "AHORA",
+	"on": "On",
+	"off": "Off",
+	"versus": "versus",
+	"enabled": "Activado",
+	"disabled": "Desactivado",
+	"unstable": "¿Cambiar a la versión en desarrollo? ¡Es muy inestable!"
+}
