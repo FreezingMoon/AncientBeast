@@ -206,25 +206,14 @@ export class UI {
 			game
 		);
 
-		// Volume Sliders
-		$j('#effects_volume').slider({
-			step: 0.2,
-			value: 5,
-			min: 0,
-			max: 10,
-			slide: (event, ui) => {
-				game.soundsys.setEffectsVolume(ui.value / 5);
-			}
-		});
-
 		let hotkeys = {
-			scoreboard: 84, // T : This opens/closes the scoreboard
+			scoreboard: 84, // T : This toggles the scoreboard
 			overview: 71, // G : Toggle dash
-			cycle: 81, // Q TODO: Make this work
+			cycle: 81, // Q : Switches between usable abilities
 			attack: 87, // W
 			ability: 69, // E
 			ultimate: 82, // R
-			audio: 65, // A TODO: Make this work
+			audio: 65, // A : Opens the audio view
 			skip: 83, // S
 			delay: 68, // D
 			flee: 70, // F

@@ -19,7 +19,6 @@
 		"compression": "^1.7.2",
 		"express": "^4.16.3",
 		"jquery": "3.3.1",
-		"jquery-ui": "^1.12.1",
 		"jquery.kinetic": "2.2.4",
 		"jquery.transit": "0.9.12",
 		"phaser-ce": "2.10.2",
