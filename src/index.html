@@ -12,8 +12,8 @@
 		}
 
 		.scrim {
-			height: 100vh;
-			width: 100vw;
+			height: 100%;
+			width: 100%;
 			background-color: black;
 			position: absolute;
 			top: 0;
@@ -162,108 +162,45 @@
 					<tbody>
 						<tr class="player_name">
 							<td>Players</td>
-							<td>Player 1</td>
-							<td>Player 2</td>
-							<td>Player 3</td>
-							<td>Player 4</td>
 						</tr>
 						<tr class="firstKill">
 							<td>First blood</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="kill">
 							<td>Kills</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="combo">
 							<td>Combos</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="humiliation">
 							<td>Humiliation</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="annihilation">
 							<td>Annihilation</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="deny">
 							<td>Denies</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="pickupDrop">
 							<td>Drops picked</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="timebonus">
 							<td>Time Bonus</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="nofleeing">
 							<td>No Fleeing</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="creaturebonus">
 							<td>Survivor Units</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-						</tr>
-						<tr class="darkpriestbonus">
-							<td>Survivor Dark Priest</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="immortal">
 							<td>Immortal</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="upgrade">
 							<td>Ability Upgrades</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 						<tr class="total">
 							<td>Total</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
-							<td>--</td>
 						</tr>
 					</tbody>
 				</table>
@@ -852,8 +789,8 @@
 					<li class="active"><a href="<%= require('assets/music/Vengeance_by_Moonthief.ogg') %>">Vengeance by Moonthief</a></li>
 				</ul>
 				<div id="volume_sliders">
-					Effects volume
-					<div id="effects_volume"></div>
+					Effects Volume
+						<input id="effects_volume" class="slider" type="range" min="0" max="10" value="5" step="0.2">
 				</div>
 			</div>
 		</div>
