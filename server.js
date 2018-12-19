@@ -78,7 +78,9 @@ io.on('connection', function(session) {
 
 // Listen for server, and use static routing for deploy directory
 server.listen(port, ip, function() {
-	console.log('Server listening at port %d', port);
+	console.log(
+		`Server listening at port ${port}.\nOpen http://localhost:${port} in Chrome/Chromium.`
+	);
 });
 
 app.use(
