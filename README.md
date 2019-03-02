@@ -45,13 +45,13 @@ There are more ways in which you can help out this project, check out the ["Make
 ### Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/AncientBeast/contributors.svg?width=890&button=false" /></a>
+<a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/AncientBeast/contributors.svg?width=978&button=false" /></a>
 
 ### Backers
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/AncientBeast#backer)]
 
-<a href="https://opencollective.com/AncientBeast#backers" target="_blank"><img src="https://opencollective.com/AncientBeast/backers.svg?width=890"></a>
+<a href="https://opencollective.com/AncientBeast#backers" target="_blank"><img src="https://opencollective.com/AncientBeast/backers.svg?width=978"></a>
 
 ### Sponsors
 
