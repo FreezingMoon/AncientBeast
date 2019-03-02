@@ -1,8 +1,10 @@
-[![Backers on Open Collective](https://opencollective.com/AncientBeast/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/AncientBeast/sponsors/badge.svg)](#sponsors) [![Play Ancient Beast](http://img.shields.io/badge/play-Ancient%20Beast-red.svg)](https://play.AncientBeast.com)
+[![Play Ancient Beast](http://img.shields.io/badge/play-Ancient%20Beast-red.svg)](https://play.AncientBeast.com)
 [![Donate via Patreon](http://img.shields.io/badge/join-Discord-blue.svg)](https://discord.me/AncientBeast)
 [![Donate via PayPal](http://img.shields.io/badge/donate-PayPal-yellow.svg)](https://www.paypal.me/AncientBeast)
 [![Donate via Patreon](http://img.shields.io/badge/donate-Patreon-orange.svg)](https://www.patreon.com/FreezingMoon)
 [![Donate bia Bountysource](https://www.bountysource.com/badge/team?team_id=44509&style=bounties_received)](https://www.bountysource.com/teams/ancientbeast/issues)
+[![OpenCollective Backers](https://opencollective.com/AncientBeast/backers/badge.svg)](#backers)
+[![OpenCollective Sponsors](https://opencollective.com/AncientBeast/sponsors/badge.svg)](#sponsors)
 [![First timers only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg)](http://www.firsttimersonly.com)
 [![Code Triagers Badge](https://www.codetriage.com/freezingmoon/ancientbeast/badges/users.svg)](https://www.codetriage.com/freezingmoon/ancientbeast)
 
@@ -41,18 +43,18 @@ You can help out the project by just ★ starring this repository from the [uppe
 If you wish to set-up a local copy of the game in order to patch it, go read the ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/docs/CONTRIBUTING.md#readme) file from this repository.  
 There are more ways in which you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide to get things going!
 
-## Contributors
+### Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
 <a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/AncientBeast/contributors.svg?width=890&button=false" /></a>
 
-## Backers
+### Backers
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/AncientBeast#backer)]
 
 <a href="https://opencollective.com/AncientBeast#backers" target="_blank"><img src="https://opencollective.com/AncientBeast/backers.svg?width=890"></a>
 
-## Sponsors
+### Sponsors
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/AncientBeast#sponsor)]
 
