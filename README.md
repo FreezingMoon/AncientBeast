@@ -1,4 +1,4 @@
-[![Play Ancient Beast](http://img.shields.io/badge/play-Ancient%20Beast-red.svg)](https://play.AncientBeast.com)
+[![Backers on Open Collective](https://opencollective.com/AncientBeast/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/AncientBeast/sponsors/badge.svg)](#sponsors) [![Play Ancient Beast](http://img.shields.io/badge/play-Ancient%20Beast-red.svg)](https://play.AncientBeast.com)
 [![Donate via Patreon](http://img.shields.io/badge/join-Discord-blue.svg)](https://discord.me/AncientBeast)
 [![Donate via PayPal](http://img.shields.io/badge/donate-PayPal-yellow.svg)](https://www.paypal.me/AncientBeast)
 [![Donate via Patreon](http://img.shields.io/badge/donate-Patreon-orange.svg)](https://www.patreon.com/FreezingMoon)
@@ -40,6 +40,32 @@ You can check it out via our auto-deployed Heroku build: https://ancientbeast-be
 You can help out the project by just ★ starring this repository from the [upper right corner](#) and also by pinning it to your profile.  
 If you wish to set-up a local copy of the game in order to patch it, go read the ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/docs/CONTRIBUTING.md#readme) file from this repository.  
 There are more ways in which you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide to get things going!
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/AncientBeast/contributors.svg?width=890&button=false" /></a>
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/AncientBeast#backer)]
+
+<a href="https://opencollective.com/AncientBeast#backers" target="_blank"><img src="https://opencollective.com/AncientBeast/backers.svg?width=890"></a>
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/AncientBeast#sponsor)]
+
+<a href="https://opencollective.com/AncientBeast/sponsor/0/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/AncientBeast/sponsor/1/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/AncientBeast/sponsor/2/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/AncientBeast/sponsor/3/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/AncientBeast/sponsor/4/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/AncientBeast/sponsor/5/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/AncientBeast/sponsor/6/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/AncientBeast/sponsor/7/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/AncientBeast/sponsor/8/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/AncientBeast/sponsor/9/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/9/avatar.svg"></a>
 
 ### License
 
