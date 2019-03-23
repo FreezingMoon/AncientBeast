@@ -16,6 +16,12 @@ export class Chat {
 		this.$chat.bind('click', () => {
 			game.UI.chat.toggle();
 		});
+		this.$chat.bind('mouseenter', () => {
+			game.UI.chat.peekOpen();
+		});
+		this.$chat.bind('mouseleave', () => {
+			game.UI.chat.peekClose();
+		});
 		this.messages = [];
 		this.isOpen = false;
 
@@ -36,8 +42,25 @@ export class Chat {
 
 	toggle() {
 		this.$chat.toggleClass('focus');
+		if (this.$chat.hasClass('peek')) {
+			this.$chat.removeClass('peek');
+		}
 		this.$content.parent().scrollTop(this.$content.height());
 		this.isOpen = !this.isOpen;
+	}
+
+	peekOpen() {
+		if (this.$chat.hasClass('focus') === false) {
+			this.$chat.addClass('peek');
+			this.$content.parent().scrollTop(this.$content.height());
+			this.isOpen = !this.isOpen;
+		}
+	}
+
+	peekClose() {
+		if (this.$chat.hasClass('peek')) {
+			this.$chat.removeClass('peek');
+		}
 	}
 
 	getCurrentTime() {

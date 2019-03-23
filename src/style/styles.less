@@ -873,10 +873,23 @@ div.section.info {
 	bottom: 310px;
 }
 
-#chat.focus #chatbox {
-	height: 305px;
+#chat.peek {
+	height: 100px;
+	bottom: 110px;
+}
+
+#chat.focus #chatbox,
+#chat.peek #chatbox {
 	overflow: hidden;
 	overflow-y: scroll;
+}
+
+#chat.focus #chatbox {
+	height: 305px;
+}
+
+#chat.peek #chatbox {
+	height: 105px;
 }
 
 #chat #chatbox {
@@ -893,7 +906,8 @@ div.section.info {
 	/* Safari and Chrome */
 }
 
-#chat.focus #chatbox #chatcontent {
+#chat.focus #chatbox #chatcontent,
+#chat.peek #chatbox #chatcontent {
 	position: relative;
 }
 
