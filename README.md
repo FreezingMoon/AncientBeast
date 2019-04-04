@@ -6,6 +6,7 @@
 [![Code Triagers Badge](https://www.codetriage.com/freezingmoon/ancientbeast/badges/users.svg)](https://www.codetriage.com/freezingmoon/ancientbeast)
 [![OpenCollective Backers](https://opencollective.com/AncientBeast/backers/badge.svg)](#backers)
 [![OpenCollective Sponsors](https://opencollective.com/AncientBeast/sponsors/badge.svg)](#sponsors)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FFreezingMoon%2FAncientBeast.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FFreezingMoon%2FAncientBeast?ref=badge_shield)
 
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/media/screenshots/v0.3%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** _Chuck Palahniuk_
@@ -84,6 +85,9 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
 </tr>
 </table>
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FFreezingMoon%2FAncientBeast.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FFreezingMoon%2FAncientBeast?ref=badge_large)
 
 ### Tools
 
