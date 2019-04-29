@@ -1190,45 +1190,9 @@ span.pure {
 		opacity: 0.6;
 	}
 }
-@-moz-keyframes pulse0106 {
-	0% {
-		opacity: 0.1;
-	}
-
-	100% {
-		opacity: 0.6;
-	}
-}
-@-webkit-keyframes pulse0106 {
-	0% {
-		opacity: 0.1;
-	}
-
-	100% {
-		opacity: 0.6;
-	}
-}
 
 /*Pulse between .8 and 1 opacity*/
 @keyframes pulse0510 {
-	0% {
-		opacity: 0.5;
-	}
-
-	100% {
-		opacity: 1;
-	}
-}
-@-moz-keyframes pulse0510 {
-	0% {
-		opacity: 0.5;
-	}
-
-	100% {
-		opacity: 1;
-	}
-}
-@-webkit-keyframes pulse0510 {
 	0% {
 		opacity: 0.5;
 	}
@@ -1249,26 +1213,6 @@ span.pure {
 	}
 }
 
-@-moz-keyframes pulse0205 {
-	0% {
-		opacity: 0.2;
-	}
-
-	100% {
-		opacity: 0.5;
-	}
-}
-
-@-webkit-keyframes pulse0205 {
-	0% {
-		opacity: 0.2;
-	}
-
-	100% {
-		opacity: 0.5;
-	}
-}
-
 @keyframes glowingtext {
 	0% {
 		text-shadow: none;
@@ -1276,108 +1220,6 @@ span.pure {
 
 	100% {
 		text-shadow: #f00 0 2px 19px, #f00 0 2px 78px;
-	}
-}
-
-@-moz-keyframes glowingtext {
-	0% {
-		text-shadow: none;
-	}
-
-	100% {
-		text-shadow: #f00 0 2px 19px, #f00 0 2px 78px;
-	}
-}
-
-@-webkit-keyframes glowingtext {
-	0% {
-		text-shadow: none;
-	}
-
-	100% {
-		text-shadow: #f00 0 2px 19px, #f00 0 2px 78px;
-	}
-}
-
-/*----------------Game Setup--------------*/
-#gameTitle {
-	display: inline-block;
-	vertical-align: top;
-	transform: rotate(0deg);
-	padding-top: 5%;
-}
-
-#gameTitle:hover {
-	filter: brightness(120%);
-	-webkit-filter: brightness(120%);
-	-moz-filter: brightness(120%);
-}
-
-#version,
-#version a {
-	font-weight: bold;
-	text-shadow: 2px 2px black;
-	margin-bottom: 10px;
-	margin-left: -15px;
-	color: grey;
-	text-decoration: none;
-}
-
-@media (max-height: 650px) {
-	#gameTitle {
-		transform: rotate(90deg);
-		position: fixed;
-		top: 0;
-		left: 100vw;
-		transform-origin: top left;
-	}
-}
-
-a {
-	color: white;
-}
-
-#matchMaking {
-	width: 100%;
-	height: 100%;
-	min-height: 510px;
-	position: absolute;
-	left: 0;
-	top: 0;
-	z-index: 99;
-	text-align: center;
-	background: black url('~assets/interface/Reaper.jpg') no-repeat center top;
-	background-size: cover;
-	color: white;
-
-	#loader {
-		width: 200px;
-		height: 50px;
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		margin-left: -100px;
-		margin-top: -2px;
-		line-height: 50px;
-		font-size: 40px;
-		display: none;
-
-		#barLoader {
-			position: relative;
-			margin-left: -60px;
-			background-image: url('~assets/interface/loadingEmpty.png');
-			background-repeat: no-repeat;
-			height: 54px;
-			width: 355px;
-
-			.progress {
-				display: block;
-				height: 100vh;
-				width: 0;
-				background-image: url('~assets/interface/loadingFull.png');
-				background-repeat: no-repeat;
-			}
-		}
 	}
 }
 
