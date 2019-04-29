@@ -25,7 +25,7 @@
 	</style>
 </head>
 
-<body oncontextmenu="return false;">
+<body oncontextmenu="return false;" id="AncientBeast">
 	<div class="scrim loading"></div>
 	<div id="matchMaking">
 		<div id="loader"><img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32">Loading
@@ -35,10 +35,11 @@
 		</div>
 		<div id="gameSetupContainer">
 			<div id="gameTitle">
-				<a href="https://AncientBeast.com" tabindex="-1"><img src="<%= require('assets/interface/AncientBeast.png') %>" width="555" height="125"></a>
+				<a href="https://AncientBeast.com" tabindex="-1"><div></div></a>
 			</div>
 			<form id="gameSetup">
 				<div class="setupFrame">
+					<!-- Enable when adding translations https://github.com/FreezingMoon/AncientBeast/issues/923
 					<div class="gameOption">
 						<div id="translations" class="typeRadio">
 							<input type="radio" id="emoji" name="language" value="em"><label for="emoji">💀</label>
@@ -49,6 +50,7 @@
 							<input type="radio" id="romana" name="language" value="ro"><label for="romana">Română</label>
 						</div>
 					</div>
+					-->
 
 					<div class="gameOption">
 						<h2>Player Mode [ Hotseat ]</h2>
@@ -144,13 +146,17 @@
 					</div>
 				</div>
 
-				<div class="startButtonWrapper">
+				<div id="startButtonWrapper">
 					<span class="blink">PRESS </span>
 					<input class="startButton" id="startButton" type="submit" value="START">
 					<span class="blink"> BUTTON</span>
 				</div>
 			</form>
-			<div id="version"><a href="https://ancientbeast-beta.herokuapp.com" title="Switch to development version? Very unstable!" tabindex="-1">v0.4-alpha</a></div>
+			
+			<div id="fullScreen"><a onclick="AncientBeast.requestFullscreen()"><div></div>Fullscreen</a></div>
+			<div id="version"><a href="https://ancientbeast.com/blog/2017-03-15/" title="See changelog" target="_blank" tabindex="-1"><div></div>v0.4-α</a></div>
+			<div id="start"><a onclick="form.submit();"><div></div>Start</a></div>
+
 		</div>
 	</div>
 	<div id="ui">
@@ -419,7 +425,7 @@
 					</div>
 				</div>
 
-				<!-- TODO: This horrible mess needs to be coded procedually using javascript -->
+				<!-- TODO: This horrible mess needs to be coded procedually using JavaScript -->
 				<div id="creaturegridwrapper">
 					<div id="creaturegrid">
 						<a href="#Swine_Thug" class="vignette realmA typeA1" creature="A1">
