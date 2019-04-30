@@ -1,7 +1,5 @@
 #gameTitle {
 	display: block;
-	vertical-align: middle;
-	transform: rotate(0deg);
 	margin: auto;
 	width: 555px;
 
@@ -9,12 +7,20 @@
 		height: 125px;
 		background-image: url('~assets/interface/AncientBeast.png');
 		background-repeat: no-repeat;
-		padding-top: 20px;
+		margin-top: 20px;
+	}
+
+	&:hover {
+		filter: brightness(120%);
 	}
 }
 
-#gameTitle:hover {
-	filter: brightness(120%);
+#websiteButton {
+	display: none;
+}
+
+#contribute {
+	display: none;
 }
 
 #matchMaking {
@@ -263,10 +269,10 @@ body {
 		background: url('~assets/interface/AB.png') no-repeat;
 		background-size: cover;
 	}
-}
 
-#version:hover {
-	filter: brightness(120%);
+	&:hover {
+		filter: brightness(120%);
+	}
 }
 
 a {
@@ -278,20 +284,6 @@ a {
 
 #start {
 	display: none;
-	width: 100px;
-	position: fixed;
-	right: 0;
-	top: 50%;
-	transform: translateY(-50%);
-
-	div {
-		display: block;
-		width: 100px;
-		height: 100px;
-		background: url('~assets/interface/frame.png'), url('~assets/icons/start.svg');
-		background-repeat: no-repeat;
-		background-size: cover;
-	}
 }
 
 @media (max-height: 555px) {
@@ -299,16 +291,50 @@ a {
 		background: black url('~assets/interface/skulls.jpg') repeat;
 	}
 
-	.setupFrame div {
-		border: none;
+	#gameTitle {
+		display: none;
 	}
 
-	#gameTitle {
-		transform: rotate(-90deg);
-		padding: 0;
+	#websiteButton {
+		display: block;
+		width: 100px;
 		position: fixed;
-		left: -555px;
-		transform-origin: top right;
+		padding: none;
+		left: 0;
+
+		div {
+			display: block;
+			background-image: url('~assets/interface/AB.png');
+			background-repeat: no-repeat;
+			background-size: cover;
+			height: 100px;
+		}
+
+		&:hover {
+			filter: brightness(120%);
+		}
+	}
+
+	#contribute {
+		display: block;
+		position: fixed;
+		bottom: 0;
+		z-index: 100;
+
+		div {
+			background: url('~assets/interface/Swampler.gif');
+			background-repeat: no-repeat;
+			width: 144px;
+			height: 195px;
+		}
+
+		&:hover {
+			filter: brightness(120%);
+		}
+	}
+
+	.setupFrame div {
+		border: none;
 	}
 
 	#startButtonWrapper {
@@ -317,6 +343,20 @@ a {
 
 	#start {
 		display: block;
+		width: 100px;
+		position: fixed;
+		right: 0;
+		top: 50%;
+		transform: translateY(-50%);
+
+		div {
+			display: block;
+			width: 100px;
+			height: 100px;
+			background: url('~assets/interface/frame.png'), url('~assets/icons/start.svg');
+			background-repeat: no-repeat;
+			background-size: cover;
+		}
 	}
 
 	#version div {
@@ -329,11 +369,5 @@ a {
 @media (max-height: 445px) {
 	.setupFrame {
 		border: none !important;
-	}
-}
-
-@media (max-height: 555px) {
-	#gameTitle img {
-		padding: none;
 	}
 }
