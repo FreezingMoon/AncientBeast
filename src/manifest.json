@@ -1,32 +1,17 @@
 {
-	"short_name": "Beast",
 	"name": "Ancient Beast",
-	"icons": [
-		{
-			"src": "favicon.ico",
-			"type": "image/x-icon",
-			"sizes": "64x64"
-		},
-		{
-			"src": "/images/icons-128.png",
-			"type": "image/png",
-			"sizes": "128x128"
-		},
-		{
-			"src": "/images/icons-192.png",
-			"type": "image/png",
-			"sizes": "192x192"
-		},
-		{
-			"src": "/images/icons-512.png",
-			"type": "image/png",
-			"sizes": "512x512"
-		}
-	],
+	"description": "Turn Based Strategy Game",
 	"start_url": "/?utm_source=a2hs",
-	"background_color": "#333520",
+	"theme_color": "#fff",
+	"background_color": "#fff",
 	"display": "fullscreen",
 	"orientation": "landscape",
 	"scope": "/",
-	"theme_color": "red"
+	"icons": [
+		{
+			"src": "favicon.png",
+			"type": "image/png",
+			"sizes": "64x64"
+		}
+	]
 }
