@@ -64,7 +64,6 @@
 		"precommit": "lint-staged",
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check",
 		"test": "npm run lint && npm run build",
-		"heroku-postbuild": "npm run build",
 		"postinstall": "opencollective-postinstall"
 	},
 	"lint-staged": {
