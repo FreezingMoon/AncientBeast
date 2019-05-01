@@ -1,4 +1,4 @@
-import Manifest from './manifest';
+import Assets from './assets.js';
 
 /** getUrl
  *
@@ -15,7 +15,7 @@ export function getUrl(path) {
 		throw new Error('Path cannot be empty');
 	}
 
-	// prev = children (starts with the manifest)
+	// prev = children (starts with the assets)
 	// current = what we are looking at now
 	return path.reduce((prev, current) => {
 		const entity = prev.find(e => e.id === current);
@@ -32,5 +32,5 @@ export function getUrl(path) {
 		} else {
 			throw new Error('Entity is of wrong type: ' + entity);
 		}
-	}, Manifest);
+	}, Assets);
 }

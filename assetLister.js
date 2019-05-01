@@ -1,4 +1,4 @@
-// automaticly generates the manifest that contains all the assets
+// Automaticly generates the manifest that contains all the assets
 const { promisify } = require('util');
 const fs = require('fs');
 const path = require('path');
@@ -111,5 +111,5 @@ readDirectory(path.join(__dirname, 'assets'))
 	// Format the javascript so it"s readable
 	.then(prettier.format)
 	// We only need to write one file so it doesnt matter that it"s sync
-	.then(result => fs.writeFileSync(path.resolve(__dirname, 'src', 'manifest.js'), result)) // eslint-disable-line no-sync
+	.then(result => fs.writeFileSync(path.resolve(__dirname, 'src', 'assets.js'), result)) // eslint-disable-line no-sync
 	.catch(console.error);
