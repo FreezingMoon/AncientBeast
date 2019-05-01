@@ -90,9 +90,6 @@ $j(document).ready(() => {
 
 		return false; // Prevent submit
 	});
-
-	// Lock to landscape mode
-	screen.orientation.lock('landscape');
 });
 
 /**
