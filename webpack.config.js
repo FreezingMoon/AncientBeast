@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const variables = require('./webpack.var');
 const merge = require('webpack-merge');
+const CopyPlugin = require('copy-webpack-plugin');
 
 // Phaser webpack config
 const phaserModule = path.join(__dirname, '/node_modules/phaser-ce/');
@@ -82,6 +83,7 @@ module.exports = (env, argv) => {
 
 	let production = {
 		plugins: [
+			new CopyPlugin([{ from: 'src/manifest.json', to: 'manifest.json' }]),
 			new HtmlWebpackPlugin({
 				template: path.resolve(__dirname, 'src', 'index.html'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
