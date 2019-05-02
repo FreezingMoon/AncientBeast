@@ -1,6 +1,7 @@
 ### Ancient Beast ###
-# generated files
+# Generated files
 deploy/
+# List of assets
 src/assets.js
 
 # DS_STORE FILES
