@@ -1,4 +1,4 @@
-import Assets from './assets.js';
+import Assets from './assets';
 
 /** getUrl
  *
