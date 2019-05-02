@@ -8,6 +8,7 @@ const prettier = require('prettier');
 
 /**
  * Generate entity
+ *
  * @param {String} filePath The path to the file to convert to an entity.
  * @return {Object} A file entity.
  */
@@ -23,7 +24,7 @@ function fileToEntity(filePath) {
 /**
  * Read the directory
  *
- * @param {string} dirPath the path of the directory
+ * @param {string} dirPath the path of the directory.
  * @return {Array} An array of asset objects.
  */
 async function readDirectory(dirPath) {
@@ -45,15 +46,17 @@ async function readDirectory(dirPath) {
 
 /**
  * Tests if an entity is a dir
- * @param {Object} entity  The entity to check
- * @returns {boolean} Wether the entity is a dir
+ *
+ * @param {Object} entity  The entity to check.
+ * @returns {boolean} Wether the entity is a dir.
  */
 function entityIsDir(entity) {
 	return entity.children !== undefined;
 }
 
 /**
- * Convert an entity object to a string.
+ * Convert an entity object to a string
+ *
  * @param {Object} entity The entity object to convert.
  * @return {string} The entity object as a string.
  */
@@ -63,6 +66,7 @@ function entityToString(entity) {
 
 /**
  * Convert a tree of entities to a string
+ *
  * @param {Object} tree A tree of entities.
  * @param {boolean} root Is this the root of a tree?
  * @returns {string} The tree converted to a string.
@@ -84,7 +88,8 @@ function writeToString(tree, root = false) {
 }
 
 /**
- * Convert a dir entity to a string.
+ * Convert a dir entity to a string
+ *
  * @param {Object} dirEntity Entity object to conver to a string.
  * @return {string} The dir entity as a string.
  */
@@ -95,7 +100,8 @@ function dirToString(dirEntity) {
 }
 
 /**
- * Convert an file entity to a string.
+ * Convert an file entity to a string
+ *
  * @param {Object} fileEntity Entity to write to string.
  * @return {string} The file entity as a string.
  */
@@ -104,12 +110,12 @@ function fileToString(fileEntity) {
 }
 
 readDirectory(path.join(__dirname, 'assets'))
-	// Generate the javascript
+	// Generate the JavaScript
 	.then(result => `export default ${writeToString(result, true)}`)
-	// Add path fix for windows
+	// Add path fix for Windows
 	.then(result => result.replace(/\\/g, '\\\\'))
-	// Format the javascript so it"s readable
+	// Format the JavaScript so that it's readable
 	.then(prettier.format)
-	// We only need to write one file so it doesnt matter that it"s sync
+	// We only need to write one file so it doesnt matter that it's sync
 	.then(result => fs.writeFileSync(path.resolve(__dirname, 'src', 'assets.js'), result)) // eslint-disable-line no-sync
 	.catch(console.error);
