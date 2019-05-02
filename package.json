@@ -28,10 +28,10 @@
 		"socket.io": "^2.0.4",
 		"socket.io-client": "2.0.4",
 		"webpack": "^4.1.1",
-		"webpack-merge": "^4.1.2"
+		"webpack-merge": "^4.1.2",
+		"copy-webpack-plugin": "^5.0.3"
 	},
 	"devDependencies": {
-		"copy-webpack-plugin": "^5.0.3",
 		"css-loader": "^2.1.1",
 		"eslint": "^4.19.0",
 		"eslint-config-prettier": "^2.9.0",
