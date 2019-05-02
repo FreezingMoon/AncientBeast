@@ -30,7 +30,7 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 99;
+	z-index: 98;
 	text-align: center;
 	background: black url('~assets/interface/Reaper.jpg') no-repeat center top;
 	background-size: cover;
@@ -76,7 +76,6 @@ body {
 }
 
 * {
-	-webkit-touch-callout: none;
 	user-select: none;
 }
 
@@ -156,7 +155,7 @@ body {
 							background: #292929;
 							font-weight: bold;
 							color: #f55;
-							z-index: 9999;
+							z-index: 99;
 						}
 
 						&:focus + label {
@@ -245,6 +244,7 @@ body {
 	width: 100px;
 	top: 0;
 	right: 0;
+	z-index: 100;
 
 	div {
 		display: block;
@@ -257,12 +257,17 @@ body {
 	}
 }
 
+#start {
+	display: none;
+}
+
 #version {
 	display: block;
 	width: 100px;
 	position: fixed;
 	bottom: 0;
 	right: 0;
+	z-index: 100;
 
 	div {
 		height: 100px;
@@ -280,10 +285,6 @@ a {
 	text-shadow: 2px 2px black;
 	text-decoration: none;
 	cursor: pointer;
-}
-
-#start {
-	display: none;
 }
 
 @media (max-height: 555px) {
@@ -312,6 +313,10 @@ a {
 
 		&:hover {
 			filter: brightness(120%);
+		}
+
+		span {
+			text-shadow: 0.1em 0.1em 0.1em #000, 0 0 0.7em red;
 		}
 	}
 
@@ -348,6 +353,7 @@ a {
 		right: 0;
 		top: 50%;
 		transform: translateY(-50%);
+		z-index: 100;
 
 		div {
 			display: block;
@@ -357,10 +363,14 @@ a {
 			background-repeat: no-repeat;
 			background-size: cover;
 		}
+
+		span {
+			animation: fading 2.5s infinite;
+		}
 	}
 
 	#version div {
-		background: url('~assets/interface/frame.png'), url('~assets/icons/scroll.svg');
+		background: url('~assets/interface/frame.png'), url('~assets/icons/version.svg');
 		background-size: cover;
 		background-repeat: no-repeat;
 	}
