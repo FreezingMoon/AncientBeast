@@ -1,7 +1,7 @@
 ### Ancient Beast ###
 # generated files
 deploy/
-src/manifest.js
+src/assets.js
 
 # DS_STORE FILES
 .DS_Store
