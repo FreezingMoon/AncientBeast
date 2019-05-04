@@ -70,7 +70,7 @@ Then access it using [Chromium](https://chromium.org) or [Google Chrome](https:/
 localhost:8080
 ```
 
-You can always test the latest master without any hassle from our auto-deployed [Heroku app](https://ancientbeast-beta.herokuapp.com).
+You can usually test our latest (and greatest) master branch without any hassle from our auto-deployed [beta app](https://beta.ancientbeast.com).
 
 A handy tip while testing: you can right click the game tab and mute it by simply clicking the `Mute site` option.
 

@@ -34,7 +34,7 @@ What we're aiming for are the following:
 * development workflow improvements
 * more project lore & documentation
 
-You can check it out via our auto-deployed Heroku build: https://ancientbeast-beta.herokuapp.com [ Unstable! ]
+You can check it out via our auto-deployed Heroku build: https://beta.AncientBeast.com [ Unstable! ]
 
 ### [Contribute](CONTRIBUTING.md#readme)
 
