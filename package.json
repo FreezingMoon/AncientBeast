@@ -17,8 +17,9 @@
 	"dependencies": {
 		"ajv": "^6.5.5",
 		"compression": "^1.7.2",
+		"copy-webpack-plugin": "^5.0.3",
 		"cross-env": "^5.1.6",
-		"express": "^4.16.3",
+		"express": "^4.16.4",
 		"html-webpack-plugin": "^3.0.7",
 		"jquery": "^3.4.0",
 		"jquery.transit": "0.9.12",
@@ -28,8 +29,7 @@
 		"socket.io": "^2.0.4",
 		"socket.io-client": "2.0.4",
 		"webpack": "^4.1.1",
-		"webpack-merge": "^4.1.2",
-		"copy-webpack-plugin": "^5.0.3"
+		"webpack-merge": "^4.1.2"
 	},
 	"devDependencies": {
 		"css-loader": "^2.1.1",
