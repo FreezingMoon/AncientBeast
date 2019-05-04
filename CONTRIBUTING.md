@@ -87,8 +87,6 @@ If you encounter any problems with this version, you can report them to our [Git
 Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues. You can use the `AB.getLog()` function from the browser console window in order to fetch the current match log.
 In order to open up Google Chrome browser's console, you can press `Ctrl + Shift + J`. To replay a match, you'll have to be in the pre-match screen, paste its log in the console and then press the `Return` key.
 
-![example restore log](/docs/img/game-log.png)
-
 ### Patch Game
 
 The main coding language used is Javascript, feel free to create patches and propose them by making a Pull Request.
@@ -107,8 +105,6 @@ localhost:8080
 ```
 
 Keep in mind that you'll have to refresh the webpage after making changes. Make sure to disable browser caching by using `Ctrl + Shift + J`, then going to the **Network** tab and checking **Disable cache**.
-
-![disable cache](/docs/img/disable-cache.png)
 
 ### Next Step
 

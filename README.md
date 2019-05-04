@@ -36,15 +36,16 @@ What we're aiming for are the following:
 
 You can check it out via our auto-deployed Heroku build: https://ancientbeast-beta.herokuapp.com [ Unstable! ]
 
-### [Contribute](docs/CONTRIBUTING.md#readme)
+### [Contribute](CONTRIBUTING.md#readme)
 
-You can help out the project by just ★ starring this repository from the [upper right corner](#) and also by pinning it to your profile.  
-If you wish to set-up a local copy of the game in order to patch it, go read the ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/docs/CONTRIBUTING.md#readme) file from this repository.  
-There are more ways in which you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide to get things going!
+You can help out the project by just ★ starring this repository from the [upper right corner](#) and also pinning it to your profile.  
+If you wish to set-up a local copy of the game in order to patch it, go read the ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/CONTRIBUTING.md#readme) file from this repository.  
+There are more ways in which you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide and get it going!
 
 ### Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+
 <a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/AncientBeast/contributors.svg?width=972&button=false" /></a>
 
 ### Backers
