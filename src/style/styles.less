@@ -475,13 +475,29 @@ div.section.info {
 	position: absolute;
 	height: 100px;
 	width: 100px;
-	background-image: url('~assets/icons/close.svg');
+	background-image: url('~assets/interface/frame.png');
+	background-size: cover;
 }
 
-#return.button:before {
+.togglescore.button,
+.toggledash.button {
 	height: 100px;
 	width: 100px;
-	background-image: url('~assets/interface/frame.png');
+	background-image: url('~assets/icons/close.svg');
+	transition: all 0.5s;
+}
+
+.togglescore.button:before,
+.toggledash.button:before {
+	content: '';
+	width: 100%;
+	height: 100%;
+	background-image: none;
+}
+
+.togglescore.button:hover,
+.toggledash.button:hover {
+	transform: rotate(-90deg);
 }
 
 #playertabswrapper {
@@ -1194,7 +1210,8 @@ span.pure {
 				position: absolute;
 				height: 100px;
 				width: 100px;
-				background-image: url('~assets/icons/close.svg');
+				background-image: url('~assets/interface/frame.png');
+				background-size: cover;
 
 				&:before {
 					height: 100px;
