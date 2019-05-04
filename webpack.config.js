@@ -21,12 +21,14 @@ module.exports = (env, argv) => {
 			// chunkFilename: '[id].chunk.js',
 			publicPath: '/'
 		},
+
 		devtool: 'inline-source-map',
 		optimization: {
 			splitChunks: {
 				cacheGroups: {}
 			}
 		},
+
 		module: {
 			rules: [
 				{ test: /pixi\.js/, use: ['expose-loader?PIXI'] },
@@ -46,6 +48,7 @@ module.exports = (env, argv) => {
 				}
 			]
 		},
+
 		resolve: {
 			alias: {
 				pixi: pixi,
@@ -55,6 +58,7 @@ module.exports = (env, argv) => {
 				modules: path.join(__dirname, 'node_modules')
 			}
 		},
+
 		// Eventually we want to use a version of this.
 		// optimization: {
 		// 	splitChunks: {
@@ -72,7 +76,9 @@ module.exports = (env, argv) => {
 		// 		}
 		// 	}
 		// },
+
 		plugins: [
+			new CopyPlugin([{ from: 'src/manifest.json', to: 'manifest.json' }]),
 			new HtmlWebpackPlugin({
 				template: path.resolve(__dirname, 'src', 'index.html'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
