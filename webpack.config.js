@@ -78,22 +78,24 @@ module.exports = (env, argv) => {
 		// },
 
 		plugins: [
-			new CopyPlugin([{ from: 'src/manifest.json', to: 'manifest.json' }]),
+			new CopyPlugin([{ from: 'static' }]),
 			new HtmlWebpackPlugin({
 				template: path.resolve(__dirname, 'src', 'index.html'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
-				google: ''
+				worker: variables.worker,
+				GA_beta: ''
 			})
 		]
 	};
 
 	let production = {
 		plugins: [
-			new CopyPlugin([{ from: 'src/manifest.json', to: 'manifest.json' }]),
+			new CopyPlugin([{ from: 'static' }]),
 			new HtmlWebpackPlugin({
 				template: path.resolve(__dirname, 'src', 'index.html'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
-				google: variables.google
+				worker: variables.worker,
+				GA_beta: variables.GA_beta
 			})
 		]
 	};
