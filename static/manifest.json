@@ -1,9 +1,9 @@
 {
 	"name": "Ancient Beast",
 	"description": "Turn Based Strategy Game",
-	"start_url": "/?utm_source=a2hs",
-	"theme_color": "#fff",
-	"background_color": "#fff",
+	"start_url": "/?utm_source=homescreen",
+	"theme_color": "black",
+	"background_color": "black",
 	"display": "fullscreen",
 	"orientation": "landscape",
 	"scope": "/",
