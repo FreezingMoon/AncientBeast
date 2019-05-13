@@ -14,6 +14,7 @@ export class Button {
 			click: function() {},
 			mouseover: function() {},
 			mouseleave: function() {},
+			hasShortcut: false,
 			clickable: true,
 			state: 'normal', // disabled, normal, glowing, selected, active
 			$button: undefined,
@@ -57,12 +58,20 @@ export class Button {
 				return;
 			}
 
+			if (this.hasShortcut) {
+				this.$button.addClass('hover');
+			}
+
 			this.mouseover();
 		});
 
 		this.$button.bind('mouseleave', () => {
 			if (game.freezedInput || !this.clickable) {
 				return;
+			}
+
+			if (this.hasShortcut) {
+				this.$button.removeClass('hover');
 			}
 
 			this.mouseleave();

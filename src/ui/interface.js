@@ -54,6 +54,7 @@ export class UI {
 		this.btnToggleDash = new Button(
 			{
 				$button: $j('.toggledash'),
+				hasShortcut: true,
 				click: () => {
 					// if dash is open and audio player is visible, just show creatures
 					if (this.dashopen && $j('#musicplayerwrapper').is(':visible')) {
@@ -81,6 +82,7 @@ export class UI {
 		this.btnAudio = new Button(
 			{
 				$button: $j('#audio.button'),
+				hasShortcut: true,
 				click: () => {
 					// if audio element was already active, close dash
 					if ($j('#musicplayerwrapper').is(':visible')) {
@@ -98,6 +100,7 @@ export class UI {
 		this.btnSkipTurn = new Button(
 			{
 				$button: $j('#skip.button'),
+				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
 						if (game.turnThrottle) {
@@ -119,6 +122,7 @@ export class UI {
 		this.btnDelay = new Button(
 			{
 				$button: $j('#delay.button'),
+				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
 						let creature = game.activeCreature;
@@ -147,6 +151,7 @@ export class UI {
 		this.btnFlee = new Button(
 			{
 				$button: $j('#flee.button'),
+				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
 						if (game.turn < game.minimumTurnBeforeFleeing) {
@@ -465,6 +470,7 @@ export class UI {
 			let b = new Button(
 				{
 					$button: $j('#abilities > div:nth-child(' + (i + 1) + ') > .ability'),
+					hasShortcut: true,
 					abilityId: i,
 					css: {
 						disabled: {
