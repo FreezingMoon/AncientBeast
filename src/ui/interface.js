@@ -54,7 +54,6 @@ export class UI {
 		this.btnToggleDash = new Button(
 			{
 				$button: $j('.toggledash'),
-				hasShortcut: true,
 				click: () => {
 					// if dash is open and audio player is visible, just show creatures
 					if (this.dashopen && $j('#musicplayerwrapper').is(':visible')) {
