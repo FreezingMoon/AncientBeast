@@ -58,10 +58,9 @@ export class UI {
 					// if dash is open and audio player is visible, just show creatures
 					if (this.dashopen && $j('#musicplayerwrapper').is(':visible')) {
 						$j('#musicplayerwrapper').hide();
-						this.showCreature(game.activeCreature.type, game.activeCreature.team);
-					} else {
-						this.toggleDash();
 					}
+
+					this.toggleDash();
 				}
 			},
 			game
