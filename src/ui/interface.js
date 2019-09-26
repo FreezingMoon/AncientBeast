@@ -923,9 +923,9 @@ export class UI {
 		} else {
 			// Card A
 			$j('#card .sideA').css({
-				'background-image': `url(${getUrl('cards/margin.png')}'), url(${getUrl(
+				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
 					'units/artwork/' + stats.name
-				)})`
+				)}')`
 			});
 			$j('#card .sideA .section.info')
 				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
