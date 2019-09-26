@@ -13,7 +13,11 @@
 	"bugs": {
 		"url": "https://github.com/FreezingMoon/AncientBeast/issues"
 	},
-	"keywords": ["game", "strategy", "phaser"],
+	"keywords": [
+		"game",
+		"strategy",
+		"phaser"
+	],
 	"dependencies": {
 		"ajv": "^6.5.5",
 		"compression": "^1.7.2",
@@ -69,8 +73,14 @@
 	"lint-staged": {
 		"concurrent": false,
 		"linters": {
-			"*.{js,json,less,md}": ["prettier --write", "git add"],
-			"*.js": ["eslint -c .eslintrc.json --fix", "git add"]
+			"*.{js,json,less,md}": [
+				"prettier --write",
+				"git add"
+			],
+			"*.js": [
+				"eslint -c .eslintrc.json --fix",
+				"git add"
+			]
 		}
 	},
 	"collective": {
