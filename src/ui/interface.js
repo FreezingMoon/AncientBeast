@@ -298,6 +298,9 @@ export class UI {
 								this.closeDash();
 								this.toggleScoreboard();
 								break;
+							case 'cycle': //Q
+								this.closeDash();
+								break;
 						}
 					} else {
 						switch (k) {
