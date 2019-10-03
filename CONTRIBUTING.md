@@ -1,11 +1,11 @@
 ## Github Marketing
 
-You can help out the project by just ★ starring this repository from the upper right corner and also by pinning it to your profile.
+You can help out the project by just ★ starring this repository from the upper right corner and also pinning it to your profile.
 
 ## Getting Started
 
 It's very easy to set-up a local server in order to test and contribute to the development version of this game project.  
-It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, named [Phaser](http://phaser.io).
+It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, [Phaser](http://phaser.io).
 
 ### Recommended Tool
 
@@ -114,4 +114,4 @@ You are free to browse [existing issues](https://github.com/FreezingMoon/Ancient
 
 ## More Ways
 
-Coding is not the only thing required in order to make this project as awesome as possible, see the [How to Contribute](http://ancientbeast.com/contribute) guide.
+Coding is not the only thing required in order to make this project as awesome as possible, see [How to Contribute](http://ancientbeast.com/contribute) guide.

@@ -58,10 +58,9 @@ export class UI {
 					// if dash is open and audio player is visible, just show creatures
 					if (this.dashopen && $j('#musicplayerwrapper').is(':visible')) {
 						$j('#musicplayerwrapper').hide();
-						this.showCreature(game.activeCreature.type, game.activeCreature.team);
-					} else {
-						this.toggleDash();
 					}
+
+					this.toggleDash();
 				}
 			},
 			game
@@ -298,6 +297,9 @@ export class UI {
 							case 'scoreboard':
 								this.closeDash();
 								this.toggleScoreboard();
+								break;
+							case 'cycle': //Q
+								this.closeDash();
 								break;
 						}
 					} else {
@@ -924,9 +926,9 @@ export class UI {
 		} else {
 			// Card A
 			$j('#card .sideA').css({
-				'background-image': `url(${getUrl('cards/margin.png')}'), url(${getUrl(
+				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
 					'units/artwork/' + stats.name
-				)})`
+				)}')`
 			});
 			$j('#card .sideA .section.info')
 				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
