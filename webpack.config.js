@@ -83,7 +83,7 @@ module.exports = (env, argv) => {
 				template: path.resolve(__dirname, 'src', 'index.html'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
 				worker: variables.worker,
-				GA_beta: ''
+				analytics: ''
 			})
 		]
 	};
@@ -95,7 +95,7 @@ module.exports = (env, argv) => {
 				template: path.resolve(__dirname, 'src', 'index.html'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
 				worker: variables.worker,
-				GA_beta: variables.GA_beta
+				analytics: variables.analytics
 			})
 		]
 	};
