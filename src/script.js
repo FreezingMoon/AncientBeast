@@ -9,7 +9,7 @@ import './style/main.less';
 // Abilities
 import abolishedAbilitiesGenerator from './abilities/Abolished';
 import chimeraAbilitiesGenerator from './abilities/Chimera';
-import cyberHoundAbilitiesGenerator from './abilities/Cyber-Hound';
+import cyberWolfAbilitiesGenerator from './abilities/Cyber-Wolf';
 import darkPriestAbilitiesGenerator from './abilities/Dark-Priest';
 import goldenWyrmAbilitiesGenerator from './abilities/Golden-Wyrm';
 import gumbleAbilitiesGenerator from './abilities/Gumble';
@@ -41,7 +41,7 @@ window.AB = AB;
 const abilitiesGenerators = [
 	abolishedAbilitiesGenerator,
 	chimeraAbilitiesGenerator,
-	cyberHoundAbilitiesGenerator,
+	cyberWolfAbilitiesGenerator,
 	darkPriestAbilitiesGenerator,
 	goldenWyrmAbilitiesGenerator,
 	gumbleAbilitiesGenerator,

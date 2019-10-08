@@ -167,7 +167,7 @@
 	},
 	{
 		"id": 2,
-		"name": "Marauder",
+		"name": "Razorback",
 		"level": 6,
 		"realm": "G",
 		"size": 3,
@@ -335,7 +335,7 @@
 	{
 		"id": 4,
 		"name": "Magma Spawn",
-		"level": 3,
+		"level": 2,
 		"realm": "L",
 		"size": 3,
 		"set": "Alpha",
@@ -881,7 +881,7 @@
 	},
 	{
 		"id": 10,
-		"name": "Troglodyte",
+		"name": "Bookworm",
 		"level": 3,
 		"realm": "P",
 		"size": 3,
@@ -911,10 +911,10 @@
 		},
 		"ability_info": [
 			{
-				"title": "Inner Vision",
-				"desc": "Lack of sight forces the creature to focus on all of its remaining senses.",
-				"info": "+5 initiative for each passing round.",
-				"upgrade": "+20 offense bonus if first."
+				"title": "Book Reading",
+				"desc": "Each turn this creature is not fatigued, it reads books to improve mental stat.",
+				"info": "+5 mental stat if not being fatigued.",
+				"upgrade": "Upgrade: +5 mental stat if skipping."
 			},
 			{
 				"title": "Tongue Poke",
@@ -1399,7 +1399,7 @@
 	},
 	{
 		"id": 17,
-		"name": "Razorback",
+		"name": "Spikes",
 		"level": 6,
 		"realm": "E",
 		"size": 2,
@@ -1597,7 +1597,7 @@
 	},
 	{
 		"id": 20,
-		"name": "Adaptation",
+		"name": "Squid Face",
 		"level": 6,
 		"realm": "S",
 		"size": 3,
@@ -1785,8 +1785,8 @@
 	},
 	{
 		"id": 23,
-		"name": "Metal Face",
-		"level": 2,
+		"name": "Metalist",
+		"level": 3,
 		"realm": "L",
 		"size": 2,
 		"set": "Alpha",
@@ -1925,7 +1925,7 @@
 	{
 		"id": 25,
 		"name": "Mr. Stitches",
-		"level": 3,
+		"level": 2,
 		"realm": "E",
 		"size": 1,
 		"set": "Alpha",
@@ -2043,7 +2043,7 @@
 	},
 	{
 		"id": 27,
-		"name": "Sand Shrimp",
+		"name": "Blue Shrimp",
 		"level": 2,
 		"realm": "P",
 		"size": 3,
@@ -2098,8 +2098,8 @@
 	{
 		"id": 28,
 		"name": "Stomper",
-		"level": 4,
-		"realm": "P",
+		"level": 3,
+		"realm": "E",
 		"size": 2,
 		"set": "Alpha",
 		"stats": {
@@ -2339,7 +2339,7 @@
 	},
 	{
 		"id": 31,
-		"name": "Cyber Hound",
+		"name": "Cyber Wolf",
 		"level": 3,
 		"realm": "A",
 		"size": 2,
@@ -2582,9 +2582,9 @@
 	},
 	{
 		"id": 34,
-		"name": "Bouncer",
-		"level": 2,
-		"realm": "S",
+		"name": "Royal Guard",
+		"level": 4,
+		"realm": "P",
 		"size": 2,
 		"set": "Alpha",
 		"stats": {
@@ -3088,7 +3088,7 @@
 	},
 	{
 		"id": 41,
-		"name": "Flesh Cleanser",
+		"name": "Cataract",
 		"level": 2,
 		"realm": "W",
 		"size": 2,
@@ -3141,7 +3141,7 @@
 	},
 	{
 		"id": 42,
-		"name": "Night Stalker",
+		"name": "Batmadillo",
 		"level": 7,
 		"realm": "E",
 		"size": 3,
@@ -3540,7 +3540,7 @@
 	},
 	{
 		"id": 47,
-		"name": "Royal Guard",
+		"name": "Aegis",
 		"level": 5,
 		"realm": "P",
 		"size": 3,
@@ -3570,9 +3570,10 @@
 		},
 		"ability_info": [
 			{
-				"title": "Frontal Aegis",
-				"desc": "Shield shaped head grants +9 defense bonus stat against any frontal attacks.",
-				"info": "Melee attackers are pushed a hexagon"
+				"title": "Hard Headed",
+				"desc": "Frontal attacks cause way less damage.",
+				"info": "10 points frontal hit damage reduction",
+				"upgrade": ""
 			},
 			{
 				"title": "Lash Master",
@@ -3626,13 +3627,13 @@
 				"title": "Hard Headed",
 				"desc": "Frontal attacks cause way less damage.",
 				"info": "10 points frontal hit damage reduction",
-				"upgrade": "-1 offense stackable debuff."
+				"upgrade": ""
 			},
 			{
 				"title": "Stiff Scissors",
 				"desc": "Stabs up to two nearby diagonal units.",
 				"info": "15 pierce damage, 2 diagonal targets",
-				"upgrade": "-1 offense stackable debuff.",
+				"upgrade": "",
 				"costs": {
 					"energy": 15
 				}
@@ -3641,18 +3642,18 @@
 				"title": "Flying Cleaver",
 				"desc": "Jumps over a nearby creature, slicing it with its large abdominal bone hatchet.",
 				"info": "20 slash damage to the leaped over unit",
-				"upgrade": "-1 offense stackable debuff.",
+				"upgrade": "",
 				"costs": {
-					"energy": 15
+					"energy": 20
 				}
 			},
 			{
 				"title": "Demon Hoof",
 				"desc": "Bashes nearby foe, pushing it back a couple hexagons, based on its size.",
 				"info": "25 crush damage, up to 3 hexes push",
-				"upgrade": "-1 offense stackable debuff.",
+				"upgrade": "",
 				"costs": {
-					"energy": 15
+					"energy": 25
 				}
 			}
 		]
