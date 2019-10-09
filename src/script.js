@@ -78,6 +78,23 @@ $j(document).ready(() => {
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 
+	// Add listener for Fullscreen API
+	$j('#fullScreen').on('click', event => {
+		if (
+			document.fullscreenElement ||
+			document.webkitFullscreenElement ||
+			document.mozFullScreenElement
+		) {
+			event.currentTarget.classList.toggle('fullscreenMode');
+			$j('.fullscreen__title').text('Fullscreen');
+			document.exitFullscreen();
+		} else {
+			event.currentTarget.classList.toggle('fullscreenMode');
+			$j('.fullscreen__title').text('Contract');
+			$j('#AncientBeast')[0].requestFullscreen();
+		}
+	});
+
 	// Focus the form to enable "press enter to start the game" functionality
 	$j('#startButton').focus();
 
