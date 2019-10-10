@@ -43,6 +43,9 @@ export class UI {
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboardwrapper');
 
+		// Last Viewed Unit
+		this.lastViewedCreature = '';
+
 		// Chat
 		this.chat = new Chat(game);
 
@@ -109,6 +112,7 @@ export class UI {
 							action: 'skip'
 						});
 						game.skipTurn();
+						this.lastViewedCreature = '';
 					}
 				}
 			},
@@ -675,7 +679,7 @@ export class UI {
      * Query a creature in the available creatures of the active player
      *
      */
-	showCreature(creatureType, player, memorize) {
+	showCreature(creatureType, player) {
 		let game = this.game;
 
 		if (!this.dashopen) {
@@ -739,7 +743,6 @@ export class UI {
 			.filter("[creature='" + creatureType + "']")
 			.addClass('active');
 		this.selectedCreature = creatureType;
-		console.log('Clicked from board');
 		let stats = game.retreiveCreatureStats(creatureType);
 
 		// TODO card animation
@@ -906,8 +909,12 @@ export class UI {
 					$j('#materialize_button').on('click', () => {
 						// Remove active class to 'fake' toggleDash into randomly picking a creature for us.
 						this.$dash.removeClass('active');
-						console.log(memorize);
-						memorize ? this.toggleDash(false, creatureType) : this.toggleDash(true);
+						// Will check if user clicked on a portrait in godlet printer in the new turn
+						if (this.lastViewedCreature === '') {
+							this.toggleDash();
+						} else {
+							this.toggleDash(true);
+						}
 						//this.toggleDash(true);
 					});
 				} else if (activeCreature.type != '--') {
@@ -1068,8 +1075,8 @@ export class UI {
 				}
 
 				let creatureType = $j(e.currentTarget).attr('creature'); // CreatureType
-				this.showCreature(creatureType, this.selectedPlayer, true);
-				console.log('called this.showCreature(creatureType, this.selectedPlayer, true);');
+				this.lastViewedCreature = creatureType;
+				this.showCreature(creatureType, this.selectedPlayer);
 			});
 	}
 
@@ -1285,16 +1292,15 @@ export class UI {
      * Takes optional 'randomize' parameter to select a random creature from the grid.
      */
 
-	toggleDash(randomize, recent) {
+	toggleDash(randomize) {
 		let game = this.game;
-		console.log(recent);
 		if (!this.$dash.hasClass('active')) {
 			// If the scoreboard is displayed, hide it
 			if (this.$scoreboard.is(':visible')) {
 				this.$scoreboard.hide();
 			}
 
-			if (randomize) {
+			if (randomize && this.lastViewedCreature == '') {
 				const activePlayer = game.players[game.activeCreature.player.id];
 				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
 				const availableTypes = activePlayer.availableCreatures.filter(
@@ -1315,14 +1321,10 @@ export class UI {
 					const plasmaCost = lvl + size;
 					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
 				});
-				//probably make changes here
-				console.log('showing random creature');
 				this.showCreature(typeToPass, game.activeCreature.team);
-			} else if (!randomize && recent !== undefined) {
-				console.log('showing creature recent');
-				this.showCreature(recent, game.activeCreature.team);
+			} else if (this.lastViewedCreature !== '') {
+				this.showCreature(this.lastViewedCreature, game.activeCreature.team);
 			} else {
-				console.log('showing player');
 				this.showCreature(game.activeCreature.type, game.activeCreature.team);
 			}
 		} else {
