@@ -675,7 +675,7 @@ export class UI {
      * Query a creature in the available creatures of the active player
      *
      */
-	showCreature(creatureType, player) {
+	showCreature(creatureType, player, memorize) {
 		let game = this.game;
 
 		if (!this.dashopen) {
@@ -738,9 +738,8 @@ export class UI {
 			.removeClass('active')
 			.filter("[creature='" + creatureType + "']")
 			.addClass('active');
-
 		this.selectedCreature = creatureType;
-
+		console.log('Clicked from board');
 		let stats = game.retreiveCreatureStats(creatureType);
 
 		// TODO card animation
@@ -907,7 +906,9 @@ export class UI {
 					$j('#materialize_button').on('click', () => {
 						// Remove active class to 'fake' toggleDash into randomly picking a creature for us.
 						this.$dash.removeClass('active');
-						this.toggleDash(true);
+						console.log(memorize);
+						memorize ? this.toggleDash(false, creatureType) : this.toggleDash(true);
+						//this.toggleDash(true);
 					});
 				} else if (activeCreature.type != '--') {
 					$j('#materialize_button p').text('The current active unit cannot materialize others');
@@ -1067,7 +1068,8 @@ export class UI {
 				}
 
 				let creatureType = $j(e.currentTarget).attr('creature'); // CreatureType
-				this.showCreature(creatureType, this.selectedPlayer);
+				this.showCreature(creatureType, this.selectedPlayer, true);
+				console.log('called this.showCreature(creatureType, this.selectedPlayer, true);');
 			});
 	}
 
@@ -1283,9 +1285,9 @@ export class UI {
      * Takes optional 'randomize' parameter to select a random creature from the grid.
      */
 
-	toggleDash(randomize) {
+	toggleDash(randomize, recent) {
 		let game = this.game;
-
+		console.log(recent);
 		if (!this.$dash.hasClass('active')) {
 			// If the scoreboard is displayed, hide it
 			if (this.$scoreboard.is(':visible')) {
@@ -1313,8 +1315,14 @@ export class UI {
 					const plasmaCost = lvl + size;
 					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
 				});
+				//probably make changes here
+				console.log('showing random creature');
 				this.showCreature(typeToPass, game.activeCreature.team);
+			} else if (!randomize && recent !== undefined) {
+				console.log('showing creature recent');
+				this.showCreature(recent, game.activeCreature.team);
 			} else {
+				console.log('showing player');
 				this.showCreature(game.activeCreature.type, game.activeCreature.team);
 			}
 		} else {
