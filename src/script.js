@@ -59,6 +59,19 @@ const abilitiesGenerators = [
 ];
 abilitiesGenerators.forEach(generator => generator(G));
 
+const isNativeFullscreenAPIUse = () =>
+	document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+
+const disableFullscreenLayout = () => {
+	$j('#fullScreen').removeClass('fullscreenMode');
+	$j('.fullscreen__title').text('Fullscreen');
+};
+
+const enableFullscreenLayout = () => {
+	$j('#fullScreen').addClass('fullscreenMode');
+	$j('.fullscreen__title').text('Contract');
+};
+
 $j(document).ready(() => {
 	let scrim = $j('.scrim');
 	scrim.on('transitionend', function() {
@@ -79,19 +92,23 @@ $j(document).ready(() => {
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 
 	// Add listener for Fullscreen API
-	$j('#fullScreen').on('click', event => {
-		if (
-			document.fullscreenElement ||
-			document.webkitFullscreenElement ||
-			document.mozFullScreenElement
-		) {
-			event.currentTarget.classList.toggle('fullscreenMode');
-			$j('.fullscreen__title').text('Fullscreen');
+	$j('#fullScreen').on('click', () => {
+		if (isNativeFullscreenAPIUse()) {
+			disableFullscreenLayout();
 			document.exitFullscreen();
+		} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
+			alert('Use f11 to exit full screen');
 		} else {
-			event.currentTarget.classList.toggle('fullscreenMode');
-			$j('.fullscreen__title').text('Contract');
+			enableFullscreenLayout();
 			$j('#AncientBeast')[0].requestFullscreen();
+		}
+	});
+
+	window.addEventListener('resize', () => {
+		if (window.innerHeight === screen.height && !$j('#fullScreen').hasClass('fullscreenMode')) {
+			enableFullscreenLayout();
+		} else if ($j('#fullScreen').hasClass('fullscreenMode') && !isNativeFullscreenAPIUse()) {
+			disableFullscreenLayout();
 		}
 	});
 
