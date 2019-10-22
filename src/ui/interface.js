@@ -43,8 +43,11 @@ export class UI {
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboardwrapper');
 
-		// Last Viewed Unit
+		// Last clicked creature in Godlet Printer for the current turn
 		this.lastViewedCreature = '';
+
+		// Last viewed creature for the current turn
+		this.viewedCreature = '';
 
 		// Chat
 		this.chat = new Chat(game);
@@ -113,6 +116,7 @@ export class UI {
 						});
 						game.skipTurn();
 						this.lastViewedCreature = '';
+						this.queryUnit = '';
 					}
 				}
 			},
@@ -679,7 +683,7 @@ export class UI {
      * Query a creature in the available creatures of the active player
      *
      */
-	showCreature(creatureType, player) {
+	showCreature(creatureType, player, summonCreatureType) {
 		let game = this.game;
 
 		if (!this.dashopen) {
@@ -742,7 +746,9 @@ export class UI {
 			.removeClass('active')
 			.filter("[creature='" + creatureType + "']")
 			.addClass('active');
-		this.selectedCreature = creatureType;
+
+		//issue-1553 fix possible
+		this.selectedCreature = summonCreatureType;
 		let stats = game.retreiveCreatureStats(creatureType);
 
 		// TODO card animation
@@ -883,17 +889,24 @@ export class UI {
 					);
 
 					// Bind button
-
 					this.materializeButton.click = () => {
 						this.materializeToggled = false;
 						this.selectAbility(3);
 						this.closeDash();
-						activeCreature.abilities[3].materialize(this.selectedCreature);
+						if (this.lastViewedCreature != '') {
+							activeCreature.abilities[3].materialize(this.lastViewedCreature);
+						} else if (this.selectedCreature != '') {
+							activeCreature.abilities[3].materialize(this.selectedCreature);
+							//need to find a way to randomize it
+						} else {
+							activeCreature.abilities[3].materialize();
+						}
 					};
 					$j('#card .sideA').on('click', this.materializeButton.click);
 					$j('#card .sideA').removeClass('disabled');
 					this.materializeButton.changeState('glowing');
 				}
+				//for right clicks
 			} else {
 				// Make sure there is no click events, we'll re-declare it as needed.
 				$j('#materialize_button').off('click');
@@ -1321,11 +1334,19 @@ export class UI {
 					const plasmaCost = lvl + size;
 					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
 				});
-				this.showCreature(typeToPass, game.activeCreature.team);
+				this.showCreature(typeToPass, game.activeCreature.team, typeToPass);
 			} else if (this.lastViewedCreature !== '') {
-				this.showCreature(this.lastViewedCreature, game.activeCreature.team);
+				this.showCreature(
+					this.lastViewedCreature,
+					game.activeCreature.team,
+					this.lastViewedCreature
+				);
 			} else {
-				this.showCreature(game.activeCreature.type, game.activeCreature.team);
+				this.showCreature(
+					game.activeCreature.type,
+					game.activeCreature.team,
+					game.activeCreature.type
+				);
 			}
 		} else {
 			this.closeDash();
