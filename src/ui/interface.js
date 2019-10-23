@@ -679,11 +679,12 @@ export class UI {
      *
      * creatureType :	String :	Creature type
      * player :		Integer :	Player ID
-     *
+     * summonCreatureType:		String:    Creature type to summon
+	 * view:		Boolean:    True to disable/hide materialize button
      * Query a creature in the available creatures of the active player
      *
      */
-	showCreature(creatureType, player, summonCreatureType) {
+	showCreature(creatureType, player, summonCreatureType, view) {
 		let game = this.game;
 
 		if (!this.dashopen) {
@@ -854,14 +855,19 @@ export class UI {
 				}
 			});
 
-			let summonedOrDead = false;
+			/*let summonedOrDead = false;
 			game.players[player].creatures.forEach(creature => {
 				if (creature.type == creatureType) {
 					summonedOrDead = true;
 				}
-			});
+			})*/
 
 			// Materialize button
+			if (view) {
+				$j('#materialize_button').hide();
+			} else {
+				$j('#materialize_button').show();
+			}
 			this.materializeButton.changeState('disabled');
 			$j('#card .sideA')
 				.addClass('disabled')
@@ -871,7 +877,8 @@ export class UI {
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
 				$j('#materialize_button p').text(game.msg.dash.materializeOverload);
 			} else if (
-				!summonedOrDead &&
+				//test
+				//!summonedOrDead &&
 				activeCreature.player.id === player &&
 				activeCreature.type === '--' &&
 				activeCreature.abilities[3].used === false
@@ -895,18 +902,15 @@ export class UI {
 						this.closeDash();
 						if (this.lastViewedCreature != '') {
 							activeCreature.abilities[3].materialize(this.lastViewedCreature);
-						} else if (this.selectedCreature != '') {
-							activeCreature.abilities[3].materialize(this.selectedCreature);
-							//need to find a way to randomize it
 						} else {
-							activeCreature.abilities[3].materialize();
+							activeCreature.abilities[3].materialize(this.selectedCreature);
 						}
 					};
 					$j('#card .sideA').on('click', this.materializeButton.click);
 					$j('#card .sideA').removeClass('disabled');
 					this.materializeButton.changeState('glowing');
 				}
-				//for right clicks
+				//related to line 857 for now. Will probably need to clean this part up for later.
 			} else {
 				// Make sure there is no click events, we'll re-declare it as needed.
 				$j('#materialize_button').off('click');

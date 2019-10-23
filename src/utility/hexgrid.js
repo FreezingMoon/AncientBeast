@@ -711,15 +711,14 @@ export class HexGrid {
 
 		// ONRIGHTCLICK
 		let onRightClickFn = hex => {
-			//added a variable to hold the last right clicked unit to view
+			// added a variable to hold the last right clicked unit to view
 			if (hex.creature instanceof Creature) {
-				//may not be needed
-				//game.UI.queryUnit = hex.creature.type;
-				//game.UI.showCreature(hex.creature.type, hex.creature.player.id, hex.creature.type);
-				game.UI.showCreature(hex.creature.type, hex.creature.player.id);
+				game.UI.showCreature(hex.creature.type, hex.creature.player.id, '', true);
 			} else {
+				// If there was a last viewed creature
 				if (game.UI.lastViewedCreature !== '') {
 					game.UI.showCreature(game.UI.lastViewedCreature, game.UI.selectedPlayer);
+					// If a random creature was selected from toggleDash(true)
 				} else if (game.UI.selectedCreatureObj !== '') {
 					game.UI.toggleDash(true);
 				} else {
