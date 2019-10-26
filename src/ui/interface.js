@@ -675,7 +675,7 @@ export class UI {
 		});
 	}
 
-	/* showCreature(creatureType, player)
+	/* showCreature(creatureType, player, summonCreatureType, view)
      *
      * creatureType :	String :	Creature type
      * player :		Integer :	Player ID
@@ -748,7 +748,6 @@ export class UI {
 			.filter("[creature='" + creatureType + "']")
 			.addClass('active');
 
-		//issue-1553 fix possible
 		this.selectedCreature = summonCreatureType;
 		let stats = game.retreiveCreatureStats(creatureType);
 
@@ -855,14 +854,6 @@ export class UI {
 				}
 			});
 
-			/*let summonedOrDead = false;
-			game.players[player].creatures.forEach(creature => {
-				if (creature.type == creatureType) {
-					summonedOrDead = true;
-				}
-			})*/
-
-			// Materialize button
 			if (view) {
 				$j('#materialize_button').hide();
 			} else {
@@ -877,8 +868,6 @@ export class UI {
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
 				$j('#materialize_button p').text(game.msg.dash.materializeOverload);
 			} else if (
-				//test
-				//!summonedOrDead &&
 				activeCreature.player.id === player &&
 				activeCreature.type === '--' &&
 				activeCreature.abilities[3].used === false
@@ -905,43 +894,6 @@ export class UI {
 						} else {
 							activeCreature.abilities[3].materialize(this.selectedCreature);
 						}
-					};
-					$j('#card .sideA').on('click', this.materializeButton.click);
-					$j('#card .sideA').removeClass('disabled');
-					this.materializeButton.changeState('glowing');
-				}
-				//related to line 857 for now. Will probably need to clean this part up for later.
-			} else {
-				// Make sure there is no click events, we'll re-declare it as needed.
-				$j('#materialize_button').off('click');
-				if (
-					activeCreature.player.id === player &&
-					activeCreature.type === '--' &&
-					activeCreature.abilities[3].used === true
-				) {
-					$j('#materialize_button p').text('Materialization has already been used this round');
-				} else if (activeCreature.player.id === player && activeCreature.type === '--') {
-					$j('#materialize_button p').text('Please select an available unit from the left grid');
-					this.materializeButton.changeState('glowing');
-					$j('#materialize_button').on('click', () => {
-						// Remove active class to 'fake' toggleDash into randomly picking a creature for us.
-						this.$dash.removeClass('active');
-						// Will check if user clicked on a portrait in godlet printer in the new turn
-						if (this.lastViewedCreature === '') {
-							this.toggleDash();
-						} else {
-							this.toggleDash(true);
-						}
-						//this.toggleDash(true);
-					});
-				} else if (activeCreature.type != '--') {
-					$j('#materialize_button p').text('The current active unit cannot materialize others');
-				} else if (activeCreature.type === '--' && activeCreature.player.id != player) {
-					$j('#materialize_button p').text('Switch to your own tab to be able to materialize');
-
-					// Bind button
-					this.materializeButton.click = () => {
-						this.showCreature(creatureType, activeCreature.player.id);
 					};
 					$j('#card .sideA').on('click', this.materializeButton.click);
 					$j('#card .sideA').removeClass('disabled');

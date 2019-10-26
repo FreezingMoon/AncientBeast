@@ -5,7 +5,6 @@ import { search } from './pathfinding';
 import * as matrices from './matrices';
 import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
-import { UI } from '../ui/interface';
 
 /* HexGrid Class
  *
@@ -711,14 +710,11 @@ export class HexGrid {
 
 		// ONRIGHTCLICK
 		let onRightClickFn = hex => {
-			// added a variable to hold the last right clicked unit to view
 			if (hex.creature instanceof Creature) {
 				game.UI.showCreature(hex.creature.type, hex.creature.player.id, '', true);
 			} else {
-				// If there was a last viewed creature
 				if (game.UI.lastViewedCreature !== '') {
 					game.UI.showCreature(game.UI.lastViewedCreature, game.UI.selectedPlayer);
-					// If a random creature was selected from toggleDash(true)
 				} else if (game.UI.selectedCreatureObj !== '') {
 					game.UI.toggleDash(true);
 				} else {
