@@ -714,7 +714,6 @@ export class HexGrid {
 				game.UI.showCreature(hex.creature.type, hex.creature.player.id, '', true);
 			} else {
 				if (game.activeCreature.type == '--') {
-					//need to fix this so that it opens but materialize is gone
 					if (game.UI.lastViewedCreature !== '') {
 						game.UI.showCreature(game.UI.lastViewedCreature, game.UI.selectedPlayer);
 					} else if (game.UI.selectedCreatureObj !== '') {
@@ -725,17 +724,6 @@ export class HexGrid {
 				} else {
 					game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id, '', true);
 				}
-				/*if (game.UI.lastViewedCreature !== '') {
-					game.UI.showCreature(game.UI.lastViewedCreature, game.UI.selectedPlayer);
-				} else if (game.UI.selectedCreatureObj !== '') {
-					game.UI.toggleDash(true);
-				} else {
-					if(game.activeCreature.type == '--'){
-						game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id);
-					}else{
-
-					}
-				}*/
 			}
 		};
 
