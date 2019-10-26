@@ -1290,18 +1290,25 @@ export class UI {
 					const plasmaCost = lvl + size;
 					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
 				});
-				this.showCreature(typeToPass, game.activeCreature.team, typeToPass);
+				this.showCreature(
+					typeToPass,
+					game.activeCreature.team,
+					typeToPass,
+					game.activeCreature.abilities[3].used
+				);
 			} else if (this.lastViewedCreature !== '') {
 				this.showCreature(
 					this.lastViewedCreature,
 					game.activeCreature.team,
-					this.lastViewedCreature
+					this.lastViewedCreature,
+					game.activeCreature.abilities[3].used
 				);
 			} else {
 				this.showCreature(
 					game.activeCreature.type,
 					game.activeCreature.team,
-					game.activeCreature.type
+					game.activeCreature.type,
+					game.activeCreature.abilities[3].used
 				);
 			}
 		} else {
