@@ -299,6 +299,7 @@
 }
 
 #rightpanel {
+	background: rgba(0, 0, 0, 0.55);
 	position: absolute;
 	right: 20px;
 	top: 100px;
@@ -311,10 +312,10 @@
 }
 
 .button {
-	width: 80px;
-	height: 80px;
-	cursor: pointer;
 	background-size: 100% 100%;
+	cursor: pointer;
+	height: 80px;
+	width: 80px;
 }
 
 .button.noclick:hover:before {
@@ -369,7 +370,7 @@
 
 #playerbutton {
 	cursor: pointer;
-	background: black;
+	background: rgba(0, 0, 0, 0.55);
 	position: fixed;
 	right: 0;
 	z-index: 2;
@@ -384,6 +385,7 @@
 	margin: 1px -5px;
 	position: fixed;
 	text-align: right;
+	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 	top: 0;
 	width: 100px;
 	z-index: 2;
@@ -475,8 +477,6 @@ div.section.info {
 	position: absolute;
 	height: 100px;
 	width: 100px;
-	background-image: url('~assets/interface/frame.png');
-	background-size: cover;
 }
 
 .togglescore.button,
@@ -702,7 +702,7 @@ div.section.info {
 	width: 100%;
 	height: 18px;
 	border: 1px solid #555;
-	background: black;
+	background: rgba(0, 0, 0, 0.55);
 	color: white;
 	font-size: 14px;
 	text-align: center;
@@ -934,7 +934,7 @@ div.section.info {
 }
 
 #abilities {
-	background: black;
+	background: rgba(0, 0, 0, 0.55);
 }
 
 .button + .desc {
@@ -1211,14 +1211,6 @@ span.pure {
 				position: absolute;
 				height: 100px;
 				width: 100px;
-				background-image: url('~assets/interface/frame.png');
-				background-size: cover;
-
-				&:before {
-					height: 100px;
-					width: 100px;
-					background-image: url('~assets/interface/frame.png');
-				}
 			}
 
 			table {
@@ -1286,7 +1278,7 @@ span.pure {
 	height: 320px;
 	box-sizing: border-box;
 	border: 1px #777 solid;
-	background: black;
+	background: rgba(0, 0, 0, 0.55);
 	top: 0;
 }
 

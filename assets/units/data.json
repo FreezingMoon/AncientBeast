@@ -881,8 +881,8 @@
 	},
 	{
 		"id": 10,
-		"name": "Bookworm",
-		"level": 3,
+		"name": "Troglodyte",
+		"level": 4,
 		"realm": "P",
 		"size": 3,
 		"set": "Alpha",
@@ -1703,7 +1703,7 @@
 	},
 	{
 		"id": 22,
-		"name": "Lava Mollusk",
+		"name": "Asher",
 		"level": 1,
 		"realm": "L",
 		"size": 2,
@@ -2045,7 +2045,7 @@
 		"id": 27,
 		"name": "Blue Shrimp",
 		"level": 2,
-		"realm": "P",
+		"realm": "S",
 		"size": 3,
 		"set": "Alpha",
 		"stats": {
@@ -2583,7 +2583,7 @@
 	{
 		"id": 34,
 		"name": "Royal Guard",
-		"level": 4,
+		"level": 2,
 		"realm": "P",
 		"size": 2,
 		"set": "Alpha",
@@ -3229,7 +3229,7 @@
 	},
 	{
 		"id": 43,
-		"name": "Fire Bird",
+		"name": "Volpyr",
 		"level": 7,
 		"realm": "L",
 		"size": 3,
@@ -3297,8 +3297,8 @@
 	{
 		"id": 44,
 		"name": "Scavenger",
-		"level": 2,
-		"realm": "E",
+		"level": 3,
+		"realm": "P",
 		"size": 2,
 		"set": "Alpha",
 		"stats": {
@@ -3660,7 +3660,7 @@
 	},
 	{
 		"id": 49,
-		"name": "Volpyr",
+		"name": "Lavamander",
 		"level": 6,
 		"realm": "L",
 		"size": 3,
