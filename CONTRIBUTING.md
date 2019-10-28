@@ -25,7 +25,7 @@ In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P
 
 ### Package Requirements
 
-First install (or make sure you have) the latest LTS version of [Node.js](http://nodejs.org). In case you need to have different versions of it for other projects as well, you should definitely use `nvm` (Node version manager), which is a tool that makes it easy to manage multiple local Node installations. You can [find installation instructions here](https://github.com/creationix/nvm#installation), and then use it like:
+First install (or make sure you have) the latest LTS version of [Node.js](http://nodejs.org). In case you need to have different versions of it for other projects as well, you should definitely use `nvm` (Node version manager), which is a tool that makes it easy to manage multiple local Node installations. You can [find installation instructions here](https://github.com/nvm-sh/nvm#install--update-script), and then use it like:
 
 ```sh
 nvm install --lts  # This will always install the latest LTS release.
