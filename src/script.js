@@ -59,6 +59,19 @@ const abilitiesGenerators = [
 ];
 abilitiesGenerators.forEach(generator => generator(G));
 
+const isNativeFullscreenAPIUse = () =>
+	document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+
+const disableFullscreenLayout = () => {
+	$j('#fullScreen').removeClass('fullscreenMode');
+	$j('.fullscreen__title').text('Fullscreen');
+};
+
+const enableFullscreenLayout = () => {
+	$j('#fullScreen').addClass('fullscreenMode');
+	$j('.fullscreen__title').text('Contract');
+};
+
 $j(document).ready(() => {
 	let scrim = $j('.scrim');
 	scrim.on('transitionend', function() {
@@ -77,6 +90,27 @@ $j(document).ready(() => {
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);
+
+	// Add listener for Fullscreen API
+	$j('#fullScreen').on('click', () => {
+		if (isNativeFullscreenAPIUse()) {
+			disableFullscreenLayout();
+			document.exitFullscreen();
+		} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
+			alert('Use f11 to exit full screen');
+		} else {
+			enableFullscreenLayout();
+			$j('#AncientBeast')[0].requestFullscreen();
+		}
+	});
+
+	window.addEventListener('resize', () => {
+		if (window.innerHeight === screen.height && !$j('#fullScreen').hasClass('fullscreenMode')) {
+			enableFullscreenLayout();
+		} else if ($j('#fullScreen').hasClass('fullscreenMode') && !isNativeFullscreenAPIUse()) {
+			disableFullscreenLayout();
+		}
+	});
 
 	// Focus the form to enable "press enter to start the game" functionality
 	$j('#startButton').focus();

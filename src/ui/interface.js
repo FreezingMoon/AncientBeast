@@ -43,6 +43,9 @@ export class UI {
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboardwrapper');
 
+		// Last Viewed Unit
+		this.lastViewedCreature = '';
+
 		// Chat
 		this.chat = new Chat(game);
 
@@ -109,6 +112,7 @@ export class UI {
 							action: 'skip'
 						});
 						game.skipTurn();
+						this.lastViewedCreature = '';
 					}
 				}
 			},
@@ -738,9 +742,7 @@ export class UI {
 			.removeClass('active')
 			.filter("[creature='" + creatureType + "']")
 			.addClass('active');
-
 		this.selectedCreature = creatureType;
-
 		let stats = game.retreiveCreatureStats(creatureType);
 
 		// TODO card animation
@@ -907,7 +909,13 @@ export class UI {
 					$j('#materialize_button').on('click', () => {
 						// Remove active class to 'fake' toggleDash into randomly picking a creature for us.
 						this.$dash.removeClass('active');
-						this.toggleDash(true);
+						// Will check if user clicked on a portrait in godlet printer in the new turn
+						if (this.lastViewedCreature === '') {
+							this.toggleDash();
+						} else {
+							this.toggleDash(true);
+						}
+						//this.toggleDash(true);
 					});
 				} else if (activeCreature.type != '--') {
 					$j('#materialize_button p').text('The current active unit cannot materialize others');
@@ -1067,6 +1075,7 @@ export class UI {
 				}
 
 				let creatureType = $j(e.currentTarget).attr('creature'); // CreatureType
+				this.lastViewedCreature = creatureType;
 				this.showCreature(creatureType, this.selectedPlayer);
 			});
 	}
@@ -1285,14 +1294,13 @@ export class UI {
 
 	toggleDash(randomize) {
 		let game = this.game;
-
 		if (!this.$dash.hasClass('active')) {
 			// If the scoreboard is displayed, hide it
 			if (this.$scoreboard.is(':visible')) {
 				this.$scoreboard.hide();
 			}
 
-			if (randomize) {
+			if (randomize && this.lastViewedCreature == '') {
 				const activePlayer = game.players[game.activeCreature.player.id];
 				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
 				const availableTypes = activePlayer.availableCreatures.filter(
@@ -1314,6 +1322,8 @@ export class UI {
 					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
 				});
 				this.showCreature(typeToPass, game.activeCreature.team);
+			} else if (this.lastViewedCreature !== '') {
+				this.showCreature(this.lastViewedCreature, game.activeCreature.team);
 			} else {
 				this.showCreature(game.activeCreature.type, game.activeCreature.team);
 			}
