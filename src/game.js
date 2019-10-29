@@ -79,7 +79,7 @@ export default class Game {
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
 		this.loadedCreatures = [
 			0, // Dark Priest
-			37, // Swine Thug
+			37, // Thug Swine
 			3, // Uncle Fungus
 			4, // Magma Spawn
 			45, // Chimera
@@ -93,9 +93,9 @@ export default class Game {
 			44, // Scavenger
 			31, // Cyber Wolf
 			28, // Stomper
-			6, // Ice Demon
+			6, // Vehemoth
 			33 // Golden Wyrm
-			//22, // Lava Mollusk
+			//22, // Asher
 			//42, // Batmadillo
 		];
 		this.availableMusic = [];

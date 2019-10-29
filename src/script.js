@@ -13,15 +13,15 @@ import cyberWolfAbilitiesGenerator from './abilities/Cyber-Wolf';
 import darkPriestAbilitiesGenerator from './abilities/Dark-Priest';
 import goldenWyrmAbilitiesGenerator from './abilities/Golden-Wyrm';
 import gumbleAbilitiesGenerator from './abilities/Gumble';
-import iceDemonAbilitiesGenerator from './abilities/Ice-Demon';
+import vehemothAbilitiesGenerator from './abilities/Vehemoth';
 import impalerAbilitiesGenerator from './abilities/Impaler';
-import lavaMolluskAbilitiesGenerator from './abilities/Lava-Mollusk';
+import asherAbilitiesGenerator from './abilities/Asher';
 import magmaSpawnAbilitiesGenerator from './abilities/Magma-Spawn';
 import nightmareAbilitiesGenerator from './abilities/Nightmare';
 import nutcaseAbilitiesGenerator from './abilities/Nutcase';
 import scavengerAbilitiesGenerator from './abilities/Scavenger';
 import snowBunnyAbilitiesGenerator from './abilities/Snow-Bunny';
-import swineThugAbilitiesGenerator from './abilities/Swine-Thug';
+import thugSwineAbilitiesGenerator from './abilities/Thug-Swine';
 import uncleFungusAbilitiesGenerator from './abilities/Uncle-Fungus';
 import headlessAbilitiesGenerator from './abilities/Headless';
 
@@ -45,15 +45,15 @@ const abilitiesGenerators = [
 	darkPriestAbilitiesGenerator,
 	goldenWyrmAbilitiesGenerator,
 	gumbleAbilitiesGenerator,
-	iceDemonAbilitiesGenerator,
+	vehemothAbilitiesGenerator,
 	impalerAbilitiesGenerator,
-	lavaMolluskAbilitiesGenerator,
+	asherAbilitiesGenerator,
 	magmaSpawnAbilitiesGenerator,
 	nightmareAbilitiesGenerator,
 	nutcaseAbilitiesGenerator,
 	scavengerAbilitiesGenerator,
 	snowBunnyAbilitiesGenerator,
-	swineThugAbilitiesGenerator,
+	thugSwineAbilitiesGenerator,
 	uncleFungusAbilitiesGenerator,
 	headlessAbilitiesGenerator
 ];

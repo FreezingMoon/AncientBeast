@@ -534,7 +534,7 @@
 	},
 	{
 		"id": 6,
-		"name": "Ice Demon",
+		"name": "Vehemoth",
 		"level": 7,
 		"realm": "S",
 		"size": 3,
@@ -1597,7 +1597,7 @@
 	},
 	{
 		"id": 20,
-		"name": "Squid Face",
+		"name": "Kraken",
 		"level": 6,
 		"realm": "S",
 		"size": 3,
@@ -2747,7 +2747,7 @@
 	},
 	{
 		"id": 37,
-		"name": "Swine Thug",
+		"name": "Thug Swine",
 		"level": 1,
 		"realm": "A",
 		"size": 1,
