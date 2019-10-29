@@ -859,6 +859,14 @@ export class UI {
 			} else {
 				$j('#materialize_button').show();
 			}
+
+			let summonedOrDead = false;
+			game.players[player].creatures.forEach(creature => {
+				if (creature.type == creatureType) {
+					summonedOrDead = true;
+				}
+			});
+
 			this.materializeButton.changeState('disabled');
 			$j('#card .sideA')
 				.addClass('disabled')
@@ -868,6 +876,7 @@ export class UI {
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
 				$j('#materialize_button p').text(game.msg.dash.materializeOverload);
 			} else if (
+				!summonedOrDead &&
 				activeCreature.player.id === player &&
 				activeCreature.type === '--' &&
 				activeCreature.abilities[3].used === false
@@ -1045,7 +1054,12 @@ export class UI {
 
 				let creatureType = $j(e.currentTarget).attr('creature'); // CreatureType
 				this.lastViewedCreature = creatureType;
-				this.showCreature(creatureType, this.selectedPlayer);
+				this.showCreature(
+					creatureType,
+					this.selectedPlayer,
+					'',
+					game.activeCreature.abilities[3].used
+				);
 			});
 	}
 
@@ -2207,13 +2221,30 @@ export class UI {
 				this.xrayQueue(-1);
 			})
 			.bind('mousedown', e => {
-				// Show dash on click
+				// Show when clicking on portrait
 				if (game.freezedInput) {
 					return;
 				}
-
 				let creaID = $j(e.currentTarget).attr('creatureid') - 0;
-				this.showCreature(game.creatures[creaID].type, game.creatures[creaID].player.id);
+				if (
+					game.creatures[creaID].type == '--' &&
+					game.creatures[creaID].player.id == game.activeCreature.player.id &&
+					!game.activeCreature.abilities[3].used
+				) {
+					this.showCreature(
+						game.creatures[creaID].type,
+						game.creatures[creaID].player.id,
+						game.creatures[creaID].type,
+						false
+					);
+				} else {
+					this.showCreature(
+						game.creatures[creaID].type,
+						game.creatures[creaID].player.id,
+						game.creatures[creaID].type,
+						true
+					);
+				}
 			});
 	}
 

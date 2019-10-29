@@ -715,11 +715,21 @@ export class HexGrid {
 			} else {
 				if (game.activeCreature.type == '--') {
 					if (game.UI.lastViewedCreature !== '') {
-						game.UI.showCreature(game.UI.lastViewedCreature, game.UI.selectedPlayer);
+						game.UI.showCreature(
+							game.UI.lastViewedCreature,
+							game.UI.selectedPlayer,
+							'',
+							game.activeCreature.abilities[3].used
+						);
 					} else if (game.UI.selectedCreatureObj !== '') {
 						game.UI.toggleDash(true);
 					} else {
-						game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id);
+						game.UI.showCreature(
+							game.activeCreature.type,
+							game.activeCreature.player.id,
+							'',
+							game.activeCreature.abilities[3].used
+						);
 					}
 				} else {
 					game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id, '', true);
