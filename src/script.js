@@ -13,9 +13,9 @@ import cyberWolfAbilitiesGenerator from './abilities/Cyber-Wolf';
 import darkPriestAbilitiesGenerator from './abilities/Dark-Priest';
 import goldenWyrmAbilitiesGenerator from './abilities/Golden-Wyrm';
 import gumbleAbilitiesGenerator from './abilities/Gumble';
-import iceDemonAbilitiesGenerator from './abilities/Ice-Demon';
+import vehemothAbilitiesGenerator from './abilities/Vehemoth';
 import impalerAbilitiesGenerator from './abilities/Impaler';
-import lavaMolluskAbilitiesGenerator from './abilities/Lava-Mollusk';
+import asherAbilitiesGenerator from './abilities/Asher';
 import magmaSpawnAbilitiesGenerator from './abilities/Magma-Spawn';
 import nightmareAbilitiesGenerator from './abilities/Nightmare';
 import nutcaseAbilitiesGenerator from './abilities/Nutcase';
@@ -24,6 +24,7 @@ import snowBunnyAbilitiesGenerator from './abilities/Snow-Bunny';
 import swineThugAbilitiesGenerator from './abilities/Swine-Thug';
 import uncleFungusAbilitiesGenerator from './abilities/Uncle-Fungus';
 import headlessAbilitiesGenerator from './abilities/Headless';
+import stomperAbilitiesGenerator from './abilities/Stomper';
 
 // Generic object we can decorate with helper methods to simply dev and user experience.
 // TODO: Expose this in a less hacky way.
@@ -45,9 +46,9 @@ const abilitiesGenerators = [
 	darkPriestAbilitiesGenerator,
 	goldenWyrmAbilitiesGenerator,
 	gumbleAbilitiesGenerator,
-	iceDemonAbilitiesGenerator,
+	vehemothAbilitiesGenerator,
 	impalerAbilitiesGenerator,
-	lavaMolluskAbilitiesGenerator,
+	asherAbilitiesGenerator,
 	magmaSpawnAbilitiesGenerator,
 	nightmareAbilitiesGenerator,
 	nutcaseAbilitiesGenerator,
@@ -55,9 +56,23 @@ const abilitiesGenerators = [
 	snowBunnyAbilitiesGenerator,
 	swineThugAbilitiesGenerator,
 	uncleFungusAbilitiesGenerator,
-	headlessAbilitiesGenerator
+	headlessAbilitiesGenerator,
+	stomperAbilitiesGenerator,
 ];
 abilitiesGenerators.forEach(generator => generator(G));
+
+const isNativeFullscreenAPIUse = () =>
+	document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+
+const disableFullscreenLayout = () => {
+	$j('#fullScreen').removeClass('fullscreenMode');
+	$j('.fullscreen__title').text('Fullscreen');
+};
+
+const enableFullscreenLayout = () => {
+	$j('#fullScreen').addClass('fullscreenMode');
+	$j('.fullscreen__title').text('Contract');
+};
 
 $j(document).ready(() => {
 	let scrim = $j('.scrim');
@@ -79,19 +94,23 @@ $j(document).ready(() => {
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 
 	// Add listener for Fullscreen API
-	$j('#fullScreen').on('click', event => {
-		if (
-			document.fullscreenElement ||
-			document.webkitFullscreenElement ||
-			document.mozFullScreenElement
-		) {
-			event.currentTarget.classList.toggle('fullscreenMode');
-			$j('.fullscreen__title').text('Fullscreen');
+	$j('#fullScreen').on('click', () => {
+		if (isNativeFullscreenAPIUse()) {
+			disableFullscreenLayout();
 			document.exitFullscreen();
+		} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
+			alert('Use f11 to exit full screen');
 		} else {
-			event.currentTarget.classList.toggle('fullscreenMode');
-			$j('.fullscreen__title').text('Contract');
+			enableFullscreenLayout();
 			$j('#AncientBeast')[0].requestFullscreen();
+		}
+	});
+
+	window.addEventListener('resize', () => {
+		if (window.innerHeight === screen.height && !$j('#fullScreen').hasClass('fullscreenMode')) {
+			enableFullscreenLayout();
+		} else if ($j('#fullScreen').hasClass('fullscreenMode') && !isNativeFullscreenAPIUse()) {
+			disableFullscreenLayout();
 		}
 	});
 
@@ -122,7 +141,7 @@ export function getGameConfig() {
 			plasma_amount: $j('input[name="plasmaPoints"]:checked').val() - 0,
 			turnTimePool: $j('input[name="turnTime"]:checked').val() - 0,
 			timePool: $j('input[name="timePool"]:checked').val() * 60,
-			background_image: $j('input[name="combatLocation"]:checked').val()
+			background_image: $j('input[name="combatLocation"]:checked').val(),
 		},
 		config = G.gamelog.gameConfig || defaultConfig;
 

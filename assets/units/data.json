@@ -534,7 +534,7 @@
 	},
 	{
 		"id": 6,
-		"name": "Ice Demon",
+		"name": "Vehemoth",
 		"level": 7,
 		"realm": "S",
 		"size": 3,
@@ -881,8 +881,8 @@
 	},
 	{
 		"id": 10,
-		"name": "Bookworm",
-		"level": 3,
+		"name": "Troglodyte",
+		"level": 4,
 		"realm": "P",
 		"size": 3,
 		"set": "Alpha",
@@ -911,10 +911,11 @@
 		},
 		"ability_info": [
 			{
-				"title": "Book Reading",
-				"desc": "Each turn this creature is not fatigued, it reads books to improve mental stat.",
-				"info": "+5 mental stat if not being fatigued.",
-				"upgrade": "Upgrade: +5 mental stat if skipping."
+				"title": "Fearsome Look",
+				"desc":
+					"Makes nearby attackers strongly believe that they get damaged back in the process.",
+				"info": "10 mental damage retaliation per melee hit.",
+				"upgrade": "Does 5 pierce damage as well."
 			},
 			{
 				"title": "Tongue Poke",
@@ -1267,7 +1268,7 @@
 	{
 		"id": 15,
 		"name": "Cycloper",
-		"level": 1,
+		"level": 2,
 		"realm": "E",
 		"size": 2,
 		"set": "Alpha",
@@ -1597,7 +1598,7 @@
 	},
 	{
 		"id": 20,
-		"name": "Squid Face",
+		"name": "Kraken",
 		"level": 6,
 		"realm": "S",
 		"size": 3,
@@ -1703,7 +1704,7 @@
 	},
 	{
 		"id": 22,
-		"name": "Lava Mollusk",
+		"name": "Asher",
 		"level": 1,
 		"realm": "L",
 		"size": 2,
@@ -1925,7 +1926,7 @@
 	{
 		"id": 25,
 		"name": "Mr. Stitches",
-		"level": 2,
+		"level": 1,
 		"realm": "E",
 		"size": 1,
 		"set": "Alpha",
@@ -2045,7 +2046,7 @@
 		"id": 27,
 		"name": "Blue Shrimp",
 		"level": 2,
-		"realm": "P",
+		"realm": "S",
 		"size": 3,
 		"set": "Alpha",
 		"stats": {
@@ -2583,7 +2584,7 @@
 	{
 		"id": 34,
 		"name": "Royal Guard",
-		"level": 4,
+		"level": 2,
 		"realm": "P",
 		"size": 2,
 		"set": "Alpha",
@@ -3229,7 +3230,7 @@
 	},
 	{
 		"id": 43,
-		"name": "Fire Bird",
+		"name": "Volpyr",
 		"level": 7,
 		"realm": "L",
 		"size": 3,
@@ -3297,8 +3298,8 @@
 	{
 		"id": 44,
 		"name": "Scavenger",
-		"level": 2,
-		"realm": "E",
+		"level": 3,
+		"realm": "P",
 		"size": 2,
 		"set": "Alpha",
 		"stats": {
@@ -3660,7 +3661,7 @@
 	},
 	{
 		"id": 49,
-		"name": "Volpyr",
+		"name": "Lavamander",
 		"level": 6,
 		"realm": "L",
 		"size": 3,
