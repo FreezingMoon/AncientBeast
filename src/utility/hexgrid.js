@@ -720,7 +720,6 @@ export class HexGrid {
 							game.activeCreature.type,
 							game.activeCreature.player.id,
 							'',
-							//game.activeCreature.abilities[3].used,
 							'emptyHex'
 						);
 					} else if (game.UI.lastViewedCreature !== '') {
@@ -728,7 +727,6 @@ export class HexGrid {
 							game.UI.lastViewedCreature,
 							game.UI.selectedPlayer,
 							'',
-							//game.activeCreature.abilities[3].used,
 							'emptyHex'
 						);
 					} else if (game.UI.selectedCreatureObj !== '') {
@@ -738,7 +736,6 @@ export class HexGrid {
 							game.activeCreature.type,
 							game.activeCreature.player.id,
 							'',
-							//game.activeCreature.abilities[3].used,
 							'emptyHex'
 						);
 					}

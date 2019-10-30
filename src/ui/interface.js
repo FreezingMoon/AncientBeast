@@ -681,7 +681,7 @@ export class UI {
      * player :		Integer :	Player ID
      * summonCreatureType:		String:    Creature type to summon
 	 * view:		Boolean:    True to disable/hide materialize button
-	 * clickMethod:		String:   Method used to open Godlet printer('emptyHex', 'portrait')
+	 * clickMethod:		String:   Method used to view creatures('emptyHex', 'portrait', 'grid')
      * Query a creature in the available creatures of the active player
      *
      */
@@ -923,7 +923,7 @@ export class UI {
 					activeCreature.abilities[3].used &&
 					game.activeCreature.type == '--' &&
 					player == game.activeCreature.player.id &&
-					(clickMethod == 'emptyHex' || clickMethod == 'portrait')
+					(clickMethod == 'emptyHex' || clickMethod == 'portrait' || clickMethod == 'grid')
 				) {
 					if (clickMethod == 'portrait' && creatureType != '--') {
 						$j('#materialize_button').hide();
@@ -1080,7 +1080,7 @@ export class UI {
 
 				let creatureType = $j(e.currentTarget).attr('creature'); // CreatureType
 				this.lastViewedCreature = creatureType;
-				this.showCreature(creatureType, this.selectedPlayer, '', 'portrait');
+				this.showCreature(creatureType, this.selectedPlayer, '', 'grid');
 			});
 	}
 
