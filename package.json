@@ -58,8 +58,8 @@
 		"start": "cross-env NODE_ENV=production node server.js",
 		"start:dev": "cross-env NODE_ENV=development node server.js",
 		"assetLister": "node ./assetLister.js",
-		"lint": "eslint -c .eslintrc.json --ignore-pattern assets.js src/*.js src/**/*.js",
-		"lint-fix": "eslint -c .eslintrc.json --fix --ignore-pattern assets.js src/*.js src/**/*.js",
+		"lint": "eslint src/*.js src/**/*.js",
+		"lint-fix": "eslint --fix src/*.js src/**/*.js",
 		"format": "prettier-eslint --write \"src/**/*.js\"",
 		"precommit": "lint-staged",
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check",
@@ -70,7 +70,7 @@
 		"concurrent": false,
 		"linters": {
 			"*.{js,json,less,md}": ["prettier --write", "git add"],
-			"*.js": ["eslint -c .eslintrc.json --fix", "git add"]
+			"*.js": ["eslint --fix", "git add"]
 		}
 	},
 	"collective": {
