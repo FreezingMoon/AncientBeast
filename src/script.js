@@ -21,7 +21,7 @@ import nightmareAbilitiesGenerator from './abilities/Nightmare';
 import nutcaseAbilitiesGenerator from './abilities/Nutcase';
 import scavengerAbilitiesGenerator from './abilities/Scavenger';
 import snowBunnyAbilitiesGenerator from './abilities/Snow-Bunny';
-import thugSwineAbilitiesGenerator from './abilities/Thug-Swine';
+import swineThugAbilitiesGenerator from './abilities/Swine-Thug';
 import uncleFungusAbilitiesGenerator from './abilities/Uncle-Fungus';
 import headlessAbilitiesGenerator from './abilities/Headless';
 import stomperAbilitiesGenerator from './abilities/Stomper';
@@ -54,10 +54,10 @@ const abilitiesGenerators = [
 	nutcaseAbilitiesGenerator,
 	scavengerAbilitiesGenerator,
 	snowBunnyAbilitiesGenerator,
-	thugSwineAbilitiesGenerator,
+	swineThugAbilitiesGenerator,
 	uncleFungusAbilitiesGenerator,
 	headlessAbilitiesGenerator,
-	stomperAbilitiesGenerator
+	stomperAbilitiesGenerator,
 ];
 abilitiesGenerators.forEach(generator => generator(G));
 
@@ -141,7 +141,7 @@ export function getGameConfig() {
 			plasma_amount: $j('input[name="plasmaPoints"]:checked').val() - 0,
 			turnTimePool: $j('input[name="turnTime"]:checked').val() - 0,
 			timePool: $j('input[name="timePool"]:checked').val() * 60,
-			background_image: $j('input[name="combatLocation"]:checked').val()
+			background_image: $j('input[name="combatLocation"]:checked').val(),
 		},
 		config = G.gamelog.gameConfig || defaultConfig;
 
