@@ -43,8 +43,11 @@ export class UI {
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboardwrapper');
 
-		// Last Viewed Unit
+		// Last clicked creature in Godlet Printer for the current turn
 		this.lastViewedCreature = '';
+
+		// Last viewed creature for the current turn
+		this.viewedCreature = '';
 
 		// Chat
 		this.chat = new Chat(game);
@@ -113,6 +116,7 @@ export class UI {
 						});
 						game.skipTurn();
 						this.lastViewedCreature = '';
+						this.queryUnit = '';
 					}
 				}
 			},
@@ -671,15 +675,17 @@ export class UI {
 		});
 	}
 
-	/* showCreature(creatureType, player)
+	/* showCreature(creatureType, player, summonCreatureType, view, clickMethod)
      *
      * creatureType :	String :	Creature type
      * player :		Integer :	Player ID
-     *
+     * summonCreatureType:		String:    Creature type to summon
+	 * view:		Boolean:    True to disable/hide materialize button
+	 * clickMethod:		String:   Method used to view creatures('emptyHex', 'portrait', 'grid')
      * Query a creature in the available creatures of the active player
      *
      */
-	showCreature(creatureType, player) {
+	showCreature(creatureType, player, summonCreatureType, clickMethod) {
 		let game = this.game;
 
 		if (!this.dashopen) {
@@ -742,7 +748,8 @@ export class UI {
 			.removeClass('active')
 			.filter("[creature='" + creatureType + "']")
 			.addClass('active');
-		this.selectedCreature = creatureType;
+
+		this.selectedCreature = summonCreatureType;
 		let stats = game.retreiveCreatureStats(creatureType);
 
 		// TODO card animation
@@ -848,6 +855,12 @@ export class UI {
 				}
 			});
 
+			/*if ((view && game.activeCreature.abilities[3].used && game.activeCreature.type == '--') || !view){
+				$j('#materialize_button').show();
+			}else {
+				$j('#materialize_button').hide();
+			}*/
+
 			let summonedOrDead = false;
 			game.players[player].creatures.forEach(creature => {
 				if (creature.type == creatureType) {
@@ -855,7 +868,6 @@ export class UI {
 				}
 			});
 
-			// Materialize button
 			this.materializeButton.changeState('disabled');
 			$j('#card .sideA')
 				.addClass('disabled')
@@ -878,57 +890,49 @@ export class UI {
 				if (plasmaCost > activeCreature.player.plasma) {
 					$j('#materialize_button p').text('Low Plasma! Cannot materialize the selected unit');
 				} else {
-					$j('#materialize_button p').text(
-						'Materialize unit at target location for ' + plasmaCost + ' plasma'
-					);
+					if (creatureType == '--') {
+						$j('#materialize_button p').text('Please select an available unit from the left grid');
+						this.materializeButton.changeState('glowing');
+					} else {
+						$j('#materialize_button p').text(
+							'Materialize unit at target location for ' + plasmaCost + ' plasma'
+						);
 
-					// Bind button
-
-					this.materializeButton.click = () => {
-						this.materializeToggled = false;
-						this.selectAbility(3);
-						this.closeDash();
-						activeCreature.abilities[3].materialize(this.selectedCreature);
-					};
-					$j('#card .sideA').on('click', this.materializeButton.click);
-					$j('#card .sideA').removeClass('disabled');
-					this.materializeButton.changeState('glowing');
+						// Bind button
+						this.materializeButton.click = () => {
+							this.materializeToggled = false;
+							this.selectAbility(3);
+							this.closeDash();
+							if (this.lastViewedCreature != '') {
+								activeCreature.abilities[3].materialize(this.lastViewedCreature);
+							} else {
+								activeCreature.abilities[3].materialize(this.selectedCreature);
+							}
+						};
+						$j('#card .sideA').on('click', this.materializeButton.click);
+						$j('#card .sideA').removeClass('disabled');
+						this.materializeButton.changeState('glowing');
+					}
 				}
 			} else {
-				// Make sure there is no click events, we'll re-declare it as needed.
-				$j('#materialize_button').off('click');
-				if (
-					activeCreature.player.id === player &&
-					activeCreature.type === '--' &&
-					activeCreature.abilities[3].used === true
-				) {
-					$j('#materialize_button p').text('Materialization has already been used this round');
-				} else if (activeCreature.player.id === player && activeCreature.type === '--') {
+				if (creatureType == '--' && !activeCreature.abilities[3].used) {
 					$j('#materialize_button p').text('Please select an available unit from the left grid');
 					this.materializeButton.changeState('glowing');
-					$j('#materialize_button').on('click', () => {
-						// Remove active class to 'fake' toggleDash into randomly picking a creature for us.
-						this.$dash.removeClass('active');
-						// Will check if user clicked on a portrait in godlet printer in the new turn
-						if (this.lastViewedCreature === '') {
-							this.toggleDash();
-						} else {
-							this.toggleDash(true);
-						}
-						//this.toggleDash(true);
-					});
-				} else if (activeCreature.type != '--') {
-					$j('#materialize_button p').text('The current active unit cannot materialize others');
-				} else if (activeCreature.type === '--' && activeCreature.player.id != player) {
-					$j('#materialize_button p').text('Switch to your own tab to be able to materialize');
-
-					// Bind button
-					this.materializeButton.click = () => {
-						this.showCreature(creatureType, activeCreature.player.id);
-					};
-					$j('#card .sideA').on('click', this.materializeButton.click);
-					$j('#card .sideA').removeClass('disabled');
-					this.materializeButton.changeState('glowing');
+					//fix this line
+				} else if (
+					activeCreature.abilities[3].used &&
+					game.activeCreature.type == '--' &&
+					player == game.activeCreature.player.id &&
+					(clickMethod == 'emptyHex' || clickMethod == 'portrait' || clickMethod == 'grid')
+				) {
+					if (clickMethod == 'portrait' && creatureType != '--') {
+						$j('#materialize_button').hide();
+					} else {
+						$j('#materialize_button p').text('Materialization has already been used this round');
+						$j('#materialize_button').show();
+					}
+				} else {
+					$j('#materialize_button').hide();
 				}
 			}
 		} else {
@@ -1076,7 +1080,7 @@ export class UI {
 
 				let creatureType = $j(e.currentTarget).attr('creature'); // CreatureType
 				this.lastViewedCreature = creatureType;
-				this.showCreature(creatureType, this.selectedPlayer);
+				this.showCreature(creatureType, this.selectedPlayer, '', 'grid');
 			});
 	}
 
@@ -1321,11 +1325,21 @@ export class UI {
 					const plasmaCost = lvl + size;
 					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
 				});
-				this.showCreature(typeToPass, game.activeCreature.team);
+				this.showCreature(typeToPass, game.activeCreature.team, typeToPass, '');
 			} else if (this.lastViewedCreature !== '') {
-				this.showCreature(this.lastViewedCreature, game.activeCreature.team);
+				this.showCreature(
+					this.lastViewedCreature,
+					game.activeCreature.team,
+					this.lastViewedCreature,
+					''
+				);
 			} else {
-				this.showCreature(game.activeCreature.type, game.activeCreature.team);
+				this.showCreature(
+					game.activeCreature.type,
+					game.activeCreature.team,
+					game.activeCreature.type,
+					''
+				);
 			}
 		} else {
 			this.closeDash();
@@ -2223,13 +2237,30 @@ export class UI {
 				this.xrayQueue(-1);
 			})
 			.bind('mousedown', e => {
-				// Show dash on click
+				// Show when clicking on portrait
 				if (game.freezedInput) {
 					return;
 				}
-
 				let creaID = $j(e.currentTarget).attr('creatureid') - 0;
-				this.showCreature(game.creatures[creaID].type, game.creatures[creaID].player.id);
+				if (
+					game.creatures[creaID].type == '--' &&
+					game.creatures[creaID].player.id == game.activeCreature.player.id &&
+					!game.activeCreature.abilities[3].used
+				) {
+					this.showCreature(
+						game.creatures[creaID].type,
+						game.creatures[creaID].player.id,
+						game.creatures[creaID].type,
+						'portrait'
+					);
+				} else {
+					this.showCreature(
+						game.creatures[creaID].type,
+						game.creatures[creaID].player.id,
+						game.creatures[creaID].type,
+						'portrait'
+					);
+				}
 			});
 	}
 

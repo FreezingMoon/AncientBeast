@@ -711,9 +711,42 @@ export class HexGrid {
 		// ONRIGHTCLICK
 		let onRightClickFn = hex => {
 			if (hex.creature instanceof Creature) {
-				game.UI.showCreature(hex.creature.type, hex.creature.player.id);
+				game.UI.showCreature(hex.creature.type, hex.creature.player.id, '', true, '');
 			} else {
-				game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id);
+				if (game.activeCreature.type == '--') {
+					// If ability used, default to Dark Priest and say materialize has been used
+					if (game.activeCreature.abilities[3].used) {
+						game.UI.showCreature(
+							game.activeCreature.type,
+							game.activeCreature.player.id,
+							'',
+							'emptyHex'
+						);
+					} else if (game.UI.lastViewedCreature !== '') {
+						game.UI.showCreature(
+							game.UI.lastViewedCreature,
+							game.UI.selectedPlayer,
+							'',
+							'emptyHex'
+						);
+					} else if (game.UI.selectedCreatureObj !== '') {
+						game.UI.toggleDash(true);
+					} else {
+						game.UI.showCreature(
+							game.activeCreature.type,
+							game.activeCreature.player.id,
+							'',
+							'emptyHex'
+						);
+					}
+				} else {
+					game.UI.showCreature(
+						game.activeCreature.type,
+						game.activeCreature.player.id,
+						'',
+						'emptyHex'
+					);
+				}
 			}
 		};
 
