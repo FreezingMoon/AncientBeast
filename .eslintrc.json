@@ -3,7 +3,8 @@
 	"extends": ["prettier", "plugin:prettier/recommended"],
 	"rules": {
 		"prettier/prettier": "error",
-		"no-undef": "error"
+		"no-undef": "error",
+		"array-element-newline": "consistent"
 	},
 	"parserOptions": {
 		"ecmaVersion": 2017,

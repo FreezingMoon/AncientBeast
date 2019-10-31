@@ -17,7 +17,7 @@ function fileToEntity(filePath) {
 	const name = path.basename(filePath, extension);
 	return {
 		name,
-		url: path.relative(path.join(__dirname, 'assets'), filePath)
+		url: path.relative(path.join(__dirname, 'assets'), filePath),
 	};
 }
 
@@ -35,7 +35,7 @@ async function readDirectory(dirPath) {
 		if (stats.isDirectory()) {
 			result.push({
 				name: child,
-				children: await readDirectory(childPath) // eslint-disable-line no-await-in-loop
+				children: await readDirectory(childPath), // eslint-disable-line no-await-in-loop
 			});
 		} else {
 			result.push(fileToEntity(childPath));
@@ -115,7 +115,9 @@ readDirectory(path.join(__dirname, 'assets'))
 	// Add path fix for Windows
 	.then(result => result.replace(/\\/g, '\\\\'))
 	// Format the JavaScript so that it's readable
-	.then(prettier.format)
+	.then(result => {
+		return prettier.format(result, { parser: 'babel' });
+	})
 	// We only need to write one file so it doesnt matter that it's sync
 	.then(result => fs.writeFileSync(path.resolve(__dirname, 'src', 'assets.js'), result)) // eslint-disable-line no-sync
 	.catch(console.error);
