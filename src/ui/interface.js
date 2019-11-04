@@ -13,27 +13,27 @@ import { getUrl } from '../assetLoader';
  */
 export class UI {
 	/* Attributes
-     *
-     * NOTE : attributes and variables starting with $ are jquery element
-     * and jquery function can be called dirrectly from them.
-     *
-     * $display :		UI container
-     * $queue :		Queue container
-     * $textbox :		Chat and log container
-     * $activebox :	Current active creature panel (left panel) container
-     * $dash :			Overview container
-     * $grid :			Creature grid container
-     *
-     * selectedCreature :	String :	ID of the visible creature card
-     * selectedPlayer :	Integer :	ID of the selected player in the dash
-     *
-     */
+	 *
+	 * NOTE : attributes and variables starting with $ are jquery element
+	 * and jquery function can be called dirrectly from them.
+	 *
+	 * $display :		UI container
+	 * $queue :		Queue container
+	 * $textbox :		Chat and log container
+	 * $activebox :	Current active creature panel (left panel) container
+	 * $dash :			Overview container
+	 * $grid :			Creature grid container
+	 *
+	 * selectedCreature :	String :	ID of the visible creature card
+	 * selectedPlayer :	Integer :	ID of the selected player in the dash
+	 *
+	 */
 
 	/* Constructor
-     *
-     * Create attributes and default buttons
-     *
-     */
+	 *
+	 * Create attributes and default buttons
+	 *
+	 */
 	constructor(game) {
 		this.game = game;
 		this.$display = $j('#ui');
@@ -67,9 +67,9 @@ export class UI {
 					}
 
 					this.toggleDash();
-				}
+				},
 			},
-			game
+			game,
 		);
 		this.buttons.push(this.btnToggleDash);
 
@@ -77,9 +77,9 @@ export class UI {
 		this.btnToggleScore = new Button(
 			{
 				$button: $j('.togglescore'),
-				click: () => this.toggleScoreboard()
+				click: () => this.toggleScoreboard(),
 			},
-			game
+			game,
 		);
 
 		// Audio Button
@@ -94,9 +94,9 @@ export class UI {
 					} else {
 						this.showMusicPlayer();
 					}
-				}
+				},
 			},
-			game
+			game,
 		);
 		this.buttons.push(this.btnAudio);
 
@@ -112,15 +112,15 @@ export class UI {
 						}
 
 						game.gamelog.add({
-							action: 'skip'
+							action: 'skip',
 						});
 						game.skipTurn();
 						this.lastViewedCreature = '';
 						this.queryUnit = '';
 					}
-				}
+				},
 			},
-			game
+			game,
 		);
 		this.buttons.push(this.btnSkipTurn);
 
@@ -143,13 +143,13 @@ export class UI {
 						}
 
 						game.gamelog.add({
-							action: 'delay'
+							action: 'delay',
 						});
 						game.delayCreature();
 					}
-				}
+				},
 			},
-			game
+			game,
 		);
 		this.buttons.push(this.btnDelay);
 
@@ -172,15 +172,15 @@ export class UI {
 
 						if (window.confirm('Are you sure you want to flee the match?')) {
 							game.gamelog.add({
-								action: 'flee'
+								action: 'flee',
 							});
 							game.activeCreature.player.flee();
 						}
 					}
 				},
-				state: 'disabled'
+				state: 'disabled',
 			},
-			game
+			game,
 		);
 		this.buttons.push(this.btnFlee);
 
@@ -188,33 +188,33 @@ export class UI {
 		this.healthBar = new ProgressBar(
 			{
 				$bar: $j('#leftpanel .progressbar .bar.healthbar'),
-				color: 'red'
+				color: 'red',
 			},
-			game
+			game,
 		);
 
 		this.energyBar = new ProgressBar(
 			{
 				$bar: $j('#leftpanel .progressbar .bar.energybar'),
-				color: 'yellow'
+				color: 'yellow',
 			},
-			game
+			game,
 		);
 
 		this.timeBar = new ProgressBar(
 			{
 				$bar: $j('#rightpanel .progressbar .timebar'),
-				color: 'white'
+				color: 'white',
 			},
-			game
+			game,
 		);
 
 		this.poolBar = new ProgressBar(
 			{
 				$bar: $j('#rightpanel .progressbar .poolbar'),
-				color: 'grey'
+				color: 'grey',
 			},
-			game
+			game,
 		);
 
 		// Sound Effects slider
@@ -250,7 +250,7 @@ export class UI {
 			grid_down: 40, // Down arrow
 			grid_left: 37, // Left arrow
 			grid_right: 39, // Right arrow
-			grid_confirm: 32 // Space
+			grid_confirm: 32, // Space
 		};
 
 		// Remove hex grid if window loses focus
@@ -483,22 +483,22 @@ export class UI {
 					abilityId: i,
 					css: {
 						disabled: {
-							cursor: 'help'
+							cursor: 'help',
 						},
 						glowing: {
-							cursor: 'pointer'
+							cursor: 'pointer',
 						},
 						selected: {},
 						active: {},
 						noclick: {
-							cursor: 'help'
+							cursor: 'help',
 						},
 						normal: {
-							cursor: 'default'
-						}
-					}
+							cursor: 'default',
+						},
+					},
 				},
-				game
+				game,
 			);
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
@@ -510,17 +510,17 @@ export class UI {
 				css: {
 					disabled: {},
 					glowing: {
-						cursor: 'pointer'
+						cursor: 'pointer',
 					},
 					selected: {},
 					active: {},
 					noclick: {},
 					normal: {
-						cursor: 'default'
-					}
-				}
+						cursor: 'default',
+					},
+				},
 			},
-			game
+			game,
 		);
 
 		this.$dash.find('.section.numbers .stat').bind('mouseover', event => {
@@ -551,7 +551,7 @@ export class UI {
 		this.glowInterval = setInterval(() => {
 			let opa =
 				0.5 +
-				Math.floor((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4 * 100) / 100;
+				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
 
 			this.buttons.forEach(btn => {
 				btn.$button.css('opacity', '');
@@ -660,7 +660,7 @@ export class UI {
 			scale: zoom,
 			left: ($j('#cardwrapper').innerWidth() - $j('#card').innerWidth() * zoom) / 2,
 			position: 'absolute',
-			margin: 0
+			margin: 0,
 		});
 
 		zoom1 = $j('#creaturegridwrapper').innerWidth() / $j('#creaturegrid').innerWidth();
@@ -671,31 +671,31 @@ export class UI {
 			scale: zoom,
 			left: ($j('#creaturegridwrapper').innerWidth() - $j('#creaturegrid').innerWidth() * zoom) / 2,
 			position: 'absolute',
-			margin: 0
+			margin: 0,
 		});
 	}
 
 	/* showCreature(creatureType, player, summonCreatureType, view, clickMethod)
-     *
-     * creatureType :	String :	Creature type
-     * player :		Integer :	Player ID
-     * summonCreatureType:		String:    Creature type to summon
+	 *
+	 * creatureType :	String :	Creature type
+	 * player :		Integer :	Player ID
+	 * summonCreatureType:		String:    Creature type to summon
 	 * view:		Boolean:    True to disable/hide materialize button
 	 * clickMethod:		String:   Method used to view creatures('emptyHex', 'portrait', 'grid')
-     * Query a creature in the available creatures of the active player
-     *
-     */
-	showCreature(creatureType, player, summonCreatureType, clickMethod) {
+	 * Query a creature in the available creatures of the active player
+	 *
+	 */
+	showCreature(creatureType, player, clickMethod) {
 		let game = this.game;
 
 		if (!this.dashopen) {
 			this.$dash.show().css('opacity', 0);
 			this.$dash.transition(
 				{
-					opacity: 1
+					opacity: 1,
 				},
 				this.dashAnimSpeed,
-				'linear'
+				'linear',
 			);
 		}
 
@@ -720,7 +720,6 @@ export class UI {
 				if (game.freezedInput) {
 					return;
 				}
-
 				this.showCreature('--', $j(e.currentTarget).attr('player') - 0);
 			});
 
@@ -728,13 +727,13 @@ export class UI {
 		for (let i = game.players.length - 1; i >= 0; i--) {
 			$j('#dash .playertabs.p' + i + ' .vignette').css(
 				'background-image',
-				`url("${game.players[i].avatar}")`
+				`url("${game.players[i].avatar}")`,
 			);
 			$j('#dash .playertabs.p' + i + ' .name').text(game.players[i].name);
 			$j('#dash .playertabs.p' + i + ' .plasma').text('Plasma ' + game.players[i].plasma);
 			$j('#dash .playertabs.p' + i + ' .score').text('Score ' + game.players[i].getScore().total);
 			$j('#dash .playertabs.p' + i + ' .units').text(
-				'Units ' + game.players[i].getNbrOfCreatures() + ' / ' + game.creaLimitNbr
+				'Units ' + game.players[i].getNbrOfCreatures() + ' / ' + game.creaLimitNbr,
 			);
 		}
 
@@ -749,7 +748,7 @@ export class UI {
 			.filter("[creature='" + creatureType + "']")
 			.addClass('active');
 
-		this.selectedCreature = summonCreatureType;
+		this.selectedCreature = creatureType;
 		let stats = game.retreiveCreatureStats(creatureType);
 
 		// TODO card animation
@@ -768,8 +767,8 @@ export class UI {
 			// Card A
 			$j('#card .sideA').css({
 				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
-					'units/artwork/' + stats.name
-				)}')`
+					'units/artwork/' + stats.name,
+				)}')`,
 			});
 			$j('#card .sideA .section.info')
 				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
@@ -781,8 +780,8 @@ export class UI {
 			// Card B
 			$j('#card .sideB').css({
 				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
-					'cards/' + stats.type.substring(0, 1)
-				)}')`
+					'cards/' + stats.type.substring(0, 1),
+				)}')`,
 			});
 			$j.each(stats.stats, (key, value) => {
 				let $stat = $j('#card .sideB .' + key + ' .value');
@@ -792,13 +791,13 @@ export class UI {
 						$stat.text(this.selectedCreatureObj.health + '/' + this.selectedCreatureObj.stats[key]);
 					} else if (key == 'movement') {
 						$stat.text(
-							this.selectedCreatureObj.remainingMove + '/' + this.selectedCreatureObj.stats[key]
+							this.selectedCreatureObj.remainingMove + '/' + this.selectedCreatureObj.stats[key],
 						);
 					} else if (key == 'energy') {
 						$stat.text(this.selectedCreatureObj.energy + '/' + this.selectedCreatureObj.stats[key]);
 					} else if (key == 'endurance') {
 						$stat.text(
-							this.selectedCreatureObj.endurance + '/' + this.selectedCreatureObj.stats[key]
+							this.selectedCreatureObj.endurance + '/' + this.selectedCreatureObj.stats[key],
 						);
 					} else {
 						$stat.text(this.selectedCreatureObj.stats[key]);
@@ -817,7 +816,7 @@ export class UI {
 			$j.each(game.abilities[stats.id], key => {
 				let $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
 				$ability.children('.icon').css({
-					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`
+					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
 				});
 				$ability
 					.children('.wrapper')
@@ -895,7 +894,7 @@ export class UI {
 						this.materializeButton.changeState('glowing');
 					} else {
 						$j('#materialize_button p').text(
-							'Materialize unit at target location for ' + plasmaCost + ' plasma'
+							'Materialize unit at target location for ' + plasmaCost + ' plasma',
 						);
 
 						// Bind button
@@ -939,8 +938,8 @@ export class UI {
 			// Card A
 			$j('#card .sideA').css({
 				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
-					'units/artwork/' + stats.name
-				)}')`
+					'units/artwork/' + stats.name,
+				)}')`,
 			});
 			$j('#card .sideA .section.info')
 				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
@@ -960,7 +959,7 @@ export class UI {
 			$j.each(stats.ability_info, key => {
 				let $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
 				$ability.children('.icon').css({
-					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`
+					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
 				});
 				$ability
 					.children('.wrapper')
@@ -1019,11 +1018,11 @@ export class UI {
 	}
 
 	/* changePlayerTab(id)
-     *
-     * id :	Integer :	player id
-     *
-     * Change to the specified player tab in the dash
-     */
+	 *
+	 * id :	Integer :	player id
+	 *
+	 * Change to the specified player tab in the dash
+	 */
 	changePlayerTab(id) {
 		let game = this.game;
 
@@ -1080,7 +1079,7 @@ export class UI {
 
 				let creatureType = $j(e.currentTarget).attr('creature'); // CreatureType
 				this.lastViewedCreature = creatureType;
-				this.showCreature(creatureType, this.selectedPlayer, '', 'grid');
+				this.showCreature(creatureType, this.selectedPlayer, 'grid');
 			});
 	}
 
@@ -1145,64 +1144,64 @@ export class UI {
 		const tableMeta = [
 			{
 				cls: 'player_name',
-				title: 'Players'
+				title: 'Players',
 			},
 			{
 				cls: 'firstKill',
-				title: 'First blood'
+				title: 'First blood',
 			},
 			{
 				cls: 'kill',
-				title: 'Kills'
+				title: 'Kills',
 			},
 			{
 				cls: 'combo',
-				title: 'Combos'
+				title: 'Combos',
 			},
 			{
 				cls: 'humiliation',
-				title: 'Humiliation'
+				title: 'Humiliation',
 			},
 			{
 				cls: 'annihilation',
-				title: 'Annihilation'
+				title: 'Annihilation',
 			},
 			{
 				cls: 'deny',
-				title: 'Denies'
+				title: 'Denies',
 			},
 			{
 				cls: 'pickupDrop',
-				title: 'Drops picked'
+				title: 'Drops picked',
 			},
 			{
 				cls: 'timebonus',
-				title: 'Time Bonus'
+				title: 'Time Bonus',
 			},
 			{
 				cls: 'nofleeing',
-				title: 'No Fleeing'
+				title: 'No Fleeing',
 			},
 			{
 				cls: 'creaturebonus',
-				title: 'Survivor Units'
+				title: 'Survivor Units',
 			},
 			{
 				cls: 'darkpriestbonus',
-				title: 'Survivor Dark Priest'
+				title: 'Survivor Dark Priest',
 			},
 			{
 				cls: 'immortal',
-				title: 'Immortal'
+				title: 'Immortal',
 			},
 			{
 				cls: 'upgrade',
-				title: 'Ability Upgrades'
+				title: 'Ability Upgrades',
 			},
 			{
 				cls: 'total',
-				title: 'Total'
-			}
+				title: 'Total',
+			},
 		];
 
 		tableMeta.forEach(row => {
@@ -1257,12 +1256,12 @@ export class UI {
 				if (score1 > score2) {
 					// Left side wins
 					$j('#scoreboard p').text(
-						game.players[0].name + ' and ' + game.players[2].name + ' won the match!'
+						game.players[0].name + ' and ' + game.players[2].name + ' won the match!',
 					);
 				} else if (score1 < score2) {
 					// Right side wins
 					$j('#scoreboard p').text(
-						game.players[1].name + ' and ' + game.players[3].name + ' won the match!'
+						game.players[1].name + ' and ' + game.players[3].name + ' won the match!',
 					);
 				} else if (score1 == score2) {
 					// Draw
@@ -1291,10 +1290,10 @@ export class UI {
 	}
 
 	/* toggleDash()
-     *
-     * Show the dash and hide some buttons
-     * Takes optional 'randomize' parameter to select a random creature from the grid.
-     */
+	 *
+	 * Show the dash and hide some buttons
+	 * Takes optional 'randomize' parameter to select a random creature from the grid.
+	 */
 
 	toggleDash(randomize) {
 		let game = this.game;
@@ -1308,7 +1307,7 @@ export class UI {
 				const activePlayer = game.players[game.activeCreature.player.id];
 				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
 				const availableTypes = activePlayer.availableCreatures.filter(
-					el => !deadOrSummonedTypes.includes(el)
+					el => !deadOrSummonedTypes.includes(el),
 				);
 				// Optional: randomize array to grab a new creature every toggle
 				for (let i = availableTypes.length - 1; i > 0; i--) {
@@ -1325,21 +1324,11 @@ export class UI {
 					const plasmaCost = lvl + size;
 					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
 				});
-				this.showCreature(typeToPass, game.activeCreature.team, typeToPass, '');
+				this.showCreature(typeToPass, game.activeCreature.team, '');
 			} else if (this.lastViewedCreature !== '') {
-				this.showCreature(
-					this.lastViewedCreature,
-					game.activeCreature.team,
-					this.lastViewedCreature,
-					''
-				);
+				this.showCreature(this.lastViewedCreature, game.activeCreature.team, '');
 			} else {
-				this.showCreature(
-					game.activeCreature.type,
-					game.activeCreature.team,
-					game.activeCreature.type,
-					''
-				);
+				this.showCreature(game.activeCreature.type, game.activeCreature.team, '');
 			}
 		} else {
 			this.closeDash();
@@ -1353,13 +1342,13 @@ export class UI {
 		this.$dash.transition(
 			{
 				opacity: 0,
-				queue: false
+				queue: false,
 			},
 			this.dashAnimSpeed,
 			'linear',
 			() => {
 				this.$dash.hide();
-			}
+			},
 		);
 
 		if (this.materializeToggled && game.activeCreature && game.activeCreature.type === '--') {
@@ -1372,16 +1361,18 @@ export class UI {
 
 	gridSelectUp() {
 		let game = this.game,
-			b = this.selectedCreature;
+			b = this.selectedCreature,
+			nextCreature;
 
 		if (b == '--') {
-			this.showCreature('W1');
+			this.showCreature('W1', this.selectedPlayer);
 			return;
 		}
 
 		if (game.realms.indexOf(b[0]) - 1 > -1) {
 			let r = game.realms[game.realms.indexOf(b[0]) - 1];
-			this.showCreature(r + b[1]);
+			nextCreature = r + b[1];
+			this.showCreature(nextCreature, this.selectedPlayer);
 		} else {
 			// End of the grid
 			//this.showCreature("--");
@@ -1390,16 +1381,18 @@ export class UI {
 
 	gridSelectDown() {
 		let game = this.game,
-			b = this.selectedCreature;
+			b = this.selectedCreature,
+			nextCreature;
 
 		if (b == '--') {
-			this.showCreature('A1');
+			this.showCreature('A1', this.selectedPlayer);
 			return;
 		}
 
 		if (game.realms.indexOf(b[0]) + 1 < game.realms.length) {
 			let r = game.realms[game.realms.indexOf(b[0]) + 1];
-			this.showCreature(r + b[1]);
+			nextCreature = r + b[1];
+			this.showCreature(nextCreature, this.selectedPlayer);
 		} else {
 			// End of the grid
 			//this.showCreature("--");
@@ -1407,31 +1400,36 @@ export class UI {
 	}
 
 	gridSelectLeft() {
-		let b = this.selectedCreature == '--' ? 'A0' : this.selectedCreature;
+		let b = this.selectedCreature == '--' ? 'A0' : this.selectedCreature,
+			nextCreature;
 
 		if (b[1] - 1 < 1) {
 			// End of row
 			return;
 		} else {
-			this.showCreature(b[0] + (b[1] - 1));
+			nextCreature = b[0] + (b[1] - 1);
+			this.showCreature(nextCreature, this.selectedPlayer);
 		}
 	}
 
 	gridSelectRight() {
-		let b = this.selectedCreature == '--' ? 'A8' : this.selectedCreature;
+		let b = this.selectedCreature == '--' ? 'A8' : this.selectedCreature,
+			nextCreature;
 
 		if (b[1] - 0 + 1 > 7) {
 			// End of row
 			return;
 		} else {
-			this.showCreature(b[0] + (b[1] - 0 + 1));
+			nextCreature = b[0] + (b[1] - 0 + 1);
+			this.showCreature(nextCreature, this.selectedPlayer);
 		}
 	}
 
 	gridSelectNext() {
 		let game = this.game,
 			b = this.selectedCreature == '--' ? 'A0' : this.selectedCreature,
-			valid;
+			valid,
+			nextCreature;
 
 		if (b[1] - 0 + 1 > 7) {
 			// End of row
@@ -1451,7 +1449,8 @@ export class UI {
 					}
 
 					if (valid) {
-						this.showCreature(r + '1');
+						nextCreature = r + '1';
+						this.showCreature(nextCreature, this.selectedPlayer);
 						return;
 					}
 				}
@@ -1480,7 +1479,8 @@ export class UI {
 				}
 
 				if (valid) {
-					this.showCreature(b[0] + (b[1] - 0 + 1));
+					nextCreature = b[0] + (b[1] - 0 + 1);
+					this.showCreature(nextCreature, this.selectedPlayer);
 					return;
 				}
 			}
@@ -1494,7 +1494,8 @@ export class UI {
 	gridSelectPrevious() {
 		let game = this.game,
 			b = this.selectedCreature == '--' ? 'W8' : this.selectedCreature,
-			valid;
+			valid,
+			nextCreature;
 
 		if (b[1] - 1 < 1) {
 			// End of row
@@ -1514,7 +1515,8 @@ export class UI {
 					}
 
 					if (valid) {
-						this.showCreature(r + '7');
+						nextCreature = r + '7';
+						this.showCreature(nextCreature, this.selectedPlayer);
 						return;
 					}
 				}
@@ -1537,7 +1539,8 @@ export class UI {
 				}
 
 				if (valid) {
-					this.showCreature(b[0] + (b[1] - 1));
+					nextCreature = b[0] + (b[1] - 1);
+					this.showCreature(nextCreature, this.selectedPlayer);
 					return;
 				}
 			}
@@ -1549,9 +1552,9 @@ export class UI {
 	}
 
 	/* updateActiveBox()
-     *
-     * Update activebox with new current creature's abilities
-     */
+	 *
+	 * Update activebox with new current creature's abilities
+	 */
 	updateActivebox() {
 		let game = this.game,
 			creature = game.activeCreature,
@@ -1563,7 +1566,7 @@ export class UI {
 			.clearQueue()
 			.transition(
 				{
-					y: '-420px'
+					y: '-420px',
 				},
 				500,
 				'easeInQuart',
@@ -1582,8 +1585,8 @@ export class UI {
 						let ab = creature.abilities[btn.abilityId];
 						btn.css.normal = {
 							'background-image': `url('${getUrl(
-								'units/abilities/' + creature.name + ' ' + btn.abilityId
-							)}')`
+								'units/abilities/' + creature.name + ' ' + btn.abilityId,
+							)}')`,
 						};
 						let $desc = btn.$button.next('.desc');
 						$desc.find('span.title').text(ab.title);
@@ -1642,12 +1645,12 @@ export class UI {
 
 					this.$activebox.children('#abilities').transition(
 						{
-							y: '0px'
+							y: '0px',
 						},
 						500,
-						'easeOutQuart'
+						'easeOutQuart',
 					); // Show panel
-				}
+				},
 			);
 
 		this.updateInfos();
@@ -1695,7 +1698,7 @@ export class UI {
 							(ab.isUpgradedPerUse() ? 'Uses' : 'Rounds') +
 							' left before upgrading : ' +
 							ab.usesLeftBeforeUpgrade() +
-							'</div>'
+							'</div>',
 					);
 				}
 
@@ -1756,7 +1759,7 @@ export class UI {
 							ab.getCharge().value +
 							'/' +
 							ab.getCharge().max +
-							'</div>'
+							'</div>',
 					);
 			}
 
@@ -1781,7 +1784,7 @@ export class UI {
 	}
 
 	/* updateInfos()
-     */
+	 */
 	updateInfos() {
 		let game = this.game;
 
@@ -1793,7 +1796,7 @@ export class UI {
 		$j('#playerinfo .plasma span').text(game.activeCreature.player.plasma);
 		// TODO: Needs to update instantly!
 		$j('#playerinfo .units span').text(
-			game.activeCreature.player.getNbrOfCreatures() + ' / ' + game.creaLimitNbr
+			game.activeCreature.player.getNbrOfCreatures() + ' / ' + game.creaLimitNbr,
 		);
 	}
 
@@ -1819,7 +1822,7 @@ export class UI {
 								' : ' +
 								(value.alterations[stat] > 0 ? '+' : '') +
 								value.alterations[stat] +
-								'</div>'
+								'</div>',
 						);
 				}
 
@@ -1837,7 +1840,7 @@ export class UI {
 								' : ' +
 								(value.alterations[stat] > 0 ? '+' : '') +
 								value.alterations[stat] +
-								'</div>'
+								'</div>',
 						);
 				}
 
@@ -1853,7 +1856,7 @@ export class UI {
 	}
 
 	/* updateTimer()
-     */
+	 */
 	updateTimer() {
 		let game = this.game,
 			date = new Date() - game.pauseTime;
@@ -1869,8 +1872,8 @@ export class UI {
 					Math.round(
 						(game.activeCreature.player.totalTimePool -
 							(date - game.activeCreature.player.startTime)) /
-							1000
-					)
+							1000,
+					),
 				);
 			}
 
@@ -1913,10 +1916,10 @@ export class UI {
 	}
 
 	/* updateQueueDisplay()
-     *
-     * Delete and add element to the Queue container based on the game's queues
-     * TODO: Ugly as hell need rewrite
-     */
+	 *
+	 * Delete and add element to the Queue container based on the game's queues
+	 * TODO: Ugly as hell need rewrite
+	 */
 	updateQueueDisplay(excludeActiveCreature) {
 		let game = this.game;
 
@@ -1930,7 +1933,7 @@ export class UI {
 
 		// Set transition duration for stat indicators
 		this.$queue.find('.vignette .stats').css({
-			transition: 'height ' + queueAnimSpeed + 'ms'
+			transition: 'height ' + queueAnimSpeed + 'ms',
 		});
 
 		// Updating
@@ -1943,13 +1946,13 @@ export class UI {
 					.transition(
 						{
 							x: -80,
-							queue: false
+							queue: false,
 						},
 						queueAnimSpeed,
 						transition,
 						() => {
 							vignette.remove();
-						}
+						},
 					);
 			} else {
 				if ($j(vignette).hasClass('active')) {
@@ -1958,13 +1961,13 @@ export class UI {
 						.transition(
 							{
 								x: -100,
-								queue: false
+								queue: false,
 							},
 							queueAnimSpeed,
 							transition,
 							() => {
 								vignette.remove();
-							}
+							},
 						);
 				} else {
 					$j(vignette)
@@ -1972,13 +1975,13 @@ export class UI {
 						.transition(
 							{
 								x: '-=80',
-								queue: false
+								queue: false,
 							},
 							queueAnimSpeed,
 							transition,
 							() => {
 								vignette.remove();
-							}
+							},
 						);
 				}
 			}
@@ -2005,17 +2008,16 @@ export class UI {
 			}
 
 			// Animation
-			$v
-				.attr('verified', 1)
+			$v.attr('verified', 1)
 				.css({
-					x: offset
+					x: offset,
 				})
 				.transition(
 					{
-						queue: true
+						queue: true,
 					},
 					queueAnimSpeed,
-					transition
+					transition,
 				); // Dont know why but it must be here
 
 			// Updating
@@ -2028,15 +2030,15 @@ export class UI {
 				let offset = (index - Boolean(index)) * 80 + Boolean(index) * 100;
 				$j(vignette)
 					.css({
-						'z-index': 0 - index
+						'z-index': 0 - index,
 					})
 					.transition(
 						{
 							x: offset,
-							queue: false
+							queue: false,
 						},
 						queueAnimSpeed,
-						transition
+						transition,
 					);
 			});
 		};
@@ -2156,15 +2158,15 @@ export class UI {
 			.clearQueue()
 			.addClass('active')
 			.css({
-				transformOrigin: '0px 0px'
+				transformOrigin: '0px 0px',
 			})
 			.transition(
 				{
 					scale: 1.25,
-					x: 0
+					x: 0,
 				},
 				queueAnimSpeed,
-				transition
+				transition,
 			);
 
 		// Add mouseover effect
@@ -2250,15 +2252,13 @@ export class UI {
 					this.showCreature(
 						game.creatures[creaID].type,
 						game.creatures[creaID].player.id,
-						game.creatures[creaID].type,
-						'portrait'
+						'portrait',
 					);
 				} else {
 					this.showCreature(
 						game.creatures[creaID].type,
 						game.creatures[creaID].player.id,
-						game.creatures[creaID].type,
-						'portrait'
+						'portrait',
 					);
 				}
 			});
@@ -2284,18 +2284,18 @@ export class UI {
 			$queueItem.stop();
 			$queueItem.animate(
 				{
-					top: '+=30px'
+					top: '+=30px',
 				},
 				200,
 				'',
 				() => {
 					$queueItem.animate(
 						{
-							top: '-=' + $queueItem.css('top')
+							top: '-=' + $queueItem.css('top'),
 						},
-						100
+						100,
 					);
-				}
+				},
 			);
 		}
 	}
@@ -2306,18 +2306,18 @@ export class UI {
 		game.creatures.forEach(creature => {
 			if (creature instanceof Creature) {
 				let textElement = $j('#queuewrapper .vignette[creatureid="' + creature.id + '"]').children(
-					'.stats'
+					'.stats',
 				);
 
 				textElement.css({
-					background: 'black'
+					background: 'black',
 				});
 
 				let text;
 				if (creature.stats.frozen) {
 					text = 'Frozen';
 					textElement.css({
-						background: 'darkturquoise'
+						background: 'darkturquoise',
 					});
 				} else if (creature.materializationSickness) {
 					text = 'Sickened';
