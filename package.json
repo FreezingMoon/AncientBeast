@@ -18,6 +18,10 @@
 		"strategy",
 		"phaser"
 	],
+	"funding": {
+		"type": "Donate",
+		"url": "https://ancientbeast.com/contribute/#donate"
+	},
 	"dependencies": {
 		"ajv": "^6.10.2",
 		"compression": "^1.7.4",
@@ -27,8 +31,6 @@
 		"html-webpack-plugin": "^3.2.0",
 		"jquery": "^3.4.1",
 		"jquery.transit": "0.9.12",
-		"opencollective": "^1.0.3",
-		"opencollective-postinstall": "^2.0.2",
 		"phaser-ce": "^2.13.3",
 		"socket.io": "^2.3.0",
 		"socket.io-client": "2.3.0",
@@ -66,18 +68,13 @@
 		"lint-fix": "eslint --fix src/*.js src/**/*.js",
 		"format": "prettier-eslint --write \"src/**/*.js\"",
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check",
-		"test": "npm run lint && npm run build",
-		"postinstall": "opencollective-postinstall"
+		"test": "npm run lint && npm run build"
 	},
 	"lint-staged": {
 		"*.{js,json,less,md}": [
 			"prettier --write",
 			"git add"
 		]
-	},
-	"collective": {
-		"type": "opencollective",
-		"url": "https://opencollective.com/AncientBeast"
 	},
 	"husky": {
 		"hooks": {
