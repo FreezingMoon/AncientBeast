@@ -240,10 +240,15 @@ export class UI {
 			close: 27, // Escape
 			//pause: 80, // P, might get deprecated
 			show_grid: 16, // Shift
+
 			dash_up: 38, // Up arrow
 			dash_down: 40, // Down arrow
 			dash_left: 37, // Left arrow
 			dash_right: 39, // Right arrow
+			dash_up_secondary: 87, // W
+			dash_down_secondary: 83, // S
+			dash_left_secondary: 65, // A
+			dash_right_secondary: 68, // D
 			dash_materializeButton: 13, // Return
 
 			grid_up: 38, // Up arrow
@@ -273,7 +278,13 @@ export class UI {
 				this.activeAbility && !this.$scoreboard.is(':visible') && !this.chat.isOpen;
 
 			$j.each(hotkeys, (k, v) => {
-				if (!modifierPressed && v == keypressed) {
+				if (e.shiftKey && v == keypressed) {
+					switch (k) {
+						case 'audio': // Shift + A for audio
+							this.btnAudio.triggerClick();
+							break;
+					}
+				} else if (!modifierPressed && v == keypressed) {
 					// Context filter
 					if (this.dashopen) {
 						switch (k) {
@@ -299,8 +310,17 @@ export class UI {
 							case 'dash_right':
 								this.gridSelectRight();
 								break;
-							case 'audio':
-								this.btnAudio.triggerClick();
+							case 'dash_up_secondary':
+								this.gridSelectUp();
+								break;
+							case 'dash_down_secondary':
+								this.gridSelectDown();
+								break;
+							case 'dash_left_secondary':
+								this.gridSelectLeft();
+								break;
+							case 'dash_right_secondary':
+								this.gridSelectRight();
 								break;
 							case 'scoreboard':
 								this.closeDash();
@@ -340,9 +360,6 @@ export class UI {
 								break;
 							case 'overview':
 								this.btnToggleDash.triggerClick();
-								break;
-							case 'audio':
-								this.btnAudio.triggerClick();
 								break;
 							case 'skip':
 								this.btnSkipTurn.triggerClick();
