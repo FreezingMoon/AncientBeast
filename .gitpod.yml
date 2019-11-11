@@ -1,6 +1,5 @@
 tasks:
-  - init: npm install
-    command: npm run build:dev
+  - init: npm install && npm run build:dev
     command: npm run start:dev
 ports:
   - port: 8080
