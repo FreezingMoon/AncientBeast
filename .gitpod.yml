@@ -1,3 +1,10 @@
+tasks:
+	- init: npm install
+	- command: npm run build:dev
+	- command: npm run start:dev
+ports:
+	- port: 8080
+		onOpen: open-browser
 github:
 	prebuilds:
 		# enable for the master/default branch (defaults to true)
@@ -14,9 +21,3 @@ github:
 		addBadge: true
 		# add a label once the prebuild is ready to pull requests (defaults to false)
 		addLabel: Gitpod
-ports:
-	- port: 8080
-tasks:
-	- init: npm install
-	- command: npm run build:dev
-	- command: npm run start:dev
