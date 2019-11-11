@@ -113,5 +113,8 @@ $RECYCLE.BIN/
 *.lnk
 /.vs
 
-# VSCode
+# VSCode IDE https://code.visualstudio.com
 .vscode/
+
+# Theia IDE https://theia-ide.org
+.theia/
