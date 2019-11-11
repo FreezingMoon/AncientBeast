@@ -10,7 +10,7 @@ Nowadays you can skip setting up a local server and just start developing on the
 
 ### Recommended Tool
 
-If you're not very keen on using a browser based IDE, I highly recommend using [Visual Studio Code](https://code.visualstudio.com/download), for cloning the project and creating patches. [VSC](https://code.visualstudio.com/download) is free, open source, cross platform, and has very nice git integration and useful extensions.
+If you're not very keen on using a browser based IDE, I highly recommend using [Visual Studio Code](https://code.visualstudio.com/download), for cloning the project and creating patches. [VSC](https://code.visualstudio.com/download) is free, open source, cross platform, and has nice git integration and useful extensions.
 
 ### Fork Project
 
