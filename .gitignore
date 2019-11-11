@@ -103,6 +103,12 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
+# Theia IDE https://theia-ide.org
+.theia/
+
+# VSCode IDE https://code.visualstudio.com
+.vscode/
+
 # Windows Installer files
 *.cab
 *.msi
@@ -112,9 +118,3 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 /.vs
-
-# VSCode IDE https://code.visualstudio.com
-.vscode/
-
-# Theia IDE https://theia-ide.org
-.theia/
