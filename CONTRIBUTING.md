@@ -6,7 +6,7 @@ You can help out the project by just ★ starring this repository from the upper
 
 It's very easy to set-up a local server in order to test and contribute to the development version of this game project.  
 It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, [Phaser](http://phaser.io).
-Nowadays you can even skip setting up a local server and just start developing on the project right away: [![Open in Gitpod](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)
+Nowadays you can skip setting up a local server and just start developing on the project right away: [![Open in Gitpod](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)
 
 ### Recommended Tool
 
