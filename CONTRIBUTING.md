@@ -4,12 +4,13 @@ You can help out the project by just ★ starring this repository from the upper
 
 ## Getting Started
 
-It's very easy to set-up a local server in order to test and contribute to the development version of this game project.  
+It's very easy to set-up a local server in order to test and contribute to the development version of this game project.
 It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, [Phaser](http://phaser.io).
+Nowadays you can even skip setting up a local server and just start developing on the project right away: [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)
 
 ### Recommended Tool
 
-If you're not very keen on using git from the CLI, I highly recommend using [Visual Studio Code](https://code.visualstudio.com/download), for cloning the project and creating patches. [VSC](https://code.visualstudio.com/download) is free, open source, cross platform, and has very nice git integration and useful extensions.
+If you're not very keen on using a browser based IDE, I highly recommend using [Visual Studio Code](https://code.visualstudio.com/download), for cloning the project and creating patches. [VSC](https://code.visualstudio.com/download) is free, open source, cross platform, and has very nice git integration and useful extensions.
 
 ### Fork Project
 
