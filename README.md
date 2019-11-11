@@ -40,7 +40,7 @@ You can check it out via our auto-deployed Heroku build: https://beta.AncientBea
 
 You can help out the project by just ★ starring this repository from the [upper right corner](#) and also pinning it to your profile.  
 If you wish to set-up a local copy of the game in order to patch it, go read the ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/CONTRIBUTING.md#github-marketing) file from this repository.  
-Or you can dive right into developing by using [!Gitpod](https://www.gitpod.io) to set up the project along with everything needed and use [!Theia IDE](https://theia-ide.org): [![Setup Automated](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)
+Or you can dive right into developing by using the next button to set up the project along with everything needed: [![Setup Automated](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)  
 There are more ways in which you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide and get it going!
 
 <a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/AncientBeast/contributors.svg?width=972&button=false" /></a>
