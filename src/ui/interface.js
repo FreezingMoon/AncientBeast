@@ -231,8 +231,8 @@ export class UI {
 		}
 
 		let hotkeys = {
-			scoreboard: 84, // T : This toggles the scoreboard
-			overview: 71, // G : Toggle dash
+			scoreboard: 83, // Shift + S : This toggles the scoreboard
+			overview: 68, // Shift + D : Toggle dash
 			cycle: 81, // Q : Switches between usable abilities
 			attack: 87, // W
 			ability: 69, // E
@@ -245,7 +245,7 @@ export class UI {
 			close: 27, // Escape
 			//pause: 80, // P, might get deprecated
 			show_grid: 16, // Shift
-			fullscreen: 70,
+			fullscreen: 70, // Shift + F Toggles fullscreen
 
 			dash_up: 38, // Up arrow
 			dash_down: 40, // Down arrow
@@ -289,10 +289,10 @@ export class UI {
 						case 'audio': // Shift + A for audio
 							this.btnAudio.triggerClick();
 							break;
-						case 'scoreboard': // Shift + T for scoreboard
+						case 'scoreboard': // Shift + S for scoreboard
 							this.btnToggleScore.triggerClick();
 							break;
-						case 'overview': // Shift + G for dash
+						case 'overview': // Shift + D for dash
 							this.btnToggleDash.triggerClick();
 							break;
 						case 'fullscreen': // Shift + F for fullscreen
