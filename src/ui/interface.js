@@ -5,6 +5,11 @@ import { ProgressBar } from './progressbar';
 import * as time from '../utility/time';
 import { Creature } from '../creature';
 import { getUrl } from '../assetLoader';
+import {
+	isNativeFullscreenAPIUse,
+	disableFullscreenLayout,
+	enableFullscreenLayout,
+} from '../script';
 
 /**
  * Class UI
@@ -240,6 +245,7 @@ export class UI {
 			close: 27, // Escape
 			//pause: 80, // P, might get deprecated
 			show_grid: 16, // Shift
+			fullscreen: 70,
 
 			dash_up: 38, // Up arrow
 			dash_down: 40, // Down arrow
@@ -283,15 +289,29 @@ export class UI {
 						case 'audio': // Shift + A for audio
 							this.btnAudio.triggerClick();
 							break;
+						case 'scoreboard': // Shift + T for scoreboard
+							this.btnToggleScore.triggerClick();
+							break;
+						case 'overview': // Shift + G for dash
+							this.btnToggleDash.triggerClick();
+							break;
+						case 'fullscreen': // Shift + F for fullscreen
+							if (isNativeFullscreenAPIUse()) {
+								disableFullscreenLayout();
+								document.exitFullscreen();
+							} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
+								alert('Use f11 to exit full screen');
+							} else {
+								enableFullscreenLayout();
+								$j('#AncientBeast')[0].webkitRequestFullscreen();
+							}
+							break;
 					}
 				} else if (!modifierPressed && v == keypressed) {
 					// Context filter
 					if (this.dashopen) {
 						switch (k) {
 							case 'close':
-							case 'overview':
-								this.btnToggleDash.triggerClick();
-								break;
 							case 'ultimate':
 								this.closeDash();
 								break;
@@ -321,10 +341,6 @@ export class UI {
 								break;
 							case 'dash_right_secondary':
 								this.gridSelectRight();
-								break;
-							case 'scoreboard':
-								this.closeDash();
-								this.toggleScoreboard();
 								break;
 							case 'cycle': //Q
 								this.closeDash();
@@ -357,9 +373,6 @@ export class UI {
 								break;
 							case 'ultimate':
 								this.abilitiesButtons[3].triggerClick();
-								break;
-							case 'overview':
-								this.btnToggleDash.triggerClick();
 								break;
 							case 'skip':
 								this.btnSkipTurn.triggerClick();
@@ -395,9 +408,6 @@ export class UI {
 
 							case 'grid_confirm':
 								game.grid.confirmHex();
-								break;
-							case 'scoreboard':
-								this.toggleScoreboard();
 								break;
 						}
 					}
