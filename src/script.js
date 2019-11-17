@@ -61,15 +61,15 @@ const abilitiesGenerators = [
 ];
 abilitiesGenerators.forEach(generator => generator(G));
 
-const isNativeFullscreenAPIUse = () =>
+export const isNativeFullscreenAPIUse = () =>
 	document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
 
-const disableFullscreenLayout = () => {
+export const disableFullscreenLayout = () => {
 	$j('#fullScreen').removeClass('fullscreenMode');
 	$j('.fullscreen__title').text('Fullscreen');
 };
 
-const enableFullscreenLayout = () => {
+export const enableFullscreenLayout = () => {
 	$j('#fullScreen').addClass('fullscreenMode');
 	$j('.fullscreen__title').text('Contract');
 };
