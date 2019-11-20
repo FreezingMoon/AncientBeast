@@ -59,7 +59,7 @@ export default class Game {
 		this.creatures = [];
 		this.effects = [];
 		this.activeCreature = {
-			id: 0
+			id: 0,
 		};
 		this.preventSetup = false;
 		this.animations = new Animations(this);
@@ -92,9 +92,9 @@ export default class Game {
 			39, // Headless
 			44, // Scavenger
 			31, // Cyber Wolf
-			28, // Stomper
-			6, // Vehemoth
-			33 // Golden Wyrm
+			//28, // Stomper
+			//6, // Vehemoth
+			//33 // Golden Wyrm
 			//22, // Asher
 			//42, // Batmadillo
 		];
@@ -105,7 +105,7 @@ export default class Game {
 			'sounds/swing2',
 			'sounds/swing3',
 			'sounds/heartbeat',
-			'sounds/drums'
+			'sounds/drums',
 		];
 		this.inputMethod = 'Mouse';
 
@@ -117,7 +117,7 @@ export default class Game {
 		// Phaser
 		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
 			update: this.phaserUpdate.bind(this),
-			render: this.phaserRender.bind(this)
+			render: this.phaserRender.bind(this),
 		});
 
 		// Messages
@@ -133,13 +133,13 @@ export default class Game {
 				notEnough: 'Not enough %stat%.',
 				notMoveable: 'This creature cannot be moved.',
 				passiveCycle: 'Switches between any usable abilities.',
-				passiveUnavailable: 'No usable abilities to switch to.'
+				passiveUnavailable: 'No usable abilities to switch to.',
 			},
 			ui: {
 				dash: {
-					materializeOverload: 'Overload! Maximum number of units controlled'
-				}
-			}
+					materializeOverload: 'Overload! Maximum number of units controlled',
+				},
+			},
 		};
 
 		/* Regex Test for triggers */
@@ -177,7 +177,7 @@ export default class Game {
 
 			onStartOfRound: /\bonStartOfRound\b/,
 			onQuery: /\bonQuery\b/,
-			oncePerDamageChain: /\boncePerDamageChain\b/
+			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
 	}
 
@@ -211,7 +211,7 @@ export default class Game {
 				for (i = 0, count = dpcolor.length; i < count; i++) {
 					this.Phaser.load.image(
 						name + dpcolor[i] + '_cardboard',
-						getUrl('units/cardboards/' + name + ' ' + dpcolor[i])
+						getUrl('units/cardboards/' + name + ' ' + dpcolor[i]),
 					);
 					this.getImage(getUrl('units/avatars/' + name + ' ' + dpcolor[i]));
 				}
@@ -219,7 +219,7 @@ export default class Game {
 				if (creature.drop) {
 					this.Phaser.load.image(
 						'drop_' + creature.drop.name,
-						getUrl('drops/' + creature.drop.name)
+						getUrl('drops/' + creature.drop.name),
 					);
 				}
 
@@ -267,7 +267,7 @@ export default class Game {
 			this.Phaser.load.image('p' + i + '_plasma', getUrl('interface/capsule_' + playerColors[i]));
 			this.Phaser.load.image(
 				'p' + i + '_frozen',
-				getUrl('interface/rectangle_frozen_' + playerColors[i])
+				getUrl('interface/rectangle_frozen_' + playerColors[i]),
 			);
 		}
 
@@ -290,7 +290,7 @@ export default class Game {
 		this.Phaser.load.image('trap_mud-bath', getUrl('units/sprites/Swine Thug - Mud Bath'));
 		this.Phaser.load.image(
 			'trap_scorched-ground',
-			getUrl('units/sprites/Magma Spawn - Scorched Ground')
+			getUrl('units/sprites/Magma Spawn - Scorched Ground'),
 		);
 		this.Phaser.load.image('trap_firewall', getUrl('units/sprites/Magma Spawn - Scorched Ground'));
 		this.Phaser.load.image('trap_poisonous-vine', getUrl('units/sprites/Impaler - Poisonous Vine'));
@@ -299,11 +299,11 @@ export default class Game {
 		this.Phaser.load.image('effects_fiery-touch', getUrl('units/sprites/Abolished - Fiery Touch'));
 		this.Phaser.load.image(
 			'effects_fissure-vent',
-			getUrl('units/sprites/Magma Spawn - Scorched Ground')
+			getUrl('units/sprites/Magma Spawn - Scorched Ground'),
 		);
 		this.Phaser.load.image(
 			'effects_freezing-spit',
-			getUrl('units/sprites/Snow Bunny - Freezing Spit')
+			getUrl('units/sprites/Snow Bunny - Freezing Spit'),
 		);
 
 		// Background
@@ -453,25 +453,25 @@ export default class Game {
 					case 0:
 						pos = {
 							x: 0,
-							y: 1
+							y: 1,
 						};
 						break;
 					case 1:
 						pos = {
 							x: 15,
-							y: 1
+							y: 1,
 						};
 						break;
 					case 2:
 						pos = {
 							x: 0,
-							y: 7
+							y: 7,
 						};
 						break;
 					case 3:
 						pos = {
 							x: 15,
-							y: 7
+							y: 7,
 						};
 						break;
 				}
@@ -481,13 +481,13 @@ export default class Game {
 					case 0:
 						pos = {
 							x: 0,
-							y: 4
+							y: 4,
 						};
 						break;
 					case 1:
 						pos = {
 							x: 14,
-							y: 4
+							y: 4,
 						};
 						break;
 				}
@@ -637,7 +637,7 @@ export default class Game {
 						this.log('Making units drains your plasma points');
 						this.log('Press the hourglass icon to skip the turn');
 						this.log(
-							'%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!'
+							'%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!',
 						);
 					}
 
@@ -675,11 +675,11 @@ export default class Game {
 			if (creature instanceof Creature) {
 				stringConsole = stringConsole.replace(
 					'%CreatureName' + i + '%',
-					creature.player.name + "'s " + creature.name
+					creature.player.name + "'s " + creature.name,
 				);
 				stringLog = stringLog.replace(
 					'%CreatureName' + i + '%',
-					"<span class='" + creature.player.color + "'>" + creature.name + '</span>'
+					"<span class='" + creature.player.color + "'>" + creature.name + '</span>',
 				);
 			}
 		}
@@ -717,9 +717,9 @@ export default class Game {
 			{
 				callback: function() {},
 				noTooltip: false,
-				tooltip: 'Skipped'
+				tooltip: 'Skipped',
 			},
-			o
+			o,
 		);
 
 		this.turnThrottle = true;
@@ -775,9 +775,9 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: function() {}
+				callback: function() {},
 			},
-			o
+			o,
 		);
 
 		this.turnThrottle = true;
@@ -870,7 +870,7 @@ export default class Game {
 					this.UI.btnToggleDash.changeState('glowing');
 					this.activeCreature.hint(
 						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
-						msgStyle
+						msgStyle,
 					);
 				}
 			}
@@ -885,7 +885,7 @@ export default class Game {
 					this.UI.btnToggleDash.changeState('glowing');
 					this.activeCreature.hint(
 						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
-						msgStyle
+						msgStyle,
 					);
 				}
 			}
@@ -905,7 +905,7 @@ export default class Game {
 					this.UI.btnToggleDash.changeState('glowing');
 					this.activeCreature.hint(
 						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
-						msgStyle
+						msgStyle,
 					);
 				}
 			}
@@ -1118,7 +1118,7 @@ export default class Game {
 		// Looks for traps owned by this creature and destroy them
 		this.grid.traps
 			.filter(
-				trap => trap.turnLifetime > 0 && trap.fullTurnLifetime && trap.ownerCreature == creature
+				trap => trap.turnLifetime > 0 && trap.fullTurnLifetime && trap.ownerCreature == creature,
 			)
 			.forEach(trap => trap.destroy());
 
@@ -1172,9 +1172,9 @@ export default class Game {
 			o2 = $j.extend(
 				{
 					team: -1, // No team
-					type: '--' // Dark Priest
+					type: '--', // Dark Priest
 				},
-				o
+				o,
 			),
 			creatures = this.creatures,
 			totalCreatures = creatures.length,
@@ -1265,7 +1265,7 @@ export default class Game {
 			// No fleeing
 			if (!this.players[i].hasFled) {
 				this.players[i].score.push({
-					type: 'nofleeing'
+					type: 'nofleeing',
 				});
 			}
 
@@ -1276,12 +1276,12 @@ export default class Game {
 					if (this.players[i].creatures[j].type != '--') {
 						this.players[i].score.push({
 							type: 'creaturebonus',
-							creature: this.players[i].creatures[j]
+							creature: this.players[i].creatures[j],
 						});
 					} else {
 						// Dark Priest Bonus
 						this.players[i].score.push({
-							type: 'darkpriestbonus'
+							type: 'darkpriestbonus',
 						});
 					}
 				} else {
@@ -1293,7 +1293,7 @@ export default class Game {
 			if (immortal && this.players[i].creatures.length > 1) {
 				// At least 1 creature summoned
 				this.players[i].score.push({
-					type: 'immortal'
+					type: 'immortal',
 				});
 			}
 		}
@@ -1303,7 +1303,7 @@ export default class Game {
 
 	action(o, opt) {
 		let defaultOpt = {
-			callback: function() {}
+			callback: function() {},
 		};
 
 		opt = $j.extend(defaultOpt, opt);
@@ -1312,22 +1312,22 @@ export default class Game {
 		switch (o.action) {
 			case 'move':
 				this.activeCreature.moveTo(this.grid.hexes[o.target.y][o.target.x], {
-					callback: opt.callback
+					callback: opt.callback,
 				});
 				break;
 			case 'skip':
 				this.skipTurn({
-					callback: opt.callback
+					callback: opt.callback,
 				});
 				break;
 			case 'delay':
 				this.delayCreature({
-					callback: opt.callback
+					callback: opt.callback,
 				});
 				break;
 			case 'flee':
 				this.activeCreature.player.flee({
-					callback: opt.callback
+					callback: opt.callback,
 				});
 				break;
 			case 'ability': {
@@ -1337,7 +1337,7 @@ export default class Game {
 					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
-						arg: args
+						arg: args,
 					});
 				}
 
@@ -1345,7 +1345,7 @@ export default class Game {
 					args.unshift(this.creatures[o.target.crea]);
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
-						arg: args
+						arg: args,
 					});
 				}
 
@@ -1355,7 +1355,7 @@ export default class Game {
 					args.unshift(array);
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
-						arg: args
+						arg: args,
 					});
 				}
 				break;
