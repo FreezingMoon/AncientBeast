@@ -55,7 +55,7 @@ In order to build the development version of the game (also done by `npm install
 npm run build:dev
 ```
 
-If you receive errors about the manifest or assets loading, try running `npm run generateManifest`. This will create an assets manifest file for the app.
+If you receive errors about the manifest or assets loading, try running `npm run assetLister`, to create a list for the app.
 
 ### Beta Testing
 
