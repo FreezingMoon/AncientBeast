@@ -7,10 +7,8 @@
 [![OpenCollective Backers](https://opencollective.com/AncientBeast/backers/badge.svg)](#backers)
 [![OpenCollective Sponsors](https://opencollective.com/AncientBeast/sponsors/badge.svg)](#sponsors)
 
-<!--- Commented picture link since the link throws up a content 'Not Found' error. (link below is unavailable as there isn't a 'media' folder which might have been deleted by mistake? Commenting for the moment until link is active again so that new visitors don't see the no-image error) 
-![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/media/screenshots/v0.3%20Dark%20Forest.jpg)
+![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/multimedia/screenshots/v0.3%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** _Chuck Palahniuk_
---->
 
 ### Intro
 
