@@ -33,11 +33,11 @@ export default G => {
 					let counter = new Damage(
 						this.creature, // Attacker
 						{
-							pure: 9
+							pure: 9,
 						}, // Damage Type
 						1, // Area
 						[], // Effects
-						G
+						G,
 					);
 					counter.counter = true;
 					G.activeCreature.takeDamage(counter);
@@ -48,7 +48,7 @@ export default G => {
 				this.creature.protectedFromFatigue = this.testRequirements();
 
 				damage.damages = {
-					total: 0
+					total: 0,
 				};
 				damage.status = 'Shielded';
 				damage.effect = [];
@@ -59,7 +59,7 @@ export default G => {
 
 				G.log('%CreatureName' + this.creature.id + '% is protected by Plasma Field');
 				return damage; // Return Damage
-			}
+			},
 		},
 
 		// 	Second Ability: Electro Shocker
@@ -76,7 +76,7 @@ export default G => {
 				}
 				if (
 					!this.atLeastOneTarget(this.creature.adjacentHexes(this.isUpgraded() ? 4 : 1), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -96,7 +96,7 @@ export default G => {
 					team: this._targetTeam,
 					id: dpriest.id,
 					flipped: dpriest.player.flipped,
-					hexes: dpriest.adjacentHexes(this.isUpgraded() ? 4 : 1)
+					hexes: dpriest.adjacentHexes(this.isUpgraded() ? 4 : 1),
 				});
 			},
 
@@ -106,7 +106,7 @@ export default G => {
 				ability.end();
 
 				let damageAmount = {
-					shock: 12 * target.size
+					shock: 12 * target.size,
 				};
 
 				let damage = new Damage(
@@ -114,11 +114,11 @@ export default G => {
 					damageAmount, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 
 				target.takeDamage(damage);
-			}
+			},
 		},
 
 		// 	Third Ability: Disruptor Beam
@@ -139,7 +139,7 @@ export default G => {
 				// At least one target
 				if (
 					!this.atLeastOneTarget(range, {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -180,7 +180,7 @@ export default G => {
 					team: this._targetTeam,
 					id: dpriest.id,
 					flipped: dpriest.player.flipped,
-					hexes: dpriest.adjacentHexes(2)
+					hexes: dpriest.adjacentHexes(2),
 				});
 			},
 
@@ -201,17 +201,17 @@ export default G => {
 				damage = new Damage(
 					ability.creature, // Attacker
 					{
-						pure: damage
+						pure: damage,
 					}, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 
 				ability.end();
 
 				target.takeDamage(damage);
-			}
+			},
 		},
 
 		// 	Fourth Ability: Godlet Printer
@@ -250,13 +250,13 @@ export default G => {
 			},
 
 			fnOnSelect: function(hex, args) {
-				let crea = G.retreiveCreatureStats(args.creature);
+				let crea = G.retrieveCreatureStats(args.creature);
 				G.grid.previewCreature(hex.pos, crea, this.creature.player);
 			},
 
 			// Callback function to queryCreature
 			materialize: function(creature) {
-				let crea = G.retreiveCreatureStats(creature);
+				let crea = G.retrieveCreatureStats(creature);
 				let ability = this;
 				let dpriest = this.creature;
 
@@ -288,11 +288,11 @@ export default G => {
 					},
 					args: {
 						creature: creature,
-						cost: crea.size - 0 + (crea.level - 0)
+						cost: crea.size - 0 + (crea.level - 0),
 					}, // OptionalArgs
 					size: crea.size,
 					flipped: dpriest.player.flipped,
-					hexes: spawnRange
+					hexes: spawnRange,
 				});
 			},
 
@@ -303,7 +303,7 @@ export default G => {
 
 				let pos = {
 					x: hex.x,
-					y: hex.y
+					y: hex.y,
 				};
 
 				ability.creature.player.plasma -= args.cost;
@@ -314,7 +314,7 @@ export default G => {
 
 				ability.creature.player.summon(creature, pos);
 				ability.creature.queryMove();
-			}
-		}
+			},
+		},
 	];
 };

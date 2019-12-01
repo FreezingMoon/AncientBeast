@@ -912,13 +912,13 @@ export default class Game {
 		}
 	}
 
-	/* retreiveCreatureStats(type)
+	/* retrieveCreatureStats(type)
 	 *
 	 * type :	String :	Creature's type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
 	 *
 	 * Query the database for creature stats
 	 */
-	retreiveCreatureStats(type) {
+	retrieveCreatureStats(type) {
 		let totalCreatures = this.creatureData.length,
 			i;
 

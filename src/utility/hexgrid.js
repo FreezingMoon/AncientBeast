@@ -40,7 +40,7 @@ export class HexGrid {
 		let defaultOpt = {
 			nbrRow: 9,
 			nbrhexesPerRow: 16,
-			firstRowFull: false
+			firstRowFull: false,
 		};
 
 		opts = $j.extend(defaultOpt, opts);
@@ -100,7 +100,7 @@ export class HexGrid {
 				},
 				args: {},
 				confirmText: 'Confirm',
-				id: game.activeCreature.id
+				id: game.activeCreature.id,
 			};
 
 		o = $j.extend(defaultOpt, o);
@@ -120,11 +120,11 @@ export class HexGrid {
 				args.opt.fnOnCancel(game.activeCreature, args.opt.args);
 			},
 			args: {
-				opt: o
+				opt: o,
 			},
 			hexes: game.activeCreature.hexagons,
 			hideNonTarget: true,
-			id: o.id
+			id: o.id,
 		});
 	}
 
@@ -170,7 +170,7 @@ export class HexGrid {
 				dashedHexesAfterCreatureStop: true,
 				distance: 0,
 				minDistance: 0,
-				sourceCreature: undefined
+				sourceCreature: undefined,
 			};
 
 		o = $j.extend(defaultOpt, o);
@@ -296,7 +296,7 @@ export class HexGrid {
 				choices: [],
 				hexesDashed: [],
 				isDirectionsQuery: false,
-				hideNonTarget: true
+				hideNonTarget: true,
 			};
 
 		o = $j.extend(defaultOpt, o);
@@ -360,14 +360,14 @@ export class HexGrid {
 			},
 			fnOnCancel: o.fnOnCancel,
 			args: {
-				opt: o
+				opt: o,
 			},
 			hexes: hexes,
 			hexesDashed: o.hexesDashed,
 			flipped: o.flipped,
 			hideNonTarget: o.hideNonTarget,
 			id: o.id,
-			fillHexOnHover: false
+			fillHexOnHover: false,
 		});
 	}
 
@@ -388,7 +388,7 @@ export class HexGrid {
 				},
 				fnOnSelect: creature => {
 					creature.tracePosition({
-						overlayClass: 'creature selected player' + creature.team
+						overlayClass: 'creature selected player' + creature.team,
 					});
 				},
 				fnOnCancel: () => {
@@ -400,7 +400,7 @@ export class HexGrid {
 				hexesDashed: [],
 				flipped: false,
 				id: 0,
-				team: Team.enemy
+				team: Team.enemy,
 			};
 
 		o = $j.extend(defaultOpt, o);
@@ -441,13 +441,13 @@ export class HexGrid {
 			},
 			fnOnCancel: o.fnOnCancel,
 			args: {
-				opt: o
+				opt: o,
 			},
 			hexes: o.hexes,
 			hexesDashed: o.hexesDashed,
 			flipped: o.flipped,
 			hideNonTarget: true,
-			id: o.id
+			id: o.id,
 		});
 	}
 
@@ -489,7 +489,7 @@ export class HexGrid {
 				hideNonTarget: false,
 				ownCreatureHexShade: false,
 				targeting: true,
-				fillHexOnHover: true
+				fillHexOnHover: true,
 			};
 
 		o = $j.extend(defaultOpt, o);
@@ -604,7 +604,7 @@ export class HexGrid {
 						game.activeCreature !== hex.creature
 							? game.UI.bouncexrayQueue.bind(game.UI)
 							: game.UI.xrayQueue.bind(game.UI),
-						hex
+						hex,
 					);
 				} else {
 					// If nothing
@@ -720,14 +720,14 @@ export class HexGrid {
 							game.activeCreature.type,
 							game.activeCreature.player.id,
 							'',
-							'emptyHex'
+							'emptyHex',
 						);
 					} else if (game.UI.lastViewedCreature !== '') {
 						game.UI.showCreature(
 							game.UI.lastViewedCreature,
 							game.UI.selectedPlayer,
 							'',
-							'emptyHex'
+							'emptyHex',
 						);
 					} else if (game.UI.selectedCreatureObj !== '') {
 						game.UI.toggleDash(true);
@@ -736,7 +736,7 @@ export class HexGrid {
 							game.activeCreature.type,
 							game.activeCreature.player.id,
 							'',
-							'emptyHex'
+							'emptyHex',
 						);
 					}
 				} else {
@@ -744,7 +744,7 @@ export class HexGrid {
 						game.activeCreature.type,
 						game.activeCreature.player.id,
 						'',
-						'emptyHex'
+						'emptyHex',
 					);
 				}
 			}
@@ -1060,7 +1060,7 @@ export class HexGrid {
 				creature.y,
 				creature.stats.movement,
 				creature.size,
-				creature.id
+				creature.id,
 			);
 		} else {
 			hexes = this.getMovementRange(
@@ -1068,7 +1068,7 @@ export class HexGrid {
 				creature.y,
 				creature.stats.movement,
 				creature.size,
-				creature.id
+				creature.id,
 			);
 		}
 
@@ -1206,7 +1206,7 @@ export class HexGrid {
 	/* previewCreature(creatureData)
 	 *
 	 * pos : 			Object : 	Coordinates {x,y}
-	 * creatureData : 	Object : 	Object containing info from the database (game.retreiveCreatureStats)
+	 * creatureData : 	Object : 	Object containing info from the database (game.retrieveCreatureStats)
 	 *
 	 * Draw a preview of the creature at the given coordinates
 	 */
@@ -1267,7 +1267,7 @@ export class HexGrid {
 				position: 'absolute',
 				width: 20,
 				height: 20,
-				'background-color': 'yellow'
+				'background-color': 'yellow',
 			});
 			a.css(hex.displayPos);
 

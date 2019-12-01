@@ -776,7 +776,7 @@ export class UI {
 			.addClass('active');
 
 		this.selectedCreature = creatureType;
-		let stats = game.retreiveCreatureStats(creatureType);
+		let stats = game.retrieveCreatureStats(creatureType);
 
 		// TODO card animation
 		if (
@@ -909,7 +909,7 @@ export class UI {
 				activeCreature.abilities[3].used === false
 			) {
 				let lvl = creatureType.substring(1, 2) - 0,
-					size = game.retreiveCreatureStats(creatureType).size - 0,
+					size = game.retrieveCreatureStats(creatureType).size - 0,
 					plasmaCost = lvl + size;
 
 				// Messages (TODO: text strings in a new language file)
