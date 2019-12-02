@@ -783,7 +783,7 @@ export class UI {
 			$j.inArray(creatureType, game.players[player].availableCreatures) > 0 ||
 			creatureType == '--'
 		) {
-			// Retreive the selected unit
+			// retrieve the selected unit
 			this.selectedCreatureObj = undefined;
 			game.players[player].creatures.forEach(creature => {
 				if (creature.type == creatureType) {
@@ -1071,7 +1071,7 @@ export class UI {
 			this.$grid.find(".vignette[creature='" + creature + "']").removeClass('locked');
 
 			let lvl = creature.substring(1, 2) - 0,
-				size = game.retreiveCreatureStats(creature).size - 0,
+				size = game.retrieveCreatureStats(creature).size - 0,
 				plasmaCost = lvl + size;
 
 			if (plasmaCost > game.players[id].plasma) {
@@ -1347,7 +1347,7 @@ export class UI {
 				let typeToPass = '--';
 				availableTypes.some(creature => {
 					const lvl = creature.substring(1, 2) - 0;
-					const size = game.retreiveCreatureStats(creature).size - 0;
+					const size = game.retrieveCreatureStats(creature).size - 0;
 					const plasmaCost = lvl + size;
 					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
 				});
