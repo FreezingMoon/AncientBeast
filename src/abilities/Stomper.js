@@ -235,7 +235,7 @@ export default G => {
 			// activate() :
 			activate: function(hex) {
 				let ability = this;
-				ability.end(false, true); // Defered ending
+				ability.end(false, true); // Deferred ending
 
 				// If upgraded and we haven't leapt over creatures/obstacles, allow a second
 				// jump of the same kind

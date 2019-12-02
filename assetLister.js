@@ -1,4 +1,4 @@
-// Automaticly generates the manifest that contains all the assets
+// Automatically generates the manifest that contains all the assets
 const { promisify } = require('util');
 const fs = require('fs');
 const path = require('path');
@@ -48,7 +48,7 @@ async function readDirectory(dirPath) {
  * Tests if an entity is a dir
  *
  * @param {Object} entity  The entity to check.
- * @returns {boolean} Wether the entity is a dir.
+ * @returns {boolean} Whether the entity is a dir.
  */
 function entityIsDir(entity) {
 	return entity.children !== undefined;
@@ -90,7 +90,7 @@ function writeToString(tree, root = false) {
 /**
  * Convert a dir entity to a string
  *
- * @param {Object} dirEntity Entity object to conver to a string.
+ * @param {Object} dirEntity Entity object to convert to a string.
  * @return {string} The dir entity as a string.
  */
 function dirToString(dirEntity) {
@@ -100,7 +100,7 @@ function dirToString(dirEntity) {
 }
 
 /**
- * Convert an file entity to a string
+ * Convert a file entity to a string
  *
  * @param {Object} fileEntity Entity to write to string.
  * @return {string} The file entity as a string.
@@ -118,6 +118,6 @@ readDirectory(path.join(__dirname, 'assets'))
 	.then(result => {
 		return prettier.format(result, { parser: 'babel' });
 	})
-	// We only need to write one file so it doesnt matter that it's sync
+	// We only need to write one file so it doesn't matter that it's sync
 	.then(result => fs.writeFileSync(path.resolve(__dirname, 'src', 'assets.js'), result)) // eslint-disable-line no-sync
 	.catch(console.error);

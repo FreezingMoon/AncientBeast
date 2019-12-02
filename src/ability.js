@@ -21,7 +21,7 @@ export class Ability {
 		this.timesUsedThisTurn = 0;
 		this.token = 0;
 
-		let data = game.retreiveCreatureStats(creature.type);
+		let data = game.retrieveCreatureStats(creature.type);
 		$j.extend(true, this, game.abilities[data.id][abilityID], data.ability_info[abilityID]);
 		if (this.requirements === undefined && this.costs !== undefined) {
 			this.requirements = this.costs;
@@ -115,10 +115,10 @@ export class Ability {
 	 * End the ability. Must be called at the end of each ability function;
 	 *
 	 */
-	end(desableLogMsg, deferedEnding) {
+	end(disableLogMsg, deferredEnding) {
 		let game = this.game;
 
-		if (!desableLogMsg) {
+		if (!disableLogMsg) {
 			game.log('%CreatureName' + this.creature.id + '% uses ' + this.title);
 		}
 
@@ -129,7 +129,7 @@ export class Ability {
 		game.activeCreature.delayable = false;
 		game.UI.selectAbility(-1);
 
-		if (this.getTrigger() === 'onQuery' && !deferedEnding) {
+		if (this.getTrigger() === 'onQuery' && !deferredEnding) {
 			game.activeCreature.queryMove();
 		}
 	}
@@ -179,7 +179,7 @@ export class Ability {
 			const bonus = {
 				type: 'upgrade',
 				ability: this.id,
-				creature: this.creature.id
+				creature: this.creature.id,
 			};
 
 			const find = scorePart =>
@@ -211,10 +211,10 @@ export class Ability {
 					target: {
 						type: 'hex',
 						x: arguments[0].x,
-						y: arguments[0].y
+						y: arguments[0].y,
 					},
 					id: this.id,
-					args: args
+					args: args,
 				});
 			}
 
@@ -225,10 +225,10 @@ export class Ability {
 					action: 'ability',
 					target: {
 						type: 'creature',
-						crea: arguments[0].id
+						crea: arguments[0].id,
 					},
 					id: this.id,
-					args: args
+					args: args,
 				});
 			}
 
@@ -242,10 +242,10 @@ export class Ability {
 					action: 'ability',
 					target: {
 						type: 'array',
-						array: array
+						array: array,
 					},
 					id: this.id,
-					args: args
+					args: args,
 				});
 			}
 		} else {
@@ -256,7 +256,7 @@ export class Ability {
 		}
 
 		return this.animation2({
-			arg: arguments
+			arg: arguments,
 		});
 	}
 
@@ -297,7 +297,7 @@ export class Ability {
 			let animationData = {
 				duration: 500,
 				delay: 350,
-				activateAnimation: true
+				activateAnimation: true,
 			};
 
 			if (this.getAnimationData) {
@@ -400,7 +400,7 @@ export class Ability {
 				// TODO: don't manually list all the stats and masteries when needed
 				string += value.replace(
 					/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,
-					'<span class="$1"></span>'
+					'<span class="$1"></span>',
 				);
 				return;
 			}
@@ -435,7 +435,7 @@ export class Ability {
 				// TODO: don't manually list all the stats and masteries when needed
 				string += this.effects[i].special.replace(
 					/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,
-					'<span class="$1"></span>'
+					'<span class="$1"></span>',
 				);
 				continue;
 			}
@@ -464,7 +464,7 @@ export class Ability {
 
 			let dmg = new Damage(attacker, damages, targets[i].hexesHit, effects, this.game);
 			let damageResult = targets[i].target.takeDamage(dmg, {
-				ignoreRetaliation: ignoreRetaliation
+				ignoreRetaliation: ignoreRetaliation,
 			});
 			multiKill += damageResult.kill + 0;
 		}
@@ -486,7 +486,7 @@ export class Ability {
 			team: Team.both,
 			optTest: function() {
 				return true;
-			}
+			},
 		};
 
 		o = $j.extend(defaultOpt, o);
@@ -535,8 +535,8 @@ export class Ability {
 					frost: 0,
 					poison: 0,
 					sonic: 0,
-					mental: 0
-				}
+					mental: 0,
+				},
 			},
 			req = $j.extend(def, this.requirements),
 			abilityMsgs = game.msg.abilities;
@@ -653,7 +653,7 @@ export class Ability {
 			includeCreature: true,
 			stopOnCreature: true,
 			distance: 0,
-			sourceCreature: undefined
+			sourceCreature: undefined,
 		};
 
 		o = $j.extend(defaultOpt, o);
