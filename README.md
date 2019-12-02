@@ -7,16 +7,16 @@
 [![OpenCollective Backers](https://opencollective.com/AncientBeast/backers/badge.svg)](#backers)
 [![OpenCollective Sponsors](https://opencollective.com/AncientBeast/sponsors/badge.svg)](#sponsors)
 
-![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/media/screenshots/v0.3%20Dark%20Forest.jpg)
+![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/multimedia/screenshots/v0.3%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** _Chuck Palahniuk_
 
 ### Intro
 
-**Ancient Beast** is a turn based strategy indie game project, played online against other people, featuring a wide variety of creatures to acquire, putting them to use in order to defeat your opponents. This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
+**Ancient Beast** is a turn based strategy indie game project played online against other people featuring a wide variety of creatures to acquire, putting them to use in order to defeat your opponents. This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 
 ### [Roadmap](https://github.com/FreezingMoon/AncientBeast/milestone/4)
 
-We're working hard on next version, 0.4, codenamed `Bounty Hunter`.
+We're working hard on the next version - 0.4, codenamed `Bounty Hunter`.
 What we're aiming for are the following:
 
 - 3 new playable creatures
