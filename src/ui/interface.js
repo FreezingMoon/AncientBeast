@@ -1126,6 +1126,7 @@ export class UI {
 		this.$dash.removeClass('selected0 selected1 selected2 selected3');
 
 		$j('#tabwrapper').hide();
+		$j('#playertabswrapper').hide();
 		$j('#musicplayerwrapper').show();
 	}
 
