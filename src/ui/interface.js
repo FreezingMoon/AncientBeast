@@ -2336,9 +2336,9 @@ export class UI {
 					'.stats',
 				);
 
-				textElement.css({
-					background: 'black',
-				});
+				// textElement.css({
+				// 	background: 'black',
+				// });
 
 				let text;
 				if (creature.stats.frozen) {
