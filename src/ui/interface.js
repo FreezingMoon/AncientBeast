@@ -1126,6 +1126,7 @@ export class UI {
 		this.$dash.removeClass('selected0 selected1 selected2 selected3');
 
 		$j('#tabwrapper').hide();
+		$j('#playertabswrapper').hide();
 		$j('#musicplayerwrapper').show();
 	}
 
@@ -2335,10 +2336,6 @@ export class UI {
 				let textElement = $j('#queuewrapper .vignette[creatureid="' + creature.id + '"]').children(
 					'.stats',
 				);
-
-				textElement.css({
-					background: 'black',
-				});
 
 				let text;
 				if (creature.stats.frozen) {
