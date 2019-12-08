@@ -61,52 +61,6 @@ export class UI {
 		this.buttons = [];
 		this.abilitiesButtons = [];
 
-		// TODO: REMOVE UNIT TESTS BEFORE COMMITTING
-		// Unit Tests Button
-		this.btnRunUnitTests = new Button(
-			{
-				$button: $j('#tests.button'),
-				click: () => {
-					this.game.log('Clicked Unit Tests button');
-					if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.ZERO)) {
-						this.game.runUnitTests(0);
-					}
-					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.ONE)) {
-						this.game.runUnitTests(1);
-					}
-					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.TWO)) {
-						this.game.runUnitTests(2);
-					}
-					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.THREE)) {
-						this.game.runUnitTests(3);
-					}
-					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.FOUR)) {
-						this.game.runUnitTests(4);
-					}
-					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.FIVE)) {
-						this.game.runUnitTests(5);
-					}
-					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.SIX)) {
-						this.game.runUnitTests(6);
-					}
-					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.SEVEN)) {
-						this.game.runUnitTests(7);
-					}
-					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.EIGHT)) {
-						this.game.runUnitTests(8);
-					}
-					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.NINE)) {
-						this.game.runUnitTests(9);
-					}
-					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.ALT)) {
-						this.game.runUnitTests(10);
-					}
-				}
-			},
-			game,
-		);
-		this.buttons.push(this.btnRunUnitTests);
-
 		// Dash Button
 		this.btnToggleDash = new Button(
 			{
@@ -1041,9 +995,6 @@ export class UI {
 								this.selectAbility(3);
 								this.closeDash();
 								activeCreature.abilities[3].materialize(typeToPass);
-								// For testing purposes, so we can catch the selectedCreature later
-								// TODO: DELETE BELOW LINE
-								this.selectedCreature = typeToPass;
 							}
 						};
 						$j('#card .sideA').on('click', this.materializeButton.click);
