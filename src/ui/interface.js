@@ -901,7 +901,7 @@ export class UI {
 
 			let activeCreature = game.activeCreature;
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
-				$j('#materialize_button p').text(game.msg.dash.materializeOverload);
+				$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
 			} else if (
 				!summonedOrDead &&
 				activeCreature.player.id === player &&
@@ -914,14 +914,12 @@ export class UI {
 
 				// Messages (TODO: text strings in a new language file)
 				if (plasmaCost > activeCreature.player.plasma) {
-					$j('#materialize_button p').text('Low Plasma! Cannot materialize the selected unit');
+					$j('#materialize_button p').text(game.msg.ui.dash.lowPlasma);
 				} else {
 					if (creatureType == '--') {
-						$j('#materialize_button p').text('Please select an available unit from the left grid');
+						$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
 					} else {
-						$j('#materialize_button p').text(
-							'Materialize unit at target location for ' + plasmaCost + ' plasma',
-						);
+						$j('#materialize_button p').text(game.msg.ui.dash.materializeUnit(plasmaCost.toString()));
 
 						// Bind button
 						this.materializeButton.click = () => {
@@ -941,14 +939,14 @@ export class UI {
 				}
 			} else {
 				if (creatureType == '--' && !activeCreature.abilities[3].used) {
-					//Figure out if the player has enough plasma to summon anything
-					const activePlayer = this.game.players[this.game.activeCreature.player.id];
+					// Figure out if the player has enough plasma to summon any available creatures
+					const activePlayer = game.players[game.activeCreature.player.id];
 					const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
 					const availableTypes = activePlayer.availableCreatures.filter(
 						el => !deadOrSummonedTypes.includes(el),
 					);
-					//Assume we can't afford anything
-					//Check one available creature at a time until we see something we can afford
+					// Assume we can't afford anything
+					// Check one available creature at a time until we see something we can afford
 					let can_afford_a_unit = false;
 					availableTypes.forEach(type => {
 						const lvl = type.substring(1, 2) - 0;
@@ -958,48 +956,21 @@ export class UI {
 							can_afford_a_unit = true;
 						}
 					});
-					//If we can't afford anything, tell the player
+					// If we can't afford anything, tell the player and disable the materialize button
 					if (!can_afford_a_unit) {
-						$j('#materialize_button p').text(this.game.msg.abilities.noPlasma);
+						$j('#materialize_button p').text(game.msg.abilities.noPlasma);
 						this.materializeButton.changeState('disabled');
 					}
-					//Otherwise, let's assign it a random selection on click
+					// Otherwise, let's have it show a random creature on click
 					else {
-						$j('#materialize_button p').text('Please select an available unit from the left grid');
+						$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
 						// Bind button for random unit selection
 						this.materializeButton.click = () => {
-							const activePlayer = this.game.players[this.game.activeCreature.player.id];
-							const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
-							const availableTypes = activePlayer.availableCreatures.filter(
-								el => !deadOrSummonedTypes.includes(el),
-							);
-							// Randomize array to grab a random creature
-							for (let i = availableTypes.length - 1; i > 0; i--) {
-								let j = Math.floor(Math.random() * (i + 1));
-								let temp = availableTypes[i];
-								availableTypes[i] = availableTypes[j];
-								availableTypes[j] = temp;
-							}
-							// Grab the first creature we can afford (if none, default to priest)
-							let typeToPass = '--';
-							availableTypes.some(creature => {
-								const lvl = creature.substring(1, 2) - 0;
-								const size = game.retrieveCreatureStats(creature).size - 0;
-								const plasmaCost = lvl + size;
-								return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
-							});
-							// Make sure we aren't materializing a Dark Priest
-							// We already checked that we can afford something, so Dark Priest should never appear here, but checking just in case
-							if (typeToPass != '--') {
-								this.materializeToggled = false;
-								this.selectAbility(3);
-								this.closeDash();
-								activeCreature.abilities[3].materialize(typeToPass);
-							}
+							this.showRandomCreature();
 						};
+						// Apply the changes
 						$j('#card .sideA').on('click', this.materializeButton.click);
 						$j('#card .sideA').removeClass('disabled');
-						// Apply the changes
 						this.materializeButton.changeState('glowing');
 					}
 				} else if (
@@ -1011,7 +982,7 @@ export class UI {
 					if (clickMethod == 'portrait' && creatureType != '--') {
 						$j('#materialize_button').hide();
 					} else {
-						$j('#materialize_button p').text('Materialization has already been used this round');
+						$j('#materialize_button p').text(game.msg.ui.dash.materializeUsed);
 						$j('#materialize_button').show();
 					}
 				} else {
@@ -1083,8 +1054,45 @@ export class UI {
 			$j('#card .sideA')
 				.addClass('disabled')
 				.unbind('click');
-			$j('#materialize_button p').text('This unit is currently under heavy development');
+			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
 		}
+	}
+
+	/* showRandomCreature()
+	 *
+	 * Selects a random available unit and shows its card on the dash.
+	 *
+	 * Calls showCreature(chosenRandomUnit, activePlayerID, '') to handle opening the dash.
+	 * 
+	 * Called by toggleDash with the randomize option and by clicking the materialize button
+	 * when it reads "Please select..."
+	 */
+
+	showRandomCreature() {
+		let game = this.game;
+		// Figure out what the active player can summon
+		const activePlayer = game.players[this.game.activeCreature.player.id];
+		const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
+		const availableTypes = activePlayer.availableCreatures.filter(
+			el => !deadOrSummonedTypes.includes(el),
+		);
+		// Randomize array to grab a random creature
+		for (let i = availableTypes.length - 1; i > 0; i--) {
+			let j = Math.floor(Math.random() * (i + 1));
+			let temp = availableTypes[i];
+			availableTypes[i] = availableTypes[j];
+			availableTypes[j] = temp;
+		}
+		// Grab the first creature we can afford (if none, default to priest)
+		let typeToPass = '--';
+		availableTypes.some(creature => {
+			const lvl = creature.substring(1, 2) - 0;
+			const size = game.retrieveCreatureStats(creature).size - 0;
+			const plasmaCost = lvl + size;
+			return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
+		});
+		// Show the random unit selected
+		this.showCreature(typeToPass, game.activeCreature.team, '');
 	}
 
 	selectAbility(i) {
@@ -1389,27 +1397,8 @@ export class UI {
 			}
 
 			if (randomize && this.lastViewedCreature == '') {
-				const activePlayer = game.players[game.activeCreature.player.id];
-				const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
-				const availableTypes = activePlayer.availableCreatures.filter(
-					el => !deadOrSummonedTypes.includes(el),
-				);
-				// Optional: randomize array to grab a new creature every toggle
-				for (let i = availableTypes.length - 1; i > 0; i--) {
-					let j = Math.floor(Math.random() * (i + 1));
-					let temp = availableTypes[i];
-					availableTypes[i] = availableTypes[j];
-					availableTypes[j] = temp;
-				}
-				// Grab the first creature we can afford (if none, default to priest)
-				let typeToPass = '--';
-				availableTypes.some(creature => {
-					const lvl = creature.substring(1, 2) - 0;
-					const size = game.retrieveCreatureStats(creature).size - 0;
-					const plasmaCost = lvl + size;
-					return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
-				});
-				this.showCreature(typeToPass, game.activeCreature.team, '');
+				// Optional: select a random creature from the grid
+				this.showRandomCreature();
 			} else if (this.lastViewedCreature !== '') {
 				this.showCreature(this.lastViewedCreature, game.activeCreature.team, '');
 			} else {
