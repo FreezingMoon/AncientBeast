@@ -61,6 +61,52 @@ export class UI {
 		this.buttons = [];
 		this.abilitiesButtons = [];
 
+		// TODO: REMOVE UNIT TESTS BEFORE COMMITTING
+		// Unit Tests Button
+		this.btnRunUnitTests = new Button(
+			{
+				$button: $j('#tests.button'),
+				click: () => {
+					this.game.log('Clicked Unit Tests button');
+					if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.ZERO)) {
+						this.game.runUnitTests(0);
+					}
+					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.ONE)) {
+						this.game.runUnitTests(1);
+					}
+					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.TWO)) {
+						this.game.runUnitTests(2);
+					}
+					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.THREE)) {
+						this.game.runUnitTests(3);
+					}
+					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.FOUR)) {
+						this.game.runUnitTests(4);
+					}
+					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.FIVE)) {
+						this.game.runUnitTests(5);
+					}
+					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.SIX)) {
+						this.game.runUnitTests(6);
+					}
+					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.SEVEN)) {
+						this.game.runUnitTests(7);
+					}
+					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.EIGHT)) {
+						this.game.runUnitTests(8);
+					}
+					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.NINE)) {
+						this.game.runUnitTests(9);
+					}
+					else if (this.game.Phaser.input.keyboard.isDown(Phaser.Keyboard.ALT)) {
+						this.game.runUnitTests(10);
+					}
+				}
+			},
+			game,
+		);
+		this.buttons.push(this.btnRunUnitTests);
+
 		// Dash Button
 		this.btnToggleDash = new Button(
 			{
@@ -918,7 +964,6 @@ export class UI {
 				} else {
 					if (creatureType == '--') {
 						$j('#materialize_button p').text('Please select an available unit from the left grid');
-						this.materializeButton.changeState('glowing');
 					} else {
 						$j('#materialize_button p').text(
 							'Materialize unit at target location for ' + plasmaCost + ' plasma',
@@ -942,9 +987,70 @@ export class UI {
 				}
 			} else {
 				if (creatureType == '--' && !activeCreature.abilities[3].used) {
-					$j('#materialize_button p').text('Please select an available unit from the left grid');
-					this.materializeButton.changeState('glowing');
-					//fix this line
+					//Figure out if the player has enough plasma to summon anything
+					const activePlayer = this.game.players[this.game.activeCreature.player.id];
+					const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
+					const availableTypes = activePlayer.availableCreatures.filter(
+						el => !deadOrSummonedTypes.includes(el),
+					);
+					//Assume we can't afford anything
+					//Check one available creature at a time until we see something we can afford
+					let can_afford_a_unit = false;
+					availableTypes.forEach(type => {
+						const lvl = type.substring(1, 2) - 0;
+						const size = game.retrieveCreatureStats(type).size - 0;
+						const plasmaCost = lvl + size;
+						if (plasmaCost <= activePlayer.plasma) {
+							can_afford_a_unit = true;
+						}
+					});
+					//If we can't afford anything, tell the player
+					if (!can_afford_a_unit) {
+						$j('#materialize_button p').text(this.game.msg.abilities.noPlasma);
+						this.materializeButton.changeState('disabled');
+					}
+					//Otherwise, let's assign it a random selection on click
+					else {
+						$j('#materialize_button p').text('Please select an available unit from the left grid');
+						// Bind button for random unit selection
+						this.materializeButton.click = () => {
+							const activePlayer = this.game.players[this.game.activeCreature.player.id];
+							const deadOrSummonedTypes = activePlayer.creatures.map(creature => creature.type);
+							const availableTypes = activePlayer.availableCreatures.filter(
+								el => !deadOrSummonedTypes.includes(el),
+							);
+							// Randomize array to grab a random creature
+							for (let i = availableTypes.length - 1; i > 0; i--) {
+								let j = Math.floor(Math.random() * (i + 1));
+								let temp = availableTypes[i];
+								availableTypes[i] = availableTypes[j];
+								availableTypes[j] = temp;
+							}
+							// Grab the first creature we can afford (if none, default to priest)
+							let typeToPass = '--';
+							availableTypes.some(creature => {
+								const lvl = creature.substring(1, 2) - 0;
+								const size = game.retrieveCreatureStats(creature).size - 0;
+								const plasmaCost = lvl + size;
+								return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
+							});
+							// Make sure we aren't materializing a Dark Priest
+							// We already checked that we can afford something, so Dark Priest should never appear here, but checking just in case
+							if (typeToPass != '--') {
+								this.materializeToggled = false;
+								this.selectAbility(3);
+								this.closeDash();
+								activeCreature.abilities[3].materialize(typeToPass);
+								// For testing purposes, so we can catch the selectedCreature later
+								// TODO: DELETE BELOW LINE
+								this.selectedCreature = typeToPass;
+							}
+						};
+						$j('#card .sideA').on('click', this.materializeButton.click);
+						$j('#card .sideA').removeClass('disabled');
+						// Apply the changes
+						this.materializeButton.changeState('glowing');
+					}
 				} else if (
 					activeCreature.abilities[3].used &&
 					game.activeCreature.type == '--' &&
