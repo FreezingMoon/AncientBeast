@@ -1712,7 +1712,7 @@ export class UI {
 								if(rect.bottom > (window.innerHeight - margin)) {
 									let value = (window.innerHeight - rect.bottom - margin);
 									$desc[0].style.top = value + "px";
-									$desc.find(".arrow")[0].style.top = 27 - value + "px"; //27 is the offset in CSS, -value keeps the position of the arrow
+									$desc.find(".arrow")[0].style.top = 27 - value + "px"; // Keep arrow position
 								}
 							})();
 						};
