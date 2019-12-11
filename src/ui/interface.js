@@ -1706,12 +1706,13 @@ export class UI {
 							if (this.selectedAbility == -1) {
 								this.showAbilityCosts(btn.abilityId);
 							}
-							(function(){ // Ensure tooltip stays in window - adjust top
+							(function(){ // Ensure tooltip stays in window - adjust
 								var rect = $desc[0].getBoundingClientRect();
 								const margin = 20;
 								if(rect.bottom > (window.innerHeight - margin)) {
-									let value = (window.innerHeight - rect.bottom - margin) + "px";
-									$desc[0].style.top = value;
+									let value = (window.innerHeight - rect.bottom - margin);
+									$desc[0].style.top = value + "px";
+									$desc.find(".arrow")[0].style.top = 27 - value + "px"; //27 is the offset in CSS, -value keeps the position of the arrow
 								}
 							})();
 						};
@@ -1720,8 +1721,9 @@ export class UI {
 							if (this.selectedAbility == -1) {
 								this.hideAbilityCosts();
 							}
-							(function() { // Ensure tooltip stays in window - reset top after
+							(function() { // Ensure tooltip stays in window - reset
 								$desc[0].style.top = "0px";
+								$desc.find(".arrow")[0].style.top = "27px";
 							})();
 						};
 
