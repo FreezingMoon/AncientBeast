@@ -1665,7 +1665,7 @@ export class UI {
 						let $desc = btn.$button.next('.desc');
 						$desc.find('span.title').text(ab.title);
 						$desc.find('p').html(ab.desc);
-
+						
 						btn.click = () => {
 							if (this.selectedAbility != btn.abilityId) {
 								if (this.dashopen) {
@@ -1706,12 +1706,23 @@ export class UI {
 							if (this.selectedAbility == -1) {
 								this.showAbilityCosts(btn.abilityId);
 							}
+							(function(){//ensure tooltip stays in window - adjust top
+								var rect = $desc[0].getBoundingClientRect();
+								const margin=20;
+								if(rect.bottom > (window.innerHeight-margin)){
+									let value=(window.innerHeight-rect.bottom-margin)+"px";
+									$desc[0].style.top=value;
+								}
+							})();
 						};
 
 						btn.mouseleave = () => {
 							if (this.selectedAbility == -1) {
 								this.hideAbilityCosts();
 							}
+							(function(){//ensure tooltip stays in window - reset top after
+								$desc[0].style.top="0px";
+							})();
 						};
 
 						btn.changeState(); // Apply changes
