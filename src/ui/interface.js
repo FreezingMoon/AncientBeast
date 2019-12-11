@@ -1706,12 +1706,12 @@ export class UI {
 							if (this.selectedAbility == -1) {
 								this.showAbilityCosts(btn.abilityId);
 							}
-							(function(){//ensure tooltip stays in window - adjust top
+							(function(){ // Ensure tooltip stays in window - adjust top
 								var rect = $desc[0].getBoundingClientRect();
-								const margin=20;
-								if(rect.bottom > (window.innerHeight-margin)){
-									let value=(window.innerHeight-rect.bottom-margin)+"px";
-									$desc[0].style.top=value;
+								const margin = 20;
+								if(rect.bottom > (window.innerHeight - margin)) {
+									let value = (window.innerHeight - rect.bottom - margin) + "px";
+									$desc[0].style.top = value;
 								}
 							})();
 						};
@@ -1720,8 +1720,8 @@ export class UI {
 							if (this.selectedAbility == -1) {
 								this.hideAbilityCosts();
 							}
-							(function(){//ensure tooltip stays in window - reset top after
-								$desc[0].style.top="0px";
+							(function() { // Ensure tooltip stays in window - reset top after
+								$desc[0].style.top = "0px";
 							})();
 						};
 
