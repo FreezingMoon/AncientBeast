@@ -735,12 +735,10 @@ export class UI {
 		// Set dash active
 		this.$dash.addClass('active');
 		this.$dash.children('#tooltip').removeClass('active');
-		this.$dash.children('#playertabswrapper').addClass('active');
 		this.changePlayerTab(game.activeCreature.team);
 		this.resizeDash();
 
 		this.$dash
-			.children('#playertabswrapper')
 			.children('.playertabs')
 			.unbind('click')
 			.bind('click', e => {
