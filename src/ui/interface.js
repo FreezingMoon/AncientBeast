@@ -68,6 +68,7 @@ export class UI {
 				click: () => {
 					// if dash is open and audio player is visible, just show creatures
 					if (this.dashopen && $j('#musicplayerwrapper').is(':visible')) {
+						$j('#playertabswrapper').show();
 						$j('#musicplayerwrapper').hide();
 					}
 
@@ -1129,6 +1130,7 @@ export class UI {
 			.addClass('locked');
 
 		$j('#tabwrapper').show();
+		$j('#playertabswrapper').show();
 		$j('#musicplayerwrapper').hide();
 
 		// Change creature status
