@@ -920,7 +920,9 @@ export class UI {
 					if (creatureType == '--') {
 						$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
 					} else {
-						$j('#materialize_button p').text(game.msg.ui.dash.materializeUnit(plasmaCost.toString()));
+						$j('#materialize_button p').text(
+							game.msg.ui.dash.materializeUnit(plasmaCost.toString()),
+						);
 
 						// Bind button
 						this.materializeButton.click = () => {
@@ -936,6 +938,7 @@ export class UI {
 						$j('#card .sideA').on('click', this.materializeButton.click);
 						$j('#card .sideA').removeClass('disabled');
 						this.materializeButton.changeState('glowing');
+						$j('#materialize_button').show();
 					}
 				}
 			} else {
@@ -1064,7 +1067,7 @@ export class UI {
 	 * Selects a random available unit and shows its card on the dash.
 	 *
 	 * Calls showCreature(chosenRandomUnit, activePlayerID, '') to handle opening the dash.
-	 * 
+	 *
 	 * Called by toggleDash with the randomize option and by clicking the materialize button
 	 * when it reads "Please select..."
 	 */
@@ -1667,7 +1670,7 @@ export class UI {
 						let $desc = btn.$button.next('.desc');
 						$desc.find('span.title').text(ab.title);
 						$desc.find('p').html(ab.desc);
-						
+
 						btn.click = () => {
 							if (this.selectedAbility != btn.abilityId) {
 								if (this.dashopen) {
@@ -1708,13 +1711,14 @@ export class UI {
 							if (this.selectedAbility == -1) {
 								this.showAbilityCosts(btn.abilityId);
 							}
-							(function(){ // Ensure tooltip stays in window - adjust
+							(function() {
+								// Ensure tooltip stays in window - adjust
 								var rect = $desc[0].getBoundingClientRect();
 								const margin = 20;
-								if(rect.bottom > (window.innerHeight - margin)) {
-									let value = (window.innerHeight - rect.bottom - margin);
-									$desc[0].style.top = value + "px";
-									$desc.find(".arrow")[0].style.top = 27 - value + "px"; // Keep arrow position
+								if (rect.bottom > window.innerHeight - margin) {
+									let value = window.innerHeight - rect.bottom - margin;
+									$desc[0].style.top = value + 'px';
+									$desc.find('.arrow')[0].style.top = 27 - value + 'px'; // Keep arrow position
 								}
 							})();
 						};
@@ -1723,9 +1727,10 @@ export class UI {
 							if (this.selectedAbility == -1) {
 								this.hideAbilityCosts();
 							}
-							(function() { // Ensure tooltip stays in window - reset
-								$desc[0].style.top = "0px";
-								$desc.find(".arrow")[0].style.top = "27px";
+							(function() {
+								// Ensure tooltip stays in window - reset
+								$desc[0].style.top = '0px';
+								$desc.find('.arrow')[0].style.top = '27px';
 							})();
 						};
 
