@@ -26,7 +26,6 @@ What we're aiming for are the following:
 - balancing creatures stats
 - sound effects for actions
 - sprites for ranged attacks
-- initial translation support
 - many user interface tweaks
 - lots of usability enhancements
 - a ton of bug fixes all around
