@@ -651,7 +651,7 @@ export class UI {
 		let game = this.game,
 			creature = game.activeCreature;
 		// Reset energy bar to match actual energy value
-		this.energyBar.setSize(creature.energy / 100);
+		this.energyBar.setSize(creature.energy / creature.stats.energy);
 
 		this.energyBar.previewSize(0);
 		this.healthBar.previewSize(0);
