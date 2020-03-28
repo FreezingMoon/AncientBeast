@@ -9,18 +9,18 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[39] = [
 		// 	First Ability: Larva Infest
 		{
 			trigger: 'onStartPhase onEndPhase',
 
 			_targetTeam: Team.enemy,
-			_getHexes: function() {
+			_getHexes: function () {
 				return this.creature.getHexMap(matrices.inlineback2hex);
 			},
 
-			require: function() {
+			require: function () {
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
@@ -32,7 +32,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function() {
+			activate: function () {
 				let ability = this;
 				let creature = this.creature;
 
@@ -49,7 +49,7 @@ export default G => {
 
 				let targets = this.getTargets(this._getHexes());
 
-				targets.forEach(function(item) {
+				targets.forEach(function (item) {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
@@ -69,7 +69,7 @@ export default G => {
 						trg, // Target
 						'onStartPhase', // Trigger
 						{
-							effectFn: function() {
+							effectFn: function () {
 								// Activate debuff
 								trg.addEffect(
 									new Effect(
@@ -110,7 +110,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				let crea = this.creature;
 
 				if (!this.testRequirements()) {
@@ -129,12 +129,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -145,7 +145,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
@@ -182,14 +182,14 @@ export default G => {
 			directions: [0, 1, 0, 0, 1, 0],
 
 			_minDistance: 2,
-			_getMaxDistance: function() {
+			_getMaxDistance: function () {
 				if (this.isUpgraded()) {
 					return 8;
 				}
 				return 6;
 			},
 			_targetTeam: Team.both,
-			_getValidDirections: function() {
+			_getValidDirections: function () {
 				// Get all directions where there are no targets within min distance,
 				// and a target within max distance
 				let crea = this.creature;
@@ -243,7 +243,7 @@ export default G => {
 				return validDirections;
 			},
 
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -258,7 +258,7 @@ export default G => {
 				// min/max range
 				let validDirections = this._getValidDirections();
 				if (
-					!validDirections.some(function(e) {
+					!validDirections.some(function (e) {
 						return e === 1;
 					})
 				) {
@@ -270,12 +270,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -290,11 +290,11 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path, args) {
+			activate: function (path, args) {
 				let ability = this;
 				let crea = this.creature;
 				let target = arrayUtils.last(path).creature;
-				path = path.filter(function(hex) {
+				path = path.filter(function (hex) {
 					return !hex.creature;
 				}); //remove creatures
 				ability.end();
@@ -327,8 +327,8 @@ export default G => {
 					crea.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: function() {
-							let interval = setInterval(function() {
+						callback: function () {
+							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
@@ -343,8 +343,8 @@ export default G => {
 					target.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: function() {
-							let interval = setInterval(function() {
+						callback: function () {
+							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
@@ -366,7 +366,7 @@ export default G => {
 				crush: 5,
 			},
 
-			_getHexes: function() {
+			_getHexes: function () {
 				// extra range if upgraded
 				if (this.isUpgraded()) {
 					return matrices.headlessBoomerangUpgraded;
@@ -376,7 +376,7 @@ export default G => {
 			},
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -384,14 +384,14 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				let hexes = this._getHexes();
 
 				G.grid.queryChoice({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: Team.both,
@@ -402,7 +402,7 @@ export default G => {
 				});
 			},
 
-			activate: function(hexes) {
+			activate: function (hexes) {
 				let damages = {
 					slash: 10,
 				};

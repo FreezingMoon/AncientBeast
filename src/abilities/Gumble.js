@@ -9,18 +9,18 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[14] = [
 		// 	First Ability: Gooey Body
 		{
 			// Update stat buffs whenever health changes
 			trigger: 'onCreatureSummon onDamage onHeal',
 
-			require: function() {
+			require: function () {
 				// Always active
 				return true;
 			},
-			activate: function() {
+			activate: function () {
 				if (this.creature.dead) {
 					return;
 				}
@@ -67,13 +67,13 @@ export default G => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function() {
+			require: function () {
 				// Always usable, even if no targets
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
 				// center of each area is two hexes away. Each area can be chosen regardless
@@ -96,15 +96,15 @@ export default G => {
 				// Reorder choices based on number of hexes
 				// This ensures that if a choice contains overlapping hexes only, that
 				// choice won't be available for selection.
-				choices.sort(function(choice1, choice2) {
+				choices.sort(function (choice1, choice2) {
 					return choice1.length < choice2.length;
 				});
 				G.grid.queryChoice({
-					fnOnCancel: function() {
+					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: Team.both,
@@ -114,7 +114,7 @@ export default G => {
 				});
 			},
 
-			activate: function(hexes) {
+			activate: function (hexes) {
 				let ability = this;
 				ability.end();
 
@@ -156,12 +156,12 @@ export default G => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let creature = this.creature;
 
@@ -172,7 +172,7 @@ export default G => {
 				);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					size: creature.size,
@@ -185,11 +185,11 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(hex) {
+			activate: function (hex) {
 				this.end();
 				let ability = this;
 
-				let makeSeal = function() {
+				let makeSeal = function () {
 					let effect = new Effect(
 						'Royal Seal',
 						ability.creature,
@@ -197,11 +197,11 @@ export default G => {
 						'onStepIn',
 						{
 							// Gumbles immune
-							requireFn: function() {
+							requireFn: function () {
 								let crea = this.trap.hex.creature;
 								return crea && crea.type !== this.owner.type;
 							},
-							effectFn: function(_, crea) {
+							effectFn: function (_, crea) {
 								if (this.trap.turnLifetime === 0) {
 									crea.remainingMove = 0;
 									// Destroy the trap on the trapped creature's turn
@@ -230,7 +230,7 @@ export default G => {
 				// Move Gumble to the target hex if necessary
 				if (hex.x !== this.creature.x || hex.y !== this.creature.y) {
 					this.creature.moveTo(hex, {
-						callback: function() {
+						callback: function () {
 							G.activeCreature.queryMove();
 							makeSeal();
 						},
@@ -254,7 +254,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -271,12 +271,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
@@ -290,7 +290,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path, args) {
+			activate: function (path, args) {
 				let ability = this;
 				ability.end();
 
@@ -365,7 +365,7 @@ export default G => {
 					target.moveTo(dir[1], {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: function() {
+						callback: function () {
 							G.activeCreature.queryMove();
 						},
 						animation: 'push',
