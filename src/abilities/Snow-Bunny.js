@@ -42,7 +42,7 @@ export default G => {
 						G.activeCreature.queryMove();
 					},
 					ignorePath: true,
-					ignoreMovementPoint: true
+					ignoreMovementPoint: true,
 				});
 			},
 
@@ -92,7 +92,7 @@ export default G => {
 					return undefined;
 				}
 				return hex;
-			}
+			},
 		},
 
 		// 	Second Ability: Big Pliers
@@ -110,7 +110,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(this.creature.adjacentHexes(1), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -130,7 +130,7 @@ export default G => {
 					team: this._targetTeam,
 					id: snowBunny.id,
 					flipped: snowBunny.player.flipped,
-					hexes: snowBunny.adjacentHexes(1)
+					hexes: snowBunny.adjacentHexes(1),
 				});
 			},
 
@@ -143,7 +143,7 @@ export default G => {
 				// If upgraded, do pure damage against frozen targets
 				if (this.isUpgraded() && target.stats.frozen) {
 					damages = {
-						pure: 0
+						pure: 0,
 					};
 					for (let type in ability.damages) {
 						if ({}.hasOwnProperty.call(ability.damages, type)) {
@@ -157,10 +157,10 @@ export default G => {
 					damages, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 				target.takeDamage(damage);
-			}
+			},
 		},
 
 		// 	Third Ability: Blowing Wind
@@ -180,7 +180,7 @@ export default G => {
 				if (
 					!this.testDirection({
 						team: this._targetTeam,
-						directions: this.directions
+						directions: this.directions,
 					})
 				) {
 					return false;
@@ -203,7 +203,7 @@ export default G => {
 					requireCreature: true,
 					x: snowBunny.x,
 					y: snowBunny.y,
-					directions: this.directions
+					directions: this.directions,
 				});
 			},
 
@@ -251,7 +251,7 @@ export default G => {
 					callback: function() {
 						G.activeCreature.queryMove();
 					},
-					animation: 'push'
+					animation: 'push',
 				});
 
 				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
@@ -272,11 +272,11 @@ export default G => {
 					callback: function() {
 						G.activeCreature.queryMove();
 					},
-					animation: 'push'
+					animation: 'push',
 				});
 
 				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
-			}
+			},
 		},
 
 		// 	Fourth Ability: Freezing Spit
@@ -295,7 +295,7 @@ export default G => {
 				if (
 					!this.testDirection({
 						team: this._targetTeam,
-						directions: this.directions
+						directions: this.directions,
 					})
 				) {
 					return false;
@@ -318,7 +318,7 @@ export default G => {
 					requireCreature: true,
 					x: snowBunny.x,
 					y: snowBunny.y,
-					directions: [1, 1, 1, 1, 1, 1]
+					directions: [1, 1, 1, 1, 1, 1],
 				});
 			},
 
@@ -335,7 +335,7 @@ export default G => {
 					path,
 					args,
 					52,
-					-20
+					-20,
 				);
 				let tween = projectileInstance[0];
 				let sprite = projectileInstance[1];
@@ -354,7 +354,7 @@ export default G => {
 						dmg, // Damage Type
 						1, // Area
 						[],
-						G
+						G,
 					);
 					let damageResult = target.takeDamage(damage);
 
@@ -370,9 +370,9 @@ export default G => {
 				return {
 					duration: 500,
 					delay: 0,
-					activateAnimation: false
+					activateAnimation: false,
 				};
-			}
-		}
+			},
+		},
 	];
 };

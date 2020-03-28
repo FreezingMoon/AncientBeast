@@ -49,7 +49,6 @@
 		"less-loader": "^5.0.0",
 		"lint-staged": "^9.4.2",
 		"prettier": "^1.18.2",
-		"prettier-eslint-cli": "^5.0.0",
 		"style-loader": "^1.0.0",
 		"uglifyjs-webpack-plugin": "^2.2.0",
 		"webpack-cli": "^3.3.9",
@@ -66,7 +65,6 @@
 		"assetLister": "node ./assetLister.js",
 		"lint": "eslint src/*.js src/**/*.js",
 		"lint-fix": "eslint --fix src/*.js src/**/*.js",
-		"format": "prettier-eslint --write \"src/**/*.js\"",
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check",
 		"test": "npm run lint && npm run build"
 	},

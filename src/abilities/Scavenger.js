@@ -36,7 +36,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function() {}
+			activate: function() {},
 		},
 
 		// 	Second Ability: Slicing Pounce
@@ -54,7 +54,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -73,7 +73,7 @@ export default G => {
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback2hex)
+					hexes: this.creature.getHexMap(matrices.frontnback2hex),
 				});
 			},
 
@@ -91,10 +91,10 @@ export default G => {
 						'onDamage',
 						{
 							alterations: {
-								offense: -1
-							}
+								offense: -1,
+							},
 						},
-						G
+						G,
 					);
 					target.addEffect(effect);
 					G.log('%CreatureName' + target.id + "%'s offense is lowered by 1");
@@ -105,11 +105,11 @@ export default G => {
 					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 
 				target.takeDamage(damage);
-			}
+			},
 		},
 
 		// 	Third Ability: Escort Service
@@ -151,7 +151,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(hexes, {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -189,7 +189,7 @@ export default G => {
 						crea.y - matrices.inlinefront2hex.origin[1],
 						0,
 						false,
-						matrices.inlinefront2hex
+						matrices.inlinefront2hex,
 					)[0].creature == trg;
 
 				let select = hex => {
@@ -239,7 +239,7 @@ export default G => {
 						}),
 					args: {
 						trg: trg.id,
-						trgIsInfront: trgIsInfront
+						trgIsInfront: trgIsInfront,
 					},
 					callbackAfterQueryHexes: () => {
 						for (let i = 0; i < trg.hexagons.length; i++) {
@@ -247,7 +247,7 @@ export default G => {
 							trg.hexagons[i].displayVisualState('dashed');
 						}
 					},
-					fillHexOnHover: false
+					fillHexOnHover: false,
 				});
 			},
 
@@ -285,7 +285,7 @@ export default G => {
 					callback: function() {
 						trg.updateHex();
 					},
-					ignoreMovementPoint: true
+					ignoreMovementPoint: true,
 				});
 
 				trg.moveTo(trgDest, {
@@ -295,9 +295,9 @@ export default G => {
 						ability.creature.queryMove();
 					},
 					ignoreMovementPoint: true,
-					overrideSpeed: crea.animation.walk_speed
+					overrideSpeed: crea.animation.walk_speed,
 				});
-			}
+			},
 		},
 
 		// 	Fourth Ability: Deadly Toxin
@@ -315,7 +315,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -334,7 +334,7 @@ export default G => {
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback2hex)
+					hexes: this.creature.getHexMap(matrices.frontnback2hex),
 				});
 			},
 
@@ -354,7 +354,7 @@ export default G => {
 					damages, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 
 				let result = target.takeDamage(damage);
@@ -374,17 +374,17 @@ export default G => {
 									new Damage(
 										eff.owner,
 										{
-											poison: ability.damages.poison
+											poison: ability.damages.poison,
 										},
 										1,
 										[],
-										G
+										G,
 									),
-									{ isFromTrap: true }
+									{ isFromTrap: true },
 								);
-							}
+							},
 						},
-						G
+						G,
 					);
 
 					target.replaceEffect(effect);
@@ -393,7 +393,7 @@ export default G => {
 				}
 
 				G.UI.checkAbilities();
-			}
-		}
+			},
+		},
 	];
 };

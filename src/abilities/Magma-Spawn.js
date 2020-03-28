@@ -55,24 +55,24 @@ export default G => {
 								},
 								effectFn: function(effect, target) {
 									target.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
-										isFromTrap: true
+										isFromTrap: true,
 									});
 									this.trap.destroy();
 									effect.deleteEffect();
 								},
-								attacker: this.creature
+								attacker: this.creature,
 							},
-							G
-						)
+							G,
+						),
 					],
 					this.creature.player,
 					{
 						turnLifetime: lifetime,
 						ownerCreature: this.creature,
-						fullTurnLifetime: true
-					}
+						fullTurnLifetime: true,
+					},
 				);
-			}
+			},
 		},
 
 		// 	Second Ability: Pulverizing Hit
@@ -92,7 +92,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback3hex), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -112,7 +112,7 @@ export default G => {
 					team: this._targetTeam,
 					id: magmaSpawn.id,
 					flipped: magmaSpawn.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback3hex)
+					hexes: this.creature.getHexMap(matrices.frontnback3hex),
 				});
 			},
 
@@ -123,7 +123,7 @@ export default G => {
 
 				let d = {
 					burn: this.damages.burn,
-					crush: this.damages.crush
+					crush: this.damages.crush,
 				};
 				// Deal extra burn damage based on number of stacks
 				let stacksExisting = 0;
@@ -139,7 +139,7 @@ export default G => {
 					d, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 				target.takeDamage(damage);
 
@@ -160,13 +160,13 @@ export default G => {
 							'',
 							{
 								deleteTrigger: '',
-								stackable: true
+								stackable: true,
 							},
-							G
-						)
+							G,
+						),
 					);
 				}
-			}
+			},
 		},
 
 		// 	Thirt Ability: Cracked Earth
@@ -179,7 +179,7 @@ export default G => {
 				[0, 0, 1, 1],
 				[1, 1, 1, 0], //origin line
 				[0, 0, 1, 1],
-				[0, 0, 1, 0]
+				[0, 0, 1, 0],
 			],
 
 			require: function() {
@@ -201,7 +201,7 @@ export default G => {
 					requireCreature: 0,
 					id: magmaSpawn.id,
 					flipped: magmaSpawn.flipped,
-					choices: [magmaSpawn.getHexMap(this.map), magmaSpawn.getHexMap(this.map, true)]
+					choices: [magmaSpawn.getHexMap(this.map), magmaSpawn.getHexMap(this.map, true)],
 				});
 			},
 
@@ -222,7 +222,7 @@ export default G => {
 					ability.creature, // Attacker
 					ability.damages1, // Damage Type
 					[], // Effects
-					targets
+					targets,
 				);
 
 				// If upgraded, leave Boiling Point traps on all hexes that don't contain
@@ -234,7 +234,7 @@ export default G => {
 						}
 					});
 				}
-			}
+			},
 		},
 
 		// 	Fourth Ability: Molten Hurl
@@ -263,7 +263,7 @@ export default G => {
 					!this.testDirection({
 						team: this._targetTeam,
 						x: x,
-						directions: this.directions
+						directions: this.directions,
 					})
 				) {
 					return false;
@@ -287,7 +287,7 @@ export default G => {
 					requireCreature: true,
 					x: x,
 					y: magmaSpawn.y,
-					directions: this.directions
+					directions: this.directions,
 				});
 			},
 
@@ -304,7 +304,7 @@ export default G => {
 					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 
 				// Destroy traps currently under self
@@ -366,11 +366,11 @@ export default G => {
 									}
 								}, 100);
 							}
-						}
+						},
 					});
 				};
 				hurl(path);
-			}
-		}
+			},
+		},
 	];
 };

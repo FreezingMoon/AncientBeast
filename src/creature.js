@@ -56,7 +56,7 @@ export class Creature {
 		this.y = obj.y - 0;
 		this.pos = {
 			x: this.x,
-			y: this.y
+			y: this.y,
 		};
 		this.size = obj.size - 0;
 		this.type = obj.type;
@@ -110,7 +110,7 @@ export class Creature {
 			fatigueImmunity: false,
 			frozen: false,
 			// Extra energy required for abilities
-			reqEnergy: 0
+			reqEnergy: 0,
 		};
 
 		this.stats = $j.extend({}, this.baseStats); //Copy
@@ -124,7 +124,7 @@ export class Creature {
 			new Ability(this, 0, game),
 			new Ability(this, 1, game),
 			new Ability(this, 2, game),
-			new Ability(this, 3, game)
+			new Ability(this, 3, game),
 		];
 
 		this.updateHex();
@@ -178,7 +178,7 @@ export class Creature {
 		this.healthIndicatorSprite = this.healthIndicatorGroup.create(
 			this.player.flipped ? 19 : 19 + 90 * (this.size - 1),
 			49,
-			'p' + this.team + '_health'
+			'p' + this.team + '_health',
 		);
 		// Add text
 		this.healthIndicatorText = game.Phaser.add.text(
@@ -190,8 +190,8 @@ export class Creature {
 				fill: '#fff',
 				align: 'center',
 				stroke: '#000',
-				strokeThickness: 6
-			}
+				strokeThickness: 6,
+			},
 		);
 		this.healthIndicatorText.anchor.setTo(0.5, 0.5);
 		this.healthIndicatorGroup.add(this.healthIndicatorText);
@@ -229,10 +229,10 @@ export class Creature {
 				.tween(game.grid.materialize_overlay)
 				.to(
 					{
-						alpha: 0
+						alpha: 0,
 					},
 					500,
-					Phaser.Easing.Linear.None
+					Phaser.Easing.Linear.None,
 				)
 				.start();
 		}
@@ -241,10 +241,10 @@ export class Creature {
 			.tween(this.grp)
 			.to(
 				{
-					alpha: 1
+					alpha: 1,
 				},
 				500,
-				Phaser.Easing.Linear.None
+				Phaser.Easing.Linear.None,
 			)
 			.start();
 
@@ -327,7 +327,7 @@ export class Creature {
 				if (!game.turnThrottle) {
 					clearInterval(interval);
 					game.skipTurn({
-						tooltip: 'Frozen'
+						tooltip: 'Frozen',
 					});
 				}
 			}, 50);
@@ -461,8 +461,8 @@ export class Creature {
 						action: 'move',
 						target: {
 							x: hex.x,
-							y: hex.y
-						}
+							y: hex.y,
+						},
 					});
 					args.creature.delayable = false;
 					game.UI.btnDelay.changeState('disabled');
@@ -470,11 +470,11 @@ export class Creature {
 						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
 						callback: function() {
 							game.activeCreature.queryMove();
-						}
+						},
 					});
-				}
+				},
 			},
-			o
+			o,
 		);
 
 		if (!o.isAbility) {
@@ -503,7 +503,7 @@ export class Creature {
 			args.creature.tracePosition({
 				x: hex.x,
 				y: hex.y,
-				overlayClass: 'creature moveto selected player' + args.creature.team
+				overlayClass: 'creature moveto selected player' + args.creature.team,
 			});
 		};
 		let select = o.noPath || this.movementType() === 'flying' ? selectFlying : selectNormal;
@@ -514,7 +514,7 @@ export class Creature {
 					game.UI.btnSkipTurn.click();
 				},
 				fnOnCancel: function() {},
-				confirmText: 'Skip turn'
+				confirmText: 'Skip turn',
 			});
 		} else {
 			game.grid.queryHexes({
@@ -522,14 +522,14 @@ export class Creature {
 				fnOnConfirm: o.callback,
 				args: {
 					creature: this,
-					args: o.args
+					args: o.args,
 				}, // Optional args
 				size: this.size,
 				flipped: this.player.flipped,
 				id: this.id,
 				hexes: o.range,
 				ownCreatureHexShade: o.ownCreatureHexShade,
-				targeting: o.targeting
+				targeting: o.targeting,
 			});
 		}
 	}
@@ -552,7 +552,7 @@ export class Creature {
 		this.tracePosition({
 			x: hex.x,
 			y: hex.y,
-			overlayClass: 'hover h_player' + this.team
+			overlayClass: 'hover h_player' + this.team,
 		});
 	}
 
@@ -692,7 +692,7 @@ export class Creature {
 				ignorePath: false,
 				customMovementPoint: 0,
 				overrideSpeed: 0,
-				turnAroundOnComplete: true
+				turnAroundOnComplete: true,
 			},
 			path;
 
@@ -751,7 +751,7 @@ export class Creature {
 				x: item.x,
 				y: item.y,
 				displayClass: 'adj',
-				drawOverCreatureTiles: false
+				drawOverCreatureTiles: false,
 			});
 		}); // Trace path
 
@@ -762,7 +762,7 @@ export class Creature {
 			x: last.x,
 			y: last.y,
 			overlayClass: 'creature moveto selected player' + this.team,
-			drawOverCreatureTiles: false
+			drawOverCreatureTiles: false,
 		});
 	}
 
@@ -772,7 +772,7 @@ export class Creature {
 			y: this.y,
 			overlayClass: '',
 			displayClass: '',
-			drawOverCreatureTiles: true
+			drawOverCreatureTiles: true,
 		};
 
 		args = $j.extend(defaultArgs, args);
@@ -814,7 +814,7 @@ export class Creature {
 			game.grid.hexes[y][x],
 			this.size,
 			this.id,
-			this.game.grid
+			this.game.grid,
 		); // Calculate path
 	}
 
@@ -847,7 +847,7 @@ export class Creature {
 
 		return {
 			x: x,
-			y: y
+			y: y,
 		};
 	}
 
@@ -881,28 +881,28 @@ export class Creature {
 				c = [
 					{
 						y: this.y,
-						x: this.x + 1
+						x: this.x + 1,
 					},
 					{
 						y: this.y - 1,
-						x: this.x + o
+						x: this.x + o,
 					},
 					{
 						y: this.y - 1,
-						x: this.x - 1 + o
+						x: this.x - 1 + o,
 					},
 					{
 						y: this.y,
-						x: this.x - 1
+						x: this.x - 1,
 					},
 					{
 						y: this.y + 1,
-						x: this.x - 1 + o
+						x: this.x - 1 + o,
 					},
 					{
 						y: this.y + 1,
-						x: this.x + o
-					}
+						x: this.x + o,
+					},
 				];
 			}
 
@@ -910,36 +910,36 @@ export class Creature {
 				c = [
 					{
 						y: this.y,
-						x: this.x + 1
+						x: this.x + 1,
 					},
 					{
 						y: this.y - 1,
-						x: this.x + o
+						x: this.x + o,
 					},
 					{
 						y: this.y - 1,
-						x: this.x - 1 + o
+						x: this.x - 1 + o,
 					},
 					{
 						y: this.y - 1,
-						x: this.x - 2 + o
+						x: this.x - 2 + o,
 					},
 					{
 						y: this.y,
-						x: this.x - 2
+						x: this.x - 2,
 					},
 					{
 						y: this.y + 1,
-						x: this.x - 2 + o
+						x: this.x - 2 + o,
 					},
 					{
 						y: this.y + 1,
-						x: this.x - 1 + o
+						x: this.x - 1 + o,
 					},
 					{
 						y: this.y + 1,
-						x: this.x + o
-					}
+						x: this.x + o,
+					},
 				];
 			}
 
@@ -947,44 +947,44 @@ export class Creature {
 				c = [
 					{
 						y: this.y,
-						x: this.x + 1
+						x: this.x + 1,
 					},
 					{
 						y: this.y - 1,
-						x: this.x + o
+						x: this.x + o,
 					},
 					{
 						y: this.y - 1,
-						x: this.x - 1 + o
+						x: this.x - 1 + o,
 					},
 					{
 						y: this.y - 1,
-						x: this.x - 2 + o
+						x: this.x - 2 + o,
 					},
 					{
 						y: this.y - 1,
-						x: this.x - 3 + o
+						x: this.x - 3 + o,
 					},
 					{
 						y: this.y,
-						x: this.x - 3
+						x: this.x - 3,
 					},
 					{
 						y: this.y + 1,
-						x: this.x - 3 + o
+						x: this.x - 3 + o,
 					},
 					{
 						y: this.y + 1,
-						x: this.x - 2 + o
+						x: this.x - 2 + o,
 					},
 					{
 						y: this.y + 1,
-						x: this.x - 1 + o
+						x: this.x - 1 + o,
 					},
 					{
 						y: this.y + 1,
-						x: this.x + o
-					}
+						x: this.x + o,
+					},
 				];
 			}
 
@@ -1092,7 +1092,7 @@ export class Creature {
 
 		let defaultOpt = {
 			ignoreRetaliation: false,
-			isFromTrap: false
+			isFromTrap: false,
 		};
 
 		o = $j.extend(defaultOpt, o);
@@ -1124,7 +1124,7 @@ export class Creature {
 
 				return {
 					damages: 0,
-					kill: false
+					kill: false,
 				};
 			}
 
@@ -1148,7 +1148,7 @@ export class Creature {
 				return {
 					damages: dmg,
 					damageObj: damage,
-					kill: true
+					kill: true,
 				}; // Killed
 			}
 
@@ -1176,7 +1176,7 @@ export class Creature {
 			return {
 				damages: dmg,
 				damageObj: damage,
-				kill: false
+				kill: false,
 			}; // Not Killed
 		} else {
 			if (damage.status == 'Dodged') {
@@ -1207,7 +1207,7 @@ export class Creature {
 
 		return {
 			damageObj: damage,
-			kill: false
+			kill: false,
 		}; // Not killed
 	}
 
@@ -1334,22 +1334,22 @@ export class Creature {
 		let hintColor = {
 			confirm: {
 				fill: '#ffffff',
-				stroke: '#000000'
+				stroke: '#000000',
 			},
 			gamehintblack: {
 				fill: '#ffffff',
-				stroke: '#000000'
+				stroke: '#000000',
 			},
 			healing: {
-				fill: '#00ff00'
+				fill: '#00ff00',
 			},
 			msg_effects: {
-				fill: '#ffff00'
+				fill: '#ffff00',
 			},
 			creature_name: {
 				fill: '#ffffff',
-				stroke: '#AAAAAA'
-			}
+				stroke: '#AAAAAA',
+			},
 		};
 
 		let style = $j.extend(
@@ -1358,9 +1358,9 @@ export class Creature {
 				fill: '#ff0000',
 				align: 'center',
 				stroke: '#000000',
-				strokeThickness: 2
+				strokeThickness: 2,
 			},
-			hintColor[cssClass]
+			hintColor[cssClass],
 		);
 
 		// Remove constant element
@@ -1372,10 +1372,10 @@ export class Creature {
 						.tween(grpHintElem)
 						.to(
 							{
-								alpha: 0
+								alpha: 0,
 							},
 							tooltipSpeed,
-							tooltipTransition
+							tooltipTransition,
 						)
 						.start();
 					grpHintElem.tweenAlpha.onComplete.add(function() {
@@ -1384,7 +1384,7 @@ export class Creature {
 				}
 			},
 			this,
-			true
+			true,
 		);
 
 		let hint = game.Phaser.add.text(0, 50, text, style);
@@ -1398,10 +1398,10 @@ export class Creature {
 				.tween(hint)
 				.to(
 					{
-						alpha: 1
+						alpha: 1,
 					},
 					tooltipSpeed,
-					tooltipTransition
+					tooltipTransition,
 				)
 				.start();
 		} else {
@@ -1409,24 +1409,24 @@ export class Creature {
 				.tween(hint)
 				.to(
 					{
-						alpha: 1
+						alpha: 1,
 					},
 					tooltipSpeed,
-					tooltipTransition
+					tooltipTransition,
 				)
 				.to(
 					{
-						alpha: 1
+						alpha: 1,
 					},
 					tooltipDisplaySpeed,
-					tooltipTransition
+					tooltipTransition,
 				)
 				.to(
 					{
-						alpha: 0
+						alpha: 0,
 					},
 					tooltipSpeed,
-					tooltipTransition
+					tooltipTransition,
 				)
 				.start();
 			hint.tweenAlpha.onComplete.add(function() {
@@ -1450,15 +1450,15 @@ export class Creature {
 					.tween(grpHintElem)
 					.to(
 						{
-							y: offset
+							y: offset,
 						},
 						tooltipSpeed,
-						tooltipTransition
+						tooltipTransition,
 					)
 					.start();
 			},
 			this,
-			true
+			true,
 		);
 	}
 
@@ -1534,7 +1534,7 @@ export class Creature {
 		if (!game.firstKill && !isDeny) {
 			// First Kill
 			this.killer.score.push({
-				type: 'firstKill'
+				type: 'firstKill',
 			});
 			game.firstKill = true;
 		}
@@ -1545,13 +1545,13 @@ export class Creature {
 				// TEAM KILL (DENY)
 				this.killer.score.push({
 					type: 'deny',
-					creature: this
+					creature: this,
 				});
 			} else {
 				// Humiliation
 				this.killer.score.push({
 					type: 'humiliation',
-					player: this.team
+					player: this.team,
 				});
 			}
 		}
@@ -1562,13 +1562,13 @@ export class Creature {
 				// TEAM KILL (DENY)
 				this.killer.score.push({
 					type: 'deny',
-					creature: this
+					creature: this,
 				});
 			} else {
 				// KILL
 				this.killer.score.push({
 					type: 'kill',
-					creature: this
+					creature: this,
 				});
 			}
 		}
@@ -1589,7 +1589,7 @@ export class Creature {
 			// ANNIHILATION
 			this.killer.score.push({
 				type: 'annihilation',
-				player: this.team
+				player: this.team,
 			});
 		}
 
@@ -1602,20 +1602,20 @@ export class Creature {
 			.tween(this.sprite)
 			.to(
 				{
-					alpha: 0
+					alpha: 0,
 				},
 				500,
-				Phaser.Easing.Linear.None
+				Phaser.Easing.Linear.None,
 			)
 			.start();
 		let tweenHealth = game.Phaser.add
 			.tween(this.healthIndicatorGroup)
 			.to(
 				{
-					alpha: 0
+					alpha: 0,
 				},
 				500,
-				Phaser.Easing.Linear.None
+				Phaser.Easing.Linear.None,
 			)
 			.start();
 		tweenSprite.onComplete.add(() => {
@@ -1653,7 +1653,9 @@ export class Creature {
 	 * shortcut convenience function to grid.getHexMap
 	 */
 	getHexMap(map, invertFlipped) {
-		let x = (this.player.flipped ? !invertFlipped : invertFlipped)
+		let x = (this.player.flipped
+		? !invertFlipped
+		: invertFlipped)
 			? this.x + 1 - this.size
 			: this.x;
 		return this.game.grid.getHexMap(
@@ -1661,7 +1663,7 @@ export class Creature {
 			this.y - map.origin[1],
 			0 - map.origin[0],
 			this.player.flipped ? !invertFlipped : invertFlipped,
-			map
+			map,
 		);
 	}
 
@@ -1670,7 +1672,7 @@ export class Creature {
 			debuff = 0,
 			buffObjs = {
 				effects: [],
-				drops: []
+				drops: [],
 			};
 
 		let addToBuffObjs = function(obj) {
@@ -1731,7 +1733,7 @@ export class Creature {
 		return {
 			buff: 0,
 			debuff: debuff,
-			objs: buffObjs
+			objs: buffObjs,
 		};
 	}
 
@@ -1756,10 +1758,10 @@ export class Creature {
 				.tween(this.grp)
 				.to(
 					{
-						alpha: 0.5
+						alpha: 0.5,
 					},
 					250,
-					Phaser.Easing.Linear.None
+					Phaser.Easing.Linear.None,
 				)
 				.start();
 		} else {
@@ -1767,10 +1769,10 @@ export class Creature {
 				.tween(this.grp)
 				.to(
 					{
-						alpha: 1
+						alpha: 1,
 					},
 					250,
-					Phaser.Easing.Linear.None
+					Phaser.Easing.Linear.None,
 				)
 				.start();
 		}

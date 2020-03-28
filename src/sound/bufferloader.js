@@ -31,7 +31,7 @@ export class BufferLoader {
 				},
 				error => {
 					console.error('decodeAudioData error', error);
-				}
+				},
 			);
 		};
 
