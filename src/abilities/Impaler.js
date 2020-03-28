@@ -46,10 +46,10 @@ export default G => {
 						this.creature.id +
 						'% absorbs ' +
 						converted +
-						' shock damage into energy'
+						' shock damage into energy',
 				);
 				return damage;
-			}
+			},
 		},
 
 		// 	Second Ability: Hasted Javelin
@@ -67,7 +67,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -87,7 +87,7 @@ export default G => {
 					team: this._targetTeam,
 					id: creature.id,
 					flipped: creature.flipped,
-					hexes: this._getHexes()
+					hexes: this._getHexes(),
 				});
 			},
 
@@ -98,9 +98,9 @@ export default G => {
 
 				let finalDmg = $j.extend(
 					{
-						poison: 0
+						poison: 0,
 					},
-					ability.damages1
+					ability.damages1,
 				);
 
 				// Poison Bonus if upgraded
@@ -115,7 +115,7 @@ export default G => {
 					finalDmg, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 				let result = target.takeDamage(damage);
 				// Recharge movement if any damage dealt
@@ -132,9 +132,9 @@ export default G => {
 					this.creature.y - 2,
 					0,
 					false,
-					matrices.frontnback3hex
+					matrices.frontnback3hex,
 				);
-			}
+			},
 		},
 
 		// 	Thirt Ability: Poisonous Vine
@@ -148,7 +148,7 @@ export default G => {
 			require: function() {
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -168,7 +168,7 @@ export default G => {
 					team: this._targetTeam,
 					id: creature.id,
 					flipped: creature.flipped,
-					hexes: this._getHexes()
+					hexes: this._getHexes(),
 				});
 			},
 
@@ -188,7 +188,7 @@ export default G => {
 						effectFn: function(eff) {
 							G.log('%CreatureName' + eff.target.id + '% is hit by ' + eff.name);
 							eff.target.takeDamage(new Damage(eff.owner, damages, 1, [], G), {
-								isFromTrap: true
+								isFromTrap: true,
 							});
 							// Hack: manually destroy traps so we don't activate multiple traps
 							// and see multiple logs etc.
@@ -196,9 +196,9 @@ export default G => {
 								hex.destroyTrap();
 							});
 							eff.deleteEffect();
-						}
+						},
 					},
-					G
+					G,
 				);
 				target.hexagons.forEach(function(hex) {
 					hex.createTrap('poisonous-vine', [effect], ability.creature.player, {
@@ -206,7 +206,7 @@ export default G => {
 						fullTurnLifetime: true,
 						ownerCreature: ability.creature,
 						destroyOnActivate: true,
-						destroyAnimation: 'shrinkDown'
+						destroyAnimation: 'shrinkDown',
 					});
 				});
 			},
@@ -215,7 +215,7 @@ export default G => {
 				// Target a creature within 2 hex radius
 				let hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(2);
 				return arrayUtils.extendToLeft(hexes, this.creature.size, G.grid);
-			}
+			},
 		},
 
 		//	Fourth Ability: Chain Lightning
@@ -231,7 +231,7 @@ export default G => {
 				}
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -250,7 +250,7 @@ export default G => {
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
-					hexes: this._getHexes()
+					hexes: this._getHexes(),
 				});
 			},
 
@@ -286,7 +286,7 @@ export default G => {
 											// be zero
 											if (dmg.total <= 0 || damage.damages.shock <= 0 || trg.health <= 1) {
 												damage.damages = {
-													shock: 0
+													shock: 0,
 												};
 												break;
 											} else if (dmg.total >= trg.health) {
@@ -298,10 +298,10 @@ export default G => {
 										}
 									},
 									deleteTrigger: 'onEndPhase',
-									noLog: true
+									noLog: true,
 								},
-								G
-							)
+								G,
+							),
 						);
 					}
 
@@ -310,7 +310,7 @@ export default G => {
 						nextdmg, // Damage Type
 						1, // Area
 						[], // Effects
-						G
+						G,
 					);
 					nextdmg = trg.takeDamage(damage);
 
@@ -350,8 +350,8 @@ export default G => {
 						size: 0,
 						stats: {
 							defense: -99999,
-							shock: -99999
-						}
+							shock: -99999,
+						},
 					};
 					for (let j = 0; j < nextTargets.length; j++) {
 						// For each creature
@@ -388,9 +388,9 @@ export default G => {
 					this.creature.y - 2,
 					0,
 					false,
-					matrices.frontnback3hex
+					matrices.frontnback3hex,
 				);
-			}
-		}
+			},
+		},
 	];
 };

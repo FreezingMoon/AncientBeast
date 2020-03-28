@@ -39,13 +39,13 @@ export default G => {
 				// Target becomes unmoveable until end of their phase
 				let o = {
 					alterations: {
-						moveable: false
+						moveable: false,
 					},
 					deleteTrigger: 'onEndPhase',
 					// Delete this effect as soon as attacker's turn finishes
 					turnLifetime: 1,
 					creationTurn: G.turn - 1,
-					deleteOnOwnerDeath: true
+					deleteOnOwnerDeath: true,
 				};
 				// If upgraded, target abilities cost more energy
 				if (this.isUpgraded()) {
@@ -63,10 +63,10 @@ export default G => {
 							damage.attacker, // Target
 							'', // Trigger
 							o,
-							G
-						)
+							G,
+						),
 					],
-					G
+					G,
 				);
 				counterDamage.counter = true;
 				damage.attacker.takeDamage(counterDamage);
@@ -85,16 +85,16 @@ export default G => {
 							'',
 							{
 								alterations: {
-									moveable: false
+									moveable: false,
 								},
 								deleteTrigger: 'onStartPhase',
-								turnLifetime: 1
+								turnLifetime: 1,
 							},
-							G
-						)
+							G,
+						),
 					);
 				}
-			}
+			},
 		},
 
 		//	Second Ability: Hammer Time
@@ -112,7 +112,7 @@ export default G => {
 
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -133,13 +133,13 @@ export default G => {
 						team: this._targetTeam,
 						id: this.creature.id,
 						flipped: this.creature.flipped,
-						hexes: this.creature.getHexMap(matrices.frontnback2hex)
+						hexes: this.creature.getHexMap(matrices.frontnback2hex),
 					});
 				} else {
 					// If upgraded, show choice of front and back hex groups
 					let choices = [
 						this.creature.getHexMap(matrices.front2hex),
-						this.creature.getHexMap(matrices.back2hex)
+						this.creature.getHexMap(matrices.back2hex),
 					];
 					G.grid.queryChoice({
 						fnOnSelect: function(choice, args) {
@@ -151,7 +151,7 @@ export default G => {
 						},
 						team: this._targetTeam,
 						id: this.creature.id,
-						choices: choices
+						choices: choices,
 					});
 				}
 			},
@@ -211,17 +211,17 @@ export default G => {
 								new Damage(
 									eff.owner,
 									{
-										pierce: ability.damages.pierce
+										pierce: ability.damages.pierce,
 									},
 									1,
 									[],
-									G
-								)
+									G,
+								),
 							);
 							eff.deleteEffect();
-						}
+						},
 					},
-					G
+					G,
 				);
 
 				let damage = new Damage(
@@ -229,11 +229,11 @@ export default G => {
 					this.damages, // Damage Type
 					1, // Area
 					[effect], // Effects
-					G
+					G,
 				);
 
 				target.takeDamage(damage);
-			}
+			},
 		},
 
 		// 	Third Ability: War Horn
@@ -251,7 +251,7 @@ export default G => {
 				if (
 					!this.testDirection({
 						team: this._targetTeam,
-						directions: this._directions
+						directions: this._directions,
 					})
 				) {
 					return false;
@@ -273,7 +273,7 @@ export default G => {
 					x: this.creature.x,
 					y: this.creature.y,
 					directions: this._directions,
-					dashedHexesAfterCreatureStop: false
+					dashedHexesAfterCreatureStop: false,
 				};
 				if (!this.isUpgraded()) {
 					G.grid.queryDirection(o);
@@ -388,7 +388,7 @@ export default G => {
 									}
 								}
 							}, 100);
-						}
+						},
 					});
 				} else {
 					target.takeDamage(damage);
@@ -447,7 +447,7 @@ export default G => {
 					overrideSpeed: 100,
 					ignorePath: true,
 					ignoreMovementPoint: true,
-					turnAroundOnComplete: false
+					turnAroundOnComplete: false,
 				};
 				// Note: order matters here; moving ourselves first results on overlapping
 				// hexes momentarily and messes up creature hex displays
@@ -455,13 +455,13 @@ export default G => {
 					targetHex,
 					$j.extend(
 						{
-							animation: 'push'
+							animation: 'push',
 						},
-						opts
-					)
+						opts,
+					),
 				);
 				this.creature.moveTo(hex, opts);
-			}
+			},
 		},
 
 		//	Third Ability: Fishing Hook
@@ -483,7 +483,7 @@ export default G => {
 						optTest: function(creature) {
 							// Size restriction of 2 if unupgraded
 							return ability.isUpgraded() ? true : creature.size <= 2;
-						}
+						},
 					})
 				) {
 					return false;
@@ -506,7 +506,7 @@ export default G => {
 					optTest: function(creature) {
 						// Size restriction of 2 if unupgraded
 						return ability.isUpgraded() ? true : creature.size <= 2;
-					}
+					},
 				});
 			},
 
@@ -521,7 +521,7 @@ export default G => {
 					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 
 				let inlinefront2hex = matrices.inlinefront2hex;
@@ -532,7 +532,7 @@ export default G => {
 						crea.y - inlinefront2hex.origin[1],
 						0,
 						false,
-						inlinefront2hex
+						inlinefront2hex,
 					)[0].creature == target;
 
 				let creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
@@ -542,7 +542,7 @@ export default G => {
 					callback: function() {
 						crea.updateHex();
 						crea.queryMove();
-					}
+					},
 				});
 				let targetX = crea.x + (trgIsInfront ? target.size - crea.size : 0);
 				target.moveTo(G.grid.hexes[crea.y][targetX], {
@@ -551,9 +551,9 @@ export default G => {
 					callback: function() {
 						target.updateHex();
 						target.takeDamage(damage);
-					}
+					},
 				});
-			}
-		}
+			},
+		},
 	];
 };

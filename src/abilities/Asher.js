@@ -25,7 +25,7 @@ export default G => {
 				}
 				if (damage == undefined) {
 					damage = {
-						type: 'target'
+						type: 'target',
 					};
 				} // For the test function to work
 				//if( this.triggeredThisChain ) return false;
@@ -46,11 +46,11 @@ export default G => {
 					this.creature, // Attacker
 					this.damages, // Damage Type
 					[], // Effects
-					targets
+					targets,
 				);
 
 				return damage;
-			}
+			},
 		},
 
 		// 	Second Ability: Fiery Claw
@@ -70,7 +70,7 @@ export default G => {
 					!this.testDirection({
 						team: this._targetTeam,
 						distance: this.distance,
-						sourceCreature: this.creature
+						sourceCreature: this.creature,
 					})
 				) {
 					return false;
@@ -94,7 +94,7 @@ export default G => {
 					x: crea.x,
 					y: crea.y,
 					distance: this.distance,
-					sourceCreature: crea
+					sourceCreature: crea,
 				});
 			},
 
@@ -110,10 +110,10 @@ export default G => {
 					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 				target.takeDamage(damage);
-			}
+			},
 		},
 
 		// 	Thirt Ability: Burning Eye
@@ -140,7 +140,7 @@ export default G => {
 					callback: function() {
 						delete arguments[1];
 						ability.animation(...arguments);
-					}
+					},
 				});
 			},
 
@@ -161,8 +161,8 @@ export default G => {
 					if (isTeam(ability.creature, trg, item._targetTeam)) {
 						let optArg = {
 							alterations: {
-								burn: -1
-							}
+								burn: -1,
+							},
 						};
 
 						//Roasted effect
@@ -172,7 +172,7 @@ export default G => {
 							trg, //Target
 							'', //Trigger
 							optArg, //Optional arguments
-							G
+							G,
 						);
 						trg.addEffect(effect);
 					}
@@ -198,8 +198,8 @@ export default G => {
 							if (isTeam(ability.creature, trg, item._targetTeam)) {
 								let optArg = {
 									alterations: {
-										burn: -1
-									}
+										burn: -1,
+									},
 								};
 
 								//Roasted effect
@@ -209,17 +209,17 @@ export default G => {
 									trg, //Target
 									'', //Trigger
 									optArg, //Optional arguments
-									G
+									G,
 								);
 								trg.addEffect(
 									effect,
-									'%CreatureName' + trg.id + '% got roasted : -1 burn stat debuff'
+									'%CreatureName' + trg.id + '% got roasted : -1 burn stat debuff',
 								);
 							}
 						});
-					}
+					},
 				});
-			}
+			},
 		},
 
 		// 	Fourth Ability: Fire Ball
@@ -260,19 +260,19 @@ export default G => {
 												crea
 													.adjacentHexes(1)
 													.overlayVisualState(
-														'creature selected weakDmg player' + item2.creature.team
+														'creature selected weakDmg player' + item2.creature.team,
 													);
 												item2.overlayVisualState(
-													'creature selected weakDmg player' + item2.creature.team
+													'creature selected weakDmg player' + item2.creature.team,
 												);
 											} else {
 												item2.overlayVisualState(
-													'creature selected weakDmg player' + item2.creature.team
+													'creature selected weakDmg player' + item2.creature.team,
 												);
 											}
 										} else {
 											item2.overlayVisualState(
-												'creature selected weakDmg player' + G.activeCreature.team
+												'creature selected weakDmg player' + G.activeCreature.team,
 											);
 										}
 									});
@@ -293,7 +293,7 @@ export default G => {
 					},
 					id: this.creature.id,
 					hexes: range,
-					hideNonTarget: true
+					hideNonTarget: true,
 				});
 			},
 
@@ -313,8 +313,8 @@ export default G => {
 							ability.damages1, // Damage Type
 							1, // Area
 							[], // Effects
-							G
-						)
+							G,
+						),
 					);
 				}
 
@@ -322,9 +322,9 @@ export default G => {
 					ability.creature,
 					ability.damages2,
 					[], //Effects
-					targets
+					targets,
 				);
-			}
-		}
+			},
+		},
 	];
 };

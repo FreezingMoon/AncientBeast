@@ -28,8 +28,8 @@ export class Button {
 				glowing: {},
 				selected: {},
 				active: {},
-				normal: {}
-			}
+				normal: {},
+			},
 		};
 
 		opts = $j.extend(defaultOpts, opts);

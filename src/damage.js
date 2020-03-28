@@ -29,7 +29,7 @@ export class Damage {
 		let trg = this.target.stats,
 			atk = this.attacker.stats,
 			returnObj = {
-				total: 0
+				total: 0,
 			};
 
 		// Damage calculation
@@ -41,7 +41,7 @@ export class Damage {
 				points = value;
 			} else {
 				points = Math.round(
-					value * (1 + (atk.offense - trg.defense / this.area + atk[key] - trg[key]) / 100)
+					value * (1 + (atk.offense - trg.defense / this.area + atk[key] - trg[key]) / 100),
 				);
 				// For debugging purposes
 				if (this.game.debugMode) {
@@ -63,7 +63,7 @@ export class Damage {
 							trg[key] +
 							'trg' +
 							key +
-							' )/100)'
+							' )/100)',
 					);
 				}
 			}

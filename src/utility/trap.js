@@ -27,7 +27,7 @@ export class Trap {
 			ownerCreature: undefined, // Needed for fullTurnLifetime
 			destroyOnActivate: false,
 			typeOver: undefined,
-			destroyAnimation: undefined
+			destroyAnimation: undefined,
 		};
 
 		$j.extend(this, o, opt);
@@ -51,7 +51,7 @@ export class Trap {
 			this.displayOver = game.grid.trapOverGroup.create(
 				pos.x + this.hex.width / 2,
 				pos.y + 60,
-				spriteName
+				spriteName,
 			);
 			this.displayOver.anchor.setTo(0.5);
 			this.displayOver.scale.x *= -1;
@@ -70,10 +70,10 @@ export class Trap {
 						.tween(sprite.scale)
 						.to(
 							{
-								y: 0
+								y: 0,
 							},
 							tweenDuration,
-							Phaser.Easing.Linear.None
+							Phaser.Easing.Linear.None,
 						)
 						.start();
 					tween.onComplete.add(() => {
@@ -99,10 +99,10 @@ export class Trap {
 		duration = duration - 0; // Avoid undefined
 		this.game.Phaser.add.tween(this.display).to(
 			{
-				alpha: 0
+				alpha: 0,
 			},
 			duration,
-			Phaser.Easing.Linear.None
+			Phaser.Easing.Linear.None,
 		);
 	}
 
@@ -110,10 +110,10 @@ export class Trap {
 		duration = duration - 0; // Avoid undefined
 		this.game.Phaser.add.tween(this.display).to(
 			{
-				alpha: 1
+				alpha: 1,
 			},
 			duration,
-			Phaser.Easing.Linear.None
+			Phaser.Easing.Linear.None,
 		);
 	}
 }

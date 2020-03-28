@@ -20,7 +20,7 @@ export default G => {
 				if (damage === undefined) {
 					damage = {
 						// NOTE : This code produce array with doubles.
-						type: 'target'
+						type: 'target',
 					}; // For the test function to work
 				}
 				return true;
@@ -38,11 +38,11 @@ export default G => {
 						'', // Trigger
 						{
 							alterations: {
-								burn: -1
-							}
+								burn: -1,
+							},
 						}, // Optional arguments
-						G
-					)
+						G,
+					),
 				);
 				target.stats.burn -= 1;
 				if (this.isUpgraded()) {
@@ -54,14 +54,14 @@ export default G => {
 							'', // Trigger
 							{
 								alterations: {
-									burn: 1
-								}
+									burn: 1,
+								},
 							}, // Optional arguments
-							G
-						)
+							G,
+						),
 					);
 				}
-			}
+			},
 		},
 		// Fiery touch
 		{
@@ -78,7 +78,7 @@ export default G => {
 					!this.testDirection({
 						team: this._targetTeam,
 						distance: this.distance,
-						sourceCreature: this.creature
+						sourceCreature: this.creature,
 					})
 				) {
 					return false;
@@ -104,7 +104,7 @@ export default G => {
 					x: crea.x,
 					y: crea.y,
 					distance: this.distance,
-					sourceCreature: crea
+					sourceCreature: crea,
 				});
 			},
 			activate(path, args) {
@@ -119,7 +119,7 @@ export default G => {
 					path,
 					args,
 					200,
-					-20
+					-20,
 				);
 				let tween = projectileInstance[0];
 				let sprite = projectileInstance[1];
@@ -130,13 +130,13 @@ export default G => {
 						ability.damages, // Damage Type
 						1, // Area
 						[], // Effects
-						G
+						G,
 					);
 					target.takeDamage(damage);
 
 					this.destroy();
 				}, sprite); // End tween.onComplete
-			}
+			},
 		},
 		// Wild Fire
 		{
@@ -163,7 +163,7 @@ export default G => {
 						}
 						delete arguments[1];
 						ability.animation(...arguments);
-					}
+					},
 				});
 			},
 			activate(hex) {
@@ -189,7 +189,7 @@ export default G => {
 						creature = creatureOrHex.creature;
 					}
 					creature.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
-						isFromTrap: true
+						isFromTrap: true,
 					});
 					this.trap.destroy();
 					effect.deleteEffect();
@@ -218,17 +218,17 @@ export default G => {
 								{
 									requireFn: requireFn,
 									effectFn: effectFn,
-									attacker: crea
+									attacker: crea,
 								},
-								G
-							)
+								G,
+							),
 						],
 						crea.player,
 						{
 							turnLifetime: 1,
 							ownerCreature: crea,
-							fullTurnLifetime: true
-						}
+							fullTurnLifetime: true,
+						},
 					);
 				});
 
@@ -238,9 +238,9 @@ export default G => {
 					animation: 'teleport',
 					callback: function() {
 						G.activeCreature.queryMove();
-					}
+					},
 				});
-			}
+			},
 		},
 		// Greater Pyre
 		{
@@ -271,7 +271,7 @@ export default G => {
 					},
 					id: this.creature.id,
 					hexes: range,
-					hideNonTarget: true
+					hideNonTarget: true,
 				});
 			},
 			activate() {
@@ -293,11 +293,11 @@ export default G => {
 							ability.damages, // Damage Type
 							1, // Area
 							[], // Effects
-							G
-						)
+							G,
+						),
 					);
 				});
-			}
-		}
+			},
+		},
 	];
 };

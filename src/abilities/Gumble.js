@@ -28,7 +28,7 @@ export default G => {
 				// Attach a permanent effect that gives Gumble stat buffs
 				// Bonus points to pierce, slash and crush based on remaining health
 				let healthBonusDivisor = this.isUpgraded() ? 5 : 7;
-				let bonus = Math.floor(this.creature.health / healthBonusDivisor * 3);
+				let bonus = Math.floor((this.creature.health / healthBonusDivisor) * 3);
 				// Log whenever the bonus applied changes
 				let noLog = bonus == this._lastBonus;
 				this._lastBonus = bonus;
@@ -48,19 +48,19 @@ export default G => {
 							alterations: alterations,
 							deleteTrigger: '',
 							stackable: false,
-							noLog: noLog
+							noLog: noLog,
 						},
-						G
-					)
+						G,
+					),
 				);
 				if (!noLog) {
 					G.log(
-						'%CreatureName' + this.creature.id + '% receives ' + bonus + ' pierce, slash and crush'
+						'%CreatureName' + this.creature.id + '% receives ' + bonus + ' pierce, slash and crush',
 					);
 				}
 			},
 
-			_lastBonus: 0
+			_lastBonus: 0,
 		},
 
 		// 	Second Ability: Gummy Mallet
@@ -88,7 +88,7 @@ export default G => {
 					G.grid.getHexMap(this.creature.x + 1 + dx, this.creature.y + 2 + dy, 0, false, area), // down-right
 					G.grid.getHexMap(this.creature.x - 1 + dx, this.creature.y + 2 + dy, 0, false, area), // down-left
 					G.grid.getHexMap(this.creature.x - 2 + dx, this.creature.y + dy, 0, false, area), // back
-					G.grid.getHexMap(this.creature.x - 1 + dx, this.creature.y - 2 + dy, 0, false, area) // up-left
+					G.grid.getHexMap(this.creature.x - 1 + dx, this.creature.y - 2 + dy, 0, false, area), // up-left
 				];
 				// Reorder choices based on number of hexes
 				// This ensures that if a choice contains overlapping hexes only, that
@@ -107,7 +107,7 @@ export default G => {
 					team: Team.both,
 					id: this.creature.id,
 					requireCreature: false,
-					choices: choices
+					choices: choices,
 				});
 			},
 
@@ -141,10 +141,10 @@ export default G => {
 				if (kills > 1) {
 					this.creature.player.score.push({
 						type: 'combo',
-						kills: kills
+						kills: kills,
 					});
 				}
-			}
+			},
 		},
 
 		// 	Thirt Ability: Royal Seal
@@ -165,7 +165,7 @@ export default G => {
 				// Upgraded Royal Seal can target up to 3 hexagons range
 				let range = this.isUpgraded() ? 3 : 1;
 				let hexes = creature.hexagons.concat(
-					G.grid.getFlyingRange(creature.x, creature.y, range, creature.size, creature.id)
+					G.grid.getFlyingRange(creature.x, creature.y, range, creature.size, creature.id),
 				);
 
 				G.grid.queryHexes({
@@ -177,7 +177,7 @@ export default G => {
 					id: creature.id,
 					hexes: hexes,
 					ownCreatureHexShade: true,
-					hideNonTarget: true
+					hideNonTarget: true,
 				});
 			},
 
@@ -209,17 +209,17 @@ export default G => {
 							// Immobilize target so that they can't move and no
 							// abilities/effects can move them
 							alterations: {
-								moveable: false
+								moveable: false,
 							},
 							deleteTrigger: 'onStartPhase',
-							turnLifetime: 1
+							turnLifetime: 1,
 						},
-						G
+						G,
 					);
 
 					let trap = hex.createTrap('royal-seal', [effect], ability.creature.player, {
 						ownerCreature: ability.creature,
-						fullTurnLifetime: true
+						fullTurnLifetime: true,
 					});
 					trap.hide();
 				};
@@ -234,12 +234,12 @@ export default G => {
 						ignoreMovementPoint: true,
 						ignorePath: true,
 						overrideSpeed: 200, // Custom speed for jumping
-						animation: 'push'
+						animation: 'push',
 					});
 				} else {
 					makeSeal();
 				}
-			}
+			},
 		},
 
 		// 	Fourth Ability: Boom Box
@@ -259,7 +259,7 @@ export default G => {
 				if (
 					!this.testDirection({
 						team: this._targetTeam,
-						directions: this.directions
+						directions: this.directions,
 					})
 				) {
 					return false;
@@ -282,7 +282,7 @@ export default G => {
 					requireCreature: true,
 					x: crea.x,
 					y: crea.y,
-					directions: this.directions
+					directions: this.directions,
 				});
 			},
 
@@ -297,10 +297,10 @@ export default G => {
 				let d = melee
 					? {
 							sonic: 20,
-							crush: 10
+							crush: 10,
 					  }
 					: {
-							sonic: 20
+							sonic: 20,
 					  };
 
 				let dir = [];
@@ -346,11 +346,11 @@ export default G => {
 					d, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 
 				let result = target.takeDamage(damage, {
-					ignoreRetaliation: true
+					ignoreRetaliation: true,
 				});
 
 				if (result.kill) {
@@ -365,10 +365,10 @@ export default G => {
 						callback: function() {
 							G.activeCreature.queryMove();
 						},
-						animation: 'push'
+						animation: 'push',
 					});
 				}
-			}
-		}
+			},
+		},
 	];
 };

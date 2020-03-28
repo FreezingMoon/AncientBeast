@@ -141,9 +141,11 @@ export default class Game {
 					selectUnit: 'Please select an available unit from the left grid',
 					lowPlasma: 'Low Plasma! Cannot materialize the selected unit',
 					// plasmaCost :    String :    plasma cost of the unit to materialize
-					materializeUnit: plasmaCost => { return 'Materialize unit at target location for ' + plasmaCost + ' plasma'; },
+					materializeUnit: plasmaCost => {
+						return 'Materialize unit at target location for ' + plasmaCost + ' plasma';
+					},
 					materializeUsed: 'Materialization has already been used this round',
-					heavyDev: 'This unit is currently under heavy development'
+					heavyDev: 'This unit is currently under heavy development',
 				},
 			},
 		};
