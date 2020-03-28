@@ -20,7 +20,6 @@ export default G => {
 				// Always active
 				return true;
 			},
-
 			activate: function() {
 				if (this.creature.dead) {
 					return;
@@ -79,7 +78,11 @@ export default G => {
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
 				// center of each area is two hexes away. Each area can be chosen regardless
 				// of whether targets are within.
-				let area = [[1, 1], [1, 1, 1], [1, 1]];
+				let area = [
+					[1, 1],
+					[1, 1, 1],
+					[1, 1],
+				];
 				let dx = this.creature.y % 2 !== 0 ? -1 : 0;
 				let dy = -1;
 				let choices = [

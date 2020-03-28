@@ -13,7 +13,7 @@ const p2 = path.join(phaserModule, 'build/custom/p2.js');
 // Expose mode argument to unify our config options.
 module.exports = (env, argv) => {
 	// Common settings for all environments.
-	let common = {
+	const common = {
 		entry: path.resolve(__dirname, 'src', 'script.js'),
 		output: {
 			path: path.resolve(__dirname, 'deploy/'),
@@ -89,7 +89,7 @@ module.exports = (env, argv) => {
 		],
 	};
 
-	let production = {
+	const production = {
 		plugins: [
 			new CopyPlugin([{ from: 'static' }]),
 			new HtmlWebpackPlugin({
@@ -101,15 +101,11 @@ module.exports = (env, argv) => {
 		],
 	};
 
-	let settings;
-
 	// argv is passed in when ran via `webpack --mode` and process.env.NODE_ENV is used when
 	// `npm start` commands are used.
 	if ((argv && argv.mode === 'production') || process.env.NODE_ENV === 'production') {
-		settings = merge.strategy({ plugins: 'replace' })(common, production);
+		return merge.strategy({ plugins: 'replace' })(common, production);
 	} else {
-		settings = common;
+		return common;
 	}
-
-	return settings;
 };
