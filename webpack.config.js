@@ -19,14 +19,14 @@ module.exports = (env, argv) => {
 			path: path.resolve(__dirname, 'deploy/'),
 			filename: 'ancientbeast.js',
 			// chunkFilename: '[id].chunk.js',
-			publicPath: '/'
+			publicPath: '/',
 		},
 
 		devtool: 'inline-source-map',
 		optimization: {
 			splitChunks: {
-				cacheGroups: {}
-			}
+				cacheGroups: {},
+			},
 		},
 
 		module: {
@@ -34,19 +34,20 @@ module.exports = (env, argv) => {
 				{ test: /pixi\.js/, use: ['expose-loader?PIXI'] },
 				{ test: /phaser-split\.js$/, use: ['expose-loader?Phaser'] },
 				{ test: /p2\.js/, use: ['expose-loader?p2'] },
+				{ test: /\.js$/, use: ['babel-loader'] },
 				{
 					test: /\.less$/,
-					use: ['style-loader', 'css-loader', 'less-loader']
+					use: ['style-loader', 'css-loader', 'less-loader'],
 				},
 				{
 					test: /\.css$/,
-					use: ['style-loader', 'css-loader']
+					use: ['style-loader', 'css-loader'],
 				},
 				{
 					test: /\.(png|jpg|gif|svg|ogg|ico|cur|woff|woff2)$/,
-					use: ['file-loader']
-				}
-			]
+					use: ['file-loader'],
+				},
+			],
 		},
 
 		resolve: {
@@ -55,8 +56,8 @@ module.exports = (env, argv) => {
 				p2: p2,
 				phaser: phaser,
 				assets: path.resolve(__dirname, 'assets/'),
-				modules: path.join(__dirname, 'node_modules')
-			}
+				modules: path.join(__dirname, 'node_modules'),
+			},
 		},
 
 		// Eventually we want to use a version of this.
@@ -83,9 +84,9 @@ module.exports = (env, argv) => {
 				template: path.resolve(__dirname, 'src', 'index.html'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
 				worker: variables.worker,
-				analytics: ''
-			})
-		]
+				analytics: '',
+			}),
+		],
 	};
 
 	let production = {
@@ -95,9 +96,9 @@ module.exports = (env, argv) => {
 				template: path.resolve(__dirname, 'src', 'index.html'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
 				worker: variables.worker,
-				analytics: variables.analytics
-			})
-		]
+				analytics: variables.analytics,
+			}),
+		],
 	};
 
 	let settings;

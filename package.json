@@ -26,7 +26,6 @@
 		"ajv": "^6.10.2",
 		"compression": "^1.7.4",
 		"copy-webpack-plugin": "^5.1.1",
-		"cross-env": "^6.0.3",
 		"express": "^4.17.1",
 		"html-webpack-plugin": "^3.2.0",
 		"jquery": "^3.4.1",
@@ -38,6 +37,10 @@
 		"webpack-merge": "^4.2.2"
 	},
 	"devDependencies": {
+		"@babel/core": "^7.9.0",
+		"@babel/preset-env": "^7.9.0",
+		"babel-loader": "^8.1.0",
+		"cross-env": "^7.0.2",
 		"css-loader": "^3.2.0",
 		"eslint": "^6.6.0",
 		"eslint-config-prettier": "^6.5.0",
@@ -55,7 +58,7 @@
 		"webpack-dev-middleware": "^3.7.2"
 	},
 	"engines": {
-		"node": "10.x"
+		"node": "12.x"
 	},
 	"scripts": {
 		"build": "npm run assetLister && webpack --mode=production",
