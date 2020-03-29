@@ -9,6 +9,7 @@ const phaserModule = path.join(__dirname, '/node_modules/phaser-ce/');
 const phaser = path.join(phaserModule, 'build/custom/phaser-split.js');
 const pixi = path.join(phaserModule, 'build/custom/pixi.js');
 const p2 = path.join(phaserModule, 'build/custom/p2.js');
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 // Expose mode argument to unify our config options.
 module.exports = (env, argv) => {
@@ -34,7 +35,7 @@ module.exports = (env, argv) => {
 				{ test: /pixi\.js/, use: ['expose-loader?PIXI'] },
 				{ test: /phaser-split\.js$/, use: ['expose-loader?Phaser'] },
 				{ test: /p2\.js/, use: ['expose-loader?p2'] },
-				{ test: /\.js$/, use: ['babel-loader'], exclude: path.join(__dirname, 'node_modules/') },
+				{ test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
 				{
 					test: /\.less$/,
 					use: ['style-loader', 'css-loader', 'less-loader'],
@@ -101,11 +102,14 @@ module.exports = (env, argv) => {
 		],
 	};
 
+	let settings = common;
 	// argv is passed in when ran via `webpack --mode` and process.env.NODE_ENV is used when
 	// `npm start` commands are used.
 	if ((argv && argv.mode === 'production') || process.env.NODE_ENV === 'production') {
-		return merge.strategy({ plugins: 'replace' })(common, production);
-	} else {
-		return common;
+		settings = merge.strategy({ plugins: 'replace' })(common, production);
 	}
+
+	const smp = new SpeedMeasurePlugin();
+
+	return smp.wrap(settings);
 };
