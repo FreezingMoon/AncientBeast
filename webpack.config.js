@@ -34,7 +34,7 @@ module.exports = (env, argv) => {
 				{ test: /pixi\.js/, use: ['expose-loader?PIXI'] },
 				{ test: /phaser-split\.js$/, use: ['expose-loader?Phaser'] },
 				{ test: /p2\.js/, use: ['expose-loader?p2'] },
-				{ test: /\.js$/, use: ['babel-loader'] },
+				{ test: /\.js$/, use: ['babel-loader'], exclude: path.join(__dirname, 'node_modules/') },
 				{
 					test: /\.less$/,
 					use: ['style-loader', 'css-loader', 'less-loader'],
