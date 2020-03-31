@@ -1,7 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const variables = require('./webpack.var');
-const merge = require('webpack-merge');
 const CopyPlugin = require('copy-webpack-plugin');
 
 // Phaser webpack config
@@ -13,8 +12,20 @@ const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 // Expose mode argument to unify our config options.
 module.exports = (env, argv) => {
-	// Common settings for all environments.
-	const common = {
+	let htmlPluginSettings = {
+		template: path.resolve(__dirname, 'src', 'index.html'),
+		favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
+		worker: variables.worker,
+		analytics: '',
+	};
+
+	if ((argv && argv.mode === 'production') || process.env.NODE_ENV === 'production') {
+		htmlPluginSettings.analytics = variables.analytics;
+	}
+
+	const smp = new SpeedMeasurePlugin();
+
+	return smp.wrap({
 		entry: path.resolve(__dirname, 'src', 'script.js'),
 		output: {
 			path: path.resolve(__dirname, 'deploy/'),
@@ -22,14 +33,7 @@ module.exports = (env, argv) => {
 			// chunkFilename: '[id].chunk.js',
 			publicPath: '/',
 		},
-
 		devtool: 'inline-source-map',
-		optimization: {
-			splitChunks: {
-				cacheGroups: {},
-			},
-		},
-
 		module: {
 			rules: [
 				{ test: /pixi\.js/, use: ['expose-loader?PIXI'] },
@@ -50,7 +54,6 @@ module.exports = (env, argv) => {
 				},
 			],
 		},
-
 		resolve: {
 			alias: {
 				pixi: pixi,
@@ -60,56 +63,6 @@ module.exports = (env, argv) => {
 				modules: path.join(__dirname, 'node_modules'),
 			},
 		},
-
-		// Eventually we want to use a version of this.
-		// optimization: {
-		// 	splitChunks: {
-		// 		cacheGroups: {
-		// 			vendor: {
-		// 				test: /[\\/]node_modules[\\/]/,
-		// 				name: "vendors",
-		// 				enforce: true
-		// 			},
-		// 			assets: {
-		// 				test: /[\\/]assets[\\/]/,
-		// 				name: "assets",
-		// 				enforce: true
-		// 			},
-		// 		}
-		// 	}
-		// },
-
-		plugins: [
-			new CopyPlugin([{ from: 'static' }]),
-			new HtmlWebpackPlugin({
-				template: path.resolve(__dirname, 'src', 'index.html'),
-				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
-				worker: variables.worker,
-				analytics: '',
-			}),
-		],
-	};
-
-	const production = {
-		plugins: [
-			new CopyPlugin([{ from: 'static' }]),
-			new HtmlWebpackPlugin({
-				template: path.resolve(__dirname, 'src', 'index.html'),
-				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
-				worker: variables.worker,
-				analytics: variables.analytics,
-			}),
-		],
-	};
-
-	let settings = common;
-	// argv is passed in when ran via `webpack --mode` and process.env.NODE_ENV is used when
-	// `npm start` commands are used.
-	if ((argv && argv.mode === 'production') || process.env.NODE_ENV === 'production') {
-		settings = merge.strategy({ plugins: 'replace' })(common, production);
-	}
-
-	const smp = new SpeedMeasurePlugin();
-
-	return smp.wrap(settings);
+		plugins: [new CopyPlugin([{ from: 'static' }]), new HtmlWebpackPlugin(htmlPluginSettings)],
+	});
 };
