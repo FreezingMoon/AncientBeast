@@ -1,27 +1,17 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const variables = require('./webpack.var');
 const CopyPlugin = require('copy-webpack-plugin');
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 // Phaser webpack config
 const phaserModule = path.join(__dirname, '/node_modules/phaser-ce/');
 const phaser = path.join(phaserModule, 'build/custom/phaser-split.js');
 const pixi = path.join(phaserModule, 'build/custom/pixi.js');
 const p2 = path.join(phaserModule, 'build/custom/p2.js');
-const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 // Expose mode argument to unify our config options.
 module.exports = (env, argv) => {
-	let htmlPluginSettings = {
-		template: path.resolve(__dirname, 'src', 'index.html'),
-		favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
-		worker: variables.worker,
-		analytics: '',
-	};
-
-	if ((argv && argv.mode === 'production') || process.env.NODE_ENV === 'production') {
-		htmlPluginSettings.analytics = variables.analytics;
-	}
+	const production = (argv && argv.mode === 'production') || process.env.NODE_ENV === 'production';
 
 	const smp = new SpeedMeasurePlugin();
 
@@ -33,7 +23,7 @@ module.exports = (env, argv) => {
 			// chunkFilename: '[id].chunk.js',
 			publicPath: '/',
 		},
-		devtool: 'inline-source-map',
+		devtool: production ? 'none' : 'source-map',
 		module: {
 			rules: [
 				{ test: /pixi\.js/, use: ['expose-loader?PIXI'] },
@@ -50,7 +40,16 @@ module.exports = (env, argv) => {
 				},
 				{
 					test: /\.(png|jpg|gif|svg|ogg|ico|cur|woff|woff2)$/,
-					use: ['file-loader'],
+					loader: 'file-loader',
+					options: {
+						name(resourcePath, resourceQuery) {
+							if (production) {
+								return 'assets/[contenthash].[ext]';
+							}
+							return '[path][name].[ext]';
+						},
+						esModule: false,
+					},
 				},
 			],
 		},
@@ -63,6 +62,13 @@ module.exports = (env, argv) => {
 				modules: path.join(__dirname, 'node_modules'),
 			},
 		},
-		plugins: [new CopyPlugin([{ from: 'static' }]), new HtmlWebpackPlugin(htmlPluginSettings)],
+		plugins: [
+			new CopyPlugin([{ from: 'static' }]),
+			new HtmlWebpackPlugin({
+				template: path.resolve(__dirname, 'src', 'index.html'),
+				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
+				production,
+			}),
+		],
 	});
 };

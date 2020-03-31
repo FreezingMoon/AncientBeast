@@ -383,7 +383,6 @@ export default class Game {
 		if (this.preventSetup) {
 			return;
 		}
-
 		$j('#loader').hide();
 		$j('body').css('cursor', 'default');
 		this.setup(this.playerMode);
