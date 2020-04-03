@@ -10,18 +10,18 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[5] = [
 		// 	First Ability: Electrified Hair
 		{
 			trigger: 'onUnderAttack',
 
-			require: function() {
+			require: function () {
 				// Always true to highlight ability
 				return true;
 			},
 
-			activate: function(damage) {
+			activate: function (damage) {
 				if (damage === undefined) {
 					return false;
 				}
@@ -60,7 +60,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -76,12 +76,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let creature = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -92,7 +92,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
@@ -126,7 +126,7 @@ export default G => {
 				}
 			},
 
-			_getHexes: function() {
+			_getHexes: function () {
 				return G.grid.getHexMap(
 					this.creature.x - 3,
 					this.creature.y - 2,
@@ -145,7 +145,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
@@ -157,12 +157,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let creature = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -172,7 +172,7 @@ export default G => {
 				});
 			},
 
-			activate: function(target) {
+			activate: function (target) {
 				this.end();
 				let damages = this.damages;
 				// Last 1 turn, or indefinitely if upgraded
@@ -185,14 +185,14 @@ export default G => {
 					this,
 					'onStepOut',
 					{
-						effectFn: function(eff) {
+						effectFn: function (eff) {
 							G.log('%CreatureName' + eff.target.id + '% is hit by ' + eff.name);
 							eff.target.takeDamage(new Damage(eff.owner, damages, 1, [], G), {
 								isFromTrap: true,
 							});
 							// Hack: manually destroy traps so we don't activate multiple traps
 							// and see multiple logs etc.
-							target.hexagons.forEach(function(hex) {
+							target.hexagons.forEach(function (hex) {
 								hex.destroyTrap();
 							});
 							eff.deleteEffect();
@@ -200,7 +200,7 @@ export default G => {
 					},
 					G,
 				);
-				target.hexagons.forEach(function(hex) {
+				target.hexagons.forEach(function (hex) {
 					hex.createTrap('poisonous-vine', [effect], ability.creature.player, {
 						turnLifetime: lifetime,
 						fullTurnLifetime: true,
@@ -211,7 +211,7 @@ export default G => {
 				});
 			},
 
-			_getHexes: function() {
+			_getHexes: function () {
 				// Target a creature within 2 hex radius
 				let hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(2);
 				return arrayUtils.extendToLeft(hexes, this.creature.size, G.grid);
@@ -225,7 +225,7 @@ export default G => {
 
 			_targetTeam: Team.both,
 
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -240,11 +240,11 @@ export default G => {
 			},
 
 			//	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -255,7 +255,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
@@ -277,7 +277,7 @@ export default G => {
 								trg,
 								'onUnderAttack',
 								{
-									effectFn: function(effect, damage) {
+									effectFn: function (effect, damage) {
 										// Simulate the damage to determine how much damage would have
 										// been dealt; then reduce the damage so that it will not kill
 										while (true) {
@@ -332,7 +332,7 @@ export default G => {
 					// Get next available targets
 					let nextTargets = ability.getTargets(trg.adjacentHexes(1, true));
 
-					nextTargets = nextTargets.filter(function(item) {
+					nextTargets = nextTargets.filter(function (item) {
 						if (item.hexesHit === undefined) {
 							return false; // Remove empty ids
 						}
@@ -382,7 +382,7 @@ export default G => {
 				}
 			},
 
-			_getHexes: function() {
+			_getHexes: function () {
 				return G.grid.getHexMap(
 					this.creature.x - 3,
 					this.creature.y - 2,

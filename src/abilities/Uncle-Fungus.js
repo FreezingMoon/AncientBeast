@@ -9,12 +9,12 @@ import { getDirectionFromDelta } from '../utility/position';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[3] = [
 		// First Ability: Toxic Spores
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			triggerFunc: function() {
+			triggerFunc: function () {
 				if (this.isUpgraded()) {
 					return 'onUnderAttack onAttack';
 				}
@@ -24,7 +24,7 @@ export default G => {
 			priority: 10,
 
 			// require() :
-			require: function(damage) {
+			require: function (damage) {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -38,7 +38,7 @@ export default G => {
 			},
 
 			// activate() :
-			activate: function(damage) {
+			activate: function (damage) {
 				let ability = this;
 				let creature = this.creature;
 
@@ -86,7 +86,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -103,12 +103,12 @@ export default G => {
 			},
 
 			// query() :
-			query: function() {
+			query: function () {
 				let uncle = this.creature;
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -119,7 +119,7 @@ export default G => {
 			},
 
 			// activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
@@ -171,7 +171,7 @@ export default G => {
 				}
 
 				// Remove frogger bonus if its found
-				ability.creature.effects.forEach(function(effect) {
+				ability.creature.effects.forEach(function (effect) {
 					if (effect.name == 'Frogger Bonus') {
 						effect.deleteEffect();
 					}
@@ -184,7 +184,7 @@ export default G => {
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function() {
+			require: function () {
 				// Must be able to move
 				if (!this.creature.stats.moveable) {
 					this.message = G.msg.abilities.notMoveable;
@@ -193,7 +193,7 @@ export default G => {
 				return this.testRequirements() && this.creature.stats.moveable;
 			},
 
-			fnOnSelect: function(hex) {
+			fnOnSelect: function (hex) {
 				this.creature.tracePosition({
 					x: hex.x,
 					y: hex.y,
@@ -202,7 +202,7 @@ export default G => {
 			},
 
 			// query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let uncle = this.creature;
 
@@ -212,10 +212,10 @@ export default G => {
 				let hexes = this._getHexRange(stopOnCreature);
 
 				G.grid.queryHexes({
-					fnOnSelect: function() {
+					fnOnSelect: function () {
 						ability.fnOnSelect(...arguments);
 					},
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						if (arguments[0].x == ability.creature.x && arguments[0].y == ability.creature.y) {
 							// Prevent null movement
 							ability.query();
@@ -233,7 +233,7 @@ export default G => {
 			},
 
 			// activate() :
-			activate: function(hex) {
+			activate: function (hex) {
 				let ability = this;
 				ability.end(false, true); // Deferred ending
 
@@ -258,13 +258,13 @@ export default G => {
 				ability.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function() {
+					callback: function () {
 						// Shake the screen upon landing to simulate the jump
 						G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
-						let interval = setInterval(function() {
+						let interval = setInterval(function () {
 							if (!G.freezedInput) {
 								clearInterval(interval);
 								G.UI.selectAbility(-1);
@@ -282,7 +282,7 @@ export default G => {
 						ability.creature, // Target
 						'onStepIn onEndPhase', // Trigger
 						{
-							effectFn: function(effect) {
+							effectFn: function (effect) {
 								effect.deleteEffect();
 							},
 							alterations: ability.effects[0],
@@ -292,7 +292,7 @@ export default G => {
 				);
 			},
 
-			_getHexRange: function(stopOnCreature) {
+			_getHexRange: function (stopOnCreature) {
 				// Get the hex range of this ability
 				let uncle = this.creature;
 				let forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, matrices.straitrow);
@@ -300,7 +300,7 @@ export default G => {
 				let backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, matrices.straitrow);
 				backward = arrayUtils.filterCreature(backward, false, stopOnCreature, uncle.id);
 				// Combine and sort by X, left to right
-				let hexes = forward.concat(backward).sort(function(a, b) {
+				let hexes = forward.concat(backward).sort(function (a, b) {
 					return a.x - b.x;
 				});
 				// Filter out any hexes that cannot accomodate the creature's size
@@ -322,7 +322,7 @@ export default G => {
 				return hexes;
 			},
 
-			_isSecondLowJump: function() {
+			_isSecondLowJump: function () {
 				return this.timesUsedThisTurn === 1;
 			},
 		},
@@ -334,7 +334,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -358,12 +358,12 @@ export default G => {
 			},
 
 			// query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let uncle = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -374,7 +374,7 @@ export default G => {
 			},
 
 			// activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
@@ -397,7 +397,7 @@ export default G => {
 					// they are currently
 					if (hexes.length >= 2 && hexes[1].isWalkable(target.size, target.id, true)) {
 						target.moveTo(hexes[1], {
-							callback: function() {
+							callback: function () {
 								G.activeCreature.queryMove();
 							},
 							ignoreMovementPoint: true,
@@ -409,7 +409,7 @@ export default G => {
 				}
 
 				// Remove Frogger Jump bonus if its found
-				ability.creature.effects.forEach(function(effect) {
+				ability.creature.effects.forEach(function (effect) {
 					if (effect.name == 'Offense Bonus') {
 						effect.deleteEffect();
 					}
