@@ -31,6 +31,10 @@ module.exports = (env, argv) => {
 				{ test: /p2\.js/, use: ['expose-loader?p2'] },
 				{ test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
 				{
+					test: /\.html$/,
+					use: ['html-loader'],
+				},
+				{
 					test: /\.less$/,
 					use: ['style-loader', 'css-loader', 'less-loader'],
 				},
