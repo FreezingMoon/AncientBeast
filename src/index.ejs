@@ -940,29 +940,12 @@
 	<div id="combatwrapper">
 	</div>
 
-	<!-- Service Worker -->
-	<script>
-		if ('serviceWorker' in navigator) {
-		  navigator.serviceWorker.register('static/worker.js')
-			.then(function(reg){
-			  console.log("Service worker registered");
-			}).catch(function(err) {
-			  console.log("Service worker could no be registered", err)
-			});
-		}
-	</script>
+	<%- include('template/service-worker.html') ->
 
 	<% if(htmlWebpackPlugin.options.production) { %>
-		<!-- Global site tag (gtag.js) - Google Analytics -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-2840181-9"></script>
-		<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag(){
-			dataLayer.push(arguments);
-		}
-		gtag('js', new Date());
-		gtag('config', 'UA-2840181-9');
-		</script>
+		<%- include('template/analytics/ga_stable') ->
+	<% } else { %>
+		<%- include('template/analytics/ga_beta')
 	<% } %>
 </body>
 </html>
