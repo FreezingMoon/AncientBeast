@@ -8,7 +8,7 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default G => {
 	G.abilities[4] = [
 		// 	First Ability: Boiling Point
 		{
@@ -16,12 +16,12 @@ export default (G) => {
 			trigger: 'onStartPhase',
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				return this.testRequirements();
 			},
 
 			//	activate() :
-			activate: function () {
+			activate: function() {
 				// Leave two traps behind
 				this._addTrap(this.creature.hexagons[1]);
 				this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
@@ -31,7 +31,7 @@ export default (G) => {
 				music.play();
 			},
 
-			_addTrap: function (hex) {
+			_addTrap: function(hex) {
 				let ability = this;
 
 				// Traps last forever if upgraded, otherwise 1 turn
@@ -46,14 +46,14 @@ export default (G) => {
 							hex,
 							'onStepIn',
 							{
-								requireFn: function () {
+								requireFn: function() {
 									if (!this.trap.hex.creature) {
 										return false;
 									}
 									// Magma Spawn immune to Scorched Ground
 									return this.trap.hex.creature.id !== ability.creature.id;
 								},
-								effectFn: function (effect, target) {
+								effectFn: function(effect, target) {
 									target.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
 										isFromTrap: true,
 									});
@@ -85,7 +85,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -101,12 +101,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let magmaSpawn = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -116,7 +116,7 @@ export default (G) => {
 				});
 			},
 
-			activate: function (target) {
+			activate: function(target) {
 				let i;
 				let ability = this;
 				ability.end();
@@ -182,19 +182,19 @@ export default (G) => {
 				[0, 0, 1, 0],
 			],
 
-			require: function () {
+			require: function() {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let magmaSpawn = this.creature;
 
 				this.map.origin = [0, 2];
 
 				G.grid.queryChoice({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: Team.both,
@@ -206,7 +206,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (hexes) {
+			activate: function(hexes) {
 				let ability = this;
 				ability.end();
 
@@ -228,7 +228,7 @@ export default (G) => {
 				// If upgraded, leave Boiling Point traps on all hexes that don't contain
 				// another creature
 				if (this.isUpgraded()) {
-					hexes.forEach(function (hex) {
+					hexes.forEach(function(hex) {
 						if (!hex.creature || hex.creature === ability.creature) {
 							ability.creature.abilities[0]._addTrap(hex);
 						}
@@ -245,7 +245,7 @@ export default (G) => {
 			directions: [0, 1, 0, 0, 1, 0],
 			_targetTeam: Team.enemy,
 
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -272,14 +272,14 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let magmaSpawn = this.creature;
 
 				let x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -292,7 +292,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (path, args) {
+			activate: function(path, args) {
 				let ability = this;
 				let magmaSpawn = this.creature;
 
@@ -315,7 +315,7 @@ export default (G) => {
 				}
 
 				// Movement
-				let hurl = (_path) => {
+				let hurl = _path => {
 					let target = arrayUtils.last(_path).creature;
 
 					let magmaHex = magmaSpawn.hexagons[args.direction === 4 ? magmaSpawn.size - 1 : 0];
@@ -328,9 +328,9 @@ export default (G) => {
 					magmaSpawn.moveTo(destination, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: function () {
+						callback: function() {
 							// Destroy traps along path
-							_path.forEach(function (hex) {
+							_path.forEach(function(hex) {
 								if (!hex.trap) {
 									return;
 								}
@@ -358,7 +358,7 @@ export default (G) => {
 								}
 							}
 							if (!continueHurl) {
-								let interval = setInterval(function () {
+								let interval = setInterval(function() {
 									if (!G.freezedInput) {
 										clearInterval(interval);
 										G.UI.selectAbility(-1);

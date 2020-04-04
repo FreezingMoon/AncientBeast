@@ -9,11 +9,11 @@ import { Creature } from '../creature';
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default G => {
 	G.abilities[31] = [
 		// 	First Ability: Bad Doggie
 		{
-			triggerFunc: function () {
+			triggerFunc: function() {
 				// When upgraded, trigger both at start and end of turn
 				// Otherwise just trigger at start
 				if (this.isUpgraded()) {
@@ -22,12 +22,12 @@ export default (G) => {
 				return 'onStartPhase';
 			},
 
-			require: function () {
+			require: function() {
 				// Check requirements in activate() so the ability is always highlighted
 				return this.testRequirements();
 			},
 
-			activate: function () {
+			activate: function() {
 				// Check if there's an enemy creature in front
 				let hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex);
 				if (hexesInFront.length < 1) {
@@ -65,7 +65,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -81,12 +81,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: this._targetTeam,
@@ -97,7 +97,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -133,7 +133,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function () {
+			require: function() {
 				// Recalculate energy requirements/costs based on whether this is ugpraded
 				if (this.isUpgraded()) {
 					this.requirements = {
@@ -154,7 +154,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let crea = this.creature;
 
@@ -212,11 +212,11 @@ export default (G) => {
 				choices[1].choiceId = 1;
 
 				G.grid.queryChoice({
-					fnOnCancel: function () {
+					fnOnCancel: function() {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: Team.both,
@@ -227,7 +227,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (choice) {
+			activate: function(choice) {
 				let ability = this;
 				ability.end();
 
@@ -316,7 +316,7 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -330,14 +330,14 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let crea = this.creature;
 
 				let hexes = G.grid.allhexes.slice(0); // Copy array
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: Team.enemy,
@@ -348,7 +348,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (crea) {
+			activate: function(crea) {
 				let ability = this;
 				ability.end();
 

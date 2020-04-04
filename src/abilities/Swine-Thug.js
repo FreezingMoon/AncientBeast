@@ -9,7 +9,7 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default G => {
 	/*
 	 *
 	 *	Swine Thug abilities
@@ -22,7 +22,7 @@ export default (G) => {
 			trigger: 'onCreatureMove',
 
 			// 	require() :
-			require: function (hex) {
+			require: function(hex) {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -41,7 +41,7 @@ export default (G) => {
 
 				this.message = 'Not in a mud bath.';
 
-				this.creature.effects.forEach(function (effect) {
+				this.creature.effects.forEach(function(effect) {
 					if (effect.trigger == 'mud-bath') {
 						effect.deleteEffect();
 					}
@@ -51,7 +51,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function () {
+			activate: function() {
 				let alterations = $j.extend({}, this.effects[0]);
 				// Double effect if upgraded
 				if (this.isUpgraded()) {
@@ -101,7 +101,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -117,12 +117,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let swine = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					flipped: swine.player.flipped,
@@ -137,7 +137,7 @@ export default (G) => {
 				});
 			},
 
-			activate: function (path, args) {
+			activate: function(path, args) {
 				let ability = this;
 				ability.end();
 
@@ -188,7 +188,7 @@ export default (G) => {
 					}
 					if (hex !== null) {
 						target.moveTo(hex, {
-							callback: function () {
+							callback: function() {
 								G.activeCreature.queryMove();
 							},
 							ignoreMovementPoint: true,
@@ -209,7 +209,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -275,7 +275,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let bellowrow = matrices.bellowrow;
 				let straitrow = matrices.straitrow;
 
@@ -293,12 +293,12 @@ export default (G) => {
 					G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow),
 				];
 
-				choices.forEach(function (choice) {
+				choices.forEach(function(choice) {
 					arrayUtils.filterCreature(choice, true, true, swine.id);
 				});
 
 				G.grid.queryChoice({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: this._targetTeam,
@@ -310,7 +310,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (path) {
+			activate: function(path) {
 				let ability = this;
 				ability.end();
 
@@ -353,7 +353,7 @@ export default (G) => {
 			_energyNormal: 30,
 			_energySelfUpgraded: 10,
 
-			require: function () {
+			require: function() {
 				// If ability is upgraded, self cast energy cost is less
 				if (this.isUpgraded()) {
 					this.requirements = {
@@ -374,7 +374,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let swine = this.creature;
 
@@ -397,11 +397,11 @@ export default (G) => {
 				G.grid.hideCreatureHexes(this.creature);
 
 				G.grid.queryHexes({
-					fnOnCancel: function () {
+					fnOnCancel: function() {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					hexes: hexes,
@@ -410,7 +410,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (hex) {
+			activate: function(hex) {
 				G.grid.clearHexViewAlterations();
 				let ability = this;
 				let swine = this.creature;
@@ -442,13 +442,13 @@ export default (G) => {
 						hex,
 						'onStepIn',
 						{
-							requireFn: function () {
+							requireFn: function() {
 								if (!this.trap.hex.creature) {
 									return false;
 								}
 								return this.trap.hex.creature.type != 'A1';
 							},
-							effectFn: function (effect, crea) {
+							effectFn: function(effect, crea) {
 								crea.remainingMove--;
 							},
 						},

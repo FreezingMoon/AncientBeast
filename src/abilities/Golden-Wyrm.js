@@ -8,7 +8,7 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default G => {
 	G.abilities[33] = [
 		// 	First Ability: Percussion Spear
 		{
@@ -18,12 +18,12 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				return this.testRequirements();
 			},
 
 			//	activate() :
-			activate: function () {
+			activate: function() {
 				let creature = this.creature;
 				let targets = this.getTargets(this.creature.adjacentHexes(1));
 
@@ -38,7 +38,7 @@ export default (G) => {
 					return false;
 				}
 
-				targets.forEach(function (item) {
+				targets.forEach(function(item) {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
@@ -47,9 +47,9 @@ export default (G) => {
 
 					if (isTeam(creature, trg, item._targetTeam)) {
 						let optArg = {
-							effectFn: function (effect, crea) {
+							effectFn: function(effect, crea) {
 								let nearFungus = false;
-								crea.adjacentHexes(1).forEach(function () {
+								crea.adjacentHexes(1).forEach(function() {
 									if (trg.creature instanceof Creature) {
 										if (G.creatures[trg.creature] === effect.owner) {
 											nearFungus = true;
@@ -58,7 +58,7 @@ export default (G) => {
 								});
 
 								if (!nearFungus) {
-									crea.effects.forEach(function (eff) {
+									crea.effects.forEach(function(eff) {
 										if (eff.name == 'Contaminated') {
 											eff.deleteEffect();
 										}
@@ -82,7 +82,7 @@ export default (G) => {
 						);
 
 						let validTarget = true;
-						trg.effects.forEach(function (eff) {
+						trg.effects.forEach(function(eff) {
 							if (eff.name == 'Contaminated') {
 								if (eff.turn == G.turn) {
 									validTarget = false;
@@ -109,7 +109,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -126,7 +126,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let wyrm = this.creature;
 				let ability = this;
 
@@ -138,7 +138,7 @@ export default (G) => {
 				];
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -149,7 +149,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -172,7 +172,7 @@ export default (G) => {
 							ability.creature, // Target
 							'onStartPhase', // Trigger
 							{
-								effectFn: function (effect) {
+								effectFn: function(effect) {
 									effect.deleteEffect();
 								},
 								alterations: {
@@ -185,7 +185,7 @@ export default (G) => {
 				}
 
 				//remove frogger bonus if its found
-				ability.creature.effects.forEach(function (effect) {
+				ability.creature.effects.forEach(function(effect) {
 					if (effect.name == 'Frogger Bonus') {
 						this.deleteEffect();
 					}
@@ -198,11 +198,11 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function () {
+			require: function() {
 				return this.testRequirements();
 			},
 
-			fnOnSelect: function (hex) {
+			fnOnSelect: function(hex) {
 				this.creature.tracePosition({
 					x: hex.x,
 					y: hex.y,
@@ -211,19 +211,19 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let wyrm = this.creature;
 
 				let range = G.grid
 					.getFlyingRange(wyrm.x, wyrm.y, 50, wyrm.size, wyrm.id)
-					.filter((item) => wyrm.item == item.y);
+					.filter(item => wyrm.item == item.y);
 
 				G.grid.queryHexes({
-					fnOnSelect: function () {
+					fnOnSelect: function() {
 						ability.fnOnSelect(...arguments);
 					},
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					size: wyrm.size,
@@ -234,14 +234,14 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (hex) {
+			activate: function(hex) {
 				let ability = this;
 				ability.end();
 
 				ability.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function () {
+					callback: function() {
 						G.activeCreature.queryMove();
 					},
 				});
@@ -254,7 +254,7 @@ export default (G) => {
 						ability.creature, // Target
 						'onStepIn onEndPhase', // Trigger
 						{
-							effectFn: function (effect) {
+							effectFn: function(effect) {
 								effect.deleteEffect();
 							},
 							alterations: {
@@ -280,7 +280,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -304,12 +304,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let wyrm = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -320,7 +320,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -334,7 +334,7 @@ export default (G) => {
 				target.takeDamage(damage);
 
 				//remove frogger bonus if its found
-				ability.creature.effects.forEach(function (item) {
+				ability.creature.effects.forEach(function(item) {
 					if (item.name == 'Offense++') {
 						item.deleteEffect();
 					}

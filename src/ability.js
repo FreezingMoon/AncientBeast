@@ -182,7 +182,7 @@ export class Ability {
 				creature: this.creature.id,
 			};
 
-			const find = (scorePart) =>
+			const find = scorePart =>
 				scorePart.type === bonus.type &&
 				scorePart.ability === bonus.ability &&
 				scorePart.creature === bonus.creature;
@@ -236,7 +236,7 @@ export class Ability {
 				let args = $j.extend({}, arguments);
 				delete args[0];
 
-				let array = arguments[0].map((item) => ({ x: item.x, y: item.y }));
+				let array = arguments[0].map(item => ({ x: item.x, y: item.y }));
 
 				game.gamelog.add({
 					action: 'ability',
@@ -267,7 +267,7 @@ export class Ability {
 	 */
 	animation2(o) {
 		let game = this.game,
-			opt = $j.extend({ callback: function () {}, arg: {} }, o),
+			opt = $j.extend({ callback: function() {}, arg: {} }, o),
 			args = opt.arg,
 			activateAbility = () => {
 				this.activate(args[0], args[1]);
@@ -321,7 +321,7 @@ export class Ability {
 			}, animationData.delay);
 
 			setTimeout(() => {
-				let queue = game.animationQueue.filter((item) => item != animId);
+				let queue = game.animationQueue.filter(item => item != animId);
 
 				if (queue.length === 0) {
 					game.freezedInput = false;
@@ -353,7 +353,7 @@ export class Ability {
 		let targets = {},
 			targetsList = [];
 
-		hexes.forEach((item) => {
+		hexes.forEach(item => {
 			if (item.creature instanceof Creature) {
 				if (targets[item.creature.id] === undefined) {
 					targets[item.creature.id] = { hexesHit: 0, target: item.creature };
@@ -484,7 +484,7 @@ export class Ability {
 	atLeastOneTarget(hexes, o) {
 		let defaultOpt = {
 			team: Team.both,
-			optTest: function () {
+			optTest: function() {
 				return true;
 			},
 		};

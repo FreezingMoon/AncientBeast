@@ -9,7 +9,7 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default G => {
 	/*
 	 *
 	 *	Scavenger abilities
@@ -23,7 +23,7 @@ export default (G) => {
 			 * Movement type is "hover" unless this ability is upgraded, then it's "flying"
 			 * @return {string} movement type, "hover" or "flying"
 			 */
-			movementType: function () {
+			movementType: function() {
 				return 'flying';
 			},
 
@@ -31,12 +31,12 @@ export default (G) => {
 			trigger: '',
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				return true;
 			},
 
 			//	activate() :
-			activate: function () {},
+			activate: function() {},
 		},
 
 		// 	Second Ability: Slicing Pounce
@@ -47,7 +47,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -63,11 +63,11 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -78,7 +78,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -120,7 +120,7 @@ export default (G) => {
 			_targetTeam: Team.both,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -141,7 +141,7 @@ export default (G) => {
 				}
 
 				// Cannot escort large (size > 2) creatures unless ability is upgraded
-				hexes = hexes.filter(function (hex) {
+				hexes = hexes.filter(function(hex) {
 					if (!hex.creature) {
 						return false;
 					}
@@ -173,7 +173,7 @@ export default (G) => {
 				return true;
 			},
 
-			query: function () {
+			query: function() {
 				let ability = this;
 				let crea = this.creature;
 
@@ -192,7 +192,7 @@ export default (G) => {
 						matrices.inlinefront2hex,
 					)[0].creature == trg;
 
-				let select = (hex) => {
+				let select = hex => {
 					for (let i = 0; i < trg.hexagons.length; i++) {
 						G.grid.cleanHex(trg.hexagons[i]);
 						trg.hexagons[i].displayVisualState('dashed');
@@ -221,7 +221,7 @@ export default (G) => {
 				let x = trgIsInfront ? crea.x + trg.size : crea.x;
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					fnOnSelect: select, // fnOnSelect,
@@ -231,7 +231,7 @@ export default (G) => {
 					flipped: crea.player.flipped,
 					hexes: G.grid
 						.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
-						.filter(function (item) {
+						.filter(function(item) {
 							return (
 								crea.y == item.y &&
 								(trgIsInfront ? item.x < x : item.x > x - crea.size - trg.size + 1)
@@ -252,7 +252,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (hex, args) {
+			activate: function(hex, args) {
 				let ability = this;
 				ability.end();
 
@@ -282,7 +282,7 @@ export default (G) => {
 
 				crea.moveTo(creaDest, {
 					animation: 'fly',
-					callback: function () {
+					callback: function() {
 						trg.updateHex();
 					},
 					ignoreMovementPoint: true,
@@ -290,7 +290,7 @@ export default (G) => {
 
 				trg.moveTo(trgDest, {
 					animation: 'fly',
-					callback: function () {
+					callback: function() {
 						ability.creature.updateHex();
 						ability.creature.queryMove();
 					},
@@ -308,7 +308,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -324,11 +324,11 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -339,7 +339,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -368,7 +368,7 @@ export default (G) => {
 						'onStartPhase',
 						{
 							stackable: false,
-							effectFn: function (eff, creature) {
+							effectFn: function(eff, creature) {
 								G.log('%CreatureName' + creature.id + '% is affected by ' + ability.title);
 								creature.takeDamage(
 									new Damage(

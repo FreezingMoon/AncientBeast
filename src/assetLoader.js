@@ -18,7 +18,7 @@ export function getUrl(path) {
 	// prev = children (starts with the assets)
 	// current = what we are looking at now
 	return path.reduce((prev, current) => {
-		const entity = prev.find((e) => e.id === current);
+		const entity = prev.find(e => e.id === current);
 		if (entity === undefined) {
 			throw new Error(`Could not find asset with path: ${path.join('/')}`);
 		}
