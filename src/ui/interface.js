@@ -629,6 +629,18 @@ export class UI {
 			if (typeof ab.costs.energy == 'number') {
 				let costsEnergy = ab.costs.energy + creature.stats.reqEnergy;
 				this.energyBar.previewSize(costsEnergy / creature.stats.energy);
+				this.energyBar.setAvailableStyle();
+
+				if (costsEnergy > creature.energy) {
+					// Indicate the minimum energy required for the hovered ability
+					// if the requirement is not met
+					this.energyBar.setSize(costsEnergy / creature.stats.energy);
+					this.energyBar.previewSize(
+						costsEnergy / creature.stats.energy - creature.energy / creature.stats.energy,
+					);
+
+					this.energyBar.setUnavailableStyle();
+				}
 			} else {
 				this.energyBar.previewSize(0);
 			}
@@ -641,6 +653,11 @@ export class UI {
 	}
 
 	hideAbilityCosts() {
+		let game = this.game,
+			creature = game.activeCreature;
+		// Reset energy bar to match actual energy value
+		this.energyBar.setSize(creature.energy / creature.stats.energy);
+
 		this.energyBar.previewSize(0);
 		this.healthBar.previewSize(0);
 	}
