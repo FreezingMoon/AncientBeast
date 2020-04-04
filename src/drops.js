@@ -7,7 +7,7 @@ export class Drop {
 		this.y = y;
 		this.pos = {
 			x: x,
-			y: y
+			y: y,
 		};
 		this.health = health;
 		this.energy = energy;
@@ -18,7 +18,7 @@ export class Drop {
 		this.display = game.grid.dropGroup.create(
 			this.hex.displayPos.x + 54,
 			this.hex.displayPos.y + 15,
-			'drop_' + this.name
+			'drop_' + this.name,
 		);
 		this.display.alpha = 0;
 		this.display.anchor.setTo(0.5, 0.5);
@@ -27,10 +27,10 @@ export class Drop {
 			.tween(this.display)
 			.to(
 				{
-					alpha: 1
+					alpha: 1,
 				},
 				500,
-				Phaser.Easing.Linear.None
+				Phaser.Easing.Linear.None,
 			)
 			.start();
 	}
@@ -56,7 +56,7 @@ export class Drop {
 			game.log('%CreatureName' + creature.id + '% gains ' + this.energy + ' energy');
 		}
 		creature.player.score.push({
-			type: 'pickupDrop'
+			type: 'pickupDrop',
 		});
 
 		creature.updateAlteration(); // Will cap the stats
@@ -65,10 +65,10 @@ export class Drop {
 			.tween(this.display)
 			.to(
 				{
-					alpha: 0
+					alpha: 0,
 				},
 				500,
-				Phaser.Easing.Linear.None
+				Phaser.Easing.Linear.None,
 			)
 			.start();
 

@@ -47,7 +47,7 @@ export class Hex {
 		this.y = y;
 		this.pos = {
 			x: x,
-			y: y
+			y: y,
 		};
 		this.coord = String.fromCharCode(64 + this.y + 1) + (this.x + 1);
 		game = this.game;
@@ -68,10 +68,10 @@ export class Hex {
 
 		// Horizontal hex grid, width is distance between opposite sides
 		this.width = 90;
-		this.height = this.width / Math.sqrt(3) * 2 * 0.75;
+		this.height = (this.width / Math.sqrt(3)) * 2 * 0.75;
 		this.displayPos = {
 			x: (y % 2 === 0 ? x + 0.5 : x) * this.width,
-			y: y * this.height
+			y: y * this.height,
 		};
 
 		this.originalDisplayPos = $j.extend({}, this.displayPos);
@@ -137,10 +137,10 @@ export class Hex {
 
 		this.displayPos.y = this.displayPos.y * 0.75 + 30;
 
-		this.onSelectFn = function() {};
-		this.onHoverOffFn = function() {};
-		this.onConfirmFn = function() {};
-		this.onRightClickFn = function() {};
+		this.onSelectFn = function () {};
+		this.onHoverOffFn = function () {};
+		this.onConfirmFn = function () {};
+		this.onRightClickFn = function () {};
 
 		this.trap = undefined;
 	}
@@ -419,8 +419,8 @@ export class Hex {
 					{
 						font: '30pt Play',
 						fill: '#000000',
-						align: 'center'
-					}
+						align: 'center',
+					},
 				);
 				this.coordText.anchor.setTo(0.5, 0.5);
 				this.grid.overhexesGroup.add(this.coordText);
@@ -478,7 +478,7 @@ export class Hex {
 			return;
 		}
 
-		this.trap.effects.forEach(effect => {
+		this.trap.effects.forEach((effect) => {
 			if (trigger.test(effect.trigger) && effect.requireFn()) {
 				this.game.log('Trap triggered');
 				effect.activate(target);
@@ -520,7 +520,7 @@ export class Hex {
 	toJSON() {
 		return {
 			x: this.x,
-			y: this.y
+			y: this.y,
 		};
 	}
 } // End of Hex Class

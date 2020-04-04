@@ -95,7 +95,7 @@ export class Chat {
 			lastMessage.amount++;
 			lastMessage.time = currentTime;
 			$j(lastMessage.DOMObject).html(
-				this.createHTMLTemplate(msg, lastMessage.amount, currentTime, false)
+				this.createHTMLTemplate(msg, lastMessage.amount, currentTime, false),
 			);
 		} else {
 			this.messages.push({
@@ -103,7 +103,7 @@ export class Chat {
 				amount: 1,
 				time: currentTime,
 				class: htmlClass,
-				DOMObject: $j.parseHTML(this.createHTMLTemplate(msg, 1, currentTime, true, htmlClass))
+				DOMObject: $j.parseHTML(this.createHTMLTemplate(msg, 1, currentTime, true, htmlClass)),
 			});
 
 			// Append the last message's DOM object

@@ -57,6 +57,7 @@ export class ProgressBar {
 			},
 			500,
 			'linear',
+
 		);
 
 		this.$current.transition(
@@ -83,6 +84,7 @@ export class ProgressBar {
 				width: this.width,
 				height: this.height * percentage,
 				'background-image': 'none',
+
 			},
 			500,
 			'linear',

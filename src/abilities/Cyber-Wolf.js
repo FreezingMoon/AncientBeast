@@ -9,11 +9,11 @@ import { Creature } from '../creature';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[31] = [
 		// 	First Ability: Bad Doggie
 		{
-			triggerFunc: function() {
+			triggerFunc: function () {
 				// When upgraded, trigger both at start and end of turn
 				// Otherwise just trigger at start
 				if (this.isUpgraded()) {
@@ -22,12 +22,12 @@ export default G => {
 				return 'onStartPhase';
 			},
 
-			require: function() {
+			require: function () {
 				// Check requirements in activate() so the ability is always highlighted
 				return this.testRequirements();
 			},
 
-			activate: function() {
+			activate: function () {
 				// Check if there's an enemy creature in front
 				let hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex);
 				if (hexesInFront.length < 1) {
@@ -48,13 +48,13 @@ export default G => {
 					this.damages, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 				target.takeDamage(damage);
 
 				// Keep highlighted in UI
 				this.setUsed(false);
-			}
+			},
 		},
 
 		// 	Second Ability: Metal Hand
@@ -65,14 +65,14 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -81,23 +81,23 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: this._targetTeam,
 					id: crea.id,
 					flipped: crea.player.flipped,
-					hexes: crea.getHexMap(matrices.frontnback2hex)
+					hexes: crea.getHexMap(matrices.frontnback2hex),
 				});
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
@@ -106,7 +106,7 @@ export default G => {
 					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 				target.takeDamage(damage);
 
@@ -122,10 +122,10 @@ export default G => {
 							energySteal +
 							' energy from %CreatureName' +
 							target.id +
-							'%'
+							'%',
 					);
 				}
-			}
+			},
 		},
 
 		// 	Third Ability: Rocket Launcher
@@ -133,28 +133,28 @@ export default G => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function() {
+			require: function () {
 				// Recalculate energy requirements/costs based on whether this is ugpraded
 				if (this.isUpgraded()) {
 					this.requirements = {
-						energy: 30
+						energy: 30,
 					};
 					this.costs = {
-						energy: 30
+						energy: 30,
 					};
 				} else {
 					this.requirements = {
-						energy: 40
+						energy: 40,
 					};
 					this.costs = {
-						energy: 40
+						energy: 40,
 					};
 				}
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
@@ -168,21 +168,21 @@ export default G => {
 							G.grid.getHexMap(crea.x, crea.y - 2, 0, false, bellowrow),
 							true,
 							true,
-							crea.id
+							crea.id,
 						)
 						.concat(
 							arrayUtils.filterCreature(
 								G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow),
 								true,
 								true,
-								crea.id
+								crea.id,
 							),
 							arrayUtils.filterCreature(
 								G.grid.getHexMap(crea.x, crea.y, 0, false, bellowrow),
 								true,
 								true,
-								crea.id
-							)
+								crea.id,
+							),
 						),
 					//Behind
 					arrayUtils
@@ -190,44 +190,44 @@ export default G => {
 							G.grid.getHexMap(crea.x - 1, crea.y - 2, 0, true, bellowrow),
 							true,
 							true,
-							crea.id
+							crea.id,
 						)
 						.concat(
 							arrayUtils.filterCreature(
 								G.grid.getHexMap(crea.x - 1, crea.y, 0, true, straitrow),
 								true,
 								true,
-								crea.id
+								crea.id,
 							),
 							arrayUtils.filterCreature(
 								G.grid.getHexMap(crea.x - 1, crea.y, 0, true, bellowrow),
 								true,
 								true,
-								crea.id
-							)
-						)
+								crea.id,
+							),
+						),
 				];
 
 				choices[0].choiceId = 0;
 				choices[1].choiceId = 1;
 
 				G.grid.queryChoice({
-					fnOnCancel: function() {
+					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: Team.both,
 					id: crea.id,
 					requireCreature: false,
-					choices: choices
+					choices: choices,
 				});
 			},
 
 			//	activate() :
-			activate: function(choice) {
+			activate: function (choice) {
 				let ability = this;
 				ability.end();
 
@@ -244,20 +244,20 @@ export default G => {
 							G.grid.getHexMap(crea.x, crea.y - 2, 0, false, bellowrow),
 							true,
 							true,
-							crea.id
+							crea.id,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow),
 							true,
 							true,
-							crea.id
+							crea.id,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x, crea.y, 0, false, bellowrow),
 							true,
 							true,
-							crea.id
-						)
+							crea.id,
+						),
 					];
 				} else {
 					// Back
@@ -266,20 +266,20 @@ export default G => {
 							G.grid.getHexMap(crea.x - 1, crea.y - 2, 0, true, bellowrow),
 							true,
 							true,
-							crea.id
+							crea.id,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x - 1, crea.y, 0, true, straitrow),
 							true,
 							true,
-							crea.id
+							crea.id,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x - 1, crea.y, 0, true, bellowrow),
 							true,
 							true,
-							crea.id
-						)
+							crea.id,
+						),
 					];
 				}
 
@@ -297,7 +297,7 @@ export default G => {
 						ability.damages, //Damage Type
 						1, //Area
 						[], //Effects
-						G
+						G,
 					);
 					target.takeDamage(damage);
 				}
@@ -307,7 +307,7 @@ export default G => {
 				}
 
 				G.UI.checkAbilities();
-			}
+			},
 		},
 
 		// 	Fourth Ability: Target Locking
@@ -316,7 +316,7 @@ export default G => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -330,25 +330,25 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				let hexes = G.grid.allhexes.slice(0); // Copy array
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: Team.enemy,
 					id: crea.id,
 					flipped: crea.player.flipped,
-					hexes: hexes
+					hexes: hexes,
 				});
 			},
 
 			//	activate() :
-			activate: function(crea) {
+			activate: function (crea) {
 				let ability = this;
 				ability.end();
 
@@ -376,10 +376,10 @@ export default G => {
 					damages, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 				target.takeDamage(damage);
-			}
-		}
+			},
+		},
 	];
 };

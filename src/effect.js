@@ -26,19 +26,19 @@ export class Effect {
 		let args = $j.extend(
 			{
 				// Default Arguments
-				requireFn: function() {
+				requireFn: function () {
 					return true;
 				},
-				effectFn: function() {},
+				effectFn: function () {},
 				alterations: {},
 				turnLifetime: 0,
 				deleteTrigger: 'onStartOfRound',
 				stackable: true,
 				noLog: false,
 				specialHint: undefined, // Special hint for log
-				deleteOnOwnerDeath: false
+				deleteOnOwnerDeath: false,
 			},
-			optArgs
+			optArgs,
 		);
 
 		$j.extend(this, args);

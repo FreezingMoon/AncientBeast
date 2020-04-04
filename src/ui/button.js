@@ -11,11 +11,11 @@ export class Button {
 		this.game = game;
 
 		let defaultOpts = {
-			click: function() {},
-			mouseover: function() {},
-			mouseleave: function() {},
-			touchstart: function() {},
-			touchend: function() {},
+			click: function () {},
+			mouseover: function () {},
+			mouseleave: function () {},
+			touchstart: function () {},
+			touchend: function () {},
 			touchX: 0,
 			touchY: 0,
 			hasShortcut: false,
@@ -28,8 +28,8 @@ export class Button {
 				glowing: {},
 				selected: {},
 				active: {},
-				normal: {}
-			}
+				normal: {},
+			},
 		};
 
 		opts = $j.extend(defaultOpts, opts);
@@ -83,7 +83,7 @@ export class Button {
 			this.mouseleave();
 		});
 
-		this.$button.bind('touchstart', event => {
+		this.$button.bind('touchstart', (event) => {
 			event.preventDefault();
 			event.stopPropagation();
 
@@ -99,7 +99,7 @@ export class Button {
 			this.touchY = event.changedTouches[0].pageY;
 		});
 
-		this.$button.bind('touchend', event => {
+		this.$button.bind('touchend', (event) => {
 			event.preventDefault();
 			event.stopPropagation();
 

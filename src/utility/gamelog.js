@@ -72,7 +72,7 @@ export class GameLog {
 					clearInterval(interval);
 					game.activeCreature.queryMove(); // Avoid bug
 					game.action(this.data[this.timeCursor], {
-						callback: fun
+						callback: fun,
 					});
 				}
 			}, 100);
@@ -103,9 +103,9 @@ export class GameLog {
 				clearInterval(interval);
 				game.activeCreature.queryMove(); // Avoid bug
 				game.action(this.data[this.timeCursor], {
-					callback: function() {
+					callback: function () {
 						game.activeCreature.queryMove();
-					}
+					},
 				});
 			}
 		}, 100);
@@ -115,7 +115,7 @@ export class GameLog {
 		let config = isEmpty(this.gameConfig) ? getGameConfig() : this.gameConfig,
 			dict = {
 				config: config,
-				log: this.data
+				log: this.data,
 			},
 			json = JSON.stringify(dict),
 			hash = 'AB-' + this.game.version + ':' + btoa(JSON.stringify(dict)),

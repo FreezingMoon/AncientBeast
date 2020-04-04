@@ -10,9 +10,9 @@ export class SoundSys {
 				music_volume: 0.1,
 				effects_volume: 0.6,
 				heartbeats_volume: 0.3,
-				announcer_volume: 0.6
+				announcer_volume: 0.6,
 			},
-			o || {}
+			o || {},
 		);
 
 		$j.extend(this, o);
@@ -55,7 +55,7 @@ export class SoundSys {
 	}
 
 	getSound(url, id) {
-		let bufferLoader = new BufferLoader(this.context, [url], arraybuffer => {
+		let bufferLoader = new BufferLoader(this.context, [url], (arraybuffer) => {
 			this.game.soundLoaded[id] = arraybuffer[0];
 		});
 

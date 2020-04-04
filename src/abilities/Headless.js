@@ -9,21 +9,21 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[39] = [
 		// 	First Ability: Larva Infest
 		{
 			trigger: 'onStartPhase onEndPhase',
 
 			_targetTeam: Team.enemy,
-			_getHexes: function() {
+			_getHexes: function () {
 				return this.creature.getHexMap(matrices.inlineback2hex);
 			},
 
-			require: function() {
+			require: function () {
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -32,13 +32,13 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function() {
+			activate: function () {
 				let ability = this;
 				let creature = this.creature;
 
 				if (
 					this.atLeastOneTarget(this._getHexes(), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					this.end();
@@ -49,7 +49,7 @@ export default G => {
 
 				let targets = this.getTargets(this._getHexes());
 
-				targets.forEach(function(item) {
+				targets.forEach(function (item) {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
@@ -69,7 +69,7 @@ export default G => {
 						trg, // Target
 						'onStartPhase', // Trigger
 						{
-							effectFn: function() {
+							effectFn: function () {
 								// Activate debuff
 								trg.addEffect(
 									new Effect(
@@ -81,25 +81,25 @@ export default G => {
 											deleteTrigger: '',
 											stackable: true,
 											alterations: {
-												endurance: -5
-											}
+												endurance: -5,
+											},
 										},
-										G
-									)
+										G,
+									),
 								);
 								// Note: effect activate by default adds the effect on the target,
 								// but target already has this effect, so remove the trigger to
 								// prevent infinite addition of this effect.
 								item.trigger = '';
 								item.deleteEffect();
-							}
+							},
 						},
-						G
+						G,
 					);
 
 					trg.addEffect(effect, '%CreatureName' + trg.id + '% has been infested');
 				});
-			}
+			},
 		},
 
 		// 	Second Ability: Cartilage Dagger
@@ -110,7 +110,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				let crea = this.creature;
 
 				if (!this.testRequirements()) {
@@ -120,7 +120,7 @@ export default G => {
 				//At least one target
 				if (
 					!this.atLeastOneTarget(crea.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -129,28 +129,28 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: crea.id,
 					flipped: crea.flipped,
-					hexes: crea.getHexMap(matrices.frontnback2hex)
+					hexes: crea.getHexMap(matrices.frontnback2hex),
 				});
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
 				let d = {
-					pierce: 11
+					pierce: 11,
 				};
 				// Bonus for fatigued foe
 				d.pierce = target.endurance <= 0 ? d.pierce * 2 : d.pierce;
@@ -167,11 +167,11 @@ export default G => {
 					d, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 
 				target.takeDamage(damage);
-			}
+			},
 		},
 
 		// 	Third Ability: Whip Move
@@ -182,14 +182,14 @@ export default G => {
 			directions: [0, 1, 0, 0, 1, 0],
 
 			_minDistance: 2,
-			_getMaxDistance: function() {
+			_getMaxDistance: function () {
 				if (this.isUpgraded()) {
 					return 8;
 				}
 				return 6;
 			},
 			_targetTeam: Team.both,
-			_getValidDirections: function() {
+			_getValidDirections: function () {
 				// Get all directions where there are no targets within min distance,
 				// and a target within max distance
 				let crea = this.creature;
@@ -206,14 +206,14 @@ export default G => {
 						x: x,
 						directions: directions,
 						distance: this._minDistance,
-						sourceCreature: crea
+						sourceCreature: crea,
 					});
 					let testMax = this.testDirection({
 						team: this._targetTeam,
 						x: x,
 						directions: directions,
 						distance: this._getMaxDistance(),
-						sourceCreature: crea
+						sourceCreature: crea,
 					});
 					if (!testMin && testMax) {
 						// Target needs to be moveable
@@ -228,7 +228,7 @@ export default G => {
 							this.creature.x + fx,
 							this.creature.y,
 							i,
-							this.creature.player.flipped
+							this.creature.player.flipped,
 						);
 						if (this._getMaxDistance() > 0) {
 							dir = dir.slice(0, this._getMaxDistance() + 1);
@@ -243,7 +243,7 @@ export default G => {
 				return validDirections;
 			},
 
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -258,7 +258,7 @@ export default G => {
 				// min/max range
 				let validDirections = this._getValidDirections();
 				if (
-					!validDirections.some(function(e) {
+					!validDirections.some(function (e) {
 						return e === 1;
 					})
 				) {
@@ -270,12 +270,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -285,16 +285,16 @@ export default G => {
 					x: crea.x,
 					y: crea.y,
 					directions: this._getValidDirections(),
-					distance: this._getMaxDistance()
+					distance: this._getMaxDistance(),
 				});
 			},
 
 			//	activate() :
-			activate: function(path, args) {
+			activate: function (path, args) {
 				let ability = this;
 				let crea = this.creature;
 				let target = arrayUtils.last(path).creature;
-				path = path.filter(function(hex) {
+				path = path.filter(function (hex) {
 					return !hex.creature;
 				}); //remove creatures
 				ability.end();
@@ -327,14 +327,14 @@ export default G => {
 					crea.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: function() {
-							let interval = setInterval(function() {
+						callback: function () {
+							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
 								}
 							}, 100);
-						}
+						},
 					});
 				}
 				if (destinationTarget !== null) {
@@ -343,17 +343,17 @@ export default G => {
 					target.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: function() {
-							let interval = setInterval(function() {
+						callback: function () {
+							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
 								}
 							}, 100);
-						}
+						},
 					});
 				}
-			}
+			},
 		},
 
 		// 	Fourth Ability: Boomerang Tool
@@ -363,10 +363,10 @@ export default G => {
 
 			damages: {
 				slash: 10,
-				crush: 5
+				crush: 5,
 			},
 
-			_getHexes: function() {
+			_getHexes: function () {
 				// extra range if upgraded
 				if (this.isUpgraded()) {
 					return matrices.headlessBoomerangUpgraded;
@@ -376,7 +376,7 @@ export default G => {
 			},
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -384,27 +384,27 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				let hexes = this._getHexes();
 
 				G.grid.queryChoice({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: Team.both,
 					requireCreature: 0,
 					id: crea.id,
 					flipped: crea.player.flipped,
-					choices: [crea.getHexMap(hexes), crea.getHexMap(hexes, true)]
+					choices: [crea.getHexMap(hexes), crea.getHexMap(hexes, true)],
 				});
 			},
 
-			activate: function(hexes) {
+			activate: function (hexes) {
 				let damages = {
-					slash: 10
+					slash: 10,
 				};
 
 				let ability = this;
@@ -415,16 +415,16 @@ export default G => {
 					damages, //Damage Type
 					[], //Effects
 					ability.getTargets(hexes), //Targets
-					true //Notriggers avoid double retailiation
+					true, //Notriggers avoid double retailiation
 				);
 
 				ability.areaDamage(
 					ability.creature, //Attacker
 					damages, //Damage Type
 					[], //Effects
-					ability.getTargets(hexes) //Targets
+					ability.getTargets(hexes), //Targets
 				);
-			}
-		}
+			},
+		},
 	];
 };
