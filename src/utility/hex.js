@@ -137,10 +137,10 @@ export class Hex {
 
 		this.displayPos.y = this.displayPos.y * 0.75 + 30;
 
-		this.onSelectFn = function () {};
-		this.onHoverOffFn = function () {};
-		this.onConfirmFn = function () {};
-		this.onRightClickFn = function () {};
+		this.onSelectFn = function() {};
+		this.onHoverOffFn = function() {};
+		this.onConfirmFn = function() {};
+		this.onRightClickFn = function() {};
 
 		this.trap = undefined;
 	}
@@ -478,7 +478,7 @@ export class Hex {
 			return;
 		}
 
-		this.trap.effects.forEach((effect) => {
+		this.trap.effects.forEach(effect => {
 			if (trigger.test(effect.trigger) && effect.requireFn()) {
 				this.game.log('Trap triggered');
 				effect.activate(target);

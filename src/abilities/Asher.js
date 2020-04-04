@@ -8,7 +8,7 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default G => {
 	G.abilities[22] = [
 		// 	First Ability: Greater Pyre
 		{
@@ -16,7 +16,7 @@ export default (G) => {
 			trigger: 'onDamage',
 
 			// 	require() :
-			require: function (damage) {
+			require: function(damage) {
 				if (this.used) {
 					return false;
 				}
@@ -33,7 +33,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (damage) {
+			activate: function(damage) {
 				if (this.triggeredThisChain) {
 					return damage;
 				}
@@ -62,7 +62,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -79,12 +79,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
@@ -99,7 +99,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (path) {
+			activate: function(path) {
 				let ability = this;
 				ability.end();
 
@@ -124,12 +124,12 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let crea = this.creature;
 
@@ -137,7 +137,7 @@ export default (G) => {
 					noPath: true,
 					isAbility: true,
 					range: G.grid.getFlyingRange(crea.x, crea.y, 50, crea.size, crea.id),
-					callback: function () {
+					callback: function() {
 						delete arguments[1];
 						ability.animation(...arguments);
 					},
@@ -145,13 +145,13 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (hex) {
+			activate: function(hex) {
 				let ability = this;
 				ability.end();
 
 				let targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
-				targets.forEach(function (item) {
+				targets.forEach(function(item) {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
@@ -182,13 +182,13 @@ export default (G) => {
 					ignoreMovementPoint: true,
 					ignorePath: true,
 					animation: 'teleport',
-					callback: function () {
+					callback: function() {
 						G.activeCreature.queryMove();
 					},
-					callbackStepIn: function () {
+					callbackStepIn: function() {
 						let callbackTargets = ability.getTargets(ability.creature.adjacentHexes(1));
 
-						callbackTargets.forEach(function (item) {
+						callbackTargets.forEach(function(item) {
 							if (!(item.target instanceof Creature)) {
 								return;
 							}
@@ -228,12 +228,12 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let crea = this.creature;
 
@@ -245,15 +245,15 @@ export default (G) => {
 				range.splice(tail, 1);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
-					fnOnSelect: function (hex) {
-						hex.adjacentHex(1).forEach(function (item) {
+					fnOnSelect: function(hex) {
+						hex.adjacentHex(1).forEach(function(item) {
 							if (item.creature instanceof Creature) {
 								if (item.creature == crea) {
 									//If it is abolished
-									crea.adjacentHexes(1).forEach(function (item2) {
+									crea.adjacentHexes(1).forEach(function(item2) {
 										if (item2.creature instanceof Creature) {
 											if (item2.creature == crea) {
 												//If it is abolished
@@ -298,7 +298,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (hex) {
+			activate: function(hex) {
 				let ability = this;
 				ability.end();
 

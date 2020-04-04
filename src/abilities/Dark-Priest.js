@@ -7,7 +7,7 @@ import { Creature } from '../creature';
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default G => {
 	G.abilities[0] = [
 		// 	First Ability: Plasma Field
 		{
@@ -15,14 +15,14 @@ export default (G) => {
 			trigger: 'onUnderAttack',
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				this.setUsed(false); // Can be triggered multiple times
 				this.creature.protectedFromFatigue = this.testRequirements();
 				return this.creature.protectedFromFatigue;
 			},
 
 			//	activate() :
-			activate: function (damage) {
+			activate: function(damage) {
 				if (G.activeCreature.id == this.creature.id) {
 					/* only used when unit isn't active */
 					return damage; // Return Damage
@@ -70,7 +70,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -85,12 +85,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let dpriest = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -101,7 +101,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -129,7 +129,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -149,7 +149,7 @@ export default (G) => {
 				let lowestCost = 99;
 				let targets = this.getTargets(range);
 
-				targets.forEach(function (item) {
+				targets.forEach(function(item) {
 					if (item.target instanceof Creature) {
 						if (lowestCost > item.target.size) {
 							lowestCost = item.target.size;
@@ -166,15 +166,15 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let dpriest = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
-					optTest: function (creature) {
+					optTest: function(creature) {
 						return creature.size <= dpriest.player.plasma;
 					},
 					team: this._targetTeam,
@@ -185,7 +185,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -220,7 +220,7 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -239,7 +239,7 @@ export default (G) => {
 			summonRange: 4,
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				if (this.isUpgraded()) {
 					this.summonRange = 6;
 				}
@@ -249,41 +249,41 @@ export default (G) => {
 				G.UI.toggleDash('randomize');
 			},
 
-			fnOnSelect: function (hex, args) {
+			fnOnSelect: function(hex, args) {
 				let crea = G.retrieveCreatureStats(args.creature);
 				G.grid.previewCreature(hex.pos, crea, this.creature.player);
 			},
 
 			// Callback function to queryCreature
-			materialize: function (creature) {
+			materialize: function(creature) {
 				let crea = G.retrieveCreatureStats(creature);
 				let ability = this;
 				let dpriest = this.creature;
 
-				G.grid.forEachHex(function (hex) {
+				G.grid.forEachHex(function(hex) {
 					hex.unsetReachable();
 				});
 
 				let spawnRange = dpriest.hexagons[0].adjacentHex(this.summonRange);
 
-				spawnRange.forEach(function (item) {
+				spawnRange.forEach(function(item) {
 					item.setReachable();
 				});
 
-				spawnRange = spawnRange.filter(function (item) {
+				spawnRange = spawnRange.filter(function(item) {
 					return item.isWalkable(crea.size, 0, false);
 				});
 
 				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);
 
 				G.grid.queryHexes({
-					fnOnSelect: function () {
+					fnOnSelect: function() {
 						ability.fnOnSelect(...arguments);
 					},
-					fnOnCancel: function () {
+					fnOnCancel: function() {
 						G.activeCreature.queryMove();
 					},
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					args: {
@@ -297,7 +297,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (hex, args) {
+			activate: function(hex, args) {
 				let creature = args.creature;
 				let ability = this;
 

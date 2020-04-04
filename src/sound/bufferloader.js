@@ -18,7 +18,7 @@ export class BufferLoader {
 			// Asynchronously decode the audio file data in request.response
 			this.context.decodeAudioData(
 				request.response,
-				(buffer) => {
+				buffer => {
 					if (!buffer) {
 						alert('error decoding file data: ' + url);
 						return;
@@ -29,7 +29,7 @@ export class BufferLoader {
 						this.onload(this.bufferList);
 					}
 				},
-				(error) => {
+				error => {
 					console.error('decodeAudioData error', error);
 				},
 			);

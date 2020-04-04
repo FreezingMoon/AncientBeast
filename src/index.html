@@ -940,11 +940,10 @@
 	<div id="combatwrapper">
 	</div>
 
-	<%=require('./templates/service-worker.html')%>
-	<% if(htmlWebpackPlugin.options.production) { %>
-		<%= require('./templates/analytics/ga_stable.html')%>
-	<% } else { %>
-		<%= require('./templates/analytics/ga_beta.html')%>
-	<% } %>
+	<!-- Service Workder -->
+	<%= htmlWebpackPlugin.options.worker %>
+
+	<!-- Google Analytics -->
+	<%= htmlWebpackPlugin.options.google %>
 </body>
 </html>

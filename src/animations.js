@@ -26,7 +26,7 @@ export class Animations {
 
 		creature.healthHide();
 
-		let anim = function () {
+		let anim = function() {
 			let hex = path[hexId];
 
 			if (hexId < path.length && (creature.remainingMove > 0 || opts.ignoreMovementPoint)) {
@@ -241,13 +241,13 @@ export class Animations {
 
 		game.onCreatureMove(creature, hex); // Trigger
 
-		creature.hexagons.forEach((h) => {
+		creature.hexagons.forEach(h => {
 			h.pickupDrop(creature);
 		});
 
 		game.grid.orderCreatureZ();
 
-		let queue = game.animationQueue.filter((item) => item != animId);
+		let queue = game.animationQueue.filter(item => item != animId);
 
 		if (queue.length === 0) {
 			game.freezedInput = false;

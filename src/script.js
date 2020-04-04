@@ -59,7 +59,7 @@ const abilitiesGenerators = [
 	headlessAbilitiesGenerator,
 	stomperAbilitiesGenerator,
 ];
-abilitiesGenerators.forEach((generator) => generator(G));
+abilitiesGenerators.forEach(generator => generator(G));
 
 export const isNativeFullscreenAPIUse = () =>
 	document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
@@ -76,7 +76,7 @@ export const enableFullscreenLayout = () => {
 
 $j(document).ready(() => {
 	let scrim = $j('.scrim');
-	scrim.on('transitionend', function () {
+	scrim.on('transitionend', function() {
 		scrim.remove();
 	});
 	scrim.removeClass('loading');
@@ -84,7 +84,10 @@ $j(document).ready(() => {
 	// Select a random combat location
 	const locationSelector = $j("input[name='combatLocation']");
 	const randomLocationIndex = Math.floor(Math.random() * locationSelector.length);
-	locationSelector.eq(randomLocationIndex).prop('checked', true).trigger('click');
+	locationSelector
+		.eq(randomLocationIndex)
+		.prop('checked', true)
+		.trigger('click');
 
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener('blur', G.onBlur.bind(G), false);
@@ -114,7 +117,7 @@ $j(document).ready(() => {
 	// Focus the form to enable "press enter to start the game" functionality
 	$j('#startButton').focus();
 
-	$j('form#gameSetup').submit((e) => {
+	$j('form#gameSetup').submit(e => {
 		e.preventDefault(); // Prevent submit
 
 		let gameconfig = getGameConfig();

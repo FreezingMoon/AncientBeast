@@ -8,14 +8,14 @@ import * as arrayUtils from '../utility/arrayUtils';
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default G => {
 	G.abilities[12] = [
 		// 	First Ability: Bunny Hop
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onOtherCreatureMove',
 
-			require: function (fromHex) {
+			require: function(fromHex) {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -33,12 +33,12 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (destHex) {
+			activate: function(destHex) {
 				let ability = this;
 				ability.end();
 
 				this.creature.moveTo(this._getHopHex(destHex), {
-					callbackStepIn: function () {
+					callbackStepIn: function() {
 						G.activeCreature.queryMove();
 					},
 					ignorePath: true,
@@ -46,24 +46,24 @@ export default (G) => {
 				});
 			},
 
-			_getUsesPerTurn: function () {
+			_getUsesPerTurn: function() {
 				// If upgraded, useable twice per turn
 				return this.isUpgraded() ? 2 : 1;
 			},
 
-			_getTriggerHexId: function (fromHex) {
+			_getTriggerHexId: function(fromHex) {
 				let hexes = this.creature.getHexMap(matrices.front1hex);
 
 				// Find which hex we are hopping from
 				let id = -1;
-				fromHex.creature.hexagons.forEach(function (hex) {
+				fromHex.creature.hexagons.forEach(function(hex) {
 					id = hexes.indexOf(hex) > id ? hexes.indexOf(hex) : id;
 				});
 
 				return id;
 			},
 
-			_getHopHex: function (fromHex) {
+			_getHopHex: function(fromHex) {
 				let id = this._getTriggerHexId(fromHex);
 
 				// Try to hop away
@@ -103,7 +103,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -119,12 +119,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let snowBunny = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -135,7 +135,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function(target) {
 				let ability = this;
 				ability.end();
 
@@ -172,7 +172,7 @@ export default (G) => {
 			_targetTeam: Team.both,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -189,12 +189,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let snowBunny = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					flipped: snowBunny.player.flipped,
@@ -208,7 +208,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (path, args) {
+			activate: function(path, args) {
 				let ability = this;
 				ability.end();
 
@@ -248,7 +248,7 @@ export default (G) => {
 				target.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function () {
+					callback: function() {
 						G.activeCreature.queryMove();
 					},
 					animation: 'push',
@@ -269,7 +269,7 @@ export default (G) => {
 				target.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function () {
+					callback: function() {
 						G.activeCreature.queryMove();
 					},
 					animation: 'push',
@@ -287,7 +287,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: function() {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -304,12 +304,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function() {
 				let ability = this;
 				let snowBunny = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: function() {
 						ability.animation(...arguments);
 					},
 					flipped: snowBunny.player.flipped,
@@ -323,7 +323,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (path, args) {
+			activate: function(path, args) {
 				let ability = this;
 				ability.end();
 				let target = arrayUtils.last(path).creature;
@@ -341,7 +341,7 @@ export default (G) => {
 				let sprite = projectileInstance[1];
 				let dist = projectileInstance[2];
 
-				tween.onComplete.add(function () {
+				tween.onComplete.add(function() {
 					// this refers to the animation object, _not_ the ability
 					this.destroy();
 
@@ -366,7 +366,7 @@ export default (G) => {
 					}
 				}, sprite); // End tween.onComplete
 			},
-			getAnimationData: function () {
+			getAnimationData: function() {
 				return {
 					duration: 500,
 					delay: 0,
