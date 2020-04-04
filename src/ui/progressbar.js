@@ -39,7 +39,7 @@ export class ProgressBar {
 			width: this.width,
 			height: this.height * percentage,
 			'background-color': this.color,
-			opacity: 1,
+			'background-image': 'none',
 		});
 	}
 
@@ -57,7 +57,6 @@ export class ProgressBar {
 			},
 			500,
 			'linear',
-
 		);
 
 		this.$current.transition(
@@ -66,7 +65,7 @@ export class ProgressBar {
 				width: this.width,
 				height: this.height * percentage,
 				'background-color': this.color,
-				opacity: 1,
+				'background-image': 'none',
 			},
 			500,
 			'linear',
@@ -84,16 +83,15 @@ export class ProgressBar {
 				width: this.width,
 				height: this.height * percentage,
 				'background-image': 'none',
-
 			},
 			500,
 			'linear',
 		);
 	}
 
-	// When enough progress is available to use
-	setAvailableStyle() {
-		this.$preview.css({
+	// Sets element's background-image with horizontal 2px stripe pattern
+	setStripePattern(element) {
+		element.css({
 			'background-image':
 				'linear-gradient(0deg, #000000 25%,' +
 				this.color +
@@ -105,9 +103,13 @@ export class ProgressBar {
 				this.color +
 				' 100%)',
 
-			'background-size': '8.00px 8.00px', // 2 px lines
-			// 'background-size': '4.00px 4.00px', // 1px lines
+			'background-size': '8.00px 8.00px',
 		});
+	}
+
+	// When enough progress is available to use
+	setAvailableStyle() {
+		this.setStripePattern(this.$preview);
 	}
 
 	// When not enough progress is available to use
@@ -122,9 +124,6 @@ export class ProgressBar {
 			'background-color': 'black',
 		});
 
-		this.$current.css({
-			'background-color': this.color,
-			opacity: 0.25,
-		});
+		this.setStripePattern(this.$current);
 	}
 }
