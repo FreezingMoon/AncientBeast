@@ -26,7 +26,7 @@ export class Animations {
 
 		creature.healthHide();
 
-		let anim = function() {
+		let anim = function () {
 			let hex = path[hexId];
 
 			if (hexId < path.length && (creature.remainingMove > 0 || opts.ignoreMovementPoint)) {
@@ -47,9 +47,9 @@ export class Animations {
 			// Ignore traps for hover creatures, unless this is the last hex
 			let enterHexOpts = $j.extend(
 				{
-					ignoreTraps: creature.movementType() !== 'normal' && hexId < path.length - 1
+					ignoreTraps: creature.movementType() !== 'normal' && hexId < path.length - 1,
 				},
-				opts
+				opts,
 			);
 
 			tween.onComplete.add(() => {
@@ -155,10 +155,10 @@ export class Animations {
 			.tween(creature.grp)
 			.to(
 				{
-					alpha: 0
+					alpha: 0,
 				},
 				500,
-				Phaser.Easing.Linear.None
+				Phaser.Easing.Linear.None,
 			)
 			.start();
 
@@ -175,10 +175,10 @@ export class Animations {
 				.tween(creature.grp)
 				.to(
 					{
-						alpha: 1
+						alpha: 1,
 					},
 					500,
-					Phaser.Easing.Linear.None
+					Phaser.Easing.Linear.None,
 				)
 				.start();
 
@@ -241,13 +241,13 @@ export class Animations {
 
 		game.onCreatureMove(creature, hex); // Trigger
 
-		creature.hexagons.forEach(h => {
+		creature.hexagons.forEach((h) => {
 			h.pickupDrop(creature);
 		});
 
 		game.grid.orderCreatureZ();
 
-		let queue = game.animationQueue.filter(item => item != animId);
+		let queue = game.animationQueue.filter((item) => item != animId);
 
 		if (queue.length === 0) {
 			game.freezedInput = false;
@@ -261,27 +261,27 @@ export class Animations {
 			dist = arrayUtils.filterCreature(path.slice(0), false, false).length,
 			emissionPoint = {
 				x: this2.creature.grp.x + startX,
-				y: this2.creature.grp.y + startY
+				y: this2.creature.grp.y + startY,
 			},
 			targetPoint = {
 				x: target.grp.x + 52,
-				y: target.grp.y - 20
+				y: target.grp.y - 20,
 			},
 			// Sprite id here
 			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, spriteId),
 			duration = dist * 75;
 
 		sprite.anchor.setTo(0.5);
-		sprite.rotation = -Math.PI / 3 + args.direction * Math.PI / 3;
+		sprite.rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
 		let tween = game.Phaser.add
 			.tween(sprite)
 			.to(
 				{
 					x: targetPoint.x,
-					y: targetPoint.y
+					y: targetPoint.y,
 				},
 				duration,
-				Phaser.Easing.Linear.None
+				Phaser.Easing.Linear.None,
 			)
 			.start();
 

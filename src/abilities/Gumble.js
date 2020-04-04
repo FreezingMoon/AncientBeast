@@ -9,26 +9,25 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[14] = [
 		// 	First Ability: Gooey Body
 		{
 			// Update stat buffs whenever health changes
 			trigger: 'onCreatureSummon onDamage onHeal',
 
-			require: function() {
+			require: function () {
 				// Always active
 				return true;
 			},
-
-			activate: function() {
+			activate: function () {
 				if (this.creature.dead) {
 					return;
 				}
 				// Attach a permanent effect that gives Gumble stat buffs
 				// Bonus points to pierce, slash and crush based on remaining health
 				let healthBonusDivisor = this.isUpgraded() ? 5 : 7;
-				let bonus = Math.floor(this.creature.health / healthBonusDivisor * 3);
+				let bonus = Math.floor((this.creature.health / healthBonusDivisor) * 3);
 				// Log whenever the bonus applied changes
 				let noLog = bonus == this._lastBonus;
 				this._lastBonus = bonus;
@@ -48,19 +47,19 @@ export default G => {
 							alterations: alterations,
 							deleteTrigger: '',
 							stackable: false,
-							noLog: noLog
+							noLog: noLog,
 						},
-						G
-					)
+						G,
+					),
 				);
 				if (!noLog) {
 					G.log(
-						'%CreatureName' + this.creature.id + '% receives ' + bonus + ' pierce, slash and crush'
+						'%CreatureName' + this.creature.id + '% receives ' + bonus + ' pierce, slash and crush',
 					);
 				}
 			},
 
-			_lastBonus: 0
+			_lastBonus: 0,
 		},
 
 		// 	Second Ability: Gummy Mallet
@@ -68,18 +67,22 @@ export default G => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function() {
+			require: function () {
 				// Always usable, even if no targets
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
 				// center of each area is two hexes away. Each area can be chosen regardless
 				// of whether targets are within.
-				let area = [[1, 1], [1, 1, 1], [1, 1]];
+				let area = [
+					[1, 1],
+					[1, 1, 1],
+					[1, 1],
+				];
 				let dx = this.creature.y % 2 !== 0 ? -1 : 0;
 				let dy = -1;
 				let choices = [
@@ -88,30 +91,30 @@ export default G => {
 					G.grid.getHexMap(this.creature.x + 1 + dx, this.creature.y + 2 + dy, 0, false, area), // down-right
 					G.grid.getHexMap(this.creature.x - 1 + dx, this.creature.y + 2 + dy, 0, false, area), // down-left
 					G.grid.getHexMap(this.creature.x - 2 + dx, this.creature.y + dy, 0, false, area), // back
-					G.grid.getHexMap(this.creature.x - 1 + dx, this.creature.y - 2 + dy, 0, false, area) // up-left
+					G.grid.getHexMap(this.creature.x - 1 + dx, this.creature.y - 2 + dy, 0, false, area), // up-left
 				];
 				// Reorder choices based on number of hexes
 				// This ensures that if a choice contains overlapping hexes only, that
 				// choice won't be available for selection.
-				choices.sort(function(choice1, choice2) {
+				choices.sort(function (choice1, choice2) {
 					return choice1.length < choice2.length;
 				});
 				G.grid.queryChoice({
-					fnOnCancel: function() {
+					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: Team.both,
 					id: this.creature.id,
 					requireCreature: false,
-					choices: choices
+					choices: choices,
 				});
 			},
 
-			activate: function(hexes) {
+			activate: function (hexes) {
 				let ability = this;
 				ability.end();
 
@@ -141,10 +144,10 @@ export default G => {
 				if (kills > 1) {
 					this.creature.player.score.push({
 						type: 'combo',
-						kills: kills
+						kills: kills,
 					});
 				}
-			}
+			},
 		},
 
 		// 	Thirt Ability: Royal Seal
@@ -153,23 +156,23 @@ export default G => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let creature = this.creature;
 
 				// Upgraded Royal Seal can target up to 3 hexagons range
 				let range = this.isUpgraded() ? 3 : 1;
 				let hexes = creature.hexagons.concat(
-					G.grid.getFlyingRange(creature.x, creature.y, range, creature.size, creature.id)
+					G.grid.getFlyingRange(creature.x, creature.y, range, creature.size, creature.id),
 				);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					size: creature.size,
@@ -177,16 +180,16 @@ export default G => {
 					id: creature.id,
 					hexes: hexes,
 					ownCreatureHexShade: true,
-					hideNonTarget: true
+					hideNonTarget: true,
 				});
 			},
 
 			//	activate() :
-			activate: function(hex) {
+			activate: function (hex) {
 				this.end();
 				let ability = this;
 
-				let makeSeal = function() {
+				let makeSeal = function () {
 					let effect = new Effect(
 						'Royal Seal',
 						ability.creature,
@@ -194,11 +197,11 @@ export default G => {
 						'onStepIn',
 						{
 							// Gumbles immune
-							requireFn: function() {
+							requireFn: function () {
 								let crea = this.trap.hex.creature;
 								return crea && crea.type !== this.owner.type;
 							},
-							effectFn: function(_, crea) {
+							effectFn: function (_, crea) {
 								if (this.trap.turnLifetime === 0) {
 									crea.remainingMove = 0;
 									// Destroy the trap on the trapped creature's turn
@@ -209,17 +212,17 @@ export default G => {
 							// Immobilize target so that they can't move and no
 							// abilities/effects can move them
 							alterations: {
-								moveable: false
+								moveable: false,
 							},
 							deleteTrigger: 'onStartPhase',
-							turnLifetime: 1
+							turnLifetime: 1,
 						},
-						G
+						G,
 					);
 
 					let trap = hex.createTrap('royal-seal', [effect], ability.creature.player, {
 						ownerCreature: ability.creature,
-						fullTurnLifetime: true
+						fullTurnLifetime: true,
 					});
 					trap.hide();
 				};
@@ -227,19 +230,19 @@ export default G => {
 				// Move Gumble to the target hex if necessary
 				if (hex.x !== this.creature.x || hex.y !== this.creature.y) {
 					this.creature.moveTo(hex, {
-						callback: function() {
+						callback: function () {
 							G.activeCreature.queryMove();
 							makeSeal();
 						},
 						ignoreMovementPoint: true,
 						ignorePath: true,
 						overrideSpeed: 200, // Custom speed for jumping
-						animation: 'push'
+						animation: 'push',
 					});
 				} else {
 					makeSeal();
 				}
-			}
+			},
 		},
 
 		// 	Fourth Ability: Boom Box
@@ -251,7 +254,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -259,7 +262,7 @@ export default G => {
 				if (
 					!this.testDirection({
 						team: this._targetTeam,
-						directions: this.directions
+						directions: this.directions,
 					})
 				) {
 					return false;
@@ -268,12 +271,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
@@ -282,12 +285,12 @@ export default G => {
 					requireCreature: true,
 					x: crea.x,
 					y: crea.y,
-					directions: this.directions
+					directions: this.directions,
 				});
 			},
 
 			//	activate() :
-			activate: function(path, args) {
+			activate: function (path, args) {
 				let ability = this;
 				ability.end();
 
@@ -297,10 +300,10 @@ export default G => {
 				let d = melee
 					? {
 							sonic: 20,
-							crush: 10
+							crush: 10,
 					  }
 					: {
-							sonic: 20
+							sonic: 20,
 					  };
 
 				let dir = [];
@@ -346,11 +349,11 @@ export default G => {
 					d, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 
 				let result = target.takeDamage(damage, {
-					ignoreRetaliation: true
+					ignoreRetaliation: true,
 				});
 
 				if (result.kill) {
@@ -362,13 +365,13 @@ export default G => {
 					target.moveTo(dir[1], {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: function() {
+						callback: function () {
 							G.activeCreature.queryMove();
 						},
-						animation: 'push'
+						animation: 'push',
 					});
 				}
-			}
-		}
+			},
+		},
 	];
 };

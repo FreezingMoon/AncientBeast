@@ -8,7 +8,7 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[22] = [
 		// 	First Ability: Greater Pyre
 		{
@@ -16,7 +16,7 @@ export default G => {
 			trigger: 'onDamage',
 
 			// 	require() :
-			require: function(damage) {
+			require: function (damage) {
 				if (this.used) {
 					return false;
 				}
@@ -25,7 +25,7 @@ export default G => {
 				}
 				if (damage == undefined) {
 					damage = {
-						type: 'target'
+						type: 'target',
 					};
 				} // For the test function to work
 				//if( this.triggeredThisChain ) return false;
@@ -33,7 +33,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(damage) {
+			activate: function (damage) {
 				if (this.triggeredThisChain) {
 					return damage;
 				}
@@ -46,11 +46,11 @@ export default G => {
 					this.creature, // Attacker
 					this.damages, // Damage Type
 					[], // Effects
-					targets
+					targets,
 				);
 
 				return damage;
-			}
+			},
 		},
 
 		// 	Second Ability: Fiery Claw
@@ -62,7 +62,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -70,7 +70,7 @@ export default G => {
 					!this.testDirection({
 						team: this._targetTeam,
 						distance: this.distance,
-						sourceCreature: this.creature
+						sourceCreature: this.creature,
 					})
 				) {
 					return false;
@@ -79,12 +79,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
@@ -94,12 +94,12 @@ export default G => {
 					x: crea.x,
 					y: crea.y,
 					distance: this.distance,
-					sourceCreature: crea
+					sourceCreature: crea,
 				});
 			},
 
 			//	activate() :
-			activate: function(path) {
+			activate: function (path) {
 				let ability = this;
 				ability.end();
 
@@ -110,10 +110,10 @@ export default G => {
 					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 				target.takeDamage(damage);
-			}
+			},
 		},
 
 		// 	Thirt Ability: Burning Eye
@@ -124,12 +124,12 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
@@ -137,21 +137,21 @@ export default G => {
 					noPath: true,
 					isAbility: true,
 					range: G.grid.getFlyingRange(crea.x, crea.y, 50, crea.size, crea.id),
-					callback: function() {
+					callback: function () {
 						delete arguments[1];
 						ability.animation(...arguments);
-					}
+					},
 				});
 			},
 
 			//	activate() :
-			activate: function(hex) {
+			activate: function (hex) {
 				let ability = this;
 				ability.end();
 
 				let targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
-				targets.forEach(function(item) {
+				targets.forEach(function (item) {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
@@ -161,8 +161,8 @@ export default G => {
 					if (isTeam(ability.creature, trg, item._targetTeam)) {
 						let optArg = {
 							alterations: {
-								burn: -1
-							}
+								burn: -1,
+							},
 						};
 
 						//Roasted effect
@@ -172,7 +172,7 @@ export default G => {
 							trg, //Target
 							'', //Trigger
 							optArg, //Optional arguments
-							G
+							G,
 						);
 						trg.addEffect(effect);
 					}
@@ -182,13 +182,13 @@ export default G => {
 					ignoreMovementPoint: true,
 					ignorePath: true,
 					animation: 'teleport',
-					callback: function() {
+					callback: function () {
 						G.activeCreature.queryMove();
 					},
-					callbackStepIn: function() {
+					callbackStepIn: function () {
 						let callbackTargets = ability.getTargets(ability.creature.adjacentHexes(1));
 
-						callbackTargets.forEach(function(item) {
+						callbackTargets.forEach(function (item) {
 							if (!(item.target instanceof Creature)) {
 								return;
 							}
@@ -198,8 +198,8 @@ export default G => {
 							if (isTeam(ability.creature, trg, item._targetTeam)) {
 								let optArg = {
 									alterations: {
-										burn: -1
-									}
+										burn: -1,
+									},
 								};
 
 								//Roasted effect
@@ -209,17 +209,17 @@ export default G => {
 									trg, //Target
 									'', //Trigger
 									optArg, //Optional arguments
-									G
+									G,
 								);
 								trg.addEffect(
 									effect,
-									'%CreatureName' + trg.id + '% got roasted : -1 burn stat debuff'
+									'%CreatureName' + trg.id + '% got roasted : -1 burn stat debuff',
 								);
 							}
 						});
-					}
+					},
 				});
-			}
+			},
 		},
 
 		// 	Fourth Ability: Fire Ball
@@ -228,12 +228,12 @@ export default G => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
@@ -245,34 +245,34 @@ export default G => {
 				range.splice(tail, 1);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					fnOnSelect: function(hex) {
-						hex.adjacentHex(1).forEach(function(item) {
+					fnOnSelect: function (hex) {
+						hex.adjacentHex(1).forEach(function (item) {
 							if (item.creature instanceof Creature) {
 								if (item.creature == crea) {
 									//If it is abolished
-									crea.adjacentHexes(1).forEach(function(item2) {
+									crea.adjacentHexes(1).forEach(function (item2) {
 										if (item2.creature instanceof Creature) {
 											if (item2.creature == crea) {
 												//If it is abolished
 												crea
 													.adjacentHexes(1)
 													.overlayVisualState(
-														'creature selected weakDmg player' + item2.creature.team
+														'creature selected weakDmg player' + item2.creature.team,
 													);
 												item2.overlayVisualState(
-													'creature selected weakDmg player' + item2.creature.team
+													'creature selected weakDmg player' + item2.creature.team,
 												);
 											} else {
 												item2.overlayVisualState(
-													'creature selected weakDmg player' + item2.creature.team
+													'creature selected weakDmg player' + item2.creature.team,
 												);
 											}
 										} else {
 											item2.overlayVisualState(
-												'creature selected weakDmg player' + G.activeCreature.team
+												'creature selected weakDmg player' + G.activeCreature.team,
 											);
 										}
 									});
@@ -293,12 +293,12 @@ export default G => {
 					},
 					id: this.creature.id,
 					hexes: range,
-					hideNonTarget: true
+					hideNonTarget: true,
 				});
 			},
 
 			//	activate() :
-			activate: function(hex) {
+			activate: function (hex) {
 				let ability = this;
 				ability.end();
 
@@ -313,8 +313,8 @@ export default G => {
 							ability.damages1, // Damage Type
 							1, // Area
 							[], // Effects
-							G
-						)
+							G,
+						),
 					);
 				}
 
@@ -322,9 +322,9 @@ export default G => {
 					ability.creature,
 					ability.damages2,
 					[], //Effects
-					targets
+					targets,
 				);
-			}
-		}
+			},
+		},
 	];
 };

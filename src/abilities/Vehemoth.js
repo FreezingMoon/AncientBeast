@@ -10,7 +10,7 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[6] = [
 		// 	First Ability: Frost Bite
 		{
@@ -18,7 +18,7 @@ export default G => {
 			trigger: 'onEndPhase',
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -26,7 +26,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function() {
+			activate: function () {
 				let ability = this;
 				this.end();
 
@@ -46,13 +46,13 @@ export default G => {
 								crea, // Target
 								'onOtherCreatureDeath', // Trigger
 								{
-									effectFn: function(eff) {
+									effectFn: function (eff) {
 										let trg = eff.target;
 
 										let iceDemonArray = G.findCreature({
 											type: 'S7', // Ice Demon
 											dead: false, // Still Alive
-											team: [1 - trg.team % 2, 1 - trg.team % 2 + 2] // Oposite team
+											team: [1 - (trg.team % 2), 1 - (trg.team % 2) + 2], // Oposite team
 										});
 
 										if (iceDemonArray.length == 0) {
@@ -60,15 +60,15 @@ export default G => {
 										}
 									},
 									alterations: ability.effects[0],
-									noLog: true
+									noLog: true,
 								}, // Optional arguments
-								G
+								G,
 							);
 							crea.addEffect(effect);
 						}
 					}
 				}
-			}
+			},
 		},
 
 		// 	Second Ability: Head Bash
@@ -80,7 +80,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -88,7 +88,7 @@ export default G => {
 					!this.testDirection({
 						team: this._targetTeam,
 						distance: this.distance,
-						sourceCreature: this.creature
+						sourceCreature: this.creature,
 					})
 				) {
 					return false;
@@ -97,12 +97,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
@@ -112,12 +112,12 @@ export default G => {
 					x: crea.x,
 					y: crea.y,
 					distance: this.distance,
-					sourceCreature: crea
+					sourceCreature: crea,
 				});
 			},
 
 			//	activate() :
-			activate: function(path) {
+			activate: function (path) {
 				let ability = this;
 				ability.end();
 
@@ -159,10 +159,10 @@ export default G => {
 						target.moveTo(dir[1], {
 							ignoreMovementPoint: true,
 							ignorePath: true,
-							callback: function() {
+							callback: function () {
 								G.activeCreature.queryMove();
 							},
-							animation: 'push'
+							animation: 'push',
 						});
 						pushed = true;
 					}
@@ -178,10 +178,10 @@ export default G => {
 					d, // Damage Type
 					1, // Area
 					[], // Effects
-					G
+					G,
 				);
 				target.takeDamage(damage);
-			}
+			},
 		},
 
 		// 	Thirt Ability: Snow Storm
@@ -192,7 +192,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -207,7 +207,7 @@ export default G => {
 						true,
 						true,
 						crea.id,
-						crea.team
+						crea.team,
 					)
 					.concat(
 						arrayUtils.filterCreature(
@@ -215,28 +215,28 @@ export default G => {
 							true,
 							true,
 							crea.id,
-							crea.team
+							crea.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow),
 							true,
 							true,
 							crea.id,
-							crea.team
+							crea.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x + 1, crea.y, 0, false, bellowrow),
 							true,
 							true,
 							crea.id,
-							crea.team
+							crea.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x + 2, crea.y + 2, 0, false, straitrow),
 							true,
 							true,
 							crea.id,
-							crea.team
+							crea.team,
 						),
 
 						arrayUtils.filterCreature(
@@ -244,41 +244,41 @@ export default G => {
 							true,
 							true,
 							crea.id,
-							crea.team
+							crea.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x - 1, crea.y - 2, 2, true, bellowrow),
 							true,
 							true,
 							crea.id,
-							crea.team
+							crea.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x, crea.y, 2, true, straitrow),
 							true,
 							true,
 							crea.id,
-							crea.team
+							crea.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x - 1, crea.y, 2, true, bellowrow),
 							true,
 							true,
 							crea.id,
-							crea.team
+							crea.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(crea.x - 2, crea.y + 2, 2, true, straitrow),
 							true,
 							true,
 							crea.id,
-							crea.team
-						)
+							crea.team,
+						),
 					);
 
 				if (
 					!this.atLeastOneTarget(hexes, {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -288,7 +288,7 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
@@ -300,7 +300,7 @@ export default G => {
 							true,
 							true,
 							crea.id,
-							crea.team
+							crea.team,
 						)
 						.concat(
 							arrayUtils.filterCreature(
@@ -308,29 +308,29 @@ export default G => {
 								true,
 								true,
 								crea.id,
-								crea.team
+								crea.team,
 							),
 							arrayUtils.filterCreature(
 								G.grid.getHexMap(crea.x, crea.y, 0, false, matrices.straitrow),
 								true,
 								true,
 								crea.id,
-								crea.team
+								crea.team,
 							),
 							arrayUtils.filterCreature(
 								G.grid.getHexMap(crea.x + 1, crea.y, 0, false, matrices.bellowrow),
 								true,
 								true,
 								crea.id,
-								crea.team
+								crea.team,
 							),
 							arrayUtils.filterCreature(
 								G.grid.getHexMap(crea.x + 2, crea.y + 2, 0, false, matrices.straitrow),
 								true,
 								true,
 								crea.id,
-								crea.team
-							)
+								crea.team,
+							),
 						),
 					//Behind
 					arrayUtils
@@ -339,7 +339,7 @@ export default G => {
 							true,
 							true,
 							crea.id,
-							crea.team
+							crea.team,
 						)
 						.concat(
 							arrayUtils.filterCreature(
@@ -347,46 +347,46 @@ export default G => {
 								true,
 								true,
 								crea.id,
-								crea.team
+								crea.team,
 							),
 							arrayUtils.filterCreature(
 								G.grid.getHexMap(crea.x, crea.y, 2, true, matrices.straitrow),
 								true,
 								true,
 								crea.id,
-								crea.team
+								crea.team,
 							),
 							arrayUtils.filterCreature(
 								G.grid.getHexMap(crea.x - 1, crea.y, 2, true, matrices.bellowrow),
 								true,
 								true,
 								crea.id,
-								crea.team
+								crea.team,
 							),
 							arrayUtils.filterCreature(
 								G.grid.getHexMap(crea.x - 2, crea.y + 2, 2, true, matrices.straitrow),
 								true,
 								true,
 								crea.id,
-								crea.team
-							)
-						)
+								crea.team,
+							),
+						),
 				];
 
 				G.grid.queryChoice({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					}, //fnOnConfirm
 					team: this._targetTeam,
 					requireCreature: 1,
 					id: crea.id,
 					flipped: crea.flipped,
-					choices: choices
+					choices: choices,
 				});
 			},
 
 			//	activate() :
-			activate: function(choice) {
+			activate: function (choice) {
 				let ability = this;
 
 				let creaturesHit = [];
@@ -404,14 +404,14 @@ export default G => {
 								ability.damages1, // Damage Type
 								1, // Area
 								[], // Effects
-								G
-							)
+								G,
+							),
 						);
 
 						creaturesHit.push(choice[i].creature);
 					}
 				}
-			}
+			},
 		},
 
 		// 	Fourth Ability: Frozen Orb
@@ -423,7 +423,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -431,7 +431,7 @@ export default G => {
 					!this.testDirection({
 						team: this._targetTeam,
 						directions: this.directions,
-						sourceCreature: this.creature
+						sourceCreature: this.creature,
 					})
 				) {
 					return false;
@@ -440,12 +440,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnSelect: function(path) {
+					fnOnSelect: function (path) {
 						let trg = arrayUtils.last(path).creature;
 
 						let hex = ability.creature.player.flipped
@@ -455,7 +455,7 @@ export default G => {
 						hex
 							.adjacentHex(ability.radius)
 							.concat([hex])
-							.forEach(function(item) {
+							.forEach(function (item) {
 								if (item.creature instanceof Creature) {
 									item.overlayVisualState('creature selected player' + item.creature.team);
 								} else {
@@ -463,7 +463,7 @@ export default G => {
 								}
 							});
 					},
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
@@ -472,12 +472,12 @@ export default G => {
 					requireCreature: true,
 					x: crea.x,
 					y: crea.y,
-					sourceCreature: crea
+					sourceCreature: crea,
 				});
 			},
 
 			//	activate() :
-			activate: function(path) {
+			activate: function (path) {
 				let ability = this;
 				ability.end();
 
@@ -505,21 +505,21 @@ export default G => {
 					undefined, // Target
 					'', // Trigger
 					{
-						effectFn: function(eff) {
+						effectFn: function (eff) {
 							eff.target.stats.frozen = true;
 							this.deleteEffect();
-						}
+						},
 					},
-					G
+					G,
 				);
 
 				ability.areaDamage(
 					ability.creature,
 					ability.damages,
 					[effect], // Effects
-					trgs
+					trgs,
 				);
-			}
-		}
+			},
+		},
 	];
 };

@@ -8,7 +8,7 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[9] = [
 		// 	First Ability: Frigid Tower
 		{
@@ -17,16 +17,16 @@ export default G => {
 
 			_effectName: 'Frostified',
 
-			_getOffenseBuff: function() {
+			_getOffenseBuff: function () {
 				return this.isUpgraded() ? 5 : 0;
 			},
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				// Check whether this ability is upgraded; if so then make sure all existing
 				// buffs include an offense buff
 				let ability = this;
-				this.creature.effects.forEach(function(effect) {
+				this.creature.effects.forEach(function (effect) {
 					if (effect.name === ability._effectName) {
 						effect.alterations.offense = ability._getOffenseBuff();
 					}
@@ -40,7 +40,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function() {
+			activate: function () {
 				this.creature.addEffect(
 					new Effect(
 						this._effectName,
@@ -51,14 +51,14 @@ export default G => {
 							alterations: {
 								frost: 5,
 								defense: 5,
-								offense: this._getOffenseBuff()
+								offense: this._getOffenseBuff(),
 							},
-							stackable: true
+							stackable: true,
 						},
-						G
-					)
+						G,
+					),
 				);
-			}
+			},
 		},
 
 		// 	Second Ability: Icy Talons
@@ -69,14 +69,14 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -85,22 +85,22 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback2hex)
+					hexes: this.creature.getHexMap(matrices.frontnback2hex),
 				});
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
@@ -125,18 +125,18 @@ export default G => {
 							'',
 							{
 								alterations: {
-									frost: -1
+									frost: -1,
 								},
-								stackable: true
+								stackable: true,
 							},
-							G
-						)
+							G,
+						),
 					], // Effects
-					G
+					G,
 				);
 
 				target.takeDamage(damage);
-			}
+			},
 		},
 
 		// 	Third Ability: Sudden Uppercut
@@ -147,14 +147,14 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam
+						team: this._targetTeam,
 					})
 				) {
 					return false;
@@ -163,22 +163,22 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback2hex)
+					hexes: this.creature.getHexMap(matrices.frontnback2hex),
 				});
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
@@ -193,14 +193,14 @@ export default G => {
 							'',
 							{
 								alterations: {
-									defense: -10
+									defense: -10,
 								},
 								stackable: true,
 								turnLifetime: 1,
-								deleteTrigger: 'onStartPhase'
+								deleteTrigger: 'onStartPhase',
 							},
-							G
-						)
+							G,
+						),
 					);
 				}
 				let damage = new Damage(
@@ -208,7 +208,7 @@ export default G => {
 					ability.damages, // Damage Type
 					1, // Area
 					effects,
-					G
+					G,
 				);
 
 				let result = target.takeDamage(damage);
@@ -218,7 +218,7 @@ export default G => {
 				}
 
 				target.delay();
-			}
+			},
 		},
 
 		// 	Fourth Ability: Icicle Spear
@@ -229,12 +229,12 @@ export default G => {
 			directions: [1, 1, 1, 1, 1, 1],
 			_targetTeam: Team.both,
 
-			_getDistance: function() {
+			_getDistance: function () {
 				// Upgraded ability has infinite range
 				return this.isUpgraded() ? 0 : 6;
 			},
 
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -248,7 +248,7 @@ export default G => {
 						x: x,
 						directions: this.directions,
 						distance: this._getDistance(),
-						stopOnCreature: false
+						stopOnCreature: false,
 					})
 				) {
 					return false;
@@ -257,14 +257,14 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -274,12 +274,12 @@ export default G => {
 					y: crea.y,
 					directions: this.directions,
 					distance: this._getDistance(),
-					stopOnCreature: false
+					stopOnCreature: false,
 				});
 			},
 
 			//	activate() :
-			activate: function(path) {
+			activate: function (path) {
 				let ability = this;
 
 				ability.end();
@@ -290,7 +290,7 @@ export default G => {
 
 						let d = {
 							pierce: ability.damages.pierce,
-							frost: 6 - i
+							frost: 6 - i,
 						};
 						if (d.frost < 0) {
 							d.frost = 0;
@@ -302,7 +302,7 @@ export default G => {
 							d, // Damage Type
 							1, // Area
 							[], // Effects
-							G
+							G,
 						);
 
 						let result = trg.takeDamage(damage);
@@ -316,7 +316,7 @@ export default G => {
 						}
 					}
 				}
-			}
-		}
+			},
+		},
 	];
 };
