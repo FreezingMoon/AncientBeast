@@ -299,7 +299,6 @@
 }
 
 #rightpanel {
-	background: rgba(0, 0, 0, 0.55);
 	position: absolute;
 	right: 20px;
 	top: 100px;
@@ -349,6 +348,7 @@
 
 	&.ability {
 		cursor: help !important;
+		
 	}
 }
 
@@ -403,6 +403,26 @@
 	color: red;
 }
 
+#leftpanel .button{
+	background-color: rgba(0, 0, 0, 0.55);
+	&.disabled{
+	transition: transform .5s;
+	transform: translateX(-50%);
+		&:hover{
+			transform: translateX(0%);
+		}
+	}
+}
+#rightpanel .button{
+	background-color: rgba(0, 0, 0, 0.55);
+	&.disabled{
+	transition: transform .5s;
+	transform: translateX(50%);
+		&:hover{
+			transform:translateX(0);
+		}
+	}
+}
 // Card anchor refactor
 div.section.info {
 	position: relative;
@@ -933,9 +953,6 @@ div.section.info {
 	display: block;
 }
 
-#abilities {
-	background: rgba(0, 0, 0, 0.55);
-}
 
 .button + .desc {
 	position: absolute;
@@ -1289,6 +1306,7 @@ span.pure {
 #rightpanel .progressbar {
 	right: -20px;
 }
+
 
 .progressbar .bar {
 	display: block;
