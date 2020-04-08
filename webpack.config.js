@@ -1,7 +1,5 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const variables = require('./webpack.var');
-const merge = require('webpack-merge');
 const CopyPlugin = require('copy-webpack-plugin');
 
 // Phaser webpack config
@@ -12,8 +10,9 @@ const p2 = path.join(phaserModule, 'build/custom/p2.js');
 
 // Expose mode argument to unify our config options.
 module.exports = (env, argv) => {
-	// Common settings for all environments.
-	let common = {
+	const production = (argv && argv.mode === 'production') || process.env.NODE_ENV === 'production';
+
+	return {
 		entry: path.resolve(__dirname, 'src', 'script.js'),
 		output: {
 			path: path.resolve(__dirname, 'deploy/'),
@@ -21,19 +20,17 @@ module.exports = (env, argv) => {
 			// chunkFilename: '[id].chunk.js',
 			publicPath: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
 		},
-
-		devtool: 'inline-source-map',
-		optimization: {
-			splitChunks: {
-				cacheGroups: {},
-			},
-		},
-
+		devtool: production ? 'none' : 'source-map',
 		module: {
 			rules: [
 				{ test: /pixi\.js/, use: ['expose-loader?PIXI'] },
 				{ test: /phaser-split\.js$/, use: ['expose-loader?Phaser'] },
 				{ test: /p2\.js/, use: ['expose-loader?p2'] },
+				{ test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
+				{
+					test: /\.html$/,
+					use: ['html-loader'],
+				},
 				{
 					test: /\.less$/,
 					use: ['style-loader', 'css-loader', 'less-loader'],
@@ -46,12 +43,17 @@ module.exports = (env, argv) => {
 					test: /\.(png|jpg|gif|svg|ogg|ico|cur|woff|woff2)$/,
 					loader: 'file-loader',
 					options: {
+						name(resourcePath, resourceQuery) {
+							if (production) {
+								return 'assets/[contenthash].[ext]';
+							}
+							return '[path][name].[ext]';
+						},
 						esModule: false,
 					},
 				},
 			],
 		},
-
 		resolve: {
 			alias: {
 				pixi: pixi,
@@ -61,57 +63,13 @@ module.exports = (env, argv) => {
 				modules: path.join(__dirname, 'node_modules'),
 			},
 		},
-
-		// Eventually we want to use a version of this.
-		// optimization: {
-		// 	splitChunks: {
-		// 		cacheGroups: {
-		// 			vendor: {
-		// 				test: /[\\/]node_modules[\\/]/,
-		// 				name: "vendors",
-		// 				enforce: true
-		// 			},
-		// 			assets: {
-		// 				test: /[\\/]assets[\\/]/,
-		// 				name: "assets",
-		// 				enforce: true
-		// 			},
-		// 		}
-		// 	}
-		// },
-
 		plugins: [
 			new CopyPlugin([{ from: 'static' }]),
 			new HtmlWebpackPlugin({
-				template: path.resolve(__dirname, 'src', 'index.html'),
+				template: path.resolve(__dirname, 'src', 'index.ejs'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
-				worker: variables.worker,
-				analytics: '',
+				production,
 			}),
 		],
 	};
-
-	let production = {
-		plugins: [
-			new CopyPlugin([{ from: 'static' }]),
-			new HtmlWebpackPlugin({
-				template: path.resolve(__dirname, 'src', 'index.html'),
-				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
-				worker: variables.worker,
-				analytics: variables.analytics,
-			}),
-		],
-	};
-
-	let settings;
-
-	// argv is passed in when ran via `webpack --mode` and process.env.NODE_ENV is used when
-	// `npm start` commands are used.
-	if ((argv && argv.mode === 'production') || process.env.NODE_ENV === 'production') {
-		settings = merge.strategy({ plugins: 'replace' })(common, production);
-	} else {
-		settings = common;
-	}
-
-	return settings;
 };
