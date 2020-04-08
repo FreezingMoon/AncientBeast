@@ -44,7 +44,10 @@ module.exports = (env, argv) => {
 				},
 				{
 					test: /\.(png|jpg|gif|svg|ogg|ico|cur|woff|woff2)$/,
-					use: ['file-loader'],
+					loader: 'file-loader',
+					options: {
+						esModule: false,
+					},
 				},
 			],
 		},
