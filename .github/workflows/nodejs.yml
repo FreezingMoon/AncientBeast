@@ -3,16 +3,12 @@
 
 name: Node.js CI
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: push
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    
+    runs-on: ubuntu-18.04
 
     strategy:
       matrix:
@@ -25,7 +21,15 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
-      env:
-        CI: true
+    - name: Asset generator
+      run: npm run assetLister 
+    - name: lint
+      run: npm run lint
+    - name: build
+      run: npx webpack --mode=production
+    
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./deploy
