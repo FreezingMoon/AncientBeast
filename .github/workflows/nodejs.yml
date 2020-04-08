@@ -24,12 +24,21 @@ jobs:
       run: npx webpack --mode=production
       env:
         PUBLIC_PATH: '/AncientBeast/'
-    
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: deploy
+        path: deploy
+  
   deploy:
     runs-on: ubuntu-18.04
     needs: build
     #if: github.ref == 'refs/heads/master'
     steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: deploy
       # Uses: https://github.com/peaceiris/actions-gh-pages
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
