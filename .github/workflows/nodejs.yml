@@ -22,11 +22,13 @@ jobs:
       run: npm run lint
     - name: build
       run: npx webpack --mode=production
+      env:
+        PUBLIC_PATH: '/AncientBeast/'
     
   deploy:
     runs-on: ubuntu-18.04
     needs: build
-    if: github.ref == 'refs/heads/master'
+    #if: github.ref == 'refs/heads/master'
     steps:
       # Uses: https://github.com/peaceiris/actions-gh-pages
       - name: Deploy
