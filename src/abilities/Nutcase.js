@@ -10,18 +10,18 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[40] = [
 		//	First Ability: Tentacle Bush
 		{
 			trigger: 'onUnderAttack',
 
-			require: function() {
+			require: function () {
 				// Always true to highlight ability
 				return true;
 			},
 
-			activate: function(damage) {
+			activate: function (damage) {
 				// Must take melee damage from a non-trap source
 				if (damage === undefined) {
 					return false;
@@ -105,7 +105,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			//	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -122,12 +122,12 @@ export default G => {
 			},
 
 			//	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 
 				if (!this.isUpgraded()) {
 					G.grid.queryCreature({
-						fnOnConfirm: function() {
+						fnOnConfirm: function () {
 							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
@@ -142,11 +142,11 @@ export default G => {
 						this.creature.getHexMap(matrices.back2hex),
 					];
 					G.grid.queryChoice({
-						fnOnSelect: function(choice, args) {
+						fnOnSelect: function (choice, args) {
 							G.activeCreature.faceHex(args.hex, undefined, true);
 							args.hex.overlayVisualState('creature selected player' + G.activeCreature.team);
 						},
-						fnOnConfirm: function() {
+						fnOnConfirm: function () {
 							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
@@ -156,7 +156,7 @@ export default G => {
 				}
 			},
 
-			activate: function(targetOrChoice, args) {
+			activate: function (targetOrChoice, args) {
 				let ability = this;
 				ability.end();
 
@@ -171,7 +171,7 @@ export default G => {
 					//   - back choice (choice 1) and top hex chosen
 					// - otherwise, y descending
 					let isFrontChoice = args.choiceIndex === 0;
-					let yCoords = targetOrChoice.map(function(hex) {
+					let yCoords = targetOrChoice.map(function (hex) {
 						return hex.y;
 					});
 					let yMin = Math.min.apply(null, yCoords);
@@ -182,7 +182,7 @@ export default G => {
 					} else {
 						yAscending = args.hex.y === yMin;
 					}
-					targetOrChoice.sort(function(a, b) {
+					targetOrChoice.sort(function (a, b) {
 						return yAscending ? a.y - b.y : b.y - a.y;
 					});
 					for (let i = 0; i < targetOrChoice.length; i++) {
@@ -196,7 +196,7 @@ export default G => {
 				}
 			},
 
-			_activateOnTarget: function(target) {
+			_activateOnTarget: function (target) {
 				let ability = this;
 
 				// Target takes pierce damage if it ever moves
@@ -206,7 +206,7 @@ export default G => {
 					target, // Target
 					'onStepOut', // Trigger
 					{
-						effectFn: function(eff) {
+						effectFn: function (eff) {
 							eff.target.takeDamage(
 								new Damage(
 									eff.owner,
@@ -244,7 +244,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			//	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -259,11 +259,11 @@ export default G => {
 				return true;
 			},
 
-			query: function() {
+			query: function () {
 				let ability = this;
 
 				let o = {
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -297,7 +297,7 @@ export default G => {
 							}
 						}
 						let line = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
-						o.choices[i].forEach(function(choice) {
+						o.choices[i].forEach(function (choice) {
 							arrayUtils.removePos(line, choice);
 						});
 
@@ -310,7 +310,7 @@ export default G => {
 						// Get a new hex line so that the hexes are in the right order
 						let newChoice = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
 						// Exclude creature
-						ability.creature.hexagons.forEach(function(hex) {
+						ability.creature.hexagons.forEach(function (hex) {
 							if (arrayUtils.findPos(newChoice, hex)) {
 								arrayUtils.removePos(newChoice, hex);
 							}
@@ -335,7 +335,7 @@ export default G => {
 				}
 			},
 
-			activate: function(path, args) {
+			activate: function (path, args) {
 				let i;
 				let ability = this;
 				this.end();
@@ -373,8 +373,8 @@ export default G => {
 					this.creature.moveTo(destination, {
 						overrideSpeed: 100,
 						ignoreMovementPoint: true,
-						callback: function() {
-							let interval = setInterval(function() {
+						callback: function () {
+							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 
@@ -398,7 +398,7 @@ export default G => {
 				}
 			},
 
-			_pushTarget: function(target, pushPath, args) {
+			_pushTarget: function (target, pushPath, args) {
 				let ability = this;
 				let creature = this.creature;
 
@@ -414,7 +414,7 @@ export default G => {
 				// As we need to move creatures simultaneously, we can't use the normal path
 				// calculation as the target blocks the path
 				let i = 0;
-				let interval = setInterval(function() {
+				let interval = setInterval(function () {
 					if (!G.freezedInput) {
 						if (
 							i === targetPushPath.length ||
@@ -442,7 +442,7 @@ export default G => {
 				return true;
 			},
 
-			_pushOneHex: function(target, hex, targetHex) {
+			_pushOneHex: function (target, hex, targetHex) {
 				let opts = {
 					overrideSpeed: 100,
 					ignorePath: true,
@@ -471,7 +471,7 @@ export default G => {
 
 			_targetTeam: Team.enemy,
 
-			require: function() {
+			require: function () {
 				let ability = this;
 				if (!this.testRequirements()) {
 					return false;
@@ -480,7 +480,7 @@ export default G => {
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.inlinefrontnback2hex), {
 						team: this._targetTeam,
-						optTest: function(creature) {
+						optTest: function (creature) {
 							// Size restriction of 2 if unupgraded
 							return ability.isUpgraded() ? true : creature.size <= 2;
 						},
@@ -492,18 +492,18 @@ export default G => {
 			},
 
 			//	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
 					hexes: this.creature.getHexMap(matrices.inlinefrontnback2hex),
-					optTest: function(creature) {
+					optTest: function (creature) {
 						// Size restriction of 2 if unupgraded
 						return ability.isUpgraded() ? true : creature.size <= 2;
 					},
@@ -511,7 +511,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				let crea = ability.creature;
 				ability.end();
@@ -539,7 +539,7 @@ export default G => {
 				crea.moveTo(G.grid.hexes[target.y][creaX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
-					callback: function() {
+					callback: function () {
 						crea.updateHex();
 						crea.queryMove();
 					},
@@ -548,7 +548,7 @@ export default G => {
 				target.moveTo(G.grid.hexes[crea.y][targetX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
-					callback: function() {
+					callback: function () {
 						target.updateHex();
 						target.takeDamage(damage);
 					},

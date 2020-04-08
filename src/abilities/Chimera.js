@@ -7,18 +7,18 @@ import * as arrayUtils from '../utility/arrayUtils';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[45] = [
 		// 	First Ability: Cyclic Duality
 		{
 			trigger: 'onReset',
 
 			//	require() :
-			require: function() {
+			require: function () {
 				return this.testRequirements();
 			},
 
-			activate: function() {
+			activate: function () {
 				// Only activate when fatigued
 				if (!this.creature.isFatigued()) {
 					return;
@@ -41,7 +41,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			//	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -67,12 +67,12 @@ export default G => {
 			},
 
 			//	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -83,7 +83,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 
 				ability.end();
@@ -111,7 +111,7 @@ export default G => {
 			_targetTeam: Team.both,
 
 			//	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -128,12 +128,12 @@ export default G => {
 			},
 
 			//	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: chimera.player.flipped,
@@ -147,7 +147,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path, args) {
+			activate: function (path, args) {
 				let ability = this;
 
 				ability.end();
@@ -202,7 +202,7 @@ export default G => {
 
 			_targetTeam: Team.both,
 
-			_getDirections: function() {
+			_getDirections: function () {
 				return this.testDirections({
 					flipped: this.creature.player.flipped,
 					team: this._targetTeam,
@@ -218,7 +218,7 @@ export default G => {
 				});
 			},
 
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -235,12 +235,12 @@ export default G => {
 			},
 
 			//	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: chimera.player.flipped,
@@ -254,7 +254,7 @@ export default G => {
 				});
 			},
 
-			activate: function(path, args) {
+			activate: function (path, args) {
 				let ability = this;
 				this.end();
 

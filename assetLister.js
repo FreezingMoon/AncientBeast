@@ -25,23 +25,24 @@ function fileToEntity(filePath) {
  * Read the directory
  *
  * @param {string} dirPath the path of the directory.
- * @return {Array} An array of asset objects.
+ * @return {Promise<any[]>} An array of asset objects.
  */
 async function readDirectory(dirPath) {
-	const result = [];
-	for (const child of await readDir(dirPath)) {
-		const childPath = path.join(dirPath, child);
-		const stats = await stat(childPath); // eslint-disable-line no-await-in-loop
-		if (stats.isDirectory()) {
-			result.push({
-				name: child,
-				children: await readDirectory(childPath), // eslint-disable-line no-await-in-loop
-			});
-		} else {
-			result.push(fileToEntity(childPath));
-		}
-	}
-	return result;
+	const children = await readDir(dirPath);
+	return Promise.all(
+		children.map(async (child) => {
+			const childPath = path.join(dirPath, child);
+			const stats = await stat(childPath);
+			if (stats.isDirectory()) {
+				const children = await readDirectory(childPath);
+				return {
+					name: child,
+					children,
+				};
+			}
+			return fileToEntity(childPath);
+		}),
+	);
 }
 
 /**
@@ -95,7 +96,7 @@ function writeToString(tree, root = false) {
  */
 function dirToString(dirEntity) {
 	return `{id: "${dirEntity.name}", children:[${dirEntity.children
-		.map(child => writeToString(child))
+		.map((child) => writeToString(child))
 		.reduce((prev, curr) => prev + curr)}] }`;
 }
 
@@ -111,13 +112,14 @@ function fileToString(fileEntity) {
 
 readDirectory(path.join(__dirname, 'assets'))
 	// Generate the JavaScript
-	.then(result => `export default ${writeToString(result, true)}`)
+	.then((result) => `export default ${writeToString(result, true)}`)
 	// Add path fix for Windows
-	.then(result => result.replace(/\\/g, '\\\\'))
+	.then((result) => result.replace(/\\/g, '\\\\'))
 	// Format the JavaScript so that it's readable
-	.then(result => {
+	.then((result) => {
 		return prettier.format(result, { parser: 'babel' });
 	})
 	// We only need to write one file so it doesn't matter that it's sync
-	.then(result => fs.writeFileSync(path.resolve(__dirname, 'src', 'assets.js'), result)) // eslint-disable-line no-sync
-	.catch(console.error);
+	.then((result) => fs.writeFileSync(path.resolve(__dirname, 'src', 'assets.js'), result)) // eslint-disable-line no-sync
+	.then((_) => console.log('Asset lister completed'))
+	.catch((err) => console.error(`Asset lister failed: ${err.toString()}`));
