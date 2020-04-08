@@ -7,19 +7,14 @@ on: push
 
 jobs:
   build:
-    
     runs-on: ubuntu-18.04
-
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 12
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 12
     - run: npm ci
     - name: Asset generator
       run: npm run assetLister 
@@ -28,6 +23,7 @@ jobs:
     - name: build
       run: npx webpack --mode=production
     
+    # Uses: https://github.com/peaceiris/actions-gh-pages
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
