@@ -3,29 +3,45 @@
 
 name: Node.js CI
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x]
+    runs-on: ubuntu-18.04
 
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 12
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 12
     - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+    - name: Asset generator
+      run: npm run assetLister 
+    - name: lint
+      run: npm run lint
+    - name: build
+      run: npx webpack --mode=production
       env:
-        CI: true
+        PUBLIC_PATH: '/AncientBeast/'
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: deploy
+        path: deploy
+  
+  deploy:
+    runs-on: ubuntu-18.04
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: deploy
+      # Uses: https://github.com/peaceiris/actions-gh-pages
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./deploy
