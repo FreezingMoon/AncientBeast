@@ -1,10 +1,7 @@
 // Setup basic express server
 const compression = require('compression');
 const express = require('express');
-const webpack = require('webpack');
 const app = express();
-const config = require('./webpack.config.js')();
-const compiler = webpack(config);
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = process.env.PORT || 8080;
@@ -12,32 +9,21 @@ const ip = process.env.IP || null; // Use specified IP to bind to otherwise, bin
 // const gameManager = require('./server/gamemanager.js');
 const qManager = require('./server/queuemanager.js');
 
-/**
- * Require a module if it's available, returns the module if so, otherwise, false.
- * @param {string} path Path to the module.
- * @return {Object|boolean} Return either the module or false.
- */
-function requireIfAvailable(path) {
-	try {
-		require.resolve(path);
-		return require(path); // eslint-disable-line global-require
-	} catch (e) {
-		return false;
-	}
-}
-
-const webpackDevMiddleware = requireIfAvailable('webpack-dev-middleware');
-
 // Enable gzip compression.
 app.use(compression());
 
 // Tell express to use the webpack-dev-middleware and use the webpack.config.js
 // configuration file as a base, but only if we are not in a production environment.
-if (process.env.NODE_ENV !== 'production' && webpackDevMiddleware) {
+if (process.env.NODE_ENV !== 'production') {
+	const webpack = require('webpack');
+	const config = require('./webpack.config.js');
+	const compiler = webpack(config);
+	const webpackDevMiddleware = require('webpack-dev-middleware');
+
 	app.use(
 		webpackDevMiddleware(compiler, {
-			publicPath: config.output.publicPath
-		})
+			publicPath: config.output.publicPath,
+		}),
 	);
 }
 
@@ -79,12 +65,12 @@ io.on('connection', function(session) {
 // Listen for server, and use static routing for deploy directory
 server.listen(port, ip, function() {
 	console.log(
-		`Server listening at port ${port}.\nOpen http://localhost:${port} in Chrome/Chromium.`
+		`Server listening at port ${port}.\nOpen http://localhost:${port} in Chrome/Chromium.`,
 	);
 });
 
 app.use(
 	express.static('./deploy', {
-		maxAge: 86400000
-	})
+		maxAge: 86400000,
+	}),
 );
