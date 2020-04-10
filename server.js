@@ -16,7 +16,7 @@ app.use(compression());
 // configuration file as a base, but only if we are not in a production environment.
 if (process.env.NODE_ENV !== 'production') {
 	const webpack = require('webpack');
-	const config = require('./webpack.config.js');
+	const config = require('./webpack.config')();
 	const compiler = webpack(config);
 	const webpackDevMiddleware = require('webpack-dev-middleware');
 
