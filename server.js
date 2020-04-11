@@ -1,13 +1,13 @@
-// This script is only used on heroku, for gh-pages we host /deploy directly.
+// This script is only used on Heroku; for gh-pages we host /deploy directly
 
 const path = require('path');
 const compression = require('compression');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 8080;
-const ip = process.env.IP || null; // Use specified IP to bind to otherwise, bind to default for the API.
+const ip = process.env.IP || null; // Use specified IP to bind to otherwise, bind to default for the API
 
-// Enable gzip compression.
+// Enable gzip compression
 app.use(compression());
 
 // Assets are hashed so they can be in the cache for longer
