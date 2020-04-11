@@ -10,7 +10,7 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[6] = [
 		// 	First Ability: Frost Bite
 		{
@@ -18,7 +18,7 @@ export default G => {
 			trigger: 'onEndPhase',
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -26,7 +26,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function() {
+			activate: function () {
 				let ability = this;
 				this.end();
 
@@ -46,7 +46,7 @@ export default G => {
 								crea, // Target
 								'onOtherCreatureDeath', // Trigger
 								{
-									effectFn: function(eff) {
+									effectFn: function (eff) {
 										let trg = eff.target;
 
 										let iceDemonArray = G.findCreature({
@@ -80,7 +80,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -97,12 +97,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
@@ -117,7 +117,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path) {
+			activate: function (path) {
 				let ability = this;
 				ability.end();
 
@@ -159,7 +159,7 @@ export default G => {
 						target.moveTo(dir[1], {
 							ignoreMovementPoint: true,
 							ignorePath: true,
-							callback: function() {
+							callback: function () {
 								G.activeCreature.queryMove();
 							},
 							animation: 'push',
@@ -192,7 +192,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -288,7 +288,7 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
@@ -374,7 +374,7 @@ export default G => {
 				];
 
 				G.grid.queryChoice({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					}, //fnOnConfirm
 					team: this._targetTeam,
@@ -386,7 +386,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(choice) {
+			activate: function (choice) {
 				let ability = this;
 
 				let creaturesHit = [];
@@ -423,7 +423,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -440,12 +440,12 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnSelect: function(path) {
+					fnOnSelect: function (path) {
 						let trg = arrayUtils.last(path).creature;
 
 						let hex = ability.creature.player.flipped
@@ -455,7 +455,7 @@ export default G => {
 						hex
 							.adjacentHex(ability.radius)
 							.concat([hex])
-							.forEach(function(item) {
+							.forEach(function (item) {
 								if (item.creature instanceof Creature) {
 									item.overlayVisualState('creature selected player' + item.creature.team);
 								} else {
@@ -463,7 +463,7 @@ export default G => {
 								}
 							});
 					},
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
@@ -477,7 +477,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path) {
+			activate: function (path) {
 				let ability = this;
 				ability.end();
 
@@ -505,7 +505,7 @@ export default G => {
 					undefined, // Target
 					'', // Trigger
 					{
-						effectFn: function(eff) {
+						effectFn: function (eff) {
 							eff.target.stats.frozen = true;
 							this.deleteEffect();
 						},

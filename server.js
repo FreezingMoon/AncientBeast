@@ -43,7 +43,7 @@ function makeId() {
 }
 
 // Setup the game queue and connection details
-io.on('connection', function(session) {
+io.on('connection', function (session) {
 	console.log('a user connected');
 
 	// Store the username in the socket session for this client
@@ -53,7 +53,7 @@ io.on('connection', function(session) {
 	// Add user to the queue
 	qManager.addToQueue(session);
 
-	session.on('disconnect', function() {
+	session.on('disconnect', function () {
 		console.log('user disconnected');
 		qManager.removeFromQueue(session);
 	});
@@ -63,7 +63,7 @@ io.on('connection', function(session) {
 });
 
 // Listen for server, and use static routing for deploy directory
-server.listen(port, ip, function() {
+server.listen(port, ip, function () {
 	console.log(
 		`Server listening at port ${port}.\nOpen http://localhost:${port} in Chrome/Chromium.`,
 	);

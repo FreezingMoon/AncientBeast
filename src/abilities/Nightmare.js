@@ -8,7 +8,7 @@ import { Effect } from '../effect';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[9] = [
 		// 	First Ability: Frigid Tower
 		{
@@ -17,16 +17,16 @@ export default G => {
 
 			_effectName: 'Frostified',
 
-			_getOffenseBuff: function() {
+			_getOffenseBuff: function () {
 				return this.isUpgraded() ? 5 : 0;
 			},
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				// Check whether this ability is upgraded; if so then make sure all existing
 				// buffs include an offense buff
 				let ability = this;
-				this.creature.effects.forEach(function(effect) {
+				this.creature.effects.forEach(function (effect) {
 					if (effect.name === ability._effectName) {
 						effect.alterations.offense = ability._getOffenseBuff();
 					}
@@ -40,7 +40,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function() {
+			activate: function () {
 				this.creature.addEffect(
 					new Effect(
 						this._effectName,
@@ -69,7 +69,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -85,11 +85,11 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -100,7 +100,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
@@ -147,7 +147,7 @@ export default G => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -163,11 +163,11 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -178,7 +178,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(target) {
+			activate: function (target) {
 				let ability = this;
 				ability.end();
 
@@ -229,12 +229,12 @@ export default G => {
 			directions: [1, 1, 1, 1, 1, 1],
 			_targetTeam: Team.both,
 
-			_getDistance: function() {
+			_getDistance: function () {
 				// Upgraded ability has infinite range
 				return this.isUpgraded() ? 0 : 6;
 			},
 
-			require: function() {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -257,14 +257,14 @@ export default G => {
 			},
 
 			// 	query() :
-			query: function() {
+			query: function () {
 				let ability = this;
 				let crea = this.creature;
 
 				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -279,7 +279,7 @@ export default G => {
 			},
 
 			//	activate() :
-			activate: function(path) {
+			activate: function (path) {
 				let ability = this;
 
 				ability.end();
