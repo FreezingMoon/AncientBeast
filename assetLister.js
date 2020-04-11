@@ -25,23 +25,24 @@ function fileToEntity(filePath) {
  * Read the directory
  *
  * @param {string} dirPath the path of the directory.
- * @return {Array} An array of asset objects.
+ * @return {Promise<Array>} An array of asset objects.
  */
 async function readDirectory(dirPath) {
-	const result = [];
-	for (const child of await readDir(dirPath)) {
-		const childPath = path.join(dirPath, child);
-		const stats = await stat(childPath); // eslint-disable-line no-await-in-loop
-		if (stats.isDirectory()) {
-			result.push({
-				name: child,
-				children: await readDirectory(childPath), // eslint-disable-line no-await-in-loop
-			});
-		} else {
-			result.push(fileToEntity(childPath));
-		}
-	}
-	return result;
+	const children = await readDir(dirPath);
+	return Promise.all(
+		children.map(async child => {
+			const childPath = path.join(dirPath, child);
+			const stats = await stat(childPath);
+			if (stats.isDirectory()) {
+				const children = await readDirectory(childPath);
+				return {
+					name: child,
+					children,
+				};
+			}
+			return fileToEntity(childPath);
+		}),
+	);
 }
 
 /**
@@ -120,4 +121,5 @@ readDirectory(path.join(__dirname, 'assets'))
 	})
 	// We only need to write one file so it doesn't matter that it's sync
 	.then(result => fs.writeFileSync(path.resolve(__dirname, 'src', 'assets.js'), result)) // eslint-disable-line no-sync
-	.catch(console.error);
+	.then(_ => console.log('Asset lister completed'))
+	.catch(err => console.error(`Asset lister failed: ${err.toString()}`));
