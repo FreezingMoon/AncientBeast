@@ -63,6 +63,10 @@ module.exports = (env, argv) => {
 				modules: path.join(__dirname, 'node_modules'),
 			},
 		},
+		devServer: {
+			contentBase: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
+			port: 8080,
+		},
 		plugins: [
 			new CopyPlugin([{ from: 'static' }]),
 			new HtmlWebpackPlugin({

@@ -23,16 +23,13 @@
 		"url": "https://ancientbeast.com/contribute/#donate"
 	},
 	"dependencies": {
-		"ajv": "^6.12.0",
 		"compression": "^1.7.4",
 		"copy-webpack-plugin": "^5.1.1",
 		"cross-env": "^7.0.2",
 		"express": "^4.17.1",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
-		"phaser-ce": "^2.15.0",
-		"socket.io": "^2.3.0",
-		"socket.io-client": "2.3.0"
+		"phaser-ce": "^2.15.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.9.0",
@@ -55,8 +52,7 @@
 		"uglifyjs-webpack-plugin": "^2.2.0",
 		"webpack": "^4.42.1",
 		"webpack-cli": "^3.3.11",
-		"webpack-dev-middleware": "^3.7.2",
-		"webpack-merge": "^4.2.2"
+		"webpack-dev-server": "^3.10.3"
 	},
 	"engines": {
 		"node": "12.16.x"
@@ -65,7 +61,7 @@
 		"build": "npm run assetLister && webpack --mode=production",
 		"build:dev": "npm run assetLister && webpack --mode=development",
 		"start": "cross-env NODE_ENV=production node server.js",
-		"start:dev": "cross-env NODE_ENV=development node server.js",
+		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
 		"assetLister": "node ./assetLister.js",
 		"lint": "eslint src/*.js src/**/*.js",
 		"lint-fix": "eslint --fix src/*.js src/**/*.js",
