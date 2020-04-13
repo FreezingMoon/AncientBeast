@@ -353,7 +353,7 @@ export class Creature {
 				game.startTimer();
 				this.queryMove();
 			}
-		}, 50);
+		}, 1000);
 	}
 
 	/* deactivate(wait)

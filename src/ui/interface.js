@@ -515,7 +515,7 @@ export class UI {
 						},
 						glowing: {
 							cursor: 'pointer',
-						},
+            },           
 						selected: {},
 						active: {},
 						noclick: {
@@ -523,6 +523,9 @@ export class UI {
 						},
 						normal: {
 							cursor: 'default',
+            },
+            slideIn: {
+							cursor: 'pointer',
 						},
 					},
 				},
@@ -539,13 +542,14 @@ export class UI {
 					disabled: {},
 					glowing: {
 						cursor: 'pointer',
-					},
+          },
 					selected: {},
 					active: {},
 					noclick: {},
 					normal: {
 						cursor: 'default',
-					},
+          },
+          slideIn:{},
 				},
 			},
 			game,
@@ -580,14 +584,6 @@ export class UI {
 			let opa =
 				0.5 +
 				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
-
-			this.buttons.forEach(btn => {
-				btn.$button.css('opacity', '');
-
-				if (btn.state == 'glowing') {
-					btn.$button.css('opacity', opa);
-				}
-			});
 
 			let opaWeak = opa / 2;
 
@@ -1658,7 +1654,8 @@ export class UI {
 					this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 					this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 					this.updateAbilityButtonsContent();
-
+          this.btnAudio.changeState('normal');
+          this.btnSkipTurn.changeState('normal');
 					// Change ability buttons
 					this.abilitiesButtons.forEach(btn => {
 						let ab = creature.abilities[btn.abilityId];
@@ -1742,7 +1739,18 @@ export class UI {
 							y: '0px',
 						},
 						500,
-						'easeOutQuart',
+						'easeOutQuart',()=>{
+              this.btnAudio.changeState('slideIn');
+              this.btnSkipTurn.changeState('slideIn');
+              if (
+                !creature.hasWait &&
+                creature.delayable &&
+                !game.queue.isCurrentEmpty()
+              ) {
+                this.btnDelay.changeState('slideIn');
+              }
+             
+            }
 					); // Show panel
 				},
 			);
@@ -1804,7 +1812,6 @@ export class UI {
 	checkAbilities() {
 		let game = this.game,
 			oneUsableAbility = false;
-
 		for (let i = 0; i < 4; i++) {
 			let ab = game.activeCreature.abilities[i];
 			ab.message = '';
@@ -1827,9 +1834,9 @@ export class UI {
 				}
 			}
 			if (ab.message == game.msg.abilities.passiveCycle) {
-				this.abilitiesButtons[i].changeState('glowing');
+				this.abilitiesButtons[i].changeState('slideIn');
 			} else if (req && !ab.used && ab.trigger == 'onQuery') {
-				this.abilitiesButtons[i].changeState('glowing');
+				this.abilitiesButtons[i].changeState('slideIn');
 				oneUsableAbility = true;
 			} else if (
 				ab.message == game.msg.abilities.noTarget ||
@@ -1873,7 +1880,7 @@ export class UI {
 		if (!oneUsableAbility && game.activeCreature.remainingMove === 0) {
 			//game.skipTurn( { tooltip: "Finished" } ); // Autoskip
 			game.activeCreature.noActionPossible = true;
-			this.btnSkipTurn.changeState('glowing');
+			this.btnSkipTurn.changeState('slideIn');
 		}
 	}
 

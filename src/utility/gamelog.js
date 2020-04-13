@@ -70,7 +70,7 @@ export class GameLog {
 			let interval = setInterval(() => {
 				if (!game.freezedInput && !game.turnThrottle) {
 					clearInterval(interval);
-					game.activeCreature.queryMove(); // Avoid bug
+					// game.activeCreature.queryMove(); // called twice breaks opening UI. May need to revisit.
 					game.action(this.data[this.timeCursor], {
 						callback: fun,
 					});

@@ -800,7 +800,7 @@ export default class Game {
 				this.activeCreature.delayable &&
 				!this.queue.isCurrentEmpty()
 			) {
-				this.UI.btnDelay.changeState('normal');
+				this.UI.btnDelay.changeState('slideIn');
 			}
 
 			o.callback.apply();

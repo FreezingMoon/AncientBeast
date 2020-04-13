@@ -29,6 +29,7 @@ export class Button {
 				selected: {},
 				active: {},
 				normal: {},
+				slideIn: {},
 			},
 		};
 
@@ -116,7 +117,7 @@ export class Button {
 			}
 		});
 
-		this.$button.removeClass('disabled glowing selected active noclick');
+		this.$button.removeClass('disabled glowing selected active noclick slideIn');
 		this.$button.css(this.css.normal);
 
 		if (state != 'normal') {
