@@ -141,7 +141,7 @@ export default class Game {
 					selectUnit: 'Please select an available unit from the left grid',
 					lowPlasma: 'Low Plasma! Cannot materialize the selected unit',
 					// plasmaCost :    String :    plasma cost of the unit to materialize
-					materializeUnit: plasmaCost => {
+					materializeUnit: (plasmaCost) => {
 						return 'Materialize unit at target location for ' + plasmaCost + ' plasma';
 					},
 					materializeUsed: 'Materialization has already been used this round',
@@ -194,7 +194,7 @@ export default class Game {
 
 		this.creatureData = data;
 
-		data.forEach(creature => {
+		data.forEach((creature) => {
 			let creatureId = creature.id,
 				realm = creature.realm,
 				level = creature.level,
@@ -723,7 +723,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: function() {},
+				callback: function () {},
 				noTooltip: false,
 				tooltip: 'Skipped',
 			},
@@ -784,7 +784,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: function() {},
+				callback: function () {},
 			},
 			o,
 		);
@@ -942,7 +942,7 @@ export default class Game {
 		let [triggeredCreature, required] = arg;
 
 		// For triggered creature
-		triggeredCreature.abilities.forEach(ability => {
+		triggeredCreature.abilities.forEach((ability) => {
 			if (triggeredCreature.dead === true) {
 				return;
 			}
@@ -955,12 +955,12 @@ export default class Game {
 		});
 
 		// For other creatures
-		this.creatures.forEach(creature => {
+		this.creatures.forEach((creature) => {
 			if (triggeredCreature === creature || creature.dead === true) {
 				return;
 			}
 
-			creature.abilities.forEach(ability => {
+			creature.abilities.forEach((ability) => {
 				if (this.triggers[trigger + '_other'].test(ability.getTrigger())) {
 					if (ability.require(required)) {
 						retValue = ability.animation(required, triggeredCreature);
@@ -976,7 +976,7 @@ export default class Game {
 		let [triggeredCreature, required] = arg;
 
 		// For triggered creature
-		triggeredCreature.effects.forEach(effect => {
+		triggeredCreature.effects.forEach((effect) => {
 			if (triggeredCreature.dead === true) {
 				return;
 			}
@@ -987,13 +987,13 @@ export default class Game {
 		});
 
 		// For other creatures
-		this.creatures.forEach(creature => {
+		this.creatures.forEach((creature) => {
 			if (creature instanceof Creature) {
 				if (triggeredCreature === creature || creature.dead === true) {
 					return;
 				}
 
-				creature.effects.forEach(effect => {
+				creature.effects.forEach((effect) => {
 					if (this.triggers[trigger + '_other'].test(effect.trigger)) {
 						retValue = effect.activate(required);
 					}
@@ -1007,7 +1007,7 @@ export default class Game {
 	triggerTrap(trigger, arg) {
 		let [triggeredCreature] = arg;
 
-		triggeredCreature.hexagons.forEach(hex => {
+		triggeredCreature.hexagons.forEach((hex) => {
 			hex.activateTrap(this.triggers[trigger], triggeredCreature);
 		});
 	}
@@ -1127,14 +1127,14 @@ export default class Game {
 		// Looks for traps owned by this creature and destroy them
 		this.grid.traps
 			.filter(
-				trap => trap.turnLifetime > 0 && trap.fullTurnLifetime && trap.ownerCreature == creature,
+				(trap) => trap.turnLifetime > 0 && trap.fullTurnLifetime && trap.ownerCreature == creature,
 			)
-			.forEach(trap => trap.destroy());
+			.forEach((trap) => trap.destroy());
 
 		// Look for effects owned by this creature and destroy them if necessary
 		this.effects
-			.filter(effect => effect.owner === creature && effect.deleteOnOwnerDeath)
-			.forEach(effect => {
+			.filter((effect) => effect.owner === creature && effect.deleteOnOwnerDeath)
+			.forEach((effect) => {
 				effect.deleteEffect();
 				// Update UI in case effect changes it
 				if (effect.target) {
@@ -1198,7 +1198,7 @@ export default class Game {
 			if (creature instanceof Creature) {
 				match = true;
 
-				$j.each(o2, function(key, val) {
+				$j.each(o2, function (key, val) {
 					if (key == 'team') {
 						if (val == -1) {
 							return;
@@ -1312,7 +1312,7 @@ export default class Game {
 
 	action(o, opt) {
 		let defaultOpt = {
-			callback: function() {},
+			callback: function () {},
 		};
 
 		opt = $j.extend(defaultOpt, opt);
@@ -1359,7 +1359,7 @@ export default class Game {
 				}
 
 				if (o.target.type == 'array') {
-					let array = o.target.array.map(item => this.grid.hexes[item.y][item.x]);
+					let array = o.target.array.map((item) => this.grid.hexes[item.y][item.x]);
 
 					args.unshift(array);
 					this.activeCreature.abilities[o.id].animation2({
@@ -1375,7 +1375,7 @@ export default class Game {
 	getImage(url) {
 		let img = new Image();
 		img.src = url;
-		img.onload = function() {
+		img.onload = function () {
 			// No-op
 		};
 	}

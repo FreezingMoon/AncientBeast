@@ -8,7 +8,7 @@ import * as arrayUtils from '../utility/arrayUtils';
  * @param {Object} G the game object
  * @return {void}
  */
-export default G => {
+export default (G) => {
 	G.abilities[7] = [
 		//burningSpirit
 		{
@@ -94,7 +94,7 @@ export default G => {
 				}
 
 				G.grid.queryDirection({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
@@ -124,7 +124,7 @@ export default G => {
 				let tween = projectileInstance[0];
 				let sprite = projectileInstance[1];
 
-				tween.onComplete.add(function() {
+				tween.onComplete.add(function () {
 					let damage = new Damage(
 						ability.creature, // Attacker
 						ability.damages, // Damage Type
@@ -155,7 +155,7 @@ export default G => {
 					noPath: true,
 					isAbility: true,
 					range: G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
-					callback: function(hex, args) {
+					callback: function (hex, args) {
 						if (hex.x == args.creature.x && hex.y == args.creature.y) {
 							// Prevent null movement
 							ability.query();
@@ -176,14 +176,14 @@ export default G => {
 
 				let targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
-				targets.forEach(function(item) {
+				targets.forEach(function (item) {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
 				});
 
 				// Leave a Firewall in current location
-				let effectFn = function(effect, creatureOrHex) {
+				let effectFn = function (effect, creatureOrHex) {
 					let creature = creatureOrHex;
 					if (!(creatureOrHex instanceof Creature)) {
 						creature = creatureOrHex.creature;
@@ -195,7 +195,7 @@ export default G => {
 					effect.deleteEffect();
 				};
 
-				let requireFn = function() {
+				let requireFn = function () {
 					let creature = this.trap.hex.creature,
 						type = (creature && creature.type) || null;
 
@@ -206,7 +206,7 @@ export default G => {
 				};
 
 				let crea = this.creature;
-				crea.hexagons.forEach(function(h) {
+				crea.hexagons.forEach(function (h) {
 					h.createTrap(
 						'firewall',
 						[
@@ -236,7 +236,7 @@ export default G => {
 					ignoreMovementPoint: true,
 					ignorePath: true,
 					animation: 'teleport',
-					callback: function() {
+					callback: function () {
 						G.activeCreature.queryMove();
 					},
 				});
@@ -258,11 +258,11 @@ export default G => {
 				let range = crea.adjacentHexes(1);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function() {
+					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					fnOnSelect: function(hex) {
-						range.forEach(function(item) {
+					fnOnSelect: function (hex) {
+						range.forEach(function (item) {
 							item.cleanOverlayVisualState();
 							item.overlayVisualState('creature selected player' + G.activeCreature.team);
 						});
@@ -286,7 +286,7 @@ export default G => {
 					this.damages.burn = 30;
 				}
 
-				targets.forEach(function(item) {
+				targets.forEach(function (item) {
 					item.target.takeDamage(
 						new Damage(
 							ability.creature, // Attacker
