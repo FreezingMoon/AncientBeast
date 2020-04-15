@@ -151,10 +151,8 @@ export class Ability {
 		} else {
 			this.used = false;
 			if (this.creature.id == game.activeCreature.id) {
-				
-					// Passive
-					game.UI.abilitiesButtons[this.id].changeState('normal');
-				
+				// Passive
+				game.UI.abilitiesButtons[this.id].changeState('normal');
 			}
 		}
 	}

@@ -515,7 +515,7 @@ export class UI {
 						},
 						glowing: {
 							cursor: 'pointer',
-            },           
+						},
 						selected: {},
 						active: {},
 						noclick: {
@@ -523,8 +523,8 @@ export class UI {
 						},
 						normal: {
 							cursor: 'default',
-            },
-            slideIn: {
+						},
+						slideIn: {
 							cursor: 'pointer',
 						},
 					},
@@ -542,14 +542,14 @@ export class UI {
 					disabled: {},
 					glowing: {
 						cursor: 'pointer',
-          },
+					},
 					selected: {},
 					active: {},
 					noclick: {},
 					normal: {
 						cursor: 'default',
-          },
-          slideIn:{},
+					},
+					slideIn: {},
 				},
 			},
 			game,
@@ -1629,7 +1629,7 @@ export class UI {
 	 *
 	 * Change ability buttons and bind events
 	 */
-	changeAbilityButtons(){
+	changeAbilityButtons() {
 		let game = this.game,
 			creature = game.activeCreature;
 		this.abilitiesButtons.forEach(btn => {
@@ -1713,7 +1713,7 @@ export class UI {
 	 *
 	 * Update activebox with new current creature's abilities
 	 */
-	
+
 	updateActivebox() {
 		let game = this.game,
 			creature = game.activeCreature,
@@ -1748,19 +1748,15 @@ export class UI {
 							y: '0px',
 						},
 						500,
-						'easeOutQuart', ()=>{
+						'easeOutQuart',
+						() => {
 							this.btnAudio.changeState('slideIn');
 							this.btnSkipTurn.changeState('slideIn');
-							if (
-								!creature.hasWait &&
-								creature.delayable &&
-								!game.queue.isCurrentEmpty()
-							) {
+							if (!creature.hasWait && creature.delayable && !game.queue.isCurrentEmpty()) {
 								this.btnDelay.changeState('slideIn');
 							}
 							this.checkAbilities();
-             
-            			}
+						},
 					); // Show panel
 				},
 			);
