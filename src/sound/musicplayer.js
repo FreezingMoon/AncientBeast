@@ -15,16 +15,14 @@ export class MusicPlayer {
 
 		$j('#mp_shuffle')
 			.addClass('active')
-			.click(e => {
+			.click((e) => {
 				$j(e.currentTarget).toggleClass('active');
 				this.shuffle = !this.shuffle;
 			});
 
-		this.playlist.find('a').click(e => {
+		this.playlist.find('a').click((e) => {
 			e.preventDefault();
-			this.current = $j(e.currentTarget)
-				.parent()
-				.index();
+			this.current = $j(e.currentTarget).parent().index();
 			this.run($j(e.currentTarget));
 		});
 
@@ -63,10 +61,7 @@ export class MusicPlayer {
 		// Style the active track in the playlist
 		let par = link.parent();
 
-		par
-			.addClass('active')
-			.siblings()
-			.removeClass('active');
+		par.addClass('active').siblings().removeClass('active');
 		this.audio.src = link.attr('href');
 		this.audio.load();
 		this.audio.play();

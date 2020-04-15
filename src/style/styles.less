@@ -1320,7 +1320,7 @@ span.pure {
 	width: 18px;
 	height: 0;
 	bottom: 0;
-	background: red;
+	background: none;
 }
 
 .bar .previewbar {
@@ -1328,8 +1328,16 @@ span.pure {
 	position: absolute;
 	width: 7px;
 	height: 0;
-	top: 1px;
-	left: 1px;
+	background: rgba(0, 0, 0, 0.75);
+	z-index: 1;
+}
+
+.bar .currentbar {
+	display: block;
+	position: absolute;
+	width: 7px;
+	height: 0;
+	bottom: 0;
 	background: rgba(0, 0, 0, 0.75);
 }
 
