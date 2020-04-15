@@ -733,6 +733,7 @@ export default class Game {
 		this.turnThrottle = true;
 		this.UI.btnSkipTurn.changeState('disabled');
 		this.UI.btnDelay.changeState('disabled');
+		this.UI.btnAudio.changeState('disabled');
 
 		if (!o.noTooltip) {
 			this.activeCreature.hint(o.tooltip, 'msg_effects');

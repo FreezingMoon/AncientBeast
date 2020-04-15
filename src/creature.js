@@ -484,7 +484,6 @@ export class Creature {
 
 			$j('#abilities .ability').removeClass('active');
 			game.UI.selectAbility(-1);
-			game.UI.checkAbilities();
 			game.UI.updateQueueDisplay();
 		}
 
