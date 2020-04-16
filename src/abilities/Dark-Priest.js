@@ -16,7 +16,6 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				this.setUsed(false); // Can be triggered multiple times
 				this.creature.protectedFromFatigue = this.testRequirements();
 				return this.creature.protectedFromFatigue;
 			},
