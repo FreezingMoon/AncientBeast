@@ -1831,7 +1831,7 @@ export class UI {
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
 				let b = this.selectedAbility == -1 ? 4 : this.selectedAbility; // Checking usable abilities
-				for (let j = b - 1; j > 0; j--) {
+				for (let j = 0 + 1; j < 4; j++) {
 					if (
 						game.activeCreature.abilities[j].require() &&
 						!game.activeCreature.abilities[j].used
