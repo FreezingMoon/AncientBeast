@@ -1331,7 +1331,7 @@ export class UI {
 				.text(game.players[i].name);
 
 			// Change score
-			$j.each(game.players[i].getScore(), function(index, val) {
+			$j.each(game.players[i].getScore(), function (index, val) {
 				let text = val === 0 && index !== 'total' ? '--' : val;
 				$table
 					.children('tr.' + index)
@@ -1635,7 +1635,7 @@ export class UI {
 	changeAbilityButtons() {
 		let game = this.game,
 			creature = game.activeCreature;
-					this.abilitiesButtons.forEach((btn) => {
+		this.abilitiesButtons.forEach((btn) => {
 			let ab = creature.abilities[btn.abilityId];
 			btn.css.normal = {
 				'background-image': `url('${getUrl(
@@ -1686,7 +1686,7 @@ export class UI {
 				if (this.selectedAbility == -1) {
 					this.showAbilityCosts(btn.abilityId);
 				}
-							(function () {
+				(function () {
 					// Ensure tooltip stays in window - adjust
 					var rect = $desc[0].getBoundingClientRect();
 					const margin = 20;
@@ -1702,7 +1702,7 @@ export class UI {
 				if (this.selectedAbility == -1) {
 					this.hideAbilityCosts();
 				}
-							(function () {
+				(function () {
 					// Ensure tooltip stays in window - reset
 					$desc[0].style.top = '0px';
 					$desc.find('.arrow')[0].style.top = '27px';
