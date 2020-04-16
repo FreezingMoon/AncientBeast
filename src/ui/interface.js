@@ -584,7 +584,6 @@ export class UI {
 			let opa =
 				0.5 +
 				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
-
 			let opaWeak = opa / 2;
 
 			game.grid.allhexes.forEach((hex) => {
@@ -1747,6 +1746,7 @@ export class UI {
 					// Change ability buttons
 					this.changeAbilityButtons();
 					//Callback after final transition
+
 					this.$activebox.children('#abilities').transition(
 						{
 							y: '0px',
