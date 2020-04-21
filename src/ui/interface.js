@@ -11,7 +11,7 @@ import {
 	enableFullscreenLayout,
 } from '../script';
 
-/**
+/**s
  * Class UI
  *
  * Object containing UI DOM element, update functions and event managment on UI.
@@ -95,12 +95,12 @@ export class UI {
 				hasShortcut: true,
 				click: () => {
 					if (isNativeFullscreenAPIUse()) {
-						disableFullscreenLayout();
+						$j('#fullScreen.button').removeClass('fullscreenMode');
 						document.exitFullscreen();
 					} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
 						alert('Use f11 to exit full screen');
 					} else {
-						enableFullscreenLayout();
+						$j('#fullScreen.button').addClass('fullscreenMode');
 						$j('#AncientBeast')[0].webkitRequestFullscreen();
 					}
 				},
