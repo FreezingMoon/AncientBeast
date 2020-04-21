@@ -351,6 +351,10 @@
 	}
 }
 
+.button#fullScreen:before {
+	background-image: none;
+}
+
 .button#audio {
 	background-image: url('~assets/icons/audio.svg');
 }
@@ -402,26 +406,26 @@
 	color: red;
 }
 
-#leftpanel .button{
+#leftpanel .button {
 	background-color: rgba(0, 0, 0, 0.55);
-	transition: transform .5s;
+	transition: transform 0.5s;
 	transform: translateX(-50%);
-	&:hover{
-			transform: translateX(0%);
-		}
-	&.slideIn{
-			transform: translateX(0);
-		}
+	&:hover {
+		transform: translateX(0%);
+	}
+	&.slideIn {
+		transform: translateX(0);
+	}
 }
 
-#rightpanel .button{
+#rightpanel .button {
 	background-color: rgba(0, 0, 0, 0.55);
-	transition: transform .5s;
+	transition: transform 0.5s;
 	transform: translateX(50%);
-	&:hover{
-			transform:translateX(0);
-		}
-	&.slideIn{
+	&:hover {
+		transform: translateX(0);
+	}
+	&.slideIn {
 		transform: translateX(0);
 	}
 }
@@ -953,11 +957,10 @@ div.section.info {
 
 #activebox .ability {
 	display: block;
-	
 }
 
-#activebox .ability.active{
-	transform:translateX(0);
+#activebox .ability.active {
+	transform: translateX(0);
 }
 
 .button + .desc {
@@ -1312,7 +1315,6 @@ span.pure {
 #rightpanel .progressbar {
 	right: -20px;
 }
-
 
 .progressbar .bar {
 	display: block;

@@ -88,6 +88,27 @@ export class UI {
 			game,
 		);
 
+		// In-Game Fullscreen Button
+		this.btnFullscreen = new Button(
+			{
+				$button: $j('#fullScreen.button'),
+				hasShortcut: true,
+				click: () => {
+					if (isNativeFullscreenAPIUse()) {
+						disableFullscreenLayout();
+						document.exitFullscreen();
+					} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
+						alert('Use f11 to exit full screen');
+					} else {
+						enableFullscreenLayout();
+						$j('#AncientBeast')[0].webkitRequestFullscreen();
+					}
+				},
+			},
+			game,
+		);
+		this.buttons.push(this.btnFullscreen);
+
 		// Audio Button
 		this.btnAudio = new Button(
 			{
