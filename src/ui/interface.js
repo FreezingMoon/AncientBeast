@@ -11,7 +11,7 @@ import {
 	enableFullscreenLayout,
 } from '../script';
 
-/**
+/**s
  * Class UI
  *
  * Object containing UI DOM element, update functions and event managment on UI.
@@ -87,6 +87,27 @@ export class UI {
 			},
 			game,
 		);
+
+		// In-Game Fullscreen Button
+		this.btnFullscreen = new Button(
+			{
+				$button: $j('#fullScreen.button'),
+				hasShortcut: true,
+				click: () => {
+					if (isNativeFullscreenAPIUse()) {
+						$j('#fullScreen.button').removeClass('fullscreenMode');
+						document.exitFullscreen();
+					} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
+						alert('Use f11 to exit full screen');
+					} else {
+						$j('#fullScreen.button').addClass('fullscreenMode');
+						$j('#AncientBeast')[0].webkitRequestFullscreen();
+					}
+				},
+			},
+			game,
+		);
+		this.buttons.push(this.btnFullscreen);
 
 		// Audio Button
 		this.btnAudio = new Button(
@@ -524,6 +545,9 @@ export class UI {
 						normal: {
 							cursor: 'default',
 						},
+						slideIn: {
+							cursor: 'pointer',
+						},
 					},
 				},
 				game,
@@ -546,6 +570,7 @@ export class UI {
 					normal: {
 						cursor: 'default',
 					},
+					slideIn: {},
 				},
 			},
 			game,
@@ -580,15 +605,6 @@ export class UI {
 			let opa =
 				0.5 +
 				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
-
-			this.buttons.forEach((btn) => {
-				btn.$button.css('opacity', '');
-
-				if (btn.state == 'glowing') {
-					btn.$button.css('opacity', opa);
-				}
-			});
-
 			let opaWeak = opa / 2;
 
 			game.grid.allhexes.forEach((hex) => {
@@ -1633,11 +1649,95 @@ export class UI {
 
 		this.gridSelectPrevious();
 	}
+	/* changeAbilityButtons()
+	 *
+	 * Change ability buttons and bind events
+	 */
+	changeAbilityButtons() {
+		let game = this.game,
+			creature = game.activeCreature;
+		this.abilitiesButtons.forEach((btn) => {
+			let ab = creature.abilities[btn.abilityId];
+			btn.css.normal = {
+				'background-image': `url('${getUrl(
+					'units/abilities/' + creature.name + ' ' + btn.abilityId,
+				)}')`,
+			};
+			let $desc = btn.$button.next('.desc');
+			$desc.find('span.title').text(ab.title);
+			$desc.find('p').html(ab.desc);
 
+			btn.click = () => {
+				if (this.selectedAbility != btn.abilityId) {
+					if (this.dashopen) {
+						return false;
+					}
+
+					game.grid.clearHexViewAlterations();
+					let ability = game.activeCreature.abilities[btn.abilityId];
+					// Passive ability icon can cycle between usable abilities
+					if (btn.abilityId == 0) {
+						let b = this.selectedAbility == -1 ? 4 : this.selectedAbility;
+						for (let i = b - 1; i > 0; i--) {
+							if (
+								game.activeCreature.abilities[i].require() &&
+								!game.activeCreature.abilities[i].used
+							) {
+								this.abilitiesButtons[i].triggerClick();
+							}
+						}
+					}
+
+					// Colored frame around selected ability
+					if (ability.require() == true && btn.abilityId != 0) {
+						this.selectAbility(btn.abilityId);
+					}
+					// Activate Ability
+					game.activeCreature.abilities[btn.abilityId].use();
+				} else {
+					game.grid.clearHexViewAlterations();
+					// Cancel Ability
+					this.closeDash();
+					game.activeCreature.queryMove();
+					this.selectAbility(-1);
+				}
+			};
+
+			btn.mouseover = () => {
+				if (this.selectedAbility == -1) {
+					this.showAbilityCosts(btn.abilityId);
+				}
+				(function () {
+					// Ensure tooltip stays in window - adjust
+					var rect = $desc[0].getBoundingClientRect();
+					const margin = 20;
+					if (rect.bottom > window.innerHeight - margin) {
+						let value = window.innerHeight - rect.bottom - margin;
+						$desc[0].style.top = value + 'px';
+						$desc.find('.arrow')[0].style.top = 27 - value + 'px'; // Keep arrow position
+					}
+				})();
+			};
+
+			btn.mouseleave = () => {
+				if (this.selectedAbility == -1) {
+					this.hideAbilityCosts();
+				}
+				(function () {
+					// Ensure tooltip stays in window - reset
+					$desc[0].style.top = '0px';
+					$desc.find('.arrow')[0].style.top = '27px';
+				})();
+			};
+
+			btn.changeState(); // Apply changes
+		});
+	}
 	/* updateActiveBox()
 	 *
 	 * Update activebox with new current creature's abilities
 	 */
+
 	updateActivebox() {
 		let game = this.game,
 			creature = game.activeCreature,
@@ -1662,84 +1762,11 @@ export class UI {
 					this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 					this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 					this.updateAbilityButtonsContent();
-
+					this.btnAudio.changeState('normal');
+					this.btnSkipTurn.changeState('normal');
 					// Change ability buttons
-					this.abilitiesButtons.forEach((btn) => {
-						let ab = creature.abilities[btn.abilityId];
-						btn.css.normal = {
-							'background-image': `url('${getUrl(
-								'units/abilities/' + creature.name + ' ' + btn.abilityId,
-							)}')`,
-						};
-						let $desc = btn.$button.next('.desc');
-						$desc.find('span.title').text(ab.title);
-						$desc.find('p').html(ab.desc);
-
-						btn.click = () => {
-							if (this.selectedAbility != btn.abilityId) {
-								if (this.dashopen) {
-									return false;
-								}
-
-								game.grid.clearHexViewAlterations();
-								let ability = game.activeCreature.abilities[btn.abilityId];
-								// Passive ability icon can cycle between usable abilities
-								if (btn.abilityId == 0) {
-									let b = this.selectedAbility == -1 ? 4 : this.selectedAbility;
-									for (let i = b - 1; i > 0; i--) {
-										if (
-											game.activeCreature.abilities[i].require() &&
-											!game.activeCreature.abilities[i].used
-										) {
-											this.abilitiesButtons[i].triggerClick();
-										}
-									}
-								}
-
-								// Colored frame around selected ability
-								if (ability.require() == true && btn.abilityId != 0) {
-									this.selectAbility(btn.abilityId);
-								}
-								// Activate Ability
-								game.activeCreature.abilities[btn.abilityId].use();
-							} else {
-								game.grid.clearHexViewAlterations();
-								// Cancel Ability
-								this.closeDash();
-								game.activeCreature.queryMove();
-								this.selectAbility(-1);
-							}
-						};
-
-						btn.mouseover = () => {
-							if (this.selectedAbility == -1) {
-								this.showAbilityCosts(btn.abilityId);
-							}
-							(function () {
-								// Ensure tooltip stays in window - adjust
-								var rect = $desc[0].getBoundingClientRect();
-								const margin = 20;
-								if (rect.bottom > window.innerHeight - margin) {
-									let value = window.innerHeight - rect.bottom - margin;
-									$desc[0].style.top = value + 'px';
-									$desc.find('.arrow')[0].style.top = 27 - value + 'px'; // Keep arrow position
-								}
-							})();
-						};
-
-						btn.mouseleave = () => {
-							if (this.selectedAbility == -1) {
-								this.hideAbilityCosts();
-							}
-							(function () {
-								// Ensure tooltip stays in window - reset
-								$desc[0].style.top = '0px';
-								$desc.find('.arrow')[0].style.top = '27px';
-							})();
-						};
-
-						btn.changeState(); // Apply changes
-					});
+					this.changeAbilityButtons();
+					//Callback after final transition
 
 					this.$activebox.children('#abilities').transition(
 						{
@@ -1747,6 +1774,14 @@ export class UI {
 						},
 						500,
 						'easeOutQuart',
+						() => {
+							this.btnAudio.changeState('slideIn');
+							this.btnSkipTurn.changeState('slideIn');
+							if (!creature.hasWait && creature.delayable && !game.queue.isCurrentEmpty()) {
+								this.btnDelay.changeState('slideIn');
+							}
+							this.checkAbilities();
+						},
 					); // Show panel
 				},
 			);
@@ -1808,7 +1843,6 @@ export class UI {
 	checkAbilities() {
 		let game = this.game,
 			oneUsableAbility = false;
-
 		for (let i = 0; i < 4; i++) {
 			let ab = game.activeCreature.abilities[i];
 			ab.message = '';
@@ -1818,7 +1852,7 @@ export class UI {
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
 				let b = this.selectedAbility == -1 ? 4 : this.selectedAbility; // Checking usable abilities
-				for (let j = b - 1; j > 0; j--) {
+				for (let j = 0 + 1; j < 4; j++) {
 					if (
 						game.activeCreature.abilities[j].require() &&
 						!game.activeCreature.abilities[j].used
@@ -1831,9 +1865,9 @@ export class UI {
 				}
 			}
 			if (ab.message == game.msg.abilities.passiveCycle) {
-				this.abilitiesButtons[i].changeState('glowing');
+				this.abilitiesButtons[i].changeState('slideIn');
 			} else if (req && !ab.used && ab.trigger == 'onQuery') {
-				this.abilitiesButtons[i].changeState('glowing');
+				this.abilitiesButtons[i].changeState('slideIn');
 				oneUsableAbility = true;
 			} else if (
 				ab.message == game.msg.abilities.noTarget ||
@@ -1871,7 +1905,7 @@ export class UI {
 		if (!oneUsableAbility && game.activeCreature.remainingMove === 0) {
 			//game.skipTurn( { tooltip: "Finished" } ); // Autoskip
 			game.activeCreature.noActionPossible = true;
-			this.btnSkipTurn.changeState('glowing');
+			this.btnSkipTurn.changeState('slideIn');
 		}
 	}
 

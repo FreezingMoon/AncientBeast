@@ -351,6 +351,34 @@
 	}
 }
 
+#fullScreen {
+	cursor: pointer;
+	position: fixed;
+	width: 100px;
+	top: 0;
+	right: 0;
+	z-index: 100;
+
+	div {
+		display: block;
+		width: 100px;
+		height: 100px;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/fullscreen.svg');
+		background-repeat: no-repeat;
+		background-size: cover;
+		margin-bottom: 3px;
+	}
+
+	&.fullscreenMode div {
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/contract.svg');
+	}
+}
+
+.button#fullScreen:before {
+	background-image: none;
+}
+
 .button#audio {
 	background-image: url('~assets/icons/audio.svg');
 }
@@ -402,24 +430,27 @@
 	color: red;
 }
 
-#leftpanel .button{
+#leftpanel .button {
 	background-color: rgba(0, 0, 0, 0.55);
-	transition: transform .5s;
-	&.disabled{	
+	transition: transform 0.5s;
 	transform: translateX(-50%);
-		&:hover{
-			transform: translateX(0%);
-		}
+	&:hover {
+		transform: translateX(0%);
+	}
+	&.slideIn {
+		transform: translateX(0);
 	}
 }
-#rightpanel .button{
+
+#rightpanel .button {
 	background-color: rgba(0, 0, 0, 0.55);
-	transition: transform .5s;
-	&.disabled{	
+	transition: transform 0.5s;
 	transform: translateX(50%);
-		&:hover{
-			transform:translateX(0);
-		}
+	&:hover {
+		transform: translateX(0);
+	}
+	&.slideIn {
+		transform: translateX(0);
 	}
 }
 // Card anchor refactor
@@ -952,6 +983,9 @@ div.section.info {
 	display: block;
 }
 
+#activebox .ability.active {
+	transform: translateX(0);
+}
 
 .button + .desc {
 	position: absolute;
@@ -1305,7 +1339,6 @@ span.pure {
 #rightpanel .progressbar {
 	right: -20px;
 }
-
 
 .progressbar .bar {
 	display: block;
