@@ -23,6 +23,7 @@
 		"url": "https://ancientbeast.com/contribute/#donate"
 	},
 	"dependencies": {
+		"@heroiclabs/nakama-js": "^2.0.1",
 		"compression": "^1.7.4",
 		"copy-webpack-plugin": "^5.1.1",
 		"cross-env": "^7.0.2",
@@ -35,6 +36,8 @@
 		"@babel/core": "^7.9.0",
 		"@babel/preset-env": "^7.9.5",
 		"babel-loader": "^8.1.0",
+		"babel-plugin-transform-runtime": "^6.23.0",
+		"babel-polyfill": "^6.26.0",
 		"css-loader": "^3.5.2",
 		"eslint": "^6.8.0",
 		"eslint-config-prettier": "^6.10.1",

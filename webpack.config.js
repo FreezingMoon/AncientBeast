@@ -13,7 +13,7 @@ module.exports = (env, argv) => {
 	const production = (argv && argv.mode === 'production') || process.env.NODE_ENV === 'production';
 
 	return {
-		entry: path.resolve(__dirname, 'src', 'script.js'),
+		entry: ['babel-polyfill',path.resolve(__dirname, 'src', 'script.js')],
 		output: {
 			path: path.resolve(__dirname, 'deploy/'),
 			filename: 'ancientbeast.js',
@@ -65,7 +65,10 @@ module.exports = (env, argv) => {
 		},
 		devServer: {
 			contentBase: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
-			port: 8080,
+      port: 8080,
+      proxy: {
+        '/api': '192.168.99.100:7350'
+      }
 		},
 		plugins: [
 			new CopyPlugin([{ from: 'static' }]),

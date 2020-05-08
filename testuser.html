@@ -1,0 +1,12 @@
+<html>
+<head><title>add user test</title></head>
+<script src="node_modules/@heroiclabs/nakama-js/dist/nakama-js.umd.js"></script>
+<script type="text/javascript">
+var client = new nakamajs.Client("defaultkey", "192.168.99.100", 7350);
+client.ssl = false;
+const email = "junior@example.com";
+const password = "8484ndnso";
+const session = client.authenticateEmail({ email: email, password: password, create: true, username: "boo" })
+
+</script>
+</html>
