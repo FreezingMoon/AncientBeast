@@ -1266,7 +1266,7 @@
 		"id": 15,
 		"name": "Cycloper",
 		"level": 2,
-		"realm": "E",
+		"realm": "W",
 		"size": 2,
 		"set": "Alpha",
 		"stats": {
@@ -2990,7 +2990,7 @@
 		"id": 40,
 		"name": "Nutcase",
 		"level": 2,
-		"realm": "W",
+		"realm": "E",
 		"size": 2,
 		"set": "Alpha",
 		"stats": {
