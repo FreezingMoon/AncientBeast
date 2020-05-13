@@ -213,8 +213,7 @@
 			},
 			{
 				"title": "Morning Star",
-				"desc":
-					"Whips out its scepter like tail to bluntly punish a foe that is within 3 hexagons.",
+				"desc": "Whips out its scepter like tail to bluntly punish a foe that is within 3 hexagons.",
 				"info": "15 pierce + 15 crush damage on strike.",
 				"upgrade": "test",
 				"costs": {
@@ -912,8 +911,7 @@
 		"ability_info": [
 			{
 				"title": "Fearsome Look",
-				"desc":
-					"Makes nearby attackers strongly believe that they get damaged back in the process.",
+				"desc": "Makes nearby attackers strongly believe that they get damaged back in the process.",
 				"info": "10 mental damage retaliation per melee hit.",
 				"upgrade": "Does 5 pierce damage as well."
 			},
@@ -1004,8 +1002,7 @@
 			},
 			{
 				"title": "Curling Roots",
-				"desc":
-					"Creates a small area of vines under self that alter the energy of all units on top.",
+				"desc": "Creates a small area of vines under self that alter the energy of all units on top.",
 				"info": "±6 energy points when own turn starts.",
 				"upgrade": "Bonus for each spot affected.",
 				"costs": {
@@ -1379,8 +1376,7 @@
 			},
 			{
 				"title": "Volcanic Artillery",
-				"desc":
-					"A hot rock will hit target spot at the end of round, damaging a foe or the ground.",
+				"desc": "A hot rock will hit target spot at the end of round, damaging a foe or the ground.",
 				"info": "20 crush + 20 burn damage or a fissure.",
 				"upgrade": "Ability becomes usable twice.",
 				"costs": {
@@ -1841,8 +1837,7 @@
 			},
 			{
 				"title": "Pointe Technique",
-				"desc":
-					"Leaps on top of medium or large enemy within 6 range, staying there if killing it.",
+				"desc": "Leaps on top of medium or large enemy within 6 range, staying there if killing it.",
 				"info": "The target unit takes 30 pierce damage.",
 				"upgrade": "Range becomes 10 hexagons.",
 				"costs": {
@@ -2217,8 +2212,7 @@
 		"ability_info": [
 			{
 				"title": "Banned Touch",
-				"desc":
-					"Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
+				"desc": "Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
 				"info": "Units remain golden even if attacked.",
 				"upgrade": "Own attacks can turn to gold."
 			},
@@ -2466,8 +2460,7 @@
 		"ability_info": [
 			{
 				"title": "Sea Horse",
-				"desc":
-					"Meditation stat will be highly increased if being at full health, restoring energy.",
+				"desc": "Meditation stat will be highly increased if being at full health, restoring energy.",
 				"info": "15 extra meditation points if full health.",
 				"upgrade": "Can now fully restore energy."
 			},
@@ -2552,8 +2545,7 @@
 			},
 			{
 				"title": "Executioner Axe",
-				"desc":
-					"Slashes a nearby foe, instantly killing it if it's under a certain health threshold.",
+				"desc": "Slashes a nearby foe, instantly killing it if it's under a certain health threshold.",
 				"info": "30 slash damage, 45 health threshold.",
 				"upgrade": "Usable again on killing strike.",
 				"costs": {
@@ -2571,8 +2563,7 @@
 			},
 			{
 				"title": "Visible Stigmata",
-				"desc":
-					"Rapidly transfers up to 50 health points to a nearby allied unit, this is non lethal.",
+				"desc": "Rapidly transfers up to 50 health points to a nearby allied unit, this is non lethal.",
 				"info": "Usage requires being at least 25 health.",
 				"upgrade": "+10 regrowth bonus each use.",
 				"costs": {
@@ -2679,15 +2670,13 @@
 			},
 			{
 				"title": "Lion Thrust",
-				"desc":
-					"Runs very fast towards an inline foe for up to 5 hexagons, greatly terrorizing it.",
+				"desc": "Runs very fast towards an inline foe for up to 5 hexagons, greatly terrorizing it.",
 				"info": "20 mental damage when reaching foe.",
 				"upgrade": "20% extra offense / hexagon."
 			},
 			{
 				"title": "Defensive Stance",
-				"desc":
-					"Will be extra vigilant, better protecting himself from attacks until the next turn.",
+				"desc": "Will be extra vigilant, better protecting himself from attacks until the next turn.",
 				"info": "Reduces 9 damage from incoming hits.",
 				"upgrade": "Will stop penetrating attacks."
 			}
@@ -3000,7 +2989,7 @@
 	{
 		"id": 40,
 		"name": "Nutcase",
-		"level": 1,
+		"level": 2,
 		"realm": "W",
 		"size": 2,
 		"set": "Alpha",
@@ -3089,54 +3078,58 @@
 	},
 	{
 		"id": 41,
-		"name": "Cataract",
-		"level": 2,
+		"name": "Mangler",
+		"level": 1,
 		"realm": "W",
-		"size": 2,
+		"size": 1,
 		"set": "Alpha",
 		"stats": {
-			"health": 123,
+			"health": 90,
 			"regrowth": 4,
-			"endurance": 15,
-			"energy": 50,
-			"meditation": 20,
+			"endurance": 30,
+			"energy": 90,
+			"meditation": 25,
 			"initiative": 12,
 			"offense": 4,
 			"defense": 3,
 			"movement": 3,
-			"pierce": 4,
+			"pierce": 12,
 			"slash": 4,
 			"crush": 4,
 			"shock": 3,
-			"burn": 2,
+			"burn": 4,
 			"frost": 2,
 			"poison": 12,
-			"sonic": 3,
-			"mental": 12
+			"sonic": 9,
+			"mental": 20
 		},
 		"animation": {
 			"walk_speed": 450
 		},
 		"ability_info": [
 			{
-				"title": "Death Dealer",
-				"desc": "Gains bonus offense stat for every kill.",
-				"info": "+10 bonus offense if last hitting a unit"
+				"title": "Hypnotic Light",
+				"desc": "Causes inline foe within 5 hexagons to come towards at the start of the turn.",
+				"info": "Enemy will be compeled to approach.",
+				"upgrade": "Frontal foes can not attack."
 			},
 			{
-				"title": "Trap Jaw",
-				"desc": "Bites frontal foe, doing extra damage if the target breaks away during its turn.",
-				"info": "12 pierce damage, twice if it will move"
+				"title": "Sucker Punch",
+				"desc": "Eyes are actually punches, taking a nearby foe by surprise the first time.",
+				"info": "9 crush damage, triple the first time.",
+				"upgrade": "Can be used twice per round."
 			},
 			{
-				"title": "Spinal Tap",
-				"desc": "Strikes a frontal foe using back spikes, not allowing it to regenerate one turn.",
-				"info": "9 pierce + 9 poison damage, 0 regrowth"
+				"title": "Hell Mouth",
+				"desc": "Either bites an adjacent foe or creates a trap out of spikes nearby on the ground.",
+				"info": "16 pierce damage, -5 regrowth debuff.",
+				"upgrade": "Debuffs stack while fatigued."
 			},
 			{
-				"title": "Skull Bolt",
-				"desc": "Uses parts from units that died within 5 hexagons radius as a deadly projectile.",
-				"info": "40 crush + 10 poison damage per launch"
+				"title": "Girly Sprint",
+				"desc": "Gains 5 movement points and can run through traps without triggering them.",
+				"info": "+4 movement, doesn't trigger traps.",
+				"upgrade": "+2 more movement points."
 			}
 		]
 	},
@@ -3261,8 +3254,7 @@
 		"ability_info": [
 			{
 				"title": "Hot Ashes",
-				"desc":
-					"If killed, leaves ashes behind that will reiginite it back to life if not stomped.",
+				"desc": "If killed, leaves ashes behind that will reiginite it back to life if not stomped.",
 				"info": "1/3 hitpoints & energy for each stack.",
 				"upgrade": "Full energy when it revives."
 			},
