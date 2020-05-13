@@ -1,8 +1,9 @@
 # These are supported funding model platforms
 
-patreon: FreezingMoon
 open_collective: ancientbeast
-ko_fi: dreadknight
-community_bridge: # Replace with a single Community Bridge project-name e.g., cloud-foundry
+patreon: FreezingMoon
+custom: ["bitcoin:1ALLZzy3AZGvAuNso4Wca8SCx9YGXJdFGb?label=Ancient%20Beast", Bitcoin]
+custom: ["https://www.paypal.me/AncientBeast", PayPal]
 issuehunt: FreezingMoon/AncientBeast
 custom: https://ancientbeast.com/contribute/#donate
+ko_fi: dreadknight
