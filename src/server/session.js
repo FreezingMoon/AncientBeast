@@ -6,7 +6,7 @@ export default class SessionI {
   storeSession () {
     if (typeof Storage !== 'undefined') {
       localStorage.setItem ('nakamaToken', this.session.token);
-      console.log ('Session stored.');
+      console.log ('New Session stored.');
     }
   }
   async getSessionFromStorage () {
@@ -22,7 +22,6 @@ export default class SessionI {
       
         if (token && token != '') {
           session = Session.restore (token);
-          console.log(session);
           var currentTimeInSec = new Date () / 1000;
           if (!session.isexpired (currentTimeInSec)) {
             console.log ('Restored session. User ID: %o', session.user_id);
@@ -36,20 +35,3 @@ export default class SessionI {
   }
 }
 
-// restoreSessionOrAuthenticate ()
-//   .then (function (session) {
-//     currentSession = session;
-//     return client.writeStorageObjects (currentSession, [
-//       {
-//         collection: 'collection',
-//         key: 'key1',
-//         value: {jsonKey: 'jsonValue'},
-//       },
-//     ]);
-//   })
-//   .then (function (writeAck) {
-//     console.log ('Storage write was successful - ack: %o', writeAck);
-//   })
-//   .catch (function (e) {
-//     console.log ('An error occured: %o', e);
-//   });

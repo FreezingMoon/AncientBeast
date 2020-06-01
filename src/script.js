@@ -6,6 +6,9 @@ import Config from './server/sconfigvars';
 import ClientI from './server/client';
 import Authenticate from './server/authenticate';
 import SessionI from './server/session';
+import MatchI from './server/match';
+// import SocketI from './server/socket';
+
 
 // Load the stylesheet
 import './style/main.less';
@@ -46,8 +49,11 @@ window.AB = AB;
 //server client
 const serverConfig =Config;
 const SC=new ClientI(serverConfig);
+
 const Cli=SC.client;
-console.log(Cli);
+const useSSL = false;
+const verboseLogging = false;
+const createStatus = false;  
 // const email = "junior@example.com";
 // const password = "8484ndnso";
 // const session = Cli.authenticateEmail({ email: email, password: password, create: true, username: "boo" })
@@ -123,7 +129,7 @@ $j(document).ready(() => {
     $j('.loginregFrame').show();
     let sess = new SessionI(); 
     sess.restoreSession().then((session)=>{
-     console.log(session);
+     console.log(`session ${session} restored`);
 
     })
 
@@ -205,13 +211,30 @@ $j(document).ready(() => {
       $j('#login .error-req').hide();
       $j('#login .error-req-message').hide();
     }
-
- 
     let auth = new Authenticate(login,Cli);
-    auth.authenticateEmail().then((session)=>{
+    
+    auth.authenticateEmail().then((session)=>{     
       let sess = new SessionI(session);  
       sess.storeSession();
-    })
+      let socket = Cli.createSocket(useSSL,verboseLogging);
+      socket.connect(session, createStatus)
+      .then((s)=> {   
+        let match = new MatchI(socket);    
+        match.initMatches(session,Cli).then(function(n){
+
+            console.log(n);
+
+            //initiate match
+        },(error)=> {
+          console.error("match failed to initialize", JSON.stringify(error));
+        });
+         
+        },
+          (error)=> {
+                console.error("connect failed:", JSON.stringify(error));
+        });
+      
+   })
 
     return false; // Prevent submit
   });
