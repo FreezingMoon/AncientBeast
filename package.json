@@ -29,7 +29,7 @@
 		"express": "^4.17.1",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
-		"phaser-ce": "^2.15.0"
+		"phaser-ce": "^2.15.1"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.9.0",
