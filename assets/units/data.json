@@ -3720,7 +3720,7 @@
 	{
 		"id": 50,
 		"name": "Shadow Leech",
-		"level": "S",
+		"level": "1",
 		"realm": "W",
 		"size": 1,
 		"set": "α",
@@ -3758,7 +3758,7 @@
 				"title": "Palm Jaw",
 				"desc": "Bites nearby foe by using its own hand, stealing the energy points cost from it.",
 				"info": "12 pierce damage & 10 energy transfer.",
-				"upgrade": "Kills steal all the energy left.",
+				"upgrade": "Attack also transfers health.",
 				"damages": {
 					"pierce": 12
 				},
