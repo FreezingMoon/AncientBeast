@@ -1469,59 +1469,59 @@
 		"set": "α",
 		"stats": {
 			"health": 217,
-			"regrowth": 1,
-			"endurance": 70,
-			"energy": 60,
-			"meditation": 1,
+			"regrowth": 0,
+			"endurance": 30,
+			"energy": 90,
+			"meditation": 0,
 			"initiative": 10,
 			"offense": 6,
 			"defense": 8,
 			"movement": 2,
-			"pierce": 9,
-			"slash": 9,
-			"crush": 9,
-			"shock": 12,
-			"burn": 10,
-			"frost": 8,
-			"poison": 14,
-			"sonic": 10,
-			"mental": 20
+			"pierce": 45,
+			"slash": 20,
+			"crush": 35,
+			"shock": 30,
+			"burn": 23,
+			"frost": 27,
+			"poison": 50,
+			"sonic": 15,
+			"mental": 35
 		},
 		"animation": {
 			"walk_speed": 500
 		},
 		"ability_info": [
 			{
-				"title": "Rib Cage",
-				"desc": "Bonus points for every unit that dies.",
-				"info": "+6 defense & +6 meditation per stack.",
-				"upgrade": "9 regrowth when a unit dies."
+				"title": "Already Dead",
+				"desc": "Instead of getting fatigued, unit gains most of the energy used in the attack.",
+				"info": "Restores 80% of the attack's energy.",
+				"upgrade": "Resists 1 fatal blow / round."
 			},
 			{
-				"title": "Dark Grasp",
-				"desc": "Strikes a nearby foe using its claws, creating one Shadow Leech if it kills.",
-				"info": "20 slash and 20 pierce damage per hit.",
-				"upgrade": "Picks drop after killing unit.",
-				"costs": {
-					"energy": 40
-				}
-			},
-			{
-				"title": "Fly Swarm",
-				"desc": "Distracts a unit, lowering its defense and meditation for a complete round.",
-				"info": "-20 defense, -10 meditation one turn.",
-				"upgrade": "Persists if unit not moving.",
+				"title": "Sharp Forehead",
+				"desc": "Punctures nearby foe using the horns, lowering its regrowth with each strike.",
+				"info": "33 pierce damage, -3 regrowth debuff.",
+				"upgrade": "Gains those regrowth points.",
 				"costs": {
 					"energy": 30
 				}
 			},
 			{
-				"title": "Shadow Legion",
-				"desc": "Allows a long dead creature to come and fight again, as a shadow being.",
-				"info": "All shadows vanish if creature dies.",
-				"upgrade": "Shadows will remain alive.",
+				"title": "Distant Grasp",
+				"desc": "Holds a unit in place for a round, only being able to escape by using abilities.",
+				"info": "range = 7 hexagons - target unit level.",
+				"upgrade": "Also does 16 pierce damage.",
 				"costs": {
-					"energy": 20
+					"energy": 30
+				}
+			},
+			{
+				"title": "Ivory Stakes",
+				"desc": "Creates a three hit obstacle within five range that can be used to attack foes.",
+				"info": "Can attack nearby enemy for 10 pierce.",
+				"upgrade": "+5 pierce damage per combo.",
+				"costs": {
+					"energy": 30
 				}
 			}
 		]
