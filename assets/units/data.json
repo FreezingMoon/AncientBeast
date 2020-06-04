@@ -1501,7 +1501,7 @@
 				"title": "Sharp Forehead",
 				"desc": "Punctures nearby foe using the horns, lowering its regrowth with each strike.",
 				"info": "33 pierce damage, -3 regrowth debuff.",
-				"upgrade": "Gains those regrowth points.",
+				"upgrade": "Gains those points if nearby.",
 				"costs": {
 					"energy": 30
 				}
