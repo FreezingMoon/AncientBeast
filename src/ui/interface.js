@@ -211,6 +211,115 @@ export class UI {
 		);
 		this.buttons.push(this.btnFlee);
 
+		this.materializeButton = new Button(
+			{
+				$button: $j('#materialize_button'),
+				css: {
+					disabled: {},
+					glowing: {
+						cursor: 'pointer',
+					},
+					selected: {},
+					active: {},
+					noclick: {},
+					normal: {
+						cursor: 'default',
+					},
+					slideIn: {},
+				},
+			},
+			game,
+		);
+
+		// Defines states for ability buttons
+		for (let i = 0; i < 4; i++) {
+			let b = new Button(
+				{
+					$button: $j('.ability[ability="' + i + '"]'),
+					hasShortcut: true,
+					click: () => {
+						let game = this.game;
+						if (this.selectedAbility != i) {
+							if (this.dashopen) {
+								return false;
+							}
+
+							game.grid.clearHexViewAlterations();
+							let ability = game.activeCreature.abilities[i];
+							// Passive ability icon can cycle between usable abilities
+							if (i == 0) {
+								this.selectNextAbility();
+								return;
+							}
+							// Colored frame around selected ability
+							if (ability.require() == true && i != 0) {
+								this.selectAbility(i);
+							}
+							// Activate Ability
+							game.activeCreature.abilities[i].use();
+						} else {
+							game.grid.clearHexViewAlterations();
+							// Cancel Ability
+							this.closeDash();
+							game.activeCreature.queryMove();
+							this.selectAbility(-1);
+						}
+					},
+					mouseover: () => {
+						if (this.selectedAbility == -1) {
+							this.showAbilityCosts(i);
+						}
+
+						(function () {
+							let $desc = $j('.desc[ability="' + i + '"]');
+
+							// Ensure tooltip stays in window - adjust
+							var rect = $desc[0].getBoundingClientRect();
+							const margin = 20;
+							if (rect.bottom > window.innerHeight - margin) {
+								let value = window.innerHeight - rect.bottom - margin;
+								$desc[0].style.top = value + 'px';
+								$desc.find('.arrow')[0].style.top = 27 - value + 'px'; // Keep arrow position
+							}
+						})();
+					},
+					mouseleave: () => {
+						if (this.selectedAbility == -1) {
+							this.hideAbilityCosts();
+						}
+						(function () {
+							let $desc = $j('.desc[ability="' + i + '"]');
+							$desc[0].style.top = '0px';
+							$desc.find('.arrow')[0].style.top = '27px';
+						})();
+					},
+					abilityId: i,
+					css: {
+						disabled: {
+							cursor: 'help',
+						},
+						glowing: {
+							cursor: 'pointer',
+						},
+						selected: {},
+						active: {},
+						noclick: {
+							cursor: 'help',
+						},
+						normal: {
+							cursor: 'default',
+						},
+						slideIn: {
+							cursor: 'pointer',
+						},
+					},
+				},
+				game,
+			);
+			this.buttons.push(b);
+			this.abilitiesButtons.push(b);
+		}
+
 		// ProgressBar
 		this.healthBar = new ProgressBar(
 			{
@@ -524,58 +633,6 @@ export class UI {
 			e.preventDefault();
 		});
 
-		for (let i = 0; i < 4; i++) {
-			let b = new Button(
-				{
-					$button: $j('#abilities > div:nth-child(' + (i + 1) + ') > .ability'),
-					hasShortcut: true,
-					abilityId: i,
-					css: {
-						disabled: {
-							cursor: 'help',
-						},
-						glowing: {
-							cursor: 'pointer',
-						},
-						selected: {},
-						active: {},
-						noclick: {
-							cursor: 'help',
-						},
-						normal: {
-							cursor: 'default',
-						},
-						slideIn: {
-							cursor: 'pointer',
-						},
-					},
-				},
-				game,
-			);
-			this.buttons.push(b);
-			this.abilitiesButtons.push(b);
-		}
-
-		this.materializeButton = new Button(
-			{
-				$button: $j('#materialize_button'),
-				css: {
-					disabled: {},
-					glowing: {
-						cursor: 'pointer',
-					},
-					selected: {},
-					active: {},
-					noclick: {},
-					normal: {
-						cursor: 'default',
-					},
-					slideIn: {},
-				},
-			},
-			game,
-		);
-
 		this.$dash.find('.section.numbers .stat').bind('mouseover', (event) => {
 			let $section = $j(event.target).closest('.section');
 			let which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
@@ -697,17 +754,20 @@ export class UI {
 	selectNextAbility() {
 		let game = this.game,
 			b = this.selectedAbility == -1 ? 0 : this.selectedAbility;
-
+		if (this.selectedAbility == 3) {
+			game.activeCreature.queryMove();
+			this.selectAbility(-1);
+			return;
+		}
 		for (let i = b + 1; i < 4; i++) {
 			let creature = game.activeCreature;
 
 			if (creature.abilities[i].require() && !creature.abilities[i].used) {
 				this.abilitiesButtons[i].triggerClick();
+				this.selectedAbility + 1;
 				return;
 			}
 		}
-
-		game.activeCreature.queryMove();
 	}
 
 	resizeDash() {
@@ -1666,70 +1726,6 @@ export class UI {
 			let $desc = btn.$button.next('.desc');
 			$desc.find('span.title').text(ab.title);
 			$desc.find('p').html(ab.desc);
-
-			btn.click = () => {
-				if (this.selectedAbility != btn.abilityId) {
-					if (this.dashopen) {
-						return false;
-					}
-
-					game.grid.clearHexViewAlterations();
-					let ability = game.activeCreature.abilities[btn.abilityId];
-					// Passive ability icon can cycle between usable abilities
-					if (btn.abilityId == 0) {
-						let b = this.selectedAbility == -1 ? 4 : this.selectedAbility;
-						for (let i = b - 1; i > 0; i--) {
-							if (
-								game.activeCreature.abilities[i].require() &&
-								!game.activeCreature.abilities[i].used
-							) {
-								this.abilitiesButtons[i].triggerClick();
-							}
-						}
-					}
-
-					// Colored frame around selected ability
-					if (ability.require() == true && btn.abilityId != 0) {
-						this.selectAbility(btn.abilityId);
-					}
-					// Activate Ability
-					game.activeCreature.abilities[btn.abilityId].use();
-				} else {
-					game.grid.clearHexViewAlterations();
-					// Cancel Ability
-					this.closeDash();
-					game.activeCreature.queryMove();
-					this.selectAbility(-1);
-				}
-			};
-
-			btn.mouseover = () => {
-				if (this.selectedAbility == -1) {
-					this.showAbilityCosts(btn.abilityId);
-				}
-				(function () {
-					// Ensure tooltip stays in window - adjust
-					var rect = $desc[0].getBoundingClientRect();
-					const margin = 20;
-					if (rect.bottom > window.innerHeight - margin) {
-						let value = window.innerHeight - rect.bottom - margin;
-						$desc[0].style.top = value + 'px';
-						$desc.find('.arrow')[0].style.top = 27 - value + 'px'; // Keep arrow position
-					}
-				})();
-			};
-
-			btn.mouseleave = () => {
-				if (this.selectedAbility == -1) {
-					this.hideAbilityCosts();
-				}
-				(function () {
-					// Ensure tooltip stays in window - reset
-					$desc[0].style.top = '0px';
-					$desc.find('.arrow')[0].style.top = '27px';
-				})();
-			};
-
 			btn.changeState(); // Apply changes
 		});
 	}
@@ -1761,13 +1757,14 @@ export class UI {
 
 					this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 					this.healthBar.setSize(creature.oldHealth / creature.stats.health);
-					this.updateAbilityButtonsContent();
+
 					this.btnAudio.changeState('normal');
 					this.btnSkipTurn.changeState('normal');
+					// Update upgrade info
+					this.updateAbilityUpgrades();
 					// Change ability buttons
 					this.changeAbilityButtons();
-					//Callback after final transition
-
+					// Callback after final transition
 					this.$activebox.children('#abilities').transition(
 						{
 							y: '0px',
@@ -1789,7 +1786,7 @@ export class UI {
 		this.updateInfos();
 	}
 
-	updateAbilityButtonsContent() {
+	updateAbilityUpgrades() {
 		let game = this.game,
 			creature = game.activeCreature;
 

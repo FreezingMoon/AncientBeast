@@ -167,7 +167,7 @@ export class Ability {
 		this.timesUsedThisTurn++;
 
 		// Update upgrade information
-		this.game.UI.updateAbilityButtonsContent();
+		this.game.UI.updateAbilityUpgrades();
 
 		// Configure score update for player
 		// When the ability is upgraded, add a single score bonus unique to that ability
