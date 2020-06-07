@@ -249,6 +249,7 @@ export class UI {
 							// Passive ability icon can cycle between usable abilities
 							if (i == 0) {
 								this.selectNextAbility();
+								return;
 							}
 							// Colored frame around selected ability
 							if (ability.require() == true && i != 0) {
@@ -752,8 +753,12 @@ export class UI {
 
 	selectNextAbility() {
 		let game = this.game,
-			b = this.selectedAbility == -1 || this.selectedAbility == 3 ? 0 : this.selectedAbility;
-
+			b = this.selectedAbility == -1 ? 0 : this.selectedAbility;
+		if (this.selectedAbility == 3) {
+			game.activeCreature.queryMove();
+			this.selectAbility(-1);
+			return;
+		}
 		for (let i = b + 1; i < 4; i++) {
 			let creature = game.activeCreature;
 
@@ -762,7 +767,6 @@ export class UI {
 				this.selectedAbility + 1;
 				return;
 			}
-			continue;
 		}
 	}
 
@@ -1720,7 +1724,6 @@ export class UI {
 				)}')`,
 			};
 			let $desc = btn.$button.next('.desc');
-			console.log($desc);
 			$desc.find('span.title').text(ab.title);
 			$desc.find('p').html(ab.desc);
 			btn.changeState(); // Apply changes
