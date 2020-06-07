@@ -1760,11 +1760,11 @@ export class UI {
 
 					this.btnAudio.changeState('normal');
 					this.btnSkipTurn.changeState('normal');
-					//update upgrade info
+					// Update upgrade info
 					this.updateAbilityUpgrades();
 					// Change ability buttons
 					this.changeAbilityButtons();
-					//Callback after final transition
+					// Callback after final transition
 					this.$activebox.children('#abilities').transition(
 						{
 							y: '0px',
