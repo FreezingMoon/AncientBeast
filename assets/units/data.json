@@ -397,8 +397,8 @@
 				}
 			},
 			{
-				"title": "Cracked Earth",
-				"desc": "Smashes both fists into the ground, wreaking fierce havoc in area ahead.",
+				"title": "Intense Prayer",
+				"desc": "Causes the ground to really heat up, wreaking fierce havoc in area ahead.",
 				"info": "10 burn damage over all 8 hexagons.",
 				"upgrade": "It can spawn hot lava traps.",
 				"damages": {
@@ -2153,25 +2153,21 @@
 				}
 			},
 			{
-				"title": "Stone Grinder",
-				"desc": "Leaps within 5 hexagons to squash two spots that are occupied by injured foes.",
-				"info": "Every enemy has to be under 25 health.",
-				"upgrade": "Health threshold becomes 50.",
-				"damages": {
-					"crush": 10
-				},
+				"title": "Earth Shaker",
+				"desc": "Smashes both fists into the ground, delaying all units over an area ahead.",
+				"info": "Delays units over all 8 hexagons area.",
+				"upgrade": "Delayed units will skip turn.",
 				"costs": {
-					"energy": 30
+					"energy": 20
 				}
 			},
 			{
-				"title": "Coal Burp",
-				"desc": "Bombards an inline target with a hot coal projectile that breaks on impact.",
-				"info": "30 crush to target + 15 burn sideways.",
-				"upgrade": "Sides can burn for one turn.",
+				"title": "Stone Grinder",
+				"desc": "Jumps on top of 2 hexagons occupied by enemies, then returns if not killing.",
+				"info": "30 crush damage, 5 hexes inline range.",
+				"upgrade": "Extra bounce if one unit dies.",
 				"damages": {
-					"crush": 30,
-					"burn": 15
+					"crush": 10
 				},
 				"costs": {
 					"energy": 30

@@ -169,7 +169,7 @@ export default (G) => {
 			},
 		},
 
-		// 	Thirt Ability: Cracked Earth
+		// 	Thirt Ability: Intense Prayer
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
@@ -177,7 +177,7 @@ export default (G) => {
 			map: [
 				[0, 0, 1, 0],
 				[0, 0, 1, 1],
-				[1, 1, 1, 0], //origin line
+				[1, 1, 1, 0], // Origin line
 				[0, 0, 1, 1],
 				[0, 0, 1, 0],
 			],
