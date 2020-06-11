@@ -1371,25 +1371,25 @@
 				"info": "20 burn damage & -2 burn stat debuff.",
 				"upgrade": "-10 burn stat to inline enemy.",
 				"costs": {
-					"energy": 20
+					"energy": 15
 				}
 			},
 			{
 				"title": "Volcanic Artillery",
-				"desc": "A hot rock will hit target spot at the end of round, damaging a foe or the ground.",
-				"info": "20 crush + 20 burn damage or a fissure.",
-				"upgrade": "Ability becomes usable twice.",
+				"desc": "Fires 3 rocks will hit target spots with 100 delay, damaging units or ground.",
+				"info": "10 crush + 5 burn damage or fissures.",
+				"upgrade": "Total damage is now doubled.",
 				"costs": {
 					"energy": 20
 				}
 			},
 			{
 				"title": "Violent Fissures",
-				"desc": "Stomps the ground creating a fissure at target location, erupting existing ones.",
-				"info": "20 burn damage to all units on fissures.",
-				"upgrade": "Will cause two fissures under.",
+				"desc": "Stomps the hexagons under, creating fissures and also erupts existing ones.",
+				"info": "10 burn damage to all units on fissures.",
+				"upgrade": "Surrounded spots also crack.",
 				"costs": {
-					"energy": 20
+					"energy": 25
 				}
 			}
 		]
