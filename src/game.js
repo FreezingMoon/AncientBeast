@@ -81,7 +81,7 @@ export default class Game {
 			0, // Dark Priest
 			37, // Thug Swine
 			3, // Uncle Fungus
-			4, // Magma Spawn
+			4, // Infernal
 			45, // Chimera
 			12, // Snow Bunny
 			5, // Impaler
@@ -280,7 +280,7 @@ export default class Game {
 		}
 
 		// Ability SFX
-		this.Phaser.load.audio('MagmaSpawn0', getUrl('units/sfx/Magma Spawn 0'));
+		this.Phaser.load.audio('MagmaSpawn0', getUrl('units/sfx/Infernal 0'));
 
 		// Grid
 		this.Phaser.load.image('hex', getUrl('interface/hex'));
@@ -298,16 +298,16 @@ export default class Game {
 		this.Phaser.load.image('trap_mud-bath', getUrl('units/sprites/Swine Thug - Mud Bath'));
 		this.Phaser.load.image(
 			'trap_scorched-ground',
-			getUrl('units/sprites/Magma Spawn - Scorched Ground'),
+			getUrl('units/sprites/Infernal - Scorched Ground'),
 		);
-		this.Phaser.load.image('trap_firewall', getUrl('units/sprites/Magma Spawn - Scorched Ground'));
+		this.Phaser.load.image('trap_firewall', getUrl('units/sprites/Infernal - Scorched Ground'));
 		this.Phaser.load.image('trap_poisonous-vine', getUrl('units/sprites/Impaler - Poisonous Vine'));
 
 		// Effects
 		this.Phaser.load.image('effects_fiery-touch', getUrl('units/sprites/Abolished - Fiery Touch'));
 		this.Phaser.load.image(
 			'effects_fissure-vent',
-			getUrl('units/sprites/Magma Spawn - Scorched Ground'),
+			getUrl('units/sprites/Infernal - Scorched Ground'),
 		);
 		this.Phaser.load.image(
 			'effects_freezing-spit',

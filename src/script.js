@@ -8,23 +8,23 @@ import './style/main.less';
 
 // Abilities
 import abolishedAbilitiesGenerator from './abilities/Abolished';
+import asherAbilitiesGenerator from './abilities/Asher';
 import chimeraAbilitiesGenerator from './abilities/Chimera';
 import cyberWolfAbilitiesGenerator from './abilities/Cyber-Wolf';
 import darkPriestAbilitiesGenerator from './abilities/Dark-Priest';
 import goldenWyrmAbilitiesGenerator from './abilities/Golden-Wyrm';
 import gumbleAbilitiesGenerator from './abilities/Gumble';
-import vehemothAbilitiesGenerator from './abilities/Vehemoth';
+import headlessAbilitiesGenerator from './abilities/Headless';
 import impalerAbilitiesGenerator from './abilities/Impaler';
-import asherAbilitiesGenerator from './abilities/Asher';
-import magmaSpawnAbilitiesGenerator from './abilities/Magma-Spawn';
+import infernalAbilitiesGenerator from './abilities/Infernal';
 import nightmareAbilitiesGenerator from './abilities/Nightmare';
 import nutcaseAbilitiesGenerator from './abilities/Nutcase';
 import scavengerAbilitiesGenerator from './abilities/Scavenger';
 import snowBunnyAbilitiesGenerator from './abilities/Snow-Bunny';
+import stomperAbilitiesGenerator from './abilities/Stomper';
 import swineThugAbilitiesGenerator from './abilities/Swine-Thug';
 import uncleFungusAbilitiesGenerator from './abilities/Uncle-Fungus';
-import headlessAbilitiesGenerator from './abilities/Headless';
-import stomperAbilitiesGenerator from './abilities/Stomper';
+import vehemothAbilitiesGenerator from './abilities/Vehemoth';
 
 // Generic object we can decorate with helper methods to simply dev and user experience.
 // TODO: Expose this in a less hacky way.
@@ -41,23 +41,23 @@ window.AB = AB;
 // Load the abilities
 const abilitiesGenerators = [
 	abolishedAbilitiesGenerator,
+	asherAbilitiesGenerator,
 	chimeraAbilitiesGenerator,
 	cyberWolfAbilitiesGenerator,
 	darkPriestAbilitiesGenerator,
 	goldenWyrmAbilitiesGenerator,
 	gumbleAbilitiesGenerator,
-	vehemothAbilitiesGenerator,
+	headlessAbilitiesGenerator,
 	impalerAbilitiesGenerator,
-	asherAbilitiesGenerator,
-	magmaSpawnAbilitiesGenerator,
+	infernalAbilitiesGenerator,
 	nightmareAbilitiesGenerator,
 	nutcaseAbilitiesGenerator,
 	scavengerAbilitiesGenerator,
 	snowBunnyAbilitiesGenerator,
+	stomperAbilitiesGenerator,
 	swineThugAbilitiesGenerator,
 	uncleFungusAbilitiesGenerator,
-	headlessAbilitiesGenerator,
-	stomperAbilitiesGenerator,
+	vehemothAbilitiesGenerator,
 ];
 abilitiesGenerators.forEach((generator) => generator(G));
 

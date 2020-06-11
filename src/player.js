@@ -72,7 +72,7 @@ export class Player {
 
 	/* summon(type, pos)
 	 *
-	 * type :	String :	Creature type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
+	 * type :	String :	Creature type (ex: "0" for Dark Priest and "G2" for Swampler)
 	 * pos :	Object :	Position {x,y}
 	 *
 	 */
