@@ -2829,7 +2829,7 @@
 	},
 	{
 		"id": 38,
-		"name": "Infernal",
+		"name": "Crystalis",
 		"level": 4,
 		"realm": "L",
 		"size": 2,
@@ -2860,15 +2860,15 @@
 		"ability_info": [
 			{
 				"title": "Crossed Bones",
-				"desc": "When this unit gets killed, it starts to restructure itself into a Lava Mollusk.",
-				"info": "The unit won't have any energy at first.",
-				"upgrade": "Unit starts with half energy."
+				"desc": "Blocks one melee frontal hit per round, nicely reducing the incoming damage.",
+				"info": "Blocked attacks do 40% less damage.",
+				"upgrade": "Blocks 2 attacks per round."
 			},
 			{
 				"title": "Shark Aggression",
-				"desc": "Bytes a nearby foe, lowering its total maximum health by 1 with each strike.",
-				"info": "15 pierce damage, one health debuff.",
-				"upgrade": "+5 more damage or healing.",
+				"desc": "Bytes a nearby foe, lowering its total maximum health with every single hit.",
+				"info": "10 pierce damage, ten health debuff.",
+				"upgrade": "Charges 2 hexagons at foe.",
 				"costs": {
 					"energy": 15
 				}
@@ -2876,17 +2876,17 @@
 			{
 				"title": "Crystal Therapy",
 				"desc": "Grows adjacent minerals that will buff regrowth & meditation of nearby units.",
-				"info": "4 regrowth + 4 meditation per crystal.",
-				"upgrade": "Each formation resists 3 hits.",
+				"info": "1 regrowth + 1 meditation per crystal.",
+				"upgrade": "Can improve existing crystal.",
 				"costs": {
 					"energy": 30
 				}
 			},
 			{
 				"title": "Charring Flame",
-				"desc": "Ranged attack that damages any of the first encountered units on several rows.",
-				"info": "20 burn damage done to 3 paralel lines.",
-				"upgrade": "Becomes a double hit attack.",
+				"desc": "8 range attack that damages the first encountered targets over three rows.",
+				"info": "15 burn damage done on 3 paralel lines.",
+				"upgrade": "It now improves crystals hit.",
 				"costs": {
 					"energy": 40
 				}
