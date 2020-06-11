@@ -1,5 +1,5 @@
 export default {
     key: "defaultkey",
-    ip: "192.168.99.100",
+    ip: "104.248.54.134",
     port: 7350			
   }
