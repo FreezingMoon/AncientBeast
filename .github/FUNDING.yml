@@ -1,7 +1,5 @@
 # These are supported funding model platforms
 
 open_collective: AncientBeast
-patreon: FreezingMoon
-custom: [paypal.me/AncientBeast, AncientBeast.com/contribute/#donate]
-issuehunt: FreezingMoon/AncientBeast
-ko_fi: DreadKnight
+patreon: AncientBeast
+custom: paypal.me/AncientBeast
