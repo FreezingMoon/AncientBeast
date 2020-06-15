@@ -141,6 +141,15 @@ body {
 		align-items: center;		
 	}
 }
+.match-frame {
+  display:none;
+
+}
+.welcome{
+  margin-bottom:1.5rem;
+}
+#startMatchButton{display:none;}
+
 .setupFrame {
 	border: 40px solid transparent;
 	border-image: url('~assets/interface/div.png') 40 fill stretch;
@@ -273,12 +282,20 @@ body {
 		height: 25px;
 		margin-bottom: 20px;
   }
-  #startButtonWrapper{
+  .button-wrapper{
     margin-left:36%;
 
   }
 }
-
+.welcome{
+  display:none;
+}
+.buttons-wrapper{
+  display:flex;
+  .button-wrapper .crimson-button{
+    font-size:1.3rem;
+  }
+}
 .login{
 	padding-right: 20px;
   border-right: 1px solid #fff;
@@ -288,7 +305,12 @@ body {
   padding-left:30px;
   flex:1;
 }
-#startButtonWrapper {
+.announcement-text{
+  margin-top: 1rem;
+    text-align: left;
+    line-height: 1.4rem;
+}
+.button-wrapper {
 	font-size: 1.5em;
 	text-shadow: 2px 2px black;
 	margin:20px auto;
@@ -299,7 +321,7 @@ body {
 		animation: fading 2.5s infinite;
 	}
 
-	#startButton {
+	.crimson-button {
 		background: transparent;
 		background-image: url('~assets/interface/small_button.png');
 		background-size: 190px;
@@ -441,7 +463,7 @@ a {
 		border: none;
 	}
 
-	#startButtonWrapper {
+	.button-wrapper {
 		display: none;
 	}
 

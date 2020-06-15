@@ -37,8 +37,10 @@ import stomperAbilitiesGenerator from './abilities/Stomper';
 // Generic object we can decorate with helper methods to simply dev and user experience.
 // TODO: Expose this in a less hacky way.
 let AB = {};
+let session = {};
 // Create the game
 const G = new Game('0.4');
+
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
 AB.currentGame = G;
@@ -54,6 +56,7 @@ const Cli=SC.client;
 const useSSL = false;
 const verboseLogging = false;
 const createStatus = false;  
+const socket = Cli.createSocket(useSSL,verboseLogging);
 // const email = "junior@example.com";
 // const password = "8484ndnso";
 // const session = Cli.authenticateEmail({ email: email, password: password, create: true, username: "boo" })
@@ -120,8 +123,18 @@ $j(document).ready(() => {
 			enableFullscreenLayout();
 			$j('#AncientBeast')[0].requestFullscreen();
 		}
-	});
+  });
+  
+  $j('#createMatchButton').on('click', () => {
+		$j('.match-frame').hide();
+    $j('#gameSetup').show();
+    $j('#startMatchButton').show()
+    $j('#startButton').hide();
 
+  });
+
+  
+  
 	$j('#multiplayer').on('click', () => {
     // sign up and register
     //TODO move to another file
@@ -153,7 +166,7 @@ $j(document).ready(() => {
 
 		return false; // Prevent submit
   });
-
+//register
   $j('form#register').submit((e) => {
     e.preventDefault(); // Prevent submit
     let reg=getReg();
@@ -196,7 +209,7 @@ $j(document).ready(() => {
 		return false; // Prevent submit
   });
 
-
+//login form
   $j('form#login').submit((e) => {
     e.preventDefault(); // Prevent submit
     let login=getLogin();
@@ -216,23 +229,49 @@ $j(document).ready(() => {
     auth.authenticateEmail().then((session)=>{     
       let sess = new SessionI(session);  
       sess.storeSession();
-      let socket = Cli.createSocket(useSSL,verboseLogging);
-      socket.connect(session, createStatus)
-      .then((s)=> {   
-        let match = new MatchI(socket);    
-        match.initMatches(session,Cli).then(function(n){
+  
+      $j('.setupFrame,.welcome').show();
+      $j('.match-frame').show();
+      $j('.loginregFrame,#gameSetup').hide();
+      $j('.user').text(session.username)
 
-            console.log(n);
-
-            //initiate match
-        },(error)=> {
-          console.error("match failed to initialize", JSON.stringify(error));
-        });
-         
+      
+      $j('#joinMatchButton').on('click', () => {
+        // sign up and register
+        socket.connect(session, createStatus)
+        .then((s)=> { 
+          console.log('connecttosocket');
+          let match = new MatchI(socket,session, Cli);        
+          match.matchJoin(session,Cli).then(function(n){
+              //initiate match
+              console.log("joined match",n);
+            },(error)=> {
+              console.error("match failed to initialize", JSON.stringify(error));
+            });         
+          },
+            (error)=> {
+                  console.error("connect failed:", JSON.stringify(error));
+          });
+    
+      });
+     
+      $j('#startMatchButton').on('click',function(){
+        
+        socket.connect(session, createStatus).then((s)=> { 
+          console.log('connecttosocket');
+          let match = new MatchI(socket,session, Cli);        
+          match.matchCreate(session,Cli).then(function(n){
+              //initiate match
+              console.log("created match",n);
+            },(error)=> {
+              console.error("match failed to initialize", JSON.stringify(error));
+          });         
         },
-          (error)=> {
-                console.error("connect failed:", JSON.stringify(error));
+            (error)=> {
+                  console.error("connect failed:", JSON.stringify(error));
         });
+      })
+     
       
    })
 

@@ -1,39 +1,39 @@
 import _ from 'underscore';
+import game from '../game';
 
 export default class MatchI {
   constructor(socket){
     this._socket = socket;
+
+    socket.onmatchpresence = (matchpresence) => {
+      console.info("Received match presence update:", matchpresence.joins[0].username);
+    };
+    socket.onmatchdata = (matchdata) => {
+      console.info("Received match data: %o", matchdata);
+    };
     
   }
 
- async matchCreate(){
-    return await this._socket.send({ match_create: {} });
+  async matchCreate(){
+    return this._socket.send({ match_create: {} }).then((m)=>{
+        return m;
+    })
     
   }
-  async matchJoin(id){
-    var id = id;
-    return await this._socket.send({ match_join: { match_id: id } });
-  }
-  async initMatches(session,client) {    
+  async matchJoin(session,client){
+
     var matchList = await client.listMatches(session);
-    // console.log(matchList);
-    // var matchListTest = [{match_id: "4013c271-7f3e-47a9-af22-ab91ae4504de.", size: 2},{match_id: "4013c271-7f3e-47a9-af22-ab91ae4504df.", size: 1}];
-    var openMatch = _.findWhere(matchList, {size: 1});
-    if(openMatch){
-      return this.matchJoin(openMatch.match_id).then((m)=>{
+     var openMatch = _.findWhere(matchList, {size: 1});
+     if(openMatch){
+      return this._socket.send({ match_join: { match_id: id } }).then((m)=>{
         console.log(`joined match ${openMatch.match_id}`,m)
         return m;
+
+
       })
+
     }
-    if(_.isEmpty(matchList)){
-      console.log("no matches");
-      return this.matchCreate().then((m)=>{
-        console.log(`created match`,m)
-        return m;
-      })
-    }
-  
-   
+    
   }
 
 
