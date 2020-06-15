@@ -9,7 +9,6 @@ import SessionI from './server/session';
 import MatchI from './server/match';
 // import SocketI from './server/socket';
 
-
 // Load the stylesheet
 import './style/main.less';
 
@@ -33,7 +32,6 @@ import uncleFungusAbilitiesGenerator from './abilities/Uncle-Fungus';
 import headlessAbilitiesGenerator from './abilities/Headless';
 import stomperAbilitiesGenerator from './abilities/Stomper';
 
-
 // Generic object we can decorate with helper methods to simply dev and user experience.
 // TODO: Expose this in a less hacky way.
 let AB = {};
@@ -49,14 +47,14 @@ AB.restoreGame = AB.currentGame.gamelog.play.bind(AB.currentGame.gamelog);
 window.AB = AB;
 
 //server client
-const serverConfig =Config;
-const SC=new ClientI(serverConfig);
+const serverConfig = Config;
+const SC = new ClientI(serverConfig);
 
-const Cli=SC.client;
+const Cli = SC.client;
 const useSSL = false;
 const verboseLogging = false;
-const createStatus = false;  
-const socket = Cli.createSocket(useSSL,verboseLogging);
+const createStatus = false;
+const socket = Cli.createSocket(useSSL, verboseLogging);
 // const email = "junior@example.com";
 // const password = "8484ndnso";
 // const session = Cli.authenticateEmail({ email: email, password: password, create: true, username: "boo" })
@@ -123,29 +121,24 @@ $j(document).ready(() => {
 			enableFullscreenLayout();
 			$j('#AncientBeast')[0].requestFullscreen();
 		}
-  });
-  
-  $j('#createMatchButton').on('click', () => {
+	});
+
+	$j('#createMatchButton').on('click', () => {
 		$j('.match-frame').hide();
-    $j('#gameSetup').show();
-    $j('#startMatchButton').show()
-    $j('#startButton').hide();
+		$j('#gameSetup').show();
+		$j('#startMatchButton').show();
+		$j('#startButton').hide();
+	});
 
-  });
-
-  
-  
 	$j('#multiplayer').on('click', () => {
-    // sign up and register
-    //TODO move to another file
+		// sign up and register
+		//TODO move to another file
 		$j('.setupFrame').hide();
-    $j('.loginregFrame').show();
-    let sess = new SessionI(); 
-    sess.restoreSession().then((session)=>{
-     console.log(`session ${session} restored`);
-
-    })
-
+		$j('.loginregFrame').show();
+		let sess = new SessionI();
+		sess.restoreSession().then((session) => {
+			console.log(`session ${session} restored`);
+		});
 	});
 
 	window.addEventListener('resize', () => {
@@ -160,124 +153,135 @@ $j(document).ready(() => {
 	$j('#startButton').focus();
 
 	$j('form#gameSetup').submit((e) => {
-		e.preventDefault(); // Prevent submit   
+		e.preventDefault(); // Prevent submit
 		let gameconfig = getGameConfig();
 		G.loadGame(gameconfig);
 
 		return false; // Prevent submit
-  });
-//register
-  $j('form#register').submit((e) => {
-    e.preventDefault(); // Prevent submit
-    let reg=getReg();
-    //check empty fields
-    if ( $j('#register .error-req').css('display') != 'none' || $j('#register .error-req').css("visibility") != "hidden"){
-      // 'element' is hidden
-      $j('#register .error-req').hide();
-      $j('#register .error-req-message').hide();
-    }
-    if(reg.username =='' || reg.email ==''||reg.password ==''|| reg.passwordmatch =='' ){
-      $j('#register .error-req').show();
-      $j('#register .error-req-message').show();
-      return;
-    }
-    if ( $j('.error-pw-length').css('display') != 'none' || $j('.error-pw-length').css("visibility") != "hidden"){
-      // 'element' is hidden
-      $j('.error-pw-length').hide();
-    }
-  
-    //password length
-    if(reg.password.split('').length < 8){
-      $j('.error-pw-length').show();
-      return;
-    }
-    //password match
-    if ( $j('.error-pw').css('display') != 'none' || $j('.error-pw').css("visibility") != "hidden"){
-      // 'element' is hidden
-      $j('.error-pw').hide();
-    }
-    if(reg.password!=reg.passwordmatch){
-      $j('.error-pw').show();
-      return;
-    }
-    let auth = new Authenticate(reg,Cli);
-    auth.register().then((session)=>{
-      console.log('new user created.'+session)
+	});
+	//register
+	$j('form#register').submit((e) => {
+		e.preventDefault(); // Prevent submit
+		let reg = getReg();
+		//check empty fields
+		if (
+			$j('#register .error-req').css('display') != 'none' ||
+			$j('#register .error-req').css('visibility') != 'hidden'
+		) {
+			// 'element' is hidden
+			$j('#register .error-req').hide();
+			$j('#register .error-req-message').hide();
+		}
+		if (reg.username == '' || reg.email == '' || reg.password == '' || reg.passwordmatch == '') {
+			$j('#register .error-req').show();
+			$j('#register .error-req-message').show();
+			return;
+		}
+		if (
+			$j('.error-pw-length').css('display') != 'none' ||
+			$j('.error-pw-length').css('visibility') != 'hidden'
+		) {
+			// 'element' is hidden
+			$j('.error-pw-length').hide();
+		}
 
-    })
+		//password length
+		if (reg.password.split('').length < 8) {
+			$j('.error-pw-length').show();
+			return;
+		}
+		//password match
+		if ($j('.error-pw').css('display') != 'none' || $j('.error-pw').css('visibility') != 'hidden') {
+			// 'element' is hidden
+			$j('.error-pw').hide();
+		}
+		if (reg.password != reg.passwordmatch) {
+			$j('.error-pw').show();
+			return;
+		}
+		let auth = new Authenticate(reg, Cli);
+		auth.register().then((session) => {
+			console.log('new user created.' + session);
+		});
 
 		return false; // Prevent submit
-  });
+	});
 
-//login form
-  $j('form#login').submit((e) => {
-    e.preventDefault(); // Prevent submit
-    let login=getLogin();
-    if(login.email ==''||login.password ==''){
-      $j('#login .error-req').show();
-      $j('#login .error-req-message').show();
-      return;
-    }
-      //check empty fields
-    if ( $j('#login .error-req').css('display') != 'none' || $j('#login .error-req').css("visibility") != "hidden"){
-      // 'element' is hidden
-      $j('#login .error-req').hide();
-      $j('#login .error-req-message').hide();
-    }
-    let auth = new Authenticate(login,Cli);
-    
-    auth.authenticateEmail().then((session)=>{     
-      let sess = new SessionI(session);  
-      sess.storeSession();
-  
-      $j('.setupFrame,.welcome').show();
-      $j('.match-frame').show();
-      $j('.loginregFrame,#gameSetup').hide();
-      $j('.user').text(session.username)
+	//login form
+	$j('form#login').submit((e) => {
+		e.preventDefault(); // Prevent submit
+		let login = getLogin();
+		if (login.email == '' || login.password == '') {
+			$j('#login .error-req').show();
+			$j('#login .error-req-message').show();
+			return;
+		}
+		//check empty fields
+		if (
+			$j('#login .error-req').css('display') != 'none' ||
+			$j('#login .error-req').css('visibility') != 'hidden'
+		) {
+			// 'element' is hidden
+			$j('#login .error-req').hide();
+			$j('#login .error-req-message').hide();
+		}
+		let auth = new Authenticate(login, Cli);
 
-      
-      $j('#joinMatchButton').on('click', () => {
-        // sign up and register
-        socket.connect(session, createStatus)
-        .then((s)=> { 
-          console.log('connecttosocket');
-          let match = new MatchI(socket,session, Cli);        
-          match.matchJoin(session,Cli).then(function(n){
-              //initiate match
-              console.log("joined match",n);
-            },(error)=> {
-              console.error("match failed to initialize", JSON.stringify(error));
-            });         
-          },
-            (error)=> {
-                  console.error("connect failed:", JSON.stringify(error));
-          });
-    
-      });
-     
-      $j('#startMatchButton').on('click',function(){
-        
-        socket.connect(session, createStatus).then((s)=> { 
-          console.log('connecttosocket');
-          let match = new MatchI(socket,session, Cli);        
-          match.matchCreate(session,Cli).then(function(n){
-              //initiate match
-              console.log("created match",n);
-            },(error)=> {
-              console.error("match failed to initialize", JSON.stringify(error));
-          });         
-        },
-            (error)=> {
-                  console.error("connect failed:", JSON.stringify(error));
-        });
-      })
-     
-      
-   })
+		auth.authenticateEmail().then((session) => {
+			let sess = new SessionI(session);
+			sess.storeSession();
 
-    return false; // Prevent submit
-  });
-  
+			$j('.setupFrame,.welcome').show();
+			$j('.match-frame').show();
+			$j('.loginregFrame,#gameSetup').hide();
+			$j('.user').text(session.username);
+
+			$j('#joinMatchButton').on('click', () => {
+				// sign up and register
+				socket.connect(session, createStatus).then(
+					(s) => {
+						console.log('connecttosocket');
+						let match = new MatchI(socket, session, Cli);
+						match.matchJoin(session, Cli).then(
+							function (n) {
+								//initiate match
+								console.log('joined match', n);
+							},
+							(error) => {
+								console.error('match failed to initialize', JSON.stringify(error));
+							},
+						);
+					},
+					(error) => {
+						console.error('connect failed:', JSON.stringify(error));
+					},
+				);
+			});
+
+			$j('#startMatchButton').on('click', function () {
+				socket.connect(session, createStatus).then(
+					(s) => {
+						console.log('connecttosocket');
+						let match = new MatchI(socket, session, Cli);
+						match.matchCreate(session, Cli).then(
+							function (n) {
+								//initiate match
+								console.log('created match', n);
+							},
+							(error) => {
+								console.error('match failed to initialize', JSON.stringify(error));
+							},
+						);
+					},
+					(error) => {
+						console.error('connect failed:', JSON.stringify(error));
+					},
+				);
+			});
+		});
+
+		return false; // Prevent submit
+	});
 });
 
 /**
@@ -285,13 +289,12 @@ $j(document).ready(() => {
  * @return {Object} login form.
  */
 function getReg() {
-  
 	let reg = {
-			username: $j('.register input[name="username"]').val(),
-      email: $j('.register input[name="email"]').val(),
-      password: $j('.register input[name="password"]').val(),
-      passwordmatch: $j('.register input[name="passwordmatch"]').val()					
-		}
+		username: $j('.register input[name="username"]').val(),
+		email: $j('.register input[name="email"]').val(),
+		password: $j('.register input[name="password"]').val(),
+		passwordmatch: $j('.register input[name="passwordmatch"]').val(),
+	};
 
 	return reg;
 }
@@ -301,11 +304,10 @@ function getReg() {
  * @return {Object} login form.
  */
 function getLogin() {
-  
-	let login = {			
-			email: $j('.login input[name="email"]').val(),
-      password: $j('.login input[name="password"]').val(),					
-		}
+	let login = {
+		email: $j('.login input[name="email"]').val(),
+		password: $j('.login input[name="password"]').val(),
+	};
 	return login;
 }
 
@@ -328,8 +330,6 @@ export function getGameConfig() {
 
 	return config;
 }
-
-
 
 /**
  * Return true if an object has no keys.
