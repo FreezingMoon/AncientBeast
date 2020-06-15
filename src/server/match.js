@@ -23,10 +23,10 @@ export default class MatchI {
     console.log(matchList);
 		var openMatch = _.findWhere(matchList, { size: 1 });	
 		if (openMatch) {
-			// return this._socket.send({ match_join: { match_id: id } }).then((m) => {
-			// 	console.log(`joined match ${openMatch.match_id}`, m);
-			// 	return m;
-			// });
+			return this._socket.send({ match_join: { match_id: openMatch.match_id } }).then((m) => {
+				console.log(`joined match ${openMatch.match_id}`, m);
+				return m;
+			});
 		}
 	}
 }
