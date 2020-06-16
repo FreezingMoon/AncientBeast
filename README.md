@@ -2,7 +2,7 @@
 [![Join Discord](https://img.shields.io/badge/join-Discord-9cf.svg)](https://discord.me/AncientBeast)
 [![Setup Gitpod](https://img.shields.io/badge/setup-Gitpod-blue)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)
 [![Donate via PayPal](https://img.shields.io/badge/donate-PayPal-yellow.svg)](https://www.paypal.me/AncientBeast)
-[![Donate via Patreon](https://img.shields.io/badge/donate-Patreon-orange.svg)](https://www.patreon.com/FreezingMoon)
+[![Donate via Patreon](https://img.shields.io/badge/donate-Patreon-orange.svg)](https://www.patreon.com/AncientBeast)
 [![Code Triagers Badge](https://www.codetriage.com/freezingmoon/ancientbeast/badges/users.svg)](https://codetriage.com/freezingmoon/ancientbeast)
 [![OpenCollective Backers](https://opencollective.com/AncientBeast/backers/badge.svg)](#backers)
 [![OpenCollective Sponsors](https://opencollective.com/AncientBeast/sponsors/badge.svg)](#sponsors)
