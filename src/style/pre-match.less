@@ -261,6 +261,22 @@ body {
 	}
 }
 
+#discord {
+	display: block;
+	width: 100px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	z-index: 100;
+
+	div {
+		height: 100px;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/discord.svg');
+		background-size: cover;
+	}
+}
+
 a {
 	color: white;
 	text-shadow: 2px 2px black;
@@ -269,6 +285,10 @@ a {
 }
 
 @media (max-height: 555px) {
+	#discord {
+		display: none;
+	}
+
 	#matchMaking {
 		background: black url('~assets/interface/skulls.jpg') repeat;
 	}
