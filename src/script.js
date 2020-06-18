@@ -65,12 +65,12 @@ export const isNativeFullscreenAPIUse = () =>
 	document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
 
 export const disableFullscreenLayout = () => {
-	$j('#fullScreen').removeClass('fullscreenMode');
+	$j('#fullscreen').removeClass('fullscreenMode');
 	$j('.fullscreen__title').text('Fullscreen');
 };
 
 export const enableFullscreenLayout = () => {
-	$j('#fullScreen').addClass('fullscreenMode');
+	$j('#fullscreen').addClass('fullscreenMode');
 	$j('.fullscreen__title').text('Contract');
 };
 
@@ -91,7 +91,7 @@ $j(document).ready(() => {
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 
 	// Add listener for Fullscreen API
-	$j('#fullScreen').on('click', () => {
+	$j('#fullscreen').on('click', () => {
 		if (isNativeFullscreenAPIUse()) {
 			disableFullscreenLayout();
 			document.exitFullscreen();
@@ -104,9 +104,9 @@ $j(document).ready(() => {
 	});
 
 	window.addEventListener('resize', () => {
-		if (window.innerHeight === screen.height && !$j('#fullScreen').hasClass('fullscreenMode')) {
+		if (window.innerHeight === screen.height && !$j('#fullscreen').hasClass('fullscreenMode')) {
 			enableFullscreenLayout();
-		} else if ($j('#fullScreen').hasClass('fullscreenMode') && !isNativeFullscreenAPIUse()) {
+		} else if ($j('#fullscreen').hasClass('fullscreenMode') && !isNativeFullscreenAPIUse()) {
 			disableFullscreenLayout();
 		}
 	});
