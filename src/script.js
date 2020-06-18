@@ -96,7 +96,7 @@ $j(document).ready(() => {
 			disableFullscreenLayout();
 			document.exitFullscreen();
 		} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
-			alert('Use f11 to exit full screen');
+			alert('Use F11 to exit fullscreen');
 		} else {
 			enableFullscreenLayout();
 			$j('#AncientBeast')[0].requestFullscreen();
