@@ -2,6 +2,7 @@
 	{
 		"id": 0,
 		"name": "Dark Priest",
+		"playable": true,
 		"level": "-",
 		"realm": "-",
 		"size": 1,
@@ -92,6 +93,7 @@
 	{
 		"id": 1,
 		"name": "Bounty Hunter",
+		"playable": false,
 		"level": 2,
 		"realm": "A",
 		"size": 1,
@@ -168,6 +170,7 @@
 	{
 		"id": 2,
 		"name": "Razorback",
+		"playable": false,
 		"level": 6,
 		"realm": "G",
 		"size": 3,
@@ -234,6 +237,7 @@
 	{
 		"id": 3,
 		"name": "Uncle Fungus",
+		"playable": true,
 		"level": 3,
 		"realm": "G",
 		"size": 2,
@@ -334,6 +338,7 @@
 	{
 		"id": 4,
 		"name": "Infernal",
+		"playable": true,
 		"level": 2,
 		"realm": "L",
 		"size": 3,
@@ -434,6 +439,7 @@
 	{
 		"id": 5,
 		"name": "Impaler",
+		"playable": true,
 		"level": 5,
 		"realm": "S",
 		"size": 3,
@@ -534,6 +540,7 @@
 	{
 		"id": 6,
 		"name": "Vehemoth",
+		"playable": false,
 		"level": 7,
 		"realm": "S",
 		"size": 3,
@@ -638,6 +645,7 @@
 	{
 		"id": 7,
 		"name": "Abolished",
+		"playable": true,
 		"level": 7,
 		"realm": "P",
 		"size": 3,
@@ -730,6 +738,7 @@
 	{
 		"id": 8,
 		"name": "Horn Head",
+		"playable": false,
 		"level": 5,
 		"realm": "W",
 		"size": 2,
@@ -783,6 +792,7 @@
 	{
 		"id": 9,
 		"name": "Nightmare",
+		"playable": true,
 		"level": 4,
 		"realm": "S",
 		"size": 2,
@@ -881,6 +891,7 @@
 	{
 		"id": 10,
 		"name": "Troglodyte",
+		"playable": false,
 		"level": 4,
 		"realm": "P",
 		"size": 3,
@@ -943,6 +954,7 @@
 	{
 		"id": 11,
 		"name": "Toxic Shroom",
+		"playable": false,
 		"level": 1,
 		"realm": "G",
 		"size": 1,
@@ -1014,6 +1026,7 @@
 	{
 		"id": 12,
 		"name": "Snow Bunny",
+		"playable": true,
 		"level": 1,
 		"realm": "S",
 		"size": 1,
@@ -1108,6 +1121,7 @@
 	{
 		"id": 13,
 		"name": "Swampler",
+		"playable": false,
 		"level": 2,
 		"realm": "G",
 		"size": 1,
@@ -1171,6 +1185,7 @@
 	{
 		"id": 14,
 		"name": "Gumble",
+		"playable": true,
 		"level": 1,
 		"realm": "P",
 		"size": 1,
@@ -1265,6 +1280,7 @@
 	{
 		"id": 15,
 		"name": "Cycloper",
+		"playable": false,
 		"level": 2,
 		"realm": "W",
 		"size": 2,
@@ -1331,6 +1347,7 @@
 	{
 		"id": 16,
 		"name": "Vulcan",
+		"playable": false,
 		"level": 5,
 		"realm": "L",
 		"size": 2,
@@ -1397,6 +1414,7 @@
 	{
 		"id": 17,
 		"name": "Spikes",
+		"playable": false,
 		"level": 6,
 		"realm": "E",
 		"size": 2,
@@ -1463,6 +1481,7 @@
 	{
 		"id": 18,
 		"name": "Sarcophag",
+		"playable": false,
 		"level": 7,
 		"realm": "W",
 		"size": 3,
@@ -1529,6 +1548,7 @@
 	{
 		"id": 19,
 		"name": "Miss Creeper",
+		"playable": false,
 		"level": 4,
 		"realm": "G",
 		"size": 1,
@@ -1595,6 +1615,7 @@
 	{
 		"id": 20,
 		"name": "Kraken",
+		"playable": false,
 		"level": 6,
 		"realm": "S",
 		"size": 3,
@@ -1648,6 +1669,7 @@
 	{
 		"id": 21,
 		"name": "Flayed",
+		"playable": false,
 		"level": 4,
 		"realm": "W",
 		"size": 2,
@@ -1701,6 +1723,7 @@
 	{
 		"id": 22,
 		"name": "Asher",
+		"playable": false,
 		"level": 1,
 		"realm": "L",
 		"size": 2,
@@ -1783,6 +1806,7 @@
 	{
 		"id": 23,
 		"name": "Metalist",
+		"playable": false,
 		"level": 3,
 		"realm": "L",
 		"size": 2,
@@ -1849,6 +1873,7 @@
 	{
 		"id": 24,
 		"name": "Living Armor",
+		"playable": false,
 		"level": 6,
 		"realm": "A",
 		"size": 2,
@@ -1921,6 +1946,7 @@
 	{
 		"id": 25,
 		"name": "Mr. Stitches",
+		"playable": false,
 		"level": 1,
 		"realm": "E",
 		"size": 1,
@@ -1974,6 +2000,7 @@
 	{
 		"id": 26,
 		"name": "Moss Hound",
+		"playable": false,
 		"level": 7,
 		"realm": "G",
 		"size": 3,
@@ -2040,6 +2067,7 @@
 	{
 		"id": 27,
 		"name": "Blue Shrimp",
+		"playable": false,
 		"level": 2,
 		"realm": "S",
 		"size": 3,
@@ -2094,6 +2122,7 @@
 	{
 		"id": 28,
 		"name": "Stomper",
+		"playable": false,
 		"level": 3,
 		"realm": "E",
 		"size": 2,
@@ -2178,6 +2207,7 @@
 	{
 		"id": 29,
 		"name": "Gilded Maiden",
+		"playable": false,
 		"level": 5,
 		"realm": "A",
 		"size": 1,
@@ -2254,6 +2284,7 @@
 	{
 		"id": 30,
 		"name": "Papa Eggplant",
+		"playable": false,
 		"level": 5,
 		"realm": "G",
 		"size": 2,
@@ -2331,6 +2362,7 @@
 	{
 		"id": 31,
 		"name": "Cyber Wolf",
+		"playable": true,
 		"level": 3,
 		"realm": "A",
 		"size": 2,
@@ -2426,6 +2458,7 @@
 	{
 		"id": 32,
 		"name": "Deep Beauty",
+		"playable": false,
 		"level": 3,
 		"realm": "S",
 		"size": 2,
@@ -2492,6 +2525,7 @@
 	{
 		"id": 33,
 		"name": "Golden Wyrm",
+		"playable": false,
 		"level": 7,
 		"realm": "A",
 		"size": 3,
@@ -2571,6 +2605,7 @@
 	{
 		"id": 34,
 		"name": "Royal Guard",
+		"playable": false,
 		"level": 2,
 		"realm": "P",
 		"size": 2,
@@ -2624,6 +2659,7 @@
 	{
 		"id": 35,
 		"name": "Greedy Knight",
+		"playable": false,
 		"level": 4,
 		"realm": "A",
 		"size": 1,
@@ -2681,6 +2717,7 @@
 	{
 		"id": 36,
 		"name": "Vertigo",
+		"playable": false,
 		"level": 4,
 		"realm": "E",
 		"size": 2,
@@ -2734,6 +2771,7 @@
 	{
 		"id": 37,
 		"name": "Swine Thug",
+		"playable": true,
 		"level": 1,
 		"realm": "A",
 		"size": 1,
@@ -2830,6 +2868,7 @@
 	{
 		"id": 38,
 		"name": "Crystalis",
+		"playable": false,
 		"level": 4,
 		"realm": "L",
 		"size": 2,
@@ -2896,6 +2935,7 @@
 	{
 		"id": 39,
 		"name": "Headless",
+		"playable": true,
 		"level": 3,
 		"realm": "W",
 		"size": 2,
@@ -2985,6 +3025,7 @@
 	{
 		"id": 40,
 		"name": "Nutcase",
+		"playable": true,
 		"level": 2,
 		"realm": "E",
 		"size": 2,
@@ -3075,6 +3116,7 @@
 	{
 		"id": 41,
 		"name": "Mangler",
+		"playable": false,
 		"level": 1,
 		"realm": "W",
 		"size": 1,
@@ -3132,6 +3174,7 @@
 	{
 		"id": 42,
 		"name": "Batmadillo",
+		"playable": false,
 		"level": 7,
 		"realm": "E",
 		"size": 3,
@@ -3220,6 +3263,7 @@
 	{
 		"id": 43,
 		"name": "Volpyr",
+		"playable": false,
 		"level": 7,
 		"realm": "L",
 		"size": 3,
@@ -3286,6 +3330,7 @@
 	{
 		"id": 44,
 		"name": "Scavenger",
+		"playable": true,
 		"level": 3,
 		"realm": "P",
 		"size": 2,
@@ -3377,6 +3422,7 @@
 	{
 		"id": 45,
 		"name": "Chimera",
+		"playable": true,
 		"level": 6,
 		"realm": "P",
 		"size": 3,
@@ -3464,6 +3510,7 @@
 	{
 		"id": 46,
 		"name": "Scorpius",
+		"playable": false,
 		"level": 5,
 		"realm": "E",
 		"size": 2,
@@ -3530,6 +3577,7 @@
 	{
 		"id": 47,
 		"name": "Aegis",
+		"playable": false,
 		"level": 5,
 		"realm": "P",
 		"size": 3,
@@ -3584,6 +3632,7 @@
 	{
 		"id": 48,
 		"name": "Satyr",
+		"playable": false,
 		"level": 6,
 		"realm": "W",
 		"size": 3,
@@ -3650,6 +3699,7 @@
 	{
 		"id": 49,
 		"name": "Lavamander",
+		"playable": false,
 		"level": 6,
 		"realm": "L",
 		"size": 3,
@@ -3716,6 +3766,7 @@
 	{
 		"id": 50,
 		"name": "Shadow Leech",
+		"playable": false,
 		"level": "1",
 		"realm": "W",
 		"size": 1,
