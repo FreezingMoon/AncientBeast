@@ -278,8 +278,8 @@ export class Ability {
 		let p1 = p0;
 		let p2 = p0;
 
-		p1 += this.creature.player.flipped ? 5 : -5;
-		p2 += this.creature.player.flipped ? -5 : 5;
+		/*p1 += this.creature.player.flipped ? 5 : -5;
+		p2 += this.creature.player.flipped ? -5 : 5;*/
 
 		// Force creatures to face towards their target
 		/*	if (args[0] instanceof Creature) {
