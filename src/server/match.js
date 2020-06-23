@@ -27,7 +27,7 @@ export default class MatchI {
 			// player 1 join
 			if (this.player1 === matchdata.joins[0].username) {
 				if (this.user == this.player1) {
-					game.freezedInput = true;
+					game.freezedInput = false;
 				}
 				console.info('Received match presence update:', matchdata.joins[0].username);
 			}
@@ -43,7 +43,7 @@ export default class MatchI {
 	async matchCreate(s, c) {
 		let nm = await this._socket.send({ match_create: {} });
 		this.player1 = this._session.username;
-		this.props = nm;
+    this.props = nm;
 		return nm;
 	}
 	async matchJoin(s, c) {
