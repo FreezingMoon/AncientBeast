@@ -5,6 +5,7 @@ import { ProgressBar } from './progressbar';
 import * as time from '../utility/time';
 import { Creature } from '../creature';
 import { getUrl } from '../assetLoader';
+import Match from '../server/match';
 import {
 	isNativeFullscreenAPIUse,
 	disableFullscreenLayout,
@@ -120,6 +121,7 @@ export class UI {
 						game.gamelog.add({
 							action: 'skip',
 						});
+
 						game.skipTurn();
 						this.lastViewedCreature = '';
 						this.queryUnit = '';
@@ -1766,6 +1768,11 @@ export class UI {
 			);
 
 		this.updateInfos();
+		if (!$j.isEmptyObject(game.match) && !game.match.player2) {
+			game.freezedInput = true;
+			game.log(game.match.player1 + ' created match');
+			game.log('waiting for player 2 to join');
+		}
 	}
 
 	updateAbilityButtonsContent() {

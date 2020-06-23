@@ -38,7 +38,7 @@ let AB = {};
 let session = {};
 // Create the game
 const G = new Game('0.4');
-
+console.log(G);
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
 AB.currentGame = G;
@@ -160,7 +160,7 @@ $j(document).ready(() => {
 		return false; // Prevent submit
 	});
 	//register
-	$j('form#register').submit((e) => {
+	async function register(e) {
 		e.preventDefault(); // Prevent submit
 		let reg = getReg();
 		//check empty fields
@@ -200,15 +200,14 @@ $j(document).ready(() => {
 			return;
 		}
 		let auth = new Authenticate(reg, Cli);
-		auth.register().then((session) => {
-			console.log('new user created.' + session);
-		});
+		let session = await auth.register();
 
+		console.log('new user created.' + session);
 		return false; // Prevent submit
-	});
+	}
+	$j('form#register').submit(register);
 
-	//login form
-	$j('form#login').submit((e) => {
+	async function login(e) {
 		e.preventDefault(); // Prevent submit
 		let login = getLogin();
 		if (login.email == '' || login.password == '') {
@@ -226,62 +225,56 @@ $j(document).ready(() => {
 			$j('#login .error-req-message').hide();
 		}
 		let auth = new Authenticate(login, Cli);
+		let session = await auth.authenticateEmail();
+		let sess = new SessionI(session);
+		sess.storeSession();
 
-		auth.authenticateEmail().then((session) => {
-			let sess = new SessionI(session);
-			sess.storeSession();
+		$j('.setupFrame,.welcome').show();
+		$j('.match-frame').show();
+		$j('.loginregFrame,#gameSetup').hide();
+		$j('.user').text(session.username);
 
-			$j('.setupFrame,.welcome').show();
-			$j('.match-frame').show();
-			$j('.loginregFrame,#gameSetup').hide();
-			$j('.user').text(session.username);
+		await socket.connect(session, createStatus);
+		console.log('connecttosocket');
 
-			$j('#joinMatchButton').on('click', () => {
-				// sign up and register
-				socket.connect(session, createStatus).then(
-					(s) => {
-						console.log('connecttosocket');
-						let match = new MatchI(socket, session, Cli);
-						match.matchJoin(session, Cli).then(
-							function (n) {
-								//initiate match
-								console.log('joined match', n);
-							},
-							(error) => {
-								console.error('match failed to initialize', JSON.stringify(error));
-							},
-						);
-					},
-					(error) => {
-						console.error('connect failed:', JSON.stringify(error));
-					},
-				);
-			});
+		let match = new MatchI(socket, G, session);
+		//Todo = move outside login function
+		$j('#joinMatchButton').on('click', () => {
+			// sign up and register
+			let n = match.matchJoin(session, Cli).then(
+				function (n) {
+					//initiate match
+					console.log('joined match', n);
 
-			$j('#startMatchButton').on('click', function () {
-				socket.connect(session, createStatus).then(
-					(s) => {
-						console.log('connecttosocket');
-						let match = new MatchI(socket, session, Cli);
-						match.matchCreate(session, Cli).then(
-							function (n) {
-								//initiate match
-								console.log('created match', n);
-							},
-							(error) => {
-								console.error('match failed to initialize', JSON.stringify(error));
-							},
-						);
-					},
-					(error) => {
-						console.error('connect failed:', JSON.stringify(error));
-					},
-				);
-			});
+					G.loadGame({}, match, session);
+					console.log(G);
+				},
+				(error) => {
+					console.error('match failed to initialize', JSON.stringify(error));
+				},
+			);
 		});
 
+		//Todo = move outside login function
+		$j('#startMatchButton').on('click', () => {
+			match.matchCreate(session, Cli).then(
+				function (n) {
+					//initiate match
+
+					console.log('created match', n);
+					let gameconfig = getGameConfig();
+					G.loadGame(gameconfig, match);
+				},
+				(error) => {
+					console.error('match failed to initialize', JSON.stringify(error));
+				},
+			);
+			return false;
+		});
 		return false; // Prevent submit
-	});
+	}
+	//login form
+	$j('form#login').submit(login);
 });
 
 /**

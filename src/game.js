@@ -61,9 +61,9 @@ export default class Game {
 		this.activeCreature = {
 			id: 0,
 		};
+		this.match = {};
 		this.preventSetup = false;
 		this.animations = new Animations(this);
-		this.turn = 0;
 		this.queue = new CreatureQueue(this);
 		this.creatureIdCounter = 1;
 		this.creatureData = [];
@@ -248,10 +248,10 @@ export default class Game {
 	 *
 	 * Load all required game files
 	 */
-	loadGame(setupOpt) {
+	loadGame(setupOpt, match) {
 		let totalSoundEffects = this.soundEffects.length,
 			i;
-
+		this.match = match;
 		this.gamelog.gameConfig = setupOpt;
 		this.gameState = 'loading';
 		$j.extend(this, setupOpt);
@@ -763,6 +763,8 @@ export default class Game {
 		this.pauseTime = 0;
 		this.activeCreature.deactivate(false);
 		this.nextCreature();
+		console.log(this.match);
+		this.match.sendMatchData({});
 	}
 
 	/* delayCreature()
