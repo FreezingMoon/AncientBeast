@@ -1,9 +1,9 @@
-/*import * as $j from 'jquery';
+import * as $j from 'jquery';
 import { Damage } from './damage';
 import { Hex } from './utility/hex';
 import { Creature } from './creature';
 import { isTeam, Team } from './utility/team';
-import * as arrayUtils from './utility/arrayUtils';*/
+import * as arrayUtils from './utility/arrayUtils';
 
 /**
  * Ability Class
@@ -279,13 +279,13 @@ export class Ability {
 		let p1 = p0;
 		let p2 = p0;
 
-		p1 += this.creature.player.flipped ? 5 : -5;
-		p2 += this.creature.player.flipped ? -5 : 5;
+		//	p1 += this.creature.player.flipped ? 5 : -5;
+		//p2 += this.creature.player.flipped ? -5 : 5;
 
 		// Force creatures to face towards their target
-		/*if (args[0] instanceof Creature) {
+		if (args[0] instanceof Creature) {
 			this.creature.faceHex(args[0]);
-		}*/
+		}
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {
 			let animId = Math.random();
