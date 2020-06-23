@@ -264,9 +264,8 @@ export class Ability {
 	 * @return {void}
 	 */
 	animation2(o) {
-		//let game = this.game,
-		(opt = $j.extend({ callback: function () {}, arg: {} }, o)),
-			(args = opt.arg),
+		let game = this.game,
+			(opt = $j.extend({ callback: function () {}, arg: {} }, o)), (args = opt.arg),
 			(activateAbility = () => {
 				this.activate(args[0], args[1]);
 				this.postActivate();
@@ -283,9 +282,9 @@ export class Ability {
 		p2 += this.creature.player.flipped ? -5 : 5;
 
 		// Force creatures to face towards their target
-		if (args[0] instanceof Creature) {
+	/*	if (args[0] instanceof Creature) {
 			this.creature.faceHex(args[0]);
-		}
+		}*/
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {
 			let animId = Math.random();
