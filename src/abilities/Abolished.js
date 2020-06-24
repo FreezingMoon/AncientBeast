@@ -251,6 +251,7 @@ export default (G) => {
 			},
 			query() {
 				let ability = this;
+
 				let crea = this.creature;
 
 				// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
@@ -277,14 +278,13 @@ export default (G) => {
 			},
 			activate() {
 				let ability = this;
+				console.log(ability.getTargets(crea.adjacentHexes(1)));
 
 				ability.end();
 
 				let crea = this.creature;
 				let aoe = crea.adjacentHexes(1);
 				let targets = ability.getTargets(aoe);
-
-				console.log(targets);
 
 				if (this.isUpgraded()) {
 					this.damages.burn = 30;
