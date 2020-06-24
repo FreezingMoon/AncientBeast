@@ -257,7 +257,6 @@ export default (G) => {
 				//this.creature.faceHex(this.creature.hexagons[2]);
 
 				let range = crea.adjacentHexes(1);
-				console.log(ability.getTargets(range));
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
@@ -284,6 +283,8 @@ export default (G) => {
 				let crea = this.creature;
 				let aoe = crea.adjacentHexes(1);
 				let targets = ability.getTargets(aoe);
+
+				console.log(targets);
 
 				if (this.isUpgraded()) {
 					this.damages.burn = 30;
