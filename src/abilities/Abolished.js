@@ -251,6 +251,7 @@ export default (G) => {
 			},
 			query() {
 				let ability = this;
+				console.log('query' + this.creature.pos);
 
 				let crea = this.creature;
 
@@ -278,7 +279,7 @@ export default (G) => {
 			},
 			activate() {
 				let ability = this;
-				console.log(ability.getTargets(this.creature.adjacentHexes(1)));
+				console.log('activate' + this.creature.pos);
 
 				ability.end();
 
