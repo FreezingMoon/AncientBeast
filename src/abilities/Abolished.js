@@ -256,9 +256,8 @@ export default (G) => {
 				// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
 				//this.creature.faceHex(this.creature.hexagons[2]);
 
-				console.log(ability.getTargets);
-
 				let range = crea.adjacentHexes(1);
+				console.log(ability.getTargets(range));
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
