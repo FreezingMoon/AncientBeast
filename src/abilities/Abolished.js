@@ -278,7 +278,7 @@ export default (G) => {
 			},
 			activate() {
 				let ability = this;
-				console.log(ability.getTargets(crea.adjacentHexes(1)));
+				console.log(ability.getTargets(this.creature.adjacentHexes(1)));
 
 				ability.end();
 
