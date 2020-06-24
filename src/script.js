@@ -55,6 +55,7 @@ const useSSL = false;
 const verboseLogging = false;
 const createStatus = false;
 const socket = Cli.createSocket(useSSL, verboseLogging);
+
 // const email = "junior@example.com";
 // const password = "8484ndnso";
 // const session = Cli.authenticateEmail({ email: email, password: password, create: true, username: "boo" })
@@ -248,34 +249,19 @@ $j(document).ready(() => {
 		//Todo = move outside login function
 		$j('#joinMatchButton').on('click', () => {
 			// sign up and register
-			let n = match.matchJoin(session, Cli).then(
-				function (n) {
-					//initiate match
-					console.log('joined match', n);
-					let gameconfig = getGameConfig();
-					G.loadGame(gameconfig, match, session);
-					console.log(G);
-				},
-				(error) => {
-					console.error('match failed to initialize', JSON.stringify(error));
-				},
-			);
+			let n = match.matchJoin(session, Cli);
+			console.log('joined match', n);
+			let gameconfig = match.configData;
+			G.loadGame(gameconfig, match, session);
 		});
 
 		//Todo = move outside login function
 		$j('#startMatchButton').on('click', () => {
-			match.matchCreate(session, Cli).then(
-				function (n) {
-					//initiate match
-
-					console.log('created match', n);
-					let gameconfig = getGameConfig();
-					G.loadGame(gameconfig, match);
-				},
-				(error) => {
-					console.error('match failed to initialize', JSON.stringify(error));
-				},
-			);
+			let n = match.matchCreate(session, Cli);
+			console.log('created match', n);
+			let gameConfig = getGameConfig();
+			match.configData = gameConfig;
+			G.loadGame(gameConfig, match);
 			return false;
 		});
 		return false; // Prevent submit
