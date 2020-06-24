@@ -254,7 +254,7 @@ export default (G) => {
 				let crea = this.creature;
 
 				// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
-				this.creature.faceHex(this.creature.hexagons[0]);
+				this.creature.faceHex(this.creature.hexagons[2]);
 
 				let range = crea.adjacentHexes(1);
 
