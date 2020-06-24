@@ -210,10 +210,26 @@ $j(document).ready(() => {
 		return false; // Prevent submit
 	}
 	$j('form#register').submit(register);
+  async function matchCreate(session,Cli,match) {
+    let n = await match.matchCreate(session, Cli);
+    console.log('created match', n);
+    let gameConfig = getGameConfig();
+    match.configData = gameConfig;
+    G.loadGame(gameConfig, match);
+    return false;
+  }
 
+  async function matchJoin(session,Cli,match) {
+    let n = match.matchJoin(session, Cli);
+			console.log('joined match', n);
+			let gameconfig = match.configData;
+      G.loadGame(gameconfig, match);
+      return false;
+  }
 	async function login(e) {
 		e.preventDefault(); // Prevent submit
-		let login = getLogin();
+    let login = getLogin(),auth,session;
+    let loadGame = 
 		$j('#login .login-error-req-message').hide();
 		if (login.email == '' || login.password == '') {
 			$j('#login .error-req').show();
@@ -247,23 +263,8 @@ $j(document).ready(() => {
 
 		let match = new MatchI(socket, G, session);
 		//Todo = move outside login function
-		$j('#joinMatchButton').on('click', () => {
-			// sign up and register
-			let n = match.matchJoin(session, Cli);
-			console.log('joined match', n);
-			let gameconfig = match.configData;
-			G.loadGame(gameconfig, match, session);
-		});
-
-		//Todo = move outside login function
-		$j('#startMatchButton').on('click', () => {
-			let n = match.matchCreate(session, Cli);
-			console.log('created match', n);
-			let gameConfig = getGameConfig();
-			match.configData = gameConfig;
-			G.loadGame(gameConfig, match);
-			return false;
-		});
+		$j('#joinMatchButton').on('click', () => matchJoin(session,Cli,match),false);
+		$j('#startMatchButton').on('click', () => matchCreate(session,Cli,match),false);
 		return false; // Prevent submit
 	}
 	//login form
