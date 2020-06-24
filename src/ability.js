@@ -282,6 +282,8 @@ export class Ability {
 		p2 += this.creature.player.flipped ? -5 : 5;
 		console.log('here');
 
+		this.creature.faceHex(args[0]);
+
 		// Force creatures to face towards their target
 		if (args[0] instanceof Creature) {
 			console.log('in condition');
