@@ -136,13 +136,12 @@ $j(document).ready(() => {
 		$j('.setupFrame').hide();
 		$j('.loginregFrame').show();
 		let sess = new SessionI();
-    let session = sess.restoreSession();
-    if(!session){
-      console.log(`no session exists`);
-      return;
-    }
-			console.log(`session ${session} restored`);
-
+		let session = sess.restoreSession();
+		if (!session) {
+			console.log(`no session exists`);
+			return;
+		}
+		console.log(`session ${session} restored`);
 	});
 
 	window.addEventListener('resize', () => {
@@ -213,8 +212,8 @@ $j(document).ready(() => {
 
 	async function login(e) {
 		e.preventDefault(); // Prevent submit
-    let login = getLogin();
-    $j('#login .login-error-req-message').hide();
+		let login = getLogin();
+		$j('#login .login-error-req-message').hide();
 		if (login.email == '' || login.password == '') {
 			$j('#login .error-req').show();
 			$j('#login .error-req-message').show();
@@ -230,10 +229,10 @@ $j(document).ready(() => {
 			$j('#login .error-req-message').hide();
 		}
 		let auth = new Authenticate(login, Cli);
-    let session = await auth.authenticateEmail();
-    if(!session){
-      $j('#login .login-error-req-message').show();
-    }
+		let session = await auth.authenticateEmail();
+		if (!session) {
+			$j('#login .login-error-req-message').show();
+		}
 		let sess = new SessionI(session);
 		sess.storeSession();
 
@@ -253,8 +252,8 @@ $j(document).ready(() => {
 				function (n) {
 					//initiate match
 					console.log('joined match', n);
-
-					G.loadGame({}, match, session);
+					let gameconfig = getGameConfig();
+					G.loadGame(gameconfig, match, session);
 					console.log(G);
 				},
 				(error) => {

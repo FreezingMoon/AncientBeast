@@ -12,6 +12,7 @@ export default class MatchI {
 		this.turn = false;
 
 		socket.onmatchpresence = (matchdata) => {
+			console.log(matchdata);
 			// for player1 client when player2 joins match
 			if (this.player2 === matchdata.joins[0].username) {
 				//TO Do additional players
@@ -43,14 +44,16 @@ export default class MatchI {
 	async matchCreate(s, c) {
 		let nm = await this._socket.send({ match_create: {} });
 		this.player1 = this._session.username;
-    this.props = nm;
+		this.props = nm;
 		return nm;
 	}
 	async matchJoin(s, c) {
 		let nj;
-		var matchList = await s.listMatches(c);
+
+		var matchList = await c.listMatches(s);
 		console.log(matchList);
 		var openMatch = _.findWhere(matchList.matches, { size: 1 });
+
 		if (openMatch) {
 			nj = await this._socket.send({ match_join: { match_id: openMatch.match_id } });
 			console.log(`joined match ${openMatch.match_id}`, nj);
