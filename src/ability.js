@@ -280,10 +280,8 @@ export class Ability {
 
 		p1 += this.creature.player.flipped ? 5 : -5;
 		p2 += this.creature.player.flipped ? -5 : 5;
-		console.log('here');
-		console.log(args[0]);
 
-		//this.creature.faceHex(args[0]);
+		this.creature.facePlayerDefault();
 
 		// Force creatures to face towards their target
 		if (args[0] instanceof Creature) {

@@ -256,7 +256,6 @@ export default (G) => {
 				let crea = this.creature;
 
 				// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
-				//this.creature.faceHex(this.creature.hexagons[2]);
 
 				let range = crea.adjacentHexes(1);
 
@@ -279,16 +278,6 @@ export default (G) => {
 			},
 			activate() {
 				let ability = this;
-				this.creature.faceHex(this.creature.hexagons[1]);
-				this.creature.faceHex(this.creature.hexagons[1]);
-
-				this.creature.facePlayerDefault();
-				console.log('posX' + this.creature.pos.x);
-				console.log('posY' + this.creature.pos.y);
-				console.log('hex0X' + this.creature.hexagons[0].x);
-				console.log('hex0Y' + this.creature.hexagons[0].y);
-				console.log('hex1X' + this.creature.hexagons[1].x);
-				console.log('hex1Y' + this.creature.hexagons[1].y);
 
 				ability.end();
 
