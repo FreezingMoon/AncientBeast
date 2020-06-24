@@ -250,9 +250,6 @@ $j(document).ready(() => {
 		$j('#joinMatchButton').on('click',async () => {
 			let n = await match.matchJoin(session, Cli);
 			console.log('joined match', n);
-      let gameconfig = match.configData;
-      console.log(gameconfig);
-			G.loadGame(gameconfig, match);
 		});
     
 		//Todo = move outside login function

@@ -39,6 +39,7 @@ export default class MatchI {
 			if (this.player1 != this.user) {
 				if(matchdata.op_code===1){
           this.configData=matchdata.data.gcd;
+          game.load(this.configData,this);
 
         }
 			}
@@ -59,7 +60,6 @@ export default class MatchI {
 
 		if (openMatch) {
 			nj = await this.socket.send({ match_join: { match_id: openMatch.match_id } });
-			console.log(`joined match ${openMatch.match_id}`, nj);
 			this.matchData = openMatch;
 			this.user = this.session.username;
 			this.player2 = this.session.username;
