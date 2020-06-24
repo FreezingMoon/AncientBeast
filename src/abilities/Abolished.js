@@ -279,6 +279,9 @@ export default (G) => {
 			},
 			activate() {
 				let ability = this;
+				this.creature.faceHex(this.creature.hexagons[1]);
+				this.creature.faceHex(this.creature.hexagons[1]);
+
 				this.creature.facePlayerDefault();
 				console.log('posX' + this.creature.pos.x);
 				console.log('posY' + this.creature.pos.y);
