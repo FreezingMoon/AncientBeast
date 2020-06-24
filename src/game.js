@@ -73,8 +73,8 @@ export default class Game {
 		this.availableCreatures = [];
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;
-    this.gamelog = new GameLog(null, this);
-    this.configData={};
+		this.gamelog = new GameLog(null, this);
+		this.configData = {};
 		this.debugMode = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
 		this.loadedCreatures = [
@@ -764,10 +764,10 @@ export default class Game {
 		this.activeCreature.deactivate(false);
 		this.nextCreature();
 		console.log(this.match);
-    var id = this.match;
-    var opCode = 1;
-    var data = { "config": this.match.configData};
-    this.match.sendMatchData({ match_data_send: { match_id: id, op_code: opCode, data: data } });                
+		var id = this.match;
+		var opCode = 1;
+		var data = { config: this.match.configData };
+		this.match.sendMatchData({ match_data_send: { match_id: id, op_code: opCode, data: data } });
 	}
 
 	/* delayCreature()
