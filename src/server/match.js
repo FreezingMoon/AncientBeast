@@ -28,7 +28,7 @@ export default class MatchI {
 				});
 			}
 			//no match presence code for player 2
-		};
+		}
 
 		socket.onmatchdata = (matchdata) => {
 			console.info('Received match data: %o', matchdata);
@@ -37,8 +37,10 @@ export default class MatchI {
 			}
 			//for all other players
 			if (this.player1 != this.user) {
-				console.log(matchdata);
-				debugger;
+				if(matchdata.op_code===1){
+          this.configData=matchdata.data.gcd;
+
+        }
 			}
 		};
 	}
