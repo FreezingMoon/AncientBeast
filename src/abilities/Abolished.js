@@ -252,7 +252,6 @@ export default (G) => {
 			query() {
 				let ability = this;
 				let crea = this.creature;
-				this.creature.faceHex(this.creature.hexagons[1]);
 
 				// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
 
@@ -277,6 +276,8 @@ export default (G) => {
 			},
 			activate() {
 				let ability = this;
+				this.creature.faceHex(this.creature.hexagons[0]);
+
 				ability.end();
 
 				let crea = this.creature;
