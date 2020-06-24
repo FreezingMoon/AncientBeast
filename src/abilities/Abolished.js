@@ -251,7 +251,7 @@ export default (G) => {
 			},
 			query() {
 				let ability = this;
-				console.log('query' + this.creature.pos);
+				console.log('query' + this.creature.pos.y);
 
 				let crea = this.creature;
 
@@ -279,7 +279,7 @@ export default (G) => {
 			},
 			activate() {
 				let ability = this;
-				console.log('activate' + this.creature.pos);
+				console.log('activate' + this.creature.pos.x);
 
 				ability.end();
 
