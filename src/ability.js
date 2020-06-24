@@ -283,6 +283,7 @@ export class Ability {
 
 		// Force creatures to face towards their target
 		if (args[0] instanceof Creature) {
+			console.log(args[0]);
 			this.creature.faceHex(args[0]);
 		}
 		// Play animations and sounds only for active abilities
