@@ -279,7 +279,12 @@ export default (G) => {
 			},
 			activate() {
 				let ability = this;
-				console.log('activate' + this.creature.pos.x);
+				console.log('posX' + this.creature.pos.x);
+				console.log('posY' + this.creature.pos.y);
+				console.log('hex0X' + this.creature.hexagons[0].x);
+				console.log('hex0Y' + this.creature.hexagons[0].y);
+				console.log('hex1X' + this.creature.hexagons[1].x);
+				console.log('hex1Y' + this.creature.hexagons[1].y);
 
 				ability.end();
 

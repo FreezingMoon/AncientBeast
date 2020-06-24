@@ -283,7 +283,7 @@ export class Ability {
 		console.log('here');
 		console.log(args[0]);
 
-		this.creature.faceHex(args[0]);
+		//this.creature.faceHex(args[0]);
 
 		// Force creatures to face towards their target
 		if (args[0] instanceof Creature) {
