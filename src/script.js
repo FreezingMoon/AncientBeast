@@ -1,30 +1,11 @@
 // Import jQuery related stuff
 import * as $j from 'jquery';
 import 'jquery.transit';
+import dataJson from '../assets/units/data.json';
 import Game from './game';
 
 // Load the stylesheet
 import './style/main.less';
-
-// Abilities
-import abolishedAbilitiesGenerator from './abilities/Abolished';
-import asherAbilitiesGenerator from './abilities/Asher';
-import chimeraAbilitiesGenerator from './abilities/Chimera';
-import cyberWolfAbilitiesGenerator from './abilities/Cyber-Wolf';
-import darkPriestAbilitiesGenerator from './abilities/Dark-Priest';
-import goldenWyrmAbilitiesGenerator from './abilities/Golden-Wyrm';
-import gumbleAbilitiesGenerator from './abilities/Gumble';
-import headlessAbilitiesGenerator from './abilities/Headless';
-import impalerAbilitiesGenerator from './abilities/Impaler';
-import infernalAbilitiesGenerator from './abilities/Infernal';
-import nightmareAbilitiesGenerator from './abilities/Nightmare';
-import nutcaseAbilitiesGenerator from './abilities/Nutcase';
-import scavengerAbilitiesGenerator from './abilities/Scavenger';
-import snowBunnyAbilitiesGenerator from './abilities/Snow-Bunny';
-import stomperAbilitiesGenerator from './abilities/Stomper';
-import swineThugAbilitiesGenerator from './abilities/Swine-Thug';
-import uncleFungusAbilitiesGenerator from './abilities/Uncle-Fungus';
-import vehemothAbilitiesGenerator from './abilities/Vehemoth';
 
 // Generic object we can decorate with helper methods to simply dev and user experience.
 // TODO: Expose this in a less hacky way.
@@ -39,27 +20,15 @@ AB.restoreGame = AB.currentGame.gamelog.play.bind(AB.currentGame.gamelog);
 window.AB = AB;
 
 // Load the abilities
-const abilitiesGenerators = [
-	abolishedAbilitiesGenerator,
-	asherAbilitiesGenerator,
-	chimeraAbilitiesGenerator,
-	cyberWolfAbilitiesGenerator,
-	darkPriestAbilitiesGenerator,
-	goldenWyrmAbilitiesGenerator,
-	gumbleAbilitiesGenerator,
-	headlessAbilitiesGenerator,
-	impalerAbilitiesGenerator,
-	infernalAbilitiesGenerator,
-	nightmareAbilitiesGenerator,
-	nutcaseAbilitiesGenerator,
-	scavengerAbilitiesGenerator,
-	snowBunnyAbilitiesGenerator,
-	stomperAbilitiesGenerator,
-	swineThugAbilitiesGenerator,
-	uncleFungusAbilitiesGenerator,
-	vehemothAbilitiesGenerator,
-];
-abilitiesGenerators.forEach((generator) => generator(G));
+dataJson.forEach(async (creature) => {
+	if (!creature.playable) {
+		return;
+	}
+
+	import(`./abilities/${creature.name.split(' ').join('-')}`).then((generator) =>
+		generator.default(G),
+	);
+});
 
 export const isNativeFullscreenAPIUse = () =>
 	document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
