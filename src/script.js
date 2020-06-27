@@ -246,7 +246,8 @@ $j(document).ready(() => {
 	});
 
 	$j('#joinMatchButton').on('click', () => {
-		let gameConfig = null;
+    //TODO move to match data received
+		let gameConfig = getGameConfig();
 		G.loadGame(gameConfig, false);
 		return false;
 	});
