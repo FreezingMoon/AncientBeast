@@ -12,28 +12,29 @@ export default class MatchI {
 		this.matchData = {};
 		this.configData = {};
 		this.players = [];
-    this.activePlayer = null;
-    this.client=server.client;
+		this.activePlayer = null;
+		this.client = server.client;
 
 		server.socket.onmatchpresence = (md) => {
 			//only host
-			if (this.host === md.joins[0].user_id) {
+
+			console.log(md.joins[0]);
+			if (this.host === this.session.user_id) {
 				let p = this.players.length;
 				p++;
 				this.players.push({ id: md.joins[0].user_id, playername: md.joins[0].username, turn: p });
 				this.userTurn = 1;
-			}
 
-			//called after match join. Player 1 is host sends match config
-			if (md.joins[0].user_id != this.players[0].id) {
-				this.sendMatchData({
-					match_id: this.matchData.match_id,
-					op_code: 'op_load',
-					data: { config: this.configData, players: this.players, host: this.host },
-				});
+				//called after match join. Player 1 is host sends match config
+				if (this.players.length > 1 && md.joins[0].user_id != this.players[0].id) {
+					this.sendMatchData({
+						match_id: this.matchData.match_id,
+						op_code: 'op_load',
+						data: { config: this.configData, players: this.players, host: this.host },
+					});
+				}
+				console.log('players' + this.players);
 			}
-			this.game.log(md.joins[0].username + 'joined match');
-			console.log(this.players);
 		};
 
 		server.socket.onmatchdata = (md) => {
@@ -49,15 +50,15 @@ export default class MatchI {
 					this.userTurn = this.getUserTurn();
 					break;
 				case 'op_skipTurn':
-          game.skipTurn();
-          this.turn=md.data.turn;          
+					game.skipTurn();
+					this.turn = md.data.turn;
 					break;
 			}
 		};
 	}
 	getUserTurn() {
-    let p = _.findWhere(this.players, { id: this.session.user_id });
-    console.log(p);
+		let p = _.findWhere(this.players, { id: this.session.user_id });
+		console.log(p);
 		return p.turn;
 	}
 	async matchCreate() {
@@ -74,32 +75,32 @@ export default class MatchI {
 		//TODO replace with lobby
 		let openMatch = _.findWhere(matchList.matches, { size: 1 });
 		if (openMatch) {
-			nj = await this.server.socket.send({ match_join: { match_id: openMatch.match_id } });
+			nj = await this.socket.send({ match_join: { match_id: openMatch.match_id } });
 			this.matchData = openMatch;
 			return Promise.resolve(nj);
 		}
 	}
 	turnChange() {
-		let t = this.turn;
+		let t = this.matchTurn;
 		t++;
 		if (t === this.players.length) {
 			t = 1;
 		}
-		this.turn = t;
-		console.log(this.turn);
+		this.matchTurn = t;
+		console.log(this.matchTurn);
 	}
 	async skipTurn() {
 		if (this.matchTurn != this.userTurn) {
 			return;
-    }
-    
+		}
+
 		this.turnChange();
 		let id = this.matchData.match_id;
 		let opCode = 'op_skipTurn';
 		let data = { turn: this.matchTurn };
 		await this.sendMatchData({ match_data_send: { match_id: id, op_code: opCode, data: data } });
-    this.game.log(this.session.username+ " ended turn");
-  }
+		this.game.log(this.session.username + ' ended turn');
+	}
 
 	async sendMatchData(obj) {
 		let data = await this.socket.send({ match_data_send: obj });

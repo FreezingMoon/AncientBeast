@@ -563,6 +563,7 @@ export default class Game {
 	}
 	async matchInit() {
 		let match = new MatchI(this.server, this, this.session);
+		this.match = match;
 		if (this.matchInitialized) {
 			let n = await match.matchCreate();
 			console.log('created match', n);
