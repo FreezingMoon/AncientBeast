@@ -5,13 +5,9 @@ import { ProgressBar } from './progressbar';
 import * as time from '../utility/time';
 import { Creature } from '../creature';
 import { getUrl } from '../assetLoader';
-import {
-	isNativeFullscreenAPIUse,
-	disableFullscreenLayout,
-	enableFullscreenLayout,
-} from '../script';
+import { Fullscreen } from './fullscreen';
 
-/**s
+/**
  * Class UI
  *
  * Object containing UI DOM element, update functions and event managment on UI.
@@ -41,6 +37,7 @@ export class UI {
 	 */
 	constructor(game) {
 		this.game = game;
+		this.fullscreen = new Fullscreen($j('#fullscreen.button'));
 		this.$display = $j('#ui');
 		this.$queue = $j('#queuewrapper');
 		this.$dash = $j('#dash');
@@ -93,17 +90,7 @@ export class UI {
 			{
 				$button: $j('#fullscreen.button'),
 				hasShortcut: true,
-				click: () => {
-					if (isNativeFullscreenAPIUse()) {
-						$j('#fullscreen.button').removeClass('fullscreenMode');
-						document.exitFullscreen();
-					} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
-						alert('Use F11 to exit fullscreen');
-					} else {
-						$j('#fullscreen.button').addClass('fullscreenMode');
-						$j('#AncientBeast')[0].webkitRequestFullscreen();
-					}
-				},
+				click: () => this.fullscreen.toggle(),
 			},
 			game,
 		);
@@ -427,15 +414,7 @@ export class UI {
 							this.btnToggleDash.triggerClick();
 							break;
 						case 'fullscreen': // Shift + F for fullscreen
-							if (isNativeFullscreenAPIUse()) {
-								disableFullscreenLayout();
-								document.exitFullscreen();
-							} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
-								alert('Use F11 to exit fullscreen');
-							} else {
-								enableFullscreenLayout();
-								$j('#AncientBeast')[0].webkitRequestFullscreen();
-							}
+							this.fullscreen.toggle();
 							break;
 					}
 				} else if (!modifierPressed && v == keypressed) {
