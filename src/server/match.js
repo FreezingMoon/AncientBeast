@@ -18,7 +18,16 @@ export default class MatchI {
 		server.socket.onmatchpresence = (md) => {
 			//only host
 
-			console.log(md.joins[0]);
+			if(typeof md.joins !=undefined){
+        this.game.log(md.joins[0].username + ' joined match');
+      }
+      if(typeof md.leaves !=undefined){
+        this.game.log(md.leaves[0].username + ' left match');
+      }
+      const nowUnixTime = Math.floor(Date.now() / 1000);
+      if (this.session.isexpired(nowUnixTime)) {
+        console.log("Session has expired. Must reauthenticate!");
+      }
 			if (this.host === this.session.user_id) {
 				let p = this.players.length;
 				p++;
