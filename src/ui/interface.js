@@ -1760,10 +1760,10 @@ export class UI {
 
 					this.btnAudio.changeState('normal');
 					this.btnSkipTurn.changeState('normal');
-					// Update upgrade info
-					this.updateAbilityUpgrades();
 					// Change ability buttons
 					this.changeAbilityButtons();
+					// Update upgrade info
+					this.updateAbilityUpgrades();
 					// Callback after final transition
 					this.$activebox.children('#abilities').transition(
 						{
@@ -1794,6 +1794,32 @@ export class UI {
 		this.abilitiesButtons.forEach((btn) => {
 			let ab = creature.abilities[btn.abilityId];
 			let $desc = btn.$button.next('.desc');
+
+			// Play the ability upgrade animation and sound when it gets upgraded
+			if (!ab.upgraded && ab.usesLeftBeforeUpgrade() === 0 && (ab.used || !ab.isUpgradedPerUse())) {
+				// Add the class for the background image and fade transition
+				btn.$button.addClass('upgradeTransition');
+				btn.$button.addClass('upgradeIcon');
+
+				btn.changeState('slideIn'); // Keep the button in view
+				game.soundsys.playSound(game.soundLoaded[0], game.soundsys.effectsGainNode); // Play the upgrade sound   TODO: add a real sound
+
+				// After 2s remove the background and update the button if it's not a passive
+				setTimeout(() => {
+					btn.$button.removeClass('upgradeIcon');
+
+					if (ab.isUpgradedPerUse()) {
+						btn.changeState('disabled');
+					}
+				}, 2000);
+
+				// Then remove the animation
+				setTimeout(() => {
+					btn.$button.removeClass('upgradeTransition');
+				}, 2500);
+
+				ab.setUpgraded(); // set the ability to upgraded
+			}
 
 			// Change the ability's frame when it gets upgraded
 			if (ab.isUpgraded()) {
