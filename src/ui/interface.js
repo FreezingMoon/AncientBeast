@@ -91,16 +91,16 @@ export class UI {
 		// In-Game Fullscreen Button
 		this.btnFullscreen = new Button(
 			{
-				$button: $j('#fullScreen.button'),
+				$button: $j('#fullscreen.button'),
 				hasShortcut: true,
 				click: () => {
 					if (isNativeFullscreenAPIUse()) {
-						$j('#fullScreen.button').removeClass('fullscreenMode');
+						$j('#fullscreen.button').removeClass('fullscreenMode');
 						document.exitFullscreen();
 					} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
-						alert('Use f11 to exit full screen');
+						alert('Use F11 to exit fullscreen');
 					} else {
-						$j('#fullScreen.button').addClass('fullscreenMode');
+						$j('#fullscreen.button').addClass('fullscreenMode');
 						$j('#AncientBeast')[0].webkitRequestFullscreen();
 					}
 				},
@@ -431,7 +431,7 @@ export class UI {
 								disableFullscreenLayout();
 								document.exitFullscreen();
 							} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
-								alert('Use f11 to exit full screen');
+								alert('Use F11 to exit fullscreen');
 							} else {
 								enableFullscreenLayout();
 								$j('#AncientBeast')[0].webkitRequestFullscreen();

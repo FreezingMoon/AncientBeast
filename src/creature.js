@@ -1633,7 +1633,7 @@ export class Creature {
 		if (game.activeCreature === this) {
 			game.nextCreature();
 			return;
-		} //End turn if current active creature die
+		} // End turn if current active creature die
 
 		// As hex occupation changes, path must be recalculated for the current creature not the dying one
 		game.activeCreature.queryMove();

@@ -77,27 +77,6 @@ export default class Game {
 		this.gamelog = new GameLog(null, this);
 		this.debugMode = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
-		this.loadedCreatures = [
-			0, // Dark Priest
-			37, // Thug Swine
-			3, // Uncle Fungus
-			4, // Infernal
-			45, // Chimera
-			12, // Snow Bunny
-			5, // Impaler
-			14, // Gumble
-			7, // Abolished
-			40, // Nutcase
-			9, // Nightmare
-			39, // Headless
-			44, // Scavenger
-			31, // Cyber Wolf
-			//28, // Stomper
-			//6, // Vehemoth
-			//33 // Golden Wyrm
-			//22, // Asher
-			//42, // Batmadillo
-		];
 		this.availableMusic = [];
 		this.soundEffects = [
 			'sounds/step',
@@ -195,6 +174,10 @@ export default class Game {
 		this.creatureData = data;
 
 		data.forEach((creature) => {
+			if (!creature.playable) {
+				return;
+			}
+
 			let creatureId = creature.id,
 				realm = creature.realm,
 				level = creature.level,
@@ -205,10 +188,6 @@ export default class Game {
 
 			creature.type = type;
 
-			if (this.loadedCreatures.indexOf(creatureId) === -1) {
-				// No need to load sounds and artwork
-				return;
-			}
 			// Load unit shouts
 			this.soundsys.getSound(getUrl('units/shouts/' + name), 1000 + creatureId);
 
