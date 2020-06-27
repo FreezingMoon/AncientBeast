@@ -1,5 +1,5 @@
 import { Client } from '@heroiclabs/nakama-js/dist/nakama-js.esm';
-import Config from './server/sconfigvars';
+import Config from './sconfigvars';
 
 export default class Server {
 	constructor(game) {
