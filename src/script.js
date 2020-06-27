@@ -3,10 +3,10 @@ import * as $j from 'jquery';
 import 'jquery.transit';
 import Game from './game';
 import Config from './server/sconfigvars';
-import ClientI from './server/client';
+import Server from './server/server';
 import Authenticate from './server/authenticate';
 import SessionI from './server/session';
-import MatchI from './server/match';
+
 // import SocketI from './server/socket';
 
 // Load the stylesheet
@@ -48,13 +48,8 @@ window.AB = AB;
 
 //server client
 const serverConfig = Config;
-const SC = new ClientI(serverConfig);
-
-const Cli = SC.client;
-const useSSL = false;
-const verboseLogging = false;
-const createStatus = false;
-const socket = Cli.createSocket(useSSL, verboseLogging);
+const server = new Server(serverConfig, G);
+G.server = server;
 
 // const email = "junior@example.com";
 // const password = "8484ndnso";
@@ -131,18 +126,12 @@ $j(document).ready(() => {
 		$j('#startButton').hide();
 	});
 
-	$j('#multiplayer').on('click', () => {
-		// sign up and register
-		//TODO move to another file
+	$j('#multiplayer').on('click', async () => {
 		$j('.setupFrame').hide();
 		$j('.loginregFrame').show();
 		let sess = new SessionI();
-		let session = sess.restoreSession();
-		if (!session) {
-			console.log(`no session exists`);
-			return;
-		}
-		console.log(`session ${session} restored`);
+		let session = await sess.restoreSession();
+		console.log(session);
 	});
 
 	window.addEventListener('resize', () => {
@@ -203,7 +192,7 @@ $j(document).ready(() => {
 			$j('.error-pw').show();
 			return;
 		}
-		let auth = new Authenticate(reg, Cli);
+		let auth = new Authenticate(reg, server.client);
 		let session = await auth.register();
 
 		console.log('new user created.' + session);
@@ -213,7 +202,9 @@ $j(document).ready(() => {
 
 	async function login(e) {
 		e.preventDefault(); // Prevent submit
-		let login = getLogin(),auth,session;
+		let login = getLogin(),
+			auth,
+			session;
 		$j('#login .login-error-req-message').hide();
 		if (login.email == '' || login.password == '') {
 			$j('#login .error-req').show();
@@ -229,42 +220,36 @@ $j(document).ready(() => {
 			$j('#login .error-req').hide();
 			$j('#login .error-req-message').hide();
 		}
-		auth = new Authenticate(login, Cli);
+		auth = new Authenticate(login, server.client);
 		session = await auth.authenticateEmail();
 		if (!session) {
 			$j('#login .login-error-req-message').show();
 		}
 		let sess = new SessionI(session);
 		sess.storeSession();
+		G.session = session;
+		G.client = server.client;
+		G.multiplayer = true;
 
 		$j('.setupFrame,.welcome').show();
 		$j('.match-frame').show();
 		$j('.loginregFrame,#gameSetup').hide();
 		$j('.user').text(session.username);
-
-		await socket.connect(session, createStatus);
-		console.log('connecttosocket');
-
-		let match = new MatchI(socket, G, session);
-		//Todo = move outside login function
-		$j('#joinMatchButton').on('click',async () => {
-			let n = await match.matchJoin(session, Cli);
-			console.log('joined match', n);
-		});
-    
-		//Todo = move outside login function
-		$j('#startMatchButton').on('click',async () => {
-			let n = await match.matchCreate(session, Cli);
-			console.log('created match', n);
-			let gameConfig = getGameConfig();
-			match.configData = gameConfig;
-			G.loadGame(gameConfig, match);
-			return false;
-		});
 		return false; // Prevent submit
 	}
 	//login form
 	$j('form#login').submit(login);
+	$j('#startMatchButton').on('click', () => {
+		let gameConfig = getGameConfig();
+		G.loadGame(gameConfig, true);
+		return false;
+	});
+
+	$j('#joinMatchButton').on('click', () => {
+		let gameConfig = null;
+		G.loadGame(gameConfig, false);
+		return false;
+	});
 });
 
 /**

@@ -25,7 +25,7 @@ export default class SessionI {
 					console.log('Restored session. User ID: %o', session.user_id);
 					return Promise.resolve(session);
 				}
-				return Promise.resolve(false);
+				return Promise.resolve('session expired');
 			}
 		});
 	}

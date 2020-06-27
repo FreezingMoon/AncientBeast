@@ -1768,11 +1768,6 @@ export class UI {
 			);
 
 		this.updateInfos();
-		if (!$j.isEmptyObject(game.match) && !game.match.player2) {
-			game.freezedInput = true;
-			game.log(game.match.player1 + ' created match');
-			game.log('waiting for player 2 to join');
-		}
 	}
 
 	updateAbilityButtonsContent() {

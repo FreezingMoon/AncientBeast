@@ -14,6 +14,7 @@ import dataJson from 'assets/units/data.json';
 import 'pixi';
 import 'p2';
 import Phaser from 'phaser';
+import MatchI from './server/match';
 
 /* Game Class
  *
@@ -75,7 +76,13 @@ export default class Game {
 		this.checkTimeFrequency = 1000;
 		this.gamelog = new GameLog(null, this);
 		this.configData = {};
+		this.match = {};
+		this.session = null;
+		this.client = null;
+		this.server = null;
 		this.debugMode = false;
+		this.multiplayer = false;
+		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
 		this.loadedCreatures = [
 			0, // Dark Priest
@@ -113,6 +120,7 @@ export default class Game {
 		this.firstKill = false;
 		this.freezedInput = false;
 		this.turnThrottle = false;
+		this.turn = 0;
 
 		// Phaser
 		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
@@ -248,13 +256,18 @@ export default class Game {
 	 *
 	 * Load all required game files
 	 */
-	loadGame(setupOpt, match) {
+	loadGame(setupOpt, matchInitialized) {
+		if (this.multiplayer) {
+			this.matchInitialized = matchInitialized;
+		}
+
 		let totalSoundEffects = this.soundEffects.length,
 			i;
-		this.match = match;
-		this.gamelog.gameConfig = setupOpt;
 		this.gameState = 'loading';
-		$j.extend(this, setupOpt);
+		if (setupOpt) {
+			this.gamelog.gameConfig = setupOpt;
+			$j.extend(this, setupOpt);
+		}
 		this.startLoading();
 
 		// Sounds
@@ -542,6 +555,21 @@ export default class Game {
 				this.gamelog.play.apply(this.gamelog);
 			}, 1000);
 		}
+		if (this.multiplayer) {
+			this.server.serverConnect(this.session).then(() => {
+				this.matchInit();
+			});
+		}
+	}
+	async matchInit() {
+		let match = new MatchI(this.server, this, this.session);
+		if (this.matchInitialized) {
+			let n = await match.matchCreate();
+			console.log('created match', n);
+		} else {
+			let n = await match.matchJoin();
+			console.log('joined match', n);
+		}
 	}
 
 	/* resizeCombatFrame()
@@ -717,6 +745,9 @@ export default class Game {
 	 * End turn for the current unit
 	 */
 	skipTurn(o) {
+		//send skip turn to server
+		this.match.skipTurn();
+
 		if (this.turnThrottle) {
 			return;
 		}
@@ -763,11 +794,6 @@ export default class Game {
 		this.pauseTime = 0;
 		this.activeCreature.deactivate(false);
 		this.nextCreature();
-		console.log(this.match);
-		var id = this.match;
-		var opCode = 1;
-		var data = { config: this.match.configData };
-		this.match.sendMatchData({ match_data_send: { match_id: id, op_code: opCode, data: data } });
 	}
 
 	/* delayCreature()
