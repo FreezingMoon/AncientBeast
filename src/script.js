@@ -2,7 +2,7 @@
 import * as $j from 'jquery';
 import 'jquery.transit';
 import Game from './game';
-import Config from './server/sconfigvars';
+
 import Server from './server/server';
 import Authenticate from './server/authenticate';
 import SessionI from './server/session';
@@ -38,17 +38,13 @@ let AB = {};
 let session = {};
 // Create the game
 const G = new Game('0.4');
-console.log(G);
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
 AB.currentGame = G;
 AB.getLog = AB.currentGame.gamelog.get.bind(AB.currentGame.gamelog);
 AB.restoreGame = AB.currentGame.gamelog.play.bind(AB.currentGame.gamelog);
 window.AB = AB;
-
-//server client
-const serverConfig = Config;
-const server = new Server(serverConfig, G);
+const server = new Server(G);
 G.server = server;
 
 // const email = "junior@example.com";
@@ -131,7 +127,7 @@ $j(document).ready(() => {
 		$j('.loginregFrame').show();
 		let sess = new SessionI();
 		let session = await sess.restoreSession();
-		console.log(session);
+		console.log(session.username + " restored session" + session);
 	});
 
 	window.addEventListener('resize', () => {

@@ -12,7 +12,8 @@ export default class MatchI {
 		this.matchData = {};
 		this.configData = {};
 		this.players = [];
-		this.activePlayer = null;
+    this.activePlayer = null;
+    this.client=server.client;
 
 		server.socket.onmatchpresence = (md) => {
 			//only host
@@ -69,7 +70,7 @@ export default class MatchI {
 	}
 	async matchJoin(s) {
 		let nj;
-		let matchList = await this.server.client.listMatches(this.session);
+		let matchList = await this.client.listMatches(this.session);
 		//TODO replace with lobby
 		let openMatch = _.findWhere(matchList.matches, { size: 1 });
 		if (openMatch) {
