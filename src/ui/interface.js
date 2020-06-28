@@ -1817,7 +1817,7 @@ export class UI {
 					}
 				}, 2500);
 
-				ab.setUpgraded(); // set the ability to upgraded
+				ab.setUpgraded(); // Set the ability to upgraded
 			}
 
 			// Change the ability's frame when it gets upgraded
