@@ -79,7 +79,7 @@ export default class Game {
 		this.match = {};
 		this.session = null;
 		this.client = null;
-		this.server = null;
+		this.connect = null;
 		this.debugMode = false;
 		this.multiplayer = false;
 		this.matchInitialized = false;
@@ -556,13 +556,13 @@ export default class Game {
 			}, 1000);
 		}
 		if (this.multiplayer) {
-			this.server.serverConnect(this.session).then(() => {
+			this.connect.serverConnect(this.session).then(() => {
 				this.matchInit();
 			});
 		}
 	}
 	async matchInit() {
-		let match = new MatchI(this.server, this, this.session);
+		let match = new MatchI(this.connect, this, this.session);
 		this.match = match;
 		if (this.matchInitialized) {
 			let n = await match.matchCreate();
@@ -626,62 +626,58 @@ export default class Game {
 		// Delay
 		setTimeout(() => {
 			let interval = setInterval(() => {
-				if (!this.freezedInput) {
-					clearInterval(interval);
+				clearInterval(interval);
 
-					let differentPlayer = false;
+				let differentPlayer = false;
 
-					if (this.queue.isCurrentEmpty()) {
-						this.nextRound(); // Switch to the next Round
-						return;
+				if (this.queue.isCurrentEmpty()) {
+					this.nextRound(); // Switch to the next Round
+					return;
+				} else {
+					let next = this.queue.dequeue();
+					if (this.activeCreature) {
+						differentPlayer = this.activeCreature.player != next.player;
 					} else {
-						let next = this.queue.dequeue();
-						if (this.activeCreature) {
-							differentPlayer = this.activeCreature.player != next.player;
-						} else {
-							differentPlayer = true;
-						}
-
-						let last = this.activeCreature;
-						this.activeCreature = next; // Set new activeCreature
-
-						if (!last.dead) {
-							last.updateHealth(); // Update health display due to active creature change
-						}
+						differentPlayer = true;
 					}
 
-					if (this.activeCreature.player.hasLost) {
-						this.nextCreature();
-						return;
+					let last = this.activeCreature;
+					this.activeCreature = next; // Set new activeCreature
+
+					if (!last.dead) {
+						last.updateHealth(); // Update health display due to active creature change
 					}
-
-					// Play heartbeat sound on other player's turn
-					if (differentPlayer) {
-						this.soundsys.playSound(this.soundLoaded[4], this.soundsys.heartbeatGainNode);
-					}
-
-					this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
-					this.activeCreature.activate();
-
-					// Show mini tutorial in the first round for each player
-					if (this.turn == 1) {
-						this.log('The active unit has a flashing hexagon');
-						this.log('It uses a plasma field to protect itself');
-						this.log('Its portrait is displayed in the upper left');
-						this.log("Under the portrait are the unit's abilities");
-						this.log('The ones with flashing icons are usable');
-						this.log('Use the last one to materialize a unit');
-						this.log('Making units drains your plasma points');
-						this.log('Press the hourglass icon to skip the turn');
-						this.log(
-							'%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!',
-						);
-					}
-
-					// Updates UI to match new creature
-					this.UI.updateActivebox();
-					this.updateQueueDisplay();
 				}
+
+				if (this.activeCreature.player.hasLost) {
+					this.nextCreature();
+					return;
+				}
+
+				// Play heartbeat sound on other player's turn
+				if (differentPlayer) {
+					this.soundsys.playSound(this.soundLoaded[4], this.soundsys.heartbeatGainNode);
+				}
+
+				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
+				this.activeCreature.activate();
+
+				// Show mini tutorial in the first round for each player
+				if (this.turn == 1) {
+					this.log('The active unit has a flashing hexagon');
+					this.log('It uses a plasma field to protect itself');
+					this.log('Its portrait is displayed in the upper left');
+					this.log("Under the portrait are the unit's abilities");
+					this.log('The ones with flashing icons are usable');
+					this.log('Use the last one to materialize a unit');
+					this.log('Making units drains your plasma points');
+					this.log('Press the hourglass icon to skip the turn');
+					this.log('%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!');
+				}
+
+				// Updates UI to match new creature
+				this.UI.updateActivebox();
+				this.updateQueueDisplay();
 			}, 50);
 		}, 300);
 	}
@@ -747,7 +743,9 @@ export default class Game {
 	 */
 	skipTurn(o) {
 		//send skip turn to server
-		this.match.skipTurn();
+		if (this.multiplayer) {
+			this.match.skipTurn();
+		}
 
 		if (this.turnThrottle) {
 			return;
@@ -802,6 +800,11 @@ export default class Game {
 	 * Delay the action turn of the current creature
 	 */
 	delayCreature(o) {
+		//send skip turn to server
+		if (this.multiplayer) {
+			this.match.delay();
+		}
+
 		if (this.turnThrottle) {
 			return;
 		}

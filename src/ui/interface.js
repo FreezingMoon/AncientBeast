@@ -48,6 +48,7 @@ export class UI {
 		this.$grid = $j('#creaturegrid');
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboardwrapper');
+		this.active = false;
 
 		// Last clicked creature in Godlet Printer for the current turn
 		this.lastViewedCreature = '';
@@ -1768,6 +1769,13 @@ export class UI {
 			);
 
 		this.updateInfos();
+		if (game.multiplayer) {
+			if (!this.active) {
+				game.freezedInput = true;
+			} else {
+				game.freezedInput = false;
+			}
+		}
 	}
 
 	updateAbilityButtonsContent() {

@@ -1,9 +1,9 @@
 import _ from 'underscore';
 
 export default class MatchI {
-	constructor(server, game, session) {
+	constructor(connect, game, session) {
 		this.game = game;
-		this.socket = server.socket;
+		this.socket = connect.socket;
 		this.session = session;
 		this.host = null;
 		//TODO total number of players;
@@ -13,21 +13,9 @@ export default class MatchI {
 		this.configData = {};
 		this.players = [];
 		this.activePlayer = null;
-		this.client = server.client;
+		this.client = connect.client;
 
-		server.socket.onmatchpresence = (md) => {
-			//only host
-
-			if(typeof md.joins !=undefined){
-        this.game.log(md.joins[0].username + ' joined match');
-      }
-      if(typeof md.leaves !=undefined){
-        this.game.log(md.leaves[0].username + ' left match');
-      }
-      const nowUnixTime = Math.floor(Date.now() / 1000);
-      if (this.session.isexpired(nowUnixTime)) {
-        console.log("Session has expired. Must reauthenticate!");
-      }
+		connect.socket.onmatchpresence = (md) => {
 			if (this.host === this.session.user_id) {
 				let p = this.players.length;
 				p++;
@@ -38,29 +26,39 @@ export default class MatchI {
 				if (this.players.length > 1 && md.joins[0].user_id != this.players[0].id) {
 					this.sendMatchData({
 						match_id: this.matchData.match_id,
-						op_code: 'op_load',
+						op_code: '1',
 						data: { config: this.configData, players: this.players, host: this.host },
 					});
+					this.game.freezedInput = false;
+					console.log(this.players);
+					this.game.log(this.players[this.matchTurn - 1].playername + ' turn');
 				}
 				console.log('players' + this.players);
 			}
 		};
 
-		server.socket.onmatchdata = (md) => {
+		connect.socket.onmatchdata = (md) => {
 			console.info('Received match data: %o', md);
 			let op_code = md.op_code;
 
 			switch (op_code) {
 				//host shares config with players on join
-				case 'op_load':
+				case 1:
 					this.players = md.data.players;
 					this.host = md.data.players.host;
 					this.configData = md.data.config;
 					this.userTurn = this.getUserTurn();
+
+					this.game.log(this.players[this.matchTurn - 1].playername + ' turn');
 					break;
-				case 'op_skipTurn':
+				case 2:
 					game.skipTurn();
-					this.turn = md.data.turn;
+					this.matchTurn = md.data.turn;
+					this.game.log(this.session.username + ' turn');
+
+					break;
+				case 3:
+					game.delayCreature();
 					break;
 			}
 		};
@@ -92,23 +90,37 @@ export default class MatchI {
 	turnChange() {
 		let t = this.matchTurn;
 		t++;
-		if (t === this.players.length) {
+		if (t > this.players.length) {
 			t = 1;
 		}
 		this.matchTurn = t;
 		console.log(this.matchTurn);
 	}
-	async skipTurn() {
+
+	skipTurn() {
+		//for non active player
+		if (this.matchTurn != this.userTurn) {
+			this.game.UI.active = true;
+			return;
+		}
+		//for active player
+		this.turnChange();
+		let id = this.matchData.match_id;
+		let opCode = '2';
+		let data = { turn: this.matchTurn };
+		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
+		this.game.UI.active = false;
+		this.game.log(this.players[this.matchTurn - 1].playername + ' turn');
+	}
+
+	delay() {
 		if (this.matchTurn != this.userTurn) {
 			return;
 		}
-
-		this.turnChange();
 		let id = this.matchData.match_id;
-		let opCode = 'op_skipTurn';
+		let opCode = '3';
 		let data = { turn: this.matchTurn };
-		await this.sendMatchData({ match_data_send: { match_id: id, op_code: opCode, data: data } });
-		this.game.log(this.session.username + ' ended turn');
+		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
 	}
 
 	async sendMatchData(obj) {

@@ -3,7 +3,7 @@ import * as $j from 'jquery';
 import 'jquery.transit';
 import Game from './game';
 
-import Server from './server/server';
+import Connect from './server/connect';
 import Authenticate from './server/authenticate';
 import SessionI from './server/session';
 
@@ -44,8 +44,8 @@ AB.currentGame = G;
 AB.getLog = AB.currentGame.gamelog.get.bind(AB.currentGame.gamelog);
 AB.restoreGame = AB.currentGame.gamelog.play.bind(AB.currentGame.gamelog);
 window.AB = AB;
-const server = new Server(G);
-G.server = server;
+const connect = new Connect(G);
+G.connect = connect;
 
 // const email = "junior@example.com";
 // const password = "8484ndnso";
@@ -127,7 +127,7 @@ $j(document).ready(() => {
 		$j('.loginregFrame').show();
 		let sess = new SessionI();
 		let session = await sess.restoreSession();
-		console.log(session.username + " restored session" + session);
+		console.log(session.username + ' restored session ', session);
 	});
 
 	window.addEventListener('resize', () => {
@@ -188,9 +188,12 @@ $j(document).ready(() => {
 			$j('.error-pw').show();
 			return;
 		}
-		let auth = new Authenticate(reg, server.client);
+		let auth = new Authenticate(reg, connect.client);
 		let session = await auth.register();
-
+		$j('.setupFrame,.welcome').show();
+		$j('.match-frame').show();
+		$j('.loginregFrame,#gameSetup').hide();
+		$j('.user').text(session.username);
 		console.log('new user created.' + session);
 		return false; // Prevent submit
 	}
@@ -216,7 +219,7 @@ $j(document).ready(() => {
 			$j('#login .error-req').hide();
 			$j('#login .error-req-message').hide();
 		}
-		auth = new Authenticate(login, server.client);
+		auth = new Authenticate(login, connect.client);
 		session = await auth.authenticateEmail();
 		if (!session) {
 			$j('#login .login-error-req-message').show();
@@ -224,7 +227,7 @@ $j(document).ready(() => {
 		let sess = new SessionI(session);
 		sess.storeSession();
 		G.session = session;
-		G.client = server.client;
+		G.client = connect.client;
 		G.multiplayer = true;
 
 		$j('.setupFrame,.welcome').show();
@@ -242,7 +245,7 @@ $j(document).ready(() => {
 	});
 
 	$j('#joinMatchButton').on('click', () => {
-    //TODO move to match data received
+		//TODO move to match data received
 		let gameConfig = getGameConfig();
 		G.loadGame(gameConfig, false);
 		return false;
