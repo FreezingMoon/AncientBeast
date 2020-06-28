@@ -63,6 +63,15 @@ $j(document).ready(() => {
 
 		return false; // Prevent submit
 	});
+
+	// Binding Hotkeys
+	$j(document).keydown((event) => {
+		const fullscreenHotkey = 70;
+		const pressedKey = event.keyCode || e.which;
+		if (event.shiftKey && fullscreenHotkey == pressedKey) {
+			fullscreen.toggle();
+		}
+	});
 });
 
 /**
