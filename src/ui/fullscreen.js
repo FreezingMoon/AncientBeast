@@ -23,10 +23,10 @@ const isNativeFullscreenAPIUse = () =>
 
 const disableFullscreenLayout = (fullscreenElement) => {
 	fullscreenElement.removeClass('fullscreenMode');
-	fullscreenElement.attr('title', 'Enable fullscreen mode');
+	fullscreenElement.find('.fullscreen__title').text('Fullscreen');
 };
 
 const enableFullscreenLayout = (fullscreenElement) => {
 	fullscreenElement.addClass('fullscreenMode');
-	fullscreenElement.attr('title', 'Disable fullscreen mode');
+	fullscreenElement.find('.fullscreen__title').text('Contract');
 };
