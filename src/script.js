@@ -88,6 +88,7 @@ export function getGameConfig() {
 			turnTimePool: $j('input[name="turnTime"]:checked').val() - 0,
 			timePool: $j('input[name="timePool"]:checked').val() * 60,
 			background_image: $j('input[name="combatLocation"]:checked').val(),
+			fullscreenMode: $j('#fullscreen').hasClass('fullscreenMode'),
 		},
 		config = G.gamelog.gameConfig || defaultConfig;
 

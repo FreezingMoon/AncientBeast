@@ -1,8 +1,11 @@
 import * as $j from 'jquery';
 
 export class Fullscreen {
-	constructor(fullscreenElement) {
+	constructor(fullscreenElement, fullscreenMode) {
 		this.fullscreenElement = fullscreenElement;
+		if (fullscreenMode) {
+			fullscreenElement.addClass('fullscreenMode');
+		}
 	}
 
 	toggle() {
