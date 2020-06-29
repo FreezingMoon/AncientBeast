@@ -1802,7 +1802,11 @@ export class UI {
 				btn.$button.addClass('upgradeIcon');
 
 				btn.changeState('slideIn'); // Keep the button in view
-				game.soundsys.playSound(game.soundLoaded[0], game.soundsys.effectsGainNode); // Play the upgrade sound   TODO: add a real sound
+
+				// After .3s play the upgrade sound
+				setTimeout(() => {
+					game.soundsys.playSound(game.soundLoaded[1], game.soundsys.effectsGainNode); // TODO: add a real sound
+				}, 300);
 
 				// After 2s remove the background and update the button if it's not a passive
 				setTimeout(() => {
