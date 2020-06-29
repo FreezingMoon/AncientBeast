@@ -20,6 +20,7 @@ export class Ability {
 		this.timesUsed = 0;
 		this.timesUsedThisTurn = 0;
 		this.token = 0;
+		this.upgraded = false;
 
 		let data = game.retrieveCreatureStats(creature.type);
 		$j.extend(true, this, game.abilities[data.id][abilityID], data.ability_info[abilityID]);
@@ -30,6 +31,10 @@ export class Ability {
 
 	hasUpgrade() {
 		return this.game.abilityUpgrades >= 0 && this.upgrade;
+	}
+
+	setUpgraded() {
+		this.upgraded = true;
 	}
 
 	/**
