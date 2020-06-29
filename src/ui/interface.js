@@ -1805,7 +1805,7 @@ export class UI {
 
 				// After .3s play the upgrade sound
 				setTimeout(() => {
-					game.soundsys.playSound(game.soundLoaded[1], game.soundsys.effectsGainNode); // TODO: add a real sound
+					game.soundsys.playSound(game.soundLoaded[6], game.soundsys.effectsGainNode);
 				}, 300);
 
 				// After 2s remove the background and update the button if it's not a passive
