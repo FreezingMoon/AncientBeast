@@ -85,6 +85,7 @@ export default class Game {
 			'sounds/swing3',
 			'sounds/heartbeat',
 			'sounds/drums',
+			'sounds/upgrade',
 		];
 		this.inputMethod = 'Mouse';
 
