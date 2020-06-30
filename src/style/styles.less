@@ -317,8 +317,8 @@
 	width: 80px;
 }
 
-.button.noclick:hover:before {
-	background-image: url('~assets/interface/frame_dimmed.png');
+.button.noclick:hover {
+	opacity: 0.5;
 }
 
 .button.upgradeIcon {
@@ -327,6 +327,10 @@
 
 .button.upgradeTransition {
 	transition: background-image 0.5s linear !important;
+}
+
+.button.upgraded.noclick:hover:before {
+	opacity: 1;
 }
 
 .button:before {
@@ -343,16 +347,9 @@
 	background-image: url('~assets/interface/frame_upgrade.png');
 }
 
-.button.upgraded.disabled:before {
-	background-image: url('~assets/interface/frame_upgrade_dimmed.png');
-}
-
-.button.disabled:before {
-	background-image: url('~assets/interface/frame_dimmed.png');
-}
-
 .disabled {
 	cursor: default !important;
+	opacity: 0.5;
 
 	&.ability {
 		cursor: help !important;
