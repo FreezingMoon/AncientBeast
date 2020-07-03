@@ -2175,7 +2175,8 @@
 				"info": "20 crush + 10 sonic damage on strike.",
 				"upgrade": "Attack targets within 2 hex.",
 				"damages": {
-					"crush": 25
+					"crush": 20,
+					"sonic": 10
 				},
 				"costs": {
 					"energy": 20
@@ -2196,7 +2197,7 @@
 				"info": "30 crush damage, 5 hexes inline range.",
 				"upgrade": "Extra bounce if one unit dies.",
 				"damages": {
-					"crush": 10
+					"crush": 30
 				},
 				"costs": {
 					"energy": 30
