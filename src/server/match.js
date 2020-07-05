@@ -38,6 +38,7 @@ export default class MatchI {
 		};
 
 		connect.socket.onmatchdata = (md) => {
+			debugger;
 			console.info('Received match data: %o', md);
 			let op_code = md.op_code;
 
@@ -52,13 +53,17 @@ export default class MatchI {
 					this.game.log(this.players[this.matchTurn - 1].playername + ' turn');
 					break;
 				case 2:
-					game.skipTurn();
+					game.action(md.data);
 					this.matchTurn = md.data.turn;
 					this.game.log(this.session.username + ' turn');
 
 					break;
 				case 3:
-					game.delayCreature();
+					game.action(md.data);
+					break;
+				case 4:
+					game.action(md.data);
+
 					break;
 			}
 		};
@@ -96,7 +101,16 @@ export default class MatchI {
 		this.matchTurn = t;
 		console.log(this.matchTurn);
 	}
+	moveTo(data) {
+		if (this.matchTurn != this.userTurn) {
+			return;
+		}
 
+		let id = this.matchData.match_id;
+		let opCode = '4';
+		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
+		this.game.UI.active = true;
+	}
 	skipTurn() {
 		//for non active player
 		if (this.matchTurn != this.userTurn) {
@@ -107,7 +121,7 @@ export default class MatchI {
 		this.turnChange();
 		let id = this.matchData.match_id;
 		let opCode = '2';
-		let data = { turn: this.matchTurn };
+		let data = { turn: this.matchTurn, action: 'skip' };
 		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
 		this.game.UI.active = false;
 		this.game.log(this.players[this.matchTurn - 1].playername + ' turn');
@@ -119,7 +133,7 @@ export default class MatchI {
 		}
 		let id = this.matchData.match_id;
 		let opCode = '3';
-		let data = { turn: this.matchTurn };
+		let data = { action: 'delay' };
 		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
 	}
 

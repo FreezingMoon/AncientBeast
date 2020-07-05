@@ -1346,6 +1346,7 @@ export default class Game {
 	}
 
 	action(o, opt) {
+		debugger;
 		let defaultOpt = {
 			callback: function () {},
 		};

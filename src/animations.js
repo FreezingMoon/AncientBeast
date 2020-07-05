@@ -249,7 +249,7 @@ export class Animations {
 
 		let queue = game.animationQueue.filter((item) => item != animId);
 
-		if (queue.length === 0) {
+		if (queue.length === 0 && game.UI.active) {
 			game.freezedInput = false;
 		}
 

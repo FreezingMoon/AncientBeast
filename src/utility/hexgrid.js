@@ -588,6 +588,7 @@ export class HexGrid {
 
 		// ONCLICK
 		let onConfirmFn = (hex) => {
+			//debugger;
 			let y = hex.y,
 				x = hex.x;
 
@@ -632,7 +633,7 @@ export class HexGrid {
 				let clickedtHex = hex;
 
 				game.activeCreature.faceHex(clickedtHex, undefined, true, true);
-
+				console.log(this.game);
 				if (clickedtHex != this.lastClickedHex) {
 					this.lastClickedHex = clickedtHex;
 					// ONCLICK
@@ -640,6 +641,17 @@ export class HexGrid {
 				} else {
 					// ONCONFIRM
 					o.fnOnConfirm(clickedtHex, o.args);
+				}
+				let data = {
+					action: 'move',
+					target: {
+						x: hex.x,
+						y: hex.y,
+					},
+				};
+
+				if (game.multiplayer) {
+					game.match.moveTo(data);
 				}
 			}
 		};
