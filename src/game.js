@@ -1345,7 +1345,7 @@ export default class Game {
 		this.UI.toggleScoreboard(true);
 	}
 
-	action(o, opt) {;
+	action(o, opt) {
 		let defaultOpt = {
 			callback: function () {},
 		};

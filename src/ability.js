@@ -132,8 +132,8 @@ export class Ability {
 		if (this.getTrigger() === 'onQuery' && !deferredEnding) {
 			game.activeCreature.queryMove();
 		}
-  }
- 
+	}
+
 	/**
 	 * Set the value of the used attribute
 	 * @param {boolean} val Value to set.
@@ -212,18 +212,18 @@ export class Ability {
 					},
 					id: this.id,
 					args: args,
-        });
-        if (game.multiplayer) {
-          game.match.useAbility({
-            target: {
-              type: 'hex',
-              x: arguments[0].x,
-              y: arguments[0].y,
-            },
-            id: this.id,
-            args: args,
-          });
-        }
+				});
+				if (game.multiplayer) {
+					game.match.useAbility({
+						target: {
+							type: 'hex',
+							x: arguments[0].x,
+							y: arguments[0].y,
+						},
+						id: this.id,
+						args: args,
+					});
+				}
 			}
 
 			if (arguments[0] instanceof Creature) {
@@ -237,17 +237,17 @@ export class Ability {
 					},
 					id: this.id,
 					args: args,
-        });
-        if (game.multiplayer) {
-          game.match.useAbility({
-            target: {
-              type: 'creature',
-              crea: arguments[0].id,
-            },
-            id: this.id,
-            args: args
-          });
-        }
+				});
+				if (game.multiplayer) {
+					game.match.useAbility({
+						target: {
+							type: 'creature',
+							crea: arguments[0].id,
+						},
+						id: this.id,
+						args: args,
+					});
+				}
 			}
 
 			if (arguments[0] instanceof Array) {
@@ -264,18 +264,17 @@ export class Ability {
 					},
 					id: this.id,
 					args: args,
-        });
-        if (game.multiplayer) {
-          game.match.useAbility({
-            target: {
-              type: 'array',
-              array: array,
-            },
-            id: this.id,
-            args: args,
-          
-          });
-        }
+				});
+				if (game.multiplayer) {
+					game.match.useAbility({
+						target: {
+							type: 'array',
+							array: array,
+						},
+						id: this.id,
+						args: args,
+					});
+				}
 			}
 		} else {
 			// Test for materialization sickness
@@ -283,8 +282,7 @@ export class Ability {
 				return false;
 			}
 		}
-   
-   
+
 		return this.animation2({
 			arg: arguments,
 		});
@@ -296,7 +294,6 @@ export class Ability {
 	 * @return {void}
 	 */
 	animation2(o) {
-  
 		let game = this.game,
 			opt = $j.extend({ callback: function () {}, arg: {} }, o),
 			args = opt.arg,
@@ -355,10 +352,10 @@ export class Ability {
 				let queue = game.animationQueue.filter((item) => item != animId);
 
 				if (queue.length === 0) {
-          game.freezedInput = false;
-          if(game.multiplayer){
-            game.freezedInput= game.UI.active?false:true;
-          }
+					game.freezedInput = false;
+					if (game.multiplayer) {
+						game.freezedInput = game.UI.active ? false : true;
+					}
 				}
 
 				game.animationQueue = queue;

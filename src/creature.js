@@ -345,13 +345,13 @@ export class Creature {
 
 		let interval = setInterval(() => {
 			// if (!game.freezedInput) { remove for muliplayer
-				clearInterval(interval);
-				if (game.turn >= game.minimumTurnBeforeFleeing) {
-					game.UI.btnFlee.changeState('normal');
-				}
+			clearInterval(interval);
+			if (game.turn >= game.minimumTurnBeforeFleeing) {
+				game.UI.btnFlee.changeState('normal');
+			}
 
-				game.startTimer();
-				this.queryMove();
+			game.startTimer();
+			this.queryMove();
 			// }
 		}, 1000);
 	}
@@ -463,13 +463,15 @@ export class Creature {
 							x: hex.x,
 							y: hex.y,
 						},
-          });
-          if (game.multiplayer) {
-            game.match.moveTo({target: {
-							x: hex.x,
-							y: hex.y,
-						}});
-          }
+					});
+					if (game.multiplayer) {
+						game.match.moveTo({
+							target: {
+								x: hex.x,
+								y: hex.y,
+							},
+						});
+					}
 					args.creature.delayable = false;
 					game.UI.btnDelay.changeState('disabled');
 					args.creature.moveTo(hex, {

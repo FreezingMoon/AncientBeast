@@ -1,7 +1,6 @@
 import _ from 'underscore';
 import * as $j from 'jquery';
 
-
 export default class MatchI {
 	constructor(connect, game, session) {
 		this.game = game;
@@ -61,39 +60,37 @@ export default class MatchI {
 					break;
 				case 3:
 					game.delayCreature();
-          break;
-        case 4:
-            game.activeCreature.moveTo(game.grid.hexes[md.data.target.y][md.data.target.x]);
-           
-            break;
-        case 5:
-          let args = $j.makeArray(md.data.args[1]);
+					break;
+				case 4:
+					game.activeCreature.moveTo(game.grid.hexes[md.data.target.y][md.data.target.x]);
 
-          if (md.data.target.type == 'hex') {
-            args.unshift(game.grid.hexes[md.data.target.y][md.data.target.x]);
-            game.activeCreature.abilities[md.data.id].animation2({           
-              arg:args,
-            });
-          }
-  
-          if (md.data.target.type == 'creature') {
-            args.unshift(game.creatures[md.data.target.crea]);
-            game.activeCreature.abilities[md.data.id].animation2({
-                      arg: args,
-            });
-          }
-  
-          if (md.data.target.type == 'array') {
-            let array = md.data.target.array.map((item) => game.grid.hexes[item.y][item.x]);
-  
-            args.unshift(array);
-            game.activeCreature.abilities[md.data.id].animation2({
- 
-              arg: args,
-            });
-          }            
-            break;
-        
+					break;
+				case 5:
+					let args = $j.makeArray(md.data.args[1]);
+
+					if (md.data.target.type == 'hex') {
+						args.unshift(game.grid.hexes[md.data.target.y][md.data.target.x]);
+						game.activeCreature.abilities[md.data.id].animation2({
+							arg: args,
+						});
+					}
+
+					if (md.data.target.type == 'creature') {
+						args.unshift(game.creatures[md.data.target.crea]);
+						game.activeCreature.abilities[md.data.id].animation2({
+							arg: args,
+						});
+					}
+
+					if (md.data.target.type == 'array') {
+						let array = md.data.target.array.map((item) => game.grid.hexes[item.y][item.x]);
+
+						args.unshift(array);
+						game.activeCreature.abilities[md.data.id].animation2({
+							arg: args,
+						});
+					}
+					break;
 			}
 		};
 	}
@@ -130,30 +127,26 @@ export default class MatchI {
 		this.matchTurn = t;
 		console.log(this.matchTurn);
 	}
-  moveTo(o){
-    
-    if (this.matchTurn != this.userTurn) {
+	moveTo(o) {
+		if (this.matchTurn != this.userTurn) {
 			return;
-    }
-    let data =o;
-    let id = this.matchData.match_id;
+		}
+		let data = o;
+		let id = this.matchData.match_id;
 		let opCode = '4';
-    this.sendMatchData({ match_id: id, op_code: opCode, data: data });
-    this.game.UI.active = true;
-  
-  }
-  useAbility(o){
-   
-    if (this.matchTurn != this.userTurn) {
+		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
+		this.game.UI.active = true;
+	}
+	useAbility(o) {
+		if (this.matchTurn != this.userTurn) {
 			return;
-    }
-    let data=o;
-    let id = this.matchData.match_id;
+		}
+		let data = o;
+		let id = this.matchData.match_id;
 		let opCode = '5';
-    this.sendMatchData({ match_id: id, op_code: opCode, data: data });
-    this.game.UI.active = true;
-
-  }
+		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
+		this.game.UI.active = true;
+	}
 
 	skipTurn() {
 		//for non active player
@@ -165,7 +158,7 @@ export default class MatchI {
 		this.turnChange();
 		let id = this.matchData.match_id;
 		let opCode = '2';
-		let data = { turn: this.matchTurn};
+		let data = { turn: this.matchTurn };
 		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
 		this.game.UI.active = false;
 		this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
@@ -182,7 +175,6 @@ export default class MatchI {
 	}
 
 	async sendMatchData(obj) {
-   
 		let data = await this.socket.send({ match_data_send: obj });
 		return Promise.resolve(data);
 	}

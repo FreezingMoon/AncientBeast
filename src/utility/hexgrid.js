@@ -642,8 +642,6 @@ export class HexGrid {
 					// ONCONFIRM
 					o.fnOnConfirm(clickedtHex, o.args);
 				}
-			
-			
 			}
 		};
 
