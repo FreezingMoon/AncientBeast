@@ -2313,6 +2313,14 @@ export class UI {
 				game.grid.showGrid(false);
 			});
 
+		// Add shift keydown effect like above, onkeydown => showGrid
+
+		$j(document).keydown((e) => {
+			if (e.which === 16) {
+				game.grid.showGrid(true);
+			}
+		});
+
 		this.$queue
 			.find('.vignette')
 			.not('.roundmarker')
