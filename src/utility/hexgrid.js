@@ -642,17 +642,8 @@ export class HexGrid {
 					// ONCONFIRM
 					o.fnOnConfirm(clickedtHex, o.args);
 				}
-				let data = {
-					action: 'move',
-					target: {
-						x: hex.x,
-						y: hex.y,
-					},
-				};
-
-				if (game.multiplayer) {
-					game.match.moveTo(data);
-				}
+			
+			
 			}
 		};
 

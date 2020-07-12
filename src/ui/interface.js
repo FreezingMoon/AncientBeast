@@ -1719,6 +1719,11 @@ export class UI {
 	 *
 	 * Update activebox with new current creature's abilities
 	 */
+  banner(message){
+    let $bannerBox=$j('#banner');
+    $bannerBox.text(message);
+  }
+
 
 	updateActivebox() {
 		let game = this.game,

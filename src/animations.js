@@ -249,8 +249,11 @@ export class Animations {
 
 		let queue = game.animationQueue.filter((item) => item != animId);
 
-		if (queue.length === 0 && game.UI.active) {
-			game.freezedInput = false;
+		if (queue.length === 0 ) {
+      game.freezedInput = false;
+      if(game.multiplayer){
+        game.freezedInput= game.UI.active?false:true;
+      }
 		}
 
 		game.animationQueue = queue;

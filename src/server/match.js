@@ -1,4 +1,6 @@
 import _ from 'underscore';
+import * as $j from 'jquery';
+
 
 export default class MatchI {
 	constructor(connect, game, session) {
@@ -31,14 +33,13 @@ export default class MatchI {
 					});
 					this.game.freezedInput = false;
 					console.log(this.players);
-					this.game.log(this.players[this.matchTurn - 1].playername + ' turn');
+					this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
 				}
 				console.log('players' + this.players);
 			}
 		};
 
 		connect.socket.onmatchdata = (md) => {
-			debugger;
 			console.info('Received match data: %o', md);
 			let op_code = md.op_code;
 
@@ -50,21 +51,49 @@ export default class MatchI {
 					this.configData = md.data.config;
 					this.userTurn = this.getUserTurn();
 
-					this.game.log(this.players[this.matchTurn - 1].playername + ' turn');
+					this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
 					break;
 				case 2:
-					game.action(md.data);
+					game.skipTurn();
 					this.matchTurn = md.data.turn;
-					this.game.log(this.session.username + ' turn');
+					this.game.UI.banner(this.session.username + ' turn');
 
 					break;
 				case 3:
-					game.action(md.data);
-					break;
-				case 4:
-					game.action(md.data);
+					game.delayCreature();
+          break;
+        case 4:
+            game.activeCreature.moveTo(game.grid.hexes[md.data.target.y][md.data.target.x]);
+           
+            break;
+        case 5:
+          let args = $j.makeArray(md.data.args[1]);
 
-					break;
+          if (md.data.target.type == 'hex') {
+            args.unshift(game.grid.hexes[md.data.target.y][md.data.target.x]);
+            game.activeCreature.abilities[md.data.id].animation2({           
+              arg:args,
+            });
+          }
+  
+          if (md.data.target.type == 'creature') {
+            args.unshift(game.creatures[md.data.target.crea]);
+            game.activeCreature.abilities[md.data.id].animation2({
+                      arg: args,
+            });
+          }
+  
+          if (md.data.target.type == 'array') {
+            let array = md.data.target.array.map((item) => game.grid.hexes[item.y][item.x]);
+  
+            args.unshift(array);
+            game.activeCreature.abilities[md.data.id].animation2({
+ 
+              arg: args,
+            });
+          }            
+            break;
+        
 			}
 		};
 	}
@@ -101,16 +130,31 @@ export default class MatchI {
 		this.matchTurn = t;
 		console.log(this.matchTurn);
 	}
-	moveTo(data) {
-		if (this.matchTurn != this.userTurn) {
+  moveTo(o){
+    
+    if (this.matchTurn != this.userTurn) {
 			return;
-		}
-
-		let id = this.matchData.match_id;
+    }
+    let data =o;
+    let id = this.matchData.match_id;
 		let opCode = '4';
-		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
-		this.game.UI.active = true;
-	}
+    this.sendMatchData({ match_id: id, op_code: opCode, data: data });
+    this.game.UI.active = true;
+  
+  }
+  useAbility(o){
+   
+    if (this.matchTurn != this.userTurn) {
+			return;
+    }
+    let data=o;
+    let id = this.matchData.match_id;
+		let opCode = '5';
+    this.sendMatchData({ match_id: id, op_code: opCode, data: data });
+    this.game.UI.active = true;
+
+  }
+
 	skipTurn() {
 		//for non active player
 		if (this.matchTurn != this.userTurn) {
@@ -121,10 +165,10 @@ export default class MatchI {
 		this.turnChange();
 		let id = this.matchData.match_id;
 		let opCode = '2';
-		let data = { turn: this.matchTurn, action: 'skip' };
+		let data = { turn: this.matchTurn};
 		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
 		this.game.UI.active = false;
-		this.game.log(this.players[this.matchTurn - 1].playername + ' turn');
+		this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
 	}
 
 	delay() {
@@ -133,11 +177,12 @@ export default class MatchI {
 		}
 		let id = this.matchData.match_id;
 		let opCode = '3';
-		let data = { action: 'delay' };
+		let data = { turn: this.matchTurn };
 		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
 	}
 
 	async sendMatchData(obj) {
+   
 		let data = await this.socket.send({ match_data_send: obj });
 		return Promise.resolve(data);
 	}
