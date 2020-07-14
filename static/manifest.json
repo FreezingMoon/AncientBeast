@@ -14,6 +14,11 @@
 			"src": "favicon.png",
 			"type": "image/png",
 			"sizes": "64x64"
+		},
+		{
+			"src": "DarkPriest.jpg",
+			"type": "image/jpg",
+			"sizes": "512x512"
 		}
 	],
 	"url": "https://AncientBeast.com"
