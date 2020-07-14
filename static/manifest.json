@@ -11,9 +11,14 @@
 	"orientation": "landscape",
 	"icons": [
 		{
-			"src": "favicon.png",
+			"src": "assets/favicon.png",
 			"type": "image/png",
 			"sizes": "64x64"
+		},
+		{
+			"src": "assets/splash.png",
+			"type": "image/png",
+			"sizes": "512x512"
 		}
 	],
 	"url": "https://AncientBeast.com"

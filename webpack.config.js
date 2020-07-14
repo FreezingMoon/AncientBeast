@@ -72,6 +72,7 @@ module.exports = (env, argv) => {
 			new HtmlWebpackPlugin({
 				template: path.resolve(__dirname, 'src', 'index.ejs'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
+				faviconBig: path.resolve(__dirname, 'assets', 'splash.png'),
 				production,
 			}),
 		],
