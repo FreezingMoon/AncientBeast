@@ -160,6 +160,9 @@ export default (G) => {
 			query: function () {
 				let ability = this;
 				let creature = this.creature;
+				console.log('ability:', ability);
+				console.log('creature:', creature);
+				console.log('_targetTeam:', this._targetTeam);
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
