@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 512 512"
+   height="512"
+   width="512"
+   id="svg2"
+   version="1.1">
+  <metadata
+     id="metadata8">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6">
+    <marker
+       style="overflow:visible"
+       id="marker1186"
+       refX="0"
+       refY="0"
+       orient="auto">
+      <path
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path1184" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="marker1170"
+       refX="0"
+       refY="0"
+       orient="auto">
+      <path
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path1168" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow1Lstart"
+       refX="0"
+       refY="0"
+       orient="auto">
+      <path
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path898" />
+    </marker>
+    <filter
+       id="filter2283"
+       style="color-interpolation-filters:sRGB">
+      <feFlood
+         id="feFlood2273"
+         result="flood"
+         flood-color="rgb(0,0,0)"
+         flood-opacity="0.498039" />
+      <feComposite
+         id="feComposite2275"
+         result="composite1"
+         operator="in"
+         in2="SourceGraphic"
+         in="flood" />
+      <feGaussianBlur
+         id="feGaussianBlur2277"
+         result="blur"
+         stdDeviation="0.5"
+         in="composite1" />
+      <feOffset
+         id="feOffset2279"
+         result="offset"
+         dy="4.52416e-15"
+         dx="4.57967e-15" />
+      <feComposite
+         id="feComposite2281"
+         result="composite2"
+         operator="over"
+         in2="offset"
+         in="SourceGraphic" />
+    </filter>
+  </defs>
+  <g
+     id="g10">
+    <path
+       d="m 16.920177,17.736961 -0.0044,9.897109 4.897916,-5.16285 z m 5.959404,-7.378176 -5.59892,5.548746 5.59892,5.502777 5.557153,-5.491951 z M 16.886118,4.4686437 V 13.556153 L 21.573765,9.1009958 Z M 10.566876,8.9463126 15.063782,4.4686437 V 13.556153 Z M 5.256775,20.253316 6.4775514,19.032539 3.5579189,15.918357 9.2339303,10.300865 15.029204,15.907531 15.063782,27.63407 10.943467,23.466803 9.6792046,24.712132 15.98264,30.924837 30.968773,15.918357 16.065157,1.129889 1.0903695,15.918357 Z"
+       style="mix-blend-mode:normal;fill:#b09e9e;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter2283)"
+       id="path1274"
+       transform="matrix(14.280103,0,0,14.280103,25.198609,24.562955)" />
+  </g>
+</svg>
