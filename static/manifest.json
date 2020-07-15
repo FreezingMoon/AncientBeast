@@ -11,8 +11,7 @@
 	"orientation": "landscape",
 	"icons": [
 		{
-			"src": "/assets/favicon.png",
-			"type": "image/png",
+			"src": "favicon.png",
 			"sizes": "512x512"
 		}
 	],
