@@ -11,7 +11,7 @@
 	"orientation": "landscape",
 	"icons": [
 		{
-			"src": "<%= require('assets/favicon.png') %>",
+			"src": "favicon.png",
 			"sizes": "512x512"
 		}
 	],

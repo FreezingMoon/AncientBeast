@@ -71,7 +71,7 @@ module.exports = (env, argv) => {
 			new CopyPlugin([{ from: 'static' }]),
 			new HtmlWebpackPlugin({
 				template: path.resolve(__dirname, 'src', 'index.ejs'),
-				favicon: path.resolve(__dirname, 'assets', 'favicon.svg'),
+				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
 				production,
 			}),
 		],
