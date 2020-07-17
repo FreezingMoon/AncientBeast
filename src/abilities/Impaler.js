@@ -160,9 +160,6 @@ export default (G) => {
 			query: function () {
 				let ability = this;
 				let creature = this.creature;
-				console.log('ability:', ability);
-				console.log('creature:', creature);
-				console.log('_targetTeam:', this._targetTeam);
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -181,6 +178,28 @@ export default (G) => {
 				// Last 1 turn, or indefinitely if upgraded
 				let lifetime = this.isUpgraded() ? 0 : 1;
 				let ability = this;
+
+				// Destroy trap if it wasn't triggered and target is dead
+				target.addEffect(
+					new Effect(
+						ability.title,
+						target,
+						target,
+						'onUnderAttack',
+						{
+							effectFn: (effect, damage) => {
+								let dmg = damage.applyDamage();
+								if (dmg.total >= target.health) {
+									target.hexagons.forEach(function (hex) {
+										hex.destroyTrap();
+									});
+								}
+							},
+						},
+						G,
+					),
+				);
+
 				// Add a trap to every hex of the target
 				let effect = new Effect(
 					ability.title,
