@@ -14,7 +14,7 @@ import dataJson from 'assets/units/data.json';
 import 'pixi';
 import 'p2';
 import Phaser from 'phaser';
-import MatchI from './server/match';
+import MatchI from './multiplayer/match';
 
 /* Game Class
  *
@@ -62,6 +62,7 @@ export default class Game {
 		this.activeCreature = {
 			id: 0,
 		};
+		this.matchid = null;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
 		this.queue = new CreatureQueue(this);
@@ -256,9 +257,13 @@ export default class Game {
 	 *
 	 * Load all required game files
 	 */
-	loadGame(setupOpt, matchInitialized) {
-		if (this.multiplayer) {
+
+	loadGame(setupOpt, matchInitialized, matchid) {
+		if (this.multiplayer && !matchid) {
 			this.matchInitialized = matchInitialized;
+		}
+		if (matchid) {
+			this.matchid = matchid;
 		}
 
 		let totalSoundEffects = this.soundEffects.length,
@@ -266,8 +271,10 @@ export default class Game {
 		this.gameState = 'loading';
 		if (setupOpt) {
 			this.gamelog.gameConfig = setupOpt;
+			this.configData = setupOpt;
 			$j.extend(this, setupOpt);
 		}
+		console.log(this);
 		this.startLoading();
 
 		// Sounds
@@ -555,24 +562,78 @@ export default class Game {
 				this.gamelog.play.apply(this.gamelog);
 			}, 1000);
 		}
-		if (this.multiplayer) {
-			this.connect.serverConnect(this.session).then(() => {
-				this.matchInit();
-			});
-		}
+
+		this.matchInit();
 	}
 	async matchInit() {
-		let match = new MatchI(this.connect, this, this.session);
-		this.match = match;
-		if (this.matchInitialized) {
-			let n = await match.matchCreate();
-			console.log('created match', n);
-		} else {
-			let n = await match.matchJoin();
-			console.log('joined match', n);
+		if (this.multiplayer) {
+			if (Object.keys(this.match).length === 0) {
+				await this.connect.serverConnect(this.session);
+				let match = new MatchI(this.connect, this, this.session);
+				this.match = match;
+
+				if (this.matchInitialized) {
+					let n = await this.match.matchCreate();
+
+					console.log('created match', n);
+					await match.matchMaker(n, this.configData);
+				}
+			}
+			if (this.matchid) {
+				let n = await this.match.matchJoin(this.matchid);
+				console.log('joined match', n);
+			}
 		}
 	}
+	async matchJoin() {
+		await this.matchInit();
+		await this.match.matchMaker();
+	}
+	async loadLobby() {
+		if (this.matchInitialized) return;
+		let self = this;
+		this.match.matchUsers.forEach((v) => {
+			console.log(v);
+			let gameConfig = {
+				background_image: v.string_properties.background_image,
+				abilityUpgrades: v.numeric_properties.abilityUpgrades,
+				creaLimitNbr: v.numeric_properties.creaLimitNbr,
+				plasma_amount: v.numeric_properties.plasma_amount,
+				playerMode: v.numeric_properties.playerMode,
+				timePool: v.numeric_properties.timePool,
+				turnTimePool: v.numeric_properties.turnTimePool,
+				unitDrops: v.numeric_properties.unitDrops,
+			};
+			if (v.string_properties.match_id) {
+				let turntimepool =
+					v.numeric_properties.turnTimePool < 0 ? '∞' : v.numeric_properties.timePool;
+				let timepool = v.numeric_properties.timePool < 0 ? '∞' : v.numeric_properties.timePool;
+				let unitdrops = v.numeric_properties.unitDrops < 0 ? 'off' : 'on';
+				let _matchBtn = $j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
+        Host: ${v.presence.username}<br />
+        Player Mode: ${v.numeric_properties.playerMode}<br />
+        Active Units: ${v.numeric_properties.creaLimitNbr}<br />
+        Ability Upgrades: ${v.numeric_properties.abilityUpgrades}<br />
+        </div><div class="user-match__col">
+        Plasma Points: ${v.numeric_properties.plasma_amount}<br />
+        Turn Time(seconds): ${turntimepool}<br />
+        Turn Pools(minutes): ${timepool}<br />
+        Unit Drops: ${unitdrops}<br />
+        
+        </div>
+        
+        </a>
 
+        
+        `);
+				_matchBtn.on('click', () => {
+					$j('.lobby').hide();
+					this.loadGame(gameConfig, false, v.string_properties.match_id);
+				});
+				$j('.lobby-match-list').append(_matchBtn);
+			}
+		});
+	}
 	/* resizeCombatFrame()
 	 *
 	 * Resize the combat frame

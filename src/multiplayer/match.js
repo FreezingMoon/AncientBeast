@@ -15,7 +15,13 @@ export default class MatchI {
 		this.players = [];
 		this.activePlayer = null;
 		this.client = connect.client;
-
+		this.matchUsers = [];
+		connect.socket.onmatchmakermatched = (matched) => {
+			// console.info("Received MatchmakerMatched message: ", matched);
+			// console.info("Matched opponents: ", matched.users);
+			this.matchUsers = matched.users;
+			this.game.loadLobby();
+		};
 		connect.socket.onmatchpresence = (md) => {
 			if (this.host === this.session.user_id) {
 				let p = this.players.length;
@@ -28,13 +34,16 @@ export default class MatchI {
 					this.sendMatchData({
 						match_id: this.matchData.match_id,
 						op_code: '1',
-						data: { config: this.configData, players: this.players, host: this.host },
+						data: { players: this.players, host: this.host, matchdata: this.matchData },
 					});
 					this.game.freezedInput = false;
 					console.log(this.players);
 					this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
 				}
-				console.log('players' + this.players);
+				console.log('players', this.players);
+				this.players.forEach((v, i) => {
+					this.game.players[i].name = this.players[i].playername;
+				});
 			}
 		};
 
@@ -47,9 +56,12 @@ export default class MatchI {
 				case 1:
 					this.players = md.data.players;
 					this.host = md.data.players.host;
-					this.configData = md.data.config;
+					this.matchData = md.data.matchdata;
 					this.userTurn = this.getUserTurn();
-
+					console.log('players', this.players);
+					this.players.forEach((v, i) => {
+						this.game.players[i].name = this.players[i].playername;
+					});
 					this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
 					break;
 				case 2:
@@ -104,20 +116,43 @@ export default class MatchI {
 		this.matchData = nm.match;
 		this.game.log(this.session.username + ' created match');
 		this.host = this.session.user_id;
-		this.configData = this.game.setupOpt;
 		return Promise.resolve(nm);
 	}
-	async matchJoin(s) {
-		let nj;
-		let matchList = await this.client.listMatches(this.session);
-		//TODO replace with lobby
-		let openMatch = _.findWhere(matchList.matches, { size: 1 });
-		if (openMatch) {
-			nj = await this.socket.send({ match_join: { match_id: openMatch.match_id } });
-			this.matchData = openMatch;
-			return Promise.resolve(nj);
+	async matchMaker(d, gc) {
+		let obj = {
+			min_count: 2,
+			max_count: 20,
+			query: '*',
+			string_properties: {},
+			numeric_properties: {},
+		};
+		if (d && gc) {
+			obj.string_properties = {
+				match_id: d.match.match_id,
+				background_image: gc.background_image,
+			};
+			obj.numeric_properties = {
+				abilityUpgrades: gc.abilityUpgrades,
+				creaLimitNbr: gc.creaLimitNbr,
+				plasma_amount: gc.plasma_amount,
+				playerMode: gc.playerMode,
+				timePool: gc.timePool,
+				turnTimePool: gc.turnTimePool,
+				unitDrops: gc.unitDrops,
+			};
 		}
+
+		const message = { matchmaker_add: obj };
+		var ticket = await this.socket.send(message);
+		console.log('ticket created', ticket);
+		return ticket;
 	}
+	async matchJoin(id) {
+		let nj;
+		nj = await this.socket.send({ match_join: { match_id: id } });
+		return Promise.resolve(nj);
+	}
+
 	turnChange() {
 		let t = this.matchTurn;
 		t++;

@@ -22,6 +22,10 @@
 #contribute {
 	display: none;
 }
+.user-match{
+  display:flex;
+  align-items: center;
+}
 
 #matchMaking {
 	width: 100%;
@@ -34,7 +38,8 @@
 	text-align: center;
 	background: black url('~assets/interface/Reaper.jpg') no-repeat center top;
 	background-size: cover;
-	color: white;
+  color: white;
+ 
 
 	#loader {
 		width: 200px;
@@ -166,6 +171,64 @@ body {
 	}
 }
 
+.lobby{
+  display:none;
+  border: 40px solid transparent;
+	border-image: url('~assets/interface/div.png') 40 fill stretch;
+  background: none;
+  position: relative;
+  overflow: visible;
+  margin: 0 0 10px;
+  padding: 0;
+  width: 495px;
+  h2{
+    margin-top: 0;
+    margin-bottom: 30px;
+  }
+  
+
+}
+
+.lobby-match-list{
+  margin:0;
+  padding:0;
+  li{
+    list-style-type:none;
+    text-align: left;
+    
+  }
+  a{
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    line-height: 20px;
+    -moz-transition: all 1s ease-in;
+    -webkit-transition: all .2s ease-in;
+    -o-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+    padding: 10px;
+
+  }
+  a:hover{
+    background-color: rgba(255,255,255,0.2);
+
+  }
+  .user-match__col{
+    font-size:15px;
+    text-align:left;
+    margin-right:15px;
+  }
+
+
+}
+.avatar{
+  background-image: url("~assets/units/avatars/Dark Priest red.jpg");
+  height:75px;
+  width:75px;
+  display:inline-block;
+  margin-right: 10px;
+  background-size: cover;
+}
 .game-options{
 	display: flex;
 	flex-direction: row;
@@ -257,7 +320,8 @@ body {
 
 .signin-register{	
 	display:flex;
-	flex-direction: row;
+  flex-direction: row;
+  
 	label{
 
     display: inline-block;
@@ -269,10 +333,32 @@ body {
 
 		display: inline-block;
 		height: 25px;
-		margin-bottom: 20px;
+    margin-bottom: 20px;
+    background-color:rgb(232, 240, 254) !important;
+    border:transparent 2px solid;;
+    padding: 3px 9px;
+    border-radius: 3px;
+    outline:none;
+    &:focus{
+      border: #fce519 2px solid;
+    }
+    &.crimson-button{
+      &:focus{
+        border:transparent 0 solid;
+      }
+    }
+    
   }
+  input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus
+    input:-webkit-autofill{
+
+      background-color:rgb(232, 240, 254) !important;
+    }
   .button-wrapper{
     margin-left:36%;
+    display:block;
 
   }
 }
@@ -311,7 +397,7 @@ body {
 	}
 
 	.crimson-button {
-		background: transparent;
+		background-color: transparent !important;
 		background-image: url('~assets/interface/small_button.png');
 		background-size: 190px;
 		border: 0;
@@ -396,6 +482,7 @@ a {
 	text-decoration: none;
 	cursor: pointer;
 }
+
 
 @media (max-height: 555px) {
 	#matchMaking {

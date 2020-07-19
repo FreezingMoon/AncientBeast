@@ -3,9 +3,9 @@ import * as $j from 'jquery';
 import 'jquery.transit';
 import Game from './game';
 
-import Connect from './server/connect';
-import Authenticate from './server/authenticate';
-import SessionI from './server/session';
+import Connect from './multiplayer/connect';
+import Authenticate from './multiplayer/authenticate';
+import SessionI from './multiplayer/session';
 
 // import SocketI from './server/socket';
 
@@ -123,7 +123,7 @@ $j(document).ready(() => {
 	});
 
 	$j('#multiplayer').on('click', async () => {
-		$j('.setupFrame').hide();
+		$j('.setupFrame,.lobby').hide();
 		$j('.loginregFrame').show();
 		let sess = new SessionI();
 		let session = await sess.restoreSession();
@@ -246,8 +246,9 @@ $j(document).ready(() => {
 
 	$j('#joinMatchButton').on('click', () => {
 		//TODO move to match data received
-		let gameConfig = getGameConfig();
-		G.loadGame(gameConfig, false);
+		$j('.lobby').show();
+		$j('.setupFrame').hide();
+		G.matchJoin();
 		return false;
 	});
 });

@@ -5,7 +5,7 @@ import { ProgressBar } from './progressbar';
 import * as time from '../utility/time';
 import { Creature } from '../creature';
 import { getUrl } from '../assetLoader';
-import Match from '../server/match';
+import Match from '../multiplayer/match';
 import {
 	isNativeFullscreenAPIUse,
 	disableFullscreenLayout,
