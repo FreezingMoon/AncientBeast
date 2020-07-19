@@ -590,6 +590,7 @@ export default class Game {
 		await this.match.matchMaker();
 	}
 	async loadLobby() {
+    $j('.lobby-match-list').html('');
 		if (this.matchInitialized) return;
 		let self = this;
 		this.match.matchUsers.forEach((v) => {

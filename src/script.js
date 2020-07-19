@@ -190,6 +190,11 @@ $j(document).ready(() => {
 		}
 		let auth = new Authenticate(reg, connect.client);
 		let session = await auth.register();
+		let sess = new SessionI(session);
+		sess.storeSession();
+		G.session = session;
+		G.client = connect.client;
+		G.multiplayer = true;
 		$j('.setupFrame,.welcome').show();
 		$j('.match-frame').show();
 		$j('.loginregFrame,#gameSetup').hide();
@@ -252,7 +257,10 @@ $j(document).ready(() => {
 		return false;
 	});
 });
-
+$j('.back').on('click',()=>{
+  $j('.lobby').hide();
+  $j('.setupFrame,.welcome').show();
+})
 /**
  * get Registration.
  * @return {Object} login form.
