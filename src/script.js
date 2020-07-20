@@ -224,10 +224,16 @@ $j(document).ready(() => {
 			$j('#login .error-req').hide();
 			$j('#login .error-req-message').hide();
 		}
-		auth = new Authenticate(login, connect.client);
-		session = await auth.authenticateEmail();
+    auth = new Authenticate(login, connect.client);
+    try{
+    session = await auth.authenticateEmail();
+    } catch(error){
+      $j('#login .login-error-req-message').show();
+      return;
+    }
+    console.log(session)
 		if (!session) {
-			$j('#login .login-error-req-message').show();
+			
 		}
 		let sess = new SessionI(session);
 		sess.storeSession();
