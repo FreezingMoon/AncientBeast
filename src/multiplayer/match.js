@@ -41,9 +41,6 @@ export default class MatchI {
             this.game.freezedInput = false;
 					  this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
 
-          }else{
-            this.game.UI.banner('Waiting for Players');
-
           }
 					
 				}
@@ -125,7 +122,8 @@ export default class MatchI {
 		let nm = await this.socket.send({ match_create: {} });
 		this.matchData = nm.match;
 		this.game.log(this.session.username + ' created match');
-		this.host = this.session.user_id;
+    this.host = this.session.user_id;
+    this.game.UI.banner('Waiting for Players');
 		return Promise.resolve(nm);
 	}
 	async matchMaker(d, gc) {
