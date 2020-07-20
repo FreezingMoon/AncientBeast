@@ -37,7 +37,7 @@ export default class MatchI {
 						op_code: '1',
 						data: { players: this.players, host: this.host, matchdata: this.matchData },
           });
-          if(this.gameConfig.playerMode===this.players.length){
+          if(this.game.configData.playerMode===this.players.length){
             this.game.freezedInput = false;
 					  this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
 
