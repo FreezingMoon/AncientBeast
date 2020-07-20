@@ -7,7 +7,6 @@ export default class MatchI {
 		this.socket = connect.socket;
 		this.session = session;
 		this.host = null;
-		//TODO total number of players;
 		this.matchTurn = 1;
 		this.userTurn = null;
 		this.matchData = {};
@@ -19,10 +18,12 @@ export default class MatchI {
 		connect.socket.onmatchmakermatched = (matched) => {
 			// console.info("Received MatchmakerMatched message: ", matched);
 			// console.info("Matched opponents: ", matched.users);
-			this.matchUsers = matched.users;
-			this.game.loadLobby();
+      this.matchUsers = matched.users;
+      console.log(matched.users);
+			this.game.updateLobby();
 		};
 		connect.socket.onmatchpresence = (md) => {
+      //only host sends data
 			if (this.host === this.session.user_id) {
 				let p = this.players.length;
 				p++;
@@ -35,10 +36,16 @@ export default class MatchI {
 						match_id: this.matchData.match_id,
 						op_code: '1',
 						data: { players: this.players, host: this.host, matchdata: this.matchData },
-					});
-					this.game.freezedInput = false;
-					console.log(this.players);
-					this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
+          });
+          if(this.gameConfig.playerMode===this.players.length){
+            this.game.freezedInput = false;
+					  this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
+
+          }else{
+            this.game.UI.banner('Waiting for Players');
+
+          }
+					
 				}
 				console.log('players', this.players);
 				this.players.forEach((v, i) => {
@@ -66,7 +73,10 @@ export default class MatchI {
 					break;
 				case 2:
 					game.skipTurn();
-					this.matchTurn = md.data.turn;
+          this.matchTurn = md.data.turn;
+          if(this.matchTurn==this.userTurn){
+            this.game.UI.active = true;
+          }
 					this.game.UI.banner(this.session.username + ' turn');
 
 					break;
@@ -125,7 +135,8 @@ export default class MatchI {
 			query: '*',
 			string_properties: {},
 			numeric_properties: {},
-		};
+    };
+    //only host
 		if (d && gc) {
 			obj.string_properties = {
 				match_id: d.match.match_id,
@@ -152,16 +163,6 @@ export default class MatchI {
 		nj = await this.socket.send({ match_join: { match_id: id } });
 		return Promise.resolve(nj);
 	}
-
-	turnChange() {
-		let t = this.matchTurn;
-		t++;
-		if (t > this.players.length) {
-			t = 1;
-		}
-		this.matchTurn = t;
-		console.log(this.matchTurn);
-	}
 	moveTo(o) {
 		if (this.matchTurn != this.userTurn) {
 			return;
@@ -182,11 +183,18 @@ export default class MatchI {
 		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
 		this.game.UI.active = true;
 	}
-
+  turnChange() {
+		let t = this.matchTurn;
+		t++;
+		if (t > this.players.length) {
+			t = 1;
+		}
+		this.matchTurn = t;
+		console.log(this.matchTurn);
+	}
 	skipTurn() {
 		//for non active player
 		if (this.matchTurn != this.userTurn) {
-			this.game.UI.active = true;
 			return;
 		}
 		//for active player

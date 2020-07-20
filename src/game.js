@@ -571,14 +571,15 @@ export default class Game {
 				await this.connect.serverConnect(this.session);
 				let match = new MatchI(this.connect, this, this.session);
 				this.match = match;
-
+        //only host
 				if (this.matchInitialized) {
 					let n = await this.match.matchCreate();
 
 					console.log('created match', n);
 					await match.matchMaker(n, this.configData);
 				}
-			}
+      }
+      //non host
 			if (this.matchid) {
 				let n = await this.match.matchJoin(this.matchid);
 				console.log('joined match', n);
@@ -589,12 +590,11 @@ export default class Game {
 		await this.matchInit();
 		await this.match.matchMaker();
 	}
-	async loadLobby() {
+	async updateLobby() {
     $j('.lobby-match-list').html('');
 		if (this.matchInitialized) return;
 		let self = this;
 		this.match.matchUsers.forEach((v) => {
-			console.log(v);
 			let gameConfig = {
 				background_image: v.string_properties.background_image,
 				abilityUpgrades: v.numeric_properties.abilityUpgrades,
@@ -619,11 +619,7 @@ export default class Game {
         Plasma Points: ${v.numeric_properties.plasma_amount}<br />
         Turn Time(seconds): ${turntimepool}<br />
         Turn Pools(minutes): ${timepool}<br />
-        Unit Drops: ${unitdrops}<br />
-        
-        </div>
-        
-        </a>
+        Unit Drops: ${unitdrops}<br /></div></a>
 
         
         `);
