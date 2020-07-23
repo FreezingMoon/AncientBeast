@@ -214,7 +214,7 @@ export class Ability {
 					args: args,
 				});
 				if (game.multiplayer) {
-					game.match.useAbility({
+					game.gameplay.useAbility({
 						target: {
 							type: 'hex',
 							x: arguments[0].x,
@@ -239,7 +239,7 @@ export class Ability {
 					args: args,
 				});
 				if (game.multiplayer) {
-					game.match.useAbility({
+					game.gameplay.useAbility({
 						target: {
 							type: 'creature',
 							crea: arguments[0].id,
@@ -266,7 +266,7 @@ export class Ability {
 					args: args,
 				});
 				if (game.multiplayer) {
-					game.match.useAbility({
+					game.gameplay.useAbility({
 						target: {
 							type: 'array',
 							array: array,

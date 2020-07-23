@@ -224,16 +224,15 @@ $j(document).ready(() => {
 			$j('#login .error-req').hide();
 			$j('#login .error-req-message').hide();
 		}
-    auth = new Authenticate(login, connect.client);
-    try{
-    session = await auth.authenticateEmail();
-    } catch(error){
-      $j('#login .login-error-req-message').show();
-      return;
-    }
-    console.log(session)
+		auth = new Authenticate(login, connect.client);
+		try {
+			session = await auth.authenticateEmail();
+		} catch (error) {
+			$j('#login .login-error-req-message').show();
+			return;
+		}
+		console.log(session);
 		if (!session) {
-			
 		}
 		let sess = new SessionI(session);
 		sess.storeSession();
@@ -263,10 +262,10 @@ $j(document).ready(() => {
 		return false;
 	});
 });
-$j('.back').on('click',()=>{
-  $j('.lobby').hide();
-  $j('.setupFrame,.welcome').show();
-})
+$j('.back').on('click', () => {
+	$j('.lobby').hide();
+	$j('.setupFrame,.welcome').show();
+});
 /**
  * get Registration.
  * @return {Object} login form.

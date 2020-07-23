@@ -15,6 +15,7 @@ import 'pixi';
 import 'p2';
 import Phaser from 'phaser';
 import MatchI from './multiplayer/match';
+import Gameplay from './multiplayer/gameplay';
 
 /* Game Class
  *
@@ -63,6 +64,7 @@ export default class Game {
 			id: 0,
 		};
 		this.matchid = null;
+		this.playersReady = false;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
 		this.queue = new CreatureQueue(this);
@@ -78,6 +80,7 @@ export default class Game {
 		this.gamelog = new GameLog(null, this);
 		this.configData = {};
 		this.match = {};
+		this.gameplay = {};
 		this.session = null;
 		this.client = null;
 		this.connect = null;
@@ -570,16 +573,20 @@ export default class Game {
 			if (Object.keys(this.match).length === 0) {
 				await this.connect.serverConnect(this.session);
 				let match = new MatchI(this.connect, this, this.session);
+				let gameplay = new Gameplay(this, match);
+				match.gameplay = gameplay;
+				this.gameplay = gameplay;
 				this.match = match;
-        //only host
+
+				//only host
 				if (this.matchInitialized) {
 					let n = await this.match.matchCreate();
 
 					console.log('created match', n);
 					await match.matchMaker(n, this.configData);
 				}
-      }
-      //non host
+			}
+			//non host
 			if (this.matchid) {
 				let n = await this.match.matchJoin(this.matchid);
 				console.log('joined match', n);
@@ -591,7 +598,7 @@ export default class Game {
 		await this.match.matchMaker();
 	}
 	async updateLobby() {
-    $j('.lobby-match-list').html('');
+		$j('.lobby-match-list').html('');
 		if (this.matchInitialized) return;
 		let self = this;
 		this.match.matchUsers.forEach((v) => {
@@ -719,6 +726,7 @@ export default class Game {
 
 				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
 				this.activeCreature.activate();
+				console.log(this.activeCreature);
 
 				// Show mini tutorial in the first round for each player
 				if (this.turn == 1) {
@@ -736,6 +744,11 @@ export default class Game {
 				// Updates UI to match new creature
 				this.UI.updateActivebox();
 				this.updateQueueDisplay();
+				if (this.multiplayer && this.playersReady) {
+					this.gameplay.updateTurn();
+				} else {
+					this.playersReady = true;
+				}
 			}, 50);
 		}, 300);
 	}
@@ -801,9 +814,6 @@ export default class Game {
 	 */
 	skipTurn(o) {
 		//send skip turn to server
-		if (this.multiplayer) {
-			this.match.skipTurn();
-		}
 
 		if (this.turnThrottle) {
 			return;
@@ -860,7 +870,7 @@ export default class Game {
 	delayCreature(o) {
 		//send skip turn to server
 		if (this.multiplayer) {
-			this.match.delay();
+			this.gameplay.delay();
 		}
 
 		if (this.turnThrottle) {

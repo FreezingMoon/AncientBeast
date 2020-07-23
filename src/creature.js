@@ -465,7 +465,7 @@ export class Creature {
 						},
 					});
 					if (game.multiplayer) {
-						game.match.moveTo({
+						game.gameplay.moveTo({
 							target: {
 								x: hex.x,
 								y: hex.y,

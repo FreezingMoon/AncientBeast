@@ -2,7 +2,7 @@ import _ from 'underscore';
 import * as $j from 'jquery';
 
 export default class MatchI {
-	constructor(connect, game, session) {
+	constructor(connect, game, session, gameplay) {
 		this.game = game;
 		this.socket = connect.socket;
 		this.session = session;
@@ -11,42 +11,38 @@ export default class MatchI {
 		this.userTurn = null;
 		this.matchData = {};
 		this.configData = {};
-		this.players = [];
+		this.users = [];
 		this.activePlayer = null;
 		this.client = connect.client;
 		this.matchUsers = [];
 		connect.socket.onmatchmakermatched = (matched) => {
 			// console.info("Received MatchmakerMatched message: ", matched);
 			// console.info("Matched opponents: ", matched.users);
-      this.matchUsers = matched.users;
-      console.log(matched.users);
+			this.matchUsers = matched.users;
+			console.log(matched.users);
 			this.game.updateLobby();
 		};
 		connect.socket.onmatchpresence = (md) => {
-      //only host sends data
+			//only host sends data
 			if (this.host === this.session.user_id) {
-				let p = this.players.length;
-				p++;
-				this.players.push({ id: md.joins[0].user_id, playername: md.joins[0].username, turn: p });
-				this.userTurn = 1;
+				let u = this.users.length;
+				this.users.push({ id: md.joins[0].user_id, playername: md.joins[0].username, turn: u });
 
 				//called after match join. Player 1 is host sends match config
-				if (this.players.length > 1 && md.joins[0].user_id != this.players[0].id) {
+				if (this.users.length > 1 && md.joins[0].user_id != this.users[0].id) {
 					this.sendMatchData({
 						match_id: this.matchData.match_id,
 						op_code: '1',
-						data: { players: this.players, host: this.host, matchdata: this.matchData },
-          });
-          if(this.game.configData.playerMode===this.players.length){
-            this.game.freezedInput = false;
-					  this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
-
-          }
-					
+						data: { users: this.users, host: this.host, matchdata: this.matchData },
+					});
+					if (this.game.configData.playerMode === this.users.length) {
+						this.game.freezedInput = false;
+						this.game.UI.banner(this.users[this.matchTurn - 1].playername + ' turn');
+					}
 				}
-				console.log('players', this.players);
-				this.players.forEach((v, i) => {
-					this.game.players[i].name = this.players[i].playername;
+				console.log('match users', this.users);
+				this.users.forEach((v, i) => {
+					this.game.players[i].name = this.users[i].playername;
 				});
 			}
 		};
@@ -58,22 +54,20 @@ export default class MatchI {
 			switch (op_code) {
 				//host shares config with players on join
 				case 1:
-					this.players = md.data.players;
-					this.host = md.data.players.host;
+					this.users = md.data.users;
+					this.host = md.data.users.host;
 					this.matchData = md.data.matchdata;
 					this.userTurn = this.getUserTurn();
-					console.log('players', this.players);
-					this.players.forEach((v, i) => {
-						this.game.players[i].name = this.players[i].playername;
+					console.log('match users', this.users);
+					this.users.forEach((v, i) => {
+						this.game.players[i].name = this.users[i].playername;
 					});
-					this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
+					this.game.UI.banner(this.users[this.matchTurn - 1].playername + ' turn');
 					break;
 				case 2:
 					game.skipTurn();
-          this.matchTurn = md.data.turn;
-          if(this.matchTurn==this.userTurn){
-            this.game.UI.active = true;
-          }
+					this.gameplay.matchTurn = md.data.turn;
+					this.game.UI.active = true;
 					this.game.UI.banner(this.session.username + ' turn');
 
 					break;
@@ -114,16 +108,16 @@ export default class MatchI {
 		};
 	}
 	getUserTurn() {
-		let p = _.findWhere(this.players, { id: this.session.user_id });
-		console.log(p);
+		let p = _.findWhere(this.users, { id: this.session.user_id });
 		return p.turn;
 	}
 	async matchCreate() {
 		let nm = await this.socket.send({ match_create: {} });
 		this.matchData = nm.match;
 		this.game.log(this.session.username + ' created match');
-    this.host = this.session.user_id;
-    this.game.UI.banner('Waiting for Players');
+		this.host = this.session.user_id;
+		this.userTurn = 0;
+		this.game.UI.banner('Waiting for Players');
 		return Promise.resolve(nm);
 	}
 	async matchMaker(d, gc) {
@@ -133,8 +127,8 @@ export default class MatchI {
 			query: '*',
 			string_properties: {},
 			numeric_properties: {},
-    };
-    //only host
+		};
+		//only host
 		if (d && gc) {
 			obj.string_properties = {
 				match_id: d.match.match_id,
@@ -160,59 +154,6 @@ export default class MatchI {
 		let nj;
 		nj = await this.socket.send({ match_join: { match_id: id } });
 		return Promise.resolve(nj);
-	}
-	moveTo(o) {
-		if (this.matchTurn != this.userTurn) {
-			return;
-		}
-		let data = o;
-		let id = this.matchData.match_id;
-		let opCode = '4';
-		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
-		this.game.UI.active = true;
-	}
-	useAbility(o) {
-		if (this.matchTurn != this.userTurn) {
-			return;
-		}
-		let data = o;
-		let id = this.matchData.match_id;
-		let opCode = '5';
-		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
-		this.game.UI.active = true;
-	}
-  turnChange() {
-		let t = this.matchTurn;
-		t++;
-		if (t > this.players.length) {
-			t = 1;
-		}
-		this.matchTurn = t;
-		console.log(this.matchTurn);
-	}
-	skipTurn() {
-		//for non active player
-		if (this.matchTurn != this.userTurn) {
-			return;
-		}
-		//for active player
-		this.turnChange();
-		let id = this.matchData.match_id;
-		let opCode = '2';
-		let data = { turn: this.matchTurn };
-		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
-		this.game.UI.active = false;
-		this.game.UI.banner(this.players[this.matchTurn - 1].playername + ' turn');
-	}
-
-	delay() {
-		if (this.matchTurn != this.userTurn) {
-			return;
-		}
-		let id = this.matchData.match_id;
-		let opCode = '3';
-		let data = { turn: this.matchTurn };
-		this.sendMatchData({ match_id: id, op_code: opCode, data: data });
 	}
 
 	async sendMatchData(obj) {
