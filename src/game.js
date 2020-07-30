@@ -912,7 +912,15 @@ export default class Game {
 			i;
 
 		for (i = totalCreatures - 1; i >= 0; i--) {
-			if (this.creatureData[i].type == type) {
+			//if the object in current iteration does not have type property, checks instead for realm + level concat;
+			if (
+				this.creatureData[i].type == type ||
+				this.creatureData[i].realm + this.creatureData[i].level == type
+			) {
+				if (!this.creatureData[i].type) {
+					//if type == realm + level, assign type property with value as realm + level then return creature obj;
+					this.creatureData[i].type = this.creatureData[i].realm + this.creatureData[i].level;
+				}
 				return this.creatureData[i];
 			}
 		}
