@@ -384,6 +384,7 @@ export default class Game {
 		this.Phaser.scale.pageAlignHorizontally = true;
 		this.Phaser.scale.pageAlignVertically = true;
 		this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+		this.Phaser.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
 		this.Phaser.scale.refresh();
 		this.Phaser.stage.disableVisibilityChange = true;
 
