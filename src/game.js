@@ -303,7 +303,7 @@ export default class Game {
 
 	startLoading() {
 		$j('#gameSetupContainer').hide();
-		$j('#loader').show();
+		$j('#loader').removeClass('hide');
 		$j('body').css('cursor', 'wait');
 	}
 
@@ -316,6 +316,7 @@ export default class Game {
 		if (progress == 100) {
 			setTimeout(() => {
 				this.gameState = 'loaded';
+				$j('#combatwrapper').show();
 
 				$j('body').css('cursor', 'default');
 
@@ -364,7 +365,7 @@ export default class Game {
 			return;
 		}
 
-		$j('#loader').hide();
+		$j('#loader').addClass('hide');
 		$j('body').css('cursor', 'default');
 		this.setup(this.playerMode);
 	}
@@ -503,14 +504,18 @@ export default class Game {
 		this.resizeCombatFrame(); // Resize while the game is starting
 		this.UI.resizeDash();
 
-		// Handle resize events
-		$j(window).resize(() => {
-			// Throttle down to 1 event every 100ms of inactivity
+		var resizeGame = function () {
 			clearTimeout(this.windowResizeTimeout);
 			this.windowResizeTimeout = setTimeout(() => {
 				this.resizeCombatFrame();
 				this.UI.resizeDash();
 			}, 100);
+		}.bind(this);
+
+		// Handle resize events
+		$j(window).resize(() => {
+			// Throttle down to 1 event every 100ms of inactivity
+			resizeGame();
 		});
 
 		this.soundsys.playMusic();

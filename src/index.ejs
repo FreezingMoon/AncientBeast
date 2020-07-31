@@ -34,10 +34,15 @@
 <body oncontextmenu="return false;" id="AncientBeast">
 	<div class="scrim loading"></div>
 	<div id="matchMaking">
-		<div id="loader"><img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32" loading="lazy">Loading
-			<div id="barLoader">
-				<span class="progress"></span>
-			</div>
+		<div id="loader" class="hide">
+            <div>
+                <div>
+                    <img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32" loading="lazy">Loading
+                </div>
+    			<div id="barLoader">
+    				<span class="progress"></span>
+    			</div>
+            </div>
 		</div>
 		<div id="gameSetupContainer">
 			<div id="gameTitle">
@@ -201,7 +206,6 @@
 					<input class="startButton" id="startButton" type="submit" value="START">
 					<span class="blink"> BUTTON</span>
 				</div>
-
 				<div id="start"><button type="submit"></button><span>Start</span></div>
 			</form>
 
