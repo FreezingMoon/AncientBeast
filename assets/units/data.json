@@ -922,8 +922,8 @@
 		"ability_info": [
 			{
 				"title": "Fearsome Look",
-				"desc": "Makes nearby attackers strongly believe that they get damaged back in the process.",
-				"info": "10 mental damage retaliation per melee hit.",
+				"desc": "Makes nearby attackers believe that they get damaged back in the process.",
+				"info": "10 mental damage per each melee hit.",
 				"upgrade": "Does 5 pierce damage as well."
 			},
 			{
@@ -941,13 +941,13 @@
 			},
 			{
 				"title": "Subliminal Shout",
-				"desc": "Shock waves that affect a large area but do less damage the further away.",
-				"info": "10 sonic damage over 15 hexagons"
+				"desc": "Shock waves that affect a large area, doing less damage the further away.",
+				"info": "10 sonic damage over 15 hexagons."
 			},
 			{
 				"title": "Psychic Blast",
 				"desc": "Focuses the power of mind in order to attack foes up to 4 hexagons distance.",
-				"info": "18 mental damage over 7 hexagons"
+				"info": "18 mental damage over 7 hexagons."
 			}
 		]
 	},
