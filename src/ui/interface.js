@@ -76,6 +76,7 @@ export class UI {
 
 					this.toggleDash();
 				},
+				overridefreeze: true,
 			},
 			game,
 		);
@@ -103,6 +104,7 @@ export class UI {
 						this.showMusicPlayer();
 					}
 				},
+				overridefreeze: true,
 			},
 			game,
 		);

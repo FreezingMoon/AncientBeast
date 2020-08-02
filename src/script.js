@@ -231,9 +231,7 @@ $j(document).ready(() => {
 			$j('#login .login-error-req-message').show();
 			return;
 		}
-		console.log(session);
-		if (!session) {
-		}
+
 		let sess = new SessionI(session);
 		sess.storeSession();
 		G.session = session;

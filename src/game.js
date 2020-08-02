@@ -277,7 +277,7 @@ export default class Game {
 			this.configData = setupOpt;
 			$j.extend(this, setupOpt);
 		}
-		console.log(this);
+		// console.log(this);
 		this.startLoading();
 
 		// Sounds
@@ -726,7 +726,7 @@ export default class Game {
 
 				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
 				this.activeCreature.activate();
-				console.log(this.activeCreature);
+				// console.log(this.activeCreature);
 
 				// Show mini tutorial in the first round for each player
 				if (this.turn == 1) {

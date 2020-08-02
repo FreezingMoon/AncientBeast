@@ -23,6 +23,7 @@ export class Button {
 			state: 'normal', // disabled, normal, glowing, selected, active
 			$button: undefined,
 			attributes: {},
+			overridefreeze: false,
 			css: {
 				disabled: {},
 				glowing: {},
@@ -52,8 +53,10 @@ export class Button {
 
 		if (state != 'disabled') {
 			this.$button.bind('click', () => {
-				if (game.freezedInput || !this.clickable) {
-					return;
+				if (!this.overridefreeze) {
+					if (game.freezedInput || !this.clickable) {
+						return;
+					}
 				}
 
 				this.click();
@@ -61,8 +64,10 @@ export class Button {
 		}
 
 		this.$button.bind('mouseover', () => {
-			if (game.freezedInput || !this.clickable) {
-				return;
+			if (!this.overridefreeze) {
+				if (game.freezedInput || !this.clickable) {
+					return;
+				}
 			}
 
 			if (this.hasShortcut) {
@@ -73,10 +78,11 @@ export class Button {
 		});
 
 		this.$button.bind('mouseleave', () => {
-			if (game.freezedInput || !this.clickable) {
-				return;
+			if (!this.overridefreeze) {
+				if (game.freezedInput || !this.clickable) {
+					return;
+				}
 			}
-
 			if (this.hasShortcut) {
 				this.$button.removeClass('hover');
 			}
@@ -87,9 +93,10 @@ export class Button {
 		this.$button.bind('touchstart', (event) => {
 			event.preventDefault();
 			event.stopPropagation();
-
-			if (game.freezedInput || !this.clickable) {
-				return;
+			if (!this.overridefreeze) {
+				if (game.freezedInput || !this.clickable) {
+					return;
+				}
 			}
 
 			if (this.hasShortcut) {
@@ -103,9 +110,10 @@ export class Button {
 		this.$button.bind('touchend', (event) => {
 			event.preventDefault();
 			event.stopPropagation();
-
-			if (game.freezedInput || !this.clickable) {
-				return;
+			if (!this.overridefreeze) {
+				if (game.freezedInput || !this.clickable) {
+					return;
+				}
 			}
 
 			if (this.hasShortcut) {
@@ -127,24 +135,30 @@ export class Button {
 	}
 
 	triggerClick() {
-		if (this.game.freezedInput || !this.clickable || this.state === 'disabled') {
-			return;
+		if (!this.overridefreeze) {
+			if (this.game.freezedInput || !this.clickable || this.state === 'disabled') {
+				return;
+			}
 		}
 
 		this.click();
 	}
 
 	triggerMouseover() {
-		if (this.game.freezedInput || !this.clickable) {
-			return;
+		if (!this.overridefreeze) {
+			if (this.game.freezedInput || !this.clickable) {
+				return;
+			}
 		}
 
 		this.mouseover();
 	}
 
 	triggerMouseleave() {
-		if (this.game.freezedInput || !this.clickable) {
-			return;
+		if (!this.overridefreeze) {
+			if (this.game.freezedInput || !this.clickable) {
+				return;
+			}
 		}
 
 		this.mouseleave();

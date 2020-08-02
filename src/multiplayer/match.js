@@ -12,7 +12,7 @@ export default class MatchI {
 		this.matchData = {};
 		this.configData = {};
 		this.users = [];
-		this.activePlayer = null;
+		this.activePlayer = 0;
 		this.client = connect.client;
 		this.matchUsers = [];
 		connect.socket.onmatchmakermatched = (matched) => {
@@ -20,10 +20,22 @@ export default class MatchI {
 			// console.info("Matched opponents: ", matched.users);
 			this.matchUsers = matched.users;
 			console.log(matched.users);
+			if (this.host != this.session.user_id) {
+				this.storeMatches();
+			}
 			this.game.updateLobby();
+		};
+		connect.socket.ondisconnect = (event) => {
+			console.info('Disconnected from the server. Event:', event);
 		};
 		connect.socket.onmatchpresence = (md) => {
 			//only host sends data
+			if (md.leaves) {
+				this.game.UI.banner(md.leaves.username + ' left match');
+				location.reload();
+				return;
+			}
+
 			if (this.host === this.session.user_id) {
 				let u = this.users.length;
 				this.users.push({ id: md.joins[0].user_id, playername: md.joins[0].username, turn: u });
@@ -35,12 +47,13 @@ export default class MatchI {
 						op_code: '1',
 						data: { users: this.users, host: this.host, matchdata: this.matchData },
 					});
+
 					if (this.game.configData.playerMode === this.users.length) {
 						this.game.freezedInput = false;
-						this.game.UI.banner(this.users[this.matchTurn - 1].playername + ' turn');
+						this.game.UI.banner(this.users[this.activePlayer].playername + ' turn');
 					}
 				}
-				console.log('match users', this.users);
+				// console.log('match users', this.users);
 				this.users.forEach((v, i) => {
 					this.game.players[i].name = this.users[i].playername;
 				});
@@ -62,13 +75,12 @@ export default class MatchI {
 					this.users.forEach((v, i) => {
 						this.game.players[i].name = this.users[i].playername;
 					});
-					this.game.UI.banner(this.users[this.matchTurn - 1].playername + ' turn');
+					this.game.UI.banner(this.users[this.activePlayer].playername + ' turn');
+					game.freezedInput = true;
 					break;
 				case 2:
 					game.skipTurn();
-					this.gameplay.matchTurn = md.data.turn;
-					this.game.UI.active = true;
-					this.game.UI.banner(this.session.username + ' turn');
+					this.game.UI.banner(this.users[md.data.activePlayer].playername + ' turn');
 
 					break;
 				case 3:
@@ -120,7 +132,40 @@ export default class MatchI {
 		this.game.UI.banner('Waiting for Players');
 		return Promise.resolve(nm);
 	}
+	async readMatches() {
+		if (typeof Storage !== 'undefined') {
+			let obj = await localStorage.getItem('matches');
+			if (obj) {
+				obj = JSON.parse(obj);
+				return obj;
+			}
+			return this.matchUsers;
+		}
+	}
+	async storeMatches() {
+		if (typeof Storage !== 'undefined') {
+			let obj = JSON.stringify(this.matchUsers);
+			localStorage.setItem('matches', obj);
+			console.log('matches stored.');
+		}
+	}
 	async matchMaker(d, gc) {
+		let matchList = await this.client.listMatches(this.session);
+		let matchUsers = await this.readMatches();
+		matchUsers = _.filter(matchUsers, function (obj) {
+			let c = _.findWhere(matchList.matches, { match_id: obj.string_properties.match_id });
+			if (c) return true;
+		});
+
+		if (matchUsers.length > 0) {
+			this.matchUsers = matchUsers;
+			this.game.updateLobby();
+			return;
+		}
+		if (typeof Storage !== 'undefined') {
+			localStorage.removeItem('matches');
+		}
+		let ticket;
 		let obj = {
 			min_count: 2,
 			max_count: 20,
@@ -146,18 +191,36 @@ export default class MatchI {
 		}
 
 		const message = { matchmaker_add: obj };
-		var ticket = await this.socket.send(message);
-		console.log('ticket created', ticket);
+		try {
+			ticket = await this.socket.send(message);
+		} catch (e) {
+			console.log('unable to join matchmaker', e);
+			return;
+		}
+
 		return ticket;
 	}
 	async matchJoin(id) {
 		let nj;
-		nj = await this.socket.send({ match_join: { match_id: id } });
+		try {
+			nj = await this.socket.send({ match_join: { match_id: id } });
+		} catch (e) {
+			console.log('match no longer exists', e);
+
+			return;
+		}
 		return Promise.resolve(nj);
 	}
 
 	async sendMatchData(obj) {
-		let data = await this.socket.send({ match_data_send: obj });
+		console.log('send match data', obj);
+		let data;
+		try {
+			data = await this.socket.send({ match_data_send: obj });
+		} catch (e) {
+			console.log('error sending data', e);
+			this.sendMatchData(obj);
+		}
 		return Promise.resolve(data);
 	}
 }

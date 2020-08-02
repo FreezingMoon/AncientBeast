@@ -4,11 +4,9 @@ export default class Gameplay {
 	constructor(game, match) {
 		this.game = game;
 		this.match = match;
-		this.matchTurn = 1;
 		this.matchData = {};
 		this.configData = {};
 		this.players = game.players;
-		this.activePlayer = null;
 		this.matchUsers = [];
 	}
 
@@ -32,30 +30,26 @@ export default class Gameplay {
 		this.match.sendMatchData({ match_id: id, op_code: opCode, data: data });
 		this.game.UI.active = true;
 	}
-	turnChange() {
-		let t = this.matchTurn;
-		t++;
-		if (t >= this.match.users.length) {
-			t = 0;
-		}
-		this.matchTurn = t;
-		console.log('match turn', this.matchTurn);
-	}
-	updateTurn() {
-		this.matchTurn = this.game.activeCreature.player.id;
-		//for non active player
-
-		if (this.game.activeCreature.player.id === this.match.userTurn) {
+	activatePlayer() {
+		this.match.activePlayer = this.game.activeCreature.player.id;
+		if (this.match.userTurn == this.match.activePlayer) {
+			this.game.freezedInput = false;
 			return;
 		}
-		//for active player
-		this.game.UI.banner(this.match.users[this.matchTurn].playername + ' turn');
-		this.turnChange();
-		let id = this.match.matchData.match_id;
-		let opCode = '2';
-		let data = { turn: this.matchTurn };
-		this.match.sendMatchData({ match_id: id, op_code: opCode, data: data });
-		this.game.UI.active = false;
+		this.game.freezedInput = true;
+	}
+
+	updateTurn() {
+		if (this.match.userTurn == this.match.activePlayer) {
+			this.game.UI.banner(
+				this.match.users[this.game.activeCreature.player.id].playername + ' turn',
+			);
+			let id = this.match.matchData.match_id;
+			let opCode = '2';
+			let data = { activePlayer: this.game.activeCreature.player.id };
+			this.match.sendMatchData({ match_id: id, op_code: opCode, data: data });
+		}
+		this.activatePlayer();
 	}
 
 	delay() {

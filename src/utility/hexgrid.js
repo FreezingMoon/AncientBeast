@@ -633,7 +633,6 @@ export class HexGrid {
 				let clickedtHex = hex;
 
 				game.activeCreature.faceHex(clickedtHex, undefined, true, true);
-				console.log(this.game);
 				if (clickedtHex != this.lastClickedHex) {
 					this.lastClickedHex = clickedtHex;
 					// ONCLICK
