@@ -109,7 +109,6 @@ export class Creature {
 			moveable: true,
 			fatigueImmunity: false,
 			frozen: false,
-			dizzy: false,
 			// Extra energy required for abilities
 			reqEnergy: 0,
 		};
@@ -119,6 +118,7 @@ export class Creature {
 		this.endurance = obj.stats.endurance;
 		this.energy = obj.stats.energy;
 		this.remainingMove = 0; //Default value recovered each turn
+		this.dizzy = false;
 
 		// Abilities
 		this.abilities = [
@@ -322,7 +322,7 @@ export class Creature {
 		}.bind(this);
 
 		// Frozen or dizzy effect
-		if (stats.frozen || stats.dizzy) {
+		if (stats.frozen || this.dizzy) {
 			varReset();
 			let interval = setInterval(() => {
 				if (!game.turnThrottle) {
@@ -369,7 +369,7 @@ export class Creature {
 		this.delayed = Boolean(wait);
 		this.hasWait = this.delayed;
 		this.stats.frozen = false;
-		this.stats.dizzy = false;
+		this.dizzy = false;
 
 		// Effects triggers
 		if (!wait) {

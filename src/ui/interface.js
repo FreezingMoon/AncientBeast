@@ -2454,7 +2454,7 @@ export class UI {
 					textElement.css({
 						background: 'darkturquoise',
 					});
-				} else if (creature.stats.dizzy) {
+				} else if (creature.dizzy) {
 					text = 'Dizzy';
 					textElement.css({
 						background: 'saddlebrown',
