@@ -2136,7 +2136,7 @@
 			"initiative": 10,
 			"offense": 10,
 			"defense": 16,
-			"movement": 2,
+			"movement": 3,
 			"pierce": 10,
 			"slash": 10,
 			"crush": 10,
@@ -2171,9 +2171,9 @@
 			},
 			{
 				"title": "Seismic Stomp",
-				"desc": "Deals damage to a single nearby foe.",
+				"desc": "Deals damage to an inline or diagonal target that's distant up to 3 hexagons.",
 				"info": "20 crush + 10 sonic damage on strike.",
-				"upgrade": "Attack targets within 2 hex.",
+				"upgrade": "Attack can now bypass stuff.",
 				"damages": {
 					"crush": 20,
 					"sonic": 10
@@ -2184,7 +2184,7 @@
 			},
 			{
 				"title": "Earth Shaker",
-				"desc": "Smashes both fists into the ground, delaying all units over an area ahead.",
+				"desc": "Smashes front limbs into the ground, delaying all units over the area ahead.",
 				"info": "Delays units over all 8 hexagons area.",
 				"upgrade": "Delayed units will skip turn.",
 				"costs": {
@@ -2194,7 +2194,7 @@
 			{
 				"title": "Stone Grinder",
 				"desc": "Jumps on top of 2 hexagons occupied by enemies, then returns if not killing.",
-				"info": "30 crush damage, 5 hexes inline range.",
+				"info": "30 crush damage, 3 hexes inline range.",
 				"upgrade": "Extra bounce if one unit dies.",
 				"damages": {
 					"crush": 30
