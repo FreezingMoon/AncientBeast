@@ -93,20 +93,63 @@ export default (G) => {
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function () {},
+			// The area of the skill
+			map: [
+				[0, 0, 1, 0],
+				[0, 0, 1, 1],
+				[0, 1, 1, 0], // Origin line
+				[0, 0, 1, 1],
+				[0, 0, 1, 0],
+			],
+
+			require: function () {
+				return this.testRequirements();
+			},
 
 			// query() :
-			query: function () {},
+			query: function () {
+				let ability = this;
+				let stomper = this.creature;
+
+				this.map.origin = [0, 2];
+
+				G.grid.queryChoice({
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
+					},
+					team: Team.both,
+					requireCreature: 0,
+					id: stomper.id,
+					flipped: stomper.flipped,
+					choices: [stomper.getHexMap(this.map), stomper.getHexMap(this.map, true)],
+				});
+			},
 
 			// activate() :
-			activate: function (hexes) {},
+			activate: function (hexes) {
+				let ability = this;
+				ability.end(); // Deferred ending
+
+				// Delay all creatures in area
+				// If the ability is upgraded, skip the turn
+				let targets = ability.getTargets(hexes);
+				for (let i = 0; i < targets.length; i++) {
+					if (ability.isUpgraded()) {
+						targets[i].target.stats.frozen = true;
+					} else {
+						targets[i].target.delay(false);
+					}
+				}
+			},
 		},
+
 		// Fourth Ability: Stone Grinder
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			// require() :
+
 			require: function () {},
 
 			// query() :
