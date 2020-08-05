@@ -299,8 +299,10 @@ export default (G) => {
 						if (nextHex.creature === _target && args.direction === 4) {
 							let nextHexes = G.grid.getHexLine(_target.x, _target.y, args.direction, false);
 							nextHexes = nextHexes.splice(_target.size);
-							if (nextHexes.length > 0) {
+							if (nextHexes.length > 0 && nextHexes[0].creature !== _target) {
 								nextHex = nextHexes[0];
+							} else {
+								nextHex = null;
 							}
 						}
 						if (nextHex !== null && nextHex !== hex && nextHex.creature) {

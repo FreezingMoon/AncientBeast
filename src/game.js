@@ -384,6 +384,7 @@ export default class Game {
 		this.Phaser.scale.pageAlignHorizontally = true;
 		this.Phaser.scale.pageAlignVertically = true;
 		this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+		this.Phaser.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
 		this.Phaser.scale.refresh();
 		this.Phaser.stage.disableVisibilityChange = true;
 
@@ -912,7 +913,14 @@ export default class Game {
 			i;
 
 		for (i = totalCreatures - 1; i >= 0; i--) {
-			if (this.creatureData[i].type == type) {
+			if (
+				this.creatureData[i].type == type ||
+				this.creatureData[i].realm + this.creatureData[i].level == type
+			) {
+				if (!this.creatureData[i].type) {
+					// When type property is missing, create it using formula: concat(realm + level)
+					this.creatureData[i].type = this.creatureData[i].realm + this.creatureData[i].level;
+				}
 				return this.creatureData[i];
 			}
 		}
