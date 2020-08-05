@@ -109,6 +109,7 @@ export class Creature {
 			moveable: true,
 			fatigueImmunity: false,
 			frozen: false,
+			dizzy: false,
 			// Extra energy required for abilities
 			reqEnergy: 0,
 		};
@@ -320,14 +321,14 @@ export class Creature {
 			});
 		}.bind(this);
 
-		// Frozen effect
-		if (stats.frozen) {
+		// Frozen or dizzy effect
+		if (stats.frozen || stats.dizzy) {
 			varReset();
 			let interval = setInterval(() => {
 				if (!game.turnThrottle) {
 					clearInterval(interval);
 					game.skipTurn({
-						tooltip: 'Frozen',
+						tooltip: stats.frozen ? 'frozen' : 'dizzy',
 					});
 				}
 			}, 50);
@@ -368,6 +369,7 @@ export class Creature {
 		this.delayed = Boolean(wait);
 		this.hasWait = this.delayed;
 		this.stats.frozen = false;
+		this.stats.dizzy = false;
 
 		// Effects triggers
 		if (!wait) {
