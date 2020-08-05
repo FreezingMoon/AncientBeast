@@ -131,13 +131,38 @@ export default (G) => {
 				ability.end(); // Deferred ending
 
 				// Delay all creatures in area
-				// If the ability is upgraded, skip the turn
 				let targets = ability.getTargets(hexes);
 				for (let i = 0; i < targets.length; i++) {
-					if (ability.isUpgraded()) {
-						targets[i].target.stats.frozen = true;
+					let target = targets[i].target;
+
+					// If the ability is upgraded and the creature is already delayed, skip the turn
+					if (
+						ability.isUpgraded() &&
+						(target.delayed || target.findEffect('Earth Shaker').length > 0)
+					) {
+						target.stats.frozen = true;
+						target.removeEffect('Earth Shaker');
 					} else {
-						targets[i].target.delay(false);
+						target.delay(false);
+						target.addEffect(
+							new Effect(
+								'Earth Shaker', // Name
+								this.creature, // Caster
+								target, // Target
+								'onStartPhase', // Trigger
+								{
+									// disable the ability to delay this unit as it has already been delayed
+									effectFn: () => {
+										target.delayed = true;
+										target.delayable = false;
+									},
+									deleteTrigger: 'onEndPhase',
+									turnLifetime: 1,
+									stackable: false,
+								},
+								G,
+							),
+						);
 					}
 				}
 			},

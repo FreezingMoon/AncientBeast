@@ -2122,7 +2122,7 @@
 	{
 		"id": 28,
 		"name": "Stomper",
-		"playable": false,
+		"playable": true,
 		"level": 3,
 		"realm": "E",
 		"size": 2,
