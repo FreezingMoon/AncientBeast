@@ -11,7 +11,7 @@
 			"regrowth": 1,
 			"endurance": 60,
 			"energy": 100,
-			"meditation": 20,
+			"meditation": 25,
 			"initiative": 50,
 			"offense": 3,
 			"defense": 3,
@@ -448,8 +448,8 @@
 			"health": 190,
 			"regrowth": 13,
 			"endurance": 37,
-			"energy": 85,
-			"meditation": 13,
+			"energy": 131,
+			"meditation": 31,
 			"initiative": 60,
 			"offense": 13,
 			"defense": 7,
@@ -503,7 +503,7 @@
 					"poison": 10
 				},
 				"costs": {
-					"energy": 15
+					"energy": 25
 				}
 			},
 			{
@@ -520,7 +520,7 @@
 					"poison": 25
 				},
 				"costs": {
-					"energy": 20
+					"energy": 30
 				}
 			},
 			{
@@ -801,8 +801,8 @@
 			"health": 175,
 			"regrowth": 2,
 			"endurance": 70,
-			"energy": 69,
-			"meditation": 33,
+			"energy": 93,
+			"meditation": 39,
 			"initiative": 40,
 			"offense": 10,
 			"defense": 10,
@@ -857,7 +857,7 @@
 					"pierce": 6
 				},
 				"costs": {
-					"energy": 14
+					"energy": 13
 				}
 			},
 			{
@@ -2373,7 +2373,7 @@
 			"regrowth": 5,
 			"endurance": 75,
 			"energy": 60,
-			"meditation": 20,
+			"meditation": 25,
 			"initiative": 60,
 			"offense": 7,
 			"defense": 9,
@@ -3340,7 +3340,7 @@
 			"health": 80,
 			"regrowth": 2,
 			"endurance": 30,
-			"energy": 75,
+			"energy": 106,
 			"meditation": 30,
 			"initiative": 70,
 			"offense": 1,
@@ -3415,7 +3415,7 @@
 					"poison": 8
 				},
 				"costs": {
-					"energy": 30
+					"energy": 46
 				}
 			}
 		]
@@ -3431,9 +3431,9 @@
 		"stats": {
 			"health": 182,
 			"regrowth": 12,
-			"endurance": 40,
-			"energy": 80,
-			"meditation": 40,
+			"endurance": 38,
+			"energy": 96,
+			"meditation": 48,
 			"initiative": 40,
 			"offense": 7,
 			"defense": 5,
@@ -3479,7 +3479,7 @@
 					"crush": 16
 				},
 				"costs": {
-					"energy": 16
+					"energy": 32
 				}
 			},
 			{
@@ -3491,7 +3491,7 @@
 					"sonic": 21
 				},
 				"costs": {
-					"energy": 21
+					"energy": 31
 				}
 			},
 			{
@@ -3503,7 +3503,7 @@
 					"crush": 15
 				},
 				"costs": {
-					"energy": 30
+					"energy": 33
 				}
 			}
 		]
