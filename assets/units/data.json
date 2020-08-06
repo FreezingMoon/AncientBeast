@@ -2131,8 +2131,8 @@
 			"health": 135,
 			"regrowth": 5,
 			"endurance": 100,
-			"energy": 70,
-			"meditation": 7,
+			"energy": 96,
+			"meditation": 32,
 			"initiative": 10,
 			"offense": 10,
 			"defense": 16,
@@ -2172,14 +2172,26 @@
 			{
 				"title": "Seismic Stomp",
 				"desc": "Deals damage to an inline or diagonal target that's distant up to 3 hexagons.",
-				"info": "20 crush + 10 sonic damage on strike.",
+				"info": "14 crush + 14 sonic damage on strike.",
 				"upgrade": "Attack can now bypass stuff.",
 				"damages": {
-					"crush": 20,
-					"sonic": 10
+					"crush": 14,
+					"sonic": 14
 				},
 				"costs": {
-					"energy": 20
+					"energy": 31
+				}
+			},
+			{
+				"title": "Stone Grinder",
+				"desc": "Stampedes over a row of units until space is found or is brutally created.",
+				"info": "10 crush damage to every hexagon.",
+				"upgrade": "Only stops at destination.",
+				"damages": {
+					"crush": 10
+				},
+				"costs": {
+					"energy": 32
 				}
 			},
 			{
@@ -2188,19 +2200,7 @@
 				"info": "Delays units over all 8 hexagons area.",
 				"upgrade": "Delayed units will skip turn.",
 				"costs": {
-					"energy": 20
-				}
-			},
-			{
-				"title": "Stone Grinder",
-				"desc": "Jumps on top of 2 hexagons occupied by enemies, then returns if not killing.",
-				"info": "30 crush damage, 3 hexes inline range.",
-				"upgrade": "Extra bounce if one unit dies.",
-				"damages": {
-					"crush": 30
-				},
-				"costs": {
-					"energy": 30
+					"energy": 33
 				}
 			}
 		]
