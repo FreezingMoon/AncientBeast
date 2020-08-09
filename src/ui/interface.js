@@ -1908,16 +1908,15 @@ export class UI {
 	 */
 	updateInfos() {
 		let game = this.game;
-
 		$j('#playerbutton, #playerinfo')
 			.removeClass('p0 p1 p2 p3')
-			.addClass('p' + game.activeCreature.player.id);
-		$j('#playerinfo .name').text(game.activeCreature.player.name);
-		$j('#playerinfo .points span').text(game.activeCreature.player.getScore().total);
-		$j('#playerinfo .plasma span').text(game.activeCreature.player.plasma);
+			.addClass('p' + game.players[game.match.userTurn].id);
+		$j('#playerinfo .name').text(game.players[game.match.userTurn].name);
+		$j('#playerinfo .points span').text(game.players[game.match.userTurn].getScore().total);
+		$j('#playerinfo .plasma span').text(game.players[game.match.userTurn].plasma);
 		// TODO: Needs to update instantly!
 		$j('#playerinfo .units span').text(
-			game.activeCreature.player.getNbrOfCreatures() + ' / ' + game.creaLimitNbr,
+			game.players[game.match.userTurn].getNbrOfCreatures() + ' / ' + game.creaLimitNbr,
 		);
 	}
 

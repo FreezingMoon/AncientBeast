@@ -16,7 +16,6 @@ export default class MatchI {
 		this.client = connect.client;
 		this.matchUsers = [];
 		connect.socket.onmatchmakermatched = (matched) => {
-			// console.info("Received MatchmakerMatched message: ", matched);
 			// console.info("Matched opponents: ", matched.users);
 			this.matchUsers = matched.users;
 			console.log(matched.users);
@@ -29,13 +28,12 @@ export default class MatchI {
 			console.info('Disconnected from the server. Event:', event);
 		};
 		connect.socket.onmatchpresence = (md) => {
-			//only host sends data
 			if (md.leaves) {
 				this.game.UI.banner(md.leaves.username + ' left match');
 				location.reload();
 				return;
 			}
-
+			//only host sends data
 			if (this.host === this.session.user_id) {
 				let u = this.users.length;
 				this.users.push({ id: md.joins[0].user_id, playername: md.joins[0].username, turn: u });
@@ -72,9 +70,6 @@ export default class MatchI {
 					this.matchData = md.data.matchdata;
 					this.userTurn = this.getUserTurn();
 					console.log('match users', this.users);
-					this.users.forEach((v, i) => {
-						this.game.players[i].name = this.users[i].playername;
-					});
 					this.game.UI.banner(this.users[this.activePlayer].playername + ' turn');
 					game.freezedInput = true;
 					break;
@@ -88,7 +83,6 @@ export default class MatchI {
 					break;
 				case 4:
 					game.activeCreature.moveTo(game.grid.hexes[md.data.target.y][md.data.target.x]);
-
 					break;
 				case 5:
 					let args = $j.makeArray(md.data.args[1]);
@@ -206,7 +200,6 @@ export default class MatchI {
 			nj = await this.socket.send({ match_join: { match_id: id } });
 		} catch (e) {
 			console.log('match no longer exists', e);
-
 			return;
 		}
 		return Promise.resolve(nj);
