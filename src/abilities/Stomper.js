@@ -78,14 +78,88 @@ export default (G) => {
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
+			_targetTeam: Team.enemy,
+
+			_upgradedMap: [
+				[0, 1, 0, 0, 0, 1, 0, 0],
+				[0, 0, 1, 0, 0, 1, 0, 0],
+				[0, 0, 1, 0, 1, 0, 0, 0],
+				[1, 1, 1, 0, 0, 1, 1, 1], // Origin line
+				[0, 0, 1, 0, 1, 0, 0, 0],
+				[0, 0, 1, 0, 0, 1, 0, 0],
+				[0, 1, 0, 0, 0, 1, 0, 0],
+			],
+
 			// require() :
-			require: function () {},
+			require: function () {
+				let req = {
+					team: this._targetTeam,
+					sourceCreature: this.creature,
+					distance: 3,
+				};
+
+				if (!this.testRequirements() || !this.testDirection(req)) {
+					return false;
+				}
+
+				return true;
+			},
 
 			// query() :
-			query: function () {},
+			query: function () {
+				let stomper = this.creature;
+				let ability = this;
+
+				// Take the closest ennemy in each direction within 3hex
+				if (!this.isUpgraded()) {
+					G.grid.queryDirection({
+						fnOnConfirm: function () {
+							ability.animation(...arguments);
+						},
+						flipped: stomper.flipped,
+						team: this._targetTeam,
+						id: stomper.id,
+						requireCreature: true,
+						x: stomper.x,
+						y: stomper.y,
+						distance: 3,
+						sourceCreature: stomper,
+					});
+				} // Once upgraded, can hit any ennemy within 3hex in any direction
+				else {
+					this._upgradedMap.origin = [3, 3];
+					G.grid.queryCreature({
+						fnOnConfirm: function () {
+							ability.animation(...arguments);
+						},
+						team: this._targetTeam,
+						id: stomper.id,
+						flipped: stomper.flipped,
+						hexes: stomper.getHexMap(this._upgradedMap),
+					});
+				}
+			},
 
 			// activate() :
-			activate: function (target) {},
+			activate: function (target) {
+				let ability = this;
+				ability.end();
+
+				// If not upgraded take the first creature found (aka last in path)
+				if (!this.isUpgraded()) {
+					target = arrayUtils.last(target).creature;
+				}
+
+				let damage = new Damage(
+					ability.creature, // Attacker
+					ability.damages, // Damage type
+					1, // Area
+					[], // Effects
+					G,
+				);
+
+				target.takeDamage(damage);
+			},
 		},
 
 		// Third Ability: Earth Shaker
