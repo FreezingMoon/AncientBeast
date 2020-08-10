@@ -1,11 +1,12 @@
 import * as $j from 'jquery';
+import * as time from '../utility/time';
+
 import { Button } from './button';
 import { Chat } from './chat';
-import { ProgressBar } from './progressbar';
-import * as time from '../utility/time';
 import { Creature } from '../creature';
-import { getUrl } from '../assetLoader';
 import { Fullscreen } from './fullscreen';
+import { ProgressBar } from './progressbar';
+import { getUrl } from '../assetLoader';
 
 /**
  * Class UI
@@ -235,7 +236,10 @@ export class UI {
 							let ability = game.activeCreature.abilities[i];
 							// Passive ability icon can cycle between usable abilities
 							if (i == 0) {
-								this.selectNextAbility();
+								const selectedAbility = this.selectNextAbility();
+								if (selectedAbility > 0) {
+									b.cssTransition('nextIcon', 1000);
+								}
 								return;
 							}
 							// Colored frame around selected ability
@@ -730,21 +734,23 @@ export class UI {
 		game.activeCreature.queryMove();
 	}
 
+	/**
+	 * Cycles to next available ability. Returns the ability number selected or -1 if deselected.
+	 */
 	selectNextAbility() {
 		let game = this.game,
 			b = this.selectedAbility == -1 ? 0 : this.selectedAbility;
 		if (this.selectedAbility == 3) {
 			game.activeCreature.queryMove();
 			this.selectAbility(-1);
-			return;
+			return -1;
 		}
 		for (let i = b + 1; i < 4; i++) {
 			let creature = game.activeCreature;
 
 			if (creature.abilities[i].require() && !creature.abilities[i].used) {
 				this.abilitiesButtons[i].triggerClick();
-				this.selectedAbility + 1;
-				return;
+				return i;
 			}
 		}
 	}

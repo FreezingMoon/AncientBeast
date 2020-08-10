@@ -36,6 +36,12 @@ export class Button {
 		opts = $j.extend(defaultOpts, opts);
 		$j.extend(this, opts);
 		this.changeState(this.state);
+
+		// Used in applying and removing CSS transitions
+		this.cssTransitionMeta = {
+			transition: null,
+		};
+		this.resolveCssTransition = null;
 	}
 
 	changeState(state) {
@@ -123,6 +129,40 @@ export class Button {
 		if (state != 'normal') {
 			this.$button.addClass(state);
 			this.$button.css(this.css[state]);
+		}
+	}
+
+	/**
+	 * Apply a CSS class on a button for a duration
+	 * Useful for flashing a different icon etc for a certain period of time
+	 * @param {string} transitionClass A CSS class to apply for the transitition
+	 * @param {number} transitionMs Time spent in the transition
+	 */
+	cssTransition(transitionClass, transitionMs) {
+		const resolveCssTransitionTask = () => {
+			this.$button.removeClass(transitionClass);
+			this.resolveTransitionTask = null;
+		};
+
+		// Check if the metadata matches, if not then you start the transition immediately, otherwise
+		// preserve previous triggers but extend duration
+		if (this.cssTransitionMeta.transitionClass !== transitionClass) {
+			this.$button.removeClass(this.cssTransitionMeta.transitionClass);
+			this.$button.addClass(transitionClass);
+			this.stateTransitionMeta = {
+				transitionClass,
+			};
+		}
+
+		if (this.resolveCssTransitionTask) {
+			clearTimeout(this.resolveCssTransitionTask);
+			this.resolveCssTransitionTask = null;
+		}
+
+		// If transition state is not to be reached, do not call the transition function
+		// This eliminates async issues that might be encountered by careless use
+		if (transitionMs > 0) {
+			this.resolveCssTransitionTask = setTimeout(resolveCssTransitionTask, transitionMs);
 		}
 	}
 
