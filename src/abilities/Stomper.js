@@ -162,7 +162,98 @@ export default (G) => {
 			},
 		},
 
-		// Third Ability: Earth Shaker
+		// Third Ability: Stone Grinder
+		{
+			// Type : Can be "onQuery", "onStartPhase", "onDamage"
+			trigger: 'onQuery',
+
+			// Hit both team in a straight line but require at least one melee target
+			_req: {
+				team: Team.both,
+				directions: [0, 1, 0, 0, 1, 0],
+				distance: 1,
+			},
+
+			// require() :
+			require: function () {
+				this._req.sourceCreature = this.creature;
+				if (!this.testRequirements() || !this.testDirection(this._req)) {
+					return false;
+				}
+				return true;
+			},
+
+			// query() :
+			query: function () {
+				let ability = this;
+				let stomper = this.creature;
+				// Get the direction of the melee target
+				let direction = ability.testDirections(ability._req);
+
+				// Get a straight line in the direction of the target (front, back or both)
+				G.grid.queryDirection({
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
+					},
+					flipped: stomper.player.flipped,
+					team: Team.both,
+					id: stomper.id,
+					requireCreature: true,
+					x: stomper.x,
+					y: stomper.y,
+					directions: direction,
+					stopOnCreature: false,
+					sourceCreature: stomper,
+				});
+			},
+
+			// activate() :
+			activate: function (hexes) {
+				let ability = this;
+				let i = 0,
+					stop = 0;
+				let targets = [];
+				ability.end();
+
+				// Add target to the array as long as there isn't 2 empty hex
+				while (i < hexes.length && stop < 2) {
+					let crea = hexes[i].creature;
+
+					if (crea !== undefined) {
+						targets.push(crea);
+						i += crea.size;
+						stop = 0;
+					} else {
+						i++;
+						stop++;
+					}
+				}
+
+				let damage = new Damage(
+					ability.creature, // Attacker
+					ability.damages, // Damage type
+					1, // Area
+					[], // Effects
+					G,
+				);
+
+				for (i = 0; i < targets.length; i++) {
+					targets[i].takeDamage(damage);
+					// Stop the ability if it's not upgraded and a 2hex "hole" is created
+					if (
+						!ability.isUpgraded() &&
+						targets[i].dead === true &&
+						(targets[i].size > 1 ||
+							G.grid.hexes[targets[i].y][targets[i].x - 1].creature === undefined ||
+							G.grid.hexes[targets[i].y][targets[i].x + 1].creature === undefined)
+					) {
+						break;
+					}
+				}
+			},
+		},
+
+		// Fourth Ability: Earth Shaker
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
@@ -240,22 +331,6 @@ export default (G) => {
 					}
 				}
 			},
-		},
-
-		// Fourth Ability: Stone Grinder
-		{
-			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: 'onQuery',
-
-			// require() :
-
-			require: function () {},
-
-			// query() :
-			query: function () {},
-
-			// activate() :
-			activate: function (hexes) {},
 		},
 	];
 };
