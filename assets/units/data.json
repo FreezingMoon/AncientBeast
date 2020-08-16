@@ -583,12 +583,12 @@
 			{
 				"title": "Lamellar Body",
 				"desc": "Gains extra defense and frost mastery with every sloth unit on the battlefield.",
-				"info": "1 defense & 1 frost for every sloth unit.",
-				"upgrade": "Gains 1 regrowth stat as well.",
+				"info": "2 defense & 2 frost for every sloth unit.",
+				"upgrade": "Gains 2 regrowth stat as well.",
 				"effects": [
 					{
-						"defense": 1,
-						"frost": 1
+						"defense": 2,
+						"frost": 2
 					}
 				]
 			},
