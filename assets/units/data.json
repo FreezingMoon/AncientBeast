@@ -636,7 +636,8 @@
 					"This ability works inline and diagonally, forward or behind, within given range."
 				],
 				"damages": {
-					"pierce": 20
+					"pierce": 20,
+					"frost": 3
 				},
 				"costs": {
 					"energy": 35
