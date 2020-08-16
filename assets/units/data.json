@@ -598,12 +598,14 @@
 				"info": "20 crush + 10 frost damage each attack.",
 				"upgrade": "Can charge to knockback foe.",
 				"details": [
-					"If the target unit can be knocked back, the effect will occur before unit dies."
+					"Targets that are 39 health points or less will be basically be dealth pure damage.",
+					"The charge and knockback can be performed inline based on current movement points.",
+					"If the target unit can be knocked back, the effect will occur before the unit dies."
 				],
 				"damages": {
 					"crush": 20,
 					"frost": 10,
-					"pure": 46
+					"pure": 39
 				},
 				"costs": {
 					"energy": 25
