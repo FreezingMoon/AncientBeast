@@ -974,7 +974,7 @@ export class UI {
 			});
 
 			this.materializeButton.changeState('disabled');
-			$j('#card .sideA').addClass('disabled').unbind('click');
+			$j('#card .sideA').addClass('disabled lockedcard').unbind('click');
 
 			let activeCreature = game.activeCreature;
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
@@ -1012,7 +1012,7 @@ export class UI {
 							}
 						};
 						$j('#card .sideA').on('click', this.materializeButton.click);
-						$j('#card .sideA').removeClass('disabled');
+						$j('#card .sideA').removeClass('disabled lockedcard');
 						this.materializeButton.changeState('glowing');
 						$j('#materialize_button').show();
 					}
@@ -1050,7 +1050,7 @@ export class UI {
 						};
 						// Apply the changes
 						$j('#card .sideA').on('click', this.materializeButton.click);
-						$j('#card .sideA').removeClass('disabled');
+						$j('#card .sideA').removeClass('disabled lockedcard');
 						this.materializeButton.changeState('glowing');
 					}
 				} else if (
@@ -1125,7 +1125,7 @@ export class UI {
 
 			// Materialize button
 			$j('#materialize_button').removeClass('glowing').unbind('click');
-			$j('#card .sideA').addClass('disabled').unbind('click');
+			$j('#card .sideA').addClass('disabled lockedcard').unbind('click');
 			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
 		}
 	}
