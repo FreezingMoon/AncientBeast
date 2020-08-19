@@ -109,7 +109,6 @@ export default (G) => {
 			},
 			activate(path, args) {
 				let ability = this;
-				ability.end();
 
 				let target = arrayUtils.last(path).creature;
 				let projectileInstance = G.animations.projectile(
@@ -134,8 +133,14 @@ export default (G) => {
 					);
 					target.takeDamage(damage);
 
+					ability.end();
 					this.destroy();
 				}, sprite); // End tween.onComplete
+			},
+			getAnimationData: function () {
+				return {
+					duration: 425,
+				};
 			},
 		},
 		// Wild Fire
