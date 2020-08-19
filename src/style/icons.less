@@ -9,147 +9,90 @@
 	width: 32px;
 	display: inline-block;
 
-	&.plasma {
-		background-image: url('~assets/stats/plasma.svg');
+	.addBackgroundImage(@statList) {
+		each(@statList, {
+			&.@{value} {
+				background-image: url('~assets/stats/@{value}.svg');
+			}
+		});
 	}
+	@listOfStats: health, regrowth, energy, endurance, meditation, initiative, offense, defense,
+		movement, pierce, slash, crush, shock, burn, frost, poison, sonic, mental;
+	.addBackgroundImage(@listOfStats);
 
-	&.health {
-		background-image: url('~assets/stats/health.svg');
-	}
+	// &.plasma {
+	// 	background-image: url('~assets/stats/plasma.svg');
+	// }
 
-	&.regrowth {
-		background-image: url('~assets/stats/regrowth.svg');
+	// &.health {
+	// 	background-image: url('~assets/stats/health.svg');
+	// }
 
-		&:hover {
-			background-image: url('~assets/stats/regrowth.gif');
-		}
-	}
+	// &.regrowth {
+	// 	background-image: url('~assets/stats/regrowth.svg');
+	// }
 
-	&.endurance {
-		background-image: url('~assets/stats/endurance.svg');
+	// &.endurance {
+	// 	background-image: url('~assets/stats/endurance.svg');
+	// }
 
-		&:hover {
-			background-image: url('~assets/stats/endurance.gif');
-		}
-	}
+	// &.energy {
+	// 	background-image: url('~assets/stats/energy.svg');
+	// }
 
-	&.energy {
-		background-image: url('~assets/stats/energy.svg');
+	// &.meditation {
+	// 	background-image: url('~assets/stats/meditation.svg');
+	// }
 
-		&:hover {
-			background-image: url('~assets/stats/energy.gif');
-		}
-	}
+	// &.initiative {
+	// 	background-image: url('~assets/stats/initiative.svg');
+	// }
 
-	&.meditation {
-		background-image: url('~assets/stats/meditation.svg');
+	// &.offense {
+	// 	background-image: url('~assets/stats/offense.svg');
+	// }
 
-		&:hover {
-			background-image: url('~assets/stats/meditation.gif');
-		}
-	}
+	// &.defense {
+	// 	background-image: url('~assets/stats/defense.svg');
+	// }
 
-	&.initiative {
-		background-image: url('~assets/stats/initiative.svg');
+	// &.movement {
+	// 	background-image: url('~assets/stats/movement.svg');
+	// }
 
-		&:hover {
-			background-image: url('~assets/stats/initiative.gif');
-		}
-	}
+	// &.pierce {
+	// 	background-image: url('~assets/stats/pierce.svg');
+	// }
 
-	&.offense {
-		background-image: url('~assets/stats/offense.svg');
+	// &.slash {
+	// 	background-image: url('~assets/stats/slash.svg');
+	// }
 
-		&:hover {
-			background-image: url('~assets/stats/offense.gif');
-		}
-	}
+	// &.crush {
+	// 	background-image: url('~assets/stats/crush.svg');
+	// }
 
-	&.defense {
-		background-image: url('~assets/stats/defense.svg');
+	// &.shock {
+	// 	background-image: url('~assets/stats/shock.svg');
+	// }
 
-		&:hover {
-			background-image: url('~assets/stats/defense.gif');
-		}
-	}
+	// &.burn {
+	// 	background-image: url('~assets/stats/burn.svg');
+	// }
 
-	&.movement {
-		background-image: url('~assets/stats/movement.svg');
+	// &.frost {
+	// 	background-image: url('~assets/stats/frost.svg');
+	// }
 
-		&:hover {
-			background-image: url('~assets/stats/movement.gif');
-		}
-	}
+	// &.poison {
+	// 	background-image: url('~assets/stats/poison.svg');
+	// }
 
-	&.pierce {
-		background-image: url('~assets/stats/pierce.svg');
+	// &.sonic {
+	// 	background-image: url('~assets/stats/sonic.svg');
+	// }
 
-		&:hover {
-			background-image: url('~assets/stats/pierce.gif');
-		}
-	}
-
-	&.slash {
-		background-image: url('~assets/stats/slash.svg');
-
-		&:hover {
-			background-image: url('~assets/stats/slash.gif');
-		}
-	}
-
-	&.crush {
-		background-image: url('~assets/stats/crush.svg');
-
-		&:hover {
-			background-image: url('~assets/stats/crush.gif');
-		}
-	}
-
-	&.shock {
-		background-image: url('~assets/stats/shock.svg');
-
-		&:hover {
-			background-image: url('~assets/stats/shock.gif');
-		}
-	}
-
-	&.burn {
-		background-image: url('~assets/stats/burn.svg');
-
-		&:hover {
-			background-image: url('~assets/stats/burn.gif');
-		}
-	}
-
-	&.frost {
-		background-image: url('~assets/stats/frost.svg');
-
-		&:hover {
-			background-image: url('~assets/stats/frost.gif');
-		}
-	}
-
-	&.poison {
-		background-image: url('~assets/stats/poison.svg');
-
-		&:hover {
-			background-image: url('~assets/stats/poison.gif');
-		}
-	}
-
-	&.sonic {
-		background-image: url('~assets/stats/sonic.svg');
-
-		&:hover {
-			background-image: url('~assets/stats/sonic.gif');
-		}
-	}
-
-	&.mental {
-		background-image: url('~assets/stats/mental.svg');
-
-		&:hover {
-			background-image: url('~assets/stats/mental.gif');
-		}
-	}
+	// &.mental {
+	// 	background-image: url('~assets/stats/mental.svg');
+	// }
 }
