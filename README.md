@@ -47,6 +47,7 @@ There are more ways in which you can help out this project, check out the ["Make
 
 You can [become a backer](https://opencollective.com/AncientBeast/contribute/backer-8021), supporting the development of this project financially on a monthly basis.  
 To get your brand featured in-game as well, [become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022) to greatly support this game project!
+
 <a href="https://opencollective.com/AncientBeast"><img src="https://opencollective.com/AncientBeast/backers.svg?width=838" alt="Backers"></a>
 
 ### License
