@@ -42,16 +42,16 @@ If you wish to set-up a local copy of the game in order to patch it, go read the
 Or dive right into developing by using the next button to set up the project along with everything needed: [![Setup Automated](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)  
 There are more ways in which you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide and get it going!
 
-<a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/AncientBeast/contributors.svg?width=972&button=false" /></a>
+<a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/AncientBeast/contributors.svg?width=838&button=false" /></a>
 
 ### Backers
 
-You can [[become a backer](https://opencollective.com/ancientbeast/contribute/backer-8021)], supporting the project financially on monthly basis.
-![backers])https://opencollective.com/AncientBeast/backers.svg?width=838)
+You can ![become a backer](https://opencollective.com/ancientbeast/contribute/backer-8021), supporting the project financially on monthly basis.
+![Backers](https://opencollective.com/AncientBeast/backers.svg?width=838)
 
 ### Sponsors
 
-To get your brand featured in-game as well, [[become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022)] to greatly support this project!
+To get your brand featured in-game as well, ![become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022) to greatly support this project!
 ![Sponsors](https://opencollective.com/AncientBeast/tiers/sponsor.svg?width=838)
 
 ### License
