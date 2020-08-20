@@ -46,13 +46,13 @@ There are more ways in which you can help out this project, check out the ["Make
 
 ### Backers
 
-You can ![become a backer](https://opencollective.com/ancientbeast/contribute/backer-8021), supporting the project financially on monthly basis.
-![Backers](https://opencollective.com/AncientBeast/backers.svg?width=838)
+You can ![become a backer](https://opencollective.com/ancientbeast/contribute/backer-8021), supporting the development of this project financially on a monthly basis.
+[Backers](https://opencollective.com/AncientBeast/backers.svg?width=838)
 
 ### Sponsors
 
 To get your brand featured in-game as well, ![become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022) to greatly support this project!
-![Sponsors](https://opencollective.com/AncientBeast/tiers/sponsor.svg?width=838)
+[Sponsors](https://opencollective.com/AncientBeast/tiers/sponsor.svg?width=838)
 
 ### License
 
