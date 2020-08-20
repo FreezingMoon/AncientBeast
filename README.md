@@ -5,7 +5,7 @@
 [![Donate via Patreon](https://img.shields.io/badge/donate-Patreon-orange.svg)](https://www.patreon.com/AncientBeast)
 [![Code Triagers Badge](https://www.codetriage.com/freezingmoon/ancientbeast/badges/users.svg)](https://codetriage.com/freezingmoon/ancientbeast)
 [![OpenCollective Backers](https://opencollective.com/AncientBeast/backers/badge.svg)](#backers)
-[![OpenCollective Sponsors](https://opencollective.com/AncientBeast/sponsors/badge.svg)](#sponsors)
+[![OpenCollective Sponsors](https://opencollective.com/ancientbeast/tiers/sponsor/badge.svg?label=sponsors)](#sponsors)
 
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/multimedia/screenshots/v0.3%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** _Chuck Palahniuk_
@@ -46,24 +46,15 @@ There are more ways in which you can help out this project, check out the ["Make
 
 ### Backers
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/AncientBeast#backer)]
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/ancientbeast/contribute/backer-8021)]
 
-<a href="https://opencollective.com/AncientBeast#backers" target="_blank"><img src="https://opencollective.com/AncientBeast/backers.svg?width=972"></a>
+<a href="https://opencollective.com/ancientbeast/contribute/backer-8021" target="_blank"><img src="https://opencollective.com/AncientBeast/backers.svg?width=838"></a>
 
 ### Sponsors
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/AncientBeast#sponsor)]
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022)]
 
-<a href="https://opencollective.com/AncientBeast/sponsor/0/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/AncientBeast/sponsor/1/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/AncientBeast/sponsor/2/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/AncientBeast/sponsor/3/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/AncientBeast/sponsor/4/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/AncientBeast/sponsor/5/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/AncientBeast/sponsor/6/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/AncientBeast/sponsor/7/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/AncientBeast/sponsor/8/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/AncientBeast/sponsor/9/website" target="_blank"><img src="https://opencollective.com/AncientBeast/sponsor/9/avatar.svg"></a>
+<a href="https://opencollective.com/ancientbeast/contribute/sponsor-8022" target="_blank"><img src="https://opencollective.com/AncientBeast/tiers/sponsor.svg?width=838"></a>
 
 ### License
 
