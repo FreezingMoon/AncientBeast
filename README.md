@@ -1,11 +1,10 @@
 [![Play Ancient Beast](https://img.shields.io/badge/play-Ancient%20Beast-red.svg)](https://play.AncientBeast.com)
 [![Join Discord](https://img.shields.io/badge/join-Discord-9cf.svg)](https://discord.me/AncientBeast)
 [![Setup Gitpod](https://img.shields.io/badge/setup-Gitpod-blue)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)
-[![Donate via PayPal](https://img.shields.io/badge/donate-PayPal-yellow.svg)](https://www.paypal.me/AncientBeast)
-[![Donate via Patreon](https://img.shields.io/badge/donate-Patreon-orange.svg)](https://www.patreon.com/AncientBeast)
+[![Donate via PayPal](https://img.shields.io/badge/donate-PayPal-yellow.svg)](https://paypal.me/AncientBeast)
+[![Donate via Patreon](https://img.shields.io/badge/donate-Patreon-orange.svg)](https://patreon.com/AncientBeast)
 [![Code Triagers Badge](https://www.codetriage.com/freezingmoon/ancientbeast/badges/users.svg)](https://codetriage.com/freezingmoon/ancientbeast)
-[![OpenCollective Backers](https://opencollective.com/AncientBeast/backers/badge.svg)](#backers)
-[![OpenCollective Sponsors](https://opencollective.com/ancientbeast/tiers/sponsor/badge.svg?label=sponsors)](#sponsors)
+[![OpenCollective Badge](https://opencollective.com/ancientbeast/tiers/badge.svg)](https://opencollective.com/AncientBeast)
 
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/multimedia/screenshots/v0.3%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** _Chuck Palahniuk_
