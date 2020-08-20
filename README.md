@@ -46,21 +46,19 @@ There are more ways in which you can help out this project, check out the ["Make
 
 ### Backers
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/ancientbeast/contribute/backer-8021)]
-
-<a href="https://opencollective.com/ancientbeast/contribute/backer-8021" target="_blank"><img src="https://opencollective.com/AncientBeast/backers.svg?width=838"></a>
+You can [[become a backer](https://opencollective.com/ancientbeast/contribute/backer-8021)], supporting the project financially on monthly basis.
+![backers])https://opencollective.com/AncientBeast/backers.svg?width=838)
 
 ### Sponsors
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022)]
-
-<a href="https://opencollective.com/ancientbeast/contribute/sponsor-8022" target="_blank"><img src="https://opencollective.com/AncientBeast/tiers/sponsor.svg?width=838"></a>
+To get your brand featured in-game as well, [[become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022)] to greatly support this project!
+![Sponsors](https://opencollective.com/AncientBeast/tiers/sponsor.svg?width=838)
 
 ### License
 
 <table border=1 width=100%>
 <tr>
-	<td><a href="http://www.FreezingMoon.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
+	<td><a href="https://FreezingMoon.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
 	<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
 </tr>
 <tr>
@@ -68,7 +66,7 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 	<td><a href="http://creativecommons.org/licenses/by-sa/4.0">CC-BY-SA 4.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
 </tr>
 <tr>
-	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
-	<td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
+	<td><a href="https://gnu.org/licenses/agpl-3.0.html"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
+	<td><a href="https://gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
 </tr>
 </table>
