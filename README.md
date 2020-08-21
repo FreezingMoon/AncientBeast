@@ -53,7 +53,7 @@ You can [become a backer](https://opencollective.com/AncientBeast/contribute/bac
 
 To get your brand featured in-game as well, [become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022) to greatly support this game project!
 
-<a href="https://Raj.bet" title="Rajbet - Online Casino India"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/sponsors/Rajbet.png" alt="Rajbet"></a>
+<a href="https://Raj.bet" title="Rajbet - Online Casino India"><img src="https://FreezingMoon.org/images/sponsors/Rajbet.png" alt="Rajbet"></a>
 
 ### License
 
