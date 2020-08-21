@@ -49,7 +49,7 @@ You can [become a backer](https://opencollective.com/AncientBeast/contribute/bac
 
 <a href="https://opencollective.com/AncientBeast"><img src="https://opencollective.com/AncientBeast/backers.svg?width=838" alt="Backers"></a>
 
-### Backers
+### Sponsors
 
 To get your brand featured in-game as well, [become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022) to greatly support this game project!
 
