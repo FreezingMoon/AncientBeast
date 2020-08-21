@@ -290,8 +290,16 @@ export class Ability {
 		this.creature.facePlayerDefault();
 
 		// Force creatures to face towards their target
-		if (args[0] instanceof Creature) {
-			this.creature.faceHex(args[0]);
+		if (args[0]) {
+			if (args[0] instanceof Creature) {
+				this.creature.faceHex(args[0]);
+			} else if (args[0] instanceof Array) {
+				for (var argument of args[0]) {
+					if (argument instanceof Creature || argument.creature) {
+						this.creature.faceHex(argument);
+					}
+				}
+			}
 		}
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {
