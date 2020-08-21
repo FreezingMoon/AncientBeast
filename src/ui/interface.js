@@ -2075,7 +2075,6 @@ export class UI {
 
 		// Updating
 		let $vignettes = this.$queue.find('.vignette[verified!="-1"]').attr('verified', 0);
-		console.log($vignettes);
 
 		let deleteVignette = (vignette) => {
 			if ($j(vignette).hasClass('roundmarker')) {
