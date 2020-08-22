@@ -2164,7 +2164,10 @@ export class UI {
 		let updatePos = () => {
 			$vignettes.each((pos, vignette) => {
 				let index = $j(vignette).index('#queuewrapper .vignette[verified != "-1"]');
-				let offset = (index - Boolean(index)) * 80 + Boolean(index) * 100;
+				let width = $j($vignettes[0]).width();
+				let height = $j($vignettes[0]).height();
+				let offset = (index - Boolean(index)) * width + Boolean(index) * (width * 1.25);
+				$j(vignette).children('div.stats').css({ top: height });
 				$j(vignette)
 					.css({
 						'z-index': 0 - index,
