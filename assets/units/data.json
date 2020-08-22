@@ -2078,9 +2078,9 @@
 		"stats": {
 			"health": 95,
 			"regrowth": 3,
-			"endurance": 30,
-			"energy": 35,
-			"meditation": 5,
+			"endurance": 52,
+			"energy": 60,
+			"meditation": 8,
 			"initiative": 20,
 			"offense": 1,
 			"defense": 1,
@@ -2106,19 +2106,31 @@
 				"upgrade": "Up to 50% health recovered."
 			},
 			{
-				"title": "Squid Head",
-				"desc": "Chews on a nearby enemy, stealing 5 regrowth stat points for a single turn.",
-				"info": "25 crush damage, 5 regrowth transfer"
+				"title": "Squidish Head",
+				"desc": "Chews on a nearby enemy, stealing its meditation stat points for a single turn.",
+				"info": "25 crush damage and meditation steal.",
+				"upgrade": "Stolen points bypass fatigue.",
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
-				"title": "Tied Up",
+				"title": "Amazing Lasso",
 				"desc": "Binds together with a nearby enemy, denying it to move apart too far away.",
-				"info": "Up to 3 hexagons maximum distance"
+				"info": "Up to 3 hexagons maximum distance.",
+				"upgrade": "Works against abilities too.",
+				"costs": {
+					"energy": 30
+				}
 			},
 			{
 				"title": "Cloned Embryo",
-				"desc": "Creates a duplicate of himself, being able to be in multiple places at once.",
-				"info": "Duplicates share health and energy."
+				"desc": "Creates an exact duplicate of current self that has the initiative stat linked.",
+				"info": "Can be used on a clone to switch to it.",
+				"upgrade": "Switching costs no energy.",
+				"costs": {
+					"energy": 40
+				}
 			}
 		]
 	},
