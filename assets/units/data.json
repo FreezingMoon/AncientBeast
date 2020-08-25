@@ -2253,7 +2253,7 @@
 		},
 		"ability_info": [
 			{
-				"title": "Banned Touch",
+				"title": "Midas Blessing",
 				"desc": "Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
 				"info": "Units remain golden even if attacked.",
 				"upgrade": "Own attacks can turn to gold."
@@ -3818,7 +3818,7 @@
 				"upgrade": "Causes delay to enemy units."
 			},
 			{
-				"title": "Palm Jaw",
+				"title": "Starving Palms",
 				"desc": "Bites nearby foe by using its own hand, stealing the energy points cost from it.",
 				"info": "12 pierce damage & 10 energy transfer.",
 				"upgrade": "Attack also transfers health.",
@@ -3830,7 +3830,7 @@
 				}
 			},
 			{
-				"title": "Sorrow Visions",
+				"title": "Sleeping Mummy",
 				"desc": "Causes a foe within 5 hexagons to skip its next turn if not taking any damage.",
 				"info": "Can not target any enemy summoners.",
 				"upgrade": "13 mental damage if awaken.",
@@ -3842,10 +3842,10 @@
 				}
 			},
 			{
-				"title": "Sleeping Mummy",
-				"desc": "Meditative state that heals 20 points if not being disrupted for a whole round.",
-				"info": "15 bonus defense while in this stance.",
-				"upgrade": "Will always restore 5 health.",
+				"title": "Shadow Warrior",
+				"desc": "Transforms the shadow of a combatant into a self clone until one of them dies.",
+				"info": "All the stats are linked with the master.",
+				"upgrade": "Targets can regain shadows.",
 				"costs": {
 					"energy": 25
 				}
