@@ -15,6 +15,7 @@
 		"jquery": true
 	},
 	"globals": {
-		"Phaser": true
+		"Phaser": true,
+		"$": true
 	}
 }
