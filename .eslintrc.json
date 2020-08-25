@@ -11,11 +11,9 @@
 	},
 	"env": {
 		"browser": true,
-		"es6": true,
-		"jquery": true
+		"es6": true
 	},
 	"globals": {
-		"Phaser": true,
-		"$": true
+		"Phaser": true
 	}
 }
