@@ -111,13 +111,14 @@ export default (G) => {
 				let ability = this;
 
 				let target = arrayUtils.last(path).creature;
+				let startX = ability.creature.sprite.scale.x > 0 ? 200 : 52;
 				let projectileInstance = G.animations.projectile(
 					this,
 					target,
 					'effects_fiery-touch',
 					path,
 					args,
-					200,
+					startX,
 					-20,
 				);
 				let tween = projectileInstance[0];

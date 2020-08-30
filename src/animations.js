@@ -257,14 +257,23 @@ export class Animations {
 	}
 
 	projectile(this2, target, spriteId, path, args, startX, startY) {
+		//Get the side of the target that is closest to emission
+		let emissionPointX = this2.creature.grp.x + startX;
+		let targetLeftX = target.grp.x + 52;
+		let targetRightX = target.grp.x + 52 + (target.size - 1) * 74;
+		let targetX =
+			Math.abs(emissionPointX - targetLeftX) < Math.abs(emissionPointX - targetRightX)
+				? targetLeftX
+				: targetRightX;
+
 		let game = this.game,
 			dist = arrayUtils.filterCreature(path.slice(0), false, false).length,
 			emissionPoint = {
-				x: this2.creature.grp.x + startX,
+				x: emissionPointX,
 				y: this2.creature.grp.y + startY,
 			},
 			targetPoint = {
-				x: target.grp.x + 52,
+				x: targetX,
 				y: target.grp.y - 20,
 			},
 			// Sprite id here
