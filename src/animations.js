@@ -260,14 +260,15 @@ export class Animations {
 		//Get the side of the target that is closest to emission
 		let emissionPointX = this2.creature.grp.x + startX;
 		let targetLeftX = target.grp.x + 52;
-		let targetRightX = target.grp.x + 52 + (target.size - 1) * 74;
+		let targetRightX = target.grp.x + 52 + (target.size - 1) * 75;
 		let targetX =
 			Math.abs(emissionPointX - targetLeftX) < Math.abs(emissionPointX - targetRightX)
 				? targetLeftX
 				: targetRightX;
 
 		let game = this.game,
-			dist = arrayUtils.filterCreature(path.slice(0), false, false).length,
+			baseDist = arrayUtils.filterCreature(path.slice(0), false, false).length,
+			dist = baseDist == 0 ? 1 : baseDist,
 			emissionPoint = {
 				x: emissionPointX,
 				y: this2.creature.grp.y + startY,
