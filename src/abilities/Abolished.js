@@ -111,7 +111,7 @@ export default (G) => {
 				let ability = this;
 
 				let target = arrayUtils.last(path).creature;
-				let startX = ability.creature.sprite.scale.x > 0 ? 200 : 52;
+				let startX = ability.creature.sprite.scale.x > 0 ? 232 : 52;
 				let projectileInstance = G.animations.projectile(
 					this,
 					target,

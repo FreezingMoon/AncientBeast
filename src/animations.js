@@ -260,7 +260,7 @@ export class Animations {
 		//Get the side of the target that is closest to emission
 		let emissionPointX = this2.creature.grp.x + startX;
 		let targetLeftX = target.grp.x + 52;
-		let targetRightX = target.grp.x + 52 + (target.size - 1) * 75;
+		let targetRightX = target.grp.x + 52 + (target.size - 1) * 90;
 		let targetX =
 			Math.abs(emissionPointX - targetLeftX) < Math.abs(emissionPointX - targetRightX)
 				? targetLeftX
@@ -279,10 +279,15 @@ export class Animations {
 			},
 			// Sprite id here
 			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, spriteId),
-			duration = dist * 75;
+			duration = dist * 750;
 
 		sprite.anchor.setTo(0.5);
-		sprite.rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
+		sprite.rotation = Math.atan(
+			(emissionPoint.y - targetPoint.y) / (emissionPoint.x - targetPoint.x),
+		);
+		if (emissionPoint.x - targetPoint.x > 0) {
+			sprite.rotation += Math.PI;
+		}
 		let tween = game.Phaser.add
 			.tween(sprite)
 			.to(
