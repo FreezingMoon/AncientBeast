@@ -279,7 +279,7 @@ export class Animations {
 			},
 			// Sprite id here
 			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, spriteId),
-			duration = dist * 750;
+			duration = dist * 75;
 
 		sprite.anchor.setTo(0.5);
 		sprite.rotation = Math.atan(
