@@ -257,25 +257,28 @@ export class Animations {
 	}
 
 	projectile(this2, target, spriteId, path, args, startX, startY) {
-		// Get the side of the target that is closest to emission
+		// Get the target's position on the projectile's path that is closest
 		let emissionPointX = this2.creature.grp.x + startX;
-		let targetLeftX = target.grp.x + 52;
-		let targetRightX = target.grp.x + 52 + (target.size - 1) * 90;
-		let targetX =
-			Math.abs(emissionPointX - targetLeftX) < Math.abs(emissionPointX - targetRightX)
-				? targetLeftX
-				: targetRightX;
-
+		var distance = Number.MAX_SAFE_INTEGER;
+		var targetX = path[0].displayPos.x;
+		for (let hex of path) {
+			if (typeof hex.creature != 'undefined' && hex.creature.id == target.id) {
+				if (distance > Math.abs(emissionPointX - hex.displayPos.x)) {
+					distance = Math.abs(emissionPointX - hex.displayPos.x);
+					targetX = hex.displayPos.x;
+				}
+			}
+		}
 		let game = this.game,
 			baseDist = arrayUtils.filterCreature(path.slice(0), false, false).length,
 			dist = baseDist == 0 ? 1 : baseDist,
 			emissionPoint = {
-				x: emissionPointX,
+				x: this2.creature.grp.x + startX,
 				y: this2.creature.grp.y + startY,
 			},
 			targetPoint = {
-				x: targetX,
-				y: target.grp.y - 20,
+				x: targetX + 45,
+				y: path[baseDist].displayPos.y - 20,
 			},
 			// Sprite id here
 			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, spriteId),
