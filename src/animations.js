@@ -257,7 +257,7 @@ export class Animations {
 	}
 
 	projectile(this2, target, spriteId, path, args, startX, startY) {
-		//Get the side of the target that is closest to emission
+		// Get the side of the target that is closest to emission
 		let emissionPointX = this2.creature.grp.x + startX;
 		let targetLeftX = target.grp.x + 52;
 		let targetRightX = target.grp.x + 52 + (target.size - 1) * 90;
