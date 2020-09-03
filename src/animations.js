@@ -285,12 +285,7 @@ export class Animations {
 			duration = dist * 75;
 
 		sprite.anchor.setTo(0.5);
-		sprite.rotation = Math.atan(
-			(emissionPoint.y - targetPoint.y) / (emissionPoint.x - targetPoint.x),
-		);
-		if (emissionPoint.x - targetPoint.x > 0) {
-			sprite.rotation += Math.PI;
-		}
+		sprite.rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
 		let tween = game.Phaser.add
 			.tween(sprite)
 			.to(
