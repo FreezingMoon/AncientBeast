@@ -1314,42 +1314,53 @@ export class UI {
 			},
 			{
 				cls: 'firstKill',
+				emoji: '🩸',
+				iconSrc: 'assets/icons/blood.svg',
 				title: 'First blood',
 			},
 			{
 				cls: 'kill',
+				emoji: '💀',
 				title: 'Kills',
 			},
 			{
 				cls: 'combo',
+				emoji: '⛓️',
 				title: 'Combos',
 			},
 			{
 				cls: 'humiliation',
+				emoji: '👶',
 				title: 'Humiliation',
 			},
 			{
 				cls: 'annihilation',
+				emoji: '⚰',
 				title: 'Annihilation',
 			},
 			{
 				cls: 'deny',
+				emoji: '💥',
 				title: 'Denies',
 			},
 			{
 				cls: 'pickupDrop',
+				emoji: '🍒',
 				title: 'Drops picked',
 			},
 			{
 				cls: 'timebonus',
+				emoji: '⏰',
 				title: 'Time Bonus',
 			},
 			{
 				cls: 'nofleeing',
+				emoji: '🐔',
 				title: 'No Fleeing',
 			},
 			{
 				cls: 'creaturebonus',
+				emoji: '💓',
 				title: 'Survivor Units',
 			},
 			{
@@ -1358,20 +1369,31 @@ export class UI {
 			},
 			{
 				cls: 'immortal',
+				emoji: '🦇',
 				title: 'Immortal',
 			},
 			{
 				cls: 'upgrade',
+				emoji: '🎖',
 				title: 'Ability Upgrades',
 			},
 			{
 				cls: 'total',
+				emoji: '💯',
 				title: 'Total',
 			},
 		];
 
 		tableMeta.forEach((row) => {
-			$table.find(`tr.${row.cls}`).empty().html(`<td>${row.title}</td>`);
+			$table.find(`tr.${row.cls}`).empty().html(`<td>
+			${
+				row.iconSrc || row.emoji
+					? `<span class="tooltiptext">${row.title}</span>
+			${row.emoji}`
+					: `${row.title}`
+			}
+			</td>`);
+			// instead of emoji use customed image use, then replace ${row.emoji}` with <img src=${row.iconSrc} height=20px>`
 
 			// Add cells for each player
 			for (let i = 0; i < game.playerMode; i++) {
@@ -1398,11 +1420,17 @@ export class UI {
 
 			// Change score
 			$j.each(game.players[i].getScore(), function (index, val) {
-				let text = val === 0 && index !== 'total' ? '--' : val;
+				let text;
+				if (index === 'firstKill') {
+					text = val === 0 ? '☐' : '☑';
+				} else {
+					text = val === 0 && index !== 'total' ? '--' : val;
+				}
 				$table
 					.children('tr.' + index)
 					.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
 					.text(text);
+				// let text;
 			});
 		}
 
