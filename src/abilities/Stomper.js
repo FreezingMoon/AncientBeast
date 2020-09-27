@@ -174,10 +174,107 @@ export default (G) => {
 				distance: 1,
 			},
 
+			// Return an array of dashed hex
+			_getDashed: function (direction) {
+				let ability = this;
+				let stomper = this.creature;
+
+				let hexes;
+
+				if (!direction[4]) {
+					hexes = G.grid.getHexMap(
+						stomper.x,
+						stomper.y,
+						0,
+						stomper.player.flipped,
+						matrices.straitrow,
+					);
+				} else if (!direction[1]) {
+					hexes = G.grid.getHexMap(
+						stomper.x,
+						stomper.y,
+						0,
+						!stomper.player.flipped,
+						matrices.straitrow,
+					);
+				} else {
+					let forward = G.grid.getHexMap(
+						stomper.x,
+						stomper.y,
+						0,
+						stomper.player.flipped,
+						matrices.straitrow,
+					);
+					let backward = G.grid.getHexMap(
+						stomper.x,
+						stomper.y,
+						0,
+						!stomper.player.flipped,
+						matrices.straitrow,
+					);
+					hexes = forward.concat(backward);
+				}
+
+				return hexes;
+			},
+
+			// Return an array of all reachable targets'
+			_getTarget: function (direction) {
+				let ability = this;
+				let stomper = this.creature;
+
+				let fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
+				let bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
+				let targets = [];
+
+				if (!direction[4]) {
+					targets.push(
+						...this._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
+					);
+				} else if (!direction[1]) {
+					targets.push(
+						...this._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
+					);
+				} else {
+					targets.push(
+						...this._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
+					);
+					targets.push(
+						...this._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
+					);
+				}
+
+				return targets;
+			},
+
+			// Add target's hex to the array as long as there isn't 2 empty hex
+			_getCreature: function (hexes) {
+				let targets = [];
+				let i = 0,
+					stop = 0;
+				while (i < hexes.length && stop < 2) {
+					let crea = hexes[i].creature;
+
+					if (crea !== undefined) {
+						for (let j = 0; j < crea.size; j++) {
+							targets.push(G.grid.hexes[crea.y][crea.x - j]);
+						}
+						i += crea.size;
+						stop = 0;
+					} else {
+						i++;
+						stop++;
+					}
+				}
+				return targets;
+			},
+
 			// require() :
 			require: function () {
-				this._req.sourceCreature = this.creature;
-				if (!this.testRequirements() || !this.testDirection(this._req)) {
+				let ability = this;
+				ability._req.sourceCreature = this.creature;
+
+				if (!ability.testRequirements() || !ability.testDirection(ability._req)) {
 					return false;
 				}
 				return true;
@@ -187,46 +284,46 @@ export default (G) => {
 			query: function () {
 				let ability = this;
 				let stomper = this.creature;
-				// Get the direction of the melee target
+				// Get the direction of the melee target, the dashed hex and the targets
 				let direction = ability.testDirections(ability._req);
+				let dashed = ability._getDashed(direction);
+				let targets = ability._getTarget(direction);
 
-				// Get a straight line in the direction of the target (front, back or both)
-				G.grid.queryDirection({
+				// Separate the front and back row of targets
+				let targets2 = [];
+				if (direction[1] && direction[4]) {
+					targets2 = targets.filter((crea) => crea.x < stomper.x);
+					targets2.forEach((hex) => {
+						targets.splice(
+							targets.findIndex((i) => i.coord === hex.coord),
+							1,
+						);
+					});
+				}
+
+				G.grid.queryChoice({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: stomper.player.flipped,
 					team: Team.both,
+					requireCreature: 0,
 					id: stomper.id,
-					requireCreature: true,
-					x: stomper.x,
-					y: stomper.y,
-					directions: direction,
-					stopOnCreature: false,
-					sourceCreature: stomper,
+					flipped: stomper.flipped,
+					choices: [targets, targets2], // Target the front or back row
+					hexesDashed: dashed,
 				});
 			},
 
 			// activate() :
 			activate: function (hexes) {
 				let ability = this;
-				let i = 0,
-					stop = 0;
 				let targets = [];
+				let i = 0;
 				ability.end();
 
-				// Add target to the array as long as there isn't 2 empty hex
-				while (i < hexes.length && stop < 2) {
-					let crea = hexes[i].creature;
-
-					if (crea !== undefined) {
-						targets.push(crea);
-						i += crea.size;
-						stop = 0;
-					} else {
-						i++;
-						stop++;
-					}
+				while (i < hexes.length) {
+					targets.push(hexes[i].creature);
+					i += hexes[i].creature.size;
 				}
 
 				let damage = new Damage(
