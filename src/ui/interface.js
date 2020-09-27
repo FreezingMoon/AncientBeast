@@ -1907,16 +1907,16 @@ export class UI {
 	/* updateInfos()
 	 */
 	updateInfos() {
-		let game = this.game;
+    let game = this.game, userTurn = (game.multiplayer)?game.players[game.match.userTurn]:game.activeCreature.player;
 		$j('#playerbutton, #playerinfo')
 			.removeClass('p0 p1 p2 p3')
-			.addClass('p' + game.players[game.match.userTurn].id);
-		$j('#playerinfo .name').text(game.players[game.match.userTurn].name);
-		$j('#playerinfo .points span').text(game.players[game.match.userTurn].getScore().total);
-		$j('#playerinfo .plasma span').text(game.players[game.match.userTurn].plasma);
+			.addClass('p' + userTurn.id);
+		$j('#playerinfo .name').text(userTurn.name);
+		$j('#playerinfo .points span').text(userTurn.getScore().total);
+		$j('#playerinfo .plasma span').text(userTurn.plasma);
 		// TODO: Needs to update instantly!
 		$j('#playerinfo .units span').text(
-			game.players[game.match.userTurn].getNbrOfCreatures() + ' / ' + game.creaLimitNbr,
+			userTurn.getNbrOfCreatures() + ' / ' + game.creaLimitNbr,
 		);
 	}
 
