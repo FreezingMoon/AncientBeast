@@ -27,7 +27,7 @@ export default (G) => {
 					fromHex &&
 					fromHex.creature &&
 					isTeam(fromHex.creature, this.creature, Team.enemy) &&
-					fromHex.creature.travelDist != 0 &&
+					this.game.activeCreature != this.creature &&
 					this._getTriggerHexId(fromHex) >= 0 &&
 					this._getHopHex(fromHex) !== undefined
 				);
