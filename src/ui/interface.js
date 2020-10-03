@@ -203,7 +203,9 @@ export class UI {
 			{
 				$button: $j('#materialize_button'),
 				css: {
-					disabled: {},
+					disabled: {
+						cursor: 'not-allowed',
+					},
 					glowing: {
 						cursor: 'pointer',
 					},
@@ -1124,9 +1126,10 @@ export class UI {
 			});
 
 			// Materialize button
-			$j('#materialize_button').removeClass('glowing').unbind('click');
-			$j('#card .sideA').addClass('disabled').unbind('click');
+			this.materializeButton.changeState('disabled');
 			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
+
+			$j('#card .sideA').addClass('disabled').unbind('click');
 		}
 	}
 
