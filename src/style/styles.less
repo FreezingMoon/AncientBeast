@@ -356,7 +356,7 @@
 }
 
 .disabled {
-	cursor: default !important;
+	cursor: not-allowed !important;
 
 	&.ability {
 		cursor: help !important;
@@ -465,6 +465,10 @@
 	&.slideIn {
 		transform: translateX(0);
 	}
+}
+
+.card.disabled a.name {
+	cursor: not-allowed;
 }
 // Card anchor refactor
 div.section.info {
