@@ -2428,11 +2428,10 @@ export class UI {
 			$queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
 		}
 
-		const isPortraitLowerThanCombatCanvas =
-			parseInt($queueItem.css('top'), 10) >
-			parseInt($j('#combatwrapper canvas').css('marginTop'), 10);
+		const maxBounceHeight = screen.height / 3;
+		const isBounceHeightExceeded = parseInt($queueItem.css('top'), 10) > maxBounceHeight;
 
-		if ($queueItem.length > 0 && !isPortraitLowerThanCombatCanvas) {
+		if ($queueItem.length > 0 && !isBounceHeightExceeded) {
 			$queueItem.stop();
 			$queueItem.animate(
 				{
