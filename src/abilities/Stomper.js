@@ -174,9 +174,10 @@ export default (G) => {
 				distance: 1,
 			},
 
+			_directions: [0, 0, 0, 0, 0, 0],
+
 			// Return an array of dashed hex
 			_getDashed: function (direction) {
-				let ability = this;
 				let stomper = this.creature;
 
 				let hexes;
@@ -229,18 +230,18 @@ export default (G) => {
 
 				if (!direction[4]) {
 					targets.push(
-						...this._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
 					);
 				} else if (!direction[1]) {
 					targets.push(
-						...this._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
 					);
 				} else {
 					targets.push(
-						...this._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
 					);
 					targets.push(
-						...this._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
 					);
 				}
 
@@ -269,12 +270,55 @@ export default (G) => {
 				return targets;
 			},
 
+			// Check if there is a possible place to end the ability
+			_checkEnd: function () {
+				let ability = this;
+				let stomper = this.creature;
+				let direction = ability.testDirections(ability._req);
+				let hexes;
+
+				ability._directions = [0, 0, 0, 0, 0, 0];
+
+				let fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
+				let bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
+
+				if (!direction[4]) {
+					hexes = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
+					if (this._getHole(hexes)) ability._directions = direction;
+				} else if (!direction[1]) {
+					hexes = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
+					if (this._getHole(hexes)) ability._directions = direction;
+				} else {
+					let forward = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
+					let backward = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
+					if (this._getHole(forward)) ability._directions[1] = 1;
+					if (this._getHole(backward)) ability._directions[4] = 1;
+				}
+			},
+
+			// Return true if there is at least one 2hex hole in the array of hexes
+			_getHole: function (hexes) {
+				let i = 0,
+					stop = 0;
+				while (i < hexes.length && stop < 2) {
+					if (hexes[i].creature === undefined) {
+						stop++;
+					} else {
+						stop = 0;
+					}
+					i++;
+				}
+				return stop >= 2;
+			},
+
 			// require() :
 			require: function () {
 				let ability = this;
-				ability._req.sourceCreature = this.creature;
+				ability._req.sourceCreature = ability.creature;
 
-				if (!ability.testRequirements() || !ability.testDirection(ability._req)) {
+				ability._checkEnd();
+
+				if (!ability.testRequirements() || (!ability._directions[1] && !ability._directions[4])) {
 					return false;
 				}
 				return true;
@@ -285,7 +329,7 @@ export default (G) => {
 				let ability = this;
 				let stomper = this.creature;
 				// Get the direction of the melee target, the dashed hex and the targets
-				let direction = ability.testDirections(ability._req);
+				let direction = ability._directions;
 				let dashed = ability._getDashed(direction);
 				let targets = ability._getTarget(direction);
 
@@ -317,6 +361,7 @@ export default (G) => {
 			// activate() :
 			activate: function (hexes) {
 				let ability = this;
+				let stomper = this.creature;
 				let targets = [];
 				let i = 0;
 				ability.end();
@@ -326,16 +371,19 @@ export default (G) => {
 					i += hexes[i].creature.size;
 				}
 
-				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage type
-					1, // Area
-					[], // Effects
-					G,
-				);
+				let lastTarget = targets[targets.length - 1];
+				let offset = null;
 
 				for (i = 0; i < targets.length; i++) {
+					let damage = new Damage(
+						ability.creature, // Attacker
+						ability.damages, // Damage type
+						1, // Area
+						[], // Effects
+						G,
+					);
 					targets[i].takeDamage(damage);
+
 					// Stop the ability if it's not upgraded and a 2hex "hole" is created
 					if (
 						!ability.isUpgraded() &&
@@ -344,9 +392,40 @@ export default (G) => {
 							G.grid.hexes[targets[i].y][targets[i].x - 1].creature === undefined ||
 							G.grid.hexes[targets[i].y][targets[i].x + 1].creature === undefined)
 					) {
+						// Set the new last target for the movement
+						if (i > 0) {
+							lastTarget = targets[i - 1];
+						} else {
+							lastTarget = targets[i];
+							offset = 0;
+						}
 						break;
 					}
 				}
+				//
+				if (offset === null) {
+					offset = lastTarget.x >= stomper.x ? 2 : -lastTarget.size;
+				}
+
+				// Jump directly to hex
+				ability.creature.moveTo(G.grid.hexes[stomper.y][lastTarget.x + offset], {
+					ignoreMovementPoint: true,
+					ignorePath: true,
+					callback: function () {
+						// Shake the screen upon landing to simulate the jump
+						G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+
+						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
+
+						let interval = setInterval(function () {
+							if (!G.freezedInput) {
+								clearInterval(interval);
+								G.UI.selectAbility(-1);
+								G.activeCreature.queryMove();
+							}
+						}, 100);
+					},
+				});
 			},
 		},
 
