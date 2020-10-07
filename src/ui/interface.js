@@ -2469,6 +2469,11 @@ export class UI {
 					textElement.css({
 						background: 'darkturquoise',
 					});
+				} else if (creature.dizzy) {
+					text = 'Dizzy';
+					textElement.css({
+						background: 'saddlebrown',
+					});
 				} else if (creature.materializationSickness) {
 					text = 'Sickened';
 				} else if (creature.protectedFromFatigue || creature.stats.fatigueImmunity) {
