@@ -362,19 +362,18 @@ export default (G) => {
 			activate: function (hexes) {
 				let ability = this;
 				let stomper = this.creature;
-				let targets = [];
 				let i = 0;
 				ability.end();
 
-				while (i < hexes.length) {
-					targets.push(hexes[i].creature);
-					i += hexes[i].creature.size;
-				}
+				let targets = ability.getTargets(hexes);
 
-				let lastTarget = targets[targets.length - 1];
+				let lastTarget = targets[targets.length - 1].target;
 				let offset = null;
 
+				console.log(targets);
 				for (i = 0; i < targets.length; i++) {
+					let target = targets[i].target;
+
 					let damage = new Damage(
 						ability.creature, // Attacker
 						ability.damages, // Damage type
@@ -382,27 +381,33 @@ export default (G) => {
 						[], // Effects
 						G,
 					);
-					targets[i].takeDamage(damage);
+					// Apply damage on all hexes
+					for (let j = 0; j < target.size; j++) {
+						target.takeDamage(damage);
+						if (target.dead === true) {
+							break;
+						}
+					}
 
 					// Stop the ability if it's not upgraded and a 2hex "hole" is created
 					if (
 						!ability.isUpgraded() &&
-						targets[i].dead === true &&
-						(targets[i].size > 1 ||
-							G.grid.hexes[targets[i].y][targets[i].x - 1].creature === undefined ||
-							G.grid.hexes[targets[i].y][targets[i].x + 1].creature === undefined)
+						target.dead === true &&
+						(target.size > 1 ||
+							G.grid.hexes[target.y][target.x - 1].creature === undefined ||
+							G.grid.hexes[target.y][target.x + 1].creature === undefined)
 					) {
 						// Set the new last target for the movement
 						if (i > 0) {
-							lastTarget = targets[i - 1];
+							lastTarget = targets[i - 1].target;
 						} else {
-							lastTarget = targets[i];
+							lastTarget = target;
 							offset = 0;
 						}
 						break;
 					}
 				}
-				//
+				// Offset for the landing position
 				if (offset === null) {
 					offset = lastTarget.x >= stomper.x ? 2 : -lastTarget.size;
 				}
