@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 
@@ -58,10 +59,10 @@
       <div id="pre-match">
         
         <div class="setupFrame">
-          <div class="welcome">Welcome <span class="user"></span></div>
-          <div class="match-frame">
+          <div class="welcome border-frame">Welcome <span class="user"></span></div>
+          <div class="match-frame border-frame">
             <div>
-            <div class="announcement-text">Announcement: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus tincidunt, metus vitae rhoncus laoreet, neque lectus cursus tortor, in auctor ante dui ut odio. Maecenas purus erat, vehicula et posuere et, interdum vitae velit. Vestibulum tristique sapien quis mi finibus placerat. Aliquam mollis sit amet neque id dictum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aliquam lobortis metus id ex dictum, a bibendum nulla congue. Integer sagittis tellus sed sem interdum, quis pulvinar eros lobortis. Curabitur rutrum mauris nec diam facilisis, eget pellentesque quam mollis.</div>
+            <div class="announcement-text">Announcement: This is early beta release of Ancient Beast Multiplayer Beta. Proceed with caution. </div>
               <div class="buttons-wrapper">
                 <div class="button-wrapper">                
                   <input class="crimson-button" id="createMatchButton" type="submit" value="Create Match">                   
@@ -73,7 +74,7 @@
             </div>
           </div>
           <form id="gameSetup">
-            <div class="game-options">
+            <div class="game-options border-frame">
             <!-- Enable when adding translations https://github.com/FreezingMoon/AncientBeast/issues/923
             <div class="gameOption">
               <div id="translations" class="typeRadio">
@@ -91,7 +92,7 @@
                 <h2>Player Mode [ Hotseat ]</h2>
                 <div id="playerMode" class="typeRadio">
                   <input type="radio" id="p2" name="playerMode" value="2" checked><label for="p2">1 versus 1</label>
-                  <input type="radio" id="p4" name="playerMode" value="4"><label for="p4">2 versus 2</label>
+                  <label for="p4">2 versus 2</label>
                 </div>
               </div>
 
@@ -211,16 +212,17 @@
                     Bones</label>
                 </div>
               </div>
-              <div class="button-wrapper">
+             
+
+            </div> 
+             <div class="button-wrapper">
                 <span class="blink">PRESS </span>
                 <input class="crimson-button" id="startButton" type="submit" value="START">
                 <input class="crimson-button" id="startMatchButton" type="submit" value="Create Match">
 
                 <span class="blink"> BUTTON</span>
               </div>
-              <div id="start"><button type="submit"></button><span>Start</span></div>
-
-            </div>         
+              <div id="start"><button type="submit"></button><span>Start</span></div>        
           </form>
         </div>      
         <div class="loginregFrame">
@@ -291,6 +293,11 @@
             </form>
             </div>
           </div>
+        </div>
+        <div class="lobby">
+          <h2>Open Matches (click to join)</h2>
+          <div class="lobby-match-list">No matches available </div>
+          <a class="back">Back</a>
         </div>
       </div>
 
@@ -1106,7 +1113,8 @@
 				<textarea id="chatinput"></textarea>
 			</div>
 		</div>
-	</div>
+  </div>
+  <div id="banner"></div>
 	<div id="combatwrapper">
 	</div>
 

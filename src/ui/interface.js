@@ -7,7 +7,7 @@ import { Creature } from '../creature';
 import { Fullscreen } from './fullscreen';
 import { ProgressBar } from './progressbar';
 import { getUrl } from '../assetLoader';
-import Match from '../server/match';
+import Match from '../multiplayer/match';
 import {
 	isNativeFullscreenAPIUse,
 	disableFullscreenLayout,
@@ -79,6 +79,7 @@ export class UI {
 
 					this.toggleDash();
 				},
+				overridefreeze: true,
 			},
 			game,
 		);
@@ -117,6 +118,7 @@ export class UI {
 						this.showMusicPlayer();
 					}
 				},
+				overridefreeze: true,
 			},
 			game,
 		);
@@ -651,25 +653,25 @@ export class UI {
 		this.materializeToggled = false;
 		this.dashopen = false;
 
-		this.glowInterval = setInterval(() => {
-			let opa =
-				0.5 +
-				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
-			let opaWeak = opa / 2;
+		// this.glowInterval = setInterval(() => {
+		// 	let opa =
+		// 		0.5 +
+		// 		Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
+		// 	let opaWeak = opa / 2;
 
-			game.grid.allhexes.forEach((hex) => {
-				if (hex.overlayClasses.match(/creature/)) {
-					if (hex.overlayClasses.match(/selected|active/)) {
-						if (hex.overlayClasses.match(/weakDmg/)) {
-							hex.overlay.alpha = opaWeak;
-							return;
-						}
+		// 	game.grid.allhexes.forEach((hex) => {
+		// 		if (hex.overlayClasses.match(/creature/)) {
+		// 			if (hex.overlayClasses.match(/selected|active/)) {
+		// 				if (hex.overlayClasses.match(/weakDmg/)) {
+		// 					hex.overlay.alpha = opaWeak;
+		// 					return;
+		// 				}
 
-						hex.overlay.alpha = opa;
-					}
-				}
-			});
-		}, 10);
+		// 				hex.overlay.alpha = opa;
+		// 			}
+		// 		}
+		// 	});
+		// }, 10);
 
 		if (game.turnTimePool) {
 			$j('.turntime').text(time.getTimer(game.turnTimePool));
@@ -1729,6 +1731,10 @@ export class UI {
 	 *
 	 * Update activebox with new current creature's abilities
 	 */
+	banner(message) {
+		let $bannerBox = $j('#banner');
+		$bannerBox.text(message);
+	}
 
 	updateActivebox() {
 		let game = this.game,
@@ -1941,18 +1947,16 @@ export class UI {
 	/* updateInfos()
 	 */
 	updateInfos() {
-		let game = this.game;
-
+		let game = this.game,
+			userTurn = game.multiplayer ? game.players[game.match.userTurn] : game.activeCreature.player;
 		$j('#playerbutton, #playerinfo')
 			.removeClass('p0 p1 p2 p3')
-			.addClass('p' + game.activeCreature.player.id);
-		$j('#playerinfo .name').text(game.activeCreature.player.name);
-		$j('#playerinfo .points span').text(game.activeCreature.player.getScore().total);
-		$j('#playerinfo .plasma span').text(game.activeCreature.player.plasma);
+			.addClass('p' + userTurn.id);
+		$j('#playerinfo .name').text(userTurn.name);
+		$j('#playerinfo .points span').text(userTurn.getScore().total);
+		$j('#playerinfo .plasma span').text(userTurn.plasma);
 		// TODO: Needs to update instantly!
-		$j('#playerinfo .units span').text(
-			game.activeCreature.player.getNbrOfCreatures() + ' / ' + game.creaLimitNbr,
-		);
+		$j('#playerinfo .units span').text(userTurn.getNbrOfCreatures() + ' / ' + game.creaLimitNbr);
 	}
 
 	// Broken and deprecated

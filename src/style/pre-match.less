@@ -22,6 +22,10 @@
 #contribute {
 	display: none;
 }
+.user-match {
+	display: flex;
+	align-items: center;
+}
 
 #matchMaking {
 	width: 100%;
@@ -142,6 +146,12 @@ body {
 }
 
 .setupFrame {
+	margin: 0 0 10px;
+	padding: 0;
+	width: 600px;
+}
+
+.border-frame {
 	border: 40px solid transparent;
 	border-image: url('~assets/interface/div.png') 40 fill stretch;
 	background: none;
@@ -167,6 +177,70 @@ body {
 	}
 }
 
+.lobby {
+	display: none;
+	border: 40px solid transparent;
+	border-image: url('~assets/interface/div.png') 40 fill stretch;
+	background: none;
+	position: relative;
+	overflow: visible;
+	margin: 0 0 10px;
+	padding: 0;
+	width: 495px;
+	h2 {
+		margin-top: 0;
+		margin-bottom: 30px;
+	}
+}
+a.back {
+	font-size: 20px;
+	display: flex;
+	align-items: center;
+	line-height: 20px;
+	-moz-transition: all 1s ease-in;
+	-webkit-transition: all 0.2s ease-in;
+	-o-transition: all 0.2s ease-in;
+	transition: all 0.2s ease-in;
+	padding: 10px;
+}
+a.back:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+.lobby-match-list {
+	margin: 0;
+	padding: 0;
+	li {
+		list-style-type: none;
+		text-align: left;
+	}
+	a {
+		font-size: 20px;
+		display: flex;
+		align-items: center;
+		line-height: 20px;
+		-moz-transition: all 1s ease-in;
+		-webkit-transition: all 0.2s ease-in;
+		-o-transition: all 0.2s ease-in;
+		transition: all 0.2s ease-in;
+		padding: 10px;
+	}
+	a:hover {
+		background-color: rgba(255, 255, 255, 0.2);
+	}
+	.user-match__col {
+		font-size: 15px;
+		text-align: left;
+		margin-right: 15px;
+	}
+}
+.avatar {
+	background-image: url('~assets/units/avatars/Dark Priest red.jpg');
+	height: 75px;
+	width: 75px;
+	display: inline-block;
+	margin-right: 10px;
+	background-size: cover;
+}
 .game-options {
 	display: flex;
 	flex-direction: row;
@@ -308,7 +382,7 @@ body {
 	}
 
 	.crimson-button {
-		background: transparent;
+		background-color: transparent !important;
 		background-image: url('~assets/interface/small_button.png');
 		background-size: 190px;
 		border: 0;
@@ -443,10 +517,6 @@ a {
 
 	.setupFrame div {
 		border: none;
-	}
-
-	.button-wrapper {
-		display: none;
 	}
 
 	#start {

@@ -344,15 +344,15 @@ export class Creature {
 		this.materializationSickness = false;
 
 		let interval = setInterval(() => {
-			if (!game.freezedInput) {
-				clearInterval(interval);
-				if (game.turn >= game.minimumTurnBeforeFleeing) {
-					game.UI.btnFlee.changeState('normal');
-				}
-
-				game.startTimer();
-				this.queryMove();
+			// if (!game.freezedInput) { remove for muliplayer
+			clearInterval(interval);
+			if (game.turn >= game.minimumTurnBeforeFleeing) {
+				game.UI.btnFlee.changeState('normal');
 			}
+
+			game.startTimer();
+			this.queryMove();
+			// }
 		}, 1000);
 	}
 
@@ -464,6 +464,14 @@ export class Creature {
 							y: hex.y,
 						},
 					});
+					if (game.multiplayer) {
+						game.gameplay.moveTo({
+							target: {
+								x: hex.x,
+								y: hex.y,
+							},
+						});
+					}
 					args.creature.delayable = false;
 					game.UI.btnDelay.changeState('disabled');
 					args.creature.moveTo(hex, {

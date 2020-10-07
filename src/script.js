@@ -5,9 +5,9 @@ import dataJson from '../assets/units/data.json';
 import Game from './game';
 import { Fullscreen } from './ui/fullscreen';
 
-import Connect from './server/connect';
-import Authenticate from './server/authenticate';
-import SessionI from './server/session';
+import Connect from './multiplayer/connect';
+import Authenticate from './multiplayer/authenticate';
+import SessionI from './multiplayer/session';
 
 // import SocketI from './server/socket';
 
@@ -80,7 +80,7 @@ $j(document).ready(() => {
 	});
 
 	$j('#multiplayer').on('click', async () => {
-		$j('.setupFrame').hide();
+		$j('.setupFrame,.lobby').hide();
 		$j('.loginregFrame').show();
 		let sess = new SessionI();
 		let session = await sess.restoreSession();
@@ -147,6 +147,11 @@ $j(document).ready(() => {
 		}
 		let auth = new Authenticate(reg, connect.client);
 		let session = await auth.register();
+		let sess = new SessionI(session);
+		sess.storeSession();
+		G.session = session;
+		G.client = connect.client;
+		G.multiplayer = true;
 		$j('.setupFrame,.welcome').show();
 		$j('.match-frame').show();
 		$j('.loginregFrame,#gameSetup').hide();
@@ -177,10 +182,13 @@ $j(document).ready(() => {
 			$j('#login .error-req-message').hide();
 		}
 		auth = new Authenticate(login, connect.client);
-		session = await auth.authenticateEmail();
-		if (!session) {
+		try {
+			session = await auth.authenticateEmail();
+		} catch (error) {
 			$j('#login .login-error-req-message').show();
+			return;
 		}
+
 		let sess = new SessionI(session);
 		sess.storeSession();
 		G.session = session;
@@ -203,12 +211,16 @@ $j(document).ready(() => {
 
 	$j('#joinMatchButton').on('click', () => {
 		//TODO move to match data received
-		let gameConfig = getGameConfig();
-		G.loadGame(gameConfig, false);
+		$j('.lobby').show();
+		$j('.setupFrame').hide();
+		G.matchJoin();
 		return false;
 	});
 });
-
+$j('.back').on('click', () => {
+	$j('.lobby').hide();
+	$j('.setupFrame,.welcome').show();
+});
 /**
  * get Registration.
  * @return {Object} login form.
