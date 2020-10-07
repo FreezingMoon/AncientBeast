@@ -20,6 +20,7 @@ export class Ability {
 		this.timesUsed = 0;
 		this.timesUsedThisTurn = 0;
 		this.token = 0;
+		this.upgraded = false;
 
 		let data = game.retrieveCreatureStats(creature.type);
 		$j.extend(true, this, game.abilities[data.id][abilityID], data.ability_info[abilityID]);
@@ -30,6 +31,10 @@ export class Ability {
 
 	hasUpgrade() {
 		return this.game.abilityUpgrades >= 0 && this.upgrade;
+	}
+
+	setUpgraded() {
+		this.upgraded = true;
 	}
 
 	/**
@@ -167,7 +172,7 @@ export class Ability {
 		this.timesUsedThisTurn++;
 
 		// Update upgrade information
-		this.game.UI.updateAbilityButtonsContent();
+		this.game.UI.updateAbilityUpgrades();
 
 		// Configure score update for player
 		// When the ability is upgraded, add a single score bonus unique to that ability
@@ -282,9 +287,19 @@ export class Ability {
 		p1 += this.creature.player.flipped ? 5 : -5;
 		p2 += this.creature.player.flipped ? -5 : 5;
 
+		this.creature.facePlayerDefault();
+
 		// Force creatures to face towards their target
-		if (args[0] instanceof Creature) {
-			this.creature.faceHex(args[0]);
+		if (args[0]) {
+			if (args[0] instanceof Creature) {
+				this.creature.faceHex(args[0]);
+			} else if (args[0] instanceof Array) {
+				for (var argument of args[0]) {
+					if (argument instanceof Creature || argument.creature) {
+						this.creature.faceHex(argument);
+					}
+				}
+			}
 		}
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {

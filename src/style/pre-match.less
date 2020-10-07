@@ -93,28 +93,29 @@ body {
 	}
 }
 
-.table-fields{
-  flex-direction: row;
-  display: flex;
-  flex-wrap: wrap;
-  div{
-    flex-basis:50%;
-  }
-  div:nth-child(odd){
-    text-align:right;
-    flex-basis:40%;
-
-  }
+.table-fields {
+	flex-direction: row;
+	display: flex;
+	flex-wrap: wrap;
+	div {
+		flex-basis: 50%;
+	}
+	div:nth-child(odd) {
+		text-align: right;
+		flex-basis: 40%;
+	}
 }
-.error-msg{
-  color:red;
-  display:none;
-  padding-left: 40%;
-  text-align: left;
+.error-msg {
+	color: red;
+	display: none;
+	padding-left: 40%;
+	text-align: left;
 }
 
-
-.error-req{color:red;display:none;}
+.error-req {
+	color: red;
+	display: none;
+}
 
 #pre-matchContainer {
 	display: flex;
@@ -127,17 +128,18 @@ body {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		align-items: center;		
+		align-items: center;
 	}
 }
 .match-frame {
-  display:none;
-
+	display: none;
 }
-.welcome{
-  margin-bottom:1.5rem;
+.welcome {
+	margin-bottom: 1.5rem;
 }
-#startMatchButton{display:none;}
+#startMatchButton {
+	display: none;
+}
 
 .setupFrame {
 	border: 40px solid transparent;
@@ -148,7 +150,6 @@ body {
 	margin: 0 0 10px;
 	padding: 0;
 	width: 495px;
-
 }
 
 .loginregFrame {
@@ -160,13 +161,13 @@ body {
 	margin: 0 0 10px;
 	padding: 0;
 	width: 700px;
-	display:none;
-	h3{
-		text-align:left;
+	display: none;
+	h3 {
+		text-align: left;
 	}
 }
 
-.game-options{
+.game-options {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
@@ -255,54 +256,50 @@ body {
 	}
 }
 
-.signin-register{	
-	display:flex;
+.signin-register {
+	display: flex;
 	flex-direction: row;
-	label{
-
-    display: inline-block;
-    text-align: right;
-    margin-right: 10px;
-
+	label {
+		display: inline-block;
+		text-align: right;
+		margin-right: 10px;
 	}
-	input{
-
+	input {
 		display: inline-block;
 		height: 25px;
 		margin-bottom: 20px;
-  }
-  .button-wrapper{
-    margin-left:36%;
-
-  }
+	}
+	.button-wrapper {
+		margin-left: 36%;
+	}
 }
-.welcome{
-  display:none;
+.welcome {
+	display: none;
 }
-.buttons-wrapper{
-  display:flex;
-  .button-wrapper .crimson-button{
-    font-size:1.3rem;
-  }
+.buttons-wrapper {
+	display: flex;
+	.button-wrapper .crimson-button {
+		font-size: 1.3rem;
+	}
 }
-.login{
+.login {
 	padding-right: 20px;
-  border-right: 1px solid #fff;
-  flex:1;
+	border-right: 1px solid #fff;
+	flex: 1;
 }
-.register{
-  padding-left:30px;
-  flex:1;
+.register {
+	padding-left: 30px;
+	flex: 1;
 }
-.announcement-text{
-  margin-top: 1rem;
-    text-align: left;
-    line-height: 1.4rem;
+.announcement-text {
+	margin-top: 1rem;
+	text-align: left;
+	line-height: 1.4rem;
 }
 .button-wrapper {
 	font-size: 1.5em;
 	text-shadow: 2px 2px black;
-	margin:20px auto;
+	margin: 20px auto;
 
 	.blink {
 		padding: 0;
@@ -333,51 +330,21 @@ body {
 	}
 }
 
-
-#multiplayer{
+#multiplayer {
 	position: fixed;
 	top: 50%;
 	right: 20px;
 	z-index: 100;
-	transform:translateY(-50%)
-
+	transform: translateY(-50%);
 }
 #fullScreen {
 	cursor: pointer;
 	position: fixed;
 	width: 100px;
-	top: 0;
-	right: 0;
-	z-index: 100;
-
-	div {
-		display: block;
-		width: 100px;
-		height: 100px;
-		background-color: rgba(0, 0, 0, 0.55);
-		background-image: url('~assets/interface/frame.png'), url('~assets/icons/fullscreen.svg');
-		background-repeat: no-repeat;
-		background-size: cover;
-		margin-bottom: 3px;
-	}
-
-	&.fullscreenMode div {
-		background-image: url('~assets/interface/frame.png'), url('~assets/icons/contract.svg');
-	}
-}
-
-#start {
-	display: none;
-}
-
-#version,#multiplayer {
-	display: block;
-	width: 100px;
 	position: fixed;
 	bottom: 0;
 	right: 0;
 	z-index: 100;
-	height:120px;
 
 	div {
 		height: 100px;
@@ -390,6 +357,28 @@ body {
 	}
 }
 
+#start {
+	display: none;
+}
+
+#version,
+#multiplayer {
+	display: block;
+	width: 100px;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	z-index: 100;
+	height: 120px;
+
+	div {
+		height: 100px;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/discord.svg');
+		background-size: cover;
+	}
+}
+
 a {
 	color: white;
 	text-shadow: 2px 2px black;
@@ -398,6 +387,10 @@ a {
 }
 
 @media (max-height: 555px) {
+	#discord {
+		display: none;
+	}
+
 	#matchMaking {
 		background: black url('~assets/interface/skulls.jpg') repeat;
 	}

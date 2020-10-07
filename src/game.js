@@ -84,27 +84,6 @@ export default class Game {
 		this.multiplayer = false;
 		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
-		this.loadedCreatures = [
-			0, // Dark Priest
-			37, // Thug Swine
-			3, // Uncle Fungus
-			4, // Magma Spawn
-			45, // Chimera
-			12, // Snow Bunny
-			5, // Impaler
-			14, // Gumble
-			7, // Abolished
-			40, // Nutcase
-			9, // Nightmare
-			39, // Headless
-			44, // Scavenger
-			31, // Cyber Wolf
-			//28, // Stomper
-			//6, // Vehemoth
-			//33 // Golden Wyrm
-			//22, // Asher
-			//42, // Batmadillo
-		];
 		this.availableMusic = [];
 		this.soundEffects = [
 			'sounds/step',
@@ -113,6 +92,7 @@ export default class Game {
 			'sounds/swing3',
 			'sounds/heartbeat',
 			'sounds/drums',
+			'sounds/upgrade',
 		];
 		this.inputMethod = 'Mouse';
 
@@ -203,6 +183,10 @@ export default class Game {
 		this.creatureData = data;
 
 		data.forEach((creature) => {
+			if (!creature.playable) {
+				return;
+			}
+
 			let creatureId = creature.id,
 				realm = creature.realm,
 				level = creature.level,
@@ -213,10 +197,6 @@ export default class Game {
 
 			creature.type = type;
 
-			if (this.loadedCreatures.indexOf(creatureId) === -1) {
-				// No need to load sounds and artwork
-				return;
-			}
 			// Load unit shouts
 			this.soundsys.getSound(getUrl('units/shouts/' + name), 1000 + creatureId);
 
@@ -293,7 +273,7 @@ export default class Game {
 		}
 
 		// Ability SFX
-		this.Phaser.load.audio('MagmaSpawn0', getUrl('units/sfx/Magma Spawn 0'));
+		this.Phaser.load.audio('MagmaSpawn0', getUrl('units/sfx/Infernal 0'));
 
 		// Grid
 		this.Phaser.load.image('hex', getUrl('interface/hex'));
@@ -311,16 +291,16 @@ export default class Game {
 		this.Phaser.load.image('trap_mud-bath', getUrl('units/sprites/Swine Thug - Mud Bath'));
 		this.Phaser.load.image(
 			'trap_scorched-ground',
-			getUrl('units/sprites/Magma Spawn - Scorched Ground'),
+			getUrl('units/sprites/Infernal - Scorched Ground'),
 		);
-		this.Phaser.load.image('trap_firewall', getUrl('units/sprites/Magma Spawn - Scorched Ground'));
+		this.Phaser.load.image('trap_firewall', getUrl('units/sprites/Infernal - Scorched Ground'));
 		this.Phaser.load.image('trap_poisonous-vine', getUrl('units/sprites/Impaler - Poisonous Vine'));
 
 		// Effects
 		this.Phaser.load.image('effects_fiery-touch', getUrl('units/sprites/Abolished - Fiery Touch'));
 		this.Phaser.load.image(
 			'effects_fissure-vent',
-			getUrl('units/sprites/Magma Spawn - Scorched Ground'),
+			getUrl('units/sprites/Infernal - Scorched Ground'),
 		);
 		this.Phaser.load.image(
 			'effects_freezing-spit',
@@ -417,6 +397,7 @@ export default class Game {
 		this.Phaser.scale.pageAlignHorizontally = true;
 		this.Phaser.scale.pageAlignVertically = true;
 		this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+		this.Phaser.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
 		this.Phaser.scale.refresh();
 		this.Phaser.stage.disableVisibilityChange = true;
 
@@ -668,8 +649,8 @@ export default class Game {
 					this.log('It uses a plasma field to protect itself');
 					this.log('Its portrait is displayed in the upper left');
 					this.log("Under the portrait are the unit's abilities");
-					this.log('The ones with flashing icons are usable');
-					this.log('Use the last one to materialize a unit');
+					this.log('The ones with revealed icons are usable');
+					this.log('Use the last one to materialize a creature');
 					this.log('Making units drains your plasma points');
 					this.log('Press the hourglass icon to skip the turn');
 					this.log('%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!');
@@ -967,7 +948,14 @@ export default class Game {
 			i;
 
 		for (i = totalCreatures - 1; i >= 0; i--) {
-			if (this.creatureData[i].type == type) {
+			if (
+				this.creatureData[i].type == type ||
+				this.creatureData[i].realm + this.creatureData[i].level == type
+			) {
+				if (!this.creatureData[i].type) {
+					// When type property is missing, create it using formula: concat(realm + level)
+					this.creatureData[i].type = this.creatureData[i].realm + this.creatureData[i].level;
+				}
 				return this.creatureData[i];
 			}
 		}

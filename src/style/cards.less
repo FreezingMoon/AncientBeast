@@ -14,7 +14,7 @@
 /* Chrome Hack https://code.google.com/p/chromium/issues/detail?id=413183 */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
 	.card {
-		letter-spacing: 0.029em;
+		letter-spacing: 0.01em;
 		word-spacing: -0.1em;
 	}
 }
@@ -33,6 +33,7 @@
 
 .sideA {
 	margin-right: -18px;
+	opacity: 1;
 
 	.info {
 		background: rgba(0, 0, 0, 0.7);
@@ -148,6 +149,9 @@
 
 .ability {
 	position: relative;
+	&:hover {
+		background-color: black;
+	}
 }
 
 .abilities {
@@ -160,7 +164,7 @@
 
 		.info {
 			display: inline-block;
-			font-size: smaller;
+			font-size: 16px;
 		}
 	}
 }
@@ -224,9 +228,19 @@
 	text-align: center;
 }
 
+.animateStats(@statList) {
+	each(@statList, {
+		.@{value} {
+			background-image: url('~assets/stats/@{value}.gif');
+		}
+	});
+}
+@listOfStats: health, regrowth, energy, endurance, meditation, initiative, offense, defense,
+	movement, pierce, slash, crush, shock, burn, frost, poison, sonic, mental;
 .stat:hover {
 	background: black;
 	border-radius: 10px;
+	.animateStats(@listOfStats);
 }
 
 #dash .stats:hover .stat {

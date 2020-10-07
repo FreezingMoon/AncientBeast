@@ -55,6 +55,12 @@
 	background-color: rgba(0, 0, 0, 0.55);
 }
 
+// Hovering on locked unit gives not-allowed cursor
+
+#creaturegrid .vignette.locked:hover {
+	cursor: not-allowed;
+}
+
 #creaturegrid .vignette.queued div.overlay {
 	background-image: url('~assets/icons/queue.svg');
 	animation: pulse0106 750ms infinite alternate;

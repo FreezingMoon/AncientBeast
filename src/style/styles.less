@@ -317,8 +317,24 @@
 	width: 80px;
 }
 
-.button.noclick:hover:before {
-	background-image: url('~assets/interface/frame_dimmed.png');
+.button.noclick:hover {
+	opacity: 0.5;
+}
+
+.button.upgradeIcon {
+	background-image: url('~assets/icons/upgrade.svg') !important;
+}
+
+.button.upgradeTransition {
+	transition: background-image 0.5s linear !important;
+}
+
+.button.nextIcon {
+	background-image: url('~assets/icons/next.svg') !important;
+}
+
+.button.upgraded.noclick:hover:before {
+	opacity: 1;
 }
 
 .button:before {
@@ -335,20 +351,45 @@
 	background-image: url('~assets/interface/frame_upgrade.png');
 }
 
-.button.upgraded.disabled:before {
-	background-image: url('~assets/interface/frame_upgrade_dimmed.png');
-}
-
-.button.disabled:before {
-	background-image: url('~assets/interface/frame_dimmed.png');
+.button.disabled {
+	opacity: 0.5;
 }
 
 .disabled {
-	cursor: default !important;
+	cursor: not-allowed !important;
 
 	&.ability {
 		cursor: help !important;
 	}
+}
+
+#fullscreen {
+	cursor: pointer;
+	position: fixed;
+	width: 100px;
+	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	top: 0;
+	right: 0;
+	z-index: 100;
+
+	div {
+		display: block;
+		width: 100px;
+		height: 100px;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/fullscreen.svg');
+		background-repeat: no-repeat;
+		background-size: cover;
+		margin-bottom: 3px;
+	}
+
+	&.fullscreenMode div {
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/contract.svg');
+	}
+}
+
+.button#fullscreen:before {
+	background-image: none;
 }
 
 .button#audio {
@@ -402,28 +443,32 @@
 	color: red;
 }
 
-#leftpanel .button{
+#leftpanel .button {
 	background-color: rgba(0, 0, 0, 0.55);
-	transition: transform .5s;
+	transition: transform 0.5s;
 	transform: translateX(-50%);
-	&:hover{
-			transform: translateX(0%);
-		}
-	&.slideIn{
-			transform: translateX(0);
-		}
-}
-
-#rightpanel .button{
-	background-color: rgba(0, 0, 0, 0.55);
-	transition: transform .5s;
-	transform: translateX(50%);
-	&:hover{
-			transform:translateX(0);
-		}
-	&.slideIn{
+	&:hover {
+		transform: translateX(0%);
+	}
+	&.slideIn {
 		transform: translateX(0);
 	}
+}
+
+#rightpanel .button {
+	background-color: rgba(0, 0, 0, 0.55);
+	transition: transform 0.5s;
+	transform: translateX(50%);
+	&:hover {
+		transform: translateX(0);
+	}
+	&.slideIn {
+		transform: translateX(0);
+	}
+}
+
+.card.disabled a.name {
+	cursor: not-allowed;
 }
 // Card anchor refactor
 div.section.info {
@@ -953,11 +998,10 @@ div.section.info {
 
 #activebox .ability {
 	display: block;
-	
 }
 
-#activebox .ability.active{
-	transform:translateX(0);
+#activebox .ability.active {
+	transform: translateX(0);
 }
 
 .button + .desc {
@@ -1286,11 +1330,11 @@ span.pure {
 }
 
 .trap.scorched-ground {
-	background: url('~assets/units/sprites/Magma Spawn - Scorched Ground.png');
+	background: url('~assets/units/sprites/Infernal - Scorched Ground.png');
 }
 
 .trap.firewall {
-	background: url('~assets/units/sprites/Magma Spawn - Scorched Ground.png');
+	background: url('~assets/units/sprites/Infernal - Scorched Ground.png');
 }
 
 /*------------------Progress Bars-------------------*/
@@ -1312,7 +1356,6 @@ span.pure {
 #rightpanel .progressbar {
 	right: -20px;
 }
-
 
 .progressbar .bar {
 	display: block;
@@ -1364,4 +1407,137 @@ input {
 .shown {
 	display: block !important;
 	z-index: 10;
+}
+
+/*------------------Pre-match-------------------*/
+// Rescale interface on mobile with landscape mode
+@media screen and (min-height: 200px) and (max-height: 479px) and (max-width: 570px) and (orientation: landscape) {
+	#fullscreen {
+		transform: scale(0.55) translate(35px, -45px);
+	}
+	#version {
+		transform: scale(0.55) translate(35px, 46px);
+	}
+	#start {
+		transform: scale(0.55) translate(35px, -109px) !important;
+	}
+	#websiteButton {
+		transform: scale(0.6) translate(-35px, -48px);
+	}
+	#contribute {
+		transform: scale(0.5) translate(-70px, 95px);
+	}
+	.setupFrame {
+		transform: scale(0.6) translateY(-100px);
+	}
+}
+
+@media screen and (min-height: 320px) and (max-height: 479px) and (max-width: 570px) and (orientation: landscape) {
+	#fullscreen {
+		transform: scale(0.8) translate(4px, -11px);
+	}
+	#version {
+		transform: scale(0.8) translate(4px, 7px);
+	}
+	#start {
+		transform: scale(0.8) translate(4px, -74px) !important;
+	}
+	#websiteButton {
+		transform: scale(1);
+	}
+	#contribute {
+		transform: scale(0.7) translate(-31px, 39px);
+	}
+	.setupFrame {
+		transform: scale(0.75) translateY(-27px);
+	}
+}
+
+@media screen and (min-height: 250px) and (min-width: 375px) and (max-height: 350px) and (max-width: 475px) and (orientation: landscape) {
+	#fullscreen {
+		transform: scale(0.7) translate(17px, -23px);
+	}
+	#version {
+		transform: scale(0.7) translate(17px, 25px);
+	}
+	#start {
+		transform: scale(0.7) translate(17px, -83px) !important;
+	}
+	#websiteButton {
+		transform: scale(0.75) translate(-16px, -22px);
+	}
+	#contribute {
+		transform: scale(0.6) translate(-52px, 62px);
+	}
+	.setupFrame {
+		transform: scale(0.7) translateY(-27px);
+	}
+}
+
+@media screen and (min-height: 350px) and (min-width: 640px) and (max-height: 400px) and (max-width: 700px) and (orientation: landscape) {
+	#fullscreen {
+		transform: scale(1);
+	}
+	#version {
+		transform: scale(1);
+	}
+	#start {
+		transform: scale(1) translateY(-58px) !important;
+	}
+	#websiteButton {
+		transform: scale(1);
+	}
+	#contribute {
+		transform: scale(0.9) translate(-15px, 10px);
+	}
+	.setupFrame {
+		transform: scale(0.85);
+	}
+}
+
+/*------------------Interface-------------------*/
+@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
+	#ui {
+		#fullscreen {
+			transform: scale(0.55) translate(121px, -31px);
+		}
+	}
+	#queue {
+		transform: scale(0.55) translate(-335px, -40px);
+	}
+	#bottompanel {
+		transform: scale(0.55);
+	}
+	#leftpanel {
+		transform: scale(0.55) translate(-32px, -130px);
+	}
+	#rightpanel {
+		transform: scale(0.55) translate(48px, -212px);
+	}
+	#playerbutton {
+		transform: scale(0.55) translate(39px, -39px);
+	}
+}
+
+@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
+	#queue {
+		transform: scale(0.7) translate(-174px, -20px);
+	}
+	#ui {
+		#fullscreen {
+			transform: scale(0.7) translate(63px, -16px);
+		}
+	}
+	#playerbutton {
+		transform: scale(0.7) translate(20px, -20px);
+	}
+	#leftpanel {
+		transform: scale(0.7) translate(-16px, -68px);
+	}
+	#rightpanel {
+		transform: scale(0.7) translate(25px, -111px);
+	}
+	#bottompanel {
+		transform: scale(0.7);
+	}
 }

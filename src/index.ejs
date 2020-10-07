@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
 	<meta charset='utf-8'>
@@ -7,6 +7,8 @@
 	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
 	<meta name="keywords" content="game, creatures, battle">
 	<meta name="author" content="Dread Knight">
+	<meta name="monetization" content="$pay.stronghold.co/1a15c4d9d46cdd64f9e9094a7c4f04240dc">
+	<meta name="theme-color" content="black">
 	<link rel="manifest" href="manifest.json">
 
 	<title>Ancient Beast 0.4</title>
@@ -32,24 +34,24 @@
 <body oncontextmenu="return false;" id="AncientBeast">
 	<div class="scrim loading"></div>
 	<div id="matchMaking">
-		<div id="loader"><img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32">Loading
+		<div id="loader"><img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32" loading="lazy">Loading
 			<div id="barLoader">
 				<span class="progress"></span>
 			</div>
 		</div>
 		<div id="pre-matchContainer">
 			<div id="gameTitle">
-				<a href="https://AncientBeast.com" tabindex="-1">
+				<a href="https://AncientBeast.com" tabindex="-1" rel="noopener">
 					<div></div>
 				</a>
 			</div>
 			<div id="websiteButton">
-				<a href="https://AncientBeast.com" tabindex="-1" target="_blank">
+				<a href="https://AncientBeast.com" tabindex="-1" target="_blank" rel="noopener">
 					<div></div><span>Ancient<br>Beast</span>
 				</a>
 			</div>
 			<div id="contribute">
-				<a href="https://ancientbeast.com/contribute" target="_blank">
+				<a href="https://discord.gg/x78rKen" target="_blank" title="Join us on Discord" rel="noopener">
 					<div></div>
 				</a>
       </div>
@@ -449,8 +451,8 @@
 										<span>There are 9 common types of damage and a rare one called Pure damage that bypasses the formula
 											below, doing a fixed non-variable amount of harm no matter what.</span><br><br>
 										<span><u>Damage Formula</u><br>attack damage +<br>attack damage / 100 *<br>(offense of attacking
-											unit -<br>defense of unit attacked /<br>number of hexagons hit +<br>source stat of attacker
-											-<br>source stat of defender)</span><br><br>
+											unit -<br>defense of unit attacked /<br>number of hexagons hit +<br>mastery stat of attacker
+											-<br>mastery stat of defender)</span><br><br>
 										<span>Minimum damage is usually 1<br>unless the hit is being avoided.</span>
 									</div>
 
@@ -648,9 +650,9 @@
 							<div class="overlay"></div>
 							<div class="border"></div>
 						</a>
-						<a href="#Cycloper" class="vignette realmE typeE2" creature="E2">
+						<a href="#Nutcase" class="vignette realmE typeE2" creature="E2">
 							<div class="tooltip">
-								<div class="content">Cycloper</div>
+								<div class="content">Nutcase</div>
 							</div>
 							<div class="overlay"></div>
 							<div class="border"></div>
@@ -746,9 +748,9 @@
 							<div class="overlay"></div>
 							<div class="border"></div>
 						</a>
-						<a href="#Magma_Spawn" class="vignette realmL typeL2" creature="L2">
+						<a href="#Infernal" class="vignette realmL typeL2" creature="L2">
 							<div class="tooltip">
-								<div class="content">Magma Spawn</div>
+								<div class="content">Infernal</div>
 							</div>
 							<div class="overlay"></div>
 							<div class="border"></div>
@@ -760,9 +762,9 @@
 							<div class="overlay"></div>
 							<div class="border"></div>
 						</a>
-						<a href="#Infernal" class="vignette realmL typeL4" creature="L4">
+						<a href="#Crystalis" class="vignette realmL typeL4" creature="L4">
 							<div class="tooltip">
-								<div class="content">Infernal</div>
+								<div class="content">Crystalis</div>
 							</div>
 							<div class="overlay"></div>
 							<div class="border"></div>
@@ -887,16 +889,16 @@
 							<div class="overlay"></div>
 							<div class="border"></div>
 						</a>
-						<a href="#Nutcase" class="vignette realmW typeW1" creature="W1">
+						<a href="#Shadow_Leech" class="vignette realmW typeW1" creature="W1">
 							<div class="tooltip">
-								<div class="content">Nutcase</div>
+								<div class="content">Shadow Leech</div>
 							</div>
 							<div class="overlay"></div>
 							<div class="border"></div>
 						</a>
-						<a href="#Cataract" class="vignette realmW typeW2" creature="W2">
+						<a href="#Cycloper" class="vignette realmW typeW2" creature="W2">
 							<div class="tooltip">
-								<div class="content">Cataract</div>
+								<div class="content">Cycloper</div>
 							</div>
 							<div class="overlay"></div>
 							<div class="border"></div>
@@ -995,7 +997,11 @@
 					<p><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 				</div>
 			</div>
-
+			<div style="position:relative">
+				<div id="fullscreen" class="button" style="right:100px">
+					<div></div>
+				</div>
+			</div>
 			<div id="rightpanel">
 				<div style="position:relative">
 					<div id="audio" class="button"></div>

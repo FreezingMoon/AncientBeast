@@ -1,9 +1,11 @@
 import * as $j from 'jquery';
+import * as time from '../utility/time';
+
 import { Button } from './button';
 import { Chat } from './chat';
-import { ProgressBar } from './progressbar';
-import * as time from '../utility/time';
 import { Creature } from '../creature';
+import { Fullscreen } from './fullscreen';
+import { ProgressBar } from './progressbar';
 import { getUrl } from '../assetLoader';
 import Match from '../server/match';
 import {
@@ -42,6 +44,7 @@ export class UI {
 	 */
 	constructor(game) {
 		this.game = game;
+		this.fullscreen = new Fullscreen($j('#fullscreen.button'), game.fullscreenMode);
 		this.$display = $j('#ui');
 		this.$queue = $j('#queuewrapper');
 		this.$dash = $j('#dash');
@@ -89,6 +92,17 @@ export class UI {
 			},
 			game,
 		);
+
+		// In-Game Fullscreen Button
+		this.btnFullscreen = new Button(
+			{
+				$button: $j('#fullscreen.button'),
+				hasShortcut: true,
+				click: () => this.fullscreen.toggle(),
+			},
+			game,
+		);
+		this.buttons.push(this.btnFullscreen);
 
 		// Audio Button
 		this.btnAudio = new Button(
@@ -192,6 +206,120 @@ export class UI {
 			game,
 		);
 		this.buttons.push(this.btnFlee);
+
+		this.materializeButton = new Button(
+			{
+				$button: $j('#materialize_button'),
+				css: {
+					disabled: {
+						cursor: 'not-allowed',
+					},
+					glowing: {
+						cursor: 'pointer',
+					},
+					selected: {},
+					active: {},
+					noclick: {},
+					normal: {
+						cursor: 'default',
+					},
+					slideIn: {},
+				},
+			},
+			game,
+		);
+
+		// Defines states for ability buttons
+		for (let i = 0; i < 4; i++) {
+			let b = new Button(
+				{
+					$button: $j('.ability[ability="' + i + '"]'),
+					hasShortcut: true,
+					click: () => {
+						let game = this.game;
+						if (this.selectedAbility != i) {
+							if (this.dashopen) {
+								return false;
+							}
+
+							game.grid.clearHexViewAlterations();
+							let ability = game.activeCreature.abilities[i];
+							// Passive ability icon can cycle between usable abilities
+							if (i == 0) {
+								const selectedAbility = this.selectNextAbility();
+								if (selectedAbility > 0) {
+									b.cssTransition('nextIcon', 1000);
+								}
+								return;
+							}
+							// Colored frame around selected ability
+							if (ability.require() == true && i != 0) {
+								this.selectAbility(i);
+							}
+							// Activate Ability
+							game.activeCreature.abilities[i].use();
+						} else {
+							game.grid.clearHexViewAlterations();
+							// Cancel Ability
+							this.closeDash();
+							game.activeCreature.queryMove();
+							this.selectAbility(-1);
+						}
+					},
+					mouseover: () => {
+						if (this.selectedAbility == -1) {
+							this.showAbilityCosts(i);
+						}
+
+						(function () {
+							let $desc = $j('.desc[ability="' + i + '"]');
+
+							// Ensure tooltip stays in window - adjust
+							var rect = $desc[0].getBoundingClientRect();
+							const margin = 20;
+							if (rect.bottom > window.innerHeight - margin) {
+								let value = window.innerHeight - rect.bottom - margin;
+								$desc[0].style.top = value + 'px';
+								$desc.find('.arrow')[0].style.top = 27 - value + 'px'; // Keep arrow position
+							}
+						})();
+					},
+					mouseleave: () => {
+						if (this.selectedAbility == -1) {
+							this.hideAbilityCosts();
+						}
+						(function () {
+							let $desc = $j('.desc[ability="' + i + '"]');
+							$desc[0].style.top = '0px';
+							$desc.find('.arrow')[0].style.top = '27px';
+						})();
+					},
+					abilityId: i,
+					css: {
+						disabled: {
+							cursor: 'help',
+						},
+						glowing: {
+							cursor: 'pointer',
+						},
+						selected: {},
+						active: {},
+						noclick: {
+							cursor: 'help',
+						},
+						normal: {
+							cursor: 'default',
+						},
+						slideIn: {
+							cursor: 'pointer',
+						},
+					},
+				},
+				game,
+			);
+			this.buttons.push(b);
+			this.abilitiesButtons.push(b);
+		}
 
 		// ProgressBar
 		this.healthBar = new ProgressBar(
@@ -300,15 +428,7 @@ export class UI {
 							this.btnToggleDash.triggerClick();
 							break;
 						case 'fullscreen': // Shift + F for fullscreen
-							if (isNativeFullscreenAPIUse()) {
-								disableFullscreenLayout();
-								document.exitFullscreen();
-							} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
-								alert('Use f11 to exit full screen');
-							} else {
-								enableFullscreenLayout();
-								$j('#AncientBeast')[0].webkitRequestFullscreen();
-							}
+							this.fullscreen.toggle();
 							break;
 					}
 				} else if (!modifierPressed && v == keypressed) {
@@ -506,58 +626,6 @@ export class UI {
 			e.preventDefault();
 		});
 
-		for (let i = 0; i < 4; i++) {
-			let b = new Button(
-				{
-					$button: $j('#abilities > div:nth-child(' + (i + 1) + ') > .ability'),
-					hasShortcut: true,
-					abilityId: i,
-					css: {
-						disabled: {
-							cursor: 'help',
-						},
-						glowing: {
-							cursor: 'pointer',
-						},
-						selected: {},
-						active: {},
-						noclick: {
-							cursor: 'help',
-						},
-						normal: {
-							cursor: 'default',
-						},
-						slideIn: {
-							cursor: 'pointer',
-						},
-					},
-				},
-				game,
-			);
-			this.buttons.push(b);
-			this.abilitiesButtons.push(b);
-		}
-
-		this.materializeButton = new Button(
-			{
-				$button: $j('#materialize_button'),
-				css: {
-					disabled: {},
-					glowing: {
-						cursor: 'pointer',
-					},
-					selected: {},
-					active: {},
-					noclick: {},
-					normal: {
-						cursor: 'default',
-					},
-					slideIn: {},
-				},
-			},
-			game,
-		);
-
 		this.$dash.find('.section.numbers .stat').bind('mouseover', (event) => {
 			let $section = $j(event.target).closest('.section');
 			let which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
@@ -676,20 +744,25 @@ export class UI {
 		game.activeCreature.queryMove();
 	}
 
+	/**
+	 * Cycles to next available ability. Returns the ability number selected or -1 if deselected.
+	 */
 	selectNextAbility() {
 		let game = this.game,
 			b = this.selectedAbility == -1 ? 0 : this.selectedAbility;
-
+		if (this.selectedAbility == 3) {
+			game.activeCreature.queryMove();
+			this.selectAbility(-1);
+			return -1;
+		}
 		for (let i = b + 1; i < 4; i++) {
 			let creature = game.activeCreature;
 
 			if (creature.abilities[i].require() && !creature.abilities[i].used) {
 				this.abilitiesButtons[i].triggerClick();
-				return;
+				return i;
 			}
 		}
-
-		game.activeCreature.queryMove();
 	}
 
 	resizeDash() {
@@ -1061,9 +1134,10 @@ export class UI {
 			});
 
 			// Materialize button
-			$j('#materialize_button').removeClass('glowing').unbind('click');
-			$j('#card .sideA').addClass('disabled').unbind('click');
+			this.materializeButton.changeState('disabled');
 			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
+
+			$j('#card .sideA').addClass('disabled').unbind('click');
 		}
 	}
 
@@ -1648,70 +1722,6 @@ export class UI {
 			let $desc = btn.$button.next('.desc');
 			$desc.find('span.title').text(ab.title);
 			$desc.find('p').html(ab.desc);
-
-			btn.click = () => {
-				if (this.selectedAbility != btn.abilityId) {
-					if (this.dashopen) {
-						return false;
-					}
-
-					game.grid.clearHexViewAlterations();
-					let ability = game.activeCreature.abilities[btn.abilityId];
-					// Passive ability icon can cycle between usable abilities
-					if (btn.abilityId == 0) {
-						let b = this.selectedAbility == -1 ? 4 : this.selectedAbility;
-						for (let i = b - 1; i > 0; i--) {
-							if (
-								game.activeCreature.abilities[i].require() &&
-								!game.activeCreature.abilities[i].used
-							) {
-								this.abilitiesButtons[i].triggerClick();
-							}
-						}
-					}
-
-					// Colored frame around selected ability
-					if (ability.require() == true && btn.abilityId != 0) {
-						this.selectAbility(btn.abilityId);
-					}
-					// Activate Ability
-					game.activeCreature.abilities[btn.abilityId].use();
-				} else {
-					game.grid.clearHexViewAlterations();
-					// Cancel Ability
-					this.closeDash();
-					game.activeCreature.queryMove();
-					this.selectAbility(-1);
-				}
-			};
-
-			btn.mouseover = () => {
-				if (this.selectedAbility == -1) {
-					this.showAbilityCosts(btn.abilityId);
-				}
-				(function () {
-					// Ensure tooltip stays in window - adjust
-					var rect = $desc[0].getBoundingClientRect();
-					const margin = 20;
-					if (rect.bottom > window.innerHeight - margin) {
-						let value = window.innerHeight - rect.bottom - margin;
-						$desc[0].style.top = value + 'px';
-						$desc.find('.arrow')[0].style.top = 27 - value + 'px'; // Keep arrow position
-					}
-				})();
-			};
-
-			btn.mouseleave = () => {
-				if (this.selectedAbility == -1) {
-					this.hideAbilityCosts();
-				}
-				(function () {
-					// Ensure tooltip stays in window - reset
-					$desc[0].style.top = '0px';
-					$desc.find('.arrow')[0].style.top = '27px';
-				})();
-			};
-
 			btn.changeState(); // Apply changes
 		});
 	}
@@ -1743,13 +1753,14 @@ export class UI {
 
 					this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 					this.healthBar.setSize(creature.oldHealth / creature.stats.health);
-					this.updateAbilityButtonsContent();
+
 					this.btnAudio.changeState('normal');
 					this.btnSkipTurn.changeState('normal');
 					// Change ability buttons
 					this.changeAbilityButtons();
-					//Callback after final transition
-
+					// Update upgrade info
+					this.updateAbilityUpgrades();
+					// Callback after final transition
 					this.$activebox.children('#abilities').transition(
 						{
 							y: '0px',
@@ -1778,7 +1789,7 @@ export class UI {
 		}
 	}
 
-	updateAbilityButtonsContent() {
+	updateAbilityUpgrades() {
 		let game = this.game,
 			creature = game.activeCreature;
 
@@ -1786,6 +1797,35 @@ export class UI {
 		this.abilitiesButtons.forEach((btn) => {
 			let ab = creature.abilities[btn.abilityId];
 			let $desc = btn.$button.next('.desc');
+
+			// Play the ability upgrade animation and sound when it gets upgraded
+			if (!ab.upgraded && ab.usesLeftBeforeUpgrade() === 0 && (ab.used || !ab.isUpgradedPerUse())) {
+				// Add the class for the background image and fade transition
+				btn.$button.addClass('upgradeTransition');
+				btn.$button.addClass('upgradeIcon');
+
+				btn.changeState('slideIn'); // Keep the button in view
+
+				// After .3s play the upgrade sound
+				setTimeout(() => {
+					game.soundsys.playSound(game.soundLoaded[6], game.soundsys.effectsGainNode);
+				}, 300);
+
+				// After 2s remove the background and update the button if it's not a passive
+				setTimeout(() => {
+					btn.$button.removeClass('upgradeIcon');
+				}, 2000);
+
+				// Then remove the animation
+				setTimeout(() => {
+					btn.$button.removeClass('upgradeTransition');
+					if (ab.isUpgradedPerUse()) {
+						btn.changeState('disabled');
+					}
+				}, 2500);
+
+				ab.setUpgraded(); // Set the ability to upgraded
+			}
 
 			// Change the ability's frame when it gets upgraded
 			if (ab.isUpgraded()) {
@@ -2142,7 +2182,10 @@ export class UI {
 		let updatePos = () => {
 			$vignettes.each((pos, vignette) => {
 				let index = $j(vignette).index('#queuewrapper .vignette[verified != "-1"]');
-				let offset = (index - Boolean(index)) * 80 + Boolean(index) * 100;
+				let width = $j($vignettes[0]).width();
+				let height = $j($vignettes[0]).height();
+				let offset = (index - Boolean(index)) * width + Boolean(index) * (width * 1.25);
+				$j(vignette).children('div.stats').css({ top: height });
 				$j(vignette)
 					.css({
 						'z-index': 0 - index,
@@ -2297,6 +2340,14 @@ export class UI {
 				game.grid.showGrid(false);
 			});
 
+		// Add shift keydown effect like above, onkeydown => showGrid
+
+		$j(document).keydown((e) => {
+			if (e.which === 16) {
+				game.grid.showGrid(true);
+			}
+		});
+
 		this.$queue
 			.find('.vignette')
 			.not('.roundmarker')
@@ -2395,7 +2446,10 @@ export class UI {
 			$queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
 		}
 
-		if ($queueItem.length > 0) {
+		const maxBounceHeight = screen.height / 3;
+		const isBounceHeightExceeded = parseInt($queueItem.css('top'), 10) > maxBounceHeight;
+
+		if ($queueItem.length > 0 && !isBounceHeightExceeded) {
 			$queueItem.stop();
 			$queueItem.animate(
 				{

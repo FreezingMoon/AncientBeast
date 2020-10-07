@@ -1,7 +1,9 @@
 // Import jQuery related stuff
 import * as $j from 'jquery';
 import 'jquery.transit';
+import dataJson from '../assets/units/data.json';
 import Game from './game';
+import { Fullscreen } from './ui/fullscreen';
 
 import Connect from './server/connect';
 import Authenticate from './server/authenticate';
@@ -11,26 +13,6 @@ import SessionI from './server/session';
 
 // Load the stylesheet
 import './style/main.less';
-
-// Abilities
-import abolishedAbilitiesGenerator from './abilities/Abolished';
-import chimeraAbilitiesGenerator from './abilities/Chimera';
-import cyberWolfAbilitiesGenerator from './abilities/Cyber-Wolf';
-import darkPriestAbilitiesGenerator from './abilities/Dark-Priest';
-import goldenWyrmAbilitiesGenerator from './abilities/Golden-Wyrm';
-import gumbleAbilitiesGenerator from './abilities/Gumble';
-import vehemothAbilitiesGenerator from './abilities/Vehemoth';
-import impalerAbilitiesGenerator from './abilities/Impaler';
-import asherAbilitiesGenerator from './abilities/Asher';
-import magmaSpawnAbilitiesGenerator from './abilities/Magma-Spawn';
-import nightmareAbilitiesGenerator from './abilities/Nightmare';
-import nutcaseAbilitiesGenerator from './abilities/Nutcase';
-import scavengerAbilitiesGenerator from './abilities/Scavenger';
-import snowBunnyAbilitiesGenerator from './abilities/Snow-Bunny';
-import swineThugAbilitiesGenerator from './abilities/Swine-Thug';
-import uncleFungusAbilitiesGenerator from './abilities/Uncle-Fungus';
-import headlessAbilitiesGenerator from './abilities/Headless';
-import stomperAbilitiesGenerator from './abilities/Stomper';
 
 // Generic object we can decorate with helper methods to simply dev and user experience.
 // TODO: Expose this in a less hacky way.
@@ -51,40 +33,15 @@ G.connect = connect;
 // const password = "8484ndnso";
 // const session = Cli.authenticateEmail({ email: email, password: password, create: true, username: "boo" })
 // Load the abilities
-const abilitiesGenerators = [
-	abolishedAbilitiesGenerator,
-	chimeraAbilitiesGenerator,
-	cyberWolfAbilitiesGenerator,
-	darkPriestAbilitiesGenerator,
-	goldenWyrmAbilitiesGenerator,
-	gumbleAbilitiesGenerator,
-	vehemothAbilitiesGenerator,
-	impalerAbilitiesGenerator,
-	asherAbilitiesGenerator,
-	magmaSpawnAbilitiesGenerator,
-	nightmareAbilitiesGenerator,
-	nutcaseAbilitiesGenerator,
-	scavengerAbilitiesGenerator,
-	snowBunnyAbilitiesGenerator,
-	swineThugAbilitiesGenerator,
-	uncleFungusAbilitiesGenerator,
-	headlessAbilitiesGenerator,
-	stomperAbilitiesGenerator,
-];
-abilitiesGenerators.forEach((generator) => generator(G));
+dataJson.forEach(async (creature) => {
+	if (!creature.playable) {
+		return;
+	}
 
-export const isNativeFullscreenAPIUse = () =>
-	document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
-
-export const disableFullscreenLayout = () => {
-	$j('#fullScreen').removeClass('fullscreenMode');
-	$j('.fullscreen__title').text('Fullscreen');
-};
-
-export const enableFullscreenLayout = () => {
-	$j('#fullScreen').addClass('fullscreenMode');
-	$j('.fullscreen__title').text('Contract');
-};
+	import(`./abilities/${creature.name.split(' ').join('-')}`).then((generator) =>
+		generator.default(G),
+	);
+});
 
 $j(document).ready(() => {
 	let scrim = $j('.scrim');
@@ -293,6 +250,7 @@ export function getGameConfig() {
 			turnTimePool: $j('input[name="turnTime"]:checked').val() - 0,
 			timePool: $j('input[name="timePool"]:checked').val() * 60,
 			background_image: $j('input[name="combatLocation"]:checked').val(),
+			fullscreenMode: $j('#fullscreen').hasClass('fullscreenMode'),
 		},
 		config = G.gamelog.gameConfig || defaultConfig;
 

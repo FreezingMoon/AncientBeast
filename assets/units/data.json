@@ -2,6 +2,7 @@
 	{
 		"id": 0,
 		"name": "Dark Priest",
+		"playable": true,
 		"level": "-",
 		"realm": "-",
 		"size": 1,
@@ -10,7 +11,7 @@
 			"regrowth": 1,
 			"endurance": 60,
 			"energy": 100,
-			"meditation": 20,
+			"meditation": 25,
 			"initiative": 50,
 			"offense": 3,
 			"defense": 3,
@@ -92,10 +93,11 @@
 	{
 		"id": 1,
 		"name": "Bounty Hunter",
+		"playable": false,
 		"level": 2,
 		"realm": "A",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 100,
 			"regrowth": 2,
@@ -168,10 +170,11 @@
 	{
 		"id": 2,
 		"name": "Razorback",
+		"playable": false,
 		"level": 6,
 		"realm": "G",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 223,
 			"regrowth": 8,
@@ -213,8 +216,7 @@
 			},
 			{
 				"title": "Morning Star",
-				"desc":
-					"Whips out its scepter like tail to bluntly punish a foe that is within 3 hexagons.",
+				"desc": "Whips out its scepter like tail to bluntly punish a foe that is within 3 hexagons.",
 				"info": "15 pierce + 15 crush damage on strike.",
 				"upgrade": "test",
 				"costs": {
@@ -235,10 +237,11 @@
 	{
 		"id": 3,
 		"name": "Uncle Fungus",
+		"playable": true,
 		"level": 3,
 		"realm": "G",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 113,
 			"regrowth": 4,
@@ -334,11 +337,12 @@
 	},
 	{
 		"id": 4,
-		"name": "Magma Spawn",
+		"name": "Infernal",
+		"playable": true,
 		"level": 2,
 		"realm": "L",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 124,
 			"regrowth": 4,
@@ -398,8 +402,8 @@
 				}
 			},
 			{
-				"title": "Cracked Earth",
-				"desc": "Smashes both fists into the ground, wreaking fierce havoc in area ahead.",
+				"title": "Intense Prayer",
+				"desc": "Causes the ground to really heat up, wreaking fierce havoc in area ahead.",
 				"info": "10 burn damage over all 8 hexagons.",
 				"upgrade": "It can spawn hot lava traps.",
 				"damages": {
@@ -435,16 +439,17 @@
 	{
 		"id": 5,
 		"name": "Impaler",
+		"playable": true,
 		"level": 5,
 		"realm": "S",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 190,
 			"regrowth": 13,
 			"endurance": 37,
-			"energy": 85,
-			"meditation": 13,
+			"energy": 131,
+			"meditation": 31,
 			"initiative": 60,
 			"offense": 13,
 			"defense": 7,
@@ -498,7 +503,7 @@
 					"poison": 10
 				},
 				"costs": {
-					"energy": 15
+					"energy": 25
 				}
 			},
 			{
@@ -515,7 +520,7 @@
 					"poison": 25
 				},
 				"costs": {
-					"energy": 20
+					"energy": 30
 				}
 			},
 			{
@@ -535,10 +540,11 @@
 	{
 		"id": 6,
 		"name": "Vehemoth",
+		"playable": false,
 		"level": 7,
 		"realm": "S",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 245,
 			"regrowth": 1,
@@ -577,12 +583,12 @@
 			{
 				"title": "Lamellar Body",
 				"desc": "Gains extra defense and frost mastery with every sloth unit on the battlefield.",
-				"info": "1 defense & 1 frost for every sloth unit.",
-				"upgrade": "Gains 1 regrowth stat as well.",
+				"info": "2 defense & 2 frost for every sloth unit.",
+				"upgrade": "Gains 2 regrowth stat as well.",
 				"effects": [
 					{
-						"defense": 1,
-						"frost": 1
+						"defense": 2,
+						"frost": 2
 					}
 				]
 			},
@@ -592,12 +598,14 @@
 				"info": "20 crush + 10 frost damage each attack.",
 				"upgrade": "Can charge to knockback foe.",
 				"details": [
-					"If the target unit can be knocked back, the effect will occur before unit dies."
+					"Targets that are 39 health points or less will be basically be dealth pure damage.",
+					"The charge and knockback can be performed inline based on current movement points.",
+					"If the target unit can be knocked back, the effect will occur before the unit dies."
 				],
 				"damages": {
 					"crush": 20,
 					"frost": 10,
-					"pure": 46
+					"pure": 39
 				},
 				"costs": {
 					"energy": 25
@@ -628,7 +636,8 @@
 					"This ability works inline and diagonally, forward or behind, within given range."
 				],
 				"damages": {
-					"pierce": 20
+					"pierce": 20,
+					"frost": 3
 				},
 				"costs": {
 					"energy": 35
@@ -639,10 +648,11 @@
 	{
 		"id": 7,
 		"name": "Abolished",
+		"playable": true,
 		"level": 7,
 		"realm": "P",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 234,
 			"regrowth": 5,
@@ -731,10 +741,11 @@
 	{
 		"id": 8,
 		"name": "Horn Head",
+		"playable": false,
 		"level": 5,
 		"realm": "W",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 205,
 			"regrowth": 11,
@@ -784,16 +795,17 @@
 	{
 		"id": 9,
 		"name": "Nightmare",
+		"playable": true,
 		"level": 4,
 		"realm": "S",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 175,
 			"regrowth": 2,
 			"endurance": 70,
-			"energy": 69,
-			"meditation": 33,
+			"energy": 93,
+			"meditation": 39,
 			"initiative": 40,
 			"offense": 10,
 			"defense": 10,
@@ -848,7 +860,7 @@
 					"pierce": 6
 				},
 				"costs": {
-					"energy": 14
+					"energy": 13
 				}
 			},
 			{
@@ -882,10 +894,11 @@
 	{
 		"id": 10,
 		"name": "Troglodyte",
+		"playable": false,
 		"level": 4,
 		"realm": "P",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 110,
 			"regrowth": 2,
@@ -912,9 +925,8 @@
 		"ability_info": [
 			{
 				"title": "Fearsome Look",
-				"desc":
-					"Makes nearby attackers strongly believe that they get damaged back in the process.",
-				"info": "10 mental damage retaliation per melee hit.",
+				"desc": "Makes nearby attackers believe that they get damaged back in the process.",
+				"info": "10 mental damage per each melee hit.",
 				"upgrade": "Does 5 pierce damage as well."
 			},
 			{
@@ -932,23 +944,24 @@
 			},
 			{
 				"title": "Subliminal Shout",
-				"desc": "Shock waves that affect a large area but do less damage the further away.",
-				"info": "10 sonic damage over 15 hexagons"
+				"desc": "Shock waves that affect a large area, doing less damage the further away.",
+				"info": "10 sonic damage over 15 hexagons."
 			},
 			{
 				"title": "Psychic Blast",
 				"desc": "Focuses the power of mind in order to attack foes up to 4 hexagons distance.",
-				"info": "18 mental damage over 7 hexagons"
+				"info": "18 mental damage over 7 hexagons."
 			}
 		]
 	},
 	{
 		"id": 11,
 		"name": "Toxic Shroom",
+		"playable": false,
 		"level": 1,
 		"realm": "G",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 45,
 			"regrowth": 10,
@@ -1004,8 +1017,7 @@
 			},
 			{
 				"title": "Curling Roots",
-				"desc":
-					"Creates a small area of vines under self that alter the energy of all units on top.",
+				"desc": "Creates a small area of vines under self that alter the energy of all units on top.",
 				"info": "±6 energy points when own turn starts.",
 				"upgrade": "Bonus for each spot affected.",
 				"costs": {
@@ -1017,10 +1029,11 @@
 	{
 		"id": 12,
 		"name": "Snow Bunny",
+		"playable": true,
 		"level": 1,
 		"realm": "S",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 55,
 			"regrowth": 4,
@@ -1111,10 +1124,11 @@
 	{
 		"id": 13,
 		"name": "Swampler",
+		"playable": false,
 		"level": 2,
 		"realm": "G",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 75,
 			"regrowth": 5,
@@ -1174,10 +1188,11 @@
 	{
 		"id": 14,
 		"name": "Gumble",
+		"playable": true,
 		"level": 1,
 		"realm": "P",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 70,
 			"regrowth": 5,
@@ -1268,10 +1283,11 @@
 	{
 		"id": 15,
 		"name": "Cycloper",
+		"playable": false,
 		"level": 2,
-		"realm": "E",
+		"realm": "W",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 60,
 			"regrowth": 1,
@@ -1334,10 +1350,11 @@
 	{
 		"id": 16,
 		"name": "Vulcan",
+		"playable": false,
 		"level": 5,
 		"realm": "L",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 155,
 			"regrowth": 2,
@@ -1374,26 +1391,25 @@
 				"info": "20 burn damage & -2 burn stat debuff.",
 				"upgrade": "-10 burn stat to inline enemy.",
 				"costs": {
-					"energy": 20
+					"energy": 15
 				}
 			},
 			{
 				"title": "Volcanic Artillery",
-				"desc":
-					"A hot rock will hit target spot at the end of round, damaging a foe or the ground.",
-				"info": "20 crush + 20 burn damage or a fissure.",
-				"upgrade": "Ability becomes usable twice.",
+				"desc": "Fires 3 rocks will hit target spots with 100 delay, damaging units or ground.",
+				"info": "10 crush + 5 burn damage or fissures.",
+				"upgrade": "Total damage is now doubled.",
 				"costs": {
 					"energy": 20
 				}
 			},
 			{
 				"title": "Violent Fissures",
-				"desc": "Stomps the ground creating a fissure at target location, erupting existing ones.",
-				"info": "20 burn damage to all units on fissures.",
-				"upgrade": "Will cause two fissures under.",
+				"desc": "Stomps the hexagons under, creating fissures and also erupts existing ones.",
+				"info": "10 burn damage to all units on fissures.",
+				"upgrade": "Surrounded spots also crack.",
 				"costs": {
-					"energy": 20
+					"energy": 25
 				}
 			}
 		]
@@ -1401,10 +1417,11 @@
 	{
 		"id": 17,
 		"name": "Spikes",
+		"playable": false,
 		"level": 6,
 		"realm": "E",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 211,
 			"regrowth": 2,
@@ -1467,65 +1484,66 @@
 	{
 		"id": 18,
 		"name": "Sarcophag",
+		"playable": false,
 		"level": 7,
 		"realm": "W",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 217,
-			"regrowth": 1,
-			"endurance": 70,
-			"energy": 60,
-			"meditation": 1,
+			"regrowth": 0,
+			"endurance": 30,
+			"energy": 90,
+			"meditation": 0,
 			"initiative": 10,
 			"offense": 6,
 			"defense": 8,
 			"movement": 2,
-			"pierce": 9,
-			"slash": 9,
-			"crush": 9,
-			"shock": 12,
-			"burn": 10,
-			"frost": 8,
-			"poison": 14,
-			"sonic": 10,
-			"mental": 20
+			"pierce": 45,
+			"slash": 20,
+			"crush": 35,
+			"shock": 30,
+			"burn": 23,
+			"frost": 27,
+			"poison": 50,
+			"sonic": 15,
+			"mental": 35
 		},
 		"animation": {
 			"walk_speed": 500
 		},
 		"ability_info": [
 			{
-				"title": "Rib Cage",
-				"desc": "Bonus points for every unit that dies.",
-				"info": "+6 defense & +6 meditation per stack.",
-				"upgrade": "9 regrowth when a unit dies."
+				"title": "Already Dead",
+				"desc": "Instead of getting fatigued, unit gains most of the energy used in the attack.",
+				"info": "Restores 80% of the attack's energy.",
+				"upgrade": "Resists 1 fatal blow / round."
 			},
 			{
-				"title": "Dark Grasp",
-				"desc": "Strikes a nearby foe using its claws, creating one Shadow Leech if it kills.",
-				"info": "20 slash and 20 pierce damage per hit.",
-				"upgrade": "Picks drop after killing unit.",
-				"costs": {
-					"energy": 40
-				}
-			},
-			{
-				"title": "Fly Swarm",
-				"desc": "Distracts a unit, lowering its defense and meditation for a complete round.",
-				"info": "-20 defense, -10 meditation one turn.",
-				"upgrade": "Persists if unit not moving.",
+				"title": "Sharp Forehead",
+				"desc": "Punctures nearby foe using the horns, lowering its regrowth with each strike.",
+				"info": "33 pierce damage, -9 regrowth debuff.",
+				"upgrade": "Gains those points if nearby.",
 				"costs": {
 					"energy": 30
 				}
 			},
 			{
-				"title": "Shadow Legion",
-				"desc": "Allows a long dead creature to come and fight again, as a shadow being.",
-				"info": "All shadows vanish if creature dies.",
-				"upgrade": "Shadows will remain alive.",
+				"title": "Distant Grasp",
+				"desc": "Holds a unit in place for a round, only being able to escape by using abilities.",
+				"info": "range = 7 hexagons - target unit level.",
+				"upgrade": "Also does 16 pierce damage.",
 				"costs": {
-					"energy": 20
+					"energy": 30
+				}
+			},
+			{
+				"title": "Ivory Stakes",
+				"desc": "Creates a three hit obstacle within five range that can be used to attack foes.",
+				"info": "Can attack nearby enemy for 10 pierce.",
+				"upgrade": "+5 pierce damage per combo.",
+				"costs": {
+					"energy": 30
 				}
 			}
 		]
@@ -1533,10 +1551,11 @@
 	{
 		"id": 19,
 		"name": "Miss Creeper",
+		"playable": false,
 		"level": 4,
 		"realm": "G",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 165,
 			"regrowth": 3,
@@ -1599,10 +1618,11 @@
 	{
 		"id": 20,
 		"name": "Kraken",
+		"playable": false,
 		"level": 6,
 		"realm": "S",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 220,
 			"regrowth": 5,
@@ -1652,10 +1672,11 @@
 	{
 		"id": 21,
 		"name": "Flayed",
+		"playable": false,
 		"level": 4,
 		"realm": "W",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 200,
 			"regrowth": 20,
@@ -1705,10 +1726,11 @@
 	{
 		"id": 22,
 		"name": "Asher",
+		"playable": false,
 		"level": 1,
 		"realm": "L",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 65,
 			"regrowth": 1,
@@ -1787,10 +1809,11 @@
 	{
 		"id": 23,
 		"name": "Metalist",
+		"playable": false,
 		"level": 3,
 		"realm": "L",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 115,
 			"regrowth": 3,
@@ -1841,8 +1864,7 @@
 			},
 			{
 				"title": "Pointe Technique",
-				"desc":
-					"Leaps on top of medium or large enemy within 6 range, staying there if killing it.",
+				"desc": "Leaps on top of medium or large enemy within 6 range, staying there if killing it.",
 				"info": "The target unit takes 30 pierce damage.",
 				"upgrade": "Range becomes 10 hexagons.",
 				"costs": {
@@ -1854,10 +1876,11 @@
 	{
 		"id": 24,
 		"name": "Living Armor",
+		"playable": false,
 		"level": 6,
 		"realm": "A",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 199,
 			"regrowth": 10,
@@ -1926,10 +1949,11 @@
 	{
 		"id": 25,
 		"name": "Mr. Stitches",
+		"playable": false,
 		"level": 1,
 		"realm": "E",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 100,
 			"regrowth": 0,
@@ -1979,10 +2003,11 @@
 	{
 		"id": 26,
 		"name": "Moss Hound",
+		"playable": false,
 		"level": 7,
 		"realm": "G",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 256,
 			"regrowth": 8,
@@ -2045,16 +2070,17 @@
 	{
 		"id": 27,
 		"name": "Blue Shrimp",
+		"playable": false,
 		"level": 2,
 		"realm": "S",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 95,
 			"regrowth": 3,
-			"endurance": 30,
-			"energy": 35,
-			"meditation": 5,
+			"endurance": 52,
+			"energy": 60,
+			"meditation": 8,
 			"initiative": 20,
 			"offense": 1,
 			"defense": 1,
@@ -2080,39 +2106,52 @@
 				"upgrade": "Up to 50% health recovered."
 			},
 			{
-				"title": "Squid Head",
-				"desc": "Chews on a nearby enemy, stealing 5 regrowth stat points for a single turn.",
-				"info": "25 crush damage, 5 regrowth transfer"
+				"title": "Squidish Head",
+				"desc": "Chews on a nearby enemy, stealing its meditation stat points for a single turn.",
+				"info": "25 crush damage and meditation steal.",
+				"upgrade": "Stolen points bypass fatigue.",
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
-				"title": "Tied Up",
+				"title": "Amazing Lasso",
 				"desc": "Binds together with a nearby enemy, denying it to move apart too far away.",
-				"info": "Up to 3 hexagons maximum distance"
+				"info": "Up to 3 hexagons maximum distance.",
+				"upgrade": "Works against abilities too.",
+				"costs": {
+					"energy": 30
+				}
 			},
 			{
 				"title": "Cloned Embryo",
-				"desc": "Creates a duplicate of himself, being able to be in multiple places at once.",
-				"info": "Duplicates share health and energy."
+				"desc": "Creates an exact duplicate of current self that has the initiative stat linked.",
+				"info": "Can be used on a clone to switch to it.",
+				"upgrade": "Switching costs no energy.",
+				"costs": {
+					"energy": 40
+				}
 			}
 		]
 	},
 	{
 		"id": 28,
 		"name": "Stomper",
+		"playable": false,
 		"level": 3,
 		"realm": "E",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 135,
 			"regrowth": 5,
 			"endurance": 100,
-			"energy": 70,
-			"meditation": 7,
+			"energy": 96,
+			"meditation": 32,
 			"initiative": 10,
 			"offense": 10,
 			"defense": 16,
-			"movement": 2,
+			"movement": 3,
 			"pierce": 10,
 			"slash": 10,
 			"crush": 10,
@@ -2147,39 +2186,36 @@
 			},
 			{
 				"title": "Seismic Stomp",
-				"desc": "Deals damage to a single nearby foe.",
-				"info": "20 crush + 10 sonic damage on strike.",
-				"upgrade": "Attack targets within 2 hex.",
+				"desc": "Deals damage to an inline or diagonal target that's distant up to 3 hexagons.",
+				"info": "14 crush + 14 sonic damage on strike.",
+				"upgrade": "Attack can now bypass stuff.",
 				"damages": {
-					"crush": 25
+					"crush": 14,
+					"sonic": 14
 				},
 				"costs": {
-					"energy": 20
+					"energy": 31
 				}
 			},
 			{
 				"title": "Stone Grinder",
-				"desc": "Leaps within 5 hexagons to squash two spots that are occupied by injured foes.",
-				"info": "Every enemy has to be under 25 health.",
-				"upgrade": "Health threshold becomes 50.",
+				"desc": "Stampedes over a row of units until space is found or is brutally created.",
+				"info": "10 crush damage to every hexagon.",
+				"upgrade": "Only stops at destination.",
 				"damages": {
 					"crush": 10
 				},
 				"costs": {
-					"energy": 30
+					"energy": 32
 				}
 			},
 			{
-				"title": "Coal Burp",
-				"desc": "Bombards an inline target with a hot coal projectile that breaks on impact.",
-				"info": "30 crush to target + 15 burn sideways.",
-				"upgrade": "Sides can burn for one turn.",
-				"damages": {
-					"crush": 30,
-					"burn": 15
-				},
+				"title": "Earth Shaker",
+				"desc": "Smashes front limbs into the ground, delaying all units over the area ahead.",
+				"info": "Delays units over all 8 hexagons area.",
+				"upgrade": "Delayed units will skip turn.",
 				"costs": {
-					"energy": 30
+					"energy": 33
 				}
 			}
 		]
@@ -2187,10 +2223,11 @@
 	{
 		"id": 29,
 		"name": "Gilded Maiden",
+		"playable": false,
 		"level": 5,
 		"realm": "A",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 100,
 			"regrowth": 4,
@@ -2216,9 +2253,8 @@
 		},
 		"ability_info": [
 			{
-				"title": "Banned Touch",
-				"desc":
-					"Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
+				"title": "Midas Blessing",
+				"desc": "Every 5th melee hit taken, the attacking unit is turned to gold for a whole round.",
 				"info": "Units remain golden even if attacked.",
 				"upgrade": "Own attacks can turn to gold."
 			},
@@ -2264,10 +2300,11 @@
 	{
 		"id": 30,
 		"name": "Papa Eggplant",
+		"playable": false,
 		"level": 5,
 		"realm": "G",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 193,
 			"regrowth": 8,
@@ -2341,16 +2378,17 @@
 	{
 		"id": 31,
 		"name": "Cyber Wolf",
+		"playable": true,
 		"level": 3,
 		"realm": "A",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 140,
 			"regrowth": 5,
 			"endurance": 75,
 			"energy": 60,
-			"meditation": 20,
+			"meditation": 25,
 			"initiative": 60,
 			"offense": 7,
 			"defense": 9,
@@ -2436,10 +2474,11 @@
 	{
 		"id": 32,
 		"name": "Deep Beauty",
+		"playable": false,
 		"level": 3,
 		"realm": "S",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 120,
 			"regrowth": 21,
@@ -2466,8 +2505,7 @@
 		"ability_info": [
 			{
 				"title": "Sea Horse",
-				"desc":
-					"Meditation stat will be highly increased if being at full health, restoring energy.",
+				"desc": "Meditation stat will be highly increased if being at full health, restoring energy.",
 				"info": "15 extra meditation points if full health.",
 				"upgrade": "Can now fully restore energy."
 			},
@@ -2503,10 +2541,11 @@
 	{
 		"id": 33,
 		"name": "Golden Wyrm",
+		"playable": false,
 		"level": 7,
 		"realm": "A",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 225,
 			"regrowth": 5,
@@ -2552,8 +2591,7 @@
 			},
 			{
 				"title": "Executioner Axe",
-				"desc":
-					"Slashes a nearby foe, instantly killing it if it's under a certain health threshold.",
+				"desc": "Slashes a nearby foe, instantly killing it if it's under a certain health threshold.",
 				"info": "30 slash damage, 45 health threshold.",
 				"upgrade": "Usable again on killing strike.",
 				"costs": {
@@ -2571,9 +2609,8 @@
 			},
 			{
 				"title": "Visible Stigmata",
-				"desc":
-					"Rapidly transfers up to 50 health points to a nearby allied unit, this is non lethal.",
-				"info": "Usage requires being at least 25 health.",
+				"desc": "Rapidly transfers up to 50 health points to a nearby allied unit, this is non lethal.",
+				"info": "Usage requires being at least 51 health.",
 				"upgrade": "+10 regrowth bonus each use.",
 				"costs": {
 					"energy": 50
@@ -2584,10 +2621,11 @@
 	{
 		"id": 34,
 		"name": "Royal Guard",
+		"playable": false,
 		"level": 2,
 		"realm": "P",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 125,
 			"regrowth": 4,
@@ -2637,10 +2675,11 @@
 	{
 		"id": 35,
 		"name": "Greedy Knight",
+		"playable": false,
 		"level": 4,
 		"realm": "A",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 100,
 			"regrowth": 3,
@@ -2679,15 +2718,13 @@
 			},
 			{
 				"title": "Lion Thrust",
-				"desc":
-					"Runs very fast towards an inline foe for up to 5 hexagons, greatly terrorizing it.",
+				"desc": "Runs very fast towards an inline foe for up to 5 hexagons, greatly terrorizing it.",
 				"info": "20 mental damage when reaching foe.",
 				"upgrade": "20% extra offense / hexagon."
 			},
 			{
 				"title": "Defensive Stance",
-				"desc":
-					"Will be extra vigilant, better protecting himself from attacks until the next turn.",
+				"desc": "Will be extra vigilant, better protecting himself from attacks until the next turn.",
 				"info": "Reduces 9 damage from incoming hits.",
 				"upgrade": "Will stop penetrating attacks."
 			}
@@ -2696,10 +2733,11 @@
 	{
 		"id": 36,
 		"name": "Vertigo",
+		"playable": false,
 		"level": 4,
 		"realm": "E",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 170,
 			"regrowth": 6,
@@ -2749,10 +2787,11 @@
 	{
 		"id": 37,
 		"name": "Swine Thug",
+		"playable": true,
 		"level": 1,
 		"realm": "A",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 90,
 			"regrowth": 3,
@@ -2844,11 +2883,12 @@
 	},
 	{
 		"id": 38,
-		"name": "Infernal",
+		"name": "Crystalis",
+		"playable": false,
 		"level": 4,
 		"realm": "L",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 150,
 			"regrowth": 5,
@@ -2875,15 +2915,15 @@
 		"ability_info": [
 			{
 				"title": "Crossed Bones",
-				"desc": "When this unit gets killed, it starts to restructure itself into a Lava Mollusk.",
-				"info": "The unit won't have any energy at first.",
-				"upgrade": "Unit starts with half energy."
+				"desc": "Blocks one melee frontal hit per round, nicely reducing the incoming damage.",
+				"info": "Blocked attacks do 40% less damage.",
+				"upgrade": "Blocks 2 attacks per round."
 			},
 			{
 				"title": "Shark Aggression",
-				"desc": "Bytes a nearby foe, lowering its total maximum health by 1 with each strike.",
-				"info": "15 pierce damage, one health debuff.",
-				"upgrade": "+5 more damage or healing.",
+				"desc": "Bytes a nearby foe, lowering its total maximum health with every single hit.",
+				"info": "10 pierce damage, ten health debuff.",
+				"upgrade": "Charges 2 hexagons at foe.",
 				"costs": {
 					"energy": 15
 				}
@@ -2891,17 +2931,17 @@
 			{
 				"title": "Crystal Therapy",
 				"desc": "Grows adjacent minerals that will buff regrowth & meditation of nearby units.",
-				"info": "4 regrowth + 4 meditation per crystal.",
-				"upgrade": "Each formation resists 3 hits.",
+				"info": "1 regrowth + 1 meditation per crystal.",
+				"upgrade": "Can improve existing crystal.",
 				"costs": {
 					"energy": 30
 				}
 			},
 			{
 				"title": "Charring Flame",
-				"desc": "Ranged attack that damages any of the first encountered units on several rows.",
-				"info": "20 burn damage done to 3 paralel lines.",
-				"upgrade": "Becomes a double hit attack.",
+				"desc": "8 range attack that damages the first encountered targets over three rows.",
+				"info": "15 burn damage done on 3 paralel lines.",
+				"upgrade": "It now improves crystals hit.",
 				"costs": {
 					"energy": 40
 				}
@@ -2911,10 +2951,11 @@
 	{
 		"id": 39,
 		"name": "Headless",
+		"playable": true,
 		"level": 3,
 		"realm": "W",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 145,
 			"regrowth": 7,
@@ -3000,10 +3041,11 @@
 	{
 		"id": 40,
 		"name": "Nutcase",
-		"level": 1,
-		"realm": "W",
+		"playable": true,
+		"level": 2,
+		"realm": "E",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 85,
 			"regrowth": 3,
@@ -3089,64 +3131,70 @@
 	},
 	{
 		"id": 41,
-		"name": "Cataract",
-		"level": 2,
+		"name": "Mangler",
+		"playable": false,
+		"level": 1,
 		"realm": "W",
-		"size": 2,
-		"set": "Alpha",
+		"size": 1,
+		"set": "β",
 		"stats": {
-			"health": 123,
+			"health": 90,
 			"regrowth": 4,
-			"endurance": 15,
-			"energy": 50,
-			"meditation": 20,
+			"endurance": 30,
+			"energy": 90,
+			"meditation": 25,
 			"initiative": 12,
 			"offense": 4,
 			"defense": 3,
 			"movement": 3,
-			"pierce": 4,
+			"pierce": 12,
 			"slash": 4,
 			"crush": 4,
 			"shock": 3,
-			"burn": 2,
+			"burn": 4,
 			"frost": 2,
 			"poison": 12,
-			"sonic": 3,
-			"mental": 12
+			"sonic": 9,
+			"mental": 20
 		},
 		"animation": {
 			"walk_speed": 450
 		},
 		"ability_info": [
 			{
-				"title": "Death Dealer",
-				"desc": "Gains bonus offense stat for every kill.",
-				"info": "+10 bonus offense if last hitting a unit"
+				"title": "Hypnotic Light",
+				"desc": "Causes inline foe within 5 hexagons to come towards at the start of the turn.",
+				"info": "Enemy will be compeled to approach.",
+				"upgrade": "Frontal foes can not attack."
 			},
 			{
-				"title": "Trap Jaw",
-				"desc": "Bites frontal foe, doing extra damage if the target breaks away during its turn.",
-				"info": "12 pierce damage, twice if it will move"
+				"title": "Sucker Punch",
+				"desc": "Eyes are actually punches, taking a nearby foe by surprise the first time.",
+				"info": "9 crush damage, triple the first time.",
+				"upgrade": "Can be used twice per round."
 			},
 			{
-				"title": "Spinal Tap",
-				"desc": "Strikes a frontal foe using back spikes, not allowing it to regenerate one turn.",
-				"info": "9 pierce + 9 poison damage, 0 regrowth"
+				"title": "Hell Mouth",
+				"desc": "Either bites an adjacent foe or creates a trap out of spikes nearby on the ground.",
+				"info": "16 pierce damage, -5 regrowth debuff.",
+				"upgrade": "Debuffs stack while fatigued."
 			},
 			{
-				"title": "Skull Bolt",
-				"desc": "Uses parts from units that died within 5 hexagons radius as a deadly projectile.",
-				"info": "40 crush + 10 poison damage per launch"
+				"title": "Girly Sprint",
+				"desc": "Gains 5 movement points and can run through traps without triggering them.",
+				"info": "+4 movement, doesn't trigger traps.",
+				"upgrade": "+2 more movement points."
 			}
 		]
 	},
 	{
 		"id": 42,
 		"name": "Batmadillo",
+		"playable": false,
 		"level": 7,
 		"realm": "E",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 222,
 			"regrowth": 4,
@@ -3231,10 +3279,11 @@
 	{
 		"id": 43,
 		"name": "Volpyr",
+		"playable": false,
 		"level": 7,
 		"realm": "L",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 210,
 			"regrowth": 10,
@@ -3261,8 +3310,7 @@
 		"ability_info": [
 			{
 				"title": "Hot Ashes",
-				"desc":
-					"If killed, leaves ashes behind that will reiginite it back to life if not stomped.",
+				"desc": "If killed, leaves ashes behind that will reiginite it back to life if not stomped.",
 				"info": "1/3 hitpoints & energy for each stack.",
 				"upgrade": "Full energy when it revives."
 			},
@@ -3298,15 +3346,16 @@
 	{
 		"id": 44,
 		"name": "Scavenger",
+		"playable": true,
 		"level": 3,
 		"realm": "P",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 80,
 			"regrowth": 2,
 			"endurance": 30,
-			"energy": 75,
+			"energy": 106,
 			"meditation": 30,
 			"initiative": 70,
 			"offense": 1,
@@ -3381,7 +3430,7 @@
 					"poison": 8
 				},
 				"costs": {
-					"energy": 30
+					"energy": 46
 				}
 			}
 		]
@@ -3389,16 +3438,17 @@
 	{
 		"id": 45,
 		"name": "Chimera",
+		"playable": true,
 		"level": 6,
 		"realm": "P",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 182,
 			"regrowth": 12,
-			"endurance": 40,
-			"energy": 80,
-			"meditation": 40,
+			"endurance": 38,
+			"energy": 96,
+			"meditation": 48,
 			"initiative": 40,
 			"offense": 7,
 			"defense": 5,
@@ -3444,7 +3494,7 @@
 					"crush": 16
 				},
 				"costs": {
-					"energy": 16
+					"energy": 32
 				}
 			},
 			{
@@ -3456,7 +3506,7 @@
 					"sonic": 21
 				},
 				"costs": {
-					"energy": 21
+					"energy": 31
 				}
 			},
 			{
@@ -3468,7 +3518,7 @@
 					"crush": 15
 				},
 				"costs": {
-					"energy": 30
+					"energy": 33
 				}
 			}
 		]
@@ -3476,10 +3526,11 @@
 	{
 		"id": 46,
 		"name": "Scorpius",
+		"playable": false,
 		"level": 5,
 		"realm": "E",
 		"size": 2,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 186,
 			"regrowth": 4,
@@ -3542,10 +3593,11 @@
 	{
 		"id": 47,
 		"name": "Aegis",
+		"playable": false,
 		"level": 5,
 		"realm": "P",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 160,
 			"regrowth": 6,
@@ -3596,10 +3648,11 @@
 	{
 		"id": 48,
 		"name": "Satyr",
+		"playable": false,
 		"level": 6,
 		"realm": "W",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 214,
 			"regrowth": 4,
@@ -3662,10 +3715,11 @@
 	{
 		"id": 49,
 		"name": "Lavamander",
+		"playable": false,
 		"level": 6,
 		"realm": "L",
 		"size": 3,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 180,
 			"regrowth": 2,
@@ -3728,10 +3782,11 @@
 	{
 		"id": 50,
 		"name": "Shadow Leech",
-		"level": "S",
+		"playable": false,
+		"level": "1",
 		"realm": "W",
 		"size": 1,
-		"set": "Alpha",
+		"set": "α",
 		"stats": {
 			"health": 40,
 			"regrowth": 0,
@@ -3763,10 +3818,10 @@
 				"upgrade": "Causes delay to enemy units."
 			},
 			{
-				"title": "Palm Jaw",
+				"title": "Starving Palms",
 				"desc": "Bites nearby foe by using its own hand, stealing the energy points cost from it.",
 				"info": "12 pierce damage & 10 energy transfer.",
-				"upgrade": "Kills steal all the energy left.",
+				"upgrade": "Attack also transfers health.",
 				"damages": {
 					"pierce": 12
 				},
@@ -3775,7 +3830,7 @@
 				}
 			},
 			{
-				"title": "Sorrow Visions",
+				"title": "Sleeping Mummy",
 				"desc": "Causes a foe within 5 hexagons to skip its next turn if not taking any damage.",
 				"info": "Can not target any enemy summoners.",
 				"upgrade": "13 mental damage if awaken.",
@@ -3787,10 +3842,10 @@
 				}
 			},
 			{
-				"title": "Sleeping Mummy",
-				"desc": "Meditative state that heals 20 points if not being disrupted for a whole round.",
-				"info": "15 bonus defense while in this stance.",
-				"upgrade": "Will always restore 5 health.",
+				"title": "Shadow Warrior",
+				"desc": "Transforms the shadow of a combatant into a self clone until one of them dies.",
+				"info": "All the stats are linked with the master.",
+				"upgrade": "Targets can regain shadows.",
 				"costs": {
 					"energy": 25
 				}
