@@ -29,12 +29,15 @@
 		"express": "^4.17.1",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
-		"phaser-ce": "2.16.0"
+		"phaser-ce": "2.16.0",
+		"@heroiclabs/nakama-js": "^2.0.1"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.9.0",
 		"@babel/plugin-transform-runtime": "^7.10.3",
 		"@babel/preset-env": "^7.9.5",
+		"babel-plugin-transform-runtime": "^6.23.0",
+		"babel-polyfill": "^6.26.0",
 		"babel-loader": "^8.1.0",
 		"css-loader": "^3.5.2",
 		"eslint": "^6.8.0",
