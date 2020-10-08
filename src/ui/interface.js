@@ -1123,6 +1123,19 @@ export class UI {
 				} else {
 					$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
 				}
+				if (key !== 0) {
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#cost')
+						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+				} else {
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#cost')
+						.text(' - this ability is passive.');
+				}
 			});
 
 			// Materialize button
