@@ -1315,7 +1315,7 @@ export class UI {
 			},
 			{
 				cls: 'firstKill',
-				emoji: emoji.get('blood'),
+				emoji: emoji.get('syringe'),
 				title: 'First blood',
 			},
 			{
