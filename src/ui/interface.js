@@ -1,5 +1,6 @@
 import * as $j from 'jquery';
 import * as time from '../utility/time';
+import * as emoji from 'node-emoji';
 
 import { Button } from './button';
 import { Chat } from './chat';
@@ -1133,6 +1134,19 @@ export class UI {
 				} else {
 					$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
 				}
+				if (key !== 0) {
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#cost')
+						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+				} else {
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#cost')
+						.text(' - this ability is passive.');
+				}
 			});
 
 			// Materialize button
@@ -1327,42 +1341,52 @@ export class UI {
 			},
 			{
 				cls: 'firstKill',
+				emoji: emoji.get('syringe'),
 				title: 'First blood',
 			},
 			{
 				cls: 'kill',
+				emoji: emoji.get('skull'),
 				title: 'Kills',
 			},
 			{
 				cls: 'combo',
+				emoji: emoji.get('chains'),
 				title: 'Combos',
 			},
 			{
 				cls: 'humiliation',
+				emoji: emoji.get('baby'),
 				title: 'Humiliation',
 			},
 			{
 				cls: 'annihilation',
+				emoji: emoji.get('coffin'),
 				title: 'Annihilation',
 			},
 			{
 				cls: 'deny',
+				emoji: emoji.get('collision'),
 				title: 'Denies',
 			},
 			{
 				cls: 'pickupDrop',
+				emoji: emoji.get('cherries'),
 				title: 'Drops picked',
 			},
 			{
 				cls: 'timebonus',
+				emoji: emoji.get('alarm_clock'),
 				title: 'Time Bonus',
 			},
 			{
 				cls: 'nofleeing',
+				emoji: emoji.get('chicken'),
 				title: 'No Fleeing',
 			},
 			{
 				cls: 'creaturebonus',
+				emoji: emoji.get('heartbeat'),
 				title: 'Survivor Units',
 			},
 			{
@@ -1371,20 +1395,25 @@ export class UI {
 			},
 			{
 				cls: 'immortal',
+				emoji: emoji.get('bat'),
 				title: 'Immortal',
 			},
 			{
 				cls: 'upgrade',
+				emoji: emoji.get('medal'),
 				title: 'Ability Upgrades',
 			},
 			{
 				cls: 'total',
+				emoji: emoji.get('100'),
 				title: 'Total',
 			},
 		];
 
 		tableMeta.forEach((row) => {
-			$table.find(`tr.${row.cls}`).empty().html(`<td>${row.title}</td>`);
+			$table.find(`tr.${row.cls}`).empty().html(`<td>
+			${row.emoji ? `<span class="tooltiptext">${row.title}</span>${row.emoji}` : `${row.title}`}
+			</td>`);
 
 			// Add cells for each player
 			for (let i = 0; i < game.playerMode; i++) {
@@ -2487,6 +2516,11 @@ export class UI {
 					text = 'Frozen';
 					textElement.css({
 						background: 'darkturquoise',
+					});
+				} else if (creature.dizzy) {
+					text = 'Dizzy';
+					textElement.css({
+						background: 'saddlebrown',
 					});
 				} else if (creature.materializationSickness) {
 					text = 'Sickened';
