@@ -11,117 +11,144 @@ import { getDirectionFromDelta } from '../utility/position';
  */
 export default (G) => {
 	G.abilities[28] = [
-		// First Ability: Toxic Spores
+		//  First Ability: Tankish Build
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			triggerFunc: function () {
 				if (this.isUpgraded()) {
-					return 'onUnderAttack onAttack';
+					// Once upgraded add the trigger to disable the bonus if hit
+					return 'onStartPhase onDamage';
 				}
-				return 'onUnderAttack';
+				return 'onStartPhase';
 			},
 
-			priority: 10,
+			_defenseBuff: 0, // Total bonus defense
+
+			_maxDefenseBuff: 40, // Cap of the bonus
+
+			_damageTaken: false, // Condition once upgraded
+
+			_getDefenseBuff: function (defenseBuff) {
+				if (this._defenseBuff >= 39) {
+					this._defenseBuff = 40;
+				} else {
+					this.isUpgraded() && !this._damageTaken
+						? (this._defenseBuff += 2)
+						: (this._defenseBuff += 1);
+				}
+				return this._defenseBuff;
+			},
 
 			// require() :
 			require: function (damage) {
-				if (!this.testRequirements()) {
-					return false;
+				if (!damage) {
+					// If the ability is called without taking damage (a.k.a at the start of the round)
+					return true; // Activate the ability
+				} else {
+					// If it's called by damage once upgraded
+					this._damageTaken = true; // Change the _damageTaken to true
+					return false; // But don't activate the ability
 				}
-
-				// Check that attack is melee from actual creature, not from trap
-				if (damage && damage.melee !== undefined) {
-					return damage.melee && !damage.isFromTrap;
-				}
-				// Always return true so that ability is highlighted in UI
-				return true;
 			},
 
 			// activate() :
-			activate: function (damage) {
-				let ability = this;
-				let creature = this.creature;
-
-				if (!damage || !damage.melee) {
-					return;
-				}
-
-				// ability may trigger both onAttack and onUnderAttack;
-				// the target should be the other creature
-				let target = damage.attacker === creature ? damage.target : damage.attacker;
-
-				let optArg = {
-					alterations: ability.effects[0],
-					creationTurn: G.turn - 1,
-					stackable: true,
-				};
-
-				ability.end();
-
-				// Spore Contamination
-				let effect = new Effect(
-					ability.title, // Name
-					creature, // Caster
-					target, // Target
-					'', // Trigger
-					optArg, // Optional arguments
-					G,
+			activate: function () {
+				this.creature.replaceEffect(
+					// Add and replace the effect each time
+					new Effect(
+						'Tankish Build', // Name
+						this.creature, // Caster
+						this.creature, // Target
+						'', // Trigger
+						{
+							alterations: {
+								defense: this._getDefenseBuff(this._defenseBuff), // Add a defense buff
+							},
+							stackable: false,
+						},
+						G,
+					),
 				);
-
-				target.addEffect(effect, undefined, 'Contaminated');
-
-				G.log(
-					'%CreatureName' + target.id + "%'s regrowth is lowered by " + ability.effects[0].regrowth,
-				);
-
-				ability.setUsed(false); // Infinite triggering
+				this._damageTaken = false; // Reset the _damageTaken
 			},
 		},
 
-		//	Second Ability: Supper Chomp
+		//	Second Ability: Seismic Stomp
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
 
+			_upgradedMap: [
+				[0, 1, 0, 0, 0, 1, 0, 0],
+				[0, 0, 1, 0, 0, 1, 0, 0],
+				[0, 0, 1, 0, 1, 0, 0, 0],
+				[1, 1, 1, 0, 0, 1, 1, 1], // Origin line
+				[0, 0, 1, 0, 1, 0, 0, 0],
+				[0, 0, 1, 0, 0, 1, 0, 0],
+				[0, 1, 0, 0, 0, 1, 0, 0],
+			],
+
 			// require() :
 			require: function () {
-				if (!this.testRequirements()) {
+				let req = {
+					team: this._targetTeam,
+					sourceCreature: this.creature,
+					distance: 3,
+				};
+
+				if (!this.testRequirements() || !this.testDirection(req)) {
 					return false;
 				}
 
-				// At least one target
-				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
-						team: this._targetTeam,
-					})
-				) {
-					return false;
-				}
 				return true;
 			},
 
 			// query() :
 			query: function () {
-				let uncle = this.creature;
+				let stomper = this.creature;
 				let ability = this;
 
-				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
-					},
-					team: this._targetTeam,
-					id: uncle.id,
-					flipped: uncle.flipped,
-					hexes: uncle.getHexMap(matrices.frontnback2hex),
-				});
+				// Take the closest ennemy in each direction within 3hex
+				if (!this.isUpgraded()) {
+					G.grid.queryDirection({
+						fnOnConfirm: function () {
+							ability.animation(...arguments);
+						},
+						flipped: stomper.flipped,
+						team: this._targetTeam,
+						id: stomper.id,
+						requireCreature: true,
+						x: stomper.x,
+						y: stomper.y,
+						distance: 3,
+						sourceCreature: stomper,
+					});
+				} // Once upgraded, can hit any ennemy within 3hex in any direction
+				else {
+					this._upgradedMap.origin = [3, 3];
+					G.grid.queryCreature({
+						fnOnConfirm: function () {
+							ability.animation(...arguments);
+						},
+						team: this._targetTeam,
+						id: stomper.id,
+						flipped: stomper.flipped,
+						hexes: stomper.getHexMap(this._upgradedMap),
+					});
+				}
 			},
 
 			// activate() :
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+
+				// If not upgraded take the first creature found (aka last in path)
+				if (!this.isUpgraded()) {
+					target = arrayUtils.last(target).creature;
+				}
 
 				let damage = new Damage(
 					ability.creature, // Attacker
@@ -131,131 +158,262 @@ export default (G) => {
 					G,
 				);
 
-				let dmg = target.takeDamage(damage);
-
-				if (dmg.damageObj.status === '') {
-					let amount = dmg.damages.total;
-
-					// If upgraded, heal immediately up to the amount of health lost so far;
-					// use the remainder as regrowth
-					if (this.isUpgraded()) {
-						let healthLost = this.creature.stats.health - this.creature.health;
-						if (healthLost > 0) {
-							let healAmount = Math.min(amount, healthLost);
-							amount -= healAmount;
-							this.creature.heal(healAmount, false);
-						}
-					}
-
-					// Regrowth bonus
-					if (amount > 0) {
-						ability.creature.addEffect(
-							new Effect(
-								ability.title, // Name
-								ability.creature, // Caster
-								ability.creature, // Target
-								'', // Trigger
-								{
-									turnLifetime: 1,
-									deleteTrigger: 'onStartPhase',
-									alterations: {
-										regrowth: amount,
-									},
-								}, // Optional arguments
-								G,
-							),
-							'%CreatureName' + ability.creature.id + '% gained ' + amount + ' regrowth for now', // Custom log
-							'Regrowth++',
-						); // Custom hint
-					}
-				}
-
-				// Remove frogger bonus if its found
-				ability.creature.effects.forEach(function (effect) {
-					if (effect.name == 'Frogger Bonus') {
-						effect.deleteEffect();
-					}
-				});
+				target.takeDamage(damage);
 			},
 		},
 
-		// Third Ability: Frogger Jump
+		// Third Ability: Stone Grinder
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function () {
-				// Must be able to move
-				if (!this.creature.stats.moveable) {
-					this.message = G.msg.abilities.notmoveable;
-					return false;
-				}
-				return this.testRequirements() && this.creature.stats.moveable;
+			// Hit both team in a straight line but require at least one melee target
+			_req: {
+				team: Team.both,
+				directions: [0, 1, 0, 0, 1, 0],
+				distance: 1,
 			},
 
-			fnOnSelect: function (hex) {
-				this.creature.tracePosition({
-					x: hex.x,
-					y: hex.y,
-					overlayClass: 'creature moveto selected player' + this.creature.team,
-				});
+			_directions: [0, 0, 0, 0, 0, 0],
+
+			// Return an array of dashed hex
+			_getDashed: function (direction) {
+				let stomper = this.creature;
+
+				let hexes;
+
+				if (!direction[4]) {
+					hexes = G.grid.getHexMap(
+						stomper.x,
+						stomper.y,
+						0,
+						stomper.player.flipped,
+						matrices.straitrow,
+					);
+				} else if (!direction[1]) {
+					hexes = G.grid.getHexMap(
+						stomper.x,
+						stomper.y,
+						0,
+						!stomper.player.flipped,
+						matrices.straitrow,
+					);
+				} else {
+					let forward = G.grid.getHexMap(
+						stomper.x,
+						stomper.y,
+						0,
+						stomper.player.flipped,
+						matrices.straitrow,
+					);
+					let backward = G.grid.getHexMap(
+						stomper.x,
+						stomper.y,
+						0,
+						!stomper.player.flipped,
+						matrices.straitrow,
+					);
+					hexes = forward.concat(backward);
+				}
+
+				return hexes;
+			},
+
+			// Return an array of all reachable targets'
+			_getTarget: function (direction) {
+				let ability = this;
+				let stomper = this.creature;
+
+				let fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
+				let bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
+				let targets = [];
+
+				if (!direction[4]) {
+					targets.push(
+						...ability._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
+					);
+				} else if (!direction[1]) {
+					targets.push(
+						...ability._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
+					);
+				} else {
+					targets.push(
+						...ability._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
+					);
+					targets.push(
+						...ability._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
+					);
+				}
+
+				return targets;
+			},
+
+			// Add target's hex to the array as long as there isn't 2 empty hex
+			_getCreature: function (hexes) {
+				let targets = [];
+				let i = 0,
+					stop = 0;
+				while (i < hexes.length && stop < 2) {
+					let crea = hexes[i].creature;
+
+					if (crea !== undefined) {
+						for (let j = 0; j < crea.size; j++) {
+							targets.push(G.grid.hexes[crea.y][crea.x - j]);
+						}
+						i += crea.size;
+						stop = 0;
+					} else {
+						i++;
+						stop++;
+					}
+				}
+				return targets;
+			},
+
+			// Check if there is a possible place to end the ability
+			_checkEnd: function () {
+				let ability = this;
+				let stomper = this.creature;
+				let direction = ability.testDirections(ability._req);
+				let hexes;
+
+				ability._directions = [0, 0, 0, 0, 0, 0];
+
+				let fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
+				let bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
+
+				if (!direction[4]) {
+					hexes = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
+					if (this._getHole(hexes)) ability._directions = direction;
+				} else if (!direction[1]) {
+					hexes = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
+					if (this._getHole(hexes)) ability._directions = direction;
+				} else {
+					let forward = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
+					let backward = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
+					if (this._getHole(forward)) ability._directions[1] = 1;
+					if (this._getHole(backward)) ability._directions[4] = 1;
+				}
+			},
+
+			// Return true if there is at least one 2hex hole in the array of hexes
+			_getHole: function (hexes) {
+				let i = 0,
+					stop = 0;
+				while (i < hexes.length && stop < 2) {
+					if (hexes[i].creature === undefined) {
+						stop++;
+					} else {
+						stop = 0;
+					}
+					i++;
+				}
+				return stop >= 2;
+			},
+
+			// require() :
+			require: function () {
+				let ability = this;
+				ability._req.sourceCreature = ability.creature;
+
+				ability._checkEnd();
+
+				if (!ability.testRequirements() || (!ability._directions[1] && !ability._directions[4])) {
+					return false;
+				}
+				return true;
 			},
 
 			// query() :
 			query: function () {
 				let ability = this;
-				let uncle = this.creature;
+				let stomper = this.creature;
+				// Get the direction of the melee target, the dashed hex and the targets
+				let direction = ability._directions;
+				let dashed = ability._getDashed(direction);
+				let targets = ability._getTarget(direction);
 
-				// Don't jump over creatures if we're not upgraded, or we are in a second
-				// "low" jump
-				let stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
-				let hexes = this._getHexRange(stopOnCreature);
+				// Separate the front and back row of targets
+				let targets2 = [];
+				if (direction[1] && direction[4]) {
+					targets2 = targets.filter((crea) => crea.x < stomper.x);
+					targets2.forEach((hex) => {
+						targets.splice(
+							targets.findIndex((i) => i.coord === hex.coord),
+							1,
+						);
+					});
+				}
 
-				G.grid.queryHexes({
-					fnOnSelect: function () {
-						ability.fnOnSelect(...arguments);
-					},
+				G.grid.queryChoice({
 					fnOnConfirm: function () {
-						if (arguments[0].x == ability.creature.x && arguments[0].y == ability.creature.y) {
-							// Prevent null movement
-							ability.query();
-							return;
-						}
 						ability.animation(...arguments);
 					},
-					size: uncle.size,
-					flipped: uncle.player.flipped,
-					id: uncle.id,
-					hexes: hexes,
-					hexesDashed: [],
-					hideNonTarget: true,
+					team: Team.both,
+					requireCreature: 0,
+					id: stomper.id,
+					flipped: stomper.flipped,
+					choices: [targets, targets2], // Target the front or back row
+					hexesDashed: dashed,
 				});
 			},
 
 			// activate() :
-			activate: function (hex) {
+			activate: function (hexes) {
 				let ability = this;
-				ability.end(false, true); // Deferred ending
+				let stomper = this.creature;
+				let i = 0;
+				ability.end();
 
-				// If upgraded and we haven't leapt over creatures/obstacles, allow a second
-				// jump of the same kind
-				if (this.isUpgraded() && !this._isSecondLowJump()) {
-					// Check if we've leapt over creatures by finding all "low" jumps (jumps
-					// not over creatures), and finding whether this jump was a "low" one
-					let lowJumpHexes = this._getHexRange(true);
-					let isLowJump = false;
-					for (let i = 0; i < lowJumpHexes.length; i++) {
-						if (lowJumpHexes[i].x === hex.x && lowJumpHexes[i].y === hex.y) {
-							isLowJump = true;
+				let targets = ability.getTargets(hexes);
+
+				let lastTarget = targets[targets.length - 1].target;
+				let offset = null;
+
+				console.log(targets);
+				for (i = 0; i < targets.length; i++) {
+					let target = targets[i].target;
+
+					let damage = new Damage(
+						ability.creature, // Attacker
+						ability.damages, // Damage type
+						1, // Area
+						[], // Effects
+						G,
+					);
+					// Apply damage on all hexes
+					for (let j = 0; j < target.size; j++) {
+						target.takeDamage(damage);
+						if (target.dead === true) {
+							break;
 						}
 					}
-					if (isLowJump) {
-						this.setUsed(false);
+
+					// Stop the ability if it's not upgraded and a 2hex "hole" is created
+					if (
+						!ability.isUpgraded() &&
+						target.dead === true &&
+						(target.size > 1 ||
+							G.grid.hexes[target.y][target.x - 1].creature === undefined ||
+							G.grid.hexes[target.y][target.x + 1].creature === undefined)
+					) {
+						// Set the new last target for the movement
+						if (i > 0) {
+							lastTarget = targets[i - 1].target;
+						} else {
+							lastTarget = target;
+							offset = 0;
+						}
+						break;
 					}
+				}
+				// Offset for the landing position
+				if (offset === null) {
+					offset = lastTarget.x >= stomper.x ? 2 : -lastTarget.size;
 				}
 
 				// Jump directly to hex
-				ability.creature.moveTo(hex, {
+				ability.creature.moveTo(G.grid.hexes[stomper.y][lastTarget.x + offset], {
 					ignoreMovementPoint: true,
 					ignorePath: true,
 					callback: function () {
@@ -273,147 +431,86 @@ export default (G) => {
 						}, 100);
 					},
 				});
-
-				// Frogger Leap bonus
-				ability.creature.addEffect(
-					new Effect(
-						'Offense Bonus', // Name
-						ability.creature, // Caster
-						ability.creature, // Target
-						'onStepIn onEndPhase', // Trigger
-						{
-							effectFn: function (effect) {
-								effect.deleteEffect();
-							},
-							alterations: ability.effects[0],
-						}, // Optional arguments
-						G,
-					),
-				);
-			},
-
-			_getHexRange: function (stopOnCreature) {
-				// Get the hex range of this ability
-				let uncle = this.creature;
-				let forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, matrices.straitrow);
-				forward = arrayUtils.filterCreature(forward, false, stopOnCreature, uncle.id);
-				let backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, matrices.straitrow);
-				backward = arrayUtils.filterCreature(backward, false, stopOnCreature, uncle.id);
-				// Combine and sort by X, left to right
-				let hexes = forward.concat(backward).sort(function (a, b) {
-					return a.x - b.x;
-				});
-				// Filter out any hexes that cannot accomodate the creature's size
-				let run = 0;
-				for (let i = 0; i < hexes.length; i++) {
-					if (i === 0 || hexes[i - 1].x + 1 === hexes[i].x) {
-						run++;
-					} else {
-						if (run < this.creature.size) {
-							hexes.splice(i - run, run);
-							i -= run;
-						}
-						run = 1;
-					}
-				}
-				if (run < this.creature.size) {
-					hexes.splice(hexes.length - run, run);
-				}
-				return hexes;
-			},
-
-			_isSecondLowJump: function () {
-				return this.timesUsedThisTurn === 1;
 			},
 		},
-		// Fourth Ability: Sabre Kick
+
+		// Fourth Ability: Earth Shaker
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			// The area of the skill
+			map: [
+				[0, 0, 1, 0],
+				[0, 0, 1, 1],
+				[0, 1, 1, 0], // Origin line
+				[0, 0, 1, 1],
+				[0, 0, 1, 0],
+			],
 
-			// require() :
 			require: function () {
-				if (!this.testRequirements()) {
-					return false;
-				}
-
-				let map = G.grid.getHexMap(
-					this.creature.x - 2,
-					this.creature.y - 2,
-					0,
-					false,
-					matrices.frontnback2hex,
-				);
-				// At least one target
-				if (
-					!this.atLeastOneTarget(map, {
-						team: this._targetTeam,
-					})
-				) {
-					return false;
-				}
-				return true;
+				return this.testRequirements();
 			},
 
 			// query() :
 			query: function () {
 				let ability = this;
-				let uncle = this.creature;
+				let stomper = this.creature;
 
-				G.grid.queryCreature({
+				this.map.origin = [0, 2];
+
+				G.grid.queryChoice({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					team: this._targetTeam,
-					id: uncle.id,
-					flipped: uncle.flipped,
-					hexes: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, matrices.frontnback2hex),
+					team: Team.both,
+					requireCreature: 0,
+					id: stomper.id,
+					flipped: stomper.flipped,
+					choices: [stomper.getHexMap(this.map), stomper.getHexMap(this.map, true)],
 				});
 			},
 
 			// activate() :
-			activate: function (target) {
+			activate: function (hexes) {
 				let ability = this;
-				ability.end();
+				ability.end(); // Deferred ending
 
-				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
-					1, // Area
-					[], // Effects
-					G,
-				);
-				let result = target.takeDamage(damage);
+				// Delay all creatures in area
+				let targets = ability.getTargets(hexes);
+				for (let i = 0; i < targets.length; i++) {
+					let target = targets[i].target;
 
-				// If upgraded, knock back target by 1 hex
-				if (this.isUpgraded() && !result.kill) {
-					let dx = target.x - this.creature.x;
-					let dy = target.y - this.creature.y;
-					let dir = getDirectionFromDelta(target.y, dx, dy);
-					let hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
-					// The hex to knock back into is the second hex since the first is where
-					// they are currently
-					if (hexes.length >= 2 && hexes[1].isWalkable(target.size, target.id, true)) {
-						target.moveTo(hexes[1], {
-							callback: function () {
-								G.activeCreature.queryMove();
-							},
-							ignoreMovementPoint: true,
-							ignorePath: true,
-							overrideSpeed: 500, // Custom speed for knockback
-							animation: 'push',
-						});
+					// If the ability is upgraded and the creature is already delayed, skip the turn
+					if (
+						ability.isUpgraded() &&
+						(target.delayed || target.findEffect('Earth Shaker').length > 0)
+					) {
+						target.dizzy = true;
+						target.removeEffect('Earth Shaker');
+					} else {
+						target.delay(false);
+						target.addEffect(
+							new Effect(
+								'Earth Shaker', // Name
+								this.creature, // Caster
+								target, // Target
+								'onStartPhase', // Trigger
+								{
+									// disable the ability to delay this unit as it has already been delayed
+									effectFn: () => {
+										target.delayed = true;
+										target.delayable = false;
+									},
+									deleteTrigger: 'onEndPhase',
+									turnLifetime: 1,
+									stackable: false,
+								},
+								G,
+							),
+						);
 					}
 				}
-
-				// Remove Frogger Jump bonus if its found
-				ability.creature.effects.forEach(function (effect) {
-					if (effect.name == 'Offense Bonus') {
-						effect.deleteEffect();
-					}
-				});
 			},
 		},
 	];
