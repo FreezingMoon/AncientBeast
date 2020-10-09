@@ -7,6 +7,7 @@ const phaserModule = path.join(__dirname, '/node_modules/phaser-ce/');
 const phaser = path.join(phaserModule, 'build/custom/phaser-split.js');
 const pixi = path.join(phaserModule, 'build/custom/pixi.js');
 const p2 = path.join(phaserModule, 'build/custom/p2.js');
+const Dotenv = require('dotenv-webpack');
 
 // Expose mode argument to unify our config options.
 module.exports = (env, argv) => {
@@ -77,6 +78,10 @@ module.exports = (env, argv) => {
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
 				production,
 			}),
+			new Dotenv(),
 		],
+		node: {
+			fs: 'empty',
+		},
 	};
 };

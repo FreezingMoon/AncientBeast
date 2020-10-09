@@ -9,6 +9,7 @@ import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
 import SessionI from './multiplayer/session';
 
+console.log(process.env.key);
 // import SocketI from './server/socket';
 
 // Load the stylesheet
@@ -60,15 +61,15 @@ $j(document).ready(() => {
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 
 	// Add listener for Fullscreen API
-	$j('#fullScreen').on('click', () => {
-		if (isNativeFullscreenAPIUse()) {
-			disableFullscreenLayout();
-			document.exitFullscreen();
-		} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
-			alert('Use f11 to exit full screen');
-		} else {
-			enableFullscreenLayout();
-			$j('#AncientBeast')[0].requestFullscreen();
+	let fullscreen = new Fullscreen($j('#fullscreen'));
+	$j('#fullscreen').on('click', () => fullscreen.toggle());
+
+	// Binding Hotkeys
+	$j(document).keydown((event) => {
+		const fullscreenHotkey = 70;
+		const pressedKey = event.keyCode || event.which;
+		if (event.shiftKey && fullscreenHotkey == pressedKey) {
+			fullscreen.toggle();
 		}
 	});
 
@@ -83,15 +84,11 @@ $j(document).ready(() => {
 		$j('.setupFrame,.lobby').hide();
 		$j('.loginregFrame').show();
 		let sess = new SessionI();
-		let session = await sess.restoreSession();
-		console.log(session.username + ' restored session ', session);
-	});
-
-	window.addEventListener('resize', () => {
-		if (window.innerHeight === screen.height && !$j('#fullScreen').hasClass('fullscreenMode')) {
-			enableFullscreenLayout();
-		} else if ($j('#fullScreen').hasClass('fullscreenMode') && !isNativeFullscreenAPIUse()) {
-			disableFullscreenLayout();
+		try {
+			await sess.restoreSession();
+		} catch (e) {
+			console.log('unable to restore session', e);
+			return;
 		}
 	});
 

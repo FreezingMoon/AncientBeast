@@ -23,14 +23,15 @@
 		"url": "https://ancientbeast.com/contribute/#donate"
 	},
 	"dependencies": {
+		"@heroiclabs/nakama-js": "^2.0.1",
 		"compression": "^1.7.4",
 		"copy-webpack-plugin": "^5.1.1",
 		"cross-env": "^7.0.2",
+		"dotenv-webpack": "^3.0.0",
 		"express": "^4.17.1",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
-		"phaser-ce": "2.16.0",
-		"@heroiclabs/nakama-js": "^2.0.1"
+		"phaser-ce": "2.16.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.9.0",
