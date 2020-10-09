@@ -29,6 +29,7 @@
 		"express": "^4.17.1",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
+		"node-emoji": "^1.10.0",
 		"phaser-ce": "2.16.0"
 	},
 	"devDependencies": {
