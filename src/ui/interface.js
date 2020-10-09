@@ -1,5 +1,6 @@
 import * as $j from 'jquery';
 import * as time from '../utility/time';
+import * as emoji from 'node-emoji';
 
 import { Button } from './button';
 import { Chat } from './chat';
@@ -1314,53 +1315,52 @@ export class UI {
 			},
 			{
 				cls: 'firstKill',
-				emoji: '🩸',
-				iconSrc: 'assets/icons/blood.svg',
+				emoji: emoji.get('blood'),
 				title: 'First blood',
 			},
 			{
 				cls: 'kill',
-				emoji: '💀',
+				emoji: emoji.get('skull'),
 				title: 'Kills',
 			},
 			{
 				cls: 'combo',
-				emoji: '⛓️',
+				emoji: emoji.get('chains'),
 				title: 'Combos',
 			},
 			{
 				cls: 'humiliation',
-				emoji: '👶',
+				emoji: emoji.get('baby'),
 				title: 'Humiliation',
 			},
 			{
 				cls: 'annihilation',
-				emoji: '⚰',
+				emoji: emoji.get('coffin'),
 				title: 'Annihilation',
 			},
 			{
 				cls: 'deny',
-				emoji: '💥',
+				emoji: emoji.get('collision'),
 				title: 'Denies',
 			},
 			{
 				cls: 'pickupDrop',
-				emoji: '🍒',
+				emoji: emoji.get('cherries'),
 				title: 'Drops picked',
 			},
 			{
 				cls: 'timebonus',
-				emoji: '⏰',
+				emoji: emoji.get('alarm_clock'),
 				title: 'Time Bonus',
 			},
 			{
 				cls: 'nofleeing',
-				emoji: '🐔',
+				emoji: emoji.get('chicken'),
 				title: 'No Fleeing',
 			},
 			{
 				cls: 'creaturebonus',
-				emoji: '💓',
+				emoji: emoji.get('heartbeat'),
 				title: 'Survivor Units',
 			},
 			{
@@ -1369,31 +1369,25 @@ export class UI {
 			},
 			{
 				cls: 'immortal',
-				emoji: '🦇',
+				emoji: emoji.get('bat'),
 				title: 'Immortal',
 			},
 			{
 				cls: 'upgrade',
-				emoji: '🎖',
+				emoji: emoji.get('medal'),
 				title: 'Ability Upgrades',
 			},
 			{
 				cls: 'total',
-				emoji: '💯',
+				emoji: emoji.get('100'),
 				title: 'Total',
 			},
 		];
 
 		tableMeta.forEach((row) => {
 			$table.find(`tr.${row.cls}`).empty().html(`<td>
-			${
-				row.iconSrc || row.emoji
-					? `<span class="tooltiptext">${row.title}</span>
-			${row.emoji}`
-					: `${row.title}`
-			}
+			${row.emoji ? `<span class="tooltiptext">${row.title}</span>${row.emoji}` : `${row.title}`}
 			</td>`);
-			// instead of emoji use customed image use, then replace ${row.emoji}` with <img src=${row.iconSrc} height=20px>`
 
 			// Add cells for each player
 			for (let i = 0; i < game.playerMode; i++) {
@@ -1420,17 +1414,11 @@ export class UI {
 
 			// Change score
 			$j.each(game.players[i].getScore(), function (index, val) {
-				let text;
-				if (index === 'firstKill') {
-					text = val === 0 ? '☐' : '☑';
-				} else {
-					text = val === 0 && index !== 'total' ? '--' : val;
-				}
+				let text = val === 0 && index !== 'total' ? '--' : val;
 				$table
 					.children('tr.' + index)
 					.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
 					.text(text);
-				// let text;
 			});
 		}
 
