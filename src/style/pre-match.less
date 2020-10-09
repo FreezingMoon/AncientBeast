@@ -406,13 +406,51 @@ a.back:hover {
 #multiplayer {
 	position: fixed;
 	top: 50%;
-	right: 20px;
+	right: 0;
 	z-index: 100;
 	transform: translateY(-50%);
+	div {
+		height: 100px;
+		width: 100px;
+		background: url('~assets/interface/AB.png') no-repeat;
+		background-size: cover;
+	}
+
+	&:hover {
+		filter: brightness(120%);
+	}
 }
-#fullScreen {
+#fullscreen {
 	cursor: pointer;
 	position: fixed;
+	width: 100px;
+	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	top: 0;
+	right: 0;
+	z-index: 100;
+
+	div {
+		display: block;
+		width: 100px;
+		height: 100px;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/fullscreen.svg');
+		background-repeat: no-repeat;
+		background-size: cover;
+		margin-bottom: 3px;
+	}
+
+	&.fullscreenMode div {
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/contract.svg');
+	}
+}
+
+#start {
+	display: none;
+}
+
+#version {
+	display: block;
 	width: 100px;
 	position: fixed;
 	bottom: 0;
@@ -427,28 +465,6 @@ a.back:hover {
 
 	&:hover {
 		filter: brightness(120%);
-	}
-}
-
-#start {
-	display: none;
-}
-
-#version,
-#multiplayer {
-	display: block;
-	width: 100px;
-	position: fixed;
-	left: 0;
-	bottom: 0;
-	z-index: 100;
-	height: 120px;
-
-	div {
-		height: 100px;
-		background-color: rgba(0, 0, 0, 0.55);
-		background-image: url('~assets/interface/frame.png'), url('~assets/icons/discord.svg');
-		background-size: cover;
 	}
 }
 
