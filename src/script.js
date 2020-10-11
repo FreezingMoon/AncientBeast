@@ -57,6 +57,7 @@ $j(document).ready(() => {
 	locationSelector.eq(randomLocationIndex).prop('checked', true).trigger('click');
 
 	// Disable initial game setup until browser tab has focus
+
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 

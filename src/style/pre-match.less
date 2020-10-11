@@ -129,7 +129,7 @@ body {
 	display: none;
 }
 
-#pre-matchContainer {
+#gameSetupContainer {
 	display: flex;
 	flex-direction: column;
 	/* flex-wrap: wrap; */
@@ -510,6 +510,14 @@ a {
 	#gameSetup {
 		padding-bottom: 120px;
 	}
+	#multiplayer {
+		top: auto;
+		bottom: 0;
+		transform: none;
+		left: 50%;
+		transform: translate(-50%);
+		right: auto;
+	}
 }
 
 @media (max-height: 555px) {
@@ -548,7 +556,16 @@ a {
 			text-shadow: 0.1em 0.1em 0.1em #000, 0 0 0.7em red;
 		}
 	}
-
+	#start-btn {
+		display: none;
+	}
+	#fullscreen {
+		display: none;
+	}
+	#multiplayer {
+		top: 0;
+		transform: none;
+	}
 	#contribute {
 		display: block;
 		position: fixed;
@@ -565,10 +582,6 @@ a {
 		&:hover {
 			filter: brightness(120%);
 		}
-	}
-
-	.setupFrame div {
-		border: none;
 	}
 
 	#start {
