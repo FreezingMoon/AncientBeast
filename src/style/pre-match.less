@@ -559,12 +559,13 @@ a {
 	#start-btn {
 		display: none;
 	}
-	#fullscreen {
-		display: none;
-	}
+
 	#multiplayer {
-		top: 0;
-		transform: none;
+		top: 50%;
+		left: 0;
+		bottom: auto;
+		right: auto;
+		transform: translateY(-50%);
 	}
 	#contribute {
 		display: block;
@@ -575,8 +576,9 @@ a {
 		div {
 			background: url('~assets/interface/Swampler.gif');
 			background-repeat: no-repeat;
-			width: 144px;
-			height: 195px;
+			width: 120px;
+			height: 130px;
+			background-size: contain;
 		}
 
 		&:hover {
@@ -619,7 +621,7 @@ a {
 }
 
 @media (max-height: 445px) {
-	.setupFrame {
+	.border-frame {
 		border: none !important;
 	}
 }
