@@ -1813,7 +1813,7 @@ export class UI {
 			let $desc = btn.$button.next('.desc');
 
 			// Play the ability upgrade animation and sound when it gets upgraded
-			if (!ab.upgraded && ab.usesLeftBeforeUpgrade() === 0 && (ab.used || !ab.isUpgradedPerUse())) {
+			if (!ab.upgraded && ab.usesLeftBeforeUpgrade() === 0 && (ab.used || !ab.isUpgradedPerUse()) && game.abilityUpgrades != 0) {
 				// Add the class for the background image and fade transition
 				btn.$button.addClass('upgradeTransition');
 				btn.$button.addClass('upgradeIcon');
