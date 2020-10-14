@@ -175,8 +175,8 @@ export default (G) => {
 			activate: function (target) {
 				this.end();
 				let damages = this.damages;
-				// Last 1 turn, or indefinitely if upgraded
-				let lifetime = this.isUpgraded() ? 0 : 1;
+				// Last 1 turn excluding current turn, or indefinitely if upgraded
+				let lifetime = this.isUpgraded() ? 0 : 2;
 				let ability = this;
 
 				// Destroy trap if it wasn't triggered and target is dead
