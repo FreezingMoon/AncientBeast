@@ -107,7 +107,7 @@ $j(document).ready(() => {
 	async function register(e) {
 		e.preventDefault(); // Prevent submit
 		let reg = getReg();
-		//check empty fields
+		// Check empty fields
 		if (
 			$j('#register .error-req').css('display') != 'none' ||
 			$j('#register .error-req').css('visibility') != 'hidden'
@@ -134,7 +134,7 @@ $j(document).ready(() => {
 			$j('.error-pw-length').show();
 			return;
 		}
-		//password match
+		// Password match
 		if ($j('.error-pw').css('display') != 'none' || $j('.error-pw').css('visibility') != 'hidden') {
 			// 'element' is hidden
 			$j('.error-pw').hide();
