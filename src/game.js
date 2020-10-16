@@ -799,7 +799,7 @@ export default class Game {
 	 * End turn for the current unit
 	 */
 	skipTurn(o) {
-		//send skip turn to server
+		// Send skip turn to server
 
 		if (this.turnThrottle) {
 			return;
@@ -854,7 +854,7 @@ export default class Game {
 	 * Delay the action turn of the current creature
 	 */
 	delayCreature(o) {
-		//send skip turn to server
+		// Send skip turn to server
 		if (this.multiplayer) {
 			this.gameplay.delay();
 		}
