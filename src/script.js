@@ -103,7 +103,7 @@ $j(document).ready(() => {
 
 		return false; // Prevent submit
 	});
-	//register
+	// Register
 	async function register(e) {
 		e.preventDefault(); // Prevent submit
 		let reg = getReg();
@@ -129,7 +129,7 @@ $j(document).ready(() => {
 			$j('.error-pw-length').hide();
 		}
 
-		//password length
+		// Password length
 		if (reg.password.split('').length < 8) {
 			$j('.error-pw-length').show();
 			return;
@@ -170,7 +170,7 @@ $j(document).ready(() => {
 			$j('#login .error-req-message').show();
 			return;
 		}
-		//check empty fields
+		// Check empty fields
 		if (
 			$j('#login .error-req').css('display') != 'none' ||
 			$j('#login .error-req').css('visibility') != 'hidden'
@@ -199,7 +199,7 @@ $j(document).ready(() => {
 		$j('.user').text(session.username);
 		return false; // Prevent submit
 	}
-	//login form
+	// Login form
 	$j('form#login').submit(login);
 	$j('#startMatchButton').on('click', () => {
 		let gameConfig = getGameConfig();
