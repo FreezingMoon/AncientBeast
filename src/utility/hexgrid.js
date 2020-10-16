@@ -588,7 +588,7 @@ export class HexGrid {
 
 		// ONCLICK
 		let onConfirmFn = (hex) => {
-			//debugger;
+			// Debugger
 			let y = hex.y,
 				x = hex.x;
 
