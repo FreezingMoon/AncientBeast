@@ -572,7 +572,7 @@ export default class Game {
 					await match.matchMaker(n, this.configData);
 				}
 			}
-			//non host
+			// Non-host
 			if (this.matchid) {
 				let n = await this.match.matchJoin(this.matchid);
 				console.log('joined match', n);
