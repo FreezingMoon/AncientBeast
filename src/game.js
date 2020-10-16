@@ -564,7 +564,7 @@ export default class Game {
 				this.gameplay = gameplay;
 				this.match = match;
 
-				//only host
+				// Only host
 				if (this.matchInitialized) {
 					let n = await this.match.matchCreate();
 
