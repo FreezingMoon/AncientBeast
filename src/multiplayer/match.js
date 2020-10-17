@@ -33,12 +33,12 @@ export default class MatchI {
 				location.reload();
 				return;
 			}
-			//only host sends data
+			// Only host sends data
 			if (this.host === this.session.user_id) {
 				let u = this.users.length;
 				this.users.push({ id: md.joins[0].user_id, playername: md.joins[0].username, turn: u });
 
-				//called after match join. Player 1 is host sends match config
+				// Called after match join. Player 1 is host sends match config
 				if (this.users.length > 1 && md.joins[0].user_id != this.users[0].id) {
 					this.sendMatchData({
 						match_id: this.matchData.match_id,
@@ -63,7 +63,7 @@ export default class MatchI {
 			let op_code = md.op_code;
 
 			switch (op_code) {
-				//host shares config with players on join
+				// Host shares config with players on join
 				case 1:
 					this.users = md.data.users;
 					this.host = md.data.users.host;
@@ -167,7 +167,7 @@ export default class MatchI {
 			string_properties: {},
 			numeric_properties: {},
 		};
-		//only host
+		// Only host
 		if (d && gc) {
 			obj.string_properties = {
 				match_id: d.match.match_id,
