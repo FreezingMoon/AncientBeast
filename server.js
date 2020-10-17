@@ -5,7 +5,7 @@ const compression = require('compression');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 8383;
-const ip = process.env.IP || null; // Use specified IP to bind to otherwise, bind to default for the API
+const ip = process.env.IP || online.ancientbeast.com; // Use specified IP to bind to otherwise, bind to default for the API
 
 // Enable gzip compression
 app.use(compression());
