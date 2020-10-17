@@ -63,8 +63,8 @@ To get your brand featured in-game as well, [become a sponsor](https://opencolle
 	<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
 </tr>
 <tr>
-	<td><a href="https://creativecommons.org/licenses/by-sa/4.0"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png" alt="CC-BY-SA 4.0"></a></td>
-	<td><a href="https://creativecommons.org/licenses/by-sa/4.0">CC-BY-SA 4.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
+	<td><a href="http://creativecommons.org/licenses/by-sa/4.0"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png" alt="CC-BY-SA 4.0"></a></td>
+	<td><a href="http://creativecommons.org/licenses/by-sa/4.0">CC-BY-SA 4.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
 </tr>
 <tr>
 	<td><a href="https://gnu.org/licenses/agpl-3.0.html"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
