@@ -7,18 +7,19 @@ const phaserModule = path.join(__dirname, '/node_modules/phaser-ce/');
 const phaser = path.join(phaserModule, 'build/custom/phaser-split.js');
 const pixi = path.join(phaserModule, 'build/custom/pixi.js');
 const p2 = path.join(phaserModule, 'build/custom/p2.js');
+const Dotenv = require('dotenv-webpack');
 
 // Expose mode argument to unify our config options.
 module.exports = (env, argv) => {
 	const production = (argv && argv.mode === 'production') || process.env.NODE_ENV === 'production';
 
 	return {
-		entry: path.resolve(__dirname, 'src', 'script.js'),
+		entry: ['babel-polyfill', path.resolve(__dirname, 'src', 'script.js')],
 		output: {
-			path: path.resolve(__dirname, 'deploy/'),
+			path: path.resolve(__dirname, 'deploy'),
 			filename: 'ancientbeast.js',
 			// chunkFilename: '[id].chunk.js',
-			publicPath: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
+			// publicPath: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
 		},
 		devtool: production ? 'none' : 'source-map',
 		module: {
@@ -66,6 +67,9 @@ module.exports = (env, argv) => {
 		devServer: {
 			contentBase: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
 			port: 8080,
+			proxy: {
+				'/api': '192.168.99.100:7350',
+			},
 		},
 		plugins: [
 			new CopyPlugin([{ from: 'static' }]),
@@ -74,6 +78,10 @@ module.exports = (env, argv) => {
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
 				production,
 			}),
+			new Dotenv(),
 		],
+		node: {
+			fs: 'empty',
+		},
 	};
 };

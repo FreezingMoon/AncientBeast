@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 
@@ -34,15 +35,10 @@
 <body oncontextmenu="return false;" id="AncientBeast">
 	<div class="scrim loading"></div>
 	<div id="matchMaking">
-		<div id="loader" class="hide">
-            <div>
-                <div>
-                    <img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32" loading="lazy">Loading
-                </div>
-    			<div id="barLoader">
-    				<span class="progress"></span>
-    			</div>
-            </div>
+		<div id="loader" class="hide"><img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32" loading="lazy">Loading
+			<div id="barLoader">
+				<span class="progress"></span>
+			</div>
 		</div>
 		<div id="gameSetupContainer">
 			<div id="gameTitle">
@@ -59,166 +55,254 @@
 				<a href="https://discord.gg/x78rKen" target="_blank" title="Join us on Discord" rel="noopener">
 					<div></div>
 				</a>
-			</div>
-			<form id="gameSetup">
-				<div class="setupFrame">
-					<!-- Enable when adding translations https://github.com/FreezingMoon/AncientBeast/issues/923
-					<div class="gameOption">
-						<div id="translations" class="typeRadio">
-							<input type="radio" id="emoji" name="language" value="em"><label for="emoji">💀</label>
-							<input type="radio" id="english" name="language" value="en" checked><label for="english">English</label>
-							<input type="radio" id="french" name="language" value="fr"><label for="french">Français</label>
-							<input type="radio" id="german" name="language" value="de"><label for="german">Deutsch</label>
-							<input type="radio" id="spanish" name="language" value="es"><label for="spanish">Español</label>
-							<input type="radio" id="romana" name="language" value="ro"><label for="romana">Română</label>
-						</div>
-					</div>
-					-->
+      </div>
+      <div id="pre-match">
+        
+        <div class="setupFrame">
+          <div class="welcome border-frame">Welcome <span class="user"></span></div>
+          <div class="match-frame border-frame">
+            <div>
+            <div class="announcement-text">Announcement: This is early beta release of Ancient Beast Multiplayer Beta. Proceed with caution. </div>
+              <div class="buttons-wrapper">
+                <div class="button-wrapper">                
+                  <input class="crimson-button" id="createMatchButton" type="submit" value="Create Match">                   
+                </div>
+                <div class="button-wrapper">                
+                  <input class="crimson-button" id="joinMatchButton" type="submit" value="Join Match">                   
+                </div>
+              </div>
+            </div>
+          </div>
+          <form id="gameSetup">
+            <div class="game-options border-frame">
+            <!-- Enable when adding translations https://github.com/FreezingMoon/AncientBeast/issues/923
+            <div class="gameOption">
+              <div id="translations" class="typeRadio">
+                <input type="radio" id="emoji" name="language" value="em"><label for="emoji">💀</label>
+                <input type="radio" id="english" name="language" value="en" checked><label for="english">English</label>
+                <input type="radio" id="french" name="language" value="fr"><label for="french">Français</label>
+                <input type="radio" id="german" name="language" value="de"><label for="german">Deutsch</label>
+                <input type="radio" id="spanish" name="language" value="es"><label for="spanish">Español</label>
+                <input type="radio" id="romana" name="language" value="ro"><label for="romana">Română</label>
+              </div>
+            </div>
+            -->
 
-					<div class="gameOption">
-						<h2>Player Mode [ Hotseat ]</h2>
-						<div id="playerMode" class="typeRadio">
-							<input type="radio" id="p2" name="playerMode" value="2" checked><label for="p2">1 versus 1</label>
-							<input type="radio" id="p4" name="playerMode" value="4"><label for="p4">2 versus 2</label>
-						</div>
+              <div class="gameOption">
+                <h2>Player Mode [ Hotseat ]</h2>
+                <div id="playerMode" class="typeRadio">
+                  <input type="radio" id="p2" name="playerMode" value="2" checked><label for="p2">1 versus 1</label>
+                  <label for="p4">2 versus 2</label>
+                </div>
+              </div>
+
+              <div class="gameOption">
+                <h2>Active Units [ Psyhelm limit ]</h2>
+                <div id="activeUnits" class="typeRadio">
+                  <input type="radio" id="activeUnitsOpt1" name="activeUnits" value="1"><label
+                    for="activeUnitsOpt1">1</label>
+                  <input type="radio" id="activeUnitsOpt2" name="activeUnits" value="2"><label
+                    for="activeUnitsOpt2">2</label>
+                  <input type="radio" id="activeUnitsOpt3" name="activeUnits" value="3" checked><label
+                    for="activeUnitsOpt3">3</label>
+                  <input type="radio" id="activeUnitsOpt4" name="activeUnits" value="4"><label
+                    for="activeUnitsOpt4">4</label>
+                  <input type="radio" id="activeUnitsOpt5" name="activeUnits" value="5"><label
+                    for="activeUnitsOpt5">5</label>
+                  <input type="radio" id="activeUnitsOpt6" name="activeUnits" value="6"><label
+                    for="activeUnitsOpt6">6</label>
+                  <input type="radio" id="activeUnitsOpt7" name="activeUnits" value="7"><label
+                    for="activeUnitsOpt7">7</label>
+                </div>
+              </div>
+
+              <div class="gameOption">
+                <h2>Unit Drops</h2>
+                <div id="unitDrops" class="typeRadio">
+                  <input type="radio" id="unitDropsOn" name="unitDrops" value="1" checked><label
+                    for="unitDropsOn">On</label>
+                  <input type="radio" id="unitDropsOff" name="unitDrops" value="0"><label for="unitDropsOff">Off</label>
+                </div>
+              </div>
+
+              <div class="gameOption">
+                <h2>Ability Upgrades [ number of rounds or uses ]</h2>
+                <div id="abilityUpgrades" class="typeRadio">
+                  <input type="radio" id="abilityUpgrade1" name="abilityUpgrades" value="0"><label
+                    for="abilityUpgrade1">Enabled</label>
+                  <input type="radio" id="abilityUpgrade2" name="abilityUpgrades" value="1"><label
+                    for="abilityUpgrade2">1</label>
+                  <input type="radio" id="abilityUpgrade3" name="abilityUpgrades" value="2"><label
+                    for="abilityUpgrade3">2</label>
+                  <input type="radio" id="abilityUpgrade4" name="abilityUpgrades" value="3" checked><label
+                    for="abilityUpgrade4">3</label>
+                  <input type="radio" id="abilityUpgrade5" name="abilityUpgrades" value="4"><label
+                    for="abilityUpgrade5">4</label>
+                  <input type="radio" id="abilityUpgrade6" name="abilityUpgrades" value="5"><label
+                    for="abilityUpgrade6">5</label>
+                  <input type="radio" id="abilityUpgrade7" name="abilityUpgrades" value="-1"><label
+                    for="abilityUpgrade7">Disabled</label>
+                </div>
+              </div>
+
+              <div class="gameOption">
+                <h2>Plasma Points [ used for unit materialization or shielding ]</h2>
+                <div id="plasmaPoints" class="typeRadio">
+                  <input type="radio" id="plasmaPointsOpt1" name="plasmaPoints" value="10"><label
+                    for="plasmaPointsOpt1">10</label>
+                  <input type="radio" id="plasmaPointsOpt2" name="plasmaPoints" value="20"><label
+                    for="plasmaPointsOpt2">20</label>
+                  <input type="radio" id="plasmaPointsOpt3" name="plasmaPoints" value="30" checked><label
+                    for="plasmaPointsOpt3">30</label>
+                  <input type="radio" id="plasmaPointsOpt4" name="plasmaPoints" value="40"><label
+                    for="plasmaPointsOpt4">40</label>
+                  <input type="radio" id="plasmaPointsOpt5" name="plasmaPoints" value="50"><label
+                    for="plasmaPointsOpt5">50</label>
+                  <input type="radio" id="plasmaPointsOpt6" name="plasmaPoints" value="60"><label
+                    for="plasmaPointsOpt6">60</label>
+                  <input type="radio" id="plasmaPointsOpt7" name="plasmaPoints" value="70"><label
+                    for="plasmaPointsOpt7">70</label>
+                  <input type="radio" id="plasmaPointsOpt8" name="plasmaPoints" value="80"><label
+                    for="plasmaPointsOpt8">80</label>
+                  <input type="radio" id="plasmaPointsOpt9" name="plasmaPoints" value="90"><label
+                    for="plasmaPointsOpt9">90</label>
+                  <input type="radio" id="plasmaPointsOpt10" name="plasmaPoints" value="100"><label
+                    for="plasmaPointsOpt10">100</label>
+                  <input type="radio" id="plasmaPointsOpt11" name="plasmaPoints" value="110"><label
+                    for="plasmaPointsOpt11">110</label>
+                </div>
+              </div>
+
+              <div class="gameOption">
+                <h2>Turn Time [ seconds ]</h2>
+                <div id="turnTime" class="typeRadio">
+                  <input type="radio" id="turnTimeOpt1" name="turnTime" value="20"><label for="turnTimeOpt1">20</label>
+                  <input type="radio" id="turnTimeOpt2" name="turnTime" value="40"><label for="turnTimeOpt2">40</label>
+                  <input type="radio" id="turnTimeOpt3" name="turnTime" value="60"><label for="turnTimeOpt3">60</label>
+                  <input type="radio" id="turnTimeOpt4" name="turnTime" value="80"><label for="turnTimeOpt4">80</label>
+                  <input type="radio" id="turnTimeOpt5" name="turnTime" value="99"><label for="turnTimeOpt5">99</label>
+                  <input type="radio" id="turnTimeOpt6" name="turnTime" value="-1" checked><label
+                    for="turnTimeOpt6">&#8734;</label>
+                </div>
+              </div>
+
+              <div class="gameOption">
+                <h2>Time Pools [ minutes ]</h2>
+                <div id="timePool" class="typeRadio">
+                  <!-- <input type="radio" id="timePoolOpt0" name="timePool" value="1" ><label for="timePoolOpt0">1 min</label> -->
+                  <input type="radio" id="timePoolOpt1" name="timePool" value="15"><label for="timePoolOpt1">15</label>
+                  <input type="radio" id="timePoolOpt2" name="timePool" value="20"><label for="timePoolOpt2">20</label>
+                  <input type="radio" id="timePoolOpt3" name="timePool" value="25"><label for="timePoolOpt3">25</label>
+                  <input type="radio" id="timePoolOpt4" name="timePool" value="30"><label for="timePoolOpt4">30</label>
+                  <input type="radio" id="timePoolOpt5" name="timePool" value="-1" checked><label
+                    for="timePoolOpt5">&#8734;</label>
+                </div>
+              </div>
+
+              <div class="gameOption">
+                <h2>Combat Location [ no influence to the actual gameplay ]</h2>
+                <div id="combatLocation" class="typeRadio">
+                  <input type="radio" id="bgOpt1" name="combatLocation" value="Dark Forest"><label for="bgOpt1">Dark
+                    Forest</label>
+                  <input type="radio" id="bgOpt2" name="combatLocation" value="Frozen Wall"><label for="bgOpt2">Frozen
+                    Wall</label>
+                  <input type="radio" id="bgOpt3" name="combatLocation" value="Shadow Cave"><label for="bgOpt3">Shadow
+                    Cave</label>
+                  <input type="radio" id="bgOpt4" name="combatLocation" value="Dragon Bones"><label for="bgOpt4">Dragon
+                    Bones</label>
+                </div>
+              </div>
+             
+
+            </div> 
+             <div class="button-wrapper" id="start-btn">
+                <span class="blink">PRESS </span>
+                <input class="crimson-button" id="startButton" type="submit" value="START">
+                <input class="crimson-button" id="startMatchButton" type="submit" value="Create Match">
+
+                <span class="blink"> BUTTON</span>
+              </div>
+              <div id="start"><button type="submit"></button><span>Start</span></div>        
+          </form>
+        </div>      
+        <div class="loginregFrame">
+          <div class="signin-register">
+            <div class="login">
+              <h3>Login</h3>
+              <form id="login">
+                <div class="table-fields">
+                  <div class="flex-row">
+                    <label for="email"><span class="error-req">*</span>Email</label>                
+                    <input type="text" id="email" name="email">
+                  </div>
+                  <div class="flex-row"> 
+                    <label for="password"><span class="error-req">*</span>Password</label>             
+                    <input type="password" id="password" name="password">
+                  </div>
+                </div>
+                  <div class="error-msg error-req-message">* required</div>
+                  <div class="error-msg login-error-req-message">Login is not valid</div>              
+                  <div class="button-wrapper">                
+                    <input class="crimson-button" id="login-button" type="submit" value="Login">                   
+                  </div>
+                
+              </form>
+            </div>
+            <div class="register">
+              <h3>Register</h3>
+              <form id="register">
+                <div class="table-fields">
+					
+					<div class="flex-row">
+						<label for="username"><span class="error-req">*</span>User Name</label>										
+						<input type="text" id="username" name="username">
 					</div>
 
-					<div class="gameOption">
-						<h2>Active Units [ Psyhelm limit ]</h2>
-						<div id="activeUnits" class="typeRadio">
-							<input type="radio" id="activeUnitsOpt1" name="activeUnits" value="1"><label
-								for="activeUnitsOpt1">1</label>
-							<input type="radio" id="activeUnitsOpt2" name="activeUnits" value="2"><label
-								for="activeUnitsOpt2">2</label>
-							<input type="radio" id="activeUnitsOpt3" name="activeUnits" value="3" checked><label
-								for="activeUnitsOpt3">3</label>
-							<input type="radio" id="activeUnitsOpt4" name="activeUnits" value="4"><label
-								for="activeUnitsOpt4">4</label>
-							<input type="radio" id="activeUnitsOpt5" name="activeUnits" value="5"><label
-								for="activeUnitsOpt5">5</label>
-							<input type="radio" id="activeUnitsOpt6" name="activeUnits" value="6"><label
-								for="activeUnitsOpt6">6</label>
-							<input type="radio" id="activeUnitsOpt7" name="activeUnits" value="7"><label
-								for="activeUnitsOpt7">7</label>
-						</div>
+					<div class="flex-row">
+						<label for="login"><span class="error-req">*</span>Email</label>				
+						<input type="text" id="email" name="email">
 					</div>
-
-					<div class="gameOption">
-						<h2>Unit Drops</h2>
-						<div id="unitDrops" class="typeRadio">
-							<input type="radio" id="unitDropsOn" name="unitDrops" value="1" checked><label
-								for="unitDropsOn">On</label>
-							<input type="radio" id="unitDropsOff" name="unitDrops" value="0"><label for="unitDropsOff">Off</label>
-						</div>
+					<div class="flex-row">
+						<label for="password"><span class="error-req">*</span>Password</label>
+						<input type="password" id="password" name="password">
 					</div>
-
-					<div class="gameOption">
-						<h2>Ability Upgrades [ number of rounds or uses ]</h2>
-						<div id="abilityUpgrades" class="typeRadio">
-							<input type="radio" id="abilityUpgrade1" name="abilityUpgrades" value="0"><label
-								for="abilityUpgrade1">Enabled</label>
-							<input type="radio" id="abilityUpgrade2" name="abilityUpgrades" value="1"><label
-								for="abilityUpgrade2">1</label>
-							<input type="radio" id="abilityUpgrade3" name="abilityUpgrades" value="2"><label
-								for="abilityUpgrade3">2</label>
-							<input type="radio" id="abilityUpgrade4" name="abilityUpgrades" value="3" checked><label
-								for="abilityUpgrade4">3</label>
-							<input type="radio" id="abilityUpgrade5" name="abilityUpgrades" value="4"><label
-								for="abilityUpgrade5">4</label>
-							<input type="radio" id="abilityUpgrade6" name="abilityUpgrades" value="5"><label
-								for="abilityUpgrade6">5</label>
-							<input type="radio" id="abilityUpgrade7" name="abilityUpgrades" value="-1"><label
-								for="abilityUpgrade7">Disabled</label>
-						</div>
+					<div class="flex-row">
+						<label for="passwordmatch"><span class="error-req">*</span>Retype Password</label>
+						<input type="password" id="passwordmatch" name="passwordmatch">
 					</div>
-
-					<div class="gameOption">
-						<h2>Plasma Points [ used for unit materialization or shielding ]</h2>
-						<div id="plasmaPoints" class="typeRadio">
-							<input type="radio" id="plasmaPointsOpt1" name="plasmaPoints" value="10"><label
-								for="plasmaPointsOpt1">10</label>
-							<input type="radio" id="plasmaPointsOpt2" name="plasmaPoints" value="20"><label
-								for="plasmaPointsOpt2">20</label>
-							<input type="radio" id="plasmaPointsOpt3" name="plasmaPoints" value="30" checked><label
-								for="plasmaPointsOpt3">30</label>
-							<input type="radio" id="plasmaPointsOpt4" name="plasmaPoints" value="40"><label
-								for="plasmaPointsOpt4">40</label>
-							<input type="radio" id="plasmaPointsOpt5" name="plasmaPoints" value="50"><label
-								for="plasmaPointsOpt5">50</label>
-							<input type="radio" id="plasmaPointsOpt6" name="plasmaPoints" value="60"><label
-								for="plasmaPointsOpt6">60</label>
-							<input type="radio" id="plasmaPointsOpt7" name="plasmaPoints" value="70"><label
-								for="plasmaPointsOpt7">70</label>
-							<input type="radio" id="plasmaPointsOpt8" name="plasmaPoints" value="80"><label
-								for="plasmaPointsOpt8">80</label>
-							<input type="radio" id="plasmaPointsOpt9" name="plasmaPoints" value="90"><label
-								for="plasmaPointsOpt9">90</label>
-							<input type="radio" id="plasmaPointsOpt10" name="plasmaPoints" value="100"><label
-								for="plasmaPointsOpt10">100</label>
-							<input type="radio" id="plasmaPointsOpt11" name="plasmaPoints" value="110"><label
-								for="plasmaPointsOpt11">110</label>
-						</div>
-					</div>
-
-					<div class="gameOption">
-						<h2>Turn Time [ seconds ]</h2>
-						<div id="turnTime" class="typeRadio">
-							<input type="radio" id="turnTimeOpt1" name="turnTime" value="20"><label for="turnTimeOpt1">20</label>
-							<input type="radio" id="turnTimeOpt2" name="turnTime" value="40"><label for="turnTimeOpt2">40</label>
-							<input type="radio" id="turnTimeOpt3" name="turnTime" value="60"><label for="turnTimeOpt3">60</label>
-							<input type="radio" id="turnTimeOpt4" name="turnTime" value="80"><label for="turnTimeOpt4">80</label>
-							<input type="radio" id="turnTimeOpt5" name="turnTime" value="99"><label for="turnTimeOpt5">99</label>
-							<input type="radio" id="turnTimeOpt6" name="turnTime" value="-1" checked><label
-								for="turnTimeOpt6">&#8734;</label>
-						</div>
-					</div>
-
-					<div class="gameOption">
-						<h2>Time Pools [ minutes ]</h2>
-						<div id="timePool" class="typeRadio">
-							<!-- <input type="radio" id="timePoolOpt0" name="timePool" value="1" ><label for="timePoolOpt0">1 min</label> -->
-							<input type="radio" id="timePoolOpt1" name="timePool" value="15"><label for="timePoolOpt1">15</label>
-							<input type="radio" id="timePoolOpt2" name="timePool" value="20"><label for="timePoolOpt2">20</label>
-							<input type="radio" id="timePoolOpt3" name="timePool" value="25"><label for="timePoolOpt3">25</label>
-							<input type="radio" id="timePoolOpt4" name="timePool" value="30"><label for="timePoolOpt4">30</label>
-							<input type="radio" id="timePoolOpt5" name="timePool" value="-1" checked><label
-								for="timePoolOpt5">&#8734;</label>
-						</div>
-					</div>
-
-					<div class="gameOption">
-						<h2>Combat Location [ no influence to the actual gameplay ]</h2>
-						<div id="combatLocation" class="typeRadio">
-							<input type="radio" id="bgOpt1" name="combatLocation" value="Dark Forest"><label for="bgOpt1">Dark
-								Forest</label>
-							<input type="radio" id="bgOpt2" name="combatLocation" value="Frozen Wall"><label for="bgOpt2">Frozen
-								Wall</label>
-							<input type="radio" id="bgOpt3" name="combatLocation" value="Shadow Cave"><label for="bgOpt3">Shadow
-								Cave</label>
-							<input type="radio" id="bgOpt4" name="combatLocation" value="Dragon Bones"><label for="bgOpt4">Dragon
-								Bones</label>
-						</div>
-					</div>
-				</div>
-
-				<div id="startButtonWrapper">
-					<span class="blink">PRESS </span>
-					<input class="startButton" id="startButton" type="submit" value="START">
-					<span class="blink"> BUTTON</span>
-				</div>
-				<div id="start"><button type="submit"></button><span>Start</span></div>
-			</form>
+                </div>
+                  <div class="error-msg error-req-message">* required</div> 
+                  <div class="error-msg error-pw">Passwords must match</div>
+                  <div class="error-msg error-pw-length">Password must be at least 8 characters</div>             
+                  <div class="button-wrapper">								
+                    <input class="crimson-button" id="register-button" type="submit" value="Register">                    
+                  </div>
+              
+                
+            </form>
+            </div>
+          </div>
+        </div>
+        <div class="lobby">
+          <h2>Open Matches (click to join)</h2>
+          <div class="lobby-match-list">No matches available </div>
+          <a class="back">Back</a>
+        </div>
+      </div>
 
 			<div id="fullscreen">
 				<div></div><span class="fullscreen__title">Fullscreen</span>
 			</div>
-
-			<div id="version">
-				<a href="https://AncientBeast.com/blog/2017-03-15" title="See changelog" target="_blank" tabindex="-1" rel="noopener">
+			<div id="multiplayer">
+				<a href="#" title="See changelog">
+					<div></div><span class="multiplayer__title">Multiplayer</span>
+				</a>
+			</div>
+			<div id="version"><a href="https://ancientbeast.com/blog/2017-03-15/" title="See changelog" target="_blank"
+					tabindex="-1">
 					<div></div>v0.4-α
 				</a>
 			</div>
-
 			<div id="discord">
 				<a href="https://discord.gg/x78rKen" title="Join us on Discord" target="_blank" tabindex="-1" rel="noopener">
 					<div></div>Discord
@@ -1023,7 +1107,8 @@
 				<textarea id="chatinput"></textarea>
 			</div>
 		</div>
-	</div>
+  </div>
+  <div id="banner"></div>
 	<div id="combatwrapper">
 	</div>
 

@@ -14,6 +14,8 @@ import dataJson from 'assets/units/data.json';
 import 'pixi';
 import 'p2';
 import Phaser from 'phaser';
+import MatchI from './multiplayer/match';
+import Gameplay from './multiplayer/gameplay';
 
 /* Game Class
  *
@@ -61,9 +63,10 @@ export default class Game {
 		this.activeCreature = {
 			id: 0,
 		};
+		this.matchid = null;
+		this.playersReady = false;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
-		this.turn = 0;
 		this.queue = new CreatureQueue(this);
 		this.creatureIdCounter = 1;
 		this.creatureData = [];
@@ -75,7 +78,15 @@ export default class Game {
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;
 		this.gamelog = new GameLog(null, this);
+		this.configData = {};
+		this.match = {};
+		this.gameplay = {};
+		this.session = null;
+		this.client = null;
+		this.connect = null;
 		this.debugMode = false;
+		this.multiplayer = false;
+		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
 		this.availableMusic = [];
 		this.soundEffects = [
@@ -93,6 +104,7 @@ export default class Game {
 		this.firstKill = false;
 		this.freezedInput = false;
 		this.turnThrottle = false;
+		this.turn = 0;
 
 		// Phaser
 		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
@@ -228,13 +240,24 @@ export default class Game {
 	 *
 	 * Load all required game files
 	 */
-	loadGame(setupOpt) {
+
+	loadGame(setupOpt, matchInitialized, matchid) {
+		if (this.multiplayer && !matchid) {
+			this.matchInitialized = matchInitialized;
+		}
+		if (matchid) {
+			this.matchid = matchid;
+		}
+
 		let totalSoundEffects = this.soundEffects.length,
 			i;
-
-		this.gamelog.gameConfig = setupOpt;
 		this.gameState = 'loading';
-		$j.extend(this, setupOpt);
+		if (setupOpt) {
+			this.gamelog.gameConfig = setupOpt;
+			this.configData = setupOpt;
+			$j.extend(this, setupOpt);
+		}
+		// console.log(this);
 		this.startLoading();
 
 		// Sounds
@@ -528,8 +551,79 @@ export default class Game {
 				this.gamelog.play.apply(this.gamelog);
 			}, 1000);
 		}
-	}
 
+		this.matchInit();
+	}
+	async matchInit() {
+		if (this.multiplayer) {
+			if (Object.keys(this.match).length === 0) {
+				await this.connect.serverConnect(this.session);
+				let match = new MatchI(this.connect, this, this.session);
+				let gameplay = new Gameplay(this, match);
+				match.gameplay = gameplay;
+				this.gameplay = gameplay;
+				this.match = match;
+
+				// Only host
+				if (this.matchInitialized) {
+					let n = await this.match.matchCreate();
+
+					console.log('created match', n);
+					await match.matchMaker(n, this.configData);
+				}
+			}
+			// Non-host
+			if (this.matchid) {
+				let n = await this.match.matchJoin(this.matchid);
+				console.log('joined match', n);
+			}
+		}
+	}
+	async matchJoin() {
+		await this.matchInit();
+		await this.match.matchMaker();
+	}
+	async updateLobby() {
+		$j('.lobby-match-list').html('');
+		if (this.matchInitialized) return;
+		let self = this;
+		this.match.matchUsers.forEach((v) => {
+			let gameConfig = {
+				background_image: v.string_properties.background_image,
+				abilityUpgrades: v.numeric_properties.abilityUpgrades,
+				creaLimitNbr: v.numeric_properties.creaLimitNbr,
+				plasma_amount: v.numeric_properties.plasma_amount,
+				playerMode: v.numeric_properties.playerMode,
+				timePool: v.numeric_properties.timePool,
+				turnTimePool: v.numeric_properties.turnTimePool,
+				unitDrops: v.numeric_properties.unitDrops,
+			};
+			if (v.string_properties.match_id) {
+				let turntimepool =
+					v.numeric_properties.turnTimePool < 0 ? '∞' : v.numeric_properties.timePool;
+				let timepool = v.numeric_properties.timePool < 0 ? '∞' : v.numeric_properties.timePool;
+				let unitdrops = v.numeric_properties.unitDrops < 0 ? 'off' : 'on';
+				let _matchBtn = $j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
+        Host: ${v.presence.username}<br />
+        Player Mode: ${v.numeric_properties.playerMode}<br />
+        Active Units: ${v.numeric_properties.creaLimitNbr}<br />
+        Ability Upgrades: ${v.numeric_properties.abilityUpgrades}<br />
+        </div><div class="user-match__col">
+        Plasma Points: ${v.numeric_properties.plasma_amount}<br />
+        Turn Time(seconds): ${turntimepool}<br />
+        Turn Pools(minutes): ${timepool}<br />
+        Unit Drops: ${unitdrops}<br /></div></a>
+
+        
+        `);
+				_matchBtn.on('click', () => {
+					$j('.lobby').hide();
+					this.loadGame(gameConfig, false, v.string_properties.match_id);
+				});
+				$j('.lobby-match-list').append(_matchBtn);
+			}
+		});
+	}
 	/* resizeCombatFrame()
 	 *
 	 * Resize the combat frame
@@ -583,61 +677,63 @@ export default class Game {
 		// Delay
 		setTimeout(() => {
 			let interval = setInterval(() => {
-				if (!this.freezedInput) {
-					clearInterval(interval);
+				clearInterval(interval);
 
-					let differentPlayer = false;
+				let differentPlayer = false;
 
-					if (this.queue.isCurrentEmpty()) {
-						this.nextRound(); // Switch to the next Round
-						return;
+				if (this.queue.isCurrentEmpty()) {
+					this.nextRound(); // Switch to the next Round
+					return;
+				} else {
+					let next = this.queue.dequeue();
+					if (this.activeCreature) {
+						differentPlayer = this.activeCreature.player != next.player;
 					} else {
-						let next = this.queue.dequeue();
-						if (this.activeCreature) {
-							differentPlayer = this.activeCreature.player != next.player;
-						} else {
-							differentPlayer = true;
-						}
-
-						let last = this.activeCreature;
-						this.activeCreature = next; // Set new activeCreature
-
-						if (!last.dead) {
-							last.updateHealth(); // Update health display due to active creature change
-						}
+						differentPlayer = true;
 					}
 
-					if (this.activeCreature.player.hasLost) {
-						this.nextCreature();
-						return;
+					let last = this.activeCreature;
+					this.activeCreature = next; // Set new activeCreature
+
+					if (!last.dead) {
+						last.updateHealth(); // Update health display due to active creature change
 					}
+				}
 
-					// Play heartbeat sound on other player's turn
-					if (differentPlayer) {
-						this.soundsys.playSound(this.soundLoaded[4], this.soundsys.heartbeatGainNode);
-					}
+				if (this.activeCreature.player.hasLost) {
+					this.nextCreature();
+					return;
+				}
 
-					this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
-					this.activeCreature.activate();
+				// Play heartbeat sound on other player's turn
+				if (differentPlayer) {
+					this.soundsys.playSound(this.soundLoaded[4], this.soundsys.heartbeatGainNode);
+				}
 
-					// Show mini tutorial in the first round for each player
-					if (this.turn == 1) {
-						this.log('The active unit has a flashing hexagon');
-						this.log('It uses a plasma field to protect itself');
-						this.log('Its portrait is displayed in the upper left');
-						this.log("Under the portrait are the unit's abilities");
-						this.log('The ones with revealed icons are usable');
-						this.log('Use the last one to materialize a creature');
-						this.log('Making units drains your plasma points');
-						this.log('Press the hourglass icon to skip the turn');
-						this.log(
-							'%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!',
-						);
-					}
+				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
+				this.activeCreature.activate();
+				// console.log(this.activeCreature);
 
-					// Updates UI to match new creature
-					this.UI.updateActivebox();
-					this.updateQueueDisplay();
+				// Show mini tutorial in the first round for each player
+				if (this.turn == 1) {
+					this.log('The active unit has a flashing hexagon');
+					this.log('It uses a plasma field to protect itself');
+					this.log('Its portrait is displayed in the upper left');
+					this.log("Under the portrait are the unit's abilities");
+					this.log('The ones with revealed icons are usable');
+					this.log('Use the last one to materialize a creature');
+					this.log('Making units drains your plasma points');
+					this.log('Press the hourglass icon to skip the turn');
+					this.log('%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!');
+				}
+
+				// Updates UI to match new creature
+				this.UI.updateActivebox();
+				this.updateQueueDisplay();
+				if (this.multiplayer && this.playersReady) {
+					this.gameplay.updateTurn();
+				} else {
+					this.playersReady = true;
 				}
 			}, 50);
 		}, 300);
@@ -703,6 +799,8 @@ export default class Game {
 	 * End turn for the current unit
 	 */
 	skipTurn(o) {
+		// Send skip turn to server
+
 		if (this.turnThrottle) {
 			return;
 		}
@@ -756,6 +854,11 @@ export default class Game {
 	 * Delay the action turn of the current creature
 	 */
 	delayCreature(o) {
+		// Send skip turn to server
+		if (this.multiplayer) {
+			this.gameplay.delay();
+		}
+
 		if (this.turnThrottle) {
 			return;
 		}

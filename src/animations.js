@@ -251,6 +251,9 @@ export class Animations {
 
 		if (queue.length === 0) {
 			game.freezedInput = false;
+			if (game.multiplayer) {
+				game.freezedInput = game.UI.active ? false : true;
+			}
 		}
 
 		game.animationQueue = queue;
