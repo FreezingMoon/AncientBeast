@@ -72,7 +72,9 @@ module.exports = (env, argv) => {
 			},
 		},
 		plugins: [
-			new CopyPlugin([{ from: 'static' }]),
+			new CopyPlugin({
+				patterns: [{ from: 'static' }],
+			}),
 			new HtmlWebpackPlugin({
 				template: path.resolve(__dirname, 'src', 'index.ejs'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
