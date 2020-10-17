@@ -654,25 +654,25 @@ export class UI {
 		this.materializeToggled = false;
 		this.dashopen = false;
 
-		// this.glowInterval = setInterval(() => {
-		// 	let opa =
-		// 		0.5 +
-		// 		Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
-		// 	let opaWeak = opa / 2;
+		this.glowInterval = setInterval(() => {
+			let opa =
+				0.5 +
+				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
+			let opaWeak = opa / 2;
 
-		// 	game.grid.allhexes.forEach((hex) => {
-		// 		if (hex.overlayClasses.match(/creature/)) {
-		// 			if (hex.overlayClasses.match(/selected|active/)) {
-		// 				if (hex.overlayClasses.match(/weakDmg/)) {
-		// 					hex.overlay.alpha = opaWeak;
-		// 					return;
-		// 				}
+			game.grid.allhexes.forEach((hex) => {
+				if (hex.overlayClasses.match(/creature/)) {
+					if (hex.overlayClasses.match(/selected|active/)) {
+						if (hex.overlayClasses.match(/weakDmg/)) {
+							hex.overlay.alpha = opaWeak;
+							return;
+						}
 
-		// 				hex.overlay.alpha = opa;
-		// 			}
-		// 		}
-		// 	});
-		// }, 10);
+						hex.overlay.alpha = opa;
+					}
+				}
+			});
+		}, 10);
 
 		if (game.turnTimePool) {
 			$j('.turntime').text(time.getTimer(game.turnTimePool));
