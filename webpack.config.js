@@ -68,7 +68,7 @@ module.exports = (env, argv) => {
 			contentBase: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
 			port: 8080,
 			proxy: {
-				'/api': '192.168.99.100:7350',
+				'/api': 'x.x.x.x:7350',
 			},
 		},
 		plugins: [
