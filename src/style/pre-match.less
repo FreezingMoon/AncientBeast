@@ -419,16 +419,16 @@ a.back:hover {
 	z-index: 100;
 	transform: translateY(-50%);
 	div {
+		display: block;
 		height: 100px;
 		width: 100px;
-		background: url('~assets/interface/AB.png') no-repeat;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/multiplayer.svg');
 		background-size: cover;
-	}
-
-	&:hover {
-		filter: brightness(120%);
+		background-repeat: no-repeat;
 	}
 }
+
 #fullscreen {
 	cursor: pointer;
 	position: fixed;
@@ -440,7 +440,6 @@ a.back:hover {
 
 	div {
 		display: block;
-		width: 100px;
 		height: 100px;
 		background-color: rgba(0, 0, 0, 0.55);
 		background-image: url('~assets/interface/frame.png'), url('~assets/icons/fullscreen.svg');
@@ -453,6 +452,7 @@ a.back:hover {
 		background-image: url('~assets/interface/frame.png'), url('~assets/icons/contract.svg');
 	}
 }
+
 #discord {
 	display: block;
 	width: 100px;
