@@ -5,7 +5,7 @@ You can help out the project by just ★ starring this repository from the upper
 ## Getting Started
 
 It's very easy to set-up a local server in order to test and contribute to the development version of this game project.  
-It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, [Phaser](http://phaser.io).
+It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, [Phaser](https://phaser.io).
 Nowadays you can skip setting up a local server and just start developing on the project right away: [![Open in Gitpod](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)
 
 ### Recommended Tool
@@ -26,7 +26,7 @@ In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P
 
 ### Package Requirements
 
-First install (or make sure you have) the latest LTS version of [Node.js](http://nodejs.org). In case you need to have different versions of it for other projects as well, you should definitely use `nvm` (Node version manager), which is a tool that makes it easy to manage multiple local Node installations. You can [find installation instructions here](https://github.com/nvm-sh/nvm#install--update-script), and then use it like:
+First install (or make sure you have) the latest LTS version of [Node.js](https://nodejs.org). In case you need to have different versions of it for other projects as well, you should definitely use `nvm` (Node version manager), which is a tool that makes it easy to manage multiple local Node installations. You can [find installation instructions here](https://github.com/nvm-sh/nvm#install--update-script), and then use it like:
 
 ```sh
 nvm install --lts  # This will always install the latest LTS release.
@@ -115,4 +115,4 @@ You are free to browse [existing issues](https://github.com/FreezingMoon/Ancient
 
 ## More Ways
 
-Coding is not the only thing required in order to make this project as awesome as possible, see [How to Contribute](http://ancientbeast.com/contribute) guide.
+Coding is not the only thing required in order to make this project as awesome as possible, see [How to Contribute](https://ancientbeast.com/contribute) guide.

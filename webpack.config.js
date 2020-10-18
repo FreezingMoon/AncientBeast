@@ -68,11 +68,13 @@ module.exports = (env, argv) => {
 			contentBase: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
 			port: 8080,
 			proxy: {
-				'/api': '192.168.99.100:7350',
+				'/api': '159.65.232.104:7350',
 			},
 		},
 		plugins: [
-			new CopyPlugin([{ from: 'static' }]),
+			new CopyPlugin({
+				patterns: [{ from: 'static' }],
+			}),
 			new HtmlWebpackPlugin({
 				template: path.resolve(__dirname, 'src', 'index.ejs'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
