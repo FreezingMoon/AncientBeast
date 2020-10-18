@@ -1,5 +1,6 @@
 import * as $j from 'jquery';
 import * as time from '../utility/time';
+import * as emoji from 'node-emoji';
 
 import { Button } from './button';
 import { Chat } from './chat';
@@ -7,6 +8,12 @@ import { Creature } from '../creature';
 import { Fullscreen } from './fullscreen';
 import { ProgressBar } from './progressbar';
 import { getUrl } from '../assetLoader';
+import Match from '../multiplayer/match';
+import {
+	isNativeFullscreenAPIUse,
+	disableFullscreenLayout,
+	enableFullscreenLayout,
+} from '../script';
 
 /**
  * Class UI
@@ -45,6 +52,7 @@ export class UI {
 		this.$grid = $j('#creaturegrid');
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboardwrapper');
+		this.active = false;
 
 		// Last clicked creature in Godlet Printer for the current turn
 		this.lastViewedCreature = '';
@@ -72,6 +80,7 @@ export class UI {
 
 					this.toggleDash();
 				},
+				overridefreeze: true,
 			},
 			game,
 		);
@@ -110,6 +119,7 @@ export class UI {
 						this.showMusicPlayer();
 					}
 				},
+				overridefreeze: true,
 			},
 			game,
 		);
@@ -129,6 +139,7 @@ export class UI {
 						game.gamelog.add({
 							action: 'skip',
 						});
+
 						game.skipTurn();
 						this.lastViewedCreature = '';
 						this.queryUnit = '';
@@ -203,7 +214,9 @@ export class UI {
 			{
 				$button: $j('#materialize_button'),
 				css: {
-					disabled: {},
+					disabled: {
+						cursor: 'not-allowed',
+					},
 					glowing: {
 						cursor: 'pointer',
 					},
@@ -1121,12 +1134,26 @@ export class UI {
 				} else {
 					$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
 				}
+				if (key !== 0) {
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#cost')
+						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+				} else {
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#cost')
+						.text(' - this ability is passive.');
+				}
 			});
 
 			// Materialize button
-			$j('#materialize_button').removeClass('glowing').unbind('click');
-			$j('#card .sideA').addClass('disabled').unbind('click');
+			this.materializeButton.changeState('disabled');
 			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
+
+			$j('#card .sideA').addClass('disabled').unbind('click');
 		}
 	}
 
@@ -1314,42 +1341,52 @@ export class UI {
 			},
 			{
 				cls: 'firstKill',
+				emoji: emoji.get('syringe'),
 				title: 'First blood',
 			},
 			{
 				cls: 'kill',
+				emoji: emoji.get('skull'),
 				title: 'Kills',
 			},
 			{
 				cls: 'combo',
+				emoji: emoji.get('chains'),
 				title: 'Combos',
 			},
 			{
 				cls: 'humiliation',
+				emoji: emoji.get('baby'),
 				title: 'Humiliation',
 			},
 			{
 				cls: 'annihilation',
+				emoji: emoji.get('coffin'),
 				title: 'Annihilation',
 			},
 			{
 				cls: 'deny',
+				emoji: emoji.get('collision'),
 				title: 'Denies',
 			},
 			{
 				cls: 'pickupDrop',
+				emoji: emoji.get('cherries'),
 				title: 'Drops picked',
 			},
 			{
 				cls: 'timebonus',
+				emoji: emoji.get('alarm_clock'),
 				title: 'Time Bonus',
 			},
 			{
 				cls: 'nofleeing',
+				emoji: emoji.get('chicken'),
 				title: 'No Fleeing',
 			},
 			{
 				cls: 'creaturebonus',
+				emoji: emoji.get('heartbeat'),
 				title: 'Survivor Units',
 			},
 			{
@@ -1358,20 +1395,25 @@ export class UI {
 			},
 			{
 				cls: 'immortal',
+				emoji: emoji.get('bat'),
 				title: 'Immortal',
 			},
 			{
 				cls: 'upgrade',
+				emoji: emoji.get('medal'),
 				title: 'Ability Upgrades',
 			},
 			{
 				cls: 'total',
+				emoji: emoji.get('100'),
 				title: 'Total',
 			},
 		];
 
 		tableMeta.forEach((row) => {
-			$table.find(`tr.${row.cls}`).empty().html(`<td>${row.title}</td>`);
+			$table.find(`tr.${row.cls}`).empty().html(`<td>
+			${row.emoji ? `<span class="tooltiptext">${row.title}</span>${row.emoji}` : `${row.title}`}
+			</td>`);
 
 			// Add cells for each player
 			for (let i = 0; i < game.playerMode; i++) {
@@ -1718,6 +1760,10 @@ export class UI {
 	 *
 	 * Update activebox with new current creature's abilities
 	 */
+	banner(message) {
+		let $bannerBox = $j('#banner');
+		$bannerBox.text(message);
+	}
 
 	updateActivebox() {
 		let game = this.game,
@@ -1769,6 +1815,13 @@ export class UI {
 			);
 
 		this.updateInfos();
+		if (game.multiplayer) {
+			if (!this.active) {
+				game.freezedInput = true;
+			} else {
+				game.freezedInput = false;
+			}
+		}
 	}
 
 	updateAbilityUpgrades() {
@@ -1781,7 +1834,12 @@ export class UI {
 			let $desc = btn.$button.next('.desc');
 
 			// Play the ability upgrade animation and sound when it gets upgraded
-			if (!ab.upgraded && ab.usesLeftBeforeUpgrade() === 0 && (ab.used || !ab.isUpgradedPerUse())) {
+			if (
+				!ab.upgraded &&
+				ab.usesLeftBeforeUpgrade() === 0 &&
+				(ab.used || !ab.isUpgradedPerUse()) &&
+				game.abilityUpgrades != 0
+			) {
 				// Add the class for the background image and fade transition
 				btn.$button.addClass('upgradeTransition');
 				btn.$button.addClass('upgradeIcon');
@@ -1923,18 +1981,16 @@ export class UI {
 	/* updateInfos()
 	 */
 	updateInfos() {
-		let game = this.game;
-
+		let game = this.game,
+			userTurn = game.multiplayer ? game.players[game.match.userTurn] : game.activeCreature.player;
 		$j('#playerbutton, #playerinfo')
 			.removeClass('p0 p1 p2 p3')
-			.addClass('p' + game.activeCreature.player.id);
-		$j('#playerinfo .name').text(game.activeCreature.player.name);
-		$j('#playerinfo .points span').text(game.activeCreature.player.getScore().total);
-		$j('#playerinfo .plasma span').text(game.activeCreature.player.plasma);
+			.addClass('p' + userTurn.id);
+		$j('#playerinfo .name').text(userTurn.name);
+		$j('#playerinfo .points span').text(userTurn.getScore().total);
+		$j('#playerinfo .plasma span').text(userTurn.plasma);
 		// TODO: Needs to update instantly!
-		$j('#playerinfo .units span').text(
-			game.activeCreature.player.getNbrOfCreatures() + ' / ' + game.creaLimitNbr,
-		);
+		$j('#playerinfo .units span').text(userTurn.getNbrOfCreatures() + ' / ' + game.creaLimitNbr);
 	}
 
 	// Broken and deprecated
@@ -2428,7 +2484,10 @@ export class UI {
 			$queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
 		}
 
-		if ($queueItem.length > 0) {
+		const maxBounceHeight = screen.height / 3;
+		const isBounceHeightExceeded = parseInt($queueItem.css('top'), 10) > maxBounceHeight;
+
+		if ($queueItem.length > 0 && !isBounceHeightExceeded) {
 			$queueItem.stop();
 			$queueItem.animate(
 				{
@@ -2462,6 +2521,11 @@ export class UI {
 					text = 'Frozen';
 					textElement.css({
 						background: 'darkturquoise',
+					});
+				} else if (creature.dizzy) {
+					text = 'Dizzy';
+					textElement.css({
+						background: 'saddlebrown',
 					});
 				} else if (creature.materializationSickness) {
 					text = 'Sickened';

@@ -4,6 +4,7 @@
 	overflow: hidden;
 	position: relative;
 	text-align: center;
+	display: none;
 }
 
 #combatframe * {
@@ -351,9 +352,12 @@
 	background-image: url('~assets/interface/frame_upgrade.png');
 }
 
-.disabled {
-	cursor: default !important;
+.button.disabled {
 	opacity: 0.5;
+}
+
+.disabled {
+	cursor: not-allowed !important;
 
 	&.ability {
 		cursor: help !important;
@@ -463,6 +467,10 @@
 		transform: translateX(0);
 	}
 }
+
+.card.disabled a.name {
+	cursor: not-allowed;
+}
 // Card anchor refactor
 div.section.info {
 	position: relative;
@@ -541,8 +549,8 @@ div.section.info {
 
 .togglescore.button,
 .toggledash.button {
-	height: 100px;
-	width: 100px;
+	height: 100%;
+	width: 100%;
 	background-image: url('~assets/icons/close.svg');
 	transition: all 0.5s;
 }
@@ -1243,6 +1251,17 @@ span.pure {
 	}
 }
 
+@keyframes slideTooltip {
+	0% {
+		opacity: 0.3;
+		transform: translate(-10px, 0px);
+	}
+	100% {
+		opacity: 1;
+		transform: translate(0px, 0px);
+	}
+}
+
 #ui {
 	display: none;
 	/*--------------Scoreboard------------------*/
@@ -1277,6 +1296,34 @@ span.pure {
 				color: white;
 				text-align: center;
 				margin: auto;
+
+				td {
+					position: relative;
+					padding: 0px 20px;
+
+					img {
+						color: #272727;
+					}
+				}
+
+				.tooltiptext {
+					visibility: hidden;
+					background-color: black;
+					color: #fff;
+					text-align: center;
+					border-radius: 2px;
+					border-style: ridge;
+					padding: 5px 5px;
+					position: absolute;
+					white-space: nowrap;
+					right: 65px;
+					z-index: 1;
+				}
+
+				td:hover .tooltiptext {
+					visibility: visible;
+					animation: slideTooltip 750ms forwards;
+				}
 			}
 
 			h1 {
@@ -1510,6 +1557,44 @@ input {
 	#playerbutton {
 		transform: scale(0.55) translate(39px, -39px);
 	}
+
+	#scoreboardReturn {
+		height: 70px !important;
+		width: 70px !important;
+	}
+
+	#scoreboard {
+		width: 80% !important;
+		height: 50% !important;
+	}
+
+	#scoreboardTitle {
+		font-size: medium;
+		margin: 0px !important;
+	}
+
+	#score {
+		position: relative;
+		margin: auto !important;
+		transform: scale(0.8);
+		// transpose the content of the scoreboard
+		tr {
+			display: block;
+			float: left;
+			td {
+				display: block;
+				padding: 5px !important;
+				.tooltiptext {
+					right: -25px !important;
+					bottom: 30px !important;
+				}
+			}
+		}
+	}
+	#return {
+		height: 70px !important;
+		width: 70px !important;
+	}
 }
 
 @media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
@@ -1533,4 +1618,51 @@ input {
 	#bottompanel {
 		transform: scale(0.7);
 	}
+
+	#scoreboardReturn {
+		height: 80px !important;
+		width: 80px !important;
+	}
+	#scoreboard {
+		width: 80% !important;
+		height: 65% !important;
+	}
+
+	#scoreboardTitle {
+		font-size: medium;
+		margin: 0px !important;
+	}
+
+	#score {
+		transform: scale(0.9);
+		position: relative;
+		margin: auto !important;
+		// transpose the content of the scoreboard
+		tr {
+			display: block;
+			float: left;
+			td {
+				display: block;
+				padding: 6px !important;
+
+				.tooltiptext {
+					right: -20px !important;
+					bottom: 25px !important;
+				}
+			}
+		}
+	}
+	#return {
+		height: 80px !important;
+		width: 80px !important;
+	}
+}
+#banner {
+	font-size: 31px;
+	position: absolute;
+	left: 50%;
+	z-index: 2;
+	transform: translateX(-50%);
+	color: #fff;
+	top: 20%;
 }
