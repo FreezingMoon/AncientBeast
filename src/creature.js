@@ -480,6 +480,11 @@ export class Creature {
 		if (!o.isAbility) {
 			if (game.UI.selectedAbility != -1) {
 				this.hint('Canceled', 'gamehintblack');
+
+				// If this Creature is Dark Priest, remove temporary Creature in queue
+				if (this.type == '--') {
+					game.queue.removeTempCreature();
+				}
 			}
 
 			$j('#abilities .ability').removeClass('active');

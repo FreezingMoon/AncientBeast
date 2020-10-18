@@ -698,6 +698,10 @@ export default class Game {
 	 * End turn for the current unit
 	 */
 	skipTurn(o) {
+		// Removes temporary Creature from queue when Player skips turn
+		// while choosing materialize location for Creature
+		this.queue.removeTempCreature();
+
 		if (this.turnThrottle) {
 			return;
 		}
