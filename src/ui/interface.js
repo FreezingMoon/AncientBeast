@@ -2133,6 +2133,16 @@ export class UI {
 		let $vignettes = this.$queue.find('.vignette[verified!="-1"]').attr('verified', 0);
 
 		let deleteVignette = (vignette) => {
+			// Temporary Creature vignette used while materializing disappears instantly when
+			// player materializes actual Creature
+			if (
+				+$j(vignette).attr('creatureid') === game.queue.tempCreature.id &&
+				game.activeCreature.type === '--' &&
+				game.activeCreature.abilities[3].used
+			) {
+				queueAnimSpeed = 0;
+			}
+
 			if ($j(vignette).hasClass('roundmarker')) {
 				$j(vignette)
 					.attr('verified', -1)
@@ -2224,18 +2234,37 @@ export class UI {
 				let height = $j($vignettes[0]).height();
 				let offset = (index - Boolean(index)) * width + Boolean(index) * (width * 1.25);
 				$j(vignette).children('div.stats').css({ top: height });
-				$j(vignette)
-					.css({
-						'z-index': 0 - index,
-					})
-					.transition(
-						{
+
+				// Actual materialized Creature vignette should fade in
+				if (+$j(vignette).attr('creatureid') === game.queue.tempCreature.id + 1) {
+					$j(vignette)
+						.css({
+							'z-index': 0 - index,
+							opacity: 0.5,
 							x: offset,
-							queue: false,
-						},
-						queueAnimSpeed,
-						transition,
-					);
+						})
+						.transition(
+							{
+								opacity: 1,
+								queue: false,
+							},
+							queueAnimSpeed,
+							transition,
+						);
+				} else {
+					$j(vignette)
+						.css({
+							'z-index': 0 - index,
+						})
+						.transition(
+							{
+								x: offset,
+								queue: false,
+							},
+							queueAnimSpeed,
+							transition,
+						);
+				}
 			});
 		};
 
