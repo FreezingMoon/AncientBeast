@@ -39,7 +39,6 @@ export class CreatureQueue {
 	// Removes temporary Creature from queue
 	removeTempCreature() {
 		this.remove(this.tempCreature);
-		this.game.updateQueueDisplay();
 	}
 
 	nextRound() {

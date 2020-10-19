@@ -308,10 +308,6 @@ export default (G) => {
 					},
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
-
-						// Remove temporary Creature to prevent duplicates when the actual
-						// materialized Creature with correct position is added to the queue
-						G.queue.removeTempCreature();
 					},
 					args: {
 						creature: creature,

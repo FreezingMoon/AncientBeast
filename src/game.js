@@ -802,7 +802,7 @@ export default class Game {
 		// Removes temporary Creature from queue when Player skips turn
 		// while choosing materialize location for Creature
 		this.queue.removeTempCreature();
-    
+
 		// Send skip turn to server
 
 		if (this.turnThrottle) {
@@ -851,6 +851,9 @@ export default class Game {
 		this.pauseTime = 0;
 		this.activeCreature.deactivate(false);
 		this.nextCreature();
+
+		// Reset temporary Creature
+		this.queue.tempCreature = {};
 	}
 
 	/* delayCreature()

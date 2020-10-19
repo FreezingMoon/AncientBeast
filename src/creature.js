@@ -220,6 +220,10 @@ export class Creature {
 		let game = this.game;
 
 		game.queue.addByInitiative(this);
+
+		// Remove temporary Creature to prevent duplicates when the actual
+		// materialized Creature with correct position is added to the queue
+		game.queue.removeTempCreature();
 		game.updateQueueDisplay();
 
 		game.grid.orderCreatureZ();
