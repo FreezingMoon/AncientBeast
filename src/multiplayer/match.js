@@ -147,8 +147,11 @@ export default class MatchI {
 		let matchList = await this.client.listMatches(this.session);
 		let matchUsers = await this.readMatches();
 		matchUsers = _.filter(matchUsers, function (obj) {
-			let c = _.findWhere(matchList.matches, { match_id: obj.string_properties.match_id });
-			if (c) return true;
+			console.log(obj);
+			if ('string_properties' in obj && typeof obj.string_properties.match_id != 'undefined') {
+				let c = _.findWhere(matchList.matches, { match_id: obj.string_properties.match_id });
+				if (c) return true;
+			}
 		});
 
 		if (matchUsers.length > 0) {
