@@ -5,6 +5,7 @@ export class CreatureQueue {
 		this.game = game;
 		this.queue = [];
 		this.nextQueue = [];
+		this.tempCreature = {};
 	}
 
 	/** addByInitiative
@@ -33,6 +34,11 @@ export class CreatureQueue {
 	remove(creature) {
 		arrayUtils.removePos(this.queue, creature);
 		arrayUtils.removePos(this.nextQueue, creature);
+	}
+
+	// Removes temporary Creature from queue
+	removeTempCreature() {
+		this.remove(this.tempCreature);
 	}
 
 	nextRound() {

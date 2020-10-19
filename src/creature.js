@@ -220,6 +220,10 @@ export class Creature {
 		let game = this.game;
 
 		game.queue.addByInitiative(this);
+
+		// Remove temporary Creature to prevent duplicates when the actual
+		// materialized Creature with correct position is added to the queue
+		game.queue.removeTempCreature();
 		game.updateQueueDisplay();
 
 		game.grid.orderCreatureZ();
@@ -490,6 +494,11 @@ export class Creature {
 		if (!o.isAbility) {
 			if (game.UI.selectedAbility != -1) {
 				this.hint('Canceled', 'gamehintblack');
+
+				// If this Creature is Dark Priest, remove temporary Creature in queue
+				if (this.type == '--') {
+					game.queue.removeTempCreature();
+				}
 			}
 
 			$j('#abilities .ability').removeClass('active');
