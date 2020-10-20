@@ -2,8 +2,8 @@ import { Client } from '@heroiclabs/nakama-js/dist/nakama-js.esm';
 
 export default class Server {
 	constructor(game) {
-		this.client = new Client(process.env.key, process.env.ip, process.env.port, process.env.useSSL);
-		this.useSSL = false;
+		this.client = new Client(process.env.key, process.env.ip, process.env.port, process.env.ssl);
+		this.useSSL = process.env.ssl;
 		this.verboseLogging = false;
 		this.createStatus = false;
 		this.game = game;
