@@ -9,9 +9,6 @@ import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
 import SessionI from './multiplayer/session';
 
-console.log(process.env.key);
-// import SocketI from './server/socket';
-
 // Load the stylesheet
 import './style/main.less';
 
