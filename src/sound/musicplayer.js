@@ -58,7 +58,9 @@ export class MusicPlayer {
 	}
 
 	playRandom() {
-		const currentTrackIndex = this.playlist.find('li.active').index();
+		const currentTrackIndex = Array.prototype.findIndex.call(this.tracks.parent(), (element) =>
+			element.classList.contains('active'),
+		);
 		let rand;
 
 		do {
