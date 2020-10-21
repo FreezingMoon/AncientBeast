@@ -910,50 +910,20 @@
 					</div>
 				</div>
 				<div id="musicplayerwrapper">
-					<!-- TODO: This list needs to be generated procedually -->
-					<audio id="audio" preload="auto" controls="" style="width: 890px;"></audio>
-					<a style="cursor: pointer;"
+					<audio id="audio" preload="auto" controls="" style="width: 890px;"></audio><a style="cursor: pointer;"
 						id="mp_shuffle">Shuffle</a>
+						<div class="musicgenres active">Tags:</div>
+						<div class="musicgenres__items">
+							<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
+								<span class="musicgenres__title" id="genre-<%= musicGenre.id %>"><%= musicGenre.id %></span>
+							<% }); %>
+						</div>
 					<ul id="playlist" style="list-style-type:none; padding-left:0px;">
-						<li class="active">
-							<a href="<%= require('assets/music/Castle Black by Agret Brisignr.ogg') %>">Castle Black by Agret Brisignr</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/City of Sand by Agret Brisignr.ogg') %>">City of Sand by Agret Brisignr</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/Distant Realms by Moonthief.ogg') %>">Distant Realms by Moonthief</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/Escaping the Abyss by Jens Kiilstofte.ogg') %>">Escaping the Abyss by Jens Kiilstofte</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/Incoming Siege by Jens Kiilstofte.ogg') %>">Incoming Siege by Jens Kiilstofte</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/It All Ends Here by Moonthief.ogg') %>">It All Ends Here by Moonthief</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/Road to Victory by Moonthief.ogg') %>">Road to Victory by Moonthief</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/Summoning the Beast by Moonthief.ogg') %>">Summoning the Beast by Moonthief</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/Tale of the Ruins by Moonthief.ogg') %>">Tale of the Ruins by Moonthief</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/Touch of Fate by Moonthief.ogg') %>">Touch of Fate by Moonthief</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/Vengeance by Moonthief.ogg') %>">Vengeance by Moonthief</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/Wind Run by Tad Miller.ogg') %>">Wind Run by Tad Miller</a>
-						</li>
-						<li class="active">
-							<a href="<%= require('assets/music/The Awakening by Tad Miller.ogg') %>">The Awakening by Tad Miller</a>
-						</li>
+						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
+							<% musicGenre.children.forEach(function(track) { %>
+								<li class="<%= musicGenre.id %>"><a href="<%= track.url %>"><%= track.id %></a></li>
+							<% }); %>
+						<% }); %>
 					</ul>
 					<div id="volumeSliders">
 						Effects Volume
