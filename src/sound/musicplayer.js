@@ -20,6 +20,30 @@ export class MusicPlayer {
 				this.shuffle = !this.shuffle;
 			});
 
+		$j('#genre-epic').addClass('active');
+		this.tracks.parent().not('.epic').addClass('hidden');
+
+		$j('.musicgenres__title').on('click', (e) => {
+			e.preventDefault();
+
+			const clickedGenre = $j(e.target);
+			clickedGenre.toggleClass('active');
+
+			if (!clickedGenre.hasClass('active')) {
+				const unusedTracks = this.playlist.find(`li.${e.target.innerText}`);
+				unusedTracks.addClass('hidden');
+			}
+
+			const activeGenres = clickedGenre.parent().find('.active');
+			const activeGenresSelectors = Array.prototype.map.call(
+				activeGenres,
+				(genreNode) => `li.${genreNode.innerText} a`,
+			);
+
+			this.tracks = this.playlist.find(activeGenresSelectors.join());
+			this.tracks.parent().removeClass('hidden');
+		});
+
 		this.playlist.find('a').click((e) => {
 			e.preventDefault();
 			this.current = $j(e.currentTarget).parent().index();
