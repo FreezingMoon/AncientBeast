@@ -2,10 +2,9 @@ import * as $j from 'jquery';
 
 export class MusicPlayer {
 	constructor() {
-		this.current = 0;
 		this.audio = $j('#audio')[0];
 		this.playlist = $j('#playlist');
-		this.tracks = this.playlist.find('li a');
+		this.tracks = this.playlist.find('li.epic a');
 
 		this.repeat = true;
 		this.shuffle = true;
@@ -21,7 +20,7 @@ export class MusicPlayer {
 			});
 
 		$j('#genre-epic').addClass('active');
-		this.tracks.parent().not('.epic').addClass('hidden');
+		this.playlist.find('li').not('.epic').addClass('hidden');
 
 		$j('.musicgenres__title').on('click', (e) => {
 			e.preventDefault();
@@ -46,7 +45,6 @@ export class MusicPlayer {
 
 		this.playlist.find('a').click((e) => {
 			e.preventDefault();
-			this.current = $j(e.currentTarget).parent().index();
 			this.run($j(e.currentTarget));
 		});
 
@@ -60,24 +58,25 @@ export class MusicPlayer {
 	}
 
 	playRandom() {
+		const currentTrackIndex = this.playlist.find('li.active').index();
 		let rand;
+
 		do {
 			rand = Math.floor(Math.random() * (this.tracks.length - 1));
-		} while (rand == this.current); // Don't play the same track twice in a row
+		} while (rand === currentTrackIndex); // Don't play the same track twice in a row
 
-		this.current = rand;
-		let link = this.playlist.find('a')[this.current];
+		let link = this.tracks[rand];
 		this.run($j(link));
 	}
 
 	playNext() {
-		this.current++;
+		const activeTrack = this.playlist.find('li.active');
+		const [nextTrack] = activeTrack.next().not('.hidden').find('a');
+		let link = nextTrack;
 
-		if (this.current == this.tracks.length && this.repeat) {
-			this.current = 0;
+		if (!nextTrack && this.repeat) {
+			link = this.tracks[0];
 		}
-
-		let link = this.playlist.find('a')[this.current];
 		this.run($j(link));
 	}
 
