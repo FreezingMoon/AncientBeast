@@ -1,3 +1,4 @@
+import * as $j from 'jquery';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
@@ -258,6 +259,29 @@ export default (G) => {
 				let crea = G.retrieveCreatureStats(creature);
 				let ability = this;
 				let dpriest = this.creature;
+
+				// Removes temporary Creature from queue when Player chooses a
+				// different Creature to materialize
+				G.queue.removeTempCreature();
+
+				// Create full temporary Creature with placeholder position to show in queue
+				crea = $j.extend(crea, { x: 3, y: 3 }, { team: this.creature.player.id });
+				let fullCrea = new Creature(crea, G);
+				// Don't allow temporary Creature to take up space
+				fullCrea.cleanHex();
+				// Make temporary Creature invisible
+				fullCrea.sprite.alpha = 0;
+
+				// Provide full Creature to Queue
+				G.queue.tempCreature = fullCrea;
+
+				// Show temporary Creature in queue
+				G.queue.addByInitiative(fullCrea);
+				G.updateQueueDisplay();
+
+				// Reduce temporary Creature vignette transparency
+				let creatureVignette = $j("div[creatureid='" + fullCrea.id + "']");
+				creatureVignette.css({ opacity: 0.5 });
 
 				G.grid.forEachHex(function (hex) {
 					hex.unsetReachable();

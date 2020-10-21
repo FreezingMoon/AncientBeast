@@ -118,6 +118,7 @@ export class Creature {
 		this.endurance = obj.stats.endurance;
 		this.energy = obj.stats.energy;
 		this.remainingMove = 0; //Default value recovered each turn
+		this.dizzy = false;
 
 		// Abilities
 		this.abilities = [
@@ -219,6 +220,10 @@ export class Creature {
 		let game = this.game;
 
 		game.queue.addByInitiative(this);
+
+		// Remove temporary Creature to prevent duplicates when the actual
+		// materialized Creature with correct position is added to the queue
+		game.queue.removeTempCreature();
 		game.updateQueueDisplay();
 
 		game.grid.orderCreatureZ();
@@ -320,14 +325,14 @@ export class Creature {
 			});
 		}.bind(this);
 
-		// Frozen effect
-		if (stats.frozen) {
+		// Frozen or dizzy effect
+		if (stats.frozen || this.dizzy) {
 			varReset();
 			let interval = setInterval(() => {
 				if (!game.turnThrottle) {
 					clearInterval(interval);
 					game.skipTurn({
-						tooltip: 'Frozen',
+						tooltip: stats.frozen ? 'frozen' : 'dizzy',
 					});
 				}
 			}, 50);
@@ -344,15 +349,15 @@ export class Creature {
 		this.materializationSickness = false;
 
 		let interval = setInterval(() => {
-			if (!game.freezedInput) {
-				clearInterval(interval);
-				if (game.turn >= game.minimumTurnBeforeFleeing) {
-					game.UI.btnFlee.changeState('normal');
-				}
-
-				game.startTimer();
-				this.queryMove();
+			// if (!game.freezedInput) { remove for muliplayer
+			clearInterval(interval);
+			if (game.turn >= game.minimumTurnBeforeFleeing) {
+				game.UI.btnFlee.changeState('normal');
 			}
+
+			game.startTimer();
+			this.queryMove();
+			// }
 		}, 1000);
 	}
 
@@ -368,6 +373,7 @@ export class Creature {
 		this.delayed = Boolean(wait);
 		this.hasWait = this.delayed;
 		this.stats.frozen = false;
+		this.dizzy = false;
 
 		// Effects triggers
 		if (!wait) {
@@ -464,6 +470,14 @@ export class Creature {
 							y: hex.y,
 						},
 					});
+					if (game.multiplayer) {
+						game.gameplay.moveTo({
+							target: {
+								x: hex.x,
+								y: hex.y,
+							},
+						});
+					}
 					args.creature.delayable = false;
 					game.UI.btnDelay.changeState('disabled');
 					args.creature.moveTo(hex, {
@@ -480,6 +494,11 @@ export class Creature {
 		if (!o.isAbility) {
 			if (game.UI.selectedAbility != -1) {
 				this.hint('Canceled', 'gamehintblack');
+
+				// If this Creature is Dark Priest, remove temporary Creature in queue
+				if (this.type == '--') {
+					game.queue.removeTempCreature();
+				}
 			}
 
 			$j('#abilities .ability').removeClass('active');

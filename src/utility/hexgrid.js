@@ -588,6 +588,7 @@ export class HexGrid {
 
 		// ONCLICK
 		let onConfirmFn = (hex) => {
+			// Debugger
 			let y = hex.y,
 				x = hex.x;
 
@@ -632,7 +633,6 @@ export class HexGrid {
 				let clickedtHex = hex;
 
 				game.activeCreature.faceHex(clickedtHex, undefined, true, true);
-
 				if (clickedtHex != this.lastClickedHex) {
 					this.lastClickedHex = clickedtHex;
 					// ONCLICK
