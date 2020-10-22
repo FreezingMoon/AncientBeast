@@ -14,7 +14,7 @@ export class MusicPlayer {
 
 		$j('#mp_shuffle')
 			.addClass('active')
-			.click((e) => {
+			.on('click', (e) => {
 				$j(e.currentTarget).toggleClass('active');
 				this.shuffle = !this.shuffle;
 			});
