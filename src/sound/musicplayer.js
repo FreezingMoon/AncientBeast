@@ -2,10 +2,9 @@ import * as $j from 'jquery';
 
 export class MusicPlayer {
 	constructor() {
-		this.current = 0;
 		this.audio = $j('#audio')[0];
 		this.playlist = $j('#playlist');
-		this.tracks = this.playlist.find('li a');
+		this.tracks = this.playlist.find('li.epic');
 
 		this.repeat = true;
 		this.shuffle = true;
@@ -15,14 +14,38 @@ export class MusicPlayer {
 
 		$j('#mp_shuffle')
 			.addClass('active')
-			.click((e) => {
+			.on('click', (e) => {
 				$j(e.currentTarget).toggleClass('active');
 				this.shuffle = !this.shuffle;
 			});
 
-		this.playlist.find('a').click((e) => {
+		$j('#genre-epic').addClass('active');
+		this.playlist.find('li').not('.epic').addClass('hidden');
+
+		$j('.musicgenres__title').on('click', (e) => {
 			e.preventDefault();
-			this.current = $j(e.currentTarget).parent().index();
+
+			const clickedGenre = $j(e.target);
+			clickedGenre.toggleClass('active');
+
+			if (!clickedGenre.hasClass('active')) {
+				const clickedGenreClass = e.target.innerText;
+				const unusedTracks = this.playlist.find(`li.${clickedGenreClass}`);
+				unusedTracks.addClass('hidden');
+			}
+
+			const activeGenres = clickedGenre.parent().find('.active');
+			const activeGenresSelectors = Array.prototype.map.call(
+				activeGenres,
+				(genreNode) => `li.${genreNode.innerText}`,
+			);
+
+			this.tracks = this.playlist.find(activeGenresSelectors.join());
+			this.tracks.removeClass('hidden');
+		});
+
+		this.playlist.find('li').on('click', (e) => {
+			e.preventDefault();
 			this.run($j(e.currentTarget));
 		});
 
@@ -35,33 +58,41 @@ export class MusicPlayer {
 		});
 	}
 
+	getCurrentTrackIndex() {
+		return Array.prototype.findIndex.call(this.tracks, (track) =>
+			track.classList.contains('active'),
+		);
+	}
+
 	playRandom() {
+		const currentTrackIndex = this.getCurrentTrackIndex();
 		let rand;
+
 		do {
 			rand = Math.floor(Math.random() * (this.tracks.length - 1));
-		} while (rand == this.current); // Don't play the same track twice in a row
+		} while (rand === currentTrackIndex); // Don't play the same track twice in a row
 
-		this.current = rand;
-		let link = this.playlist.find('a')[this.current];
-		this.run($j(link));
+		const track = this.tracks[rand];
+
+		this.run($j(track));
 	}
 
 	playNext() {
-		this.current++;
+		const currentTrackIndex = this.getCurrentTrackIndex();
+		const nextTrackIndex = currentTrackIndex + 1;
+		const isNextTrackExists = this.tracks[nextTrackIndex];
+		const shouldRepeat = !isNextTrackExists && this.repeat;
 
-		if (this.current == this.tracks.length && this.repeat) {
-			this.current = 0;
-		}
+		const track = shouldRepeat ? this.tracks[0] : this.tracks[nextTrackIndex];
 
-		let link = this.playlist.find('a')[this.current];
-		this.run($j(link));
+		this.run($j(track));
 	}
 
-	run(link) {
+	run(track) {
 		// Style the active track in the playlist
-		let par = link.parent();
+		const link = track.find('a');
 
-		par.addClass('active').siblings().removeClass('active');
+		track.addClass('active').siblings().removeClass('active');
 		this.audio.src = link.attr('href');
 		this.audio.load();
 		this.audio.play();
