@@ -322,6 +322,9 @@ export class HexGrid {
 
 			if (validChoice) {
 				hexes = hexes.concat(o.choices[i]);
+				o.choices[i].forEach((hex) => {
+					arrayUtils.removePos(o.hexesDashed, hex);
+				});
 			} else if (o.isDirectionsQuery) {
 				this.forEachHex((hex) => {
 					if (o.choices[i][0].direction == hex.direction) {
@@ -330,6 +333,8 @@ export class HexGrid {
 				});
 			}
 		}
+
+		o.hexesDashed = o.hexesDashed.filter((hexDash) => !hexDash.creature);
 
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {
