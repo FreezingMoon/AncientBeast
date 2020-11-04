@@ -79,22 +79,13 @@ export default (G) => {
 			_directions: [0, 1, 0, 0, 1, 0], // forward/backward
 			_targetTeam: Team.enemy,
 
-			_map: [
-				[0, 0, 0, 0, 0],
-				[0, 1, 1, 1, 1],
-				[1, 0, 0, 0, 1], // Origin line
-				[0, 1, 1, 1, 1],
-			],
-
 			// 	require() :
 			require: function () {
-				this._map.origin = [3, 2];
-
 				if (!this.testRequirements()) {
 					return false;
 				}
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(this._map), {
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback3hex), {
 						team: this._targetTeam,
 					})
 				) {
@@ -120,7 +111,6 @@ export default (G) => {
 			query: function () {
 				let ability = this;
 				let vehemoth = this.creature;
-				this._map.origin = [3, 2];
 
 				let object = {
 					fnOnConfirm: function () {
@@ -128,13 +118,13 @@ export default (G) => {
 					},
 					flipped: vehemoth.flipped,
 					id: vehemoth.id,
-					hexesDashed: vehemoth.getHexMap(this._map),
+					hexesDashed: vehemoth.getHexMap(matrices.frontnback3hex),
 					team: Team.enemy,
 					requireCreature: true,
 					flipped: vehemoth.flipped,
 				};
 
-				object.choices = vehemoth.getHexMap(this._map).map((hex) => {
+				object.choices = vehemoth.getHexMap(matrices.frontnback3hex).map((hex) => {
 					return [hex];
 				});
 
@@ -186,7 +176,6 @@ export default (G) => {
 				let ability = this;
 				let vehemoth = ability.creature;
 				ability.end();
-				this._map.origin = [3, 2];
 
 				let target = arrayUtils.last(path).creature;
 
@@ -202,7 +191,9 @@ export default (G) => {
 					G,
 				);
 
-				let trgIsNearby = vehemoth.getHexMap(this._map).includes(arrayUtils.last(path));
+				let trgIsNearby = vehemoth
+					.getHexMap(matrices.frontnback3hex)
+					.includes(arrayUtils.last(path));
 
 				if (trgIsNearby) {
 					target.takeDamage(damage);
@@ -215,16 +206,24 @@ export default (G) => {
 					let x = destination.x + (args.direction === 4 ? vehemoth.size - 1 : 0);
 					destination = G.grid.hexes[destination.y][x];
 
+					let fx = 1;
+					if (
+						(!vehemoth.flipped && args.direction === 4) ||
+						(vehemoth.flipped && args.direction === 1)
+					) {
+						fx = -1 * vehemoth.size;
+					}
+					let knockbackHexes = G.grid.getHexLine(
+						vehemoth.x + fx,
+						vehemoth.y,
+						args.direction,
+						vehemoth.flipped,
+					);
+					knockbackHexes.splice(0, path.length + target.size);
+					knockbackHexes.splice(path.length);
+
 					vehemoth.moveTo(destination, {
 						callback: function () {
-							let knockbackHexes = G.grid.getHexLine(
-								target.x,
-								target.y,
-								args.direction,
-								target.flipped,
-							);
-							knockbackHexes.splice(0, 1);
-							knockbackHexes.splice(path.length);
 							let knockbackHex = null;
 							for (let i = 0; i < knockbackHexes.length; i++) {
 								// Check that the next knockback hex is valid
@@ -244,7 +243,6 @@ export default (G) => {
 									},
 									ignoreMovementPoint: true,
 									ignorePath: true,
-									overrideSpeed: 1200, // Custom speed for knockback
 									animation: 'push',
 								});
 							} else {
