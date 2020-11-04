@@ -71,12 +71,12 @@ export default (G) => {
 			},
 		},
 
-		// 	Second Ability: Head Bash
+		// 	Second Ability: Flat Frons
 		{
 			//	Type : Can be "onQuery","onStartPhase","onDamage"
 			trigger: 'onQuery',
 
-			distance: 1,
+			_directions: [0, 1, 0, 0, 1, 0], // forward/backward
 			_targetTeam: Team.enemy,
 
 			// 	require() :
@@ -85,13 +85,24 @@ export default (G) => {
 					return false;
 				}
 				if (
-					!this.testDirection({
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback3hex), {
 						team: this._targetTeam,
-						distance: this.distance,
-						sourceCreature: this.creature,
 					})
 				) {
-					return false;
+					if (this.isUpgraded()) {
+						if (
+							!this.testDirection({
+								team: this._targetTeam,
+								directions: this._directions,
+								distance: this.creature.remainingMove + 1,
+								sourceCreature: this.creature,
+							})
+						) {
+							return false;
+						}
+					} else {
+						return false;
+					}
 				}
 				return true;
 			},
@@ -99,88 +110,148 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 				let ability = this;
-				let crea = this.creature;
+				let vehemoth = this.creature;
 
-				G.grid.queryDirection({
+				let object = {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: crea.player.flipped,
-					team: this._targetTeam,
-					id: this.creature.id,
+					flipped: vehemoth.flipped,
+					id: vehemoth.id,
+					hexesDashed: vehemoth.getHexMap(matrices.frontnback3hex),
+					team: Team.enemy,
 					requireCreature: true,
-					x: crea.x,
-					y: crea.y,
-					distance: this.distance,
-					sourceCreature: crea,
+					flipped: vehemoth.flipped,
+				};
+
+				object.choices = vehemoth.getHexMap(matrices.frontnback3hex).map((hex) => {
+					return [hex];
 				});
+
+				if (this.isUpgraded()) {
+					let directionObject = G.grid.getDirectionChoices({
+						flipped: vehemoth.flipped,
+						sourceCreature: vehemoth,
+						team: this._targetTeam,
+						id: vehemoth.id,
+						requireCreature: true,
+						x: vehemoth.x,
+						y: vehemoth.y,
+						distance: vehemoth.remainingMove + 1,
+						directions: this._directions,
+					});
+
+					// removes duplicates between nearby and inline targets
+					object.choices = object.choices.filter(
+						(objectHexes) =>
+							!directionObject.choices.some((directionHexes) =>
+								objectHexes.every((v) => directionHexes.includes(v)),
+							),
+					);
+					object.choices = [...object.choices, ...directionObject.choices];
+
+					directionObject.choices.forEach((choice) => {
+						let dir = choice[0].direction;
+						let fx = 1;
+						if ((!vehemoth.flipped && dir === 4) || (vehemoth.flipped && dir === 1)) {
+							fx = -1 * vehemoth.size;
+						}
+						let hexesDashed = G.grid.getHexLine(
+							vehemoth.x + fx,
+							vehemoth.y,
+							choice[0].direction,
+							vehemoth.flipped,
+						);
+						hexesDashed.splice(0, choice.length);
+						hexesDashed.splice(choice.length - arrayUtils.last(choice).creature.size);
+						object.hexesDashed = [...object.hexesDashed, ...hexesDashed];
+					});
+				}
+
+				G.grid.queryChoice(object);
 			},
 
 			//	activate() :
-			activate: function (path) {
+			activate: function (path, args) {
 				let ability = this;
+				let vehemoth = ability.creature;
 				ability.end();
 
-				let direction = arrayUtils.last(path).direction;
 				let target = arrayUtils.last(path).creature;
 
-				let dir = [];
-				switch (direction) {
-					case 0: //Upright
-						dir = G.grid
-							.getHexMap(target.x, target.y - 8, 0, target.flipped, matrices.diagonalup)
-							.reverse();
-						break;
-					case 1: //StraitForward
-						dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.straitrow);
-						break;
-					case 2: //Downright
-						dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.diagonaldown);
-						break;
-					case 3: //Downleft
-						dir = G.grid.getHexMap(target.x, target.y, -4, target.flipped, matrices.diagonalup);
-						break;
-					case 4: //StraitBackward
-						dir = G.grid.getHexMap(target.x, target.y, 0, !target.flipped, matrices.straitrow);
-						break;
-					case 5: //Upleft
-						dir = G.grid
-							.getHexMap(target.x, target.y - 8, -4, target.flipped, matrices.diagonaldown)
-							.reverse();
-						break;
-					default:
-						break;
-				}
-
-				let pushed = false;
-
-				if (dir.length > 1) {
-					if (dir[1].isWalkable(target.size, target.id, true)) {
-						target.moveTo(dir[1], {
-							ignoreMovementPoint: true,
-							ignorePath: true,
-							callback: function () {
-								G.activeCreature.queryMove();
-							},
-							animation: 'push',
-						});
-						pushed = true;
-					}
-				}
-				let d = $j.extend({}, ability.damages);
-
-				if (!pushed) {
-					d.crush = d.crush * 2;
-				}
-
+				let damageType =
+					target.health <= 39
+						? { pure: this.damages.pure }
+						: { crush: this.damages.crush, frost: this.damages.frost };
 				let damage = new Damage(
-					ability.creature, //Attacker
-					d, // Damage Type
+					ability.creature, // Attacker
+					damageType,
 					1, // Area
 					[], // Effects
 					G,
 				);
-				target.takeDamage(damage);
+
+				let trgIsNearby = vehemoth
+					.getHexMap(matrices.frontnback3hex)
+					.includes(arrayUtils.last(path));
+
+				if (trgIsNearby) {
+					target.takeDamage(damage);
+				} else {
+					if (!this.isUpgraded()) {
+						return;
+					}
+					arrayUtils.filterCreature(path, false, true, vehemoth.id);
+					let destination = arrayUtils.last(path);
+					let x = destination.x + (args.direction === 4 ? vehemoth.size - 1 : 0);
+					destination = G.grid.hexes[destination.y][x];
+
+					let fx = 1;
+					if (
+						(!vehemoth.flipped && args.direction === 4) ||
+						(vehemoth.flipped && args.direction === 1)
+					) {
+						fx = -1 * vehemoth.size;
+					}
+					let knockbackHexes = G.grid.getHexLine(
+						vehemoth.x + fx,
+						vehemoth.y,
+						args.direction,
+						vehemoth.flipped,
+					);
+					knockbackHexes.splice(0, path.length + target.size);
+					knockbackHexes.splice(path.length);
+
+					vehemoth.moveTo(destination, {
+						callback: function () {
+							let knockbackHex = null;
+							for (let i = 0; i < knockbackHexes.length; i++) {
+								// Check that the next knockback hex is valid
+								if (!knockbackHexes[i].isWalkable(target.size, target.id, true)) {
+									break;
+								}
+								knockbackHex = knockbackHexes[i];
+							}
+							if (knockbackHex !== null) {
+								target.moveTo(knockbackHex, {
+									callback: function () {
+										// Deal damage only if target have reached the end of the path
+										if (knockbackHex.creature === target) {
+											target.takeDamage(damage);
+										}
+										G.activeCreature.queryMove();
+									},
+									ignoreMovementPoint: true,
+									ignorePath: true,
+									animation: 'push',
+								});
+							} else {
+								target.takeDamage(damage);
+								G.activeCreature.queryMove();
+							}
+						},
+					});
+				}
 			},
 		},
 
