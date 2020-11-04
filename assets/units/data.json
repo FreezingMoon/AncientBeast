@@ -603,7 +603,7 @@
 					"If the target unit can be knocked back, the effect will occur before the unit dies."
 				],
 				"damages": {
-					"crush": 20,
+					"crush": 12,
 					"frost": 10,
 					"pure": 39
 				},
