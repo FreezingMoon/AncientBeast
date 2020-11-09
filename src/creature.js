@@ -39,6 +39,7 @@ export class Creature {
 	 * statsAlt :		Object :	Object containing the alteration value for each stat //todo
 	 * abilities :		Array :		Array containing the 4 abilities
 	 * remainingMove : Integer :	Remaining moves allowed untill the end of turn
+	 * temp :           Boolean :   True if the creature is only temporary for preview, false otherwise
 	 *
 	 */
 
@@ -66,6 +67,7 @@ export class Creature {
 		this.display = obj.display;
 		this.drop = obj.drop;
 		this._movementType = 'normal';
+		this.temp = obj.temp;
 
 		if (obj.movementType) {
 			this._movementType = obj.movementType;
@@ -442,6 +444,12 @@ export class Creature {
 				});
 			}
 		});
+		
+		// Clean up temporary creature if a summon was cancelled.
+		if (game.creatures[game.creatures.length - 1].temp) {
+			game.creatures.pop();
+			game.creatureIdCounter--;
+		}
 
 		let remainingMove = this.remainingMove;
 		// No movement range if unmoveable
@@ -614,7 +622,7 @@ export class Creature {
 	 */
 	faceHex(faceto, facefrom, ignoreCreaHex, attackFix) {
 		if (!facefrom) {
-			facefrom = this.player.flipped ? this.hexagons[this.size - 1] : this.hexagons[0];
+			facefrom = this.player.flipped ? this.hexagons[0] : this.hexagons[this.size - 1];
 		}
 
 		if (

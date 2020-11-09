@@ -12,14 +12,15 @@ import { Effect } from '../effect';
  */
 export default (G) => {
 	G.abilities[6] = [
-		// 	First Ability: Frost Bite
+		// 	First Ability: Lamellar Body
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: 'onEndPhase',
+			trigger: 'onCreatureSummon onOtherCreatureSummon onOtherCreatureDeath',
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) {
+				// Stop temporary and dead creatures from activating
+				if (this.creature.dead || this.creature.temp) {
 					return false;
 				}
 				return true;
@@ -28,46 +29,41 @@ export default (G) => {
 			//	activate() :
 			activate: function () {
 				let ability = this;
-				this.end();
+				var buff = 0;
 
-				//Check all creatures
-				for (let i = 1; i < G.creatures.length; i++) {
-					if (G.creatures[i] instanceof Creature) {
-						let crea = G.creatures[i];
-
-						if (
-							isTeam(crea, ability.creature, Team.enemy) &&
-							!crea.dead &&
-							crea.findEffect('Snow Storm').length === 0
-						) {
-							let effect = new Effect(
-								'Snow Storm', // Name
-								ability.creature, // Caster
-								crea, // Target
-								'onOtherCreatureDeath', // Trigger
-								{
-									effectFn: function (eff) {
-										let trg = eff.target;
-
-										let iceDemonArray = G.findCreature({
-											type: 'S7', // Ice Demon
-											dead: false, // Still Alive
-											team: [1 - (trg.team % 2), 1 - (trg.team % 2) + 2], // Oposite team
-										});
-
-										if (iceDemonArray.length == 0) {
-											this.deleteEffect();
-										}
-									},
-									alterations: ability.effects[0],
-									noLog: true,
-								}, // Optional arguments
-								G,
-							);
-							crea.addEffect(effect);
-						}
+				G.creatures.forEach(crea => {
+					if (!(crea instanceof Creature)) {
+						return;
 					}
+					if (crea.realm != "S" || crea.dead || crea.sprite.temp) {
+						return;
+					}
+					buff += 2;
+				});
+				
+				var regrowBuff = 0;
+				if (this.isUpgraded()) {
+					regrowBuff = buff;
 				}
+
+				this.creature.replaceEffect(
+					// Add and replace the effect each time
+					new Effect(
+						"Lamellar Body", // name
+						this.creature, // caster
+						this.creature, // target
+						"", // trigger
+						{
+							alterations: {
+								defense: buff,
+								frost: buff,
+								regrowth: regrowBuff,
+							},
+							stackable: false,
+						},
+						G
+					)
+				)
 			},
 		},
 

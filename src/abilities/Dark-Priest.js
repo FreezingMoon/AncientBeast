@@ -265,7 +265,7 @@ export default (G) => {
 				G.queue.removeTempCreature();
 
 				// Create full temporary Creature with placeholder position to show in queue
-				crea = $j.extend(crea, { x: 3, y: 3 }, { team: this.creature.player.id });
+				crea = $j.extend(crea, { x: 3, y: 3 }, { team: this.creature.player.id }, { temp: true });
 				let fullCrea = new Creature(crea, G);
 				// Don't allow temporary Creature to take up space
 				fullCrea.cleanHex();
@@ -333,9 +333,13 @@ export default (G) => {
 
 				//TODO: Make the UI show the updated number instantly
 
-				ability.end();
+				ability.end(false, true);
 
 				ability.creature.player.summon(creature, pos);
+				let crea = G.creatures.pop();
+				crea.id--;
+				G.creatures[crea.id] = crea;
+				G.creatureIdCounter--;
 				ability.creature.queryMove();
 			},
 		},
