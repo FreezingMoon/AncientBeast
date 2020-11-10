@@ -622,7 +622,7 @@ export class Creature {
 	 */
 	faceHex(faceto, facefrom, ignoreCreaHex, attackFix) {
 		if (!facefrom) {
-			facefrom = this.player.flipped ? this.hexagons[0] : this.hexagons[this.size - 1];
+			facefrom = this.player.flipped ? this.hexagons[this.size - 1] : this.hexagons[0];
 		}
 
 		if (
@@ -635,6 +635,10 @@ export class Creature {
 		}
 
 		if (faceto instanceof Creature) {
+			if (faceto === this) {
+				this.facePlayerDefault();
+				return;
+			}
 			faceto = faceto.size < 2 ? faceto.hexagons[0] : faceto.hexagons[1];
 		}
 
