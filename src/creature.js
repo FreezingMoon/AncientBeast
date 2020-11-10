@@ -444,7 +444,7 @@ export class Creature {
 				});
 			}
 		});
-		
+
 		// Clean up temporary creature if a summon was cancelled.
 		if (game.creatures[game.creatures.length - 1].temp) {
 			game.creatures.pop();

@@ -31,16 +31,16 @@ export default (G) => {
 				let ability = this;
 				var buff = 0;
 
-				G.creatures.forEach(crea => {
+				G.creatures.forEach((crea) => {
 					if (!(crea instanceof Creature)) {
 						return;
 					}
-					if (crea.realm != "S" || crea.dead || crea.sprite.temp) {
+					if (crea.realm != 'S' || crea.dead || crea.sprite.temp) {
 						return;
 					}
 					buff += 2;
 				});
-				
+
 				var regrowBuff = 0;
 				if (this.isUpgraded()) {
 					regrowBuff = buff;
@@ -49,10 +49,10 @@ export default (G) => {
 				this.creature.replaceEffect(
 					// Add and replace the effect each time
 					new Effect(
-						"Lamellar Body", // name
+						'Lamellar Body', // name
 						this.creature, // caster
 						this.creature, // target
-						"", // trigger
+						'', // trigger
 						{
 							alterations: {
 								defense: buff,
@@ -61,9 +61,9 @@ export default (G) => {
 							},
 							stackable: false,
 						},
-						G
-					)
-				)
+						G,
+					),
+				);
 			},
 		},
 
