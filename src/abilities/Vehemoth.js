@@ -38,7 +38,7 @@ export default (G) => {
 				this._buff = buff;
 				return true;
 			},
-	
+
 			//  activate() :
 			activate: function () {
 				let ability = this;
