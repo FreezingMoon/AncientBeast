@@ -30,6 +30,8 @@ export default (G) => {
 			activate: function () {
 				let ability = this;
 				var buff = 0;
+				// Force Vehemoth to stay facing the right way
+				this.creature.facePlayerDefault();
 
 				G.creatures.forEach((crea) => {
 					if (!(crea instanceof Creature)) {
