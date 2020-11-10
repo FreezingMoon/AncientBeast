@@ -14,62 +14,62 @@ export default (G) => {
 	G.abilities[6] = [
 		// 	First Ability: Lamellar Body
 		{
-            //  Type : Can be "onQuery", "onStartPhase", "onDamage"
-            trigger: 'onCreatureSummon onOtherCreatureSummon onOtherCreatureDeath',
+			//  Type : Can be "onQuery", "onStartPhase", "onDamage"
+			trigger: 'onCreatureSummon onOtherCreatureSummon onOtherCreatureDeath',
 
-            _buff: 0,
+			_buff: 0,
 
-            //  require() :
-            require: function () {
-                // Stop temporary and dead creatures from activating
-                if (this.creature.dead || this.creature.temp) {
-                    return false;
-                }
-                // Stop activation if the other creature is not a sloth type
-                var buff = 0;
-                G.creatures.forEach((crea) => {
-                    if (crea.realm == 'S' && !crea.dead && !crea.temp) {
-                        buff += 2;
-                    }
-                });
-                if (buff == this._buff) {
-                    return false;
-                }
-                this._buff = buff;
-                return true;
-            },
+			//  require() :
+			require: function () {
+				// Stop temporary and dead creatures from activating
+				if (this.creature.dead || this.creature.temp) {
+					return false;
+				}
+				// Stop activation if the other creature is not a sloth type
+				var buff = 0;
+				G.creatures.forEach((crea) => {
+					if (crea.realm == 'S' && !crea.dead && !crea.temp) {
+						buff += 2;
+					}
+				});
+				if (buff == this._buff) {
+					return false;
+				}
+				this._buff = buff;
+				return true;
+			},
+	
+			//  activate() :
+			activate: function () {
+				let ability = this;
+				// Force Vehemoth to stay facing the right way
+				this.creature.facePlayerDefault();
 
-            //  activate() :
-            activate: function () {
-                let ability = this;
-                // Force Vehemoth to stay facing the right way
-                this.creature.facePlayerDefault();
+				var regrowBuff = 0;
+				if (this.isUpgraded()) {
+					regrowBuff = this._buff;
+				}
 
-                var regrowBuff = 0;
-                if (this.isUpgraded()) {
-                    regrowBuff = this._buff;
-                }
-
-                this.creature.replaceEffect(
-                    // Add and replace the effect each time
-                    new Effect(
-                        'Lamellar Body', // name
-                        this.creature, // caster
-                        this.creature, // target
-                        '', // trigger
-                        {
-                            alterations: {
-                                defense: this._buff,
-                                frost: this._buff,
-                                regrowth: regrowBuff,
-                            },
-                            stackable: false,
-                        },
-                        G,
-                    ),
-                );
-            },
-        },
+				this.creature.replaceEffect(
+					// Add and replace the effect each time
+					new Effect(
+						'Lamellar Body', // name
+						this.creature, // caster
+						this.creature, // target
+						'', // trigger
+						{
+							alterations: {
+								defense: this._buff,
+								frost: this._buff,
+								regrowth: regrowBuff,
+							},
+							stackable: false,
+						},
+						G,
+					),
+				);
+			},
+		},
 
 		// 	Second Ability: Flat Frons
 		{
