@@ -83,6 +83,7 @@ export class Player {
 
 		data = $j.extend(data, pos, {
 			team: this.id,
+			temp: false,
 		}); // Create the full data for creature creation
 
 		for (let i = game.creatureData.length - 1; i >= 0; i--) {
