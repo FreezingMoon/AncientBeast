@@ -1791,6 +1791,7 @@ export class UI {
 
 					this.btnAudio.changeState('normal');
 					this.btnSkipTurn.changeState('normal');
+					this.btnFullscreen.changeState('normal');
 					// Change ability buttons
 					this.changeAbilityButtons();
 					// Update upgrade info
@@ -1805,6 +1806,7 @@ export class UI {
 						() => {
 							this.btnAudio.changeState('slideIn');
 							this.btnSkipTurn.changeState('slideIn');
+							this.btnFullscreen.changeState('slideIn');
 							if (!creature.hasWait && creature.delayable && !game.queue.isCurrentEmpty()) {
 								this.btnDelay.changeState('slideIn');
 							}
