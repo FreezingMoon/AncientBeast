@@ -389,8 +389,18 @@
 	}
 }
 
-.button#fullscreen:before {
-	background-image: none;
+.button#fullscreen {
+	position: inherit;
+	width: 80px;
+	height: 80px;
+	opacity: 0.8;
+	background-color: inherit;
+	z-index: inherit;
+
+	div {
+		width: 100%;
+		height: 100%;
+	}
 }
 
 .button#audio {
@@ -461,7 +471,7 @@
 	transition: transform 0.5s;
 	transform: translateX(50%);
 	&:hover {
-		transform: translateX(0);
+		transform: translateX(0%);
 	}
 	&.slideIn {
 		transform: translateX(0);
