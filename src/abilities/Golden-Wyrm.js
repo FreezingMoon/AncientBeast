@@ -56,11 +56,11 @@ export default (G) => {
 					}
 					hits.add(target.creature);
 				});
+				this.end(false, true);
 				hits.forEach((hit, _, set) => {
 					hit.takeDamage(damage);
 				});
-
-				this.end();
+				this.end(true, false);
 			},
 		},
 
