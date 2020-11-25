@@ -10,91 +10,57 @@ import { Effect } from '../effect';
  */
 export default (G) => {
 	G.abilities[33] = [
-		// 	First Ability: Percussion Spear
+		// 	First Ability: Battle Cry
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: 'onStepIn onStartPhase',
+			trigger: 'onDamage onStartPhase',
 
-			_targetTeam: Team.enemy,
+			_damaged: false,
+			_targets: [],
 
 			// 	require() :
 			require: function () {
+				// Creature is damaged
+				if (G.activeCreature != this.creature) {
+					this._damaged = true;
+					return false;
+				}
+				if (!this._damaged) {
+					return false;
+				} else {
+					this._damaged = false;
+				}
+				this._targets = this.creature.adjacentHexes(1);
+				if (this.isUpgraded()) {
+					// Upgraded version only activates if enemy is in adjacent hexes
+					if (
+						!this.atLeastOneTarget(this._targets, {
+							team: Team.enemy,
+						})
+					) {
+						return false;
+					}
+				}
 				return this.testRequirements();
 			},
 
 			//	activate() :
 			activate: function () {
 				let creature = this.creature;
-				let targets = this.getTargets(this.creature.adjacentHexes(1));
+				let damage = new Damage(creature, { sonic: 30 }, this._targets.length, [], G);
+				let hits = new Set();
 
-				if (
-					this.atLeastOneTarget(this.creature.adjacentHexes(1), {
-						team: this._targetTeam,
-					})
-				) {
-					this.end();
-					this.setUsed(false); //Infinite triggering
-				} else {
-					return false;
-				}
-
-				targets.forEach(function (item) {
-					if (!(item.target instanceof Creature)) {
+				this._targets.forEach((target) => {
+					if (target.creature === undefined || hits.has(target.creature)) {
 						return;
 					}
-
-					let trg = item.target;
-
-					if (isTeam(creature, trg, item._targetTeam)) {
-						let optArg = {
-							effectFn: function (effect, crea) {
-								let nearFungus = false;
-								crea.adjacentHexes(1).forEach(function () {
-									if (trg.creature instanceof Creature) {
-										if (G.creatures[trg.creature] === effect.owner) {
-											nearFungus = true;
-										}
-									}
-								});
-
-								if (!nearFungus) {
-									crea.effects.forEach(function (eff) {
-										if (eff.name == 'Contaminated') {
-											eff.deleteEffect();
-										}
-									});
-								}
-							},
-							alterations: {
-								regrowth: -5,
-							},
-							turn: G.turn,
-						};
-
-						//Spore Contamination
-						let effect = new Effect(
-							'Contaminated', // Name
-							creature, // Caster
-							trg, // Target
-							'onStartPhase', // Trigger
-							optArg, // Optional arguments
-							G,
-						);
-
-						let validTarget = true;
-						trg.effects.forEach(function (eff) {
-							if (eff.name == 'Contaminated') {
-								if (eff.turn == G.turn) {
-									validTarget = false;
-								}
-							}
-						});
-
-						if (validTarget) {
-							trg.addEffect(effect);
-						}
-					}
+					hits.add(target.creature);
 				});
+				this.end(false, true);
+				hits.forEach((hit, _, set) => {
+					hit.takeDamage(damage);
+				});
+				this.end(true, false);
 			},
 		},
 
