@@ -356,6 +356,10 @@
 	opacity: 0.5;
 }
 
+.button.hidden {
+	display: none;
+}
+
 .disabled {
 	cursor: not-allowed !important;
 
@@ -417,6 +421,10 @@
 
 .button#flee {
 	background-image: url('~assets/icons/flee.svg');
+}
+
+.button#exit {
+	background-image: url('~assets/icons/exit.svg');
 }
 
 #playerbutton {
@@ -1352,105 +1360,104 @@ span.pure {
 				text-align: center;
 			}
 
-			#fleeWrapper {
+			.scoreboardActions {
 				width: 100%;
 				display: flex;
 				justify-content: center;
 				margin-top: 50px;
 				margin-bottom: 50px;
-				#innerFleeWrapper {
-					#flee {
-						margin-left: auto;
-						margin-right: auto;
-					}
-					.button + .desc {
-						visibility: hidden;
-						position: relative;
-						top: 1px;
-						display: block;
-						width: 250px;
-						left: 85px;
-						color: white;
-						background: rgba(0, 0, 0, 0.7);
-						overflow: hidden;
-					}
-					.button.hover + .desc {
-						visibility: visible;
-						left: -186px;
-						top: -80px;
-						text-align: right;
-					}
-					.button.hover + .desc {
-						width: 270px;
-						border: 2px black solid;
-						overflow: visible;
-						border-radius: 5px;
-					}
+				#flee,
+				#exit {
+					margin-left: auto;
+					margin-right: auto;
+				}
+				.button + .desc {
+					visibility: hidden;
+					position: relative;
+					top: 1px;
+					display: block;
+					width: 250px;
+					left: 85px;
+					color: white;
+					background: rgba(0, 0, 0, 0.7);
+					overflow: hidden;
+				}
+				.button.hover + .desc {
+					visibility: visible;
+					left: -186px;
+					top: -80px;
+					text-align: right;
+				}
+				.button.hover + .desc {
+					width: 270px;
+					border: 2px black solid;
+					overflow: visible;
+					border-radius: 5px;
+				}
 
-					.button + .desc span {
-						display: block;
-						margin: 0;
-						padding: 7px 7px 0;
-						font-size: 14px;
-						font-weight: bold;
-						color: #fff;
-					}
+				.button + .desc span {
+					display: block;
+					margin: 0;
+					padding: 7px 7px 0;
+					font-size: 14px;
+					font-weight: bold;
+					color: #fff;
+				}
 
-					.button + .desc p {
-						margin: 0;
-						padding: 5px 7px 7px;
-						font-size: 14px;
-						color: #ddd;
-					}
+				.button + .desc p {
+					margin: 0;
+					padding: 5px 7px 7px;
+					font-size: 14px;
+					color: #ddd;
+				}
 
-					.button + .desc .message {
-						margin: 0;
-						padding: 1px 7px 7px;
-						font-size: 14px;
-						color: #faa;
-						text-align: center;
-						font-style: italic;
-					}
+				.button + .desc .message {
+					margin: 0;
+					padding: 1px 7px 7px;
+					font-size: 14px;
+					color: #faa;
+					text-align: center;
+					font-style: italic;
+				}
 
-					.button + .desc .shortcut {
-						font-size: 12px;
-						position: absolute;
-						right: 8px;
-						top: 8px;
-					}
+				.button + .desc .shortcut {
+					font-size: 12px;
+					position: absolute;
+					right: 8px;
+					top: 8px;
+				}
 
-					.button + .desc .arrow {
-						height: 0;
-						left: -6px;
-						position: absolute;
-						top: 27px;
-						width: 0;
-					}
+				.button + .desc .arrow {
+					height: 0;
+					left: -6px;
+					position: absolute;
+					top: 27px;
+					width: 0;
+				}
 
-					.button + .desc .arrow:before {
-						content: '';
-						border-right: 6px solid black;
-						border-top: 8px solid transparent;
-						border-bottom: 8px solid transparent;
-						display: inline-block;
-						height: 0;
-						position: absolute;
-						width: 0;
-					}
-					.button + .desc .arrow {
-						right: 0;
-						left: auto;
-					}
+				.button + .desc .arrow:before {
+					content: '';
+					border-right: 6px solid black;
+					border-top: 8px solid transparent;
+					border-bottom: 8px solid transparent;
+					display: inline-block;
+					height: 0;
+					position: absolute;
+					width: 0;
+				}
+				.button + .desc .arrow {
+					right: 0;
+					left: auto;
+				}
 
-					.button + .desc .shortcut {
-						left: 8px;
-						right: auto;
-					}
+				.button + .desc .shortcut {
+					left: 8px;
+					right: auto;
+				}
 
-					.button + .desc .arrow:before {
-						border-right: 0 solid transparent;
-						border-left: 6px solid black;
-					}
+				.button + .desc .arrow:before {
+					border-right: 0 solid transparent;
+					border-left: 6px solid black;
 				}
 			}
 

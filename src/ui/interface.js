@@ -187,7 +187,9 @@ export class UI {
 				click: () => {
 					if (!this.dashopen) {
 						if (game.turn < game.minimumTurnBeforeFleeing) {
-							alert('You cannot flee the match in the first 10 rounds.');
+							alert(
+								`You cannot flee the match in the first ${game.minimumTurnBeforeFleeing} rounds.`,
+							);
 							return;
 						}
 
@@ -209,6 +211,26 @@ export class UI {
 			game,
 		);
 		this.buttons.push(this.btnFlee);
+
+		this.btnExit = new Button(
+			{
+				$button: $j('#exit.button'),
+				hasShortcut: true,
+				click: () => {
+					if (this.dashopen) {
+						return;
+					}
+					game.gamelog.add({
+						action: 'exit',
+					});
+					game.resetGame();
+					this.showGameSetup();
+				},
+				state: 'normal',
+			},
+			game,
+		);
+		this.buttons.push(this.btnExit);
 
 		this.materializeButton = new Button(
 			{
@@ -2583,5 +2605,19 @@ export class UI {
 				this.fatigueText = text;
 			}
 		});
+	}
+
+	endGame() {
+		this.toggleScoreboard(true);
+		this.btnFlee.changeState('hidden');
+		this.btnExit.changeState('normal');
+	}
+
+	showGameSetup() {
+		this.toggleScoreboard();
+		this.updateQueueDisplay();
+		$j('#matchMaking').show();
+		$j('#gameSetupContainer').show();
+		$j('#loader').addClass('hide');
 	}
 }

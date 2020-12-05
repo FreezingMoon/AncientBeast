@@ -11,6 +11,13 @@ export class GameLog {
 		this.gameConfig = null;
 	}
 
+	reset() {
+		this.data = [];
+		this.playing = false;
+		this.timeCursor = -1;
+		this.gameConfig = null;
+	}
+
 	add(action) {
 		this.data.push(action);
 	}

@@ -20,7 +20,7 @@ export class Button {
 			touchY: 0,
 			hasShortcut: false,
 			clickable: true,
-			state: 'normal', // disabled, normal, glowing, selected, active
+			state: 'normal', // disabled, normal, glowing, selected, active, hidden
 			$button: undefined,
 			attributes: {},
 			overridefreeze: false,
@@ -31,6 +31,7 @@ export class Button {
 				active: {},
 				normal: {},
 				slideIn: {},
+				hidden: {},
 			},
 		};
 
@@ -47,6 +48,7 @@ export class Button {
 
 	changeState(state) {
 		let game = this.game;
+		const wrapperElement = this.$button.parent();
 
 		state = state || this.state;
 		this.state = state;
@@ -57,7 +59,7 @@ export class Button {
 			.unbind('touchend')
 			.unbind('mouseleave');
 
-		if (state != 'disabled') {
+		if (!['disabled', 'hidden'].includes(this.state)) {
 			this.$button.bind('click', () => {
 				if (!this.overridefreeze) {
 					if (game.freezedInput || !this.clickable) {
@@ -131,10 +133,16 @@ export class Button {
 			}
 		});
 
-		this.$button.removeClass('disabled glowing selected active noclick slideIn');
+		this.$button.removeClass('disabled glowing selected active noclick slideIn hidden');
+		wrapperElement && wrapperElement.removeClass('hidden');
 		this.$button.css(this.css.normal);
 
-		if (state != 'normal') {
+		if (state === 'hidden') {
+			if (wrapperElement && wrapperElement.attr('id').includes(this.$button.attr('id'))) {
+				wrapperElement.addClass('hidden');
+			}
+		}
+		if (state !== 'normal') {
 			this.$button.addClass(state);
 			this.$button.css(this.css[state]);
 		}
@@ -176,7 +184,11 @@ export class Button {
 
 	triggerClick() {
 		if (!this.overridefreeze) {
-			if (this.game.freezedInput || !this.clickable || this.state === 'disabled') {
+			if (
+				this.game.freezedInput ||
+				!this.clickable ||
+				['disabled', 'hidden'].includes(this.state)
+			) {
 				return;
 			}
 		}
