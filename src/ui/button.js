@@ -1,5 +1,16 @@
 import * as $j from 'jquery';
 
+export const ButtonStateEnum = {
+	normal: 'normal',
+	disabled: 'disabled',
+	glowing: 'glowing',
+	selected: 'selected',
+	active: 'active',
+	hidden: 'hidden',
+	noClick: 'noclick',
+	slideIn: 'slideIn',
+};
+
 export class Button {
 	/**
 	 * Constructor - Create attributes and default buttons
@@ -20,7 +31,7 @@ export class Button {
 			touchY: 0,
 			hasShortcut: false,
 			clickable: true,
-			state: 'normal', // disabled, normal, glowing, selected, active, hidden
+			state: ButtonStateEnum.normal,
 			$button: undefined,
 			attributes: {},
 			overridefreeze: false,
@@ -32,6 +43,7 @@ export class Button {
 				normal: {},
 				slideIn: {},
 				hidden: {},
+				noclick: {},
 			},
 		};
 
@@ -59,7 +71,7 @@ export class Button {
 			.unbind('touchend')
 			.unbind('mouseleave');
 
-		if (!['disabled', 'hidden'].includes(this.state)) {
+		if (![ButtonStateEnum.disabled, ButtonStateEnum.hidden].includes(this.state)) {
 			this.$button.bind('click', () => {
 				if (!this.overridefreeze) {
 					if (game.freezedInput || !this.clickable) {
@@ -128,7 +140,10 @@ export class Button {
 				this.$button.removeClass('hover');
 			}
 
-			if (this.shouldTriggerClick(event.changedTouches[0]) && this.state != 'disabled') {
+			if (
+				this.shouldTriggerClick(event.changedTouches[0]) &&
+				this.state !== ButtonStateEnum.disabled
+			) {
 				this.click();
 			}
 		});
@@ -137,12 +152,12 @@ export class Button {
 		wrapperElement && wrapperElement.removeClass('hidden');
 		this.$button.css(this.css.normal);
 
-		if (state === 'hidden') {
+		if (state === ButtonStateEnum.hidden) {
 			if (wrapperElement && wrapperElement.attr('id').includes(this.$button.attr('id'))) {
 				wrapperElement.addClass('hidden');
 			}
 		}
-		if (state !== 'normal') {
+		if (state !== ButtonStateEnum.normal) {
 			this.$button.addClass(state);
 			this.$button.css(this.css[state]);
 		}
@@ -187,7 +202,7 @@ export class Button {
 			if (
 				this.game.freezedInput ||
 				!this.clickable ||
-				['disabled', 'hidden'].includes(this.state)
+				[ButtonStateEnum.disabled, ButtonStateEnum.hidden].includes(this.state)
 			) {
 				return;
 			}

@@ -2,7 +2,7 @@ import * as $j from 'jquery';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
 
-import { Button } from './button';
+import { Button, ButtonStateEnum } from './button';
 import { Chat } from './chat';
 import { Creature } from '../creature';
 import { Fullscreen } from './fullscreen';
@@ -206,7 +206,7 @@ export class UI {
 						}
 					}
 				},
-				state: 'disabled',
+				state: ButtonStateEnum.disabled,
 			},
 			game,
 		);
@@ -224,9 +224,8 @@ export class UI {
 						action: 'exit',
 					});
 					game.resetGame();
-					this.showGameSetup();
 				},
-				state: 'normal',
+				state: ButtonStateEnum.normal,
 			},
 			game,
 		);
@@ -706,6 +705,7 @@ export class UI {
 
 		$j('#tabwrapper a').removeAttr('href'); // Empty links
 
+		this.btnExit.changeState(ButtonStateEnum.hidden);
 		// Show UI
 		this.$display.show();
 		this.$dash.hide();
@@ -1008,7 +1008,7 @@ export class UI {
 				}
 			});
 
-			this.materializeButton.changeState('disabled');
+			this.materializeButton.changeState(ButtonStateEnum.disabled);
 			$j('#card .sideA').addClass('disabled').unbind('click');
 
 			let activeCreature = game.activeCreature;
@@ -1048,7 +1048,7 @@ export class UI {
 						};
 						$j('#card .sideA').on('click', this.materializeButton.click);
 						$j('#card .sideA').removeClass('disabled');
-						this.materializeButton.changeState('glowing');
+						this.materializeButton.changeState(ButtonStateEnum.glowing);
 						$j('#materialize_button').show();
 					}
 				}
@@ -1074,7 +1074,7 @@ export class UI {
 					// If we can't afford anything, tell the player and disable the materialize button
 					if (!can_afford_a_unit) {
 						$j('#materialize_button p').text(game.msg.abilities.noPlasma);
-						this.materializeButton.changeState('disabled');
+						this.materializeButton.changeState(ButtonStateEnum.disabled);
 					}
 					// Otherwise, let's have it show a random creature on click
 					else {
@@ -1086,7 +1086,7 @@ export class UI {
 						// Apply the changes
 						$j('#card .sideA').on('click', this.materializeButton.click);
 						$j('#card .sideA').removeClass('disabled');
-						this.materializeButton.changeState('glowing');
+						this.materializeButton.changeState(ButtonStateEnum.glowing);
 					}
 				} else if (
 					activeCreature.abilities[3].used &&
@@ -1172,7 +1172,7 @@ export class UI {
 			});
 
 			// Materialize button
-			this.materializeButton.changeState('disabled');
+			this.materializeButton.changeState(ButtonStateEnum.disabled);
 			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
 
 			$j('#card .sideA').addClass('disabled').unbind('click');
@@ -1222,7 +1222,7 @@ export class UI {
 
 		if (i > -1) {
 			this.showAbilityCosts(i);
-			this.abilitiesButtons[i].changeState('active');
+			this.abilitiesButtons[i].changeState(ButtonStateEnum.active);
 			this.activeAbility = true;
 		} else {
 			this.hideAbilityCosts();
@@ -1811,9 +1811,9 @@ export class UI {
 					this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 					this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 
-					this.btnAudio.changeState('normal');
-					this.btnSkipTurn.changeState('normal');
-					this.btnFullscreen.changeState('normal');
+					this.btnAudio.changeState(ButtonStateEnum.normal);
+					this.btnSkipTurn.changeState(ButtonStateEnum.normal);
+					this.btnFullscreen.changeState(ButtonStateEnum.normal);
 					// Change ability buttons
 					this.changeAbilityButtons();
 					// Update upgrade info
@@ -1826,11 +1826,11 @@ export class UI {
 						500,
 						'easeOutQuart',
 						() => {
-							this.btnAudio.changeState('slideIn');
-							this.btnSkipTurn.changeState('slideIn');
-							this.btnFullscreen.changeState('slideIn');
+							this.btnAudio.changeState(ButtonStateEnum.slideIn);
+							this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
+							this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
 							if (!creature.hasWait && creature.delayable && !game.queue.isCurrentEmpty()) {
-								this.btnDelay.changeState('slideIn');
+								this.btnDelay.changeState(ButtonStateEnum.slideIn);
 							}
 							this.checkAbilities();
 						},
@@ -1868,7 +1868,7 @@ export class UI {
 				btn.$button.addClass('upgradeTransition');
 				btn.$button.addClass('upgradeIcon');
 
-				btn.changeState('slideIn'); // Keep the button in view
+				btn.changeState(ButtonStateEnum.slideIn); // Keep the button in view
 
 				// After .3s play the upgrade sound
 				setTimeout(() => {
@@ -1884,7 +1884,7 @@ export class UI {
 				setTimeout(() => {
 					btn.$button.removeClass('upgradeTransition');
 					if (ab.isUpgradedPerUse()) {
-						btn.changeState('disabled');
+						btn.changeState(ButtonStateEnum.disabled);
 					}
 				}, 2500);
 
@@ -1958,17 +1958,17 @@ export class UI {
 				}
 			}
 			if (ab.message == game.msg.abilities.passiveCycle) {
-				this.abilitiesButtons[i].changeState('slideIn');
+				this.abilitiesButtons[i].changeState(ButtonStateEnum.slideIn);
 			} else if (req && !ab.used && ab.trigger == 'onQuery') {
-				this.abilitiesButtons[i].changeState('slideIn');
+				this.abilitiesButtons[i].changeState(ButtonStateEnum.slideIn);
 				oneUsableAbility = true;
 			} else if (
 				ab.message == game.msg.abilities.noTarget ||
 				(ab.trigger != 'onQuery' && req && !ab.used)
 			) {
-				this.abilitiesButtons[i].changeState('noclick');
+				this.abilitiesButtons[i].changeState(ButtonStateEnum.noClick);
 			} else {
-				this.abilitiesButtons[i].changeState('disabled');
+				this.abilitiesButtons[i].changeState(ButtonStateEnum.disabled);
 			}
 
 			// Charge
@@ -1998,7 +1998,7 @@ export class UI {
 		if (!oneUsableAbility && game.activeCreature.remainingMove === 0) {
 			//game.skipTurn( { tooltip: "Finished" } ); // Autoskip
 			game.activeCreature.noActionPossible = true;
-			this.btnSkipTurn.changeState('slideIn');
+			this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
 		}
 	}
 
@@ -2609,8 +2609,8 @@ export class UI {
 
 	endGame() {
 		this.toggleScoreboard(true);
-		this.btnFlee.changeState('hidden');
-		this.btnExit.changeState('normal');
+		this.btnFlee.changeState(ButtonStateEnum.hidden);
+		this.btnExit.changeState(ButtonStateEnum.normal);
 	}
 
 	showGameSetup() {
@@ -2619,5 +2619,7 @@ export class UI {
 		$j('#matchMaking').show();
 		$j('#gameSetupContainer').show();
 		$j('#loader').addClass('hide');
+		const queueElements = this.$queue.children();
+		[...queueElements].forEach((queueElement) => queueElement.remove());
 	}
 }

@@ -1483,6 +1483,7 @@ export default class Game {
 	}
 
 	resetGame() {
+		this.UI.showGameSetup();
 		this.stopTimer(this.timeInterval);
 		this.players = [];
 		this.creatures = [];
@@ -1511,12 +1512,5 @@ export default class Game {
 		this.turn = 0;
 
 		this.gamelog.reset();
-
-		// Phaser
-		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
-			update: this.phaserUpdate.bind(this),
-			render: this.phaserRender.bind(this),
-		});
-		this.UI = null;
 	}
 }
