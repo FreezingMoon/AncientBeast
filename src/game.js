@@ -1409,8 +1409,7 @@ export default class Game {
 				});
 			}
 		}
-
-		this.UI.toggleScoreboard(true);
+		this.UI.endGame();
 	}
 
 	action(o, opt) {
@@ -1481,5 +1480,37 @@ export default class Game {
 		img.onload = function () {
 			// No-op
 		};
+	}
+
+	resetGame() {
+		this.UI.showGameSetup();
+		this.stopTimer(this.timeInterval);
+		this.players = [];
+		this.creatures = [];
+		this.effects = [];
+		this.activeCreature = {
+			id: 0,
+		};
+		this.matchid = null;
+		this.playersReady = false;
+		this.preventSetup = false;
+		this.animations = new Animations(this);
+		this.queue = new CreatureQueue(this);
+		this.creatureIdCounter = 1;
+		this.creatureData = [];
+		this.pause = false;
+		this.gameState = 'initialized';
+		this.availableCreatures = [];
+		this.animationQueue = [];
+		this.configData = {};
+		this.match = {};
+		this.gameplay = {};
+		this.matchInitialized = false;
+		this.firstKill = false;
+		this.freezedInput = false;
+		this.turnThrottle = false;
+		this.turn = 0;
+
+		this.gamelog.reset();
 	}
 }
