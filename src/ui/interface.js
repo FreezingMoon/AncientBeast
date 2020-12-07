@@ -441,7 +441,6 @@ export class UI {
 				this.activeAbility && !this.$scoreboard.is(':visible') && !this.chat.isOpen;
 
 			$j.each(hotkeys, (k, v) => {
-				console.log(k, v, keypressed);
 				if (e.shiftKey && v == keypressed) {
 					switch (k) {
 						case 'audio': // Shift + A for audio
