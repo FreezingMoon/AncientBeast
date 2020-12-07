@@ -397,6 +397,7 @@ export class UI {
 			skip: 83, // S
 			delay: 68, // D
 			flee: 70, // F
+			exit: 88, // X
 			chat: 13, // Return TODO: Should open, send & hide chat
 			close: 27, // Escape
 			//pause: 80, // P, might get deprecated
@@ -440,6 +441,7 @@ export class UI {
 				this.activeAbility && !this.$scoreboard.is(':visible') && !this.chat.isOpen;
 
 			$j.each(hotkeys, (k, v) => {
+				console.log(k, v, keypressed);
 				if (e.shiftKey && v == keypressed) {
 					switch (k) {
 						case 'audio': // Shift + A for audio
@@ -530,6 +532,9 @@ export class UI {
 								break;
 							case 'flee':
 								this.btnFlee.triggerClick();
+								break;
+							case 'exit':
+								this.btnExit.triggerClick();
 								break;
 							case 'chat':
 								this.chat.toggle();
