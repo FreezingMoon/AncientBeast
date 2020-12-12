@@ -1367,7 +1367,7 @@ export default class Game {
 	 */
 	endGame() {
 		this.soundsys.stopMusic();
-		this.soundsys.playSound(this.soundLoaded[5], this.soundsys.effectsGainNode);
+		this.endGameSound = this.soundsys.playSound(this.soundLoaded[5], this.soundsys.effectsGainNode);
 
 		this.stopTimer();
 		this.gameState = 'ended';
@@ -1483,6 +1483,7 @@ export default class Game {
 	}
 
 	resetGame() {
+		this.endGameSound.stop();
 		this.UI.showGameSetup();
 		this.stopTimer(this.timeInterval);
 		this.players = [];
