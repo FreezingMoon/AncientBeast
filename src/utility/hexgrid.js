@@ -1056,26 +1056,8 @@ export class HexGrid {
 
 	// TODO: Rewrite methods used here to only require the creature as an argument.
 	showMovementRange(id) {
-		let creature = this.game.creatures[id],
-			hexes;
-
-		if (creature.movementType() === 'flying') {
-			hexes = this.getFlyingRange(
-				creature.x,
-				creature.y,
-				creature.stats.movement,
-				creature.size,
-				creature.id,
-			);
-		} else {
-			hexes = this.getMovementRange(
-				creature.x,
-				creature.y,
-				creature.stats.movement,
-				creature.size,
-				creature.id,
-			);
-		}
+		let creature = this.game.creatures[id];
+		let hexes = this.findCreatureMovementHexes(creature);
 
 		// Block all hexes
 		this.forEachHex((hex) => {
@@ -1086,6 +1068,35 @@ export class HexGrid {
 		hexes.forEach((hex) => {
 			hex.setReachable();
 		});
+	}
+
+	showMovementRangeInOverlay(creature) {
+		let hexes = this.findCreatureMovementHexes(creature);
+
+		// Set reachable the given hexes
+		hexes.forEach((hex) => {
+			hex.overlayVisualState('hover h_player' + creature.team);
+		});
+	}
+
+	findCreatureMovementHexes(creature) {
+		if (creature.movementType() === 'flying') {
+			return this.getFlyingRange(
+				creature.x,
+				creature.y,
+				creature.stats.movement,
+				creature.size,
+				creature.id,
+			);
+		} else {
+			return this.getMovementRange(
+				creature.x,
+				creature.y,
+				creature.stats.movement,
+				creature.size,
+				creature.id,
+			);
+		}
 	}
 
 	selectHexUp() {
