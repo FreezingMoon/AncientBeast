@@ -2428,11 +2428,14 @@ export class UI {
 			.find('.vignette.roundmarker')
 			.unbind('mouseover')
 			.unbind('mouseleave')
-			.bind('mouseover', () => {
+			.bind('mouseover', (e) => {
 				game.grid.showGrid(true);
+				game.grid.showMovementRangeInOverlay(game.activeCreature);
 			})
 			.bind('mouseleave', () => {
 				game.grid.showGrid(false);
+				game.grid.cleanOverlay();
+				game.grid.showMovementRange(game.activeCreature.id);
 			});
 
 		// Add shift keydown effect like above, onkeydown => showGrid
