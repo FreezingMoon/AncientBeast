@@ -1070,11 +1070,9 @@ export class HexGrid {
 		});
 	}
 
-	showMovementRangeInOverlay(creature) {
-		let hexes = this.findCreatureMovementHexes(creature);
-
-		// Set reachable the given hexes
-		hexes.forEach((hex) => {
+	showCurrentCreatureMovementInOverlay(creature) {
+		//lastQueryOpt is same thing as used in redoQuery
+		this.lastQueryOpt.hexes.forEach((hex) => {
 			hex.overlayVisualState('hover h_player' + creature.team);
 		});
 	}
