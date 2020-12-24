@@ -377,14 +377,16 @@ export default (G) => {
 							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
+									//check that target is in same place still (for evades)
+									if (target.x == destination.x - 2 && target.y === destination.y) {
+										// Deal damage only if we have reached the end of the path
+										if (destination.creature === ability.creature) {
+											target.takeDamage(damage);
+										}
 
-									// Deal damage only if we have reached the end of the path
-									if (destination.creature === ability.creature) {
-										target.takeDamage(damage);
-									}
-
-									if (!ability._pushTarget(target, pushPath, args)) {
-										G.activeCreature.queryMove();
+										if (!ability._pushTarget(target, pushPath, args)) {
+											G.activeCreature.queryMove();
+										}
 									}
 								}
 							}, 100);
@@ -403,9 +405,10 @@ export default (G) => {
 				let creature = this.creature;
 
 				let targetPushPath = pushPath.slice();
-				// TODO: These two lines probably do not do anything since filterCreature() returns a new array...
+				// TODO: These lines are vital do not remove. Refactor so what they do is more readable
 				arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
 				arrayUtils.filterCreature(targetPushPath, false, false, target.id);
+
 				if (targetPushPath.length === 0) {
 					return false;
 				}
