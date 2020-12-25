@@ -2430,21 +2430,32 @@ export class UI {
 			.unbind('mouseleave')
 			.bind('mouseover', (e) => {
 				game.grid.showGrid(true);
-				game.grid.showMovementRangeInOverlay(game.activeCreature);
+				game.grid.showCurrentCreatureMovementInOverlay(game.activeCreature);
 			})
 			.bind('mouseleave', () => {
 				game.grid.showGrid(false);
 				game.grid.cleanOverlay();
-				game.grid.showMovementRange(game.activeCreature.id);
+				game.grid.redoLastQuery();
+				//game.grid.showMovementRange(game.activeCreature.id);
 			});
 
 		// Add shift keydown effect like above, onkeydown => showGrid
 
-		$j(document).keydown((e) => {
-			if (e.which === 16) {
-				game.grid.showGrid(true);
-			}
-		});
+		$j(document)
+			.keydown((e) => {
+				if (e.which === 16) {
+					game.grid.showGrid(true);
+					game.grid.showCurrentCreatureMovementInOverlay(game.activeCreature);
+					console.log(game.activeCreature);
+				}
+			})
+			.keyup((e) => {
+				if (e.which === 16) {
+					game.grid.showGrid(false);
+					game.grid.cleanOverlay();
+					game.grid.redoLastQuery();
+				}
+			});
 
 		this.$queue
 			.find('.vignette')
@@ -2456,13 +2467,13 @@ export class UI {
 				if (game.freezedInput) {
 					return;
 				}
-
-				let creaID = $j(e.currentTarget).attr('creatureid') - 0;
+				let creatureId = $j(e.currentTarget).attr('creatureid');
+				console.log(creatureId, game.activeCreature.id);
 				game.creatures.forEach((creature) => {
 					if (creature instanceof Creature) {
 						creature.xray(false);
 
-						if (creature.id != creaID) {
+						if (creature.id != creatureId) {
 							creature.xray(true);
 							creature.hexagons.forEach((hex) => {
 								hex.cleanOverlayVisualState();
@@ -2475,8 +2486,8 @@ export class UI {
 					}
 				});
 
-				game.grid.showMovementRange(creaID);
-				this.xrayQueue(creaID);
+				game.grid.showMovementRange(creatureId);
+				this.xrayQueue(creatureId);
 			})
 			.bind('mouseleave', () => {
 				// On mouseleave cancel effect
