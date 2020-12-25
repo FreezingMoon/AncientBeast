@@ -377,7 +377,7 @@ export default (G) => {
 							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
-									//check that target is in same place still (for evades)
+									// Check that target is in same place still (for evades)
 									if (
 										target.x == destination.x - ability.creature.size &&
 										target.y === destination.y
