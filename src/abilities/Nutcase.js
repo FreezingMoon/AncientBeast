@@ -378,7 +378,10 @@ export default (G) => {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									//check that target is in same place still (for evades)
-									if (target.x == destination.x - 2 && target.y === destination.y) {
+									if (
+										target.x == destination.x - ability.creature.size &&
+										target.y === destination.y
+									) {
 										// Deal damage only if we have reached the end of the path
 										if (destination.creature === ability.creature) {
 											target.takeDamage(damage);
