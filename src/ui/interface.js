@@ -2562,20 +2562,45 @@ export class UI {
 			$queueItem.stop();
 			$queueItem.animate(
 				{
-					top: '+=30px',
+					top: '+=125px',
 				},
-				200,
+				225,
 				'',
 				() => {
 					$queueItem.animate(
 						{
 							top: '-=' + $queueItem.css('top'),
 						},
-						100,
+						225,
+					);
+					$queueItem.animate(
+						{
+							top: '+=' + $queueItem.css('top'),
+						},
+						250,
+					);
+					$queueItem.animate(
+						{
+							top: '-=' + $queueItem.css('top'),
+						},
+						300,
+					);
+					$queueItem.animate(
+						{
+							top: '+=' + $queueItem.css('top'),
+						},
+						325,
+					);
+					$queueItem.animate(
+						{
+							top: '-=' + $queueItem.css('top'),
+						},
+						350,
 					);
 				},
 			);
 		}
+		isBounceHeightExceeded = parseInt($queueItem.css('top'), 10) > maxBounceHeight;
 	}
 
 	updateFatigue() {
