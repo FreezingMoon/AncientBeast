@@ -68,7 +68,6 @@ To get your brand featured in-game as well, [become a sponsor](https://opencolle
 </tr>
 <tr>
 	<td><a href="https://gnu.org/licenses/agpl-3.0.html"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
-	<td><a href="https://gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
+	<td><a href="https://gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project. Hello</td>
 </tr>
 </table>
-Hello
