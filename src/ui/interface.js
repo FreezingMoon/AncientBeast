@@ -2580,7 +2580,6 @@ export class UI {
 				);
 			}
 			maxBounce = maxBounce / 2;
-			console.log(maxBounce);
 		}, bounceTime * 2 - 100);
 
 		setTimeout(() => {
