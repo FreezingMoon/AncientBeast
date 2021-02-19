@@ -2555,27 +2555,36 @@ export class UI {
 			$queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
 		}
 
-		const maxBounceHeight = screen.height / 3;
+		const maxBounceHeight = screen.height / 4;
 		const isBounceHeightExceeded = parseInt($queueItem.css('top'), 10) > maxBounceHeight;
+		let maxBounce = maxBounceHeight;
+		let bounceTime = 280; //Time in ms, how long it takes portrait to move down when bouncing, increase to slow down bounce
 
-		if ($queueItem.length > 0 && !isBounceHeightExceeded) {
-			$queueItem.stop();
-			$queueItem.animate(
-				{
-					top: '+=30px',
-				},
-				200,
-				'',
-				() => {
-					$queueItem.animate(
-						{
-							top: '-=' + $queueItem.css('top'),
-						},
-						100,
-					);
-				},
-			);
-		}
+		let timerId = setInterval(() => {
+			if ($queueItem.length > 0 && !isBounceHeightExceeded) {
+				$queueItem.stop();
+				$queueItem.animate(
+					{
+						top: '+=' + maxBounce.toString(10) + 'px',
+					},
+					bounceTime,
+					'',
+					() => {
+						$queueItem.animate(
+							{
+								top: '-=' + $queueItem.css('top'),
+							},
+							bounceTime - 100,
+						);
+					},
+				);
+			}
+			maxBounce = maxBounce / 2;
+		}, bounceTime * 2 - 100);
+
+		setTimeout(() => {
+			clearInterval(timerId);
+		}, bounceTime * 6 - 300);
 	}
 
 	updateFatigue() {
