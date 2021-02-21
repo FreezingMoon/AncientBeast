@@ -3022,7 +3022,7 @@
 			},
 			{
 				"title": "Whip Move",
-				"desc": "Grasps a distant unit, pulling close to each other based on their relative size.",
+				"desc": "Headless entangles the target up to 6 tiles away, pulling both units towards eachother.",
 				"info": "Between 2 and 6 hexagons pull range.",
 				"upgrade": "+2 maximum range increase.",
 				"costs": {
