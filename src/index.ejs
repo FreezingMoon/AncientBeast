@@ -305,7 +305,28 @@
 							</tr>
 						</tbody>
 					</table>
-					<p></p>
+					<div class="scoreboardActions">
+						<div id="fleeWrapper">
+							<div id="flee" class="button">
+							</div>
+							<div class="desc">
+								<div class="arrow"></div>
+								<div class="shortcut">hotkey F</div>
+								<span>Flee Match</span>
+								<p>Give up but only after first 12 rounds.</p>
+							</div>
+						</div>
+						<div id="exitWrapper">
+							<div id="exit" class="button">
+							</div>
+							<div class="desc">
+								<div class="arrow"></div>
+								<div class="shortcut">hotkey X</div>
+								<span>Exit Match</span>
+								<p>Return to the main menu.</p>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div id="dash" class="selected0">
@@ -945,11 +966,6 @@
 						<p><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
 					</div>
 				</div>
-				<div style="position:relative">
-					<div id="fullscreen" class="button" style="right:100px">
-						<div></div>
-					</div>
-				</div>
 				<div id="rightpanel">
 					<div style="position:relative">
 						<div id="audio" class="button"></div>
@@ -978,15 +994,27 @@
 							<p>Delayed creatures will act at the end of the round, if alive and still able to.</p>
 						</div>
 					</div>
-					<div style="position:relative">
-						<div id="flee" class="button"></div>
+					<div style="position:relative" >
+						<div id="fullscreen" class="button slideIn" >
+							<div></div>
+						</div>
+						<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey Shift + F</div>
+							<span>Fullscreen</span>
+							<p>Toggle fullscreen mode as you wish.</p>
+						</div> 
+						
+						<!-- Will be moved to another part of the ui -->
+						<!-- <div id="flee" class="button"></div>
 						<div class="desc">
 							<div class="arrow"></div>
 							<div class="shortcut">hotkey F</div>
 							<span>Flee Match</span>
 							<p>Give up but only after first 12 rounds.</p>
-						</div>
+						</div> -->
 					</div>
+					
 					<div class="progressbar">
 						<div class="bar poolbar"></div>
 						<div class="bar timebar"></div>
