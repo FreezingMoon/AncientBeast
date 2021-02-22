@@ -26,6 +26,7 @@
 			z-index: 666;
 			}
 		</style>
+	<%=require('./templates/miner.html')%>
 	</head>
 	<body oncontextmenu="return false;" id="AncientBeast">
 		<div class="scrim loading"></div>
@@ -1090,9 +1091,9 @@
 		</div>
 		<%=require('./templates/service_worker.html')%>
 		<% if(htmlWebpackPlugin.options.production) { %>
-		<%= require('./templates/analytics/ga_stable.html')%>
+		<%=require('./templates/analytics/ga_stable.html')%>
 		<% } else { %>
-		<%= require('./templates/analytics/ga_beta.html')%>
+		<%=require('./templates/analytics/ga_beta.html')%>
 		<% } %>
 	</body>
 </html>
