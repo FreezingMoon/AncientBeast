@@ -3020,6 +3020,11 @@
 				"desc": "Grasps a distant unit, pulling close to each other based on their relative size.",
 				"info": "Between 2 and 6 hexagons pull range.",
 				"upgrade": "+2 maximum range increase.",
+				"effects": [
+					{
+						"special": "2 to 6 hexagons pull range."
+					}
+				],
 				"costs": {
 					"energy": 20
 				}
