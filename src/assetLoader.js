@@ -8,7 +8,6 @@ import Assets from './assets';
 export function getUrl(path) {
 	if (typeof path === 'string') {
 		path = path.split('/');
-		console.log(path);
 	}
 
 	// Check if path is empty
