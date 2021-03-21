@@ -2719,19 +2719,36 @@
 				"title": "Brass Mace",
 				"desc": "Does versatile damage to nearby foe.",
 				"info": "11 pierce + 10 crush + 9 slash damage.",
-				"upgrade": "+3 damage for each source."
+				"upgrade": "+3 damage for each source.",
+				"damages": {
+					"pierce": 11,
+					"crush": 10,
+					"slash": 9
+				},
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Lion Thrust",
 				"desc": "Runs very fast towards an inline foe for up to 5 hexagons, greatly terrorizing it.",
 				"info": "20 mental damage when reaching foe.",
-				"upgrade": "20% extra offense / hexagon."
+				"upgrade": "20% extra offense / hexagon.",
+				"damages": {
+					"mental": 20
+				},
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Defensive Stance",
 				"desc": "Will be extra vigilant, better protecting himself from attacks until the next turn.",
 				"info": "Reduces 9 damage from incoming hits.",
-				"upgrade": "Will stop penetrating attacks."
+				"upgrade": "Will stop penetrating attacks.",
+				"costs": {
+					"energy": 10
+				}
 			}
 		]
 	},
