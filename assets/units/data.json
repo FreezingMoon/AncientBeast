@@ -1170,6 +1170,9 @@
 				"damages": {
 					"pierce": 10,
 					"poison": 6
+				},
+				"costs": {
+					"energy": 10
 				}
 			},
 			{
@@ -1178,6 +1181,9 @@
 				"info": "10 poison damage, double if towards",
 				"damages": {
 					"poison": 10
+				},
+				"costs": {
+					"energy": 10
 				}
 			},
 			{
@@ -1186,6 +1192,9 @@
 				"info": "15 poison damage, can spread around",
 				"damages": {
 					"poison": 15
+				},
+				"costs": {
+					"energy": 10
 				}
 			}
 		]
@@ -1991,17 +2000,32 @@
 			{
 				"title": "Razor Blade",
 				"desc": "Slices a nearby foe, keeping a sample.",
-				"info": "15 slash damage on every single strike"
+				"info": "15 slash damage on every single strike",
+				"damages": {
+					"slash": 15
+				},
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Terrifying Stance",
 				"desc": "Causes a nearby foe to not be able to target Mr. Stitches directly for a turn.",
-				"info": ""
+				"info": "",
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Voodoo Doll",
 				"desc": "Stabs itself, doing mental damage to any of the previously attacked units.",
-				"info": "20 mental damage to sampled foes"
+				"info": "20 mental damage to sampled foes",
+				"damages": {
+					"mental": 20
+				},
+				"costs": {
+					"energy": 10
+				}
 			}
 		]
 	},
@@ -2663,17 +2687,35 @@
 			{
 				"title": "Wrist Scimitar",
 				"desc": "Slashes a nearby foe using its blade, disturbing its energy regeneration.",
-				"info": "25 slash damage, 1 meditation debuff"
+				"info": "25 slash damage, 1 meditation debuff",
+				"damages": {
+					"slash": 25
+				},
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Force Display",
 				"desc": "Switches the places of two nearby side units that are the same hexagonal size.",
-				"info": "8 crush damage to both swapped units"
+				"info": "8 crush damage to both swapped units",
+				"damages": {
+					"crush": 8
+				},
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Belt Swat",
 				"desc": "Pokes all the frontal nearby units, knocking them back one hexagon.",
-				"info": "20 crush damage plus knockback"
+				"info": "20 crush damage plus knockback",
+				"damages": {
+					"crush": 20
+				},
+				"costs": {
+					"energy": 10
+				}
 			}
 		]
 	},
@@ -2792,17 +2834,32 @@
 			{
 				"title": "Gnarled Staff",
 				"desc": "Pokes nearby foe using wooden staff.",
-				"info": "15 crush damage, -5 crush stat debuff."
+				"info": "15 crush damage, -5 crush stat debuff.",
+				"damages": {
+					"crush": 15
+				},
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Rock Shard",
 				"desc": "Causes an obstable to erupt at an empty location within 6 hexagons.",
-				"info": "It can be destroyed with only 2 hits."
+				"info": "It can be destroyed with only 2 hits.",
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Furious Twister",
 				"desc": "Summons tornado that travels inline every round, bashing first creature.",
-				"info": "20 crush damage, 4 hexagons push."
+				"info": "20 crush damage, 4 hexagons push.",
+				"damages": {
+					"crush": 20
+				},
+				"costs": {
+					"energy": 10
+				}
 			}
 		]
 	},
