@@ -2592,7 +2592,7 @@
 				"title": "Battle Cry",
 				"desc": "Roars at the beginning of the turn if took any damage in previous round.",
 				"info": "30 sonic damage to adjacent units.",
-				"upgrade": "Only roars if nearby foes."
+				"upgrade": "Only roars if near foes."
 			},
 			{
 				"title": "Executioner Axe",
@@ -2719,7 +2719,7 @@
 				"title": "Brass Mace",
 				"desc": "Does versatile damage to nearby foe.",
 				"info": "11 pierce + 10 crush + 9 slash damage.",
-				"upgrade": "+3 damage for each source."
+				"upgrade": "+3 damage from each source."
 			},
 			{
 				"title": "Lion Thrust",
@@ -2836,7 +2836,7 @@
 			{
 				"title": "Spa Goggles",
 				"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
-				"info": "+5 regrowth & defense while on mud.",
+				"info": "+5 regrowth & defense while in mud.",
 				"upgrade": "Doubles both stat bonuses.",
 				"effects": [
 					{
