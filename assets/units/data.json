@@ -853,7 +853,7 @@
 				"title": "Icy Talons",
 				"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
 				"info": "6 slash + 6 frost damage, -1 frost.",
-				"upgrade": "6 pierce vs smaller foes and vs foes with lower level.",
+				"upgrade": "6 pierce vs smaller foes.",
 				"effects": [
 					{
 						"special": "-1%frost%, stackable"
