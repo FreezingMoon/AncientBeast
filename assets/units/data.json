@@ -1172,7 +1172,7 @@
 					"poison": 6
 				},
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -1183,7 +1183,7 @@
 					"poison": 10
 				},
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -1194,7 +1194,7 @@
 					"poison": 15
 				},
 				"costs": {
-					"energy": 10
+					"energy": 30
 				}
 			}
 		]
@@ -1723,17 +1723,29 @@
 			{
 				"title": "Limb Scythe",
 				"desc": "Slashes a nearby foe, causing it to hemorrhage, losing health if moving.",
-				"info": "15 slash damage, -5 health / hexagon"
+				"info": "15 slash damage, -5 health / hexagon",
+				"damages": {
+					"slash": 15
+				},
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Sangvine Puke",
 				"desc": "Target's regrowth becomes lowered if it's a foe or increased if it's an ally.",
-				"info": "+/- 20 regrowth change for a round"
+				"info": "+/- 20 regrowth change for a round",
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Symbiotic Tumor",
 				"desc": "Engulfs body into a meat cocoon. Current turn is ended by this ability.",
-				"info": "200% bonus defense and regrowth"
+				"info": "200% bonus defense and regrowth",
+				"costs": {
+					"energy": 10
+				}
 			}
 		]
 	},
@@ -2005,7 +2017,7 @@
 					"slash": 15
 				},
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -2013,7 +2025,7 @@
 				"desc": "Causes a nearby foe to not be able to target Mr. Stitches directly for a turn.",
 				"info": "",
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -2024,7 +2036,7 @@
 					"mental": 20
 				},
 				"costs": {
-					"energy": 10
+					"energy": 30
 				}
 			}
 		]
@@ -2692,7 +2704,7 @@
 					"slash": 25
 				},
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -2703,7 +2715,7 @@
 					"crush": 8
 				},
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -2714,7 +2726,7 @@
 					"crush": 20
 				},
 				"costs": {
-					"energy": 10
+					"energy": 30
 				}
 			}
 		]
@@ -2768,7 +2780,7 @@
 					"slash": 9
 				},
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -2780,7 +2792,7 @@
 					"mental": 20
 				},
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -2789,7 +2801,7 @@
 				"info": "Reduces 9 damage from incoming hits.",
 				"upgrade": "Will stop penetrating attacks.",
 				"costs": {
-					"energy": 10
+					"energy": 30
 				}
 			}
 		]
@@ -2839,7 +2851,7 @@
 					"crush": 15
 				},
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -2847,7 +2859,7 @@
 				"desc": "Causes an obstable to erupt at an empty location within 6 hexagons.",
 				"info": "It can be destroyed with only 2 hits.",
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -2858,7 +2870,7 @@
 					"crush": 20
 				},
 				"costs": {
-					"energy": 10
+					"energy": 30
 				}
 			}
 		]
