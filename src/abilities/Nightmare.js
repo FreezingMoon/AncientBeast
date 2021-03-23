@@ -104,12 +104,9 @@ export default (G) => {
 				let ability = this;
 				ability.end();
 
-				// Upgraded ability does pierce damage to smaller size or level targets
+				// Upgraded ability does pierce damage to smaller size targets
 				let damages = ability.damages;
-				if (
-					!this.isUpgraded() ||
-					!(target.size < this.creature.size || target.level < this.creature.level)
-				) {
+				if (!this.isUpgraded() || !(target.size < this.creature.size)) {
 					damages.pierce = 0;
 				}
 

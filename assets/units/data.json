@@ -853,7 +853,7 @@
 				"title": "Icy Talons",
 				"desc": "Scratches nearby foe using claws, lowering frost stat with every hit.",
 				"info": "6 slash + 6 frost damage, -1 frost.",
-				"upgrade": "6 pierce vs smaller foes and vs foes with lower level.",
+				"upgrade": "6 pierce vs smaller foes.",
 				"effects": [
 					{
 						"special": "-1%frost%, stackable"
@@ -2628,7 +2628,7 @@
 				"title": "Battle Cry",
 				"desc": "Roars at the beginning of the turn if took any damage in previous round.",
 				"info": "30 sonic damage to adjacent units.",
-				"upgrade": "Only roars if nearby foes."
+				"upgrade": "Only roars if foes are nearby."
 			},
 			{
 				"title": "Executioner Axe",
@@ -2922,7 +2922,7 @@
 			{
 				"title": "Spa Goggles",
 				"desc": "Gains temporary bonus regrowth and defense when staying in a mud bath.",
-				"info": "+5 regrowth & defense while on mud.",
+				"info": "+5 regrowth & defense while in mud.",
 				"upgrade": "Doubles both stat bonuses.",
 				"effects": [
 					{
