@@ -1170,6 +1170,9 @@
 				"damages": {
 					"pierce": 10,
 					"poison": 6
+				},
+				"costs": {
+					"energy": 20
 				}
 			},
 			{
@@ -1178,6 +1181,9 @@
 				"info": "10 poison damage, double if towards",
 				"damages": {
 					"poison": 10
+				},
+				"costs": {
+					"energy": 20
 				}
 			},
 			{
@@ -1186,6 +1192,9 @@
 				"info": "15 poison damage, can spread around",
 				"damages": {
 					"poison": 15
+				},
+				"costs": {
+					"energy": 30
 				}
 			}
 		]
@@ -1714,17 +1723,29 @@
 			{
 				"title": "Limb Scythe",
 				"desc": "Slashes a nearby foe, causing it to hemorrhage, losing health if moving.",
-				"info": "15 slash damage, -5 health / hexagon"
+				"info": "15 slash damage, -5 health / hexagon",
+				"damages": {
+					"slash": 15
+				},
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Sangvine Puke",
 				"desc": "Target's regrowth becomes lowered if it's a foe or increased if it's an ally.",
-				"info": "+/- 20 regrowth change for a round"
+				"info": "+/- 20 regrowth change for a round",
+				"costs": {
+					"energy": 10
+				}
 			},
 			{
 				"title": "Symbiotic Tumor",
 				"desc": "Engulfs body into a meat cocoon. Current turn is ended by this ability.",
-				"info": "200% bonus defense and regrowth"
+				"info": "200% bonus defense and regrowth",
+				"costs": {
+					"energy": 10
+				}
 			}
 		]
 	},
@@ -1991,17 +2012,32 @@
 			{
 				"title": "Razor Blade",
 				"desc": "Slices a nearby foe, keeping a sample.",
-				"info": "15 slash damage on every single strike"
+				"info": "15 slash damage on every single strike",
+				"damages": {
+					"slash": 15
+				},
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Terrifying Stance",
 				"desc": "Causes a nearby foe to not be able to target Mr. Stitches directly for a turn.",
-				"info": ""
+				"info": "",
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Voodoo Doll",
 				"desc": "Stabs itself, doing mental damage to any of the previously attacked units.",
-				"info": "20 mental damage to sampled foes"
+				"info": "20 mental damage to sampled foes",
+				"damages": {
+					"mental": 20
+				},
+				"costs": {
+					"energy": 30
+				}
 			}
 		]
 	},
@@ -2663,17 +2699,35 @@
 			{
 				"title": "Wrist Scimitar",
 				"desc": "Slashes a nearby foe using its blade, disturbing its energy regeneration.",
-				"info": "25 slash damage, 1 meditation debuff"
+				"info": "25 slash damage, 1 meditation debuff",
+				"damages": {
+					"slash": 25
+				},
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Force Display",
 				"desc": "Switches the places of two nearby side units that are the same hexagonal size.",
-				"info": "8 crush damage to both swapped units"
+				"info": "8 crush damage to both swapped units",
+				"damages": {
+					"crush": 8
+				},
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Belt Swat",
 				"desc": "Pokes all the frontal nearby units, knocking them back one hexagon.",
-				"info": "20 crush damage plus knockback"
+				"info": "20 crush damage plus knockback",
+				"damages": {
+					"crush": 20
+				},
+				"costs": {
+					"energy": 30
+				}
 			}
 		]
 	},
@@ -2719,19 +2773,36 @@
 				"title": "Brass Mace",
 				"desc": "Does versatile damage to nearby foe.",
 				"info": "11 pierce + 10 crush + 9 slash damage.",
-				"upgrade": "+3 damage from each source."
+				"upgrade": "+3 damage for each source.",
+				"damages": {
+					"pierce": 11,
+					"crush": 10,
+					"slash": 9
+				},
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Lion Thrust",
 				"desc": "Runs very fast towards an inline foe for up to 5 hexagons, greatly terrorizing it.",
 				"info": "20 mental damage when reaching foe.",
-				"upgrade": "20% extra offense / hexagon."
+				"upgrade": "20% extra offense / hexagon.",
+				"damages": {
+					"mental": 20
+				},
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Defensive Stance",
 				"desc": "Will be extra vigilant, better protecting himself from attacks until the next turn.",
 				"info": "Reduces 9 damage from incoming hits.",
-				"upgrade": "Will stop penetrating attacks."
+				"upgrade": "Will stop penetrating attacks.",
+				"costs": {
+					"energy": 30
+				}
 			}
 		]
 	},
@@ -2775,17 +2846,32 @@
 			{
 				"title": "Gnarled Staff",
 				"desc": "Pokes nearby foe using wooden staff.",
-				"info": "15 crush damage, -5 crush stat debuff."
+				"info": "15 crush damage, -5 crush stat debuff.",
+				"damages": {
+					"crush": 15
+				},
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Rock Shard",
 				"desc": "Causes an obstable to erupt at an empty location within 6 hexagons.",
-				"info": "It can be destroyed with only 2 hits."
+				"info": "It can be destroyed with only 2 hits.",
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Furious Twister",
 				"desc": "Summons tornado that travels inline every round, bashing first creature.",
-				"info": "20 crush damage, 4 hexagons push."
+				"info": "20 crush damage, 4 hexagons push.",
+				"damages": {
+					"crush": 20
+				},
+				"costs": {
+					"energy": 30
+				}
 			}
 		]
 	},
