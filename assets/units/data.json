@@ -38,7 +38,7 @@
 		"ability_info": [
 			{
 				"title": "Plasma Field",
-				"desc": "Protects from most harmful abilities when unit is not currently active.",
+				"desc": "Protects from most harmful abilities when the unit is not currently active.",
 				"info": "-1 plasma for each countered attack.",
 				"upgrade": "9 pure damage counter hit.",
 				"costs": {
@@ -1319,7 +1319,7 @@
 		"ability_info": [
 			{
 				"title": "Explosive End",
-				"desc": "Instantly detonates upon death, dealing damage to all adjacent units.",
+				"desc": "Instantly self detonates upon death, dealing damage to all adjacent units.",
 				"info": "10 burn + 10 crush + 10 sonic damage.",
 				"upgrade": "Detonates only nearby foes."
 			},
