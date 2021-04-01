@@ -38,7 +38,7 @@
 		"ability_info": [
 			{
 				"title": "Plasma Field",
-				"desc": "Protects from most harmful abilities when unit not being currently active.",
+				"desc": "Protects from most harmful abilities when the unit is not currently active.",
 				"info": "-1 plasma for each countered attack.",
 				"upgrade": "9 pure damage counter hit.",
 				"costs": {
@@ -870,7 +870,7 @@
 			},
 			{
 				"title": "Sudden Uppercut",
-				"desc": "Sucker punches a near enemy using limb, making him delay the next turn.",
+				"desc": "Sucker punches a nearby enemy using limb, making him delay the next turn.",
 				"info": "10 crush + 10 frost damage and delay.",
 				"upgrade": "-10 defense until it will act.",
 				"damages": {
@@ -1328,7 +1328,7 @@
 		"ability_info": [
 			{
 				"title": "Explosive End",
-				"desc": "Instantly detonates when being killed, dealing damage to all adjacent units.",
+				"desc": "Instantly self detonates upon death, dealing damage to all adjacent units.",
 				"info": "10 burn + 10 crush + 10 sonic damage.",
 				"upgrade": "Detonates only nearby foes."
 			},
@@ -1395,7 +1395,7 @@
 		"ability_info": [
 			{
 				"title": "Ragnarok Day",
-				"desc": "Before dying, bombarding the whole battlefield after one complete round.",
+				"desc": "Before dying, bombards the whole battlefield after one complete round.",
 				"info": "5 crush + 15 burn damage to all units.",
 				"upgrade": "Does double damage now."
 			},
