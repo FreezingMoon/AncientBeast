@@ -783,12 +783,20 @@
 			{
 				"title": "Meat Sickle",
 				"desc": "Drags a foe, doing bonus damage if it doesn't have any movement points.",
-				"info": "5 pierce damage per hexagon moved"
+				"info": "5 pierce damage per hexagon moved",
+				"upgrade": "",
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Dual Swipe",
 				"desc": "Slaps frontal units with both claws.",
-				"info": "15 slash + 15 crush damage per hit"
+				"info": "15 slash + 15 crush damage per hit",
+				"upgrade": "",
+				"costs": {
+					"energy": 30
+				}
 			}
 		]
 	},
@@ -950,12 +958,20 @@
 			{
 				"title": "Subliminal Shout",
 				"desc": "Shock waves that affect a large area, doing less damage the further away.",
-				"info": "10 sonic damage over 15 hexagons."
+				"info": "10 sonic damage over 15 hexagons.",
+				"upgrade": "",
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Psychic Blast",
 				"desc": "Focuses the power of mind in order to attack foes up to 4 hexagons distance.",
-				"info": "18 mental damage over 7 hexagons."
+				"info": "18 mental damage over 7 hexagons.",
+				"upgrade": "",
+				"costs": {
+					"energy": 30
+				}
 			}
 		]
 	},
@@ -1736,7 +1752,7 @@
 				"desc": "Target's regrowth becomes lowered if it's a foe or increased if it's an ally.",
 				"info": "+/- 20 regrowth change for a round",
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -1744,7 +1760,7 @@
 				"desc": "Engulfs body into a meat cocoon. Current turn is ended by this ability.",
 				"info": "200% bonus defense and regrowth",
 				"costs": {
-					"energy": 10
+					"energy": 30
 				}
 			}
 		]
@@ -3732,12 +3748,20 @@
 			{
 				"title": "Double Slap",
 				"desc": "Strikes up to two frontal nearby units that are positioned next to each other.",
-				"info": "20 crush damage to each unit being hit"
+				"info": "20 crush damage to each unit being hit",
+				"upgrade": "",
+				"costs": {
+					"energy": 20
+				}
 			},
 			{
 				"title": "Meteor Slam",
 				"desc": "Regurgitates a sphere and throws it at any location within 8 hexagons range.",
-				"info": "20 crush + 10 burn damage per strike"
+				"info": "20 crush + 10 burn damage per strike",
+				"upgrade": "",
+				"costs": {
+					"energy": 30
+				}
 			}
 		]
 	},
