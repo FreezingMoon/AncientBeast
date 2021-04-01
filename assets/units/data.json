@@ -786,7 +786,7 @@
 				"info": "5 pierce damage per hexagon moved",
 				"upgrade": "",
 				"costs": {
-					"energy": 30
+					"energy": 20
 				}
 			},
 			{
@@ -795,7 +795,7 @@
 				"info": "15 slash + 15 crush damage per hit",
 				"upgrade": "",
 				"costs": {
-					"energy": 40
+					"energy": 30
 				}
 			}
 		]
@@ -961,7 +961,7 @@
 				"info": "10 sonic damage over 15 hexagons.",
 				"upgrade": "",
 				"costs": {
-					"energy": 30
+					"energy": 20
 				}
 			},
 			{
@@ -970,7 +970,7 @@
 				"info": "18 mental damage over 7 hexagons.",
 				"upgrade": "",
 				"costs": {
-					"energy": 40
+					"energy": 30
 				}
 			}
 		]
@@ -1752,7 +1752,7 @@
 				"desc": "Target's regrowth becomes lowered if it's a foe or increased if it's an ally.",
 				"info": "+/- 20 regrowth change for a round",
 				"costs": {
-					"energy": 10
+					"energy": 20
 				}
 			},
 			{
@@ -1760,7 +1760,7 @@
 				"desc": "Engulfs body into a meat cocoon. Current turn is ended by this ability.",
 				"info": "200% bonus defense and regrowth",
 				"costs": {
-					"energy": 10
+					"energy": 30
 				}
 			}
 		]
@@ -3751,7 +3751,7 @@
 				"info": "20 crush damage to each unit being hit",
 				"upgrade": "",
 				"costs": {
-					"energy": 30
+					"energy": 20
 				}
 			},
 			{
@@ -3760,7 +3760,7 @@
 				"info": "20 crush + 10 burn damage per strike",
 				"upgrade": "",
 				"costs": {
-					"energy": 40
+					"energy": 30
 				}
 			}
 		]
