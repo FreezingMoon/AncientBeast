@@ -15,6 +15,7 @@ export class Chat {
 		this.$content = $j('#chatcontent');
 		this.$chat.bind('click', () => {
 			game.UI.chat.toggle();
+			// console.log("Is this the gamelog?");
 		});
 		this.$chat.bind('mouseenter', () => {
 			game.UI.chat.peekOpen();
@@ -23,7 +24,8 @@ export class Chat {
 			game.UI.chat.peekClose();
 		});
 		this.messages = [];
-		this.isOpen = false;
+		this.$chat.addClass('focus');
+		this.isOpen = true;
 
 		$j('#combatwrapper, #toppanel, #dash, #endscreen').bind('click', () => {
 			game.UI.chat.hide();
