@@ -76,13 +76,25 @@ export default class MatchI {
 				case 2:
 					game.skipTurn();
 					this.game.UI.banner(this.users[md.data.activePlayer].playername + ' turn');
-
+					game.gamelog.add({
+						action: 'skip',
+					});
 					break;
 				case 3:
 					game.delayCreature();
+					game.gamelog.add({
+						action: 'delay',
+					});
 					break;
 				case 4:
 					game.activeCreature.moveTo(game.grid.hexes[md.data.target.y][md.data.target.x]);
+					game.gamelog.add({
+						action: 'move',
+						target: {
+							x: md.data.target.x,
+							y: md.data.target.y,
+						},
+					});
 					break;
 				case 5:
 					let args = $j.makeArray(md.data.args[1]);
@@ -92,12 +104,31 @@ export default class MatchI {
 						game.activeCreature.abilities[md.data.id].animation2({
 							arg: args,
 						});
+						game.gamelog.add({
+							action: 'ability',
+							target: {
+								type: 'hex',
+								x: md.data.target.x,
+								y: md.data.target.y,
+							},
+							id: md.data.id,
+							args: args,
+						});
 					}
 
 					if (md.data.target.type == 'creature') {
 						args.unshift(game.creatures[md.data.target.crea]);
 						game.activeCreature.abilities[md.data.id].animation2({
 							arg: args,
+						});
+						game.gamelog.add({
+							action: 'ability',
+							target: {
+								type: 'creature',
+								crea: md.data.target.crea,
+							},
+							id: md.data.id,
+							args: args,
 						});
 					}
 
@@ -107,6 +138,15 @@ export default class MatchI {
 						args.unshift(array);
 						game.activeCreature.abilities[md.data.id].animation2({
 							arg: args,
+						});
+						game.gamelog.add({
+							action: 'ability',
+							target: {
+								type: 'array',
+								array: array,
+							},
+							id: md.data.id,
+							args: args,
 						});
 					}
 					break;
