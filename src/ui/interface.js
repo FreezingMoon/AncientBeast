@@ -1844,6 +1844,7 @@ export class UI {
 
 		this.updateInfos();
 		if (game.multiplayer) {
+			$j('#playingMode').text="Player Mode [ Online ]"
 			if (!this.active) {
 				game.freezedInput = true;
 			} else {
