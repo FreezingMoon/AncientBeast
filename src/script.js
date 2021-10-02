@@ -47,6 +47,7 @@ $j(document).ready(() => {
 		scrim.remove();
 	});
 	scrim.removeClass('loading');
+	renderPlayerModeType(G.multiplayer);
 
 	// Select a random combat location
 	const locationSelector = $j("input[name='combatLocation']");
@@ -74,6 +75,7 @@ $j(document).ready(() => {
 	$j('#createMatchButton').on('click', () => {
 		$j('.match-frame').hide();
 		$j('#gameSetup').show();
+		renderPlayerModeType(G.multiplayer);
 		$j('#startMatchButton').show();
 		$j('#startButton').hide();
 	});
@@ -241,6 +243,16 @@ function getLogin() {
 		password: $j('.login input[name="password"]').val(),
 	};
 	return login;
+}
+
+/**
+ * Render the player mode text inside game form
+ * @param {Boolean} isMultiPlayer Is playing in online multiplayer mode or hotSeat mode
+ * @returns {Object} JQuery<HTMLElement>
+ */
+function renderPlayerModeType(isMultiPlayer) {
+	const playerModeType = $j('#playerModeType');
+	return isMultiPlayer ? playerModeType.text('[ Online ]') : playerModeType.text('[ Hotseat ]');
 }
 
 /**
