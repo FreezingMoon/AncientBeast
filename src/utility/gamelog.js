@@ -143,7 +143,7 @@ export class GameLog {
 					return;
 				}
 
-				this.saveFile(JSON.stringify(dict.log), `${fileName}.AB`);
+				this.saveFile(JSON.stringify(dict), `${fileName}.AB`);
 				break;
 			case 'hash':
 				output = hash;
