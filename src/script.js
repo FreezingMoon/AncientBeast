@@ -263,7 +263,7 @@ function getReg() {
 function readLogFromFile() {
 	return new Promise((resolve, reject) => {
 		let fileInput = document.createElement('input');
-		fileInput.accept = '.AB';
+		fileInput.accept = '.ab';
 		fileInput.type = 'file';
 
 		fileInput.onchange = (event) => {
