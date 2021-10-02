@@ -8,12 +8,6 @@ import { Creature } from '../creature';
 import { Fullscreen } from './fullscreen';
 import { ProgressBar } from './progressbar';
 import { getUrl } from '../assetLoader';
-import Match from '../multiplayer/match';
-import {
-	isNativeFullscreenAPIUse,
-	disableFullscreenLayout,
-	enableFullscreenLayout,
-} from '../script';
 
 /**
  * Class UI
