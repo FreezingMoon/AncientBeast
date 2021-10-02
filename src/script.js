@@ -41,7 +41,7 @@ dataJson.forEach(async (creature) => {
 	);
 });
 
-$j(document).ready(() => {
+$j(() => {
 	let scrim = $j('.scrim');
 	scrim.on('transitionend', function () {
 		scrim.remove();
@@ -63,7 +63,7 @@ $j(document).ready(() => {
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
 	// Binding Hotkeys
-	$j(document).keydown((event) => {
+	$j(document).on('keydown', (event) => {
 		const fullscreenHotkey = 70;
 		const pressedKey = event.keyCode || event.which;
 		if (event.shiftKey && fullscreenHotkey == pressedKey) {
@@ -91,9 +91,9 @@ $j(document).ready(() => {
 	});
 
 	// Focus the form to enable "press enter to start the game" functionality
-	$j('#startButton').focus();
+	$j('#startButton').trigger('focus');
 
-	$j('form#gameSetup').submit((e) => {
+	$j('form#gameSetup').on('submit', (e) => {
 		e.preventDefault(); // Prevent submit
 		let gameconfig = getGameConfig();
 		G.loadGame(gameconfig);
@@ -154,7 +154,7 @@ $j(document).ready(() => {
 		console.log('new user created.' + session);
 		return false; // Prevent submit
 	}
-	$j('form#register').submit(register);
+	$j('form#register').on('submit', register);
 
 	async function login(e) {
 		e.preventDefault(); // Prevent submit
@@ -197,7 +197,7 @@ $j(document).ready(() => {
 		return false; // Prevent submit
 	}
 	// Login form
-	$j('form#login').submit(login);
+	$j('form#login').on('submit', login);
 	$j('#startMatchButton').on('click', () => {
 		let gameConfig = getGameConfig();
 		G.loadGame(gameConfig, true);
