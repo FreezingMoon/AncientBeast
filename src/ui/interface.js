@@ -416,12 +416,12 @@ export class UI {
 		};
 
 		// Remove hex grid if window loses focus
-		$j(window).blur(() => {
+		$j(window).on('blur', () => {
 			game.grid.showGrid(false);
 		});
 
 		// Binding Hotkeys
-		$j(document).keydown((e) => {
+		$j(document).on('keydown', (e) => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -576,7 +576,7 @@ export class UI {
 			}
 		});
 
-		$j(document).keyup((e) => {
+		$j(document).on('keyup', (e) => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -595,7 +595,7 @@ export class UI {
 		});
 
 		// Mouse Shortcut
-		$j('#dash').bind('mousedown', (e) => {
+		$j('#dash').on('mousedown', (e) => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -619,7 +619,7 @@ export class UI {
 			}
 		});
 		// TODO: Function to exit dash via Tab or Esc hotkeys
-		$j('#combatwrapper, #dash, #toppanel').bind('wheel', (e) => {
+		$j('#combatwrapper, #dash, #toppanel').on('wheel', (e) => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -648,13 +648,13 @@ export class UI {
 			e.preventDefault();
 		});
 
-		this.$dash.find('.section.numbers .stat').bind('mouseover', (event) => {
+		this.$dash.find('.section.numbers .stat').on('mouseover', (event) => {
 			let $section = $j(event.target).closest('.section');
 			let which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
 			$j(which).addClass('shown');
 		});
 
-		this.$dash.find('.section.numbers .stat').bind('mouseleave', (event) => {
+		this.$dash.find('.section.numbers .stat').on('mouseleave', (event) => {
 			let $section = $j(event.target).closest('.section');
 			let which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
 
@@ -854,8 +854,8 @@ export class UI {
 		this.$dash
 			.children('#playertabswrapper')
 			.children('.playertabs')
-			.unbind('click')
-			.bind('click', (e) => {
+			.off('click')
+			.on('click', (e) => {
 				if (game.freezedInput) {
 					return;
 				}
@@ -1007,7 +1007,7 @@ export class UI {
 			});
 
 			this.materializeButton.changeState(ButtonStateEnum.disabled);
-			$j('#card .sideA').addClass('disabled').unbind('click');
+			$j('#card .sideA').addClass('disabled').off('click');
 
 			let activeCreature = game.activeCreature;
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
@@ -1173,7 +1173,7 @@ export class UI {
 			this.materializeButton.changeState(ButtonStateEnum.disabled);
 			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
 
-			$j('#card .sideA').addClass('disabled').unbind('click');
+			$j('#card .sideA').addClass('disabled').off('click');
 		}
 	}
 
@@ -1278,8 +1278,8 @@ export class UI {
 		// Bind creature vignette click
 		this.$grid
 			.find('.vignette')
-			.unbind('click')
-			.bind('click', (e) => {
+			.off('click')
+			.on('click', (e) => {
 				e.preventDefault();
 				if (game.freezedInput) {
 					return;
@@ -1322,7 +1322,7 @@ export class UI {
 
 		// Check if the target of the click isn't the scoreboard nor a descendant of it
 		if (!score.is(e.target) && score.has(e.target).length === 0) {
-			scoreboard.unbind('click', this.easyScoreClose);
+			scoreboard.off('click', this.easyScoreClose);
 			scoreboard.hide();
 		}
 	}
@@ -1338,7 +1338,7 @@ export class UI {
 		}
 
 		// Binding the click outside of the scoreboard to close the view
-		this.$scoreboard.bind('click', this.easyScoreClose);
+		this.$scoreboard.on('click', this.easyScoreClose);
 
 		// Configure scoreboard data
 		this.$scoreboard.find('#scoreboardTitle').text('Current Score');
@@ -1790,7 +1790,7 @@ export class UI {
 			creature = game.activeCreature,
 			$abilitiesButtons = $j('#abilities .ability');
 
-		$abilitiesButtons.unbind('click');
+		$abilitiesButtons.off('click');
 		this.$activebox
 			.find('#abilities')
 			.clearQueue()
@@ -2420,13 +2420,13 @@ export class UI {
 
 		this.$queue
 			.find('.vignette.roundmarker')
-			.unbind('mouseover')
-			.unbind('mouseleave')
-			.bind('mouseover', (e) => {
+			.off('mouseover')
+			.off('mouseleave')
+			.on('mouseover', (e) => {
 				game.grid.showGrid(true);
 				game.grid.showCurrentCreatureMovementInOverlay(game.activeCreature);
 			})
-			.bind('mouseleave', () => {
+			.on('mouseleave', () => {
 				game.grid.showGrid(false);
 				game.grid.cleanOverlay();
 				game.grid.redoLastQuery();
@@ -2436,14 +2436,14 @@ export class UI {
 		// Add shift keydown effect like above, onkeydown => showGrid
 
 		$j(document)
-			.keydown((e) => {
+			.on('keydown', (e) => {
 				if (e.which === 16) {
 					game.grid.showGrid(true);
 					game.grid.showCurrentCreatureMovementInOverlay(game.activeCreature);
 					console.log(game.activeCreature);
 				}
 			})
-			.keyup((e) => {
+			.on('keyup', (e) => {
 				if (e.which === 16) {
 					game.grid.showGrid(false);
 					game.grid.cleanOverlay();
@@ -2454,10 +2454,10 @@ export class UI {
 		this.$queue
 			.find('.vignette')
 			.not('.roundmarker')
-			.unbind('mousedown')
-			.unbind('mouseover')
-			.unbind('mouseleave')
-			.bind('mouseover', (e) => {
+			.off('mousedown')
+			.off('mouseover')
+			.off('mouseleave')
+			.on('mouseover', (e) => {
 				if (game.freezedInput) {
 					return;
 				}
@@ -2483,7 +2483,7 @@ export class UI {
 				game.grid.showMovementRange(creatureId);
 				this.xrayQueue(creatureId);
 			})
-			.bind('mouseleave', () => {
+			.on('mouseleave', () => {
 				// On mouseleave cancel effect
 				if (game.freezedInput) {
 					return;
@@ -2507,7 +2507,7 @@ export class UI {
 
 				this.xrayQueue(-1);
 			})
-			.bind('mousedown', (e) => {
+			.on('mousedown', (e) => {
 				// Show when clicking on portrait
 				if (game.freezedInput) {
 					return;
