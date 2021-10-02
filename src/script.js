@@ -62,12 +62,24 @@ $j(() => {
 	let fullscreen = new Fullscreen($j('#fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
+	let startScreenHotkeys = {
+		KeyF: {
+			onkeydown(event) {
+				if (event.shiftKey) {
+					fullscreen.toggle();
+				}
+			},
+		},
+	};
+
 	// Binding Hotkeys
 	$j(document).on('keydown', (event) => {
-		const fullscreenHotkey = 70;
-		const pressedKey = event.keyCode || event.which;
-		if (event.shiftKey && fullscreenHotkey == pressedKey) {
-			fullscreen.toggle();
+		let keydownAction = startScreenHotkeys[event.code] && startScreenHotkeys[event.code].onkeydown;
+
+		if (keydownAction !== undefined) {
+			keydownAction.call(this, event);
+
+			event.preventDefault();
 		}
 	});
 
