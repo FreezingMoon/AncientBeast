@@ -71,11 +71,19 @@ $j(document).ready(() => {
 		}
 	});
 
+	if (G.multiplayer) {
+		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		forceTwoPlayerMode();
+	}
+
 	$j('#createMatchButton').on('click', () => {
 		$j('.match-frame').hide();
 		$j('#gameSetup').show();
 		$j('#startMatchButton').show();
 		$j('#startButton').hide();
+
+		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		forceTwoPlayerMode();
 	});
 
 	$j('#multiplayer').on('click', async () => {
@@ -216,6 +224,16 @@ $j('.back').on('click', () => {
 	$j('.lobby').hide();
 	$j('.setupFrame,.welcome').show();
 });
+
+/**
+ * force 1 vs 1 game mode
+ * should be removed after implementaion 2 vs 2 in multiplayer mode
+ */
+function forceTwoPlayerMode() {
+	$j('#p2').trigger('click');
+	$j('#p4').prop('disabled', true);
+}
+
 /**
  * get Registration.
  * @return {Object} login form.
