@@ -47,6 +47,7 @@ $j(() => {
 		scrim.remove();
 	});
 	scrim.removeClass('loading');
+	renderPlayerModeType(G.multiplayer);
 
 	// Select a random combat location
 	const locationSelector = $j("input[name='combatLocation']");
@@ -96,11 +97,20 @@ $j(() => {
 		}
 	});
 
+	if (G.multiplayer) {
+		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		forceTwoPlayerMode();
+	}
+
 	$j('#createMatchButton').on('click', () => {
 		$j('.match-frame').hide();
 		$j('#gameSetup').show();
+		renderPlayerModeType(G.multiplayer);
 		$j('#startMatchButton').show();
 		$j('#startButton').hide();
+
+		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		forceTwoPlayerMode();
 	});
 
 	$j('#multiplayer').on('click', async () => {
@@ -241,6 +251,16 @@ $j('.back').on('click', () => {
 	$j('.lobby').hide();
 	$j('.setupFrame,.welcome').show();
 });
+
+/**
+ * force 1 vs 1 game mode
+ * should be removed after implementaion 2 vs 2 in multiplayer mode
+ */
+function forceTwoPlayerMode() {
+	$j('#p2').trigger('click');
+	$j('#p4').prop('disabled', true);
+}
+
 /**
  * get Registration.
  * @return {Object} login form.
@@ -295,6 +315,16 @@ function getLogin() {
 		password: $j('.login input[name="password"]').val(),
 	};
 	return login;
+}
+
+/**
+ * Render the player mode text inside game form
+ * @param {Boolean} isMultiPlayer Is playing in online multiplayer mode or hotSeat mode
+ * @returns {Object} JQuery<HTMLElement>
+ */
+function renderPlayerModeType(isMultiPlayer) {
+	const playerModeType = $j('#playerModeType');
+	return isMultiPlayer ? playerModeType.text('[ Online ]') : playerModeType.text('[ Hotseat ]');
 }
 
 /**
