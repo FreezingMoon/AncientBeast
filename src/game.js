@@ -242,6 +242,10 @@ export default class Game {
 	 */
 
 	loadGame(setupOpt, matchInitialized, matchid) {
+		// Need to remove keydown listener before new game start
+		// to prevent memory leak and mixing hotkeys between start screen and game
+		$j(document).off('keydown');
+
 		if (this.multiplayer && !matchid) {
 			this.matchInitialized = matchInitialized;
 		}
