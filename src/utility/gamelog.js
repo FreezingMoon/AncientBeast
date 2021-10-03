@@ -142,7 +142,6 @@ export class GameLog {
 				if (this._debounce) {
 					return;
 				}
-
 				this.saveFile(JSON.stringify(dict), `${fileName}.AB`);
 				break;
 			case 'hash':

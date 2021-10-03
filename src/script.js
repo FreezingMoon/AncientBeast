@@ -41,7 +41,7 @@ dataJson.forEach(async (creature) => {
 	);
 });
 
-$j(document).ready(() => {
+$j(() => {
 	let scrim = $j('.scrim');
 	scrim.on('transitionend', function () {
 		scrim.remove();
@@ -63,12 +63,37 @@ $j(document).ready(() => {
 	let fullscreen = new Fullscreen($j('#fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
+	let startScreenHotkeys = {
+		KeyF: {
+			onkeydown(event) {
+				if (event.shiftKey) {
+					fullscreen.toggle();
+				}
+			},
+		},
+		KeyL: {
+			onkeydown(event) {
+				if (event.metaKey || event.ctrlKey) {
+					readLogFromFile()
+						.then((logstr) => JSON.parse(logstr))
+						.then((log) => G.gamelog.play(log))
+						.catch((err) => {
+							alert('An error occurred while loading the log file');
+							console.log(err);
+						});
+				}
+			},
+		},
+	};
+
 	// Binding Hotkeys
-	$j(document).keydown((event) => {
-		const fullscreenHotkey = 70;
-		const pressedKey = event.keyCode || event.which;
-		if (event.shiftKey && fullscreenHotkey == pressedKey) {
-			fullscreen.toggle();
+	$j(document).on('keydown', (event) => {
+		let keydownAction = startScreenHotkeys[event.code] && startScreenHotkeys[event.code].onkeydown;
+
+		if (keydownAction !== undefined) {
+			keydownAction.call(this, event);
+
+			event.preventDefault();
 		}
 	});
 
@@ -101,9 +126,9 @@ $j(document).ready(() => {
 	});
 
 	// Focus the form to enable "press enter to start the game" functionality
-	$j('#startButton').focus();
+	$j('#startButton').trigger('focus');
 
-	$j('form#gameSetup').submit((e) => {
+	$j('form#gameSetup').on('submit', (e) => {
 		e.preventDefault(); // Prevent submit
 		let gameconfig = getGameConfig();
 		G.loadGame(gameconfig);
@@ -164,7 +189,7 @@ $j(document).ready(() => {
 		console.log('new user created.' + session);
 		return false; // Prevent submit
 	}
-	$j('form#register').submit(register);
+	$j('form#register').on('submit', register);
 
 	async function login(e) {
 		e.preventDefault(); // Prevent submit
@@ -207,7 +232,7 @@ $j(document).ready(() => {
 		return false; // Prevent submit
 	}
 	// Login form
-	$j('form#login').submit(login);
+	$j('form#login').on('submit', login);
 	$j('#startMatchButton').on('click', () => {
 		let gameConfig = getGameConfig();
 		G.loadGame(gameConfig, true);
@@ -249,6 +274,35 @@ function getReg() {
 	};
 
 	return reg;
+}
+
+/**
+ * read log from file
+ * @returns {Promise<string>}
+ */
+function readLogFromFile() {
+	return new Promise((resolve, reject) => {
+		let fileInput = document.createElement('input');
+		fileInput.accept = '.AB';
+		fileInput.type = 'file';
+
+		fileInput.onchange = (event) => {
+			let file = event.target.files[0];
+			let reader = new FileReader();
+
+			reader.readAsText(file);
+
+			reader.onload = () => {
+				resolve(reader.result);
+			};
+
+			reader.onerror = () => {
+				reject(reader.error);
+			};
+		};
+
+		fileInput.click();
+	});
 }
 
 /**
