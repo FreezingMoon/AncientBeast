@@ -8,7 +8,10 @@ import { Creature } from '../creature';
 import { Fullscreen } from './fullscreen';
 import { ProgressBar } from './progressbar';
 import { getUrl } from '../assetLoader';
-
+const pwaModeEnabled =
+	window.navigator.standAlone || // Safari
+	window.fullScreen || // FireFox
+	(!window.screenTop && !window.screenY); // Chrome
 /**
  * Class UI
  *
@@ -98,6 +101,7 @@ export class UI {
 			},
 			game,
 		);
+
 		this.buttons.push(this.btnFullscreen);
 
 		// Audio Button
@@ -1767,7 +1771,12 @@ export class UI {
 
 					this.btnAudio.changeState(ButtonStateEnum.normal);
 					this.btnSkipTurn.changeState(ButtonStateEnum.normal);
-					this.btnFullscreen.changeState(ButtonStateEnum.normal);
+
+					if (!pwaModeEnabled) {
+						this.btnFullscreen.changeState(ButtonStateEnum.normal);
+					} else {
+						this.btnFullscreen.changeState(ButtonStateEnum.disabled);
+					}
 					// Change ability buttons
 					this.changeAbilityButtons();
 					// Update upgrade info
@@ -1782,7 +1791,9 @@ export class UI {
 						() => {
 							this.btnAudio.changeState(ButtonStateEnum.slideIn);
 							this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
-							this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
+							if (!pwaModeEnabled) {
+								this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
+							}
 							if (!creature.hasWait && creature.delayable && !game.queue.isCurrentEmpty()) {
 								this.btnDelay.changeState(ButtonStateEnum.slideIn);
 							}

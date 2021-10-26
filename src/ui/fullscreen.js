@@ -13,7 +13,11 @@ export class Fullscreen {
 			disableFullscreenLayout(this.fullscreenElement);
 			document.exitFullscreen();
 		} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
-			alert('Use F11 to exit fullscreen');
+			if (window.screen.width < 500) {
+				this.fullscreenElement.hide();
+			} else {
+				alert('Use F11 to exit fullscreen');
+			}
 		} else {
 			enableFullscreenLayout(this.fullscreenElement);
 			$j('#AncientBeast')[0].requestFullscreen();
