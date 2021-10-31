@@ -18,10 +18,7 @@ let AB = {};
 let session = {};
 // Create the game
 const G = new Game('0.4');
-const pwaModeEnabled =
-	window.navigator.standAlone || // Safari
-	window.fullScreen || // FireFox
-	(!window.screenTop && !window.screenY); // Chrome
+var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
 AB.currentGame = G;
@@ -66,7 +63,7 @@ $j(() => {
 	// Add listener for Fullscreen API
 	let fullscreen = new Fullscreen($j('#fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
-	if (pwaModeEnabled) {
+	if (isMobile) {
 		$j('#fullscreen').fadeOut();
 	}
 

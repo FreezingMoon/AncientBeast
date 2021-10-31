@@ -8,10 +8,6 @@ import { Creature } from '../creature';
 import { Fullscreen } from './fullscreen';
 import { ProgressBar } from './progressbar';
 import { getUrl } from '../assetLoader';
-const pwaModeEnabled =
-	window.navigator.standAlone || // Safari
-	window.fullScreen || // FireFox
-	(!window.screenTop && !window.screenY); // Chrome
 /**
  * Class UI
  *
@@ -1751,6 +1747,20 @@ export class UI {
 			$abilitiesButtons = $j('#abilities .ability');
 
 		$abilitiesButtons.off('click');
+		function getPWADisplayMode() {
+			var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+			if (isMobile) {
+				return true;
+			}
+			const isInStandaloneMode = () =>
+				window.matchMedia('(display-mode: standalone)').matches ||
+				window.navigator.standalone ||
+				document.referrer.includes('android-app://');
+			if (isInStandaloneMode()) {
+				return true;
+			}
+			return false;
+		}
 		this.$activebox
 			.find('#abilities')
 			.clearQueue()
@@ -1772,7 +1782,7 @@ export class UI {
 					this.btnAudio.changeState(ButtonStateEnum.normal);
 					this.btnSkipTurn.changeState(ButtonStateEnum.normal);
 
-					if (!pwaModeEnabled) {
+					if (!getPWADisplayMode()) {
 						this.btnFullscreen.changeState(ButtonStateEnum.normal);
 					} else {
 						this.btnFullscreen.changeState(ButtonStateEnum.disabled);
@@ -1791,7 +1801,7 @@ export class UI {
 						() => {
 							this.btnAudio.changeState(ButtonStateEnum.slideIn);
 							this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
-							if (!pwaModeEnabled) {
+							if (!getPWADisplayMode) {
 								this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
 							}
 							if (!creature.hasWait && creature.delayable && !game.queue.isCurrentEmpty()) {
