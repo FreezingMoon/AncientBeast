@@ -1801,7 +1801,7 @@ export class UI {
 						() => {
 							this.btnAudio.changeState(ButtonStateEnum.slideIn);
 							this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
-							if (!getPWADisplayMode) {
+							if (!getPWADisplayMode()) {
 								this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
 							}
 							if (!creature.hasWait && creature.delayable && !game.queue.isCurrentEmpty()) {
