@@ -13,9 +13,11 @@ export class Fullscreen {
 			disableFullscreenLayout(this.fullscreenElement);
 			document.exitFullscreen();
 		} else if (!isNativeFullscreenAPIUse() && window.innerHeight === screen.height) {
-			if (window.screen.width < 500) {
-				this.fullscreenElement.hide();
-			} else {
+			if (
+				['fullscreen', 'standalone', 'minimal-ui'].some(
+					(displayMode) => window.matchMedia('(display-mode: ' + displayMode + ')').matches,
+				)
+			) {
 				alert('Use F11 to exit fullscreen');
 			}
 		} else {

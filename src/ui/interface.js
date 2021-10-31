@@ -1747,17 +1747,15 @@ export class UI {
 			$abilitiesButtons = $j('#abilities .ability');
 
 		$abilitiesButtons.off('click');
+		function isPwa() {
+			return ['fullscreen', 'standalone', 'minimal-ui'].some(
+				(displayMode) => window.matchMedia('(display-mode: ' + displayMode + ')').matches,
+			);
+		}
 		function getPWADisplayMode() {
 			var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 			if (isMobile) {
-				return true;
-			}
-			const isInStandaloneMode = () =>
-				window.matchMedia('(display-mode: standalone)').matches ||
-				window.navigator.standalone ||
-				document.referrer.includes('android-app://');
-			if (isInStandaloneMode()) {
-				return true;
+				return isPwa();
 			}
 			return false;
 		}

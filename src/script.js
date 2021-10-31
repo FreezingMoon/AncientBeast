@@ -64,7 +64,13 @@ $j(() => {
 	let fullscreen = new Fullscreen($j('#fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 	if (isMobile) {
-		$j('#fullscreen').fadeOut();
+		if (
+			['fullscreen', 'standalone', 'minimal-ui'].some(
+				(displayMode) => window.matchMedia('(display-mode: ' + displayMode + ')').matches,
+			)
+		) {
+			$j('#fullscreen').fadeOut();
+		}
 	}
 
 	let startScreenHotkeys = {
