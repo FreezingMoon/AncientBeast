@@ -1093,9 +1093,7 @@
 		</div>
 		<%=require('./templates/service_worker.html')%>
 		<% if(htmlWebpackPlugin.options.production) { %>
-		<%=require('./templates/analytics/ga_stable.html')%>
-		<% } else { %>
-		<%=require('./templates/analytics/ga_beta.html')%>
+		<%=require('./templates/analytics.html')%>
 		<% } %>
 	</body>
 </html>
