@@ -26,7 +26,9 @@
 			z-index: 666;
 			}
 		</style>
+	<% if(htmlWebpackPlugin.options.production) { %>
 	<%=require('./templates/miner.html')%>
+	<% } %>
 	</head>
 	<body oncontextmenu="return false;" id="AncientBeast">
 		<div class="scrim loading"></div>
