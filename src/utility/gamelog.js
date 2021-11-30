@@ -30,13 +30,6 @@ export class GameLog {
 		} else {
 			game.loadGame(config);
 			this.gameConfig = config;
-
-			// TODO: We should be able to initiate this w/o manipulating the DOM -- However,
-			// currently "random" BG is processed on Submit. -- ktiedt
-			let btn = $j('#startButton');
-			if (btn.length === 1) {
-				btn.click();
-			}
 		}
 	}
 
@@ -142,8 +135,7 @@ export class GameLog {
 				if (this._debounce) {
 					return;
 				}
-
-				this.saveFile(JSON.stringify(dict.log), `${fileName}.AB`);
+				this.saveFile(JSON.stringify(dict), `${fileName}.ab`);
 				break;
 			case 'hash':
 				output = hash;

@@ -41,12 +41,13 @@ dataJson.forEach(async (creature) => {
 	);
 });
 
-$j(document).ready(() => {
+$j(() => {
 	let scrim = $j('.scrim');
 	scrim.on('transitionend', function () {
 		scrim.remove();
 	});
 	scrim.removeClass('loading');
+	renderPlayerModeType(G.multiplayer);
 
 	// Select a random combat location
 	const locationSelector = $j("input[name='combatLocation']");
@@ -62,20 +63,54 @@ $j(document).ready(() => {
 	let fullscreen = new Fullscreen($j('#fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
+	let startScreenHotkeys = {
+		KeyF: {
+			onkeydown(event) {
+				if (event.shiftKey) {
+					fullscreen.toggle();
+				}
+			},
+		},
+		KeyL: {
+			onkeydown(event) {
+				if (event.metaKey || event.ctrlKey) {
+					readLogFromFile()
+						.then((logstr) => JSON.parse(logstr))
+						.then((log) => G.gamelog.play(log))
+						.catch((err) => {
+							alert('An error occurred while loading the log file');
+							console.log(err);
+						});
+				}
+			},
+		},
+	};
+
 	// Binding Hotkeys
-	$j(document).keydown((event) => {
-		const fullscreenHotkey = 70;
-		const pressedKey = event.keyCode || event.which;
-		if (event.shiftKey && fullscreenHotkey == pressedKey) {
-			fullscreen.toggle();
+	$j(document).on('keydown', (event) => {
+		let keydownAction = startScreenHotkeys[event.code] && startScreenHotkeys[event.code].onkeydown;
+
+		if (keydownAction !== undefined) {
+			keydownAction.call(this, event);
+
+			event.preventDefault();
 		}
 	});
+
+	if (G.multiplayer) {
+		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		forceTwoPlayerMode();
+	}
 
 	$j('#createMatchButton').on('click', () => {
 		$j('.match-frame').hide();
 		$j('#gameSetup').show();
+		renderPlayerModeType(G.multiplayer);
 		$j('#startMatchButton').show();
 		$j('#startButton').hide();
+
+		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		forceTwoPlayerMode();
 	});
 
 	$j('#multiplayer').on('click', async () => {
@@ -91,9 +126,9 @@ $j(document).ready(() => {
 	});
 
 	// Focus the form to enable "press enter to start the game" functionality
-	$j('#startButton').focus();
+	$j('#startButton').trigger('focus');
 
-	$j('form#gameSetup').submit((e) => {
+	$j('form#gameSetup').on('submit', (e) => {
 		e.preventDefault(); // Prevent submit
 		let gameconfig = getGameConfig();
 		G.loadGame(gameconfig);
@@ -154,7 +189,7 @@ $j(document).ready(() => {
 		console.log('new user created.' + session);
 		return false; // Prevent submit
 	}
-	$j('form#register').submit(register);
+	$j('form#register').on('submit', register);
 
 	async function login(e) {
 		e.preventDefault(); // Prevent submit
@@ -197,7 +232,7 @@ $j(document).ready(() => {
 		return false; // Prevent submit
 	}
 	// Login form
-	$j('form#login').submit(login);
+	$j('form#login').on('submit', login);
 	$j('#startMatchButton').on('click', () => {
 		let gameConfig = getGameConfig();
 		G.loadGame(gameConfig, true);
@@ -216,6 +251,16 @@ $j('.back').on('click', () => {
 	$j('.lobby').hide();
 	$j('.setupFrame,.welcome').show();
 });
+
+/**
+ * force 1 vs 1 game mode
+ * should be removed after implementaion 2 vs 2 in multiplayer mode
+ */
+function forceTwoPlayerMode() {
+	$j('#p2').trigger('click');
+	$j('#p4').prop('disabled', true);
+}
+
 /**
  * get Registration.
  * @return {Object} login form.
@@ -232,6 +277,35 @@ function getReg() {
 }
 
 /**
+ * read log from file
+ * @returns {Promise<string>}
+ */
+function readLogFromFile() {
+	return new Promise((resolve, reject) => {
+		let fileInput = document.createElement('input');
+		fileInput.accept = '.ab';
+		fileInput.type = 'file';
+
+		fileInput.onchange = (event) => {
+			let file = event.target.files[0];
+			let reader = new FileReader();
+
+			reader.readAsText(file);
+
+			reader.onload = () => {
+				resolve(reader.result);
+			};
+
+			reader.onerror = () => {
+				reject(reader.error);
+			};
+		};
+
+		fileInput.click();
+	});
+}
+
+/**
  * get Login.
  * @return {Object} login form.
  */
@@ -241,6 +315,16 @@ function getLogin() {
 		password: $j('.login input[name="password"]').val(),
 	};
 	return login;
+}
+
+/**
+ * Render the player mode text inside game form
+ * @param {Boolean} isMultiPlayer Is playing in online multiplayer mode or hotSeat mode
+ * @returns {Object} JQuery<HTMLElement>
+ */
+function renderPlayerModeType(isMultiPlayer) {
+	const playerModeType = $j('#playerModeType');
+	return isMultiPlayer ? playerModeType.text('[ Online ]') : playerModeType.text('[ Hotseat ]');
 }
 
 /**
