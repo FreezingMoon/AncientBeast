@@ -15,18 +15,19 @@ export default class MatchI {
 		this.activePlayer = 0;
 		this.client = connect.client;
 		this.matchUsers = [];
+
 		connect.socket.onmatchmakermatched = (matched) => {
-			// console.info("Matched opponents: ", matched.users);
 			this.matchUsers = matched.users;
-			console.log(matched.users);
 			if (this.host != this.session.user_id) {
 				this.storeMatches();
 			}
 			this.game.updateLobby();
 		};
+
 		connect.socket.ondisconnect = (event) => {
 			console.info('Disconnected from the server. Event:', event);
 		};
+
 		connect.socket.onmatchpresence = (md) => {
 			if (md.leaves) {
 				this.game.UI.banner(md.leaves.username + ' left match');
