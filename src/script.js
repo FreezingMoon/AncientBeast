@@ -65,35 +65,42 @@ $j(() => {
 
 	let startScreenHotkeys = {
 		KeyF: {
-			onkeydown(event) {
-				if (event.shiftKey) {
-					fullscreen.toggle();
-				}
+			keyDownTest(event) {
+				return event.shiftKey;
+			},
+			keyDownAction() {
+				fullscreen.toggle();
 			},
 		},
 		KeyL: {
-			onkeydown(event) {
-				if (event.metaKey || event.ctrlKey) {
-					readLogFromFile()
-						.then((logstr) => JSON.parse(logstr))
-						.then((log) => G.gamelog.play(log))
-						.catch((err) => {
-							alert('An error occurred while loading the log file');
-							console.log(err);
-						});
-				}
+			keyDownTest(event) {
+				return event.metaKey && event.ctrlKey;
+			},
+			keyDownAction(event) {
+				readLogFromFile()
+					.then((logstr) => JSON.parse(logstr))
+					.then((log) => G.gamelog.play(log))
+					.catch((err) => {
+						alert('An error occurred while loading the log file');
+						console.log(err);
+					});
 			},
 		},
 	};
 
 	// Binding Hotkeys
 	$j(document).on('keydown', (event) => {
-		let keydownAction = startScreenHotkeys[event.code] && startScreenHotkeys[event.code].onkeydown;
+		const hotkey = startScreenHotkeys[event.code];
 
-		if (keydownAction !== undefined) {
-			keydownAction.call(this, event);
+		if (hotkey === undefined) {
+			return;
+		}
 
+		const { keyDownTest, keyDownAction } = hotkey;
+
+		if (keyDownTest.call(this, event)) {
 			event.preventDefault();
+			keyDownAction.call(this, event);
 		}
 	});
 
