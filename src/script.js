@@ -74,7 +74,7 @@ $j(() => {
 		},
 		KeyL: {
 			keyDownTest(event) {
-				return event.metaKey || event.ctrlKey;
+				return event.metaKey && event.ctrlKey;
 			},
 			keyDownAction(event) {
 				readLogFromFile()
