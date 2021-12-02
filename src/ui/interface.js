@@ -67,8 +67,16 @@ export class UI {
 				$button: $j('.toggledash'),
 				click: () => {
 					// if dash is open and audio player is visible, just show creatures
-					if (this.dashopen && $j('#musicplayerwrapper').is(':visible')) {
+					if (this.dashopen && $j('#musicplayerwrapper').is(':visible') && $j('#scoreboardwrapper').is(':visible')) {
 						$j('#playertabswrapper').show();
+						$j('#musicplayerwrapper').hide();
+						$j('#scoreboardwrapper').hide();
+					} else if ($j('#musicplayerwrapper').is(':visible') && $j('#scoreboardwrapper').is(':visible')) {
+						$j('#musicplayerwrapper').hide();
+						$j('#scoreboardwrapper').hide();
+					} else if ($j('#scoreboardwrapper').is(':visible')) {
+						$j('#scoreboardwrapper').hide();
+					} else if ($j('#musicplayerwrapper').is(':visible')) {
 						$j('#musicplayerwrapper').hide();
 					}
 
@@ -84,7 +92,17 @@ export class UI {
 		this.btnToggleScore = new Button(
 			{
 				$button: $j('.togglescore'),
-				click: () => this.toggleScoreboard(),
+				click: () => {
+					if ($j('#musciplayerwrapper').is(':visible') && $j('#playertabswrapper').is(':visible')) {
+						$j('#playertabswrapper').hide();
+						$j('#musicplayerwrapper').hide();
+					} else if ($j('#playertabswrapper').is(':visible')) {
+						$j('#musicplayerwrapper').hide();
+					} else if ($j('#musciplayerwrapper').is(':visible')) {
+						$j('#musicplayerwrapper').hide();
+					}
+					this.toggleScoreboard()
+				},
 			},
 			game,
 		);
@@ -107,11 +125,13 @@ export class UI {
 				hasShortcut: true,
 				click: () => {
 					// if audio element was already active, close dash
-					if ($j('#musicplayerwrapper').is(':visible')) {
+					if ($j('#musicplayerwrapper').is(':visible') || $j('#scoreboard').is('is:visible')) {
 						this.closeDash();
-					} else {
-						this.showMusicPlayer();
+						this.$scoreboard.hide();
+
 					}
+					this.showMusicPlayer();
+
 				},
 				overridefreeze: true,
 			},
@@ -472,7 +492,7 @@ export class UI {
 			Escape: {
 				onkeydown() {
 					let isAbilityActive =
-						this.activeAbility && !this.$scoreboard.is(':visible') && !this.chat.isOpen;
+						this.activeAbility || !this.$scoreboard.is(':visible') || !this.chat.isOpen;
 
 					if (this.dashopen) {
 						this.closeDash();
@@ -1875,10 +1895,10 @@ export class UI {
 				if (!ab.isUpgraded()) {
 					$abilityInfo.append(
 						'<div class="info upgrade">' +
-							(ab.isUpgradedPerUse() ? 'Uses' : 'Rounds') +
-							' left before upgrading : ' +
-							ab.usesLeftBeforeUpgrade() +
-							'</div>',
+						(ab.isUpgradedPerUse() ? 'Uses' : 'Rounds') +
+						' left before upgrading : ' +
+						ab.usesLeftBeforeUpgrade() +
+						'</div>',
 					);
 				}
 
@@ -1932,10 +1952,10 @@ export class UI {
 					.next('.desc')
 					.append(
 						'<div class="charge">Charge : ' +
-							ab.getCharge().value +
-							'/' +
-							ab.getCharge().max +
-							'</div>',
+						ab.getCharge().value +
+						'/' +
+						ab.getCharge().max +
+						'</div>',
 					);
 			}
 
@@ -1989,11 +2009,11 @@ export class UI {
 						.find('.' + stat + ' .modifiers')
 						.append(
 							'<div>' +
-								value.name +
-								' : ' +
-								(value.alterations[stat] > 0 ? '+' : '') +
-								value.alterations[stat] +
-								'</div>',
+							value.name +
+							' : ' +
+							(value.alterations[stat] > 0 ? '+' : '') +
+							value.alterations[stat] +
+							'</div>',
 						);
 				}
 
@@ -2007,11 +2027,11 @@ export class UI {
 						.find('.' + stat + ' .modifiers')
 						.append(
 							'<div>' +
-								value.name +
-								' : ' +
-								(value.alterations[stat] > 0 ? '+' : '') +
-								value.alterations[stat] +
-								'</div>',
+							value.name +
+							' : ' +
+							(value.alterations[stat] > 0 ? '+' : '') +
+							value.alterations[stat] +
+							'</div>',
 						);
 				}
 
@@ -2043,7 +2063,7 @@ export class UI {
 					Math.round(
 						(game.activeCreature.player.totalTimePool -
 							(date - game.activeCreature.player.startTime)) /
-							1000,
+						1000,
 					),
 				);
 			}
