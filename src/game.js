@@ -598,7 +598,7 @@ export default class Game {
 		$j('.lobby-no-matches').addClass('hide');
 
 		// Short delay to let the user know something has happened.
-		await sleep(TimeDuration.OneSecond);
+		await sleep(TimeDuration.TwoSeconds);
 
 		$j('.lobby-match-list').removeClass('refreshing');
 		$j('#refreshMatchButton').removeClass('disabled');

@@ -16,4 +16,5 @@ export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  */
 export const TimeDuration = {
 	OneSecond: 1000,
+	TwoSeconds: 2000,
 };
