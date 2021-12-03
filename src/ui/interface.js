@@ -71,13 +71,6 @@ export class UI {
 						$j('#playertabswrapper').show();
 						$j('#musicplayerwrapper').hide();
 						$j('#scoreboardwrapper').hide();
-					} else if ($j('#musicplayerwrapper').is(':visible') && $j('#scoreboardwrapper').is(':visible')) {
-						$j('#musicplayerwrapper').hide();
-						$j('#scoreboardwrapper').hide();
-					} else if ($j('#scoreboardwrapper').is(':visible')) {
-						$j('#scoreboardwrapper').hide();
-					} else if ($j('#musicplayerwrapper').is(':visible')) {
-						$j('#musicplayerwrapper').hide();
 					}
 
 					this.toggleDash();
@@ -93,14 +86,9 @@ export class UI {
 			{
 				$button: $j('.togglescore'),
 				click: () => {
-					if ($j('#musciplayerwrapper').is(':visible') && $j('#playertabswrapper').is(':visible')) {
 						$j('#playertabswrapper').hide();
 						$j('#musicplayerwrapper').hide();
-					} else if ($j('#playertabswrapper').is(':visible')) {
-						$j('#musicplayerwrapper').hide();
-					} else if ($j('#musciplayerwrapper').is(':visible')) {
-						$j('#musicplayerwrapper').hide();
-					}
+			
 					this.toggleScoreboard()
 				},
 			},
@@ -125,11 +113,8 @@ export class UI {
 				hasShortcut: true,
 				click: () => {
 					// if audio element was already active, close dash
-					if ($j('#musicplayerwrapper').is(':visible') || $j('#scoreboard').is('is:visible')) {
 						this.closeDash();
 						this.$scoreboard.hide();
-
-					}
 					this.showMusicPlayer();
 
 				},
