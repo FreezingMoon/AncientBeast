@@ -253,10 +253,15 @@ $j(() => {
 		G.matchJoin();
 		return false;
 	});
-});
-$j('.back').on('click', () => {
-	$j('.lobby').hide();
-	$j('.setupFrame,.welcome').show();
+
+	$j('#backFromMatchButton').on('click', () => {
+		$j('.lobby').hide();
+		$j('.setupFrame,.welcome').show();
+	});
+
+	$j('#refreshMatchButton').on('click', () => {
+		G.updateLobby();
+	});
 });
 
 /**

@@ -228,8 +228,19 @@
 					</div>
 					<div class="lobby">
 						<h2>Open Matches (click to join)</h2>
-						<div class="lobby-match-list">No matches available</div>
-						<a class="back">Back</a>
+						<div class="lobby-match-list"></div>
+						<div class="lobby-no-matches">No matches available.</div>
+						<div class="lobby-loader hide">
+							<img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32" />
+						</div>
+						<div class="buttons-wrapper">
+							<div class="button-wrapper">                
+								<input class="crimson-button" id="backFromMatchButton" type="button" value="Back">
+							</div>
+							<div class="button-wrapper">                
+								<input class="crimson-button" id="refreshMatchButton" type="button" value="Refresh">
+							</div>
+						</div>
 					</div>
 				</div>
 				<div id="fullscreen">

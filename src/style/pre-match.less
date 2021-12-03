@@ -199,23 +199,10 @@ body {
 		margin-bottom: 30px;
 	}
 }
-a.back {
-	font-size: 20px;
-	display: flex;
-	align-items: center;
-	line-height: 20px;
-	-moz-transition: all 1s ease-in;
-	-webkit-transition: all 0.2s ease-in;
-	-o-transition: all 0.2s ease-in;
-	transition: all 0.2s ease-in;
-	padding: 10px;
-}
-a.back:hover {
-	background-color: rgba(255, 255, 255, 0.2);
-}
 .lobby-match-list {
 	margin: 0;
 	padding: 0;
+
 	li {
 		list-style-type: none;
 		text-align: left;
@@ -238,6 +225,27 @@ a.back:hover {
 		font-size: 15px;
 		text-align: left;
 		margin-right: 15px;
+	}
+	&.refreshing {
+		display: none;
+	}
+}
+.lobby-no-matches {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	// Match loading indicator height to prevent layout jump.
+	min-height: 32px;
+
+	&.hide {
+		display: none;
+	}
+}
+.lobby-loader {
+	line-height: 0;
+
+	&.hide {
+		display: none;
 	}
 }
 .avatar {
@@ -399,6 +407,7 @@ a.back:hover {
 		font-size: 0.9em;
 		font-weight: bold;
 		cursor: pointer;
+		transition: filter 0.15s ease-in-out;
 
 		&:hover {
 			filter: brightness(135%);
@@ -407,6 +416,11 @@ a.back:hover {
 		&:focus {
 			outline: 0;
 			color: white;
+		}
+
+		&.disabled {
+			pointer-events: none;
+			filter: grayscale(100%);
 		}
 	}
 }

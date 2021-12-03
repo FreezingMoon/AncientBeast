@@ -16,6 +16,7 @@ import 'p2';
 import Phaser from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
+import { sleep } from './utility/time';
 
 /* Game Class
  *
@@ -588,10 +589,33 @@ export default class Game {
 		await this.match.matchMaker();
 	}
 	async updateLobby() {
-		$j('.lobby-match-list').html('');
 		if (this.matchInitialized) return;
 		let self = this;
+
+		$j('.lobby-match-list').html('').addClass('refreshing');
+		$j('#refreshMatchButton').addClass('disabled');
+		$j('.lobby-loader').removeClass('hide');
+		$j('.lobby-no-matches').addClass('hide');
+
+		// Short delay to let the user know something has happened.
+		await sleep(Phaser.Timer.SECOND * 2);
+
+		$j('.lobby-match-list').removeClass('refreshing');
+		$j('#refreshMatchButton').removeClass('disabled');
+		$j('.lobby-loader').addClass('hide');
+
+		if (!this.match.matchUsers.length) {
+			$j('.lobby-no-matches').removeClass('hide');
+			return;
+		}
+
 		this.match.matchUsers.forEach((v) => {
+			const isAvailableMatch = v.string_properties && v.string_properties.match_id;
+
+			if (!isAvailableMatch) {
+				return;
+			}
+
 			let gameConfig = {
 				background_image: v.string_properties.background_image,
 				abilityUpgrades: v.numeric_properties.abilityUpgrades,
@@ -602,12 +626,11 @@ export default class Game {
 				turnTimePool: v.numeric_properties.turnTimePool,
 				unitDrops: v.numeric_properties.unitDrops,
 			};
-			if (v.string_properties.match_id) {
-				let turntimepool =
-					v.numeric_properties.turnTimePool < 0 ? '∞' : v.numeric_properties.timePool;
-				let timepool = v.numeric_properties.timePool < 0 ? '∞' : v.numeric_properties.timePool;
-				let unitdrops = v.numeric_properties.unitDrops < 0 ? 'off' : 'on';
-				let _matchBtn = $j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
+			let turntimepool =
+				v.numeric_properties.turnTimePool < 0 ? '∞' : v.numeric_properties.timePool;
+			let timepool = v.numeric_properties.timePool < 0 ? '∞' : v.numeric_properties.timePool;
+			let unitdrops = v.numeric_properties.unitDrops < 0 ? 'off' : 'on';
+			let _matchBtn = $j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
         Host: ${v.presence.username}<br />
         Player Mode: ${v.numeric_properties.playerMode}<br />
         Active Units: ${v.numeric_properties.creaLimitNbr}<br />
@@ -617,15 +640,12 @@ export default class Game {
         Turn Time(seconds): ${turntimepool}<br />
         Turn Pools(minutes): ${timepool}<br />
         Unit Drops: ${unitdrops}<br /></div></a>
-
-        
         `);
-				_matchBtn.on('click', () => {
-					$j('.lobby').hide();
-					this.loadGame(gameConfig, false, v.string_properties.match_id);
-				});
-				$j('.lobby-match-list').append(_matchBtn);
-			}
+			_matchBtn.on('click', () => {
+				$j('.lobby').hide();
+				this.loadGame(gameConfig, false, v.string_properties.match_id);
+			});
+			$j('.lobby-match-list').append(_matchBtn);
 		});
 	}
 	/* resizeCombatFrame()
