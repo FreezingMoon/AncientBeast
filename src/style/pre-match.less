@@ -407,6 +407,7 @@ body {
 		font-size: 0.9em;
 		font-weight: bold;
 		cursor: pointer;
+		transition: filter 0.15s ease-in-out;
 
 		&:hover {
 			filter: brightness(135%);
@@ -419,7 +420,7 @@ body {
 
 		&.disabled {
 			pointer-events: none;
-			background-image: url('~assets/interface/small_button_disabled.png');
+			filter: grayscale(100%);
 		}
 	}
 }
