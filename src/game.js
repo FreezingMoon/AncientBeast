@@ -16,7 +16,7 @@ import 'p2';
 import Phaser from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
-import { sleep, TimeDuration } from './utility/time';
+import { sleep } from './utility/time';
 
 /* Game Class
  *
@@ -598,7 +598,7 @@ export default class Game {
 		$j('.lobby-no-matches').addClass('hide');
 
 		// Short delay to let the user know something has happened.
-		await sleep(TimeDuration.TwoSeconds);
+		await sleep(Phaser.Timer.SECOND * 2);
 
 		$j('.lobby-match-list').removeClass('refreshing');
 		$j('#refreshMatchButton').removeClass('disabled');
