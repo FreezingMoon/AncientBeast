@@ -2,7 +2,7 @@ import * as $j from 'jquery';
 import { Button } from './button';
 
 /**
- *
+ * TODO: open and close with hotkey
  */
 export class GodMode {
 	constructor(game) {
@@ -10,16 +10,25 @@ export class GodMode {
 
 		this.state = {
 			executeMonster: false,
+			unlimitedAbilityUses: false,
 		};
 
 		this.$els = {
 			executeMonsterButton: $j('#execute-monster-button'),
+			unlimitedAbilityUsesButton: $j('#unlimited-ability-uses-button'),
 		};
 
 		this.btnExecuteMonster = new Button(
 			{
 				$button: this.$els.executeMonsterButton,
 				click: () => this.toggleExecuteMonster(),
+			},
+			game,
+		);
+		this.btnUnlimitedAbilityUses = new Button(
+			{
+				$button: this.$els.unlimitedAbilityUsesButton,
+				click: () => this.toggleUnlimitedAbilityUses(),
 			},
 			game,
 		);
@@ -35,15 +44,20 @@ export class GodMode {
 
 		this.btnExecuteMonster.changeState(executeMonster ? 'glowing' : 'normal');
 
-		// this.$els.executeMonsterButton.toggleClass('activated', executeMonster);
-
-		// How to notify to the monster display UI to show a cross on hover?
-		// And override existing click handlers? I think this has to live in whatever
-		// code currently exists to display creatures.
-
 		this.game.signals.ui.dispatch('toggleExecuteMonster', executeMonster);
+	}
 
-		// if (this.state.executeMonster) {
-		// }
+	toggleUnlimitedAbilityUses() {
+		const unlimitedAbilityUses = !this.state.unlimitedAbilityUses;
+
+		this.state = {
+			...this.state,
+			unlimitedAbilityUses,
+		};
+
+		this.btnUnlimitedAbilityUses.changeState(unlimitedAbilityUses ? 'glowing' : 'normal');
+
+		// Trying a simpler non-event approach.
+		// this.game.signals.ui.dispatch('toggleExecuteMonster', executeMonster);
 	}
 }

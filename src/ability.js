@@ -128,7 +128,9 @@ export class Ability {
 		}
 
 		this.applyCost();
-		this.setUsed(true); // Should always be here
+		if (!game.godMode.state.unlimitedAbilityUses) {
+			this.setUsed(true); // Should always be here
+		}
 		game.UI.updateInfos(); // Just in case
 		game.UI.btnDelay.changeState('disabled');
 		game.activeCreature.delayable = false;
