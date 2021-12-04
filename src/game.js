@@ -13,9 +13,10 @@ import { Creature } from './creature';
 import dataJson from 'assets/units/data.json';
 import 'pixi';
 import 'p2';
-import Phaser from 'phaser';
+import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
+import { GodMode } from './ui/god-mode';
 
 /* Game Class
  *
@@ -179,6 +180,11 @@ export default class Game {
 			onQuery: /\bonQuery\b/,
 			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
+
+		this.signalChannels = ['ui'];
+		this.signals = this.bindSignals();
+
+		this.godMode = new GodMode(this);
 	}
 
 	dataLoaded(data) {
@@ -1517,5 +1523,16 @@ export default class Game {
 		this.turn = 0;
 
 		this.gamelog.reset();
+	}
+
+	bindSignals() {
+		const signals = this.signalChannels.reduce((acc, curr) => {
+			return {
+				...acc,
+				[curr]: new Signal(),
+			};
+		}, {});
+
+		return signals;
 	}
 }

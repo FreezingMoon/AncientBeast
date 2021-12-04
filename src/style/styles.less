@@ -1,3 +1,9 @@
+:root {
+	/* Color Palette */
+	--color-black: #000000;
+	--color-slate: #aaa;
+}
+
 #combatwrapper {
 	width: 100%;
 	height: 100%;
@@ -358,6 +364,11 @@
 
 .button.hidden {
 	display: none;
+}
+
+// TODO: TEMP
+.button.glowing {
+	box-shadow: inset 0 0 40px #eab676;
 }
 
 .disabled {
@@ -1797,4 +1808,19 @@ input {
 	transform: translateX(-50%);
 	color: #fff;
 	top: 20%;
+}
+
+/**
+ * God Mode UI.
+ */
+
+#god-mode {
+	background-color: var(--color-slate);
+	border: 2px inset var(--color-black);
+	padding: 16px;
+	position: absolute;
+	right: 32px;
+	top: 32px;
+	// TODO: Work out correct stacking order.
+	z-index: 9999;
 }

@@ -84,6 +84,16 @@ export class HexGrid {
 		}
 
 		this.selectedHex = this.hexes[0][0];
+
+		this.executeMonsters = false;
+		// TODO: how to enable UI events that happen before hexgrid is loaded/
+		this.game.signals.ui.add(this.handleUiEvents, this);
+	}
+
+	handleUiEvents(message, payload) {
+		if (message === 'toggleExecuteMonster') {
+			this.executeMonsters = payload;
+		}
 	}
 
 	querySelf(o) {
@@ -599,6 +609,17 @@ export class HexGrid {
 
 			// Clear display and overlay
 			$j('canvas').css('cursor', 'pointer');
+
+			if (this.executeMonsters && hex.creature instanceof Creature) {
+				hex.creature.die(
+					/* Target creature was killed by this fake "creature". This works because 
+					the death logic doesn't actually care about the killing creature, just 
+					that creature's player. The first player is always responsible for executing 
+					creatures. */
+					{ player: game.players[0] },
+				);
+				return;
+			}
 
 			// Not reachable hex
 			if (!hex.reachable) {
