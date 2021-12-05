@@ -1297,7 +1297,6 @@ export class Creature {
 		let game = this.game;
 
 		if (!effect.stackable && this.findEffect(effect.name).length !== 0) {
-			//G.log(this.player.name+"'s "+this.name+" is already affected by "+effect.name);
 			return false;
 		}
 
@@ -1500,7 +1499,8 @@ export class Creature {
 	updateAlteration() {
 		this.stats = $j.extend({}, this.baseStats); // Copy
 
-		let buffDebuffArray = this.effects;
+		console.log(this.name, this.effects, this.dropCollection);
+		let buffDebuffArray = [...this.effects, ...this.dropCollection];
 
 		buffDebuffArray.forEach((buff) => {
 			$j.each(buff.alterations, (key, value) => {
@@ -1558,7 +1558,8 @@ export class Creature {
 		// Drop item
 		if (game.unitDrops == 1 && this.drop) {
 			let offsetX = this.player.flipped ? this.x - this.size + 1 : this.x;
-			new Drop(this.drop.name, this.drop.health, this.drop.energy, offsetX, this.y, game);
+			const { name, health, energy, ...alterations } = this.drop;
+			new Drop(name, health, energy, alterations, offsetX, this.y, game);
 		}
 
 		if (!game.firstKill && !isDeny) {
@@ -1693,76 +1694,6 @@ export class Creature {
 			this.player.flipped ? !invertFlipped : invertFlipped,
 			map,
 		);
-	}
-
-	getBuffDebuff(stat) {
-		let buffDebuffArray = this.effects.concat(this.dropCollection),
-			debuff = 0,
-			buffObjs = {
-				effects: [],
-				drops: [],
-			};
-
-		let addToBuffObjs = function (obj) {
-			if (obj instanceof Effect) {
-				buffObjs.effects.push(obj);
-			} else if (obj instanceof Drop) {
-				buffObjs.drops.push(obj);
-			}
-		};
-
-		buffDebuffArray.forEach((buff) => {
-			let o = buff;
-			$j.each(buff.alterations, (key, value) => {
-				if (typeof value == 'string') {
-					if (key === stat || stat === undefined) {
-						// Multiplication Buff
-						if (value.match(/\*/)) {
-							addToBuffObjs(o);
-							let base = this.stats[key];
-							let result = eval(this.stats[key] + value);
-
-							if (result > base) {
-								buff += result - base;
-							} else {
-								debuff += result - base;
-							}
-						}
-
-						// Division Debuff
-						if (value.match(/\//)) {
-							addToBuffObjs(o);
-							let base = this.stats[key];
-							let result = eval(this.stats[key] + value);
-
-							if (result > base) {
-								buff += result - base;
-							} else {
-								debuff += result - base;
-							}
-						}
-					}
-				}
-
-				// Usual Buff/Debuff
-				if (typeof value == 'number') {
-					if (key === stat || stat === undefined) {
-						addToBuffObjs(o);
-						if (value > 0) {
-							buff += value;
-						} else {
-							debuff += value;
-						}
-					}
-				}
-			});
-		});
-
-		return {
-			buff: 0,
-			debuff: debuff,
-			objs: buffObjs,
-		};
 	}
 
 	findEffect(name) {

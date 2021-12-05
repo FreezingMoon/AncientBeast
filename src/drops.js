@@ -1,5 +1,5 @@
 export class Drop {
-	constructor(name, health, energy, x, y, game) {
+	constructor(name, health, energy, alterations, x, y, game) {
 		this.name = name;
 		this.game = game;
 		this.id = game.dropId++;
@@ -11,6 +11,7 @@ export class Drop {
 		};
 		this.health = health;
 		this.energy = energy;
+		this.alterations = alterations;
 		this.hex = game.grid.hexes[this.y][this.x];
 
 		this.hex.drop = this;
