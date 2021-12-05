@@ -1497,7 +1497,7 @@ export class Creature {
 	 *
 	 */
 	updateAlteration() {
-		this.stats = $j.extend({}, this.baseStats); // Copy
+		this.stats = { ...this.baseStats };
 
 		let buffDebuffArray = [...this.effects, ...this.dropCollection];
 
@@ -1528,7 +1528,6 @@ export class Creature {
 		});
 
 		this.stats.endurance = Math.max(this.stats.endurance, 0);
-
 		this.endurance = Math.min(this.endurance, this.stats.endurance);
 		this.energy = Math.min(this.energy, this.stats.energy);
 		this.remainingMove = Math.min(this.remainingMove, this.stats.movement);
