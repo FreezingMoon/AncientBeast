@@ -17,16 +17,6 @@
  * - Drops are essentially permanent although this may change in the future.
  */
 export class Drop {
-	/**
-	 *
-	 * @param {*} name
-	 * @param {*} health
-	 * @param {*} energy
-	 * @param {*} alterations
-	 * @param {*} x
-	 * @param {*} y
-	 * @param {*} game
-	 */
 	constructor(name, health, energy, alterations, x, y, game) {
 		this.name = name;
 		this.game = game;
