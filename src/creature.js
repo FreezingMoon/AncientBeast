@@ -1499,7 +1499,6 @@ export class Creature {
 	updateAlteration() {
 		this.stats = $j.extend({}, this.baseStats); // Copy
 
-		console.log(this.name, this.effects, this.dropCollection);
 		let buffDebuffArray = [...this.effects, ...this.dropCollection];
 
 		buffDebuffArray.forEach((buff) => {
