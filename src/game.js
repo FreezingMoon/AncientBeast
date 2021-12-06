@@ -180,8 +180,8 @@ export default class Game {
 			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
 
-		this.signalChannels = ['ui', 'metaPowers'];
-		this.signals = this.bindSignals();
+		const signalChannels = ['ui', 'metaPowers'];
+		this.signals = this.setupSignalChannels(signalChannels);
 	}
 
 	dataLoaded(data) {
@@ -1522,8 +1522,20 @@ export default class Game {
 		this.gamelog.reset();
 	}
 
-	bindSignals() {
-		const signals = this.signalChannels.reduce((acc, curr) => {
+	/**
+	 * Setup signal channels based on a list of channel names.
+	 *
+	 * @example setupSignalChannels(['ui', 'game'])
+	 * // ... another file
+	 * this.game.signals.ui.add((message, payload) => console.log(message, payload), this);
+	 *
+	 * @see https://photonstorm.github.io/phaser-ce/Phaser.Signal.html
+	 *
+	 * @param {array} channels List of channel names.
+	 * @returns {object} Phaser signals keyed by channel name.
+	 */
+	setupSignalChannels(channels) {
+		const signals = channels.reduce((acc, curr) => {
 			return {
 				...acc,
 				[curr]: new Signal(),

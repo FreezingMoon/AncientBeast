@@ -2,7 +2,8 @@ import * as $j from 'jquery';
 import { Button, ButtonStateEnum } from './button';
 
 /**
- * TBC
+ * "God-mode" UI for debugging game state. Available in hot-seat games when the
+ * app running is in development mode.
  */
 export class MetaPowers {
 	constructor(game) {
@@ -26,6 +27,12 @@ export class MetaPowers {
 		this._bindElements();
 	}
 
+	/**
+	 * Handle events on the "ui" channel.
+	 *
+	 * @param {string} message Event name.
+	 * @param {object} payload Event payload.
+	 */
 	_handleUiEvent(message, payload) {
 		if (message === 'toggleMetaPowers') {
 			this.toggleModal();
@@ -36,6 +43,9 @@ export class MetaPowers {
 		}
 	}
 
+	/**
+	 * One-time setup of DOM bindings and other DOM manipulation.
+	 */
 	_bindElements() {
 		this.btnCloseModal = new Button(
 			{
@@ -64,7 +74,6 @@ export class MetaPowers {
 
 	/**
 	 * Toggle the visibility of the Meta Powers modal.
-	 *
 	 */
 	toggleModal() {
 		this.$els.modal.toggleClass('hide');
@@ -72,14 +81,14 @@ export class MetaPowers {
 
 	/**
 	 * Close the Meta Powers modal.
-	 *
 	 */
 	closeModal() {
 		this.$els.modal.addClass('hide');
 	}
 
 	/**
-	 * Toggle the button state for the "Execution Mode" button, and dispatch an event.
+	 * Toggle the button state for the "Execution Mode" button, and inform the rest
+	 * of the app that execution mode is enabled.
 	 */
 	toggleExecuteMonster() {
 		const executeMonster = !this.state.executeMonster;
@@ -97,7 +106,7 @@ export class MetaPowers {
 	}
 
 	/**
-	 * Dispatch a "reset cooldowns" event.
+	 * Inform the rest of the app that cooldowns should be reset.
 	 */
 	resetCooldowns() {
 		this.game.signals.metaPowers.dispatch('resetCooldowns');
