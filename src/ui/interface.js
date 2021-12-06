@@ -420,6 +420,13 @@ export class UI {
 					!this.dashopen && this.abilitiesButtons[2].triggerClick();
 				},
 			},
+			KeyP: {
+				onkeydown() {
+					if (event.metaKey) {
+						this.game.signals.ui.dispatch('toggleMetaPowers');
+					}
+				},
+			},
 			KeyR: {
 				onkeydown() {
 					this.dashopen ? this.closeDash() : this.abilitiesButtons[3].triggerClick();
@@ -492,6 +499,8 @@ export class UI {
 						this.chat.hide();
 						this.$scoreboard.hide();
 					}
+
+					this.game.signals.ui.dispatch('closeInterfaceScreens');
 				},
 			},
 			ShiftLeft: {
