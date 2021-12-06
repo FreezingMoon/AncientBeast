@@ -84,6 +84,18 @@ export class HexGrid {
 		}
 
 		this.selectedHex = this.hexes[0][0];
+
+		// If true, clicking a monster will instantly kill it.
+		this.executionMode = false;
+
+		// Events
+		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
+	}
+
+	handleMetaPowerEvent(message, payload) {
+		if (message === 'toggleExecuteMonster') {
+			this.executionMode = payload;
+		}
 	}
 
 	querySelf(o) {
@@ -599,6 +611,17 @@ export class HexGrid {
 
 			// Clear display and overlay
 			$j('canvas').css('cursor', 'pointer');
+
+			if (this.executionMode && hex.creature instanceof Creature) {
+				hex.creature.die(
+					/* Target creature was killed by this fake "creature". This works because 
+					the death logic doesn't actually care about the killing creature, just 
+					that creature's player. The first player is always responsible for executing 
+					creatures. */
+					{ player: game.players[0] },
+				);
+				return;
+			}
 
 			// Not reachable hex
 			if (!hex.reachable) {
