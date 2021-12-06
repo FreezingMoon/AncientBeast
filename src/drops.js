@@ -2,6 +2,9 @@
  * Drops are a type of creature "buff" collected from a game board hex rather than
  * being applied by an ability.
  *
+ * For "pool" resources such as health and energy, the buff restores those resources
+ * as well as increasing their maximum values.
+ *
  * Each creature has a unique Drop that is added to their location hex when they
  * die.
  *
@@ -62,8 +65,8 @@ export class Drop {
 
 		this.hex.drop = undefined;
 
-		if (this.alternations.health) {
-			creature.heal(this.alternations.health);
+		if (this.alterations.health) {
+			creature.heal(this.alterations.health);
 		}
 
 		if (this.alterations.energy) {
@@ -75,14 +78,16 @@ export class Drop {
 		}
 
 		if (this.alterations.movement) {
-			creature.restoreMovement(this.movement);
+			creature.restoreMovement(this.alterations.movement);
 		}
 
 		// Log all the gained alterations.
 		const gainedMessage = Object.keys(this.alterations)
-			.map((key) => `gains ${this.alterations[key]} ${key}`)
-			.join(' ');
-		game.log(`%CreatureName${creature.id}% ${gainedMessage}`);
+			.map((key) => `${this.alterations[key]} ${key}`)
+			.join(', ')
+			// Replace last comma with "and".
+			.replace(/, ([^,]*)$/, ', and $1');
+		game.log(`%CreatureName${creature.id}% gains ${gainedMessage}`);
 
 		creature.player.score.push({
 			type: 'pickupDrop',

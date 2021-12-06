@@ -1618,15 +1618,10 @@ export class Creature {
 		// Drop item
 		if (game.unitDrops == 1 && this.drop) {
 			let offsetX = this.player.flipped ? this.x - this.size + 1 : this.x;
-			new Drop(
-				name,
-				this.drop.health,
-				this.drop.energy,
-				this.drop.alterations,
-				offsetX,
-				this.y,
-				game,
-			);
+			/* All properties aside from `name` are assumed to be alterations to the creature's
+			statistics. */
+			const { name, ...alterations } = this.drop;
+			new Drop(name, alterations, offsetX, this.y, game);
 		}
 
 		if (!game.firstKill && !isDeny) {
