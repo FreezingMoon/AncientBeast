@@ -38,7 +38,7 @@ export class Creature {
 	 * stats :			Object :	Object containing stats of the creature
 	 * statsAlt :		Object :	Object containing the alteration value for each stat //todo
 	 * abilities :		Array :		Array containing the 4 abilities
-	 * remainingMove : Integer :	Remaining moves allowed untill the end of turn
+	 * remainingMove : Integer :	Remaining moves allowed until the end of turn
 	 * temp :           Boolean :   True if the creature is only temporary for preview, false otherwise
 	 *
 	 */
@@ -90,9 +90,9 @@ export class Creature {
 		// Statistics
 		this.baseStats = {
 			health: obj.stats.health - 0,
-			regrowth: obj.stats.regrowth - 0,
-			endurance: obj.stats.endurance - 0,
 			energy: obj.stats.energy - 0,
+			endurance: obj.stats.endurance - 0,
+			regrowth: obj.stats.regrowth - 0,
 			meditation: obj.stats.meditation - 0,
 			initiative: obj.stats.initiative - 0,
 			offense: obj.stats.offense - 0,
@@ -115,11 +115,46 @@ export class Creature {
 			reqEnergy: 0,
 		};
 
-		this.stats = $j.extend({}, this.baseStats); //Copy
+		this.stats = {
+			...this.baseStats,
+
+			/**
+			 * Represents the available "pool" or maximum health of the creature.
+			 * `this.health` represents the current remaining health which cannot exceed
+			 * this value.
+			 */
+			health: this.baseStats.health,
+
+			/**
+			 * Represents the available "pool" or maximum energy of the creature.
+			 * `this.energy` represents the current remaining energy which cannot exceed
+			 * this value.
+			 */
+			energy: this.baseStats.energy,
+
+			/**
+			 * Represents the available "pool" or maximum endurance of the creature.
+			 * `this.endurance` represents the current remaining endurance which cannot
+			 * exceed this value. It also cannot be lower than 0.
+			 */
+			endurance: this.baseStats.endurance,
+
+			/**
+			 * Represents the available "pool" or maximum movement of the creature.
+			 * `this.remainingMove` represents the current remaining movement which cannot
+			 * exceed this value.
+			 */
+			movement: this.baseStats.movement,
+		};
+		// Current health. Maximum health is `this.stats.health`.
 		this.health = obj.stats.health;
-		this.endurance = obj.stats.endurance;
+		// Current energy. Maximum energy is `this.stats.energy`.
 		this.energy = obj.stats.energy;
+		// Current endurance. Maximum endurance is `this.stats.endurance`.
+		this.endurance = obj.stats.endurance;
+		// Current movement. Maximum movement is `this.stats.movement`.
 		this.remainingMove = 0; //Default value recovered each turn
+
 		this.dizzy = false;
 
 		// Abilities
@@ -1059,6 +1094,29 @@ export class Creature {
 	 */
 	recharge(amount) {
 		this.energy = Math.min(this.stats.energy, this.energy + amount);
+		this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' energy');
+	}
+
+	/**
+	 * Restore endurance to a creature. Will be capped against the creature's maximum
+	 * endurance (this.stats.endurance).
+	 *
+	 * @param {*} amount Number of endurance points to restore.
+	 */
+	restoreEndurance(amount) {
+		this.endurance = Math.min(this.stats.endurance, this.endurance + amount);
+		this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' endurance');
+	}
+
+	/**
+	 * Restore remaining movement to a creature. Will be capped against the creature's
+	 * maximum movement (this.stats.movement).
+	 *
+	 * @param {*} amount Number of movement points to restore.
+	 */
+	restoreMovement(amount) {
+		this.remainingMove = Math.min(this.stats.movement, this.remainingMove + amount);
+		this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' movement');
 	}
 
 	/* heal(amount)
@@ -1527,7 +1585,11 @@ export class Creature {
 			});
 		});
 
+		// Endurance cannot be lower than 0.
 		this.stats.endurance = Math.max(this.stats.endurance, 0);
+
+		// These stats cannot exceed their maximum values.
+		this.health = Math.min(this.health, this.stats.health);
 		this.endurance = Math.min(this.endurance, this.stats.endurance);
 		this.energy = Math.min(this.energy, this.stats.energy);
 		this.remainingMove = Math.min(this.remainingMove, this.stats.movement);
@@ -1556,8 +1618,15 @@ export class Creature {
 		// Drop item
 		if (game.unitDrops == 1 && this.drop) {
 			let offsetX = this.player.flipped ? this.x - this.size + 1 : this.x;
-			const { name, health, energy, ...alterations } = this.drop;
-			new Drop(name, health, energy, alterations, offsetX, this.y, game);
+			new Drop(
+				name,
+				this.drop.health,
+				this.drop.energy,
+				this.drop.alterations,
+				offsetX,
+				this.y,
+				game,
+			);
 		}
 
 		if (!game.firstKill && !isDeny) {

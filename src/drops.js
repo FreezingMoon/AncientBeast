@@ -8,16 +8,15 @@
  * Another creature entering the same hex as the Drop can pick it up, altering its
  * stats (alterations) and/or restoring health/energy.
  *
- * Multiple Drops can stack on a single creature, either the same Drop multiple
- * times or different Drops from multiple creatures.
- *
  * Other rules:
+ * - Multiple Drops can stack on a single creature, either the same Drop multiple
+ *   times or different Drops from multiple creatures.
  * - Drops currently do NOT expire.
  * - Drops currently cannot be removed by other abilities.
  * - Drops are essentially permanent although this may change in the future.
  */
 export class Drop {
-	constructor(name, health, energy, alterations, x, y, game) {
+	constructor(name, alterations, x, y, game) {
 		this.name = name;
 		this.game = game;
 		this.id = game.dropId++;
@@ -27,8 +26,6 @@ export class Drop {
 			x: x,
 			y: y,
 		};
-		this.health = health;
-		this.energy = energy;
 		this.alterations = alterations;
 		this.hex = game.grid.hexes[this.y][this.x];
 
@@ -65,20 +62,31 @@ export class Drop {
 
 		this.hex.drop = undefined;
 
-		if (this.health) {
-			creature.heal(this.health);
-			game.log('%CreatureName' + creature.id + '% gains ' + this.health + ' health');
+		if (this.alternations.health) {
+			creature.heal(this.alternations.health);
 		}
 
-		if (this.energy) {
-			creature.energy += this.energy;
-			game.log('%CreatureName' + creature.id + '% gains ' + this.energy + ' energy');
+		if (this.alterations.energy) {
+			creature.recharge(this.alterations.energy);
 		}
+
+		if (this.alterations.endurance) {
+			creature.restoreEndurance(this.alterations.endurance);
+		}
+
+		if (this.alterations.movement) {
+			creature.restoreMovement(this.movement);
+		}
+
+		// Log all the gained alterations.
+		const gainedMessage = Object.keys(this.alterations)
+			.map((key) => `gains ${this.alterations[key]} ${key}`)
+			.join(' ');
+		game.log(`%CreatureName${creature.id}% ${gainedMessage}`);
+
 		creature.player.score.push({
 			type: 'pickupDrop',
 		});
-
-		creature.updateAlteration(); // Will cap the stats
 
 		let tween = game.Phaser.add
 			.tween(this.display)
