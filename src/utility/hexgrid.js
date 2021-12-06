@@ -85,14 +85,16 @@ export class HexGrid {
 
 		this.selectedHex = this.hexes[0][0];
 
-		this.executeMonsters = false;
-		// TODO: how to enable UI events that happen before hexgrid is loaded/
-		this.game.signals.ui.add(this.handleUiEvents, this);
+		// If true, clicking a monster will instantly kill it.
+		this.executionMode = false;
+
+		// Events
+		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}
 
-	handleUiEvents(message, payload) {
+	handleMetaPowerEvent(message, payload) {
 		if (message === 'toggleExecuteMonster') {
-			this.executeMonsters = payload;
+			this.executionMode = payload;
 		}
 	}
 
@@ -610,7 +612,7 @@ export class HexGrid {
 			// Clear display and overlay
 			$j('canvas').css('cursor', 'pointer');
 
-			if (this.executeMonsters && hex.creature instanceof Creature) {
+			if (this.executionMode && hex.creature instanceof Creature) {
 				hex.creature.die(
 					/* Target creature was killed by this fake "creature". This works because 
 					the death logic doesn't actually care about the killing creature, just 

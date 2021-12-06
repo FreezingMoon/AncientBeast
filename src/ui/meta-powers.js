@@ -2,15 +2,14 @@ import * as $j from 'jquery';
 import { Button, ButtonStateEnum } from './button';
 
 /**
- * Exists outside of UI() class because the Meta Powers should be available outside
- * of a started game.
+ * TBC
  */
 export class MetaPowers {
 	constructor(game) {
 		this.game = game;
 
 		this.state = {
-			executingMonster: false,
+			executeMonster: false,
 		};
 
 		this.$els = {
@@ -54,28 +53,21 @@ export class MetaPowers {
 	}
 
 	toggleExecuteMonster() {
-		const executingMonster = !this.state.executingMonster;
+		const executeMonster = !this.state.executeMonster;
 
 		this.state = {
 			...this.state,
-			executingMonster,
+			executeMonster,
 		};
 
 		this.btnExecuteMonster.changeState(
-			executingMonster ? ButtonStateEnum.active : ButtonStateEnum.normal,
+			executeMonster ? ButtonStateEnum.active : ButtonStateEnum.normal,
 		);
 
-		this.game.signals.ui.dispatch('toggleExecuteMonster', executingMonster);
+		this.game.signals.metaPowers.dispatch('toggleExecuteMonster', executeMonster);
 	}
 
 	resetCooldowns() {
-		// const unlimitedAbilityUses = !this.state.unlimitedAbilityUses;
-		// this.state = {
-		// 	...this.state,
-		// 	unlimitedAbilityUses,
-		// };
-		// this.btnResetCooldowns.changeState(unlimitedAbilityUses ? 'glowing' : 'normal');
-		// Trying a simpler non-event approach.
-		// this.game.signals.ui.dispatch('toggleExecuteMonster', executeMonster);
+		this.game.signals.metaPowers.dispatch('resetCooldowns');
 	}
 }

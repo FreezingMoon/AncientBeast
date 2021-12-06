@@ -16,7 +16,6 @@ import 'p2';
 import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
-import { MetaPowers } from './ui/meta-powers';
 
 /* Game Class
  *
@@ -181,10 +180,8 @@ export default class Game {
 			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
 
-		this.signalChannels = ['ui'];
+		this.signalChannels = ['metaPowers'];
 		this.signals = this.bindSignals();
-
-		this.metaPowers = new MetaPowers(this);
 	}
 
 	dataLoaded(data) {

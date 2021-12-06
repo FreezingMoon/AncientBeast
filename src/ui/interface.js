@@ -8,6 +8,7 @@ import { Creature } from '../creature';
 import { Fullscreen } from './fullscreen';
 import { ProgressBar } from './progressbar';
 import { getUrl } from '../assetLoader';
+import { MetaPowers } from './meta-powers';
 
 /**
  * Class UI
@@ -56,6 +57,9 @@ export class UI {
 
 		// Chat
 		this.chat = new Chat(game);
+
+		// Meta Powers UI
+		this.metaPowers = new MetaPowers(this.game);
 
 		// Buttons Objects
 		this.buttons = [];
