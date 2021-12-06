@@ -3183,10 +3183,7 @@
 			"defense": 6,
 			"pierce": 2,
 			"slash": 2,
-			"crush": 2,
-			"health": 10,
-			"energy": 10,
-			"movement": 2
+			"crush": 2
 		},
 		"display": {
 			"width": 155,
