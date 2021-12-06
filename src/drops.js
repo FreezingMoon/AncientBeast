@@ -66,19 +66,19 @@ export class Drop {
 		this.hex.drop = undefined;
 
 		if (this.alterations.health) {
-			creature.heal(this.alterations.health);
+			creature.heal(this.alterations.health, false, false);
 		}
 
 		if (this.alterations.energy) {
-			creature.recharge(this.alterations.energy);
+			creature.recharge(this.alterations.energy, false);
 		}
 
 		if (this.alterations.endurance) {
-			creature.restoreEndurance(this.alterations.endurance);
+			creature.restoreEndurance(this.alterations.endurance, false);
 		}
 
 		if (this.alterations.movement) {
-			creature.restoreMovement(this.alterations.movement);
+			creature.restoreMovement(this.alterations.movement, false);
 		}
 
 		// Log all the gained alterations.

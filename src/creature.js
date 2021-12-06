@@ -1092,9 +1092,12 @@ export class Creature {
 	 * @return {void}
 	 * Restore energy up to the max limit
 	 */
-	recharge(amount) {
+	recharge(amount, log = true) {
 		this.energy = Math.min(this.stats.energy, this.energy + amount);
-		this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' energy');
+
+		if (log) {
+			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' energy');
+		}
 	}
 
 	/**
@@ -1103,9 +1106,12 @@ export class Creature {
 	 *
 	 * @param {*} amount Number of endurance points to restore.
 	 */
-	restoreEndurance(amount) {
+	restoreEndurance(amount, log = true) {
 		this.endurance = Math.min(this.stats.endurance, this.endurance + amount);
-		this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' endurance');
+
+		if (log) {
+			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' endurance');
+		}
 	}
 
 	/**
@@ -1114,16 +1120,19 @@ export class Creature {
 	 *
 	 * @param {*} amount Number of movement points to restore.
 	 */
-	restoreMovement(amount) {
+	restoreMovement(amount, log = true) {
 		this.remainingMove = Math.min(this.stats.movement, this.remainingMove + amount);
-		this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' movement');
+
+		if (log) {
+			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' movement');
+		}
 	}
 
 	/* heal(amount)
 	 *
 	 * amount :	Damage :	Amount of health point to restore
 	 */
-	heal(amount, isRegrowth) {
+	heal(amount, isRegrowth, log = true) {
 		let game = this.game;
 		// Cap health point
 		amount = Math.min(amount, this.stats.health - this.health);
@@ -1144,7 +1153,9 @@ export class Creature {
 				this.hint('+' + amount, 'healing d' + amount);
 			}
 
-			game.log('%CreatureName' + this.id + '% recovers +' + amount + ' health');
+			if (log) {
+				game.log('%CreatureName' + this.id + '% recovers +' + amount + ' health');
+			}
 		} else if (amount === 0) {
 			if (isRegrowth) {
 				this.hint('♦', 'msg_effects');
@@ -1158,7 +1169,9 @@ export class Creature {
 				this.hint(amount, 'damage d ' + amount);
 			}
 
-			game.log('%CreatureName' + this.id + '% loses ' + amount + ' health');
+			if (log) {
+				game.log('%CreatureName' + this.id + '% loses ' + amount + ' health');
+			}
 		}
 
 		game.onHeal(this, amount);
