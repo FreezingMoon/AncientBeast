@@ -59,6 +59,7 @@ export class MetaPowers {
 		this.btnExecuteMonster = new Button(
 			{
 				$button: this.$els.executeMonsterButton,
+				hasShortcut: true,
 				click: () => this.toggleExecuteMonster(),
 			},
 			this.game,
@@ -67,6 +68,7 @@ export class MetaPowers {
 		this.btnResetCooldowns = new Button(
 			{
 				$button: this.$els.resetCooldownsButton,
+				hasShortcut: true,
 				click: () => this.resetCooldowns(),
 			},
 			this.game,
