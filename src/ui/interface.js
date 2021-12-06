@@ -484,8 +484,8 @@ export class UI {
 			},
 			Escape: {
 				onkeydown() {
-					let isAbilityActive = r;
-					this.activeAbility && this.$scoreboard.hasClass('hide') && !this.chat.isOpen;
+					let isAbilityActive =
+						this.activeAbility && this.$scoreboard.hasClass('hide') && !this.chat.isOpen;
 
 					if (this.dashopen) {
 						this.closeDash();
