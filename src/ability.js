@@ -128,7 +128,7 @@ export class Ability {
 		}
 
 		this.applyCost();
-		if (!game.godMode.state.unlimitedAbilityUses) {
+		if (!game.metaPowers.state.unlimitedAbilityUses) {
 			this.setUsed(true); // Should always be here
 		}
 		game.UI.updateInfos(); // Just in case

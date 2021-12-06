@@ -322,60 +322,59 @@
 	cursor: pointer;
 	height: 80px;
 	width: 80px;
-}
 
-.button.noclick:hover {
-	opacity: 0.5;
-}
+	&:before {
+		content: '';
+		display: block;
+		position: absolute;
+		height: 80px;
+		width: 80px;
+		background-size: 100% 100%;
+		background-image: url('~assets/interface/frame.png');
+	}
 
-.button.upgradeIcon {
-	background-image: url('~assets/icons/upgrade.svg') !important;
-}
+	&.disabled {
+		opacity: 0.5;
+	}
 
-.button.upgradeTransition {
-	transition: background-image 0.5s linear !important;
-}
+	&.hidden {
+		display: none;
+	}
 
-.button.nextIcon {
-	background-image: url('~assets/icons/next.svg') !important;
-}
+	&.active:before {
+		background-image: url('~assets/interface/frame_red.png');
+	}
 
-.button.upgraded.noclick:hover:before {
-	opacity: 1;
-}
+	&.noclick:hover {
+		opacity: 0.5;
+	}
 
-.button:before {
-	content: '';
-	display: block;
-	position: absolute;
-	height: 80px;
-	width: 80px;
-	background-size: 100% 100%;
-	background-image: url('~assets/interface/frame.png');
-}
+	&.upgradeIcon {
+		background-image: url('~assets/icons/upgrade.svg') !important;
+	}
 
-.button.upgraded:before {
-	background-image: url('~assets/interface/frame_upgrade.png');
-}
+	&.upgradeTransition {
+		transition: background-image 0.5s linear !important;
+	}
 
-.button.disabled {
-	opacity: 0.5;
-}
+	&.nextIcon {
+		background-image: url('~assets/icons/next.svg') !important;
+	}
 
-.button.hidden {
-	display: none;
-}
+	&.upgraded.noclick:hover:before {
+		opacity: 1;
+	}
 
-// TODO: TEMP
-.button.glowing {
-	box-shadow: inset 0 0 40px #eab676;
-}
+	&.upgraded:before {
+		background-image: url('~assets/interface/frame_upgrade.png');
+	}
 
-.disabled {
-	cursor: not-allowed !important;
+	&.disabled {
+		cursor: not-allowed !important;
 
-	&.ability {
-		cursor: help !important;
+		&.ability {
+			cursor: help !important;
+		}
 	}
 }
 
@@ -577,7 +576,8 @@ div.section.info {
 }
 
 .togglescore.button,
-.toggledash.button {
+.toggledash.button,
+.toggle-meta-powers.button {
 	height: 100%;
 	width: 100%;
 	background-image: url('~assets/icons/close.svg');
@@ -585,7 +585,8 @@ div.section.info {
 }
 
 .togglescore.button:before,
-.toggledash.button:before {
+.toggledash.button:before,
+.toggle-meta-powers.button:before {
 	content: '';
 	width: 100%;
 	height: 100%;
@@ -593,7 +594,8 @@ div.section.info {
 }
 
 .togglescore.button:hover,
-.toggledash.button:hover {
+.toggledash.button:hover,
+.toggle-meta-powers.button:hover {
 	transform: rotate(-90deg);
 }
 
@@ -1306,6 +1308,7 @@ span.pure {
 
 #ui {
 	display: none;
+
 	/*--------------Scoreboard------------------*/
 	#scoreboardwrapper {
 		width: 100%;
@@ -1486,6 +1489,64 @@ span.pure {
 
 		&:hover {
 			cursor: pointer;
+		}
+	}
+}
+
+/*--------------Framed Modal------------------*/
+.framed-modal {
+	border-image: url('~assets/interface/div.png') 40 fill stretch !important;
+	border: 40px solid transparent !important;
+	color: white;
+	margin: 30px auto 0;
+	max-height: 560px;
+	width: 450px;
+}
+
+.framed-modal__wrapper {
+	background: rgba(0, 0, 0, 0.8);
+	height: 100%;
+	left: 0;
+	opacity: 1;
+	position: absolute;
+	top: 0;
+	transition: 0.7s all ease-out;
+	visibility: visible;
+	width: 100%;
+	z-index: 100;
+
+	&.hide {
+		opacity: 0;
+		visibility: hidden;
+	}
+}
+
+.framed-modal__return {
+	top: 0;
+	right: 0 !important;
+	position: absolute;
+	height: 100px;
+	width: 100px;
+}
+
+/*--------------Meta Powers------------------*/
+#meta-powers {
+	#meta-powers-actions {
+		display: flex;
+		gap: 16px;
+		margin-top: 20px;
+		margin-bottom: 50px;
+
+		.button {
+			text-indent: -9999px;
+		}
+
+		#execute-monster-button {
+			background-image: url('~assets/interface/frame.png'), url('~assets/icons/execute.svg');
+		}
+
+		#reset-cooldowns-button {
+			background-image: url('~assets/interface/frame.png'), url('~assets/icons/rotate.svg');
 		}
 	}
 }

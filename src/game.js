@@ -16,7 +16,7 @@ import 'p2';
 import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
-import { GodMode } from './ui/god-mode';
+import { MetaPowers } from './ui/meta-powers';
 
 /* Game Class
  *
@@ -184,7 +184,7 @@ export default class Game {
 		this.signalChannels = ['ui'];
 		this.signals = this.bindSignals();
 
-		this.godMode = new GodMode(this);
+		this.metaPowers = new MetaPowers(this);
 	}
 
 	dataLoaded(data) {
