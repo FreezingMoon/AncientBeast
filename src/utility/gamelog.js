@@ -123,6 +123,7 @@ export class GameLog {
 			strOutput;
 
 		let today = new Date().toISOString().slice(0, 10);
+		dict.config['date'] = today;
 		let fileName = `AB-${this.game.version}:${today}`;
 
 		switch (state) {
