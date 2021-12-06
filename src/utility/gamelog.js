@@ -44,9 +44,9 @@ export class GameLog {
 			this.data = data;
 			return this.config(config);
 		} else if (typeof log == 'string') {
-			let results = log.match(/^AB-(dev|[0-9.]+):(.+)$/);
+			let results = log.match(/^AB-(dev|[0-9.]+)(\@[0-9\-]+)?:(.+)$/);
 			if (results) {
-				log = JSON.parse(atob(results[2]));
+				log = JSON.parse(atob(results[3]));
 				return this.play(log);
 			}
 		}
@@ -112,17 +112,17 @@ export class GameLog {
 	}
 
 	get(state) {
+		let today = new Date().toISOString().slice(0, 10);
 		let config = isEmpty(this.gameConfig) ? getGameConfig() : this.gameConfig,
 			dict = {
 				config: config,
 				log: this.data,
 			},
 			json = JSON.stringify(dict),
-			hash = 'AB-' + this.game.version + ':' + btoa(JSON.stringify(dict)),
+			hash = 'AB-' + this.game.version + '@' + today + ':' + btoa(JSON.stringify(dict)),
 			output,
 			strOutput;
 
-		let today = new Date().toISOString().slice(0, 10);
 		dict.config['date'] = today;
 		let fileName = `AB-${this.game.version}:${today}`;
 
