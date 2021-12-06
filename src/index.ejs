@@ -269,9 +269,9 @@
 			</div>
 		</div>
 		<div id="ui">
-			<div id="scoreboardwrapper">
-				<div id="scoreboard">
-					<div id="scoreboardReturn">
+			<div id="scoreboard" class="framed-modal__wrapper hide">
+				<div class="framed-modal">
+					<div class="framed-modal__return">
 						<div class="togglescore button"></div>
 					</div>
 					<h1 id="scoreboardTitle"></h1>
@@ -1098,6 +1098,52 @@
 						</div>
 					</div>
 					<textarea id="chatinput"></textarea>
+				</div>
+			</div>
+			<div id="meta-powers" class="framed-modal__wrapper hide">
+				<div class="framed-modal framed-modal--fluid">
+					<div class="framed-modal__return">
+						<div class="toggle-meta-powers button"></div>
+					</div>
+					
+					<h2>Global Powers</h2>
+					<div id="meta-powers-actions">
+						<div style="position: relative;">
+							<div 
+								id="execute-monster-button" 
+								class="button"
+							>
+								Execution Mode
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Execution Mode</span>
+								<p>When activated, clicking a creature will immediately kill it.</p>
+							</div>
+						</div>
+						
+						<div style="position: relative;">
+							<div 
+								id="reset-cooldowns-button" 
+								class="button"
+							>
+								Reset Cooldowns
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Reset Cooldowns</span>
+								<p>
+									Reset the ability cooldowns for all units, including the Dark Priest, allowing 
+									them to be used multiple times in a single round.
+								</p>
+							</div>
+						</div>
+					</div>
+	
+					<h2>Unit Powers</h2>
+					<div id="meta-powers-actions"></div>
 				</div>
 			</div>
 		</div>

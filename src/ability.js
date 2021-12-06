@@ -27,6 +27,17 @@ export class Ability {
 		if (this.requirements === undefined && this.costs !== undefined) {
 			this.requirements = this.costs;
 		}
+
+		// Events
+		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
+	}
+
+	handleMetaPowerEvent(message, payload) {
+		if (message === 'resetCooldowns') {
+			this.reset();
+			// Refresh UI to show ability is available.
+			this.game.UI.selectAbility(-1);
+		}
 	}
 
 	hasUpgrade() {

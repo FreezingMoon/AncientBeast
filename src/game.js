@@ -13,7 +13,7 @@ import { Creature } from './creature';
 import dataJson from 'assets/units/data.json';
 import 'pixi';
 import 'p2';
-import Phaser from 'phaser';
+import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
@@ -180,6 +180,9 @@ export default class Game {
 			onQuery: /\bonQuery\b/,
 			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
+
+		const signalChannels = ['ui', 'metaPowers'];
+		this.signals = this.setupSignalChannels(signalChannels);
 	}
 
 	dataLoaded(data) {
@@ -1537,5 +1540,28 @@ export default class Game {
 		this.turn = 0;
 
 		this.gamelog.reset();
+	}
+
+	/**
+	 * Setup signal channels based on a list of channel names.
+	 *
+	 * @example setupSignalChannels(['ui', 'game'])
+	 * // ... another file
+	 * this.game.signals.ui.add((message, payload) => console.log(message, payload), this);
+	 *
+	 * @see https://photonstorm.github.io/phaser-ce/Phaser.Signal.html
+	 *
+	 * @param {array} channels List of channel names.
+	 * @returns {object} Phaser signals keyed by channel name.
+	 */
+	setupSignalChannels(channels) {
+		const signals = channels.reduce((acc, curr) => {
+			return {
+				...acc,
+				[curr]: new Signal(),
+			};
+		}, {});
+
+		return signals;
 	}
 }
