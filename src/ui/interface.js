@@ -46,7 +46,7 @@ export class UI {
 		this.$dash = $j('#dash');
 		this.$grid = $j('#creaturegrid');
 		this.$activebox = $j('#activebox');
-		this.$scoreboard = $j('#scoreboardwrapper');
+		this.$scoreboard = $j('#scoreboard');
 		this.active = false;
 
 		// Last clicked creature in Godlet Printer for the current turn
@@ -484,8 +484,8 @@ export class UI {
 			},
 			Escape: {
 				onkeydown() {
-					let isAbilityActive =
-						this.activeAbility && !this.$scoreboard.is(':visible') && !this.chat.isOpen;
+					let isAbilityActive = r;
+					this.activeAbility && this.$scoreboard.hasClass('hide') && !this.chat.isOpen;
 
 					if (this.dashopen) {
 						this.closeDash();
@@ -499,7 +499,7 @@ export class UI {
 					} else {
 						// Close chat and/or dash view if open
 						this.chat.hide();
-						this.$scoreboard.hide();
+						this.$scoreboard.addClass('hide');
 					}
 
 					this.game.signals.ui.dispatch('closeInterfaceScreens');
@@ -1270,8 +1270,8 @@ export class UI {
 		let game = this.game;
 
 		// If the scoreboard is displayed, hide it
-		if (this.$scoreboard.is(':visible')) {
-			this.$scoreboard.hide();
+		if (!this.$scoreboard.hasClass('hide')) {
+			this.$scoreboard.addClass('hide');
 		}
 
 		this.$dash.addClass('active');
@@ -1289,7 +1289,7 @@ export class UI {
 	// Function to close scoreboard if pressing outside of it
 	easyScoreClose(e) {
 		let score = $j('#scoreboard');
-		let scoreboard = $j('#scoreboardwrapper');
+		let scoreboard = $j('#scoreboard');
 
 		// Check if the target of the click isn't the scoreboard nor a descendant of it
 		if (!score.is(e.target) && score.has(e.target).length === 0) {
@@ -1302,8 +1302,8 @@ export class UI {
 		let game = this.game;
 
 		// If the scoreboard is already displayed, hide it and return
-		if (this.$scoreboard.is(':visible')) {
-			this.$scoreboard.hide();
+		if (!this.$scoreboard.hasClass('hide')) {
+			this.$scoreboard.addClass('hide');
 
 			return;
 		}
@@ -1482,7 +1482,7 @@ export class UI {
 		}
 
 		// Finally, show the scoreboard
-		this.$scoreboard.show();
+		this.$scoreboard.removeClass('hide');
 	}
 
 	/* toggleDash()
@@ -1495,8 +1495,8 @@ export class UI {
 		let game = this.game;
 		if (!this.$dash.hasClass('active')) {
 			// If the scoreboard is displayed, hide it
-			if (this.$scoreboard.is(':visible')) {
-				this.$scoreboard.hide();
+			if (!this.$scoreboard.hasClass('hide')) {
+				this.$scoreboard.addClass('hide');
 			}
 
 			if (randomize && this.lastViewedCreature == '') {
