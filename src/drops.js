@@ -1,5 +1,25 @@
+/**
+ * Drops are a type of creature "buff" collected from a game board hex rather than
+ * being applied by an ability.
+ *
+ * For "pool" resources such as health and energy, the buff restores those resources
+ * as well as increasing their maximum values.
+ *
+ * Each creature has a unique Drop that is added to their location hex when they
+ * die.
+ *
+ * Another creature entering the same hex as the Drop can pick it up, altering its
+ * stats (alterations) and/or restoring health/energy.
+ *
+ * Other rules:
+ * - Multiple Drops can stack on a single creature, either the same Drop multiple
+ *   times or different Drops from multiple creatures.
+ * - Drops currently do NOT expire.
+ * - Drops currently cannot be removed by other abilities.
+ * - Drops are essentially permanent although this may change in the future.
+ */
 export class Drop {
-	constructor(name, health, energy, x, y, game) {
+	constructor(name, alterations, x, y, game) {
 		this.name = name;
 		this.game = game;
 		this.id = game.dropId++;
@@ -9,8 +29,7 @@ export class Drop {
 			x: x,
 			y: y,
 		};
-		this.health = health;
-		this.energy = energy;
+		this.alterations = alterations;
 		this.hex = game.grid.hexes[this.y][this.x];
 
 		this.hex.drop = this;
@@ -46,20 +65,33 @@ export class Drop {
 
 		this.hex.drop = undefined;
 
-		if (this.health) {
-			creature.heal(this.health);
-			game.log('%CreatureName' + creature.id + '% gains ' + this.health + ' health');
+		if (this.alterations.health) {
+			creature.heal(this.alterations.health, false, false);
 		}
 
-		if (this.energy) {
-			creature.energy += this.energy;
-			game.log('%CreatureName' + creature.id + '% gains ' + this.energy + ' energy');
+		if (this.alterations.energy) {
+			creature.recharge(this.alterations.energy, false);
 		}
+
+		if (this.alterations.endurance) {
+			creature.restoreEndurance(this.alterations.endurance, false);
+		}
+
+		if (this.alterations.movement) {
+			creature.restoreMovement(this.alterations.movement, false);
+		}
+
+		// Log all the gained alterations.
+		const gainedMessage = Object.keys(this.alterations)
+			.map((key) => `${this.alterations[key]} ${key}`)
+			.join(', ')
+			// Replace last comma with "and".
+			.replace(/, ([^,]*)$/, ', and $1');
+		game.log(`%CreatureName${creature.id}% gains ${gainedMessage}`);
+
 		creature.player.score.push({
 			type: 'pickupDrop',
 		});
-
-		creature.updateAlteration(); // Will cap the stats
 
 		let tween = game.Phaser.add
 			.tween(this.display)

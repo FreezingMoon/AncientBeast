@@ -1986,61 +1986,6 @@ export class UI {
 		$j('#playerinfo .units span').text(userTurn.getNbrOfCreatures() + ' / ' + game.creaLimitNbr);
 	}
 
-	// Broken and deprecated
-	showStatModifiers(stat) {
-		if (this.selectedCreatureObj instanceof Creature) {
-			let buffDebuff = this.selectedCreatureObj.getBuffDebuff(stat);
-			let atLeastOneBuff = false;
-
-			// Might not be needed
-			$j('#card')
-				.find('.' + stat + ' .modifiers')
-				.html('');
-			// Effects
-			$j.each(buffDebuff.objs.effects, (key, value) => {
-				//let string = this.selectedCreatureObj.abilities[0].getFormattedDamages(value.alterations);
-				if (value.alterations[stat]) {
-					$j('#card')
-						.find('.' + stat + ' .modifiers')
-						.append(
-							'<div>' +
-								value.name +
-								' : ' +
-								(value.alterations[stat] > 0 ? '+' : '') +
-								value.alterations[stat] +
-								'</div>',
-						);
-				}
-
-				atLeastOneBuff = true;
-			});
-			// Drops
-			$j.each(buffDebuff.objs.drops, (key, value) => {
-				//let string = this.selectedCreatureObj.abilities[0].getFormattedDamages(value.alterations);
-				if (value.alterations[stat]) {
-					$j('#card')
-						.find('.' + stat + ' .modifiers')
-						.append(
-							'<div>' +
-								value.name +
-								' : ' +
-								(value.alterations[stat] > 0 ? '+' : '') +
-								value.alterations[stat] +
-								'</div>',
-						);
-				}
-
-				atLeastOneBuff = true;
-			});
-
-			if (!atLeastOneBuff) {
-				$j('#card')
-					.find('.' + stat + ' .modifiers')
-					.html("This stat doesn't have any modifiers");
-			}
-		}
-	}
-
 	/* updateTimer()
 	 */
 	updateTimer() {

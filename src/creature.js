@@ -38,7 +38,7 @@ export class Creature {
 	 * stats :			Object :	Object containing stats of the creature
 	 * statsAlt :		Object :	Object containing the alteration value for each stat //todo
 	 * abilities :		Array :		Array containing the 4 abilities
-	 * remainingMove : Integer :	Remaining moves allowed untill the end of turn
+	 * remainingMove : Integer :	Remaining moves allowed until the end of turn
 	 * temp :           Boolean :   True if the creature is only temporary for preview, false otherwise
 	 *
 	 */
@@ -90,8 +90,8 @@ export class Creature {
 		// Statistics
 		this.baseStats = {
 			health: obj.stats.health - 0,
-			regrowth: obj.stats.regrowth - 0,
 			endurance: obj.stats.endurance - 0,
+			regrowth: obj.stats.regrowth - 0,
 			energy: obj.stats.energy - 0,
 			meditation: obj.stats.meditation - 0,
 			initiative: obj.stats.initiative - 0,
@@ -115,11 +115,46 @@ export class Creature {
 			reqEnergy: 0,
 		};
 
-		this.stats = $j.extend({}, this.baseStats); //Copy
+		this.stats = {
+			...this.baseStats,
+
+			/**
+			 * Represents the available "pool" or maximum health of the creature.
+			 * `this.health` represents the current remaining health which cannot exceed
+			 * this value.
+			 */
+			health: this.baseStats.health,
+
+			/**
+			 * Represents the available "pool" or maximum energy of the creature.
+			 * `this.energy` represents the current remaining energy which cannot exceed
+			 * this value.
+			 */
+			energy: this.baseStats.energy,
+
+			/**
+			 * Represents the available "pool" or maximum endurance of the creature.
+			 * `this.endurance` represents the current remaining endurance which cannot
+			 * exceed this value. It also cannot be lower than 0.
+			 */
+			endurance: this.baseStats.endurance,
+
+			/**
+			 * Represents the available "pool" or maximum movement of the creature.
+			 * `this.remainingMove` represents the current remaining movement which cannot
+			 * exceed this value.
+			 */
+			movement: this.baseStats.movement,
+		};
+		// Current health. Maximum health is `this.stats.health`.
 		this.health = obj.stats.health;
+		// Current endurance. Maximum endurance is `this.stats.endurance`.
 		this.endurance = obj.stats.endurance;
+		// Current energy. Maximum energy is `this.stats.energy`.
 		this.energy = obj.stats.energy;
+		// Current movement. Maximum movement is `this.stats.movement`.
 		this.remainingMove = 0; //Default value recovered each turn
+
 		this.dizzy = false;
 
 		// Abilities
@@ -1057,15 +1092,47 @@ export class Creature {
 	 * @return {void}
 	 * Restore energy up to the max limit
 	 */
-	recharge(amount) {
+	recharge(amount, log = true) {
 		this.energy = Math.min(this.stats.energy, this.energy + amount);
+
+		if (log) {
+			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' energy');
+		}
+	}
+
+	/**
+	 * Restore endurance to a creature. Will be capped against the creature's maximum
+	 * endurance (this.stats.endurance).
+	 *
+	 * @param {*} amount Number of endurance points to restore.
+	 */
+	restoreEndurance(amount, log = true) {
+		this.endurance = Math.min(this.stats.endurance, this.endurance + amount);
+
+		if (log) {
+			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' endurance');
+		}
+	}
+
+	/**
+	 * Restore remaining movement to a creature. Will be capped against the creature's
+	 * maximum movement (this.stats.movement).
+	 *
+	 * @param {*} amount Number of movement points to restore.
+	 */
+	restoreMovement(amount, log = true) {
+		this.remainingMove = Math.min(this.stats.movement, this.remainingMove + amount);
+
+		if (log) {
+			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' movement');
+		}
 	}
 
 	/* heal(amount)
 	 *
 	 * amount :	Damage :	Amount of health point to restore
 	 */
-	heal(amount, isRegrowth) {
+	heal(amount, isRegrowth, log = true) {
 		let game = this.game;
 		// Cap health point
 		amount = Math.min(amount, this.stats.health - this.health);
@@ -1086,7 +1153,9 @@ export class Creature {
 				this.hint('+' + amount, 'healing d' + amount);
 			}
 
-			game.log('%CreatureName' + this.id + '% recovers +' + amount + ' health');
+			if (log) {
+				game.log('%CreatureName' + this.id + '% recovers +' + amount + ' health');
+			}
 		} else if (amount === 0) {
 			if (isRegrowth) {
 				this.hint('♦', 'msg_effects');
@@ -1100,7 +1169,9 @@ export class Creature {
 				this.hint(amount, 'damage d ' + amount);
 			}
 
-			game.log('%CreatureName' + this.id + '% loses ' + amount + ' health');
+			if (log) {
+				game.log('%CreatureName' + this.id + '% loses ' + amount + ' health');
+			}
 		}
 
 		game.onHeal(this, amount);
@@ -1297,7 +1368,6 @@ export class Creature {
 		let game = this.game;
 
 		if (!effect.stackable && this.findEffect(effect.name).length !== 0) {
-			//G.log(this.player.name+"'s "+this.name+" is already affected by "+effect.name);
 			return false;
 		}
 
@@ -1498,9 +1568,9 @@ export class Creature {
 	 *
 	 */
 	updateAlteration() {
-		this.stats = $j.extend({}, this.baseStats); // Copy
+		this.stats = { ...this.baseStats };
 
-		let buffDebuffArray = this.effects;
+		let buffDebuffArray = [...this.effects, ...this.dropCollection];
 
 		buffDebuffArray.forEach((buff) => {
 			$j.each(buff.alterations, (key, value) => {
@@ -1528,8 +1598,11 @@ export class Creature {
 			});
 		});
 
+		// Endurance cannot be lower than 0.
 		this.stats.endurance = Math.max(this.stats.endurance, 0);
 
+		// These stats cannot exceed their maximum values.
+		this.health = Math.min(this.health, this.stats.health);
 		this.endurance = Math.min(this.endurance, this.stats.endurance);
 		this.energy = Math.min(this.energy, this.stats.energy);
 		this.remainingMove = Math.min(this.remainingMove, this.stats.movement);
@@ -1558,7 +1631,10 @@ export class Creature {
 		// Drop item
 		if (game.unitDrops == 1 && this.drop) {
 			let offsetX = this.player.flipped ? this.x - this.size + 1 : this.x;
-			new Drop(this.drop.name, this.drop.health, this.drop.energy, offsetX, this.y, game);
+			/* All properties aside from `name` are assumed to be alterations to the creature's
+			statistics. */
+			const { name, ...alterations } = this.drop;
+			new Drop(name, alterations, offsetX, this.y, game);
 		}
 
 		if (!game.firstKill && !isDeny) {
@@ -1693,76 +1769,6 @@ export class Creature {
 			this.player.flipped ? !invertFlipped : invertFlipped,
 			map,
 		);
-	}
-
-	getBuffDebuff(stat) {
-		let buffDebuffArray = this.effects.concat(this.dropCollection),
-			debuff = 0,
-			buffObjs = {
-				effects: [],
-				drops: [],
-			};
-
-		let addToBuffObjs = function (obj) {
-			if (obj instanceof Effect) {
-				buffObjs.effects.push(obj);
-			} else if (obj instanceof Drop) {
-				buffObjs.drops.push(obj);
-			}
-		};
-
-		buffDebuffArray.forEach((buff) => {
-			let o = buff;
-			$j.each(buff.alterations, (key, value) => {
-				if (typeof value == 'string') {
-					if (key === stat || stat === undefined) {
-						// Multiplication Buff
-						if (value.match(/\*/)) {
-							addToBuffObjs(o);
-							let base = this.stats[key];
-							let result = eval(this.stats[key] + value);
-
-							if (result > base) {
-								buff += result - base;
-							} else {
-								debuff += result - base;
-							}
-						}
-
-						// Division Debuff
-						if (value.match(/\//)) {
-							addToBuffObjs(o);
-							let base = this.stats[key];
-							let result = eval(this.stats[key] + value);
-
-							if (result > base) {
-								buff += result - base;
-							} else {
-								debuff += result - base;
-							}
-						}
-					}
-				}
-
-				// Usual Buff/Debuff
-				if (typeof value == 'number') {
-					if (key === stat || stat === undefined) {
-						addToBuffObjs(o);
-						if (value > 0) {
-							buff += value;
-						} else {
-							debuff += value;
-						}
-					}
-				}
-			});
-		});
-
-		return {
-			buff: 0,
-			debuff: debuff,
-			objs: buffObjs,
-		};
 	}
 
 	findEffect(name) {
