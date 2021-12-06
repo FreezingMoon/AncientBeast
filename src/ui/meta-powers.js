@@ -4,6 +4,7 @@ import { Button, ButtonStateEnum } from './button';
 /**
  * "God-mode" UI for debugging game state. Available in hot-seat games when the
  * app running is in development mode.
+ * Caution: usage of these tools may break the game log.
  */
 export class MetaPowers {
 	constructor(game) {
