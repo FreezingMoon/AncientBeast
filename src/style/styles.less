@@ -1495,8 +1495,8 @@ span.pure {
 
 /*--------------Framed Modal------------------*/
 .framed-modal {
-	border-image: url('~assets/interface/div.png') 40 fill stretch !important;
 	border: 40px solid transparent !important;
+	border-image: url('~assets/interface/div.png') 40 fill stretch !important;
 	color: white;
 	margin: 30px auto 0;
 	max-height: 560px;
@@ -1530,13 +1530,18 @@ span.pure {
 	width: 100px;
 }
 
+.framed-modal--fluid {
+	margin: 30px 120px;
+	max-height: none;
+	width: auto;
+}
+
 /*--------------Meta Powers------------------*/
 #meta-powers {
 	#meta-powers-actions {
 		display: flex;
 		gap: 16px;
-		margin-top: 20px;
-		margin-bottom: 50px;
+		margin-bottom: 40px;
 
 		.button {
 			text-indent: -9999px;

@@ -58,8 +58,10 @@ export class UI {
 		// Chat
 		this.chat = new Chat(game);
 
-		// Meta Powers UI
-		this.metaPowers = new MetaPowers(this.game);
+		// Meta Powers - only available for hot-seat games running in development mode.
+		if (process.env.NODE_ENV === 'development' && !this.game.multiplayer) {
+			this.metaPowers = new MetaPowers(this.game);
+		}
 
 		// Buttons Objects
 		this.buttons = [];
