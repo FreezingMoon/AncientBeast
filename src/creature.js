@@ -148,10 +148,10 @@ export class Creature {
 		};
 		// Current health. Maximum health is `this.stats.health`.
 		this.health = obj.stats.health;
-		// Current energy. Maximum energy is `this.stats.energy`.
-		this.energy = obj.stats.energy;
 		// Current endurance. Maximum endurance is `this.stats.endurance`.
 		this.endurance = obj.stats.endurance;
+		// Current energy. Maximum energy is `this.stats.energy`.
+		this.energy = obj.stats.energy;
 		// Current movement. Maximum movement is `this.stats.movement`.
 		this.remainingMove = 0; //Default value recovered each turn
 
