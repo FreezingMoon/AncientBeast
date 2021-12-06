@@ -94,7 +94,7 @@ To access the Meta Powers screen:
 
 - Run the local development server.
 - Start a hotseat (single player) game.
-- When the game starts, press the Ctrl + Meta + P key combination.
+- When the game starts, press the Meta + Alt + P key combination.
 - Hovering each power shows a tooltip description.
 
 ### Patch Game

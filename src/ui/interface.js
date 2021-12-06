@@ -424,7 +424,7 @@ export class UI {
 			},
 			KeyP: {
 				onkeydown() {
-					if (event.metaKey && event.ctrlKey) {
+					if (event.metaKey && event.altKey) {
 						this.game.signals.ui.dispatch('toggleMetaPowers');
 					}
 				},
