@@ -90,9 +90,9 @@ export class Creature {
 		// Statistics
 		this.baseStats = {
 			health: obj.stats.health - 0,
-			energy: obj.stats.energy - 0,
 			endurance: obj.stats.endurance - 0,
 			regrowth: obj.stats.regrowth - 0,
+			energy: obj.stats.energy - 0,
 			meditation: obj.stats.meditation - 0,
 			initiative: obj.stats.initiative - 0,
 			offense: obj.stats.offense - 0,
