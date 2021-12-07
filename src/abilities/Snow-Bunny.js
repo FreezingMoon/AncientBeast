@@ -24,18 +24,18 @@ export default (G) => {
 
 				/* If enough uses, jump away when an enemy has entered our trigger area, 
 				and we have a space to jump back to. */
-				return (
+				const abilityCanTrigger =
 					// This ability only triggers on other creature's turns, it's purely defensive.
-					this.game.activeCreature !== this.creature &&
+					this.creature !== this.game.activeCreature &&
 					this.timesUsedThisTurn < this._getUsesPerTurn() &&
+					!this.creature.stats.frozen &&
 					enemyInFront &&
 					/* Only the active creature should trigger the Hop, not other creatures
 					that happen to be nearby. */
 					enemyInFront === this.game.activeCreature &&
-					this._getTriggerHexId(enemyInFront.hexagons[0]) >= 0 &&
-					// TODO: check bunny isn't frozen
-					this._getHopHex(enemyInFront.hexagons[0]) !== undefined
-				);
+					this._getHopHex(enemyInFront.hexagons[0]) !== undefined;
+
+				return abilityCanTrigger;
 			},
 
 			//	activate() :
