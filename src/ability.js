@@ -293,8 +293,12 @@ export class Ability {
 				}
 			}
 		} else {
-			// Test for materialization sickness
-			if (this.creature.materializationSickness && this.affectedByMatSickness) {
+			/* If creature is affected by materialization sickness or is frozen, cancel
+			all movement or abilities. */
+			if (
+				(this.creature.materializationSickness && this.affectedByMatSickness) ||
+				this.creature.stats.frozen
+			) {
 				return false;
 			}
 		}
