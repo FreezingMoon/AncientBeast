@@ -13,23 +13,28 @@ export default (G) => {
 		// 	First Ability: Bunny Hop
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: 'onOtherCreatureMove',
+			trigger: 'onCreatureMove onOtherCreatureMove',
 
-			require: function (fromHex) {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
-				// If enough uses, jump away when an enemy has entered our trigger area, and
-				// we have a space to jump back to
+				const enemyInFront = this._detectEnemyInFront();
+
+				/* If enough uses, jump away when an enemy has entered our trigger area, 
+				and we have a space to jump back to. */
 				return (
+					// This ability only triggers on other creature's turns, it's purely defensive.
+					this.game.activeCreature !== this.creature &&
 					this.timesUsedThisTurn < this._getUsesPerTurn() &&
-					fromHex &&
-					fromHex.creature &&
-					isTeam(fromHex.creature, this.creature, Team.enemy) &&
-					this.game.activeCreature != this.creature &&
-					this._getTriggerHexId(fromHex) >= 0 &&
-					this._getHopHex(fromHex) !== undefined
+					enemyInFront &&
+					/* Only the active creature should trigger the Hop, not other creatures
+					that happen to be nearby. */
+					enemyInFront === this.game.activeCreature &&
+					this._getTriggerHexId(enemyInFront.hexagons[0]) >= 0 &&
+					// TODO: check bunny isn't frozen
+					this._getHopHex(enemyInFront.hexagons[0]) !== undefined
 				);
 			},
 
@@ -45,6 +50,24 @@ export default (G) => {
 					ignorePath: true,
 					ignoreMovementPoint: true,
 				});
+			},
+
+			/**
+			 * Check the 3 hexes in front of the Snow bunny for any enemy creatures.
+			 *
+			 * @returns creature in front of the Snow Bunny, or undefined if there is none.
+			 */
+			_detectEnemyInFront: function () {
+				const hexesInFront = this.creature.getHexMap(matrices.front1hex);
+				const hexWithEnemy = hexesInFront.find(
+					(hex) => hex.creature && isTeam(hex.creature, this.creature, Team.enemy),
+				);
+
+				if (!hexWithEnemy) {
+					return undefined;
+				}
+
+				return hexWithEnemy.creature;
 			},
 
 			_getUsesPerTurn: function () {
