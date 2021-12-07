@@ -299,13 +299,15 @@ export default (G) => {
 				}); //remove creatures
 				ability.end();
 
-				//Movement
+				// Movement
 				arrayUtils.filterCreature(path, false, false);
 				let destination = null;
 				let destinationTarget = null;
 				if (target.size === 1) {
-					// Small creature, pull target towards self
-					destinationTarget = path.first();
+					/* Small creature, pull target towards self landing it in the hex directly
+					in front of the Headless. */
+					const hexInFrontOfHeadless = path[0];
+					destinationTarget = hexInFrontOfHeadless;
 				} else if (target.size === 2) {
 					// Medium creature, pull self and target towards each other half way,
 					// rounding upwards for self (self move one extra hex if required)
@@ -321,6 +323,8 @@ export default (G) => {
 
 				let x;
 				let hex;
+
+				// Check if Headless will be moved.
 				if (destination !== null) {
 					x = args.direction === 4 ? destination.x + crea.size - 1 : destination.x;
 					hex = G.grid.hexes[destination.y][x];
@@ -337,6 +341,8 @@ export default (G) => {
 						},
 					});
 				}
+
+				// Check if target creature will be moved.
 				if (destinationTarget !== null) {
 					x = args.direction === 1 ? destinationTarget.x + target.size - 1 : destinationTarget.x;
 					hex = G.grid.hexes[destinationTarget.y][x];
