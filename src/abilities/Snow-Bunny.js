@@ -25,15 +25,17 @@ export default (G) => {
 				/* If enough uses, jump away when an enemy has entered our trigger area, 
 				and we have a space to jump back to. */
 				const abilityCanTrigger =
+					this.timesUsedThisTurn < this._getUsesPerTurn() &&
+					// Bunny cannot use this ability if affected by these states.
+					!(this.creature.materializationSickness || this.creature.stats.frozen) &&
 					// This ability only triggers on other creature's turns, it's purely defensive.
 					this.creature !== this.game.activeCreature &&
-					this.timesUsedThisTurn < this._getUsesPerTurn() &&
-					!this.creature.stats.frozen &&
 					enemyInFront &&
-					/* Only the active creature should trigger the Hop, not other creatures
-					that happen to be nearby. */
+					/* Only the active enemy creature should trigger the Hop, not other enemy 
+					creatures that happen to be nearby. */
 					enemyInFront === this.game.activeCreature &&
-					this._getHopHex(enemyInFront.hexagons[0]) !== undefined;
+					// Bunny needs a valid hex to retreat into.
+					this._getHopHex(enemyInFront.hexagons[0]);
 
 				return abilityCanTrigger;
 			},
