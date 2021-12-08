@@ -47,6 +47,12 @@ npm install
 This will read `package.json` and install all of the gameplay established npm package dependencies.  
 The `npm install` command will also update any required dependencies if the `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again, which will also compile the project, same as the `npm run build:dev` command.
 
+### Setup environment variables
+
+```sh
+cp .env.example .env
+```
+
 ### Compile Project
 
 In order to build the development version of the game (also done by `npm install`), run the following command:
