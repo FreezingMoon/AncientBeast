@@ -4,6 +4,12 @@ import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 
+const HopTriggerDirections = {
+	Above: 0,
+	Front: 1,
+	Below: 2,
+};
+
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
@@ -16,6 +22,7 @@ export default (G) => {
 			trigger: 'onCreatureMove onOtherCreatureMove',
 
 			require: function (hex) {
+				console.log({ hex });
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -25,17 +32,41 @@ export default (G) => {
 					return false;
 				}
 
-				const triggerHex = this._getTriggerHex(hex);
+				let triggerHexes = [];
 
-				console.log({ triggerHex });
+				// Bunny movement, but triggered by another active creature, not itself.
+				if (hex.creature === this.creature) {
+					console.log('Bunny moved');
+					// The bunny could move into a position with multiple triggering enemies.
+					const frontHexesWithEnemy = this._detectFrontHexesWithEnemy();
+
+					console.log({ frontHexesWithEnemy });
+
+					if (frontHexesWithEnemy.length) {
+						triggerHexes = frontHexesWithEnemy;
+					}
+					// Enemy movement.
+				} else if (isTeam(hex.creature, this.creature, Team.enemy)) {
+					console.log('Enemy moved');
+					const frontHexWithEnemy = this._findEnemyHexInFront(hex);
+
+					console.log({ frontHexWithEnemy });
+
+					if (frontHexWithEnemy) {
+						triggerHexes.push(frontHexWithEnemy);
+					}
+				}
+
+				console.log({ triggerHexes });
+				console.log(this._getHopHex());
 
 				const abilityCanTrigger =
-					triggerHex &&
+					triggerHexes.length &&
 					this.timesUsedThisTurn < this._getUsesPerTurn() &&
 					// Bunny cannot use this ability if affected by these states.
 					!(this.creature.materializationSickness || this.creature.stats.frozen) &&
 					// Bunny needs a valid hex to retreat into.
-					this._getHopHex(triggerHex);
+					this._getHopHex();
 
 				return abilityCanTrigger;
 			},
@@ -45,9 +76,7 @@ export default (G) => {
 				let ability = this;
 				ability.end();
 
-				const triggerHex = this._getTriggerHex(hex);
-
-				this.creature.moveTo(this._getHopHex(triggerHex), {
+				this.creature.moveTo(this._getHopHex(), {
 					callbackStepIn: function () {
 						G.activeCreature.queryMove();
 					},
@@ -56,28 +85,56 @@ export default (G) => {
 				});
 			},
 
-			_getTriggerHex: function (hex) {
-				let triggerHex;
+			_getUsesPerTurn: function () {
+				// If upgraded, useable twice per turn
+				return this.isUpgraded() ? 2 : 1;
+			},
 
-				// Bunny movement, but triggered by another active creature, not itself.
-				if (hex.creature === this.creature) {
-					console.log('bunny moved');
-					const hexWithEnemyInFront = this._detectHexWithEnemyInFront();
+			_getHopHex: function () {
+				const triggerHexes = this._detectFrontHexesWithEnemy();
 
-					if (hexWithEnemyInFront) {
-						triggerHex = hexWithEnemyInFront;
-					}
-					// Enemy movement.
-				} else if (isTeam(hex.creature, this.creature, Team.enemy)) {
-					console.log('enemy moved');
-					const enemyTriggerHexId = this._getTriggerHexId(hex);
+				console.log('GET HOP triggerHexes', triggerHexes);
 
-					if (enemyTriggerHexId >= 0) {
-						triggerHex = hex;
-					}
+				// Try to hop away
+				let hex;
+
+				if (
+					triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Front) ||
+					// If the bunny is flanked on top and bottom then hop backwards.
+					(triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Above) &&
+						triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Below))
+				) {
+					hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
+				} else if (triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Above)) {
+					hex = this.creature.getHexMap(matrices.backbottom1hex)[0];
+				} else if (triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Below)) {
+					hex = this.creature.getHexMap(matrices.backtop1hex)[0];
 				}
 
-				return triggerHex;
+				// If we can't hop away, try hopping backwards.
+				if (hex === undefined || !hex.isWalkable(this.creature.size, this.creature.id, true)) {
+					hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
+				}
+
+				// Finally, give up if we still can't move.
+				if (hex !== undefined && !hex.isWalkable(this.creature.size, this.creature.id, true)) {
+					return undefined;
+				}
+
+				return hex;
+			},
+
+			/**
+			 * TODO:
+			 * @param {*} hexWithEnemy
+			 * @returns
+			 */
+			_findEnemyHexInFront: function (hexWithEnemy) {
+				const frontHexesWithEnemy = this._detectFrontHexesWithEnemy();
+				const foundEnemy = frontHexesWithEnemy.find(({ hex }) => hexWithEnemy.coord === hex.coord);
+				console.log({ hexWithEnemy, frontHexesWithEnemy, foundEnemy });
+
+				return foundEnemy;
 			},
 
 			/**
@@ -85,61 +142,19 @@ export default (G) => {
 			 *
 			 * @returns creature in front of the Snow Bunny, or undefined if there is none.
 			 */
-			_detectHexWithEnemyInFront: function () {
+			_detectFrontHexesWithEnemy: function () {
 				const hexesInFront = this.creature.getHexMap(matrices.front1hex);
-				const hexWithEnemy = hexesInFront.find(
-					(hex) => hex.creature && isTeam(hex.creature, this.creature, Team.enemy),
-				);
+				const hexesWithEnemy = hexesInFront.reduce((acc, curr, idx) => {
+					const hexHasEnemy = curr.creature && isTeam(curr.creature, this.creature, Team.enemy);
 
-				return hexWithEnemy;
-			},
+					if (hexHasEnemy) {
+						acc.push({ direction: idx, hex: curr });
+					}
 
-			_getUsesPerTurn: function () {
-				// If upgraded, useable twice per turn
-				return this.isUpgraded() ? 2 : 1;
-			},
+					return acc;
+				}, []);
 
-			_getTriggerHexId: function (hex) {
-				const hexes = this.creature.getHexMap(matrices.front1hex);
-
-				// Find which hex we are hopping from
-				let id = -1;
-				hex.creature.hexagons.forEach(function (hex) {
-					id = hexes.indexOf(hex) > id ? hexes.indexOf(hex) : id;
-				});
-
-				return id;
-			},
-
-			_getHopHex: function (fromHex) {
-				let id = this._getTriggerHexId(fromHex);
-
-				// Try to hop away
-				let hex;
-				switch (id) {
-					case 0:
-						hex = this.creature.getHexMap(matrices.backbottom1hex)[0];
-						break;
-					case 1:
-						hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
-						break;
-					case 2:
-						hex = this.creature.getHexMap(matrices.backtop1hex)[0];
-						break;
-				}
-
-				// If we can't hop away, try hopping backwards
-				if (
-					id !== 1 &&
-					(hex === undefined || !hex.isWalkable(this.creature.size, this.creature.id, true))
-				) {
-					hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
-				}
-
-				if (hex !== undefined && !hex.isWalkable(this.creature.size, this.creature.id, true)) {
-					return undefined;
-				}
-				return hex;
+				return hexesWithEnemy;
 			},
 		},
 
