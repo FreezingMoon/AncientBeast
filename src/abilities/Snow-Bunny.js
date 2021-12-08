@@ -15,37 +15,39 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onCreatureMove onOtherCreatureMove',
 
-			require: function () {
+			require: function (hex) {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
-				const enemyInFront = this._detectEnemyInFront();
+				// This ability only triggers on other creature's turns, it's purely defensive.
+				if (this.creature === this.game.activeCreature) {
+					return false;
+				}
 
-				/* If enough uses, jump away when an enemy has entered our trigger area, 
-				and we have a space to jump back to. */
+				const triggerHex = this._getTriggerHex(hex);
+
+				console.log({ triggerHex });
+
 				const abilityCanTrigger =
+					triggerHex &&
 					this.timesUsedThisTurn < this._getUsesPerTurn() &&
 					// Bunny cannot use this ability if affected by these states.
 					!(this.creature.materializationSickness || this.creature.stats.frozen) &&
-					// This ability only triggers on other creature's turns, it's purely defensive.
-					this.creature !== this.game.activeCreature &&
-					enemyInFront &&
-					/* Only the active enemy creature should trigger the Hop, not other enemy 
-					creatures that happen to be nearby. */
-					enemyInFront === this.game.activeCreature &&
 					// Bunny needs a valid hex to retreat into.
-					this._getHopHex(enemyInFront.hexagons[0]);
+					this._getHopHex(triggerHex);
 
 				return abilityCanTrigger;
 			},
 
 			//	activate() :
-			activate: function (destHex) {
+			activate: function (hex) {
 				let ability = this;
 				ability.end();
 
-				this.creature.moveTo(this._getHopHex(destHex), {
+				const triggerHex = this._getTriggerHex(hex);
+
+				this.creature.moveTo(this._getHopHex(triggerHex), {
 					callbackStepIn: function () {
 						G.activeCreature.queryMove();
 					},
@@ -54,22 +56,42 @@ export default (G) => {
 				});
 			},
 
+			_getTriggerHex: function (hex) {
+				let triggerHex;
+
+				// Bunny movement, but triggered by another active creature, not itself.
+				if (hex.creature === this.creature) {
+					console.log('bunny moved');
+					const hexWithEnemyInFront = this._detectHexWithEnemyInFront();
+
+					if (hexWithEnemyInFront) {
+						triggerHex = hexWithEnemyInFront;
+					}
+					// Enemy movement.
+				} else if (isTeam(hex.creature, this.creature, Team.enemy)) {
+					console.log('enemy moved');
+					const enemyTriggerHexId = this._getTriggerHexId(hex);
+
+					if (enemyTriggerHexId >= 0) {
+						triggerHex = hex;
+					}
+				}
+
+				return triggerHex;
+			},
+
 			/**
 			 * Check the 3 hexes in front of the Snow bunny for any enemy creatures.
 			 *
 			 * @returns creature in front of the Snow Bunny, or undefined if there is none.
 			 */
-			_detectEnemyInFront: function () {
+			_detectHexWithEnemyInFront: function () {
 				const hexesInFront = this.creature.getHexMap(matrices.front1hex);
 				const hexWithEnemy = hexesInFront.find(
 					(hex) => hex.creature && isTeam(hex.creature, this.creature, Team.enemy),
 				);
 
-				if (!hexWithEnemy) {
-					return undefined;
-				}
-
-				return hexWithEnemy.creature;
+				return hexWithEnemy;
 			},
 
 			_getUsesPerTurn: function () {
@@ -77,12 +99,12 @@ export default (G) => {
 				return this.isUpgraded() ? 2 : 1;
 			},
 
-			_getTriggerHexId: function (fromHex) {
-				let hexes = this.creature.getHexMap(matrices.front1hex);
+			_getTriggerHexId: function (hex) {
+				const hexes = this.creature.getHexMap(matrices.front1hex);
 
 				// Find which hex we are hopping from
 				let id = -1;
-				fromHex.creature.hexagons.forEach(function (hex) {
+				hex.creature.hexagons.forEach(function (hex) {
 					id = hexes.indexOf(hex) > id ? hexes.indexOf(hex) : id;
 				});
 
