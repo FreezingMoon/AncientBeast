@@ -16,13 +16,31 @@ const HopTriggerDirections = {
  */
 export default (G) => {
 	G.abilities[12] = [
-		// 	First Ability: Bunny Hop
+		/**
+		 * First Ability: Bunny Hop
+		 * After any movement, if an enemy is newly detected in the 3 hexes in front
+		 * of the bunny (facing right for player 1, left for player 2), the creature
+		 * will move backwards one space in an opposite direction.
+		 *
+		 * The ability is only usable if the creature is not affected by ability-restricting
+		 * effects such as Materialization Sickness or Frozen.
+		 *
+		 * Movement rules:
+		 * - If movement in the opposite direction is impossible, it will move backwards.
+		 * - If the top and bottom front hexes are both occupied, it will move backwards.
+		 * - If moving backwards and is unable to do so. movement is cancelled.
+		 */
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onCreatureMove onOtherCreatureMove',
 
+			/**
+			 * Determine if the ability should trigger.
+			 *
+			 * @param {Hex} hex Destination hex where a creature (bunny or other) has moved.
+			 * @returns {boolean} If the ability should trigger.
+			 */
 			require: function (hex) {
-				console.log({ hex });
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -32,33 +50,21 @@ export default (G) => {
 					return false;
 				}
 
+				/* Determine which (if any) frontal hexes contain an enemy that would trigger 
+				the ability. */
 				let triggerHexes = [];
 
-				// Bunny movement, but triggered by another active creature, not itself.
 				if (hex.creature === this.creature) {
-					console.log('Bunny moved');
-					// The bunny could move into a position with multiple triggering enemies.
-					const frontHexesWithEnemy = this._detectFrontHexesWithEnemy();
-
-					console.log({ frontHexesWithEnemy });
-
-					if (frontHexesWithEnemy.length) {
-						triggerHexes = frontHexesWithEnemy;
-					}
-					// Enemy movement.
+					// Bunny has been moved by another active creature, not itself..
+					triggerHexes = this._detectFrontHexesWithEnemy();
 				} else if (isTeam(hex.creature, this.creature, Team.enemy)) {
-					console.log('Enemy moved');
+					// Enemy movement.
 					const frontHexWithEnemy = this._findEnemyHexInFront(hex);
-
-					console.log({ frontHexWithEnemy });
 
 					if (frontHexWithEnemy) {
 						triggerHexes.push(frontHexWithEnemy);
 					}
 				}
-
-				console.log({ triggerHexes });
-				console.log(this._getHopHex());
 
 				const abilityCanTrigger =
 					triggerHexes.length &&
@@ -90,10 +96,18 @@ export default (G) => {
 				return this.isUpgraded() ? 2 : 1;
 			},
 
+			/**
+			 * Analyse frontal enemy positions and determine which (if any) Hexes are
+			 * available for the Bunny to hop backwards into.
+			 *
+			 * At this point we have determined the ability should be triggered, so we
+			 * are only concerned which enemies to hop away from, not which enemies originally
+			 * triggered the ability.
+			 *
+			 * @returns {Hex} Hex the bunny will hop (move) into.
+			 */
 			_getHopHex: function () {
 				const triggerHexes = this._detectFrontHexesWithEnemy();
-
-				console.log('GET HOP triggerHexes', triggerHexes);
 
 				// Try to hop away
 				let hex;
@@ -125,18 +139,18 @@ export default (G) => {
 			},
 
 			/**
-			 * TODO:
-			 * @param {*} hexWithEnemy
-			 * @returns
+			 * Determine if a hex containing an enemy is in front of the bunny.
+			 *
+			 * @param {Hex} hexWithEnemy
+			 * @returns Hex
 			 */
 			_findEnemyHexInFront: function (hexWithEnemy) {
 				const frontHexesWithEnemy = this._detectFrontHexesWithEnemy();
-				const foundEnemy = frontHexesWithEnemy.find(
+				const foundEnemyHex = frontHexesWithEnemy.find(
 					({ hex }) => hexWithEnemy.creature === hex.creature,
 				);
-				console.log({ hexWithEnemy, frontHexesWithEnemy, foundEnemy });
 
-				return foundEnemy;
+				return foundEnemyHex;
 			},
 
 			/**
@@ -150,7 +164,11 @@ export default (G) => {
 					const hexHasEnemy = curr.creature && isTeam(curr.creature, this.creature, Team.enemy);
 
 					if (hexHasEnemy) {
-						acc.push({ direction: idx, hex: curr });
+						acc.push({
+							// 0 = front above, 1 = front, 2 = front below
+							direction: idx,
+							hex: curr,
+						});
 					}
 
 					return acc;
