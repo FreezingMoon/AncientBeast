@@ -24,11 +24,6 @@ export default (G) => {
 		 *
 		 * The ability is only usable if the creature is not affected by ability-restricting
 		 * effects such as Materialization Sickness or Frozen.
-		 *
-		 * Movement rules:
-		 * - If movement in the opposite direction is impossible, it will move backwards.
-		 * - If the top and bottom front hexes are both occupied, it will move backwards.
-		 * - If moving backwards and is unable to do so. movement is cancelled.
 		 */
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -99,6 +94,11 @@ export default (G) => {
 			/**
 			 * Analyse frontal enemy positions and determine which (if any) Hexes are
 			 * available for the Bunny to hop backwards into.
+			 *
+			 * Movement rules:
+			 * - If movement in the opposite direction is impossible, it will move backwards.
+			 * - If the top and bottom front hexes are both occupied, it will move backwards.
+			 * - If moving backwards and is unable to do so. movement is cancelled.
 			 *
 			 * At this point we have determined the ability should be triggered, so we
 			 * are only concerned which enemies to hop away from, not which enemies originally
