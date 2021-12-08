@@ -14,11 +14,11 @@ export default (G) => {
 			trigger: 'onReset',
 
 			//	require() :
-			require: function () {
+			require: () => {
 				return this.testRequirements();
 			},
 
-			activate: function () {
+			activate: () => {
 				// Only activate when fatigued
 				if (!this.creature.isFatigued()) {
 					return;
@@ -41,7 +41,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			//	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -67,12 +67,12 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -111,7 +111,7 @@ export default (G) => {
 			_targetTeam: Team.both,
 
 			//	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -128,12 +128,12 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					flipped: chimera.player.flipped,
@@ -202,7 +202,7 @@ export default (G) => {
 
 			_targetTeam: Team.both,
 
-			_getDirections: function () {
+			_getDirections: () => {
 				return this.testDirections({
 					flipped: this.creature.player.flipped,
 					team: this._targetTeam,
@@ -218,7 +218,7 @@ export default (G) => {
 				});
 			},
 
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -235,12 +235,12 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					flipped: chimera.player.flipped,

@@ -311,7 +311,7 @@ export class Ability {
 	 */
 	animation2(o) {
 		let game = this.game,
-			opt = $j.extend({ callback: function () {}, arg: {} }, o),
+			opt = $j.extend({ callback: () => {}, arg: {} }, o),
 			args = opt.arg,
 			activateAbility = () => {
 				this.activate(args[0], args[1]);
@@ -541,7 +541,7 @@ export class Ability {
 	atLeastOneTarget(hexes, o) {
 		let defaultOpt = {
 			team: Team.both,
-			optTest: function () {
+			optTest: () => {
 				return true;
 			},
 		};

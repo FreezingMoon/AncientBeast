@@ -16,7 +16,7 @@ export default (G) => {
 		{
 			trigger: 'onUnderAttack',
 
-			require: function () {
+			require: () => {
 				// Always true to highlight ability
 				return true;
 			},
@@ -60,7 +60,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -76,12 +76,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let creature = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -126,7 +126,7 @@ export default (G) => {
 				}
 			},
 
-			_getHexes: function () {
+			_getHexes: () => {
 				return G.grid.getHexMap(
 					this.creature.x - 3,
 					this.creature.y - 2,
@@ -145,7 +145,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
@@ -157,12 +157,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let creature = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -233,7 +233,7 @@ export default (G) => {
 				});
 			},
 
-			_getHexes: function () {
+			_getHexes: () => {
 				// Target a creature within 2 hex radius
 				let hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(2);
 				return arrayUtils.extendToLeft(hexes, this.creature.size, G.grid);
@@ -247,7 +247,7 @@ export default (G) => {
 
 			_targetTeam: Team.both,
 
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -262,11 +262,11 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -404,7 +404,7 @@ export default (G) => {
 				}
 			},
 
-			_getHexes: function () {
+			_getHexes: () => {
 				return G.grid.getHexMap(
 					this.creature.x - 3,
 					this.creature.y - 2,

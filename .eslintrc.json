@@ -5,7 +5,13 @@
 	"extends": ["prettier", "plugin:prettier/recommended", "plugin:@typescript-eslint/recommended"],
 	"rules": {
 		"prettier/prettier": "error",
-		"no-undef": "error"
+		"no-undef": "error",
+		"@typescript-eslint/no-unused-vars": [
+			"error",
+			{
+				"argsIgnorePattern": "^_"
+			}
+		]
 	},
 	"parserOptions": {
 		"ecmaVersion": 2020,

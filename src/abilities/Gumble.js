@@ -16,12 +16,12 @@ export default (G) => {
 			// Update stat buffs whenever health changes
 			trigger: 'onCreatureSummon onDamage onHeal',
 
-			require: function () {
+			require: () => {
 				// Always active
 				return true;
 			},
 
-			activate: function () {
+			activate: () => {
 				if (this.creature.dead) {
 					return;
 				}
@@ -68,14 +68,13 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function () {
+			require: () => {
 				// Always usable, even if no targets
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: () => {
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
 				// center of each area is two hexes away. Each area can be chosen regardless
 				// of whether targets are within.
@@ -101,12 +100,12 @@ export default (G) => {
 					return choice1.length < choice2.length;
 				});
 				G.grid.queryChoice({
-					fnOnCancel: function () {
+					fnOnCancel: () => {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: () => {
+						this.animation(...arguments);
 					},
 					team: Team.both,
 					id: this.creature.id,
@@ -116,12 +115,11 @@ export default (G) => {
 			},
 
 			activate: function (hexes) {
-				let ability = this;
-				ability.end();
+				this.end();
 
-				let targets = ability.getTargets(hexes);
+				let targets = this.getTargets(hexes);
 				// Deal double damage to enemies if upgraded
-				let enemyDamages = $j.extend({}, ability.damages);
+				let enemyDamages = $j.extend({}, this.damages);
 				if (this.isUpgraded()) {
 					for (let k in enemyDamages) {
 						if ({}.hasOwnProperty.call(enemyDamages, k)) {
@@ -157,13 +155,12 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: () => {
 				let creature = this.creature;
 
 				// Upgraded Royal Seal can target up to 3 hexagons range
@@ -173,8 +170,8 @@ export default (G) => {
 				);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: () => {
+						this.animation(...arguments);
 					},
 					size: creature.size,
 					flipped: creature.player.flipped,
@@ -188,17 +185,16 @@ export default (G) => {
 			//	activate() :
 			activate: function (hex) {
 				this.end();
-				let ability = this;
 
-				let makeSeal = function () {
+				let makeSeal = () => {
 					let effect = new Effect(
 						'Royal Seal',
-						ability.creature,
+						this.creature,
 						hex,
 						'onStepIn',
 						{
 							// Gumbles immune
-							requireFn: function () {
+							requireFn: () => {
 								let crea = this.trap.hex.creature;
 								return crea && crea.type !== this.owner.type;
 							},
@@ -221,8 +217,8 @@ export default (G) => {
 						G,
 					);
 
-					let trap = hex.createTrap('royal-seal', [effect], ability.creature.player, {
-						ownerCreature: ability.creature,
+					let trap = hex.createTrap('royal-seal', [effect], this.creature.player, {
+						ownerCreature: this.creature,
 						fullTurnLifetime: true,
 					});
 					trap.hide();
@@ -231,7 +227,7 @@ export default (G) => {
 				// Move Gumble to the target hex if necessary
 				if (hex.x !== this.creature.x || hex.y !== this.creature.y) {
 					this.creature.moveTo(hex, {
-						callback: function () {
+						callback: () => {
 							G.activeCreature.queryMove();
 							makeSeal();
 						},
@@ -255,7 +251,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -272,13 +268,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: () => {
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: () => {
+						this.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,
@@ -292,8 +287,7 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let target = arrayUtils.last(path).creature;
 				let melee = path[0].creature === target;
@@ -346,7 +340,7 @@ export default (G) => {
 				}
 
 				let damage = new Damage(
-					ability.creature, // Attacker
+					this.creature, // Attacker
 					d, // Damage Type
 					1, // Area
 					[], // Effects
@@ -366,7 +360,7 @@ export default (G) => {
 					target.moveTo(dir[1], {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: function () {
+						callback: () => {
 							G.activeCreature.queryMove();
 						},
 						animation: 'push',

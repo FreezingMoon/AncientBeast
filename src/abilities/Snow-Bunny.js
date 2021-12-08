@@ -35,11 +35,10 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (destHex) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				this.creature.moveTo(this._getHopHex(destHex), {
-					callbackStepIn: function () {
+					callbackStepIn: () => {
 						G.activeCreature.queryMove();
 					},
 					ignorePath: true,
@@ -47,7 +46,7 @@ export default (G) => {
 				});
 			},
 
-			_getUsesPerTurn: function () {
+			_getUsesPerTurn: () => {
 				// If upgraded, useable twice per turn
 				return this.isUpgraded() ? 2 : 1;
 			},
@@ -104,7 +103,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -120,13 +119,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: () => {
 				let snowBunny = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: () => {
+						this.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: snowBunny.id,
@@ -137,24 +135,23 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
-				ability.end();
+				this.end();
 
-				let damages = ability.damages;
+				let damages = this.damages;
 				// If upgraded, do pure damage against frozen targets
 				if (this.isUpgraded() && target.stats.frozen) {
 					damages = {
 						pure: 0,
 					};
-					for (let type in ability.damages) {
-						if ({}.hasOwnProperty.call(ability.damages, type)) {
-							damages.pure += ability.damages[type];
+					for (let type in this.damages) {
+						if ({}.hasOwnProperty.call(this.damages, type)) {
+							damages.pure += this.damages[type];
 						}
 					}
 				}
 
 				let damage = new Damage(
-					ability.creature, // Attacker
+					this.creature, // Attacker
 					damages, // Damage Type
 					1, // Area
 					[], // Effects
@@ -173,7 +170,7 @@ export default (G) => {
 			_targetTeam: Team.both,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -190,13 +187,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: () => {
 				let snowBunny = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: () => {
+						this.animation(...arguments);
 					},
 					flipped: snowBunny.player.flipped,
 					team: this._targetTeam,
@@ -210,8 +206,7 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let target = arrayUtils.last(path).creature;
 				// No blow size penalty if upgraded and target is frozen
@@ -249,7 +244,7 @@ export default (G) => {
 				target.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function () {
+					callback: () => {
 						G.activeCreature.queryMove();
 					},
 					animation: 'push',
@@ -270,7 +265,7 @@ export default (G) => {
 				target.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function () {
+					callback: () => {
 						G.activeCreature.queryMove();
 					},
 					animation: 'push',
@@ -288,7 +283,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -305,13 +300,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: () => {
 				let snowBunny = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: () => {
+						this.animation(...arguments);
 					},
 					flipped: snowBunny.player.flipped,
 					team: this._targetTeam,
@@ -325,8 +319,7 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
-				ability.end();
+				this.end();
 				let target = arrayUtils.last(path).creature;
 
 				let projectileInstance = G.animations.projectile(
@@ -342,16 +335,16 @@ export default (G) => {
 				let sprite = projectileInstance[1];
 				let dist = projectileInstance[2];
 
-				tween.onComplete.add(function () {
+				tween.onComplete.add(() => {
 					// this refers to the animation object, _not_ the ability
 					this.destroy();
 
 					// Copy to not alter ability strength
-					let dmg = $j.extend({}, ability.damages);
+					let dmg = $j.extend({}, this.damages);
 					dmg.crush += 3 * dist; // Add distance to crush damage
 
 					let damage = new Damage(
-						ability.creature, // Attacker
+						this.creature, // Attacker
 						dmg, // Damage Type
 						1, // Area
 						[],
@@ -360,14 +353,14 @@ export default (G) => {
 					let damageResult = target.takeDamage(damage);
 
 					// If upgraded and melee range, freeze the target
-					if (ability.isUpgraded() && damageResult.damageObj.melee) {
+					if (this.isUpgraded() && damageResult.damageObj.melee) {
 						target.stats.frozen = true;
 						target.updateHealth();
 						G.UI.updateFatigue();
 					}
 				}, sprite); // End tween.onComplete
 			},
-			getAnimationData: function () {
+			getAnimationData: () => {
 				return {
 					duration: 500,
 					delay: 0,

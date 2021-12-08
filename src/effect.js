@@ -26,10 +26,10 @@ export class Effect {
 		let args = $j.extend(
 			{
 				// Default Arguments
-				requireFn: function () {
+				requireFn: () => {
 					return true;
 				},
-				effectFn: function () {},
+				effectFn: () => {},
 				alterations: {},
 				turnLifetime: 0,
 				deleteTrigger: 'onStartOfRound',

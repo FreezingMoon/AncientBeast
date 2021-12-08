@@ -103,7 +103,7 @@ export class GameLog {
 				clearInterval(interval);
 				game.activeCreature.queryMove(); // Avoid bug
 				game.action(this.data[this.timeCursor], {
-					callback: function () {
+					callback: () => {
 						game.activeCreature.queryMove();
 					},
 				});

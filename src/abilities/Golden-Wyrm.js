@@ -1,7 +1,6 @@
 import { Damage } from '../damage';
-import { Team, isTeam } from '../utility/team';
+import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
-import { Creature } from '../creature';
 import { Effect } from '../effect';
 
 /** Creates the abilities
@@ -19,7 +18,7 @@ export default (G) => {
 			_targets: [],
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				// Creature is damaged
 				if (G.activeCreature != this.creature) {
 					this._damaged = true;
@@ -45,7 +44,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function () {
+			activate: () => {
 				let creature = this.creature;
 				let damage = new Damage(creature, { sonic: 30 }, this._targets.length, [], G);
 				let hits = new Set();
@@ -57,7 +56,7 @@ export default (G) => {
 					hits.add(target.creature);
 				});
 				this.end(false, true);
-				hits.forEach((hit, _, set) => {
+				hits.forEach((hit) => {
 					hit.takeDamage(damage);
 				});
 				this.end(true, false);
@@ -75,7 +74,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -92,9 +91,8 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let wyrm = this.creature;
-				let ability = this;
 
 				let map = [
 					[0, 0, 0, 0],
@@ -104,8 +102,8 @@ export default (G) => {
 				];
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					team: this._targetTeam,
 					id: wyrm.id,
@@ -116,12 +114,11 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
+					this.creature, // Attacker
+					this.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -131,11 +128,11 @@ export default (G) => {
 
 				if (dmg.status == '') {
 					// Regrowth bonus
-					ability.creature.addEffect(
+					this.creature.addEffect(
 						new Effect(
 							'Regrowth++', // Name
-							ability.creature, // Caster
-							ability.creature, // Target
+							this.creature, // Caster
+							this.creature, // Target
 							'onStartPhase', // Trigger
 							{
 								effectFn: function (effect) {
@@ -151,7 +148,7 @@ export default (G) => {
 				}
 
 				//remove frogger bonus if its found
-				ability.creature.effects.forEach(function (effect) {
+				this.creature.effects.forEach(function (effect) {
 					if (effect.name == 'Frogger Bonus') {
 						this.deleteEffect();
 					}
@@ -164,7 +161,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function () {
+			require: () => {
 				return this.testRequirements();
 			},
 
@@ -177,8 +174,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: () => {
 				let wyrm = this.creature;
 
 				let range = G.grid
@@ -186,11 +182,11 @@ export default (G) => {
 					.filter((item) => wyrm.item == item.y);
 
 				G.grid.queryHexes({
-					fnOnSelect: function () {
-						ability.fnOnSelect(...arguments);
+					fnOnSelect: (...args) => {
+						this.fnOnSelect(...args);
 					},
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					size: wyrm.size,
 					flipped: wyrm.player.flipped,
@@ -201,23 +197,22 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex) {
-				let ability = this;
-				ability.end();
+				this.end();
 
-				ability.creature.moveTo(hex, {
+				this.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function () {
+					callback: () => {
 						G.activeCreature.queryMove();
 					},
 				});
 
 				// Frogger Leap bonus
-				ability.creature.addEffect(
+				this.creature.addEffect(
 					new Effect(
 						'Offense++', // Name
-						ability.creature, // Caster
-						ability.creature, // Target
+						this.creature, // Caster
+						this.creature, // Target
 						'onStepIn onEndPhase', // Trigger
 						{
 							effectFn: function (effect) {
@@ -246,7 +241,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -270,13 +265,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: () => {
 				let wyrm = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					team: this._targetTeam,
 					id: wyrm.id,
@@ -287,12 +281,11 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
+					this.creature, // Attacker
+					this.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -300,7 +293,7 @@ export default (G) => {
 				target.takeDamage(damage);
 
 				//remove frogger bonus if its found
-				ability.creature.effects.forEach(function (item) {
+				this.creature.effects.forEach((item) => {
 					if (item.name == 'Offense++') {
 						item.deleteEffect();
 					}

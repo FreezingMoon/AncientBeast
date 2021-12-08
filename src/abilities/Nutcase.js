@@ -16,7 +16,7 @@ export default (G) => {
 		{
 			trigger: 'onUnderAttack',
 
-			require: function () {
+			require: () => {
 				// Always true to highlight ability
 				return true;
 			},
@@ -105,7 +105,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			//	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -122,12 +122,12 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 
 				if (!this.isUpgraded()) {
 					G.grid.queryCreature({
-						fnOnConfirm: function () {
+						fnOnConfirm: () => {
 							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
@@ -146,7 +146,7 @@ export default (G) => {
 							G.activeCreature.faceHex(args.hex, undefined, true);
 							args.hex.overlayVisualState('creature selected player' + G.activeCreature.team);
 						},
-						fnOnConfirm: function () {
+						fnOnConfirm: () => {
 							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
@@ -244,7 +244,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			//	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -259,11 +259,11 @@ export default (G) => {
 				return true;
 			},
 
-			query: function () {
+			query: () => {
 				let ability = this;
 
 				let o = {
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -373,7 +373,7 @@ export default (G) => {
 					this.creature.moveTo(destination, {
 						overrideSpeed: 100,
 						ignoreMovementPoint: true,
-						callback: function () {
+						callback: () => {
 							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
@@ -477,7 +477,7 @@ export default (G) => {
 
 			_targetTeam: Team.enemy,
 
-			require: function () {
+			require: () => {
 				let ability = this;
 				if (!this.testRequirements()) {
 					return false;
@@ -498,11 +498,11 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -545,7 +545,7 @@ export default (G) => {
 				crea.moveTo(G.grid.hexes[target.y][creaX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
-					callback: function () {
+					callback: () => {
 						crea.updateHex();
 						crea.queryMove();
 					},
@@ -554,7 +554,7 @@ export default (G) => {
 				target.moveTo(G.grid.hexes[crea.y][targetX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
-					callback: function () {
+					callback: () => {
 						target.updateHex();
 						target.takeDamage(damage);
 					},

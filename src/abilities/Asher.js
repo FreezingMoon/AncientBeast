@@ -62,7 +62,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -79,13 +79,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: () => {
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,
@@ -100,14 +99,13 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let target = arrayUtils.last(path).creature;
 
 				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
+					this.creature, // Attacker
+					this.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -124,41 +122,39 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: (...args) => {
 				let crea = this.creature;
 
 				crea.queryMove({
 					noPath: true,
 					isAbility: true,
 					range: G.grid.getFlyingRange(crea.x, crea.y, 50, crea.size, crea.id),
-					callback: function () {
-						delete arguments[1];
-						ability.animation(...arguments);
+					callback: () => {
+						delete args[1];
+						this.animation(...args);
 					},
 				});
 			},
 
 			//	activate() :
 			activate: function (hex) {
-				let ability = this;
-				ability.end();
+				this.end();
 
-				let targets = ability.getTargets(ability.creature.adjacentHexes(1));
+				let targets = this.getTargets(this.creature.adjacentHexes(1));
 
-				targets.forEach(function (item) {
+				targets.forEach((item) => {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
 
 					let trg = item.target;
 
-					if (isTeam(ability.creature, trg, item._targetTeam)) {
+					if (isTeam(this.creature, trg, item._targetTeam)) {
 						let optArg = {
 							alterations: {
 								burn: -1,
@@ -168,7 +164,7 @@ export default (G) => {
 						//Roasted effect
 						let effect = new Effect(
 							'Roasted', //Name
-							ability.creature, //Caster
+							this.creature, //Caster
 							trg, //Target
 							'', //Trigger
 							optArg, //Optional arguments
@@ -178,24 +174,24 @@ export default (G) => {
 					}
 				});
 
-				ability.creature.moveTo(hex, {
+				this.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
 					animation: 'teleport',
-					callback: function () {
+					callback: () => {
 						G.activeCreature.queryMove();
 					},
-					callbackStepIn: function () {
-						let callbackTargets = ability.getTargets(ability.creature.adjacentHexes(1));
+					callbackStepIn: () => {
+						let callbackTargets = this.getTargets(this.creature.adjacentHexes(1));
 
-						callbackTargets.forEach(function (item) {
+						callbackTargets.forEach((item) => {
 							if (!(item.target instanceof Creature)) {
 								return;
 							}
 
 							let trg = item.target;
 
-							if (isTeam(ability.creature, trg, item._targetTeam)) {
+							if (isTeam(this.creature, trg, item._targetTeam)) {
 								let optArg = {
 									alterations: {
 										burn: -1,
@@ -205,7 +201,7 @@ export default (G) => {
 								//Roasted effect
 								let effect = new Effect(
 									'Roasted', //Name
-									ability.creature, //Caster
+									this.creature, //Caster
 									trg, //Target
 									'', //Trigger
 									optArg, //Optional arguments
@@ -228,13 +224,12 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function () {
-				let ability = this;
+			query: () => {
 				let crea = this.creature;
 
 				let range = crea.hexagons[1].adjacentHex(3);
@@ -245,11 +240,11 @@ export default (G) => {
 				range.splice(tail, 1);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					fnOnSelect: function (hex) {
-						hex.adjacentHex(1).forEach(function (item) {
+						hex.adjacentHex(1).forEach((item) => {
 							if (item.creature instanceof Creature) {
 								if (item.creature == crea) {
 									//If it is abolished
@@ -299,18 +294,17 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let aoe = hex.adjacentHex(1);
 
-				let targets = ability.getTargets(aoe);
+				let targets = this.getTargets(aoe);
 
 				if (hex.creature instanceof Creature) {
 					hex.creature.takeDamage(
 						new Damage(
-							ability.creature, // Attacker
-							ability.damages1, // Damage Type
+							this.creature, // Attacker
+							this.damages1, // Damage Type
 							1, // Area
 							[], // Effects
 							G,
@@ -318,9 +312,9 @@ export default (G) => {
 					);
 				}
 
-				ability.areaDamage(
-					ability.creature,
-					ability.damages2,
+				this.areaDamage(
+					this.creature,
+					this.damages2,
 					[], //Effects
 					targets,
 				);

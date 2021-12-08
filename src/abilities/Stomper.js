@@ -14,7 +14,7 @@ export default (G) => {
 		//  First Ability: Tankish Build
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			triggerFunc: function () {
+			triggerFunc: () => {
 				if (this.isUpgraded()) {
 					// Once upgraded add the trigger to disable the bonus if hit
 					return 'onStartPhase onDamage';
@@ -52,7 +52,7 @@ export default (G) => {
 			},
 
 			// activate() :
-			activate: function () {
+			activate: () => {
 				this.creature.replaceEffect(
 					// Add and replace the effect each time
 					new Effect(
@@ -91,7 +91,7 @@ export default (G) => {
 			],
 
 			// require() :
-			require: function () {
+			require: () => {
 				let req = {
 					team: this._targetTeam,
 					sourceCreature: this.creature,
@@ -106,14 +106,14 @@ export default (G) => {
 			},
 
 			// query() :
-			query: function () {
+			query: () => {
 				let stomper = this.creature;
 				let ability = this;
 
 				// Take the closest ennemy in each direction within 3hex
 				if (!this.isUpgraded()) {
 					G.grid.queryDirection({
-						fnOnConfirm: function () {
+						fnOnConfirm: () => {
 							ability.animation(...arguments);
 						},
 						flipped: stomper.flipped,
@@ -129,7 +129,7 @@ export default (G) => {
 				else {
 					this._upgradedMap.origin = [3, 3];
 					G.grid.queryCreature({
-						fnOnConfirm: function () {
+						fnOnConfirm: () => {
 							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
@@ -271,7 +271,7 @@ export default (G) => {
 			},
 
 			// Check if there is a possible place to end the ability
-			_checkEnd: function () {
+			_checkEnd: () => {
 				let ability = this;
 				let stomper = this.creature;
 				let direction = ability.testDirections(ability._req);
@@ -312,7 +312,7 @@ export default (G) => {
 			},
 
 			// require() :
-			require: function () {
+			require: () => {
 				let ability = this;
 				ability._req.sourceCreature = ability.creature;
 
@@ -325,7 +325,7 @@ export default (G) => {
 			},
 
 			// query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let stomper = this.creature;
 				// Get the direction of the melee target, the dashed hex and the targets
@@ -346,7 +346,7 @@ export default (G) => {
 				}
 
 				G.grid.queryChoice({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: Team.both,
@@ -416,7 +416,7 @@ export default (G) => {
 				ability.creature.moveTo(G.grid.hexes[stomper.y][lastTarget.x + offset], {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function () {
+					callback: () => {
 						// Shake the screen upon landing to simulate the jump
 						G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
@@ -448,19 +448,19 @@ export default (G) => {
 				[0, 0, 1, 0],
 			],
 
-			require: function () {
+			require: () => {
 				return this.testRequirements();
 			},
 
 			// query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let stomper = this.creature;
 
 				this.map.origin = [0, 2];
 
 				G.grid.queryChoice({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: Team.both,

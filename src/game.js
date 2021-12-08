@@ -633,7 +633,8 @@ export default class Game {
 				v.numeric_properties.turnTimePool < 0 ? '∞' : v.numeric_properties.timePool;
 			let timepool = v.numeric_properties.timePool < 0 ? '∞' : v.numeric_properties.timePool;
 			let unitdrops = v.numeric_properties.unitDrops < 0 ? 'off' : 'on';
-			let _matchBtn = $j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
+			let _matchBtn =
+				$j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
         Host: ${v.presence.username}<br />
         Player Mode: ${v.numeric_properties.playerMode}<br />
         Active Units: ${v.numeric_properties.creaLimitNbr}<br />
@@ -838,7 +839,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: function () {},
+				callback: () => {},
 				noTooltip: false,
 				tooltip: 'Skipped',
 			},
@@ -907,7 +908,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: function () {},
+				callback: () => {},
 			},
 			o,
 		);
@@ -1441,7 +1442,7 @@ export default class Game {
 
 	action(o, opt) {
 		let defaultOpt = {
-			callback: function () {},
+			callback: () => {},
 		};
 
 		opt = $j.extend(defaultOpt, opt);

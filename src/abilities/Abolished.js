@@ -86,7 +86,6 @@ export default (G) => {
 				return true;
 			},
 			query() {
-				let ability = this;
 				let crea = this.creature;
 
 				if (this.isUpgraded()) {
@@ -94,8 +93,8 @@ export default (G) => {
 				}
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: () => {
+						this.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,
@@ -108,10 +107,8 @@ export default (G) => {
 				});
 			},
 			activate(path, args) {
-				let ability = this;
-
 				let target = arrayUtils.last(path).creature;
-				let startX = ability.creature.sprite.scale.x > 0 ? 232 : 52;
+				let startX = this.creature.sprite.scale.x > 0 ? 232 : 52;
 				let projectileInstance = G.animations.projectile(
 					this,
 					target,
@@ -124,21 +121,21 @@ export default (G) => {
 				let tween = projectileInstance[0];
 				let sprite = projectileInstance[1];
 
-				tween.onComplete.add(function () {
+				tween.onComplete.add(() => {
 					let damage = new Damage(
-						ability.creature, // Attacker
-						ability.damages, // Damage Type
+						this.creature, // Attacker
+						this.damages, // Damage Type
 						1, // Area
 						[], // Effects
 						G,
 					);
 					target.takeDamage(damage);
 
-					ability.end();
+					this.end();
 					this.destroy();
 				}, sprite); // End tween.onComplete
 			},
-			getAnimationData: function () {
+			getAnimationData: () => {
 				return {
 					duration: 425,
 				};
@@ -153,7 +150,6 @@ export default (G) => {
 				return this.testRequirements();
 			},
 			query() {
-				let ability = this;
 				let crea = this.creature;
 
 				// Teleport to any hex within range except for the current hex
@@ -161,54 +157,53 @@ export default (G) => {
 					noPath: true,
 					isAbility: true,
 					range: G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
-					callback: function (hex, args) {
+					callback: (hex, args) => {
 						if (hex.x == args.creature.x && hex.y == args.creature.y) {
 							// Prevent null movement
-							ability.query();
+							this.query();
 							return;
 						}
 						delete arguments[1];
-						ability.animation(...arguments);
+						this.animation(...arguments);
 					},
 				});
 			},
 			activate(hex) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				if (this.isUpgraded()) {
 					this.range += 1;
 				}
 
-				let targets = ability.getTargets(ability.creature.adjacentHexes(1));
+				let targets = this.getTargets(this.creature.adjacentHexes(1));
 
-				targets.forEach(function (item) {
+				targets.forEach((item) => {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
 				});
 
 				// Leave a Firewall in current location
-				let effectFn = function (effect, creatureOrHex) {
+				let effectFn = (effect, creatureOrHex) => {
 					let creature = creatureOrHex;
 					if (!(creatureOrHex instanceof Creature)) {
 						creature = creatureOrHex.creature;
 					}
-					creature.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
+					creature.takeDamage(new Damage(effect.attacker, this.damages, 1, [], G), {
 						isFromTrap: true,
 					});
 					this.trap.destroy();
 					effect.deleteEffect();
 				};
 
-				let requireFn = function () {
+				let requireFn = () => {
 					let creature = this.trap.hex.creature,
 						type = (creature && creature.type) || null;
 
 					if (creature === 0) {
 						return false;
 					}
-					return type !== ability.creature.type;
+					return type !== this.creature.type;
 				};
 
 				let crea = this.creature;
@@ -238,11 +233,11 @@ export default (G) => {
 					);
 				});
 
-				ability.creature.moveTo(hex, {
+				this.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
 					animation: 'teleport',
-					callback: function () {
+					callback: () => {
 						G.activeCreature.queryMove();
 					},
 				});
@@ -256,7 +251,6 @@ export default (G) => {
 				return this.testRequirements();
 			},
 			query() {
-				let ability = this;
 				let crea = this.creature;
 
 				// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
@@ -264,11 +258,11 @@ export default (G) => {
 				let range = crea.adjacentHexes(1);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: () => {
+						this.animation(...arguments);
 					},
 					fnOnSelect: function (hex) {
-						range.forEach(function (item) {
+						range.forEach((item) => {
 							item.cleanOverlayVisualState();
 							item.overlayVisualState('creature selected player' + G.activeCreature.team);
 						});
@@ -281,22 +275,21 @@ export default (G) => {
 				});
 			},
 			activate() {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let crea = this.creature;
 				let aoe = crea.adjacentHexes(1);
-				let targets = ability.getTargets(aoe);
+				let targets = this.getTargets(aoe);
 
 				if (this.isUpgraded()) {
 					this.damages.burn = 30;
 				}
 
-				targets.forEach(function (item) {
+				targets.forEach((item) => {
 					item.target.takeDamage(
 						new Damage(
-							ability.creature, // Attacker
-							ability.damages, // Damage Type
+							this.creature, // Attacker
+							this.damages, // Damage Type
 							1, // Area
 							[], // Effects
 							G,

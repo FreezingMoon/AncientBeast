@@ -525,7 +525,7 @@ export class Creature {
 					game.UI.btnDelay.changeState('disabled');
 					args.creature.moveTo(hex, {
 						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
-						callback: function () {
+						callback: () => {
 							game.activeCreature.queryMove();
 						},
 					});
@@ -571,10 +571,10 @@ export class Creature {
 
 		if (this.noActionPossible) {
 			game.grid.querySelf({
-				fnOnConfirm: function () {
+				fnOnConfirm: () => {
 					game.UI.btnSkipTurn.click();
 				},
-				fnOnCancel: function () {},
+				fnOnCancel: () => {},
 				confirmText: 'Skip turn',
 			});
 		} else {
@@ -746,10 +746,10 @@ export class Creature {
 	moveTo(hex, opts) {
 		let game = this.game,
 			defaultOpt = {
-				callback: function () {
+				callback: () => {
 					return true;
 				},
-				callbackStepIn: function () {
+				callbackStepIn: () => {
 					return true;
 				},
 				animation: this.movementType() === 'flying' ? 'fly' : 'walk',

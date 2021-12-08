@@ -23,7 +23,7 @@ export default (G) => {
 			 * Movement type is "hover" unless this ability is upgraded, then it's "flying"
 			 * @return {string} movement type, "hover" or "flying"
 			 */
-			movementType: function () {
+			movementType: () => {
 				return 'flying';
 			},
 
@@ -31,12 +31,12 @@ export default (G) => {
 			trigger: '',
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				return true;
 			},
 
 			//	activate() :
-			activate: function () {},
+			activate: () => {},
 		},
 
 		// 	Second Ability: Slicing Pounce
@@ -47,7 +47,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -63,11 +63,11 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -120,7 +120,7 @@ export default (G) => {
 			_targetTeam: Team.both,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -173,7 +173,7 @@ export default (G) => {
 				return true;
 			},
 
-			query: function () {
+			query: () => {
 				let ability = this;
 				let crea = this.creature;
 
@@ -221,7 +221,7 @@ export default (G) => {
 				let x = trgIsInfront ? crea.x + trg.size : crea.x;
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					fnOnSelect: select, // fnOnSelect,
@@ -282,7 +282,7 @@ export default (G) => {
 
 				crea.moveTo(creaDest, {
 					animation: 'fly',
-					callback: function () {
+					callback: () => {
 						trg.updateHex();
 					},
 					ignoreMovementPoint: true,
@@ -290,7 +290,7 @@ export default (G) => {
 
 				trg.moveTo(trgDest, {
 					animation: 'fly',
-					callback: function () {
+					callback: () => {
 						ability.creature.updateHex();
 						ability.creature.queryMove();
 					},
@@ -308,7 +308,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -324,11 +324,11 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,

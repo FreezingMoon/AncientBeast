@@ -14,7 +14,7 @@ export default (G) => {
 		// First Ability: Toxic Spores
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			triggerFunc: function () {
+			triggerFunc: () => {
 				if (this.isUpgraded()) {
 					return 'onUnderAttack onAttack';
 				}
@@ -86,7 +86,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -103,12 +103,12 @@ export default (G) => {
 			},
 
 			// query() :
-			query: function () {
+			query: () => {
 				let uncle = this.creature;
 				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -184,7 +184,7 @@ export default (G) => {
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: function () {
+			require: () => {
 				// Must be able to move
 				if (!this.creature.stats.moveable) {
 					this.message = G.msg.abilities.notMoveable;
@@ -202,7 +202,7 @@ export default (G) => {
 			},
 
 			// query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let uncle = this.creature;
 
@@ -212,10 +212,10 @@ export default (G) => {
 				let hexes = this._getHexRange(stopOnCreature);
 
 				G.grid.queryHexes({
-					fnOnSelect: function () {
+					fnOnSelect: () => {
 						ability.fnOnSelect(...arguments);
 					},
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						if (arguments[0].x == ability.creature.x && arguments[0].y == ability.creature.y) {
 							// Prevent null movement
 							ability.query();
@@ -258,7 +258,7 @@ export default (G) => {
 				ability.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function () {
+					callback: () => {
 						// Shake the screen upon landing to simulate the jump
 						G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
@@ -322,7 +322,7 @@ export default (G) => {
 				return hexes;
 			},
 
-			_isSecondLowJump: function () {
+			_isSecondLowJump: () => {
 				return this.timesUsedThisTurn === 1;
 			},
 		},
@@ -334,7 +334,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -358,12 +358,12 @@ export default (G) => {
 			},
 
 			// query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let uncle = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -397,7 +397,7 @@ export default (G) => {
 					// they are currently
 					if (hexes.length >= 2 && hexes[1].isWalkable(target.size, target.id, true)) {
 						target.moveTo(hexes[1], {
-							callback: function () {
+							callback: () => {
 								G.activeCreature.queryMove();
 							},
 							ignoreMovementPoint: true,

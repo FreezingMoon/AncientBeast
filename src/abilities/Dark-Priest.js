@@ -16,7 +16,7 @@ export default (G) => {
 			trigger: 'onUnderAttack',
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				this.creature.protectedFromFatigue = this.testRequirements();
 				return this.creature.protectedFromFatigue;
 			},
@@ -70,7 +70,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -85,12 +85,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let dpriest = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -129,7 +129,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -149,7 +149,7 @@ export default (G) => {
 				let lowestCost = 99;
 				let targets = this.getTargets(range);
 
-				targets.forEach(function (item) {
+				targets.forEach((item) => {
 					if (item.target instanceof Creature) {
 						if (lowestCost > item.target.size) {
 							lowestCost = item.target.size;
@@ -166,12 +166,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let dpriest = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					optTest: function (creature) {
@@ -220,7 +220,7 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -239,7 +239,7 @@ export default (G) => {
 			summonRange: 4,
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				if (this.isUpgraded()) {
 					this.summonRange = 6;
 				}
@@ -289,7 +289,7 @@ export default (G) => {
 
 				let spawnRange = dpriest.hexagons[0].adjacentHex(this.summonRange);
 
-				spawnRange.forEach(function (item) {
+				spawnRange.forEach((item) => {
 					item.setReachable();
 				});
 
@@ -300,13 +300,13 @@ export default (G) => {
 				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);
 
 				G.grid.queryHexes({
-					fnOnSelect: function () {
+					fnOnSelect: () => {
 						ability.fnOnSelect(...arguments);
 					},
-					fnOnCancel: function () {
+					fnOnCancel: () => {
 						G.activeCreature.queryMove();
 					},
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					args: {

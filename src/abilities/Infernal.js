@@ -16,12 +16,12 @@ export default (G) => {
 			trigger: 'onStartPhase',
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				return this.testRequirements();
 			},
 
 			//	activate() :
-			activate: function () {
+			activate: () => {
 				// Leave two traps behind
 				this._addTrap(this.creature.hexagons[1]);
 				this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
@@ -46,7 +46,7 @@ export default (G) => {
 							hex,
 							'onStepIn',
 							{
-								requireFn: function () {
+								requireFn: () => {
 									if (!this.trap.hex.creature) {
 										return false;
 									}
@@ -85,7 +85,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -101,12 +101,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let magmaSpawn = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -182,19 +182,19 @@ export default (G) => {
 				[0, 0, 1, 0],
 			],
 
-			require: function () {
+			require: () => {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let magmaSpawn = this.creature;
 
 				this.map.origin = [0, 2];
 
 				G.grid.queryChoice({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: Team.both,
@@ -245,7 +245,7 @@ export default (G) => {
 			directions: [0, 1, 0, 0, 1, 0],
 			_targetTeam: Team.enemy,
 
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -272,14 +272,14 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let magmaSpawn = this.creature;
 
 				let x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -328,7 +328,7 @@ export default (G) => {
 					magmaSpawn.moveTo(destination, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: function () {
+						callback: () => {
 							// Destroy traps along path
 							_path.forEach(function (hex) {
 								if (!hex.trap) {

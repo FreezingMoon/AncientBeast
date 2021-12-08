@@ -20,7 +20,7 @@ export default (G) => {
 			_buff: 0,
 
 			//  require() :
-			require: function () {
+			require: () => {
 				// Stop temporary and dead creatures from activating
 				if (this.creature.dead || this.creature.temp) {
 					return false;
@@ -40,7 +40,7 @@ export default (G) => {
 			},
 
 			//  activate() :
-			activate: function () {
+			activate: () => {
 				let ability = this;
 				// Force Vehemoth to stay facing the right way
 				this.creature.facePlayerDefault();
@@ -80,7 +80,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -108,12 +108,12 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let vehemoth = this.creature;
 
 				let object = {
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					flipped: vehemoth.flipped,
@@ -223,7 +223,7 @@ export default (G) => {
 					knockbackHexes.splice(path.length);
 
 					vehemoth.moveTo(destination, {
-						callback: function () {
+						callback: () => {
 							let knockbackHex = null;
 							for (let i = 0; i < knockbackHexes.length; i++) {
 								// Check that the next knockback hex is valid
@@ -234,7 +234,7 @@ export default (G) => {
 							}
 							if (knockbackHex !== null) {
 								target.moveTo(knockbackHex, {
-									callback: function () {
+									callback: () => {
 										// Deal damage only if target have reached the end of the path
 										if (knockbackHex.creature === target) {
 											target.takeDamage(damage);
@@ -263,7 +263,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -359,7 +359,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let crea = this.creature;
 
@@ -445,7 +445,7 @@ export default (G) => {
 				];
 
 				G.grid.queryChoice({
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					}, //fnOnConfirm
 					team: this._targetTeam,
@@ -494,7 +494,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: function () {
+			require: () => {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -511,7 +511,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: () => {
 				let ability = this;
 				let crea = this.creature;
 
@@ -526,7 +526,7 @@ export default (G) => {
 						hex
 							.adjacentHex(ability.radius)
 							.concat([hex])
-							.forEach(function (item) {
+							.forEach((item) => {
 								if (item.creature instanceof Creature) {
 									item.overlayVisualState('creature selected player' + item.creature.team);
 								} else {
@@ -534,7 +534,7 @@ export default (G) => {
 								}
 							});
 					},
-					fnOnConfirm: function () {
+					fnOnConfirm: () => {
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
