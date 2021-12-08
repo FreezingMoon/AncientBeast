@@ -3,6 +3,8 @@
 deploy/
 # List of assets
 src/assets.js
+# Dotenv
+.env
 
 # DS_STORE FILES
 .DS_Store
