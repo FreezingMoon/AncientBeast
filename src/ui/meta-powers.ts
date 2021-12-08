@@ -1,5 +1,13 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
+import Game from '../game';
 import { Button, ButtonStateEnum } from './button';
+
+interface MetaPowersState {
+	/**
+	 * Enable monster execution mode. Monsters can be killed by clicking on them.
+	 */
+	executeMonster: boolean;
+}
 
 /**
  * "God-mode" UI for debugging game state. Available in hot-seat games when the
@@ -7,9 +15,21 @@ import { Button, ButtonStateEnum } from './button';
  * Caution: usage of these tools may break the game log.
  */
 export class MetaPowers {
-	constructor(game) {
-		this.game = game;
+	/**
+	 * Meta Powers state persisting across the current game session.
+	 */
+	private state: MetaPowersState;
 
+	/**
+	 * Object for storing DOM references.
+	 */
+	private $els: Record<string, ReturnType<typeof $j>>;
+
+	private btnCloseModal: Button;
+	private btnExecuteMonster: Button;
+	private btnResetCooldowns: Button;
+
+	constructor(readonly game: Game) {
 		this.state = {
 			executeMonster: false,
 		};
@@ -34,7 +54,7 @@ export class MetaPowers {
 	 * @param {string} message Event name.
 	 * @param {object} payload Event payload.
 	 */
-	_handleUiEvent(message, _payload) {
+	_handleUiEvent(message: string, _payload: unknown) {
 		if (message === 'toggleMetaPowers') {
 			this.toggleModal();
 		}
