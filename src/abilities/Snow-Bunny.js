@@ -131,7 +131,9 @@ export default (G) => {
 			 */
 			_findEnemyHexInFront: function (hexWithEnemy) {
 				const frontHexesWithEnemy = this._detectFrontHexesWithEnemy();
-				const foundEnemy = frontHexesWithEnemy.find(({ hex }) => hexWithEnemy.coord === hex.coord);
+				const foundEnemy = frontHexesWithEnemy.find(
+					({ hex }) => hexWithEnemy.creature === hex.creature,
+				);
 				console.log({ hexWithEnemy, frontHexesWithEnemy, foundEnemy });
 
 				return foundEnemy;
