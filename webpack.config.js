@@ -14,7 +14,7 @@ module.exports = (env, argv) => {
 	const production = (argv && argv.mode === 'production') || process.env.NODE_ENV === 'production';
 
 	return {
-		entry: ['babel-polyfill', path.resolve(__dirname, 'src', 'script.js')],
+		entry: ['babel-polyfill', path.resolve(__dirname, 'src', 'script.ts')],
 		output: {
 			path: path.resolve(__dirname, 'deploy'),
 			filename: 'ancientbeast.js',
@@ -24,6 +24,11 @@ module.exports = (env, argv) => {
 		devtool: production ? 'none' : 'source-map',
 		module: {
 			rules: [
+				{
+					test: /\.ts$/,
+					use: 'ts-loader',
+					exclude: /node_modules/,
+				},
 				{ test: /pixi\.js/, use: ['expose-loader?PIXI'] },
 				{ test: /phaser-split\.js$/, use: ['expose-loader?Phaser'] },
 				{ test: /p2\.js/, use: ['expose-loader?p2'] },
@@ -63,6 +68,7 @@ module.exports = (env, argv) => {
 				assets: path.resolve(__dirname, 'assets/'),
 				modules: path.join(__dirname, 'node_modules'),
 			},
+			extensions: ['.ts', '.js'],
 		},
 		devServer: {
 			contentBase: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',

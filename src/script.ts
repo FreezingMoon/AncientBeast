@@ -1,7 +1,7 @@
 // Import jQuery related stuff
-import * as $j from 'jquery';
+import $j from 'jquery';
 import 'jquery.transit';
-import dataJson from '../assets/units/data.json';
+import dataJson from './data/units.json';
 import Game from './game';
 import { Fullscreen } from './ui/fullscreen';
 
@@ -14,7 +14,7 @@ import './style/main.less';
 
 // Generic object we can decorate with helper methods to simply dev and user experience.
 // TODO: Expose this in a less hacky way.
-let AB = {};
+let AB = {} as any;
 let session = {};
 // Create the game
 const G = new Game('0.4');
@@ -78,7 +78,7 @@ $j(() => {
 			},
 			keyDownAction(event) {
 				readLogFromFile()
-					.then((logstr) => JSON.parse(logstr))
+					.then((logstr) => JSON.parse(logstr as string))
 					.then((log) => G.gamelog.play(log))
 					.catch((err) => {
 						alert('An error occurred while loading the log file');
@@ -105,7 +105,7 @@ $j(() => {
 	});
 
 	if (G.multiplayer) {
-		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		// TODO Remove after implementation 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
 	}
 
@@ -116,7 +116,7 @@ $j(() => {
 		$j('#startMatchButton').show();
 		$j('#startButton').hide();
 
-		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		// TODO Remove after implementation 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
 	});
 
@@ -279,10 +279,10 @@ function forceTwoPlayerMode() {
  */
 function getReg() {
 	let reg = {
-		username: $j('.register input[name="username"]').val(),
-		email: $j('.register input[name="email"]').val(),
-		password: $j('.register input[name="password"]').val(),
-		passwordmatch: $j('.register input[name="passwordmatch"]').val(),
+		username: $j('.register input[name="username"]').val() as string,
+		email: $j('.register input[name="email"]').val() as string,
+		password: $j('.register input[name="password"]').val() as string,
+		passwordmatch: $j('.register input[name="passwordmatch"]').val() as string,
 	};
 
 	return reg;
@@ -294,12 +294,12 @@ function getReg() {
  */
 function readLogFromFile() {
 	return new Promise((resolve, reject) => {
-		let fileInput = document.createElement('input');
+		let fileInput = document.createElement('input') as HTMLInputElement;
 		fileInput.accept = '.ab';
 		fileInput.type = 'file';
 
 		fileInput.onchange = (event) => {
-			let file = event.target.files[0];
+			let file = (event.target as HTMLInputElement).files[0];
 			let reader = new FileReader();
 
 			reader.readAsText(file);
@@ -345,13 +345,13 @@ function renderPlayerModeType(isMultiPlayer) {
  */
 export function getGameConfig() {
 	let defaultConfig = {
-			playerMode: $j('input[name="playerMode"]:checked').val() - 0,
-			creaLimitNbr: $j('input[name="activeUnits"]:checked').val() - 0, // DP counts as One
-			unitDrops: $j('input[name="unitDrops"]:checked').val() - 0,
-			abilityUpgrades: $j('input[name="abilityUpgrades"]:checked').val() - 0,
-			plasma_amount: $j('input[name="plasmaPoints"]:checked').val() - 0,
-			turnTimePool: $j('input[name="turnTime"]:checked').val() - 0,
-			timePool: $j('input[name="timePool"]:checked').val() * 60,
+			playerMode: parseInt($j('input[name="playerMode"]:checked').val() as string, 10),
+			creaLimitNbr: parseInt($j('input[name="activeUnits"]:checked').val() as string, 10), // DP counts as One
+			unitDrops: parseInt($j('input[name="unitDrops"]:checked').val() as string, 10),
+			abilityUpgrades: parseInt($j('input[name="abilityUpgrades"]:checked').val() as string, 10),
+			plasma_amount: parseInt($j('input[name="plasmaPoints"]:checked').val() as string, 10),
+			turnTimePool: parseInt($j('input[name="turnTime"]:checked').val() as string, 10),
+			timePool: parseInt($j('input[name="timePool"]:checked').val() as string, 10) * 60,
 			background_image: $j('input[name="combatLocation"]:checked').val(),
 			fullscreenMode: $j('#fullscreen').hasClass('fullscreenMode'),
 		},

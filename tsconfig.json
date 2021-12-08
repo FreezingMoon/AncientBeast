@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"outDir": "./deploy/",
+		"sourceMap": true,
+		"module": "esnext",
+		"moduleResolution": "node",
+		"allowJs": true,
+		"noImplicitThis": true,
+		"resolveJsonModule": true,
+		"allowSyntheticDefaultImports": true
+	},
+	"include": ["src", "types"]
+}

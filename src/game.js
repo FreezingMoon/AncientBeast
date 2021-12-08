@@ -10,7 +10,7 @@ import { getUrl } from './assetLoader';
 import { Player } from './player';
 import { UI } from './ui/interface';
 import { Creature } from './creature';
-import dataJson from 'assets/units/data.json';
+import dataJson from './data/units.json';
 import 'pixi';
 import 'p2';
 import Phaser, { Signal } from 'phaser';
