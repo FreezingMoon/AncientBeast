@@ -4,7 +4,6 @@ import { search } from './utility/pathfinding';
 import { Hex } from './utility/hex';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop } from './drops';
-import { Effect } from './effect';
 
 /**
  * Creature Class
@@ -574,7 +573,9 @@ export class Creature {
 				fnOnConfirm: () => {
 					game.UI.btnSkipTurn.click();
 				},
-				fnOnCancel: () => {},
+				fnOnCancel: () => {
+					// No-op function.
+				},
 				confirmText: 'Skip turn',
 			});
 		} else {

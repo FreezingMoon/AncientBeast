@@ -101,7 +101,9 @@ export class HexGrid {
 	querySelf(o) {
 		let game = this.game,
 			defaultOpt = {
-				fnOnConfirm: () => {},
+				fnOnConfirm: () => {
+					// No-op function.
+				},
 				fnOnSelect: (creature) => {
 					creature.hexagons.forEach((hex) => {
 						hex.overlayVisualState('creature selected player' + hex.creature.team);
@@ -614,9 +616,9 @@ export class HexGrid {
 
 			if (this.executionMode && hex.creature instanceof Creature) {
 				hex.creature.die(
-					/* Target creature was killed by this fake "creature". This works because 
-					the death logic doesn't actually care about the killing creature, just 
-					that creature's player. The first player is always responsible for executing 
+					/* Target creature was killed by this fake "creature". This works because
+					the death logic doesn't actually care about the killing creature, just
+					that creature's player. The first player is always responsible for executing
 					creatures. */
 					{ player: game.players[0] },
 				);

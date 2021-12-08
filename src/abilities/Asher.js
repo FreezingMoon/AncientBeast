@@ -98,7 +98,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (path) {
+			activate: (path) => {
 				this.end();
 
 				let target = arrayUtils.last(path).creature;

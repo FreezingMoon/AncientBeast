@@ -29,7 +29,9 @@ export class Effect {
 				requireFn: () => {
 					return true;
 				},
-				effectFn: () => {},
+				effectFn: () => {
+					// No-op function.
+				},
 				alterations: {},
 				turnLifetime: 0,
 				deleteTrigger: 'onStartOfRound',

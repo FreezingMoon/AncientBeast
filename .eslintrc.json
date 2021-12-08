@@ -6,6 +6,7 @@
 	"rules": {
 		"prettier/prettier": "error",
 		"no-undef": "error",
+		"no-multi-assign": "error",
 		"@typescript-eslint/no-unused-vars": [
 			"error",
 			{

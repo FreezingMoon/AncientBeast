@@ -41,7 +41,7 @@ export default (G) => {
 
 				this.message = 'Not in a mud bath.';
 
-				this.creature.effects.forEach(function (effect) {
+				this.creature.effects.forEach((effect) => {
 					if (effect.trigger == 'mud-bath') {
 						effect.deleteEffect();
 					}
@@ -118,12 +118,11 @@ export default (G) => {
 
 			// 	query() :
 			query: () => {
-				let ability = this;
 				let swine = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					flipped: swine.player.flipped,
 					team: this._targetTeam,
@@ -138,13 +137,12 @@ export default (G) => {
 			},
 
 			activate: function (path, args) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let target = arrayUtils.last(path).creature;
 				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
+					this.creature, // Attacker
+					this.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -279,7 +277,6 @@ export default (G) => {
 				let bellowrow = matrices.bellowrow;
 				let straitrow = matrices.straitrow;
 
-				let ability = this;
 				let swine = this.creature;
 
 				let choices = [
@@ -298,8 +295,8 @@ export default (G) => {
 				});
 
 				G.grid.queryChoice({
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					}, // fnOnConfirm
 					team: this._targetTeam,
 					requireCreature: 1,
@@ -310,9 +307,8 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (path) {
-				let ability = this;
-				ability.end();
+			activate: (path) => {
+				this.end();
 
 				let target = arrayUtils.last(path).creature;
 
@@ -320,7 +316,7 @@ export default (G) => {
 				if (this.isUpgraded()) {
 					let effect = new Effect(
 						'Ground Ball',
-						ability.creature,
+						this.creature,
 						target,
 						'onDamage',
 						{
@@ -335,8 +331,8 @@ export default (G) => {
 				}
 
 				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
+					this.creature, // Attacker
+					this.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -375,7 +371,6 @@ export default (G) => {
 
 			// 	query() :
 			query: () => {
-				let ability = this;
 				let swine = this.creature;
 
 				// Check if the ability is upgraded because then the self cast energy cost is less
@@ -401,8 +396,8 @@ export default (G) => {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					hexes: hexes,
 					hideNonTarget: true,
@@ -412,7 +407,6 @@ export default (G) => {
 			//	activate() :
 			activate: function (hex) {
 				G.grid.clearHexViewAlterations();
-				let ability = this;
 				let swine = this.creature;
 
 				// If upgraded and cast on self, cost is less
@@ -433,12 +427,12 @@ export default (G) => {
 					};
 				}
 
-				ability.end();
+				this.end();
 
 				let effects = [
 					new Effect(
 						'Slow Down',
-						ability.creature,
+						this.creature,
 						hex,
 						'onStepIn',
 						{
@@ -456,7 +450,7 @@ export default (G) => {
 					),
 				];
 
-				hex.createTrap('mud-bath', effects, ability.creature.player);
+				hex.createTrap('mud-bath', effects, this.creature.player);
 
 				// Trigger trap immediately if on self
 				if (isSelf) {

@@ -1,6 +1,5 @@
-import * as $j from 'jquery';
 import { Damage } from '../damage';
-import { Team, isTeam } from '../utility/team';
+import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
@@ -41,7 +40,6 @@ export default (G) => {
 
 			//  activate() :
 			activate: () => {
-				let ability = this;
 				// Force Vehemoth to stay facing the right way
 				this.creature.facePlayerDefault();
 
@@ -109,12 +107,11 @@ export default (G) => {
 
 			// 	query() :
 			query: () => {
-				let ability = this;
 				let vehemoth = this.creature;
 
 				let object = {
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					flipped: vehemoth.flipped,
 					id: vehemoth.id,
@@ -173,9 +170,8 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
-				let vehemoth = ability.creature;
-				ability.end();
+				let vehemoth = this.creature;
+				this.end();
 
 				let target = arrayUtils.last(path).creature;
 
@@ -184,7 +180,7 @@ export default (G) => {
 						? { pure: this.damages.pure }
 						: { crush: this.damages.crush, frost: this.damages.frost };
 				let damage = new Damage(
-					ability.creature, // Attacker
+					this.creature, // Attacker
 					damageType,
 					1, // Area
 					[], // Effects
@@ -360,7 +356,6 @@ export default (G) => {
 
 			// 	query() :
 			query: () => {
-				let ability = this;
 				let crea = this.creature;
 
 				let choices = [
@@ -445,8 +440,8 @@ export default (G) => {
 				];
 
 				G.grid.queryChoice({
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					}, //fnOnConfirm
 					team: this._targetTeam,
 					requireCreature: 1,
@@ -458,8 +453,6 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (choice) {
-				let ability = this;
-
 				let creaturesHit = [];
 
 				for (let i = 0; i < choice.length; i++) {
@@ -471,8 +464,8 @@ export default (G) => {
 
 						choice[i].creature.takeDamage(
 							new Damage(
-								ability.creature, // Attacker
-								ability.damages1, // Damage Type
+								this.creature, // Attacker
+								this.damages1, // Damage Type
 								1, // Area
 								[], // Effects
 								G,
@@ -512,19 +505,18 @@ export default (G) => {
 
 			// 	query() :
 			query: () => {
-				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnSelect: function (path) {
+					fnOnSelect: (path) => {
 						let trg = arrayUtils.last(path).creature;
 
-						let hex = ability.creature.player.flipped
+						let hex = this.creature.player.flipped
 							? G.grid.hexes[arrayUtils.last(path).y][arrayUtils.last(path).x + trg.size - 1]
 							: arrayUtils.last(path);
 
 						hex
-							.adjacentHex(ability.radius)
+							.adjacentHex(this.radius)
 							.concat([hex])
 							.forEach((item) => {
 								if (item.creature instanceof Creature) {
@@ -534,8 +526,8 @@ export default (G) => {
 								}
 							});
 					},
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,
@@ -548,23 +540,22 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (path) {
-				let ability = this;
-				ability.end();
+			activate: (path) => {
+				this.end();
 
 				let trg = arrayUtils.last(path).creature;
 
-				let hex = ability.creature.player.flipped
+				let hex = this.creature.player.flipped
 					? G.grid.hexes[arrayUtils.last(path).y][arrayUtils.last(path).x + trg.size - 1]
 					: arrayUtils.last(path);
 
-				let trgs = ability.getTargets(hex.adjacentHex(ability.radius).concat([hex])); // Include central hex
+				let trgs = this.getTargets(hex.adjacentHex(this.radius).concat([hex])); // Include central hex
 
 				// var target = arrayUtils.last(path).creature;
 
 				// var damage = new Damage(
-				// 	ability.creature, //Attacker
-				// 	ability.damages, //Damage Type
+				// 	this.creature, //Attacker
+				// 	this.damages, //Damage Type
 				// 	1, //Area
 				// 	[]	//Effects
 				// );
@@ -572,11 +563,11 @@ export default (G) => {
 
 				let effect = new Effect(
 					'Frozen', // Name
-					ability.creature, // Caster
+					this.creature, // Caster
 					undefined, // Target
 					'', // Trigger
 					{
-						effectFn: function (eff) {
+						effectFn: (eff) => {
 							eff.target.stats.frozen = true;
 							this.deleteEffect();
 						},
@@ -584,9 +575,9 @@ export default (G) => {
 					G,
 				);
 
-				ability.areaDamage(
-					ability.creature,
-					ability.damages,
+				this.areaDamage(
+					this.creature,
+					this.damages,
 					[effect], // Effects
 					trgs,
 				);

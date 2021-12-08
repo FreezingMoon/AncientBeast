@@ -2,7 +2,7 @@ import _ from 'underscore';
 import * as $j from 'jquery';
 
 export default class MatchI {
-	constructor(connect, game, session, gameplay) {
+	constructor(connect, game, session, _gameplay) {
 		this.game = game;
 		this.socket = connect.socket;
 		this.session = session;

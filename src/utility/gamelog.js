@@ -1,4 +1,3 @@
-import * as $j from 'jquery';
 import { isEmpty, getGameConfig } from '../script';
 
 export class GameLog {

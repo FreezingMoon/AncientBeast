@@ -1913,7 +1913,6 @@ export class UI {
 
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
-				let b = this.selectedAbility == -1 ? 4 : this.selectedAbility; // Checking usable abilities
 				for (let j = 0 + 1; j < 4; j++) {
 					if (
 						game.activeCreature.abilities[j].require() &&
@@ -2338,7 +2337,7 @@ export class UI {
 			.find('.vignette.roundmarker')
 			.off('mouseover')
 			.off('mouseleave')
-			.on('mouseover', (e) => {
+			.on('mouseover', (_event) => {
 				game.grid.showGrid(true);
 				game.grid.showCurrentCreatureMovementInOverlay(game.activeCreature);
 			})

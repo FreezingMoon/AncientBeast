@@ -148,7 +148,7 @@ export default (G) => {
 				}
 
 				//remove frogger bonus if its found
-				this.creature.effects.forEach(function (effect) {
+				this.creature.effects.forEach((effect) => {
 					if (effect.name == 'Frogger Bonus') {
 						this.deleteEffect();
 					}

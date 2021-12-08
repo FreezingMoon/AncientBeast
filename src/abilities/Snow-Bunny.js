@@ -56,7 +56,7 @@ export default (G) => {
 
 				// Find which hex we are hopping from
 				let id = -1;
-				fromHex.creature.hexagons.forEach(function (hex) {
+				fromHex.creature.hexagons.forEach((hex) => {
 					id = hexes.indexOf(hex) > id ? hexes.indexOf(hex) : id;
 				});
 
@@ -123,8 +123,8 @@ export default (G) => {
 				let snowBunny = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: () => {
-						this.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					team: this._targetTeam,
 					id: snowBunny.id,
@@ -191,8 +191,8 @@ export default (G) => {
 				let snowBunny = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: () => {
-						this.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					flipped: snowBunny.player.flipped,
 					team: this._targetTeam,
@@ -304,8 +304,8 @@ export default (G) => {
 				let snowBunny = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: () => {
-						this.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					flipped: snowBunny.player.flipped,
 					team: this._targetTeam,

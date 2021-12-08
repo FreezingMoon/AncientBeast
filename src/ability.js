@@ -32,7 +32,7 @@ export class Ability {
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}
 
-	handleMetaPowerEvent(message, payload) {
+	handleMetaPowerEvent(message, _payload) {
 		if (message === 'resetCooldowns') {
 			this.reset();
 			// Refresh UI to show ability is available.
@@ -311,7 +311,15 @@ export class Ability {
 	 */
 	animation2(o) {
 		let game = this.game,
-			opt = $j.extend({ callback: () => {}, arg: {} }, o),
+			opt = $j.extend(
+				{
+					callback: () => {
+						// No-op function.
+					},
+					arg: {},
+				},
+				o,
+			),
 			args = opt.arg,
 			activateAbility = () => {
 				this.activate(args[0], args[1]);

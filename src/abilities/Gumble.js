@@ -104,8 +104,8 @@ export default (G) => {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: () => {
-						this.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					team: Team.both,
 					id: this.creature.id,
@@ -170,8 +170,8 @@ export default (G) => {
 				);
 
 				G.grid.queryHexes({
-					fnOnConfirm: () => {
-						this.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					size: creature.size,
 					flipped: creature.player.flipped,
@@ -272,8 +272,8 @@ export default (G) => {
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: () => {
-						this.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,

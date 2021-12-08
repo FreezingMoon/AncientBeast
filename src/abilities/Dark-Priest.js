@@ -86,12 +86,11 @@ export default (G) => {
 
 			// 	query() :
 			query: () => {
-				let ability = this;
 				let dpriest = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					team: this._targetTeam,
 					id: dpriest.id,
@@ -102,15 +101,14 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let damageAmount = {
 					shock: 12 * target.size,
 				};
 
 				let damage = new Damage(
-					ability.creature, // Attacker
+					this.creature, // Attacker
 					damageAmount, // Damage Type
 					1, // Area
 					[], // Effects
@@ -167,14 +165,13 @@ export default (G) => {
 
 			// 	query() :
 			query: () => {
-				let ability = this;
 				let dpriest = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
-					optTest: function (creature) {
+					optTest: (creature) => {
 						return creature.size <= dpriest.player.plasma;
 					},
 					team: this._targetTeam,
@@ -186,8 +183,7 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let plasmaCost = target.size;
 				let damage = target.baseStats.health - target.health;
@@ -196,10 +192,10 @@ export default (G) => {
 					damage = 40;
 				}
 
-				ability.creature.player.plasma -= plasmaCost;
+				this.creature.player.plasma -= plasmaCost;
 
 				damage = new Damage(
-					ability.creature, // Attacker
+					this.creature, // Attacker
 					{
 						pure: damage,
 					}, // Damage Type
@@ -208,7 +204,7 @@ export default (G) => {
 					G,
 				);
 
-				ability.end();
+				this.end();
 
 				target.takeDamage(damage);
 			},
@@ -255,9 +251,8 @@ export default (G) => {
 			},
 
 			// Callback function to queryCreature
-			materialize: function (creature) {
+			materialize: (creature) => {
 				let crea = G.retrieveCreatureStats(creature);
-				let ability = this;
 				let dpriest = this.creature;
 
 				// Removes temporary Creature from queue when Player chooses a
@@ -283,7 +278,7 @@ export default (G) => {
 				let creatureVignette = $j("div[creatureid='" + fullCrea.id + "']");
 				creatureVignette.css({ opacity: 0.5 });
 
-				G.grid.forEachHex(function (hex) {
+				G.grid.forEachHex((hex) => {
 					hex.unsetReachable();
 				});
 
@@ -300,14 +295,14 @@ export default (G) => {
 				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);
 
 				G.grid.queryHexes({
-					fnOnSelect: () => {
-						ability.fnOnSelect(...arguments);
+					fnOnSelect: (...args) => {
+						this.fnOnSelect(...args);
 					},
 					fnOnCancel: () => {
 						G.activeCreature.queryMove();
 					},
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					args: {
 						creature: creature,
@@ -322,25 +317,24 @@ export default (G) => {
 			//	activate() :
 			activate: function (hex, args) {
 				let creature = args.creature;
-				let ability = this;
 
 				let pos = {
 					x: hex.x,
 					y: hex.y,
 				};
 
-				ability.creature.player.plasma -= args.cost;
+				this.creature.player.plasma -= args.cost;
 
 				//TODO: Make the UI show the updated number instantly
 
-				ability.end(false, true);
+				this.end(false, true);
 
-				ability.creature.player.summon(creature, pos);
+				this.creature.player.summon(creature, pos);
 				let crea = G.creatures.pop();
 				crea.id--;
 				G.creatures[crea.id] = crea;
 				G.creatureIdCounter--;
-				ability.creature.queryMove();
+				this.creature.queryMove();
 			},
 		},
 	];

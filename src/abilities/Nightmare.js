@@ -25,10 +25,9 @@ export default (G) => {
 			require: () => {
 				// Check whether this ability is upgraded; if so then make sure all existing
 				// buffs include an offense buff
-				let ability = this;
-				this.creature.effects.forEach(function (effect) {
-					if (effect.name === ability._effectName) {
-						effect.alterations.offense = ability._getOffenseBuff();
+				this.creature.effects.forEach((effect) => {
+					if (effect.name === this._effectName) {
+						effect.alterations.offense = this._getOffenseBuff();
 					}
 				});
 
@@ -86,11 +85,9 @@ export default (G) => {
 
 			// 	query() :
 			query: () => {
-				let ability = this;
-
 				G.grid.queryCreature({
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -101,17 +98,16 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				// Upgraded ability does pierce damage to smaller size targets
-				let damages = ability.damages;
+				let damages = this.damages;
 				if (!this.isUpgraded() || !(target.size < this.creature.size)) {
 					damages.pierce = 0;
 				}
 
 				let damage = new Damage(
-					ability.creature, // Attacker
+					this.creature, // Attacker
 					damages, // Damage Type
 					1, // Area
 					[
@@ -161,11 +157,9 @@ export default (G) => {
 
 			// 	query() :
 			query: () => {
-				let ability = this;
-
 				G.grid.queryCreature({
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -176,8 +170,7 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
-				ability.end();
+				this.end();
 
 				let effects = [];
 				// Upgraded ability adds a -10 defense debuff
@@ -201,8 +194,8 @@ export default (G) => {
 					);
 				}
 				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
+					this.creature, // Attacker
+					this.damages, // Damage Type
 					1, // Area
 					effects,
 					G,
@@ -255,14 +248,13 @@ export default (G) => {
 
 			// 	query() :
 			query: () => {
-				let ability = this;
 				let crea = this.creature;
 
 				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
-					fnOnConfirm: () => {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					team: this._targetTeam,
 					id: crea.id,
@@ -276,17 +268,15 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (path) {
-				let ability = this;
-
-				ability.end();
+			activate: (path) => {
+				this.end();
 
 				for (let i = 0; i < path.length; i++) {
 					if (path[i].creature instanceof Creature) {
 						let trg = path[i].creature;
 
 						let d = {
-							pierce: ability.damages.pierce,
+							pierce: this.damages.pierce,
 							frost: 6 - i,
 						};
 						if (d.frost < 0) {
@@ -295,7 +285,7 @@ export default (G) => {
 
 						//Damage
 						let damage = new Damage(
-							ability.creature, // Attacker
+							this.creature, // Attacker
 							d, // Damage Type
 							1, // Area
 							[], // Effects

@@ -593,7 +593,6 @@ export default class Game {
 	}
 	async updateLobby() {
 		if (this.matchInitialized) return;
-		let self = this;
 
 		$j('.lobby-match-list').html('').addClass('refreshing');
 		$j('#refreshMatchButton').addClass('disabled');
@@ -839,7 +838,9 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: () => {},
+				callback: () => {
+					// No-op function.
+				},
 				noTooltip: false,
 				tooltip: 'Skipped',
 			},
@@ -908,7 +909,9 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: () => {},
+				callback: () => {
+					// No-op function.
+				},
 			},
 			o,
 		);
@@ -1442,7 +1445,9 @@ export default class Game {
 
 	action(o, opt) {
 		let defaultOpt = {
-			callback: () => {},
+			callback: () => {
+				// No-op function.
+			},
 		};
 
 		opt = $j.extend(defaultOpt, opt);
