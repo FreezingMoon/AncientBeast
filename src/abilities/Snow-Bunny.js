@@ -168,7 +168,7 @@ export default (G) => {
 
 					if (hexHasEnemy) {
 						acc.push({
-							// 0 = front above, 1 = front, 2 = front below
+							// Maps to HopTriggerDirections.
 							direction: idx,
 							hex: curr,
 						});
