@@ -142,18 +142,19 @@ export default (G) => {
 			},
 
 			/**
-			 * Determine if a hex containing an enemy is in front of the bunny.
+			 * Determine if a hex containing an enemy is in front of the bunny. Useful
+			 * for checking if a newly moved enemy has entered the Bunny's Hop zone.
 			 *
-			 * @param {Hex} hexWithEnemy
-			 * @returns Hex
+			 * @param {Hex} hexWithEnemy Hex known to contain an enemy.
+			 * @returns {Hex | undefined} hexWithEnemy if it did move in front of the bunny, otherwise undefined.
 			 */
 			_findEnemyHexInFront: function (hexWithEnemy) {
 				const frontHexesWithEnemy = this._detectFrontHexesWithEnemy();
-				const foundEnemyHex = frontHexesWithEnemy.find(
+				const foundEnemyHex = frontHexesWithEnemy.some(
 					({ hex }) => hexWithEnemy.creature === hex.creature,
 				);
 
-				return foundEnemyHex;
+				return foundEnemyHex ? hexWithEnemy : undefined;
 			},
 
 			/**
