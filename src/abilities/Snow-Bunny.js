@@ -21,16 +21,19 @@ export default (G) => {
 		 * After any movement, if an enemy is newly detected in the 3 hexes in front
 		 * of the bunny (facing right for player 1, left for player 2), the creature
 		 * will move backwards one space in an opposite direction.
-		 *
-		 * The ability is only usable if the creature is not affected by ability-restricting
-		 * effects such as Materialization Sickness or Frozen.
 		 */
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onCreatureMove onOtherCreatureMove',
 
 			/**
-			 * Determine if the ability should trigger.
+			 * Bunny Hop triggers on any movement during other creature's turns (not the
+			 * Bunny's self-movement) that causes an enemy to appear in front of the Bunny.
+			 * This could be the enemy moving, or an enemy or ally displacing the Bunny
+			 * or another creature.
+			 *
+			 * Bunny Hop is only usable if the creature is not affected by ability-restricting
+			 * effects such as Materialization Sickness or Frozen.
 			 *
 			 * @param {Hex} hex Destination hex where a creature (bunny or other) has moved.
 			 * @returns {boolean} If the ability should trigger.
