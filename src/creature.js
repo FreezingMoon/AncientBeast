@@ -244,8 +244,11 @@ export class Creature {
 
 		this.delayable = true;
 		this.delayed = false;
-		this.materializationSickness =
-			obj.materializationSickness ?? (this.isDarkPriest() ? false : true);
+		if (typeof obj.materializationSickness !== 'undefined') {
+			this.materializationSickness = obj.materializationSickness;
+		} else {
+			this.materializationSickness = this.isDarkPriest() ? false : true;
+		}
 		this.noActionPossible = false;
 	}
 
