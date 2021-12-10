@@ -209,8 +209,7 @@ export default (G) => {
 					{
 						effectFn: (eff) => {
 							const handleCreatureEvent = (message, payload) => {
-								console.log({ message, payload }, eff.target);
-								if (message === 'movementComplete' && payload.id === eff.target.id) {
+								if (message === 'movementComplete' && payload.creature.id === eff.target.id) {
 									this.game.signals.creature.remove(handleCreatureEvent);
 
 									G.log('%CreatureName' + eff.target.id + '% is hit by ' + eff.name);
