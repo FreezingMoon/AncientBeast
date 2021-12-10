@@ -148,7 +148,6 @@ export class Ability {
 		}
 
 		this.applyCost();
-		console.log(this._disableCooldowns);
 		if (!this._disableCooldowns) {
 			this.setUsed(true); // Should always be here
 		}

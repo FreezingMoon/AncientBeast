@@ -1846,7 +1846,7 @@ export class Creature {
 	}
 
 	/**
-	 * Is this creature a dark priest (player)?
+	 * Is this creature a dark priest?
 	 *
 	 * @returns {boolean}
 	 */
