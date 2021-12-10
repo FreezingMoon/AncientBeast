@@ -8,23 +8,26 @@ export class CreatureQueue {
 		this.tempCreature = {};
 	}
 
-	/** addByInitiative
-	 * @param {Object} creature Creature
-	 * @returns {void}
+	/**
 	 * Add a creature to the next turn's queue by initiative
-	 * creature - The creature to add
+	 *
+	 * @param {Creature} creature The creature to add.
+	 * @param {boolean} addToNextQueue Add creature to the next queue, or the current one.
+	 * @returns
 	 */
-	addByInitiative(creature) {
-		for (let i = 0; i < this.nextQueue.length; i++) {
-			let queue = this.nextQueue[i];
+	addByInitiative(creature, addToNextQueue = true) {
+		const targetQueue = addToNextQueue ? this.nextQueue : this.queue;
+
+		for (let i = 0; i < targetQueue.length; i++) {
+			let queue = targetQueue[i];
 
 			if (queue.delayed || queue.getInitiative() < creature.getInitiative()) {
-				this.nextQueue.splice(i, 0, creature);
+				targetQueue.splice(i, 0, creature);
 				return;
 			}
 		}
 
-		this.nextQueue.push(creature);
+		targetQueue.push(creature);
 	}
 
 	dequeue() {

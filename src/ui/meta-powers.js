@@ -12,6 +12,7 @@ export class MetaPowers {
 
 		this.state = {
 			executeMonster: false,
+			disableMaterializationSickness: false,
 		};
 
 		this.$els = {
@@ -19,6 +20,7 @@ export class MetaPowers {
 			closeModal: $j('#meta-powers .framed-modal__return .button'),
 			executeMonsterButton: $j('#execute-monster-button'),
 			resetCooldownsButton: $j('#reset-cooldowns-button'),
+			disableMaterializationSicknessButton: $j('#disable-materialization-sickness-button'),
 		};
 
 		// Events
@@ -73,6 +75,23 @@ export class MetaPowers {
 			},
 			this.game,
 		);
+
+		this.btnDisableMaterializationSickness = new Button(
+			{
+				$button: this.$els.disableMaterializationSicknessButton,
+				hasShortcut: true,
+				click: () => this.toggleDisableMaterializationSickness(),
+			},
+			this.game,
+		);
+	}
+
+	getState(stateKey) {
+		if (!this.state[stateKey]) {
+			console.warn(`Meta Powers state does not exist for key: ${stateKey}`);
+		}
+
+		return this.state[stateKey];
 	}
 
 	/**
@@ -106,6 +125,28 @@ export class MetaPowers {
 		);
 
 		this.game.signals.metaPowers.dispatch('toggleExecuteMonster', executeMonster);
+	}
+
+	/**
+	 * Toggle the button state for the "Disable Materialization Sickness" button,
+	 * and inform the rest of the app that feature is enabled/disabled.
+	 */
+	toggleDisableMaterializationSickness() {
+		const disableMaterializationSickness = !this.state.disableMaterializationSickness;
+
+		this.state = {
+			...this.state,
+			disableMaterializationSickness,
+		};
+
+		this.btnDisableMaterializationSickness.changeState(
+			disableMaterializationSickness ? ButtonStateEnum.active : ButtonStateEnum.normal,
+		);
+
+		this.game.signals.metaPowers.dispatch(
+			'toggleDisableMaterializationSickness',
+			disableMaterializationSickness,
+		);
 	}
 
 	/**

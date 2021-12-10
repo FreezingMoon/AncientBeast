@@ -50,6 +50,14 @@ export class Player {
 				type: 'timebonus',
 			},
 		];
+
+		/**
+		 * Whether creatures summoned by Player are affected by Materialization Sickness.
+		 */
+		this._summonCreaturesWithMaterializationSickness = true;
+
+		// Events
+		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}
 
 	// TODO: Is this even right? it should be off by 1 based on this code...
@@ -95,7 +103,7 @@ export class Player {
 
 		creature = new Creature(data, game);
 		this.creatures.push(creature);
-		creature.summon();
+		creature.summon(!this._summonCreaturesWithMaterializationSickness);
 		game.onCreatureSummon(creature);
 	}
 
@@ -260,6 +268,12 @@ export class Player {
 		} else {
 			// 1 vs 1
 			game.endGame();
+		}
+	}
+
+	handleMetaPowerEvent(message, payload) {
+		if (message === 'toggleDisableMaterializationSickness') {
+			this._summonCreaturesWithMaterializationSickness = !payload;
 		}
 	}
 }
