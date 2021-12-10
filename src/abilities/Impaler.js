@@ -137,7 +137,7 @@ export default (G) => {
 			},
 		},
 
-		// 	Thirt Ability: Poisonous Vine
+		// 	Third Ability: Poisonous Vine
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
@@ -207,17 +207,27 @@ export default (G) => {
 					this,
 					'onStepOut',
 					{
-						effectFn: function (eff) {
-							G.log('%CreatureName' + eff.target.id + '% is hit by ' + eff.name);
-							eff.target.takeDamage(new Damage(eff.owner, damages, 1, [], G), {
-								isFromTrap: true,
-							});
-							// Hack: manually destroy traps so we don't activate multiple traps
-							// and see multiple logs etc.
-							target.hexagons.forEach(function (hex) {
-								hex.destroyTrap();
-							});
-							eff.deleteEffect();
+						effectFn: (eff) => {
+							const handleCreatureEvent = (message, payload) => {
+								console.log({ message, payload }, eff.target);
+								if (message === 'movementComplete' && payload.id === eff.target.id) {
+									this.game.signals.creature.remove(handleCreatureEvent);
+
+									G.log('%CreatureName' + eff.target.id + '% is hit by ' + eff.name);
+									eff.target.takeDamage(new Damage(eff.owner, damages, 1, [], G), {
+										isFromTrap: true,
+									});
+									// Hack: manually destroy traps so we don't activate multiple traps
+									// and see multiple logs etc.
+									target.hexagons.forEach(function (hex) {
+										hex.destroyTrap();
+									});
+									eff.deleteEffect();
+								}
+							};
+
+							// Wait until movement is completely finished before processing effects.
+							this.game.signals.creature.add(handleCreatureEvent);
 						},
 					},
 					G,
