@@ -208,9 +208,9 @@ export default (G) => {
 					'onStepOut',
 					{
 						effectFn: (eff) => {
-							const handleCreatureEvent = (message, payload) => {
+							const waitForMovementComplete = (message, payload) => {
 								if (message === 'movementComplete' && payload.creature.id === eff.target.id) {
-									this.game.signals.creature.remove(handleCreatureEvent);
+									this.game.signals.creature.remove(waitForMovementComplete);
 
 									G.log('%CreatureName' + eff.target.id + '% is hit by ' + eff.name);
 									eff.target.takeDamage(new Damage(eff.owner, damages, 1, [], G), {
@@ -226,7 +226,7 @@ export default (G) => {
 							};
 
 							// Wait until movement is completely finished before processing effects.
-							this.game.signals.creature.add(handleCreatureEvent);
+							this.game.signals.creature.add(waitForMovementComplete);
 						},
 					},
 					G,
