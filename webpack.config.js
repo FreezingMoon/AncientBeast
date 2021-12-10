@@ -1,5 +1,7 @@
 // Use .env configuration in webpack.config.js
-require('dotenv').config();
+require('dotenv-defaults').config({
+	default: './.env.example',
+});
 
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -85,7 +87,9 @@ module.exports = (env, argv) => {
 				production,
 				enableServiceWorker,
 			}),
-			new Dotenv(),
+			new Dotenv({
+				defaults: './.env.example',
+			}),
 		],
 		node: {
 			fs: 'empty',
