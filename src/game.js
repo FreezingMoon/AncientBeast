@@ -181,7 +181,7 @@ export default class Game {
 			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
 
-		const signalChannels = ['ui', 'metaPowers'];
+		const signalChannels = ['ui', 'metaPowers', 'creature'];
 		this.signals = this.setupSignalChannels(signalChannels);
 	}
 

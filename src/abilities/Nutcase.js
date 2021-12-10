@@ -204,7 +204,7 @@ export default (G) => {
 					'Hammered', // Name
 					this.creature, // Caster
 					target, // Target
-					'onStepOut', // Trigger
+					'onStepIn', // Trigger
 					{
 						effectFn: function (eff) {
 							eff.target.takeDamage(
@@ -470,7 +470,7 @@ export default (G) => {
 			},
 		},
 
-		//	Third Ability: Fishing Hook
+		//	Fourth Ability: Fishing Hook
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
