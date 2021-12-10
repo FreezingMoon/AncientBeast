@@ -11,15 +11,16 @@ export class MetaPowers {
 	constructor(game) {
 		this.game = game;
 
-		this.state = {
-			executeMonster: false,
-			resetCooldowns: false,
-			disableMaterializationSickness: false,
+		this.toggles = {
+			executeMonster: { enabled: false, label: 'Execution Mode' },
+			resetCooldowns: { enabled: false, label: 'Disable Materialization Sickness' },
+			disableMaterializationSickness: { enabled: false, label: 'Disable Cooldowns' },
 		};
 
 		this.$els = {
 			modal: $j('#meta-powers'),
 			closeModal: $j('#meta-powers .framed-modal__return .button'),
+			powersList: $j('#meta-powers-list'),
 			executeMonsterButton: $j('#execute-monster-button'),
 			resetCooldownsButton: $j('#reset-cooldowns-button'),
 			disableMaterializationSicknessButton: $j('#disable-materialization-sickness-button'),
@@ -30,6 +31,8 @@ export class MetaPowers {
 
 		// DOM bindings
 		this._bindElements();
+
+		this._updatePowersList();
 	}
 
 	/**
@@ -100,24 +103,35 @@ export class MetaPowers {
 	 * @param {Button} button Button representing the toggle state.
 	 */
 	_togglePower(stateKey, button) {
-		const setting = !this.state[stateKey];
+		const enabled = !this.toggles[stateKey].enabled;
 
-		this.state = {
-			...this.state,
-			[stateKey]: setting,
+		this.toggles = {
+			...this.toggles,
+			[stateKey]: { ...this.toggles[stateKey], enabled },
 		};
 
-		button.changeState(setting ? ButtonStateEnum.active : ButtonStateEnum.normal);
+		button.changeState(enabled ? ButtonStateEnum.active : ButtonStateEnum.normal);
 
-		this.game.signals.metaPowers.dispatch(`toggle${capitalize(stateKey)}`, setting);
+		this.game.signals.metaPowers.dispatch(`toggle${capitalize(stateKey)}`, enabled);
+
+		this._updatePowersList();
 	}
 
-	getState(stateKey) {
-		if (!this.state[stateKey]) {
-			console.warn(`Meta Powers state does not exist for key: ${stateKey}`);
-		}
+	/**
+	 * Display a list of enabled powers outside of the modal for easy reference.
+	 */
+	_updatePowersList() {
+		const list = Object.keys(this.toggles)
+			.reduce((acc, curr) => {
+				if (this.toggles[curr].enabled) {
+					return [...acc, this.toggles[curr].label];
+				}
 
-		return this.state[stateKey];
+				return acc;
+			}, [])
+			.join(', ');
+
+		this.$els.powersList.html(list.length ? `Enabled Meta Powers: ${list}` : '');
 	}
 
 	/**
