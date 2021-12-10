@@ -788,10 +788,10 @@ export class Creature {
 		}
 
 		let interval = setInterval(() => {
+			// Check if creature's movement animation is completely finished.
 			if (!game.freezedInput) {
 				clearInterval(interval);
 				opts.callback();
-				// Creature's movement is completely finished.
 				game.signals.creature.dispatch('movementComplete', { creature: this, hex });
 				game.onCreatureMove(this, hex); // Trigger
 			}
