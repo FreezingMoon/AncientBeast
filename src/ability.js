@@ -28,15 +28,24 @@ export class Ability {
 			this.requirements = this.costs;
 		}
 
+		// If set, abilities can be used multiple times in a single round.
+		this._disableCooldowns = false;
+
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}
 
 	handleMetaPowerEvent(message, payload) {
-		if (message === 'resetCooldowns') {
-			this.reset();
-			// Refresh UI to show ability is available.
-			this.game.UI.selectAbility(-1);
+		if (message === 'toggleResetCooldowns') {
+			// Prevent ability from going on cooldown.
+			this._disableCooldowns = payload;
+
+			// Reset cooldown if the ability has already been used.
+			if (this.used && payload === true) {
+				this.reset();
+				// Refresh UI to show ability is available.
+				this.game.UI.selectAbility(-1);
+			}
 		}
 	}
 
@@ -139,7 +148,10 @@ export class Ability {
 		}
 
 		this.applyCost();
-		this.setUsed(true); // Should always be here
+		console.log(this._disableCooldowns);
+		if (!this._disableCooldowns) {
+			this.setUsed(true); // Should always be here
+		}
 		game.UI.updateInfos(); // Just in case
 		game.UI.btnDelay.changeState('disabled');
 		game.activeCreature.delayable = false;

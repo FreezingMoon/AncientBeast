@@ -1,4 +1,5 @@
 import * as $j from 'jquery';
+import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
 
 /**
@@ -12,6 +13,7 @@ export class MetaPowers {
 
 		this.state = {
 			executeMonster: false,
+			resetCooldowns: false,
 			disableMaterializationSickness: false,
 		};
 
@@ -62,7 +64,7 @@ export class MetaPowers {
 			{
 				$button: this.$els.executeMonsterButton,
 				hasShortcut: true,
-				click: () => this.toggleExecuteMonster(),
+				click: () => this._togglePower('executeMonster', this.btnExecuteMonster),
 			},
 			this.game,
 		);
@@ -71,7 +73,7 @@ export class MetaPowers {
 			{
 				$button: this.$els.resetCooldownsButton,
 				hasShortcut: true,
-				click: () => this.resetCooldowns(),
+				click: () => this._togglePower('resetCooldowns', this.btnResetCooldowns),
 			},
 			this.game,
 		);
@@ -80,10 +82,34 @@ export class MetaPowers {
 			{
 				$button: this.$els.disableMaterializationSicknessButton,
 				hasShortcut: true,
-				click: () => this.toggleDisableMaterializationSickness(),
+				click: () =>
+					this._togglePower(
+						'disableMaterializationSickness',
+						this.btnDisableMaterializationSickness,
+					),
 			},
 			this.game,
 		);
+	}
+
+	/**
+	 * Toggle the button state for a Meta Power and inform the rest of the app that
+	 * setting has changed.
+	 *
+	 * @param {string} stateKey Key for `this.state` setting.
+	 * @param {Button} button Button representing the toggle state.
+	 */
+	_togglePower(stateKey, button) {
+		const setting = !this.state[stateKey];
+
+		this.state = {
+			...this.state,
+			[stateKey]: setting,
+		};
+
+		button.changeState(setting ? ButtonStateEnum.active : ButtonStateEnum.normal);
+
+		this.game.signals.metaPowers.dispatch(`toggle${capitalize(stateKey)}`, setting);
 	}
 
 	getState(stateKey) {
@@ -106,53 +132,5 @@ export class MetaPowers {
 	 */
 	closeModal() {
 		this.$els.modal.addClass('hide');
-	}
-
-	/**
-	 * Toggle the button state for the "Execution Mode" button, and inform the rest
-	 * of the app that execution mode is enabled.
-	 */
-	toggleExecuteMonster() {
-		const executeMonster = !this.state.executeMonster;
-
-		this.state = {
-			...this.state,
-			executeMonster,
-		};
-
-		this.btnExecuteMonster.changeState(
-			executeMonster ? ButtonStateEnum.active : ButtonStateEnum.normal,
-		);
-
-		this.game.signals.metaPowers.dispatch('toggleExecuteMonster', executeMonster);
-	}
-
-	/**
-	 * Toggle the button state for the "Disable Materialization Sickness" button,
-	 * and inform the rest of the app that feature is enabled/disabled.
-	 */
-	toggleDisableMaterializationSickness() {
-		const disableMaterializationSickness = !this.state.disableMaterializationSickness;
-
-		this.state = {
-			...this.state,
-			disableMaterializationSickness,
-		};
-
-		this.btnDisableMaterializationSickness.changeState(
-			disableMaterializationSickness ? ButtonStateEnum.active : ButtonStateEnum.normal,
-		);
-
-		this.game.signals.metaPowers.dispatch(
-			'toggleDisableMaterializationSickness',
-			disableMaterializationSickness,
-		);
-	}
-
-	/**
-	 * Inform the rest of the app that cooldowns should be reset.
-	 */
-	resetCooldowns() {
-		this.game.signals.metaPowers.dispatch('resetCooldowns');
 	}
 }
