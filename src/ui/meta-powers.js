@@ -1,6 +1,9 @@
 import * as $j from 'jquery';
+import Cookies from 'js-cookie';
 import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
+
+const COOKIE_KEY = 'ab-meta-powers';
 
 /**
  * "God-mode" UI for debugging game state. Available in hot-seat games when the
@@ -11,26 +14,24 @@ export class MetaPowers {
 	constructor(game) {
 		this.game = game;
 
+		this.persistSettings = false;
+
 		this.toggles = {
 			executeMonster: { enabled: false, label: 'Execution Mode' },
 			resetCooldowns: { enabled: false, label: 'Disable Materialization Sickness' },
 			disableMaterializationSickness: { enabled: false, label: 'Disable Cooldowns' },
 		};
 
-		this.$els = {
-			modal: $j('#meta-powers'),
-			closeModal: $j('#meta-powers .framed-modal__return .button'),
-			powersList: $j('#meta-powers-list'),
-			executeMonsterButton: $j('#execute-monster-button'),
-			resetCooldownsButton: $j('#reset-cooldowns-button'),
-			disableMaterializationSicknessButton: $j('#disable-materialization-sickness-button'),
-		};
+		// Object that will contain jQuery element references.
+		this.$els = {};
+		this._bindElements();
 
 		// Events
 		this.game.signals.ui.add(this._handleUiEvent, this);
 
-		// DOM bindings
-		this._bindElements();
+		if (Cookies.get(COOKIE_KEY)) {
+			this._restorePowers();
+		}
 
 		this._updatePowersList();
 	}
@@ -55,6 +56,16 @@ export class MetaPowers {
 	 * One-time setup of DOM bindings and other DOM manipulation.
 	 */
 	_bindElements() {
+		this.$els = {
+			modal: $j('#meta-powers'),
+			closeModal: $j('#meta-powers .framed-modal__return .button'),
+			persistPowersCheckbox: $j('#persist-meta-powers'),
+			powersList: $j('#meta-powers-list'),
+			executeMonsterButton: $j('#execute-monster-button'),
+			resetCooldownsButton: $j('#reset-cooldowns-button'),
+			disableMaterializationSicknessButton: $j('#disable-materialization-sickness-button'),
+		};
+
 		this.btnCloseModal = new Button(
 			{
 				$button: this.$els.closeModal,
@@ -93,6 +104,14 @@ export class MetaPowers {
 			},
 			this.game,
 		);
+
+		this.$els.persistPowersCheckbox.on('change', (event) => {
+			this._togglePersistPowers(event.currentTarget.checked);
+		});
+
+		if (Cookies.get(COOKIE_KEY)) {
+			this.$els.persistPowersCheckbox.prop('checked', true);
+		}
 	}
 
 	/**
@@ -115,6 +134,43 @@ export class MetaPowers {
 		this.game.signals.metaPowers.dispatch(`toggle${capitalize(stateKey)}`, enabled);
 
 		this._updatePowersList();
+
+		if (this.persistSettings) {
+			this._persistPowers();
+		}
+	}
+
+	/**
+	 * Turn on or off persisting Meta Powers to a cookie.
+	 *
+	 * @param {boolean} persisting
+	 */
+	_togglePersistPowers(persisting) {
+		if (persisting) {
+			this._persistPowers();
+		} else {
+			Cookies.remove(COOKIE_KEY);
+		}
+	}
+
+	/**
+	 * Persist toggled Meta Powers to a cookie.
+	 */
+	_persistPowers() {
+		Cookies.set(COOKIE_KEY, JSON.stringify({ persisting: true, toggles: this.toggles }));
+	}
+
+	/**
+	 * If the toggled Meta Powers were persisted to a cookie, restore them.
+	 */
+	_restorePowers() {
+		const powers = JSON.parse(Cookies.get(COOKIE_KEY)).toggles;
+
+		Object.keys(powers).forEach((key) => {
+			if (powers[key].enabled) {
+				this._togglePower(key, this[`btn${capitalize(key)}`]);
+			}
+		});
 	}
 
 	/**
