@@ -40,7 +40,7 @@ export default (G) => {
 
 				this.creature.addEffect(test);
 
-				this.end();
+				this.end(true);
 			},
 
 			_activateOnAttacker: function (effect, damage) {
