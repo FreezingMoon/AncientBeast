@@ -65,6 +65,7 @@ export default (G) => {
 					turnLifetime: 1,
 					creationTurn: G.turn - 1,
 					deleteOnOwnerDeath: true,
+					stackable: false,
 				};
 
 				// If upgraded, target abilities cost more energy
