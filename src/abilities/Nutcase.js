@@ -14,21 +14,45 @@ export default (G) => {
 	G.abilities[40] = [
 		//	First Ability: Tentacle Bush
 		{
-			trigger: 'onUnderAttack',
+			trigger: 'onEndPhase',
 
 			require: function () {
 				// Always true to highlight ability
 				return true;
 			},
 
-			activate: function (damage) {
+			activate: function () {
+				const test = new Effect(
+					this.title,
+					this.creature,
+					this.creature,
+					'onUnderAttack',
+					{
+						alterations: {
+							moveable: false,
+						},
+						effectFn: (...args) => this._activateOnAttacker(...args),
+						deleteTrigger: 'onStartPhase',
+						turnLifetime: 1,
+					},
+					G,
+				);
+
+				this.creature.addEffect(test);
+
+				this.end();
+			},
+
+			_activateOnAttacker: function (effect, damage) {
 				// Must take melee damage from a non-trap source
 				if (damage === undefined) {
 					return false;
 				}
+
 				if (!damage.melee) {
 					return false;
 				}
+
 				if (damage.isFromTrap) {
 					return false;
 				}
@@ -36,7 +60,7 @@ export default (G) => {
 				let ability = this;
 				ability.end();
 
-				// Target becomes unmoveable until end of their phase
+				// Target becomes unmovable until end of their phase
 				let o = {
 					alterations: {
 						moveable: false,
@@ -47,10 +71,12 @@ export default (G) => {
 					creationTurn: G.turn - 1,
 					deleteOnOwnerDeath: true,
 				};
+
 				// If upgraded, target abilities cost more energy
 				if (this.isUpgraded()) {
 					o.alterations.reqEnergy = 5;
 				}
+
 				// Create a zero damage with debuff
 				let counterDamage = new Damage(
 					this.creature,
@@ -70,32 +96,97 @@ export default (G) => {
 				);
 				counterDamage.counter = true;
 				damage.attacker.takeDamage(counterDamage);
-				// Making attacker unmoveable will change its move query, so update it
+
+				// Making attacker unmovable will change its move query, so update it
 				if (damage.attacker === G.activeCreature) {
 					damage.attacker.queryMove();
 				}
-
-				// If inactive, Nutcase becomes unmoveable until start of its phase
-				if (G.activeCreature !== this.creature) {
-					this.creature.addEffect(
-						new Effect(
-							this.title,
-							this.creature,
-							this.creature,
-							'',
-							{
-								alterations: {
-									moveable: false,
-								},
-								deleteTrigger: 'onStartPhase',
-								turnLifetime: 1,
-							},
-							G,
-						),
-					);
-				}
 			},
 		},
+
+		// {
+		// 	trigger: 'onUnderAttack',
+
+		// 	require: function () {
+		// 		// Always true to highlight ability
+		// 		return true;
+		// 	},
+
+		// 	activate: function (damage) {
+		// 		// Must take melee damage from a non-trap source
+		// 		if (damage === undefined) {
+		// 			return false;
+		// 		}
+		// 		if (!damage.melee) {
+		// 			return false;
+		// 		}
+		// 		if (damage.isFromTrap) {
+		// 			return false;
+		// 		}
+
+		// 		let ability = this;
+		// 		ability.end();
+
+		// 		// Target becomes unmoveable until end of their phase
+		// 		let o = {
+		// 			alterations: {
+		// 				moveable: false,
+		// 			},
+		// 			deleteTrigger: 'onEndPhase',
+		// 			// Delete this effect as soon as attacker's turn finishes
+		// 			turnLifetime: 1,
+		// 			creationTurn: G.turn - 1,
+		// 			deleteOnOwnerDeath: true,
+		// 		};
+		// 		// If upgraded, target abilities cost more energy
+		// 		if (this.isUpgraded()) {
+		// 			o.alterations.reqEnergy = 5;
+		// 		}
+		// 		// Create a zero damage with debuff
+		// 		let counterDamage = new Damage(
+		// 			this.creature,
+		// 			{},
+		// 			1,
+		// 			[
+		// 				new Effect(
+		// 					this.title,
+		// 					this.creature, // Caster
+		// 					damage.attacker, // Target
+		// 					'', // Trigger
+		// 					o,
+		// 					G,
+		// 				),
+		// 			],
+		// 			G,
+		// 		);
+		// 		counterDamage.counter = true;
+		// 		damage.attacker.takeDamage(counterDamage);
+		// 		// Making attacker unmoveable will change its move query, so update it
+		// 		if (damage.attacker === G.activeCreature) {
+		// 			damage.attacker.queryMove();
+		// 		}
+
+		// 		// If inactive, Nutcase becomes unmoveable until start of its phase
+		// 		if (G.activeCreature !== this.creature) {
+		// 			this.creature.addEffect(
+		// 				new Effect(
+		// 					this.title,
+		// 					this.creature,
+		// 					this.creature,
+		// 					'',
+		// 					{
+		// 						alterations: {
+		// 							moveable: false,
+		// 						},
+		// 						deleteTrigger: 'onStartPhase',
+		// 						turnLifetime: 1,
+		// 					},
+		// 					G,
+		// 				),
+		// 			);
+		// 		}
+		// 	},
+		// },
 
 		//	Second Ability: Hammer Time
 		{
