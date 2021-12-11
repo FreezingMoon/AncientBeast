@@ -14,8 +14,6 @@ export class MetaPowers {
 	constructor(game) {
 		this.game = game;
 
-		this.persistSettings = false;
-
 		this.toggles = {
 			executeMonster: { enabled: false, label: 'Execution Mode' },
 			resetCooldowns: { enabled: false, label: 'Disable Materialization Sickness' },
@@ -59,7 +57,7 @@ export class MetaPowers {
 		this.$els = {
 			modal: $j('#meta-powers'),
 			closeModal: $j('#meta-powers .framed-modal__return .button'),
-			persistPowersCheckbox: $j('#persist-meta-powers'),
+			resetPowersButton: $j('#reset-toggled-powers'),
 			powersList: $j('#meta-powers-list'),
 			executeMonsterButton: $j('#execute-monster-button'),
 			resetCooldownsButton: $j('#reset-cooldowns-button'),
@@ -105,13 +103,9 @@ export class MetaPowers {
 			this.game,
 		);
 
-		this.$els.persistPowersCheckbox.on('change', (event) => {
-			this._togglePersistPowers(event.currentTarget.checked);
+		this.$els.resetPowersButton.on('click', () => {
+			this._clearPowers();
 		});
-
-		if (Cookies.get(COOKIE_KEY)) {
-			this.$els.persistPowersCheckbox.prop('checked', true);
-		}
 	}
 
 	/**
@@ -134,23 +128,7 @@ export class MetaPowers {
 		this.game.signals.metaPowers.dispatch(`toggle${capitalize(stateKey)}`, enabled);
 
 		this._updatePowersList();
-
-		if (this.persistSettings) {
-			this._persistPowers();
-		}
-	}
-
-	/**
-	 * Turn on or off persisting Meta Powers to a cookie.
-	 *
-	 * @param {boolean} persisting
-	 */
-	_togglePersistPowers(persisting) {
-		if (persisting) {
-			this._persistPowers();
-		} else {
-			Cookies.remove(COOKIE_KEY);
-		}
+		this._persistPowers();
 	}
 
 	/**
@@ -168,6 +146,17 @@ export class MetaPowers {
 
 		Object.keys(powers).forEach((key) => {
 			if (powers[key].enabled) {
+				this._togglePower(key, this[`btn${capitalize(key)}`]);
+			}
+		});
+	}
+
+	/**
+	 * Clear toggled Meta Powers and remove cookie.
+	 */
+	_clearPowers() {
+		Object.keys(this.toggles).forEach((key) => {
+			if (this.toggles[key].enabled) {
 				this._togglePower(key, this[`btn${capitalize(key)}`]);
 			}
 		});

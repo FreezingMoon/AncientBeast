@@ -1522,7 +1522,31 @@ span.pure {
 
 	/*--------------Meta Powers------------------*/
 	#meta-powers {
-		#meta-powers-actions {
+		.meta-powers-header {
+			align-items: center;
+			display: flex;
+			margin-bottom: 16px;
+
+			h2 {
+				margin: 0;
+			}
+
+			button {
+				background: none;
+				background-image: url('~assets/icons/rotate.svg');
+				border: none;
+				height: 16px;
+				margin-left: 16px;
+				text-indent: -9999px;
+				width: 16px;
+			}
+
+			#reset-toggle-powers {
+				background-image: url('~assets/icons/rotate.svg');
+			}
+		}
+
+		.meta-powers-actions {
 			display: flex;
 			gap: 16px;
 			margin-bottom: 40px;
@@ -1544,10 +1568,6 @@ span.pure {
 					url('~assets/icons/miracle-medicine.svg');
 			}
 		}
-	}
-
-	&:hover {
-		cursor: pointer;
 	}
 }
 
