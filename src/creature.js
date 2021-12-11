@@ -1849,7 +1849,7 @@ export class Creature {
 	}
 
 	/**
-	 * Is this unit a dark priest?
+	 * Is this unit a Dark Priest?
 	 *
 	 * @returns {boolean}
 	 */
