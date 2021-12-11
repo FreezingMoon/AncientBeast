@@ -53,8 +53,7 @@ export default (G) => {
 					return false;
 				}
 
-				let ability = this;
-				ability.end();
+				this.end();
 
 				// Target becomes unmovable until end of their phase
 				let o = {
@@ -73,25 +72,16 @@ export default (G) => {
 					o.alterations.reqEnergy = 5;
 				}
 
-				// Create a zero damage with debuff
-				let counterDamage = new Damage(
-					this.creature,
-					{},
-					1,
-					[
-						new Effect(
-							this.title,
-							this.creature, // Caster
-							damage.attacker, // Target
-							'', // Trigger
-							o,
-							G,
-						),
-					],
+				const attackerEffect = new Effect(
+					this.title,
+					this.creature, // Caster
+					damage.attacker, // Target
+					'', // Trigger
+					o,
 					G,
 				);
-				counterDamage.counter = true;
-				damage.attacker.takeDamage(counterDamage);
+
+				damage.attacker.addEffect(attackerEffect);
 
 				// Making attacker unmovable will change its move query, so update it
 				if (damage.attacker === G.activeCreature) {
