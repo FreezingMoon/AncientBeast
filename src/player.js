@@ -271,6 +271,10 @@ export class Player {
 		}
 	}
 
+	get summonCreaturesWithMaterializationSickness() {
+		return this._summonCreaturesWithMaterializationSickness;
+	}
+
 	handleMetaPowerEvent(message, payload) {
 		if (message === 'toggleDisableMaterializationSickness') {
 			this._summonCreaturesWithMaterializationSickness = !payload;

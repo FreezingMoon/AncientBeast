@@ -8,6 +8,10 @@ const COOKIE_KEY = 'ab-meta-powers';
 /**
  * "God-mode" UI for debugging game state. Available in hot-seat games when the
  * app running is in development mode.
+ *
+ * Be careful directly accessing instances of this class as they may not be present
+ * in some game modes.
+ *
  * Caution: usage of these tools may break the game log.
  */
 export class MetaPowers {
@@ -42,11 +46,11 @@ export class MetaPowers {
 	 */
 	_handleUiEvent(message, payload) {
 		if (message === 'toggleMetaPowers') {
-			this.toggleModal();
+			this._toggleModal();
 		}
 
 		if (message === 'closeInterfaceScreens') {
-			this.closeModal();
+			this._closeModal();
 		}
 	}
 
@@ -182,14 +186,14 @@ export class MetaPowers {
 	/**
 	 * Toggle the visibility of the Meta Powers modal.
 	 */
-	toggleModal() {
+	_toggleModal() {
 		this.$els.modal.toggleClass('hide');
 	}
 
 	/**
 	 * Close the Meta Powers modal.
 	 */
-	closeModal() {
+	_closeModal() {
 		this.$els.modal.addClass('hide');
 	}
 }
