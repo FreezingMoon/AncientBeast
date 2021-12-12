@@ -4,40 +4,82 @@ import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 
+const HopTriggerDirections = {
+	Above: 0,
+	Front: 1,
+	Below: 2,
+};
+
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G) => {
 	G.abilities[12] = [
-		// 	First Ability: Bunny Hop
+		/**
+		 * First Ability: Bunny Hop
+		 * After any movement, if an enemy is newly detected in the 3 hexes in front
+		 * of the bunny (facing right for player 1, left for player 2), the creature
+		 * will move backwards one space in an opposite direction.
+		 */
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: 'onOtherCreatureMove',
+			trigger: 'onCreatureMove onOtherCreatureMove',
 
-			require: function (fromHex) {
+			/**
+			 * Bunny Hop triggers on any movement during other creature's turns (not the
+			 * Bunny's self-movement) that causes an enemy to appear in front of the Bunny.
+			 * This could be the enemy moving, or an enemy or ally displacing the Bunny
+			 * or another creature.
+			 *
+			 * Bunny Hop is only usable if the creature is not affected by ability-restricting
+			 * effects such as Materialization Sickness or Frozen.
+			 *
+			 * @param {Hex} hex Destination hex where a creature (bunny or other) has moved.
+			 * @returns {boolean} If the ability should trigger.
+			 */
+			require: function (hex) {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
-				// If enough uses, jump away when an enemy has entered our trigger area, and
-				// we have a space to jump back to
-				return (
+				// This ability only triggers on other creature's turns, it's purely defensive.
+				if (this.creature === this.game.activeCreature) {
+					return false;
+				}
+
+				/* Determine which (if any) frontal hexes contain an enemy that would trigger
+				the ability. */
+				let triggerHexes = [];
+
+				if (hex.creature === this.creature) {
+					// Bunny has been moved by another active creature, not itself..
+					triggerHexes = this._detectFrontHexesWithEnemy();
+				} else if (isTeam(hex.creature, this.creature, Team.enemy)) {
+					// Enemy movement.
+					const frontHexWithEnemy = this._findEnemyHexInFront(hex);
+
+					if (frontHexWithEnemy) {
+						triggerHexes.push(frontHexWithEnemy);
+					}
+				}
+
+				const abilityCanTrigger =
+					triggerHexes.length &&
 					this.timesUsedThisTurn < this._getUsesPerTurn() &&
-					fromHex &&
-					fromHex.creature &&
-					isTeam(fromHex.creature, this.creature, Team.enemy) &&
-					this.game.activeCreature != this.creature &&
-					this._getTriggerHexId(fromHex) >= 0 &&
-					this._getHopHex(fromHex) !== undefined
-				);
+					// Bunny cannot use this ability if affected by these states.
+					!(this.creature.materializationSickness || this.creature.stats.frozen) &&
+					// Bunny needs a valid hex to retreat into.
+					this._getHopHex();
+
+				return abilityCanTrigger;
 			},
 
 			//	activate() :
-			activate: function (destHex) {
+			activate: function (hex) {
 				this.end();
 
-				this.creature.moveTo(this._getHopHex(destHex), {
+				this.creature.moveTo(this._getHopHex(), {
 					callbackStepIn: () => {
 						G.activeCreature.queryMove();
 					},
@@ -51,47 +93,91 @@ export default (G) => {
 				return this.isUpgraded() ? 2 : 1;
 			},
 
-			_getTriggerHexId: function (fromHex) {
-				let hexes = this.creature.getHexMap(matrices.front1hex);
-
-				// Find which hex we are hopping from
-				let id = -1;
-				fromHex.creature.hexagons.forEach((hex) => {
-					id = hexes.indexOf(hex) > id ? hexes.indexOf(hex) : id;
-				});
-
-				return id;
-			},
-
-			_getHopHex: function (fromHex) {
-				let id = this._getTriggerHexId(fromHex);
+			/**
+			 * Analyse frontal enemy positions and determine which (if any) Hexes are
+			 * available for the Bunny to hop backwards into.
+			 *
+			 * Movement rules:
+			 * - If movement in the opposite direction is impossible, it will move backwards.
+			 * - If the top and bottom front hexes are both occupied, it will move backwards.
+			 * - If moving backwards and is unable to do so. movement is cancelled.
+			 *
+			 * At this point we have determined the ability should be triggered, so we
+			 * are only concerned which enemies to hop away from, not which enemies originally
+			 * triggered the ability.
+			 *
+			 * @returns {Hex} Hex the bunny will hop (move) into.
+			 */
+			_getHopHex: function () {
+				const triggerHexes = this._detectFrontHexesWithEnemy();
 
 				// Try to hop away
 				let hex;
-				switch (id) {
-					case 0:
-						hex = this.creature.getHexMap(matrices.backbottom1hex)[0];
-						break;
-					case 1:
-						hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
-						break;
-					case 2:
-						hex = this.creature.getHexMap(matrices.backtop1hex)[0];
-						break;
+
+				if (
+					triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Front) ||
+					// If the bunny is flanked on top and bottom then hop backwards.
+					(triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Above) &&
+						triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Below))
+				) {
+					hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
+				} else if (triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Above)) {
+					hex = this.creature.getHexMap(matrices.backbottom1hex)[0];
+				} else if (triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Below)) {
+					hex = this.creature.getHexMap(matrices.backtop1hex)[0];
 				}
 
-				// If we can't hop away, try hopping backwards
-				if (
-					id !== 1 &&
-					(hex === undefined || !hex.isWalkable(this.creature.size, this.creature.id, true))
-				) {
+				// If we can't hop away, try hopping backwards.
+				if (hex === undefined || !hex.isWalkable(this.creature.size, this.creature.id, true)) {
 					hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
 				}
 
+				// Finally, give up if we still can't move.
 				if (hex !== undefined && !hex.isWalkable(this.creature.size, this.creature.id, true)) {
 					return undefined;
 				}
+
 				return hex;
+			},
+
+			/**
+			 * Determine if a hex containing an enemy is in front of the bunny. Useful
+			 * for checking if a newly moved enemy has entered the Bunny's Hop zone.
+			 *
+			 * @param {Hex} hexWithEnemy Hex known to contain an enemy.
+			 * @returns {Hex | undefined} hexWithEnemy if it did move in front of the bunny, otherwise undefined.
+			 */
+			_findEnemyHexInFront: function (hexWithEnemy) {
+				const frontHexesWithEnemy = this._detectFrontHexesWithEnemy();
+				const foundEnemyHex = frontHexesWithEnemy.some(
+					({ hex }) => hexWithEnemy.creature === hex.creature,
+				);
+
+				return foundEnemyHex ? hexWithEnemy : undefined;
+			},
+
+			/**
+			 * Check the 3 hexes in front of the Snow bunny for any enemy creatures.
+			 *
+			 * @returns creature in front of the Snow Bunny, or undefined if there is none.
+			 */
+			_detectFrontHexesWithEnemy: function () {
+				const hexesInFront = this.creature.getHexMap(matrices.front1hex);
+				const hexesWithEnemy = hexesInFront.reduce((acc, curr, idx) => {
+					const hexHasEnemy = curr.creature && isTeam(curr.creature, this.creature, Team.enemy);
+
+					if (hexHasEnemy) {
+						acc.push({
+							// Maps to HopTriggerDirections.
+							direction: idx,
+							hex: curr,
+						});
+					}
+
+					return acc;
+				}, []);
+
+				return hexesWithEnemy;
 			},
 		},
 
