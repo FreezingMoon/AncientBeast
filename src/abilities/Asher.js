@@ -127,14 +127,14 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: (...args) => {
+			query: () => {
 				let crea = this.creature;
 
 				crea.queryMove({
 					noPath: true,
 					isAbility: true,
 					range: G.grid.getFlyingRange(crea.x, crea.y, 50, crea.size, crea.id),
-					callback: () => {
+					callback: (...args) => {
 						delete args[1];
 						this.animation(...args);
 					},

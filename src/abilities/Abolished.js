@@ -157,14 +157,16 @@ export default (G) => {
 					noPath: true,
 					isAbility: true,
 					range: G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
-					callback: (hex, ...args) => {
+					callback: (hex, args) => {
+						console.log(arguments);
+						console.log(hex, args);
 						if (hex.x == args.creature.x && hex.y == args.creature.y) {
 							// Prevent null movement
 							this.query();
 							return;
 						}
-						delete args[1];
-						this.animation(...args);
+						delete arguments[1];
+						this.animation(...arguments);
 					},
 				});
 			},
