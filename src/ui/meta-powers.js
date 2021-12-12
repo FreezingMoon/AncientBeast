@@ -71,7 +71,7 @@ export class MetaPowers {
 		this.btnCloseModal = new Button(
 			{
 				$button: this.$els.closeModal,
-				click: () => this.toggleModal(),
+				click: () => this._toggleModal(),
 			},
 			this.game,
 		);
