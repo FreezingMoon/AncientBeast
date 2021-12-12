@@ -4,7 +4,6 @@ import { search } from './utility/pathfinding';
 import { Hex } from './utility/hex';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop } from './drops';
-import { Effect } from './effect';
 
 /**
  * Creature Class
@@ -15,7 +14,7 @@ export class Creature {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jquery element
-	 * and jquery function can be called dirrectly from them.
+	 * and jquery function can be called directly from them.
 	 *
 	 * // Jquery attributes
 	 * $display :		Creature representation
@@ -557,10 +556,10 @@ export class Creature {
 			o.range = game.grid.getFlyingRange(this.x, this.y, remainingMove, this.size, this.id);
 		}
 
-		let selectNormal = function (hex, args) {
+		let selectNormal = (hex, args) => {
 			args.creature.tracePath(hex);
 		};
-		let selectFlying = function (hex, args) {
+		let selectFlying = (hex, args) => {
 			args.creature.tracePosition({
 				x: hex.x,
 				y: hex.y,
@@ -571,10 +570,12 @@ export class Creature {
 
 		if (this.noActionPossible) {
 			game.grid.querySelf({
-				fnOnConfirm: function () {
+				fnOnConfirm: () => {
 					game.UI.btnSkipTurn.click();
 				},
-				fnOnCancel: function () {},
+				fnOnCancel: () => {
+					// No-op function.
+				},
 				confirmText: 'Skip turn',
 			});
 		} else {
