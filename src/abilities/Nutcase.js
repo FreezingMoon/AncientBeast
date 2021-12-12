@@ -201,18 +201,27 @@ export default (G) => {
 					'onStepOut', // Trigger
 					{
 						effectFn: function (eff) {
-							eff.target.takeDamage(
-								new Damage(
-									eff.owner,
-									{
-										pierce: ability.damages.pierce,
-									},
-									1,
-									[],
-									G,
-								),
-							);
-							eff.deleteEffect();
+							const waitForMovementComplete = (message, payload) => {
+								if (message === 'movementComplete' && payload.creature.id === eff.target.id) {
+									this.game.signals.creature.remove(waitForMovementComplete);
+
+									eff.target.takeDamage(
+										new Damage(
+											eff.owner,
+											{
+												pierce: ability.damages.pierce,
+											},
+											1,
+											[],
+											G,
+										),
+									);
+									eff.deleteEffect();
+								}
+							};
+
+							// Wait until movement is completely finished before processing effects.
+							this.game.signals.creature.add(waitForMovementComplete);
 						},
 					},
 					G,
@@ -464,7 +473,7 @@ export default (G) => {
 			},
 		},
 
-		//	Third Ability: Fishing Hook
+		//	Fourth Ability: Fishing Hook
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',

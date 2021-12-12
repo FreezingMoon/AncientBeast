@@ -800,9 +800,12 @@ export class Creature {
 		}
 
 		let interval = setInterval(() => {
+			// Check if creature's movement animation is completely finished.
 			if (!game.freezedInput) {
 				clearInterval(interval);
 				opts.callback();
+				game.signals.creature.dispatch('movementComplete', { creature: this, hex });
+				game.onCreatureMove(this, hex); // Trigger
 			}
 		}, 100);
 	}
@@ -811,7 +814,7 @@ export class Creature {
 	 *
 	 * hex :	Hex :	Destination Hex
 	 *
-	 * Trace the path from the current possition to the given coordinates
+	 * Trace the path from the current position to the given coordinates
 	 *
 	 */
 	tracePath(hex) {
@@ -1193,13 +1196,13 @@ export class Creature {
 	 *
 	 * damage :	Damage : 	Damage object
 	 *
-	 * return :	Object :	Contains damages dealed and if creature is killed or not
+	 * return :	Object :	Contains damages dealt and if creature is killed or not
 	 */
 	takeDamage(damage, o) {
 		let game = this.game;
 
 		if (this.dead) {
-			game.log('%CreatureName' + this.id + '% is already dead, aborting takeDamage call.');
+			console.info(`${this.name} (${this.id}) is already dead, aborting takeDamage call.`);
 			return;
 		}
 
