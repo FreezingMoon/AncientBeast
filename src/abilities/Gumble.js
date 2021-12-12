@@ -16,12 +16,12 @@ export default (G) => {
 			// Update stat buffs whenever health changes
 			trigger: 'onCreatureSummon onDamage onHeal',
 
-			require: () => {
+			require: function () {
 				// Always active
 				return true;
 			},
 
-			activate: () => {
+			activate: function () {
 				if (this.creature.dead) {
 					return;
 				}
@@ -68,13 +68,13 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: () => {
+			require: function () {
 				// Always usable, even if no targets
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
 				// center of each area is two hexes away. Each area can be chosen regardless
 				// of whether targets are within.
@@ -155,12 +155,12 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let creature = this.creature;
 
 				// Upgraded Royal Seal can target up to 3 hexagons range
@@ -251,7 +251,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -268,7 +268,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				G.grid.queryDirection({

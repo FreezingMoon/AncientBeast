@@ -18,7 +18,7 @@ export default (G) => {
 			_targets: [],
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				// Creature is damaged
 				if (G.activeCreature != this.creature) {
 					this._damaged = true;
@@ -44,7 +44,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: () => {
+			activate: function () {
 				let creature = this.creature;
 				let damage = new Damage(creature, { sonic: 30 }, this._targets.length, [], G);
 				let hits = new Set();
@@ -74,7 +74,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -91,7 +91,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let wyrm = this.creature;
 
 				let map = [
@@ -161,7 +161,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: () => {
+			require: function () {
 				return this.testRequirements();
 			},
 
@@ -174,7 +174,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let wyrm = this.creature;
 
 				let range = G.grid
@@ -241,7 +241,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -265,7 +265,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let wyrm = this.creature;
 
 				G.grid.queryCreature({

@@ -16,7 +16,7 @@ export default (G) => {
 		{
 			trigger: 'onUnderAttack',
 
-			require: () => {
+			require: function () {
 				// Always true to highlight ability
 				return true;
 			},
@@ -60,7 +60,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -76,7 +76,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let creature = this.creature;
 
 				G.grid.queryCreature({
@@ -143,7 +143,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
@@ -155,7 +155,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let creature = this.creature;
 
 				G.grid.queryCreature({
@@ -243,7 +243,7 @@ export default (G) => {
 
 			_targetTeam: Team.both,
 
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -258,7 +258,7 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: () => {
+			query: function () {
 				G.grid.queryCreature({
 					fnOnConfirm: (...args) => {
 						this.animation(...args);

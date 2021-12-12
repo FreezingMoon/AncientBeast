@@ -62,7 +62,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -79,7 +79,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				G.grid.queryDirection({
@@ -122,7 +122,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				return this.testRequirements();
 			},
 
@@ -224,12 +224,12 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				let range = crea.hexagons[1].adjacentHex(3);

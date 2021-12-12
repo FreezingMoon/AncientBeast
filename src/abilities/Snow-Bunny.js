@@ -189,7 +189,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -205,7 +205,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let snowBunny = this.creature;
 
 				G.grid.queryCreature({
@@ -256,7 +256,7 @@ export default (G) => {
 			_targetTeam: Team.both,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -273,7 +273,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let snowBunny = this.creature;
 
 				G.grid.queryDirection({
@@ -369,7 +369,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -386,7 +386,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let snowBunny = this.creature;
 
 				G.grid.queryDirection({

@@ -19,7 +19,7 @@ export default (G) => {
 			_buff: 0,
 
 			//  require() :
-			require: () => {
+			require: function () {
 				// Stop temporary and dead creatures from activating
 				if (this.creature.dead || this.creature.temp) {
 					return false;
@@ -39,7 +39,7 @@ export default (G) => {
 			},
 
 			//  activate() :
-			activate: () => {
+			activate: function () {
 				// Force Vehemoth to stay facing the right way
 				this.creature.facePlayerDefault();
 
@@ -78,7 +78,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -106,7 +106,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let vehemoth = this.creature;
 
 				let object = {
@@ -259,7 +259,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -355,7 +355,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				let choices = [
@@ -487,7 +487,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -504,7 +504,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				G.grid.queryDirection({

@@ -31,12 +31,12 @@ export default (G) => {
 			trigger: '',
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				return true;
 			},
 
 			//	activate() :
-			activate: () => {
+			activate: function () {
 				// No-op function.
 			},
 		},
@@ -49,7 +49,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -65,7 +65,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				G.grid.queryCreature({
 					fnOnConfirm: (...args) => {
 						this.animation(...args);
@@ -119,7 +119,7 @@ export default (G) => {
 			_targetTeam: Team.both,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -171,7 +171,7 @@ export default (G) => {
 				return true;
 			},
 
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				let hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
@@ -304,7 +304,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -320,7 +320,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				G.grid.queryCreature({
 					fnOnConfirm: (...args) => {
 						this.animation(...args);

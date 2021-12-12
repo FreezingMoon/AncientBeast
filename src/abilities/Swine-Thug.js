@@ -51,7 +51,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: () => {
+			activate: function () {
 				let alterations = $j.extend({}, this.effects[0]);
 				// Double effect if upgraded
 				if (this.isUpgraded()) {
@@ -101,7 +101,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -117,7 +117,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let swine = this.creature;
 
 				G.grid.queryDirection({
@@ -207,7 +207,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -273,7 +273,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let bellowrow = matrices.bellowrow;
 				let straitrow = matrices.straitrow;
 
@@ -349,7 +349,7 @@ export default (G) => {
 			_energyNormal: 30,
 			_energySelfUpgraded: 10,
 
-			require: () => {
+			require: function () {
 				// If ability is upgraded, self cast energy cost is less
 				if (this.isUpgraded()) {
 					this.requirements = {
@@ -370,7 +370,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let swine = this.creature;
 
 				// Check if the ability is upgraded because then the self cast energy cost is less

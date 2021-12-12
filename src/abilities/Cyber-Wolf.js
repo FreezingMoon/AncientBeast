@@ -13,7 +13,7 @@ export default (G) => {
 	G.abilities[31] = [
 		// 	First Ability: Bad Doggie
 		{
-			triggerFunc: () => {
+			triggerFunc: function () {
 				// When upgraded, trigger both at start and end of turn
 				// Otherwise just trigger at start
 				if (this.isUpgraded()) {
@@ -22,12 +22,12 @@ export default (G) => {
 				return 'onStartPhase';
 			},
 
-			require: () => {
+			require: function () {
 				// Check requirements in activate() so the ability is always highlighted
 				return this.testRequirements();
 			},
 
-			activate: () => {
+			activate: function () {
 				// Check if there's an enemy creature in front
 				let hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex);
 				if (hexesInFront.length < 1) {
@@ -65,7 +65,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -81,7 +81,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				G.grid.queryCreature({
@@ -131,7 +131,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: () => {
+			require: function () {
 				// Recalculate energy requirements/costs based on whether this is upgraded
 				if (this.isUpgraded()) {
 					this.requirements = {
@@ -152,7 +152,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				let straitrow = matrices.straitrow;
@@ -312,7 +312,7 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -326,7 +326,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				let hexes = G.grid.allhexes.slice(0); // Copy array

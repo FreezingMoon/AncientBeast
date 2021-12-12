@@ -13,7 +13,7 @@ export default (G) => {
 		//  First Ability: Tankish Build
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			triggerFunc: () => {
+			triggerFunc: function () {
 				if (this.isUpgraded()) {
 					// Once upgraded add the trigger to disable the bonus if hit
 					return 'onStartPhase onDamage';
@@ -51,7 +51,7 @@ export default (G) => {
 			},
 
 			// activate() :
-			activate: () => {
+			activate: function () {
 				this.creature.replaceEffect(
 					// Add and replace the effect each time
 					new Effect(
@@ -90,7 +90,7 @@ export default (G) => {
 			],
 
 			// require() :
-			require: () => {
+			require: function () {
 				let req = {
 					team: this._targetTeam,
 					sourceCreature: this.creature,
@@ -105,7 +105,7 @@ export default (G) => {
 			},
 
 			// query() :
-			query: () => {
+			query: function () {
 				let stomper = this.creature;
 
 				// Take the closest ennemy in each direction within 3hex
@@ -307,7 +307,7 @@ export default (G) => {
 			},
 
 			// require() :
-			require: () => {
+			require: function () {
 				this._req.sourceCreature = this.creature;
 
 				this._checkEnd();
@@ -319,7 +319,7 @@ export default (G) => {
 			},
 
 			// query() :
-			query: () => {
+			query: function () {
 				let stomper = this.creature;
 				// Get the direction of the melee target, the dashed hex and the targets
 				let direction = this._directions;
@@ -440,12 +440,12 @@ export default (G) => {
 				[0, 0, 1, 0],
 			],
 
-			require: () => {
+			require: function () {
 				return this.testRequirements();
 			},
 
 			// query() :
-			query: () => {
+			query: function () {
 				let stomper = this.creature;
 
 				this.map.origin = [0, 2];

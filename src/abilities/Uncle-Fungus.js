@@ -14,7 +14,7 @@ export default (G) => {
 		// First Ability: Toxic Spores
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			triggerFunc: () => {
+			triggerFunc: function () {
 				if (this.isUpgraded()) {
 					return 'onUnderAttack onAttack';
 				}
@@ -85,7 +85,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -102,7 +102,7 @@ export default (G) => {
 			},
 
 			// query() :
-			query: () => {
+			query: function () {
 				let uncle = this.creature;
 
 				G.grid.queryCreature({
@@ -181,7 +181,7 @@ export default (G) => {
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			require: () => {
+			require: function () {
 				// Must be able to move
 				if (!this.creature.stats.moveable) {
 					this.message = G.msg.abilities.notMoveable;
@@ -199,7 +199,7 @@ export default (G) => {
 			},
 
 			// query() :
-			query: () => {
+			query: function () {
 				let uncle = this.creature;
 
 				// Don't jump over creatures if we're not upgraded, or we are in a second
@@ -329,7 +329,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -353,7 +353,7 @@ export default (G) => {
 			},
 
 			// query() :
-			query: () => {
+			query: function () {
 				let uncle = this.creature;
 
 				G.grid.queryCreature({

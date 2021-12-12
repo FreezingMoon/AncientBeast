@@ -16,7 +16,7 @@ export default (G) => {
 		{
 			trigger: 'onUnderAttack',
 
-			require: () => {
+			require: function () {
 				// Always true to highlight ability
 				return true;
 			},
@@ -104,7 +104,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			//	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -121,7 +121,7 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: () => {
+			query: function () {
 				if (!this.isUpgraded()) {
 					G.grid.queryCreature({
 						fnOnConfirm: (...args) => {
@@ -238,7 +238,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			//	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -253,7 +253,7 @@ export default (G) => {
 				return true;
 			},
 
-			query: () => {
+			query: function () {
 				let o = {
 					fnOnConfirm: (...args) => {
 						this.animation(...args);
@@ -467,7 +467,7 @@ export default (G) => {
 
 			_targetTeam: Team.enemy,
 
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -487,7 +487,7 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: () => {
+			query: function () {
 				G.grid.queryCreature({
 					fnOnConfirm: (...args) => {
 						this.animation(...args);

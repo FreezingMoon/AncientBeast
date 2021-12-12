@@ -20,7 +20,7 @@ export default (G) => {
 				return this.creature.getHexMap(matrices.inlineback2hex);
 			},
 
-			require: () => {
+			require: function () {
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
@@ -32,7 +32,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: () => {
+			activate: function () {
 				let creature = this.creature;
 
 				if (
@@ -109,7 +109,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				let crea = this.creature;
 
 				if (!this.testRequirements()) {
@@ -128,7 +128,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				G.grid.queryCreature({
@@ -240,7 +240,7 @@ export default (G) => {
 				return validDirections;
 			},
 
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -267,7 +267,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				G.grid.queryDirection({
@@ -377,7 +377,7 @@ export default (G) => {
 			},
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -385,7 +385,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				let hexes = this._getHexes();

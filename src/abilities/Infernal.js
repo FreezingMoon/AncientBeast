@@ -16,12 +16,12 @@ export default (G) => {
 			trigger: 'onStartPhase',
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				return this.testRequirements();
 			},
 
 			//	activate() :
-			activate: () => {
+			activate: function () {
 				// Leave two traps behind
 				this._addTrap(this.creature.hexagons[1]);
 				this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
@@ -83,7 +83,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -99,7 +99,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let magmaSpawn = this.creature;
 
 				G.grid.queryCreature({
@@ -178,12 +178,12 @@ export default (G) => {
 				[0, 0, 1, 0],
 			],
 
-			require: () => {
+			require: function () {
 				return this.testRequirements();
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let magmaSpawn = this.creature;
 
 				this.map.origin = [0, 2];
@@ -239,7 +239,7 @@ export default (G) => {
 			directions: [0, 1, 0, 0, 1, 0],
 			_targetTeam: Team.enemy,
 
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -266,7 +266,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let magmaSpawn = this.creature;
 
 				let x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;

@@ -22,7 +22,7 @@ export default (G) => {
 			},
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				// Check whether this ability is upgraded; if so then make sure all existing
 				// buffs include an offense buff
 				this.creature.effects.forEach((effect) => {
@@ -39,7 +39,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: () => {
+			activate: function () {
 				this.creature.addEffect(
 					new Effect(
 						this._effectName,
@@ -68,7 +68,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -84,7 +84,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				G.grid.queryCreature({
 					fnOnConfirm: (...args) => {
 						this.animation(...args);
@@ -140,7 +140,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			// 	require() :
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -156,7 +156,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				G.grid.queryCreature({
 					fnOnConfirm: (...args) => {
 						this.animation(...args);
@@ -224,7 +224,7 @@ export default (G) => {
 				return this.isUpgraded() ? 0 : 6;
 			},
 
-			require: () => {
+			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -247,7 +247,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: () => {
+			query: function () {
 				let crea = this.creature;
 
 				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
