@@ -76,7 +76,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (hex) {
+			activate: function (_hex) {
 				this.end();
 
 				this.creature.moveTo(this._getHopHex(), {

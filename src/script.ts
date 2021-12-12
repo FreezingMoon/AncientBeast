@@ -197,10 +197,8 @@ $j(() => {
 
 	async function login(e) {
 		e.preventDefault(); // Prevent submit
-		// eslint-disable-next-line prefer-const
-		let login = getLogin(),
-			auth,
-			session;
+		const login = getLogin();
+
 		$j('#login .login-error-req-message').hide();
 		if (login.email == '' || login.password == '') {
 			$j('#login .error-req').show();
@@ -216,8 +214,9 @@ $j(() => {
 			$j('#login .error-req').hide();
 			$j('#login .error-req-message').hide();
 		}
-		// eslint-disable-next-line prefer-const
-		auth = new Authenticate(login, connect.client);
+		const auth = new Authenticate(login, connect.client);
+		let session;
+
 		try {
 			session = await auth.authenticateEmail();
 		} catch (error) {
