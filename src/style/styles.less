@@ -1556,6 +1556,11 @@ span.pure {
 				text-indent: -9999px;
 			}
 
+			.button + .desc {
+				// Tooltips are hard to read at regular opacity when appearing over white icons.
+				background: rgba(0, 0, 0, 0.85);
+			}
+
 			#execute-monster-button {
 				background-image: url('~assets/interface/frame.png'), url('~assets/icons/execute.svg');
 			}
