@@ -964,12 +964,6 @@ export class UI {
 				}
 			});
 
-			/*if ((view && game.activeCreature.abilities[3].used && game.activeCreature.type == '--') || !view){
-				$j('#materialize_button').show();
-			}else {
-				$j('#materialize_button').hide();
-			}*/
-
 			let summonedOrDead = false;
 			game.players[player].creatures.forEach((creature) => {
 				if (creature.type == creatureType) {
@@ -1059,7 +1053,7 @@ export class UI {
 					}
 				} else if (
 					activeCreature.abilities[3].used &&
-					game.activeCreature.type == '--' &&
+					game.activeCreature.isDarkPriest() &&
 					player == game.activeCreature.player.id &&
 					(clickMethod == 'emptyHex' || clickMethod == 'portrait' || clickMethod == 'grid')
 				) {
@@ -2412,7 +2406,7 @@ export class UI {
 				}
 				let creaID = $j(e.currentTarget).attr('creatureid') - 0;
 				if (
-					game.creatures[creaID].type == '--' &&
+					game.creatures[creaID].isDarkPriest() &&
 					game.creatures[creaID].player.id == game.activeCreature.player.id &&
 					!game.activeCreature.abilities[3].used
 				) {
@@ -2515,7 +2509,7 @@ export class UI {
 					text = 'Fatigued';
 				}
 
-				if (creature.type == '--') {
+				if (creature.isDarkPriest()) {
 					// If Dark Priest
 					creature.abilities[0].require(); // Update protectedFromFatigue
 				}

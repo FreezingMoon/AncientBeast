@@ -84,7 +84,7 @@ export class Creature {
 		this.travelDist = 0;
 		this.effects = [];
 		this.dropCollection = [];
-		this.protectedFromFatigue = this.type == '--' ? true : false;
+		this.protectedFromFatigue = this.isDarkPriest() ? true : false;
 		this.turnsActive = 0;
 
 		// Statistics
@@ -244,19 +244,31 @@ export class Creature {
 
 		this.delayable = true;
 		this.delayed = false;
-		this.materializationSickness = this.type == '--' ? false : true;
+		if (typeof obj.materializationSickness !== 'undefined') {
+			this.materializationSickness = obj.materializationSickness;
+		} else {
+			this.materializationSickness = this.isDarkPriest() ? false : true;
+		}
 		this.noActionPossible = false;
 	}
 
-	/* summon()
+	/**
+	 * Summon animation.
 	 *
-	 * Summon animation
-	 *
+	 * @param {boolean} disableMaterializationSickness Do not affect the creature with Materialization Sickness.
 	 */
-	summon() {
+	summon(disableMaterializationSickness = false) {
 		let game = this.game;
 
-		game.queue.addByInitiative(this);
+		/* Without Sickness the creature should act in the current turn, except the dark
+		priest who must always be in the next queue to properly start the game. */
+		const addToCurrentQueue = disableMaterializationSickness && !this.isDarkPriest();
+
+		game.queue.addByInitiative(this, !addToCurrentQueue);
+
+		if (disableMaterializationSickness) {
+			this.materializationSickness = false;
+		}
 
 		// Remove temporary Creature to prevent duplicates when the actual
 		// materialized Creature with correct position is added to the queue
@@ -539,7 +551,7 @@ export class Creature {
 				this.hint('Canceled', 'gamehintblack');
 
 				// If this Creature is Dark Priest, remove temporary Creature in queue
-				if (this.type == '--') {
+				if (this.isDarkPriest()) {
 					game.queue.removeTempCreature();
 				}
 			}
@@ -1320,7 +1332,7 @@ export class Creature {
 		}
 
 		// Dark Priest plasma shield when inactive
-		if (this.type == '--') {
+		if (this.isDarkPriest()) {
 			if (this.hasCreaturePlayerGotPlasma() && this !== game.activeCreature) {
 				this.displayPlasmaShield();
 			} else {
@@ -1645,7 +1657,7 @@ export class Creature {
 			game.firstKill = true;
 		}
 
-		if (this.type == '--') {
+		if (this.isDarkPriest()) {
 			// If Dark Priest
 			if (isDeny) {
 				// TEAM KILL (DENY)
@@ -1699,7 +1711,7 @@ export class Creature {
 			});
 		}
 
-		if (this.type == '--') {
+		if (this.isDarkPriest()) {
 			this.player.deactivate(); // Here because of score calculation
 		}
 
@@ -1834,5 +1846,14 @@ export class Creature {
 		}
 
 		return this._movementType;
+	}
+
+	/**
+	 * Is this unit a Dark Priest?
+	 *
+	 * @returns {boolean}
+	 */
+	isDarkPriest() {
+		return this.type === '--';
 	}
 }
