@@ -93,8 +93,8 @@ export default (G) => {
 				}
 
 				G.grid.queryDirection({
-					fnOnConfirm: () => {
-						this.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,
@@ -157,14 +157,14 @@ export default (G) => {
 					noPath: true,
 					isAbility: true,
 					range: G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
-					callback: (hex, args) => {
+					callback: (hex, ...args) => {
 						if (hex.x == args.creature.x && hex.y == args.creature.y) {
 							// Prevent null movement
 							this.query();
 							return;
 						}
-						delete arguments[1];
-						this.animation(...arguments);
+						delete args[1];
+						this.animation(...args);
 					},
 				});
 			},
@@ -258,8 +258,8 @@ export default (G) => {
 				let range = crea.adjacentHexes(1);
 
 				G.grid.queryHexes({
-					fnOnConfirm: () => {
-						this.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						this.animation(...args);
 					},
 					fnOnSelect: function (hex) {
 						range.forEach((item) => {
