@@ -10,11 +10,11 @@ export class CreatureQueue {
 
 	/**
 	 * Add a creature to the next turn's queue by initiative, and optionally the current
-	 * queue. Adding a creature to the current queue avoids Materialization Sickness.
+	 * turn's queue.
 	 *
 	 * @param {Creature} creature The creature to add.
-	 * @param {boolean} alsoAddToCurrentQueue Also add the creature to the current queue.
-	 * @returns
+	 * @param {boolean} alsoAddToCurrentQueue Also add the creature to the current
+	 * turn's queue. Doing so lets a creature act in the same turn it was summoned.
 	 */
 	addByInitiative(creature, alsoAddToCurrentQueue = true) {
 		const queues = [this.nextQueue];
