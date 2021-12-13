@@ -262,9 +262,9 @@ export class Creature {
 
 		/* Without Sickness the creature should act in the current turn, except the dark
 		priest who must always be in the next queue to properly start the game. */
-		const addToCurrentQueue = disableMaterializationSickness && !this.isDarkPriest();
+		const alsoAddToCurrentQueue = disableMaterializationSickness && !this.isDarkPriest();
 
-		game.queue.addByInitiative(this, !addToCurrentQueue);
+		game.queue.addByInitiative(this, alsoAddToCurrentQueue);
 
 		if (disableMaterializationSickness) {
 			this.materializationSickness = false;
