@@ -8,23 +8,33 @@ export class CreatureQueue {
 		this.tempCreature = {};
 	}
 
-	/** addByInitiative
-	 * @param {Object} creature Creature
-	 * @returns {void}
-	 * Add a creature to the next turn's queue by initiative
-	 * creature - The creature to add
+	/**
+	 * Add a creature to the next turn's queue by initiative, and optionally the current
+	 * turn's queue.
+	 *
+	 * @param {Creature} creature The creature to add.
+	 * @param {boolean} alsoAddToCurrentQueue Also add the creature to the current
+	 * turn's queue. Doing so lets a creature act in the same turn it was summoned.
 	 */
-	addByInitiative(creature) {
-		for (let i = 0; i < this.nextQueue.length; i++) {
-			let queue = this.nextQueue[i];
+	addByInitiative(creature, alsoAddToCurrentQueue = true) {
+		const queues = [this.nextQueue];
 
-			if (queue.delayed || queue.getInitiative() < creature.getInitiative()) {
-				this.nextQueue.splice(i, 0, creature);
-				return;
-			}
+		if (alsoAddToCurrentQueue) {
+			queues.push(this.queue);
 		}
 
-		this.nextQueue.push(creature);
+		queues.forEach((queue) => {
+			for (let i = 0; i < queue.length; i++) {
+				let queueItem = queue[i];
+
+				if (queueItem.delayed || queueItem.getInitiative() < creature.getInitiative()) {
+					queue.splice(i, 0, creature);
+					return;
+				}
+			}
+
+			queue.push(creature);
+		});
 	}
 
 	dequeue() {

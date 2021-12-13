@@ -260,12 +260,21 @@ export default (G) => {
 				let ability = this;
 				let dpriest = this.creature;
 
+				const creatureHasMaterializationSickness =
+					dpriest.player.summonCreaturesWithMaterializationSickness;
+
 				// Removes temporary Creature from queue when Player chooses a
 				// different Creature to materialize
 				G.queue.removeTempCreature();
 
 				// Create full temporary Creature with placeholder position to show in queue
-				crea = $j.extend(crea, { x: 3, y: 3 }, { team: this.creature.player.id }, { temp: true });
+				crea = $j.extend(
+					crea,
+					{ x: 3, y: 3 },
+					{ team: this.creature.player.id },
+					{ temp: true },
+					{ materializationSickness: creatureHasMaterializationSickness },
+				);
 				let fullCrea = new Creature(crea, G);
 				// Don't allow temporary Creature to take up space
 				fullCrea.cleanHex();
@@ -276,7 +285,7 @@ export default (G) => {
 				G.queue.tempCreature = fullCrea;
 
 				// Show temporary Creature in queue
-				G.queue.addByInitiative(fullCrea);
+				G.queue.addByInitiative(fullCrea, !creatureHasMaterializationSickness);
 				G.updateQueueDisplay();
 
 				// Reduce temporary Creature vignette transparency

@@ -1522,13 +1522,43 @@ span.pure {
 
 	/*--------------Meta Powers------------------*/
 	#meta-powers {
-		#meta-powers-actions {
+		.meta-powers-header {
+			align-items: center;
+			display: flex;
+			margin-bottom: 16px;
+
+			h2 {
+				margin: 0;
+			}
+
+			button {
+				background: none;
+				background-image: url('~assets/icons/rotate.svg');
+				border: none;
+				height: 16px;
+				margin-left: 16px;
+				margin-top: 4px;
+				text-indent: -9999px;
+				width: 16px;
+			}
+
+			#reset-toggle-powers {
+				background-image: url('~assets/icons/rotate.svg');
+			}
+		}
+
+		.meta-powers-actions {
 			display: flex;
 			gap: 16px;
 			margin-bottom: 40px;
 
 			.button {
 				text-indent: -9999px;
+			}
+
+			.button + .desc {
+				// Tooltips are hard to read at regular opacity when appearing over white icons.
+				background: rgba(0, 0, 0, 0.85);
 			}
 
 			#execute-monster-button {
@@ -1538,12 +1568,25 @@ span.pure {
 			#reset-cooldowns-button {
 				background-image: url('~assets/interface/frame.png'), url('~assets/icons/tv-remote.svg');
 			}
+
+			#disable-materialization-sickness-button {
+				background-image: url('~assets/interface/frame.png'),
+					url('~assets/icons/miracle-medicine.svg');
+			}
 		}
 	}
+}
 
-	&:hover {
-		cursor: pointer;
-	}
+#meta-powers-list {
+	bottom: 48px;
+	color: white;
+	font-size: 12px;
+	left: 0;
+	pointer-events: none;
+	position: absolute;
+	text-align: center;
+	width: 100%;
+	z-index: 1;
 }
 
 /*--------------------Traps--------------------*/

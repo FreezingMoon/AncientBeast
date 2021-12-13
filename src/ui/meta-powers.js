@@ -1,31 +1,41 @@
 import * as $j from 'jquery';
+import Cookies from 'js-cookie';
+import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
+
+const COOKIE_KEY = 'ab-meta-powers';
 
 /**
  * "God-mode" UI for debugging game state. Available in hot-seat games when the
  * app running is in development mode.
+ *
+ * Be careful directly accessing instances of this class as they may not be present
+ * in some game modes.
+ *
  * Caution: usage of these tools may break the game log.
  */
 export class MetaPowers {
 	constructor(game) {
 		this.game = game;
 
-		this.state = {
-			executeMonster: false,
+		this.toggles = {
+			executeMonster: { enabled: false, label: 'Execution Mode' },
+			resetCooldowns: { enabled: false, label: 'Disable Materialization Sickness' },
+			disableMaterializationSickness: { enabled: false, label: 'Disable Cooldowns' },
 		};
 
-		this.$els = {
-			modal: $j('#meta-powers'),
-			closeModal: $j('#meta-powers .framed-modal__return .button'),
-			executeMonsterButton: $j('#execute-monster-button'),
-			resetCooldownsButton: $j('#reset-cooldowns-button'),
-		};
+		// Object that will contain jQuery element references.
+		this.$els = {};
+		this._bindElements();
 
 		// Events
 		this.game.signals.ui.add(this._handleUiEvent, this);
 
-		// DOM bindings
-		this._bindElements();
+		if (Cookies.get(COOKIE_KEY)) {
+			this._restorePowers();
+		}
+
+		this._updatePowersList();
 	}
 
 	/**
@@ -36,11 +46,11 @@ export class MetaPowers {
 	 */
 	_handleUiEvent(message, payload) {
 		if (message === 'toggleMetaPowers') {
-			this.toggleModal();
+			this._toggleModal();
 		}
 
 		if (message === 'closeInterfaceScreens') {
-			this.closeModal();
+			this._closeModal();
 		}
 	}
 
@@ -48,10 +58,20 @@ export class MetaPowers {
 	 * One-time setup of DOM bindings and other DOM manipulation.
 	 */
 	_bindElements() {
+		this.$els = {
+			modal: $j('#meta-powers'),
+			closeModal: $j('#meta-powers .framed-modal__return .button'),
+			resetPowersButton: $j('#reset-toggled-powers'),
+			powersList: $j('#meta-powers-list'),
+			executeMonsterButton: $j('#execute-monster-button'),
+			resetCooldownsButton: $j('#reset-cooldowns-button'),
+			disableMaterializationSicknessButton: $j('#disable-materialization-sickness-button'),
+		};
+
 		this.btnCloseModal = new Button(
 			{
 				$button: this.$els.closeModal,
-				click: () => this.toggleModal(),
+				click: () => this._toggleModal(),
 			},
 			this.game,
 		);
@@ -60,7 +80,7 @@ export class MetaPowers {
 			{
 				$button: this.$els.executeMonsterButton,
 				hasShortcut: true,
-				click: () => this.toggleExecuteMonster(),
+				click: () => this._togglePower('executeMonster', this.btnExecuteMonster),
 			},
 			this.game,
 		);
@@ -69,49 +89,111 @@ export class MetaPowers {
 			{
 				$button: this.$els.resetCooldownsButton,
 				hasShortcut: true,
-				click: () => this.resetCooldowns(),
+				click: () => this._togglePower('resetCooldowns', this.btnResetCooldowns),
 			},
 			this.game,
 		);
+
+		this.btnDisableMaterializationSickness = new Button(
+			{
+				$button: this.$els.disableMaterializationSicknessButton,
+				hasShortcut: true,
+				click: () =>
+					this._togglePower(
+						'disableMaterializationSickness',
+						this.btnDisableMaterializationSickness,
+					),
+			},
+			this.game,
+		);
+
+		this.$els.resetPowersButton.on('click', () => {
+			this._clearPowers();
+		});
+	}
+
+	/**
+	 * Toggle the button state for a Meta Power and inform the rest of the app that
+	 * setting has changed.
+	 *
+	 * @param {string} stateKey Key for `this.state` setting.
+	 * @param {Button} button Button representing the toggle state.
+	 */
+	_togglePower(stateKey, button) {
+		const enabled = !this.toggles[stateKey].enabled;
+
+		this.toggles = {
+			...this.toggles,
+			[stateKey]: { ...this.toggles[stateKey], enabled },
+		};
+
+		button.changeState(enabled ? ButtonStateEnum.active : ButtonStateEnum.normal);
+
+		this.game.signals.metaPowers.dispatch(`toggle${capitalize(stateKey)}`, enabled);
+
+		this._updatePowersList();
+		this._persistPowers();
+	}
+
+	/**
+	 * Persist toggled Meta Powers to a cookie.
+	 */
+	_persistPowers() {
+		Cookies.set(COOKIE_KEY, JSON.stringify({ persisting: true, toggles: this.toggles }));
+	}
+
+	/**
+	 * If the toggled Meta Powers were persisted to a cookie, restore them.
+	 */
+	_restorePowers() {
+		const powers = JSON.parse(Cookies.get(COOKIE_KEY)).toggles;
+
+		Object.keys(powers).forEach((key) => {
+			if (powers[key].enabled) {
+				this._togglePower(key, this[`btn${capitalize(key)}`]);
+			}
+		});
+	}
+
+	/**
+	 * Clear toggled Meta Powers and remove cookie.
+	 */
+	_clearPowers() {
+		Object.keys(this.toggles).forEach((key) => {
+			if (this.toggles[key].enabled) {
+				this._togglePower(key, this[`btn${capitalize(key)}`]);
+			}
+		});
+	}
+
+	/**
+	 * Display a list of enabled powers outside of the modal for easy reference.
+	 */
+	_updatePowersList() {
+		const list = Object.keys(this.toggles)
+			.reduce((acc, curr) => {
+				if (this.toggles[curr].enabled) {
+					return [...acc, this.toggles[curr].label];
+				}
+
+				return acc;
+			}, [])
+			.join(', ');
+
+		this.$els.powersList.html(list.length ? `Enabled Meta Powers: ${list}` : '');
 	}
 
 	/**
 	 * Toggle the visibility of the Meta Powers modal.
 	 */
-	toggleModal() {
+	_toggleModal() {
 		this.$els.modal.toggleClass('hide');
 	}
 
 	/**
 	 * Close the Meta Powers modal.
 	 */
-	closeModal() {
+	_closeModal() {
 		this.$els.modal.addClass('hide');
-	}
-
-	/**
-	 * Toggle the button state for the "Execution Mode" button, and inform the rest
-	 * of the app that execution mode is enabled.
-	 */
-	toggleExecuteMonster() {
-		const executeMonster = !this.state.executeMonster;
-
-		this.state = {
-			...this.state,
-			executeMonster,
-		};
-
-		this.btnExecuteMonster.changeState(
-			executeMonster ? ButtonStateEnum.active : ButtonStateEnum.normal,
-		);
-
-		this.game.signals.metaPowers.dispatch('toggleExecuteMonster', executeMonster);
-	}
-
-	/**
-	 * Inform the rest of the app that cooldowns should be reset.
-	 */
-	resetCooldowns() {
-		this.game.signals.metaPowers.dispatch('resetCooldowns');
 	}
 }
