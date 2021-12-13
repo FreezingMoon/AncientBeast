@@ -81,8 +81,6 @@ export default (G) => {
 					return false;
 				}
 
-				// this.end();
-
 				// Target becomes unmovable until end of their phase
 				let o = {
 					alterations: {
@@ -102,7 +100,7 @@ export default (G) => {
 				}
 
 				const attackerEffect = new Effect(
-					this.name,
+					this.title,
 					this.creature, // Caster
 					damage.attacker, // Target
 					'', // Trigger
