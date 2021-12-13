@@ -15,12 +15,16 @@ export default (G) => {
 		/**
 		 * First Ability: Tentacle Bush
 		 * When ending the Nutcase's turn, it gains the "Tentacle Bush" effect which:
-		 * - makes the Nutcase immovable
-		 * - adds a damage shield which applies an effect against melee attackers which:
-		 *  - makes the attacker immovable (roots them in place)
-		 *  - if upgraded, makes the attacker's abilities cost 5 energy more
-		 *  - lasts until the attacker's next turn
-		 *  - does not stack effects (i.e. not 10 energy for two attacks if upgraded)
+		 * - makes the Nutcase immovable until its next turn
+		 * - applies an effect against melee attackers
+		 * - lasts until its next turn
+		 * - is never active during the Nutcase's own turn making this a defensive ability.
+		 *
+		 * The effect applied to attackers:
+		 * - makes the attacker immovable (roots them in place)
+		 * - if upgraded, makes the attacker's abilities cost +5 energy
+		 * - lasts until the end of the attacker's current turn
+		 * - does not stack (i.e. not +10 energy for two attacks)
 		 */
 		{
 			trigger: 'onEndPhase',
