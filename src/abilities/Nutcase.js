@@ -12,7 +12,16 @@ import { Effect } from '../effect';
  */
 export default (G) => {
 	G.abilities[40] = [
-		//	First Ability: Tentacle Bush
+		/**
+		 * First Ability: Tentacle Bush
+		 * When ending the Nutcase's turn, it gains the "Tentacle Bush" effect which:
+		 * - makes the Nutcase immovable
+		 * - adds a damage shield which applies an effect against melee attackers which:
+		 *  - makes the attacker immovable (roots them in place)
+		 *  - if upgraded, makes the attacker's abilities cost 5 energy more
+		 *  - lasts until the attacker's next turn
+		 *  - does not stack effects (i.e. not 10 energy for two attacks if upgraded)
+		 */
 		{
 			trigger: 'onEndPhase',
 
@@ -22,15 +31,29 @@ export default (G) => {
 			},
 
 			activate: function () {
-				const effect = new Effect(
+				const immoveableEffect = new Effect(
+					// This effect shows the Nutcase being affected by Tentacle Bush in the UI.
 					this.title,
 					this.creature,
 					this.creature,
-					'onUnderAttack',
+					'',
 					{
 						alterations: {
 							moveable: false,
 						},
+						deleteTrigger: 'onStartPhase',
+						turnLifetime: 1,
+					},
+					G,
+				);
+
+				const damageShieldEffect = new Effect(
+					// Don't show two effects in the log.
+					'',
+					this.creature,
+					this.creature,
+					'onUnderAttack',
+					{
 						effectFn: (...args) => this._activateOnAttacker(...args),
 						deleteTrigger: 'onStartPhase',
 						turnLifetime: 1,
@@ -38,7 +61,8 @@ export default (G) => {
 					G,
 				);
 
-				this.creature.addEffect(effect);
+				this.creature.addEffect(immoveableEffect);
+				this.creature.addEffect(damageShieldEffect);
 
 				this.end(
 					/* Suppress "uses ability" log message, just show the "affected by" Effect
@@ -53,7 +77,7 @@ export default (G) => {
 					return false;
 				}
 
-				this.end();
+				// this.end();
 
 				// Target becomes unmovable until end of their phase
 				let o = {
@@ -74,7 +98,7 @@ export default (G) => {
 				}
 
 				const attackerEffect = new Effect(
-					this.title,
+					this.name,
 					this.creature, // Caster
 					damage.attacker, // Target
 					'', // Trigger
@@ -82,7 +106,10 @@ export default (G) => {
 					G,
 				);
 
-				damage.attacker.addEffect(attackerEffect);
+				damage.attacker.addEffect(
+					attackerEffect,
+					`%CreatureName${attackerEffect.target.id}% has been grasped by tentacles`,
+				);
 
 				// Making attacker unmovable will change its move query, so update it
 				if (damage.attacker === G.activeCreature) {
