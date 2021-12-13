@@ -75,7 +75,8 @@
 }
 
 #hexesDisplay .displayhex {
-	background: url('~assets/interface/hex.png');
+	//background: url('~assets/interface/hex.png');
+	background: url('~assets/interface/hex_path.png');
 	transition: opacity 250ms;
 }
 
@@ -92,7 +93,7 @@
 }
 
 #hexesDisplay .displayhex.not-reachable {
-	opacity: 0;
+	opacity: 1;
 }
 
 #hexesinput .hex div,
@@ -100,7 +101,7 @@
 .hex div:before {
 	position: relative;
 	display: block;
-	color: black;
+	color: red;
 	margin: 0;
 	padding: 0;
 	top: 0;
@@ -144,7 +145,8 @@
 }
 
 #hexesDisplay .displayhex.dashed {
-	background: url('~assets/interface/hex_dashed.png');
+	/* background: url('~assets/interface/hex_dashed.png'); */
+	background: url('~assets/interface/hex_path.png');
 	z-index: 5;
 	opacity: 1 !important;
 }
