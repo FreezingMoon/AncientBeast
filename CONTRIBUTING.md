@@ -49,7 +49,7 @@ The `npm install` command will also update any required dependencies if the `pac
 
 ### Setup environment variables
 
-In case you want to customize your local setup, you can duplicate existing `.env.example` file into `.env`, adjust it as you see fit and that file will become default.
+If you want to customize your local setup, duplicate existing `.env.example` file as `.env`, adjust it as you want and that file will become default.
 
 ```sh
 cp .env.example .env
