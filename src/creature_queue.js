@@ -9,25 +9,32 @@ export class CreatureQueue {
 	}
 
 	/**
-	 * Add a creature to the next turn's queue by initiative
+	 * Add a creature to the next turn's queue by initiative, and optionally the current
+	 * queue. Adding a creature to the current queue avoids Materialization Sickness.
 	 *
 	 * @param {Creature} creature The creature to add.
-	 * @param {boolean} addToNextQueue Add creature to the next queue, or the current one.
+	 * @param {boolean} alsoAddToCurrentQueue Also add the creature to the current queue.
 	 * @returns
 	 */
-	addByInitiative(creature, addToNextQueue = true) {
-		const targetQueue = addToNextQueue ? this.nextQueue : this.queue;
+	addByInitiative(creature, alsoAddToCurrentQueue = true) {
+		const queues = [this.nextQueue];
 
-		for (let i = 0; i < targetQueue.length; i++) {
-			let queue = targetQueue[i];
-
-			if (queue.delayed || queue.getInitiative() < creature.getInitiative()) {
-				targetQueue.splice(i, 0, creature);
-				return;
-			}
+		if (alsoAddToCurrentQueue) {
+			queues.push(this.queue);
 		}
 
-		targetQueue.push(creature);
+		queues.forEach((queue) => {
+			for (let i = 0; i < queue.length; i++) {
+				let queueItem = queue[i];
+
+				if (queueItem.delayed || queueItem.getInitiative() < creature.getInitiative()) {
+					queue.splice(i, 0, creature);
+					return;
+				}
+			}
+
+			queue.push(creature);
+		});
 	}
 
 	dequeue() {

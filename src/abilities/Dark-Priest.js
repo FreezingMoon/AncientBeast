@@ -285,7 +285,7 @@ export default (G) => {
 				G.queue.tempCreature = fullCrea;
 
 				// Show temporary Creature in queue
-				G.queue.addByInitiative(fullCrea, creatureHasMaterializationSickness);
+				G.queue.addByInitiative(fullCrea, !creatureHasMaterializationSickness);
 				G.updateQueueDisplay();
 
 				// Reduce temporary Creature vignette transparency
