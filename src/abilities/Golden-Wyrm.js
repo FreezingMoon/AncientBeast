@@ -236,18 +236,21 @@ export default (G) => {
 		/**
 		 * Fourth Ability: Visible Stigmata
 		 *
-		 * Heals an ally at the cost of own health. If the target unit is missing less
-		 * than the max heal amount (50), only the missing amount will be transferred.
-		 * Cannot target full health units.
+		 * Heals an ally at the cost of own health.
 		 *
-		 * When upgraded, each use buffs Golden Wyrm with 10 regrowth points.
+		 * Targeting rules:
+		 * - If the target unit is missing less than the max heal amount (50), only
+		 *   the missing amount will be transferred.
+		 * - Cannot target full health units.
+		 * - Requires at least 51 remaining health to use.
+		 *
+		 * When upgraded each use buffs Golden Wyrm with 10 regrowth points.
 		 */
 		{
 			trigger: 'onQuery',
 
 			_targetTeam: Team.ally,
 
-			// TODO: Can this value be sourced from data.json?
 			_maxTransferAmount: 50,
 
 			require: function () {
@@ -255,8 +258,11 @@ export default (G) => {
 					return false;
 				}
 
-				// Golden Wyrm needs to be left with at least 1 hp after the ability.
+				/* Golden Wyrm needs to be left with at least 1 hp after the ability. We
+				can't use ability.costs because that is a fixed value, whereas this ability
+				has a dynamic health cost. */
 				if (this.creature.health < this._maxTransferAmount + 1) {
+					this.message = 'Not enough health';
 					return false;
 				}
 
