@@ -346,8 +346,6 @@ export class HexGrid {
 			}
 		}
 
-		//o.hexesDashed = o.hexesDashed.filter((hexDash) => !hexDash.creature);
-
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {
 				// Determine which set of hexes (choice) the hex is part of
