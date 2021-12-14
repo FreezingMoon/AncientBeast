@@ -30,9 +30,16 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			require: function () {
+				// Headless only triggers ability on its own turn.
+				if (this.creature !== this.game.activeCreature) {
+					return false;
+				}
+
+				if (this.creature.materializationSickness) {
+					return false;
+				}
+
 				if (
-					// Headless only triggers ability on its own turn.
-					this.creature !== this.game.activeCreature ||
 					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
 					})
@@ -49,7 +56,6 @@ export default (G) => {
 				let creature = this.creature;
 
 				this.end();
-				// this.setUsed(false); // Infinite triggering
 
 				// TODO: Can multiple targets be selected?
 				const targets = this.getTargets(this._getHexes());
@@ -63,25 +69,23 @@ export default (G) => {
 						target.addFatigue(target.endurance);
 					}
 
-					const effect = target.addEffect(
-						new Effect(
-							// '', // No name to prevent logging
-							this.title, // No name to prevent logging
-							creature,
-							target,
-							// Effect never fades.
-							'',
-							{
-								stackable: true,
-								alterations: {
-									endurance: -5,
-								},
+					const effect = new Effect(
+						this.title,
+						creature,
+						target,
+						// Effect never fades.
+						// TODO: Should it?
+						'',
+						{
+							stackable: true,
+							alterations: {
+								endurance: -5,
 							},
-							G,
-						),
+						},
+						G,
 					);
 
-					// target.addEffect(effect, '%CreatureName' + target.id + '% has been infested');
+					target.addEffect(effect, '%CreatureName' + target.id + '% has been infested');
 				});
 			},
 
