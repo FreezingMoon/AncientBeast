@@ -1,8 +1,13 @@
-import { Client } from '@heroiclabs/nakama-js/dist/nakama-js.esm';
+import { Client } from '@heroiclabs/nakama-js';
 
 export default class Server {
 	constructor(game) {
-		this.client = new Client(process.env.key, process.env.ip, process.env.port, process.env.ssl);
+		this.client = new Client(
+			process.env.MULTIPLAYER_KEY,
+			process.env.MULTIPLAYER_IP,
+			process.env.MULTIPLAYER_PORT,
+			process.env.MULTIPLAYER_SSL,
+		);
 		this.useSSL = process.env.ssl;
 		this.verboseLogging = false;
 		this.createStatus = false;

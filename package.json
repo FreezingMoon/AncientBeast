@@ -27,6 +27,8 @@
 		"compression": "^1.7.4",
 		"copy-webpack-plugin": "^6.2.1",
 		"cross-env": "^7.0.2",
+		"dotenv": "^8.2.0",
+		"dotenv-defaults": "^2.0.1",
 		"dotenv-webpack": "^3.0.0",
 		"express": "^4.17.1",
 		"jquery": "^3.5.0",
@@ -63,18 +65,19 @@
 		"webpack-dev-server": "^3.11.0"
 	},
 	"engines": {
-		"node": "12.16.x"
+		"node": "16.13.x"
 	},
 	"scripts": {
-		"build": "npm run assetLister && webpack --mode=production",
-		"build:dev": "npm run assetLister && webpack --mode=development",
+		"build": "npm run clean && npm run assetLister && webpack --mode=production",
+		"build:dev": "npm run clean && npm run assetLister && webpack --mode=development",
 		"start": "cross-env NODE_ENV=production node server.js",
 		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
 		"assetLister": "node ./assetLister.js",
 		"lint": "eslint src/*.js src/**/*.js",
 		"lint-fix": "eslint --fix src/*.js src/**/*.js",
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check",
-		"test": "npm run lint && npm run build"
+		"test": "npm run lint && npm run build",
+		"clean": "rm -rf ./deploy"
 	},
 	"lint-staged": {
 		"*.{js,json,less,md}": [
