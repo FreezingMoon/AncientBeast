@@ -65,7 +65,7 @@
 		"webpack-dev-server": "^3.11.0"
 	},
 	"engines": {
-		"node": "12.16.x"
+		"node": "16.13.x"
 	},
 	"scripts": {
 		"build": "npm run assetLister && webpack --mode=production",
