@@ -346,7 +346,7 @@ export class HexGrid {
 			}
 		}
 
-		o.hexesDashed = o.hexesDashed.filter((hexDash) => !hexDash.creature);
+		//o.hexesDashed = o.hexesDashed.filter((hexDash) => !hexDash.creature);
 
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {
