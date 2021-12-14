@@ -233,78 +233,126 @@ export default (G) => {
 			},
 		},
 
-		// 	Fourth Ability: Battle Cry
+		/**
+		 * Fourth Ability: Visible Stigmata
+		 *
+		 * Heals an ally at the cost of own health. If the target unit is missing less
+		 * than the max heal amount (50), only the missing amount will be transferred.
+		 * Cannot target full health units.
+		 *
+		 * When upgraded, each use buffs Golden Wyrm with 10 regrowth points.
+		 */
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			damages: {
-				pierce: 15,
-				slash: 10,
-				crush: 5,
-			},
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.ally,
 
-			// 	require() :
+			// TODO: Can this value be sourced from data.json?
+			_maxTransferAmount: 50,
+
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
-				let map = G.grid.getHexMap(
-					this.creature.x - 2,
-					this.creature.y - 2,
-					0,
-					false,
-					matrices.frontnback2hex,
-				);
-				// At least one target
+				// Golden Wyrm needs to be left with at least 1 hp after the ability.
+				if (this.creature.health < this._maxTransferAmount + 1) {
+					return false;
+				}
+
 				if (
-					!this.atLeastOneTarget(map, {
+					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
+						optTest: this._confirmTarget,
 					})
 				) {
 					return false;
 				}
+
 				return true;
 			},
 
-			// 	query() :
 			query: function () {
-				let ability = this;
-				let wyrm = this.creature;
+				const ability = this;
+				const wyrm = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
+					optTest: this._confirmTarget,
 					team: this._targetTeam,
 					id: wyrm.id,
 					flipped: wyrm.flipped,
-					hexes: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, matrices.frontnback2hex),
+					hexes: this._getHexes(),
 				});
 			},
 
-			//	activate() :
 			activate: function (target) {
-				let ability = this;
-				ability.end();
+				this.end();
 
-				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
-					1, // Area
-					[], // Effects
-					G,
+				/* The amount of health transferred is the creature's missing life, capped 
+				to 50. */
+				const transferAmount = Math.min(
+					target.stats.health - target.health,
+					this._maxTransferAmount,
 				);
-				target.takeDamage(damage);
 
-				//remove frogger bonus if its found
-				ability.creature.effects.forEach(function (item) {
-					if (item.name == 'Offense++') {
-						item.deleteEffect();
-					}
-				});
+				target.heal(transferAmount);
+
+				/* Damage Golden Wyrm using `.heal()` instead of `.takeDamage()` to apply 
+				raw damage that bypasses dodge, shielded, etc and does not trigger further 
+				effects. */
+				this.creature.heal(-transferAmount);
+
+				// TODO: Should we show messages/hints for this transfer beyond health lost/gained?
+
+				// If upgraded, buff +10 regrowth.
+				if (this.isUpgraded()) {
+					const regrowthBuffEffect = new Effect(
+						// No name to avoid logging.
+						// TODO: Should we show a hint above the Wyrm?
+						'',
+						this.creature, // Caster
+						this.creature, // Target
+						'', // Trigger
+						{
+							alterations: {
+								regrowth: 10,
+							},
+						},
+						G,
+					);
+
+					this.creature.addEffect(
+						regrowthBuffEffect,
+						// TODO: What should this say?
+						`%CreatureName${this.creature.id}% is brimming with health`,
+					);
+				}
+			},
+
+			/**
+			 * Determine the area of effect to query and activate the ability. The area
+			 * of effect is the 3 hexes to the front of the creature:
+			 * ⬡⬢
+			 *  👹⬢
+			 * ⬡⬢
+			 *
+			 * @returns Refer to HexGrid.getHexMap()
+			 */
+			_getHexes() {
+				return this.creature.getHexMap(matrices.front1hex);
+			},
+
+			/**
+			 * Confirm a target ally creature can be targeted.
+			 *
+			 * @param {Creature} creature Ally creature that could be targeted.
+			 * @returns {boolean} Should the creature be targeted?
+			 */
+			_confirmTarget(creature) {
+				return creature.health < creature.stats.health;
 			},
 		},
 	];
