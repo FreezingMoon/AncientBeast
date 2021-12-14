@@ -11,23 +11,35 @@ import { Effect } from '../effect';
  */
 export default (G) => {
 	G.abilities[39] = [
-		// 	First Ability: Larva Infest
+		/**
+		 * First Ability: Larva Infest
+		 * At both the beginning and end of the Headless turn, if there is an enemy
+		 * creature in the hex directly at the back of the Headless, the enemy creature
+		 * will instantly lose -5 maximum endurance.
+		 *
+		 * The upgraded ability also instantly applies the "fatigue" effect regardless
+		 * of remaining endurance, as well as draining -5 endurance.
+		 *
+		 * If the Headless begins its turn in a position to trigger the ability, and
+		 * ends its turn in the position, the enemy creature will have the ability effect
+		 * applied twice.
+		 */
 		{
 			trigger: 'onStartPhase onEndPhase',
 
 			_targetTeam: Team.enemy,
-			_getHexes: function () {
-				return this.creature.getHexMap(matrices.inlineback2hex);
-			},
 
 			require: function () {
 				if (
+					// Headless only triggers ability on its own turn.
+					this.creature !== this.game.activeCreature ||
 					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
 					})
 				) {
 					return false;
 				}
+
 				return this.testRequirements();
 			},
 
@@ -36,69 +48,45 @@ export default (G) => {
 				let ability = this;
 				let creature = this.creature;
 
-				if (
-					this.atLeastOneTarget(this._getHexes(), {
-						team: this._targetTeam,
-					})
-				) {
-					this.end();
-					this.setUsed(false); // Infinite triggering
-				} else {
-					return false;
-				}
+				this.end();
+				// this.setUsed(false); // Infinite triggering
 
-				let targets = this.getTargets(this._getHexes());
+				// TODO: Can multiple targets be selected?
+				const targets = this.getTargets(this._getHexes());
 
-				targets.forEach(function (item) {
-					if (!(item.target instanceof Creature)) {
-						return;
-					}
-
-					let trg = item.target;
+				targets.forEach((item) => {
+					const { target } = item;
 
 					if (ability.isUpgraded()) {
 						// Upgraded ability causes fatigue - endurance set to 0
-						trg.addFatigue(trg.endurance);
+						// TODO: this will remove endurance, not just fatigue.
+						target.addFatigue(target.endurance);
 					}
 
-					// Add an effect that triggers on the target's start phase and adds the
-					// debuff
-					let effect = new Effect(
-						ability.title, // Name
-						creature, // Caster
-						trg, // Target
-						'onStartPhase', // Trigger
-						{
-							effectFn: function () {
-								// Activate debuff
-								trg.addEffect(
-									new Effect(
-										'', // No name to prevent logging
-										creature,
-										trg,
-										'',
-										{
-											deleteTrigger: '',
-											stackable: true,
-											alterations: {
-												endurance: -5,
-											},
-										},
-										G,
-									),
-								);
-								// Note: effect activate by default adds the effect on the target,
-								// but target already has this effect, so remove the trigger to
-								// prevent infinite addition of this effect.
-								item.trigger = '';
-								item.deleteEffect();
+					const effect = target.addEffect(
+						new Effect(
+							// '', // No name to prevent logging
+							this.title, // No name to prevent logging
+							creature,
+							target,
+							// Effect never fades.
+							'',
+							{
+								stackable: true,
+								alterations: {
+									endurance: -5,
+								},
 							},
-						},
-						G,
+							G,
+						),
 					);
 
-					trg.addEffect(effect, '%CreatureName' + trg.id + '% has been infested');
+					// target.addEffect(effect, '%CreatureName' + target.id + '% has been infested');
 				});
+			},
+
+			_getHexes: function () {
+				return this.creature.getHexMap(matrices.inlineback2hex);
 			},
 		},
 

@@ -67,12 +67,18 @@ export class Effect {
 	}
 
 	deleteEffect() {
-		let i = this.target.effects.indexOf(this),
-			game = this.game;
+		const targetIdx = this.target.effects.indexOf(this);
+		if (!this.target.effects[targetIdx]) {
+			console.warn('Failed to find effect on target.');
+		}
+		this.target.effects.splice(targetIdx, 1);
 
-		this.target.effects.splice(i, 1);
-		i = game.effects.indexOf(this);
-		game.effects.splice(i, 1);
+		const gameIdx = this.game.effects.indexOf(this);
+		if (!this.target.effects[gameIdx]) {
+			console.warn('Failed to find effect on game.');
+		}
+		this.game.effects.splice(gameIdx, 1);
+
 		this.target.updateAlteration();
 		console.log('Effect ' + this.name + ' deleted');
 	}
