@@ -315,12 +315,10 @@ export default (G) => {
 
 				if (this.isUpgraded()) {
 					const regrowthBuffEffect = new Effect(
-						// No name to avoid logging.
-						// TODO: Should we show a hint above the Wyrm?
+						this.title,
+						this.creature,
+						this.creature,
 						'',
-						this.creature, // Caster
-						this.creature, // Target
-						'', // Trigger
 						{
 							alterations: {
 								regrowth: 10,
@@ -333,6 +331,10 @@ export default (G) => {
 						regrowthBuffEffect,
 						// TODO: What should this say?
 						`%CreatureName${this.creature.id}% is brimming with health`,
+						// TODO: Should we show a hint?
+						'',
+						false,
+						true,
 					);
 				}
 			},
