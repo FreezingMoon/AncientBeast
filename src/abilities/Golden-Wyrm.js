@@ -307,7 +307,6 @@ export default (G) => {
 
 				// TODO: Should we show messages/hints for this transfer beyond health lost/gained?
 
-				// If upgraded, buff +10 regrowth.
 				if (this.isUpgraded()) {
 					const regrowthBuffEffect = new Effect(
 						// No name to avoid logging.
