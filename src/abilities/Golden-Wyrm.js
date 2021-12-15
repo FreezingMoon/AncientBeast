@@ -236,15 +236,21 @@ export default (G) => {
 		/**
 		 * Fourth Ability: Visible Stigmata
 		 *
-		 * Heals an ally at the cost of own health.
+		 * Heals an adjacent allied unit at the cost of the Golden Wyrm's own health,
+		 * essentially transferring health.
 		 *
 		 * Targeting rules:
+		 * - The target unit be an ally.
+		 * - The target unit must be in hexes directly adjacent to the Golden Wyrm.
 		 * - If the target unit is missing less than the max heal amount (50), only
 		 *   the missing amount will be transferred.
 		 * - Cannot target full health units.
-		 * - Requires at least 51 remaining health to use.
 		 *
-		 * When upgraded each use buffs Golden Wyrm with 10 regrowth points.
+		 * Other rules:
+		 * - Requires at least 51 remaining health to use so the Golden Wyrm doesn't
+		 *   kill itself.
+		 *
+		 * When upgraded each use buffs Golden Wyrm with 10 permanent regrowth points.
 		 */
 		{
 			trigger: 'onQuery',
@@ -342,6 +348,8 @@ export default (G) => {
 			/**
 			 * Determine the area of effect to query and activate the ability. The area
 			 * of effect are the hexes directly adjacent around the 3-sized creature.
+			 * This is a total of 10 hexes assuming the Golden Wyrm is not adjacent to
+			 * the edge of the board.
 			 *
 			 * @returns Refer to HexGrid.getHexMap()
 			 */
@@ -352,10 +360,15 @@ export default (G) => {
 					[1, 1, 1, 1, 0],
 				];
 				const xOffset = this.creature.y % 2 === 0 ? 0 : 1;
+				const hexes = G.grid.getHexMap(
+					this.creature.x - xOffset,
+					this.creature.y - 1,
+					-2,
+					false,
+					map,
+				);
 
-				return G.grid.getHexMap(this.creature.x - xOffset, this.creature.y - 1, -2, false, map);
-
-				// return this.creature.getHexMap(map);
+				return hexes;
 			},
 
 			/**
