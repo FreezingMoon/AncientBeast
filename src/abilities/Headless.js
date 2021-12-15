@@ -18,7 +18,7 @@ export default (G) => {
 		 * will instantly lose -5 maximum endurance.
 		 *
 		 * The upgraded ability also instantly applies the "fatigue" effect regardless
-		 * of remaining endurance, as well as draining -5 endurance.
+		 * of remaining endurance, as well as reducing -5 maximum endurance.
 		 *
 		 * If the Headless begins its turn in a position to trigger the ability, and
 		 * ends its turn in the position, the enemy creature will have the ability effect
@@ -50,43 +50,33 @@ export default (G) => {
 				return this.testRequirements();
 			},
 
-			//	activate() :
 			activate: function () {
-				let ability = this;
-				let creature = this.creature;
-
 				this.end();
 
-				// TODO: Can multiple targets be selected?
-				const targets = this.getTargets(this._getHexes());
+				// require() has identified a valid target, so we can safely assume it is there.
+				const target = this._getHexes()[0].creature;
 
-				targets.forEach((item) => {
-					const { target } = item;
+				if (this.isUpgraded()) {
+					// Upgraded ability causes fatigue - endurance set to 0.
+					target.addFatigue(target.endurance);
+				}
 
-					if (ability.isUpgraded()) {
-						// Upgraded ability causes fatigue - endurance set to 0
-						// TODO: this will remove endurance, not just fatigue.
-						target.addFatigue(target.endurance);
-					}
-
-					const effect = new Effect(
-						this.title,
-						creature,
-						target,
-						// Effect never fades.
-						// TODO: Should it?
-						'',
-						{
-							stackable: true,
-							alterations: {
-								endurance: -5,
-							},
+				const effect = new Effect(
+					this.title,
+					this.creature,
+					target,
+					// Effect never fades.
+					'',
+					{
+						stackable: true,
+						alterations: {
+							endurance: -5,
 						},
-						G,
-					);
+					},
+					G,
+				);
 
-					target.addEffect(effect, '%CreatureName' + target.id + '% has been infested');
-				});
+				target.addEffect(effect, `%CreatureName${target.id}% loses -5 endurance`);
 			},
 
 			_getHexes: function () {

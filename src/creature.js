@@ -345,7 +345,7 @@ export class Creature {
 
 			if (!this.materializationSickness) {
 				// Fatigued creatures (endurance 0) should not regenerate, but fragile
-				// ones (max endurance 0) should anyway
+				// ones (max endurance 1) should anyway
 				if (!this.isFatigued()) {
 					this.heal(stats.regrowth, true);
 					if (stats.meditation > 0) {
@@ -1613,8 +1613,11 @@ export class Creature {
 			});
 		});
 
-		// Endurance cannot be lower than 0.
-		this.stats.endurance = Math.max(this.stats.endurance, 0);
+		// Maximum stat pools cannot be lower than 1.
+		this.stats.health = Math.max(this.stats.health, 1);
+		this.stats.endurance = Math.max(this.stats.endurance, 1);
+		this.stats.energy = Math.max(this.stats.energy, 1);
+		this.stats.movement = Math.max(this.stats.movement, 1);
 
 		// These stats cannot exceed their maximum values.
 		this.health = Math.min(this.health, this.stats.health);
@@ -1766,7 +1769,7 @@ export class Creature {
 	}
 
 	isFragile() {
-		return this.stats.endurance === 0;
+		return this.stats.endurance === 1;
 	}
 
 	/* getHexMap()
