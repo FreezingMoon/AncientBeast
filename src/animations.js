@@ -239,8 +239,6 @@ export class Animations {
 		// TODO: Reveal health indicator
 		creature.healthShow();
 
-		game.onCreatureMove(creature, hex); // Trigger
-
 		creature.hexagons.forEach((h) => {
 			h.pickupDrop(creature);
 		});

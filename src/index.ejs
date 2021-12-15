@@ -1106,8 +1106,14 @@
 						<div class="toggle-meta-powers button"></div>
 					</div>
 					
-					<h2>Global Powers</h2>
-					<div id="meta-powers-actions">
+					<div class="meta-powers-header">
+						<h2>Toggled Powers</h2>
+						<button id="reset-toggled-powers" title="Click to reset selection">
+							Reset Toggled Powers
+						</button>
+					</div>
+
+					<div class="meta-powers-actions">
 						<div style="position: relative;">
 							<div 
 								id="execute-monster-button" 
@@ -1122,37 +1128,55 @@
 								<p>When activated, clicking a creature will immediately kill it.</p>
 							</div>
 						</div>
+
+						<div style="position: relative;">
+							<div 
+								id="disable-materialization-sickness-button" 
+								class="button"
+							>
+								Disable Materialization Sickness
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Disable Materialization Sickness</span>
+								<p>
+									When activated, summoned creatures will not suffer from Materialization 
+									Sickness on their first turn.
+								</p>
+							</div>
+						</div>
 						
 						<div style="position: relative;">
 							<div 
 								id="reset-cooldowns-button" 
 								class="button"
 							>
-								Reset Cooldowns
+								Disable Cooldowns
 							</div>
 
 							<div class="desc">
 								<div class="arrow"></div>
-								<span>Reset Cooldowns</span>
+								<span>Disable Cooldowns</span>
 								<p>
-									Reset the ability cooldowns for all units, including the Dark Priest, allowing 
+									Disable ability cooldowns for all units, including the Dark Priest, allowing 
 									them to be used multiple times in a single round.
 								</p>
 							</div>
 						</div>
 					</div>
-	
-					<h2>Unit Powers</h2>
-					<div id="meta-powers-actions"></div>
 				</div>
 			</div>
+			<div id="meta-powers-list"></div>
 		</div>
 		<div id="banner"></div>
 		<div id="combatwrapper">
 		</div>
-		<%=require('./templates/service_worker.html')%>
-		<% if(htmlWebpackPlugin.options.production) { %>
-		<%=require('./templates/analytics.html')%>
+		<% if (htmlWebpackPlugin.options.enableServiceWorker) { %>
+			<%= require('./templates/service_worker.html') %>
+		<% } %>
+		<% if (htmlWebpackPlugin.options.production) { %>
+			<%= require('./templates/analytics.html') %>
 		<% } %>
 	</body>
 </html>

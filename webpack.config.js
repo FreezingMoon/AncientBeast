@@ -1,3 +1,8 @@
+// Use .env configuration in webpack.config.js
+require('dotenv-defaults').config({
+	default: './.env.example',
+});
+
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
@@ -12,6 +17,7 @@ const Dotenv = require('dotenv-webpack');
 // Expose mode argument to unify our config options.
 module.exports = (env, argv) => {
 	const production = (argv && argv.mode === 'production') || process.env.NODE_ENV === 'production';
+	const enableServiceWorker = process.env.ENABLE_SERVICE_WORKER === 'true' ? true : false;
 
 	return {
 		entry: ['babel-polyfill', path.resolve(__dirname, 'src', 'script.ts')],
@@ -85,8 +91,11 @@ module.exports = (env, argv) => {
 				template: path.resolve(__dirname, 'src', 'index.ejs'),
 				favicon: path.resolve(__dirname, 'assets', 'favicon.png'),
 				production,
+				enableServiceWorker,
 			}),
-			new Dotenv(),
+			new Dotenv({
+				defaults: './.env.example',
+			}),
 		],
 		node: {
 			fs: 'empty',
