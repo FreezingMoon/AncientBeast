@@ -1737,7 +1737,8 @@ export class UI {
 			};
 			let $desc = btn.$button.next('.desc');
 			$desc.find('span.title').text(ab.title);
-			$desc.find('p').html(ab.desc);
+			$desc.find('p.description').html(ab.desc);
+			$desc.find('p.full-info').html(ab.info);
 			btn.changeState(); // Apply changes
 		});
 	}
