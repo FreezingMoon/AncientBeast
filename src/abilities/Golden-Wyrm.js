@@ -318,7 +318,7 @@ export default (G) => {
 
 				// Rather than individual loss/gain health logs, show a single custom log.
 				this.game.log(
-					`%CreatureName${this.creature.id}% transfers ${transferAmount} health to %CreatureName${target.id}%`,
+					`%CreatureName${this.creature.id}% gives ${transferAmount} health to %CreatureName${target.id}%`,
 				);
 
 				if (this.isUpgraded()) {
