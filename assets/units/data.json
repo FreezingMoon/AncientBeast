@@ -2669,7 +2669,9 @@
 				"desc": "Rapidly transfers up to 50 health points to a nearby allied unit, this is non lethal.",
 				"info": "Usage requires being at least 51 health.",
 				"upgrade": "+10 regrowth bonus each use.",
-				"costs": {}
+				"costs": {
+					"energy": 25
+				}
 			}
 		]
 	},

@@ -312,7 +312,7 @@ export default (G) => {
 
 				// Rather than individual loss/gain health logs, show a single custom log.
 				this.game.log(
-					`%CreatureName${this.creature.id}% transfers${transferAmount} health to %CreatureName${target.id}%`,
+					`%CreatureName${this.creature.id}% transfers ${transferAmount} health to %CreatureName${target.id}%`,
 				);
 
 				if (this.isUpgraded()) {
@@ -341,15 +341,21 @@ export default (G) => {
 
 			/**
 			 * Determine the area of effect to query and activate the ability. The area
-			 * of effect is the 3 hexes to the front of the creature:
-			 * ⬡⬢
-			 *  👹⬢
-			 * ⬡⬢
+			 * of effect are the hexes directly adjacent around the 3-sized creature.
 			 *
 			 * @returns Refer to HexGrid.getHexMap()
 			 */
 			_getHexes() {
-				return this.creature.getHexMap(matrices.front1hex);
+				const map = [
+					[1, 1, 1, 1, 0],
+					[1, 0, 0, 0, 1],
+					[1, 1, 1, 1, 0],
+				];
+				const xOffset = this.creature.y % 2 === 0 ? 0 : 1;
+
+				return G.grid.getHexMap(this.creature.x - xOffset, this.creature.y - 1, -2, false, map);
+
+				// return this.creature.getHexMap(map);
 			},
 
 			/**
