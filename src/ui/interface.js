@@ -2499,13 +2499,13 @@ export class UI {
 					text = 'Protected';
 				} else if (creature.endurance > 0) {
 					text = creature.endurance + '/' + creature.stats.endurance;
-				} else if (creature.stats.endurance === 0) {
+				} else if (creature.isFragile()) {
 					text = 'Fragile';
 					// Display message if the creature has first become fragile
 					if (creature.fatigueText !== text) {
 						game.log('%CreatureName' + creature.id + '% has become fragile');
 					}
-				} else {
+				} else if (creature.isFatigued()) {
 					text = 'Fatigued';
 				}
 
