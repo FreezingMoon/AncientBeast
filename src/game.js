@@ -10,7 +10,7 @@ import { getUrl } from './assetLoader';
 import { Player } from './player';
 import { UI } from './ui/interface';
 import { Creature } from './creature';
-import dataJson from 'assets/units/data.json';
+import dataJson from './data/units.json';
 import 'pixi';
 import 'p2';
 import Phaser, { Signal } from 'phaser';
@@ -633,7 +633,8 @@ export default class Game {
 				v.numeric_properties.turnTimePool < 0 ? '∞' : v.numeric_properties.timePool;
 			let timepool = v.numeric_properties.timePool < 0 ? '∞' : v.numeric_properties.timePool;
 			let unitdrops = v.numeric_properties.unitDrops < 0 ? 'off' : 'on';
-			let _matchBtn = $j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
+			let _matchBtn =
+				$j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
         Host: ${v.presence.username}<br />
         Player Mode: ${v.numeric_properties.playerMode}<br />
         Active Units: ${v.numeric_properties.creaLimitNbr}<br />

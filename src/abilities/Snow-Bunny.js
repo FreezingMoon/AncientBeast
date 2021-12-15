@@ -48,7 +48,7 @@ export default (G) => {
 					return false;
 				}
 
-				/* Determine which (if any) frontal hexes contain an enemy that would trigger 
+				/* Determine which (if any) frontal hexes contain an enemy that would trigger
 				the ability. */
 				let triggerHexes = [];
 
