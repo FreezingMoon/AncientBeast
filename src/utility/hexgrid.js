@@ -20,7 +20,6 @@ export class HexGrid {
 	 *
 	 * // Jquery attributes
 	 * $display : 		Grid container
-	 * $creatureW : 	Creature Wrapper container
 	 * $inpthexesW : 	Input Hexagons container
 	 * $disphexesW : 	Display Hexagons container
 	 * $overhexesW : 	Overlay Hexagons container
@@ -1289,26 +1288,5 @@ export class HexGrid {
 			this.cleanHex(hexInstance);
 			hexInstance.overlayVisualState('creature selected player' + game.activeCreature.team);
 		}
-	}
-
-	debugHex(hexes) {
-		let i = 0;
-
-		$j('.debug').remove();
-		hexes.forEach((hex) => {
-			let a = this.$creatureW
-				.append('<div class=".debug" id="debug' + i + '"></div>')
-				.children('#debug' + i);
-
-			a.css({
-				position: 'absolute',
-				width: 20,
-				height: 20,
-				'background-color': 'yellow',
-			});
-			a.css(hex.displayPos);
-
-			i++;
-		});
 	}
 }
