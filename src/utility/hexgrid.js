@@ -101,9 +101,7 @@ export class HexGrid {
 	querySelf(o) {
 		let game = this.game,
 			defaultOpt = {
-				fnOnConfirm: () => {
-					// No-op function.
-				},
+				fnOnConfirm: () => {},
 				fnOnSelect: (creature) => {
 					creature.hexagons.forEach((hex) => {
 						hex.overlayVisualState('creature selected player' + hex.creature.team);
@@ -581,7 +579,7 @@ export class HexGrid {
 		}
 
 		let onCreatureHover = (creature, queueEffect, hex) => {
-			if (creature.type == '--') {
+			if (creature.isDarkPriest()) {
 				if (creature === game.activeCreature) {
 					if (creature.hasCreaturePlayerGotPlasma()) {
 						creature.displayPlasmaShield();
@@ -678,7 +676,7 @@ export class HexGrid {
 			if (hex.creature instanceof Creature) {
 				// toggle hover off event
 				let creature = hex.creature;
-				if (creature.type == '--') {
+				if (creature.isDarkPriest()) {
 					// the plasma would have been displayed so now display the health again
 					creature.updateHealth();
 				}
@@ -743,7 +741,7 @@ export class HexGrid {
 			if (hex.creature instanceof Creature) {
 				game.UI.showCreature(hex.creature.type, hex.creature.player.id, '', true, '');
 			} else {
-				if (game.activeCreature.type == '--') {
+				if (game.activeCreature.isDarkPriest()) {
 					// If ability used, default to Dark Priest and say materialize has been used
 					if (game.activeCreature.abilities[3].used) {
 						game.UI.showCreature(

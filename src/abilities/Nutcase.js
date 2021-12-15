@@ -12,30 +12,76 @@ import { Effect } from '../effect';
  */
 export default (G) => {
 	G.abilities[40] = [
-		//	First Ability: Tentacle Bush
+		/**
+		 * First Ability: Tentacle Bush
+		 * When ending the Nutcase's turn, it gains the "Tentacle Bush" effect which:
+		 * - makes the Nutcase immovable until its next turn
+		 * - applies an effect against melee attackers
+		 * - lasts until its next turn
+		 * - is never active during the Nutcase's own turn making this a defensive ability.
+		 *
+		 * The effect applied to attackers:
+		 * - makes the attacker immovable (roots them in place)
+		 * - if upgraded, makes the attacker's abilities cost +5 energy
+		 * - lasts until the end of the attacker's current turn
+		 * - does not stack (i.e. not +10 energy for two attacks)
+		 */
 		{
-			trigger: 'onUnderAttack',
+			trigger: 'onEndPhase',
 
 			require: function () {
 				// Always true to highlight ability
 				return true;
 			},
 
-			activate: function (damage) {
+			activate: function () {
+				const immoveableEffect = new Effect(
+					// This effect shows the Nutcase being affected by Tentacle Bush in the UI.
+					this.title,
+					this.creature,
+					this.creature,
+					'',
+					{
+						alterations: {
+							moveable: false,
+						},
+						deleteTrigger: 'onStartPhase',
+						turnLifetime: 1,
+					},
+					G,
+				);
+
+				const damageShieldEffect = new Effect(
+					// Don't show two effects in the log.
+					'',
+					this.creature,
+					this.creature,
+					'onUnderAttack',
+					{
+						effectFn: (...args) => this._activateOnAttacker(...args),
+						deleteTrigger: 'onStartPhase',
+						turnLifetime: 1,
+					},
+					G,
+				);
+
+				this.creature.addEffect(immoveableEffect);
+				this.creature.addEffect(damageShieldEffect);
+
+				this.end(
+					/* Suppress "uses ability" log message, just show the "affected by" Effect
+					log message. */
+					true,
+				);
+			},
+
+			_activateOnAttacker: function (effect, damage) {
 				// Must take melee damage from a non-trap source
-				if (damage === undefined) {
-					return false;
-				}
-				if (!damage.melee) {
-					return false;
-				}
-				if (damage.isFromTrap) {
+				if (damage === undefined || !damage.melee || damage.isFromTrap) {
 					return false;
 				}
 
-				this.end();
-
-				// Target becomes unmoveable until end of their phase
+				// Target becomes unmovable until end of their phase
 				let o = {
 					alterations: {
 						moveable: false,
@@ -45,53 +91,31 @@ export default (G) => {
 					turnLifetime: 1,
 					creationTurn: G.turn - 1,
 					deleteOnOwnerDeath: true,
+					stackable: false,
 				};
+
 				// If upgraded, target abilities cost more energy
 				if (this.isUpgraded()) {
 					o.alterations.reqEnergy = 5;
 				}
-				// Create a zero damage with debuff
-				let counterDamage = new Damage(
-					this.creature,
-					{},
-					1,
-					[
-						new Effect(
-							this.title,
-							this.creature, // Caster
-							damage.attacker, // Target
-							'', // Trigger
-							o,
-							G,
-						),
-					],
+
+				const attackerEffect = new Effect(
+					this.title,
+					this.creature, // Caster
+					damage.attacker, // Target
+					'', // Trigger
+					o,
 					G,
 				);
-				counterDamage.counter = true;
-				damage.attacker.takeDamage(counterDamage);
-				// Making attacker unmoveable will change its move query, so update it
+
+				damage.attacker.addEffect(
+					attackerEffect,
+					`%CreatureName${attackerEffect.target.id}% has been grasped by tentacles`,
+				);
+
+				// Making attacker unmovable will change its move query, so update it
 				if (damage.attacker === G.activeCreature) {
 					damage.attacker.queryMove();
-				}
-
-				// If inactive, Nutcase becomes unmoveable until start of its phase
-				if (G.activeCreature !== this.creature) {
-					this.creature.addEffect(
-						new Effect(
-							this.title,
-							this.creature,
-							this.creature,
-							'',
-							{
-								alterations: {
-									moveable: false,
-								},
-								deleteTrigger: 'onStartPhase',
-								turnLifetime: 1,
-							},
-							G,
-						),
-					);
 				}
 			},
 		},
@@ -122,10 +146,12 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
+				let ability = this;
+
 				if (!this.isUpgraded()) {
 					G.grid.queryCreature({
-						fnOnConfirm: (...args) => {
-							this.animation(...args);
+						fnOnConfirm: function () {
+							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
 						id: this.creature.id,
@@ -139,12 +165,12 @@ export default (G) => {
 						this.creature.getHexMap(matrices.back2hex),
 					];
 					G.grid.queryChoice({
-						fnOnSelect: (choice, args) => {
+						fnOnSelect: function (choice, args) {
 							G.activeCreature.faceHex(args.hex, undefined, true);
 							args.hex.overlayVisualState('creature selected player' + G.activeCreature.team);
 						},
-						fnOnConfirm: (...args) => {
-							this.animation(...args);
+						fnOnConfirm: function () {
+							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
 						id: this.creature.id,
@@ -154,7 +180,8 @@ export default (G) => {
 			},
 
 			activate: function (targetOrChoice, args) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				if (!this.isUpgraded()) {
 					this._activateOnTarget(targetOrChoice);
@@ -167,7 +194,7 @@ export default (G) => {
 					//   - back choice (choice 1) and top hex chosen
 					// - otherwise, y descending
 					let isFrontChoice = args.choiceIndex === 0;
-					let yCoords = targetOrChoice.map((hex) => {
+					let yCoords = targetOrChoice.map(function (hex) {
 						return hex.y;
 					});
 					let yMin = Math.min.apply(null, yCoords);
@@ -193,6 +220,8 @@ export default (G) => {
 			},
 
 			_activateOnTarget: function (target) {
+				let ability = this;
+
 				// Target takes pierce damage if it ever moves
 				let effect = new Effect(
 					'Hammered', // Name
@@ -200,19 +229,28 @@ export default (G) => {
 					target, // Target
 					'onStepOut', // Trigger
 					{
-						effectFn: (eff) => {
-							eff.target.takeDamage(
-								new Damage(
-									eff.owner,
-									{
-										pierce: this.damages.pierce,
-									},
-									1,
-									[],
-									G,
-								),
-							);
-							eff.deleteEffect();
+						effectFn: function (eff) {
+							const waitForMovementComplete = (message, payload) => {
+								if (message === 'movementComplete' && payload.creature.id === eff.target.id) {
+									this.game.signals.creature.remove(waitForMovementComplete);
+
+									eff.target.takeDamage(
+										new Damage(
+											eff.owner,
+											{
+												pierce: ability.damages.pierce,
+											},
+											1,
+											[],
+											G,
+										),
+									);
+									eff.deleteEffect();
+								}
+							};
+
+							// Wait until movement is completely finished before processing effects.
+							this.game.signals.creature.add(waitForMovementComplete);
 						},
 					},
 					G,
@@ -254,9 +292,11 @@ export default (G) => {
 			},
 
 			query: function () {
+				let ability = this;
+
 				let o = {
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					requireCreature: true,
@@ -302,7 +342,7 @@ export default (G) => {
 						// Get a new hex line so that the hexes are in the right order
 						let newChoice = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
 						// Exclude creature
-						this.creature.hexagons.forEach((hex) => {
+						ability.creature.hexagons.forEach(function (hex) {
 							if (arrayUtils.findPos(newChoice, hex)) {
 								arrayUtils.removePos(newChoice, hex);
 							}
@@ -329,6 +369,7 @@ export default (G) => {
 
 			activate: function (path, args) {
 				let i;
+				let ability = this;
 				this.end();
 
 				// Find:
@@ -364,21 +405,21 @@ export default (G) => {
 					this.creature.moveTo(destination, {
 						overrideSpeed: 100,
 						ignoreMovementPoint: true,
-						callback: () => {
-							let interval = setInterval(() => {
+						callback: function () {
+							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									// Check that target is in same place still (for evades)
 									if (
-										target.x == destination.x - this.creature.size &&
+										target.x == destination.x - ability.creature.size &&
 										target.y === destination.y
 									) {
 										// Deal damage only if we have reached the end of the path
-										if (destination.creature === this.creature) {
+										if (destination.creature === ability.creature) {
 											target.takeDamage(damage);
 										}
 
-										if (!this._pushTarget(target, pushPath, args)) {
+										if (!ability._pushTarget(target, pushPath, args)) {
 											G.activeCreature.queryMove();
 										}
 									}
@@ -388,13 +429,14 @@ export default (G) => {
 					});
 				} else {
 					target.takeDamage(damage);
-					if (!this._pushTarget(target, pushPath, args)) {
+					if (!ability._pushTarget(target, pushPath, args)) {
 						G.activeCreature.queryMove();
 					}
 				}
 			},
 
 			_pushTarget: function (target, pushPath, args) {
+				let ability = this;
 				let creature = this.creature;
 
 				let targetPushPath = pushPath.slice();
@@ -410,7 +452,7 @@ export default (G) => {
 				// As we need to move creatures simultaneously, we can't use the normal path
 				// calculation as the target blocks the path
 				let i = 0;
-				let interval = setInterval(() => {
+				let interval = setInterval(function () {
 					if (!G.freezedInput) {
 						if (
 							i === targetPushPath.length ||
@@ -429,7 +471,7 @@ export default (G) => {
 								hex = G.grid.hexes[hex.y][hex.x + creature.size - 1];
 								targetHex = G.grid.hexes[targetHex.y][targetHex.x + target.size - 1];
 							}
-							this._pushOneHex(target, hex, targetHex);
+							ability._pushOneHex(target, hex, targetHex);
 							i++;
 						}
 					}
@@ -460,7 +502,7 @@ export default (G) => {
 			},
 		},
 
-		//	Third Ability: Fishing Hook
+		//	Fourth Ability: Fishing Hook
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
@@ -468,6 +510,7 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			require: function () {
+				let ability = this;
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -475,9 +518,9 @@ export default (G) => {
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.inlinefrontnback2hex), {
 						team: this._targetTeam,
-						optTest: (creature) => {
+						optTest: function (creature) {
 							// Size restriction of 2 if unupgraded
-							return this.isUpgraded() ? true : creature.size <= 2;
+							return ability.isUpgraded() ? true : creature.size <= 2;
 						},
 					})
 				) {
@@ -488,29 +531,32 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
+				let ability = this;
+
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.flipped,
 					hexes: this.creature.getHexMap(matrices.inlinefrontnback2hex),
-					optTest: (creature) => {
+					optTest: function (creature) {
 						// Size restriction of 2 if unupgraded
-						return this.isUpgraded() ? true : creature.size <= 2;
+						return ability.isUpgraded() ? true : creature.size <= 2;
 					},
 				});
 			},
 
 			//	activate() :
 			activate: function (target) {
-				let crea = this.creature;
-				this.end();
+				let ability = this;
+				let crea = ability.creature;
+				ability.end();
 
 				let damage = new Damage(
 					crea, // Attacker
-					this.damages, // Damage Type
+					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -531,7 +577,7 @@ export default (G) => {
 				crea.moveTo(G.grid.hexes[target.y][creaX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
-					callback: () => {
+					callback: function () {
 						crea.updateHex();
 						crea.queryMove();
 					},
@@ -540,7 +586,7 @@ export default (G) => {
 				target.moveTo(G.grid.hexes[crea.y][targetX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
-					callback: () => {
+					callback: function () {
 						target.updateHex();
 						target.takeDamage(damage);
 					},

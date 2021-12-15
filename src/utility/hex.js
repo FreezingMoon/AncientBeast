@@ -137,18 +137,10 @@ export class Hex {
 
 		this.displayPos.y = this.displayPos.y * 0.75 + 30;
 
-		this.onSelectFn = function () {
-			// No-op function.
-		};
-		this.onHoverOffFn = function () {
-			// No-op function.
-		};
-		this.onConfirmFn = function () {
-			// No-op function.
-		};
-		this.onRightClickFn = function () {
-			// No-op function.
-		};
+		this.onSelectFn = function () {};
+		this.onHoverOffFn = function () {};
+		this.onConfirmFn = function () {};
+		this.onRightClickFn = function () {};
 
 		this.trap = undefined;
 	}

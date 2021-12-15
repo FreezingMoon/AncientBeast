@@ -82,11 +82,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: this._targetTeam,
 					id: crea.id,
@@ -97,11 +98,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage Type
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -132,7 +134,7 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			require: function () {
-				// Recalculate energy requirements/costs based on whether this is upgraded
+				// Recalculate energy requirements/costs based on whether this is ugpraded
 				if (this.isUpgraded()) {
 					this.requirements = {
 						energy: 30,
@@ -153,6 +155,7 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				let straitrow = matrices.straitrow;
@@ -209,12 +212,12 @@ export default (G) => {
 				choices[1].choiceId = 1;
 
 				G.grid.queryChoice({
-					fnOnCancel: () => {
+					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: Team.both,
 					id: crea.id,
@@ -225,7 +228,8 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (choice) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let crea = this.creature;
 
@@ -289,8 +293,8 @@ export default (G) => {
 					let target = rows[i][rows[i].length - 1].creature;
 
 					let damage = new Damage(
-						this.creature, //Attacker
-						this.damages, //Damage Type
+						ability.creature, //Attacker
+						ability.damages, //Damage Type
 						1, //Area
 						[], //Effects
 						G,
@@ -327,13 +331,14 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				let hexes = G.grid.allhexes.slice(0); // Copy array
 
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: Team.enemy,
 					id: crea.id,
@@ -344,7 +349,8 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (crea) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let target = crea;
 
@@ -366,7 +372,7 @@ export default (G) => {
 
 				G.log('%CreatureName' + this.creature.id + '% redirects ' + rocketsToUse + ' rocket(s)');
 				let damage = new Damage(
-					this.creature, // Attacker
+					ability.creature, // Attacker
 					damages, // Damage Type
 					1, // Area
 					[], // Effects

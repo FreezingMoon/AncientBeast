@@ -1,3 +1,4 @@
+import * as $j from 'jquery';
 import { isEmpty, getGameConfig } from '../script';
 
 export class GameLog {
@@ -102,7 +103,7 @@ export class GameLog {
 				clearInterval(interval);
 				game.activeCreature.queryMove(); // Avoid bug
 				game.action(this.data[this.timeCursor], {
-					callback: () => {
+					callback: function () {
 						game.activeCreature.queryMove();
 					},
 				});

@@ -7,12 +7,10 @@
 		"prettier/prettier": "error",
 		"no-undef": "error",
 		"no-multi-assign": "error",
-		"@typescript-eslint/no-unused-vars": [
-			"error",
-			{
-				"argsIgnorePattern": "^_"
-			}
-		]
+		// Allow some linting issues that are prevalent in the codebase, but please refactor and fix!
+		"@typescript-eslint/no-empty-function": "warn",
+		"@typescript-eslint/no-unused-vars": "warn",
+		"@typescript-eslint/no-this-alias": "warn"
 	},
 	"parserOptions": {
 		"ecmaVersion": 2020,

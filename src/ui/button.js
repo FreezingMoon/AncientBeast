@@ -22,21 +22,11 @@ export class Button {
 		this.game = game;
 
 		let defaultOpts = {
-			click: () => {
-				// No-op function.
-			},
-			mouseover: () => {
-				// No-op function.
-			},
-			mouseleave: () => {
-				// No-op function.
-			},
-			touchstart: () => {
-				// No-op function.
-			},
-			touchend: () => {
-				// No-op function.
-			},
+			click: function () {},
+			mouseover: function () {},
+			mouseleave: function () {},
+			touchstart: function () {},
+			touchend: function () {},
 			touchX: 0,
 			touchY: 0,
 			hasShortcut: false,

@@ -3,6 +3,7 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
+import { getDirectionFromDelta } from '../utility/position';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -27,7 +28,7 @@ export default (G) => {
 
 			_damageTaken: false, // Condition once upgraded
 
-			_getDefenseBuff: function () {
+			_getDefenseBuff: function (defenseBuff) {
 				if (this._defenseBuff >= 39) {
 					this._defenseBuff = 40;
 				} else {
@@ -61,7 +62,7 @@ export default (G) => {
 						'', // Trigger
 						{
 							alterations: {
-								defense: this._getDefenseBuff(), // Add a defense buff
+								defense: this._getDefenseBuff(this._defenseBuff), // Add a defense buff
 							},
 							stackable: false,
 						},
@@ -107,12 +108,13 @@ export default (G) => {
 			// query() :
 			query: function () {
 				let stomper = this.creature;
+				let ability = this;
 
 				// Take the closest ennemy in each direction within 3hex
 				if (!this.isUpgraded()) {
 					G.grid.queryDirection({
-						fnOnConfirm: (...args) => {
-							this.animation(...args);
+						fnOnConfirm: function () {
+							ability.animation(...arguments);
 						},
 						flipped: stomper.flipped,
 						team: this._targetTeam,
@@ -127,8 +129,8 @@ export default (G) => {
 				else {
 					this._upgradedMap.origin = [3, 3];
 					G.grid.queryCreature({
-						fnOnConfirm: (...args) => {
-							this.animation(...args);
+						fnOnConfirm: function () {
+							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
 						id: stomper.id,
@@ -140,7 +142,8 @@ export default (G) => {
 
 			// activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				// If not upgraded take the first creature found (aka last in path)
 				if (!this.isUpgraded()) {
@@ -148,8 +151,8 @@ export default (G) => {
 				}
 
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage type
+					ability.creature, // Attacker
+					ability.damages, // Damage type
 					1, // Area
 					[], // Effects
 					G,
@@ -218,6 +221,7 @@ export default (G) => {
 
 			// Return an array of all reachable targets'
 			_getTarget: function (direction) {
+				let ability = this;
 				let stomper = this.creature;
 
 				let fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
@@ -226,18 +230,18 @@ export default (G) => {
 
 				if (!direction[4]) {
 					targets.push(
-						...this._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
 					);
 				} else if (!direction[1]) {
 					targets.push(
-						...this._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
 					);
 				} else {
 					targets.push(
-						...this._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
 					);
 					targets.push(
-						...this._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
 					);
 				}
 
@@ -267,27 +271,28 @@ export default (G) => {
 			},
 
 			// Check if there is a possible place to end the ability
-			_checkEnd: () => {
+			_checkEnd: function () {
+				let ability = this;
 				let stomper = this.creature;
-				let direction = this.testDirections(this._req);
+				let direction = ability.testDirections(ability._req);
 				let hexes;
 
-				this._directions = [0, 0, 0, 0, 0, 0];
+				ability._directions = [0, 0, 0, 0, 0, 0];
 
 				let fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
 				let bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
 
 				if (!direction[4]) {
 					hexes = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
-					if (this._getHole(hexes)) this._directions = direction;
+					if (this._getHole(hexes)) ability._directions = direction;
 				} else if (!direction[1]) {
 					hexes = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
-					if (this._getHole(hexes)) this._directions = direction;
+					if (this._getHole(hexes)) ability._directions = direction;
 				} else {
 					let forward = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
 					let backward = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
-					if (this._getHole(forward)) this._directions[1] = 1;
-					if (this._getHole(backward)) this._directions[4] = 1;
+					if (this._getHole(forward)) ability._directions[1] = 1;
+					if (this._getHole(backward)) ability._directions[4] = 1;
 				}
 			},
 
@@ -308,11 +313,12 @@ export default (G) => {
 
 			// require() :
 			require: function () {
-				this._req.sourceCreature = this.creature;
+				let ability = this;
+				ability._req.sourceCreature = ability.creature;
 
-				this._checkEnd();
+				ability._checkEnd();
 
-				if (!this.testRequirements() || (!this._directions[1] && !this._directions[4])) {
+				if (!ability.testRequirements() || (!ability._directions[1] && !ability._directions[4])) {
 					return false;
 				}
 				return true;
@@ -320,11 +326,12 @@ export default (G) => {
 
 			// query() :
 			query: function () {
+				let ability = this;
 				let stomper = this.creature;
 				// Get the direction of the melee target, the dashed hex and the targets
-				let direction = this._directions;
-				let dashed = this._getDashed(direction);
-				let targets = this._getTarget(direction);
+				let direction = ability._directions;
+				let dashed = ability._getDashed(direction);
+				let targets = ability._getTarget(direction);
 
 				// Separate the front and back row of targets
 				let targets2 = [];
@@ -339,8 +346,8 @@ export default (G) => {
 				}
 
 				G.grid.queryChoice({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: Team.both,
 					requireCreature: 0,
@@ -353,11 +360,12 @@ export default (G) => {
 
 			// activate() :
 			activate: function (hexes) {
+				let ability = this;
 				let stomper = this.creature;
 				let i = 0;
-				this.end();
+				ability.end();
 
-				let targets = this.getTargets(hexes);
+				let targets = ability.getTargets(hexes);
 
 				let lastTarget = targets[targets.length - 1].target;
 				let offset = null;
@@ -367,8 +375,8 @@ export default (G) => {
 					let target = targets[i].target;
 
 					let damage = new Damage(
-						this.creature, // Attacker
-						this.damages, // Damage type
+						ability.creature, // Attacker
+						ability.damages, // Damage type
 						1, // Area
 						[], // Effects
 						G,
@@ -383,7 +391,7 @@ export default (G) => {
 
 					// Stop the ability if it's not upgraded and a 2hex "hole" is created
 					if (
-						!this.isUpgraded() &&
+						!ability.isUpgraded() &&
 						target.dead === true &&
 						(target.size > 1 ||
 							G.grid.hexes[target.y][target.x - 1].creature === undefined ||
@@ -405,16 +413,16 @@ export default (G) => {
 				}
 
 				// Jump directly to hex
-				this.creature.moveTo(G.grid.hexes[stomper.y][lastTarget.x + offset], {
+				ability.creature.moveTo(G.grid.hexes[stomper.y][lastTarget.x + offset], {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: () => {
+					callback: function () {
 						// Shake the screen upon landing to simulate the jump
 						G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-						G.onStepIn(this.creature, this.creature.hexagons[0]);
+						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
-						let interval = setInterval(() => {
+						let interval = setInterval(function () {
 							if (!G.freezedInput) {
 								clearInterval(interval);
 								G.UI.selectAbility(-1);
@@ -446,13 +454,14 @@ export default (G) => {
 
 			// query() :
 			query: function () {
+				let ability = this;
 				let stomper = this.creature;
 
 				this.map.origin = [0, 2];
 
 				G.grid.queryChoice({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: Team.both,
 					requireCreature: 0,
@@ -464,16 +473,17 @@ export default (G) => {
 
 			// activate() :
 			activate: function (hexes) {
-				this.end(); // Deferred ending
+				let ability = this;
+				ability.end(); // Deferred ending
 
 				// Delay all creatures in area
-				let targets = this.getTargets(hexes);
+				let targets = ability.getTargets(hexes);
 				for (let i = 0; i < targets.length; i++) {
 					let target = targets[i].target;
 
 					// If the ability is upgraded and the creature is already delayed, skip the turn
 					if (
-						this.isUpgraded() &&
+						ability.isUpgraded() &&
 						(target.delayed || target.findEffect('Earth Shaker').length > 0)
 					) {
 						target.dizzy = true;

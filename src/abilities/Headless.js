@@ -16,7 +16,7 @@ export default (G) => {
 			trigger: 'onStartPhase onEndPhase',
 
 			_targetTeam: Team.enemy,
-			_getHexes: () => {
+			_getHexes: function () {
 				return this.creature.getHexMap(matrices.inlineback2hex);
 			},
 
@@ -33,6 +33,7 @@ export default (G) => {
 
 			//	activate() :
 			activate: function () {
+				let ability = this;
 				let creature = this.creature;
 
 				if (
@@ -48,14 +49,14 @@ export default (G) => {
 
 				let targets = this.getTargets(this._getHexes());
 
-				targets.forEach((item) => {
+				targets.forEach(function (item) {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
 
 					let trg = item.target;
 
-					if (this.isUpgraded()) {
+					if (ability.isUpgraded()) {
 						// Upgraded ability causes fatigue - endurance set to 0
 						trg.addFatigue(trg.endurance);
 					}
@@ -63,12 +64,12 @@ export default (G) => {
 					// Add an effect that triggers on the target's start phase and adds the
 					// debuff
 					let effect = new Effect(
-						this.title, // Name
+						ability.title, // Name
 						creature, // Caster
 						trg, // Target
 						'onStartPhase', // Trigger
 						{
-							effectFn: () => {
+							effectFn: function () {
 								// Activate debuff
 								trg.addEffect(
 									new Effect(
@@ -129,11 +130,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: crea.id,
@@ -144,7 +146,8 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let d = {
 					pierce: 11,
@@ -160,7 +163,7 @@ export default (G) => {
 				}
 
 				let damage = new Damage(
-					this.creature, //Attacker
+					ability.creature, //Attacker
 					d, // Damage Type
 					1, // Area
 					[], // Effects
@@ -179,14 +182,14 @@ export default (G) => {
 			directions: [0, 1, 0, 0, 1, 0],
 
 			_minDistance: 2,
-			_getMaxDistance: () => {
+			_getMaxDistance: function () {
 				if (this.isUpgraded()) {
 					return 8;
 				}
 				return 6;
 			},
 			_targetTeam: Team.both,
-			_getValidDirections: () => {
+			_getValidDirections: function () {
 				// Get all directions where there are no targets within min distance,
 				// and a target within max distance
 				let crea = this.creature;
@@ -268,11 +271,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: crea.id,
@@ -287,12 +291,13 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
+				let ability = this;
 				let crea = this.creature;
 				let target = arrayUtils.last(path).creature;
-				path = path.filter((hex) => {
+				path = path.filter(function (hex) {
 					return !hex.creature;
 				}); //remove creatures
-				this.end();
+				ability.end();
 
 				// Movement
 				arrayUtils.filterCreature(path, false, false);
@@ -326,8 +331,8 @@ export default (G) => {
 					crea.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: () => {
-							let interval = setInterval(() => {
+						callback: function () {
+							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
@@ -344,8 +349,8 @@ export default (G) => {
 					target.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: () => {
-							let interval = setInterval(() => {
+						callback: function () {
+							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
@@ -367,7 +372,7 @@ export default (G) => {
 				crush: 5,
 			},
 
-			_getHexes: () => {
+			_getHexes: function () {
 				// extra range if upgraded
 				if (this.isUpgraded()) {
 					return matrices.headlessBoomerangUpgraded;
@@ -386,13 +391,14 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				let hexes = this._getHexes();
 
 				G.grid.queryChoice({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: Team.both,
 					requireCreature: 0,
@@ -407,21 +413,22 @@ export default (G) => {
 					slash: 10,
 				};
 
-				this.end();
+				let ability = this;
+				ability.end();
 
-				this.areaDamage(
-					this.creature, //Attacker
+				ability.areaDamage(
+					ability.creature, //Attacker
 					damages, //Damage Type
 					[], //Effects
-					this.getTargets(hexes), //Targets
+					ability.getTargets(hexes), //Targets
 					true, //Notriggers avoid double retailiation
 				);
 
-				this.areaDamage(
-					this.creature, //Attacker
+				ability.areaDamage(
+					ability.creature, //Attacker
 					damages, //Damage Type
 					[], //Effects
-					this.getTargets(hexes), //Targets
+					ability.getTargets(hexes), //Targets
 				);
 			},
 		},

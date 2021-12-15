@@ -1,3 +1,5 @@
+import * as $j from 'jquery';
+
 export default class Gameplay {
 	constructor(game, match) {
 		this.game = game;

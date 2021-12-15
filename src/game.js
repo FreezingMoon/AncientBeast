@@ -10,7 +10,7 @@ import { getUrl } from './assetLoader';
 import { Player } from './player';
 import { UI } from './ui/interface';
 import { Creature } from './creature';
-import dataJson from './data/units.json';
+import dataJson from 'assets/units/data.json';
 import 'pixi';
 import 'p2';
 import Phaser, { Signal } from 'phaser';
@@ -181,7 +181,7 @@ export default class Game {
 			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
 
-		const signalChannels = ['ui', 'metaPowers'];
+		const signalChannels = ['ui', 'metaPowers', 'creature'];
 		this.signals = this.setupSignalChannels(signalChannels);
 	}
 
@@ -593,6 +593,7 @@ export default class Game {
 	}
 	async updateLobby() {
 		if (this.matchInitialized) return;
+		let self = this;
 
 		$j('.lobby-match-list').html('').addClass('refreshing');
 		$j('#refreshMatchButton').addClass('disabled');
@@ -838,9 +839,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: () => {
-					// No-op function.
-				},
+				callback: function () {},
 				noTooltip: false,
 				tooltip: 'Skipped',
 			},
@@ -909,9 +908,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: () => {
-					// No-op function.
-				},
+				callback: function () {},
 			},
 			o,
 		);
@@ -1182,7 +1179,14 @@ export default class Game {
 		}
 	}
 
-	// Removed individual args from definition because we are using the arguments variable.
+	/**
+	 * Be careful when using this trigger to apply damage as it can kill a creature
+	 * before it has completed its movement, resulting in incorrect Drop placement
+	 * and other bugs. Refer to Impaler Poisonous Vine ability for an example on how
+	 * to delay damage until the end of movement.
+	 *
+	 * Removed individual args from definition because we are using the arguments variable.
+	 */
 	onStepOut(/* creature, hex, callback */) {
 		this.triggerAbility('onStepOut', arguments);
 		this.triggerEffect('onStepOut', arguments);
@@ -1445,9 +1449,7 @@ export default class Game {
 
 	action(o, opt) {
 		let defaultOpt = {
-			callback: () => {
-				// No-op function.
-			},
+			callback: function () {},
 		};
 
 		opt = $j.extend(defaultOpt, opt);

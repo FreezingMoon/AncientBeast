@@ -1,6 +1,7 @@
 import { Damage } from '../damage';
-import { Team } from '../utility/team';
+import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
+import { Creature } from '../creature';
 import { Effect } from '../effect';
 
 /** Creates the abilities
@@ -56,7 +57,7 @@ export default (G) => {
 					hits.add(target.creature);
 				});
 				this.end(false, true);
-				hits.forEach((hit) => {
+				hits.forEach((hit, _, set) => {
 					hit.takeDamage(damage);
 				});
 				this.end(true, false);
@@ -93,6 +94,7 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 				let wyrm = this.creature;
+				let ability = this;
 
 				let map = [
 					[0, 0, 0, 0],
@@ -102,8 +104,8 @@ export default (G) => {
 				];
 
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: wyrm.id,
@@ -114,11 +116,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage Type
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -128,11 +131,11 @@ export default (G) => {
 
 				if (dmg.status == '') {
 					// Regrowth bonus
-					this.creature.addEffect(
+					ability.creature.addEffect(
 						new Effect(
 							'Regrowth++', // Name
-							this.creature, // Caster
-							this.creature, // Target
+							ability.creature, // Caster
+							ability.creature, // Target
 							'onStartPhase', // Trigger
 							{
 								effectFn: function (effect) {
@@ -148,7 +151,7 @@ export default (G) => {
 				}
 
 				//remove frogger bonus if its found
-				this.creature.effects.forEach((effect) => {
+				ability.creature.effects.forEach(function (effect) {
 					if (effect.name == 'Frogger Bonus') {
 						this.deleteEffect();
 					}
@@ -175,6 +178,7 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let wyrm = this.creature;
 
 				let range = G.grid
@@ -182,11 +186,11 @@ export default (G) => {
 					.filter((item) => wyrm.item == item.y);
 
 				G.grid.queryHexes({
-					fnOnSelect: (...args) => {
-						this.fnOnSelect(...args);
+					fnOnSelect: function () {
+						ability.fnOnSelect(...arguments);
 					},
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					size: wyrm.size,
 					flipped: wyrm.player.flipped,
@@ -197,22 +201,23 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex) {
-				this.end();
+				let ability = this;
+				ability.end();
 
-				this.creature.moveTo(hex, {
+				ability.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: () => {
+					callback: function () {
 						G.activeCreature.queryMove();
 					},
 				});
 
 				// Frogger Leap bonus
-				this.creature.addEffect(
+				ability.creature.addEffect(
 					new Effect(
 						'Offense++', // Name
-						this.creature, // Caster
-						this.creature, // Target
+						ability.creature, // Caster
+						ability.creature, // Target
 						'onStepIn onEndPhase', // Trigger
 						{
 							effectFn: function (effect) {
@@ -266,11 +271,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let wyrm = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: wyrm.id,
@@ -281,11 +287,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage Type
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -293,7 +300,7 @@ export default (G) => {
 				target.takeDamage(damage);
 
 				//remove frogger bonus if its found
-				this.creature.effects.forEach((item) => {
+				ability.creature.effects.forEach(function (item) {
 					if (item.name == 'Offense++') {
 						item.deleteEffect();
 					}

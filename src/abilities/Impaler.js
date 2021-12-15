@@ -77,11 +77,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let creature = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: creature.id,
@@ -92,13 +93,14 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let finalDmg = $j.extend(
 					{
 						poison: 0,
 					},
-					this.damages1,
+					ability.damages1,
 				);
 
 				// Poison Bonus if upgraded
@@ -109,7 +111,7 @@ export default (G) => {
 				G.UI.checkAbilities();
 
 				let damage = new Damage(
-					this.creature, // Attacker
+					ability.creature, // Attacker
 					finalDmg, // Damage Type
 					1, // Area
 					[], // Effects
@@ -124,7 +126,7 @@ export default (G) => {
 				}
 			},
 
-			_getHexes: () => {
+			_getHexes: function () {
 				return G.grid.getHexMap(
 					this.creature.x - 3,
 					this.creature.y - 2,
@@ -135,7 +137,7 @@ export default (G) => {
 			},
 		},
 
-		// 	Thirt Ability: Poisonous Vine
+		// 	Third Ability: Poisonous Vine
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
@@ -156,11 +158,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let creature = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: creature.id,
@@ -174,11 +177,12 @@ export default (G) => {
 				let damages = this.damages;
 				// Last 1 turn, or indefinitely if upgraded
 				let lifetime = this.isUpgraded() ? 0 : 1;
+				let ability = this;
 
 				// Destroy trap if it wasn't triggered and target is dead
 				target.addEffect(
 					new Effect(
-						this.title,
+						ability.title,
 						target,
 						target,
 						'onUnderAttack',
@@ -186,7 +190,7 @@ export default (G) => {
 							effectFn: (effect, damage) => {
 								let dmg = damage.applyDamage();
 								if (dmg.total >= target.health) {
-									target.hexagons.forEach((hex) => {
+									target.hexagons.forEach(function (hex) {
 										hex.destroyTrap();
 									});
 								}
@@ -198,38 +202,47 @@ export default (G) => {
 
 				// Add a trap to every hex of the target
 				let effect = new Effect(
-					this.title,
-					this.creature,
+					ability.title,
+					ability.creature,
 					this,
 					'onStepOut',
 					{
 						effectFn: (eff) => {
-							G.log('%CreatureName' + eff.target.id + '% is hit by ' + eff.name);
-							eff.target.takeDamage(new Damage(eff.owner, damages, 1, [], G), {
-								isFromTrap: true,
-							});
-							// Hack: manually destroy traps so we don't activate multiple traps
-							// and see multiple logs etc.
-							target.hexagons.forEach((hex) => {
-								hex.destroyTrap();
-							});
-							eff.deleteEffect();
+							const waitForMovementComplete = (message, payload) => {
+								if (message === 'movementComplete' && payload.creature.id === eff.target.id) {
+									this.game.signals.creature.remove(waitForMovementComplete);
+
+									G.log('%CreatureName' + eff.target.id + '% is hit by ' + eff.name);
+									eff.target.takeDamage(new Damage(eff.owner, damages, 1, [], G), {
+										isFromTrap: true,
+									});
+									// Hack: manually destroy traps so we don't activate multiple traps
+									// and see multiple logs etc.
+									target.hexagons.forEach(function (hex) {
+										hex.destroyTrap();
+									});
+									eff.deleteEffect();
+								}
+							};
+
+							// Wait until movement is completely finished before processing effects.
+							this.game.signals.creature.add(waitForMovementComplete);
 						},
 					},
 					G,
 				);
-				target.hexagons.forEach((hex) => {
-					hex.createTrap('poisonous-vine', [effect], this.creature.player, {
+				target.hexagons.forEach(function (hex) {
+					hex.createTrap('poisonous-vine', [effect], ability.creature.player, {
 						turnLifetime: lifetime,
 						fullTurnLifetime: true,
-						ownerCreature: this.creature,
+						ownerCreature: ability.creature,
 						destroyOnActivate: true,
 						destroyAnimation: 'shrinkDown',
 					});
 				});
 			},
 
-			_getHexes: () => {
+			_getHexes: function () {
 				// Target a creature within 2 hex radius
 				let hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(2);
 				return arrayUtils.extendToLeft(hexes, this.creature.size, G.grid);
@@ -259,9 +272,11 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
+				let ability = this;
+
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -272,11 +287,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let targets = [];
 				targets.push(target); // Add First creature hit
-				let nextdmg = $j.extend({}, this.damages); // Copy the object
+				let nextdmg = $j.extend({}, ability.damages); // Copy the object
 
 				// For each Target
 				for (let i = 0; i < targets.length; i++) {
@@ -321,7 +337,7 @@ export default (G) => {
 					}
 
 					let damage = new Damage(
-						this.creature, // Attacker
+						ability.creature, // Attacker
 						nextdmg, // Damage Type
 						1, // Area
 						[], // Effects
@@ -345,7 +361,7 @@ export default (G) => {
 					nextdmg = nextdmg.damages;
 
 					// Get next available targets
-					let nextTargets = this.getTargets(trg.adjacentHexes(1, true));
+					let nextTargets = ability.getTargets(trg.adjacentHexes(1, true));
 
 					nextTargets = nextTargets.filter(function (item) {
 						if (item.hexesHit === undefined) {
@@ -378,8 +394,8 @@ export default (G) => {
 						// Compare to best target
 						if (t.stats.shock > bestTarget.stats.shock) {
 							if (
-								(t == this.creature && nextTargets.length == 1) || // If target is chimera and the only target
-								t != this.creature
+								(t == ability.creature && nextTargets.length == 1) || // If target is chimera and the only target
+								t != ability.creature
 							) {
 								// Or this is not chimera
 								bestTarget = t;
@@ -397,7 +413,7 @@ export default (G) => {
 				}
 			},
 
-			_getHexes: () => {
+			_getHexes: function () {
 				return G.grid.getHexMap(
 					this.creature.x - 3,
 					this.creature.y - 2,

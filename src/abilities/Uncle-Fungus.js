@@ -39,6 +39,7 @@ export default (G) => {
 
 			// activate() :
 			activate: function (damage) {
+				let ability = this;
 				let creature = this.creature;
 
 				if (!damage || !damage.melee) {
@@ -50,16 +51,16 @@ export default (G) => {
 				let target = damage.attacker === creature ? damage.target : damage.attacker;
 
 				let optArg = {
-					alterations: this.effects[0],
+					alterations: ability.effects[0],
 					creationTurn: G.turn - 1,
 					stackable: true,
 				};
 
-				this.end();
+				ability.end();
 
 				// Spore Contamination
 				let effect = new Effect(
-					this.title, // Name
+					ability.title, // Name
 					creature, // Caster
 					target, // Target
 					'', // Trigger
@@ -70,10 +71,10 @@ export default (G) => {
 				target.addEffect(effect, undefined, 'Contaminated');
 
 				G.log(
-					'%CreatureName' + target.id + "%'s regrowth is lowered by " + this.effects[0].regrowth,
+					'%CreatureName' + target.id + "%'s regrowth is lowered by " + ability.effects[0].regrowth,
 				);
 
-				this.setUsed(false); // Infinite triggering
+				ability.setUsed(false); // Infinite triggering
 			},
 		},
 
@@ -104,10 +105,11 @@ export default (G) => {
 			// query() :
 			query: function () {
 				let uncle = this.creature;
+				let ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: uncle.id,
@@ -118,11 +120,12 @@ export default (G) => {
 
 			// activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage type
+					ability.creature, // Attacker
+					ability.damages, // Damage type
 					1, // Area
 					[], // Effects
 					G,
@@ -146,11 +149,11 @@ export default (G) => {
 
 					// Regrowth bonus
 					if (amount > 0) {
-						this.creature.addEffect(
+						ability.creature.addEffect(
 							new Effect(
-								this.title, // Name
-								this.creature, // Caster
-								this.creature, // Target
+								ability.title, // Name
+								ability.creature, // Caster
+								ability.creature, // Target
 								'', // Trigger
 								{
 									turnLifetime: 1,
@@ -161,14 +164,14 @@ export default (G) => {
 								}, // Optional arguments
 								G,
 							),
-							'%CreatureName' + this.creature.id + '% gained ' + amount + ' regrowth for now', // Custom log
+							'%CreatureName' + ability.creature.id + '% gained ' + amount + ' regrowth for now', // Custom log
 							'Regrowth++',
 						); // Custom hint
 					}
 				}
 
 				// Remove frogger bonus if its found
-				this.creature.effects.forEach((effect) => {
+				ability.creature.effects.forEach(function (effect) {
 					if (effect.name == 'Frogger Bonus') {
 						effect.deleteEffect();
 					}
@@ -200,6 +203,7 @@ export default (G) => {
 
 			// query() :
 			query: function () {
+				let ability = this;
 				let uncle = this.creature;
 
 				// Don't jump over creatures if we're not upgraded, or we are in a second
@@ -208,16 +212,16 @@ export default (G) => {
 				let hexes = this._getHexRange(stopOnCreature);
 
 				G.grid.queryHexes({
-					fnOnSelect: (...args) => {
-						this.fnOnSelect(...args);
+					fnOnSelect: function () {
+						ability.fnOnSelect(...arguments);
 					},
-					fnOnConfirm: (...args) => {
-						if (args[0].x == this.creature.x && args[0].y == this.creature.y) {
+					fnOnConfirm: function () {
+						if (arguments[0].x == ability.creature.x && arguments[0].y == ability.creature.y) {
 							// Prevent null movement
-							this.query();
+							ability.query();
 							return;
 						}
-						this.animation(...args);
+						ability.animation(...arguments);
 					},
 					size: uncle.size,
 					flipped: uncle.player.flipped,
@@ -230,7 +234,8 @@ export default (G) => {
 
 			// activate() :
 			activate: function (hex) {
-				this.end(false, true); // Deferred ending
+				let ability = this;
+				ability.end(false, true); // Deferred ending
 
 				// If upgraded and we haven't leapt over creatures/obstacles, allow a second
 				// jump of the same kind
@@ -250,16 +255,16 @@ export default (G) => {
 				}
 
 				// Jump directly to hex
-				this.creature.moveTo(hex, {
+				ability.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: () => {
+					callback: function () {
 						// Shake the screen upon landing to simulate the jump
 						G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-						G.onStepIn(this.creature, this.creature.hexagons[0]);
+						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
-						let interval = setInterval(() => {
+						let interval = setInterval(function () {
 							if (!G.freezedInput) {
 								clearInterval(interval);
 								G.UI.selectAbility(-1);
@@ -270,17 +275,17 @@ export default (G) => {
 				});
 
 				// Frogger Leap bonus
-				this.creature.addEffect(
+				ability.creature.addEffect(
 					new Effect(
 						'Offense Bonus', // Name
-						this.creature, // Caster
-						this.creature, // Target
+						ability.creature, // Caster
+						ability.creature, // Target
 						'onStepIn onEndPhase', // Trigger
 						{
-							effectFn: (effect) => {
+							effectFn: function (effect) {
 								effect.deleteEffect();
 							},
-							alterations: this.effects[0],
+							alterations: ability.effects[0],
 						}, // Optional arguments
 						G,
 					),
@@ -317,7 +322,7 @@ export default (G) => {
 				return hexes;
 			},
 
-			_isSecondLowJump: () => {
+			_isSecondLowJump: function () {
 				return this.timesUsedThisTurn === 1;
 			},
 		},
@@ -354,11 +359,12 @@ export default (G) => {
 
 			// query() :
 			query: function () {
+				let ability = this;
 				let uncle = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: uncle.id,
@@ -369,11 +375,12 @@ export default (G) => {
 
 			// activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage Type
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -390,7 +397,7 @@ export default (G) => {
 					// they are currently
 					if (hexes.length >= 2 && hexes[1].isWalkable(target.size, target.id, true)) {
 						target.moveTo(hexes[1], {
-							callback: () => {
+							callback: function () {
 								G.activeCreature.queryMove();
 							},
 							ignoreMovementPoint: true,
@@ -402,7 +409,7 @@ export default (G) => {
 				}
 
 				// Remove Frogger Jump bonus if its found
-				this.creature.effects.forEach((effect) => {
+				ability.creature.effects.forEach(function (effect) {
 					if (effect.name == 'Offense Bonus') {
 						effect.deleteEffect();
 					}

@@ -41,7 +41,7 @@ export default (G) => {
 
 				this.message = 'Not in a mud bath.';
 
-				this.creature.effects.forEach((effect) => {
+				this.creature.effects.forEach(function (effect) {
 					if (effect.trigger == 'mud-bath') {
 						effect.deleteEffect();
 					}
@@ -118,11 +118,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let swine = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					flipped: swine.player.flipped,
 					team: this._targetTeam,
@@ -137,12 +138,13 @@ export default (G) => {
 			},
 
 			activate: function (path, args) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let target = arrayUtils.last(path).creature;
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage Type
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -186,7 +188,7 @@ export default (G) => {
 					}
 					if (hex !== null) {
 						target.moveTo(hex, {
-							callback: () => {
+							callback: function () {
 								G.activeCreature.queryMove();
 							},
 							ignoreMovementPoint: true,
@@ -277,6 +279,7 @@ export default (G) => {
 				let bellowrow = matrices.bellowrow;
 				let straitrow = matrices.straitrow;
 
+				let ability = this;
 				let swine = this.creature;
 
 				let choices = [
@@ -295,8 +298,8 @@ export default (G) => {
 				});
 
 				G.grid.queryChoice({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: this._targetTeam,
 					requireCreature: 1,
@@ -307,8 +310,9 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: (path) => {
-				this.end();
+			activate: function (path) {
+				let ability = this;
+				ability.end();
 
 				let target = arrayUtils.last(path).creature;
 
@@ -316,7 +320,7 @@ export default (G) => {
 				if (this.isUpgraded()) {
 					let effect = new Effect(
 						'Ground Ball',
-						this.creature,
+						ability.creature,
 						target,
 						'onDamage',
 						{
@@ -331,8 +335,8 @@ export default (G) => {
 				}
 
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage Type
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -371,6 +375,7 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let swine = this.creature;
 
 				// Check if the ability is upgraded because then the self cast energy cost is less
@@ -392,12 +397,12 @@ export default (G) => {
 				G.grid.hideCreatureHexes(this.creature);
 
 				G.grid.queryHexes({
-					fnOnCancel: () => {
+					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					hexes: hexes,
 					hideNonTarget: true,
@@ -407,6 +412,7 @@ export default (G) => {
 			//	activate() :
 			activate: function (hex) {
 				G.grid.clearHexViewAlterations();
+				let ability = this;
 				let swine = this.creature;
 
 				// If upgraded and cast on self, cost is less
@@ -427,16 +433,16 @@ export default (G) => {
 					};
 				}
 
-				this.end();
+				ability.end();
 
 				let effects = [
 					new Effect(
 						'Slow Down',
-						this.creature,
+						ability.creature,
 						hex,
 						'onStepIn',
 						{
-							requireFn: () => {
+							requireFn: function () {
 								if (!this.trap.hex.creature) {
 									return false;
 								}
@@ -450,7 +456,7 @@ export default (G) => {
 					),
 				];
 
-				hex.createTrap('mud-bath', effects, this.creature.player);
+				hex.createTrap('mud-bath', effects, ability.creature.player);
 
 				// Trigger trap immediately if on self
 				if (isSelf) {

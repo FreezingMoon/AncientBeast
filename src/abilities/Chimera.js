@@ -68,11 +68,12 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
+				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: chimera.id,
@@ -83,11 +84,13 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+
+				ability.end();
 
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage Type
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -126,11 +129,12 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
+				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					flipped: chimera.player.flipped,
 					team: this._targetTeam,
@@ -144,14 +148,16 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				this.end();
+				let ability = this;
+
+				ability.end();
 
 				let target = arrayUtils.last(path).creature;
 				let hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
 
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage Type
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -171,12 +177,12 @@ export default (G) => {
 					target = hex.creature;
 
 					// extra sonic damage if upgraded
-					let sonic = this.damages.sonic + (this.isUpgraded() ? 9 : 0);
+					let sonic = ability.damages.sonic + (this.isUpgraded() ? 9 : 0);
 					if (sonic <= 0) {
 						break;
 					}
 					damage = new Damage(
-						this.creature, // Attacker
+						ability.creature, // Attacker
 						{
 							sonic: sonic,
 						}, // Damage Type
@@ -196,7 +202,7 @@ export default (G) => {
 
 			_targetTeam: Team.both,
 
-			_getDirections: () => {
+			_getDirections: function () {
 				return this.testDirections({
 					flipped: this.creature.player.flipped,
 					team: this._targetTeam,
@@ -230,11 +236,12 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
+				let ability = this;
 				let chimera = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					flipped: chimera.player.flipped,
 					team: this._targetTeam,
@@ -248,11 +255,12 @@ export default (G) => {
 			},
 
 			activate: function (path, args) {
+				let ability = this;
 				this.end();
 
 				let knockback = (_target, _crush, _range) => {
 					let damage = new Damage(
-						this.creature, // Attacker
+						ability.creature, // Attacker
 						{
 							crush: _crush,
 						}, // Damage Type
@@ -299,9 +307,9 @@ export default (G) => {
 						}
 						if (nextHex !== null && nextHex !== hex && nextHex.creature) {
 							// Diminishing crush damage if unupgraded
-							let crush = this.isUpgraded() ? _crush : _crush - 5;
+							let crush = ability.isUpgraded() ? _crush : _crush - 5;
 							// Diminishing range if unupgraded
-							let range = this.isUpgraded() ? _range : _range - 1;
+							let range = ability.isUpgraded() ? _range : _range - 1;
 							knockback(nextHex.creature, crush, range);
 						} else {
 							G.activeCreature.queryMove();

@@ -23,7 +23,7 @@ export default (G) => {
 			 * Movement type is "hover" unless this ability is upgraded, then it's "flying"
 			 * @return {string} movement type, "hover" or "flying"
 			 */
-			movementType: () => {
+			movementType: function () {
 				return 'flying';
 			},
 
@@ -36,9 +36,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function () {
-				// No-op function.
-			},
+			activate: function () {},
 		},
 
 		// 	Second Ability: Slicing Pounce
@@ -66,9 +64,11 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
+
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -79,13 +79,14 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				// If upgraded, hits will debuff target with -1 offense
 				if (this.isUpgraded()) {
 					let effect = new Effect(
 						'Slicing Pounce',
-						this.creature,
+						ability.creature,
 						target,
 						'onDamage',
 						{
@@ -100,8 +101,8 @@ export default (G) => {
 				}
 
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage Type
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -124,6 +125,7 @@ export default (G) => {
 					return false;
 				}
 
+				let ability = this;
 				let crea = this.creature;
 
 				let hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
@@ -139,12 +141,12 @@ export default (G) => {
 				}
 
 				// Cannot escort large (size > 2) creatures unless ability is upgraded
-				hexes = hexes.filter((hex) => {
+				hexes = hexes.filter(function (hex) {
 					if (!hex.creature) {
 						return false;
 					}
 
-					return hex.creature.size < 3 || this.isUpgraded();
+					return hex.creature.size < 3 || ability.isUpgraded();
 				});
 
 				if (
@@ -172,6 +174,7 @@ export default (G) => {
 			},
 
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				let hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
@@ -218,8 +221,8 @@ export default (G) => {
 				let x = trgIsInfront ? crea.x + trg.size : crea.x;
 
 				G.grid.queryHexes({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					}, // fnOnConfirm
 					fnOnSelect: select, // fnOnSelect,
 					team: this._targetTeam,
@@ -250,7 +253,8 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex, args) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let crea = this.creature;
 
@@ -278,7 +282,7 @@ export default (G) => {
 
 				crea.moveTo(creaDest, {
 					animation: 'fly',
-					callback: () => {
+					callback: function () {
 						trg.updateHex();
 					},
 					ignoreMovementPoint: true,
@@ -286,9 +290,9 @@ export default (G) => {
 
 				trg.moveTo(trgDest, {
 					animation: 'fly',
-					callback: () => {
-						this.creature.updateHex();
-						this.creature.queryMove();
+					callback: function () {
+						ability.creature.updateHex();
+						ability.creature.queryMove();
 					},
 					ignoreMovementPoint: true,
 					overrideSpeed: crea.animation.walk_speed,
@@ -321,9 +325,11 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
+
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -334,16 +340,17 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				// Don't perform poison damage unless upgraded
-				let damages = $j.extend({}, this.damages);
+				let damages = $j.extend({}, ability.damages);
 				if (!this.isUpgraded()) {
 					delete damages.poison;
 				}
 
 				let damage = new Damage(
-					this.creature, // Attacker
+					ability.creature, // Attacker
 					damages, // Damage Type
 					1, // Area
 					[], // Effects
@@ -361,13 +368,13 @@ export default (G) => {
 						'onStartPhase',
 						{
 							stackable: false,
-							effectFn: (eff, creature) => {
-								G.log('%CreatureName' + creature.id + '% is affected by ' + this.title);
+							effectFn: function (eff, creature) {
+								G.log('%CreatureName' + creature.id + '% is affected by ' + ability.title);
 								creature.takeDamage(
 									new Damage(
 										eff.owner,
 										{
-											poison: this.damages.poison,
+											poison: ability.damages.poison,
 										},
 										1,
 										[],

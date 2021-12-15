@@ -75,6 +75,7 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
 				// center of each area is two hexes away. Each area can be chosen regardless
 				// of whether targets are within.
@@ -100,12 +101,12 @@ export default (G) => {
 					return choice1.length < choice2.length;
 				});
 				G.grid.queryChoice({
-					fnOnCancel: () => {
+					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 						G.grid.clearHexViewAlterations();
 					},
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: Team.both,
 					id: this.creature.id,
@@ -115,11 +116,12 @@ export default (G) => {
 			},
 
 			activate: function (hexes) {
-				this.end();
+				let ability = this;
+				ability.end();
 
-				let targets = this.getTargets(hexes);
+				let targets = ability.getTargets(hexes);
 				// Deal double damage to enemies if upgraded
-				let enemyDamages = $j.extend({}, this.damages);
+				let enemyDamages = $j.extend({}, ability.damages);
 				if (this.isUpgraded()) {
 					for (let k in enemyDamages) {
 						if ({}.hasOwnProperty.call(enemyDamages, k)) {
@@ -161,6 +163,7 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let creature = this.creature;
 
 				// Upgraded Royal Seal can target up to 3 hexagons range
@@ -170,8 +173,8 @@ export default (G) => {
 				);
 
 				G.grid.queryHexes({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					size: creature.size,
 					flipped: creature.player.flipped,
@@ -185,16 +188,17 @@ export default (G) => {
 			//	activate() :
 			activate: function (hex) {
 				this.end();
+				let ability = this;
 
-				let makeSeal = () => {
+				let makeSeal = function () {
 					let effect = new Effect(
 						'Royal Seal',
-						this.creature,
+						ability.creature,
 						hex,
 						'onStepIn',
 						{
 							// Gumbles immune
-							requireFn: () => {
+							requireFn: function () {
 								let crea = this.trap.hex.creature;
 								return crea && crea.type !== this.owner.type;
 							},
@@ -217,8 +221,8 @@ export default (G) => {
 						G,
 					);
 
-					let trap = hex.createTrap('royal-seal', [effect], this.creature.player, {
-						ownerCreature: this.creature,
+					let trap = hex.createTrap('royal-seal', [effect], ability.creature.player, {
+						ownerCreature: ability.creature,
 						fullTurnLifetime: true,
 					});
 					trap.hide();
@@ -227,7 +231,7 @@ export default (G) => {
 				// Move Gumble to the target hex if necessary
 				if (hex.x !== this.creature.x || hex.y !== this.creature.y) {
 					this.creature.moveTo(hex, {
-						callback: () => {
+						callback: function () {
 							G.activeCreature.queryMove();
 							makeSeal();
 						},
@@ -269,11 +273,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,
@@ -287,7 +292,8 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let target = arrayUtils.last(path).creature;
 				let melee = path[0].creature === target;
@@ -340,7 +346,7 @@ export default (G) => {
 				}
 
 				let damage = new Damage(
-					this.creature, // Attacker
+					ability.creature, // Attacker
 					d, // Damage Type
 					1, // Area
 					[], // Effects
@@ -360,7 +366,7 @@ export default (G) => {
 					target.moveTo(dir[1], {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: () => {
+						callback: function () {
 							G.activeCreature.queryMove();
 						},
 						animation: 'push',

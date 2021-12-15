@@ -17,7 +17,7 @@ export default (G) => {
 
 			_effectName: 'Frostified',
 
-			_getOffenseBuff: () => {
+			_getOffenseBuff: function () {
 				return this.isUpgraded() ? 5 : 0;
 			},
 
@@ -25,9 +25,10 @@ export default (G) => {
 			require: function () {
 				// Check whether this ability is upgraded; if so then make sure all existing
 				// buffs include an offense buff
-				this.creature.effects.forEach((effect) => {
-					if (effect.name === this._effectName) {
-						effect.alterations.offense = this._getOffenseBuff();
+				let ability = this;
+				this.creature.effects.forEach(function (effect) {
+					if (effect.name === ability._effectName) {
+						effect.alterations.offense = ability._getOffenseBuff();
 					}
 				});
 
@@ -85,9 +86,11 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
+
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -98,16 +101,17 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				// Upgraded ability does pierce damage to smaller size targets
-				let damages = this.damages;
+				let damages = ability.damages;
 				if (!this.isUpgraded() || !(target.size < this.creature.size)) {
 					damages.pierce = 0;
 				}
 
 				let damage = new Damage(
-					this.creature, // Attacker
+					ability.creature, // Attacker
 					damages, // Damage Type
 					1, // Area
 					[
@@ -157,9 +161,11 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
+
 				G.grid.queryCreature({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -170,7 +176,8 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				this.end();
+				let ability = this;
+				ability.end();
 
 				let effects = [];
 				// Upgraded ability adds a -10 defense debuff
@@ -194,8 +201,8 @@ export default (G) => {
 					);
 				}
 				let damage = new Damage(
-					this.creature, // Attacker
-					this.damages, // Damage Type
+					ability.creature, // Attacker
+					ability.damages, // Damage Type
 					1, // Area
 					effects,
 					G,
@@ -219,7 +226,7 @@ export default (G) => {
 			directions: [1, 1, 1, 1, 1, 1],
 			_targetTeam: Team.both,
 
-			_getDistance: () => {
+			_getDistance: function () {
 				// Upgraded ability has infinite range
 				return this.isUpgraded() ? 0 : 6;
 			},
@@ -248,13 +255,14 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: crea.id,
@@ -268,15 +276,17 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: (path) => {
-				this.end();
+			activate: function (path) {
+				let ability = this;
+
+				ability.end();
 
 				for (let i = 0; i < path.length; i++) {
 					if (path[i].creature instanceof Creature) {
 						let trg = path[i].creature;
 
 						let d = {
-							pierce: this.damages.pierce,
+							pierce: ability.damages.pierce,
 							frost: 6 - i,
 						};
 						if (d.frost < 0) {
@@ -285,7 +295,7 @@ export default (G) => {
 
 						//Damage
 						let damage = new Damage(
-							this.creature, // Attacker
+							ability.creature, // Attacker
 							d, // Damage Type
 							1, // Area
 							[], // Effects

@@ -1,5 +1,6 @@
+import * as $j from 'jquery';
 import { Damage } from '../damage';
-import { Team } from '../utility/team';
+import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
@@ -40,6 +41,7 @@ export default (G) => {
 
 			//  activate() :
 			activate: function () {
+				let ability = this;
 				// Force Vehemoth to stay facing the right way
 				this.creature.facePlayerDefault();
 
@@ -107,11 +109,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let vehemoth = this.creature;
 
 				let object = {
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					flipped: vehemoth.flipped,
 					id: vehemoth.id,
@@ -170,8 +173,9 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let vehemoth = this.creature;
-				this.end();
+				let ability = this;
+				let vehemoth = ability.creature;
+				ability.end();
 
 				let target = arrayUtils.last(path).creature;
 
@@ -180,7 +184,7 @@ export default (G) => {
 						? { pure: this.damages.pure }
 						: { crush: this.damages.crush, frost: this.damages.frost };
 				let damage = new Damage(
-					this.creature, // Attacker
+					ability.creature, // Attacker
 					damageType,
 					1, // Area
 					[], // Effects
@@ -219,7 +223,7 @@ export default (G) => {
 					knockbackHexes.splice(path.length);
 
 					vehemoth.moveTo(destination, {
-						callback: () => {
+						callback: function () {
 							let knockbackHex = null;
 							for (let i = 0; i < knockbackHexes.length; i++) {
 								// Check that the next knockback hex is valid
@@ -230,7 +234,7 @@ export default (G) => {
 							}
 							if (knockbackHex !== null) {
 								target.moveTo(knockbackHex, {
-									callback: () => {
+									callback: function () {
 										// Deal damage only if target have reached the end of the path
 										if (knockbackHex.creature === target) {
 											target.takeDamage(damage);
@@ -356,6 +360,7 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				let choices = [
@@ -440,8 +445,8 @@ export default (G) => {
 				];
 
 				G.grid.queryChoice({
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					}, //fnOnConfirm
 					team: this._targetTeam,
 					requireCreature: 1,
@@ -453,6 +458,8 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (choice) {
+				let ability = this;
+
 				let creaturesHit = [];
 
 				for (let i = 0; i < choice.length; i++) {
@@ -464,8 +471,8 @@ export default (G) => {
 
 						choice[i].creature.takeDamage(
 							new Damage(
-								this.creature, // Attacker
-								this.damages1, // Damage Type
+								ability.creature, // Attacker
+								ability.damages1, // Damage Type
 								1, // Area
 								[], // Effects
 								G,
@@ -505,20 +512,21 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
+				let ability = this;
 				let crea = this.creature;
 
 				G.grid.queryDirection({
-					fnOnSelect: (path) => {
+					fnOnSelect: function (path) {
 						let trg = arrayUtils.last(path).creature;
 
-						let hex = this.creature.player.flipped
+						let hex = ability.creature.player.flipped
 							? G.grid.hexes[arrayUtils.last(path).y][arrayUtils.last(path).x + trg.size - 1]
 							: arrayUtils.last(path);
 
 						hex
-							.adjacentHex(this.radius)
+							.adjacentHex(ability.radius)
 							.concat([hex])
-							.forEach((item) => {
+							.forEach(function (item) {
 								if (item.creature instanceof Creature) {
 									item.overlayVisualState('creature selected player' + item.creature.team);
 								} else {
@@ -526,8 +534,8 @@ export default (G) => {
 								}
 							});
 					},
-					fnOnConfirm: (...args) => {
-						this.animation(...args);
+					fnOnConfirm: function () {
+						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
 					team: this._targetTeam,
@@ -540,22 +548,23 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: (path) => {
-				this.end();
+			activate: function (path) {
+				let ability = this;
+				ability.end();
 
 				let trg = arrayUtils.last(path).creature;
 
-				let hex = this.creature.player.flipped
+				let hex = ability.creature.player.flipped
 					? G.grid.hexes[arrayUtils.last(path).y][arrayUtils.last(path).x + trg.size - 1]
 					: arrayUtils.last(path);
 
-				let trgs = this.getTargets(hex.adjacentHex(this.radius).concat([hex])); // Include central hex
+				let trgs = ability.getTargets(hex.adjacentHex(ability.radius).concat([hex])); // Include central hex
 
 				// var target = arrayUtils.last(path).creature;
 
 				// var damage = new Damage(
-				// 	this.creature, //Attacker
-				// 	this.damages, //Damage Type
+				// 	ability.creature, //Attacker
+				// 	ability.damages, //Damage Type
 				// 	1, //Area
 				// 	[]	//Effects
 				// );
@@ -563,11 +572,11 @@ export default (G) => {
 
 				let effect = new Effect(
 					'Frozen', // Name
-					this.creature, // Caster
+					ability.creature, // Caster
 					undefined, // Target
 					'', // Trigger
 					{
-						effectFn: (eff) => {
+						effectFn: function (eff) {
 							eff.target.stats.frozen = true;
 							this.deleteEffect();
 						},
@@ -575,9 +584,9 @@ export default (G) => {
 					G,
 				);
 
-				this.areaDamage(
-					this.creature,
-					this.damages,
+				ability.areaDamage(
+					ability.creature,
+					ability.damages,
 					[effect], // Effects
 					trgs,
 				);

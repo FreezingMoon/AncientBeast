@@ -28,15 +28,24 @@ export class Ability {
 			this.requirements = this.costs;
 		}
 
+		// If set, abilities can be used multiple times in a single round.
+		this._disableCooldowns = false;
+
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}
 
-	handleMetaPowerEvent(message, _payload) {
-		if (message === 'resetCooldowns') {
-			this.reset();
-			// Refresh UI to show ability is available.
-			this.game.UI.selectAbility(-1);
+	handleMetaPowerEvent(message, payload) {
+		if (message === 'toggleResetCooldowns') {
+			// Prevent ability from going on cooldown.
+			this._disableCooldowns = payload;
+
+			// Reset cooldown if the ability has already been used.
+			if (this.used && payload === true) {
+				this.reset();
+				// Refresh UI to show ability is available.
+				this.game.UI.selectAbility(-1);
+			}
 		}
 	}
 
@@ -139,7 +148,9 @@ export class Ability {
 		}
 
 		this.applyCost();
-		this.setUsed(true); // Should always be here
+		if (!this._disableCooldowns) {
+			this.setUsed(true); // Should always be here
+		}
 		game.UI.updateInfos(); // Just in case
 		game.UI.btnDelay.changeState('disabled');
 		game.activeCreature.delayable = false;
@@ -311,15 +322,7 @@ export class Ability {
 	 */
 	animation2(o) {
 		let game = this.game,
-			opt = $j.extend(
-				{
-					callback: () => {
-						// No-op function.
-					},
-					arg: {},
-				},
-				o,
-			),
+			opt = $j.extend({ callback: function () {}, arg: {} }, o),
 			args = opt.arg,
 			activateAbility = () => {
 				this.activate(args[0], args[1]);
@@ -529,7 +532,7 @@ export class Ability {
 
 			let dmg = new Damage(attacker, damages, targets[i].hexesHit, effects, this.game);
 			let damageResult = targets[i].target.takeDamage(dmg, {
-				ignoreRetaliation: ignoreRetaliation,
+				ignoreRetaliation,
 			});
 			multiKill += damageResult.kill + 0;
 		}
@@ -549,7 +552,7 @@ export class Ability {
 	atLeastOneTarget(hexes, o) {
 		let defaultOpt = {
 			team: Team.both,
-			optTest: () => {
+			optTest: function () {
 				return true;
 			},
 		};

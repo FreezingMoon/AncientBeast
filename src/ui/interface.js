@@ -964,23 +964,15 @@ export class UI {
 				}
 			});
 
-			/*if ((view && game.activeCreature.abilities[3].used && game.activeCreature.type == '--') || !view){
-				$j('#materialize_button').show();
-			}else {
-				$j('#materialize_button').hide();
-			}*/
-
-			let summonedOrDead = false;
-			game.players[player].creatures.forEach((creature) => {
-				if (creature.type == creatureType) {
-					summonedOrDead = true;
-				}
-			});
+			const summonedOrDead = game.players[player].creatures.some(
+				(creature) => creature.type == creatureType,
+			);
 
 			this.materializeButton.changeState(ButtonStateEnum.disabled);
 			$j('#card .sideA').addClass('disabled').off('click');
 
 			let activeCreature = game.activeCreature;
+
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
 				$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
 			} else if (
@@ -1059,11 +1051,13 @@ export class UI {
 					}
 				} else if (
 					activeCreature.abilities[3].used &&
-					game.activeCreature.type == '--' &&
+					game.activeCreature.isDarkPriest() &&
 					player == game.activeCreature.player.id &&
 					(clickMethod == 'emptyHex' || clickMethod == 'portrait' || clickMethod == 'grid')
 				) {
-					if (clickMethod == 'portrait' && creatureType != '--') {
+					if (summonedOrDead) {
+						$j('#materialize_button').hide();
+					} else if (clickMethod == 'portrait' && creatureType != '--') {
 						$j('#materialize_button').hide();
 					} else {
 						$j('#materialize_button p').text(game.msg.ui.dash.materializeUsed);
@@ -1913,6 +1907,7 @@ export class UI {
 
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
+				let b = this.selectedAbility == -1 ? 4 : this.selectedAbility; // Checking usable abilities
 				for (let j = 0 + 1; j < 4; j++) {
 					if (
 						game.activeCreature.abilities[j].require() &&
@@ -2337,7 +2332,7 @@ export class UI {
 			.find('.vignette.roundmarker')
 			.off('mouseover')
 			.off('mouseleave')
-			.on('mouseover', (_event) => {
+			.on('mouseover', (e) => {
 				game.grid.showGrid(true);
 				game.grid.showCurrentCreatureMovementInOverlay(game.activeCreature);
 			})
@@ -2411,7 +2406,7 @@ export class UI {
 				}
 				let creaID = $j(e.currentTarget).attr('creatureid') - 0;
 				if (
-					game.creatures[creaID].type == '--' &&
+					game.creatures[creaID].isDarkPriest() &&
 					game.creatures[creaID].player.id == game.activeCreature.player.id &&
 					!game.activeCreature.abilities[3].used
 				) {
@@ -2514,7 +2509,7 @@ export class UI {
 					text = 'Fatigued';
 				}
 
-				if (creature.type == '--') {
+				if (creature.isDarkPriest()) {
 					// If Dark Priest
 					creature.abilities[0].require(); // Update protectedFromFatigue
 				}
