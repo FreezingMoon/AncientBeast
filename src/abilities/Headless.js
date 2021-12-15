@@ -77,10 +77,16 @@ export default (G) => {
 				);
 
 				target.addEffect(effect, `%CreatureName${target.id}% loses -5 endurance`);
+				// Display potentially new "Fragile" status when losing maximum endurance.
+				this.game.UI.updateFatigue();
 			},
 
 			_getHexes: function () {
-				return this.creature.getHexMap(matrices.inlineback2hex);
+				return this.creature.getHexMap(
+					/* Headless position is the front hex of its two hexes, so we look for 
+					an enemy unit two hexes back which will be the hex directly behind Headless. */
+					matrices.inlineback2hex,
+				);
 			},
 		},
 
