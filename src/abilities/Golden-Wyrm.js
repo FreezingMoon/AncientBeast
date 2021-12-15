@@ -297,21 +297,23 @@ export default (G) => {
 			activate: function (target) {
 				this.end();
 
-				/* The amount of health transferred is the creature's missing life, capped 
-				to 50. */
+				// The health transferred is the creature's missing life, capped to 50.
 				const transferAmount = Math.min(
 					target.stats.health - target.health,
 					this._maxTransferAmount,
 				);
 
-				target.heal(transferAmount);
+				target.heal(transferAmount, false, false);
 
 				/* Damage Golden Wyrm using `.heal()` instead of `.takeDamage()` to apply 
 				raw damage that bypasses dodge, shielded, etc and does not trigger further 
 				effects. */
-				this.creature.heal(-transferAmount);
+				this.creature.heal(-transferAmount, false, false);
 
-				// TODO: Should we show messages/hints for this transfer beyond health lost/gained?
+				// Rather than individual loss/gain health logs, show a single custom log.
+				this.game.log(
+					`%CreatureName${this.creature.id}% transfers${transferAmount} health to %CreatureName${target.id}%`,
+				);
 
 				if (this.isUpgraded()) {
 					const regrowthBuffEffect = new Effect(
@@ -329,9 +331,7 @@ export default (G) => {
 
 					this.creature.addEffect(
 						regrowthBuffEffect,
-						// TODO: What should this say?
-						`%CreatureName${this.creature.id}% is brimming with health`,
-						// TODO: Should we show a hint?
+						`%CreatureName${this.creature.id}% gains 10 regrowth points`,
 						'',
 						false,
 						true,
