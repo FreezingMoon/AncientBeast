@@ -1379,7 +1379,7 @@ export class Creature {
 	 * effect :		Effect :	Effect object
 	 *
 	 */
-	addEffect(effect, specialString, specialHint) {
+	addEffect(effect, specialString, specialHint, disableLog = false, disableHint = false) {
 		let game = this.game;
 
 		if (!effect.stackable && this.findEffect(effect.name).length !== 0) {
@@ -1394,15 +1394,20 @@ export class Creature {
 		this.updateAlteration();
 
 		if (effect.name !== '') {
-			if (specialHint || effect.specialHint) {
-				this.hint(specialHint, 'msg_effects');
-			} else {
-				this.hint(effect.name, 'msg_effects');
+			if (!disableHint) {
+				if (specialHint || effect.specialHint) {
+					this.hint(specialHint, 'msg_effects');
+				} else {
+					this.hint(effect.name, 'msg_effects');
+				}
 			}
-			if (specialString) {
-				game.log(specialString);
-			} else {
-				game.log('%CreatureName' + this.id + '% is affected by ' + effect.name);
+
+			if (!disableLog) {
+				if (specialString) {
+					game.log(specialString);
+				} else {
+					game.log('%CreatureName' + this.id + '% is affected by ' + effect.name);
+				}
 			}
 		}
 	}
