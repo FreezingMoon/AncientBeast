@@ -11,16 +11,34 @@ import { Effect } from '../effect';
  */
 export default (G) => {
 	G.abilities[39] = [
-		// 	First Ability: Larva Infest
+		/**
+		 * First Ability: Larva Infest
+		 * At both the beginning and end of the Headless turn, if there is an enemy
+		 * creature in the hex directly at the back of the Headless, the enemy creature
+		 * will instantly lose -5 maximum endurance.
+		 *
+		 * The upgraded ability also instantly applies the "fatigue" effect regardless
+		 * of remaining endurance, as well as reducing -5 maximum endurance.
+		 *
+		 * If the Headless begins its turn in a position to trigger the ability, and
+		 * ends its turn in the position, the enemy creature will have the ability effect
+		 * applied twice.
+		 */
 		{
 			trigger: 'onStartPhase onEndPhase',
 
 			_targetTeam: Team.enemy,
-			_getHexes: function () {
-				return this.creature.getHexMap(matrices.inlineback2hex);
-			},
 
 			require: function () {
+				// Headless only triggers ability on its own turn.
+				if (this.creature !== this.game.activeCreature) {
+					return false;
+				}
+
+				if (this.creature.materializationSickness) {
+					return false;
+				}
+
 				if (
 					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
@@ -28,77 +46,47 @@ export default (G) => {
 				) {
 					return false;
 				}
+
 				return this.testRequirements();
 			},
 
-			//	activate() :
 			activate: function () {
-				let ability = this;
-				let creature = this.creature;
+				this.end();
 
-				if (
-					this.atLeastOneTarget(this._getHexes(), {
-						team: this._targetTeam,
-					})
-				) {
-					this.end();
-					this.setUsed(false); // Infinite triggering
-				} else {
-					return false;
+				// require() has identified a valid target, so we can safely assume it is there.
+				const target = this._getHexes()[0].creature;
+
+				if (this.isUpgraded()) {
+					// Upgraded ability causes fatigue - endurance set to 0.
+					target.addFatigue(target.endurance);
 				}
 
-				let targets = this.getTargets(this._getHexes());
-
-				targets.forEach(function (item) {
-					if (!(item.target instanceof Creature)) {
-						return;
-					}
-
-					let trg = item.target;
-
-					if (ability.isUpgraded()) {
-						// Upgraded ability causes fatigue - endurance set to 0
-						trg.addFatigue(trg.endurance);
-					}
-
-					// Add an effect that triggers on the target's start phase and adds the
-					// debuff
-					let effect = new Effect(
-						ability.title, // Name
-						creature, // Caster
-						trg, // Target
-						'onStartPhase', // Trigger
-						{
-							effectFn: function () {
-								// Activate debuff
-								trg.addEffect(
-									new Effect(
-										'', // No name to prevent logging
-										creature,
-										trg,
-										'',
-										{
-											deleteTrigger: '',
-											stackable: true,
-											alterations: {
-												endurance: -5,
-											},
-										},
-										G,
-									),
-								);
-								// Note: effect activate by default adds the effect on the target,
-								// but target already has this effect, so remove the trigger to
-								// prevent infinite addition of this effect.
-								item.trigger = '';
-								item.deleteEffect();
-							},
+				const effect = new Effect(
+					this.title,
+					this.creature,
+					target,
+					// Effect never fades.
+					'',
+					{
+						stackable: true,
+						alterations: {
+							endurance: -5,
 						},
-						G,
-					);
+					},
+					G,
+				);
 
-					trg.addEffect(effect, '%CreatureName' + trg.id + '% has been infested');
-				});
+				target.addEffect(effect, `%CreatureName${target.id}% loses -5 endurance`);
+				// Display potentially new "Fragile" status when losing maximum endurance.
+				this.game.UI.updateFatigue();
+			},
+
+			_getHexes: function () {
+				return this.creature.getHexMap(
+					/* Headless position is the front hex of its two hexes, so we look for 
+					an enemy unit two hexes back which will be the hex directly behind Headless. */
+					matrices.inlineback2hex,
+				);
 			},
 		},
 
