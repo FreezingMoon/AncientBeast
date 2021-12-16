@@ -2498,8 +2498,6 @@ export class UI {
 					text = 'Sickened';
 				} else if (creature.protectedFromFatigue || creature.stats.fatigueImmunity) {
 					text = 'Protected';
-				} else if (creature.endurance > 0) {
-					text = creature.endurance + '/' + creature.stats.endurance;
 				} else if (creature.isFragile()) {
 					text = 'Fragile';
 					// Display message if the creature has first become fragile
@@ -2508,6 +2506,8 @@ export class UI {
 					}
 				} else if (creature.isFatigued()) {
 					text = 'Fatigued';
+				} else {
+					text = creature.endurance + '/' + creature.stats.endurance;
 				}
 
 				if (creature.isDarkPriest()) {
@@ -2516,7 +2516,7 @@ export class UI {
 				}
 
 				textElement.text(text);
-				this.fatigueText = text;
+				creature.fatigueText = text;
 			}
 		});
 	}
