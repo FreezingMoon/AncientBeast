@@ -2563,7 +2563,6 @@ export class UI {
 			return confirmation;
 		};
 
-		// Now that a game has started,
 		window.addEventListener('beforeunload', confirmUnload);
 
 		// If running in webpack-dev-server, allow Live Reload events to bypass this check.
