@@ -1289,4 +1289,14 @@ export class HexGrid {
 			hexInstance.overlayVisualState('creature selected player' + game.activeCreature.team);
 		}
 	}
+
+	/**
+	 * Log and visually highlight an array of hexes.
+	 *
+	 * @param {Hex[]} hexes
+	 */
+	debugHexes(hexes) {
+		console.log({ hexes }, hexes.map((hex) => hex.coord).join(', '));
+		hexes.forEach((hex) => hex.displayVisualState('creature selected player1'));
+	}
 }
