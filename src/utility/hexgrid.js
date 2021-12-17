@@ -1291,11 +1291,12 @@ export class HexGrid {
 	}
 
 	/**
-	 * Log and visually highlight an array of hexes.
+	 * Internal debugging method to log and visually highlight (in blue) an array
+	 * of hexes.
 	 *
 	 * @param {Hex[]} hexes
 	 */
-	debugHexes(hexes) {
+	__debugHexes(hexes) {
 		console.log({ hexes }, hexes.map((hex) => hex.coord).join(', '));
 		hexes.forEach((hex) => hex.displayVisualState('creature selected player1'));
 	}
