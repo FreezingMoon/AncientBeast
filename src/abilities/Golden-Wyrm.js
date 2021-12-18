@@ -81,7 +81,7 @@ export default (G) => {
 		 * - The execution damage is "pure" and cannot be reduced via resistances.
 		 *
 		 * When upgraded, a successful execution attack will allow the ability to be
-		 * used again. Each use requires the full 25 energy cost.
+		 * used again. Each use requires the full energy cost.
 		 */
 		{
 			trigger: 'onQuery',
