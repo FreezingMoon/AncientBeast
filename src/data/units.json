@@ -2644,7 +2644,7 @@
 				"title": "Battle Cry",
 				"desc": "Roars at the beginning of the turn if took any damage in previous round.",
 				"info": "30 sonic damage to adjacent units.",
-				"upgrade": "Only roars if foes are nearby."
+				"upgrade": "Only roars if nearby foes."
 			},
 			{
 				"title": "Executioner Axe",
