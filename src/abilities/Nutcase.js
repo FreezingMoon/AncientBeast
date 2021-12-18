@@ -14,6 +14,7 @@ export default (G) => {
 	G.abilities[40] = [
 		/**
 		 * First Ability: Tentacle Bush
+		 *
 		 * When ending the Nutcase's turn, it gains the "Tentacle Bush" effect which:
 		 * - makes the Nutcase immovable until its next turn
 		 * - applies an effect against melee attackers
