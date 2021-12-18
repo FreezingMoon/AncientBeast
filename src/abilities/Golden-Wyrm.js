@@ -183,20 +183,31 @@ export default (G) => {
 		 * Move to a location within 10 hexes distance using flying movement (avoids
 		 * obstacles including units).
 		 *
+		 * The ability cannot be used if the Golden Wyrm has been made immoveable.
+		 *
 		 * Targeting rule:
-		 * - Target hexes must be within 10 hexes distance of ... what? Creature front? any direction?
+		 * - Target hexes must be within 10 adjacent hexes distance from any part of
+		 *   its 3-sized body.
 		 * - Target hexes must not be occupied by another unit.
 		 *
 		 * When upgraded the Golden Wyrm receives a +25 offense buff for its next Executioner
 		 * Axe ability. This buff lasts until the end of the turn, or if Executioner
 		 * Axe is used.
-		 *
 		 */
 		{
 			trigger: 'onQuery',
 
 			require: function () {
-				return this.testRequirements();
+				if (!this.testRequirements()) {
+					return false;
+				}
+
+				if (!this.creature.stats.moveable) {
+					this.message = G.msg.abilities.notMoveable;
+					return false;
+				}
+
+				return true;
 			},
 
 			query: function () {
