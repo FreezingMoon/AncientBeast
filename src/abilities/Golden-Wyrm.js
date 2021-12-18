@@ -109,7 +109,7 @@ export default (G) => {
 				const wyrm = this.creature;
 				const ability = this;
 
-				G.grid.queryCreature({
+				this.game.grid.queryCreature({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
@@ -132,13 +132,16 @@ export default (G) => {
 						},
 						1,
 						[],
-						G,
+						this.game,
 					);
+					/* Suppress the death message, to be replaced by a custom log. Setting
+					`noLog` on Damage wouldn't work as it would suppress Shielded/Dodged messages. */
+					this.game.UI.chat.suppressMessage(/is dead/i, 1);
 					const damageResult = target.takeDamage(executeDamage);
 
 					// Damage could be shielded or blocked, so double check target has died.
 					if (damageResult.kill) {
-						this.game.log(`%CreatureName${target.id}% showed weakness and was executed!`);
+						this.game.log(`%CreatureName${target.id}% has been executed!`);
 						target.hint('Executed', 'damage');
 
 						if (this.isUpgraded()) {
@@ -155,7 +158,7 @@ export default (G) => {
 						},
 						1,
 						[],
-						G,
+						this.game,
 					);
 					target.takeDamage(normalDamage);
 				}

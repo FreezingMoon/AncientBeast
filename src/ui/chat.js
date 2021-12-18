@@ -24,6 +24,7 @@ export class Chat {
 		});
 		this.messages = [];
 		this.isOpen = false;
+		this.messagesToSuppress = [];
 
 		$j('#combatwrapper, #toppanel, #dash, #endscreen').bind('click', () => {
 			game.UI.chat.hide();
@@ -89,6 +90,20 @@ export class Chat {
 		let messagesNo = this.messages.length;
 		let currentTime = ifNoTimestamp ? null : this.getCurrentTime();
 
+		const suppressedMessageIndex = this.messagesToSuppress.findIndex((message) =>
+			message.pattern.test(msg),
+		);
+		if (suppressedMessageIndex > -1) {
+			const message = this.messagesToSuppress[suppressedMessageIndex];
+			message.times = message.times - 1;
+
+			if (message.times <= 0) {
+				this.messagesToSuppress.splice(suppressedMessageIndex, 1);
+			}
+
+			return;
+		}
+
 		// Check if the last message was the same as the current one
 		if (this.messages[messagesNo - 1] && this.messages[messagesNo - 1].message === msg) {
 			let lastMessage = this.messages[messagesNo - 1];
@@ -111,5 +126,18 @@ export class Chat {
 		}
 
 		this.$content.parent().scrollTop(this.$content.height());
+	}
+
+	/**
+	 * Suppress a message from being output to the chat log.
+	 *
+	 * @param {RegExp} pattern If the chat log message matches this pattern, it will be suppressed.
+	 * @param {number} times Suppress the message this many times.
+	 */
+	suppressMessage(pattern, times = 1) {
+		this.messagesToSuppress.push({
+			pattern,
+			times,
+		});
 	}
 }
