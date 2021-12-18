@@ -177,35 +177,37 @@ export default (G) => {
 			},
 		},
 
-		// 	Third Ability: Dragon Flight
+		/**
+		 * Third Ability: Dragon Flight
+		 *
+		 * Move to a location within 10 hexes distance using flying movement (avoids
+		 * obstacles including units).
+		 *
+		 * Targeting rule:
+		 * - Target hexes must be within 10 hexes distance of ... what? Creature front? any direction?
+		 * - Target hexes must not be occupied by another unit.
+		 *
+		 * When upgraded the Golden Wyrm receives a +25 offense buff for its next Executioner
+		 * Axe ability. This buff lasts until the end of the turn, or if Executioner
+		 * Axe is used.
+		 *
+		 */
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			require: function () {
 				return this.testRequirements();
 			},
 
-			fnOnSelect: function (hex) {
-				this.creature.tracePosition({
-					x: hex.x,
-					y: hex.y,
-					overlayClass: 'creature moveto selected player' + this.creature.team,
-				});
-			},
-
-			// 	query() :
 			query: function () {
-				let ability = this;
-				let wyrm = this.creature;
+				const ability = this;
+				const wyrm = this.creature;
 
-				let range = G.grid
-					.getFlyingRange(wyrm.x, wyrm.y, 50, wyrm.size, wyrm.id)
-					.filter((item) => wyrm.item == item.y);
+				const range = this.game.grid.getFlyingRange(wyrm.x, wyrm.y, 10, wyrm.size, wyrm.id);
 
-				G.grid.queryHexes({
+				this.game.grid.queryHexes({
 					fnOnSelect: function () {
-						ability.fnOnSelect(...arguments);
+						ability._highlightDestination(...arguments);
 					},
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
@@ -217,9 +219,8 @@ export default (G) => {
 				});
 			},
 
-			//	activate() :
 			activate: function (hex) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
 				ability.creature.moveTo(hex, {
@@ -227,27 +228,50 @@ export default (G) => {
 					ignorePath: true,
 					callback: function () {
 						G.activeCreature.queryMove();
+
+						if (ability.isUpgraded()) {
+							// Add offense buff after landing.
+							ability._addOffenseBuff();
+						}
 					},
 				});
+			},
 
-				// Frogger Leap bonus
-				ability.creature.addEffect(
-					new Effect(
-						'Offense++', // Name
-						ability.creature, // Caster
-						ability.creature, // Target
-						'onStepIn onEndPhase', // Trigger
-						{
-							effectFn: function (effect) {
-								effect.deleteEffect();
-							},
-							alterations: {
-								offense: 25,
-							},
-						}, // Optional arguments
-						G,
-					),
+			_highlightDestination: function (hex) {
+				this.creature.tracePosition({
+					x: hex.x,
+					y: hex.y,
+					overlayClass: 'creature moveto selected player' + this.creature.team,
+				});
+			},
+
+			_addOffenseBuff() {
+				const wyrm = this.creature;
+				const ability = this;
+				const offenseBuffEffect = new Effect(
+					'Momentum',
+					ability.creature,
+					ability.creature,
+					'',
+					{
+						effectFn: function (effect) {
+							console.log({ effect }, wyrm);
+							effect.deleteEffect();
+						},
+						alterations: {
+							/* This can technically only apply to Executioner's Axe because
+							the Golden Wyrm only has a single direct attack ability. */
+							offense: 25,
+						},
+						/* The buff should only apply for one use of Executioner's Axe, but
+						that ability can only be used once per turn so it's much easier to leave
+						this Effect to be cleaned up next turn. */
+						deleteTrigger: 'onStartPhase',
+						turnLifetime: 1,
+					},
+					this.game,
 				);
+				ability.creature.addEffect(offenseBuffEffect);
 			},
 		},
 
