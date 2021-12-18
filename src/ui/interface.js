@@ -672,6 +672,8 @@ export class UI {
 			$j('.timepool').text(time.getTimer(game.timePool));
 		}
 
+		this.confirmWindowUnload();
+
 		$j('#tabwrapper a').removeAttr('href'); // Empty links
 
 		this.btnExit.changeState(ButtonStateEnum.hidden);
@@ -2535,5 +2537,43 @@ export class UI {
 		$j('#loader').addClass('hide');
 		const queueElements = this.$queue.children();
 		[...queueElements].forEach((queueElement) => queueElement.remove());
+	}
+
+	/**
+	 * Make the user confirm attempts to navigate away (refresh, back button, close
+	 * tab, etc) to prevent accidentally ending the game.
+	 *
+	 * webpack-dev-server reloads in the development environment will bypass this check.
+	 */
+	confirmWindowUnload() {
+		this.ignoreNextConfirmUnload = false;
+
+		const confirmUnload = (event) => {
+			const confirmation =
+				'A game is in progress and cannot be restored, are you sure you want to leave?';
+
+			if (this.ignoreNextConfirmUnload) {
+				delete event['returnValue'];
+				return;
+			}
+
+			// https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload#example
+			event.preventDefault();
+			event.returnValue = confirmation;
+			return confirmation;
+		};
+
+		window.addEventListener('beforeunload', confirmUnload);
+
+		// If running in webpack-dev-server, allow Live Reload events to bypass this check.
+		if (process.env.NODE_ENV === 'development') {
+			// https://stackoverflow.com/a/61579190/1414008
+			window.addEventListener('message', ({ data: { type } }) => {
+				if (type === 'webpackInvalid') {
+					this.ignoreNextConfirmUnload = true;
+					window.location.reload();
+				}
+			});
+		}
 	}
 }

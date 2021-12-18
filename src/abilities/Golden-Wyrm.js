@@ -72,7 +72,8 @@ export default (G) => {
 		 *
 		 * Targeting rules:
 		 * - The target unit be an enemy.
-		 * - The target unit must be in hexes directly adjacent to the Golden Wyrm.
+		 * - The target unit must be in the 3 front hexes, or 3 back hexes adjacent
+		 *   to the Golden Wyrm.
 		 *
 		 * Other rules:
 		 * - If the unit has 45 remaining health or lower, it will be instantly killed
@@ -165,15 +166,12 @@ export default (G) => {
 			},
 
 			/**
-			 * Determine the area of effect to query and activate the ability. The area
-			 * of effect are the hexes directly adjacent around the 3-sized creature.
-			 * This is a total of 10 hexes assuming the Golden Wyrm is not adjacent to
-			 * the edge of the board.
+			 * The area of effect is the front and back 3 hexes for a total of 6 hexes.
 			 *
-			 * @returns {Hex[]} Refer to Creature.adjacentHexes()
+			 * @returns {Hex[]} Refer to Creature.getHexMap()
 			 */
 			_getHexes() {
-				return this.creature.adjacentHexes(1);
+				return this.creature.getHexMap(matrices.frontnback3hex);
 			},
 		},
 
