@@ -384,10 +384,12 @@ export default (G) => {
 					if (path[i].creature) {
 						target = path[i].creature;
 						runPath = path.slice(0, i);
-						pushPath = path.slice(i);
+						pushPath = path.slice(i + target.size);
 						break;
 					}
 				}
+
+				console.log({ path, runPath, pushPath });
 
 				// Calculate damage, extra damage per hex distance
 				let damages = $j.extend({}, this.damages);
@@ -409,15 +411,18 @@ export default (G) => {
 							let interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
-									// Check that target is in same place still (for evades)
+
+									const frontHexes = ability.creature.getHexMap(matrices.inlinefront2hex);
+
+									// Check that the target is still in the same place (for evades).
 									if (
-										target.x == destination.x - ability.creature.size &&
-										target.y === destination.y
+										ability
+											.getTargets(frontHexes)
+											.some((hexTarget) => hexTarget.target.id === target.id)
 									) {
-										// Deal damage only if we have reached the end of the path
-										if (destination.creature === ability.creature) {
-											target.takeDamage(damage);
-										}
+										target.takeDamage(damage);
+
+										console.log(target, pushPath, args);
 
 										if (!ability._pushTarget(target, pushPath, args)) {
 											G.activeCreature.queryMove();
@@ -443,6 +448,8 @@ export default (G) => {
 				// TODO: These lines are vital do not remove. Refactor so what they do is more readable
 				arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
 				arrayUtils.filterCreature(targetPushPath, false, false, target.id);
+
+				console.log({ targetPushPath });
 
 				if (targetPushPath.length === 0) {
 					return false;
