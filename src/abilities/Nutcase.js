@@ -404,26 +404,27 @@ export default (G) => {
 						ignoreMovementPoint: true,
 						turnAroundOnComplete: !isChargingBackwards,
 						callback: function () {
+							// Check that the target is still in the same place (for evades).
+							const frontHexes = ability.creature.getHexMap(
+								matrices.inlinefront2hex,
+								isChargingBackwards,
+							);
+
+							if (
+								ability
+									.getTargets(frontHexes)
+									.some((hexTarget) => hexTarget.target.id === target.id)
+							) {
+								ability._pushAndDamage(target, runPath, pushPath, args);
+							} else {
+								// If not, cancel the push, but still deal damage.
+								ability._pushAndDamage(target, runPath, [], args);
+							}
+
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
-
-									const frontHexes = ability.creature.getHexMap(
-										matrices.inlinefront2hex,
-										isChargingBackwards,
-									);
-
-									// Check that the target is still in the same place (for evades).
-									if (
-										!ability
-											.getTargets(frontHexes)
-											.some((hexTarget) => hexTarget.target.id === target.id)
-									) {
-										G.activeCreature.queryMove();
-										return;
-									}
-
-									ability._pushAndDamage(target, runPath, pushPath, args);
+									G.activeCreature.queryMove();
 								}
 							}, 100);
 						},
@@ -484,7 +485,7 @@ export default (G) => {
 			 * @param {*} args
 			 */
 			_pushAndDamage(target, runPath, pushPath, args) {
-				const numPushedHexes = this._pushTarget(target, runPath, pushPath, args);
+				const numPushedHexes = this._pushTarget(target, pushPath, args);
 
 				// Calculate damage, extra damage per hex distance.
 				const damages = {
@@ -492,16 +493,10 @@ export default (G) => {
 				};
 				const damage = new Damage(this.creature, damages, 1, [], G);
 				target.takeDamage(damage);
-
-				/* If not playing any push animation, immediately hand control
-				back to player. */
-				if (!numPushedHexes) {
-					G.activeCreature.queryMove();
-				}
 			},
 
 			/**
-			 * Push the target creature and the Butcase the length of the previously calculated
+			 * Push the target creature and the Nutcase the length of the previously calculated
 			 * push path.
 			 *
 			 * The Nutcase will end its movement adjacent to the target.
@@ -510,14 +505,17 @@ export default (G) => {
 			 * the final pushed hexes may be less than the requested push path.
 			 *
 			 * @param {Creature} target
-			 * @param {Hex[]} runPath The hexes covered by the Nutcase charge.
 			 * @param {Hex[]} pushPath The hexes the target and Nutcase will be pushed along.
 			 * @param {*} args
 			 * @returns {number} Number of hexes the target was pushed.
 			 */
-			_pushTarget: function (target, runPath, pushPath, args) {
+			_pushTarget: function (target, pushPath, args) {
 				const ability = this;
 				const creature = this.creature;
+
+				if (!pushPath.length) {
+					return 0;
+				}
 
 				/* Hexes the Nutcase will be "pushed" or move along. Starts at the first
 				hex of the target and may extend past that.
@@ -540,6 +538,7 @@ export default (G) => {
 				arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
 				arrayUtils.filterCreature(targetPushPath, false, false, target.id);
 
+				// Last sense check before proceeding.
 				if (targetPushPath.length === 0) {
 					return 0;
 				}
@@ -548,7 +547,7 @@ export default (G) => {
 				// As we need to move creatures simultaneously, we can't use the normal path
 				// calculation as the target blocks the path
 				let i = 0;
-				let interval = setInterval(function () {
+				const interval = setInterval(function () {
 					if (!G.freezedInput) {
 						if (
 							i === targetPushPath.length ||
