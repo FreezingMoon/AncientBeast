@@ -479,6 +479,7 @@ export default (G) => {
 				const xOffset = this._calculatePushLineOffset(o, choice);
 				// TODO: limit line to one hex length.
 				const line = G.grid.getHexLine(o.x + xOffset, o.y, direction, o.flipped);
+				console.log({ choice, xOffset, line });
 				choice.forEach(function (choice) {
 					arrayUtils.removePos(line, choice);
 				});
@@ -492,14 +493,26 @@ export default (G) => {
 				const ability = this;
 				const creature = this.creature;
 
-				const selfPushPath = [
-					...target.hexagons.slice(0, pushPath.length),
+				console.log(
+					'selfPushPath calc',
+					target.hexagons,
+					target.hexagons.slice(0, pushPath.length),
+					pushPath.slice(0, pushPath.length - target.hexagons.length),
+				);
+
+				let selfPushPath = [
+					...this.game.grid
+						.sortHexesByDirection(target.hexagons, args.direction)
+						.slice(0, pushPath.length),
 					...pushPath.slice(0, pushPath.length - target.hexagons.length),
-				].sort((a, b) => a.x - b.x);
+				].sort((a, b) => (args.direction === Direction.Right ? a.x - b.x : b.x - a.x));
+				selfPushPath = this.game.grid.sortHexesByDirection(selfPushPath, args.direction);
 				const targetPushPath = pushPath.slice();
 				// TODO: These lines are vital do not remove. Refactor so what they do is more readable
 				arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
 				arrayUtils.filterCreature(targetPushPath, false, false, target.id);
+
+				console.log({ target, runPath, pushPath, selfPushPath, targetPushPath, args });
 
 				if (targetPushPath.length === 0) {
 					return false;
