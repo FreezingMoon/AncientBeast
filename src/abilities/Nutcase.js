@@ -408,9 +408,15 @@ export default (G) => {
 					}
 
 					G.grid.cleanReachable();
+
+					const isChargingBackwards =
+						(nutcase.player.flipped && args.direction === Direction.Right) ||
+						args.direction === Direction.Left;
+
 					nutcase.moveTo(destination, {
 						overrideSpeed: 100,
 						ignoreMovementPoint: true,
+						turnAroundOnComplete: !isChargingBackwards,
 						callback: function () {
 							let interval = setInterval(function () {
 								if (!G.freezedInput) {
@@ -418,8 +424,7 @@ export default (G) => {
 
 									const frontHexes = ability.creature.getHexMap(
 										matrices.inlinefront2hex,
-										(nutcase.player.flipped && args.direction === Direction.Right) ||
-											args.direction === Direction.Left,
+										isChargingBackwards,
 									);
 									console.log({ frontHexes });
 
