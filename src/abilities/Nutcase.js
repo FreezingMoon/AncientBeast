@@ -404,26 +404,27 @@ export default (G) => {
 						ignoreMovementPoint: true,
 						turnAroundOnComplete: !isChargingBackwards,
 						callback: function () {
-							// Check that the target is still in the same place (for evades).
-							const frontHexes = ability.creature.getHexMap(
-								matrices.inlinefront2hex,
-								isChargingBackwards,
-							);
-
-							if (
-								ability
-									.getTargets(frontHexes)
-									.some((hexTarget) => hexTarget.target.id === target.id)
-							) {
-								ability._pushAndDamage(target, runPath, pushPath, args);
-							} else {
-								// If not, cancel the push, but still deal damage.
-								ability._pushAndDamage(target, runPath, [], args);
-							}
-
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
+
+									// Check that the target is still in the same place (for evades).
+									const frontHexes = ability.creature.getHexMap(
+										matrices.inlinefront2hex,
+										isChargingBackwards,
+									);
+
+									if (
+										ability
+											.getTargets(frontHexes)
+											.some((hexTarget) => hexTarget.target.id === target.id)
+									) {
+										ability._pushAndDamage(target, runPath, pushPath, args);
+									} else {
+										// If not, cancel the push, but still deal damage.
+										ability._pushAndDamage(target, runPath, [], args);
+									}
+
 									G.activeCreature.queryMove();
 								}
 							}, 100);
