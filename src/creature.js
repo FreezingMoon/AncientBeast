@@ -1782,7 +1782,7 @@ export class Creature {
 	 * shortcut convenience function to grid.getHexMap
 	 */
 	getHexMap(map, invertFlipped) {
-		let x = (this.player.flipped ? !invertFlipped : invertFlipped)
+		const x = (this.player.flipped ? !invertFlipped : invertFlipped)
 			? this.x + 1 - this.size
 			: this.x;
 		return this.game.grid.getHexMap(

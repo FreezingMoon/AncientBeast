@@ -372,8 +372,9 @@ export default (G) => {
 			 */
 			activate: function (path, args, extra) {
 				let i;
-				let ability = this;
-				this.end();
+				const ability = this;
+				const nutcase = this.creature;
+				ability.end();
 
 				// Find:
 				// - the target which is the first creature in the path
@@ -382,7 +383,7 @@ export default (G) => {
 				//   the rest of the path
 				let target;
 				let runPath;
-				let pushPath;
+				const pushPath = extra?.queryOptions?.hexesDashed || [];
 				for (i = 0; i < path.length; i++) {
 					if (path[i].creature) {
 						target = path[i].creature;
@@ -391,25 +392,23 @@ export default (G) => {
 					}
 				}
 
-				pushPath = extra?.queryOptions?.hexesDashed || [];
-
 				console.log({ path, runPath, pushPath });
 
 				// Calculate damage, extra damage per hex distance
-				let damages = $j.extend({}, this.damages);
+				const damages = $j.extend({}, this.damages);
 				// TODO: damage based on full path
 				damages.pierce += runPath.length;
-				let damage = new Damage(this.creature, damages, 1, [], G);
+				const damage = new Damage(nutcase, damages, 1, [], G);
 
 				// Move towards target if necessary
 				if (runPath.length > 0) {
 					let destination = arrayUtils.last(runPath);
 					if (args.direction === Direction.Left) {
-						destination = G.grid.hexes[destination.y][destination.x + this.creature.size - 1];
+						destination = G.grid.hexes[destination.y][destination.x + nutcase.size - 1];
 					}
 
 					G.grid.cleanReachable();
-					this.creature.moveTo(destination, {
+					nutcase.moveTo(destination, {
 						overrideSpeed: 100,
 						ignoreMovementPoint: true,
 						callback: function () {
@@ -417,7 +416,12 @@ export default (G) => {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 
-									const frontHexes = ability.creature.getHexMap(matrices.inlinefront2hex);
+									const frontHexes = ability.creature.getHexMap(
+										matrices.inlinefront2hex,
+										(nutcase.player.flipped && args.direction === Direction.Right) ||
+											args.direction === Direction.Left,
+									);
+									console.log({ frontHexes });
 
 									// Check that the target is still in the same place (for evades).
 									if (
