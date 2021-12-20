@@ -377,7 +377,7 @@ export default (G) => {
 				let target;
 				const pushPath = extra?.queryOptions?.hexesDashed || [];
 
-				// Trim the run path to just include the charge, not the target hexes.
+				// Trim the run path to just include the charge, not the target's hexagons.
 				for (let i = 0; i < path.length; i++) {
 					if (path[i].creature) {
 						/* activate() receives the charge path rather than a target, so we need
@@ -426,7 +426,7 @@ export default (G) => {
 			 * Create a line of hexes from the back of the target, up to the next obstacle
 			 * for this direction choice.
 			 *
-			 * May be limited in length by this._maxPushDistance.
+			 * May be limited in length by @param limit.
 			 *
 			 * @param {*} o
 			 * @param {*} choice
@@ -435,7 +435,6 @@ export default (G) => {
 			 */
 			_getPushLine(o, choice, limit) {
 				const direction = choice[0].direction;
-
 				let xOffset = 0;
 
 				if (o.sourceCreature instanceof Creature) {
@@ -484,7 +483,7 @@ export default (G) => {
 			},
 
 			/**
-			 * Push the target creature and the Nutcase the length of the previously calculated
+			 * Push the target creature and the Nutcase the length of a previously calculated
 			 * push path.
 			 *
 			 * The Nutcase will end its movement adjacent to the target.
@@ -505,8 +504,8 @@ export default (G) => {
 					return 0;
 				}
 
-				/* Hexes the Nutcase will be "pushed" or move along. Starts at the first
-				hex of the target and may extend past that.
+				/* Hexes the Nutcase will be "pushed" or move along after completing its
+				charge. Starts at the first hex of the target and may extend past that.
 				Examples:
 				👹⬡⬡⬡🦘🦘⬡⬡⬡⬡ -> 👹⬡⬡⬡⬢⬢⬢⬢⬡⬡
 				👹⬡⬡⬡🦘🦘⬡ -> 👹⬡⬡⬡⬢⬡⬡

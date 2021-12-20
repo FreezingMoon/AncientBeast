@@ -1291,7 +1291,7 @@ export class HexGrid {
 	 *
 	 * @param {Hex[]} hexes Hexes to sort.
 	 * @param {Direction} direction Direction to sort hexes.
-	 * @returns
+	 * @returns {Hex[]} Array of sorted hexes.
 	 */
 	sortHexesByDirection(hexes, direction) {
 		if (![Direction.Left, Direction.Right].includes(direction)) {
