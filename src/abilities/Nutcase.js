@@ -313,50 +313,14 @@ export default (G) => {
 				if (!this.isUpgraded()) {
 					G.grid.queryDirection(o);
 				} else {
-					o.dashedHexesAfterCreatureStop = true;
 					// Create custom choices containing normal directions plus hex choices
 					// past the first creature, extending up to the next obstacle
 					o = G.grid.getDirectionChoices(o);
 
-					console.log(o);
-
-					// // let newChoices = [];
-
-					// for (let i = 0; i < o.choices.length; i++) {
-					// 	const pushLine = this._getPushLine(o, o.choices[i]);
-					// 	console.log({ pushLine });
-					// 	o.hexesDashed = o.hexesDashed.concat(pushLine);
-
-					// 	console.log(o.hexesDashed);
-
-					// 	// // For each dashed hex, create a new choice composed of the original
-					// 	// // choice, extended up to and including the dashed hex. This will be the
-					// 	// // choice that pushes the target up to that hex.
-					// 	// // Get a new hex line so that the hexes are in the right order
-					// 	// let newChoice = G.grid.getHexLine(o.x + fx, o.y, direction, o.flipped);
-					// 	// // Exclude creature
-					// 	// ability.creature.hexagons.forEach(function (hex) {
-					// 	// 	if (arrayUtils.findPos(newChoice, hex)) {
-					// 	// 		arrayUtils.removePos(newChoice, hex);
-					// 	// 	}
-					// 	// });
-
-					// 	// // Exclude hexes that don't exist in the original choice
-					// 	// for (j = 0; j < newChoice.length; j++) {
-					// 	// 	if (!arrayUtils.findPos(o.choices[i], newChoice[j])) {
-					// 	// 		arrayUtils.removePos(newChoice, newChoice[j]);
-					// 	// 		j--;
-					// 	// 	}
-					// 	// }
-					// 	// // Extend choice to include each dashed hex in succession
-					// 	// for (j = 0; j < line.length; j++) {
-					// 	// 	newChoice.push(line[j]);
-					// 	// 	newChoices.push(newChoice.slice());
-					// 	// }
-					// 	// newChoices.push(line);
-					// }
-					// o.choices = o.choices.concat(newChoices);
-					// console.log('final o.choices', o.choices);
+					for (let i = 0; i < o.choices.length; i++) {
+						const pushLine = this._getPushLine(o, o.choices[i]);
+						o.hexesDashed = o.hexesDashed.concat(pushLine);
+					}
 					o.requireCreature = false;
 
 					G.grid.queryChoice(o);
@@ -442,6 +406,13 @@ export default (G) => {
 				}
 			},
 
+			/**
+			 *
+			 * @param {*} target
+			 * @param {*} runPath
+			 * @param {*} pushPath
+			 * @param {*} args
+			 */
 			_pushAndDamage(target, runPath, pushPath, args) {
 				const numPushedHexes = this._pushTarget(target, runPath, pushPath, args);
 
@@ -450,8 +421,6 @@ export default (G) => {
 					pierce: this.damages.pierce + runPath.length + numPushedHexes,
 				};
 				const damage = new Damage(this.creature, damages, 1, [], G);
-				console.log({ damage });
-				// TODO: does this do damage at the end of the push, or before?
 				target.takeDamage(damage);
 
 				/* If not playing any push animation, immediately hand control
@@ -472,10 +441,8 @@ export default (G) => {
 
 				if (o.sourceCreature instanceof Creature) {
 					if (
-						// Left 3 directions.
-						(!o.sourceCreature.player.flipped && direction > Direction.DownRight) ||
-						// Right 3 directions.
-						(o.sourceCreature.player.flipped && direction < Direction.DownLeft)
+						(!o.sourceCreature.player.flipped && direction === Direction.Right) ||
+						(o.sourceCreature.player.flipped && direction === Direction.Left)
 					) {
 						xOffset = -(o.sourceCreature.size - 1);
 					}
@@ -490,16 +457,18 @@ export default (G) => {
 			 */
 			_getPushLine(o, choice) {
 				const direction = choice[0].direction;
-				// Add dashed hexes up to the next obstacle for this direction choice
+				// Add dashed hexes up to the next obstacle for this direction choice.
 				const xOffset = this._calculatePushLineOffset(o, choice);
-				// TODO: limit line to one hex length.
-				const line = G.grid.getHexLine(o.x + xOffset, o.y, direction, o.flipped);
-				console.log({ choice, xOffset, line });
+				let line = G.grid.getHexLine(o.x + xOffset, o.y, direction, o.flipped);
+
 				choice.forEach(function (choice) {
 					arrayUtils.removePos(line, choice);
 				});
 
 				arrayUtils.filterCreature(line, false, true, o.id);
+
+				// Limit the push (hexed) line to 1 space.
+				line = line.length ? line[0] : [];
 
 				return line;
 			},
@@ -540,13 +509,11 @@ export default (G) => {
 				arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
 				arrayUtils.filterCreature(targetPushPath, false, false, target.id);
 
-				console.log({ target, runPath, pushPath, selfPushPath, targetPushPath, args });
-
 				if (targetPushPath.length === 0) {
 					return 0;
 				}
 
-				// Push the creature one hex at a time
+				// Push the creature one hex at a time.
 				// As we need to move creatures simultaneously, we can't use the normal path
 				// calculation as the target blocks the path
 				let i = 0;
@@ -578,6 +545,12 @@ export default (G) => {
 				return targetPushPath.length;
 			},
 
+			/**
+			 *
+			 * @param {*} target
+			 * @param {*} hex
+			 * @param {*} targetHex
+			 */
 			_pushOneHex: function (target, hex, targetHex) {
 				const opts = {
 					overrideSpeed: 100,
