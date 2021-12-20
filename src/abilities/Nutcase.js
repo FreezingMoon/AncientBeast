@@ -270,14 +270,42 @@ export default (G) => {
 			},
 		},
 
-		// 	Third Ability: War Horn
+		/**
+		 * Third Ability: War Horn
+		 *
+		 * Charge forward or backwards towards an inline enemy unit. Upon impact the
+		 * Nutcase pushes the target an additional hex in the opposite direction, assuming
+		 * there is a free hex behind the target.
+		 *
+		 * The ability deals damage based on the distance charged, plus the push distance.
+		 *
+		 * Targeting rules:
+		 * - The target must be an enemy unit.
+		 * - The target unit must be inline front/back of the Nutcase.
+		 * - The path to the target unit cannot be interrupted by any obstacles or units.
+		 *
+		 * Other rules:
+		 * - The target cannot be pushed back if there is no legal hex behind it. For
+		 *   example, other units or the edge of the map.
+		 * - The target unit may move as a result of the initial charge, and therefor
+		 *   not be eligible for the push. For example, Snow Bunny's "Bunny Hop" ability.
+		 * - If the Nutcase is directly adjacent to the target, it will still push back
+		 *   and damage the unit.
+		 *
+		 * Note: The ability was originally designed to push back the enemy any distance,
+		 * but it has since been limited to one hex via `_maxPushDistance`. The code
+		 * paths still exist for this value to be > 1, however there may be edge case
+		 * bugs regarding traps and other reasons the target or Nutcase should stop
+		 * pushing.
+		 */
 		{
 			trigger: 'onQuery',
 
-			_directions: [0, 1, 0, 0, 1, 0], // forward/backward
+			// Inline forwards/backwards.
+			_directions: [0, 1, 0, 0, 1, 0],
 			_targetTeam: Team.enemy,
+			_maxPushDistance: 1,
 
-			//	require() :
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
@@ -294,11 +322,10 @@ export default (G) => {
 			},
 
 			query: function () {
-				let ability = this;
+				const ability = this;
 
 				let o = {
 					fnOnConfirm: function () {
-						console.log('fnOnConfirm', arguments);
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -314,54 +341,54 @@ export default (G) => {
 				if (!this.isUpgraded()) {
 					G.grid.queryDirection(o);
 				} else {
-					// Create custom choices containing normal directions plus hex choices
-					// past the first creature, extending up to the next obstacle
+					/* Rather than using `o.dashedHexesAfterCreatureStop`, create custom choices
+					containing normal directions plus "push" path past the first creature,
+					extending up to the next obstacle. We do this because we need to limit
+					the length of the push path. */
 					o = G.grid.getDirectionChoices(o);
+					o.requireCreature = false;
 
 					for (let i = 0; i < o.choices.length; i++) {
-						const pushLine = this._getPushLine(o, o.choices[i]);
+						const pushLine = this._getPushLine(o, o.choices[i], this._maxPushDistance);
 						o.hexesDashed = o.hexesDashed.concat(pushLine);
 					}
-					o.requireCreature = false;
 
 					G.grid.queryChoice(o);
 				}
 			},
 
 			/**
+			 * Query has been made, activate the ability.
 			 *
-			 * @param {*} path
-			 * @param {*} args
+			 * @param {Hex[]} path Hexes covering charge path and target hexagons.
+			 * @param {object} args
 			 * @param {object} extra
 			 * @param {object} extra.queryOptions Original options object used to query the ability.
 			 */
 			activate: function (path, args, extra) {
-				let i;
 				const ability = this;
 				const nutcase = this.creature;
+
 				ability.end();
 
-				// Find:
-				// - the target which is the first creature in the path
-				// - the run path which is up to the creature
-				// - the push paths which start from the last creature hex and continues to
-				//   the rest of the path
-				let target;
 				let runPath;
+				let target;
 				const pushPath = extra?.queryOptions?.hexesDashed || [];
-				for (i = 0; i < path.length; i++) {
+
+				// Trim the run path to just include the charge, not the target hexes.
+				for (let i = 0; i < path.length; i++) {
 					if (path[i].creature) {
+						/* activate() receives the charge path rather than a target, so we need
+						to reselect the actual target here. */
 						target = path[i].creature;
 						runPath = path.slice(0, i);
 						break;
 					}
 				}
 
-				console.log({ path, runPath, pushPath });
-
-				// Move towards target if necessary
 				if (runPath.length > 0) {
 					let destination = arrayUtils.last(runPath);
+
 					if (args.direction === Direction.Left) {
 						destination = G.grid.hexes[destination.y][destination.x + nutcase.size - 1];
 					}
@@ -408,10 +435,52 @@ export default (G) => {
 			},
 
 			/**
+			 * Create a line of hexes from the back of the target, up to the next obstacle
+			 * for this direction choice.
 			 *
-			 * @param {*} target
-			 * @param {*} runPath
-			 * @param {*} pushPath
+			 * May be limited in length by this._maxPushDistance.
+			 *
+			 * @param {*} o
+			 * @param {*} choice
+			 * @param {number} limit Limit the distance of the push line.
+			 * @returns {Hex[]} Line of hexes.
+			 */
+			_getPushLine(o, choice, limit) {
+				const direction = choice[0].direction;
+
+				let xOffset = 0;
+
+				if (o.sourceCreature instanceof Creature) {
+					if (
+						(!o.sourceCreature.player.flipped && direction === Direction.Right) ||
+						(o.sourceCreature.player.flipped && direction === Direction.Left)
+					) {
+						xOffset = -(o.sourceCreature.size - 1);
+					}
+				}
+
+				let line = G.grid.getHexLine(o.x + xOffset, o.y, direction, o.flipped);
+
+				choice.forEach(function (choice) {
+					arrayUtils.removePos(line, choice);
+				});
+
+				arrayUtils.filterCreature(line, false, true, o.id);
+
+				if (limit) {
+					line = line.length ? line.slice(0, limit) : [];
+				}
+
+				return line;
+			},
+
+			/**
+			 * Push the target and the Nutcase along a path, then damage the target based
+			 * on the total distance (run + push) travelled.
+			 *
+			 * @param {Creature} target
+			 * @param {Hex[]} runPath The hexes covered by the Nutcase charge.
+			 * @param {Hex[]} pushPath The hexes the target and Nutcase will be pushed along.
 			 * @param {*} args
 			 */
 			_pushAndDamage(target, runPath, pushPath, args) {
@@ -432,58 +501,17 @@ export default (G) => {
 			},
 
 			/**
+			 * Push the target creature and the Butcase the length of the previously calculated
+			 * push path.
 			 *
-			 * @param {*} o
-			 * @returns
-			 */
-			_calculatePushLineOffset(o, choice) {
-				const direction = choice[0].direction;
-				let xOffset = 0;
-
-				if (o.sourceCreature instanceof Creature) {
-					if (
-						(!o.sourceCreature.player.flipped && direction === Direction.Right) ||
-						(o.sourceCreature.player.flipped && direction === Direction.Left)
-					) {
-						xOffset = -(o.sourceCreature.size - 1);
-					}
-				}
-
-				return xOffset;
-			},
-
-			/**
-			 *
-			 * @param {*} o
-			 */
-			_getPushLine(o, choice) {
-				const direction = choice[0].direction;
-				// Add dashed hexes up to the next obstacle for this direction choice.
-				const xOffset = this._calculatePushLineOffset(o, choice);
-				let line = G.grid.getHexLine(o.x + xOffset, o.y, direction, o.flipped);
-
-				choice.forEach(function (choice) {
-					arrayUtils.removePos(line, choice);
-				});
-
-				arrayUtils.filterCreature(line, false, true, o.id);
-
-				// Limit the push (hexed) line to 1 space.
-				line = line.length ? line[0] : [];
-
-				return line;
-			},
-
-			/**
-			 * Push the target creature back the length of the previously calculated push
-			 * path.
+			 * The Nutcase will end its movement adjacent to the target.
 			 *
 			 * The status of the target is checked after each hex in the push path, so
 			 * the final pushed hexes may be less than the requested push path.
 			 *
-			 * @param {*} target
-			 * @param {*} runPath
-			 * @param {*} pushPath
+			 * @param {Creature} target
+			 * @param {Hex[]} runPath The hexes covered by the Nutcase charge.
+			 * @param {Hex[]} pushPath The hexes the target and Nutcase will be pushed along.
 			 * @param {*} args
 			 * @returns {number} Number of hexes the target was pushed.
 			 */
@@ -491,21 +519,23 @@ export default (G) => {
 				const ability = this;
 				const creature = this.creature;
 
-				console.log(
-					'selfPushPath calc',
-					target.hexagons,
-					target.hexagons.slice(0, pushPath.length),
-					pushPath.slice(0, pushPath.length - target.hexagons.length),
-				);
-
+				/* Hexes the Nutcase will be "pushed" or move along. Starts at the first
+				hex of the target and may extend past that.
+				Examples:
+				👹⬡⬡⬡🦘🦘⬡⬡⬡⬡ -> 👹⬡⬡⬡⬢⬢⬢⬢⬡⬡
+				👹⬡⬡⬡🦘🦘⬡ -> 👹⬡⬡⬡⬢⬡⬡
+				👹⬡⬡⬡🦘⬡⬡ -> 👹⬡⬡⬡⬢⬢⬡ */
 				let selfPushPath = [
+					// Hexes within the target's hexagons that will be moved into.
 					...this.game.grid
 						.sortHexesByDirection(target.hexagons, args.direction)
 						.slice(0, pushPath.length),
+					// Hexes beyond target that will be moved into.
 					...pushPath.slice(0, pushPath.length - target.hexagons.length),
-				].sort((a, b) => (args.direction === Direction.Right ? a.x - b.x : b.x - a.x));
+				];
 				selfPushPath = this.game.grid.sortHexesByDirection(selfPushPath, args.direction);
 				const targetPushPath = pushPath.slice();
+
 				// TODO: These lines are vital do not remove. Refactor so what they do is more readable
 				arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
 				arrayUtils.filterCreature(targetPushPath, false, false, target.id);
@@ -547,10 +577,10 @@ export default (G) => {
 			},
 
 			/**
-			 *
-			 * @param {*} target
-			 * @param {*} hex
-			 * @param {*} targetHex
+			 * Push the target and the Nutcase one hex at a time.
+			 * @param {Creature} target
+			 * @param {Hex} hex Hex the Nutcase will move to.
+			 * @param {Hex} targetHex Hex the target will move to.
 			 */
 			_pushOneHex: function (target, hex, targetHex) {
 				const opts = {
