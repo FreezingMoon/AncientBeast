@@ -394,12 +394,6 @@ export default (G) => {
 
 				console.log({ path, runPath, pushPath });
 
-				// Calculate damage, extra damage per hex distance
-				const damages = $j.extend({}, this.damages);
-				// TODO: damage based on full path
-				damages.pierce += runPath.length;
-				const damage = new Damage(nutcase, damages, 1, [], G);
-
 				// Move towards target if necessary
 				if (runPath.length > 0) {
 					let destination = arrayUtils.last(runPath);
@@ -418,7 +412,7 @@ export default (G) => {
 						ignoreMovementPoint: true,
 						turnAroundOnComplete: !isChargingBackwards,
 						callback: function () {
-							let interval = setInterval(function () {
+							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 
@@ -426,32 +420,44 @@ export default (G) => {
 										matrices.inlinefront2hex,
 										isChargingBackwards,
 									);
-									console.log({ frontHexes });
 
 									// Check that the target is still in the same place (for evades).
 									if (
-										ability
+										!ability
 											.getTargets(frontHexes)
 											.some((hexTarget) => hexTarget.target.id === target.id)
 									) {
-										target.takeDamage(damage);
-
-										console.log(target, pushPath, args);
-
-										if (!ability._pushTarget(target, runPath, pushPath, args)) {
-											G.activeCreature.queryMove();
-										}
+										G.activeCreature.queryMove();
+										return;
 									}
+
+									ability._pushAndDamage(target, runPath, pushPath, args);
 								}
 							}, 100);
 						},
 					});
+					// Immediate push, no charge needed.
 				} else {
-					target.takeDamage(damage);
+					ability._pushAndDamage(target, runPath, pushPath, args);
+				}
+			},
 
-					if (!ability._pushTarget(target, runPath, pushPath, args)) {
-						G.activeCreature.queryMove();
-					}
+			_pushAndDamage(target, runPath, pushPath, args) {
+				const numPushedHexes = this._pushTarget(target, runPath, pushPath, args);
+
+				// Calculate damage, extra damage per hex distance.
+				const damages = {
+					pierce: this.damages.pierce + runPath.length + numPushedHexes,
+				};
+				const damage = new Damage(this.creature, damages, 1, [], G);
+				console.log({ damage });
+				// TODO: does this do damage at the end of the push, or before?
+				target.takeDamage(damage);
+
+				/* If not playing any push animation, immediately hand control
+				back to player. */
+				if (!numPushedHexes) {
+					G.activeCreature.queryMove();
 				}
 			},
 
@@ -498,6 +504,19 @@ export default (G) => {
 				return line;
 			},
 
+			/**
+			 * Push the target creature back the length of the previously calculated push
+			 * path.
+			 *
+			 * The status of the target is checked after each hex in the push path, so
+			 * the final pushed hexes may be less than the requested push path.
+			 *
+			 * @param {*} target
+			 * @param {*} runPath
+			 * @param {*} pushPath
+			 * @param {*} args
+			 * @returns {number} Number of hexes the target was pushed.
+			 */
 			_pushTarget: function (target, runPath, pushPath, args) {
 				const ability = this;
 				const creature = this.creature;
@@ -524,7 +543,7 @@ export default (G) => {
 				console.log({ target, runPath, pushPath, selfPushPath, targetPushPath, args });
 
 				if (targetPushPath.length === 0) {
-					return false;
+					return 0;
 				}
 
 				// Push the creature one hex at a time
@@ -556,7 +575,7 @@ export default (G) => {
 					}
 				});
 
-				return true;
+				return targetPushPath.length;
 			},
 
 			_pushOneHex: function (target, hex, targetHex) {
