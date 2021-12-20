@@ -64,130 +64,159 @@ export default (G) => {
 			},
 		},
 
-		// 	Second Ability: Executioner Axe
+		/**
+		 * Second Ability: Executioner Axe
+		 *
+		 * Damage an adjacent enemy unit with slash damage, instantly killing it if
+		 * its remaining health is <= 45.
+		 *
+		 * Targeting rules:
+		 * - The target unit be an enemy.
+		 * - The target unit must be in the 3 front hexes, or 3 back hexes adjacent
+		 *   to the Golden Wyrm.
+		 *
+		 * Other rules:
+		 * - If the unit has 45 remaining health or lower, it will be instantly killed
+		 *   unless protected by the Dodge or Shielded damage mitigation effects.
+		 * - The execution damage is "pure" and cannot be reduced via resistances.
+		 *
+		 * When upgraded, a successful execution attack will allow the ability to be
+		 * used again. Each use requires the full energy cost.
+		 */
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			damages: {
-				slash: 40,
-			},
+			_executeHealthThreshold: 45,
+
 			_targetTeam: Team.enemy,
 
-			// 	require() :
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
-				//At least one target
 				if (
-					!this.atLeastOneTarget(this.creature.adjacentHexes(1), {
+					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
 					})
 				) {
 					return false;
 				}
+
 				return true;
 			},
 
-			// 	query() :
 			query: function () {
-				let wyrm = this.creature;
-				let ability = this;
+				const wyrm = this.creature;
+				const ability = this;
 
-				let map = [
-					[0, 0, 0, 0],
-					[0, 1, 0, 1],
-					[1, 0, 0, 1], //origin line
-					[0, 1, 0, 1],
-				];
-
-				G.grid.queryCreature({
+				this.game.grid.queryCreature({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: wyrm.id,
 					flipped: wyrm.flipped,
-					hexes: G.grid.getHexMap(wyrm.x - 2, wyrm.y - 2, 0, false, map),
+					hexes: this._getHexes(),
 				});
 			},
 
-			//	activate() :
 			activate: function (target) {
-				let ability = this;
-				ability.end();
+				this.end();
 
-				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
-					1, // Area
-					[], // Effects
-					G,
-				);
-
-				let dmg = target.takeDamage(damage);
-
-				if (dmg.status == '') {
-					// Regrowth bonus
-					ability.creature.addEffect(
-						new Effect(
-							'Regrowth++', // Name
-							ability.creature, // Caster
-							ability.creature, // Target
-							'onStartPhase', // Trigger
-							{
-								effectFn: function (effect) {
-									effect.deleteEffect();
-								},
-								alterations: {
-									regrowth: Math.round(dmg.damages.total / 4),
-								},
-							}, //Optional arguments
-							G,
-						),
+				if (target.health <= this._executeHealthThreshold) {
+					const executeDamage = new Damage(
+						this.creature,
+						{
+							// Pure damage bypasses resistances, but can still be shielded or dodged.
+							pure: target.health,
+						},
+						1,
+						[],
+						this.game,
 					);
-				}
+					/* Suppress the death message, to be replaced by a custom log. Setting
+					`noLog` on Damage wouldn't work as it would suppress Shielded/Dodged messages. */
+					this.game.UI.chat.suppressMessage(/is dead/i, 1);
+					const damageResult = target.takeDamage(executeDamage);
 
-				//remove frogger bonus if its found
-				ability.creature.effects.forEach(function (effect) {
-					if (effect.name == 'Frogger Bonus') {
-						this.deleteEffect();
+					// Damage could be shielded or blocked, so double check target has died.
+					if (damageResult.kill) {
+						this.game.log(`%CreatureName${target.id}% has been executed!`);
+						target.hint('Executed', 'damage');
+
+						if (this.isUpgraded()) {
+							this.setUsed(false);
+							// Refresh UI to show ability still able to be used.
+							this.game.UI.selectAbility(-1);
+						}
 					}
-				});
+				} else {
+					const normalDamage = new Damage(
+						this.creature,
+						{
+							slash: 30,
+						},
+						1,
+						[],
+						this.game,
+					);
+					target.takeDamage(normalDamage);
+				}
+			},
+
+			/**
+			 * The area of effect is the front and back 3 hexes for a total of 6 hexes.
+			 *
+			 * @returns {Hex[]} Refer to Creature.getHexMap()
+			 */
+			_getHexes() {
+				return this.creature.getHexMap(matrices.frontnback3hex);
 			},
 		},
 
-		// 	Third Ability: Dragon Flight
+		/**
+		 * Third Ability: Dragon Flight
+		 *
+		 * Move to a location within 10 hexes distance using flying movement (avoids
+		 * obstacles including units).
+		 *
+		 * The ability cannot be used if the Golden Wyrm has been made immoveable.
+		 *
+		 * Targeting rule:
+		 * - Target hexes must be within 10 adjacent hexes distance from any part of
+		 *   its 3-sized body.
+		 * - Target hexes must not be occupied by another unit.
+		 *
+		 * When upgraded the Golden Wyrm receives a +25 offense buff for its next Executioner
+		 * Axe ability. This buff lasts until the end of the turn, or if Executioner
+		 * Axe is used.
+		 */
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			require: function () {
-				return this.testRequirements();
+				if (!this.testRequirements()) {
+					return false;
+				}
+
+				if (!this.creature.stats.moveable) {
+					this.message = G.msg.abilities.notMoveable;
+					return false;
+				}
+
+				return true;
 			},
 
-			fnOnSelect: function (hex) {
-				this.creature.tracePosition({
-					x: hex.x,
-					y: hex.y,
-					overlayClass: 'creature moveto selected player' + this.creature.team,
-				});
-			},
-
-			// 	query() :
 			query: function () {
-				let ability = this;
-				let wyrm = this.creature;
+				const ability = this;
+				const wyrm = this.creature;
 
-				let range = G.grid
-					.getFlyingRange(wyrm.x, wyrm.y, 50, wyrm.size, wyrm.id)
-					.filter((item) => wyrm.item == item.y);
+				const range = this.game.grid.getFlyingRange(wyrm.x, wyrm.y, 10, wyrm.size, wyrm.id);
 
-				G.grid.queryHexes({
+				this.game.grid.queryHexes({
 					fnOnSelect: function () {
-						ability.fnOnSelect(...arguments);
+						ability._highlightDestination(...arguments);
 					},
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
@@ -199,9 +228,8 @@ export default (G) => {
 				});
 			},
 
-			//	activate() :
 			activate: function (hex) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
 				ability.creature.moveTo(hex, {
@@ -209,27 +237,50 @@ export default (G) => {
 					ignorePath: true,
 					callback: function () {
 						G.activeCreature.queryMove();
+
+						if (ability.isUpgraded()) {
+							// Add offense buff after landing.
+							ability._addOffenseBuff();
+						}
 					},
 				});
+			},
 
-				// Frogger Leap bonus
-				ability.creature.addEffect(
-					new Effect(
-						'Offense++', // Name
-						ability.creature, // Caster
-						ability.creature, // Target
-						'onStepIn onEndPhase', // Trigger
-						{
-							effectFn: function (effect) {
-								effect.deleteEffect();
-							},
-							alterations: {
-								offense: 25,
-							},
-						}, // Optional arguments
-						G,
-					),
+			_highlightDestination: function (hex) {
+				this.creature.tracePosition({
+					x: hex.x,
+					y: hex.y,
+					overlayClass: 'creature moveto selected player' + this.creature.team,
+				});
+			},
+
+			_addOffenseBuff() {
+				const wyrm = this.creature;
+				const ability = this;
+				const offenseBuffEffect = new Effect(
+					'Momentum',
+					ability.creature,
+					ability.creature,
+					'',
+					{
+						effectFn: function (effect) {
+							console.log({ effect }, wyrm);
+							effect.deleteEffect();
+						},
+						alterations: {
+							/* This can technically only apply to Executioner's Axe because
+							the Golden Wyrm only has a single direct attack ability. */
+							offense: 25,
+						},
+						/* The buff should only apply for one use of Executioner's Axe, but
+						that ability can only be used once per turn so it's much easier to leave
+						this Effect to be cleaned up next turn. */
+						deleteTrigger: 'onStartPhase',
+						turnLifetime: 1,
+					},
+					this.game,
 				);
+				ability.creature.addEffect(offenseBuffEffect);
 			},
 		},
 
@@ -242,13 +293,13 @@ export default (G) => {
 		 * Targeting rules:
 		 * - The target unit be an ally.
 		 * - The target unit must be in hexes directly adjacent to the Golden Wyrm.
-		 * - If the target unit is missing less than the max heal amount (50), only
-		 *   the missing amount will be transferred.
 		 * - Cannot target full health units.
 		 *
 		 * Other rules:
 		 * - Requires at least 51 remaining health to use so the Golden Wyrm doesn't
 		 *   kill itself.
+		 * - If the target unit is missing less than the max heal amount (50), only
+		 *   the missing amount will be transferred.
 		 *
 		 * When upgraded each use buffs Golden Wyrm with 10 permanent regrowth points.
 		 */
@@ -311,8 +362,8 @@ export default (G) => {
 
 				target.heal(transferAmount, false, false);
 
-				/* Damage Golden Wyrm using `.heal()` instead of `.takeDamage()` to apply 
-				raw damage that bypasses dodge, shielded, etc and does not trigger further 
+				/* Damage Golden Wyrm using `.heal()` instead of `.takeDamage()` to apply
+				raw damage that bypasses dodge, shielded, etc and does not trigger further
 				effects. */
 				this.creature.heal(-transferAmount, false, false);
 
@@ -351,24 +402,10 @@ export default (G) => {
 			 * This is a total of 10 hexes assuming the Golden Wyrm is not adjacent to
 			 * the edge of the board.
 			 *
-			 * @returns Refer to HexGrid.getHexMap()
+			 * @returns {Hex[]} Refer to Creature.adjacentHexes()
 			 */
 			_getHexes() {
-				const map = [
-					[1, 1, 1, 1, 0],
-					[1, 0, 0, 0, 1],
-					[1, 1, 1, 1, 0],
-				];
-				const xOffset = this.creature.y % 2 === 0 ? 0 : 1;
-				const hexes = G.grid.getHexMap(
-					this.creature.x - xOffset,
-					this.creature.y - 1,
-					-2,
-					false,
-					map,
-				);
-
-				return hexes;
+				return this.creature.adjacentHexes(1);
 			},
 
 			/**

@@ -6,6 +6,8 @@ const stat = promisify(fs.stat);
 const readDir = promisify(fs.readdir);
 const prettier = require('prettier');
 
+const ignoredFiles = [/\.DS_Store/];
+
 /**
  * Generate entity
  *
@@ -15,6 +17,7 @@ const prettier = require('prettier');
 function fileToEntity(filePath) {
 	const extension = path.extname(filePath);
 	const name = path.basename(filePath, extension);
+
 	return {
 		name,
 		url: path.relative(path.join(__dirname, 'assets'), filePath),
@@ -28,7 +31,13 @@ function fileToEntity(filePath) {
  * @return {Promise<any[]>} An array of asset objects.
  */
 async function readDirectory(dirPath) {
-	const children = await readDir(dirPath);
+	let children = await readDir(dirPath);
+
+	// Remove any files that should not be listed with assets.
+	children = children.filter((child) => {
+		return !ignoredFiles.some((pattern) => pattern.test(child));
+	});
+
 	return Promise.all(
 		children.map(async (child) => {
 			const childPath = path.join(dirPath, child);
