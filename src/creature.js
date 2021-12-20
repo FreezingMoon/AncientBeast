@@ -111,6 +111,7 @@ export class Creature {
 			moveable: true,
 			fatigueImmunity: false,
 			frozen: false,
+			evading: false,
 			// Extra energy required for abilities
 			reqEnergy: 0,
 		};

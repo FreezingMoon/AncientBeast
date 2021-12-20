@@ -77,12 +77,17 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex) {
-				let ability = this;
+				const ability = this;
+				const bunny = ability.creature;
+
 				ability.end();
 
+				bunny.stats.evading = true;
+
 				this.creature.moveTo(this._getHopHex(), {
-					callbackStepIn: function () {
+					callback: function () {
 						G.activeCreature.queryMove();
+						bunny.stats.evading = false;
 					},
 					ignorePath: true,
 					ignoreMovementPoint: true,

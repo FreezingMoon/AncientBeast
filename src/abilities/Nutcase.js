@@ -277,7 +277,8 @@ export default (G) => {
 		 * Nutcase pushes the target an additional hex in the opposite direction, assuming
 		 * there is a free hex behind the target.
 		 *
-		 * The ability deals damage based on the distance charged, plus the push distance.
+		 * The ability deals additional pierce damage based on the total distance travelled,
+		 * i.e. charge + push distance.
 		 *
 		 * Targeting rules:
 		 * - The target must be an enemy unit.
@@ -305,6 +306,7 @@ export default (G) => {
 			_directions: [0, 1, 0, 0, 1, 0],
 			_targetTeam: Team.enemy,
 			_maxPushDistance: 1,
+			_damagePerHexTravelled: 1,
 
 			require: function () {
 				if (!this.testRequirements()) {
@@ -404,27 +406,11 @@ export default (G) => {
 						ignoreMovementPoint: true,
 						turnAroundOnComplete: !isChargingBackwards,
 						callback: function () {
+							ability._pushAndDamage(target, runPath, pushPath, args);
+
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
-
-									// Check that the target is still in the same place (for evades).
-									const frontHexes = ability.creature.getHexMap(
-										matrices.inlinefront2hex,
-										isChargingBackwards,
-									);
-
-									if (
-										ability
-											.getTargets(frontHexes)
-											.some((hexTarget) => hexTarget.target.id === target.id)
-									) {
-										ability._pushAndDamage(target, runPath, pushPath, args);
-									} else {
-										// If not, cancel the push, but still deal damage.
-										ability._pushAndDamage(target, runPath, [], args);
-									}
-
 									G.activeCreature.queryMove();
 								}
 							}, 100);
@@ -490,7 +476,8 @@ export default (G) => {
 
 				// Calculate damage, extra damage per hex distance.
 				const damages = {
-					pierce: this.damages.pierce + runPath.length + numPushedHexes,
+					pierce:
+						this.damages.pierce + (runPath.length + numPushedHexes) * this._damagePerHexTravelled,
 				};
 				const damage = new Damage(this.creature, damages, 1, [], G);
 				target.takeDamage(damage);
@@ -555,7 +542,8 @@ export default (G) => {
 							creature.dead ||
 							target.dead ||
 							!creature.stats.moveable ||
-							!target.stats.moveable
+							!target.stats.moveable ||
+							target.stats.evading
 						) {
 							clearInterval(interval);
 							creature.facePlayerDefault();
@@ -573,7 +561,7 @@ export default (G) => {
 					}
 				});
 
-				return targetPushPath.length;
+				return i;
 			},
 
 			/**
