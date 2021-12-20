@@ -225,7 +225,6 @@ export class Ability {
 	 * @return {void}
 	 */
 	animation() {
-		console.log('animation', arguments);
 		let game = this.game;
 		// Gamelog Event Registration
 		if (game.triggers.onQuery.test(this.getTrigger())) {
@@ -334,7 +333,6 @@ export class Ability {
 			o,
 		);
 		const args = opt.arg;
-		console.log('animation2', opt, args);
 		const activateAbility = () => {
 			const extra = args[2];
 			this.activate(args[0], args[1], extra);

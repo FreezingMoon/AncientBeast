@@ -429,7 +429,7 @@ export default (G) => {
 
 										console.log(target, pushPath, args);
 
-										if (!ability._pushTarget(target, pushPath, args)) {
+										if (!ability._pushTarget(target, runPath, pushPath, args)) {
 											G.activeCreature.queryMove();
 										}
 									}
@@ -440,7 +440,7 @@ export default (G) => {
 				} else {
 					target.takeDamage(damage);
 
-					if (!ability._pushTarget(target, pushPath, args)) {
+					if (!ability._pushTarget(target, runPath, pushPath, args)) {
 						G.activeCreature.queryMove();
 					}
 				}
@@ -479,7 +479,6 @@ export default (G) => {
 				const xOffset = this._calculatePushLineOffset(o, choice);
 				// TODO: limit line to one hex length.
 				const line = G.grid.getHexLine(o.x + xOffset, o.y, direction, o.flipped);
-				console.log({ choice, xOffset, line });
 				choice.forEach(function (choice) {
 					arrayUtils.removePos(line, choice);
 				});
@@ -489,10 +488,14 @@ export default (G) => {
 				return line;
 			},
 
-			_pushTarget: function (target, pushPath, args) {
+			_pushTarget: function (target, runPath, pushPath, args) {
 				const ability = this;
 				const creature = this.creature;
 
+				const selfPushPath = [
+					...target.hexagons.slice(0, pushPath.length),
+					...pushPath.slice(0, pushPath.length - target.hexagons.length),
+				].sort((a, b) => a.x - b.x);
 				const targetPushPath = pushPath.slice();
 				// TODO: These lines are vital do not remove. Refactor so what they do is more readable
 				arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
@@ -519,7 +522,7 @@ export default (G) => {
 							creature.facePlayerDefault();
 							G.activeCreature.queryMove();
 						} else {
-							let hex = pushPath[i];
+							let hex = selfPushPath[i];
 							let targetHex = targetPushPath[i];
 							if (args.direction === Direction.Left) {
 								hex = G.grid.hexes[hex.y][hex.x + creature.size - 1];
@@ -541,8 +544,6 @@ export default (G) => {
 					ignoreMovementPoint: true,
 					turnAroundOnComplete: false,
 				};
-
-				console.log(target, hex, targetHex, opts);
 
 				// Note: order matters here; moving ourselves first results on overlapping
 				// hexes momentarily and messes up creature hex displays

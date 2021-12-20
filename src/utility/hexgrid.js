@@ -663,7 +663,6 @@ export class HexGrid {
 				if (clickedtHex !== this.lastClickedHex) {
 					this.lastClickedHex = clickedtHex;
 				}
-				console.log('o.fnOnConfirm', clickedtHex, o.args);
 				o.fnOnConfirm(clickedtHex, o.args, { queryOptions: o });
 			}
 		};
