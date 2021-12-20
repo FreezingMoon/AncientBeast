@@ -1867,4 +1867,14 @@ export class Creature {
 	isDarkPriest() {
 		return this.type === '--';
 	}
+
+	/**
+	 * The Frozen state skips a unit's next turn. The Frozen state is removed on the
+	 * following turn, or when receiving damage.
+	 *
+	 * @returns {boolean}
+	 */
+	isFrozen() {
+		return this.stats.frozen;
+	}
 }

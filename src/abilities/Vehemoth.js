@@ -79,6 +79,11 @@ export default (G) => {
 			_directions: [0, 1, 0, 0, 1, 0], // forward/backward
 			_targetTeam: Team.enemy,
 
+			/**
+			 * If the target creature's health <= this value, it can be instantly killed.
+			 */
+			_executeHealthThreshold: 39,
+
 			// 	require() :
 			require: function () {
 				if (!this.testRequirements()) {
@@ -179,24 +184,12 @@ export default (G) => {
 
 				let target = arrayUtils.last(path).creature;
 
-				let damageType =
-					target.health <= 39
-						? { pure: this.damages.pure }
-						: { crush: this.damages.crush, frost: this.damages.frost };
-				let damage = new Damage(
-					ability.creature, // Attacker
-					damageType,
-					1, // Area
-					[], // Effects
-					G,
-				);
-
 				let trgIsNearby = vehemoth
 					.getHexMap(matrices.frontnback3hex)
 					.includes(arrayUtils.last(path));
 
 				if (trgIsNearby) {
-					target.takeDamage(damage);
+					ability._damageTarget(target);
 				} else {
 					if (!this.isUpgraded()) {
 						return;
@@ -237,7 +230,7 @@ export default (G) => {
 									callback: function () {
 										// Deal damage only if target have reached the end of the path
 										if (knockbackHex.creature === target) {
-											target.takeDamage(damage);
+											ability._damageTarget(target);
 										}
 										G.activeCreature.queryMove();
 									},
@@ -246,11 +239,47 @@ export default (G) => {
 									animation: 'push',
 								});
 							} else {
-								target.takeDamage(damage);
+								ability._damageTarget(target);
 								G.activeCreature.queryMove();
 							}
 						},
 					});
+				}
+			},
+
+			/**
+			 * Calculate the damage done with the ability and potentially execute the
+			 * target if under a certain health threshold.
+			 *
+			 * @param {Creature} target Target for the ability.
+			 */
+			_damageTarget(target) {
+				const ability = this;
+				const shouldExecute = target.health <= ability._executeHealthThreshold && target.isFrozen();
+				const damageType = shouldExecute
+					? { pure: target.health }
+					: { crush: this.damages.crush, frost: this.damages.frost };
+				const damage = new Damage(
+					ability.creature, // Attacker
+					damageType,
+					1, // Area
+					[], // Effects
+					G,
+				);
+
+				if (shouldExecute) {
+					/* Suppress the death message, to be replaced by a custom log. Setting
+						`noLog` on Damage wouldn't work as it would suppress Shielded/Dodged messages. */
+					this.game.UI.chat.suppressMessage(/is dead/i, 1);
+					const damageResult = target.takeDamage(damage);
+
+					// Damage could be shielded or blocked, so double check target has died.
+					if (damageResult.kill) {
+						this.game.log(`%CreatureName${target.id}% has been executed!`);
+						target.hint('Executed', 'damage');
+					}
+				} else {
+					target.takeDamage(damage);
 				}
 			},
 		},
