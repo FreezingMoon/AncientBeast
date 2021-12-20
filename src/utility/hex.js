@@ -2,16 +2,25 @@ import * as $j from 'jquery';
 import { Trap } from './trap';
 import { Creature } from '../creature';
 
+export const Direction = {
+	UpRight: 0,
+	Right: 1,
+	DownRight: 2,
+	DownLeft: 3,
+	Left: 4,
+	UpLeft: 5,
+};
+
 /**
  * Hex Class
  *
- * Object containing hex informations, positions and DOM elements
+ * Object containing hex information, positions and DOM elements
  */
 export class Hex {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jquery element
-	 * and jquery function can be called dirrectly from them.
+	 * and jquery function can be called directly from them.
 	 *
 	 * //Jquery attributes
 	 * $display : 		Hex display element

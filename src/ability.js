@@ -21,6 +21,7 @@ export class Ability {
 		this.timesUsedThisTurn = 0;
 		this.token = 0;
 		this.upgraded = false;
+		this.title = '';
 
 		let data = game.retrieveCreatureStats(creature.type);
 		$j.extend(true, this, game.abilities[data.id][abilityID], data.ability_info[abilityID]);
@@ -224,6 +225,7 @@ export class Ability {
 	 * @return {void}
 	 */
 	animation() {
+		console.log('animation', arguments);
 		let game = this.game;
 		// Gamelog Event Registration
 		if (game.triggers.onQuery.test(this.getTrigger())) {
@@ -238,7 +240,7 @@ export class Ability {
 						y: arguments[0].y,
 					},
 					id: this.id,
-					args: args,
+					args,
 				});
 				if (game.multiplayer) {
 					game.gameplay.useAbility({
@@ -248,7 +250,7 @@ export class Ability {
 							y: arguments[0].y,
 						},
 						id: this.id,
-						args: args,
+						args,
 					});
 				}
 			}
@@ -263,7 +265,7 @@ export class Ability {
 						crea: arguments[0].id,
 					},
 					id: this.id,
-					args: args,
+					args,
 				});
 				if (game.multiplayer) {
 					game.gameplay.useAbility({
@@ -272,7 +274,7 @@ export class Ability {
 							crea: arguments[0].id,
 						},
 						id: this.id,
-						args: args,
+						args,
 					});
 				}
 			}
@@ -290,7 +292,7 @@ export class Ability {
 						array: array,
 					},
 					id: this.id,
-					args: args,
+					args,
 				});
 				if (game.multiplayer) {
 					game.gameplay.useAbility({
@@ -299,7 +301,7 @@ export class Ability {
 							array: array,
 						},
 						id: this.id,
-						args: args,
+						args,
 					});
 				}
 			}
@@ -321,13 +323,23 @@ export class Ability {
 	 * @return {void}
 	 */
 	animation2(o) {
-		let game = this.game,
-			opt = $j.extend({ callback: function () {}, arg: {} }, o),
-			args = opt.arg,
-			activateAbility = () => {
-				this.activate(args[0], args[1]);
-				this.postActivate();
-			};
+		const game = this.game;
+		const opt = $j.extend(
+			{
+				callback: function () {
+					// Default no-op function.
+				},
+				arg: {},
+			},
+			o,
+		);
+		const args = opt.arg;
+		console.log('animation2', opt, args);
+		const activateAbility = () => {
+			const extra = args[2];
+			this.activate(args[0], args[1], extra);
+			this.postActivate();
+		};
 
 		game.freezedInput = true;
 

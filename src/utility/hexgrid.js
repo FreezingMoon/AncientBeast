@@ -85,7 +85,7 @@ export class HexGrid {
 		this.selectedHex = this.hexes[0][0];
 
 		// If true, clicking a monster will instantly kill it.
-		this.executionMode = false;
+		this._executionMode = false;
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
@@ -93,7 +93,7 @@ export class HexGrid {
 
 	handleMetaPowerEvent(message, payload) {
 		if (message === 'toggleExecuteMonster') {
-			this.executionMode = payload;
+			this._executionMode = payload;
 		}
 	}
 
@@ -122,7 +122,7 @@ export class HexGrid {
 
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {
-				args.opt.fnOnConfirm(game.activeCreature, args.opt.args);
+				args.opt.fnOnConfirm(game.activeCreature, args.opt.args, { queryOptions: o });
 			},
 			fnOnSelect: (hex, args) => {
 				args.opt.fnOnSelect(game.activeCreature, args.opt.args);
@@ -354,7 +354,7 @@ export class HexGrid {
 					for (let j = 0, lenj = args.opt.choices[i].length; j < lenj; j++) {
 						if (hex.pos == args.opt.choices[i][j].pos) {
 							args.opt.args.direction = hex.direction;
-							args.opt.fnOnConfirm(args.opt.choices[i], args.opt.args);
+							args.opt.fnOnConfirm(args.opt.choices[i], args.opt.args, { queryOptions: o });
 							return;
 						}
 					}
@@ -368,7 +368,7 @@ export class HexGrid {
 							args.opt.args.direction = hex.direction;
 							args.opt.args.hex = hex;
 							args.opt.args.choiceIndex = i;
-							args.opt.fnOnSelect(args.opt.choices[i], args.opt.args);
+							args.opt.fnOnSelect(args.opt.choices[i], args.opt.args, { queryOptions: o });
 							return;
 						}
 					}
@@ -449,7 +449,7 @@ export class HexGrid {
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {
 				let creature = hex.creature;
-				args.opt.fnOnConfirm(creature, args.opt.args);
+				args.opt.fnOnConfirm(creature, args.opt.args, { queryOptions: o });
 			},
 			fnOnSelect: (hex, args) => {
 				let creature = hex.creature;
@@ -611,7 +611,7 @@ export class HexGrid {
 			// Clear display and overlay
 			$j('canvas').css('cursor', 'pointer');
 
-			if (this.executionMode && hex.creature instanceof Creature) {
+			if (this._executionMode && hex.creature instanceof Creature) {
 				hex.creature.die(
 					/* Target creature was killed by this fake "creature". This works because
 					the death logic doesn't actually care about the killing creature, just
@@ -660,14 +660,11 @@ export class HexGrid {
 				let clickedtHex = hex;
 
 				game.activeCreature.faceHex(clickedtHex, undefined, true, true);
-				if (clickedtHex != this.lastClickedHex) {
+				if (clickedtHex !== this.lastClickedHex) {
 					this.lastClickedHex = clickedtHex;
-					// ONCLICK
-					o.fnOnConfirm(clickedtHex, o.args);
-				} else {
-					// ONCONFIRM
-					o.fnOnConfirm(clickedtHex, o.args);
 				}
+				console.log('o.fnOnConfirm', clickedtHex, o.args);
+				o.fnOnConfirm(clickedtHex, o.args, { queryOptions: o });
 			}
 		};
 
