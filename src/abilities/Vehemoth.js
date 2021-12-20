@@ -275,8 +275,8 @@ export default (G) => {
 
 					// Damage could be shielded or blocked, so double check target has died.
 					if (damageResult.kill) {
-						this.game.log(`%CreatureName${target.id}% has been executed!`);
-						target.hint('Executed', 'damage');
+						this.game.log(`%CreatureName${target.id}% has been shattered!`);
+						target.hint('Shattered', 'damage');
 					}
 				} else {
 					target.takeDamage(damage);
