@@ -48,6 +48,11 @@ export default (G) => {
 					return false;
 				}
 
+				// Double check the destination hex actually contains a creature.
+				if (!hex.creature) {
+					return false;
+				}
+
 				/* Determine which (if any) frontal hexes contain an enemy that would trigger
 				the ability. */
 				let triggerHexes = [];
@@ -82,12 +87,9 @@ export default (G) => {
 
 				ability.end();
 
-				bunny.stats.evading = true;
-
 				this.creature.moveTo(this._getHopHex(), {
 					callback: function () {
 						G.activeCreature.queryMove();
-						bunny.stats.evading = false;
 					},
 					ignorePath: true,
 					ignoreMovementPoint: true,
