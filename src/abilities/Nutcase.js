@@ -292,12 +292,6 @@ export default (G) => {
 		 *   not be eligible for the push. For example, Snow Bunny's "Bunny Hop" ability.
 		 * - If the Nutcase is directly adjacent to the target, it will still push back
 		 *   and damage the unit.
-		 *
-		 * Note: The ability was originally designed to push back the enemy any distance,
-		 * but it has since been limited to one hex via `_maxPushDistance`. The code
-		 * paths still exist for this value to be > 1, however there may be edge case
-		 * bugs regarding traps and other reasons the target or Nutcase should stop
-		 * pushing.
 		 */
 		{
 			trigger: 'onQuery',
@@ -332,6 +326,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					requireCreature: true,
+					stopOnCreature: true,
 					id: this.creature.id,
 					sourceCreature: this.creature,
 					x: this.creature.x,
@@ -343,19 +338,16 @@ export default (G) => {
 				if (!this.isUpgraded()) {
 					G.grid.queryDirection(o);
 				} else {
-					/* Rather than using `o.dashedHexesAfterCreatureStop`, create custom choices
-					containing normal directions plus "push" path past the first creature,
-					extending up to the next obstacle. We do this because we need to limit
-					the length of the push path. */
-					o = G.grid.getDirectionChoices(o);
-					o.requireCreature = false;
+					o = G.grid.getDirectionChoices({
+						...o,
+						dashedHexesAfterCreatureStop: true,
+						dashedHexesDistance: this._maxPushDistance,
+					});
 
-					for (let i = 0; i < o.choices.length; i++) {
-						const pushLine = this._getPushLine(o, o.choices[i], this._maxPushDistance);
-						o.hexesDashed = o.hexesDashed.concat(pushLine);
-					}
-
-					G.grid.queryChoice(o);
+					G.grid.queryChoice({
+						...o,
+						requireCreature: false,
+					});
 				}
 			},
 
@@ -423,62 +415,21 @@ export default (G) => {
 			},
 
 			/**
-			 * Create a line of hexes from the back of the target, up to the next obstacle
-			 * for this direction choice.
-			 *
-			 * May be limited in length by @param limit.
-			 *
-			 * @param {*} o
-			 * @param {*} choice
-			 * @param {number} limit Limit the distance of the push line.
-			 * @returns {Hex[]} Line of hexes.
-			 */
-			_getPushLine(o, choice, limit) {
-				const direction = choice[0].direction;
-				let xOffset = 0;
-
-				if (o.sourceCreature instanceof Creature) {
-					if (
-						(!o.sourceCreature.player.flipped && direction === Direction.Right) ||
-						(o.sourceCreature.player.flipped && direction === Direction.Left)
-					) {
-						xOffset = -(o.sourceCreature.size - 1);
-					}
-				}
-
-				let line = G.grid.getHexLine(o.x + xOffset, o.y, direction, o.flipped);
-
-				choice.forEach(function (choice) {
-					arrayUtils.removePos(line, choice);
-				});
-
-				arrayUtils.filterCreature(line, false, true, o.id);
-
-				if (limit) {
-					line = line.length ? line.slice(0, limit) : [];
-				}
-
-				return line;
-			},
-
-			/**
-			 * Push the target and the Nutcase along a path, then damage the target based
-			 * on the total distance (run + push) travelled.
+			 * Push the target and the Nutcase along a path, then damage the target.
 			 *
 			 * @param {Creature} target
 			 * @param {Hex[]} runPath The hexes covered by the Nutcase charge.
 			 * @param {Hex[]} pushPath The hexes the target and Nutcase will be pushed along.
 			 * @param {*} args
 			 */
-			async _pushAndDamage(target, runPath, pushPath, args) {
-				const numPushedHexes = await this._pushTarget(target, pushPath, args);
+			_pushAndDamage(target, runPath, pushPath, args) {
+				this._pushTarget(target, pushPath, args);
 
-				// Calculate damage, extra damage per hex distance.
+				/* Calculate damage, extra damage per hex distance. The push (if it occurs)
+				doesn't count. */
 				const damages = {
-					pierce:
-						this.damages.pierce + (runPath.length + numPushedHexes) * this._damagePerHexTravelled,
+					pierce: this.damages.pierce + runPath.length * this._damagePerHexTravelled,
 				};
-				console.log({ numPushedHexes, damages });
 				const damage = new Damage(this.creature, damages, 1, [], G);
 				target.takeDamage(damage);
 			},
@@ -495,75 +446,71 @@ export default (G) => {
 			 * @param {Creature} target
 			 * @param {Hex[]} pushPath The hexes the target and Nutcase will be pushed along.
 			 * @param {*} args
-			 * @returns {Promise<number>} Final number of hexes the target was pushed.
+			 * @returns {void}
 			 */
-			_pushTarget: async function (target, pushPath, args) {
+			_pushTarget: function (target, pushPath, args) {
 				const ability = this;
 				const creature = this.creature;
-				const result = new Promise((resolve) => {
-					if (!pushPath.length) {
-						resolve(0);
-					}
+				if (!pushPath.length) {
+					return;
+				}
 
-					/* Hexes the Nutcase will be "pushed" or move along after completing its
-					charge. Starts at the first hex of the target and may extend past that.
-					Examples:
-					👹⬡⬡⬡🦘🦘⬡⬡⬡⬡ -> 👹⬡⬡⬡⬢⬢⬢⬢⬡⬡
-					👹⬡⬡⬡🦘🦘⬡ -> 👹⬡⬡⬡⬢⬡⬡
-					👹⬡⬡⬡🦘⬡⬡ -> 👹⬡⬡⬡⬢⬢⬡ */
-					let selfPushPath = [
-						// Hexes within the target's hexagons that will be moved into.
-						...this.game.grid
-							.sortHexesByDirection(target.hexagons, args.direction)
-							.slice(0, pushPath.length),
-						// Hexes beyond target that will be moved into.
-						...pushPath.slice(0, pushPath.length - target.hexagons.length),
-					];
-					selfPushPath = this.game.grid.sortHexesByDirection(selfPushPath, args.direction);
-					const targetPushPath = pushPath.slice();
+				/* Hexes the Nutcase will be "pushed" or move along after completing its
+				charge. Starts at the first hex of the target and may extend past that.
+				Examples:
+				👹⬡⬡⬡🦘🦘⬡⬡⬡⬡ -> 👹⬡⬡⬡⬢⬢⬢⬢⬡⬡
+				👹⬡⬡⬡🦘🦘⬡ -> 👹⬡⬡⬡⬢⬡⬡
+				👹⬡⬡⬡🦘⬡⬡ -> 👹⬡⬡⬡⬢⬢⬡ */
+				let selfPushPath = [
+					// Hexes within the target's hexagons that will be moved into.
+					...this.game.grid
+						.sortHexesByDirection(target.hexagons, args.direction)
+						.slice(0, pushPath.length),
+					// Hexes beyond target that will be moved into.
+					...pushPath.slice(0, pushPath.length - target.hexagons.length),
+				];
+				selfPushPath = this.game.grid.sortHexesByDirection(selfPushPath, args.direction);
+				const targetPushPath = pushPath.slice();
 
-					// TODO: These lines are vital do not remove. Refactor so what they do is more readable
-					arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
-					arrayUtils.filterCreature(targetPushPath, false, false, target.id);
+				// TODO: These lines are vital do not remove. Refactor so what they do is more readable
+				arrayUtils.filterCreature(targetPushPath, false, false, creature.id);
+				arrayUtils.filterCreature(targetPushPath, false, false, target.id);
 
-					// Last sense check before proceeding.
-					if (targetPushPath.length === 0) {
-						resolve(0);
-					}
+				// Last sense check before proceeding.
+				if (targetPushPath.length === 0) {
+					return;
+				}
 
-					// Push the creature one hex at a time.
-					// As we need to move creatures simultaneously, we can't use the normal path
-					// calculation as the target blocks the path
-					let i = 0;
-					const interval = setInterval(function () {
-						if (!G.freezedInput) {
-							if (
-								i === targetPushPath.length ||
-								creature.dead ||
-								target.dead ||
-								!creature.stats.moveable ||
-								!target.stats.moveable ||
-								target.stats.evading
-							) {
-								clearInterval(interval);
-								creature.facePlayerDefault();
-								G.activeCreature.queryMove();
-								resolve(i);
-							} else {
-								let hex = selfPushPath[i];
-								let targetHex = targetPushPath[i];
-								if (args.direction === Direction.Left) {
-									hex = G.grid.hexes[hex.y][hex.x + creature.size - 1];
-									targetHex = G.grid.hexes[targetHex.y][targetHex.x + target.size - 1];
-								}
-								ability._pushOneHex(target, hex, targetHex);
-								i++;
+				// Push the creature one hex at a time.
+				// As we need to move creatures simultaneously, we can't use the normal path
+				// calculation as the target blocks the path
+				let i = 0;
+				const interval = setInterval(function () {
+					if (!G.freezedInput) {
+						if (
+							i === targetPushPath.length ||
+							creature.dead ||
+							target.dead ||
+							!creature.stats.moveable ||
+							!target.stats.moveable ||
+							target.stats.evading
+						) {
+							clearInterval(interval);
+							creature.facePlayerDefault();
+							G.activeCreature.queryMove();
+							return;
+						} else {
+							let hex = selfPushPath[i];
+							let targetHex = targetPushPath[i];
+							if (args.direction === Direction.Left) {
+								hex = G.grid.hexes[hex.y][hex.x + creature.size - 1];
+								targetHex = G.grid.hexes[targetHex.y][targetHex.x + target.size - 1];
 							}
+							ability._pushOneHex(target, hex, targetHex);
+							i++;
 						}
-					});
+					}
 				});
-
-				return result;
 			},
 
 			/**

@@ -162,7 +162,11 @@ export class HexGrid {
 	/**
 	 * Get an object that contains the choices and hexesDashed for a direction
 	 * query.
+	 *
 	 * @param {Object} o ?
+	 * @param {number} o.dashedHexesAfterCreatureStop If a choice line stops on a creature via @param stopOnCreature, display
+	 * 	dashed hexes after the creature up until the next obstacle.
+	 * @param {number} o.dashedHexesDistance Limit the length of dashed hexes added by @param dashedHexesAfterCreatureStop
 	 * @returns {Object} ?
 	 */
 	getDirectionChoices(o) {
@@ -178,9 +182,10 @@ export class HexGrid {
 				directions: [1, 1, 1, 1, 1, 1],
 				includeCreature: true,
 				stopOnCreature: true,
-				dashedHexesAfterCreatureStop: true,
 				distance: 0,
 				minDistance: 0,
+				dashedHexesAfterCreatureStop: true,
+				dashedHexesDistance: 0,
 				sourceCreature: undefined,
 			};
 
@@ -219,6 +224,7 @@ export class HexGrid {
 				let hexesDashed = [];
 				dir.forEach((item) => {
 					item.direction = o.flipped ? 5 - i : i;
+
 					if (o.stopOnCreature && o.dashedHexesAfterCreatureStop) {
 						hexesDashed.push(item);
 					}
@@ -263,6 +269,13 @@ export class HexGrid {
 				dir.forEach((item) => {
 					arrayUtils.removePos(hexesDashed, item);
 				});
+
+				if (hexesDashed.length && o.dashedHexesDistance) {
+					/* For some reason hexesDashed can contain source creature hexagons. Rather
+					than risk changing any of that logic, ensure it doesn't when limiting length. */
+					arrayUtils.filterCreature(hexesDashed, false, true, o.id);
+					hexesDashed = hexesDashed.slice(0, o.dashedHexesDistance);
+				}
 
 				o.hexesDashed = o.hexesDashed.concat(hexesDashed);
 				o.choices.push(dir);
