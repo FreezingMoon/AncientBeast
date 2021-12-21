@@ -239,7 +239,7 @@ export class Ability {
 						y: arguments[0].y,
 					},
 					id: this.id,
-					args,
+					args: args,
 				});
 				if (game.multiplayer) {
 					game.gameplay.useAbility({
@@ -249,7 +249,7 @@ export class Ability {
 							y: arguments[0].y,
 						},
 						id: this.id,
-						args,
+						args: args,
 					});
 				}
 			}
@@ -264,7 +264,7 @@ export class Ability {
 						crea: arguments[0].id,
 					},
 					id: this.id,
-					args,
+					args: args,
 				});
 				if (game.multiplayer) {
 					game.gameplay.useAbility({
@@ -273,7 +273,7 @@ export class Ability {
 							crea: arguments[0].id,
 						},
 						id: this.id,
-						args,
+						args: args,
 					});
 				}
 			}
@@ -291,7 +291,7 @@ export class Ability {
 						array: array,
 					},
 					id: this.id,
-					args,
+					args: args,
 				});
 				if (game.multiplayer) {
 					game.gameplay.useAbility({
@@ -300,7 +300,7 @@ export class Ability {
 							array: array,
 						},
 						id: this.id,
-						args,
+						args: args,
 					});
 				}
 			}

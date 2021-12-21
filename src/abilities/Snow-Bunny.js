@@ -82,8 +82,7 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex) {
-				const ability = this;
-				const bunny = ability.creature;
+				let ability = this;
 
 				ability.end();
 
