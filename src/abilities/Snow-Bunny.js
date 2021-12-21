@@ -53,7 +53,7 @@ export default (G) => {
 				let triggerHexes = [];
 
 				if (hex.creature === this.creature) {
-					// Bunny has been moved by another active creature, not itself..
+					// Bunny has been moved by another active creature, not itself.
 					triggerHexes = this._detectFrontHexesWithEnemy();
 				} else if (isTeam(hex.creature, this.creature, Team.enemy)) {
 					// Enemy movement.
