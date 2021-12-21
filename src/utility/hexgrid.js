@@ -1,5 +1,5 @@
 import * as $j from 'jquery';
-import { Hex } from './hex';
+import { Direction, Hex } from './hex';
 import { Creature } from '../creature';
 import { search } from './pathfinding';
 import * as matrices from './matrices';
@@ -85,7 +85,7 @@ export class HexGrid {
 		this.selectedHex = this.hexes[0][0];
 
 		// If true, clicking a monster will instantly kill it.
-		this.executionMode = false;
+		this._executionMode = false;
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
@@ -93,7 +93,7 @@ export class HexGrid {
 
 	handleMetaPowerEvent(message, payload) {
 		if (message === 'toggleExecuteMonster') {
-			this.executionMode = payload;
+			this._executionMode = payload;
 		}
 	}
 
@@ -122,7 +122,7 @@ export class HexGrid {
 
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {
-				args.opt.fnOnConfirm(game.activeCreature, args.opt.args);
+				args.opt.fnOnConfirm(game.activeCreature, args.opt.args, { queryOptions: o });
 			},
 			fnOnSelect: (hex, args) => {
 				args.opt.fnOnSelect(game.activeCreature, args.opt.args);
@@ -162,7 +162,11 @@ export class HexGrid {
 	/**
 	 * Get an object that contains the choices and hexesDashed for a direction
 	 * query.
+	 *
 	 * @param {Object} o ?
+	 * @param {number} o.dashedHexesAfterCreatureStop If a choice line stops on a creature via @param stopOnCreature, display
+	 * 	dashed hexes after the creature up until the next obstacle.
+	 * @param {number} o.dashedHexesDistance Limit the length of dashed hexes added by @param dashedHexesAfterCreatureStop
 	 * @returns {Object} ?
 	 */
 	getDirectionChoices(o) {
@@ -178,9 +182,10 @@ export class HexGrid {
 				directions: [1, 1, 1, 1, 1, 1],
 				includeCreature: true,
 				stopOnCreature: true,
-				dashedHexesAfterCreatureStop: true,
 				distance: 0,
 				minDistance: 0,
+				dashedHexesAfterCreatureStop: true,
+				dashedHexesDistance: 0,
 				sourceCreature: undefined,
 			};
 
@@ -219,6 +224,7 @@ export class HexGrid {
 				let hexesDashed = [];
 				dir.forEach((item) => {
 					item.direction = o.flipped ? 5 - i : i;
+
 					if (o.stopOnCreature && o.dashedHexesAfterCreatureStop) {
 						hexesDashed.push(item);
 					}
@@ -263,6 +269,13 @@ export class HexGrid {
 				dir.forEach((item) => {
 					arrayUtils.removePos(hexesDashed, item);
 				});
+
+				if (hexesDashed.length && o.dashedHexesDistance) {
+					/* For some reason hexesDashed can contain source creature hexagons. Rather
+					than risk changing any of that logic, ensure it doesn't when limiting length. */
+					arrayUtils.filterCreature(hexesDashed, false, true, o.id);
+					hexesDashed = hexesDashed.slice(0, o.dashedHexesDistance);
+				}
 
 				o.hexesDashed = o.hexesDashed.concat(hexesDashed);
 				o.choices.push(dir);
@@ -354,7 +367,7 @@ export class HexGrid {
 					for (let j = 0, lenj = args.opt.choices[i].length; j < lenj; j++) {
 						if (hex.pos == args.opt.choices[i][j].pos) {
 							args.opt.args.direction = hex.direction;
-							args.opt.fnOnConfirm(args.opt.choices[i], args.opt.args);
+							args.opt.fnOnConfirm(args.opt.choices[i], args.opt.args, { queryOptions: o });
 							return;
 						}
 					}
@@ -368,7 +381,7 @@ export class HexGrid {
 							args.opt.args.direction = hex.direction;
 							args.opt.args.hex = hex;
 							args.opt.args.choiceIndex = i;
-							args.opt.fnOnSelect(args.opt.choices[i], args.opt.args);
+							args.opt.fnOnSelect(args.opt.choices[i], args.opt.args, { queryOptions: o });
 							return;
 						}
 					}
@@ -449,7 +462,7 @@ export class HexGrid {
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {
 				let creature = hex.creature;
-				args.opt.fnOnConfirm(creature, args.opt.args);
+				args.opt.fnOnConfirm(creature, args.opt.args, { queryOptions: o });
 			},
 			fnOnSelect: (hex, args) => {
 				let creature = hex.creature;
@@ -611,7 +624,7 @@ export class HexGrid {
 			// Clear display and overlay
 			$j('canvas').css('cursor', 'pointer');
 
-			if (this.executionMode && hex.creature instanceof Creature) {
+			if (this._executionMode && hex.creature instanceof Creature) {
 				hex.creature.die(
 					/* Target creature was killed by this fake "creature". This works because
 					the death logic doesn't actually care about the killing creature, just
@@ -660,14 +673,10 @@ export class HexGrid {
 				let clickedtHex = hex;
 
 				game.activeCreature.faceHex(clickedtHex, undefined, true, true);
-				if (clickedtHex != this.lastClickedHex) {
+				if (clickedtHex !== this.lastClickedHex) {
 					this.lastClickedHex = clickedtHex;
-					// ONCLICK
-					o.fnOnConfirm(clickedtHex, o.args);
-				} else {
-					// ONCONFIRM
-					o.fnOnConfirm(clickedtHex, o.args);
 				}
+				o.fnOnConfirm(clickedtHex, o.args, { queryOptions: o });
 			}
 		};
 
@@ -1176,7 +1185,6 @@ export class HexGrid {
 				this.creatureGroup.addAt(this.materialize_overlay, index++);
 			}
 		}
-		// game.grid.creatureGroup.sort();
 	}
 
 	//******************//
@@ -1288,6 +1296,22 @@ export class HexGrid {
 			this.cleanHex(hexInstance);
 			hexInstance.overlayVisualState('creature selected player' + game.activeCreature.team);
 		}
+	}
+
+	/**
+	 * Sort a list of hexes by their x value, based on a direction.
+	 * Going Left sorts greatest to least, going Right is the opposite.
+	 *
+	 * @param {Hex[]} hexes Hexes to sort.
+	 * @param {Direction} direction Direction to sort hexes.
+	 * @returns {Hex[]} Array of sorted hexes.
+	 */
+	sortHexesByDirection(hexes, direction) {
+		if (![Direction.Left, Direction.Right].includes(direction)) {
+			console.warn('Sorting currently supports Left and Right directions.');
+		}
+
+		return hexes.sort((a, b) => (direction === Direction.Right ? a.x - b.x : b.x - a.x));
 	}
 
 	/**
