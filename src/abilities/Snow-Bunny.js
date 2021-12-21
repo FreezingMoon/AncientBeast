@@ -101,7 +101,7 @@ export default (G) => {
 			 * Movement rules:
 			 * - If movement in the opposite direction is impossible, it will move backwards.
 			 * - If the top and bottom front hexes are both occupied, it will move backwards.
-			 * - If moving backwards and is unable to do so. movement is cancelled.
+			 * - If trying to move backwards and is unable to do so, then movement is cancelled.
 			 *
 			 * At this point we have determined the ability should be triggered, so we
 			 * are only concerned which enemies to hop away from, not which enemies originally
