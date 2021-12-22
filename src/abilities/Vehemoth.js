@@ -290,7 +290,6 @@ export default (G) => {
 		 * equal to the positive Frost mastery difference between Vehemoth and the target,
 		 * who also receives the "Frozen" status.
 		 *
-		 *
 		 * When upgraded, the "Frozen" status becomes "Cryostasis" which is a special
 		 * "Freeze" that is not broken when receiving damage.
 		 *
@@ -374,11 +373,11 @@ export default (G) => {
 
 				const frostMasteryDifference = Math.max(vehemoth.stats.frost - target.stats.frost, 0);
 				const damage = new Damage(
-					ability.creature, // Attacker
+					ability.creature,
 					{
 						frost: frostMasteryDifference,
-					}, // Damage Type
-					1, // Area
+					},
+					1,
 					[],
 					G,
 				);
@@ -387,16 +386,27 @@ export default (G) => {
 					// `this` refers to the animation object, _not_ the ability.
 					this.destroy();
 
-					target.takeDamage(damage);
-
-					if (ability.isUpgraded()) {
-						// TODO: Apply Cryostasis.
-					} else {
-						target.stats.frozen = true;
+					if (damage.damages.frost > 0) {
+						target.takeDamage(damage);
 					}
 
+					target.stats.frozen = true;
+
+					if (ability.isUpgraded()) {
+						target.stats.cryostasis = true;
+					}
+
+					/* Reflect frozen state on the health below the creature cardboard, and
+					the queue box fatigue text. */
 					target.updateHealth();
 					G.UI.updateFatigue();
+
+					G.log(
+						`%CreatureName${target.id}% ${
+							ability.isUpgraded() ? 'enters Cryostasis' : 'has been Frozen'
+						} and cannot act`,
+					);
+					target.hint(ability.isUpgraded() ? 'Cryostasis' : 'Frozen');
 				}, sprite); // End tween.onComplete
 			},
 

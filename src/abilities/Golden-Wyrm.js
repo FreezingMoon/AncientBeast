@@ -264,7 +264,6 @@ export default (G) => {
 					'',
 					{
 						effectFn: function (effect) {
-							console.log({ effect }, wyrm);
 							effect.deleteEffect();
 						},
 						alterations: {

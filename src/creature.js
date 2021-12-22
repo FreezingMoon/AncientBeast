@@ -110,7 +110,18 @@ export class Creature {
 
 			moveable: true,
 			fatigueImmunity: false,
+
+			/**
+			 * "Frozen" creature will miss their next turn. Frozen expires at the end
+			 * of their next (missed) turn. Any damage will break the frozen status.
+			 */
 			frozen: false,
+
+			/**
+			 * "Cryostasis" has the same effect as "Frozen" but does not break on damage.
+			 */
+			cryostasis: false,
+
 			// Extra energy required for abilities
 			reqEnergy: 0,
 		};
@@ -376,13 +387,13 @@ export class Creature {
 		}.bind(this);
 
 		// Frozen or dizzy effect
-		if (stats.frozen || this.dizzy) {
+		if (this.isFrozen() || this.dizzy) {
 			varReset();
 			let interval = setInterval(() => {
 				if (!game.turnThrottle) {
 					clearInterval(interval);
 					game.skipTurn({
-						tooltip: stats.frozen ? 'frozen' : 'dizzy',
+						tooltip: this.isFrozen() ? 'frozen' : 'dizzy',
 					});
 				}
 			}, 50);
@@ -423,6 +434,7 @@ export class Creature {
 		this.delayed = Boolean(wait);
 		this.hasWait = this.delayed;
 		this.stats.frozen = false;
+		this.stats.cryostasis = false;
 		this.dizzy = false;
 
 		// Effects triggers
@@ -1274,8 +1286,8 @@ export class Creature {
 				this.addEffect(effect);
 			});
 
-			// Unfreeze if taking non-zero damage
-			if (dmgAmount > 0) {
+			// Unfreeze if taking non-zero damage and not a Cryostasis freeze.
+			if (dmgAmount > 0 && !this.isInCryostasis()) {
 				this.stats.frozen = false;
 			}
 
@@ -1348,7 +1360,7 @@ export class Creature {
 	}
 
 	displayHealthStats() {
-		if (this.stats.frozen) {
+		if (this.isFrozen()) {
 			this.healthIndicatorSprite.loadTexture('p' + this.team + '_frozen');
 		} else {
 			this.healthIndicatorSprite.loadTexture('p' + this.team + '_health');
@@ -1877,5 +1889,15 @@ export class Creature {
 	 */
 	isFrozen() {
 		return this.stats.frozen;
+	}
+
+	/**
+	 * The Cryostasis state enhanced the Frozen state so that it cannot be broken
+	 * with damage.
+	 *
+	 * @returns {boolean}
+	 */
+	isInCryostasis() {
+		return this.isFrozen() && this.stats.cryostasis;
 	}
 }

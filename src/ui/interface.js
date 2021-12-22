@@ -2486,8 +2486,8 @@ export class UI {
 				);
 
 				let text;
-				if (creature.stats.frozen) {
-					text = 'Frozen';
+				if (creature.isFrozen()) {
+					text = creature.isInCryostasis() ? 'Cryostasis' : 'Frozen';
 					textElement.css({
 						background: 'darkturquoise',
 					});
