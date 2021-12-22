@@ -346,8 +346,9 @@ export class Creature {
 			if (!this.materializationSickness) {
 				// Fatigued creatures (endurance 0) should not regenerate, but fragile
 				// ones (max endurance 1) should anyway
-				if (!this.isFatigued()) {
+				if (!this.isFatigued() || this.isFragile()) {
 					this.heal(stats.regrowth, true);
+
 					if (stats.meditation > 0) {
 						this.recharge(stats.meditation);
 					}
@@ -1770,7 +1771,7 @@ export class Creature {
 	}
 
 	isFatigued() {
-		return this.endurance === 0 && !this.isFragile();
+		return this.endurance === 0;
 	}
 
 	isFragile() {

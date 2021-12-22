@@ -555,9 +555,10 @@ export class Ability {
 	/**
 	 * Return whether there is at least one creature in the hexes that satisfies
 	 * various conditions, e.g. team.
-	 * @param {Array} hexes Array of hexes
-	 * @param {Object} o Options
-	 * @return {boolean} At least one target.
+	 *
+	 * @param {Array} hexes Array of hexes to test.
+	 * @param {Object} o
+	 * @return {boolean} At least one valid target?
 	 */
 	atLeastOneTarget(hexes, o) {
 		let defaultOpt = {
@@ -732,6 +733,9 @@ export class Ability {
 			stopOnCreature: true,
 			distance: 0,
 			sourceCreature: undefined,
+			optTest: function () {
+				return true;
+			},
 		};
 
 		o = $j.extend(defaultOpt, o);
