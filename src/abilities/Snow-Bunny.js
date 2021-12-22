@@ -102,10 +102,22 @@ export default (G) => {
 			 * - Bunny will first attempt to move in an opposite direction from the approaching
 			 *   enemy. For example, if approached from the bottom-left it will try hop
 			 *   towards the top-right.
-			 * - If movement as described above from the enemy is impossible, it will move backwards.
-			 * - If an enemy is present in both the top and bottom front hexes, Bunny
+			 *   ⬡⬡↗️
+			 *   ⬡🐇⬡
+			 *   👹⬡⬡
+			 * - If movement described above is impossible, the Bunny will instead move backwards.
+			 *   ⬡⬡❌
+			 *   ⬡🐇➡️
+			 *   👹⬡⬡
+			 * - If an enemy is approaching from both top and bottom front hexes, Bunny
 			 *   will move backwards.
+			 *   👹⬡⬡
+			 *   ⬡🐇➡️
+			 *   👹⬡⬡
 			 * - If trying to move backwards and is unable to do so, movement is cancelled.
+			 *   ⬡⬡⬡
+			 *   👹🐇❌
+			 *   ⬡⬡⬡
 			 *
 			 * At this point we have determined the ability should be triggered, so we
 			 * are only concerned which enemies to hop away from, not which enemies originally
