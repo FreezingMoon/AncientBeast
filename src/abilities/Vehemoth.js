@@ -320,16 +320,13 @@ export default (G) => {
 					return false;
 				}
 
-				// Copy targeting from Snow Bunny spit ability.
-				// Test that target is fatigued.
-
 				if (
 					!this.testDirection({
 						sourceCreature: this.creature,
 						team: this._targetTeam,
 						directions: this._directions,
 						distance: this._distance,
-						optTest: (creature) => creature.isFatigued(),
+						optTest: this._confirmTarget,
 					})
 				) {
 					return false;
@@ -339,8 +336,8 @@ export default (G) => {
 			},
 
 			query: function () {
-				let ability = this;
-				let vehemoth = this.creature;
+				const ability = this;
+				const vehemoth = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -354,34 +351,63 @@ export default (G) => {
 					y: vehemoth.y,
 					directions: this._directions,
 					distance: this._distance,
+					optTest: this._confirmTarget,
 				});
 			},
 
-			activate: function (choice) {
-				let ability = this;
+			activate: function (path, args) {
+				const ability = this;
+				const vehemoth = this.creature;
+				const target = arrayUtils.last(path).creature;
 
-				let creaturesHit = [];
+				ability.end();
 
-				for (let i = 0; i < choice.length; i++) {
-					if (
-						choice[i].creature instanceof Creature &&
-						creaturesHit.indexOf(choice[i].creature) == -1
-					) {
-						// Prevent Multiple Hit
+				const [tween, sprite] = G.animations.projectile(
+					this,
+					target,
+					'effects_freezing-spit',
+					path,
+					args,
+					52,
+					-20,
+				);
 
-						choice[i].creature.takeDamage(
-							new Damage(
-								ability.creature, // Attacker
-								ability.damages1, // Damage Type
-								1, // Area
-								[], // Effects
-								G,
-							),
-						);
+				const frostMasteryDifference = Math.max(vehemoth.stats.frost - target.stats.frost, 0);
+				const damage = new Damage(
+					ability.creature, // Attacker
+					{
+						frost: frostMasteryDifference,
+					}, // Damage Type
+					1, // Area
+					[],
+					G,
+				);
 
-						creaturesHit.push(choice[i].creature);
+				tween.onComplete.add(function () {
+					// `this` refers to the animation object, _not_ the ability.
+					this.destroy();
+
+					target.takeDamage(damage);
+
+					if (ability.isUpgraded()) {
+						// TODO: Apply Cryostasis.
+					} else {
+						target.stats.frozen = true;
 					}
-				}
+
+					target.updateHealth();
+					G.UI.updateFatigue();
+				}, sprite); // End tween.onComplete
+			},
+
+			/**
+			 * Test a potential target enemy unit's state to determine if it can be targeted.
+			 *
+			 * @param {Creature} creature Enemy unit creature that could be targeted.
+			 * @returns {boolean} Does the unit meet the targeting requirements?
+			 */
+			_confirmTarget(creature) {
+				return creature.isFatigued();
 			},
 		},
 
