@@ -3212,7 +3212,12 @@
 				},
 				"costs": {
 					"energy": 24
-				}
+				},
+				"effects": [
+					{
+						"special": "10 %pierce% if moving"
+					}
+				]
 			},
 			{
 				"title": "War Horn",
