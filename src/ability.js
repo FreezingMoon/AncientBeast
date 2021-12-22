@@ -21,6 +21,7 @@ export class Ability {
 		this.timesUsedThisTurn = 0;
 		this.token = 0;
 		this.upgraded = false;
+		this.title = '';
 
 		let data = game.retrieveCreatureStats(creature.type);
 		$j.extend(true, this, game.abilities[data.id][abilityID], data.ability_info[abilityID]);
@@ -321,13 +322,22 @@ export class Ability {
 	 * @return {void}
 	 */
 	animation2(o) {
-		let game = this.game,
-			opt = $j.extend({ callback: function () {}, arg: {} }, o),
-			args = opt.arg,
-			activateAbility = () => {
-				this.activate(args[0], args[1]);
-				this.postActivate();
-			};
+		const game = this.game;
+		const opt = $j.extend(
+			{
+				callback: function () {
+					// Default no-op function.
+				},
+				arg: {},
+			},
+			o,
+		);
+		const args = opt.arg;
+		const activateAbility = () => {
+			const extra = args[2];
+			this.activate(args[0], args[1], extra);
+			this.postActivate();
+		};
 
 		game.freezedInput = true;
 

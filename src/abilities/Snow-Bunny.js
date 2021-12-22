@@ -48,12 +48,17 @@ export default (G) => {
 					return false;
 				}
 
+				// Double check the destination hex actually contains a creature.
+				if (!hex.creature) {
+					return false;
+				}
+
 				/* Determine which (if any) frontal hexes contain an enemy that would trigger
 				the ability. */
 				let triggerHexes = [];
 
 				if (hex.creature === this.creature) {
-					// Bunny has been moved by another active creature, not itself..
+					// Bunny has been moved by another active creature, not itself.
 					triggerHexes = this._detectFrontHexesWithEnemy();
 				} else if (isTeam(hex.creature, this.creature, Team.enemy)) {
 					// Enemy movement.
@@ -78,10 +83,11 @@ export default (G) => {
 			//	activate() :
 			activate: function (hex) {
 				let ability = this;
+
 				ability.end();
 
 				this.creature.moveTo(this._getHopHex(), {
-					callbackStepIn: function () {
+					callback: function () {
 						G.activeCreature.queryMove();
 					},
 					ignorePath: true,

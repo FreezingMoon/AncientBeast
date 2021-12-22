@@ -540,7 +540,7 @@
 	{
 		"id": 6,
 		"name": "Vehemoth",
-		"playable": false,
+		"playable": true,
 		"level": 7,
 		"realm": "S",
 		"size": 3,
