@@ -393,7 +393,7 @@ export default (G) => {
 
 					target.freeze(ability.isUpgraded());
 
-					if (!damageResult.kill) {
+					if (damageResult && !damageResult.kill) {
 						G.log(
 							`%CreatureName${target.id}% ${
 								ability.isUpgraded() ? 'enters Cryostasis' : 'has been Frozen'
