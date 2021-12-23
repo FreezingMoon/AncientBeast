@@ -514,7 +514,7 @@ export default (G) => {
 				return [
 					...G.grid.getHexMap(
 						vehemoth.x,
-						// Unsure why the y offset is incorrect when flipping the matrice.
+						// Unsure why the y offset is incorrect when flipping the matrix.
 						vehemoth.y - 4,
 						2,
 						true,
