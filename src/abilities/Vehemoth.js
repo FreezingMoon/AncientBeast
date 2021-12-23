@@ -386,27 +386,21 @@ export default (G) => {
 					// `this` refers to the animation object, _not_ the ability.
 					this.destroy();
 
+					let damageResult;
 					if (damage.damages.frost > 0) {
-						target.takeDamage(damage);
+						damageResult = target.takeDamage(damage);
 					}
 
-					target.stats.frozen = true;
+					target.freeze(ability.isUpgraded());
 
-					if (ability.isUpgraded()) {
-						target.stats.cryostasis = true;
+					if (!damageResult.kill) {
+						G.log(
+							`%CreatureName${target.id}% ${
+								ability.isUpgraded() ? 'enters Cryostasis' : 'has been Frozen'
+							} and cannot act`,
+						);
+						target.hint(ability.isUpgraded() ? 'Cryostasis' : 'Frozen');
 					}
-
-					/* Reflect frozen state on the health below the creature cardboard, and
-					the queue box fatigue text. */
-					target.updateHealth();
-					G.UI.updateFatigue();
-
-					G.log(
-						`%CreatureName${target.id}% ${
-							ability.isUpgraded() ? 'enters Cryostasis' : 'has been Frozen'
-						} and cannot act`,
-					);
-					target.hint(ability.isUpgraded() ? 'Cryostasis' : 'Frozen');
 				}, sprite); // End tween.onComplete
 			},
 
@@ -513,7 +507,7 @@ export default (G) => {
 					'', // Trigger
 					{
 						effectFn: function (eff) {
-							eff.target.stats.frozen = true;
+							eff.target.freeze();
 							this.deleteEffect();
 						},
 					},
