@@ -717,8 +717,10 @@ export class Ability {
 
 	/**
 	 * Test and get directions where there are valid targets in directions, using
-	 * direction queries
+	 * direction queries.
+	 *
 	 * @param {Object} o Dict of arguments for direction query
+	 * @param {function} o.optTest Callback function receiving the target creature, for final filtering.
 	 * @return {Array} array of ints, length of total directions, 1 if direction valid else 0
 	 */
 	testDirections(o) {
