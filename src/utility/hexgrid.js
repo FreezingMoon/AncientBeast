@@ -16,7 +16,7 @@ export class HexGrid {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jquery element
-	 * and jquery function can be called dirrectly from them.
+	 * and jquery function can be called directly from them.
 	 *
 	 * // Jquery attributes
 	 * $display : 		Grid container

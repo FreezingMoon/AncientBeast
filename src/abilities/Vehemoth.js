@@ -426,7 +426,7 @@ export default (G) => {
 		 *
 		 * Targeting rules:
 		 * - The target must be a single enemy unit.
-		 * - The target can be selected from any valid enemy within a 4 range front
+		 * - The target can be selected from any valid target within a 4 range front
 		 *   or backwards cone:
 		 *   ⬡⬡⬡⬡⬢⬡
 		 *   ⬡⬡⬡⬢⬢⬡
@@ -452,26 +452,14 @@ export default (G) => {
 			_targetTeam: Team.enemy,
 
 			require: function () {
+				const vehemoth = this.creature;
+
 				if (!this.testRequirements()) {
 					return false;
 				}
 
-				// Determine targeting ability to copy from.
-
-				// const test = this.creature.adjacentHexes(4);
-
-				// if (
-				// 	!this.testDirection({
-				// 		team: this._targetTeam,
-				// 		directions: this._directions,
-				// 		sourceCreature: this.creature,
-				// 	})
-				// ) {
-				// 	return false;
-				// }
-
 				if (
-					!this.atLeastOneTarget(this.creature.adjacentHexes(1), {
+					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
 					})
 				) {
@@ -485,27 +473,22 @@ export default (G) => {
 				const ability = this;
 				const vehemoth = this.creature;
 
-				G.grid.queryDirection({
+				this.game.grid.queryCreature({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: vehemoth.player.flipped,
 					team: this._targetTeam,
 					id: vehemoth.id,
-					requireCreature: true,
-					x: vehemoth.x,
-					y: vehemoth.y,
-					sourceCreature: vehemoth,
-					stopOnCreature: false,
-					distance: 1,
+					flipped: vehemoth.flipped,
+					hexes: this._getHexes(),
 				});
 			},
 
-			activate: function (path, args) {
+			activate: function (target) {
 				const ability = this;
 				const vehemoth = this.creature;
 
-				const target = arrayUtils.last(path).creature;
+				ability.end();
 
 				const levelDifference = Math.max(vehemoth.level - target.level, 0);
 				const damages = {
@@ -517,6 +500,28 @@ export default (G) => {
 				};
 				const damage = new Damage(vehemoth, damages, 1, [], G);
 				target.takeDamage(damage);
+			},
+
+			/**
+			 * The area of effect is a front and back 4 distance cone originating from
+			 * the head of the Vehemoth. @see ability description for more details.
+			 *
+			 * @returns {Hex[]} Refer to HexGrid.getHexMap()
+			 */
+			_getHexes() {
+				const vehemoth = this.creature;
+
+				return [
+					...G.grid.getHexMap(
+						vehemoth.x,
+						// Unsure why the y offset is incorrect when flipping the matrice.
+						vehemoth.y - 4,
+						2,
+						true,
+						matrices.fourDistanceCone,
+					),
+					...this.creature.getHexMap(matrices.fourDistanceCone),
+				];
 			},
 		},
 	];
