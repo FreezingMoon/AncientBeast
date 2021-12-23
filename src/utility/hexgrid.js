@@ -490,6 +490,8 @@ export class HexGrid {
 		}
 
 		let extended = [];
+		/* Add creature hexes that extend out of the range of the source hexes, so the
+		entire creature can be highlighted. */
 		o.hexes.forEach((hex) => {
 			extended = extended.concat(hex.creature.hexagons);
 		});
