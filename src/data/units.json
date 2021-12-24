@@ -637,7 +637,11 @@
 				],
 				"damages": {
 					"pierce": 20,
-					"frost": 3
+					"frost": 0
+				},
+				"bonus_damages": {
+					"frost": 3,
+					"pierce": 2
 				},
 				"costs": {
 					"energy": 35

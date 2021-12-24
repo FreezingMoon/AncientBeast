@@ -179,3 +179,17 @@ export const headlessBoomerangUpgraded = [
 ];
 
 headlessBoomerangUpgraded.origin = [0, 2];
+
+export const fourDistanceCone = [
+	[0, 0, 1, 0, 0],
+	[0, 0, 1, 1, 0],
+	[0, 1, 1, 1, 0],
+	[0, 1, 1, 1, 1],
+	[0, 1, 1, 1, 1], // Origin line
+	[0, 1, 1, 1, 1],
+	[0, 1, 1, 1, 0],
+	[0, 0, 1, 1, 0],
+	[0, 0, 1, 0, 0],
+];
+
+fourDistanceCone.origin = [0, 4];

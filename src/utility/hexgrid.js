@@ -16,7 +16,7 @@ export class HexGrid {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jquery element
-	 * and jquery function can be called dirrectly from them.
+	 * and jquery function can be called directly from them.
 	 *
 	 * // Jquery attributes
 	 * $display : 		Grid container
@@ -400,14 +400,16 @@ export class HexGrid {
 		});
 	}
 
-	/* queryCreature(o)
+	/**
 	 *
-	 * fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexes.
-	 * fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
-	 * fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
-	 * team : 			Team
-	 * id : 			Integer : 	Creature ID
-	 * args : 			Object : 	Object given to the events function (to easily pass variable for these function)
+	 * @param {object} o Object given to the events function (to easily pass variable for these function)
+	 * @param {function} o.fnOnSelect Function applied when clicking on one of the available hexes.
+	 * @param {function} o.fnOnConfirm Function applied when clicking again on the same hex.
+	 * @param {function} o.fnOnCancel Function applied when clicking a non reachable hex.
+	 * @param {Team} o.team The targetable team.
+	 * @param {number} o.id Creature ID
+	 * @param {boolean} o.replaceEmptyHexesWithDashed Replace all non targetable, empty hexes with dashed hexes.
+	 * 	o.hexesDashed will override this option.
 	 */
 	queryCreature(o) {
 		let game = this.game,
@@ -430,29 +432,66 @@ export class HexGrid {
 				flipped: false,
 				id: 0,
 				team: Team.enemy,
+				replaceEmptyHexesWithDashed: false,
 			};
 
 		o = $j.extend(defaultOpt, o);
 
-		// Exclude everything but the creatures
-		o.hexes = o.hexes.filter((hex) => {
-			if (hex.creature instanceof Creature && hex.creature.id != o.id) {
-				if (!o.optTest(hex.creature)) {
-					return false;
+		/* Divide hexes into:
+		- containing valid targets
+		- empty (no possible target)
+		Hexes containing invalid targets (wrong team, o.optTest, etc) are discard. */
+		const { targetHexes, emptyHexes } = o.hexes.reduce(
+			(acc, hex) => {
+				const sourceCreature = game.creatures[o.id];
+				const targetCreature = hex.creature;
+
+				const acceptTargetHex = () => {
+					return {
+						...acc,
+						targetHexes: [...acc.targetHexes, hex],
+					};
+				};
+
+				const acceptEmptyHex = () => {
+					return {
+						...acc,
+						emptyHexes: [...acc.emptyHexes, hex],
+					};
+				};
+
+				const discardHex = () => {
+					return acc;
+				};
+
+				if (!targetCreature) {
+					return acceptEmptyHex();
 				}
 
-				let creaSource = game.creatures[o.id],
-					creaTarget = hex.creature;
+				if (targetCreature instanceof Creature && targetCreature.id !== o.id) {
+					if (!o.optTest(hex.creature)) {
+						return discardHex();
+					}
 
-				if (isTeam(creaSource, creaTarget, o.team)) {
-					return true;
+					if (isTeam(sourceCreature, targetCreature, o.team)) {
+						return acceptTargetHex();
+					}
 				}
-			}
 
-			return false;
-		});
+				return discardHex();
+			},
+			{ targetHexes: [], emptyHexes: [] },
+		);
+
+		o.hexes = targetHexes;
+
+		if (o.replaceEmptyHexesWithDashed && !o.hexesDashed.length) {
+			o.hexesDashed = emptyHexes;
+		}
 
 		let extended = [];
+		/* Add creature hexes that extend out of the range of the source hexes, so the
+		entire creature can be highlighted. */
 		o.hexes.forEach((hex) => {
 			extended = extended.concat(hex.creature.hexagons);
 		});
