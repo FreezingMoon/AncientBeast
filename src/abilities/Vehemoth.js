@@ -215,6 +215,7 @@ export default (G) => {
 					knockbackHexes.splice(path.length);
 
 					vehemoth.moveTo(destination, {
+						overrideSpeed: 100,
 						callback: function () {
 							let knockbackHex = null;
 							for (let i = 0; i < knockbackHexes.length; i++) {
