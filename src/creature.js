@@ -1302,6 +1302,9 @@ export class Creature {
 			// health display
 			this.updateHealth();
 			game.UI.updateFatigue();
+			/* Some of the active creature's abilities may become active/inactive depending
+			on new health/endurance values. */
+			game.UI.checkAbilities();
 
 			// Trigger
 			if (!o.ignoreRetaliation) {
