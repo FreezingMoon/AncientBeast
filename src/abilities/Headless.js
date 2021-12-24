@@ -205,16 +205,12 @@ export default (G) => {
 				const ability = this;
 				const headless = this.creature;
 
-				// TODO: Blue creature has 1 less range.
-
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: headless.id,
-					requireCreature: true,
-					stopOnCreature: true,
 					sourceCreature: headless,
 					flipped: headless.player.flipped,
 					x: headless.x,
@@ -225,27 +221,40 @@ export default (G) => {
 				});
 			},
 
-			activate: function (path, args) {
+			activate: function (queryPath, args) {
 				const ability = this;
 				const headless = this.creature;
-				const target = arrayUtils.last(path).creature;
+				const target = arrayUtils.last(queryPath).creature;
+				let path = [...queryPath];
 
-				this.game.grid.__debugHexes([...path]);
-
-				// Remove creatures from path.
+				// We just want the path between the units.
 				path = path.filter((hex) => {
 					return !hex.creature;
 				});
 
+				// if (!path.length)
+
 				/* The query path starts away from Headless due to minimum range, so we
 				first need to extend the path all the way back to in front of Headless. */
-				const [firstHex, ...restOfPath] = path;
 				const extendFunction =
 					args.direction === Direction.Left ? arrayUtils.extendToRight : arrayUtils.extendToLeft;
+				console.log(path, path.length);
+				console.log('extendy', extendFunction([arrayUtils.last(queryPath)], 2, this.game.grid));
+				console.log(
+					'extendy 2',
+					arrayUtils.last(extendFunction([arrayUtils.last(queryPath)], 2, this.game.grid)),
+				);
+				const [firstHex, ...restOfPath] = path.length
+					? path
+					: extendFunction([arrayUtils.last(queryPath)], 2, this.game.grid);
+				console.log({ firstHex, restOfPath });
 				path = arrayUtils.sortByDirection(
-					[...extendFunction([firstHex], this.range.minimum + 1, this.game.grid), ...restOfPath],
+					[...extendFunction(firstHex, this.range.minimum + 1, this.game.grid), ...restOfPath],
 					args.direction === Direction.Left ? Direction.Right : Direction.Left,
 				);
+
+				console.log('FINAL PATH:');
+				this.game.grid.__debugHexes(path);
 
 				ability.end();
 

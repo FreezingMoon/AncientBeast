@@ -3140,7 +3140,7 @@
 					"energy": 20
 				},
 				"range": {
-					"minimum": 2,
+					"minimum": 3,
 					"regular": 6,
 					"upgraded": 8
 				}

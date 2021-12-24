@@ -561,18 +561,23 @@ export class Ability {
 	 * @return {boolean} At least one valid target?
 	 */
 	atLeastOneTarget(hexes, o) {
-		let defaultOpt = {
+		const defaultOpt = {
 			team: Team.both,
 			optTest: function () {
 				return true;
 			},
 		};
 
-		o = $j.extend(defaultOpt, o);
-		for (let i = 0, len = hexes.length; i < len; i++) {
-			let creature = hexes[i].creature;
+		const options = { ...defaultOpt, ...o };
 
-			if (!creature || !isTeam(this.creature, creature, o.team) || !o.optTest(creature)) {
+		for (let i = 0, len = hexes.length; i < len; i++) {
+			const creature = hexes[i].creature;
+
+			if (
+				!creature ||
+				!isTeam(this.creature, creature, options.team) ||
+				!options.optTest(creature)
+			) {
 				continue;
 			}
 
@@ -745,6 +750,7 @@ export class Ability {
 		o = $j.extend(defaultOpt, o);
 
 		let outDirections = [];
+		let deadzone = [];
 
 		for (let i = 0, len = o.directions.length; i < len; i++) {
 			if (!o.directions[i]) {
@@ -755,7 +761,7 @@ export class Ability {
 			let fx = 0;
 
 			if (o.sourceCreature instanceof Creature) {
-				let flipped = o.sourceCreature.player.flipped;
+				const flipped = o.sourceCreature.player.flipped;
 
 				if ((!flipped && i > 2) || (flipped && i < 3)) {
 					fx = -1 * (o.sourceCreature.size - 1);
@@ -769,12 +775,25 @@ export class Ability {
 			}
 
 			if (o.minDistance > 0) {
-				dir = dir.slice(o.minDistance + 1);
+				// The untargetable area between the unit and the minimum distance.
+				deadzone = dir.slice(0, o.minDistance);
+				deadzone = arrayUtils.filterCreature(deadzone, o.includeCreature, o.stopOnCreature, o.id);
+
+				dir = dir.slice(
+					// 1 greater than expected to exclude current (source creature) hex.
+					o.minDistance,
+				);
 			}
 
 			dir = arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
-			let isValid = this.atLeastOneTarget(dir, o);
-			outDirections.push(isValid ? 1 : 0);
+
+			/* If the ability has a minimum distance and units should block LOS, this
+			direction cannot be used if there is a unit in the deadzone. */
+			const blockingUnitInDeadzone =
+				o.stopOnCreature && deadzone.length && this.atLeastOneTarget(deadzone, o);
+			const targetInDirection = this.atLeastOneTarget(dir, o);
+			const isValidDirection = targetInDirection && !blockingUnitInDeadzone;
+			outDirections.push(isValidDirection ? 1 : 0);
 		}
 
 		return outDirections;
