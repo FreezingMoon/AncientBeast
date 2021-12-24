@@ -172,6 +172,8 @@ export default (G) => {
 			_directions: [0, 1, 0, 0, 1, 0],
 
 			require: function () {
+				const headless = this.creature;
+
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -185,6 +187,8 @@ export default (G) => {
 				if (
 					!this.testDirection({
 						team: this._targetTeam,
+						sourceCreature: headless,
+						flipped: headless.player.flipped,
 						directions: this._directions,
 						distance: this._getMaxDistance(),
 						minDistance: this.range.minimum,
@@ -212,6 +216,7 @@ export default (G) => {
 					requireCreature: true,
 					stopOnCreature: true,
 					sourceCreature: headless,
+					flipped: headless.player.flipped,
 					x: headless.x,
 					y: headless.y,
 					directions: this._directions,
