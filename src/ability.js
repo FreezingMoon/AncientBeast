@@ -721,6 +721,7 @@ export class Ability {
 	 *
 	 * @param {Object} o Dict of arguments for direction query
 	 * @param {function} o.optTest Callback function receiving the target creature, for final filtering.
+	 * @param {function} o.minDistance Target must be at least this distance away to be valid.
 	 * @return {Array} array of ints, length of total directions, 1 if direction valid else 0
 	 */
 	testDirections(o) {
@@ -734,6 +735,7 @@ export class Ability {
 			includeCreature: true,
 			stopOnCreature: true,
 			distance: 0,
+			minDistance: 0,
 			sourceCreature: undefined,
 			optTest: function () {
 				return true;
@@ -766,6 +768,10 @@ export class Ability {
 				dir = dir.slice(0, o.distance + 1);
 			}
 
+			if (o.minDistance > 0) {
+				dir = dir.slice(o.minDistance + 1);
+			}
+
 			dir = arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
 			let isValid = this.atLeastOneTarget(dir, o);
 			outDirections.push(isValid ? 1 : 0);
@@ -775,7 +781,8 @@ export class Ability {
 	}
 
 	/**
-	 * Test whether there are valid targets in directions, using direction queries
+	 * Test whether there are valid targets in directions, using direction queries.
+	 *
 	 * @param {Object} o Dict of arguments for direction query.
 	 * @return {boolean} true if valid targets in at least one direction, else false
 	 */

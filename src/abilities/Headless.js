@@ -4,6 +4,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import { Direction } from '../utility/hex';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -83,7 +84,7 @@ export default (G) => {
 
 			_getHexes: function () {
 				return this.creature.getHexMap(
-					/* Headless position is the front hex of its two hexes, so we look for 
+					/* Headless position is the front hex of its two hexes, so we look for
 					an enemy unit two hexes back which will be the hex directly behind Headless. */
 					matrices.inlineback2hex,
 				);
@@ -167,124 +168,80 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			directions: [0, 1, 0, 0, 1, 0],
-
-			_minDistance: 2,
-			_getMaxDistance: function () {
-				if (this.isUpgraded()) {
-					return 8;
-				}
-				return 6;
-			},
 			_targetTeam: Team.both,
-			_getValidDirections: function () {
-				// Get all directions where there are no targets within min distance,
-				// and a target within max distance
-				let crea = this.creature;
-				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
-				let validDirections = [0, 0, 0, 0, 0, 0];
-				for (let i = 0; i < this.directions.length; i++) {
-					if (this.directions[i] === 0) {
-						continue;
-					}
-					let directions = [0, 0, 0, 0, 0, 0];
-					directions[i] = 1;
-					let testMin = this.testDirection({
-						team: this._targetTeam,
-						x: x,
-						directions: directions,
-						distance: this._minDistance,
-						sourceCreature: crea,
-					});
-					let testMax = this.testDirection({
-						team: this._targetTeam,
-						x: x,
-						directions: directions,
-						distance: this._getMaxDistance(),
-						sourceCreature: crea,
-					});
-					if (!testMin && testMax) {
-						// Target needs to be moveable
-						let fx = 0;
-						if (
-							(!this.creature.player.flipped && i > 2) ||
-							(this.creature.player.flipped && i < 3)
-						) {
-							fx = -1 * (this.creature.size - 1);
-						}
-						let dir = G.grid.getHexLine(
-							this.creature.x + fx,
-							this.creature.y,
-							i,
-							this.creature.player.flipped,
-						);
-						if (this._getMaxDistance() > 0) {
-							dir = dir.slice(0, this._getMaxDistance() + 1);
-						}
-						dir = arrayUtils.filterCreature(dir, true, true, this.creature.id);
-						let target = arrayUtils.last(dir).creature;
-						if (target.stats.moveable) {
-							validDirections[i] = 1;
-						}
-					}
-				}
-				return validDirections;
-			},
+			_directions: [0, 1, 0, 0, 1, 0],
 
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
-				// Creature must be moveable
+				// Headless must be moveable.
 				if (!this.creature.stats.moveable) {
 					this.message = G.msg.abilities.notMoveable;
 					return false;
 				}
 
-				// There must be at least one direction where there is a target within
-				// min/max range
-				let validDirections = this._getValidDirections();
 				if (
-					!validDirections.some(function (e) {
-						return e === 1;
+					!this.testDirection({
+						team: this._targetTeam,
+						directions: this._directions,
+						distance: this._getMaxDistance(),
+						minDistance: this.range.minimum,
+						optTest: (creature) => creature.stats.moveable,
 					})
 				) {
-					this.message = G.msg.abilities.noTarget;
 					return false;
 				}
-				this.message = '';
+
 				return true;
 			},
 
-			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const headless = this.creature;
+
+				// TODO: Blue creature has 1 less range.
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
-					id: crea.id,
+					id: headless.id,
 					requireCreature: true,
-					sourceCreature: crea,
-					x: crea.x,
-					y: crea.y,
-					directions: this._getValidDirections(),
+					stopOnCreature: true,
+					sourceCreature: headless,
+					x: headless.x,
+					y: headless.y,
+					directions: this._directions,
 					distance: this._getMaxDistance(),
+					minDistance: this.range.minimum,
 				});
 			},
 
-			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
-				let crea = this.creature;
-				let target = arrayUtils.last(path).creature;
-				path = path.filter(function (hex) {
+				const ability = this;
+				const headless = this.creature;
+				const target = arrayUtils.last(path).creature;
+
+				this.game.grid.__debugHexes([...path]);
+
+				// Remove creatures from path.
+				path = path.filter((hex) => {
 					return !hex.creature;
-				}); //remove creatures
+				});
+
+				/* The query path starts away from Headless due to minimum range, so we
+				first need to extend the path all the way back to in front of Headless. */
+				const [firstHex, ...restOfPath] = path;
+				const extendFunction =
+					args.direction === Direction.Left ? arrayUtils.extendToRight : arrayUtils.extendToLeft;
+				path = arrayUtils.sortByDirection(
+					[...extendFunction([firstHex], this.range.minimum + 1, this.game.grid), ...restOfPath],
+					args.direction === Direction.Left ? Direction.Right : Direction.Left,
+				);
+
 				ability.end();
 
 				// Movement
@@ -296,6 +253,7 @@ export default (G) => {
 					in front of the Headless. */
 					const hexInFrontOfHeadless = path[0];
 					destinationTarget = hexInFrontOfHeadless;
+					console.log(path, destinationTarget);
 				} else if (target.size === 2) {
 					// Medium creature, pull self and target towards each other half way,
 					// rounding upwards for self (self move one extra hex if required)
@@ -313,10 +271,10 @@ export default (G) => {
 				let hex;
 
 				// Check if Headless will be moved.
-				if (destination !== null) {
-					x = args.direction === 4 ? destination.x + crea.size - 1 : destination.x;
+				if (destination) {
+					x = args.direction === Direction.Left ? destination.x + headless.size - 1 : destination.x;
 					hex = G.grid.hexes[destination.y][x];
-					crea.moveTo(hex, {
+					headless.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
 						callback: function () {
@@ -331,8 +289,11 @@ export default (G) => {
 				}
 
 				// Check if target creature will be moved.
-				if (destinationTarget !== null) {
-					x = args.direction === 1 ? destinationTarget.x + target.size - 1 : destinationTarget.x;
+				if (destinationTarget) {
+					x =
+						args.direction === Direction.Right
+							? destinationTarget.x + target.size - 1
+							: destinationTarget.x;
 					hex = G.grid.hexes[destinationTarget.y][x];
 					target.moveTo(hex, {
 						ignoreMovementPoint: true,
@@ -347,6 +308,10 @@ export default (G) => {
 						},
 					});
 				}
+			},
+
+			_getMaxDistance: function () {
+				return this.isUpgraded() ? this.range.upgraded : this.range.regular;
 			},
 		},
 

@@ -3138,6 +3138,11 @@
 				],
 				"costs": {
 					"energy": 20
+				},
+				"range": {
+					"minimum": 2,
+					"regular": 6,
+					"upgraded": 8
 				}
 			},
 			{

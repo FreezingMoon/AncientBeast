@@ -1338,22 +1338,6 @@ export class HexGrid {
 	}
 
 	/**
-	 * Sort a list of hexes by their x value, based on a direction.
-	 * Going Left sorts greatest to least, going Right is the opposite.
-	 *
-	 * @param {Hex[]} hexes Hexes to sort.
-	 * @param {Direction} direction Direction to sort hexes.
-	 * @returns {Hex[]} Array of sorted hexes.
-	 */
-	sortHexesByDirection(hexes, direction) {
-		if (![Direction.Left, Direction.Right].includes(direction)) {
-			console.warn('Sorting currently supports Left and Right directions.');
-		}
-
-		return hexes.sort((a, b) => (direction === Direction.Right ? a.x - b.x : b.x - a.x));
-	}
-
-	/**
 	 * Internal debugging method to log and visually highlight (in blue) an array
 	 * of hexes.
 	 *
