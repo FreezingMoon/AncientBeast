@@ -305,8 +305,6 @@ export default (G) => {
 				if (this.token > 0) {
 					G.log('%CreatureName' + this.creature.id + '% missed ' + this.token + ' rocket(s)');
 				}
-
-				G.UI.checkAbilities();
 			},
 		},
 

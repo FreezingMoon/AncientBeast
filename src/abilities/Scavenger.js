@@ -391,8 +391,6 @@ export default (G) => {
 
 					G.log('%CreatureName' + target.id + '% is poisoned by ' + this.title);
 				}
-
-				G.UI.checkAbilities();
 			},
 		},
 	];
