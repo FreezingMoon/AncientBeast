@@ -163,9 +163,11 @@ export default (G) => {
 			},
 		},
 
-		// 	Third Ability: Whip Move
+		//
+		/**
+		 * Primary Ability: Whip Move
+		 */
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			_targetTeam: Team.both,
@@ -242,7 +244,7 @@ export default (G) => {
 						matrices.inlinefront2hex,
 						this.isTargetingBackwards(args.direction),
 					),
-					this.range.minimum,
+					this.range.minimum - 1,
 					this.game.grid,
 				);
 				path = arrayUtils.sortByDirection(
@@ -261,17 +263,16 @@ export default (G) => {
 					in front of the Headless. */
 					const hexInFrontOfHeadless = path[0];
 					destinationTarget = hexInFrontOfHeadless;
-					console.log(path, destinationTarget);
 				} else if (target.size === 2) {
-					// Medium creature, pull self and target towards each other half way,
-					// rounding upwards for self (self move one extra hex if required)
+					/* Medium creature, pull self and target towards each other half way,
+					rounding upwards for self (self move one extra hex if required). */
 					let midpoint = Math.floor((path.length - 1) / 2);
 					destination = path[midpoint];
 					if (midpoint < path.length - 1) {
 						destinationTarget = path[midpoint + 1];
 					}
 				} else {
-					// Large creature, pull self towards target
+					// Large creature, pull self towards target.
 					destination = arrayUtils.last(path);
 				}
 
