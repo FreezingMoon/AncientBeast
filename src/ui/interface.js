@@ -2486,12 +2486,12 @@ export class UI {
 				);
 
 				let text;
-				if (creature.stats.frozen) {
-					text = 'Frozen';
+				if (creature.isFrozen()) {
+					text = creature.isInCryostasis() ? 'Cryostasis' : 'Frozen';
 					textElement.css({
 						background: 'darkturquoise',
 					});
-				} else if (creature.dizzy) {
+				} else if (creature.isDizzy()) {
 					text = 'Dizzy';
 					textElement.css({
 						background: 'saddlebrown',

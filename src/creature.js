@@ -4,7 +4,6 @@ import { search } from './utility/pathfinding';
 import { Hex } from './utility/hex';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop } from './drops';
-import { Effect } from './effect';
 
 /**
  * Creature Class
@@ -15,7 +14,7 @@ export class Creature {
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jquery element
-	 * and jquery function can be called dirrectly from them.
+	 * and jquery function can be called directly from them.
 	 *
 	 * // Jquery attributes
 	 * $display :		Creature representation
@@ -108,9 +107,10 @@ export class Creature {
 			sonic: obj.stats.sonic - 0,
 			mental: obj.stats.mental - 0,
 
+			/* TODO: Move boolean flags into this.status, because updateAlterations() resets
+			this.stats unless they've been applied via an effect. */
 			moveable: true,
 			fatigueImmunity: false,
-			frozen: false,
 			// Extra energy required for abilities
 			reqEnergy: 0,
 		};
@@ -146,6 +146,26 @@ export class Creature {
 			 */
 			movement: this.baseStats.movement,
 		};
+
+		this.status = {
+			/**
+			 * "Frozen" creature will miss their next turn. Frozen expires at the end
+			 * of their next (missed) turn. Any damage will break the frozen status.
+			 */
+			frozen: false,
+
+			/**
+			 * "Cryostasis" enhances the "Frozen" status to not break on damage from any
+			 * source.
+			 */
+			cryostasis: false,
+
+			/**
+			 * Another type of "Frozen", with a different name.
+			 */
+			dizzy: false,
+		};
+
 		// Current health. Maximum health is `this.stats.health`.
 		this.health = obj.stats.health;
 		// Current endurance. Maximum endurance is `this.stats.endurance`.
@@ -154,8 +174,6 @@ export class Creature {
 		this.energy = obj.stats.energy;
 		// Current movement. Maximum movement is `this.stats.movement`.
 		this.remainingMove = 0; //Default value recovered each turn
-
-		this.dizzy = false;
 
 		// Abilities
 		this.abilities = [
@@ -344,10 +362,10 @@ export class Creature {
 			this.remainingMove = stats.movement;
 
 			if (!this.materializationSickness) {
-				// Fatigued creatures (endurance 0) should not regenerate, but fragile
-				// ones (max endurance 1) should anyway
+				// Fatigued creatures (endurance 0) should not regenerate.
 				if (!this.isFatigued()) {
 					this.heal(stats.regrowth, true);
+
 					if (stats.meditation > 0) {
 						this.recharge(stats.meditation);
 					}
@@ -375,13 +393,13 @@ export class Creature {
 		}.bind(this);
 
 		// Frozen or dizzy effect
-		if (stats.frozen || this.dizzy) {
+		if (this.isFrozen() || this.isDizzy()) {
 			varReset();
 			let interval = setInterval(() => {
 				if (!game.turnThrottle) {
 					clearInterval(interval);
 					game.skipTurn({
-						tooltip: stats.frozen ? 'frozen' : 'dizzy',
+						tooltip: this.isFrozen() ? 'Frozen' : 'Dizzy',
 					});
 				}
 			}, 50);
@@ -421,8 +439,9 @@ export class Creature {
 		let game = this.game;
 		this.delayed = Boolean(wait);
 		this.hasWait = this.delayed;
-		this.stats.frozen = false;
-		this.dizzy = false;
+		this.status.frozen = false;
+		this.status.cryostasis = false;
+		this.status.dizzy = false;
 
 		// Effects triggers
 		if (!wait) {
@@ -1273,9 +1292,9 @@ export class Creature {
 				this.addEffect(effect);
 			});
 
-			// Unfreeze if taking non-zero damage
-			if (dmgAmount > 0) {
-				this.stats.frozen = false;
+			// Unfreeze if taking non-zero damage and not a Cryostasis freeze.
+			if (dmgAmount > 0 && !this.isInCryostasis()) {
+				this.status.frozen = false;
 			}
 
 			// Health display Update
@@ -1283,6 +1302,9 @@ export class Creature {
 			// health display
 			this.updateHealth();
 			game.UI.updateFatigue();
+			/* Some of the active creature's abilities may become active/inactive depending
+			on new health/endurance values. */
+			game.UI.checkAbilities();
 
 			// Trigger
 			if (!o.ignoreRetaliation) {
@@ -1347,7 +1369,7 @@ export class Creature {
 	}
 
 	displayHealthStats() {
-		if (this.stats.frozen) {
+		if (this.isFrozen()) {
 			this.healthIndicatorSprite.loadTexture('p' + this.team + '_frozen');
 		} else {
 			this.healthIndicatorSprite.loadTexture('p' + this.team + '_health');
@@ -1770,7 +1792,7 @@ export class Creature {
 	}
 
 	isFatigued() {
-		return this.endurance === 0 && !this.isFragile();
+		return this.endurance === 0;
 	}
 
 	isFragile() {
@@ -1869,12 +1891,51 @@ export class Creature {
 	}
 
 	/**
-	 * The Frozen state skips a unit's next turn. The Frozen state is removed on the
-	 * following turn, or when receiving damage.
+	 * Does the creature have the Frozen status? @see status.frozen
 	 *
 	 * @returns {boolean}
 	 */
 	isFrozen() {
-		return this.stats.frozen;
+		return this.status.frozen;
+	}
+
+	/**
+	 * Does the creature have the Cryostasis status? @see status.cryostasis
+	 *
+	 * @returns {boolean}
+	 */
+	isInCryostasis() {
+		return this.isFrozen() && this.status.cryostasis;
+	}
+
+	/**
+	 * Same as the "Frozen" status, but with a different name.
+	 *
+	 * TODO: Refactor to a generic "skip turn" status that can be customised.
+	 *
+	 * @returns {boolean}
+	 */
+	isDizzy() {
+		return this.status.dizzy;
+	}
+
+	/**
+	 * Freeze a creature, skipping its next turn. @see status.frozen
+	 *
+	 * @param {boolean} cryostasis Also apply the Cryostasis status @see status.cryostasis
+	 */
+	freeze(cryostasis = false) {
+		this.status.frozen = true;
+
+		if (cryostasis) {
+			this.status.cryostasis = true;
+		}
+
+		// Update the health box under the creature cardboard with frozen effect.
+		this.updateHealth();
+		// Show frozen fatigue text effect in queue.
+		this.game.UI.updateFatigue();
+
+		this.game.signals.creature.dispatch('frozen', { creature: this, cryostasis });
 	}
 }

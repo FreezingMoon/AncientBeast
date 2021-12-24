@@ -1,6 +1,5 @@
-import * as $j from 'jquery';
 import { Damage } from '../damage';
-import { Team, isTeam } from '../utility/team';
+import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
@@ -284,101 +283,49 @@ export default (G) => {
 			},
 		},
 
-		// 	Thirt Ability: Snow Storm
+		/**
+		 * Third Ability: Flake Convertor
+		 *
+		 * Ranged attack on a fatigued and inline enemy unit within 5 range. Deals damage
+		 * equal to the positive Frost mastery difference between Vehemoth and the target,
+		 * who also receives the "Frozen" status.
+		 *
+		 * When upgraded, the "Frozen" status becomes "Cryostasis" which is a special
+		 * "Freeze" that is not broken when receiving damage.
+		 *
+		 * Targeting rules:
+		 * - The target must be an enemy unit.
+		 * - The target must have the "Fatigued" status (no remaining endurance).
+		 * - The target must be inline (forwards or backwards) within 5 range.
+		 * - The path to the target unit cannot be interrupted by any obstacles or units.
+		 *
+		 * Other rules:
+		 * - Attacked unit receives the "Frozen" status, making them skip their next turn.
+		 * - There is no cap to the damage dealt from the positive Frost mastery difference.
+		 * - Attack damage will be 0 if the target has a higher Frost mastery than Vehemoth,
+		 *   but the "Frozen"/"Cryostasis" effect will still be applied.
+		 * - The upgraded "Cryostasis" effect does not break when receiving damage from
+		 *   the Vehemoth or ANY other source.
+		 */
 		{
-			//	Type : Can be "onQuery","onStartPhase","onDamage"
 			trigger: 'onQuery',
 
 			_targetTeam: Team.enemy,
+			_directions: [1, 1, 1, 1, 1, 1],
+			_distance: 5,
 
-			// 	require() :
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
-				let straitrow = matrices.straitrow;
-				let bellowrow = matrices.bellowrow;
-
-				let crea = this.creature;
-				let hexes = arrayUtils
-					.filterCreature(
-						G.grid.getHexMap(crea.x + 2, crea.y - 2, 0, false, straitrow),
-						true,
-						true,
-						crea.id,
-						crea.team,
-					)
-					.concat(
-						arrayUtils.filterCreature(
-							G.grid.getHexMap(crea.x + 1, crea.y - 2, 0, false, bellowrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						),
-						arrayUtils.filterCreature(
-							G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						),
-						arrayUtils.filterCreature(
-							G.grid.getHexMap(crea.x + 1, crea.y, 0, false, bellowrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						),
-						arrayUtils.filterCreature(
-							G.grid.getHexMap(crea.x + 2, crea.y + 2, 0, false, straitrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						),
-
-						arrayUtils.filterCreature(
-							G.grid.getHexMap(crea.x - 2, crea.y - 2, 2, true, straitrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						),
-						arrayUtils.filterCreature(
-							G.grid.getHexMap(crea.x - 1, crea.y - 2, 2, true, bellowrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						),
-						arrayUtils.filterCreature(
-							G.grid.getHexMap(crea.x, crea.y, 2, true, straitrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						),
-						arrayUtils.filterCreature(
-							G.grid.getHexMap(crea.x - 1, crea.y, 2, true, bellowrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						),
-						arrayUtils.filterCreature(
-							G.grid.getHexMap(crea.x - 2, crea.y + 2, 2, true, straitrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						),
-					);
-
 				if (
-					!this.atLeastOneTarget(hexes, {
+					!this.testDirection({
+						sourceCreature: this.creature,
 						team: this._targetTeam,
+						directions: this._directions,
+						distance: this._distance,
+						optTest: this._confirmTarget,
 					})
 				) {
 					return false;
@@ -387,130 +334,84 @@ export default (G) => {
 				return true;
 			},
 
-			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const vehemoth = this.creature;
 
-				let choices = [
-					//Front
-					arrayUtils
-						.filterCreature(
-							G.grid.getHexMap(crea.x + 2, crea.y - 2, 0, false, matrices.straitrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						)
-						.concat(
-							arrayUtils.filterCreature(
-								G.grid.getHexMap(crea.x + 1, crea.y - 2, 0, false, matrices.bellowrow),
-								true,
-								true,
-								crea.id,
-								crea.team,
-							),
-							arrayUtils.filterCreature(
-								G.grid.getHexMap(crea.x, crea.y, 0, false, matrices.straitrow),
-								true,
-								true,
-								crea.id,
-								crea.team,
-							),
-							arrayUtils.filterCreature(
-								G.grid.getHexMap(crea.x + 1, crea.y, 0, false, matrices.bellowrow),
-								true,
-								true,
-								crea.id,
-								crea.team,
-							),
-							arrayUtils.filterCreature(
-								G.grid.getHexMap(crea.x + 2, crea.y + 2, 0, false, matrices.straitrow),
-								true,
-								true,
-								crea.id,
-								crea.team,
-							),
-						),
-					//Behind
-					arrayUtils
-						.filterCreature(
-							G.grid.getHexMap(crea.x - 2, crea.y - 2, 2, true, matrices.straitrow),
-							true,
-							true,
-							crea.id,
-							crea.team,
-						)
-						.concat(
-							arrayUtils.filterCreature(
-								G.grid.getHexMap(crea.x - 1, crea.y - 2, 2, true, matrices.bellowrow),
-								true,
-								true,
-								crea.id,
-								crea.team,
-							),
-							arrayUtils.filterCreature(
-								G.grid.getHexMap(crea.x, crea.y, 2, true, matrices.straitrow),
-								true,
-								true,
-								crea.id,
-								crea.team,
-							),
-							arrayUtils.filterCreature(
-								G.grid.getHexMap(crea.x - 1, crea.y, 2, true, matrices.bellowrow),
-								true,
-								true,
-								crea.id,
-								crea.team,
-							),
-							arrayUtils.filterCreature(
-								G.grid.getHexMap(crea.x - 2, crea.y + 2, 2, true, matrices.straitrow),
-								true,
-								true,
-								crea.id,
-								crea.team,
-							),
-						),
-				];
-
-				G.grid.queryChoice({
+				G.grid.queryDirection({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
-					}, //fnOnConfirm
+					},
+					flipped: vehemoth.player.flipped,
 					team: this._targetTeam,
-					requireCreature: 1,
-					id: crea.id,
-					flipped: crea.flipped,
-					choices: choices,
+					id: vehemoth.id,
+					requireCreature: true,
+					x: vehemoth.x,
+					y: vehemoth.y,
+					directions: this._directions,
+					distance: this._distance,
+					optTest: this._confirmTarget,
 				});
 			},
 
-			//	activate() :
-			activate: function (choice) {
-				let ability = this;
+			activate: function (path, args) {
+				const ability = this;
+				const vehemoth = this.creature;
+				const target = arrayUtils.last(path).creature;
 
-				let creaturesHit = [];
+				ability.end();
 
-				for (let i = 0; i < choice.length; i++) {
-					if (
-						choice[i].creature instanceof Creature &&
-						creaturesHit.indexOf(choice[i].creature) == -1
-					) {
-						// Prevent Multiple Hit
+				const [tween, sprite] = G.animations.projectile(
+					this,
+					target,
+					'effects_freezing-spit',
+					path,
+					args,
+					52,
+					-20,
+				);
 
-						choice[i].creature.takeDamage(
-							new Damage(
-								ability.creature, // Attacker
-								ability.damages1, // Damage Type
-								1, // Area
-								[], // Effects
-								G,
-							),
-						);
+				const frostMasteryDifference = Math.max(vehemoth.stats.frost - target.stats.frost, 0);
+				const damage = new Damage(
+					ability.creature,
+					{
+						frost: frostMasteryDifference,
+					},
+					1,
+					[],
+					G,
+				);
 
-						creaturesHit.push(choice[i].creature);
+				tween.onComplete.add(function () {
+					// `this` refers to the animation object, _not_ the ability.
+					this.destroy();
+
+					let damageResult;
+					if (damage.damages.frost > 0) {
+						damageResult = target.takeDamage(damage);
 					}
-				}
+
+					target.freeze(ability.isUpgraded());
+
+					if (damageResult && !damageResult.kill) {
+						G.log(
+							`%CreatureName${target.id}% ${
+								ability.isUpgraded() ? 'enters Cryostasis' : 'has been Frozen'
+							} and cannot act`,
+						);
+						target.hint(ability.isUpgraded() ? 'Cryostasis' : 'Frozen');
+					}
+				}, sprite); // End tween.onComplete
+			},
+
+			/**
+			 * Test a potential target enemy unit's state to determine if it can be targeted.
+			 *
+			 * @param {Creature} creature Enemy unit creature that could be targeted.
+			 * @returns {boolean} Does the unit meet the targeting requirements?
+			 */
+			_confirmTarget(creature) {
+				return creature.isFatigued();
 			},
 		},
 
@@ -606,7 +507,7 @@ export default (G) => {
 					'', // Trigger
 					{
 						effectFn: function (eff) {
-							eff.target.stats.frozen = true;
+							eff.target.freeze();
 							this.deleteEffect();
 						},
 					},

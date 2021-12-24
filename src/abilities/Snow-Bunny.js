@@ -72,8 +72,9 @@ export default (G) => {
 				const abilityCanTrigger =
 					triggerHexes.length &&
 					this.timesUsedThisTurn < this._getUsesPerTurn() &&
-					// Bunny cannot use this ability if affected by these states.
-					!(this.creature.materializationSickness || this.creature.stats.frozen) &&
+					// Bunny cannot use this ability if affected by these statuses.
+					!this.creature.materializationSickness &&
+					!this.creature.isFrozen() &&
 					// Bunny needs a valid hex to retreat into.
 					this._getHopHex();
 
@@ -250,7 +251,7 @@ export default (G) => {
 
 				let damages = ability.damages;
 				// If upgraded, do pure damage against frozen targets
-				if (this.isUpgraded() && target.stats.frozen) {
+				if (this.isUpgraded() && target.isFrozen()) {
 					damages = {
 						pure: 0,
 					};
@@ -323,7 +324,7 @@ export default (G) => {
 
 				let target = arrayUtils.last(path).creature;
 				// No blow size penalty if upgraded and target is frozen
-				let dist = 5 - (this.isUpgraded() && target.stats.frozen ? 0 : target.size);
+				let dist = 5 - (this.isUpgraded() && target.isFrozen() ? 0 : target.size);
 				let dir = [];
 				switch (args.direction) {
 					case 0: // Upright
@@ -469,9 +470,7 @@ export default (G) => {
 
 					// If upgraded and melee range, freeze the target
 					if (ability.isUpgraded() && damageResult.damageObj.melee) {
-						target.stats.frozen = true;
-						target.updateHealth();
-						G.UI.updateFatigue();
+						target.freeze();
 					}
 				}, sprite); // End tween.onComplete
 			},

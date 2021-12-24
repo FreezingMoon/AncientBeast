@@ -486,7 +486,7 @@ export default (G) => {
 						ability.isUpgraded() &&
 						(target.delayed || target.findEffect('Earth Shaker').length > 0)
 					) {
-						target.dizzy = true;
+						target.status.dizzy = true;
 						target.removeEffect('Earth Shaker');
 					} else {
 						target.delay(false);

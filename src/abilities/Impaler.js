@@ -108,8 +108,6 @@ export default (G) => {
 					finalDmg.poison = this.damages1.poison;
 				}
 
-				G.UI.checkAbilities();
-
 				let damage = new Damage(
 					ability.creature, // Attacker
 					finalDmg, // Damage Type
