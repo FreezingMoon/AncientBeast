@@ -469,7 +469,6 @@ export default (G) => {
 					(nutcase.player.flipped && args.direction === Direction.Right) ||
 					(!nutcase.player.flipped && args.direction === Direction.Left);
 				const nutcasePushHexes = nutcase.getHexMap(matrices.inlinefront2hex, isChargingBackwards);
-				G.grid.__debugHexes(nutcasePushHexes);
 				const targetPushHexes = pushPath.slice();
 
 				// Ensure the creature or target aren't already in the target's push location.
