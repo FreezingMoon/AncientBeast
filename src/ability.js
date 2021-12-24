@@ -1,6 +1,6 @@
 import * as $j from 'jquery';
 import { Damage } from './damage';
-import { Hex } from './utility/hex';
+import { Direction, Hex } from './utility/hex';
 import { Creature } from './creature';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
@@ -817,5 +817,21 @@ export class Ability {
 
 		this.message = this.game.msg.abilities.noTarget;
 		return false;
+	}
+
+	/**
+	 * Determine if the ability is being used in the opposite direction to the creature's
+	 * natural facing direction.
+	 *
+	 * i.e. red player's right facing Headless is targeting a creature to its left.
+	 *
+	 * @param {Direction} direction The direction the ability is being used.
+	 * @returns {boolean} The ability is being used backwards.
+	 */
+	isTargetingBackwards(direction) {
+		return (
+			(this.creature.player.flipped && direction < Direction.DownLeft) ||
+			(!this.creature.player.flipped && direction > Direction.DownRight)
+		);
 	}
 }

@@ -232,29 +232,23 @@ export default (G) => {
 					return !hex.creature;
 				});
 
-				// if (!path.length)
-
 				/* The query path starts away from Headless due to minimum range, so we
-				first need to extend the path all the way back to in front of Headless. */
+				add the ability deadzone (inside minimum range) path to extend the final
+				path all the way back to in front of Headless. */
 				const extendFunction =
-					args.direction === Direction.Left ? arrayUtils.extendToRight : arrayUtils.extendToLeft;
-				console.log(path, path.length);
-				console.log('extendy', extendFunction([arrayUtils.last(queryPath)], 2, this.game.grid));
-				console.log(
-					'extendy 2',
-					arrayUtils.last(extendFunction([arrayUtils.last(queryPath)], 2, this.game.grid)),
+					args.direction === Direction.Left ? arrayUtils.extendToLeft : arrayUtils.extendToRight;
+				const deadzonePath = extendFunction(
+					this.creature.getHexMap(
+						matrices.inlinefront2hex,
+						this.isTargetingBackwards(args.direction),
+					),
+					this.range.minimum,
+					this.game.grid,
 				);
-				const [firstHex, ...restOfPath] = path.length
-					? path
-					: extendFunction([arrayUtils.last(queryPath)], 2, this.game.grid);
-				console.log({ firstHex, restOfPath });
 				path = arrayUtils.sortByDirection(
-					[...extendFunction(firstHex, this.range.minimum + 1, this.game.grid), ...restOfPath],
+					[...deadzonePath, ...path],
 					args.direction === Direction.Left ? Direction.Right : Direction.Left,
 				);
-
-				console.log('FINAL PATH:');
-				this.game.grid.__debugHexes(path);
 
 				ability.end();
 
