@@ -467,8 +467,9 @@ export default (G) => {
 				// However the Nutcase stops, he'll try and push to the next hex in the same direction.
 				const isChargingBackwards =
 					(nutcase.player.flipped && args.direction === Direction.Right) ||
-					args.direction === Direction.Left;
+					(!nutcase.player.flipped && args.direction === Direction.Left);
 				const nutcasePushHexes = nutcase.getHexMap(matrices.inlinefront2hex, isChargingBackwards);
+				G.grid.__debugHexes(nutcasePushHexes);
 				const targetPushHexes = pushPath.slice();
 
 				// Ensure the creature or target aren't already in the target's push location.
