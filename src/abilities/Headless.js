@@ -163,9 +163,34 @@ export default (G) => {
 			},
 		},
 
-		//
 		/**
 		 * Primary Ability: Whip Move
+		 *
+		 * Inline ranged utility for pulling the Headless and a single allied or enemy
+		 * unit together. Whether the Headless, target, or both are displaced depends
+		 * on the relative size between the units.
+		 *
+		 * When upgraded the maximum range is increased.
+		 *
+		 * Targeting rules:
+		 * - The target can be a single enemy or allied unit.
+		 * - The target must be moveable.
+		 * - The targeting has a minimum range creating a deadzone where units cannot
+		 *   be targeted.
+		 * - The target must be inline (forwards or backwards) within 5 range.
+		 * - The path to the target unit cannot be interrupted by any obstacles or units.
+		 *
+		 * Other rules:
+		 * - The ability deals no damage, even when targeting enemy units.
+		 * - If the target is 1-sized, it is pulled to the hex in front of the Headless.
+		 * - If the target is 2-sized, both units will be pulled towards each other
+		 *   ending up adjacent at a halfway point.
+		 * - If the target is 3-sized, the Headless is pulled to the hex in front of
+		 *   the target.
+		 * - The pull movement ignores pathing (it is pulled through the air) until
+		 *   the final hex. For example, only a trap on the "landing" hex will be triggered.
+		 * - The pull movement does not consume movement points.
+		 * - Headless cannot use the ability if immoveable.
 		 */
 		{
 			trigger: 'onQuery',
@@ -180,8 +205,7 @@ export default (G) => {
 					return false;
 				}
 
-				// Headless must be moveable.
-				if (!this.creature.stats.moveable) {
+				if (!headless.stats.moveable) {
 					this.message = G.msg.abilities.notMoveable;
 					return false;
 				}
@@ -220,6 +244,7 @@ export default (G) => {
 					directions: this._directions,
 					distance: this._getMaxDistance(),
 					minDistance: this.range.minimum,
+					optTest: (creature) => creature.stats.moveable,
 				});
 			},
 
@@ -254,7 +279,7 @@ export default (G) => {
 
 				ability.end();
 
-				// Movement
+				// Movement - here be legacy dragons.
 				arrayUtils.filterCreature(path, false, false);
 				let destination = null;
 				let destinationTarget = null;

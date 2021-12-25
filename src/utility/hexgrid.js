@@ -187,6 +187,7 @@ export class HexGrid {
 				dashedHexesAfterCreatureStop: true,
 				dashedHexesDistance: 0,
 				sourceCreature: undefined,
+				optTest: () => true,
 			};
 
 		o = $j.extend(defaultOpt, o);
@@ -254,7 +255,11 @@ export class HexGrid {
 					continue;
 				}
 
-				if (o.stopOnCreature && o.includeCreature && (i === 1 || i === 4)) {
+				if (
+					o.stopOnCreature &&
+					o.includeCreature &&
+					(i === Direction.Right || i === Direction.Left)
+				) {
 					// Only straight direction
 					if (arrayUtils.last(dir).creature instanceof Creature) {
 						// Add full creature
@@ -292,14 +297,28 @@ export class HexGrid {
 	 * @return {boolean} At least one valid target.
 	 */
 	atLeastOneTarget(dir, o) {
+		const defaultOpt = {
+			team: Team.both,
+			optTest: function () {
+				return true;
+			},
+		};
+
+		const options = { ...defaultOpt, ...o };
+
 		let validChoice = false;
-		// Search each hex for a creature that matches the team argument
+
+		// Search each hex for a creature that matches the team argument.
 		for (let j = 0; j < dir.length; j++) {
 			const targetCreature = dir[j].creature;
 
-			if (targetCreature instanceof Creature && targetCreature.id !== o.id) {
-				const sourceCreature = this.game.creatures[o.id];
-				if (isTeam(sourceCreature, targetCreature, o.team)) {
+			if (targetCreature instanceof Creature && targetCreature.id !== options.id) {
+				const sourceCreature = this.game.creatures[options.id];
+
+				if (
+					isTeam(sourceCreature, targetCreature, options.team) &&
+					options.optTest(targetCreature)
+				) {
 					validChoice = true;
 					break;
 				}
