@@ -175,10 +175,12 @@ export default (G) => {
 		 * Targeting rules:
 		 * - The target can be a single enemy or allied unit.
 		 * - The target must be moveable.
-		 * - The targeting has a minimum range creating a deadzone where units cannot
-		 *   be targeted.
-		 * - The target must be inline (forwards or backwards) within 5 range.
+		 * - The targeting has a
+		 * - The target must be inline (forwards or backwards) within the minimum and
+		 *   maximum range.
 		 * - The path to the target unit cannot be interrupted by any obstacles or units.
+		 * - Targets in the deadzone (under minimum) range interrupt the path to other
+		 *   valid targets.
 		 *
 		 * Other rules:
 		 * - The ability deals no damage, even when targeting enemy units.
