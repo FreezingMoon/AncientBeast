@@ -175,7 +175,6 @@ export default (G) => {
 		 * Targeting rules:
 		 * - The target can be a single enemy or allied unit.
 		 * - The target must be moveable.
-		 * - The targeting has a
 		 * - The target must be inline (forwards or backwards) within the minimum and
 		 *   maximum range.
 		 * - The path to the target unit cannot be interrupted by any obstacles or units.
@@ -282,6 +281,7 @@ export default (G) => {
 				ability.end();
 
 				// Movement - here be legacy dragons.
+				headless.faceHex(target);
 				arrayUtils.filterCreature(path, false, false);
 				let destination = null;
 				let destinationTarget = null;
@@ -318,6 +318,7 @@ export default (G) => {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
+									headless.facePlayerDefault();
 								}
 							}, 100);
 						},
@@ -339,6 +340,7 @@ export default (G) => {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
+									headless.facePlayerDefault();
 								}
 							}, 100);
 						},
