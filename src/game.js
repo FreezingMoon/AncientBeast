@@ -85,7 +85,7 @@ export default class Game {
 		this.session = null;
 		this.client = null;
 		this.connect = null;
-		this.debugMode = false;
+		this.debugMode = process.env.DEBUG_MODE;
 		this.multiplayer = false;
 		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
