@@ -218,6 +218,14 @@ export default (G) => {
 						overrideSpeed: 100,
 						callback: function () {
 							let knockbackHex = null;
+
+							// Damage before any other creature movement is complete and before knockback.
+							const damageResult = ability._damageTarget(target);
+
+							if (damageResult.kill) {
+								return;
+							}
+
 							for (let i = 0; i < knockbackHexes.length; i++) {
 								// Check that the next knockback hex is valid
 								if (!knockbackHexes[i].isWalkable(target.size, target.id, true)) {
@@ -225,13 +233,10 @@ export default (G) => {
 								}
 								knockbackHex = knockbackHexes[i];
 							}
+
 							if (knockbackHex !== null) {
 								target.moveTo(knockbackHex, {
 									callback: function () {
-										// Deal damage only if target have reached the end of the path
-										if (knockbackHex.creature === target) {
-											ability._damageTarget(target);
-										}
 										G.activeCreature.queryMove();
 									},
 									ignoreMovementPoint: true,
@@ -239,7 +244,6 @@ export default (G) => {
 									animation: 'push',
 								});
 							} else {
-								ability._damageTarget(target);
 								G.activeCreature.queryMove();
 							}
 						},
@@ -252,6 +256,7 @@ export default (G) => {
 			 * target if under a certain health threshold.
 			 *
 			 * @param {Creature} target Target for the ability.
+			 * @returns {object} @see creature.takeDamage()
 			 */
 			_damageTarget(target) {
 				const ability = this;
@@ -266,12 +271,13 @@ export default (G) => {
 					[], // Effects
 					G,
 				);
+				let damageResult;
 
 				if (shouldExecute) {
 					/* Suppress the death message, to be replaced by a custom log. Setting
 						`noLog` on Damage wouldn't work as it would suppress Shielded/Dodged messages. */
 					this.game.UI.chat.suppressMessage(/is dead/i, 1);
-					const damageResult = target.takeDamage(damage);
+					damageResult = target.takeDamage(damage);
 
 					// Damage could be shielded or blocked, so double check target has died.
 					if (damageResult.kill) {
@@ -279,8 +285,10 @@ export default (G) => {
 						target.hint('Shattered', 'damage');
 					}
 				} else {
-					target.takeDamage(damage);
+					damageResult = target.takeDamage(damage);
 				}
+
+				return damageResult;
 			},
 		},
 
