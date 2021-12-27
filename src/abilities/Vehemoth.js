@@ -219,7 +219,9 @@ export default (G) => {
 						callback: function () {
 							let knockbackHex = null;
 
-							// Damage before any other creature movement is complete and before knockback.
+							/* Damage before knockback any other creature movement 
+							to handle dead targets, Snow Bunny hop incorrectly avoiding 
+							damage, etc. */
 							const damageResult = ability._damageTarget(target);
 
 							if (damageResult.kill) {
