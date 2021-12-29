@@ -54,6 +54,10 @@ export class Chat {
 		if (message === 'toggleMetaPowers') {
 			this.hide();
 		}
+
+		if (message === 'closeInterfaceScreens') {
+			this.hide();
+		}
 	}
 
 	show() {

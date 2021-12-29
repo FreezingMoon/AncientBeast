@@ -954,8 +954,11 @@
 						<button class="toggle-music-player close-button"></button>
 					</div>
 					
-					<audio id="audio-player" preload="auto" controls="" style="width: 890px;"></audio>
-					<a style="cursor: pointer;" id="mp_shuffle">Shuffle</a>
+					<div class="audio-player-controls">
+						<audio id="audio-player" preload="auto" controls=""></audio>
+						<button id="mp_shuffle">Shuffle</button>
+					</div>
+
 					<div class="musicgenres active">Tags:</div>
 					<div class="musicgenres__items">
 						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
