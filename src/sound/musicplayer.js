@@ -2,7 +2,7 @@ import * as $j from 'jquery';
 
 export class MusicPlayer {
 	constructor() {
-		this.audio = $j('#audio')[0];
+		this.audio = $j('#audio-player')[0];
 		this.playlist = $j('#playlist');
 		this.tracks = this.playlist.find('li.epic');
 
