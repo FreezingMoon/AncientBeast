@@ -670,7 +670,6 @@ export default class Game {
 		let totalCreatures = this.creatures.length,
 			i;
 
-		this.grid.clearHexViewAlterations();
 		this.turn++;
 		this.log('Round ' + this.turn, 'roundmarker', true);
 		this.queue.nextRound();
@@ -870,7 +869,6 @@ export default class Game {
 			o.callback.apply();
 		}, 1000);
 
-		this.grid.clearHexViewAlterations();
 		this.activeCreature.facePlayerDefault();
 
 		let skipTurn = new Date();

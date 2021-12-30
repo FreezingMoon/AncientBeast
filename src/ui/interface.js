@@ -261,7 +261,6 @@ export class UI {
 								return false;
 							}
 
-							game.grid.clearHexViewAlterations();
 							let ability = game.activeCreature.abilities[i];
 							// Passive ability icon can cycle between usable abilities
 							if (i == 0) {
@@ -278,7 +277,6 @@ export class UI {
 							// Activate Ability
 							game.activeCreature.abilities[i].use();
 						} else {
-							game.grid.clearHexViewAlterations();
 							// Cancel Ability
 							this.closeDash();
 							game.activeCreature.queryMove();
@@ -486,7 +484,6 @@ export class UI {
 						/* Check to see if dash view or chat are open first before
 						 * canceling the active ability when using Esc hotkey
 						 */
-						game.grid.clearHexViewAlterations();
 						game.activeCreature.queryMove();
 						this.selectAbility(-1);
 					}

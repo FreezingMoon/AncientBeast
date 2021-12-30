@@ -507,7 +507,6 @@ export default (G) => {
 					if (!G.freezedInput) {
 						clearInterval(interval);
 						G.activeCreature.queryMove();
-						G.grid.clearHexViewAlterations();
 					}
 				}, 100);
 

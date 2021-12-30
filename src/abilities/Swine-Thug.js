@@ -388,18 +388,9 @@ export default (G) => {
 				}
 				hexes.push(G.grid.hexes[swine.y][swine.x]);
 
-				//TODO: Filtering corpse hexes
-				//TODO: Add this code back in when its actually used.
-				// hexes = hexes.filter(function(hex) {
-				// 	return true;
-				// });
-
-				G.grid.hideCreatureHexes(this.creature);
-
 				G.grid.queryHexes({
 					fnOnCancel: function () {
 						G.activeCreature.queryMove();
-						G.grid.clearHexViewAlterations();
 					},
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
@@ -411,7 +402,6 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex) {
-				G.grid.clearHexViewAlterations();
 				let ability = this;
 				let swine = this.creature;
 
