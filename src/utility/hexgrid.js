@@ -781,8 +781,7 @@ export class HexGrid {
 
 		// ONMOUSEOVER
 		let onSelectFn = (hex) => {
-			let y = hex.y,
-				x = hex.x;
+			let { x, y } = hex;
 
 			// Xray
 			this.xray(hex);
@@ -803,8 +802,8 @@ export class HexGrid {
 				}
 
 				// Offset Pos
-				let offset = o.flipped ? o.size - 1 : 0,
-					mult = o.flipped ? 1 : -1; // For flipped player
+				const offset = o.flipped ? o.size - 1 : 0;
+				const mult = o.flipped ? 1 : -1; // For flipped player
 
 				for (let i = 0, size = o.size; i < size; i++) {
 					// Try next hexagons to see if they fit
@@ -904,35 +903,6 @@ export class HexGrid {
 		}
 	}
 
-	/* hideCreatureHexes()
-	 *
-	 * Ghosts hexes with creatures
-	 * TODO: This does nothing...
-	 */
-	hideCreatureHexes(except) {
-		this.game.creatures.forEach((creature) => {
-			if (creature instanceof Creature) {
-				let hide = true;
-				if (except instanceof Creature) {
-					if (except.id == creature.id) {
-						hide = false;
-					}
-				}
-
-				if (hide) {
-					// this.$display.addClass("ghosted_hidden");
-					// this.$health.addClass("ghosted_hidden");
-					for (let i = 0; i < creature.size; i++) {
-						if (creature.hexagons[i]) {
-							// this.hexagons[i].$display.hide();
-							// this.hexagons[i].$overlay.hide();
-						}
-					}
-				}
-			}
-		});
-	}
-
 	/* getHexLine(x, y, dir, flipped)
 	 *
 	 * Gets a line of hexes given a start point and a direction
@@ -961,38 +931,6 @@ export class HexGrid {
 			default:
 				return [];
 		}
-	}
-
-	/* showCreaturehexes()
-	 *
-	 * Unghosts hexes with creatures
-	 * TODO: This also does nothing...
-	 */
-	showCreaturehexes() {
-		this.game.creatures.forEach((creature) => {
-			if (creature instanceof Creature) {
-				// this.display.overlayVisualState("ghosted_hidden");
-				// this.health.overlayVisualState("ghosted_hidden");
-				for (let i = 0; i < creature.size; i++) {
-					//if(this.hexagons[i]) {
-					//	this.hexagons[i].display.alpha = 1;
-					//	this.hexagons[i].overlay.alpha = 1;
-					//}
-				}
-			}
-		});
-	}
-
-	/* clearHexViewAlterations()
-	 *
-	 * Removes all hex view alterations like hideCreatureHexes used
-	 * Squashes bugs by making sure all view alterations are removed
-	 * on a change of ability/change of turn/etc
-	 * If you make a new hex view alteration call the function to remove
-	 * the alteration in here to ensure it gets cleared at the right time
-	 */
-	clearHexViewAlterations() {
-		this.showCreaturehexes();
 	}
 
 	cleanHex(hex) {
@@ -1215,43 +1153,69 @@ export class HexGrid {
 	}
 
 	selectHexUp() {
-		if (this.hexExists(this.selectedHex.y - 1, this.selectedHex.x)) {
-			let hex = this.hexes[this.selectedHex.y - 1][this.selectedHex.x];
-			this.selectedHex = hex;
-			hex.onSelectFn();
+		if (!this.hexExists(this.selectedHex.y - 1, this.selectedHex.x)) {
+			return;
 		}
+
+		this.clearHexViewAlterations();
+
+		const hex = this.hexes[this.selectedHex.y - 1][this.selectedHex.x];
+		this.selectedHex = hex;
+		hex.onSelectFn(hex);
+	}
+
+	clearHexViewAlterations() {
+		if (!this.selectedHex) {
+			return;
+		}
+
+		this.redoLastQuery();
+		this.xray(new Hex(-1, -1, null, this.game)); // Clear Xray
+		this.game.UI.xrayQueue(-1); // Clear Xray Queue
 	}
 
 	selectHexDown() {
-		if (this.hexExists(this.selectedHex.y + 1, this.selectedHex.x)) {
-			let hex = this.hexes[this.selectedHex.y + 1][this.selectedHex.x];
-			this.selectedHex = hex;
-			hex.onSelectFn();
+		if (!this.hexExists(this.selectedHex.y + 1, this.selectedHex.x)) {
+			return;
 		}
+
+		this.clearHexViewAlterations();
+
+		const hex = this.hexes[this.selectedHex.y + 1][this.selectedHex.x];
+		this.selectedHex = hex;
+		hex.onSelectFn(hex);
 	}
 
 	selectHexLeft() {
-		if (this.hexExists(this.selectedHex.y, this.selectedHex.x - 1)) {
-			let hex = this.hexes[this.selectedHex.y][this.selectedHex.x - 1];
-			this.selectedHex = hex;
-			hex.onSelectFn();
+		if (!this.hexExists(this.selectedHex.y, this.selectedHex.x - 1)) {
+			return;
 		}
+
+		this.clearHexViewAlterations();
+
+		const hex = this.hexes[this.selectedHex.y][this.selectedHex.x - 1];
+		this.selectedHex = hex;
+		hex.onSelectFn(hex);
 	}
 
 	selectHexRight() {
-		if (this.hexExists(this.selectedHex.y, this.selectedHex.x + 1)) {
-			let hex = this.hexes[this.selectedHex.y][this.selectedHex.x + 1];
-			this.selectedHex = hex;
-			hex.onSelectFn();
+		if (!this.hexExists(this.selectedHex.y, this.selectedHex.x + 1)) {
+			return;
 		}
+
+		this.clearHexViewAlterations();
+
+		const hex = this.hexes[this.selectedHex.y][this.selectedHex.x + 1];
+		this.selectedHex = hex;
+		hex.onSelectFn(hex);
 	}
 
-	confirmHex(hex) {
+	confirmHex() {
 		if (this.game.freezedInput) {
 			return;
 		}
 
-		this.selectedHex.onConfirmFn(hex);
+		this.selectedHex.onConfirmFn(this.selectedHex);
 	}
 
 	orderCreatureZ() {
