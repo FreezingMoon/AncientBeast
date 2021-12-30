@@ -1508,17 +1508,18 @@ export class UI {
 	toggleDash(randomize) {
 		let game = this.game;
 
-		if (!this.$dash.hasClass('active')) {
-			if (randomize && this.lastViewedCreature == '') {
-				// Optional: select a random creature from the grid
-				this.showRandomCreature();
-			} else if (this.lastViewedCreature !== '') {
-				this.showCreature(this.lastViewedCreature, game.activeCreature.team, '');
-			} else {
-				this.showCreature(game.activeCreature.type, game.activeCreature.team, '');
-			}
-		} else {
+		if (this.$dash.hasClass('active')) {
 			this.closeDash();
+			return;
+		}
+
+		if (randomize && !this.lastViewedCreature) {
+			// Optional: select a random creature from the grid
+			this.showRandomCreature();
+		} else if (this.lastViewedCreature) {
+			this.showCreature(this.lastViewedCreature, game.activeCreature.team, '');
+		} else {
+			this.showCreature(game.activeCreature.type, game.activeCreature.team, '');
 		}
 	}
 
@@ -2422,16 +2423,14 @@ export class UI {
 					return;
 				}
 				let creaID = $j(e.currentTarget).attr('creatureid') - 0;
+
+				/* If showing the active player's Dark Priest, open the dash using another
+				method which restores any previously selected creature for materialization. */
 				if (
 					game.creatures[creaID].isDarkPriest() &&
-					game.creatures[creaID].player.id == game.activeCreature.player.id &&
-					!game.activeCreature.abilities[3].used
+					game.creatures[creaID].player.id === game.activeCreature.player.id
 				) {
-					this.showCreature(
-						game.creatures[creaID].type,
-						game.creatures[creaID].player.id,
-						'portrait',
-					);
+					this.toggleDash();
 				} else {
 					this.showCreature(
 						game.creatures[creaID].type,
