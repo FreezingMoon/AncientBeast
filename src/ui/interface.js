@@ -2428,7 +2428,7 @@ export class UI {
 				method which restores any previously selected creature for materialization. */
 				if (
 					game.creatures[creaID].isDarkPriest() &&
-					game.creatures[creaID].player.id === game.activeCreature.player.id
+					game.creatures[creaID].id === game.activeCreature.id
 				) {
 					this.toggleDash();
 				} else {
