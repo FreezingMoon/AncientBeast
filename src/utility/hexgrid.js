@@ -187,6 +187,7 @@ export class HexGrid {
 				dashedHexesAfterCreatureStop: true,
 				dashedHexesDistance: 0,
 				sourceCreature: undefined,
+				optTest: () => true,
 			};
 
 		o = $j.extend(defaultOpt, o);
@@ -197,6 +198,8 @@ export class HexGrid {
 		});
 
 		o.choices = [];
+		let deadzone = [];
+
 		for (let i = 0, len = o.directions.length; i < len; i++) {
 			if (o.directions[i]) {
 				let dir = [],
@@ -217,8 +220,20 @@ export class HexGrid {
 				}
 
 				if (o.minDistance > 0) {
-					// Exclude current hex
-					dir = dir.slice(o.minDistance + 1);
+					// The untargetable area between the unit and the minimum distance.
+					deadzone = dir.slice(0, o.minDistance);
+					deadzone = arrayUtils.filterCreature(deadzone, o.includeCreature, o.stopOnCreature, o.id);
+
+					dir = dir.slice(
+						// 1 greater than expected to exclude current (source creature) hex.
+						o.minDistance,
+					);
+				}
+
+				/* If the ability has a minimum distance and units should block LOS, this
+				direction cannot be used if there is a unit in the deadzone. */
+				if (o.stopOnCreature && deadzone.length && this.atLeastOneTarget(deadzone, o)) {
+					continue;
 				}
 
 				let hexesDashed = [];
@@ -236,27 +251,15 @@ export class HexGrid {
 					continue;
 				}
 
-				if (o.requireCreature) {
-					let validChoice = false;
-					// Search each hex for a creature that matches the team argument
-					for (let j = 0; j < dir.length; j++) {
-						let creaTarget = dir[j].creature;
-
-						if (creaTarget instanceof Creature && creaTarget.id !== o.id) {
-							let creaSource = game.creatures[o.id];
-							if (isTeam(creaSource, creaTarget, o.team)) {
-								validChoice = true;
-								break;
-							}
-						}
-					}
-
-					if (!validChoice) {
-						continue;
-					}
+				if (o.requireCreature && !this.atLeastOneTarget(dir, o)) {
+					continue;
 				}
 
-				if (o.stopOnCreature && o.includeCreature && (i === 1 || i === 4)) {
+				if (
+					o.stopOnCreature &&
+					o.includeCreature &&
+					(i === Direction.Right || i === Direction.Left)
+				) {
 					// Only straight direction
 					if (arrayUtils.last(dir).creature instanceof Creature) {
 						// Add full creature
@@ -283,6 +286,50 @@ export class HexGrid {
 		}
 
 		return o;
+	}
+
+	/**
+	 * Return whether there is at least one creature in the hexes that satisfies
+	 * various conditions, e.g. team.
+	 *
+	 * @param {} dir ?
+	 * @param {Object} o
+	 * @return {boolean} At least one valid target.
+	 */
+	atLeastOneTarget(dir, o) {
+		const defaultOpt = {
+			team: Team.both,
+			optTest: function () {
+				return true;
+			},
+		};
+
+		const options = { ...defaultOpt, ...o };
+
+		let validChoice = false;
+
+		// Search each hex for a creature that matches the team argument.
+		for (let j = 0; j < dir.length; j++) {
+			const targetCreature = dir[j].creature;
+
+			if (targetCreature instanceof Creature && targetCreature.id !== options.id) {
+				const sourceCreature = this.game.creatures[options.id];
+
+				if (
+					isTeam(sourceCreature, targetCreature, options.team) &&
+					options.optTest(targetCreature)
+				) {
+					validChoice = true;
+					break;
+				}
+			}
+		}
+
+		if (validChoice) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/*
@@ -1335,22 +1382,6 @@ export class HexGrid {
 			this.cleanHex(hexInstance);
 			hexInstance.overlayVisualState('creature selected player' + game.activeCreature.team);
 		}
-	}
-
-	/**
-	 * Sort a list of hexes by their x value, based on a direction.
-	 * Going Left sorts greatest to least, going Right is the opposite.
-	 *
-	 * @param {Hex[]} hexes Hexes to sort.
-	 * @param {Direction} direction Direction to sort hexes.
-	 * @returns {Hex[]} Array of sorted hexes.
-	 */
-	sortHexesByDirection(hexes, direction) {
-		if (![Direction.Left, Direction.Right].includes(direction)) {
-			console.warn('Sorting currently supports Left and Right directions.');
-		}
-
-		return hexes.sort((a, b) => (direction === Direction.Right ? a.x - b.x : b.x - a.x));
 	}
 
 	/**

@@ -1,4 +1,5 @@
 import { Creature } from '../creature';
+import { Direction } from './hex';
 
 /** findPos
  * Find an object in the current Array based on its pos attribute
@@ -97,6 +98,22 @@ export function extendToLeft(arr, size, grid) {
 
 	return ext;
 }
+
+/**
+ * Sort a line of hexes by their x value, based on a direction.
+ * Sorting Left sorts least to greatest, sorting Right is the opposite.
+ *
+ * @param {Hex[]} hexes Line of hexes to sort.
+ * @param {Direction} direction Direction to sort hexes. Only Direction.Left and Direction.Right are currently supported.
+ * @returns {Hex[]} Array of sorted hexes.
+ */
+export const sortByDirection = (hexes, direction) => {
+	if (![Direction.Left, Direction.Right].includes(direction)) {
+		console.warn('Sorting currently supports Left and Right directions.');
+	}
+
+	return hexes.sort((a, b) => (direction === Direction.Left ? a.x - b.x : b.x - a.x));
+};
 
 /** extendToRight
  *
