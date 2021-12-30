@@ -35,7 +35,7 @@ export class MetaPowers {
 			this._restorePowers();
 		}
 
-		this._updatePowersList();
+		this._updateEnabledPowersPreview();
 	}
 
 	/**
@@ -49,6 +49,18 @@ export class MetaPowers {
 			this._toggleModal();
 		}
 
+		if (message === 'toggleDash') {
+			this._closeModal();
+		}
+
+		if (message === 'toggleScore') {
+			this._closeModal();
+		}
+
+		if (message === 'toggleMusicPlayer') {
+			this._closeModal();
+		}
+
 		if (message === 'closeInterfaceScreens') {
 			this._closeModal();
 		}
@@ -60,7 +72,7 @@ export class MetaPowers {
 	_bindElements() {
 		this.$els = {
 			modal: $j('#meta-powers'),
-			closeModal: $j('#meta-powers .framed-modal__return .button'),
+			closeModal: $j('#meta-powers .close-button'),
 			resetPowersButton: $j('#reset-toggled-powers'),
 			powersList: $j('#meta-powers-list'),
 			executeMonsterButton: $j('#execute-monster-button'),
@@ -131,7 +143,7 @@ export class MetaPowers {
 
 		this.game.signals.metaPowers.dispatch(`toggle${capitalize(stateKey)}`, enabled);
 
-		this._updatePowersList();
+		this._updateEnabledPowersPreview();
 		this._persistPowers();
 	}
 
@@ -169,7 +181,7 @@ export class MetaPowers {
 	/**
 	 * Display a list of enabled powers outside of the modal for easy reference.
 	 */
-	_updatePowersList() {
+	_updateEnabledPowersPreview() {
 		const list = Object.keys(this.toggles)
 			.reduce((acc, curr) => {
 				if (this.toggles[curr].enabled) {

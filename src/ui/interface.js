@@ -71,14 +71,9 @@ export class UI {
 		this.btnToggleDash = new Button(
 			{
 				$button: $j('.toggledash'),
+				hasShortcut: true,
 				click: () => {
-					// if dash is open and audio player is visible, just show creatures
-					if (this.dashopen && $j('#musicplayerwrapper').is(':visible')) {
-						$j('#playertabswrapper').show();
-						$j('#musicplayerwrapper').hide();
-					}
-
-					this.toggleDash();
+					this.game.signals.ui.dispatch('toggleDash');
 				},
 				overridefreeze: true,
 			},
@@ -90,7 +85,11 @@ export class UI {
 		this.btnToggleScore = new Button(
 			{
 				$button: $j('.togglescore'),
-				click: () => this.toggleScoreboard(),
+				hasShortcut: true,
+				click: () => {
+					this.game.signals.ui.dispatch('toggleScore');
+				},
+				overridefreeze: true,
 			},
 			game,
 		);
@@ -101,6 +100,7 @@ export class UI {
 				$button: $j('#fullscreen.button'),
 				hasShortcut: true,
 				click: () => this.fullscreen.toggle(),
+				overridefreeze: true,
 			},
 			game,
 		);
@@ -109,15 +109,10 @@ export class UI {
 		// Audio Button
 		this.btnAudio = new Button(
 			{
-				$button: $j('#audio.button'),
+				$button: $j('.toggle-music-player'),
 				hasShortcut: true,
 				click: () => {
-					// if audio element was already active, close dash
-					if ($j('#musicplayerwrapper').is(':visible')) {
-						this.closeDash();
-					} else {
-						this.showMusicPlayer();
-					}
+					this.game.signals.ui.dispatch('toggleMusicPlayer');
 				},
 				overridefreeze: true,
 			},
@@ -487,19 +482,13 @@ export class UI {
 					let isAbilityActive =
 						this.activeAbility && this.$scoreboard.hasClass('hide') && !this.chat.isOpen;
 
-					if (this.dashopen) {
-						this.closeDash();
-					} else if (isAbilityActive) {
+					if (isAbilityActive) {
 						/* Check to see if dash view or chat are open first before
 						 * canceling the active ability when using Esc hotkey
 						 */
 						game.grid.clearHexViewAlterations();
 						game.activeCreature.queryMove();
 						this.selectAbility(-1);
-					} else {
-						// Close chat and/or dash view if open
-						this.chat.hide();
-						this.$scoreboard.addClass('hide');
 					}
 
 					this.game.signals.ui.dispatch('closeInterfaceScreens');
@@ -589,7 +578,7 @@ export class UI {
 					break;
 			}
 		});
-		// TODO: Function to exit dash via Tab or Esc hotkeys
+
 		$j('#combatwrapper, #dash, #toppanel').on('wheel', (e) => {
 			if (game.freezedInput) {
 				return;
@@ -680,6 +669,47 @@ export class UI {
 		// Show UI
 		this.$display.show();
 		this.$dash.hide();
+
+		// Events
+		this.game.signals.ui.add(this._handleUiEvent, this);
+	}
+
+	/**
+	 * Handle events on the "ui" channel.
+	 *
+	 * @param {string} message Event name.
+	 * @param {object} payload Event payload.
+	 */
+	_handleUiEvent(message, payload) {
+		if (message === 'toggleDash') {
+			this.toggleDash();
+			this.closeMusicPlayer();
+			this.closeScoreboard();
+		}
+
+		if (message === 'toggleScore') {
+			this.toggleScoreboard();
+			this.closeDash();
+			this.closeMusicPlayer();
+		}
+
+		if (message === 'toggleMusicPlayer') {
+			this.toggleMusicPlayer();
+			this.closeDash();
+			this.closeScoreboard();
+		}
+
+		if (message === 'toggleMetaPowers') {
+			this.closeDash();
+			this.closeMusicPlayer();
+			this.closeScoreboard();
+		}
+
+		if (message === 'closeInterfaceScreens') {
+			this.closeDash();
+			this.closeMusicPlayer();
+			this.closeScoreboard();
+		}
 	}
 
 	showAbilityCosts(abilityId) {
@@ -1216,7 +1246,6 @@ export class UI {
 
 		$j('#tabwrapper').show();
 		$j('#playertabswrapper').show();
-		$j('#musicplayerwrapper').hide();
 
 		// Change creature status
 		game.players[id].availableCreatures.forEach((creature) => {
@@ -1262,24 +1291,12 @@ export class UI {
 			});
 	}
 
-	showMusicPlayer() {
-		let game = this.game;
+	toggleMusicPlayer() {
+		$j('#musicplayerwrapper').toggleClass('hide');
+	}
 
-		// If the scoreboard is displayed, hide it
-		if (!this.$scoreboard.hasClass('hide')) {
-			this.$scoreboard.addClass('hide');
-		}
-
-		this.$dash.addClass('active');
-		this.showCreature(game.activeCreature.type, game.activeCreature.team);
-		this.selectedPlayer = -1;
-
-		// Dash class
-		this.$dash.removeClass('selected0 selected1 selected2 selected3');
-
-		$j('#tabwrapper').hide();
-		$j('#playertabswrapper').hide();
-		$j('#musicplayerwrapper').show();
+	closeMusicPlayer() {
+		$j('#musicplayerwrapper').addClass('hide');
 	}
 
 	// Function to close scoreboard if pressing outside of it
@@ -1299,7 +1316,7 @@ export class UI {
 
 		// If the scoreboard is already displayed, hide it and return
 		if (!this.$scoreboard.hasClass('hide')) {
-			this.$scoreboard.addClass('hide');
+			this.closeScoreboard();
 
 			return;
 		}
@@ -1481,6 +1498,10 @@ export class UI {
 		this.$scoreboard.removeClass('hide');
 	}
 
+	closeScoreboard() {
+		this.$scoreboard.addClass('hide');
+	}
+
 	/* toggleDash()
 	 *
 	 * Show the dash and hide some buttons
@@ -1489,12 +1510,8 @@ export class UI {
 
 	toggleDash(randomize) {
 		let game = this.game;
-		if (!this.$dash.hasClass('active')) {
-			// If the scoreboard is displayed, hide it
-			if (!this.$scoreboard.hasClass('hide')) {
-				this.$scoreboard.addClass('hide');
-			}
 
+		if (!this.$dash.hasClass('active')) {
 			if (randomize && this.lastViewedCreature == '') {
 				// Optional: select a random creature from the grid
 				this.showRandomCreature();

@@ -272,7 +272,7 @@
 			<div id="scoreboard" class="framed-modal__wrapper hide">
 				<div class="framed-modal">
 					<div class="framed-modal__return">
-						<div class="togglescore button"></div>
+						<div class="togglescore close-button"></div>
 					</div>
 					<h1 id="scoreboardTitle"></h1>
 					<table id="score">
@@ -347,7 +347,7 @@
 			</div>
 			<div id="dash" class="selected0">
 				<div id="return">
-					<div class="toggledash button"></div>
+					<div class="toggledash close-button"></div>
 				</div>
 				<div id="playertabswrapper">
 					<div class="playertabs p0" player="0">
@@ -946,15 +946,25 @@
 						</div>
 					</div>
 				</div>
-				<div id="musicplayerwrapper">
-					<audio id="audio" preload="auto" controls="" style="width: 890px;"></audio><a style="cursor: pointer;"
-						id="mp_shuffle">Shuffle</a>
-						<div class="musicgenres active">Tags:</div>
-						<div class="musicgenres__items">
-							<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
-								<span class="musicgenres__title" id="genre-<%= musicGenre.id %>"><%= musicGenre.id %></span>
-							<% }); %>
-						</div>
+			</div>
+
+			<div id="musicplayerwrapper" class="framed-modal__wrapper hide">
+				<div class="framed-modal framed-modal--fluid">
+					<div class="framed-modal__return">
+						<button class="toggle-music-player close-button"></button>
+					</div>
+					
+					<div class="audio-player-controls">
+						<audio id="audio-player" preload="auto" controls=""></audio>
+						<button id="mp_shuffle">Shuffle</button>
+					</div>
+
+					<div class="musicgenres active">Tags:</div>
+					<div class="musicgenres__items">
+						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
+							<span class="musicgenres__title" id="genre-<%= musicGenre.id %>"><%= musicGenre.id %></span>
+						<% }); %>
+					</div>
 					<ul id="playlist" style="list-style-type:none; padding-left:0px;">
 						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
 							<% musicGenre.children.forEach(function(track) { %>
@@ -968,6 +978,7 @@
 					</div>
 				</div>
 			</div>
+
 			<div id="toppanel">
 				<div id="queue">
 					<div id="queuewrapper"></div>
@@ -984,7 +995,7 @@
 				</div>
 				<div id="rightpanel">
 					<div style="position:relative">
-						<div id="audio" class="button"></div>
+						<div id="audio" class="toggle-music-player button"></div>
 						<div class="desc">
 							<div class="arrow"></div>
 							<div class="shortcut">hotkey Shift + A</div>
@@ -1107,7 +1118,7 @@
 			<div id="meta-powers" class="framed-modal__wrapper hide">
 				<div class="framed-modal framed-modal--fluid">
 					<div class="framed-modal__return">
-						<div class="toggle-meta-powers button"></div>
+						<button class="toggle-meta-powers close-button"></button>
 					</div>
 					
 					<div class="meta-powers-header">

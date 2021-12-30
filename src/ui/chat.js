@@ -1,6 +1,4 @@
 import * as $j from 'jquery';
-// Unused for now
-// import * as time from '../utility/time';
 import * as str from '../utility/string';
 
 export class Chat {
@@ -13,22 +11,53 @@ export class Chat {
 		this.game = game;
 		this.$chat = $j('#chat');
 		this.$content = $j('#chatcontent');
-		this.$chat.bind('click', () => {
-			game.UI.chat.toggle();
+		this.$chat.on('click', () => {
+			this.toggle();
 		});
-		this.$chat.bind('mouseenter', () => {
-			game.UI.chat.peekOpen();
+		this.$chat.on('mouseenter', () => {
+			this.peekOpen();
 		});
-		this.$chat.bind('mouseleave', () => {
-			game.UI.chat.peekClose();
+		this.$chat.on('mouseleave', () => {
+			this.peekClose();
 		});
 		this.messages = [];
 		this.isOpen = false;
 		this.messagesToSuppress = [];
 
-		$j('#combatwrapper, #toppanel, #dash, #endscreen').bind('click', () => {
-			game.UI.chat.hide();
+		$j('#combatwrapper, #toppanel, #dash, #endscreen').on('click', () => {
+			this.hide();
 		});
+
+		// Events
+		this.game.signals.ui.add(this._handleUiEvent, this);
+	}
+
+	/**
+	 * Handle events on the "ui" channel.
+	 *
+	 * @param {string} message Event name.
+	 * @param {object} payload Event payload.
+	 */
+	_handleUiEvent(message, payload) {
+		if (message === 'toggleDash') {
+			this.hide();
+		}
+
+		if (message === 'toggleScore') {
+			this.hide();
+		}
+
+		if (message === 'toggleMusicPlayer') {
+			this.hide();
+		}
+
+		if (message === 'toggleMetaPowers') {
+			this.hide();
+		}
+
+		if (message === 'closeInterfaceScreens') {
+			this.hide();
+		}
 	}
 
 	show() {

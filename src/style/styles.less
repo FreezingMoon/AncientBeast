@@ -569,28 +569,24 @@ div.section.info {
 	width: 100px;
 }
 
-.togglescore.button,
-.toggledash.button,
-.toggle-meta-powers.button {
+.close-button {
+	border: none;
 	height: 100%;
 	width: 100%;
-	background-image: url('~assets/icons/close.svg');
+	background: url('~assets/icons/close.svg');
 	transition: all 0.5s;
-}
+	cursor: pointer;
 
-.togglescore.button:before,
-.toggledash.button:before,
-.toggle-meta-powers.button:before {
-	content: '';
-	width: 100%;
-	height: 100%;
-	background-image: none;
-}
+	&::before {
+		content: '';
+		width: 100%;
+		height: 100%;
+		background-image: none;
+	}
 
-.togglescore.button:hover,
-.toggledash.button:hover,
-.toggle-meta-powers.button:hover {
-	transform: rotate(-90deg);
+	&:hover {
+		transform: rotate(-90deg);
+	}
 }
 
 #playertabswrapper {
@@ -660,7 +656,6 @@ div.section.info {
 	background-color: rgba(0, 255, 0, 0.15);
 }
 
-#musicplayerwrapper,
 #tabwrapper {
 	top: 100px;
 	right: 0;
@@ -678,6 +673,24 @@ div.section.info {
 #musicplayerwrapper .active,
 #musicplayerwrapper .active a {
 	color: white !important;
+}
+
+.audio-player-controls {
+	align-items: center;
+	display: flex;
+	gap: 16px;
+	justify-content: center;
+	margin-bottom: 16px;
+
+	#audio-player {
+		width: 100%;
+	}
+
+	#mp_shuffle {
+		background: none;
+		border: none;
+		cursor: pointer;
+	}
 }
 
 .musicgenres__title {
