@@ -1157,21 +1157,14 @@ export class HexGrid {
 			return;
 		}
 
-		this.clearHexViewAlterations();
+		if (this.selectedHex) {
+			this.clearHexViewAlterations();
+			this.selectedHex.onHoverOffFn(this.selectedHex);
+		}
 
 		const hex = this.hexes[this.selectedHex.y - 1][this.selectedHex.x];
 		this.selectedHex = hex;
 		hex.onSelectFn(hex);
-	}
-
-	clearHexViewAlterations() {
-		if (!this.selectedHex) {
-			return;
-		}
-
-		this.redoLastQuery();
-		this.xray(new Hex(-1, -1, null, this.game)); // Clear Xray
-		this.game.UI.xrayQueue(-1); // Clear Xray Queue
 	}
 
 	selectHexDown() {
@@ -1179,7 +1172,10 @@ export class HexGrid {
 			return;
 		}
 
-		this.clearHexViewAlterations();
+		if (this.selectedHex) {
+			this.clearHexViewAlterations();
+			this.selectedHex.onHoverOffFn(this.selectedHex);
+		}
 
 		const hex = this.hexes[this.selectedHex.y + 1][this.selectedHex.x];
 		this.selectedHex = hex;
@@ -1191,7 +1187,10 @@ export class HexGrid {
 			return;
 		}
 
-		this.clearHexViewAlterations();
+		if (this.selectedHex) {
+			this.clearHexViewAlterations();
+			this.selectedHex.onHoverOffFn(this.selectedHex);
+		}
 
 		const hex = this.hexes[this.selectedHex.y][this.selectedHex.x - 1];
 		this.selectedHex = hex;
@@ -1203,7 +1202,10 @@ export class HexGrid {
 			return;
 		}
 
-		this.clearHexViewAlterations();
+		if (this.selectedHex) {
+			this.clearHexViewAlterations();
+			this.selectedHex.onHoverOffFn(this.selectedHex);
+		}
 
 		const hex = this.hexes[this.selectedHex.y][this.selectedHex.x + 1];
 		this.selectedHex = hex;
@@ -1216,6 +1218,22 @@ export class HexGrid {
 		}
 
 		this.selectedHex.onConfirmFn(this.selectedHex);
+	}
+
+	/**
+	 * Reset the visual state for hexes that might have been hovered, dashed, etc.
+	 * Note: I'm not entirely sure what this code is doing.
+	 */
+	clearHexViewAlterations() {
+		if (!this.selectedHex) {
+			return;
+		}
+
+		this.redoLastQuery();
+		// Clear Xray.
+		this.xray(new Hex(-1, -1, null, this.game));
+		// Clear Xray Queue.
+		this.game.UI.xrayQueue(-1);
 	}
 
 	orderCreatureZ() {

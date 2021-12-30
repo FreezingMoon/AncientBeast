@@ -117,9 +117,7 @@ export class Hex {
 					return;
 				}
 
-				grid.redoLastQuery();
-				grid.xray(new Hex(-1, -1, null, game)); // Clear Xray
-				game.UI.xrayQueue(-1); // Clear Xray Queue
+				grid.clearHexViewAlterations();
 				this.onHoverOffFn(this);
 			}, this);
 
