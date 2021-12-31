@@ -63,12 +63,31 @@ export default (G) => {
 				}
 			},
 		},
-		// Fiery touch
+
+		/**
+		 * Basic Ability: Fiery Touch
+		 *
+		 * Attack a single enemy unit within 3 range (forwards, backwards, or diagonal)
+		 * dealing both slash and burn damage.
+		 *
+		 * When upgraded, the range is extended to 6 but only the burn damage is applied.
+		 *
+		 * Targeting rules:
+		 * - The target must be an enemy unit.
+		 * - The target must be inline forwards, backwards, or diagonally within 3 range.
+		 * - The path to the target unit cannot be interrupted by any obstacles or units.
+		 *
+		 * Other rules:
+		 * - Whether dealing both damage types or just one (upgraded extra range), only
+		 *   one attack and damage should occur.
+		 * - When upgraded, the extended range of the burn damage should be indicated
+		 *   with "reduced effect" (scaled down) hexagons.
+		 */
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
-			distance: 3,
+
 			_targetTeam: Team.enemy,
+
 			require() {
 				if (!this.testRequirements()) {
 					return false;
@@ -77,42 +96,46 @@ export default (G) => {
 				if (
 					!this.testDirection({
 						team: this._targetTeam,
-						distance: this.distance,
+						distance: this._getDistance(),
 						sourceCreature: this.creature,
 					})
 				) {
 					return false;
 				}
+
 				return true;
 			},
-			query() {
-				let ability = this;
-				let crea = this.creature;
 
-				if (this.isUpgraded()) {
-					this.distance = 5;
-				}
+			query() {
+				const ability = this;
+				const abolished = this.creature;
+
+				// TODO: Visually show reduced damage hexes for 4-6 range.
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: crea.player.flipped,
+					flipped: abolished.player.flipped,
 					team: this._targetTeam,
 					id: this.creature.id,
 					requireCreature: true,
-					x: crea.x,
-					y: crea.y,
-					distance: this.distance,
-					sourceCreature: crea,
+					x: abolished.x,
+					y: abolished.y,
+					distance: this._getDistance(),
+					distanceFalloff: this.range.regular,
+					sourceCreature: abolished,
 				});
 			},
-			activate(path, args) {
-				let ability = this;
 
-				let target = arrayUtils.last(path).creature;
-				let startX = ability.creature.sprite.scale.x > 0 ? 232 : 52;
-				let projectileInstance = G.animations.projectile(
+			activate(path, args) {
+				const ability = this;
+				const target = arrayUtils.last(path).creature;
+
+				ability.end();
+
+				const startX = ability.creature.sprite.scale.x > 0 ? 232 : 52;
+				const projectileInstance = G.animations.projectile(
 					this,
 					target,
 					'effects_fiery-touch',
@@ -121,29 +144,61 @@ export default (G) => {
 					startX,
 					-20,
 				);
-				let tween = projectileInstance[0];
-				let sprite = projectileInstance[1];
+				const tween = projectileInstance[0];
+				const sprite = projectileInstance[1];
+				const damage = this._getDamage(path);
 
 				tween.onComplete.add(function () {
-					let damage = new Damage(
-						ability.creature, // Attacker
-						ability.damages, // Damage Type
-						1, // Area
-						[], // Effects
-						G,
-					);
-					target.takeDamage(damage);
-
-					ability.end();
+					// `this` refers to the animation object, _not_ the ability.
 					this.destroy();
-				}, sprite); // End tween.onComplete
+
+					target.takeDamage(damage);
+				}, sprite);
 			},
+
 			getAnimationData: function () {
 				return {
 					duration: 425,
 				};
 			},
+
+			/**
+			 * Calculate the maximum distance the ability can be targeted and activated.
+			 *
+			 * @returns {number} Ability maximum distance
+			 */
+			_getDistance() {
+				return this.isUpgraded() ? this.range.upgraded : this.range.regular;
+			},
+
+			/**
+			 * Calculate the damage of the ability as it changes depending on the distance
+			 * that it is used.
+			 *
+			 * @param {Hex[]} path Path from the Abolished to the target unit. May contain
+			 * 	creature hexes.
+			 * @returns {Damage} Final damage
+			 */
+			_getDamage(path) {
+				/* The path may contain multiple hexes from the source/target unit, so reduce
+				to the path BETWEEN the source/target for simpler logic. */
+				const distance = arrayUtils.filterCreature(path, false, false).length;
+				const damages = {
+					...this.damages,
+					slash:
+						/* If the ability was targeted beyond the regular range, only the burn
+						damage is applied.
+
+						`distance` is 1 less than the ability range as it's the distance BETWEEN
+						the units, rather than the distance used in query calculations which
+						may included hexagons of either creature. */
+						distance >= this.range.regular ? 0 : this.damages.slash,
+				};
+
+				return new Damage(this.creature, damages, 1, [], G);
+			},
 		},
+
 		// Wild Fire
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
