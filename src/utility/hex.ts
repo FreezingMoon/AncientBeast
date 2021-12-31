@@ -1,6 +1,9 @@
 import * as $j from 'jquery';
 import { Trap } from './trap';
 import { Creature } from '../creature';
+import { HexGrid } from './hexgrid';
+import Game from '../game';
+import Phaser from 'phaser-ce';
 
 export const Direction = {
 	UpRight: 0,
@@ -44,12 +47,43 @@ export class Hex {
 	 * displayPos : 	Object : 	Pos object to position creature with absolute coordinates {left,top}
 	 */
 
-	/* Constructor(x,y)
+	game: Game;
+	grid: HexGrid;
+	x: any;
+	y: any;
+	pos: { x: any; y: any };
+	coord: string;
+	f: number;
+	g: number;
+	h: number;
+	pathparent: any;
+	blocked: boolean;
+	creature: any;
+	reachable: boolean;
+	direction: number;
+	drop: any;
+	displayClasses: string;
+	overlayClasses: string;
+	width: number;
+	height: number;
+	displayPos: { x: number; y: number };
+	originalDisplayPos: any;
+	tween: any;
+	container: Phaser.Sprite;
+	display: Phaser.Sprite;
+	overlay: Phaser.Sprite;
+	input: Phaser.Sprite;
+	trap: any;
+	coordText: any;
+
+	/**
 	 *
-	 * x : 			Integer : 	Hex coordinates
-	 * y : 			Integer : 	Hex coordinates
+	 * @param x Hex coordinates
+	 * @param y Hex coordinates
+	 * @param grid
+	 * @param game
 	 */
-	constructor(x, y, grid, game) {
+	constructor(x: number, y: number, grid: HexGrid, game: Game) {
 		this.game = (grid && grid.game) || game;
 		this.grid = grid;
 		this.x = x;
@@ -90,15 +124,24 @@ export class Hex {
 		if (grid) {
 			// 10px is the offset from the old version
 
-			this.display = grid.disphexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
-			this.display.alpha = 0;
+			this.container = grid.hexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
+			this.container.alpha = 0;
 
-			this.overlay = grid.overhexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
+			this.display = grid.displayHexesGroup.create(0, 0, 'hex');
+			// this.display.anchor.setTo(0.5, 0.5);
+			this.display.alpha = 0;
+			this.display.alignIn(this.container, Phaser.CENTER);
+
+			this.overlay = grid.overlayHexesGroup.create(0, 0, 'hex');
+			this.overlay.alignIn(this.container, Phaser.CENTER);
+			// this.overlay.anchor.setTo(0.5, 0.5);
 			this.overlay.alpha = 0;
 
-			this.input = grid.inpthexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'input');
+			this.input = grid.inputHexesGroup.create(0, 0, 'input');
+			this.input.alignIn(this.container, Phaser.CENTER);
+			// this.input.anchor.setTo(0.5, 0.5);
 			this.input.inputEnabled = true;
-			this.input.input.pixelPerfect = true;
+			this.input.input.pixelPerfectClick = true;
 			this.input.input.pixelPerfectAlpha = 1;
 			this.input.input.useHandCursor = false;
 
@@ -150,6 +193,18 @@ export class Hex {
 		this.onRightClickFn = function () {};
 
 		this.trap = undefined;
+	}
+	onSelectFn(arg0: this) {
+		throw new Error('Method not implemented.');
+	}
+	onHoverOffFn(arg0: this) {
+		throw new Error('Method not implemented.');
+	}
+	onConfirmFn(arg0: this) {
+		throw new Error('Method not implemented.');
+	}
+	onRightClickFn(arg0: this) {
+		throw new Error('Method not implemented.');
 	}
 
 	/* adjacentHex(distance)
@@ -313,13 +368,13 @@ export class Hex {
 		this.updateStyle();
 	}
 
-	/* displayVisualState
+	/**
+	 * Change the appearance of a display hex.
 	 *
-	 * Change the appearance of the display hex
+	 * @param {string} classes Display classes to be added to the Hex.
 	 */
-	displayVisualState(classes) {
-		classes = classes ? classes : '';
-		this.displayClasses += ' ' + classes + ' ';
+	displayVisualState(classes = '') {
+		this.displayClasses = `${this.displayClasses} ${classes}`.trim();
 		this.updateStyle();
 	}
 
@@ -346,13 +401,15 @@ export class Hex {
 	 * Clear the appearance of the display hex
 	 */
 	cleanDisplayVisualState(classes) {
-		classes = classes || 'adj hover creature player0 player1 player2 player3';
+		classes = classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken';
 		let a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
 			let regex = new RegExp('\\b' + a[i] + '\\b', 'g');
 			this.displayClasses = this.displayClasses.replace(regex, '');
 		}
+
+		this.displayClasses = this.displayClasses.trim();
 
 		this.updateStyle();
 	}
@@ -398,7 +455,7 @@ export class Hex {
 		if (this.displayClasses.match(/0|1|2|3/)) {
 			let p = this.displayClasses.match(/0|1|2|3/);
 			this.display.loadTexture('hex_p' + p);
-			this.grid.disphexesGroup.bringToTop(this.display);
+			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
 			this.display.loadTexture('hex_path');
 		} else if (this.displayClasses.match(/dashed/)) {
@@ -407,14 +464,23 @@ export class Hex {
 			this.display.loadTexture('hex');
 		}
 
-		this.display.alpha = targetAlpha;
-		// Too slow
-		// if(this.display.alpha != targetAlpha) {
-		// 	if(this.tween) this.tween.stop();
-		// 	this.tween = G.Phaser.add.tween(this.display)
-		// 		.to({alpha:targetAlpha-0}, 250, Phaser.Easing.Linear.None)
-		// 		.start();
-		// }
+		this.display.alpha = targetAlpha ? 1 : 0;
+
+		//
+		if (this.displayClasses.match(/shrunken/)) {
+			console.log('DISPLAY SHRINK');
+			const scale = 0.5;
+			// this.display.scale.setTo(scale, scale);
+			this.display.anchor.setTo(0.5, 0.5);
+			this.display.scale.setTo(scale, scale);
+			this.overlay.anchor.setTo(0.5, 0.5);
+			this.overlay.scale.setTo(scale, scale);
+		} else {
+			this.display.anchor.setTo(0, 0);
+			this.display.scale.setTo(1, 1);
+			this.overlay.anchor.setTo(0, 0);
+			this.overlay.scale.setTo(1, 1);
+		}
 
 		// Display Coord
 		if (this.displayClasses.match(/showGrid/g)) {
@@ -430,7 +496,7 @@ export class Hex {
 					},
 				);
 				this.coordText.anchor.setTo(0.5, 0.5);
-				this.grid.overhexesGroup.add(this.coordText);
+				this.grid.overlayHexesGroup.add(this.coordText);
 			}
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
@@ -448,12 +514,12 @@ export class Hex {
 				this.overlay.loadTexture('hex_p' + p);
 			}
 
-			this.grid.overhexesGroup.bringToTop(this.overlay);
+			this.grid.overlayHexesGroup.bringToTop(this.overlay);
 		} else {
 			this.overlay.loadTexture('cancel');
 		}
 
-		this.overlay.alpha = targetAlpha;
+		this.overlay.alpha = targetAlpha ? 1 : 0;
 	}
 
 	/** Add a trap to a hex.
