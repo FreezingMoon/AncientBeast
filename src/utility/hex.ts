@@ -125,24 +125,26 @@ export class Hex {
 		this.tween = null;
 
 		if (grid) {
-			// 10px is the offset from the old version
-
-			this.container = grid.hexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
+			/* Sprite to "group" the display, overlay, and input sprites for relative
+			positioning and scaling. */
+			this.container = grid.hexesGroup.create(
+				// 10px is the offset from the old version
+				this.displayPos.x - 10,
+				this.displayPos.y,
+				'hex',
+			);
 			this.container.alpha = 0;
 
 			this.display = grid.displayHexesGroup.create(0, 0, 'hex');
-			// this.display.anchor.setTo(0.5, 0.5);
-			this.display.alpha = 0;
 			this.display.alignIn(this.container, Phaser.CENTER);
+			this.display.alpha = 0;
 
 			this.overlay = grid.overlayHexesGroup.create(0, 0, 'hex');
 			this.overlay.alignIn(this.container, Phaser.CENTER);
-			// this.overlay.anchor.setTo(0.5, 0.5);
 			this.overlay.alpha = 0;
 
 			this.input = grid.inputHexesGroup.create(0, 0, 'input');
-			this.input.alignIn(this.container, Phaser.CENTER);
-			// this.input.anchor.setTo(0.5, 0.5);
+			this.input.alignIn(this.container, Phaser.TOP_LEFT);
 			this.input.inputEnabled = true;
 			this.input.input.pixelPerfectClick = true;
 			this.input.input.pixelPerfectAlpha = 1;
@@ -473,6 +475,7 @@ export class Hex {
 			this.overlay.scale.setTo(shrinkScale, shrinkScale);
 			this.display.alignIn(this.container, Phaser.CENTER);
 			this.overlay.alignIn(this.container, Phaser.CENTER);
+			// Input sprite isn't shrunk, the click area is the original size of the hex.
 		} else {
 			this.display.scale.setTo(1, 1);
 			this.overlay.scale.setTo(1, 1);

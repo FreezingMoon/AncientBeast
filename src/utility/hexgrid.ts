@@ -208,7 +208,6 @@ export class HexGrid {
 			x: 0,
 			y: 0,
 			hexesDashed: [],
-			// TODO: Document.
 			shrunkenHexes: [],
 			directions: [1, 1, 1, 1, 1, 1],
 			includeCreature: true,
@@ -312,11 +311,11 @@ export class HexGrid {
 					hexesDashed = hexesDashed.slice(0, o.dashedHexesDistance);
 				}
 
-				const shrunkenHexes = o.distanceFalloff ? dir.slice(o.distanceFalloff) : [];
-
-				if (o.distanceFalloff) {
-					console.log(dir, o.distanceFalloff, o.distance, shrunkenHexes);
-				}
+				/* Shrunken hexes do not replace existing hexes, instead they modify them.
+				With that in mind, regular and dashed hexes can be shrunken. */
+				const shrunkenHexes = o.distanceFalloff
+					? [...dir, ...hexesDashed].slice(o.distanceFalloff)
+					: [];
 
 				o.hexesDashed = o.hexesDashed.concat(hexesDashed);
 				o.shrunkenHexes = o.shrunkenHexes.concat(shrunkenHexes);
@@ -405,7 +404,6 @@ export class HexGrid {
 			flipped: false,
 			choices: [],
 			hexesDashed: [],
-			// TODO: Document.
 			shrunkenHexes: [],
 			isDirectionsQuery: false,
 			hideNonTarget: true,
@@ -640,7 +638,6 @@ export class HexGrid {
 			args: {},
 			hexes: [],
 			hexesDashed: [],
-			// TODO: document
 			shrunkenHexes: [],
 			size: 1,
 			id: 0,
@@ -675,10 +672,7 @@ export class HexGrid {
 				hex.cleanDisplayVisualState('dashed');
 			}
 
-			// console.log(hex.id, o.shrunkenHexes);
-
 			if (o.shrunkenHexes.includes(hex)) {
-				console.log('SHRUNK!', hex);
 				hex.displayVisualState('shrunken');
 			} else {
 				hex.cleanDisplayVisualState('shrunken');
