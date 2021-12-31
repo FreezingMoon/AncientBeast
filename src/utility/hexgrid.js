@@ -843,7 +843,7 @@ export class HexGrid {
 							'',
 							'emptyHex',
 						);
-					} else if (game.UI.lastViewedCreature !== '') {
+					} else if (game.UI.lastViewedCreature) {
 						game.UI.showCreature(
 							game.UI.lastViewedCreature,
 							game.UI.selectedPlayer,
