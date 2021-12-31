@@ -5,6 +5,8 @@ import { search } from './pathfinding';
 import * as matrices from './matrices';
 import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
+import Game from '../game';
+import { Trap } from './trap';
 
 /* HexGrid Class
  *
@@ -30,12 +32,31 @@ export class HexGrid {
 	 * hexes : 				Array : 	Contain all hexes in row arrays (hexes[y][x])
 	 * lastClickedHex : 	Hex : 		Last hex clicked!
 	 */
+	game: Game;
+	hexes: Hex[][];
+	traps: Trap[];
+	allhexes: Hex[];
+	lastClickedHex: Hex[];
+	display: Phaser.Sprite;
+	gridGroup: Phaser.Group;
+	trapGroup: Phaser.Group;
+	hexesGroup: Phaser.Group;
+	displayHexesGroup: Phaser.Group;
+	overlayHexesGroup: Phaser.Group;
+	inputHexesGroup: Phaser.Group;
+	dropGroup: Phaser.Group;
+	creatureGroup: Phaser.Group;
+	trapOverGroup: Phaser.Group;
+	selectedHex: Hex;
+	_executionMode: boolean;
+	materialize_overlay: any;
+	lastQueryOpt: any;
 
 	/* Constructor
 	 *
 	 * Create attributes and populate JS grid with Hex objects
 	 */
-	constructor(opts, game) {
+	constructor(opts, game: Game) {
 		const defaultOpt = {
 			nbrRow: 9,
 			nbrhexesPerRow: 16,
@@ -117,8 +138,6 @@ export class HexGrid {
 
 		o = { ...defaultOpt, ...o };
 
-		//o.fnOnConfirm(game.activeCreature,o.args); // Auto-confirm
-
 		game.activeCreature.hint(o.confirmText, 'confirm');
 
 		this.queryHexes({
@@ -165,14 +184,11 @@ export class HexGrid {
 	 * query.
 	 *
 	 * @param {Object} o ?
-	 * @param {number} o.dashedHexesAfterCreatureStop If a choice line stops on a
-	 * 	creature via @param stopOnCreature, display dashed hexes after the creature
-	 * 	up until the next obstacle.
-	 * @param {number} o.dashedHexesDistance Limit the length of dashed hexes added
-	 * 	by @param dashedHexesAfterCreatureStop
-	 * @param {number} o.distanceFalloff After this distance, the direction choice
-	 * 	will be be visualised by shrunken hexes. This visual state represents the
-	 * 	ability having its effectiveness being reduced in some way (falling off).
+	 * @param {number} o.dashedHexesAfterCreatureStop If a choice line stops on a creature via @param stopOnCreature, display
+	 * 	dashed hexes after the creature up until the next obstacle.
+	 * @param {number} o.dashedHexesDistance Limit the length of dashed hexes added by @param dashedHexesAfterCreatureStop
+	 * @param {number} o.distanceFalloff After this distance, the direction choice will be be visualised by shrunken hexes.
+	 * 	This visual state represents the ability having its effectiveness being reduced in some way (falling off).
 	 * @returns {Object} ?
 	 */
 	getDirectionChoices(o) {
@@ -859,7 +875,7 @@ export class HexGrid {
 		// ONRIGHTCLICK
 		let onRightClickFn = (hex) => {
 			if (hex.creature instanceof Creature) {
-				game.UI.showCreature(hex.creature.type, hex.creature.player.id, '', true, '');
+				game.UI.showCreature(hex.creature.type, hex.creature.player.id, 'grid');
 			} else {
 				if (game.activeCreature.isDarkPriest()) {
 					// If ability used, default to Dark Priest and say materialize has been used
@@ -867,33 +883,21 @@ export class HexGrid {
 						game.UI.showCreature(
 							game.activeCreature.type,
 							game.activeCreature.player.id,
-							'',
 							'emptyHex',
 						);
 					} else if (game.UI.lastViewedCreature !== '') {
-						game.UI.showCreature(
-							game.UI.lastViewedCreature,
-							game.UI.selectedPlayer,
-							'',
-							'emptyHex',
-						);
+						game.UI.showCreature(game.UI.lastViewedCreature, game.UI.selectedPlayer, 'emptyHex');
 					} else if (game.UI.selectedCreatureObj !== '') {
 						game.UI.toggleDash(true);
 					} else {
 						game.UI.showCreature(
 							game.activeCreature.type,
 							game.activeCreature.player.id,
-							'',
 							'emptyHex',
 						);
 					}
 				} else {
-					game.UI.showCreature(
-						game.activeCreature.type,
-						game.activeCreature.player.id,
-						'',
-						'emptyHex',
-					);
+					game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id, 'emptyHex');
 				}
 			}
 		};
@@ -972,12 +976,13 @@ export class HexGrid {
 	updateDisplay() {
 		this.cleanDisplay();
 		this.cleanOverlay();
+
 		this.hexes.forEach((hex) => {
 			hex.forEach((item) => {
 				if (item.creature instanceof Creature) {
 					if (item.creature.id == this.game.activeCreature.id) {
-						item.overlayVisualState('active creature player' + item.creature.team);
-						item.displayVisualState('creature player' + item.creature.team);
+						item.overlayVisualState(`active creature player${item.creature.team}`);
+						item.displayVisualState(`creature player${item.creature.team}`);
 					}
 				}
 			});
@@ -1330,13 +1335,13 @@ export class HexGrid {
 	 *
 	 * Shorcut for $allDispHex.removeClass()
 	 */
-	cleanDisplay(cssClass) {
+	cleanDisplay(cssClass = '') {
 		this.forEachHex((hex) => {
 			hex.cleanDisplayVisualState(cssClass);
 		});
 	}
 
-	cleanOverlay(cssClass) {
+	cleanOverlay(cssClass = '') {
 		this.forEachHex((hex) => {
 			hex.cleanOverlayVisualState(cssClass);
 		});

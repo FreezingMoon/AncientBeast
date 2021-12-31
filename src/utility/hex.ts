@@ -14,6 +14,8 @@ export const Direction = {
 	UpLeft: 5,
 };
 
+const shrinkScale = 0.5;
+
 /**
  * Hex Class
  *
@@ -83,7 +85,7 @@ export class Hex {
 	 * @param grid
 	 * @param game
 	 */
-	constructor(x: number, y: number, grid: HexGrid, game: Game) {
+	constructor(x: number, y: number, grid: HexGrid, game?: Game) {
 		this.game = (grid && grid.game) || game;
 		this.grid = grid;
 		this.x = x;
@@ -324,14 +326,14 @@ export class Hex {
 	 *
 	 * return : 	Boolean : 	True if this hex is walkable
 	 */
-	isWalkable(size, id, ignoreReachable) {
+	isWalkable(size, id, ignoreReachable = false) {
 		let blocked = false;
 
 		for (let i = 0; i < size; i++) {
 			// For each Hex of the creature
 			if (this.x - i >= 0 && this.x - i < this.grid.hexes[this.y].length) {
 				//if hex exists
-				let hex = this.grid.hexes[this.y][this.x - i];
+				const hex = this.grid.hexes[this.y][this.x - i];
 				// Verify if blocked. If it's blocked by one attribute, OR statement will keep it status
 				blocked = blocked || hex.blocked;
 
@@ -466,20 +468,16 @@ export class Hex {
 
 		this.display.alpha = targetAlpha ? 1 : 0;
 
-		//
 		if (this.displayClasses.match(/shrunken/)) {
-			console.log('DISPLAY SHRINK');
-			const scale = 0.5;
-			// this.display.scale.setTo(scale, scale);
-			this.display.anchor.setTo(0.5, 0.5);
-			this.display.scale.setTo(scale, scale);
-			this.overlay.anchor.setTo(0.5, 0.5);
-			this.overlay.scale.setTo(scale, scale);
+			this.display.scale.setTo(shrinkScale, shrinkScale);
+			this.overlay.scale.setTo(shrinkScale, shrinkScale);
+			this.display.alignIn(this.container, Phaser.CENTER);
+			this.overlay.alignIn(this.container, Phaser.CENTER);
 		} else {
-			this.display.anchor.setTo(0, 0);
 			this.display.scale.setTo(1, 1);
-			this.overlay.anchor.setTo(0, 0);
 			this.overlay.scale.setTo(1, 1);
+			this.display.alignIn(this.container, Phaser.CENTER);
+			this.overlay.alignIn(this.container, Phaser.CENTER);
 		}
 
 		// Display Coord

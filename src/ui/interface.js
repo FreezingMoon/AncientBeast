@@ -814,18 +814,15 @@ export class UI {
 		});
 	}
 
-	/* showCreature(creatureType, player, summonCreatureType, view, clickMethod)
+	/**
+	 * Query a creature in the available creatures of the active player.
 	 *
-	 * creatureType :	String :	Creature type
-	 * player :		Integer :	Player ID
-	 * summonCreatureType:		String:    Creature type to summon
-	 * view:		Boolean:    True to disable/hide materialize button
-	 * clickMethod:		String:   Method used to view creatures('emptyHex', 'portrait', 'grid')
-	 * Query a creature in the available creatures of the active player
-	 *
+	 * @param {string} creatureType Creature type
+	 * @param {number} player Player ID
+	 * @param {'emptyHex' | 'portrait' | 'grid'} clickMethod Method used to view creatures.
 	 */
 	showCreature(creatureType, player, clickMethod) {
-		let game = this.game;
+		const game = this.game;
 
 		if (!this.dashopen) {
 			this.$dash.show().css('opacity', 0);
