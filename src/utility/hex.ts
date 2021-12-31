@@ -4,15 +4,16 @@ import { Creature } from '../creature';
 import { HexGrid } from './hexgrid';
 import Game from '../game';
 import Phaser from 'phaser-ce';
+import { Drop } from '../drops';
 
-export const Direction = {
-	UpRight: 0,
-	Right: 1,
-	DownRight: 2,
-	DownLeft: 3,
-	Left: 4,
-	UpLeft: 5,
-};
+export enum Direction {
+	UpRight = 0,
+	Right = 1,
+	DownRight = 2,
+	DownLeft = 3,
+	Left = 4,
+	UpLeft = 5,
+}
 
 const shrinkScale = 0.5;
 
@@ -51,32 +52,32 @@ export class Hex {
 
 	game: Game;
 	grid: HexGrid;
-	x: any;
-	y: any;
-	pos: { x: any; y: any };
+	x: number;
+	y: number;
+	pos: { x: number; y: number };
 	coord: string;
 	f: number;
 	g: number;
 	h: number;
 	pathparent: any;
 	blocked: boolean;
-	creature: any;
+	creature: Creature;
 	reachable: boolean;
-	direction: number;
-	drop: any;
+	direction: Direction;
+	drop: Drop;
 	displayClasses: string;
 	overlayClasses: string;
 	width: number;
 	height: number;
 	displayPos: { x: number; y: number };
-	originalDisplayPos: any;
-	tween: any;
+	originalDisplayPos: { x: number; y: number };
+	tween: Phaser.Tween;
 	container: Phaser.Sprite;
 	display: Phaser.Sprite;
 	overlay: Phaser.Sprite;
 	input: Phaser.Sprite;
-	trap: any;
-	coordText: any;
+	trap: Trap;
+	coordText: Phaser.Text;
 
 	/**
 	 *
@@ -189,24 +190,23 @@ export class Hex {
 
 		this.displayPos.y = this.displayPos.y * 0.75 + 30;
 
-		this.onSelectFn = function () {};
-		this.onHoverOffFn = function () {};
-		this.onConfirmFn = function () {};
-		this.onRightClickFn = function () {};
-
 		this.trap = undefined;
 	}
+
 	onSelectFn(arg0: this) {
-		throw new Error('Method not implemented.');
+		// No-op function.
 	}
+
 	onHoverOffFn(arg0: this) {
-		throw new Error('Method not implemented.');
+		// No-op function.
 	}
+
 	onConfirmFn(arg0: this) {
-		throw new Error('Method not implemented.');
+		// No-op function.
 	}
+
 	onRightClickFn(arg0: this) {
-		throw new Error('Method not implemented.');
+		// No-op function.
 	}
 
 	/* adjacentHex(distance)
@@ -219,12 +219,12 @@ export class Hex {
 	 * at the distance given of the current hex.
 	 */
 	adjacentHex(distance) {
-		let adjHex = [];
+		const adjHex = [];
 
 		for (let i = -distance; i <= distance; i++) {
-			let deltaY = i,
-				startX,
-				endX;
+			const deltaY = i;
+			let startX;
+			let endX;
 
 			if (this.y % 2 == 0) {
 				// Evenrow
@@ -237,8 +237,8 @@ export class Hex {
 			}
 
 			for (let deltaX = startX; deltaX <= endX; deltaX++) {
-				let x = this.x + deltaX,
-					y = this.y + deltaY;
+				const x = this.x + deltaX;
+				const y = this.y + deltaY;
 
 				// Exclude current hex
 				if (deltaY == 0 && deltaX == 0) {
@@ -260,8 +260,8 @@ export class Hex {
 	 * add ghosted class to creature on hexes behind this hex
 	 */
 	ghostOverlap() {
-		let grid = this.grid || this.game.grid,
-			ghostedCreature;
+		const grid = this.grid || this.game.grid;
+		let ghostedCreature;
 
 		for (let i = 1; i <= 3; i++) {
 			if (this.y % 2 == 0) {
@@ -384,14 +384,14 @@ export class Hex {
 	 *
 	 * Clear the appearance of the overlay hex
 	 */
-	cleanOverlayVisualState(classes) {
+	cleanOverlayVisualState(classes = '') {
 		classes =
 			classes ||
 			'creature weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3';
-		let a = classes.split(' ');
+		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
-			let regex = new RegExp('\\b' + a[i] + '\\b', 'g');
+			const regex = new RegExp('\\b' + a[i] + '\\b', 'g');
 			this.overlayClasses = this.overlayClasses.replace(regex, '');
 		}
 
@@ -402,12 +402,12 @@ export class Hex {
 	 *
 	 * Clear the appearance of the display hex
 	 */
-	cleanDisplayVisualState(classes) {
+	cleanDisplayVisualState(classes = '') {
 		classes = classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken';
-		let a = classes.split(' ');
+		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
-			let regex = new RegExp('\\b' + a[i] + '\\b', 'g');
+			const regex = new RegExp('\\b' + a[i] + '\\b', 'g');
 			this.displayClasses = this.displayClasses.replace(regex, '');
 		}
 
@@ -455,8 +455,8 @@ export class Hex {
 		targetAlpha = Boolean(this.displayClasses.match(/dashed/g)) || targetAlpha;
 
 		if (this.displayClasses.match(/0|1|2|3/)) {
-			let p = this.displayClasses.match(/0|1|2|3/);
-			this.display.loadTexture('hex_p' + p);
+			const player = this.displayClasses.match(/0|1|2|3/);
+			this.display.loadTexture(`hex_p${player}`);
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
 			this.display.loadTexture('hex_path');
@@ -504,12 +504,12 @@ export class Hex {
 		targetAlpha = Boolean(this.overlayClasses.match(/hover|creature/g));
 
 		if (this.overlayClasses.match(/0|1|2|3/)) {
-			let p = this.overlayClasses.match(/0|1|2|3/);
+			const player = this.overlayClasses.match(/0|1|2|3/);
 
 			if (this.overlayClasses.match(/hover/)) {
 				this.overlay.loadTexture('hex_path');
 			} else {
-				this.overlay.loadTexture('hex_p' + p);
+				this.overlay.loadTexture(`hex_p${player}`);
 			}
 
 			this.grid.overlayHexesGroup.bringToTop(this.overlay);

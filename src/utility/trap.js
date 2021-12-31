@@ -20,8 +20,9 @@ export class Trap {
 		this.effects = effects;
 		this.owner = owner;
 		this.creationTurn = game.turn;
+		this.destroyOnActivate = false;
 
-		let o = {
+		const o = {
 			turnLifetime: 0,
 			fullTurnLifetime: false,
 			ownerCreature: undefined, // Needed for fullTurnLifetime
