@@ -625,7 +625,7 @@ export class HexGrid {
 			fnOnConfirm: () => {
 				game.activeCreature.queryMove();
 			},
-			fnOnSelect: (hex) => {
+			fnOnSelect: (hex: Hex) => {
 				game.activeCreature.faceHex(hex, undefined, true);
 				hex.overlayVisualState('creature selected player' + game.activeCreature.team);
 			},
@@ -721,7 +721,7 @@ export class HexGrid {
 			o.callbackAfterQueryHexes();
 		}
 
-		const onCreatureHover = (creature, queueEffect, hex) => {
+		const onCreatureHover = (creature: Creature, queueEffect, hex: Hex) => {
 			if (creature.isDarkPriest()) {
 				if (creature === game.activeCreature) {
 					if (creature.hasCreaturePlayerGotPlasma()) {
@@ -917,7 +917,7 @@ export class HexGrid {
 
 	/* xray(hex)
 	 *
-	 * hex : 	Hex : 	Hexagon to emphase
+	 * hex : 	Hex : 	Hexagon to emphasize.
 	 *
 	 * If hex contain creature call ghostOverlap for each creature hexes
 	 *
@@ -1079,7 +1079,7 @@ export class HexGrid {
 
 	/* getHexMap(originx, originy, array)
 	 *
-	 * array : 	Array : 	2-dimentions Array containing 0 or 1 (boolean)
+	 * array : 	Array : 	2-dimensions Array containing 0 or 1 (boolean)
 	 * originx : 	Integer : 	Position of the array on the grid
 	 * originy : 	Integer : 	Position of the array on the grid
 	 * offsetx : 	Integer : 	offset flipped for flipped players
@@ -1097,13 +1097,13 @@ export class HexGrid {
 		for (let y = 0, len = array.length; y < len; y++) {
 			array[y] = array[y].slice(0); // Copy row
 
-			// Translating to flipped patern
+			// Translating to flipped pattern
 			if (flipped && y % 2 != 0) {
 				// Odd rows
 				array[y].push(0);
 			}
 
-			// Translating even to odd row patern
+			// Translating even to odd row pattern
 			array[y].unshift(0);
 			if (originy % 2 != 0 && y % 2 != 0) {
 				// Even rows
@@ -1407,10 +1407,10 @@ export class HexGrid {
 	 * Internal debugging method to log and visually highlight (in blue) an array
 	 * of hexes.
 	 *
-	 * @param {Hex[]} hexes
+	 * @param hexes Hexes to log and visually highlight.
 	 */
-	__debugHexes(hexes) {
-		console.log({ hexes }, hexes.map((hex) => hex.coord).join(', '));
+	__debugHexes(hexes: Hex[]) {
+		console.debug({ hexes }, hexes.map((hex) => hex.coord).join(', '));
 		hexes.forEach((hex) => hex.displayVisualState('creature selected player1'));
 	}
 }
