@@ -52,7 +52,7 @@ export function filterCreature(
 	hexes: Hex[],
 	includeCreature: boolean,
 	stopOnCreature: boolean,
-	id: number,
+	id?: number,
 ) {
 	let creatureHexes = [];
 	for (let i = 0; i < hexes.length; i++) {

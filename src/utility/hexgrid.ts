@@ -371,20 +371,29 @@ export class HexGrid {
 				let shrunkenHexes: Hex[] = [];
 				if (options.distanceFalloff) {
 					/* Shrunken hexes do not replace existing hexes, instead they modify them.
-					With that in mind, regular and dashed hexes can be shrunken. */
+					With that in mind, regular AND dashed hexes after the falloff distance
+					can be shrunk. */
 					shrunkenHexes = [...dir, ...hexesDashedWithoutSourceCreature].slice(
 						options.distanceFalloff,
 					);
 
-					// If target creature hex is shrunken, include all of that creature's hexes.
 					const targetCreature = arrayUtils.last(dir).creature;
-					shrunkenHexes = targetCreature.hexagons.reduce((acc: Hex[], hex: Hex) => {
-						if (acc.some((alreadyShrunkHex) => alreadyShrunkHex.coord === hex.coord)) {
-							return acc;
-						}
+					// Calculate the number of hexes between the creatures (not including creatures).
+					const distanceBetweenCreatures = arrayUtils.filterCreature([...dir], false, false).length;
 
-						return [...acc, hex];
-					}, shrunkenHexes);
+					/* If the target includes any regular (non-shrunk) hexes, then all that
+					unit's hexes should be regular. Otherwise all unit's hexes should be shrunk. */
+					if (distanceBetweenCreatures < options.distanceFalloff) {
+						shrunkenHexes = shrunkenHexes.filter((hex) => !targetCreature.hexagons.includes(hex));
+					} else {
+						shrunkenHexes = targetCreature.hexagons.reduce((acc: Hex[], hex: Hex) => {
+							if (acc.some((alreadyShrunkHex) => alreadyShrunkHex.coord === hex.coord)) {
+								return acc;
+							}
+
+							return [...acc, hex];
+						}, shrunkenHexes);
+					}
 				}
 
 				options.hexesDashed = options.hexesDashed.concat(hexesDashed);

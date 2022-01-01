@@ -182,7 +182,7 @@ export default (G) => {
 			_getDamage(path) {
 				/* The path may contain multiple hexes from the source/target unit, so reduce
 				to the path BETWEEN the source/target for simpler logic. */
-				const distance = arrayUtils.filterCreature(path, false, false).length;
+				const distance = arrayUtils.filterCreature([...path], false, false).length;
 				const damages = {
 					...this.damages,
 					slash:
