@@ -7,6 +7,81 @@ import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
 import Game from '../game';
 import { Trap } from './trap';
+interface QueryOptions {
+	/**
+	 * Target team.
+	 */
+	team: Team;
+
+	/**
+	 * Disable a choice if it does not contain a creature matching the team argument.
+	 */
+	requireCreature: boolean;
+	id: number;
+	flipped: boolean;
+	x: number;
+	y: number;
+	hexesDashed: Hex[];
+	shrunkenHexes: Hex[];
+	directions: number[];
+	includeCreature: boolean;
+	stopOnCreature: boolean;
+
+	/**
+	 * If defined, maximum distance of query in hexes.
+	 */
+	distance: number;
+
+	/**
+	 * If defined, minimum distance of query, 1 = 1 hex gap required.
+	 */
+	minDistance: number;
+
+	isDirectionsQuery: boolean;
+
+	/**
+	 * After this distance, the direction choice will be be visualised by shrunken hexes.
+	 * This visual state represents the ability having its effectiveness being reduced
+	 * in some way (falling off).
+	 */
+	distanceFalloff: number;
+
+	/**
+	 * If a choice line stops on a creature via @param stopOnCreature, display
+	 * 	dashed hexes after the creature up until the next obstacle
+	 */
+	dashedHexesAfterCreatureStop: boolean;
+
+	/**
+	 * Limit the length of dashed hexes added by @param dashedHexesAfterCreatureStop
+	 */
+	dashedHexesDistance: number;
+
+	sourceCreature: Creature;
+	choices: Hex[][];
+
+	/**
+	 * Object given to the events function (to easily pass variable for these function).
+	 */
+	arg: any;
+
+	optTest: () => boolean;
+
+	/**
+	 * Function applied when clicking on one of the available hexes.
+	 */
+	fnOnSelect: () => void;
+
+	/**
+	 * Function applied when clicking again on the same hex.
+	 */
+	fnOnConfirm: () => void;
+
+	/**
+	 * Function applied when clicking a non reachable hex
+	 */
+	fnOnCancel: () => void;
+}
 
 /* HexGrid Class
  *
@@ -167,41 +242,26 @@ export class HexGrid {
 		});
 	}
 
-	/* queryDirection(o)
-	 *
+	/**
 	 * Shortcut to queryChoice with specific directions.
 	 *
-	 * fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexes.
-	 * fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
-	 * fnOnCancel : 		Function : 	Function applied when clicking a non reachable hex
-	 * team : 				Team
-	 * requireCreature : 	Boolean : 	Disable a choice if it does not contain a creature matching the team argument
-	 * distance :			Integer :	if defined, maximum distance of query in hexes
-	 * minDistance :		Integer :	if defined, minimum distance of query, 1 = 1 hex gap required
-	 * args : 				Object : 	Object given to the events function (to easily pass variable for these function)
+	 * @param o
 	 */
-	queryDirection(o) {
-		// This is alway true
+	queryDirection(o: QueryOptions) {
 		o.isDirectionsQuery = true;
 		o = this.getDirectionChoices(o);
 		this.queryChoice(o);
 	}
 
 	/**
-	 * Get an object that contains the choices and hexesDashed for a direction
-	 * query.
+	 * Get an object that contains the choices and hexesDashed for a direction query.
 	 *
-	 * @param {Object} o ?
-	 * @param {number} o.dashedHexesAfterCreatureStop If a choice line stops on a creature via @param stopOnCreature, display
-	 * 	dashed hexes after the creature up until the next obstacle.
-	 * @param {number} o.dashedHexesDistance Limit the length of dashed hexes added by @param dashedHexesAfterCreatureStop
-	 * @param {number} o.distanceFalloff After this distance, the direction choice will be be visualised by shrunken hexes.
-	 * 	This visual state represents the ability having its effectiveness being reduced in some way (falling off).
-	 * @returns {Object} ?
+	 * @param o Options.
+	 * @returns Altered options.
 	 */
-	getDirectionChoices(o) {
+	getDirectionChoices(o: QueryOptions) {
 		const defaultOpt = {
-			team: Team.enemy,
+			team: Team.Enemy,
 			requireCreature: true,
 			id: 0,
 			flipped: false,
@@ -218,77 +278,83 @@ export class HexGrid {
 			dashedHexesAfterCreatureStop: true,
 			dashedHexesDistance: 0,
 			sourceCreature: undefined,
+			choices: [],
 			optTest: () => true,
 		};
 
-		o = { ...defaultOpt, ...o };
+		const options = { ...defaultOpt, ...o };
 
 		// Clean Direction
 		this.forEachHex((hex) => {
 			hex.direction = -1;
 		});
 
-		o.choices = [];
-		let deadzone = [];
+		options.choices = [];
 
-		for (let i = 0, len = o.directions.length; i < len; i++) {
-			if (o.directions[i]) {
+		for (let i = 0, len = options.directions.length; i < len; i++) {
+			if (options.directions[i]) {
 				let dir = [],
 					fx = 0;
 
-				if (o.sourceCreature instanceof Creature) {
-					const flipped = o.sourceCreature.player.flipped;
+				if (options.sourceCreature instanceof Creature) {
+					const flipped = options.sourceCreature.player.flipped;
 					if ((!flipped && i > 2) || (flipped && i < 3)) {
-						fx = -1 * (o.sourceCreature.size - 1);
+						fx = -1 * (options.sourceCreature.size - 1);
 					}
 				}
 
-				dir = this.getHexLine(o.x + fx, o.y, i, o.flipped);
+				dir = this.getHexLine(options.x + fx, options.y, i, options.flipped);
 
 				// Limit hexes based on distance
-				if (o.distance > 0) {
-					dir = dir.slice(0, o.distance + 1);
+				if (options.distance > 0) {
+					dir = dir.slice(0, options.distance + 1);
 				}
 
-				if (o.minDistance > 0) {
-					// The untargetable area between the unit and the minimum distance.
-					deadzone = dir.slice(0, o.minDistance);
-					deadzone = arrayUtils.filterCreature(deadzone, o.includeCreature, o.stopOnCreature, o.id);
+				// The untargetable area between the unit and the minimum distance.
+				let deadzone = [];
+				if (options.minDistance > 0) {
+					deadzone = dir.slice(0, options.minDistance);
+					deadzone = arrayUtils.filterCreature(
+						deadzone,
+						options.includeCreature,
+						options.stopOnCreature,
+						options.id,
+					);
 
 					dir = dir.slice(
 						// 1 greater than expected to exclude current (source creature) hex.
-						o.minDistance,
+						options.minDistance,
 					);
 				}
 
 				/* If the ability has a minimum distance and units should block LOS, this
 				direction cannot be used if there is a unit in the deadzone. */
-				if (o.stopOnCreature && deadzone.length && this.atLeastOneTarget(deadzone, o)) {
+				if (options.stopOnCreature && deadzone.length && this.atLeastOneTarget(deadzone, options)) {
 					continue;
 				}
 
 				let hexesDashed = [];
 				dir.forEach((item) => {
-					item.direction = o.flipped ? 5 - i : i;
+					item.direction = options.flipped ? 5 - i : i;
 
-					if (o.stopOnCreature && o.dashedHexesAfterCreatureStop) {
+					if (options.stopOnCreature && options.dashedHexesAfterCreatureStop) {
 						hexesDashed.push(item);
 					}
 				});
 
-				arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
+				arrayUtils.filterCreature(dir, options.includeCreature, options.stopOnCreature, options.id);
 
 				if (dir.length === 0) {
 					continue;
 				}
 
-				if (o.requireCreature && !this.atLeastOneTarget(dir, o)) {
+				if (options.requireCreature && !this.atLeastOneTarget(dir, options)) {
 					continue;
 				}
 
 				if (
-					o.stopOnCreature &&
-					o.includeCreature &&
+					options.stopOnCreature &&
+					options.includeCreature &&
 					(i === Direction.Right || i === Direction.Left)
 				) {
 					// Only straight direction
@@ -304,26 +370,45 @@ export class HexGrid {
 					arrayUtils.removePos(hexesDashed, item);
 				});
 
-				if (hexesDashed.length && o.dashedHexesDistance) {
-					/* For some reason hexesDashed can contain source creature hexagons. Rather
-					than risk changing any of that logic, ensure it doesn't when limiting length. */
-					arrayUtils.filterCreature(hexesDashed, false, true, o.id);
-					hexesDashed = hexesDashed.slice(0, o.dashedHexesDistance);
+				/* For some reason hexesDashed can contain source creature hexagons. Rather
+				than risk changing that logic, create a new list without the source creature. */
+				const hexesDashedWithoutSourceCreature = arrayUtils.filterCreature(
+					hexesDashed,
+					true,
+					false,
+					options.id,
+				);
+
+				if (hexesDashed.length && options.dashedHexesDistance) {
+					hexesDashed = hexesDashedWithoutSourceCreature.slice(0, options.dashedHexesDistance);
 				}
 
-				/* Shrunken hexes do not replace existing hexes, instead they modify them.
-				With that in mind, regular and dashed hexes can be shrunken. */
-				const shrunkenHexes = o.distanceFalloff
-					? [...dir, ...hexesDashed].slice(o.distanceFalloff)
-					: [];
+				let shrunkenHexes: Hex[] = [];
+				if (options.distanceFalloff) {
+					/* Shrunken hexes do not replace existing hexes, instead they modify them.
+					With that in mind, regular and dashed hexes can be shrunken. */
+					shrunkenHexes = [...dir, ...hexesDashedWithoutSourceCreature].slice(
+						options.distanceFalloff,
+					);
 
-				o.hexesDashed = o.hexesDashed.concat(hexesDashed);
-				o.shrunkenHexes = o.shrunkenHexes.concat(shrunkenHexes);
-				o.choices.push(dir);
+					// If target creature hex is shrunken, include all of that creature's hexes.
+					const targetCreature = arrayUtils.last(dir).creature;
+					shrunkenHexes = targetCreature.hexagons.reduce((acc: Hex[], hex: Hex) => {
+						if (acc.some((alreadyShrunkHex) => alreadyShrunkHex.coord === hex.coord)) {
+							return acc;
+						}
+
+						return [...acc, hex];
+					}, shrunkenHexes);
+				}
+
+				options.hexesDashed = options.hexesDashed.concat(hexesDashed);
+				options.shrunkenHexes = options.shrunkenHexes.concat(shrunkenHexes);
+				options.choices.push(dir);
 			}
 		}
 
-		return o;
+		return options;
 	}
 
 	/**
@@ -336,7 +421,7 @@ export class HexGrid {
 	 */
 	atLeastOneTarget(dir, o) {
 		const defaultOpt = {
-			team: Team.both,
+			team: Team.Both,
 			optTest: function () {
 				return true;
 			},
@@ -397,7 +482,7 @@ export class HexGrid {
 			fnOnCancel: () => {
 				game.activeCreature.queryMove();
 			},
-			team: Team.enemy,
+			team: Team.Enemy,
 			requireCreature: 1,
 			id: 0,
 			args: {},
@@ -518,7 +603,7 @@ export class HexGrid {
 			hexesDashed: [],
 			flipped: false,
 			id: 0,
-			team: Team.enemy,
+			team: Team.Enemy,
 			replaceEmptyHexesWithDashed: false,
 		};
 

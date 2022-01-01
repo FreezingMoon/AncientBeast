@@ -82,7 +82,7 @@ export default (G) => {
 			// Track the last target
 			_lastTargetId: -1,
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			// 	require() :
 			require: function () {
@@ -197,7 +197,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					team: Team.both,
+					team: Team.Both,
 					requireCreature: 0,
 					id: magmaSpawn.id,
 					flipped: magmaSpawn.flipped,
@@ -243,7 +243,7 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			directions: [0, 1, 0, 0, 1, 0],
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			require: function () {
 				if (!this.testRequirements()) {

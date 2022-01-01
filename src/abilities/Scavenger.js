@@ -44,7 +44,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			// 	require() :
 			require: function () {
@@ -117,7 +117,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.both,
+			_targetTeam: Team.Both,
 
 			// 	require() :
 			require: function () {
@@ -305,7 +305,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			// 	require() :
 			require: function () {

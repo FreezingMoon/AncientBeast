@@ -57,7 +57,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			// 	require() :
 			require: function () {
@@ -140,7 +140,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			// 	require() :
 			require: function () {
@@ -252,7 +252,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.both,
+			_targetTeam: Team.Both,
 
 			require: function () {
 				if (!this.testRequirements()) {
@@ -298,7 +298,7 @@ export default (G) => {
 
 					// If upgraded and the target is an ally, protect it with an effect that
 					// reduces the damage to guarantee at least 1 health remaining
-					if (this.isUpgraded() && isTeam(this.creature, trg, Team.ally)) {
+					if (this.isUpgraded() && isTeam(this.creature, trg, Team.Ally)) {
 						trg.addEffect(
 							new Effect(
 								this.title,

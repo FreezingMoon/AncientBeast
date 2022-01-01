@@ -86,7 +86,7 @@ export default (G) => {
 		{
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			require() {
 				if (!this.testRequirements()) {
