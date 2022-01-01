@@ -83,26 +83,11 @@ interface QueryOptions {
 	fnOnCancel: () => void;
 }
 
-/* HexGrid Class
- *
- * Object containing grid and hexagons DOM element and methods concerning the whole grid
+/**
+ * Object containing grid and methods concerning the whole grid.
  * Should only have one instance during the game.
- *
  */
 export class HexGrid {
-	/* Attributes
-	 *
-	 * NOTE : attributes and variables starting with $ are jquery element
-	 * and jquery function can be called directly from them.
-	 *
-	 * // Jquery attributes
-	 * $display : 		Grid container
-	 * $inpthexesW : 	Input Hexagons container
-	 * $disphexesW : 	Display Hexagons container
-	 * $overhexesW : 	Overlay Hexagons container
-	 * $allInptHex : 	Shortcut to all input hexagons DOM elements (for input events)
-	 * $allDispHex : 	Shortcut to all display hexagons DOM elements (to change style of hexagons)
-	 */
 	game: Game;
 
 	/**
@@ -293,8 +278,8 @@ export class HexGrid {
 
 		for (let i = 0, len = options.directions.length; i < len; i++) {
 			if (options.directions[i]) {
-				let dir = [],
-					fx = 0;
+				let dir: Hex[] = [];
+				let fx = 0;
 
 				if (options.sourceCreature instanceof Creature) {
 					const flipped = options.sourceCreature.player.flipped;

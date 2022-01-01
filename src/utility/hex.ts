@@ -18,50 +18,62 @@ export enum Direction {
 const shrinkScale = 0.5;
 
 /**
- * Hex Class
- *
- * Object containing hex information, positions and DOM elements
+ * Object containing hex information and positions.
  */
 export class Hex {
-	/* Attributes
-	 *
-	 * NOTE : attributes and variables starting with $ are jquery element
-	 * and jquery function can be called directly from them.
-	 *
-	 * //Jquery attributes
-	 * $display : 		Hex display element
-	 * $overlay : 		Hex overlay element
-	 * $input : 		Hex input element (bind controls on it)
-	 *
-	 * //Normal attributes
-	 * x : 			Integer : 	Hex coordinates
-	 * y : 			Integer : 	Hex coordinates
-	 * pos : 			Object : 	Pos object for hex comparison {x,y}
-	 *
-	 * f : 			Integer : 	Pathfinding score f = g + h
-	 * g : 			Integer : 	Pathfinding distance from start
-	 * h : 			Integer : 	Pathfinding distance to finish
-	 * pathparent : 	Hex : 		Pathfinding parent hex (the one you came from)
-	 *
-	 * blocked : 		Boolean : 	Set to true if an obstacle it on it. Restrict movement.
-	 * creature : 		Creature : 	Creature object , undefined if empty
-	 * reachable : 	Boolean : 	Set to true if accessible by current action
-	 *
-	 * displayPos : 	Object : 	Pos object to position creature with absolute coordinates {left,top}
-	 */
-
 	game: Game;
 	grid: HexGrid;
+
+	/**
+	 * Hex coordinates.
+	 */
 	x: number;
+
+	/**
+	 * Hex coordinates.
+	 */
 	y: number;
+
+	/**
+	 * Pos object for hex comparison {x,y}.
+	 */
 	pos: { x: number; y: number };
+
 	coord: string;
+
+	/**
+	 * Pathfinding score f = g + h.
+	 */
 	f: number;
+
+	/**
+	 * Pathfinding distance from start.
+	 */
 	g: number;
+
+	/**
+	 * Pathfinding distance to finish.
+	 */
 	h: number;
-	pathparent: any;
+
+	/**
+	 * Pathfinding parent hex (the one you came from).
+	 */
+	pathparent: Hex;
+
+	/**
+	 * Set to true if an obstacle it on it. Restrict movement.
+	 */
 	blocked: boolean;
+
+	/**
+	 * Creature object, undefined if empty.
+	 */
 	creature: Creature;
+
+	/**
+	 * Set to true if accessible by current action.
+	 */
 	reachable: boolean;
 	direction: Direction;
 	drop: Drop;
@@ -69,7 +81,12 @@ export class Hex {
 	overlayClasses: string;
 	width: number;
 	height: number;
+
+	/**
+	 * Pos object to position creature with absolute coordinates {left,top}.
+	 */
 	displayPos: { x: number; y: number };
+
 	originalDisplayPos: { x: number; y: number };
 	tween: Phaser.Tween;
 	container: Phaser.Sprite;
