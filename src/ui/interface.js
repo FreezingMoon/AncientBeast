@@ -1030,10 +1030,12 @@ export class UI {
 							this.materializeToggled = false;
 							this.selectAbility(3);
 							this.closeDash();
+
 							if (this.lastViewedCreature) {
 								activeCreature.abilities[3].materialize(this.lastViewedCreature);
 							} else {
 								activeCreature.abilities[3].materialize(this.selectedCreature);
+								this.lastViewedCreature = this.selectedCreature;
 							}
 						};
 						$j('#card .sideA').on('click', this.materializeButton.click);
@@ -1071,7 +1073,8 @@ export class UI {
 						$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
 						// Bind button for random unit selection
 						this.materializeButton.click = () => {
-							this.showRandomCreature();
+							const creatureId = this.showRandomCreature();
+							this.lastViewedCreature = creatureId;
 						};
 						// Apply the changes
 						$j('#card .sideA').on('click', this.materializeButton.click);
@@ -1171,41 +1174,52 @@ export class UI {
 		}
 	}
 
-	/* showRandomCreature()
-	 *
+	/**
 	 * Selects a random available unit and shows its card on the dash.
 	 *
 	 * Calls showCreature(chosenRandomUnit, activePlayerID, '') to handle opening the dash.
 	 *
 	 * Called by toggleDash with the randomize option and by clicking the materialize button
 	 * when it reads "Please select..."
+	 *
+	 * @returns ID of the random creature selected.
 	 */
-
 	showRandomCreature() {
-		let game = this.game;
+		const game = this.game;
 		// Figure out what the active player can summon
 		const activePlayer = game.players[this.game.activeCreature.player.id];
 		const deadOrSummonedTypes = activePlayer.creatures.map((creature) => creature.type);
 		const availableTypes = activePlayer.availableCreatures.filter(
 			(el) => !deadOrSummonedTypes.includes(el),
 		);
+
 		// Randomize array to grab a random creature
 		for (let i = availableTypes.length - 1; i > 0; i--) {
-			let j = Math.floor(Math.random() * (i + 1));
-			let temp = availableTypes[i];
+			const j = Math.floor(Math.random() * (i + 1));
+			const temp = availableTypes[i];
 			availableTypes[i] = availableTypes[j];
 			availableTypes[j] = temp;
 		}
+
 		// Grab the first creature we can afford (if none, default to priest)
 		let typeToPass = '--';
 		availableTypes.some((creature) => {
 			const lvl = creature.substring(1, 2) - 0;
 			const size = game.retrieveCreatureStats(creature).size - 0;
 			const plasmaCost = lvl + size;
-			return plasmaCost <= activePlayer.plasma ? ((typeToPass = creature), true) : false;
+
+			if (plasmaCost <= activePlayer.plasma) {
+				typeToPass = creature;
+				return true;
+			}
+
+			return false;
 		});
+
 		// Show the random unit selected
 		this.showCreature(typeToPass, game.activeCreature.team, '');
+
+		return typeToPass;
 	}
 
 	selectAbility(i) {
