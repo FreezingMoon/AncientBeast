@@ -969,9 +969,9 @@ export class HexGrid {
 							game.activeCreature.player.id,
 							'emptyHex',
 						);
-					} else if (game.UI.lastViewedCreature !== '') {
+					} else if (game.UI.lastViewedCreature) {
 						game.UI.showCreature(game.UI.lastViewedCreature, game.UI.selectedPlayer, 'emptyHex');
-					} else if (game.UI.selectedCreatureObj !== '') {
+					} else if (game.UI.selectedCreatureObj) {
 						game.UI.toggleDash(true);
 					} else {
 						game.UI.showCreature(
