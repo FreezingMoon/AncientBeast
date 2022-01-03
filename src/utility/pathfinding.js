@@ -14,7 +14,6 @@ export function search(start, end, creatureSize, creatureId, grid) {
 	openList.push(start);
 
 	if (start == end) {
-		//console.log("Same coordinates");
 		return [];
 	}
 
@@ -78,7 +77,6 @@ export function search(start, end, creatureSize, creatureId, grid) {
 				neighbor.pathparent = currentNode;
 				neighbor.g = gScore;
 				neighbor.f = neighbor.g + neighbor.h;
-				//neighbor.$display.children(".physical").text(neighbor.g); // Debug
 			}
 		}
 	}

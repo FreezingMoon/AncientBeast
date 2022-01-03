@@ -179,25 +179,16 @@ export default (G) => {
 					const x = destination.x + (args.direction === 4 ? vehemoth.size - 1 : 0);
 					destination = G.grid.hexes[destination.y][x];
 
-					let fx = 1;
-					if (
-						(!vehemoth.player.flipped && args.direction === Direction.Left) ||
-						(vehemoth.player.flipped && args.direction === Direction.Right)
-					) {
-						fx = -1 * vehemoth.size;
-					}
-					const knockbackHexes = arrayUtils.sortByDirection(
-						G.grid.getHexLine(vehemoth.x + fx, vehemoth.y, args.direction, vehemoth.player.flipped),
-						args.direction,
-					);
-					console.log({ knockbackHexes });
-					knockbackHexes.splice(0, path.length + target.size);
-					knockbackHexes.splice(path.length);
+					/* Calculate hexes the target could be pushed along. Limited by the number
+					of hexes the Vehemoth charged, and will stop when reaching obstacles. */
+					let knockbackHexes = G.grid.getHexLine(target.x, target.y, args.direction);
+					arrayUtils.filterCreature(knockbackHexes, false, true, target.id);
+					knockbackHexes = knockbackHexes.slice(0, path.length);
 
 					vehemoth.moveTo(destination, {
 						overrideSpeed: 100,
 						callback: function () {
-							let knockbackHex = null;
+							let knockbackHex = arrayUtils.last(knockbackHexes);
 
 							/* Damage before knockback any other creature movement to handle dead
 							targets, Snow Bunny hop incorrectly avoiding damage, etc. */
@@ -207,19 +198,13 @@ export default (G) => {
 								return;
 							}
 
-							for (let i = 0; i < knockbackHexes.length; i++) {
-								console.log(
-									knockbackHexes[i],
-									knockbackHexes[i].isWalkable(target.size, target.id, true, true),
-								);
-								// Check that the next knockback hex is valid
-								if (!knockbackHexes[i].isWalkable(target.size, target.id, true)) {
-									break;
-								}
-								knockbackHex = knockbackHexes[i];
-							}
-
 							if (knockbackHex) {
+								// If pushing left, account for the difference in x origin of flipped creatures.
+								if (args.direction === Direction.Left) {
+									knockbackHex =
+										knockbackHex && G.grid.hexes[knockbackHex.y][knockbackHex.x + target.size - 1];
+								}
+
 								target.moveTo(knockbackHex, {
 									callback: function () {
 										G.activeCreature.queryMove();
