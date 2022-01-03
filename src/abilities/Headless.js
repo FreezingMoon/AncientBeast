@@ -275,7 +275,7 @@ export default (G) => {
 				);
 				path = arrayUtils.sortByDirection(
 					[...deadzonePath, ...path],
-					args.direction === Direction.Left ? Direction.Right : Direction.Left,
+					args.direction === Direction.Right ? Direction.Left : Direction.Right,
 				);
 
 				ability.end();

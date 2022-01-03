@@ -277,129 +277,117 @@ export class HexGrid {
 		options.choices = [];
 
 		for (let i = 0, len = options.directions.length; i < len; i++) {
-			if (options.directions[i]) {
-				let dir: Hex[] = [];
-				let fx = 0;
+			if (!options.directions[i]) {
+				continue;
+			}
 
-				if (options.sourceCreature instanceof Creature) {
-					const flipped = options.sourceCreature.player.flipped;
-					if ((!flipped && i > 2) || (flipped && i < 3)) {
-						fx = -1 * (options.sourceCreature.size - 1);
-					}
-				}
+			const direction = i as Direction;
+			let dir: Hex[] = [];
+			let fx = 0;
 
-				dir = this.getHexLine(options.x + fx, options.y, i, options.flipped);
-
-				// Limit hexes based on distance
-				if (options.distance > 0) {
-					dir = dir.slice(0, options.distance + 1);
-				}
-
-				// The untargetable area between the unit and the minimum distance.
-				let deadzone = [];
-				if (options.minDistance > 0) {
-					deadzone = dir.slice(0, options.minDistance);
-					deadzone = arrayUtils.filterCreature(
-						deadzone,
-						options.includeCreature,
-						options.stopOnCreature,
-						options.id,
-					);
-
-					dir = dir.slice(
-						// 1 greater than expected to exclude current (source creature) hex.
-						options.minDistance,
-					);
-				}
-
-				/* If the ability has a minimum distance and units should block LOS, this
-				direction cannot be used if there is a unit in the deadzone. */
-				if (options.stopOnCreature && deadzone.length && this.atLeastOneTarget(deadzone, options)) {
-					continue;
-				}
-
-				let hexesDashed = [];
-				dir.forEach((item) => {
-					item.direction = options.flipped ? 5 - i : i;
-
-					if (options.stopOnCreature && options.dashedHexesAfterCreatureStop) {
-						hexesDashed.push(item);
-					}
-				});
-
-				arrayUtils.filterCreature(dir, options.includeCreature, options.stopOnCreature, options.id);
-
-				if (dir.length === 0) {
-					continue;
-				}
-
-				if (options.requireCreature && !this.atLeastOneTarget(dir, options)) {
-					continue;
-				}
-
+			if (options.sourceCreature instanceof Creature) {
+				const flipped = options.sourceCreature.player.flipped;
 				if (
-					options.stopOnCreature &&
-					options.includeCreature &&
-					(i === Direction.Right || i === Direction.Left)
+					(!flipped && direction > Direction.DownRight) ||
+					(flipped && direction < Direction.DownLeft)
 				) {
-					// Only straight direction
-					if (arrayUtils.last(dir).creature instanceof Creature) {
-						// Add full creature
-						const creature = arrayUtils.last(dir).creature;
-						dir.pop();
-						dir = dir.concat(creature.hexagons);
-					}
+					fx = -1 * (options.sourceCreature.size - 1);
 				}
+			}
 
-				dir.forEach((item) => {
-					arrayUtils.removePos(hexesDashed, item);
-				});
+			dir = this.getHexLine(options.x + fx, options.y, direction, options.flipped);
 
-				/* For some reason hexesDashed can contain source creature hexagons. Rather
-				than risk changing that logic, create a new list without the source creature. */
-				const hexesDashedWithoutSourceCreature = arrayUtils.filterCreature(
-					hexesDashed,
-					true,
-					false,
+			// Limit hexes based on distance
+			if (options.distance > 0) {
+				dir = dir.slice(0, options.distance + 1);
+			}
+
+			// The untargetable area between the unit and the minimum distance.
+			let deadzone = [];
+			if (options.minDistance > 0) {
+				deadzone = dir.slice(0, options.minDistance);
+				deadzone = arrayUtils.filterCreature(
+					deadzone,
+					options.includeCreature,
+					options.stopOnCreature,
 					options.id,
 				);
 
-				if (hexesDashed.length && options.dashedHexesDistance) {
-					hexesDashed = hexesDashedWithoutSourceCreature.slice(0, options.dashedHexesDistance);
-				}
+				dir = dir.slice(
+					// 1 greater than expected to exclude current (source creature) hex.
+					options.minDistance,
+				);
+			}
 
-				let shrunkenHexes: Hex[] = [];
-				if (options.distanceFalloff) {
-					/* Shrunken hexes do not replace existing hexes, instead they modify them.
+			/* If the ability has a minimum distance and units should block LOS, this
+				direction cannot be used if there is a unit in the deadzone. */
+			if (options.stopOnCreature && deadzone.length && this.atLeastOneTarget(deadzone, options)) {
+				continue;
+			}
+
+			let hexesDashed = [];
+			dir.forEach((item) => {
+				item.direction = options.flipped ? 5 - direction : direction;
+
+				if (options.stopOnCreature && options.dashedHexesAfterCreatureStop) {
+					hexesDashed.push(item);
+				}
+			});
+
+			arrayUtils.filterCreature(dir, options.includeCreature, options.stopOnCreature, options.id);
+
+			if (dir.length === 0) {
+				continue;
+			}
+
+			if (options.requireCreature && !this.atLeastOneTarget(dir, options)) {
+				continue;
+			}
+
+			if (
+				options.stopOnCreature &&
+				options.includeCreature &&
+				// Only straight direction.
+				(direction === Direction.Right || direction === Direction.Left)
+			) {
+				if (arrayUtils.last(dir).creature instanceof Creature) {
+					// Add all creature hexes.
+					const creature = arrayUtils.last(dir).creature;
+					dir.pop();
+					dir = arrayUtils.sortByDirection(dir.concat(creature.hexagons), direction);
+				}
+			}
+
+			dir.forEach((item) => {
+				arrayUtils.removePos(hexesDashed, item);
+			});
+
+			/* For some reason hexesDashed can contain source creature hexagons. Rather
+				than risk changing that logic, create a new list without the source creature. */
+			const hexesDashedWithoutSourceCreature = arrayUtils.filterCreature(
+				hexesDashed,
+				true,
+				false,
+				options.id,
+			);
+
+			if (hexesDashed.length && options.dashedHexesDistance) {
+				hexesDashed = hexesDashedWithoutSourceCreature.slice(0, options.dashedHexesDistance);
+			}
+
+			let shrunkenHexes: Hex[] = [];
+			if (options.distanceFalloff) {
+				/* Shrunken hexes do not replace existing hexes, instead they modify them.
 					With that in mind, regular AND dashed hexes after the falloff distance
 					can be shrunk. */
-					shrunkenHexes = [...dir, ...hexesDashedWithoutSourceCreature].slice(
-						options.distanceFalloff,
-					);
-
-					const targetCreature = arrayUtils.last(dir).creature;
-					// Calculate the number of hexes between the creatures (not including creatures).
-					const distanceBetweenCreatures = arrayUtils.filterCreature([...dir], false, false).length;
-
-					/* If the target includes any regular (non-shrunk) hexes, then all that
-					unit's hexes should be regular. Otherwise all unit's hexes should be shrunk. */
-					if (distanceBetweenCreatures < options.distanceFalloff) {
-						shrunkenHexes = shrunkenHexes.filter((hex) => !targetCreature.hexagons.includes(hex));
-					} else {
-						shrunkenHexes = targetCreature.hexagons.reduce((acc: Hex[], hex: Hex) => {
-							if (acc.some((alreadyShrunkHex) => alreadyShrunkHex.coord === hex.coord)) {
-								return acc;
-							}
-
-							return [...acc, hex];
-						}, shrunkenHexes);
-					}
-				}
-
-				options.hexesDashed = options.hexesDashed.concat(hexesDashed);
-				options.shrunkenHexes = options.shrunkenHexes.concat(shrunkenHexes);
-				options.choices.push(dir);
+				shrunkenHexes = [...dir, ...hexesDashedWithoutSourceCreature].slice(
+					options.distanceFalloff,
+				);
 			}
+
+			options.hexesDashed = [...options.hexesDashed, ...hexesDashed];
+			options.shrunkenHexes = [...options.shrunkenHexes, ...shrunkenHexes];
+			options.choices.push(dir);
 		}
 
 		return options;

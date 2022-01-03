@@ -81,18 +81,13 @@ export function filterCreature(
 
 /**
  * Sort a line of hexes by their x value, based on a direction.
- * Sorting Left sorts least to greatest, sorting Right is the opposite.
  *
  * @param hexes Line of hexes to sort.
  * @param direction Direction to sort hexes. Only Left and Right are currently supported.
  * @returns Array of sorted hexes.
  */
-export const sortByDirection = (hexes: Hex[], direction: Direction) => {
-	if (![Direction.Left, Direction.Right].includes(direction)) {
-		console.warn('Sorting currently supports Left and Right directions.');
-	}
-
-	return hexes.sort((a, b) => (direction === Direction.Left ? a.x - b.x : b.x - a.x));
+export const sortByDirection = (hexes: Hex[], direction: Direction.Left | Direction.Right) => {
+	return hexes.sort((a, b) => (direction === Direction.Right ? a.x - b.x : b.x - a.x));
 };
 
 /**
