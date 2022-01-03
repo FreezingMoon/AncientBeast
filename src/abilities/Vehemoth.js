@@ -88,6 +88,7 @@ export default (G) => {
 				if (!this.testRequirements()) {
 					return false;
 				}
+
 				if (
 					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback3hex), {
 						team: this._targetTeam,
@@ -108,32 +109,31 @@ export default (G) => {
 						return false;
 					}
 				}
+
 				return true;
 			},
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let vehemoth = this.creature;
+				const ability = this;
+				const vehemoth = this.creature;
 
-				let object = {
+				const object = {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					flipped: vehemoth.flipped,
 					id: vehemoth.id,
-					hexesDashed: vehemoth.getHexMap(matrices.frontnback3hex),
+					hexesDashed: this._getHexes(),
 					team: Team.Enemy,
 					requireCreature: true,
 					flipped: vehemoth.flipped,
 				};
 
-				object.choices = vehemoth.getHexMap(matrices.frontnback3hex).map((hex) => {
-					return [hex];
-				});
+				object.choices = this._getHexes().map((hex) => [hex]);
 
 				if (this.isUpgraded()) {
-					let directionObject = G.grid.getDirectionChoices({
+					const directionObject = G.grid.getDirectionChoices({
 						flipped: vehemoth.flipped,
 						sourceCreature: vehemoth,
 						team: this._targetTeam,
@@ -177,25 +177,21 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
-				let vehemoth = ability.creature;
+				const ability = this;
+				const vehemoth = ability.creature;
+
 				ability.end();
 
-				let target = arrayUtils.last(path).creature;
+				const target = arrayUtils.last(path).creature;
+				const targetIsNearby = this.atLeastOneTarget(this._getHexes());
 
-				let trgIsNearby = vehemoth
-					.getHexMap(matrices.frontnback3hex)
-					.includes(arrayUtils.last(path));
-
-				if (trgIsNearby) {
+				if (targetIsNearby) {
+					console.log('instant hit');
 					ability._damageTarget(target);
 				} else {
-					if (!this.isUpgraded()) {
-						return;
-					}
 					arrayUtils.filterCreature(path, false, true, vehemoth.id);
 					let destination = arrayUtils.last(path);
-					let x = destination.x + (args.direction === 4 ? vehemoth.size - 1 : 0);
+					const x = destination.x + (args.direction === 4 ? vehemoth.size - 1 : 0);
 					destination = G.grid.hexes[destination.y][x];
 
 					let fx = 1;
@@ -205,7 +201,7 @@ export default (G) => {
 					) {
 						fx = -1 * vehemoth.size;
 					}
-					let knockbackHexes = G.grid.getHexLine(
+					const knockbackHexes = G.grid.getHexLine(
 						vehemoth.x + fx,
 						vehemoth.y,
 						args.direction,
@@ -217,11 +213,10 @@ export default (G) => {
 					vehemoth.moveTo(destination, {
 						overrideSpeed: 100,
 						callback: function () {
-							let knockbackHex = null;
+							const knockbackHex = null;
 
-							/* Damage before knockback any other creature movement
-							to handle dead targets, Snow Bunny hop incorrectly avoiding
-							damage, etc. */
+							/* Damage before knockback any other creature movement to handle dead
+							targets, Snow Bunny hop incorrectly avoiding damage, etc. */
 							const damageResult = ability._damageTarget(target);
 
 							if (damageResult.kill) {
@@ -266,14 +261,10 @@ export default (G) => {
 				const damageType = shouldExecute
 					? { pure: target.health }
 					: { crush: this.damages.crush, frost: this.damages.frost };
-				const damage = new Damage(
-					ability.creature, // Attacker
-					damageType,
-					1, // Area
-					[], // Effects
-					G,
-				);
+				const damage = new Damage(ability.creature, damageType, 1, [], G);
 				let damageResult;
+
+				console.log({ damage, shouldExecute });
 
 				if (shouldExecute) {
 					/* Suppress the death message, to be replaced by a custom log. Setting
@@ -291,6 +282,10 @@ export default (G) => {
 				}
 
 				return damageResult;
+			},
+
+			_getHexes() {
+				return this.creature.getHexMap(matrices.frontnback3hex);
 			},
 		},
 
