@@ -166,9 +166,7 @@ export default (G) => {
 
 				path = arrayUtils.sortByDirection(path, args.direction);
 				const target = arrayUtils.last(path).creature;
-				const targetIsNearby = this._getHexes().includes(arrayUtils.last(path));
-
-				console.log({ path, target, targetIsNearby });
+				const targetIsNearby = this._getHexes().some((hex) => hex.creature?.id === target.id);
 
 				if (targetIsNearby) {
 					ability._damageTarget(target);
