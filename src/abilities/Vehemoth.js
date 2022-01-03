@@ -2,12 +2,11 @@ import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
-import { Creature } from '../creature';
 import { Effect } from '../effect';
 import { Direction } from '../utility/hex';
 
 /** Creates the abilities
- * @param {Object} G the game object
+ * @param {Game} G the game object
  * @return {void}
  */
 export default (G) => {
@@ -123,26 +122,26 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: vehemoth.flipped,
+					flipped: vehemoth.player.flipped,
 					id: vehemoth.id,
 					team: Team.Enemy,
 					requireCreature: true,
-					flipped: vehemoth.flipped,
 				};
 
 				object.choices = this._getHexes().map((hex) => [hex]);
 
 				if (this.isUpgraded()) {
 					const directionObject = G.grid.getDirectionChoices({
-						flipped: vehemoth.flipped,
-						sourceCreature: vehemoth,
+						flipped: vehemoth.player.flipped,
 						team: this._targetTeam,
-						id: vehemoth.id,
 						requireCreature: true,
+						stopOnCreature: true,
+						sourceCreature: vehemoth,
+						id: vehemoth.id,
 						x: vehemoth.x,
 						y: vehemoth.y,
-						distance: vehemoth.remainingMove + 1,
 						directions: this._directions,
+						distance: vehemoth.remainingMove + 1,
 					});
 
 					// removes duplicates between nearby and inline targets
@@ -165,8 +164,11 @@ export default (G) => {
 
 				ability.end();
 
+				path = arrayUtils.sortByDirection(path, args.direction);
 				const target = arrayUtils.last(path).creature;
 				const targetIsNearby = this._getHexes().includes(arrayUtils.last(path));
+
+				console.log({ path, target, targetIsNearby });
 
 				if (targetIsNearby) {
 					ability._damageTarget(target);
@@ -179,17 +181,16 @@ export default (G) => {
 
 					let fx = 1;
 					if (
-						(!vehemoth.flipped && args.direction === 4) ||
-						(vehemoth.flipped && args.direction === 1)
+						(!vehemoth.player.flipped && args.direction === Direction.Left) ||
+						(vehemoth.player.flipped && args.direction === Direction.Right)
 					) {
 						fx = -1 * vehemoth.size;
 					}
-					const knockbackHexes = G.grid.getHexLine(
-						vehemoth.x + fx,
-						vehemoth.y,
+					const knockbackHexes = arrayUtils.sortByDirection(
+						G.grid.getHexLine(vehemoth.x + fx, vehemoth.y, args.direction, vehemoth.player.flipped),
 						args.direction,
-						vehemoth.flipped,
 					);
+					console.log({ knockbackHexes });
 					knockbackHexes.splice(0, path.length + target.size);
 					knockbackHexes.splice(path.length);
 
@@ -207,6 +208,10 @@ export default (G) => {
 							}
 
 							for (let i = 0; i < knockbackHexes.length; i++) {
+								console.log(
+									knockbackHexes[i],
+									knockbackHexes[i].isWalkable(target.size, target.id, true, true),
+								);
 								// Check that the next knockback hex is valid
 								if (!knockbackHexes[i].isWalkable(target.size, target.id, true)) {
 									break;

@@ -1017,7 +1017,7 @@ export class HexGrid {
 	 * @param flipped Flip the direction.
 	 * @returns Hexes in the line.
 	 */
-	getHexLine(x: number, y: number, dir: Direction, flipped): Hex[] {
+	getHexLine(x: number, y: number, dir: Direction, flipped: boolean): Hex[] {
 		switch (dir) {
 			case Direction.UpRight:
 				return this.getHexMap(x, y - 8, 0, flipped, matrices.diagonalup).reverse();
