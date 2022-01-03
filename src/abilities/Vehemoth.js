@@ -213,7 +213,7 @@ export default (G) => {
 					vehemoth.moveTo(destination, {
 						overrideSpeed: 100,
 						callback: function () {
-							const knockbackHex = null;
+							let knockbackHex = null;
 
 							/* Damage before knockback any other creature movement to handle dead
 							targets, Snow Bunny hop incorrectly avoiding damage, etc. */
@@ -231,7 +231,7 @@ export default (G) => {
 								knockbackHex = knockbackHexes[i];
 							}
 
-							if (knockbackHex !== null) {
+							if (knockbackHex) {
 								target.moveTo(knockbackHex, {
 									callback: function () {
 										G.activeCreature.queryMove();
