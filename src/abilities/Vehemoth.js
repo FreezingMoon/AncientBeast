@@ -4,6 +4,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import { Direction } from '../utility/hex';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -90,7 +91,7 @@ export default (G) => {
 				}
 
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback3hex), {
+					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
 					})
 				) {
@@ -124,7 +125,6 @@ export default (G) => {
 					},
 					flipped: vehemoth.flipped,
 					id: vehemoth.id,
-					hexesDashed: this._getHexes(),
 					team: Team.Enemy,
 					requireCreature: true,
 					flipped: vehemoth.flipped,
@@ -153,23 +153,6 @@ export default (G) => {
 							),
 					);
 					object.choices = [...object.choices, ...directionObject.choices];
-
-					directionObject.choices.forEach((choice) => {
-						let dir = choice[0].direction;
-						let fx = 1;
-						if ((!vehemoth.flipped && dir === 4) || (vehemoth.flipped && dir === 1)) {
-							fx = -1 * vehemoth.size;
-						}
-						let hexesDashed = G.grid.getHexLine(
-							vehemoth.x + fx,
-							vehemoth.y,
-							choice[0].direction,
-							vehemoth.flipped,
-						);
-						hexesDashed.splice(0, choice.length);
-						hexesDashed.splice(choice.length - arrayUtils.last(choice).creature.size);
-						object.hexesDashed = [...object.hexesDashed, ...hexesDashed];
-					});
 				}
 
 				G.grid.queryChoice(object);
@@ -183,12 +166,12 @@ export default (G) => {
 				ability.end();
 
 				const target = arrayUtils.last(path).creature;
-				const targetIsNearby = this.atLeastOneTarget(this._getHexes());
+				const targetIsNearby = this._getHexes().includes(arrayUtils.last(path));
 
 				if (targetIsNearby) {
-					console.log('instant hit');
 					ability._damageTarget(target);
 				} else {
+					// Charge to target.
 					arrayUtils.filterCreature(path, false, true, vehemoth.id);
 					let destination = arrayUtils.last(path);
 					const x = destination.x + (args.direction === 4 ? vehemoth.size - 1 : 0);
@@ -264,8 +247,6 @@ export default (G) => {
 				const damage = new Damage(ability.creature, damageType, 1, [], G);
 				let damageResult;
 
-				console.log({ damage, shouldExecute });
-
 				if (shouldExecute) {
 					/* Suppress the death message, to be replaced by a custom log. Setting
 						`noLog` on Damage wouldn't work as it would suppress Shielded/Dodged messages. */
@@ -284,6 +265,11 @@ export default (G) => {
 				return damageResult;
 			},
 
+			/**
+			 * The area of effect is the front and back 3 hexes for a total of 6 hexes.
+			 *
+			 * @returns {Hex[]} Refer to Creature.getHexMap()
+			 */
 			_getHexes() {
 				return this.creature.getHexMap(matrices.frontnback3hex);
 			},
