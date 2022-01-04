@@ -337,15 +337,14 @@ export class Hex {
 		this.pathparent = null;
 	}
 
-	/* isWalkable(size, id)
+	/**
 	 *
-	 * size : 				Integer : 	Size of the creature
-	 * id : 				Integer : 	ID of the creature
-	 * ignoreReachable : 	Boolean : 	Take into account the reachable property
-	 *
-	 * return : 	Boolean : 	True if this hex is walkable
+	 * @param size Size of the creature.
+	 * @param id ID of the creature.
+	 * @param ignoreReachable Take into account the reachable property.
+	 * @returns True if this hex is walkable.
 	 */
-	isWalkable(size, id, ignoreReachable = false) {
+	isWalkable(size: number, id: number, ignoreReachable = false, debug = false) {
 		let blocked = false;
 
 		for (let i = 0; i < size; i++) {
@@ -362,15 +361,16 @@ export class Hex {
 
 				let isNotMovingCreature;
 				if (hex.creature instanceof Creature) {
-					if (id instanceof Array) {
-						isNotMovingCreature = id.indexOf(hex.creature.id) == -1;
-					} else {
-						isNotMovingCreature = hex.creature.id != id;
-					}
-
+					isNotMovingCreature = hex.creature.id !== id;
 					blocked = blocked || isNotMovingCreature; // Not blocked if this block contains the moving creature
 				}
+				if (debug) {
+					console.log({ isNotMovingCreature });
+				}
 			} else {
+				if (debug) {
+					console.log('BLOCKED BY GRID BOUNDARIES', this);
+				}
 				// Blocked by grid boundaries
 				blocked = true;
 			}

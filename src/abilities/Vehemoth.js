@@ -2,11 +2,11 @@ import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
-import { Creature } from '../creature';
 import { Effect } from '../effect';
+import { Direction } from '../utility/hex';
 
 /** Creates the abilities
- * @param {Object} G the game object
+ * @param {Game} G the game object
  * @return {void}
  */
 export default (G) => {
@@ -88,8 +88,9 @@ export default (G) => {
 				if (!this.testRequirements()) {
 					return false;
 				}
+
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback3hex), {
+					!this.atLeastOneTarget(this._getHexes(), {
 						team: this._targetTeam,
 					})
 				) {
@@ -108,41 +109,39 @@ export default (G) => {
 						return false;
 					}
 				}
+
 				return true;
 			},
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let vehemoth = this.creature;
+				const ability = this;
+				const vehemoth = this.creature;
 
-				let object = {
+				const object = {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: vehemoth.flipped,
+					flipped: vehemoth.player.flipped,
 					id: vehemoth.id,
-					hexesDashed: vehemoth.getHexMap(matrices.frontnback3hex),
 					team: Team.Enemy,
 					requireCreature: true,
-					flipped: vehemoth.flipped,
 				};
 
-				object.choices = vehemoth.getHexMap(matrices.frontnback3hex).map((hex) => {
-					return [hex];
-				});
+				object.choices = this._getHexes().map((hex) => [hex]);
 
 				if (this.isUpgraded()) {
-					let directionObject = G.grid.getDirectionChoices({
-						flipped: vehemoth.flipped,
-						sourceCreature: vehemoth,
+					const directionObject = G.grid.getDirectionChoices({
+						flipped: vehemoth.player.flipped,
 						team: this._targetTeam,
-						id: vehemoth.id,
 						requireCreature: true,
+						stopOnCreature: true,
+						sourceCreature: vehemoth,
+						id: vehemoth.id,
 						x: vehemoth.x,
 						y: vehemoth.y,
-						distance: vehemoth.remainingMove + 1,
 						directions: this._directions,
+						distance: vehemoth.remainingMove + 1,
 					});
 
 					// removes duplicates between nearby and inline targets
@@ -153,23 +152,6 @@ export default (G) => {
 							),
 					);
 					object.choices = [...object.choices, ...directionObject.choices];
-
-					directionObject.choices.forEach((choice) => {
-						let dir = choice[0].direction;
-						let fx = 1;
-						if ((!vehemoth.flipped && dir === 4) || (vehemoth.flipped && dir === 1)) {
-							fx = -1 * vehemoth.size;
-						}
-						let hexesDashed = G.grid.getHexLine(
-							vehemoth.x + fx,
-							vehemoth.y,
-							choice[0].direction,
-							vehemoth.flipped,
-						);
-						hexesDashed.splice(0, choice.length);
-						hexesDashed.splice(choice.length - arrayUtils.last(choice).creature.size);
-						object.hexesDashed = [...object.hexesDashed, ...hexesDashed];
-					});
 				}
 
 				G.grid.queryChoice(object);
@@ -177,66 +159,50 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
-				let vehemoth = ability.creature;
+				const ability = this;
+				const vehemoth = ability.creature;
+
 				ability.end();
 
-				let target = arrayUtils.last(path).creature;
+				path = arrayUtils.sortByDirection(path, args.direction);
+				const target = arrayUtils.last(path).creature;
+				const targetIsNearby = this._getHexes().some((hex) => hex.creature?.id === target.id);
 
-				let trgIsNearby = vehemoth
-					.getHexMap(matrices.frontnback3hex)
-					.includes(arrayUtils.last(path));
-
-				if (trgIsNearby) {
+				if (targetIsNearby) {
 					ability._damageTarget(target);
 				} else {
-					if (!this.isUpgraded()) {
-						return;
-					}
+					// Charge to target.
 					arrayUtils.filterCreature(path, false, true, vehemoth.id);
 					let destination = arrayUtils.last(path);
-					let x = destination.x + (args.direction === 4 ? vehemoth.size - 1 : 0);
+					const x = destination.x + (args.direction === 4 ? vehemoth.size - 1 : 0);
 					destination = G.grid.hexes[destination.y][x];
 
-					let fx = 1;
-					if (
-						(!vehemoth.flipped && args.direction === 4) ||
-						(vehemoth.flipped && args.direction === 1)
-					) {
-						fx = -1 * vehemoth.size;
-					}
-					let knockbackHexes = G.grid.getHexLine(
-						vehemoth.x + fx,
-						vehemoth.y,
-						args.direction,
-						vehemoth.flipped,
-					);
-					knockbackHexes.splice(0, path.length + target.size);
-					knockbackHexes.splice(path.length);
+					/* Calculate hexes the target could be pushed along. Limited by the number
+					of hexes the Vehemoth charged, and will stop when reaching obstacles. */
+					let knockbackHexes = G.grid.getHexLine(target.x, target.y, args.direction);
+					arrayUtils.filterCreature(knockbackHexes, false, true, target.id);
+					knockbackHexes = knockbackHexes.slice(0, path.length);
 
 					vehemoth.moveTo(destination, {
 						overrideSpeed: 100,
 						callback: function () {
-							let knockbackHex = null;
+							let knockbackHex = arrayUtils.last(knockbackHexes);
 
-							/* Damage before knockback any other creature movement
-							to handle dead targets, Snow Bunny hop incorrectly avoiding
-							damage, etc. */
+							/* Damage before knockback any other creature movement to handle dead
+							targets, Snow Bunny hop incorrectly avoiding damage, etc. */
 							const damageResult = ability._damageTarget(target);
 
 							if (damageResult.kill) {
 								return;
 							}
 
-							for (let i = 0; i < knockbackHexes.length; i++) {
-								// Check that the next knockback hex is valid
-								if (!knockbackHexes[i].isWalkable(target.size, target.id, true)) {
-									break;
+							if (knockbackHex) {
+								// If pushing left, account for the difference in x origin of flipped creatures.
+								if (args.direction === Direction.Left) {
+									knockbackHex =
+										knockbackHex && G.grid.hexes[knockbackHex.y][knockbackHex.x + target.size - 1];
 								}
-								knockbackHex = knockbackHexes[i];
-							}
 
-							if (knockbackHex !== null) {
 								target.moveTo(knockbackHex, {
 									callback: function () {
 										G.activeCreature.queryMove();
@@ -266,13 +232,7 @@ export default (G) => {
 				const damageType = shouldExecute
 					? { pure: target.health }
 					: { crush: this.damages.crush, frost: this.damages.frost };
-				const damage = new Damage(
-					ability.creature, // Attacker
-					damageType,
-					1, // Area
-					[], // Effects
-					G,
-				);
+				const damage = new Damage(ability.creature, damageType, 1, [], G);
 				let damageResult;
 
 				if (shouldExecute) {
@@ -291,6 +251,15 @@ export default (G) => {
 				}
 
 				return damageResult;
+			},
+
+			/**
+			 * The area of effect is the front and back 3 hexes for a total of 6 hexes.
+			 *
+			 * @returns {Hex[]} Refer to Creature.getHexMap()
+			 */
+			_getHexes() {
+				return this.creature.getHexMap(matrices.frontnback3hex);
 			},
 		},
 

@@ -39,8 +39,8 @@ export function removePos(arr: (Hex | Creature)[], obj: Hex | Creature) {
 
 /**
  * Filters in-place an array of hexes based on creatures.
- * The array typically represents a linear sequence of hexes, to produce a
- * subset/superset of hexes that contain or don't contain creatures.
+ * The array typically represents a linear sequence of hexes, to produce a subset/superset
+ * of hexes that contain or don't contain creatures.
  *
  * @param hexes Starting hexes.
  * @param includeCreature Add creature hexes to the array.
