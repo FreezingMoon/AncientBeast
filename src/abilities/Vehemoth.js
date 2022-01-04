@@ -76,7 +76,7 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			_directions: [0, 1, 0, 0, 1, 0], // forward/backward
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			/**
 			 * If the target creature's health <= this value, it can be instantly killed.
@@ -123,7 +123,7 @@ export default (G) => {
 					flipped: vehemoth.flipped,
 					id: vehemoth.id,
 					hexesDashed: vehemoth.getHexMap(matrices.frontnback3hex),
-					team: Team.enemy,
+					team: Team.Enemy,
 					requireCreature: true,
 					flipped: vehemoth.flipped,
 				};
@@ -219,8 +219,8 @@ export default (G) => {
 						callback: function () {
 							let knockbackHex = null;
 
-							/* Damage before knockback any other creature movement 
-							to handle dead targets, Snow Bunny hop incorrectly avoiding 
+							/* Damage before knockback any other creature movement
+							to handle dead targets, Snow Bunny hop incorrectly avoiding
 							damage, etc. */
 							const damageResult = ability._damageTarget(target);
 
@@ -321,7 +321,7 @@ export default (G) => {
 		{
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 			_directions: [1, 1, 1, 1, 1, 1],
 			_distance: 5,
 
@@ -460,7 +460,7 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			_directions: [0, 1, 0, 0, 1, 0],
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			require: function () {
 				const vehemoth = this.creature;

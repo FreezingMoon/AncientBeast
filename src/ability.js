@@ -561,7 +561,7 @@ export class Ability {
 	 */
 	atLeastOneTarget(hexes, o) {
 		const defaultOpt = {
-			team: Team.both,
+			team: Team.Both,
 			optTest: function () {
 				return true;
 			},
@@ -730,7 +730,7 @@ export class Ability {
 	 */
 	testDirections(o) {
 		let defaultOpt = {
-			team: Team.enemy,
+			team: Team.Enemy,
 			id: this.creature.id,
 			flipped: this.creature.player.flipped,
 			x: this.creature.x,

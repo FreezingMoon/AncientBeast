@@ -1,55 +1,109 @@
 import * as $j from 'jquery';
 import { Trap } from './trap';
 import { Creature } from '../creature';
+import { HexGrid } from './hexgrid';
+import Game from '../game';
+import Phaser from 'phaser-ce';
+import { Drop } from '../drops';
 
-export const Direction = {
-	UpRight: 0,
-	Right: 1,
-	DownRight: 2,
-	DownLeft: 3,
-	Left: 4,
-	UpLeft: 5,
-};
+export enum Direction {
+	UpRight = 0,
+	Right = 1,
+	DownRight = 2,
+	DownLeft = 3,
+	Left = 4,
+	UpLeft = 5,
+}
+
+const shrinkScale = 0.5;
 
 /**
- * Hex Class
- *
- * Object containing hex information, positions and DOM elements
+ * Object containing hex information and positions.
  */
 export class Hex {
-	/* Attributes
-	 *
-	 * NOTE : attributes and variables starting with $ are jquery element
-	 * and jquery function can be called directly from them.
-	 *
-	 * //Jquery attributes
-	 * $display : 		Hex display element
-	 * $overlay : 		Hex overlay element
-	 * $input : 		Hex input element (bind controls on it)
-	 *
-	 * //Normal attributes
-	 * x : 			Integer : 	Hex coordinates
-	 * y : 			Integer : 	Hex coordinates
-	 * pos : 			Object : 	Pos object for hex comparison {x,y}
-	 *
-	 * f : 			Integer : 	Pathfinding score f = g + h
-	 * g : 			Integer : 	Pathfinding distance from start
-	 * h : 			Integer : 	Pathfinding distance to finish
-	 * pathparent : 	Hex : 		Pathfinding parent hex (the one you came from)
-	 *
-	 * blocked : 		Boolean : 	Set to true if an obstacle it on it. Restrict movement.
-	 * creature : 		Creature : 	Creature object , undefined if empty
-	 * reachable : 	Boolean : 	Set to true if accessible by current action
-	 *
-	 * displayPos : 	Object : 	Pos object to position creature with absolute coordinates {left,top}
-	 */
+	game: Game;
+	grid: HexGrid;
 
-	/* Constructor(x,y)
-	 *
-	 * x : 			Integer : 	Hex coordinates
-	 * y : 			Integer : 	Hex coordinates
+	/**
+	 * Hex coordinates.
 	 */
-	constructor(x, y, grid, game) {
+	x: number;
+
+	/**
+	 * Hex coordinates.
+	 */
+	y: number;
+
+	/**
+	 * Pos object for hex comparison {x,y}.
+	 */
+	pos: { x: number; y: number };
+
+	coord: string;
+
+	/**
+	 * Pathfinding score f = g + h.
+	 */
+	f: number;
+
+	/**
+	 * Pathfinding distance from start.
+	 */
+	g: number;
+
+	/**
+	 * Pathfinding distance to finish.
+	 */
+	h: number;
+
+	/**
+	 * Pathfinding parent hex (the one you came from).
+	 */
+	pathparent: Hex;
+
+	/**
+	 * Set to true if an obstacle it on it. Restrict movement.
+	 */
+	blocked: boolean;
+
+	/**
+	 * Creature object, undefined if empty.
+	 */
+	creature: Creature;
+
+	/**
+	 * Set to true if accessible by current action.
+	 */
+	reachable: boolean;
+	direction: Direction;
+	drop: Drop;
+	displayClasses: string;
+	overlayClasses: string;
+	width: number;
+	height: number;
+
+	/**
+	 * Pos object to position creature with absolute coordinates {left,top}.
+	 */
+	displayPos: { x: number; y: number };
+
+	originalDisplayPos: { x: number; y: number };
+	tween: Phaser.Tween;
+	container: Phaser.Sprite;
+	display: Phaser.Sprite;
+	overlay: Phaser.Sprite;
+	input: Phaser.Sprite;
+	trap: Trap;
+	coordText: Phaser.Text;
+
+	/**
+	 *
+	 * @param x Hex coordinates
+	 * @param y Hex coordinates
+	 * @param grid
+	 * @param game
+	 */
+	constructor(x: number, y: number, grid: HexGrid, game?: Game) {
 		this.game = (grid && grid.game) || game;
 		this.grid = grid;
 		this.x = x;
@@ -88,17 +142,28 @@ export class Hex {
 		this.tween = null;
 
 		if (grid) {
-			// 10px is the offset from the old version
+			/* Sprite to "group" the display, overlay, and input sprites for relative
+			positioning and scaling. */
+			this.container = grid.hexesGroup.create(
+				// 10px is the offset from the old version
+				this.displayPos.x - 10,
+				this.displayPos.y,
+				'hex',
+			);
+			this.container.alpha = 0;
 
-			this.display = grid.disphexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
+			this.display = grid.displayHexesGroup.create(0, 0, 'hex');
+			this.display.alignIn(this.container, Phaser.CENTER);
 			this.display.alpha = 0;
 
-			this.overlay = grid.overhexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'hex');
+			this.overlay = grid.overlayHexesGroup.create(0, 0, 'hex');
+			this.overlay.alignIn(this.container, Phaser.CENTER);
 			this.overlay.alpha = 0;
 
-			this.input = grid.inpthexesGroup.create(this.displayPos.x - 10, this.displayPos.y, 'input');
+			this.input = grid.inputHexesGroup.create(0, 0, 'input');
+			this.input.alignIn(this.container, Phaser.TOP_LEFT);
 			this.input.inputEnabled = true;
-			this.input.input.pixelPerfect = true;
+			this.input.input.pixelPerfectClick = true;
 			this.input.input.pixelPerfectAlpha = 1;
 			this.input.input.useHandCursor = false;
 
@@ -144,12 +209,23 @@ export class Hex {
 
 		this.displayPos.y = this.displayPos.y * 0.75 + 30;
 
-		this.onSelectFn = function () {};
-		this.onHoverOffFn = function () {};
-		this.onConfirmFn = function () {};
-		this.onRightClickFn = function () {};
-
 		this.trap = undefined;
+	}
+
+	onSelectFn(arg0: this) {
+		// No-op function.
+	}
+
+	onHoverOffFn(arg0: this) {
+		// No-op function.
+	}
+
+	onConfirmFn(arg0: this) {
+		// No-op function.
+	}
+
+	onRightClickFn(arg0: this) {
+		// No-op function.
 	}
 
 	/* adjacentHex(distance)
@@ -162,12 +238,12 @@ export class Hex {
 	 * at the distance given of the current hex.
 	 */
 	adjacentHex(distance) {
-		let adjHex = [];
+		const adjHex = [];
 
 		for (let i = -distance; i <= distance; i++) {
-			let deltaY = i,
-				startX,
-				endX;
+			const deltaY = i;
+			let startX;
+			let endX;
 
 			if (this.y % 2 == 0) {
 				// Evenrow
@@ -180,8 +256,8 @@ export class Hex {
 			}
 
 			for (let deltaX = startX; deltaX <= endX; deltaX++) {
-				let x = this.x + deltaX,
-					y = this.y + deltaY;
+				const x = this.x + deltaX;
+				const y = this.y + deltaY;
 
 				// Exclude current hex
 				if (deltaY == 0 && deltaX == 0) {
@@ -203,8 +279,8 @@ export class Hex {
 	 * add ghosted class to creature on hexes behind this hex
 	 */
 	ghostOverlap() {
-		let grid = this.grid || this.game.grid,
-			ghostedCreature;
+		const grid = this.grid || this.game.grid;
+		let ghostedCreature;
 
 		for (let i = 1; i <= 3; i++) {
 			if (this.y % 2 == 0) {
@@ -269,14 +345,14 @@ export class Hex {
 	 *
 	 * return : 	Boolean : 	True if this hex is walkable
 	 */
-	isWalkable(size, id, ignoreReachable) {
+	isWalkable(size, id, ignoreReachable = false) {
 		let blocked = false;
 
 		for (let i = 0; i < size; i++) {
 			// For each Hex of the creature
 			if (this.x - i >= 0 && this.x - i < this.grid.hexes[this.y].length) {
 				//if hex exists
-				let hex = this.grid.hexes[this.y][this.x - i];
+				const hex = this.grid.hexes[this.y][this.x - i];
 				// Verify if blocked. If it's blocked by one attribute, OR statement will keep it status
 				blocked = blocked || hex.blocked;
 
@@ -313,13 +389,13 @@ export class Hex {
 		this.updateStyle();
 	}
 
-	/* displayVisualState
+	/**
+	 * Change the appearance of a display hex.
 	 *
-	 * Change the appearance of the display hex
+	 * @param {string} classes Display classes to be added to the Hex.
 	 */
-	displayVisualState(classes) {
-		classes = classes ? classes : '';
-		this.displayClasses += ' ' + classes + ' ';
+	displayVisualState(classes = '') {
+		this.displayClasses = `${this.displayClasses} ${classes}`.trim();
 		this.updateStyle();
 	}
 
@@ -327,14 +403,14 @@ export class Hex {
 	 *
 	 * Clear the appearance of the overlay hex
 	 */
-	cleanOverlayVisualState(classes) {
+	cleanOverlayVisualState(classes = '') {
 		classes =
 			classes ||
 			'creature weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3';
-		let a = classes.split(' ');
+		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
-			let regex = new RegExp('\\b' + a[i] + '\\b', 'g');
+			const regex = new RegExp('\\b' + a[i] + '\\b', 'g');
 			this.overlayClasses = this.overlayClasses.replace(regex, '');
 		}
 
@@ -345,14 +421,16 @@ export class Hex {
 	 *
 	 * Clear the appearance of the display hex
 	 */
-	cleanDisplayVisualState(classes) {
-		classes = classes || 'adj hover creature player0 player1 player2 player3';
-		let a = classes.split(' ');
+	cleanDisplayVisualState(classes = '') {
+		classes = classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken';
+		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
-			let regex = new RegExp('\\b' + a[i] + '\\b', 'g');
+			const regex = new RegExp('\\b' + a[i] + '\\b', 'g');
 			this.displayClasses = this.displayClasses.replace(regex, '');
 		}
+
+		this.displayClasses = this.displayClasses.trim();
 
 		this.updateStyle();
 	}
@@ -396,9 +474,9 @@ export class Hex {
 		targetAlpha = Boolean(this.displayClasses.match(/dashed/g)) || targetAlpha;
 
 		if (this.displayClasses.match(/0|1|2|3/)) {
-			let p = this.displayClasses.match(/0|1|2|3/);
-			this.display.loadTexture('hex_p' + p);
-			this.grid.disphexesGroup.bringToTop(this.display);
+			const player = this.displayClasses.match(/0|1|2|3/);
+			this.display.loadTexture(`hex_p${player}`);
+			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
 			this.display.loadTexture('hex_path');
 		} else if (this.displayClasses.match(/dashed/)) {
@@ -407,14 +485,20 @@ export class Hex {
 			this.display.loadTexture('hex');
 		}
 
-		this.display.alpha = targetAlpha;
-		// Too slow
-		// if(this.display.alpha != targetAlpha) {
-		// 	if(this.tween) this.tween.stop();
-		// 	this.tween = G.Phaser.add.tween(this.display)
-		// 		.to({alpha:targetAlpha-0}, 250, Phaser.Easing.Linear.None)
-		// 		.start();
-		// }
+		this.display.alpha = targetAlpha ? 1 : 0;
+
+		if (this.displayClasses.match(/shrunken/)) {
+			this.display.scale.setTo(shrinkScale, shrinkScale);
+			this.overlay.scale.setTo(shrinkScale, shrinkScale);
+			this.display.alignIn(this.container, Phaser.CENTER);
+			this.overlay.alignIn(this.container, Phaser.CENTER);
+			// Input sprite isn't shrunk, the click area is the original size of the hex.
+		} else {
+			this.display.scale.setTo(1, 1);
+			this.overlay.scale.setTo(1, 1);
+			this.display.alignIn(this.container, Phaser.CENTER);
+			this.overlay.alignIn(this.container, Phaser.CENTER);
+		}
 
 		// Display Coord
 		if (this.displayClasses.match(/showGrid/g)) {
@@ -430,7 +514,7 @@ export class Hex {
 					},
 				);
 				this.coordText.anchor.setTo(0.5, 0.5);
-				this.grid.overhexesGroup.add(this.coordText);
+				this.grid.overlayHexesGroup.add(this.coordText);
 			}
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
@@ -440,20 +524,20 @@ export class Hex {
 		targetAlpha = Boolean(this.overlayClasses.match(/hover|creature/g));
 
 		if (this.overlayClasses.match(/0|1|2|3/)) {
-			let p = this.overlayClasses.match(/0|1|2|3/);
+			const player = this.overlayClasses.match(/0|1|2|3/);
 
 			if (this.overlayClasses.match(/hover/)) {
 				this.overlay.loadTexture('hex_path');
 			} else {
-				this.overlay.loadTexture('hex_p' + p);
+				this.overlay.loadTexture(`hex_p${player}`);
 			}
 
-			this.grid.overhexesGroup.bringToTop(this.overlay);
+			this.grid.overlayHexesGroup.bringToTop(this.overlay);
 		} else {
 			this.overlay.loadTexture('cancel');
 		}
 
-		this.overlay.alpha = targetAlpha;
+		this.overlay.alpha = targetAlpha ? 1 : 0;
 	}
 
 	/** Add a trap to a hex.

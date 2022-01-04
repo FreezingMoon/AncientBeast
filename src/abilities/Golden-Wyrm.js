@@ -35,7 +35,7 @@ export default (G) => {
 					// Upgraded version only activates if enemy is in adjacent hexes
 					if (
 						!this.atLeastOneTarget(this._targets, {
-							team: Team.enemy,
+							team: Team.Enemy,
 						})
 					) {
 						return false;
@@ -88,7 +88,7 @@ export default (G) => {
 
 			_executeHealthThreshold: 45,
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			require: function () {
 				if (!this.testRequirements()) {
@@ -305,7 +305,7 @@ export default (G) => {
 		{
 			trigger: 'onQuery',
 
-			_targetTeam: Team.ally,
+			_targetTeam: Team.Ally,
 
 			_maxTransferAmount: 50,
 

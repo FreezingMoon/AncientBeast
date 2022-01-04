@@ -127,7 +127,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			//	require() :
 			require: function () {
@@ -299,7 +299,7 @@ export default (G) => {
 
 			// Inline forwards/backwards.
 			_directions: [0, 1, 0, 0, 1, 0],
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 			_maxPushDistance: 1,
 			_damagePerHexTravelled: 1,
 
@@ -552,7 +552,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			require: function () {
 				let ability = this;

@@ -28,7 +28,7 @@ export default (G) => {
 		{
 			trigger: 'onStartPhase onEndPhase',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			require: function () {
 				// Headless only triggers ability on its own turn.
@@ -96,7 +96,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			// 	require() :
 			require: function () {
@@ -196,7 +196,7 @@ export default (G) => {
 		{
 			trigger: 'onQuery',
 
-			_targetTeam: Team.both,
+			_targetTeam: Team.Both,
 			_directions: [0, 1, 0, 0, 1, 0],
 
 			require: function () {
@@ -275,7 +275,7 @@ export default (G) => {
 				);
 				path = arrayUtils.sortByDirection(
 					[...deadzonePath, ...path],
-					args.direction === Direction.Left ? Direction.Right : Direction.Left,
+					args.direction === Direction.Right ? Direction.Left : Direction.Right,
 				);
 
 				ability.end();
@@ -391,7 +391,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					team: Team.both,
+					team: Team.Both,
 					requireCreature: 0,
 					id: crea.id,
 					flipped: crea.player.flipped,

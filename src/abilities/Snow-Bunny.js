@@ -60,7 +60,7 @@ export default (G) => {
 				if (hex.creature === this.creature) {
 					// Bunny has been moved by another active creature, not itself.
 					triggerHexes = this._detectFrontHexesWithEnemy();
-				} else if (isTeam(hex.creature, this.creature, Team.enemy)) {
+				} else if (isTeam(hex.creature, this.creature, Team.Enemy)) {
 					// Enemy movement.
 					const frontHexWithEnemy = this._findEnemyHexInFront(hex);
 
@@ -188,7 +188,7 @@ export default (G) => {
 			_detectFrontHexesWithEnemy: function () {
 				const hexesInFront = this.creature.getHexMap(matrices.front1hex);
 				const hexesWithEnemy = hexesInFront.reduce((acc, curr, idx) => {
-					const hexHasEnemy = curr.creature && isTeam(curr.creature, this.creature, Team.enemy);
+					const hexHasEnemy = curr.creature && isTeam(curr.creature, this.creature, Team.Enemy);
 
 					if (hexHasEnemy) {
 						acc.push({
@@ -210,7 +210,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			// 	require() :
 			require: function () {
@@ -279,7 +279,7 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			directions: [1, 1, 1, 1, 1, 1],
-			_targetTeam: Team.both,
+			_targetTeam: Team.Both,
 
 			// 	require() :
 			require: function () {
@@ -394,7 +394,7 @@ export default (G) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			// 	require() :
 			require: function () {

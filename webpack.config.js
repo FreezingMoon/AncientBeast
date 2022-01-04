@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // Use .env configuration in webpack.config.js
 require('dotenv-defaults').config({
 	default: './.env.example',
@@ -20,16 +21,18 @@ module.exports = (env, argv) => {
 	const enableServiceWorker = process.env.ENABLE_SERVICE_WORKER === 'true' ? true : false;
 
 	return {
-		entry: ['babel-polyfill', path.resolve(__dirname, 'src', 'script.ts')],
+		entry: {
+			vendor: ['pixi', 'p2', 'phaser'],
+			app: ['babel-polyfill', path.resolve(__dirname, 'src', 'script.ts')],
+		},
 		output: {
 			path: path.resolve(__dirname, 'deploy'),
-			filename: 'ancientbeast.js',
-			// chunkFilename: '[id].chunk.js',
-			// publicPath: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
+			filename: '[name].[hash].bundle.js',
 		},
 		devtool: production ? 'none' : 'source-map',
 		module: {
 			rules: [
+				{ test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
 				{
 					test: /\.ts$/,
 					use: 'ts-loader',
@@ -38,7 +41,6 @@ module.exports = (env, argv) => {
 				{ test: /pixi\.js/, use: ['expose-loader?PIXI'] },
 				{ test: /phaser-split\.js$/, use: ['expose-loader?Phaser'] },
 				{ test: /p2\.js/, use: ['expose-loader?p2'] },
-				{ test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
 				{
 					test: /\.html$/,
 					use: ['html-loader'],

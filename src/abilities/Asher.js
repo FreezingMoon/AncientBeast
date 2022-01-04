@@ -59,7 +59,7 @@ export default (G) => {
 			trigger: 'onQuery',
 
 			distance: 2,
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			// 	require() :
 			require: function () {
@@ -121,7 +121,7 @@ export default (G) => {
 			//	Type : Can be "onQuery","onStartPhase","onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			// 	require() :
 			require: function () {

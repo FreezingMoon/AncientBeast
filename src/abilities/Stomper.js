@@ -78,7 +78,7 @@ export default (G) => {
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			_targetTeam: Team.enemy,
+			_targetTeam: Team.Enemy,
 
 			_upgradedMap: [
 				[0, 1, 0, 0, 0, 1, 0, 0],
@@ -169,7 +169,7 @@ export default (G) => {
 
 			// Hit both team in a straight line but require at least one melee target
 			_req: {
-				team: Team.both,
+				team: Team.Both,
 				directions: [0, 1, 0, 0, 1, 0],
 				distance: 1,
 			},
@@ -349,7 +349,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					team: Team.both,
+					team: Team.Both,
 					requireCreature: 0,
 					id: stomper.id,
 					flipped: stomper.flipped,
@@ -463,7 +463,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					team: Team.both,
+					team: Team.Both,
 					requireCreature: 0,
 					id: stomper.id,
 					flipped: stomper.flipped,
