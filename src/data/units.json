@@ -700,8 +700,8 @@
 			},
 			{
 				"title": "Fiery Touch",
-				"desc": "Scratches and burns a distant enemy up to 3 hexagons away.",
-				"info": "15 slash + 15 burn damage each attack.",
+				"desc": "Scratches and burns an enemy unit, able to reach up to 3 hexagons away.",
+				"info": "15 slash + 15 burn damage per attack.",
 				"upgrade": "6 range for the burn damage.",
 				"damages": {
 					"slash": 15,
