@@ -1889,15 +1889,16 @@ export class UI {
 				// After 2s remove the background and update the button if it's not a passive
 				setTimeout(() => {
 					btn.$button.removeClass('upgradeIcon');
-				}, 2000);
+				}, 1200);
 
 				// Then remove the animation
 				setTimeout(() => {
 					btn.$button.removeClass('upgradeTransition');
+					// Issue #2001 here, if Timeout takes too long, it will extend pass a skipped turn and disable opponent's Godlet Printer
 					if (ab.isUpgradedPerUse()) {
 						btn.changeState(ButtonStateEnum.disabled);
 					}
-				}, 2500);
+				}, 1500);
 
 				ab.setUpgraded(); // Set the ability to upgraded
 			}
