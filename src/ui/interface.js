@@ -135,6 +135,9 @@ export class UI {
 							action: 'skip',
 						});
 
+						// Prevents upgrade animation from carrying on into opponent's turn and disabling their button
+						clearTimeout(this.animationUpgradeTimeOutID);
+
 						game.skipTurn();
 						this.lastViewedCreature = '';
 						this.queryUnit = '';
@@ -1889,16 +1892,16 @@ export class UI {
 				// After 2s remove the background and update the button if it's not a passive
 				setTimeout(() => {
 					btn.$button.removeClass('upgradeIcon');
-				}, 1200);
+				}, 2000);
 
 				// Then remove the animation
-				setTimeout(() => {
+				this.animationUpgradeTimeOutID = setTimeout(() => {
 					btn.$button.removeClass('upgradeTransition');
 					// Issue #2001 here, if Timeout takes too long, it will extend pass a skipped turn and disable opponent's Godlet Printer
 					if (ab.isUpgradedPerUse()) {
 						btn.changeState(ButtonStateEnum.disabled);
 					}
-				}, 1500);
+				}, 2500);
 
 				ab.setUpgraded(); // Set the ability to upgraded
 			}
