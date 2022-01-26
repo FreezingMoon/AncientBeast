@@ -1897,7 +1897,6 @@ export class UI {
 				// Then remove the animation
 				this.animationUpgradeTimeOutID = setTimeout(() => {
 					btn.$button.removeClass('upgradeTransition');
-					// Issue #2001 here, if Timeout takes too long, it will extend pass a skipped turn and disable opponent's Godlet Printer
 					if (ab.isUpgradedPerUse()) {
 						btn.changeState(ButtonStateEnum.disabled);
 					}
