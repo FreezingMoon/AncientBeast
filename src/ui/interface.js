@@ -1892,7 +1892,7 @@ export class UI {
 				// After 2s remove the background and update the button if it's not a passive
 				setTimeout(() => {
 					btn.$button.removeClass('upgradeIcon');
-				}, 2000);
+				}, 1200);
 
 				// Then remove the animation
 				this.animationUpgradeTimeOutID = setTimeout(() => {
@@ -1900,7 +1900,7 @@ export class UI {
 					if (ab.isUpgradedPerUse()) {
 						btn.changeState(ButtonStateEnum.disabled);
 					}
-				}, 2500);
+				}, 1500);
 
 				ab.setUpgraded(); // Set the ability to upgraded
 			}
