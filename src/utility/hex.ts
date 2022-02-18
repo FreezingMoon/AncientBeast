@@ -503,7 +503,7 @@ export class Hex {
 		// Display Coord
 		if (this.displayClasses.match(/showGrid/g)) {
 			if (!(this.coordText && this.coordText.exists)) {
-				this.coordText = this.game.Phaser.add.text(
+				/* this.coordText = this.game.Phaser.add.text(
 					this.originalDisplayPos.x + 45,
 					this.originalDisplayPos.y + 63,
 					this.coord,
@@ -512,7 +512,7 @@ export class Hex {
 						fill: '#000000',
 						align: 'center',
 					},
-				);
+				); */
 				this.coordText.anchor.setTo(0.5, 0.5);
 				this.grid.overlayHexesGroup.add(this.coordText);
 			}

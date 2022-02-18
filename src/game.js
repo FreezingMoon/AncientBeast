@@ -13,10 +13,10 @@ import { Creature } from './creature';
 import dataJson from './data/units.json';
 import 'pixi';
 import 'p2';
-import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
+import { PhaserFrontEnd } from './frontend/phaser_frontend';
 
 /* Game Class
  *
@@ -107,12 +107,6 @@ export default class Game {
 		this.turnThrottle = false;
 		this.turn = 0;
 
-		// Phaser
-		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
-			update: this.phaserUpdate.bind(this),
-			render: this.phaserRender.bind(this),
-		});
-
 		// Messages
 		// TODO: Move strings to external file in order to be able to support translations
 		// https://github.com/FreezingMoon/AncientBeast/issues/923
@@ -181,8 +175,7 @@ export default class Game {
 			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
 
-		const signalChannels = ['ui', 'metaPowers', 'creature'];
-		this.signals = this.setupSignalChannels(signalChannels);
+		this.frontend = new PhaserFrontEnd(this);
 	}
 
 	dataLoaded(data) {
@@ -356,21 +349,6 @@ export default class Game {
 					this.setup(this.playerMode);
 				}
 			}, 100);
-		}
-	}
-
-	phaserUpdate() {
-		if (this.gameState != 'playing') {
-			return;
-		}
-	}
-
-	phaserRender() {
-		let count = this.creatures.length,
-			i;
-
-		for (i = 1; i < count; i++) {
-			//G.Phaser.debug.renderSpriteBounds(G.creatures[i].sprite);
 		}
 	}
 
@@ -1546,28 +1524,5 @@ export default class Game {
 		this.turn = 0;
 
 		this.gamelog.reset();
-	}
-
-	/**
-	 * Setup signal channels based on a list of channel names.
-	 *
-	 * @example setupSignalChannels(['ui', 'game'])
-	 * // ... another file
-	 * this.game.signals.ui.add((message, payload) => console.log(message, payload), this);
-	 *
-	 * @see https://photonstorm.github.io/phaser-ce/Phaser.Signal.html
-	 *
-	 * @param {array} channels List of channel names.
-	 * @returns {object} Phaser signals keyed by channel name.
-	 */
-	setupSignalChannels(channels) {
-		const signals = channels.reduce((acc, curr) => {
-			return {
-				...acc,
-				[curr]: new Signal(),
-			};
-		}, {});
-
-		return signals;
 	}
 }
