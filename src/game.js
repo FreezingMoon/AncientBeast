@@ -4,8 +4,8 @@ import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
 import { SoundSys } from './sound/soundsys';
 import { MusicPlayer } from './sound/musicplayer';
-import { Hex } from './utility/hex';
-import { HexGrid } from './utility/hexgrid';
+import { Hex } from './frontend/hex';
+import { HexGrid } from './frontend/hexgrid';
 import { getUrl } from './assetLoader';
 import { Player } from './player';
 import { UI } from './ui/interface';
@@ -16,6 +16,7 @@ import 'p2';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
+
 import { PhaserFrontEnd } from './frontend/phaser_frontend';
 
 /* Game Class
