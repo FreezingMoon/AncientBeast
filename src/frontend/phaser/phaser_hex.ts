@@ -1,6 +1,6 @@
+import $j from "jquery";
 import { Creature } from "../../creature";
 import Game from "../../game";
-import { shallow_extend } from "../extend";
 import { Hex } from "../hex";
 import { HexGrid } from "../hexgrid";
 import { PhaserHexGrid } from "./phaser_hexgrid";
@@ -38,14 +38,14 @@ export class PhaserHex extends Hex {
 			y: y * this.height,
 		};
 
-		this.originalDisplayPos = shallow_extend({}, this.displayPos);
+		this.originalDisplayPos = $j.extend({}, this.displayPos);
 
 		if (grid && (grid instanceof PhaserHexGrid)) {
-			grid = grid as PhaserHexGrid;
+			const phaserHexGrid = grid as PhaserHexGrid;
 
 			/* Sprite to "group" the display, overlay, and input sprites for relative
 			positioning and scaling. */
-			this.container = grid.hexesGroup.create(
+			this.container = phaserHexGrid.hexesGroup.create(
 				// 10px is the offset from the old version
 				this.displayPos.x - 10,
 				this.displayPos.y,
@@ -53,15 +53,15 @@ export class PhaserHex extends Hex {
 			);
 			this.container.alpha = 0;
 
-			this.display = grid.displayHexesGroup.create(0, 0, 'hex');
+			this.display = phaserHexGrid.displayHexesGroup.create(0, 0, 'hex');
 			this.display.alignIn(this.container, Phaser.CENTER);
 			this.display.alpha = 0;
 
-			this.overlay = grid.overlayHexesGroup.create(0, 0, 'hex');
+			this.overlay = phaserHexGrid.overlayHexesGroup.create(0, 0, 'hex');
 			this.overlay.alignIn(this.container, Phaser.CENTER);
 			this.overlay.alpha = 0;
 
-			this.input = grid.inputHexesGroup.create(0, 0, 'input');
+			this.input = phaserHexGrid.inputHexesGroup.create(0, 0, 'input');
 			this.input.alignIn(this.container, Phaser.TOP_LEFT);
 			this.input.inputEnabled = true;
 			this.input.input.pixelPerfectClick = true;
@@ -310,7 +310,7 @@ export class PhaserHex extends Hex {
 		if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
 			this.display.loadTexture(`hex_p${player}`);
-			this.grid.displayHexesGroup.bringToTop(this.display);
+			(this.grid as PhaserHexGrid).displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
 			this.display.loadTexture('hex_path');
 		} else if (this.displayClasses.match(/dashed/)) {
@@ -337,6 +337,7 @@ export class PhaserHex extends Hex {
 		// Display Coord
 		if (this.displayClasses.match(/showGrid/g)) {
 			if (!(this.coordText && this.coordText.exists)) {
+				// TODO: Cast to PhaserGame implementation
 				this.coordText = this.game.Phaser.add.text(
 					this.originalDisplayPos.x + 45,
 					this.originalDisplayPos.y + 63,
@@ -348,7 +349,7 @@ export class PhaserHex extends Hex {
 					},
 				);
 				this.coordText.anchor.setTo(0.5, 0.5);
-				this.grid.overlayHexesGroup.add(this.coordText);
+				(this.grid as PhaserHexGrid).overlayHexesGroup.add(this.coordText);
 			}
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
@@ -366,7 +367,7 @@ export class PhaserHex extends Hex {
 				this.overlay.loadTexture(`hex_p${player}`);
 			}
 
-			this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			(this.grid as PhaserHexGrid).overlayHexesGroup.bringToTop(this.overlay);
 		} else {
 			this.overlay.loadTexture('cancel');
 		}
