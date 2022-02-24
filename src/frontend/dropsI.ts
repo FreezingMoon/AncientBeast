@@ -20,5 +20,7 @@
  */
 
 export interface DropsI {
+    constructor(name, alterations, x, y, game);
+    pickup(creature): void;
 
 }
