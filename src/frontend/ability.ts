@@ -1,7 +1,7 @@
 import $j from 'jquery';
 import Game from '../game';
-import { Creature } from '../creature';
-import { Direction, Hex } from '../utility/hex';
+import { Creature } from '../creature'; // TODO: Change me
+import { Direction, Hex } from './hex';
 import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
 
@@ -64,6 +64,7 @@ export abstract class Ability {
 	}
 
 	hasUpgrade(): boolean {
+		// @ts-ignore
 		return this.game.abilityUpgrades >= 0 && this.upgrade;
 	}
 
@@ -89,9 +90,11 @@ export abstract class Ability {
 		let game = this.game;
 
 		if (this.isUpgradedPerUse()) {
+		// @ts-ignore
 			return game.abilityUpgrades - this.timesUsed;
 		}
 
+		// @ts-ignore
 		return game.abilityUpgrades - this.creature.turnsActive;
 	}
 
@@ -133,6 +136,7 @@ export abstract class Ability {
 	use(): any {
 		let game = this.game;
 
+		// @ts-ignore
 		if (this.getTrigger() !== 'onQuery' || !this.require()) {
 			return;
 		}
@@ -145,6 +149,7 @@ export abstract class Ability {
 		game.clearOncePerDamageChain();
 		game.activeCreature.hint(this.title, 'msg_effects');
 
+		// @ts-ignore
 		return this.query();
 	}
 
@@ -287,6 +292,7 @@ export abstract class Ability {
 	 * @return {boolean|string} damage
 	 */
 	getFormattedDamages(obj: Object): boolean | string {
+		// @ts-ignore
 		obj = obj || this.damages;
 
 		if (!obj) {
@@ -297,8 +303,10 @@ export abstract class Ability {
 			creature = this.creature;
 
 		$j.each(obj, (key, value) => {
+		// @ts-ignore
 			if (key == 'special') {
 				// TODO: don't manually list all the stats and masteries when needed
+		// @ts-ignore
 				string += value.replace(
 					/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,
 					'<span class="$1"></span>',
@@ -306,7 +314,9 @@ export abstract class Ability {
 				return;
 			}
 
+		// @ts-ignore
 			if (key === 'energy') {
+		// @ts-ignore
 				value += creature.stats.reqEnergy;
 			}
 
@@ -327,13 +337,17 @@ export abstract class Ability {
 	getFormattedEffects() {
 		let string = '';
 
+		// @ts-ignore
 		if (!this.effects) {
 			return false;
 		}
 
+		// @ts-ignore
 		for (let i = this.effects.length - 1; i >= 0; i--) {
+		// @ts-ignore
 			if (this.effects[i].special) {
 				// TODO: don't manually list all the stats and masteries when needed
+		// @ts-ignore
 				string += this.effects[i].special.replace(
 					/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,
 					'<span class="$1"></span>',
@@ -341,11 +355,13 @@ export abstract class Ability {
 				continue;
 			}
 
+		// @ts-ignore
 			$j.each(this.effects[i], (key, value) => {
 				if (string !== '') {
 					string += ', ';
 				}
 
+		// @ts-ignore
 				string += value + '<span class="' + key + '"></span>';
 			});
 		}
@@ -399,6 +415,7 @@ export abstract class Ability {
 			if (
 				!creature ||
 				!isTeam(this.creature, creature, options.team) ||
+		// @ts-ignore
 				!options.optTest(creature)
 			) {
 				continue;
@@ -575,7 +592,9 @@ export abstract class Ability {
 		let outDirections = [];
 		let deadzone = [];
 
+		// @ts-ignore
 		for (let i = 0, len = o.directions.length; i < len; i++) {
+		// @ts-ignore
 			if (!o.directions[i]) {
 				outDirections.push(0);
 				continue;
@@ -583,36 +602,48 @@ export abstract class Ability {
 
 			let fx = 0;
 
+		// @ts-ignore
 			if (o.sourceCreature instanceof Creature) {
+		// @ts-ignore
 				const flipped = o.sourceCreature.player.flipped;
 
 				if ((!flipped && i > 2) || (flipped && i < 3)) {
+		// @ts-ignore
 					fx = -1 * (o.sourceCreature.size - 1);
 				}
 			}
 
+		// @ts-ignore
 			let dir = this.game.grid.getHexLine(o.x + fx, o.y, i, o.flipped);
 
+		// @ts-ignore
 			if (o.distance > 0) {
+		// @ts-ignore
 				dir = dir.slice(0, o.distance + 1);
 			}
 
+		// @ts-ignore
 			if (o.minDistance > 0) {
 				// The untargetable area between the unit and the minimum distance.
+		// @ts-ignore
 				deadzone = dir.slice(0, o.minDistance);
+		// @ts-ignore
 				deadzone = arrayUtils.filterCreature(deadzone, o.includeCreature, o.stopOnCreature, o.id);
 
 				dir = dir.slice(
 					// 1 greater than expected to exclude current (source creature) hex.
+		// @ts-ignore
 					o.minDistance,
 				);
 			}
 
+		// @ts-ignore
 			dir = arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
 
 			/* If the ability has a minimum distance and units should block LOS, this
 			direction cannot be used if there is a unit in the deadzone. */
 			const blockingUnitInDeadzone =
+		// @ts-ignore
 				o.stopOnCreature && deadzone.length && this.atLeastOneTarget(deadzone, o);
 			const targetInDirection = this.atLeastOneTarget(dir, o);
 			const isValidDirection = targetInDirection && !blockingUnitInDeadzone;

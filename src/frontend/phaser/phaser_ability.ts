@@ -1,8 +1,8 @@
 import $j from 'jquery';
 import Game from '../../game';
 import { Ability } from '../ability';
-import { Creature } from '../../creature';
-import { Hex } from '../../utility/hex';
+import { Creature } from '../../creature'; // TODO: change me
+import { Hex } from '../hex';
 
 export class PhaserAbility extends Ability {
 	constructor(creature: Creature, abilityID: number, game: Game) {
@@ -10,6 +10,19 @@ export class PhaserAbility extends Ability {
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
+	}
+
+	getTriggerStr() {
+		let s = "";
+		let trigger = this.getTrigger();
+
+		if (trigger instanceof String) {
+			s = (trigger as string);
+		} else if(trigger instanceof Function) {
+			s = trigger();
+		}
+
+		return s;
 	}
 
 	/**
@@ -20,14 +33,7 @@ export class PhaserAbility extends Ability {
 		let game = this.game;
 		// Gamelog Event Registration
 
-		const trigger = this.getTrigger();
-		let triggerStr: string;
-		if (trigger instanceof String) {
-			triggerStr = trigger as string;
-		} else if (trigger instanceof Function) {
-			triggerStr = trigger();
-		}
-
+		const triggerStr = this.getTriggerStr();
 		if (triggerStr && game.triggers.onQuery.test(triggerStr)) {
 			if (arguments[0] instanceof Hex) {
 				let args = $j.extend({}, arguments);
@@ -107,6 +113,7 @@ export class PhaserAbility extends Ability {
 			}
 		} else {
 			// Test for materialization sickness
+			// @ts-ignore
 			if (this.creature.materializationSickness && this.affectedByMatSickness) {
 				return false;
 			}
@@ -136,6 +143,7 @@ export class PhaserAbility extends Ability {
 		const args = opt.arg;
 		const activateAbility = () => {
 			const extra = args[2];
+			// @ts-ignore
 			this.activate(args[0], args[1], extra);
 			this.postActivate();
 		};
@@ -176,7 +184,9 @@ export class PhaserAbility extends Ability {
 				activateAnimation: true,
 			};
 
+			// @ts-ignore
 			if (this.getAnimationData) {
+				// @ts-ignore
 				animationData = $j.extend(animationData, this.getAnimationData(...args));
 			}
 
@@ -190,7 +200,7 @@ export class PhaserAbility extends Ability {
 			}
 
 			setTimeout(() => {
-				if (!game.triggers.onUnderAttack.test(this.getTrigger())) {
+				if (!game.triggers.onUnderAttack.test(this.getTriggerStr())) {
 					game.soundsys.playSound(game.soundLoaded[2], game.soundsys.effectsGainNode);
 					activateAbility();
 				}

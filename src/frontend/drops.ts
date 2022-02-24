@@ -19,8 +19,10 @@
  * - Drops are essentially permanent although this may change in the future.
  */
 
-export interface DropsI {
-    constructor(name, alterations, x, y, game);
-    pickup(creature): void;
+export abstract class Drops {
+    constructor(name, alterations, x, y, game) {
 
+		}
+
+    abstract pickup(creature): void;
 }

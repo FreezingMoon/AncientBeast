@@ -1,7 +1,8 @@
 import { TrapI } from "../trapI";
 import * as $j from 'jquery';
 import Game from "../../game";
-import { Hex } from '../../utility/hex';
+import { Hex } from '../hex';
+import { Effect } from "../../effect";
 import Phaser from 'phaser-ce';
 
 export class PhaserTrap implements TrapI{
@@ -9,7 +10,7 @@ export class PhaserTrap implements TrapI{
     phaser: Phaser;
     hex: Hex;
     type: String;
-    effects: [];
+    effects: Effect[];
     owner: String;
     creationTurn: number;
     destroyOnActivate: boolean;
@@ -46,6 +47,7 @@ export class PhaserTrap implements TrapI{
 		this.hex.trap = this;
 
 		for (let i = this.effects.length - 1; i >= 0; i--) {
+			// @ts-ignore
 			this.effects[i].trap = this;
 		}
 
@@ -124,5 +126,5 @@ export class PhaserTrap implements TrapI{
 			Phaser.Easing.Linear.None,
 		);
 	}
-    
+
 }

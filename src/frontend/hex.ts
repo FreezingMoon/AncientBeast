@@ -1,5 +1,5 @@
 import { Creature } from "../creature";
-import { Drop } from "../drops";
+import { Drops } from "./drops";
 import Game from "../game";
 import { Trap } from "../utility/trap";
 import { HexGrid } from "./hexgrid";
@@ -69,7 +69,7 @@ export abstract class Hex {
 	 */
 	reachable: boolean;
 	direction: Direction;
-	drop: Drop;
+	drop: Drops;
 	width: number;
 	height: number;
 
@@ -77,6 +77,8 @@ export abstract class Hex {
 	 * Pos object to position creature with absolute coordinates {left,top}.
 	 */
 	displayPos: { x: number; y: number };
+
+	originalDisplayPos : { x: number; y: number };
 
 	trap: Trap;
 

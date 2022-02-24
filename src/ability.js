@@ -1,6 +1,6 @@
 import * as $j from 'jquery';
 import { Damage } from './damage';
-import { Direction, Hex } from './utility/hex';
+import { Direction, Hex } from './frontend/hex';
 import { Creature } from './creature';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';

@@ -1,18 +1,23 @@
-import Game from "../../game";
-import { AnimationsI } from "../animationsI";
+import $j from 'jquery';
+import * as arrayUtils from '../arrayUtils';
+import Game from '../../game';
+import { Animations } from '../animations';
 import Phaser from 'phaser-ce';
 
-export class PhaserAnimations implements AnimationsI {
+export class PhaserAnimations extends Animations {
 	game: Game;
 	phaser: Phaser;
+	movementPoints: number;
 
 	constructor(game) {
+		super(game);
+
 		this.game = game;
 		this.movementPoints = 0;
 	}
 
-    walk(creature: any, path: any, opts: any): void {
-        let game = this.game;
+	walk(creature, path, opts): void {
+		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
 			path = path.slice(0, opts.customMovementPoint);
@@ -30,7 +35,7 @@ export class PhaserAnimations implements AnimationsI {
 
 		creature.healthHide();
 
-		let anim = function () {
+		let anim = function (this: PhaserAnimations) {
 			let hex = path[hexId];
 
 			if (hexId < path.length && (creature.remainingMove > 0 || opts.ignoreMovementPoint)) {
@@ -76,17 +81,17 @@ export class PhaserAnimations implements AnimationsI {
 
 				this.enterHex(creature, hex, enterHexOpts);
 
-				anim(); // Next tween
+				anim(this); // Next tween
 			});
 
 			hexId++;
 		}.bind(this);
 
 		anim();
-    }
+	}
 
-    fly(creature: any, path: any, opts: any): void {
-        let game = this.game;
+	fly(creature: any, path: any, opts: any): void {
+		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
 			path = path.slice(0, opts.customMovementPoint);
@@ -142,9 +147,9 @@ export class PhaserAnimations implements AnimationsI {
 			this.movementComplete(creature, hex, animId, opts);
 			return;
 		});
-    }
-    teleport(creature: any, path: any, opts: any): void {
-        let game = this.game,
+	}
+	teleport(creature: any, path: any, opts: any): void {
+		let game = this.game,
 			hex = path[0],
 			currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
 
@@ -189,18 +194,26 @@ export class PhaserAnimations implements AnimationsI {
 			this.movementComplete(creature, hex, animId, opts);
 			return;
 		});
-    }
-    push(creature: any, path: any, opts: any): void {
-        throw new Error("Method not implemented.");
-    }
-    enterHex(creature: any, hex: any, opts: any): void {
-        throw new Error("Method not implemented.");
-    }
-    movementComplete(creature: any, hex: any, animId: any, opts: any): void {
-        throw new Error("Method not implemented.");
-    }
-    projectile(this2: any, target: any, spriteId: any, path: any, args: any, startX: any, startY: any): [tween, sprite, dist] {
-        // Get the target's position on the projectile's path that is closest
+	}
+	push(creature: any, path: any, opts: any): void {
+		throw new Error('Method not implemented.');
+	}
+	enterHex(creature: any, hex: any, opts: any): void {
+		throw new Error('Method not implemented.');
+	}
+	movementComplete(creature: any, hex: any, animId: any, opts: any): void {
+		throw new Error('Method not implemented.');
+	}
+	projectile(
+		this2: any,
+		target: any,
+		spriteId: any,
+		path: any,
+		args: any,
+		startX: any,
+		startY: any,
+	): any[] {
+		// Get the target's position on the projectile's path that is closest
 		let emissionPointX = this2.creature.grp.x + startX;
 		var distance = Number.MAX_SAFE_INTEGER;
 		var targetX = path[0].displayPos.x;
@@ -242,7 +255,5 @@ export class PhaserAnimations implements AnimationsI {
 			.start();
 
 		return [tween, sprite, dist];
-    }
-    
-
+	}
 }

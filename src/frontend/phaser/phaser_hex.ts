@@ -12,7 +12,6 @@ export class PhaserHex extends Hex {
 	displayClasses: string;
 	overlayClasses: string;
 
-	originalDisplayPos: { x: number; y: number };
 	tween: Phaser.Tween;
 	container: Phaser.Sprite;
 	display: Phaser.Sprite;

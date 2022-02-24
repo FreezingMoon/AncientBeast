@@ -1,36 +1,22 @@
 import * as $j from 'jquery';
-import game from '../game';
+import Game from '../game';
 import * as arrayUtils from '../utility/arrayUtils';
-import { Creature } from '../creature';
+import { Creature } from '../creature'; //TODO: change me
 
-export interface AnimationsI {
-
+export abstract class Animations {
 	creature: Creature;
+	game: Game;
+	movementPoints: number;
 
-    walk(creature, path, opts): void;
-    fly(creature, path, opts): void;
-    teleport(creature, path, opts): void;
-    push(creature, path, opts): void;
-    enterHex(creature, hex, opts): void;
-    movementComplete(creature, hex, animId, opts): void;
-    projectile(this2, target, spriteId, path, args, startX, startY): [tween, sprite, dist];
-
-	constructor(game) {
+	constructor(game: Game) {
 		this.game = game;
 		this.movementPoints = 0;
 	}
 
-	walk(creature, path, opts) {
-		
-	}
-
-	fly(creature, path, opts) {
-		
-	}
-
-	teleport(creature, path, opts) {
-		
-	}
+	abstract walk(creature, path, opts): void;
+	abstract fly(creature, path, opts): void;
+	abstract teleport(creature, path, opts): void;
+	abstract projectile(this2, target, spriteId, path, args, startX, startY): any[];
 
 	push(creature, path, opts) {
 		opts.pushed = true;
@@ -99,9 +85,5 @@ export interface AnimationsI {
 		}
 
 		game.animationQueue = queue;
-	}
-
-	projectile(this2, target, spriteId, path, args, startX, startY) {
-		
 	}
 }

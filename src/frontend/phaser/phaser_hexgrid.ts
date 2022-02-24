@@ -1,5 +1,5 @@
 import * as $j from 'jquery';
-import { Creature } from "../../creature";
+import { Creature } from "../../creature"; // TODO: change me
 import Game from "../../game";
 import { Team, isTeam } from "../../utility/team";
 import { HexGrid } from "../hexgrid";
@@ -792,3 +792,8 @@ export class PhaserHexGrid extends HexGrid {
 		hexes.forEach((hex: PhaserHex) => hex.displayVisualState('creature selected player1'));
 	}
 }
+
+export function createPhaserHexGrid(opts: any, game: Game): HexGrid {
+	return new PhaserHexGrid(opts, game);
+}
+

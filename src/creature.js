@@ -1,7 +1,7 @@
 import * as $j from 'jquery';
 import { Ability } from './ability';
 import { search } from './utility/pathfinding';
-import { Hex } from './utility/hex';
+import { Hex } from './frontend/hex';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop } from './drops';
 

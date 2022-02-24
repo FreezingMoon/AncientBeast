@@ -3,7 +3,7 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
-import { Direction } from '../utility/hex';
+import { Direction } from '../frontend/hex';
 
 /** Creates the abilities
  * @param {Game} G the game object
