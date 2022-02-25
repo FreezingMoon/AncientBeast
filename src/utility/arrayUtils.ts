@@ -1,6 +1,6 @@
 import { Creature } from '../creature';
-import { Direction, Hex } from './hex';
-import { HexGrid } from './hexgrid';
+import { Direction, Hex } from '../frontend/hex';
+import { HexGrid } from '../frontend/hexgrid';
 
 /**
  * Find an object in the current Array based on its pos attribute.

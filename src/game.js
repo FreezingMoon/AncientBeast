@@ -18,6 +18,7 @@ import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
 import { createPhaserHexGrid, PhaserHexGrid } from './frontend/phaser/phaser_hexgrid';
+import { PhaserAnimations } from './frontend/phaser/phaser_animations';
 
 /* Game Class
  *
@@ -68,7 +69,7 @@ export default class Game {
 		this.matchid = null;
 		this.playersReady = false;
 		this.preventSetup = false;
-		this.animations = new Animations(this);
+		this.animations = new PhaserAnimations(this);
 		this.queue = new CreatureQueue(this);
 		this.creatureIdCounter = 1;
 		this.creatureData = [];
@@ -551,7 +552,8 @@ export default class Game {
 			resizeGame();
 		});
 
-		this.soundsys.playMusic();
+		// TODO: enable me later
+		// this.soundsys.playMusic();
 		if (this.gamelog.data) {
 			// TODO: Remove the need for a timeout here by having a proper
 			// "game is ready to play" event that can trigger log replays if
@@ -735,7 +737,8 @@ export default class Game {
 
 				// Play heartbeat sound on other player's turn
 				if (differentPlayer) {
-					this.soundsys.playSound(this.soundLoaded[4], this.soundsys.heartbeatGainNode);
+					// TODO: enable me later
+					// this.soundsys.playSound(this.soundLoaded[4], this.soundsys.heartbeatGainNode);
 				}
 
 				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
@@ -1529,7 +1532,7 @@ export default class Game {
 		this.matchid = null;
 		this.playersReady = false;
 		this.preventSetup = false;
-		this.animations = new Animations(this);
+		this.animations = new PhaserAnimations(this);
 		this.queue = new CreatureQueue(this);
 		this.creatureIdCounter = 1;
 		this.creatureData = [];

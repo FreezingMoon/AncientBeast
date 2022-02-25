@@ -42,6 +42,9 @@ export class PhaserHexGrid extends HexGrid {
 		this.trapOverGroup = game.Phaser.add.group(this.display, 'trapOverGrp');
 		this.trapOverGroup.scale.set(1, 0.75);
 
+		// Populate the hexes
+		this.populate();
+
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}

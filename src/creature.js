@@ -1,7 +1,7 @@
 import * as $j from 'jquery';
 import { Ability } from './ability';
 import { search } from './utility/pathfinding';
-import { Hex } from './frontend/hex';
+import { PhaserHex } from './frontend/phaser/phaser_hex'; // TODO: change me
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop } from './drops';
 
@@ -809,11 +809,12 @@ export class Creature {
 				return; // Break if empty path
 			}
 
-			game.grid.xray(new Hex(0, 0, false, game)); // Clean Xray
+			game.grid.xray(new PhaserHex(0, 0, false, game)); // Clean Xray
 
 			this.travelDist = 0;
 
-			game.animations[opts.animation](this, path, opts);
+			game.animations.callMethodByStr(opts.animation, this, path, opts);
+			// game.animations[opts.animation](this, path, opts);
 		} else {
 			game.log('This creature cannot be moved');
 		}

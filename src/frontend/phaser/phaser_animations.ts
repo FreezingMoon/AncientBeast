@@ -3,20 +3,17 @@ import * as arrayUtils from '../arrayUtils';
 import Game from '../../game';
 import { Animations } from '../animations';
 import Phaser from 'phaser-ce';
+import { PhaserHexGrid } from './phaser_hexgrid';
 
 export class PhaserAnimations extends Animations {
-	game: Game;
 	phaser: Phaser;
-	movementPoints: number;
 
-	constructor(game) {
+	constructor(game: Game) {
 		super(game);
-
-		this.game = game;
-		this.movementPoints = 0;
 	}
 
-	walk(creature, path, opts): void {
+	override walk(creature, path, opts): void {
+		console.log(this.game);
 		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
@@ -195,15 +192,7 @@ export class PhaserAnimations extends Animations {
 			return;
 		});
 	}
-	push(creature: any, path: any, opts: any): void {
-		throw new Error('Method not implemented.');
-	}
-	enterHex(creature: any, hex: any, opts: any): void {
-		throw new Error('Method not implemented.');
-	}
-	movementComplete(creature: any, hex: any, animId: any, opts: any): void {
-		throw new Error('Method not implemented.');
-	}
+
 	projectile(
 		this2: any,
 		target: any,
@@ -237,7 +226,11 @@ export class PhaserAnimations extends Animations {
 				y: path[baseDist].displayPos.y - 20,
 			},
 			// Sprite id here
-			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, spriteId),
+			sprite = (game.grid as PhaserHexGrid).creatureGroup.create(
+				emissionPoint.x,
+				emissionPoint.y,
+				spriteId,
+			),
 			duration = dist * 75;
 
 		sprite.anchor.setTo(0.5);
@@ -255,5 +248,16 @@ export class PhaserAnimations extends Animations {
 			.start();
 
 		return [tween, sprite, dist];
+	}
+
+	override callMethodByStr(str: string, creature, path, opts) {
+		if (str === 'walk') this.walk(creature, path, opts);
+		if (str === 'fly') return this.fly(creature, path, opts);
+		if (str === 'teleport') return this.teleport(creature, path, opts);
+		if (str === 'enterHex') return this.enterHex(creature, path, opts);
+		if (str === 'enterHex') return this.leaveHex(creature, path, opts);
+		return () => {
+			console.log(`Animation not recognized: ${str}`);
+		};
 	}
 }

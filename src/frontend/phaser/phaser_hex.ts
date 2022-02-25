@@ -9,9 +9,6 @@ const shrinkScale = 0.5;
 
 export class PhaserHex extends Hex {
 
-	displayClasses: string;
-	overlayClasses: string;
-
 	tween: Phaser.Tween;
 	container: Phaser.Sprite;
 	display: Phaser.Sprite;
@@ -162,7 +159,7 @@ export class PhaserHex extends Hex {
 		 *
 		 * add ghosted class to creature on hexes behind this hex
 	 */
-	ghostOverlap() {
+	override ghostOverlap() {
 		const grid = this.grid || this.game.grid;
 		let ghostedCreature;
 

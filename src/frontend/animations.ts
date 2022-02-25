@@ -11,6 +11,7 @@ export abstract class Animations {
 	constructor(game: Game) {
 		this.game = game;
 		this.movementPoints = 0;
+		console.log("Animations::constructor", this.game);
 	}
 
 	abstract walk(creature, path, opts): void;
@@ -86,4 +87,7 @@ export abstract class Animations {
 
 		game.animationQueue = queue;
 	}
+
+	abstract callMethodByStr(str: string, creature, path, opts);
+
 }

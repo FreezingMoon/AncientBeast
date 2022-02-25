@@ -82,6 +82,10 @@ export abstract class Hex {
 
 	trap: Trap;
 
+	// TODO: Move me to implementation class after UI code have been fixed.
+	displayClasses: string;
+	overlayClasses: string;
+
 	/**
 	 *
 	 * @param x Hex coordinates
@@ -112,6 +116,8 @@ export abstract class Hex {
 		this.reachable = true;
 		this.direction = -1; // Used for queryDirection
 		this.drop = undefined; // Drop items
+		this.displayClasses = '';
+		this.overlayClasses = '';
 
 		this.width = 0;
 		this.height = 0;

@@ -4,7 +4,7 @@ import { search } from '../utility/pathfinding';
 import * as matrices from '../utility/matrices';
 import { Team, isTeam } from '../utility/team';
 import Game from '../game';
-import { TrapI } from './trapI'
+import { TrapI } from './trapI';
 import * as arrayUtils from './arrayUtils';
 
 export interface QueryOptions {
@@ -89,6 +89,7 @@ export interface QueryOptions {
  */
 export abstract class HexGrid {
 	game: Game;
+	opts: any; // Creation options.
 
 	/**
 	 * Contain all hexes in row arrays (hexes[y][x]).
@@ -111,14 +112,14 @@ export abstract class HexGrid {
 	 *
 	 * Create attributes and populate JS grid with Hex objects
 	 */
-	constructor(opts, game: Game) {
+	constructor(opts: any, game: Game) {
 		const defaultOpt = {
 			nbrRow: 9,
 			nbrhexesPerRow: 16,
 			firstRowFull: false,
 		};
 
-		opts = { ...defaultOpt, ...opts };
+		this.opts = { ...defaultOpt, ...opts };
 
 		this.game = game;
 		this.hexes = []; // Hex Array
@@ -126,25 +127,33 @@ export abstract class HexGrid {
 		this.allhexes = []; // All hexes
 		this.lastClickedHex = undefined;
 
+		// If true, clicking a monster will instantly kill it.
+		this._executionMode = false;
+	}
+
+	/**
+	 * Populates hexes, allhexes and selectedHex.
+	 */
+	populate() {
 		// Populate grid
-		for (let row = 0; row < opts.nbrRow; row++) {
+		for (let row = 0; row < this.opts.nbrRow; row++) {
 			this.hexes.push([]);
-			for (let hex = 0, len = opts.nbrhexesPerRow; hex < len; hex++) {
-				if (hex == opts.nbrhexesPerRow - 1) {
-					if ((row % 2 == 0 && !opts.firstRowFull) || (row % 2 == 1 && opts.firstRowFull)) {
+			for (let hex = 0, len = this.opts.nbrhexesPerRow; hex < len; hex++) {
+				if (hex == this.opts.nbrhexesPerRow - 1) {
+					if (
+						(row % 2 == 0 && !this.opts.firstRowFull) ||
+						(row % 2 == 1 && this.opts.firstRowFull)
+					) {
 						continue;
 					}
 				}
 
-				this.hexes[row][hex] = this.createHex(hex, row, this);
+				this.hexes[row][hex] = this.createHex(hex, row, this, this.game);
 				this.allhexes.push(this.hexes[row][hex]);
 			}
 		}
 
 		this.selectedHex = this.hexes[0][0];
-
-		// If true, clicking a monster will instantly kill it.
-		this._executionMode = false;
 	}
 
 	/**
@@ -534,7 +543,7 @@ export abstract class HexGrid {
 				item.ghostOverlap();
 			});
 		} else {
-			hex.ghostOverlap();
+			// hex.ghostOverlap();
 		}
 	}
 
