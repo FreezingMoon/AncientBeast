@@ -1,5 +1,5 @@
 import $j from 'jquery';
-import * as arrayUtils from '../arrayUtils';
+import * as arrayUtils from '../../utility/arrayUtils';
 import Game from '../../game';
 import { Animations } from '../animations';
 import Phaser from 'phaser-ce';
@@ -13,7 +13,6 @@ export class PhaserAnimations extends Animations {
 	}
 
 	override walk(creature, path, opts): void {
-		console.log(this.game);
 		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
