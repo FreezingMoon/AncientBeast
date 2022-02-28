@@ -1,6 +1,6 @@
 import * as $j from 'jquery';
 import { getUrl } from './assetLoader';
-import { Creature } from './creature';
+import { PhaserCreature } from './frontend/phaser/phaser_creature';
 
 /**
  * Player Class
@@ -101,7 +101,7 @@ export class Player {
 			}
 		}
 
-		creature = new Creature(data, game);
+		creature = new PhaserCreature(data, game);
 		this.creatures.push(creature);
 		creature.summon(!this._summonCreaturesWithMaterializationSickness);
 		game.onCreatureSummon(creature);

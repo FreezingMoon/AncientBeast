@@ -9,7 +9,7 @@ import { HexGrid } from './frontend/hexgrid';
 import { getUrl } from './assetLoader';
 import { Player } from './player';
 import { UI } from './ui/interface';
-import { Creature } from './creature'; //TODO: change me
+import { Creature } from './frontend/creature';
 import dataJson from './data/units.json';
 import 'pixi';
 import 'p2';

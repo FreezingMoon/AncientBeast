@@ -1,11 +1,11 @@
 import { Direction, Hex } from './hex';
-import { Creature } from '../creature'; //TODO: Change me
+import { Creature } from './creature';
 import { search } from '../utility/pathfinding';
 import * as matrices from '../utility/matrices';
 import { Team, isTeam } from '../utility/team';
 import Game from '../game';
-import { TrapI } from './trapI';
-import * as arrayUtils from './arrayUtils';
+import { Trap } from './trap';
+import * as arrayUtils from '../utility/arrayUtils';
 
 export interface QueryOptions {
 	/**
@@ -96,7 +96,7 @@ export abstract class HexGrid {
 	 */
 	hexes: Hex[][];
 
-	traps: TrapI[];
+	traps: Trap[];
 	allhexes: Hex[];
 
 	/**

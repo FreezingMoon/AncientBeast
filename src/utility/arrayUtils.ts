@@ -1,4 +1,4 @@
-import { Creature } from '../creature';
+import { Creature } from '../frontend/creature';
 import { Direction, Hex } from '../frontend/hex';
 import { HexGrid } from '../frontend/hexgrid';
 

@@ -1,7 +1,5 @@
-import * as $j from 'jquery';
 import Game from '../game';
-import * as arrayUtils from '../utility/arrayUtils';
-import { Creature } from '../creature'; //TODO: change me
+import { Creature } from './creature';
 
 export abstract class Animations {
 	creature: Creature;
@@ -11,7 +9,6 @@ export abstract class Animations {
 	constructor(game: Game) {
 		this.game = game;
 		this.movementPoints = 0;
-		console.log("Animations::constructor", this.game);
 	}
 
 	abstract walk(creature, path, opts): void;
@@ -89,5 +86,4 @@ export abstract class Animations {
 	}
 
 	abstract callMethodByStr(str: string, creature, path, opts);
-
 }

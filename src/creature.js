@@ -1,7 +1,7 @@
 import * as $j from 'jquery';
 import { Ability } from './ability';
 import { search } from './utility/pathfinding';
-import { PhaserHex } from './frontend/phaser/phaser_hex'; // TODO: change me
+import { PhaserHex } from './frontend/phaser/phaser_hex';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop } from './drops';
 

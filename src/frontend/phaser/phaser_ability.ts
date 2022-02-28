@@ -1,8 +1,9 @@
 import $j from 'jquery';
 import Game from '../../game';
 import { Ability } from '../ability';
-import { Creature } from '../../creature'; // TODO: change me
+import { Creature } from '../creature';
 import { Hex } from '../hex';
+import { PhaserCreature } from './phaser_creature';
 
 export class PhaserAbility extends Ability {
 	constructor(creature: Creature, abilityID: number, game: Game) {
@@ -10,19 +11,6 @@ export class PhaserAbility extends Ability {
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
-	}
-
-	getTriggerStr() {
-		let s = "";
-		let trigger = this.getTrigger();
-
-		if (trigger instanceof String) {
-			s = (trigger as string);
-		} else if(trigger instanceof Function) {
-			s = trigger();
-		}
-
-		return s;
 	}
 
 	/**
@@ -151,7 +139,7 @@ export class PhaserAbility extends Ability {
 		game.freezedInput = true;
 
 		// Animate
-		let p0 = this.creature.sprite.x;
+		let p0 = (this.creature as PhaserCreature).sprite.x;
 		let p1 = p0;
 		let p2 = p0;
 
@@ -192,7 +180,7 @@ export class PhaserAbility extends Ability {
 
 			if (animationData.activateAnimation) {
 				game.Phaser.add
-					.tween(this.creature.sprite)
+					.tween((this.creature as PhaserCreature).sprite)
 					.to({ x: p1 }, 250, Phaser.Easing.Linear.None)
 					.to({ x: p2 }, 100, Phaser.Easing.Linear.None)
 					.to({ x: p0 }, 150, Phaser.Easing.Linear.None)

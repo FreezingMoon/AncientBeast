@@ -1,37 +1,16 @@
-import { Drops } from '../drops';
+import { Drop } from '../drops';
 import Game from '../../game';
-import { Hex } from '../hex';
+import { PhaserHexGrid } from './phaser_hexgrid';
 import Phaser from 'phaser-ce';
+import { Creature } from '../creature';
 
-export class PhaserDrops extends Drops {
-	name: any;
-	game: Game;
-	id: number;
-	x: any;
-	y: any;
-	pos: Object;
-	alterations: any;
-	hex: Hex;
+export class PhaserDrop extends Drop {
 	display: Phaser.Sprite;
 
-	constructor(name, alterations, x, y, game) {
+	constructor(name: string, alterations: any, x: number, y: number, game: Game) {
 		super(name, alterations, x, y, game);
 
-		this.name = name;
-		this.game = game;
-		this.id = game.dropId++;
-		this.x = x;
-		this.y = y;
-		this.pos = {
-			x: x,
-			y: y,
-		};
-		this.alterations = alterations;
-		this.hex = game.grid.hexes[this.y][this.x];
-
-		// this.hex.drop = this;
-
-		this.display = game.grid.dropGroup.create(
+		this.display = (game.grid as PhaserHexGrid).dropGroup.create(
 			this.hex.displayPos.x + 54,
 			this.hex.displayPos.y + 15,
 			'drop_' + this.name,
@@ -51,7 +30,7 @@ export class PhaserDrops extends Drops {
 			.start();
 	}
 
-	pickup(creature): void {
+	pickup(creature: Creature): void {
 		let game = this.game;
 
 		game.log('%CreatureName' + creature.id + '% picks up ' + this.name);

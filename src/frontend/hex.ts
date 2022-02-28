@@ -1,8 +1,9 @@
-import { Creature } from "../creature";
-import { Drops } from "./drops";
-import Game from "../game";
-import { Trap } from "../utility/trap";
-import { HexGrid } from "./hexgrid";
+import { Creature } from './creature';
+import { Drop } from './drops';
+import Game from '../game';
+import { Trap } from './trap';
+import { HexGrid } from './hexgrid';
+import { Effect } from '../effect';
 
 export enum Direction {
 	UpRight = 0,
@@ -69,7 +70,7 @@ export abstract class Hex {
 	 */
 	reachable: boolean;
 	direction: Direction;
-	drop: Drops;
+	drop: Drop;
 	width: number;
 	height: number;
 
@@ -78,7 +79,7 @@ export abstract class Hex {
 	 */
 	displayPos: { x: number; y: number };
 
-	originalDisplayPos : { x: number; y: number };
+	originalDisplayPos: { x: number; y: number };
 
 	trap: Trap;
 
@@ -126,19 +127,19 @@ export abstract class Hex {
 		this.trap = undefined;
 	}
 
-	onSelectFn(arg0: this) {
+	onSelectFn(arg0: Hex) {
 		// No-op function.
 	}
 
-	onHoverOffFn(arg0: this) {
+	onHoverOffFn(arg0: Hex) {
 		// No-op function.
 	}
 
-	onConfirmFn(arg0: this) {
+	onConfirmFn(arg0: Hex) {
 		// No-op function.
 	}
 
-	onRightClickFn(arg0: this) {
+	onRightClickFn(arg0: Hex) {
 		// No-op function.
 	}
 
@@ -180,7 +181,12 @@ export abstract class Hex {
 	 * @param ignoreReachable Take into account the reachable property.
 	 * @returns True if this hex is walkable.
 	 */
-	isWalkable(size: number, id: number, ignoreReachable: boolean, debug: boolean): boolean {
+	isWalkable(
+		size: number,
+		id: number,
+		ignoreReachable: boolean = false,
+		debug: boolean = false,
+	): boolean {
 		let blocked = false;
 
 		for (let i = 0; i < size; i++) {
@@ -195,7 +201,7 @@ export abstract class Hex {
 					blocked = blocked || !hex.reachable;
 				}
 
-				let isNotMovingCreature;
+				let isNotMovingCreature: boolean;
 				if (hex.creature instanceof Creature) {
 					isNotMovingCreature = hex.creature.id !== id;
 					blocked = blocked || isNotMovingCreature; // Not blocked if this block contains the moving creature
@@ -240,35 +246,29 @@ export abstract class Hex {
 	}
 
 	/** Add a trap to a hex.
- * @param {string} type - name of sprite to use; see Phaser.load.image usage
- * @param {array} effects - effects to activate when trap triggered
- * @param {Object} owner - owner of trap
- * @param {Object} opt - optional arguments merged into the Trap object
- *
- * @returns {Trap} trap
- *
- * Examples:
- * - turnLifetime
- * - fullTurnLifetime
- * - ownerCreature
- * - destroyOnActivate
- * - typeOver
- */
-	createTrap(type, effects, owner, opt) {
-		if (this.trap) {
-			this.destroyTrap();
-		}
+	 * @param {string} type - name of sprite to use; see Phaser.load.image usage
+	 * @param {array} effects - effects to activate when trap triggered
+	 * @param {Object} owner - owner of trap
+	 * @param {Object} opt - optional arguments merged into the Trap object
+	 *
+	 * @returns {Trap} trap
+	 *
+	 * Examples:
+	 * - turnLifetime
+	 * - fullTurnLifetime
+	 * - ownerCreature
+	 * - destroyOnActivate
+	 * - typeOver
+	 */
+	abstract createTrap(type: string, effects: Effect[], owner: string, opt: any): Trap;
 
-		this.trap = new Trap(this.x, this.y, type, effects, owner, opt, this.game);
-		return this.trap;
-	}
-
-	activateTrap(trigger, target) {
+	activateTrap(trigger: RegExp, target: any) {
 		if (!this.trap) {
 			return;
 		}
 
 		this.trap.effects.forEach((effect) => {
+			// @ts-ignore
 			if (trigger.test(effect.trigger) && effect.requireFn()) {
 				this.game.log('Trap triggered');
 				effect.activate(target);
@@ -307,7 +307,7 @@ export abstract class Hex {
 	 * @returns {number} coordinates.x
 	 * @returns {number} coordinates.y
 	 */
-	toJSON() {
+	toJSON(): { x: number; y: number } {
 		return {
 			x: this.x,
 			y: this.y,

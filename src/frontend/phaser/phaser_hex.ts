@@ -1,14 +1,16 @@
-import $j from "jquery";
-import { Creature } from "../../creature";
-import Game from "../../game";
-import { Hex } from "../hex";
-import { HexGrid } from "../hexgrid";
-import { PhaserHexGrid } from "./phaser_hexgrid";
+import $j from 'jquery';
+import { Creature } from '../../creature';
+import { Effect } from '../../effect';
+import Game from '../../game';
+import { Hex } from '../hex';
+import { HexGrid } from '../hexgrid';
+import { Trap } from '../trap';
+import { PhaserHexGrid } from './phaser_hexgrid';
+import { PhaserTrap } from './phaser_trap';
 
 const shrinkScale = 0.5;
 
 export class PhaserHex extends Hex {
-
 	tween: Phaser.Tween;
 	container: Phaser.Sprite;
 	display: Phaser.Sprite;
@@ -36,7 +38,7 @@ export class PhaserHex extends Hex {
 
 		this.originalDisplayPos = $j.extend({}, this.displayPos);
 
-		if (grid && (grid instanceof PhaserHexGrid)) {
+		if (grid && grid instanceof PhaserHexGrid) {
 			const phaserHexGrid = grid as PhaserHexGrid;
 
 			/* Sprite to "group" the display, overlay, and input sprites for relative
@@ -117,13 +119,13 @@ export class PhaserHex extends Hex {
 	 * This function return an array containing all hexes of the grid
 	 * at the distance given of the current hex.
 	 */
-	adjacentHex(distance) {
+	adjacentHex(distance: number) {
 		const adjHex = [];
 
 		for (let i = -distance; i <= distance; i++) {
 			const deltaY = i;
-			let startX;
-			let endX;
+			let startX: number;
+			let endX: number;
 
 			if (this.y % 2 == 0) {
 				// Evenrow
@@ -156,8 +158,8 @@ export class PhaserHex extends Hex {
 
 	/**
 	 * ghostOverlap()
-		 *
-		 * add ghosted class to creature on hexes behind this hex
+	 *
+	 * add ghosted class to creature on hexes behind this hex
 	 */
 	override ghostOverlap() {
 		const grid = this.grid || this.game.grid;
@@ -204,12 +206,21 @@ export class PhaserHex extends Hex {
 		}
 	}
 
+	override createTrap(type: string, effects: Effect[], owner: string, opt: any): Trap {
+		if (this.trap) {
+			this.destroyTrap();
+		}
+
+		this.trap = new PhaserTrap(this.x, this.y, type, effects, owner, opt, this.game);
+		return this.trap;
+	}
+
 	/**
 	 * overlayVisualState
 	 *
 	 * Change the appearance of the overlay hex
 	 */
-	overlayVisualState(classes) {
+	overlayVisualState(classes: string) {
 		classes = classes ? classes : '';
 		this.overlayClasses += ' ' + classes + ' ';
 		this.updateStyle();
@@ -220,7 +231,7 @@ export class PhaserHex extends Hex {
 	 *
 	 * @param {string} classes Display classes to be added to the Hex.
 	 */
-	displayVisualState(classes = '') {
+	displayVisualState(classes: string = '') {
 		this.displayClasses = `${this.displayClasses} ${classes}`.trim();
 		this.updateStyle();
 	}
@@ -230,7 +241,7 @@ export class PhaserHex extends Hex {
 	 *
 	 * Clear the appearance of the overlay hex
 	 */
-	cleanOverlayVisualState(classes = '') {
+	cleanOverlayVisualState(classes: string = '') {
 		classes =
 			classes ||
 			'creature weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3';
@@ -249,7 +260,7 @@ export class PhaserHex extends Hex {
 	 *
 	 * Clear the appearance of the display hex
 	 */
-	cleanDisplayVisualState(classes = '') {
+	cleanDisplayVisualState(classes: string = '') {
 		classes = classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken';
 		const a = classes.split(' ');
 
@@ -370,5 +381,4 @@ export class PhaserHex extends Hex {
 
 		this.overlay.alpha = targetAlpha ? 1 : 0;
 	}
-
 }

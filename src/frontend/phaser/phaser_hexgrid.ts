@@ -1,9 +1,9 @@
-import * as $j from 'jquery';
-import { Creature } from "../../creature"; // TODO: change me
+import $j from 'jquery';
+import { Creature } from "../creature";
 import Game from "../../game";
 import { Team, isTeam } from "../../utility/team";
 import { HexGrid } from "../hexgrid";
-import * as arrayUtils from '../arrayUtils';
+import * as arrayUtils from '../../utility/arrayUtils';
 import { Hex } from "../hex";
 import { PhaserHex } from "./phaser_hex";
 
@@ -53,21 +53,21 @@ export class PhaserHexGrid extends HexGrid {
 		return new PhaserHex(x, y, grid, game);
 	}
 
-	handleMetaPowerEvent(message, payload) {
+	handleMetaPowerEvent(message: string, payload: any): void {
 		if (message === 'toggleExecuteMonster') {
 			this._executionMode = payload;
 		}
 	}
 
-	querySelf(o) {
+	querySelf(o: any): void {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
 				// No-op function.
 			},
 			fnOnSelect: (creature: Creature) => {
-				creature.hexagons.forEach((hex) => {
-					hex.overlayVisualState('creature selected player' + hex.creature.team);
+				creature.hexagons.forEach((hex: Hex) => {
+					(hex as PhaserHex).overlayVisualState('creature selected player' + hex.creature.team);
 				});
 			},
 			fnOnCancel: () => {
@@ -83,13 +83,13 @@ export class PhaserHexGrid extends HexGrid {
 		game.activeCreature.hint(o.confirmText, 'confirm');
 
 		this.queryHexes({
-			fnOnConfirm: (hex, args) => {
+			fnOnConfirm: (hex: Hex, args: any) => {
 				args.opt.fnOnConfirm(game.activeCreature, args.opt.args, { queryOptions: o });
 			},
-			fnOnSelect: (hex, args) => {
+			fnOnSelect: (hex: Hex, args: any) => {
 				args.opt.fnOnSelect(game.activeCreature, args.opt.args);
 			},
-			fnOnCancel: (hex, args) => {
+			fnOnCancel: (hex: Hex, args: any) => {
 				args.opt.fnOnCancel(game.activeCreature, args.opt.args);
 			},
 			args: {
@@ -102,7 +102,7 @@ export class PhaserHexGrid extends HexGrid {
 	}
 
 	/**
-		 * queryChoice(o)
+	 * queryChoice(o)
 	 *
 	 * fnOnSelect : 		Function : 	Function applied when clicking on one of the available hexes.
 	 * fnOnConfirm : 		Function : 	Function applied when clicking again on the same hex.
@@ -110,14 +110,14 @@ export class PhaserHexGrid extends HexGrid {
 	 * requireCreature : 	Boolean : 	Disable a choice if it does not contain a creature matching the team argument
 	 * args : 				Object : 	Object given to the events function (to easily pass variable for these function)
 	 */
-	queryChoice(o) {
+	queryChoice(o: any) {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
 				game.activeCreature.queryMove();
 			},
-			fnOnSelect: (choice) => {
-				choice.forEach((item) => {
+			fnOnSelect: (choice: any) => {
+				choice.forEach((item: any) => {
 					if (item.creature instanceof Creature) {
 						item.displayVisualState('creature selected player' + item.creature.team);
 					} else {
@@ -163,11 +163,11 @@ export class PhaserHexGrid extends HexGrid {
 
 			if (validChoice) {
 				hexes = hexes.concat(o.choices[i]);
-				o.choices[i].forEach((hex) => {
+				o.choices[i].forEach((hex : Hex) => {
 					arrayUtils.removePos(o.hexesDashed, hex);
 				});
 			} else if (o.isDirectionsQuery) {
-				this.forEachHex((hex) => {
+				this.forEachHex((hex: Hex) => {
 					if (o.choices[i][0].direction == hex.direction) {
 						arrayUtils.removePos(o.hexesDashed, hex);
 					}
@@ -178,7 +178,7 @@ export class PhaserHexGrid extends HexGrid {
 		o.hexesDashed = o.hexesDashed.filter((hexDash) => !hexDash.creature);
 
 		this.queryHexes({
-			fnOnConfirm: (hex, args) => {
+			fnOnConfirm: (hex: Hex, args: any) => {
 				// Determine which set of hexes (choice) the hex is part of
 				for (let i = 0, len = args.opt.choices.length; i < len; i++) {
 					for (let j = 0, lenj = args.opt.choices[i].length; j < lenj; j++) {
@@ -190,7 +190,7 @@ export class PhaserHexGrid extends HexGrid {
 					}
 				}
 			},
-			fnOnSelect: (hex, args) => {
+			fnOnSelect: (hex: Hex, args: any) => {
 				// Determine which set of hexes (choice) the hex is part of
 				for (let i = 0, len = args.opt.choices.length; i < len; i++) {
 					for (let j = 0, lenj = args.opt.choices[i].length; j < lenj; j++) {
@@ -229,7 +229,7 @@ export class PhaserHexGrid extends HexGrid {
 	 * @param {boolean} o.replaceEmptyHexesWithDashed Replace all non targetable, empty hexes with dashed hexes.
 	 * 	o.hexesDashed will override this option.
 	 */
-	queryCreature(o) {
+	queryCreature(o: any) {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
@@ -347,7 +347,7 @@ export class PhaserHexGrid extends HexGrid {
 		 * hexes : 		Array : 	Reachable hexes
 		 * callbackAfterQueryHexes : 		Function : 	empty function to be overridden with custom logic to execute after queryHexes
 		 */
-	queryHexes(o) {
+	queryHexes(o: any) {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
@@ -414,15 +414,15 @@ export class PhaserHexGrid extends HexGrid {
 
 		if (!o.ownCreatureHexShade) {
 			if (o.id instanceof Array) {
-				o.id.forEach((id) => {
-					game.creatures[id].hexagons.forEach((hex) => {
-						hex.overlayVisualState('ownCreatureHexShade');
+				o.id.forEach((id: number) => {
+					game.creatures[id].hexagons.forEach((hex: Hex) => {
+						(hex as PhaserHex).overlayVisualState('ownCreatureHexShade');
 					});
 				});
 			} else {
 				if (o.id != 0) {
-					game.creatures[o.id].hexagons.forEach((hex) => {
-						hex.overlayVisualState('ownCreatureHexShade');
+					game.creatures[o.id].hexagons.forEach((hex: Hex) => {
+						(hex as PhaserHex).overlayVisualState('ownCreatureHexShade');
 					});
 				}
 			}
@@ -449,7 +449,7 @@ export class PhaserHexGrid extends HexGrid {
 			o.callbackAfterQueryHexes();
 		}
 
-		const onCreatureHover = (creature: Creature, queueEffect, hex: Hex) => {
+		const onCreatureHover = (creature: Creature, queueEffect: Function, hex: Hex) => {
 			if (creature.isDarkPriest()) {
 				if (creature === game.activeCreature) {
 					if (creature.hasCreaturePlayerGotPlasma()) {
@@ -459,9 +459,9 @@ export class PhaserHexGrid extends HexGrid {
 					creature.displayHealthStats();
 				}
 			}
-			creature.hexagons.forEach((h) => {
+			creature.hexagons.forEach((h: Hex) => {
 				// Flashing outline
-				h.overlayVisualState('hover h_player' + creature.team);
+				(h as PhaserHex).overlayVisualState('hover h_player' + creature.team);
 			});
 			if (creature !== game.activeCreature) {
 				if (!hex.reachable) {
