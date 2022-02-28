@@ -19,10 +19,34 @@
  * - Drops are essentially permanent although this may change in the future.
  */
 
-export abstract class Drops {
-    constructor(name, alterations, x, y, game) {
+import Game from '../game';
+import { Creature } from './creature';
+import { Hex } from './hex';
 
-		}
+export abstract class Drop {
+	name: string;
+	game: Game;
+	id: number;
+	x: number;
+	y: number;
+	pos: { x: number; y: number };
+	alterations: any;
+	hex: Hex;
 
-    abstract pickup(creature): void;
+	constructor(name: string, alterations: any, x: number, y: number, game: Game) {
+		this.name = name;
+		this.game = game;
+		this.id = game.dropId++;
+		this.x = x;
+		this.y = y;
+		this.pos = {
+			x: x,
+			y: y,
+		};
+		this.alterations = alterations;
+		this.hex = game.grid.hexes[this.y][this.x];
+		this.hex.drop = this;
+	}
+
+	abstract pickup(creature: Creature): void;
 }
