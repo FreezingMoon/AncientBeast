@@ -19,7 +19,7 @@
  * - Drops are essentially permanent although this may change in the future.
  */
 
-import Game from '../game';
+import { Game} from '../game';
 import { Creature } from './creature';
 import { Hex } from './hex';
 

@@ -1,5 +1,5 @@
 import $j from 'jquery';
-import Game from '../game';
+import { Game } from '../game';
 import { Hex } from './hex';
 import { Effect } from '../effect';
 import { Creature } from './creature';

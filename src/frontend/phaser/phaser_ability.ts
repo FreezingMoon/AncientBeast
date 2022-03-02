@@ -1,9 +1,10 @@
 import $j from 'jquery';
-import Game from '../../game';
+import { Game } from '../../game';
 import { Ability } from '../ability';
 import { Creature } from '../creature';
 import { Hex } from '../hex';
 import { PhaserCreature } from './phaser_creature';
+import { PhaserGame } from './phaser_game';
 
 export class PhaserAbility extends Ability {
 	constructor(creature: Creature, abilityID: number, game: Game) {
@@ -118,7 +119,7 @@ export class PhaserAbility extends Ability {
 	 * @return {void}
 	 */
 	animation2(o: Object): void {
-		const game = this.game;
+		const game = this.game as PhaserGame;
 		const opt = $j.extend(
 			{
 				callback: function () {

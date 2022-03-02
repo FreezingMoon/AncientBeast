@@ -1,10 +1,11 @@
 import $j from 'jquery';
 import { Creature } from '../../creature';
 import { Effect } from '../../effect';
-import Game from '../../game';
+import { Game } from '../../game';
 import { Hex } from '../hex';
 import { HexGrid } from '../hexgrid';
 import { Trap } from '../trap';
+import { PhaserGame } from './phaser_game';
 import { PhaserHexGrid } from './phaser_hexgrid';
 import { PhaserTrap } from './phaser_trap';
 
@@ -345,7 +346,7 @@ export class PhaserHex extends Hex {
 		if (this.displayClasses.match(/showGrid/g)) {
 			if (!(this.coordText && this.coordText.exists)) {
 				// TODO: Cast to PhaserGame implementation
-				this.coordText = this.game.Phaser.add.text(
+				this.coordText = (this.game as PhaserGame).Phaser.add.text(
 					this.originalDisplayPos.x + 45,
 					this.originalDisplayPos.y + 63,
 					this.coord,

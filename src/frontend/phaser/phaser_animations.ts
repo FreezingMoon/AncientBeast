@@ -1,9 +1,10 @@
 import $j from 'jquery';
 import * as arrayUtils from '../../utility/arrayUtils';
-import Game from '../../game';
+import { Game } from '../../game';
 import { Animations } from '../animations';
 import Phaser from 'phaser-ce';
 import { PhaserHexGrid } from './phaser_hexgrid';
+import { PhaserGame } from './phaser_game';
 
 export class PhaserAnimations extends Animations {
 	phaser: Phaser;
@@ -13,7 +14,7 @@ export class PhaserAnimations extends Animations {
 	}
 
 	override walk(creature, path, opts): void {
-		let game = this.game;
+		let game = this.game as PhaserGame;
 
 		if (opts.customMovementPoint > 0) {
 			path = path.slice(0, opts.customMovementPoint);
@@ -87,7 +88,7 @@ export class PhaserAnimations extends Animations {
 	}
 
 	fly(creature: any, path: any, opts: any): void {
-		let game = this.game;
+		let game = this.game as PhaserGame;
 
 		if (opts.customMovementPoint > 0) {
 			path = path.slice(0, opts.customMovementPoint);
@@ -145,7 +146,7 @@ export class PhaserAnimations extends Animations {
 		});
 	}
 	teleport(creature: any, path: any, opts: any): void {
-		let game = this.game,
+		let game = this.game as PhaserGame,
 			hex = path[0],
 			currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
 
@@ -213,7 +214,7 @@ export class PhaserAnimations extends Animations {
 				}
 			}
 		}
-		let game = this.game,
+		let game = this.game as PhaserGame,
 			baseDist = arrayUtils.filterCreature(path.slice(0), false, false).length,
 			dist = baseDist == 0 ? 1 : baseDist,
 			emissionPoint = {

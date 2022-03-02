@@ -1,8 +1,9 @@
 import { Drop } from '../drops';
-import Game from '../../game';
+import { Game } from '../../game';
 import { PhaserHexGrid } from './phaser_hexgrid';
 import Phaser from 'phaser-ce';
 import { Creature } from '../creature';
+import { PhaserGame } from './phaser_game';
 
 export class PhaserDrop extends Drop {
 	display: Phaser.Sprite;
@@ -18,7 +19,7 @@ export class PhaserDrop extends Drop {
 		this.display.alpha = 0;
 		this.display.anchor.setTo(0.5, 0.5);
 		this.display.scale.setTo(1.5, 1.5);
-		game.Phaser.add
+		(game as PhaserGame).Phaser.add
 			.tween(this.display)
 			.to(
 				{
@@ -69,7 +70,7 @@ export class PhaserDrop extends Drop {
 			type: 'pickupDrop',
 		});
 
-		let tween = game.Phaser.add
+		let tween = (game as PhaserGame).Phaser.add
 			.tween(this.display)
 			.to(
 				{

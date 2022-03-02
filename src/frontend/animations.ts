@@ -1,4 +1,4 @@
-import Game from '../game';
+import { Game } from '../game';
 import { Creature } from './creature';
 
 export abstract class Animations {

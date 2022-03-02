@@ -3,7 +3,7 @@ import { Creature } from './creature';
 import { search } from '../utility/pathfinding';
 import * as matrices from '../utility/matrices';
 import { Team, isTeam } from '../utility/team';
-import Game from '../game';
+import { Game } from '../game';
 import { Trap } from './trap';
 import * as arrayUtils from '../utility/arrayUtils';
 

@@ -2,8 +2,10 @@
 import * as $j from 'jquery';
 import 'jquery.transit';
 import dataJson from './data/units.json';
-import Game from './game';
 import { Fullscreen } from './ui/fullscreen';
+
+import { Game } from './game';
+import { PhaserGame } from './frontend/phaser/phaser_game';
 
 import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
@@ -17,7 +19,7 @@ import './style/main.less';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Too many unknown types.
 const AB = {} as any;
 // Create the game
-const G = new Game('0.4');
+const G: Game = new PhaserGame('0.4');
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
 AB.currentGame = G;

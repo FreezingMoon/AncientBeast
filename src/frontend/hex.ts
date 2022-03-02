@@ -1,6 +1,6 @@
 import { Creature } from './creature';
 import { Drop } from './drops';
-import Game from '../game';
+import { Game } from '../game';
 import { Trap } from './trap';
 import { HexGrid } from './hexgrid';
 import { Effect } from '../effect';

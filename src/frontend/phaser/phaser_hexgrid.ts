@@ -1,12 +1,13 @@
 import $j from 'jquery';
 import { Creature } from "../creature";
-import Game from "../../game";
+import { Game } from "../../game";
 import { Team, isTeam } from "../../utility/team";
 import { HexGrid } from "../hexgrid";
 import * as arrayUtils from '../../utility/arrayUtils';
 import { Hex } from "../hex";
 import { PhaserHex } from "./phaser_hex";
 import { PhaserCreature } from './phaser_creature';
+import { PhaserGame } from './phaser_game';
 
 export class PhaserHexGrid extends HexGrid {
 
@@ -22,8 +23,10 @@ export class PhaserHexGrid extends HexGrid {
 	trapOverGroup: Phaser.Group;
 	materialize_overlay: any;
 
-	constructor(opts: any, game: Game) {
-		super(opts, game);
+	constructor(opts: any, game_: Game) {
+		super(opts, game_);
+
+		let game = game_ as PhaserGame;
 
 		this.display = game.Phaser.add.group(undefined, 'displayGroup');
 		this.display.x = 230;

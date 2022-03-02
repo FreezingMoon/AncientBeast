@@ -1,8 +1,9 @@
 import { Trap } from '../trap';
-import Game from '../../game';
+import { Game } from '../../game';
 import { Effect } from '../../effect';
 import { PhaserHexGrid } from './phaser_hexgrid';
 import Phaser from 'phaser-ce';
+import { PhaserGame } from './phaser_game';
 
 export class PhaserTrap extends Trap {
 	phaser: Phaser;
@@ -21,7 +22,7 @@ export class PhaserTrap extends Trap {
 	) {
 		super(x, y, type, effects, owner, opt, game);
 
-		this.phaser = game.Phaser;
+		this.phaser = (game as PhaserGame).Phaser;
 
 		let spriteName = 'trap_' + type;
 		let pos = this.hex.originalDisplayPos;
@@ -42,7 +43,7 @@ export class PhaserTrap extends Trap {
 	}
 
 	destroy(): void {
-		let game = this.game,
+		let game = this.game as PhaserGame,
 			tweenDuration = 500,
 			destroySprite = (sprite: Phaser.Sprite, animation: string) => {
 				if (animation === 'shrinkDown') {
@@ -80,7 +81,7 @@ export class PhaserTrap extends Trap {
 
 	hide(duration: number): void {
 		duration = duration - 0; // Avoid undefined
-		this.game.Phaser.add.tween(this.display).to(
+		(this.game as PhaserGame).Phaser.add.tween(this.display).to(
 			{
 				alpha: 0,
 			},
@@ -91,7 +92,7 @@ export class PhaserTrap extends Trap {
 
 	show(duration: number): void {
 		duration = duration - 0; // Avoid undefined
-		this.game.Phaser.add.tween(this.display).to(
+		(this.game as PhaserGame).Phaser.add.tween(this.display).to(
 			{
 				alpha: 1,
 			},

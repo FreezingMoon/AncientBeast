@@ -1,7 +1,7 @@
 import $j from 'jquery';
 import { Ability } from './ability';
 import { Effect } from '../effect';
-import Game from '../game';
+import { Game } from '../game';
 import { Player } from '../player';
 import { Drop } from './drops';
 import { Hex } from './hex';
