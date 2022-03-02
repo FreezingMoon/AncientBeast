@@ -116,7 +116,7 @@ export abstract class Ability {
 		if (this.trigger !== undefined) {
 			return this.trigger;
 		} else if (this.triggerFunc !== undefined) {
-			return this.triggerFunc;
+			return this.triggerFunc.bind(this);
 		}
 
 		return undefined;
