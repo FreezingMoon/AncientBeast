@@ -23,8 +23,10 @@ export abstract class Ability {
 	requirements: any;
 	costs: any;
 	trigger: string;
-	triggerFunc: any;
+	triggerFunc: Function;
 	message: any;
+
+	require: Function;
 
 	constructor(creature: Creature, abilityID: number, game: Game) {
 		this.creature = creature;
@@ -120,7 +122,7 @@ export abstract class Ability {
 		return undefined;
 	}
 
-	getTriggerStr() {
+	getTriggerStr(): string {
 		let s = '';
 		let trigger = this.getTrigger();
 
@@ -254,7 +256,7 @@ export abstract class Ability {
 	 * Animate the creature
 	 * @return {void}
 	 */
-	abstract animation(): void | boolean;
+	abstract animation(...args: any[]): void | boolean;
 
 	/**
 	 * Helper to animation method.

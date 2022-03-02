@@ -6,10 +6,11 @@ import { HexGrid } from "../hexgrid";
 import * as arrayUtils from '../../utility/arrayUtils';
 import { Hex } from "../hex";
 import { PhaserHex } from "./phaser_hex";
+import { PhaserCreature } from './phaser_creature';
 
 export class PhaserHexGrid extends HexGrid {
 
-	display: Phaser.Sprite;
+	display: Phaser.Group;
 	gridGroup: Phaser.Group;
 	trapGroup: Phaser.Group;
 	hexesGroup: Phaser.Group;
@@ -701,8 +702,9 @@ export class PhaserHexGrid extends HexGrid {
 		for (let y = 0, leny = this.hexes.length; y < leny; y++) {
 			for (let i = 1, len = creatures.length; i < len; i++) {
 				if (creatures[i].y == y) {
-					this.creatureGroup.remove(creatures[i].grp);
-					this.creatureGroup.addAt(creatures[i].grp, index++);
+					const creature = creatures[i] as PhaserCreature;
+					this.creatureGroup.remove(creature.grp);
+					this.creatureGroup.addAt(creature.grp, index++);
 				}
 			}
 

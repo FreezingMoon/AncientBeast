@@ -17,21 +17,21 @@ export class PhaserAbility extends Ability {
 	 * Animate the creature
 	 * @return {void}
 	 */
-	animation(): void | boolean {
+	animation(... arg_vars: any[]): void | boolean {
 		let game = this.game;
 		// Gamelog Event Registration
 
 		const triggerStr = this.getTriggerStr();
 		if (triggerStr && game.triggers.onQuery.test(triggerStr)) {
-			if (arguments[0] instanceof Hex) {
-				let args = $j.extend({}, arguments);
+			if (arg_vars[0] instanceof Hex) {
+				let args = $j.extend({}, arg_vars);
 				delete args[0];
 				game.gamelog.add({
 					action: 'ability',
 					target: {
 						type: 'hex',
-						x: arguments[0].x,
-						y: arguments[0].y,
+						x: arg_vars[0].x,
+						y: arg_vars[0].y,
 					},
 					id: this.id,
 					args: args,
@@ -40,8 +40,8 @@ export class PhaserAbility extends Ability {
 					game.gameplay.useAbility({
 						target: {
 							type: 'hex',
-							x: arguments[0].x,
-							y: arguments[0].y,
+							x: arg_vars[0].x,
+							y: arg_vars[0].y,
 						},
 						id: this.id,
 						args: args,
@@ -49,14 +49,14 @@ export class PhaserAbility extends Ability {
 				}
 			}
 
-			if (arguments[0] instanceof Creature) {
-				let args = $j.extend({}, arguments);
+			if (arg_vars[0] instanceof Creature) {
+				let args = $j.extend({}, arg_vars);
 				delete args[0];
 				game.gamelog.add({
 					action: 'ability',
 					target: {
 						type: 'creature',
-						crea: arguments[0].id,
+						crea: arg_vars[0].id,
 					},
 					id: this.id,
 					args: args,
@@ -65,7 +65,7 @@ export class PhaserAbility extends Ability {
 					game.gameplay.useAbility({
 						target: {
 							type: 'creature',
-							crea: arguments[0].id,
+							crea: arg_vars[0].id,
 						},
 						id: this.id,
 						args: args,
@@ -73,11 +73,11 @@ export class PhaserAbility extends Ability {
 				}
 			}
 
-			if (arguments[0] instanceof Array) {
-				let args = $j.extend({}, arguments);
+			if (arg_vars[0] instanceof Array) {
+				let args = $j.extend({}, arg_vars);
 				delete args[0];
 
-				let array = arguments[0].map((item) => ({ x: item.x, y: item.y }));
+				let array = arg_vars[0].map((item) => ({ x: item.x, y: item.y }));
 
 				game.gamelog.add({
 					action: 'ability',
@@ -108,7 +108,7 @@ export class PhaserAbility extends Ability {
 		}
 
 		return this.animation2({
-			arg: arguments,
+			arg: arg_vars,
 		});
 	}
 

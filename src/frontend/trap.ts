@@ -2,6 +2,7 @@ import $j from 'jquery';
 import Game from '../game';
 import { Hex } from './hex';
 import { Effect } from '../effect';
+import { Creature } from './creature';
 
 export abstract class Trap {
 	game: Game;
@@ -13,6 +14,10 @@ export abstract class Trap {
 	destroyOnActivate: boolean;
 	id: number;
 	destroyAnimation: string;
+
+	turnLifetime: number;
+	fullTurnLifetime: number;
+	ownerCreature: Creature;
 
 	constructor(
 		x: number,

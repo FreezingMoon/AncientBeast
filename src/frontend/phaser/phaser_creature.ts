@@ -88,7 +88,7 @@ export class PhaserCreature extends Creature {
 		this.healthIndicatorText = game.Phaser.add.text(
 			this.player.flipped ? 45 : 45 + 90 * (this.size - 1),
 			63,
-			this.health,
+			this.health.toString(),
 			{
 				font: 'bold 15pt Play',
 				fill: '#fff',
@@ -681,9 +681,11 @@ export class PhaserCreature extends Creature {
 		hint.anchor.setTo(0.5, 0.5);
 
 		hint.alpha = 0;
+		// @ts-ignore
 		hint.cssClass = cssClass;
 
 		if (cssClass == 'confirm') {
+			// @ts-ignore
 			hint.tweenAlpha = game.Phaser.add
 				.tween(hint)
 				.to(
@@ -695,6 +697,7 @@ export class PhaserCreature extends Creature {
 				)
 				.start();
 		} else {
+			// @ts-ignore
 			hint.tweenAlpha = game.Phaser.add
 				.tween(hint)
 				.to(
@@ -719,6 +722,7 @@ export class PhaserCreature extends Creature {
 					tooltipTransition,
 				)
 				.start();
+			// @ts-ignore
 			hint.tweenAlpha.onComplete.add(function () {
 				// @ts-ignore is this a bug? where is this.destroy() defined
 				hint.destroy();
