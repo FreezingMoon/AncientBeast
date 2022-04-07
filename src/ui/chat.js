@@ -14,12 +14,23 @@ export class Chat {
 		this.$chat.on('click', () => {
 			this.toggle();
 		});
+		this.$chat.on(
+			setTimeout(() => {
+				this.preOpen();
+			}, 2000),
+		);
+		this.$chat.on(
+			setTimeout(() => {
+				this.toggle();
+			}, 5000),
+		);
 		this.$chat.on('mouseenter', () => {
 			this.peekOpen();
 		});
 		this.$chat.on('mouseleave', () => {
 			this.peekClose();
 		});
+
 		this.messages = [];
 		this.isOpen = false;
 		this.messagesToSuppress = [];
@@ -78,7 +89,14 @@ export class Chat {
 		this.$content.parent().scrollTop(this.$content.height());
 		this.isOpen = !this.isOpen;
 	}
-
+	preOpen() {
+		this.$chat.toggleClass('focus');
+		if (this.$chat.hasClass('peek')) {
+			this.$chat.removeClass('peek');
+		}
+		this.$content.parent().scrollTop(this.$content.height(1));
+		this.isOpen = !this.isOpen;
+	}
 	peekOpen() {
 		if (this.$chat.hasClass('focus') === false) {
 			this.$chat.addClass('peek');
