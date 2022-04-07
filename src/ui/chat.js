@@ -14,12 +14,23 @@ export class Chat {
 		this.$chat.on('click', () => {
 			this.toggle();
 		});
+		this.$chat.on(
+			setTimeout(() => {
+				this.toggle();
+			}, 2000),
+		);
+		this.$chat.on(
+			setTimeout(() => {
+				this.toggle();
+			}, 5000),
+		);
 		this.$chat.on('mouseenter', () => {
 			this.peekOpen();
 		});
 		this.$chat.on('mouseleave', () => {
 			this.peekClose();
 		});
+
 		this.messages = [];
 		this.isOpen = false;
 		this.messagesToSuppress = [];
