@@ -440,7 +440,7 @@ export default class Game {
 					break;
 				case 2:
 					// Right mouse button pressed
-					this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id);
+					//this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id);
 					break;
 			}
 		}, this);

@@ -7,6 +7,8 @@ import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
 import Game from '../game';
 import { Trap } from './trap';
+import { ButtonStateEnum } from '../ui/button'
+
 interface QueryOptions {
 	/**
 	 * Target team.
@@ -946,7 +948,18 @@ export class HexGrid {
 
 		// ONRIGHTCLICK
 		const onRightClickFn = (hex: Hex) => {
-			if (hex.creature instanceof Creature) {
+
+			const state = game.UI.btnSkipTurn.state == ButtonStateEnum.disabled ? (ButtonStateEnum.normal && ButtonStateEnum.slideIn) : ButtonStateEnum.disabled
+
+			game.UI.btnSkipTurn.changeState(state);
+			game.UI.btnDelay.changeState(state);
+			game.UI.btnAudio.changeState(state);
+			game.UI.btnFullscreen.changeState(state);
+
+
+			//game.UI.fullscreen
+
+			/*if (hex.creature instanceof Creature) {
 				game.UI.showCreature(hex.creature.type, hex.creature.player.id, 'grid');
 			} else {
 				if (game.activeCreature.isDarkPriest()) {
@@ -967,11 +980,11 @@ export class HexGrid {
 							game.activeCreature.player.id,
 							'emptyHex',
 						);
-					}
+					}start:dev
 				} else {
 					game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id, 'emptyHex');
 				}
-			}
+			}*/
 		};
 
 		this.forEachHex((hex) => {
@@ -1450,8 +1463,8 @@ export class HexGrid {
 			(!player.flipped
 				? creatureData.display['offset-x']
 				: 90 * creatureData.size -
-				  this.materialize_overlay.texture.width -
-				  creatureData.display['offset-x']) +
+				this.materialize_overlay.texture.width -
+				creatureData.display['offset-x']) +
 			this.materialize_overlay.texture.width / 2;
 		this.materialize_overlay.y =
 			hex.displayPos.y + creatureData.display['offset-y'] + this.materialize_overlay.texture.height;
