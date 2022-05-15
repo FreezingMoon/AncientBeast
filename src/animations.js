@@ -215,9 +215,14 @@ export class Animations {
 
 	leaveHex(creature, hex, opts) {
 		let game = this.game;
+		let ignoringFaceUpdate;
 
-		if (!opts.pushed) {
-			creature.faceHex(hex, creature.hexagons[0]); // Determine facing
+		if (opts.ignoreFacing) {
+			ignoringFaceUpdate = true;
+		} else {
+			if (!opts.pushed) {
+				creature.faceHex(hex, creature.hexagons[0]); // Determine facing
+			}
 		}
 
 		game.onStepOut(creature, creature.hexagons[0]); // Trigger

@@ -294,6 +294,7 @@ export default (G) => {
 						ability.creature.updateHex();
 						ability.creature.queryMove();
 					},
+					ignoreFacing: true,
 					ignoreMovementPoint: true,
 					overrideSpeed: crea.animation.walk_speed,
 				});
