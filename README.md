@@ -37,7 +37,7 @@ You can check it out via our auto-deployed Heroku build: https://beta.AncientBea
 ### [Contribute](CONTRIBUTING.md#readme)
 
 You can help out the project by hitting that ★ from the [upper right corner](#) and you can also pin it to your own profile.  
-If you wish to set-up a local copy of the game for your pleasure, go read the ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/CONTRIBUTING.md#github-marketing) file from this repo.  
+If you wish to set-up a local copy of the game for your pleasure, read the ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/CONTRIBUTING.md#github-marketing) file from this repo.  
 Or dive right into development from your browser by using this button to easily set up the project: [![Setup Automated](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)  
 There are more ways you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide and get stuff going!
 
