@@ -47,7 +47,7 @@ There are more ways you can help out this project, check out the ["Make Your Con
 
 You can [become a backer](https://opencollective.com/AncientBeast/contribute/backer-8021), supporting the development of this project financially on a monthly basis.
 
-<a href="https://opencollective.com/AncientBeast"><img src="https://opencollective.com/AncientBeast/backers.svg?width=838" alt="Backers"></a>
+<object type="image/svg+xml" data="https://opencollective.com/ancientbeast/tiers/backer.svg?avatarHeight=36&width=838"></object>
 
 ### Sponsors
 
