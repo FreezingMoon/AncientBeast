@@ -47,13 +47,13 @@ There are more ways you can help out this project, check out the ["Make Your Con
 
 You can [become a backer](https://opencollective.com/AncientBeast/contribute/backer-8021), supporting the development of this project financially on a monthly basis.
 
-<a href="https://opencollective.com/AncientBeast"><img src="https://opencollective.com/ancientbeast/tiers/backer.svg?avatarHeight=36&width=838" alt="Backers"></a>
+<a href="https://opencollective.com/AncientBeast/contribute/backer-8021"><img src="https://opencollective.com/AncientBeast/tiers/backer.svg?avatarHeight=48&width=838" alt="Backers"></a>
 
 ### Sponsors
 
-To get your brand featured in-game as well, [become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022) to greatly support this game project!
+To get your brand featured in-game as well, [become a sponsor](https://opencollective.com/AncientBeast/contribute/sponsor-8022) to greatly support this game project!
 
-<a href="https://Raj.bet" title="Rajbet - Online Casino India"><img src="https://FreezingMoon.org/images/sponsors/Rajbet.png" alt="Rajbet"></a>
+<a href="https://opencollective.com/AncientBeast/contribute/sponsor-8022"><img src="https://opencollective.com/AncientBeast/tiers/sponsor.svg?avatarHeight=48&width=838" alt="Backers"></a>
 
 ### License
 
