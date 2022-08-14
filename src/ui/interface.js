@@ -44,7 +44,7 @@ export class UI {
 		this.$display = $j('#ui');
 		this.$queue = $j('#queuewrapper');
 		this.$dash = $j('#dash');
-		this.$grid = $j('#creaturegrid');
+		this.$grid = $j('#creatureraster');
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
 		this.active = false;
@@ -805,13 +805,14 @@ export class UI {
 			margin: 0,
 		});
 
-		zoom1 = $j('#creaturegridwrapper').innerWidth() / $j('#creaturegrid').innerWidth();
-		zoom2 = $j('#creaturegridwrapper').innerHeight() / $j('#creaturegrid').innerHeight();
+		zoom1 = $j('#creaturerasterwrapper').innerWidth() / $j('#creatureraster').innerWidth();
+		zoom2 = $j('#creaturerasterwrapper').innerHeight() / $j('#creatureraster').innerHeight();
 		zoom = Math.min(zoom1, zoom2, 1);
 
-		$j('#creaturegrid').css({
+		$j('#creatureraster').css({
 			scale: zoom,
-			left: ($j('#creaturegridwrapper').innerWidth() - $j('#creaturegrid').innerWidth() * zoom) / 2,
+			left:
+				($j('#creaturerasterwrapper').innerWidth() - $j('#creatureraster').innerWidth() * zoom) / 2,
 			position: 'absolute',
 			margin: 0,
 		});
