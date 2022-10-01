@@ -915,7 +915,7 @@ export class UI {
 				.addClass('sin' + stats.type.substring(0, 1));
 			$j('#card .sideA .type').text(stats.type);
 			$j('#card .sideA .name').text(stats.name);
-			$j('#card .sideA .hexes').html(stats.size + '<span>&#11041;</span>');
+			$j('#card .sideA .hexes').html(stats.size + '&#11041;');
 
 			// Card B
 			$j('#card .sideB').css({
@@ -1112,7 +1112,7 @@ export class UI {
 				.addClass('sin' + stats.type.substring(0, 1));
 			$j('#card .sideA .type').text(stats.type);
 			$j('#card .sideA .name').text(stats.name);
-			$j('#card .sideA .hexes').text(stats.size + 'H');
+			$j('#card .sideA .hexes').text(stats.size + '⬡');
 
 			// Card B
 			$j.each(stats.stats, (key, value) => {
