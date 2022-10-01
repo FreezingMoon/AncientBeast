@@ -1170,7 +1170,7 @@ export class UI {
 			// Materialize button
 			this.materializeButton.changeState(ButtonStateEnum.disabled);
 			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
-
+			$j('#materialize_button').show();
 			$j('#card .sideA').addClass('disabled').off('click');
 		}
 	}
