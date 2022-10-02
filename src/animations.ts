@@ -1,8 +1,18 @@
 import * as $j from 'jquery';
+import { Creature } from './creature';
+import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
+import { Hex } from './utility/hex';
 
 export class Animations {
-	constructor(game) {
+	//--------- Constructor Types ---------//
+	game:Game //Main Game Object
+	movementPoints: number; //The cost of each movement
+
+	animId: number //ID corrosponding to each animation
+	walk_speed: number //How fast each characters animation moves
+
+	constructor(game:Game) {
 		this.game = game;
 		this.movementPoints = 0;
 	}
@@ -19,14 +29,14 @@ export class Animations {
 
 		game.freezedInput = true;
 
-		let animId = Math.random();
-		game.animationQueue.push(animId);
+		let animId:number = Math.random();
+		game.animationQueue.push(Animations[animId]);
 
-		let hexId = 0;
+		let hexId:number = 0;
 
 		creature.healthHide();
 
-		let anim = function () {
+		let anim = () => {
 			let hex = path[hexId];
 
 			if (hexId < path.length && (creature.remainingMove > 0 || opts.ignoreMovementPoint)) {
@@ -76,7 +86,7 @@ export class Animations {
 			});
 
 			hexId++;
-		}.bind(this);
+		};
 
 		anim();
 	}
@@ -94,7 +104,7 @@ export class Animations {
 		game.freezedInput = true;
 
 		let animId = Math.random();
-		game.animationQueue.push(animId);
+		game.animationQueue.push(Animations[animId]);
 
 		creature.healthHide();
 
@@ -148,7 +158,7 @@ export class Animations {
 		this.leaveHex(creature, currentHex, opts);
 
 		let animId = Math.random();
-		game.animationQueue.push(animId);
+		game.animationQueue.push(Animations[animId]);
 
 		// FadeOut
 		let tween = game.Phaser.add
@@ -213,7 +223,7 @@ export class Animations {
 		game.grid.orderCreatureZ();
 	}
 
-	leaveHex(creature, hex, opts) {
+	leaveHex(creature:Creature, hex:Hex, opts) {
 		let game = this.game;
 		let ignoringFaceUpdate;
 
@@ -221,15 +231,15 @@ export class Animations {
 			ignoringFaceUpdate = true;
 		} else {
 			if (!opts.pushed) {
-				creature.faceHex(hex, creature.hexagons[0]); // Determine facing
+				creature.faceHex(hex, creature.hexagons[0], false, false); // Determine facing
 			}
 		}
 
-		game.onStepOut(creature, creature.hexagons[0]); // Trigger
+		game.onStepOut(); // Trigger
 		game.grid.orderCreatureZ();
 	}
 
-	movementComplete(creature, hex, animId, opts) {
+	movementComplete(creature:Creature, hex:Hex, animId:any, opts) {
 		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
@@ -262,7 +272,7 @@ export class Animations {
 		game.animationQueue = queue;
 	}
 
-	projectile(this2, target, spriteId, path, args, startX, startY) {
+	projectile(this2, target, spriteId:number, path, args, startX:number, startY:number) {
 		// Get the target's position on the projectile's path that is closest
 		let emissionPointX = this2.creature.grp.x + startX;
 		var distance = Number.MAX_SAFE_INTEGER;

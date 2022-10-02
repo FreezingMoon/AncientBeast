@@ -1,3 +1,7 @@
+import { Creature } from "./creature";
+import Game from "./game";
+import { Hex } from "./utility/hex";
+
 /**
  * Drops are a type of creature "buff" collected from a game board hex rather than
  * being applied by an ability.
@@ -19,7 +23,34 @@
  * - Drops are essentially permanent although this may change in the future.
  */
 export class Drop {
-	constructor(name, alterations, x, y, game) {
+
+	//------- Constructor Types ------- //
+	name:string // Name of the drop
+	game: Game // Main Game Object
+	hex: Hex; //Main Hex Object
+	id: number //ID of the drop on the stack
+	x: number; //X Coordinate of the drop
+	y: number; //Y Coordinate of the drop
+	pos: {
+		x:number,
+		y:number
+	}
+
+	display: {
+		destroy(): unknown;
+		alpha: number,
+		anchor: any,
+		scale: any,
+	};
+
+	alterations: {
+		health: number,
+		energy:	number,
+		endurance: number,
+		movement: number
+	};
+
+	constructor(name:string, alterations, x:number, y:number, game:Game) {
 		this.name = name;
 		this.game = game;
 		this.id = game.dropId++;
@@ -54,10 +85,10 @@ export class Drop {
 			.start();
 	}
 
-	pickup(creature) {
+	pickup(creature:Creature) {
 		let game = this.game;
 
-		game.log('%CreatureName' + creature.id + '% picks up ' + this.name);
+		game.log('%CreatureName' + creature.id + '% picks up ' + this.name, null);
 		creature.hint(this.name, 'msg_effects');
 		creature.dropCollection.push(this);
 
@@ -87,7 +118,7 @@ export class Drop {
 			.join(', ')
 			// Replace last comma with "and".
 			.replace(/, ([^,]*)$/, ', and $1');
-		game.log(`%CreatureName${creature.id}% gains ${gainedMessage}`);
+		game.log(`%CreatureName${creature.id}% gains ${gainedMessage}`, null);
 
 		creature.player.score.push({
 			type: 'pickupDrop',

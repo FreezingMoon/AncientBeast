@@ -1,5 +1,7 @@
 import * as $j from 'jquery';
+import Game from './game';
 import { Creature } from './creature';
+import { Trap } from './utility/trap';
 
 /*
  * Effect Class
@@ -7,13 +9,24 @@ import { Creature } from './creature';
 export class Effect {
 	/* Constructor(name, owner, target, trigger, optArgs)
 	 *
-	 * name: name of the effect
-	 * owner :	Creature : Creature that casted the effect
-	 * target :	Object : Creature or Hex : the object that possess the effect
-	 * trigger :	String : Event that trigger the effect
 	 * optArgs: dictionary of optional arguments
 	 */
-	constructor(name, owner, target, trigger, optArgs, game) {
+	stackable: boolean; //Check if an effect can be stacked
+	id: number; //ID of each effect on the stack
+	game: Game; //The current game
+	name: string; //Name of the Effect
+	owner: Creature; //The creature that cast the effect
+	target: Creature; //The object that has the effect
+	trigger: string; //Event that triggered the effect
+	creationTurn: number; //The turn the effect took place
+	noLog: boolean; //Check if the action needs to logged to game chat
+	specialHint: any;  //TODO: Find specialHint useCase maybe string
+	deleteOnOwnerDeath: boolean; //Should this creature be removed when the owner of it dies
+	triggeredThisChain: boolean; //Did this effect start with the current chain
+	trap: Trap;
+	special: any;
+
+	constructor(name:string, owner:Creature, target:Creature, trigger:string, optArgs, game:Game) {
 		this.id = game.effectId++;
 		this.game = game;
 
@@ -46,8 +59,8 @@ export class Effect {
 		game.effects.push(this);
 	}
 
-	animation(...args) {
-		this.activate(...args);
+	animation(args) {
+		this.activate(args);
 	}
 
 	activate(arg) {
@@ -60,10 +73,21 @@ export class Effect {
 		}
 
 		if (arg instanceof Creature) {
-			arg.addEffect(this);
+			arg.addEffect(this, null, null);
 		}
 
 		this.effectFn(this, arg);
+	}
+
+	requireFn(arg) : boolean {
+		if(arg){
+			return true;
+		}
+		return false;
+	}
+
+	effectFn(Player, arg) {
+		//Uknown Effect
 	}
 
 	deleteEffect() {

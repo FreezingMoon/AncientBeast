@@ -135,7 +135,7 @@ $j(() => {
 	$j('form#gameSetup').on('submit', (e) => {
 		e.preventDefault(); // Prevent submit
 		let gameconfig = getGameConfig();
-		G.loadGame(gameconfig);
+		G.loadGame(gameconfig, true, null);
 
 		return false; // Prevent submit
 	});
@@ -239,7 +239,7 @@ $j(() => {
 	$j('form#login').on('submit', login);
 	$j('#startMatchButton').on('click', () => {
 		let gameConfig = getGameConfig();
-		G.loadGame(gameConfig, true);
+		G.loadGame(gameConfig, true, null);
 		return false;
 	});
 

@@ -1,6 +1,6 @@
 import { zfill } from './string';
 
-export const getTimer = (number) => zfill(Math.floor(number / 60), 2) + ':' + zfill(number % 60, 2);
+export const getTimer = (num:number) => zfill(Math.floor(num / 60), 2) + ':' + zfill(num % 60, 2);
 
 /**
  * Async delay that resolves after x ms.
@@ -9,4 +9,4 @@ export const getTimer = (number) => zfill(Math.floor(number / 60), 2) + ':' + zf
  * @param {number} ms Number of milliseconds to sleep.
  * @returns
  */
-export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+export const sleep = (ms:number) => new Promise((resolve) => setTimeout(resolve, ms));

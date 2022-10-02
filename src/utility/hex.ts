@@ -570,8 +570,8 @@ export class Hex {
 		}
 
 		this.trap.effects.forEach((effect) => {
-			if (trigger.test(effect.trigger) && effect.requireFn()) {
-				this.game.log('Trap triggered');
+			if (trigger.test(effect.trigger) && effect.requireFn(null)) {
+				this.game.log('Trap triggered', null);
 				effect.activate(target);
 			}
 		});

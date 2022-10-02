@@ -1,21 +1,43 @@
 import * as $j from 'jquery';
+import Game from './game';
+import { Ability } from './ability';
 import { getUrl } from './assetLoader';
 import { Creature } from './creature';
+import { ScoreTypes } from './CreatureTypes';
 
 /**
  * Player Class
  * Player object with attributes
  */
 export class Player {
-	constructor(id, game) {
-		/* Attributes
-		 *
-		 * id :		Integer :	Id of the player 1, 2, 3 or 4
-		 * creature :	Array :		Array containing players creatures
-		 * plasma :	Integer :	Plasma amount for the player
-		 * flipped :	Boolean :	Player side of the battlefield (affects displayed creature)
-		 *
-		 */
+
+	/* Attributes */
+	//--------- Types List ----------//
+	
+	id: number; //Id of the player 1, 2, 3 or 4
+	creatures: Array<Creature>	//Array containing players creatures
+	plasma: number;	//Plasma amount for the player
+	flipped: boolean | number;	//Player side of the battlefield (affects displayed creature)
+	game: Game; //Main Gain Object
+	color: string; //represents the players faction color
+	name: string; //The Player plus their ID in the game
+	avatar: URL; //Current URl of the player
+	score: any; //Current Score
+	availableCreatures: Array<Creature> //Array of all open creatures
+	hasLost: boolean; //True if the player has lost
+	hasFled: boolean; //True if the player has left
+	bonusTimePool: number; //Amount of additional time
+	totalTimePool: number; //Amount of time from the start of the game mius time played
+	startTime: number; //Current time no reason to make it a Date
+	_summonCreaturesWithMaterializationSickness: boolean; //If the creature needs summoning sickness
+	delayable: boolean; //IS it possible the player has delay
+	delayed: boolean; //Is the player Delayed
+	dead: boolean; //Is the current player dead
+	abilities: Array<Ability> //Array of all the abilities current player has access to
+
+	//--------- Types List ----------//
+	constructor(id: number, game:Game) {
+
 		this.id = id;
 		this.game = game;
 		this.creatures = [];
@@ -43,7 +65,7 @@ export class Player {
 		this.hasFled = false;
 		this.bonusTimePool = 0;
 		this.totalTimePool = game.timePool * 1000;
-		this.startTime = new Date();
+		this.startTime = new Date().getTime();
 
 		this.score = [
 			{
@@ -80,11 +102,11 @@ export class Player {
 
 	/* summon(type, pos)
 	 *
-	 * type :	String :	Creature type (ex: "0" for Dark Priest and "G2" for Swampler)
-	 * pos :	Object :	Position {x,y}
+	 * type :	Creature type (ex: "0" for Dark Priest and "G2" for Swampler)
+	 * pos :	Position {x,y}
 	 *
 	 */
-	summon(type, pos) {
+	summon(type:string, pos:Object) {
 		let game = this.game,
 			data = game.retrieveCreatureStats(type),
 			creature;
@@ -104,7 +126,7 @@ export class Player {
 		creature = new Creature(data, game);
 		this.creatures.push(creature);
 		creature.summon(!this._summonCreaturesWithMaterializationSickness);
-		game.onCreatureSummon(creature);
+		game.onCreatureSummon(creature, null);
 	}
 
 	/* flee()
@@ -120,15 +142,15 @@ export class Player {
 
 	/* getScore()
 	 *
-	 * return :	Integer :	The current score of the player
+	 * return :	The current score of the player
 	 *
 	 * Return the total of the score events.
 	 */
-	getScore() {
+	getScore() : ScoreTypes{
 		let total = this.score.length,
-			s = {},
-			points,
-			totalScore = {
+			s = {} as ScoreTypes,
+			points:number,
+			totalScore:ScoreTypes = {
 				firstKill: 0,
 				kill: 0,
 				deny: 0,
@@ -142,6 +164,9 @@ export class Player {
 				total: 0,
 				pickupDrop: 0,
 				upgrade: 0,
+				creature: null,
+				kills: 0,
+				type: ""
 			};
 
 		for (let i = 0; i < total; i++) {
@@ -257,7 +282,7 @@ export class Player {
 			}
 		}
 
-		game.updateQueueDisplay();
+		game.updateQueueDisplay(null);
 
 		// Test if allie Dark Priest is dead
 		if (game.playerMode > 2) {
@@ -271,11 +296,11 @@ export class Player {
 		}
 	}
 
-	get summonCreaturesWithMaterializationSickness() {
+	summonCreaturesWithMaterializationSickness() {
 		return this._summonCreaturesWithMaterializationSickness;
 	}
 
-	handleMetaPowerEvent(message, payload) {
+	handleMetaPowerEvent(message:string, payload) {
 		if (message === 'toggleDisableMaterializationSickness') {
 			this._summonCreaturesWithMaterializationSickness = !payload;
 		}

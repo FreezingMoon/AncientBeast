@@ -8,7 +8,7 @@
  * @param {number} dy - delta y, in range [-1, 1]
  * @return {number} the direction number
  */
-export function getDirectionFromDelta(y, dx, dy) {
+export function getDirectionFromDelta(y:number, dx:number, dy:number) : number {
 	// Due to target size, this could be off; limit dx
 	if (dx > 1) {
 		dx = 1;
@@ -16,7 +16,7 @@ export function getDirectionFromDelta(y, dx, dy) {
 	if (dx < -1) {
 		dx = -1;
 	}
-	let dir;
+	let dir:number;
 	if (dy === 0) {
 		if (dx === 1) {
 			dir = 1; // forward

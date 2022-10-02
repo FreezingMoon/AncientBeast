@@ -1,4 +1,7 @@
 import * as $j from 'jquery';
+import { Effect } from '../effect';
+import Game from '../game';
+import { Hex } from './hex';
 
 /**
  * Trap Class
@@ -9,11 +12,36 @@ import * as $j from 'jquery';
 export class Trap {
 	/* Constructor(x,y)
 	 *
-	 * x : 			Integer : 	Hex coordinates
-	 * y : 			Integer : 	Hex coordinates
+	 * x :	Hex coordinates
+	 * y : 	Hex coordinates
 	 *
 	 */
-	constructor(x, y, type, effects, owner, opt, game) {
+
+	game: Game; //Main Game Object
+	hex: Hex //Main Hex Object
+	type: string; //Explains the type of trap
+	effects: Array<Effect> //Lists all the effects the trap will apply
+	owner: string; //Name of the player who set the trap
+	creationTurn: number; //Number of the turn the trap was set
+	destroyOnActivate: boolean; //True if the trap needs to be removed
+
+	id: number; //ID of the current trap
+	typeOver: string; //Additional type on the trap
+	display: {
+		anchor: any;
+	}
+
+	displayOver: {
+		anchor: any,
+		scale: {
+			x: number,
+			y: number
+		}
+
+	}
+	destroyAnimation: undefined;
+	
+	constructor(x:number, y:number, type:string, effects:Array<Effect>, owner:string, opt, game:Game) {
 		this.game = game;
 		this.hex = game.grid.hexes[y][x];
 		this.type = type;
@@ -62,7 +90,7 @@ export class Trap {
 	destroy() {
 		let game = this.game,
 			tweenDuration = 500,
-			destroySprite = (sprite, animation) => {
+			destroySprite = (sprite, animation:string) => {
 				if (animation === 'shrinkDown') {
 					sprite.anchor.y = 1;
 					sprite.y += sprite.height / 2;
@@ -96,7 +124,7 @@ export class Trap {
 		this.hex.trap = undefined;
 	}
 
-	hide(duration) {
+	hide(duration:number) {
 		duration = duration - 0; // Avoid undefined
 		this.game.Phaser.add.tween(this.display).to(
 			{
@@ -107,7 +135,7 @@ export class Trap {
 		);
 	}
 
-	show(duration) {
+	show(duration:number) {
 		duration = duration - 0; // Avoid undefined
 		this.game.Phaser.add.tween(this.display).to(
 			{

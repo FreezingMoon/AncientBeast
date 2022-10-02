@@ -1,4 +1,6 @@
 import * as arrayUtils from './arrayUtils';
+import { Hex } from './hex';
+import { HexGrid } from './hexgrid';
 
 /** search
  * @param {Hex} start ?
@@ -8,7 +10,7 @@ import * as arrayUtils from './arrayUtils';
  * @param {?} grid ?
  * @returns {?} ?
  */
-export function search(start, end, creatureSize, creatureId, grid) {
+export function search(start:Hex, end:Hex, creatureSize:number, creatureId:number, grid:HexGrid) {
 	let openList = [];
 	let closedList = [];
 	openList.push(start);

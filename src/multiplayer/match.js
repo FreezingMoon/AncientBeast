@@ -153,6 +153,7 @@ export default class MatchI {
 					break;
 			}
 		};
+		this.gameplay = undefined;
 	}
 	getUserTurn() {
 		let p = _.findWhere(this.users, { id: this.session.user_id });

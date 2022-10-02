@@ -3,7 +3,7 @@
  * @param {number} size ?
  * @returns {string} ?
  */
-export function zfill(num, size) {
+export function zfill(num:number, size:number) : string {
 	let s = '000000000' + num;
 	return s.substr(s.length - size);
 }
@@ -16,4 +16,4 @@ export function zfill(num, size) {
  * @param {string} string To capitalize.
  * @returns {string} Capitalized string.
  */
-export const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
+export const capitalize = (str:string) => str.charAt(0).toUpperCase() + str.slice(1);

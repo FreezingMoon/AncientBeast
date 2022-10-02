@@ -1,14 +1,26 @@
 import * as $j from 'jquery';
+import { IGameConfig } from 'phaser-ce';
+import Game from '../game';
 import { isEmpty, getGameConfig } from '../script';
 
 export class GameLog {
-	constructor(id, game) {
+	//------- Constructor Types ---------//
+	game: Game; //Main Game Object
+	data: Array<object> //The Messages in the log
+	playing: boolean; //Is the game currently running
+	timeCursor: number; //The time of the messages
+	gameConfig: IGameConfig; //The main game configuraion object
+	gameid: number; //Current Game
+	_debounce: number; //
+
+	constructor(id:number, game:Game) {
 		this.game = game;
 		this.data = [];
 		this.playing = false;
 		this.timeCursor = -1;
 		// Set this to null so we can properly decide between form based config or log based config.
 		this.gameConfig = null;
+		this.gameid = id;
 	}
 
 	reset() {
@@ -18,17 +30,17 @@ export class GameLog {
 		this.gameConfig = null;
 	}
 
-	add(action) {
+	add(action:object) {
 		this.data.push(action);
 	}
 
-	config(config) {
+	config(config:IGameConfig) {
 		let game = this.game;
 
 		if (game.gameState != 'initialized') {
 			alert('To set the game config, you need to be in the setup screen');
 		} else {
-			game.loadGame(config);
+			game.loadGame(config, true, this.gameid);
 			this.gameConfig = config;
 		}
 	}
@@ -70,7 +82,7 @@ export class GameLog {
 			let interval = setInterval(() => {
 				if (!game.freezedInput && !game.turnThrottle) {
 					clearInterval(interval);
-					game.activeCreature.queryMove();
+					game.activeCreature.queryMove(null);
 					game.action(this.data[this.timeCursor], {
 						callback: fun,
 					});
@@ -81,7 +93,7 @@ export class GameLog {
 		fun();
 	}
 
-	next() {
+	next() : boolean {
 		let game = this.game;
 
 		if (game.freezedInput || game.turnThrottle) {
@@ -94,24 +106,24 @@ export class GameLog {
 		}
 
 		if (this.timeCursor > this.data.length - 1) {
-			game.activeCreature.queryMove(); // Avoid bug
+			game.activeCreature.queryMove(null); // Avoid bug
 			return;
 		}
 
 		let interval = setInterval(() => {
 			if (!game.freezedInput && !game.turnThrottle) {
 				clearInterval(interval);
-				game.activeCreature.queryMove(); // Avoid bug
+				game.activeCreature.queryMove(null); // Avoid bug
 				game.action(this.data[this.timeCursor], {
 					callback: function () {
-						game.activeCreature.queryMove();
+						game.activeCreature.queryMove(null);
 					},
 				});
 			}
 		}, 100);
 	}
 
-	get(state) {
+	get(state:string) {
 		let today = new Date().toISOString().slice(0, 10);
 		let config = isEmpty(this.gameConfig) ? getGameConfig() : this.gameConfig,
 			dict = {
@@ -151,12 +163,12 @@ export class GameLog {
 		return output;
 	}
 
-	saveFile(data, fileName) {
+	saveFile(data, fileName:string) {
 		// Set a trap to block consecutive calls within one second.
 		this._debounce = new Date().valueOf();
 		let a = document.createElement('a');
-		let file = new Blob([data]);
-		let url = URL.createObjectURL(file);
+		let file : Blob = new Blob([data]);
+		let url : string = URL.createObjectURL(file);
 		a.href = url;
 		a.download = fileName;
 		document.body.appendChild(a);

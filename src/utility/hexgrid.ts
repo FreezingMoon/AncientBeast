@@ -122,7 +122,7 @@ export class HexGrid {
 	 *
 	 * Create attributes and populate JS grid with Hex objects
 	 */
-	constructor(opts, game: Game) {
+	constructor(opts, game) {
 		const defaultOpt = {
 			nbrRow: 9,
 			nbrhexesPerRow: 16,
@@ -197,7 +197,7 @@ export class HexGrid {
 				});
 			},
 			fnOnCancel: () => {
-				this.game.activeCreature.queryMove();
+				this.game.activeCreature.queryMove(null);
 			},
 			args: {},
 			confirmText: 'Confirm',
@@ -450,7 +450,7 @@ export class HexGrid {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(null);
 			},
 			fnOnSelect: (choice) => {
 				choice.forEach((item) => {
@@ -462,7 +462,7 @@ export class HexGrid {
 				});
 			},
 			fnOnCancel: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(null);
 			},
 			team: Team.Enemy,
 			requireCreature: 1,
@@ -569,7 +569,7 @@ export class HexGrid {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(null);
 			},
 			fnOnSelect: (creature) => {
 				creature.tracePosition({
@@ -577,7 +577,7 @@ export class HexGrid {
 				});
 			},
 			fnOnCancel: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(null);
 			},
 			optTest: () => true,
 			args: {},
@@ -690,14 +690,14 @@ export class HexGrid {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(null);
 			},
 			fnOnSelect: (hex: Hex) => {
-				game.activeCreature.faceHex(hex, undefined, true);
+				game.activeCreature.faceHex(hex, undefined, true, false);
 				hex.overlayVisualState('creature selected player' + game.activeCreature.team);
 			},
 			fnOnCancel: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(null);
 			},
 			callbackAfterQueryHexes: () => {
 				// empty function to be overridden with custom logic to execute after queryHexes
@@ -828,7 +828,7 @@ export class HexGrid {
 					the death logic doesn't actually care about the killing creature, just
 					that creature's player. The first player is always responsible for executing
 					creatures. */
-					{ player: game.players[0] },
+					game.players[0].creatures[0] 
 				);
 				return;
 			}
@@ -886,7 +886,7 @@ export class HexGrid {
 				// toggle hover off event
 				if (creature.isDarkPriest()) {
 					// the plasma would have been displayed so now display the health again
-					creature.updateHealth();
+					creature.updateHealth(false);
 				}
 			}
 

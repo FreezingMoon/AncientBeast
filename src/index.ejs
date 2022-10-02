@@ -961,12 +961,12 @@
 
 					<div class="musicgenres active">Tags:</div>
 					<div class="musicgenres__items">
-						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
+						<% require('./assetLoader.ts').getUrl('music').forEach(function(musicGenre) { %>
 							<span class="musicgenres__title" id="genre-<%= musicGenre.id %>"><%= musicGenre.id %></span>
 						<% }); %>
 					</div>
 					<ul id="playlist" style="list-style-type:none; padding-left:0px;">
-						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
+						<% require('./assetLoader.ts').getUrl('music').forEach(function(musicGenre) { %>
 							<% musicGenre.children.forEach(function(track) { %>
 								<li class="<%= musicGenre.id %>"><a href="<%= track.url %>"><%= track.id %></a></li>
 							<% }); %>

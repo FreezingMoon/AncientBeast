@@ -1,25 +1,33 @@
 import * as $j from 'jquery';
+import { Create } from 'phaser-ce';
+import { Creature } from './creature';
+import { Effect } from './effect';
+import Game from "./game"
 
 /* Damage Class
  *
  * TODO: This documentation needs to be updated with things that are determined dynamically like #melee and #counter
  */
 export class Damage {
-	/** Constructor
-	 * @param {Creature} attacker Unit that initiated the damage
-	 * @param {Object} damages Object containing the damage by type {frost : 5} for example
-	 * @param {number} area Number of hexagons being hit
-	 * @param {array} effects Contains Effect object to apply to the target
-	 * @param {Object} game Game object
-	 */
-	constructor(attacker, damages, area, effects, game) {
+
+	/* Constructor */
+	game: Game; //Main Game Object
+	attacker: Creature //Creature that initiated the damage
+	damages: object //Object containing the damage by tyoe { frost : 5} for example
+	status: string; //Current Effects the damage applies
+	effects: Array<Effect> //Current Effects the damage applies
+	area: number //Number of hexagons being hit
+	counter: boolean //Whether this is counter-damage
+	target: Creature //Creature that is being targetted by effect
+
+
+	constructor(attacker:Creature, damages:object, area:number, effects:Array<Effect>, game:Game) {
 		this.game = game;
 		this.attacker = attacker;
 		this.damages = damages;
 		this.status = '';
 		this.effects = effects;
 		this.area = area;
-		// Whether this is counter-damage
 		this.counter = false;
 	}
 
@@ -33,8 +41,8 @@ export class Damage {
 			};
 
 		// Damage calculation
-		$j.each(this.damages, (key, value) => {
-			let points;
+		$j.each(this.damages, (key:number | string, value) => {
+			let points:number;
 
 			if (key == 'pure') {
 				// Bypass defense calculation

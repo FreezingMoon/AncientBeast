@@ -1,11 +1,19 @@
+import { Creature } from './creature';
+import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 
 export class CreatureQueue {
-	constructor(game) {
+	// ------- Constructor Types -------- //
+	game: Game //Main Game Object
+	queue: Array<Creature>; //Main Queue of Creatures
+	nextQueue: Array<Creature>; //Next Queue of Creatures
+	tempCreature: Creature //Base Creature Object
+
+	constructor(game:Game) {
 		this.game = game;
 		this.queue = [];
 		this.nextQueue = [];
-		this.tempCreature = {};
+		this.tempCreature = {} as Creature;
 	}
 
 	/**
@@ -16,7 +24,7 @@ export class CreatureQueue {
 	 * @param {boolean} alsoAddToCurrentQueue Also add the creature to the current
 	 * turn's queue. Doing so lets a creature act in the same turn it was summoned.
 	 */
-	addByInitiative(creature, alsoAddToCurrentQueue = true) {
+	addByInitiative(creature:Creature, alsoAddToCurrentQueue:boolean = true) {
 		const queues = [this.nextQueue];
 
 		if (alsoAddToCurrentQueue) {
