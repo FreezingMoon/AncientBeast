@@ -13,15 +13,16 @@ import { Creature } from './creature';
 import dataJson from './data/units.json';
 import 'pixi';
 import 'p2';
-import Phaser, { Signal } from 'phaser-ce';
+import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
-import { Ability } from './ability';
-import { Effect } from './effect';
-import { Client, Session } from '@heroiclabs/nakama-js';
 import { MSGtype, TriggersObjectType } from './CreatureTypes';
+import { Client, Session } from '@heroiclabs/nakama-js';
+import { Effect } from './effect';
+import { Ability } from './ability';
 import { Pointer, Sprite } from 'phaser-ce';
+import { Trap } from './utility/trap';
 
 /* Game Class
  *
@@ -42,102 +43,97 @@ export default class Game {
 	 * // jQuery attributes
 	 * $combatFrame :	Combat element containing all graphics except the UI
 	 *
-	 *
 	 */
 
-	// Game elements
-	players: Array<Player> // Contains Player objects ordered by player ID (0 to 3)
-	creatures:	Array<Creature> // Contains Creature objects (creatures[creature.id]) start at index 1
-
-	grid: any //Grid object
-	UI: UI  // UI object
+		// Game elements
+		players: Array<Player> // Contains Player objects ordered by player ID (0 to 3)
+		creatures:	Array<Creature> // Contains Creature objects (creatures[creature.id]) start at index 1
 	
-	queue: CreatureQueue // queue of creatures to manage phase order
+		grid: any //Grid object
+		UI: UI  // UI object
+		
+		queue: CreatureQueue // queue of creatures to manage phase order
+		
+		turn: number // Current's turn number
+		
+		 // Normal attributes
+		playerMode:number	//Number of players in the game
+		activeCreature:	Creature //Current active creature object reference
+		creatureIdCounter: number		//Creature ID counter used for creature creation
+		creatureData:	Array<Creature> 	//Array containing all data for the creatures
 	
-	turn: number // Current's turn number
+		//jQuery Elements
+		$combatFrame: any; 
 	
-	 // Normal attributes
-	playerMode:number	//Number of players in the game
-	activeCreature:	Creature //Current active creature object reference
-	creatureIdCounter: number		//Creature ID counter used for creature creation
-	creatureData:	Array<Creature> 	//Array containing all data for the creatures
-
-	//jQuery Elements
-	$combatFrame: any; 
-
-	//Constructor Types
-	version: string; //Current Development Version
-	abilities: Array<Ability> //List of all the abilities in the game
-	effects: Array<Effect> //List of all the Effects currently in the game
-	matchid: number; //Current ID of the match
-	playersReady: boolean; //True if all players have agreed to start
-	preventSetup: boolean; //True if setup phase is over
-	animations: Animations; //Create Animations for the game
-	pause: boolean; ///True if the game if paused (offline)
-	gameState: string; //Current Game State
-	pauseTime: number; //Time the game has been paused for disconnect
-	minimumTurnBeforeFleeing: number; //Turns before player is kicked
-	availableCreatures: Array<Creature>; //Creatures each player can use
-	animationQueue: Array<Animations>; //Animations that are about to occur
-	checkTimeFrequency: number; //Time to check if an action has occured
-	gamelog: GameLog; //Main Gamelog object
-	configData: any; //All the preset settings for the game
-	match: MatchI; //The main match info object
-	gameplay: Gameplay; //The main gameplay object
-	session: Session; //The main session information object
-	client: Client; //The main client information object
-	connect: any; //The main connect information object (Cannot Find it)
-	debugMode: string | undefined; //Is the game in debug mode
-	multiplayer: boolean; //Is the game in multiplayer
-	matchInitialized: boolean; //Has the match loaded
-	realms: Array<string> //Array of Characters that represents which realm it is
-	availableMusic: Array<string> // Array of all the types of music the plyaer owns
-	soundEffects: Array<string> // Array containing all the sound effects that will be needed in the game
-	inputMethod: string; //Controls the user will use
-	startMatchTime: Date //Current Time of when the match starts
-	plasma_amount: number; //Amount of plasma current player can take from
-	timePool: number; //Amount of time in the game
-	turnTimePool: number; //Amount of time in the turn
-	timeInterval: any;
-	pauseStartTime: Date; //The exact time the game was paused
-	windowResizeTimeout: NodeJS.Timeout; //Should there be a timeout when the player moves the corners of the screen
-	abilityUpgrades: number; //How many times an ability has been upgraded
-
-	//Gameplay properties
-	firstKill : boolean; //True if that was the first kill
-	freezedInput : boolean; //True if a player's input is frozen
-	turnThrottle : boolean; //True if turnThrottle is on
-
-	Phaser: Phaser.Game; //The main Phaser Object
-	//Additional Object Types
-	triggers: TriggersObjectType; //All of the current Triggers currently happening
-	msg: MSGtype; //MSG with data of current actions in game
+		//Constructor Types
+		version: string; //Current Development Version
+		abilities: Array<Ability> //List of all the abilities in the game
+		effects: Array<Effect> //List of all the Effects currently in the game
+		matchid: number; //Current ID of the match
+		playersReady: boolean; //True if all players have agreed to start
+		preventSetup: boolean; //True if setup phase is over
+		animations: Animations; //Create Animations for the game
+		pause: boolean; ///True if the game if paused (offline)
+		gameState: string; //Current Game State
+		pauseTime: number; //Time the game has been paused for disconnect
+		minimumTurnBeforeFleeing: number; //Turns before player is kicked
+		availableCreatures: Array<Creature>; //Creatures each player can use
+		animationQueue: Array<Animations>; //Animations that are about to occur
+		checkTimeFrequency: number; //Time to check if an action has occured
+		gamelog: GameLog; //Main Gamelog object
+		configData: any; //All the preset settings for the game
+		match: MatchI; //The main match info object
+		gameplay: Gameplay; //The main gameplay object
+		session: Session; //The main session information object
+		client: Client; //The main client information object
+		connect: any; //The main connect information object (Cannot Find it)
+		debugMode: string | undefined | boolean; //Is the game in debug mode
+		multiplayer: boolean; //Is the game in multiplayer
+		matchInitialized: boolean; //Has the match loaded
+		realms: Array<string> //Array of Characters that represents which realm it is
+		availableMusic: Array<string> // Array of all the types of music the plyaer owns
+		soundEffects: Array<string> // Array containing all the sound effects that will be needed in the game
+		inputMethod: string; //Controls the user will use
+		startMatchTime: Date //Current Time of when the match starts
+		plasma_amount: number; //Amount of plasma current player can take from
+		timePool: number; //Amount of time in the game
+		turnTimePool: number; //Amount of time in the turn
+		timeInterval: any;
+		pauseStartTime: Date; //The exact time the game was paused
+		windowResizeTimeout: NodeJS.Timeout; //Should there be a timeout when the player moves the corners of the screen
+		abilityUpgrades: number; //How many times an ability has been upgraded
 	
-	//Sound Types
-	musicPlayer: MusicPlayer; //The main music player object
-	soundsys: SoundSys; //The main sound system object
-	signals: any;
-	soundLoaded: any; //Object to see what sounds work
-	endGameSound: false | AudioBufferSourceNode; //What sound should the game play when it's over
-
-	background_image: string; //The location of the image the user needdsx
-
-	//ID types
-	trapId: number; //ID of each trap set
-	effectId: number; //ID of each effect currently in the game
-	dropId: number; //ID of each drop in the gane
+		//Gameplay properties
+		firstKill : boolean; //True if that was the first kill
+		freezedInput : boolean; //True if a player's input is frozen
+		turnThrottle : boolean; //True if turnThrottle is on
 	
-
+		Phaser: Phaser.Game; //The main Phaser Object
+		//Additional Object Types
+		triggers: TriggersObjectType; //All of the current Triggers currently happening
+		msg: MSGtype; //MSG with data of current actions in game
+		
+		//Sound Types
+		musicPlayer: MusicPlayer; //The main music player object
+		soundsys: SoundSys; //The main sound system object
+		signals: any;
+		soundLoaded: any; //Object to see what sounds work
+		endGameSound: boolean | AudioBufferSourceNode; //What sound should the game play when it's over
+	
+		background_image: string; //The location of the image the user needdsx
+	
+		//ID types
+		trapId: number; //ID of each trap set
+		effectId: number; //ID of each effect currently in the game
+		dropId: number; //ID of each drop in the gane
 	constructor(version) {
 		this.version = version || 'dev';
 		this.abilities = [];
 		this.players = [];
 		this.creatures = [];
 		this.effects = [];
-		//For these construction of objects, it's best to set variables after declaration
 		this.activeCreature = {} as Creature
-		this.activeCreature.id = 0;
-
+		this.activeCreature.id = 0
 		this.matchid = null;
 		this.playersReady = false;
 		this.preventSetup = false;
@@ -159,7 +155,7 @@ export default class Game {
 		this.session = null;
 		this.client = null;
 		this.connect = null;
-		this.debugMode = process.env.DEBUG_MODE;
+		this.debugMode = false;
 		this.multiplayer = false;
 		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
@@ -208,7 +204,7 @@ export default class Game {
 					selectUnit: 'Please select an available unit from the left grid',
 					lowPlasma: 'Low Plasma! Cannot materialize the selected unit',
 					// plasmaCost :    String :    plasma cost of the unit to materialize
-					materializeUnit: (plasmaCost:string) => {
+					materializeUnit: (plasmaCost) => {
 						return 'Materialize unit at target location for ' + plasmaCost + ' plasma';
 					},
 					materializeUsed: 'Materialization has already been used this round',
@@ -339,7 +335,7 @@ export default class Game {
 			this.configData = setupOpt;
 			$j.extend(this, setupOpt);
 		}
-		//console.log(this);
+		// console.log(this);
 		this.startLoading();
 
 		// Sounds
@@ -351,8 +347,6 @@ export default class Game {
 			this.soundsys.getSound(getUrl(this.soundEffects[i]), this.availableMusic.length + i);
 		}
 
-		console.log(this);
-		console.log(this.Phaser)
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
 
 		// Health
@@ -442,7 +436,7 @@ export default class Game {
 	}
 
 	phaserRender() {
-		let count = this.creatures.length,
+		let count : number = this.creatures.length,
 			i:number;
 
 		for (i = 1; i < count; i++) {
@@ -479,12 +473,12 @@ export default class Game {
 
 	/* Setup(playerMode)
 	 *
-	 * playerMode :	Ideally 2 or 4, number of players to configure
+	 * playerMode :		Integer :	Ideally 2 or 4, number of players to configure
 	 *
 	 * Launch the game with the given number of player.
 	 *
 	 */
-	setup(playerMode:number) {
+	setup(playerMode) {
 		let bg, i;
 
 		// Phaser
@@ -497,7 +491,7 @@ export default class Game {
 		this.Phaser.stage.disableVisibilityChange = true;
 
 		if (!this.Phaser.device.desktop) {
-			this.Phaser.stage.exists = true;
+			this.Phaser.stage.forcePortrait = true;
 		}
 
 		bg = this.Phaser.add.sprite(0, 0, 'background');
@@ -516,7 +510,7 @@ export default class Game {
 					break;
 				case 2:
 					// Right mouse button pressed
-					this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id, "portrait");
+					this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id, "grid");
 					break;
 			}
 		}, this);
@@ -612,7 +606,7 @@ export default class Game {
 		this.resizeCombatFrame(); // Resize while the game is starting
 		this.UI.resizeDash();
 
-		var resizeGame =  () => {
+		var resizeGame = () => {
 			clearTimeout(this.windowResizeTimeout);
 			this.windowResizeTimeout = setTimeout(() => {
 				this.resizeCombatFrame();
@@ -743,9 +737,10 @@ export default class Game {
 	 * Replace the current queue with the next queue
 	 */
 	nextRound() {
-		let totalCreatures = this.creatures.length,
+		let totalCreatures : number = this.creatures.length,
 			i:number;
 
+		this.grid.clearHexViewAlterations();
 		this.turn++;
 		this.log('Round ' + this.turn, 'roundmarker', true);
 		this.queue.nextRound();
@@ -850,16 +845,16 @@ export default class Game {
 
 	/* log(obj)
 	 *
-	 * obj : Any variable to display in console and game log
+	 * obj :	Any :	Any variable to display in console and game log
 	 *
 	 * Display obj in the console log and in the game log
 	 */
-	log(obj:any, htmlclass, ifNoTimestamp = false) {
+	log(obj, htmlclass, ifNoTimestamp = false) {
 		// Formating
 		let stringConsole = obj,
 			stringLog = obj,
 			totalCreatures = this.creatures.length,
-			creature,
+			creature:Creature,
 			i:number;
 
 		for (i = 0; i < totalCreatures; i++) {
@@ -945,6 +940,7 @@ export default class Game {
 			o.callback.apply();
 		}, 1000);
 
+		this.grid.clearHexViewAlterations();
 		this.activeCreature.facePlayerDefault();
 
 		let skipTurn = new Date();
@@ -1035,7 +1031,7 @@ export default class Game {
 			alertTime = 5, // In seconds
 			msgStyle = 'msg_effects',
 			totalPlayers = this.playerMode,
-			i:number;
+			i;
 
 		p.totalTimePool = Math.max(p.totalTimePool, 0); // Clamp
 
@@ -1147,14 +1143,14 @@ export default class Game {
 		let [triggeredCreature, required] = arg;
 
 		// For triggered creature
-		triggeredCreature.abilities.forEach((ability:Ability) => {
+		triggeredCreature.abilities.forEach((ability) => {
 			if (triggeredCreature.dead === true) {
 				return;
 			}
 
 			if (this.triggers[trigger].test(ability.getTrigger())) {
 				if (ability.require(required)) {
-					retValue = ability.animation();
+					retValue = ability.animation(required);
 				}
 			}
 		});
@@ -1165,7 +1161,7 @@ export default class Game {
 				return;
 			}
 
-			creature.abilities.forEach((ability:Ability) => {
+			creature.abilities.forEach((ability) => {
 				if (this.triggers[trigger + '_other'].test(ability.getTrigger())) {
 					if (ability.require(required)) {
 						retValue = ability.animation();
@@ -1220,7 +1216,7 @@ export default class Game {
 	triggerDeleteEffect(trigger, creature) {
 		let effects = creature == 'all' ? this.effects : creature.effects,
 			totalEffects = effects.length,
-			i;
+			i:number;
 
 		for (i = 0; i < totalEffects; i++) {
 			let effect = effects[i];
@@ -1341,7 +1337,7 @@ export default class Game {
 			.filter(
 				(trap) => trap.turnLifetime > 0 && trap.fullTurnLifetime && trap.ownerCreature == creature,
 			)
-			.forEach((trap) => trap.destroy());
+			.forEach((trap:Trap) => trap.destroy());
 
 		// Look for effects owned by this creature and destroy them if necessary
 		this.effects
@@ -1365,7 +1361,7 @@ export default class Game {
 		this.triggerEffect('onEffectAttach', [creature, effect], null);
 	}
 
-	onUnderAttack(creature:Creature, damage:number) {
+	onUnderAttack(creature, damage) {
 		this.triggerAbility('onUnderAttack', arguments, damage);
 		this.triggerEffect('onUnderAttack', arguments, damage);
 		return damage;
@@ -1383,7 +1379,7 @@ export default class Game {
 		this.triggerEffect('onHeal', arguments, null);
 	}
 
-	onAttack(creature:Creature, damage:number) {
+	onAttack(creature, damage) {
 		this.triggerAbility('onAttack', arguments, damage);
 		this.triggerEffect('onAttack', arguments, damage);
 	}
@@ -1398,10 +1394,10 @@ export default class Game {
 				o,
 			),
 			creatures = this.creatures,
-			totalCreatures:number = creatures.length,
+			totalCreatures = creatures.length,
 			creature,
-			match: boolean,
-			wrongTeam: boolean,
+			match,
+			wrongTeam,
 			i:number;
 
 		for (i = 0; i < totalCreatures; i++) {
@@ -1446,9 +1442,9 @@ export default class Game {
 
 	clearOncePerDamageChain() {
 		let creatures = this.creatures,
-			totalCreatures:number = creatures.length,
-			totalEffects:number = this.effects.length,
-			creature,
+			totalCreatures = creatures.length,
+			totalEffects = this.effects.length,
+			creature:Creature,
 			totalAbilities:number,
 			i:number,
 			j:number;
@@ -1456,12 +1452,10 @@ export default class Game {
 		for (i = totalCreatures - 1; i >= 0; i--) {
 			creature = this.creatures[i];
 
-			if (creature instanceof Creature) {
-				totalAbilities = creature.abilities.length;
-
-				for (j = totalAbilities - 1; j >= 0; j--) {
-					creature.abilities[j].triggeredThisChain = false;
-				}
+			totalAbilities = creature.abilities.length;
+			
+			for (j = totalAbilities - 1; j >= 0; j--) {
+				creature.abilities[j].triggeredThisChain = false;
 			}
 		}
 
@@ -1583,7 +1577,7 @@ export default class Game {
 		}
 	}
 
-	getImage(url) {
+	getImage(url:string) {
 		let img = new Image();
 		img.src = url;
 		img.onload = function () {
@@ -1600,8 +1594,8 @@ export default class Game {
 		this.players = [];
 		this.creatures = [];
 		this.effects = [];
-		this.activeCreature = {} as Creature;
-		this.activeCreature.id = 0;
+		this.activeCreature = {} as Creature
+		this.activeCreature.id = 0
 		this.matchid = null;
 		this.playersReady = false;
 		this.preventSetup = false;
@@ -1637,7 +1631,7 @@ export default class Game {
 	 * @param {array} channels List of channel names.
 	 * @returns {object} Phaser signals keyed by channel name.
 	 */
-	setupSignalChannels(channels) : object {
+	setupSignalChannels(channels) {
 		const signals = channels.reduce((acc, curr) => {
 			return {
 				...acc,

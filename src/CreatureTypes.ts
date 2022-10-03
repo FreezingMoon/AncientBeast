@@ -128,3 +128,8 @@ export type AnimationDataType = {
     delay: number,
     activateAnimation: boolean
 };
+
+export type HexTargetType = {
+    hexesHit: number,
+    target: Creature
+};

@@ -1,12 +1,13 @@
 import * as $j from 'jquery';
 import { Damage } from './damage';
-import { Direction, Hex } from './utility/hex';
+import { Hex } from './utility/hex';
 import { Creature } from './creature';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
-import Game from './game';
 import { Effect } from './effect';
-import { AnimationDataType } from './CreatureTypes';
+import Game from './game';
+import { AnimationDataType, HexTargetType } from './CreatureTypes';
+import { Animations } from './animations';
 
 /**
  * Ability Class
@@ -60,11 +61,9 @@ export class Ability {
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
-		this.triggeredThisChain = undefined;
-		this.movementType = undefined;
 	}
 
-	handleMetaPowerEvent(message:string, payload) {
+	handleMetaPowerEvent(message:string, payload:boolean) {
 		if (message === 'toggleResetCooldowns') {
 			// Prevent ability from going on cooldown.
 			this._disableCooldowns = payload;
@@ -78,14 +77,7 @@ export class Ability {
 		}
 	}
 
-	/*
-	* @returns {string} return the movement type the ability gives
-	*/
-	movementType() : string {
-		return ""
-	}
-
-	hasUpgrade() : boolean {
+	hasUpgrade() {
 		return this.game.abilityUpgrades >= 0 && this.upgraded;
 	}
 
@@ -125,15 +117,11 @@ export class Ability {
 		return !this.hasUpgrade() ? false : this.usesLeftBeforeUpgrade() <= 0;
 	}
 
-
 	/*
-	* Call the function for the ability when triggered
+	* Call the trigger for the targetted trigger of the ability
 	*/
-	triggerFunc() : string | Function {
-		if(this.trigger !== undefined){
-			return this.trigger;
-		}
-		return null;
+	triggerFunc() : string {
+		return "";
 	}
 
 	/**
@@ -161,29 +149,13 @@ export class Ability {
 	}
 
 	/*
-	* query for the ability
-	*
-	*/
-	query(){
-
-	}
-
-	/*
-	PlaceHolder Require
-	* @return {boolean}
-	*/
-	require(isRequired) : boolean {
-		return isRequired;
-	}
-
-	/*
 	 * Test and use the ability
 	 *
 	 */
 	use() {
 		let game = this.game;
 
-		if (this.getTrigger() !== 'onQuery' || !this.require(false)) {
+		if (this.getTrigger() !== 'onQuery' || !this.require()) {
 			return;
 		}
 
@@ -192,6 +164,7 @@ export class Ability {
 			return;
 		}
 
+		game.grid.clearHexViewAlterations();
 		game.clearOncePerDamageChain();
 		game.activeCreature.hint(this.title, 'msg_effects');
 
@@ -202,7 +175,7 @@ export class Ability {
 	 * End the ability. Must be called at the end of each ability function;
 	 *
 	 */
-	end(disableLogMsg, deferredEnding) {
+	end(disableLogMsg:boolean, deferredEnding) {
 		let game = this.game;
 
 		if (!disableLogMsg) {
@@ -228,7 +201,7 @@ export class Ability {
 	 * @param {boolean} val Value to set.
 	 * @return {void}
 	 */
-	setUsed(val:boolean) {
+	setUsed(val : boolean) {
 		let game = this.game;
 
 		if (val) {
@@ -252,7 +225,6 @@ export class Ability {
 	 * @return {void}
 	 */
 	postActivate() {
-		let game = this.game;
 		this.timesUsed++;
 		this.timesUsedThisTurn++;
 
@@ -261,8 +233,7 @@ export class Ability {
 
 		// Configure score update for player
 		// When the ability is upgraded, add a single score bonus unique to that ability
-		if (this.isUpgraded() && this.usesLeftBeforeUpgrade() == 0) {
-			game.log(this.title + ' has been upgraded', null);
+		if (this.isUpgraded()) {
 			// Upgrade bonus uniqueness managed by preventing multiple bonuses
 			// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the creature ID
 			const bonus = {
@@ -380,19 +351,10 @@ export class Ability {
 	}
 
 	/**
-	 * Need to get the animation data from the ability
-	 * Can assume we are looking for an object array of creatures
+	 * Return the animation data that the ability will follow through
 	 */
-	getAnimationData(...creatures_:Array<Creature> | Array<{}>) : AnimationDataType {
+	getAnimationData(...creatures: Array<Creature>) : AnimationDataType{
 		return null;
-	}
-
-	/*
-	* Activate the abilities using the three arguments
-	* @return {void} 
-	*/
-	activate(arg_one, arg_two, arg_extra) {
-
 	}
 
 	/**
@@ -400,7 +362,7 @@ export class Ability {
 	 * @param {Object} o Animation object to extend.
 	 * @return {void}
 	 */
-	animation2(o:object) {
+	animation2(o) {
 		const game = this.game;
 		const opt = $j.extend(
 			{
@@ -433,11 +395,11 @@ export class Ability {
 		// Force creatures to face towards their target
 		if (args[0]) {
 			if (args[0] instanceof Creature) {
-				this.creature.faceHex(args[0], this.creature, false, false);
+				this.creature.faceHex(args[0], this.creature, null, null);
 			} else if (args[0] instanceof Array) {
 				for (var argument of args[0]) {
 					if (argument instanceof Creature || argument.creature) {
-						this.creature.faceHex(argument, this.creature, false, false);
+						this.creature.faceHex(argument, this.creature, null, null);
 					}
 				}
 			}
@@ -446,7 +408,7 @@ export class Ability {
 		if (this.getTrigger() === 'onQuery') {
 			let animId = Math.random();
 
-			game.animationQueue.push(Animation[animId]);
+			game.animationQueue.push(this.animation[animId]);
 
 			let animationData : AnimationDataType = {
 				duration: 500,
@@ -454,7 +416,9 @@ export class Ability {
 				activateAnimation: true,
 			};
 
-			animationData = $j.extend(animationData, this.getAnimationData(...args));
+			if (this.getAnimationData) {
+				animationData = $j.extend(animationData, this.getAnimationData(...args));
+			}
 
 			if (animationData.activateAnimation) {
 				game.Phaser.add
@@ -473,7 +437,7 @@ export class Ability {
 			}, animationData.delay);
 
 			setTimeout(() => {
-				let queue = game.animationQueue.filter((item) => item != Animation[animId]);
+				let queue = game.animationQueue.filter((item) => item != this.animation[animId]);
 
 				if (queue.length === 0) {
 					game.freezedInput = false;
@@ -502,14 +466,13 @@ export class Ability {
 	/**
 	 * Get an array of units in this collection of hexes.
 	 * @param {Array} hexes The targeted hexes.
-	 * @return {Array} Targest in these hexes
+	 * @return {Array} Targets in these hexes
 	 */
-	getTargets(hexes:Array<Hex>) : Array<Hex> {
-		let targets = {},
-			targetsList = [];
+	getTargets(hexes: Array<Hex>) : Array<HexTargetType> {
+		let targets : HexTargetType = {} as HexTargetType,
+			targetsList : Array<HexTargetType> = [];
 
-		hexes.forEach((item:Hex) => {
-			if (item.creature instanceof Creature) {
+		hexes.forEach((item) => {
 				if (targets[item.creature.id] === undefined) {
 					targets[item.creature.id] = { hexesHit: 0, target: item.creature };
 
@@ -517,7 +480,6 @@ export class Ability {
 				}
 
 				targets[item.creature.id].hexesHit += 1; // Unit has been found
-			}
 		});
 
 		return targetsList;
@@ -527,7 +489,7 @@ export class Ability {
 	 * Return a formatted cost.
 	 * @return {string|Boolean} cost
 	 */
-	getFormattedCosts() : string | boolean{
+	getFormattedCosts() : string | boolean {
 		if (this.costs) {
 			return this.getFormattedDamages(this.costs);
 		}
@@ -540,7 +502,7 @@ export class Ability {
 	 * @param {Object} obj Damage object.
 	 * @return {boolean|string} damage
 	 */
-	getFormattedDamages(obj:object) : boolean | string {
+	getFormattedDamages(obj) : boolean | string {
 		obj = obj || this.damages;
 
 		if (!obj) {
@@ -610,7 +572,7 @@ export class Ability {
 	/*
 	 * targets : Array : Example : target = [ { target: crea1, hexesHit: 2 }, { target: crea2, hexesHit: 1 } ]
 	 */
-	areaDamage(attacker:Creature, damages:Creature, effects:Array<Effect>, targets, ignoreRetaliation) {
+	areaDamage(attacker, damages, effects, targets, ignoreRetaliation) {
 		let multiKill = 0;
 		for (let i = 0, len = targets.length; i < len; i++) {
 			if (targets[i] === undefined) {
@@ -637,24 +599,19 @@ export class Ability {
 	 * @param {Object} o
 	 * @return {boolean} At least one valid target?
 	 */
-	atLeastOneTarget(hexes:Array<Hex>, o:object) : boolean {
-		const defaultOpt = {
+	atLeastOneTarget(hexes: Array<Hex>, o) : boolean {
+		let defaultOpt = {
 			team: Team.Both,
 			optTest: function () {
 				return true;
 			},
 		};
 
-		const options = { ...defaultOpt, ...o };
-
+		o = $j.extend(defaultOpt, o);
 		for (let i = 0, len = hexes.length; i < len; i++) {
-			const creature = hexes[i].creature;
+			let creature = hexes[i].creature;
 
-			if (
-				!creature ||
-				!isTeam(this.creature, creature, options.team) ||
-				!options.optTest()
-			) {
+			if (!creature || !isTeam(this.creature, creature, o.team) || !o.optTest(creature)) {
 				continue;
 			}
 
@@ -677,8 +634,8 @@ export class Ability {
 				plasma: 0,
 				energy: 0,
 				endurance: 0,
-				health: 0,
 				remainingMovement: 0,
+				health: 0,
 				stats: {
 					health: 0,
 					regrowth: 0,
@@ -782,7 +739,7 @@ export class Ability {
 		$j.each(this.costs, (key:any, value:any) => {
 			if (typeof value == 'number') {
 				if (key == 'health') {
-					creature.hint(String(value), 'damage d' + value);
+					creature.hint(value, 'damage d' + value);
 					game.log('%CreatureName' + creature.id + '% loses ' + value + ' health', null);
 				} else if (key === 'energy') {
 					value += creature.stats.reqEnergy;
@@ -804,7 +761,6 @@ export class Ability {
 	 *
 	 * @param {Object} o Dict of arguments for direction query
 	 * @param {function} o.optTest Callback function receiving the target creature, for final filtering.
-	 * @param {function} o.minDistance Target must be at least this distance away to be valid.
 	 * @return {Array} array of ints, length of total directions, 1 if direction valid else 0
 	 */
 	testDirections(o) : Array<number> {
@@ -818,7 +774,6 @@ export class Ability {
 			includeCreature: true,
 			stopOnCreature: true,
 			distance: 0,
-			minDistance: 0,
 			sourceCreature: undefined,
 			optTest: function () {
 				return true;
@@ -828,7 +783,6 @@ export class Ability {
 		o = $j.extend(defaultOpt, o);
 
 		let outDirections = [];
-		let deadzone = [];
 
 		for (let i = 0, len = o.directions.length; i < len; i++) {
 			if (!o.directions[i]) {
@@ -839,7 +793,7 @@ export class Ability {
 			let fx = 0;
 
 			if (o.sourceCreature instanceof Creature) {
-				const flipped = o.sourceCreature.player.flipped;
+				let flipped = o.sourceCreature.player.flipped;
 
 				if ((!flipped && i > 2) || (flipped && i < 3)) {
 					fx = -1 * (o.sourceCreature.size - 1);
@@ -852,38 +806,20 @@ export class Ability {
 				dir = dir.slice(0, o.distance + 1);
 			}
 
-			if (o.minDistance > 0) {
-				// The untargetable area between the unit and the minimum distance.
-				deadzone = dir.slice(0, o.minDistance);
-				deadzone = arrayUtils.filterCreature(deadzone, o.includeCreature, o.stopOnCreature, o.id);
-
-				dir = dir.slice(
-					// 1 greater than expected to exclude current (source creature) hex.
-					o.minDistance,
-				);
-			}
-
 			dir = arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
-
-			/* If the ability has a minimum distance and units should block LOS, this
-			direction cannot be used if there is a unit in the deadzone. */
-			const blockingUnitInDeadzone : boolean =
-				o.stopOnCreature && deadzone.length && this.atLeastOneTarget(deadzone, o);
-			const targetInDirection = this.atLeastOneTarget(dir, o);
-			const isValidDirection : boolean = targetInDirection && !blockingUnitInDeadzone;
-			outDirections.push(isValidDirection ? 1 : 0);
+			let isValid = this.atLeastOneTarget(dir, o);
+			outDirections.push(isValid ? 1 : 0);
 		}
 
 		return outDirections;
 	}
 
 	/**
-	 * Test whether there are valid targets in directions, using direction queries.
-	 *
+	 * Test whether there are valid targets in directions, using direction queries
 	 * @param {Object} o Dict of arguments for direction query.
 	 * @return {boolean} true if valid targets in at least one direction, else false
 	 */
-	testDirection(o:object) : boolean {
+	testDirection(o) : boolean {
 		let directions = this.testDirections(o);
 
 		for (let i = 0, len = directions.length; i < len; i++) {
@@ -895,21 +831,5 @@ export class Ability {
 
 		this.message = this.game.msg.abilities.noTarget;
 		return false;
-	}
-
-	/**
-	 * Determine if the ability is being used in the opposite direction to the creature's
-	 * natural facing direction.
-	 *
-	 * i.e. red player's right facing Headless is targeting a creature to its left.
-	 *
-	 * @param {Direction} direction The direction the ability is being used.
-	 * @returns {boolean} The ability is being used backwards.
-	 */
-	isTargetingBackwards(direction:Direction) : boolean {
-		return (
-			(this.creature.player.flipped && direction < Direction.DownLeft) ||
-			(!this.creature.player.flipped && direction > Direction.DownRight)
-		);
 	}
 }
