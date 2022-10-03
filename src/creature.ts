@@ -84,6 +84,7 @@ export class Creature {
 	energy: number; //Amount of energy the creature has
 	flipped: boolean | number;
 
+
 	//Old Stat Types
 	oldHealth: number; //The old health becomes the current health before effects
 	oldEnergy: number; //The old energy becomes the current energy before effects

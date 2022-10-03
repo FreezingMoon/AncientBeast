@@ -17,7 +17,7 @@ export class Animations {
 		this.movementPoints = 0;
 	}
 
-	walk(creature, path, opts) {
+	walk(creature:Creature, path, opts) {
 		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
