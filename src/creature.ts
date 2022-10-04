@@ -969,8 +969,8 @@ export class Creature {
 
 	/* calculatePath(x,y)
 	 *
-	 * x :	Destination coordinates
-	 * y :	Destination coordinates
+	 * x :		Destination coordinates
+	 * y :		Destination coordinates
 	 *
 	 * return :	Array :	Array containing the path hexes
 	 *
@@ -1022,10 +1022,10 @@ export class Creature {
 
 	/* getInitiative()
 	 *
-	 * return :	Initiative value to order the queue
+	 * return :	Integer :	Initiative value to order the queue
 	 *
 	 */
-	getInitiative() : number {
+	getInitiative() {
 		// To avoid 2 identical initiative
 		return this.stats.initiative * 500 - this.id;
 	}
@@ -1457,7 +1457,7 @@ export class Creature {
 		return this.player.plasma > 0;
 	}
 
-	addFatigue(dmgAmount) {
+	addFatigue(dmgAmount:number) {
 		if (!this.stats.fatigueImmunity) {
 			this.endurance -= dmgAmount;
 			this.endurance = this.endurance < 0 ? 0 : this.endurance; // Cap
@@ -1512,7 +1512,7 @@ export class Creature {
 	 * @param {Effect} effect: the effect to add
 	 * @return {void}
 	 */
-	replaceEffect(effect) {
+	replaceEffect(effect:Effect) {
 		if (!effect.stackable && this.findEffect(effect.name).length !== 0) {
 			this.removeEffect(effect.name);
 		}
@@ -1526,7 +1526,7 @@ export class Creature {
 	 * @param {string} name: name of effect
 	 * @return {void}
 	 */
-	removeEffect(name) {
+	removeEffect(name:string) {
 		let totalEffects = this.effects.length;
 
 		for (let i = 0; i < totalEffects; i++) {
@@ -1590,7 +1590,7 @@ export class Creature {
 							tooltipTransition,
 						)
 						.start();
-					grpHintElem.tweenAlpha.onComplete.add( () => {
+					grpHintElem.tweenAlpha.onComplete.add(function () {
 						this.destroy();
 					}, grpHintElem);
 				}
@@ -1641,7 +1641,7 @@ export class Creature {
 					tooltipTransition,
 				)
 				.start();
-			hint.tweenAlpha.onComplete.add( () => {
+			hint.tweenAlpha.onComplete.add(function () {
 				this.destroy();
 			}, hint);
 		}
@@ -1730,7 +1730,7 @@ export class Creature {
 	 * killer :	Creature :	Killer of this creature
 	 *
 	 */
-	die(killer) {
+	die(killer:Creature) {
 		let game = this.game;
 
 		game.log('%CreatureName' + this.id + '% is dead', null);

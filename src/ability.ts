@@ -6,6 +6,7 @@ import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
 import { Effect } from './effect';
 import Game from './game';
+import { HexTargetType } from './CreatureTypes';
 
 /**
  * Ability Class
@@ -166,7 +167,7 @@ export class Ability {
 	 * End the ability. Must be called at the end of each ability function;
 	 *
 	 */
-	end(disableLogMsg, deferredEnding) {
+	end(disableLogMsg:boolean, deferredEnding) {
 		let game = this.game;
 
 		if (!disableLogMsg) {
@@ -192,7 +193,7 @@ export class Ability {
 	 * @param {boolean} val Value to set.
 	 * @return {void}
 	 */
-	setUsed(val) : boolean {
+	setUsed(val : boolean) {
 		let game = this.game;
 
 		if (val) {
@@ -454,11 +455,11 @@ export class Ability {
 	 * @param {Array} hexes The targeted hexes.
 	 * @return {Array} Targest in these hexes
 	 */
-	getTargets(hexes:Array<Hex>) : Array<Hex> {
+	getTargets(hexes:Array<Hex>) : Array<HexTargetType> {
 		let targets = {},
 			targetsList = [];
 
-		hexes.forEach((item) => {
+		hexes.forEach((item:Hex) => {
 			if (item.creature instanceof Creature) {
 				if (targets[item.creature.id] === undefined) {
 					targets[item.creature.id] = { hexesHit: 0, target: item.creature };
