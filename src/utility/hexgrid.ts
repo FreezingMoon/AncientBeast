@@ -197,7 +197,7 @@ export class HexGrid {
 				});
 			},
 			fnOnCancel: () => {
-				this.game.activeCreature.queryMove(null);
+				this.game.activeCreature.queryMove();
 			},
 			args: {},
 			confirmText: 'Confirm',
@@ -450,7 +450,7 @@ export class HexGrid {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
-				game.activeCreature.queryMove(null);
+				game.activeCreature.queryMove();
 			},
 			fnOnSelect: (choice) => {
 				choice.forEach((item) => {
@@ -462,7 +462,7 @@ export class HexGrid {
 				});
 			},
 			fnOnCancel: () => {
-				game.activeCreature.queryMove(null);
+				game.activeCreature.queryMove();
 			},
 			team: Team.Enemy,
 			requireCreature: 1,
@@ -569,7 +569,7 @@ export class HexGrid {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
-				game.activeCreature.queryMove(null);
+				game.activeCreature.queryMove();
 			},
 			fnOnSelect: (creature) => {
 				creature.tracePosition({
@@ -577,7 +577,7 @@ export class HexGrid {
 				});
 			},
 			fnOnCancel: () => {
-				game.activeCreature.queryMove(null);
+				game.activeCreature.queryMove();
 			},
 			optTest: () => true,
 			args: {},
@@ -690,14 +690,14 @@ export class HexGrid {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
-				game.activeCreature.queryMove(null);
+				game.activeCreature.queryMove();
 			},
 			fnOnSelect: (hex: Hex) => {
 				game.activeCreature.faceHex(hex, undefined, true, false);
 				hex.overlayVisualState('creature selected player' + game.activeCreature.team);
 			},
 			fnOnCancel: () => {
-				game.activeCreature.queryMove(null);
+				game.activeCreature.queryMove();
 			},
 			callbackAfterQueryHexes: () => {
 				// empty function to be overridden with custom logic to execute after queryHexes

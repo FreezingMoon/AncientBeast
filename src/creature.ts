@@ -69,7 +69,7 @@ export class Creature {
 
 	/* Constructor(obj) */
 	obj: Object; //  Object containing all creature stats
-	game: any;
+	game: Game;
 
 	//Game Types
 	hasWait: boolean; //If there's a wait
@@ -420,6 +420,7 @@ export class Creature {
 
 		let game = this.game;
 		let stats = this.stats;
+		
 		let varReset = () => {
 			this.game.onReset(this);
 			// Variables reset
@@ -488,7 +489,7 @@ export class Creature {
 			}
 
 			game.startTimer();
-			this.queryMove(null);
+			this.queryMove();
 			// }
 		}, 1000);
 	}
@@ -558,34 +559,35 @@ export class Creature {
 	queryMove(o) {
 		let game = this.game;
 
+		
 		if (this.dead) {
 			// Creatures can die during their turns from trap effects; make sure this
 			// function doesn't do anything
 			return;
 		}
-
+		
 		// Once Per Damage Abilities recover
 		game.creatures.forEach((creature:Creature) => {
 			//For all Creature
-				creature.abilities.forEach((ability) => {
-					if (game.triggers.oncePerDamageChain.test(ability.getTrigger())) {
-						ability.setUsed(false);
-					}
-				});
+			creature.abilities.forEach((ability) => {
+				if (game.triggers.oncePerDamageChain.test(ability.getTrigger())) {
+					ability.setUsed(false);
+				}
+			});
 		});
-
+		
 		// Clean up temporary creature if a summon was cancelled.
 		if (game.creatures[game.creatures.length - 1].temp) {
 			game.creatures.pop();
 			game.creatureIdCounter--;
 		}
-
+		
 		let remainingMove = this.remainingMove;
 		// No movement range if unmoveable
 		if (!this.stats.moveable) {
 			remainingMove = 0;
 		}
-
+		
 		o = $j.extend(
 			{
 				targeting: false,
@@ -593,13 +595,13 @@ export class Creature {
 				isAbility: false,
 				ownCreatureHexShade: true,
 				range: game.grid.getMovementRange(this.x, this.y, remainingMove, this.size, this.id),
-				callback: function (hex, args) {
+				callback: function (hex:Hex, args) {
 					if (hex.x == args.creature.x && hex.y == args.creature.y) {
 						// Prevent null movement
 						game.activeCreature.queryMove();
 						return;
 					}
-
+					
 					game.gamelog.add({
 						action: 'move',
 						target: {
@@ -626,9 +628,9 @@ export class Creature {
 				},
 			},
 			o,
-		);
-
-		if (!o.isAbility) {
+			);
+			
+			if (!o.isAbility) {
 			if (game.UI.selectedAbility != -1) {
 				this.hint('Canceled', 'gamehintblack');
 
@@ -860,6 +862,7 @@ export class Creature {
 		opts = $j.extend(defaultOpt, opts);
 
 		// Teleportation ignores moveable
+
 		if (this.stats.moveable || opts.animation === 'teleport') {
 			let x = hex.x;
 			let y = hex.y;
@@ -870,18 +873,20 @@ export class Creature {
 				path = this.calculatePath(x, y);
 			}
 
+			
 			if (path.length === 0) {
 				return; // Break if empty path
 			}
-
+			
 			game.grid.xray(new Hex(0, 0, null, game)); // Clean Xray
-
+			
 			this.travelDist = 0;
 
 			game.animations[opts.animation](this, path, opts);
 		} else {
-			game.log('This creature cannot be moved');
+			game.log('This creature cannot be moved', null);
 		}
+		
 
 		let interval = setInterval(() => {
 			// Check if creature's movement animation is completely finished.
@@ -964,13 +969,13 @@ export class Creature {
 
 	/* calculatePath(x,y)
 	 *
-	 * x :		Integer :	Destination coordinates
-	 * y :		Integer :	Destination coordinates
+	 * x :	Destination coordinates
+	 * y :	Destination coordinates
 	 *
 	 * return :	Array :	Array containing the path hexes
 	 *
 	 */
-	calculatePath(x, y) {
+	calculatePath(x:number, y:number) {
 		let game = this.game;
 
 		return search(
@@ -984,15 +989,15 @@ export class Creature {
 
 	/* calcOffset(x,y)
 	 *
-	 * x :		Integer :	Destination coordinates
-	 * y :		Integer :	Destination coordinates
+	 * x :	Destination coordinates
+	 * y :	Destination coordinates
 	 *
 	 * return :	Object :	New position taking into acount the size, orientation and obstacle {x,y}
 	 *
 	 * Return the first possible position for the creature at the given coordinates
 	 *
 	 */
-	calcOffset(x, y) {
+	calcOffset(x:number, y:number) {
 		let game = this.game,
 			offset = game.players[this.team].flipped ? this.size - 1 : 0,
 			mult = game.players[this.team].flipped ? 1 : -1; // For FLIPPED player
@@ -1017,10 +1022,10 @@ export class Creature {
 
 	/* getInitiative()
 	 *
-	 * return :	Integer :	Initiative value to order the queue
+	 * return :	Initiative value to order the queue
 	 *
 	 */
-	getInitiative() {
+	getInitiative() : number {
 		// To avoid 2 identical initiative
 		return this.stats.initiative * 500 - this.id;
 	}
@@ -1032,7 +1037,7 @@ export class Creature {
 	 * return :	Array of adjacent hexagons
 	 *
 	 */
-	adjacentHexes(dist:number, clockwise:Array<Hex>) {
+	adjacentHexes(dist:number, clockwise:Array<Hex>) : Array<Hex>{
 		let game = this.game;
 
 		// TODO Review this algo to allow distance
@@ -1191,11 +1196,11 @@ export class Creature {
 	 * @return {void}
 	 * Restore energy up to the max limit
 	 */
-	recharge(amount, log = true) {
+	recharge(amount:number, log : boolean = true) {
 		this.energy = Math.min(this.stats.energy, this.energy + amount);
 
 		if (log) {
-			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' energy');
+			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' energy', null);
 		}
 	}
 
@@ -1205,11 +1210,11 @@ export class Creature {
 	 *
 	 * @param {*} amount Number of endurance points to restore.
 	 */
-	restoreEndurance(amount, log = true) {
+	restoreEndurance(amount:number, log : boolean = true) {
 		this.endurance = Math.min(this.stats.endurance, this.endurance + amount);
 
 		if (log) {
-			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' endurance');
+			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' endurance', null);
 		}
 	}
 
@@ -1219,11 +1224,11 @@ export class Creature {
 	 *
 	 * @param {*} amount Number of movement points to restore.
 	 */
-	restoreMovement(amount, log = true) {
+	restoreMovement(amount:number, log : boolean = true) {
 		this.remainingMove = Math.min(this.stats.movement, this.remainingMove + amount);
 
 		if (log) {
-			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' movement');
+			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' movement', null);
 		}
 	}
 
@@ -1231,7 +1236,7 @@ export class Creature {
 	 *
 	 * amount :	Damage :	Amount of health point to restore
 	 */
-	heal(amount, isRegrowth, log = true) {
+	heal(amount, isRegrowth:boolean, log : boolean = true) {
 		let game = this.game;
 		// Cap health point
 		amount = Math.min(amount, this.stats.health - this.health);
@@ -1253,7 +1258,7 @@ export class Creature {
 			}
 
 			if (log) {
-				game.log('%CreatureName' + this.id + '% recovers +' + amount + ' health');
+				game.log('%CreatureName' + this.id + '% recovers +' + amount + ' health', null);
 			}
 		} else if (amount === 0) {
 			if (isRegrowth) {
@@ -1269,7 +1274,7 @@ export class Creature {
 			}
 
 			if (log) {
-				game.log('%CreatureName' + this.id + '% loses ' + amount + ' health');
+				game.log('%CreatureName' + this.id + '% loses ' + amount + ' health', null);
 			}
 		}
 
@@ -1320,7 +1325,7 @@ export class Creature {
 			if (!isFinite(dmgAmount)) {
 				// Check for Damage Errors
 				this.hint('Error', 'damage');
-				game.log('Oops something went wrong !');
+				game.log('Oops something went wrong !', null);
 
 				return {
 					damages: 0,
@@ -1338,7 +1343,7 @@ export class Creature {
 			this.hint(nbrDisplayed, 'damage d' + dmgAmount);
 
 			if (!damage.noLog) {
-				game.log('%CreatureName' + this.id + '% is hit : ' + nbrDisplayed + ' health');
+				game.log('%CreatureName' + this.id + '% is hit : ' + nbrDisplayed + ' health', null);
 			}
 
 			// If Health is empty
@@ -1385,21 +1390,21 @@ export class Creature {
 			if (damage.status == 'Dodged') {
 				// If dodged
 				if (!damage.noLog) {
-					game.log('%CreatureName' + this.id + '% dodged the attack');
+					game.log('%CreatureName' + this.id + '% dodged the attack', null);
 				}
 			}
 
 			if (damage.status == 'Shielded') {
 				// If Shielded
 				if (!damage.noLog) {
-					game.log('%CreatureName' + this.id + '% shielded the attack');
+					game.log('%CreatureName' + this.id + '% shielded the attack', null);
 				}
 			}
 
 			if (damage.status == 'Disintegrated') {
 				// If Disintegrated
 				if (!damage.noLog) {
-					game.log('%CreatureName' + this.id + '% has been disintegrated');
+					game.log('%CreatureName' + this.id + '% has been disintegrated', null);
 				}
 				this.die(damage.attacker);
 			}
@@ -1414,7 +1419,7 @@ export class Creature {
 		}; // Not killed
 	}
 
-	updateHealth(noAnimBar) {
+	updateHealth(noAnimBar:boolean) {
 		let game = this.game;
 
 		if (this == game.activeCreature && !noAnimBar) {
@@ -1491,9 +1496,9 @@ export class Creature {
 
 			if (!disableLog) {
 				if (specialString) {
-					game.log(specialString);
+					game.log(specialString, null);
 				} else {
-					game.log('%CreatureName' + this.id + '% is affected by ' + effect.name);
+					game.log('%CreatureName' + this.id + '% is affected by ' + effect.name, null);
 				}
 			}
 		}
@@ -1585,7 +1590,7 @@ export class Creature {
 							tooltipTransition,
 						)
 						.start();
-					grpHintElem.tweenAlpha.onComplete.add(function () {
+					grpHintElem.tweenAlpha.onComplete.add( () => {
 						this.destroy();
 					}, grpHintElem);
 				}
@@ -1636,7 +1641,7 @@ export class Creature {
 					tooltipTransition,
 				)
 				.start();
-			hint.tweenAlpha.onComplete.add(function () {
+			hint.tweenAlpha.onComplete.add( () => {
 				this.destroy();
 			}, hint);
 		}
@@ -1728,7 +1733,7 @@ export class Creature {
 	die(killer) {
 		let game = this.game;
 
-		game.log('%CreatureName' + this.id + '% is dead');
+		game.log('%CreatureName' + this.id + '% is dead', null);
 
 		this.dead = true;
 

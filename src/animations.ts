@@ -5,7 +5,7 @@ import * as arrayUtils from './utility/arrayUtils';
 import { Hex } from './utility/hex';
 
 export class Animations {
-	//--------- Constructor Types ---------//
+		//--------- Constructor Types ---------//
 	game:Game //Main Game Object
 	movementPoints: number; //The cost of each movement
 
@@ -29,10 +29,10 @@ export class Animations {
 
 		game.freezedInput = true;
 
-		let animId:number = Math.random();
-		game.animationQueue.push(Animations[animId]);
+		let animId = Math.random();
+		game.animationQueue.push(animId);
 
-		let hexId:number = 0;
+		let hexId = 0;
 
 		creature.healthHide();
 
@@ -86,12 +86,12 @@ export class Animations {
 			});
 
 			hexId++;
-		};
+		}.bind(this);
 
 		anim();
 	}
 
-	fly(creature, path, opts) {
+	fly(creature:Creature, path, opts) {
 		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
@@ -104,7 +104,7 @@ export class Animations {
 		game.freezedInput = true;
 
 		let animId = Math.random();
-		game.animationQueue.push(Animations[animId]);
+		game.animationQueue.push(animId);
 
 		creature.healthHide();
 
@@ -150,7 +150,7 @@ export class Animations {
 		});
 	}
 
-	teleport(creature, path, opts) {
+	teleport(creature:Creature, path, opts) {
 		let game = this.game,
 			hex = path[0],
 			currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
@@ -158,7 +158,7 @@ export class Animations {
 		this.leaveHex(creature, currentHex, opts);
 
 		let animId = Math.random();
-		game.animationQueue.push(Animations[animId]);
+		game.animationQueue.push(animId);
 
 		// FadeOut
 		let tween = game.Phaser.add
@@ -198,14 +198,14 @@ export class Animations {
 		});
 	}
 
-	push(creature, path, opts) {
+	push(creature:Creature, path, opts) {
 		opts.pushed = true;
 		this.walk(creature, path, opts);
 	}
 
 	//--------Special Functions---------//
 
-	enterHex(creature, hex, opts) {
+	enterHex(creature:Creature, hex:Hex, opts) {
 		let game = this.game;
 
 		creature.cleanHex();
@@ -231,15 +231,15 @@ export class Animations {
 			ignoringFaceUpdate = true;
 		} else {
 			if (!opts.pushed) {
-				creature.faceHex(hex, creature.hexagons[0], false, false); // Determine facing
+				creature.faceHex(hex, creature.hexagons[0]); // Determine facing
 			}
 		}
 
-		game.onStepOut(); // Trigger
+		game.onStepOut(creature, creature.hexagons[0]); // Trigger
 		game.grid.orderCreatureZ();
 	}
 
-	movementComplete(creature:Creature, hex:Hex, animId:any, opts) {
+	movementComplete(creature:Creature, hex:Hex, animId:number, opts) {
 		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
@@ -272,7 +272,7 @@ export class Animations {
 		game.animationQueue = queue;
 	}
 
-	projectile(this2, target, spriteId:number, path, args, startX:number, startY:number) {
+	projectile(this2, target, spriteId, path, args, startX, startY) {
 		// Get the target's position on the projectile's path that is closest
 		let emissionPointX = this2.creature.grp.x + startX;
 		var distance = Number.MAX_SAFE_INTEGER;

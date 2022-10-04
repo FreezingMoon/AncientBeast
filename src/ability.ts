@@ -1,13 +1,11 @@
 import * as $j from 'jquery';
 import { Damage } from './damage';
-import { Hex } from './utility/hex';
+import { Direction, Hex } from './utility/hex';
 import { Creature } from './creature';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
 import { Effect } from './effect';
 import Game from './game';
-import { AnimationDataType, HexTargetType } from './CreatureTypes';
-import { Animations } from './animations';
 
 /**
  * Ability Class
@@ -15,28 +13,29 @@ import { Animations } from './animations';
  * Class parsing function from creature abilities
  */
 export class Ability {
-	//-------- Constructor Types -------------//
-	creature: Creature; //Creature the abilities belong to
-	game: Game; //Main Game Object
-	used: boolean; //If the ability is on cooldown
-	id: number; //ID retaining to each ability
-	priority: number; //The queue of which abilities run in
-	timesUsed: number; //Times the abilities been used throughout the course of the game
-	timesUsedThisTurn: number; //Times the ability has been used during this turn
-	token: number; //Token ID for this ability
-	upgraded: boolean; //True if user has upgraded teh ability during the game
-	title: string; // Name of the ability
-	affectedByMatSickness: boolean; //If the Ability affected by anything
-	damages: object; //Damages is a form of an object
 
-	_disableCooldowns: boolean; //Should the cooldowns be disabled
-	triggeredThisChain: boolean; //Has the ability been activated during a chain
-	effects: Array<Effect>//List of Effects the ability puts on the user
-
-	costs: object //Amount this ability costs for stats
-	requirements: object;
-	trigger: string //What triggers the ability
-	message: string //What message the ability provides
+		//-------- Constructor Types -------------//
+		creature: Creature; //Creature the abilities belong to
+		game: Game; //Main Game Object
+		used: boolean; //If the ability is on cooldown
+		id: number; //ID retaining to each ability
+		priority: number; //The queue of which abilities run in
+		timesUsed: number; //Times the abilities been used throughout the course of the game
+		timesUsedThisTurn: number; //Times the ability has been used during this turn
+		token: number; //Token ID for this ability
+		upgraded: boolean; //True if user has upgraded teh ability during the game
+		title: string; // Name of the ability
+		affectedByMatSickness: boolean; //If the Ability affected by anything
+		damages: object; //Damages is a form of an object
+	
+		_disableCooldowns: boolean; //Should the cooldowns be disabled
+		triggeredThisChain: boolean; //Has the ability been activated during a chain
+		effects: Array<Effect>//List of Effects the ability puts on the user
+	
+		costs: object //Amount this ability costs for stats
+		requirements: object;
+		trigger: string //What triggers the ability
+		message: string //What message the ability provides
 
 	constructor(creature:Creature, abilityID:number, game:Game) {
 		this.creature = creature;
@@ -63,7 +62,7 @@ export class Ability {
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}
 
-	handleMetaPowerEvent(message:string, payload:boolean) {
+	handleMetaPowerEvent(message:string, payload) {
 		if (message === 'toggleResetCooldowns') {
 			// Prevent ability from going on cooldown.
 			this._disableCooldowns = payload;
@@ -77,7 +76,7 @@ export class Ability {
 		}
 	}
 
-	hasUpgrade() {
+	hasUpgrade() : boolean {
 		return this.game.abilityUpgrades >= 0 && this.upgraded;
 	}
 
@@ -117,13 +116,6 @@ export class Ability {
 		return !this.hasUpgrade() ? false : this.usesLeftBeforeUpgrade() <= 0;
 	}
 
-	/*
-	* Call the trigger for the targetted trigger of the ability
-	*/
-	triggerFunc() : string {
-		return "";
-	}
-
 	/**
 	 * Get the trigger method for this ablity.
 	 * @return {string|Function} Trigger
@@ -160,11 +152,10 @@ export class Ability {
 		}
 
 		if (this.used === true) {
-			game.log('Ability already used!', null);
+			game.log('Ability already used!');
 			return;
 		}
 
-		game.grid.clearHexViewAlterations();
 		game.clearOncePerDamageChain();
 		game.activeCreature.hint(this.title, 'msg_effects');
 
@@ -175,11 +166,11 @@ export class Ability {
 	 * End the ability. Must be called at the end of each ability function;
 	 *
 	 */
-	end(disableLogMsg:boolean, deferredEnding) {
+	end(disableLogMsg, deferredEnding) {
 		let game = this.game;
 
 		if (!disableLogMsg) {
-			game.log('%CreatureName' + this.creature.id + '% uses ' + this.title, null);
+			game.log('%CreatureName' + this.creature.id + '% uses ' + this.title);
 		}
 
 		this.applyCost();
@@ -192,7 +183,7 @@ export class Ability {
 		game.UI.selectAbility(-1);
 
 		if (this.getTrigger() === 'onQuery' && !deferredEnding) {
-			game.activeCreature.queryMove(null);
+			game.activeCreature.queryMove();
 		}
 	}
 
@@ -201,7 +192,7 @@ export class Ability {
 	 * @param {boolean} val Value to set.
 	 * @return {void}
 	 */
-	setUsed(val : boolean) {
+	setUsed(val) : boolean {
 		let game = this.game;
 
 		if (val) {
@@ -225,6 +216,7 @@ export class Ability {
 	 * @return {void}
 	 */
 	postActivate() {
+		let game = this.game;
 		this.timesUsed++;
 		this.timesUsedThisTurn++;
 
@@ -233,7 +225,8 @@ export class Ability {
 
 		// Configure score update for player
 		// When the ability is upgraded, add a single score bonus unique to that ability
-		if (this.isUpgraded()) {
+		if (this.isUpgraded() && this.usesLeftBeforeUpgrade() == 0) {
+			game.log(this.title + ' has been upgraded');
 			// Upgrade bonus uniqueness managed by preventing multiple bonuses
 			// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the creature ID
 			const bonus = {
@@ -261,7 +254,7 @@ export class Ability {
 	animation() {
 		let game = this.game;
 		// Gamelog Event Registration
-		if (game.triggers.onQuery.test(String(this.getTrigger()))) {
+		if (game.triggers.onQuery.test(this.getTrigger())) {
 			if (arguments[0] instanceof Hex) {
 				let args = $j.extend({}, arguments);
 				delete args[0];
@@ -351,13 +344,6 @@ export class Ability {
 	}
 
 	/**
-	 * Return the animation data that the ability will follow through
-	 */
-	getAnimationData(...creatures: Array<Creature>) : AnimationDataType{
-		return null;
-	}
-
-	/**
 	 * Helper to animation method.
 	 * @param {Object} o Animation object to extend.
 	 * @return {void}
@@ -395,11 +381,11 @@ export class Ability {
 		// Force creatures to face towards their target
 		if (args[0]) {
 			if (args[0] instanceof Creature) {
-				this.creature.faceHex(args[0], this.creature, null, null);
+				this.creature.faceHex(args[0]);
 			} else if (args[0] instanceof Array) {
 				for (var argument of args[0]) {
 					if (argument instanceof Creature || argument.creature) {
-						this.creature.faceHex(argument, this.creature, null, null);
+						this.creature.faceHex(argument);
 					}
 				}
 			}
@@ -408,9 +394,9 @@ export class Ability {
 		if (this.getTrigger() === 'onQuery') {
 			let animId = Math.random();
 
-			game.animationQueue.push(this.animation[animId]);
+			game.animationQueue.push(animId);
 
-			let animationData : AnimationDataType = {
+			let animationData = {
 				duration: 500,
 				delay: 350,
 				activateAnimation: true,
@@ -437,7 +423,7 @@ export class Ability {
 			}, animationData.delay);
 
 			setTimeout(() => {
-				let queue = game.animationQueue.filter((item) => item != this.animation[animId]);
+				let queue = game.animationQueue.filter((item) => item != animId);
 
 				if (queue.length === 0) {
 					game.freezedInput = false;
@@ -466,13 +452,14 @@ export class Ability {
 	/**
 	 * Get an array of units in this collection of hexes.
 	 * @param {Array} hexes The targeted hexes.
-	 * @return {Array} Targets in these hexes
+	 * @return {Array} Targest in these hexes
 	 */
-	getTargets(hexes: Array<Hex>) : Array<HexTargetType> {
-		let targets : HexTargetType = {} as HexTargetType,
-			targetsList : Array<HexTargetType> = [];
+	getTargets(hexes:Array<Hex>) : Array<Hex> {
+		let targets = {},
+			targetsList = [];
 
 		hexes.forEach((item) => {
+			if (item.creature instanceof Creature) {
 				if (targets[item.creature.id] === undefined) {
 					targets[item.creature.id] = { hexesHit: 0, target: item.creature };
 
@@ -480,6 +467,7 @@ export class Ability {
 				}
 
 				targets[item.creature.id].hexesHit += 1; // Unit has been found
+			}
 		});
 
 		return targetsList;
@@ -540,7 +528,7 @@ export class Ability {
 	 * Get formattted effects.
 	 * @return {boolean|string} effect
 	 */
-	getFormattedEffects() : boolean | string {
+	getFormattedEffects() : boolean | string{
 		let string = '';
 
 		if (!this.effects) {
@@ -599,19 +587,24 @@ export class Ability {
 	 * @param {Object} o
 	 * @return {boolean} At least one valid target?
 	 */
-	atLeastOneTarget(hexes: Array<Hex>, o) : boolean {
-		let defaultOpt = {
+	atLeastOneTarget(hexes:Array<Hex>, o) : boolean {
+		const defaultOpt = {
 			team: Team.Both,
 			optTest: function () {
 				return true;
 			},
 		};
 
-		o = $j.extend(defaultOpt, o);
-		for (let i = 0, len = hexes.length; i < len; i++) {
-			let creature = hexes[i].creature;
+		const options = { ...defaultOpt, ...o };
 
-			if (!creature || !isTeam(this.creature, creature, o.team) || !o.optTest(creature)) {
+		for (let i = 0, len = hexes.length; i < len; i++) {
+			const creature = hexes[i].creature;
+
+			if (
+				!creature ||
+				!isTeam(this.creature, creature, options.team) ||
+				!options.optTest(creature)
+			) {
 				continue;
 			}
 
@@ -740,7 +733,7 @@ export class Ability {
 			if (typeof value == 'number') {
 				if (key == 'health') {
 					creature.hint(value, 'damage d' + value);
-					game.log('%CreatureName' + creature.id + '% loses ' + value + ' health', null);
+					game.log('%CreatureName' + creature.id + '% loses ' + value + ' health');
 				} else if (key === 'energy') {
 					value += creature.stats.reqEnergy;
 				}
@@ -761,6 +754,7 @@ export class Ability {
 	 *
 	 * @param {Object} o Dict of arguments for direction query
 	 * @param {function} o.optTest Callback function receiving the target creature, for final filtering.
+	 * @param {function} o.minDistance Target must be at least this distance away to be valid.
 	 * @return {Array} array of ints, length of total directions, 1 if direction valid else 0
 	 */
 	testDirections(o) : Array<number> {
@@ -774,6 +768,7 @@ export class Ability {
 			includeCreature: true,
 			stopOnCreature: true,
 			distance: 0,
+			minDistance: 0,
 			sourceCreature: undefined,
 			optTest: function () {
 				return true;
@@ -783,6 +778,7 @@ export class Ability {
 		o = $j.extend(defaultOpt, o);
 
 		let outDirections = [];
+		let deadzone = [];
 
 		for (let i = 0, len = o.directions.length; i < len; i++) {
 			if (!o.directions[i]) {
@@ -793,7 +789,7 @@ export class Ability {
 			let fx = 0;
 
 			if (o.sourceCreature instanceof Creature) {
-				let flipped = o.sourceCreature.player.flipped;
+				const flipped = o.sourceCreature.player.flipped;
 
 				if ((!flipped && i > 2) || (flipped && i < 3)) {
 					fx = -1 * (o.sourceCreature.size - 1);
@@ -806,16 +802,34 @@ export class Ability {
 				dir = dir.slice(0, o.distance + 1);
 			}
 
+			if (o.minDistance > 0) {
+				// The untargetable area between the unit and the minimum distance.
+				deadzone = dir.slice(0, o.minDistance);
+				deadzone = arrayUtils.filterCreature(deadzone, o.includeCreature, o.stopOnCreature, o.id);
+
+				dir = dir.slice(
+					// 1 greater than expected to exclude current (source creature) hex.
+					o.minDistance,
+				);
+			}
+
 			dir = arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
-			let isValid = this.atLeastOneTarget(dir, o);
-			outDirections.push(isValid ? 1 : 0);
+
+			/* If the ability has a minimum distance and units should block LOS, this
+			direction cannot be used if there is a unit in the deadzone. */
+			const blockingUnitInDeadzone =
+				o.stopOnCreature && deadzone.length && this.atLeastOneTarget(deadzone, o);
+			const targetInDirection = this.atLeastOneTarget(dir, o);
+			const isValidDirection = targetInDirection && !blockingUnitInDeadzone;
+			outDirections.push(isValidDirection ? 1 : 0);
 		}
 
 		return outDirections;
 	}
 
 	/**
-	 * Test whether there are valid targets in directions, using direction queries
+	 * Test whether there are valid targets in directions, using direction queries.
+	 *
 	 * @param {Object} o Dict of arguments for direction query.
 	 * @return {boolean} true if valid targets in at least one direction, else false
 	 */
@@ -832,4 +846,21 @@ export class Ability {
 		this.message = this.game.msg.abilities.noTarget;
 		return false;
 	}
+
+	/**
+	 * Determine if the ability is being used in the opposite direction to the creature's
+	 * natural facing direction.
+	 *
+	 * i.e. red player's right facing Headless is targeting a creature to its left.
+	 *
+	 * @param {Direction} direction The direction the ability is being used.
+	 * @returns {boolean} The ability is being used backwards.
+	 */
+	isTargetingBackwards(direction:Direction) : boolean {
+		return (
+			(this.creature.player.flipped && direction < Direction.DownLeft) ||
+			(!this.creature.player.flipped && direction > Direction.DownRight)
+		);
+	}
 }
+

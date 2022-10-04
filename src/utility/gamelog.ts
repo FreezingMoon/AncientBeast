@@ -82,7 +82,7 @@ export class GameLog {
 			let interval = setInterval(() => {
 				if (!game.freezedInput && !game.turnThrottle) {
 					clearInterval(interval);
-					game.activeCreature.queryMove(null);
+					game.activeCreature.queryMove();
 					game.action(this.data[this.timeCursor], {
 						callback: fun,
 					});
@@ -106,17 +106,17 @@ export class GameLog {
 		}
 
 		if (this.timeCursor > this.data.length - 1) {
-			game.activeCreature.queryMove(null); // Avoid bug
+			game.activeCreature.queryMove(); // Avoid bug
 			return;
 		}
 
 		let interval = setInterval(() => {
 			if (!game.freezedInput && !game.turnThrottle) {
 				clearInterval(interval);
-				game.activeCreature.queryMove(null); // Avoid bug
+				game.activeCreature.queryMove(); // Avoid bug
 				game.action(this.data[this.timeCursor], {
 					callback: function () {
-						game.activeCreature.queryMove(null);
+						game.activeCreature.queryMove();
 					},
 				});
 			}
