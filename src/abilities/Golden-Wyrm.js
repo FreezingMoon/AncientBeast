@@ -237,6 +237,7 @@ export default (G) => {
 					ignorePath: true,
 					callback: function () {
 						G.activeCreature.queryMove();
+						G.Phaser.camera.shake(0.05, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 						if (ability.isUpgraded()) {
 							// Add offense buff after landing.

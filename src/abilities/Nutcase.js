@@ -598,6 +598,7 @@ export default (G) => {
 				let ability = this;
 				let crea = ability.creature;
 				ability.end();
+				G.Phaser.camera.shake(0.03, 500, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let damage = new Damage(
 					crea, // Attacker

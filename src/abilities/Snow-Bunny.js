@@ -364,7 +364,7 @@ export default (G) => {
 					animation: 'push',
 				});
 
-				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				dir = dir.slice(0, dist + 1);
 
@@ -385,7 +385,7 @@ export default (G) => {
 					animation: 'push',
 				});
 
-				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 			},
 		},
 

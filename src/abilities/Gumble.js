@@ -118,6 +118,8 @@ export default (G) => {
 				let ability = this;
 				ability.end();
 
+				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+
 				let targets = ability.getTargets(hexes);
 				// Deal double damage to enemies if upgraded
 				let enemyDamages = $j.extend({}, ability.damages);

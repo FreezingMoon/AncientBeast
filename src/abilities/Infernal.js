@@ -142,6 +142,7 @@ export default (G) => {
 					G,
 				);
 				target.takeDamage(damage);
+				G.Phaser.camera.shake(0.03, 500, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				// Add attack stacks
 				let stacksToAdd = 1;
@@ -369,6 +370,7 @@ export default (G) => {
 						},
 					});
 				};
+				G.Phaser.camera.shake(0.03, 500, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 				hurl(path);
 			},
 		},
