@@ -103,7 +103,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.Phaser.camera.shake(0.01, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				// Upgraded ability does pierce damage to smaller size targets
 				let damages = ability.damages;
@@ -179,7 +179,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.02, 250, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				G.Phaser.camera.shake(0.02, 222, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				let effects = [];
 				// Upgraded ability adds a -10 defense debuff
@@ -305,7 +305,7 @@ export default (G) => {
 						);
 
 						let result = trg.takeDamage(damage);
-						G.Phaser.camera.shake(0.02, 50, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+						G.Phaser.camera.shake(0.02, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 						// Stop propagating if no damage dealt
 						if (

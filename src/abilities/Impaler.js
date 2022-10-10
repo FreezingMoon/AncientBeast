@@ -406,7 +406,7 @@ export default (G) => {
 
 					if (bestTarget instanceof Creature) {
 						targets.push(bestTarget);
-						G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+						G.Phaser.camera.shake(0.03, 220, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 					} else {
 						break;
 					}

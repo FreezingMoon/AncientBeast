@@ -81,7 +81,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.Phaser.camera.shake(0.01, 70, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				// If upgraded, hits will debuff target with -1 offense
 				if (this.isUpgraded()) {
@@ -256,7 +256,7 @@ export default (G) => {
 			activate: function (hex, args) {
 				let ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.Phaser.camera.shake(0.01, 66, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let crea = this.creature;
 

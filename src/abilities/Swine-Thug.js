@@ -140,7 +140,7 @@ export default (G) => {
 			activate: function (path, args) {
 				let ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 200, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let target = arrayUtils.last(path).creature;
 				let damage = new Damage(
@@ -314,7 +314,7 @@ export default (G) => {
 			activate: function (path) {
 				let ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 50, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.Phaser.camera.shake(0.01, 60, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let target = arrayUtils.last(path).creature;
 

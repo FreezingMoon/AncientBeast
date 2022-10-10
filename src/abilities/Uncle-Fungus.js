@@ -261,7 +261,7 @@ export default (G) => {
 					ignorePath: true,
 					callback: function () {
 						// Shake the screen upon landing to simulate the jump
-						G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+						G.Phaser.camera.shake(0.03, 90, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
@@ -378,7 +378,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 200, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.Phaser.camera.shake(0.03, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let damage = new Damage(
 					ability.creature, // Attacker
