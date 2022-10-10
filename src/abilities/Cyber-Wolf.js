@@ -51,6 +51,7 @@ export default (G) => {
 					G,
 				);
 				target.takeDamage(damage);
+				G.Phaser.camera.shake(0.01, 123, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				// Keep highlighted in UI
 				this.setUsed(false);
