@@ -2433,7 +2433,7 @@ export class UI {
 					return;
 				}
 
-				// the mouse over adds a coloured hex to the creature, so when we mouse leave we have to remove them
+				// The mouse over adds a coloured hex to the creature, so when we mouse leave we have to remove them
 				game.creatures.forEach((creature) => {
 					if (creature instanceof Creature) {
 						creature.hexagons.forEach((hex) => {
@@ -2494,7 +2494,7 @@ export class UI {
 		const maxBounceHeight = screen.height / 4;
 		const isBounceHeightExceeded = parseInt($queueItem.css('top'), 10) > maxBounceHeight;
 		let maxBounce = maxBounceHeight;
-		let bounceTime = 280; //Time in ms, how long it takes portrait to move down when bouncing, increase to slow down bounce
+		let bounceTime = 280; // Time in ms, how long it takes portrait to move down when bouncing, increase to slow down bounce
 
 		let timerId = setInterval(() => {
 			if ($queueItem.length > 0 && !isBounceHeightExceeded) {
