@@ -139,7 +139,7 @@ export default (G) => {
 
 		// 	Third Ability: Sudden Uppercut
 		{
-			//	Type : Can be "onQuery","onStartPhase","onDamage"
+			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			_targetTeam: Team.Enemy,
@@ -222,7 +222,7 @@ export default (G) => {
 
 		// 	Fourth Ability: Icicle Spear
 		{
-			//	Type : Can be "onQuery","onStartPhase","onDamage"
+			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			directions: [1, 1, 1, 1, 1, 1],

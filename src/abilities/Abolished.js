@@ -10,7 +10,7 @@ import * as arrayUtils from '../utility/arrayUtils';
  */
 export default (G) => {
 	G.abilities[7] = [
-		//burningSpirit
+		//	First Ability: Burning Spirit
 		{
 			trigger: 'onOtherDamage',
 			require(damage) {
@@ -19,7 +19,7 @@ export default (G) => {
 				}
 				if (damage === undefined) {
 					damage = {
-						// NOTE : This code produce array with doubles.
+						// NOTE : This code produce array with doubles
 						type: 'target',
 					}; // For the test function to work
 				}
@@ -65,7 +65,7 @@ export default (G) => {
 		},
 
 		/**
-		 * Basic Ability: Fiery Touch
+		 * Second Ability: Fiery Touch
 		 *
 		 * Attack a single enemy unit within 3 range (forwards, backwards, or diagonal)
 		 * dealing both slash and burn damage.
@@ -110,7 +110,7 @@ export default (G) => {
 				const ability = this;
 				const abolished = this.creature;
 
-				// TODO: Visually show reduced damage hexes for 4-6 range.
+				// TODO: Visually show reduced damage hexes for 4-6 range
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -150,7 +150,7 @@ export default (G) => {
 				const damage = this._getDamage(path);
 
 				tween.onComplete.add(function () {
-					// `this` refers to the animation object, _not_ the ability.
+					// `this` refers to the animation object, _not_ the ability
 					this.destroy();
 
 					target.takeDamage(damage);
@@ -200,7 +200,7 @@ export default (G) => {
 			},
 		},
 
-		// Wild Fire
+		// Third Ability: Wild Fire
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
@@ -304,7 +304,7 @@ export default (G) => {
 				});
 			},
 		},
-		// Greater Pyre
+		// Fourth Ability: Greater Pyre
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',

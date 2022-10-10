@@ -54,7 +54,7 @@ export default (G) => {
 				);
 
 				const damageShieldEffect = new Effect(
-					// Don't show two effects in the log.
+					// Don't show two effects in the log
 					'',
 					this.creature,
 					this.creature,

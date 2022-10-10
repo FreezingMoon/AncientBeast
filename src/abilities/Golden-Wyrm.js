@@ -130,7 +130,7 @@ export default (G) => {
 					const executeDamage = new Damage(
 						this.creature,
 						{
-							// Pure damage bypasses resistances, but can still be shielded or dodged.
+							// Pure damage bypasses resistances, but can still be shielded or dodged
 							pure: target.health,
 						},
 						1,
@@ -242,7 +242,7 @@ export default (G) => {
 						G.Phaser.camera.shake(0.02, 350, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 						if (ability.isUpgraded()) {
-							// Add offense buff after landing.
+							// Add offense buff after landing
 							ability._addOffenseBuff();
 						}
 					},
