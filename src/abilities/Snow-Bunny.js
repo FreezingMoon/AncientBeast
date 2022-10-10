@@ -86,6 +86,7 @@ export default (G) => {
 				let ability = this;
 
 				ability.end();
+				G.Phaser.camera.shake(0.01, 50, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				this.creature.moveTo(this._getHopHex(), {
 					callback: function () {
@@ -248,6 +249,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 50, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let damages = ability.damages;
 				// If upgraded, do pure damage against frozen targets
@@ -364,7 +366,7 @@ export default (G) => {
 					animation: 'push',
 				});
 
-				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.Phaser.camera.shake(0.01, 400, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				dir = dir.slice(0, dist + 1);
 
@@ -385,7 +387,7 @@ export default (G) => {
 					animation: 'push',
 				});
 
-				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.Phaser.camera.shake(0.01, 400, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 			},
 		},
 
@@ -436,6 +438,7 @@ export default (G) => {
 			activate: function (path, args) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 				let target = arrayUtils.last(path).creature;
 
 				let projectileInstance = G.animations.projectile(

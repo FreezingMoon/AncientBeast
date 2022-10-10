@@ -158,7 +158,7 @@ export default (G) => {
 					G,
 				);
 
-				G.Phaser.camera.shake(0.03, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 				target.takeDamage(damage);
 			},
 		},
@@ -365,6 +365,7 @@ export default (G) => {
 				let stomper = this.creature;
 				let i = 0;
 				ability.end();
+				G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				let targets = ability.getTargets(hexes);
 
@@ -476,7 +477,7 @@ export default (G) => {
 			activate: function (hexes) {
 				let ability = this;
 				ability.end(); // Deferred ending
-				G.Phaser.camera.shake(0.03, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				// Delay all creatures in area
 				let targets = ability.getTargets(hexes);

@@ -184,6 +184,7 @@ export default (G) => {
 			activate: function (targetOrChoice, args) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				if (!this.isUpgraded()) {
 					this._activateOnTarget(targetOrChoice);
@@ -402,6 +403,7 @@ export default (G) => {
 						callback: function () {
 							// Damage before any other creature movement is complete and before push.
 							ability._damage(target, runPath);
+							G.Phaser.camera.shake(0.01, 250, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
@@ -598,7 +600,7 @@ export default (G) => {
 				let ability = this;
 				let crea = ability.creature;
 				ability.end();
-				G.Phaser.camera.shake(0.03, 500, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.Phaser.camera.shake(0.02, 200, true, G.Phaser.camera.SHAKE_BOTH, true);
 
 				let damage = new Damage(
 					crea, // Attacker

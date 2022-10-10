@@ -144,6 +144,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let d = {
 					pierce: 11,
@@ -261,6 +262,7 @@ export default (G) => {
 				const headless = this.creature;
 				const target = arrayUtils.last(queryPath).creature;
 				let path = [...queryPath];
+				G.Phaser.camera.shake(0.01, 200, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				// We just want the path between the units.
 				path = path.filter((hex) => {
@@ -413,6 +415,7 @@ export default (G) => {
 
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				ability.areaDamage(
 					ability.creature, //Attacker

@@ -118,7 +118,7 @@ export default (G) => {
 				let ability = this;
 				ability.end();
 
-				G.Phaser.camera.shake(0.01, 500, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				G.Phaser.camera.shake(0.02, 333, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				let targets = ability.getTargets(hexes);
 				// Deal double damage to enemies if upgraded
@@ -190,6 +190,7 @@ export default (G) => {
 			activate: function (hex) {
 				this.end();
 				let ability = this;
+				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				let makeSeal = function () {
 					let effect = new Effect(
@@ -295,6 +296,7 @@ export default (G) => {
 			activate: function (path, args) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let target = arrayUtils.last(path).creature;
 				let melee = path[0].creature === target;

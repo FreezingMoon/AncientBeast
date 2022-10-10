@@ -122,6 +122,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 65, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let damage = new Damage(
 					ability.creature, // Attacker
@@ -377,6 +378,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 200, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let damage = new Damage(
 					ability.creature, // Attacker

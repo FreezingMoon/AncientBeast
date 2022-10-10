@@ -11,7 +11,7 @@ import { Creature } from '../creature';
  */
 export default (G) => {
 	G.abilities[31] = [
-		// 	First Ability: Bad Doggie
+		//	First Ability: Bad Doggie
 		{
 			triggerFunc: function () {
 				// When upgraded, trigger both at start and end of turn
@@ -57,14 +57,14 @@ export default (G) => {
 			},
 		},
 
-		// 	Second Ability: Metal Hand
+		//	Second Ability: Metal Hand
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			_targetTeam: Team.Enemy,
 
-			// 	require() :
+			//	require() :
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
@@ -80,7 +80,7 @@ export default (G) => {
 				return true;
 			},
 
-			// 	query() :
+			//	query() :
 			query: function () {
 				let ability = this;
 				let crea = this.creature;
@@ -100,6 +100,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let damage = new Damage(
 					ability.creature, // Attacker
@@ -229,6 +230,7 @@ export default (G) => {
 			activate: function (choice) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.02, 350, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let crea = this.creature;
 
@@ -348,6 +350,7 @@ export default (G) => {
 			activate: function (crea) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.03, 333, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				let target = crea;
 

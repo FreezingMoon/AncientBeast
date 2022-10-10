@@ -133,6 +133,7 @@ export default (G) => {
 				const target = arrayUtils.last(path).creature;
 
 				ability.end();
+				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const startX = ability.creature.sprite.scale.x > 0 ? 232 : 52;
 				const projectileInstance = G.animations.projectile(

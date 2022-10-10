@@ -95,6 +95,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 120, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let finalDmg = $j.extend(
 					{
@@ -392,10 +393,10 @@ export default (G) => {
 						// Compare to best target
 						if (t.stats.shock > bestTarget.stats.shock) {
 							if (
-								(t == ability.creature && nextTargets.length == 1) || // If target is chimera and the only target
+								(t == ability.creature && nextTargets.length == 1) || // If target is Impaler and the only target
 								t != ability.creature
 							) {
-								// Or this is not chimera
+								// Or this is not Impaler
 								bestTarget = t;
 							}
 						} else {
@@ -405,6 +406,7 @@ export default (G) => {
 
 					if (bestTarget instanceof Creature) {
 						targets.push(bestTarget);
+						G.Phaser.camera.shake(0.02, 20, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 					} else {
 						break;
 					}
