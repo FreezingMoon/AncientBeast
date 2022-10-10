@@ -257,6 +257,7 @@ export default (G) => {
 			activate: function (path, args) {
 				let ability = this;
 				this.end();
+				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let knockback = (_target, _crush, _range) => {
 					let damage = new Damage(

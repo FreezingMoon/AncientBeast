@@ -144,7 +144,7 @@ export default (G) => {
 						distance: vehemoth.remainingMove + 1,
 					});
 
-					// removes duplicates between nearby and inline targets
+					// Removes duplicates between nearby and inline targets
 					object.choices = object.choices.filter(
 						(objectHexes) =>
 							!directionObject.choices.some((directionHexes) =>
@@ -161,6 +161,7 @@ export default (G) => {
 			activate: function (path, args) {
 				const ability = this;
 				const vehemoth = ability.creature;
+				G.Phaser.camera.shake(0.02, 333, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				ability.end();
 
@@ -340,6 +341,7 @@ export default (G) => {
 				const target = arrayUtils.last(path).creature;
 
 				ability.end();
+				G.Phaser.camera.shake(0.01, 50, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const [tween, sprite] = G.animations.projectile(
 					this,
@@ -469,6 +471,7 @@ export default (G) => {
 				const vehemoth = this.creature;
 
 				ability.end();
+				G.Phaser.camera.shake(0.02, 123, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				const levelDifference = Math.max(vehemoth.level - target.level, 0);
 				const damages = {

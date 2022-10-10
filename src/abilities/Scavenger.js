@@ -81,6 +81,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 20, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				// If upgraded, hits will debuff target with -1 offense
 				if (this.isUpgraded()) {
@@ -255,6 +256,7 @@ export default (G) => {
 			activate: function (hex, args) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let crea = this.creature;
 
@@ -343,6 +345,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 15, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				// Don't perform poison damage unless upgraded
 				let damages = $j.extend({}, ability.damages);

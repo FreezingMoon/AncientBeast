@@ -41,6 +41,7 @@ export default (G) => {
 					);
 					counter.counter = true;
 					G.activeCreature.takeDamage(counter);
+					G.Phaser.camera.shake(0.02, 40, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 				}
 
 				this.creature.player.plasma -= 1;
@@ -104,6 +105,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.02, 30, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let damageAmount = {
 					shock: 12 * target.size,
@@ -188,6 +190,7 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.03, 40, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let plasmaCost = target.size;
 				let damage = target.baseStats.health - target.health;

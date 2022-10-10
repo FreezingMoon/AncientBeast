@@ -49,6 +49,7 @@ export default (G) => {
 				let creature = this.creature;
 				let damage = new Damage(creature, { sonic: 30 }, this._targets.length, [], G);
 				let hits = new Set();
+				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				this._targets.forEach((target) => {
 					if (target.creature === undefined || hits.has(target.creature)) {
@@ -123,6 +124,7 @@ export default (G) => {
 
 			activate: function (target) {
 				this.end();
+				G.Phaser.camera.shake(0.02, 200, true, G.Phaser.camera.SHAKE_BOTH, true);
 
 				if (target.health <= this._executeHealthThreshold) {
 					const executeDamage = new Damage(
@@ -237,6 +239,7 @@ export default (G) => {
 					ignorePath: true,
 					callback: function () {
 						G.activeCreature.queryMove();
+						G.Phaser.camera.shake(0.02, 350, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 						if (ability.isUpgraded()) {
 							// Add offense buff after landing.

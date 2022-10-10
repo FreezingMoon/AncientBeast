@@ -140,6 +140,7 @@ export default (G) => {
 			activate: function (path, args) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 200, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let target = arrayUtils.last(path).creature;
 				let damage = new Damage(
@@ -193,7 +194,7 @@ export default (G) => {
 							},
 							ignoreMovementPoint: true,
 							ignorePath: true,
-							overrideSpeed: 1200, // Custom speed for knockback
+							overrideSpeed: 800, // Custom speed for knockback
 							animation: 'push',
 						});
 					}
@@ -313,6 +314,7 @@ export default (G) => {
 			activate: function (path) {
 				let ability = this;
 				ability.end();
+				G.Phaser.camera.shake(0.01, 50, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let target = arrayUtils.last(path).creature;
 
