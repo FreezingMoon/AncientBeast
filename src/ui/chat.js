@@ -50,23 +50,13 @@ export class Chat {
 	 * @param {object} payload Event payload.
 	 */
 	_handleUiEvent(message, payload) {
-		if (message === 'toggleDash') {
-			this.hide();
-		}
-
-		if (message === 'toggleScore') {
-			this.hide();
-		}
-
-		if (message === 'toggleMusicPlayer') {
-			this.hide();
-		}
-
-		if (message === 'toggleMetaPowers') {
-			this.hide();
-		}
-
-		if (message === 'closeInterfaceScreens') {
+		if (
+      message === 'toggleDash' || 
+      message === 'toggleScore' ||
+      message === 'toggleMusicPlayer' ||
+      message === 'toggleMetaPowers' ||
+      message === 'closeInterfaceScreens'
+    ) {
 			this.hide();
 		}
 	}
