@@ -56,6 +56,7 @@ export class Drop {
 
 	pickup(creature) {
 		let game = this.game;
+        let alterations = this.alterations;
 
 		game.log('%CreatureName' + creature.id + '% picks up ' + this.name);
 		creature.hint(this.name, 'msg_effects');
@@ -65,27 +66,27 @@ export class Drop {
 
 		this.hex.drop = undefined;
 
-		if (this.alterations.health) {
-			creature.heal(this.alterations.health, false, false);
+		if (alterations.health) {
+			creature.heal(alterations.health, false, false);
 		}
 
-		if (this.alterations.energy) {
-			creature.recharge(this.alterations.energy, false);
+		if (alterations.energy) {
+			creature.recharge(alterations.energy, false);
 		}
 
-		if (this.alterations.endurance) {
-			creature.restoreEndurance(this.alterations.endurance, false);
+		if (alterations.endurance) {
+			creature.restoreEndurance(alterations.endurance, false);
 		}
 
-		if (this.alterations.movement) {
-			creature.restoreMovement(this.alterations.movement, false);
+		if (alterations.movement) {
+			creature.restoreMovement(alterations.movement, false);
 		}
 
 		// Log all the gained alterations.
-		const gainedMessage = Object.keys(this.alterations)
-			.map((key) => `${this.alterations[key]} ${key}`)
+		const gainedMessage = Object.keys(alterations)
+			.map((key) => `${alterations[key]} ${key}`)
 			.join(', ')
-			// Replace last comma with "and".
+			// Replace last comma with "and"
 			.replace(/, ([^,]*)$/, ', and $1');
 		game.log(`%CreatureName${creature.id}% gains ${gainedMessage}`);
 
