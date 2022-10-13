@@ -86,7 +86,7 @@ export class Drop {
 		const gainedMessage = Object.keys(alterations)
 			.map((key) => `${alterations[key]} ${key}`)
 			.join(', ')
-			// Replace last comma with "and".
+			// Replace last comma with "and"
 			.replace(/, ([^,]*)$/, ', and $1');
 		game.log(`%CreatureName${creature.id}% gains ${gainedMessage}`);
 
