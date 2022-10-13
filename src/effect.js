@@ -51,17 +51,11 @@ export class Effect {
 	}
 
 	activate(arg) {
-		if (!this.requireFn(arg)) {
-			return false;
-		}
+		!this.requireFn(arg) && return false;
 
-		if (!this.noLog) {
-			console.log('Effect ' + this.name + ' triggered');
-		}
+		!this.noLog && console.log('Effect ' + this.name + ' triggered');
 
-		if (arg instanceof Creature) {
-			arg.addEffect(this);
-		}
+		arg instanceof Creature && arg.addEffect(this);
 
 		this.effectFn(this, arg);
 	}
