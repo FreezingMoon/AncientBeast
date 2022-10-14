@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as $j from 'jquery';
 import { Direction, Hex } from './hex';
 import { Creature } from '../creature';
@@ -179,7 +180,7 @@ export class HexGrid {
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}
 
-	handleMetaPowerEvent(message, payload) {
+	handleMetaPowerEvent(message: string, payload) {
 		if (message === 'toggleExecuteMonster') {
 			this._executionMode = payload;
 		}
@@ -197,7 +198,7 @@ export class HexGrid {
 				});
 			},
 			fnOnCancel: () => {
-				this.game.activeCreature.queryMove();
+				this.game.activeCreature.queryMove(o);
 			},
 			args: {},
 			confirmText: 'Confirm',
@@ -209,13 +210,13 @@ export class HexGrid {
 		game.activeCreature.hint(o.confirmText, 'confirm');
 
 		this.queryHexes({
-			fnOnConfirm: (hex, args) => {
+			fnOnConfirm: (hex: Hex, args) => {
 				args.opt.fnOnConfirm(game.activeCreature, args.opt.args, { queryOptions: o });
 			},
-			fnOnSelect: (hex, args) => {
+			fnOnSelect: (hex: Hex, args) => {
 				args.opt.fnOnSelect(game.activeCreature, args.opt.args);
 			},
-			fnOnCancel: (hex, args) => {
+			fnOnCancel: (hex: Hex, args) => {
 				args.opt.fnOnCancel(game.activeCreature, args.opt.args);
 			},
 			args: {
@@ -401,7 +402,7 @@ export class HexGrid {
 	 * @param {Object} o
 	 * @return {boolean} At least one valid target.
 	 */
-	atLeastOneTarget(dir, o) {
+	atLeastOneTarget(dir, o): boolean {
 		const defaultOpt = {
 			team: Team.Both,
 			optTest: function () {
@@ -450,7 +451,7 @@ export class HexGrid {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(o);
 			},
 			fnOnSelect: (choice) => {
 				choice.forEach((item) => {
@@ -462,7 +463,7 @@ export class HexGrid {
 				});
 			},
 			fnOnCancel: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(o);
 			},
 			team: Team.Enemy,
 			requireCreature: 1,
@@ -569,7 +570,7 @@ export class HexGrid {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(o);
 			},
 			fnOnSelect: (creature) => {
 				creature.tracePosition({
@@ -577,7 +578,7 @@ export class HexGrid {
 				});
 			},
 			fnOnCancel: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(o);
 			},
 			optTest: () => true,
 			args: {},
@@ -596,7 +597,7 @@ export class HexGrid {
 		- empty (no possible target)
 		Hexes containing invalid targets (wrong team, o.optTest, etc) are discard. */
 		const { targetHexes, emptyHexes } = o.hexes.reduce(
-			(acc, hex) => {
+			(acc, hex: Hex) => {
 				const sourceCreature = game.creatures[o.id];
 				const targetCreature = hex.creature;
 
@@ -646,18 +647,18 @@ export class HexGrid {
 		let extended = [];
 		/* Add creature hexes that extend out of the range of the source hexes, so the
 		entire creature can be highlighted. */
-		o.hexes.forEach((hex) => {
+		o.hexes.forEach((hex: Hex) => {
 			extended = extended.concat(hex.creature.hexagons);
 		});
 
 		o.hexes = extended;
 
 		this.queryHexes({
-			fnOnConfirm: (hex, args) => {
+			fnOnConfirm: (hex: Hex, args) => {
 				const { creature } = hex;
 				args.opt.fnOnConfirm(creature, args.opt.args, { queryOptions: o });
 			},
-			fnOnSelect: (hex, args) => {
+			fnOnSelect: (hex: Hex, args) => {
 				const { creature } = hex;
 				args.opt.fnOnSelect(creature, args.opt.args);
 			},
@@ -690,14 +691,14 @@ export class HexGrid {
 		const game = this.game;
 		const defaultOpt = {
 			fnOnConfirm: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(o);
 			},
 			fnOnSelect: (hex: Hex) => {
 				game.activeCreature.faceHex(hex, undefined, true, false);
 				hex.overlayVisualState('creature selected player' + game.activeCreature.team);
 			},
 			fnOnCancel: () => {
-				game.activeCreature.queryMove();
+				game.activeCreature.queryMove(o);
 			},
 			callbackAfterQueryHexes: () => {
 				// empty function to be overridden with custom logic to execute after queryHexes
@@ -753,7 +754,7 @@ export class HexGrid {
 
 		if (!o.ownCreatureHexShade) {
 			if (o.id instanceof Array) {
-				o.id.forEach((id) => {
+				o.id.forEach((id: number) => {
 					game.creatures[id].hexagons.forEach((hex) => {
 						hex.overlayVisualState('ownCreatureHexShade');
 					});
@@ -768,7 +769,7 @@ export class HexGrid {
 		}
 
 		// Set reachable the given hexes
-		o.hexes.forEach((hex) => {
+		o.hexes.forEach((hex: Hex) => {
 			hex.setReachable();
 			if (o.hideNonTarget) {
 				hex.unsetNotTarget();
@@ -828,7 +829,7 @@ export class HexGrid {
 					the death logic doesn't actually care about the killing creature, just
 					that creature's player. The first player is always responsible for executing
 					creatures. */
-					game.players[0].creatures[0] 
+					game.players[0].creatures[0],
 				);
 				return;
 			}
@@ -984,7 +985,7 @@ export class HexGrid {
 
 	/* xray(hex)
 	 *
-	 * hex : 	Hex : 	Hexagon to emphasize.
+	 * hex :	Hexagon to emphasize.
 	 *
 	 * If hex contain creature call ghostOverlap for each creature hexes
 	 *
@@ -1063,13 +1064,13 @@ export class HexGrid {
 
 	/* hexExists(y, x)
 	 *
-	 * x : 	Integer : 	Coordinates to test
-	 * y : 	Integer : 	Coordinates to test
+	 * x : 	Coordinates to test
+	 * y : 	Coordinates to test
 	 *
 	 * Test if hex exists
 	 * TODO: Why is this backwards... standard corodinates systems follow x,y nomenclature...
 	 */
-	hexExists(y, x) {
+	hexExists(y: number, x: number) {
 		if (y >= 0 && y < this.hexes.length) {
 			if (x >= 0 && x < this.hexes[y].length) {
 				return true;
@@ -1081,12 +1082,12 @@ export class HexGrid {
 
 	/* isHexIn(hex, hexArray)
 	 *
-	 * hex : 		Hex : 		Hex to look for
-	 * hexarray : 	Array : 	Array of hexes to look for hex in
+	 * hex : 		Hex to look for
+	 * hexarray : 	Array of hexes to look for hex in
 	 *
 	 * Test if hex exists inside array of hexes
 	 */
-	isHexIn(hex, hexArray) {
+	isHexIn(hex: Hex, hexArray: Array<Hex>) {
 		for (let i = 0, len = hexArray.length; i < len; i++) {
 			if (hexArray[i].x == hex.x && hexArray[i].y == hex.y) {
 				return true;
@@ -1098,15 +1099,15 @@ export class HexGrid {
 
 	/* getMovementRange(x, y, distance, size, id)
 	 *
-	 * x : 		Integer : 	Start position
-	 * y : 		Integer : 	Start position
-	 * distance : 	Integer : 	Distance from the start position
-	 * size : 		Integer : 	Creature size
-	 * id : 		Integer : 	Creature ID
+	 * x :	Start position
+	 * y : 	Start position
+	 * distance :	Distance from the start position
+	 * size : Creature size
+	 * id :	Creature ID
 	 *
-	 * return : 	Array : 	Set of the reachable hexes
+	 * return : 	Set of the reachable hexes
 	 */
-	getMovementRange(x, y, distance, size, id) {
+	getMovementRange(x: number, y: number, distance: number, size: number, id: number): Array<Hex> {
 		//	Populate distance (hex.g) in hexes by asking an impossible
 		//	destination to test all hexagons
 		this.cleanReachable(); // If not pathfinding will bug
@@ -1127,15 +1128,15 @@ export class HexGrid {
 
 	/* getFlyingRange(x,y,distance,size,id)
 	 *
-	 * x : 		Integer : 	Start position
-	 * y : 		Integer : 	Start position
-	 * distance : 	Integer : 	Distance from the start position
-	 * size : 		Integer : 	Creature size
-	 * id : 		Integer : 	Creature ID
+	 * x :	Start position
+	 * y : 	Start position
+	 * distance :	Distance from the start position
+	 * size : Creature size
+	 * id :	Creature ID
 	 *
-	 * return : 	Array : 	Set of the reachable hexes
+	 * return : 	Set of the reachable hexes
 	 */
-	getFlyingRange(x, y, distance, size, id) {
+	getFlyingRange(x: number, y: number, distance: number, size: number, id: number): Array<Hex> {
 		// Gather all the reachable hexes
 		let hexes = this.hexes[y][x].adjacentHex(distance);
 
@@ -1146,15 +1147,21 @@ export class HexGrid {
 
 	/* getHexMap(originx, originy, array)
 	 *
-	 * array : 	Array : 	2-dimensions Array containing 0 or 1 (boolean)
-	 * originx : 	Integer : 	Position of the array on the grid
-	 * originy : 	Integer : 	Position of the array on the grid
-	 * offsetx : 	Integer : 	offset flipped for flipped players
-	 * flipped : 	Boolean : 	If player is flipped or not
+	 * array : 	2-dimensions Array containing 0 or 1 (boolean)
+	 * originx : Position of the array on the grid
+	 * originy : Position of the array on the grid
+	 * offsetx : offset flipped for flipped players
+	 * flipped : If player is flipped or not
 	 *
-	 * return : 	Array : 	Set of corresponding hexes
+	 * return : Set of corresponding hexes
 	 */
-	getHexMap(originx, originy, offsetx, flipped, array) {
+	getHexMap(
+		originx: number,
+		originy: number,
+		offsetx: number,
+		flipped: boolean,
+		array: Array<Array<number>>,
+	) {
 		// Heavy logic in here
 		const hexes = [];
 
@@ -1214,7 +1221,7 @@ export class HexGrid {
 	}
 
 	// TODO: Rewrite methods used here to only require the creature as an argument.
-	showMovementRange(id) {
+	showMovementRange(id: number) {
 		const creature = this.game.creatures[id];
 		const hexes = this.findCreatureMovementHexes(creature);
 
@@ -1229,14 +1236,14 @@ export class HexGrid {
 		});
 	}
 
-	showCurrentCreatureMovementInOverlay(creature) {
+	showCurrentCreatureMovementInOverlay(creature: Creature) {
 		//lastQueryOpt is same thing as used in redoQuery
-		this.lastQueryOpt.hexes.forEach((hex) => {
+		this.lastQueryOpt.hexes.forEach((hex: Hex) => {
 			hex.overlayVisualState('hover h_player' + creature.team);
 		});
 	}
 
-	findCreatureMovementHexes(creature) {
+	findCreatureMovementHexes(creature: Creature) {
 		if (creature.movementType() === 'flying') {
 			return this.getFlyingRange(
 				creature.x,
@@ -1377,11 +1384,11 @@ export class HexGrid {
 
 	/* cleanPathAttr(includeG)
 	 *
-	 * includeG : 	Boolean : 	Include hex.g attribute
+	 * includeG :	Include hex.g attribute
 	 *
 	 * Execute hex.cleanPathAttr() function for all the grid. Refer to the Hex class for more info
 	 */
-	cleanPathAttr(includeG) {
+	cleanPathAttr(includeG: boolean) {
 		this.hexes.forEach((hex) => {
 			hex.forEach((item) => {
 				item.cleanPathAttr(includeG);

@@ -1,27 +1,34 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prefer-const */
 import * as $j from 'jquery';
 import { Create } from 'phaser-ce';
 import { Creature } from './creature';
 import { Effect } from './effect';
-import Game from "./game"
+import Game from './game';
 
 /* Damage Class
  *
  * TODO: This documentation needs to be updated with things that are determined dynamically like #melee and #counter
  */
 export class Damage {
-
 	/* Constructor */
 	game: Game; //Main Game Object
-	attacker: Creature //Creature that initiated the damage
-	damages: object //Object containing the damage by tyoe { frost : 5} for example
+	attacker: Creature; //Creature that initiated the damage
+	damages: object; //Object containing the damage by tyoe { frost : 5} for example
 	status: string; //Current Effects the damage applies
-	effects: Array<Effect> //Current Effects the damage applies
-	area: number //Number of hexagons being hit
+	effects: Array<Effect>; //Current Effects the damage applies
+	area: number; //Number of hexagons being hit
+	// eslint-disable-next-line prettier/prettier
 	counter: boolean //Whether this is counter-damage
-	target: Creature //Creature that is being targetted by effect
+	target: Creature; //Creature that is being targetted by effect
 
-
-	constructor(attacker:Creature, damages:object, area:number, effects:Array<Effect>, game:Game) {
+	constructor(
+		attacker: Creature,
+		damages: object,
+		area: number,
+		effects: Array<Effect>,
+		game: Game,
+	) {
 		this.game = game;
 		this.attacker = attacker;
 		this.damages = damages;
@@ -41,8 +48,8 @@ export class Damage {
 			};
 
 		// Damage calculation
-		$j.each(this.damages, (key:number | string, value) => {
-			let points:number;
+		$j.each(this.damages, (key: number | string, value) => {
+			let points: number;
 
 			if (key == 'pure') {
 				// Bypass defense calculation

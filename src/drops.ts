@@ -1,6 +1,7 @@
-import { Creature } from "./creature";
-import Game from "./game";
-import { Hex } from "./utility/hex";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Creature } from './creature';
+import Game from './game';
+import { Hex } from './utility/hex';
 
 /**
  * Drops are a type of creature "buff" collected from a game board hex rather than
@@ -23,34 +24,33 @@ import { Hex } from "./utility/hex";
  * - Drops are essentially permanent although this may change in the future.
  */
 export class Drop {
-
 	//------- Constructor Types ------- //
-	name:string // Name of the drop
-	game: Game // Main Game Object
+	name: string; // Name of the drop
+	game: Game; // Main Game Object
 	hex: Hex; //Main Hex Object
-	id: number //ID of the drop on the stack
+	id: number; //ID of the drop on the stack
 	x: number; //X Coordinate of the drop
 	y: number; //Y Coordinate of the drop
 	pos: {
-		x:number,
-		y:number
-	}
+		x: number;
+		y: number;
+	};
 
 	display: {
 		destroy(): unknown;
-		alpha: number,
-		anchor: any,
-		scale: any,
+		alpha: number;
+		anchor: any;
+		scale: any;
 	};
 
 	alterations: {
-		health: number,
-		energy:	number,
-		endurance: number,
-		movement: number
+		health: number;
+		energy: number;
+		endurance: number;
+		movement: number;
 	};
 
-	constructor(name:string, alterations, x:number, y:number, game:Game) {
+	constructor(name: string, alterations, x: number, y: number, game: Game) {
 		this.name = name;
 		this.game = game;
 		this.id = game.dropId++;
@@ -85,10 +85,10 @@ export class Drop {
 			.start();
 	}
 
-	pickup(creature:Creature) {
-		let game = this.game;
+	pickup(creature: Creature) {
+		const game = this.game;
 
-		game.log('%CreatureName' + creature.id + '% picks up ' + this.name, null);
+		game.log('%CreatureName' + creature.id + '% picks up ' + this.name, '');
 		creature.hint(this.name, 'msg_effects');
 		creature.dropCollection.push(this);
 
@@ -118,13 +118,13 @@ export class Drop {
 			.join(', ')
 			// Replace last comma with "and".
 			.replace(/, ([^,]*)$/, ', and $1');
-		game.log(`%CreatureName${creature.id}% gains ${gainedMessage}`, null);
+		game.log(`%CreatureName${creature.id}% gains ${gainedMessage}`, '');
 
 		creature.player.score.push({
 			type: 'pickupDrop',
 		});
 
-		let tween = game.Phaser.add
+		const tween = game.Phaser.add
 			.tween(this.display)
 			.to(
 				{

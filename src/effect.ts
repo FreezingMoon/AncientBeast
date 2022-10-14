@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as $j from 'jquery';
 import Game from './game';
 import { Creature } from './creature';
@@ -20,13 +23,23 @@ export class Effect {
 	trigger: string; //Event that triggered the effect
 	creationTurn: number; //The turn the effect took place
 	noLog: boolean; //Check if the action needs to logged to game chat
-	specialHint: any;  //TODO: Find specialHint useCase maybe string
+	specialHint: any; //TODO: Find specialHint useCase maybe string
 	deleteOnOwnerDeath: boolean; //Should this creature be removed when the owner of it dies
 	triggeredThisChain: boolean; //Did this effect start with the current chain
 	trap: Trap;
 	special: any;
 
-	constructor(name:string, owner:Creature, target:Creature, trigger:string, optArgs, game:Game) {
+	turnLifetime: number; //How many turns this effect lasts
+	deleteTrigger: string; //If the effect was altered and can remove it
+
+	constructor(
+		name: string,
+		owner: Creature,
+		target: Creature,
+		trigger: string,
+		optArgs,
+		game: Game,
+	) {
 		this.id = game.effectId++;
 		this.game = game;
 
@@ -36,7 +49,7 @@ export class Effect {
 		this.trigger = trigger;
 		this.creationTurn = game.turn;
 
-		let args = $j.extend(
+		const args = $j.extend(
 			{
 				// Default Arguments
 				requireFn: function () {
@@ -79,8 +92,8 @@ export class Effect {
 		this.effectFn(this, arg);
 	}
 
-	requireFn(arg) : boolean {
-		if(arg){
+	requireFn(arg): boolean {
+		if (arg) {
 			return true;
 		}
 		return false;

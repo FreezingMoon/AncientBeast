@@ -15,6 +15,7 @@ export default class MatchI {
 		this.activePlayer = 0;
 		this.client = connect.client;
 		this.matchUsers = [];
+		this.gameplay = gameplay;
 
 		connect.socket.onmatchmakermatched = (matched) => {
 			this.matchUsers = matched.users;

@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // Import jQuery related stuff
 import * as $j from 'jquery';
 import 'jquery.transit';
@@ -39,7 +41,7 @@ dataJson.forEach(async (creature) => {
 });
 
 $j(() => {
-	let scrim = $j('.scrim');
+	const scrim = $j('.scrim');
 	scrim.on('transitionend', function () {
 		scrim.remove();
 	});
@@ -57,10 +59,10 @@ $j(() => {
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 
 	// Add listener for Fullscreen API
-	let fullscreen = new Fullscreen($j('#fullscreen'));
+	const fullscreen = new Fullscreen($j('#fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
-	let startScreenHotkeys = {
+	const startScreenHotkeys = {
 		KeyF: {
 			keyDownTest(event) {
 				return event.shiftKey;
@@ -120,7 +122,7 @@ $j(() => {
 	$j('#multiplayer').on('click', async () => {
 		$j('.setupFrame,.lobby').hide();
 		$j('.loginregFrame').show();
-		let sess = new SessionI();
+		const sess = new SessionI();
 		try {
 			await sess.restoreSession();
 		} catch (e) {
@@ -134,7 +136,7 @@ $j(() => {
 
 	$j('form#gameSetup').on('submit', (e) => {
 		e.preventDefault(); // Prevent submit
-		let gameconfig = getGameConfig();
+		const gameconfig = getGameConfig();
 		G.loadGame(gameconfig, true, null);
 
 		return false; // Prevent submit
@@ -142,7 +144,7 @@ $j(() => {
 	// Register
 	async function register(e) {
 		e.preventDefault(); // Prevent submit
-		let reg = getReg();
+		const reg = getReg();
 		// Check empty fields
 		if (
 			$j('#register .error-req').css('display') != 'none' ||
@@ -179,9 +181,9 @@ $j(() => {
 			$j('.error-pw').show();
 			return;
 		}
-		let auth = new Authenticate(reg, connect.client);
-		let session = await auth.register();
-		let sess = new SessionI(session);
+		const auth = new Authenticate(reg, connect.client);
+		const session = await auth.register();
+		const sess = new SessionI(session);
 		sess.storeSession();
 		G.session = session;
 		G.client = connect.client;
@@ -223,7 +225,7 @@ $j(() => {
 			return;
 		}
 
-		let sess = new SessionI(session);
+		const sess = new SessionI(session);
 		sess.storeSession();
 		G.session = session;
 		G.client = connect.client;
@@ -238,7 +240,7 @@ $j(() => {
 	// Login form
 	$j('form#login').on('submit', login);
 	$j('#startMatchButton').on('click', () => {
-		let gameConfig = getGameConfig();
+		const gameConfig = getGameConfig();
 		G.loadGame(gameConfig, true, null);
 		return false;
 	});
@@ -319,7 +321,7 @@ function readLogFromFile() {
  * @return {Object} login form.
  */
 function getLogin() {
-	let login = {
+	const login = {
 		email: $j('.login input[name="email"]').val(),
 		password: $j('.login input[name="password"]').val(),
 	};
@@ -363,7 +365,7 @@ export function getGameConfig() {
  * @return {boolean} Empty or not.
  */
 export function isEmpty(obj) {
-	for (let key in obj) {
+	for (const key in obj) {
 		if (Object.prototype.hasOwnProperty.call(obj, key)) {
 			return false;
 		}

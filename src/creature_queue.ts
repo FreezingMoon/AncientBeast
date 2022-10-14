@@ -1,15 +1,16 @@
+/* eslint-disable prefer-const */
 import { Creature } from './creature';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 
 export class CreatureQueue {
 	// ------- Constructor Types -------- //
-	game: Game //Main Game Object
+	game: Game; //Main Game Object
 	queue: Array<Creature>; //Main Queue of Creatures
 	nextQueue: Array<Creature>; //Next Queue of Creatures
-	tempCreature: Creature //Base Creature Object
+	tempCreature: Creature; //Base Creature Object
 
-	constructor(game:Game) {
+	constructor(game: Game) {
 		this.game = game;
 		this.queue = [];
 		this.nextQueue = [];
@@ -24,7 +25,7 @@ export class CreatureQueue {
 	 * @param {boolean} alsoAddToCurrentQueue Also add the creature to the current
 	 * turn's queue. Doing so lets a creature act in the same turn it was summoned.
 	 */
-	addByInitiative(creature:Creature, alsoAddToCurrentQueue:boolean = true) {
+	addByInitiative(creature: Creature, alsoAddToCurrentQueue = true) {
 		const queues = [this.nextQueue];
 
 		if (alsoAddToCurrentQueue) {
@@ -33,7 +34,7 @@ export class CreatureQueue {
 
 		queues.forEach((queue) => {
 			for (let i = 0; i < queue.length; i++) {
-				let queueItem = queue[i];
+				const queueItem = queue[i];
 
 				if (queueItem.delayed || queueItem.getInitiative() < creature.getInitiative()) {
 					queue.splice(i, 0, creature);

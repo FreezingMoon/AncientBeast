@@ -17,7 +17,7 @@ export class Animations {
 		this.movementPoints = 0;
 	}
 
-	walk(creature:Creature, path, opts) {
+	walk(creature:Creature, path: string | any[], opts: { customMovementPoint: number; ignoreMovementPoint: any; overrideSpeed: any; }) {
 		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
@@ -86,12 +86,12 @@ export class Animations {
 			});
 
 			hexId++;
-		}.bind(this);
+		}.bind: any(this);
 
 		anim();
 	}
 
-	fly(creature:Creature, path, opts) {
+	fly(creature:Creature, path: string | any[], opts: { customMovementPoint: number; overrideSpeed: any; ignoreMovementPoint: any; }) {
 		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
@@ -150,7 +150,7 @@ export class Animations {
 		});
 	}
 
-	teleport(creature:Creature, path, opts) {
+	teleport(creature:Creature, path: any[], opts: any) {
 		let game = this.game,
 			hex = path[0],
 			currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
@@ -198,14 +198,14 @@ export class Animations {
 		});
 	}
 
-	push(creature:Creature, path, opts) {
+	push(creature:Creature, path: any, opts: { pushed: boolean; }) {
 		opts.pushed = true;
 		this.walk(creature, path, opts);
 	}
 
 	//--------Special Functions---------//
 
-	enterHex(creature:Creature, hex:Hex, opts) {
+	enterHex(creature:Creature, hex:Hex, opts: { callbackStepIn: (arg0: Hex) => void; }) {
 		let game = this.game;
 
 		creature.cleanHex();
@@ -223,23 +223,23 @@ export class Animations {
 		game.grid.orderCreatureZ();
 	}
 
-	leaveHex(creature:Creature, hex:Hex, opts) {
+	leaveHex(creature:Creature, hex:Hex, opts: { ignoreFacing: any; pushed: any; }) {
 		let game = this.game;
-		let ignoringFaceUpdate;
+		let ignoringFaceUpdate: boolean;
 
 		if (opts.ignoreFacing) {
 			ignoringFaceUpdate = true;
 		} else {
 			if (!opts.pushed) {
-				creature.faceHex(hex, creature.hexagons[0]); // Determine facing
+				creature.faceHex(hex, creature.hexagons[0], true, true); // Determine facing
 			}
 		}
 
-		game.onStepOut(creature, creature.hexagons[0]); // Trigger
+		game.onStepOut(); // Trigger
 		game.grid.orderCreatureZ();
 	}
 
-	movementComplete(creature:Creature, hex:Hex, animId:number, opts) {
+	movementComplete(creature:Creature, hex:Hex, animId:number, opts: { customMovementPoint: number; turnAroundOnComplete: any; }) {
 		let game = this.game;
 
 		if (opts.customMovementPoint > 0) {
@@ -272,7 +272,7 @@ export class Animations {
 		game.animationQueue = queue;
 	}
 
-	projectile(this2, target, spriteId, path, args, startX, startY) {
+	projectile(this2: { creature: { grp: { x: any; y: any; }; }; }, target: { id: any; }, spriteId: any, path:Array<Hex>, args: { direction: number; }, startX: any, startY: any) {
 		// Get the target's position on the projectile's path that is closest
 		let emissionPointX = this2.creature.grp.x + startX;
 		var distance = Number.MAX_SAFE_INTEGER;

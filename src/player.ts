@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable prefer-const */
 import * as $j from 'jquery';
 import Game from './game';
 import { Ability } from './ability';
@@ -10,20 +13,19 @@ import { ScoreTypes } from './CreatureTypes';
  * Player object with attributes
  */
 export class Player {
-
 	/* Attributes */
 	//--------- Types List ----------//
-	
+
 	id: number; //Id of the player 1, 2, 3 or 4
-	creatures: Array<Creature>	//Array containing players creatures
-	plasma: number;	//Plasma amount for the player
-	flipped: boolean | number;	//Player side of the battlefield (affects displayed creature)
+	creatures: Array<Creature>; //Array containing players creatures
+	plasma: number; //Plasma amount for the player
+	flipped: boolean | number; //Player side of the battlefield (affects displayed creature)
 	game: Game; //Main Gain Object
 	color: string; //represents the players faction color
 	name: string; //The Player plus their ID in the game
 	avatar: URL; //Current URl of the player
 	score: any; //Current Score
-	availableCreatures: Array<Creature> //Array of all open creatures
+	availableCreatures: Array<Creature>; //Array of all open creatures
 	hasLost: boolean; //True if the player has lost
 	hasFled: boolean; //True if the player has left
 	bonusTimePool: number; //Amount of additional time
@@ -33,11 +35,10 @@ export class Player {
 	delayable: boolean; //IS it possible the player has delay
 	delayed: boolean; //Is the player Delayed
 	dead: boolean; //Is the current player dead
-	abilities: Array<Ability> //Array of all the abilities current player has access to
+	abilities: Array<Ability>; //Array of all the abilities current player has access to
 
 	//--------- Types List ----------//
-	constructor(id: number, game:Game) {
-
+	constructor(id: number, game: Game) {
 		this.id = id;
 		this.game = game;
 		this.creatures = [];
@@ -106,7 +107,7 @@ export class Player {
 	 * pos :	Position {x,y}
 	 *
 	 */
-	summon(type:string, pos:Object) {
+	summon(type: string, pos: Object) {
 		let game = this.game,
 			data = game.retrieveCreatureStats(type),
 			creature;
@@ -146,11 +147,11 @@ export class Player {
 	 *
 	 * Return the total of the score events.
 	 */
-	getScore() : ScoreTypes{
+	getScore(): ScoreTypes {
 		let total = this.score.length,
 			s = {} as ScoreTypes,
-			points:number,
-			totalScore:ScoreTypes = {
+			points: number,
+			totalScore: ScoreTypes = {
 				firstKill: 0,
 				kill: 0,
 				deny: 0,
@@ -166,7 +167,7 @@ export class Player {
 				upgrade: 0,
 				creature: null,
 				kills: 0,
-				type: ""
+				type: '',
 			};
 
 		for (let i = 0; i < total; i++) {
@@ -300,7 +301,7 @@ export class Player {
 		return this._summonCreaturesWithMaterializationSickness;
 	}
 
-	handleMetaPowerEvent(message:string, payload) {
+	handleMetaPowerEvent(message: string, payload) {
 		if (message === 'toggleDisableMaterializationSickness') {
 			this._summonCreaturesWithMaterializationSickness = !payload;
 		}
