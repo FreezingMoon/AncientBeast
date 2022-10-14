@@ -20,21 +20,22 @@ export class Player {
 		this.game = game;
 		this.creatures = [];
 		this.name = 'Player' + (id + 1);
+        let color = this.color
 		switch (id) {
 			case 0:
-				this.color = 'red';
+				color = 'red';
 				break;
 			case 1:
-				this.color = 'blue';
+				color = 'blue';
 				break;
 			case 2:
-				this.color = 'orange';
+				color = 'orange';
 				break;
 			default:
-				this.color = 'green';
+				color = 'green';
 				break;
 		}
-		this.avatar = getUrl('units/avatars/Dark Priest ' + this.color);
+		this.avatar = getUrl('units/avatars/Dark Priest ' + color);
 		this.score = [];
 		this.plasma = game.plasma_amount;
 		this.flipped = Boolean(id % 2); // Convert odd/even to true/false
