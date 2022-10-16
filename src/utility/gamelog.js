@@ -7,7 +7,7 @@ export class GameLog {
 		this.data = [];
 		this.playing = false;
 		this.timeCursor = -1;
-		// Set this to null so we can properly decide between form based config or log based config.
+		// Set this to null so we can properly decide between form based config or log based config
 		this.gameConfig = null;
 	}
 
@@ -63,7 +63,7 @@ export class GameLog {
 			}
 
 			if (this.timeCursor > this.data.length - 1) {
-				// game.activeCreature.queryMove(); // Avoid bug // called twice breaks opening UI. May need to revisit.
+				// game.activeCreature.queryMove(); // Avoid bug: called twice breaks opening UI (may need to revisit)
 				return;
 			}
 
@@ -131,7 +131,7 @@ export class GameLog {
 				strOutput = json;
 				break;
 			case 'save':
-				// Do not allow this to happen more than once per second.
+				// Do not allow this to happen more than once per second
 				if (this._debounce) {
 					return;
 				}
@@ -152,7 +152,7 @@ export class GameLog {
 	}
 
 	saveFile(data, fileName) {
-		// Set a trap to block consecutive calls within one second.
+		// Set a trap to block consecutive calls within one second
 		this._debounce = new Date().valueOf();
 		let a = document.createElement('a');
 		let file = new Blob([data]);
@@ -164,7 +164,7 @@ export class GameLog {
 		setTimeout(() => {
 			document.body.removeChild(a);
 			window.URL.revokeObjectURL(url);
-			// Remove trap to allow future save calls.
+			// Remove trap to allow future save calls
 			this._debounce = null;
 		}, 1000);
 	}
