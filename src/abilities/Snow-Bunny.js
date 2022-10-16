@@ -477,13 +477,6 @@ export default (G) => {
 					}
 				}, sprite); // End tween.onComplete
 			},
-			getAnimationData: function () {
-				return {
-					duration: 500,
-					delay: 0,
-					activateAnimation: false,
-				};
-			},
 		},
 	];
 };
