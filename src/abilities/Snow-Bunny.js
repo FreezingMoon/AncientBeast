@@ -440,6 +440,13 @@ export default (G) => {
 				ability.end();
 				G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 				let target = arrayUtils.last(path).creature;
+				switch (args.direction) {
+					case 4: // StraitBackward
+						target = this.creature.player.flipped ? path[0].creature : target;
+						break;
+					default:
+						break;
+				}
 
 				let projectileInstance = G.animations.projectile(
 					this,
