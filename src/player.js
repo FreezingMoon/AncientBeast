@@ -20,7 +20,8 @@ export class Player {
 		this.game = game;
 		this.creatures = [];
 		this.name = 'Player' + (id + 1);
-        let color = this.color
+		let color = this.color;
+		
 		switch (id) {
 			case 0:
 				color = 'red';
@@ -35,6 +36,7 @@ export class Player {
 				color = 'green';
 				break;
 		}
+		
 		this.avatar = getUrl('units/avatars/Dark Priest ' + color);
 		this.score = [];
 		this.plasma = game.plasma_amount;
