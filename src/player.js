@@ -20,7 +20,7 @@ export class Player {
 		this.game = game;
 		this.creatures = [];
 		this.name = 'Player' + (id + 1);
-		let color = this.color
+		let color = this.color;
 		
 		switch (id) {
 			case 0:
