@@ -65,11 +65,11 @@ npm run build:dev
 
 If you receive errors about the manifest or assets loading, try running `npm run assetLister` to create a list for the app.
 
-### Docker setup
+### Docker Setup
 
 First, be sure to have Docker installed, then build the image with the following command `docker build -t yourusername/ancient-beast .`.
 
-To run the image, try running `docker run -p80:8383 yourusername/ancient-beast`.
+To run the image, try running `docker run -p80:8383 yourusername/ancient-beast`. If there's something running on port 80, try next port.
 
 ### Beta Testing
 
