@@ -116,7 +116,7 @@ export default (G) => {
 						fnOnConfirm: function () {
 							ability.animation(...arguments);
 						},
-						flipped: stomper.flipped,
+						flipped: stomper.player.flipped,
 						team: this._targetTeam,
 						id: stomper.id,
 						requireCreature: true,
@@ -134,7 +134,7 @@ export default (G) => {
 						},
 						team: this._targetTeam,
 						id: stomper.id,
-						flipped: stomper.flipped,
+						flipped: stomper.player.flipped,
 						hexes: stomper.getHexMap(this._upgradedMap),
 					});
 				}
@@ -147,7 +147,9 @@ export default (G) => {
 
 				// If not upgraded take the first creature found (aka last in path)
 				if (!this.isUpgraded()) {
-					target = arrayUtils.last(target).creature;
+					target = this.creature.player.flipped
+						? target[0].creature
+						: arrayUtils.last(target).creature;
 				}
 
 				let damage = new Damage(
