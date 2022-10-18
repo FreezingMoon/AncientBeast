@@ -19,19 +19,20 @@ export class Player {
 		this.id = id;
 		this.game = game;
 		this.creatures = [];
+		this.color = color;
 		this.name = 'Player' + (id + 1);
 		switch (id) {
 			case 0:
-				this.color = 'red';
+				color = 'red';
 				break;
 			case 1:
-				this.color = 'blue';
+				color = 'blue';
 				break;
 			case 2:
-				this.color = 'orange';
+				color = 'orange';
 				break;
 			default:
-				this.color = 'green';
+				color = 'green';
 				break;
 		}
 		this.avatar = getUrl('units/avatars/Dark Priest ' + this.color);
