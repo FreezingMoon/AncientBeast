@@ -1,2 +1,18 @@
+TEMPLATE (Please delete this template!)
+===
 If your pull request tries to address a specific issue from the repository, please reference to it.
-Don't forget to include a description of the changes proposes. https://discord.me/AncientBeast
+
+Don't forget to include a description of the changes proposes, especially if lacking comments.
+
+Please provide your ERC20 wallet address, especially if you're addressing an issue with a bounty.
+
+Read more about our token (XatteR) here: https://github.com/FreezingMoon/AncientBeast/wiki/Token
+
+Feel free to drop by our Discord server if you have any questions https://discord.me/AncientBeast
+
+TEMPLATE (Please delete this template!)
+===
+
+This fixes issue #issue
+
+My wallet address is 0x0000000000000000000000000000000000000000
