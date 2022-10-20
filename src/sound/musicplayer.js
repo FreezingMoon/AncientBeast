@@ -92,7 +92,7 @@ export class MusicPlayer {
 		// Style the active track in the playlist
 		const link = track.find('a');
 
-		track.addClass('active').siblings().removeClass('active');
+		track.addClass('active-text').siblings().removeClass('active-text');
 		this.audio.src = link.attr('href');
 		this.audio.load();
 		this.audio.play();

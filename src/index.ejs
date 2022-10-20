@@ -1045,20 +1045,20 @@
 							
 						</div>
 					</div>
-
-					<div class="musicgenres active">Tags:</div>
+					<div class="playlist-wrapper">
 					<div class="musicgenres__items">
 						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
 							<span class="musicgenres__title" id="genre-<%= musicGenre.id %>"><%= musicGenre.id %></span>
 						<% }); %>
 					</div>
-					<ul id="playlist" style="list-style-type:none; padding-left:0px;">
+					<ul id="playlist" style="list-style-type:none; ">
 						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
 							<% musicGenre.children.forEach(function(track) { %>
 								<li class="<%= musicGenre.id %>"><a href="<%= track.url %>"><%= track.id %></a></li>
 							<% }); %>
 						<% }); %>
 					</ul>
+				</div>
 					<div id="volumeSliders">
 						Effects Volume
 						<input id="sfx" class="slider" type="range" min="0" max="10" value="5" step="0.2">
