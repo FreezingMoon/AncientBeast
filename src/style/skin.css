@@ -1,18 +1,38 @@
 
 .audio-player-skin {
-  min-height: 50px;
-  width: 100%;
-  background: transparent;
-
-  font-family: arial;
-  color: white;
-  border: 30px solid transparent;
-	border-image: url('~assets/interface/div.png') 30 fill stretch;
-  font-size: 0.75em;
-  overflow: hidden;
  
+    min-height: 100px;
+    height: 100px;
+    width: 100%;
+    background: transparent;
+    font-family: arial;
+    color: white;
+    display: flex;
+    position: relative;
+    padding: 0px 30px;
+    border: 30px solid transparent;
+    border-image: url('~assets/interface/buttonNormal.png') 20 fill stretch;
+    background-repeat: no-repeat;
+    background-size: contain;
+    font-size: 0.75em;
+    overflow: hidden;
+    flex-direction: column;
+    justify-content: center;
 }
+.musicgenres__items{
+  color: #aaa;
+  position: absolute;
+  display: flex;
+  width: 100%;
+  top: 0;
+  left: 0;
+  justify-content: center;
+  gap: 30px;
 
+}
+.active-text{
+  color: white !important;
+}
 .timeline {
   
   background: white;
@@ -24,6 +44,7 @@
   
 }
 .timeline-control{
+
   width: 100%;
   height: 100%;
   position: absolute;

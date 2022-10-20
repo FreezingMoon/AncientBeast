@@ -19,22 +19,22 @@ export class MusicPlayer {
 				this.shuffle = !this.shuffle;
 			});
 
-		$j('#genre-epic').addClass('active');
+		$j('#genre-epic').addClass('active-text');
 		this.playlist.find('li').not('.epic').addClass('hidden');
 
 		$j('.musicgenres__title').on('click', (e) => {
 			e.preventDefault();
 
 			const clickedGenre = $j(e.target);
-			clickedGenre.toggleClass('active');
+			clickedGenre.toggleClass('active-text');
 
-			if (!clickedGenre.hasClass('active')) {
+			if (!clickedGenre.hasClass('active-text')) {
 				const clickedGenreClass = e.target.innerText;
 				const unusedTracks = this.playlist.find(`li.${clickedGenreClass}`);
 				unusedTracks.addClass('hidden');
 			}
 
-			const activeGenres = clickedGenre.parent().find('.active');
+			const activeGenres = clickedGenre.parent().find('.active-text');
 			const activeGenresSelectors = Array.prototype.map.call(
 				activeGenres,
 				(genreNode) => `li.${genreNode.innerText}`,
@@ -60,7 +60,7 @@ export class MusicPlayer {
 
 	getCurrentTrackIndex() {
 		return Array.prototype.findIndex.call(this.tracks, (track) =>
-			track.classList.contains('active'),
+			track.classList.contains('active-text'),
 		);
 	}
 

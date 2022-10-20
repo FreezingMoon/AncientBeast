@@ -676,7 +676,7 @@ div.section.info {
 }
 #musicplayerwrapper .active,
 #musicplayerwrapper .active-text a {
-	color: rgb(255, 255, 255) !important;
+	color: white !important;
 }
 
 .audio-player-controls {
@@ -1373,54 +1373,11 @@ span.pure {
 	}
 }
 
-.framed-modal--fluid::-webkit-scrollbar {
-	display: none;
-}
 .framed-modal--fluid {
 	max-height: none;
 	max-width: 500px;
-	display: flex;
-	flex-direction: column;
-	align-items: stretch;
-	overflow-y: scroll;
-	overflow-x: hidden;
-	-ms-overflow-style: none; /* IE and Edge */
-	scrollbar-width: none; /* Firefox */
 }
-.playlist-wrapper {
-	position: relative;
-	width: 450px;
-	min-height: 90px;
-	height: 150px;
-	margin: 0 auto;
-	background-image: url('~assets/interface/buttonNormal.png');
-	background-repeat: no-repeat;
-	background-size: contain;
-	padding-top: 40px;
-}
-#playlist::-webkit-scrollbar {
-	display: none;
-}
-.musicgenres__items {
-	position: absolute;
-	display: flex;
-	justify-content: center;
-	gap: 100px;
-	width: 100%;
-	top: 10px;
-	.musicgenres__title {
-		opacity: 0.5;
-	}
-}
-#playlist {
-	height: 70px;
-	width: 80%;
-	margin: auto;
-	padding: 0;
-	overflow-y: scroll;
-	-ms-overflow-style: none; /* IE and Edge */
-	scrollbar-width: none; /* Firefox */
-}
+
 #ui {
 	display: none;
 
