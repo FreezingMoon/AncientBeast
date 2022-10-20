@@ -1,11 +1,11 @@
-const audioPlayer = document.querySelector('.audio-player-custom');
-const audio = new Audio();
+const audioPlayer = document.querySelector('.audio-player-skin');
+const skin = new Audio();
 
-audio.addEventListener(
+skin.addEventListener(
 	'loadeddata',
 	() => {
-		audioPlayer.querySelector('.time .length').textContent = getTimeCodeFromNum(audio.duration);
-		audio.volume = 0.75;
+		audioPlayer.querySelector('.time .length').textContent = getTimeCodeFromNum(skin.duration);
+		skin.volume = 0.75;
 	},
 	false,
 );
@@ -15,8 +15,8 @@ timeline.addEventListener(
 	'click',
 	(e) => {
 		const timelineWidth = window.getComputedStyle(timeline).width;
-		const timeToSeek = (e.offsetX / parseInt(timelineWidth)) * audio.duration;
-		audio.currentTime = timeToSeek;
+		const timeToSeek = (e.offsetX / parseInt(timelineWidth)) * skin.duration;
+		skin.currentTime = timeToSeek;
 	},
 	false,
 );
@@ -27,7 +27,7 @@ volumeSlider.addEventListener(
 	(e) => {
 		const sliderWidth = window.getComputedStyle(volumeSlider).width;
 		const newVolume = e.offsetX / parseInt(sliderWidth);
-		audio.volume = newVolume;
+		skin.volume = newVolume;
 		audioPlayer.querySelector('.controls .volume-percentage').style.width = newVolume * 100 + '%';
 	},
 	false,
@@ -35,22 +35,22 @@ volumeSlider.addEventListener(
 
 setInterval(() => {
 	const progressBar = audioPlayer.querySelector('.progress-music');
-	progressBar.style.width = (audio.currentTime / audio.duration) * 100 + '%';
-	audioPlayer.querySelector('.time .current').textContent = getTimeCodeFromNum(audio.currentTime);
+	progressBar.style.width = (skin.currentTime / skin.duration) * 100 + '%';
+	audioPlayer.querySelector('.time .current').textContent = getTimeCodeFromNum(skin.currentTime);
 }, 500);
 
 const playBtn = audioPlayer.querySelector('.controls .toggle-play');
 playBtn.addEventListener(
 	'click',
 	() => {
-		if (audio.paused) {
+		if (skin.paused) {
 			playBtn.classList.remove('play');
 			playBtn.classList.add('pause');
-			audio.play();
+			skin.play();
 		} else {
 			playBtn.classList.remove('pause');
 			playBtn.classList.add('play');
-			audio.pause();
+			skin.pause();
 		}
 	},
 	false,
@@ -58,8 +58,8 @@ playBtn.addEventListener(
 
 audioPlayer.querySelector('.volume-button').addEventListener('click', () => {
 	const volumeEl = audioPlayer.querySelector('.volume-container .volume');
-	audio.muted = !audio.muted;
-	if (audio.muted) {
+	skin.muted = !skin.muted;
+	if (skin.muted) {
 		volumeEl.classList.remove('icono-volumeMedium');
 		volumeEl.classList.add('icono-volumeMute');
 	} else {
@@ -79,4 +79,4 @@ function getTimeCodeFromNum(num) {
 	return `${String(hours).padStart(2, 0)}:${minutes}:${String(seconds % 60).padStart(2, 0)}`;
 }
 
-export default audio;
+export default skin;
