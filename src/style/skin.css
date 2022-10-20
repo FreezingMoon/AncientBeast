@@ -1,52 +1,57 @@
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  overflow: hidden;
-  background: linear-gradient(to bottom right, #b968c5, skyblue);
-}
 
 .audio-player-skin {
-  height: 50px;
+  min-height: 50px;
   width: 100%;
   background: transparent;
- 
+
   font-family: arial;
   color: white;
   border: 30px solid transparent;
 	border-image: url('~assets/interface/div.png') 30 fill stretch;
   font-size: 0.75em;
   overflow: hidden;
-  display: grid;
-  grid-template-rows: 6px auto;
+ 
 }
-.audio-player-skin .timeline {
+
+.timeline {
+  
   background: white;
   width: 100%;
+  height: 20px;
   position: relative;
   cursor: pointer;
   box-shadow: 0 2px 10px 0 #0008;
+  
 }
-.audio-player-skin .timeline .progress-music {
+.timeline-control{
 
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  background: transparent;
+}
+.progress-music {
   background: #9f0505;
   width: 0%;
   height: 100%;
   transition: 0.25s;
 }
-.audio-player-skin .controls {
+ .controls {
+  margin-top: 10px;
   display: flex;
   justify-content: space-between;
   align-items: stretch;
   padding: 0 20px;
 }
-.audio-player-skin .controls > * {
+ .controls > * {
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.audio-player-skin .controls .toggle-play.play {
+ .toggle-play.play {
   cursor: pointer;
   position: relative;
   left: 0;
@@ -55,16 +60,16 @@ body {
   border: 7px solid #0000;
   border-left: 13px solid white;
 }
-.audio-player-skin .controls .toggle-play.play:hover {
+ .toggle-play.play:hover {
   transform: scale(1.1);
 }
-.audio-player-skin .controls .toggle-play.pause {
+.toggle-play.pause {
   height: 15px;
   width: 20px;
   cursor: pointer;
   position: relative;
 }
-.audio-player-skin .controls .toggle-play.pause:before {
+ .toggle-play.pause:before {
   position: absolute;
   top: 0;
   left: 0px;
@@ -73,7 +78,7 @@ body {
   height: 15px;
   width: 3px;
 }
-.audio-player-skin .controls .toggle-play.pause:after {
+ .toggle-play.pause:after {
   position: absolute;
   top: 0;
   right: 8px;
@@ -82,29 +87,34 @@ body {
   height: 15px;
   width: 3px;
 }
-.audio-player-skin .controls .toggle-play.pause:hover {
+ .toggle-play.pause:hover {
   transform: scale(1.1);
 }
-.audio-player-skin .controls .time {
+ .time {
+  color: black;
+  font-weight: 700;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
 }
-.audio-player-skin .controls .time > * {
+ .time > * {
   padding: 2px;
 }
-.audio-player-skin .controls .volume-container {
+.volume-container {
   cursor: pointer;
   position: relative;
   z-index: 2;
 }
-.audio-player-skin .controls .volume-container .volume-button {
+ .volume-button {
   height: 26px;
   display: flex;
   align-items: center;
 }
-.audio-player-skin .controls .volume-container .volume-button .volume {
+.volume {
   transform: scale(0.7);
 }
-.audio-player-skin .controls .volume-container .volume-slider {
+.volume-slider {
   position: absolute;
   left: -3px;
   top: 15px;
@@ -115,12 +125,12 @@ body {
   box-shadow: 0 0 20px #000a;
   transition: 0.25s;
 }
-.audio-player-skin .controls .volume-container .volume-slider .volume-percentage {
+ .volume-percentage {
   background: #e60a0a;
   height: 100%;
   width: 75%;
 }
-.audio-player-skin .controls .volume-container:hover .volume-slider {
+.volume-container:hover .volume-slider {
   left: -123px;
   width: 120px;
 }

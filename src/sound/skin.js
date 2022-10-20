@@ -10,7 +10,7 @@ skin.addEventListener(
 	false,
 );
 
-const timeline = audioPlayer.querySelector('.timeline');
+const timeline = audioPlayer.querySelector('.timeline-control');
 timeline.addEventListener(
 	'click',
 	(e) => {
