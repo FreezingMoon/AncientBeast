@@ -9,6 +9,7 @@
 		<meta name="monetization" content="$pay.stronghold.co/1a15c4d9d46cdd64f9e9094a7c4f04240dc">
 		<meta name="theme-color" content="black">
 		<link rel="manifest" href="manifest.json">
+		<link rel="stylesheet" href="https://icono-49d6.kxcdn.com/icono.min.css">
 		<title>Ancient Beast 0.4</title>
 		<style>
 			.scrim.loading {
@@ -955,8 +956,33 @@
 					</div>
 					
 					<div class="audio-player-controls">
-						<audio id="audio-player" preload="auto" controls=""></audio>
-						<button id="mp_shuffle">Shuffle</button>
+						<div class="audio-player-custom">
+							<div class="timeline">
+								<div class="progress-music"></div>
+							</div>
+							<div class="controls">
+								<div class="play-container">
+									<div class="toggle-play pause">
+								</div>
+								</div>
+								<div class="time">
+									<div class="current">0:00</div>
+									<div class="divider">/</div>
+									<div class="length"></div>
+								</div>
+								<div class="music-name">Music Song</div>
+								<div class="volume-container">
+									<div class="volume-button">
+										<div class="volume icono-volumeMedium"></div>
+									</div>
+									
+									<div class="volume-slider">
+										<div class="volume-percentage"></div>
+									</div>
+								</div>
+							</div>
+							<button id="mp_shuffle">Shuffle</button>
+						</div>
 					</div>
 
 					<div class="musicgenres active">Tags:</div>

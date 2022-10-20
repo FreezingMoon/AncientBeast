@@ -1,8 +1,8 @@
 import * as $j from 'jquery';
-
+import audio from './customaudio';
 export class MusicPlayer {
 	constructor() {
-		this.audio = $j('#audio-player')[0];
+		this.audio = audio;
 		this.playlist = $j('#playlist');
 		this.tracks = this.playlist.find('li.epic');
 
