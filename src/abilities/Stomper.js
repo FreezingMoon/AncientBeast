@@ -148,9 +148,7 @@ export default (G) => {
 
 				// If not upgraded take the first creature found (aka last in path)
 				if (!this.isUpgraded()) {
-					target = this.creature.player.flipped
-						? target[0].creature
-						: arrayUtils.last(target).creature;
+					target = target.find((hex) => hex.creature).creature;
 				}
 
 				let damage = new Damage(
