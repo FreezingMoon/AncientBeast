@@ -3,7 +3,7 @@
  
     min-height: 100px;
     height: 100px;
-    width: 100%;
+    width: 330px;
     background: transparent;
     font-family: arial;
     color: white;
@@ -25,7 +25,7 @@
   display: flex;
   width: 100%;
   top: 0;
-  left: 0;
+  right: 3px;
   justify-content: center;
   gap: 30px;
 
@@ -74,7 +74,7 @@
  .toggle-play.play {
   cursor: pointer;
   position: relative;
-  left: 0;
+  left: 3px;
   height: 0;
   width: 0;
   border: 7px solid #0000;
@@ -92,7 +92,7 @@
  .toggle-play.pause:before {
   position: absolute;
   top: 0;
-  left: 0px;
+  left: 2px;
   background: white;
   content: "";
   height: 15px;
@@ -101,7 +101,7 @@
  .toggle-play.pause:after {
   position: absolute;
   top: 0;
-  right: 8px;
+  right: 5px;
   background: white;
   content: "";
   height: 15px;
@@ -115,7 +115,7 @@
   font-weight: 700;
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-54%);
   display: flex;
 }
  .time > * {
