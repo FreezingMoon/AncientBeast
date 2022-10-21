@@ -439,7 +439,7 @@ export default (G) => {
 				let ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
-				let target = arrayUtils.last(path).creature;
+				let target = path.find((hex) => hex.creature).creature;
 
 				let projectileInstance = G.animations.projectile(
 					this,
