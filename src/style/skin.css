@@ -1,19 +1,21 @@
 
 .audio-player-skin {
  
-    min-height: 100px;
-    height: 100px;
-    width: 330px;
+    min-height: 137px;
+    height: 137px;
+    min-width: 473px;
+    max-width: 473px;
     background: transparent;
     font-family: arial;
     color: white;
     display: flex;
     position: relative;
-    padding: 0px 30px;
-    border: 30px solid transparent;
-    border-image: url('~assets/interface/buttonNormal.png') 20 fill stretch;
+    padding: 0px 60px;
+
+    background-image: url('~assets/interface/buttonNormal.png') ;
     background-repeat: no-repeat;
     background-size: contain;
+    background-position: center;
     font-size: 0.75em;
     overflow: hidden;
     flex-direction: column;
@@ -24,8 +26,8 @@
   position: absolute;
   display: flex;
   width: 100%;
-  top: 0;
-  right: 3px;
+  top: 20px;
+  right: 0;
   justify-content: center;
   gap: 30px;
 
@@ -36,8 +38,9 @@
 .timeline {
   
   background: white;
-  width: 100%;
+  width: 80%;
   height: 20px;
+  margin: 0 auto;
   position: relative;
   cursor: pointer;
   box-shadow: 0 2px 10px 0 #0008;
@@ -60,9 +63,9 @@
   transition: 0.25s;
 }
  .controls {
-  margin-top: 10px;
+  margin-top: 5px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: stretch;
   padding: 0 20px;
 }
@@ -74,7 +77,7 @@
  .toggle-play.play {
   cursor: pointer;
   position: relative;
-  left: 3px;
+  left: 5px;
   height: 0;
   width: 0;
   border: 7px solid #0000;
@@ -92,7 +95,7 @@
  .toggle-play.pause:before {
   position: absolute;
   top: 0;
-  left: 2px;
+  left: 5px;
   background: white;
   content: "";
   height: 15px;
@@ -101,7 +104,7 @@
  .toggle-play.pause:after {
   position: absolute;
   top: 0;
-  right: 5px;
+  right: 0px;
   background: white;
   content: "";
   height: 15px;
@@ -115,7 +118,7 @@
   font-weight: 700;
   position: absolute;
   left: 50%;
-  transform: translateX(-54%);
+  transform: translateX(-49%);
   display: flex;
 }
  .time > * {
