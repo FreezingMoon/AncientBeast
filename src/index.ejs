@@ -9,6 +9,7 @@
 		<meta name="monetization" content="$pay.stronghold.co/1a15c4d9d46cdd64f9e9094a7c4f04240dc">
 		<meta name="theme-color" content="black">
 		<link rel="manifest" href="manifest.json">
+		<link rel="stylesheet" href="https://icono-49d6.kxcdn.com/icono.min.css">
 		<title>Ancient Beast 0.4</title>
 		<style>
 			.scrim.loading {
@@ -955,15 +956,100 @@
 					</div>
 					
 					<div class="audio-player-controls">
-						<audio id="audio-player" preload="auto" controls=""></audio>
-						<button id="mp_shuffle">Shuffle</button>
-					</div>
-
-					<div class="musicgenres active">Tags:</div>
+						<div class="audio-player-skin">
+									
 					<div class="musicgenres__items">
 						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
 							<span class="musicgenres__title" id="genre-<%= musicGenre.id %>"><%= musicGenre.id %></span>
 						<% }); %>
+					</div>
+							<div class="timeline">
+								<div class=" timeline-control"></div>
+								<div class="time">
+									<div class="current">0:00</div>
+									<div class="divider">/</div>
+									<div class="length"></div>
+								</div>
+								<div class="progress-music"></div>
+							</div>
+							<div class="controls">
+								<button id="mp_shuffle"><svg version="1.1" fill="white" stroke="white"  width="20px" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+									viewBox="0 0 509.571 509.571" style="enable-background:new 0 0 509.571 509.571;" xml:space="preserve">
+							 <g>
+								 <g>
+									 <g>
+										 <path d="M489.243,94.006c0.06-3.627-2.176-6.886-5.572-8.149l-230.4-85.333c-1.843-0.674-3.883-0.7-5.751-0.06l-221.867,76.8
+											 c-3.388,1.178-5.683,4.335-5.743,7.919s2.125,6.827,5.47,8.115l221.867,85.333c0.981,0.375,2.022,0.563,3.063,0.563
+											 c0.913,0,1.818-0.145,2.697-0.435l230.4-76.8C486.837,100.815,489.175,97.624,489.243,94.006z M250.369,104.502
+											 c-11.281,0-20.42-7.236-20.42-16.154c0-8.926,9.139-16.154,20.42-16.154s20.42,7.228,20.42,16.154
+											 C270.79,97.266,261.65,104.502,250.369,104.502z"/>
+										 <path d="M486.124,121.082c-2.219-1.613-5.086-2.057-7.689-1.178l-219.597,73.062v316.604l225.254-83.43
+											 c3.354-1.246,5.572-4.437,5.572-8.004V128.003C489.665,125.263,488.351,122.686,486.124,121.082z M309.552,435.203
+											 c-8.926,0-16.154-9.148-16.154-20.42c0-11.281,7.228-20.42,16.154-20.42c8.926,0,16.154,9.139,16.154,20.42
+											 C325.706,426.055,318.478,435.203,309.552,435.203z M371.112,322.443c-8.926,0-16.154-9.139-16.154-20.42
+											 s7.228-20.42,16.154-20.42c8.917,0,16.154,9.139,16.154,20.42S380.029,322.443,371.112,322.443z M437.552,220.043
+											 c-8.926,0-16.154-9.139-16.154-20.42s7.228-20.42,16.154-20.42c8.926,0,16.154,9.139,16.154,20.42
+											 S446.478,220.043,437.552,220.043z"/>
+										 <path d="M23.609,112.436c-2.321,1.587-3.703,4.224-3.703,7.031v290.133c0,3.43,2.048,6.528,5.205,7.859l216.661,91.665V192.376
+											 l-210.278-80.87C28.882,110.499,25.93,110.84,23.609,112.436z M194.088,222.311c8.917,0,16.154,9.148,16.154,20.42
+											 c0,11.281-7.236,20.429-16.154,20.429c-8.926,0-16.154-9.148-16.154-20.429C177.934,231.459,185.162,222.311,194.088,222.311z
+												M191.485,401.068c8.917,0,16.154,9.148,16.154,20.42c0,11.281-7.236,20.42-16.154,20.42c-8.926,0-16.162-9.139-16.162-20.42
+											 C175.323,410.215,182.559,401.068,191.485,401.068z M71.276,171.171c8.926,0,16.154,9.139,16.154,20.42
+											 c0,11.273-7.228,20.42-16.154,20.42c-8.917,0-16.154-9.148-16.154-20.42C55.122,180.31,62.359,171.171,71.276,171.171z
+												M70.704,351.694c8.926,0,16.154,9.139,16.154,20.42s-7.228,20.42-16.154,20.42c-8.917,0-16.154-9.139-16.154-20.42
+											 S61.787,351.694,70.704,351.694z"/>
+									 </g>
+								 </g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 <g>
+							 </g>
+							 </svg></button>
+
+								<div class="play-container">
+									<div class="toggle-play pause">
+								</div>
+								</div>
+								
+								<div class="volume-container">
+									<div class="volume-button">
+										<div class="volume icono-volumeMedium"></div>
+									</div>
+									
+									<div class="volume-slider">
+										<div class="volume-percentage"></div>
+									</div>
+								</div>
+							</div>
+							
+						</div>
 					</div>
 					<ul id="playlist" style="list-style-type:none; padding-left:0px;">
 						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>

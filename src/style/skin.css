@@ -1,0 +1,153 @@
+.audio-player-skin {
+	min-height: 137px;
+	height: 137px;
+	min-width: 473px;
+	max-width: 473px;
+	background: transparent;
+	font-family: arial;
+	color: white;
+	display: flex;
+	position: relative;
+	padding: 0px 60px;
+	background-image: url('~assets/interface/buttonNormal.png') ;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+	font-size: 0.75em;
+	overflow: hidden;
+	flex-direction: column;
+	justify-content: center;
+}
+.musicgenres__items {
+	color: #aaa;
+	position: absolute;
+	display: flex;
+	width: 100%;
+	top: 20px;
+	right: 0;
+	justify-content: center;
+	gap: 30px;
+}
+.active-text {
+	color: white !important;
+}
+.timeline {
+	background: white;
+	width: 80%;
+	height: 20px;
+	margin: 0 auto;
+	margin-top:
+	position: relative;
+	cursor: pointer;
+	box-shadow: 0 2px 10px 0 #0008;
+}
+.timeline-control {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 10;
+	background: transparent;
+}
+.progress-music {
+	background: #9f0505;
+	width: 0%;
+	height: 100%;
+	transition: 0.25s;
+}
+.controls {
+	margin-top: 10px;
+	display: flex;
+	justify-content: space-around;
+	align-items: stretch;
+	padding: 0 20px;
+}
+.controls > * {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.toggle-play.play {
+	cursor: pointer;
+	position: relative;
+	left: 5px;
+	height: 0;
+	width: 0;
+	border: 7px solid #0000;
+	border-left: 13px solid white;
+}
+.toggle-play.play:hover {
+	transform: scale(1.1);
+}
+.toggle-play.pause {
+	height: 15px;
+	width: 20px;
+	cursor: pointer;
+	position: relative;
+}
+.toggle-play.pause:before {
+	position: absolute;
+	top: 0;
+	left: 5px;
+	background: white;
+	content: "";
+	height: 15px;
+	width: 3px;
+}
+.toggle-play.pause:after {
+	position: absolute;
+	top: 0;
+	right: 0px;
+	background: white;
+	content: "";
+	height: 15px;
+	width: 3px;
+}
+.toggle-play.pause:hover {
+	transform: scale(1.1);
+}
+.time {
+	color: black;
+	font-weight: 700;
+	position: absolute;
+	left: 50%;
+	transform: translateX(-49%);
+	display: flex;
+}
+.time > * {
+	padding: 2px;
+}
+.volume-container {
+	cursor: pointer;
+	position: relative;
+	z-index: 2;
+}
+.volume-button {
+	height: 26px;
+	display: flex;
+	align-items: center;
+}
+.volume {
+	transform: scale(0.7);
+}
+.volume-slider {
+	position: absolute;
+	left: -3px;
+	top: 15px;
+	z-index: -1;
+	width: 0;
+	height: 15px;
+	background: white;
+	box-shadow: 0 0 20px #000a;
+	transition: 0.25s;
+}
+.volume-percentage {
+	background: #e60a0a;
+	height: 100%;
+	width: 75%;
+}
+.volume-container:hover .volume-slider {
+	left: -123px;
+	width: 120px;
+}

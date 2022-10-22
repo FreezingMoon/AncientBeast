@@ -672,6 +672,10 @@ div.section.info {
 
 #musicplayerwrapper .active,
 #musicplayerwrapper .active a {
+	opacity: 1 !important;
+}
+#musicplayerwrapper .active,
+#musicplayerwrapper .active-text a {
 	color: white !important;
 }
 
@@ -682,11 +686,8 @@ div.section.info {
 	justify-content: center;
 	margin-bottom: 16px;
 
-	#audio-player {
-		width: 100%;
-	}
-
 	#mp_shuffle {
+		opacity: 0.5;
 		background: none;
 		border: none;
 		cursor: pointer;
@@ -698,7 +699,7 @@ div.section.info {
 }
 
 .musicgenres__title + .musicgenres__title {
-	padding-left: 10px;
+	padding: 0px;
 }
 
 .hidden {
