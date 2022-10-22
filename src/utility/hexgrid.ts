@@ -474,7 +474,7 @@ export class HexGrid {
 			shrunkenHexes: [],
 			isDirectionsQuery: false,
 			hideNonTarget: true,
-      dashedHexesUnderCreature: false,
+			dashedHexesUnderCreature: false,
 		};
 
 		o = { ...defaultOpt, ...o };
@@ -512,9 +512,9 @@ export class HexGrid {
 			}
 		}
 
-    o.hexesDashed = o.dashedHexesUnderCreature
-                      ? o.hexesDashed 
-                      : o.hexesDashed.filter((hexDash) => !hexDash.creature);
+		o.hexesDashed = o.dashedHexesUnderCreature
+			? o.hexesDashed
+			: o.hexesDashed.filter((hexDash) => !hexDash.creature);
 
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {

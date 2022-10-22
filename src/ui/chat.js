@@ -51,12 +51,12 @@ export class Chat {
 	 */
 	_handleUiEvent(message, payload) {
 		if (
-      message === 'toggleDash' || 
-      message === 'toggleScore' ||
-      message === 'toggleMusicPlayer' ||
-      message === 'toggleMetaPowers' ||
-      message === 'closeInterfaceScreens'
-    ) {
+			message === 'toggleDash' ||
+			message === 'toggleScore' ||
+			message === 'toggleMusicPlayer' ||
+			message === 'toggleMetaPowers' ||
+			message === 'closeInterfaceScreens'
+		) {
 			this.hide();
 		}
 	}

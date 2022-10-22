@@ -56,7 +56,7 @@ export class Drop {
 
 	pickup(creature) {
 		let game = this.game;
-        let alterations = this.alterations;
+		let alterations = this.alterations;
 
 		game.log('%CreatureName' + creature.id + '% picks up ' + this.name);
 		creature.hint(this.name, 'msg_effects');
