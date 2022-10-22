@@ -110,6 +110,7 @@
 .time {
 	color: black;
 	font-weight: 700;
+	margin-top: 1px;
 	position: absolute;
 	left: 50%;
 	transform: translateX(-49%);
