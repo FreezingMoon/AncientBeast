@@ -257,68 +257,42 @@ export default (G) => {
 				});
 			},
 
-			activate: function (queryPath, args) {
+			activate: function (target) {
 				const ability = this;
 				const headless = this.creature;
-				const target = arrayUtils.last(queryPath).creature;
-				let path = [...queryPath];
-				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
-
-				// We just want the path between the units.
-				path = path.filter((hex) => {
-					return !hex.creature;
-				});
-
-				/* The query path starts away from Headless due to minimum range, so we
-				add the ability deadzone (inside minimum range) path to extend the final
-				path all the way back to in front of Headless. */
-				const extendFunction =
-					args.direction === Direction.Left ? arrayUtils.extendToLeft : arrayUtils.extendToRight;
-				const deadzonePath = extendFunction(
-					this.creature.getHexMap(
-						matrices.inlinefront2hex,
-						this.isTargetingBackwards(args.direction),
-					),
-					this.range.minimum - 1,
-					this.game.grid,
-				);
-				path = arrayUtils.sortByDirection(
-					[...deadzonePath, ...path],
-					args.direction === Direction.Right ? Direction.Left : Direction.Right,
-				);
-
+				target = target.find((hex) => hex.creature).creature;
 				ability.end();
 
 				// Movement - here be legacy dragons.
-				headless.faceHex(target);
-				arrayUtils.filterCreature(path, false, false);
-				let destination = null;
-				let destinationTarget = null;
+				let destinationX = null;
+				let destinationTargetX = null;
+				let isOnLeft = headless.x < target.x;
 				if (target.size === 1) {
 					/* Small creature, pull target towards self landing it in the hex directly
 					in front of the Headless. */
-					const hexInFrontOfHeadless = path[0];
-					destinationTarget = hexInFrontOfHeadless;
+					destinationTargetX = isOnLeft ? headless.x + 1 : headless.x - 2;
 				} else if (target.size === 2) {
 					/* Medium creature, pull self and target towards each other half way,
 					rounding upwards for self (self move one extra hex if required). */
-					let midpoint = Math.floor((path.length - 1) / 2);
-					destination = path[midpoint];
-					if (midpoint < path.length - 1) {
-						destinationTarget = path[midpoint + 1];
+					let midpoint = Math.floor((headless.x + target.x) / 2);
+					if (headless.x < target.x && (headless.x + target.x) % 2 == 1) {
+						midpoint++;
+					}
+					destinationX = isOnLeft ? midpoint - 1 : midpoint + 1;
+					if (Math.abs(headless.x - target.x) > 1) {
+						destinationTargetX = isOnLeft ? midpoint + 1 : midpoint - 1;
 					}
 				} else {
 					// Large creature, pull self towards target.
-					destination = arrayUtils.last(path);
+					destinationX = !isOnLeft ? target.x + 2 : target.x - 3;
 				}
 
 				let x;
 				let hex;
 
 				// Check if Headless will be moved.
-				if (destination) {
-					x = args.direction === Direction.Left ? destination.x + headless.size - 1 : destination.x;
-					hex = G.grid.hexes[destination.y][x];
+				if (destinationX) {
+					hex = G.grid.hexes[headless.y][destinationX];
 					headless.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
@@ -335,12 +309,8 @@ export default (G) => {
 				}
 
 				// Check if target creature will be moved.
-				if (destinationTarget) {
-					x =
-						args.direction === Direction.Right
-							? destinationTarget.x + target.size - 1
-							: destinationTarget.x;
-					hex = G.grid.hexes[destinationTarget.y][x];
+				if (destinationTargetX) {
+					hex = G.grid.hexes[headless.y][destinationTargetX];
 					target.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
