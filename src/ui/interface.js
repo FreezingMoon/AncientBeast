@@ -2491,27 +2491,31 @@ export class UI {
 			$queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
 		}
 
-		const maxBounceHeight = screen.height / 4;
-		const isBounceHeightExceeded = parseInt($queueItem.css('top'), 10) > maxBounceHeight;
-		let maxBounce = maxBounceHeight;
+		if ($queueItem.hasClass('bouncing')) return;
+		$queueItem.addClass('bouncing');
+
+		let maxBounce = screen.height / 4;
 		let bounceTime = 280; // Time in ms, how long it takes portrait to move down when bouncing, increase to slow down bounce
 
 		let timerId = setInterval(() => {
-			if ($queueItem.length > 0 && !isBounceHeightExceeded) {
+			if ($queueItem.length > 0) {
 				$queueItem.stop();
 				$queueItem.animate(
 					{
 						top: '+=' + maxBounce.toString(10) + 'px',
 					},
-					bounceTime,
-					'',
-					() => {
-						$queueItem.animate(
-							{
-								top: '-=' + $queueItem.css('top'),
-							},
-							bounceTime - 100,
-						);
+					{
+						duration: bounceTime,
+						complete: () => {
+							$queueItem.animate(
+								{
+									top: '-=' + $queueItem.css('top'),
+								},
+								{
+									duration: bounceTime - 100,
+								},
+							);
+						},
 					},
 				);
 			}
@@ -2519,6 +2523,7 @@ export class UI {
 		}, bounceTime * 2 - 100);
 
 		setTimeout(() => {
+			$queueItem.removeClass('bouncing');
 			clearInterval(timerId);
 		}, bounceTime * 6 - 300);
 	}
