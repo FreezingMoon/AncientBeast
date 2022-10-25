@@ -1,5 +1,6 @@
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
+import { Direction, Hex } from '../utility/hex';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
@@ -80,16 +81,6 @@ export default (G) => {
 
 			_targetTeam: Team.Enemy,
 
-			_upgradedMap: [
-				[0, 1, 0, 0, 0, 1, 0, 0],
-				[0, 0, 1, 0, 0, 1, 0, 0],
-				[0, 0, 1, 0, 1, 0, 0, 0],
-				[1, 1, 1, 0, 0, 1, 1, 1], // Origin line
-				[0, 0, 1, 0, 1, 0, 0, 0],
-				[0, 0, 1, 0, 0, 1, 0, 0],
-				[0, 1, 0, 0, 0, 1, 0, 0],
-			],
-
 			// require() :
 			require: function () {
 				let req = {
@@ -128,15 +119,37 @@ export default (G) => {
 					});
 				} // Once upgraded, can hit any ennemy within 3hex in any direction
 				else {
-					this._upgradedMap.origin = [3, 3];
+					let hexesTargeted = [];
+					// Adding all hexes in all directions within 3 hexes
+					for (let i = 0; i < 6; i++) {
+						let k = 0;
+						if ((!stomper.player.flipped && i > 2) || (stomper.player.flipped && i < 3)) {
+							k = -1;
+						}
+						let hexesInDirection = G.grid
+							.getHexLine(stomper.x + k, stomper.y, i, stomper.player.flipped)
+							.slice(0, 4);
+						if (
+							G.grid.atLeastOneTarget(hexesInDirection, {
+								team: this._targetTeam,
+								id: stomper.id,
+							})
+						) {
+							hexesInDirection.forEach((item) => {
+								hexesTargeted.push(item);
+							});
+						}
+					}
+					// Finding creatures in hexes
+					let creatureTargets = arrayUtils.filterCreature(hexesTargeted, true, false);
 					G.grid.queryCreature({
 						fnOnConfirm: function () {
 							ability.animation(...arguments);
 						},
-						team: this._targetTeam,
-						id: stomper.id,
+						hexes: creatureTargets,
+						hexesDashed: hexesTargeted,
 						flipped: stomper.player.flipped,
-						hexes: stomper.getHexMap(this._upgradedMap),
+						id: stomper.id,
 					});
 				}
 			},
