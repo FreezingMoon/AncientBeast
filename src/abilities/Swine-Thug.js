@@ -4,6 +4,7 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
+import { Game } from 'phaser-ce';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -449,8 +450,7 @@ export default (G) => {
 				];
 
 				hex.createTrap('mud-bath', effects, ability.creature.player);
-				game.soundsys.playSound(game.soundLoaded[7], game.soundsys.effectsGainNode);
-
+				G.soundsys.playSound(G.soundLoaded[7], G.soundsys.effectsGainNode);
 				// Trigger trap immediately if on self
 				if (isSelf) {
 					// onCreatureMove is Spa Goggles' trigger event
