@@ -449,6 +449,7 @@ export default (G) => {
 				];
 
 				hex.createTrap('mud-bath', effects, ability.creature.player);
+				game.soundsys.playSound(game.soundLoaded[7], game.soundsys.effectsGainNode);
 
 				// Trigger trap immediately if on self
 				if (isSelf) {
