@@ -140,7 +140,7 @@ export default (G) => {
 							});
 						}
 					}
-					//Finding creatures in hexes
+					// Finding creatures in hexes
 					let creatureTargets = arrayUtils.filterCreature(hexesTargeted, true, false);
 					G.grid.queryCreature({
 						fnOnConfirm: function () {
