@@ -953,6 +953,12 @@
 				<div class="framed-modal framed-modal--fluid">
 					<div class="framed-modal__return">
 						<button class="toggle-music-player close-button"></button>
+						<div id="volumeSliders">
+						   <div>
+							Effects Volume
+							</div>
+							<input id="sfx" class="slider" type="range" min="0" max="10" value="5" step="0.2">
+						</div>
 					</div>
 					
 					<div class="audio-player-controls">
@@ -1058,10 +1064,6 @@
 							<% }); %>
 						<% }); %>
 					</ul>
-					<div id="volumeSliders">
-						Effects Volume
-						<input id="sfx" class="slider" type="range" min="0" max="10" value="5" step="0.2">
-					</div>
 				</div>
 			</div>
 
