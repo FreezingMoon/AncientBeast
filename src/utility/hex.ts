@@ -422,7 +422,7 @@ export class Hex {
 	 * Clear the appearance of the display hex
 	 */
 	cleanDisplayVisualState(classes = '') {
-		classes = classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken';
+		classes = classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken deadzone';
 		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
@@ -472,6 +472,7 @@ export class Hex {
 		targetAlpha = !this.displayClasses.match(/hidden/g) && targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/showGrid/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/dashed/g)) || targetAlpha;
+		targetAlpha = Boolean(this.displayClasses.match(/deadzone/g)) || targetAlpha;
 
 		if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
@@ -481,6 +482,8 @@ export class Hex {
 			this.display.loadTexture('hex_path');
 		} else if (this.displayClasses.match(/dashed/)) {
 			this.display.loadTexture('hex_dashed');
+		} else if (this.displayClasses.match(/deadzone/)) {
+			this.display.loadTexture('hex_deadzone');
 		} else {
 			this.display.loadTexture('hex');
 		}

@@ -23,6 +23,7 @@ interface QueryOptions {
 	y: number;
 	hexesDashed: Hex[];
 	shrunkenHexes: Hex[];
+	hexesDeadZone: Hex[];
 	directions: number[];
 	includeCreature: boolean;
 	stopOnCreature: boolean;
@@ -254,6 +255,7 @@ export class HexGrid {
 			y: 0,
 			hexesDashed: [],
 			shrunkenHexes: [],
+			hexesDeadZone: [],
 			directions: [1, 1, 1, 1, 1, 1],
 			includeCreature: true,
 			stopOnCreature: true,
@@ -318,6 +320,11 @@ export class HexGrid {
 					options.minDistance,
 				);
 			}
+
+			const hexesDeadZone = [];
+			deadzone.forEach((element) => {
+				hexesDeadZone.push(element);
+			});
 
 			/* If the ability has a minimum distance and units should block LOS, this
 				direction cannot be used if there is a unit in the deadzone. */
@@ -387,6 +394,7 @@ export class HexGrid {
 
 			options.hexesDashed = [...options.hexesDashed, ...hexesDashed];
 			options.shrunkenHexes = [...options.shrunkenHexes, ...shrunkenHexes];
+			options.hexesDeadZone = [...options.hexesDeadZone, ...hexesDeadZone];
 			options.choices.push(dir);
 		}
 
@@ -550,6 +558,7 @@ export class HexGrid {
 			hexes: hexes,
 			hexesDashed: o.hexesDashed,
 			shrunkenHexes: o.shrunkenHexes,
+			hexesDeadZone: o.hexesDeadZone,
 			flipped: o.flipped,
 			hideNonTarget: o.hideNonTarget,
 			id: o.id,
@@ -670,6 +679,7 @@ export class HexGrid {
 			},
 			hexes: o.hexes,
 			hexesDashed: o.hexesDashed,
+			hexesDeadZone: o.hexesDeadZone,
 			flipped: o.flipped,
 			hideNonTarget: true,
 			id: o.id,
@@ -709,6 +719,7 @@ export class HexGrid {
 			hexes: [],
 			hexesDashed: [],
 			shrunkenHexes: [],
+			hexesDeadZone: [],
 			size: 1,
 			id: 0,
 			flipped: false,
@@ -740,6 +751,12 @@ export class HexGrid {
 				hex.displayVisualState('dashed');
 			} else {
 				hex.cleanDisplayVisualState('dashed');
+			}
+
+			if (o.hexesDeadZone.indexOf(hex) !== -1) {
+				hex.displayVisualState('deadzone');
+			} else {
+				hex.cleanDisplayVisualState('deadzone');
 			}
 
 			if (o.shrunkenHexes.includes(hex)) {
