@@ -950,7 +950,7 @@
 			</div>
 
 			<div id="musicplayerwrapper" class="framed-modal__wrapper hide">
-				<div class="framed-modal framed-modal--fluid">
+				
 					<div class="framed-modal__return">
 						<button class="toggle-music-player close-button"></button>
 						<div id="volumeSliders">
@@ -1057,14 +1057,17 @@
 							
 						</div>
 					</div>
+					<div class="framed-modal framed-modal--fluid">
 					<ul id="playlist" style="list-style-type:none; padding-left:0px;">
 						<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
 							<% musicGenre.children.forEach(function(track) { %>
 								<li class="<%= musicGenre.id %>"><a href="<%= track.url %>"><%= track.id %></a></li>
 							<% }); %>
 						<% }); %>
+					
 					</ul>
 				</div>
+				
 			</div>
 
 			<div id="toppanel">
