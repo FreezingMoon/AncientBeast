@@ -301,8 +301,9 @@
 
 #rightpanel {
 	position: absolute;
-	right: 20px;
-	top: 100px;
+	right: 0px;
+	top: 0px;
+	z-index: 4;
 }
 
 #leftpanel {
@@ -434,8 +435,8 @@
 #playerbutton {
 	cursor: pointer;
 	background: rgba(0, 0, 0, 0.55);
-	position: fixed;
-	right: 0;
+	position: relative;
+	right: 0px;
 	z-index: 2;
 }
 
@@ -478,7 +479,7 @@
 	}
 }
 
-#rightpanel .button {
+#rightpanel .button:not(.togglescore) {
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
 	transform: translateX(50%);
@@ -1655,7 +1656,8 @@ span.pure {
 }
 
 #rightpanel .progressbar {
-	right: -20px;
+	right: 0px;
+	top: 100px;
 }
 
 .progressbar .bar {
