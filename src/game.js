@@ -297,6 +297,7 @@ export default class Game {
 		// Grid
 		this.Phaser.load.image('hex', getUrl('interface/hex'));
 		this.Phaser.load.image('hex_dashed', getUrl('interface/hex_dashed'));
+		this.Phaser.load.image('hex_deadzone', getUrl('interface/hex_deadzone'));
 		this.Phaser.load.image('hex_path', getUrl('interface/hex_path'));
 		this.Phaser.load.image('cancel', getUrl('interface/cancel'));
 		this.Phaser.load.image('input', getUrl('interface/hex_input'));
