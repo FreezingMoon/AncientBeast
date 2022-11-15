@@ -392,6 +392,11 @@ export class HexGrid {
 				);
 			}
 
+			// Deadzone hexes are also part of direction, so they should be clickable
+			deadzone.forEach((element) => {
+				dir.push(element);
+			});
+
 			options.hexesDashed = [...options.hexesDashed, ...hexesDashed];
 			options.shrunkenHexes = [...options.shrunkenHexes, ...shrunkenHexes];
 			options.hexesDeadZone = [...options.hexesDeadZone, ...hexesDeadZone];
