@@ -393,9 +393,9 @@ export class HexGrid {
 			}
 
 			// Deadzone hexes are also part of direction, so they should be clickable
-			deadzone.forEach((element) => {
-				dir.push(element);
-			});
+		//	deadzone.forEach((element) => {
+		//		dir.push(element);
+		//	});
 
 			options.hexesDashed = [...options.hexesDashed, ...hexesDashed];
 			options.shrunkenHexes = [...options.shrunkenHexes, ...shrunkenHexes];
@@ -484,6 +484,7 @@ export class HexGrid {
 			flipped: false,
 			choices: [],
 			hexesDashed: [],
+			hexesDeadZone: [],
 			shrunkenHexes: [],
 			isDirectionsQuery: false,
 			hideNonTarget: true,
@@ -600,6 +601,7 @@ export class HexGrid {
 			args: {},
 			hexes: [],
 			hexesDashed: [],
+			hexesDeadZone: [],
 			flipped: false,
 			id: 0,
 			team: Team.Enemy,
