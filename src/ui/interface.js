@@ -155,7 +155,7 @@ export class UI {
 				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
-						const creature = game.activeCreature;
+						let creature = game.activeCreature;
 
 						if (
 							game.turnThrottle ||
@@ -253,18 +253,18 @@ export class UI {
 
 		// Defines states for ability buttons
 		for (let i = 0; i < 4; i++) {
-			const b = new Button(
+			let b = new Button(
 				{
 					$button: $j('.ability[ability="' + i + '"]'),
 					hasShortcut: true,
 					click: () => {
-						const game = this.game;
+						let game = this.game;
 						if (this.selectedAbility != i) {
 							if (this.dashopen) {
 								return false;
 							}
 
-							const ability = game.activeCreature.abilities[i];
+							let ability = game.activeCreature.abilities[i];
 							// Passive ability icon can cycle between usable abilities
 							if (i == 0) {
 								const selectedAbility = this.selectNextAbility();
@@ -292,13 +292,13 @@ export class UI {
 						}
 
 						(function () {
-							const $desc = $j('.desc[ability="' + i + '"]');
+							let $desc = $j('.desc[ability="' + i + '"]');
 
 							// Ensure tooltip stays in window - adjust
 							var rect = $desc[0].getBoundingClientRect();
 							const margin = 20;
 							if (rect.bottom > window.innerHeight - margin) {
-								const value = window.innerHeight - rect.bottom - margin;
+								let value = window.innerHeight - rect.bottom - margin;
 								$desc[0].style.top = value + 'px';
 								$desc.find('.arrow')[0].style.top = 27 - value + 'px'; // Keep arrow position
 							}
@@ -309,7 +309,7 @@ export class UI {
 							this.hideAbilityCosts();
 						}
 						(function () {
-							const $desc = $j('.desc[ability="' + i + '"]');
+							let $desc = $j('.desc[ability="' + i + '"]');
 							$desc[0].style.top = '0px';
 							$desc.find('.arrow')[0].style.top = '27px';
 						})();
@@ -375,14 +375,14 @@ export class UI {
 		);
 
 		// Sound Effects slider
-		const slider = document.getElementById('sfx');
+		let slider = document.getElementById('sfx');
 		slider.addEventListener('input', sliderChange);
 		/** @returns {number} Makes slider control sfx */
 		function sliderChange() {
 			game.soundsys.setEffectsVolume(this.value);
 		}
 
-		const ingameHotkeys = {
+		let ingameHotkeys = {
 			KeyS: {
 				onkeydown(event) {
 					if (event.shiftKey) {
@@ -480,7 +480,7 @@ export class UI {
 			},
 			Escape: {
 				onkeydown() {
-					const isAbilityActive =
+					let isAbilityActive =
 						this.activeAbility && this.$scoreboard.hasClass('hide') && !this.chat.isOpen;
 
 					if (isAbilityActive) {
@@ -531,7 +531,7 @@ export class UI {
 				return;
 			}
 
-			const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
+			let keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
 
 			if (keydownAction !== undefined) {
 				keydownAction.call(this, e);
@@ -545,7 +545,7 @@ export class UI {
 				return;
 			}
 
-			const keyupAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeyup;
+			let keyupAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeyup;
 
 			if (keyupAction !== undefined) {
 				keyupAction.call(this, e);
@@ -575,63 +575,6 @@ export class UI {
 					if (this.dashopen) {
 						this.closeDash();
 					}
-					break;
-			}
-		});
-
-		// Mouse Shortcut
-		$j('#musicplayerwrapper').on('mousedown', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
-			switch (e.which) {
-				case 1:
-					// Left mouse button pressed
-					break;
-				case 2:
-					// Middle mouse button pressed
-					break;
-				case 3:
-					// Right mouse button pressed
-					this.closeMusicPlayer();
-					break;
-			}
-		});
-
-		// Mouse Shortcut
-		$j('#ui').on('mousedown', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
-			switch (e.which) {
-				case 1:
-					// Left mouse button pressed
-					break;
-				case 2:
-					// Middle mouse button pressed
-					break;
-				case 3:
-					// Right mouse button pressed
-					this.closeScoreboard();
-					break;
-			}
-		});
-
-		// Mouse Shortcut
-		$j('#meta-powers').on('mousedown', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
-			switch (e.which) {
-				case 1:
-					// Left mouse button pressed
-					break;
-				case 2:
-					// Middle mouse button pressed
-					break;
-				case 3:
-					// Right mouse button pressed
-					this.metaPowers._closeModal();
 					break;
 			}
 		});
@@ -666,14 +609,14 @@ export class UI {
 		});
 
 		this.$dash.find('.section.numbers .stat').on('mouseover', (event) => {
-			const $section = $j(event.target).closest('.section');
-			const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
+			let $section = $j(event.target).closest('.section');
+			let which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
 			$j(which).addClass('shown');
 		});
 
 		this.$dash.find('.section.numbers .stat').on('mouseleave', (event) => {
-			const $section = $j(event.target).closest('.section');
-			const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
+			let $section = $j(event.target).closest('.section');
+			let which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
 
 			$j(which).removeClass('shown');
 		});
@@ -691,10 +634,10 @@ export class UI {
 		this.dashopen = false;
 
 		this.glowInterval = setInterval(() => {
-			const opa =
+			let opa =
 				0.5 +
 				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
-			const opaWeak = opa / 2;
+			let opaWeak = opa / 2;
 
 			game.grid.allhexes.forEach((hex) => {
 				if (hex.overlayClasses.match(/creature/)) {
@@ -770,13 +713,13 @@ export class UI {
 	}
 
 	showAbilityCosts(abilityId) {
-		const game = this.game,
+		let game = this.game,
 			creature = game.activeCreature,
 			ab = creature.abilities[abilityId];
 
 		if (ab.costs !== undefined) {
 			if (typeof ab.costs.energy == 'number') {
-				const costsEnergy = ab.costs.energy + creature.stats.reqEnergy;
+				let costsEnergy = ab.costs.energy + creature.stats.reqEnergy;
 				this.energyBar.previewSize(costsEnergy / creature.stats.energy);
 				this.energyBar.setAvailableStyle();
 
@@ -802,7 +745,7 @@ export class UI {
 	}
 
 	hideAbilityCosts() {
-		const game = this.game,
+		let game = this.game,
 			creature = game.activeCreature;
 		// Reset energy bar to match actual energy value
 		this.energyBar.setSize(creature.energy / creature.stats.energy);
@@ -812,11 +755,11 @@ export class UI {
 	}
 
 	selectPreviousAbility() {
-		const game = this.game,
+		let game = this.game,
 			b = this.selectedAbility == -1 ? 4 : this.selectedAbility;
 
 		for (let i = b - 1; i > 0; i--) {
-			const creature = game.activeCreature;
+			let creature = game.activeCreature;
 
 			if (creature.abilities[i].require() && !creature.abilities[i].used) {
 				this.abilitiesButtons[i].triggerClick();
@@ -831,7 +774,7 @@ export class UI {
 	 * Cycles to next available ability. Returns the ability number selected or -1 if deselected.
 	 */
 	selectNextAbility() {
-		const game = this.game,
+		let game = this.game,
 			b = this.selectedAbility == -1 ? 0 : this.selectedAbility;
 		if (this.selectedAbility == 3) {
 			game.activeCreature.queryMove();
@@ -839,7 +782,7 @@ export class UI {
 			return -1;
 		}
 		for (let i = b + 1; i < 4; i++) {
-			const creature = game.activeCreature;
+			let creature = game.activeCreature;
 
 			if (creature.abilities[i].require() && !creature.abilities[i].used) {
 				this.abilitiesButtons[i].triggerClick();
@@ -946,7 +889,7 @@ export class UI {
 			.addClass('active');
 
 		this.selectedCreature = creatureType;
-		const stats = game.retrieveCreatureStats(creatureType);
+		let stats = game.retrieveCreatureStats(creatureType);
 
 		// TODO card animation
 		if (
@@ -981,7 +924,7 @@ export class UI {
 				)}')`,
 			});
 			$j.each(stats.stats, (key, value) => {
-				const $stat = $j('#card .sideB .' + key + ' .value');
+				let $stat = $j('#card .sideB .' + key + ' .value');
 				$stat.removeClass('buff debuff');
 				if (this.selectedCreatureObj) {
 					if (key == 'health') {
@@ -1011,7 +954,7 @@ export class UI {
 				}
 			});
 			$j.each(game.abilities[stats.id], (key) => {
-				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
+				let $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
 				$ability.children('.icon').css({
 					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
 				});
@@ -1058,7 +1001,7 @@ export class UI {
 			this.materializeButton.changeState(ButtonStateEnum.disabled);
 			$j('#card .sideA').addClass('disabled').off('click');
 
-			const activeCreature = game.activeCreature;
+			let activeCreature = game.activeCreature;
 
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
 				$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
@@ -1068,7 +1011,7 @@ export class UI {
 				activeCreature.type === '--' &&
 				activeCreature.abilities[3].used === false
 			) {
-				const lvl = creatureType.substring(1, 2) - 0,
+				let lvl = creatureType.substring(1, 2) - 0,
 					size = game.retrieveCreatureStats(creatureType).size - 0,
 					plasmaCost = lvl + size;
 
@@ -1173,14 +1116,14 @@ export class UI {
 
 			// Card B
 			$j.each(stats.stats, (key, value) => {
-				const $stat = $j('#card .sideB .' + key + ' .value');
+				let $stat = $j('#card .sideB .' + key + ' .value');
 				$stat.removeClass('buff debuff');
 				$stat.text(value);
 			});
 
 			// Abilities
 			$j.each(stats.ability_info, (key) => {
-				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
+				let $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
 				$ability.children('.icon').css({
 					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
 				});
@@ -1301,7 +1244,7 @@ export class UI {
 	 * Change to the specified player tab in the dash
 	 */
 	changePlayerTab(id) {
-		const game = this.game;
+		let game = this.game;
 
 		this.selectedPlayer = id;
 		this.$dash // Dash class
@@ -1320,7 +1263,7 @@ export class UI {
 		game.players[id].availableCreatures.forEach((creature) => {
 			this.$grid.find(".vignette[creature='" + creature + "']").removeClass('locked');
 
-			const lvl = creature.substring(1, 2) - 0,
+			let lvl = creature.substring(1, 2) - 0,
 				size = game.retrieveCreatureStats(creature).size - 0,
 				plasmaCost = lvl + size;
 
@@ -1330,7 +1273,7 @@ export class UI {
 		});
 
 		game.players[id].creatures.forEach((creature) => {
-			const $crea = this.$grid.find(".vignette[creature='" + creature.type + "']");
+			let $crea = this.$grid.find(".vignette[creature='" + creature.type + "']");
 
 			$crea.removeClass('notsummonable');
 			if (creature.dead === true) {
@@ -1354,7 +1297,7 @@ export class UI {
 					this.$dash.children('#tooltip').text('Creature locked.');
 				}
 
-				const creatureType = $j(e.currentTarget).attr('creature'); // CreatureType
+				let creatureType = $j(e.currentTarget).attr('creature'); // CreatureType
 				this.lastViewedCreature = creatureType;
 				this.showCreature(creatureType, this.selectedPlayer, 'grid');
 			});
@@ -1370,8 +1313,8 @@ export class UI {
 
 	// Function to close scoreboard if pressing outside of it
 	easyScoreClose(e) {
-		const score = $j('#scoreboard');
-		const scoreboard = $j('#scoreboard');
+		let score = $j('#scoreboard');
+		let scoreboard = $j('#scoreboard');
 
 		// Check if the target of the click isn't the scoreboard nor a descendant of it
 		if (!score.is(e.target) && score.has(e.target).length === 0) {
@@ -1381,7 +1324,7 @@ export class UI {
 	}
 
 	toggleScoreboard(gameOver) {
-		const game = this.game;
+		let game = this.game;
 
 		// If the scoreboard is already displayed, hide it and return
 		if (!this.$scoreboard.hasClass('hide')) {
@@ -1397,12 +1340,12 @@ export class UI {
 		this.$scoreboard.find('#scoreboardTitle').text('Current Score');
 
 		// Calculate the time cost of the last turn
-		const skipTurn = new Date(),
+		let skipTurn = new Date(),
 			p = game.activeCreature.player;
 
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
 
-		const $table = $j('#scoreboard table tbody');
+		let $table = $j('#scoreboard table tbody');
 
 		// Write table for number players
 
@@ -1503,7 +1446,7 @@ export class UI {
 			}
 
 			//----------Display-----------//
-			const colId = game.playerMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
+			let colId = game.playerMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
 
 			// Change Name
 			$table
@@ -1513,7 +1456,7 @@ export class UI {
 
 			// Change score
 			$j.each(game.players[i].getScore(), function (index, val) {
-				const text = val === 0 && index !== 'total' ? '--' : val;
+				let text = val === 0 && index !== 'total' ? '--' : val;
 				$table
 					.children('tr.' + index)
 					.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
@@ -1528,7 +1471,7 @@ export class UI {
 			// Declare winner
 			if (game.playerMode > 2) {
 				// 2 vs 2
-				const score1 = game.players[0].getScore().total + game.players[2].getScore().total,
+				let score1 = game.players[0].getScore().total + game.players[2].getScore().total,
 					score2 = game.players[1].getScore().total + game.players[3].getScore().total;
 
 				if (score1 > score2) {
@@ -1547,7 +1490,7 @@ export class UI {
 				}
 			} else {
 				// 1 vs 1
-				const score1 = game.players[0].getScore().total,
+				let score1 = game.players[0].getScore().total,
 					score2 = game.players[1].getScore().total;
 
 				if (score1 > score2) {
@@ -1578,7 +1521,7 @@ export class UI {
 	 */
 
 	toggleDash(randomize) {
-		const game = this.game;
+		let game = this.game;
 
 		if (this.$dash.hasClass('active')) {
 			this.closeDash();
@@ -1596,7 +1539,7 @@ export class UI {
 	}
 
 	closeDash() {
-		const game = this.game;
+		let game = this.game;
 
 		this.$dash.removeClass('active');
 		this.$dash.transition(
@@ -1834,16 +1777,16 @@ export class UI {
 	 * Change ability buttons and bind events
 	 */
 	changeAbilityButtons() {
-		const game = this.game,
+		let game = this.game,
 			creature = game.activeCreature;
 		this.abilitiesButtons.forEach((btn) => {
-			const ab = creature.abilities[btn.abilityId];
+			let ab = creature.abilities[btn.abilityId];
 			btn.css.normal = {
 				'background-image': `url('${getUrl(
 					'units/abilities/' + creature.name + ' ' + btn.abilityId,
 				)}')`,
 			};
-			const $desc = btn.$button.next('.desc');
+			let $desc = btn.$button.next('.desc');
 			$desc.find('span.title').text(ab.title);
 			$desc.find('p.description').html(ab.desc);
 			$desc.find('p.full-info').html(ab.info);
@@ -1855,12 +1798,12 @@ export class UI {
 	 * Update activebox with new current creature's abilities
 	 */
 	banner(message) {
-		const $bannerBox = $j('#banner');
+		let $bannerBox = $j('#banner');
 		$bannerBox.text(message);
 	}
 
 	updateActivebox() {
-		const game = this.game,
+		let game = this.game,
 			creature = game.activeCreature,
 			$abilitiesButtons = $j('#abilities .ability');
 
@@ -1921,13 +1864,13 @@ export class UI {
 	}
 
 	updateAbilityUpgrades() {
-		const game = this.game,
+		let game = this.game,
 			creature = game.activeCreature;
 
 		// Change ability buttons
 		this.abilitiesButtons.forEach((btn) => {
-			const ab = creature.abilities[btn.abilityId];
-			const $desc = btn.$button.next('.desc');
+			let ab = creature.abilities[btn.abilityId];
+			let $desc = btn.$button.next('.desc');
 
 			// Play the ability upgrade animation and sound when it gets upgraded
 			if (
@@ -1971,20 +1914,20 @@ export class UI {
 			}
 
 			// Add extra ability info
-			const $abilityInfo = $desc.find('.abilityinfo_content');
+			let $abilityInfo = $desc.find('.abilityinfo_content');
 			$abilityInfo.find('.info').remove();
 
-			const costsString = ab.getFormattedCosts();
+			let costsString = ab.getFormattedCosts();
 			if (costsString) {
 				$abilityInfo.append('<div class="info costs">Costs : ' + costsString + '</div>');
 			}
 
-			const dmgString = ab.getFormattedDamages();
+			let dmgString = ab.getFormattedDamages();
 			if (dmgString) {
 				$abilityInfo.append('<div class="info damages">Damages : ' + dmgString + '</div>');
 			}
 
-			const specialString = ab.getFormattedEffects();
+			let specialString = ab.getFormattedEffects();
 			if (specialString) {
 				$abilityInfo.append('<div class="info special">Effects : ' + specialString + '</div>');
 			}
@@ -2009,14 +1952,14 @@ export class UI {
 		let game = this.game,
 			oneUsableAbility = false;
 		for (let i = 0; i < 4; i++) {
-			const ab = game.activeCreature.abilities[i];
+			let ab = game.activeCreature.abilities[i];
 			ab.message = '';
-			const req = ab.require();
+			let req = ab.require();
 			ab.message = ab.used ? game.msg.abilities.alreadyUsed : ab.message;
 
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
-				const b = this.selectedAbility == -1 ? 4 : this.selectedAbility; // Checking usable abilities
+				let b = this.selectedAbility == -1 ? 4 : this.selectedAbility; // Checking usable abilities
 				for (let j = 0 + 1; j < 4; j++) {
 					if (
 						game.activeCreature.abilities[j].require() &&
@@ -2077,7 +2020,7 @@ export class UI {
 	/* updateInfos()
 	 */
 	updateInfos() {
-		const game = this.game,
+		let game = this.game,
 			userTurn = game.multiplayer ? game.players[game.match.userTurn] : game.activeCreature.player;
 		$j('#playerbutton, #playerinfo')
 			.removeClass('p0 p1 p2 p3')
@@ -2092,7 +2035,7 @@ export class UI {
 	/* updateTimer()
 	 */
 	updateTimer() {
-		const game = this.game,
+		let game = this.game,
 			date = new Date() - game.pauseTime;
 
 		// TurnTimePool
@@ -2111,7 +2054,7 @@ export class UI {
 				);
 			}
 
-			const id = game.activeCreature.player.id;
+			let id = game.activeCreature.player.id;
 			$j('.p' + id + ' .turntime').text(time.getTimer(remainingTime));
 			// Time Alert
 			if (remainingTime < 6) {
@@ -2121,7 +2064,7 @@ export class UI {
 			}
 
 			// Time Bar
-			const timeRatio = (date - game.activeCreature.player.startTime) / 1000 / game.turnTimePool;
+			let timeRatio = (date - game.activeCreature.player.startTime) / 1000 / game.turnTimePool;
 			this.timeBar.setSize(1 - timeRatio);
 		} else {
 			$j('.turntime').text('∞');
@@ -2139,7 +2082,7 @@ export class UI {
 			});
 
 			// Time Bar
-			const poolRatio =
+			let poolRatio =
 				(game.activeCreature.player.totalTimePool - (date - game.activeCreature.player.startTime)) /
 				1000 /
 				game.timePool;
@@ -2155,7 +2098,7 @@ export class UI {
 	 * TODO: Ugly as hell need rewrite
 	 */
 	updateQueueDisplay(excludeActiveCreature) {
-		const game = this.game;
+		let game = this.game;
 
 		// Abort to avoid infinite loop
 		if (game.queue.isNextEmpty() || !game.activeCreature) {
@@ -2163,7 +2106,7 @@ export class UI {
 		}
 
 		let queueAnimSpeed = this.queueAnimSpeed;
-		const transition = 'linear';
+		let transition = 'linear';
 
 		// Set transition duration for stat indicators
 		this.$queue.find('.vignette .stats').css({
@@ -2173,7 +2116,7 @@ export class UI {
 		// Updating
 		let $vignettes = this.$queue.find('.vignette[verified!="-1"]').attr('verified', 0);
 
-		const deleteVignette = (vignette) => {
+		let deleteVignette = (vignette) => {
 			// Temporary Creature vignette used while materializing disappears instantly when
 			// player materializes actual Creature
 			if (
@@ -2234,7 +2177,7 @@ export class UI {
 			$vignettes = this.$queue.find('.vignette[verified!="-1"]');
 		};
 
-		const appendVignette = (pos, vignette) => {
+		let appendVignette = (pos, vignette) => {
 			let $v, index, offset;
 			// Create element
 			if ($vignettes.length === 0) {
@@ -2268,12 +2211,12 @@ export class UI {
 			$vignettes = this.$queue.find('.vignette[verified != "-1"]');
 		};
 
-		const updatePos = () => {
+		let updatePos = () => {
 			$vignettes.each((pos, vignette) => {
-				const index = $j(vignette).index('#queuewrapper .vignette[verified != "-1"]');
-				const width = $j($vignettes[0]).width();
-				const height = $j($vignettes[0]).height();
-				const offset = (index - Boolean(index)) * width + Boolean(index) * (width * 1.25);
+				let index = $j(vignette).index('#queuewrapper .vignette[verified != "-1"]');
+				let width = $j($vignettes[0]).width();
+				let height = $j($vignettes[0]).height();
+				let offset = (index - Boolean(index)) * width + Boolean(index) * (width * 1.25);
 				$j(vignette).children('div.stats').css({ top: height });
 
 				// Actual materialized Creature vignette should fade in
@@ -2367,9 +2310,9 @@ export class UI {
 				} else {
 					// While it's not the right creature
 					while (true) {
-						const v = $vignettes[i];
-						const $v = $j(v);
-						const vid = parseInt($v.attr('creatureid'), 10);
+						let v = $vignettes[i];
+						let $v = $j(v);
+						let vid = parseInt($v.attr('creatureid'), 10);
 
 						if (vid === completeQueue[i].id) {
 							break;
@@ -2462,7 +2405,7 @@ export class UI {
 				if (game.freezedInput) {
 					return;
 				}
-				const creatureId = $j(e.currentTarget).attr('creatureid');
+				let creatureId = $j(e.currentTarget).attr('creatureid');
 				console.log(creatureId, game.activeCreature.id);
 				game.creatures.forEach((creature) => {
 					if (creature instanceof Creature) {
@@ -2513,7 +2456,7 @@ export class UI {
 				if (game.freezedInput) {
 					return;
 				}
-				const creaID = $j(e.currentTarget).attr('creatureid') - 0;
+				let creaID = $j(e.currentTarget).attr('creatureid') - 0;
 
 				/* If showing the active player's Dark Priest, open the dash using another
 				method which restores any previously selected creature for materialization. */
@@ -2552,9 +2495,9 @@ export class UI {
 		$queueItem.addClass('bouncing');
 
 		let maxBounce = screen.height / 4;
-		const bounceTime = 280; // Time in ms, how long it takes portrait to move down when bouncing, increase to slow down bounce
+		let bounceTime = 280; // Time in ms, how long it takes portrait to move down when bouncing, increase to slow down bounce
 
-		const timerId = setInterval(() => {
+		let timerId = setInterval(() => {
 			if ($queueItem.length > 0) {
 				$queueItem.stop();
 				$queueItem.animate(
@@ -2586,13 +2529,13 @@ export class UI {
 	}
 
 	updateFatigue() {
-		const game = this.game;
+		let game = this.game;
 
 		game.creatures.forEach((creature) => {
 			if (creature instanceof Creature) {
-				const textElement = $j(
-					'#queuewrapper .vignette[creatureid="' + creature.id + '"]',
-				).children('.stats');
+				let textElement = $j('#queuewrapper .vignette[creatureid="' + creature.id + '"]').children(
+					'.stats',
+				);
 
 				let text;
 				if (creature.isFrozen()) {
