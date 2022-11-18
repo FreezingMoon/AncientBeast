@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import * as $j from 'jquery';
 import { Damage } from './damage';
 import { Direction, Hex } from './utility/hex';
@@ -8,6 +9,7 @@ import * as arrayUtils from './utility/arrayUtils';
 /**
  * Ability Class
  *
+ // eslint-disable-next-line prettier/prettier
  * Class parsing function from creature abilities
  */
 export class Ability {
