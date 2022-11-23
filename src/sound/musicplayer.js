@@ -50,10 +50,15 @@ export class MusicPlayer {
 		});
 
 		this.audio.addEventListener('ended', () => {
-			if (this.shuffle) {
-				this.playRandom();
+			// check if tracks list exists, and if it does, play random or next track based on whether shuffle is on or not, else stop playback
+			if (this.tracks) {
+				if (this.shuffle) {
+					this.playRandom();
+				} else {
+					this.playNext();
+				}
 			} else {
-				this.playNext();
+				this.stopMusic();
 			}
 		});
 	}
@@ -66,15 +71,22 @@ export class MusicPlayer {
 
 	playRandom() {
 		const currentTrackIndex = this.getCurrentTrackIndex();
-		let rand;
+		// check if any genre is active
+		const genreExists = $j('.musicgenres__items').children().hasClass('active-text');
+		// if a genre is active, get a random track and play it, else stop audio
+		if (genreExists) {
+			let rand;
 
-		do {
-			rand = Math.floor(Math.random() * (this.tracks.length - 1));
-		} while (rand === currentTrackIndex); // Don't play the same track twice in a row
+			do {
+				rand = Math.floor(Math.random() * (this.tracks.length - 1));
+			} while (rand === currentTrackIndex); // Don't play the same track twice in a row
 
-		const track = this.tracks[rand];
+			const track = this.tracks[rand];
 
-		this.run($j(track));
+			this.run($j(track));
+		} else {
+			stopMusic();
+		}
 	}
 
 	playNext() {
