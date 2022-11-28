@@ -119,37 +119,30 @@ export default (G) => {
 					});
 				} // Once upgraded, can hit any ennemy within 3hex in any direction
 				else {
-					let hexesTargeted = [];
-					// Adding all hexes in all directions within 3 hexes
-					for (let i = 0; i < 6; i++) {
-						let k = 0;
-						if ((!stomper.player.flipped && i > 2) || (stomper.player.flipped && i < 3)) {
-							k = -1;
-						}
-						let hexesInDirection = G.grid
-							.getHexLine(stomper.x + k, stomper.y, i, stomper.player.flipped)
-							.slice(0, 4);
-						if (
-							G.grid.atLeastOneTarget(hexesInDirection, {
-								team: this._targetTeam,
-								id: stomper.id,
-							})
-						) {
-							hexesInDirection.forEach((item) => {
-								hexesTargeted.push(item);
-							});
-						}
-					}
-					// Finding creatures in hexes
-					let creatureTargets = arrayUtils.filterCreature(hexesTargeted, true, false);
-					G.grid.queryCreature({
+					G.grid.queryDirection({
 						fnOnConfirm: function () {
-							ability.animation(...arguments);
+							if (arguments[1].creature) {
+								ability.animation(
+									[arguments[1].hex],
+									arguments[1],
+									arguments[2]
+								);
+							} else {
+								ability.animation(
+									...arguments
+								);
+							}														
 						},
-						hexes: creatureTargets,
-						hexesDashed: hexesTargeted,
 						flipped: stomper.player.flipped,
+						team: this._targetTeam,
 						id: stomper.id,
+						requireCreature: true,
+						x: stomper.x,
+						y: stomper.y,
+						distance: 3,
+						sourceCreature: stomper,
+						stopOnCreature: false,
+						dashedHexesUnderCreature: true,
 					});
 				}
 			},
@@ -158,22 +151,42 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
-
 				// If not upgraded take the first creature found (aka last in path)
 				if (!this.isUpgraded()) {
+					const damage = new Damage(
+						ability.creature, // Attacker
+						ability.damages, // Damage type
+						1, // Area
+						[], // Effects
+						G,
+					);
 					target = target.find((hex) => hex.creature).creature;
+				
+	
+					G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+					target.takeDamage(damage);
+				} else {
+					const set = new Set()
+					target.forEach(({creature}) => {
+						if (creature) {
+							set.add (creature)
+						}	
+						
+					})
+					set.forEach(creature => {
+						const damage = new Damage(
+							ability.creature, // Attacker
+							ability.damages, // Damage type
+							1, // Area
+							[], // Effects
+							G,
+						);
+						G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+						creature.takeDamage(damage);
+					})
 				}
 
-				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage type
-					1, // Area
-					[], // Effects
-					G,
-				);
-
-				G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
-				target.takeDamage(damage);
+				
 			},
 		},
 
@@ -385,8 +398,6 @@ export default (G) => {
 
 				let lastTarget = targets[targets.length - 1].target;
 				let offset = null;
-
-				console.log(targets);
 				for (i = 0; i < targets.length; i++) {
 					let target = targets[i].target;
 
