@@ -7,7 +7,7 @@
 	"addons": [],
 	"buildpacks": [
 		{
-			"url": "heroku/nodejs"
+			"stack": "heroku-22"
 		}
 	]
 }
