@@ -1,6 +1,7 @@
 import * as $j from 'jquery';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
+import { Hotkeys, getHotKeys } from './hotkeys';
 
 import { Button, ButtonStateEnum } from './button';
 import { Chat } from './chat';
@@ -382,140 +383,107 @@ export class UI {
 			game.soundsys.setEffectsVolume(this.value);
 		}
 
+		this.hotkeys = new Hotkeys(this);
 		const ingameHotkeys = {
 			KeyS: {
 				onkeydown(event) {
-					if (event.shiftKey) {
-						this.btnToggleScore.triggerClick();
-					} else if (event.metaKey || event.ctrlKey) {
-						this.game.gamelog.get('save');
-					} else {
-						this.dashopen ? this.gridSelectDown() : this.btnSkipTurn.triggerClick();
-					}
+					this.hotkeys.pressS(event);
 				},
 			},
 			KeyD: {
 				onkeydown(event) {
-					if (event.shiftKey) {
-						this.btnToggleDash.triggerClick();
-					} else {
-						this.dashopen ? this.gridSelectRight() : this.btnDelay.triggerClick();
-					}
+					this.hotkeys.pressD(event);
 				},
 			},
 			KeyQ: {
 				onkeydown() {
-					this.dashopen ? this.closeDash() : this.selectNextAbility();
+					this.hotkeys.pressQ();
 				},
 			},
 			KeyW: {
 				onkeydown() {
-					this.dashopen ? this.gridSelectUp() : this.abilitiesButtons[1].triggerClick();
+					this.hotkeys.pressW();
 				},
 			},
 			KeyE: {
 				onkeydown() {
-					!this.dashopen && this.abilitiesButtons[2].triggerClick();
+					this.hotkeys.pressE();
 				},
 			},
 			KeyP: {
-				onkeydown() {
-					if (event.metaKey && event.altKey) {
-						this.game.signals.ui.dispatch('toggleMetaPowers');
-					}
+				onkeydown(event) {
+					this.hotkeys.pressP(event);
 				},
 			},
 			KeyR: {
 				onkeydown() {
-					this.dashopen ? this.closeDash() : this.abilitiesButtons[3].triggerClick();
+					this.hotkeys.pressR();
 				},
 			},
 			KeyA: {
 				onkeydown(event) {
-					if (event.shiftKey) {
-						this.btnAudio.triggerClick();
-					} else {
-						this.dashopen && this.gridSelectLeft();
-					}
+					this.hotkeys.pressA(event);
 				},
 			},
 			KeyF: {
 				onkeydown(event) {
-					if (event.shiftKey) {
-						this.fullscreen.toggle();
-					} else {
-						this.btnFlee.triggerClick();
-					}
+					this.hotkeys.pressF(event);
 				},
 			},
 			KeyX: {
 				onkeydown() {
-					this.btnExit.triggerClick();
+					this.hotkeys.pressX();
 				},
 			},
 			ArrowUp: {
 				onkeydown() {
-					this.dashopen ? this.gridSelectUp() : game.grid.selectHexUp();
+					this.hotkeys.pressArrowUp();
 				},
 			},
 			ArrowDown: {
 				onkeydown() {
-					this.dashopen ? this.gridSelectDown() : game.grid.selectHexDown();
+					this.hotkeys.pressArrowDown();
 				},
 			},
 			ArrowLeft: {
 				onkeydown() {
-					this.dashopen ? this.gridSelectLeft() : game.grid.selectHexLeft();
+					this.hotkeys.pressArrowLeft();
 				},
 			},
 			ArrowRight: {
 				onkeydown() {
-					this.dashopen ? this.gridSelectRight() : game.grid.selectHexRight();
+					this.hotkeys.pressArrowRight();
 				},
 			},
 			Enter: {
 				onkeydown() {
-					this.dashopen ? this.materializeButton.triggerClick() : this.chat.toggle();
+					this.hotkeys.pressEnter();
 				},
 			},
 			Escape: {
 				onkeydown() {
-					const isAbilityActive =
-						this.activeAbility && this.$scoreboard.hasClass('hide') && !this.chat.isOpen;
-
-					if (isAbilityActive) {
-						/* Check to see if dash view or chat are open first before
-						 * canceling the active ability when using Esc hotkey
-						 */
-						game.activeCreature.queryMove();
-						this.selectAbility(-1);
-					}
-
-					this.game.signals.ui.dispatch('closeInterfaceScreens');
+					this.hotkeys.pressEscape();
 				},
 			},
 			ShiftLeft: {
 				onkeydown() {
-					game.grid.showGrid(true);
-					game.grid.showCurrentCreatureMovementInOverlay(game.activeCreature);
+					this.hotkeys.pressShiftKeyDown();
 				},
 				onkeyup() {
-					game.grid.showGrid(false);
-					game.grid.cleanOverlay();
-					game.grid.redoLastQuery();
+					this.hotkeys.pressShiftKeyUp();
 				},
 			},
 			ShiftRight: {
 				onkeydown() {
-					ingameHotkeys.ShiftLeft.onkeydown();
+					this.hotkeys.pressShiftKeyDown();
 				},
 				onkeyup() {
-					ingameHotkeys.ShiftLeft.onkeyup();
+					this.hotkeys.pressShiftKeyUp();
 				},
 			},
 			Space: {
 				onkeydown() {
-					!this.dashopen && game.grid.confirmHex();
+					this.hotkeys.pressSpace();
 				},
 			},
 		};
