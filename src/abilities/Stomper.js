@@ -121,15 +121,25 @@ export default (G) => {
 				else {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
-							if (arguments[1].creature) {
+							debugger
+							if (arguments[1].hex.creature) {
 								ability.animation(
 									[arguments[1].hex],
 									arguments[1],
 									arguments[2]
 								);
 							} else {
+								let targetHexList = []
+								for (let i = 0 ; i <arguments[0].length; i++) {
+									if (arguments[0][i].creature) {
+										targetHexList.push(arguments[0][i])
+										break
+									}
+								}
 								ability.animation(
-									...arguments
+									targetHexList,
+									arguments[1],
+									arguments[2]
 								);
 							}														
 						},
@@ -144,39 +154,6 @@ export default (G) => {
 						stopOnCreature: false,
 						dashedHexesUnderCreature: true,
 					});
-					// let hexesTargeted = [];
-					// // Adding all hexes in all directions within 3 hexes
-					// for (let i = 0; i < 6; i++) {
-					// 	let k = 0;
-					// 	if ((!stomper.player.flipped && i > 2) || (stomper.player.flipped && i < 3)) {
-					// 		k = -1;
-					// 	}
-					// 	let hexesInDirection = G.grid
-					// 		.getHexLine(stomper.x + k, stomper.y, i, stomper.player.flipped)
-					// 		.slice(0, 4);
-					// 	if (
-					// 		G.grid.atLeastOneTarget(hexesInDirection, {
-					// 			team: this._targetTeam,
-					// 			id: stomper.id,
-					// 		})
-					// 	) {
-					// 		hexesInDirection.forEach((item) => {
-					// 			hexesTargeted.push(item);
-					// 		});
-					// 	}
-					// }
-					// // Finding creatures in hexes
-					// let creatureTargets = arrayUtils.filterCreature(hexesTargeted, true, false);
-					// console.log(creatureTargets)
-					// G.grid.queryCreature({
-					// 	fnOnConfirm: function () {
-					// 		ability.animation(...arguments);
-					// 	},
-					// 	hexes: creatureTargets,
-					// 	hexesDashed: hexesTargeted,
-					// 	flipped: stomper.player.flipped,
-					// 	id: stomper.id,
-					// });
 				}
 			},
 
@@ -184,10 +161,6 @@ export default (G) => {
 			activate: function (target) {
 				let ability = this;
 				ability.end();
-<<<<<<< HEAD
-=======
-				
->>>>>>> 0a7827c8 (upgraded Seismic Stomp path quick trigger)
 				// If not upgraded take the first creature found (aka last in path)
 				if (!this.isUpgraded()) {
 					const damage = new Damage(
