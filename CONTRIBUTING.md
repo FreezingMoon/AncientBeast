@@ -82,7 +82,7 @@ npm run start
 Then access it using [Chromium](https://chromium.org) or [Google Chrome](https://google.com/chrome), as support for other browsers is not guaranteed:
 
 ```
-localhost:8080
+localhost:8383
 ```
 
 You can usually test our latest (and greatest) master branch without any hassle from our auto-deployed [beta app](https://beta.ancientbeast.com).
