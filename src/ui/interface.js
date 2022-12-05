@@ -1,6 +1,7 @@
 import * as $j from 'jquery';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
+import { Hotkeys, getHotKeys } from './hotkeys';
 
 import { Button, ButtonStateEnum } from './button';
 import { Chat } from './chat';
@@ -382,143 +383,8 @@ export class UI {
 			game.soundsys.setEffectsVolume(this.value);
 		}
 
-		const ingameHotkeys = {
-			KeyS: {
-				onkeydown(event) {
-					if (event.shiftKey) {
-						this.btnToggleScore.triggerClick();
-					} else if (event.metaKey || event.ctrlKey) {
-						this.game.gamelog.get('save');
-					} else {
-						this.dashopen ? this.gridSelectDown() : this.btnSkipTurn.triggerClick();
-					}
-				},
-			},
-			KeyD: {
-				onkeydown(event) {
-					if (event.shiftKey) {
-						this.btnToggleDash.triggerClick();
-					} else {
-						this.dashopen ? this.gridSelectRight() : this.btnDelay.triggerClick();
-					}
-				},
-			},
-			KeyQ: {
-				onkeydown() {
-					this.dashopen ? this.closeDash() : this.selectNextAbility();
-				},
-			},
-			KeyW: {
-				onkeydown() {
-					this.dashopen ? this.gridSelectUp() : this.abilitiesButtons[1].triggerClick();
-				},
-			},
-			KeyE: {
-				onkeydown() {
-					!this.dashopen && this.abilitiesButtons[2].triggerClick();
-				},
-			},
-			KeyP: {
-				onkeydown() {
-					if (event.metaKey && event.altKey) {
-						this.game.signals.ui.dispatch('toggleMetaPowers');
-					}
-				},
-			},
-			KeyR: {
-				onkeydown() {
-					this.dashopen ? this.closeDash() : this.abilitiesButtons[3].triggerClick();
-				},
-			},
-			KeyA: {
-				onkeydown(event) {
-					if (event.shiftKey) {
-						this.btnAudio.triggerClick();
-					} else {
-						this.dashopen && this.gridSelectLeft();
-					}
-				},
-			},
-			KeyF: {
-				onkeydown(event) {
-					if (event.shiftKey) {
-						this.fullscreen.toggle();
-					} else {
-						this.btnFlee.triggerClick();
-					}
-				},
-			},
-			KeyX: {
-				onkeydown() {
-					this.btnExit.triggerClick();
-				},
-			},
-			ArrowUp: {
-				onkeydown() {
-					this.dashopen ? this.gridSelectUp() : game.grid.selectHexUp();
-				},
-			},
-			ArrowDown: {
-				onkeydown() {
-					this.dashopen ? this.gridSelectDown() : game.grid.selectHexDown();
-				},
-			},
-			ArrowLeft: {
-				onkeydown() {
-					this.dashopen ? this.gridSelectLeft() : game.grid.selectHexLeft();
-				},
-			},
-			ArrowRight: {
-				onkeydown() {
-					this.dashopen ? this.gridSelectRight() : game.grid.selectHexRight();
-				},
-			},
-			Enter: {
-				onkeydown() {
-					this.dashopen ? this.materializeButton.triggerClick() : this.chat.toggle();
-				},
-			},
-			Escape: {
-				onkeydown() {
-					const isAbilityActive =
-						this.activeAbility && this.$scoreboard.hasClass('hide') && !this.chat.isOpen;
-
-					if (isAbilityActive) {
-						/* Check to see if dash view or chat are open first before
-						 * canceling the active ability when using Esc hotkey
-						 */
-						game.activeCreature.queryMove();
-						this.selectAbility(-1);
-					}
-
-					this.game.signals.ui.dispatch('closeInterfaceScreens');
-				},
-			},
-			ShiftLeft: {
-				onkeydown() {
-					game.grid.showGrid(true);
-					game.grid.showCurrentCreatureMovementInOverlay(game.activeCreature);
-				},
-				onkeyup() {
-					game.grid.showGrid(false);
-					game.grid.cleanOverlay();
-					game.grid.redoLastQuery();
-				},
-			},
-			ShiftRight: {
-				onkeydown() {
-					ingameHotkeys.ShiftLeft.onkeydown();
-				},
-				onkeyup() {
-					ingameHotkeys.ShiftLeft.onkeyup();
-				},
-			},
-			Space: {
-				onkeydown() {
-					!this.dashopen && game.grid.confirmHex();
-				},
-			},
-		};
+		this.hotkeys = new Hotkeys(this);
+		const ingameHotkeys = getHotKeys(this.hotkeys);
 
 		// Remove hex grid if window loses focus
 		$j(window).on('blur', () => {
