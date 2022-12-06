@@ -17,6 +17,10 @@ export class Hotkeys {
 		}
 	}
 
+	pressT() {
+		this.ui.dashopen ? this.ui.closeDash() : this.ui.btnToggleScore.triggerClick();
+	}
+
 	pressD(event) {
 		if (event.shiftKey) {
 			this.ui.btnToggleDash.triggerClick();
@@ -118,6 +122,11 @@ export function getHotKeys(hk) {
 		KeyS: {
 			onkeydown(event) {
 				hk.pressS(event);
+			},
+		},
+		KeyT: {
+			onkeydown() {
+				hk.pressT();
 			},
 		},
 		KeyD: {
