@@ -30,7 +30,7 @@
 		"dotenv": "^16.0.3",
 		"dotenv-defaults": "^5.0.2",
 		"dotenv-webpack": "^8.0.1",
-		"express": "^4.17.1",
+		"express": "^4.17.3",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
 		"js-cookie": "^3.0.1",
