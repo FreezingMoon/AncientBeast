@@ -3,8 +3,8 @@ import { Trap } from './trap';
 import { Creature } from '../creature';
 import { HexGrid } from './hexgrid';
 import Game from '../game';
-import { Drop } from '../drops';
 import Phaser from 'phaser-ce';
+import { Drop } from '../drops';
 
 export enum Direction {
 	UpRight = 0,

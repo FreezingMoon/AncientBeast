@@ -22,6 +22,7 @@ module.exports = (env, argv) => {
 
 	return {
 		entry: {
+			vendor: ['pixi', 'p2', 'phaser'],
 			app: ['babel-polyfill', path.resolve(__dirname, 'src', 'script.ts')],
 		},
 		output: {
