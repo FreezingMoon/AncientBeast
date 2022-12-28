@@ -22,14 +22,13 @@ module.exports = (env, argv) => {
 
 	return {
 		entry: {
-			vendor: ['pixi', 'p2', 'phaser'],
 			app: ['babel-polyfill', path.resolve(__dirname, 'src', 'script.ts')],
 		},
 		output: {
 			path: path.resolve(__dirname, 'deploy'),
-			filename: '[name].[hash].bundle.js',
+			filename: '[name].[contenthash].bundle.js',
 		},
-		devtool: production ? 'none' : 'source-map',
+		devtool: production ? undefined : 'eval',
 		module: {
 			rules: [
 				{ test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
@@ -38,9 +37,42 @@ module.exports = (env, argv) => {
 					use: 'ts-loader',
 					exclude: /node_modules/,
 				},
-				{ test: /pixi\.js/, use: ['expose-loader?PIXI'] },
-				{ test: /phaser-split\.js$/, use: ['expose-loader?Phaser'] },
-				{ test: /p2\.js/, use: ['expose-loader?p2'] },
+				{
+					test: /pixi\.js/,
+					loader: 'expose-loader',
+					options: {
+						exposes: [
+							{
+								globalName: 'PIXI',
+								override: true,
+							},
+						],
+					},
+				},
+				{
+					test: /p2\.js/,
+					loader: 'expose-loader',
+					options: {
+						exposes: [
+							{
+								globalName: 'p2',
+								override: true,
+							},
+						],
+					},
+				},
+				{
+					test: /phaser-split\.js$/,
+					loader: 'expose-loader',
+					options: {
+						exposes: [
+							{
+								globalName: 'Phaser',
+								override: true,
+							},
+						],
+					},
+				},
 				{
 					test: /\.html$/,
 					use: ['html-loader'],
@@ -79,7 +111,7 @@ module.exports = (env, argv) => {
 			extensions: ['.ts', '.js'],
 		},
 		devServer: {
-			contentBase: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
+			static: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
 			port: 8080,
 			proxy: {
 				'/api': '159.65.232.104:7350',
@@ -99,8 +131,5 @@ module.exports = (env, argv) => {
 				defaults: './.env.example',
 			}),
 		],
-		node: {
-			fs: 'empty',
-		},
 	};
 };

@@ -3,8 +3,8 @@ import { Trap } from './trap';
 import { Creature } from '../creature';
 import { HexGrid } from './hexgrid';
 import Game from '../game';
-import Phaser from 'phaser-ce';
 import { Drop } from '../drops';
+import Phaser from 'phaser-ce';
 
 export enum Direction {
 	UpRight = 0,
@@ -422,7 +422,8 @@ export class Hex {
 	 * Clear the appearance of the display hex
 	 */
 	cleanDisplayVisualState(classes = '') {
-		classes = classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken deadzone';
+		classes =
+			classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken deadzone';
 		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
