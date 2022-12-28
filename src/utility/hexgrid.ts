@@ -104,7 +104,7 @@ export class HexGrid {
 	 */
 	lastClickedHex: Hex;
 
-	display: Phaser.Sprite;
+	display: Phaser.Group;
 	gridGroup: Phaser.Group;
 	trapGroup: Phaser.Group;
 	hexesGroup: Phaser.Group;

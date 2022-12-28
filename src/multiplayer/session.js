@@ -1,4 +1,5 @@
-import { Session } from '@heroiclabs/nakama-js/dist/nakama-js.esm';
+import { Session } from '@heroiclabs/nakama-js';
+
 export default class SessionI {
 	constructor(session) {
 		this.session = session || '';

@@ -121,27 +121,18 @@ export default (G) => {
 				else {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
-							debugger
 							if (arguments[1].hex.creature) {
-								ability.animation(
-									[arguments[1].hex],
-									arguments[1],
-									arguments[2]
-								);
+								ability.animation([arguments[1].hex], arguments[1], arguments[2]);
 							} else {
-								let targetHexList = []
-								for (let i = 0 ; i <arguments[0].length; i++) {
+								let targetHexList = [];
+								for (let i = 0; i < arguments[0].length; i++) {
 									if (arguments[0][i].creature) {
-										targetHexList.push(arguments[0][i])
-										break
+										targetHexList.push(arguments[0][i]);
+										break;
 									}
 								}
-								ability.animation(
-									targetHexList,
-									arguments[1],
-									arguments[2]
-								);
-							}														
+								ability.animation(targetHexList, arguments[1], arguments[2]);
+							}
 						},
 						flipped: stomper.player.flipped,
 						team: this._targetTeam,
@@ -171,19 +162,17 @@ export default (G) => {
 						G,
 					);
 					target = target.find((hex) => hex.creature).creature;
-				
-	
+
 					G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 					target.takeDamage(damage);
 				} else {
-					const set = new Set()
-					target.forEach(({creature}) => {
+					const set = new Set();
+					target.forEach(({ creature }) => {
 						if (creature) {
-							set.add (creature)
-						}	
-						
-					})
-					set.forEach(creature => {
+							set.add(creature);
+						}
+					});
+					set.forEach((creature) => {
 						const damage = new Damage(
 							ability.creature, // Attacker
 							ability.damages, // Damage type
@@ -193,10 +182,8 @@ export default (G) => {
 						);
 						G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 						creature.takeDamage(damage);
-					})
+					});
 				}
-
-				
 			},
 		},
 

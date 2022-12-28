@@ -422,7 +422,8 @@ export class Hex {
 	 * Clear the appearance of the display hex
 	 */
 	cleanDisplayVisualState(classes = '') {
-		classes = classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken deadzone';
+		classes =
+			classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken deadzone';
 		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
