@@ -1,11 +1,4 @@
 import * as $j from 'jquery';
-
-// // eslint-disable-next-line @typescript-eslint/no-unused-vars
-// import PIXI from 'expose-loader?exposes=PIXI|PIXI|true!../node_modules/phaser-ce/build/custom/pixi.js';
-// // eslint-disable-next-line @typescript-eslint/no-unused-vars
-// import p2 from 'expose-loader?exposes=p2|p2|true!../node_modules/phaser-ce/build/custom/p2.js';
-// import Phaser from 'expose-loader?exposes=Phaser|Phaser|true!../node_modules/phaser-ce/build/custom/phaser-split.js';
-
 import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
