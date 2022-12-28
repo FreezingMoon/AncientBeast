@@ -699,9 +699,26 @@ div.section.info {
 		background: none;
 		border: none;
 		cursor: pointer;
+		position: relative;
+		.tooltiptext {
+			visibility: hidden;
+			background-color: black;
+			color: #fff;
+			text-align: center;
+			border-radius: 2px;
+			border-style: ridge;
+			padding: 5px 5px;
+			position: absolute;
+			white-space: nowrap;
+			right: 45px;
+			z-index: 1;
+		}
+	}
+	#mp_shuffle:hover .tooltiptext {
+		visibility: visible;
+		animation: slideTooltip 750ms forwards;
 	}
 }
-
 .musicgenres__title {
 	cursor: pointer;
 }
