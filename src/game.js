@@ -1567,7 +1567,6 @@ export default class Game {
 			return {
 				...acc,
 				[curr]: new Signal(),
-				// [curr]: new Phaser.Signal(),
 			};
 		}, {});
 
