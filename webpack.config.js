@@ -117,6 +117,7 @@ module.exports = (env, argv) => {
 			proxy: {
 				'/api': '159.65.232.104:7350',
 			},
+			allowedHosts: ['localhost', '.gitpod.io'],
 		},
 		plugins: [
 			new CopyPlugin({
