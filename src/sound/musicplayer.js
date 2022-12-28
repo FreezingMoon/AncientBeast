@@ -85,7 +85,7 @@ export class MusicPlayer {
 
 			this.run($j(track));
 		} else {
-			stopMusic();
+			this.stopMusic();
 		}
 	}
 
