@@ -28,6 +28,12 @@ module.exports = (env, argv) => {
 		output: {
 			path: path.resolve(__dirname, 'deploy'),
 			filename: '[name].[contenthash].bundle.js',
+			assetModuleFilename: () => {
+				if (production) {
+					return 'assets/[contenthash].[ext]';
+				}
+				return '[path][name].[ext]';
+			},
 		},
 		devtool: production ? undefined : 'eval',
 		module: {
@@ -88,16 +94,7 @@ module.exports = (env, argv) => {
 				},
 				{
 					test: /\.(png|jpg|gif|svg|ogg|ico|cur|woff|woff2)$/,
-					loader: 'file-loader',
-					options: {
-						name(resourcePath, resourceQuery) {
-							if (production) {
-								return 'assets/[contenthash].[ext]';
-							}
-							return '[path][name].[ext]';
-						},
-						esModule: false,
-					},
+					type: 'asset/resource',
 				},
 			],
 		},
@@ -110,6 +107,9 @@ module.exports = (env, argv) => {
 				modules: path.join(__dirname, 'node_modules'),
 			},
 			extensions: ['.ts', '.js'],
+			fallback: {
+				fs: false,
+			},
 		},
 		devServer: {
 			static: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : '/',
