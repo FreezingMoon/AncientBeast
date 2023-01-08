@@ -79,7 +79,7 @@ To run the image, use this command:
 docker run -p80 yourusername/ancient-beast
 ```
 
-If there's something already running on port 80, try the next port.
+If there's something already running on port 80 or it's being blocked, try the next port.
 
 ### Beta Testing
 
