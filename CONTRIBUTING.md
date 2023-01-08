@@ -67,9 +67,19 @@ If you receive errors about the manifest or assets loading, try running `npm run
 
 ### Docker Setup
 
-First, be sure to have Docker installed, then build the image with the following command `docker build -t yourusername/ancient-beast .`.
+As an alternative way of running the project, make sure you have Docker installed, then build the image using the following command:
 
-To run the image, try running `docker run -p80:8383 yourusername/ancient-beast`. If there's something running on port 80, try next port.
+```
+docker build -t yourusername/ancient-beast .
+```
+
+To run the image, use this command:
+
+```
+docker run -p80 yourusername/ancient-beast
+```
+
+If there's something already running on port 80, try the next port.
 
 ### Beta Testing
 
