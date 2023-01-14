@@ -32,8 +32,6 @@ What we're aiming for are the following:
 - development workflow improvements
 - more project lore & documentation
 
-You can check it out via our auto-deployed Heroku build: https://beta.AncientBeast.com [ Unstable! ]
-
 ### [Contribute](CONTRIBUTING.md#readme)
 
 You can help out the project by hitting that ★ from the [upper right corner](#) & you can also pin it to your profile.  
