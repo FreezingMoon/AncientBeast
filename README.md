@@ -36,7 +36,7 @@ What we're aiming for are the following:
 
 You can help out the project by hitting that ★ from the [upper right corner](#) & you can also pin it to your profile.  
 If you wish to set-up a local copy of the game for your pleasure, read our repository ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/CONTRIBUTING.md#github-marketing) file.  
-Or dive right into development from your browser by using this button to easily set up the project: [![Setup Automated](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)  
+Or dive right into development from your browser by using this button to set up the project: [![Setup Automated](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)  
 There are more ways you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide and help out!
 
 <a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/AncientBeast/contributors.svg?width=838&button=false" alt="Contributors"></a>
