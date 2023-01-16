@@ -1942,9 +1942,7 @@ input {
 	color: #fff;
 	top: 20%;
 }
-
-@media screen {
-	@media (max-height: 400px) {
+	@media screen and (max-height: 500px) {
 		#scoreboardTitle {
 			display: none;
 		}
@@ -1952,4 +1950,12 @@ input {
 			max-height: 400px;
 		}
 	}
-}
+
+	@media screen and (max-width: 500px) {
+		#scoreboardTitle {
+			display: none;
+		}
+		#scoreboard {
+			max-width: 400px;
+		}
+	}
