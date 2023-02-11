@@ -157,7 +157,7 @@
 				"title": "Rifle Assassin",
 				"desc": "Very powerful long range attack that can strike up to 12 hexagons distance.",
 				"info": "40 pierce damage in any of 6 directions.",
-				"upgrade": "12 total directions targeting.",
+				"upgrade": "Half damage piercing effect.",
 				"damages": {
 					"pierce": 40
 				},
