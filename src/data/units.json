@@ -121,6 +121,12 @@
 		"animation": {
 			"walk_speed": 500
 		},
+		"display": {
+			"width": 108,
+			"height": 200,
+			"offset-x": 0,
+			"offset-y": -164
+		},
 		"ability_info": [
 			{
 				"title": "Personal Space",
