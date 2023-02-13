@@ -93,7 +93,7 @@
 	{
 		"id": 1,
 		"name": "Bounty Hunter",
-		"playable": false,
+		"playable": true,
 		"level": 2,
 		"realm": "A",
 		"size": 1,
