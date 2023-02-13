@@ -138,7 +138,7 @@
 				"title": "Sword Slitter",
 				"desc": "Swift attack on any nearby enemy unit.",
 				"info": "Hit does 15 slash and 10 piece damage.",
-				"upgrade": "Performs extra hit if it will kill.",
+				"upgrade": "Performs extra hit if it can kill.",
 				"damages": {
 					"pierce": 15,
 					"slash": 10
