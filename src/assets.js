@@ -1513,6 +1513,10 @@ export default [
           },
           { id: "Asher", url: require("assets/units/cardboards/Asher.png") },
           {
+            id: "Bounty Hunter",
+            url: require("assets/units/cardboards/Bounty Hunter.png"),
+          },
+          {
             id: "Chimera",
             url: require("assets/units/cardboards/Chimera.png"),
           },
