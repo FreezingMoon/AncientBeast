@@ -36,15 +36,6 @@ export const bellowrow = [
 
 bellowrow.origin = [0, 0];
 
-export const allaround1hex = [
-	[0, 0, 0, 0],
-	[0, 1, 1, 0],
-	[1, 0, 1, 0], //Origin line
-	[0, 1, 1, 0],
-];
-
-allaround1hex.origin = [2, 2];
-
 export const frontnback2hex = [
 	[0, 0, 0, 0],
 	[0, 1, 0, 1],
