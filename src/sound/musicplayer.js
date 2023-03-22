@@ -35,10 +35,10 @@ export class MusicPlayer {
 			}
 
 			const activeGenres = clickedGenre.parent().find('.active-text');
-			const allGenres = clickedGenre.parent().find('.musicgenres__title');//this will fetch all the genres
+			const allGenres = clickedGenre.parent().find('.musicgenres__title'); // This will fetch all the genres
 
 			const activeGenresSelectors = Array.prototype.map.call(
-				activeGenres.length === 0 ? allGenres : activeGenres,//here if no genre is active then all genres shall pass
+				activeGenres.length === 0 ? allGenres : activeGenres, // Here if no genre is active then all genres shall pass
 				(genreNode) => `li.${genreNode.innerText}`,
 			);
 			const allGenresSelectors = Array.prototype.map.call( 
@@ -46,10 +46,10 @@ export class MusicPlayer {
 				(genreNode) => `li.${genreNode.innerText}`,
 			);
 			const activeTracks = this.playlist.find(activeGenresSelectors.join());
-			const allTracks = this.playlist.find(allGenresSelectors.join());//this will fetch all the tracks
+			const allTracks = this.playlist.find(allGenresSelectors.join()); // This will fetch all the tracks
 
-			allTracks.addClass('hidden');//first we will hide all the tracks and then
-			activeTracks.removeClass('hidden');//make the active ones visible
+			allTracks.addClass('hidden'); // First we will hide all the tracks and then
+			activeTracks.removeClass('hidden'); // Make the active ones visible
 		});
 
 		this.playlist.find('li').on('click', (e) => {
