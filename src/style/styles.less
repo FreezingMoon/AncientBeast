@@ -810,8 +810,9 @@ div.section.info {
 	z-index: 1;
 }
 
-#queuewrapper .vignette {
+.vignette {
 	position: absolute;
+	transform-origin: 0 0;
 }
 
 .vignette,
@@ -824,17 +825,43 @@ div.section.info {
 	width: 80px;
 	background-size: 100% 100%;
 	cursor: pointer;
-	position: relative;
 }
 
 .vignette .frame,
-.vignette .overlay_frame {
+.vignette .overlay_frame,
+.vignette .delay_frame {
 	position: absolute;
 	top: 0;
 	left: 0;
 	height: 100%;
 	width: 100%;
 	transition: opacity 300ms;
+}
+
+.vignette .delay_frame {
+	background-image: url('~assets/icons/delay.svg');
+	background-position: center center;
+	background-size: 80%;
+	background-repeat: no-repeat;
+	background-color: rgba(0, 0, 0, 0.75);
+	opacity: 0;
+	pointer-events: none;
+}
+
+.vignette.delayed .delay_frame {
+	animation: vignettedelayedfadeinout 2s;
+}
+
+@keyframes vignettedelayedfadeinout {
+	0%,
+	25%,
+	100% {
+		opacity: 0;
+	}
+	40%,
+	85% {
+		opacity: 1;
+	}
 }
 
 .vignette .stats {
@@ -852,11 +879,25 @@ div.section.info {
 	font-size: 14px;
 	text-align: center;
 	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	transform-origin: 0 0;
+	transform: scaleY(1);
+	transition: transform 500ms;
 }
 
 .vignette.active .stats {
-	height: 0;
-	border: 0;
+	transform: scaleY(0);
+}
+
+.vignette.unmaterialized {
+	opacity: 0.5;
+}
+
+.vignette .stats.dizzy {
+	background-color: saddlebrown;
+}
+
+.vignette .stats.frozen {
+	background-color: darkturquoise;
 }
 
 #playeravatar.vignette,

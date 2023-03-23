@@ -291,10 +291,6 @@ export default (G) => {
 				G.queue.addByInitiative(fullCrea, !creatureHasMaterializationSickness);
 				G.updateQueueDisplay();
 
-				// Reduce temporary Creature vignette transparency
-				let creatureVignette = $j("div[creatureid='" + fullCrea.id + "']");
-				creatureVignette.css({ opacity: 0.5 });
-
 				G.grid.forEachHex(function (hex) {
 					hex.unsetReachable();
 				});
