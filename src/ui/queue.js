@@ -59,7 +59,7 @@ export class Queue {
 
 	#setVignettes(nextVignettes) {
 		const prevVs = this.#vignettes;
-		this.#vignettes = Queue.#reuseEquivalentOldVignettes(prevVs, nextVignettes);
+		this.#vignettes = Queue.#reuseOldDomElements(prevVs, nextVignettes);
 		Queue.#deleteRemovedVignettes(this.#vignettes, prevVs);
 		Queue.#insertUpdateNextVignettes(this.#vignettes, prevVs, this.#element);
 	}
@@ -74,49 +74,60 @@ export class Queue {
 
 	static #getNextVignettes(creatures, creaturesNext, turnNum) {
 		const [undelayedCs, delayedCs] = utils.partitionAt(creatures, refactor.creature.getIsDelayed);
-		const hasDelayMarker = undelayedCs.length > 0 && delayedCs.length > 0;
+		const hasDelayMarker = delayedCs.length > 0;
 
-		const undelayedVs = undelayedCs.map((c) => new CreatureVignette(c, turnNum));
-		const delayedVs = delayedCs.map((c) => new CreatureVignette(c, turnNum));
+		const is1stCreature = utils.trueIfFirstElseFalse();
+
+		const undelayedVs = undelayedCs.map((c) => new CreatureVignette(c, turnNum, is1stCreature()));
 		const delayMarkerV = hasDelayMarker ? [new DelayMarkerVignette(turnNum)] : [];
+		const delayedVs = delayedCs.map((c) => new CreatureVignette(c, turnNum, is1stCreature()));
 		const turnEndMarkerV = [new TurnEndMarkerVignette(turnNum)];
-		const nextTurnVs = creaturesNext.map((c) => new CreatureVignette(c, turnNum + 1, false));
+		const nextTurnVs = creaturesNext.map(
+			(c) => new CreatureVignette(c, turnNum + 1, is1stCreature(), false),
+		);
 
 		return [].concat(undelayedVs, delayMarkerV, delayedVs, turnEndMarkerV, nextTurnVs);
 	}
 
-	static #reuseEquivalentOldVignettes(oldVignettes, newVignettes) {
+	static #reuseOldDomElements(oldVignettes, newVignettes) {
 		/**
 		 * NOTE: For every vignette in newVignettes, if there's
-		 * an equivalent in oldVignettes, use the one in oldVignettes.
-		 * This lets the vignette DOM elements maintain their state.
-		 * ... But use args from new, as the passed CreatureQueue uses different
-		 * objects to represent the same creature.
+		 * an equivalent in oldVignettes, use its DOM element.
+		 * This keeps animations, transitions, and styles from breaking.
 		 */
 		const oldVDict = utils.arrToDict(oldVignettes, (v) => v.getHash());
-		const nextVs = newVignettes.map((vNew) => {
-			const hash = vNew.getHash();
+		for (const newV of newVignettes) {
+			const hash = newV.getHash();
 			if (oldVDict.hasOwnProperty(hash)) {
-				const vOld = oldVDict[hash];
-				vOld.usePropsFrom(vNew);
-				return vOld;
+				newV.el = oldVDict[hash].el;
 			}
-			return vNew;
-		});
+		}
 
-		return nextVs;
+		return newVignettes;
 	}
 
 	static #deleteRemovedVignettes(nextVignettes, prevVignettes) {
 		const nextHashes = new Set(nextVignettes.map((v) => v.getHash()));
+		const vignettesDeletedAtFront = utils.takeWhile(
+			prevVignettes,
+			(v) => !nextHashes.has(v.getHash()),
+		);
+		const spaceDeletedAtFrontOfQueue = vignettesDeletedAtFront.reduce(
+			(acc, v) => acc + v.getWidth(),
+			0,
+		);
+		const frontDeletedHashes = new Set(vignettesDeletedAtFront.map((v) => v.getHash()));
 
 		let x = 0;
 		prevVignettes.forEach((v, i) => {
 			const hash = v.getHash();
 			const w = v.getWidth();
 			if (!nextHashes.has(hash)) {
-				v.delete(i, x);
-				console.log('deleting', hash);
+				if (frontDeletedHashes.has(hash)) {
+					v.deleteFromFront(i, x, spaceDeletedAtFrontOfQueue);
+				} else {
+					v.delete(i, x);
+				}
 			}
 			x += w;
 		});
@@ -131,7 +142,6 @@ export class Queue {
 		nextVignettes.forEach((v, i) => {
 			const hash = v.getHash();
 			if (insertHashes.has(hash)) {
-				console.log('inserting', hash);
 				v.insert(containerElement, i, x);
 				x += v.getWidth();
 			} else if (updateHashes.has(hash)) {
@@ -181,19 +191,26 @@ class Vignette {
 		return this;
 	}
 
+	deleteFromFront(queuePosition, x, spaceDeletedAtFrontOfQueue) {
+		this.queuePosition = queuePosition;
+		this.animateDeleteFromFront(queuePosition, x, spaceDeletedAtFrontOfQueue).onfinish = () => {
+			this.el.remove();
+		};
+		return this;
+	}
+
 	animateInsert(queuePosition, x) {
-		const scale = queuePosition === 0 ? 1.25 : 1.0;
 		const keyframes = [
 			{
-				transform: `translateX(${x + 500}px) translateY(-100px) scale(${scale})`,
+				transform: `translateX(${x + 500}px) translateY(-100px) scale(1)`,
 				easing: 'ease-out',
 			},
 			{
-				transform: `translateX(${x + 500}px) translateY(0px) scale(${scale})`,
+				transform: `translateX(${x + 500}px) translateY(0px) scale(1)`,
 				easing: 'ease-in',
 				offset: 0.3,
 			},
-			{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` },
+			{ transform: `translateX(${x}px) translateY(0px) scale(1)` },
 		];
 		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
 		const animation = this.el.animate(keyframes, options);
@@ -202,8 +219,7 @@ class Vignette {
 	}
 
 	animateUpdate(queuePosition, x) {
-		const scale = queuePosition === 0 ? 1.25 : 1.0;
-		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
+		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(1)` }];
 		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
 		const animation = this.el.animate(keyframes, options);
 		animation.commitStyles();
@@ -211,22 +227,21 @@ class Vignette {
 	}
 
 	animateDelete(queuePosition, x) {
-		if (queuePosition == 0) {
-			const scale = 1.25;
-			const x = -this.getWidth();
-			const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
-			const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-			const animation = this.el.animate(keyframes, options);
-			animation.commitStyles();
-			return animation;
-		} else {
-			const scale = 1.0;
-			const keyframes = [{ transform: `translateX(${x}px) translateY(-100px) scale(${scale})` }];
-			const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-			const animation = this.el.animate(keyframes, options);
-			animation.commitStyles();
-			return animation;
-		}
+		const keyframes = [{ transform: `translateX(${x}px) translateY(-100px) scale(1)` }];
+		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
+		const animation = this.el.animate(keyframes, options);
+		animation.commitStyles();
+		return animation;
+	}
+
+	animateDeleteFromFront(queuePosition, x, emptySpaceAtFrontOfQueue) {
+		const keyframes = [
+			{ transform: `translateX(${x - emptySpaceAtFrontOfQueue}px) translateY(0px) scale(1)` },
+		];
+		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
+		const animation = this.el.animate(keyframes, options);
+		animation.commitStyles();
+		return animation;
 	}
 
 	animateBounce(queuePosition, x, bounceH) {
@@ -251,7 +266,7 @@ class Vignette {
 	}
 
 	getWidth() {
-		return this.queuePosition == 0 ? 100 : 80;
+		return 80;
 	}
 
 	xray() {
@@ -266,21 +281,19 @@ class Vignette {
 		//pass
 	}
 
-	usePropsFrom() {
-		//pass
-	}
-
 	refresh() {
 		//pass
 	}
 }
 
 class CreatureVignette extends Vignette {
-	constructor(creature, turnNumber, turnNumberIsCurrentTurn = true) {
+	constructor(creature, turnNumber, isActiveCreature = false, turnNumberIsCurrentTurn = true) {
 		super();
 		this.creature = creature;
 		this.turnNumber = turnNumber;
+		this.isActiveCreature = isActiveCreature;
 		this.turnNumberIsCurrentTurn = turnNumberIsCurrentTurn;
+		console.log(this.isActiveCreature);
 	}
 
 	getHash() {
@@ -319,7 +332,7 @@ class CreatureVignette extends Vignette {
 	#updateDOM() {
 		const cl = this.el.classList;
 
-		if (this.queuePosition === 0) {
+		if (this.isActiveCreature) {
 			cl.add('active');
 		} else {
 			cl.remove('active');
@@ -327,8 +340,10 @@ class CreatureVignette extends Vignette {
 
 		if (this.creature.temp) {
 			cl.add('unmaterialized');
+			cl.remove('materialized');
 		} else {
 			cl.remove('unmaterialized');
+			cl.add('materialized');
 		}
 
 		if (refactor.creature.getIsDelayed(this.creature) && this.turnNumberIsCurrentTurn) {
@@ -342,6 +357,58 @@ class CreatureVignette extends Vignette {
 		const statsEl = this.el.querySelector('div.stats');
 		statsEl.className = statsClasses;
 		statsEl.textContent = stats;
+	}
+
+	animateInsert(queuePosition, x) {
+		const scale = this.isActiveCreature ? 1.25 : 1.0;
+		const keyframes = [
+			{
+				transform: `translateX(${x + 500}px) translateY(-100px) scale(${scale})`,
+				easing: 'ease-out',
+			},
+			{
+				transform: `translateX(${x + 500}px) translateY(0px) scale(${scale})`,
+				easing: 'ease-in',
+				offset: 0.3,
+			},
+			{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` },
+		];
+		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
+		const animation = this.el.animate(keyframes, options);
+		animation.commitStyles();
+		return animation;
+	}
+
+	animateUpdate(queuePosition, x) {
+		const scale = this.isActiveCreature ? 1.25 : 1.0;
+		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
+		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
+		const animation = this.el.animate(keyframes, options);
+		animation.commitStyles();
+		return animation;
+	}
+
+	animateDelete(queuePosition, x) {
+		this.el.style.zIndex = -1;
+		const [x_, y, scale] = this.isActiveCreature ? [-this.getWidth(), 0, 1.25] : [x, -100, 1];
+		const keyframes = [{ transform: `translateX(${x_}px) translateY(${y}px) scale(${scale})` }];
+		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
+		const animation = this.el.animate(keyframes, options);
+		animation.commitStyles();
+		return animation;
+	}
+
+	animateDeleteFromFront(queuePosition, x, emptySpaceAtFrontOfQueue) {
+		const scale = this.isActiveCreature ? 1.25 : 1;
+		const keyframes = [
+			{
+				transform: `translateX(${x - emptySpaceAtFrontOfQueue}px) translateY(0px) scale(${scale})`,
+			},
+		];
+		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
+		const animation = this.el.animate(keyframes, options);
+		animation.commitStyles();
+		return animation;
 	}
 
 	xray(creatureId) {
@@ -374,20 +441,12 @@ class CreatureVignette extends Vignette {
 		}
 	}
 
-	usePropsFrom(otherVignette) {
-		if (otherVignette.hasOwnProperty('creature')) {
-			this.creature = otherVignette.creature;
-		}
-		if (otherVignette.hasOwnProperty('turnNumber')) {
-			this.turnNumber = otherVignette.turnNumber;
-		}
-		if (otherVignette.hasOwnProperty('turnNumberIsCurrentTurn')) {
-			this.turnNumberIsCurrentTurn = otherVignette.turnNumberIsCurrentTurn;
-		}
-	}
-
 	refresh() {
 		this.#updateDOM();
+	}
+
+	getWidth() {
+		return this.isActiveCreature ? 100 : 80;
 	}
 
 	static is(obj) {
@@ -410,23 +469,6 @@ class TurnEndMarkerVignette extends Vignette {
 			<div class="frame"></div>
             <div class="stats">Round ${this.turnNumber + 1}</div>
 		</div>`;
-	}
-
-	animateDelete(queuePosition, x) {
-		if (queuePosition <= 1) {
-			x = -this.getWidth();
-			const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(1.0)` }];
-			const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-			const animation = this.el.animate(keyframes, options);
-			animation.commitStyles();
-			return animation;
-		} else {
-			const keyframes = [{ transform: `translateX(${x}px) translateY(-100px) scale(1.0)` }];
-			const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-			const animation = this.el.animate(keyframes, options);
-			animation.commitStyles();
-			return animation;
-		}
 	}
 
 	addEvents() {
@@ -452,16 +494,47 @@ class DelayMarkerVignette extends Vignette {
 		this.turnNumber = turnNumber;
 	}
 
+	getHTML() {
+		return `<div class="vignette delaymarker">
+			<div class="frame"></div>
+            <div class="stats">Delayed</div>
+		</div>`;
+	}
+
 	getHash() {
 		return ['delay', 'turn' + this.turnNumber].join('_');
 	}
 
-	getWidth() {
-		return 40;
+	animateInsert(queuePosition, x) {
+		const keyframes = [
+			{
+				transform: `translateX(${x}px) translateY(-100px) scale(1)`,
+			},
+			{
+				transform: `translateX(${x}px) translateY(-100px) scale(1)`,
+				easing: 'ease-out',
+			},
+			{ transform: `translateX(${x}px) translateY(0px) scale(1)` },
+		];
+		const options = { duration: CONST.animDurationMS * 2, fill: 'forwards' };
+		const animation = this.el.animate(keyframes, options);
+		animation.commitStyles();
+		return animation;
 	}
 }
 
 const utils = {
+	trueIfFirstElseFalse: () => {
+		let v = true;
+		return () => {
+			if (v) {
+				v = false;
+				return true;
+			}
+			return false;
+		};
+	},
+
 	arrToDict: (arr, keyFn) => {
 		// NOTE: Turns an array to an object using the key function.
 		// If the keyFn produces two or more identical keys, only the
@@ -483,6 +556,17 @@ const utils = {
 			},
 			[[], []],
 		);
+	},
+
+	takeWhile: (arr, takeFn) => {
+		const result = [];
+		for (const element of arr) {
+			if (!takeFn(element)) {
+				break;
+			}
+			result.push(element);
+		}
+		return result;
 	},
 
 	splitSetBy: (s, splitFn) => {

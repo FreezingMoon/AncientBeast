@@ -838,32 +838,6 @@ div.section.info {
 	transition: opacity 300ms;
 }
 
-.vignette .delay_frame {
-	background-image: url('~assets/icons/delay.svg');
-	background-position: center center;
-	background-size: 80%;
-	background-repeat: no-repeat;
-	background-color: rgba(0, 0, 0, 0.75);
-	opacity: 0;
-	pointer-events: none;
-}
-
-.vignette.delayed .delay_frame {
-	animation: vignettedelayedfadeinout 2s;
-}
-
-@keyframes vignettedelayedfadeinout {
-	0%,
-	25%,
-	100% {
-		opacity: 0;
-	}
-	40%,
-	85% {
-		opacity: 1;
-	}
-}
-
 .vignette .stats {
 	position: absolute;
 	top: 80px;
@@ -872,7 +846,7 @@ div.section.info {
 	overflow: hidden;
 	box-sizing: border-box;
 	width: 100%;
-	height: 18px;
+	height: 20px;
 	border: 1px solid #555;
 	background: rgba(0, 0, 0, 0.55);
 	color: white;
@@ -886,6 +860,11 @@ div.section.info {
 
 .vignette.active .stats {
 	transform: scaleY(0);
+}
+
+.vignette.materialized {
+	opacity: 1;
+	transition: opacity 300ms;
 }
 
 .vignette.unmaterialized {
@@ -959,6 +938,11 @@ div.section.info {
 .vignette.roundmarker .frame {
 	background-image: url('~assets/interface/frame.png'), url('~assets/interface/round.jpg');
 	cursor: help;
+}
+
+.vignette.delaymarker .frame {
+	background-image: url('~assets/icons/delay.svg');
+	background-color: rgba(0, 0, 0, 0.85);
 }
 
 .vignette.bouncing {
