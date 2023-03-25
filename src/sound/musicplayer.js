@@ -41,7 +41,7 @@ export class MusicPlayer {
 				activeGenres.length === 0 ? allGenres : activeGenres, // Here if no genre is active then all genres shall pass
 				(genreNode) => `li.${genreNode.innerText}`,
 			);
-			const allGenresSelectors = Array.prototype.map.call( 
+			const allGenresSelectors = Array.prototype.map.call(
 				allGenres,
 				(genreNode) => `li.${genreNode.innerText}`,
 			);
