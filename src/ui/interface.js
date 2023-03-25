@@ -10,6 +10,7 @@ import { Fullscreen } from './fullscreen';
 import { ProgressBar } from './progressbar';
 import { getUrl } from '../assetLoader';
 import { MetaPowers } from './meta-powers';
+import { Queue } from './queue';
 
 /**
  * Class UI
@@ -49,6 +50,8 @@ export class UI {
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
 		this.active = false;
+
+		this.queue = UI.#getQueue(this, document.getElementById('queuewrapper'));
 
 		// Last clicked creature in Godlet Printer for the current turn
 		this.lastViewedCreature = '';
@@ -2016,486 +2019,31 @@ export class UI {
 	}
 
 	/* updateQueueDisplay()
-	 *
 	 * Delete and add element to the Queue container based on the game's queues
-	 * TODO: Ugly as hell need rewrite
 	 */
-	updateQueueDisplay(excludeActiveCreature) {
+	updateQueueDisplay() {
 		const game = this.game;
-
-		// Abort to avoid infinite loop
-		if (game.queue.isNextEmpty() || !game.activeCreature) {
-			return false;
-		}
-
-		let queueAnimSpeed = this.queueAnimSpeed;
-		const transition = 'linear';
-
-		// Set transition duration for stat indicators
-		this.$queue.find('.vignette .stats').css({
-			transition: 'height ' + queueAnimSpeed + 'ms',
-		});
-
-		// Updating
-		let $vignettes = this.$queue.find('.vignette[verified!="-1"]').attr('verified', 0);
-
-		const deleteVignette = (vignette) => {
-			// Temporary Creature vignette used while materializing disappears instantly when
-			// player materializes actual Creature
-			if (
-				+$j(vignette).attr('creatureid') === game.queue.tempCreature.id &&
-				game.activeCreature.type === '--' &&
-				game.activeCreature.abilities[3].used
-			) {
-				queueAnimSpeed = 0;
-			}
-
-			if ($j(vignette).hasClass('roundmarker')) {
-				$j(vignette)
-					.attr('verified', -1)
-					.transition(
-						{
-							x: -80,
-							queue: false,
-						},
-						queueAnimSpeed,
-						transition,
-						() => {
-							vignette.remove();
-						},
-					);
-			} else {
-				if ($j(vignette).hasClass('active')) {
-					$j(vignette)
-						.attr('verified', -1)
-						.transition(
-							{
-								x: -100,
-								queue: false,
-							},
-							queueAnimSpeed,
-							transition,
-							() => {
-								vignette.remove();
-							},
-						);
-				} else {
-					$j(vignette)
-						.attr('verified', -1)
-						.transition(
-							{
-								x: '-=80',
-								queue: false,
-							},
-							queueAnimSpeed,
-							transition,
-							() => {
-								vignette.remove();
-							},
-						);
-				}
-			}
-
-			// Updating
-			$vignettes = this.$queue.find('.vignette[verified!="-1"]');
-		};
-
-		const appendVignette = (pos, vignette) => {
-			let $v, index, offset;
-			// Create element
-			if ($vignettes.length === 0) {
-				$v = $j(vignette).prependTo(this.$queue);
-				index = $v.index('#queuewrapper .vignette[verified != "-1"]');
-				offset = (index - Boolean(index)) * 80 + Boolean(index) * 100 - 80;
-			} else if ($vignettes[pos]) {
-				$v = $j(vignette).insertAfter($vignettes[pos]);
-				index = $v.index('#queuewrapper .vignette[verified != "-1"]');
-				offset = (index - Boolean(index)) * 80 + Boolean(index) * 100 - 80;
-			} else {
-				$v = $j(vignette).appendTo(this.$queue);
-				index = $v.index('#queuewrapper .vignette[verified != "-1"]');
-				offset = (index - Boolean(index)) * 80 + Boolean(index) * 100 + 1000;
-			}
-
-			// Animation
-			$v.attr('verified', 1)
-				.css({
-					x: offset,
-				})
-				.transition(
-					{
-						queue: true,
-					},
-					queueAnimSpeed,
-					transition,
-				); // Dont know why but it must be here
-
-			// Updating
-			$vignettes = this.$queue.find('.vignette[verified != "-1"]');
-		};
-
-		const updatePos = () => {
-			$vignettes.each((pos, vignette) => {
-				const index = $j(vignette).index('#queuewrapper .vignette[verified != "-1"]');
-				const width = $j($vignettes[0]).width();
-				const height = $j($vignettes[0]).height();
-				const offset = (index - Boolean(index)) * width + Boolean(index) * (width * 1.25);
-				$j(vignette).children('div.stats').css({ top: height });
-
-				// Actual materialized Creature vignette should fade in
-				if (+$j(vignette).attr('creatureid') === game.queue.tempCreature.id + 1) {
-					$j(vignette)
-						.css({
-							'z-index': 0 - index,
-							opacity: 0.5,
-							x: offset,
-						})
-						.transition(
-							{
-								opacity: 1,
-								queue: false,
-							},
-							queueAnimSpeed,
-							transition,
-						);
-				} else {
-					$j(vignette)
-						.css({
-							'z-index': 0 - index,
-						})
-						.transition(
-							{
-								x: offset,
-								queue: false,
-							},
-							queueAnimSpeed,
-							transition,
-						);
-				}
-			});
-		};
-
-		this.$queue.find('.vignette[verified != "-1"]').each((pos, vignette) => {
-			if ($j(vignette).attr('turn') < game.turn) {
-				deleteVignette(vignette);
-			}
-		});
-
-		let completeQueue = game.queue.queue.slice(0);
-		if (!excludeActiveCreature) {
-			completeQueue.unshift(game.activeCreature);
-		}
-
-		completeQueue = completeQueue.concat(['nextround'], game.queue.nextQueue);
-
-		let u = 0;
-		// Updating
-		for (let i = 0, len = completeQueue.length; i < len; i++) {
-			let queueElem;
-			// Round Marker
-			if (typeof completeQueue[i] == 'string') {
-				queueElem =
-					'<div turn="' +
-					(game.turn + u) +
-					'" roundmarker="1" class="vignette roundmarker"><div class="frame"></div><div class="stats">Round ' +
-					(game.turn + 1) +
-					'</div></div>';
-
-				// If this element does not exists
-				if ($vignettes[i] === undefined) {
-					// Create it
-					appendVignette(i, queueElem);
-				} else {
-					// While its not the round marker
-					while (i < $vignettes.length && $j($vignettes[i]).attr('roundmarker') === undefined) {
-						deleteVignette($vignettes[i]);
-					}
-				}
-
-				u++;
-				// Creature Vignette
-			} else {
-				queueElem =
-					'<div turn="' +
-					(game.turn + u) +
-					'" creatureid="' +
-					completeQueue[i].id +
-					'" class="vignette hidden p' +
-					completeQueue[i].team +
-					' type' +
-					completeQueue[i].type +
-					'"><div class="frame"></div><div class="overlay_frame"></div><div class="stats"></div></div>';
-
-				// If this element does not exists
-				if ($vignettes[i] === undefined) {
-					// Create it
-					appendVignette(i, queueElem);
-				} else {
-					// While it's not the right creature
-					while (true) {
-						const v = $vignettes[i];
-						const $v = $j(v);
-						const vid = parseInt($v.attr('creatureid'), 10);
-
-						if (vid === completeQueue[i].id) {
-							break;
-						}
-
-						// Check if the vignette exists at all; if not delete
-						if (!isNaN(vid) && $j.grep(completeQueue, (item) => item.id === vid).length === 0) {
-							deleteVignette(v);
-							continue;
-						}
-
-						if (isNaN(vid)) {
-							// Is Round Marker
-							// Create element before
-							appendVignette(i - 1, queueElem);
-						} else {
-							// See if the creature has moved up the queue
-							let found = false;
-							for (let j = 0; j < i && !found; j++) {
-								if (vid === completeQueue[j].id) {
-									found = true;
-								}
-							}
-
-							if (found) {
-								// Create element before
-								appendVignette(i - 1, queueElem);
-							} else {
-								// Remove element
-								deleteVignette(v);
-							}
-						}
-					}
-				}
-			}
-
-			// Tag as verified
-			$j($vignettes[i]).attr('verified', 1);
-		}
-
-		// Delete non verified
-		deleteVignette(this.$queue.find('.vignette[verified="0"]'));
-
-		updatePos();
-
 		this.updateFatigue();
-
-		// Set active creature
-		this.$queue
-			.find('.vignette[verified="1"]')
-			.first()
-			.clearQueue()
-			.addClass('active')
-			.css({
-				transformOrigin: '0px 0px',
-			})
-			.transition(
-				{
-					scale: 1.25,
-					x: 0,
-				},
-				queueAnimSpeed,
-				transition,
-			);
-
-		// Add mouseover effect
-
-		this.$queue
-			.find('.vignette.roundmarker')
-			.off('mouseover')
-			.off('mouseleave')
-			.on('mouseover', (e) => {
-				game.grid.showGrid(true);
-				game.grid.showCurrentCreatureMovementInOverlay(game.activeCreature);
-			})
-			.on('mouseleave', () => {
-				game.grid.showGrid(false);
-				game.grid.cleanOverlay();
-				game.grid.redoLastQuery();
-				//game.grid.showMovementRange(game.activeCreature.id);
-			});
-
-		this.$queue
-			.find('.vignette')
-			.not('.roundmarker')
-			.off('mousedown')
-			.off('mouseover')
-			.off('mouseleave')
-			.on('mouseover', (e) => {
-				if (game.freezedInput) {
-					return;
-				}
-				const creatureId = $j(e.currentTarget).attr('creatureid');
-				console.log(creatureId, game.activeCreature.id);
-				game.creatures.forEach((creature) => {
-					if (creature instanceof Creature) {
-						creature.xray(false);
-
-						if (creature.id != creatureId) {
-							creature.xray(true);
-							creature.hexagons.forEach((hex) => {
-								hex.cleanOverlayVisualState();
-							});
-						} else {
-							creature.hexagons.forEach((hex) => {
-								hex.overlayVisualState('hover h_player' + creature.team);
-							});
-						}
-					}
-				});
-
-				game.grid.showMovementRange(creatureId);
-				this.xrayQueue(creatureId);
-			})
-			.on('mouseleave', () => {
-				// On mouseleave cancel effect
-				if (game.freezedInput) {
-					return;
-				}
-
-				// The mouse over adds a coloured hex to the creature, so when we mouse leave we have to remove them
-				game.creatures.forEach((creature) => {
-					if (creature instanceof Creature) {
-						creature.hexagons.forEach((hex) => {
-							hex.cleanOverlayVisualState();
-						});
-					}
-				});
-
-				game.grid.redoLastQuery();
-				game.creatures.forEach((creature) => {
-					if (creature instanceof Creature) {
-						creature.xray(false);
-					}
-				});
-
-				this.xrayQueue(-1);
-			})
-			.on('mousedown', (e) => {
-				// Show when clicking on portrait
-				if (game.freezedInput) {
-					return;
-				}
-				const creaID = $j(e.currentTarget).attr('creatureid') - 0;
-
-				/* If showing the active player's Dark Priest, open the dash using another
-				method which restores any previously selected creature for materialization. */
-				if (
-					game.creatures[creaID].isDarkPriest() &&
-					game.creatures[creaID].id === game.activeCreature.id
-				) {
-					this.toggleDash();
-				} else {
-					this.showCreature(
-						game.creatures[creaID].type,
-						game.creatures[creaID].player.id,
-						'portrait',
-					);
-				}
-			});
+		this.queue.setQueue(game.queue, game.activeCreature, game.turn);
 	}
 
 	xrayQueue(creaID) {
-		this.$queue.find('.vignette').removeClass('xray');
-		if (creaID > 0) {
-			this.$queue.find('.vignette[creatureid="' + creaID + '"]').addClass('xray');
-		}
+		this.queue.xray(creaID);
 	}
 
 	bouncexrayQueue(creaID) {
-		this.xrayQueue(creaID);
-
-		let $queueItem = [];
-
-		if (creaID > 0) {
-			$queueItem = this.$queue.find('.vignette[creatureid="' + creaID + '"]:first');
-		}
-
-		if ($queueItem.hasClass('bouncing')) return;
-		$queueItem.addClass('bouncing');
-
-		let maxBounce = screen.height / 4;
-		const bounceTime = 280; // Time in ms, how long it takes portrait to move down when bouncing, increase to slow down bounce
-
-		const timerId = setInterval(() => {
-			if ($queueItem.length > 0) {
-				$queueItem.stop();
-				$queueItem.animate(
-					{
-						top: '+=' + maxBounce.toString(10) + 'px',
-					},
-					{
-						duration: bounceTime,
-						complete: () => {
-							$queueItem.animate(
-								{
-									top: '-=' + $queueItem.css('top'),
-								},
-								{
-									duration: bounceTime - 100,
-								},
-							);
-						},
-					},
-				);
-			}
-			maxBounce = maxBounce / 2;
-		}, bounceTime * 2 - 100);
-
-		setTimeout(() => {
-			$queueItem.removeClass('bouncing');
-			clearInterval(timerId);
-		}, bounceTime * 6 - 300);
+		this.queue.xray(creaID);
+		this.queue.bounce(creaID);
 	}
 
 	updateFatigue() {
 		const game = this.game;
-
 		game.creatures.forEach((creature) => {
 			if (creature instanceof Creature) {
-				const textElement = $j(
-					'#queuewrapper .vignette[creatureid="' + creature.id + '"]',
-				).children('.stats');
-
-				let text;
-				if (creature.isFrozen()) {
-					text = creature.isInCryostasis() ? 'Cryostasis' : 'Frozen';
-					textElement.css({
-						background: 'darkturquoise',
-					});
-				} else if (creature.isDizzy()) {
-					text = 'Dizzy';
-					textElement.css({
-						background: 'saddlebrown',
-					});
-				} else if (creature.materializationSickness) {
-					text = 'Sickened';
-				} else if (creature.protectedFromFatigue || creature.stats.fatigueImmunity) {
-					text = 'Protected';
-				} else if (creature.isFragile()) {
-					text = 'Fragile';
-					// Display message if the creature has first become fragile
-					if (creature.fatigueText !== text) {
-						game.log('%CreatureName' + creature.id + '% has become fragile');
-					}
-				} else if (creature.isFatigued()) {
-					text = 'Fatigued';
-				} else {
-					text = creature.endurance + '/' + creature.stats.endurance;
-				}
-
-				if (creature.isDarkPriest()) {
-					// If Dark Priest
-					creature.abilities[0].require(); // Update protectedFromFatigue
-				}
-
-				textElement.text(text);
-				creature.fatigueText = text;
+				refactor.creature.updateFatigue(creature, game);
 			}
 		});
+		this.queue.refresh();
 	}
 
 	endGame() {
@@ -2510,8 +2058,7 @@ export class UI {
 		$j('#matchMaking').show();
 		$j('#gameSetupContainer').show();
 		$j('#loader').addClass('hide');
-		const queueElements = this.$queue.children();
-		[...queueElements].forEach((queueElement) => queueElement.remove());
+		this.queue.empty(Queue.IMMEDIATE);
 	}
 
 	/**
@@ -2580,4 +2127,144 @@ export class UI {
 
 		return rasterElement;
 	}
+
+	static #getQueue(ui, queueDomElement) {
+		/**
+		 * NOTE:
+		 * Sets up event handlers for the Queue.
+		 * Creates Queue.
+		 * Attaches events to the Queue.
+		 * Returns Queue.
+		 */
+		const ifGameNotFrozen = utils.ifGameNotFrozen(ui.game);
+
+		const onCreatureClick = ifGameNotFrozen((creature) => {
+			/**
+			 * NOTE:
+			 * If showing the active player's Dark Priest, open the dash using
+			 * another method which restores any previously selected creature
+			 * for materialization.
+			 */
+			if (creature.isDarkPriest() && creature.id === ui.game.activeCreature.id) {
+				ui.toggleDash();
+			} else {
+				ui.showCreature(creature.type, creature.player.id, 'portrait');
+			}
+		});
+
+		const onCreatureMouseEnter = ifGameNotFrozen((creature) => {
+			const creatures = ui.game.creatures.filter((c) => c instanceof Creature);
+			const otherCreatures = creatures.filter((c) => c !== creature);
+
+			otherCreatures.forEach((c) => {
+				c.xray(true);
+				c.hexagons.forEach((hex) => {
+					hex.cleanOverlayVisualState();
+				});
+			});
+
+			creature.xray(false);
+			creature.hexagons.forEach((hex) => {
+				hex.overlayVisualState('hover h_player' + creature.team);
+			});
+
+			ui.game.grid.showMovementRange(creature.id);
+			ui.queue.xray(creature.id);
+		});
+
+		const onCreatureMouseLeave = () => {
+			// The mouse over adds a coloured hex to the creature, so when we mouse leave we have to remove them
+			const creatures = ui.game.creatures.filter((c) => c instanceof Creature);
+			creatures.forEach((creature) => {
+				creature.hexagons.forEach((hex) => {
+					hex.cleanOverlayVisualState();
+				});
+			});
+
+			ui.game.grid.redoLastQuery();
+			creatures.forEach((creature) => {
+				creature.xray(false);
+			});
+
+			ui.queue.xray(-1);
+		};
+
+		const onRoundMarkerMouseEnter = ifGameNotFrozen(() => {
+			ui.game.grid.showGrid(true);
+			ui.game.grid.showCurrentCreatureMovementInOverlay(ui.game.activeCreature);
+		});
+
+		const onRoundMarkerMouseLeave = () => {
+			ui.game.grid.showGrid(false);
+			ui.game.grid.cleanOverlay();
+			ui.game.grid.redoLastQuery();
+		};
+
+		const queue = new Queue(queueDomElement);
+		const addEvent = (type, fn) => queue.addEventListener(type, fn);
+		addEvent('vignettecreatureclick', (e) => onCreatureClick(e.detail.creature));
+		addEvent('vignettecreaturemouseenter', (e) => onCreatureMouseEnter(e.detail.creature));
+		addEvent('vignettecreaturemouseleave', (e) => onCreatureMouseLeave(e.detail.creature));
+		addEvent('vignetteturnendmouseenter', () => onRoundMarkerMouseEnter());
+		addEvent('vignetteturnendmouseleave', () => onRoundMarkerMouseLeave());
+
+		return queue;
+	}
 }
+
+const utils = {
+	ifGameNotFrozen: (game) => {
+		// NOTE: Higher order function
+		// Filters out function calls made when the game is frozen.
+		return (fn) => {
+			return (...args) => {
+				if (game.freezedInput) {
+					return;
+				} else {
+					return fn(...args);
+				}
+			};
+		};
+	},
+};
+
+const refactor = {
+	creature: {
+		/** TODO:
+		 * This code was part of the UI class and used to include
+		 * updates to DOM elements controlled by /src/ui/interface.js,
+		 * but those DOM updates have now been factored out. Separating
+		 * this out for an eventual refactor into Creature, perhaps as
+		 * Creature.getFatigueText() or Creature.getStatsText()?
+		 */
+		updateFatigue(creature, game) {
+			let text;
+			if (creature.isFrozen()) {
+				text = creature.isInCryostasis() ? 'Cryostasis' : 'Frozen';
+			} else if (creature.isDizzy()) {
+				text = 'Dizzy';
+			} else if (creature.materializationSickness) {
+				text = 'Sickened';
+			} else if (creature.protectedFromFatigue || creature.stats.fatigueImmunity) {
+				text = 'Protected';
+			} else if (creature.isFragile()) {
+				text = 'Fragile';
+				// Display message if the creature has first become fragile
+				if (creature.fatigueText !== text) {
+					game.log('%CreatureName' + creature.id + '% has become fragile');
+				}
+			} else if (creature.isFatigued()) {
+				text = 'Fatigued';
+			} else {
+				text = creature.endurance + '/' + creature.stats.endurance;
+			}
+
+			if (creature.isDarkPriest()) {
+				// If Dark Priest
+				creature.abilities[0].require(); // Update protectedFromFatigue
+			}
+
+			creature.fatigueText = text;
+		},
+	},
+};
