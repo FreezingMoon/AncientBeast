@@ -86,6 +86,26 @@ export class Queue {
 			(c) => new CreatureVignette(c, turnNum + 1, is1stCreature(), false),
 		);
 
+		/**
+		 * NOTE: The delayed creatures at the front of the queue has a particular case:
+		 * DEFAULT CASE - undelayed creatures > 0
+		 * (not delayed, active) (delayed) (delayed) ...
+		 * becomes:
+		 * (not delayed, active) (delay marker) (delayed) (delayed) ...
+		 * -
+		 * SPECIAL CASE - undelayed creatures === 0
+		 * (delayed, active) (delayed) (delayed) ...
+		 * becomes:
+		 * (delayed, active) (delay marker) (delayed) (delayed) ...
+		 */
+
+		if (undelayedVs.length === 0 && delayedVs.length > 0) {
+			// NOTE: Special case
+			const firstV = [delayedVs.shift()];
+			return [].concat(firstV, delayMarkerV, delayedVs, turnEndMarkerV, nextTurnVs);
+		}
+
+		// NOTE: Default case
 		return [].concat(undelayedVs, delayMarkerV, delayedVs, turnEndMarkerV, nextTurnVs);
 	}
 
@@ -350,7 +370,7 @@ class CreatureVignette extends Vignette {
 			cl.add('delayed');
 		}
 
-		this.el.style.zIndex = this.creature.temp ? 1000 : this.queuePosition;
+		this.el.style.zIndex = this.creature.temp ? 1000 : this.queuePosition + 1;
 
 		const stats = this.creature.fatigueText;
 		const statsClasses = ['stats', utils.toClassName(stats)].join(' ');
