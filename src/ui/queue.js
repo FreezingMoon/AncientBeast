@@ -74,12 +74,12 @@ export class Queue {
 
 	static #getNextVignettes(creatures, creaturesNext, turnNum) {
 		const [undelayedCs, delayedCs] = utils.partitionAt(creatures, refactor.creature.getIsDelayed);
-		const hasDelayMarker = delayedCs.length > 0;
+		const hasDelayed = delayedCs.length > 0;
 
 		const is1stCreature = utils.trueIfFirstElseFalse();
 
 		const undelayedVs = undelayedCs.map((c) => new CreatureVignette(c, turnNum, is1stCreature()));
-		const delayMarkerV = hasDelayMarker ? [new DelayMarkerVignette(turnNum)] : [];
+		const delayMarkerV = hasDelayed ? [new DelayMarkerVignette(turnNum)] : [];
 		const delayedVs = delayedCs.map((c) => new CreatureVignette(c, turnNum, is1stCreature()));
 		const turnEndMarkerV = [new TurnEndMarkerVignette(turnNum)];
 		const nextTurnVs = creaturesNext.map(
@@ -87,25 +87,37 @@ export class Queue {
 		);
 
 		/**
-		 * NOTE: The delayed creatures at the front of the queue has a particular case:
+		 * NOTE: There are special cases when delayed creatures are at the front of the queue.
+		 * -
 		 * DEFAULT CASE - undelayed creatures > 0
 		 * (not delayed, active) (delayed) (delayed) ...
 		 * becomes:
 		 * (not delayed, active) (delay marker) (delayed) (delayed) ...
+		 * i.e., delay marker is in front of delayed creatures
 		 * -
-		 * SPECIAL CASE - undelayed creatures === 0
+		 * SPECIAL CASE 1 - num undelayed creatures === 0, num delayed creatures > 1
 		 * (delayed, active) (delayed) (delayed) ...
 		 * becomes:
 		 * (delayed, active) (delay marker) (delayed) (delayed) ...
+		 * i.e., delay marker is behind first delayed creature
+		 * -
+		 * SPECIAL CASE 2 - num undelayed creatures === 0, num delayed creatures === 1
+		 * (delayed, active) (turn end marker) ...
+		 * becomes:
+		 * (delayed, active) (turn end marker) ...
+		 * i.e., no delayed marker
 		 */
 
-		if (undelayedVs.length === 0 && delayedVs.length > 0) {
-			// NOTE: Special case
+		if (undelayedVs.length === 0 && delayedVs.length > 1) {
+			// NOTE: Special case 1
 			const firstV = [delayedVs.shift()];
 			return [].concat(firstV, delayMarkerV, delayedVs, turnEndMarkerV, nextTurnVs);
+		} else if (undelayedVs.length === 0 && delayedVs.length === 1) {
+			// NOTE: Special case 2
+			return [].concat(delayedVs, turnEndMarkerV, nextTurnVs);
 		}
 
-		// NOTE: Default case
+		// NOTE: All other cases
 		return [].concat(undelayedVs, delayMarkerV, delayedVs, turnEndMarkerV, nextTurnVs);
 	}
 
