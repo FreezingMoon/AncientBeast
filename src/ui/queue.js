@@ -29,7 +29,12 @@ export class Queue {
 		const creatures = refactor.creatureQueue.getCurrentQueue(creatureQueue, activeCreature);
 		const nextCreatures = refactor.creatureQueue.getNextQueue(creatureQueue);
 
-		creatures.forEach(refactor.stopGap.updateCreatureDelayStatus);
+		creatures.forEach((c) =>
+			refactor.stopGap.updateCreatureDelayStatus(c, creatures, nextCreatures, turnNumber),
+		);
+		nextCreatures.forEach((c) =>
+			refactor.stopGap.updateCreatureDelayStatus(c, creatures, nextCreatures, turnNumber + 1),
+		);
 
 		const nextVignettes = Queue.#getNextVignettes(creatures, nextCreatures, turnNumber);
 		this.#setVignettes(nextVignettes);
@@ -73,18 +78,28 @@ export class Queue {
 	}, 500);
 
 	static #getNextVignettes(creatures, creaturesNext, turnNum) {
-		const [undelayedCs, delayedCs] = utils.partitionAt(creatures, refactor.creature.getIsDelayed);
-		const hasDelayed = delayedCs.length > 0;
+		const isDelayedCurr = (c) => refactor.creature.getIsDelayed(c, turnNum);
+		const [undelayedCsCurr, delayedCsCurr] = utils.partitionAt(creatures, isDelayedCurr);
+		const hasDelayedCurr = delayedCsCurr.length > 0;
+
+		const isDelayedNext = (c) => refactor.creature.getIsDelayed(c, turnNum + 1);
+		const [undelayedCsNext, delayedCsNext] = utils.partitionAt(creaturesNext, isDelayedNext);
+		const hasDelayedNext = delayedCsNext.length > 0;
 
 		const is1stCreature = utils.trueIfFirstElseFalse();
 
-		const undelayedVs = undelayedCs.map((c) => new CreatureVignette(c, turnNum, is1stCreature()));
-		const delayMarkerV = hasDelayed ? [new DelayMarkerVignette(turnNum)] : [];
-		const delayedVs = delayedCs.map((c) => new CreatureVignette(c, turnNum, is1stCreature()));
+		const newCreatureVCurr = (c) => new CreatureVignette(c, turnNum, is1stCreature());
+		const undelayedVsCurr = undelayedCsCurr.map(newCreatureVCurr);
+		const delayMarkerVCurr = hasDelayedCurr ? [new DelayMarkerVignette(turnNum)] : [];
+		const delayedVsCurr = delayedCsCurr.map(newCreatureVCurr);
+
 		const turnEndMarkerV = [new TurnEndMarkerVignette(turnNum)];
-		const nextTurnVs = creaturesNext.map(
-			(c) => new CreatureVignette(c, turnNum + 1, is1stCreature(), false),
-		);
+
+		const newCreatureVNext = (c) => new CreatureVignette(c, turnNum + 1, is1stCreature());
+		const undelayedVsNext = undelayedCsNext.map(newCreatureVNext);
+		const delayMarkerVNext = hasDelayedNext ? [new DelayMarkerVignette(turnNum + 1)] : [];
+		const delayedVsNext = delayedCsNext.map(newCreatureVNext);
+		const vsNext = [].concat(turnEndMarkerV, undelayedVsNext, delayMarkerVNext, delayedVsNext);
 
 		/**
 		 * NOTE: There are special cases when delayed creatures are at the front of the queue.
@@ -108,17 +123,16 @@ export class Queue {
 		 * i.e., no delayed marker
 		 */
 
-		if (undelayedVs.length === 0 && delayedVs.length > 1) {
+		if (undelayedVsCurr.length === 0 && delayedVsCurr.length > 1) {
 			// NOTE: Special case 1
-			const firstV = [delayedVs.shift()];
-			return [].concat(firstV, delayMarkerV, delayedVs, turnEndMarkerV, nextTurnVs);
-		} else if (undelayedVs.length === 0 && delayedVs.length === 1) {
+			const firstV = [delayedVsCurr.shift()];
+			return [].concat(firstV, delayMarkerVCurr, delayedVsCurr, vsNext);
+		} else if (undelayedVsCurr.length === 0 && delayedVsCurr.length === 1) {
 			// NOTE: Special case 2
-			return [].concat(delayedVs, turnEndMarkerV, nextTurnVs);
+			return [].concat(delayedVsCurr, vsNext);
 		}
-
 		// NOTE: All other cases
-		return [].concat(undelayedVs, delayMarkerV, delayedVs, turnEndMarkerV, nextTurnVs);
+		return [].concat(undelayedVsCurr, delayMarkerVCurr, delayedVsCurr, vsNext);
 	}
 
 	static #reuseOldDomElements(oldVignettes, newVignettes) {
@@ -698,26 +712,56 @@ refactor.creatureQueue = {
 
 refactor.stopGap.init = () => {
 	refactor.stopGap.setTurnNumber(-1);
+	refactor.stopGap.creatureIdsDelayedNextTurn = new Set();
+	refactor.stopGap.creatureIdsDelayedCurrTurn = new Set();
 };
 
 refactor.stopGap.setTurnNumber = (turnNumber) => {
 	if (turnNumber !== refactor.stopGap.turnNumber) {
 		refactor.stopGap.turnNumber = turnNumber;
 
-		const creatureIdsDelayedThisTurn = new Set();
+		refactor.stopGap.creatureIdsDelayedCurrTurn = refactor.stopGap.creatureIdsDelayedNextTurn;
+		refactor.stopGap.creatureIdsDelayedNextTurn = new Set();
 
-		refactor.stopGap.updateCreatureDelayStatus = (creature) => {
-			if (creature.delayed && !creatureIdsDelayedThisTurn.has(creature.id)) {
-				creatureIdsDelayedThisTurn.add(creature.id);
+		refactor.stopGap.updateCreatureDelayStatus = (
+			creature,
+			creatures,
+			nextCreatures,
+			currTurnNumber,
+		) => {
+			/**
+			 * NOTE: If creature.delayed == true:
+			 * This might happen because the creature is/was just active and the user delayed the creature.
+			 * Or it might happen because the creature received an attack that delayed it.
+			 * Or it might be a holdover from a previous interaction.
+			 * -
+			 * This code should eventually not be necessary. Creature should ideally update/report its own status.
+			 * This code assumes that a creature can never be undelayed for a given round.
+			 */
+			const creatureIsInCurrTurn = creatures.filter((c) => c.id === creature.id).length > 0;
+			const creatureIsInNextTurn = nextCreatures.filter((c) => c.id === creature.id).length > 0;
+			if (creatureIsInCurrTurn) {
+				if (creature.delayed) {
+					refactor.stopGap.creatureIdsDelayedCurrTurn.add(creature.id);
+				}
+			} else if (creatureIsInNextTurn) {
+				if (creature.delayed) {
+					refactor.stopGap.creatureIdsDelayedNextTurn.add(creature.id);
+				}
 			}
 		};
 
-		refactor.creature.getIsDelayed = (creature) => {
+		refactor.creature.getIsDelayed = (creature, turnNumber) => {
 			// NOTE: Creatures get into inconsistent states vis-a-vis the
 			// queue. Sometimes a creature's state will go from delayed
 			// to !delayed, while being active and having previously been delayed.
 			// This is problematic.
-			return creatureIdsDelayedThisTurn.has(creature.id);
+			const currTurn = refactor.stopGap.turnNumber;
+			if (currTurn === turnNumber) {
+				return refactor.stopGap.creatureIdsDelayedCurrTurn.has(creature.id);
+			} else if (currTurn + 1 === turnNumber) {
+				return refactor.stopGap.creatureIdsDelayedNextTurn.has(creature.id);
+			}
 		};
 	}
 };
