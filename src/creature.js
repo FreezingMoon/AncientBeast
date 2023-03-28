@@ -1464,6 +1464,8 @@ export class Creature {
 				break;
 			}
 		}
+
+		this.#updateFatigue();
 	}
 
 	hint(text, cssClass) {
