@@ -85,8 +85,6 @@ export default (G) => {
 				} else {
 					target.addEffect(effect, `%CreatureName${target.id}% loses -5 endurance`);
 				}
-				// Display potentially new "Fragile" status when losing maximum endurance.
-				this.game.UI.updateFatigue();
 			},
 
 			_getHexes: function () {

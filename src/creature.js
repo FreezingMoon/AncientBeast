@@ -268,6 +268,7 @@ export class Creature {
 			this.materializationSickness = this.isDarkPriest() ? false : true;
 		}
 		this.noActionPossible = false;
+		this.#updateFatigue();
 	}
 
 	/**
@@ -1297,7 +1298,7 @@ export class Creature {
 			// Note: update health after adding effects as some effects may affect
 			// health display
 			this.updateHealth();
-			game.UI.updateFatigue();
+			this.#updateFatigue();
 			/* Some of the active creature's abilities may become active/inactive depending
 			on new health/endurance values. */
 			game.UI.checkAbilities();
@@ -1389,7 +1390,7 @@ export class Creature {
 			this.endurance = this.endurance < 0 ? 0 : this.endurance; // Cap
 		}
 
-		this.game.UI.updateFatigue();
+		this.#updateFatigue();
 	}
 
 	/* addEffect(effect)
@@ -1428,6 +1429,8 @@ export class Creature {
 				}
 			}
 		}
+
+		this.#updateFatigue();
 	}
 
 	/** replaceEffect
@@ -1929,9 +1932,43 @@ export class Creature {
 
 		// Update the health box under the creature cardboard with frozen effect.
 		this.updateHealth();
-		// Show frozen fatigue text effect in queue.
-		this.game.UI.updateFatigue();
+		this.#updateFatigue();
 
 		this.game.signals.creature.dispatch('frozen', { creature: this, cryostasis });
+	}
+
+	#updateFatigue() {
+		const oldText = this.fatigueText;
+		let text;
+		if (this.isFrozen()) {
+			text = this.isInCryostasis() ? 'Cryostasis' : 'Frozen';
+		} else if (this.isDizzy()) {
+			text = 'Dizzy';
+		} else if (this.materializationSickness) {
+			text = 'Sickened';
+		} else if (this.protectedFromFatigue || this.stats.fatigueImmunity) {
+			text = 'Protected';
+		} else if (this.isFragile()) {
+			text = 'Fragile';
+			// Display message if the creature has first become fragile
+			if (this.fatigueText !== text) {
+				this.game.log('%CreatureName' + this.id + '% has become fragile');
+			}
+		} else if (this.isFatigued()) {
+			text = 'Fatigued';
+		} else {
+			text = this.endurance + '/' + this.stats.endurance;
+		}
+
+		if (this.isDarkPriest()) {
+			// If Dark Priest
+			this.abilities[0].require(); // Update protectedFromFatigue
+		}
+
+		this.fatigueText = text;
+
+		if (oldText != text) {
+			this.game.signals.creature.dispatch('fatigueUpdated', { creature: this });
+		}
 	}
 }
