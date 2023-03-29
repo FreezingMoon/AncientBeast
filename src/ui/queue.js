@@ -325,7 +325,6 @@ class CreatureVignette extends Vignette {
 		this.turnNumber = turnNumber;
 		this.isActiveCreature = isActiveCreature;
 		this.turnNumberIsCurrentTurn = turnNumberIsCurrentTurn;
-		console.log(this.isActiveCreature);
 	}
 
 	getHash() {
