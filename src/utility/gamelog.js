@@ -58,7 +58,7 @@ export class GameLog {
 		let fun = () => {
 			this.timeCursor++;
 
-			if (game.debugMode) {
+			if (game.debugMode && !process.env.DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
 				console.log(this.timeCursor + '/' + this.data.length);
 			}
 

@@ -85,7 +85,7 @@ export default class Game {
 		this.session = null;
 		this.client = null;
 		this.connect = null;
-		this.debugMode = process.env.DEBUG_MODE;
+		this.debugMode = process.env.DEBUG_MODE === 'true';
 		this.multiplayer = false;
 		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
@@ -803,7 +803,10 @@ export default class Game {
 			}
 		}
 
-		console.log(stringConsole);
+		const silenced = this.debugMode && process.env.DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG === 'true';
+		if (!silenced) {
+			console.log(stringConsole);
+		}
 		this.UI.chat.addMsg(stringLog, htmlclass, ifNoTimestamp);
 	}
 

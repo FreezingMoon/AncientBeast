@@ -114,8 +114,13 @@ export class MusicPlayer {
 
 		track.addClass('active-text').siblings().removeClass('active-text');
 		this.audio.src = link.attr('href');
-		this.audio.load();
-		this.audio.play();
+
+		const silenced =
+			process.env.DEBUG_MODE === 'true' && process.env.DEBUG_DISABLE_MUSIC === 'true';
+		if (!silenced) {
+			this.audio.load();
+			this.audio.play();
+		}
 	}
 
 	stopMusic() {
