@@ -45,7 +45,7 @@ export class UI {
 		this.fullscreen = new Fullscreen($j('#fullscreen.button'), game.fullscreenMode);
 		this.$display = $j('#ui');
 		this.$dash = $j('#dash');
-		this.$grid = $j('#creatureraster');
+		this.$grid = $j(this.#makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
 		this.active = false;
@@ -2096,6 +2096,35 @@ export class UI {
 				}
 			});
 		}
+	}
+
+	#makeCreatureGrid(rasterElement) {
+		const getLink = (type) => {
+			const stats = this.game.retrieveCreatureStats(type);
+			const snakeCaseName = stats.name.replace(' ', '_');
+			return `<a href="#${snakeCaseName}" class="vignette realm${stats.realm} type${type}" creature="${type}">
+						<div class="tooltip">
+							<div class="content">${stats.name}</div>
+						</div>
+						<div class="overlay"></div>
+						<div class="border"></div>
+					</a>`;
+		};
+
+		const tmpElement = document.createElement('div');
+		const rasterWrapper = document.createElement('div');
+		rasterWrapper.setAttribute('id', 'creatureraster');
+		rasterElement.appendChild(rasterWrapper);
+
+		for (const realm of 'AEGLPSW'.split('')) {
+			for (const i of '1234567'.split('')) {
+				const type = realm + i;
+				tmpElement.innerHTML = getLink(type);
+				rasterWrapper.appendChild(tmpElement.firstChild);
+			}
+		}
+
+		return rasterElement;
 	}
 
 	static #getQueue(ui, queueDomElement) {
