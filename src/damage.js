@@ -44,7 +44,7 @@ export class Damage {
 					value * (1 + (atk.offense - trg.defense / this.area + atk[key] - trg[key]) / 100),
 				);
 				// For debugging purposes
-				if (this.game.debugMode) {
+				if (this.game.debugMode && process.env.DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG !== 'true') {
 					console.log(
 						'damage = ' +
 							value +
