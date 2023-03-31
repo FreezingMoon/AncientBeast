@@ -2170,9 +2170,17 @@ export class UI {
 
 			ui.game.grid.showMovementRange(creature.id);
 			ui.queue.xray(creature.id);
+
+			// Fix for Issue 2157
+			for (const unit_queue_avatar_div of creature.game.UI.$queue[0].children) {
+				if (unit_queue_avatar_div.getAttribute('creatureid') == creature.id) {
+					unit_queue_avatar_div.getElementsByClassName('stats protected')[0].innerText =
+						creature.name;
+				}
+			}
 		});
 
-		const onCreatureMouseLeave = () => {
+		const onCreatureMouseLeave = (creature) => {
 			// The mouse over adds a coloured hex to the creature, so when we mouse leave we have to remove them
 			const creatures = ui.game.creatures.filter((c) => c instanceof Creature);
 			creatures.forEach((creature) => {
@@ -2187,6 +2195,14 @@ export class UI {
 			});
 
 			ui.queue.xray(-1);
+
+			// Fix for Issue 2157
+			for (const unit_queue_avatar_div of creature.game.UI.$queue[0].children) {
+				if (unit_queue_avatar_div.getAttribute('creatureid') == creature.id) {
+					unit_queue_avatar_div.getElementsByClassName('stats protected')[0].innerText =
+						creature.fatigueText;
+				}
+			}
 		};
 
 		const onRoundMarkerMouseEnter = ifGameNotFrozen(() => {
