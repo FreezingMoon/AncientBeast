@@ -69,12 +69,6 @@ export default (G) => {
 
 				this.creature.addEffect(immoveableEffect);
 				this.creature.addEffect(damageShieldEffect);
-
-				this.end(
-					/* Suppress "uses ability" log message, just show the "affected by" Effect
-					log message. */
-					true,
-				);
 			},
 
 			_activateOnAttacker: function (effect, damage) {
