@@ -67,7 +67,7 @@ export default (G) => {
 					G,
 				);
 
-				this.creature.addEffect(immoveableEffect, undefined, undefined, true);
+				this.creature.addEffect(immoveableEffect);
 				this.creature.addEffect(damageShieldEffect);
 			},
 
