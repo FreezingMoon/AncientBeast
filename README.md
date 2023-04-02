@@ -1,4 +1,4 @@
-[![Play Ancient Beast](https://img.shields.io/badge/play-Ancient%20Beast-red.svg)](https://AncientBeast.com)
+[![Play Ancient Beast](https://img.shields.io/badge/play-Ancient%20Beast-red.svg)](https://play.AncientBeast.com)
 [![Join Discord](https://img.shields.io/badge/join-Discord-9cf.svg)](https://discord.me/AncientBeast)
 [![Setup Gitpod](https://img.shields.io/badge/setup-Gitpod-blue)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)
 [![Donate via PayPal](https://img.shields.io/badge/donate-PayPal-yellow.svg)](https://paypal.me/AncientBeast)
@@ -15,22 +15,22 @@
 
 ### [Roadmap](https://github.com/FreezingMoon/AncientBeast/milestone/4)
 
-We're working hard on the next version - 0.4, codenamed `Bounty Hunter`.
-What we're aiming for are the following:
+The main changes for the v0.4 release:
 
 - 3 new playable creatures
-- 3 new epic sound tracks
+- 3 new epic metal tracks
 - one new combat location
 - revamping some abilities
 - balancing creatures stats
-- sound effects for actions
-- sprites for ranged attacks
 - many user interface tweaks
 - lots of usability enhancements
 - a ton of bug fixes all around
 - partial code base restructuring
 - development workflow improvements
 - more project lore & documentation
+
+This branch is considered stable and won't be patched with the possible exception of some important hotfixes ❤‍🔥
+You can play the stable version of the game from the embed in our [Official Website](https://AncientBeast.com) or from full tab in [subdomain](https://play.AncientBeast.com).
 
 ### [Contribute](CONTRIBUTING.md#readme)
 
