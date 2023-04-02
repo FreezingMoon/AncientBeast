@@ -44,7 +44,6 @@ export class UI {
 		this.game = game;
 		this.fullscreen = new Fullscreen($j('#fullscreen.button'), game.fullscreenMode);
 		this.$display = $j('#ui');
-		this.$queue = $j('#queuewrapper');
 		this.$dash = $j('#dash');
 		this.$grid = $j(this.#makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
