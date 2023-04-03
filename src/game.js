@@ -17,6 +17,7 @@ import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
+import { toBool } from './utility/string';
 
 /* Game Class
  *
@@ -85,7 +86,7 @@ export default class Game {
 		this.session = null;
 		this.client = null;
 		this.connect = null;
-		this.debugMode = process.env.DEBUG_MODE;
+		this.debugMode = toBool(process.env.DEBUG_MODE);
 		this.multiplayer = false;
 		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
