@@ -840,7 +840,8 @@ export class UI {
 				.addClass('sin' + stats.type.substring(0, 1));
 			$j('#card .sideA .type').text(stats.type);
 			$j('#card .sideA .name').text(stats.name);
-			$j('#card .sideA .hexes').html(stats.size + '&#11041;');
+			$j('#card .sideA .set').html(stats.set);
+			$j('#card .sideA .hex-text').html(stats.size);
 
 			// Card B
 			$j('#card .sideB').css({

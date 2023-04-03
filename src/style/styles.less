@@ -514,14 +514,21 @@ div.section.info {
 			left: 22px;
 		}
 
+		&.set {
+			right: 40px;
+		}
 		&.hexes {
+			clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 			right: 22px;
-
+			background-color: white;
 			span {
 				font-size: 18px;
 				position: relative;
 				bottom: 2px;
 				padding-left: 5px;
+			}
+			&.hex-text {
+				color: #000;
 			}
 		}
 
