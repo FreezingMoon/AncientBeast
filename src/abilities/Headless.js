@@ -86,6 +86,10 @@ export default (G) => {
 					target.addEffect(effect, `%CreatureName${target.id}% loses -5 endurance`);
 				}
 				// Display potentially new "Fragile" status when losing maximum endurance.
+				// TODO: Creatures are responsible for telling the UI if they potentially
+				// make a change that might update another creature's fatigue. But this is
+				// fragile. Ideally, this would be refactored so that the UI doesn't need
+				// to be told about an update.
 				this.game.UI.updateFatigue();
 			},
 
