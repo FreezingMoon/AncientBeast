@@ -10,8 +10,6 @@ export class Hotkeys {
 	pressS(event) {
 		if (event.shiftKey) {
 			this.ui.btnToggleScore.triggerClick();
-		} else if (event.metaKey || event.ctrlKey) {
-			this.ui.game.gamelog.get('save');
 		} else {
 			this.ui.dashopen ? this.ui.gridSelectDown() : this.ui.btnSkipTurn.triggerClick();
 		}
@@ -63,8 +61,12 @@ export class Hotkeys {
 		}
 	}
 
-	pressX() {
-		this.ui.btnExit.triggerClick();
+	pressX(event) {
+		if (event.shiftKey && event.ctrlKey && event.metaKey) {
+			this.ui.game.gamelog.get('save');
+		} else {
+			this.ui.btnExit.triggerClick();
+		}
 	}
 
 	pressArrowUp() {
@@ -170,8 +172,8 @@ export function getHotKeys(hk) {
 			},
 		},
 		KeyX: {
-			onkeydown() {
-				hk.pressX();
+			onkeydown(event) {
+				hk.pressX(event);
 			},
 		},
 		ArrowUp: {
