@@ -2022,7 +2022,6 @@ export class UI {
 	 */
 	updateQueueDisplay() {
 		const game = this.game;
-		this.updateFatigue();
 		this.queue.setQueue(game.queue, game.activeCreature, game.turn);
 	}
 
@@ -2036,12 +2035,6 @@ export class UI {
 	}
 
 	updateFatigue() {
-		const game = this.game;
-		game.creatures.forEach((creature) => {
-			if (creature instanceof Creature) {
-				refactor.creature.updateFatigue(creature, game);
-			}
-		});
 		this.queue.refresh();
 	}
 
@@ -2224,46 +2217,5 @@ const utils = {
 				}
 			};
 		};
-	},
-};
-
-const refactor = {
-	creature: {
-		/** TODO:
-		 * This code was part of the UI class and used to include
-		 * updates to DOM elements controlled by /src/ui/interface.js,
-		 * but those DOM updates have now been factored out. Separating
-		 * this out for an eventual refactor into Creature, perhaps as
-		 * Creature.getFatigueText() or Creature.getStatsText()?
-		 */
-		updateFatigue(creature, game) {
-			let text;
-			if (creature.isFrozen()) {
-				text = creature.isInCryostasis() ? 'Cryostasis' : 'Frozen';
-			} else if (creature.isDizzy()) {
-				text = 'Dizzy';
-			} else if (creature.materializationSickness) {
-				text = 'Sickened';
-			} else if (creature.protectedFromFatigue || creature.stats.fatigueImmunity) {
-				text = 'Protected';
-			} else if (creature.isFragile()) {
-				text = 'Fragile';
-				// Display message if the creature has first become fragile
-				if (creature.fatigueText !== text) {
-					game.log('%CreatureName' + creature.id + '% has become fragile');
-				}
-			} else if (creature.isFatigued()) {
-				text = 'Fatigued';
-			} else {
-				text = creature.endurance + '/' + creature.stats.endurance;
-			}
-
-			if (creature.isDarkPriest()) {
-				// If Dark Priest
-				creature.abilities[0].require(); // Update protectedFromFatigue
-			}
-
-			creature.fatigueText = text;
-		},
 	},
 };

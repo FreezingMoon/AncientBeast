@@ -11,6 +11,9 @@ import { Drop } from './drops';
  * Creature contains all creatures properties and attacks
  */
 export class Creature {
+	//TODO: This can be removed when it is factored out of get fatigueText
+	#fatigueText = '';
+
 	/* Attributes
 	 *
 	 * NOTE : attributes and variables starting with $ are jquery element
@@ -253,9 +256,6 @@ export class Creature {
 		this.healthIndicatorGroup.add(this.healthIndicatorText);
 		// Hide it
 		this.healthIndicatorGroup.alpha = 0;
-
-		// State variable for displaying endurance/fatigue text
-		this.fatigueText = '';
 
 		// Adding Himself to creature arrays and queue
 		game.creatures[this.id] = this;
@@ -1933,5 +1933,40 @@ export class Creature {
 		this.game.UI.updateFatigue();
 
 		this.game.signals.creature.dispatch('frozen', { creature: this, cryostasis });
+	}
+
+	get fatigueText() {
+		let text;
+		if (this.isFrozen()) {
+			text = this.isInCryostasis() ? 'Cryostasis' : 'Frozen';
+		} else if (this.isDizzy()) {
+			text = 'Dizzy';
+		} else if (this.materializationSickness) {
+			text = 'Sickened';
+		} else if (this.protectedFromFatigue || this.stats.fatigueImmunity) {
+			text = 'Protected';
+		} else if (this.isFragile()) {
+			text = 'Fragile';
+			// Display message if the creature has first become fragile
+
+			// TODO: This isn't necessarily the moment the creature has
+			// become fragile. The code will run twice if, e.g.,
+			// the creature is fragile, then fragile and dizzy, then fragile
+			if (this.#fatigueText !== text) {
+				this.game.log('%CreatureName' + this.id + '% has become fragile');
+			}
+		} else if (this.isFatigued()) {
+			text = 'Fatigued';
+		} else {
+			text = this.endurance + '/' + this.stats.endurance;
+		}
+
+		if (this.isDarkPriest()) {
+			// If Dark Priest
+			this.abilities[0].require(); // Update protectedFromFatigue
+		}
+
+		this.#fatigueText = text;
+		return text;
 	}
 }
