@@ -536,6 +536,12 @@ export default (G) => {
 						);
 					}
 				}
+
+				// TODO: Creatures are responsible for telling the UI if they potentially
+				// make a change that might update another creature's fatigue. But this is
+				// fragile. Ideally, this would be refactored so that the UI doesn't need
+				// to be told about an update.
+				this.game.UI.updateFatigue();
 			},
 		},
 	];
