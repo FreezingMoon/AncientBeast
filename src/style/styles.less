@@ -504,19 +504,31 @@
 div.section.info {
 	position: relative;
 
+	div.set-type-parent {
+		float: left;
+		margin-left: 5%;
+		font-size: 0px;
+	}
+
 	div.creature-meta {
 		font-size: 21px;
 
+		&.star {
+			vertical-align: baseline;
+		}
 		&.type {
 			display: inline-block;
+			font-size: 21px;
 		}
 
 		&.set {
 			display: inline-block;
+			font-size: 21px;
 		}
 		&.hexes {
 			float: right;
 			margin-right: 5%;
+			letter-spacing: -3px;
 		}
 
 		&.name {

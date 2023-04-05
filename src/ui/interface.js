@@ -830,7 +830,10 @@ export class UI {
 
 			if (stats.level === '-' || stats.realm == '-') {
 				type = '&#9734';
+				$j('#card .sideA .type').addClass('star');
 				set = '';
+			} else {
+				$j('#card .sideA .type').removeClass('star');
 			}
 
 			$j('#card .sideA .type').html(type);
