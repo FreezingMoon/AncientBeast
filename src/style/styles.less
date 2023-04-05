@@ -504,34 +504,27 @@
 div.section.info {
 	position: relative;
 
-	span.creature-meta {
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
+	div.creature-meta {
 		font-size: 21px;
 
 		&.type {
-			left: 22px;
+			display: inline-block;
 		}
 
 		&.set {
-			right: 4.5vw;
-		}
-		&.hex-text {
-			padding: 7px;
+			display: inline-block;
 		}
 		&.hexes {
-			clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-			background-color: white;
-			right: 22px;
-			span {
-				font-size: 18px;
-				position: relative;
-				bottom: 2px;
-			}
+			float: right;
+			margin-right: 5%;
 		}
 
-		a.name {
+		&.name {
+			display: inline-block;
+			color: white;
+			text-shadow: 2px 2px black;
+			text-decoration: none;
+			cursor: pointer;
 			left: 50%;
 			transform: translate(-50%, -50%);
 		}
