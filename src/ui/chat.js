@@ -95,7 +95,7 @@ export class Chat {
 	}
 
 	getCurrentTime() {
-		let currentTime = new Date(new Date() - this.game.startMatchTime);
+		const currentTime = new Date(new Date() - this.game.startMatchTime);
 		return (
 			str.zfill(currentTime.getUTCHours(), 2) +
 			':' +
@@ -106,7 +106,7 @@ export class Chat {
 	}
 
 	createHTMLTemplate(msg, amount, msgTime = null, ifOuter = true, htmlClass = '') {
-		let timeTemplate = msgTime ? '<i>' + msgTime + '</i> ' : '',
+		const timeTemplate = msgTime ? '<i>' + msgTime + '</i> ' : '',
 			amountTemplate = amount > 1 ? ' [ ' + amount + 'x ]' : '';
 
 		if (ifOuter) {
@@ -117,8 +117,8 @@ export class Chat {
 	}
 
 	addMsg(msg, htmlClass, ifNoTimestamp = false) {
-		let messagesNo = this.messages.length;
-		let currentTime = ifNoTimestamp ? null : this.getCurrentTime();
+		const messagesNo = this.messages.length;
+		const currentTime = ifNoTimestamp ? null : this.getCurrentTime();
 
 		const suppressedMessageIndex = this.messagesToSuppress.findIndex((message) =>
 			message.pattern.test(msg),
@@ -136,7 +136,7 @@ export class Chat {
 
 		// Check if the last message was the same as the current one
 		if (this.messages[messagesNo - 1] && this.messages[messagesNo - 1].message === msg) {
-			let lastMessage = this.messages[messagesNo - 1];
+			const lastMessage = this.messages[messagesNo - 1];
 			lastMessage.amount++;
 			lastMessage.time = currentTime;
 			$j(lastMessage.DOMObject).html(

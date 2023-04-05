@@ -14,9 +14,9 @@ export default class Gameplay {
 		if (this.game.activeCreature.player.id != this.match.userTurn) {
 			return;
 		}
-		let data = o;
-		let id = this.match.matchData.match_id;
-		let opCode = '4';
+		const data = o;
+		const id = this.match.matchData.match_id;
+		const opCode = '4';
 		this.match.sendMatchData({ match_id: id, op_code: opCode, data: data });
 		this.game.UI.active = true;
 	}
@@ -24,9 +24,9 @@ export default class Gameplay {
 		if (this.game.activeCreature.player.id != this.match.userTurn) {
 			return;
 		}
-		let data = o;
-		let id = this.match.matchData.match_id;
-		let opCode = '5';
+		const data = o;
+		const id = this.match.matchData.match_id;
+		const opCode = '5';
 		this.match.sendMatchData({ match_id: id, op_code: opCode, data: data });
 		this.game.UI.active = true;
 	}
@@ -44,9 +44,9 @@ export default class Gameplay {
 			this.game.UI.banner(
 				this.match.users[this.game.activeCreature.player.id].playername + ' turn',
 			);
-			let id = this.match.matchData.match_id;
-			let opCode = '2';
-			let data = { activePlayer: this.game.activeCreature.player.id };
+			const id = this.match.matchData.match_id;
+			const opCode = '2';
+			const data = { activePlayer: this.game.activeCreature.player.id };
 			this.match.sendMatchData({ match_id: id, op_code: opCode, data: data });
 		}
 		this.activatePlayer();
@@ -56,9 +56,9 @@ export default class Gameplay {
 		if (this.game.activeCreature.player.id != this.match.userTurn) {
 			return;
 		}
-		let id = this.matchData.match_id;
-		let opCode = '3';
-		let data = { turn: this.matchTurn };
+		const id = this.matchData.match_id;
+		const opCode = '3';
+		const data = { turn: this.matchTurn };
 		this.match.sendMatchData({ match_id: id, op_code: opCode, data: data });
 	}
 }

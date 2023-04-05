@@ -52,16 +52,16 @@ export default (G) => {
 
 			//	activate() :
 			activate: function () {
-				let alterations = $j.extend({}, this.effects[0]);
+				const alterations = $j.extend({}, this.effects[0]);
 				// Double effect if upgraded
 				if (this.isUpgraded()) {
-					for (let k in alterations) {
+					for (const k in alterations) {
 						if ({}.hasOwnProperty.call(alterations, k)) {
 							alterations[k] = alterations[k] * 2;
 						}
 					}
 				}
-				let effect = new Effect(
+				const effect = new Effect(
 					'Spa Goggles',
 					this.creature,
 					this.creature,
@@ -78,7 +78,7 @@ export default (G) => {
 				let log = '%CreatureName' + this.creature.id + "%'s ";
 				let first = true;
 				let amount;
-				for (let k in alterations) {
+				for (const k in alterations) {
 					if ({}.hasOwnProperty.call(alterations, k)) {
 						if (!first) {
 							log += 'and ';
@@ -118,8 +118,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let swine = this.creature;
+				const ability = this;
+				const swine = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -138,19 +138,19 @@ export default (G) => {
 			},
 
 			activate: function (path, args) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let target = arrayUtils.last(path).creature;
-				let damage = new Damage(
+				const target = arrayUtils.last(path).creature;
+				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
 				);
-				let result = target.takeDamage(damage);
+				const result = target.takeDamage(damage);
 				// Knock the target back if they are still alive
 				if (!result.kill) {
 					// See how far we can knock the target back
@@ -159,7 +159,7 @@ export default (G) => {
 
 					// See how far the target can be knocked back
 					// Skip the first hex as it is the same hex as the target
-					let hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
+					const hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
 					hexes.splice(0, 1);
 					let hex = null;
 					for (let i = 0; i < hexes.length; i++) {
@@ -177,7 +177,7 @@ export default (G) => {
 						// The target must be completely over mud baths to keep sliding
 						let mudSlide = true;
 						for (let j = 0; j < target.size; j++) {
-							let mudHex = G.grid.hexes[hex.y][hex.x - j];
+							const mudHex = G.grid.hexes[hex.y][hex.x - j];
 							if (!mudHex.trap || mudHex.trap.type !== 'mud-bath') {
 								mudSlide = false;
 								break;
@@ -215,11 +215,11 @@ export default (G) => {
 					return false;
 				}
 
-				let bellowrow = matrices.bellowrow;
-				let straitrow = matrices.straitrow;
+				const bellowrow = matrices.bellowrow;
+				const straitrow = matrices.straitrow;
 
-				let swine = this.creature;
-				let hexes = arrayUtils
+				const swine = this.creature;
+				const hexes = arrayUtils
 					.filterCreature(
 						G.grid.getHexMap(swine.x, swine.y - 2, 0, false, bellowrow),
 						true,
@@ -277,13 +277,13 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let bellowrow = matrices.bellowrow;
-				let straitrow = matrices.straitrow;
+				const bellowrow = matrices.bellowrow;
+				const straitrow = matrices.straitrow;
 
-				let ability = this;
-				let swine = this.creature;
+				const ability = this;
+				const swine = this.creature;
 
-				let choices = [
+				const choices = [
 					// Front
 					G.grid.getHexMap(swine.x, swine.y - 2, 0, false, bellowrow),
 					G.grid.getHexMap(swine.x, swine.y, 0, false, straitrow),
@@ -312,15 +312,15 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 60, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let target = arrayUtils.last(path).creature;
+				const target = arrayUtils.last(path).creature;
 
 				// If upgraded, hits will debuff target with -1 meditation
 				if (this.isUpgraded()) {
-					let effect = new Effect(
+					const effect = new Effect(
 						'Ground Ball',
 						ability.creature,
 						target,
@@ -336,7 +336,7 @@ export default (G) => {
 					G.log('%CreatureName' + target.id + "%'s meditation is lowered by 1");
 				}
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -377,11 +377,11 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let swine = this.creature;
+				const ability = this;
+				const swine = this.creature;
 
 				// Check if the ability is upgraded because then the self cast energy cost is less
-				let selfOnly = this.isUpgraded() && this.creature.energy < this._energyNormal;
+				const selfOnly = this.isUpgraded() && this.creature.energy < this._energyNormal;
 
 				let hexes = [];
 				if (!selfOnly) {
@@ -404,11 +404,11 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex) {
-				let ability = this;
-				let swine = this.creature;
+				const ability = this;
+				const swine = this.creature;
 
 				// If upgraded and cast on self, cost is less
-				let isSelf = hex.x === swine.x && hex.y === swine.y;
+				const isSelf = hex.x === swine.x && hex.y === swine.y;
 				if (this.isUpgraded() && isSelf) {
 					this.requirements = {
 						energy: this._energySelfUpgraded,
@@ -427,7 +427,7 @@ export default (G) => {
 
 				ability.end();
 
-				let effects = [
+				const effects = [
 					new Effect(
 						'Slow Down',
 						ability.creature,

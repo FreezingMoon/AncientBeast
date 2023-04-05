@@ -9,8 +9,8 @@ import * as arrayUtils from './arrayUtils';
  * @returns {?} ?
  */
 export function search(start, end, creatureSize, creatureId, grid) {
-	let openList = [];
-	let closedList = [];
+	const openList = [];
+	const closedList = [];
 	openList.push(start);
 
 	if (start == end) {
@@ -25,12 +25,12 @@ export function search(start, end, creatureSize, creatureId, grid) {
 				lowInd = i;
 			}
 		}
-		let currentNode = openList[lowInd];
+		const currentNode = openList[lowInd];
 
 		// End case -- result has been found, return the traced path
 		if (currentNode.pos == end.pos) {
 			let curr = currentNode;
-			let ret = [];
+			const ret = [];
 			while (curr.pathparent) {
 				ret.push(curr);
 				curr = curr.pathparent;
@@ -41,10 +41,10 @@ export function search(start, end, creatureSize, creatureId, grid) {
 		// Normal case -- move currentNode from open to closed, process each of its neighbors
 		arrayUtils.removePos(openList, currentNode);
 		closedList.push(currentNode);
-		let neighbors = currentNode.adjacentHex(1);
+		const neighbors = currentNode.adjacentHex(1);
 
 		for (let i = 0; i < neighbors.length; i++) {
-			let neighbor = neighbors[i];
+			const neighbor = neighbors[i];
 
 			if (
 				arrayUtils.findPos(closedList, neighbor) ||
@@ -56,7 +56,7 @@ export function search(start, end, creatureSize, creatureId, grid) {
 
 			// g score is the shortest distance from start to current node, we need to check if
 			//	 the path we have arrived at this neighbor is the shortest one we have seen yet
-			let gScore = currentNode.g + 1; // 1 is the distance from a node to it's neighbor
+			const gScore = currentNode.g + 1; // 1 is the distance from a node to it's neighbor
 			let gScoreIsBest = false;
 
 			if (!arrayUtils.findPos(openList, neighbor)) {

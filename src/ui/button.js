@@ -21,7 +21,7 @@ export class Button {
 	constructor(opts, game) {
 		this.game = game;
 
-		let defaultOpts = {
+		const defaultOpts = {
 			click: function () {},
 			mouseover: function () {},
 			mouseleave: function () {},
@@ -59,7 +59,7 @@ export class Button {
 	}
 
 	changeState(state) {
-		let game = this.game;
+		const game = this.game;
 		const wrapperElement = this.$button.parent();
 
 		state = state || this.state;

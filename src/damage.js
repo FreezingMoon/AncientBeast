@@ -26,7 +26,7 @@ export class Damage {
 	/* applyDamage()
 	 */
 	applyDamage() {
-		let trg = this.target.stats,
+		const trg = this.target.stats,
 			atk = this.attacker.stats,
 			returnObj = {
 				total: 0,

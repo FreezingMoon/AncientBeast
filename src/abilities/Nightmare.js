@@ -25,7 +25,7 @@ export default (G) => {
 			require: function () {
 				// Check whether this ability is upgraded; if so then make sure all existing
 				// buffs include an offense buff
-				let ability = this;
+				const ability = this;
 				this.creature.effects.forEach(function (effect) {
 					if (effect.name === ability._effectName) {
 						effect.alterations.offense = ability._getOffenseBuff();
@@ -86,7 +86,7 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
+				const ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -101,17 +101,17 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				// Upgraded ability does pierce damage to smaller size targets
-				let damages = ability.damages;
+				const damages = ability.damages;
 				if (!this.isUpgraded() || !(target.size < this.creature.size)) {
 					damages.pierce = 0;
 				}
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					damages, // Damage Type
 					1, // Area
@@ -162,7 +162,7 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
+				const ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -177,11 +177,11 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.02, 222, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-				let effects = [];
+				const effects = [];
 				// Upgraded ability adds a -10 defense debuff
 				if (this.isUpgraded()) {
 					effects.push(
@@ -202,7 +202,7 @@ export default (G) => {
 						),
 					);
 				}
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -210,7 +210,7 @@ export default (G) => {
 					G,
 				);
 
-				let result = target.takeDamage(damage);
+				const result = target.takeDamage(damage);
 
 				if (result.kill || result.damageObj.status !== '') {
 					return;
@@ -238,8 +238,8 @@ export default (G) => {
 					return false;
 				}
 
-				let crea = this.creature;
-				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
+				const crea = this.creature;
+				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				if (
 					!this.testDirection({
@@ -257,10 +257,10 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
-				let x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
+				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -279,15 +279,15 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path) {
-				let ability = this;
+				const ability = this;
 
 				ability.end();
 
 				for (let i = 0; i < path.length; i++) {
 					if (path[i].creature instanceof Creature) {
-						let trg = path[i].creature;
+						const trg = path[i].creature;
 
-						let d = {
+						const d = {
 							pierce: ability.damages.pierce,
 							frost: 6 - i,
 						};
@@ -296,7 +296,7 @@ export default (G) => {
 						}
 
 						//Damage
-						let damage = new Damage(
+						const damage = new Damage(
 							ability.creature, // Attacker
 							d, // Damage Type
 							1, // Area
@@ -304,7 +304,7 @@ export default (G) => {
 							G,
 						);
 
-						let result = trg.takeDamage(damage);
+						const result = trg.takeDamage(damage);
 						G.Phaser.camera.shake(0.02, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 						// Stop propagating if no damage dealt

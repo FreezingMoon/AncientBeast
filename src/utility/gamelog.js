@@ -23,7 +23,7 @@ export class GameLog {
 	}
 
 	config(config) {
-		let game = this.game;
+		const game = this.game;
 
 		if (game.gameState != 'initialized') {
 			alert('To set the game config, you need to be in the setup screen');
@@ -44,7 +44,7 @@ export class GameLog {
 			this.data = data;
 			return this.config(config);
 		} else if (typeof log == 'string') {
-			let results = log.match(/^AB-(dev|[0-9.]+)(\@[0-9\-]+)?:(.+)$/);
+			const results = log.match(/^AB-(dev|[0-9.]+)(\@[0-9\-]+)?:(.+)$/);
 			if (results) {
 				log = JSON.parse(atob(results[3]));
 				return this.play(log);
@@ -55,7 +55,7 @@ export class GameLog {
 			this.data = log;
 		}
 
-		let fun = () => {
+		const fun = () => {
 			this.timeCursor++;
 
 			if (game.debugMode) {
@@ -67,7 +67,7 @@ export class GameLog {
 				return;
 			}
 
-			let interval = setInterval(() => {
+			const interval = setInterval(() => {
 				if (!game.freezedInput && !game.turnThrottle) {
 					clearInterval(interval);
 					game.activeCreature.queryMove();
@@ -82,7 +82,7 @@ export class GameLog {
 	}
 
 	next() {
-		let game = this.game;
+		const game = this.game;
 
 		if (game.freezedInput || game.turnThrottle) {
 			return false;
@@ -98,7 +98,7 @@ export class GameLog {
 			return;
 		}
 
-		let interval = setInterval(() => {
+		const interval = setInterval(() => {
 			if (!game.freezedInput && !game.turnThrottle) {
 				clearInterval(interval);
 				game.activeCreature.queryMove(); // Avoid bug
@@ -112,7 +112,7 @@ export class GameLog {
 	}
 
 	get(state) {
-		let today = new Date().toISOString().slice(0, 10);
+		const today = new Date().toISOString().slice(0, 10);
 		let config = isEmpty(this.gameConfig) ? getGameConfig() : this.gameConfig,
 			dict = {
 				config: config,
@@ -123,7 +123,7 @@ export class GameLog {
 			output,
 			strOutput;
 
-		let fileName = `AB-${this.game.version}:${today}`;
+		const fileName = `AB-${this.game.version}:${today}`;
 
 		switch (state) {
 			case 'json':
@@ -154,9 +154,9 @@ export class GameLog {
 	saveFile(data, fileName) {
 		// Set a trap to block consecutive calls within one second
 		this._debounce = new Date().valueOf();
-		let a = document.createElement('a');
-		let file = new Blob([data]);
-		let url = URL.createObjectURL(file);
+		const a = document.createElement('a');
+		const file = new Blob([data]);
+		const url = URL.createObjectURL(file);
 		a.href = url;
 		a.download = fileName;
 		document.body.appendChild(a);

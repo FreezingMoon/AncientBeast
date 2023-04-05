@@ -42,8 +42,8 @@ export class Trap {
 			this.effects[i].trap = this;
 		}
 
-		let spriteName = 'trap_' + type;
-		let pos = this.hex.originalDisplayPos;
+		const spriteName = 'trap_' + type;
+		const pos = this.hex.originalDisplayPos;
 
 		this.display = game.grid.trapGroup.create(pos.x + this.hex.width / 2, pos.y + 60, spriteName);
 		this.display.anchor.setTo(0.5);
@@ -60,14 +60,14 @@ export class Trap {
 	}
 
 	destroy() {
-		let game = this.game,
+		const game = this.game,
 			tweenDuration = 500,
 			destroySprite = (sprite, animation) => {
 				if (animation === 'shrinkDown') {
 					sprite.anchor.y = 1;
 					sprite.y += sprite.height / 2;
 
-					let tween = game.Phaser.add
+					const tween = game.Phaser.add
 						.tween(sprite.scale)
 						.to(
 							{
@@ -91,7 +91,7 @@ export class Trap {
 		}
 
 		// Unregister
-		let i = game.grid.traps.indexOf(this);
+		const i = game.grid.traps.indexOf(this);
 		game.grid.traps.splice(i, 1);
 		this.hex.trap = undefined;
 	}

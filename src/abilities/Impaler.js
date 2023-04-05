@@ -29,13 +29,13 @@ export default (G) => {
 					return false;
 				}
 				this.end();
-				let converted = Math.floor(damage.damages.shock / 4);
+				const converted = Math.floor(damage.damages.shock / 4);
 				// Lower damage
 				damage.damages.shock -= converted;
 				// Replenish energy
 				// Calculate overflow first; we may need it later
-				let energyMissing = this.creature.stats.energy - this.creature.energy;
-				let energyOverflow = converted - energyMissing;
+				const energyMissing = this.creature.stats.energy - this.creature.energy;
+				const energyOverflow = converted - energyMissing;
 				this.creature.recharge(converted);
 				// If upgraded and energy overflow, convert into health
 				if (this.isUpgraded() && energyOverflow > 0) {
@@ -77,8 +77,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let creature = this.creature;
+				const ability = this;
+				const creature = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -93,11 +93,11 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 120, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let finalDmg = $j.extend(
+				const finalDmg = $j.extend(
 					{
 						poison: 0,
 					},
@@ -109,14 +109,14 @@ export default (G) => {
 					finalDmg.poison = this.damages1.poison;
 				}
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					finalDmg, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
 				);
-				let result = target.takeDamage(damage);
+				const result = target.takeDamage(damage);
 				// Recharge movement if any damage dealt
 				if (result.damages && result.damages.total > 0) {
 					this.creature.remainingMove = this.creature.stats.movement;
@@ -157,8 +157,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let creature = this.creature;
+				const ability = this;
+				const creature = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -173,10 +173,10 @@ export default (G) => {
 
 			activate: function (target) {
 				this.end();
-				let damages = this.damages;
+				const damages = this.damages;
 				// Last 1 turn, or indefinitely if upgraded
-				let lifetime = this.isUpgraded() ? 0 : 1;
-				let ability = this;
+				const lifetime = this.isUpgraded() ? 0 : 1;
+				const ability = this;
 
 				// Destroy trap if it wasn't triggered and target is dead
 				target.addEffect(
@@ -187,7 +187,7 @@ export default (G) => {
 						'onUnderAttack',
 						{
 							effectFn: (effect, damage) => {
-								let dmg = damage.applyDamage();
+								const dmg = damage.applyDamage();
 								if (dmg.total >= target.health) {
 									target.hexagons.forEach(function (hex) {
 										hex.destroyTrap();
@@ -200,7 +200,7 @@ export default (G) => {
 				);
 
 				// Add a trap to every hex of the target
-				let effect = new Effect(
+				const effect = new Effect(
 					ability.title,
 					ability.creature,
 					this,
@@ -243,7 +243,7 @@ export default (G) => {
 
 			_getHexes: function () {
 				// Target a creature within 2 hex radius
-				let hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(2);
+				const hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(2);
 				return arrayUtils.extendToLeft(hexes, this.creature.size, G.grid);
 			},
 		},
@@ -271,7 +271,7 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
-				let ability = this;
+				const ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -286,16 +286,16 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
-				let targets = [];
+				const targets = [];
 				targets.push(target); // Add First creature hit
 				let nextdmg = $j.extend({}, ability.damages); // Copy the object
 
 				// For each Target
 				for (let i = 0; i < targets.length; i++) {
-					let trg = targets[i];
+					const trg = targets[i];
 
 					// If upgraded and the target is an ally, protect it with an effect that
 					// reduces the damage to guarantee at least 1 health remaining
@@ -311,7 +311,7 @@ export default (G) => {
 										// Simulate the damage to determine how much damage would have
 										// been dealt; then reduce the damage so that it will not kill
 										while (true) {
-											let dmg = damage.applyDamage();
+											const dmg = damage.applyDamage();
 											// If we can't reduce any further, give up and have the damage
 											// be zero
 											if (dmg.total <= 0 || damage.damages.shock <= 0 || trg.health <= 1) {
@@ -335,7 +335,7 @@ export default (G) => {
 						);
 					}
 
-					let damage = new Damage(
+					const damage = new Damage(
 						ability.creature, // Attacker
 						nextdmg, // Damage Type
 						1, // Area
@@ -389,7 +389,7 @@ export default (G) => {
 							continue;
 						} // Skip empty ids.
 
-						let t = nextTargets[j].target;
+						const t = nextTargets[j].target;
 						// Compare to best target
 						if (t.stats.shock > bestTarget.stats.shock) {
 							if (

@@ -38,7 +38,7 @@ export default (G) => {
 					return damage;
 				}
 
-				let targets = this.getTargets(this.creature.adjacentHexes(1));
+				const targets = this.getTargets(this.creature.adjacentHexes(1));
 				this.end();
 				this.triggeredThisChain = true;
 
@@ -80,8 +80,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -100,12 +100,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
-				let target = arrayUtils.last(path).creature;
+				const target = arrayUtils.last(path).creature;
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -130,8 +130,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
 				crea.queryMove({
 					noPath: true,
@@ -146,27 +146,27 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
-				let targets = ability.getTargets(ability.creature.adjacentHexes(1));
+				const targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 				targets.forEach(function (item) {
 					if (!(item.target instanceof Creature)) {
 						return;
 					}
 
-					let trg = item.target;
+					const trg = item.target;
 
 					if (isTeam(ability.creature, trg, item._targetTeam)) {
-						let optArg = {
+						const optArg = {
 							alterations: {
 								burn: -1,
 							},
 						};
 
 						//Roasted effect
-						let effect = new Effect(
+						const effect = new Effect(
 							'Roasted', //Name
 							ability.creature, //Caster
 							trg, //Target
@@ -186,24 +186,24 @@ export default (G) => {
 						G.activeCreature.queryMove();
 					},
 					callbackStepIn: function () {
-						let callbackTargets = ability.getTargets(ability.creature.adjacentHexes(1));
+						const callbackTargets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 						callbackTargets.forEach(function (item) {
 							if (!(item.target instanceof Creature)) {
 								return;
 							}
 
-							let trg = item.target;
+							const trg = item.target;
 
 							if (isTeam(ability.creature, trg, item._targetTeam)) {
-								let optArg = {
+								const optArg = {
 									alterations: {
 										burn: -1,
 									},
 								};
 
 								//Roasted effect
-								let effect = new Effect(
+								const effect = new Effect(
 									'Roasted', //Name
 									ability.creature, //Caster
 									trg, //Target
@@ -234,13 +234,13 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
-				let range = crea.hexagons[1].adjacentHex(3);
+				const range = crea.hexagons[1].adjacentHex(3);
 
-				let head = range.indexOf(crea.hexagons[0]);
-				let tail = range.indexOf(crea.hexagons[2]);
+				const head = range.indexOf(crea.hexagons[0]);
+				const tail = range.indexOf(crea.hexagons[2]);
 				range.splice(head, 1);
 				range.splice(tail, 1);
 
@@ -299,12 +299,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
-				let aoe = hex.adjacentHex(1);
+				const aoe = hex.adjacentHex(1);
 
-				let targets = ability.getTargets(aoe);
+				const targets = ability.getTargets(aoe);
 
 				if (hex.creature instanceof Creature) {
 					hex.creature.takeDamage(

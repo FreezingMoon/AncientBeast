@@ -55,8 +55,8 @@ export class Drop {
 	}
 
 	pickup(creature) {
-		let game = this.game;
-		let alterations = this.alterations;
+		const game = this.game;
+		const alterations = this.alterations;
 
 		game.log('%CreatureName' + creature.id + '% picks up ' + this.name);
 		creature.hint(this.name, 'msg_effects');
@@ -94,7 +94,7 @@ export class Drop {
 			type: 'pickupDrop',
 		});
 
-		let tween = game.Phaser.add
+		const tween = game.Phaser.add
 			.tween(this.display)
 			.to(
 				{

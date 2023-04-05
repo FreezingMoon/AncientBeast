@@ -23,7 +23,7 @@ export class Effect {
 		this.trigger = trigger;
 		this.creationTurn = game.turn;
 
-		let args = $j.extend(
+		const args = $j.extend(
 			{
 				// Default Arguments
 				requireFn: function () {

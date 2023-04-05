@@ -208,7 +208,7 @@ export class Player {
 	 * TODO: This is also wrong, because it allows for ties to result in a "leader".
 	 */
 	isLeader() {
-		let game = this.game;
+		const game = this.game;
 
 		for (let i = 0; i < game.playerMode; i++) {
 			// Each player

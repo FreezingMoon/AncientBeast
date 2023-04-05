@@ -83,7 +83,7 @@ export default (G) => {
 
 			// require() :
 			require: function () {
-				let req = {
+				const req = {
 					team: this._targetTeam,
 					sourceCreature: this.creature,
 					distance: 3,
@@ -98,8 +98,8 @@ export default (G) => {
 
 			// query() :
 			query: function () {
-				let stomper = this.creature;
-				let ability = this;
+				const stomper = this.creature;
+				const ability = this;
 
 				// Take the closest ennemy in each direction within 3hex
 				if (!this.isUpgraded()) {
@@ -124,7 +124,7 @@ export default (G) => {
 							if (arguments[1].hex.creature) {
 								ability.animation([arguments[1].hex], arguments[1], arguments[2]);
 							} else {
-								let targetHexList = [];
+								const targetHexList = [];
 								for (let i = 0; i < arguments[0].length; i++) {
 									if (arguments[0][i].creature) {
 										targetHexList.push(arguments[0][i]);
@@ -150,7 +150,7 @@ export default (G) => {
 
 			// activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				// If not upgraded take the first creature found (aka last in path)
 				if (!this.isUpgraded()) {
@@ -203,7 +203,7 @@ export default (G) => {
 
 			// Return an array of dashed hex
 			_getDashed: function (direction) {
-				let stomper = this.creature;
+				const stomper = this.creature;
 
 				let hexes;
 
@@ -224,14 +224,14 @@ export default (G) => {
 						matrices.straitrow,
 					);
 				} else {
-					let forward = G.grid.getHexMap(
+					const forward = G.grid.getHexMap(
 						stomper.x,
 						stomper.y,
 						0,
 						stomper.player.flipped,
 						matrices.straitrow,
 					);
-					let backward = G.grid.getHexMap(
+					const backward = G.grid.getHexMap(
 						stomper.x,
 						stomper.y,
 						0,
@@ -246,12 +246,12 @@ export default (G) => {
 
 			// Return an array of all reachable targets'
 			_getTarget: function (direction) {
-				let ability = this;
-				let stomper = this.creature;
+				const ability = this;
+				const stomper = this.creature;
 
-				let fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
-				let bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
-				let targets = [];
+				const fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
+				const bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
+				const targets = [];
 
 				if (!direction[4]) {
 					targets.push(
@@ -275,11 +275,11 @@ export default (G) => {
 
 			// Add target's hex to the array as long as there isn't 2 empty hex
 			_getCreature: function (hexes) {
-				let targets = [];
+				const targets = [];
 				let i = 0,
 					stop = 0;
 				while (i < hexes.length && stop < 2) {
-					let crea = hexes[i].creature;
+					const crea = hexes[i].creature;
 
 					if (crea !== undefined) {
 						for (let j = 0; j < crea.size; j++) {
@@ -297,15 +297,15 @@ export default (G) => {
 
 			// Check if there is a possible place to end the ability
 			_checkEnd: function () {
-				let ability = this;
-				let stomper = this.creature;
-				let direction = ability.testDirections(ability._req);
+				const ability = this;
+				const stomper = this.creature;
+				const direction = ability.testDirections(ability._req);
 				let hexes;
 
 				ability._directions = [0, 0, 0, 0, 0, 0];
 
-				let fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
-				let bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
+				const fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
+				const bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
 
 				if (!direction[4]) {
 					hexes = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
@@ -314,8 +314,8 @@ export default (G) => {
 					hexes = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
 					if (this._getHole(hexes)) ability._directions = direction;
 				} else {
-					let forward = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
-					let backward = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
+					const forward = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
+					const backward = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
 					if (this._getHole(forward)) ability._directions[1] = 1;
 					if (this._getHole(backward)) ability._directions[4] = 1;
 				}
@@ -338,7 +338,7 @@ export default (G) => {
 
 			// require() :
 			require: function () {
-				let ability = this;
+				const ability = this;
 				ability._req.sourceCreature = ability.creature;
 
 				ability._checkEnd();
@@ -351,12 +351,12 @@ export default (G) => {
 
 			// query() :
 			query: function () {
-				let ability = this;
-				let stomper = this.creature;
+				const ability = this;
+				const stomper = this.creature;
 				// Get the direction of the melee target, the dashed hex and the targets
-				let direction = ability._directions;
-				let dashed = ability._getDashed(direction);
-				let targets = ability._getTarget(direction);
+				const direction = ability._directions;
+				const dashed = ability._getDashed(direction);
+				const targets = ability._getTarget(direction);
 
 				// Separate the front and back row of targets
 				let targets2 = [];
@@ -385,20 +385,20 @@ export default (G) => {
 
 			// activate() :
 			activate: function (hexes) {
-				let ability = this;
-				let stomper = this.creature;
+				const ability = this;
+				const stomper = this.creature;
 				let i = 0;
 				ability.end();
 				G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-				let targets = ability.getTargets(hexes);
+				const targets = ability.getTargets(hexes);
 
 				let lastTarget = targets[targets.length - 1].target;
 				let offset = null;
 				for (i = 0; i < targets.length; i++) {
-					let target = targets[i].target;
+					const target = targets[i].target;
 
-					let damage = new Damage(
+					const damage = new Damage(
 						ability.creature, // Attacker
 						ability.damages, // Damage type
 						1, // Area
@@ -446,7 +446,7 @@ export default (G) => {
 
 						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
-						let interval = setInterval(function () {
+						const interval = setInterval(function () {
 							if (!G.freezedInput) {
 								clearInterval(interval);
 								G.UI.selectAbility(-1);
@@ -478,8 +478,8 @@ export default (G) => {
 
 			// query() :
 			query: function () {
-				let ability = this;
-				let stomper = this.creature;
+				const ability = this;
+				const stomper = this.creature;
 
 				this.map.origin = [0, 2];
 
@@ -497,14 +497,14 @@ export default (G) => {
 
 			// activate() :
 			activate: function (hexes) {
-				let ability = this;
+				const ability = this;
 				ability.end(); // Deferred ending
 				G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 				// Delay all creatures in area
-				let targets = ability.getTargets(hexes);
+				const targets = ability.getTargets(hexes);
 				for (let i = 0; i < targets.length; i++) {
-					let target = targets[i].target;
+					const target = targets[i].target;
 
 					// If the ability is upgraded and the creature is already delayed, skip the turn
 					if (

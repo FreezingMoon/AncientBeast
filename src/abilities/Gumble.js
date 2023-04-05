@@ -27,15 +27,15 @@ export default (G) => {
 				}
 				// Attach a permanent effect that gives Gumble stat buffs
 				// Bonus points to pierce, slash and crush based on remaining health
-				let healthBonusDivisor = this.isUpgraded() ? 5 : 7;
-				let bonus = Math.floor((this.creature.health / healthBonusDivisor) * 3);
+				const healthBonusDivisor = this.isUpgraded() ? 5 : 7;
+				const bonus = Math.floor((this.creature.health / healthBonusDivisor) * 3);
 				// Log whenever the bonus applied changes
-				let noLog = bonus == this._lastBonus;
+				const noLog = bonus == this._lastBonus;
 				this._lastBonus = bonus;
-				let statsToApplyBonus = ['pierce', 'slash', 'crush'];
-				let alterations = {};
+				const statsToApplyBonus = ['pierce', 'slash', 'crush'];
+				const alterations = {};
 				for (let i = 0; i < statsToApplyBonus.length; i++) {
-					let key = statsToApplyBonus[i];
+					const key = statsToApplyBonus[i];
 					alterations[key] = bonus;
 				}
 				this.creature.replaceEffect(
@@ -75,18 +75,18 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
+				const ability = this;
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
 				// center of each area is two hexes away. Each area can be chosen regardless
 				// of whether targets are within.
-				let area = [
+				const area = [
 					[1, 1],
 					[1, 1, 1],
 					[1, 1],
 				];
-				let dx = this.creature.y % 2 !== 0 ? -1 : 0;
-				let dy = -1;
-				let choices = [
+				const dx = this.creature.y % 2 !== 0 ? -1 : 0;
+				const dy = -1;
+				const choices = [
 					G.grid.getHexMap(this.creature.x + 1 + dx, this.creature.y - 2 + dy, 0, false, area), // up-right
 					G.grid.getHexMap(this.creature.x + 2 + dx, this.creature.y + dy, 0, false, area), // front
 					G.grid.getHexMap(this.creature.x + 1 + dx, this.creature.y + 2 + dy, 0, false, area), // down-right
@@ -115,16 +115,16 @@ export default (G) => {
 			},
 
 			activate: function (hexes) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
 				G.Phaser.camera.shake(0.02, 333, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-				let targets = ability.getTargets(hexes);
+				const targets = ability.getTargets(hexes);
 				// Deal double damage to enemies if upgraded
-				let enemyDamages = $j.extend({}, ability.damages);
+				const enemyDamages = $j.extend({}, ability.damages);
 				if (this.isUpgraded()) {
-					for (let k in enemyDamages) {
+					for (const k in enemyDamages) {
 						if ({}.hasOwnProperty.call(enemyDamages, k)) {
 							enemyDamages[k] *= 2;
 						}
@@ -140,7 +140,7 @@ export default (G) => {
 					if (isTeam(this.creature, targets[i].target, Team.Enemy)) {
 						damages = enemyDamages;
 					}
-					let dmg = new Damage(this.creature, damages, targets[i].hexesHit, [], G);
+					const dmg = new Damage(this.creature, damages, targets[i].hexesHit, [], G);
 					kills += targets[i].target.takeDamage(dmg).kill + 0;
 				}
 				if (kills > 1) {
@@ -164,12 +164,12 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let creature = this.creature;
+				const ability = this;
+				const creature = this.creature;
 
 				// Upgraded Royal Seal can target up to 3 hexagons range
-				let range = this.isUpgraded() ? 3 : 1;
-				let hexes = creature.hexagons.concat(
+				const range = this.isUpgraded() ? 3 : 1;
+				const hexes = creature.hexagons.concat(
 					G.grid.getFlyingRange(creature.x, creature.y, range, creature.size, creature.id),
 				);
 
@@ -189,11 +189,11 @@ export default (G) => {
 			//	activate() :
 			activate: function (hex) {
 				this.end();
-				let ability = this;
+				const ability = this;
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-				let makeSeal = function () {
-					let effect = new Effect(
+				const makeSeal = function () {
+					const effect = new Effect(
 						'Royal Seal',
 						ability.creature,
 						hex,
@@ -201,7 +201,7 @@ export default (G) => {
 						{
 							// Gumbles immune
 							requireFn: function () {
-								let crea = this.trap.hex.creature;
+								const crea = this.trap.hex.creature;
 								return crea && crea.type !== this.owner.type;
 							},
 							effectFn: function (_, crea) {
@@ -223,7 +223,7 @@ export default (G) => {
 						G,
 					);
 
-					let trap = hex.createTrap('royal-seal', [effect], ability.creature.player, {
+					const trap = hex.createTrap('royal-seal', [effect], ability.creature.player, {
 						ownerCreature: ability.creature,
 						fullTurnLifetime: true,
 					});
@@ -275,8 +275,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -294,14 +294,14 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let target = arrayUtils.last(path).creature;
-				let melee = path[0].creature === target;
+				const target = arrayUtils.last(path).creature;
+				const melee = path[0].creature === target;
 
-				let d = melee
+				const d = melee
 					? {
 							sonic: 20,
 							crush: 10,
@@ -338,7 +338,7 @@ export default (G) => {
 						break;
 				}
 
-				let canKnockBack =
+				const canKnockBack =
 					dir.length > 1 &&
 					dir[1].isWalkable(target.size, target.id, true) &&
 					target.stats.moveable;
@@ -348,7 +348,7 @@ export default (G) => {
 					d.sonic += 10;
 				}
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					d, // Damage Type
 					1, // Area
@@ -356,7 +356,7 @@ export default (G) => {
 					G,
 				);
 
-				let result = target.takeDamage(damage, {
+				const result = target.takeDamage(damage, {
 					ignoreRetaliation: true,
 				});
 

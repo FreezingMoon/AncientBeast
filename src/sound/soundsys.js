@@ -55,7 +55,7 @@ export class SoundSys {
 	}
 
 	getSound(url, id) {
-		let bufferLoader = new BufferLoader(this.context, [url], (arraybuffer) => {
+		const bufferLoader = new BufferLoader(this.context, [url], (arraybuffer) => {
 			this.game.soundLoaded[id] = arraybuffer[0];
 		});
 
@@ -67,7 +67,7 @@ export class SoundSys {
 			return false;
 		}
 
-		let source = this.context.createBufferSource();
+		const source = this.context.createBufferSource();
 		source.buffer = sound;
 		source.connect(node);
 		source.start(0);
