@@ -36,7 +36,7 @@ export default class MatchI {
 			}
 			// Only host sends data
 			if (this.host === this.session.user_id) {
-				let u = this.users.length;
+				const u = this.users.length;
 				this.users.push({ id: md.joins[0].user_id, playername: md.joins[0].username, turn: u });
 
 				// Called after match join. Player 1 is host sends match config
@@ -61,7 +61,7 @@ export default class MatchI {
 
 		connect.socket.onmatchdata = (md) => {
 			console.info('Received match data: %o', md);
-			let op_code = md.op_code;
+			const op_code = md.op_code;
 
 			switch (op_code) {
 				// Host shares config with players on join
@@ -98,7 +98,7 @@ export default class MatchI {
 					});
 					break;
 				case 5:
-					let args = $j.makeArray(md.data.args[1]);
+					const args = $j.makeArray(md.data.args[1]);
 
 					if (md.data.target.type == 'hex') {
 						args.unshift(game.grid.hexes[md.data.target.y][md.data.target.x]);
@@ -134,7 +134,7 @@ export default class MatchI {
 					}
 
 					if (md.data.target.type == 'array') {
-						let array = md.data.target.array.map((item) => game.grid.hexes[item.y][item.x]);
+						const array = md.data.target.array.map((item) => game.grid.hexes[item.y][item.x]);
 
 						args.unshift(array);
 						game.activeCreature.abilities[md.data.id].animation2({
@@ -155,11 +155,11 @@ export default class MatchI {
 		};
 	}
 	getUserTurn() {
-		let p = _.findWhere(this.users, { id: this.session.user_id });
+		const p = _.findWhere(this.users, { id: this.session.user_id });
 		return p.turn;
 	}
 	async matchCreate() {
-		let nm = await this.socket.send({ match_create: {} });
+		const nm = await this.socket.send({ match_create: {} });
 		this.matchData = nm.match;
 		this.game.log(this.session.username + ' created match');
 		this.host = this.session.user_id;
@@ -179,18 +179,18 @@ export default class MatchI {
 	}
 	async storeMatches() {
 		if (typeof Storage !== 'undefined') {
-			let obj = JSON.stringify(this.matchUsers);
+			const obj = JSON.stringify(this.matchUsers);
 			localStorage.setItem('matches', obj);
 			console.log('matches stored.');
 		}
 	}
 	async matchMaker(d, gc) {
-		let matchList = await this.client.listMatches(this.session);
+		const matchList = await this.client.listMatches(this.session);
 		let matchUsers = await this.readMatches();
 		matchUsers = _.filter(matchUsers, function (obj) {
 			console.log(obj);
 			if ('string_properties' in obj && typeof obj.string_properties.match_id != 'undefined') {
-				let c = _.findWhere(matchList.matches, { match_id: obj.string_properties.match_id });
+				const c = _.findWhere(matchList.matches, { match_id: obj.string_properties.match_id });
 				if (c) return true;
 			}
 		});
@@ -204,7 +204,7 @@ export default class MatchI {
 			localStorage.removeItem('matches');
 		}
 		let ticket;
-		let obj = {
+		const obj = {
 			min_count: 2,
 			max_count: 20,
 			query: '*',

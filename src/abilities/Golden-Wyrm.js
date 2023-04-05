@@ -46,9 +46,9 @@ export default (G) => {
 
 			//	activate() :
 			activate: function () {
-				let creature = this.creature;
-				let damage = new Damage(creature, { sonic: 30 }, this._targets.length, [], G);
-				let hits = new Set();
+				const creature = this.creature;
+				const damage = new Damage(creature, { sonic: 30 }, this._targets.length, [], G);
+				const hits = new Set();
 				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				this._targets.forEach((target) => {

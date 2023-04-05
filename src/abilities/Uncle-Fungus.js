@@ -39,8 +39,8 @@ export default (G) => {
 
 			// activate() :
 			activate: function (damage) {
-				let ability = this;
-				let creature = this.creature;
+				const ability = this;
+				const creature = this.creature;
 
 				if (!damage || !damage.melee) {
 					return;
@@ -48,9 +48,9 @@ export default (G) => {
 
 				// ability may trigger both onAttack and onUnderAttack;
 				// the target should be the other creature
-				let target = damage.attacker === creature ? damage.target : damage.attacker;
+				const target = damage.attacker === creature ? damage.target : damage.attacker;
 
-				let optArg = {
+				const optArg = {
 					alterations: ability.effects[0],
 					creationTurn: G.turn - 1,
 					stackable: true,
@@ -59,7 +59,7 @@ export default (G) => {
 				ability.end();
 
 				// Spore Contamination
-				let effect = new Effect(
+				const effect = new Effect(
 					ability.title, // Name
 					creature, // Caster
 					target, // Target
@@ -104,8 +104,8 @@ export default (G) => {
 
 			// query() :
 			query: function () {
-				let uncle = this.creature;
-				let ability = this;
+				const uncle = this.creature;
+				const ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -120,11 +120,11 @@ export default (G) => {
 
 			// activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 65, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage type
 					1, // Area
@@ -132,7 +132,7 @@ export default (G) => {
 					G,
 				);
 
-				let dmg = target.takeDamage(damage);
+				const dmg = target.takeDamage(damage);
 
 				if (dmg.damageObj.status === '') {
 					let amount = dmg.damages.total;
@@ -140,9 +140,9 @@ export default (G) => {
 					// If upgraded, heal immediately up to the amount of health lost so far;
 					// use the remainder as regrowth
 					if (this.isUpgraded()) {
-						let healthLost = this.creature.stats.health - this.creature.health;
+						const healthLost = this.creature.stats.health - this.creature.health;
 						if (healthLost > 0) {
-							let healAmount = Math.min(amount, healthLost);
+							const healAmount = Math.min(amount, healthLost);
 							amount -= healAmount;
 							this.creature.heal(healAmount, false);
 						}
@@ -204,13 +204,13 @@ export default (G) => {
 
 			// query() :
 			query: function () {
-				let ability = this;
-				let uncle = this.creature;
+				const ability = this;
+				const uncle = this.creature;
 
 				// Don't jump over creatures if we're not upgraded, or we are in a second
 				// "low" jump
-				let stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
-				let hexes = this._getHexRange(stopOnCreature);
+				const stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
+				const hexes = this._getHexRange(stopOnCreature);
 
 				G.grid.queryHexes({
 					fnOnSelect: function () {
@@ -235,7 +235,7 @@ export default (G) => {
 
 			// activate() :
 			activate: function (hex) {
-				let ability = this;
+				const ability = this;
 				ability.end(false, true); // Deferred ending
 
 				// If upgraded and we haven't leapt over creatures/obstacles, allow a second
@@ -243,7 +243,7 @@ export default (G) => {
 				if (this.isUpgraded() && !this._isSecondLowJump()) {
 					// Check if we've leapt over creatures by finding all "low" jumps (jumps
 					// not over creatures), and finding whether this jump was a "low" one
-					let lowJumpHexes = this._getHexRange(true);
+					const lowJumpHexes = this._getHexRange(true);
 					let isLowJump = false;
 					for (let i = 0; i < lowJumpHexes.length; i++) {
 						if (lowJumpHexes[i].x === hex.x && lowJumpHexes[i].y === hex.y) {
@@ -265,7 +265,7 @@ export default (G) => {
 
 						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
 
-						let interval = setInterval(function () {
+						const interval = setInterval(function () {
 							if (!G.freezedInput) {
 								clearInterval(interval);
 								G.UI.selectAbility(-1);
@@ -295,13 +295,13 @@ export default (G) => {
 
 			_getHexRange: function (stopOnCreature) {
 				// Get the hex range of this ability
-				let uncle = this.creature;
+				const uncle = this.creature;
 				let forward = G.grid.getHexMap(uncle.x, uncle.y, 0, false, matrices.straitrow);
 				forward = arrayUtils.filterCreature(forward, false, stopOnCreature, uncle.id);
 				let backward = G.grid.getHexMap(uncle.x, uncle.y, 0, true, matrices.straitrow);
 				backward = arrayUtils.filterCreature(backward, false, stopOnCreature, uncle.id);
 				// Combine and sort by X, left to right
-				let hexes = forward.concat(backward).sort(function (a, b) {
+				const hexes = forward.concat(backward).sort(function (a, b) {
 					return a.x - b.x;
 				});
 				// Filter out any hexes that cannot accomodate the creature's size
@@ -340,7 +340,7 @@ export default (G) => {
 					return false;
 				}
 
-				let map = G.grid.getHexMap(
+				const map = G.grid.getHexMap(
 					this.creature.x - 2,
 					this.creature.y - 2,
 					0,
@@ -360,8 +360,8 @@ export default (G) => {
 
 			// query() :
 			query: function () {
-				let ability = this;
-				let uncle = this.creature;
+				const ability = this;
+				const uncle = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -376,25 +376,25 @@ export default (G) => {
 
 			// activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.03, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
 				);
-				let result = target.takeDamage(damage);
+				const result = target.takeDamage(damage);
 
 				// If upgraded, knock back target by 1 hex
 				if (this.isUpgraded() && !result.kill) {
-					let dx = target.x - this.creature.x;
-					let dy = target.y - this.creature.y;
-					let dir = getDirectionFromDelta(target.y, dx, dy);
-					let hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
+					const dx = target.x - this.creature.x;
+					const dy = target.y - this.creature.y;
+					const dir = getDirectionFromDelta(target.y, dx, dy);
+					const hexes = G.grid.getHexLine(target.x, target.y, dir, target.flipped);
 					// The hex to knock back into is the second hex since the first is where
 					// they are currently
 					if (hexes.length >= 2 && hexes[1].isWalkable(target.size, target.id, true)) {

@@ -83,7 +83,7 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex) {
-				let ability = this;
+				const ability = this;
 
 				ability.end();
 				G.Phaser.camera.shake(0.01, 55, true, G.Phaser.camera.SHAKE_VERTICAL, true);
@@ -231,8 +231,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let snowBunny = this.creature;
+				const ability = this;
+				const snowBunny = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -247,7 +247,7 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
@@ -257,14 +257,14 @@ export default (G) => {
 					damages = {
 						pure: 0,
 					};
-					for (let type in ability.damages) {
+					for (const type in ability.damages) {
 						if ({}.hasOwnProperty.call(ability.damages, type)) {
 							damages.pure += ability.damages[type];
 						}
 					}
 				}
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					damages, // Damage Type
 					1, // Area
@@ -302,8 +302,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let snowBunny = this.creature;
+				const ability = this;
+				const snowBunny = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -321,12 +321,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
-				let target = arrayUtils.last(path).creature;
+				const target = arrayUtils.last(path).creature;
 				// No blow size penalty if upgraded and target is frozen
-				let dist = 5 - (this.isUpgraded() && target.isFrozen() ? 0 : target.size);
+				const dist = 5 - (this.isUpgraded() && target.isFrozen() ? 0 : target.size);
 				let dir = [];
 				switch (args.direction) {
 					case 0: // Upright
@@ -417,8 +417,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let snowBunny = this.creature;
+				const ability = this;
+				const snowBunny = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -436,12 +436,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
-				let target = path.find((hex) => hex.creature).creature;
+				const target = path.find((hex) => hex.creature).creature;
 
-				let projectileInstance = G.animations.projectile(
+				const projectileInstance = G.animations.projectile(
 					this,
 					target,
 					'effects_freezing-spit',
@@ -450,26 +450,26 @@ export default (G) => {
 					52,
 					-20,
 				);
-				let tween = projectileInstance[0];
-				let sprite = projectileInstance[1];
-				let dist = projectileInstance[2];
+				const tween = projectileInstance[0];
+				const sprite = projectileInstance[1];
+				const dist = projectileInstance[2];
 
 				tween.onComplete.add(function () {
 					// this refers to the animation object, _not_ the ability
 					this.destroy();
 
 					// Copy to not alter ability strength
-					let dmg = $j.extend({}, ability.damages);
+					const dmg = $j.extend({}, ability.damages);
 					dmg.crush += 3 * dist; // Add distance to crush damage
 
-					let damage = new Damage(
+					const damage = new Damage(
 						ability.creature, // Attacker
 						dmg, // Damage Type
 						1, // Area
 						[],
 						G,
 					);
-					let damageResult = target.takeDamage(damage);
+					const damageResult = target.takeDamage(damage);
 
 					// If upgraded and melee range, freeze the target
 					if (ability.isUpgraded() && damageResult.damageObj.melee) {

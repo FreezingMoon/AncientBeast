@@ -64,7 +64,7 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
+				const ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -79,13 +79,13 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 70, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				// If upgraded, hits will debuff target with -1 offense
 				if (this.isUpgraded()) {
-					let effect = new Effect(
+					const effect = new Effect(
 						'Slicing Pounce',
 						ability.creature,
 						target,
@@ -101,7 +101,7 @@ export default (G) => {
 					G.log('%CreatureName' + target.id + "%'s offense is lowered by 1");
 				}
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -126,8 +126,8 @@ export default (G) => {
 					return false;
 				}
 
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
 				let hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
 
@@ -158,7 +158,7 @@ export default (G) => {
 					return false;
 				}
 
-				let trg = hexes[0].creature || hexes[1].creature;
+				const trg = hexes[0].creature || hexes[1].creature;
 
 				if (!trg.stats.moveable) {
 					this.message = 'Target is not moveable.';
@@ -175,16 +175,16 @@ export default (G) => {
 			},
 
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
-				let hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
-				let trg = hexes[0].creature || hexes[1].creature;
+				const hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
+				const trg = hexes[0].creature || hexes[1].creature;
 
-				let distance = Math.floor(crea.remainingMove / trg.size);
-				let size = crea.size + trg.size;
+				const distance = Math.floor(crea.remainingMove / trg.size);
+				const size = crea.size + trg.size;
 
-				let trgIsInfront =
+				const trgIsInfront =
 					G.grid.getHexMap(
 						crea.x - matrices.inlinefront2hex.origin[0],
 						crea.y - matrices.inlinefront2hex.origin[1],
@@ -193,7 +193,7 @@ export default (G) => {
 						matrices.inlinefront2hex,
 					)[0].creature == trg;
 
-				let select = (hex) => {
+				const select = (hex) => {
 					for (let i = 0; i < trg.hexagons.length; i++) {
 						G.grid.cleanHex(trg.hexagons[i]);
 						trg.hexagons[i].displayVisualState('dashed');
@@ -206,7 +206,7 @@ export default (G) => {
 						if (!G.grid.hexExists(hex.y, hex.x - i)) {
 							continue;
 						}
-						let h = G.grid.hexes[hex.y][hex.x - i];
+						const h = G.grid.hexes[hex.y][hex.x - i];
 						let color;
 						if (trgIsInfront) {
 							color = i < trg.size ? trg.team : crea.team;
@@ -219,7 +219,7 @@ export default (G) => {
 					}
 				};
 
-				let x = trgIsInfront ? crea.x + trg.size : crea.x;
+				const x = trgIsInfront ? crea.x + trg.size : crea.x;
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
@@ -254,23 +254,23 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex, args) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 66, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let crea = this.creature;
+				const crea = this.creature;
 
-				let trg = G.creatures[args.trg];
+				const trg = G.creatures[args.trg];
 
-				let trgIF = args.trgIsInfront;
+				const trgIF = args.trgIsInfront;
 
-				let creaDest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
-				let trgDest = G.grid.hexes[hex.y][trgIF ? hex.x : hex.x - crea.size];
+				const creaDest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
+				const trgDest = G.grid.hexes[hex.y][trgIF ? hex.x : hex.x - crea.size];
 
 				// Determine distance
 				let distance = 0;
 				let k = 0;
-				let start = G.grid.hexes[crea.y][crea.x];
+				const start = G.grid.hexes[crea.y][crea.x];
 				while (!distance) {
 					k++;
 
@@ -328,7 +328,7 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
+				const ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -343,17 +343,17 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				// Don't perform poison damage unless upgraded
-				let damages = $j.extend({}, ability.damages);
+				const damages = $j.extend({}, ability.damages);
 				if (!this.isUpgraded()) {
 					delete damages.poison;
 				}
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					damages, // Damage Type
 					1, // Area
@@ -361,11 +361,11 @@ export default (G) => {
 					G,
 				);
 
-				let result = target.takeDamage(damage);
+				const result = target.takeDamage(damage);
 
 				if (result.damageObj.status !== 'Shielded') {
 					// Add poison damage debuff
-					let effect = new Effect(
+					const effect = new Effect(
 						this.title,
 						this.creature,
 						target,

@@ -9,7 +9,7 @@ export class BufferLoader {
 
 	loadBuffer(url, index) {
 		// Load buffer asynchronously
-		let request = new XMLHttpRequest();
+		const request = new XMLHttpRequest();
 
 		request.open('GET', url, true);
 		request.responseType = 'arraybuffer';

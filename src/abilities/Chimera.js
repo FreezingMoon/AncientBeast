@@ -68,8 +68,8 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
-				let ability = this;
-				let chimera = this.creature;
+				const ability = this;
+				const chimera = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -84,11 +84,11 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 
 				ability.end();
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -129,8 +129,8 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
-				let ability = this;
-				let chimera = this.creature;
+				const ability = this;
+				const chimera = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -148,12 +148,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
+				const ability = this;
 
 				ability.end();
 
 				let target = arrayUtils.last(path).creature;
-				let hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
+				const hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
 
 				let damage = new Damage(
 					ability.creature, // Attacker
@@ -170,14 +170,14 @@ export default (G) => {
 					if (i >= hexes.length) {
 						break;
 					}
-					let hex = hexes[i];
+					const hex = hexes[i];
 					if (!hex.creature) {
 						continue;
 					}
 					target = hex.creature;
 
 					// extra sonic damage if upgraded
-					let sonic = ability.damages.sonic + (this.isUpgraded() ? 9 : 0);
+					const sonic = ability.damages.sonic + (this.isUpgraded() ? 9 : 0);
 					if (sonic <= 0) {
 						break;
 					}
@@ -223,7 +223,7 @@ export default (G) => {
 					return false;
 				}
 
-				let directions = this._getDirections();
+				const directions = this._getDirections();
 				for (let i = 0; i < directions.length; i++) {
 					if (directions[i] === 1) {
 						this.message = '';
@@ -236,8 +236,8 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
-				let ability = this;
-				let chimera = this.creature;
+				const ability = this;
+				const chimera = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -255,12 +255,12 @@ export default (G) => {
 			},
 
 			activate: function (path, args) {
-				let ability = this;
+				const ability = this;
 				this.end();
 				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let knockback = (_target, _crush, _range) => {
-					let damage = new Damage(
+				const knockback = (_target, _crush, _range) => {
+					const damage = new Damage(
 						ability.creature, // Attacker
 						{
 							crush: _crush,
@@ -269,7 +269,7 @@ export default (G) => {
 						[], // Effects
 						G,
 					);
-					let result = _target.takeDamage(damage);
+					const result = _target.takeDamage(damage);
 					// Knock the target back if they are still alive and there is enough range
 					if (result.kill || _range <= 0) {
 						return;
@@ -293,7 +293,7 @@ export default (G) => {
 						hex = hexes[i];
 					}
 
-					let knockbackEnd = () => {
+					const knockbackEnd = () => {
 						// Special case when hitting left: the next hex is still the same
 						// creature, so continue in this direction until we reach the next
 						// creature
@@ -308,9 +308,9 @@ export default (G) => {
 						}
 						if (nextHex !== null && nextHex !== hex && nextHex.creature) {
 							// Diminishing crush damage if unupgraded
-							let crush = ability.isUpgraded() ? _crush : _crush - 5;
+							const crush = ability.isUpgraded() ? _crush : _crush - 5;
 							// Diminishing range if unupgraded
-							let range = ability.isUpgraded() ? _range : _range - 1;
+							const range = ability.isUpgraded() ? _range : _range - 1;
 							knockback(nextHex.creature, crush, range);
 						} else {
 							G.activeCreature.queryMove();
@@ -331,9 +331,9 @@ export default (G) => {
 					}
 				};
 
-				let target = arrayUtils.last(path).creature;
-				let crush = this.damages.crush;
-				let range = 3;
+				const target = arrayUtils.last(path).creature;
+				const crush = this.damages.crush;
+				const range = 3;
 				knockback(target, crush, range);
 			},
 		},

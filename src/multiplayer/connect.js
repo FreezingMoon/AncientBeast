@@ -17,7 +17,7 @@ export default class Server {
 
 	async serverConnect(session) {
 		this.socket = await this.client.createSocket(this.useSSL, this.verboseLogging);
-		let connection = await this.socket.connect(session, this.createStatus);
+		const connection = await this.socket.connect(session, this.createStatus);
 		console.log('connected to socket');
 		return Promise.resolve(connection);
 	}

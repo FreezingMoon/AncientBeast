@@ -25,7 +25,7 @@ export class CreatureQueue {
 
 		queues.forEach((queue) => {
 			for (let i = 0; i < queue.length; i++) {
-				let queueItem = queue[i];
+				const queueItem = queue[i];
 
 				if (queueItem.delayed || queueItem.getInitiative() < creature.getInitiative()) {
 					queue.splice(i, 0, creature);
