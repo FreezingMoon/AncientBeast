@@ -816,6 +816,32 @@ export class UI {
 		this.selectedCreature = creatureType;
 		const stats = game.retrieveCreatureStats(creatureType);
 
+		//function to add the name, realm, size etc of the current card in the menu
+		function addCardCharacterInfo() {
+			let name = stats.name;
+			let type = stats.type;
+			let set = stats.set;
+			let no_of_hexes =
+				stats.size === 1
+					? '&#11041'
+					: stats.size == 2
+					? '&#11041 &#11041'
+					: '&#11041 &#11041 &#11041';
+
+			if (stats.level === '-' || stats.realm == '-') {
+				type = '&#9734';
+				$j('#card .sideA .type').addClass('star');
+				set = '';
+			} else {
+				$j('#card .sideA .type').removeClass('star');
+			}
+
+			$j('#card .sideA .type').html(type);
+			$j('#card .sideA .name').text(name);
+			$j('#card .sideA .set').html(set);
+			$j('#card .sideA .hexes').html(no_of_hexes);
+		}
+
 		// TODO card animation
 		if (
 			$j.inArray(creatureType, game.players[player].availableCreatures) > 0 ||
@@ -838,9 +864,7 @@ export class UI {
 			$j('#card .sideA .section.info')
 				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
 				.addClass('sin' + stats.type.substring(0, 1));
-			$j('#card .sideA .type').text(stats.type);
-			$j('#card .sideA .name').text(stats.name);
-			$j('#card .sideA .hexes').html(stats.size + '&#11041;');
+			addCardCharacterInfo();
 
 			// Card B
 			$j('#card .sideB').css({
@@ -1035,9 +1059,7 @@ export class UI {
 			$j('#card .sideA .section.info')
 				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
 				.addClass('sin' + stats.type.substring(0, 1));
-			$j('#card .sideA .type').text(stats.type);
-			$j('#card .sideA .name').text(stats.name);
-			$j('#card .sideA .hexes').text(stats.size + '⬡');
+			addCardCharacterInfo();
 
 			// Card B
 			$j.each(stats.stats, (key, value) => {

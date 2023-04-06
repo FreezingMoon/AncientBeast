@@ -504,28 +504,39 @@
 div.section.info {
 	position: relative;
 
-	span.creature-meta {
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
+	div.set-type-parent {
+		float: left;
+		margin-left: 5%;
+		font-size: 0px;
+	}
+
+	div.creature-meta {
 		font-size: 21px;
 
+		&.star {
+			vertical-align: baseline;
+		}
 		&.type {
-			left: 22px;
+			display: inline-block;
+			font-size: 21px;
 		}
 
+		&.set {
+			display: inline-block;
+			font-size: 21px;
+		}
 		&.hexes {
-			right: 22px;
-
-			span {
-				font-size: 18px;
-				position: relative;
-				bottom: 2px;
-				padding-left: 5px;
-			}
+			float: right;
+			margin-right: 5%;
+			letter-spacing: -3px;
 		}
 
-		a.name {
+		&.name {
+			display: inline-block;
+			color: white;
+			text-shadow: 2px 2px black;
+			text-decoration: none;
+			cursor: pointer;
 			left: 50%;
 			transform: translate(-50%, -50%);
 		}
