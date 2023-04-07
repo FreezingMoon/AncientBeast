@@ -58,7 +58,7 @@ export class GameLog {
 		let fun = () => {
 			this.timeCursor++;
 
-			if (game.debugMode) {
+			if (game.debugMode && !game.debugDisableGameStatusConsoleLog) {
 				console.log(this.timeCursor + '/' + this.data.length);
 			}
 
@@ -89,7 +89,7 @@ export class GameLog {
 		}
 
 		this.timeCursor++;
-		if (game.debugMode) {
+		if (game.debugMode && !game.debugDisableGameStatusConsoleLog) {
 			console.log(this.timeCursor + '/' + this.data.length);
 		}
 

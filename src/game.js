@@ -87,6 +87,9 @@ export default class Game {
 		this.client = null;
 		this.connect = null;
 		this.debugMode = toBool(process.env.DEBUG_MODE);
+		this.debugDisableGameStatusConsoleLog =
+			this.debugMode && toBool(process.env.DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG);
+		this.debugDisableMusic = this.debugMode && toBool(process.env.DEBUG_DISABLE_MUSIC);
 		this.multiplayer = false;
 		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
@@ -554,6 +557,10 @@ export default class Game {
 		});
 
 		this.soundsys.playMusic();
+		if (this.debugDisableMusic) {
+			this.musicPlayer.audio.pause();
+		}
+
 		if (this.gamelog.data) {
 			// TODO: Remove the need for a timeout here by having a proper
 			// "game is ready to play" event that can trigger log replays if
@@ -804,7 +811,9 @@ export default class Game {
 			}
 		}
 
-		console.log(stringConsole);
+		if (!this.debugDisableGameStatusConsoleLog) {
+			console.log(stringConsole);
+		}
 		this.UI.chat.addMsg(stringLog, htmlclass, ifNoTimestamp);
 	}
 
