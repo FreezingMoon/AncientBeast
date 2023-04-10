@@ -151,7 +151,7 @@ import { expect, describe, test } from '@jest/globals';
 
 See `/src/__tests__/utility/string.js` for an example.
 
-## Running tests
+## Running Tests
 
 The test runner was added to the existing `npm run test`.
 
