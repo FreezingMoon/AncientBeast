@@ -143,7 +143,7 @@ Keep in mind that you'll have to refresh the webpage after making changes. Make 
 ### Unit Tests
 
 Each unit ability should have an unit test using our framework of choice, Jest, which can be written following the examples from [official documentation](https://jestjs.io/docs/getting-started).
-Our project's installed linter as well as the checks run on GitHub require that the Jest module values be imported explicitly:
+Our project's installed linter and the checks run on GitHub require that the Jest module values be imported explicitly:
 
 ```
 import { expect, describe, test } from '@jest/globals';
