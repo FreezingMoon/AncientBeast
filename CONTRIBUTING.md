@@ -140,6 +140,26 @@ localhost:8080
 
 Keep in mind that you'll have to refresh the webpage after making changes. Make sure to disable browser caching by using `Ctrl + Shift + J`, then going to the **Network** tab and checking **Disable cache**.
 
+### Unit Tests
+
+Each unit ability should have an unit test using our framework of choice, Jest, which can be written following the examples from [official documentation](https://jestjs.io/docs/getting-started).
+Our project's already-installed linter as well as the checks run on GitHub require that the Jest module values be imported explicitly:
+
+```
+import { expect, describe, test } from '@jest/globals';
+```
+
+See `/src/__tests__/utility/string.js` for an example.
+
+## Running tests
+
+The test runner was added to the existing `npm run test`.
+
+In addition, the following commands were added to `package.json`:
+
+* `npm run jest` – Run tests
+* `npm run start:jest` – Watch test files and rerun when modified
+
 ### Next Step
 
 You are free to browse [existing issues](https://github.com/FreezingMoon/AncientBeast/issues) (for beginner coders there are issues labeled as [easy](https://github.com/FreezingMoon/AncientBeast/issues?q=is%3Aopen+is%3Aissue+label%3Aeasy)) and comment on the ones that you want to take a swing at in order to make sure the issue is still relevant and that nobody else is working on it. You can also drop by the project's [Discord server](https://discord.gg/x78rKen) and mention your skills and that you're interested in helping out; you'll be assigned to a specific issue. When you're done, simply create a **Pull Request**. Note that you might need to pull in from master repository before doing so. Your patches will get reviewed and tested, if there are issues with them, you'll receive feedback in order to make corrections. Otherwise, your pull request will get approved and merged into the master branch and you'll get credited for it.
