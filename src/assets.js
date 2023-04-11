@@ -106,6 +106,7 @@ export default [
         ],
       },
       { id: "audio", url: require("assets/icons/audio.svg") },
+      { id: "cancel", url: require("assets/icons/cancel.svg") },
       { id: "close", url: require("assets/icons/close.svg") },
       { id: "contract", url: require("assets/icons/contract.svg") },
       { id: "dead", url: require("assets/icons/dead.svg") },

@@ -1,3 +1,4 @@
+/* eslint-env dom, mocha */
 import { throttle } from 'underscore';
 
 const CONST = {
@@ -5,24 +6,24 @@ const CONST = {
 };
 
 export class Queue {
-	#element;
-	#vignettes;
+	private element: HTMLElement;
+	private vignettes: Array<Vignette>;
 
 	static IMMEDIATE = 1;
 
-	constructor(queueElement) {
-		this.#element = queueElement;
-		this.#element.innerHTML = '';
-		this.#vignettes = [];
+	constructor(queueElement: HTMLElement) {
+		this.element = queueElement;
+		this.element.innerHTML = '';
+		this.vignettes = [];
 
 		refactor.stopGap.init();
 	}
 
-	addEventListener(type, callback) {
-		this.#element.addEventListener(type, callback);
+	addEventListener(type: string, callback: (e: CustomEvent) => void) {
+		this.element.addEventListener(type, callback);
 	}
 
-	setQueue(creatureQueue, activeCreature, turnNumber) {
+	setQueue(creatureQueue, activeCreature, turnNumber: number) {
 		refactor.stopGap.setTurnNumber(turnNumber);
 		refactor.stopGap.setCreatureQueue(creatureQueue);
 
@@ -36,40 +37,40 @@ export class Queue {
 			refactor.stopGap.updateCreatureDelayStatus(c, creatures, nextCreatures, turnNumber + 1),
 		);
 
-		const nextVignettes = Queue.#getNextVignettes(creatures, nextCreatures, turnNumber);
-		this.#setVignettes(nextVignettes);
+		const nextVignettes = Queue.getNextVignettes(creatures, nextCreatures, turnNumber);
+		this.setVignettes(nextVignettes);
 	}
 
 	refresh() {
-		this.#vignettes.forEach((v) => v.refresh());
+		this.vignettes.forEach((v) => v.refresh());
 	}
 
 	empty(immediately) {
 		refactor.stopGap.init();
 		if (immediately === Queue.IMMEDIATE) {
-			this.#vignettes = [];
-			this.#element.innerHTML = '';
+			this.vignettes = [];
+			this.element.innerHTML = '';
 		} else {
-			this.#setVignettes([]);
+			this.setVignettes([]);
 		}
 	}
 
-	xray(creatureId) {
-		this.#vignettes.forEach((v) => v.xray(creatureId));
+	xray(creatureId: number) {
+		this.vignettes.forEach((v) => v.xray(creatureId));
 	}
 
 	bounce(creatureId, bounceHeight = 40) {
-		Queue.#throttledBounce(this.#vignettes, creatureId, bounceHeight);
+		Queue.throttledBounce(this.vignettes, creatureId, bounceHeight);
 	}
 
-	#setVignettes(nextVignettes) {
-		const prevVs = this.#vignettes;
-		this.#vignettes = Queue.#reuseOldDomElements(prevVs, nextVignettes);
-		Queue.#deleteRemovedVignettes(this.#vignettes, prevVs);
-		Queue.#insertUpdateNextVignettes(this.#vignettes, prevVs, this.#element);
+	private setVignettes(nextVignettes) {
+		const prevVs = this.vignettes;
+		this.vignettes = Queue.reuseOldDomElements(prevVs, nextVignettes);
+		Queue.deleteRemovedVignettes(this.vignettes, prevVs);
+		Queue.insertUpdateNextVignettes(this.vignettes, prevVs, this.element);
 	}
 
-	static #throttledBounce = throttle((vignettes, creatureId, bounceHeight) => {
+	private static throttledBounce = throttle((vignettes, creatureId, bounceHeight) => {
 		let x = 0;
 		vignettes.forEach((v, i) => {
 			v.bounce(creatureId, i, x, bounceHeight);
@@ -77,7 +78,7 @@ export class Queue {
 		});
 	}, 500);
 
-	static #getNextVignettes(creatures, creaturesNext, turnNum) {
+	private static getNextVignettes(creatures, creaturesNext, turnNum) {
 		const isDelayedCurr = (c) => refactor.creature.getIsDelayed(c, turnNum);
 		const [undelayedCsCurr, delayedCsCurr] = utils.partitionAt(creatures, isDelayedCurr);
 		const hasDelayedCurr = delayedCsCurr.length > 0;
@@ -135,7 +136,7 @@ export class Queue {
 		return [].concat(undelayedVsCurr, delayMarkerVCurr, delayedVsCurr, vsNext);
 	}
 
-	static #reuseOldDomElements(oldVignettes, newVignettes) {
+	private static reuseOldDomElements(oldVignettes, newVignettes) {
 		/**
 		 * NOTE: For every vignette in newVignettes, if there's
 		 * an equivalent in oldVignettes, use its DOM element.
@@ -152,7 +153,7 @@ export class Queue {
 		return newVignettes;
 	}
 
-	static #deleteRemovedVignettes(nextVignettes, prevVignettes) {
+	private static deleteRemovedVignettes(nextVignettes, prevVignettes) {
 		const nextHashes = new Set(nextVignettes.map((v) => v.getHash()));
 		const vignettesDeletedAtFront = utils.takeWhile(
 			prevVignettes,
@@ -179,7 +180,7 @@ export class Queue {
 		});
 	}
 
-	static #insertUpdateNextVignettes(nextVignettes, prevVignettes, containerElement) {
+	private static insertUpdateNextVignettes(nextVignettes, prevVignettes, containerElement) {
 		const prevHashes = new Set(prevVignettes.map((v) => v.getHash()));
 		const nextHashes = new Set(nextVignettes.map((v) => v.getHash()));
 		const [updateHashes, insertHashes] = utils.splitSetBy(nextHashes, (h) => prevHashes.has(h));
@@ -199,6 +200,10 @@ export class Queue {
 }
 
 class Vignette {
+	queuePosition = -1;
+	turnNumber = -1;
+	el: HTMLElement;
+
 	getHash() {
 		return 'none';
 	}
@@ -215,7 +220,7 @@ class Vignette {
 
 		const tmp = document.createElement('div');
 		tmp.innerHTML = this.getHTML();
-		this.el = tmp.firstChild;
+		this.el = tmp.firstChild as HTMLElement;
 		containerElement.appendChild(this.el);
 
 		this.addEvents();
@@ -258,24 +263,30 @@ class Vignette {
 			},
 			{ transform: `translateX(${x}px) translateY(0px) scale(1)` },
 		];
-		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
 
 	animateUpdate(queuePosition, x) {
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(1)` }];
-		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
 
 	animateDelete(queuePosition, x) {
 		const keyframes = [{ transform: `translateX(${x}px) translateY(-100px) scale(1)` }];
-		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -284,8 +295,10 @@ class Vignette {
 		const keyframes = [
 			{ transform: `translateX(${x - emptySpaceAtFrontOfQueue}px) translateY(0px) scale(1)` },
 		];
-		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -305,8 +318,7 @@ class Vignette {
 			keyframes.push(restingKeyframe);
 		}
 
-		const options = { duration: BOUNCE_MS };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, { duration: BOUNCE_MS });
 		animation.commitStyles();
 		return animation;
 	}
@@ -315,24 +327,30 @@ class Vignette {
 		return 80;
 	}
 
-	xray() {
-		//pass
+	/* eslint-disable @typescript-eslint/no-unused-vars */
+	xray(creatureId: number) {
+		// pass
 	}
 
-	bounce() {
-		//pass
+	bounce(creatureId: number, i: number, x: number, bounceHeight: number) {
+		// pass
 	}
+	/* eslint-enable @typescript-eslint/no-unused-vars */
 
 	addEvents() {
-		//pass
+		// pass
 	}
 
 	refresh() {
-		//pass
+		// pass
 	}
 }
 
 class CreatureVignette extends Vignette {
+	creature;
+	isActiveCreature: boolean;
+	turnNumberIsCurrentTurn: boolean;
+
 	constructor(creature, turnNumber, isActiveCreature = false, turnNumberIsCurrentTurn = true) {
 		super();
 		this.creature = creature;
@@ -361,20 +379,20 @@ class CreatureVignette extends Vignette {
 		this.creature = creature;
 	}
 
-	insert(containerElement, queuePosition, x) {
+	insert(containerElement: HTMLElement, queuePosition: number, x: number) {
 		super.insert(containerElement, queuePosition, x);
-		this.#updateDOM();
+		this.updateDOM();
 		return this;
 	}
 
-	update(queuePosition, x) {
+	update(queuePosition: number, x: number) {
 		this.queuePosition = queuePosition;
-		this.#updateDOM();
+		this.updateDOM();
 		this.animateUpdate(queuePosition, x);
 		return this;
 	}
 
-	#updateDOM() {
+	private updateDOM() {
 		const cl = this.el.classList;
 
 		if (this.isActiveCreature) {
@@ -395,7 +413,7 @@ class CreatureVignette extends Vignette {
 			cl.add('delayed');
 		}
 
-		this.el.style.zIndex = this.creature.temp ? 1000 : this.queuePosition + 1;
+		this.el.style.zIndex = this.creature.temp ? '1000' : this.queuePosition + 1 + '';
 
 		const stats = this.creature.fatigueText;
 		const statsClasses = ['stats', utils.toClassName(stats)].join(' ');
@@ -418,8 +436,10 @@ class CreatureVignette extends Vignette {
 			},
 			{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` },
 		];
-		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -427,18 +447,22 @@ class CreatureVignette extends Vignette {
 	animateUpdate(queuePosition, x) {
 		const scale = this.isActiveCreature ? 1.25 : 1.0;
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
-		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
 
 	animateDelete(queuePosition, x) {
-		this.el.style.zIndex = -1;
+		this.el.style.zIndex = '-1';
 		const [x_, y, scale] = this.isActiveCreature ? [-this.getWidth(), 0, 1.25] : [x, -100, 1];
 		const keyframes = [{ transform: `translateX(${x_}px) translateY(${y}px) scale(${scale})` }];
-		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -450,13 +474,15 @@ class CreatureVignette extends Vignette {
 				transform: `translateX(${x - emptySpaceAtFrontOfQueue}px) translateY(0px) scale(${scale})`,
 			},
 		];
-		const options = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
 
-	xray(creatureId) {
+	xray(creatureId: number) {
 		if (creatureId === this.creature.id) {
 			this.el.classList.add('xray');
 		} else {
@@ -464,7 +490,7 @@ class CreatureVignette extends Vignette {
 		}
 	}
 
-	bounce(creatureId, i, x, bounceHeight) {
+	bounce(creatureId: number, i: number, x: number, bounceHeight: number) {
 		if (creatureId === this.creature.id) {
 			this.animateBounce(i, x, bounceHeight);
 		}
@@ -487,7 +513,7 @@ class CreatureVignette extends Vignette {
 	}
 
 	refresh() {
-		this.#updateDOM();
+		this.updateDOM();
 	}
 
 	getWidth() {
@@ -561,8 +587,10 @@ class DelayMarkerVignette extends Vignette {
 			},
 			{ transform: `translateX(${x}px) translateY(0px) scale(1)` },
 		];
-		const options = { duration: CONST.animDurationMS * 2, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS * 2,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -641,6 +669,7 @@ const utils = {
 	},
 };
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const refactor = {
 	/** NOTE:
 	 * Other modules that the present module relies on sometimes go
@@ -653,31 +682,39 @@ const refactor = {
 	 */
 	creatureQueue: {
 		// NOTE: Suggestions for fixed/improved CreatureQueue interface.
-		getCurrentQueue: () => {
+		getCurrentQueue: (queue, activeCreature) => {
 			return [];
 		},
-		getNextQueue: () => {
+		getNextQueue: (queue) => {
 			return [];
 		},
 	},
 	creature: {
 		// NOTE: Suggestions for fixed/improved Creature interface.
-		getId: () => {
+		getId: (creature) => {
 			return -1;
 		},
-		getIsDelayed: () => {
+		getIsDelayed: (creature, turnNumber = -1) => {
 			return false;
 		},
 	},
 	stopGap: {
-		// NOTE: Extra data/functions needed only while refactor is pending.
-		setTurnNumber: () => {
+		init: () => {
 			// pass
 		},
-		setCreatureQueue: () => {
+		// NOTE: Extra data/functions needed only while refactor is pending.
+		setTurnNumber: (turnNumber) => {
+			// pass
+		},
+		setCreatureQueue: (queue) => {
+			// pass
+		},
+		updateCreatureDelayStatus: (c, creatures, nextCreatures, turnNumber) => {
 			// pass
 		},
 		turnNumber: -1,
+		creatureIdsDelayedNextTurn: new Set(),
+		creatureIdsDelayedCurrTurn: new Set(),
 	},
 };
 
@@ -697,7 +734,7 @@ refactor.creatureQueue = {
 			return creatureQueue.queue;
 		}
 		const arr = Array.from(creatureQueue.queue);
-		const containsActive = arr.some((c) => c.id === activeCreature.id);
+		const containsActive = arr.some((c) => c.hasOwnProperty('id') && c['id'] === activeCreature.id);
 		if (containsActive) {
 			return arr;
 		}
@@ -751,7 +788,7 @@ refactor.stopGap.setTurnNumber = (turnNumber) => {
 			}
 		};
 
-		refactor.creature.getIsDelayed = (creature, turnNumber) => {
+		refactor.creature.getIsDelayed = (creature, turnNumber = -1) => {
 			// NOTE: Creatures get into inconsistent states vis-a-vis the
 			// queue. Sometimes a creature's state will go from delayed
 			// to !delayed, while being active and having previously been delayed.
