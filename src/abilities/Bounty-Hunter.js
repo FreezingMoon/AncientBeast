@@ -158,9 +158,10 @@ export default (G) => {
 				 * if current health is lower than damage dealt,
 				 * and the ability is upgraded,
 				 * make a second attack
+				 * after a delay of 1500ms (1.5sec)
 				 */
 				if (targetOriginalHealth - target.health >= target.health && this.isUpgraded()) {
-					target.takeDamage(damage);
+					delay(1500).then(target.takeDamage(damage));
 				}
 			},
 		},
