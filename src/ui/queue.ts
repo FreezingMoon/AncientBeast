@@ -1,3 +1,4 @@
+/* eslint-env dom, mocha */
 import { throttle } from 'underscore';
 
 const CONST = {
@@ -199,8 +200,8 @@ export class Queue {
 }
 
 class Vignette {
-	queuePosition: number = -1;
-	turnNumber: number = -1;
+	queuePosition = -1;
+	turnNumber = -1;
 	el: HTMLElement;
 
 	getHash() {
@@ -262,24 +263,30 @@ class Vignette {
 			},
 			{ transform: `translateX(${x}px) translateY(0px) scale(1)` },
 		];
-		const options: KeyframeAnimationOptions = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
 
 	animateUpdate(queuePosition, x) {
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(1)` }];
-		const options: KeyframeAnimationOptions = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
 
 	animateDelete(queuePosition, x) {
 		const keyframes = [{ transform: `translateX(${x}px) translateY(-100px) scale(1)` }];
-		const options: KeyframeAnimationOptions = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -288,8 +295,10 @@ class Vignette {
 		const keyframes = [
 			{ transform: `translateX(${x - emptySpaceAtFrontOfQueue}px) translateY(0px) scale(1)` },
 		];
-		const options: KeyframeAnimationOptions = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -309,8 +318,7 @@ class Vignette {
 			keyframes.push(restingKeyframe);
 		}
 
-		const options = { duration: BOUNCE_MS };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, { duration: BOUNCE_MS });
 		animation.commitStyles();
 		return animation;
 	}
@@ -319,20 +327,22 @@ class Vignette {
 		return 80;
 	}
 
+	/* eslint-disable @typescript-eslint/no-unused-vars */
 	xray(creatureId: number) {
-		//pass
+		// pass
 	}
 
 	bounce(creatureId: number, i: number, x: number, bounceHeight: number) {
-		//pass
+		// pass
 	}
+	/* eslint-enable @typescript-eslint/no-unused-vars */
 
 	addEvents() {
-		//pass
+		// pass
 	}
 
 	refresh() {
-		//pass
+		// pass
 	}
 }
 
@@ -426,8 +436,10 @@ class CreatureVignette extends Vignette {
 			},
 			{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` },
 		];
-		const options: KeyframeAnimationOptions = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -435,8 +447,10 @@ class CreatureVignette extends Vignette {
 	animateUpdate(queuePosition, x) {
 		const scale = this.isActiveCreature ? 1.25 : 1.0;
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
-		const options: KeyframeAnimationOptions = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -445,8 +459,10 @@ class CreatureVignette extends Vignette {
 		this.el.style.zIndex = '-1';
 		const [x_, y, scale] = this.isActiveCreature ? [-this.getWidth(), 0, 1.25] : [x, -100, 1];
 		const keyframes = [{ transform: `translateX(${x_}px) translateY(${y}px) scale(${scale})` }];
-		const options: KeyframeAnimationOptions = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -458,8 +474,10 @@ class CreatureVignette extends Vignette {
 				transform: `translateX(${x - emptySpaceAtFrontOfQueue}px) translateY(0px) scale(${scale})`,
 			},
 		];
-		const options: KeyframeAnimationOptions = { duration: CONST.animDurationMS, fill: 'forwards' };
-		const animation = this.el.animate(keyframes, options);
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -569,11 +587,10 @@ class DelayMarkerVignette extends Vignette {
 			},
 			{ transform: `translateX(${x}px) translateY(0px) scale(1)` },
 		];
-		const options: KeyframeAnimationOptions = {
+		const animation = this.el.animate(keyframes, {
 			duration: CONST.animDurationMS * 2,
 			fill: 'forwards',
-		};
-		const animation = this.el.animate(keyframes, options);
+		});
 		animation.commitStyles();
 		return animation;
 	}
@@ -652,6 +669,7 @@ const utils = {
 	},
 };
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const refactor = {
 	/** NOTE:
 	 * Other modules that the present module relies on sometimes go
@@ -681,7 +699,9 @@ const refactor = {
 		},
 	},
 	stopGap: {
-		init: () => {},
+		init: () => {
+			// pass
+		},
 		// NOTE: Extra data/functions needed only while refactor is pending.
 		setTurnNumber: (turnNumber) => {
 			// pass
@@ -689,7 +709,9 @@ const refactor = {
 		setCreatureQueue: (queue) => {
 			// pass
 		},
-		updateCreatureDelayStatus: (c, creatures, nextCreatures, turnNumber) => {},
+		updateCreatureDelayStatus: (c, creatures, nextCreatures, turnNumber) => {
+			// pass
+		},
 		turnNumber: -1,
 		creatureIdsDelayedNextTurn: new Set(),
 		creatureIdsDelayedCurrTurn: new Set(),
