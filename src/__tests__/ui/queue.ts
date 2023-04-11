@@ -8,7 +8,7 @@ describe('Queue', () => {
 		expect(div.innerHTML).toBe('<a>Hello</a>');
 
 		const queue = new Queue(div);
+		expect(queue).toBeDefined();
 		expect(div.innerHTML).toBe('');
 	});
-    //TODO: Additional test coverage.
 });
