@@ -50,7 +50,7 @@ export default (G) => {
 			},
 
 			getMovementBuff: function (mbuff) {
-				//decides how many much the base value (2) is modified by the buff, 50% if not upgraded and 100% if upgraded
+				// Decides how much the base value is modified by the buff, 50% if not upgraded and 100% if upgraded
 				if (!this.atLeastOneTarget(this.creature.adjacentHexes(1), { team: Team.Enemy })) {
 					this.mbuff = 0;
 					return this.mbuff;
@@ -64,7 +64,7 @@ export default (G) => {
 			},
 
 			getOffenseBuff: function (obuff) {
-				//decides how many much the base value (12) is modified by the buff, 50% if not upgraded and 100% if upgraded
+				// Decides how much the base value is modified by the buff, 50% if not upgraded and 100% if upgraded
 				if (!this.atLeastOneTarget(this.creature.adjacentHexes(1), { team: Team.Enemy })) {
 					this.obuff = 0;
 					return this.obuff;
@@ -81,10 +81,10 @@ export default (G) => {
 				if (true) {
 					this.creature.replaceEffect(
 						new Effect(
-							this.getAbilityName(this.abilityName), //ability name
-							this.creature, //caster
-							this.creature, //target
-							'', //trigger
+							this.getAbilityName(this.abilityName), // Ability name
+							this.creature, // Caster
+							this.creature, // Target
+							'', // Trigger
 							{
 								alterations: {
 									movement: this.getMovementBuff(this.mbuff),
@@ -112,7 +112,7 @@ export default (G) => {
 			_targetTeam: Team.Enemy,
 
 			require: function () {
-				//checks if there is an enemy creature next to BH
+				// Checks if there is an enemy creature nearby
 				if (!this.testRequirements()) {
 					return false;
 				}
