@@ -12,11 +12,9 @@ const cache = {};
  * @throws {Error} If the path is empty or if the asset cannot be found.
  */
 
-export function getUrl(path) {
+export function getUrl(path: string) {
 	// Convert path to an array if it is a string
-	if (typeof path === 'string') {
-		path = path.split('/');
-	}
+	path = path.split('/');
 
 	// Check if path is empty
 	if (path.length === 0) {
