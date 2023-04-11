@@ -3,6 +3,7 @@
 		"outDir": "./deploy/",
 		"sourceMap": true,
 		"module": "esnext",
+		"lib": ["ESNext", "dom"],
 		"moduleResolution": "node",
 		"allowJs": true,
 		"noImplicitThis": true,
