@@ -263,7 +263,7 @@ class Vignette {
 			},
 			{ transform: `translateX(${x}px) translateY(0px) scale(1)` },
 		];
-		const animation = this.el.animate(keyframes, {
+		const animation = utils.animate(this.el, keyframes, {
 			duration: CONST.animDurationMS,
 			fill: 'forwards',
 		});
@@ -273,7 +273,7 @@ class Vignette {
 
 	animateUpdate(queuePosition, x) {
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(1)` }];
-		const animation = this.el.animate(keyframes, {
+		const animation = utils.animate(this.el, keyframes, {
 			duration: CONST.animDurationMS,
 			fill: 'forwards',
 		});
@@ -283,7 +283,7 @@ class Vignette {
 
 	animateDelete(queuePosition, x) {
 		const keyframes = [{ transform: `translateX(${x}px) translateY(-100px) scale(1)` }];
-		const animation = this.el.animate(keyframes, {
+		const animation = utils.animate(this.el, keyframes, {
 			duration: CONST.animDurationMS,
 			fill: 'forwards',
 		});
@@ -295,7 +295,7 @@ class Vignette {
 		const keyframes = [
 			{ transform: `translateX(${x - emptySpaceAtFrontOfQueue}px) translateY(0px) scale(1)` },
 		];
-		const animation = this.el.animate(keyframes, {
+		const animation = utils.animate(this.el, keyframes, {
 			duration: CONST.animDurationMS,
 			fill: 'forwards',
 		});
@@ -318,7 +318,7 @@ class Vignette {
 			keyframes.push(restingKeyframe);
 		}
 
-		const animation = this.el.animate(keyframes, { duration: BOUNCE_MS });
+		const animation = utils.animate(this.el, keyframes, { duration: BOUNCE_MS });
 		animation.commitStyles();
 		return animation;
 	}
@@ -350,6 +350,7 @@ class CreatureVignette extends Vignette {
 	creature;
 	isActiveCreature: boolean;
 	turnNumberIsCurrentTurn: boolean;
+	isXray = false;
 
 	constructor(creature, turnNumber, isActiveCreature = false, turnNumberIsCurrentTurn = true) {
 		super();
@@ -401,6 +402,12 @@ class CreatureVignette extends Vignette {
 			cl.remove('active');
 		}
 
+		if (this.isXray) {
+			cl.add('xray');
+		} else {
+			cl.remove('xray');
+		}
+
 		if (this.creature.temp) {
 			cl.add('unmaterialized');
 			cl.remove('materialized');
@@ -415,11 +422,15 @@ class CreatureVignette extends Vignette {
 
 		this.el.style.zIndex = this.creature.temp ? '1000' : this.queuePosition + 1 + '';
 
-		const stats = this.creature.fatigueText;
+		const stats = this.isXray ? this.creature.name : this.creature.fatigueText;
 		const statsClasses = ['stats', utils.toClassName(stats)].join(' ');
 		const statsEl = this.el.querySelector('div.stats');
 		statsEl.className = statsClasses;
 		statsEl.textContent = stats;
+		if (stats.length > 9) {
+			statsEl.textContent = stats.substring(0, 8) + "...";
+		}
+
 	}
 
 	animateInsert(queuePosition, x) {
@@ -436,7 +447,7 @@ class CreatureVignette extends Vignette {
 			},
 			{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` },
 		];
-		const animation = this.el.animate(keyframes, {
+		const animation = utils.animate(this.el, keyframes, {
 			duration: CONST.animDurationMS,
 			fill: 'forwards',
 		});
@@ -447,7 +458,7 @@ class CreatureVignette extends Vignette {
 	animateUpdate(queuePosition, x) {
 		const scale = this.isActiveCreature ? 1.25 : 1.0;
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
-		const animation = this.el.animate(keyframes, {
+		const animation = utils.animate(this.el, keyframes, {
 			duration: CONST.animDurationMS,
 			fill: 'forwards',
 		});
@@ -459,7 +470,7 @@ class CreatureVignette extends Vignette {
 		this.el.style.zIndex = '-1';
 		const [x_, y, scale] = this.isActiveCreature ? [-this.getWidth(), 0, 1.25] : [x, -100, 1];
 		const keyframes = [{ transform: `translateX(${x_}px) translateY(${y}px) scale(${scale})` }];
-		const animation = this.el.animate(keyframes, {
+		const animation = utils.animate(this.el, keyframes, {
 			duration: CONST.animDurationMS,
 			fill: 'forwards',
 		});
@@ -474,7 +485,7 @@ class CreatureVignette extends Vignette {
 				transform: `translateX(${x - emptySpaceAtFrontOfQueue}px) translateY(0px) scale(${scale})`,
 			},
 		];
-		const animation = this.el.animate(keyframes, {
+		const animation = utils.animate(this.el, keyframes, {
 			duration: CONST.animDurationMS,
 			fill: 'forwards',
 		});
@@ -483,10 +494,10 @@ class CreatureVignette extends Vignette {
 	}
 
 	xray(creatureId: number) {
-		if (creatureId === this.creature.id) {
-			this.el.classList.add('xray');
-		} else {
-			this.el.classList.remove('xray');
+		const oldIsXray = this.isXray;
+		this.isXray = creatureId === this.creature.id;
+		if (oldIsXray !== this.isXray) {
+			this.updateDOM();
 		}
 	}
 
@@ -587,7 +598,7 @@ class DelayMarkerVignette extends Vignette {
 			},
 			{ transform: `translateX(${x}px) translateY(0px) scale(1)` },
 		];
-		const animation = this.el.animate(keyframes, {
+		const animation = utils.animate(this.el, keyframes, {
 			duration: CONST.animDurationMS * 2,
 			fill: 'forwards',
 		});
@@ -597,6 +608,21 @@ class DelayMarkerVignette extends Vignette {
 }
 
 const utils = {
+	animate: (el: HTMLElement, keyframes, options) => {
+		if (el.animate) {
+			return el.animate(keyframes, options);
+		} else {
+			return {
+				commitStyles: () => {
+					// pass
+				},
+				onfinish: (fn) => {
+					fn();
+				},
+			};
+		}
+	},
+
 	trueIfFirstElseFalse: () => {
 		let v = true;
 		return () => {
