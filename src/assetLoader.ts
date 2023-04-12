@@ -12,9 +12,9 @@ const cache = {};
  * @throws {Error} If the path is empty or if the asset cannot be found.
  */
 
-export function getUrl(path: string) {
+export function getUrl(path: string | string[]) {
 	// Convert path to an array if it is a string
-	path = path.split('/');
+	path = typeof path === 'string' && path.split('/');
 
 	// Check if path is empty
 	if (path.length === 0) {
@@ -32,7 +32,9 @@ export function getUrl(path: string) {
 	const result = path.reduce((prev, current) => {
 		const entity = prev.find((e) => e.id === current);
 		if (entity === undefined) {
-			throw new Error(`Could not find asset with path: ${path.join('/')}`);
+			throw new Error(
+				`Could not find asset with path: ${typeof path === 'object' && path.join('/')}`,
+			);
 		}
 
 		if (entity.children) {
