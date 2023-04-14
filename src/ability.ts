@@ -10,8 +10,28 @@ import * as arrayUtils from './utility/arrayUtils';
  *
  * Class parsing function from creature abilities
  */
+
 export class Ability {
-	constructor(creature, abilityID, game) {
+	creature: any;
+	game: any;
+	used: boolean;
+	id: number;
+	priority: number;
+	timesUsed: number;
+	timesUsedThisTurn: number;
+	token: number;
+	upgraded: boolean;
+	title: string;
+	requirements: {
+		energy: number;
+	};
+	costs: {
+		energy: number;
+	};
+	_disableCooldowns: boolean;
+	upgrade: boolean;
+	trigger: string;
+	constructor(creature: any, abilityID: number, game: any) {
 		this.creature = creature;
 		this.game = game;
 		this.used = false;
@@ -23,7 +43,7 @@ export class Ability {
 		this.upgraded = false;
 		this.title = '';
 
-		let data = game.retrieveCreatureStats(creature.type);
+		const data = game.retrieveCreatureStats(creature.type);
 		$j.extend(true, this, game.abilities[data.id][abilityID], data.ability_info[abilityID]);
 		if (this.requirements === undefined && this.costs !== undefined) {
 			this.requirements = this.costs;
