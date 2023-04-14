@@ -12,14 +12,18 @@ import * as arrayUtils from './utility/arrayUtils';
  */
 
 export class Ability {
+	//variables
 	creature: any;
 	game: any;
 	used: boolean;
 	id: number;
+	damages: object;
 	priority: number;
 	timesUsed: number;
+	effects: Array<any>;
 	timesUsedThisTurn: number;
 	token: number;
+	message: string;
 	upgraded: boolean;
 	title: string;
 	requirements: {
@@ -30,7 +34,15 @@ export class Ability {
 	};
 	_disableCooldowns: boolean;
 	upgrade: boolean;
-	trigger: string;
+	trigger: string | undefined;
+
+	//functions
+	triggerFunc: () => string;
+	require: () => boolean;
+	query: () => void;
+	activate: (...args) => void | boolean;
+	getAnimationData: () => { duration: number };
+
 	constructor(creature: any, abilityID: number, game: any) {
 		this.creature = creature;
 		this.game = game;
@@ -84,7 +96,7 @@ export class Ability {
 	 * By default, this applies to active (onQuery) abilities.
 	 * @return {boolean} Is upgrade per use.
 	 */
-	isUpgradedPerUse() {
+	isUpgradedPerUse(): boolean {
 		return this.trigger === 'onQuery';
 	}
 
@@ -92,8 +104,8 @@ export class Ability {
 	 * Number of uses left before ability upgrades.
 	 * @return {number} Uses left before upgrade.
 	 */
-	usesLeftBeforeUpgrade() {
-		let game = this.game;
+	usesLeftBeforeUpgrade(): number {
+		const game = this.game;
 
 		if (this.isUpgradedPerUse()) {
 			return game.abilityUpgrades - this.timesUsed;
@@ -106,7 +118,7 @@ export class Ability {
 	 * Is this ability upgraded.
 	 * @return {boolean} Is upgraded?
 	 */
-	isUpgraded() {
+	isUpgraded(): boolean {
 		return !this.hasUpgrade() ? false : this.usesLeftBeforeUpgrade() <= 0;
 	}
 
@@ -114,7 +126,7 @@ export class Ability {
 	 * Get the trigger method for this ablity.
 	 * @return {string|Function} Trigger
 	 */
-	getTrigger() {
+	getTrigger(): string | undefined {
 		if (this.trigger !== undefined) {
 			return this.trigger;
 		} else if (this.triggerFunc !== undefined) {
@@ -139,7 +151,7 @@ export class Ability {
 	 *
 	 */
 	use() {
-		let game = this.game;
+		const game = this.game;
 
 		if (this.getTrigger() !== 'onQuery' || !this.require()) {
 			return;
@@ -160,8 +172,8 @@ export class Ability {
 	 * End the ability. Must be called at the end of each ability function;
 	 *
 	 */
-	end(disableLogMsg, deferredEnding) {
-		let game = this.game;
+	end(disableLogMsg: boolean, deferredEnding: boolean) {
+		const game = this.game;
 
 		if (!disableLogMsg) {
 			game.log('%CreatureName' + this.creature.id + '% uses ' + this.title);
@@ -186,8 +198,8 @@ export class Ability {
 	 * @param {boolean} val Value to set.
 	 * @return {void}
 	 */
-	setUsed(val) {
-		let game = this.game;
+	setUsed(val: boolean) {
+		const game = this.game;
 
 		if (val) {
 			this.used = true;
@@ -210,7 +222,7 @@ export class Ability {
 	 * @return {void}
 	 */
 	postActivate() {
-		let game = this.game;
+		const game = this.game;
 		this.timesUsed++;
 		this.timesUsedThisTurn++;
 
@@ -246,11 +258,11 @@ export class Ability {
 	 * @return {void}
 	 */
 	animation() {
-		let game = this.game;
+		const game = this.game;
 		// Gamelog Event Registration
 		if (game.triggers.onQuery.test(this.getTrigger())) {
 			if (arguments[0] instanceof Hex) {
-				let args = $j.extend({}, arguments);
+				const args = $j.extend({}, arguments);
 				delete args[0];
 				game.gamelog.add({
 					action: 'ability',
@@ -342,7 +354,7 @@ export class Ability {
 	 * @param {Object} o Animation object to extend.
 	 * @return {void}
 	 */
-	animation2(o) {
+	animation2(o: object) {
 		const game = this.game;
 		const opt = $j.extend(
 			{
@@ -363,7 +375,7 @@ export class Ability {
 		game.freezedInput = true;
 
 		// Animate
-		let p0 = this.creature.sprite.x;
+		const p0 = this.creature.sprite.x;
 		let p1 = p0;
 		let p2 = p0;
 
@@ -377,7 +389,7 @@ export class Ability {
 			if (args[0] instanceof Creature) {
 				this.creature.faceHex(args[0]);
 			} else if (args[0] instanceof Array) {
-				for (var argument of args[0]) {
+				for (const argument of args[0]) {
 					if (argument instanceof Creature || argument.creature) {
 						this.creature.faceHex(argument);
 					}
@@ -386,7 +398,7 @@ export class Ability {
 		}
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {
-			let animId = Math.random();
+			const animId = Math.random();
 
 			game.animationQueue.push(animId);
 
@@ -397,7 +409,7 @@ export class Ability {
 			};
 
 			if (this.getAnimationData) {
-				animationData = $j.extend(animationData, this.getAnimationData(...args));
+				animationData = $j.extend(animationData, this.getAnimationData());
 			}
 
 			if (animationData.activateAnimation) {
@@ -417,7 +429,7 @@ export class Ability {
 			}, animationData.delay);
 
 			setTimeout(() => {
-				let queue = game.animationQueue.filter((item) => item != animId);
+				const queue = game.animationQueue.filter((item: number) => item != animId);
 
 				if (queue.length === 0) {
 					game.freezedInput = false;
@@ -435,7 +447,7 @@ export class Ability {
 			}
 		}
 
-		let interval = setInterval(() => {
+		const interval = setInterval(() => {
 			if (!game.freezedInput) {
 				clearInterval(interval);
 				opt.callback();
@@ -449,10 +461,10 @@ export class Ability {
 	 * @return {Array} Targest in these hexes
 	 */
 	getTargets(hexes) {
-		let targets = {},
+		const targets = {},
 			targetsList = [];
 
-		hexes.forEach((item) => {
+		hexes.forEach((item: any) => {
 			if (item.creature instanceof Creature) {
 				if (targets[item.creature.id] === undefined) {
 					targets[item.creature.id] = { hexesHit: 0, target: item.creature };
@@ -471,7 +483,7 @@ export class Ability {
 	 * Return a formatted cost.
 	 * @return {string|Boolean} cost
 	 */
-	getFormattedCosts() {
+	getFormattedCosts(): string | boolean {
 		if (this.costs) {
 			return this.getFormattedDamages(this.costs);
 		}
@@ -484,17 +496,17 @@ export class Ability {
 	 * @param {Object} obj Damage object.
 	 * @return {boolean|string} damage
 	 */
-	getFormattedDamages(obj) {
+	getFormattedDamages(obj: object): boolean | string {
 		obj = obj || this.damages;
 
 		if (!obj) {
 			return false;
 		}
 
-		let string = '',
-			creature = this.creature;
+		let string = '';
+		const creature = this.creature;
 
-		$j.each(obj, (key, value) => {
+		$j.each(obj, (key, value: any) => {
 			if (key == 'special') {
 				// TODO: don't manually list all the stats and masteries when needed
 				string += value.replace(
@@ -561,8 +573,8 @@ export class Ability {
 				continue;
 			}
 
-			let dmg = new Damage(attacker, damages, targets[i].hexesHit, effects, this.game);
-			let damageResult = targets[i].target.takeDamage(dmg, {
+			const dmg = new Damage(attacker, damages, targets[i].hexesHit, effects, this.game);
+			const damageResult = targets[i].target.takeDamage(dmg, {
 				ignoreRetaliation,
 			});
 			multiKill += damageResult.kill + 0;
@@ -616,7 +628,7 @@ export class Ability {
 	 * @return {boolean} Return true if ability requirements are met.
 	 */
 	testRequirements() {
-		let game = this.game,
+		const game = this.game,
 			def = {
 				plasma: 0,
 				energy: 0,
@@ -660,7 +672,7 @@ export class Ability {
 		}
 
 		// Energy
-		let reqEnergy = req.energy + this.creature.stats.reqEnergy;
+		const reqEnergy = req.energy + this.creature.stats.reqEnergy;
 		if (reqEnergy > 0) {
 			if (this.creature.energy < reqEnergy) {
 				this.message = abilityMsgs.notEnough.replace('%stat%', 'energy');
@@ -687,13 +699,13 @@ export class Ability {
 		}
 
 		// Health
-		if (req.health > 0) {
-			if (this.creature.health <= req.health) {
+		if (req.stats.health > 0) {
+			if (this.creature.health <= req.stats.health) {
 				this.message = abilityMsgs.notEnough.replace('%stat%', 'health');
 				return false;
 			}
-		} else if (req.health < 0) {
-			if (this.creature.health > -req.health) {
+		} else if (req.stats.health < 0) {
+			if (this.creature.health > -req.stats.health) {
 				this.message = abilityMsgs.tooMuch.replace('%stat%', 'health');
 				return false;
 			}
@@ -715,7 +727,7 @@ export class Ability {
 	}
 
 	applyCost() {
-		let game = this.game,
+		const game = this.game,
 			creature = this.creature;
 
 		if (this.costs === undefined) {
@@ -750,8 +762,8 @@ export class Ability {
 	 * @param {function} o.minDistance Target must be at least this distance away to be valid.
 	 * @return {Array} array of ints, length of total directions, 1 if direction valid else 0
 	 */
-	testDirections(o) {
-		let defaultOpt = {
+	testDirections(o): Array<number> {
+		const defaultOpt = {
 			team: Team.Enemy,
 			id: this.creature.id,
 			flipped: this.creature.player.flipped,
@@ -770,7 +782,7 @@ export class Ability {
 
 		o = $j.extend(defaultOpt, o);
 
-		let outDirections = [];
+		const outDirections = [];
 		let deadzone = [];
 
 		for (let i = 0, len = o.directions.length; i < len; i++) {
@@ -826,8 +838,8 @@ export class Ability {
 	 * @param {Object} o Dict of arguments for direction query.
 	 * @return {boolean} true if valid targets in at least one direction, else false
 	 */
-	testDirection(o) {
-		let directions = this.testDirections(o);
+	testDirection(o: object): boolean {
+		const directions = this.testDirections(o);
 
 		for (let i = 0, len = directions.length; i < len; i++) {
 			if (directions[i] === 1) {
@@ -849,7 +861,7 @@ export class Ability {
 	 * @param {Direction} direction The direction the ability is being used.
 	 * @returns {boolean} The ability is being used backwards.
 	 */
-	isTargetingBackwards(direction) {
+	isTargetingBackwards(direction: Direction): boolean {
 		return (
 			(this.creature.player.flipped && direction < Direction.DownLeft) ||
 			(!this.creature.player.flipped && direction > Direction.DownRight)

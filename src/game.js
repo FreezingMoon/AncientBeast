@@ -1154,12 +1154,12 @@ export default class Game {
 	}
 
 	triggerDeleteEffect(trigger, creature) {
-		let effects = creature == 'all' ? this.effects : creature.effects,
-			totalEffects = effects.length,
+		const effects = creature == 'all' ? this.effects : creature.effects;
+		let totalEffects = effects.length,
 			i;
 
 		for (i = 0; i < totalEffects; i++) {
-			let effect = effects[i];
+			const effect = effects[i];
 
 			if (
 				effect.turnLifetime > 0 &&
@@ -1214,10 +1214,9 @@ export default class Game {
 
 	// Removed individual args from definition because we are using the arguments variable.
 	onStartPhase(/* creature, callback */) {
-		let creature = arguments[0],
-			totalTraps = this.grid.traps.length,
-			trap,
-			i;
+		const creature = arguments[0],
+			totalTraps = this.grid.traps.length;
+		let trap, i;
 
 		for (i = 0; i < totalTraps; i++) {
 			trap = this.grid.traps[i];
@@ -1248,7 +1247,7 @@ export default class Game {
 
 	// Removed individual args from definition because we are using the arguments variable.
 	onEndPhase(/* creature, callback */) {
-		let creature = arguments[0];
+		const creature = arguments[0];
 
 		this.triggerDeleteEffect('onEndPhase', creature);
 		this.triggerAbility('onEndPhase', arguments);
@@ -1267,7 +1266,7 @@ export default class Game {
 
 	// Removed individual args from definition because we are using the arguments variable.
 	onCreatureDeath(/* creature, callback */) {
-		let creature = arguments[0];
+		const creature = arguments[0];
 
 		this.triggerAbility('onCreatureDeath', arguments);
 		this.triggerEffect('onCreatureDeath', [creature, creature]);
