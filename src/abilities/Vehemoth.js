@@ -81,7 +81,7 @@ export default (G) => {
 			/**
 			 * If the target creature's health <= this value, it can be instantly killed.
 			 */
-			_executeHealthThreshold: 39,
+			_executeHealthThreshold: 49,
 
 			// 	require() :
 			require: function () {
