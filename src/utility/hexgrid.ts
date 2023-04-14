@@ -273,7 +273,7 @@ export class HexGrid {
 
 		// Clean Direction
 		this.forEachHex((hex) => {
-			hex.direction = -1;
+			hex.direction = Direction.None;
 		});
 
 		options.choices = [];
