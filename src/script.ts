@@ -57,7 +57,7 @@ $j(() => {
 
 	// Function to disable scroll and arrow keys
 	function disableScrollAndArrowKeys(element: JQuery) {
-		element.attr('tabindex', '0'); // set tabindex to make element focusable
+		element.attr('tabindex', '0'); // Set tabindex to make element focusable
 
 		element.on('wheel', (e: JQuery.Event) => {
 			e.preventDefault();
