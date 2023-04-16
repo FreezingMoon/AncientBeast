@@ -59,12 +59,19 @@ $j(() => {
 	function disableScrollAndArrowKeys(element: JQuery) {
 		element.attr('tabindex', '0'); // Set tabindex to make element focusable
 
-		element.on('wheel', (e: JQuery.Event) => {
-			e.preventDefault();
-		});
+		element.on('mouseover', () => {
+			// Add event listener for mouse over game area
+			element.focus(); // Focus the element
+			element.on('wheel', (e: JQuery.Event) => {
+				e.preventDefault();
+			});
+			element.on('keydown', (e: JQuery.Event) => {
+				e.preventDefault();
+			});
 
-		element.on('keydown', (e: JQuery.Event) => {
-			e.preventDefault();
+			element.on('mouseout', () => {
+				element.blur(); // Remove focus from the element when mouse leaves game area
+			});
 		});
 	}
 
