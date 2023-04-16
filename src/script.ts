@@ -52,9 +52,22 @@ $j(() => {
 	locationSelector.eq(randomLocationIndex).prop('checked', true).trigger('click');
 
 	// Disable initial game setup until browser tab has focus
-
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);
+
+	// Add event listener to disable scroll in pre-game
+	let preMatch = $j('#pre-match');
+	preMatch.attr('tabindex', '0'); // set tabindex to make element focusable
+
+	// Disable scroll
+	preMatch.on('wheel', (e) => {
+		e.preventDefault();
+	});
+
+	// Disable up/down keys
+	preMatch.on('keydown', (e) => {
+		e.preventDefault();
+	});
 
 	// Add listener for Fullscreen API
 	let fullscreen = new Fullscreen($j('#fullscreen'));
