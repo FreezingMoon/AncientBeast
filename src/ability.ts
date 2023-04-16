@@ -1,3 +1,4 @@
+/* eslint-disable prefer-rest-params */
 import * as $j from 'jquery';
 import { Damage } from './damage';
 import { Direction, Hex } from './utility/hex';
@@ -31,10 +32,13 @@ export class Ability {
 	};
 	costs: {
 		energy: number;
+		health: number;
+		plasma: string;
 	};
 	_disableCooldowns: boolean;
 	upgrade: boolean;
 	trigger: string | undefined;
+	affectedByMatSickness: number;
 
 	//functions
 	triggerFunc: () => string;
@@ -288,7 +292,7 @@ export class Ability {
 			}
 
 			if (arguments[0] instanceof Creature) {
-				let args = $j.extend({}, arguments);
+				const args = $j.extend({}, arguments);
 				delete args[0];
 				game.gamelog.add({
 					action: 'ability',
@@ -312,10 +316,10 @@ export class Ability {
 			}
 
 			if (arguments[0] instanceof Array) {
-				let args = $j.extend({}, arguments);
+				const args = $j.extend({}, arguments);
 				delete args[0];
 
-				let array = arguments[0].map((item) => ({ x: item.x, y: item.y }));
+				const array = arguments[0].map((item) => ({ x: item.x, y: item.y }));
 
 				game.gamelog.add({
 					action: 'ability',
@@ -556,7 +560,7 @@ export class Ability {
 					string += ', ';
 				}
 
-				string += value + '<span class="' + key + '"></span>';
+				string += value + '<span class="' + String(key) + '"></span>';
 			});
 		}
 
