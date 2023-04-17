@@ -364,11 +364,11 @@ export class Hex {
 					isNotMovingCreature = hex.creature.id !== id;
 					blocked = blocked || isNotMovingCreature; // Not blocked if this block contains the moving creature
 				}
-				if (debug) {
+				if (debug && this.game && this.game.debugMode) {
 					console.log({ isNotMovingCreature });
 				}
 			} else {
-				if (debug) {
+				if (debug && this.game && this.game.debugMode) {
 					console.log('BLOCKED BY GRID BOUNDARIES', this);
 				}
 				// Blocked by grid boundaries
