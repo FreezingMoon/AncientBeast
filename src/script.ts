@@ -52,9 +52,31 @@ $j(() => {
 	locationSelector.eq(randomLocationIndex).prop('checked', true).trigger('click');
 
 	// Disable initial game setup until browser tab has focus
-
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);
+
+	// Function to disable scroll and arrow keys
+	function disableScrollAndArrowKeys(element: JQuery) {
+		element.attr('tabindex', '0'); // Set tabindex to make element focusable
+
+		element.on('mouseover', () => {
+			// Add event listener for mouse over game area
+			element.focus(); // Focus the element
+			element.on('wheel', (e: JQuery.Event) => {
+				e.preventDefault();
+			});
+			element.on('keydown', (e: JQuery.Event) => {
+				e.preventDefault();
+			});
+
+			element.on('mouseout', () => {
+				element.blur(); // Remove focus from the element when mouse leaves game area
+			});
+		});
+	}
+
+	disableScrollAndArrowKeys($j('#pre-match')); // Disable scroll and arrow keys for preMatch element
+	disableScrollAndArrowKeys($j('#loader')); // Disable scroll and arrow keys for loader element
 
 	// Add listener for Fullscreen API
 	let fullscreen = new Fullscreen($j('#fullscreen'));
