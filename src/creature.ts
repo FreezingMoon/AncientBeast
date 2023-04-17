@@ -1579,8 +1579,8 @@ export class Creature {
 							tooltipTransition,
 						)
 						.start();
-					grpHintElem.tweenAlpha.onComplete.add(() => {
-						this.destroy();
+					grpHintElem.tweenAlpha.onComplete.add(function (this: any) {
+						this.destroy;
 					}, grpHintElem);
 				}
 			},
@@ -1630,8 +1630,8 @@ export class Creature {
 					tooltipTransition,
 				)
 				.start();
-			hint.tweenAlpha.onComplete.add(() => {
-				this.destroy();
+			hint.tweenAlpha.onComplete.add(function (this: any) {
+				this.destroy;
 			}, hint);
 		}
 
