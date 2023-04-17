@@ -734,6 +734,22 @@ export default [
             url: require("assets/units/abilities/Infernal 3.svg"),
           },
           {
+            id: "Knightmare 0",
+            url: require("assets/units/abilities/Knightmare 0.svg"),
+          },
+          {
+            id: "Knightmare 1",
+            url: require("assets/units/abilities/Knightmare 1.svg"),
+          },
+          {
+            id: "Knightmare 2",
+            url: require("assets/units/abilities/Knightmare 2.svg"),
+          },
+          {
+            id: "Knightmare 3",
+            url: require("assets/units/abilities/Knightmare 3.svg"),
+          },
+          {
             id: "Kraken 0",
             url: require("assets/units/abilities/Kraken 0.svg"),
           },
@@ -860,22 +876,6 @@ export default [
           {
             id: "Mr. Stitches 3",
             url: require("assets/units/abilities/Mr. Stitches 3.svg"),
-          },
-          {
-            id: "Nightmare 0",
-            url: require("assets/units/abilities/Nightmare 0.svg"),
-          },
-          {
-            id: "Nightmare 1",
-            url: require("assets/units/abilities/Nightmare 1.svg"),
-          },
-          {
-            id: "Nightmare 2",
-            url: require("assets/units/abilities/Nightmare 2.svg"),
-          },
-          {
-            id: "Nightmare 3",
-            url: require("assets/units/abilities/Nightmare 3.svg"),
           },
           {
             id: "Nutcase 0",
@@ -1263,6 +1263,10 @@ export default [
           },
           { id: "Impaler", url: require("assets/units/artwork/Impaler.jpg") },
           { id: "Infernal", url: require("assets/units/artwork/Infernal.jpg") },
+          {
+            id: "Knightmare",
+            url: require("assets/units/artwork/Knightmare.jpg"),
+          },
           { id: "Kraken", url: require("assets/units/artwork/Kraken.jpg") },
           {
             id: "Lavamander",
@@ -1285,10 +1289,6 @@ export default [
           {
             id: "Mr. Stitches",
             url: require("assets/units/artwork/Mr. Stitches.jpg"),
-          },
-          {
-            id: "Nightmare",
-            url: require("assets/units/artwork/Nightmare.jpg"),
           },
           { id: "Nutcase", url: require("assets/units/artwork/Nutcase.jpg") },
           {
@@ -1422,6 +1422,10 @@ export default [
           },
           { id: "Impaler", url: require("assets/units/avatars/Impaler.jpg") },
           { id: "Infernal", url: require("assets/units/avatars/Infernal.jpg") },
+          {
+            id: "Knightmare",
+            url: require("assets/units/avatars/Knightmare.jpg"),
+          },
           { id: "Kraken", url: require("assets/units/avatars/Kraken.jpg") },
           {
             id: "Lavamander",
@@ -1444,10 +1448,6 @@ export default [
           {
             id: "Mr. Stitches",
             url: require("assets/units/avatars/Mr. Stitches.jpg"),
-          },
-          {
-            id: "Nightmare",
-            url: require("assets/units/avatars/Nightmare.jpg"),
           },
           { id: "Nutcase", url: require("assets/units/avatars/Nutcase.jpg") },
           {
@@ -1571,8 +1571,8 @@ export default [
             url: require("assets/units/cardboards/Infernal.png"),
           },
           {
-            id: "Nightmare",
-            url: require("assets/units/cardboards/Nightmare.png"),
+            id: "Knightmare",
+            url: require("assets/units/cardboards/Knightmare.png"),
           },
           {
             id: "Nutcase",
@@ -1674,6 +1674,10 @@ export default [
           },
           { id: "Impaler", url: require("assets/units/shouts/Impaler.ogg") },
           { id: "Infernal", url: require("assets/units/shouts/Infernal.ogg") },
+          {
+            id: "Knightmare",
+            url: require("assets/units/shouts/Knightmare.ogg"),
+          },
           { id: "Kraken", url: require("assets/units/shouts/Kraken.ogg") },
           {
             id: "Lavamander",
@@ -1700,10 +1704,6 @@ export default [
           {
             id: "Mr. Stitches",
             url: require("assets/units/shouts/Mr. Stitches.ogg"),
-          },
-          {
-            id: "Nightmare",
-            url: require("assets/units/shouts/Nightmare.ogg"),
           },
           { id: "Nutcase", url: require("assets/units/shouts/Nutcase.ogg") },
           {
