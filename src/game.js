@@ -90,6 +90,8 @@ export default class Game {
 		this.debugDisableGameStatusConsoleLog =
 			this.debugMode && toBool(process.env.DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG);
 		this.debugDisableMusic = this.debugMode && toBool(process.env.DEBUG_DISABLE_MUSIC);
+		this.debugQuickStart1V1 = this.debugMode && toBool(process.env.DEBUG_QUICK_START_1V1);
+		this.debugHex = this.debugMode && toBool(process.env.DEBUG_HEX);
 		this.multiplayer = false;
 		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];

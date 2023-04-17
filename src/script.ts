@@ -132,6 +132,10 @@ $j(() => {
 	// Focus the form to enable "press enter to start the game" functionality
 	$j('#startButton').trigger('focus');
 
+	if (G.debugQuickStart1V1) {
+		setTimeout(() => $j('#startButton').trigger('click'), 100);
+	}
+
 	$j('form#gameSetup').on('submit', (e) => {
 		e.preventDefault(); // Prevent submit
 		let gameconfig = getGameConfig();
