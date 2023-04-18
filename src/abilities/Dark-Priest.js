@@ -344,10 +344,6 @@ export default (G) => {
 				ability.end(false, true);
 
 				ability.creature.player.summon(creature, pos);
-				let crea = G.creatures.pop();
-				crea.id--;
-				G.creatures[crea.id] = crea;
-				G.creatureIdCounter--;
 				ability.creature.queryMove();
 			},
 		},

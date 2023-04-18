@@ -52,7 +52,6 @@ export default class Game {
 	 * // Normal attributes
 	 * playerMode :		Integer :	Number of players in the game
 	 * activeCreature :	Creature :	Current active creature object reference
-	 * creatureIdCounter :		Integer :	Creature ID counter used for creature creation
 	 * creatureData :		Array :		Array containing all data for the creatures
 	 *
 	 */
@@ -70,7 +69,6 @@ export default class Game {
 		this.preventSetup = false;
 		this.animations = new Animations(this);
 		this.queue = new CreatureQueue(this);
-		this.creatureIdCounter = 1;
 		this.creatureData = [];
 		this.pause = false;
 		this.gameState = 'initialized';
@@ -455,7 +453,6 @@ export default class Game {
 		this.trapId = 0;
 		this.effectId = 0;
 		this.dropId = 0;
-		this.creatureIdCounter = 1;
 
 		this.grid = new HexGrid({}, this); // Create Hexgrid
 
@@ -1542,7 +1539,6 @@ export default class Game {
 		this.preventSetup = false;
 		this.animations = new Animations(this);
 		this.queue = new CreatureQueue(this);
-		this.creatureIdCounter = 1;
 		this.creatureData = [];
 		this.pause = false;
 		this.gameState = 'initialized';
