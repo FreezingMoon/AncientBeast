@@ -1904,6 +1904,12 @@ export class UI {
 			const req = ab.require();
 			ab.message = ab.used ? game.msg.abilities.alreadyUsed : ab.message;
 
+			if (ab.used) {
+				var element = document.getElementsByClassName('ability button noclick');
+				for(let el of element) {
+					el.style.backgroundImage = `url('${getUrl('icons/cancel')}')`;
+				}
+			}
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
 				const b = this.selectedAbility == -1 ? 4 : this.selectedAbility; // Checking usable abilities
