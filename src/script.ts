@@ -56,27 +56,28 @@ $j(() => {
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 
 	// Function to disable scroll and arrow keys
-	function disableScrollAndArrowKeys(element: JQuery) {
-		element.attr('tabindex', '0'); // Set tabindex to make element focusable
+	function disableScrollAndArrowKeys(element: HTMLElement) {
+		const $element = $j(element);
+		$element.attr('tabindex', '0'); // Set tabindex to make element focusable
 
-		element.on('mouseover', () => {
+		$element.on('mouseover', () => {
 			// Add event listener for mouse over game area
-			element.focus(); // Focus the element
-			element.on('wheel', (e: JQuery.Event) => {
+			$element.focus(); // Focus the element
+			$element.on('wheel', (e) => {
 				e.preventDefault();
 			});
-			element.on('keydown', (e: JQuery.Event) => {
+			$element.on('keydown', (e) => {
 				e.preventDefault();
 			});
 
-			element.on('mouseout', () => {
-				element.blur(); // Remove focus from the element when mouse leaves game area
+			$element.on('mouseout', () => {
+				$element.blur(); // Remove focus from the element when mouse leaves game area
 			});
 		});
 	}
 
-	disableScrollAndArrowKeys($j('#pre-match')); // Disable scroll and arrow keys for preMatch element
-	disableScrollAndArrowKeys($j('#loader')); // Disable scroll and arrow keys for loader element
+	disableScrollAndArrowKeys(document.getElementById('pre-match')); // Disable scroll and arrow keys for preMatch element
+	disableScrollAndArrowKeys(document.getElementById('loader')); // Disable scroll and arrow keys for loader element
 
 	// Add listener for Fullscreen API
 	let fullscreen = new Fullscreen($j('#fullscreen'));
