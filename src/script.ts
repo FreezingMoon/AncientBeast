@@ -75,7 +75,7 @@ $j(() => {
 		});
 	}
 
-	disableScrollAndArrowKeys($j('#pre-match')); // Disable scroll and arrow keys for preMatch element
+	// disableScrollAndArrowKeys($j('#pre-match')); // Disable scroll and arrow keys for preMatch element
 	disableScrollAndArrowKeys($j('#loader')); // Disable scroll and arrow keys for loader element
 
 	// Add listener for Fullscreen API
