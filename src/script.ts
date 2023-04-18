@@ -39,7 +39,7 @@ dataJson.forEach(async (creature) => {
 });
 
 $j(() => {
-	let scrim = $j('.scrim');
+	const scrim = $j('.scrim');
 	scrim.on('transitionend', function () {
 		scrim.remove();
 	});
@@ -56,33 +56,34 @@ $j(() => {
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 
 	// Function to disable scroll and arrow keys
-	function disableScrollAndArrowKeys(element: JQuery) {
-		element.attr('tabindex', '0'); // Set tabindex to make element focusable
+	function disableScrollAndArrowKeys(element: HTMLElement) {
+		const $element = $j(element);
+		$element.attr('tabindex', '0'); // Set tabindex to make element focusable
 
-		element.on('mouseover', () => {
+		$element.on('mouseover', () => {
 			// Add event listener for mouse over game area
-			element.focus(); // Focus the element
-			element.on('wheel', (e: JQuery.Event) => {
+			$element.focus(); // Focus the element
+			$element.on('wheel', (e) => {
 				e.preventDefault();
 			});
-			element.on('keydown', (e: JQuery.Event) => {
+			$element.on('keydown', (e) => {
 				e.preventDefault();
 			});
 
-			element.on('mouseout', () => {
-				element.blur(); // Remove focus from the element when mouse leaves game area
+			$element.on('mouseout', () => {
+				$element.blur(); // Remove focus from the element when mouse leaves game area
 			});
 		});
 	}
 
-	disableScrollAndArrowKeys($j('#pre-match')); // Disable scroll and arrow keys for preMatch element
-	disableScrollAndArrowKeys($j('#loader')); // Disable scroll and arrow keys for loader element
+	disableScrollAndArrowKeys(document.getElementById('pre-match')); // Disable scroll and arrow keys for preMatch element
+	disableScrollAndArrowKeys(document.getElementById('loader')); // Disable scroll and arrow keys for loader element
 
 	// Add listener for Fullscreen API
-	let fullscreen = new Fullscreen($j('#fullscreen'));
+	const fullscreen = new Fullscreen($j('#fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
-	let startScreenHotkeys = {
+	const startScreenHotkeys = {
 		KeyF: {
 			keyDownTest(event) {
 				return event.shiftKey;
@@ -95,7 +96,7 @@ $j(() => {
 			keyDownTest(event) {
 				return event.metaKey && event.ctrlKey;
 			},
-			keyDownAction(event) {
+			keyDownAction() {
 				readLogFromFile()
 					.then((logstr) => JSON.parse(logstr as string))
 					.then((log) => G.gamelog.play(log))
@@ -142,7 +143,7 @@ $j(() => {
 	$j('#multiplayer').on('click', async () => {
 		$j('.setupFrame,.lobby').hide();
 		$j('.loginregFrame').show();
-		let sess = new SessionI();
+		const sess = new SessionI();
 		try {
 			await sess.restoreSession();
 		} catch (e) {
@@ -156,7 +157,7 @@ $j(() => {
 
 	$j('form#gameSetup').on('submit', (e) => {
 		e.preventDefault(); // Prevent submit
-		let gameconfig = getGameConfig();
+		const gameconfig = getGameConfig();
 		G.loadGame(gameconfig);
 
 		return false; // Prevent submit
@@ -164,7 +165,7 @@ $j(() => {
 	// Register
 	async function register(e) {
 		e.preventDefault(); // Prevent submit
-		let reg = getReg();
+		const reg = getReg();
 		// Check empty fields
 		if (
 			$j('#register .error-req').css('display') != 'none' ||
@@ -201,9 +202,9 @@ $j(() => {
 			$j('.error-pw').show();
 			return;
 		}
-		let auth = new Authenticate(reg, connect.client);
-		let session = await auth.register();
-		let sess = new SessionI(session);
+		const auth = new Authenticate(reg, connect.client);
+		const session = await auth.register();
+		const sess = new SessionI(session);
 		sess.storeSession();
 		G.session = session;
 		G.client = connect.client;
@@ -219,9 +220,8 @@ $j(() => {
 
 	async function login(e) {
 		e.preventDefault(); // Prevent submit
-		let login = getLogin(),
-			auth,
-			session;
+		const login = getLogin();
+		let session;
 		$j('#login .login-error-req-message').hide();
 		if (login.email == '' || login.password == '') {
 			$j('#login .error-req').show();
@@ -237,7 +237,7 @@ $j(() => {
 			$j('#login .error-req').hide();
 			$j('#login .error-req-message').hide();
 		}
-		auth = new Authenticate(login, connect.client);
+		const auth = new Authenticate(login, connect.client);
 		try {
 			session = await auth.authenticateEmail();
 		} catch (error) {
@@ -245,7 +245,7 @@ $j(() => {
 			return;
 		}
 
-		let sess = new SessionI(session);
+		const sess = new SessionI(session);
 		sess.storeSession();
 		G.session = session;
 		G.client = connect.client;
@@ -260,7 +260,7 @@ $j(() => {
 	// Login form
 	$j('form#login').on('submit', login);
 	$j('#startMatchButton').on('click', () => {
-		let gameConfig = getGameConfig();
+		const gameConfig = getGameConfig();
 		G.loadGame(gameConfig, true);
 		return false;
 	});
@@ -341,7 +341,7 @@ function readLogFromFile() {
  * @return {Object} login form.
  */
 function getLogin() {
-	let login = {
+	const login = {
 		email: $j('.login input[name="email"]').val(),
 		password: $j('.login input[name="password"]').val(),
 	};
@@ -385,7 +385,7 @@ export function getGameConfig() {
  * @return {boolean} Empty or not.
  */
 export function isEmpty(obj) {
-	for (let key in obj) {
+	for (const key in obj) {
 		if (Object.prototype.hasOwnProperty.call(obj, key)) {
 			return false;
 		}
