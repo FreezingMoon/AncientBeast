@@ -166,7 +166,7 @@ export default (G) => {
 				}
 
 				if (crea.remainingMove < trg.size) {
-					//Not enough move points
+					// Unit too tired
 					this.message = 'Not enough movement points.';
 					return false;
 				}
