@@ -1372,7 +1372,7 @@ export class HexGrid {
 		const creatures = this.game.creatures;
 
 		for (let y = 0, leny = this.hexes.length; y < leny; y++) {
-			for (let i = 1, len = creatures.length; i < len; i++) {
+			for (let i = 0, len = creatures.length; i < len; i++) {
 				if (creatures[i].y == y) {
 					this.creatureGroup.remove(creatures[i].grp);
 					this.creatureGroup.addAt(creatures[i].grp, index++);
