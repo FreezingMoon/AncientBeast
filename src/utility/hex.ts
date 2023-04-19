@@ -7,6 +7,7 @@ import Phaser from 'phaser-ce';
 import { Drop } from '../drops';
 
 export enum Direction {
+	None = -1,
 	UpRight = 0,
 	Right = 1,
 	DownRight = 2,
@@ -124,7 +125,7 @@ export class Hex {
 		this.blocked = false;
 		this.creature = undefined;
 		this.reachable = true;
-		this.direction = -1; // Used for queryDirection
+		this.direction = Direction.None; // Used for queryDirection
 		this.drop = undefined; // Drop items
 		this.displayClasses = '';
 		this.overlayClasses = '';
