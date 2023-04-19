@@ -75,8 +75,8 @@ $j(() => {
 			});
 		});
 	}
-
-	disableScrollAndArrowKeys(document.getElementById('pre-match')); // Disable scroll and arrow keys for preMatch element
+//Commentig line 79
+	// disableScrollAndArrowKeys(document.getElementById('pre-match')); // Disable scroll and arrow keys for preMatch element
 	disableScrollAndArrowKeys(document.getElementById('loader')); // Disable scroll and arrow keys for loader element
 
 	// Add listener for Fullscreen API
