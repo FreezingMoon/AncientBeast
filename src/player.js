@@ -249,7 +249,7 @@ export class Player {
 		this.hasLost = true;
 
 		// Remove all player creatures from queues
-		for (let i = 1; i < count; i++) {
+		for (let i = 0; i < count; i++) {
 			creature = game.creatures[i];
 
 			if (creature.player.id == this.id) {
