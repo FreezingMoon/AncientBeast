@@ -12,6 +12,9 @@ export const ButtonStateEnum = {
 };
 
 export class Button {
+	click() {
+		throw new Error('Method not implemented.');
+	}
 	/**
 	 * Constructor - Create attributes and default buttons
 	 * @constructor
