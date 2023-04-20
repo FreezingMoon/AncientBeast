@@ -50,7 +50,7 @@ export default (G) => {
 									if (!this.trap.hex.creature) {
 										return false;
 									}
-									// Magma Spawn immune to Scorched Ground
+									// Immunity to own trap type
 									return this.trap.hex.creature.id !== ability.creature.id;
 								},
 								effectFn: function (effect, target) {

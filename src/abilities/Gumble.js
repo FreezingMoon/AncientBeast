@@ -199,7 +199,7 @@ export default (G) => {
 						hex,
 						'onStepIn',
 						{
-							// Gumbles immune
+							// Immunity to own trap type
 							requireFn: function () {
 								let crea = this.trap.hex.creature;
 								return crea && crea.type !== this.owner.type;
