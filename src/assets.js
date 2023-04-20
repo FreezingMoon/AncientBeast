@@ -362,6 +362,7 @@ export default [
   {
     id: "sounds",
     children: [
+      { id: "AncientBeast", url: require("assets/sounds/AncientBeast.ogg") },
       { id: "drums", url: require("assets/sounds/drums.ogg") },
       { id: "heartbeat", url: require("assets/sounds/heartbeat.ogg") },
       { id: "mudbath", url: require("assets/sounds/mudbath.ogg") },
