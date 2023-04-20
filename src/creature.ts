@@ -32,7 +32,7 @@ export class Creature {
 	 * name :			String :	Creature name
 	 * id :			Integer :	Creature Id incrementing for each creature starting to 1
 	 * size :			Integer :	Creature size in hexes (1,2 or 3)
-	 i type :			Integer :	Type of the creature stocked in the database
+	 * type :			Integer :	Type of the creature stocked in the database
 	 * team :			Integer :	Owner's ID (0,1,2 or 3)
 	 * player :		Player :	Player object shortcut
 	 * hexagons :		Array :		Array containing the hexes where the creature is
@@ -51,7 +51,7 @@ export class Creature {
 	 * obj :			Object :	Object containing all creature stats
 	 *
 	 */
-	//Engine
+	// Engine
 	game: Game;
 	name: string;
 	id: number;
@@ -71,7 +71,7 @@ export class Creature {
 	team: number;
 	player: any;
 
-	//Game
+	// Game
 	dead: boolean;
 	undead: boolean;
 	killer: any;
@@ -82,7 +82,7 @@ export class Creature {
 	protectedFromFatigue: boolean;
 	turnsActive: number;
 
-	//Statistics
+	// Statistics
 	baseStats: any;
 	stats: any;
 	status: any;
