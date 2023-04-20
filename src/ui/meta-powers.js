@@ -6,13 +6,12 @@ import { Button, ButtonStateEnum } from './button';
 const COOKIE_KEY = 'ab-meta-powers';
 
 /**
- * "God-mode" UI for debugging game state. Available in hot-seat games when the
- * app running is in development mode.
+ * "God-mode" UI for debugging game state
+ * Available in hot-seat games when the app is in development mode
  *
- * Be careful directly accessing instances of this class as they may not be present
- * in some game modes.
+ * Directly accessing instances of this class as they may not be present in some game modes
  *
- * Caution: usage of these tools may break the game log.
+ * Caution: usage of these tools may break the game log
  */
 export class MetaPowers {
 	constructor(game) {
@@ -24,7 +23,7 @@ export class MetaPowers {
 			disableMaterializationSickness: { enabled: false, label: 'Disable Cooldowns' },
 		};
 
-		// Object that will contain jQuery element references.
+		// Object that will contain jQuery element references
 		this.$els = {};
 		this._bindElements();
 
@@ -39,10 +38,10 @@ export class MetaPowers {
 	}
 
 	/**
-	 * Handle events on the "ui" channel.
+	 * Handle events on the "ui" channel
 	 *
-	 * @param {string} message Event name.
-	 * @param {object} payload Event payload.
+	 * @param {string} message Event name
+	 * @param {object} payload Event payload
 	 */
 	_handleUiEvent(message, payload) {
 		if (message === 'toggleMetaPowers') {
@@ -67,7 +66,7 @@ export class MetaPowers {
 	}
 
 	/**
-	 * One-time setup of DOM bindings and other DOM manipulation.
+	 * One-time setup of DOM bindings and other DOM manipulation
 	 */
 	_bindElements() {
 		this.$els = {
@@ -125,11 +124,10 @@ export class MetaPowers {
 	}
 
 	/**
-	 * Toggle the button state for a Meta Power and inform the rest of the app that
-	 * setting has changed.
+	 * Toggle the button state for a Meta Power and inform the rest of the app that setting has changed
 	 *
-	 * @param {string} stateKey Key for `this.state` setting.
-	 * @param {Button} button Button representing the toggle state.
+	 * @param {string} stateKey Key for `this.state` setting
+	 * @param {Button} button Button representing the toggle state
 	 */
 	_togglePower(stateKey, button) {
 		const enabled = !this.toggles[stateKey].enabled;
@@ -148,14 +146,14 @@ export class MetaPowers {
 	}
 
 	/**
-	 * Persist toggled Meta Powers to a cookie.
+	 * Persist toggled Meta Powers to a cookie
 	 */
 	_persistPowers() {
 		Cookies.set(COOKIE_KEY, JSON.stringify({ persisting: true, toggles: this.toggles }));
 	}
 
 	/**
-	 * If the toggled Meta Powers were persisted to a cookie, restore them.
+	 * If the toggled Meta Powers were persisted to a cookie, restore them
 	 */
 	_restorePowers() {
 		const powers = JSON.parse(Cookies.get(COOKIE_KEY)).toggles;
@@ -168,7 +166,7 @@ export class MetaPowers {
 	}
 
 	/**
-	 * Clear toggled Meta Powers and remove cookie.
+	 * Clear toggled Meta Powers and remove cookie
 	 */
 	_clearPowers() {
 		Object.keys(this.toggles).forEach((key) => {
@@ -179,7 +177,7 @@ export class MetaPowers {
 	}
 
 	/**
-	 * Display a list of enabled powers outside of the modal for easy reference.
+	 * Display a list of enabled powers outside of the modal for easy reference
 	 */
 	_updateEnabledPowersPreview() {
 		const list = Object.keys(this.toggles)
@@ -196,14 +194,14 @@ export class MetaPowers {
 	}
 
 	/**
-	 * Toggle the visibility of the Meta Powers modal.
+	 * Toggle the visibility of the Meta Powers modal
 	 */
 	_toggleModal() {
 		this.$els.modal.toggleClass('hide');
 	}
 
 	/**
-	 * Close the Meta Powers modal.
+	 * Close the Meta Powers modal
 	 */
 	_closeModal() {
 		this.$els.modal.addClass('hide');
