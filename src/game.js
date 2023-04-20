@@ -73,7 +73,9 @@ export default class Game {
 		this.pause = false;
 		this.gameState = 'initialized';
 		this.pauseTime = 0;
+		this.unitDrops = 0;
 		this.minimumTurnBeforeFleeing = 12;
+		this.creatureIdCounter = 0;
 		this.availableCreatures = [];
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;
@@ -640,6 +642,7 @@ export default class Game {
 				v.numeric_properties.turnTimePool < 0 ? '∞' : v.numeric_properties.timePool;
 			let timepool = v.numeric_properties.timePool < 0 ? '∞' : v.numeric_properties.timePool;
 			let unitdrops = v.numeric_properties.unitDrops < 0 ? 'off' : 'on';
+			this.unitDrops = v.numeric_properties.unitDrops;
 			let _matchBtn =
 				$j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
         Host: ${v.presence.username}<br />
