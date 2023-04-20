@@ -1762,7 +1762,23 @@ span.pure {
 #sfx {
 	-webkit-appearance: none;
 	width: 75%;
-	margin: 8px 0;
+	margin: 15px 0;
+}
+
+#sfx::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 50px;
+	height: 30px;
+	border-radius: 25px;
+	cursor: pointer;
+}
+
+#sfx.slider::-moz-range-thumb {
+	width: 50px;
+	height: 30px;
+	border-radius: 25px;
+	cursor: pointer;
 }
 
 #volumeSliders div {
