@@ -11,6 +11,10 @@ import { ProgressBar } from './progressbar';
 import { getUrl } from '../assetLoader';
 import { MetaPowers } from './meta-powers';
 import { Queue } from './queue';
+import { QuickInfo } from './quickinfo';
+
+import { capitalize } from '../utility/string';
+import { throttle } from 'underscore';
 
 /**
  * Class UI
@@ -51,6 +55,7 @@ export class UI {
 		this.active = false;
 
 		this.queue = UI.#getQueue(this, document.getElementById('queuewrapper'));
+		this.quickInfo = UI.#getQuickInfo(this, document.querySelector('div.quickinfowrapper'));
 
 		// Last clicked creature in Godlet Printer for the current turn
 		this.lastViewedCreature = '';
@@ -1800,7 +1805,6 @@ export class UI {
 				},
 			);
 
-		this.updateInfos();
 		if (game.multiplayer) {
 			if (!this.active) {
 				game.freezedInput = true;
@@ -1964,21 +1968,6 @@ export class UI {
 		}
 	}
 
-	/* updateInfos()
-	 */
-	updateInfos() {
-		const game = this.game,
-			userTurn = game.multiplayer ? game.players[game.match.userTurn] : game.activeCreature.player;
-		$j('#playerbutton, #playerinfo')
-			.removeClass('p0 p1 p2 p3')
-			.addClass('p' + userTurn.id);
-		$j('#playerinfo .name').text(userTurn.name);
-		$j('#playerinfo .points span').text(userTurn.getScore().total);
-		$j('#playerinfo .plasma span').text(userTurn.plasma);
-		// TODO: Needs to update instantly!
-		$j('#playerinfo .units span').text(userTurn.getNbrOfCreatures() + ' / ' + game.creaLimitNbr);
-	}
-
 	/* updateTimer()
 	 */
 	updateTimer() {
@@ -2140,6 +2129,93 @@ export class UI {
 		}
 
 		return rasterElement;
+	}
+
+	static #getQuickInfo(ui, quickInfoDomElement) {
+		const playerFormatter = (player) =>
+			`<div class="vignette active p${player.id}">
+				<div class="playerinfo frame p${player.id}">
+				<p class="name">${player.name}</p>
+				<p class="points"><span>${player.getScore().total}</span> Points</p>
+				<p class="plasma"><span>${player.plasma}</span> Plasma</p>
+				<p class="units"><span>${player.getNbrOfCreatures() + ' / ' + ui.game.creaLimitNbr}</span> Units</p>
+				<p><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
+			</div></div>`;
+
+		const hexFormatter = (hex) => {
+			const name = capitalize(
+				hex.creature ? hex.creature.name : hex.drop ? hex.drop.name : hex.coord,
+			);
+			const trapOrLocation = capitalize(hex.trap ? hex.trap.name : ui.game.combatLocation);
+			const nameColorClasses =
+				hex.creature && hex.creature.player ? `p${hex.creature.player.id} player-text bright` : '';
+			return `<div class="vignette hex">
+			<div class="hexinfo frame">
+			<p class="name ${nameColorClasses}">${name}</p>
+			<p>${trapOrLocation}</p>
+			</div>
+			</div>
+			`;
+		};
+
+		const quickInfo = new QuickInfo(quickInfoDomElement);
+
+		/**
+		 * NOTE: throttling here because we want to
+		 * skip a hex 'mouse out' if there's a
+		 * 'mouse over' soon after.
+		 */
+		const throttledSet = throttle(
+			(str, isBase) => {
+				if (isBase) {
+					quickInfo.setBase(str);
+				} else {
+					quickInfo.setOverlay(str);
+				}
+			},
+			50,
+			{ leading: false },
+		);
+
+		const [BASE, OVERLAY] = [true, false];
+
+		const showCurrentPlayer = () => {
+			throttledSet(playerFormatter(ui.game.activePlayer), BASE);
+		};
+
+		const showHex = (hex) => {
+			throttledSet(hexFormatter(hex), OVERLAY);
+		};
+
+		ui.game.signals.creature.add((message) => {
+			if (['abilityend', 'activate'].indexOf(message) !== -1) {
+				showCurrentPlayer();
+			}
+		});
+
+		ui.game.signals.ui.add((message) => {
+			if (
+				[
+					'toggleMusicPlayer',
+					'toggleDash',
+					'toggleScore',
+					'toggleMetaPowers',
+					'closeInterfaceScreens',
+				].indexOf(message) !== -1
+			) {
+				showCurrentPlayer();
+			}
+		});
+
+		ui.game.signals.hex.add((message, { hex }) => {
+			if (message === 'over' && (hex.creature || hex.drop || hex.trap)) {
+				showHex(hex);
+			} else {
+				showCurrentPlayer();
+			}
+		});
+
+		return quickInfo;
 	}
 
 	static #getQueue(ui, queueDomElement) {
