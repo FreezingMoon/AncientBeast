@@ -1,4 +1,5 @@
 import * as $j from 'jquery';
+import { capitalize } from './string';
 
 /**
  * Trap Class
@@ -13,10 +14,11 @@ export class Trap {
 	 * y : 			Integer : 	Hex coordinates
 	 *
 	 */
-	constructor(x, y, type, effects, owner, opt, game) {
+	constructor(x, y, type, effects, owner, opt, game, name = '') {
 		this.game = game;
 		this.hex = game.grid.hexes[y][x];
 		this.type = type;
+		this.name = name || capitalize(type.split('-').join(' '));
 		this.effects = effects;
 		this.owner = owner;
 		this.creationTurn = game.turn;
