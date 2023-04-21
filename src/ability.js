@@ -151,7 +151,7 @@ export class Ability {
 		if (!this._disableCooldowns) {
 			this.setUsed(true); // Should always be here
 		}
-		game.UI.updateInfos(); // Just in case
+		game.signals.creature.dispatch('abilityend', { creature: this.creature });
 		game.UI.btnDelay.changeState('disabled');
 		game.activeCreature.delayable = false;
 		game.UI.selectAbility(-1);
