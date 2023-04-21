@@ -438,35 +438,92 @@
 	background-image: url('~assets/icons/exit.svg');
 }
 
+.p0.player-text.bright {
+	color: #f55;
+}
+
+.p1.player-text.bright {
+	color: #88f;
+}
+
+.p2.player-text.bright {
+	color: #fa5;
+}
+
+.p3.player-text.bright {
+	color: #5f5;
+}
+
+.p0.player-text {
+	color: rgba(255, 0, 0, 1);
+}
+
+.p1.player-text {
+	color: rgba(0, 0, 255, 1);
+}
+
+.p2.player-text {
+	color: rgba(255, 172, 0, 1);
+}
+
+.p3.player-text {
+	color: rgba(0, 255, 0, 1);
+}
+
 #playerbutton {
 	cursor: pointer;
 	background: rgba(0, 0, 0, 0.55);
 	position: relative;
 	right: 0;
 	z-index: 2;
+	transition: opacity 0.5s ease;
 }
 
-#playerinfo {
+#playerbutton div {
+	background-color: rgba(0, 0, 0, 0.55);
+}
+
+#playerbutton .playerinfo,
+#playerbutton .hexinfo {
 	color: white;
 	display: block;
 	font-size: 12px;
 	font-weight: bold;
 	height: 100px;
-	margin: 1px -5px;
-	position: fixed;
+	width: 90px;
+	margin: 1px 0px;
+	padding: 0 5px;
 	text-align: right;
 	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 	top: 0;
-	width: 100px;
-	z-index: 2;
 }
 
-#playerinfo p {
+#playerbutton .vignette {
+	height: 100px;
+	width: 100px;
+	padding: 0;
+	margin: 0;
+}
+
+.playerinfo p,
+.hexinfo p {
 	margin: 4px;
 }
 
-#playerinfo .name {
+.playerinfo .name,
+.hexinfo .name {
 	font-size: 15px;
+}
+
+.hexinfo .name {
+	padding-top: 18px;
+	padding-bottom: 2px;
+	margin: inherit 4px 0px 12px;
+	border-bottom: 1px solid #555;
+}
+
+.hexinfo .vignette.hex .frame {
+	background-image: url('~assets/interface/frame.png');
 }
 
 .alert {
@@ -890,9 +947,7 @@ div.section.info {
 	background-color: darkturquoise;
 }
 
-#playeravatar.vignette,
-#playerbutton.vignette,
-#playerbutton.vignette .frame {
+#playeravatar.vignette {
 	height: 100px;
 	width: 100px;
 }
@@ -953,6 +1008,11 @@ div.section.info {
 
 .vignette.delaymarker .frame {
 	background-image: url('~assets/interface/frame.png'), url('~assets/icons/delay.svg');
+	background-color: rgba(0, 0, 0, 0.85);
+}
+
+.vignette.hex .frame {
+	background-image: url('~assets/interface/frame.png');
 	background-color: rgba(0, 0, 0, 0.85);
 }
 
