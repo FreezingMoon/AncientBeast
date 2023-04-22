@@ -173,7 +173,7 @@ export class Hex {
 				if (game.freezedInput || game.UI.dashopen) {
 					return;
 				}
-
+				game.signals.hex.dispatch('over', { hex: this });
 				grid.selectedHex = this;
 				this.onSelectFn(this);
 			}, this);
@@ -182,6 +182,8 @@ export class Hex {
 				if (game.freezedInput || game.UI.dashopen || !pointer.withinGame) {
 					return;
 				}
+
+				game.signals.hex.dispatch('out', { hex: this });
 
 				grid.clearHexViewAlterations();
 				this.onHoverOffFn(this);

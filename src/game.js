@@ -186,7 +186,7 @@ export default class Game {
 			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
 
-		const signalChannels = ['ui', 'metaPowers', 'creature'];
+		const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
 		this.signals = this.setupSignalChannels(signalChannels);
 	}
 
@@ -336,6 +336,19 @@ export default class Game {
 
 		// Get JSON files
 		this.dataLoaded(dataJson);
+	}
+
+	get activePlayer() {
+		if (this.multiplayer) {
+			if (this.players && this.match && this.match.userTurn) {
+				return this.players[this.match.userTurn];
+			}
+			return undefined;
+		}
+		if (this.activeCreature && this.activeCreature.player) {
+			return this.activeCreature.player;
+		}
+		return undefined;
 	}
 
 	startLoading() {
@@ -767,6 +780,7 @@ export default class Game {
 				// Updates UI to match new creature
 				this.UI.updateActivebox();
 				this.updateQueueDisplay();
+				this.signals.creature.dispatch('activate', { creature: this.activeCreature });
 				if (this.multiplayer && this.playersReady) {
 					this.gameplay.updateTurn();
 				} else {
