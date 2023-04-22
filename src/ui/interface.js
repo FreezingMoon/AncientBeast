@@ -2161,34 +2161,30 @@ export class UI {
 		const quickInfo = new QuickInfo(quickInfoDomElement);
 
 		/**
-		 * NOTE: throttling here because we want to
+		 * NOTE: Throttling here because we want to
 		 * skip a hex 'mouse out' if there's a
-		 * 'mouse over' soon after.
+		 * 'mouse enter' soon after. We don't want a
+		 * transition between 2 different hexes that
+		 * have the same contents.
 		 */
 		const throttledSet = throttle(
-			(str, isBase) => {
-				if (isBase) {
-					quickInfo.setBase(str);
-				} else {
-					quickInfo.setOverlay(str);
-				}
+			(str) => {
+				quickInfo.set(str);
 			},
 			50,
 			{ leading: false },
 		);
 
-		const [BASE, OVERLAY] = [true, false];
-
 		const showCurrentPlayer = () => {
-			throttledSet(playerFormatter(ui.game.activePlayer), BASE);
+			throttledSet(playerFormatter(ui.game.activePlayer));
 		};
 
 		const showHex = (hex) => {
-			throttledSet(hexFormatter(hex), OVERLAY);
+			throttledSet(hexFormatter(hex));
 		};
 
 		ui.game.signals.creature.add((message) => {
-			if (['abilityend', 'activate'].indexOf(message) !== -1) {
+			if (['abilityend', 'activate'].includes(message)) {
 				showCurrentPlayer();
 			}
 		});
@@ -2201,7 +2197,7 @@ export class UI {
 					'toggleScore',
 					'toggleMetaPowers',
 					'closeInterfaceScreens',
-				].indexOf(message) !== -1
+				].includes(message)
 			) {
 				showCurrentPlayer();
 			}
