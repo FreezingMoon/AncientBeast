@@ -472,15 +472,11 @@
 
 #playerbutton {
 	cursor: pointer;
-	background: rgba(0, 0, 0, 0.55);
 	position: relative;
 	right: 0;
 	z-index: 2;
 	transition: opacity 0.5s ease;
-}
-
-#playerbutton div {
-	background-color: rgba(0, 0, 0, 0.55);
+	background-image: none;
 }
 
 #playerbutton .playerinfo,
@@ -496,6 +492,11 @@
 	text-align: right;
 	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 	top: 0;
+	background-color: rgba(0, 0, 0, 0.55);
+}
+
+#playerbutton .hexinfo {
+	text-align: center;
 }
 
 #playerbutton .vignette {
