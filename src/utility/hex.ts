@@ -5,6 +5,7 @@ import { HexGrid } from './hexgrid';
 import Game from '../game';
 import Phaser from 'phaser-ce';
 import { Drop } from '../drops';
+import { DEBUG } from '../debug';
 
 export enum Direction {
 	None = -1,
@@ -348,6 +349,9 @@ export class Hex {
 	 * @returns True if this hex is walkable.
 	 */
 	isWalkable(size: number, id: number, ignoreReachable = false, debug = false) {
+		// NOTE: If not in DEBUG mode, don't debug.
+		debug = DEBUG && debug;
+
 		let blocked = false;
 
 		for (let i = 0; i < size; i++) {
