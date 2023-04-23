@@ -8,6 +8,7 @@ import { Fullscreen } from './ui/fullscreen';
 import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
 import SessionI from './multiplayer/session';
+import { DEBUG_AUTO_START_GAME } from './debug';
 
 // Load the stylesheet
 import './style/main.less';
@@ -155,13 +156,23 @@ $j(() => {
 	// Focus the form to enable "press enter to start the game" functionality
 	$j('#startButton').trigger('focus');
 
-	$j('form#gameSetup').on('submit', (e) => {
-		e.preventDefault(); // Prevent submit
+	const startGame = () => {
 		const gameconfig = getGameConfig();
 		G.loadGame(gameconfig);
+	};
 
-		return false; // Prevent submit
+	if (DEBUG_AUTO_START_GAME) {
+		setTimeout(startGame, 50);
+	}
+
+	$j('form#gameSetup').on('submit', (e) => {
+		// NOTE: Prevent submission
+		e.preventDefault();
+		startGame();
+		// NOTE: Prevent submission
+		return false;
 	});
+
 	// Register
 	async function register(e) {
 		e.preventDefault(); // Prevent submit
