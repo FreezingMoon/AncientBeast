@@ -85,6 +85,7 @@
 		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
 		"assetLister": "node ./assetLister.js",
 		"lint": "eslint \"src/**/*.{js,ts}\"",
+		"lint-error": "eslint --quiet \"src/**/*.{js,ts}\"",
 		"lint-fix": "eslint --fix \"src/**/*.{js,ts}\"",
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check",
 		"test": "npm run lint && npm run build && jest",
