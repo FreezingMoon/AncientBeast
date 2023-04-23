@@ -17,7 +17,7 @@ import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
-import { DEBUG, DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG, DEBUG_DISABLE_MUSIC } from './debug';
+import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG, DEBUG_DISABLE_MUSIC } from './debug';
 
 /* Game Class
  *
