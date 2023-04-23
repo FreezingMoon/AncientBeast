@@ -15,6 +15,7 @@ import { QuickInfo } from './quickinfo';
 
 import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
+import { DEBUG_DISABLE_HOTKEYS } from '../debug';
 
 /**
  * Class UI
@@ -399,33 +400,35 @@ export class UI {
 		});
 
 		// Binding Hotkeys
-		$j(document).on('keydown', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
+		if (!DEBUG_DISABLE_HOTKEYS) {
+			$j(document).on('keydown', (e) => {
+				if (game.freezedInput) {
+					return;
+				}
 
-			const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
+				const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
 
-			if (keydownAction !== undefined) {
-				keydownAction.call(this, e);
+				if (keydownAction !== undefined) {
+					keydownAction.call(this, e);
 
-				e.preventDefault();
-			}
-		});
+					e.preventDefault();
+				}
+			});
 
-		$j(document).on('keyup', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
+			$j(document).on('keyup', (e) => {
+				if (game.freezedInput) {
+					return;
+				}
 
-			const keyupAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeyup;
+				const keyupAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeyup;
 
-			if (keyupAction !== undefined) {
-				keyupAction.call(this, e);
+				if (keyupAction !== undefined) {
+					keyupAction.call(this, e);
 
-				e.preventDefault();
-			}
-		});
+					e.preventDefault();
+				}
+			});
+		}
 
 		// Mouse Shortcut
 		$j('#dash').on('mousedown', (e) => {

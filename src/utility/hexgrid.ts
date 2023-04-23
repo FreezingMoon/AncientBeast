@@ -7,6 +7,8 @@ import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
 import Game from '../game';
 import { Trap } from './trap';
+import { DEBUG } from '../debug';
+
 interface QueryOptions {
 	/**
 	 * Target team.
@@ -1504,7 +1506,9 @@ export class HexGrid {
 	 * @param hexes Hexes to log and visually highlight.
 	 */
 	__debugHexes(hexes: Hex[]) {
-		console.debug({ hexes }, hexes.map((hex) => hex.coord).join(', '));
-		hexes.forEach((hex) => hex.displayVisualState('creature selected player1'));
+		if (DEBUG) {
+			console.debug({ hexes }, hexes.map((hex) => hex.coord).join(', '));
+			hexes.forEach((hex) => hex.displayVisualState('creature selected player1'));
+		}
 	}
 }

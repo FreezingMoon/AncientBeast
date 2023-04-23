@@ -1,5 +1,6 @@
 import * as $j from 'jquery';
 import { isEmpty, getGameConfig } from '../script';
+import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG } from '../debug';
 
 export class GameLog {
 	constructor(id, game) {
@@ -58,7 +59,7 @@ export class GameLog {
 		let fun = () => {
 			this.timeCursor++;
 
-			if (game.debugMode && !game.debugDisableGameStatusConsoleLog) {
+			if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
 				console.log(this.timeCursor + '/' + this.data.length);
 			}
 
@@ -89,7 +90,7 @@ export class GameLog {
 		}
 
 		this.timeCursor++;
-		if (game.debugMode && !game.debugDisableGameStatusConsoleLog) {
+		if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
 			console.log(this.timeCursor + '/' + this.data.length);
 		}
 

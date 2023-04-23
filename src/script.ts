@@ -8,6 +8,7 @@ import { Fullscreen } from './ui/fullscreen';
 import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
 import SessionI from './multiplayer/session';
+import { DEBUG_AUTO_START_GAME, DEBUG_DISABLE_HOTKEYS } from './debug';
 
 // Load the stylesheet
 import './style/main.less';
@@ -109,20 +110,22 @@ $j(() => {
 	};
 
 	// Binding Hotkeys
-	$j(document).on('keydown', (event) => {
-		const hotkey = startScreenHotkeys[event.code];
+	if (!DEBUG_DISABLE_HOTKEYS) {
+		$j(document).on('keydown', (event) => {
+			const hotkey = startScreenHotkeys[event.code];
 
-		if (hotkey === undefined) {
-			return;
-		}
+			if (hotkey === undefined) {
+				return;
+			}
 
-		const { keyDownTest, keyDownAction } = hotkey;
+			const { keyDownTest, keyDownAction } = hotkey;
 
-		if (keyDownTest.call(this, event)) {
-			event.preventDefault();
-			keyDownAction.call(this, event);
-		}
-	});
+			if (keyDownTest.call(this, event)) {
+				event.preventDefault();
+				keyDownAction.call(this, event);
+			}
+		});
+	}
 
 	if (G.multiplayer) {
 		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
@@ -155,13 +158,23 @@ $j(() => {
 	// Focus the form to enable "press enter to start the game" functionality
 	$j('#startButton').trigger('focus');
 
-	$j('form#gameSetup').on('submit', (e) => {
-		e.preventDefault(); // Prevent submit
+	const startGame = () => {
 		const gameconfig = getGameConfig();
 		G.loadGame(gameconfig);
+	};
 
-		return false; // Prevent submit
+	if (DEBUG_AUTO_START_GAME) {
+		setTimeout(startGame, 50);
+	}
+
+	$j('form#gameSetup').on('submit', (e) => {
+		// NOTE: Prevent submission
+		e.preventDefault();
+		startGame();
+		// NOTE: Prevent submission
+		return false;
 	});
+
 	// Register
 	async function register(e) {
 		e.preventDefault(); // Prevent submit

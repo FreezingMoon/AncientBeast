@@ -17,7 +17,7 @@ import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
-import { toBool } from './utility/string';
+import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG, DEBUG_DISABLE_MUSIC } from './debug';
 
 /* Game Class
  *
@@ -86,10 +86,6 @@ export default class Game {
 		this.session = null;
 		this.client = null;
 		this.connect = null;
-		this.debugMode = toBool(process.env.DEBUG_MODE);
-		this.debugDisableGameStatusConsoleLog =
-			this.debugMode && toBool(process.env.DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG);
-		this.debugDisableMusic = this.debugMode && toBool(process.env.DEBUG_DISABLE_MUSIC);
 		this.multiplayer = false;
 		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
@@ -569,7 +565,7 @@ export default class Game {
 		});
 
 		this.soundsys.playMusic();
-		if (this.debugDisableMusic) {
+		if (DEBUG_DISABLE_MUSIC) {
 			this.musicPlayer.audio.pause();
 		}
 
@@ -825,7 +821,7 @@ export default class Game {
 			}
 		}
 
-		if (!this.debugDisableGameStatusConsoleLog) {
+		if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
 			console.log(stringConsole);
 		}
 		this.UI.chat.addMsg(stringLog, htmlclass, ifNoTimestamp);

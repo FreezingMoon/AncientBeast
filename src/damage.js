@@ -1,4 +1,5 @@
 import * as $j from 'jquery';
+import { DEBUG } from './debug';
 
 /* Damage Class
  *
@@ -43,8 +44,7 @@ export class Damage {
 				points = Math.round(
 					value * (1 + (atk.offense - trg.defense / this.area + atk[key] - trg[key]) / 100),
 				);
-				// For debugging purposes
-				if (this.game.debugMode) {
+				if (DEBUG) {
 					console.log(
 						'damage = ' +
 							value +
