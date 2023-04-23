@@ -40,3 +40,5 @@ export const DEBUG_AUTO_START_GAME = d && toBool(process.env.DEBUG_AUTO_START_GA
 // playing music without user interaction.
 export const DEBUG_DISABLE_MUSIC =
 	d && toBool(process.env.DEBUG_DISABLE_MUSIC) && DEBUG_AUTO_START_GAME;
+
+export const DEBUG_DISABLE_HOTKEYS = d && toBool(process.env.DEBUG_DISABLE_HOTKEYS);
