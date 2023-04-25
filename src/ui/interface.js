@@ -2261,7 +2261,7 @@ export class UI {
 			ui.queue.xray(creature.id);
 		});
 
-		const onCreatureMouseLeave = () => {
+		const onCreatureMouseLeave = (maybeCreature) => {
 			// The mouse over adds a coloured hex to the creature, so when we mouse leave we have to remove them
 			const creatures = ui.game.creatures.filter((c) => c instanceof Creature);
 			creatures.forEach((creature) => {
@@ -2278,26 +2278,71 @@ export class UI {
 			ui.queue.xray(-1);
 		};
 
-		const onRoundMarkerMouseEnter = ifGameNotFrozen(() => {
+		const onTurnEndClick = () => {};
+
+		const onTurnEndMouseEnter = ifGameNotFrozen(() => {
 			ui.game.grid.showGrid(true);
 			ui.game.grid.showCurrentCreatureMovementInOverlay(ui.game.activeCreature);
 		});
 
-		const onRoundMarkerMouseLeave = () => {
+		const onTurnEndMouseLeave = () => {
 			ui.game.grid.showGrid(false);
 			ui.game.grid.cleanOverlay();
 			ui.game.grid.redoLastQuery();
 		};
 
-		const queue = new Queue(queueDomElement);
-		const addEvent = (type, fn) => queue.addEventListener(type, fn);
-		addEvent('vignettecreatureclick', (e) => onCreatureClick(e.detail.creature));
-		addEvent('vignettecreaturemouseenter', (e) => onCreatureMouseEnter(e.detail.creature));
-		addEvent('vignettecreaturemouseleave', (e) => onCreatureMouseLeave(e.detail.creature));
-		addEvent('vignetteturnendmouseenter', () => onRoundMarkerMouseEnter());
-		addEvent('vignetteturnendmouseleave', () => onRoundMarkerMouseLeave());
+		const SIGNAL_CREATURE_CLICK = 'vignettecreatureclick';
+		const SIGNAL_CREATURE_MOUSE_ENTER = 'vignettecreaturemouseenter';
+		const SIGNAL_CREATURE_MOUSE_LEAVE = 'vignettecreaturemouseleave';
+		const SIGNAL_DELAY_CLICK = 'vignettedelayclick';
+		const SIGNAL_DELAY_MOUSE_ENTER = 'vignettedelaymouseenter';
+		const SIGNAL_DELAY_MOUSE_LEAVE = 'vignettedelaymouseleave';
+		const SIGNAL_TURN_END_CLICK = 'vignetteturnendlick';
+		const SIGNAL_TURN_END_MOUSE_ENTER = 'vignetteturnendmouseenter';
+		const SIGNAL_TURN_END_MOUSE_LEAVE = 'vignetteturnendmouseleave';
 
-		return queue;
+		ui.game.signals.ui.add((msg, payload) => {
+			switch (msg) {
+				case SIGNAL_CREATURE_CLICK:
+					onCreatureClick(payload.creature);
+					break;
+				case SIGNAL_CREATURE_MOUSE_ENTER:
+					onCreatureMouseEnter(payload.creature);
+					break;
+				case SIGNAL_CREATURE_MOUSE_LEAVE:
+					onCreatureMouseLeave(payload.creature);
+					break;
+				case SIGNAL_TURN_END_CLICK:
+					onTurnEndClick(payload.turnNumber);
+					break;
+				case SIGNAL_TURN_END_MOUSE_ENTER:
+					onTurnEndMouseEnter(payload.turnNumber);
+					break;
+				case SIGNAL_TURN_END_MOUSE_LEAVE:
+					onTurnEndMouseLeave(payload.turnNumber);
+					break;
+			}
+		});
+
+		const queueEventHandlers = {
+			onCreatureClick: (creature) =>
+				ui.game.signals.ui.dispatch(SIGNAL_CREATURE_CLICK, { creature }),
+			onCreatureMouseEnter: (creature) =>
+				ui.game.signals.ui.dispatch(SIGNAL_CREATURE_MOUSE_ENTER, { creature }),
+			onCreatureMouseLeave: (creature) =>
+				ui.game.signals.ui.dispatch(SIGNAL_CREATURE_MOUSE_LEAVE, { creature }),
+			onDelayClick: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_CLICK, {}),
+			onDelayMouseEnter: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_MOUSE_ENTER, {}),
+			onDelayMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_MOUSE_LEAVE, {}),
+			onTurnEndClick: (turnNumber) =>
+				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_CLICK, { turnNumber }),
+			onTurnEndMouseEnter: (turnNumber) =>
+				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_ENTER, { turnNumber }),
+			onTurnEndMouseLeave: (turnNumber) =>
+				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_LEAVE, { turnNumber }),
+		};
+
+		return new Queue(queueDomElement, queueEventHandlers);
 	}
 }
 
