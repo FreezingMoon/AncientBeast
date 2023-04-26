@@ -75,7 +75,6 @@ export default class Game {
 		this.pauseTime = 0;
 		this.unitDrops = 0;
 		this.minimumTurnBeforeFleeing = 12;
-		this.creatureIdCounter = 0;
 		this.availableCreatures = [];
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;

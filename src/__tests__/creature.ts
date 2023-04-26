@@ -10,6 +10,8 @@ describe('Creature', () => {
 		test('"materialized" creatures are automatically assigned separate ids', () => {
 			const creature0 = new Creature(getCreatureObjMock(), game);
 			const creature1 = new Creature(getCreatureObjMock(), game);
+			expect(creature0).toBeDefined();
+			expect(creature1).toBeDefined();
 			expect(creature0.id).not.toBe(creature1.id);
 			expect(game.creatures.length).toBe(2);
 		});
@@ -47,7 +49,7 @@ jest.mock('../assets', () => ({ children: [] }));
 jest.mock('../assetLoader');
 jest.mock('../utility/hex', () => {
 	return {
-		default: jest.fn(),
+		default: () => {},
 	};
 });
 

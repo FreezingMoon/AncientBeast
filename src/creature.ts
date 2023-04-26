@@ -110,7 +110,7 @@ export class Creature {
 		// Engine
 		this.game = game;
 		this.name = obj.name;
-		this.id = game.creatureIdCounter++;
+		this.id = game.creatures.length;
 		this.x = obj.x - 0;
 		this.y = obj.y - 0;
 		this.pos = {
@@ -313,6 +313,23 @@ export class Creature {
 		// Hide it
 		this.healthIndicatorGroup.alpha = 0;
 
+		if (!this.temp) {
+			for (const other of game.creatures.filter((c) => c)) {
+				if (other.type === this.type && other.team === this.team && other.temp) {
+					/**
+					 *  NOTE:
+					 * `this` is the summoned version of `other`
+					 *
+					 * `this` is a summoned Creature: temp == false.
+					 * `other` is an "unmaterialized" Creature: temp == true.
+					 *
+					 * Use the "unmaterialized" creature's id so that `this` will replace
+					 * `other` in `game.creatures`.
+					 */
+					this.id = other.id;
+				}
+			}
+		}
 		// Adding Himself to creature arrays and queue
 		game.creatures[this.id] = this;
 
@@ -567,7 +584,6 @@ export class Creature {
 		// Clean up temporary creature if a summon was cancelled.
 		if (game.creatures[game.creatures.length - 1].temp) {
 			game.creatures.pop();
-			game.creatureIdCounter--;
 		}
 
 		let remainingMove = this.remainingMove;
