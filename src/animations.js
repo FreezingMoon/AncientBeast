@@ -5,6 +5,7 @@ export class Animations {
 	constructor(game) {
 		this.game = game;
 		this.movementPoints = 0;
+		this.animationCounter = 0;
 	}
 
 	walk(creature, path, opts) {
@@ -19,12 +20,15 @@ export class Animations {
 
 		game.freezedInput = true;
 
-		let animId = Math.random();
+		let animId = ++this.animationCounter;
 		game.animationQueue.push(animId);
 
 		let hexId = 0;
 
 		creature.healthHide();
+
+		let speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
+		speed = Number(speed);
 
 		let anim = function () {
 			let hex = path[hexId];
@@ -37,20 +41,17 @@ export class Animations {
 			}
 
 			let nextPos = game.grid.hexes[hex.y][hex.x - creature.size + 1];
-			let speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
 
 			let tween = game.Phaser.add
 				.tween(creature.grp)
-				.to(nextPos.displayPos, parseInt(speed, 10), Phaser.Easing.Linear.None)
+				.to(nextPos.displayPos, speed, Phaser.Easing.Linear.None)
 				.start();
 
 			// Ignore traps for hover creatures, unless this is the last hex
-			let enterHexOpts = $j.extend(
-				{
-					ignoreTraps: creature.movementType() !== 'normal' && hexId < path.length - 1,
-				},
-				opts,
-			);
+			let enterHexOpts = {
+				ignoreTraps: creature.movementType() !== 'normal' && hexId < path.length - 1,
+				...opts,
+			};
 
 			tween.onComplete.add(() => {
 				if (creature.dead) {
