@@ -2278,10 +2278,10 @@ export class UI {
 			ui.queue.xray(-1);
 		};
 
-		const onTurnEndClick = () => {
+		const onTurnEndClick = throttle(() => {
 			const ancientBeastSound = ui.game.soundLoaded[8];
 			ui.game.soundsys.playSound(ancientBeastSound, ui.game.soundsys.effectsGainNode);
-		};
+		}, 2000);
 
 		const onTurnEndMouseEnter = ifGameNotFrozen(() => {
 			ui.game.grid.showGrid(true);
