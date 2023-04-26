@@ -99,6 +99,7 @@ export default class Game {
 			'sounds/drums',
 			'sounds/upgrade',
 			'sounds/mudbath',
+			'sounds/AncientBeast',
 		];
 		this.inputMethod = 'Mouse';
 

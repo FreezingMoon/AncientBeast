@@ -1260,7 +1260,7 @@ export class HexGrid {
 
 	showCurrentCreatureMovementInOverlay(creature) {
 		//lastQueryOpt is same thing as used in redoQuery
-		this.lastQueryOpt.hexes.forEach((hex) => {
+		this.lastQueryOpt?.hexes?.forEach((hex) => {
 			hex.overlayVisualState('hover h_player' + creature.team);
 		});
 	}

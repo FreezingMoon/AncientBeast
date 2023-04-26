@@ -1,5 +1,6 @@
 /* eslint-env dom, mocha */
 import { throttle } from 'underscore';
+import { Creature } from '../creature';
 
 const CONST = {
 	animDurationMS: 500,
@@ -8,19 +9,17 @@ const CONST = {
 export class Queue {
 	private element: HTMLElement;
 	private vignettes: Array<Vignette>;
+	private eventHandlers: QueueEventHandlers;
 
 	static IMMEDIATE = 1;
 
-	constructor(queueElement: HTMLElement) {
+	constructor(queueElement: HTMLElement, eventHandlers: QueueEventHandlers = {}) {
 		this.element = queueElement;
 		this.element.innerHTML = '';
 		this.vignettes = [];
+		this.eventHandlers = eventHandlers;
 
 		refactor.stopGap.init();
-	}
-
-	addEventListener(type: string, callback: (e: CustomEvent) => void) {
-		this.element.addEventListener(type, callback);
 	}
 
 	setQueue(creatureQueue, activeCreature, turnNumber: number) {
@@ -37,7 +36,12 @@ export class Queue {
 			refactor.stopGap.updateCreatureDelayStatus(c, creatures, nextCreatures, turnNumber + 1),
 		);
 
-		const nextVignettes = Queue.getNextVignettes(creatures, nextCreatures, turnNumber);
+		const nextVignettes = Queue.getNextVignettes(
+			creatures,
+			nextCreatures,
+			turnNumber,
+			this.eventHandlers,
+		);
 		this.setVignettes(nextVignettes);
 	}
 
@@ -78,7 +82,7 @@ export class Queue {
 		});
 	}, 500);
 
-	private static getNextVignettes(creatures, creaturesNext, turnNum) {
+	private static getNextVignettes(creatures, creaturesNext, turnNum, eventHandlers) {
 		const isDelayedCurr = (c) => refactor.creature.getIsDelayed(c, turnNum);
 		const [undelayedCsCurr, delayedCsCurr] = utils.partitionAt(creatures, isDelayedCurr);
 		const hasDelayedCurr = delayedCsCurr.length > 0;
@@ -89,16 +93,22 @@ export class Queue {
 
 		const is1stCreature = utils.trueIfFirstElseFalse();
 
-		const newCreatureVCurr = (c) => new CreatureVignette(c, turnNum, is1stCreature());
+		const newCreatureVCurr = (c) =>
+			new CreatureVignette(c, turnNum, eventHandlers, is1stCreature());
 		const undelayedVsCurr = undelayedCsCurr.map(newCreatureVCurr);
-		const delayMarkerVCurr = hasDelayedCurr ? [new DelayMarkerVignette(turnNum)] : [];
+		const delayMarkerVCurr = hasDelayedCurr
+			? [new DelayMarkerVignette(turnNum, eventHandlers)]
+			: [];
 		const delayedVsCurr = delayedCsCurr.map(newCreatureVCurr);
 
-		const turnEndMarkerV = [new TurnEndMarkerVignette(turnNum)];
+		const turnEndMarkerV = [new TurnEndMarkerVignette(turnNum, eventHandlers)];
 
-		const newCreatureVNext = (c) => new CreatureVignette(c, turnNum + 1, is1stCreature());
+		const newCreatureVNext = (c) =>
+			new CreatureVignette(c, turnNum + 1, eventHandlers, is1stCreature());
 		const undelayedVsNext = undelayedCsNext.map(newCreatureVNext);
-		const delayMarkerVNext = hasDelayedNext ? [new DelayMarkerVignette(turnNum + 1)] : [];
+		const delayMarkerVNext = hasDelayedNext
+			? [new DelayMarkerVignette(turnNum + 1, eventHandlers)]
+			: [];
 		const delayedVsNext = delayedCsNext.map(newCreatureVNext);
 		const vsNext = [].concat(turnEndMarkerV, undelayedVsNext, delayMarkerVNext, delayedVsNext);
 
@@ -203,6 +213,7 @@ class Vignette {
 	queuePosition = -1;
 	turnNumber = -1;
 	el: HTMLElement;
+	eventHandlers: QueueEventHandlers = {};
 
 	getHash() {
 		return 'none';
@@ -351,10 +362,17 @@ class CreatureVignette extends Vignette {
 	isActiveCreature: boolean;
 	turnNumberIsCurrentTurn: boolean;
 
-	constructor(creature, turnNumber, isActiveCreature = false, turnNumberIsCurrentTurn = true) {
+	constructor(
+		creature,
+		turnNumber,
+		eventHandlers,
+		isActiveCreature = false,
+		turnNumberIsCurrentTurn = true,
+	) {
 		super();
 		this.creature = creature;
 		this.turnNumber = turnNumber;
+		this.eventHandlers = eventHandlers;
 		this.isActiveCreature = isActiveCreature;
 		this.turnNumberIsCurrentTurn = turnNumberIsCurrentTurn;
 	}
@@ -497,19 +515,20 @@ class CreatureVignette extends Vignette {
 	}
 
 	addEvents() {
-		// NOTE: capture "regular" events and emit custom events instead.
 		const el = this.el;
-		const options = { detail: { creature: this.creature }, bubbles: true };
-		const prefix = 'vignettecreature';
-		const events = ['mouseenter', 'mouseleave', 'click'];
+		const h = this.eventHandlers;
 
-		for (const eventName of events) {
-			const event = new CustomEvent(prefix + eventName, options);
-			el.addEventListener(eventName, (e) => {
-				e.preventDefault();
-				el.dispatchEvent(event);
-			});
-		}
+		el.addEventListener('click', (e) => {
+			if (h.onCreatureClick) h.onCreatureClick(this.creature);
+		});
+
+		el.addEventListener('mouseenter', () => {
+			if (h.onCreatureMouseEnter) h.onCreatureMouseEnter(this.creature);
+		});
+
+		el.addEventListener('mouseleave', () => {
+			if (h.onCreatureMouseLeave) h.onCreatureMouseLeave(this.creature);
+		});
 	}
 
 	refresh() {
@@ -526,9 +545,10 @@ class CreatureVignette extends Vignette {
 }
 
 class TurnEndMarkerVignette extends Vignette {
-	constructor(turnNumber) {
+	constructor(turnNumber, eventHandlers) {
 		super();
 		this.turnNumber = turnNumber;
+		this.eventHandlers = eventHandlers;
 	}
 
 	getHash() {
@@ -543,26 +563,28 @@ class TurnEndMarkerVignette extends Vignette {
 	}
 
 	addEvents() {
-		// NOTE: capture "regular" events and emit custom events instead.
 		const el = this.el;
-		const options = { detail: { turnNumber: this.turnNumber }, bubbles: true };
-		const prefix = 'vignetteturnend';
-		const events = ['mouseenter', 'mouseleave'];
+		const h = this.eventHandlers;
 
-		for (const eventName of events) {
-			const event = new CustomEvent(prefix + eventName, options);
-			el.addEventListener(eventName, (e) => {
-				e.preventDefault();
-				el.dispatchEvent(event);
-			});
-		}
+		el.addEventListener('click', () => {
+			if (h.onTurnEndClick) h.onTurnEndClick(this.turnNumber);
+		});
+
+		el.addEventListener('mouseenter', () => {
+			if (h.onTurnEndMouseEnter) h.onTurnEndMouseEnter(this.turnNumber);
+		});
+
+		el.addEventListener('mouseleave', () => {
+			if (h.onTurnEndMouseLeave) h.onTurnEndMouseLeave(this.turnNumber);
+		});
 	}
 }
 
 class DelayMarkerVignette extends Vignette {
-	constructor(turnNumber) {
+	constructor(turnNumber, eventHandlers) {
 		super();
 		this.turnNumber = turnNumber;
+		this.eventHandlers = eventHandlers;
 	}
 
 	getHTML() {
@@ -574,6 +596,23 @@ class DelayMarkerVignette extends Vignette {
 
 	getHash() {
 		return ['delay', 'turn' + this.turnNumber].join('_');
+	}
+
+	addEvents() {
+		const el = this.el;
+		const h = this.eventHandlers;
+
+		el.addEventListener('click', () => {
+			if (h.onDelayClick) h.onDelayClick();
+		});
+
+		el.addEventListener('mouseenter', () => {
+			if (h.onDelayMouseEnter) h.onDelayMouseEnter();
+		});
+
+		el.addEventListener('mouseleave', () => {
+			if (h.onDelayClick) h.onDelayMouseLeave();
+		});
 	}
 
 	animateInsert(queuePosition, x) {
@@ -824,4 +863,16 @@ refactor.stopGap.setCreatureQueue = (creatureQueue) => {
 		}
 		return c.id;
 	};
+};
+
+type QueueEventHandlers = {
+	onCreatureClick?: (creature: Creature) => void;
+	onCreatureMouseEnter?: (creature: Creature) => void;
+	onCreatureMouseLeave?: (creature: Creature) => void;
+	onDelayClick?: () => void;
+	onDelayMouseEnter?: () => void;
+	onDelayMouseLeave?: () => void;
+	onTurnEndClick?: (turnNumber: number) => void;
+	onTurnEndMouseEnter?: (turnNumber: number) => void;
+	onTurnEndMouseLeave?: (turnNumber: number) => void;
 };
