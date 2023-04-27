@@ -94,11 +94,8 @@ export class Player {
 			temp: false,
 		}); // Create the full data for creature creation
 
-		for (let i = game.creatureData.length - 1; i >= 0; i--) {
-			// Avoid Dark Priest shout at the begining of a match
-			if (game.creatureData[i].type == type && i !== 0) {
-				game.soundsys.playSound(game.soundLoaded[1000 + i], game.soundsys.announcerGainNode);
-			}
+		if (data.name !== 'Dark Priest') {
+			game.soundsys.playShout(data.name);
 		}
 
 		creature = new Creature(data, game);

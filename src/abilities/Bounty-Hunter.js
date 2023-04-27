@@ -412,7 +412,7 @@ export default (G) => {
 				];
 
 				hex.createTrap('mud-bath', effects, ability.creature.player);
-				G.soundsys.playSound(G.soundLoaded[7], G.soundsys.effectsGainNode);
+				G.soundsys.playSFX('sounds/mudbath');
 				// Trigger trap immediately if on self
 				if (isSelf) {
 					// onCreatureMove is Spa Goggles' trigger event

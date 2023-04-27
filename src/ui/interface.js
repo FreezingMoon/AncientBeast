@@ -385,11 +385,7 @@ export class UI {
 
 		// Sound Effects slider
 		const slider = document.getElementById('sfx');
-		slider.addEventListener('input', sliderChange);
-		/** @returns {number} Makes slider control sfx */
-		function sliderChange() {
-			game.soundsys.setEffectsVolume(this.value);
-		}
+		slider.addEventListener('input', () => (game.soundsys.allEffectsMultiplier = slider.value));
 
 		this.hotkeys = new Hotkeys(this);
 		const ingameHotkeys = getHotKeys(this.hotkeys);
@@ -1841,7 +1837,7 @@ export class UI {
 
 				// After .3s play the upgrade sound
 				setTimeout(() => {
-					game.soundsys.playSound(game.soundLoaded[6], game.soundsys.effectsGainNode);
+					game.soundsys.playSFX('sounds/upgrade');
 				}, 300);
 
 				// After 2s remove the background and update the button if it's not a passive
@@ -2279,8 +2275,7 @@ export class UI {
 		};
 
 		const onTurnEndClick = throttle(() => {
-			const ancientBeastSound = ui.game.soundLoaded[8];
-			ui.game.soundsys.playSound(ancientBeastSound, ui.game.soundsys.effectsGainNode);
+			ui.game.soundsys.playSFX('sounds/AncientBeast');
 		}, 2000);
 
 		const onTurnEndMouseEnter = ifGameNotFrozen(() => {
