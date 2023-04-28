@@ -391,7 +391,7 @@ export class Ability {
 
 			setTimeout(() => {
 				if (!game.triggers.onUnderAttack.test(this.getTrigger())) {
-					game.soundsys.playSound(game.soundLoaded[2], game.soundsys.effectsGainNode);
+					game.soundsys.playSFX('sounds/swing2');
 					activateAbility();
 				}
 			}, animationData.delay);

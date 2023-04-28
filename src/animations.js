@@ -61,7 +61,7 @@ export class Animations {
 				}
 
 				// Sound Effect
-				game.soundsys.playSound(game.soundLoaded[0], game.soundsys.effectsGainNode);
+				game.soundsys.playSFX('sounds/step');
 
 				if (!opts.ignoreMovementPoint) {
 					creature.remainingMove--;
@@ -115,7 +115,7 @@ export class Animations {
 
 		tween.onComplete.add(() => {
 			// Sound Effect
-			game.soundsys.playSound(game.soundLoaded[0], game.soundsys.effectsGainNode);
+			game.soundsys.playSFX('sounds/step');
 
 			if (!opts.ignoreMovementPoint) {
 				// Determine distance
@@ -165,7 +165,7 @@ export class Animations {
 
 		tween.onComplete.add(() => {
 			// Sound Effect
-			game.soundsys.playSound(game.soundLoaded[0], game.soundsys.effectsGainNode);
+			game.soundsys.playSFX('sounds/step');
 
 			// position
 			creature.grp.x = currentHex.displayPos.x;

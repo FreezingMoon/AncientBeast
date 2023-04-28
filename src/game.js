@@ -89,17 +89,6 @@ export default class Game {
 		this.matchInitialized = false;
 		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
 		this.availableMusic = [];
-		this.soundEffects = [
-			'sounds/step',
-			'sounds/swing',
-			'sounds/swing2',
-			'sounds/swing3',
-			'sounds/heartbeat',
-			'sounds/drums',
-			'sounds/upgrade',
-			'sounds/mudbath',
-			'sounds/AncientBeast',
-		];
 		this.inputMethod = 'Mouse';
 
 		// Gameplay properties
@@ -207,7 +196,7 @@ export default class Game {
 			creature.type = type;
 
 			// Load unit shouts
-			this.soundsys.getSound(getUrl('units/shouts/' + name), 1000 + creatureId);
+			this.soundsys.loadSound('units/shouts/' + name);
 
 			// Load artwork
 			this.getImage(getUrl('units/artwork/' + name));
@@ -258,8 +247,6 @@ export default class Game {
 			this.matchid = matchid;
 		}
 
-		let totalSoundEffects = this.soundEffects.length,
-			i;
 		this.gameState = 'loading';
 		if (setupOpt) {
 			this.gamelog.gameConfig = setupOpt;
@@ -270,18 +257,26 @@ export default class Game {
 		this.startLoading();
 
 		// Sounds
-		this.musicPlayer = new MusicPlayer();
-		this.soundLoaded = {};
-		this.soundsys = new SoundSys({}, this);
+		const paths = [
+			'sounds/step',
+			'sounds/swing',
+			'sounds/swing2',
+			'sounds/swing3',
+			'sounds/heartbeat',
+			'sounds/drums',
+			'sounds/upgrade',
+			'sounds/mudbath',
+			'sounds/AncientBeast',
+		];
 
-		for (i = 0; i < totalSoundEffects; i++) {
-			this.soundsys.getSound(getUrl(this.soundEffects[i]), this.availableMusic.length + i);
-		}
+		this.soundsys = new SoundSys({ paths });
+		this.musicPlayer = this.soundsys.musicPlayer;
 
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
 
 		// Health
 		let playerColors = ['red', 'blue', 'orange', 'green'];
+		let i;
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image('p' + i + '_health', getUrl('interface/rectangle_' + playerColors[i]));
 			this.Phaser.load.image('p' + i + '_plasma', getUrl('interface/capsule_' + playerColors[i]));
@@ -753,7 +748,7 @@ export default class Game {
 
 				// Play heartbeat sound on other player's turn
 				if (differentPlayer) {
-					this.soundsys.playSound(this.soundLoaded[4], this.soundsys.heartbeatGainNode);
+					this.soundsys.playHeartBeat('sounds/heartbeat');
 				}
 
 				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
@@ -1422,7 +1417,7 @@ export default class Game {
 	 */
 	endGame() {
 		this.soundsys.stopMusic();
-		this.endGameSound = this.soundsys.playSound(this.soundLoaded[5], this.soundsys.effectsGainNode);
+		this.endGameSound = this.soundsys.playSFX('sounds/drums');
 
 		this.stopTimer();
 		this.gameState = 'ended';
@@ -1538,7 +1533,7 @@ export default class Game {
 	}
 
 	resetGame() {
-		this.endGameSound.stop();
+		this.endGameSound.pause();
 		this.UI.showGameSetup();
 		this.stopTimer(this.timeInterval);
 		this.players = [];
