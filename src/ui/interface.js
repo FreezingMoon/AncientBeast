@@ -2253,7 +2253,7 @@ export class UI {
 				hex.overlayVisualState('hover h_player' + creature.team);
 			});
 
-			ui.game.grid.showMovementRange(creature.id);
+			ui.game.grid.showMovementRange(creature);
 			ui.queue.xray(creature.id);
 		});
 
