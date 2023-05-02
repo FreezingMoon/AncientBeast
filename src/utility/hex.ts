@@ -78,7 +78,7 @@ export class Hex {
 	 */
 	reachable: boolean;
 	direction: Direction;
-	drop: Drop;
+	#drop: Drop;
 	displayClasses: string;
 	overlayClasses: string;
 	width: number;
@@ -214,6 +214,31 @@ export class Hex {
 		this.displayPos.y = this.displayPos.y * 0.75 + 30;
 
 		this.trap = undefined;
+	}
+
+	set drop(d) {
+		if (this.#drop && d !== this.#drop) {
+			/**
+			 * NOTE: Currently, the #drop reference here in Hex
+			 * is the only place that a Drop "lives". If it's
+			 * removed here, there are no other references and it
+			 * becomes inaccessible. Therefore, we'll destroy this.#drop
+			 * if it exists, before setting a new this.#drop.
+			 *
+			 * NOTE: Currently, calling d.destroy() on a Drop
+			 * will make it try to unset the drop value. This
+			 * could lead to infinite recursion. So, unset
+			 * this.#drop before calling destroy().
+			 */
+			const dOld = this.#drop;
+			this.#drop = undefined;
+			dOld.destroy();
+		}
+		this.#drop = d;
+	}
+
+	get drop() {
+		return this.#drop;
 	}
 
 	onSelectFn(arg0: this) {
