@@ -678,6 +678,8 @@ export class Creature {
 				fnOnCancel: function () {},
 				confirmText: 'Skip turn',
 			});
+			
+			$j('canvas').css('cursor', 'wait');
 		} else {
 			game.grid.queryHexes({
 				fnOnSelect: select,
