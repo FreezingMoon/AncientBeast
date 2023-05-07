@@ -892,7 +892,6 @@ export class HexGrid {
 						setTimeout(() => {
 							this.onShoutCooldown = false;
 						}, 1200);
-
 					}
 
 				} else {
