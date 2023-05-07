@@ -94,7 +94,18 @@ export class Drop {
 			type: 'pickupDrop',
 		});
 
-		let tween = game.Phaser.add
+		this.destroy();
+	}
+
+	destroy() {
+		// TODO: Reaching out to `Hex` in this way is a Demeter violation and
+		// would best be avoided. Slimming down `Hex` is currently underway
+		// however. Remove when no longer necessary.
+		if (this.hex.drop === this) {
+			this.hex.drop = undefined;
+		}
+
+		let tween = this.game.Phaser.add
 			.tween(this.display)
 			.to(
 				{
