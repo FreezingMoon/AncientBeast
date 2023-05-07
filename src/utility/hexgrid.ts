@@ -1242,9 +1242,7 @@ export class HexGrid {
 		});
 	}
 
-	// TODO: Rewrite methods used here to only require the creature as an argument.
-	showMovementRange(id) {
-		const creature = this.game.creatures[id];
+	showMovementRange(creature) {
 		const hexes = this.findCreatureMovementHexes(creature);
 
 		// Block all hexes
