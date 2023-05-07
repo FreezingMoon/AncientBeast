@@ -106,6 +106,11 @@ export class HexGrid {
 	 */
 	lastClickedHex: Hex;
 
+	/**
+	 * Prevents multiple shouts at the same time when a unit is clicked.
+	 */
+	onShoutCooldown: boolean;
+
 	display: Phaser.Group;
 	gridGroup: Phaser.Group;
 	trapGroup: Phaser.Group;
@@ -174,6 +179,9 @@ export class HexGrid {
 		}
 
 		this.selectedHex = this.hexes[0][0];
+
+		// If true, clicking on a unit won't shout its name.
+		this.onShoutCooldown = false;
 
 		// If true, clicking a monster will instantly kill it.
 		this._executionMode = false;
@@ -875,6 +883,18 @@ export class HexGrid {
 							: game.UI.xrayQueue.bind(game.UI),
 						hex,
 					);
+
+					// Shout unit's name and start a cooldown.
+					if (!this.onShoutCooldown) {
+						this.onShoutCooldown = true;
+						const unitOnClickedHexName = game.retrieveCreatureStats(hex.creature.type).name;
+						game.soundsys.playShout(unitOnClickedHexName);
+						setTimeout(() => {
+							this.onShoutCooldown = false;
+						}, 1200);
+
+					}
+
 				} else {
 					// If nothing
 					o.fnOnCancel(hex, o.args); // ON CANCEL
