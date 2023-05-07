@@ -36,7 +36,9 @@ What we're aiming for are the following:
 
 You can help out the project by hitting that ★ from the [upper right corner](#) & you can also pin it to your profile.  
 Here's a chart showing the project's growing popularity over time compared to some of the main competition:
+
 ## Star History
+
 [![Star History Chart](https://api.star-history.com/svg?repos=FreezingMoon/AncientBeast,vcmi/vcmi,wesnoth/wesnoth,0ad/0ad,warzone2100/warzone2100,freeciv/freeciv-web&type=Timeline)](https://star-history.com/#FreezingMoon/AncientBeast&vcmi/vcmi&wesnoth/wesnoth&0ad/0ad&warzone2100/warzone2100&freeciv/freeciv-web&Timeline)
 
 If you wish to set-up a local copy of the game for your pleasure, read our repository ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/CONTRIBUTING.md#github-marketing) file.  
@@ -61,15 +63,15 @@ You can [become a backer](https://opencollective.com/AncientBeast/contribute/bac
 
 <table border=1 width=100%>
 <tr>
-	<td><a href="https://FreezingMoon.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
-	<td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
+ <td><a href="https://FreezingMoon.org"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/FreezingMoon.png" alt="Freezing Moon"></a></td>
+ <td>Ancient Beast name and logo are trademarks of Freezing Moon.<br>Respect the developers and their work!</td>
 </tr>
 <tr>
-	<td><a href="https://creativecommons.org/licenses/by-sa/4.0"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png" alt="CC-BY-SA 4.0"></a></td>
-	<td><a href="https://creativecommons.org/licenses/by-sa/4.0">CC-BY-SA 4.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
+ <td><a href="https://creativecommons.org/licenses/by-sa/4.0"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/cc-by-sa.png" alt="CC-BY-SA 4.0"></a></td>
+ <td><a href="https://creativecommons.org/licenses/by-sa/4.0">CC-BY-SA 4.0</a>: Artwork and audio can be remixed and shared under the same license,<br>provided you credit and link the project, as well as the author(s) of the respective works.</td>
 </tr>
 <tr>
-	<td><a href="https://gnu.org/licenses/agpl-3.0.html"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
-	<td><a href="https://gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
+ <td><a href="https://gnu.org/licenses/agpl-3.0.html"><img src="https://raw.github.com/FreezingMoon/AncientBeast-Website/master/images/agpl.png" alt="AGPL 3.0"></a></td>
+ <td><a href="https://gnu.org/licenses/agpl-3.0.html">AGPL 3.0</a>: The codebase or parts of it can be remixed and shared under the same license, provided you credit and link the project.</td>
 </tr>
 </table>
