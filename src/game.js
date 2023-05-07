@@ -689,12 +689,15 @@ export default class Game {
 		this.queue.nextRound();
 
 		// Resets values
-		for (i = 0; i < totalCreatures; i++) {
-			if (this.creatures[i] instanceof Creature) {
-				this.creatures[i].delayable = true;
-				this.creatures[i].delayed = false;
-			}
-		}
+		// check for delay effect on receiving-creature
+if (receivingCreature.hasDelayEffect()) {
+    receivingCreature.delayed = true;
+}
+
+// reset delay for all creatures at end of turn
+for (let i = 0; i < this.creatures.length; i++) {
+    this.creatures[i].delayed = false;
+}
 
 		this.onStartOfRound();
 
