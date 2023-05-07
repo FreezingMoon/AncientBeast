@@ -378,7 +378,7 @@ class CreatureVignette extends Vignette {
 	}
 
 	getHash() {
-		const id = 'id' + refactor.creature.getId(this.creature);
+		const id = 'id' + this.creature.id;
 		return `creature_${id}_turn${this.turnNumber}`;
 	}
 
@@ -730,9 +730,6 @@ const refactor = {
 	},
 	creature: {
 		// NOTE: Suggestions for fixed/improved Creature interface.
-		getId: (creature) => {
-			return -1;
-		},
 		getIsDelayed: (creature, turnNumber = -1) => {
 			return false;
 		},
@@ -840,29 +837,6 @@ refactor.stopGap.setTurnNumber = (turnNumber) => {
 			}
 		};
 	}
-};
-
-refactor.stopGap.setCreatureQueue = (creatureQueue) => {
-	refactor.creature.getId = (creature) => {
-		// NOTE: This is necessary because Creatures *sometimes*
-		// modify their ids when they're being placed on the board i.e. "materialized".
-		// The queue's tempCreature always seems to have the "correct" id.
-		// A copy of that creature in queue's nextQueue has tempCreature.id + 1 **sometimes**.
-		// This should probably be refactored into Creature to keep ids consistent.
-		if (!creatureQueue.tempCreature) return creature.id;
-		const tc = creatureQueue.tempCreature;
-		const c = creature;
-		if (
-			c.id === tc.id + 1 &&
-			c.name === tc.name &&
-			c.type === tc.type &&
-			c.team === tc.team &&
-			(c.turnsActive === 0) === (tc.turnsActive === 0)
-		) {
-			return tc.id;
-		}
-		return c.id;
-	};
 };
 
 type QueueEventHandlers = {
