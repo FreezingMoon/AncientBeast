@@ -18,6 +18,7 @@ import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
 import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG, DEBUG_DISABLE_MUSIC } from './debug';
+import { configure as configurePointFacade } from './utility/pointfacade';
 
 /* Game Class
  *
@@ -461,6 +462,26 @@ export default class Game {
 		this.dropId = 0;
 
 		this.grid = new HexGrid({}, this); // Create Hexgrid
+		configurePointFacade({
+			getCreatures: () => this.creatures,
+			getCreaturePassablePoints: (creature) => [],
+			getCreatureBlockedPoints: (creature) =>
+				creature.dead || creature.temp ? [] : creature.hexagons,
+			getTraps: () => this.grid.traps,
+			getTrapPassablePoints: (trap) => [trap.hex],
+			getTrapBlockedPoints: (trap) => [],
+			getDrops: () => {
+				const result = [];
+				this.grid.forEachHex((hex) => {
+					if (hex.drop) {
+						result.push(hex.drop);
+					}
+				});
+				return result;
+			},
+			getDropPassablePoints: (drop) => (drop.hex ? [drop.hex] : []),
+			getDropBlockedPoints: (drop) => [],
+		});
 
 		this.startMatchTime = new Date();
 
@@ -575,6 +596,7 @@ export default class Game {
 
 		this.matchInit();
 	}
+
 	async matchInit() {
 		if (this.multiplayer) {
 			if (Object.keys(this.match).length === 0) {

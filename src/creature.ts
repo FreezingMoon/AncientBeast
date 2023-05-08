@@ -5,6 +5,7 @@ import { Hex } from './utility/hex';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop } from './drops';
+import { getPointFacade } from './utility/pointfacade';
 
 /**
  * Creature Class
@@ -1934,9 +1935,9 @@ export class Creature {
 	}
 
 	pickupDrop() {
-		this.hexagons.forEach((hex) => {
-			hex.pickupDrop(this);
-		});
+		getPointFacade()
+			.getDropsAt(this)
+			.forEach((drop) => drop.pickup(this));
 	}
 
 	/**
