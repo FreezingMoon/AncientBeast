@@ -23,14 +23,21 @@ type PointFacadeConfig = {
 
 class PointSet {
 	s: Set<string>;
+	config: PointFacadeConfig;
 
-	constructor(s: Set<string>) {
+	constructor(s: Set<string>, config:PointFacadeConfig) {
 		this.s = s;
+		this.config = config;
 	}
 
-	has(point: Point | number, y = 0) {
-		const point_ = normalize(point, y);
-		return this.s.has(hash(point_));
+	has(point: Point | Point[] | Creature | number, y = 0) {
+		const points = normalize(point, y, this.config);
+		for (const point of points) {
+			if (this.s.has(hash(point))) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
@@ -45,7 +52,7 @@ export class PointFacade {
 			 * and throw if incomplete.
 			 */
 			throw new Error(
-				'PointMapBuilder is not fully configured. \nMissing: \n' +
+				'PointFacade is not fully configured. \nMissing: \n' +
 					getMissingConfigRequirements(config).join('\n'),
 			);
 		}
@@ -69,57 +76,65 @@ export class PointFacade {
 				blockedSet.add(hash(point));
 			}
 		}
-		return new PointSet(blockedSet);
+		return new PointSet(blockedSet, this.config);
 	}
 
-	isBlocked(point: Point | number, y = 0) {
-		const point_ = normalize(point, y);
+	isBlocked(point: Point | Creature | Point[] | number, y = 0) {
+		const point_ = normalize(point, y, this.config);
 		return this.getBlockedSet().has(point_);
 	}
 
-	getCreaturesAt(point: Point | number, y = 0) {
-		const point_: Point = normalize(point, y);
+	getCreaturesAt(point: Point | Creature | Point[] | number, y = 0) {
 		const config = this.config;
+
+		const points: Point[] = normalize(point, y, this.config);
+		const pointsToStr = points.map(hash).join('');
+		const hasPoint = (p:Point) => pointsToStr.indexOf(hash(p)) !== -1; 
+
 		return config
 			.getCreatures()
 			.filter(
 				(c) =>
-					hasPoint(point_, config.getCreatureBlockedPoints(c)) ||
-					hasPoint(point_, config.getCreaturePassablePoints(c)),
+					config.getCreatureBlockedPoints(c).some(hasPoint) ||
+					config.getCreaturePassablePoints(c).some(hasPoint),
 			);
 	}
 
-	getTrapsAt(point: Point | number, y = 0) {
-		const point_: Point = normalize(point, y);
+	getTrapsAt(point: Point | Creature | Point[] | number, y = 0) {
 		const config = this.config;
+
+		const points: Point[] = normalize(point, y, this.config);
+		const pointsToStr = points.map(hash).join('');
+		const hasPoint = (p:Point) => pointsToStr.indexOf(hash(p)) !== -1; 
+
 		return config
 			.getTraps()
 			.filter(
 				(t) =>
-					hasPoint(point_, config.getTrapBlockedPoints(t)) ||
-					hasPoint(point_, config.getTrapPassablePoints(t)),
+					config.getTrapBlockedPoints(t).some(hasPoint) ||
+					config.getTrapPassablePoints(t).some(hasPoint),
 			);
 	}
 
-	getDropsAt(point: Point | number, y = 0) {
-		const point_: Point = normalize(point, y);
+	getDropsAt(point: Point | Creature | Point[] | number, y = 0) {
 		const config = this.config;
+
+		const points: Point[] = normalize(point, y, this.config);
+		const pointsToStr = points.map(hash).join('');
+		const hasPoint = (p:Point) => pointsToStr.indexOf(hash(p)) !== -1; 
+
 		return config
 			.getDrops()
 			.filter(
 				(d) =>
-					hasPoint(point_, config.getDropBlockedPoints(d)) ||
-					hasPoint(point_, config.getDropPassablePoints(d)),
+					config.getDropBlockedPoints(d).some(hasPoint) ||
+					config.getDropPassablePoints(d).some(hasPoint),
 			);
 	}
 }
 
-export function hash(point: Point) {
+function hash(point: Point) {
 	return `(${point.x},${point.y})`;
-}
-
-function hasPoint(point: Point, arr: Point[]) {
-	return arr.map((point) => hash(point)).includes(hash(point));
 }
 
 function getMissingConfigRequirements(config: PointFacadeConfig): string[] {
@@ -161,6 +176,55 @@ function canBuild(config: PointFacadeConfig) {
 	return getMissingConfigRequirements(config).length === 0;
 }
 
-function normalize(point: Point | number, y = 0): Point {
-	return typeof point === 'number' ? { x: point, y } : point;
+function normalize(point: Point | Point[] | Creature | number, y:number, config:PointFacadeConfig): Point[] {
+	if (typeof point === 'number') {
+		// NOTE: point:number, y:number
+		return [{x: point, y}];
+	}
+	if (("x" in point) && ("y" in point) && !("size" in point)) {
+		// NOTE: point:{x: number, y: number}
+		return [{x: point.x, y: point.y}];
+	}
+	if (("x" in point) && ("y" in point) && ("size" in point)) {
+		// NOTE: point:Creature
+		return [].concat(config.getCreatureBlockedPoints(point), config.getCreaturePassablePoints(point));
+	} else {
+		// NOTE: point:Point[]
+		return point;
+	}
+}
+
+/**
+ * NOTE: Allow the facade to be configured once and imported 
+ * anywhere in the game, using only the present module.
+ **/ 
+
+class Configuration {
+	static config: PointFacadeConfig;
+
+	constructor(config: PointFacadeConfig) {
+		if (!canBuild(config)) {
+			/**
+			 * NOTE: This isn't absolutely necessary with TS, but the caller
+			 * is currently in a JS file, so we'll check the config object
+			 * and throw if incomplete.
+			 */
+			throw new Error(
+				'PointFacade is not fully configured. \nMissing: \n' +
+					getMissingConfigRequirements(config).join('\n'),
+			);
+		}
+		Configuration.config = config;
+	}
+}
+
+export function configure(config: PointFacadeConfig) {
+	new Configuration(config);
+}
+
+export function getPointFacade() {
+	if (!Configuration.config) {
+		throw new Error('PointFacade is not configured.');
+	}
+	return new PointFacade(Configuration.config);
 }
