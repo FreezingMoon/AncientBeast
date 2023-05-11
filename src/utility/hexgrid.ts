@@ -884,7 +884,6 @@ export class HexGrid {
 						hex,
 					);
 
-
 					// Shout unit's name, show tooltip with unit's name and start a cooldown.
 					if (!this.onShoutCooldown) {
 						this.onShoutCooldown = true;
@@ -896,7 +895,6 @@ export class HexGrid {
 							this.onShoutCooldown = false;
 						}, 1200);
 					}
-
 				} else {
 					// If nothing
 					o.fnOnCancel(hex, o.args); // ON CANCEL
