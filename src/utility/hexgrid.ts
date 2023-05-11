@@ -884,11 +884,14 @@ export class HexGrid {
 						hex,
 					);
 
-					// Shout unit's name and start a cooldown.
+
+					// Shout unit's name, show tooltip with unit's name and start a cooldown.
 					if (!this.onShoutCooldown) {
 						this.onShoutCooldown = true;
-						const unitOnClickedHexName = game.retrieveCreatureStats(hex.creature.type).name;
+						const unitOnClickedHexName = hex.creature.name;
 						game.soundsys.playShout(unitOnClickedHexName);
+						hex.creature.hint(unitOnClickedHexName, 'creature_name');
+
 						setTimeout(() => {
 							this.onShoutCooldown = false;
 						}, 1200);
