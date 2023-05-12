@@ -328,7 +328,6 @@ export default (G) => {
 										}
 									},
 									deleteTrigger: 'onEndPhase',
-									noLog: true,
 								},
 								G,
 							),
