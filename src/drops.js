@@ -58,7 +58,7 @@ export class Drop {
 		let game = this.game;
 		let alterations = this.alterations;
 
-		game.log('%CreatureName' + creature.id + '% picks up ' + this.name);
+		game.log('%CreatureName' + creature.id + '% picks up ' + this.name + ' :');
 		creature.hint(this.name, 'msg_effects');
 		creature.dropCollection.push(this);
 
@@ -87,8 +87,8 @@ export class Drop {
 			.map((key) => `${alterations[key]} ${key}`)
 			.join(', ')
 			// Replace last comma with "and"
-			.replace(/, ([^,]*)$/, ', and $1');
-		game.log(`%CreatureName${creature.id}% gains ${gainedMessage}`);
+			.replace(/, ([^,]*)$/, ' and $1');
+		game.log(`Gains ${gainedMessage}`);
 
 		creature.player.score.push({
 			type: 'pickupDrop',
