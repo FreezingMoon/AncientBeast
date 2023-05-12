@@ -38,9 +38,6 @@ export class Effect {
 	// Refactor to remove.
 	attacker: Creature | undefined = undefined;
 
-	// TODO: Remove this. Use the debug flags in .env.
-	noLog = false;
-
 	/* Constructor(name, owner, target, trigger, optArgs)
 	 *
 	 * name: name of the effect
@@ -86,10 +83,6 @@ export class Effect {
 	activate(arg?: any) {
 		if (!this.requireFn(arg)) {
 			return false;
-		}
-
-		if (!this.noLog) {
-			console.log('Effect ' + this.name + ' triggered');
 		}
 
 		if (arg instanceof Creature) {
