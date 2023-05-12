@@ -48,7 +48,11 @@ export default (G) => {
 							alterations: alterations,
 							deleteTrigger: '',
 							stackable: false,
-							noLog: noLog,
+							effectFn: () => {
+								if (bonus !== this.lastBonus) {
+									G.log('Effect ' + this.name + ' triggered');
+								}
+							},
 						},
 						G,
 					),
