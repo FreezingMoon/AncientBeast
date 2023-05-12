@@ -846,6 +846,8 @@ export class HexGrid {
 					// Filled hex with color
 					hex.displayVisualState('creature player' + hex.creature.team);
 				}
+			} else if (game.activeCreature.noActionPossible){
+				$j('canvas').css('cursor', 'wait');
 			}
 			queueEffect(creature.id);
 		};
