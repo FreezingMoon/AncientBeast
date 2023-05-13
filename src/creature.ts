@@ -4,7 +4,7 @@ import { search } from './utility/pathfinding';
 import { Hex } from './utility/hex';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
-import { Drop, DropDefinition } from './drops';
+import { Drop, DropDefinition } from './drop';
 import { getPointFacade } from './utility/pointfacade';
 
 /**
