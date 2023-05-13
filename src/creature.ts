@@ -4,7 +4,7 @@ import { search } from './utility/pathfinding';
 import { Hex } from './utility/hex';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
-import { Drop } from './drops';
+import { Drop, DropDefinition } from './drops';
 import { getPointFacade } from './utility/pointfacade';
 
 /**
@@ -65,7 +65,7 @@ export class Creature {
 	realm: string;
 	animation: object;
 	display: object;
-	drop: Drop;
+	drop: DropDefinition;
 	_movementType: string;
 	temp: boolean;
 	hexagons: Array<any>;
@@ -1753,8 +1753,6 @@ export class Creature {
 		// Drop item
 		if (game.unitDrops == 1 && this.drop) {
 			const offsetX = this.player.flipped ? this.x - this.size + 1 : this.x;
-			/* All properties aside from `name` are assumed to be alterations to the creature's
-			statistics. */
 			const { name, ...alterations } = this.drop;
 			new Drop(name, alterations, offsetX, this.y, game);
 		}
