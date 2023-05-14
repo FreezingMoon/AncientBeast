@@ -112,6 +112,8 @@ If you encounter any problems with this version, you can report them to our [Git
 Very often, it will be very helpful for debugging purposes to fetch game logs when encountering issues. You can use the `AB.getLog()` function from the browser console window in order to fetch the current match log.
 In order to open up Google Chrome browser's console, you can press `Ctrl + Shift + J`. To replay a match, you'll have to be in the pre-match screen, paste its log in the console and then press the `Return` key.
 
+### Meta Powers
+
 The Meta Powers screen can also be useful for achieving the correct game state to test features and reproduce bugs.
 
 To access the Meta Powers screen:
