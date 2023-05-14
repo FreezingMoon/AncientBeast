@@ -23,27 +23,8 @@ import { Point } from './utility/pointfacade';
  * - Drops currently cannot be removed by other abilities.
  * - Drops are essentially permanent although this may change in the future.
  */
-export type DropType =
-	| 'frog leg'
-	| 'apple'
-	| 'fish'
-	| 'snow flake'
-	| 'radish'
-	| 'milk bottle'
-	| 'carrot'
-	| 'cherry'
-	| 'bread'
-	| 'fang'
-	| 'lemon'
-	| 'meat'
-	| 'yellow pepper'
-	| 'nut'
-	| 'change'
-	| 'feather'
-	| 'bat wing';
-
 export type DropDefinition = {
-	name: DropType;
+	name: string;
 	energy?: number;
 	movement?: number;
 	health?: number;
@@ -68,7 +49,7 @@ export type DropAlterations = Omit<DropDefinition, 'name'>;
 
 export class Drop {
 	id: number;
-	name: DropType;
+	name: string;
 	game: Game;
 	pos: Point;
 	alterations: DropAlterations;
@@ -78,7 +59,7 @@ export class Drop {
 
 	display: Phaser.Sprite;
 
-	constructor(name: DropType, alterations: DropAlterations, x: number, y: number, game: Game) {
+	constructor(name: string, alterations: DropAlterations, x: number, y: number, game: Game) {
 		this.id = game.dropId++;
 		this.name = name;
 		this.game = game;
