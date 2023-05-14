@@ -1,8 +1,8 @@
 import { Creature } from '../creature';
-import { Drop } from '../drops';
+import { Drop } from '../drop';
 import { Trap } from './trap';
 
-type Point = {
+export type Point = {
 	x: number;
 	y: number;
 };
