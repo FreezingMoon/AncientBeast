@@ -6,13 +6,6 @@ import { Creature } from '../creature';
 
 import { capitalize } from './string';
 
-export type TrapType =
-	| 'firewall'
-	| 'mud-bath'
-	| 'royal-seal'
-	| 'poisonous-vine'
-	| 'scorched-ground';
-
 export type DestroyAnimationType = 'shrinkDown' | 'none';
 
 export type TrapOptions = Partial<Trap>;
@@ -22,7 +15,7 @@ export class Trap {
 	game: Game;
 	// TODO: Remove. This can be removed once Traps can be looked up by position.
 	hex: Hex;
-	type: TrapType;
+	type: string;
 	name: string;
 	effects: Effect[];
 	owner: Player;
@@ -46,7 +39,7 @@ export class Trap {
 	constructor(
 		x: number,
 		y: number,
-		type: TrapType,
+		type: string,
 		effects: Effect[],
 		owner: Player,
 		opt: TrapOptions,
