@@ -42,7 +42,7 @@ export class Trap {
 		type: string,
 		effects: Effect[],
 		owner: Player,
-		opt: TrapOptions,
+		opt: TrapOptions | undefined,
 		game: Game,
 		name = '',
 	) {
@@ -54,9 +54,11 @@ export class Trap {
 		this.owner = owner;
 		this.creationTurn = game.turn;
 
-		for (const key of Object.keys(opt)) {
-			if (key in this) {
-				this[key] = opt[key];
+		if (opt) {
+			for (const key of Object.keys(opt)) {
+				if (key in this) {
+					this[key] = opt[key];
+				}
 			}
 		}
 
