@@ -1,6 +1,7 @@
 import { Creature } from './creature';
 import Game from './game';
 import { Hex } from './utility/hex';
+import { Trap } from './utility/trap';
 
 /*
  * Effect Class
@@ -32,6 +33,8 @@ export class Effect {
 	stackable = true;
 	specialHint: string | undefined = undefined; // Special hint for log
 	deleteOnOwnerDeath = false;
+
+	_trap: Trap | undefined = undefined;
 
 	// TODO: This is *very* similar to owner, though owner can be a hex
 	// Very few abilities use this field – they have access to ability.creature
@@ -112,5 +115,13 @@ export class Effect {
 		if ('updateAlteration' in this.target) {
 			this.target.updateAlteration();
 		}
+	}
+
+	get trap() {
+		return this._trap;
+	}
+
+	set trap(trapOrUndefined) {
+		this._trap = trapOrUndefined;
 	}
 }
