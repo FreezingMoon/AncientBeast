@@ -2226,7 +2226,7 @@ export class UI {
 		const unitFormatter = (creature) => {
 			const name = capitalize(creature.name);
 			const trapOrLocation = capitalize(
-				creature.hexagons[0].trap ? creature.hexagons[0].trap.name : ui.game.combatLocation,
+				creature?.hexagons[0]?.trap ? creature?.hexagons[0]?.trap?.name : ui.game.combatLocation,
 			);
 			const nameColorClasses =
 				creature && creature.player ? `p${creature.player.id} player-text bright` : '';
