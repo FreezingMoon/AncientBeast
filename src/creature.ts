@@ -7,6 +7,33 @@ import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
 import { getPointFacade } from './utility/pointfacade';
 
+export type CreatureDamageStats = {
+	health: number;
+	regrowth: number;
+	endurance: number;
+	energy: number;
+	meditation: number;
+	initiative: number;
+	offense: number;
+	defense: number;
+	movement: number;
+	pierce: number;
+	slash: number;
+	crush: number;
+	shock: number;
+	burn: number;
+	frost: number;
+	poison: number;
+	sonic: number;
+	mental: number;
+};
+
+type CreatureStats = CreatureDamageStats & {
+	moveable: boolean;
+	fatigueImmunity: boolean;
+	reqEnergy: number;
+};
+
 /**
  * Creature Class
  *
@@ -84,8 +111,8 @@ export class Creature {
 	turnsActive: number;
 
 	// Statistics
-	baseStats: any;
-	stats: any;
+	baseStats: CreatureStats;
+	stats: CreatureStats;
 	status: any;
 	health: number;
 	oldHealth: number;
