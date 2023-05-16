@@ -2223,6 +2223,22 @@ export class UI {
 		 */
 		const ifGameNotFrozen = utils.ifGameNotFrozen(ui.game);
 
+		const unitFormatter = (creature) => {
+			const name = capitalize(creature.name);
+			const trapOrLocation = capitalize(
+				creature.hexagons[0].trap ? creature.hexagons[0].trap.name : ui.game.combatLocation,
+			);
+			const nameColorClasses =
+				creature && creature.player ? `p${creature.player.id} player-text bright` : '';
+			return `<div class="vignette hex">
+			<div class="hexinfo frame">
+			<p class="name ${nameColorClasses}">${name}</p>
+			<p>${trapOrLocation}</p>
+			</div>
+			</div>
+			`;
+		};
+
 		const onCreatureClick = ifGameNotFrozen((creature) => {
 			/**
 			 * NOTE:
@@ -2255,6 +2271,7 @@ export class UI {
 
 			ui.game.grid.showMovementRange(creature);
 			ui.queue.xray(creature.id);
+			ui.quickInfo.set(unitFormatter(creature));
 		});
 
 		const onCreatureMouseLeave = (maybeCreature) => {
@@ -2272,6 +2289,7 @@ export class UI {
 			});
 
 			ui.queue.xray(-1);
+			ui.quickInfo.clear();
 		};
 
 		const onTurnEndClick = throttle(() => {
