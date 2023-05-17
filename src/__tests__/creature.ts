@@ -49,7 +49,9 @@ jest.mock('../assets', () => ({ children: [] }));
 jest.mock('../assetLoader');
 jest.mock('../utility/hex', () => {
 	return {
-		default: () => {},
+		default: () => {
+			// Do nothing
+		},
 	};
 });
 
@@ -94,7 +96,7 @@ const getHexesMock = () => {
 import data from '../data/units.json';
 
 const getGameMock = () => {
-	let self = {
+	const self = {
 		creatures: [],
 		players: [],
 		queue: {
@@ -128,7 +130,8 @@ const getGameMock = () => {
 };
 
 const getPhaserMock = () => {
-	let self: any = {};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const self: Record<string, any> = {};
 	self.tween = () => self;
 	self.to = () => self;
 	self.start = () => self;
