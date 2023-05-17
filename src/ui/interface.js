@@ -2255,7 +2255,7 @@ export class UI {
 
 		const onCreatureMouseEnter = ifGameNotFrozen((creature) => {
 			const creatures = ui.game.creatures.filter((c) => c instanceof Creature);
-			const otherCreatures = creatures.filter((c) => c !== creature);
+			const otherCreatures = creatures.filter((c) => c.id !== creature.id);
 
 			otherCreatures.forEach((c) => {
 				c.xray(true);
@@ -2263,8 +2263,6 @@ export class UI {
 					hex.cleanOverlayVisualState();
 				});
 			});
-
-			creature.xray(false);
 			creature.hexagons.forEach((hex) => {
 				hex.overlayVisualState('hover h_player' + creature.team);
 			});
