@@ -7,7 +7,7 @@ import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
 import { getPointFacade } from './utility/pointfacade';
 
-export type CreatureDamageStats = {
+export type CreatureVitals = {
 	health: number;
 	regrowth: number;
 	endurance: number;
@@ -17,6 +17,9 @@ export type CreatureDamageStats = {
 	offense: number;
 	defense: number;
 	movement: number;
+};
+
+export type CreatureMasteries = {
 	pierce: number;
 	slash: number;
 	crush: number;
@@ -28,11 +31,12 @@ export type CreatureDamageStats = {
 	mental: number;
 };
 
-type CreatureStats = CreatureDamageStats & {
-	moveable: boolean;
-	fatigueImmunity: boolean;
-	reqEnergy: number;
-};
+type CreatureStats = CreatureVitals &
+	CreatureMasteries & {
+		moveable: boolean;
+		fatigueImmunity: boolean;
+		reqEnergy: number;
+	};
 
 /**
  * Creature Class
