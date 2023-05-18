@@ -934,6 +934,8 @@ export class HexGrid {
 			const { creature } = hex;
 
 			if (creature instanceof Creature) {
+
+				creature.resetHealthIndicatorSize();
 				// toggle hover off event
 				if (creature.isDarkPriest()) {
 					// the plasma would have been displayed so now display the health again
@@ -959,6 +961,8 @@ export class HexGrid {
 			if (hex.creature instanceof Creature) {
 				// If creature
 				onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex);
+
+				hex.creature.increaseHealthIndicatorSize();
 			}
 
 			if (hex.reachable) {

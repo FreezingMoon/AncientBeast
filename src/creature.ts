@@ -7,6 +7,7 @@ import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
 import { getPointFacade } from './utility/pointfacade';
 
+
 export type CreatureDamageStats = {
 	health: number;
 	regrowth: number;
@@ -124,7 +125,7 @@ export class Creature {
 	grp: any;
 	sprite: any;
 	hintGrp: any;
-	healthIndicatorGroup: any;
+	healthIndicatorGroup: Phaser.Group;
 	healthIndicatorSprite: any;
 	healthIndicatorText: any;
 	delayable: boolean;
@@ -136,6 +137,8 @@ export class Creature {
 
 	constructor(obj, game) {
 		// Engine
+		this.healthIndicatorGroup = game.Phaser.add.group(this.grp, 'creatureHealthGrp_' + this.id);
+
 		this.game = game;
 		this.name = obj.name;
 		this.id = game.creatures.length;
@@ -340,17 +343,6 @@ export class Creature {
 		this.healthIndicatorGroup.add(this.healthIndicatorText);
 		// Hide it
 		this.healthIndicatorGroup.alpha = 0;
-
-		this.sprite.inputEnabled = true;
-        this.sprite.input.pixelPerfectOver = true;
-
-        this.sprite.events.onInputOver.add(() => {
-            this.healthIndicatorGroup.scale.setTo(1.1);
-        });
-        
-        this.sprite.events.onInputOut.add(() => {
-            this.healthIndicatorGroup.scale.setTo(1.0);
-        });
 
 		if (!this.temp) {
 			for (const other of game.creatures.filter((c) => c)) {
@@ -756,6 +748,18 @@ export class Creature {
 			overlayClass: 'hover h_player' + this.team,
 		});
 	}
+
+	 increaseHealthIndicatorSize() {
+        if (this.healthIndicatorGroup) {
+            this.healthIndicatorGroup.scale.setTo(1.2, 1.2);
+        }
+    }
+
+    resetHealthIndicatorSize() {
+        if (this.healthIndicatorGroup) {
+            this.healthIndicatorGroup.scale.setTo(1, 1);
+        }
+    }
 
 	/* cleanHex()
 	 *
