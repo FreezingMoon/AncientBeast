@@ -1,16 +1,9 @@
 import Game from './game';
-import { Creature, CreatureDamageStats } from './creature';
+import { Creature, CreatureVitals, CreatureMasteries } from './creature';
 import { Effect } from './effect';
 
-export type DamageStats = Partial<
-	CreatureDamageStats & {
-		pure?: number;
-	}
->;
-
-export type DamageResult = Partial<DamageStats> & {
-	total: number;
-};
+export type DamageStats = Partial<CreatureVitals & CreatureMasteries & { pure?: number }>;
+export type DamageResult = Partial<DamageStats> & { total: number };
 
 export class Damage {
 	// TODO: `game` isn't used by this class. Once migration to TS is complete,
