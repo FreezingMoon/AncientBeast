@@ -341,17 +341,15 @@ export class Creature {
 		// Hide it
 		this.healthIndicatorGroup.alpha = 0;
 
-		this.healthIndicatorSprite.inputEnabled = true;
+		this.sprite.inputEnabled = true;
 
-		this.healthIndicatorSprite.events.onInputOver.add(() => {
-			// Increase the size when hovering over
-			this.healthIndicatorGroup.scale.setTo(1.1);
-		});
-		
-		this.healthIndicatorSprite.events.onInputOut.add(() => {
-			// Reset the size when hovering out
-			this.healthIndicatorGroup.scale.setTo(1.0);
-		});
+        this.sprite.events.onInputOver.add(() => {
+            this.healthIndicatorGroup.scale.setTo(1.1);
+        });
+        
+        this.sprite.events.onInputOut.add(() => {
+            this.healthIndicatorGroup.scale.setTo(1.0);
+        });
 
 		if (!this.temp) {
 			for (const other of game.creatures.filter((c) => c)) {
