@@ -125,7 +125,7 @@ export class Creature {
 	grp: any;
 	sprite: any;
 	hintGrp: any;
-	healthIndicatorGroup: Phaser.Group;
+	healthIndicatorGroup: any;
 	healthIndicatorSprite: any;
 	healthIndicatorText: any;
 	delayable: boolean;
@@ -137,8 +137,6 @@ export class Creature {
 
 	constructor(obj, game) {
 		// Engine
-		this.healthIndicatorGroup = game.Phaser.add.group(this.grp, 'creatureHealthGrp_' + this.id);
-
 		this.game = game;
 		this.name = obj.name;
 		this.id = game.creatures.length;
