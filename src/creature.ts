@@ -342,6 +342,7 @@ export class Creature {
 		this.healthIndicatorGroup.alpha = 0;
 
 		this.sprite.inputEnabled = true;
+        this.sprite.input.pixelPerfectOver = true;
 
         this.sprite.events.onInputOver.add(() => {
             this.healthIndicatorGroup.scale.setTo(1.1);
