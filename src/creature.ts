@@ -747,17 +747,21 @@ export class Creature {
 		});
 	}
 
-	 increaseHealthIndicatorSize() {
-        if (this.healthIndicatorGroup) {
-            this.healthIndicatorGroup.scale.setTo(1.2, 1.2);
-        }
-    }
-
-    resetHealthIndicatorSize() {
-        if (this.healthIndicatorGroup) {
-            this.healthIndicatorGroup.scale.setTo(1, 1);
-        }
-    }
+	increaseHealthIndicatorSize() {
+		const targetScale = 1.2;
+		const duration = 250;
+	  
+		this.game.Phaser.add.tween(this.healthIndicatorGroup.scale)
+		  .to({ x: targetScale, y: targetScale }, duration, Phaser.Easing.Linear.None, true);
+	  }
+	  
+	resetHealthIndicatorSize() {
+		const targetScale = 1;
+		const duration = 250;
+	  
+		this.game.Phaser.add.tween(this.healthIndicatorGroup.scale)
+		  .to({ x: targetScale, y: targetScale }, duration, Phaser.Easing.Linear.None, true);
+	  }
 
 	/* cleanHex()
 	 *
