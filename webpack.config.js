@@ -35,7 +35,7 @@ module.exports = (env, argv) => {
 				return '[path][name].[ext]';
 			},
 		},
-		devtool: production ? undefined : 'eval',
+		devtool: production ? undefined : 'inline-source-map',
 		module: {
 			rules: [
 				{ test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
