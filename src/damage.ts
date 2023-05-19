@@ -13,7 +13,7 @@ export class Damage {
 	damages: DamageStats;
 	status = '';
 	effects: Effect[];
-	area: number; // Number of hexagons being hit
+	area: number; // Number of unit hexagons (1, 2 or 3) that are being hit
 	counter = false; // Is this counter-damage?
 
 	target: Creature | undefined = undefined;
