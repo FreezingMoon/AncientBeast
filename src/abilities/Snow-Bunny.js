@@ -324,6 +324,8 @@ export default (G) => {
 				let ability = this;
 				ability.end();
 
+				// TODO: This appears to be the source of the bug mentioned in this issue: #2218
+				// Target below will be undefined if a Player 2 creature uses this ability.
 				let target = arrayUtils.last(path).creature;
 				// No blow size penalty if upgraded and target is frozen
 				let dist = 5 - (this.isUpgraded() && target.isFrozen() ? 0 : target.size);

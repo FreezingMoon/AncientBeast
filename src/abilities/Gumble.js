@@ -302,6 +302,8 @@ export default (G) => {
 				ability.end();
 				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
+				// TODO: This appears to be the source of the bug mentioned in this issue: #2218
+				// Target below will be undefined if a Player 2 creature uses this ability.
 				let target = arrayUtils.last(path).creature;
 				let melee = path[0].creature === target;
 
