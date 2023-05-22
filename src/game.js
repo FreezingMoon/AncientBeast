@@ -74,6 +74,7 @@ export default class Game {
 		this.pause = false;
 		this.gameState = 'initialized';
 		this.pauseTime = 0;
+		this.abilityUpgrades = 0;
 		this.unitDrops = 0;
 		this.minimumTurnBeforeFleeing = 12;
 		this.availableCreatures = [];

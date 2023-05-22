@@ -31,6 +31,7 @@ export class Effect {
 	turnLifetime = 0;
 	deleteTrigger = 'onStartOfRound';
 	stackable = true;
+	special: string | undefined = undefined;
 	specialHint: string | undefined = undefined; // Special hint for log
 	deleteOnOwnerDeath = false;
 

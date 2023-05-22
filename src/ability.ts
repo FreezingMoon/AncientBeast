@@ -1,9 +1,17 @@
 import * as $j from 'jquery';
-import { Damage } from './damage';
+import { Damage, DamageStats } from './damage';
 import { Direction, Hex } from './utility/hex';
-import { Creature } from './creature';
+import { Creature, CreatureMasteries, CreatureVitals } from './creature';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
+import Game from './game';
+import { Effect } from './effect';
+
+type AnimationData = {
+	duration: number;
+	delay: number;
+	activateAnimation: boolean;
+};
 
 /**
  * Ability Class
@@ -11,7 +19,58 @@ import * as arrayUtils from './utility/arrayUtils';
  * Class parsing function from creature abilities
  */
 export class Ability {
-	constructor(creature, abilityID, game) {
+	creature: Creature;
+	game: Game;
+	used: boolean;
+	id: number;
+	priority: number;
+	timesUsed: number;
+	timesUsedThisTurn: number;
+	token: number;
+	upgraded: boolean;
+	title: string;
+
+	requirements?: Partial<CreatureVitals & CreatureMasteries>;
+	costs?: Partial<CreatureVitals & CreatureMasteries>;
+	_disableCooldowns?: boolean;
+
+	// NOTE: This may be overwritten by info units.json.
+	affectedByMatSickness = 0;
+	message = '';
+
+	//////////////////////////////////////////////////////////////////////
+	// NOTE: The remaining fields are typically overwritten or provided by
+	// `abilities` in the files in ./src/abilities/
+	trigger?: string;
+	triggerFunc?: () => void;
+
+	map?: number[][];
+	directions?: number[];
+
+	// NOTE: According to usage, this function is called when
+	// the ability is activated. It will do things like shake the
+	// camera and damage the targeted creature. Argument type and number
+	// are set on an ad hoc basis.
+	activate: (a?: any, b?: any, c?: any) => object;
+
+	// NOTE: According to usage, this function returns `true` when all
+	// requirements to use the function – e.g., there's a potential target –
+	// are met.
+	require: () => true;
+
+	// NOTE: According to usage, this sets up events and options for
+	// grid.queryCreature, which then listens for mouse clicks
+	query: () => void;
+
+	_addTrap: (hex: Hex) => void;
+	getAnimationData(): Partial<AnimationData> {
+		return {};
+	}
+
+	damages: Partial<DamageStats & { special: string }> = {};
+	effects: Effect[] = [];
+
+	constructor(creature: Creature, abilityID: number, game: Game) {
 		this.creature = creature;
 		this.game = game;
 		this.used = false;
@@ -51,7 +110,7 @@ export class Ability {
 	}
 
 	hasUpgrade() {
-		return this.game.abilityUpgrades >= 0 && this.upgrade;
+		return this.game.abilityUpgrades >= 0 && this.upgraded;
 	}
 
 	setUpgraded() {
@@ -225,19 +284,20 @@ export class Ability {
 	 * Animate the creature
 	 * @return {void}
 	 */
-	animation() {
+	animation(...passed_args) {
 		let game = this.game;
 		// Gamelog Event Registration
-		if (game.triggers.onQuery.test(this.getTrigger())) {
-			if (arguments[0] instanceof Hex) {
-				let args = $j.extend({}, arguments);
+		const trigger = this.getTrigger();
+		if (typeof trigger !== 'undefined' && game.triggers.onQuery.test(trigger)) {
+			if (passed_args[0] instanceof Hex) {
+				let args = Object.assign({}, passed_args);
 				delete args[0];
 				game.gamelog.add({
 					action: 'ability',
 					target: {
 						type: 'hex',
-						x: arguments[0].x,
-						y: arguments[0].y,
+						x: passed_args[0].x,
+						y: passed_args[0].y,
 					},
 					id: this.id,
 					args: args,
@@ -246,8 +306,8 @@ export class Ability {
 					game.gameplay.useAbility({
 						target: {
 							type: 'hex',
-							x: arguments[0].x,
-							y: arguments[0].y,
+							x: passed_args[0].x,
+							y: passed_args[0].y,
 						},
 						id: this.id,
 						args: args,
@@ -255,14 +315,14 @@ export class Ability {
 				}
 			}
 
-			if (arguments[0] instanceof Creature) {
-				let args = $j.extend({}, arguments);
+			if (passed_args[0] instanceof Creature) {
+				let args = Object.assign({}, passed_args);
 				delete args[0];
 				game.gamelog.add({
 					action: 'ability',
 					target: {
 						type: 'creature',
-						crea: arguments[0].id,
+						crea: passed_args[0].id,
 					},
 					id: this.id,
 					args: args,
@@ -271,7 +331,7 @@ export class Ability {
 					game.gameplay.useAbility({
 						target: {
 							type: 'creature',
-							crea: arguments[0].id,
+							crea: passed_args[0].id,
 						},
 						id: this.id,
 						args: args,
@@ -279,11 +339,11 @@ export class Ability {
 				}
 			}
 
-			if (arguments[0] instanceof Array) {
-				let args = $j.extend({}, arguments);
+			if (passed_args[0] instanceof Array) {
+				let args = Object.assign({}, passed_args);
 				delete args[0];
 
-				let array = arguments[0].map((item) => ({ x: item.x, y: item.y }));
+				let array = passed_args[0].map((item) => ({ x: item.x, y: item.y }));
 
 				game.gamelog.add({
 					action: 'ability',
@@ -313,26 +373,22 @@ export class Ability {
 		}
 
 		return this.animation2({
-			arg: arguments,
+			arg: passed_args,
 		});
 	}
 
 	/**
-	 * Helper to animation method.
-	 * @param {Object} o Animation object to extend.
+	 * @param {Object} opt Animation object to extend.
 	 * @return {void}
 	 */
-	animation2(o) {
+	animation2(opt) {
 		const game = this.game;
-		const opt = $j.extend(
-			{
-				callback: function () {
-					// Default no-op function.
-				},
-				arg: {},
-			},
-			o,
-		);
+		if (!('callback' in opt)) {
+			opt.callback = () => {};
+		}
+		if (!('arg' in opt)) {
+			opt.arg = {};
+		}
 		const args = opt.arg;
 		const activateAbility = () => {
 			const extra = args[2];
@@ -357,7 +413,7 @@ export class Ability {
 			if (args[0] instanceof Creature) {
 				this.creature.faceHex(args[0]);
 			} else if (args[0] instanceof Array) {
-				for (var argument of args[0]) {
+				for (const argument of args[0]) {
 					if (argument instanceof Creature || argument.creature) {
 						this.creature.faceHex(argument);
 					}
@@ -376,9 +432,7 @@ export class Ability {
 				activateAnimation: true,
 			};
 
-			if (this.getAnimationData) {
-				animationData = $j.extend(animationData, this.getAnimationData(...args));
-			}
+			animationData = Object.assign(animationData, this.getAnimationData());
 
 			if (animationData.activateAnimation) {
 				game.Phaser.add
@@ -390,7 +444,8 @@ export class Ability {
 			}
 
 			setTimeout(() => {
-				if (!game.triggers.onUnderAttack.test(this.getTrigger())) {
+				const trigger = this.getTrigger();
+				if (typeof trigger === 'string' && !game.triggers.onUnderAttack.test(trigger)) {
 					game.soundsys.playSFX('sounds/swing2');
 					activateAbility();
 				}
@@ -464,19 +519,20 @@ export class Ability {
 	 * @param {Object} obj Damage object.
 	 * @return {boolean|string} damage
 	 */
-	getFormattedDamages(obj) {
-		obj = obj || this.damages;
+	getFormattedDamages(damages?: typeof this.damages) {
+		damages = damages || this.damages;
 
-		if (!obj) {
+		if (!damages) {
 			return false;
 		}
 
 		let string = '',
 			creature = this.creature;
 
-		$j.each(obj, (key, value) => {
-			if (key == 'special') {
+		Object.entries(damages).forEach(([key, value]) => {
+			if (key === 'special') {
 				// TODO: don't manually list all the stats and masteries when needed
+				value = value + '';
 				string += value.replace(
 					/%(health|regrowth|endurance|energy|meditation|initiative|offense|defense|movement|pierce|slash|crush|shock|burn|frost|poison|sonic|mental)%/g,
 					'<span class="$1"></span>',
@@ -484,7 +540,7 @@ export class Ability {
 				return;
 			}
 
-			if (key === 'energy') {
+			if (key === 'energy' && typeof value === 'number') {
 				value += creature.stats.reqEnergy;
 			}
 
@@ -519,7 +575,7 @@ export class Ability {
 				continue;
 			}
 
-			$j.each(this.effects[i], (key, value) => {
+			Object.entries(this.effects[i]).forEach(([key, value]) => {
 				if (string !== '') {
 					string += ', ';
 				}
@@ -623,7 +679,7 @@ export class Ability {
 					mental: 0,
 				},
 			},
-			req = $j.extend(def, this.requirements),
+			req = Object.assign(def, this.requirements),
 			abilityMsgs = game.msg.abilities;
 
 		// Plasma
@@ -679,7 +735,7 @@ export class Ability {
 			}
 		}
 
-		$j.each(req.stats, (key, value) => {
+		Object.entries(req.stats).forEach(([key, value]) => {
 			if (value > 0) {
 				if (this.creature.stats[key] < value) {
 					return false;
@@ -702,7 +758,7 @@ export class Ability {
 			return;
 		}
 
-		$j.each(this.costs, (key, value) => {
+		Object.entries(this.costs).forEach(([key, value]) => {
 			if (typeof value == 'number') {
 				if (key == 'health') {
 					creature.hint(value, 'damage d' + value);
@@ -748,7 +804,7 @@ export class Ability {
 			},
 		};
 
-		o = $j.extend(defaultOpt, o);
+		o = Object.assign(defaultOpt, o);
 
 		let outDirections = [];
 		let deadzone = [];
