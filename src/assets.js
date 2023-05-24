@@ -205,7 +205,7 @@ export default [
         id: "hex_outline_red",
         url: require("assets/interface/hex_outline_red.png"),
       },
-      { id: "hex_path", url: require("assets/interface/hex_path.png") },
+      { id: "hex_path", url: require("assets/interface/hex_outline_red.png") },
       { id: "loadingEmpty", url: require("assets/interface/loadingEmpty.png") },
       { id: "loadingFull", url: require("assets/interface/loadingFull.png") },
       { id: "long_button", url: require("assets/interface/long_button.png") },
