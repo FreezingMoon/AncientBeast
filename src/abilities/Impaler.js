@@ -207,7 +207,7 @@ export default (G) => {
 					'onStepOut',
 					{
 						effectFn: once((effect) => {
-							G.log('%CreatureName' + target.id + '% is hit by ' + effect.name);
+							G.log('%CreatureName' + target.id + '% is injured by ' + effect.name);
 							target.takeDamage(new Damage(ability.creature, damages, 1, [], G), {
 								isFromTrap: true,
 							});
