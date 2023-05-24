@@ -4,6 +4,10 @@ import { PointFacade } from '../../utility/pointfacade';
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
+// NOTE: To ensure we're not depending on Creature, etc. implementations, they're not imported.
+// That leads to some linter problems, which are disabled here:
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 describe('class PointFacade', () => {
 	test('typical usage', () => {
 		/**
