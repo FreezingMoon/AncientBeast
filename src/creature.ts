@@ -7,6 +7,7 @@ import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
 import { getPointFacade } from './utility/pointfacade';
 
+
 export type CreatureVitals = {
 	health: number;
 	regrowth: number;
@@ -113,6 +114,7 @@ export class Creature {
 	dropCollection: Array<any>;
 	protectedFromFatigue: boolean;
 	turnsActive: number;
+	healthIndicatorTween: Phaser.Tween | null;
 
 	// Statistics
 	baseStats: CreatureStats;
@@ -749,6 +751,35 @@ export class Creature {
 			overlayClass: 'hover h_player' + this.team,
 		});
 	}
+
+	startBounce() {
+		const bounceHeight = 10;
+		const duration = 350;
+	  
+		if (!this.healthIndicatorTween || !this.healthIndicatorTween.isRunning) {
+		  const originalY = this.healthIndicatorGroup.y;
+		  const targetY = originalY - bounceHeight;
+	  
+		  this.healthIndicatorTween = this.game.Phaser.add.tween(this.healthIndicatorGroup)
+			.to({ y: targetY }, duration, Phaser.Easing.Quadratic.InOut, true)
+			.yoyo(true)
+			.repeat(-1);
+		} else {
+		  this.healthIndicatorTween.stop();
+		  this.healthIndicatorTween = null;
+		  this.game.Phaser.add.tween(this.healthIndicatorGroup)
+			.to({ y: 0 }, duration, Phaser.Easing.Quadratic.InOut, true);
+		}
+	  }
+	  
+	  resetBounce() {
+		
+		if (this.healthIndicatorTween && this.healthIndicatorTween.isRunning) {
+		  this.healthIndicatorTween.stop();
+		  this.healthIndicatorGroup.y = 0;
+		}
+	  }
+	  
 
 	/* cleanHex()
 	 *
