@@ -604,16 +604,7 @@ export default (G) => {
 					G,
 				);
 
-				let inlinefront2hex = matrices.inlinefront2hex;
-
-				let trgIsInfront =
-					G.grid.getHexMap(
-						crea.x - inlinefront2hex.origin[0],
-						crea.y - inlinefront2hex.origin[1],
-						0,
-						false,
-						inlinefront2hex,
-					)[0].creature == target;
+				const trgIsInfront = crea.x < target.x;
 
 				let creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
 				crea.moveTo(G.grid.hexes[target.y][creaX], {
