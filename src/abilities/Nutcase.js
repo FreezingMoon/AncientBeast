@@ -78,7 +78,7 @@ export default (G) => {
 				}
 
 				// Target becomes unmovable until end of their phase
-				let o = {
+				const o = {
 					alterations: {
 						moveable: false,
 					},
@@ -142,7 +142,7 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
-				let ability = this;
+				const ability = this;
 
 				if (!this.isUpgraded()) {
 					G.grid.queryCreature({
@@ -156,7 +156,7 @@ export default (G) => {
 					});
 				} else {
 					// If upgraded, show choice of front and back hex groups
-					let choices = [
+					const choices = [
 						this.creature.getHexMap(matrices.front2hex),
 						this.creature.getHexMap(matrices.back2hex),
 					];
@@ -176,7 +176,7 @@ export default (G) => {
 			},
 
 			activate: function (targetOrChoice, args) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
@@ -190,12 +190,12 @@ export default (G) => {
 					//   - front choice (choice 0) and not bottom hex chosen, or
 					//   - back choice (choice 1) and top hex chosen
 					// - otherwise, y descending
-					let isFrontChoice = args.choiceIndex === 0;
-					let yCoords = targetOrChoice.map(function (hex) {
+					const isFrontChoice = args.choiceIndex === 0;
+					const yCoords = targetOrChoice.map(function (hex) {
 						return hex.y;
 					});
-					let yMin = Math.min.apply(null, yCoords);
-					let yMax = Math.max.apply(null, yCoords);
+					const yMin = Math.min.apply(null, yCoords);
+					const yMax = Math.max.apply(null, yCoords);
 					let yAscending;
 					if (isFrontChoice) {
 						yAscending = args.hex.y !== yMax;
@@ -206,7 +206,7 @@ export default (G) => {
 						return yAscending ? a.y - b.y : b.y - a.y;
 					});
 					for (let i = 0; i < targetOrChoice.length; i++) {
-						let target = targetOrChoice[i].creature;
+						const target = targetOrChoice[i].creature;
 						// only attack enemies
 						if (!target || !isTeam(this.creature, target, this._targetTeam)) {
 							continue;
@@ -217,10 +217,10 @@ export default (G) => {
 			},
 
 			_activateOnTarget: function (target) {
-				let ability = this;
+				const ability = this;
 
 				// Target takes pierce damage if it ever moves
-				let effect = new Effect(
+				const effect = new Effect(
 					'Hammered', // Name
 					this.creature, // Caster
 					target, // Target
@@ -253,7 +253,7 @@ export default (G) => {
 					G,
 				);
 
-				let damage = new Damage(
+				const damage = new Damage(
 					this.creature, // Attacker
 					this.damages, // Damage Type
 					1, // Area
@@ -551,7 +551,7 @@ export default (G) => {
 			_targetTeam: Team.Enemy,
 
 			require: function () {
-				let ability = this;
+				const ability = this;
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -572,7 +572,7 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
-				let ability = this;
+				const ability = this;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -591,12 +591,12 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
-				let crea = ability.creature;
+				const ability = this;
+				const crea = ability.creature;
 				ability.end();
 				G.Phaser.camera.shake(0.02, 200, true, G.Phaser.camera.SHAKE_BOTH, true);
 
-				let damage = new Damage(
+				const damage = new Damage(
 					crea, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -606,7 +606,7 @@ export default (G) => {
 
 				const trgIsInfront = crea.x < target.x;
 
-				let creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
+				const creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
 				crea.moveTo(G.grid.hexes[target.y][creaX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
@@ -615,7 +615,7 @@ export default (G) => {
 						crea.queryMove();
 					},
 				});
-				let targetX = crea.x + (trgIsInfront ? target.size - crea.size : 0);
+				const targetX = crea.x + (trgIsInfront ? target.size - crea.size : 0);
 				target.moveTo(G.grid.hexes[crea.y][targetX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
