@@ -113,18 +113,25 @@ export class GameLog {
 	}
 
 	get(state) {
-		let today = new Date().toISOString().slice(0, 10);
-		let config = isEmpty(this.gameConfig) ? getGameConfig() : this.gameConfig,
-			dict = {
-				config: config,
-				log: this.data,
-			},
-			json = JSON.stringify(dict),
-			hash = 'AB-' + this.game.version + '@' + today + ':' + btoa(JSON.stringify(dict)),
-			output,
-			strOutput;
-
-		let fileName = `AB-${this.game.version}:${today}`;
+		const today = new Date().toISOString().slice(0, 10);
+		const config = isEmpty(this.gameConfig) ? getGameConfig() : this.gameConfig;
+		const dict = {
+			config: config,
+			log: this.data,
+		};
+		// TODO:
+		// The `replacer` in `JSON.stringify` was added as a bugfix for #2323
+		// Some abilities have a circular reference that can't be stringified - `sourceCreature`.
+		// The fix doesn't really fit here, but it's currently the only place where it
+		// doesn't cause an error to be thrown and doesn't break game playback.
+		// The replacer should really be factored into individual abilities, to
+		// allow them to be serialized.
+		// Note that several options exist to serialize circular references, but
+		// when added here, they result in serialized strings larger than 100 MB.
+		const json = JSON.stringify(dict, (key, value) => (key === 'sourceCreature' ? {} : value));
+		const hash = 'AB-' + this.game.version + '@' + today + ':' + btoa(json);
+		let output;
+		let strOutput;
 
 		switch (state) {
 			case 'json':
