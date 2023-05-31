@@ -1,4 +1,3 @@
-import * as $j from 'jquery';
 import { isEmpty, getGameConfig } from '../script';
 import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG } from '../debug';
 
