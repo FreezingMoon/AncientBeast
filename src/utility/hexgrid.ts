@@ -934,7 +934,6 @@ export class HexGrid {
 			const { creature } = hex;
 
 			if (creature instanceof Creature) {
-
 				creature.resetBounce();
 				// toggle hover off event
 				if (creature.isDarkPriest()) {
