@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import { once } from 'underscore';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -199,37 +200,29 @@ export default (G) => {
 					),
 				);
 
-				// Add a trap to every hex of the target
 				let effect = new Effect(
 					ability.title,
 					ability.creature,
 					this,
 					'onStepOut',
 					{
-						effectFn: (eff) => {
-							const waitForMovementComplete = (message, payload) => {
-								if (message === 'movementComplete' && payload.creature.id === eff.target.id) {
-									this.game.signals.creature.remove(waitForMovementComplete);
-
-									G.log('%CreatureName' + eff.target.id + '% is hit by ' + eff.name);
-									eff.target.takeDamage(new Damage(eff.owner, damages, 1, [], G), {
-										isFromTrap: true,
-									});
-									// Hack: manually destroy traps so we don't activate multiple traps
-									// and see multiple logs etc.
-									target.hexagons.forEach(function (hex) {
-										hex.destroyTrap();
-									});
-									eff.deleteEffect();
-								}
-							};
-
-							// Wait until movement is completely finished before processing effects.
-							this.game.signals.creature.add(waitForMovementComplete);
-						},
+						effectFn: once((effect) => {
+							G.log('%CreatureName' + target.id + '% is injured by ' + effect.name);
+							target.takeDamage(new Damage(ability.creature, damages, 1, [], G), {
+								isFromTrap: true,
+							});
+							effect.deleteEffect();
+							// NOTE: Destroy all traps under creature. They are assumed to
+							// be poisonous vine. This is not strictly necessary but it
+							// keeps multiple instances of "Poisonous Vine" text
+							// from appearing on screen.
+							target.hexagons.forEach((hex) => hex.destroyTrap());
+						}),
 					},
 					G,
 				);
+
+				// NOTE: Add a trap to every hex of the target
 				target.hexagons.forEach(function (hex) {
 					hex.createTrap('poisonous-vine', [effect], ability.creature.player, {
 						turnLifetime: lifetime,
