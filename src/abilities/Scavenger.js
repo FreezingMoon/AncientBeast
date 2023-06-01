@@ -365,6 +365,10 @@ export default (G) => {
 
 				if (result.damageObj.status !== 'Shielded') {
 					// Add poison damage debuff
+
+					let nerf = 1;
+					let poisonDamage = ability.damages.poison;
+
 					let effect = new Effect(
 						this.title,
 						this.creature,
@@ -378,7 +382,7 @@ export default (G) => {
 									new Damage(
 										eff.owner,
 										{
-											poison: ability.damages.poison,
+											poison: poisonDamage - nerf,
 										},
 										1,
 										[],
@@ -386,6 +390,10 @@ export default (G) => {
 									),
 									{ isFromTrap: true },
 								);
+								nerf++;
+								if (nerf >= poisonDamage) {
+									eff.deleteEffect();
+								}
 							},
 						},
 						G,
