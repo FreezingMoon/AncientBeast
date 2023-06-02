@@ -2131,6 +2131,25 @@ export class UI {
 	}
 
 	static #getQuickInfo(ui, quickInfoDomElement) {
+		const quickInfo = new QuickInfo(quickInfoDomElement);
+
+		const creatureFormatter = (creature) => {
+			const name = capitalize(creature.name);
+			const trapOrLocation = capitalize(
+				creature?.hexagons[0]?.trap ? creature?.hexagons[0]?.trap?.name : ui.game.combatLocation,
+			);
+			const nameColorClasses =
+				creature && creature.player ? `p${creature.player.id} player-text bright` : '';
+
+			return `<div class="vignette hex">
+			<div class="hexinfo frame">
+			<p class="name ${nameColorClasses}">${name}</p>
+			<p>${trapOrLocation}</p>
+			</div>
+			</div>
+			`;
+		};
+
 		const playerFormatter = (player) =>
 			`<div class="vignette active p${player.id}">
 				<div class="playerinfo frame p${player.id}">
@@ -2157,7 +2176,15 @@ export class UI {
 			`;
 		};
 
-		const quickInfo = new QuickInfo(quickInfoDomElement);
+		const gameFormatter = (game) => {
+			return `<div class="vignette hex">
+			<div class="hexinfo frame">
+			<p class="name">Ancient Beast</p>
+			<p>${game.version}</p>
+			</div>
+			</div>
+			`;
+		}
 
 		/**
 		 * NOTE: Throttling here because we want to
@@ -2182,13 +2209,25 @@ export class UI {
 			throttledSet(hexFormatter(hex));
 		};
 
+		const showCreature = (creature) => {
+			throttledSet(creatureFormatter(creature));
+		}
+
+		const showGameInfo = () => {
+			throttledSet(gameFormatter(ui.game));	
+		}
+
+		const showDefault = () => {
+			showCurrentPlayer();
+		}
+
 		ui.game.signals.creature.add((message) => {
 			if (['abilityend', 'activate'].includes(message)) {
-				showCurrentPlayer();
+				showDefault();
 			}
 		});
 
-		ui.game.signals.ui.add((message) => {
+		ui.game.signals.ui.add((message, payload) => {
 			if (
 				[
 					'toggleMusicPlayer',
@@ -2196,9 +2235,15 @@ export class UI {
 					'toggleScore',
 					'toggleMetaPowers',
 					'closeInterfaceScreens',
+					'vignettecreaturemouseleave',
+					'vignetteturnendmouseleave'
 				].includes(message)
 			) {
-				showCurrentPlayer();
+				showDefault();
+			} else if ('vignettecreaturemouseenter' === message) {
+				showCreature(payload.creature);
+			} else if ('vignetteturnendmouseenter' === message) {
+				showGameInfo();
 			}
 		});
 
@@ -2206,7 +2251,7 @@ export class UI {
 			if (message === 'over' && (hex.creature || hex.drop || hex.trap)) {
 				showHex(hex);
 			} else {
-				showCurrentPlayer();
+				showDefault();
 			}
 		});
 
@@ -2222,22 +2267,6 @@ export class UI {
 		 * Returns Queue.
 		 */
 		const ifGameNotFrozen = utils.ifGameNotFrozen(ui.game);
-
-		const unitFormatter = (creature) => {
-			const name = capitalize(creature.name);
-			const trapOrLocation = capitalize(
-				creature?.hexagons[0]?.trap ? creature?.hexagons[0]?.trap?.name : ui.game.combatLocation,
-			);
-			const nameColorClasses =
-				creature && creature.player ? `p${creature.player.id} player-text bright` : '';
-			return `<div class="vignette hex">
-			<div class="hexinfo frame">
-			<p class="name ${nameColorClasses}">${name}</p>
-			<p>${trapOrLocation}</p>
-			</div>
-			</div>
-			`;
-		};
 
 		const onCreatureClick = ifGameNotFrozen((creature) => {
 			/**
@@ -2269,7 +2298,6 @@ export class UI {
 
 			ui.game.grid.showMovementRange(creature);
 			ui.queue.xray(creature.id);
-			ui.quickInfo.set(unitFormatter(creature));
 		});
 
 		const onCreatureMouseLeave = (maybeCreature) => {
