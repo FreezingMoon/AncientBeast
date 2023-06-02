@@ -8,7 +8,7 @@ import { Fullscreen } from './ui/fullscreen';
 import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
 import SessionI from './multiplayer/session';
-import { DEBUG_AUTO_START_GAME, DEBUG_DISABLE_HOTKEYS } from './debug';
+import { DEBUG_AUTO_START_GAME, DEBUG_DISABLE_HOTKEYS, DEBUG_GAME_LOG, DEBUG_HAS_GAME_LOG } from './debug';
 
 // Load the stylesheet
 import './style/main.less';
@@ -163,7 +163,13 @@ $j(() => {
 		G.loadGame(gameconfig);
 	};
 
-	if (DEBUG_AUTO_START_GAME) {
+	const restoreGameLog = (log) => {
+		G.gamelog.play(log);
+	}
+
+	if (DEBUG_HAS_GAME_LOG) {
+		setTimeout(() => restoreGameLog(DEBUG_GAME_LOG), 50);
+	} else if (DEBUG_AUTO_START_GAME) {
 		setTimeout(startGame, 50);
 	}
 
