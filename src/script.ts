@@ -18,7 +18,7 @@ import './style/main.less';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Too many unknown types.
 const AB = {} as any;
 // Create the game
-const G = new Game('0.4');
+const G = new Game('0.5');
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
 AB.currentGame = G;
