@@ -1,5 +1,6 @@
 import { isEmpty, getGameConfig } from '../script';
 import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG } from '../debug';
+import { log as version } from './version';
 
 export class GameLog {
 	constructor(id, game) {
@@ -128,10 +129,10 @@ export class GameLog {
 		// Note that several options exist to serialize circular references, but
 		// when added here, they result in serialized strings larger than 100 MB.
 		const json = JSON.stringify(dict, (key, value) => (key === 'sourceCreature' ? {} : value));
-		const hash = 'AB-' + this.game.version + '@' + today + ':' + btoa(json);
+		const hash = 'AB-' + version + '@' + today + ':' + btoa(json);
 		let output;
 		let strOutput;
-		const fileName = `AB-${this.game.version}:${today}`;
+		const fileName = `AB-${version}:${today}`;
 
 		switch (state) {
 			case 'json':
