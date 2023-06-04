@@ -56,8 +56,7 @@ export default class Game {
 	 * creatureData :		Array :		Array containing all data for the creatures
 	 *
 	 */
-	constructor(version) {
-		this.version = version || 'dev';
+	constructor() {
 		this.abilities = [];
 		this.players = [];
 		this.creatures = [];
