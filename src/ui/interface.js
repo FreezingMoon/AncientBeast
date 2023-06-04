@@ -2180,7 +2180,7 @@ export class UI {
 			return `<div class="vignette hex">
 			<div class="hexinfo frame">
 			<p class="name">Ancient Beast</p>
-			<p>${game.version}</p>
+			<p>v${game.version}</p>
 			</div>
 			</div>
 			`;
