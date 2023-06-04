@@ -12,7 +12,7 @@ import { getUrl } from '../assetLoader';
 import { MetaPowers } from './meta-powers';
 import { Queue } from './queue';
 import { QuickInfo } from './quickinfo';
-import { major_minor as version } from '../utility/version';
+import { formatted as version } from '../utility/version';
 
 import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
@@ -2181,7 +2181,7 @@ export class UI {
 			return `<div class="vignette hex">
 			<div class="hexinfo frame">
 			<p class="name">Ancient Beast</p>
-			<p>v${version}</p>
+			<p>${version}</p>
 			</div>
 			</div>
 			`;
