@@ -1,5 +1,6 @@
 import { isEmpty, getGameConfig } from '../script';
 import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG } from '../debug';
+import { major_minor as version } from './version';
 
 export class GameLog {
 	constructor(id, game) {
@@ -23,7 +24,7 @@ export class GameLog {
 	}
 
 	config(config) {
-		let game = this.game;
+		const game = this.game;
 
 		if (game.gameState != 'initialized') {
 			alert('To set the game config, you need to be in the setup screen');
@@ -34,9 +35,9 @@ export class GameLog {
 	}
 
 	play(log) {
-		let game = this.game,
-			config,
-			data;
+		const game = this.game;
+		let config;
+		let data;
 
 		if (typeof log == 'object' && !log.length) {
 			data = log.log;
@@ -44,7 +45,7 @@ export class GameLog {
 			this.data = data;
 			return this.config(config);
 		} else if (typeof log == 'string') {
-			let results = log.match(/^AB-(dev|[0-9.]+)(\@[0-9\-]+)?:(.+)$/);
+			const results = log.match(/^AB-(dev|[0-9.]+)(\@[0-9\-]+)?:(.+)$/);
 			if (results) {
 				log = JSON.parse(atob(results[3]));
 				return this.play(log);
@@ -55,7 +56,7 @@ export class GameLog {
 			this.data = log;
 		}
 
-		let fun = () => {
+		const fun = () => {
 			this.timeCursor++;
 
 			if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
@@ -67,7 +68,7 @@ export class GameLog {
 				return;
 			}
 
-			let interval = setInterval(() => {
+			const interval = setInterval(() => {
 				if (!game.freezedInput && !game.turnThrottle) {
 					clearInterval(interval);
 					game.activeCreature.queryMove();
@@ -82,7 +83,7 @@ export class GameLog {
 	}
 
 	next() {
-		let game = this.game;
+		const game = this.game;
 
 		if (game.freezedInput || game.turnThrottle) {
 			return false;
@@ -98,7 +99,7 @@ export class GameLog {
 			return;
 		}
 
-		let interval = setInterval(() => {
+		const interval = setInterval(() => {
 			if (!game.freezedInput && !game.turnThrottle) {
 				clearInterval(interval);
 				game.activeCreature.queryMove(); // Avoid bug
@@ -128,10 +129,10 @@ export class GameLog {
 		// Note that several options exist to serialize circular references, but
 		// when added here, they result in serialized strings larger than 100 MB.
 		const json = JSON.stringify(dict, (key, value) => (key === 'sourceCreature' ? {} : value));
-		const hash = 'AB-' + this.game.version + '@' + today + ':' + btoa(json);
+		const hash = 'AB-' + version + '@' + today + ':' + btoa(json);
 		let output;
 		let strOutput;
-		let fileName = `AB-${this.game.version}:${today}`;
+		const fileName = `AB-${version}:${today}`;
 
 		switch (state) {
 			case 'json':
@@ -162,9 +163,9 @@ export class GameLog {
 	saveFile(data, fileName) {
 		// Set a trap to block consecutive calls within one second
 		this._debounce = new Date().valueOf();
-		let a = document.createElement('a');
-		let file = new Blob([data]);
-		let url = URL.createObjectURL(file);
+		const a = document.createElement('a');
+		const file = new Blob([data]);
+		const url = URL.createObjectURL(file);
 		a.href = url;
 		a.download = fileName;
 		document.body.appendChild(a);

@@ -8,7 +8,12 @@ import { Fullscreen } from './ui/fullscreen';
 import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
 import SessionI from './multiplayer/session';
-import { DEBUG_AUTO_START_GAME, DEBUG_DISABLE_HOTKEYS } from './debug';
+import {
+	DEBUG_AUTO_START_GAME,
+	DEBUG_DISABLE_HOTKEYS,
+	DEBUG_GAME_LOG,
+	DEBUG_HAS_GAME_LOG,
+} from './debug';
 
 // Load the stylesheet
 import './style/main.less';
@@ -18,7 +23,7 @@ import './style/main.less';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Too many unknown types.
 const AB = {} as any;
 // Create the game
-const G = new Game('0.4');
+const G = new Game();
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
 AB.currentGame = G;
@@ -163,7 +168,13 @@ $j(() => {
 		G.loadGame(gameconfig);
 	};
 
-	if (DEBUG_AUTO_START_GAME) {
+	const restoreGameLog = (log) => {
+		G.gamelog.play(log);
+	};
+
+	if (DEBUG_HAS_GAME_LOG) {
+		setTimeout(() => restoreGameLog(DEBUG_GAME_LOG), 50);
+	} else if (DEBUG_AUTO_START_GAME) {
 		setTimeout(startGame, 50);
 	}
 
