@@ -19,6 +19,7 @@ import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
 import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG, DEBUG_DISABLE_MUSIC } from './debug';
 import { configure as configurePointFacade } from './utility/pointfacade';
+import { pretty as version } from './utility/version';
 
 /* Game Class
  *
@@ -553,7 +554,7 @@ export default class Game {
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = 'playing';
 
-		this.log('Welcome to Ancient Beast pre-Alpha');
+		this.log(`Welcome to Ancient Beast ${version}`);
 		this.log('Setting up a ' + playerMode + ' player match');
 
 		this.timeInterval = setInterval(() => {
