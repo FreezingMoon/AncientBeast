@@ -12,7 +12,7 @@ import { getUrl } from '../assetLoader';
 import { MetaPowers } from './meta-powers';
 import { Queue } from './queue';
 import { QuickInfo } from './quickinfo';
-import { formatted as version } from '../utility/version';
+import { pretty as version } from '../utility/version';
 
 import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
