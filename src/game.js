@@ -79,7 +79,10 @@ export default class Game {
 		this.availableCreatures = [];
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;
-		this.gamelog = new GameLog(null, this);
+		this.gamelog = new GameLog(
+			(log) => this.onLogSave(log),
+			(log) => this.onLogLoad(log),
+		);
 		this.configData = {};
 		this.match = {};
 		this.gameplay = {};
@@ -236,7 +239,7 @@ export default class Game {
 	 * Load all required game files
 	 */
 
-	loadGame(setupOpt, matchInitialized, matchid) {
+	loadGame(setupOpt, matchInitialized, matchid, onLoadCompleteFn = () => {}) {
 		// Need to remove keydown listener before new game start
 		// to prevent memory leak and mixing hotkeys between start screen and game
 		$j(document).off('keydown');
@@ -250,7 +253,6 @@ export default class Game {
 
 		this.gameState = 'loading';
 		if (setupOpt) {
-			this.gamelog.gameConfig = setupOpt;
 			this.configData = setupOpt;
 			$j.extend(this, setupOpt);
 		}
@@ -274,6 +276,7 @@ export default class Game {
 		this.musicPlayer = this.soundsys.musicPlayer;
 
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
+		this.Phaser.load.onLoadComplete.add(onLoadCompleteFn);
 
 		// Health
 		let playerColors = ['red', 'blue', 'orange', 'green'];
@@ -583,15 +586,6 @@ export default class Game {
 		this.soundsys.playMusic();
 		if (DEBUG_DISABLE_MUSIC) {
 			this.musicPlayer.audio.pause();
-		}
-
-		if (this.gamelog.data) {
-			// TODO: Remove the need for a timeout here by having a proper
-			// "game is ready to play" event that can trigger log replays if
-			// they are queued. -- ktiedt
-			setTimeout(() => {
-				this.gamelog.play.apply(this.gamelog);
-			}, 1000);
 		}
 
 		this.matchInit();
@@ -1607,5 +1601,47 @@ export default class Game {
 		}, {});
 
 		return signals;
+	}
+
+	onLogSave(log) {
+		log.custom.configData = this.configData;
+	}
+
+	onLogLoad(log) {
+		if (this.gameState !== 'initialized') {
+			alert('Can only load game from configuration menu.');
+			return;
+		}
+
+		const actions = [...log.actions];
+		const numTotalActions = actions.length;
+		const game = this;
+		const configData = log.custom.configData;
+		game.configData = log.custom.configData ?? game.configData;
+
+		const nextAction = () => {
+			if (actions.length === 0) {
+				// this.activeCreature.queryMove(); // Avoid bug: called twice breaks opening UI (may need to revisit)
+				return;
+			}
+
+			if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
+				console.log(`${1 + numTotalActions - actions.length} / ${numTotalActions}`);
+			}
+
+			const interval = setInterval(() => {
+				if (!game.freezedInput && !game.turnThrottle) {
+					clearInterval(interval);
+					game.activeCreature.queryMove();
+					game.action(actions.shift(), {
+						callback: nextAction,
+					});
+				}
+			}, 100);
+		};
+
+		game.loadGame(configData, undefined, undefined, () => {
+			setTimeout(() => nextAction(), 3000);
+		});
 	}
 }
