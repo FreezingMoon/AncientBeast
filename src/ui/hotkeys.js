@@ -10,6 +10,8 @@ export class Hotkeys {
 	pressS(event) {
 		if (event.shiftKey) {
 			this.ui.btnToggleScore.triggerClick();
+		} else if (event.ctrlKey) {
+			this.ui.game.gamelog.save();
 		} else {
 			this.ui.dashopen ? this.ui.gridSelectDown() : this.ui.btnSkipTurn.triggerClick();
 		}
@@ -62,8 +64,8 @@ export class Hotkeys {
 	}
 
 	pressX(event) {
-		if (event.shiftKey && event.ctrlKey && event.metaKey) {
-			this.ui.game.gamelog.get('save');
+		if (event.shiftKey && event.ctrlKey) {
+			this.ui.game.gamelog.save();
 		} else {
 			this.ui.btnExit.triggerClick();
 		}

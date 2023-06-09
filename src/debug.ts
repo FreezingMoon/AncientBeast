@@ -36,7 +36,7 @@ export const DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG =
 export const DEBUG_AUTO_START_GAME = d && toBool(process.env.DEBUG_AUTO_START_GAME);
 
 export const DEBUG_GAME_LOG = process.env.DEBUG_GAME_LOG;
-export const DEBUG_HAS_GAME_LOG = d && DEBUG_GAME_LOG.startsWith('AB-');
+export const DEBUG_HAS_GAME_LOG = d && DEBUG_GAME_LOG.startsWith('Ancient Beast');
 
 // NOTE: Disable music if auto starting.
 // The browser will otherwise complain about
