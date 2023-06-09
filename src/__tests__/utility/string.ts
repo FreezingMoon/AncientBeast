@@ -1,5 +1,26 @@
-import { toBool } from '../../utility/string';
+import { zfill, toBool } from '../../utility/string';
 import { expect, describe, test } from '@jest/globals';
+
+describe('zfill', () => {
+	test('zfill(num:number, size:number) pads zeros on the left if length of num < size', () => {
+		expect(zfill(1, 2)).toBe('01');
+		expect(zfill(1, 3)).toBe('001');
+		expect(zfill(30, 3)).toBe('030');
+		expect(zfill(30, 5)).toBe('00030');
+	});
+	test('zfill(num:number, size:number) does not fill if length of num >= size', () => {
+		expect(zfill(1, 1)).toBe('1');
+		expect(zfill(1001, 3)).toBe('1001');
+		expect(zfill(30, -3)).toBe('30');
+		expect(zfill(12345, 5)).toBe('12345');
+	});
+	test('zfill(num:number, size:number) places "-" on the left for negative numbers', () => {
+		expect(zfill(-1, 3)).toBe('-01');
+		expect(zfill(-1001, 7)).toBe('-001001');
+		expect(zfill(-30, -3)).toBe('-30');
+		expect(zfill(-12345, 7)).toBe('-012345');
+	});
+});
 
 describe('toBool', () => {
 	describe('"true" "yes" "1" are true', () => {
