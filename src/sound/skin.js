@@ -21,18 +21,6 @@ timeline.addEventListener(
 	false,
 );
 
-const volumeSlider = audioPlayer.querySelector('.controls .volume-slider');
-volumeSlider.addEventListener(
-	'click',
-	(e) => {
-		const sliderWidth = window.getComputedStyle(volumeSlider).width;
-		const newVolume = e.offsetX / parseInt(sliderWidth);
-		skin.volume = newVolume;
-		audioPlayer.querySelector('.controls .volume-percentage').style.width = newVolume * 100 + '%';
-	},
-	false,
-);
-
 setInterval(() => {
 	const progressBar = audioPlayer.querySelector('.progress-music');
 	progressBar.style.width = (skin.currentTime / skin.duration) * 100 + '%';
@@ -55,18 +43,6 @@ playBtn.addEventListener(
 	},
 	false,
 );
-
-audioPlayer.querySelector('.volume-button').addEventListener('click', () => {
-	const volumeEl = audioPlayer.querySelector('.volume-container .volume');
-	skin.muted = !skin.muted;
-	if (skin.muted) {
-		volumeEl.classList.remove('icono-volumeMedium');
-		volumeEl.classList.add('icono-volumeMute');
-	} else {
-		volumeEl.classList.add('icono-volumeMedium');
-		volumeEl.classList.remove('icono-volumeMute');
-	}
-});
 
 function getTimeCodeFromNum(num) {
 	let seconds = parseInt(num);
