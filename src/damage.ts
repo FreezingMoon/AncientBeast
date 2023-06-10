@@ -20,6 +20,8 @@ export class Damage {
 	melee: boolean | undefined = undefined;
 	isFromTrap: boolean | undefined = undefined;
 
+	noLog = false;
+
 	/** Constructor
 	 * @param {Creature} attacker Unit that initiated the damage
 	 * @param {DamageStats} damages Object containing the damage by type {frost : 5} for example

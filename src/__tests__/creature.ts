@@ -2,6 +2,9 @@ import { Creature } from '../creature';
 import { jest, expect, describe, test, beforeEach } from '@jest/globals';
 import { Player } from '../player';
 
+// NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+
 describe('Creature', () => {
 	describe('creature.id', () => {
 		let game;
@@ -31,11 +34,13 @@ describe('Creature', () => {
 			const game = getGameMock();
 			const obj = getCreatureObjMock();
 			obj.temp = true;
+			// @ts-ignore
 			const creatureTemp = new Creature(obj, game);
 			expect(game.creatures.length).toBe(1);
 			expect(game.creatures.filter((c) => c)[0]).toStrictEqual(creatureTemp);
 
 			obj.temp = false;
+			// @ts-ignore
 			const creatureNotTemp = new Creature(obj, game);
 			expect(game.creatures.length).toBe(1);
 			expect(game.creatures.filter((c) => c)[0]).not.toStrictEqual(creatureTemp);
