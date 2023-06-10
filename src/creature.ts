@@ -49,6 +49,16 @@ type TracePositionOptions = Partial<{
 	drawOverCreatureTiles: boolean;
 }>;
 
+type QueryMoveOptions = Partial<{
+	targeting: boolean;
+	noPath: boolean;
+	isAbility: boolean;
+	ownCreatureHexShade: boolean;
+	range: Hex[];
+	callback: (hex: Hex, args: any) => {};
+	args: any;
+}>;
+
 /**
  * Creature Class
  *
@@ -603,7 +613,7 @@ export class Creature {
 	 * launch move action query
 	 */
 	// TODO: type the argument
-	queryMove(o) {
+	queryMove(o: QueryMoveOptions) {
 		const game = this.game;
 
 		if (this.dead) {
@@ -642,7 +652,7 @@ export class Creature {
 				isAbility: false,
 				ownCreatureHexShade: true,
 				range: game.grid.getMovementRange(this.x, this.y, remainingMove, this.size, this.id),
-				callback: function (hex, args) {
+				callback: function (hex: Hex, args) {
 					if (hex.x == args.creature.x && hex.y == args.creature.y) {
 						// Prevent null movement
 						game.activeCreature.queryMove();
