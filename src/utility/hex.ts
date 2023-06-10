@@ -266,7 +266,7 @@ export class Hex {
 	 * This function return an array containing all hexes of the grid
 	 * at the distance given of the current hex.
 	 */
-	adjacentHex(distance) {
+	adjacentHex(distance: number) {
 		const adjHex = [];
 
 		for (let i = -distance; i <= distance; i++) {
