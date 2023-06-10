@@ -6,6 +6,9 @@ import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
 import { getPointFacade } from './utility/pointfacade';
+import { Effect } from './effect';
+import { Player } from './player';
+import { Damage } from './damage';
 
 export type CreatureVitals = {
 	health: number;
@@ -37,6 +40,24 @@ type CreatureStats = CreatureVitals &
 		fatigueImmunity: boolean;
 		reqEnergy: number;
 	};
+
+type TracePositionOptions = Partial<{
+	x: number;
+	y: number;
+	overlayClass: string;
+	displayClass: string;
+	drawOverCreatureTiles: boolean;
+}>;
+
+type QueryMoveOptions = Partial<{
+	targeting: boolean;
+	noPath: boolean;
+	isAbility: boolean;
+	ownCreatureHexShade: boolean;
+	range: Hex[];
+	callback: (hex: Hex, args: any) => void;
+	args: any;
+}>;
 
 /**
  * Creature Class
@@ -101,7 +122,7 @@ export class Creature {
 	temp: boolean;
 	hexagons: Array<any>;
 	team: number;
-	player: any;
+	player: Player;
 
 	// Game
 	dead: boolean;
@@ -113,7 +134,11 @@ export class Creature {
 	dropCollection: Array<any>;
 	protectedFromFatigue: boolean;
 	turnsActive: number;
-	healthIndicatorTween: Phaser.Tween | null;
+	delayable: boolean;
+	delayed: boolean;
+	materializationSickness: boolean;
+	noActionPossible: boolean;
+	destroy: any;
 
 	// Statistics
 	baseStats: CreatureStats;
@@ -126,20 +151,18 @@ export class Creature {
 	oldEnergy: number;
 	remainingMove: number;
 	abilities: Array<any>;
-	grp: any;
-	sprite: any;
-	hintGrp: any;
-	healthIndicatorGroup: any;
-	healthIndicatorSprite: any;
-	healthIndicatorText: any;
-	delayable: boolean;
-	delayed: boolean;
-	materializationSickness: boolean;
-	noActionPossible: boolean;
 
-	destroy: any;
+	// Phaser
 
-	constructor(obj, game) {
+	grp: Phaser.Group;
+	sprite: Phaser.Sprite;
+	hintGrp: Phaser.Group;
+	healthIndicatorGroup: Phaser.Group;
+	healthIndicatorSprite: Phaser.Sprite;
+	healthIndicatorText: Phaser.Text;
+	healthIndicatorTween: Phaser.Tween | null;
+
+	constructor(obj, game: Game) {
 		// Engine
 		this.game = game;
 		this.name = obj.name;
@@ -378,8 +401,6 @@ export class Creature {
 
 	/**
 	 * Summon animation.
-	 *
-	 * @param {boolean} disableMaterializationSickness Do not affect the creature with Materialization Sickness.
 	 */
 	summon(disableMaterializationSickness = false) {
 		const game = this.game;
@@ -538,9 +559,9 @@ export class Creature {
 	 * Preview the creature position at the given coordinates
 	 *
 	 */
-	deactivate(wait) {
+	deactivate(wait: boolean) {
 		const game = this.game;
-		this.delayed = Boolean(wait);
+		this.delayed = wait;
 		this.hasWait = this.delayed;
 		this.status.frozen = false;
 		this.status.cryostasis = false;
@@ -573,27 +594,26 @@ export class Creature {
 		});
 
 		if (this.remainingMove > 0 && abilityAvailable) {
-			this.delay(this.game.activeCreature === this);
+			this.delay();
 			this.deactivate(true);
 		}
 	}
 
-	delay(excludeActiveCreature) {
+	delay() {
 		const game = this.game;
 
 		game.queue.delay(this);
 		this.delayable = false;
 		this.delayed = true;
 		this.hint('Delayed', 'msg_effects');
-		game.updateQueueDisplay(excludeActiveCreature);
+		game.updateQueueDisplay();
 	}
 
 	/* queryMove()
-	 *
 	 * launch move action query
-	 *
 	 */
-	queryMove(o) {
+	// TODO: type the argument
+	queryMove(o: QueryMoveOptions) {
 		const game = this.game;
 
 		if (this.dead) {
@@ -632,7 +652,7 @@ export class Creature {
 				isAbility: false,
 				ownCreatureHexShade: true,
 				range: game.grid.getMovementRange(this.x, this.y, remainingMove, this.size, this.id),
-				callback: function (hex, args) {
+				callback: function (hex: Hex, args) {
 					if (hex.x == args.creature.x && hex.y == args.creature.y) {
 						// Prevent null movement
 						game.activeCreature.queryMove();
@@ -736,7 +756,7 @@ export class Creature {
 	 * Preview the creature position at the given Hex
 	 *
 	 */
-	previewPosition(hex) {
+	previewPosition(hex: Hex) {
 		const game = this.game;
 
 		game.grid.cleanOverlay('hover h_player' + this.team);
@@ -818,7 +838,12 @@ export class Creature {
 	 * Face creature at given hex
 	 *
 	 */
-	faceHex(faceto, facefrom, ignoreCreaHex, attackFix) {
+	faceHex(
+		faceto: Hex | Creature,
+		facefrom: Hex | Creature,
+		ignoreCreaHex: boolean,
+		attackFix: boolean,
+	) {
 		if (!facefrom) {
 			facefrom = this.player.flipped ? this.hexagons[this.size - 1] : this.hexagons[0];
 		}
@@ -847,26 +872,21 @@ export class Creature {
 
 		if (attackFix && this.size > 1) {
 			//only works on 2hex creature targeting the adjacent row
+			const flipOffset = this.player.flipped ? 1 : 0;
 			if (facefrom.y % 2 === 0) {
-				if (faceto.x - this.player.flipped == facefrom.x) {
+				if (faceto.x - flipOffset == facefrom.x) {
 					this.facePlayerDefault();
 					return;
 				}
 			} else {
-				if (faceto.x + 1 - this.player.flipped == facefrom.x) {
+				if (faceto.x + 1 - flipOffset == facefrom.x) {
 					this.facePlayerDefault();
 					return;
 				}
 			}
 		}
 
-		let flipped;
-
-		if (facefrom.y % 2 === 0) {
-			flipped = faceto.x <= facefrom.x;
-		} else {
-			flipped = faceto.x < facefrom.x;
-		}
+		const flipped = facefrom.y % 2 === 0 ? faceto.x <= facefrom.x : faceto.x < facefrom.x;
 
 		if (flipped) {
 			this.sprite.scale.setTo(-1, 1);
@@ -997,7 +1017,7 @@ export class Creature {
 		});
 	}
 
-	tracePosition(args) {
+	tracePosition(args: TracePositionOptions) {
 		const defaultArgs = {
 			x: this.x,
 			y: this.y,
@@ -1037,7 +1057,7 @@ export class Creature {
 	 * return :	Array :	Array containing the path hexes
 	 *
 	 */
-	calculatePath(x, y) {
+	calculatePath(x: number, y: number) {
 		const game = this.game;
 
 		return search(
@@ -1059,7 +1079,7 @@ export class Creature {
 	 * Return the first possible position for the creature at the given coordinates
 	 *
 	 */
-	calcOffset(x, y) {
+	calcOffset(x: number, y: number) {
 		const game = this.game,
 			offset = game.players[this.team].flipped ? this.size - 1 : 0,
 			mult = game.players[this.team].flipped ? 1 : -1; // For FLIPPED player
@@ -1087,7 +1107,7 @@ export class Creature {
 	 * return :	Integer :	Initiative value to order the queue
 	 *
 	 */
-	getInitiative() {
+	getInitiative(): number {
 		// To avoid 2 identical initiative
 		return this.stats.initiative * 500 - this.id;
 	}
@@ -1099,7 +1119,7 @@ export class Creature {
 	 * return :	Array :		Array of adjacent hexagons
 	 *
 	 */
-	adjacentHexes(dist, clockwise?) {
+	adjacentHexes(dist: number, clockwise?: boolean) {
 		const game = this.game;
 
 		// TODO Review this algo to allow distance
@@ -1108,7 +1128,7 @@ export class Creature {
 			let c: Array<any>;
 			const o = this.y % 2 === 0 ? 1 : 0;
 
-			if (this.size == 1) {
+			if (this.size === 1) {
 				c = [
 					{
 						y: this.y,
@@ -1137,7 +1157,7 @@ export class Creature {
 				];
 			}
 
-			if (this.size == 2) {
+			if (this.size === 2) {
 				c = [
 					{
 						y: this.y,
@@ -1174,7 +1194,7 @@ export class Creature {
 				];
 			}
 
-			if (this.size == 3) {
+			if (this.size === 3) {
 				c = [
 					{
 						y: this.y,
@@ -1234,7 +1254,7 @@ export class Creature {
 			const hexes = this.hexagons[0].adjacentHex(dist);
 			const lasthexes = this.hexagons[this.size - 1].adjacentHex(dist);
 
-			hexes.forEach((hex) => {
+			hexes.forEach((hex: Hex) => {
 				if (arrayUtils.findPos(this.hexagons, hex)) {
 					arrayUtils.removePos(hexes, hex);
 				} // Remove from array if own creature hex
@@ -1258,7 +1278,7 @@ export class Creature {
 	 * @return {void}
 	 * Restore energy up to the max limit
 	 */
-	recharge(amount, log = true) {
+	recharge(amount: number, log = true) {
 		this.energy = Math.min(this.stats.energy, this.energy + amount);
 
 		if (log) {
@@ -1272,7 +1292,7 @@ export class Creature {
 	 *
 	 * @param {*} amount Number of endurance points to restore.
 	 */
-	restoreEndurance(amount, log = true) {
+	restoreEndurance(amount: number, log = true) {
 		this.endurance = Math.min(this.stats.endurance, this.endurance + amount);
 
 		if (log) {
@@ -1286,7 +1306,7 @@ export class Creature {
 	 *
 	 * @param {*} amount Number of movement points to restore.
 	 */
-	restoreMovement(amount, log = true) {
+	restoreMovement(amount: number, log = true) {
 		this.remainingMove = Math.min(this.stats.movement, this.remainingMove + amount);
 
 		if (log) {
@@ -1298,7 +1318,7 @@ export class Creature {
 	 *
 	 * amount :	Damage :	Amount of health point to restore
 	 */
-	heal(amount, isRegrowth, log = true) {
+	heal(amount: number, isRegrowth: boolean, log = true) {
 		const game = this.game;
 		// Cap health point
 		amount = Math.min(amount, this.stats.health - this.health);
@@ -1332,7 +1352,7 @@ export class Creature {
 			if (isRegrowth) {
 				this.hint(amount + ' ♠', 'damage d' + amount);
 			} else {
-				this.hint(amount, 'damage d ' + amount);
+				this.hint(amount + '', 'damage d ' + amount);
 			}
 
 			if (log) {
@@ -1349,7 +1369,7 @@ export class Creature {
 	 *
 	 * return :	Object :	Contains damages dealt and if creature is killed or not
 	 */
-	takeDamage(damage, o) {
+	takeDamage(damage: Damage, o) {
 		const game = this.game;
 
 		if (this.dead) {
@@ -1402,7 +1422,7 @@ export class Creature {
 
 			// Display
 			const nbrDisplayed = dmgAmount ? '-' + dmgAmount : 0;
-			this.hint(nbrDisplayed, 'damage d' + dmgAmount);
+			this.hint(nbrDisplayed + '', 'damage d' + dmgAmount);
 
 			if (!damage.noLog) {
 				game.log('%CreatureName' + this.id + '% is hit : ' + nbrDisplayed + ' health');
@@ -1507,7 +1527,7 @@ export class Creature {
 			this.healthIndicatorSprite.loadTexture('p' + this.team + '_health');
 		}
 
-		this.healthIndicatorText.setText(this.health);
+		this.healthIndicatorText.setText(this.health + '');
 	}
 
 	displayPlasmaShield() {
@@ -1519,7 +1539,7 @@ export class Creature {
 		return this.player.plasma > 0;
 	}
 
-	addFatigue(dmgAmount) {
+	addFatigue(dmgAmount: number) {
 		if (!this.stats.fatigueImmunity) {
 			this.endurance -= dmgAmount;
 			this.endurance = this.endurance < 0 ? 0 : this.endurance; // Cap
@@ -1528,13 +1548,8 @@ export class Creature {
 		this.game.UI.updateFatigue();
 	}
 
-	/* addEffect(effect)
-	 *
-	 * effect :		Effect :	Effect object
-	 *
-	 */
 	addEffect(
-		effect,
+		effect: Effect,
 		specialString?: string,
 		specialHint?: string,
 		disableLog = false,
@@ -1576,36 +1591,30 @@ export class Creature {
 	 * Add effect, but if the effect is already attached, replace it with the new
 	 * effect.
 	 * Note that for stackable effects, this is the same as addEffect()
-	 *
-	 * @param {Effect} effect: the effect to add
-	 * @return {void}
 	 */
-	replaceEffect(effect) {
-		if (!effect.stackable && this.findEffect(effect.name).length !== 0) {
-			this.removeEffect(effect.name);
+	replaceEffect(effectToAdd: Effect) {
+		if (!effectToAdd.stackable && this.findEffect(effectToAdd.name).length !== 0) {
+			this.removeEffect(effectToAdd.name);
 		}
 
-		this.addEffect(effect);
+		this.addEffect(effectToAdd);
 	}
 
 	/** removeEffect
 	 * Remove an effect by name
-	 *
-	 * @param {string} name: name of effect
-	 * @return {void}
 	 */
-	removeEffect(name) {
+	removeEffect(effectName: string) {
 		const totalEffects = this.effects.length;
 
 		for (let i = 0; i < totalEffects; i++) {
-			if (this.effects[i].name === name) {
+			if (this.effects[i].name === effectName) {
 				this.effects.splice(i, 1);
 				break;
 			}
 		}
 	}
 
-	hint(text, cssClass) {
+	hint(text: string, cssClass: string) {
 		const game = this.game,
 			tooltipSpeed = 250,
 			tooltipDisplaySpeed = 500,
@@ -1673,7 +1682,7 @@ export class Creature {
 		hint.alpha = 0;
 		hint.cssClass = cssClass;
 
-		if (cssClass == 'confirm') {
+		if (cssClass === 'confirm') {
 			hint.tweenAlpha = game.Phaser.add
 				.tween(hint)
 				.to(
@@ -1754,7 +1763,7 @@ export class Creature {
 
 		buffDebuffArray.forEach((buff) => {
 			$j.each(buff.alterations, (key, value) => {
-				if (typeof value == 'string') {
+				if (typeof value === 'string') {
 					// Multiplication Buff
 					if (value.match(/\*/)) {
 						this.stats[key] = eval(this.stats[key] + value);
@@ -1798,7 +1807,7 @@ export class Creature {
 	 * killer :	Creature :	Killer of this creature
 	 *
 	 */
-	die(killer) {
+	die(killerCreature: Creature | { player: Player }) {
 		const game = this.game;
 
 		game.log('%CreatureName' + this.id + '% is dead');
@@ -1808,7 +1817,7 @@ export class Creature {
 		// Triggers
 		game.onCreatureDeath(this);
 
-		this.killer = killer.player;
+		this.killer = killerCreature.player;
 		const isDeny = this.killer.flipped == this.player.flipped;
 
 		// Drop item
@@ -1939,7 +1948,7 @@ export class Creature {
 	 *
 	 * shortcut convenience function to grid.getHexMap
 	 */
-	getHexMap(map, invertFlipped) {
+	getHexMap(map, invertFlipped: boolean) {
 		const x = (this.player.flipped ? !invertFlipped : invertFlipped)
 			? this.x + 1 - this.size
 			: this.x;
@@ -1965,7 +1974,7 @@ export class Creature {
 	}
 
 	// Make units transparent
-	xray(enable) {
+	xray(enable: boolean) {
 		const game = this.game;
 
 		if (enable) {
@@ -2001,9 +2010,8 @@ export class Creature {
 
 	/**
 	 * Get movement type for this creature
-	 * @return {string} "normal", "hover", or "flying"
 	 */
-	movementType() {
+	movementType(): string {
 		const totalAbilities = this.abilities.length;
 
 		// If the creature has an ability that modifies movement type, use that,
@@ -2019,28 +2027,22 @@ export class Creature {
 
 	/**
 	 * Is this unit a Dark Priest?
-	 *
-	 * @returns {boolean}
 	 */
-	isDarkPriest() {
+	isDarkPriest(): boolean {
 		return this.type === '--';
 	}
 
 	/**
 	 * Does the creature have the Frozen status? @see status.frozen
-	 *
-	 * @returns {boolean}
 	 */
-	isFrozen() {
+	isFrozen(): boolean {
 		return this.status.frozen;
 	}
 
 	/**
 	 * Does the creature have the Cryostasis status? @see status.cryostasis
-	 *
-	 * @returns {boolean}
 	 */
-	isInCryostasis() {
+	isInCryostasis(): boolean {
 		return this.isFrozen() && this.status.cryostasis;
 	}
 
@@ -2048,17 +2050,13 @@ export class Creature {
 	 * Same as the "Frozen" status, but with a different name.
 	 *
 	 * TODO: Refactor to a generic "skip turn" status that can be customised.
-	 *
-	 * @returns {boolean}
 	 */
-	isDizzy() {
+	isDizzy(): boolean {
 		return this.status.dizzy;
 	}
 
 	/**
 	 * Freeze a creature, skipping its next turn. @see status.frozen
-	 *
-	 * @param {boolean} cryostasis Also apply the Cryostasis status @see status.cryostasis
 	 */
 	freeze(cryostasis = false) {
 		this.status.frozen = true;
@@ -2075,30 +2073,30 @@ export class Creature {
 		this.game.signals.creature.dispatch('frozen', { creature: this, cryostasis });
 	}
 
-	get fatigueText() {
-		let text;
+	get fatigueText(): string {
+		let result = '';
 		if (this.isFrozen()) {
-			text = this.isInCryostasis() ? 'Cryostasis' : 'Frozen';
+			result = this.isInCryostasis() ? 'Cryostasis' : 'Frozen';
 		} else if (this.isDizzy()) {
-			text = 'Dizzy';
+			result = 'Dizzy';
 		} else if (this.materializationSickness) {
-			text = 'Sickened';
+			result = 'Sickened';
 		} else if (this.protectedFromFatigue || this.stats.fatigueImmunity) {
-			text = 'Protected';
+			result = 'Protected';
 		} else if (this.isFragile()) {
-			text = 'Fragile';
+			result = 'Fragile';
 			// Display message if the creature has first become fragile
 
 			// TODO: This isn't necessarily the moment the creature has
 			// become fragile. The code will run twice if, e.g.,
 			// the creature is fragile, then fragile and dizzy, then fragile
-			if (this.#fatigueText !== text) {
+			if (this.#fatigueText !== result) {
 				this.game.log('%CreatureName' + this.id + '% has become fragile');
 			}
 		} else if (this.isFatigued()) {
-			text = 'Fatigued';
+			result = 'Fatigued';
 		} else {
-			text = this.endurance + '/' + this.stats.endurance;
+			result = this.endurance + '/' + this.stats.endurance;
 		}
 
 		if (this.isDarkPriest()) {
@@ -2106,7 +2104,7 @@ export class Creature {
 			this.abilities[0].require(); // Update protectedFromFatigue
 		}
 
-		this.#fatigueText = text;
-		return text;
+		this.#fatigueText = result;
+		return result;
 	}
 }
