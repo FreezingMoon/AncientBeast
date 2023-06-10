@@ -613,7 +613,7 @@ export class Creature {
 	 * launch move action query
 	 */
 	// TODO: type the argument
-	queryMove(o: QueryMoveOptions) {
+	queryMove(o:QueryMoveOptions) {
 		const game = this.game;
 
 		if (this.dead) {
