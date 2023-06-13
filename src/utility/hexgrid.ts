@@ -862,13 +862,7 @@ export class HexGrid {
 			$j('canvas').css('cursor', 'pointer');
 
 			if (this._executionMode && hex.creature instanceof Creature) {
-				hex.creature.die(
-					/* Target creature was killed by this fake "creature". This works because
-					the death logic doesn't actually care about the killing creature, just
-					that creature's player. The first player is always responsible for executing
-					creatures. */
-					{ player: game.players[0] },
-				);
+				hex.creature.die({ player: game.players[0] });
 				return;
 			}
 
