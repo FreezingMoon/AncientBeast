@@ -27,8 +27,9 @@ const G = new Game();
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
 AB.currentGame = G;
-AB.getLog = AB.currentGame.gamelog.get.bind(AB.currentGame.gamelog);
-AB.restoreGame = AB.currentGame.gamelog.play.bind(AB.currentGame.gamelog);
+AB.getLog = () => AB.currentGame.gamelog.stringify();
+AB.saveLog = () => AB.currentGame.gamelog.save();
+AB.restoreGame = (str) => AB.currentGame.gamelog.load(str);
 window.AB = AB;
 const connect = new Connect(G);
 G.connect = connect;
@@ -104,8 +105,7 @@ $j(() => {
 			},
 			keyDownAction() {
 				readLogFromFile()
-					.then((logstr) => JSON.parse(logstr as string))
-					.then((log) => G.gamelog.play(log))
+					.then((log) => G.gamelog.load(log as string))
 					.catch((err) => {
 						alert('An error occurred while loading the log file');
 						console.log(err);
@@ -164,12 +164,11 @@ $j(() => {
 	$j('#startButton').trigger('focus');
 
 	const startGame = () => {
-		const gameconfig = getGameConfig();
-		G.loadGame(gameconfig);
+		G.loadGame(getGameConfig());
 	};
 
 	const restoreGameLog = (log) => {
-		G.gamelog.play(log);
+		G.gamelog.load(log);
 	};
 
 	if (DEBUG_HAS_GAME_LOG) {
@@ -284,8 +283,7 @@ $j(() => {
 	// Login form
 	$j('form#login').on('submit', login);
 	$j('#startMatchButton').on('click', () => {
-		const gameConfig = getGameConfig();
-		G.loadGame(gameConfig, true);
+		G.loadGame(getGameConfig(), true);
 		return false;
 	});
 
@@ -336,6 +334,7 @@ function getReg() {
  * @returns {Promise<string>}
  */
 function readLogFromFile() {
+	// TODO: This would probably be better off in ./src/utility/gamelog.ts
 	return new Promise((resolve, reject) => {
 		const fileInput = document.createElement('input') as HTMLInputElement;
 		fileInput.accept = '.ab';
@@ -399,8 +398,7 @@ export function getGameConfig() {
 		combatLocation: $j('input[name="combatLocation"]:checked').val(),
 		fullscreenMode: $j('#fullscreen').hasClass('fullscreenMode'),
 	};
-	const config = G.gamelog.gameConfig || defaultConfig;
-	return config;
+	return defaultConfig;
 }
 
 /**
