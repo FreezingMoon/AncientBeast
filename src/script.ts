@@ -91,6 +91,22 @@ $j(() => {
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
 	const startScreenHotkeys = {
+		Space: {
+			keyDownTest() {
+				return true;
+			},
+			keyDownAction() {
+				startGame();
+			},
+		},
+		Enter: {
+			keyDownTest() {
+				return true;
+			},
+			keyDownAction() {
+				startGame();
+			},
+		},
 		KeyF: {
 			keyDownTest(event) {
 				return event.shiftKey;
