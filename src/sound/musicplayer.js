@@ -69,6 +69,10 @@ export class MusicPlayer {
 				this.stopMusic();
 			}
 		});
+
+		$j('.audio-player-beast').on('click', (e => {
+			console.log("MIKON");
+		}))
 	}
 
 	getCurrentTrackIndex() {
