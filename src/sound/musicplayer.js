@@ -76,7 +76,6 @@ export class MusicPlayer {
 
 		$j('.audio-player-beast').on('click', (e => {
 			// Perform on beast click
-			console.log("MIKON");
 			this.beastAudio.play();
 		}))
 	}
