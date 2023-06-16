@@ -1,5 +1,7 @@
 import * as $j from 'jquery';
 import skin from './skin';
+import AncientBeast from "../../assets/sounds/AncientBeast.ogg";
+
 export class MusicPlayer {
 	constructor() {
 		this.audio = skin;
@@ -12,6 +14,8 @@ export class MusicPlayer {
 		this.audio.volume = 0.25;
 		this.audio.pause();
 
+		this.beastAudio = new Audio(AncientBeast);
+	
 		$j('#mp_shuffle')
 			.addClass('active')
 			.on('click', (e) => {
@@ -71,7 +75,9 @@ export class MusicPlayer {
 		});
 
 		$j('.audio-player-beast').on('click', (e => {
+			// Perform on beast click
 			console.log("MIKON");
+			this.beastAudio.play();
 		}))
 	}
 
