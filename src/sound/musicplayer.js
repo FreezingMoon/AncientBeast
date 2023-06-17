@@ -1,5 +1,6 @@
 import * as $j from 'jquery';
 import skin from './skin';
+
 export class MusicPlayer {
 	constructor() {
 		this.audio = skin;
@@ -12,6 +13,9 @@ export class MusicPlayer {
 		this.audio.volume = 0.25;
 		this.audio.pause();
 
+		var beastAudioFile = require("assets/sounds/AncientBeast.ogg");
+		this.beastAudio = new Audio(beastAudioFile);
+	
 		$j('#mp_shuffle')
 			.addClass('active')
 			.on('click', (e) => {
@@ -69,6 +73,11 @@ export class MusicPlayer {
 				this.stopMusic();
 			}
 		});
+
+		$j('.audio-player-beast').on('click', (e => {
+			// Perform on beast click
+			this.beastAudio.play();
+		}))
 	}
 
 	getCurrentTrackIndex() {
