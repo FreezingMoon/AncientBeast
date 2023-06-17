@@ -13,7 +13,7 @@ export class MusicPlayer {
 		this.audio.volume = 0.25;
 		this.audio.pause();
 
-		var beastAudioFile = require("assets/sounds\\AncientBeast.ogg");
+		var beastAudioFile = require("assets/sounds/AncientBeast.ogg");
 		this.beastAudio = new Audio(beastAudioFile);
 	
 		$j('#mp_shuffle')
