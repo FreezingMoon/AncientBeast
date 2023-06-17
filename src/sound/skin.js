@@ -5,7 +5,6 @@ skin.addEventListener(
 	'loadeddata',
 	() => {
 		audioPlayer.querySelector('.time .length').textContent = getTimeCodeFromNum(skin.duration);
-		skin.volume = 0.75;
 	},
 	false,
 );
@@ -17,18 +16,6 @@ timeline.addEventListener(
 		const timelineWidth = window.getComputedStyle(timeline).width;
 		const timeToSeek = (e.offsetX / parseInt(timelineWidth)) * skin.duration;
 		skin.currentTime = timeToSeek;
-	},
-	false,
-);
-
-const volumeSlider = audioPlayer.querySelector('.controls .volume-slider');
-volumeSlider.addEventListener(
-	'click',
-	(e) => {
-		const sliderWidth = window.getComputedStyle(volumeSlider).width;
-		const newVolume = e.offsetX / parseInt(sliderWidth);
-		skin.volume = newVolume;
-		audioPlayer.querySelector('.controls .volume-percentage').style.width = newVolume * 100 + '%';
 	},
 	false,
 );
@@ -55,18 +42,6 @@ playBtn.addEventListener(
 	},
 	false,
 );
-
-audioPlayer.querySelector('.volume-button').addEventListener('click', () => {
-	const volumeEl = audioPlayer.querySelector('.volume-container .volume');
-	skin.muted = !skin.muted;
-	if (skin.muted) {
-		volumeEl.classList.remove('icono-volumeMedium');
-		volumeEl.classList.add('icono-volumeMute');
-	} else {
-		volumeEl.classList.add('icono-volumeMedium');
-		volumeEl.classList.remove('icono-volumeMute');
-	}
-});
 
 function getTimeCodeFromNum(num) {
 	let seconds = parseInt(num);

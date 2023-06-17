@@ -7,17 +7,9 @@ export class MusicPlayer {
 		this.tracks = this.playlist.find('li.epic');
 
 		this.repeat = true;
-		this.shuffle = true;
 
 		this.audio.volume = 0.25;
 		this.audio.pause();
-
-		$j('#mp_shuffle')
-			.addClass('active')
-			.on('click', (e) => {
-				$j(e.currentTarget).toggleClass('active');
-				this.shuffle = !this.shuffle;
-			});
 
 		$j('#genre-epic').addClass('active-text');
 		this.playlist.find('li').not('.epic').addClass('hidden');
@@ -29,7 +21,9 @@ export class MusicPlayer {
 			clickedGenre.toggleClass('active-text');
 
 			if (!clickedGenre.hasClass('active-text')) {
-				const clickedGenreClass = e.target.innerText;
+				// The inner text is capitalized but the class name is not (e.g Epic vs epic).
+				// We must use toLowerCase so that it works correctly.
+				const clickedGenreClass = e.target.innerText.toLowerCase();
 				const unusedTracks = this.playlist.find(`li.${clickedGenreClass}`);
 				unusedTracks.addClass('hidden');
 			}
@@ -39,11 +33,11 @@ export class MusicPlayer {
 
 			const activeGenresSelectors = Array.prototype.map.call(
 				activeGenres.length === 0 ? allGenres : activeGenres, // Here if no genre is active then all genres shall pass
-				(genreNode) => `li.${genreNode.innerText}`,
+				(genreNode) => `li.${genreNode.innerText.toLowerCase()}`,
 			);
 			const allGenresSelectors = Array.prototype.map.call(
 				allGenres,
-				(genreNode) => `li.${genreNode.innerText}`,
+				(genreNode) => `li.${genreNode.innerText.toLowerCase()}`,
 			);
 			const activeTracks = this.playlist.find(activeGenresSelectors.join());
 			const allTracks = this.playlist.find(allGenresSelectors.join()); // This will fetch all the tracks
@@ -58,13 +52,9 @@ export class MusicPlayer {
 		});
 
 		this.audio.addEventListener('ended', () => {
-			// Check if tracks list exists, and if it does, play random or next track based on whether shuffle is on or not, else stop playback
+			// Check if tracks list exists, and if it does, play next track, else stop playback
 			if (this.tracks) {
-				if (this.shuffle) {
-					this.playRandom();
-				} else {
-					this.playNext();
-				}
+				this.playNext();
 			} else {
 				this.stopMusic();
 			}

@@ -23,10 +23,12 @@
 	position: absolute;
 	display: flex;
 	width: 100%;
-	top: 20px;
+	bottom: 27px;
 	right: 0;
 	justify-content: center;
-	gap: 30px;
+	gap: 250px;
+	font-size: 15px;
+	text-transform: capitalize;
 }
 .active-text {
 	color: white !important;
@@ -118,37 +120,4 @@
 }
 .time > * {
 	padding: 2px;
-}
-.volume-container {
-	cursor: pointer;
-	position: relative;
-	z-index: 2;
-}
-.volume-button {
-	height: 26px;
-	display: flex;
-	align-items: center;
-}
-.volume {
-	transform: scale(0.7);
-}
-.volume-slider {
-	position: absolute;
-	left: -3px;
-	top: 15px;
-	z-index: -1;
-	width: 0;
-	height: 15px;
-	background: white;
-	box-shadow: 0 0 20px #000a;
-	transition: 0.25s;
-}
-.volume-percentage {
-	background: #e60a0a;
-	height: 100%;
-	width: 75%;
-}
-.volume-container:hover .volume-slider {
-	left: -123px;
-	width: 120px;
 }
