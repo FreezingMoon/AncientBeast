@@ -429,7 +429,7 @@ body {
 	}
 }
 
-#multiplayer {
+#singleplayer, #multiplayer {
 	position: fixed;
 	top: 50%;
 	right: 0;
@@ -440,10 +440,22 @@ body {
 		height: 100px;
 		width: 100px;
 		background-color: rgba(0, 0, 0, 0.55);
-		background-image: url('~assets/interface/frame.png'), url('~assets/icons/multiplayer.svg');
 		background-size: cover;
 		background-repeat: no-repeat;
 	}
+}
+
+#singleplayer{
+	visibility: hidden;
+	div{
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/singleplayer.svg');
+	}
+}
+
+#multiplayer{
+	div{
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/multiplayer.svg');
+	}	
 }
 
 #fullscreen {
@@ -527,7 +539,7 @@ a {
 	#gameSetup {
 		padding-bottom: 120px;
 	}
-	#multiplayer {
+	#singleplayer, #multiplayer {
 		top: auto;
 		bottom: 0;
 		transform: none;
@@ -577,7 +589,7 @@ a {
 		display: none;
 	}
 
-	#multiplayer {
+	#singleplayer, #multiplayer {
 		top: 50%;
 		left: 0;
 		bottom: auto;
