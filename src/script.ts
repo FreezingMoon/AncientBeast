@@ -164,9 +164,13 @@ $j(() => {
 		forceTwoPlayerMode();
 	});
 
+	$j('#singleplayer').hide();
+
 	$j('#multiplayer').on('click', async () => {
 		$j('.setupFrame,.lobby').hide();
 		$j('.loginregFrame').show();
+		$j('#multiplayer').hide();
+		$j('#singleplayer').show();
 		const sess = new SessionI();
 		try {
 			await sess.restoreSession();
@@ -174,6 +178,13 @@ $j(() => {
 			console.log('unable to restore session', e);
 			return;
 		}
+	});
+
+	$j('#singleplayer').on('click', async () => {
+		$j('.setupFrame').show();
+		$j('.loginregFrame').hide();
+		$j('#multiplayer').show();
+		$j('#singleplayer').hide();
 	});
 
 	// Focus the form to enable "press enter to start the game" functionality
