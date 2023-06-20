@@ -59,6 +59,12 @@ You can [become a backer](https://opencollective.com/AncientBeast/contribute/bac
 
 <a href="https://opencollective.com/AncientBeast/contribute/backer-8021"><img src="https://opencollective.com/AncientBeast/tiers/backer.svg?avatarHeight=50&width=838" alt="Backers"></a>
 
+### Helpers
+
+It's easy to [become a helper](https://opencollective.com/AncientBeast/contribute/helper-59413), pitching every month just a little bit of your money.
+
+<a href="https://opencollective.com/AncientBeast/contribute/helper-59413"><img src="https://opencollective.com/AncientBeast/tiers/helper.svg?avatarHeight=30&width=838" alt="Helpers"></a>
+
 ### License
 
 <table border=1 width=100%>
