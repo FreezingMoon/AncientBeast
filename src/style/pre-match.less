@@ -446,6 +446,24 @@ body {
 	}
 }
 
+#singleplayer {
+	position: fixed;
+	top: 50%;
+	right: 0;
+	z-index: 100;
+	transform: translateY(-50%);
+
+	div {
+		display: block;
+		height: 100px;
+		width: 100px;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/singleplayer.svg');
+		background-size: cover;
+		background-repeat: no-repeat;
+	}
+}
+
 #fullscreen {
 	cursor: pointer;
 	position: fixed;
