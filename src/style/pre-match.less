@@ -429,10 +429,10 @@ body {
 	}
 }
 
-#multiplayer {
+#singleplayer, #multiplayer {
 	position: fixed;
 	top: 50%;
-	right: 0;
+	left: 0;
 	z-index: 100;
 	transform: translateY(-50%);
 	div {
@@ -440,28 +440,21 @@ body {
 		height: 100px;
 		width: 100px;
 		background-color: rgba(0, 0, 0, 0.55);
-		background-image: url('~assets/interface/frame.png'), url('~assets/icons/multiplayer.svg');
 		background-size: cover;
 		background-repeat: no-repeat;
 	}
 }
 
-#singleplayer {
-	position: fixed;
-	top: 50%;
-	right: 0;
-	z-index: 100;
-	transform: translateY(-50%);
-
-	div {
-		display: block;
-		height: 100px;
-		width: 100px;
-		background-color: rgba(0, 0, 0, 0.55);
+#singleplayer{
+	div{
 		background-image: url('~assets/interface/frame.png'), url('~assets/icons/singleplayer.svg');
-		background-size: cover;
-		background-repeat: no-repeat;
 	}
+}
+
+#multiplayer{
+	div{
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/multiplayer.svg');
+	}	
 }
 
 #fullscreen {
@@ -545,7 +538,7 @@ a {
 	#gameSetup {
 		padding-bottom: 120px;
 	}
-	#multiplayer {
+	#singleplayer, #multiplayer {
 		top: auto;
 		bottom: 0;
 		transform: none;
@@ -595,7 +588,7 @@ a {
 		display: none;
 	}
 
-	#multiplayer {
+	#singleplayer, #multiplayer {
 		top: 50%;
 		left: 0;
 		bottom: auto;
