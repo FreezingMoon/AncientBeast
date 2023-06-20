@@ -153,6 +153,9 @@ $j(() => {
 		forceTwoPlayerMode();
 	}
 
+	// Hide singleplayer option initially
+	$j('#singleplayer').hide();
+
 	$j('#createMatchButton').on('click', () => {
 		$j('.match-frame').hide();
 		$j('#gameSetup').show();
@@ -167,6 +170,8 @@ $j(() => {
 	$j('#singleplayer').hide();
 
 	$j('#multiplayer').on('click', async () => {
+		$j('#multiplayer').hide();
+		$j('#singleplayer').show();
 		$j('.setupFrame,.lobby').hide();
 		$j('.loginregFrame').show();
 		$j('#multiplayer').hide();
