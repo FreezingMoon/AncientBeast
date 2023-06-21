@@ -154,7 +154,7 @@ $j(() => {
 		forceTwoPlayerMode();
 	}
 
-	// Create new Object to play audio in pre-match screen. 
+	// Create new Object to play audio in pre-match screen
 	const beastAudio = new PreMatchAudioPlayer;
 
 	$j('#gameTitle').on('click', () => {
