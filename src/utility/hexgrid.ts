@@ -990,7 +990,7 @@ export class HexGrid {
 
 				$j('canvas').css('cursor', 'not-allowed');
 				
-				//If creature and inactive
+				// If creature and inactive
 				if (hex.creature instanceof Creature && hex.creature !== game.activeCreature) {
 					$j('canvas').css('cursor', 's-resize');
 				}
