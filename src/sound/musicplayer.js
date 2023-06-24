@@ -56,9 +56,9 @@ export class MusicPlayer {
 		});
 
 		this.audio.addEventListener('ended', () => {
-			// Check if tracks list exists, and if it does, play next track, else stop playback
+			// Check if tracks list exists, and if it does, play random track, else stop playback
 			if (this.tracks) {
-				this.playNext();
+				this.playRandom();
 			} else {
 				this.stopMusic();
 			}
