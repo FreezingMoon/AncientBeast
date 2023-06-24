@@ -130,6 +130,7 @@ const getGameMock = () => {
 		},
 		plasma_amount: 10,
 	};
+	// @ts-expect-error
 	self.players = [new Player(0, self), new Player(1, self)];
 	return self;
 };

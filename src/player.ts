@@ -1,13 +1,61 @@
 import * as $j from 'jquery';
 import { getUrl } from './assetLoader';
 import { Creature } from './creature';
+import Game from './game';
 
 /**
  * Player Class
  * Player object with attributes
  */
+
+/**
+ * NOTE
+ * need to convert game.js -> game.ts to get rid of @ts-expect-errors
+ */
+
+type ScoreType =
+	| 'firstKill'
+	| 'kill'
+	| 'combo'
+	| 'humiliation'
+	| 'annihilation'
+	| 'deny'
+	| 'timebonus'
+	| 'nofleeing'
+	| 'creaturebonus'
+	| 'darkpriestbonus'
+	| 'immortal'
+	| 'pickupDrop'
+	| 'upgrade';
+
+type PlayerID = 0 | 1 | 2 | 3;
+
+type PlayerName = `Player${1 | 2 | 3 | 4}`;
+
+type PlayerColor = 'red' | 'blue' | 'orange' | 'green';
+
+type ScoreEvent = { type: ScoreType; creature?: Creature; kills?: number };
+
+type TotalScore = Record<ScoreType, number> & { total: number };
+
 export class Player {
-	constructor(id, game) {
+	id: PlayerID;
+	game: Game;
+	creatures: Creature[];
+	name: PlayerName;
+	color: PlayerColor;
+	avatar: string;
+	score: ScoreEvent[];
+	plasma: number;
+	flipped: boolean;
+	availableCreatures: Creature[];
+	hasLost: boolean;
+	hasFled: boolean;
+	bonusTimePool: number;
+	totalTimePool: number;
+	startTime: Date;
+	_summonCreaturesWithMaterializationSickness: boolean;
+	constructor(id: PlayerID, game: Game) {
 		/* Attributes
 		 *
 		 * id :		Integer :	Id of the player 1, 2, 3 or 4
@@ -16,10 +64,11 @@ export class Player {
 		 * flipped :	Boolean :	Player side of the battlefield (affects displayed creature)
 		 *
 		 */
+
 		this.id = id;
 		this.game = game;
 		this.creatures = [];
-		this.name = 'Player' + (id + 1);
+		this.name = ('Player' + (id + 1)) as PlayerName;
 		switch (id) {
 			case 0:
 				this.color = 'red';
@@ -36,12 +85,14 @@ export class Player {
 		}
 		this.avatar = getUrl('units/avatars/Dark Priest ' + this.color);
 		this.score = [];
+		// @ts-expect-error ts(2339)
 		this.plasma = game.plasma_amount;
 		this.flipped = Boolean(id % 2); // Convert odd/even to true/false
 		this.availableCreatures = game.availableCreatures;
 		this.hasLost = false;
 		this.hasFled = false;
 		this.bonusTimePool = 0;
+		// @ts-expect-error ts(2339)
 		this.totalTimePool = game.timePool * 1000;
 		this.startTime = new Date();
 
@@ -117,16 +168,15 @@ export class Player {
 
 	/* getScore()
 	 *
-	 * return :	Integer :	The current score of the player
+	 * Create and return a totalScore object that includes the point value for each score event as well as the cumulative score
 	 *
-	 * Return the total of the score events.
 	 */
-	getScore() {
+	getScore(): TotalScore {
 		let total = this.score.length,
-			s = {},
 			points,
-			totalScore = {
+			totalScore: TotalScore = {
 				firstKill: 0,
+				combo: 0,
 				kill: 0,
 				deny: 0,
 				humiliation: 0,
@@ -142,7 +192,7 @@ export class Player {
 			};
 
 		for (let i = 0; i < total; i++) {
-			s = this.score[i];
+			const s = this.score[i];
 			points = 0;
 
 			switch (s.type) {
@@ -204,9 +254,10 @@ export class Player {
 	 *
 	 * TODO: This is also wrong, because it allows for ties to result in a "leader".
 	 */
-	isLeader() {
+	isLeader(): boolean {
 		let game = this.game;
 
+		// @ts-expect-error ts(2339)
 		for (let i = 0; i < game.playerMode; i++) {
 			// Each player
 			// If someone has a higher score
@@ -222,7 +273,7 @@ export class Player {
 	 *
 	 * A player is considered annihilated if all his creatures are dead DP included
 	 */
-	isAnnihilated() {
+	isAnnihilated(): boolean {
 		// annihilated is false if only one creature is not dead
 		let annihilated = this.creatures.length > 1,
 			count = this.creatures.length;
@@ -238,7 +289,7 @@ export class Player {
 	 *
 	 * Remove all player's creature from the queue
 	 */
-	deactivate() {
+	deactivate(): void {
 		let game = this.game,
 			count = game.creatures.length,
 			creature;
@@ -257,6 +308,7 @@ export class Player {
 		game.updateQueueDisplay();
 
 		// Test if allie Dark Priest is dead
+		// @ts-expect-error ts(2339)
 		if (game.playerMode > 2) {
 			// 2 vs 2
 			if (game.players[(this.id + 2) % 4].hasLost) {

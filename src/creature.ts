@@ -1532,7 +1532,7 @@ export class Creature {
 
 	displayPlasmaShield() {
 		this.healthIndicatorSprite.loadTexture('p' + this.team + '_plasma');
-		this.healthIndicatorText.setText(this.player.plasma);
+		this.healthIndicatorText.setText(this.player.plasma.toString());
 	}
 
 	hasCreaturePlayerGotPlasma() {
