@@ -626,16 +626,13 @@
 					
 					<div class="audio-player-controls">
 						<div class="audio-player-skin">
-						
-						<div class="musicgenres__items">
-							<% var musicGenres = require('./assetLoader.js').getUrl('music'); %>
-							<% for (var i = 0; i < musicGenres.length; i++) { %>
-								<span class="musicgenres__title" id="genre-<%= musicGenres[i].id %>"><%= musicGenres[i].id %></span>
-								<% if (i < musicGenres.length - 1) { %>
-									<div class="audio-player-beast"/></div>
-								<% } %>
-							<% } %>
-						</div>
+							<div class="audio-player-beast"></div>
+
+							<div class="musicgenres__items">
+								<% require('./assetLoader.js').getUrl('music').forEach(function(musicGenre) { %>
+									<span class="musicgenres__title" id="genre-<%= musicGenre.id %>"><%= musicGenre.id %></span>
+								<% }); %>
+							</div>
 							
 							<div class="timeline">
 								<div class=" timeline-control"></div>
