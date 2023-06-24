@@ -1,6 +1,6 @@
 import * as $j from 'jquery';
 import skin from './skin';
-import audioFile from 'assets/sounds/AncientBeast.ogg';
+import beastAudioFile from 'assets/sounds/AncientBeast.ogg';
 
 export class MusicPlayer {
 	constructor() {
@@ -13,7 +13,6 @@ export class MusicPlayer {
 		this.audio.volume = 0.25;
 		this.audio.pause();
 
-		var beastAudioFile = audioFile;
 		this.beastAudio = new Audio(beastAudioFile);
 
 		$j('#genre-epic').addClass('active-text');

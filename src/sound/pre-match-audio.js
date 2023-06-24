@@ -1,8 +1,7 @@
-import audioFile from 'assets/sounds/AncientBeast.ogg';
+import beastAudioFile from 'assets/sounds/AncientBeast.ogg';
 
 export class PreMatchAudioPlayer {
 	constructor() {
-		var beastAudioFile = audioFile;
 		this.beastAudio = new Audio(beastAudioFile);
 	}
 
