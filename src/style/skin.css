@@ -9,7 +9,7 @@
 	display: flex;
 	position: relative;
 	padding: 0px 60px;
-	background-image: url('~assets/interface/buttonNormal.png') ;
+	background-image: url('~assets/interface/buttonNormal.png');
 	background-repeat: no-repeat;
 	background-size: contain;
 	background-position: center;
@@ -92,7 +92,7 @@
 	top: 0;
 	left: 5px;
 	background: white;
-	content: "";
+	content: '';
 	height: 15px;
 	width: 3px;
 }
@@ -101,7 +101,7 @@
 	top: 0;
 	right: 0px;
 	background: white;
-	content: "";
+	content: '';
 	height: 15px;
 	width: 3px;
 }

@@ -155,7 +155,7 @@ $j(() => {
 	}
 
 	// Create new Object to play audio in pre-match screen
-	const beastAudio = new PreMatchAudioPlayer;
+	const beastAudio = new PreMatchAudioPlayer();
 
 	$j('#gameTitle').on('click', () => {
 		beastAudio.playBeast();

@@ -159,8 +159,8 @@ The test runner was added to the existing `npm run test`.
 
 In addition, the following commands were added to `package.json`:
 
-* `npm run jest` – Run tests
-* `npm run start:jest` – Watch test files and rerun when modified
+- `npm run jest` – Run tests
+- `npm run start:jest` – Watch test files and rerun when modified
 
 ### Next Step
 
