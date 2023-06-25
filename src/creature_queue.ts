@@ -1,7 +1,14 @@
+import Game from './game';
+import { Creature } from './creature';
 import * as arrayUtils from './utility/arrayUtils';
 
 export class CreatureQueue {
-	constructor(game) {
+	game: Game;
+	queue: Creature[];
+	nextQueue: Creature[];
+	tempCreature: Creature | Record<string, never>;
+
+	constructor(game: Game) {
 		this.game = game;
 		this.queue = [];
 		this.nextQueue = [];
@@ -16,7 +23,7 @@ export class CreatureQueue {
 	 * @param {boolean} alsoAddToCurrentQueue Also add the creature to the current
 	 * turn's queue. Doing so lets a creature act in the same turn it was summoned.
 	 */
-	addByInitiative(creature, alsoAddToCurrentQueue = true) {
+	addByInitiative(creature: Creature, alsoAddToCurrentQueue = true) {
 		const queues = [this.nextQueue];
 
 		if (alsoAddToCurrentQueue) {
@@ -41,14 +48,16 @@ export class CreatureQueue {
 		return this.queue.splice(0, 1)[0];
 	}
 
-	remove(creature) {
+	remove(creature: Creature) {
 		arrayUtils.removePos(this.queue, creature);
 		arrayUtils.removePos(this.nextQueue, creature);
 	}
 
 	// Removes temporary Creature from queue
 	removeTempCreature() {
-		this.remove(this.tempCreature);
+		if (this.tempCreature instanceof Creature) {
+			this.remove(this.tempCreature);
+		}
 	}
 
 	nextRound() {
@@ -66,7 +75,7 @@ export class CreatureQueue {
 		return this.nextQueue.length === 0;
 	}
 
-	delay(creature) {
+	delay(creature: Creature) {
 		// Find out if the creature is in the current queue or next queue; remove
 		// it from the queue and replace it at the end
 		let game = this.game,
