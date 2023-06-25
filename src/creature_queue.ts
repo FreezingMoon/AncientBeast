@@ -32,7 +32,7 @@ export class CreatureQueue {
 
 		queues.forEach((queue) => {
 			for (let i = 0; i < queue.length; i++) {
-				let queueItem = queue[i];
+				const queueItem = queue[i];
 
 				if (queueItem.delayed || queueItem.getInitiative() < creature.getInitiative()) {
 					queue.splice(i, 0, creature);
@@ -78,9 +78,9 @@ export class CreatureQueue {
 	delay(creature: Creature) {
 		// Find out if the creature is in the current queue or next queue; remove
 		// it from the queue and replace it at the end
-		let game = this.game,
-			inQueue = arrayUtils.removePos(this.queue, creature) || creature === game.activeCreature,
-			queue = this.queue;
+		const game = this.game,
+			inQueue = arrayUtils.removePos(this.queue, creature) || creature === game.activeCreature;
+		let queue = this.queue;
 
 		if (!inQueue) {
 			queue = this.nextQueue;
