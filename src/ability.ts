@@ -1,17 +1,65 @@
 import * as $j from 'jquery';
 import { Damage } from './damage';
 import { Direction, Hex } from './utility/hex';
-import { Creature } from './creature';
+import { Creature, CreatureMasteries } from './creature';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
+import Game from './game';
+
+/*
+ * NOTE
+ *
+ * convert game.js -> game.ts to get rid of @ts-expect-error 2339
+ *
+ * for @ts-expect-error 2554: might have to adjust faceHex type definition in creature.ts
+ *
+ */
 
 /**
  * Ability Class
  *
  * Class parsing function from creature abilities
  */
+
+// could get rid of the union and optionals by creating a separate(or conditional) type for Dark Priest's Cost
+// could possibly narrow down the types in the constructor by checking `creature.name`
+type Cost = {
+	plasma?: string | number;
+	special: string;
+	energy?: number;
+};
+
+type AbilitySlot = 0 | 1 | 2 | 3;
+
 export class Ability {
-	constructor(creature, abilityID, game) {
+	creature: Creature;
+	game: Game;
+	used: boolean;
+	id: AbilitySlot;
+	priority: number;
+	timesUsed: number;
+	timesUsedThisTurn: number;
+	token: number;
+	upgraded: boolean;
+	title: string;
+
+	//TODO properly type all these unknowns
+	requirements?: unknown;
+	costs?: Cost;
+	trigger?: string;
+	triggerFunc?: () => any;
+	require?: () => boolean;
+	query?: (...args: unknown[]) => unknown;
+	affectedByMatSickness?: boolean;
+	activate?: (...args: unknown[]) => unknown;
+	getAnimationData?: (...args: unknown[]) => unknown;
+	damages?: CreatureMasteries & { pure?: number | string };
+	effects?: any[];
+	message?: string;
+
+	_disableCooldowns: boolean;
+
+	constructor(creature: Creature, abilityID: AbilitySlot, game: Game) {
 		this.creature = creature;
 		this.game = game;
 		this.used = false;
@@ -51,7 +99,8 @@ export class Ability {
 	}
 
 	hasUpgrade() {
-		return this.game.abilityUpgrades >= 0 && this.upgrade;
+		// @ts-expect-error ts-2339
+		return this.game.abilityUpgrades >= 0 && this.upgraded;
 	}
 
 	setUpgraded() {
@@ -76,9 +125,11 @@ export class Ability {
 		let game = this.game;
 
 		if (this.isUpgradedPerUse()) {
+			// @ts-expect-error ts-2339
 			return game.abilityUpgrades - this.timesUsed;
 		}
 
+		// @ts-expect-error ts-2339
 		return game.abilityUpgrades - this.creature.turnsActive;
 	}
 
@@ -216,7 +267,8 @@ export class Ability {
 
 			// Only add the bonus when it has not already been awarded
 			if (!this.creature.player.score.find(find)) {
-				this.creature.player.score.push(bonus);
+				// TODO: adjust ScoreEvent to include this bonus type
+				this.creature.player.score.push(bonus as any);
 			}
 		}
 	}
@@ -225,65 +277,67 @@ export class Ability {
 	 * Animate the creature
 	 * @return {void}
 	 */
-	animation() {
+	animation(...args) {
 		let game = this.game;
 		// Gamelog Event Registration
 		if (game.triggers.onQuery.test(this.getTrigger())) {
-			if (arguments[0] instanceof Hex) {
-				let args = $j.extend({}, arguments);
-				delete args[0];
+			if (args[0] instanceof Hex) {
+				const hex = args[0];
+				const argsObj = $j.extend({}, args);
+				delete argsObj[0];
 				game.gamelog.add({
 					action: 'ability',
 					target: {
 						type: 'hex',
-						x: arguments[0].x,
-						y: arguments[0].y,
+						x: hex.x,
+						y: hex.y,
 					},
 					id: this.id,
-					args: args,
+					args: argsObj,
 				});
 				if (game.multiplayer) {
 					game.gameplay.useAbility({
 						target: {
 							type: 'hex',
-							x: arguments[0].x,
-							y: arguments[0].y,
+							x: hex.x,
+							y: hex.y,
 						},
 						id: this.id,
-						args: args,
+						args: argsObj,
 					});
 				}
 			}
 
-			if (arguments[0] instanceof Creature) {
-				let args = $j.extend({}, arguments);
-				delete args[0];
+			if (args[0] instanceof Creature) {
+				const creature = args[0];
+				const argsObj = $j.extend({}, args);
+				delete argsObj[0];
 				game.gamelog.add({
 					action: 'ability',
 					target: {
 						type: 'creature',
-						crea: arguments[0].id,
+						crea: creature.id,
 					},
 					id: this.id,
-					args: args,
+					args: argsObj,
 				});
 				if (game.multiplayer) {
 					game.gameplay.useAbility({
 						target: {
 							type: 'creature',
-							crea: arguments[0].id,
+							crea: creature.id,
 						},
 						id: this.id,
-						args: args,
+						args: argsObj,
 					});
 				}
 			}
 
-			if (arguments[0] instanceof Array) {
-				let args = $j.extend({}, arguments);
-				delete args[0];
+			if (args[0] instanceof Array) {
+				const argsObj = $j.extend({}, args);
+				delete argsObj[0];
 
-				let array = arguments[0].map((item) => ({ x: item.x, y: item.y }));
+				const array = args[0].map((item) => ({ x: item.x, y: item.y }));
 
 				game.gamelog.add({
 					action: 'ability',
@@ -292,7 +346,7 @@ export class Ability {
 						array: array,
 					},
 					id: this.id,
-					args: args,
+					args: argsObj,
 				});
 				if (game.multiplayer) {
 					game.gameplay.useAbility({
@@ -301,7 +355,7 @@ export class Ability {
 							array: array,
 						},
 						id: this.id,
-						args: args,
+						args: argsObj,
 					});
 				}
 			}
@@ -313,7 +367,7 @@ export class Ability {
 		}
 
 		return this.animation2({
-			arg: arguments,
+			arg: args,
 		});
 	}
 
@@ -355,10 +409,13 @@ export class Ability {
 		// Force creatures to face towards their target
 		if (args[0]) {
 			if (args[0] instanceof Creature) {
+				// TODO: adjust type definition of `faceHex`
+				// @ts-expect-error 2554
 				this.creature.faceHex(args[0]);
 			} else if (args[0] instanceof Array) {
-				for (var argument of args[0]) {
+				for (const argument of args[0]) {
 					if (argument instanceof Creature || argument.creature) {
+						// @ts-expect-error 2554
 						this.creature.faceHex(argument);
 					}
 				}
@@ -464,7 +521,7 @@ export class Ability {
 	 * @param {Object} obj Damage object.
 	 * @return {boolean|string} damage
 	 */
-	getFormattedDamages(obj) {
+	getFormattedDamages(obj): boolean | string {
 		obj = obj || this.damages;
 
 		if (!obj) {
@@ -474,7 +531,7 @@ export class Ability {
 		let string = '',
 			creature = this.creature;
 
-		$j.each(obj, (key, value) => {
+		$j.each(obj, (key: string, value) => {
 			if (key == 'special') {
 				// TODO: don't manually list all the stats and masteries when needed
 				string += value.replace(
@@ -502,7 +559,7 @@ export class Ability {
 	 * Get formattted effects.
 	 * @return {boolean|string} effect
 	 */
-	getFormattedEffects() {
+	getFormattedEffects(): false | string {
 		let string = '';
 
 		if (!this.effects) {
@@ -519,7 +576,7 @@ export class Ability {
 				continue;
 			}
 
-			$j.each(this.effects[i], (key, value) => {
+			$j.each(this.effects[i], (key: string, value) => {
 				if (string !== '') {
 					string += ', ';
 				}
@@ -561,7 +618,7 @@ export class Ability {
 	 * @param {Object} o
 	 * @return {boolean} At least one valid target?
 	 */
-	atLeastOneTarget(hexes, o) {
+	atLeastOneTarget(hexes: Hex[], o): boolean {
 		const defaultOpt = {
 			team: Team.Both,
 			optTest: function () {
@@ -595,7 +652,7 @@ export class Ability {
 	 * If one requirement fails it returns false.
 	 * @return {boolean} Return true if ability requirements are met.
 	 */
-	testRequirements() {
+	testRequirements(): boolean {
 		let game = this.game,
 			def = {
 				plasma: 0,
@@ -667,13 +724,13 @@ export class Ability {
 		}
 
 		// Health
-		if (req.health > 0) {
-			if (this.creature.health <= req.health) {
+		if (req.stats.health > 0) {
+			if (this.creature.health <= req.stats.health) {
 				this.message = abilityMsgs.notEnough.replace('%stat%', 'health');
 				return false;
 			}
-		} else if (req.health < 0) {
-			if (this.creature.health > -req.health) {
+		} else if (req.stats.health < 0) {
+			if (this.creature.health > -req.stats.health) {
 				this.message = abilityMsgs.tooMuch.replace('%stat%', 'health');
 				return false;
 			}
@@ -702,10 +759,10 @@ export class Ability {
 			return;
 		}
 
-		$j.each(this.costs, (key, value) => {
+		$j.each(this.costs, (key: string, value: number) => {
 			if (typeof value == 'number') {
 				if (key == 'health') {
-					creature.hint(value, 'damage d' + value);
+					creature.hint(value.toString(), 'damage d' + value);
 					game.log('%CreatureName' + creature.id + '% loses ' + value + ' health');
 				} else if (key === 'energy') {
 					value += creature.stats.reqEnergy;
