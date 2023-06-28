@@ -1,10 +1,10 @@
 // Automatically generates the manifest that contains all the assets
-const { promisify } = require('util');
-const fs = require('fs');
-const path = require('path');
+const { promisify } = await import('util');
+const prettier = await import('prettier');
+const path = await import('path');
+const fs = await import('fs');
 const stat = promisify(fs.stat);
 const readDir = promisify(fs.readdir);
-const prettier = require('prettier');
 
 const ignoredFiles = [/\.DS_Store/];
 

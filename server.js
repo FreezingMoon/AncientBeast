@@ -1,8 +1,8 @@
 // This script is only used on Heroku; for gh-pages we host /deploy directly
 
-const path = require('path');
-const compression = require('compression');
-const express = require('express');
+const path = await import('path');
+const compression = await import('compression');
+const express = await import('express');
 const app = express();
 const port = process.env.PORT || 8383;
 const ip = process.env.IP || null; // Use specified IP to bind to otherwise, bind to default for the API
