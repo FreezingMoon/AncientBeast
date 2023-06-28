@@ -113,10 +113,10 @@ export class Player {
 
 	// TODO: Is this even right? it should be off by 1 based on this code...
 	getNbrOfCreatures() {
-		let nbr = -1,
-			creatures = this.creatures,
-			count = creatures.length,
-			creature;
+		let nbr = -1;
+		let creature: Creature;
+		const creatures = this.creatures;
+		const count = creatures.length;
 
 		for (let i = 0; i < count; i++) {
 			creature = creatures[i];
@@ -136,9 +136,8 @@ export class Player {
 	 *
 	 */
 	summon(type, pos) {
-		let game = this.game,
-			data = game.retrieveCreatureStats(type),
-			creature;
+		const game = this.game;
+		let data = game.retrieveCreatureStats(type);
 
 		data = $j.extend(data, pos, {
 			team: this.id,
@@ -149,7 +148,8 @@ export class Player {
 			game.soundsys.playShout(data.name);
 		}
 
-		creature = new Creature(data, game);
+		const creature = new Creature(data, game);
+
 		this.creatures.push(creature);
 		creature.summon(!this._summonCreaturesWithMaterializationSickness);
 		game.onCreatureSummon(creature);
@@ -172,24 +172,24 @@ export class Player {
 	 *
 	 */
 	getScore(): TotalScore {
-		let total = this.score.length,
-			points,
-			totalScore: TotalScore = {
-				firstKill: 0,
-				combo: 0,
-				kill: 0,
-				deny: 0,
-				humiliation: 0,
-				annihilation: 0,
-				timebonus: 0,
-				nofleeing: 0,
-				creaturebonus: 0,
-				darkpriestbonus: 0,
-				immortal: 0,
-				total: 0,
-				pickupDrop: 0,
-				upgrade: 0,
-			};
+		let points = 0;
+		const total = this.score.length;
+		const totalScore: TotalScore = {
+			firstKill: 0,
+			combo: 0,
+			kill: 0,
+			deny: 0,
+			humiliation: 0,
+			annihilation: 0,
+			timebonus: 0,
+			nofleeing: 0,
+			creaturebonus: 0,
+			darkpriestbonus: 0,
+			immortal: 0,
+			total: 0,
+			pickupDrop: 0,
+			upgrade: 0,
+		};
 
 		for (let i = 0; i < total; i++) {
 			const s = this.score[i];
@@ -255,7 +255,7 @@ export class Player {
 	 * TODO: This is also wrong, because it allows for ties to result in a "leader".
 	 */
 	isLeader(): boolean {
-		let game = this.game;
+		const game = this.game;
 
 		// @ts-expect-error ts(2339)
 		for (let i = 0; i < game.playerMode; i++) {
@@ -275,8 +275,8 @@ export class Player {
 	 */
 	isAnnihilated(): boolean {
 		// annihilated is false if only one creature is not dead
-		let annihilated = this.creatures.length > 1,
-			count = this.creatures.length;
+		let annihilated = this.creatures.length > 1;
+		const count = this.creatures.length;
 
 		for (let i = 0; i < count; i++) {
 			annihilated = annihilated && this.creatures[i].dead;
@@ -290,9 +290,9 @@ export class Player {
 	 * Remove all player's creature from the queue
 	 */
 	deactivate(): void {
-		let game = this.game,
-			count = game.creatures.length,
-			creature;
+		let creature: Creature;
+		const game = this.game;
+		const count = game.creatures.length;
 
 		this.hasLost = true;
 
