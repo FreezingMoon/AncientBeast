@@ -21,8 +21,8 @@ import Game from './game';
  * Class parsing function from creature abilities
  */
 
-// could get rid of the union and optionals by creating a separate(or conditional) type for Dark Priest's Cost
-// could possibly narrow down the types in the constructor by checking `creature.name`
+// Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
+// This might narrow down the types in the constructor by checking `creature.name`
 type Cost = {
 	plasma?: string | number;
 	special: string;
