@@ -1,8 +1,8 @@
 // Automatically generates the manifest that contains all the assets
-const { promisify } = await import('util');
-const prettier = await import('prettier');
-const path = await import('path');
-const fs = await import('fs');
+const { promisify } = import('util');
+const prettier = import('prettier');
+const path = import('path');
+const fs = import('fs');
 const stat = promisify(fs.stat);
 const readDir = promisify(fs.readdir);
 
