@@ -1,5 +1,6 @@
 // Automatically generates the manifest that contains all the assets
 /* eslint-disable */
+// NOTE: eslint disallows `require` by default
 const { promisify } = require('util');
 const prettier = require('prettier');
 const path = require('path');
