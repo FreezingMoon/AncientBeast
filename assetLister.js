@@ -1,8 +1,10 @@
 // Automatically generates the manifest that contains all the assets
-const { promisify } = import('util');
-const prettier = import('prettier');
-const path = import('path');
-const fs = import('fs');
+/* eslint-disable */
+const { promisify } = require('util');
+const prettier = require('prettier');
+const path = require('path');
+const fs = require('fs');
+/* eslint-enable */
 const stat = promisify(fs.stat);
 const readDir = promisify(fs.readdir);
 
