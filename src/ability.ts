@@ -590,7 +590,7 @@ export class Ability {
 	/*
 	 * targets : Array : Example : target = [ { target: crea1, hexesHit: 2 }, { target: crea2, hexesHit: 1 } ]
 	 */
-	areaDamage(attacker: Creature, damages, effects, targets: Target[], ignoreRetaliation) {
+	areaDamage(attacker: Creature, damages, effects, targets: Target[], ignoreRetaliation: boolean) {
 		let multiKill = 0;
 		for (let i = 0, len = targets.length; i < len; i++) {
 			if (targets[i] === undefined) {
@@ -601,9 +601,7 @@ export class Ability {
 			const damageResult = targets[i].target.takeDamage(dmg, {
 				ignoreRetaliation,
 			});
-			// @ts-expect-error 2365. `damageResult.kill` is a boolean.
-			// TODO: refactor this
-			multiKill += damageResult.kill + 0;
+			multiKill += damageResult.kill ? 1 : 0;
 		}
 
 		if (multiKill > 1) {
