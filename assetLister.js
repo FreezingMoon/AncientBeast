@@ -1,10 +1,13 @@
 // Automatically generates the manifest that contains all the assets
+/* eslint-disable */
+// NOTE: eslint disallows `require` by default
 const { promisify } = require('util');
-const fs = require('fs');
+const prettier = require('prettier');
 const path = require('path');
+const fs = require('fs');
+/* eslint-enable */
 const stat = promisify(fs.stat);
 const readDir = promisify(fs.readdir);
-const prettier = require('prettier');
 
 const ignoredFiles = [/\.DS_Store/];
 
