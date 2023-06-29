@@ -413,14 +413,16 @@ body {
 		font-weight: bold;
 		cursor: pointer;
 		transition: filter 0.15s ease-in-out;
+		outline: 0;
 
 		&:hover {
 			filter: brightness(135%);
 		}
 
 		&:focus {
-			outline: 0;
 			color: white;
+			filter: brightness(135%);
+			text-shadow: 0 0 10px rgb(214, 98, 94);
 		}
 
 		&.disabled {
