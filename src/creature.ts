@@ -9,6 +9,7 @@ import { getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
 import { Player } from './player';
 import { Damage } from './damage';
+import { AugmentedMatrix } from './utility/matrices';
 
 export type CreatureVitals = {
 	health: number;
@@ -1948,7 +1949,7 @@ export class Creature {
 	 *
 	 * shortcut convenience function to grid.getHexMap
 	 */
-	getHexMap(map, invertFlipped: boolean) {
+	getHexMap(map: AugmentedMatrix, invertFlipped: boolean) {
 		const x = (this.player.flipped ? !invertFlipped : invertFlipped)
 			? this.x + 1 - this.size
 			: this.x;
