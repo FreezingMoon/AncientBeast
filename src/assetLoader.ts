@@ -1,22 +1,20 @@
 import Assets from './assets';
 
 // Cache to store previous results
-const cache = {};
+const cache: Record<string, string> = {};
 
 /**
  * Retrieves the URL for a specific asset based on its path. This function maintains a cache of previous results to improve performance. If the result is already in the cache, it is returned immediately. Otherwise, the result is calculated using the `reduce` method and added to the cache for future use.
  *
- * @param {string|string[]} path The path to the asset, either as a string or an array of strings.
+ * @param {string|string[]} pathStr The path to the asset, either as a string or an array of strings.
  * @return {string} The URL of the asset.
  *
  * @throws {Error} If the path is empty or if the asset cannot be found.
  */
 
-export function getUrl(path) {
+export function getUrl(pathStr: string | string[]): string {
 	// Convert path to an array if it is a string
-	if (typeof path === 'string') {
-		path = path.split('/');
-	}
+	const path: string[] = typeof pathStr === 'string' ? pathStr.split('/') : pathStr;
 
 	// Check if path is empty
 	if (path.length === 0) {
