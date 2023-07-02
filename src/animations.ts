@@ -1,15 +1,33 @@
-import * as $j from 'jquery';
 import * as arrayUtils from './utility/arrayUtils';
+import Game from './game';
+import { Creature } from './creature';
+import { Hex } from './utility/hex';
+import { Ability } from './ability';
+
+type AnimationOptions = {
+	customMovementPoint?: number;
+	overrideSpeed?: number;
+	ignoreMovementPoint?: boolean;
+	ignoreTraps?: boolean;
+	ignoreFacing?: boolean;
+	callbackStepIn?: (hex?: Hex) => void;
+	pushed?: boolean;
+	turnAroundOnComplete?: boolean;
+};
 
 export class Animations {
-	constructor(game) {
+	game: Game;
+	movementPoints: number;
+	animationCounter: number;
+
+	constructor(game: Game) {
 		this.game = game;
 		this.movementPoints = 0;
 		this.animationCounter = 0;
 	}
 
-	walk(creature, path, opts) {
-		let game = this.game;
+	walk(creature: Creature, path: Hex[], opts: AnimationOptions) {
+		const game = this.game;
 
 		if (opts.customMovementPoint > 0) {
 			path = path.slice(0, opts.customMovementPoint);
@@ -20,7 +38,7 @@ export class Animations {
 
 		game.freezedInput = true;
 
-		let animId = ++this.animationCounter;
+		const animId = ++this.animationCounter;
 		game.animationQueue.push(animId);
 
 		let hexId = 0;
@@ -30,8 +48,10 @@ export class Animations {
 		let speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
 		speed = Number(speed);
 
-		let anim = function () {
-			let hex = path[hexId];
+		const that = this;
+
+		const anim = () => {
+			const hex = path[hexId];
 
 			if (hexId < path.length && (creature.remainingMove > 0 || opts.ignoreMovementPoint)) {
 				this.leaveHex(creature, hex, opts);
@@ -40,15 +60,15 @@ export class Animations {
 				return;
 			}
 
-			let nextPos = game.grid.hexes[hex.y][hex.x - creature.size + 1];
+			const nextPos = game.grid.hexes[hex.y][hex.x - creature.size + 1];
 
-			let tween = game.Phaser.add
+			const tween = game.Phaser.add
 				.tween(creature.grp)
 				.to(nextPos.displayPos, speed, Phaser.Easing.Linear.None)
 				.start();
 
 			// Ignore traps for hover creatures, unless this is the last hex
-			let enterHexOpts = {
+			const enterHexOpts = {
 				ignoreTraps: creature.movementType() !== 'normal' && hexId < path.length - 1,
 				...opts,
 			};
@@ -77,13 +97,13 @@ export class Animations {
 			});
 
 			hexId++;
-		}.bind(this);
+		};
 
 		anim();
 	}
 
-	fly(creature, path, opts) {
-		let game = this.game;
+	fly(creature: Creature, path: Hex[], opts: AnimationOptions) {
+		const game = this.game;
 
 		if (opts.customMovementPoint > 0) {
 			path = path.slice(0, opts.customMovementPoint);
@@ -94,23 +114,23 @@ export class Animations {
 
 		game.freezedInput = true;
 
-		let animId = Math.random();
+		const animId = Math.random();
 		game.animationQueue.push(animId);
 
 		creature.healthHide();
 
-		let hex = path[0];
+		const hex = path[0];
 
-		let start = game.grid.hexes[creature.y][creature.x - creature.size + 1];
-		let currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
+		const start = game.grid.hexes[creature.y][creature.x - creature.size + 1];
+		const currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
 
 		this.leaveHex(creature, currentHex, opts);
 
-		let speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
+		const speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
 
-		let tween = game.Phaser.add
+		const tween = game.Phaser.add
 			.tween(creature.grp)
-			.to(currentHex.displayPos, parseInt(speed, 10), Phaser.Easing.Linear.None)
+			.to(currentHex.displayPos, speed, Phaser.Easing.Linear.None)
 			.start();
 
 		tween.onComplete.add(() => {
@@ -141,18 +161,18 @@ export class Animations {
 		});
 	}
 
-	teleport(creature, path, opts) {
-		let game = this.game,
+	teleport(creature: Creature, path: Hex[], opts: AnimationOptions) {
+		const game = this.game,
 			hex = path[0],
 			currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
 
 		this.leaveHex(creature, currentHex, opts);
 
-		let animId = Math.random();
+		const animId = Math.random();
 		game.animationQueue.push(animId);
 
 		// FadeOut
-		let tween = game.Phaser.add
+		const tween = game.Phaser.add
 			.tween(creature.grp)
 			.to(
 				{
@@ -189,15 +209,15 @@ export class Animations {
 		});
 	}
 
-	push(creature, path, opts) {
+	push(creature: Creature, path: Hex[], opts: AnimationOptions) {
 		opts.pushed = true;
 		this.walk(creature, path, opts);
 	}
 
 	//--------Special Functions---------//
 
-	enterHex(creature, hex, opts) {
-		let game = this.game;
+	enterHex(creature: Creature, hex: Hex, opts: AnimationOptions) {
+		const game = this.game;
 
 		creature.cleanHex();
 		creature.x = hex.x - 0;
@@ -209,20 +229,22 @@ export class Animations {
 
 		creature.pickupDrop();
 
-		opts.callbackStepIn(hex);
+		if (opts.callbackStepIn) {
+			opts.callbackStepIn(hex);
+		}
 
 		game.grid.orderCreatureZ();
 	}
 
-	leaveHex(creature, hex, opts) {
-		let game = this.game;
+	leaveHex(creature: Creature, hex: Hex, opts: AnimationOptions) {
+		const game = this.game;
 		let ignoringFaceUpdate;
 
 		if (opts.ignoreFacing) {
 			ignoringFaceUpdate = true;
 		} else {
 			if (!opts.pushed) {
-				creature.faceHex(hex, creature.hexagons[0]); // Determine facing
+				creature.faceHex(hex, creature.hexagons[0], false, false); // Determine facing
 			}
 		}
 
@@ -230,8 +252,8 @@ export class Animations {
 		game.grid.orderCreatureZ();
 	}
 
-	movementComplete(creature, hex, animId, opts) {
-		let game = this.game;
+	movementComplete(creature: Creature, hex: Hex, animId: number, opts: AnimationOptions) {
+		const game = this.game;
 
 		if (opts.customMovementPoint > 0) {
 			creature.remainingMove = this.movementPoints;
@@ -251,7 +273,7 @@ export class Animations {
 
 		game.grid.orderCreatureZ();
 
-		let queue = game.animationQueue.filter((item) => item != animId);
+		const queue = game.animationQueue.filter((item) => item != animId);
 
 		if (queue.length === 0) {
 			game.freezedInput = false;
@@ -263,12 +285,20 @@ export class Animations {
 		game.animationQueue = queue;
 	}
 
-	projectile(this2, target, spriteId, path, args, startX, startY) {
+	projectile(
+		this2: Ability,
+		target: { id: number },
+		spriteId: string,
+		path: Hex[],
+		args: { direction: number },
+		startX: number,
+		startY: number,
+	) {
 		// Get the target's position on the projectile's path that is closest
-		let emissionPointX = this2.creature.grp.x + startX;
-		var distance = Number.MAX_SAFE_INTEGER;
-		var targetX = path[0].displayPos.x;
-		for (let hex of path) {
+		const emissionPointX = this2.creature.grp.x + startX;
+		let distance = Number.MAX_SAFE_INTEGER;
+		let targetX = path[0].displayPos.x;
+		for (const hex of path) {
 			if (typeof hex.creature != 'undefined' && hex.creature.id == target.id) {
 				if (distance > Math.abs(emissionPointX - hex.displayPos.x)) {
 					distance = Math.abs(emissionPointX - hex.displayPos.x);
@@ -276,7 +306,7 @@ export class Animations {
 				}
 			}
 		}
-		let game = this.game,
+		const game = this.game,
 			baseDist = arrayUtils.filterCreature(path.slice(0), false, false).length,
 			dist = baseDist == 0 ? 1 : baseDist,
 			emissionPoint = {
@@ -293,7 +323,7 @@ export class Animations {
 
 		sprite.anchor.setTo(0.5);
 		sprite.rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
-		let tween = game.Phaser.add
+		const tween = game.Phaser.add
 			.tween(sprite)
 			.to(
 				{

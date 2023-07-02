@@ -115,7 +115,7 @@ export class Creature {
 	type: string;
 	level: number;
 	realm: string;
-	animation: object;
+	animation: { walk_speed: number };
 	display: object;
 	drop: DropDefinition;
 	_movementType: string;
