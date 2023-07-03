@@ -3,7 +3,6 @@ import * as $j from 'jquery';
 import 'jquery.transit';
 import dataJson from './data/units.json';
 import Game from './game';
-import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 
 import Connect from './multiplayer/connect';
@@ -153,12 +152,15 @@ $j(() => {
 		forceTwoPlayerMode();
 	}
 
-	// Create new Object to play audio in pre-match screen
-	const beastAudio = new PreMatchAudioPlayer();
-
-	$j('#gameTitle').on('click', () => {
-		beastAudio.playBeast();
-	});
+	{
+		const beastAudio = new Audio('assets/sounds/AncientBeast.ogg');
+		const play = () => {
+			if (beastAudio.paused) {
+				beastAudio.play();
+			}
+		};
+		$j('#gameTitle').on('click', play);
+	}
 
 	// Hide singleplayer option initially
 	$j('#singleplayer').hide();
