@@ -5,10 +5,10 @@ import { Direction } from './hex';
  * Deltas in [-1, 1] should be used, but due to creature size, x can be greater
  * - delta x will be clamped for the calculation.
  * Due to the hex grid, the starting y coordinate matters.
- * @param  y - y coordinate to calculate from
+ * @param y - y coordinate to calculate from
  * @param dx - delta x
- * @param  dy - delta y, in range [-1, 1]
- * @return  the direction number
+ * @param dy - delta y, in range [-1, 1]
+ * @return the direction number
  */
 
 export function getDirectionFromDelta(y: number, dx: number, dy: number): Direction {
