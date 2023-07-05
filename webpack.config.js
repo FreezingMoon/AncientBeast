@@ -15,7 +15,7 @@ const pixi = path.join(phaserModule, 'build/custom/pixi.js');
 const p2 = path.join(phaserModule, 'build/custom/p2.js');
 const Dotenv = require('dotenv-webpack');
 
-// Expose mode argument to unify our config options.
+// Expose mode argument to unify our config options
 module.exports = (env, argv) => {
 	const production = (argv && argv.mode === 'production') || process.env.NODE_ENV === 'production';
 	const enableServiceWorker = process.env.ENABLE_SERVICE_WORKER === 'true' ? true : false;
