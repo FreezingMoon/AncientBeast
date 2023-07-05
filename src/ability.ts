@@ -24,14 +24,24 @@ import Game from './game';
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
 type Cost = {
-	plasma?: string | number;
 	special: string;
+	plasma?: string | number;
 	energy?: number;
 };
+
+type Requirement = { plasma: number; energy?: number } | Cost;
 
 type AbilitySlot = 0 | 1 | 2 | 3;
 
 type Target = { hexesHit: number; target: Creature };
+
+type AbilityEffect = {
+	special?: string;
+	offense?: number;
+	defense?: number;
+	regrowth?: number;
+	frost?: number;
+};
 
 export class Ability {
 	creature: Creature;
@@ -46,8 +56,8 @@ export class Ability {
 	title: string;
 
 	// TODO properly type all these unknowns
-	requirements?: unknown;
-	costs?: Cost;
+	requirements?: Requirement | undefined;
+	costs?: Cost | undefined;
 	trigger?: string;
 	triggerFunc?: () => string;
 	require?: () => boolean;
@@ -56,7 +66,7 @@ export class Ability {
 	activate?: (...args: unknown[]) => unknown;
 	getAnimationData?: (...args: unknown[]) => unknown;
 	damages?: CreatureMasteries & { pure?: number | string };
-	effects?: any[];
+	effects?: AbilityEffect[];
 	message?: string;
 
 	_disableCooldowns: boolean;
@@ -86,7 +96,7 @@ export class Ability {
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}
 
-	handleMetaPowerEvent(message, payload) {
+	handleMetaPowerEvent(message: string, payload: boolean) {
 		if (message === 'toggleResetCooldowns') {
 			// Prevent ability from going on cooldown.
 			this._disableCooldowns = payload;
@@ -192,7 +202,7 @@ export class Ability {
 	 * End the ability. Must be called at the end of each ability function;
 	 *
 	 */
-	end(disableLogMsg, deferredEnding) {
+	end(disableLogMsg: boolean, deferredEnding: boolean) {
 		const game = this.game;
 
 		if (!disableLogMsg) {
