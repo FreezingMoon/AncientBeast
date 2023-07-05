@@ -3,7 +3,7 @@ import { Trap } from './trap';
 import { Creature } from '../creature';
 import { HexGrid } from './hexgrid';
 import Game from '../game';
-import Phaser from 'phaser-ce';
+import Phaser, { Point, Polygon } from 'phaser-ce';
 import { Drop } from '../drop';
 import { DEBUG } from '../debug';
 
@@ -94,7 +94,6 @@ export class Hex {
 	container: Phaser.Sprite;
 	display: Phaser.Sprite;
 	overlay: Phaser.Sprite;
-	input: Phaser.Sprite;
 	trap: Trap;
 	coordText: Phaser.Text;
 
@@ -146,31 +145,38 @@ export class Hex {
 		if (grid) {
 			/* Sprite to "group" the display, overlay, and input sprites for relative
 			positioning and scaling. */
-			this.container = grid.hexesGroup.create(
-				// 10px is the offset from the old version
-				this.displayPos.x - 10,
-				this.displayPos.y,
-				'hex',
-			);
-			this.container.alpha = 0;
+			// 10px is the offset from the old version
+			const x = this.displayPos.x - 10;
+			const y = this.displayPos.y;
 
-			this.display = grid.displayHexesGroup.create(0, 0, 'hex');
-			this.display.alignIn(this.container, Phaser.CENTER);
+			this.container = grid.hexesGroup.create(x, y, 'hex');
+			this.container.alpha = 0;
+			this.container.inputEnabled = true;
+			this.container.ignoreChildInput = true;
+			this.container.input.useHandCursor = false;
+
+			{
+				// NOTE: Set up hexagonal hitArea for container input
+				// TODO: The current setup seems to have a problem testing overlapping hit areas.
+				// Requires debug or rethink. See:
+				// https://github.com/FreezingMoon/AncientBeast/issues/2253
+				const angleStep = Math.PI / 3;
+				const angles = [0, 1, 2, 3, 4, 5, 6].map((i) => i * angleStep);
+				const [w, h] = [this.width, this.height];
+				const points = angles.map(
+					(angle) => new Point(Math.cos(angle) * w + w, Math.sin(angle) * h + h),
+				);
+				this.container.hitArea = new Polygon(points);
+			}
+
+			this.display = grid.displayHexesGroup.create(x, y, 'hex');
 			this.display.alpha = 0;
 
-			this.overlay = grid.overlayHexesGroup.create(0, 0, 'hex');
-			this.overlay.alignIn(this.container, Phaser.CENTER);
+			this.overlay = grid.overlayHexesGroup.create(x, y, 'hex');
 			this.overlay.alpha = 0;
 
-			this.input = grid.inputHexesGroup.create(0, 0, 'input');
-			this.input.alignIn(this.container, Phaser.TOP_LEFT);
-			this.input.inputEnabled = true;
-			this.input.input.pixelPerfectClick = true;
-			this.input.input.pixelPerfectAlpha = 1;
-			this.input.input.useHandCursor = false;
-
 			// Binding Events
-			this.input.events.onInputOver.add(() => {
+			this.container.events.onInputOver.add(() => {
 				if (game.freezedInput || game.UI.dashopen) {
 					return;
 				}
@@ -179,7 +185,7 @@ export class Hex {
 				this.onSelectFn(this);
 			}, this);
 
-			this.input.events.onInputOut.add((_, pointer) => {
+			this.container.events.onInputOut.add((_, pointer) => {
 				if (game.freezedInput || game.UI.dashopen || !pointer.withinGame) {
 					return;
 				}
@@ -190,7 +196,7 @@ export class Hex {
 				this.onHoverOffFn(this);
 			}, this);
 
-			this.input.events.onInputUp.add((Sprite, Pointer) => {
+			this.container.events.onInputUp.add((Sprite, Pointer) => {
 				if (game.freezedInput || game.UI.dashopen) {
 					return;
 				}
@@ -474,7 +480,7 @@ export class Hex {
 	 */
 	setReachable() {
 		this.reachable = true;
-		this.input.input.useHandCursor = true;
+		this.container.input.useHandCursor = true;
 		this.updateStyle();
 	}
 
@@ -484,7 +490,7 @@ export class Hex {
 	 */
 	unsetReachable() {
 		this.reachable = false;
-		this.input.input.useHandCursor = false;
+		this.container.input.useHandCursor = false;
 		this.updateStyle();
 	}
 
@@ -528,7 +534,6 @@ export class Hex {
 			this.overlay.scale.setTo(shrinkScale, shrinkScale);
 			this.display.alignIn(this.container, Phaser.CENTER);
 			this.overlay.alignIn(this.container, Phaser.CENTER);
-			// Input sprite isn't shrunk, the click area is the original size of the hex.
 		} else {
 			this.display.scale.setTo(1, 1);
 			this.overlay.scale.setTo(1, 1);

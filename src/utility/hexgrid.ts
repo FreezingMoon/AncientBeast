@@ -156,7 +156,6 @@ export class HexGrid {
 		this.hexesGroup = game.Phaser.add.group(this.gridGroup, 'hexesGroup');
 		this.displayHexesGroup = game.Phaser.add.group(this.gridGroup, 'displayHexesGroup');
 		this.overlayHexesGroup = game.Phaser.add.group(this.gridGroup, 'overlayHexesGroup');
-		this.inputHexesGroup = game.Phaser.add.group(this.gridGroup, 'inputHexesGroup');
 		this.dropGroup = game.Phaser.add.group(this.display, 'dropGrp');
 		this.creatureGroup = game.Phaser.add.group(this.display, 'creaturesGrp');
 		// Parts of traps displayed over creatures
