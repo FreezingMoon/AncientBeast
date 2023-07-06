@@ -161,10 +161,13 @@ export class Hex {
 				// Requires debug or rethink. See:
 				// https://github.com/FreezingMoon/AncientBeast/issues/2253
 				const angleStep = Math.PI / 3;
-				const angles = [0, 1, 2, 3, 4, 5, 6].map((i) => i * angleStep);
-				const [w, h] = [this.width, this.height];
+				const angleStart = angleStep * 0.5;
+				const angles = [0, 1, 2, 3, 4, 5, 6].map((i) => angleStart - i * angleStep);
+				// NOTE: The coefficients below are "magic".
+				// They don't make sense but they were tested in-game.
+				const [radius_w, radius_h] = [this.width * 0.6, this.height * 0.75];
 				const points = angles.map(
-					(angle) => new Point(Math.cos(angle) * w + w, Math.sin(angle) * h + h),
+					(angle) => new Point((Math.cos(angle) + 1) * radius_w, (Math.sin(angle) + 1) * radius_h),
 				);
 				this.container.hitArea = new Polygon(points);
 			}
