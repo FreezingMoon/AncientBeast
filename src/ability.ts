@@ -5,13 +5,12 @@ import { Creature, CreatureMasteries } from './creature';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
 import Game from './game';
+import { ScoreEvent } from './player';
 
 /*
  * NOTE
  *
  * convert game.js -> game.ts to get rid of @ts-expect-error 2339
- *
- * for @ts-expect-error 2554: might have to adjust faceHex type definition in creature.ts
  *
  */
 
@@ -21,17 +20,29 @@ import Game from './game';
  * Class parsing function from creature abilities
  */
 
+export type AbilitySlot = 0 | 1 | 2 | 3;
+
+export type AbilityTrigger = 'onQuery' | 'onStartPhase' | 'onDamage' | 'onEndPhase';
+
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
 type Cost = {
-	plasma?: string | number;
 	special: string;
+	plasma?: string | number;
 	energy?: number;
 };
 
-type AbilitySlot = 0 | 1 | 2 | 3;
+type Requirement = { plasma: number; energy?: number } | Cost;
 
 type Target = { hexesHit: number; target: Creature };
+
+type AbilityEffect = {
+	special?: string;
+	offense?: number;
+	defense?: number;
+	regrowth?: number;
+	frost?: number;
+};
 
 export class Ability {
 	creature: Creature;
@@ -46,17 +57,17 @@ export class Ability {
 	title: string;
 
 	// TODO properly type all these unknowns
-	requirements?: unknown;
-	costs?: Cost;
-	trigger?: string;
-	triggerFunc?: () => string;
+	requirements?: Requirement | undefined;
+	costs?: Cost | undefined;
+	trigger?: AbilityTrigger;
+	triggerFunc?: () => AbilityTrigger;
 	require?: () => boolean;
-	query?: (...args: unknown[]) => unknown;
+	query?: () => unknown;
 	affectedByMatSickness?: boolean;
 	activate?: (...args: unknown[]) => unknown;
 	getAnimationData?: (...args: unknown[]) => unknown;
 	damages?: CreatureMasteries & { pure?: number | string };
-	effects?: any[];
+	effects?: AbilityEffect[];
 	message?: string;
 
 	_disableCooldowns: boolean;
@@ -86,7 +97,7 @@ export class Ability {
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}
 
-	handleMetaPowerEvent(message, payload) {
+	handleMetaPowerEvent(message: string, payload: boolean) {
 		if (message === 'toggleResetCooldowns') {
 			// Prevent ability from going on cooldown.
 			this._disableCooldowns = payload;
@@ -192,7 +203,7 @@ export class Ability {
 	 * End the ability. Must be called at the end of each ability function;
 	 *
 	 */
-	end(disableLogMsg, deferredEnding) {
+	end(disableLogMsg: boolean, deferredEnding: boolean) {
 		const game = this.game;
 
 		if (!disableLogMsg) {
@@ -253,21 +264,20 @@ export class Ability {
 			game.log(this.title + ' has been upgraded');
 			// Upgrade bonus uniqueness managed by preventing multiple bonuses
 			// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the creature ID
-			const bonus = {
+			const bonus: ScoreEvent = {
 				type: 'upgrade',
 				ability: this.id,
-				creature: this.creature.id,
+				creature: this.creature,
 			};
 
-			const find = (scorePart) =>
-				scorePart.type === bonus.type &&
-				scorePart.ability === bonus.ability &&
-				scorePart.creature === bonus.creature;
+			const matchingBonus = (score: ScoreEvent) =>
+				score.type === bonus.type &&
+				score.ability === bonus.ability &&
+				score.creature.id === bonus.creature.id;
 
 			// Only add the bonus when it has not already been awarded
-			if (!this.creature.player.score.find(find)) {
-				// TODO: adjust ScoreEvent to include this bonus type
-				this.creature.player.score.push(bonus as any);
+			if (!this.creature.player.score.find(matchingBonus)) {
+				this.creature.player.score.push(bonus);
 			}
 		}
 	}
@@ -406,13 +416,10 @@ export class Ability {
 		// Force creatures to face towards their target
 		if (args[0]) {
 			if (args[0] instanceof Creature) {
-				// TODO: adjust type definition of `faceHex`
-				// @ts-expect-error 2554
 				this.creature.faceHex(args[0]);
 			} else if (args[0] instanceof Array) {
 				for (const argument of args[0]) {
 					if (argument instanceof Creature || argument.creature) {
-						// @ts-expect-error 2554
 						this.creature.faceHex(argument);
 					}
 				}
@@ -485,7 +492,7 @@ export class Ability {
 	 */
 
 	getTargets(hexes: Hex[]): Target[] {
-		const targets = {};
+		const targets: Record<number, Target> = {};
 		const targetsList: Target[] = [];
 
 		hexes.forEach((item) => {

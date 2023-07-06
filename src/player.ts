@@ -2,6 +2,7 @@ import * as $j from 'jquery';
 import { getUrl } from './assetLoader';
 import { Creature } from './creature';
 import Game from './game';
+import { AbilitySlot } from './ability';
 
 /**
  * Player Class
@@ -34,7 +35,12 @@ type PlayerName = `Player${1 | 2 | 3 | 4}`;
 
 type PlayerColor = 'red' | 'blue' | 'orange' | 'green';
 
-type ScoreEvent = { type: ScoreType; creature?: Creature; kills?: number };
+export type ScoreEvent = {
+	type: ScoreType;
+	creature?: Creature;
+	kills?: number;
+	ability?: AbilitySlot;
+};
 
 type TotalScore = Record<ScoreType, number> & { total: number };
 
