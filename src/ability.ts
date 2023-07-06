@@ -22,6 +22,10 @@ import { ScoreEvent } from './player';
  * Class parsing function from creature abilities
  */
 
+export type AbilitySlot = 0 | 1 | 2 | 3;
+
+export type AbilityTrigger = 'onQuery' | 'onStartPhase' | 'onDamage' | 'onEndPhase';
+
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
 type Cost = {
@@ -31,8 +35,6 @@ type Cost = {
 };
 
 type Requirement = { plasma: number; energy?: number } | Cost;
-
-export type AbilitySlot = 0 | 1 | 2 | 3;
 
 type Target = { hexesHit: number; target: Creature };
 
@@ -59,10 +61,10 @@ export class Ability {
 	// TODO properly type all these unknowns
 	requirements?: Requirement | undefined;
 	costs?: Cost | undefined;
-	trigger?: string;
-	triggerFunc?: () => string;
+	trigger?: AbilityTrigger;
+	triggerFunc?: () => AbilityTrigger;
 	require?: () => boolean;
-	query?: (...args: unknown[]) => unknown;
+	query?: () => unknown;
 	affectedByMatSickness?: boolean;
 	activate?: (...args: unknown[]) => unknown;
 	getAnimationData?: (...args: unknown[]) => unknown;
@@ -495,7 +497,7 @@ export class Ability {
 	 */
 
 	getTargets(hexes: Hex[]): Target[] {
-		const targets = {};
+		const targets: Record<number, Target> = {};
 		const targetsList: Target[] = [];
 
 		hexes.forEach((item) => {
