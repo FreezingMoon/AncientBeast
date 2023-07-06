@@ -840,9 +840,9 @@ export class Creature {
 	 */
 	faceHex(
 		faceto: Hex | Creature,
-		facefrom: Hex | Creature,
-		ignoreCreaHex: boolean,
-		attackFix: boolean,
+		facefrom?: Hex | Creature,
+		ignoreCreaHex?: boolean,
+		attackFix?: boolean,
 	) {
 		if (!facefrom) {
 			facefrom = this.player.flipped ? this.hexagons[this.size - 1] : this.hexagons[0];

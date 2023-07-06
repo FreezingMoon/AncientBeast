@@ -12,8 +12,6 @@ import { ScoreEvent } from './player';
  *
  * convert game.js -> game.ts to get rid of @ts-expect-error 2339
  *
- * for @ts-expect-error 2554: might have to adjust faceHex type definition in creature.ts
- *
  */
 
 /**
@@ -418,13 +416,10 @@ export class Ability {
 		// Force creatures to face towards their target
 		if (args[0]) {
 			if (args[0] instanceof Creature) {
-				// TODO: adjust type definition of `faceHex`
-				// @ts-expect-error 2554
 				this.creature.faceHex(args[0]);
 			} else if (args[0] instanceof Array) {
 				for (const argument of args[0]) {
 					if (argument instanceof Creature || argument.creature) {
-						// @ts-expect-error 2554
 						this.creature.faceHex(argument);
 					}
 				}
