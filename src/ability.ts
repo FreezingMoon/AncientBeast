@@ -5,6 +5,7 @@ import { Creature, CreatureMasteries } from './creature';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
 import Game from './game';
+import { ScoreEvent } from './player';
 
 /*
  * NOTE
@@ -31,7 +32,7 @@ type Cost = {
 
 type Requirement = { plasma: number; energy?: number } | Cost;
 
-type AbilitySlot = 0 | 1 | 2 | 3;
+export type AbilitySlot = 0 | 1 | 2 | 3;
 
 type Target = { hexesHit: number; target: Creature };
 
@@ -263,21 +264,20 @@ export class Ability {
 			game.log(this.title + ' has been upgraded');
 			// Upgrade bonus uniqueness managed by preventing multiple bonuses
 			// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the creature ID
-			const bonus = {
+			const bonus: ScoreEvent = {
 				type: 'upgrade',
 				ability: this.id,
-				creature: this.creature.id,
+				creature: this.creature,
 			};
 
-			const find = (scorePart) =>
-				scorePart.type === bonus.type &&
-				scorePart.ability === bonus.ability &&
-				scorePart.creature === bonus.creature;
+			const matchingBonus = (score: ScoreEvent) =>
+				score.type === bonus.type &&
+				score.ability === bonus.ability &&
+				score.creature.id === bonus.creature.id;
 
 			// Only add the bonus when it has not already been awarded
-			if (!this.creature.player.score.find(find)) {
-				// TODO: adjust ScoreEvent to include this bonus type
-				this.creature.player.score.push(bonus as any);
+			if (!this.creature.player.score.find(matchingBonus)) {
+				this.creature.player.score.push(bonus);
 			}
 		}
 	}
