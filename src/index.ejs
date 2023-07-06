@@ -888,8 +888,5 @@
 		<% if (htmlWebpackPlugin.options.enableServiceWorker) { %>
 			<%= require('./templates/service_worker.html') %>
 		<% } %>
-		<% if (htmlWebpackPlugin.options.production) { %>
-			<%= require('./templates/analytics.html') %>
-		<% } %>
 	</body>
 </html>
