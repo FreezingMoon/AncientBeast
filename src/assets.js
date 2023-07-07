@@ -210,6 +210,7 @@ export default [
       { id: "loadingEmpty", url: require("assets/interface/loadingEmpty.png") },
       { id: "loadingFull", url: require("assets/interface/loadingFull.png") },
       { id: "long_button", url: require("assets/interface/long_button.png") },
+      { id: "pixel", url: require("assets/interface/pixel.png") },
       {
         id: "rectangle_blue",
         url: require("assets/interface/rectangle_blue.png"),

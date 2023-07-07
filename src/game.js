@@ -293,6 +293,9 @@ export default class Game {
 		// Ability SFX
 		this.Phaser.load.audio('MagmaSpawn0', getUrl('units/sfx/Infernal 0'));
 
+		// Debug help
+		this.Phaser.load.image('pixel', getUrl('interface/pixel'));
+
 		// Grid
 		this.Phaser.load.image('hex', getUrl('interface/hex'));
 		this.Phaser.load.image('hex_dashed', getUrl('interface/hex_dashed'));

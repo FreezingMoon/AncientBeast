@@ -91,7 +91,7 @@ export class Hex {
 
 	originalDisplayPos: { x: number; y: number };
 	tween: Phaser.Tween;
-	container: Phaser.Sprite;
+	hitBox: Phaser.Sprite;
 	display: Phaser.Sprite;
 	overlay: Phaser.Sprite;
 	trap: Trap;
@@ -143,33 +143,31 @@ export class Hex {
 		this.tween = null;
 
 		if (grid) {
-			/* Sprite to "group" the display, overlay, and input sprites for relative
-			positioning and scaling. */
-			// 10px is the offset from the old version
+			// NOTE: Set up hex hitBox and display/overlay elements.
+
+			// NOTE: (Hack) 10px is the offset from the old version.
 			const x = this.displayPos.x - 10;
 			const y = this.displayPos.y;
 
-			this.container = grid.hexesGroup.create(x, y, 'hex');
-			this.container.alpha = 0;
-			this.container.inputEnabled = true;
-			this.container.ignoreChildInput = true;
-			this.container.input.useHandCursor = false;
+			this.hitBox = grid.hexesGroup.create(x, y, 'hex');
+			this.hitBox.alpha = 0;
+			this.hitBox.inputEnabled = true;
+			this.hitBox.ignoreChildInput = true;
+			this.hitBox.input.useHandCursor = false;
 
 			{
-				// NOTE: Set up hexagonal hitArea for container input
-				// TODO: The current setup seems to have a problem testing overlapping hit areas.
-				// Requires debug or rethink. See:
-				// https://github.com/FreezingMoon/AncientBeast/issues/2253
+				// NOTE: Set up hexagonal hitArea for hitBox
 				const angleStep = Math.PI / 3;
 				const angleStart = angleStep * 0.5;
 				const angles = [0, 1, 2, 3, 4, 5, 6].map((i) => angleStart - i * angleStep);
-				// NOTE: The coefficients below are "magic".
-				// They don't make sense but they were tested in-game.
-				const [radius_w, radius_h] = [this.width * 0.6, this.height * 0.75];
+				// NOTE: The coefficients below are "magic"; tested in-game.
+				const [radius_w, radius_h] = [0.58 * this.width, 0.69 * this.height];
+				const [offset_x, offset_y] = [radius_w + 2, radius_h + 9];
 				const points = angles.map(
-					(angle) => new Point((Math.cos(angle) + 1) * radius_w, (Math.sin(angle) + 1) * radius_h),
+					(angle) =>
+						new Point(Math.cos(angle) * radius_w + offset_x, Math.sin(angle) * radius_h + offset_y),
 				);
-				this.container.hitArea = new Polygon(points);
+				this.hitBox.hitArea = new Polygon(points);
 			}
 
 			this.display = grid.displayHexesGroup.create(x, y, 'hex');
@@ -179,7 +177,7 @@ export class Hex {
 			this.overlay.alpha = 0;
 
 			// Binding Events
-			this.container.events.onInputOver.add(() => {
+			this.hitBox.events.onInputOver.add(() => {
 				if (game.freezedInput || game.UI.dashopen) {
 					return;
 				}
@@ -188,7 +186,7 @@ export class Hex {
 				this.onSelectFn(this);
 			}, this);
 
-			this.container.events.onInputOut.add((_, pointer) => {
+			this.hitBox.events.onInputOut.add((_, pointer) => {
 				if (game.freezedInput || game.UI.dashopen || !pointer.withinGame) {
 					return;
 				}
@@ -199,7 +197,7 @@ export class Hex {
 				this.onHoverOffFn(this);
 			}, this);
 
-			this.container.events.onInputUp.add((Sprite, Pointer) => {
+			this.hitBox.events.onInputUp.add((Sprite, Pointer) => {
 				if (game.freezedInput || game.UI.dashopen) {
 					return;
 				}
@@ -483,7 +481,7 @@ export class Hex {
 	 */
 	setReachable() {
 		this.reachable = true;
-		this.container.input.useHandCursor = true;
+		this.hitBox.input.useHandCursor = true;
 		this.updateStyle();
 	}
 
@@ -493,7 +491,7 @@ export class Hex {
 	 */
 	unsetReachable() {
 		this.reachable = false;
-		this.container.input.useHandCursor = false;
+		this.hitBox.input.useHandCursor = false;
 		this.updateStyle();
 	}
 
@@ -533,15 +531,15 @@ export class Hex {
 		this.display.alpha = targetAlpha ? 1 : 0;
 
 		if (this.displayClasses.match(/shrunken/)) {
-			this.display.scale.setTo(shrinkScale, shrinkScale);
-			this.overlay.scale.setTo(shrinkScale, shrinkScale);
-			this.display.alignIn(this.container, Phaser.CENTER);
-			this.overlay.alignIn(this.container, Phaser.CENTER);
+			this.display.scale.setTo(shrinkScale);
+			this.overlay.scale.setTo(shrinkScale);
+			this.display.alignIn(this.hitBox, Phaser.CENTER);
+			this.overlay.alignIn(this.hitBox, Phaser.CENTER);
 		} else {
-			this.display.scale.setTo(1, 1);
-			this.overlay.scale.setTo(1, 1);
-			this.display.alignIn(this.container, Phaser.CENTER);
-			this.overlay.alignIn(this.container, Phaser.CENTER);
+			this.display.scale.setTo(1);
+			this.overlay.scale.setTo(1);
+			this.display.alignIn(this.hitBox, Phaser.CENTER);
+			this.overlay.alignIn(this.hitBox, Phaser.CENTER);
 		}
 
 		// Display Coord
@@ -557,7 +555,7 @@ export class Hex {
 						align: 'center',
 					},
 				);
-				this.coordText.anchor.setTo(0.5, 0.5);
+				this.coordText.anchor.setTo(0.5);
 				this.grid.overlayHexesGroup.add(this.coordText);
 			}
 		} else if (this.coordText && this.coordText.exists) {
