@@ -471,8 +471,17 @@ export default class Game {
 		configurePointFacade({
 			getCreatures: () => this.creatures,
 			getCreaturePassablePoints: (creature) => [],
-			getCreatureBlockedPoints: (creature) =>
-				creature.dead || creature.temp ? [] : creature.hexagons,
+			getCreatureBlockedPoints: (creature) => {
+				if (creature.dead || creature.temp) {
+					return [];
+				} else {
+					const ps = [];
+					for (let i = 0; i < creature.size; i++) {
+						ps.push({ x: creature.x - i, y: creature.y });
+					}
+					return ps;
+				}
+			},
 			getTraps: () => this.grid.traps,
 			getTrapPassablePoints: (trap) => [trap.hex],
 			getTrapBlockedPoints: (trap) => [],
