@@ -20,6 +20,13 @@ import { sleep } from './utility/time';
 import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG, DEBUG_DISABLE_MUSIC } from './debug';
 import { configure as configurePointFacade } from './utility/pointfacade';
 import { pretty as version } from './utility/version';
+import { Ability } from './ability';
+import { Effect } from './effect';
+
+/* NOTE
+ *
+ * to fix @ts-expect-error 2339, consider the note left on changing type definitions and initializations of empty objects
+ */
 
 /* Game Class
  *
@@ -57,14 +64,83 @@ export default class Game {
 	 * creatureData :		Array :		Array containing all data for the creatures
 	 *
 	 */
+	abilities: Ability[];
+	players: Player[];
+	creatures: Creature[];
+	effects: Effect[];
+	activeCreature: Creature | { id: number };
+	matchid: number;
+	playersReady: boolean;
+	preventSetup: boolean;
+	animations: Animations;
+	queue: CreatureQueue;
+	creatureData: any[];
+	pause: boolean;
+	gameState: 'initialized' | 'loading' | 'loaded' | 'playing' | 'ended';
+	pauseTime: number;
+	unitDrops: number;
+	minimumTurnBeforeFleeing: number;
+	availableCreatures: Creature[];
+	animationQueue: Animation[];
+	checkTimeFrequency: number;
+	gamelog: GameLog;
+	// for `{}`: could instead type them as `undefined | T`. This would simplify type narrowing, just
+	// need to make sure nothing breaks
+	configData: {};
+	match: MatchI | {};
+	gameplay: Gameplay | {};
+	session = null;
+	client = null;
+	connect = null;
+	multiplayer: boolean;
+	matchInitialized: boolean;
+	realms: ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
+	availableMusic = [];
+	inputMethod = 'Mouse';
+	firstKill: boolean;
+	freezedInput: boolean;
+	turnThrottle: boolean;
+	turn: number;
+	Phaser: Phaser;
+	msg: any; // type this properly
+	triggers: Record<string, RegExp>;
+	signals: any;
+
+	// The optionals below are created by the various methods of `Game`, mainly by `setup` and `loadGame`
+
+	musicPlayer?: any;
+	soundsys?: any;
+
+	background_image?: string;
+
+	playerMode?: number;
+
+	UI?: any;
+
+	trapId?: number;
+	effectId?: number;
+	dropId?: number;
+	grid?: HexGrid;
+
+	startMatchTime?: Date;
+	$combatFrame?: JQuery<HTMLElement>;
+
+	timeInterval?: NodeJS.Timer;
+	windowResizeTimeout?: string | number | NodeJS.Timer;
+
+	pauseStartTime?: Date;
+
+	timePool?: number;
+	turnTimePool?: number;
+
+	endGameSound?: any;
+
 	constructor() {
 		this.abilities = [];
 		this.players = [];
 		this.creatures = [];
 		this.effects = [];
-		this.activeCreature = {
-			id: 0,
-		};
+		this.activeCreature = { id: 0 };
 		this.matchid = null;
 		this.playersReady = false;
 		this.preventSetup = false;
@@ -128,7 +204,7 @@ export default class Game {
 					selectUnit: 'Please select an available unit from the left grid',
 					lowPlasma: 'Low Plasma! Cannot materialize the selected unit',
 					// plasmaCost :    String :    plasma cost of the unit to materialize
-					materializeUnit: (plasmaCost) => {
+					materializeUnit: (plasmaCost: string) => {
 						return 'Materialize unit at target location for ' + plasmaCost + ' plasma';
 					},
 					materializeUsed: 'Materialization has already been used this round',
@@ -338,12 +414,12 @@ export default class Game {
 
 	get activePlayer() {
 		if (this.multiplayer) {
-			if (this.players && this.match && this.match.userTurn) {
+			if (this.players && this.match instanceof MatchI && this.match.userTurn) {
 				return this.players[this.match.userTurn];
 			}
 			return undefined;
 		}
-		if (this.activeCreature && this.activeCreature.player) {
+		if (this.activeCreature instanceof Creature && this.activeCreature.player) {
 			return this.activeCreature.player;
 		}
 		return undefined;
@@ -425,7 +501,7 @@ export default class Game {
 	 * Launch the game with the given number of player.
 	 *
 	 */
-	setup(playerMode) {
+	setup(playerMode: number) {
 		let bg, i;
 
 		// Phaser
@@ -457,7 +533,9 @@ export default class Game {
 					break;
 				case 2:
 					// Right mouse button pressed
-					this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id);
+					if (this.activeCreature instanceof Creature) {
+						this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id);
+					}
 					break;
 			}
 		}, this);
@@ -582,9 +660,13 @@ export default class Game {
 		this.UI.resizeDash();
 
 		var resizeGame = function () {
+			// @ts-expect-error 653
 			clearTimeout(this.windowResizeTimeout);
+			// @ts-expect-error 653
 			this.windowResizeTimeout = setTimeout(() => {
+				// @ts-expect-error 653
 				this.resizeCombatFrame();
+				// @ts-expect-error 653
 				this.UI.resizeDash();
 			}, 100);
 		}.bind(this);
@@ -609,12 +691,13 @@ export default class Game {
 				await this.connect.serverConnect(this.session);
 				const match = new MatchI(this.connect, this, this.session);
 				const gameplay = new Gameplay(this, match);
+				// @ts-expect-error 2339
 				match.gameplay = gameplay;
 				this.gameplay = gameplay;
 				this.match = match;
 
 				// Only host
-				if (this.matchInitialized) {
+				if (this.matchInitialized && this.match instanceof MatchI) {
 					const n = await this.match.matchCreate();
 
 					console.log('created match', n);
@@ -622,7 +705,7 @@ export default class Game {
 				}
 			}
 			// Non-host
-			if (this.matchid) {
+			if (this.matchid && this.match instanceof MatchI) {
 				const n = await this.match.matchJoin(this.matchid);
 				console.log('joined match', n);
 			}
@@ -630,6 +713,7 @@ export default class Game {
 	}
 	async matchJoin() {
 		await this.matchInit();
+		// @ts-expect-error 2339
 		await this.match.matchMaker();
 	}
 	async updateLobby() {
@@ -648,11 +732,12 @@ export default class Game {
 		$j('#refreshMatchButton').removeClass('disabled');
 		$j('.lobby-loader').addClass('hide');
 
-		if (!this.match.matchUsers.length) {
+		if (this.match && this.match instanceof MatchI && !this.match.matchUsers.length) {
 			$j('.lobby-no-matches').removeClass('hide');
 			return;
 		}
 
+		// @ts-expect-error 2339
 		this.match.matchUsers.forEach((v) => {
 			const isAvailableMatch = v.string_properties && v.string_properties.match_id;
 
@@ -755,7 +840,7 @@ export default class Game {
 					return;
 				} else {
 					const next = this.queue.dequeue();
-					if (this.activeCreature) {
+					if (this.activeCreature && this.activeCreature instanceof Creature) {
 						differentPlayer = this.activeCreature.player != next.player;
 					} else {
 						differentPlayer = true;
@@ -764,11 +849,14 @@ export default class Game {
 					const last = this.activeCreature;
 					this.activeCreature = next; // Set new activeCreature
 
+					// @ts-expect-error 2339
 					if (!last.dead) {
+						// @ts-expect-error 2339
 						last.updateHealth(); // Update health display due to active creature change
 					}
 				}
 
+				// @ts-expect-error 2339
 				if (this.activeCreature.player.hasLost) {
 					this.nextCreature();
 					return;
@@ -780,6 +868,7 @@ export default class Game {
 				}
 
 				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
+				// @ts-expect-error 2339
 				this.activeCreature.activate();
 				// console.log(this.activeCreature);
 
@@ -795,12 +884,11 @@ export default class Game {
 					this.log('Press the hourglass icon to skip the turn');
 					this.log('%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!');
 				}
-
 				// Updates UI to match new creature
 				this.UI.updateActivebox();
 				this.updateQueueDisplay();
 				this.signals.creature.dispatch('activate', { creature: this.activeCreature });
-				if (this.multiplayer && this.playersReady) {
+				if (this.multiplayer && this.playersReady && this.gameplay instanceof Gameplay) {
 					this.gameplay.updateTurn();
 				} else {
 					this.playersReady = true;
@@ -809,7 +897,7 @@ export default class Game {
 		}, 300);
 	}
 
-	updateQueueDisplay(excludeActiveCreature) {
+	updateQueueDisplay(excludeActiveCreature?) {
 		if (this.UI) {
 			this.UI.updateQueueDisplay(excludeActiveCreature);
 		}
@@ -821,7 +909,7 @@ export default class Game {
 	 *
 	 * Display obj in the console log and in the game log
 	 */
-	log(obj, htmlclass, ifNoTimestamp = false) {
+	log(obj, htmlclass?, ifNoTimestamp = false) {
 		// Formating
 		let stringConsole = obj,
 			stringLog = obj,
@@ -854,6 +942,7 @@ export default class Game {
 		if (this.freezedInput && this.pause) {
 			this.pause = false;
 			this.freezedInput = false;
+			// @ts-expect-error
 			this.pauseTime += new Date() - this.pauseStartTime;
 			$j('#pause').remove();
 			this.startTimer();
@@ -870,7 +959,7 @@ export default class Game {
 	 *
 	 * End turn for the current unit
 	 */
-	skipTurn(o) {
+	skipTurn(o?) {
 		// Removes temporary Creature from queue when Player skips turn
 		// while choosing materialize location for Creature
 		this.queue.removeTempCreature();
@@ -895,7 +984,7 @@ export default class Game {
 		this.UI.btnDelay.changeState('disabled');
 		this.UI.btnAudio.changeState('disabled');
 
-		if (!o.noTooltip) {
+		if (!o.noTooltip && this.activeCreature instanceof Creature) {
 			this.activeCreature.hint(o.tooltip, 'msg_effects');
 		}
 
@@ -904,6 +993,7 @@ export default class Game {
 			this.UI.btnSkipTurn.changeState('normal');
 
 			if (
+				this.activeCreature instanceof Creature &&
 				!this.activeCreature.hasWait &&
 				this.activeCreature.delayable &&
 				!this.queue.isCurrentEmpty()
@@ -914,17 +1004,20 @@ export default class Game {
 			o.callback.apply();
 		}, 1000);
 
-		this.activeCreature.facePlayerDefault();
+		if (this.activeCreature instanceof Creature) {
+			this.activeCreature.facePlayerDefault();
 
-		const skipTurn = new Date();
-		const p = this.activeCreature.player;
-		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
-		this.pauseTime = 0;
-		this.activeCreature.deactivate(false);
-		this.nextCreature();
+			const skipTurn = new Date();
+			const p = this.activeCreature.player;
+			// @ts-expect-error 2362
+			p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
+			this.pauseTime = 0;
+			this.activeCreature.deactivate(false);
+			this.nextCreature();
 
-		// Reset temporary Creature
-		this.queue.tempCreature = {};
+			// Reset temporary Creature
+			this.queue.tempCreature = {};
+		}
 	}
 
 	/* delayCreature()
@@ -933,7 +1026,7 @@ export default class Game {
 	 */
 	delayCreature(o) {
 		// Send skip turn to server
-		if (this.multiplayer) {
+		if (this.multiplayer && this.gameplay instanceof Gameplay) {
 			this.gameplay.delay();
 		}
 
@@ -942,8 +1035,8 @@ export default class Game {
 		}
 
 		if (
-			this.activeCreature.hasWait ||
-			!this.activeCreature.delayable ||
+			(this.activeCreature instanceof Creature && this.activeCreature.hasWait) ||
+			(this.activeCreature instanceof Creature && !this.activeCreature.delayable) ||
 			this.queue.isCurrentEmpty()
 		) {
 			return;
@@ -964,6 +1057,7 @@ export default class Game {
 			this.turnThrottle = false;
 			this.UI.btnSkipTurn.changeState('normal');
 			if (
+				this.activeCreature instanceof Creature &&
 				!this.activeCreature.hasWait &&
 				this.activeCreature.delayable &&
 				!this.queue.isCurrentEmpty()
@@ -975,15 +1069,20 @@ export default class Game {
 		}, 1000);
 
 		const skipTurn = new Date(),
+			// @ts-expect-error 2339
 			p = this.activeCreature.player;
 
+		// @ts-expect-error 2362
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
+		// @ts-expect-error 2339
 		this.activeCreature.wait();
 		this.nextCreature();
 	}
 
 	startTimer() {
 		clearInterval(this.timeInterval);
+
+		// @ts-expect-error 2362
 		this.activeCreature.player.startTime = new Date() - this.pauseTime;
 		this.checkTime();
 
@@ -999,7 +1098,9 @@ export default class Game {
 	/* checkTime()
 	 */
 	checkTime() {
+		// @ts-expect-error 2362
 		let date = new Date() - this.pauseTime,
+			// @ts-expect-error 2339
 			p = this.activeCreature.player,
 			alertTime = 5, // In seconds
 			msgStyle = 'msg_effects',
@@ -1044,6 +1145,7 @@ export default class Game {
 				if (this.turnTimePool - (date - p.startTime) / 1000 < alertTime && this.UI.dashopen) {
 					// Alert
 					this.UI.btnToggleDash.changeState('glowing');
+					// @ts-expect-error 2339
 					this.activeCreature.hint(
 						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
 						msgStyle,
@@ -1059,6 +1161,7 @@ export default class Game {
 				if (this.turnTimePool - (date - p.startTime) / 1000 < alertTime && this.UI.dashopen) {
 					// Alert
 					this.UI.btnToggleDash.changeState('glowing');
+					// @ts-expect-error 2339
 					this.activeCreature.hint(
 						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
 						msgStyle,
@@ -1079,6 +1182,7 @@ export default class Game {
 				if (this.turnTimePool - (date - p.startTime) / 1000 < alertTime && this.UI.dashopen) {
 					// Alert
 					this.UI.btnToggleDash.changeState('glowing');
+					// @ts-expect-error 2339
 					this.activeCreature.hint(
 						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
 						msgStyle,
@@ -1094,15 +1198,12 @@ export default class Game {
 	 *
 	 * Query the database for creature stats
 	 */
-	retrieveCreatureStats(type) {
+	retrieveCreatureStats(type: string) {
 		let totalCreatures = this.creatureData.length,
 			i;
 
 		for (i = totalCreatures - 1; i >= 0; i--) {
-			if (
-				this.creatureData[i].type == type ||
-				this.creatureData[i].realm + this.creatureData[i].level == type
-			) {
+			if (this.creatureData[i].type == type || this[i].realm + this.creatureData[i].level == type) {
 				if (!this.creatureData[i].type) {
 					// When type property is missing, create it using formula: concat(realm + level)
 					this.creatureData[i].type = this.creatureData[i].realm + this.creatureData[i].level;
@@ -1112,7 +1213,7 @@ export default class Game {
 		}
 	}
 
-	triggerAbility(trigger, arg, retValue) {
+	triggerAbility(trigger, arg, retValue?) {
 		const [triggeredCreature, required] = arg;
 
 		// For triggered creature
@@ -1146,7 +1247,7 @@ export default class Game {
 		return retValue;
 	}
 
-	triggerEffect(trigger, arg, retValue) {
+	triggerEffect(trigger, arg, retValue?) {
 		const [triggeredCreature, required] = arg;
 
 		// For triggered creature
@@ -1319,6 +1420,8 @@ export default class Game {
 				effect.deleteEffect();
 				// Update UI in case effect changes it
 				if (effect.target) {
+					// @ts-expect-error
+					// `this.effects` might be the wrong type or need to look at `EffectTarget` type definition
 					effect.target.updateHealth();
 				}
 			});
@@ -1435,6 +1538,8 @@ export default class Game {
 		}
 
 		for (i = 0; i < totalEffects; i++) {
+			// @ts-expect-error
+			// `this.effects` might be the wrong type or need to look at `EffectTarget` type definition
 			this.effects[i].triggeredThisChain = false;
 		}
 	}
@@ -1500,6 +1605,7 @@ export default class Game {
 		this.clearOncePerDamageChain();
 		switch (o.action) {
 			case 'move':
+				// @ts-expect-error 2339
 				this.activeCreature.moveTo(this.grid.hexes[o.target.y][o.target.x], {
 					callback: opt.callback,
 				});
@@ -1515,6 +1621,7 @@ export default class Game {
 				});
 				break;
 			case 'flee':
+				// @ts-expect-error 2339
 				this.activeCreature.player.flee({
 					callback: opt.callback,
 				});
@@ -1524,6 +1631,7 @@ export default class Game {
 
 				if (o.target.type == 'hex') {
 					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
+					// @ts-expect-error 2339
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
 						arg: args,
@@ -1532,6 +1640,7 @@ export default class Game {
 
 				if (o.target.type == 'creature') {
 					args.unshift(this.creatures[o.target.crea]);
+					// @ts-expect-error 2339
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
 						arg: args,
@@ -1542,6 +1651,7 @@ export default class Game {
 					const array = o.target.array.map((item) => this.grid.hexes[item.y][item.x]);
 
 					args.unshift(array);
+					// @ts-expect-error 2339
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
 						arg: args,
@@ -1563,6 +1673,8 @@ export default class Game {
 	resetGame() {
 		this.endGameSound.pause();
 		this.UI.showGameSetup();
+		// @ts-expect-error 2554
+		// Appears that `stopTimer` dosen't require an argument
 		this.stopTimer(this.timeInterval);
 		this.players = [];
 		this.creatures = [];
@@ -1644,6 +1756,7 @@ export default class Game {
 			const interval = setInterval(() => {
 				if (!game.freezedInput && !game.turnThrottle) {
 					clearInterval(interval);
+					// @ts-expect-error 2339
 					game.activeCreature.queryMove();
 					game.action(actions.shift(), {
 						callback: nextAction,
