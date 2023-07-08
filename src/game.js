@@ -180,7 +180,7 @@ export default class Game {
 	}
 
 	dataLoaded(data) {
-		let dpcolor = ['blue', 'orange', 'green', 'red'];
+		const dpcolor = ['blue', 'orange', 'green', 'red'];
 
 		this.creatureData = data;
 
@@ -279,7 +279,7 @@ export default class Game {
 		this.Phaser.load.onLoadComplete.add(onLoadCompleteFn);
 
 		// Health
-		let playerColors = ['red', 'blue', 'orange', 'green'];
+		const playerColors = ['red', 'blue', 'orange', 'green'];
 		let i;
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image('p' + i + '_health', getUrl('interface/rectangle_' + playerColors[i]));
@@ -356,7 +356,7 @@ export default class Game {
 	}
 
 	loadFinish() {
-		let progress = this.Phaser.load.progress,
+		const progress = this.Phaser.load.progress,
 			progressWidth = progress + '%';
 
 		$j('#barLoader .progress').css('width', progressWidth);
@@ -507,7 +507,7 @@ export default class Game {
 		$j('#matchMaking').hide();
 
 		for (i = 0; i < playerMode; i++) {
-			let player = new Player(i, this);
+			const player = new Player(i, this);
 			this.players.push(player);
 
 			// Initialize players' starting positions
@@ -607,15 +607,15 @@ export default class Game {
 		if (this.multiplayer) {
 			if (Object.keys(this.match).length === 0) {
 				await this.connect.serverConnect(this.session);
-				let match = new MatchI(this.connect, this, this.session);
-				let gameplay = new Gameplay(this, match);
+				const match = new MatchI(this.connect, this, this.session);
+				const gameplay = new Gameplay(this, match);
 				match.gameplay = gameplay;
 				this.gameplay = gameplay;
 				this.match = match;
 
 				// Only host
 				if (this.matchInitialized) {
-					let n = await this.match.matchCreate();
+					const n = await this.match.matchCreate();
 
 					console.log('created match', n);
 					await match.matchMaker(n, this.configData);
@@ -623,7 +623,7 @@ export default class Game {
 			}
 			// Non-host
 			if (this.matchid) {
-				let n = await this.match.matchJoin(this.matchid);
+				const n = await this.match.matchJoin(this.matchid);
 				console.log('joined match', n);
 			}
 		}
@@ -634,7 +634,7 @@ export default class Game {
 	}
 	async updateLobby() {
 		if (this.matchInitialized) return;
-		let self = this;
+		const self = this;
 
 		$j('.lobby-match-list').html('').addClass('refreshing');
 		$j('#refreshMatchButton').addClass('disabled');
@@ -660,7 +660,7 @@ export default class Game {
 				return;
 			}
 
-			let gameConfig = {
+			const gameConfig = {
 				background_image: v.string_properties.background_image,
 				abilityUpgrades: v.numeric_properties.abilityUpgrades,
 				creaLimitNbr: v.numeric_properties.creaLimitNbr,
@@ -670,12 +670,12 @@ export default class Game {
 				turnTimePool: v.numeric_properties.turnTimePool,
 				unitDrops: v.numeric_properties.unitDrops,
 			};
-			let turntimepool =
+			const turntimepool =
 				v.numeric_properties.turnTimePool < 0 ? '∞' : v.numeric_properties.timePool;
-			let timepool = v.numeric_properties.timePool < 0 ? '∞' : v.numeric_properties.timePool;
-			let unitdrops = v.numeric_properties.unitDrops < 0 ? 'off' : 'on';
+			const timepool = v.numeric_properties.timePool < 0 ? '∞' : v.numeric_properties.timePool;
+			const unitdrops = v.numeric_properties.unitDrops < 0 ? 'off' : 'on';
 			this.unitDrops = v.numeric_properties.unitDrops;
-			let _matchBtn =
+			const _matchBtn =
 				$j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
         Host: ${v.presence.username}<br />
         Player Mode: ${v.numeric_properties.playerMode}<br />
@@ -745,7 +745,7 @@ export default class Game {
 		this.stopTimer();
 		// Delay
 		setTimeout(() => {
-			let interval = setInterval(() => {
+			const interval = setInterval(() => {
 				clearInterval(interval);
 
 				let differentPlayer = false;
@@ -754,14 +754,14 @@ export default class Game {
 					this.nextRound(); // Switch to the next Round
 					return;
 				} else {
-					let next = this.queue.dequeue();
+					const next = this.queue.dequeue();
 					if (this.activeCreature) {
 						differentPlayer = this.activeCreature.player != next.player;
 					} else {
 						differentPlayer = true;
 					}
 
-					let last = this.activeCreature;
+					const last = this.activeCreature;
 					this.activeCreature = next; // Set new activeCreature
 
 					if (!last.dead) {
@@ -916,8 +916,8 @@ export default class Game {
 
 		this.activeCreature.facePlayerDefault();
 
-		let skipTurn = new Date();
-		let p = this.activeCreature.player;
+		const skipTurn = new Date();
+		const p = this.activeCreature.player;
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
 		this.pauseTime = 0;
 		this.activeCreature.deactivate(false);
@@ -974,7 +974,7 @@ export default class Game {
 			o.callback.apply();
 		}, 1000);
 
-		let skipTurn = new Date(),
+		const skipTurn = new Date(),
 			p = this.activeCreature.player;
 
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
@@ -1113,7 +1113,7 @@ export default class Game {
 	}
 
 	triggerAbility(trigger, arg, retValue) {
-		let [triggeredCreature, required] = arg;
+		const [triggeredCreature, required] = arg;
 
 		// For triggered creature
 		triggeredCreature.abilities.forEach((ability) => {
@@ -1147,7 +1147,7 @@ export default class Game {
 	}
 
 	triggerEffect(trigger, arg, retValue) {
-		let [triggeredCreature, required] = arg;
+		const [triggeredCreature, required] = arg;
 
 		// For triggered creature
 		triggeredCreature.effects.forEach((effect) => {
@@ -1179,7 +1179,7 @@ export default class Game {
 	}
 
 	triggerTrap(trigger, arg) {
-		let [triggeredCreature] = arg;
+		const [triggeredCreature] = arg;
 
 		triggeredCreature.hexagons.forEach((hex) => {
 			hex.activateTrap(this.triggers[trigger], triggeredCreature);
@@ -1192,7 +1192,7 @@ export default class Game {
 			i;
 
 		for (i = 0; i < totalEffects; i++) {
-			let effect = effects[i];
+			const effect = effects[i];
 
 			if (
 				effect.turnLifetime > 0 &&
@@ -1281,7 +1281,7 @@ export default class Game {
 
 	// Removed individual args from definition because we are using the arguments variable.
 	onEndPhase(/* creature, callback */) {
-		let creature = arguments[0];
+		const creature = arguments[0];
 
 		this.triggerDeleteEffect('onEndPhase', creature);
 		this.triggerAbility('onEndPhase', arguments);
@@ -1300,7 +1300,7 @@ export default class Game {
 
 	// Removed individual args from definition because we are using the arguments variable.
 	onCreatureDeath(/* creature, callback */) {
-		let creature = arguments[0];
+		const creature = arguments[0];
 
 		this.triggerAbility('onCreatureDeath', arguments);
 		this.triggerEffect('onCreatureDeath', [creature, creature]);
@@ -1491,7 +1491,7 @@ export default class Game {
 	}
 
 	action(o, opt) {
-		let defaultOpt = {
+		const defaultOpt = {
 			callback: function () {},
 		};
 
@@ -1520,7 +1520,7 @@ export default class Game {
 				});
 				break;
 			case 'ability': {
-				let args = $j.makeArray(o.args[1]);
+				const args = $j.makeArray(o.args[1]);
 
 				if (o.target.type == 'hex') {
 					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
@@ -1539,7 +1539,7 @@ export default class Game {
 				}
 
 				if (o.target.type == 'array') {
-					let array = o.target.array.map((item) => this.grid.hexes[item.y][item.x]);
+					const array = o.target.array.map((item) => this.grid.hexes[item.y][item.x]);
 
 					args.unshift(array);
 					this.activeCreature.abilities[o.id].animation2({
@@ -1553,7 +1553,7 @@ export default class Game {
 	}
 
 	getImage(url) {
-		let img = new Image();
+		const img = new Image();
 		img.src = url;
 		img.onload = function () {
 			// No-op
