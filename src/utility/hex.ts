@@ -6,6 +6,7 @@ import Game from '../game';
 import Phaser, { Point, Polygon } from 'phaser-ce';
 import { Drop } from '../drop';
 import { DEBUG } from '../debug';
+import { getPointFacade } from './pointfacade';
 
 export enum Direction {
 	None = -1,
@@ -69,11 +70,6 @@ export class Hex {
 	blocked: boolean;
 
 	/**
-	 * Creature object, undefined if empty.
-	 */
-	creature: Creature;
-
-	/**
 	 * Set to true if accessible by current action.
 	 */
 	reachable: boolean;
@@ -123,7 +119,6 @@ export class Hex {
 		this.pathparent = null;
 
 		this.blocked = false;
-		this.creature = undefined;
 		this.reachable = true;
 		this.direction = Direction.None; // Used for queryDirection
 		this.drop = undefined; // Drop items
@@ -246,6 +241,16 @@ export class Hex {
 
 	get drop() {
 		return this.#drop;
+	}
+
+	get creature(): Creature | undefined {
+		const creatures = getPointFacade().getCreaturesAt(this.x, this.y);
+		return creatures.length ? creatures[0] : undefined;
+	}
+
+	set creature(creature: Creature) {
+		// NOTE: solely for compatability.
+		// this.creature used to be settable, but now it's derived.
 	}
 
 	onSelectFn(arg0: this) {
