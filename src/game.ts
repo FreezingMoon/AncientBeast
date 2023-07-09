@@ -39,6 +39,8 @@ import { GameConfig } from './script';
  * to really start the game.
  */
 
+type AnimationID = number;
+
 export default class Game {
 	/* Attributes
 	 *
@@ -82,7 +84,7 @@ export default class Game {
 	unitDrops: number;
 	minimumTurnBeforeFleeing: number;
 	availableCreatures: Creature[];
-	animationQueue: Animation[];
+	animationQueue: (Animation | AnimationID)[];
 	checkTimeFrequency: number;
 	gamelog: GameLog;
 	// for `{}`: could instead type them as `undefined | T`. This would simplify type narrowing, just
