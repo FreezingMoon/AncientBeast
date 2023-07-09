@@ -7,7 +7,7 @@ import { MusicPlayer } from './sound/musicplayer';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
 import { getUrl } from './assetLoader';
-import { Player } from './player';
+import { Player, PlayerColor } from './player';
 import { UI } from './ui/interface';
 import { Creature } from './creature';
 import dataJson from './data/units.json';
@@ -22,6 +22,7 @@ import { configure as configurePointFacade } from './utility/pointfacade';
 import { pretty as version } from './utility/version';
 import { Ability } from './ability';
 import { Effect } from './effect';
+import { GameConfig } from './script';
 
 /* NOTE
  *
@@ -315,7 +316,12 @@ export default class Game {
 	 * Load all required game files
 	 */
 
-	loadGame(setupOpt, matchInitialized, matchid, onLoadCompleteFn = () => {}) {
+	loadGame(
+		setupOpt: Partial<GameConfig>,
+		matchInitialized?: boolean,
+		matchid?: number,
+		onLoadCompleteFn = () => {},
+	) {
 		// Need to remove keydown listener before new game start
 		// to prevent memory leak and mixing hotkeys between start screen and game
 		$j(document).off('keydown');
@@ -355,7 +361,8 @@ export default class Game {
 		this.Phaser.load.onLoadComplete.add(onLoadCompleteFn);
 
 		// Health
-		const playerColors = ['red', 'blue', 'orange', 'green'];
+		const playerColors: PlayerColor[] = ['red', 'blue', 'orange', 'green'];
+
 		let i;
 		for (i = 0; i < 4; i++) {
 			this.Phaser.load.image('p' + i + '_health', getUrl('interface/rectangle_' + playerColors[i]));

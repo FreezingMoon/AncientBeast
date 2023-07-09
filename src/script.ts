@@ -19,6 +19,8 @@ import {
 // Load the stylesheet
 import './style/main.less';
 
+export type GameConfig = ReturnType<typeof getGameConfig>;
+
 // Generic object we can decorate with helper methods to simply dev and user experience.
 // TODO: Expose this in a less hacky way.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Too many unknown types.
