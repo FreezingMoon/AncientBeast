@@ -25,7 +25,7 @@ import { Effect } from './effect';
 
 /* NOTE
  *
- * to fix @ts-expect-error 2339, consider the note left on changing type definitions and initializations of empty objects
+ * to fix @ts-expect-error 2339, convert match.js -> match.ts
  */
 
 /* Game Class
@@ -88,7 +88,7 @@ export default class Game {
 	// need to make sure nothing breaks
 	configData: {};
 	match: MatchI | {};
-	gameplay: Gameplay | {};
+	gameplay: Gameplay;
 	session = null;
 	client = null;
 	connect = null;
@@ -161,7 +161,7 @@ export default class Game {
 		);
 		this.configData = {};
 		this.match = {};
-		this.gameplay = {};
+		this.gameplay = undefined;
 		this.session = null;
 		this.client = null;
 		this.connect = null;
@@ -1679,7 +1679,7 @@ export default class Game {
 		this.animationQueue = [];
 		this.configData = {};
 		this.match = {};
-		this.gameplay = {};
+		this.gameplay = undefined;
 		this.matchInitialized = false;
 		this.firstKill = false;
 		this.freezedInput = false;
