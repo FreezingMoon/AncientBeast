@@ -68,7 +68,7 @@ export default class Game {
 	players: Player[];
 	creatures: Creature[];
 	effects: Effect[];
-	activeCreature: Creature | { id: number };
+	activeCreature: Creature | undefined;
 	matchid: number;
 	playersReady: boolean;
 	preventSetup: boolean;
@@ -140,7 +140,7 @@ export default class Game {
 		this.players = [];
 		this.creatures = [];
 		this.effects = [];
-		this.activeCreature = { id: 0 };
+		this.activeCreature = undefined;
 		this.matchid = null;
 		this.playersReady = false;
 		this.preventSetup = false;
@@ -419,7 +419,7 @@ export default class Game {
 			}
 			return undefined;
 		}
-		if (this.activeCreature instanceof Creature && this.activeCreature.player) {
+		if (this.activeCreature && this.activeCreature.player) {
 			return this.activeCreature.player;
 		}
 		return undefined;
@@ -533,7 +533,7 @@ export default class Game {
 					break;
 				case 2:
 					// Right mouse button pressed
-					if (this.activeCreature instanceof Creature) {
+					if (this.activeCreature) {
 						this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id);
 					}
 					break;
@@ -803,7 +803,7 @@ export default class Game {
 
 		// Resets values
 		for (i = 0; i < totalCreatures; i++) {
-			if (this.creatures[i] instanceof Creature) {
+			if (this.creatures[i]) {
 				this.creatures[i].delayable = true;
 				this.creatures[i].delayed = false;
 			}
@@ -840,7 +840,7 @@ export default class Game {
 					return;
 				} else {
 					const next = this.queue.dequeue();
-					if (this.activeCreature && this.activeCreature instanceof Creature) {
+					if (this.activeCreature && this.activeCreature) {
 						differentPlayer = this.activeCreature.player != next.player;
 					} else {
 						differentPlayer = true;
@@ -849,14 +849,11 @@ export default class Game {
 					const last = this.activeCreature;
 					this.activeCreature = next; // Set new activeCreature
 
-					// @ts-expect-error 2339
 					if (!last.dead) {
-						// @ts-expect-error 2339
 						last.updateHealth(); // Update health display due to active creature change
 					}
 				}
 
-				// @ts-expect-error 2339
 				if (this.activeCreature.player.hasLost) {
 					this.nextCreature();
 					return;
@@ -868,7 +865,6 @@ export default class Game {
 				}
 
 				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
-				// @ts-expect-error 2339
 				this.activeCreature.activate();
 				// console.log(this.activeCreature);
 
@@ -914,13 +910,13 @@ export default class Game {
 		let stringConsole = obj,
 			stringLog = obj,
 			totalCreatures = this.creatures.length,
-			creature,
+			creature: Creature,
 			i;
 
 		for (i = 0; i < totalCreatures; i++) {
 			creature = this.creatures[i];
 
-			if (creature instanceof Creature) {
+			if (creature) {
 				stringConsole = stringConsole.replace(
 					'%CreatureName' + i + '%',
 					creature.player.name + "'s " + creature.name,
@@ -984,7 +980,7 @@ export default class Game {
 		this.UI.btnDelay.changeState('disabled');
 		this.UI.btnAudio.changeState('disabled');
 
-		if (!o.noTooltip && this.activeCreature instanceof Creature) {
+		if (!o.noTooltip && this.activeCreature) {
 			this.activeCreature.hint(o.tooltip, 'msg_effects');
 		}
 
@@ -993,7 +989,7 @@ export default class Game {
 			this.UI.btnSkipTurn.changeState('normal');
 
 			if (
-				this.activeCreature instanceof Creature &&
+				this.activeCreature &&
 				!this.activeCreature.hasWait &&
 				this.activeCreature.delayable &&
 				!this.queue.isCurrentEmpty()
@@ -1004,7 +1000,7 @@ export default class Game {
 			o.callback.apply();
 		}, 1000);
 
-		if (this.activeCreature instanceof Creature) {
+		if (this.activeCreature) {
 			this.activeCreature.facePlayerDefault();
 
 			const skipTurn = new Date();
@@ -1035,8 +1031,8 @@ export default class Game {
 		}
 
 		if (
-			(this.activeCreature instanceof Creature && this.activeCreature.hasWait) ||
-			(this.activeCreature instanceof Creature && !this.activeCreature.delayable) ||
+			(this.activeCreature && this.activeCreature.hasWait) ||
+			(this.activeCreature && !this.activeCreature.delayable) ||
 			this.queue.isCurrentEmpty()
 		) {
 			return;
@@ -1057,7 +1053,7 @@ export default class Game {
 			this.turnThrottle = false;
 			this.UI.btnSkipTurn.changeState('normal');
 			if (
-				this.activeCreature instanceof Creature &&
+				this.activeCreature &&
 				!this.activeCreature.hasWait &&
 				this.activeCreature.delayable &&
 				!this.queue.isCurrentEmpty()
@@ -1069,12 +1065,10 @@ export default class Game {
 		}, 1000);
 
 		const skipTurn = new Date(),
-			// @ts-expect-error 2339
 			p = this.activeCreature.player;
 
 		// @ts-expect-error 2362
 		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
-		// @ts-expect-error 2339
 		this.activeCreature.wait();
 		this.nextCreature();
 	}
@@ -1098,9 +1092,7 @@ export default class Game {
 	/* checkTime()
 	 */
 	checkTime() {
-		// @ts-expect-error 2362
-		let date = new Date() - this.pauseTime,
-			// @ts-expect-error 2339
+		let date = new Date().valueOf() - this.pauseTime,
 			p = this.activeCreature.player,
 			alertTime = 5, // In seconds
 			msgStyle = 'msg_effects',
@@ -1125,66 +1117,66 @@ export default class Game {
 
 		this.UI.updateTimer();
 
+		const startTime = p.startTime.valueOf();
+
 		// Turn time and timepool not infinite
 		if (this.timePool > 0 && this.turnTimePool > 0) {
 			if (
-				(date - p.startTime) / 1000 > this.turnTimePool ||
-				p.totalTimePool - (date - p.startTime) < 0
+				(date - startTime) / 1000 > this.turnTimePool ||
+				p.totalTimePool - (date - startTime) < 0
 			) {
-				if (p.totalTimePool - (date - p.startTime) < 0) {
+				if (p.totalTimePool - (date - startTime) < 0) {
 					p.deactivate(); // Only if timepool is empty
 				}
 
 				this.skipTurn();
 				return;
 			} else {
-				if ((p.totalTimePool - (date - p.startTime)) / 1000 < alertTime) {
+				if ((p.totalTimePool - (date - startTime)) / 1000 < alertTime) {
 					msgStyle = 'damage';
 				}
 
-				if (this.turnTimePool - (date - p.startTime) / 1000 < alertTime && this.UI.dashopen) {
+				if (this.turnTimePool - (date - startTime) / 1000 < alertTime && this.UI.dashopen) {
 					// Alert
 					this.UI.btnToggleDash.changeState('glowing');
-					// @ts-expect-error 2339
 					this.activeCreature.hint(
-						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
+						// Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
+						Math.ceil(this.turnTimePool - (date - startTime) / 1000).toString(),
 						msgStyle,
 					);
 				}
 			}
 		} else if (this.turnTimePool > 0) {
 			// Turn time is not infinite
-			if ((date - p.startTime) / 1000 > this.turnTimePool) {
+			if ((date - startTime) / 1000 > this.turnTimePool) {
 				this.skipTurn();
 				return;
 			} else {
-				if (this.turnTimePool - (date - p.startTime) / 1000 < alertTime && this.UI.dashopen) {
+				if (this.turnTimePool - (date - startTime) / 1000 < alertTime && this.UI.dashopen) {
 					// Alert
 					this.UI.btnToggleDash.changeState('glowing');
-					// @ts-expect-error 2339
 					this.activeCreature.hint(
-						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
+						Math.ceil(this.turnTimePool - (date - startTime) / 1000).toString(),
 						msgStyle,
 					);
 				}
 			}
 		} else if (this.timePool > 0) {
 			// Timepool is not infinite
-			if (p.totalTimePool - (date - p.startTime) < 0) {
+			if (p.totalTimePool - (date - startTime) < 0) {
 				p.deactivate();
 				this.skipTurn();
 				return;
 			} else {
-				if (p.totalTimePool - (date - p.startTime) < alertTime) {
+				if (p.totalTimePool - (date - startTime) < alertTime) {
 					msgStyle = 'damage';
 				}
 
-				if (this.turnTimePool - (date - p.startTime) / 1000 < alertTime && this.UI.dashopen) {
+				if (this.turnTimePool - (date - startTime) / 1000 < alertTime && this.UI.dashopen) {
 					// Alert
 					this.UI.btnToggleDash.changeState('glowing');
-					// @ts-expect-error 2339
 					this.activeCreature.hint(
-						Math.ceil(this.turnTimePool - (date - p.startTime) / 1000),
+						Math.ceil(this.turnTimePool - (date - startTime) / 1000).toString(),
 						msgStyle,
 					);
 				}
@@ -1263,7 +1255,7 @@ export default class Game {
 
 		// For other creatures
 		this.creatures.forEach((creature) => {
-			if (creature instanceof Creature) {
+			if (creature) {
 				if (triggeredCreature === creature || creature.dead === true) {
 					return;
 				}
@@ -1479,7 +1471,7 @@ export default class Game {
 		for (i = 0; i < totalCreatures; i++) {
 			creature = creatures[i];
 
-			if (creature instanceof Creature) {
+			if (creature) {
 				match = true;
 
 				$j.each(o2, function (key, val) {
@@ -1520,7 +1512,7 @@ export default class Game {
 		let creatures = this.creatures,
 			totalCreatures = creatures.length,
 			totalEffects = this.effects.length,
-			creature,
+			creature: Creature,
 			totalAbilities,
 			i,
 			j;
@@ -1528,7 +1520,7 @@ export default class Game {
 		for (i = totalCreatures - 1; i >= 0; i--) {
 			creature = this.creatures[i];
 
-			if (creature instanceof Creature) {
+			if (creature) {
 				totalAbilities = creature.abilities.length;
 
 				for (j = totalAbilities - 1; j >= 0; j--) {
@@ -1605,7 +1597,6 @@ export default class Game {
 		this.clearOncePerDamageChain();
 		switch (o.action) {
 			case 'move':
-				// @ts-expect-error 2339
 				this.activeCreature.moveTo(this.grid.hexes[o.target.y][o.target.x], {
 					callback: opt.callback,
 				});
@@ -1621,7 +1612,6 @@ export default class Game {
 				});
 				break;
 			case 'flee':
-				// @ts-expect-error 2339
 				this.activeCreature.player.flee({
 					callback: opt.callback,
 				});
@@ -1631,7 +1621,6 @@ export default class Game {
 
 				if (o.target.type == 'hex') {
 					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
-					// @ts-expect-error 2339
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
 						arg: args,
@@ -1640,7 +1629,6 @@ export default class Game {
 
 				if (o.target.type == 'creature') {
 					args.unshift(this.creatures[o.target.crea]);
-					// @ts-expect-error 2339
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
 						arg: args,
@@ -1651,7 +1639,6 @@ export default class Game {
 					const array = o.target.array.map((item) => this.grid.hexes[item.y][item.x]);
 
 					args.unshift(array);
-					// @ts-expect-error 2339
 					this.activeCreature.abilities[o.id].animation2({
 						callback: opt.callback,
 						arg: args,
@@ -1679,9 +1666,7 @@ export default class Game {
 		this.players = [];
 		this.creatures = [];
 		this.effects = [];
-		this.activeCreature = {
-			id: 0,
-		};
+		this.activeCreature = undefined;
 		this.matchid = null;
 		this.playersReady = false;
 		this.preventSetup = false;
