@@ -1741,7 +1741,6 @@ export default class Game {
 			const interval = setInterval(() => {
 				if (!game.freezedInput && !game.turnThrottle) {
 					clearInterval(interval);
-					// @ts-expect-error 2339
 					game.activeCreature.queryMove();
 					game.action(actions.shift(), {
 						callback: nextAction,

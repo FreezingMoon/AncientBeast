@@ -98,7 +98,6 @@ export class Player {
 		this.hasLost = false;
 		this.hasFled = false;
 		this.bonusTimePool = 0;
-		// @ts-expect-error ts(2339)
 		this.totalTimePool = game.timePool * 1000;
 		this.startTime = new Date();
 
@@ -263,7 +262,6 @@ export class Player {
 	isLeader(): boolean {
 		const game = this.game;
 
-		// @ts-expect-error ts(2339)
 		for (let i = 0; i < game.playerMode; i++) {
 			// Each player
 			// If someone has a higher score
@@ -314,7 +312,6 @@ export class Player {
 		game.updateQueueDisplay();
 
 		// Test if allie Dark Priest is dead
-		// @ts-expect-error ts(2339)
 		if (game.playerMode > 2) {
 			// 2 vs 2
 			if (game.players[(this.id + 2) % 4].hasLost) {
