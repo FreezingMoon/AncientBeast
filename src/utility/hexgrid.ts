@@ -900,7 +900,7 @@ export class HexGrid {
 				const offset = o.flipped ? o.size - 1 : 0;
 				const mult = o.flipped ? 1 : -1; // For flipped player
 				// If hex is reachable & creature, reset health indicator bounce
-				if(hex.creature instanceof Creature) {
+				if (hex.creature instanceof Creature) {
 					hex.creature.resetBounce();
 				}
 
