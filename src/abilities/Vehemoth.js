@@ -40,7 +40,7 @@ export default (G) => {
 
 			//  activate() :
 			activate: function () {
-				let ability = this;
+				const ability = this;
 				// Force Vehemoth to stay facing the right way
 				this.creature.facePlayerDefault();
 

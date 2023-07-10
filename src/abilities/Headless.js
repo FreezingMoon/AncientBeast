@@ -111,7 +111,7 @@ export default (G) => {
 
 			// 	require() :
 			require: function () {
-				let crea = this.creature;
+				const crea = this.creature;
 
 				if (!this.testRequirements()) {
 					return false;
@@ -130,8 +130,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -146,24 +146,24 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let d = {
+				const d = {
 					pierce: 11,
 				};
 				// Bonus for fatigued foe
 				d.pierce = target.endurance <= 0 ? d.pierce * 2 : d.pierce;
 				// Extra pierce damage if upgraded
 				if (this.isUpgraded()) {
-					let bonus = this.creature.stats.endurance - target.stats.endurance;
+					const bonus = this.creature.stats.endurance - target.stats.endurance;
 					if (bonus > 0) {
 						d.pierce += bonus;
 					}
 				}
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, //Attacker
 					d, // Damage Type
 					1, // Area
@@ -270,7 +270,7 @@ export default (G) => {
 				// Movement - here be legacy dragons.
 				let destinationX = null;
 				let destinationTargetX = null;
-				let isOnLeft = headless.x < target.x;
+				const isOnLeft = headless.x < target.x;
 				if (target.size === 1) {
 					/* Small creature, pull target towards self landing it in the hex directly
 					in front of the Headless. */
@@ -301,7 +301,7 @@ export default (G) => {
 						ignoreMovementPoint: true,
 						ignorePath: true,
 						callback: function () {
-							let interval = setInterval(function () {
+							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
@@ -319,7 +319,7 @@ export default (G) => {
 						ignoreMovementPoint: true,
 						ignorePath: true,
 						callback: function () {
-							let interval = setInterval(function () {
+							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									G.activeCreature.queryMove();
@@ -365,10 +365,10 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
-				let hexes = this._getHexes();
+				const hexes = this._getHexes();
 
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
@@ -383,11 +383,11 @@ export default (G) => {
 			},
 
 			activate: function (hexes) {
-				let damages = {
+				const damages = {
 					slash: 10,
 				};
 
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
