@@ -27,15 +27,15 @@ export default (G) => {
 				this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
 
 				// SFX
-				let music = G.Phaser.add.audio('MagmaSpawn0');
+				const music = G.Phaser.add.audio('MagmaSpawn0');
 				music.play();
 			},
 
 			_addTrap: function (hex) {
-				let ability = this;
+				const ability = this;
 
 				// Traps last forever if upgraded, otherwise 1 turn
-				let lifetime = this.isUpgraded() ? 0 : 1;
+				const lifetime = this.isUpgraded() ? 0 : 1;
 
 				hex.createTrap(
 					'scorched-ground',
@@ -102,8 +102,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let magmaSpawn = this.creature;
+				const ability = this;
+				const magmaSpawn = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -118,10 +118,10 @@ export default (G) => {
 
 			activate: function (target) {
 				let i;
-				let ability = this;
+				const ability = this;
 				ability.end();
 
-				let d = {
+				const d = {
 					burn: this.damages.burn,
 					crush: this.damages.crush,
 				};
@@ -134,7 +134,7 @@ export default (G) => {
 				}
 				d.burn += stacksExisting * this.damages.burn;
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					d, // Damage Type
 					1, // Area
@@ -189,8 +189,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let magmaSpawn = this.creature;
+				const ability = this;
+				const magmaSpawn = this.creature;
 
 				this.map.origin = [0, 2];
 
@@ -208,11 +208,11 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hexes) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
 				// Attack all creatures in area except for self
-				let targets = ability.getTargets(hexes);
+				const targets = ability.getTargets(hexes);
 				for (let i = 0; i < targets.length; i++) {
 					if (targets[i].target === this.creature) {
 						targets.splice(i, 1);
@@ -257,8 +257,8 @@ export default (G) => {
 					return false;
 				}
 
-				let magmaSpawn = this.creature;
-				let x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+				const magmaSpawn = this.creature;
+				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
 
 				if (
 					!this.testDirection({
@@ -274,10 +274,10 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let magmaSpawn = this.creature;
+				const ability = this;
+				const magmaSpawn = this.creature;
 
-				let x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -294,13 +294,13 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (path, args) {
-				let ability = this;
-				let magmaSpawn = this.creature;
+				const ability = this;
+				const magmaSpawn = this.creature;
 
 				ability.end(false, true);
 
 				// Damage
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -316,14 +316,14 @@ export default (G) => {
 				}
 
 				// Movement
-				let hurl = (_path) => {
-					let target = arrayUtils.last(_path).creature;
+				const hurl = (_path) => {
+					const target = arrayUtils.last(_path).creature;
 
-					let magmaHex = magmaSpawn.hexagons[args.direction === 4 ? magmaSpawn.size - 1 : 0];
+					const magmaHex = magmaSpawn.hexagons[args.direction === 4 ? magmaSpawn.size - 1 : 0];
 					arrayUtils.filterCreature(_path, false, false);
 					_path.unshift(magmaHex); // Prevent error on empty path
 					let destination = arrayUtils.last(_path);
-					let x = destination.x + (args.direction === 4 ? magmaSpawn.size - 1 : 0);
+					const x = destination.x + (args.direction === 4 ? magmaSpawn.size - 1 : 0);
 					destination = G.grid.hexes[destination.y][x];
 
 					magmaSpawn.moveTo(destination, {
@@ -341,7 +341,7 @@ export default (G) => {
 
 							let targetKilled = false;
 							if (target !== undefined) {
-								let ret = target.takeDamage(damage, true);
+								const ret = target.takeDamage(damage, true);
 								targetKilled = ret.kill;
 							}
 
@@ -349,9 +349,9 @@ export default (G) => {
 							// find the next target to move into
 							let continueHurl = false;
 							if (ability.isUpgraded() && targetKilled) {
-								let nextPath = G.grid.getHexLine(target.x, target.y, args.direction, false);
+								const nextPath = G.grid.getHexLine(target.x, target.y, args.direction, false);
 								arrayUtils.filterCreature(nextPath, true, true, magmaSpawn.id);
-								let nextTarget = arrayUtils.last(nextPath).creature;
+								const nextTarget = arrayUtils.last(nextPath).creature;
 								// Continue only if there's a next enemy creature
 								if (nextTarget && isTeam(magmaSpawn, nextTarget, ability._targetTeam)) {
 									continueHurl = true;
@@ -359,7 +359,7 @@ export default (G) => {
 								}
 							}
 							if (!continueHurl) {
-								let interval = setInterval(function () {
+								const interval = setInterval(function () {
 									if (!G.freezedInput) {
 										clearInterval(interval);
 										G.UI.selectAbility(-1);

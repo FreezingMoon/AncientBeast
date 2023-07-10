@@ -209,8 +209,8 @@ export default (G) => {
 				return this.testRequirements();
 			},
 			query() {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
 				// Teleport to any hex within range except for the current hex
 				crea.queryMove({
@@ -229,14 +229,14 @@ export default (G) => {
 				});
 			},
 			activate(hex) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
 				if (this.isUpgraded()) {
 					this.range += 1;
 				}
 
-				let targets = ability.getTargets(ability.creature.adjacentHexes(1));
+				const targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 				targets.forEach(function (item) {
 					if (!(item.target instanceof Creature)) {
@@ -245,7 +245,7 @@ export default (G) => {
 				});
 
 				// Leave a Firewall in current location
-				let effectFn = function (effect, creatureOrHex) {
+				const effectFn = function (effect, creatureOrHex) {
 					let creature = creatureOrHex;
 					if (!(creatureOrHex instanceof Creature)) {
 						creature = creatureOrHex.creature;
@@ -257,8 +257,8 @@ export default (G) => {
 					effect.deleteEffect();
 				};
 
-				let requireFn = function () {
-					let creature = this.trap.hex.creature,
+				const requireFn = function () {
+					const creature = this.trap.hex.creature,
 						type = (creature && creature.type) || null;
 
 					if (creature === 0) {
@@ -267,7 +267,7 @@ export default (G) => {
 					return type !== ability.creature.type;
 				};
 
-				let crea = this.creature;
+				const crea = this.creature;
 				crea.hexagons.forEach(function (h) {
 					h.createTrap(
 						'firewall',
@@ -312,12 +312,12 @@ export default (G) => {
 				return this.testRequirements();
 			},
 			query() {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
 				// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
 
-				let range = crea.adjacentHexes(1);
+				const range = crea.adjacentHexes(1);
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
@@ -337,12 +337,12 @@ export default (G) => {
 				});
 			},
 			activate() {
-				let ability = this;
+				const ability = this;
 				ability.end();
 
-				let crea = this.creature;
-				let aoe = crea.adjacentHexes(1);
-				let targets = ability.getTargets(aoe);
+				const crea = this.creature;
+				const aoe = crea.adjacentHexes(1);
+				const targets = ability.getTargets(aoe);
 
 				if (this.isUpgraded()) {
 					this.damages.burn = 30;

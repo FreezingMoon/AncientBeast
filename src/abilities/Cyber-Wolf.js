@@ -29,11 +29,11 @@ export default (G) => {
 
 			activate: function () {
 				// Check if there's an enemy creature in front
-				let hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex);
+				const hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex);
 				if (hexesInFront.length < 1) {
 					return;
 				}
-				let target = hexesInFront[0].creature;
+				const target = hexesInFront[0].creature;
 				if (!target) {
 					return;
 				}
@@ -43,7 +43,7 @@ export default (G) => {
 
 				this.end();
 
-				let damage = new Damage(
+				const damage = new Damage(
 					this.creature, // Attacker
 					this.damages, // Damage Type
 					1, // Area
@@ -83,8 +83,8 @@ export default (G) => {
 
 			//	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -99,11 +99,11 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
 					1, // Area
@@ -114,7 +114,7 @@ export default (G) => {
 
 				// If upgrade, also steal up to 8 energy
 				if (this.isUpgraded()) {
-					let energySteal = Math.min(8, target.energy);
+					const energySteal = Math.min(8, target.energy);
 					target.energy -= energySteal;
 					this.creature.recharge(energySteal);
 					G.log(
@@ -157,13 +157,13 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
-				let straitrow = matrices.straitrow;
-				let bellowrow = matrices.bellowrow;
+				const straitrow = matrices.straitrow;
+				const bellowrow = matrices.bellowrow;
 
-				let choices = [
+				const choices = [
 					//Front
 					arrayUtils
 						.filterCreature(
@@ -229,14 +229,14 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (choice) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.02, 350, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let crea = this.creature;
+				const crea = this.creature;
 
-				let straitrow = matrices.straitrow;
-				let bellowrow = matrices.bellowrow;
+				const straitrow = matrices.straitrow;
+				const bellowrow = matrices.bellowrow;
 
 				let rows;
 				if (choice.choiceId === 0) {
@@ -292,9 +292,9 @@ export default (G) => {
 						continue;
 					}
 
-					let target = rows[i][rows[i].length - 1].creature;
+					const target = rows[i][rows[i].length - 1].creature;
 
-					let damage = new Damage(
+					const damage = new Damage(
 						ability.creature, //Attacker
 						ability.damages, //Damage Type
 						1, //Area
@@ -331,10 +331,10 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let crea = this.creature;
+				const ability = this;
+				const crea = this.creature;
 
-				let hexes = G.grid.allhexes.slice(0); // Copy array
+				const hexes = G.grid.allhexes.slice(0); // Copy array
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -349,14 +349,14 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (crea) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.03, 333, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-				let target = crea;
+				const target = crea;
 
 				// Use all rockets if upgraded, or up to 2 if not
-				let rocketLauncherAbility = this.creature.abilities[2];
+				const rocketLauncherAbility = this.creature.abilities[2];
 				let rocketsToUse = rocketLauncherAbility.token;
 				if (!this.isUpgraded()) {
 					rocketsToUse = Math.min(rocketsToUse, 2);
@@ -364,15 +364,15 @@ export default (G) => {
 				rocketLauncherAbility.token -= rocketsToUse;
 
 				// Multiply damage by number of rockets
-				let damages = $j.extend({}, rocketLauncherAbility.damages);
-				for (let key in damages) {
+				const damages = $j.extend({}, rocketLauncherAbility.damages);
+				for (const key in damages) {
 					if ({}.hasOwnProperty.call(damages, key)) {
 						damages[key] *= rocketsToUse;
 					}
 				}
 
 				G.log('%CreatureName' + this.creature.id + '% redirects ' + rocketsToUse + ' rocket(s)');
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					damages, // Damage Type
 					1, // Area

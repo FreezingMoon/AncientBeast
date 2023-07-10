@@ -30,7 +30,7 @@ export default (G) => {
 
 				if (this.isUpgraded() && damage.melee && !damage.counter) {
 					//counter damage
-					let counter = new Damage(
+					const counter = new Damage(
 						this.creature, // Attacker
 						{
 							pure: 9,
@@ -87,8 +87,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let dpriest = this.creature;
+				const ability = this;
+				const dpriest = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -103,15 +103,15 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.02, 200, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let damageAmount = {
+				const damageAmount = {
 					shock: 12 * target.size,
 				};
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					damageAmount, // Damage Type
 					1, // Area
@@ -136,7 +136,7 @@ export default (G) => {
 					return false;
 				}
 
-				let range = this.creature.adjacentHexes(2);
+				const range = this.creature.adjacentHexes(2);
 
 				// At least one target
 				if (
@@ -149,7 +149,7 @@ export default (G) => {
 
 				// Search Lowest target cost
 				let lowestCost = 99;
-				let targets = this.getTargets(range);
+				const targets = this.getTargets(range);
 
 				targets.forEach(function (item) {
 					if (item.target instanceof Creature) {
@@ -169,8 +169,8 @@ export default (G) => {
 
 			// 	query() :
 			query: function () {
-				let ability = this;
-				let dpriest = this.creature;
+				const ability = this;
+				const dpriest = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
@@ -188,11 +188,11 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (target) {
-				let ability = this;
+				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.04, 111, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let plasmaCost = target.size;
+				const plasmaCost = target.size;
 				let damage = target.baseStats.health - target.health;
 
 				if (this.isUpgraded() && damage < 40) {
@@ -253,15 +253,15 @@ export default (G) => {
 			},
 
 			fnOnSelect: function (hex, args) {
-				let crea = G.retrieveCreatureStats(args.creature);
+				const crea = G.retrieveCreatureStats(args.creature);
 				G.grid.previewCreature(hex.pos, crea, this.creature.player);
 			},
 
 			// Callback function to queryCreature
 			materialize: function (creature) {
 				let crea = G.retrieveCreatureStats(creature);
-				let ability = this;
-				let dpriest = this.creature;
+				const ability = this;
+				const dpriest = this.creature;
 
 				const creatureHasMaterializationSickness =
 					dpriest.player.summonCreaturesWithMaterializationSickness;
@@ -278,7 +278,7 @@ export default (G) => {
 					{ temp: true },
 					{ materializationSickness: creatureHasMaterializationSickness },
 				);
-				let fullCrea = new Creature(crea, G);
+				const fullCrea = new Creature(crea, G);
 				// Don't allow temporary Creature to take up space
 				fullCrea.cleanHex();
 				// Make temporary Creature invisible
@@ -329,10 +329,10 @@ export default (G) => {
 
 			//	activate() :
 			activate: function (hex, args) {
-				let creature = args.creature;
-				let ability = this;
+				const creature = args.creature;
+				const ability = this;
 
-				let pos = {
+				const pos = {
 					x: hex.x,
 					y: hex.y,
 				};
