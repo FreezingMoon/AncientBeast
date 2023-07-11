@@ -13,6 +13,7 @@ import { Creature } from './creature';
 import dataJson from './data/units.json';
 import 'pixi';
 import 'p2';
+// @ts-expect-error
 import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
@@ -1204,7 +1205,10 @@ export default class Game {
 			i;
 
 		for (i = totalCreatures - 1; i >= 0; i--) {
-			if (this.creatureData[i].type == type || this[i].realm + this.creatureData[i].level == type) {
+			if (
+				this.creatureData[i].type == type ||
+				this.creatureData[i].realm + this.creatureData[i].level == type
+			) {
 				if (!this.creatureData[i].type) {
 					// When type property is missing, create it using formula: concat(realm + level)
 					this.creatureData[i].type = this.creatureData[i].realm + this.creatureData[i].level;
