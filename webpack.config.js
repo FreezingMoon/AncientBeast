@@ -97,15 +97,6 @@ module.exports = (env, argv) => {
 					test: /\.(png|jpg|gif|svg|ogg|ico|cur|woff|woff2)$/,
 					type: 'asset/resource',
 				},
-				/*
-				{
-					test: /\.(png|jpg|gif|svg|ogg|ico|cur|woff|woff2)$/,
-					loader: 'image-loader',
-					options: {
-					  //limit: 8192, // inline images up to 8KB
-					},
-				}
-				*/
 			],
 		},
 		resolve: {
