@@ -12,6 +12,8 @@ import { AbilitySlot } from './ability';
 /**
  * NOTE
  * need to convert game.js -> game.ts to get rid of @ts-expect-errors
+ *
+ * to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
  */
 
 type ScoreType =
@@ -29,18 +31,18 @@ type ScoreType =
 	| 'pickupDrop'
 	| 'upgrade';
 
-type PlayerID = 0 | 1 | 2 | 3;
-
-type PlayerName = `Player${1 | 2 | 3 | 4}`;
-
-type PlayerColor = 'red' | 'blue' | 'orange' | 'green';
-
 export type ScoreEvent = {
 	type: ScoreType;
 	creature?: Creature;
 	kills?: number;
 	ability?: AbilitySlot;
 };
+
+export type PlayerColor = 'red' | 'blue' | 'orange' | 'green';
+
+type PlayerID = 0 | 1 | 2 | 3;
+
+type PlayerName = `Player${1 | 2 | 3 | 4}`;
 
 type TotalScore = Record<ScoreType, number> & { total: number };
 
@@ -98,7 +100,6 @@ export class Player {
 		this.hasLost = false;
 		this.hasFled = false;
 		this.bonusTimePool = 0;
-		// @ts-expect-error ts(2339)
 		this.totalTimePool = game.timePool * 1000;
 		this.startTime = new Date();
 
@@ -158,6 +159,7 @@ export class Player {
 
 		this.creatures.push(creature);
 		creature.summon(!this._summonCreaturesWithMaterializationSickness);
+		// @ts-expect-error 2554
 		game.onCreatureSummon(creature);
 	}
 
@@ -263,7 +265,6 @@ export class Player {
 	isLeader(): boolean {
 		const game = this.game;
 
-		// @ts-expect-error ts(2339)
 		for (let i = 0; i < game.playerMode; i++) {
 			// Each player
 			// If someone has a higher score
@@ -314,7 +315,6 @@ export class Player {
 		game.updateQueueDisplay();
 
 		// Test if allie Dark Priest is dead
-		// @ts-expect-error ts(2339)
 		if (game.playerMode > 2) {
 			// 2 vs 2
 			if (game.players[(this.id + 2) % 4].hasLost) {

@@ -11,6 +11,8 @@ import { Player } from './player';
 import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 
+// to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
+
 export type CreatureVitals = {
 	health: number;
 	regrowth: number;
@@ -535,6 +537,7 @@ export class Creature {
 			varReset();
 
 			// Trigger
+			// @ts-expect-error 2554
 			game.onStartPhase(this);
 		}
 
@@ -571,6 +574,7 @@ export class Creature {
 		// Effects triggers
 		if (!wait) {
 			this.turnsActive += 1;
+			// @ts-expect-error 2554
 			game.onEndPhase(this);
 		}
 
@@ -613,8 +617,8 @@ export class Creature {
 	/* queryMove()
 	 * launch move action query
 	 */
-	// TODO: type the argument
-	queryMove(o: QueryMoveOptions) {
+	// TODO: type `args` in `QueryMoveOptions`
+	queryMove(options?: QueryMoveOptions) {
 		const game = this.game;
 
 		if (this.dead) {
@@ -626,7 +630,7 @@ export class Creature {
 		// Once Per Damage Abilities recover
 		game.creatures.forEach((creature) => {
 			//For all Creature
-			if (creature instanceof Creature) {
+			if (creature) {
 				creature.abilities.forEach((ability) => {
 					if (game.triggers.oncePerDamageChain.test(ability.getTrigger())) {
 						ability.setUsed(false);
@@ -646,8 +650,7 @@ export class Creature {
 			remainingMove = 0;
 		}
 
-		o = $j.extend(
-			{
+		const defaultOptions = {
 				targeting: false,
 				noPath: false,
 				isAbility: false,
@@ -685,8 +688,8 @@ export class Creature {
 					});
 				},
 			},
-			o,
-		);
+			// overwrite any fields of `defaultOptions` that were provided in `options`
+			o = $j.extend(defaultOptions, options);
 
 		if (!o.isAbility) {
 			if (game.UI.selectedAbility != -1) {
@@ -977,6 +980,7 @@ export class Creature {
 				clearInterval(interval);
 				opts.callback();
 				game.signals.creature.dispatch('movementComplete', { creature: this, hex });
+				// @ts-expect-error 2554
 				game.onCreatureMove(this, hex); // Trigger
 			}
 		}, 100);
@@ -1361,6 +1365,7 @@ export class Creature {
 			}
 		}
 
+		// @ts-expect-error 2554
 		game.onHeal(this, amount);
 	}
 
@@ -1461,6 +1466,7 @@ export class Creature {
 
 			// Trigger
 			if (!o.ignoreRetaliation) {
+				// @ts-expect-error 2554
 				game.onDamage(this, damage);
 			}
 
@@ -1816,6 +1822,7 @@ export class Creature {
 		this.dead = true;
 
 		// Triggers
+		// @ts-expect-error 2554
 		game.onCreatureDeath(this);
 
 		this.killer = killerCreature.player;
