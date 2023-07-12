@@ -11,6 +11,8 @@ import { Player } from './player';
 import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 
+// to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
+
 export type CreatureVitals = {
 	health: number;
 	regrowth: number;
@@ -535,6 +537,7 @@ export class Creature {
 			varReset();
 
 			// Trigger
+			// @ts-expect-error 2554
 			game.onStartPhase(this);
 		}
 
@@ -571,6 +574,7 @@ export class Creature {
 		// Effects triggers
 		if (!wait) {
 			this.turnsActive += 1;
+			// @ts-expect-error 2554
 			game.onEndPhase(this);
 		}
 
@@ -976,6 +980,7 @@ export class Creature {
 				clearInterval(interval);
 				opts.callback();
 				game.signals.creature.dispatch('movementComplete', { creature: this, hex });
+				// @ts-expect-error 2554
 				game.onCreatureMove(this, hex); // Trigger
 			}
 		}, 100);
@@ -1360,6 +1365,7 @@ export class Creature {
 			}
 		}
 
+		// @ts-expect-error 2554
 		game.onHeal(this, amount);
 	}
 
@@ -1460,6 +1466,7 @@ export class Creature {
 
 			// Trigger
 			if (!o.ignoreRetaliation) {
+				// @ts-expect-error 2554
 				game.onDamage(this, damage);
 			}
 
@@ -1815,6 +1822,7 @@ export class Creature {
 		this.dead = true;
 
 		// Triggers
+		// @ts-expect-error 2554
 		game.onCreatureDeath(this);
 
 		this.killer = killerCreature.player;

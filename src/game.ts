@@ -13,7 +13,7 @@ import { Creature } from './creature';
 import dataJson from './data/units.json';
 import 'pixi';
 import 'p2';
-// @ts-expect-error
+// @ts-expect-error 2307
 import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
@@ -25,9 +25,18 @@ import { Ability } from './ability';
 import { Effect } from './effect';
 import { GameConfig } from './script';
 
-/* NOTE
+/* eslint-disable prefer-rest-params */
+
+/* NOTES/TODOS
  *
- * to fix @ts-expect-error 2339, convert match.js -> match.ts
+ * to fix @ts-expect-error
+ * 2339: convert match.js -> match.ts
+ * 2362: use `Date.valueOf()` when subtracting `number` type from a `Date` type
+ * 2307: cannot find module
+ * 2554: adjust `stopTimer()` definition
+ * 2683: `this` is implicitly `any`
+ *
+ * refactor the trigger functions to get rid of the `prefer-rest-params` linter errors
  */
 
 /* Game Class
@@ -88,10 +97,8 @@ export default class Game {
 	animationQueue: (Animation | AnimationID)[];
 	checkTimeFrequency: number;
 	gamelog: GameLog;
-	// for `{}`: could instead type them as `undefined | T`. This would simplify type narrowing, just
-	// need to make sure nothing breaks
-	configData: {};
-	match: MatchI | {};
+	configData: object;
+	match: MatchI | object;
 	gameplay: Gameplay;
 	session = null;
 	client = null;
@@ -127,10 +134,10 @@ export default class Game {
 	grid?: HexGrid;
 
 	startMatchTime?: Date;
-	$combatFrame?: JQuery<HTMLElement>;
+	$combatFrame?: JQuery<HTMLElement>; //eslint-disable-line no-undef
+	timeInterval?: NodeJS.Timer; //eslint-disable-line no-undef
 
-	timeInterval?: NodeJS.Timer;
-	windowResizeTimeout?: string | number | NodeJS.Timer;
+	windowResizeTimeout?: string | number | NodeJS.Timer; //eslint-disable-line no-undef
 
 	pauseStartTime?: Date;
 
@@ -669,14 +676,14 @@ export default class Game {
 		this.resizeCombatFrame(); // Resize while the game is starting
 		this.UI.resizeDash();
 
-		var resizeGame = function () {
-			// @ts-expect-error 653
+		const resizeGame = function () {
+			// @ts-expect-error 2683
 			clearTimeout(this.windowResizeTimeout);
-			// @ts-expect-error 653
+			// @ts-expect-error 2683
 			this.windowResizeTimeout = setTimeout(() => {
-				// @ts-expect-error 653
+				// @ts-expect-error 2683
 				this.resizeCombatFrame();
-				// @ts-expect-error 653
+				// @ts-expect-error 2683
 				this.UI.resizeDash();
 			}, 100);
 		}.bind(this);
@@ -948,7 +955,7 @@ export default class Game {
 		if (this.freezedInput && this.pause) {
 			this.pause = false;
 			this.freezedInput = false;
-			// @ts-expect-error
+			// @ts-expect-error 2362
 			this.pauseTime += new Date() - this.pauseStartTime;
 			$j('#pause').remove();
 			this.startTimer();
@@ -1425,7 +1432,7 @@ export default class Game {
 				effect.deleteEffect();
 				// Update UI in case effect changes it
 				if (effect.target) {
-					// @ts-expect-error
+					// @ts-expect-error 2339
 					// `this.effects` might be the wrong type or need to look at `EffectTarget` type definition
 					effect.target.updateHealth();
 				}
@@ -1543,7 +1550,7 @@ export default class Game {
 		}
 
 		for (i = 0; i < totalEffects; i++) {
-			// @ts-expect-error
+			// @ts-expect-error 2339
 			// `this.effects` might be the wrong type or need to look at `EffectTarget` type definition
 			this.effects[i].triggeredThisChain = false;
 		}

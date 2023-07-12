@@ -4,6 +4,8 @@ import { Creature } from './creature';
 import { Hex } from './utility/hex';
 import { Ability } from './ability';
 
+// to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
+
 type AnimationOptions = {
 	customMovementPoint?: number;
 	overrideSpeed?: number;
@@ -247,7 +249,7 @@ export class Animations {
 				creature.faceHex(hex, creature.hexagons[0], false, false); // Determine facing
 			}
 		}
-
+		// @ts-expect-error 2554
 		game.onStepOut(creature, creature.hexagons[0]); // Trigger
 		game.grid.orderCreatureZ();
 	}
