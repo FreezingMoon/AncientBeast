@@ -28,6 +28,7 @@ module.exports = (env, argv) => {
 		output: {
 			path: path.resolve(__dirname, 'deploy'),
 			filename: '[name].[contenthash].bundle.js',
+			clean: true, // NOTE: Clean the output folder before each build.
 			assetModuleFilename: () => {
 				if (production) {
 					return 'assets/[contenthash].[ext]';
