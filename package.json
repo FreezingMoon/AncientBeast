@@ -66,7 +66,6 @@
 		"less-loader": "^11.1.0",
 		"lint-staged": "^13.2.3",
 		"prettier": "2.5.1",
-		"rimraf": "^3.0.2",
 		"style-loader": "^3.3.1",
 		"terser-webpack-plugin": "^5.3.6",
 		"ts-loader": "^9.4.2",
@@ -80,8 +79,8 @@
 		"node": "18.12.x"
 	},
 	"scripts": {
-		"build": "npm run clean && npm run assetLister && webpack --mode=production",
-		"build:dev": "npm run clean && npm run assetLister && webpack --mode=development",
+		"build": "npm run assetLister && webpack --mode=production",
+		"build:dev": "npm run assetLister && webpack --mode=development",
 		"start": "cross-env NODE_ENV=production node server.js",
 		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
 		"assetLister": "node ./assetLister.js",
@@ -92,8 +91,7 @@
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check",
 		"test": "npm run lint && npm run build && jest",
 		"jest": "jest",
-		"start:jest": "jest --watch",
-		"clean": "rimraf ./deploy"
+		"start:jest": "jest --watch"
 	},
 	"lint-staged": {
 		"*.{ts,js}": [
