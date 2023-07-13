@@ -32,7 +32,6 @@ import { GameConfig } from './script';
  * to fix @ts-expect-error
  * 2339: convert match.js -> match.ts
  * 2307: cannot find module
- * 2554: adjust `stopTimer()` definition
  * 2683: `this` is implicitly `any`
  *
  * refactor the trigger functions to get rid of the `prefer-rest-params` linter errors
@@ -1676,9 +1675,7 @@ export default class Game {
 	resetGame() {
 		this.endGameSound.pause();
 		this.UI.showGameSetup();
-		// @ts-expect-error 2554
-		// Appears that `stopTimer` dosen't require an argument
-		this.stopTimer(this.timeInterval);
+		this.stopTimer();
 		this.players = [];
 		this.creatures = [];
 		this.effects = [];
