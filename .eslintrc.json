@@ -23,6 +23,7 @@
 		"node": true
 	},
 	"globals": {
-		"Phaser": true
+		"Phaser": true,
+		"__WebpackModuleApi": true
 	}
 }

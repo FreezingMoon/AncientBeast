@@ -31,9 +31,7 @@ import { GameConfig } from './script';
  *
  * to fix @ts-expect-error
  * 2339: convert match.js -> match.ts
- * 2362: use `Date.valueOf()` when subtracting `number` type from a `Date` type
  * 2307: cannot find module
- * 2554: adjust `stopTimer()` definition
  *
  * refactor the trigger functions to get rid of the `prefer-rest-params` linter errors
  */
@@ -674,8 +672,8 @@ export default class Game {
 
 		this.resizeCombatFrame(); // Resize while the game is starting
 		this.UI.resizeDash();
-
-		const resizeGame = () => {
+    
+		const resizeGame = function (this: Game) {
 			clearTimeout(this.windowResizeTimeout);
 			this.windowResizeTimeout = setTimeout(() => {
 				this.resizeCombatFrame();
@@ -950,8 +948,7 @@ export default class Game {
 		if (this.freezedInput && this.pause) {
 			this.pause = false;
 			this.freezedInput = false;
-			// @ts-expect-error 2362
-			this.pauseTime += new Date() - this.pauseStartTime;
+			this.pauseTime += new Date().valueOf() - this.pauseStartTime.valueOf();
 			$j('#pause').remove();
 			this.startTimer();
 		} else if (!this.pause && !this.freezedInput) {
@@ -1017,8 +1014,7 @@ export default class Game {
 
 			const skipTurn = new Date();
 			const p = this.activeCreature.player;
-			// @ts-expect-error 2362
-			p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
+			p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 			this.pauseTime = 0;
 			this.activeCreature.deactivate(false);
 			this.nextCreature();
@@ -1079,8 +1075,7 @@ export default class Game {
 		const skipTurn = new Date(),
 			p = this.activeCreature.player;
 
-		// @ts-expect-error 2362
-		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
+		p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 		this.activeCreature.wait();
 		this.nextCreature();
 	}
@@ -1088,8 +1083,8 @@ export default class Game {
 	startTimer() {
 		clearInterval(this.timeInterval);
 
-		// @ts-expect-error 2362
-		this.activeCreature.player.startTime = new Date() - this.pauseTime;
+		const totalTime = new Date().valueOf();
+		this.activeCreature.player.startTime = new Date(totalTime - this.pauseTime);
 		this.checkTime();
 
 		this.timeInterval = setInterval(() => {
@@ -1675,9 +1670,7 @@ export default class Game {
 	resetGame() {
 		this.endGameSound.pause();
 		this.UI.showGameSetup();
-		// @ts-expect-error 2554
-		// Appears that `stopTimer` dosen't require an argument
-		this.stopTimer(this.timeInterval);
+		this.stopTimer();
 		this.players = [];
 		this.creatures = [];
 		this.effects = [];

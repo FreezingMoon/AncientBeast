@@ -63,8 +63,6 @@ In order to build the development version of the game (also done by `npm install
 npm run build:dev
 ```
 
-If you receive errors about the manifest or assets loading, try running `npm run assetLister` to create a list for the app.
-
 ### Docker Setup
 
 As an alternative way of running the project, make sure you have Docker installed, then build the image using the following command:

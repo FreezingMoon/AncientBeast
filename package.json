@@ -40,6 +40,7 @@
 		"@babel/preset-typescript": "^7.21.4",
 		"@types/jest": "^29.5.0",
 		"@types/jquery": "^3.5.9",
+		"@types/webpack-env": "^1.18.1",
 		"@typescript-eslint/eslint-plugin": "^5.47.1",
 		"@typescript-eslint/parser": "^5.47.1",
 		"babel-jest": "^29.5.0",
@@ -79,11 +80,10 @@
 		"node": "18.12.x"
 	},
 	"scripts": {
-		"build": "npm run assetLister && webpack --mode=production",
-		"build:dev": "npm run assetLister && webpack --mode=development",
+		"build": "webpack --mode=production",
+		"build:dev": "webpack --mode=development",
 		"start": "cross-env NODE_ENV=production node server.js",
 		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
-		"assetLister": "node ./assetLister.js",
 		"lint": "eslint \"src/**/*.{js,ts}\"",
 		"lint-error": "eslint --quiet \"src/**/*.{js,ts}\"",
 		"lint-fix": "eslint --fix \"src/**/*.{js,ts}\"",
