@@ -16,8 +16,6 @@ jobs:
       with:
         node-version: 18
     - run: npm ci
-    - name: Asset generator
-      run: npm run assetLister 
     - name: lint
       run: npm run lint
     - name: build
