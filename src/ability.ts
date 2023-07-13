@@ -73,7 +73,7 @@ export class Ability {
 	title: string;
 
 	// TODO properly type all these unknowns
-	// these properties come from extending a specific ability from `src/abilities`
+	// These properties come from extending a specific ability from `src/abilities`
 	requirements?: Requirement | undefined;
 	costs?: Cost | undefined;
 	trigger?: Trigger;
@@ -86,7 +86,7 @@ export class Ability {
 	damages?: CreatureMasteries & { pure?: number | string };
 	effects?: AbilityEffect[];
 	message?: string;
-	movementType?: () => 'flying'; // currently, this functon only exists in `Scavenger.js`
+	movementType?: () => 'flying'; // Currently, this functon only exists in `Scavenger.js`
 	triggeredThisChain?: boolean;
 
 	_disableCooldowns: boolean;
