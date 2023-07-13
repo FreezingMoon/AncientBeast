@@ -25,6 +25,7 @@ import { Ability } from './ability';
 import { Effect } from './effect';
 import { GameConfig } from './script';
 import { Damage } from './damage';
+import { Trap } from './utility/trap';
 
 /* eslint-disable prefer-rest-params */
 
@@ -1349,13 +1350,11 @@ export default class Game {
 		this.triggerEffect('onReset', [creature, creature]);
 	}
 
-	// `TEMPcreature` used to avoid refactoring
 	// delete `callback`? it's not passed as an argument anywhere
-	onStartPhase(TEMPcreature: Creature, callback?: unknown /* creature, callback */) {
-		let creature = arguments[0],
-			totalTraps = this.grid.traps.length,
-			trap,
-			i;
+	onStartPhase(creature: Creature, callback?: unknown /* creature, callback */) {
+		const totalTraps = this.grid.traps.length;
+		let trap: Trap;
+		let i: number;
 
 		for (i = 0; i < totalTraps; i++) {
 			trap = this.grid.traps[i];
@@ -1384,11 +1383,8 @@ export default class Game {
 		this.triggerEffect('onStartPhase', [creature, creature]);
 	}
 
-	// `TEMPcreature` used to avoid refactoring
 	// delete `callback`? it's not passed as an argument anywhere
-	onEndPhase(TEMPcreature: Creature, callback?: unknown /* creature, callback */) {
-		const creature = arguments[0];
-
+	onEndPhase(creature: Creature, callback?: unknown /* creature, callback */) {
 		this.triggerDeleteEffect('onEndPhase', creature);
 		this.triggerAbility('onEndPhase', arguments);
 		this.triggerEffect('onEndPhase', [creature, creature]);
@@ -1404,11 +1400,8 @@ export default class Game {
 		this.triggerAbility('onCreatureMove', arguments);
 	}
 
-	// `TEMPcreature` used to avoid refactoring
 	// delete `callback`? it's not passed as an argument anywhere
-	onCreatureDeath(TEMPcreature: Creature, callback?: unknown /* creature, callback */) {
-		const creature = arguments[0];
-
+	onCreatureDeath(creature: Creature, callback?: unknown /* creature, callback */) {
 		this.triggerAbility('onCreatureDeath', arguments);
 		this.triggerEffect('onCreatureDeath', [creature, creature]);
 
