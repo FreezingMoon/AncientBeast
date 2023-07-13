@@ -1,6 +1,5 @@
 import { Creature } from '../creature';
 import { jest, expect, describe, test, beforeEach } from '@jest/globals';
-import { Player } from '../player';
 
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
@@ -50,7 +49,6 @@ describe('Creature', () => {
 });
 
 jest.mock('../ability');
-jest.mock('../assets');
 jest.mock('../utility/hex', () => {
 	return {
 		default: () => {
@@ -58,6 +56,10 @@ jest.mock('../utility/hex', () => {
 		},
 	};
 });
+
+const getPlayerMock = () => {
+	return {};
+};
 
 const getRandomString = (length: number) => {
 	return Array(length + 1)
@@ -129,8 +131,7 @@ const getGameMock = () => {
 		},
 		plasma_amount: 10,
 	};
-	// @ts-expect-error
-	self.players = [new Player(0, self), new Player(1, self)];
+	self.players = [getPlayerMock(), getPlayerMock()];
 	return self;
 };
 
