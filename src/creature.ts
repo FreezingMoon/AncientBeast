@@ -7,7 +7,7 @@ import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
 import { getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
-import { Player } from './player';
+import { Player, PlayerID } from './player';
 import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 
@@ -62,6 +62,14 @@ type QueryMoveOptions = Partial<{
 	args: any;
 }>;
 
+type Status = {
+	frozen: boolean;
+	cryostasis: boolean;
+	dizzy: boolean;
+};
+
+type Movement = 'normal' | 'flying';
+
 /**
  * Creature Class
  *
@@ -113,7 +121,7 @@ export class Creature {
 	id: number;
 	x: number;
 	y: number;
-	pos: object;
+	pos: { x: number; y: number };
 	size: number;
 	type: string;
 	level: number;
@@ -121,20 +129,20 @@ export class Creature {
 	animation: { walk_speed: number };
 	display: object;
 	drop: DropDefinition;
-	_movementType: string;
+	_movementType: Movement;
 	temp: boolean;
-	hexagons: Array<any>;
-	team: number;
+	hexagons: Hex[];
+	team: PlayerID;
 	player: Player;
 
 	// Game
 	dead: boolean;
 	undead: boolean;
-	killer: any;
+	killer: Player;
 	hasWait: boolean;
 	travelDist: number;
 	effects: Array<any>;
-	dropCollection: Array<any>;
+	dropCollection: Drop[];
 	protectedFromFatigue: boolean;
 	turnsActive: number;
 	delayable: boolean;
@@ -146,14 +154,14 @@ export class Creature {
 	// Statistics
 	baseStats: CreatureStats;
 	stats: CreatureStats;
-	status: any;
+	status: Status;
 	health: number;
 	oldHealth: number;
 	endurance: number;
 	energy: number;
 	oldEnergy: number;
 	remainingMove: number;
-	abilities: Array<any>;
+	abilities: Ability[];
 
 	// Phaser
 
@@ -854,6 +862,8 @@ export class Creature {
 
 		if (
 			ignoreCreaHex &&
+			faceto instanceof Hex &&
+			facefrom instanceof Hex &&
 			this.hexagons.indexOf(faceto) != -1 &&
 			this.hexagons.indexOf(facefrom) != -1
 		) {

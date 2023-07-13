@@ -22,7 +22,23 @@ import { ScoreEvent } from './player';
 
 export type AbilitySlot = 0 | 1 | 2 | 3;
 
-export type AbilityTrigger = 'onQuery' | 'onStartPhase' | 'onDamage' | 'onEndPhase';
+export type Trigger =
+	| 'onQuery'
+	| 'onStartPhase'
+	| 'onDamage'
+	| 'onEndPhase'
+	| 'onStepIn'
+	| 'onStepOut'
+	| 'onReset'
+	| 'onCreatureMove'
+	| 'onCreatureDeath'
+	| 'onCreatureSummon'
+	| 'onAttack'
+	| 'onUnderAttack'
+	| 'onHeal'
+	| 'onEffectAttach'
+	| 'onStartOfRound'
+	| 'oncePerDamageChain';
 
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
@@ -57,11 +73,12 @@ export class Ability {
 	title: string;
 
 	// TODO properly type all these unknowns
+	// these properties come from extending a specific ability from `src/abilities`
 	requirements?: Requirement | undefined;
 	costs?: Cost | undefined;
-	trigger?: AbilityTrigger;
-	triggerFunc?: () => AbilityTrigger;
-	require?: () => boolean;
+	trigger?: Trigger;
+	triggerFunc?: () => Trigger;
+	require?: (damage?: Damage, hex?: Hex) => boolean;
 	query?: () => unknown;
 	affectedByMatSickness?: boolean;
 	activate?: (...args: unknown[]) => unknown;
@@ -69,6 +86,8 @@ export class Ability {
 	damages?: CreatureMasteries & { pure?: number | string };
 	effects?: AbilityEffect[];
 	message?: string;
+	movementType?: () => 'flying'; // currently, this functon only exists in `Scavenger.js`
+	triggeredThisChain?: boolean;
 
 	_disableCooldowns: boolean;
 
@@ -158,7 +177,7 @@ export class Ability {
 	 * Get the trigger method for this ablity.
 	 * @return Trigger
 	 */
-	getTrigger(): string {
+	getTrigger(): Trigger {
 		if (this.trigger !== undefined) {
 			return this.trigger;
 		} else if (this.triggerFunc !== undefined) {
