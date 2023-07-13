@@ -673,13 +673,13 @@ export default class Game {
 		this.resizeCombatFrame(); // Resize while the game is starting
 		this.UI.resizeDash();
 
-		const resizeGame = function (this: Game) {
+		const resizeGame = () => {
 			clearTimeout(this.windowResizeTimeout);
 			this.windowResizeTimeout = setTimeout(() => {
 				this.resizeCombatFrame();
 				this.UI.resizeDash();
 			}, 100);
-		}.bind(this);
+		};
 
 		// Handle resize events
 		$j(window).resize(() => {

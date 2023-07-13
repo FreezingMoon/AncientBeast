@@ -34,13 +34,14 @@ type ScoreType =
 export type ScoreEvent = {
 	type: ScoreType;
 	creature?: Creature;
+	player?: PlayerID;
 	kills?: number;
 	ability?: AbilitySlot;
 };
 
 export type PlayerColor = 'red' | 'blue' | 'orange' | 'green';
 
-type PlayerID = 0 | 1 | 2 | 3;
+export type PlayerID = 0 | 1 | 2 | 3;
 
 type PlayerName = `Player${1 | 2 | 3 | 4}`;
 
