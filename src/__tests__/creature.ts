@@ -50,8 +50,7 @@ describe('Creature', () => {
 });
 
 jest.mock('../ability');
-jest.mock('../assets', () => ({ children: [] }));
-jest.mock('../assetLoader');
+jest.mock('../assets');
 jest.mock('../utility/hex', () => {
 	return {
 		default: () => {

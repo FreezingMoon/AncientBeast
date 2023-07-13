@@ -626,7 +626,7 @@
 							<div class="audio-player-beast"></div>
 
 							<div class="musicgenres__items">
-								<% require('./assetLoader.ts').getDirectory('music').forEach(function(musicGenre) { %>
+								<% require('./assets.ts').getDirectory('music').forEach(function(musicGenre) { %>
 									<span class="musicgenres__title" id="genre-<%= musicGenre.id %>"><%= musicGenre.id %></span>
 								<% }); %>
 							</div>
@@ -653,7 +653,7 @@
 					</div>
 					<div class="framed-modal framed-modal--fluid">
 					<ul id="playlist" style="list-style-type:none; padding-left:0px;">
-						<% require('./assetLoader.ts').getDirectory('music').forEach(function(musicGenre) { %>
+						<% require('./assets.ts').getDirectory('music').forEach(function(musicGenre) { %>
 							<% musicGenre.children.forEach(function(track) { %>
 								<li class="<%= musicGenre.id %>"><a href="<%= track.url %>"><%= track.id %></a></li>
 							<% }); %>

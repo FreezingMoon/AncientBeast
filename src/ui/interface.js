@@ -8,7 +8,7 @@ import { Chat } from './chat';
 import { Creature } from '../creature';
 import { Fullscreen } from './fullscreen';
 import { ProgressBar } from './progressbar';
-import { getUrl } from '../assetLoader';
+import { getUrl } from '../assets';
 import { MetaPowers } from './meta-powers';
 import { Queue } from './queue';
 import { QuickInfo } from './quickinfo';

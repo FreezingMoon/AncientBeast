@@ -1,5 +1,5 @@
 import * as $j from 'jquery';
-import { getUrl } from './assetLoader';
+import { getUrl } from './assets';
 import { Creature } from './creature';
 import Game from './game';
 import { AbilitySlot } from './ability';
