@@ -78,7 +78,7 @@ export class Ability {
 	costs?: Cost | undefined;
 	trigger?: Trigger;
 	triggerFunc?: () => Trigger;
-	require?: (damage?: Damage, hex?: Hex) => boolean;
+	require?: (req?: Damage | Hex) => boolean;
 	query?: () => unknown;
 	affectedByMatSickness?: boolean;
 	activate?: (...args: unknown[]) => unknown;

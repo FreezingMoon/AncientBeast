@@ -21,7 +21,7 @@ import { sleep } from './utility/time';
 import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG, DEBUG_DISABLE_MUSIC } from './debug';
 import { configure as configurePointFacade } from './utility/pointfacade';
 import { pretty as version } from './utility/version';
-import { Ability } from './ability';
+import { Ability, Trigger } from './ability';
 import { Effect } from './effect';
 import { GameConfig } from './script';
 import { Damage } from './damage';
@@ -1217,9 +1217,7 @@ export default class Game {
 		}
 	}
 
-	triggerAbility(trigger, arg, retValue?) {
-		const [triggeredCreature, required] = arg;
-
+	triggerAbility(trigger: Trigger, triggeredCreature: Creature, required?: Damage | Hex) {
 		// For triggered creature
 		triggeredCreature.abilities.forEach((ability) => {
 			if (triggeredCreature.dead === true) {
@@ -1228,7 +1226,7 @@ export default class Game {
 
 			if (this.triggers[trigger].test(ability.getTrigger())) {
 				if (ability.require(required)) {
-					retValue = ability.animation(required);
+					ability.animation(required);
 				}
 			}
 		});
@@ -1242,13 +1240,11 @@ export default class Game {
 			creature.abilities.forEach((ability) => {
 				if (this.triggers[trigger + '_other'].test(ability.getTrigger())) {
 					if (ability.require(required)) {
-						retValue = ability.animation(required, triggeredCreature);
+						ability.animation(required, triggeredCreature);
 					}
 				}
 			});
 		});
-
-		return retValue;
 	}
 
 	triggerEffect(trigger, arg, retValue?) {
@@ -1317,7 +1313,7 @@ export default class Game {
 	}
 
 	onStepIn(creature: Creature, hex: Hex, opts: AnimationOptions) {
-		this.triggerAbility('onStepIn', arguments);
+		this.triggerAbility('onStepIn', creature, hex);
 		this.triggerEffect('onStepIn', arguments);
 		// Check traps last; this is because traps adds effects triggered by
 		// this event, which gets triggered again via G.triggerEffect. Otherwise
@@ -1336,7 +1332,7 @@ export default class Game {
 	 */
 	// delete `callback`? it's not passed as an argument anywhere
 	onStepOut(creature: Creature, hex: Hex, callback?: unknown /* creature, hex, callback */) {
-		this.triggerAbility('onStepOut', arguments);
+		this.triggerAbility('onStepOut', creature, hex);
 		this.triggerEffect('onStepOut', arguments);
 		// Check traps last; this is because traps add effects triggered by
 		// this event, which gets triggered again via G.triggerEffect. Otherwise
@@ -1346,7 +1342,7 @@ export default class Game {
 
 	onReset(creature: Creature) {
 		this.triggerDeleteEffect('onReset', creature);
-		this.triggerAbility('onReset', arguments);
+		this.triggerAbility('onReset', creature);
 		this.triggerEffect('onReset', [creature, creature]);
 	}
 
@@ -1379,14 +1375,14 @@ export default class Game {
 		}
 
 		this.triggerDeleteEffect('onStartPhase', creature);
-		this.triggerAbility('onStartPhase', arguments);
+		this.triggerAbility('onStartPhase', creature);
 		this.triggerEffect('onStartPhase', [creature, creature]);
 	}
 
 	// delete `callback`? it's not passed as an argument anywhere
 	onEndPhase(creature: Creature, callback?: unknown /* creature, callback */) {
 		this.triggerDeleteEffect('onEndPhase', creature);
-		this.triggerAbility('onEndPhase', arguments);
+		this.triggerAbility('onEndPhase', creature);
 		this.triggerEffect('onEndPhase', [creature, creature]);
 	}
 
@@ -1397,12 +1393,12 @@ export default class Game {
 	// TODO in creature.ts, properly type `moveTo()` to ensure `hex` is actually a Hex type
 	// delete `callback`? it's not passed as an argument anywhere
 	onCreatureMove(creature: Creature, hex: Hex, callback?: unknown /* creature, hex, callback */) {
-		this.triggerAbility('onCreatureMove', arguments);
+		this.triggerAbility('onCreatureMove', creature, hex);
 	}
 
 	// delete `callback`? it's not passed as an argument anywhere
 	onCreatureDeath(creature: Creature, callback?: unknown /* creature, callback */) {
-		this.triggerAbility('onCreatureDeath', arguments);
+		this.triggerAbility('onCreatureDeath', creature);
 		this.triggerEffect('onCreatureDeath', [creature, creature]);
 
 		// Looks for traps owned by this creature and destroy them
@@ -1429,7 +1425,7 @@ export default class Game {
 	// here `callback` isn't passed to `onCreatureSummon` anywhere, but it's still being passed
 	// to `triggerAbility()`
 	onCreatureSummon(creature: Creature, callback?: unknown) {
-		this.triggerAbility('onCreatureSummon', [creature, creature, callback]);
+		this.triggerAbility('onCreatureSummon', creature);
 		this.triggerEffect('onCreatureSummon', [creature, creature]);
 	}
 
@@ -1438,25 +1434,24 @@ export default class Game {
 		this.triggerEffect('onEffectAttach', [creature, effect]);
 	}
 
-	// `creature` is passed as an argument in creature.ts
 	onUnderAttack(creature: Creature, damage: Damage) {
-		this.triggerAbility('onUnderAttack', arguments, damage);
+		this.triggerAbility('onUnderAttack', creature, damage);
 		this.triggerEffect('onUnderAttack', arguments, damage);
 		return damage;
 	}
 
 	onDamage(creature: Creature, damage: Damage /* creature, damage */) {
-		this.triggerAbility('onDamage', arguments);
+		this.triggerAbility('onDamage', creature, damage);
 		this.triggerEffect('onDamage', arguments);
 	}
 
 	onHeal(creature: Creature, amount: number /* creature, amount */) {
-		this.triggerAbility('onHeal', arguments);
+		this.triggerAbility('onHeal', creature);
 		this.triggerEffect('onHeal', arguments);
 	}
 
 	onAttack(creature: Creature, damage: Damage) {
-		this.triggerAbility('onAttack', arguments, damage);
+		this.triggerAbility('onAttack', creature, damage);
 		this.triggerEffect('onAttack', arguments, damage);
 	}
 
