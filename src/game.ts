@@ -1,5 +1,5 @@
 import * as $j from 'jquery';
-import { Animations } from './animations';
+import { AnimationOptions, Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
 import { SoundSys } from './sound/soundsys';
@@ -24,13 +24,14 @@ import { pretty as version } from './utility/version';
 import { Ability } from './ability';
 import { Effect } from './effect';
 import { GameConfig } from './script';
+import { Damage } from './damage';
 
 /* eslint-disable prefer-rest-params */
 
 /* NOTES/TODOS
  *
  * to fix @ts-expect-error
- * 2339: convert match.js -> match.ts
+ * 2339: convert match.js -> match.ts & adjust `EffectType` type
  * 2307: cannot find module
  *
  * refactor the trigger functions to get rid of the `prefer-rest-params` linter errors
@@ -1314,7 +1315,7 @@ export default class Game {
 		}
 	}
 
-	onStepIn(creature, hex, opts) {
+	onStepIn(creature: Creature, hex: Hex, opts: AnimationOptions) {
 		this.triggerAbility('onStepIn', arguments);
 		this.triggerEffect('onStepIn', arguments);
 		// Check traps last; this is because traps adds effects triggered by
@@ -1331,9 +1332,9 @@ export default class Game {
 	 * and other bugs. Refer to Impaler Poisonous Vine ability for an example on how
 	 * to delay damage until the end of movement.
 	 *
-	 * Removed individual args from definition because we are using the arguments variable.
 	 */
-	onStepOut(/* creature, hex, callback */) {
+	// delete `callback`? it's not passed as an argument anywhere
+	onStepOut(creature: Creature, hex: Hex, callback?: unknown /* creature, hex, callback */) {
 		this.triggerAbility('onStepOut', arguments);
 		this.triggerEffect('onStepOut', arguments);
 		// Check traps last; this is because traps add effects triggered by
@@ -1342,14 +1343,15 @@ export default class Game {
 		this.triggerTrap('onStepOut', arguments);
 	}
 
-	onReset(creature) {
+	onReset(creature: Creature) {
 		this.triggerDeleteEffect('onReset', creature);
 		this.triggerAbility('onReset', arguments);
 		this.triggerEffect('onReset', [creature, creature]);
 	}
 
-	// Removed individual args from definition because we are using the arguments variable.
-	onStartPhase(/* creature, callback */) {
+	// `TEMPcreature` used to avoid refactoring
+	// delete `callback`? it's not passed as an argument anywhere
+	onStartPhase(TEMPcreature: Creature, callback?: unknown /* creature, callback */) {
 		let creature = arguments[0],
 			totalTraps = this.grid.traps.length,
 			trap,
@@ -1382,8 +1384,9 @@ export default class Game {
 		this.triggerEffect('onStartPhase', [creature, creature]);
 	}
 
-	// Removed individual args from definition because we are using the arguments variable.
-	onEndPhase(/* creature, callback */) {
+	// `TEMPcreature` used to avoid refactoring
+	// delete `callback`? it's not passed as an argument anywhere
+	onEndPhase(TEMPcreature: Creature, callback?: unknown /* creature, callback */) {
 		const creature = arguments[0];
 
 		this.triggerDeleteEffect('onEndPhase', creature);
@@ -1391,18 +1394,19 @@ export default class Game {
 		this.triggerEffect('onEndPhase', [creature, creature]);
 	}
 
-	// Removed individual args from definition because we are using the arguments variable.
-	onStartOfRound(/* creature, callback */) {
+	onStartOfRound() {
 		this.triggerDeleteEffect('onStartOfRound', 'all');
 	}
 
-	// Removed individual args from definition because we are using the arguments variable.
-	onCreatureMove(/* creature, hex, callback */) {
+	// TODO in creature.ts, properly type `moveTo()` to ensure `hex` is actually a Hex type
+	// delete `callback`? it's not passed as an argument anywhere
+	onCreatureMove(creature: Creature, hex: Hex, callback?: unknown /* creature, hex, callback */) {
 		this.triggerAbility('onCreatureMove', arguments);
 	}
 
-	// Removed individual args from definition because we are using the arguments variable.
-	onCreatureDeath(/* creature, callback */) {
+	// `TEMPcreature` used to avoid refactoring
+	// delete `callback`? it's not passed as an argument anywhere
+	onCreatureDeath(TEMPcreature: Creature, callback?: unknown /* creature, callback */) {
 		const creature = arguments[0];
 
 		this.triggerAbility('onCreatureDeath', arguments);
@@ -1429,35 +1433,36 @@ export default class Game {
 			});
 	}
 
-	onCreatureSummon(creature, callback) {
+	// here `callback` isn't passed to `onCreatureSummon` anywhere, but it's still being passed
+	// to `triggerAbility()`
+	onCreatureSummon(creature: Creature, callback?: unknown) {
 		this.triggerAbility('onCreatureSummon', [creature, creature, callback]);
 		this.triggerEffect('onCreatureSummon', [creature, creature]);
 	}
 
-	// Removed individual args from definition because we are using the arguments variable.
-	onEffectAttach(creature, effect /*, callback */) {
+	// delete callback comment?
+	onEffectAttach(creature: Creature, effect: Effect /*, callback */) {
 		this.triggerEffect('onEffectAttach', [creature, effect]);
 	}
 
-	onUnderAttack(creature, damage) {
+	// `creature` is passed as an argument in creature.ts
+	onUnderAttack(creature: Creature, damage: Damage) {
 		this.triggerAbility('onUnderAttack', arguments, damage);
 		this.triggerEffect('onUnderAttack', arguments, damage);
 		return damage;
 	}
 
-	// Removed individual args from definition because we are using the arguments variable.
-	onDamage(/* creature, damage */) {
+	onDamage(creature: Creature, damage: Damage /* creature, damage */) {
 		this.triggerAbility('onDamage', arguments);
 		this.triggerEffect('onDamage', arguments);
 	}
 
-	// Removed individual args from definition because we are using the arguments variable.
-	onHeal(/* creature, amount */) {
+	onHeal(creature: Creature, amount: number /* creature, amount */) {
 		this.triggerAbility('onHeal', arguments);
 		this.triggerEffect('onHeal', arguments);
 	}
 
-	onAttack(creature, damage) {
+	onAttack(creature: Creature, damage: Damage) {
 		this.triggerAbility('onAttack', arguments, damage);
 		this.triggerEffect('onAttack', arguments, damage);
 	}

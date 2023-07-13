@@ -10,10 +10,9 @@ import { AbilitySlot } from './ability';
  */
 
 /**
- * NOTE
- * need to convert game.js -> game.ts to get rid of @ts-expect-errors
+ * TODO
+ *  fix @ts-expect-error 2339
  *
- * to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
  */
 
 type ScoreType =
@@ -160,7 +159,6 @@ export class Player {
 
 		this.creatures.push(creature);
 		creature.summon(!this._summonCreaturesWithMaterializationSickness);
-		// @ts-expect-error 2554
 		game.onCreatureSummon(creature);
 	}
 
