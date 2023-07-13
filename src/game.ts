@@ -34,7 +34,6 @@ import { GameConfig } from './script';
  * 2362: use `Date.valueOf()` when subtracting `number` type from a `Date` type
  * 2307: cannot find module
  * 2554: adjust `stopTimer()` definition
- * 2683: `this` is implicitly `any`
  *
  * refactor the trigger functions to get rid of the `prefer-rest-params` linter errors
  */
@@ -676,17 +675,13 @@ export default class Game {
 		this.resizeCombatFrame(); // Resize while the game is starting
 		this.UI.resizeDash();
 
-		const resizeGame = function () {
-			// @ts-expect-error 2683
+		const resizeGame = () => {
 			clearTimeout(this.windowResizeTimeout);
-			// @ts-expect-error 2683
 			this.windowResizeTimeout = setTimeout(() => {
-				// @ts-expect-error 2683
 				this.resizeCombatFrame();
-				// @ts-expect-error 2683
 				this.UI.resizeDash();
 			}, 100);
-		}.bind(this);
+		};
 
 		// Handle resize events
 		$j(window).resize(() => {
