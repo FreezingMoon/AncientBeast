@@ -84,7 +84,6 @@
 		"build:dev": "webpack --mode=development",
 		"start": "cross-env NODE_ENV=production node server.js",
 		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
-		"assetLister": "node ./assetLister.js",
 		"lint": "eslint \"src/**/*.{js,ts}\"",
 		"lint-error": "eslint --quiet \"src/**/*.{js,ts}\"",
 		"lint-fix": "eslint --fix \"src/**/*.{js,ts}\"",
