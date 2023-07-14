@@ -1,4 +1,4 @@
-import { getUrl } from '../assetLoader';
+import { getUrl } from '../assets';
 
 // TODO: Refactor this code to use ./src/sound/soundsys
 // so that it respects user volume preferences held there.

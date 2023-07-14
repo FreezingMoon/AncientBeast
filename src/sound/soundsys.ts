@@ -1,5 +1,5 @@
 import { BufferLoader } from './bufferloader';
-import { getUrl } from '../assetLoader';
+import { getUrl } from '../assets';
 import { MusicPlayer } from './musicplayer';
 import { clamp } from '../utility/math';
 

@@ -6,7 +6,7 @@ import { SoundSys } from './sound/soundsys';
 import { MusicPlayer } from './sound/musicplayer';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
-import { getUrl } from './assetLoader';
+import { getUrl } from './assets';
 import { Player, PlayerColor } from './player';
 import { UI } from './ui/interface';
 import { Creature } from './creature';
