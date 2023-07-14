@@ -6,7 +6,7 @@ import { SoundSys } from './sound/soundsys';
 import { MusicPlayer } from './sound/musicplayer';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
-import { getUrl } from './assets';
+import { getUrl, use as assetsUse } from './assets';
 import { Player, PlayerColor } from './player';
 import { UI } from './ui/interface';
 import { Creature } from './creature';
@@ -291,21 +291,9 @@ export default class Game {
 
 			if (name == 'Dark Priest') {
 				for (i = 0, count = dpcolor.length; i < count; i++) {
-					this.Phaser.load.image(
-						name + dpcolor[i] + '_cardboard',
-						getUrl('units/cardboards/' + name + ' ' + dpcolor[i]),
-					);
 					this.getImage(getUrl('units/avatars/' + name + ' ' + dpcolor[i]));
 				}
 			} else {
-				if (creature.drop) {
-					this.Phaser.load.image(
-						'drop_' + creature.drop.name,
-						getUrl('drops/' + creature.drop.name),
-					);
-				}
-
-				this.Phaser.load.image(name + '_cardboard', getUrl('units/cardboards/' + name));
 				this.getImage(getUrl('units/avatars/' + name));
 			}
 
@@ -367,57 +355,10 @@ export default class Game {
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
 		this.Phaser.load.onLoadComplete.add(onLoadCompleteFn);
 
-		// Health
-		const playerColors: PlayerColor[] = ['red', 'blue', 'orange', 'green'];
-
-		let i;
-		for (i = 0; i < 4; i++) {
-			this.Phaser.load.image('p' + i + '_health', getUrl('interface/rectangle_' + playerColors[i]));
-			this.Phaser.load.image('p' + i + '_plasma', getUrl('interface/capsule_' + playerColors[i]));
-			this.Phaser.load.image(
-				'p' + i + '_frozen',
-				getUrl('interface/rectangle_frozen_' + playerColors[i]),
-			);
-		}
+		assetsUse(this.Phaser);
 
 		// Ability SFX
 		this.Phaser.load.audio('MagmaSpawn0', getUrl('units/sfx/Infernal 0'));
-
-		// Debug help
-		this.Phaser.load.image('pixel', getUrl('interface/pixel'));
-
-		// Grid
-		this.Phaser.load.image('hex', getUrl('interface/hex'));
-		this.Phaser.load.image('hex_dashed', getUrl('interface/hex_dashed'));
-		this.Phaser.load.image('hex_deadzone', getUrl('interface/hex_deadzone'));
-		this.Phaser.load.image('hex_path', getUrl('interface/hex_path'));
-		this.Phaser.load.image('cancel', getUrl('interface/cancel'));
-		this.Phaser.load.image('input', getUrl('interface/hex_input'));
-		for (i = 0; i < 4; i++) {
-			this.Phaser.load.image('hex_p' + i, getUrl('interface/hex_glowing_' + playerColors[i]));
-			this.Phaser.load.image('hex_hover_p' + i, getUrl('interface/hex_outline_' + playerColors[i]));
-		}
-
-		// Traps
-		this.Phaser.load.image('trap_royal-seal', getUrl('units/sprites/Gumble - Royal Seal'));
-		this.Phaser.load.image('trap_mud-bath', getUrl('units/sprites/Swine Thug - Mud Bath'));
-		this.Phaser.load.image(
-			'trap_scorched-ground',
-			getUrl('units/sprites/Infernal - Scorched Ground'),
-		);
-		this.Phaser.load.image('trap_firewall', getUrl('units/sprites/Infernal - Scorched Ground'));
-		this.Phaser.load.image('trap_poisonous-vine', getUrl('units/sprites/Impaler - Poisonous Vine'));
-
-		// Effects
-		this.Phaser.load.image('effects_fiery-touch', getUrl('units/sprites/Abolished - Fiery Touch'));
-		this.Phaser.load.image(
-			'effects_fissure-vent',
-			getUrl('units/sprites/Infernal - Scorched Ground'),
-		);
-		this.Phaser.load.image(
-			'effects_freezing-spit',
-			getUrl('units/sprites/Snow Bunny - Freezing Spit'),
-		);
 
 		// Background
 		this.Phaser.load.image('background', getUrl('locations/' + this.background_image + '/bg'));
