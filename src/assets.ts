@@ -192,3 +192,25 @@ export function getDirectory(path: string): AssetEntry[] {
 	}
 	return entry;
 }
+
+export function use(phaser: Phaser.Game) {
+	const importAll = (require: __WebpackModuleApi.RequireContext) =>
+		require.keys().map((localPath) => require(localPath));
+
+	const basename = (path: string) => {
+		const base = new String(path).substring(path.lastIndexOf('/') + 1);
+		let i = base.lastIndexOf('.');
+		if (base.lastIndexOf('.') === -1) {
+			return base;
+		}
+		while (i > 0 && base[i] === '.') {
+			i--;
+		}
+		return base.substring(0, i + 1);
+	};
+
+	const urls = importAll(require.context('../assets/autoload/phaser', true));
+	for (const url of urls) {
+		phaser.load.image(basename(url), url);
+	}
+}
