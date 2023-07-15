@@ -1631,6 +1631,7 @@ export class Creature {
 	}
 
 	hint(text: string, cssClass: string) {
+		if (typeof Phaser === 'undefined') return;
 		const game = this.game,
 			tooltipSpeed = 250,
 			tooltipDisplaySpeed = 500,
