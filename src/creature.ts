@@ -608,7 +608,10 @@ export class Creature {
 		}
 	}
 
-	delay() {
+	/**
+	 * A creature's turn is delayed as part of an attack from another creature.
+	 */
+	hinder(): void {
 		const game = this.game;
 
 		game.queue.delay(this);
