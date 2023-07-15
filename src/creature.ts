@@ -564,23 +564,21 @@ export class Creature {
 		}, 1000);
 	}
 
-	/* deactivate(wait)
+	/**
+	 * Deactivate the creature. Called when the creature is active, then is no longer active.
 	 *
-	 * wait :	Boolean :	Deactivate while waiting or not
-	 *
-	 * Preview the creature position at the given coordinates
-	 *
+	 * @param {'wait' | 'turn-end'} reason: Why is the creature deactivated?
 	 */
-	deactivate(wait: boolean) {
+	deactivate(reason: 'wait' | 'turn-end') {
 		const game = this.game;
-		this.delayed = wait;
+		this.delayed = reason === 'wait';
 		this.hasWait = this.delayed;
 		this.status.frozen = false;
 		this.status.cryostasis = false;
 		this.status.dizzy = false;
 
 		// Effects triggers
-		if (!wait) {
+		if (reason === 'turn-end') {
 			this.turnsActive += 1;
 			// @ts-expect-error 2554
 			game.onEndPhase(this);
@@ -604,7 +602,7 @@ export class Creature {
 			this.delayed = true;
 			this.hint('Delayed', 'msg_effects');
 			game.updateQueueDisplay();
-			this.deactivate(true);
+			this.deactivate('wait');
 		}
 	}
 

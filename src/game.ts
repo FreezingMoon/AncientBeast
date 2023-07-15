@@ -955,7 +955,7 @@ export default class Game {
 			const p = this.activeCreature.player;
 			p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 			this.pauseTime = 0;
-			this.activeCreature.deactivate(false);
+			this.activeCreature.deactivate('turn-end');
 			this.nextCreature();
 
 			// Reset temporary Creature
