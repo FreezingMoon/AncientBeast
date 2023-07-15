@@ -589,25 +589,21 @@ export class Creature {
 		this.delayable = false;
 	}
 
-	/* wait()
-	 *
-	 * Move the creature to the end of the queue
-	 *
+	/**
+	 * The creature waits. It will have its turn at the end of the round.
+	 * The player has decided to delay the creature until the end of the turn.
 	 */
-	wait() {
-		let abilityAvailable = false;
+	wait(): void {
+		const hasUnusedAbilities = this.abilities.some((a) => !a.used);
 
-		if (this.delayed) {
-			return;
-		}
+		if (!this.delayed && this.remainingMove > 0 && hasUnusedAbilities) {
+			const game = this.game;
 
-		// If at least one ability has not been used
-		this.abilities.forEach((ability) => {
-			abilityAvailable = abilityAvailable || !ability.used;
-		});
-
-		if (this.remainingMove > 0 && abilityAvailable) {
-			this.delay();
+			game.queue.delay(this);
+			this.delayable = false;
+			this.delayed = true;
+			this.hint('Delayed', 'msg_effects');
+			game.updateQueueDisplay();
 			this.deactivate(true);
 		}
 	}
