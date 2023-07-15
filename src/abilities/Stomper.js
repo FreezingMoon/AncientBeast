@@ -514,7 +514,7 @@ export default (G) => {
 						target.status.dizzy = true;
 						target.removeEffect('Earth Shaker');
 					} else {
-						target.delay(false);
+						target.hinder();
 						target.addEffect(
 							new Effect(
 								'Earth Shaker', // Name
@@ -524,8 +524,7 @@ export default (G) => {
 								{
 									// disable the ability to delay this unit as it has already been delayed
 									effectFn: () => {
-										target.delayed = true;
-										target.delayable = false;
+										target.hinder();
 									},
 									deleteTrigger: 'onEndPhase',
 									turnLifetime: 1,
