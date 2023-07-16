@@ -235,7 +235,6 @@ export class Ability {
 		}
 		game.signals.creature.dispatch('abilityend', { creature: this.creature });
 		game.UI.btnDelay.changeState('disabled');
-		game.activeCreature.delayable = false;
 		game.UI.selectAbility(-1);
 
 		if (this.getTrigger() === 'onQuery' && !deferredEnding) {
