@@ -254,7 +254,7 @@ const getGameMock = () => {
 		turn: 0,
 		creatures: [],
 		players: [],
-		queue: {},
+		queue: { update: jest.fn() },
 		updateQueueDisplay: jest.fn(),
 		grid: {
 			orderCreatureZ: jest.fn(),
