@@ -153,7 +153,7 @@ export default class Game {
 		this.playersReady = false;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
-		this.queue = new CreatureQueue(this);
+		this.queue = new CreatureQueue(() => this.creatures);
 		this.creatureData = [];
 		this.pause = false;
 		this.gameState = 'initialized';
@@ -747,7 +747,7 @@ export default class Game {
 	nextRound() {
 		this.turn++;
 		this.log('Round ' + this.turn, 'roundmarker', true);
-		this.queue.nextRound();
+		this.queue.update();
 		this.onStartOfRound();
 		this.nextCreature();
 	}
@@ -895,6 +895,8 @@ export default class Game {
 		// NOTE: If skipping a turn and there is a temp creature, remove it.
 		this.creatures = this.creatures.filter((c) => !c.temp);
 
+		// Send skip turn to server
+
 		if (this.turnThrottle) {
 			return;
 		}
@@ -938,9 +940,6 @@ export default class Game {
 			this.activeCreature.deactivate('turn-end');
 			this.queue.update();
 			this.nextCreature();
-
-			// Reset temporary Creature
-			this.queue.tempCreature = {};
 		}
 	}
 
@@ -1590,7 +1589,7 @@ export default class Game {
 		this.playersReady = false;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
-		this.queue = new CreatureQueue(this);
+		this.queue = new CreatureQueue(() => this.creatures);
 		this.creatureData = [];
 		this.pause = false;
 		this.gameState = 'initialized';

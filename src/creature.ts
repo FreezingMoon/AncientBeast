@@ -423,15 +423,11 @@ export class Creature {
 		priest who must always be in the next queue to properly start the game. */
 		const alsoAddToCurrentQueue = disableMaterializationSickness && !this.isDarkPriest();
 
-		game.queue.addByInitiative(this, alsoAddToCurrentQueue);
-
 		if (disableMaterializationSickness) {
 			this.materializationSickness = false;
 		}
 
-		// Remove temporary Creature to prevent duplicates when the actual
-		// materialized Creature with correct position is added to the queue
-		game.queue.removeTempCreature();
+		game.queue.update();
 		game.updateQueueDisplay();
 
 		game.grid.orderCreatureZ();
@@ -645,7 +641,7 @@ export class Creature {
 
 			this._waitedTurn = this.turnsActive;
 			this.hint('Delayed', 'msg_effects');
-			game.queue.delay(this);
+			game.queue.update();
 			game.updateQueueDisplay();
 			this.deactivate('wait');
 		}
@@ -659,7 +655,7 @@ export class Creature {
 
 		this._hinderedTurn = this.turnsActive;
 		this.hint('Delayed', 'msg_effects');
-		game.queue.delay(this);
+		game.queue.update();
 		game.updateQueueDisplay();
 	}
 
@@ -742,11 +738,7 @@ export class Creature {
 		if (!o.isAbility) {
 			if (game.UI.selectedAbility != -1) {
 				this.hint('Canceled', 'gamehintblack');
-
-				// If this Creature is Dark Priest, remove temporary Creature in queue
-				if (this.isDarkPriest()) {
-					game.queue.removeTempCreature();
-				}
+				game.queue.update();
 			}
 
 			$j('#abilities .ability').removeClass('active');
@@ -1982,7 +1974,7 @@ export class Creature {
 
 		this.cleanHex();
 
-		game.queue.remove(this);
+		game.queue.update();
 		game.updateQueueDisplay();
 		game.grid.updateDisplay();
 

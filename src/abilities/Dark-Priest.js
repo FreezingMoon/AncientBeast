@@ -266,10 +266,6 @@ export default (G) => {
 				const creatureHasMaterializationSickness =
 					dpriest.player.summonCreaturesWithMaterializationSickness;
 
-				// Removes temporary Creature from queue when Player chooses a
-				// different Creature to materialize
-				G.queue.removeTempCreature();
-
 				// Create full temporary Creature with placeholder position to show in queue
 				crea = $j.extend(
 					crea,
@@ -284,11 +280,8 @@ export default (G) => {
 				// Make temporary Creature invisible
 				fullCrea.sprite.alpha = 0;
 
-				// Provide full Creature to Queue
-				G.queue.tempCreature = fullCrea;
-
 				// Show temporary Creature in queue
-				G.queue.addByInitiative(fullCrea, !creatureHasMaterializationSickness);
+				G.queue.update();
 				G.updateQueueDisplay();
 
 				G.grid.forEachHex(function (hex) {
