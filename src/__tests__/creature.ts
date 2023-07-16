@@ -162,7 +162,7 @@ describe('Creature', () => {
 			const obj = getCreatureObjMock();
 			// @ts-ignore
 			const creature = new Creature(obj, game);
-			creature.displayHealthStats = () => {};
+			creature.displayHealthStats = () => undefined;
 
 			creature.activate();
 			creature.deactivate('turn-end');
