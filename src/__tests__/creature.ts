@@ -170,6 +170,7 @@ describe('Creature', () => {
 			creature.hinder();
 			expect(creature.isHindered).toBe(true);
 			creature.activate();
+			expect(creature.isHindered).toBe(true);
 			creature.deactivate('turn-end');
 			expect(creature.isHindered).toBe(false);
 		});
