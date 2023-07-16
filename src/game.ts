@@ -960,16 +960,14 @@ export default class Game {
 		}
 	}
 
-	/* skipTurn()
-	 *
+	/**
 	 * End turn for the current unit
 	 */
 	skipTurn(o?) {
-		// Removes temporary Creature from queue when Player skips turn
-		// while choosing materialize location for Creature
+		// NOTE: If skipping a turn and there is a temp creature, remove it.
 		this.queue.removeTempCreature();
 
-		// Send skip turn to server
+		// NOTE: Send skip turn to server
 
 		if (this.turnThrottle) {
 			return;
