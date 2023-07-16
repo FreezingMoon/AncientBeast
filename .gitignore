@@ -1,8 +1,10 @@
 ### Ancient Beast ###
 # Generated files
 deploy/
-# List of assets
-src/assets.js
+
+# Generated list of assets
+assets/index.js
+
 # Dotenv
 .env
 
