@@ -165,14 +165,7 @@ export class UI {
 				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
-						const creature = game.activeCreature;
-
-						if (
-							game.turnThrottle ||
-							creature.hasWait ||
-							!creature.delayable ||
-							game.queue.isCurrentEmpty()
-						) {
+						if (game.turnThrottle || !game.activeCreature?.canWait || game.queue.isCurrentEmpty()) {
 							return;
 						}
 
@@ -1796,7 +1789,7 @@ export class UI {
 							this.btnAudio.changeState(ButtonStateEnum.slideIn);
 							this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
 							this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
-							if (!creature.hasWait && creature.delayable && !game.queue.isCurrentEmpty()) {
+							if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
 								this.btnDelay.changeState(ButtonStateEnum.slideIn);
 							}
 							this.checkAbilities();
