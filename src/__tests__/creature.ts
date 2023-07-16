@@ -6,7 +6,8 @@ import { jest, expect, describe, test, beforeEach } from '@jest/globals';
 
 describe('Creature', () => {
 	describe('creature.id', () => {
-		let game;
+		let game: Game;
+		// @ts-ignore
 		beforeEach(() => (game = getGameMock()));
 
 		test('"materialized" creatures are automatically assigned separate ids', () => {
@@ -46,6 +47,150 @@ describe('Creature', () => {
 			expect(game.creatures.filter((c) => c)[0]).toStrictEqual(creatureNotTemp);
 		});
 	});
+
+	describe('Creature materializes in which queue?', () => {
+		test('a new Creature normally materializes in next queue, not current', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			expect(creature.isInCurrentQueue).toBe(false);
+			expect(creature.isInNextQueue).toBe(true);
+		});
+		test('a new Priest materializes in current queue', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			obj.type = '--';
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			expect(creature.isDarkPriest()).toBe(true);
+			expect(creature.isInCurrentQueue).toBe(true);
+			expect(creature.isInNextQueue).toBe(true);
+		});
+		test('a creature without materialization sickness materializes in current queue', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			obj.materializationSickness = false;
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			expect(creature.isDarkPriest()).toBe(false);
+			expect(creature.isInCurrentQueue).toBe(true);
+			expect(creature.isInNextQueue).toBe(true);
+		});
+	});
+
+	describe('creature.canWait()', () => {
+		test('a new Creature can wait', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.activate();
+			expect(creature.canWait).toBe(true);
+		});
+		test('a waiting Creature cannot wait', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.activate();
+			creature.wait();
+			expect(creature.canWait).toBe(false);
+		});
+		test('a hindered Creature cannot wait', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.activate();
+			creature.hinder();
+			expect(creature.canWait).toBe(false);
+		});
+	});
+
+	describe('creature.wait()', () => {
+		test('a creature that has waited is delayed', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.activate();
+			expect(creature.isDelayed).toBe(false);
+			expect(creature.canWait).toBe(true);
+			creature.wait();
+			expect(creature.isDelayed).toBe(true);
+		});
+		test('when a round is over, a waited creature is no longer delayed', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.activate();
+			expect(creature.isDelayed).toBe(false);
+			expect(creature.canWait).toBe(true);
+			creature.wait();
+			expect(creature.isWaiting).toBe(true);
+			creature.deactivate('turn-end');
+			expect(creature.isDelayed).toBe(false);
+		});
+	});
+
+	describe('creature.hinder()', () => {
+		test('a hindered creature is delayed', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			expect(creature.isHindered).toBe(false);
+			expect(creature.isDelayed).toBe(false);
+			creature.hinder();
+			expect(creature.isHindered).toBe(true);
+			expect(creature.isDelayed).toBe(true);
+		});
+		test('a creature can be hindered', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			expect(creature.isHindered).toBe(false);
+			creature.hinder();
+			expect(creature.isHindered).toBe(true);
+		});
+		test('a creature whose turn is over, who is then hindered, will be delayed the next round', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.displayHealthStats = () => {};
+
+			creature.activate();
+			creature.deactivate('turn-end');
+			expect(creature.isHindered).toBe(false);
+			creature.hinder();
+			expect(creature.isHindered).toBe(true);
+			creature.activate();
+			creature.deactivate('turn-end');
+			expect(creature.isHindered).toBe(false);
+		});
+		test('a creature whose turn is not over, who is then hindered, will not be delayed the next round from that hinder()', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			expect(creature.isWaiting).toBe(false);
+			expect(creature.isDelayed).toBe(false);
+			creature.hinder();
+			expect(creature.isWaiting).toBe(false);
+			expect(creature.isHindered).toBe(true);
+			expect(creature.isDelayed).toBe(true);
+			creature.activate();
+			creature.deactivate('turn-end');
+			expect(creature.isWaiting).toBe(false);
+			expect(creature.isHindered).toBe(false);
+			expect(creature.isDelayed).toBe(false);
+		});
+	});
 });
 
 jest.mock('../ability');
@@ -71,9 +216,11 @@ const getCreatureObjMock = () => {
 	return {
 		stats: {
 			health: 10,
+			movement: 10,
 		},
 		temp: false,
 		team: 0,
+		materializationSickness: true,
 		type: getRandomString(5),
 		display: {
 			'offset-x': true,
@@ -100,15 +247,14 @@ const getHexesMock = () => {
 };
 
 import data from '../data/units.json';
+import Game from '../game';
 
 const getGameMock = () => {
 	const self = {
+		turn: 0,
 		creatures: [],
 		players: [],
-		queue: {
-			addByInitiative: jest.fn(),
-			removeTempCreature: jest.fn(),
-		},
+		queue: {},
 		updateQueueDisplay: jest.fn(),
 		grid: {
 			orderCreatureZ: jest.fn(),
@@ -130,6 +276,11 @@ const getGameMock = () => {
 			},
 		},
 		plasma_amount: 10,
+		onReset: jest.fn(),
+		onStartPhase: jest.fn(),
+		onEndPhase: jest.fn(),
+		log: jest.fn(),
+		onHeal: jest.fn(),
 	};
 	self.players = [getPlayerMock(), getPlayerMock()];
 	return self;
