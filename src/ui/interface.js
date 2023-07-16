@@ -2026,7 +2026,7 @@ export class UI {
 	 */
 	updateQueueDisplay() {
 		const game = this.game;
-		this.queue.setQueue(game.queue, game.activeCreature, game.turn);
+		this.queue.setQueue(game.queue, game.turn);
 	}
 
 	xrayQueue(creaID) {
