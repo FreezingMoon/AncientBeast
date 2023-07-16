@@ -641,7 +641,6 @@ export class Creature {
 
 			this._waitedTurn = this.turnsActive;
 			this.hint('Delayed', 'msg_effects');
-			game.queue.update();
 			game.updateQueueDisplay();
 			this.deactivate('wait');
 		}
@@ -655,7 +654,6 @@ export class Creature {
 
 		this._hinderedTurn = this.turnsActive;
 		this.hint('Delayed', 'msg_effects');
-		game.queue.update();
 		game.updateQueueDisplay();
 	}
 
@@ -738,7 +736,6 @@ export class Creature {
 		if (!o.isAbility) {
 			if (game.UI.selectedAbility != -1) {
 				this.hint('Canceled', 'gamehintblack');
-				game.queue.update();
 			}
 
 			$j('#abilities .ability').removeClass('active');

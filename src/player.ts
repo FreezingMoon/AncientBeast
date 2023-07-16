@@ -303,7 +303,6 @@ export class Player {
 
 		this.hasLost = true;
 
-		game.queue.update();
 		game.updateQueueDisplay();
 
 		// Test if allie Dark Priest is dead

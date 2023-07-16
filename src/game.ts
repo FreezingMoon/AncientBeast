@@ -747,7 +747,6 @@ export default class Game {
 	nextRound() {
 		this.turn++;
 		this.log('Round ' + this.turn, 'roundmarker', true);
-		this.queue.update();
 		this.onStartOfRound();
 		this.nextCreature();
 	}
@@ -938,7 +937,6 @@ export default class Game {
 			p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 			this.pauseTime = 0;
 			this.activeCreature.deactivate('turn-end');
-			this.queue.update();
 			this.nextCreature();
 		}
 	}

@@ -281,7 +281,6 @@ export default (G) => {
 				fullCrea.sprite.alpha = 0;
 
 				// Show temporary Creature in queue
-				G.queue.update();
 				G.updateQueueDisplay();
 
 				G.grid.forEachHex(function (hex) {
