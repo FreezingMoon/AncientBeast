@@ -1789,7 +1789,7 @@ export class UI {
 							this.btnAudio.changeState(ButtonStateEnum.slideIn);
 							this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
 							this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
-							if (creature.canWait && game.queue.queue.length > 1) {
+							if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
 								this.btnDelay.changeState(ButtonStateEnum.slideIn);
 							}
 							this.checkAbilities();

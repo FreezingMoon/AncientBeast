@@ -1,62 +1,22 @@
-import Game from './game';
 import { Creature } from './creature';
-import * as arrayUtils from './utility/arrayUtils';
 
 export class CreatureQueue {
-	game: Game;
+	private _getCreatures: () => Creature[];
 	queue: Creature[];
 	nextQueue: Creature[];
-	tempCreature: Creature | Record<string, never>;
 
-	constructor(game: Game) {
-		this.game = game;
+	constructor(getCreatures: () => Creature[]) {
+		this._getCreatures = getCreatures;
 		this.queue = [];
 		this.nextQueue = [];
-		this.tempCreature = {};
-	}
-
-	/**
-	 * @deprecated Use update()
-	 */
-	addByInitiative(creature: Creature, alsoAddToCurrentQueue = true) {
-		this._updateQueues();
-	}
-
-	/**
-	 * @deprecated Use update()
-	 */
-	remove(creature: Creature) {
-		this._updateQueues();
-	}
-
-	/**
-	 * @deprecated Use update()
-	 */
-	removeTempCreature() {
-		this._updateQueues();
-	}
-
-	/**
-	 * @deprecated Use update()
-	 */
-	nextRound() {
-		this._updateQueues();
 	}
 
 	isCurrentEmpty() {
-		this._updateQueues();
-		return this.queue.length === 0;
+		return this.getCurrentQueueLength() === 0;
 	}
 
-	isNextEmpty() {
-		return this.nextQueue.length === 0;
-	}
-
-	/**
-	 * @deprecated Use update()
-	 */
-	delay(creature: Creature) {
-		this._updateQueues();
+	getCurrentQueueLength() {
+		return this._getCreatures().filter((c) => c.isInCurrentQueue).length;
 	}
 
 	update() {
@@ -69,7 +29,7 @@ export class CreatureQueue {
 	}
 
 	private _updateCurrentQueue() {
-		const creatures = this.game.creatures.filter((c) => c.isInCurrentQueue);
+		const creatures = this._getCreatures().filter((c) => c.isInCurrentQueue);
 		const undelayed = creatures
 			.filter((c) => !c.isDelayed)
 			.sort((a, b) => b.getInitiative() - a.getInitiative());
@@ -80,7 +40,7 @@ export class CreatureQueue {
 	}
 
 	private _updateNextQueue() {
-		const creatures = this.game.creatures.filter((c) => c.isInNextQueue);
+		const creatures = this._getCreatures().filter((c) => c.isInNextQueue);
 		const undelayed = creatures
 			.filter((c) => !c.isDelayedInNextQueue)
 			.sort((a, b) => b.getInitiative() - a.getInitiative());
