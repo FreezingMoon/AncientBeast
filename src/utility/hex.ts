@@ -7,6 +7,7 @@ import Phaser, { Point, Polygon } from 'phaser-ce';
 import { Drop } from '../drop';
 import { DEBUG } from '../debug';
 import { getPointFacade } from './pointfacade';
+import * as Const from './const';
 
 export enum Direction {
 	None = -1,
@@ -125,13 +126,9 @@ export class Hex {
 		this.displayClasses = '';
 		this.overlayClasses = '';
 
-		// Horizontal hex grid, width is distance between opposite sides
-		this.width = 90;
-		this.height = (this.width / Math.sqrt(3)) * 2 * 0.75;
-		this.displayPos = {
-			x: (y % 2 === 0 ? x + 0.5 : x) * this.width,
-			y: y * this.height,
-		};
+		this.width = Const.HEX_WIDTH_PX;
+		this.height = Const.HEX_HEIGHT_PX;
+		this.displayPos = Const.offsetCoordsToPx({ x, y });
 
 		this.originalDisplayPos = $j.extend({}, this.displayPos);
 

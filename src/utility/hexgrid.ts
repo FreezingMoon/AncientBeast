@@ -8,6 +8,7 @@ import * as arrayUtils from './arrayUtils';
 import Game from '../game';
 import { Trap } from './trap';
 import { DEBUG } from '../debug';
+import { HEX_WIDTH_PX } from './const';
 
 interface QueryOptions {
 	/**
@@ -722,7 +723,7 @@ export class HexGrid {
 				game.activeCreature.queryMove();
 			},
 			fnOnSelect: (hex: Hex) => {
-				game.activeCreature.faceHex(hex, undefined, true);
+				game.activeCreature.faceHex(hex);
 				hex.overlayVisualState('creature selected player' + game.activeCreature.team);
 			},
 			fnOnCancel: () => {
@@ -917,7 +918,7 @@ export class HexGrid {
 				}
 
 				hex = this.hexes[y][x]; // New coords
-				game.activeCreature.faceHex(hex, undefined, true, true);
+				game.activeCreature.faceHex(hex);
 
 				if (hex !== this.lastClickedHex) {
 					this.lastClickedHex = hex;
@@ -1503,7 +1504,7 @@ export class HexGrid {
 			hex.displayPos.x +
 			(!player.flipped
 				? creatureData.display['offset-x']
-				: 90 * creatureData.size -
+				: HEX_WIDTH_PX * creatureData.size -
 				  this.materialize_overlay.texture.width -
 				  creatureData.display['offset-x']) +
 			this.materialize_overlay.texture.width / 2;

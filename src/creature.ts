@@ -10,6 +10,7 @@ import { Effect } from './effect';
 import { Player, PlayerID } from './player';
 import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
+import { HEX_WIDTH_PX } from './utility/const';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -341,7 +342,7 @@ export class Creature {
 		this.sprite.x =
 			(!this.player.flipped
 				? this.display['offset-x']
-				: 90 * this.size - this.sprite.texture.width - this.display['offset-x']) +
+				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
 			this.sprite.texture.width / 2;
 		this.sprite.y = this.display['offset-y'] + this.sprite.texture.height;
 		// Placing Group
@@ -352,20 +353,20 @@ export class Creature {
 
 		// Hint Group
 		this.hintGrp = game.Phaser.add.group(this.grp, 'creatureHintGrp_' + this.id);
-		this.hintGrp.x = 45 * this.size;
+		this.hintGrp.x = 0.5 * HEX_WIDTH_PX * this.size;
 		this.hintGrp.y = -this.sprite.texture.height + 5;
 
 		// Health indicator
 		this.healthIndicatorGroup = game.Phaser.add.group(this.grp, 'creatureHealthGrp_' + this.id);
 		// Adding background sprite
 		this.healthIndicatorSprite = this.healthIndicatorGroup.create(
-			this.player.flipped ? 19 : 19 + 90 * (this.size - 1),
+			this.player.flipped ? 19 : 19 + HEX_WIDTH_PX * (this.size - 1),
 			49,
 			'p' + this.team + '_health',
 		);
 		// Add text
 		this.healthIndicatorText = game.Phaser.add.text(
-			this.player.flipped ? 45 : 45 + 90 * (this.size - 1),
+			this.player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this.size - 0.5),
 			63,
 			this.health,
 			{
@@ -939,7 +940,7 @@ export class Creature {
 		this.sprite.x =
 			(!flipped
 				? this.display['offset-x']
-				: 90 * this.size - this.sprite.texture.width - this.display['offset-x']) +
+				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
 			this.sprite.texture.width / 2;
 	}
 
@@ -957,7 +958,7 @@ export class Creature {
 		this.sprite.x =
 			(!this.player.flipped
 				? this.display['offset-x']
-				: 90 * this.size - this.sprite.texture.width - this.display['offset-x']) +
+				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
 			this.sprite.texture.width / 2;
 	}
 
