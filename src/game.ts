@@ -806,7 +806,7 @@ export default class Game {
 				// console.log(this.activeCreature);
 
 				// Show mini tutorial in the first round for each player
-				if (this.turn == 1) {
+				if (this.turn == 0) {
 					this.log('The active unit has a flashing hexagon');
 					this.log('It uses a plasma field to protect itself');
 					this.log('Its portrait is displayed in the upper left');
