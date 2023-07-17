@@ -5,7 +5,7 @@ import { Hex } from './utility/hex';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
-import { getPointFacade } from './utility/pointfacade';
+import { Point, getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
 import { Player, PlayerID } from './player';
 import { Damage } from './damage';
@@ -997,7 +997,7 @@ export class Creature {
 			if (opts.ignorePath || opts.animation == 'fly') {
 				path = [hex];
 			} else {
-				path = this.calculatePath(x, y);
+				path = this.calculatePath({ x, y });
 			}
 
 			if (path.length === 0) {
@@ -1025,23 +1025,22 @@ export class Creature {
 		}, 100);
 	}
 
-	/* tracePath(hex)
+	/**
+	 * tracePath()
 	 *
-	 * hex :	Hex :	Destination Hex
+	 * @param{Point} destination: the end of the path.
 	 *
 	 * Trace the path from the current position to the given coordinates
 	 *
 	 */
-	tracePath(hex) {
-		const x = hex.x,
-			y = hex.y,
-			path = this.calculatePath(x, y); // Store path in grid to be able to compare it later
+	tracePath(destination: Point) {
+		const path = this.calculatePath(destination); // Store path in grid to be able to compare it later
 
 		if (path.length === 0) {
 			return; // Break if empty path
 		}
 
-		path.forEach((item) => {
+		path.forEach((item: { x: any; y: any }) => {
 			this.tracePosition({
 				x: item.x,
 				y: item.y,
@@ -1093,20 +1092,20 @@ export class Creature {
 		}
 	}
 
-	/* calculatePath(x,y)
+	/**
+	 * calculatePath(destination:Point)
 	 *
-	 * x :		Integer :	Destination coordinates
-	 * y :		Integer :	Destination coordinates
+	 * @param{Point} destination: the end of the path.
 	 *
 	 * return :	Array :	Array containing the path hexes
 	 *
 	 */
-	calculatePath(x: number, y: number) {
+	calculatePath(destination: Point) {
 		const game = this.game;
 
 		return search(
 			game.grid.hexes[this.y][this.x],
-			game.grid.hexes[y][x],
+			game.grid.hexes[destination.y][destination.x],
 			this.size,
 			this.id,
 			this.game.grid,
