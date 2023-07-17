@@ -233,14 +233,19 @@ export class Hex {
 		return drops.length > 0 ? drops[0] : undefined;
 	}
 
+	/**
+	 * @deprecated Use getPointFacade().getCreaturesAt({x, y});
+	 */
 	get creature(): Creature | undefined {
 		const creatures = getPointFacade().getCreaturesAt(this.x, this.y);
 		return creatures.length ? creatures[0] : undefined;
 	}
 
+	/**
+	 * @deprecated There's no longer a need to set hex.creature. Simply update the creature.
+	 */
 	set creature(creature: Creature) {
 		// NOTE: solely for compatability.
-		// this.creature used to be settable, but now it's derived.
 	}
 
 	onSelectFn(arg0: this) {
