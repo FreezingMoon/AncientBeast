@@ -1,10 +1,10 @@
 import * as $j from 'jquery';
 import { Trap } from './trap';
+import { Drop } from '../drop';
 import { Creature } from '../creature';
 import { HexGrid } from './hexgrid';
 import Game from '../game';
 import Phaser, { Point, Polygon } from 'phaser-ce';
-import { Drop } from '../drop';
 import { DEBUG } from '../debug';
 import { getPointFacade } from './pointfacade';
 import * as Const from './const';
@@ -75,7 +75,6 @@ export class Hex {
 	 */
 	reachable: boolean;
 	direction: Direction;
-	#drop: Drop;
 	displayClasses: string;
 	overlayClasses: string;
 	width: number;
@@ -121,7 +120,6 @@ export class Hex {
 		this.blocked = false;
 		this.reachable = true;
 		this.direction = Direction.None; // Used for queryDirection
-		this.drop = undefined; // Drop items
 		this.displayClasses = '';
 		this.overlayClasses = '';
 
@@ -220,29 +218,19 @@ export class Hex {
 		return traps.length > 0 ? traps[0] : undefined;
 	}
 
+	/**
+	 * @deprecated Use new Drop();
+	 */
 	set drop(d) {
-		if (this.#drop && d !== this.#drop) {
-			/**
-			 * NOTE: Currently, the #drop reference here in Hex
-			 * is the only place that a Drop "lives". If it's
-			 * removed here, there are no other references and it
-			 * becomes inaccessible. Therefore, we'll destroy this.#drop
-			 * if it exists, before setting a new this.#drop.
-			 *
-			 * NOTE: Currently, calling d.destroy() on a Drop
-			 * will make it try to unset the drop value. This
-			 * could lead to infinite recursion. So, unset
-			 * this.#drop before calling destroy().
-			 */
-			const dOld = this.#drop;
-			this.#drop = undefined;
-			dOld.destroy();
-		}
-		this.#drop = d;
+		new Drop(d.name, d.alterations, d.x, d.y, d.game);
 	}
 
-	get drop() {
-		return this.#drop;
+	/**
+	 * @deprecated Use getPointFacade().getDropsAt({x, y});
+	 */
+	get drop(): Drop | undefined {
+		const drops = getPointFacade().getDropsAt(this);
+		return drops.length > 0 ? drops[0] : undefined;
 	}
 
 	get creature(): Creature | undefined {

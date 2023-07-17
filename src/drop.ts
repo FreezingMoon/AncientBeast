@@ -1,7 +1,7 @@
 import { Creature } from './creature';
 import Game from './game';
-import { Hex } from './utility/hex';
-import { Point } from './utility/pointfacade';
+import { offsetCoordsToPx } from './utility/const';
+import { Point, getPointFacade } from './utility/pointfacade';
 
 /**
  * Drops are a type of creature "buff" collected from a game board hex rather than
@@ -54,9 +54,6 @@ export class Drop {
 	pos: Point;
 	alterations: DropAlterations;
 
-	// TODO: Remove once Drops are searchable by position (ongoing).
-	hex: Hex;
-
 	display: Phaser.Sprite;
 
 	constructor(name: string, alterations: DropAlterations, x: number, y: number, game: Game) {
@@ -69,16 +66,13 @@ export class Drop {
 		};
 		this.alterations = alterations;
 
-		// TODO: Remove once Drops are searchable by position (ongoing).
-		this.hex = game.grid.hexes[this.y][this.x];
+		getPointFacade()
+			.getDropsAt(this)
+			.forEach((drop) => drop.destroy());
+		this.game.drops.push(this);
 
-		this.hex.drop = this;
-
-		this.display = game.grid.dropGroup.create(
-			this.hex.displayPos.x + 54,
-			this.hex.displayPos.y + 15,
-			'drop_' + this.name,
-		);
+		const px = offsetCoordsToPx({ x: x + 1, y: y - 0.5 });
+		this.display = game.grid.dropGroup.create(px.x, px.y, 'drop_' + this.name);
 		this.display.alpha = 0;
 		this.display.anchor.setTo(0.5, 0.5);
 		this.display.scale.setTo(1.5, 1.5);
@@ -104,8 +98,6 @@ export class Drop {
 
 		creature.updateAlteration();
 
-		this.hex.drop = undefined;
-
 		if (alterations.health) {
 			creature.heal(alterations.health, false, false);
 		}
@@ -122,7 +114,7 @@ export class Drop {
 			creature.restoreMovement(alterations.movement, false);
 		}
 
-		// Log all the gained alterations.
+		// NOTE: Log all the gained alterations.
 		const gainedMessage = Object.keys(alterations)
 			.map((key) => `${alterations[key]} ${key}`)
 			.join(', ')
@@ -134,26 +126,25 @@ export class Drop {
 			type: 'pickupDrop',
 		});
 
-		this.destroy();
+		this.pickupAnimAndDestroy();
 	}
 
-	destroy() {
-		// TODO: Remove
-		// Reaching out to `Hex` in this way is a Demeter violation and
-		// would best be avoided. Slimming down `Hex` is currently underway
-		// however. Remove when no longer necessary.
-		if (this.hex.drop === this) {
-			this.hex.drop = undefined;
-		}
-
+	pickupAnimAndDestroy() {
+		this.display.destroy();
 		const tween = this.game.Phaser.add
 			.tween(this.display)
-			.to({ alpha: 0 }, 500, Phaser.Easing.Linear.None)
+			.to({ alpha: 0, x: 400 }, 500, Phaser.Easing.Linear.None)
 			.start();
 
 		tween.onComplete.add(() => {
 			this.display.destroy();
+			this.destroy();
 		});
+	}
+
+	destroy() {
+		this.display?.destroy();
+		this.game.drops = this.game.drops.filter((drop) => drop !== this);
 	}
 
 	get x() {
@@ -170,5 +161,12 @@ export class Drop {
 
 	set y(y: number) {
 		this.pos.y = y;
+	}
+
+	/**
+	 * @deprecated Use game.hexAt(x, y);
+	 */
+	get hex() {
+		return this.game.hexAt(this.x, this.y);
 	}
 }

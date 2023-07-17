@@ -25,6 +25,7 @@ import { Ability } from './ability';
 import { Effect } from './effect';
 import { GameConfig } from './script';
 import { Trap } from './utility/trap';
+import { Drop } from './drop';
 
 /* eslint-disable prefer-rest-params */
 
@@ -80,6 +81,7 @@ export default class Game {
 	players: Player[];
 	creatures: Creature[];
 	traps: Trap[];
+	drops: Drop[];
 	effects: Effect[];
 	activeCreature: Creature | undefined;
 	matchid: number;
@@ -151,6 +153,7 @@ export default class Game {
 		this.players = [];
 		this.creatures = [];
 		this.traps = [];
+		this.drops = [];
 		this.effects = [];
 		this.activeCreature = undefined;
 		this.matchid = null;
@@ -526,16 +529,8 @@ export default class Game {
 			getTraps: () => this.traps,
 			getTrapPassablePoints: (trap: Trap) => [trap],
 			getTrapBlockedPoints: (trap) => [],
-			getDrops: () => {
-				const result = [];
-				this.grid.forEachHex((hex) => {
-					if (hex.drop) {
-						result.push(hex.drop);
-					}
-				});
-				return result;
-			},
-			getDropPassablePoints: (drop) => (drop.hex ? [drop.hex] : []),
+			getDrops: () => this.drops,
+			getDropPassablePoints: (drop) => [drop],
 			getDropBlockedPoints: (drop) => [],
 		});
 
