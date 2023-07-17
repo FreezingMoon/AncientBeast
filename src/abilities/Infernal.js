@@ -3,6 +3,7 @@ import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
+import { getPointFacade } from '../utility/pointfacade';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -308,12 +309,10 @@ export default (G) => {
 					G,
 				);
 
-				// Destroy traps currently under self
-				for (let i = 0; i < this.creature.hexagons.length; i++) {
-					if (this.creature.hexagons[i].trap) {
-						this.creature.hexagons[i].destroyTrap();
-					}
-				}
+				// NOTE: Destroy traps currently under self
+				getPointFacade()
+					.getTrapsAt(magmaSpawn)
+					.forEach((trap) => trap.destroy());
 
 				// Movement
 				const hurl = (_path) => {

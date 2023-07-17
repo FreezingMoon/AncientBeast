@@ -6,7 +6,6 @@ import * as matrices from './matrices';
 import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
 import Game from '../game';
-import { Trap } from './trap';
 import { DEBUG } from '../debug';
 import { HEX_WIDTH_PX } from './const';
 
@@ -99,7 +98,6 @@ export class HexGrid {
 	 */
 	hexes: Hex[][];
 
-	traps: Trap[];
 	allhexes: Hex[];
 
 	/**
@@ -142,7 +140,6 @@ export class HexGrid {
 
 		this.game = game;
 		this.hexes = []; // Hex Array
-		this.traps = []; // Traps Array
 		this.allhexes = []; // All hexes
 		this.lastClickedHex = undefined;
 
@@ -188,6 +185,17 @@ export class HexGrid {
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
+	}
+
+	get traps() {
+		return this.game.traps;
+	}
+
+	hexAt(x: number, y: number): Hex | undefined {
+		if (y < 0 || y >= this.hexes.length) return;
+		const row = this.hexes[y];
+		if (x < 0 || x >= row.length) return;
+		return row[x];
 	}
 
 	handleMetaPowerEvent(message, payload) {

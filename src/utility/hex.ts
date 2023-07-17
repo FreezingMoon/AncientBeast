@@ -91,7 +91,6 @@ export class Hex {
 	hitBox: Phaser.Sprite;
 	display: Phaser.Sprite;
 	overlay: Phaser.Sprite;
-	trap: Trap;
 	coordText: Phaser.Text;
 
 	/**
@@ -211,8 +210,14 @@ export class Hex {
 		}
 
 		this.displayPos.y = this.displayPos.y * 0.75 + 30;
+	}
 
-		this.trap = undefined;
+	/**
+	 * @deprecated Use getPointFacade().getTrapsAt({x, y});
+	 */
+	get trap() {
+		const traps = getPointFacade().getTrapsAt(this);
+		return traps.length > 0 ? traps[0] : undefined;
 	}
 
 	set drop(d) {
@@ -598,41 +603,31 @@ export class Hex {
 	 * - ownerCreature
 	 * - destroyOnActivate
 	 * - typeOver
+	 *
+	 * @deprecated Use new Trap(x, y, type, effects, own, opt, game)
 	 */
-	createTrap(type, effects, owner, opt) {
-		if (this.trap) {
-			this.destroyTrap();
-		}
-
-		this.trap = new Trap(this.x, this.y, type, effects, owner, opt, this.game);
-		return this.trap;
+	createTrap(type, effects, owner, opt): Trap {
+		return new Trap(this.x, this.y, type, effects, owner, opt, this.game);
 	}
 
+	/**
+	 * @param trigger
+	 * @param target
+	 *
+	 * @deprecated: use PointFacade - e.g., getPointFacade().getTrapsAt(point).forEach(trap => trap.activate(trigger, target))
+	 */
 	activateTrap(trigger, target) {
-		if (!this.trap) {
-			return;
-		}
-
-		this.trap.effects.forEach((effect) => {
-			if (trigger.test(effect.trigger) && effect.requireFn()) {
-				this.game.log('Trap triggered');
-				effect.activate(target);
-			}
-		});
-
-		if (this.trap && this.trap.destroyOnActivate) {
-			this.destroyTrap();
-		}
+		this.trap?.activate(trigger, target);
 	}
 
+	/**
+	 *
+	 * @returns void
+	 *
+	 * @deprecated Traps are no longer held in a Hex. user PointFacade - e.g., getPointFacade().getTrapsAt(point).forEach(trap => trap.destroy());
+	 */
 	destroyTrap() {
-		if (!this.trap) {
-			return;
-		}
-
-		delete this.grid.traps[this.trap.id];
-		this.trap.destroy();
-		delete this.trap;
+		this.trap?.destroy();
 	}
 
 	//---------DROP FUNCTION---------//
