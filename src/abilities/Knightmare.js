@@ -216,7 +216,7 @@ export default (G) => {
 					return;
 				}
 
-				target.delay();
+				target.hinder();
 			},
 		},
 

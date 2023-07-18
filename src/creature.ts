@@ -145,8 +145,9 @@ export class Creature {
 	dropCollection: Drop[];
 	protectedFromFatigue: boolean;
 	turnsActive: number;
-	delayable: boolean;
-	delayed: boolean;
+	private _nextGameTurnActive: number;
+	private _waitedTurn: number;
+	private _hinderedTurn: number;
 	materializationSickness: boolean;
 	noActionPossible: boolean;
 	destroy: any;
@@ -399,15 +400,17 @@ export class Creature {
 		}
 		// Adding Himself to creature arrays and queue
 		game.creatures[this.id] = this;
-
-		this.delayable = true;
-		this.delayed = false;
 		if (typeof obj.materializationSickness !== 'undefined') {
 			this.materializationSickness = obj.materializationSickness;
 		} else {
 			this.materializationSickness = this.isDarkPriest() ? false : true;
 		}
 		this.noActionPossible = false;
+
+		this._nextGameTurnActive =
+			!this.materializationSickness || this.isDarkPriest() ? this.game.turn : this.game.turn + 1;
+		this._waitedTurn = -1;
+		this._hinderedTurn = -1;
 	}
 
 	/**
@@ -420,15 +423,11 @@ export class Creature {
 		priest who must always be in the next queue to properly start the game. */
 		const alsoAddToCurrentQueue = disableMaterializationSickness && !this.isDarkPriest();
 
-		game.queue.addByInitiative(this, alsoAddToCurrentQueue);
-
 		if (disableMaterializationSickness) {
 			this.materializationSickness = false;
 		}
 
-		// Remove temporary Creature to prevent duplicates when the actual
-		// materialized Creature with correct position is added to the queue
-		game.queue.removeTempCreature();
+		game.queue.update();
 		game.updateQueueDisplay();
 
 		game.grid.orderCreatureZ();
@@ -564,60 +563,96 @@ export class Creature {
 		}, 1000);
 	}
 
-	/* deactivate(wait)
+	/**
+	 * Deactivate the creature. Called when the creature is active, then is no longer active.
 	 *
-	 * wait :	Boolean :	Deactivate while waiting or not
-	 *
-	 * Preview the creature position at the given coordinates
-	 *
+	 * @param {'wait' | 'turn-end'} reason: Why is the creature deactivated?
 	 */
-	deactivate(wait: boolean) {
+	deactivate(reason: 'wait' | 'turn-end') {
 		const game = this.game;
-		this.delayed = wait;
-		this.hasWait = this.delayed;
+		this.hasWait = this.isDelayed;
 		this.status.frozen = false;
 		this.status.cryostasis = false;
 		this.status.dizzy = false;
 
 		// Effects triggers
-		if (!wait) {
+		if (reason === 'turn-end') {
 			this.turnsActive += 1;
+			this._nextGameTurnActive = game.turn + 1;
 			// @ts-expect-error 2554
 			game.onEndPhase(this);
 		}
-
-		this.delayable = false;
 	}
 
-	/* wait()
-	 *
-	 * Move the creature to the end of the queue
-	 *
+	get isInCurrentQueue() {
+		return !this.dead && !this.temp && this._nextGameTurnActive <= this.game.turn;
+	}
+
+	get isInNextQueue() {
+		return !this.dead;
+	}
+
+	get isDelayedInNextQueue(): null | boolean {
+		if (!this.isInNextQueue) return null;
+		return !this.isInCurrentQueue && this.isDelayed;
+	}
+
+	/**
+	 * @deprecated Use isDelayed
 	 */
-	wait() {
-		let abilityAvailable = false;
+	get delayed() {
+		return this.isDelayed;
+	}
 
-		if (this.delayed) {
-			return;
-		}
+	get isDelayed() {
+		return this.isWaiting || this.isHindered;
+	}
 
-		// If at least one ability has not been used
-		this.abilities.forEach((ability) => {
-			abilityAvailable = abilityAvailable || !ability.used;
-		});
+	get isWaiting() {
+		return this._waitedTurn >= this.turnsActive;
+	}
 
-		if (this.remainingMove > 0 && abilityAvailable) {
-			this.delay();
-			this.deactivate(true);
+	get isHindered() {
+		return this._hinderedTurn >= this.turnsActive;
+	}
+
+	/**
+	 * @deprecated Use canWait
+	 */
+	get delayable() {
+		return this.canWait;
+	}
+
+	/**
+	 * Is waiting possible?
+	 */
+	get canWait() {
+		const hasUnusedAbilities = this.abilities.some((a) => !a.used);
+		return !this.isDelayed && this.remainingMove > 0 && hasUnusedAbilities;
+	}
+
+	/**
+	 * The creature waits. It will have its turn at the end of the round.
+	 * The player has decided to delay the creature until the end of the turn.
+	 */
+	wait(): void {
+		if (this.canWait) {
+			const game = this.game;
+
+			this._waitedTurn = this.turnsActive;
+			this.hint('Delayed', 'msg_effects');
+			game.updateQueueDisplay();
+			this.deactivate('wait');
 		}
 	}
 
-	delay() {
+	/**
+	 * A creature's turn is delayed as part of an attack from another creature.
+	 */
+	hinder(): void {
 		const game = this.game;
 
-		game.queue.delay(this);
-		this.delayable = false;
-		this.delayed = true;
+		this._hinderedTurn = this.turnsActive;
 		this.hint('Delayed', 'msg_effects');
 		game.updateQueueDisplay();
 	}
@@ -686,7 +721,6 @@ export class Creature {
 							},
 						});
 					}
-					args.creature.delayable = false;
 					game.UI.btnDelay.changeState('disabled');
 					args.creature.moveTo(hex, {
 						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
@@ -702,11 +736,6 @@ export class Creature {
 		if (!o.isAbility) {
 			if (game.UI.selectedAbility != -1) {
 				this.hint('Canceled', 'gamehintblack');
-
-				// If this Creature is Dark Priest, remove temporary Creature in queue
-				if (this.isDarkPriest()) {
-					game.queue.removeTempCreature();
-				}
 			}
 
 			$j('#abilities .ability').removeClass('active');
@@ -1632,6 +1661,7 @@ export class Creature {
 	}
 
 	hint(text: string, cssClass: string) {
+		if (typeof Phaser === 'undefined') return;
 		const game = this.game,
 			tooltipSpeed = 250,
 			tooltipDisplaySpeed = 500,
@@ -1941,7 +1971,7 @@ export class Creature {
 
 		this.cleanHex();
 
-		game.queue.remove(this);
+		game.queue.update();
 		game.updateQueueDisplay();
 		game.grid.updateDisplay();
 

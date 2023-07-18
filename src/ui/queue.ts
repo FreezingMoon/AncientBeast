@@ -1,6 +1,6 @@
-/* eslint-env dom, mocha */
 import { throttle } from 'underscore';
 import { Creature } from '../creature';
+import { CreatureQueue } from '../creature_queue';
 
 const CONST = {
 	animDurationMS: 500,
@@ -18,27 +18,12 @@ export class Queue {
 		this.element.innerHTML = '';
 		this.vignettes = [];
 		this.eventHandlers = eventHandlers;
-
-		refactor.stopGap.init();
 	}
 
-	setQueue(creatureQueue, activeCreature, turnNumber: number) {
-		refactor.stopGap.setTurnNumber(turnNumber);
-		refactor.stopGap.setCreatureQueue(creatureQueue);
-
-		const creatures = refactor.creatureQueue.getCurrentQueue(creatureQueue, activeCreature);
-		const nextCreatures = refactor.creatureQueue.getNextQueue(creatureQueue);
-
-		creatures.forEach((c) =>
-			refactor.stopGap.updateCreatureDelayStatus(c, creatures, nextCreatures, turnNumber),
-		);
-		nextCreatures.forEach((c) =>
-			refactor.stopGap.updateCreatureDelayStatus(c, creatures, nextCreatures, turnNumber + 1),
-		);
-
+	setQueue(creatureQueue: CreatureQueue, turnNumber: number) {
 		const nextVignettes = Queue.getNextVignettes(
-			creatures,
-			nextCreatures,
+			creatureQueue.queue,
+			creatureQueue.nextQueue,
 			turnNumber,
 			this.eventHandlers,
 		);
@@ -49,8 +34,7 @@ export class Queue {
 		this.vignettes.forEach((v) => v.refresh());
 	}
 
-	empty(immediately) {
-		refactor.stopGap.init();
+	empty(immediately: number) {
 		if (immediately === Queue.IMMEDIATE) {
 			this.vignettes = [];
 			this.element.innerHTML = '';
@@ -63,37 +47,45 @@ export class Queue {
 		this.vignettes.forEach((v) => v.xray(creatureId));
 	}
 
-	bounce(creatureId, bounceHeight = 40) {
+	bounce(creatureId: number, bounceHeight = 40) {
 		Queue.throttledBounce(this.vignettes, creatureId, bounceHeight);
 	}
 
-	private setVignettes(nextVignettes) {
+	private setVignettes(nextVignettes: Vignette[]) {
 		const prevVs = this.vignettes;
 		this.vignettes = Queue.reuseOldDomElements(prevVs, nextVignettes);
 		Queue.deleteRemovedVignettes(this.vignettes, prevVs);
 		Queue.insertUpdateNextVignettes(this.vignettes, prevVs, this.element);
 	}
 
-	private static throttledBounce = throttle((vignettes, creatureId, bounceHeight) => {
-		let x = 0;
-		vignettes.forEach((v, i) => {
-			v.bounce(creatureId, i, x, bounceHeight);
-			x += v.getWidth();
-		});
-	}, 500);
+	private static throttledBounce = throttle(
+		(vignettes: Vignette[], creatureId: number, bounceHeight: number) => {
+			let x = 0;
+			vignettes.forEach((v, i) => {
+				v.bounce(creatureId, i, x, bounceHeight);
+				x += v.getWidth();
+			});
+		},
+		500,
+	);
 
-	private static getNextVignettes(creatures, creaturesNext, turnNum, eventHandlers) {
-		const isDelayedCurr = (c) => refactor.creature.getIsDelayed(c, turnNum);
-		const [undelayedCsCurr, delayedCsCurr] = utils.partitionAt(creatures, isDelayedCurr);
+	private static getNextVignettes(
+		creatures: Creature[],
+		creaturesNext: Creature[],
+		turnNum: number,
+		eventHandlers: QueueEventHandlers,
+	) {
+		const undelayedCsCurr = creatures.filter((c) => !c.isDelayed);
+		const delayedCsCurr = creatures.filter((c) => c.isDelayed);
 		const hasDelayedCurr = delayedCsCurr.length > 0;
 
-		const isDelayedNext = (c) => refactor.creature.getIsDelayed(c, turnNum + 1);
-		const [undelayedCsNext, delayedCsNext] = utils.partitionAt(creaturesNext, isDelayedNext);
+		const undelayedCsNext = creaturesNext.filter((c) => !c.isDelayedInNextQueue);
+		const delayedCsNext = creaturesNext.filter((c) => c.isDelayedInNextQueue);
 		const hasDelayedNext = delayedCsNext.length > 0;
 
 		const is1stCreature = utils.trueIfFirstElseFalse();
 
-		const newCreatureVCurr = (c) =>
+		const newCreatureVCurr = (c: Creature) =>
 			new CreatureVignette(c, turnNum, eventHandlers, is1stCreature());
 		const undelayedVsCurr = undelayedCsCurr.map(newCreatureVCurr);
 		const delayMarkerVCurr = hasDelayedCurr
@@ -103,7 +95,7 @@ export class Queue {
 
 		const turnEndMarkerV = [new TurnEndMarkerVignette(turnNum, eventHandlers)];
 
-		const newCreatureVNext = (c) =>
+		const newCreatureVNext = (c: Creature) =>
 			new CreatureVignette(c, turnNum + 1, eventHandlers, is1stCreature());
 		const undelayedVsNext = undelayedCsNext.map(newCreatureVNext);
 		const delayMarkerVNext = hasDelayedNext
@@ -146,13 +138,13 @@ export class Queue {
 		return [].concat(undelayedVsCurr, delayMarkerVCurr, delayedVsCurr, vsNext);
 	}
 
-	private static reuseOldDomElements(oldVignettes, newVignettes) {
+	private static reuseOldDomElements(oldVignettes: Vignette[], newVignettes: Vignette[]) {
 		/**
 		 * NOTE: For every vignette in newVignettes, if there's
 		 * an equivalent in oldVignettes, use its DOM element.
 		 * This keeps animations, transitions, and styles from breaking.
 		 */
-		const oldVDict = utils.arrToDict(oldVignettes, (v) => v.getHash());
+		const oldVDict = utils.arrToDict(oldVignettes, (v: Vignette) => v.getHash());
 		for (const newV of newVignettes) {
 			const hash = newV.getHash();
 			if (oldVDict.hasOwnProperty(hash)) {
@@ -163,11 +155,11 @@ export class Queue {
 		return newVignettes;
 	}
 
-	private static deleteRemovedVignettes(nextVignettes, prevVignettes) {
+	private static deleteRemovedVignettes(nextVignettes: Vignette[], prevVignettes: Vignette[]) {
 		const nextHashes = new Set(nextVignettes.map((v) => v.getHash()));
 		const vignettesDeletedAtFront = utils.takeWhile(
 			prevVignettes,
-			(v) => !nextHashes.has(v.getHash()),
+			(v: Vignette) => !nextHashes.has(v.getHash()),
 		);
 		const spaceDeletedAtFrontOfQueue = vignettesDeletedAtFront.reduce(
 			(acc, v) => acc + v.getWidth(),
@@ -190,10 +182,16 @@ export class Queue {
 		});
 	}
 
-	private static insertUpdateNextVignettes(nextVignettes, prevVignettes, containerElement) {
+	private static insertUpdateNextVignettes(
+		nextVignettes: Vignette[],
+		prevVignettes: Vignette[],
+		containerElement: HTMLElement,
+	) {
 		const prevHashes = new Set(prevVignettes.map((v) => v.getHash()));
 		const nextHashes = new Set(nextVignettes.map((v) => v.getHash()));
-		const [updateHashes, insertHashes] = utils.splitSetBy(nextHashes, (h) => prevHashes.has(h));
+		const [updateHashes, insertHashes] = utils.splitSetBy(nextHashes, (h: string) =>
+			prevHashes.has(h),
+		);
 
 		let x = 0;
 		nextVignettes.forEach((v, i) => {
@@ -223,7 +221,7 @@ class Vignette {
 		return `<div></div>`;
 	}
 
-	insert(containerElement, queuePosition, x) {
+	insert(containerElement: HTMLElement, queuePosition: number, x: number) {
 		this.queuePosition = queuePosition;
 		if (this.el) {
 			this.el.remove();
@@ -239,13 +237,13 @@ class Vignette {
 		return this;
 	}
 
-	update(queuePosition, x) {
+	update(queuePosition: number, x: number) {
 		this.queuePosition = queuePosition;
 		this.animateUpdate(queuePosition, x);
 		return this;
 	}
 
-	delete(queuePosition, x) {
+	delete(queuePosition: number, x: number) {
 		this.queuePosition = queuePosition;
 		this.animateDelete(queuePosition, x).onfinish = () => {
 			this.el.remove();
@@ -253,7 +251,7 @@ class Vignette {
 		return this;
 	}
 
-	deleteFromFront(queuePosition, x, spaceDeletedAtFrontOfQueue) {
+	deleteFromFront(queuePosition: number, x: number, spaceDeletedAtFrontOfQueue: number) {
 		this.queuePosition = queuePosition;
 		this.animateDeleteFromFront(queuePosition, x, spaceDeletedAtFrontOfQueue).onfinish = () => {
 			this.el.remove();
@@ -261,7 +259,7 @@ class Vignette {
 		return this;
 	}
 
-	animateInsert(queuePosition, x) {
+	animateInsert(queuePosition: number, x: number) {
 		const keyframes = [
 			{
 				transform: `translateX(${x + 500}px) translateY(-100px) scale(1)`,
@@ -282,7 +280,7 @@ class Vignette {
 		return animation;
 	}
 
-	animateUpdate(queuePosition, x) {
+	animateUpdate(queuePosition: number, x: number) {
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(1)` }];
 		const animation = this.el.animate(keyframes, {
 			duration: CONST.animDurationMS,
@@ -292,7 +290,7 @@ class Vignette {
 		return animation;
 	}
 
-	animateDelete(queuePosition, x) {
+	animateDelete(queuePosition: number, x: number) {
 		const keyframes = [{ transform: `translateX(${x}px) translateY(-100px) scale(1)` }];
 		const animation = this.el.animate(keyframes, {
 			duration: CONST.animDurationMS,
@@ -302,7 +300,7 @@ class Vignette {
 		return animation;
 	}
 
-	animateDeleteFromFront(queuePosition, x, emptySpaceAtFrontOfQueue) {
+	animateDeleteFromFront(queuePosition: number, x: number, emptySpaceAtFrontOfQueue: number) {
 		const keyframes = [
 			{ transform: `translateX(${x - emptySpaceAtFrontOfQueue}px) translateY(0px) scale(1)` },
 		];
@@ -314,7 +312,7 @@ class Vignette {
 		return animation;
 	}
 
-	animateBounce(queuePosition, x, bounceH) {
+	animateBounce(queuePosition: number, x: number, bounceH: number) {
 		const NUM_BOUNCES = 3;
 		const BOUNCE_MS = 280 * NUM_BOUNCES;
 
@@ -358,14 +356,14 @@ class Vignette {
 }
 
 class CreatureVignette extends Vignette {
-	creature;
+	creature: Creature;
 	isActiveCreature: boolean;
 	turnNumberIsCurrentTurn: boolean;
 
 	constructor(
-		creature,
-		turnNumber,
-		eventHandlers,
+		creature: Creature,
+		turnNumber: number,
+		eventHandlers: QueueEventHandlers,
 		isActiveCreature = false,
 		turnNumberIsCurrentTurn = true,
 	) {
@@ -393,7 +391,7 @@ class CreatureVignette extends Vignette {
 			</div>`;
 	}
 
-	setCreature(creature) {
+	setCreature(creature: Creature) {
 		this.creature = creature;
 	}
 
@@ -427,7 +425,7 @@ class CreatureVignette extends Vignette {
 			cl.add('materialized');
 		}
 
-		if (refactor.creature.getIsDelayed(this.creature) && this.turnNumberIsCurrentTurn) {
+		if (this.creature.isDelayed && this.turnNumberIsCurrentTurn) {
 			cl.add('delayed');
 		}
 
@@ -440,7 +438,7 @@ class CreatureVignette extends Vignette {
 		statsEl.textContent = stats;
 	}
 
-	animateInsert(queuePosition, x) {
+	animateInsert(queuePosition: number, x: number) {
 		const scale = this.isActiveCreature ? 1.25 : 1.0;
 		const keyframes = [
 			{
@@ -462,7 +460,7 @@ class CreatureVignette extends Vignette {
 		return animation;
 	}
 
-	animateUpdate(queuePosition, x) {
+	animateUpdate(queuePosition: number, x: number) {
 		const scale = this.isActiveCreature ? 1.25 : 1.0;
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
 		const animation = this.el.animate(keyframes, {
@@ -473,7 +471,7 @@ class CreatureVignette extends Vignette {
 		return animation;
 	}
 
-	animateDelete(queuePosition, x) {
+	animateDelete(queuePosition: number, x: number) {
 		this.el.style.zIndex = '-1';
 		const [x_, y, scale] = this.isActiveCreature ? [-this.getWidth(), 0, 1.25] : [x, -100, 1];
 		const keyframes = [{ transform: `translateX(${x_}px) translateY(${y}px) scale(${scale})` }];
@@ -485,7 +483,7 @@ class CreatureVignette extends Vignette {
 		return animation;
 	}
 
-	animateDeleteFromFront(queuePosition, x, emptySpaceAtFrontOfQueue) {
+	animateDeleteFromFront(queuePosition: number, x: number, emptySpaceAtFrontOfQueue: number) {
 		const scale = this.isActiveCreature ? 1.25 : 1;
 		const keyframes = [
 			{
@@ -518,7 +516,7 @@ class CreatureVignette extends Vignette {
 		const el = this.el;
 		const h = this.eventHandlers;
 
-		el.addEventListener('click', (e) => {
+		el.addEventListener('click', () => {
 			if (h.onCreatureClick) h.onCreatureClick(this.creature);
 		});
 
@@ -539,13 +537,13 @@ class CreatureVignette extends Vignette {
 		return this.isActiveCreature ? 100 : 80;
 	}
 
-	static is(obj) {
+	static is(obj: object) {
 		return typeof obj !== 'undefined' && CreatureVignette.prototype.isPrototypeOf(obj);
 	}
 }
 
 class TurnEndMarkerVignette extends Vignette {
-	constructor(turnNumber, eventHandlers) {
+	constructor(turnNumber: number, eventHandlers: QueueEventHandlers) {
 		super();
 		this.turnNumber = turnNumber;
 		this.eventHandlers = eventHandlers;
@@ -558,7 +556,7 @@ class TurnEndMarkerVignette extends Vignette {
 	getHTML() {
 		return `<div turn="${this.turnNumber}" roundmarker="1" class="vignette roundmarker">
 			<div class="frame"></div>
-            <div class="stats">Round ${this.turnNumber + 1}</div>
+            <div class="stats">Round ${this.turnNumber}</div>
 		</div>`;
 	}
 
@@ -581,7 +579,7 @@ class TurnEndMarkerVignette extends Vignette {
 }
 
 class DelayMarkerVignette extends Vignette {
-	constructor(turnNumber, eventHandlers) {
+	constructor(turnNumber: number, eventHandlers: QueueEventHandlers) {
 		super();
 		this.turnNumber = turnNumber;
 		this.eventHandlers = eventHandlers;
@@ -615,7 +613,7 @@ class DelayMarkerVignette extends Vignette {
 		});
 	}
 
-	animateInsert(queuePosition, x) {
+	animateInsert(queuePosition: number, x: number) {
 		const keyframes = [
 			{
 				transform: `translateX(${x}px) translateY(-100px) scale(1)`,
@@ -647,7 +645,7 @@ const utils = {
 		};
 	},
 
-	arrToDict: (arr, keyFn) => {
+	arrToDict: (arr: Vignette[], keyFn: (arg0: Vignette) => string) => {
 		// NOTE: Turns an array to an object using the key function.
 		// If the keyFn produces two or more identical keys, only the
 		// last instance at that key will be kept.
@@ -658,19 +656,7 @@ const utils = {
 		return result;
 	},
 
-	partitionAt: (arr, splitFn) => {
-		let hasSplit = false;
-		return arr.reduce(
-			(acc, el, i, arr) => {
-				hasSplit = hasSplit || splitFn(el, i, arr);
-				acc[hasSplit ? 1 : 0].push(el);
-				return acc;
-			},
-			[[], []],
-		);
-	},
-
-	takeWhile: (arr, takeFn) => {
+	takeWhile: (arr: Vignette[], takeFn: (arg0: Vignette) => boolean) => {
 		const result = [];
 		for (const element of arr) {
 			if (!takeFn(element)) {
@@ -681,7 +667,10 @@ const utils = {
 		return result;
 	},
 
-	splitSetBy: (s, splitFn) => {
+	splitSetBy: (
+		s: Set<string>,
+		splitFn: (value: string, key: string, set: Set<string>) => boolean,
+	) => {
 		const a = new Set();
 		const b = new Set();
 		s.forEach((value, key, set) => {
@@ -706,137 +695,6 @@ const utils = {
 		}
 		return s;
 	},
-};
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
-const refactor = {
-	/** NOTE:
-	 * Other modules that the present module relies on sometimes go
-	 * into inconsistent states. In order to facilitate future
-	 * improvements, workarounds/fixes are factored out of the present
-	 * module's code and placed here.
-	 * .
-	 * Interface is here for easy browsing.
-	 * Implementations are below.
-	 */
-	creatureQueue: {
-		// NOTE: Suggestions for fixed/improved CreatureQueue interface.
-		getCurrentQueue: (queue, activeCreature) => {
-			return [];
-		},
-		getNextQueue: (queue) => {
-			return [];
-		},
-	},
-	creature: {
-		// NOTE: Suggestions for fixed/improved Creature interface.
-		getIsDelayed: (creature, turnNumber = -1) => {
-			return false;
-		},
-	},
-	stopGap: {
-		init: () => {
-			// pass
-		},
-		// NOTE: Extra data/functions needed only while refactor is pending.
-		setTurnNumber: (turnNumber) => {
-			// pass
-		},
-		setCreatureQueue: (queue) => {
-			// pass
-		},
-		updateCreatureDelayStatus: (c, creatures, nextCreatures, turnNumber) => {
-			// pass
-		},
-		turnNumber: -1,
-		creatureIdsDelayedNextTurn: new Set(),
-		creatureIdsDelayedCurrTurn: new Set(),
-	},
-};
-
-refactor.creatureQueue = {
-	getCurrentQueue: (creatureQueue, activeCreature) => {
-		// NOTE: creatureQueue and game.activeCreature get into inconsistent states.
-		// Mostly creatureQueue does *not* hold activeCreature ...
-		// - But sometimes it does.
-		// - And sometimes activeCreature isn't meant to be active.
-		//
-		// What we really need is *every* creature that still needs a turn.
-		//
-		// We'll check if activeCreature is in the queue.
-		// - If not, we'll add it to the front.
-		// - If so, we'll leave it where it is.
-		if (!activeCreature) {
-			return creatureQueue.queue;
-		}
-		const arr = Array.from(creatureQueue.queue);
-		const containsActive = arr.some((c) => c.hasOwnProperty('id') && c['id'] === activeCreature.id);
-		if (containsActive) {
-			return arr;
-		}
-		return [activeCreature].concat(arr);
-	},
-	getNextQueue: (creatureQueue) => {
-		// NOTE: if `getCurrentQueue` is added to creatureQueue
-		// add this as well.
-		return creatureQueue.nextQueue;
-	},
-};
-
-refactor.stopGap.init = () => {
-	refactor.stopGap.setTurnNumber(-1);
-	refactor.stopGap.creatureIdsDelayedNextTurn = new Set();
-	refactor.stopGap.creatureIdsDelayedCurrTurn = new Set();
-};
-
-refactor.stopGap.setTurnNumber = (turnNumber) => {
-	if (turnNumber !== refactor.stopGap.turnNumber) {
-		refactor.stopGap.turnNumber = turnNumber;
-
-		refactor.stopGap.creatureIdsDelayedCurrTurn = refactor.stopGap.creatureIdsDelayedNextTurn;
-		refactor.stopGap.creatureIdsDelayedNextTurn = new Set();
-
-		refactor.stopGap.updateCreatureDelayStatus = (
-			creature,
-			creatures,
-			nextCreatures,
-			currTurnNumber,
-		) => {
-			/**
-			 * NOTE: If creature.delayed == true:
-			 * This might happen because the creature is/was just active and the user delayed the creature.
-			 * Or it might happen because the creature received an attack that delayed it.
-			 * Or it might be a holdover from a previous interaction.
-			 * -
-			 * This code should eventually not be necessary. Creature should ideally update/report its own status.
-			 * This code assumes that a creature can never be undelayed for a given round.
-			 */
-			const creatureIsInCurrTurn = creatures.filter((c) => c.id === creature.id).length > 0;
-			const creatureIsInNextTurn = nextCreatures.filter((c) => c.id === creature.id).length > 0;
-			if (creatureIsInCurrTurn) {
-				if (creature.delayed) {
-					refactor.stopGap.creatureIdsDelayedCurrTurn.add(creature.id);
-				}
-			} else if (creatureIsInNextTurn) {
-				if (creature.delayed) {
-					refactor.stopGap.creatureIdsDelayedNextTurn.add(creature.id);
-				}
-			}
-		};
-
-		refactor.creature.getIsDelayed = (creature, turnNumber = -1) => {
-			// NOTE: Creatures get into inconsistent states vis-a-vis the
-			// queue. Sometimes a creature's state will go from delayed
-			// to !delayed, while being active and having previously been delayed.
-			// This is problematic.
-			const currTurn = refactor.stopGap.turnNumber;
-			if (currTurn === turnNumber) {
-				return refactor.stopGap.creatureIdsDelayedCurrTurn.has(creature.id);
-			} else if (currTurn + 1 === turnNumber) {
-				return refactor.stopGap.creatureIdsDelayedNextTurn.has(creature.id);
-			}
-		};
-	}
 };
 
 type QueueEventHandlers = {

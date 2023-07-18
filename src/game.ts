@@ -153,7 +153,7 @@ export default class Game {
 		this.playersReady = false;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
-		this.queue = new CreatureQueue(this);
+		this.queue = new CreatureQueue(() => this.creatures);
 		this.creatureData = [];
 		this.pause = false;
 		this.gameState = 'initialized';
@@ -745,23 +745,9 @@ export default class Game {
 	 * Replace the current queue with the next queue
 	 */
 	nextRound() {
-		let totalCreatures = this.creatures.length,
-			i;
-
 		this.turn++;
-		this.log('Round ' + this.turn, 'roundmarker', true);
-		this.queue.nextRound();
-
-		// Resets values
-		for (i = 0; i < totalCreatures; i++) {
-			if (this.creatures[i]) {
-				this.creatures[i].delayable = true;
-				this.creatures[i].delayed = false;
-			}
-		}
-
+		this.log(`Round ${this.turn}`, 'roundmarker', true);
 		this.onStartOfRound();
-
 		this.nextCreature();
 	}
 
@@ -786,11 +772,11 @@ export default class Game {
 
 				let differentPlayer = false;
 
-				if (this.queue.isCurrentEmpty()) {
+				if (this.queue.isCurrentEmpty() || this.turn === 0) {
 					this.nextRound(); // Switch to the next Round
 					return;
 				} else {
-					const next = this.queue.dequeue();
+					const next = this.queue.queue[0];
 					if (this.activeCreature && this.activeCreature) {
 						differentPlayer = this.activeCreature.player != next.player;
 					} else {
@@ -906,9 +892,9 @@ export default class Game {
 	 */
 	skipTurn(o?) {
 		// NOTE: If skipping a turn and there is a temp creature, remove it.
-		this.queue.removeTempCreature();
+		this.creatures = this.creatures.filter((c) => !c.temp);
 
-		// NOTE: Send skip turn to server
+		// Send skip turn to server
 
 		if (this.turnThrottle) {
 			return;
@@ -936,12 +922,7 @@ export default class Game {
 			this.turnThrottle = false;
 			this.UI.btnSkipTurn.changeState('normal');
 
-			if (
-				this.activeCreature &&
-				!this.activeCreature.hasWait &&
-				this.activeCreature.delayable &&
-				!this.queue.isCurrentEmpty()
-			) {
+			if (this.activeCreature?.canWait && this.queue.queue.length > 1) {
 				this.UI.btnDelay.changeState('normal');
 			}
 
@@ -955,11 +936,8 @@ export default class Game {
 			const p = this.activeCreature.player;
 			p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 			this.pauseTime = 0;
-			this.activeCreature.deactivate(false);
+			this.activeCreature.deactivate('turn-end');
 			this.nextCreature();
-
-			// Reset temporary Creature
-			this.queue.tempCreature = {};
 		}
 	}
 
@@ -977,11 +955,7 @@ export default class Game {
 			return;
 		}
 
-		if (
-			(this.activeCreature && this.activeCreature.hasWait) ||
-			(this.activeCreature && !this.activeCreature.delayable) ||
-			this.queue.isCurrentEmpty()
-		) {
+		if (!this.activeCreature?.canWait || this.queue.isCurrentEmpty()) {
 			return;
 		}
 
@@ -999,12 +973,7 @@ export default class Game {
 		setTimeout(() => {
 			this.turnThrottle = false;
 			this.UI.btnSkipTurn.changeState('normal');
-			if (
-				this.activeCreature &&
-				!this.activeCreature.hasWait &&
-				this.activeCreature.delayable &&
-				!this.queue.isCurrentEmpty()
-			) {
+			if (this.activeCreature?.canWait && !this.queue.isCurrentEmpty()) {
 				this.UI.btnDelay.changeState('slideIn');
 			}
 
@@ -1618,7 +1587,7 @@ export default class Game {
 		this.playersReady = false;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
-		this.queue = new CreatureQueue(this);
+		this.queue = new CreatureQueue(() => this.creatures);
 		this.creatureData = [];
 		this.pause = false;
 		this.gameState = 'initialized';

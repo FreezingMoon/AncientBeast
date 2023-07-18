@@ -300,18 +300,8 @@ export class Player {
 	deactivate(): void {
 		let creature: Creature;
 		const game = this.game;
-		const count = game.creatures.length;
 
 		this.hasLost = true;
-
-		// Remove all player creatures from queues
-		for (let i = 0; i < count; i++) {
-			creature = game.creatures[i];
-
-			if (creature.player.id == this.id) {
-				game.queue.remove(creature);
-			}
-		}
 
 		game.updateQueueDisplay();
 
