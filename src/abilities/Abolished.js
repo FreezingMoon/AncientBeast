@@ -200,7 +200,7 @@ export default (G) => {
 			},
 		},
 
-		// Third Ability: Wild Fire
+		// Third Ability: Bonfire Spring
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
@@ -212,7 +212,7 @@ export default (G) => {
 				const ability = this;
 				const crea = this.creature;
 
-				// Teleport to any hex within range except for the current hex
+				// Relocates to any hex within range except for the current hex
 				crea.queryMove({
 					noPath: true,
 					isAbility: true,
