@@ -556,7 +556,7 @@ class TurnEndMarkerVignette extends Vignette {
 	getHTML() {
 		return `<div turn="${this.turnNumber}" roundmarker="1" class="vignette roundmarker">
 			<div class="frame"></div>
-            <div class="stats">Round ${this.turnNumber + 1}</div>
+            <div class="stats">Round ${this.turnNumber}</div>
 		</div>`;
 	}
 
