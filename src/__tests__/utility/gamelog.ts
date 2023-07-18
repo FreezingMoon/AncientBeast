@@ -16,7 +16,7 @@ describe('GameLog', () => {
 
 		test('onLoad is called when log is loaded', () => {
 			const onLoad = jest.fn();
-			const gl = new GameLog(() => {}, onLoad);
+			const gl = new GameLog(() => undefined, onLoad);
 			const str = gl.stringify();
 			expect(onLoad).toBeCalledTimes(0);
 			gl.load(str);
@@ -28,7 +28,6 @@ describe('GameLog', () => {
 		test('custom data saved onSave can be retrieved onLoad', () => {
 			let a = -1;
 			let b = -1;
-			const tmp = {};
 			const gl = new GameLog(
 				(log) => {
 					log.custom.a = 1;
