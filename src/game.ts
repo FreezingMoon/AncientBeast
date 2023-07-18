@@ -746,7 +746,7 @@ export default class Game {
 	 */
 	nextRound() {
 		this.turn++;
-		this.log('Round ' + this.turn, 'roundmarker', true);
+		this.log(`Round ${this.turn + 1}`, 'roundmarker', true);
 		this.onStartOfRound();
 		this.nextCreature();
 	}
