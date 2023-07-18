@@ -746,7 +746,7 @@ export default class Game {
 	 */
 	nextRound() {
 		this.turn++;
-		this.log(`Round ${this.turn + 1}`, 'roundmarker', true);
+		this.log(`Round ${this.turn}`, 'roundmarker', true);
 		this.onStartOfRound();
 		this.nextCreature();
 	}
@@ -772,7 +772,7 @@ export default class Game {
 
 				let differentPlayer = false;
 
-				if (this.queue.isCurrentEmpty()) {
+				if (this.queue.isCurrentEmpty() || this.turn === 0) {
 					this.nextRound(); // Switch to the next Round
 					return;
 				} else {
@@ -806,7 +806,7 @@ export default class Game {
 				// console.log(this.activeCreature);
 
 				// Show mini tutorial in the first round for each player
-				if (this.turn == 0) {
+				if (this.turn == 1) {
 					this.log('The active unit has a flashing hexagon');
 					this.log('It uses a plasma field to protect itself');
 					this.log('Its portrait is displayed in the upper left');
