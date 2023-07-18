@@ -3889,36 +3889,36 @@
 		},
 		"ability_info": [
 			{
-				"title": "Gore Lust",
+				"title": "Gore Lusting",
 				"desc": "Each successful hit increases both the offense and burn stats a single point.",
 				"info": "1 offense stat & 1 burn mastery on hit.",
 				"upgrade": "The bonus is tripled on kills."
 			},
 			{
+				"title": "Crimson Kiss",
+				"desc": "Bites a nearby foe, greatly weakening its defence capability for a single turn.",
+				"info": "10 pierce damage & -10 defense debuff.",
+				"upgrade": "-1 more defense debuff / hit.",
+				"costs": {
+					"energy": 10
+				}
+			},
+			{
+				"title": "Unfriendly Fire",
+				"desc": "Spits a projectile three hexagons away that can further bounce along the path.",
+				"info": "15 burn damage + 5 bonus / leaped unit.",
+				"upgrade": "Double damage for direct hit.",
+				"costs": {
+					"energy": 15
+				}
+			},
+			{
 				"title": "Flaming Paw",
-				"desc": "Strikes an adjacent enemy, doing some extra burn damage to it consecutively.",
-				"info": "9 slash + 9 burn damage that will stack.",
-				"upgrade": "Can affect different enemies.",
+				"desc": "Strikes up to three frontal enemy units, attacking multiple times if less targets.",
+				"info": "9 slash + 9 burn damage, up to 3 strikes.",
+				"upgrade": "Extra strike done to split foes.",
 				"costs": {
-					"energy": 15
-				}
-			},
-			{
-				"title": "Bonfire Spring",
-				"desc": "Ranged attack that will push the target one hexagon or otherwise strike again.",
-				"info": "20 burn damage & knockback or 2x hit.",
-				"upgrade": "Now it always strikes twice.",
-				"costs": {
-					"energy": 15
-				}
-			},
-			{
-				"title": "Unfriendly Flare",
-				"desc": "Diagonal fierce projectile that keeps bouncing each time it hits a creature.",
-				"info": "20 burn damage + 5 more per target.",
-				"upgrade": "Can hit frontaly and bounce.",
-				"costs": {
-					"energy": 15
+					"energy": 20
 				}
 			}
 		]
