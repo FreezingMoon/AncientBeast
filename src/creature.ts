@@ -73,7 +73,7 @@ type Movement = 'normal' | 'flying';
 /**
  * Creature Class
  *
- * Creature contains all creatures properties and attacks
+ * Creature contains all creatures properties and attacks/imgres?imgurl=https://i.pinimg.com/originals/e0/f0/53/e0f05354e9ca1ab73b860a896238d553.jpg&tbnid=FRJ2QLlrmIxDtM&vet=1&imgrefurl=https://www.pinterest.com/pin/346706871308486887/&docid=GMQJmxHxt2C2zM&w=931&h=807&hl=en-US&source=sh/x/im/4
  */
 export class Creature {
 	//TODO: This can be removed when it is factored out of get fatigueText
@@ -96,14 +96,14 @@ export class Creature {
 	 * name :			String :	Creature name
 	 * id :			Integer :	Creature Id incrementing for each creature starting to 1
 	 * size :			Integer :	Creature size in hexes (1,2 or 3)
-	 * type :			String :	Type of the creature stocked in the database. Made up of `creature.realm` + `creature.level`. ex: for Dark Priest "--"
+	 * type :			String :	Type of the creature stocked in the database. Made up of `creature.realm` + `creature.level`. exception for Dark Priest "--"
 	 * team :			Integer :	Owner's ID (0,1,2 or 3)
 	 * player :		Player :	Player object shortcut
 	 * hexagons :		Array :		Array containing the hexes where the creature is
 	 *
 	 * dead :			Boolean :	True if dead
 	 * stats :			Object :	Object containing stats of the creature
-	 * statsAlt :		Object :	Object containing the alteration value for each stat //todo
+	 * statsAlt :		Object :	Object containing the alteration value for each stat // TODO
 	 * abilities :		Array :		Array containing the 4 abilities
 	 * remainingMove : Integer :	Remaining moves allowed until the end of turn
 	 * temp :           Boolean :   True if the creature is only temporary for preview, false otherwise
