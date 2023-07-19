@@ -247,7 +247,7 @@ const getHexesMock = () => {
 	return arr;
 };
 
-import data from '../data/units.json';
+import { unitData } from '../data/units';
 import Game from '../game';
 
 const getGameMock = () => {
@@ -263,7 +263,7 @@ const getGameMock = () => {
 		},
 		Phaser: getPhaserMock(),
 		retrieveCreatureStats: (type: number) => {
-			for (const d of data) {
+			for (const d of unitData) {
 				if (d.id === type) {
 					return d;
 				}

@@ -1,7 +1,7 @@
 // Import jQuery related stuff
 import * as $j from 'jquery';
 import 'jquery.transit';
-import dataJson from './data/units.json';
+import { unitData } from './data/units';
 import Game from './game';
 import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
@@ -38,7 +38,7 @@ const connect = new Connect(G);
 G.connect = connect;
 
 // Load the abilities
-dataJson.forEach(async (creature) => {
+unitData.forEach(async (creature) => {
 	if (!creature.playable) {
 		return;
 	}
