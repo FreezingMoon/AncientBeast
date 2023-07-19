@@ -1114,11 +1114,9 @@ export default class Game {
 
 		for (i = totalCreatures - 1; i >= 0; i--) {
 			if (
-				//@ts-expect-error 2339 `type` does not exist on units in `units.ts`
 				this.creatureData[i].type == type ||
 				this.creatureData[i].realm + this.creatureData[i].level == type
 			) {
-				//@ts-expect-error 2339
 				if (!this.creatureData[i].type) {
 					//@ts-expect-error 2339
 					// When type property is missing, create it using formula: concat(realm + level)
