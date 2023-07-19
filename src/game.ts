@@ -10,7 +10,7 @@ import { getUrl, use as assetsUse } from './assets';
 import { Player, PlayerColor } from './player';
 import { UI } from './ui/interface';
 import { Creature } from './creature';
-import dataJson from './data/units.json';
+import { unitData } from './data/units';
 import 'pixi';
 import 'p2';
 // @ts-expect-error 2307
@@ -84,7 +84,7 @@ export default class Game {
 	preventSetup: boolean;
 	animations: Animations;
 	queue: CreatureQueue;
-	creatureData: any[];
+	creatureData: typeof unitData | [];
 	pause: boolean;
 	gameState: 'initialized' | 'loading' | 'loaded' | 'playing' | 'ended';
 	pauseTime: number;
@@ -263,7 +263,7 @@ export default class Game {
 		this.signals = this.setupSignalChannels(signalChannels);
 	}
 
-	dataLoaded(data) {
+	loadUnitData(data) {
 		const dpcolor = ['blue', 'orange', 'green', 'red'];
 
 		this.creatureData = data;
@@ -363,8 +363,8 @@ export default class Game {
 		// Background
 		this.Phaser.load.image('background', getUrl('locations/' + this.background_image + '/bg'));
 
-		// Get JSON files
-		this.dataLoaded(dataJson);
+		// Load artwork, shout and avatar for each unit
+		this.loadUnitData(unitData);
 	}
 
 	get activePlayer() {
@@ -1101,20 +1101,23 @@ export default class Game {
 
 	/* retrieveCreatureStats(type)
 	 *
-	 * type :	String :	Creature's type (ex: "0" for Dark Priest and "L2" for Magma Spawn)
+	 * type :	String :	Creature's type (ex: "--" for Dark Priest)
 	 *
 	 * Query the database for creature stats
 	 */
 	retrieveCreatureStats(type: string) {
 		let totalCreatures = this.creatureData.length,
-			i;
+			i: number;
 
 		for (i = totalCreatures - 1; i >= 0; i--) {
 			if (
+				//@ts-expect-error 2339 `type` does not exist on units in `units.ts`
 				this.creatureData[i].type == type ||
 				this.creatureData[i].realm + this.creatureData[i].level == type
 			) {
+				//@ts-expect-error 2339
 				if (!this.creatureData[i].type) {
+					//@ts-expect-error 2339
 					// When type property is missing, create it using formula: concat(realm + level)
 					this.creatureData[i].type = this.creatureData[i].realm + this.creatureData[i].level;
 				}
