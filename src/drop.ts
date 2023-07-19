@@ -1,6 +1,6 @@
 import { Creature } from './creature';
 import Game from './game';
-import { HEX_HEIGHT_PX, HEX_WIDTH_PX, offsetCoordsToPx } from './utility/const';
+import { offsetCoordsToPx } from './utility/const';
 import { Point, getPointFacade } from './utility/pointfacade';
 
 /**
@@ -71,11 +71,8 @@ export class Drop {
 			.forEach((drop) => drop.destroy());
 		this.game.drops.push(this);
 
-		this.display = game.grid.dropGroup.create(
-			this.hex.displayPos.x + 54,
-			this.hex.displayPos.y + 15,
-			'drop_' + this.name,
-		);
+		const px = offsetCoordsToPx(this);
+		this.display = game.grid.dropGroup.create(px.x, px.y, 'drop_' + this.name);
 		this.display.alpha = 0;
 		this.display.anchor.setTo(0.5, 0.5);
 		this.display.scale.setTo(1.5, 1.5);

@@ -3,6 +3,7 @@ import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
+import { getPointFacade } from '../utility/pointfacade';
 
 const HopTriggerDirections = {
 	Above: 0,
@@ -452,19 +453,19 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (path, args) {
+			activate: function (path) {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
-				const target = path.find((hex) => hex.creature).creature;
+
+				const targets = getPointFacade().getCreaturesAt(path);
+				if (targets.length === 0) return;
+				const target = targets[0];
 
 				const projectileInstance = G.animations.projectile(
 					this,
 					target,
 					'effects_freezing-spit',
-					path,
-					args,
-					52,
 					-20,
 				);
 				const tween = projectileInstance[0];

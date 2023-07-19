@@ -1,4 +1,3 @@
-import * as $j from 'jquery';
 import { Trap } from './trap';
 import { Drop } from '../drop';
 import { Creature } from '../creature';
@@ -81,11 +80,10 @@ export class Hex {
 	height: number;
 
 	/**
-	 * Pos object to position creature with absolute coordinates {left,top}.
+	 * @deprecated: use Const.offsetCoordsToPx
 	 */
 	displayPos: { x: number; y: number };
 
-	originalDisplayPos: { x: number; y: number };
 	tween: Phaser.Tween;
 	hitBox: Phaser.Sprite;
 	display: Phaser.Sprite;
@@ -125,24 +123,20 @@ export class Hex {
 
 		this.width = Const.HEX_WIDTH_PX;
 		this.height = Const.HEX_HEIGHT_PX;
-		this.displayPos = Const.offsetCoordsToPx({ x, y });
-
-		this.originalDisplayPos = $j.extend({}, this.displayPos);
+		this.displayPos = Const.offsetCoordsToPx({ x: this.x, y: this.y });
 
 		this.tween = null;
 
 		if (grid) {
+			const x_px = this.displayPos.x;
+			const y_px = this.displayPos.y;
 			// NOTE: Set up hex hitBox and display/overlay elements.
-
-			// NOTE: (Hack) 10px is the offset from the old version.
-			const x = this.displayPos.x - 10;
-			const y = this.displayPos.y;
-
-			this.hitBox = grid.hexesGroup.create(x, y, 'hex');
+			this.hitBox = grid.hexesGroup.create(x_px, y_px, 'hex');
 			this.hitBox.alpha = 0;
 			this.hitBox.inputEnabled = true;
 			this.hitBox.ignoreChildInput = true;
 			this.hitBox.input.useHandCursor = false;
+			this.hitBox.anchor.setTo(0.5);
 
 			{
 				// NOTE: Set up hexagonal hitArea for hitBox
@@ -151,19 +145,19 @@ export class Hex {
 				const angles = [0, 1, 2, 3, 4, 5, 6].map((i) => angleStart - i * angleStep);
 				// NOTE: The coefficients below are "magic"; tested in-game.
 				const [radius_w, radius_h] = [0.58 * this.width, 0.69 * this.height];
-				const [offset_x, offset_y] = [radius_w + 2, radius_h + 9];
 				const points = angles.map(
-					(angle) =>
-						new Point(Math.cos(angle) * radius_w + offset_x, Math.sin(angle) * radius_h + offset_y),
+					(angle) => new Point(Math.cos(angle) * radius_w, Math.sin(angle) * radius_h),
 				);
 				this.hitBox.hitArea = new Polygon(points);
 			}
 
-			this.display = grid.displayHexesGroup.create(x, y, 'hex');
+			this.display = grid.displayHexesGroup.create(x_px, y_px, 'hex');
 			this.display.alpha = 0;
+			this.display.anchor.setTo(0.5);
 
-			this.overlay = grid.overlayHexesGroup.create(x, y, 'hex');
+			this.overlay = grid.overlayHexesGroup.create(x_px, y_px, 'hex');
 			this.overlay.alpha = 0;
+			this.display.anchor.setTo(0.5);
 
 			// Binding Events
 			this.hitBox.events.onInputOver.add(() => {
@@ -545,16 +539,12 @@ export class Hex {
 		// Display Coord
 		if (this.displayClasses.match(/showGrid/g)) {
 			if (!(this.coordText && this.coordText.exists)) {
-				this.coordText = this.game.Phaser.add.text(
-					this.originalDisplayPos.x + 45,
-					this.originalDisplayPos.y + 63,
-					this.coord,
-					{
-						font: '30pt Play',
-						fill: '#000000',
-						align: 'center',
-					},
-				);
+				const px = Const.offsetCoordsToPx(this);
+				this.coordText = this.game.Phaser.add.text(px.x, px.y, this.coord, {
+					font: '30pt Play',
+					fill: '#000000',
+					align: 'center',
+				});
 				this.coordText.anchor.setTo(0.5);
 				this.grid.overlayHexesGroup.add(this.coordText);
 			}

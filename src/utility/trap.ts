@@ -33,7 +33,6 @@ export class Trap {
 	typeOver = false;
 	destroyAnimation: DestroyAnimationType = 'none';
 
-	//
 	display: Phaser.Sprite;
 	displayOver: Phaser.Sprite;
 
@@ -78,15 +77,11 @@ export class Trap {
 
 		const spriteName = 'trap_' + type;
 		const px = offsetCoordsToPx(this);
-		this.display = game.grid.trapGroup.create(px.x + HEX_WIDTH_PX / 2, px.y + 60, spriteName);
+		this.display = game.grid.trapGroup.create(px.x, px.y, spriteName);
 		this.display.anchor.setTo(0.5);
 
 		if (this.typeOver) {
-			this.displayOver = game.grid.trapOverGroup.create(
-				px.x + HEX_WIDTH_PX / 2,
-				px.y + 60,
-				spriteName,
-			);
+			this.displayOver = game.grid.trapOverGroup.create(px.x, px.y, spriteName);
 			this.displayOver.anchor.setTo(0.5);
 			this.displayOver.scale.x *= -1;
 		}

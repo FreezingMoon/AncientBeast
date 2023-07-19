@@ -3,6 +3,7 @@ import { Team } from '../utility/team';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 import * as arrayUtils from '../utility/arrayUtils';
+import { getPointFacade } from '../utility/pointfacade';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -128,21 +129,25 @@ export default (G) => {
 				});
 			},
 
-			activate(path, args) {
+			activate(path) {
 				const ability = this;
-				const target = arrayUtils.last(path).creature;
-
 				ability.end();
+
+				const targets = getPointFacade().getCreaturesAt(arrayUtils.last(path));
+				// TODO: Path sometimes contains no targets.
+				if (targets.length === 0) {
+					console.error('returning');
+					return;
+				}
+
+				const target = targets[0];
+
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				const startX = ability.creature.sprite.scale.x > 0 ? 232 : 52;
 				const projectileInstance = G.animations.projectile(
 					this,
 					target,
 					'effects_fiery-touch',
-					path,
-					args,
-					startX,
 					-20,
 				);
 				const tween = projectileInstance[0];

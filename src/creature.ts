@@ -10,7 +10,7 @@ import { Effect } from './effect';
 import { Player, PlayerID } from './player';
 import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
-import { HEX_WIDTH_PX } from './utility/const';
+import { HEX_WIDTH_PX, offsetCoordsToPx } from './utility/const';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -338,45 +338,41 @@ export class Creature {
 		// Adding sprite
 		this.sprite = this.grp.create(0, 0, this.name + dp + '_cardboard');
 		this.sprite.anchor.setTo(0.5, 1);
-		// Placing sprite
-		this.sprite.x =
-			(!this.player.flipped
-				? this.display['offset-x']
-				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
-			this.sprite.texture.width / 2;
-		this.sprite.y = this.display['offset-y'] + this.sprite.texture.height;
-		// Placing Group
-		this.grp.x = this.hexagons[this.size - 1].displayPos.x;
-		this.grp.y = this.hexagons[this.size - 1].displayPos.y;
+		// NOTE: The creature's sprite origin needs to be placed in the middle of
+		// the hexes it occupies. This allows it to be flipped left-to-right without
+		// needing to be repositioned.
+		this.sprite.x = (this.size - 1) * -HEX_WIDTH_PX * 0.5;
+		// NOTE: Position the sprite y so that the creature's "foot" is slightly below center.
+		this.sprite.y = 10;
+
+		const px = offsetCoordsToPx(this);
+		this.grp.x = px.x;
+		this.grp.y = px.y;
 
 		this.facePlayerDefault();
 
 		// Hint Group
 		this.hintGrp = game.Phaser.add.group(this.grp, 'creatureHintGrp_' + this.id);
-		this.hintGrp.x = 0.5 * HEX_WIDTH_PX * this.size;
+		this.hintGrp.x = this.sprite.x;
 		this.hintGrp.y = -this.sprite.texture.height + 5;
 
 		// Health indicator
 		this.healthIndicatorGroup = game.Phaser.add.group(this.grp, 'creatureHealthGrp_' + this.id);
 		// Adding background sprite
 		this.healthIndicatorSprite = this.healthIndicatorGroup.create(
-			this.player.flipped ? 19 : 19 + HEX_WIDTH_PX * (this.size - 1),
+			0,
 			49,
 			'p' + this.team + '_health',
 		);
+		this.healthIndicatorSprite.anchor.setTo(0.5, 0.5);
 		// Add text
-		this.healthIndicatorText = game.Phaser.add.text(
-			this.player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this.size - 0.5),
-			63,
-			this.health,
-			{
-				font: 'bold 15pt Play',
-				fill: '#fff',
-				align: 'center',
-				stroke: '#000',
-				strokeThickness: 6,
-			},
-		);
+		this.healthIndicatorText = game.Phaser.add.text(0, 52, this.health, {
+			font: 'bold 15pt Play',
+			fill: '#fff',
+			align: 'center',
+			stroke: '#000',
+			strokeThickness: 6,
+		});
 		this.healthIndicatorText.anchor.setTo(0.5, 0.5);
 		this.healthIndicatorGroup.add(this.healthIndicatorText);
 		// Hide it
@@ -583,6 +579,26 @@ export class Creature {
 			// @ts-expect-error 2554
 			game.onEndPhase(this);
 		}
+	}
+
+	get topPx() {
+		return this.footPx - this.sprite.texture.height;
+	}
+
+	get footPx() {
+		return this.grp.y + this.sprite.y;
+	}
+
+	get centerPx() {
+		return this.grp.x;
+	}
+
+	get leftPx() {
+		return this.grp.x - this.sprite.texture.width * 0.5;
+	}
+
+	get rightPx() {
+		return this.grp.x + this.sprite.texture.width * 0.5;
 	}
 
 	get isInCurrentQueue() {
@@ -937,11 +953,6 @@ export class Creature {
 		} else {
 			this.sprite.scale.setTo(1, 1);
 		}
-		this.sprite.x =
-			(!flipped
-				? this.display['offset-x']
-				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
-			this.sprite.texture.width / 2;
 	}
 
 	/* facePlayerDefault()
@@ -955,11 +966,6 @@ export class Creature {
 		} else {
 			this.sprite.scale.setTo(1, 1);
 		}
-		this.sprite.x =
-			(!this.player.flipped
-				? this.display['offset-x']
-				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
-			this.sprite.texture.width / 2;
 	}
 
 	/* moveTo(hex,opts)
