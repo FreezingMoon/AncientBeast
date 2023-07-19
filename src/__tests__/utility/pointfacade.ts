@@ -17,11 +17,11 @@ describe('class PointFacade', () => {
 		 *     getCreatures:() => this.creatures,
 		 *     getCreaturePassablePoints:(creature) => [],
 		 *     getCreatureBlockedPoints:(creature) => (creature.dead || creature.temp) ? [] : creature.hexagons,
-		 *     getTraps: () => this.grid.traps,
-		 *     getTrapPassablePoints:(trap) => [trap.hex],
+		 *     getTraps: () => this.traps,
+		 *     getTrapPassablePoints:(trap) => [trap],
 		 *     getTrapBlockedPoints:(trap) => [],
 		 *     getDrops: () => this.grid.forEachHex(hex => hex.drop).filter(d => d),
-		 *     getDropPassablePoints: (drop) => drop.hex ? [drop.hex] : [],
+		 *     getDropPassablePoints: (drop) => [drop],
 		 *     getDropBlockedPoitns: (drop) => [],
 		 * });
 		 */
@@ -49,14 +49,14 @@ describe('class PointFacade', () => {
 			},
 		];
 		const trapMocks = [
-			{ hex: { x: 13, y: 20 } },
-			{ hex: { x: 1, y: 1 } },
-			{ hex: { x: 10, y: 10 } },
+			{ x: 13, y: 20 },
+			{ x: 1, y: 1 },
+			{ x: 10, y: 10 },
 		];
 		const dropMocks = [
-			{ hex: { x: 2, y: 10 } },
-			{ hex: { x: 0, y: 0 } },
-			{ hex: { x: 10, y: 10 } },
+			{ x: 2, y: 10 },
+			{ x: 0, y: 0 },
+			{ x: 10, y: 10 },
 		];
 
 		/**
@@ -70,11 +70,11 @@ describe('class PointFacade', () => {
 				creature.dead || creature.temp ? [] : creature.hexagons,
 			// @ts-ignore
 			getTraps: () => trapMocks, // NOTE: Locate actual in-game data
-			getTrapPassablePoints: (trap) => [trap.hex],
+			getTrapPassablePoints: (trap) => [trap],
 			getTrapBlockedPoints: (trap) => [],
 			// @ts-ignore
 			getDrops: () => dropMocks, // NOTE: Locate actual in-game data
-			getDropPassablePoints: (drop) => (drop.hex ? [drop.hex] : []),
+			getDropPassablePoints: (drop) => [drop],
 			getDropBlockedPoints: (drop) => [],
 		});
 
@@ -107,7 +107,7 @@ describe('class PointFacade', () => {
 		// NOTE: The methods can be called with anything having {x:number, y:number}.
 		// However, it's awkward using game data. This is why we're using a facade in the first place!
 		expect(blockedSet.has(10, 10)).toBe(true);
-		expect(pointFacade.getCreaturesAt(trapMocks[2].hex)).toEqual([creatureMocks[2]]);
+		expect(pointFacade.getCreaturesAt(trapMocks[2])).toEqual([creatureMocks[2]]);
 		expect(pointFacade.getTrapsAt(creatureMocks[2].hexagons[0])).toEqual([trapMocks[2]]);
 		expect(pointFacade.getDropsAt({ x: 10, y: 10 })).toEqual([dropMocks[2]]);
 

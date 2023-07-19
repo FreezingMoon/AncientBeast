@@ -5,11 +5,12 @@ import { Hex } from './utility/hex';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
-import { getPointFacade } from './utility/pointfacade';
+import { Point, getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
 import { Player, PlayerID } from './player';
 import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
+import { HEX_WIDTH_PX } from './utility/const';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -341,7 +342,7 @@ export class Creature {
 		this.sprite.x =
 			(!this.player.flipped
 				? this.display['offset-x']
-				: 90 * this.size - this.sprite.texture.width - this.display['offset-x']) +
+				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
 			this.sprite.texture.width / 2;
 		this.sprite.y = this.display['offset-y'] + this.sprite.texture.height;
 		// Placing Group
@@ -352,20 +353,20 @@ export class Creature {
 
 		// Hint Group
 		this.hintGrp = game.Phaser.add.group(this.grp, 'creatureHintGrp_' + this.id);
-		this.hintGrp.x = 45 * this.size;
+		this.hintGrp.x = 0.5 * HEX_WIDTH_PX * this.size;
 		this.hintGrp.y = -this.sprite.texture.height + 5;
 
 		// Health indicator
 		this.healthIndicatorGroup = game.Phaser.add.group(this.grp, 'creatureHealthGrp_' + this.id);
 		// Adding background sprite
 		this.healthIndicatorSprite = this.healthIndicatorGroup.create(
-			this.player.flipped ? 19 : 19 + 90 * (this.size - 1),
+			this.player.flipped ? 19 : 19 + HEX_WIDTH_PX * (this.size - 1),
 			49,
 			'p' + this.team + '_health',
 		);
 		// Add text
 		this.healthIndicatorText = game.Phaser.add.text(
-			this.player.flipped ? 45 : 45 + 90 * (this.size - 1),
+			this.player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this.size - 0.5),
 			63,
 			this.health,
 			{
@@ -939,7 +940,7 @@ export class Creature {
 		this.sprite.x =
 			(!flipped
 				? this.display['offset-x']
-				: 90 * this.size - this.sprite.texture.width - this.display['offset-x']) +
+				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
 			this.sprite.texture.width / 2;
 	}
 
@@ -957,7 +958,7 @@ export class Creature {
 		this.sprite.x =
 			(!this.player.flipped
 				? this.display['offset-x']
-				: 90 * this.size - this.sprite.texture.width - this.display['offset-x']) +
+				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
 			this.sprite.texture.width / 2;
 	}
 
@@ -997,7 +998,7 @@ export class Creature {
 			if (opts.ignorePath || opts.animation == 'fly') {
 				path = [hex];
 			} else {
-				path = this.calculatePath(x, y);
+				path = this.calculatePath({ x, y });
 			}
 
 			if (path.length === 0) {
@@ -1025,23 +1026,22 @@ export class Creature {
 		}, 100);
 	}
 
-	/* tracePath(hex)
+	/**
+	 * tracePath()
 	 *
-	 * hex :	Hex :	Destination Hex
+	 * @param{Point} destination: the end of the path.
 	 *
 	 * Trace the path from the current position to the given coordinates
 	 *
 	 */
-	tracePath(hex) {
-		const x = hex.x,
-			y = hex.y,
-			path = this.calculatePath(x, y); // Store path in grid to be able to compare it later
+	tracePath(destination: Point) {
+		const path = this.calculatePath(destination); // Store path in grid to be able to compare it later
 
 		if (path.length === 0) {
 			return; // Break if empty path
 		}
 
-		path.forEach((item) => {
+		path.forEach((item: { x: any; y: any }) => {
 			this.tracePosition({
 				x: item.x,
 				y: item.y,
@@ -1093,20 +1093,20 @@ export class Creature {
 		}
 	}
 
-	/* calculatePath(x,y)
+	/**
+	 * calculatePath(destination:Point)
 	 *
-	 * x :		Integer :	Destination coordinates
-	 * y :		Integer :	Destination coordinates
+	 * @param{Point} destination: the end of the path.
 	 *
 	 * return :	Array :	Array containing the path hexes
 	 *
 	 */
-	calculatePath(x: number, y: number) {
+	calculatePath(destination: Point) {
 		const game = this.game;
 
 		return search(
 			game.grid.hexes[this.y][this.x],
-			game.grid.hexes[y][x],
+			game.grid.hexes[destination.y][destination.x],
 			this.size,
 			this.id,
 			this.game.grid,

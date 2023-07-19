@@ -1,12 +1,13 @@
 import * as $j from 'jquery';
 import { Trap } from './trap';
+import { Drop } from '../drop';
 import { Creature } from '../creature';
 import { HexGrid } from './hexgrid';
 import Game from '../game';
 import Phaser, { Point, Polygon } from 'phaser-ce';
-import { Drop } from '../drop';
 import { DEBUG } from '../debug';
 import { getPointFacade } from './pointfacade';
+import * as Const from './const';
 
 export enum Direction {
 	None = -1,
@@ -74,7 +75,6 @@ export class Hex {
 	 */
 	reachable: boolean;
 	direction: Direction;
-	#drop: Drop;
 	displayClasses: string;
 	overlayClasses: string;
 	width: number;
@@ -90,7 +90,6 @@ export class Hex {
 	hitBox: Phaser.Sprite;
 	display: Phaser.Sprite;
 	overlay: Phaser.Sprite;
-	trap: Trap;
 	coordText: Phaser.Text;
 
 	/**
@@ -121,17 +120,12 @@ export class Hex {
 		this.blocked = false;
 		this.reachable = true;
 		this.direction = Direction.None; // Used for queryDirection
-		this.drop = undefined; // Drop items
 		this.displayClasses = '';
 		this.overlayClasses = '';
 
-		// Horizontal hex grid, width is distance between opposite sides
-		this.width = 90;
-		this.height = (this.width / Math.sqrt(3)) * 2 * 0.75;
-		this.displayPos = {
-			x: (y % 2 === 0 ? x + 0.5 : x) * this.width,
-			y: y * this.height,
-		};
+		this.width = Const.HEX_WIDTH_PX;
+		this.height = Const.HEX_HEIGHT_PX;
+		this.displayPos = Const.offsetCoordsToPx({ x, y });
 
 		this.originalDisplayPos = $j.extend({}, this.displayPos);
 
@@ -214,43 +208,44 @@ export class Hex {
 		}
 
 		this.displayPos.y = this.displayPos.y * 0.75 + 30;
-
-		this.trap = undefined;
 	}
 
+	/**
+	 * @deprecated Use getPointFacade().getTrapsAt({x, y});
+	 */
+	get trap() {
+		const traps = getPointFacade().getTrapsAt(this);
+		return traps.length > 0 ? traps[0] : undefined;
+	}
+
+	/**
+	 * @deprecated Use new Drop();
+	 */
 	set drop(d) {
-		if (this.#drop && d !== this.#drop) {
-			/**
-			 * NOTE: Currently, the #drop reference here in Hex
-			 * is the only place that a Drop "lives". If it's
-			 * removed here, there are no other references and it
-			 * becomes inaccessible. Therefore, we'll destroy this.#drop
-			 * if it exists, before setting a new this.#drop.
-			 *
-			 * NOTE: Currently, calling d.destroy() on a Drop
-			 * will make it try to unset the drop value. This
-			 * could lead to infinite recursion. So, unset
-			 * this.#drop before calling destroy().
-			 */
-			const dOld = this.#drop;
-			this.#drop = undefined;
-			dOld.destroy();
-		}
-		this.#drop = d;
+		new Drop(d.name, d.alterations, d.x, d.y, d.game);
 	}
 
-	get drop() {
-		return this.#drop;
+	/**
+	 * @deprecated Use getPointFacade().getDropsAt({x, y});
+	 */
+	get drop(): Drop | undefined {
+		const drops = getPointFacade().getDropsAt(this);
+		return drops.length > 0 ? drops[0] : undefined;
 	}
 
+	/**
+	 * @deprecated Use getPointFacade().getCreaturesAt({x, y});
+	 */
 	get creature(): Creature | undefined {
 		const creatures = getPointFacade().getCreaturesAt(this.x, this.y);
 		return creatures.length ? creatures[0] : undefined;
 	}
 
+	/**
+	 * @deprecated There's no longer a need to set hex.creature. Simply update the creature.
+	 */
 	set creature(creature: Creature) {
 		// NOTE: solely for compatability.
-		// this.creature used to be settable, but now it's derived.
 	}
 
 	onSelectFn(arg0: this) {
@@ -601,41 +596,31 @@ export class Hex {
 	 * - ownerCreature
 	 * - destroyOnActivate
 	 * - typeOver
+	 *
+	 * @deprecated Use new Trap(x, y, type, effects, own, opt, game)
 	 */
-	createTrap(type, effects, owner, opt) {
-		if (this.trap) {
-			this.destroyTrap();
-		}
-
-		this.trap = new Trap(this.x, this.y, type, effects, owner, opt, this.game);
-		return this.trap;
+	createTrap(type, effects, owner, opt): Trap {
+		return new Trap(this.x, this.y, type, effects, owner, opt, this.game);
 	}
 
+	/**
+	 * @param trigger
+	 * @param target
+	 *
+	 * @deprecated: use PointFacade - e.g., getPointFacade().getTrapsAt(point).forEach(trap => trap.activate(trigger, target))
+	 */
 	activateTrap(trigger, target) {
-		if (!this.trap) {
-			return;
-		}
-
-		this.trap.effects.forEach((effect) => {
-			if (trigger.test(effect.trigger) && effect.requireFn()) {
-				this.game.log('Trap triggered');
-				effect.activate(target);
-			}
-		});
-
-		if (this.trap && this.trap.destroyOnActivate) {
-			this.destroyTrap();
-		}
+		this.trap?.activate(trigger, target);
 	}
 
+	/**
+	 *
+	 * @returns void
+	 *
+	 * @deprecated Traps are no longer held in a Hex. user PointFacade - e.g., getPointFacade().getTrapsAt(point).forEach(trap => trap.destroy());
+	 */
 	destroyTrap() {
-		if (!this.trap) {
-			return;
-		}
-
-		delete this.grid.traps[this.trap.id];
-		this.trap.destroy();
-		delete this.trap;
+		this.trap?.destroy();
 	}
 
 	//---------DROP FUNCTION---------//

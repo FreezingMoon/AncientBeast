@@ -6,6 +6,7 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 import { once } from 'underscore';
+import { getPointFacade } from '../utility/pointfacade';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -216,7 +217,9 @@ export default (G) => {
 							// be poisonous vine. This is not strictly necessary but it
 							// keeps multiple instances of "Poisonous Vine" text
 							// from appearing on screen.
-							target.hexagons.forEach((hex) => hex.destroyTrap());
+							getPointFacade()
+								.getTrapsAt(target)
+								.forEach((trap) => trap.destroy);
 						}),
 					},
 					G,

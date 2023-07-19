@@ -3,8 +3,9 @@ import { Effect } from '../effect';
 import { Hex } from './hex';
 import { Player } from '../player';
 import { Creature } from '../creature';
-
 import { capitalize } from './string';
+import { getPointFacade } from './pointfacade';
+import { HEX_WIDTH_PX, offsetCoordsToPx } from './const';
 
 export type DestroyAnimationType = 'shrinkDown' | 'none';
 
@@ -12,9 +13,9 @@ export type TrapOptions = Partial<Trap>;
 
 export class Trap {
 	id: number;
+	x: number;
+	y: number;
 	game: Game;
-	// TODO: Remove. This can be removed once Traps can be looked up by position.
-	hex: Hex;
 	type: string;
 	name: string;
 	effects: Effect[];
@@ -47,8 +48,9 @@ export class Trap {
 		name = '',
 	) {
 		this.game = game;
-		this.hex = game.grid.hexes[y][x];
 		this.type = type;
+		this.x = x;
+		this.y = y;
 		this.name = name || capitalize(type.split('-').join(' '));
 		this.effects = effects;
 		this.owner = owner;
@@ -64,32 +66,49 @@ export class Trap {
 
 		this.id = game.trapId++;
 
-		// TODO: Remove
-		// This can be removed once Traps can be looked up
-		// by position.
-		//
-		// Register
-		game.grid.traps.push(this);
-		this.hex.trap = this;
+		// NOTE: Destroy any traps here.
+		getPointFacade()
+			.getTrapsAt(this)
+			.forEach((trap) => trap.destroy());
+		game.traps.push(this);
 
 		for (let i = this.effects.length - 1; i >= 0; i--) {
 			this.effects[i].trap = this;
 		}
 
 		const spriteName = 'trap_' + type;
-		const pos = this.hex.originalDisplayPos;
-
-		this.display = game.grid.trapGroup.create(pos.x + this.hex.width / 2, pos.y + 60, spriteName);
+		const px = offsetCoordsToPx(this);
+		this.display = game.grid.trapGroup.create(px.x + HEX_WIDTH_PX / 2, px.y + 60, spriteName);
 		this.display.anchor.setTo(0.5);
 
 		if (this.typeOver) {
 			this.displayOver = game.grid.trapOverGroup.create(
-				pos.x + this.hex.width / 2,
-				pos.y + 60,
+				px.x + HEX_WIDTH_PX / 2,
+				px.y + 60,
 				spriteName,
 			);
 			this.displayOver.anchor.setTo(0.5);
 			this.displayOver.scale.x *= -1;
+		}
+	}
+
+	/**
+	 * @deprecated: Use this.game.hexAt(x, y)
+	 */
+	get hex(): Hex {
+		return this.game.hexAt(this.x, this.y);
+	}
+
+	activate(trigger: RegExp, target: Creature | Hex) {
+		this.effects.forEach((effect) => {
+			if (trigger.test(effect.trigger) && effect.requireFn()) {
+				this.game.log('Trap triggered');
+				effect.activate(target);
+			}
+		});
+
+		if (this.destroyOnActivate) {
+			this.destroy();
 		}
 	}
 
@@ -118,14 +137,7 @@ export class Trap {
 			destroySprite(this.displayOver, this.destroyAnimation);
 		}
 
-		// TODO: Remove
-		// This can be removed once Traps can be looked up
-		// by position.
-		//
-		// Unregister
-		const i = game.grid.traps.indexOf(this);
-		game.grid.traps.splice(i, 1);
-		this.hex.trap = undefined;
+		game.traps = game.traps.filter((trap) => trap !== this);
 	}
 
 	hide(duration = 0) {

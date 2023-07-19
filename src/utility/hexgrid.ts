@@ -6,8 +6,8 @@ import * as matrices from './matrices';
 import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
 import Game from '../game';
-import { Trap } from './trap';
 import { DEBUG } from '../debug';
+import { HEX_WIDTH_PX } from './const';
 
 interface QueryOptions {
 	/**
@@ -98,7 +98,6 @@ export class HexGrid {
 	 */
 	hexes: Hex[][];
 
-	traps: Trap[];
 	allhexes: Hex[];
 
 	/**
@@ -141,7 +140,6 @@ export class HexGrid {
 
 		this.game = game;
 		this.hexes = []; // Hex Array
-		this.traps = []; // Traps Array
 		this.allhexes = []; // All hexes
 		this.lastClickedHex = undefined;
 
@@ -187,6 +185,17 @@ export class HexGrid {
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
+	}
+
+	get traps() {
+		return this.game.traps;
+	}
+
+	hexAt(x: number, y: number): Hex | undefined {
+		if (y < 0 || y >= this.hexes.length) return;
+		const row = this.hexes[y];
+		if (x < 0 || x >= row.length) return;
+		return row[x];
 	}
 
 	handleMetaPowerEvent(message, payload) {
@@ -722,7 +731,7 @@ export class HexGrid {
 				game.activeCreature.queryMove();
 			},
 			fnOnSelect: (hex: Hex) => {
-				game.activeCreature.faceHex(hex, undefined, true);
+				game.activeCreature.faceHex(hex);
 				hex.overlayVisualState('creature selected player' + game.activeCreature.team);
 			},
 			fnOnCancel: () => {
@@ -917,7 +926,7 @@ export class HexGrid {
 				}
 
 				hex = this.hexes[y][x]; // New coords
-				game.activeCreature.faceHex(hex, undefined, true, true);
+				game.activeCreature.faceHex(hex);
 
 				if (hex !== this.lastClickedHex) {
 					this.lastClickedHex = hex;
@@ -1503,7 +1512,7 @@ export class HexGrid {
 			hex.displayPos.x +
 			(!player.flipped
 				? creatureData.display['offset-x']
-				: 90 * creatureData.size -
+				: HEX_WIDTH_PX * creatureData.size -
 				  this.materialize_overlay.texture.width -
 				  creatureData.display['offset-x']) +
 			this.materialize_overlay.texture.width / 2;

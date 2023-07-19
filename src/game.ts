@@ -24,6 +24,8 @@ import { pretty as version } from './utility/version';
 import { Ability } from './ability';
 import { Effect } from './effect';
 import { GameConfig } from './script';
+import { Trap } from './utility/trap';
+import { Drop } from './drop';
 
 /* eslint-disable prefer-rest-params */
 
@@ -60,6 +62,7 @@ export default class Game {
 	 * // Game elements
 	 * players :			Array :	Contains Player objects ordered by player ID (0 to 3)
 	 * creatures :			Array :	Contains Creature objects (creatures[creature.id]) start at index 1
+	 * traps :				Array : Contains Trap objects
 	 *
 	 * grid :				Grid :	Grid object
 	 * UI :				UI :	UI object
@@ -77,6 +80,8 @@ export default class Game {
 	abilities: Ability[];
 	players: Player[];
 	creatures: Creature[];
+	traps: Trap[];
+	drops: Drop[];
 	effects: Effect[];
 	activeCreature: Creature | undefined;
 	matchid: number;
@@ -147,6 +152,8 @@ export default class Game {
 		this.abilities = [];
 		this.players = [];
 		this.creatures = [];
+		this.traps = [];
+		this.drops = [];
 		this.effects = [];
 		this.activeCreature = undefined;
 		this.matchid = null;
@@ -367,6 +374,10 @@ export default class Game {
 		this.dataLoaded(dataJson);
 	}
 
+	hexAt(x: number, y: number): Hex | undefined {
+		return this.grid.hexAt(x, y);
+	}
+
 	get activePlayer() {
 		if (this.multiplayer) {
 			if (this.players && this.match instanceof MatchI && this.match.userTurn) {
@@ -515,19 +526,11 @@ export default class Game {
 					return ps;
 				}
 			},
-			getTraps: () => this.grid.traps,
-			getTrapPassablePoints: (trap) => [trap.hex],
+			getTraps: () => this.traps,
+			getTrapPassablePoints: (trap: Trap) => [trap],
 			getTrapBlockedPoints: (trap) => [],
-			getDrops: () => {
-				const result = [];
-				this.grid.forEachHex((hex) => {
-					if (hex.drop) {
-						result.push(hex.drop);
-					}
-				});
-				return result;
-			},
-			getDropPassablePoints: (drop) => (drop.hex ? [drop.hex] : []),
+			getDrops: () => this.drops,
+			getDropPassablePoints: (drop) => [drop],
 			getDropBlockedPoints: (drop) => [],
 		});
 
@@ -1259,12 +1262,12 @@ export default class Game {
 	// Removed individual args from definition because we are using the arguments variable.
 	onStartPhase(/* creature, callback */) {
 		let creature = arguments[0],
-			totalTraps = this.grid.traps.length,
+			totalTraps = this.traps.length,
 			trap,
 			i;
 
 		for (i = 0; i < totalTraps; i++) {
-			trap = this.grid.traps[i];
+			trap = this.traps[i];
 
 			if (trap === undefined) {
 				continue;
@@ -1317,7 +1320,7 @@ export default class Game {
 		this.triggerEffect('onCreatureDeath', [creature, creature]);
 
 		// Looks for traps owned by this creature and destroy them
-		this.grid.traps
+		this.traps
 			.filter(
 				(trap) => trap.turnLifetime > 0 && trap.fullTurnLifetime && trap.ownerCreature == creature,
 			)
