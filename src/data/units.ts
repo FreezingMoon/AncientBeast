@@ -5,6 +5,7 @@ export const unitData = [
 		playable: true,
 		level: '-',
 		realm: '-',
+		type: '--',
 		size: 1,
 		stats: {
 			health: 100,
@@ -96,6 +97,7 @@ export const unitData = [
 		playable: true,
 		level: 2,
 		realm: 'A',
+		type: 'A2',
 		size: 1,
 		set: 'α',
 		stats: {
@@ -179,6 +181,7 @@ export const unitData = [
 		playable: false,
 		level: 6,
 		realm: 'G',
+		type: 'G6',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -246,6 +249,7 @@ export const unitData = [
 		playable: true,
 		level: 3,
 		realm: 'G',
+		type: 'G3',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -347,6 +351,7 @@ export const unitData = [
 		playable: true,
 		level: 2,
 		realm: 'L',
+		type: 'L2',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -448,6 +453,7 @@ export const unitData = [
 		playable: true,
 		level: 5,
 		realm: 'S',
+		type: 'S5',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -549,6 +555,7 @@ export const unitData = [
 		playable: true,
 		level: 7,
 		realm: 'S',
+		type: 'S7',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -661,6 +668,7 @@ export const unitData = [
 		playable: true,
 		level: 7,
 		realm: 'P',
+		type: 'P7',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -758,6 +766,7 @@ export const unitData = [
 		playable: false,
 		level: 5,
 		realm: 'W',
+		type: 'W5',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -820,6 +829,7 @@ export const unitData = [
 		playable: true,
 		level: 4,
 		realm: 'S',
+		type: 'S4',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -924,6 +934,7 @@ export const unitData = [
 		playable: false,
 		level: 4,
 		realm: 'P',
+		type: 'P4',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -995,6 +1006,7 @@ export const unitData = [
 		playable: false,
 		level: 1,
 		realm: 'G',
+		type: 'G1',
 		size: 1,
 		set: 'α',
 		stats: {
@@ -1067,6 +1079,7 @@ export const unitData = [
 		playable: true,
 		level: 1,
 		realm: 'S',
+		type: 'S1',
 		size: 1,
 		set: 'α',
 		stats: {
@@ -1162,6 +1175,7 @@ export const unitData = [
 		playable: false,
 		level: 2,
 		realm: 'G',
+		type: 'G2',
 		size: 1,
 		set: 'α',
 		stats: {
@@ -1235,6 +1249,7 @@ export const unitData = [
 		playable: true,
 		level: 1,
 		realm: 'P',
+		type: 'P1',
 		size: 1,
 		set: 'α',
 		stats: {
@@ -1330,6 +1345,7 @@ export const unitData = [
 		playable: false,
 		level: 2,
 		realm: 'W',
+		type: 'W2',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -1397,6 +1413,7 @@ export const unitData = [
 		playable: false,
 		level: 5,
 		realm: 'L',
+		type: 'L5',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -1464,6 +1481,7 @@ export const unitData = [
 		playable: false,
 		level: 6,
 		realm: 'E',
+		type: 'E6',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -1531,6 +1549,7 @@ export const unitData = [
 		playable: false,
 		level: 7,
 		realm: 'W',
+		type: 'W7',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -1598,6 +1617,7 @@ export const unitData = [
 		playable: false,
 		level: 4,
 		realm: 'G',
+		type: 'G4',
 		size: 1,
 		set: 'α',
 		stats: {
@@ -1665,6 +1685,7 @@ export const unitData = [
 		playable: false,
 		level: 6,
 		realm: 'S',
+		type: 'S6',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -1719,6 +1740,7 @@ export const unitData = [
 		playable: false,
 		level: 4,
 		realm: 'W',
+		type: 'W4',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -1785,6 +1807,7 @@ export const unitData = [
 		playable: false,
 		level: 1,
 		realm: 'L',
+		type: 'L1',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -1868,6 +1891,7 @@ export const unitData = [
 		playable: false,
 		level: 3,
 		realm: 'L',
+		type: 'L3',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -1935,6 +1959,7 @@ export const unitData = [
 		playable: false,
 		level: 6,
 		realm: 'A',
+		type: 'A6',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -2008,6 +2033,7 @@ export const unitData = [
 		playable: false,
 		level: 1,
 		realm: 'E',
+		type: 'E1',
 		size: 1,
 		set: 'α',
 		stats: {
@@ -2077,6 +2103,7 @@ export const unitData = [
 		playable: false,
 		level: 7,
 		realm: 'G',
+		type: 'G7',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -2144,6 +2171,7 @@ export const unitData = [
 		playable: false,
 		level: 2,
 		realm: 'S',
+		type: 'S2',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -2211,6 +2239,7 @@ export const unitData = [
 		playable: true,
 		level: 3,
 		realm: 'E',
+		type: 'E3',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -2297,6 +2326,7 @@ export const unitData = [
 		playable: false,
 		level: 5,
 		realm: 'A',
+		type: 'A5',
 		size: 1,
 		set: 'α',
 		stats: {
@@ -2374,6 +2404,7 @@ export const unitData = [
 		playable: false,
 		level: 5,
 		realm: 'G',
+		type: 'G5',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -2452,6 +2483,7 @@ export const unitData = [
 		playable: true,
 		level: 3,
 		realm: 'A',
+		type: 'A3',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -2548,6 +2580,7 @@ export const unitData = [
 		playable: false,
 		level: 3,
 		realm: 'S',
+		type: 'S3',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -2615,6 +2648,7 @@ export const unitData = [
 		playable: true,
 		level: 7,
 		realm: 'A',
+		type: 'A7',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -2695,6 +2729,7 @@ export const unitData = [
 		playable: false,
 		level: 2,
 		realm: 'P',
+		type: 'P2',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -2767,6 +2802,7 @@ export const unitData = [
 		playable: false,
 		level: 4,
 		realm: 'A',
+		type: 'A4',
 		size: 1,
 		set: 'α',
 		stats: {
@@ -2842,6 +2878,7 @@ export const unitData = [
 		playable: false,
 		level: 4,
 		realm: 'E',
+		type: 'E4',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -2911,6 +2948,7 @@ export const unitData = [
 		playable: true,
 		level: 1,
 		realm: 'A',
+		type: 'A1',
 		size: 1,
 		set: 'α',
 		stats: {
@@ -3008,6 +3046,7 @@ export const unitData = [
 		playable: false,
 		level: 4,
 		realm: 'L',
+		type: 'L4',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -3075,6 +3114,7 @@ export const unitData = [
 		playable: true,
 		level: 3,
 		realm: 'W',
+		type: 'W3',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -3175,6 +3215,7 @@ export const unitData = [
 		playable: true,
 		level: 2,
 		realm: 'E',
+		type: 'E2',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -3271,6 +3312,7 @@ export const unitData = [
 		playable: false,
 		level: 1,
 		realm: 'W',
+		type: 'W1',
 		size: 1,
 		set: 'β',
 		stats: {
@@ -3329,6 +3371,7 @@ export const unitData = [
 		playable: false,
 		level: 7,
 		realm: 'E',
+		type: 'E7',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -3418,6 +3461,7 @@ export const unitData = [
 		playable: false,
 		level: 7,
 		realm: 'L',
+		type: 'L7',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -3485,6 +3529,7 @@ export const unitData = [
 		playable: true,
 		level: 3,
 		realm: 'P',
+		type: 'P3',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -3577,6 +3622,7 @@ export const unitData = [
 		playable: true,
 		level: 6,
 		realm: 'P',
+		type: 'P6',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -3665,6 +3711,7 @@ export const unitData = [
 		playable: false,
 		level: 5,
 		realm: 'E',
+		type: 'E5',
 		size: 2,
 		set: 'α',
 		stats: {
@@ -3732,6 +3779,7 @@ export const unitData = [
 		playable: false,
 		level: 5,
 		realm: 'P',
+		type: 'P5',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -3795,6 +3843,7 @@ export const unitData = [
 		playable: false,
 		level: 6,
 		realm: 'W',
+		type: 'W6',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -3862,6 +3911,7 @@ export const unitData = [
 		playable: false,
 		level: 6,
 		realm: 'L',
+		type: 'L6',
 		size: 3,
 		set: 'α',
 		stats: {
@@ -3927,8 +3977,9 @@ export const unitData = [
 		id: 50,
 		name: 'Shadow Leech',
 		playable: false,
-		level: '1',
+		level: 1,
 		realm: 'W',
+		type: 'W1',
 		size: 1,
 		set: 'α',
 		stats: {
