@@ -96,7 +96,7 @@ export class Creature {
 	 * name :			String :	Creature name
 	 * id :			Integer :	Creature Id incrementing for each creature starting to 1
 	 * size :			Integer :	Creature size in hexes (1,2 or 3)
-	 * type :			Integer :	Type of the creature stocked in the database
+	 * type :			String :	Type of the creature stocked in the database. Made up of `creature.realm` + `creature.level`. ex: for Dark Priest "--"
 	 * team :			Integer :	Owner's ID (0,1,2 or 3)
 	 * player :		Player :	Player object shortcut
 	 * hexagons :		Array :		Array containing the hexes where the creature is
