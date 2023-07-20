@@ -190,7 +190,7 @@ export class Animations {
 			game.soundsys.playSFX('sounds/step');
 
 			// position
-			const px = offsetCoordsToPx(creature);
+			const px = offsetCoordsToPx(hex);
 			creature.grp.x = px.x;
 			creature.grp.y = px.y;
 
