@@ -7,7 +7,7 @@ import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
 import Game from '../game';
 import { DEBUG } from '../debug';
-import { HEX_WIDTH_PX } from './const';
+import { HEX_WIDTH_PX, offsetCoordsToPx } from './const';
 
 interface QueryOptions {
 	/**
@@ -144,11 +144,11 @@ export class HexGrid {
 		this.lastClickedHex = undefined;
 
 		this.display = game.Phaser.add.group(undefined, 'displayGroup');
-		this.display.x = 230;
-		this.display.y = 380;
+		// TODO: What are these magic numbers?
+		this.display.x = 275;
+		this.display.y = 429;
 
 		this.gridGroup = game.Phaser.add.group(this.display, 'gridGroup');
-		this.gridGroup.scale.set(1, 0.75);
 
 		this.trapGroup = game.Phaser.add.group(this.gridGroup, 'trapGrp');
 		this.hexesGroup = game.Phaser.add.group(this.gridGroup, 'hexesGroup');
@@ -158,7 +158,6 @@ export class HexGrid {
 		this.creatureGroup = game.Phaser.add.group(this.display, 'creaturesGrp');
 		// Parts of traps displayed over creatures
 		this.trapOverGroup = game.Phaser.add.group(this.display, 'trapOverGrp');
-		this.trapOverGroup.scale.set(1, 0.75);
 
 		// Populate grid
 		for (let row = 0; row < opts.nbrRow; row++) {
@@ -1491,40 +1490,22 @@ export class HexGrid {
 	 */
 	previewCreature(pos, creatureData, player) {
 		const game = this.game;
-		const hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
 
 		if (!this.materialize_overlay) {
-			// If sprite does not exists
-			// Adding sprite
 			this.materialize_overlay = this.creatureGroup.create(0, 0, creatureData.name + '_cardboard');
-			this.materialize_overlay.anchor.setTo(0.5, 1);
-			this.materialize_overlay.posy = pos.y;
 		} else {
 			this.materialize_overlay.loadTexture(creatureData.name + '_cardboard');
-			if (this.materialize_overlay.posy != pos.y) {
-				this.materialize_overlay.posy = pos.y;
-				this.orderCreatureZ();
-			}
 		}
+		this.materialize_overlay.anchor.setTo(0.5, 1);
+		this.materialize_overlay.scale.setTo(player.flipped ? -1 : 1, 1);
 
-		// Placing sprite
-		this.materialize_overlay.x =
-			hex.displayPos.x +
-			(!player.flipped
-				? creatureData.display['offset-x']
-				: HEX_WIDTH_PX * creatureData.size -
-				  this.materialize_overlay.texture.width -
-				  creatureData.display['offset-x']) +
-			this.materialize_overlay.texture.width / 2;
-		this.materialize_overlay.y =
-			hex.displayPos.y + creatureData.display['offset-y'] + this.materialize_overlay.texture.height;
+		const px = offsetCoordsToPx(pos);
+		// TODO: This uses the same positioning as creature.grp.sprite.
+		// It might be a good idea to get the position from there, rather than have a copy.
+		this.materialize_overlay.x = px.x + (creatureData.size - 1) * -HEX_WIDTH_PX * 0.5;
+		this.materialize_overlay.y = px.y + 10;
+		this.orderCreatureZ();
 		this.materialize_overlay.alpha = 0.5;
-
-		if (player.flipped) {
-			this.materialize_overlay.scale.setTo(-1, 1);
-		} else {
-			this.materialize_overlay.scale.setTo(1, 1);
-		}
 
 		for (let i = 0, size = creatureData.size; i < size; i++) {
 			const hexInstance = this.hexes[pos.y][pos.x - i];

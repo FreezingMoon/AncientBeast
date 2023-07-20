@@ -275,6 +275,7 @@ export default (G) => {
 					{ materializationSickness: creatureHasMaterializationSickness },
 				);
 				const fullCrea = new Creature(crea, G);
+
 				// Don't allow temporary Creature to take up space
 				fullCrea.cleanHex();
 				// Make temporary Creature invisible

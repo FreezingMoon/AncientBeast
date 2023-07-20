@@ -3,6 +3,7 @@ import Game from './game';
 import { Creature } from './creature';
 import { Hex } from './utility/hex';
 import { Ability } from './ability';
+import { offsetCoordsToPx } from './utility/const';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -62,11 +63,11 @@ export class Animations {
 				return;
 			}
 
-			const nextPos = game.grid.hexes[hex.y][hex.x - creature.size + 1];
+			const nextHex = game.grid.hexes[hex.y][hex.x];
 
 			const tween = game.Phaser.add
 				.tween(creature.grp)
-				.to(nextPos.displayPos, speed, Phaser.Easing.Linear.None)
+				.to(offsetCoordsToPx(nextHex), speed, Phaser.Easing.Linear.None)
 				.start();
 
 			// Ignore traps for hover creatures, unless this is the last hex
@@ -122,9 +123,8 @@ export class Animations {
 		creature.healthHide();
 
 		const hex = path[0];
-
-		const start = game.grid.hexes[creature.y][creature.x - creature.size + 1];
-		const currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
+		const start = game.grid.hexes[creature.y][creature.x];
+		const currentHex = game.grid.hexes[hex.y][hex.x];
 
 		this.leaveHex(creature, currentHex, opts);
 
@@ -132,7 +132,7 @@ export class Animations {
 
 		const tween = game.Phaser.add
 			.tween(creature.grp)
-			.to(currentHex.displayPos, speed, Phaser.Easing.Linear.None)
+			.to(offsetCoordsToPx(currentHex), speed, Phaser.Easing.Linear.None)
 			.start();
 
 		tween.onComplete.add(() => {
@@ -166,7 +166,7 @@ export class Animations {
 	teleport(creature: Creature, path: Hex[], opts: AnimationOptions) {
 		const game = this.game,
 			hex = path[0],
-			currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
+			currentHex = game.grid.hexes[hex.y][hex.x];
 
 		this.leaveHex(creature, currentHex, opts);
 
@@ -190,8 +190,9 @@ export class Animations {
 			game.soundsys.playSFX('sounds/step');
 
 			// position
-			creature.grp.x = currentHex.displayPos.x;
-			creature.grp.y = currentHex.displayPos.y;
+			const px = offsetCoordsToPx(hex);
+			creature.grp.x = px.x;
+			creature.grp.y = px.y;
 
 			// FadeIn
 			game.Phaser.add
@@ -289,54 +290,39 @@ export class Animations {
 
 	projectile(
 		this2: Ability,
-		target: { id: number },
+		target: Creature,
 		spriteId: string,
-		path: Hex[],
-		args: { direction: number },
-		startX: number,
-		startY: number,
+		projectileHeightFromGroundPx: number,
 	) {
-		// Get the target's position on the projectile's path that is closest
-		const emissionPointX = this2.creature.grp.x + startX;
-		let distance = Number.MAX_SAFE_INTEGER;
-		let targetX = path[0].displayPos.x;
-		for (const hex of path) {
-			if (typeof hex.creature != 'undefined' && hex.creature.id == target.id) {
-				if (distance > Math.abs(emissionPointX - hex.displayPos.x)) {
-					distance = Math.abs(emissionPointX - hex.displayPos.x);
-					targetX = hex.displayPos.x;
-				}
-			}
-		}
-		const game = this.game,
-			baseDist = arrayUtils.filterCreature(path.slice(0), false, false).length,
-			dist = baseDist == 0 ? 1 : baseDist,
-			emissionPoint = {
-				x: this2.creature.grp.x + startX,
-				y: this2.creature.grp.y + startY,
-			},
-			targetPoint = {
-				x: targetX + 45,
-				y: path[baseDist].displayPos.y - 20,
-			},
-			// Sprite id here
-			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, spriteId),
-			duration = dist * 75;
+		const shooter = this2.creature;
+		const game = shooter.game;
+		// NOTE: Sometimes this is apparently not passed a valid target.
+		const victims = game.creatures.filter((c) => c.id === target.id);
 
-		sprite.anchor.setTo(0.5);
-		sprite.rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
+		const isTargetOnRight = shooter.centerPx < target.centerPx;
+		const startXPx = isTargetOnRight ? shooter.rightPx : shooter.leftPx;
+		const endXPx = isTargetOnRight ? target.leftPx : target.rightPx;
+		const startYPx = shooter.footPx + projectileHeightFromGroundPx;
+
+		const duration = Math.abs(startXPx - endXPx);
+
+		const sprite = shooter.game.grid.creatureGroup.create(startXPx, startYPx, spriteId);
+		sprite.anchor.setTo(0.5, 1);
+		sprite.scale.set(isTargetOnRight ? 1 : -1, 1);
+
 		const tween = game.Phaser.add
 			.tween(sprite)
 			.to(
 				{
-					x: targetPoint.x,
-					y: targetPoint.y,
+					x: endXPx,
+					y: target.footPx + projectileHeightFromGroundPx,
 				},
 				duration,
 				Phaser.Easing.Linear.None,
 			)
 			.start();
 
+		const dist = 1;
 		return [tween, sprite, dist];
 	}
 }
