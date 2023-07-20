@@ -145,8 +145,8 @@ export class HexGrid {
 
 		this.display = game.Phaser.add.group(undefined, 'displayGroup');
 		// TODO: What are these magic numbers?
-		this.display.x = 270;
-		this.display.y = 420;
+		this.display.x = 275;
+		this.display.y = 429;
 
 		this.gridGroup = game.Phaser.add.group(this.display, 'gridGroup');
 

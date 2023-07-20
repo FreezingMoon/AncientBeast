@@ -546,6 +546,8 @@ export class Hex {
 					align: 'center',
 				});
 				this.coordText.anchor.setTo(0.5);
+				// NOTE: Squish the numbers vertically for a "perspective" effect.
+				this.coordText.scale.set(1, 0.75);
 				this.grid.overlayHexesGroup.add(this.coordText);
 			}
 		} else if (this.coordText && this.coordText.exists) {
