@@ -637,6 +637,13 @@ export default class Game {
 		}
 
 		this.matchInit();
+
+		for (const hexes of this.grid.hexes) {
+			for (const hex of hexes) {
+				//new Trap(hex.x, hex.y, 'firewall', [], this.players[0], {}, this, 'woo');
+				//new Drop('apple', {}, hex.x, hex.y, this);
+			}
+		}
 	}
 
 	async matchInit() {
