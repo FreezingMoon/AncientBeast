@@ -154,10 +154,12 @@ export class Hex {
 			this.display = grid.displayHexesGroup.create(x_px, y_px, 'hex');
 			this.display.alpha = 0;
 			this.display.anchor.setTo(0.5);
+			this.display.scale.set(1, 0.75);
 
 			this.overlay = grid.overlayHexesGroup.create(x_px, y_px, 'hex');
 			this.overlay.alpha = 0;
-			this.display.anchor.setTo(0.5);
+			this.overlay.anchor.setTo(0.5);
+			this.overlay.scale.set(1, 0.75);
 
 			// Binding Events
 			this.hitBox.events.onInputOver.add(() => {
@@ -525,13 +527,13 @@ export class Hex {
 		this.display.alpha = targetAlpha ? 1 : 0;
 
 		if (this.displayClasses.match(/shrunken/)) {
-			this.display.scale.setTo(shrinkScale);
-			this.overlay.scale.setTo(shrinkScale);
+			this.display.scale.setTo(shrinkScale, 0.75 * shrinkScale);
+			this.overlay.scale.setTo(shrinkScale, 0.75 * shrinkScale);
 			this.display.alignIn(this.hitBox, Phaser.CENTER);
 			this.overlay.alignIn(this.hitBox, Phaser.CENTER);
 		} else {
-			this.display.scale.setTo(1);
-			this.overlay.scale.setTo(1);
+			this.display.scale.setTo(1, 0.75);
+			this.overlay.scale.setTo(1, 0.75);
 			this.display.alignIn(this.hitBox, Phaser.CENTER);
 			this.overlay.alignIn(this.hitBox, Phaser.CENTER);
 		}
