@@ -151,7 +151,6 @@ export class Creature {
 	private _hinderedTurn: number;
 	materializationSickness: boolean;
 	noActionPossible: boolean;
-	destroy: any;
 
 	// Statistics
 	baseStats: CreatureStats;
@@ -383,7 +382,8 @@ export class Creature {
 		this.healthIndicatorGroup.alpha = 0;
 
 		if (!this.temp) {
-			for (const other of game.creatures.filter((c) => c)) {
+			let tempCreature: Creature | undefined = undefined;
+			for (const other of game.creatures) {
 				if (other.type === this.type && other.team === this.team && other.temp) {
 					/**
 					 *  NOTE:
@@ -395,8 +395,12 @@ export class Creature {
 					 * Use the "unmaterialized" creature's id so that `this` will replace
 					 * `other` in `game.creatures`.
 					 */
-					this.id = other.id;
+					tempCreature = other;
 				}
+			}
+			if (tempCreature) {
+				this.id = tempCreature.id;
+				tempCreature.destroy();
 			}
 		}
 		// Adding Himself to creature arrays and queue
@@ -1714,8 +1718,8 @@ export class Creature {
 							tooltipTransition,
 						)
 						.start();
-					grpHintElem.tweenAlpha.onComplete.add(function (this: any) {
-						this.destroy;
+					grpHintElem.tweenAlpha.onComplete.add(function (tween: any) {
+						tween.destroy;
 					}, grpHintElem);
 				}
 			},
@@ -1765,8 +1769,8 @@ export class Creature {
 					tooltipTransition,
 				)
 				.start();
-			hint.tweenAlpha.onComplete.add(function (this: any) {
-				this.destroy;
+			hint.tweenAlpha.onComplete.add(function (tween: any) {
+				tween.destroy;
 			}, hint);
 		}
 
@@ -1963,7 +1967,7 @@ export class Creature {
 			)
 			.start();
 		tweenSprite.onComplete.add(() => {
-			this.sprite.destroy();
+			this.destroy();
 		});
 		tweenHealth.onComplete.add(() => {
 			this.healthIndicatorGroup.destroy();
@@ -2154,5 +2158,15 @@ export class Creature {
 
 		this.#fatigueText = result;
 		return result;
+	}
+
+	destroy() {
+		// NOTE: Remove root Phaser object
+		this.grp.parent.removeChild(this.grp);
+		// NOTE: If this was a temp creature remove it from game.creatures.
+		// Dead creatures are supposed to stay in game.creatures.
+		if (this.temp) {
+			this.game.creatures = this.game.creatures.filter((c) => c !== this);
+		}
 	}
 }
