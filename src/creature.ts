@@ -10,7 +10,7 @@ import { Effect } from './effect';
 import { Player, PlayerID } from './player';
 import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
-import { HEX_WIDTH_PX } from './utility/const';
+import { HEX_WIDTH_PX, offsetCoordsToPx } from './utility/const';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -164,15 +164,7 @@ export class Creature {
 	remainingMove: number;
 	abilities: Ability[];
 
-	// Phaser
-
-	grp: Phaser.Group;
-	sprite: Phaser.Sprite;
-	hintGrp: Phaser.Group;
-	healthIndicatorGroup: Phaser.Group;
-	healthIndicatorSprite: Phaser.Sprite;
-	healthIndicatorText: Phaser.Text;
-	healthIndicatorTween: Phaser.Tween | null;
+	creatureSprite: CreatureSprite;
 
 	constructor(obj, game: Game) {
 		// Engine
@@ -312,74 +304,7 @@ export class Creature {
 
 		this.updateHex();
 
-		let dp = '';
-
-		if (this.type === '--') {
-			switch (this.team) {
-				case 0:
-					dp = 'red';
-					break;
-				case 1:
-					dp = 'blue';
-					break;
-				case 2:
-					dp = 'orange';
-					break;
-				case 3:
-					dp = 'green';
-					break;
-			}
-		}
-
-		// Creature Container
-		this.grp = game.Phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + this.id);
-		this.grp.alpha = 0;
-		// Adding sprite
-		this.sprite = this.grp.create(0, 0, this.name + dp + '_cardboard');
-		this.sprite.anchor.setTo(0.5, 1);
-		// Placing sprite
-		this.sprite.x =
-			(!this.player.flipped
-				? this.display['offset-x']
-				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
-			this.sprite.texture.width / 2;
-		this.sprite.y = this.display['offset-y'] + this.sprite.texture.height;
-		// Placing Group
-		this.grp.x = this.hexagons[this.size - 1].displayPos.x;
-		this.grp.y = this.hexagons[this.size - 1].displayPos.y;
-
-		this.facePlayerDefault();
-
-		// Hint Group
-		this.hintGrp = game.Phaser.add.group(this.grp, 'creatureHintGrp_' + this.id);
-		this.hintGrp.x = 0.5 * HEX_WIDTH_PX * this.size;
-		this.hintGrp.y = -this.sprite.texture.height + 5;
-
-		// Health indicator
-		this.healthIndicatorGroup = game.Phaser.add.group(this.grp, 'creatureHealthGrp_' + this.id);
-		// Adding background sprite
-		this.healthIndicatorSprite = this.healthIndicatorGroup.create(
-			this.player.flipped ? 19 : 19 + HEX_WIDTH_PX * (this.size - 1),
-			49,
-			'p' + this.team + '_health',
-		);
-		// Add text
-		this.healthIndicatorText = game.Phaser.add.text(
-			this.player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this.size - 0.5),
-			63,
-			this.health,
-			{
-				font: 'bold 15pt Play',
-				fill: '#fff',
-				align: 'center',
-				stroke: '#000',
-				strokeThickness: 6,
-			},
-		);
-		this.healthIndicatorText.anchor.setTo(0.5, 0.5);
-		this.healthIndicatorGroup.add(this.healthIndicatorText);
-		// Hide it
-		this.healthIndicatorGroup.alpha = 0;
+		this.creatureSprite = new CreatureSprite(this);
 
 		if (!this.temp) {
 			let tempCreature: Creature | undefined = undefined;
@@ -416,6 +341,35 @@ export class Creature {
 			!this.materializationSickness || this.isDarkPriest() ? this.game.turn : this.game.turn + 1;
 		this._waitedTurn = -1;
 		this._hinderedTurn = -1;
+	}
+
+	// NOTE: These fields previously existed on Creature
+	// but are now part of their own class.
+	// TODO: These should be factored out when possible,
+	// as their use consistutes a Demeter violation.
+	get grp() {
+		return this.creatureSprite.grp;
+	}
+	get sprite() {
+		return this.creatureSprite.sprite;
+	}
+	get hintGrp() {
+		return this.creatureSprite.hintGrp;
+	}
+	get healthIndicatorGroup() {
+		return this.creatureSprite.healthIndicatorGroup;
+	}
+	get healthIndicatorSprite() {
+		return this.creatureSprite.healthIndicatorSprite;
+	}
+	get healthIndicatorText() {
+		return this.creatureSprite.healthIndicatorText;
+	}
+	get healthIndicatorTween() {
+		return this.creatureSprite.healthIndicatorTween;
+	}
+	set healthIndicatorTween(tw: Phaser.Tween) {
+		this.creatureSprite.healthIndicatorTween = tw;
 	}
 
 	/**
@@ -936,6 +890,7 @@ export class Creature {
 
 		const flipped = facefrom.y % 2 === 0 ? faceto.x <= facefrom.x : faceto.x < facefrom.x;
 
+		// TODO: Use CreatureSprite.setDir()
 		if (flipped) {
 			this.sprite.scale.setTo(-1, 1);
 		} else {
@@ -2161,12 +2116,174 @@ export class Creature {
 	}
 
 	destroy() {
-		// NOTE: Remove root Phaser object
-		this.grp.parent.removeChild(this.grp);
+		this.creatureSprite.destroy();
 		// NOTE: If this was a temp creature remove it from game.creatures.
 		// Dead creatures are supposed to stay in game.creatures.
 		if (this.temp) {
 			this.game.creatures = this.game.creatures.filter((c) => c !== this);
 		}
+	}
+}
+
+class CreatureSprite {
+	private _group: Phaser.Group;
+	private _sprite: Phaser.Sprite;
+	private _hintGrp: Phaser.Group;
+	private _healthIndicatorGroup: Phaser.Group;
+	private _healthIndicatorSprite: Phaser.Sprite;
+	private _healthIndicatorText: Phaser.Text;
+	private _healthIndicatorTween: Phaser.Tween | null;
+	private _phaser: Phaser.Game;
+	private _frameInfo: { originX: number; originY: number };
+	private _creatureSize: number;
+
+	constructor(creature: Creature) {
+		const { game, player, type, team, display, size, id, health } = creature;
+		const dir = player.flipped ? -1 : 1;
+		const phaser = game.Phaser;
+
+		this._phaser = phaser;
+		this._creatureSize = size;
+		this._frameInfo = { originX: display['offset-x'], originY: display['offset-y'] };
+
+		const group: Phaser.Group = phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
+		group.alpha = 0;
+
+		let darkPriestColorOrEmpty = '';
+
+		if (type === '--') {
+			if (team === 0) {
+				darkPriestColorOrEmpty = 'red';
+			} else if (team === 1) {
+				darkPriestColorOrEmpty = 'blue';
+			} else if (team === 2) {
+				darkPriestColorOrEmpty = 'orange';
+			} else if (team === 3) {
+				darkPriestColorOrEmpty = 'green';
+			}
+		}
+
+		// Adding sprite
+		const sprite = group.create(0, 0, creature.name + darkPriestColorOrEmpty + '_cardboard');
+		sprite.anchor.setTo(0.5, 1);
+		// Placing sprite
+		sprite.x =
+			(!player.flipped
+				? display['offset-x']
+				: HEX_WIDTH_PX * size - sprite.texture.width - display['offset-x']) +
+			sprite.texture.width / 2;
+		sprite.y = display['offset-y'] + sprite.texture.height;
+
+		// Hint Group
+		const hintGrp = phaser.add.group(group, 'creatureHintGrp_' + id);
+		hintGrp.x = 0.5 * HEX_WIDTH_PX * size;
+		hintGrp.y = -sprite.texture.height + 5;
+
+		const healthIndicatorGroup = phaser.add.group(group, 'creatureHealthGrp_' + id);
+
+		const healthIndicatorSprite = healthIndicatorGroup.create(
+			player.flipped ? 19 : 19 + HEX_WIDTH_PX * (size - 1),
+			49,
+			'p' + team + '_health',
+		);
+
+		const healthIndicatorText = phaser.add.text(
+			player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size - 0.5),
+			63,
+			health,
+			{
+				font: 'bold 15pt Play',
+				fill: '#fff',
+				align: 'center',
+				stroke: '#000',
+				strokeThickness: 6,
+			},
+		);
+		healthIndicatorText.anchor.setTo(0.5, 0.5);
+		healthIndicatorGroup.add(healthIndicatorText);
+		healthIndicatorGroup.alpha = 0;
+
+		this._group = group;
+		this._sprite = sprite;
+		this._hintGrp = hintGrp;
+		this._healthIndicatorGroup = healthIndicatorGroup;
+		this._healthIndicatorSprite = healthIndicatorSprite;
+		this._healthIndicatorText = healthIndicatorText;
+		this._healthIndicatorTween = undefined;
+
+		this.setHex(creature.hexagons[size - 1]);
+		this.setDir(dir);
+	}
+
+	// NOTE: This is the old API exposed by Creature.
+	// Kept for compatibility, but usage should be phased out.
+	// TODO: Prefer using CreatureSprite methods and remove these when possible.
+	get grp() {
+		return this._group;
+	}
+	get sprite() {
+		return this._sprite;
+	}
+	get hintGrp() {
+		return this._hintGrp;
+	}
+	get healthIndicatorGroup() {
+		return this._healthIndicatorGroup;
+	}
+	get healthIndicatorSprite() {
+		return this._healthIndicatorSprite;
+	}
+	get healthIndicatorText() {
+		return this._healthIndicatorText;
+	}
+	get healthIndicatorTween() {
+		return this._healthIndicatorTween;
+	}
+	set healthIndicatorTween(tw: Phaser.Tween) {
+		this._healthIndicatorTween = tw;
+	}
+
+	setAlpha(a: number, durationMS?: number) {
+		if (typeof durationMS === 'undefined' || durationMS === 0) {
+			this.grp.alpha = a;
+			return;
+		}
+		this._phaser.add
+			.tween(this.grp)
+			.to(
+				{
+					alpha: 1,
+				},
+				durationMS,
+				Phaser.Easing.Linear.None,
+			)
+			.start();
+	}
+
+	setHex(h: Hex) {
+		this.setPx({ x: h.displayPos.x, y: h.displayPos.y });
+	}
+
+	setPx(xy: { x: number; y: number }) {
+		this.grp.position.set(xy.x, xy.y);
+	}
+
+	destroy() {
+		this.grp.parent.removeChild(this.grp);
+	}
+
+	setDir(dir: 1 | -1) {
+		this._sprite.scale.setTo(dir, 1);
+
+		this._sprite.x =
+			(dir === 1
+				? this._frameInfo.originX
+				: HEX_WIDTH_PX * this._creatureSize -
+				  this._sprite.texture.width -
+				  this._frameInfo.originX) +
+			this._sprite.texture.width / 2;
+		this._healthIndicatorSprite.x = dir === -1 ? 19 : 19 + HEX_WIDTH_PX * (this._creatureSize - 1);
+		this._healthIndicatorText.x =
+			dir === -1 ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
 	}
 }
