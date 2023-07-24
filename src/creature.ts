@@ -346,7 +346,7 @@ export class Creature {
 	// NOTE: These fields previously existed on Creature
 	// but are now part of their own class.
 	// TODO: These should be factored out when possible,
-	// as their use consistutes a Demeter violation.
+	// as their use constistutes a Demeter violation.
 	get grp() {
 		return this.creatureSprite.grp;
 	}
