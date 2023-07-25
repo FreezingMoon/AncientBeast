@@ -169,7 +169,7 @@ export class Animations {
 				// Sound Effect
 				game.soundsys.playSFX('sounds/step');
 
-				// position
+				// Position
 				creatureSprite.setHex(currentHex);
 
 				this.enterHex(creature, hex, opts);
