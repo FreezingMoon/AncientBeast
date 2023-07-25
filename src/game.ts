@@ -894,8 +894,8 @@ export default class Game {
 	 * End turn for the current unit
 	 */
 	skipTurn(o?) {
-		// NOTE: If skipping a turn and there is a temp creature, remove it.
-		this.creatures = this.creatures.filter((c) => !c.temp);
+		// NOTE: If skipping a turn and there is a temp creature, destroy it.
+		this.creatures.filter((c) => c.temp).forEach((c) => c.destroy());
 
 		// Send skip turn to server
 
