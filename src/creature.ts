@@ -423,11 +423,11 @@ export class Creature {
 	}
 
 	healthHide() {
-		this.creatureSprite.showHealth(true);
+		this.creatureSprite.showHealth(false);
 	}
 
 	healthShow() {
-		this.creatureSprite.showHealth(false);
+		this.creatureSprite.showHealth(true);
 	}
 
 	/* activate()
@@ -2161,7 +2161,7 @@ class CreatureSprite {
 		);
 		healthIndicatorText.anchor.setTo(0.5, 0.5);
 		healthIndicatorGroup.add(healthIndicatorText);
-		healthIndicatorGroup.alpha = 0;
+		healthIndicatorGroup.visible = false;
 
 		this._group = group;
 		this._sprite = sprite;
