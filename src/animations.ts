@@ -64,18 +64,13 @@ export class Animations {
 
 			const nextPos = game.grid.hexes[hex.y][hex.x - creature.size + 1];
 
-			const tween = game.Phaser.add
-				.tween(creature.grp)
-				.to(nextPos.displayPos, speed, Phaser.Easing.Linear.None)
-				.start();
-
 			// Ignore traps for hover creatures, unless this is the last hex
 			const enterHexOpts = {
 				ignoreTraps: creature.movementType() !== 'normal' && hexId < path.length - 1,
 				...opts,
 			};
 
-			tween.onComplete.add(() => {
+			creature.creatureSprite.setHex(nextPos, speed).then(() => {
 				if (creature.dead) {
 					// Stop moving if creature has died while moving
 					this.movementComplete(creature, hex, animId, opts);
@@ -128,14 +123,9 @@ export class Animations {
 
 		this.leaveHex(creature, currentHex, opts);
 
-		const speed = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
+		const durationMS = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
 
-		const tween = game.Phaser.add
-			.tween(creature.grp)
-			.to(currentHex.displayPos, speed, Phaser.Easing.Linear.None)
-			.start();
-
-		tween.onComplete.add(() => {
+		creature.creatureSprite.setHex(currentHex, durationMS).then(() => {
 			// Sound Effect
 			game.soundsys.playSFX('sounds/step');
 
@@ -173,42 +163,20 @@ export class Animations {
 		const animId = Math.random();
 		game.animationQueue.push(animId);
 
-		// FadeOut
-		const tween = game.Phaser.add
-			.tween(creature.grp)
-			.to(
-				{
-					alpha: 0,
-				},
-				500,
-				Phaser.Easing.Linear.None,
-			)
-			.start();
+		creature.creatureSprite
+			.setAlpha(0, 500)
+			.then((creatureSprite) => {
+				// Sound Effect
+				game.soundsys.playSFX('sounds/step');
 
-		tween.onComplete.add(() => {
-			// Sound Effect
-			game.soundsys.playSFX('sounds/step');
+				// position
+				creatureSprite.setHex(currentHex);
 
-			// position
-			creature.grp.x = currentHex.displayPos.x;
-			creature.grp.y = currentHex.displayPos.y;
-
-			// FadeIn
-			game.Phaser.add
-				.tween(creature.grp)
-				.to(
-					{
-						alpha: 1,
-					},
-					500,
-					Phaser.Easing.Linear.None,
-				)
-				.start();
-
-			this.enterHex(creature, hex, opts);
-			this.movementComplete(creature, hex, animId, opts);
-			return;
-		});
+				this.enterHex(creature, hex, opts);
+				this.movementComplete(creature, hex, animId, opts);
+				return creatureSprite;
+			})
+			.then((creatureSprite) => creatureSprite.setAlpha(1, 500));
 	}
 
 	push(creature: Creature, path: Hex[], opts: AnimationOptions) {
