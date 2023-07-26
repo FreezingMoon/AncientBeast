@@ -22,10 +22,8 @@ export class ProgressBar {
 		this.setSize(1);
 	}
 
-	/* setSize
-	 *
-	 * percentage :	Float :	Size between 0 and 1
-	 *
+	/**
+	 * @param{number} percentage - Size between 0 and 1
 	 */
 	setSize(percentage) {
 		this.$bar.css({
@@ -43,10 +41,8 @@ export class ProgressBar {
 		});
 	}
 
-	/* animSize
-	 *
-	 * percentage :	Float :	size between 0 and 1
-	 *
+	/**
+	 * @param{number} percentage - size between 0 and 1
 	 */
 	animSize(percentage) {
 		this.$bar.transition(
@@ -72,10 +68,8 @@ export class ProgressBar {
 		);
 	}
 
-	/* previewSize
-	 *
-	 * percentage :	Float :	size between 0 and 1
-	 *
+	/**
+	 * @param{number} percentage - size between 0 and 1
 	 */
 	previewSize(percentage) {
 		this.$preview.css(

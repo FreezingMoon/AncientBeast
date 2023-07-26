@@ -41,13 +41,14 @@ export class Effect {
 	// Refactor to remove.
 	attacker: Creature | undefined = undefined;
 
-	/* Constructor(name, owner, target, trigger, optArgs)
-	 *
-	 * name: name of the effect
-	 * owner :	Creature : Creature that casted the effect
-	 * target :	Object : Creature or Hex : the object that possess the effect
-	 * trigger :	String : Event that trigger the effect
-	 * optArgs: dictionary of optional arguments
+	/**
+	 * @param{string} name - name of the effect
+	 * @param{EffectOwner} owner - Creature that created the effect
+	 * @param{EffectTarget} target - Creature or Hex : the object that possess the effect
+	 * @param{string} trigger - Event that trigger the effect
+	 * @param{EffectOptions} optArgs - dictionary of optional arguments
+	 * @param{Game} game
+	 * @constructor
 	 */
 	constructor(
 		name: string,

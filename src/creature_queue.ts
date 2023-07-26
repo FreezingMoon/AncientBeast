@@ -36,9 +36,4 @@ export class CreatureQueue {
 	getCurrentQueueLength() {
 		return this._getCreatures().filter((c) => c.isInCurrentQueue).length;
 	}
-
-	/**
-	 * @deprecated CreatureQueue is derived on the fly. No need to update.
-	 */
-	update() {}
 }

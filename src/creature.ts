@@ -111,11 +111,6 @@ export class Creature {
 	 *
 	 */
 
-	/* Constructor(obj)
-	 *
-	 * obj :			Object :	Object containing all creature stats
-	 *
-	 */
 	// Engine
 	game: Game;
 	name: string;
@@ -166,6 +161,11 @@ export class Creature {
 
 	creatureSprite: CreatureSprite;
 
+	/**
+	 * @constructor
+	 * @param{Object} obj - Object containing all creature stats
+	 * @param{Game} game - Game instance
+	 */
 	constructor(obj, game: Game) {
 		// Engine
 		this.game = game;
@@ -386,7 +386,6 @@ export class Creature {
 			this.materializationSickness = false;
 		}
 
-		game.queue.update();
 		game.updateQueueDisplay();
 
 		game.grid.orderCreatureZ();
@@ -430,10 +429,8 @@ export class Creature {
 		this.creatureSprite.showHealth(true);
 	}
 
-	/* activate()
-	 *
+	/**
 	 * Activate the creature by showing movement range and binding controls to this creature
-	 *
 	 */
 	activate() {
 		this.travelDist = 0;
@@ -608,8 +605,8 @@ export class Creature {
 		game.updateQueueDisplay();
 	}
 
-	/* queryMove()
-	 * launch move action query
+	/**
+	 * Launch move action query
 	 */
 	// TODO: type `args` in `QueryMoveOptions`
 	queryMove(options?: QueryMoveOptions) {
@@ -741,12 +738,9 @@ export class Creature {
 		}
 	}
 
-	/* previewPosition(hex)
-	 *
-	 * hex :		Hex :		Position
-	 *
+	/**
 	 * Preview the creature position at the given Hex
-	 *
+	 * @param{Hex} hex - Position
 	 */
 	previewPosition(hex: Hex) {
 		const game = this.game;
@@ -792,10 +786,8 @@ export class Creature {
 		}
 	}
 
-	/* cleanHex()
-	 *
+	/**
 	 * Clean current creature hexagons
-	 *
 	 */
 	cleanHex() {
 		this.hexagons.forEach((hex) => {
@@ -804,10 +796,8 @@ export class Creature {
 		this.hexagons = [];
 	}
 
-	/* updateHex()
-	 *
+	/**
 	 * Update the current hexes containing the creature and their display
-	 *
 	 */
 	updateHex() {
 		const count = this.size;
@@ -822,13 +812,10 @@ export class Creature {
 		});
 	}
 
-	/* faceHex(facefrom,faceto)
-	 *
-	 * facefrom :	Hex or Creature :	Hex to face from
-	 * faceto :	Hex or Creature :	Hex to face
-	 *
+	/**
 	 * Face creature at given hex
-	 *
+	 * @param{Hex | Creature} facefrom - Hex to face from
+	 * @param{Hex | Creature} faceto - Hex to face
 	 */
 	faceHex(
 		faceto: Hex | Creature,
@@ -895,10 +882,8 @@ export class Creature {
 			this.sprite.texture.width / 2;
 	}
 
-	/* facePlayerDefault()
-	 *
-	 * Face default direction
-	 *
+	/**
+	 * Make creature face the default direction of its player
 	 */
 	facePlayerDefault() {
 		if (this.player.flipped) {
@@ -913,13 +898,10 @@ export class Creature {
 			this.sprite.texture.width / 2;
 	}
 
-	/* moveTo(hex,opts)
-	 *
-	 * hex :		Hex :		Destination Hex
-	 * opts :		Object :	Optional args object
-	 *
+	/**
 	 * Move the creature along a calculated path to the given coordinates
-	 *
+	 * @param{Hex} hex - Destination Hex
+	 * @param{Object} opts - Optional args object
 	 */
 	moveTo(hex, opts) {
 		const game = this.game,
@@ -978,12 +960,8 @@ export class Creature {
 	}
 
 	/**
-	 * tracePath()
-	 *
-	 * @param{Point} destination: the end of the path.
-	 *
 	 * Trace the path from the current position to the given coordinates
-	 *
+	 * @param{Point} destination: the end of the path.
 	 */
 	tracePath(destination: Point) {
 		const path = this.calculatePath(destination); // Store path in grid to be able to compare it later
@@ -1045,12 +1023,8 @@ export class Creature {
 	}
 
 	/**
-	 * calculatePath(destination:Point)
-	 *
 	 * @param{Point} destination: the end of the path.
-	 *
-	 * return :	Array :	Array containing the path hexes
-	 *
+	 * @returns{Point[]} Array containing the path points.
 	 */
 	calculatePath(destination: Point) {
 		const game = this.game;
@@ -1064,15 +1038,11 @@ export class Creature {
 		); // Calculate path
 	}
 
-	/* calcOffset(x,y)
-	 *
-	 * x :		Integer :	Destination coordinates
-	 * y :		Integer :	Destination coordinates
-	 *
-	 * return :	Object :	New position taking into acount the size, orientation and obstacle {x,y}
-	 *
+	/**
 	 * Return the first possible position for the creature at the given coordinates
-	 *
+	 * @param{number} x - Integer, Destination coordinates
+	 * @param{number} y - Integer, Destination coordinates
+	 * @returns{Object} New position taking into acount the size, orientation and obstacle {x,y}
 	 */
 	calcOffset(x: number, y: number) {
 		const game = this.game,
@@ -1097,22 +1067,17 @@ export class Creature {
 		};
 	}
 
-	/* getInitiative()
-	 *
-	 * return :	Integer :	Initiative value to order the queue
-	 *
+	/**
+	 * @returns{number} Initiative value to order the queue
 	 */
 	getInitiative(): number {
 		// To avoid 2 identical initiative
 		return this.stats.initiative * 500 - this.id;
 	}
 
-	/* adjacentHexes(dist)
-	 *
-	 * dist :		Integer :	Distance in hexagons
-	 *
-	 * return :	Array :		Array of adjacent hexagons
-	 *
+	/**
+	 * @param{number} dist - Integer, Distance in hexagons
+	 * @returns{Hex[]} Array of adjacent hexagons
 	 */
 	adjacentHexes(dist: number, clockwise?: boolean) {
 		const game = this.game;
@@ -1268,7 +1233,7 @@ export class Creature {
 		}
 	}
 
-	/** recharge
+	/**
 	 * @param {number} amount: amount of energy to restore
 	 * @return {void}
 	 * Restore energy up to the max limit
@@ -1284,7 +1249,6 @@ export class Creature {
 	/**
 	 * Restore endurance to a creature. Will be capped against the creature's maximum
 	 * endurance (this.stats.endurance).
-	 *
 	 * @param {*} amount Number of endurance points to restore.
 	 */
 	restoreEndurance(amount: number, log = true) {
@@ -1309,9 +1273,8 @@ export class Creature {
 		}
 	}
 
-	/* heal(amount)
-	 *
-	 * amount :	Damage :	Amount of health point to restore
+	/**
+	 * @param{number} amount - Amount of health point to restore
 	 */
 	heal(amount: number, isRegrowth: boolean, log = true) {
 		const game = this.game;
@@ -1359,11 +1322,9 @@ export class Creature {
 		game.onHeal(this, amount);
 	}
 
-	/* takeDamage(damage)
-	 *
-	 * damage :	Damage : 	Damage object
-	 *
-	 * return :	Object :	Contains damages dealt and if creature is killed or not
+	/**
+	 * @param{Damage} damage - Damage object
+	 * @returns{Object} Contains damages dealt and if creature is killed or not
 	 */
 	takeDamage(damage: Damage, o) {
 		const game = this.game;
@@ -1749,10 +1710,8 @@ export class Creature {
 		);
 	}
 
-	/* updateAlteration()
-	 *
+	/**
 	 * Update the stats taking into account the effects' alteration
-	 *
 	 */
 	updateAlteration() {
 		this.stats = { ...this.baseStats };
@@ -1798,12 +1757,9 @@ export class Creature {
 		this.remainingMove = Math.min(this.remainingMove, this.stats.movement);
 	}
 
-	/* die()
-	 *
-	 * kill animation. remove creature from queue and from hexes
-	 *
-	 * killer :	Creature :	Killer of this creature
-	 *
+	/**
+	 * Play kill animation. Remove creature from queue and from hexes.
+	 * @param{Creature | {player:Player}} killerCreature - Killer of this creature
 	 */
 	die(killerCreature: Creature | { player: Player }) {
 		const game = this.game;
@@ -1922,7 +1878,6 @@ export class Creature {
 
 		this.cleanHex();
 
-		game.queue.update();
 		game.updateQueueDisplay();
 		game.grid.updateDisplay();
 
@@ -1943,9 +1898,8 @@ export class Creature {
 		return this.stats.endurance === 1;
 	}
 
-	/* getHexMap()
-	 *
-	 * shortcut convenience function to grid.getHexMap
+	/**
+	 * Shortcut convenience function to grid.getHexMap
 	 */
 	getHexMap(map: AugmentedMatrix, invertFlipped: boolean) {
 		const x = (this.player.flipped ? !invertFlipped : invertFlipped)

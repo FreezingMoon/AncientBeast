@@ -264,16 +264,13 @@ export class Hex {
 		// No-op function.
 	}
 
-	/* adjacentHex(distance)
-	 *
-	 * distance : 	integer : 	Distance form the current hex
-	 *
-	 * return : 	Array : 	Array containing hexes
-	 *
+	/**
 	 * This function return an array containing all hexes of the grid
 	 * at the distance given of the current hex.
+	 * @param {number} distance - Integer distance form the current hex
+	 * @returns {Array} Array containing hexes
 	 */
-	adjacentHex(distance: number) {
+	adjacentHex(distance: number): Array<Hex> {
 		const adjHex = [];
 
 		for (let i = -distance; i <= distance; i++) {
@@ -310,9 +307,8 @@ export class Hex {
 		return adjHex;
 	}
 
-	/* ghostOverlap()
-	 *
-	 * add ghosted class to creature on hexes behind this hex
+	/**
+	 * Add ghosted class to creature on hexes behind this hex
 	 */
 	ghostOverlap() {
 		const grid = this.grid || this.game.grid;
@@ -359,14 +355,12 @@ export class Hex {
 		}
 	}
 
-	/* cleanPathAttr(includeG)
-	 *
-	 * includeG : 	Boolean : 	Set includeG to True if you change the start of the calculated path.
-	 *
+	/**
 	 * This function reset all the pathfinding attribute to
 	 * 0 to calculate new path to another hex.
+	 * @param{boolean} includeG - Set includeG to True if you change the start of the calculated path.
 	 */
-	cleanPathAttr(includeG) {
+	cleanPathAttr(includeG: boolean) {
 		this.f = 0;
 		this.g = includeG ? 0 : this.g;
 		this.h = 0;
@@ -374,7 +368,6 @@ export class Hex {
 	}
 
 	/**
-	 *
 	 * @param size Size of the creature.
 	 * @param id ID of the creature.
 	 * @param ignoreReachable Take into account the reachable property.
@@ -418,8 +411,7 @@ export class Hex {
 		return !blocked; // Its walkable if it's NOT blocked
 	}
 
-	/* overlayVisualState
-	 *
+	/**
 	 * Change the appearance of the overlay hex
 	 */
 	overlayVisualState(classes) {
@@ -438,8 +430,7 @@ export class Hex {
 		this.updateStyle();
 	}
 
-	/* cleanOverlayVisualState
-	 *
+	/**
 	 * Clear the appearance of the overlay hex
 	 */
 	cleanOverlayVisualState(classes = '') {
@@ -456,8 +447,7 @@ export class Hex {
 		this.updateStyle();
 	}
 
-	/* cleanDisplayVisualState
-	 *
+	/**
 	 * Clear the appearance of the display hex
 	 */
 	cleanDisplayVisualState(classes = '') {
@@ -475,8 +465,7 @@ export class Hex {
 		this.updateStyle();
 	}
 
-	/* setReachable()
-	 *
+	/**
 	 * Set Hex.reachable to True for this hex and change $display class
 	 */
 	setReachable() {
@@ -485,8 +474,7 @@ export class Hex {
 		this.updateStyle();
 	}
 
-	/* unsetReachable()
-	 *
+	/**
 	 * Set Hex.reachable to False for this hex and change $display class
 	 */
 	unsetReachable() {
@@ -582,14 +570,13 @@ export class Hex {
 		this.overlay.alpha = targetAlpha ? 1 : 0;
 	}
 
-	/** Add a trap to a hex.
+	/**
+	 * Add a trap to a hex.
 	 * @param {string} type - name of sprite to use; see Phaser.load.image usage
 	 * @param {array} effects - effects to activate when trap triggered
 	 * @param {Object} owner - owner of trap
 	 * @param {Object} opt - optional arguments merged into the Trap object
-	 *
 	 * @returns {Trap} trap
-	 *
 	 * Examples:
 	 * - turnLifetime
 	 * - fullTurnLifetime
@@ -606,7 +593,6 @@ export class Hex {
 	/**
 	 * @param trigger
 	 * @param target
-	 *
 	 * @deprecated: use PointFacade - e.g., getPointFacade().getTrapsAt(point).forEach(trap => trap.activate(trigger, target))
 	 */
 	activateTrap(trigger, target) {
@@ -614,9 +600,7 @@ export class Hex {
 	}
 
 	/**
-	 *
 	 * @returns void
-	 *
 	 * @deprecated Traps are no longer held in a Hex. user PointFacade - e.g., getPointFacade().getTrapsAt(point).forEach(trap => trap.destroy());
 	 */
 	destroyTrap() {
@@ -634,11 +618,8 @@ export class Hex {
 
 	/**
 	 * Override toJSON to avoid circular references when outputting to game log
-	 * Used by game log only
-	 *
-	 * @returns {Object} coordinates
-	 * @returns {number} coordinates.x
-	 * @returns {number} coordinates.y
+	 * Used by game log only.
+	 * @returns {{x:number, y:number}} x/y coordinates
 	 */
 	toJSON() {
 		return {
