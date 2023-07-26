@@ -4000,7 +4000,7 @@ export const unitData = [
 		id: 50,
 		name: 'Shadow Leech',
 		playable: false,
-		level: '1',
+		level: 1,
 		realm: 'W',
 		size: 1,
 		set: 'α',
