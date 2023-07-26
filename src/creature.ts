@@ -405,16 +405,8 @@ export class Creature {
 				.start();
 		}
 
-		game.Phaser.add
-			.tween(this.grp)
-			.to(
-				{
-					alpha: 1,
-				},
-				500,
-				Phaser.Easing.Linear.None,
-			)
-			.start();
+		const p: Phaser.Game = game.Phaser;
+		this.creatureSprite.setAlpha(1, 500);
 
 		// Reveal and position health indicator
 		this.updateHealth();
@@ -431,11 +423,11 @@ export class Creature {
 	}
 
 	healthHide() {
-		this.healthIndicatorGroup.alpha = 0;
+		this.creatureSprite.showHealth(false);
 	}
 
 	healthShow() {
-		this.healthIndicatorGroup.alpha = 1;
+		this.creatureSprite.showHealth(true);
 	}
 
 	/* activate()
@@ -1982,31 +1974,7 @@ export class Creature {
 
 	// Make units transparent
 	xray(enable: boolean) {
-		const game = this.game;
-
-		if (enable) {
-			game.Phaser.add
-				.tween(this.grp)
-				.to(
-					{
-						alpha: 0.5,
-					},
-					250,
-					Phaser.Easing.Linear.None,
-				)
-				.start();
-		} else {
-			game.Phaser.add
-				.tween(this.grp)
-				.to(
-					{
-						alpha: 1,
-					},
-					250,
-					Phaser.Easing.Linear.None,
-				)
-				.start();
-		}
+		this.creatureSprite.xray(enable);
 	}
 
 	pickupDrop() {
@@ -2133,9 +2101,12 @@ class CreatureSprite {
 	private _healthIndicatorSprite: Phaser.Sprite;
 	private _healthIndicatorText: Phaser.Text;
 	private _healthIndicatorTween: Phaser.Tween | null;
+
 	private _phaser: Phaser.Game;
 	private _frameInfo: { originX: number; originY: number };
 	private _creatureSize: number;
+
+	private _isXray = false;
 
 	constructor(creature: Creature) {
 		const { game, player, type, team, display, size, id, health } = creature;
@@ -2149,19 +2120,8 @@ class CreatureSprite {
 		const group: Phaser.Group = phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
 		group.alpha = 0;
 
-		let darkPriestColorOrEmpty = '';
-
-		if (type === '--') {
-			if (team === 0) {
-				darkPriestColorOrEmpty = 'red';
-			} else if (team === 1) {
-				darkPriestColorOrEmpty = 'blue';
-			} else if (team === 2) {
-				darkPriestColorOrEmpty = 'orange';
-			} else if (team === 3) {
-				darkPriestColorOrEmpty = 'green';
-			}
-		}
+		const isDarkPriest = type === '--';
+		const darkPriestColorOrEmpty = isDarkPriest ? creature.player.color : '';
 
 		// Adding sprite
 		const sprite = group.create(0, 0, creature.name + darkPriestColorOrEmpty + '_cardboard');
@@ -2201,7 +2161,7 @@ class CreatureSprite {
 		);
 		healthIndicatorText.anchor.setTo(0.5, 0.5);
 		healthIndicatorGroup.add(healthIndicatorText);
-		healthIndicatorGroup.alpha = 0;
+		healthIndicatorGroup.visible = false;
 
 		this._group = group;
 		this._sprite = sprite;
@@ -2243,33 +2203,43 @@ class CreatureSprite {
 		this._healthIndicatorTween = tw;
 	}
 
-	setAlpha(a: number, durationMS?: number) {
-		if (typeof durationMS === 'undefined' || durationMS === 0) {
-			this.grp.alpha = a;
-			return;
+	private _promisifyTween(
+		target: any,
+		tweenProperties: any,
+		durationMS = 1000,
+		easing = Phaser.Easing.Linear.None,
+	): Promise<CreatureSprite> {
+		const tween = this._phaser.add.tween(target).to(tweenProperties, durationMS, easing);
+		const promise: Promise<CreatureSprite> = new Promise((resolve) => {
+			tween.onComplete.add(() => resolve(this));
+		});
+		tween.start();
+		return promise;
+	}
+
+	setAlpha(a: number, durationMS = 0): Promise<CreatureSprite> {
+		if (durationMS === 0 || this._group.alpha === a) {
+			this._group.alpha = a;
+			return new Promise((resolve) => {
+				resolve(this);
+			});
 		}
-		this._phaser.add
-			.tween(this.grp)
-			.to(
-				{
-					alpha: 1,
-				},
-				durationMS,
-				Phaser.Easing.Linear.None,
-			)
-			.start();
+		return this._promisifyTween(this._group, { alpha: a }, durationMS);
 	}
 
-	setHex(h: Hex) {
-		this.setPx({ x: h.displayPos.x, y: h.displayPos.y });
+	setHex(h: Hex, durationMS = 0): Promise<CreatureSprite> {
+		return this.setPx(h.displayPos, durationMS);
 	}
 
-	setPx(xy: { x: number; y: number }) {
-		this.grp.position.set(xy.x, xy.y);
-	}
-
-	destroy() {
-		this.grp.parent.removeChild(this.grp);
+	setPx(pos: { x: number; y: number }, durationMS = 0): Promise<CreatureSprite> {
+		if (durationMS === 0) {
+			this._group.position.set(pos.x, pos.y);
+			return new Promise((resolve) => {
+				resolve(this);
+			});
+		} else {
+			return this._promisifyTween(this._group, pos, durationMS);
+		}
 	}
 
 	setDir(dir: 1 | -1) {
@@ -2285,5 +2255,26 @@ class CreatureSprite {
 		this._healthIndicatorSprite.x = dir === -1 ? 19 : 19 + HEX_WIDTH_PX * (this._creatureSize - 1);
 		this._healthIndicatorText.x =
 			dir === -1 ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
+	}
+
+	xray(enable: boolean) {
+		if (this._isXray === enable) return;
+		this._isXray = enable;
+		this._phaser.add
+			.tween(this._sprite)
+			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
+			.start();
+		this._phaser.add
+			.tween(this._healthIndicatorGroup)
+			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
+			.start();
+	}
+
+	showHealth(enable: boolean) {
+		this._healthIndicatorGroup.visible = enable;
+	}
+
+	destroy() {
+		this._group.parent.removeChild(this._group);
 	}
 }
