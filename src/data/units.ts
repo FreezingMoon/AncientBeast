@@ -1,3 +1,76 @@
+type Stats = {
+	health: number;
+	regrowth: number;
+	endurance: number;
+	energy: number;
+	meditation: number;
+	initiative: number;
+	offense: number;
+	defense: number;
+	movement: number;
+	pierce: number;
+	slash: number;
+	crush: number;
+	shock: number;
+	burn: number;
+	frost: number;
+	poison: number;
+	sonic: number;
+	mental: number;
+};
+
+type UnitDataStructure = readonly {
+	id: number;
+	name: string;
+	playable: boolean;
+	level: number | string;
+	realm: string;
+	size: number;
+	stats: Stats;
+	animation: { walk_speed: number };
+	type?: string;
+	drop?: { name: string } & Partial<Stats>;
+	movementType?: 'hover';
+	display?: { width: number; height: number; 'offset-x': number; 'offset-y': number };
+	set?: 'α' | 'β';
+
+	ability_info: readonly {
+		title: string;
+		desc: string;
+		info: string;
+		upgrade?: string;
+		affectedByMatSickness?: number;
+		details?: readonly string[];
+		effects?: readonly {
+			special?: string;
+			regrowth?: number;
+			offense?: number;
+			defense?: number;
+			frost?: number;
+		}[];
+		maxCharge?: number;
+		requirements?: { plasma: number; energy?: number };
+		damages?: {
+			special?: string;
+			shock?: number | string;
+			pure?: number | string;
+			pierce?: number;
+			slash?: number;
+			crush?: number;
+			burn?: number;
+			poison?: number;
+			frost?: number | string;
+			mental?: number;
+			sonic?: number;
+		};
+		bonus_damages?: { frost: number; pierce: number };
+		damages1?: { burn?: number; pierce?: number; poison?: number };
+		costs?: { plasma?: number | string; special?: string; energy?: number; movement?: string };
+		range?: { regular: number; upgraded: number; minimum?: number };
+		animation_data?: { duration: number; delay: number };
+	}[];
+}[];
+
 export const unitData = [
 	{
 		id: 0,
@@ -3927,7 +4000,7 @@ export const unitData = [
 		id: 50,
 		name: 'Shadow Leech',
 		playable: false,
-		level: '1',
+		level: 1,
 		realm: 'W',
 		size: 1,
 		set: 'α',
@@ -3996,4 +4069,4 @@ export const unitData = [
 			},
 		],
 	},
-] as const;
+] as const satisfies UnitDataStructure;
