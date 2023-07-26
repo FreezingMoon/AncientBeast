@@ -41,10 +41,9 @@ export class UI {
 	 *
 	 */
 
-	/* Constructor
-	 *
+	/**
 	 * Create attributes and default buttons
-	 *
+	 * @constructor
 	 */
 	constructor(game) {
 		this.game = game;
@@ -1182,11 +1181,9 @@ export class UI {
 		}
 	}
 
-	/* changePlayerTab(id)
-	 *
-	 * id :	Integer :	player id
-	 *
+	/**
 	 * Change to the specified player tab in the dash
+	 * @param{number} id - player id (integer)
 	 */
 	changePlayerTab(id) {
 		const game = this.game;
@@ -1459,12 +1456,10 @@ export class UI {
 		this.$scoreboard.addClass('hide');
 	}
 
-	/* toggleDash()
-	 *
+	/**
 	 * Show the dash and hide some buttons
-	 * Takes optional 'randomize' parameter to select a random creature from the grid.
+	 * @param{boolean} [randomize] - True selects a random creature from the grid.
 	 */
-
 	toggleDash(randomize) {
 		const game = this.game;
 
@@ -1717,8 +1712,7 @@ export class UI {
 
 		this.gridSelectPrevious();
 	}
-	/* changeAbilityButtons()
-	 *
+	/**
 	 * Change ability buttons and bind events
 	 */
 	changeAbilityButtons() {
@@ -1961,8 +1955,6 @@ export class UI {
 		}
 	}
 
-	/* updateTimer()
-	 */
 	updateTimer() {
 		const game = this.game,
 			date = new Date() - game.pauseTime;

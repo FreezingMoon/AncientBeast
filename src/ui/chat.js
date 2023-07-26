@@ -2,10 +2,9 @@ import * as $j from 'jquery';
 import * as str from '../utility/string';
 
 export class Chat {
-	/* Constructor
-	 *
+	/**
 	 * Chat/Log Functions
-	 *
+	 * @constructor
 	 */
 	constructor(game) {
 		this.game = game;
