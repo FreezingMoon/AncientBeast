@@ -386,7 +386,6 @@ export class Creature {
 			this.materializationSickness = false;
 		}
 
-		game.queue.update();
 		game.updateQueueDisplay();
 
 		game.grid.orderCreatureZ();
@@ -1922,7 +1921,6 @@ export class Creature {
 
 		this.cleanHex();
 
-		game.queue.update();
 		game.updateQueueDisplay();
 		game.grid.updateDisplay();
 
