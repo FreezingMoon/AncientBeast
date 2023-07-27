@@ -758,32 +758,11 @@ export class Creature {
 	}
 
 	startBounce() {
-		const bounceHeight = 10;
-		const duration = 350;
-
-		if (!this.healthIndicatorTween || !this.healthIndicatorTween.isRunning) {
-			const originalY = this.healthIndicatorGroup.y;
-			const targetY = originalY - bounceHeight;
-
-			this.healthIndicatorTween = this.game.Phaser.add
-				.tween(this.healthIndicatorGroup)
-				.to({ y: targetY }, duration, Phaser.Easing.Quadratic.InOut, true)
-				.yoyo(true)
-				.repeat(-1);
-		} else {
-			this.healthIndicatorTween.stop();
-			this.healthIndicatorTween = null;
-			this.game.Phaser.add
-				.tween(this.healthIndicatorGroup)
-				.to({ y: 0 }, duration, Phaser.Easing.Quadratic.InOut, true);
-		}
+		this.creatureSprite.setHealthBounce(true);
 	}
 
 	resetBounce() {
-		if (this.healthIndicatorTween && this.healthIndicatorTween.isRunning) {
-			this.healthIndicatorTween.stop();
-			this.healthIndicatorGroup.y = 0;
-		}
+		this.creatureSprite.setHealthBounce(false);
 	}
 
 	/**
@@ -2226,6 +2205,35 @@ class CreatureSprite {
 
 	showHealth(enable: boolean) {
 		this._healthIndicatorGroup.visible = enable;
+	}
+
+	setHealthBounce(enable: boolean) {
+		if (enable) {
+			const bounceHeight = 10;
+			const durationMS = 350;
+
+			if (!this._healthIndicatorTween || !this._healthIndicatorTween.isRunning) {
+				const originalY = this.healthIndicatorGroup.y;
+				const targetY = originalY - bounceHeight;
+
+				this._healthIndicatorTween = this._phaser.add
+					.tween(this._healthIndicatorGroup)
+					.to({ y: targetY }, durationMS, Phaser.Easing.Quadratic.InOut, true)
+					.yoyo(true)
+					.repeat(-1);
+			} else {
+				this._healthIndicatorTween.stop();
+				this._healthIndicatorTween = null;
+				this._phaser.add
+					.tween(this._healthIndicatorGroup)
+					.to({ y: 0 }, durationMS, Phaser.Easing.Quadratic.InOut, true);
+			}
+		} else {
+			if (this._healthIndicatorTween && this._healthIndicatorTween.isRunning) {
+				this._healthIndicatorTween.stop();
+				this._healthIndicatorGroup.y = 0;
+			}
+		}
 	}
 
 	destroy() {
