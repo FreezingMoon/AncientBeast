@@ -2213,7 +2213,7 @@ class CreatureSprite {
 			const durationMS = 350;
 
 			if (!this._healthIndicatorTween || !this._healthIndicatorTween.isRunning) {
-				const originalY = this.healthIndicatorGroup.y;
+				const originalY = this._healthIndicatorGroup.y;
 				const targetY = originalY - bounceHeight;
 
 				this._healthIndicatorTween = this._phaser.add
