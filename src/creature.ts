@@ -11,6 +11,8 @@ import { Player, PlayerID } from './player';
 import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 import { HEX_WIDTH_PX, offsetCoordsToPx } from './utility/const';
+import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
+import { UnitDisplayInfo, UnitSize } from './data/units';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -37,6 +39,8 @@ export type CreatureMasteries = {
 	sonic: number;
 	mental: number;
 };
+
+export type Movement = 'normal' | 'flying' | 'hover';
 
 type CreatureStats = CreatureVitals &
 	CreatureMasteries & {
@@ -68,8 +72,6 @@ type Status = {
 	cryostasis: boolean;
 	dizzy: boolean;
 };
-
-type Movement = 'normal' | 'flying';
 
 /**
  * Creature Class
@@ -113,17 +115,17 @@ export class Creature {
 
 	// Engine
 	game: Game;
-	name: string;
+	name: UnitName;
 	id: number;
 	x: number;
 	y: number;
-	pos: { x: number; y: number };
-	size: number;
-	type: string;
-	level: number;
-	realm: string;
+	pos: Point;
+	size: UnitSize;
+	type: CreatureType;
+	level: Level;
+	realm: Realm;
 	animation: { walk_speed: number };
-	display: object;
+	display: UnitDisplayInfo;
 	drop: DropDefinition;
 	_movementType: Movement;
 	temp: boolean;
@@ -166,7 +168,23 @@ export class Creature {
 	 * @param{Object} obj - Object containing all creature stats
 	 * @param{Game} game - Game instance
 	 */
-	constructor(obj, game: Game) {
+	constructor(
+		obj: Unit & {
+			// These properties are created by the `summon` method in `player.ts`
+			x: number;
+			y: number;
+			team: PlayerID;
+			temp: boolean;
+			// These are properties that might not exists on all creatures
+			type?: CreatureType;
+			drop?: DropDefinition;
+			display?: UnitDisplayInfo;
+			movementType?: Movement;
+			// This depends on player._summonCreaturesWithMaterializationSickness
+			materializationSickness?: boolean;
+		},
+		game: Game,
+	) {
 		// Engine
 		this.game = game;
 		this.name = obj.name;
@@ -177,9 +195,9 @@ export class Creature {
 			x: this.x,
 			y: this.y,
 		};
-		this.size = obj.size - 0;
+		this.size = obj.size;
 		this.type = obj.type;
-		this.level = obj.level - 0;
+		this.level = obj.level;
 		this.realm = obj.realm;
 		this.animation = obj.animation;
 		this.display = obj.display;

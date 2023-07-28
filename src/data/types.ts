@@ -30,3 +30,6 @@ export type Level = (typeof unitLevels)[number];
 
 // Create a union of valid creature `type`s
 export type CreatureType = ExtractValidCreatureTypes<UnitData>;
+
+// Extract each literal unit from `units.ts`
+export type Unit = UnitData[number];

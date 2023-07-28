@@ -19,13 +19,14 @@ import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
 import { sleep } from './utility/time';
 import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG, DEBUG_DISABLE_MUSIC } from './debug';
-import { configure as configurePointFacade } from './utility/pointfacade';
+import { Point, configure as configurePointFacade } from './utility/pointfacade';
 import { pretty as version } from './utility/version';
 import { Ability } from './ability';
 import { Effect } from './effect';
 import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
+import { CreatureType, Realm, UnitData } from './data/types';
 
 /* eslint-disable prefer-rest-params */
 
@@ -95,7 +96,7 @@ export default class Game {
 	pauseTime: number;
 	unitDrops: number;
 	minimumTurnBeforeFleeing: number;
-	availableCreatures: Creature[];
+	availableCreatures: CreatureType[];
 	animationQueue: (Animation | AnimationID)[];
 	checkTimeFrequency: number;
 	gamelog: GameLog;
@@ -107,7 +108,7 @@ export default class Game {
 	connect = null;
 	multiplayer: boolean;
 	matchInitialized: boolean;
-	realms: ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
+	realms: Realm[];
 	availableMusic = [];
 	inputMethod = 'Mouse';
 	firstKill: boolean;
@@ -182,7 +183,7 @@ export default class Game {
 		this.connect = null;
 		this.multiplayer = false;
 		this.matchInitialized = false;
-		this.realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
+		this.realms = ['-', 'A', 'E', 'G', 'L', 'P', 'S', 'W'];
 		this.availableMusic = [];
 		this.inputMethod = 'Mouse';
 
@@ -270,7 +271,7 @@ export default class Game {
 		this.signals = this.setupSignalChannels(signalChannels);
 	}
 
-	loadUnitData(data) {
+	loadUnitData(data: UnitData) {
 		const dpcolor = ['blue', 'orange', 'green', 'red'];
 
 		this.creatureData = data;
@@ -283,12 +284,13 @@ export default class Game {
 			let creatureId = creature.id,
 				realm = creature.realm,
 				level = creature.level,
-				type = realm.toUpperCase() + level,
+				type = (realm.toUpperCase() + level) as CreatureType,
 				name = creature.name,
 				count,
 				i;
 
-			creature.type = type;
+			// Create the `creature.type` property
+			creature['type'] = type;
 
 			// Load unit shouts
 			this.soundsys.loadSound('units/shouts/' + name);
@@ -547,7 +549,7 @@ export default class Game {
 			this.players.push(player);
 
 			// Initialize players' starting positions
-			let pos = {};
+			let pos: Point;
 
 			if (playerMode > 2) {
 				// If 4 players
@@ -1106,9 +1108,10 @@ export default class Game {
 	 *
 	 * type :	String :	Creature's type (ex: "--" for Dark Priest)
 	 *
-	 * Query the database for creature stats
+	 * Query the database for creature stats.
+	 * Additonaly, ensure that a `type` property exists on each creature.
 	 */
-	retrieveCreatureStats(type: string) {
+	retrieveCreatureStats(type: CreatureType) {
 		let totalCreatures = this.creatureData.length,
 			i: number;
 

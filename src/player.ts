@@ -3,6 +3,8 @@ import { getUrl } from './assets';
 import { Creature } from './creature';
 import Game from './game';
 import { AbilitySlot } from './ability';
+import { CreatureType } from './data/types';
+import { Point } from './utility/pointfacade';
 
 /**
  * Player Class
@@ -57,7 +59,7 @@ export class Player {
 	score: ScoreEvent[];
 	plasma: number;
 	flipped: boolean;
-	availableCreatures: Creature[];
+	availableCreatures: CreatureType[];
 	hasLost: boolean;
 	hasFled: boolean;
 	bonusTimePool: number;
@@ -139,24 +141,25 @@ export class Player {
 
 	/* summon(type, pos)
 	 *
-	 * type :	String :	Creature type (ex: "0" for Dark Priest and "G2" for Swampler)
+	 * type :	String :	Creature type (ex: "--" for Dark Priest and "G2" for Swampler)
 	 * pos :	Object :	Position {x,y}
 	 *
 	 */
-	summon(type, pos) {
+	summon(type: CreatureType, pos: Point) {
 		const game = this.game;
-		let data = game.retrieveCreatureStats(type);
+		const baseCreatureData = game.retrieveCreatureStats(type);
 
-		data = $j.extend(data, pos, {
+		// Create the full data for creature creation
+		const creatureData = $j.extend(baseCreatureData, pos, {
 			team: this.id,
 			temp: false,
-		}); // Create the full data for creature creation
+		});
 
-		if (data.name !== 'Dark Priest') {
-			game.soundsys.playShout(data.name);
+		if (creatureData.name !== 'Dark Priest') {
+			game.soundsys.playShout(creatureData.name);
 		}
 
-		const creature = new Creature(data, game);
+		const creature = new Creature(creatureData, game);
 
 		this.creatures.push(creature);
 		creature.summon(!this._summonCreaturesWithMaterializationSickness);
@@ -210,7 +213,7 @@ export class Player {
 					break;
 				case 'kill':
 					// Prevent issues with non-leveled creatures, e.g. Dark Priest
-					if (s.creature.level) {
+					if (s.creature.level && s.creature.level !== '-') {
 						points += s.creature.level * 5;
 					}
 					break;
@@ -233,7 +236,9 @@ export class Player {
 					points += 25;
 					break;
 				case 'creaturebonus':
-					points += s.creature.level * 5;
+					if (s.creature.level !== '-') {
+						points += s.creature.level * 5;
+					}
 					break;
 				case 'darkpriestbonus':
 					points += 50;
