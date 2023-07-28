@@ -1,3 +1,13 @@
+import { Movement } from '../creature';
+
+export type UnitSize = 1 | 2 | 3;
+export type UnitDisplayInfo = {
+	width: number;
+	height: number;
+	'offset-x': number;
+	'offset-y': number;
+};
+
 type Stats = {
 	health: number;
 	regrowth: number;
@@ -25,13 +35,13 @@ type UnitDataStructure = readonly {
 	playable: boolean;
 	level: number | string;
 	realm: string;
-	size: number;
+	size: UnitSize;
 	stats: Stats;
 	animation: { walk_speed: number };
 	type?: string;
 	drop?: { name: string } & Partial<Stats>;
-	movementType?: 'hover';
-	display?: { width: number; height: number; 'offset-x': number; 'offset-y': number };
+	movementType?: Movement;
+	display?: UnitDisplayInfo;
 	set?: 'α' | 'β';
 
 	ability_info: readonly {
