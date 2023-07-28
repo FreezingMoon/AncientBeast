@@ -2175,9 +2175,7 @@ class CreatureSprite {
 						.tween(hint)
 						.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
 						.start();
-					hint.data.tweenAlpha.onComplete.add(function (tween: any) {
-						tween.destroy;
-					}, hint);
+					hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 				}
 			},
 			this,
@@ -2204,9 +2202,7 @@ class CreatureSprite {
 				.to({ alpha: 1 }, tooltipDisplaySpeed, tooltipTransition)
 				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
 				.start();
-			hint.data.tweenAlpha.onComplete.add(function (tween: any) {
-				tween.destroy;
-			}, hint);
+			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 		}
 
 		this.hintGrp.add(hint);
