@@ -2258,3 +2258,11 @@ class CreatureSprite {
 		this._group.parent.removeChild(this._group);
 	}
 }
+
+export type CreatureHintType =
+	| 'confirm'
+	| 'damage'
+	| 'gamehintblack'
+	| 'healing'
+	| 'msg_effects'
+	| 'creature_name';
