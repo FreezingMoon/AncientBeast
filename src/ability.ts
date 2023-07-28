@@ -786,7 +786,7 @@ export class Ability {
 		$j.each(this.costs, (key: string, value: number) => {
 			if (typeof value == 'number') {
 				if (key == 'health') {
-					creature.hint(value.toString(), 'damage d' + value);
+					creature.hint(value.toString(), 'damage');
 					game.log('%CreatureName' + creature.id + '% loses ' + value + ' health');
 				} else if (key === 'energy') {
 					value += creature.stats.reqEnergy;
