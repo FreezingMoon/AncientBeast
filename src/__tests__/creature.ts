@@ -11,7 +11,9 @@ describe('Creature', () => {
 		beforeEach(() => (game = getGameMock()));
 
 		test('"materialized" creatures are automatically assigned separate ids', () => {
+			// @ts-ignore
 			const creature0 = new Creature(getCreatureObjMock(), game);
+			// @ts-ignore
 			const creature1 = new Creature(getCreatureObjMock(), game);
 			expect(creature0).toBeDefined();
 			expect(creature1).toBeDefined();
@@ -22,8 +24,10 @@ describe('Creature', () => {
 		test('a "materialized" (not temp) creature will reuse an existing, matching "unmaterialized" creature id', () => {
 			const obj = getCreatureObjMock();
 			obj.temp = true;
+			// @ts-ignore
 			const creatureTemp = new Creature(obj, game);
 			obj.temp = false;
+			// @ts-ignore
 			const creatureNotTemp = new Creature(obj, game);
 			expect(creatureTemp.id).toBe(creatureNotTemp.id);
 		});
