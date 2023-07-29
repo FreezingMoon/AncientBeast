@@ -390,6 +390,10 @@ export class Creature {
 		this.creatureSprite.healthIndicatorTween = tw;
 	}
 
+	get legacyProjectileEmissionPoint() {
+		return this.creatureSprite.legacyProjectileEmissionPoint;
+	}
+
 	/**
 	 * Summon animation.
 	 */
@@ -1982,6 +1986,13 @@ class CreatureSprite {
 	}
 	set healthIndicatorTween(tw: Phaser.Tween) {
 		this._healthIndicatorTween = tw;
+	}
+
+	// TODO: Refactor
+	// This currently has one user.
+	// Refactoring into some combination of left, right, top, bottom, centerX, centerY would be welcome.
+	get legacyProjectileEmissionPoint() {
+		return { x: this._group.x, y: this._group.y };
 	}
 
 	private _promisifyTween(
