@@ -371,24 +371,6 @@ export class Creature {
 	get sprite() {
 		return this.creatureSprite.sprite;
 	}
-	get hintGrp() {
-		return this.creatureSprite.hintGrp;
-	}
-	get healthIndicatorGroup() {
-		return this.creatureSprite.healthIndicatorGroup;
-	}
-	get healthIndicatorSprite() {
-		return this.creatureSprite.healthIndicatorSprite;
-	}
-	get healthIndicatorText() {
-		return this.creatureSprite.healthIndicatorText;
-	}
-	get healthIndicatorTween() {
-		return this.creatureSprite.healthIndicatorTween;
-	}
-	set healthIndicatorTween(tw: Phaser.Tween) {
-		this.creatureSprite.healthIndicatorTween = tw;
-	}
 
 	get legacyProjectileEmissionPoint() {
 		return this.creatureSprite.legacyProjectileEmissionPoint;
@@ -1964,24 +1946,6 @@ class CreatureSprite {
 	get sprite() {
 		return this._sprite;
 	}
-	get hintGrp() {
-		return this._hintGrp;
-	}
-	get healthIndicatorGroup() {
-		return this._healthIndicatorGroup;
-	}
-	get healthIndicatorSprite() {
-		return this._healthIndicatorSprite;
-	}
-	get healthIndicatorText() {
-		return this._healthIndicatorText;
-	}
-	get healthIndicatorTween() {
-		return this._healthIndicatorTween;
-	}
-	set healthIndicatorTween(tw: Phaser.Tween) {
-		this._healthIndicatorTween = tw;
-	}
 
 	// TODO: Refactor
 	// This currently has one user.
@@ -2139,7 +2103,7 @@ class CreatureSprite {
 		};
 
 		// Remove constant element
-		this.hintGrp.forEach(
+		this._hintGrp.forEach(
 			(hint: Phaser.Text) => {
 				if (hint.data.hintType === 'confirm') {
 					hint.data.hintType = 'confirm_deleted';
@@ -2177,12 +2141,12 @@ class CreatureSprite {
 			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 		}
 
-		this.hintGrp.add(hint);
+		this._hintGrp.add(hint);
 
 		// Stacking
-		this.hintGrp.forEach(
+		this._hintGrp.forEach(
 			(hint: Phaser.Text) => {
-				const index = this.hintGrp.total - this.hintGrp.getIndex(hint) - 1;
+				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 				const offset = -50 * index;
 
 				if (hint.data.tweenPos) {
