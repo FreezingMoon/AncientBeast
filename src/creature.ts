@@ -1699,33 +1699,7 @@ export class Creature {
 		}
 
 		// Kill animation
-		const tweenSprite = game.Phaser.add
-			.tween(this.sprite)
-			.to(
-				{
-					alpha: 0,
-				},
-				500,
-				Phaser.Easing.Linear.None,
-			)
-			.start();
-		const tweenHealth = game.Phaser.add
-			.tween(this.healthIndicatorGroup)
-			.to(
-				{
-					alpha: 0,
-				},
-				500,
-				Phaser.Easing.Linear.None,
-			)
-			.start();
-		tweenSprite.onComplete.add(() => {
-			this.destroy();
-		});
-		tweenHealth.onComplete.add(() => {
-			this.healthIndicatorGroup.destroy();
-		});
-
+		this.creatureSprite.setAlpha(0, 500).then(() => this.destroy());
 		this.cleanHex();
 
 		game.updateQueueDisplay();
