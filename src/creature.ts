@@ -838,34 +838,14 @@ export class Creature {
 		}
 
 		const flipped = facefrom.y % 2 === 0 ? faceto.x <= facefrom.x : faceto.x < facefrom.x;
-
-		// TODO: Use CreatureSprite.setDir()
-		if (flipped) {
-			this.sprite.scale.setTo(-1, 1);
-		} else {
-			this.sprite.scale.setTo(1, 1);
-		}
-		this.sprite.x =
-			(!flipped
-				? this.display['offset-x']
-				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
-			this.sprite.texture.width / 2;
+		this.creatureSprite.setDir(flipped ? -1 : 1);
 	}
 
 	/**
 	 * Make creature face the default direction of its player
 	 */
 	facePlayerDefault() {
-		if (this.player.flipped) {
-			this.sprite.scale.setTo(-1, 1);
-		} else {
-			this.sprite.scale.setTo(1, 1);
-		}
-		this.sprite.x =
-			(!this.player.flipped
-				? this.display['offset-x']
-				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
-			this.sprite.texture.width / 2;
+		this.creatureSprite.setDir(this.player.flipped ? -1 : 1);
 	}
 
 	/**
