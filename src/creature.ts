@@ -407,20 +407,7 @@ export class Creature {
 		game.updateQueueDisplay();
 
 		game.grid.orderCreatureZ();
-
-		if (game.grid.materialize_overlay) {
-			game.grid.materialize_overlay.alpha = 0.5;
-			game.Phaser.add
-				.tween(game.grid.materialize_overlay)
-				.to(
-					{
-						alpha: 0,
-					},
-					500,
-					Phaser.Easing.Linear.None,
-				)
-				.start();
-		}
+		game.grid.fadeOutTempCreature();
 
 		const p: Phaser.Game = game.Phaser;
 		this.creatureSprite.setAlpha(1, 500);
