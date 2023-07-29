@@ -395,7 +395,6 @@ export class Creature {
 		game.grid.orderCreatureZ();
 		game.grid.fadeOutTempCreature();
 
-		const p: Phaser.Game = game.Phaser;
 		this.creatureSprite.setAlpha(1, 500);
 
 		// Reveal and position health indicator
