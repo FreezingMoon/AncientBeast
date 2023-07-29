@@ -1467,18 +1467,11 @@ export class Creature {
 	}
 
 	displayHealthStats() {
-		if (this.isFrozen()) {
-			this.healthIndicatorSprite.loadTexture('p' + this.team + '_frozen');
-		} else {
-			this.healthIndicatorSprite.loadTexture('p' + this.team + '_health');
-		}
-
-		this.healthIndicatorText.setText(this.health + '');
+		this.creatureSprite.setHealth(this.health, this.isFrozen() ? 'frozen' : 'health');
 	}
 
 	displayPlasmaShield() {
-		this.healthIndicatorSprite.loadTexture('p' + this.team + '_plasma');
-		this.healthIndicatorText.setText(this.player.plasma.toString());
+		this.creatureSprite.setHealth(this.player.plasma, 'plasma');
 	}
 
 	hasCreaturePlayerGotPlasma() {
@@ -1888,6 +1881,7 @@ class CreatureSprite {
 	private _phaser: Phaser.Game;
 	private _frameInfo: { originX: number; originY: number };
 	private _creatureSize: number;
+	private _creatureTeam: PlayerID;
 
 	private _isXray = false;
 
@@ -1898,6 +1892,7 @@ class CreatureSprite {
 
 		this._phaser = phaser;
 		this._creatureSize = size;
+		this._creatureTeam = team;
 		this._frameInfo = { originX: display['offset-x'], originY: display['offset-y'] };
 
 		const group: Phaser.Group = phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
@@ -2062,6 +2057,11 @@ class CreatureSprite {
 			.start();
 	}
 
+	setHealth(number: number, type: HealthBubbleType) {
+		this._healthIndicatorText.setText(number + '');
+		this._healthIndicatorSprite.loadTexture(`p${this._creatureTeam}_${type}`);
+	}
+
 	showHealth(enable: boolean) {
 		this._healthIndicatorGroup.visible = enable;
 	}
@@ -2211,3 +2211,5 @@ export type CreatureHintType =
 	| 'healing'
 	| 'msg_effects'
 	| 'creature_name';
+
+type HealthBubbleType = 'plasma' | 'frozen' | 'health';
