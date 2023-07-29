@@ -1289,9 +1289,9 @@ export class Creature {
 
 		if (amount > 0) {
 			if (isRegrowth) {
-				this.hint('+' + amount + ' ♥', 'healing d' + amount);
+				this.hint('+' + amount + ' ♥', 'healing');
 			} else {
-				this.hint('+' + amount, 'healing d' + amount);
+				this.hint('+' + amount, 'healing');
 			}
 
 			if (log) {
@@ -1305,9 +1305,9 @@ export class Creature {
 			}
 		} else {
 			if (isRegrowth) {
-				this.hint(amount + ' ♠', 'damage d' + amount);
+				this.hint(amount + ' ♠', 'damage');
 			} else {
-				this.hint(amount + '', 'damage d ' + amount);
+				this.hint(amount + '', 'damage');
 			}
 
 			if (log) {
@@ -1376,7 +1376,7 @@ export class Creature {
 
 			// Display
 			const nbrDisplayed = dmgAmount ? '-' + dmgAmount : 0;
-			this.hint(nbrDisplayed + '', 'damage d' + dmgAmount);
+			this.hint(nbrDisplayed + '', 'damage');
 
 			if (!damage.noLog) {
 				game.log('%CreatureName' + this.id + '% is hit : ' + nbrDisplayed + ' health');
@@ -1447,7 +1447,7 @@ export class Creature {
 			}
 
 			// Hint
-			this.hint(damage.status, 'damage ' + damage.status.toLowerCase());
+			this.hint(damage.status, 'damage');
 		}
 
 		return {
@@ -1569,142 +1569,8 @@ export class Creature {
 		}
 	}
 
-	hint(text: string, cssClass: string) {
-		if (typeof Phaser === 'undefined') return;
-		const game = this.game,
-			tooltipSpeed = 250,
-			tooltipDisplaySpeed = 500,
-			tooltipTransition = Phaser.Easing.Linear.None;
-
-		const hintColor = {
-			confirm: {
-				fill: '#ffffff',
-				stroke: '#000000',
-			},
-			gamehintblack: {
-				fill: '#ffffff',
-				stroke: '#000000',
-			},
-			healing: {
-				fill: '#00ff00',
-			},
-			msg_effects: {
-				fill: '#ffff00',
-			},
-			creature_name: {
-				fill: '#ffffff',
-				stroke: '#AAAAAA',
-			},
-		};
-
-		const style = $j.extend(
-			{
-				font: 'bold 20pt Play',
-				fill: '#ff0000',
-				align: 'center',
-				stroke: '#000000',
-				strokeThickness: 2,
-			},
-			hintColor[cssClass],
-		);
-
-		// Remove constant element
-		this.hintGrp.forEach(
-			(grpHintElem) => {
-				if (grpHintElem.cssClass == 'confirm') {
-					grpHintElem.cssClass = 'confirm_deleted';
-					grpHintElem.tweenAlpha = game.Phaser.add
-						.tween(grpHintElem)
-						.to(
-							{
-								alpha: 0,
-							},
-							tooltipSpeed,
-							tooltipTransition,
-						)
-						.start();
-					grpHintElem.tweenAlpha.onComplete.add(function (tween: any) {
-						tween.destroy;
-					}, grpHintElem);
-				}
-			},
-			this,
-			true,
-		);
-
-		const hint = game.Phaser.add.text(0, 50, text, style);
-		hint.anchor.setTo(0.5, 0.5);
-
-		hint.alpha = 0;
-		hint.cssClass = cssClass;
-
-		if (cssClass === 'confirm') {
-			hint.tweenAlpha = game.Phaser.add
-				.tween(hint)
-				.to(
-					{
-						alpha: 1,
-					},
-					tooltipSpeed,
-					tooltipTransition,
-				)
-				.start();
-		} else {
-			hint.tweenAlpha = game.Phaser.add
-				.tween(hint)
-				.to(
-					{
-						alpha: 1,
-					},
-					tooltipSpeed,
-					tooltipTransition,
-				)
-				.to(
-					{
-						alpha: 1,
-					},
-					tooltipDisplaySpeed,
-					tooltipTransition,
-				)
-				.to(
-					{
-						alpha: 0,
-					},
-					tooltipSpeed,
-					tooltipTransition,
-				)
-				.start();
-			hint.tweenAlpha.onComplete.add(function (tween: any) {
-				tween.destroy;
-			}, hint);
-		}
-
-		this.hintGrp.add(hint);
-
-		// Stacking
-		this.hintGrp.forEach(
-			(grpHintElem) => {
-				const index = this.hintGrp.total - this.hintGrp.getIndex(grpHintElem) - 1;
-				const offset = -50 * index;
-
-				if (grpHintElem.tweenPos) {
-					grpHintElem.tweenPos.stop();
-				}
-
-				grpHintElem.tweenPos = game.Phaser.add
-					.tween(grpHintElem)
-					.to(
-						{
-							y: offset,
-						},
-						tooltipSpeed,
-						tooltipTransition,
-					)
-					.start();
-			},
-			this,
-			true,
-		);
+	hint(text: string, hintType: CreatureHintType) {
+		this.creatureSprite.hint(text, hintType);
 	}
 
 	/**
@@ -2048,6 +1914,7 @@ class CreatureSprite {
 	private _group: Phaser.Group;
 	private _sprite: Phaser.Sprite;
 	private _hintGrp: Phaser.Group;
+
 	private _healthIndicatorGroup: Phaser.Group;
 	private _healthIndicatorSprite: Phaser.Sprite;
 	private _healthIndicatorText: Phaser.Text;
@@ -2116,7 +1983,9 @@ class CreatureSprite {
 
 		this._group = group;
 		this._sprite = sprite;
+
 		this._hintGrp = hintGrp;
+
 		this._healthIndicatorGroup = healthIndicatorGroup;
 		this._healthIndicatorSprite = healthIndicatorSprite;
 		this._healthIndicatorText = healthIndicatorText;
@@ -2254,7 +2123,119 @@ class CreatureSprite {
 		}
 	}
 
+	hint(text: string, hintType: CreatureHintType) {
+		const tooltipSpeed = 250;
+		const tooltipDisplaySpeed = 500;
+		const tooltipTransition = Phaser.Easing.Linear.None;
+
+		const hintColor: Record<CreatureHintType, { fill: string; stroke: string }> = {
+			damage: {
+				fill: '#ff0000',
+				stroke: '#000000',
+			},
+			confirm: {
+				fill: '#ffffff',
+				stroke: '#000000',
+			},
+			gamehintblack: {
+				fill: '#ffffff',
+				stroke: '#000000',
+			},
+			healing: {
+				fill: '#00ff00',
+				stroke: '#000000',
+			},
+			msg_effects: {
+				fill: '#ffff00',
+				stroke: '#000000',
+			},
+			creature_name: {
+				fill: '#ffffff',
+				stroke: '#AAAAAA',
+			},
+		};
+
+		const style = {
+			...{
+				font: 'bold 20pt Play',
+				fill: '#ff0000',
+				align: 'center',
+				stroke: '#000000',
+				strokeThickness: 2,
+			},
+			...(hintColor.hasOwnProperty(hintType) ? hintColor[hintType] : {}),
+		};
+
+		// Remove constant element
+		this.hintGrp.forEach(
+			(hint: Phaser.Text) => {
+				if (hint.data.hintType === 'confirm') {
+					hint.data.hintType = 'confirm_deleted';
+					hint.data.tweenAlpha = this._phaser.add
+						.tween(hint)
+						.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
+						.start();
+					hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
+				}
+			},
+			this,
+			true,
+		);
+
+		const hint = this._phaser.add.text(0, 50, text, style);
+		hint.anchor.setTo(0.5, 0.5);
+
+		hint.alpha = 0;
+		hint.data.hintType = hintType;
+		hint.data.tweenAlpha = null;
+		hint.data.tweenPos = null;
+
+		if (hintType === 'confirm') {
+			hint.data.tweenAlpha = this._phaser.add
+				.tween(hint)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.start();
+		} else {
+			hint.data.tweenAlpha = this._phaser.add
+				.tween(hint)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.to({ alpha: 1 }, tooltipDisplaySpeed, tooltipTransition)
+				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
+				.start();
+			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
+		}
+
+		this.hintGrp.add(hint);
+
+		// Stacking
+		this.hintGrp.forEach(
+			(hint: Phaser.Text) => {
+				const index = this.hintGrp.total - this.hintGrp.getIndex(hint) - 1;
+				const offset = -50 * index;
+
+				if (hint.data.tweenPos) {
+					hint.data.tweenPos.stop();
+				}
+
+				hint.data.tweenPos = this._phaser.add
+					.tween(hint)
+					.to({ y: offset }, tooltipSpeed, tooltipTransition)
+					.start();
+			},
+			this,
+			true,
+		);
+	}
+
 	destroy() {
 		this._group.parent.removeChild(this._group);
 	}
 }
+
+export type CreatureHintType =
+	| 'confirm'
+	| 'damage'
+	| 'gamehintblack'
+	| 'healing'
+	| 'msg_effects'
+	| 'creature_name';

@@ -381,7 +381,7 @@ export default (G) => {
 								ability.isUpgraded() ? 'enters Cryostasis' : 'has been Frozen'
 							} and cannot act`,
 						);
-						target.hint(ability.isUpgraded() ? 'Cryostasis' : 'Frozen');
+						target.hint(ability.isUpgraded() ? 'Cryostasis' : 'Frozen', 'damage');
 					}
 				}, sprite); // End tween.onComplete
 			},

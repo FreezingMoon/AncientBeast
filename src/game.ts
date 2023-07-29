@@ -9,7 +9,7 @@ import { HexGrid } from './utility/hexgrid';
 import { getUrl, use as assetsUse } from './assets';
 import { Player, PlayerColor } from './player';
 import { UI } from './ui/interface';
-import { Creature } from './creature';
+import { Creature, CreatureHintType } from './creature';
 import { unitData } from './data/units';
 import 'pixi';
 import 'p2';
@@ -1015,7 +1015,7 @@ export default class Game {
 		let date = new Date().valueOf() - this.pauseTime,
 			p = this.activeCreature.player,
 			alertTime = 5, // In seconds
-			msgStyle = 'msg_effects',
+			msgStyle: CreatureHintType = 'msg_effects',
 			totalPlayers = this.playerMode,
 			i;
 
