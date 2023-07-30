@@ -1468,6 +1468,7 @@ export class UI {
 			return;
 		}
 
+		game.signals.ui.dispatch('onOpenDash');
 		if (randomize && !this.lastViewedCreature) {
 			// Optional: select a random creature from the grid
 			this.showRandomCreature();
