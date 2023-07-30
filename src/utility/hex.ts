@@ -586,7 +586,7 @@ export class Hex {
 	 *
 	 * @deprecated Use new Trap(x, y, type, effects, own, opt, game)
 	 */
-	createTrap(type, effects, owner, opt): Trap {
+	createTrap(type, effects, owner, opt?): Trap {
 		return new Trap(this.x, this.y, type, effects, owner, opt, this.game);
 	}
 
