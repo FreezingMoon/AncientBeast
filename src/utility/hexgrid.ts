@@ -98,8 +98,6 @@ export class HexGrid {
 	 */
 	hexes: Hex[][];
 
-	allhexes: Hex[];
-
 	/**
 	 * Last hex clicked!
 	 */
@@ -125,6 +123,10 @@ export class HexGrid {
 	materialize_overlay: any;
 	lastQueryOpt: any;
 
+	get allhexes(): Hex[] {
+		return this.hexes.flat(1);
+	}
+
 	/* Constructor
 	 *
 	 * Create attributes and populate JS grid with Hex objects
@@ -140,7 +142,6 @@ export class HexGrid {
 
 		this.game = game;
 		this.hexes = []; // Hex Array
-		this.allhexes = []; // All hexes
 		this.lastClickedHex = undefined;
 
 		this.display = game.Phaser.add.group(undefined, 'displayGroup');
@@ -171,7 +172,6 @@ export class HexGrid {
 				}
 
 				this.hexes[row][hex] = new Hex(hex, row, this);
-				this.allhexes.push(this.hexes[row][hex]);
 			}
 		}
 

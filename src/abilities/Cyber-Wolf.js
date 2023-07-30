@@ -334,7 +334,7 @@ export default (G) => {
 				const ability = this;
 				const crea = this.creature;
 
-				const hexes = G.grid.allhexes.slice(0); // Copy array
+				const hexes = G.grid.allhexes;
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
