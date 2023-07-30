@@ -9,6 +9,12 @@ import Game from '../game';
 import { DEBUG } from '../debug';
 import { HEX_WIDTH_PX } from './const';
 
+interface GridDefinition {
+	numRows: number;
+	numCols: number;
+	isFirstRowFull: boolean;
+}
+
 interface QueryOptions {
 	/**
 	 * Target team.
@@ -129,16 +135,31 @@ export class HexGrid {
 
 	/**
 	 * Create attributes and populate JS grid with Hex objects
+	 * @param {Partial<GridDefinition>} gridDefinition - specifies a number of columns in the grid.
+	 * The resulting grid has jagged, symmetrical edges.
+	 * Only "full" rows have the specified number of columns.
+	 * @param {Game} game
+	 * @example
+	 * // {numRows:5, numCols:4, isFirstRowFull: true}
+	 * //
+	 * // x x x x - full row
+	 * //  x x x  - partial row
+	 * // x x x x - full row
+	 * //  x x x  - partial row
+	 * // x x x x - full row
 	 * @constructor
 	 */
-	constructor(opts, game: Game) {
-		const defaultOpt = {
-			nbrRow: 9,
-			nbrhexesPerRow: 16,
-			firstRowFull: false,
+	constructor(gridDefinition: Partial<GridDefinition>, game: Game) {
+		const defaultGridDefinition = {
+			numRows: 9,
+			numCols: 16,
+			isFirstRowFull: false,
 		};
 
-		opts = { ...defaultOpt, ...opts };
+		gridDefinition = { ...defaultGridDefinition, ...gridDefinition };
+		const numRows = gridDefinition.numRows;
+		const numCols = gridDefinition.numCols;
+		const isFirstRowFull = gridDefinition.isFirstRowFull;
 
 		this.game = game;
 		this.hexes = []; // Hex Array
@@ -162,11 +183,11 @@ export class HexGrid {
 		this.trapOverGroup.scale.set(1, 0.75);
 
 		// Populate grid
-		for (let row = 0; row < opts.nbrRow; row++) {
+		for (let row = 0; row < numRows; row++) {
 			this.hexes.push([]);
-			for (let hex = 0, len = opts.nbrhexesPerRow; hex < len; hex++) {
-				if (hex == opts.nbrhexesPerRow - 1) {
-					if ((row % 2 == 0 && !opts.firstRowFull) || (row % 2 == 1 && opts.firstRowFull)) {
+			for (let hex = 0, len = numCols; hex < len; hex++) {
+				if (hex == numCols - 1) {
+					if ((row % 2 == 0 && !isFirstRowFull) || (row % 2 == 1 && isFirstRowFull)) {
 						continue;
 					}
 				}
