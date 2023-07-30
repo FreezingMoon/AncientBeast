@@ -318,14 +318,14 @@ export class Hex {
 			if (this.y % 2 == 0) {
 				if (i == 1) {
 					for (let j = 0; j <= 1; j++) {
-						if (grid.hexExists(this.y + i, this.x + j)) {
+						if (grid.hexExists({ y: this.y + i, x: this.x + j })) {
 							if (grid.hexes[this.y + i][this.x + j].creature instanceof Creature) {
 								ghostedCreature = grid.hexes[this.y + i][this.x + j].creature;
 							}
 						}
 					}
 				} else {
-					if (grid.hexExists(this.y + i, this.x)) {
+					if (grid.hexExists({ y: this.y + i, x: this.x })) {
 						if (grid.hexes[this.y + i][this.x].creature instanceof Creature) {
 							ghostedCreature = grid.hexes[this.y + i][this.x].creature;
 						}
@@ -334,14 +334,14 @@ export class Hex {
 			} else {
 				if (i == 1) {
 					for (let j = 0; j <= 1; j++) {
-						if (grid.hexExists(this.y + i, this.x - j)) {
+						if (grid.hexExists({ y: this.y + i, x: this.x - j })) {
 							if (grid.hexes[this.y + i][this.x - j].creature instanceof Creature) {
 								ghostedCreature = grid.hexes[this.y + i][this.x - j].creature;
 							}
 						}
 					}
 				} else {
-					if (grid.hexExists(this.y + i, this.x)) {
+					if (grid.hexExists({ y: this.y + i, x: this.x })) {
 						if (grid.hexes[this.y + i][this.x].creature instanceof Creature) {
 							ghostedCreature = grid.hexes[this.y + i][this.x].creature;
 						}

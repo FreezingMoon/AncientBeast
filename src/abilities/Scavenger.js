@@ -203,7 +203,7 @@ export default (G) => {
 						crea.hexagons[i].overlayVisualState('hover h_player' + crea.team);
 					}
 					for (let i = 0; i < size; i++) {
-						if (!G.grid.hexExists(hex.y, hex.x - i)) {
+						if (!G.grid.hexExists({ y: hex.y, x: hex.x - i })) {
 							continue;
 						}
 						const h = G.grid.hexes[hex.y][hex.x - i];

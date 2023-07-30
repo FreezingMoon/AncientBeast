@@ -103,7 +103,7 @@ export function extendToLeft(hexes: Hex[], size: number, grid: HexGrid) {
 	for (let i = 0; i < hexes.length; i++) {
 		for (let j = 0; j < size; j++) {
 			// NOTE : This code produce array with doubles.
-			if (grid.hexExists(hexes[i].y, hexes[i].x - j)) {
+			if (grid.hexExists({ y: hexes[i].y, x: hexes[i].x - j })) {
 				ext.push(grid.hexes[hexes[i].y][hexes[i].x - j]);
 			}
 		}
@@ -125,7 +125,7 @@ export function extendToRight(hexes: Hex[], size: number, grid: HexGrid) {
 	for (let i = 0; i < hexes.length; i++) {
 		for (let j = 0; j < size; j++) {
 			// NOTE : This code produces array with doubles.
-			if (grid.hexExists(hexes[i].y, hexes[i].x + j)) {
+			if (grid.hexExists({ y: hexes[i].y, x: hexes[i].x + j })) {
 				ext.push(grid.hexes[hexes[i].y][hexes[i].x + j]);
 			}
 		}

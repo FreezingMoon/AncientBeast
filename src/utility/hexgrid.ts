@@ -1135,11 +1135,9 @@ export class HexGrid {
 
 	/**
 	 * Test if hex exists
-	 * @param {number} x - Integer: Coordinates to test
-	 * @param {number} y - Integer: Coordinates to test
-	 * TODO: Why is this backwards... standard corodinates systems follow x,y nomenclature...
+	 * @param {{x:number, y:number}} position - Coordinates to test
 	 */
-	hexExists(y, x) {
+	hexExists({ x, y }: { x: number; y: number }): boolean {
 		if (y >= 0 && y < this.hexes.length) {
 			if (x >= 0 && x < this.hexes[y].length) {
 				return true;
@@ -1247,7 +1245,7 @@ export class HexGrid {
 			for (let x = 0; x < array[y].length; x++) {
 				if (array[y][x]) {
 					const xfinal = flipped ? array[y].length - 1 - x : x; // Parse the array backward for flipped player
-					if (this.hexExists(originy + y, originx + xfinal)) {
+					if (this.hexExists({ y: originy + y, x: originx + xfinal })) {
 						hexes.push(this.hexes[originy + y][originx + xfinal]);
 					}
 				}
@@ -1317,7 +1315,7 @@ export class HexGrid {
 	}
 
 	selectHexUp() {
-		if (!this.hexExists(this.selectedHex.y - 1, this.selectedHex.x)) {
+		if (!this.hexExists({ y: this.selectedHex.y - 1, x: this.selectedHex.x })) {
 			return;
 		}
 
@@ -1332,7 +1330,7 @@ export class HexGrid {
 	}
 
 	selectHexDown() {
-		if (!this.hexExists(this.selectedHex.y + 1, this.selectedHex.x)) {
+		if (!this.hexExists({ y: this.selectedHex.y + 1, x: this.selectedHex.x })) {
 			return;
 		}
 
@@ -1347,7 +1345,7 @@ export class HexGrid {
 	}
 
 	selectHexLeft() {
-		if (!this.hexExists(this.selectedHex.y, this.selectedHex.x - 1)) {
+		if (!this.hexExists({ y: this.selectedHex.y, x: this.selectedHex.x - 1 })) {
 			return;
 		}
 
@@ -1362,7 +1360,7 @@ export class HexGrid {
 	}
 
 	selectHexRight() {
-		if (!this.hexExists(this.selectedHex.y, this.selectedHex.x + 1)) {
+		if (!this.hexExists({ y: this.selectedHex.y, x: this.selectedHex.x + 1 })) {
 			return;
 		}
 
