@@ -1,12 +1,12 @@
 import * as arrayUtils from './arrayUtils';
 
-/** search
- * @param {Hex} start ?
- * @param {Hex} end ?
- * @param {?} creatureSize ?
- * @param {?} creatureId ?
- * @param {?} grid ?
- * @returns {?} ?
+/**
+ * @param {Hex} start - Starting point of search
+ * @param {Hex} end - Ending point of search
+ * @param {number} creatureSize - The size of the creature who will walk the searched path
+ * @param {number} creatureId - The id of the creature who will walk the searched path
+ * @param {HexGrid} grid - The HexGrid instance to search
+ * @returns {Hex[]} A path of hexes or an empty array if no path is found
  */
 export function search(start, end, creatureSize, creatureId, grid) {
 	const openList = [];
