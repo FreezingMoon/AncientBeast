@@ -371,23 +371,9 @@ export class Creature {
 	get sprite() {
 		return this.creatureSprite.sprite;
 	}
-	get hintGrp() {
-		return this.creatureSprite.hintGrp;
-	}
-	get healthIndicatorGroup() {
-		return this.creatureSprite.healthIndicatorGroup;
-	}
-	get healthIndicatorSprite() {
-		return this.creatureSprite.healthIndicatorSprite;
-	}
-	get healthIndicatorText() {
-		return this.creatureSprite.healthIndicatorText;
-	}
-	get healthIndicatorTween() {
-		return this.creatureSprite.healthIndicatorTween;
-	}
-	set healthIndicatorTween(tw: Phaser.Tween) {
-		this.creatureSprite.healthIndicatorTween = tw;
+
+	get legacyProjectileEmissionPoint() {
+		return this.creatureSprite.legacyProjectileEmissionPoint;
 	}
 
 	/**
@@ -407,22 +393,8 @@ export class Creature {
 		game.updateQueueDisplay();
 
 		game.grid.orderCreatureZ();
+		game.grid.fadeOutTempCreature();
 
-		if (game.grid.materialize_overlay) {
-			game.grid.materialize_overlay.alpha = 0.5;
-			game.Phaser.add
-				.tween(game.grid.materialize_overlay)
-				.to(
-					{
-						alpha: 0,
-					},
-					500,
-					Phaser.Easing.Linear.None,
-				)
-				.start();
-		}
-
-		const p: Phaser.Game = game.Phaser;
 		this.creatureSprite.setAlpha(1, 500);
 
 		// Reveal and position health indicator
@@ -865,34 +837,14 @@ export class Creature {
 		}
 
 		const flipped = facefrom.y % 2 === 0 ? faceto.x <= facefrom.x : faceto.x < facefrom.x;
-
-		// TODO: Use CreatureSprite.setDir()
-		if (flipped) {
-			this.sprite.scale.setTo(-1, 1);
-		} else {
-			this.sprite.scale.setTo(1, 1);
-		}
-		this.sprite.x =
-			(!flipped
-				? this.display['offset-x']
-				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
-			this.sprite.texture.width / 2;
+		this.creatureSprite.setDir(flipped ? -1 : 1);
 	}
 
 	/**
 	 * Make creature face the default direction of its player
 	 */
 	facePlayerDefault() {
-		if (this.player.flipped) {
-			this.sprite.scale.setTo(-1, 1);
-		} else {
-			this.sprite.scale.setTo(1, 1);
-		}
-		this.sprite.x =
-			(!this.player.flipped
-				? this.display['offset-x']
-				: HEX_WIDTH_PX * this.size - this.sprite.texture.width - this.display['offset-x']) +
-			this.sprite.texture.width / 2;
+		this.creatureSprite.setDir(this.player.flipped ? -1 : 1);
 	}
 
 	/**
@@ -1476,18 +1428,11 @@ export class Creature {
 	}
 
 	displayHealthStats() {
-		if (this.isFrozen()) {
-			this.healthIndicatorSprite.loadTexture('p' + this.team + '_frozen');
-		} else {
-			this.healthIndicatorSprite.loadTexture('p' + this.team + '_health');
-		}
-
-		this.healthIndicatorText.setText(this.health + '');
+		this.creatureSprite.setHealth(this.health, this.isFrozen() ? 'frozen' : 'health');
 	}
 
 	displayPlasmaShield() {
-		this.healthIndicatorSprite.loadTexture('p' + this.team + '_plasma');
-		this.healthIndicatorText.setText(this.player.plasma.toString());
+		this.creatureSprite.setHealth(this.player.plasma, 'plasma');
 	}
 
 	hasCreaturePlayerGotPlasma() {
@@ -1712,33 +1657,7 @@ export class Creature {
 		}
 
 		// Kill animation
-		const tweenSprite = game.Phaser.add
-			.tween(this.sprite)
-			.to(
-				{
-					alpha: 0,
-				},
-				500,
-				Phaser.Easing.Linear.None,
-			)
-			.start();
-		const tweenHealth = game.Phaser.add
-			.tween(this.healthIndicatorGroup)
-			.to(
-				{
-					alpha: 0,
-				},
-				500,
-				Phaser.Easing.Linear.None,
-			)
-			.start();
-		tweenSprite.onComplete.add(() => {
-			this.destroy();
-		});
-		tweenHealth.onComplete.add(() => {
-			this.healthIndicatorGroup.destroy();
-		});
-
+		this.creatureSprite.setAlpha(0, 500).then(() => this.destroy());
 		this.cleanHex();
 
 		game.updateQueueDisplay();
@@ -1923,6 +1842,7 @@ class CreatureSprite {
 	private _phaser: Phaser.Game;
 	private _frameInfo: { originX: number; originY: number };
 	private _creatureSize: number;
+	private _creatureTeam: PlayerID;
 
 	private _isXray = false;
 
@@ -1933,6 +1853,7 @@ class CreatureSprite {
 
 		this._phaser = phaser;
 		this._creatureSize = size;
+		this._creatureTeam = team;
 		this._frameInfo = { originX: display['offset-x'], originY: display['offset-y'] };
 
 		const group: Phaser.Group = phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
@@ -2004,23 +1925,12 @@ class CreatureSprite {
 	get sprite() {
 		return this._sprite;
 	}
-	get hintGrp() {
-		return this._hintGrp;
-	}
-	get healthIndicatorGroup() {
-		return this._healthIndicatorGroup;
-	}
-	get healthIndicatorSprite() {
-		return this._healthIndicatorSprite;
-	}
-	get healthIndicatorText() {
-		return this._healthIndicatorText;
-	}
-	get healthIndicatorTween() {
-		return this._healthIndicatorTween;
-	}
-	set healthIndicatorTween(tw: Phaser.Tween) {
-		this._healthIndicatorTween = tw;
+
+	// TODO: Refactor
+	// This currently has one user.
+	// Refactoring into some combination of left, right, top, bottom, centerX, centerY would be welcome.
+	get legacyProjectileEmissionPoint() {
+		return { x: this._group.x, y: this._group.y };
 	}
 
 	private _promisifyTween(
@@ -2088,6 +1998,11 @@ class CreatureSprite {
 			.tween(this._healthIndicatorGroup)
 			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
 			.start();
+	}
+
+	setHealth(number: number, type: HealthBubbleType) {
+		this._healthIndicatorText.setText(number + '');
+		this._healthIndicatorSprite.loadTexture(`p${this._creatureTeam}_${type}`);
 	}
 
 	showHealth(enable: boolean) {
@@ -2167,7 +2082,7 @@ class CreatureSprite {
 		};
 
 		// Remove constant element
-		this.hintGrp.forEach(
+		this._hintGrp.forEach(
 			(hint: Phaser.Text) => {
 				if (hint.data.hintType === 'confirm') {
 					hint.data.hintType = 'confirm_deleted';
@@ -2205,12 +2120,12 @@ class CreatureSprite {
 			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 		}
 
-		this.hintGrp.add(hint);
+		this._hintGrp.add(hint);
 
 		// Stacking
-		this.hintGrp.forEach(
+		this._hintGrp.forEach(
 			(hint: Phaser.Text) => {
-				const index = this.hintGrp.total - this.hintGrp.getIndex(hint) - 1;
+				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 				const offset = -50 * index;
 
 				if (hint.data.tweenPos) {
@@ -2239,3 +2154,5 @@ export type CreatureHintType =
 	| 'healing'
 	| 'msg_effects'
 	| 'creature_name';
+
+type HealthBubbleType = 'plasma' | 'frozen' | 'health';

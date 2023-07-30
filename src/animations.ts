@@ -265,7 +265,7 @@ export class Animations {
 		startY: number,
 	) {
 		// Get the target's position on the projectile's path that is closest
-		const emissionPointX = this2.creature.grp.x + startX;
+		const emissionPointX = this2.creature.legacyProjectileEmissionPoint.x + startX;
 		let distance = Number.MAX_SAFE_INTEGER;
 		let targetX = path[0].displayPos.x;
 		for (const hex of path) {
@@ -280,8 +280,8 @@ export class Animations {
 			baseDist = arrayUtils.filterCreature(path.slice(0), false, false).length,
 			dist = baseDist == 0 ? 1 : baseDist,
 			emissionPoint = {
-				x: this2.creature.grp.x + startX,
-				y: this2.creature.grp.y + startY,
+				x: this2.creature.legacyProjectileEmissionPoint.x + startX,
+				y: this2.creature.legacyProjectileEmissionPoint.y + startY,
 			},
 			targetPoint = {
 				x: targetX + 45,

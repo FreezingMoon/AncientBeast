@@ -1,5 +1,5 @@
 import { Creature } from '../creature';
-import { jest, expect, describe, test, beforeEach } from '@jest/globals';
+import { jest, expect, describe, test, beforeEach, beforeAll } from '@jest/globals';
 
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
@@ -293,18 +293,23 @@ const getGameMock = () => {
 
 const getPhaserMock = () => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const self: Record<string, any> = {};
-	self.tween = () => self;
-	self.to = () => self;
+	const self: Record<string, any> = { position: { set: jest.fn() } };
+	self.add = () => self;
+	self.create = () => self;
+	self.forEach = () => self;
+	self.group = () => self;
+	self.removeChild = () => self;
+	self.setTo = () => self;
 	self.start = () => self;
 	self.text = () => self;
+	self.to = () => self;
+	self.tween = () => self;
 	self.anchor = self;
-	self.setTo = () => self;
-	self.group = () => self;
-	self.create = () => self;
+	self.data = {};
+	self.onComplete = self;
+	self.parent = self;
 	self.sprite = self;
 	self.scale = self;
-	self.add = () => self;
 	self.texture = {
 		width: 10,
 		height: 10,
@@ -314,3 +319,11 @@ const getPhaserMock = () => {
 		add: self,
 	};
 };
+
+beforeAll(() => {
+	Object.defineProperty(window, 'Phaser', {
+		get() {
+			return { Easing: { Linear: { None: 1 } } };
+		},
+	});
+});

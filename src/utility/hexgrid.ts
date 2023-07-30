@@ -1545,4 +1545,22 @@ export class HexGrid {
 			hexes.forEach((hex) => hex.displayVisualState('creature selected player1'));
 		}
 	}
+
+	fadeOutTempCreature() {
+		// TODO: factor out this function. Use either Creature.creatureSprite
+		// or the existing temp creature created by /src/abilities/Dark-Priest.js
+		if (this.materialize_overlay) {
+			this.materialize_overlay.alpha = 0.5;
+			this.game.Phaser.add
+				.tween(this.materialize_overlay)
+				.to(
+					{
+						alpha: 0,
+					},
+					500,
+					Phaser.Easing.Linear.None,
+				)
+				.start();
+		}
+	}
 }
