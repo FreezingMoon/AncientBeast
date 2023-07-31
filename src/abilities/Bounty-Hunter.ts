@@ -1,4 +1,3 @@
-import * as $j from 'jquery';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
@@ -52,7 +51,7 @@ export default (G: Game) => {
 			obuff: 0,
 			abilityName: '',
 
-			getAbilityName: function (abilityName) {
+			getAbilityName: function () {
 				if (!this.atLeastOneTarget(this.creature.adjacentHexes(1), { team: Team.Enemy })) {
 					this.abilityName = 'No One In Personal Space';
 					return this.abilityName;
@@ -62,7 +61,7 @@ export default (G: Game) => {
 				}
 			},
 
-			getMovementBuff: function (mbuff) {
+			getMovementBuff: function () {
 				// Decides how much the base value is modified by the buff, 50% if not upgraded and 100% if upgraded
 				if (!this.atLeastOneTarget(this.creature.adjacentHexes(1), { team: Team.Enemy })) {
 					this.mbuff = 0;
@@ -76,7 +75,7 @@ export default (G: Game) => {
 				return this.mbuff;
 			},
 
-			getOffenseBuff: function (obuff) {
+			getOffenseBuff: function () {
 				// Decides how much the base value is modified by the buff, 50% if not upgraded and 100% if upgraded
 				if (!this.atLeastOneTarget(this.creature.adjacentHexes(1), { team: Team.Enemy })) {
 					this.obuff = 0;
