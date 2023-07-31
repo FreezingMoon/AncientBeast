@@ -1445,6 +1445,7 @@ export class HexGrid {
 	/**
 	 * Execute f for each hexes
 	 * @param {function} func - Function to execute
+	 * @deprecated use this.allhexes.forEach(fn)
 	 */
 	forEachHex(func: (hex: Hex) => void) {
 		this.hexes.forEach((hex) => {
@@ -1455,40 +1456,34 @@ export class HexGrid {
 	/**
 	 * Execute hex.cleanPathAttr() function for all the grid. Refer to the Hex class for more info
 	 * @param {boolean} includeG - Include hex.g attribute
+	 * @deprecated use this.allhexes.forEach(hex => hex.cleanPathAttr(includeG))
 	 */
 	cleanPathAttr(includeG) {
-		this.hexes.forEach((hex) => {
-			hex.forEach((item) => {
-				item.cleanPathAttr(includeG);
-			});
-		});
+		this.allhexes.forEach((hex) => hex.cleanPathAttr(includeG));
 	}
 
 	/**
 	 * Execute hex.setReachable() function for all the grid. Refer to the Hex class for more info
+	 * @deprecated use this.allhexes.forEach(hex => hex.setReachable())
 	 */
 	cleanReachable() {
-		this.hexes.forEach((hex) => {
-			hex.forEach((item) => {
-				item.setReachable();
-			});
-		});
+		this.allhexes.forEach((hex) => hex.setReachable());
 	}
 
 	/**
 	 * Shorcut for $allDispHex.removeClass()
 	 * @param {string} cssClass - Class(es) name(s) to remove with jQuery removeClass function
+	 * @deprecated use this.allhexes.forEach(hex => hex.cleanDisplayVisualState(cssClass))
 	 */
 	cleanDisplay(cssClass = '') {
-		this.forEachHex((hex) => {
-			hex.cleanDisplayVisualState(cssClass);
-		});
+		this.allhexes.forEach((hex) => hex.cleanDisplayVisualState(cssClass));
 	}
 
+	/**
+	 * @deprecated use this.allhexes.forEach(hex => hex.cleanOverlayVisualState(cssClass))
+	 */
 	cleanOverlay(cssClass = '') {
-		this.forEachHex((hex) => {
-			hex.cleanOverlayVisualState(cssClass);
-		});
+		this.allhexes.forEach((hex) => hex.cleanOverlayVisualState(cssClass));
 	}
 
 	/**
