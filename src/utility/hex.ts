@@ -368,9 +368,13 @@ export class Hex {
 	}
 
 	/**
-	 * @param size Size of the creature.
-	 * @param id ID of the creature.
-	 * @param ignoreReachable Take into account the reachable property.
+	 * Can the ORIGIN (the right-most point) of the Creature with the passed ID
+	 * stand on this Hex without being out of bounds or overlapping an obstacle?
+	 * If `ignoreReachable` is false, also check the Hex's reachable value.
+	 * @param {number} size - Size of the creature.
+	 * @param {number} id - ID of the creature.
+	 * @param {boolean} ignoreReachable - Take into account the reachable property.
+	 * @param {boolean} debug - If true and const.DEBUG is true, print debug information to the console.
 	 * @returns True if this hex is walkable.
 	 */
 	isWalkable(size: number, id: number, ignoreReachable = false, debug = false) {
