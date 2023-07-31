@@ -7,6 +7,7 @@ import { Effect } from '../effect';
 import Game from '../game';
 import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
+import { Trap } from '../utility/trap';
 
 /*
  *TODO
@@ -422,8 +423,7 @@ export default (G: Game) => {
 					),
 				];
 
-				// TODO: `createTrap` is deprecated
-				hex.createTrap('mud-bath', effects, ability.creature.player);
+				new Trap(hex.x, hex.y, 'mud-bath', effects, ability.creature.player, {}, G);
 				G.soundsys.playSFX('sounds/mudbath');
 				// Trigger trap immediately if on self
 				if (isSelf) {
