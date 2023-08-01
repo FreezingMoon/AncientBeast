@@ -8,8 +8,6 @@ import Phaser, { Point, Polygon } from 'phaser-ce';
 import { DEBUG } from '../debug';
 import { getPointFacade } from './pointfacade';
 import * as Const from './const';
-import { Effect } from '../effect';
-import { Player } from '../player';
 
 export enum Direction {
 	None = -1,
@@ -588,7 +586,7 @@ export class Hex {
 	 *
 	 * @deprecated Use new Trap(x, y, type, effects, own, opt, game)
 	 */
-	createTrap(type: string, effects: Effect[], owner: Player, opt: Partial<Trap> = {}): Trap {
+	createTrap(type, effects, owner, opt): Trap {
 		return new Trap(this.x, this.y, type, effects, owner, opt, this.game);
 	}
 

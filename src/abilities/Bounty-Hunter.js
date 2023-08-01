@@ -1,27 +1,15 @@
+import * as $j from 'jquery';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
-import Game from '../game';
-import { Creature } from '../creature';
-import { Hex } from '../utility/hex';
-import { Trap } from '../utility/trap';
-
-/*
- *TODO
- *
- * Fix ts-error 2554: Need to properly type the `on<Trigger>` functions in `game.ts`.
- * This can be done once all the `abilities` files are converted to TS.
- *
- * Fix eslint errors: prefer rest params
- */
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G: Game) => {
+export default (G) => {
 	/*
 	 *
 	 *	Bounty Hunter abilities
@@ -51,7 +39,7 @@ export default (G: Game) => {
 			obuff: 0,
 			abilityName: '',
 
-			getAbilityName: function () {
+			getAbilityName: function (abilityName) {
 				if (!this.atLeastOneTarget(this.creature.adjacentHexes(1), { team: Team.Enemy })) {
 					this.abilityName = 'No One In Personal Space';
 					return this.abilityName;
@@ -61,7 +49,7 @@ export default (G: Game) => {
 				}
 			},
 
-			getMovementBuff: function () {
+			getMovementBuff: function (mbuff) {
 				// Decides how much the base value is modified by the buff, 50% if not upgraded and 100% if upgraded
 				if (!this.atLeastOneTarget(this.creature.adjacentHexes(1), { team: Team.Enemy })) {
 					this.mbuff = 0;
@@ -75,7 +63,7 @@ export default (G: Game) => {
 				return this.mbuff;
 			},
 
-			getOffenseBuff: function () {
+			getOffenseBuff: function (obuff) {
 				// Decides how much the base value is modified by the buff, 50% if not upgraded and 100% if upgraded
 				if (!this.atLeastOneTarget(this.creature.adjacentHexes(1), { team: Team.Enemy })) {
 					this.obuff = 0;
@@ -141,7 +129,6 @@ export default (G: Game) => {
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
-						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -152,7 +139,7 @@ export default (G: Game) => {
 			},
 
 			//activate():
-			activate: function (target: Creature) {
+			activate: function (target) {
 				const targetOriginalHealth = target.health;
 
 				const ability = this;
@@ -167,7 +154,7 @@ export default (G: Game) => {
 					G,
 				);
 				target.takeDamage(damage);
-				/** damage dealt is original health - current health
+				/** damage dealt is og health - current health
 				 * if current health is lower than damage dealt,
 				 * and the ability is upgraded,
 				 * make a second attack
@@ -201,6 +188,7 @@ export default (G: Game) => {
 						true,
 						true,
 						swine.id,
+						swine.team,
 					)
 					.concat(
 						arrayUtils.filterCreature(
@@ -208,30 +196,35 @@ export default (G: Game) => {
 							true,
 							true,
 							swine.id,
+							swine.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(swine.x, swine.y, 0, false, bellowrow),
 							true,
 							true,
 							swine.id,
+							swine.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(swine.x, swine.y - 2, 0, true, bellowrow),
 							true,
 							true,
 							swine.id,
+							swine.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(swine.x, swine.y, 0, true, straitrow),
 							true,
 							true,
 							swine.id,
+							swine.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow),
 							true,
 							true,
 							swine.id,
+							swine.team,
 						),
 					);
 				if (
@@ -270,13 +263,12 @@ export default (G: Game) => {
 
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
-						// eslint-disable-next-line
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: this._targetTeam,
 					requireCreature: 1,
 					id: swine.id,
-					flipped: swine.player.flipped,
+					flipped: swine.flipped,
 					choices: choices,
 				});
 			},
@@ -366,7 +358,6 @@ export default (G: Game) => {
 						G.activeCreature.queryMove();
 					},
 					fnOnConfirm: function () {
-						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					hexes: hexes,
@@ -375,7 +366,7 @@ export default (G: Game) => {
 			},
 
 			//	activate() :
-			activate: function (hex: Hex) {
+			activate: function (hex) {
 				const ability = this;
 				const swine = this.creature;
 
@@ -412,22 +403,19 @@ export default (G: Game) => {
 								}
 								return this.trap.hex.creature.type != 'A1';
 							},
-							effectFn: function (effect, creatureHexOrDamage) {
-								if (creatureHexOrDamage instanceof Creature) {
-									creatureHexOrDamage.remainingMove--;
-								}
+							effectFn: function (effect, crea) {
+								crea.remainingMove--;
 							},
 						},
 						G,
 					),
 				];
 
-				new Trap(hex.x, hex.y, 'mud-bath', effects, ability.creature.player, {}, G);
+				hex.createTrap('mud-bath', effects, ability.creature.player);
 				G.soundsys.playSFX('sounds/mudbath');
 				// Trigger trap immediately if on self
 				if (isSelf) {
 					// onCreatureMove is Spa Goggles' trigger event
-					// @ts-expect-error 2554
 					G.onCreatureMove(swine, hex);
 				}
 			},

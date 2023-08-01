@@ -78,7 +78,7 @@ export default class Game {
 	 * creatureData :		Array :		Array containing all data for the creatures
 	 *
 	 */
-	abilities: Array<Partial<Ability>[]>;
+	abilities: Ability[];
 	players: Player[];
 	creatures: Creature[];
 	traps: Trap[];
