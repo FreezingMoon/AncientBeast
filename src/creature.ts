@@ -1274,8 +1274,9 @@ export class Creature {
 	/**
 	 * @param{Damage} damage - Damage object
 	 * @returns{Object} Contains damages dealt and if creature is killed or not
+	 * TODO: Once all files in `abilities` are converted to TS, consider a more representative name for `o`
 	 */
-	takeDamage(damage: Damage, o) {
+	takeDamage(damage: Damage, o?: { isFromTrap?: boolean; ignoreRetaliation?: boolean }) {
 		const game = this.game;
 
 		if (this.dead) {

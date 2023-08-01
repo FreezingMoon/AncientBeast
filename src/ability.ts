@@ -43,12 +43,12 @@ export type Trigger =
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
 type Cost = {
-	special: string;
+	special?: string;
 	plasma?: string | number;
 	energy?: number;
 };
 
-type Requirement = { plasma: number; energy?: number } | Cost;
+type Requirement = { plasma?: number; energy?: number } | Cost;
 
 type Target = { hexesHit: number; target: Creature };
 
@@ -59,6 +59,9 @@ type AbilityEffect = {
 	regrowth?: number;
 	frost?: number;
 };
+
+type OffesnsiveBuff = number;
+type DefensiveBuff = number;
 
 export class Ability {
 	creature: Creature;
@@ -81,9 +84,9 @@ export class Ability {
 	require?: (damage?: Damage, hex?: Hex) => boolean;
 	query?: () => unknown;
 	affectedByMatSickness?: boolean;
-	activate?: (...args: unknown[]) => unknown;
+	activate?: (target?: any, hex?: any, path?: any) => unknown;
 	getAnimationData?: (...args: unknown[]) => unknown;
-	damages?: CreatureMasteries & { pure?: number | string };
+	damages?: CreatureMasteries & { pure?: number };
 	effects?: AbilityEffect[];
 	message?: string;
 	movementType?: () => 'flying'; // Currently, this functon only exists in `Scavenger.js`
@@ -91,6 +94,16 @@ export class Ability {
 
 	_disableCooldowns: boolean;
 
+	_energyNormal?: number;
+	_energySelfUpgraded: number;
+	mbuff?: OffesnsiveBuff;
+	obuff?: DefensiveBuff;
+	abilityName?: string;
+	// TODO: Once all abilities files are converted to TS, look into deleteing the `name` param as it appears unecessary
+	getAbilityName?: (name: string) => string;
+	getMovementBuff?: (buff: number) => number;
+	getOffenseBuff?: (buff: number) => number;
+	_targetTeam: Team;
 	constructor(creature: Creature, abilityID: AbilitySlot, game: Game) {
 		this.creature = creature;
 		this.game = game;
@@ -221,8 +234,9 @@ export class Ability {
 	/*
 	 * End the ability. Must be called at the end of each ability function;
 	 *
+	 * TODO: Once all files in `abilities` are converted to TS, consider defaulting both of these arguments to `false`.
 	 */
-	end(disableLogMsg: boolean, deferredEnding: boolean) {
+	end(disableLogMsg?: boolean, deferredEnding?: boolean) {
 		const game = this.game;
 
 		if (!disableLogMsg) {
