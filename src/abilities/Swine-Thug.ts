@@ -193,8 +193,10 @@ export default (G: Game) => {
 						// The target must be completely over mud baths to keep sliding
 						let mudSlide = true;
 						for (let j = 0; j < target.size; j++) {
-							const mudHex = G.grid.hexes[hex.y][hex.x - j];
-							if (!mudHex.trap || mudHex.trap.type !== 'mud-bath') {
+							const hexToCheck = G.grid.hexes[hex.y][hex.x - j];
+							const trapsOnHex = getPointFacade().getTrapsAt(hexToCheck.x, hexToCheck.y);
+
+							if (trapsOnHex.length === 0 || !trapsOnHex.some((trap) => trap.type === 'mud-bath')) {
 								mudSlide = false;
 								break;
 							}
@@ -447,10 +449,11 @@ export default (G: Game) => {
 						'onStepIn',
 						{
 							requireFn: function () {
-								if (!this.trap.hex.creature) {
+								const creaturesOnHex = getPointFacade().getCreaturesAt(hex.x, hex.y);
+								if (creaturesOnHex.length === 0) {
 									return false;
 								}
-								return this.trap.hex.creature.type != 'A1';
+								return creaturesOnHex[0].type != 'A1';
 							},
 							effectFn: function (effect, crea: Creature) {
 								if (crea) {
