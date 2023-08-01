@@ -251,7 +251,7 @@ export class HexGrid {
 	 *
 	 * @param o
 	 */
-	queryDirection(o: QueryOptions) {
+	queryDirection(o: Partial<QueryOptions>) {
 		o.isDirectionsQuery = true;
 		o = this.getDirectionChoices(o);
 		this.queryChoice(o);
@@ -263,7 +263,7 @@ export class HexGrid {
 	 * @param o Options.
 	 * @returns Altered options.
 	 */
-	getDirectionChoices(o: QueryOptions) {
+	getDirectionChoices(o: Partial<QueryOptions>) {
 		const defaultOpt = {
 			team: Team.Enemy,
 			requireCreature: true,
