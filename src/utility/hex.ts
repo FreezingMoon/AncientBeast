@@ -320,14 +320,14 @@ export class Hex {
 			if (this.y % 2 == 0) {
 				if (i == 1) {
 					for (let j = 0; j <= 1; j++) {
-						if (grid.hexExists(this.y + i, this.x + j)) {
+						if (grid.hexExists({ y: this.y + i, x: this.x + j })) {
 							if (grid.hexes[this.y + i][this.x + j].creature instanceof Creature) {
 								ghostedCreature = grid.hexes[this.y + i][this.x + j].creature;
 							}
 						}
 					}
 				} else {
-					if (grid.hexExists(this.y + i, this.x)) {
+					if (grid.hexExists({ y: this.y + i, x: this.x })) {
 						if (grid.hexes[this.y + i][this.x].creature instanceof Creature) {
 							ghostedCreature = grid.hexes[this.y + i][this.x].creature;
 						}
@@ -336,14 +336,14 @@ export class Hex {
 			} else {
 				if (i == 1) {
 					for (let j = 0; j <= 1; j++) {
-						if (grid.hexExists(this.y + i, this.x - j)) {
+						if (grid.hexExists({ y: this.y + i, x: this.x - j })) {
 							if (grid.hexes[this.y + i][this.x - j].creature instanceof Creature) {
 								ghostedCreature = grid.hexes[this.y + i][this.x - j].creature;
 							}
 						}
 					}
 				} else {
-					if (grid.hexExists(this.y + i, this.x)) {
+					if (grid.hexExists({ y: this.y + i, x: this.x })) {
 						if (grid.hexes[this.y + i][this.x].creature instanceof Creature) {
 							ghostedCreature = grid.hexes[this.y + i][this.x].creature;
 						}
@@ -370,9 +370,13 @@ export class Hex {
 	}
 
 	/**
-	 * @param size Size of the creature.
-	 * @param id ID of the creature.
-	 * @param ignoreReachable Take into account the reachable property.
+	 * Can the ORIGIN (the right-most point) of the Creature with the passed ID
+	 * stand on this Hex without being out of bounds or overlapping an obstacle?
+	 * If `ignoreReachable` is false, also check the Hex's reachable value.
+	 * @param {number} size - Size of the creature.
+	 * @param {number} id - ID of the creature.
+	 * @param {boolean} ignoreReachable - Take into account the reachable property.
+	 * @param {boolean} debug - If true and const.DEBUG is true, print debug information to the console.
 	 * @returns True if this hex is walkable.
 	 */
 	isWalkable(size: number, id: number, ignoreReachable = false, debug = false) {

@@ -1151,7 +1151,7 @@ export class Creature {
 			const total = c.length;
 			for (let i = 0; i < total; i++) {
 				const { x, y } = c[i];
-				if (game.grid.hexExists(y, x)) {
+				if (game.grid.hexExists({ y, x })) {
 					hexes.push(game.grid.hexes[y][x]);
 				}
 			}
