@@ -139,11 +139,9 @@ export class Player {
 		return nbr;
 	}
 
-	/* summon(type, pos)
-	 *
-	 * type :	String :	Creature type (ex: "--" for Dark Priest and "G2" for Swampler)
-	 * pos :	Object :	Position {x,y}
-	 *
+	/**
+	 * @param {string} type - Creature type (ex: "--" for Dark Priest and "G2" for Swampler)
+	 * @param {Point} pos - Position {x,y}
 	 */
 	summon(type: CreatureType, pos: Point) {
 		const game = this.game;
@@ -167,10 +165,8 @@ export class Player {
 		game.onCreatureSummon(creature);
 	}
 
-	/* flee()
-	 *
+	/**
 	 * Ask if the player wants to flee the match
-	 *
 	 */
 	flee(o) {
 		this.hasFled = true;
@@ -178,10 +174,8 @@ export class Player {
 		this.game.skipTurn(o);
 	}
 
-	/* getScore()
-	 *
+	/**
 	 * Create and return a totalScore object that includes the point value for each score event as well as the cumulative score
-	 *
 	 */
 	getScore(): TotalScore {
 		let points = 0;
@@ -261,11 +255,9 @@ export class Player {
 		return totalScore;
 	}
 
-	/* isLeader()
-	 *
+	/**
 	 * Test if the player has the greater score.
 	 * Return true if in lead. False if not.
-	 *
 	 * TODO: This is also wrong, because it allows for ties to result in a "leader".
 	 */
 	isLeader(): boolean {
@@ -282,8 +274,7 @@ export class Player {
 		return true; // If nobody has a better score he's in lead
 	}
 
-	/* isAnnihilated()
-	 *
+	/**
 	 * A player is considered annihilated if all his creatures are dead DP included
 	 */
 	isAnnihilated(): boolean {
@@ -298,8 +289,7 @@ export class Player {
 		return annihilated;
 	}
 
-	/* deactivate()
-	 *
+	/**
 	 * Remove all player's creature from the queue
 	 */
 	deactivate(): void {

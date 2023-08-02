@@ -2014,7 +2014,7 @@ export class UI {
 		}
 	}
 
-	/* updateQueueDisplay()
+	/**
 	 * Delete and add element to the Queue container based on the game's queues
 	 */
 	updateQueueDisplay() {
