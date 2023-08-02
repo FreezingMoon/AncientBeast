@@ -185,6 +185,7 @@ export class HexGrid {
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
+		this.game.signals.ui.add(this.handleUIEvent, this);
 	}
 
 	get traps() {
@@ -201,6 +202,21 @@ export class HexGrid {
 	handleMetaPowerEvent(message, payload) {
 		if (message === 'toggleExecuteMonster') {
 			this._executionMode = payload;
+		}
+	}
+
+	handleUIEvent(message, payload) {
+		if (message === 'onOpenDash') {
+			// NOTE: This is a rather hacky bugfix.
+			// If a "query" is going on, and the dash is opened,
+			// creatures can remain in a "hovered" state.
+			// This hack undoes the "hovered" state.
+			this.forEachHex((hex) => {
+				const creature = hex.creature;
+				if (creature instanceof Creature) {
+					creature.resetBounce();
+				}
+			});
 		}
 	}
 
