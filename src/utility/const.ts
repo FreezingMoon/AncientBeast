@@ -17,6 +17,7 @@ function isValid(point: Point) {
 }
 
 export function offsetNeighbors(point: Point): Point[] {
+	// NOTE: returns neighbors in clockwise order starting at 3 o'clock.
 	if (point.y % 2 === 0) {
 		return [
 			{ x: point.x + 1, y: point.y },
