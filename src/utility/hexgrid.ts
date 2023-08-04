@@ -243,9 +243,7 @@ export class HexGrid {
 	}
 
 	isInBounds({ x, y }: Point) {
-		return (
-			y < this.game.grid.hexes.length && y >= 0 && x < this.game.grid.hexes[y].length && x >= 0
-		);
+		return y < this.hexes.length && y >= 0 && x < this.hexes[y].length && x >= 0;
 	}
 
 	querySelf(o) {
