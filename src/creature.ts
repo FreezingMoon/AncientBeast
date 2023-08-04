@@ -10,7 +10,7 @@ import { Effect } from './effect';
 import { Player, PlayerID } from './player';
 import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
-import { HEX_WIDTH_PX, offsetCoordsToPx } from './utility/const';
+import { HEX_WIDTH_PX, hashOffsetCoords, offsetCoordsToPx, offsetNeighbors } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
 import { UnitDisplayInfo, UnitSize } from './data/units';
 
@@ -1025,161 +1025,39 @@ export class Creature {
 	}
 
 	/**
-	 * @param{number} dist - Integer, Distance in hexagons
+	 * @param{number} distance - Integer, Distance in hexagons
 	 * @returns{Hex[]} Array of adjacent hexagons
 	 */
-	adjacentHexes(dist: number, clockwise?: boolean) {
-		const game = this.game;
+	adjacentHexes(distance: number): Hex[] {
+		const hash = hashOffsetCoords;
+		const closed = new Set<number>(this.hexagons.map(hash));
+		const close = (point: Point) => closed.add(hash(point));
+		const isClosed = (point: Point) => closed.has(hash(point));
+		const isInBounds = (point: Point) => this.game.grid.isInBounds(point);
 
-		// TODO Review this algo to allow distance
-		if (clockwise) {
-			const hexes = [];
-			let c: Array<any>;
-			const o = this.y % 2 === 0 ? 1 : 0;
+		let atCurrRadius = this.hexagons;
+		let atNextRadius = [];
 
-			if (this.size === 1) {
-				c = [
-					{
-						y: this.y,
-						x: this.x + 1,
-					},
-					{
-						y: this.y - 1,
-						x: this.x + o,
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 1 + o,
-					},
-					{
-						y: this.y,
-						x: this.x - 1,
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 1 + o,
-					},
-					{
-						y: this.y + 1,
-						x: this.x + o,
-					},
-				];
-			}
+		const result = [];
 
-			if (this.size === 2) {
-				c = [
-					{
-						y: this.y,
-						x: this.x + 1,
-					},
-					{
-						y: this.y - 1,
-						x: this.x + o,
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 1 + o,
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 2 + o,
-					},
-					{
-						y: this.y,
-						x: this.x - 2,
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 2 + o,
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 1 + o,
-					},
-					{
-						y: this.y + 1,
-						x: this.x + o,
-					},
-				];
-			}
-
-			if (this.size === 3) {
-				c = [
-					{
-						y: this.y,
-						x: this.x + 1,
-					},
-					{
-						y: this.y - 1,
-						x: this.x + o,
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 1 + o,
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 2 + o,
-					},
-					{
-						y: this.y - 1,
-						x: this.x - 3 + o,
-					},
-					{
-						y: this.y,
-						x: this.x - 3,
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 3 + o,
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 2 + o,
-					},
-					{
-						y: this.y + 1,
-						x: this.x - 1 + o,
-					},
-					{
-						y: this.y + 1,
-						x: this.x + o,
-					},
-				];
-			}
-
-			const total = c.length;
-			for (let i = 0; i < total; i++) {
-				const { x, y } = c[i];
-				if (game.grid.hexExists({ y, x })) {
-					hexes.push(game.grid.hexes[y][x]);
+		for (let _ = 0; _ < distance; _++) {
+			for (const point of atCurrRadius) {
+				for (const neighbor of offsetNeighbors(point)) {
+					if (isInBounds(neighbor) && !isClosed(neighbor)) {
+						atNextRadius.push(neighbor);
+						result.push(neighbor);
+						close(neighbor);
+					}
 				}
 			}
-
-			return hexes;
+			atCurrRadius = atNextRadius;
+			atNextRadius = [];
 		}
 
-		if (this.size > 1) {
-			const hexes = this.hexagons[0].adjacentHex(dist);
-			const lasthexes = this.hexagons[this.size - 1].adjacentHex(dist);
-
-			hexes.forEach((hex: Hex) => {
-				if (arrayUtils.findPos(this.hexagons, hex)) {
-					arrayUtils.removePos(hexes, hex);
-				} // Remove from array if own creature hex
-			});
-
-			lasthexes.forEach((hex) => {
-				// If node doesnt already exist in final collection and if it's not own creature hex
-				if (!arrayUtils.findPos(hexes, hex) && !arrayUtils.findPos(this.hexagons, hex)) {
-					hexes.push(hex);
-				}
-			});
-
-			return hexes;
-		} else {
-			return this.hexagons[0].adjacentHex(dist);
-		}
+		// NOTE: This is the previous implementation's sort order. Kept for consistency.
+		// Sort ascending, first by row, then by column.
+		result.sort((a, b) => a.x + (a.y << 16) - (b.x + (b.y << 16)));
+		return result.map((point) => this.game.grid.hexAt(point.x, point.y));
 	}
 
 	/**
