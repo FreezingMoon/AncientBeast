@@ -8,6 +8,7 @@ import * as arrayUtils from './arrayUtils';
 import Game from '../game';
 import { DEBUG } from '../debug';
 import { HEX_WIDTH_PX } from './const';
+import { Point } from './pointfacade';
 
 interface GridDefinition {
 	numRows: number;
@@ -239,6 +240,12 @@ export class HexGrid {
 				}
 			});
 		}
+	}
+
+	isInBounds({ x, y }: Point) {
+		return (
+			y < this.game.grid.hexes.length && y >= 0 && x < this.game.grid.hexes[y].length && x >= 0
+		);
 	}
 
 	querySelf(o) {
