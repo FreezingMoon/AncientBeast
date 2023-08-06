@@ -1,7 +1,7 @@
 import * as $j from 'jquery';
 
 export class ProgressBar {
-	constructor(opts, game) {
+	constructor(opts) {
 		const defaultOpts = {
 			height: 316,
 			width: 7,
@@ -9,7 +9,6 @@ export class ProgressBar {
 			$bar: undefined,
 		};
 
-		this.game = game;
 		opts = $j.extend(defaultOpts, opts);
 		$j.extend(this, opts);
 

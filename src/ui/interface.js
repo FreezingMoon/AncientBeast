@@ -345,37 +345,25 @@ export class UI {
 		}
 
 		// ProgressBar
-		this.healthBar = new ProgressBar(
-			{
-				$bar: $j('#leftpanel .progressbar .bar.healthbar'),
-				color: 'red',
-			},
-			game,
-		);
+		this.healthBar = new ProgressBar({
+			$bar: $j('#leftpanel .progressbar .bar.healthbar'),
+			color: 'red',
+		});
 
-		this.energyBar = new ProgressBar(
-			{
-				$bar: $j('#leftpanel .progressbar .bar.energybar'),
-				color: 'yellow',
-			},
-			game,
-		);
+		this.energyBar = new ProgressBar({
+			$bar: $j('#leftpanel .progressbar .bar.energybar'),
+			color: 'yellow',
+		});
 
-		this.timeBar = new ProgressBar(
-			{
-				$bar: $j('#rightpanel .progressbar .timebar'),
-				color: 'white',
-			},
-			game,
-		);
+		this.timeBar = new ProgressBar({
+			$bar: $j('#rightpanel .progressbar .timebar'),
+			color: 'white',
+		});
 
-		this.poolBar = new ProgressBar(
-			{
-				$bar: $j('#rightpanel .progressbar .poolbar'),
-				color: 'grey',
-			},
-			game,
-		);
+		this.poolBar = new ProgressBar({
+			$bar: $j('#rightpanel .progressbar .poolbar'),
+			color: 'grey',
+		});
 
 		// Sound Effects slider
 		const slider = document.getElementById('sfx');
