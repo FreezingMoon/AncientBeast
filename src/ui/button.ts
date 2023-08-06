@@ -9,9 +9,26 @@ export const ButtonStateEnum = {
 	hidden: 'hidden',
 	noClick: 'noclick',
 	slideIn: 'slideIn',
-};
+} as const;
+
+type ValueOf<T> = T[keyof T];
+type ButtonState = ValueOf<typeof ButtonStateEnum>;
 
 export class Button {
+	state: ButtonState;
+	game: any;
+	cssTransitionMeta: { transitionClass: any };
+	resolveCssTransition: null;
+	$button: any;
+	overridefreeze: any;
+	clickable: any;
+	hasShortcut: any;
+	touchX: any;
+	touchY: any;
+	css: any;
+	resolveTransitionTask: null;
+	stateTransitionMeta: { transitionClass: any };
+	resolveCssTransitionTask: any;
 	click() {
 		throw new Error('Method not implemented.');
 	}
@@ -56,7 +73,7 @@ export class Button {
 
 		// Used in applying and removing CSS transitions
 		this.cssTransitionMeta = {
-			transition: null,
+			transitionClass: null,
 		};
 		this.resolveCssTransition = null;
 	}
@@ -74,7 +91,7 @@ export class Button {
 			.unbind('touchend')
 			.unbind('mouseleave');
 
-		if (![ButtonStateEnum.disabled, ButtonStateEnum.hidden].includes(this.state)) {
+		if (!['disabled', 'hidden'].includes(this.state)) {
 			this.$button.bind('click', () => {
 				if (!this.overridefreeze) {
 					if (game.freezedInput || !this.clickable) {
@@ -165,6 +182,12 @@ export class Button {
 			this.$button.css(this.css[state]);
 		}
 	}
+	mouseover() {
+		throw new Error('Method not implemented.');
+	}
+	mouseleave() {
+		throw new Error('Method not implemented.');
+	}
 
 	/**
 	 * Apply a CSS class on a button for a duration
@@ -205,7 +228,7 @@ export class Button {
 			if (
 				this.game.freezedInput ||
 				!this.clickable ||
-				[ButtonStateEnum.disabled, ButtonStateEnum.hidden].includes(this.state)
+				['disabled', 'hidden'].includes(this.state)
 			) {
 				return;
 			}
