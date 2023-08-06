@@ -40,8 +40,8 @@ export default (G: Game) => {
 			trigger: 'onStartPhase',
 
 			require: function () {
-				// The ability is always active, but the bonuses are 0 and the name becomes "No One In Personal Space" if no one is next to BH
-				if (!this.testRequirements()) {
+				// Ability will only be triggered if enemy is in range rather
+				if (!this.atLeastOneTarget(this.creature.adjacentHexes(1), { team: Team.Enemy })) {
 					return false;
 				}
 
@@ -50,16 +50,6 @@ export default (G: Game) => {
 			mbuff: 0,
 			obuff: 0,
 			abilityName: '',
-
-			getAbilityName: function () {
-				if (!this.atLeastOneTarget(this.creature.adjacentHexes(1), { team: Team.Enemy })) {
-					this.abilityName = 'No One In Personal Space';
-					return this.abilityName;
-				} else {
-					this.abilityName = 'Enemy In Personal Space!';
-					return this.abilityName;
-				}
-			},
 
 			getMovementBuff: function () {
 				// Decides how much the base value is modified by the buff, 50% if not upgraded and 100% if upgraded
@@ -93,7 +83,7 @@ export default (G: Game) => {
 				if (true) {
 					this.creature.replaceEffect(
 						new Effect(
-							this.getAbilityName(this.abilityName), // Ability name
+							'Enemy In Personal Space!', // Ability name
 							this.creature, // Caster
 							this.creature, // Target
 							'', // Trigger
