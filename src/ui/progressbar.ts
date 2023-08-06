@@ -1,15 +1,29 @@
 import * as $j from 'jquery';
 
+type ProgressBarOptions = {
+	height: number;
+	width: number;
+	color: string;
+	$bar: any;
+};
+
 export class ProgressBar {
-	constructor(opts) {
-		const defaultOpts = {
+	$bar: any;
+	$preview: any;
+	$current: any;
+	width: number;
+	height: number;
+	color: string;
+
+	constructor(opts: Partial<ProgressBarOptions>) {
+		const defaultOpts: ProgressBarOptions = {
 			height: 316,
 			width: 7,
 			color: 'red',
 			$bar: undefined,
 		};
 
-		opts = $j.extend(defaultOpts, opts);
+		opts = Object.assign({}, defaultOpts, opts);
 		$j.extend(this, opts);
 
 		this.$bar.append('<div class="previewbar"></div>');
@@ -24,7 +38,7 @@ export class ProgressBar {
 	/**
 	 * @param{number} percentage - Size between 0 and 1
 	 */
-	setSize(percentage) {
+	setSize(percentage: number) {
 		this.$bar.css({
 			width: this.width,
 			height: this.height * percentage,
@@ -43,7 +57,7 @@ export class ProgressBar {
 	/**
 	 * @param{number} percentage - size between 0 and 1
 	 */
-	animSize(percentage) {
+	animSize(percentage: number) {
 		this.$bar.transition(
 			{
 				queue: false,
@@ -70,7 +84,7 @@ export class ProgressBar {
 	/**
 	 * @param{number} percentage - size between 0 and 1
 	 */
-	previewSize(percentage) {
+	previewSize(percentage: number) {
 		this.$preview.css(
 			{
 				width: this.width,
