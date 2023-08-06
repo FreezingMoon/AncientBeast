@@ -45,7 +45,8 @@ export class UI {
 	 * Create attributes and default buttons
 	 * @constructor
 	 */
-	constructor(game) {
+	constructor(configuration, game) {
+		this.configuration = configuration;
 		this.game = game;
 		this.fullscreen = new Fullscreen($j('#fullscreen.button'), game.fullscreenMode);
 		this.$display = $j('#ui');
@@ -86,7 +87,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnToggleDash);
 
@@ -100,7 +101,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 
 		// In-Game Fullscreen Button
@@ -111,7 +112,7 @@ export class UI {
 				click: () => this.fullscreen.toggle(),
 				overridefreeze: true,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnFullscreen);
 
@@ -125,7 +126,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnAudio);
 
@@ -153,7 +154,7 @@ export class UI {
 					}
 				},
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnSkipTurn);
 
@@ -175,7 +176,7 @@ export class UI {
 					}
 				},
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
 
@@ -208,7 +209,7 @@ export class UI {
 				},
 				state: ButtonStateEnum.disabled,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnFlee);
 
@@ -227,7 +228,7 @@ export class UI {
 				},
 				state: ButtonStateEnum.normal,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnExit);
 
@@ -250,7 +251,7 @@ export class UI {
 					slideIn: {},
 				},
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 
 		// Defines states for ability buttons
@@ -337,7 +338,7 @@ export class UI {
 						},
 					},
 				},
-				game,
+				{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 			);
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);

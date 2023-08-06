@@ -15,8 +15,8 @@ type ValueOf<T> = T[keyof T];
 type ButtonState = ValueOf<typeof ButtonStateEnum>;
 
 export class Button {
+	private isGameAcceptingInput: () => boolean;
 	state: ButtonState;
-	game: any;
 	cssTransitionMeta: { transitionClass: any };
 	resolveCssTransition: null;
 	$button: any;
@@ -36,10 +36,10 @@ export class Button {
 	 * Constructor - Create attributes and default buttons
 	 * @constructor
 	 * @param {Object} opts - Options
-	 * @param {Object} game - Game object
+	 * @param {Object} {isAcceptingInput: () => boolean}
 	 */
-	constructor(opts, game) {
-		this.game = game;
+	constructor(opts, configuration: { isAcceptingInput: () => boolean }) {
+		this.isGameAcceptingInput = configuration.isAcceptingInput;
 
 		const defaultOpts = {
 			click: function () {},
@@ -79,7 +79,6 @@ export class Button {
 	}
 
 	changeState(state) {
-		const game = this.game;
 		const wrapperElement = this.$button.parent();
 
 		state = state || this.state;
@@ -94,7 +93,7 @@ export class Button {
 		if (!['disabled', 'hidden'].includes(this.state)) {
 			this.$button.bind('click', () => {
 				if (!this.overridefreeze) {
-					if (game.freezedInput || !this.clickable) {
+					if (!this.isGameAcceptingInput || !this.clickable) {
 						return;
 					}
 				}
@@ -105,7 +104,7 @@ export class Button {
 
 		this.$button.bind('mouseover', () => {
 			if (!this.overridefreeze) {
-				if (game.freezedInput || !this.clickable) {
+				if (!this.isGameAcceptingInput || !this.clickable) {
 					return;
 				}
 			}
@@ -119,7 +118,7 @@ export class Button {
 
 		this.$button.bind('mouseleave', () => {
 			if (!this.overridefreeze) {
-				if (game.freezedInput || !this.clickable) {
+				if (!this.isGameAcceptingInput || !this.clickable) {
 					return;
 				}
 			}
@@ -134,7 +133,7 @@ export class Button {
 			event.preventDefault();
 			event.stopPropagation();
 			if (!this.overridefreeze) {
-				if (game.freezedInput || !this.clickable) {
+				if (!this.isGameAcceptingInput || !this.clickable) {
 					return;
 				}
 			}
@@ -151,7 +150,7 @@ export class Button {
 			event.preventDefault();
 			event.stopPropagation();
 			if (!this.overridefreeze) {
-				if (game.freezedInput || !this.clickable) {
+				if (!this.isGameAcceptingInput || !this.clickable) {
 					return;
 				}
 			}
@@ -226,7 +225,7 @@ export class Button {
 	triggerClick() {
 		if (!this.overridefreeze) {
 			if (
-				this.game.freezedInput ||
+				!this.isGameAcceptingInput ||
 				!this.clickable ||
 				['disabled', 'hidden'].includes(this.state)
 			) {
@@ -239,7 +238,7 @@ export class Button {
 
 	triggerMouseover() {
 		if (!this.overridefreeze) {
-			if (this.game.freezedInput || !this.clickable) {
+			if (!this.isGameAcceptingInput || !this.clickable) {
 				return;
 			}
 		}
@@ -249,7 +248,7 @@ export class Button {
 
 	triggerMouseleave() {
 		if (!this.overridefreeze) {
-			if (this.game.freezedInput || !this.clickable) {
+			if (!this.isGameAcceptingInput || !this.clickable) {
 				return;
 			}
 		}
