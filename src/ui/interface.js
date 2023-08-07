@@ -47,7 +47,10 @@ export class UI {
 	 */
 	constructor(game) {
 		this.game = game;
-		this.fullscreen = new Fullscreen($j('#fullscreen.button'), game.fullscreenMode);
+		this.fullscreen = new Fullscreen(
+			document.querySelector('#fullscreen.button'),
+			game.fullscreenMode,
+		);
 		this.$display = $j('#ui');
 		this.$dash = $j('#dash');
 		this.$grid = $j(this.#makeCreatureGrid(document.getElementById('creaturerasterwrapper')));

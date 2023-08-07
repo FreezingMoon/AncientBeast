@@ -1,12 +1,10 @@
-import * as $j from 'jquery';
-
 export class Fullscreen {
-	fullscreenElement: any;
+	private fullscreenElement: HTMLElement;
 
-	constructor(fullscreenElement, fullscreenMode = false) {
+	constructor(fullscreenElement: HTMLElement, fullscreenMode = false) {
 		this.fullscreenElement = fullscreenElement;
 		if (fullscreenMode) {
-			fullscreenElement.addClass('fullscreenMode');
+			fullscreenElement.classList.add('fullscreenMode');
 		}
 	}
 
@@ -18,7 +16,7 @@ export class Fullscreen {
 			alert('Use F11 to exit fullscreen');
 		} else {
 			enableFullscreenLayout(this.fullscreenElement);
-			$j('#AncientBeast')[0].requestFullscreen();
+			document.getElementById('AncientBeast').requestFullscreen();
 		}
 	}
 }
@@ -32,12 +30,18 @@ const isNativeFullscreenAPIUse = () => {
 	);
 };
 
-const disableFullscreenLayout = (fullscreenElement) => {
-	fullscreenElement.removeClass('fullscreenMode');
-	fullscreenElement.find('.fullscreen__title').text('Fullscreen');
+const disableFullscreenLayout = (fullscreenElement: HTMLElement) => {
+	fullscreenElement.classList.remove('fullscreenMode');
+	const labelNode = fullscreenElement.querySelector('.fullscreen__title');
+	if (labelNode) {
+		labelNode.textContent = 'Fullscreen';
+	}
 };
 
-const enableFullscreenLayout = (fullscreenElement) => {
-	fullscreenElement.addClass('fullscreenMode');
-	fullscreenElement.find('.fullscreen__title').text('Contract');
+const enableFullscreenLayout = (fullscreenElement: HTMLElement) => {
+	fullscreenElement.classList.add('fullscreenMode');
+	const labelNode = fullscreenElement.querySelector('.fullscreen__title');
+	if (labelNode) {
+		labelNode.textContent = 'Contract';
+	}
 };
