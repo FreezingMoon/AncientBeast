@@ -1,7 +1,9 @@
 import * as $j from 'jquery';
 
 export class Fullscreen {
-	constructor(fullscreenElement, fullscreenMode) {
+	fullscreenElement: any;
+
+	constructor(fullscreenElement, fullscreenMode = false) {
 		this.fullscreenElement = fullscreenElement;
 		if (fullscreenMode) {
 			fullscreenElement.addClass('fullscreenMode');
@@ -21,8 +23,14 @@ export class Fullscreen {
 	}
 }
 
-const isNativeFullscreenAPIUse = () =>
-	document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+const isNativeFullscreenAPIUse = () => {
+	// NOTE: These properties were vendor-prefixed until very recently.
+	// Keeping vendor prefixes, though they make TS report an error.
+	return (
+		// @ts-expect-error 2551
+		document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement
+	);
+};
 
 const disableFullscreenLayout = (fullscreenElement) => {
 	fullscreenElement.removeClass('fullscreenMode');
