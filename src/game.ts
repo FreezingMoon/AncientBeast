@@ -313,13 +313,10 @@ export default class Game {
 		this.Phaser.load.start();
 	}
 
-	/* loadGame(setupOpt) preload
-	 *
-	 * setupOpt :	Object :	Setup options from matchmaking menu
-	 *
+	/**
+	 * @param {Partial<GameConfig>} setupOpt - Setup options from matchmaking menu
 	 * Load all required game files
 	 */
-
 	loadGame(
 		setupOpt: Partial<GameConfig>,
 		matchInitialized?: boolean,
@@ -462,12 +459,9 @@ export default class Game {
 		this.setup(this.playerMode);
 	}
 
-	/* Setup(playerMode)
-	 *
-	 * playerMode :		Integer :	Ideally 2 or 4, number of players to configure
-	 *
+	/**
+	 * @param {number} playerMode - Ideally 2 or 4, number of players to configure
 	 * Launch the game with the given number of player.
-	 *
 	 */
 	setup(playerMode: number) {
 		let bg, i;
@@ -735,8 +729,7 @@ export default class Game {
 			$j('.lobby-match-list').append(_matchBtn);
 		});
 	}
-	/* resizeCombatFrame()
-	 *
+	/**
 	 * Resize the combat frame
 	 */
 	resizeCombatFrame() {
@@ -745,8 +738,7 @@ export default class Game {
 		}
 	}
 
-	/* nextRound()
-	 *
+	/**
 	 * Replace the current queue with the next queue
 	 */
 	nextRound() {
@@ -756,8 +748,7 @@ export default class Game {
 		this.nextCreature();
 	}
 
-	/* nextCreature()
-	 *
+	/**
 	 * Activate the next creature in queue
 	 */
 	nextCreature() {
@@ -841,10 +832,8 @@ export default class Game {
 		}
 	}
 
-	/* log(obj)
-	 *
-	 * obj :	Any :	Any variable to display in console and game log
-	 *
+	/**
+	 * @param {any} obj - Any variable to display in console and game log
 	 * Display obj in the console log and in the game log
 	 */
 	log(obj, htmlclass?, ifNoTimestamp = false) {
@@ -946,8 +935,7 @@ export default class Game {
 		}
 	}
 
-	/* delayCreature()
-	 *
+	/**
 	 * Delay the action turn of the current creature
 	 */
 	delayCreature(o) {
@@ -1009,8 +997,6 @@ export default class Game {
 		clearInterval(this.timeInterval);
 	}
 
-	/* checkTime()
-	 */
 	checkTime() {
 		let date = new Date().valueOf() - this.pauseTime,
 			p = this.activeCreature.player,
@@ -1104,10 +1090,8 @@ export default class Game {
 		}
 	}
 
-	/* retrieveCreatureStats(type)
-	 *
-	 * type :	String :	Creature's type (ex: "--" for Dark Priest)
-	 *
+	/**
+	 * @param {CreatureType} type -	Creature's type (ex: "--" for Dark Priest)
 	 * Query the database for creature stats.
 	 * Additonaly, ensure that a `type` property exists on each creature.
 	 */

@@ -209,9 +209,8 @@ export class Ability {
 		this.timesUsedThisTurn = 0;
 	}
 
-	/*
+	/**
 	 * Test and use the ability
-	 *
 	 */
 	use() {
 		const game = this.game;
@@ -231,11 +230,10 @@ export class Ability {
 		return this.query();
 	}
 
-	/*
+	/**
 	 * End the ability. Must be called at the end of each ability function;
-	 *
-	 * TODO: Once all files in `abilities` are converted to TS, consider defaulting both of these arguments to `false`.
 	 */
+	//TODO: Once all files in `abilities` are converted to TS, consider defaulting both of these arguments to `false`.
 	end(disableLogMsg?: boolean, deferredEnding?: boolean) {
 		const game = this.game;
 
@@ -413,7 +411,7 @@ export class Ability {
 
 	/**
 	 * Helper to animation method.
-	 * @param  o Animation object to extend.
+	 * @param {object} o - Animation object to extend.
 	 */
 	animation2(o: object): void {
 		const game = this.game;
@@ -626,7 +624,7 @@ export class Ability {
 		return string;
 	}
 
-	/*
+	/**
 	 * targets : Array : Example : target = [ { target: crea1, hexesHit: 2 }, { target: crea2, hexesHit: 1 } ]
 	 */
 	areaDamage(attacker: Creature, damages, effects, targets: Target[], ignoreRetaliation: boolean) {
@@ -898,7 +896,7 @@ export class Ability {
 	/**
 	 * Test whether there are valid targets in directions, using direction queries.
 	 *
-	 * @param {Object} o Dict of arguments for direction query.
+	 * @param {Object} o - Dict of arguments for direction query.
 	 * @return true if valid targets in at least one direction, else false
 	 */
 	testDirection(o: object): boolean {
