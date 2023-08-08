@@ -89,7 +89,7 @@ $j(() => {
 	disableScrollAndArrowKeys(document.getElementById('loader')); // Disable scroll and arrow keys for loader element
 
 	// Add listener for Fullscreen API
-	const fullscreen = new Fullscreen($j('#fullscreen'));
+	const fullscreen = new Fullscreen(document.getElementById('fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
 	const startScreenHotkeys = {
