@@ -1,5 +1,6 @@
 import { Creature } from '../creature';
 import { Drop } from '../drop';
+import { hashOffsetCoords as hash } from './const';
 import { Trap } from './trap';
 
 export type Point = {
@@ -22,10 +23,10 @@ type PointFacadeConfig = {
 };
 
 class PointSet {
-	s: Set<string>;
+	s: Set<number>;
 	config: PointFacadeConfig;
 
-	constructor(s: Set<string>, config: PointFacadeConfig) {
+	constructor(s: Set<number>, config: PointFacadeConfig) {
 		this.s = s;
 		this.config = config;
 	}
@@ -60,7 +61,7 @@ export class PointFacade {
 	}
 
 	getBlockedSet(): PointSet {
-		const blockedSet = new Set<string>();
+		const blockedSet = new Set<number>();
 		for (const c of this.config.getCreatures()) {
 			for (const point of this.config.getCreatureBlockedPoints(c)) {
 				blockedSet.add(hash(point));
@@ -87,9 +88,11 @@ export class PointFacade {
 	getCreaturesAt(point: Point | Creature | Point[] | number, y = 0) {
 		const config = this.config;
 
-		const points: Point[] = normalize(point, y, this.config);
-		const pointsToStr = points.map(hash).join('');
-		const hasPoint = (p: Point) => pointsToStr.indexOf(hash(p)) !== -1;
+		const points: Set<number> = normalize(point, y, this.config).reduce((s, p) => {
+			s.add(hash(p));
+			return s;
+		}, new Set<number>());
+		const hasPoint = (p: Point) => points.has(hash(p));
 
 		return config
 			.getCreatures()
@@ -103,9 +106,11 @@ export class PointFacade {
 	getTrapsAt(point: Point | Creature | Point[] | number, y = 0) {
 		const config = this.config;
 
-		const points: Point[] = normalize(point, y, this.config);
-		const pointsToStr = points.map(hash).join('');
-		const hasPoint = (p: Point) => pointsToStr.indexOf(hash(p)) !== -1;
+		const points: Set<number> = normalize(point, y, this.config).reduce((s, p) => {
+			s.add(hash(p));
+			return s;
+		}, new Set<number>());
+		const hasPoint = (p: Point) => points.has(hash(p));
 
 		return config
 			.getTraps()
@@ -119,9 +124,11 @@ export class PointFacade {
 	getDropsAt(point: Point | Creature | Point[] | number, y = 0) {
 		const config = this.config;
 
-		const points: Point[] = normalize(point, y, this.config);
-		const pointsToStr = points.map(hash).join('');
-		const hasPoint = (p: Point) => pointsToStr.indexOf(hash(p)) !== -1;
+		const points: Set<number> = normalize(point, y, this.config).reduce((s, p) => {
+			s.add(hash(p));
+			return s;
+		}, new Set<number>());
+		const hasPoint = (p: Point) => points.has(hash(p));
 
 		return config
 			.getDrops()
@@ -131,10 +138,6 @@ export class PointFacade {
 					config.getDropPassablePoints(d).some(hasPoint),
 			);
 	}
-}
-
-function hash(point: Point) {
-	return `(${point.x},${point.y})`;
 }
 
 function getMissingConfigRequirements(config: PointFacadeConfig): string[] {
