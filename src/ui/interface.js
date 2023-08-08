@@ -45,7 +45,8 @@ export class UI {
 	 * Create attributes and default buttons
 	 * @constructor
 	 */
-	constructor(game) {
+	constructor(configuration, game) {
+		this.configuration = configuration;
 		this.game = game;
 		this.fullscreen = new Fullscreen(
 			document.querySelector('#fullscreen.button'),
@@ -89,7 +90,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnToggleDash);
 
@@ -103,7 +104,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 
 		// In-Game Fullscreen Button
@@ -114,7 +115,7 @@ export class UI {
 				click: () => this.fullscreen.toggle(),
 				overridefreeze: true,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnFullscreen);
 
@@ -128,7 +129,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnAudio);
 
@@ -156,7 +157,7 @@ export class UI {
 					}
 				},
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnSkipTurn);
 
@@ -178,7 +179,7 @@ export class UI {
 					}
 				},
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
 
@@ -211,7 +212,7 @@ export class UI {
 				},
 				state: ButtonStateEnum.disabled,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnFlee);
 
@@ -230,7 +231,7 @@ export class UI {
 				},
 				state: ButtonStateEnum.normal,
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnExit);
 
@@ -253,7 +254,7 @@ export class UI {
 					slideIn: {},
 				},
 			},
-			game,
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 
 		// Defines states for ability buttons
@@ -340,44 +341,32 @@ export class UI {
 						},
 					},
 				},
-				game,
+				{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 			);
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
 		}
 
 		// ProgressBar
-		this.healthBar = new ProgressBar(
-			{
-				$bar: $j('#leftpanel .progressbar .bar.healthbar'),
-				color: 'red',
-			},
-			game,
-		);
+		this.healthBar = new ProgressBar({
+			$bar: $j('#leftpanel .progressbar .bar.healthbar'),
+			color: 'red',
+		});
 
-		this.energyBar = new ProgressBar(
-			{
-				$bar: $j('#leftpanel .progressbar .bar.energybar'),
-				color: 'yellow',
-			},
-			game,
-		);
+		this.energyBar = new ProgressBar({
+			$bar: $j('#leftpanel .progressbar .bar.energybar'),
+			color: 'yellow',
+		});
 
-		this.timeBar = new ProgressBar(
-			{
-				$bar: $j('#rightpanel .progressbar .timebar'),
-				color: 'white',
-			},
-			game,
-		);
+		this.timeBar = new ProgressBar({
+			$bar: $j('#rightpanel .progressbar .timebar'),
+			color: 'white',
+		});
 
-		this.poolBar = new ProgressBar(
-			{
-				$bar: $j('#rightpanel .progressbar .poolbar'),
-				color: 'grey',
-			},
-			game,
-		);
+		this.poolBar = new ProgressBar({
+			$bar: $j('#rightpanel .progressbar .poolbar'),
+			color: 'grey',
+		});
 
 		// Sound Effects slider
 		const slider = document.getElementById('sfx');

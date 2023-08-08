@@ -596,7 +596,17 @@ export default class Game {
 
 		this.activeCreature = this.players[0].creatures[0]; // Prevent errors
 
-		this.UI = new UI(this); // Create UI (not before because some functions require creatures to already exist)
+		{
+			const self = this;
+			this.UI = new UI(
+				{
+					get isAcceptingInput() {
+						return !self.freezedInput;
+					},
+				},
+				this,
+			); // Create UI (not before because some functions require creatures to already exist)
+		}
 
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = 'playing';

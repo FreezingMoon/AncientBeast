@@ -9,9 +9,26 @@ export const ButtonStateEnum = {
 	hidden: 'hidden',
 	noClick: 'noclick',
 	slideIn: 'slideIn',
-};
+} as const;
+
+type ValueOf<T> = T[keyof T];
+type ButtonState = ValueOf<typeof ButtonStateEnum>;
 
 export class Button {
+	private isGameAcceptingInput: () => boolean;
+	state: ButtonState;
+	cssTransitionMeta: { transitionClass: any };
+	resolveCssTransition: null;
+	$button: any;
+	overridefreeze: any;
+	clickable: any;
+	hasShortcut: any;
+	touchX: any;
+	touchY: any;
+	css: any;
+	resolveTransitionTask: null;
+	stateTransitionMeta: { transitionClass: any };
+	resolveCssTransitionTask: any;
 	click() {
 		throw new Error('Method not implemented.');
 	}
@@ -19,10 +36,10 @@ export class Button {
 	 * Constructor - Create attributes and default buttons
 	 * @constructor
 	 * @param {Object} opts - Options
-	 * @param {Object} game - Game object
+	 * @param {Object} {isAcceptingInput: () => boolean}
 	 */
-	constructor(opts, game) {
-		this.game = game;
+	constructor(opts, configuration: { isAcceptingInput: () => boolean }) {
+		this.isGameAcceptingInput = configuration.isAcceptingInput;
 
 		const defaultOpts = {
 			click: function () {},
@@ -56,13 +73,12 @@ export class Button {
 
 		// Used in applying and removing CSS transitions
 		this.cssTransitionMeta = {
-			transition: null,
+			transitionClass: null,
 		};
 		this.resolveCssTransition = null;
 	}
 
 	changeState(state) {
-		const game = this.game;
 		const wrapperElement = this.$button.parent();
 
 		state = state || this.state;
@@ -74,10 +90,10 @@ export class Button {
 			.unbind('touchend')
 			.unbind('mouseleave');
 
-		if (![ButtonStateEnum.disabled, ButtonStateEnum.hidden].includes(this.state)) {
+		if (!['disabled', 'hidden'].includes(this.state)) {
 			this.$button.bind('click', () => {
 				if (!this.overridefreeze) {
-					if (game.freezedInput || !this.clickable) {
+					if (!this.isGameAcceptingInput || !this.clickable) {
 						return;
 					}
 				}
@@ -88,7 +104,7 @@ export class Button {
 
 		this.$button.bind('mouseover', () => {
 			if (!this.overridefreeze) {
-				if (game.freezedInput || !this.clickable) {
+				if (!this.isGameAcceptingInput || !this.clickable) {
 					return;
 				}
 			}
@@ -102,7 +118,7 @@ export class Button {
 
 		this.$button.bind('mouseleave', () => {
 			if (!this.overridefreeze) {
-				if (game.freezedInput || !this.clickable) {
+				if (!this.isGameAcceptingInput || !this.clickable) {
 					return;
 				}
 			}
@@ -117,7 +133,7 @@ export class Button {
 			event.preventDefault();
 			event.stopPropagation();
 			if (!this.overridefreeze) {
-				if (game.freezedInput || !this.clickable) {
+				if (!this.isGameAcceptingInput || !this.clickable) {
 					return;
 				}
 			}
@@ -134,7 +150,7 @@ export class Button {
 			event.preventDefault();
 			event.stopPropagation();
 			if (!this.overridefreeze) {
-				if (game.freezedInput || !this.clickable) {
+				if (!this.isGameAcceptingInput || !this.clickable) {
 					return;
 				}
 			}
@@ -164,6 +180,12 @@ export class Button {
 			this.$button.addClass(state);
 			this.$button.css(this.css[state]);
 		}
+	}
+	mouseover() {
+		throw new Error('Method not implemented.');
+	}
+	mouseleave() {
+		throw new Error('Method not implemented.');
 	}
 
 	/**
@@ -203,9 +225,9 @@ export class Button {
 	triggerClick() {
 		if (!this.overridefreeze) {
 			if (
-				this.game.freezedInput ||
+				!this.isGameAcceptingInput ||
 				!this.clickable ||
-				[ButtonStateEnum.disabled, ButtonStateEnum.hidden].includes(this.state)
+				['disabled', 'hidden'].includes(this.state)
 			) {
 				return;
 			}
@@ -216,7 +238,7 @@ export class Button {
 
 	triggerMouseover() {
 		if (!this.overridefreeze) {
-			if (this.game.freezedInput || !this.clickable) {
+			if (!this.isGameAcceptingInput || !this.clickable) {
 				return;
 			}
 		}
@@ -226,7 +248,7 @@ export class Button {
 
 	triggerMouseleave() {
 		if (!this.overridefreeze) {
-			if (this.game.freezedInput || !this.clickable) {
+			if (!this.isGameAcceptingInput || !this.clickable) {
 				return;
 			}
 		}
