@@ -4,12 +4,26 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
+import { Creature } from '../creature';
+import Game from '../game';
+import { Hex } from '../utility/hex';
+import { getPointFacade } from '../utility/pointfacade';
+import { Trap } from '../utility/trap';
+
+/*
+ *TODO
+ *
+ * Fix ts-error 2554: Need to properly type the `on<Trigger>` functions in `game.ts`.
+ * This can be done once all the `abilities` files are converted to TS.
+ *
+ * Fix eslint prefer rest params error
+ */
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	/*
 	 *
 	 *	Swine Thug abilities
@@ -22,7 +36,7 @@ export default (G) => {
 			trigger: 'onCreatureMove',
 
 			// 	require() :
-			require: function (hex) {
+			require: function (hex: Hex) {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -32,8 +46,9 @@ export default (G) => {
 				}
 				this.message = '';
 
-				if (hex.trap) {
-					if (hex.trap.type == 'mud-bath') {
+				if (hex) {
+					const trapsOnHex = getPointFacade().getTrapsAt(hex.x, hex.y);
+					if (trapsOnHex.length > 0 && trapsOnHex.some((trap) => trap.type === 'mud-bath')) {
 						G.UI.abilitiesButtons[0].changeState('noclick');
 						return true;
 					}
@@ -123,6 +138,7 @@ export default (G) => {
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					flipped: swine.player.flipped,
@@ -177,8 +193,10 @@ export default (G) => {
 						// The target must be completely over mud baths to keep sliding
 						let mudSlide = true;
 						for (let j = 0; j < target.size; j++) {
-							const mudHex = G.grid.hexes[hex.y][hex.x - j];
-							if (!mudHex.trap || mudHex.trap.type !== 'mud-bath') {
+							const hexToCheck = G.grid.hexes[hex.y][hex.x - j];
+							const trapsOnHex = getPointFacade().getTrapsAt(hexToCheck.x, hexToCheck.y);
+
+							if (trapsOnHex.length === 0 || !trapsOnHex.some((trap) => trap.type === 'mud-bath')) {
 								mudSlide = false;
 								break;
 							}
@@ -225,7 +243,6 @@ export default (G) => {
 						true,
 						true,
 						swine.id,
-						swine.team,
 					)
 					.concat(
 						arrayUtils.filterCreature(
@@ -233,35 +250,30 @@ export default (G) => {
 							true,
 							true,
 							swine.id,
-							swine.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(swine.x, swine.y, 0, false, bellowrow),
 							true,
 							true,
 							swine.id,
-							swine.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(swine.x, swine.y - 2, 0, true, bellowrow),
 							true,
 							true,
 							swine.id,
-							swine.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(swine.x, swine.y, 0, true, straitrow),
 							true,
 							true,
 							swine.id,
-							swine.team,
 						),
 						arrayUtils.filterCreature(
 							G.grid.getHexMap(swine.x, swine.y, 0, true, bellowrow),
 							true,
 							true,
 							swine.id,
-							swine.team,
 						),
 					);
 				if (
@@ -300,12 +312,13 @@ export default (G) => {
 
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: this._targetTeam,
 					requireCreature: 1,
 					id: swine.id,
-					flipped: swine.flipped,
+					flipped: swine.player.flipped,
 					choices: choices,
 				});
 			},
@@ -395,6 +408,7 @@ export default (G) => {
 						G.activeCreature.queryMove();
 					},
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					hexes: hexes,
@@ -403,7 +417,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (hex) {
+			activate: function (hex: Hex) {
 				const ability = this;
 				const swine = this.creature;
 
@@ -435,24 +449,27 @@ export default (G) => {
 						'onStepIn',
 						{
 							requireFn: function () {
-								if (!this.trap.hex.creature) {
+								const creaturesOnHex = getPointFacade().getCreaturesAt(hex.x, hex.y);
+								if (creaturesOnHex.length === 0) {
 									return false;
 								}
-								return this.trap.hex.creature.type != 'A1';
+								return creaturesOnHex[0].type != 'A1';
 							},
-							effectFn: function (effect, crea) {
-								crea.remainingMove--;
+							effectFn: function (effect, crea: Creature) {
+								if (crea) {
+									crea.remainingMove--;
+								}
 							},
 						},
 						G,
 					),
 				];
-
-				hex.createTrap('mud-bath', effects, ability.creature.player);
+				new Trap(hex.x, hex.y, 'mud-bath', effects, ability.creature.player, {}, G);
 				G.soundsys.playSFX('sounds/mudbath');
 				// Trigger trap immediately if on self
 				if (isSelf) {
 					// onCreatureMove is Spa Goggles' trigger event
+					// @ts-expect-error 2554
 					G.onCreatureMove(swine, hex);
 				}
 			},

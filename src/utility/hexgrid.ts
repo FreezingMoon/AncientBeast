@@ -287,7 +287,7 @@ export class HexGrid {
 	 * Shortcut to queryChoice with specific directions.
 	 * @param {QueryOptions} o
 	 */
-	queryDirection(o: QueryOptions) {
+	queryDirection(o: Partial<QueryOptions>) {
 		o.isDirectionsQuery = true;
 		o = this.getDirectionChoices(o);
 		this.queryChoice(o);
@@ -298,7 +298,7 @@ export class HexGrid {
 	 * @param {QueryOptions} o Options.
 	 * @returns {QueryOptions} Altered options.
 	 */
-	getDirectionChoices(o: QueryOptions) {
+	getDirectionChoices(o: Partial<QueryOptions>) {
 		const defaultOpt = {
 			team: Team.Enemy,
 			requireCreature: true,
