@@ -355,7 +355,7 @@ export default (G) => {
 					nextdmg = nextdmg.damages;
 
 					// Get next available targets
-					let nextTargets = ability.getTargets(trg.adjacentHexes(1, true));
+					let nextTargets = ability.getTargets(trg.adjacentHexes(1));
 
 					nextTargets = nextTargets.filter(function (item) {
 						if (item.hexesHit === undefined) {
