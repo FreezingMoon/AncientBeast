@@ -3,6 +3,13 @@ import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
+import Game from '../game';
+import { Hex } from '../utility/hex';
+
+/* TODO:
+ * Refactor to remove the `arguments` keyword
+ * Refactor to remove deprecated `curr.creature` and `hex.creature`
+ */
 
 const HopTriggerDirections = {
 	Above: 0,
@@ -14,7 +21,7 @@ const HopTriggerDirections = {
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[12] = [
 		/**
 		 * First Ability: Bunny Hop
@@ -38,7 +45,7 @@ export default (G) => {
 			 * @param {Hex} hex Destination hex where a creature (bunny or other) has moved.
 			 * @returns {boolean} If the ability should trigger.
 			 */
-			require: function (hex) {
+			require: function (hex: Hex) {
 				if (!this.testRequirements()) {
 					return false;
 				}
@@ -55,7 +62,7 @@ export default (G) => {
 
 				/* Determine which (if any) frontal hexes contain an enemy that would trigger
 				the ability. */
-				let triggerHexes = [];
+				let triggerHexes: (ReturnType<typeof this._detectFrontHexesWithEnemy>[number] | Hex)[] = [];
 
 				if (hex.creature === this.creature) {
 					// Bunny has been moved by another active creature, not itself.
@@ -78,7 +85,7 @@ export default (G) => {
 					// Bunny needs a valid hex to retreat into.
 					this._getHopHex();
 
-				return abilityCanTrigger;
+				return !!abilityCanTrigger;
 			},
 
 			//	activate() :
@@ -137,7 +144,7 @@ export default (G) => {
 				const triggerHexes = this._detectFrontHexesWithEnemy();
 
 				// Try to hop away
-				let hex;
+				let hex: Hex;
 
 				if (
 					triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Front) ||
@@ -145,16 +152,16 @@ export default (G) => {
 					(triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Above) &&
 						triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Below))
 				) {
-					hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
+					hex = this.creature.getHexMap(matrices.inlineback1hex, false)[0];
 				} else if (triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Above)) {
-					hex = this.creature.getHexMap(matrices.backbottom1hex)[0];
+					hex = this.creature.getHexMap(matrices.backbottom1hex, false)[0];
 				} else if (triggerHexes.find((hex) => hex.direction === HopTriggerDirections.Below)) {
-					hex = this.creature.getHexMap(matrices.backtop1hex)[0];
+					hex = this.creature.getHexMap(matrices.backtop1hex, false)[0];
 				}
 
 				// If we can't hop away, try hopping backwards.
 				if (hex === undefined || !hex.isWalkable(this.creature.size, this.creature.id, true)) {
-					hex = this.creature.getHexMap(matrices.inlineback1hex)[0];
+					hex = this.creature.getHexMap(matrices.inlineback1hex, false)[0];
 				}
 
 				// Finally, give up if we still can't move.
@@ -184,24 +191,26 @@ export default (G) => {
 			/**
 			 * Check the 3 hexes in front of the Snow bunny for any enemy creatures.
 			 *
-			 * @returns creature in front of the Snow Bunny, or undefined if there is none.
+			 * @returns An array of objects that include the hex and direction of an enemy creature, or an empty array.
 			 */
 			_detectFrontHexesWithEnemy: function () {
-				const hexesInFront = this.creature.getHexMap(matrices.front1hex);
-				const hexesWithEnemy = hexesInFront.reduce((acc, curr, idx) => {
-					const hexHasEnemy = curr.creature && isTeam(curr.creature, this.creature, Team.Enemy);
+				const hexesInFront = this.creature.getHexMap(matrices.front1hex, false);
+				const hexesWithEnemy = hexesInFront.reduce(
+					(acc: { direction: number; hex: Hex }[], curr, idx) => {
+						const hexHasEnemy = curr.creature && isTeam(curr.creature, this.creature, Team.Enemy);
 
-					if (hexHasEnemy) {
-						acc.push({
-							// Maps to HopTriggerDirections.
-							direction: idx,
-							hex: curr,
-						});
-					}
+						if (hexHasEnemy) {
+							acc.push({
+								// Maps to HopTriggerDirections.
+								direction: idx,
+								hex: curr,
+							});
+						}
 
-					return acc;
-				}, []);
-
+						return acc;
+					},
+					[],
+				);
 				return hexesWithEnemy;
 			},
 		},
@@ -236,6 +245,7 @@ export default (G) => {
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -252,21 +262,23 @@ export default (G) => {
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let damages = ability.damages;
+				let pureDamage = {
+					pure: 0,
+				};
+				const canDealPureDamage = this.isUpgraded() && target.isFrozen();
+
 				// If upgraded, do pure damage against frozen targets
-				if (this.isUpgraded() && target.isFrozen()) {
-					damages = {
-						pure: 0,
-					};
+				if (canDealPureDamage) {
 					for (const type in ability.damages) {
 						if ({}.hasOwnProperty.call(ability.damages, type)) {
-							damages.pure += ability.damages[type];
+							pureDamage.pure += ability.damages[type];
 						}
 					}
 				}
 
 				const damage = new Damage(
 					ability.creature, // Attacker
-					damages, // Damage Type
+					canDealPureDamage ? pureDamage : damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -307,6 +319,7 @@ export default (G) => {
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					flipped: snowBunny.player.flipped,
@@ -439,6 +452,7 @@ export default (G) => {
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					flipped: snowBunny.player.flipped,
@@ -459,6 +473,7 @@ export default (G) => {
 				const target = path.find((hex) => hex.creature).creature;
 
 				const projectileInstance = G.animations.projectile(
+					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
 					this,
 					target,
 					'effects_freezing-spit',
@@ -472,7 +487,7 @@ export default (G) => {
 				const dist = projectileInstance[2];
 
 				tween.onComplete.add(function () {
-					// this refers to the animation object, _not_ the ability
+					// @ts-expect-error this refers to the animation object, _not_ the ability
 					this.destroy();
 
 					// Copy to not alter ability strength
