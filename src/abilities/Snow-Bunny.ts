@@ -89,7 +89,7 @@ export default (G: Game) => {
 			},
 
 			//	activate() :
-			activate: function (hex) {
+			activate: function () {
 				const ability = this;
 
 				ability.end();
@@ -261,8 +261,8 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let damages = ability.damages;
-				let pureDamage = {
+				const damages = ability.damages;
+				const pureDamage = {
 					pure: 0,
 				};
 				const canDealPureDamage = this.isUpgraded() && target.isFrozen();
