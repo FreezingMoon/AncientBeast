@@ -2,6 +2,7 @@ import * as $j from 'jquery';
 import Cookies from 'js-cookie';
 import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
+import Game from '../game';
 
 const COOKIE_KEY = 'ab-meta-powers';
 
@@ -14,7 +15,27 @@ const COOKIE_KEY = 'ab-meta-powers';
  * Caution: usage of these tools may break the game log
  */
 export class MetaPowers {
-	constructor(game) {
+	game: Game;
+	toggles: {
+		executeMonster: { enabled: boolean; label: string };
+		resetCooldowns: { enabled: boolean; label: string };
+		disableMaterializationSickness: { enabled: boolean; label: string };
+	};
+	$els: {
+		modal: any;
+		closeModal: any;
+		resetPowersButton: any;
+		powersList: any;
+		executeMonsterButton: any;
+		resetCooldownsButton: any;
+		disableMaterializationSicknessButton: any;
+	};
+	btnCloseModal: Button;
+	btnExecuteMonster: Button;
+	btnResetCooldowns: Button;
+	btnDisableMaterializationSickness: Button;
+
+	constructor(game: Game) {
 		this.game = game;
 
 		this.toggles = {
@@ -23,11 +44,8 @@ export class MetaPowers {
 			disableMaterializationSickness: { enabled: false, label: 'Disable Cooldowns' },
 		};
 
-		// Object that will contain jQuery element references
-		this.$els = {};
 		this._bindElements();
 
-		// Events
 		this.game.signals.ui.add(this._handleUiEvent, this);
 
 		if (Cookies.get(COOKIE_KEY)) {
@@ -84,7 +102,8 @@ export class MetaPowers {
 				$button: this.$els.closeModal,
 				click: () => this._toggleModal(),
 			},
-			this.game,
+
+			{ isAcceptingInput: () => !this.game.freezedInput },
 		);
 
 		this.btnExecuteMonster = new Button(
@@ -93,7 +112,7 @@ export class MetaPowers {
 				hasShortcut: true,
 				click: () => this._togglePower('executeMonster', this.btnExecuteMonster),
 			},
-			this.game,
+			{ isAcceptingInput: () => !this.game.freezedInput },
 		);
 
 		this.btnResetCooldowns = new Button(
@@ -102,7 +121,7 @@ export class MetaPowers {
 				hasShortcut: true,
 				click: () => this._togglePower('resetCooldowns', this.btnResetCooldowns),
 			},
-			this.game,
+			{ isAcceptingInput: () => !this.game.freezedInput },
 		);
 
 		this.btnDisableMaterializationSickness = new Button(
@@ -115,7 +134,7 @@ export class MetaPowers {
 						this.btnDisableMaterializationSickness,
 					),
 			},
-			this.game,
+			{ isAcceptingInput: () => !this.game.freezedInput },
 		);
 
 		this.$els.resetPowersButton.on('click', () => {
