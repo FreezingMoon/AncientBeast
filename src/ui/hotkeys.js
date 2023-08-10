@@ -38,7 +38,7 @@ export class Hotkeys {
 	}
 
 	pressP(event) {
-		if (event.metaKey && event.altKey) {
+		if (event.altKey) {
 			this.ui.game.signals.ui.dispatch('toggleMetaPowers');
 		}
 	}
