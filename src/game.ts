@@ -27,6 +27,7 @@ import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
+import { strings } from './data/strings';
 
 /* eslint-disable prefer-rest-params */
 
@@ -199,35 +200,7 @@ export default class Game {
 			render: this.phaserRender.bind(this),
 		});
 
-		// Messages
-		// TODO: Move strings to external file in order to be able to support translations
-		// https://github.com/FreezingMoon/AncientBeast/issues/923
-		this.msg = {
-			abilities: {
-				noTarget: 'No targets available.',
-				noPlasma: 'Not enough plasma.',
-				noPsy: 'Psyhelm overload: too many units!',
-				alreadyUsed: 'This ability has already been used.',
-				tooMuch: 'Too much %stat%.',
-				notEnough: 'Not enough %stat%.',
-				notMoveable: 'This creature cannot be moved.',
-				passiveCycle: 'Switches between any usable abilities.',
-				passiveUnavailable: 'No usable abilities to switch to.',
-			},
-			ui: {
-				dash: {
-					materializeOverload: 'Overload! Maximum number of units controlled',
-					selectUnit: 'Please select an available unit from the left grid',
-					lowPlasma: 'Low Plasma! Cannot materialize the selected unit',
-					// plasmaCost :    String :    plasma cost of the unit to materialize
-					materializeUnit: (plasmaCost: string) => {
-						return 'Materialize unit at target location for ' + plasmaCost + ' plasma';
-					},
-					materializeUsed: 'Materialization has already been used this round',
-					heavyDev: 'This unit is currently under heavy development',
-				},
-			},
-		};
+		this.msg = strings;
 
 		/* Regex Test for triggers */
 		this.triggers = {
