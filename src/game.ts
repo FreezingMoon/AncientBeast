@@ -117,7 +117,6 @@ export default class Game {
 	turnThrottle: boolean;
 	turn: number;
 	Phaser: Phaser;
-	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
 	signals: any;
 
@@ -199,8 +198,6 @@ export default class Game {
 			update: this.phaserUpdate.bind(this),
 			render: this.phaserRender.bind(this),
 		});
-
-		this.msg = strings;
 
 		/* Regex Test for triggers */
 		this.triggers = {
@@ -348,6 +345,14 @@ export default class Game {
 
 	hexAt(x: number, y: number): Hex | undefined {
 		return this.grid.hexAt(x, y);
+	}
+
+	/**
+	 * @returns the "strings" object of (mainly) constant strings
+	 * @deprecated Import and use data/strings.ts
+	 */
+	get msg() {
+		return strings;
 	}
 
 	get activePlayer() {
