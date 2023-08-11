@@ -27,6 +27,7 @@ import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
+import { strings } from './data/strings';
 
 /* eslint-disable prefer-rest-params */
 
@@ -116,7 +117,6 @@ export default class Game {
 	turnThrottle: boolean;
 	turn: number;
 	Phaser: Phaser;
-	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
 	signals: any;
 
@@ -198,36 +198,6 @@ export default class Game {
 			update: this.phaserUpdate.bind(this),
 			render: this.phaserRender.bind(this),
 		});
-
-		// Messages
-		// TODO: Move strings to external file in order to be able to support translations
-		// https://github.com/FreezingMoon/AncientBeast/issues/923
-		this.msg = {
-			abilities: {
-				noTarget: 'No targets available.',
-				noPlasma: 'Not enough plasma.',
-				noPsy: 'Psyhelm overload: too many units!',
-				alreadyUsed: 'This ability has already been used.',
-				tooMuch: 'Too much %stat%.',
-				notEnough: 'Not enough %stat%.',
-				notMoveable: 'This creature cannot be moved.',
-				passiveCycle: 'Switches between any usable abilities.',
-				passiveUnavailable: 'No usable abilities to switch to.',
-			},
-			ui: {
-				dash: {
-					materializeOverload: 'Overload! Maximum number of units controlled',
-					selectUnit: 'Please select an available unit from the left grid',
-					lowPlasma: 'Low Plasma! Cannot materialize the selected unit',
-					// plasmaCost :    String :    plasma cost of the unit to materialize
-					materializeUnit: (plasmaCost: string) => {
-						return 'Materialize unit at target location for ' + plasmaCost + ' plasma';
-					},
-					materializeUsed: 'Materialization has already been used this round',
-					heavyDev: 'This unit is currently under heavy development',
-				},
-			},
-		};
 
 		/* Regex Test for triggers */
 		this.triggers = {
@@ -375,6 +345,14 @@ export default class Game {
 
 	hexAt(x: number, y: number): Hex | undefined {
 		return this.grid.hexAt(x, y);
+	}
+
+	/**
+	 * @returns the "strings" object of (mainly) constant strings
+	 * @deprecated Import and use data/strings.ts
+	 */
+	get msg() {
+		return strings;
 	}
 
 	get activePlayer() {
