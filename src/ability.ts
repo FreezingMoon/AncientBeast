@@ -6,6 +6,7 @@ import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
 import Game from './game';
 import { ScoreEvent } from './player';
+import { strings } from './data/strings';
 
 /*
  * NOTE
@@ -678,7 +679,7 @@ export class Ability {
 			return true;
 		}
 
-		this.message = this.game.msg.abilities.noTarget;
+		this.message = strings.abilities.noTarget;
 		return false;
 	}
 
@@ -717,7 +718,7 @@ export class Ability {
 				},
 			},
 			req = $j.extend(def, this.requirements),
-			abilityMsgs = game.msg.abilities;
+			abilityMsgs = strings.abilities;
 
 		// Plasma
 		if (req.plasma > 0) {
@@ -909,7 +910,7 @@ export class Ability {
 			}
 		}
 
-		this.message = this.game.msg.abilities.noTarget;
+		this.message = strings.abilities.noTarget;
 		return false;
 	}
 
