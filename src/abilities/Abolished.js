@@ -3,6 +3,7 @@ import { Team } from '../utility/team';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 import * as arrayUtils from '../utility/arrayUtils';
+import { getPointFacade } from '../utility/pointfacade';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -130,7 +131,12 @@ export default (G) => {
 
 			activate(path, args) {
 				const ability = this;
-				const target = arrayUtils.last(path).creature;
+				const maybeTargets = getPointFacade().getCreaturesAt(args.hex);
+				if (maybeTargets.length === 0) {
+					ability.end();
+					return;
+				}
+				const target = maybeTargets[0];
 
 				ability.end();
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
