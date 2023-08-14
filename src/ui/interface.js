@@ -1108,15 +1108,6 @@ export class UI {
 			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
 			$j('#materialize_button').show();
 			$j('#card .sideA').addClass('disabled').off('click');
-
-			// OpenCollective Banner
-			let bannerTitles = ['sponsor', 'backer', 'helper'];
-			$j('#opencollective_banner > object').attr(
-				'data',
-				`https://opencollective.com/ancientbeast/tiers/${
-					bannerTitles[Math.floor(Math.random() * bannerTitles.length)]
-				}.svg?avatarHeight=61&width=800&limit=10`,
-			);
 		}
 	}
 
