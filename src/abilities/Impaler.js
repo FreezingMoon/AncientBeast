@@ -226,14 +226,27 @@ export default (G) => {
 				);
 
 				// NOTE: Add a trap to every hex of the target
+				// Made it so only one hex has the effect & others are placeholders
+				let trapSet = false;
 				target.hexagons.forEach(function (hex) {
-					hex.createTrap('poisonous-vine', [effect], ability.creature.player, {
-						turnLifetime: lifetime,
-						fullTurnLifetime: true,
-						ownerCreature: ability.creature,
-						destroyOnActivate: true,
-						destroyAnimation: 'shrinkDown',
-					});
+					if (!trapSet) {
+						hex.createTrap('poisonous-vine', [effect], ability.creature.player, {
+							turnLifetime: lifetime,
+							fullTurnLifetime: true,
+							ownerCreature: ability.creature,
+							destroyOnActivate: true,
+							destroyAnimation: 'shrinkDown',
+						});
+						trapSet = true;
+					} else {
+						hex.createTrap('poisonous-vine', [], ability.creature.player, {
+							turnLifetime: lifetime,
+							fullTurnLifetime: true,
+							ownerCreature: ability.creature,
+							destroyOnActivate: true,
+							destroyAnimation: 'shrinkDown',
+						});
+					}
 				});
 			},
 
