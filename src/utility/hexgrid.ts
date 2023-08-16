@@ -9,6 +9,7 @@ import Game from '../game';
 import { DEBUG } from '../debug';
 import { HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
+import { AugmentedMatrix } from './matrices';
 
 interface GridDefinition {
 	numRows: number;
@@ -1240,11 +1241,17 @@ export class HexGrid {
 	 * @param {number[]} array - 2-dimensions Array containing 0 or 1 (boolean)
 	 * @returns {Hex[]} Set of corresponding hexes
 	 */
-	getHexMap(originx, originy, offsetx, flipped, array) {
+	getHexMap(
+		originx: number,
+		originy: number,
+		offsetx: number,
+		flipped: boolean,
+		array: AugmentedMatrix,
+	): Hex[] {
 		// Heavy logic in here
-		const hexes = [];
+		const hexes: Hex[] = [];
 
-		array = array.slice(0); // Copy to not modify original
+		array = array.slice(0) as AugmentedMatrix; // Copy to not modify original
 		originx += flipped ? 1 - array[0].length - offsetx : -1 + offsetx;
 
 		for (let y = 0, len = array.length; y < len; y++) {

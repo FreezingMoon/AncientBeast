@@ -852,7 +852,7 @@ export class Creature {
 	 * @param{Hex} hex - Destination Hex
 	 * @param{Object} opts - Optional args object
 	 */
-	moveTo(hex, opts) {
+	moveTo(hex: Hex, opts) {
 		const game = this.game,
 			defaultOpt = {
 				callback: function () {
