@@ -460,6 +460,9 @@ export class Creature {
 
 			this.abilities.forEach((ability) => {
 				ability.reset();
+				if (!ability.upgraded && ability.usesLeftBeforeUpgrade() === 0) {
+					ability.setUpgraded();
+				}
 			});
 		};
 		varReset.bind(this);
