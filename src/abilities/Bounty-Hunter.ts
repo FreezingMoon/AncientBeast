@@ -163,7 +163,11 @@ export default (G: Game) => {
 				 * make a second attack
 				 */
 				if (targetOriginalHealth - target.health >= target.health && this.isUpgraded()) {
-					target.takeDamage(damage);
+					// Added a delay for the second attack
+					setTimeout(() => {
+						G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+						target.takeDamage(damage);
+					}, 1000);
 				}
 			},
 		},
