@@ -1287,23 +1287,25 @@ export class HexGrid {
 
 		return hexes;
 	}
-
 	showGrid(val) {
-		this.forEachHex((hex) => {
-			if (hex.creature) {
-				hex.creature.xray(val);
-			}
+		this.allhexes.forEach((hex) =>{ 
+		var classes = ''
+		if (hex.creature) {		
+			hex.creature.xray(val);
+			classes = 'filled';
+		}
 
-			if (hex.drop) {
-				return;
-			}
+		if (hex.drop) {
+			console.log("Drop at " ,hex);
+			classes = 'filled';
+		}
 
-			if (val) {
-				hex.displayVisualState('showGrid');
-			} else {
-				hex.cleanDisplayVisualState('showGrid');
-			}
-		});
+		if (val) {
+			hex.displayVisualState('showGrid ' + classes);
+		} else {
+			hex.cleanDisplayVisualState('showGrid '+ classes);
+		}});
+		
 	}
 
 	showMovementRange(creature) {

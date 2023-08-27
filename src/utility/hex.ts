@@ -465,7 +465,6 @@ export class Hex {
 			const regex = new RegExp('\\b' + a[i] + '\\b', 'g');
 			this.displayClasses = this.displayClasses.replace(regex, '');
 		}
-
 		this.displayClasses = this.displayClasses.trim();
 
 		this.updateStyle();
@@ -518,7 +517,9 @@ export class Hex {
 			this.display.loadTexture('hex_dashed');
 		} else if (this.displayClasses.match(/deadzone/)) {
 			this.display.loadTexture('hex_deadzone');
-		} else {
+		} else if(this.displayClasses.match(/filled/)){
+			this.display.loadTexture('hex_filled');
+		}else {
 			this.display.loadTexture('hex');
 		}
 
@@ -564,7 +565,7 @@ export class Hex {
 
 			if (this.overlayClasses.match(/hover/)) {
 				this.overlay.loadTexture('hex_path');
-			} else {
+			} else{
 				this.overlay.loadTexture(`hex_p${player}`);
 			}
 
