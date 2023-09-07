@@ -77,7 +77,6 @@ jobs:
   deploy:
     runs-on: ubuntu-22.04
     needs: test
-    if: github.ref == 'refs/heads/master'
     steps:
     - name: Deploy completed
       run: echo "Deploy completed"
