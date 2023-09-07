@@ -1,4 +1,4 @@
-name: Build and configure
+name: Build and Configure
 
 on: [push, pull_request]
 
@@ -13,8 +13,6 @@ jobs:
       with:
         node-version: 18
     - run: npm ci
-    - name: lint
-      run: npm run lint
     - name: build
       run: npx webpack --mode=production
       env:
@@ -24,18 +22,54 @@ jobs:
       with:
         name: deploy
         path: deploy
-      
-  test:
-    runs-on: ubuntu-22.04
 
-    steps:
-    - name: Use Node.js 18
-      uses: actions/setup-node@v3
+        
+  codeanalysis:
+    runs-on: ubuntu-22.04
+    needs: build
+
+    steps: 
+    - name: Checkout code
+      uses: actions/checkout@v2
       with:
-        node-version: 18
-    - run: npm install
-    - name: run tests
-      run: npm test
+        path: /home/runner/work/AncientBeast/AncientBeast
+        
+
+    - run: npm ci
+    - name: Static Code Analysis (ESLint)
+      run: npm run lint > eslint-report.log
+    - name: Static Code Analysis (ESLint)
+      run: cat eslint-report.log
+    - name: Archive ESLint Report
+      uses: actions/upload-artifact@v2
+      with:
+       name: eslint-report
+       path: eslint-report.log
+
+  test:
+       runs-on: ubuntu-22.04
+       needs: codeanalysis
+       
+       steps:
+       - name: Checkout code
+         uses: actions/checkout@v2  
+    
+       - name: Use Node.js 18
+         uses: actions/setup-node@v2  
+         with:
+          node-version: 18
+
+       - name: Install dependencies
+         run: npm ci
+
+       - name: Lint code
+         run: npm run lint  
+
+       - name: Build for testing
+         run: npm run build:dev 
+
+       - name: Run tests
+         run: npm test
 
   deploy:
     runs-on: ubuntu-22.04
