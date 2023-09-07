@@ -1,0 +1,35 @@
+name: Build and configure
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - run: npm ci
+    - name: lint
+      run: npm run lint
+    - name: build
+      run: npx webpack --mode=production
+      env:
+        PUBLIC_PATH: '/AncientBeast/'
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v1
+      
+  test:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - run: npm install
+    - name: run tests
+      run: npm test
