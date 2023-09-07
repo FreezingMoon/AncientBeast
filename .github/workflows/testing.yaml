@@ -73,5 +73,8 @@ jobs:
 
 
   deploy:
-    echo build deployed;
+    runs-on: ubuntu-22.04
+    needs: build
+  
+    run: echo "deploy";
 
