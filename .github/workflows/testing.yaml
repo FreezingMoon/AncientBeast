@@ -19,9 +19,7 @@ jobs:
         PUBLIC_PATH: '/AncientBeast/'
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
-      with:
-        name: deploy
-        path: deploy
+
 
         
   codeanalysis:
