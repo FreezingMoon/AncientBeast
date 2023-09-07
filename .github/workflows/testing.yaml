@@ -69,12 +69,13 @@ jobs:
 
        - name: Run tests
          run: npm test
-         
 
 
   deploy:
     runs-on: ubuntu-22.04
     needs: build
-  
-    run: echo "deploy";
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - name: Deploy completed
+      run: echo "Deploy completed"
 
