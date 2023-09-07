@@ -73,17 +73,6 @@ jobs:
 
 
   deploy:
-    runs-on: ubuntu-22.04
-    needs: build
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: deploy
-      # Uses: https://github.com/peaceiris/actions-gh-pages
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./deploy
+      runs-on: ubuntu-22.04
+    echo build deployed;
+
