@@ -21,6 +21,9 @@ jobs:
         PUBLIC_PATH: '/AncientBeast/'
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
+      with:
+        name: deploy
+        path: deploy
       
   test:
     runs-on: ubuntu-22.04
@@ -33,3 +36,19 @@ jobs:
     - run: npm install
     - name: run tests
       run: npm test
+
+  deploy:
+    runs-on: ubuntu-22.04
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: deploy
+      # Uses: https://github.com/peaceiris/actions-gh-pages
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./deploy
