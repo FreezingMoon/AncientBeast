@@ -85,7 +85,7 @@ export class Ability {
 	require?: (req?: Damage | Hex) => boolean;
 	query?: () => unknown;
 	affectedByMatSickness?: boolean;
-	activate?: (target?: any, hex?: any, path?: any) => unknown;
+	activate?: (target?: any, hex?: any, path?: Hex[]) => unknown;
 	getAnimationData?: (...args: unknown[]) => unknown;
 	damages?: CreatureMasteries & { pure?: number };
 	effects?: AbilityEffect[];
