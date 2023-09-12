@@ -23,9 +23,6 @@ jobs:
         name: deploy
         path: deploy
 
-
-
-        
   codeanalysis:
     runs-on: ubuntu-22.04
     needs: build
@@ -35,7 +32,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: /home/runner/work/AncientBeast/AncientBeast
-        
 
     - run: npm ci
     - name: Static Code Analysis (ESLint)
@@ -73,11 +69,9 @@ jobs:
        - name: Run tests
          run: npm test
 
-
   deploy:
     runs-on: ubuntu-22.04
     needs: test
     steps:
     - name: Deploy completed
       run: echo "Deploy completed"
-
