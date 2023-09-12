@@ -1,0 +1,77 @@
+name: Build and Configure
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - run: npm ci
+    - name: build
+      run: npx webpack --mode=production
+      env:
+        PUBLIC_PATH: '/AncientBeast/'
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: deploy
+        path: deploy
+
+  codeanalysis:
+    runs-on: ubuntu-22.04
+    needs: build
+
+    steps: 
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        path: /home/runner/work/AncientBeast/AncientBeast
+
+    - run: npm ci
+    - name: Static Code Analysis (ESLint)
+      run: npm run lint > eslint-report.log
+    - name: Static Code Analysis (ESLint)
+      run: cat eslint-report.log
+    - name: Archive ESLint Report
+      uses: actions/upload-artifact@v2
+      with:
+       name: eslint-report
+       path: eslint-report.log
+
+  test:
+       runs-on: ubuntu-22.04
+       needs: codeanalysis
+       
+       steps:
+       - name: Checkout code
+         uses: actions/checkout@v2  
+    
+       - name: Use Node.js 18
+         uses: actions/setup-node@v2  
+         with:
+          node-version: 18
+
+       - name: Install dependencies
+         run: npm ci
+
+       - name: Lint code
+         run: npm run lint  
+
+       - name: Build for testing
+         run: npm run build:dev 
+
+       - name: Run tests
+         run: npm test
+
+  deploy:
+    runs-on: ubuntu-22.04
+    needs: test
+    steps:
+    - name: Deploy completed
+      run: echo "Deploy completed"
