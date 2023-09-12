@@ -6,6 +6,7 @@ import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
 import Game from './game';
 import { ScoreEvent } from './player';
+import { Point } from './utility/pointfacade';
 
 /*
  * NOTE
@@ -107,7 +108,7 @@ export class Ability {
 	_targetTeam: Team;
 
 	// Below methods exist in Snow-Bunny.ts
-	_detectFrontHexesWithEnemy: () => { direction: number; hex: Hex }[];
+	_detectFrontHexesWithEnemy: () => { direction: number; hex: Hex; enemyPos: Point }[];
 	_findEnemyHexInFront: (hexWithEnemy: Hex) => Hex | undefined;
 	_getHopHex: () => Hex | undefined;
 	_getUsesPerTurn: () => 1 | 2;

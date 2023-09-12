@@ -5,7 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
 import { Hex } from '../utility/hex';
-import { getPointFacade } from '../utility/pointfacade';
+import { Point, getPointFacade } from '../utility/pointfacade';
 
 /* TODO:
  * Refactor to remove the `arguments` keyword
@@ -182,7 +182,7 @@ export default (G: Game) => {
 			 */
 			_findEnemyHexInFront: function (hexWithEnemy) {
 				const enemyInFrontHex = this._detectFrontHexesWithEnemy().find(
-					({ hex }) => hex.x === hexWithEnemy.x && hex.y === hexWithEnemy.y,
+					({ enemyPos }) => enemyPos.x === hexWithEnemy.x && enemyPos.y === hexWithEnemy.y,
 				);
 
 				return enemyInFrontHex ? hexWithEnemy : undefined;
@@ -196,15 +196,19 @@ export default (G: Game) => {
 			_detectFrontHexesWithEnemy: function () {
 				const hexesInFront = this.creature.getHexMap(matrices.front1hex, false);
 				const hexesWithEnemy = hexesInFront.reduce(
-					(acc: { direction: number; hex: Hex }[], curr, idx) => {
+					(acc: { direction: number; hex: Hex; enemyPos: Point }[], curr, idx) => {
 						const creatureOnHex = getPointFacade().getCreaturesAt({ x: curr.x, y: curr.y })[0];
 						const hexHasEnemy = creatureOnHex && isTeam(creatureOnHex, this.creature, Team.Enemy);
 
 						if (hexHasEnemy) {
+							// Note that `hex` and `enemyPos` will be different for creatures that take up more than 1 hex.
 							acc.push({
 								// Maps to HopTriggerDirections.
 								direction: idx,
+								// The display hex.
 								hex: curr,
+								// The creature position.
+								enemyPos: creatureOnHex.pos,
 							});
 						}
 
