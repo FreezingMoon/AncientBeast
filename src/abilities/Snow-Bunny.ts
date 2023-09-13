@@ -5,10 +5,10 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
 import { Hex } from '../utility/hex';
+import { Point, getPointFacade } from '../utility/pointfacade';
 
 /* TODO:
  * Refactor to remove the `arguments` keyword
- * Refactor to remove deprecated `curr.creature` and `hex.creature`
  */
 
 const HopTriggerDirections = {
@@ -54,9 +54,10 @@ export default (G: Game) => {
 				if (this.creature === this.game.activeCreature) {
 					return false;
 				}
+				const creatureOnHex = getPointFacade().getCreaturesAt({ x: hex.x, y: hex.y })[0];
 
 				// Double check the destination hex actually contains a creature.
-				if (!hex.creature) {
+				if (creatureOnHex == undefined) {
 					return false;
 				}
 
@@ -64,10 +65,10 @@ export default (G: Game) => {
 				the ability. */
 				let triggerHexes: (ReturnType<typeof this._detectFrontHexesWithEnemy>[number] | Hex)[] = [];
 
-				if (hex.creature === this.creature) {
+				if (creatureOnHex === this.creature) {
 					// Bunny has been moved by another active creature, not itself.
 					triggerHexes = this._detectFrontHexesWithEnemy();
-				} else if (isTeam(hex.creature, this.creature, Team.Enemy)) {
+				} else if (isTeam(creatureOnHex, this.creature, Team.Enemy)) {
 					// Enemy movement.
 					const frontHexWithEnemy = this._findEnemyHexInFront(hex);
 
@@ -180,12 +181,11 @@ export default (G: Game) => {
 			 * @returns {Hex | undefined} hexWithEnemy if it did move in front of the bunny, otherwise undefined.
 			 */
 			_findEnemyHexInFront: function (hexWithEnemy) {
-				const frontHexesWithEnemy = this._detectFrontHexesWithEnemy();
-				const foundEnemyHex = frontHexesWithEnemy.some(
-					({ hex }) => hexWithEnemy.creature === hex.creature,
+				const enemyInFrontHex = this._detectFrontHexesWithEnemy().find(
+					({ enemyPos }) => enemyPos.x === hexWithEnemy.x && enemyPos.y === hexWithEnemy.y,
 				);
 
-				return foundEnemyHex ? hexWithEnemy : undefined;
+				return enemyInFrontHex ? hexWithEnemy : undefined;
 			},
 
 			/**
@@ -196,14 +196,19 @@ export default (G: Game) => {
 			_detectFrontHexesWithEnemy: function () {
 				const hexesInFront = this.creature.getHexMap(matrices.front1hex, false);
 				const hexesWithEnemy = hexesInFront.reduce(
-					(acc: { direction: number; hex: Hex }[], curr, idx) => {
-						const hexHasEnemy = curr.creature && isTeam(curr.creature, this.creature, Team.Enemy);
+					(acc: { direction: number; hex: Hex; enemyPos: Point }[], curr, idx) => {
+						const creatureOnHex = getPointFacade().getCreaturesAt({ x: curr.x, y: curr.y })[0];
+						const hexHasEnemy = creatureOnHex && isTeam(creatureOnHex, this.creature, Team.Enemy);
 
 						if (hexHasEnemy) {
+							// Note that `hex` and `enemyPos` will be different for creatures that take up more than 1 hex.
 							acc.push({
 								// Maps to HopTriggerDirections.
 								direction: idx,
+								// The display hex.
 								hex: curr,
+								// The creature position.
+								enemyPos: creatureOnHex.pos,
 							});
 						}
 
@@ -333,52 +338,39 @@ export default (G: Game) => {
 			},
 
 			//	activate() :
-			activate: function (path, args) {
+			activate: function (path: Hex[], args) {
 				const ability = this;
 				ability.end();
 
-				let target = arrayUtils.last(path).creature;
-				{
-					// TODO:
-					// target is undefined when Player 2 creature uses this ability.
-					// arrayUtils.last(path).creature is undefined.
-					// This block fixes the error, but it's an ugly fix.
-					if (!target) {
-						const attackingCreature = ability.creature;
-						const creatures = path
-							.map((hex) => hex.creature)
-							.filter((c) => c && c != attackingCreature);
-						if (creatures.length === 0) {
-							return;
-						} else {
-							target = creatures[0];
-						}
-					}
-				}
+				const hexWithTarget = path.find((hex: Hex) => {
+					const creature = getPointFacade().getCreaturesAt({ x: hex.x, y: hex.y })[0];
+					return creature && creature != this.creature;
+				});
+
+				const target = getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0];
+
 				// No blow size penalty if upgraded and target is frozen
 				const dist = 5 - (this.isUpgraded() && target.isFrozen() ? 0 : target.size);
 				let dir = [];
 				switch (args.direction) {
 					case 0: // Upright
-						dir = G.grid
-							.getHexMap(target.x, target.y - 8, 0, target.flipped, matrices.diagonalup)
-							.reverse();
+						dir = G.grid.getHexMap(target.x, target.y - 8, 0, false, matrices.diagonalup).reverse();
 						break;
 					case 1: // StraitForward
-						dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.straitrow);
+						dir = G.grid.getHexMap(target.x, target.y, 0, false, matrices.straitrow);
 						break;
 					case 2: // Downright
-						dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.diagonaldown);
+						dir = G.grid.getHexMap(target.x, target.y, 0, false, matrices.diagonaldown);
 						break;
 					case 3: // Downleft
-						dir = G.grid.getHexMap(target.x, target.y, -4, target.flipped, matrices.diagonalup);
+						dir = G.grid.getHexMap(target.x, target.y, -4, false, matrices.diagonalup);
 						break;
 					case 4: // StraitBackward
-						dir = G.grid.getHexMap(target.x, target.y, 0, !target.flipped, matrices.straitrow);
+						dir = G.grid.getHexMap(target.x, target.y, 0, !false, matrices.straitrow);
 						break;
 					case 5: // Upleft
 						dir = G.grid
-							.getHexMap(target.x, target.y - 8, -4, target.flipped, matrices.diagonaldown)
+							.getHexMap(target.x, target.y - 8, -4, false, matrices.diagonaldown)
 							.reverse();
 						break;
 					default:
@@ -470,7 +462,13 @@ export default (G: Game) => {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
-				const target = path.find((hex) => hex.creature).creature;
+
+				const hexWithTarget = path.find((hex: Hex) => {
+					const creature = getPointFacade().getCreaturesAt({ x: hex.x, y: hex.y })[0];
+					return creature && creature != this.creature;
+				});
+
+				const target = getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0];
 
 				const projectileInstance = G.animations.projectile(
 					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
