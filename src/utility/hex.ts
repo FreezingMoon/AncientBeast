@@ -442,7 +442,7 @@ export class Hex {
 	cleanOverlayVisualState(classes = '') {
 		classes =
 			classes ||
-			'creature weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3';
+			'creature reachable weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3';
 		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
@@ -562,8 +562,18 @@ export class Hex {
 		if (this.overlayClasses.match(/0|1|2|3/)) {
 			const player = this.overlayClasses.match(/0|1|2|3/);
 
-			if (this.overlayClasses.match(/hover/)) {
+			if (this.overlayClasses.match(/reachable/)) {
+				targetAlpha = true;
 				this.overlay.loadTexture('hex_path');
+			// hover when creature is inactive
+			} else if (this.overlayClasses.match(/hover/) 
+					&& this.displayClasses.indexOf(`creature player${player}`) === -1) {
+				this.display.loadTexture('hex_path');
+				this.display.alpha = 1;
+				this.overlay.loadTexture(`hex_hover_p${player}`);
+			// hover over active player
+			} else if (this.overlayClasses.match(/hover/)) {
+				this.display.loadTexture('hex_path');
 			} else {
 				this.overlay.loadTexture(`hex_p${player}`);
 			}
