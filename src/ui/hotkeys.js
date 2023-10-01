@@ -107,14 +107,23 @@ export class Hotkeys {
 	}
 
 	pressShiftKeyDown() {
+		this.ui.$brandlogo.removeClass('hide');
 		this.ui.game.grid.showGrid(true);
 		this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);
 	}
 
 	pressShiftKeyUp() {
+		this.ui.$brandlogo.addClass('hide');
 		this.ui.game.grid.showGrid(false);
 		this.ui.game.grid.cleanOverlay();
 		this.ui.game.grid.redoLastQuery();
+	}
+	pressControlKeyDown() {
+		this.ui.$brandlogo.addClass('hide');
+	}
+
+	pressControlKeyUp() {
+		this.ui.$brandlogo.addClass('hide');
 	}
 
 	pressSpace() {
@@ -223,6 +232,22 @@ export function getHotKeys(hk) {
 			onkeyup() {
 				hk.pressShiftKeyUp();
 			},
+		},
+		ControlLeft: {
+			onkeydown() {
+				hk.pressControlKeyDown();
+			},
+			onkeyup() {
+				hk.pressControlKeyUp();
+			}
+		},
+		ControlRight: {
+			onkeydown() {
+				hk.pressControlKeyDown();
+			},
+			onkeyup() {
+				hk.pressControlKeyUp();
+			}
 		},
 		Space: {
 			onkeydown() {
