@@ -2,6 +2,7 @@ import * as $j from 'jquery';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
 import { Hotkeys, getHotKeys } from './hotkeys';
+import { adjustBrand } from '../script';
 
 import { Button, ButtonStateEnum } from './button';
 import { Chat } from './chat';
@@ -35,7 +36,7 @@ export class UI {
 	 * $activebox :	Current active creature panel (left panel) container
 	 * $dash :			Overview container
 	 * $grid :			Creature grid container
-	 * $brandlogo:  Brand logo container 
+	 * $brandlogo:  Brand logo container
 	 *
 	 * selectedCreature :	String :	ID of the visible creature card
 	 * selectedPlayer :	Integer :	ID of the selected player in the dash
@@ -523,6 +524,9 @@ export class UI {
 
 			e.preventDefault();
 		});
+
+		// adjust brand logo on window resize
+		$j(window).on('resize', (ev) => adjustBrand());
 
 		this.$dash.find('.section.numbers .stat').on('mouseover', (event) => {
 			const $section = $j(event.target).closest('.section');

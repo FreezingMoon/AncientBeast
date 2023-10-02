@@ -239,7 +239,7 @@ export function getHotKeys(hk) {
 			},
 			onkeyup() {
 				hk.pressControlKeyUp();
-			}
+			},
 		},
 		ControlRight: {
 			onkeydown() {
@@ -247,7 +247,7 @@ export function getHotKeys(hk) {
 			},
 			onkeyup() {
 				hk.pressControlKeyUp();
-			}
+			},
 		},
 		Space: {
 			onkeydown() {
