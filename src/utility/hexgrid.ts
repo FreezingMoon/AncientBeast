@@ -858,7 +858,7 @@ export class HexGrid {
 			if (o.targeting) {
 				if (hex.creature instanceof Creature) {
 					if (hex.creature.id != this.game.activeCreature.id) {
-						hex.overlayVisualState('hover h_player' + hex.creature.team);
+						hex.overlayVisualState('reachable h_player' + hex.creature.team);
 					}
 				} else {
 					hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
