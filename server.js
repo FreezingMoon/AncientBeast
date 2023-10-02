@@ -7,6 +7,10 @@ const app = express();
 const port = process.env.PORT || 8383;
 const ip = process.env.IP || null; // Use specified IP to bind to otherwise, bind to default for the API
 
+
+// set security HTTP headers
+app.use(helmet());
+
 // Enable gzip compression
 app.use(compression());
 
