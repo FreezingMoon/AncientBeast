@@ -10,6 +10,9 @@ const ip = process.env.IP || null; // Use specified IP to bind to otherwise, bin
 // Enable gzip compression
 app.use(compression());
 
+// parse urlencoded request body
+app.use(express.urlencoded({ extended: true }));
+
 // Assets are hashed so they can be in the cache for longer
 app.use(
 	'/assets/',
