@@ -858,10 +858,10 @@ export class HexGrid {
 			if (o.targeting) {
 				if (hex.creature instanceof Creature) {
 					if (hex.creature.id != this.game.activeCreature.id) {
-						hex.overlayVisualState('hover h_player' + hex.creature.team);
+						hex.overlayVisualState('reachable h_player' + hex.creature.team);
 					}
 				} else {
-					hex.overlayVisualState('hover h_player' + this.game.activeCreature.team);
+					hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
 				}
 			}
 		});
@@ -1323,7 +1323,7 @@ export class HexGrid {
 	showCurrentCreatureMovementInOverlay(creature) {
 		//lastQueryOpt is same thing as used in redoQuery
 		this.lastQueryOpt?.hexes?.forEach((hex) => {
-			hex.overlayVisualState('hover h_player' + creature.team);
+			hex.overlayVisualState('reachable h_player' + creature.team);
 		});
 	}
 
