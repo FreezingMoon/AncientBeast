@@ -565,13 +565,15 @@ export class Hex {
 			if (this.overlayClasses.match(/reachable/)) {
 				targetAlpha = true;
 				this.overlay.loadTexture('hex_path');
-			// hover when creature is inactive
-			} else if (this.overlayClasses.match(/hover/) 
-					&& this.displayClasses.indexOf(`creature player${player}`) === -1) {
+				// hover when creature is inactive
+			} else if (
+				this.overlayClasses.match(/hover/) &&
+				this.displayClasses.indexOf(`creature player${player}`) === -1
+			) {
 				this.display.loadTexture('hex_path');
 				this.display.alpha = 1;
 				this.overlay.loadTexture(`hex_hover_p${player}`);
-			// hover over active player
+				// hover over active player
 			} else if (this.overlayClasses.match(/hover/)) {
 				this.display.loadTexture('hex_path');
 			} else {

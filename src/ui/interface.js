@@ -2,6 +2,7 @@ import * as $j from 'jquery';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
 import { Hotkeys, getHotKeys } from './hotkeys';
+import { adjustBrand } from '../script';
 
 import { Button, ButtonStateEnum } from './button';
 import { Chat } from './chat';
@@ -29,12 +30,13 @@ export class UI {
 	 * NOTE : attributes and variables starting with $ are jquery element
 	 * and jquery function can be called directly from them.
 	 *
-	 * $display :		UI container
-	 * $queue :		Queue container
+	 * $display :	 	UI container
+	 * $queue :		  Queue container
 	 * $textbox :		Chat and log container
 	 * $activebox :	Current active creature panel (left panel) container
 	 * $dash :			Overview container
 	 * $grid :			Creature grid container
+	 * $brandlogo:  Brand logo container
 	 *
 	 * selectedCreature :	String :	ID of the visible creature card
 	 * selectedPlayer :	Integer :	ID of the selected player in the dash
@@ -57,6 +59,7 @@ export class UI {
 		this.$grid = $j(this.#makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
+		this.$brandlogo = $j('#brandlogo');
 		this.active = false;
 
 		this.queue = UI.#getQueue(this, document.getElementById('queuewrapper'));
@@ -521,6 +524,9 @@ export class UI {
 
 			e.preventDefault();
 		});
+
+		// adjust brand logo on window resize
+		$j(window).on('resize', (ev) => adjustBrand());
 
 		this.$dash.find('.section.numbers .stat').on('mouseover', (event) => {
 			const $section = $j(event.target).closest('.section');
@@ -2302,11 +2308,13 @@ export class UI {
 		}, 2000);
 
 		const onTurnEndMouseEnter = ifGameNotFrozen(() => {
+			ui.$brandlogo.removeClass('hide');
 			ui.game.grid.showGrid(true);
 			ui.game.grid.showCurrentCreatureMovementInOverlay(ui.game.activeCreature);
 		});
 
 		const onTurnEndMouseLeave = () => {
+			ui.$brandlogo.addClass('hide');
 			ui.game.grid.showGrid(false);
 			ui.game.grid.cleanOverlay();
 			ui.game.grid.redoLastQuery();

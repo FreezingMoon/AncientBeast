@@ -2044,3 +2044,34 @@ input {
 	color: #fff;
 	top: 20%;
 }
+
+#brandlogo {
+	display: block;
+	margin: auto;
+	width: 100%;
+	opacity: 1;
+	z-index: 1;
+	position: absolute;
+	top: 105px;
+	transition: opacity 300ms cubic-bezier(.39,.58,.57,1);;
+
+	div {
+		height: 125px;
+		background-image: url('~assets/interface/AncientBeast.png');
+		background-repeat: no-repeat;
+		display: block;
+		width: 555px;
+		max-width: 555px;
+		margin: 0 auto;
+	}
+
+	&.hide {
+		opacity: 0;
+	}
+}
+
+@media only screen and (max-width: 410px) {
+	#brandlogo {
+		display: none;
+	}
+}
