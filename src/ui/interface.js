@@ -2267,9 +2267,10 @@ export class UI {
 			}
 		});
 
-		const onCreatureMouseEnter = ifGameNotFrozen((creature) => {
+		const onCreatureMouseEnter = ifGameNotFrozen((placeholderCreature) => {
 			const creatures = ui.game.creatures.filter((c) => c instanceof Creature);
-			const otherCreatures = creatures.filter((c) => c.id !== creature.id);
+			const creature = creatures.filter(c => c.id === placeholderCreature.id)[0];
+			const otherCreatures = creatures.filter((c) => c.id !== placeholderCreature.id);
 
 			otherCreatures.forEach((c) => {
 				c.xray(true);
