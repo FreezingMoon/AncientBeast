@@ -10,6 +10,7 @@ import { DEBUG } from '../debug';
 import { HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
+import { Ability } from '../ability';
 
 interface GridDefinition {
 	numRows: number;
@@ -859,6 +860,9 @@ export class HexGrid {
 				if (hex.creature instanceof Creature) {
 					if (hex.creature.id != this.game.activeCreature.id) {
 						hex.overlayVisualState('reachable h_player' + hex.creature.team);
+						if (!hex.hovered) {
+							hex.cleanOverlayVisualState('hover h_player' + hex.creature.team);
+						}
 					}
 				} else {
 					hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
@@ -1012,7 +1016,7 @@ export class HexGrid {
 					this.cleanHex(hex);
 					hex.displayVisualState('creature player' + this.game.activeCreature.team);
 				}
-
+				
 				// Offset Pos
 				const offset = o.flipped ? o.size - 1 : 0;
 				const mult = o.flipped ? 1 : -1; // For flipped player

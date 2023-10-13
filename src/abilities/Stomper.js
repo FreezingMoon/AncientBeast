@@ -115,6 +115,7 @@ export default (G) => {
 						y: stomper.y,
 						distance: 3,
 						sourceCreature: stomper,
+						stopOnCreature: true,
 						dashedHexesUnderCreature: true,
 					});
 				} // Once upgraded, can hit any ennemy within 3hex in any direction
