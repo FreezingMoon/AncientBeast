@@ -154,6 +154,7 @@ export default (G) => {
 						flipped: this.creature.flipped,
 						hexes: this.creature.getHexMap(matrices.frontnback2hex),
 					});
+					console.log('Nutcase.Flipped:', this.creature.flipped);
 				} else {
 					// If upgraded, show choice of front and back hex groups
 					const choices = [
@@ -387,7 +388,7 @@ export default (G) => {
 					G.grid.cleanReachable();
 
 					const isChargingBackwards =
-						(nutcase.player.flipped && args.direction === Direction.Right) ||
+						(nutcase.flipped && args.direction === Direction.Right) ||
 						args.direction === Direction.Left;
 
 					nutcase.moveTo(destination, {
@@ -587,6 +588,7 @@ export default (G) => {
 						return ability.isUpgraded() ? true : creature.size <= 2;
 					},
 				});
+				
 			},
 
 			//	activate() :

@@ -117,7 +117,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: abolished.player.flipped,
+					flipped: abolished.flipped,
 					team: this._targetTeam,
 					id: this.creature.id,
 					requireCreature: true,

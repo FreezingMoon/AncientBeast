@@ -96,7 +96,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: dpriest.id,
-					flipped: dpriest.player.flipped,
+					flipped: dpriest.flipped,
 					hexes: dpriest.adjacentHexes(this.isUpgraded() ? 4 : 1),
 				});
 			},
@@ -181,7 +181,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: dpriest.id,
-					flipped: dpriest.player.flipped,
+					flipped: dpriest.flipped,
 					hexes: dpriest.adjacentHexes(2),
 				});
 			},
@@ -314,7 +314,7 @@ export default (G) => {
 						cost: crea.size - 0 + (crea.level - 0),
 					}, // OptionalArgs
 					size: crea.size,
-					flipped: dpriest.player.flipped,
+					flipped: dpriest.flipped,
 					hexes: spawnRange,
 				});
 			},

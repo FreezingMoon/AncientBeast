@@ -239,7 +239,7 @@ export default (G) => {
 				}
 
 				const crea = this.creature;
-				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
+				const x = crea.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				if (
 					!this.testDirection({
@@ -260,7 +260,7 @@ export default (G) => {
 				const ability = this;
 				const crea = this.creature;
 
-				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
+				const x = crea.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {

@@ -225,7 +225,7 @@ export default (G) => {
 						ability.animation(...arguments);
 					},
 					size: uncle.size,
-					flipped: uncle.player.flipped,
+					flipped: uncle.flipped,
 					id: uncle.id,
 					hexes: hexes,
 					hexesDashed: [],

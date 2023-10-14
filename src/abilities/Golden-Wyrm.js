@@ -224,7 +224,7 @@ export default (G) => {
 						ability.animation(...arguments);
 					},
 					size: wyrm.size,
-					flipped: wyrm.player.flipped,
+					flipped: wyrm.flipped,
 					id: wyrm.id,
 					hexes: range,
 				});

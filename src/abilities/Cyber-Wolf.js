@@ -92,7 +92,7 @@ export default (G) => {
 					}, // fnOnConfirm
 					team: this._targetTeam,
 					id: crea.id,
-					flipped: crea.player.flipped,
+					flipped: crea.flipped,
 					hexes: crea.getHexMap(matrices.frontnback2hex),
 				});
 			},
@@ -342,7 +342,7 @@ export default (G) => {
 					}, // fnOnConfirm
 					team: Team.Enemy,
 					id: crea.id,
-					flipped: crea.player.flipped,
+					flipped: crea.flipped,
 					hexes: hexes,
 				});
 			},

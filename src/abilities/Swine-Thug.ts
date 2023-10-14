@@ -141,7 +141,7 @@ export default (G: Game) => {
 						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
-					flipped: swine.player.flipped,
+					flipped: swine.flipped,
 					team: this._targetTeam,
 					id: swine.id,
 					requireCreature: true,
@@ -318,7 +318,7 @@ export default (G: Game) => {
 					team: this._targetTeam,
 					requireCreature: 1,
 					id: swine.id,
-					flipped: swine.player.flipped,
+					flipped: swine.flipped,
 					choices: choices,
 				});
 			},

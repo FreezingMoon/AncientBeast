@@ -151,6 +151,7 @@ export class Player {
 		const creatureData = $j.extend(baseCreatureData, pos, {
 			team: this.id,
 			temp: false,
+			flipped: this.flipped,
 		});
 
 		if (creatureData.name !== 'Dark Priest') {

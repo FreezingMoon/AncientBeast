@@ -120,6 +120,7 @@ export class Creature {
 	x: number;
 	y: number;
 	pos: Point;
+	flipped: boolean;
 	size: UnitSize;
 	type: CreatureType;
 	level: Level;
@@ -175,6 +176,7 @@ export class Creature {
 			y: number;
 			team: PlayerID;
 			temp: boolean;
+			flipped: boolean;
 			// These are properties that might not exists on all creatures
 			type?: CreatureType;
 			drop?: DropDefinition;
@@ -222,6 +224,7 @@ export class Creature {
 		this.dropCollection = [];
 		this.protectedFromFatigue = this.isDarkPriest() ? true : false;
 		this.turnsActive = 0;
+		this.flipped = this.player.flipped;
 
 		// Statistics
 		this.baseStats = {
@@ -722,7 +725,8 @@ export class Creature {
 					args: o.args,
 				}, // Optional args
 				size: this.size,
-				flipped: this.player.flipped,
+				flipped: this.flipped,
+				
 				id: this.id,
 				hexes: o.range,
 				ownCreatureHexShade: o.ownCreatureHexShade,
@@ -796,7 +800,7 @@ export class Creature {
 		attackFix?: boolean,
 	) {
 		if (!facefrom) {
-			facefrom = this.player.flipped ? this.hexagons[this.size - 1] : this.hexagons[0];
+			facefrom = this.flipped ? this.hexagons[this.size - 1] : this.hexagons[0];
 		}
 
 		if (
@@ -825,7 +829,7 @@ export class Creature {
 
 		if (attackFix && this.size > 1) {
 			//only works on 2hex creature targeting the adjacent row
-			const flipOffset = this.player.flipped ? 1 : 0;
+			const flipOffset = this.flipped ? 1 : 0;
 			if (facefrom.y % 2 === 0) {
 				if (faceto.x - flipOffset == facefrom.x) {
 					this.facePlayerDefault();
@@ -847,7 +851,7 @@ export class Creature {
 	 * Make creature face the default direction of its player
 	 */
 	facePlayerDefault() {
-		this.creatureSprite.setDir(this.player.flipped ? -1 : 1);
+		this.creatureSprite.setDir(this.flipped ? -1 : 1);
 	}
 
 	/**
@@ -1463,11 +1467,11 @@ export class Creature {
 		game.onCreatureDeath(this);
 
 		this.killer = killerCreature.player;
-		const isDeny = this.killer.flipped == this.player.flipped;
+		const isDeny = this.killer.flipped == this.flipped;
 
 		// Drop item
 		if (game.unitDrops == 1 && this.drop) {
-			const offsetX = this.player.flipped ? this.x - this.size + 1 : this.x;
+			const offsetX = this.flipped ? this.x - this.size + 1 : this.x;
 			const { name, ...alterations } = this.drop;
 			new Drop(name, alterations, offsetX, this.y, game);
 		}
@@ -1566,14 +1570,14 @@ export class Creature {
 	 * Shortcut convenience function to grid.getHexMap
 	 */
 	getHexMap(map: AugmentedMatrix, invertFlipped: boolean) {
-		const x = (this.player.flipped ? !invertFlipped : invertFlipped)
+		const x = (this.flipped ? !invertFlipped : invertFlipped)
 			? this.x + 1 - this.size
 			: this.x;
 		return this.game.grid.getHexMap(
 			x,
 			this.y - map.origin[1],
 			0 - map.origin[0],
-			this.player.flipped ? !invertFlipped : invertFlipped,
+			this.flipped ? !invertFlipped : invertFlipped,
 			map,
 		);
 	}

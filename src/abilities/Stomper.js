@@ -107,7 +107,7 @@ export default (G) => {
 						fnOnConfirm: function () {
 							ability.animation(...arguments);
 						},
-						flipped: stomper.player.flipped,
+						flipped: stomper.flipped,
 						team: this._targetTeam,
 						id: stomper.id,
 						requireCreature: true,
@@ -134,7 +134,7 @@ export default (G) => {
 								ability.animation(targetHexList, arguments[1], arguments[2]);
 							}
 						},
-						flipped: stomper.player.flipped,
+						flipped: stomper.flipped,
 						team: this._targetTeam,
 						id: stomper.id,
 						requireCreature: true,
@@ -212,7 +212,7 @@ export default (G) => {
 						stomper.x,
 						stomper.y,
 						0,
-						stomper.player.flipped,
+						stomper.flipped,
 						matrices.straitrow,
 					);
 				} else if (!direction[1]) {
@@ -220,7 +220,7 @@ export default (G) => {
 						stomper.x,
 						stomper.y,
 						0,
-						!stomper.player.flipped,
+						!stomper.flipped,
 						matrices.straitrow,
 					);
 				} else {
@@ -228,14 +228,14 @@ export default (G) => {
 						stomper.x,
 						stomper.y,
 						0,
-						stomper.player.flipped,
+						stomper.flipped,
 						matrices.straitrow,
 					);
 					const backward = G.grid.getHexMap(
 						stomper.x,
 						stomper.y,
 						0,
-						!stomper.player.flipped,
+						!stomper.flipped,
 						matrices.straitrow,
 					);
 					hexes = forward.concat(backward);
@@ -249,24 +249,24 @@ export default (G) => {
 				const ability = this;
 				const stomper = this.creature;
 
-				const fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
-				const bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
+				const fw = stomper.flipped ? stomper.x - 2 : stomper.x + 1;
+				const bw = stomper.flipped ? stomper.x + 1 : stomper.x - 2;
 				const targets = [];
 
 				if (!direction[4]) {
 					targets.push(
-						...ability._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.flipped)),
 					);
 				} else if (!direction[1]) {
 					targets.push(
-						...ability._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.flipped)),
 					);
 				} else {
 					targets.push(
-						...ability._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(fw, stomper.y, 1, stomper.flipped)),
 					);
 					targets.push(
-						...ability._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped)),
+						...ability._getCreature(G.grid.getHexLine(bw, stomper.y, 4, stomper.flipped)),
 					);
 				}
 
@@ -304,18 +304,18 @@ export default (G) => {
 
 				ability._directions = [0, 0, 0, 0, 0, 0];
 
-				const fw = stomper.player.flipped ? stomper.x - 2 : stomper.x + 1;
-				const bw = stomper.player.flipped ? stomper.x + 1 : stomper.x - 2;
+				const fw = stomper.flipped ? stomper.x - 2 : stomper.x + 1;
+				const bw = stomper.flipped ? stomper.x + 1 : stomper.x - 2;
 
 				if (!direction[4]) {
-					hexes = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
+					hexes = G.grid.getHexLine(fw, stomper.y, 1, stomper.flipped);
 					if (this._getHole(hexes)) ability._directions = direction;
 				} else if (!direction[1]) {
-					hexes = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
+					hexes = G.grid.getHexLine(bw, stomper.y, 4, stomper.flipped);
 					if (this._getHole(hexes)) ability._directions = direction;
 				} else {
-					const forward = G.grid.getHexLine(fw, stomper.y, 1, stomper.player.flipped);
-					const backward = G.grid.getHexLine(bw, stomper.y, 4, stomper.player.flipped);
+					const forward = G.grid.getHexLine(fw, stomper.y, 1, stomper.flipped);
+					const backward = G.grid.getHexLine(bw, stomper.y, 4, stomper.flipped);
 					if (this._getHole(forward)) ability._directions[1] = 1;
 					if (this._getHole(backward)) ability._directions[4] = 1;
 				}

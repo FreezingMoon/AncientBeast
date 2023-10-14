@@ -81,7 +81,8 @@ export default (G) => {
 			query: function () {
 				const ability = this;
 				const creature = this.creature;
-
+				console.log('Creature.Flipped:', creature.flipped);
+				console.log('this.Creature.Flipped:', this.creature.flipped);
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
