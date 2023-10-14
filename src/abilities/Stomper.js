@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getDirectionFromDelta } from '../utility/position';
+import { forEach } from 'underscore';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -146,6 +147,8 @@ export default (G) => {
 						stopOnCreature: false,
 						dashedHexesUnderCreature: true,
 					});
+					G.h
+			
 				}
 			},
 

@@ -859,10 +859,7 @@ export class HexGrid {
 			if (o.targeting) {
 				if (hex.creature instanceof Creature) {
 					if (hex.creature.id != this.game.activeCreature.id) {
-						hex.overlayVisualState('reachable h_player' + hex.creature.team);
-						if (!hex.hovered) {
-							hex.cleanOverlayVisualState('hover h_player' + hex.creature.team);
-						}
+						hex.overlayVisualState('reachable h_player' + hex.creature.team);	
 					}
 				} else {
 					hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
@@ -1006,12 +1003,16 @@ export class HexGrid {
 
 			if (hex.creature instanceof Creature) {
 				// If creature
+
 				onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex);
 
 				hex.creature.startBounce();
 			}
+		
 
 			if (hex.reachable) {
+				console.log("Reachable");
+				console.log(o.size);
 				if (o.fillHexOnHover) {
 					this.cleanHex(hex);
 					hex.displayVisualState('creature player' + this.game.activeCreature.team);
@@ -1031,10 +1032,17 @@ export class HexGrid {
 						x += offset - i * mult;
 						break;
 					}
+					
+					if (hex.creature && hex.creature.id !== o.id) {
+						// This hex is occupied by a different creature, so skip the mouse-over logic.
+						return;
+					}
+			
 				}
 
 				hex = this.hexes[y][x]; // New coords
 				o.fnOnSelect(hex, o.args);
+
 			} else if (!hex.reachable) {
 				if (this.materialize_overlay) {
 					this.materialize_overlay.alpha = 0;
