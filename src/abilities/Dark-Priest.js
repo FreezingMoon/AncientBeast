@@ -249,7 +249,7 @@ export default (G) => {
 
 				// Ask the creature to summon
 				G.UI.materializeToggled = true;
-				G.UI.toggleDash('randomize');
+				G.UI.toggleDash(true);
 			},
 
 			fnOnSelect: function (hex, args) {

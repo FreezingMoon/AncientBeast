@@ -1018,8 +1018,7 @@ export class UI {
 						$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
 						// Bind button for random unit selection
 						this.materializeButton.click = () => {
-							const creatureId = this.showRandomCreature();
-							this.lastViewedCreature = creatureId;
+							this.lastViewedCreature = this.showRandomCreature();
 						};
 						// Apply the changes
 						$j('#card .sideA').on('click', this.materializeButton.click);
@@ -1470,7 +1469,9 @@ export class UI {
 		if (randomize && !this.lastViewedCreature) {
 			// Optional: select a random creature from the grid
 			this.showRandomCreature();
-		} else if (this.lastViewedCreature) {
+		} else if (!randomize) {
+			this.showCreature('--', game.activeCreature.team, '');
+		}  else if (this.lastViewedCreature) {
 			this.showCreature(this.lastViewedCreature, game.activeCreature.team, '');
 		} else {
 			this.showCreature(game.activeCreature.type, game.activeCreature.team, '');
