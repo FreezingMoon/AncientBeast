@@ -146,7 +146,7 @@ export default (G) => {
 						sourceCreature: stomper,
 						stopOnCreature: false,
 						dashedHexesUnderCreature: true,
-						fillOnlyHovered: true,
+						fillOnlyHoveredCreature: true,
 					});
 					G.h
 			
