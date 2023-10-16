@@ -102,7 +102,7 @@ export default (G) => {
 				const stomper = this.creature;
 				const ability = this;
 
-				// Take the closest ennemy in each direction within 3hex
+				// Take the closest enemy in each direction within 3hex
 				if (!this.isUpgraded()) {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
@@ -118,7 +118,7 @@ export default (G) => {
 						sourceCreature: stomper,
 						dashedHexesUnderCreature: true,
 					});
-				} // Once upgraded, can hit any ennemy within 3hex in any direction
+				} // Once upgraded, can hit any enemy within 3hex in any direction
 				else {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
@@ -147,8 +147,6 @@ export default (G) => {
 						dashedHexesUnderCreature: true,
 						fillOnlyHoveredCreature: true,
 					});
-					G.h
-			
 				}
 			},
 
