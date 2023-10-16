@@ -1058,9 +1058,12 @@ export class HexGrid {
 
 			if (hex.reachable) {
 
-				if (o.fillOnlyHoveredCreature && !(hex instanceof Creature)) {
+				if (o.fillOnlyHoveredCreature && !(hex.creature instanceof Creature)) {
 					$j('canvas').css('cursor', 'not-allowed');
 				}
+				//else if (o.fillOnlyHoveredCreature && (hex.creature instanceof Creature)) {
+			//		$j('canvas').css('cursor', 'pointer');
+			//	}
 				
 				if (o.fillHexOnHover) {
 					this.cleanHex(hex);
