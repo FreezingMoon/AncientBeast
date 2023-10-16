@@ -550,7 +550,7 @@ export class HexGrid {
 				}
 				else {
 					choice.forEach((item) => {
-					if (item.creature instanceof Creature && item.creature === this.hoveredCreature) {
+					if (item.creature instanceof Creature) {
 						item.displayVisualState('creature selected player' + item.creature.team);
 					} else {
 						item.displayVisualState('adj');
@@ -1033,8 +1033,6 @@ export class HexGrid {
 
 			$j('canvas').css('cursor', 'default');
 		};
-
-		let currentlyHoveredCreature: Creature | null = null;
 
 		// ONMOUSEOVER
 		const onSelectFn = (hex: Hex) => {
