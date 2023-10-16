@@ -536,13 +536,12 @@ export class HexGrid {
 							item.displayVisualState('creature selected player' + item.creature.team);
 						} else if (item.creature instanceof Creature) {
 							item.displayVisualState('adj');
-						} else if (this.hoveredCreature == null) {
-							this.cleanHex(item);
-							item.displayVisualState('dashed');
-							item.overlayVisualState('hover');
-						}
+						} //else if (this.hoveredCreature == null) {
+							//this.cleanHex(item);
+							//item.displayVisualState('dashed');
+							//item.overlayVisualState('hover');
+						//}
 						else {
-							this.cleanHex(item);
 							item.displayVisualState('dashed');
 						}
 
@@ -1059,6 +1058,7 @@ export class HexGrid {
 			if (hex.reachable) {
 				if (o.fillOnlyHoveredCreature && !(hex.creature instanceof Creature)) {
 					$j('canvas').css('cursor', 'not-allowed');
+					hex.overlayVisualState('hover');
 				}
 				
 				
