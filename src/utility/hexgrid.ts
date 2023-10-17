@@ -10,6 +10,7 @@ import { DEBUG } from '../debug';
 import { HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
+import { Ability } from '../ability';
 
 interface GridDefinition {
 	numRows: number;
@@ -115,6 +116,11 @@ export class HexGrid {
 	 * Prevents multiple shouts at the same time when a unit is clicked.
 	 */
 	onShoutCooldown: boolean;
+
+	/**
+	 * Last hovered creature.
+	 */
+	hoveredCreature: Creature | null = null;
 
 	display: Phaser.Group;
 	gridGroup: Phaser.Group;
@@ -326,6 +332,7 @@ export class HexGrid {
 			sourceCreature: undefined,
 			choices: [],
 			optTest: () => true,
+			fillOnlyHoveredCreature: false,
 		};
 
 		const options = { ...defaultOpt, ...o };
@@ -523,13 +530,36 @@ export class HexGrid {
 				game.activeCreature.queryMove();
 			},
 			fnOnSelect: (choice) => {
-				choice.forEach((item) => {
+				// When only filling the hovered creature
+				if (o.fillOnlyHoveredCreature) {
+					choice.forEach((item, index) => {
+						if (item.creature instanceof Creature && item.creature === this.hoveredCreature) {
+							item.displayVisualState('creature selected player' + item.creature.team);
+						} else if (item.creature instanceof Creature) {
+							item.displayVisualState('adj');
+						} else {
+							// Split the choice into two parts, before and after the empty hex
+							const beforeEmpty = choice.slice(0, index);
+							const afterEmpty = choice.slice(index + 1);
+							// Check conditions
+							if (beforeEmpty.some(hex => hex.creature instanceof Creature)) {
+								item.displayVisualState('dashed');
+							} else if (afterEmpty.some(hex => hex.creature instanceof Creature)) {
+								item.displayVisualState('adj');
+							}
+						}
+					});
+				}
+				// Normal behavior
+				else {
+					choice.forEach((item) => {
 					if (item.creature instanceof Creature) {
 						item.displayVisualState('creature selected player' + item.creature.team);
 					} else {
 						item.displayVisualState('adj');
 					}
 				});
+				}
 			},
 			fnOnCancel: () => {
 				game.activeCreature.queryMove();
@@ -546,6 +576,7 @@ export class HexGrid {
 			isDirectionsQuery: false,
 			hideNonTarget: true,
 			dashedHexesUnderCreature: false,
+			fillOnlyHoveredCreature: false,
 		};
 
 		o = { ...defaultOpt, ...o };
@@ -626,6 +657,7 @@ export class HexGrid {
 			hideNonTarget: o.hideNonTarget,
 			id: o.id,
 			fillHexOnHover: false,
+			fillOnlyHoveredCreature: o.fillOnlyHoveredCreature,
 		});
 	}
 
@@ -789,9 +821,11 @@ export class HexGrid {
 			ownCreatureHexShade: false,
 			targeting: true,
 			fillHexOnHover: true,
+			fillOnlyHoveredCreature: false,
 		};
 
 		o = { ...defaultOpt, ...o };
+
 
 		this.lastClickedHex = undefined;
 
@@ -849,6 +883,37 @@ export class HexGrid {
 			}
 		}
 
+		
+		// Function to find the path of a given hex
+		const findDirectionalPathOfHex = (hex) => {
+			let startIndex = o.hexes.indexOf(hex);
+			let endIndex = startIndex;
+			// Find the start of the path
+			while (startIndex > 0 && o.hexes[startIndex - 1].direction === hex.direction) {
+				startIndex--;
+			}
+			// Find the end of the path
+			while (endIndex < o.hexes.length - 1 && o.hexes[endIndex + 1].direction === hex.direction) {
+				endIndex++;
+			}
+			// Extract the path
+			return o.hexes.slice(startIndex, endIndex + 1);
+		};
+
+		// Function to determine if an empty hex is before or after the first creature in path
+		const emptyHexBeforeCreature = (hex) => {
+			const path = findDirectionalPathOfHex(hex);
+			const index = path.findIndex(h => h === hex);
+    		const beforeEmpty = path.slice(0, index);
+    		const afterEmpty = path.slice(index + 1);
+			// Check conditions
+			if (beforeEmpty.some(hex => hex.creature instanceof Creature)) {
+				return false;
+			} else if (afterEmpty.some(hex => hex.creature instanceof Creature)) {
+				return true;
+			} 
+		}
+
 		// Set reachable the given hexes
 		o.hexes.forEach((hex) => {
 			hex.setReachable();
@@ -858,10 +923,15 @@ export class HexGrid {
 			if (o.targeting) {
 				if (hex.creature instanceof Creature) {
 					if (hex.creature.id != this.game.activeCreature.id) {
-						hex.overlayVisualState('reachable h_player' + hex.creature.team);
+						hex.overlayVisualState('reachable h_player' + hex.creature.team);	
 					}
 				} else {
-					hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
+					if (o.fillOnlyHoveredCreature && !emptyHexBeforeCreature(hex)) {	
+						hex.displayVisualState('dashed');
+					}
+					else {
+						hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
+					}
 				}
 			}
 		});
@@ -889,13 +959,14 @@ export class HexGrid {
 					$j('canvas').css('cursor', 'n-resize');
 				} else {
 					// Filled hex with color
-					hex.displayVisualState('creature player' + hex.creature.team);
+				  hex.displayVisualState('creature player' + hex.creature.team);
 				}
 			} else if (game.activeCreature.noActionPossible) {
 				$j('canvas').css('cursor', 'wait');
 			}
 			queueEffect(creature.id);
 		};
+
 
 		// ONCLICK
 		const onConfirmFn = (hex: Hex) => {
@@ -945,6 +1016,15 @@ export class HexGrid {
 				// Offset Pos
 				const offset = o.flipped ? o.size - 1 : 0;
 				const mult = o.flipped ? 1 : -1; // For flipped player
+				
+				// If only filling hovered creatures hexes, cancel if player clicks on empty hex after first creature
+				if (o.fillOnlyHoveredCreature && !emptyHexBeforeCreature(hex)) {
+					if (!(hex.creature instanceof Creature)) {
+						o.fnOnCancel(hex, o.args); // ON CANCEL
+						return;
+					}
+				}
+				
 				// If hex is reachable & creature, reset health indicator bounce
 				if (hex.creature instanceof Creature) {
 					hex.creature.resetBounce();
@@ -977,6 +1057,7 @@ export class HexGrid {
 			const { creature } = hex;
 
 			if (creature instanceof Creature) {
+				this.hoveredCreature = null;
 				creature.resetBounce();
 				// toggle hover off event
 				if (creature.isDarkPriest()) {
@@ -1001,18 +1082,41 @@ export class HexGrid {
 			$j('canvas').css('cursor', 'pointer');
 
 			if (hex.creature instanceof Creature) {
-				// If creature
+				// Keep reference
+				this.hoveredCreature = hex.creature;
+
 				onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex);
 
 				hex.creature.startBounce();
 			}
+		
 
 			if (hex.reachable) {
+				if (o.fillOnlyHoveredCreature && !(hex.creature instanceof Creature)) {
+					if (!emptyHexBeforeCreature(hex)) {
+						$j('canvas').css('cursor', 'not-allowed');
+						hex.overlayVisualState('hover');
+					}
+					else {
+						const index = o.hexes.indexOf(hex);
+						const afterEmpty = o.hexes.slice(index + 1);
+						// Find the next creature after the empty hex
+						const nextCreature = afterEmpty.find(hex => hex.creature instanceof Creature)?.creature;
+						if (nextCreature) {
+							// Apply the desired behavior to all hexes the next creature occupies
+							nextCreature.hexagons.forEach(creatureHex => {
+								creatureHex.displayVisualState('creature selected player' + nextCreature.team);
+							});
+						}
+					}
+				}
+				
+				
 				if (o.fillHexOnHover) {
 					this.cleanHex(hex);
 					hex.displayVisualState('creature player' + this.game.activeCreature.team);
 				}
-
+				
 				// Offset Pos
 				const offset = o.flipped ? o.size - 1 : 0;
 				const mult = o.flipped ? 1 : -1; // For flipped player
@@ -1027,10 +1131,12 @@ export class HexGrid {
 						x += offset - i * mult;
 						break;
 					}
+			
 				}
 
 				hex = this.hexes[y][x]; // New coords
 				o.fnOnSelect(hex, o.args);
+
 			} else if (!hex.reachable) {
 				if (this.materialize_overlay) {
 					this.materialize_overlay.alpha = 0;

@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getDirectionFromDelta } from '../utility/position';
+import { forEach } from 'underscore';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -101,7 +102,7 @@ export default (G) => {
 				const stomper = this.creature;
 				const ability = this;
 
-				// Take the closest ennemy in each direction within 3hex
+				// Take the closest enemy in each direction within 3hex
 				if (!this.isUpgraded()) {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
@@ -117,7 +118,7 @@ export default (G) => {
 						sourceCreature: stomper,
 						dashedHexesUnderCreature: true,
 					});
-				} // Once upgraded, can hit any ennemy within 3hex in any direction
+				} // Once upgraded, can hit any enemy within 3hex in any direction
 				else {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
@@ -144,6 +145,7 @@ export default (G) => {
 						sourceCreature: stomper,
 						stopOnCreature: false,
 						dashedHexesUnderCreature: true,
+						fillOnlyHoveredCreature: true,
 					});
 				}
 			},
