@@ -883,11 +883,29 @@ export class HexGrid {
 			}
 		}
 
+		
+		// Function to find the path of a given hex
+		const findDirectionalPathOfHex = (hex) => {
+			let startIndex = o.hexes.indexOf(hex);
+			let endIndex = startIndex;
+			// Find the start of the path
+			while (startIndex > 0 && o.hexes[startIndex - 1].direction === hex.direction) {
+				startIndex--;
+			}
+			// Find the end of the path
+			while (endIndex < o.hexes.length - 1 && o.hexes[endIndex + 1].direction === hex.direction) {
+				endIndex++;
+			}
+			// Extract the path
+			return o.hexes.slice(startIndex, endIndex + 1);
+		};
+
 		// Function to determine if an empty hex is before or after the first creature in path
 		const emptyHexBeforeCreature = (hex) => {
-			const index = o.hexes.indexOf(hex);
-			const beforeEmpty = o.hexes.slice(0, index);
-			const afterEmpty = o.hexes.slice(index + 1);
+			const path = findDirectionalPathOfHex(hex);
+			const index = path.findIndex(h => h === hex);
+    		const beforeEmpty = path.slice(0, index);
+    		const afterEmpty = path.slice(index + 1);
 			// Check conditions
 			if (beforeEmpty.some(hex => hex.creature instanceof Creature)) {
 				return false;
