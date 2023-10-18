@@ -70,6 +70,11 @@ export class Hotkeys {
 			this.ui.btnExit.triggerClick();
 		}
 	}
+	pressTab(event) {
+		if (event.shiftKey) {
+			this.ui.$brandlogo.addClass('hide');
+		}
+	}
 
 	pressArrowUp() {
 		this.ui.dashopen ? this.ui.gridSelectUp() : this.ui.game.grid.selectHexUp();
@@ -185,6 +190,11 @@ export function getHotKeys(hk) {
 		KeyX: {
 			onkeydown(event) {
 				hk.pressX(event);
+			},
+		},
+		Tab: {
+			onkeydown(event) {
+				hk.pressTab(event);
 			},
 		},
 		ArrowUp: {
