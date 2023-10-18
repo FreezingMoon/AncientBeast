@@ -151,10 +151,9 @@ export default (G) => {
 						},
 						team: this._targetTeam,
 						id: this.creature.id,
-						flipped: this.creature.flipped,
+						flipped: this.creature.player.flipped,
 						hexes: this.creature.getHexMap(matrices.frontnback2hex),
 					});
-					console.log('Nutcase.Flipped:', this.creature.flipped);
 				} else {
 					// If upgraded, show choice of front and back hex groups
 					const choices = [
@@ -388,7 +387,7 @@ export default (G) => {
 					G.grid.cleanReachable();
 
 					const isChargingBackwards =
-						(nutcase.flipped && args.direction === Direction.Right) ||
+						(nutcase.player.flipped && args.direction === Direction.Right) ||
 						args.direction === Direction.Left;
 
 					nutcase.moveTo(destination, {
@@ -581,7 +580,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
-					flipped: this.creature.flipped,
+					flipped: this.creature.player.flipped,
 					hexes: this.creature.getHexMap(matrices.inlinefrontnback2hex),
 					optTest: function (creature) {
 						// Size restriction of 2 if unupgraded

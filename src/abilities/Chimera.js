@@ -77,10 +77,9 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: chimera.id,
-					flipped: chimera.flipped,
+					flipped: chimera.player.flipped,
 					hexes: G.grid.getHexMap(chimera.x - 3, chimera.y - 2, 0, false, matrices.frontnback3hex),
 				});
-				console.log('Chimera.Flipped:', chimera.flipped);
 			},
 
 			//	activate() :
@@ -137,7 +136,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: chimera.flipped,
+					flipped: chimera.player.flipped,
 					team: this._targetTeam,
 					id: chimera.id,
 					requireCreature: true,
@@ -224,7 +223,7 @@ export default (G) => {
 
 			_getDirections: function () {
 				return this.testDirections({
-					flipped: this.creature.flipped,
+					flipped: this.creature.player.flipped,
 					team: this._targetTeam,
 					id: this.creature.id,
 					requireCreature: true,
@@ -263,7 +262,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: chimera.flipped,
+					flipped: chimera.player.flipped,
 					team: this._targetTeam,
 					id: chimera.id,
 					directions: this._getDirections(),

@@ -255,7 +255,7 @@ export default (G: Game) => {
 					},
 					team: this._targetTeam,
 					id: snowBunny.id,
-					flipped: snowBunny.flipped,
+					flipped: snowBunny.player.flipped,
 					hexes: snowBunny.adjacentHexes(1),
 				});
 			},
@@ -327,7 +327,7 @@ export default (G: Game) => {
 						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
-					flipped: snowBunny.flipped,
+					flipped: snowBunny.player.flipped,
 					team: this._targetTeam,
 					id: snowBunny.id,
 					requireCreature: true,
@@ -447,7 +447,7 @@ export default (G: Game) => {
 						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
-					flipped: snowBunny.flipped,
+					flipped: snowBunny.player.flipped,
 					team: this._targetTeam,
 					id: snowBunny.id,
 					requireCreature: true,

@@ -122,7 +122,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: vehemoth.flipped,
+					flipped: vehemoth.player.flipped,
 					id: vehemoth.id,
 					team: Team.Enemy,
 					requireCreature: true,
@@ -132,7 +132,7 @@ export default (G) => {
 
 				if (this.isUpgraded()) {
 					const directionObject = G.grid.getDirectionChoices({
-						flipped: vehemoth.flipped,
+						flipped: vehemoth.player.flipped,
 						team: this._targetTeam,
 						requireCreature: true,
 						stopOnCreature: true,
@@ -323,7 +323,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: vehemoth.flipped,
+					flipped: vehemoth.player.flipped,
 					team: this._targetTeam,
 					id: vehemoth.id,
 					requireCreature: true,
@@ -461,7 +461,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: vehemoth.id,
-					flipped: vehemoth.flipped,
+					flipped: vehemoth.player.flipped,
 					hexes: this._getHexes(),
 				});
 			},

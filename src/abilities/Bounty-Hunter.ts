@@ -136,7 +136,7 @@ export default (G: Game) => {
 					},
 					team: this._targetTeam,
 					id: crea.id,
-					flipped: crea.flipped,
+					flipped: crea.player.flipped,
 					hexes: crea.adjacentHexes(1),
 				});
 			},
@@ -266,7 +266,7 @@ export default (G: Game) => {
 					team: this._targetTeam,
 					requireCreature: 1,
 					id: swine.id,
-					flipped: swine.flipped,
+					flipped: swine.player.flipped,
 					choices: choices,
 				});
 			},

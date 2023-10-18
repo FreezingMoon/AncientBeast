@@ -139,7 +139,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: crea.id,
-					flipped: crea.flipped,
+					flipped: crea.player.flipped,
 					hexes: crea.getHexMap(matrices.frontnback2hex),
 				});
 			},
@@ -227,7 +227,7 @@ export default (G) => {
 					!this.testDirection({
 						team: this._targetTeam,
 						sourceCreature: headless,
-						flipped: headless.flipped,
+						flipped: headless.player.flipped,
 						directions: this._directions,
 						distance: this._getMaxDistance(),
 						minDistance: this.range.minimum,
@@ -251,7 +251,7 @@ export default (G) => {
 					team: this._targetTeam,
 					id: headless.id,
 					sourceCreature: headless,
-					flipped: headless.flipped,
+					flipped: headless.player.flipped,
 					x: headless.x,
 					y: headless.y,
 					directions: this._directions,
@@ -377,7 +377,7 @@ export default (G) => {
 					team: Team.Both,
 					requireCreature: 0,
 					id: crea.id,
-					flipped: crea.flipped,
+					flipped: crea.player.flipped,
 					choices: [crea.getHexMap(hexes), crea.getHexMap(hexes, true)],
 				});
 			},

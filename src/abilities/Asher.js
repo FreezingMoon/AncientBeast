@@ -87,7 +87,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: crea.flipped,
+					flipped: crea.player.flipped,
 					team: this._targetTeam,
 					id: this.creature.id,
 					requireCreature: true,

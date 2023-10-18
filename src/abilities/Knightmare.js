@@ -94,7 +94,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
-					flipped: this.creature.flipped,
+					flipped: this.creature.player.flipped,
 					hexes: this.creature.getHexMap(matrices.frontnback2hex),
 				});
 			},
@@ -170,7 +170,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
-					flipped: this.creature.flipped,
+					flipped: this.creature.player.flipped,
 					hexes: this.creature.getHexMap(matrices.frontnback2hex),
 				});
 			},
@@ -239,7 +239,7 @@ export default (G) => {
 				}
 
 				const crea = this.creature;
-				const x = crea.flipped ? crea.x - crea.size + 1 : crea.x;
+				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				if (
 					!this.testDirection({
@@ -260,7 +260,7 @@ export default (G) => {
 				const ability = this;
 				const crea = this.creature;
 
-				const x = crea.flipped ? crea.x - crea.size + 1 : crea.x;
+				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {

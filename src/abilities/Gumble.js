@@ -182,7 +182,7 @@ export default (G) => {
 						ability.animation(...arguments);
 					},
 					size: creature.size,
-					flipped: creature.flipped,
+					flipped: creature.player.flipped,
 					id: creature.id,
 					hexes: hexes,
 					ownCreatureHexShade: true,
@@ -286,7 +286,7 @@ export default (G) => {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
-					flipped: crea.flipped,
+					flipped: crea.player.flipped,
 					team: this._targetTeam,
 					id: this.creature.id,
 					requireCreature: true,

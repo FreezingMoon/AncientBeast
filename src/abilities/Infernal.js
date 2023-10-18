@@ -25,7 +25,7 @@ export default (G) => {
 			activate: function () {
 				// Leave two traps behind
 				this._addTrap(this.creature.hexagons[1]);
-				this._addTrap(this.creature.hexagons[this.creature.flipped ? 0 : 2]);
+				this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
 
 				// SFX
 				const music = G.Phaser.add.audio('MagmaSpawn0');
@@ -112,7 +112,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: magmaSpawn.id,
-					flipped: magmaSpawn.flipped,
+					flipped: magmaSpawn.player.flipped,
 					hexes: this.creature.getHexMap(matrices.frontnback3hex),
 				});
 			},
@@ -202,7 +202,7 @@ export default (G) => {
 					team: Team.Both,
 					requireCreature: 0,
 					id: magmaSpawn.id,
-					flipped: magmaSpawn.flipped,
+					flipped: magmaSpawn.player.flipped,
 					choices: [magmaSpawn.getHexMap(this.map), magmaSpawn.getHexMap(this.map, true)],
 				});
 			},
@@ -259,7 +259,7 @@ export default (G) => {
 				}
 
 				const magmaSpawn = this.creature;
-				const x = magmaSpawn.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
 
 				if (
 					!this.testDirection({
@@ -278,7 +278,7 @@ export default (G) => {
 				const ability = this;
 				const magmaSpawn = this.creature;
 
-				const x = magmaSpawn.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {

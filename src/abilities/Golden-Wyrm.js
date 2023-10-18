@@ -117,7 +117,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: wyrm.id,
-					flipped: wyrm.flipped,
+					flipped: wyrm.player.flipped,
 					hexes: this._getHexes(),
 				});
 			},
@@ -224,7 +224,7 @@ export default (G) => {
 						ability.animation(...arguments);
 					},
 					size: wyrm.size,
-					flipped: wyrm.flipped,
+					flipped: wyrm.player.flipped,
 					id: wyrm.id,
 					hexes: range,
 				});
@@ -348,7 +348,7 @@ export default (G) => {
 					optTest: this._confirmTarget,
 					team: this._targetTeam,
 					id: wyrm.id,
-					flipped: wyrm.flipped,
+					flipped: wyrm.player.flipped,
 					hexes: this._getHexes(),
 				});
 			},
