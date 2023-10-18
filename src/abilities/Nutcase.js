@@ -151,7 +151,7 @@ export default (G) => {
 						},
 						team: this._targetTeam,
 						id: this.creature.id,
-						flipped: this.creature.flipped,
+						flipped: this.creature.player.flipped,
 						hexes: this.creature.getHexMap(matrices.frontnback2hex),
 					});
 				} else {
@@ -580,13 +580,14 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
-					flipped: this.creature.flipped,
+					flipped: this.creature.player.flipped,
 					hexes: this.creature.getHexMap(matrices.inlinefrontnback2hex),
 					optTest: function (creature) {
 						// Size restriction of 2 if unupgraded
 						return ability.isUpgraded() ? true : creature.size <= 2;
 					},
 				});
+				
 			},
 
 			//	activate() :

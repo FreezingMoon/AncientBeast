@@ -112,7 +112,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: magmaSpawn.id,
-					flipped: magmaSpawn.flipped,
+					flipped: magmaSpawn.player.flipped,
 					hexes: this.creature.getHexMap(matrices.frontnback3hex),
 				});
 			},
@@ -202,7 +202,7 @@ export default (G) => {
 					team: Team.Both,
 					requireCreature: 0,
 					id: magmaSpawn.id,
-					flipped: magmaSpawn.flipped,
+					flipped: magmaSpawn.player.flipped,
 					choices: [magmaSpawn.getHexMap(this.map), magmaSpawn.getHexMap(this.map, true)],
 				});
 			},

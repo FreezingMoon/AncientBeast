@@ -72,7 +72,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
-					flipped: this.creature.flipped,
+					flipped: this.creature.player.flipped,
 					hexes: this.creature.getHexMap(matrices.frontnback2hex),
 				});
 			},
@@ -229,7 +229,7 @@ export default (G) => {
 					team: this._targetTeam,
 					id: [crea.id, trg.id],
 					size: size,
-					flipped: crea.player.flipped,
+					flipped: crea.player.player.flipped,
 					hexes: G.grid
 						.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
 						.filter(function (item) {
@@ -336,7 +336,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
-					flipped: this.creature.flipped,
+					flipped: this.creature.player.flipped,
 					hexes: this.creature.getHexMap(matrices.frontnback2hex),
 				});
 			},

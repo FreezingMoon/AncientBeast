@@ -113,7 +113,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: uncle.id,
-					flipped: uncle.flipped,
+					flipped: uncle.player.flipped,
 					hexes: uncle.getHexMap(matrices.frontnback2hex),
 				});
 			},
@@ -369,7 +369,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: uncle.id,
-					flipped: uncle.flipped,
+					flipped: uncle.player.flipped,
 					hexes: G.grid.getHexMap(uncle.x - 2, uncle.y - 2, 0, false, matrices.frontnback2hex),
 				});
 			},

@@ -379,7 +379,7 @@ export default (G) => {
 					team: Team.Both,
 					requireCreature: 0,
 					id: stomper.id,
-					flipped: stomper.flipped,
+					flipped: stomper.player.flipped,
 					choices: [targets, targets2], // Target the front or back row
 					hexesDashed: dashed,
 				});
@@ -492,7 +492,7 @@ export default (G) => {
 					team: Team.Both,
 					requireCreature: 0,
 					id: stomper.id,
-					flipped: stomper.flipped,
+					flipped: stomper.player.flipped,
 					choices: [stomper.getHexMap(this.map), stomper.getHexMap(this.map, true)],
 				});
 			},

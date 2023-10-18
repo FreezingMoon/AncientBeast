@@ -139,7 +139,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: crea.id,
-					flipped: crea.flipped,
+					flipped: crea.player.flipped,
 					hexes: crea.getHexMap(matrices.frontnback2hex),
 				});
 			},

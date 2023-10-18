@@ -461,7 +461,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: vehemoth.id,
-					flipped: vehemoth.flipped,
+					flipped: vehemoth.player.flipped,
 					hexes: this._getHexes(),
 				});
 			},

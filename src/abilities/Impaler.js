@@ -81,14 +81,13 @@ export default (G) => {
 			query: function () {
 				const ability = this;
 				const creature = this.creature;
-
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: creature.id,
-					flipped: creature.flipped,
+					flipped: creature.player.flipped,
 					hexes: this._getHexes(),
 				});
 			},
@@ -168,7 +167,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: creature.id,
-					flipped: creature.flipped,
+					flipped: creature.player.flipped,
 					hexes: this._getHexes(),
 				});
 			},
@@ -288,7 +287,7 @@ export default (G) => {
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
-					flipped: this.creature.flipped,
+					flipped: this.creature.player.flipped,
 					hexes: this._getHexes(),
 				});
 			},
