@@ -82,7 +82,7 @@
 	"scripts": {
 		"build": "webpack --mode=production",
 		"build:dev": "webpack --mode=development",
-		"start": "cross-env NODE_ENV=production node server.js",
+		"start": "cross-env NODE_ENV=production webpack-dev-server",
 		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
 		"lint": "eslint \"src/**/*.{js,ts}\"",
 		"lint-error": "eslint --quiet \"src/**/*.{js,ts}\"",
