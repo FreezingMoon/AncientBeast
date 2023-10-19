@@ -166,7 +166,7 @@ You are free to browse [existing issues](https://github.com/FreezingMoon/Ancient
 
 #### Token Bounties
 
-Many of the issues and open tasks have bounties specified in the title, for example: `[bounty: 5 XTR]`, indicating the amount of [XatteR](https://github.com/FreezingMoon/AncientBeast/wiki/Token) that will be given to the person that solves the issue(s). You can read more about our utility token in our extensive wiki article [over here](https://github.com/FreezingMoon/AncientBeast/wiki/Token).
+Many of the issues and open tasks have bounties specified in the title, for example: `[bounty: 5 XTR]`, indicating the amount of [XatteR](https://github.com/FreezingMoon/AncientBeast/wiki/Token) that will be given to the person that solves the issue(s). You can read more about our utility token in our detailed wiki article [over here](https://github.com/FreezingMoon/AncientBeast/wiki/Token).
 
 ---
 
