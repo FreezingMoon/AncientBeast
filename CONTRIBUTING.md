@@ -164,6 +164,10 @@ In addition, the following commands were added to `package.json`:
 
 You are free to browse [existing issues](https://github.com/FreezingMoon/AncientBeast/issues) (for beginner coders there are issues labeled as [easy](https://github.com/FreezingMoon/AncientBeast/issues?q=is%3Aopen+is%3Aissue+label%3Aeasy)) and comment on the ones that you want to take a swing at in order to make sure the issue is still relevant and that nobody else is working on it. You can also drop by the project's [Discord server](https://discord.gg/x78rKen) and mention your skills and that you're interested in helping out; you'll be assigned to a specific issue. When you're done, simply create a **Pull Request**. Note that you might need to pull in from master repository before doing so. Your patches will get reviewed and tested, if there are issues with them, you'll receive feedback in order to make corrections. Otherwise, your pull request will get approved and merged into the master branch and you'll get credited for it.
 
+#### Token Bounties
+
+Many of the issues and open tasks have bounties specified in the title, for example: `[bounty: 5 XTR]`, indicating the amount of [XatteR](https://github.com/FreezingMoon/AncientBeast/wiki/Token) that will be given to the person that solves the issue(s). You can read more about our utility token in our extensive wiki article https://github.com/FreezingMoon/AncientBeast/wiki/Token
+
 ---
 
 ## More Ways
