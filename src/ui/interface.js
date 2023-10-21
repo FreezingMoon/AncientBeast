@@ -2324,7 +2324,7 @@ export class UI {
 			ui.game.grid.redoLastQuery();
 		};
 
-		// hide the brand logo when navigating away using a hotkey
+		// Hide the project logo when navigating away using a hotkey
 		document.addEventListener('visibilitychange', function () {
 			if (document.hidden) {
 				ui.$brandlogo.addClass('hide');
