@@ -71,6 +71,7 @@ export class Hotkeys {
 		}
 	}
 	pressTab(event) {
+		console.log(event);
 		if (event.shiftKey) {
 			this.ui.$brandlogo.addClass('hide');
 		}
