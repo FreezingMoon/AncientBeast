@@ -218,6 +218,7 @@ export default class Game {
 				dash: {
 					materializeOverload: 'Overload! Maximum number of units controlled',
 					selectUnit: 'Please select an available unit from the left grid',
+					wrongPlayer: 'Please select an available unit from own unit grid',
 					lowPlasma: 'Low Plasma! Cannot materialize the selected unit',
 					// plasmaCost :    String :    plasma cost of the unit to materialize
 					materializeUnit: (plasmaCost: string) => {
