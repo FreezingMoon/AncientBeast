@@ -2333,6 +2333,13 @@ export class UI {
 			ui.game.grid.redoLastQuery();
 		};
 
+		// hide the brand logo when navigating away using a hotkey
+		document.addEventListener('visibilitychange', function () {
+			if (document.hidden) {
+				ui.$brandlogo.addClass('hide');
+			}
+		});
+
 		const SIGNAL_CREATURE_CLICK = 'vignettecreatureclick';
 		const SIGNAL_CREATURE_MOUSE_ENTER = 'vignettecreaturemouseenter';
 		const SIGNAL_CREATURE_MOUSE_LEAVE = 'vignettecreaturemouseleave';
