@@ -395,7 +395,9 @@ export class UI {
 				if (keydownAction !== undefined) {
 					keydownAction.call(this, e);
 
-					e.preventDefault();
+					if (!(e.code === 'Tab' && e.shiftKey)) {
+						e.preventDefault();
+					}
 				}
 			});
 
@@ -1480,7 +1482,7 @@ export class UI {
 			this.showRandomCreature();
 		} else if (!randomize) {
 			this.showCreature('--', game.activeCreature.team, '');
-		}  else if (this.lastViewedCreature) {
+		} else if (this.lastViewedCreature) {
 			this.showCreature(this.lastViewedCreature, game.activeCreature.team, '');
 		} else {
 			this.showCreature(game.activeCreature.type, game.activeCreature.team, '');
@@ -2330,6 +2332,13 @@ export class UI {
 			ui.game.grid.cleanOverlay();
 			ui.game.grid.redoLastQuery();
 		};
+
+		// Hide the project logo when navigating away using a hotkey
+		document.addEventListener('visibilitychange', function () {
+			if (document.hidden) {
+				ui.$brandlogo.addClass('hide');
+			}
+		});
 
 		const SIGNAL_CREATURE_CLICK = 'vignettecreatureclick';
 		const SIGNAL_CREATURE_MOUSE_ENTER = 'vignettecreaturemouseenter';
