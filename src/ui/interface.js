@@ -949,7 +949,12 @@ export class UI {
 
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
 				$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
-			} else if (activeCreature.player.id !== player) {
+			} else if (
+				activeCreature.player.id !== player &&
+				activeCreature.isDarkPriest() &&
+				activeCreature.abilities[3].testRequirements() &&
+				activeCreature.abilities[3].used === false
+			) {
 				$j('#materialize_button p').text(game.msg.ui.dash.wrongPlayer);
 
 				this.materializeButton.click = () => {
