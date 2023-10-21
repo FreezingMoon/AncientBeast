@@ -949,7 +949,9 @@ export class UI {
 
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
 				$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
-			} else if (
+			} 
+			// Check if the player is viewing the wrong tab
+			else if (
 				activeCreature.player.id !== player &&
 				activeCreature.isDarkPriest() &&
 				activeCreature.abilities[3].testRequirements() &&
@@ -957,6 +959,7 @@ export class UI {
 			) {
 				$j('#materialize_button p').text(game.msg.ui.dash.wrongPlayer);
 
+				// Switch to turn player's dark priest
 				this.materializeButton.click = () => {
 					this.showCreature("--", activeCreature.player.id);
 				};
