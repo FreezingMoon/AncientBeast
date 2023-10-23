@@ -977,6 +977,25 @@ export class UI {
 
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
 				$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
+			} 
+			// Check if the player is viewing the wrong tab
+			else if (
+				activeCreature.player.id !== player &&
+				activeCreature.isDarkPriest() &&
+				activeCreature.abilities[3].testRequirements() &&
+				activeCreature.abilities[3].used === false
+			) {
+				$j('#materialize_button p').text(game.msg.ui.dash.wrongPlayer);
+
+				// Switch to turn player's dark priest
+				this.materializeButton.click = () => {
+					this.showCreature("--", activeCreature.player.id);
+				};
+
+				$j('#card .sideA').on('click', this.materializeButton.click);
+				$j('#card .sideA').removeClass('disabled');
+				this.materializeButton.changeState(ButtonStateEnum.glowing);
+				$j('#materialize_button').show();
 			} else if (
 				!summonedOrDead &&
 				activeCreature.player.id === player &&
