@@ -15,7 +15,6 @@ import { Queue } from './queue';
 import { QuickInfo } from './quickinfo';
 import { pretty as version } from '../utility/version';
 
-
 import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
 import { DEBUG_DISABLE_HOTKEYS } from '../debug';
@@ -399,33 +398,8 @@ export class UI {
 			// Manually dispatches the input event to update the sound system with new slider value.
 			slider.dispatchEvent(new Event('input'));
 		});
-        const radioGroups = document.getElementsByClassName('typeRadio');
-        let dragging;
-        let selectedRadio;
-      
-        radioGroups.forEach((group) => {
-          dragging = false;
-          const radioInputs = group.getElementsByClassName('draggable-label');
-          selectedRadio = group.querySelector('input[type=radio]:checked');
-          radioInputs.forEach((radio) => {
-            radio.addEventListener('mousedown', () => {
-              dragging = true;
-              radio.checked = true;
-              selectedRadio = radio.previousElementSibling;
-            });
-      
-            radio.addEventListener('mouseover', () => {
-              if (dragging) {
-                selectedRadio.checked = false;
-                radio.previousElementSibling.checked = true;
-              }
-            });
-          });
-        });
-      
-        document.addEventListener('mouseup', () => {
-          dragging = false;
-        });
+
+
 
 		this.hotkeys = new Hotkeys(this);
 		const ingameHotkeys = getHotKeys(this.hotkeys);
@@ -2128,35 +2102,6 @@ export class UI {
 		$j('#matchMaking').show();
 		$j('#gameSetupContainer').show();
 		$j('#loader').addClass('hide');
-
-		const radioGroups = document.querySelectorAll(".typeRadio");
-        let dragging;
-        let selectedRadio;
-      
-        radioGroups.forEach((group) => {
-          dragging = false;
-          const radioInputs = group.querySelectorAll(".draggable-label");
-          selectedRadio = group.querySelector("input[type=radio]:checked");
-          radioInputs.forEach((radio) => {
-            radio.addEventListener("mousedown", () => {
-              dragging = true;
-              radio.checked = true;
-              selectedRadio = radio.previousElementSibling;
-            });
-      
-            radio.addEventListener("mouseover", () => {
-              if (dragging) {
-                selectedRadio.checked = false;
-                radio.previousElementSibling.checked = true;
-              }
-            });
-          });
-        });
-      
-        document.addEventListener("mouseup", () => {
-          dragging = false;
-        });
-
 		this.queue.empty(Queue.IMMEDIATE);
 	}
 
