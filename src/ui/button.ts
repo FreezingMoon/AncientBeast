@@ -25,7 +25,7 @@ export function buttonSlide(){
 		const radioInputs = $j(this).find('.dragIt');
 		selectedRadio = $j(this).find('input[type=radio]:checked');
 	
-		//Check clicked button
+		// Check clicked button
 		radioInputs.each(function() {
 		  $j(this).on('mousedown', () => {
 			dragging = true;
@@ -33,7 +33,7 @@ export function buttonSlide(){
 			selectedRadio = $j(this).prev('input[type=radio]');
 		  });
 	
-		  //Check hovered button
+		  // Check hovered button
 		  $j(this).on('mouseover', () => {
 			if (dragging) {
 			  selectedRadio.prop('checked', false);
