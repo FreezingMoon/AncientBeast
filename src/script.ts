@@ -5,6 +5,8 @@ import { unitData } from './data/units';
 import Game from './game';
 import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
+import { buttonSlide } from './ui/slider';
+
 
 import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
@@ -154,6 +156,9 @@ $j(() => {
 		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
 	}
+	
+	// Allow button game options to slide in prematch screen
+	buttonSlide();
 
 	// Create new Object to play audio in pre-match screen
 	const beastAudio = new PreMatchAudioPlayer();
