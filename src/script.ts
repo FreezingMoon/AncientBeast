@@ -5,7 +5,7 @@ import { unitData } from './data/units';
 import Game from './game';
 import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
-import { buttonSlide } from './ui/slider';
+import { buttonSlide } from './ui/button';
 
 
 import Connect from './multiplayer/connect';
