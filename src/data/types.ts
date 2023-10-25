@@ -24,9 +24,9 @@ type ExtractValidCreatureTypes<T extends UnitData> = {
 }[number];
 
 // Create unions from the various arrays
-export type UnitName = (typeof unitNames)[number];
-export type Realm = (typeof realms)[number];
-export type Level = (typeof unitLevels)[number];
+export type UnitName = typeof unitNames[number];
+export type Realm = typeof realms[number];
+export type Level = typeof unitLevels[number];
 
 // Create a union of valid creature `type`s
 export type CreatureType = ExtractValidCreatureTypes<UnitData>;

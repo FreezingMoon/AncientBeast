@@ -723,7 +723,7 @@ export class Creature {
 				}, // Optional args
 				size: this.size,
 				flipped: this.player.flipped,
-				
+
 				id: this.id,
 				hexes: o.range,
 				ownCreatureHexShade: o.ownCreatureHexShade,

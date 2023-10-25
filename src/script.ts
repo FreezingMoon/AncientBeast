@@ -7,7 +7,6 @@ import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
 
-
 import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
 import SessionI from './multiplayer/session';
@@ -156,7 +155,7 @@ $j(() => {
 		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
 	}
-	
+
 	// Allow button game options to slide in prematch screen
 	buttonSlide();
 
