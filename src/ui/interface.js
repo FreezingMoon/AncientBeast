@@ -378,7 +378,7 @@ export class UI {
 		// Prevents default touch behaviour on slider when first touched (prevents scrolling the screen).
 		slider.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
 
-		slider.addEventListener('touchmove', (e) =>{
+		slider.addEventListener('touchmove', (e) => {
 			// Get slider relative to the view port.
 			const sliderRect = slider.getBoundingClientRect();
 			// The original touch point Y coordinate relative to the view port.
@@ -394,12 +394,10 @@ export class UI {
 			const slidersNewVal = scaledDist + parseFloat(slider.min);
 			// Sets the slider value to the new value between the min/max bounds of the slider.
 			slider.value = Math.min(Math.max(slidersNewVal, slider.min), slider.max);
-			
+
 			// Manually dispatches the input event to update the sound system with new slider value.
 			slider.dispatchEvent(new Event('input'));
 		});
-
-
 
 		this.hotkeys = new Hotkeys(this);
 		const ingameHotkeys = getHotKeys(this.hotkeys);
@@ -977,7 +975,7 @@ export class UI {
 
 			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
 				$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
-			} 
+			}
 			// Check if the player is viewing the wrong tab
 			else if (
 				activeCreature.player.id !== player &&
@@ -989,7 +987,7 @@ export class UI {
 
 				// Switch to turn player's dark priest
 				this.materializeButton.click = () => {
-					this.showCreature("--", activeCreature.player.id);
+					this.showCreature('--', activeCreature.player.id);
 				};
 
 				$j('#card .sideA').on('click', this.materializeButton.click);
