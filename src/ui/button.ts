@@ -11,6 +11,44 @@ export const ButtonStateEnum = {
 	slideIn: 'slideIn',
 } as const;
 
+
+/**
+ * Allows buttons to touch and slide
+ */
+export function buttonSlide(){
+	let dragging = false;
+
+	$j(document).ready(function() {
+	  $j('.typeRadio').each(function() {
+		let selectedRadio;
+	
+		const radioInputs = $j(this).find('.dragIt');
+		selectedRadio = $j(this).find('input[type=radio]:checked');
+	
+		// Check clicked button
+		radioInputs.each(function() {
+		  $j(this).on('mousedown', () => {
+			dragging = true;
+			$j(this).prev('input[type=radio]').prop('checked', true);
+			selectedRadio = $j(this).prev('input[type=radio]');
+		  });
+	
+		  // Check hovered button
+		  $j(this).on('mouseover', () => {
+			if (dragging) {
+			  selectedRadio.prop('checked', false);
+			  $j(this).prev('input[type=radio]').prop('checked', true);
+			}
+		  });
+		});
+	  });
+	
+	  $j(document).on('mouseup', () => {
+		dragging = false;
+	  });
+	});
+}
+
 type ValueOf<T> = T[keyof T];
 type ButtonState = ValueOf<typeof ButtonStateEnum>;
 
