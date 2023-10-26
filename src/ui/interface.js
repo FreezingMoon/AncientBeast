@@ -18,7 +18,6 @@ import { pretty as version } from '../utility/version';
 import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
 import { DEBUG_DISABLE_HOTKEYS } from '../debug';
-import GoldenWyrm from '../abilities/Golden-Wyrm';
 
 /**
  * Class UI
@@ -291,7 +290,7 @@ export class UI {
 							if(i == 2 && game.activeCreature == GoldenWyrm){
 								if(game.activeCreature.abilities[3].isUpgraded() &&
 								ability.require()){
-									b.cssTransition('potential', 2000);
+									b.changeState(ButtonStateEnum.potential);
 								}
 							}
 
