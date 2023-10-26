@@ -256,6 +256,7 @@ export class UI {
 					},
 					slideIn: {},
 					potential: {},
+					potentialoff:{},
 				},
 			},
 			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
@@ -287,10 +288,14 @@ export class UI {
 							if (ability.require() == true && i != 0) {
 								this.selectAbility(i);
 							}
-							if(i == 2 && game.activeCreature == GoldenWyrm){
-								if(game.activeCreature.abilities[3].isUpgraded() &&
-								ability.require()){
+
+							if(i == 1 && game.activeCreature.name == "Golden Wyrm"){				
+								if(game.activeCreature.abilities[2].isUpgraded() &&
+								ability.require() && game.selectedAbility != ability){
 									b.changeState(ButtonStateEnum.potential);
+								} else{
+									b.cssTransition(ButtonStateEnum.potentialoff);
+									b.changeState(ButtonStateEnum.normal);
 								}
 							}
 
@@ -353,10 +358,23 @@ export class UI {
 						potential: {},
 					},
 				},
-				{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+				{ isAcceptingInput: () => {
+					this.interfaceAPI.isAcceptingInput }},
 			);
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
+
+			//upgraded
+			/**
+			if(i == 2 && game.activeCreature.name == "Golden Wyrm"){
+				b.changeState(ButtonStateEnum.potential);
+
+				
+				if(game.activeCreature.abilities[].isUpgraded() &&
+				ability.require()){
+					b.changeState(ButtonStateEnum.potential);
+				}
+			}**/
 		}
 
 		// ProgressBar
@@ -1905,6 +1923,7 @@ export class UI {
 				}, 1500);
 
 				ab.setUpgraded(); // Set the ability to upgraded
+				
 			}
 
 			// Change the ability's frame when it gets upgraded
