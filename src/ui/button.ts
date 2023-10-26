@@ -209,7 +209,7 @@ export class Button {
 			}
 		});
 
-		this.$button.removeClass('disabled glowing selected active noclick slideIn hidden');
+		this.$button.removeClass('disabled glowing selected active noclick slideIn hidden potential');
 		wrapperElement && wrapperElement.removeClass('hidden');
 		this.$button.css(this.css.normal);
 

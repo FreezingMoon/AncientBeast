@@ -268,6 +268,8 @@ export class UI {
 				{
 					$button: $j('.ability[ability="' + i + '"]'),
 					hasShortcut: true,
+					
+
 					click: () => {
 						const game = this.game;
 						if (this.selectedAbility != i) {
@@ -289,18 +291,11 @@ export class UI {
 								this.selectAbility(i);
 							}
 
-							if(i == 1 && game.activeCreature.name == "Golden Wyrm"){				
-								if(game.activeCreature.abilities[2].isUpgraded() &&
-								ability.require() && game.selectedAbility != ability){
-									b.changeState(ButtonStateEnum.potential);
-								} else{
-									b.cssTransition(ButtonStateEnum.potentialoff);
-									b.changeState(ButtonStateEnum.normal);
-								}
-							}
-
 							// Activate Ability
 							game.activeCreature.abilities[i].use();
+
+							this.showBonusPotential();
+
 						} else {
 							// Cancel Ability
 							this.closeDash();
@@ -363,18 +358,6 @@ export class UI {
 			);
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
-
-			//upgraded
-			/**
-			if(i == 2 && game.activeCreature.name == "Golden Wyrm"){
-				b.changeState(ButtonStateEnum.potential);
-
-				
-				if(game.activeCreature.abilities[].isUpgraded() &&
-				ability.require()){
-					b.changeState(ButtonStateEnum.potential);
-				}
-			}**/
 		}
 
 		// ProgressBar
@@ -683,6 +666,27 @@ export class UI {
 			this.closeMusicPlayer();
 			this.closeScoreboard();
 		}
+	}
+
+	
+	showBonusPotential(){
+
+		const game = this.game;
+		this.abilitiesButtons.forEach((btn) => { 
+			const ability = game.activeCreature.abilities[btn.abilityId];
+
+			//The executioner Axes for Golden Wyrm jumps to the right
+			if(	ability.used == false &&
+				game.activeCreature.name == "Golden Wyrm" && 
+				game.activeCreature.abilities[2].isUpgraded() &&
+				ability.require() && 
+				game.selectedAbility != ability && 
+				btn.abilityId == 1 
+				){
+					btn.$button.addClass('potential')
+					btn.changeState(ButtonStateEnum.potential);
+				} 
+			});
 	}
 
 	showAbilityCosts(abilityId) {
@@ -1853,6 +1857,7 @@ export class UI {
 					this.changeAbilityButtons();
 					// Update upgrade info
 					this.updateAbilityUpgrades();
+					//this.showBonusPotential();
 					// Callback after final transition
 					this.$activebox.children('#abilities').transition(
 						{
@@ -1922,8 +1927,7 @@ export class UI {
 					}
 				}, 1500);
 
-				ab.setUpgraded(); // Set the ability to upgraded
-				
+				ab.setUpgraded(); // Set the ability to upgraded				
 			}
 
 			// Change the ability's frame when it gets upgraded
