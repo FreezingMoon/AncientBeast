@@ -377,6 +377,24 @@
 			cursor: help !important;
 		}
 	}
+
+	
+	@keyframes bounce {
+		0% {
+		  transform: translateX(0);
+		}
+		50% {
+		  transform: translateX(10px);
+		}
+		100% {
+		  transform: translateX(0);
+		}
+	}
+
+	&.potential {
+		animation: bounce 1s;
+	}
+
 }
 
 #fullscreen {

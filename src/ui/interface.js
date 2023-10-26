@@ -18,6 +18,7 @@ import { pretty as version } from '../utility/version';
 import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
 import { DEBUG_DISABLE_HOTKEYS } from '../debug';
+import GoldenWyrm from '../abilities/Golden-Wyrm';
 
 /**
  * Class UI
@@ -255,6 +256,7 @@ export class UI {
 						cursor: 'default',
 					},
 					slideIn: {},
+					potential: {},
 				},
 			},
 			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
@@ -286,6 +288,13 @@ export class UI {
 							if (ability.require() == true && i != 0) {
 								this.selectAbility(i);
 							}
+							if(i == 2 && game.activeCreature == GoldenWyrm){
+								if(game.activeCreature.abilities[3].isUpgraded() &&
+								ability.require()){
+									b.cssTransition('potential', 2000);
+								}
+							}
+
 							// Activate Ability
 							game.activeCreature.abilities[i].use();
 						} else {
@@ -342,6 +351,7 @@ export class UI {
 						slideIn: {
 							cursor: 'pointer',
 						},
+						potential: {},
 					},
 				},
 				{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },

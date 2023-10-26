@@ -9,6 +9,7 @@ export const ButtonStateEnum = {
 	hidden: 'hidden',
 	noClick: 'noclick',
 	slideIn: 'slideIn',
+	potential: 'potential',
 } as const;
 
 /**
@@ -101,6 +102,8 @@ export class Button {
 				slideIn: {},
 				hidden: {},
 				noclick: {},
+				potential: {},
+
 			},
 		};
 
