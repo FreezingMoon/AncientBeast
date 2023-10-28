@@ -1539,10 +1539,12 @@ export class Creature {
 			this.player.deactivate(); // Here because of score calculation
 		}
 
-		// Kill animation		
+		// Kill animation
 		const opts = {
-			callback: () => {this.destroy();},
-			flipped: false
+			callback: () => {
+				this.destroy();
+			},
+			flipped: false,
 		};
 
 		// Check whether or not to flip the animation

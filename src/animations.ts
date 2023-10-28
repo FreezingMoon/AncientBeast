@@ -312,8 +312,6 @@ export class Animations {
 	}
 
 	death(creature: Creature, opts: AnimationOptions) {
-		const game = this.game;
-
 		// Animation Properties
 		const length = 100; // Distance travelled in x
 		const numSegments = 10; // "Resolution" of the curve
@@ -339,9 +337,9 @@ export class Animations {
 			}
 
 			// Calculate the point in the curve
-			let next = {
+			const next = {
 				x: startPos.x + segmentLength * currSegment,
-				y: startPos.y + curve.calc_y(segmentLength * currSegment)
+				y: startPos.y + curve.calc_y(segmentLength * currSegment),
 			};
 
 			// Tween to point
@@ -351,7 +349,7 @@ export class Animations {
 			});
 
 			currSegment++;
-		}
+		};
 
 		// Rotate and Fade the sprite
 		creature.creatureSprite.setAngle(opts.flipped ? -90 : 90, 500);
