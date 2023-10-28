@@ -313,13 +313,16 @@ export class Animations {
 
 	death(creature: Creature, opts: AnimationOptions) {
 		const game = this.game;
-		
-		const length = 100;
-		const numSegments = 10;
+
+		// Animation Properties
+		const length = 100; // Distance travelled in x
+		const numSegments = 10; // "Resolution" of the curve
 		const speed = !opts.overrideSpeed ? 500 : opts.overrideSpeed;
 
+		// Curve should pass (0, 0)
 		const curve = opts.flipped ? new QuadraticCurve(0.1, 5, 0) : new QuadraticCurve(0.1, -5, 0);
 
+		// Tween properties
 		const segmentLength = (opts.flipped ? -1 : 1) * Math.round(length / numSegments);
 		const segmentTime = Math.round(speed / numSegments);
 
@@ -335,15 +338,18 @@ export class Animations {
 				return;
 			}
 
+			// Calculate the point in the curve
 			let next = {
 				x: startPos.x + segmentLength * currSegment,
 				y: startPos.y + curve.calc_y(segmentLength * currSegment)
 			};
 
+			// Tween to point
 			creature.creatureSprite.setPx(next, segmentTime).then(() => {
+				// Next tween
 				anim();
 			});
-
+			
 			currSegment++;
 		}
 

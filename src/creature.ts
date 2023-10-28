@@ -1539,22 +1539,24 @@ export class Creature {
 			this.player.deactivate(); // Here because of score calculation
 		}
 
-		// Kill animation
-		//this.creatureSprite.setAlpha(0, 500).then(() => this.destroy());
-		
+		// Kill animation		
 		const opts = {
 			callback: () => {this.destroy();},
 			flipped: false
 		};
 
+		// Check whether or not to flip the animation
 		if (killerCreature instanceof Creature) {
 			if (this.pos.x - killerCreature.pos.x < 0) {
 				opts.flipped = true;
 			}
 		}
 
+		// Fade and rotate the sprite
 		this.creatureSprite.setAngle(opts.flipped ? -90 : 90, 500);
 		this.creatureSprite.setAlpha(0, 500);
+
+		// Trigger the "launching off board"
 		game.animations.death(this, opts);
 		this.cleanHex();
 
