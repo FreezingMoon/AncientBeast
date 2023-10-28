@@ -17,6 +17,7 @@ type AnimationOptions = {
 	callbackStepIn?: (hex?: Hex) => void;
 	pushed?: boolean;
 	turnAroundOnComplete?: boolean;
+	flipped?: boolean;
 };
 
 export class Animations {
@@ -312,13 +313,14 @@ export class Animations {
 
 	death(creature: Creature, opts: AnimationOptions) {
 		const game = this.game;
+		
 		const length = 100;
 		const numSegments = 10;
 		const speed = !opts.overrideSpeed ? 500 : opts.overrideSpeed;
 
-		const curve = new QuadraticCurve(0.1, -5, 0);
+		const curve = opts.flipped ? new QuadraticCurve(0.1, 5, 0) : new QuadraticCurve(0.1, -5, 0);
 
-		const segmentLength = Math.round(length / numSegments);
+		const segmentLength = (opts.flipped ? -1 : 1) * Math.round(length / numSegments);
 		const segmentTime = Math.round(speed / numSegments);
 
 		const startPos = creature.creatureSprite.getPos();

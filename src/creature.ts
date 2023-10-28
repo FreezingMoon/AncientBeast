@@ -1541,11 +1541,19 @@ export class Creature {
 
 		// Kill animation
 		//this.creatureSprite.setAlpha(0, 500).then(() => this.destroy());
+		
 		const opts = {
-			callback: () => {this.destroy();}
+			callback: () => {this.destroy();},
+			flipped: false
 		};
 
-		this.creatureSprite.setAngle(90, 500);
+		if (killerCreature instanceof Creature) {
+			if (this.pos.x - killerCreature.pos.x < 0) {
+				opts.flipped = true;
+			}
+		}
+
+		this.creatureSprite.setAngle(opts.flipped ? -90 : 90, 500);
 		this.creatureSprite.setAlpha(0, 500);
 		game.animations.death(this, opts);
 		this.cleanHex();
