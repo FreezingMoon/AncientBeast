@@ -1540,7 +1540,13 @@ export class Creature {
 		}
 
 		// Kill animation
-		this.creatureSprite.setAlpha(0, 500).then(() => this.destroy());
+		//this.creatureSprite.setAlpha(0, 500).then(() => this.destroy());
+		const opts = {
+			callback: () => {this.destroy();}
+		}
+
+		this.creatureSprite.setAlpha(0, 500)
+		game.animations.death(this, opts);
 		this.cleanHex();
 
 		game.updateQueueDisplay();
@@ -1919,6 +1925,10 @@ class CreatureSprite {
 				this._healthIndicatorGroup.y = 0;
 			}
 		}
+	}
+
+	getPos() {
+		return this._group.position;
 	}
 
 	hint(text: string, hintType: CreatureHintType) {
