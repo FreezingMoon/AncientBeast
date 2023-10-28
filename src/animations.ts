@@ -349,10 +349,15 @@ export class Animations {
 				// Next tween
 				anim();
 			});
-			
+
 			currSegment++;
 		}
 
+		// Rotate and Fade the sprite
+		creature.creatureSprite.setAngle(opts.flipped ? -90 : 90, 500);
+		creature.creatureSprite.setAlpha(0, 500);
+
+		// Launch the sprite
 		anim();
 	}
 }

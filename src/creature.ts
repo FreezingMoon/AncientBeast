@@ -1552,11 +1552,6 @@ export class Creature {
 			}
 		}
 
-		// Fade and rotate the sprite
-		this.creatureSprite.setAngle(opts.flipped ? -90 : 90, 500);
-		this.creatureSprite.setAlpha(0, 500);
-
-		// Trigger the "launching off board"
 		game.animations.death(this, opts);
 		this.cleanHex();
 
