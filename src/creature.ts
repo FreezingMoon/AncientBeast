@@ -1543,9 +1543,10 @@ export class Creature {
 		//this.creatureSprite.setAlpha(0, 500).then(() => this.destroy());
 		const opts = {
 			callback: () => {this.destroy();}
-		}
+		};
 
-		this.creatureSprite.setAlpha(0, 500)
+		this.creatureSprite.setAngle(90, 500);
+		this.creatureSprite.setAlpha(0, 500);
 		game.animations.death(this, opts);
 		this.cleanHex();
 
@@ -1844,6 +1845,17 @@ class CreatureSprite {
 			});
 		}
 		return this._promisifyTween(this._group, { alpha: a }, durationMS);
+	}
+
+	setAngle(a: number, durationMS = 0): Promise<CreatureSprite> {
+		if (durationMS === 0 || this._group.angle === a) {
+			this._group.angle = a;
+			return new Promise((resolve) => {
+				resolve(this);
+			});
+		} else {
+			return this._promisifyTween(this._group, { angle: a }, durationMS);
+		}
 	}
 
 	setHex(h: Hex, durationMS = 0): Promise<CreatureSprite> {

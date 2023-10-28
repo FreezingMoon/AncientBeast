@@ -336,7 +336,7 @@ export class Animations {
 			let next = {
 				x: startPos.x + segmentLength * currSegment,
 				y: startPos.y + curve.calc_y(segmentLength * currSegment)
-			}
+			};
 
 			creature.creatureSprite.setPx(next, segmentTime).then(() => {
 				anim();
