@@ -294,8 +294,6 @@ export class UI {
 							// Activate Ability
 							game.activeCreature.abilities[i].use();
 
-							this.showBonusPotential();
-
 						} else {
 							// Cancel Ability
 							this.closeDash();
@@ -670,22 +668,27 @@ export class UI {
 
 	
 	showBonusPotential(){
+		//Shows bonus capability 
 
 		const game = this.game;
 		this.abilitiesButtons.forEach((btn) => { 
 			const ability = game.activeCreature.abilities[btn.abilityId];
 
 			//The executioner Axes for Golden Wyrm jumps to the right
-			if(	ability.used == false &&
+			//Once Dragon Flight is upgraded
+			if(ability.used == false &&
 				game.activeCreature.name == "Golden Wyrm" && 
 				game.activeCreature.abilities[2].isUpgraded() &&
 				ability.require() && 
-				game.selectedAbility != ability && 
+				game.selectedAbility != 1 && 
 				btn.abilityId == 1 
 				){
 					btn.$button.addClass('potential')
 					btn.changeState(ButtonStateEnum.potential);
 				} 
+				else{
+					btn.changeState(ButtonStateEnum.normal);
+				}
 			});
 	}
 
@@ -1857,7 +1860,6 @@ export class UI {
 					this.changeAbilityButtons();
 					// Update upgrade info
 					this.updateAbilityUpgrades();
-					//this.showBonusPotential();
 					// Callback after final transition
 					this.$activebox.children('#abilities').transition(
 						{
@@ -1889,7 +1891,7 @@ export class UI {
 
 	updateAbilityUpgrades() {
 		const game = this.game,
-			creature = game.activeCreature;
+		creature = game.activeCreature;
 
 		// Change ability buttons
 		this.abilitiesButtons.forEach((btn) => {
@@ -1970,6 +1972,7 @@ export class UI {
 				$abilityInfo.append('<div class="info upgrade">Upgrade : ' + ab.upgrade + '</div>');
 			}
 		});
+		this.showBonusPotential();
 	}
 
 	checkAbilities() {
@@ -1998,7 +2001,13 @@ export class UI {
 			}
 			if (ab.message == game.msg.abilities.passiveCycle) {
 				this.abilitiesButtons[i].changeState(ButtonStateEnum.slideIn);
-			} else if (req && !ab.used && ab.trigger == 'onQuery') {
+			} else if(this.abilitiesButtons[i].state == ButtonStateEnum.potential){
+				//Makes sure the right bounce is not stopped if ability not used yet
+				if(ab.used){
+					this.abilitiesButtons[i].changeState(ButtonStateEnum.normal);
+				}
+			}
+			else if (req && !ab.used && ab.trigger == 'onQuery') {
 				this.abilitiesButtons[i].changeState(ButtonStateEnum.slideIn);
 				oneUsableAbility = true;
 			} else if (
@@ -2032,6 +2041,8 @@ export class UI {
 					.append('<div class="message">' + ab.message + '</div>');
 			}
 		}
+
+		this.showBonusPotential();
 
 		// No action possible
 		if (!oneUsableAbility && game.activeCreature.remainingMove === 0) {
