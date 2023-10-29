@@ -256,7 +256,6 @@ export class UI {
 					},
 					slideIn: {},
 					potential: {},
-					potentialoff:{},
 				},
 			},
 			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
