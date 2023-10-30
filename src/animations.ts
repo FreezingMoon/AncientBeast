@@ -3,6 +3,7 @@ import Game from './game';
 import { Creature } from './creature';
 import { Hex } from './utility/hex';
 import { Ability } from './ability';
+import { QuadraticCurve } from './utility/curve';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -12,9 +13,11 @@ type AnimationOptions = {
 	ignoreMovementPoint?: boolean;
 	ignoreTraps?: boolean;
 	ignoreFacing?: boolean;
+	callback?: () => void;
 	callbackStepIn?: (hex?: Hex) => void;
 	pushed?: boolean;
 	turnAroundOnComplete?: boolean;
+	flipped?: boolean;
 };
 
 export class Animations {
@@ -306,5 +309,53 @@ export class Animations {
 			.start();
 
 		return [tween, sprite, dist];
+	}
+
+	death(creature: Creature, opts: AnimationOptions) {
+		// Animation Properties
+		const length = 100; // Distance travelled in x
+		const numSegments = 10; // "Resolution" of the curve
+		const speed = !opts.overrideSpeed ? 500 : opts.overrideSpeed;
+
+		// Curve should pass (0, 0)
+		const curve = opts.flipped ? new QuadraticCurve(0.1, 5, 0) : new QuadraticCurve(0.1, -5, 0);
+
+		// Tween properties
+		const segmentLength = (opts.flipped ? -1 : 1) * Math.round(length / numSegments);
+		const segmentTime = Math.round(speed / numSegments);
+
+		const startPos = creature.creatureSprite.getPos();
+
+		creature.healthHide();
+
+		let currSegment = 1;
+
+		const anim = () => {
+			if (currSegment > numSegments) {
+				opts.callback();
+				return;
+			}
+
+			// Calculate the point in the curve
+			const next = {
+				x: startPos.x + segmentLength * currSegment,
+				y: startPos.y + curve.calc_y(segmentLength * currSegment),
+			};
+
+			// Tween to point
+			creature.creatureSprite.setPx(next, segmentTime).then(() => {
+				// Next tween
+				anim();
+			});
+
+			currSegment++;
+		};
+
+		// Rotate and Fade the sprite
+		creature.creatureSprite.setAngle(opts.flipped ? -90 : 90, 500);
+		creature.creatureSprite.setAlpha(0, 500);
+
+		// Launch the sprite
+		anim();
 	}
 }

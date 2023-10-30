@@ -1540,7 +1540,21 @@ export class Creature {
 		}
 
 		// Kill animation
-		this.creatureSprite.setAlpha(0, 500).then(() => this.destroy());
+		const opts = {
+			callback: () => {
+				this.destroy();
+			},
+			flipped: false,
+		};
+
+		// Check whether or not to flip the animation
+		if (killerCreature instanceof Creature) {
+			if (this.pos.x - killerCreature.pos.x < 0) {
+				opts.flipped = true;
+			}
+		}
+
+		game.animations.death(this, opts);
 		this.cleanHex();
 
 		game.updateQueueDisplay();
@@ -1840,6 +1854,17 @@ class CreatureSprite {
 		return this._promisifyTween(this._group, { alpha: a }, durationMS);
 	}
 
+	setAngle(a: number, durationMS = 0): Promise<CreatureSprite> {
+		if (durationMS === 0 || this._group.angle === a) {
+			this._group.angle = a;
+			return new Promise((resolve) => {
+				resolve(this);
+			});
+		} else {
+			return this._promisifyTween(this._group, { angle: a }, durationMS);
+		}
+	}
+
 	setHex(h: Hex, durationMS = 0): Promise<CreatureSprite> {
 		return this.setPx(h.displayPos, durationMS);
 	}
@@ -1919,6 +1944,10 @@ class CreatureSprite {
 				this._healthIndicatorGroup.y = 0;
 			}
 		}
+	}
+
+	getPos() {
+		return this._group.position;
 	}
 
 	hint(text: string, hintType: CreatureHintType) {

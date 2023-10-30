@@ -587,7 +587,6 @@ export default (G) => {
 						return ability.isUpgraded() ? true : creature.size <= 2;
 					},
 				});
-				
 			},
 
 			//	activate() :
