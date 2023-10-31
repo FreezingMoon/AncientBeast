@@ -686,7 +686,7 @@ export class UI {
 					btn.changeState(ButtonStateEnum.potential);
 				} 
 				else{
-					btn.changeState(ButtonStateEnum.normal);
+					btn.$button.removeClass('potential')
 				}
 			});
 	}
