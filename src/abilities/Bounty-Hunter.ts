@@ -154,7 +154,7 @@ export default (G: Game) => {
 					[], // Effects
 					G,
 				);
-				target.takeDamage(damage);
+				ability.end();
 				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 				/** damage dealt is original health - current health
 				 * if current health is lower than damage dealt,
@@ -165,11 +165,11 @@ export default (G: Game) => {
 					// Added a delay for the second attack with a custom game log
 					setTimeout(() => {
 						G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
-						target.takeDamage(damage);
 						ability.end(true);
+						target.takeDamage(damage);
 						G.log('%CreatureName' + ability.creature.id + '% used ' + ability.title + ' twice');
 					}, 1000);
-				} else ability.end();
+				} else target.takeDamage(damage); 
 			},
 		},
 
