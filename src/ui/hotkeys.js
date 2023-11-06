@@ -1,3 +1,5 @@
+import { event } from 'jquery';
+
 export class Hotkeys {
 	constructor(ui) {
 		this.ui = ui;
@@ -135,12 +137,30 @@ export class Hotkeys {
 	pressSpace() {
 		!this.ui.dashopen && this.ui.game.grid.confirmHex();
 	}
+	handleKeyDown(event) {
+		if (event.key === 'Control') {
+			this.isCtrlPressed = true;
+		} else if (event.key === 'Shift') {
+			this.isShiftPressed = true;
+		} else if (event.key === 'M') {
+			this.isMPressed = true;
+			// Prevent the default behavior for Ctrl+Shift+M
+			if (this.isCtrlPressed && this.isShiftPressed) {
+				event.preventDefault();
+			}
+		}
+	}
 }
 export function getHotKeys(hk) {
 	const hotkeys = {
 		KeyS: {
 			onkeydown(event) {
 				hk.pressS(event);
+			},
+		},
+		KeyM: {
+			onkeydown(event) {
+				hk.handleKeyDown(event);
 			},
 		},
 		KeyT: {
@@ -229,8 +249,9 @@ export function getHotKeys(hk) {
 			},
 		},
 		ShiftLeft: {
-			onkeydown() {
+			onkeydown(event) {
 				hk.pressShiftKeyDown();
+				hk.handleKeyDown(event);
 			},
 			onkeyup() {
 				hk.pressShiftKeyUp();
@@ -245,8 +266,9 @@ export function getHotKeys(hk) {
 			},
 		},
 		ControlLeft: {
-			onkeydown() {
+			onkeydown(event) {
 				hk.pressControlKeyDown();
+				hk.handleKeyDown(event);
 			},
 			onkeyup() {
 				hk.pressControlKeyUp();
