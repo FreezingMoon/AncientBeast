@@ -260,6 +260,7 @@ export function getHotKeys(hk) {
 		ShiftRight: {
 			onkeydown() {
 				hk.pressShiftKeyDown();
+				hk.handleKeyDown(event);
 			},
 			onkeyup() {
 				hk.pressShiftKeyUp();
@@ -277,6 +278,7 @@ export function getHotKeys(hk) {
 		ControlRight: {
 			onkeydown() {
 				hk.pressControlKeyDown();
+				hk.handleKeyDown(event);
 			},
 			onkeyup() {
 				hk.pressControlKeyUp();
