@@ -114,7 +114,7 @@ export class Hotkeys {
 		this.ui.game.signals.ui.dispatch('closeInterfaceScreens');
 	}
 
-	pressShiftKeyDown() {
+	pressShiftKeyDown(event) {
 		this.ui.$brandlogo.removeClass('hide');
 		this.ui.game.grid.showGrid(true);
 		this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);
@@ -137,30 +137,12 @@ export class Hotkeys {
 	pressSpace() {
 		!this.ui.dashopen && this.ui.game.grid.confirmHex();
 	}
-	handleKeyDown(event) {
-		if (event.key === 'Control') {
-			this.isCtrlPressed = true;
-		} else if (event.key === 'Shift') {
-			this.isShiftPressed = true;
-		} else if (event.key === 'M') {
-			this.isMPressed = true;
-			// Prevent the default behavior for Ctrl+Shift+M
-			if (this.isCtrlPressed && this.isShiftPressed) {
-				event.preventDefault();
-			}
-		}
-	}
 }
 export function getHotKeys(hk) {
 	const hotkeys = {
 		KeyS: {
 			onkeydown(event) {
 				hk.pressS(event);
-			},
-		},
-		KeyM: {
-			onkeydown(event) {
-				hk.handleKeyDown(event);
 			},
 		},
 		KeyT: {
@@ -249,9 +231,8 @@ export function getHotKeys(hk) {
 			},
 		},
 		ShiftLeft: {
-			onkeydown(event) {
+			onkeydown() {
 				hk.pressShiftKeyDown();
-				hk.handleKeyDown(event);
 			},
 			onkeyup() {
 				hk.pressShiftKeyUp();
@@ -260,16 +241,14 @@ export function getHotKeys(hk) {
 		ShiftRight: {
 			onkeydown() {
 				hk.pressShiftKeyDown();
-				hk.handleKeyDown(event);
 			},
 			onkeyup() {
 				hk.pressShiftKeyUp();
 			},
 		},
 		ControlLeft: {
-			onkeydown(event) {
+			onkeydown() {
 				hk.pressControlKeyDown();
-				hk.handleKeyDown(event);
 			},
 			onkeyup() {
 				hk.pressControlKeyUp();
@@ -278,7 +257,6 @@ export function getHotKeys(hk) {
 		ControlRight: {
 			onkeydown() {
 				hk.pressControlKeyDown();
-				hk.handleKeyDown(event);
 			},
 			onkeyup() {
 				hk.pressControlKeyUp();
