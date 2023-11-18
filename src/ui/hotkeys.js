@@ -1,3 +1,5 @@
+import { event } from 'jquery';
+
 export class Hotkeys {
 	constructor(ui) {
 		this.ui = ui;
@@ -112,7 +114,7 @@ export class Hotkeys {
 		this.ui.game.signals.ui.dispatch('closeInterfaceScreens');
 	}
 
-	pressShiftKeyDown() {
+	pressShiftKeyDown(event) {
 		this.ui.$brandlogo.removeClass('hide');
 		this.ui.game.grid.showGrid(true);
 		this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);

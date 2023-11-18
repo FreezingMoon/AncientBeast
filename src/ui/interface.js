@@ -2383,6 +2383,14 @@ export class UI {
 			}
 		});
 
+		// Hide the project logo when navigating away using a hotkey (Ctrl+Shift+M)
+		document.addEventListener('keydown', (event) => {
+			if (event.ctrlKey && event.shiftKey && event.key === 'M') {
+				console.log('ctrl+shift+M pressed');
+				ui.$brandlogo.addClass('hide');
+			}
+		});
+
 		const SIGNAL_CREATURE_CLICK = 'vignettecreatureclick';
 		const SIGNAL_CREATURE_MOUSE_ENTER = 'vignettecreaturemouseenter';
 		const SIGNAL_CREATURE_MOUSE_LEAVE = 'vignettecreaturemouseleave';
