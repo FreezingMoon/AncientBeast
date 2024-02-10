@@ -6,6 +6,8 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { Creature } from '../creature';
 import Game from '../game';
+import { Hex } from '../utility/hex';
+import { Trap } from '../utility/trap';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -122,7 +124,7 @@ export default (G: Game) => {
 				});
 			},
 
-			activate: function (hexes) {
+			activate: function (hexes: Hex[]) {
 				const ability = this;
 				ability.end();
 
@@ -197,7 +199,7 @@ export default (G: Game) => {
 			},
 
 			//	activate() :
-			activate: function (hex) {
+			activate: function (hex: Hex) {
 				this.end();
 				const ability = this;
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
@@ -233,10 +235,19 @@ export default (G: Game) => {
 						G,
 					);
 
-					const trap = hex.createTrap('royal-seal', [effect], ability.creature.player, {
-						ownerCreature: ability.creature,
-						fullTurnLifetime: true,
-					});
+					const trap = new Trap(
+						hex.x,
+						hex.y,
+						'royal-seal',
+						[effect],
+						ability.creature.player,
+						{
+							ownerCreature: ability.creature,
+							fullTurnLifetime: true,
+						},
+						G,
+					);
+
 					trap.hide();
 				};
 
