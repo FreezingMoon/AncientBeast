@@ -4,12 +4,14 @@ import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
+import { Creature } from '../creature';
+import Game from '../game';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[14] = [
 		// 	First Ability: Gooey Body
 		{
@@ -49,8 +51,8 @@ export default (G) => {
 							deleteTrigger: '',
 							stackable: false,
 							effectFn: () => {
-								if (bonus !== this.lastBonus) {
-									G.log('Effect ' + this.name + ' triggered');
+								if (bonus !== this._lastBonus) {
+									G.log('Effect ' + this.title + ' triggered');
 								}
 							},
 						},
@@ -87,7 +89,8 @@ export default (G) => {
 					[1, 1],
 					[1, 1, 1],
 					[1, 1],
-				];
+				] as matrices.AugmentedMatrix;
+
 				const dx = this.creature.y % 2 !== 0 ? -1 : 0;
 				const dy = -1;
 				const choices = [
@@ -102,13 +105,14 @@ export default (G) => {
 				// This ensures that if a choice contains overlapping hexes only, that
 				// choice won't be available for selection.
 				choices.sort(function (choice1, choice2) {
-					return choice1.length < choice2.length;
+					return choice1.length - choice2.length;
 				});
 				G.grid.queryChoice({
 					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 					},
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
@@ -145,7 +149,8 @@ export default (G) => {
 						damages = enemyDamages;
 					}
 					const dmg = new Damage(this.creature, damages, targets[i].hexesHit, [], G);
-					kills += targets[i].target.takeDamage(dmg).kill + 0;
+					//  Increment kills if the target is killed
+					kills += targets[i].target.takeDamage(dmg).kill ? 1 : 0;
 				}
 				if (kills > 1) {
 					this.creature.player.score.push({
@@ -179,6 +184,7 @@ export default (G) => {
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					size: creature.size,
@@ -205,10 +211,10 @@ export default (G) => {
 						{
 							// Immunity to own trap type
 							requireFn: function () {
-								const crea = this.trap.hex.creature;
-								return crea && crea.type !== this.owner.type;
+								const creaOnTrap = this.trap.hex.creature;
+								return creaOnTrap && creaOnTrap.type !== ability.creature.type;
 							},
-							effectFn: function (_, crea) {
+							effectFn: function (_, crea: Creature) {
 								if (this.trap.turnLifetime === 0) {
 									crea.remainingMove = 0;
 									// Destroy the trap on the trapped creature's turn
@@ -284,6 +290,7 @@ export default (G) => {
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,

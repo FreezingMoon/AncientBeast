@@ -40,7 +40,8 @@ export type Trigger =
 	| 'onEffectAttach'
 	| 'onStartOfRound'
 	| 'oncePerDamageChain'
-	| 'onCreatureMove onOtherCreatureMove';
+	| 'onCreatureMove onOtherCreatureMove'
+	| 'onCreatureSummon onDamage onHeal';
 
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
@@ -93,6 +94,8 @@ export class Ability {
 	message?: string;
 	movementType?: () => 'flying'; // Currently, this functon only exists in `Scavenger.js`
 	triggeredThisChain?: boolean;
+
+	_lastBonus?: number;
 
 	_disableCooldowns: boolean;
 
