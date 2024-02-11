@@ -1,10 +1,7 @@
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
-import * as arrayUtils from '../utility/arrayUtils';
-import { Creature } from '../creature';
 import { Effect } from '../effect';
-import { Direction } from '../utility/hex';
 import Game from '../game';
 
 /** Creates the abilities
@@ -295,7 +292,6 @@ export default (G: Game) => {
 					destinationX = !isOnLeft ? target.x + 2 : target.x - 3;
 				}
 
-				let x;
 				let hex;
 
 				// Check if Headless will be moved.
