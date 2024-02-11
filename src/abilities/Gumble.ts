@@ -4,14 +4,18 @@ import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
+import { Creature } from '../creature';
+import Game from '../game';
+import { Hex } from '../utility/hex';
+import { Trap } from '../utility/trap';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[14] = [
-		// 	First Ability: Gooey Body
+		// First Ability: Gooey Body
 		{
 			// Update stat buffs whenever health changes
 			trigger: 'onCreatureSummon onDamage onHeal',
@@ -49,8 +53,8 @@ export default (G) => {
 							deleteTrigger: '',
 							stackable: false,
 							effectFn: () => {
-								if (bonus !== this.lastBonus) {
-									G.log('Effect ' + this.name + ' triggered');
+								if (bonus !== this._lastBonus) {
+									G.log('Effect ' + this.title + ' triggered');
 								}
 							},
 						},
@@ -67,9 +71,9 @@ export default (G) => {
 			_lastBonus: 0,
 		},
 
-		// 	Second Ability: Gummy Mallet
+		// Second Ability: Gummy Mallet
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
+			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			require: function () {
@@ -77,7 +81,7 @@ export default (G) => {
 				return this.testRequirements();
 			},
 
-			// 	query() :
+			// query() :
 			query: function () {
 				const ability = this;
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
@@ -87,7 +91,8 @@ export default (G) => {
 					[1, 1],
 					[1, 1, 1],
 					[1, 1],
-				];
+				] as matrices.AugmentedMatrix;
+
 				const dx = this.creature.y % 2 !== 0 ? -1 : 0;
 				const dy = -1;
 				const choices = [
@@ -102,13 +107,14 @@ export default (G) => {
 				// This ensures that if a choice contains overlapping hexes only, that
 				// choice won't be available for selection.
 				choices.sort(function (choice1, choice2) {
-					return choice1.length < choice2.length;
+					return choice1.length - choice2.length;
 				});
 				G.grid.queryChoice({
 					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 					},
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
@@ -118,7 +124,7 @@ export default (G) => {
 				});
 			},
 
-			activate: function (hexes) {
+			activate: function (hexes: Hex[]) {
 				const ability = this;
 				ability.end();
 
@@ -145,7 +151,8 @@ export default (G) => {
 						damages = enemyDamages;
 					}
 					const dmg = new Damage(this.creature, damages, targets[i].hexesHit, [], G);
-					kills += targets[i].target.takeDamage(dmg).kill + 0;
+					// Increment kills if the target is killed
+					kills += targets[i].target.takeDamage(dmg).kill ? 1 : 0;
 				}
 				if (kills > 1) {
 					this.creature.player.score.push({
@@ -156,17 +163,17 @@ export default (G) => {
 			},
 		},
 
-		// 	Thirt Ability: Royal Seal
+		// Third Ability: Royal Seal
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
+			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			// 	require() :
+			// require() :
 			require: function () {
 				return this.testRequirements();
 			},
 
-			// 	query() :
+			// query() :
 			query: function () {
 				const ability = this;
 				const creature = this.creature;
@@ -179,6 +186,7 @@ export default (G) => {
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					size: creature.size,
@@ -190,8 +198,8 @@ export default (G) => {
 				});
 			},
 
-			//	activate() :
-			activate: function (hex) {
+			// activate() :
+			activate: function (hex: Hex) {
 				this.end();
 				const ability = this;
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
@@ -205,10 +213,10 @@ export default (G) => {
 						{
 							// Immunity to own trap type
 							requireFn: function () {
-								const crea = this.trap.hex.creature;
-								return crea && crea.type !== this.owner.type;
+								const creaOnTrap = this.trap.hex.creature;
+								return creaOnTrap && creaOnTrap.type !== ability.creature.type;
 							},
-							effectFn: function (_, crea) {
+							effectFn: function (_, crea: Creature) {
 								if (this.trap.turnLifetime === 0) {
 									crea.remainingMove = 0;
 									// Destroy the trap on the trapped creature's turn
@@ -227,10 +235,19 @@ export default (G) => {
 						G,
 					);
 
-					const trap = hex.createTrap('royal-seal', [effect], ability.creature.player, {
-						ownerCreature: ability.creature,
-						fullTurnLifetime: true,
-					});
+					const trap = new Trap(
+						hex.x,
+						hex.y,
+						'royal-seal',
+						[effect],
+						ability.creature.player,
+						{
+							ownerCreature: ability.creature,
+							fullTurnLifetime: true,
+						},
+						G,
+					);
+
 					trap.hide();
 				};
 
@@ -252,15 +269,15 @@ export default (G) => {
 			},
 		},
 
-		// 	Fourth Ability: Boom Box
+		// Fourth Ability: Boom Box
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
+			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			directions: [1, 1, 1, 1, 1, 1],
 			_targetTeam: Team.Enemy,
 
-			// 	require() :
+			// require() :
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
@@ -277,13 +294,14 @@ export default (G) => {
 				return true;
 			},
 
-			// 	query() :
+			// query() :
 			query: function () {
 				const ability = this;
 				const crea = this.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					flipped: crea.player.flipped,
@@ -296,7 +314,7 @@ export default (G) => {
 				});
 			},
 
-			//	activate() :
+			// activate() :
 			activate: function (path, args) {
 				const ability = this;
 				ability.end();
