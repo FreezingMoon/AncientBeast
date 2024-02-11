@@ -77,7 +77,7 @@ interface QueryOptions {
 	 */
 	arg: any;
 
-	optTest: () => boolean;
+	optTest: (arg: Creature) => boolean;
 
 	/**
 	 * Function applied when clicking on one of the available hexes.
@@ -579,6 +579,7 @@ export class HexGrid {
 			fillOnlyHoveredCreature: false,
 		};
 
+		// Overwrite any default options with options passed in through `o`
 		o = { ...defaultOpt, ...o };
 
 		let hexes = [];

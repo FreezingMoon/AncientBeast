@@ -5,12 +5,13 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 import { Direction } from '../utility/hex';
+import Game from '../game';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[39] = [
 		/**
 		 * First Ability: Larva Infest
@@ -98,6 +99,7 @@ export default (G) => {
 					/* Headless position is the front hex of its two hexes, so we look for
 					an enemy unit two hexes back which will be the hex directly behind Headless. */
 					matrices.inlineback2hex,
+					false,
 				);
 			},
 		},
@@ -119,7 +121,7 @@ export default (G) => {
 
 				//At least one target
 				if (
-					!this.atLeastOneTarget(crea.getHexMap(matrices.frontnback2hex), {
+					!this.atLeastOneTarget(crea.getHexMap(matrices.frontnback2hex, false), {
 						team: this._targetTeam,
 					})
 				) {
@@ -135,12 +137,13 @@ export default (G) => {
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: crea.id,
 					flipped: crea.player.flipped,
-					hexes: crea.getHexMap(matrices.frontnback2hex),
+					hexes: crea.getHexMap(matrices.frontnback2hex, false),
 				});
 			},
 
@@ -246,6 +249,7 @@ export default (G) => {
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -372,13 +376,14 @@ export default (G) => {
 
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
 					requireCreature: 0,
 					id: crea.id,
 					flipped: crea.player.flipped,
-					choices: [crea.getHexMap(hexes), crea.getHexMap(hexes, true)],
+					choices: [crea.getHexMap(hexes, false), crea.getHexMap(hexes, true)],
 				});
 			},
 
@@ -404,6 +409,7 @@ export default (G) => {
 					damages, //Damage Type
 					[], //Effects
 					ability.getTargets(hexes), //Targets
+					false,
 				);
 			},
 		},
