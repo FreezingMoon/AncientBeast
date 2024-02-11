@@ -15,7 +15,7 @@ import { Trap } from '../utility/trap';
  */
 export default (G: Game) => {
 	G.abilities[14] = [
-		// 	First Ability: Gooey Body
+		// First Ability: Gooey Body
 		{
 			// Update stat buffs whenever health changes
 			trigger: 'onCreatureSummon onDamage onHeal',
@@ -71,9 +71,9 @@ export default (G: Game) => {
 			_lastBonus: 0,
 		},
 
-		// 	Second Ability: Gummy Mallet
+		// Second Ability: Gummy Mallet
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
+			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			require: function () {
@@ -81,7 +81,7 @@ export default (G: Game) => {
 				return this.testRequirements();
 			},
 
-			// 	query() :
+			// query() :
 			query: function () {
 				const ability = this;
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
@@ -151,7 +151,7 @@ export default (G: Game) => {
 						damages = enemyDamages;
 					}
 					const dmg = new Damage(this.creature, damages, targets[i].hexesHit, [], G);
-					//  Increment kills if the target is killed
+					// Increment kills if the target is killed
 					kills += targets[i].target.takeDamage(dmg).kill ? 1 : 0;
 				}
 				if (kills > 1) {
@@ -163,17 +163,17 @@ export default (G: Game) => {
 			},
 		},
 
-		// 	Thirt Ability: Royal Seal
+		// Third Ability: Royal Seal
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
+			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			// 	require() :
+			// require() :
 			require: function () {
 				return this.testRequirements();
 			},
 
-			// 	query() :
+			// query() :
 			query: function () {
 				const ability = this;
 				const creature = this.creature;
@@ -198,7 +198,7 @@ export default (G: Game) => {
 				});
 			},
 
-			//	activate() :
+			// activate() :
 			activate: function (hex: Hex) {
 				this.end();
 				const ability = this;
@@ -269,15 +269,15 @@ export default (G: Game) => {
 			},
 		},
 
-		// 	Fourth Ability: Boom Box
+		// Fourth Ability: Boom Box
 		{
-			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
+			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
 			directions: [1, 1, 1, 1, 1, 1],
 			_targetTeam: Team.Enemy,
 
-			// 	require() :
+			// require() :
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
@@ -294,7 +294,7 @@ export default (G: Game) => {
 				return true;
 			},
 
-			// 	query() :
+			// query() :
 			query: function () {
 				const ability = this;
 				const crea = this.creature;
@@ -314,7 +314,7 @@ export default (G: Game) => {
 				});
 			},
 
-			//	activate() :
+			// activate() :
 			activate: function (path, args) {
 				const ability = this;
 				ability.end();
