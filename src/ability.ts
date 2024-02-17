@@ -41,7 +41,8 @@ export type Trigger =
 	| 'onStartOfRound'
 	| 'oncePerDamageChain'
 	| 'onCreatureMove onOtherCreatureMove'
-	| 'onCreatureSummon onDamage onHeal';
+	| 'onCreatureSummon onDamage onHeal'
+	| 'onStartPhase onEndPhase';
 
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
@@ -78,7 +79,7 @@ export class Ability {
 	upgraded: boolean;
 	title: string;
 
-	// TODO properly type all these unknowns
+	// TODO properly type all `unknown` types
 	// These properties come from extending a specific ability from `src/abilities`
 	requirements?: Requirement | undefined;
 	costs?: Cost | undefined;
@@ -89,11 +90,12 @@ export class Ability {
 	affectedByMatSickness?: boolean;
 	activate?: (target?: any, hex?: any, path?: Hex[]) => unknown;
 	getAnimationData?: (...args: unknown[]) => unknown;
-	damages?: CreatureMasteries & { pure?: number };
+	damages?: Partial<CreatureMasteries> & { pure?: number };
 	effects?: AbilityEffect[];
 	message?: string;
 	movementType?: () => 'flying'; // Currently, this functon only exists in `Scavenger.js`
 	triggeredThisChain?: boolean;
+	range?: { minimum?: number; regular: number; upgraded: number };
 
 	_lastBonus?: number;
 
@@ -108,6 +110,9 @@ export class Ability {
 	getAbilityName?: (name: string) => string;
 	getMovementBuff?: (buff: number) => number;
 	getOffenseBuff?: (buff: number) => number;
+	_getHexes?: () => any;
+	_getMaxDistance: () => number;
+	_directions?: Direction[];
 	_targetTeam: Team;
 
 	// Below methods exist in Snow-Bunny.ts
