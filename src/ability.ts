@@ -669,7 +669,7 @@ export class Ability {
 	 *
 	 * @param hexes Array of hexes to test.
 	 * @param {Object} o
-	 * @return At least one valid target?
+	 * @return bool
 	 */
 	atLeastOneTarget(hexes: Hex[], o): boolean {
 		const defaultOpt = {
