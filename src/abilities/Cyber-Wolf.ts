@@ -234,7 +234,7 @@ export default (G: Game) => {
 				const straitrow = matrices.straitrow;
 				const bellowrow = matrices.bellowrow;
 
-				let rows;
+				let rows: Hex[][];
 				// Check to first hex to determine which direction was chosen
 				if (choice[0].x >= this.creature.x) {
 					// Front
@@ -346,7 +346,7 @@ export default (G: Game) => {
 			},
 
 			//	activate() :
-			activate: function (crea) {
+			activate: function (crea: Creature) {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.03, 333, true, G.Phaser.camera.SHAKE_VERTICAL, true);
