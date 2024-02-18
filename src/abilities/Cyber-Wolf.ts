@@ -73,14 +73,9 @@ export default (G: Game) => {
 					return false;
 				}
 
-				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex, false), {
-						team: this._targetTeam,
-					})
-				) {
-					return false;
-				}
-				return true;
+				return this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex, false), {
+					team: this._targetTeam,
+				});
 			},
 
 			//	query() :
