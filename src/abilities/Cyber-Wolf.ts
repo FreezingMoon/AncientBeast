@@ -4,12 +4,14 @@ import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
+import Game from '../game';
+import { Hex } from '../utility/hex';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[31] = [
 		//	First Ability: Bad Doggie
 		{
@@ -29,7 +31,7 @@ export default (G) => {
 
 			activate: function () {
 				// Check if there's an enemy creature in front
-				const hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex);
+				const hexesInFront = this.creature.getHexMap(matrices.inlinefront2hex, false);
 				if (hexesInFront.length < 1) {
 					return;
 				}
@@ -72,7 +74,7 @@ export default (G) => {
 				}
 
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex, false), {
 						team: this._targetTeam,
 					})
 				) {
@@ -88,17 +90,18 @@ export default (G) => {
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: this._targetTeam,
 					id: crea.id,
 					flipped: crea.player.flipped,
-					hexes: crea.getHexMap(matrices.frontnback2hex),
+					hexes: crea.getHexMap(matrices.frontnback2hex, false),
 				});
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
@@ -210,14 +213,12 @@ export default (G) => {
 						),
 				];
 
-				choices[0].choiceId = 0;
-				choices[1].choiceId = 1;
-
 				G.grid.queryChoice({
 					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 					},
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
@@ -228,7 +229,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (choice) {
+			activate: function (choice: Hex[]) {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.02, 350, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
@@ -239,7 +240,8 @@ export default (G) => {
 				const bellowrow = matrices.bellowrow;
 
 				let rows;
-				if (choice.choiceId === 0) {
+				// Check to first hex to determine which direction was chosen
+				if (choice[0].x >= this.creature.x) {
 					// Front
 					rows = [
 						arrayUtils.filterCreature(
@@ -338,6 +340,7 @@ export default (G) => {
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					team: Team.Enemy,
