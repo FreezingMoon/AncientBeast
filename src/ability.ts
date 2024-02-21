@@ -42,7 +42,8 @@ export type Trigger =
 	| 'oncePerDamageChain'
 	| 'onCreatureMove onOtherCreatureMove'
 	| 'onCreatureSummon onDamage onHeal'
-	| 'onStartPhase onEndPhase';
+	| 'onStartPhase onEndPhase'
+	| 'onDamage onStartPhase';
 
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
@@ -97,6 +98,8 @@ export class Ability {
 	triggeredThisChain?: boolean;
 	range?: { minimum?: number; regular: number; upgraded: number };
 
+	// Properties that begin with an underscore are used locally in a specific file in the `abilities` directory.
+	// For example: _lastBonus is unique to Gumble.ts.
 	_lastBonus?: number;
 
 	_disableCooldowns: boolean;
@@ -114,6 +117,13 @@ export class Ability {
 	_getMaxDistance: () => number;
 	_directions?: Direction[];
 	_targetTeam: Team;
+	_targets: Hex[];
+	_addOffenseBuff: () => void;
+	_maxTransferAmount: number;
+	_confirmTarget: (c: Creature) => boolean;
+	_damaged: boolean;
+	_executeHealthThreshold: number;
+	_highlightDestination: (...args: any) => void;
 
 	// Below methods exist in Snow-Bunny.ts
 	_detectFrontHexesWithEnemy: () => { direction: number; hex: Hex; enemyPos: Point }[];

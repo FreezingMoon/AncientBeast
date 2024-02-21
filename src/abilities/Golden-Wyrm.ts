@@ -1,14 +1,16 @@
 import { Damage } from '../damage';
-import { Team, isTeam } from '../utility/team';
+import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import Game from '../game';
+import { Hex } from '../utility/hex';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[33] = [
 		// 	First Ability: Battle Cry
 		{
@@ -48,7 +50,7 @@ export default (G) => {
 			activate: function () {
 				const creature = this.creature;
 				const damage = new Damage(creature, { sonic: 30 }, this._targets.length, [], G);
-				const hits = new Set();
+				const hits: Set<Creature> = new Set();
 				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				this._targets.forEach((target) => {
@@ -113,6 +115,7 @@ export default (G) => {
 
 				this.game.grid.queryCreature({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -122,7 +125,7 @@ export default (G) => {
 				});
 			},
 
-			activate: function (target) {
+			activate: function (target: Creature) {
 				this.end();
 				G.Phaser.camera.shake(0.02, 200, true, G.Phaser.camera.SHAKE_BOTH, true);
 
@@ -173,7 +176,7 @@ export default (G) => {
 			 * @returns {Hex[]} Refer to Creature.getHexMap()
 			 */
 			_getHexes() {
-				return this.creature.getHexMap(matrices.frontnback3hex);
+				return this.creature.getHexMap(matrices.frontnback3hex, false);
 			},
 		},
 
@@ -218,9 +221,11 @@ export default (G) => {
 
 				this.game.grid.queryHexes({
 					fnOnSelect: function () {
+						// eslint-disable-next-line
 						ability._highlightDestination(...arguments);
 					},
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					size: wyrm.size,
@@ -230,7 +235,7 @@ export default (G) => {
 				});
 			},
 
-			activate: function (hex) {
+			activate: function (hex: Hex) {
 				const ability = this;
 				ability.end();
 
@@ -249,7 +254,7 @@ export default (G) => {
 				});
 			},
 
-			_highlightDestination: function (hex) {
+			_highlightDestination: function (hex: Hex) {
 				this.creature.tracePosition({
 					x: hex.x,
 					y: hex.y,
@@ -343,6 +348,7 @@ export default (G) => {
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					optTest: this._confirmTarget,
@@ -353,7 +359,7 @@ export default (G) => {
 				});
 			},
 
-			activate: function (target) {
+			activate: function (target: Creature) {
 				this.end();
 
 				// The health transferred is the creature's missing life, capped to 50.
@@ -416,7 +422,7 @@ export default (G) => {
 			 * @param {Creature} creature Ally creature that could be targeted.
 			 * @returns {boolean} Should the creature be targeted?
 			 */
-			_confirmTarget(creature) {
+			_confirmTarget(creature: Creature) {
 				return creature.health < creature.stats.health;
 			},
 		},
