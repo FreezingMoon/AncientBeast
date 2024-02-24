@@ -47,3 +47,4 @@ export const DEBUG_DISABLE_MUSIC =
 export const DEBUG_DISABLE_HOTKEYS = d && toBool(process.env.DEBUG_DISABLE_HOTKEYS);
 
 export const DEBUG_ENABLE_FAST_WALKING = d && toBool(process.env.DEBUG_ENABLE_FAST_WALKING);
+export const DEBUG_WALK_SPEED = d && Number(process.env.DEBUG_WALK_SPEED);
