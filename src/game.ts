@@ -7,7 +7,7 @@ import { MusicPlayer } from './sound/musicplayer';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
 import { getUrl, use as assetsUse } from './assets';
-import { Player, PlayerColor } from './player';
+import { Player, PlayerColor, PlayerID } from './player';
 import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
 import { unitData } from './data/units';
@@ -273,7 +273,7 @@ export default class Game {
 	}
 
 	loadUnitData(data: UnitData) {
-		const dpcolor = ['blue', 'orange', 'green', 'red'];
+		const dpcolor: PlayerColor[] = ['blue', 'orange', 'green', 'red'];
 
 		this.creatureData = data;
 
@@ -282,13 +282,13 @@ export default class Game {
 				return;
 			}
 
-			let creatureId = creature.id,
+			const creatureId = creature.id,
 				realm = creature.realm,
 				level = creature.level,
 				type = (realm.toUpperCase() + level) as CreatureType,
-				name = creature.name,
-				count,
-				i;
+				name = creature.name;
+
+			let count: number, i: number;
 
 			// Create the `creature.type` property
 			creature['type'] = type;
@@ -425,10 +425,7 @@ export default class Game {
 	}
 
 	phaserRender() {
-		let count = this.creatures.length,
-			i;
-
-		for (i = 1; i < count; i++) {
+		for (let i = 1; i < this.creatures.length; i++) {
 			//G.Phaser.debug.renderSpriteBounds(G.creatures[i].sprite);
 		}
 	}
@@ -465,8 +462,6 @@ export default class Game {
 	 * Launch the game with the given number of player.
 	 */
 	setup(playerMode: number) {
-		let bg, i;
-
 		// Phaser
 		this.Phaser.scale.parentIsWindow = true;
 		this.Phaser.scale.pageAlignHorizontally = true;
@@ -480,7 +475,8 @@ export default class Game {
 			this.Phaser.stage.forcePortrait = true;
 		}
 
-		bg = this.Phaser.add.sprite(0, 0, 'background');
+		const bg = this.Phaser.add.sprite(0, 0, 'background');
+
 		bg.inputEnabled = true;
 		bg.events.onInputUp.add((Sprite, Pointer) => {
 			if (this.freezedInput || this.UI.dashopen) {
@@ -539,8 +535,8 @@ export default class Game {
 		// Remove loading screen
 		$j('#matchMaking').hide();
 
-		for (i = 0; i < playerMode; i++) {
-			const player = new Player(i, this);
+		for (let i = 0; i < playerMode; i++) {
+			const player = new Player(i as PlayerID, this);
 			this.players.push(player);
 
 			// Initialize players' starting positions
@@ -679,7 +675,6 @@ export default class Game {
 	}
 	async updateLobby() {
 		if (this.matchInitialized) return;
-		const self = this;
 
 		$j('.lobby-match-list').html('').addClass('refreshing');
 		$j('#refreshMatchButton').addClass('disabled');
@@ -851,11 +846,11 @@ export default class Game {
 		// Formating
 		let stringConsole = obj,
 			stringLog = obj,
-			totalCreatures = this.creatures.length,
-			creature: Creature,
-			i;
+			creature: Creature;
 
-		for (i = 0; i < totalCreatures; i++) {
+		const totalCreatures = this.creatures.length;
+
+		for (let i = 0; i < totalCreatures; i++) {
 			creature = this.creatures[i];
 
 			if (creature) {
@@ -1009,19 +1004,19 @@ export default class Game {
 	}
 
 	checkTime() {
-		let date = new Date().valueOf() - this.pauseTime,
+		const date = new Date().valueOf() - this.pauseTime,
 			p = this.activeCreature.player,
 			alertTime = 5, // In seconds
-			msgStyle: CreatureHintType = 'msg_effects',
-			totalPlayers = this.playerMode,
-			i;
+			totalPlayers = this.playerMode;
+
+		let msgStyle: CreatureHintType = 'msg_effects';
 
 		p.totalTimePool = Math.max(p.totalTimePool, 0); // Clamp
 
 		// Check all timepools
 		// Check is always true for infinite time
 		let playerStillHaveTime = this.timePool > 0 ? false : true;
-		for (i = 0; i < totalPlayers; i++) {
+		for (let i = 0; i < totalPlayers; i++) {
 			// Each player
 			playerStillHaveTime = this.players[i].totalTimePool > 0 || playerStillHaveTime;
 		}
@@ -1107,10 +1102,9 @@ export default class Game {
 	 * Additonaly, ensure that a `type` property exists on each creature.
 	 */
 	retrieveCreatureStats(type: CreatureType) {
-		let totalCreatures = this.creatureData.length,
-			i: number;
+		const totalCreatures = this.creatureData.length;
 
-		for (i = totalCreatures - 1; i >= 0; i--) {
+		for (let i = totalCreatures - 1; i >= 0; i--) {
 			if (
 				//@ts-expect-error 2339 `type` does not exist on units in `units.ts`
 				this.creatureData[i].type == type ||
@@ -1202,11 +1196,10 @@ export default class Game {
 	}
 
 	triggerDeleteEffect(trigger, creature) {
-		let effects = creature == 'all' ? this.effects : creature.effects,
-			totalEffects = effects.length,
-			i;
+		const effects = creature == 'all' ? this.effects : creature.effects;
+		let totalEffects = effects.length;
 
-		for (i = 0; i < totalEffects; i++) {
+		for (let i = 0; i < totalEffects; i++) {
 			const effect = effects[i];
 
 			if (
@@ -1262,12 +1255,12 @@ export default class Game {
 
 	// Removed individual args from definition because we are using the arguments variable.
 	onStartPhase(/* creature, callback */) {
-		let creature = arguments[0],
-			totalTraps = this.traps.length,
-			trap,
-			i;
+		const creature = arguments[0],
+			totalTraps = this.traps.length;
 
-		for (i = 0; i < totalTraps; i++) {
+		let trap: Trap;
+
+		for (let i = 0; i < totalTraps; i++) {
 			trap = this.traps[i];
 
 			if (trap === undefined) {
@@ -1377,7 +1370,7 @@ export default class Game {
 	}
 
 	findCreature(o) {
-		let ret = [],
+		const ret: Creature[] = [],
 			o2 = $j.extend(
 				{
 					team: -1, // No team
@@ -1386,13 +1379,11 @@ export default class Game {
 				o,
 			),
 			creatures = this.creatures,
-			totalCreatures = creatures.length,
-			creature,
-			match,
-			wrongTeam,
-			i;
+			totalCreatures = creatures.length;
 
-		for (i = 0; i < totalCreatures; i++) {
+		let creature: Creature, match: boolean, wrongTeam: boolean;
+
+		for (let i = 0; i < totalCreatures; i++) {
 			creature = creatures[i];
 
 			if (creature) {
@@ -1433,27 +1424,25 @@ export default class Game {
 	}
 
 	clearOncePerDamageChain() {
-		let creatures = this.creatures,
+		const creatures = this.creatures,
 			totalCreatures = creatures.length,
-			totalEffects = this.effects.length,
-			creature: Creature,
-			totalAbilities,
-			i,
-			j;
+			totalEffects = this.effects.length;
 
-		for (i = totalCreatures - 1; i >= 0; i--) {
+		let creature: Creature, totalAbilities;
+
+		for (let i = totalCreatures - 1; i >= 0; i--) {
 			creature = this.creatures[i];
 
 			if (creature) {
 				totalAbilities = creature.abilities.length;
 
-				for (j = totalAbilities - 1; j >= 0; j--) {
+				for (let j = totalAbilities - 1; j >= 0; j--) {
 					creature.abilities[j].triggeredThisChain = false;
 				}
 			}
 		}
 
-		for (i = 0; i < totalEffects; i++) {
+		for (let i = 0; i < totalEffects; i++) {
 			// @ts-expect-error 2339
 			// `this.effects` might be the wrong type or need to look at `EffectTarget` type definition
 			this.effects[i].triggeredThisChain = false;
