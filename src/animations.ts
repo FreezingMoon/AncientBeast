@@ -4,7 +4,7 @@ import { Creature } from './creature';
 import { Hex } from './utility/hex';
 import { Ability } from './ability';
 import { QuadraticCurve } from './utility/curve';
-import { DEBUG_ENABLE_FAST_WALKING, DEBUG_WALK_SPEED } from './debug';
+import { DEBUG_ENABLE_FAST_WALKING, DEBUG_WALK_SPEED_MS } from './debug';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -55,7 +55,7 @@ export class Animations {
 		speed = Number(speed);
 
 		if (DEBUG_ENABLE_FAST_WALKING) {
-			speed = DEBUG_WALK_SPEED;
+			speed = DEBUG_WALK_SPEED_MS;
 		}
 
 		const that = this;
