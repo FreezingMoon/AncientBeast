@@ -18,7 +18,7 @@ interface GridDefinition {
 	isFirstRowFull: boolean;
 }
 
-interface QueryOptions {
+export interface QueryOptions {
 	/**
 	 * Target team.
 	 */

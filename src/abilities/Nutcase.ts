@@ -6,12 +6,14 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
 import { Direction } from '../utility/hex';
+import Game from '../game';
+import { QueryOptions } from '../utility/hexgrid';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[40] = [
 		/**
 		 * First Ability: Tentacle Bush
@@ -71,7 +73,7 @@ export default (G) => {
 				this.creature.addEffect(damageShieldEffect);
 			},
 
-			_activateOnAttacker: function (effect, damage) {
+			_activateOnAttacker: function (effect: Effect, damage: Damage) {
 				// Must take melee damage from a non-trap source
 				if (damage === undefined || !damage.melee || damage.isFromTrap) {
 					return false;
@@ -81,6 +83,7 @@ export default (G) => {
 				const o = {
 					alterations: {
 						moveable: false,
+						reqEnergy: 0,
 					},
 					deleteTrigger: 'onEndPhase',
 					// Delete this effect as soon as attacker's turn finishes
@@ -106,8 +109,10 @@ export default (G) => {
 
 				damage.attacker.addEffect(
 					attackerEffect,
-					`%CreatureName${attackerEffect.target.id}% has been grasped by tentacles`,
+					`%CreatureName${(attackerEffect.target as Creature).id}% has been grasped by tentacles`,
 				);
+
+				attackerEffect.target;
 
 				// Making attacker unmovable will change its move query, so update it
 				if (damage.attacker === G.activeCreature) {
@@ -130,7 +135,7 @@ export default (G) => {
 				}
 
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex, false), {
 						team: this._targetTeam,
 					})
 				) {
@@ -147,18 +152,19 @@ export default (G) => {
 				if (!this.isUpgraded()) {
 					G.grid.queryCreature({
 						fnOnConfirm: function () {
+							// eslint-disable-next-line
 							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
 						id: this.creature.id,
 						flipped: this.creature.player.flipped,
-						hexes: this.creature.getHexMap(matrices.frontnback2hex),
+						hexes: this.creature.getHexMap(matrices.frontnback2hex, false),
 					});
 				} else {
 					// If upgraded, show choice of front and back hex groups
 					const choices = [
-						this.creature.getHexMap(matrices.front2hex),
-						this.creature.getHexMap(matrices.back2hex),
+						this.creature.getHexMap(matrices.front2hex, false),
+						this.creature.getHexMap(matrices.back2hex, false),
 					];
 					G.grid.queryChoice({
 						fnOnSelect: function (choice, args) {
@@ -166,6 +172,7 @@ export default (G) => {
 							args.hex.overlayVisualState('creature selected player' + G.activeCreature.team);
 						},
 						fnOnConfirm: function () {
+							// eslint-disable-next-line
 							ability.animation(...arguments);
 						},
 						team: this._targetTeam,
@@ -228,12 +235,16 @@ export default (G) => {
 					{
 						effectFn: function (eff) {
 							const waitForMovementComplete = (message, payload) => {
-								if (message === 'movementComplete' && payload.creature.id === eff.target.id) {
+								if (
+									message === 'movementComplete' &&
+									eff.target instanceof Creature &&
+									payload.creature.id === eff.target.id
+								) {
 									this.game.signals.creature.remove(waitForMovementComplete);
 
 									eff.target.takeDamage(
 										new Damage(
-											eff.owner,
+											eff.owner as Creature,
 											{
 												pierce: ability.damages.pierce,
 											},
@@ -316,8 +327,9 @@ export default (G) => {
 			query: function () {
 				const ability = this;
 
-				let o = {
+				let o: Partial<QueryOptions> = {
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
@@ -364,6 +376,7 @@ export default (G) => {
 				let runPath;
 				let target;
 				// May contain the single hex the target will be pushed into.
+				// @ts-expect-error TODO: need to properly type `args` & `extra` or modify the signature of `activate`
 				const pushPath = extra?.queryOptions?.hexesDashed || [];
 
 				// Trim the run path to just include the charge, not the target's hexagons.
@@ -446,7 +459,6 @@ export default (G) => {
 			 * @param {*} args
 			 */
 			_pushTarget: function (target, pushPath, args) {
-				const ability = this;
 				const nutcase = this.creature;
 
 				if (!pushPath.length) {
@@ -455,7 +467,7 @@ export default (G) => {
 
 				if (pushPath.length > this._maxPushDistance) {
 					console.warn(
-						`Attempting to push target more (${pushPath.length}) than the supported distance (${this._maxPushDistance})`,
+						`Attempting to push target more (${pushPath.length}) than the support d distance (${this._maxPushDistance})`,
 					);
 					return;
 				}
@@ -557,7 +569,7 @@ export default (G) => {
 				}
 
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.inlinefrontnback2hex), {
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.inlinefrontnback2hex, false), {
 						team: this._targetTeam,
 						optTest: function (creature) {
 							// Size restriction of 2 if unupgraded
@@ -576,12 +588,13 @@ export default (G) => {
 
 				G.grid.queryCreature({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.player.flipped,
-					hexes: this.creature.getHexMap(matrices.inlinefrontnback2hex),
+					hexes: this.creature.getHexMap(matrices.inlinefrontnback2hex, false),
 					optTest: function (creature) {
 						// Size restriction of 2 if unupgraded
 						return ability.isUpgraded() ? true : creature.size <= 2;

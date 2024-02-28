@@ -125,6 +125,14 @@ export class Ability {
 	_executeHealthThreshold: number;
 	_highlightDestination: (...args: any) => void;
 
+	_activateOnAttacker: (...arg: any) => boolean;
+	_activateOnTarget: (t: Creature) => void;
+	_pushMove: (destination: Hex, target: Creature, targetDestination: Hex) => void;
+	_maxPushDistance: number;
+	_damagePerHexTravelled: number;
+	_damage: (target: Creature, runPath: Hex[]) => void;
+	_pushTarget: (target: Creature, pushPath: Hex[], args: any) => void;
+
 	// Below methods exist in Snow-Bunny.ts
 	_detectFrontHexesWithEnemy: () => { direction: number; hex: Hex; enemyPos: Point }[];
 	_findEnemyHexInFront: (hexWithEnemy: Hex) => Hex | undefined;
