@@ -33,6 +33,8 @@ export interface QueryOptions {
 	x: number;
 	y: number;
 	hexesDashed: Hex[];
+	dashedHexesUnderCreature: boolean;
+	fillOnlyHoveredCreature: boolean;
 	shrunkenHexes: Hex[];
 	hexesDeadZone: Hex[];
 	directions: number[];
