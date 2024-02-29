@@ -105,6 +105,7 @@ export default (G: Game) => {
 				if (!this.isUpgraded()) {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
+							// eslint-disable-next-line
 							ability.animation(...arguments);
 						},
 						flipped: stomper.player.flipped,
@@ -121,16 +122,22 @@ export default (G: Game) => {
 				else {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
+							// eslint-disable-next-line
 							if (arguments[1].hex.creature) {
+								// eslint-disable-next-line
 								ability.animation([arguments[1].hex], arguments[1], arguments[2]);
 							} else {
 								const targetHexList = [];
+								// eslint-disable-next-line
 								for (let i = 0; i < arguments[0].length; i++) {
+									// eslint-disable-next-line
 									if (arguments[0][i].creature) {
+										// eslint-disable-next-line
 										targetHexList.push(arguments[0][i]);
 										break;
 									}
 								}
+								// eslint-disable-next-line
 								ability.animation(targetHexList, arguments[1], arguments[2]);
 							}
 						},
@@ -368,6 +375,7 @@ export default (G: Game) => {
 
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
@@ -470,6 +478,7 @@ export default (G: Game) => {
 
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
