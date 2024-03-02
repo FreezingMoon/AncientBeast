@@ -43,7 +43,8 @@ export type Trigger =
 	| 'onCreatureMove onOtherCreatureMove'
 	| 'onCreatureSummon onDamage onHeal'
 	| 'onStartPhase onEndPhase'
-	| 'onDamage onStartPhase';
+	| 'onDamage onStartPhase'
+	| 'onStartPhase onDamage';
 
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
@@ -132,6 +133,22 @@ export class Ability {
 	_damagePerHexTravelled: number;
 	_damage: (target: Creature, runPath: Hex[]) => void;
 	_pushTarget: (target: Creature, pushPath: Hex[], args: any) => void;
+
+	_defenseBuff: number;
+	_maxDefenseBuff: number;
+	_damageTaken: boolean;
+	_getDefenseBuff: () => number;
+	_getDashed: (d: Direction[]) => Hex[];
+	_getTarget: (d: Direction[]) => Hex[];
+	_getCreature: (h: Hex[]) => Hex[];
+	_getHole: (h: Hex[]) => boolean;
+	_checkEnd: () => void;
+	_req: {
+		team: Team;
+		directions: Direction[];
+		distance: number;
+		sourceCreature?: Creature;
+	};
 
 	// Below methods exist in Snow-Bunny.ts
 	_detectFrontHexesWithEnemy: () => { direction: number; hex: Hex; enemyPos: Point }[];

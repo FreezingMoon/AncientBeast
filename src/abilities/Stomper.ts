@@ -1,17 +1,16 @@
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
-import { Direction, Hex } from '../utility/hex';
+import { Hex } from '../utility/hex';
 import * as matrices from '../utility/matrices';
-import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
-import { getDirectionFromDelta } from '../utility/position';
-import { forEach } from 'underscore';
+import Game from '../game';
+import { Creature } from '../creature';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[28] = [
 		//  First Ability: Tankish Build
 		{
@@ -30,7 +29,7 @@ export default (G) => {
 
 			_damageTaken: false, // Condition once upgraded
 
-			_getDefenseBuff: function (defenseBuff) {
+			_getDefenseBuff: function () {
 				if (this._defenseBuff >= 39) {
 					this._defenseBuff = 40;
 				} else {
@@ -64,7 +63,7 @@ export default (G) => {
 						'', // Trigger
 						{
 							alterations: {
-								defense: this._getDefenseBuff(this._defenseBuff), // Add a defense buff
+								defense: this._getDefenseBuff(), // Add a defense buff
 							},
 							stackable: false,
 						},
@@ -106,6 +105,7 @@ export default (G) => {
 				if (!this.isUpgraded()) {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
+							// eslint-disable-next-line
 							ability.animation(...arguments);
 						},
 						flipped: stomper.player.flipped,
@@ -122,16 +122,22 @@ export default (G) => {
 				else {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
+							// eslint-disable-next-line
 							if (arguments[1].hex.creature) {
+								// eslint-disable-next-line
 								ability.animation([arguments[1].hex], arguments[1], arguments[2]);
 							} else {
 								const targetHexList = [];
+								// eslint-disable-next-line
 								for (let i = 0; i < arguments[0].length; i++) {
+									// eslint-disable-next-line
 									if (arguments[0][i].creature) {
+										// eslint-disable-next-line
 										targetHexList.push(arguments[0][i]);
 										break;
 									}
 								}
+								// eslint-disable-next-line
 								ability.animation(targetHexList, arguments[1], arguments[2]);
 							}
 						},
@@ -151,37 +157,32 @@ export default (G) => {
 			},
 
 			// activate() :
-			activate: function (target) {
+			activate: function (target: Hex[]) {
 				const ability = this;
 				ability.end();
+
+				const damage = new Damage(
+					ability.creature, // Attacker
+					ability.damages, // Damage type
+					1, // Area
+					[], // Effects
+					G,
+				);
+
 				// If not upgraded take the first creature found (aka last in path)
 				if (!this.isUpgraded()) {
-					const damage = new Damage(
-						ability.creature, // Attacker
-						ability.damages, // Damage type
-						1, // Area
-						[], // Effects
-						G,
-					);
-					target = target.find((hex) => hex.creature).creature;
+					const targetCreature = target.find((hex) => hex.creature).creature;
 
 					G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
-					target.takeDamage(damage);
+					targetCreature.takeDamage(damage);
 				} else {
-					const set = new Set();
+					const set: Set<Creature> = new Set();
 					target.forEach(({ creature }) => {
 						if (creature) {
 							set.add(creature);
 						}
 					});
 					set.forEach((creature) => {
-						const damage = new Damage(
-							ability.creature, // Attacker
-							ability.damages, // Damage type
-							1, // Area
-							[], // Effects
-							G,
-						);
 						G.Phaser.camera.shake(0.03, 400, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 						creature.takeDamage(damage);
 					});
@@ -207,7 +208,7 @@ export default (G) => {
 			_getDashed: function (direction) {
 				const stomper = this.creature;
 
-				let hexes;
+				let hexes: Hex[];
 
 				if (!direction[4]) {
 					hexes = G.grid.getHexMap(
@@ -276,8 +277,8 @@ export default (G) => {
 			},
 
 			// Add target's hex to the array as long as there isn't 2 empty hex
-			_getCreature: function (hexes) {
-				const targets = [];
+			_getCreature: function (hexes): Hex[] {
+				const targets: Hex[] = [];
 				let i = 0,
 					stop = 0;
 				while (i < hexes.length && stop < 2) {
@@ -374,6 +375,7 @@ export default (G) => {
 
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
@@ -446,7 +448,7 @@ export default (G) => {
 						// Shake the screen upon landing to simulate the jump
 						G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
+						G.onStepIn(ability.creature, ability.creature.hexagons[0], false);
 
 						const interval = setInterval(function () {
 							if (!G.freezedInput) {
@@ -465,15 +467,6 @@ export default (G) => {
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
-			// The area of the skill
-			map: [
-				[0, 0, 1, 0],
-				[0, 0, 1, 1],
-				[0, 1, 1, 0], // Origin line
-				[0, 0, 1, 1],
-				[0, 0, 1, 0],
-			],
-
 			require: function () {
 				return this.testRequirements();
 			},
@@ -483,17 +476,19 @@ export default (G) => {
 				const ability = this;
 				const stomper = this.creature;
 
-				this.map.origin = [0, 2];
-
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
 					requireCreature: 0,
 					id: stomper.id,
 					flipped: stomper.player.flipped,
-					choices: [stomper.getHexMap(this.map), stomper.getHexMap(this.map, true)],
+					choices: [
+						stomper.getHexMap(matrices.stomperEarthShaker, false),
+						stomper.getHexMap(matrices.stomperEarthShaker, true),
+					],
 				});
 			},
 

@@ -226,3 +226,14 @@ export const fourDistanceCone: AugmentedMatrix = asAugmentedMatrix(
 	],
 	[0, 4],
 );
+
+export const stomperEarthShaker: AugmentedMatrix = asAugmentedMatrix(
+	[
+		[0, 0, 1, 0],
+		[0, 0, 1, 1],
+		[0, 1, 1, 0], // Origin line
+		[0, 0, 1, 1],
+		[0, 0, 1, 0],
+	],
+	[0, 2],
+);
