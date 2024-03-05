@@ -1980,6 +1980,10 @@ class CreatureSprite {
 				fill: '#ffffff',
 				stroke: '#AAAAAA',
 			},
+			no_action: {
+				fill: '#ffffff',
+				stroke: '#000000',
+			},
 		};
 
 		const style = {
@@ -1995,8 +1999,8 @@ class CreatureSprite {
 
 		// Remove constant element
 		this._hintGrp.forEach(
-			(hint: Phaser.Text) => {
-				if (hint.data.hintType === 'confirm') {
+			(hint: Phaser.Text | Phaser.Sprite) => {
+				if (hint.data.hintType === 'confirm' || hint.data.hintType === 'no_action') {
 					hint.data.hintType = 'confirm_deleted';
 					hint.data.tweenAlpha = this._phaser.add
 						.tween(hint)
@@ -2017,7 +2021,7 @@ class CreatureSprite {
 		hint.data.tweenAlpha = null;
 		hint.data.tweenPos = null;
 
-		if (hintType === 'confirm') {
+		if (hintType === 'confirm' || hintType === 'no_action') {
 			hint.data.tweenAlpha = this._phaser.add
 				.tween(hint)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
@@ -2032,11 +2036,38 @@ class CreatureSprite {
 			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 		}
 
+		if (hintType === 'no_action') {
+			// Add "Skip turn" frame
+			const frame = this._phaser.add.sprite(0, 50, 'frame');
+			frame.anchor.setTo(0.5, 0.175);
+			frame.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+			frame.alpha = 0;
+			frame.data.hintType = hintType;
+			frame.data.tweenAlpha = null;
+			frame.data.tweenPos = null;
+			this._phaser.add.tween(frame).to({ alpha: 1 }, tooltipSpeed, tooltipTransition).start();
+			this._hintGrp.add(frame);
+
+			// Add "Skip turn" icon
+			const skipTurnIcon = this._phaser.add.sprite(0, 50, 'skip');
+			skipTurnIcon.anchor.setTo(0.5, 0.75); // Give a bit more vertical space
+			skipTurnIcon.setScaleMinMax(0.5, 0.5, 0.5, 0.5);
+			skipTurnIcon.alpha = 0;
+			skipTurnIcon.data.hintType = hintType;
+			skipTurnIcon.data.tweenAlpha = null;
+			skipTurnIcon.data.tweenPos = null;
+			this._phaser.add
+				.tween(skipTurnIcon)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.start();
+			this._hintGrp.add(skipTurnIcon);
+		}
+
 		this._hintGrp.add(hint);
 
 		// Stacking
 		this._hintGrp.forEach(
-			(hint: Phaser.Text) => {
+			(hint: Phaser.Text | Phaser.Sprite) => {
 				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 				const offset = -50 * index;
 
@@ -2065,6 +2096,7 @@ export type CreatureHintType =
 	| 'gamehintblack'
 	| 'healing'
 	| 'msg_effects'
-	| 'creature_name';
+	| 'creature_name'
+	| 'no_action';
 
 type HealthBubbleType = 'plasma' | 'frozen' | 'health';
