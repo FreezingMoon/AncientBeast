@@ -106,12 +106,9 @@ export default (G: Game) => {
 			// query() :
 			query: function () {
 				const uncle = this.creature;
-				const ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
-					},
+					fnOnConfirm: (...args) => this.animation(...args),
 					team: this._targetTeam,
 					id: uncle.id,
 					flipped: uncle.player.flipped,
@@ -197,7 +194,6 @@ export default (G: Game) => {
 
 			// query() :
 			query: function () {
-				const ability = this;
 				const uncle = this.creature;
 
 				// Don't jump over creatures if we're not upgraded, or we are in a second
@@ -220,13 +216,15 @@ export default (G: Game) => {
 							hex.game.activeCreature.faceHex(hex);
 						}
 					},
-					fnOnConfirm: function () {
-						if (arguments[0].x == ability.creature.x && arguments[0].y == ability.creature.y) {
+					fnOnConfirm: (...args) => {
+						const chosenHex = args[0];
+
+						if (chosenHex.x == this.creature.x && chosenHex.y == this.creature.y) {
 							// Prevent null movement
-							ability.query();
+							this.query();
 							return;
 						}
-						ability.animation(...arguments);
+						this.animation(...args);
 					},
 					size: uncle.size,
 					flipped: uncle.player.flipped,
@@ -364,13 +362,10 @@ export default (G: Game) => {
 
 			// query() :
 			query: function () {
-				const ability = this;
 				const uncle = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
-					},
+					fnOnConfirm: (...args) => this.animation(...args),
 					team: this._targetTeam,
 					id: uncle.id,
 					flipped: uncle.player.flipped,
