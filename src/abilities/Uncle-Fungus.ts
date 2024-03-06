@@ -40,7 +40,6 @@ export default (G: Game) => {
 
 			// activate() :
 			activate: function (damage) {
-				const ability = this;
 				const creature = this.creature;
 
 				if (!damage || !damage.melee) {
@@ -52,16 +51,16 @@ export default (G: Game) => {
 				const target = damage.attacker === creature ? damage.target : damage.attacker;
 
 				const optArg = {
-					alterations: ability.effects[0],
+					alterations: this.effects[0],
 					creationTurn: G.turn - 1,
 					stackable: true,
 				};
 
-				ability.end();
+				this.end();
 
 				// Spore Contamination
 				const effect = new Effect(
-					ability.title, // Name
+					this.title, // Name
 					creature, // Caster
 					target, // Target
 					'', // Trigger
@@ -72,10 +71,10 @@ export default (G: Game) => {
 				target.addEffect(effect, undefined, 'Contaminated');
 
 				G.log(
-					'%CreatureName' + target.id + "%'s regrowth is lowered by " + ability.effects[0].regrowth,
+					'%CreatureName' + target.id + "%'s regrowth is lowered by " + this.effects[0].regrowth,
 				);
 
-				ability.setUsed(false); // Infinite triggering
+				this.setUsed(false); // Infinite triggering
 			},
 		},
 
@@ -118,13 +117,12 @@ export default (G: Game) => {
 
 			// activate() :
 			activate: function (target) {
-				const ability = this;
-				ability.end();
+				this.end();
 				G.Phaser.camera.shake(0.01, 65, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage type
+					this.creature, // Attacker
+					this.damages, // Damage type
 					1, // Area
 					[], // Effects
 					G,
@@ -148,11 +146,11 @@ export default (G: Game) => {
 
 					// Regrowth bonus
 					if (amount > 0) {
-						ability.creature.addEffect(
+						this.creature.addEffect(
 							new Effect(
-								ability.title, // Name
-								ability.creature, // Caster
-								ability.creature, // Target
+								this.title, // Name
+								this.creature, // Caster
+								this.creature, // Target
 								'', // Trigger
 								{
 									turnLifetime: 1,
@@ -163,14 +161,14 @@ export default (G: Game) => {
 								}, // Optional arguments
 								G,
 							),
-							'%CreatureName' + ability.creature.id + '% gained ' + amount + ' regrowth for now', // Custom log
+							'%CreatureName' + this.creature.id + '% gained ' + amount + ' regrowth for now', // Custom log
 							'Regrowth++',
 						); // Custom hint
 					}
 				}
 
 				// Remove frogger bonus if its found
-				ability.creature.effects.forEach(function (effect) {
+				this.creature.effects.forEach(function (effect) {
 					if (effect.name == 'Frogger Bonus') {
 						effect.deleteEffect();
 					}
@@ -237,8 +235,7 @@ export default (G: Game) => {
 
 			// activate() :
 			activate: function (hex) {
-				const ability = this;
-				ability.end(false, true); // Deferred ending
+				this.end(false, true); // Deferred ending
 
 				// If upgraded and we haven't leapt over creatures/obstacles, allow a second
 				// jump of the same kind
@@ -258,14 +255,14 @@ export default (G: Game) => {
 				}
 
 				// Jump directly to hex
-				ability.creature.moveTo(hex, {
+				this.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
-					callback: function () {
+					callback: () => {
 						// Shake the screen upon landing to simulate the jump
 						G.Phaser.camera.shake(0.03, 90, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-						G.onStepIn(ability.creature, ability.creature.hexagons[0], false);
+						G.onStepIn(this.creature, this.creature.hexagons[0], false);
 
 						const interval = setInterval(function () {
 							if (!G.freezedInput) {
@@ -278,17 +275,17 @@ export default (G: Game) => {
 				});
 
 				// Frogger Leap bonus
-				ability.creature.addEffect(
+				this.creature.addEffect(
 					new Effect(
 						'Offense Bonus', // Name
-						ability.creature, // Caster
-						ability.creature, // Target
+						this.creature, // Caster
+						this.creature, // Target
 						'onStepIn onEndPhase', // Trigger
 						{
 							effectFn: function (effect) {
 								effect.deleteEffect();
 							},
-							alterations: ability.effects[0],
+							alterations: this.effects[0],
 						}, // Optional arguments
 						G,
 					),
@@ -375,13 +372,12 @@ export default (G: Game) => {
 
 			// activate() :
 			activate: function (target) {
-				const ability = this;
-				ability.end();
+				this.end();
 				G.Phaser.camera.shake(0.03, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
+					this.creature, // Attacker
+					this.damages, // Damage Type
 					1, // Area
 					[], // Effects
 					G,
@@ -410,7 +406,7 @@ export default (G: Game) => {
 				}
 
 				// Remove Frogger Jump bonus if its found
-				ability.creature.effects.forEach(function (effect) {
+				this.creature.effects.forEach(function (effect) {
 					if (effect.name == 'Offense Bonus') {
 						effect.deleteEffect();
 					}
