@@ -4,12 +4,13 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getDirectionFromDelta } from '../utility/position';
+import Game from '../game';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[3] = [
 		// First Ability: Toxic Spores
 		{
@@ -30,7 +31,7 @@ export default (G) => {
 				}
 
 				// Check that attack is melee from actual creature, not from trap
-				if (damage && damage.melee !== undefined) {
+				if (damage instanceof Damage && damage.melee !== undefined) {
 					return damage.melee && !damage.isFromTrap;
 				}
 				// Always return true so that ability is highlighted in UI
@@ -93,7 +94,7 @@ export default (G) => {
 
 				// At least one target
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex, false), {
 						team: this._targetTeam,
 					})
 				) {
@@ -114,7 +115,7 @@ export default (G) => {
 					team: this._targetTeam,
 					id: uncle.id,
 					flipped: uncle.player.flipped,
-					hexes: uncle.getHexMap(matrices.frontnback2hex),
+					hexes: uncle.getHexMap(matrices.frontnback2hex, false),
 				});
 			},
 
@@ -194,14 +195,6 @@ export default (G) => {
 				return this.testRequirements() && this.creature.stats.moveable;
 			},
 
-			fnOnSelect: function (hex) {
-				this.creature.tracePosition({
-					x: hex.x,
-					y: hex.y,
-					overlayClass: 'creature moveto selected player' + this.creature.team,
-				});
-			},
-
 			// query() :
 			query: function () {
 				const ability = this;
@@ -213,8 +206,19 @@ export default (G) => {
 				const hexes = this._getHexRange(stopOnCreature);
 
 				G.grid.queryHexes({
-					fnOnSelect: function () {
-						ability.fnOnSelect(...arguments);
+					fnOnSelect: function (...args) {
+						const hex = args[0];
+
+						if (hex) {
+							// Uncle Fungus is 2 hexes wide, but the selected hex is only 1 hex wide.
+							// `tracePosition` ensures that both hexes are highlighted when hovering over the selected hex.
+							uncle.tracePosition({
+								x: hex.x,
+								y: hex.y,
+								overlayClass: 'creature moveto selected player' + uncle.team,
+							});
+							hex.game.activeCreature.faceHex(hex);
+						}
 					},
 					fnOnConfirm: function () {
 						if (arguments[0].x == ability.creature.x && arguments[0].y == ability.creature.y) {
@@ -263,7 +267,7 @@ export default (G) => {
 						// Shake the screen upon landing to simulate the jump
 						G.Phaser.camera.shake(0.03, 90, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-						G.onStepIn(ability.creature, ability.creature.hexagons[0]);
+						G.onStepIn(ability.creature, ability.creature.hexagons[0], false);
 
 						const interval = setInterval(function () {
 							if (!G.freezedInput) {
