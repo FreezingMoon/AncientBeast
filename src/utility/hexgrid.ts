@@ -1064,9 +1064,9 @@ export class HexGrid {
 					creature.updateHealth();
 				}
 
-				if (hex.creature.noActionPossible) {
+				if (game.activeCreature === hex.creature && hex.creature.noActionPossible) {
 					// Remove "Skip Turn" icon
-					hex.creature.hint('Skip turn', 'confirm');
+					creature.hint('Skip turn', 'confirm');
 				}
 			}
 
@@ -1093,7 +1093,7 @@ export class HexGrid {
 
 				hex.creature.startBounce();
 
-				if (hex.creature.noActionPossible) {
+				if (game.activeCreature === hex.creature && hex.creature.noActionPossible) {
 					// Show "Skip Turn" icon
 					hex.creature.hint('Skip turn', 'no_action');
 				}

@@ -2039,19 +2039,27 @@ class CreatureSprite {
 		if (hintType === 'no_action') {
 			// Add "Skip turn" frame
 			const frame = this._phaser.add.sprite(0, 50, 'frame');
-			frame.anchor.setTo(0.5, 0.175);
-			frame.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
-			frame.alpha = 0;
-			frame.data.hintType = hintType;
-			frame.data.tweenAlpha = null;
-			frame.data.tweenPos = null;
-			this._phaser.add.tween(frame).to({ alpha: 1 }, tooltipSpeed, tooltipTransition).start();
-			this._hintGrp.add(frame);
+			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
+			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
+			frameBackground.draw('frame', 0, 0);
+			const combinedSprite = this._phaser.add.sprite(0, 50, frameBackground);
+			combinedSprite.anchor.setTo(0.5, 0.175);
+			combinedSprite.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+			combinedSprite.alpha = 0;
+			combinedSprite.data.hintType = hintType;
+			combinedSprite.data.tweenAlpha = null;
+			combinedSprite.data.tweenPos = null;
+			this._phaser.add
+				.tween(combinedSprite)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.start();
+			this._hintGrp.add(combinedSprite);
 
 			// Add "Skip turn" icon
 			const skipTurnIcon = this._phaser.add.sprite(0, 50, 'skip');
-			skipTurnIcon.anchor.setTo(0.5, 0.75); // Give a bit more vertical space
-			skipTurnIcon.setScaleMinMax(0.5, 0.5, 0.5, 0.5);
+			skipTurnIcon.anchor.setTo(0.5, 0.7); // Give a bit more vertical space
+			skipTurnIcon.setScaleMinMax(0.63, 0.63, 0.63, 0.63);
 			skipTurnIcon.alpha = 0;
 			skipTurnIcon.data.hintType = hintType;
 			skipTurnIcon.data.tweenAlpha = null;
