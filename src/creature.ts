@@ -1613,7 +1613,12 @@ export class Creature {
 	pickupDrop() {
 		getPointFacade()
 			.getDropsAt(this)
-			.forEach((drop) => drop.pickup(this));
+			.forEach((drop) => {
+				if (!drop.pickedUp) {
+					drop.pickup(this);
+					drop.pickedUp = true; // set the pickedUp property to true to prevent multiple pickup execution
+				}
+			});
 	}
 
 	/**
