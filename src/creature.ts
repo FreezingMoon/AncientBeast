@@ -1616,7 +1616,7 @@ export class Creature {
 			.forEach((drop) => {
 				if (!drop.pickedUp) {
 					drop.pickup(this);
-					drop.pickedUp = true; // set the pickedUp property to true to prevent multiple pickup execution
+					drop.pickedUp = true; // Prevent multiple pickups
 				}
 			});
 	}
