@@ -246,7 +246,7 @@ export class Animations {
 		creature.healthShow();
 
 		creature.hexagons.forEach((h) => {
-			creature.pickupDrop(); //using the pickupDrop function from the creature class since its deprecated in hex.ts class
+			creature.pickupDrop();
 		});
 
 		game.grid.orderCreatureZ();
