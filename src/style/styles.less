@@ -377,6 +377,11 @@
 			cursor: help !important;
 		}
 	}
+
+	&.potential {
+		animation: rightJump 1s infinite;
+	}
+
 }
 
 #fullscreen {
@@ -1438,6 +1443,20 @@ span.pure {
 		transform: translate(0px, 0px);
 	}
 }
+
+@keyframes rightJump {
+	0% {
+	  transform: translateX(0);
+	}
+	50% {
+	  transform: translateX(10px);
+	}
+	100% {
+	  transform: translateX(0);
+	}
+}
+
+
 
 /*--------------Framed Modal------------------*/
 /* Modal window with graphical border and close button. */

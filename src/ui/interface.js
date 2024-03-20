@@ -255,6 +255,7 @@ export class UI {
 						cursor: 'default',
 					},
 					slideIn: {},
+					potential: {},
 				},
 			},
 			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
@@ -266,6 +267,8 @@ export class UI {
 				{
 					$button: $j('.ability[ability="' + i + '"]'),
 					hasShortcut: true,
+					
+
 					click: () => {
 						const game = this.game;
 						if (this.selectedAbility != i) {
@@ -286,8 +289,10 @@ export class UI {
 							if (ability.require() == true && i != 0) {
 								this.selectAbility(i);
 							}
+
 							// Activate Ability
 							game.activeCreature.abilities[i].use();
+
 						} else {
 							// Cancel Ability
 							this.closeDash();
@@ -342,9 +347,11 @@ export class UI {
 						slideIn: {
 							cursor: 'pointer',
 						},
+						potential: {},
 					},
 				},
-				{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+				{ isAcceptingInput: () => {
+					this.interfaceAPI.isAcceptingInput }},
 			);
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
@@ -656,6 +663,32 @@ export class UI {
 			this.closeMusicPlayer();
 			this.closeScoreboard();
 		}
+	}
+
+	
+	showBonusPotential(){
+		//Shows bonus capability 
+
+		const game = this.game;
+		this.abilitiesButtons.forEach((btn) => { 
+			const ability = game.activeCreature.abilities[btn.abilityId];
+
+			//The executioner Axes for Golden Wyrm jumps to the right
+			//Once Dragon Flight is upgraded
+			if(ability.used == false &&
+				game.activeCreature.name == "Golden Wyrm" && 
+				game.activeCreature.abilities[2].isUpgraded() &&
+				ability.require() && 
+				game.selectedAbility != 1 && 
+				btn.abilityId == 1 
+				){
+					btn.$button.addClass('potential')
+					btn.changeState(ButtonStateEnum.potential);
+				} 
+				else{
+					btn.$button.removeClass('potential')
+				}
+			});
 	}
 
 	showAbilityCosts(abilityId) {
@@ -1857,7 +1890,7 @@ export class UI {
 
 	updateAbilityUpgrades() {
 		const game = this.game,
-			creature = game.activeCreature;
+		creature = game.activeCreature;
 
 		// Change ability buttons
 		this.abilitiesButtons.forEach((btn) => {
@@ -1895,7 +1928,7 @@ export class UI {
 					}
 				}, 1500);
 
-				ab.setUpgraded(); // Set the ability to upgraded
+				ab.setUpgraded(); // Set the ability to upgraded				
 			}
 
 			// Change the ability's frame when it gets upgraded
@@ -1938,6 +1971,7 @@ export class UI {
 				$abilityInfo.append('<div class="info upgrade">Upgrade : ' + ab.upgrade + '</div>');
 			}
 		});
+		this.showBonusPotential();
 	}
 
 	checkAbilities() {
@@ -1966,7 +2000,13 @@ export class UI {
 			}
 			if (ab.message == game.msg.abilities.passiveCycle) {
 				this.abilitiesButtons[i].changeState(ButtonStateEnum.slideIn);
-			} else if (req && !ab.used && ab.trigger == 'onQuery') {
+			} else if(this.abilitiesButtons[i].state == ButtonStateEnum.potential){
+				//Makes sure the right bounce is not stopped if ability not used yet
+				if(ab.used){
+					this.abilitiesButtons[i].changeState(ButtonStateEnum.normal);
+				}
+			}
+			else if (req && !ab.used && ab.trigger == 'onQuery') {
 				this.abilitiesButtons[i].changeState(ButtonStateEnum.slideIn);
 				oneUsableAbility = true;
 			} else if (
@@ -2000,6 +2040,8 @@ export class UI {
 					.append('<div class="message">' + ab.message + '</div>');
 			}
 		}
+
+		this.showBonusPotential();
 
 		// No action possible
 		if (!oneUsableAbility && game.activeCreature.remainingMove === 0) {

@@ -9,6 +9,7 @@ export const ButtonStateEnum = {
 	hidden: 'hidden',
 	noClick: 'noclick',
 	slideIn: 'slideIn',
+	potential: 'potential',
 } as const;
 
 /**
@@ -101,6 +102,7 @@ export class Button {
 				slideIn: {},
 				hidden: {},
 				noclick: {},
+				potential: {},
 			},
 		};
 
@@ -204,7 +206,7 @@ export class Button {
 			}
 		});
 
-		this.$button.removeClass('disabled glowing selected active noclick slideIn hidden');
+		this.$button.removeClass('disabled glowing selected active noclick slideIn hidden potential');
 		wrapperElement && wrapperElement.removeClass('hidden');
 		this.$button.css(this.css.normal);
 
