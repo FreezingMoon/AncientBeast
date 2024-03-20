@@ -229,7 +229,7 @@ export default (G) => {
 					team: this._targetTeam,
 					id: [crea.id, trg.id],
 					size: size,
-					flipped: crea.player.player.flipped,
+					flipped: crea.player.flipped,
 					hexes: G.grid
 						.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
 						.filter(function (item) {
