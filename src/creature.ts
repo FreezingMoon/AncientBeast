@@ -2003,13 +2003,14 @@ class CreatureSprite {
 		};
 
 		// Remove constant element
+		// Animation length reduced from 250 to 100 to prevent animation overlap
 		this._hintGrp.forEach(
 			(hint: Phaser.Text | Phaser.Sprite) => {
 				if (hint.data.hintType === 'confirm' || hint.data.hintType === 'no_action') {
 					hint.data.hintType = 'confirm_deleted';
 					hint.data.tweenAlpha = this._phaser.add
 						.tween(hint)
-						.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
+						.to({ alpha: 0 }, 100, tooltipTransition)
 						.start();
 					hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 				}
