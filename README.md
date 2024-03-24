@@ -1,8 +1,6 @@
 [![Play Ancient Beast](https://img.shields.io/badge/play-Ancient%20Beast-red.svg)](https://AncientBeast.com)
 [![Join Discord](https://img.shields.io/badge/join-Discord-9cf.svg)](https://discord.me/AncientBeast)
 [![Setup Gitpod](https://img.shields.io/badge/setup-Gitpod-blue)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)
-[![Donate via PayPal](https://img.shields.io/badge/donate-PayPal-yellow.svg)](https://paypal.me/AncientBeast)
-[![Donate via Patreon](https://img.shields.io/badge/donate-Patreon-orange.svg)](https://patreon.com/AncientBeast)
 [![Code Triagers Badge](https://www.codetriage.com/freezingmoon/ancientbeast/badges/users.svg)](https://codetriage.com/freezingmoon/ancientbeast)
 [![OpenCollective Badge](https://opencollective.com/ancientbeast/tiers/badge.svg)](https://opencollective.com/AncientBeast)
 
