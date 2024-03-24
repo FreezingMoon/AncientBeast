@@ -44,7 +44,9 @@ export type Trigger =
 	| 'onCreatureSummon onDamage onHeal'
 	| 'onStartPhase onEndPhase'
 	| 'onDamage onStartPhase'
-	| 'onStartPhase onDamage';
+	| 'onStartPhase onDamage'
+	| 'onUnderAttack onAttack'
+	| 'onUnderAttack';
 
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
@@ -133,6 +135,9 @@ export class Ability {
 	_damagePerHexTravelled: number;
 	_damage: (target: Creature, runPath: Hex[]) => void;
 	_pushTarget: (target: Creature, pushPath: Hex[], args: any) => void;
+
+	_isSecondLowJump: () => boolean;
+	_getHexRange: (stopOnCreature: boolean) => Hex[];
 
 	_defenseBuff: number;
 	_maxDefenseBuff: number;
