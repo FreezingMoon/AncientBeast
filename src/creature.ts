@@ -1613,7 +1613,12 @@ export class Creature {
 	pickupDrop() {
 		getPointFacade()
 			.getDropsAt(this)
-			.forEach((drop) => drop.pickup(this));
+			.forEach((drop) => {
+				if (!drop.pickedUp) {
+					drop.pickup(this);
+					drop.pickedUp = true; // Prevent multiple pickups
+				}
+			});
 	}
 
 	/**
@@ -1980,6 +1985,10 @@ class CreatureSprite {
 				fill: '#ffffff',
 				stroke: '#AAAAAA',
 			},
+			no_action: {
+				fill: '#ffffff',
+				stroke: '#000000',
+			},
 		};
 
 		const style = {
@@ -1994,13 +2003,14 @@ class CreatureSprite {
 		};
 
 		// Remove constant element
+		// Animation length reduced from 250 to 100 to prevent animation overlap
 		this._hintGrp.forEach(
-			(hint: Phaser.Text) => {
-				if (hint.data.hintType === 'confirm') {
+			(hint: Phaser.Text | Phaser.Sprite) => {
+				if (hint.data.hintType === 'confirm' || hint.data.hintType === 'no_action') {
 					hint.data.hintType = 'confirm_deleted';
 					hint.data.tweenAlpha = this._phaser.add
 						.tween(hint)
-						.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
+						.to({ alpha: 0 }, 100, tooltipTransition)
 						.start();
 					hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 				}
@@ -2017,7 +2027,7 @@ class CreatureSprite {
 		hint.data.tweenAlpha = null;
 		hint.data.tweenPos = null;
 
-		if (hintType === 'confirm') {
+		if (hintType === 'confirm' || hintType === 'no_action') {
 			hint.data.tweenAlpha = this._phaser.add
 				.tween(hint)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
@@ -2032,11 +2042,46 @@ class CreatureSprite {
 			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 		}
 
+		if (hintType === 'no_action') {
+			// Add "Skip turn" frame
+			const frame = this._phaser.add.sprite(0, 50, 'frame');
+			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
+			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
+			frameBackground.draw('frame', 0, 0);
+			const combinedSprite = this._phaser.add.sprite(0, 50, frameBackground);
+			combinedSprite.anchor.setTo(0.5, 0.175);
+			combinedSprite.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+			combinedSprite.alpha = 0;
+			combinedSprite.data.hintType = hintType;
+			combinedSprite.data.tweenAlpha = null;
+			combinedSprite.data.tweenPos = null;
+			this._phaser.add
+				.tween(combinedSprite)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.start();
+			this._hintGrp.add(combinedSprite);
+
+			// Add "Skip turn" icon
+			const skipTurnIcon = this._phaser.add.sprite(0, 50, 'skip');
+			skipTurnIcon.anchor.setTo(0.5, 0.7); // Give a bit more vertical space
+			skipTurnIcon.setScaleMinMax(0.63, 0.63, 0.63, 0.63);
+			skipTurnIcon.alpha = 0;
+			skipTurnIcon.data.hintType = hintType;
+			skipTurnIcon.data.tweenAlpha = null;
+			skipTurnIcon.data.tweenPos = null;
+			this._phaser.add
+				.tween(skipTurnIcon)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.start();
+			this._hintGrp.add(skipTurnIcon);
+		}
+
 		this._hintGrp.add(hint);
 
 		// Stacking
 		this._hintGrp.forEach(
-			(hint: Phaser.Text) => {
+			(hint: Phaser.Text | Phaser.Sprite) => {
 				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 				const offset = -50 * index;
 
@@ -2065,6 +2110,7 @@ export type CreatureHintType =
 	| 'gamehintblack'
 	| 'healing'
 	| 'msg_effects'
-	| 'creature_name';
+	| 'creature_name'
+	| 'no_action';
 
 type HealthBubbleType = 'plasma' | 'frozen' | 'health';

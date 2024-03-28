@@ -246,7 +246,7 @@ export class Animations {
 		creature.healthShow();
 
 		creature.hexagons.forEach((h) => {
-			h.pickupDrop(creature);
+			creature.pickupDrop();
 		});
 
 		game.grid.orderCreatureZ();

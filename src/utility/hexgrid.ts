@@ -1066,6 +1066,11 @@ export class HexGrid {
 					// the plasma would have been displayed so now display the health again
 					creature.updateHealth();
 				}
+
+				if (game.activeCreature === hex.creature && hex.creature.noActionPossible) {
+					// Remove "Skip Turn" icon
+					creature.hint('Skip turn', 'confirm');
+				}
 			}
 
 			$j('canvas').css('cursor', 'default');
@@ -1090,6 +1095,11 @@ export class HexGrid {
 				onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex);
 
 				hex.creature.startBounce();
+
+				if (game.activeCreature === hex.creature && hex.creature.noActionPossible) {
+					// Show "Skip Turn" icon
+					hex.creature.hint('Skip turn', 'no_action');
+				}
 			}
 
 			if (hex.reachable) {

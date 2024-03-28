@@ -914,10 +914,6 @@ export default class Game {
 		this.UI.btnDelay.changeState('disabled');
 		this.UI.btnAudio.changeState('disabled');
 
-		if (!o.noTooltip && this.activeCreature) {
-			this.activeCreature.hint(o.tooltip, 'msg_effects');
-		}
-
 		setTimeout(() => {
 			this.turnThrottle = false;
 			this.UI.btnSkipTurn.changeState('normal');
@@ -937,7 +933,14 @@ export default class Game {
 			p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 			this.pauseTime = 0;
 			this.activeCreature.deactivate('turn-end');
+			const activeCreature = this.activeCreature;
 			this.nextCreature();
+
+			setTimeout(() => {
+				if (!o.noTooltip) {
+					activeCreature.hint(o.tooltip, 'msg_effects');
+				}
+			}, 350);
 		}
 	}
 

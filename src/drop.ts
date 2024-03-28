@@ -53,6 +53,7 @@ export class Drop {
 	game: Game;
 	pos: Point;
 	alterations: DropAlterations;
+	pickedUp: boolean;
 
 	display: Phaser.Sprite;
 
@@ -98,6 +99,7 @@ export class Drop {
 
 		game.log('%CreatureName' + creature.id + '% picks up ' + this.name + ':');
 		creature.hint(this.name, 'msg_effects');
+
 		creature.dropCollection.push(this);
 
 		creature.updateAlteration();
@@ -119,11 +121,13 @@ export class Drop {
 		}
 
 		// NOTE: Log all the gained alterations.
+
 		const gainedMessage = Object.keys(alterations)
 			.map((key) => `${alterations[key]} ${key}`)
 			.join(', ')
 			// Replace last comma with "and"
 			.replace(/, ([^,]*)$/, ' and $1');
+
 		game.log(`Gains ${gainedMessage}`);
 
 		creature.player.score.push({
