@@ -92,6 +92,7 @@ export class Hex {
 	hitBox: Phaser.Sprite;
 	display: Phaser.Sprite;
 	overlay: Phaser.Sprite;
+	abilityIcon?: Phaser.Sprite;
 	coordText: Phaser.Text;
 
 	/**
@@ -586,6 +587,26 @@ export class Hex {
 		}
 
 		this.overlay.alpha = targetAlpha ? 1 : 0;
+
+		if (this.overlayClasses.match(/ability/) && this.game.UI.selectedAbility >= 0) {
+			const creatureName = this.game.activeCreature.name;
+			const abilityId = this.game.UI.selectedAbility;
+			// TODO: frame
+			// TODO: resize icon
+			// TODO: black translucent background
+			if (!this.abilityIcon) {
+				const x = this.displayPos.x - 30;
+				const y = this.displayPos.y - 50;
+				this.abilityIcon = this.grid.overlayHexesGroup.create(x, y, `${creatureName} ${abilityId}`);
+			} else {
+				this.abilityIcon.loadTexture(`${creatureName} ${abilityId}`);
+			}
+			this.abilityIcon.alpha = 1;
+		} else {
+			if (this.abilityIcon) {
+				this.abilityIcon.alpha = 0;
+			}
+		}
 	}
 
 	/**
