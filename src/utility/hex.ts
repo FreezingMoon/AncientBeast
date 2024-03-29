@@ -93,6 +93,8 @@ export class Hex {
 	display: Phaser.Sprite;
 	overlay: Phaser.Sprite;
 	abilityIcon?: Phaser.Sprite;
+	abilityFrame: Phaser.Sprite;
+	abilityFrameBackground: Phaser.Sprite;
 	coordText: Phaser.Text;
 
 	/**
@@ -167,6 +169,23 @@ export class Hex {
 
 			this.overlay = grid.overlayHexesGroup.create(x, y, 'hex');
 			this.overlay.alpha = 0;
+
+			this.abilityFrame = grid.game.Phaser.add.sprite(0, 0, 'frame');
+			this.abilityFrame.anchor.setTo(0, 0);
+			this.abilityFrame.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+			this.abilityFrame.alpha = 0;
+
+			const frameBackground = grid.game.Phaser.add.bitmapData(
+				this.abilityFrame.width,
+				this.abilityFrame.height,
+			);
+			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
+			this.abilityFrameBackground = grid.overlayHexesGroup.create(x + 10, y - 150, frameBackground);
+			this.abilityFrameBackground.addChild(this.abilityFrame);
+			this.abilityFrameBackground.anchor.setTo(0, 0);
+			this.abilityFrameBackground.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+			this.abilityFrameBackground.alpha = 0;
 
 			// Binding Events
 			this.hitBox.events.onInputOver.add(() => {
@@ -591,20 +610,24 @@ export class Hex {
 		if (this.overlayClasses.match(/ability/) && this.game.UI.selectedAbility >= 0) {
 			const creatureName = this.game.activeCreature.name;
 			const abilityId = this.game.UI.selectedAbility;
-			// TODO: frame
-			// TODO: resize icon
-			// TODO: black translucent background
 			if (!this.abilityIcon) {
-				const x = this.displayPos.x - 30;
-				const y = this.displayPos.y - 50;
+				const x = this.originalDisplayPos.x;
+				const y = this.originalDisplayPos.y - 150;
 				this.abilityIcon = this.grid.overlayHexesGroup.create(x, y, `${creatureName} ${abilityId}`);
+				this.abilityIcon.anchor.setTo(0, 0);
+				this.abilityIcon.setScaleMinMax(0.63, 0.63, 0.63, 0.63);
 			} else {
 				this.abilityIcon.loadTexture(`${creatureName} ${abilityId}`);
+				this.grid.overlayHexesGroup.bringToTop(this.abilityIcon);
 			}
 			this.abilityIcon.alpha = 1;
+			this.abilityFrame.alpha = 1;
+			this.abilityFrameBackground.alpha = 1;
 		} else {
 			if (this.abilityIcon) {
 				this.abilityIcon.alpha = 0;
+				this.abilityFrame.alpha = 0;
+				this.abilityFrameBackground.alpha = 0;
 			}
 		}
 	}
