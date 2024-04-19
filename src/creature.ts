@@ -647,6 +647,20 @@ export class Creature {
 						return;
 					}
 
+					if (game.grid.materialize_overlay) {
+						const creature = game.retrieveCreatureStats(game.activeCreature.type);
+						game.Phaser.add
+							.tween(game.grid.materialize_overlay)
+							.to(
+								{
+									alpha: 0,
+								},
+								creature.animation.walk_speed,
+								Phaser.Easing.Linear.None,
+							)
+							.start();
+					}
+
 					game.gamelog.add({
 						action: 'move',
 						target: {
@@ -697,6 +711,8 @@ export class Creature {
 		};
 
 		const selectFlying = function (hex, args) {
+			const creature = game.retrieveCreatureStats(game.activeCreature.type);
+			game.grid.previewCreature(hex, creature, game.activePlayer);
 			args.creature.tracePosition({
 				x: hex.x,
 				y: hex.y,
@@ -738,11 +754,13 @@ export class Creature {
 	 */
 	previewPosition(hex: Hex) {
 		const game = this.game;
-
 		game.grid.cleanOverlay('hover h_player' + this.team);
 		if (!game.grid.hexes[hex.y][hex.x].isWalkable(this.size, this.id)) {
 			return; // Break if not walkable
 		}
+
+		const creat = game.retrieveCreatureStats(game.activeCreature.type);
+		game.grid.previewCreature(hex.pos, creat, game.activePlayer);
 
 		this.tracePosition({
 			x: hex.x,
@@ -935,6 +953,8 @@ export class Creature {
 		// Highlight final position
 		const last: any = arrayUtils.last(path);
 
+		const creature = this.game.retrieveCreatureStats(this.game.activeCreature.type);
+		this.game.grid.previewCreature(last, creature, this.game.activePlayer);
 		this.tracePosition({
 			x: last.x,
 			y: last.y,
@@ -951,7 +971,6 @@ export class Creature {
 			displayClass: '',
 			drawOverCreatureTiles: true,
 		};
-
 		args = $j.extend(defaultArgs, args);
 
 		for (let i = 0; i < this.size; i++) {
