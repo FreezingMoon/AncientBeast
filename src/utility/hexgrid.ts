@@ -1609,15 +1609,19 @@ export class HexGrid {
 	previewCreature(pos, creatureData, player) {
 		const game = this.game;
 		const hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
+		const cardboard =
+			creatureData.type == '--'
+				? creatureData.name + game.activePlayer.color + '_cardboard'
+				: creatureData.name + '_cardboard';
 
 		if (!this.materialize_overlay) {
 			// If sprite does not exists
 			// Adding sprite
-			this.materialize_overlay = this.creatureGroup.create(0, 0, creatureData.name + '_cardboard');
+			this.materialize_overlay = this.creatureGroup.create(0, 0, cardboard);
 			this.materialize_overlay.anchor.setTo(0.5, 1);
 			this.materialize_overlay.posy = pos.y;
 		} else {
-			this.materialize_overlay.loadTexture(creatureData.name + '_cardboard');
+			this.materialize_overlay.loadTexture(cardboard);
 			if (this.materialize_overlay.posy != pos.y) {
 				this.materialize_overlay.posy = pos.y;
 				this.orderCreatureZ();
