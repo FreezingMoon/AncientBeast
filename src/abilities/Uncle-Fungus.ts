@@ -212,6 +212,8 @@ export default (G: Game) => {
 								overlayClass: 'creature moveto selected player' + uncle.team,
 							});
 							hex.game.activeCreature.faceHex(hex);
+							const crea = G.retrieveCreatureStats(uncle.type);
+							G.grid.previewCreature(hex.pos, crea, uncle.player);
 						}
 					},
 					fnOnConfirm: (...args) => {
@@ -223,6 +225,7 @@ export default (G: Game) => {
 							return;
 						}
 						this.animation(...args);
+						G.grid.fadeOutTempCreature();
 					},
 					size: uncle.size,
 					flipped: uncle.player.flipped,
@@ -236,7 +239,6 @@ export default (G: Game) => {
 			// activate() :
 			activate: function (hex) {
 				this.end(false, true); // Deferred ending
-
 				// If upgraded and we haven't leapt over creatures/obstacles, allow a second
 				// jump of the same kind
 				if (this.isUpgraded() && !this._isSecondLowJump()) {
