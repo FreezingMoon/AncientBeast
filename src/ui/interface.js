@@ -836,6 +836,7 @@ export class UI {
 
 		this.selectedCreature = creatureType;
 		const stats = game.retrieveCreatureStats(creatureType);
+		if (stats === undefined) return;
 
 		//function to add the name, realm, size etc of the current card in the menu
 		function addCardCharacterInfo() {
@@ -949,7 +950,7 @@ export class UI {
 					.children('#upgrade')
 					.text('Upgrade: ' + stats.ability_info[key].upgrade);
 
-				if (key !== 0) {
+				if (stats.ability_info[key].costs !== undefined && key !== 0) {
 					$ability
 						.children('.wrapper')
 						.children('.info')
@@ -1138,7 +1139,8 @@ export class UI {
 				} else {
 					$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
 				}
-				if (key !== 0) {
+
+				if (stats.ability_info[key].costs !== undefined && key !== 0) {
 					$ability
 						.children('.wrapper')
 						.children('.info')
@@ -1569,6 +1571,10 @@ export class UI {
 
 		if (game.realms.indexOf(creatureType[0]) - 1 > -1) {
 			const realm = game.realms[game.realms.indexOf(creatureType[0]) - 1];
+
+			if (realm === '-') {
+				return;
+			}
 			nextCreature = realm + creatureType[1];
 			this.lastViewedCreature = nextCreature;
 			this.showCreature(nextCreature, this.selectedPlayer);
