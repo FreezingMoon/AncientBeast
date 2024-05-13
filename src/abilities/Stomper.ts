@@ -486,8 +486,8 @@ export default (G: Game) => {
 					id: stomper.id,
 					flipped: stomper.player.flipped,
 					choices: [
-						stomper.getHexMap(matrices.stomperEarthShaker, false),
-						stomper.getHexMap(matrices.stomperEarthShaker, true),
+						stomper.getHexMap(matrices.frontAndBack8Hex, false),
+						stomper.getHexMap(matrices.frontAndBack8Hex, true),
 					],
 				});
 			},
