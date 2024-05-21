@@ -216,6 +216,16 @@ export default (G) => {
 						G.grid.cleanHex(h);
 						h.overlayVisualState('active creature player' + color);
 						h.displayVisualState('creature player' + color);
+
+						const creatureData = G.retrieveCreatureStats(crea.type);
+						const targetData = G.retrieveCreatureStats(trg.type);
+						const creaPos = trgIsInfront ? { x: hex.pos.x - trg.size, y: hex.pos.y } : hex.pos;
+						const trgPos = trgIsInfront
+							? { x: hex.pos.x, y: hex.pos.y }
+							: { x: hex.pos.x - 2, y: hex.pos.y };
+
+						G.grid.previewCreature(creaPos, creatureData, crea.player);
+						G.grid.previewCreature(trgPos, targetData, trg.player, true);
 					}
 				};
 
@@ -223,6 +233,8 @@ export default (G) => {
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
+						G.grid.fadeOutTempCreature();
+						G.grid.fadeOutTempCreature(G.grid.secondary_overlay);
 						ability.animation(...arguments);
 					}, // fnOnConfirm
 					fnOnSelect: select, // fnOnSelect,
@@ -243,6 +255,7 @@ export default (G) => {
 						trgIsInfront: trgIsInfront,
 					},
 					callbackAfterQueryHexes: () => {
+						console.log('cleaning');
 						for (let i = 0; i < trg.hexagons.length; i++) {
 							G.grid.cleanHex(trg.hexagons[i]);
 							trg.hexagons[i].displayVisualState('dashed');

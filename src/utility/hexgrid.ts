@@ -137,6 +137,7 @@ export class HexGrid {
 	selectedHex: Hex;
 	_executionMode: boolean;
 	materialize_overlay: any;
+	secondary_overlay: any;
 	lastQueryOpt: any;
 
 	get allhexes(): Hex[] {
@@ -868,6 +869,9 @@ export class HexGrid {
 		if (this.materialize_overlay) {
 			this.materialize_overlay.alpha = 0;
 		}
+		if (this.secondary_overlay) {
+			this.secondary_overlay.alpha = 0;
+		}
 
 		if (!o.ownCreatureHexShade) {
 			if (o.id instanceof Array) {
@@ -1146,6 +1150,9 @@ export class HexGrid {
 			} else if (!hex.reachable) {
 				if (this.materialize_overlay) {
 					this.materialize_overlay.alpha = 0;
+				}
+				if (this.secondary_overlay) {
+					this.secondary_overlay.alpha = 0;
 				}
 				hex.overlayVisualState('hover');
 
@@ -1606,7 +1613,7 @@ export class HexGrid {
 	 * @param {{x:number, y:number}} pos - Coordinates {x,y}
 	 * @param {object} creatureData - Object containing info from the database (game.retrieveCreatureStats)
 	 */
-	previewCreature(pos, creatureData, player) {
+	previewCreature(pos, creatureData, player, secondary = false) {
 		const game = this.game;
 		const hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
 		const cardboard =
@@ -1614,37 +1621,54 @@ export class HexGrid {
 				? creatureData.name + game.activePlayer.color + '_cardboard'
 				: creatureData.name + '_cardboard';
 
-		if (!this.materialize_overlay) {
-			// If sprite does not exists
-			// Adding sprite
-			this.materialize_overlay = this.creatureGroup.create(0, 0, cardboard);
-			this.materialize_overlay.anchor.setTo(0.5, 1);
-			this.materialize_overlay.posy = pos.y;
-		} else {
-			this.materialize_overlay.loadTexture(cardboard);
-			if (this.materialize_overlay.posy != pos.y) {
+		if (!secondary) {
+			if (!this.materialize_overlay) {
+				// If sprite does not exists
+				// Adding sprite
+				this.materialize_overlay = this.creatureGroup.create(0, 0, cardboard);
+				this.materialize_overlay.anchor.setTo(0.5, 1);
 				this.materialize_overlay.posy = pos.y;
-				this.orderCreatureZ();
+			} else {
+				this.materialize_overlay.loadTexture(cardboard);
+				if (this.materialize_overlay.posy != pos.y) {
+					this.materialize_overlay.posy = pos.y;
+					this.orderCreatureZ();
+				}
+			}
+		} else {
+			if (!this.secondary_overlay) {
+				// If sprite does not exists
+				// Adding sprite
+				this.secondary_overlay = this.creatureGroup.create(0, 0, cardboard);
+				this.secondary_overlay.anchor.setTo(0.5, 1);
+				this.secondary_overlay.posy = pos.y;
+			} else {
+				this.secondary_overlay.loadTexture(cardboard);
+				if (this.secondary_overlay.posy != pos.y) {
+					this.secondary_overlay.posy = pos.y;
+					this.orderCreatureZ();
+				}
 			}
 		}
 
+		const preview = secondary ? this.secondary_overlay : this.materialize_overlay;
+
 		// Placing sprite
-		this.materialize_overlay.x =
+		preview.x =
 			hex.displayPos.x +
 			(!player.flipped
 				? creatureData.display['offset-x']
 				: HEX_WIDTH_PX * creatureData.size -
-				  this.materialize_overlay.texture.width -
+				  preview.texture.width -
 				  creatureData.display['offset-x']) +
-			this.materialize_overlay.texture.width / 2;
-		this.materialize_overlay.y =
-			hex.displayPos.y + creatureData.display['offset-y'] + this.materialize_overlay.texture.height;
-		this.materialize_overlay.alpha = 0.5;
+			preview.texture.width / 2;
+		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + preview.texture.height;
+		preview.alpha = 0.5;
 
 		if (player.flipped) {
-			this.materialize_overlay.scale.setTo(-1, 1);
+			preview.scale.setTo(-1, 1);
 		} else {
-			this.materialize_overlay.scale.setTo(1, 1);
+			preview.scale.setTo(1, 1);
 		}
 
 		for (let i = 0, size = creatureData.size; i < size; i++) {
@@ -1666,13 +1690,13 @@ export class HexGrid {
 		}
 	}
 
-	fadeOutTempCreature() {
+	fadeOutTempCreature(target = this.materialize_overlay) {
 		// TODO: factor out this function. Use either Creature.creatureSprite
 		// or the existing temp creature created by /src/abilities/Dark-Priest.js
-		if (this.materialize_overlay) {
-			this.materialize_overlay.alpha = 0.5;
+		if (target) {
+			target.alpha = 0.5;
 			this.game.Phaser.add
-				.tween(this.materialize_overlay)
+				.tween(target)
 				.to(
 					{
 						alpha: 0,
