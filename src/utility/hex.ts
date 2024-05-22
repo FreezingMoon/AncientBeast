@@ -549,6 +549,10 @@ export class Hex {
 						align: 'center',
 					},
 				);
+				if (this.creature) {
+					this.coordText.stroke = '#ffffff';
+					this.coordText.strokeThickness = 5;
+				}
 				this.coordText.anchor.setTo(0.5);
 				this.grid.overlayHexesGroup.add(this.coordText);
 			}
