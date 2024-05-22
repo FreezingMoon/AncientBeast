@@ -549,7 +549,7 @@ export class Hex {
 						align: 'center',
 					},
 				);
-				if (this.creature) {
+				if (this.creature || this.trap || this.drop) {
 					this.coordText.stroke = '#ffffff';
 					this.coordText.strokeThickness = 5;
 				}
