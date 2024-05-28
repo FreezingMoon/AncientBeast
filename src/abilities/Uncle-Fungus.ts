@@ -218,6 +218,7 @@ export default (G: Game) => {
 					},
 					fnOnConfirm: (...args) => {
 						const chosenHex = args[0];
+
 						if (chosenHex.x == this.creature.x && chosenHex.y == this.creature.y) {
 							// Prevent null movement
 							this.query();
