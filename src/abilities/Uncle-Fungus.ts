@@ -225,6 +225,7 @@ export default (G: Game) => {
 							return;
 						}
 						this.animation(...args);
+						chosenHex.game.activeCreature.faceHex(chosenHex);
 						G.grid.fadeOutTempCreature();
 					},
 					size: uncle.size,
