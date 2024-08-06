@@ -725,6 +725,14 @@ export class Creature {
 			game.grid.querySelf({
 				fnOnConfirm: function () {
 					game.UI.btnSkipTurn.click();
+					
+					const buttonElement = game.UI.btnSkipTurn.$button;
+
+					buttonElement.addClass('bounce');
+
+					setTimeout(() => {
+						buttonElement.removeClass('bounce');
+					}, 1000);
 				},
 				fnOnCancel: function () {},
 				confirmText: 'Skip turn',
