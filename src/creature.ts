@@ -635,56 +635,56 @@ export class Creature {
 		}
 
 		const defaultOptions = {
-				targeting: false,
-				noPath: false,
-				isAbility: false,
-				ownCreatureHexShade: true,
-				range: game.grid.getMovementRange(this.x, this.y, remainingMove, this.size, this.id),
-				callback: function (hex: Hex, args) {
-					if (hex.x == args.creature.x && hex.y == args.creature.y) {
-						// Prevent null movement
-						game.activeCreature.queryMove();
-						return;
-					}
+			targeting: false,
+			noPath: false,
+			isAbility: false,
+			ownCreatureHexShade: true,
+			range: game.grid.getMovementRange(this.x, this.y, remainingMove, this.size, this.id),
+			callback: function (hex: Hex, args) {
+				if (hex.x == args.creature.x && hex.y == args.creature.y) {
+					// Prevent null movement
+					game.activeCreature.queryMove();
+					return;
+				}
 
-					if (game.grid.materialize_overlay) {
-						const creature = game.retrieveCreatureStats(game.activeCreature.type);
-						game.Phaser.add
-							.tween(game.grid.materialize_overlay)
-							.to(
-								{
-									alpha: 0,
-								},
-								creature.animation.walk_speed,
-								Phaser.Easing.Linear.None,
-							)
-							.start();
-					}
+				if (game.grid.materialize_overlay) {
+					const creature = game.retrieveCreatureStats(game.activeCreature.type);
+					game.Phaser.add
+						.tween(game.grid.materialize_overlay)
+						.to(
+							{
+								alpha: 0,
+							},
+							creature.animation.walk_speed,
+							Phaser.Easing.Linear.None,
+						)
+						.start();
+				}
 
-					game.gamelog.add({
-						action: 'move',
+				game.gamelog.add({
+					action: 'move',
+					target: {
+						x: hex.x,
+						y: hex.y,
+					},
+				});
+				if (game.multiplayer) {
+					game.gameplay.moveTo({
 						target: {
 							x: hex.x,
 							y: hex.y,
 						},
 					});
-					if (game.multiplayer) {
-						game.gameplay.moveTo({
-							target: {
-								x: hex.x,
-								y: hex.y,
-							},
-						});
-					}
-					game.UI.btnDelay.changeState('disabled');
-					args.creature.moveTo(hex, {
-						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
-						callback: function () {
-							game.activeCreature.queryMove();
-						},
-					});
-				},
+				}
+				game.UI.btnDelay.changeState('disabled');
+				args.creature.moveTo(hex, {
+					animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
+					callback: function () {
+						game.activeCreature.queryMove();
+					},
+				});
 			},
+		},
 			// overwrite any fields of `defaultOptions` that were provided in `options`
 			o = $j.extend(defaultOptions, options);
 
@@ -729,7 +729,7 @@ export class Creature {
 				fnOnConfirm: function () {
 					game.UI.btnSkipTurn.click();
 				},
-				fnOnCancel: function () {},
+				fnOnCancel: function () { },
 				confirmText: 'Skip turn',
 			});
 		} else {
@@ -1914,8 +1914,8 @@ class CreatureSprite {
 			(dir === 1
 				? this._frameInfo.originX
 				: HEX_WIDTH_PX * this._creatureSize -
-				  this._sprite.texture.width -
-				  this._frameInfo.originX) +
+				this._sprite.texture.width -
+				this._frameInfo.originX) +
 			this._sprite.texture.width / 2;
 		this._healthIndicatorSprite.x = dir === -1 ? 19 : 19 + HEX_WIDTH_PX * (this._creatureSize - 1);
 		this._healthIndicatorText.x =
@@ -2064,7 +2064,7 @@ class CreatureSprite {
 			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 		}
 
-		if (hintType === 'no_action') {
+		if (hintType === 'no_action' || hintType === "confirm") {
 			// Add "Skip turn" frame
 			const frame = this._phaser.add.sprite(0, 50, 'frame');
 			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
