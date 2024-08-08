@@ -157,6 +157,9 @@ export class UI {
 						game.skipTurn();
 						this.lastViewedCreature = '';
 						this.queryUnit = '';
+						const buttonElement = this.btnSkipTurn.$button;
+
+						buttonElement.removeClass('bounce');
 					}
 				},
 			},
