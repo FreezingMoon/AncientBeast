@@ -2064,7 +2064,7 @@ class CreatureSprite {
 			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 		}
 
-		if (hintType === 'no_action') {
+		if (hintType === 'no_action' || hintType === 'confirm') {
 			// Add "Skip turn" frame
 			const frame = this._phaser.add.sprite(0, 50, 'frame');
 			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
