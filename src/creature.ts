@@ -2083,8 +2083,7 @@ class CreatureSprite {
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.start();
 			this._hintGrp.add(combinedSprite);
-
-			// Add "Skip turn" icon
+			console.log("this happened in firefox")
 			const skipTurnIcon = this._phaser.add.sprite(0, 50, 'skip');
 			skipTurnIcon.anchor.setTo(0.5, 0.7); // Give a bit more vertical space
 			skipTurnIcon.setScaleMinMax(0.63, 0.63, 0.63, 0.63);
