@@ -199,7 +199,10 @@
 }
 
 /*p2*/
-#hexesOverlay .displayhex.hover.h_player2 #hexesOverlay .displayhex.creature.player2.ownCreatureHexShade {
+#hexesOverlay
+	.displayhex.hover.h_player2
+	#hexesOverlay
+	.displayhex.creature.player2.ownCreatureHexShade {
 	background: url('~assets/autoload/phaser/interface/hex_p2.png') !important;
 }
 
@@ -210,7 +213,10 @@
 }
 
 /*p3*/
-#hexesOverlay .displayhex.hover.h_player3 #hexesOverlay .displayhex.creature.player3.ownCreatureHexShade {
+#hexesOverlay
+	.displayhex.hover.h_player3
+	#hexesOverlay
+	.displayhex.creature.player3.ownCreatureHexShade {
 	background: url('~assets/autoload/phaser/interface/hex_p3.png') !important;
 }
 
@@ -529,11 +535,9 @@
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
 	transform: translateX(-50%);
-
 	&:hover {
 		transform: translateX(0%);
 	}
-
 	&.slideIn {
 		transform: translateX(0);
 	}
@@ -543,11 +547,9 @@
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
 	transform: translateX(50%);
-
 	&:hover {
 		transform: translateX(0%);
 	}
-
 	&.slideIn {
 		transform: translateX(0);
 	}
@@ -556,7 +558,6 @@
 .card.disabled a.name {
 	cursor: not-allowed;
 }
-
 // Card anchor refactor
 div.section.info {
 	position: relative;
@@ -573,7 +574,6 @@ div.section.info {
 		&.star {
 			vertical-align: baseline;
 		}
-
 		&.type {
 			display: inline-block;
 			font-size: 21px;
@@ -583,7 +583,6 @@ div.section.info {
 			display: inline-block;
 			font-size: 21px;
 		}
-
 		&.hexes {
 			float: right;
 			margin-right: 5%;
@@ -751,7 +750,6 @@ div.section.info {
 #musicplayerwrapper .active a {
 	opacity: 1 !important;
 }
-
 #musicplayerwrapper .active,
 #musicplayerwrapper .active-text a {
 	color: white !important;
@@ -779,7 +777,7 @@ div.section.info {
 	cursor: pointer;
 }
 
-.musicgenres__title+.musicgenres__title {
+.musicgenres__title + .musicgenres__title {
 	padding: 0px;
 }
 
@@ -847,7 +845,7 @@ div.section.info {
 	animation: glowingtext 750ms infinite alternate;
 }
 
-#opencollective_banner>object {
+#opencollective_banner > object {
 	background-color: rgba(0, 0, 0, 0.7);
 	border: 4px ridge;
 	border-color: grey;
@@ -1183,7 +1181,7 @@ div.section.info {
 	transform: translateX(0);
 }
 
-.button+.desc {
+.button + .desc {
 	position: absolute;
 	top: 1px;
 	display: block;
@@ -1195,14 +1193,14 @@ div.section.info {
 	z-index: 1;
 }
 
-.button.hover+.desc {
+.button.hover + .desc {
 	width: 270px;
 	border: 2px black solid;
 	overflow: visible;
 	border-radius: 5px;
 }
 
-.button+.desc span {
+.button + .desc span {
 	display: block;
 	margin: 0;
 	padding: 7px 7px 0;
@@ -1211,14 +1209,14 @@ div.section.info {
 	color: #fff;
 }
 
-.button+.desc p {
+.button + .desc p {
 	margin: 0;
 	padding: 5px 7px 7px;
 	font-size: 14px;
 	color: #ddd;
 }
 
-.button+.desc .message {
+.button + .desc .message {
 	margin: 0;
 	padding: 1px 7px 7px;
 	font-size: 14px;
@@ -1227,14 +1225,14 @@ div.section.info {
 	font-style: italic;
 }
 
-.button+.desc .shortcut {
+.button + .desc .shortcut {
 	font-size: 12px;
 	position: absolute;
 	right: 8px;
 	top: 8px;
 }
 
-.button+.desc .arrow {
+.button + .desc .arrow {
 	height: 0;
 	left: -6px;
 	position: absolute;
@@ -1243,7 +1241,7 @@ div.section.info {
 	width: 0;
 }
 
-.button+.desc .arrow:before {
+.button + .desc .arrow:before {
 	content: '';
 	border-right: 6px solid black;
 	border-top: 8px solid transparent;
@@ -1254,54 +1252,54 @@ div.section.info {
 	width: 0;
 }
 
-#rightpanel .button+.desc .arrow {
+#rightpanel .button + .desc .arrow {
 	right: 0;
 	left: auto;
 }
 
-#rightpanel .button+.desc .shortcut {
+#rightpanel .button + .desc .shortcut {
 	left: 8px;
 	right: auto;
 }
 
-#rightpanel .button+.desc .arrow:before {
+#rightpanel .button + .desc .arrow:before {
 	border-right: 0 solid transparent;
 	border-left: 6px solid black;
 }
 
-#rightpanel .button.hover+.desc {
+#rightpanel .button.hover + .desc {
 	width: 250px;
 	left: -259px;
 	text-align: right;
 }
 
 /*-----------------Costs and Damages-------------------*/
-.abilityinfo_content>.info {
+.abilityinfo_content > .info {
 	margin: 2px 10px;
 	font-size: 14px;
 }
 
-.abilityinfo_content>.info.costs {
+.abilityinfo_content > .info.costs {
 	color: #ddd;
 	text-shadow: 1px 1px 0 #55f;
 }
 
-.abilityinfo_content>.info.damages {
+.abilityinfo_content > .info.damages {
 	color: #ddd;
 	text-shadow: 1px 1px 0 #f55;
 }
 
-.abilityinfo_content>.info.charge {
+.abilityinfo_content > .info.charge {
 	color: #fff;
 	text-shadow: 1px 1px 0 #f5f;
 }
 
-.abilityinfo_content>.info.special {
+.abilityinfo_content > .info.special {
 	color: #ddd;
 	text-shadow: 1px 1px 0 #ff5;
 }
 
-.abilityinfo_content>.info.upgrade {
+.abilityinfo_content > .info.upgrade {
 	color: #ddd;
 	text-shadow: 1px 1px 0 #5a5;
 }
@@ -1435,7 +1433,6 @@ span.pure {
 		opacity: 0.3;
 		transform: translate(-10px, 0px);
 	}
-
 	100% {
 		opacity: 1;
 		transform: translate(0px, 0px);
@@ -1446,11 +1443,9 @@ span.pure {
 	0% {
 		transform: translateX(0);
 	}
-
 	50% {
 		transform: translateX(-10px);
 	}
-
 	100% {
 		transform: translateX(0);
 	}
@@ -1581,14 +1576,12 @@ span.pure {
 			justify-content: center;
 			margin-top: 20px;
 			margin-bottom: 50px;
-
 			#flee,
 			#exit {
 				margin-left: auto;
 				margin-right: auto;
 			}
-
-			.button+.desc {
+			.button + .desc {
 				visibility: hidden;
 				position: relative;
 				top: 1px;
@@ -1599,22 +1592,20 @@ span.pure {
 				background: rgba(0, 0, 0, 0.7);
 				overflow: hidden;
 			}
-
-			.button.hover+.desc {
+			.button.hover + .desc {
 				visibility: visible;
 				left: -186px;
 				top: -80px;
 				text-align: right;
 			}
-
-			.button.hover+.desc {
+			.button.hover + .desc {
 				width: 270px;
 				border: 2px black solid;
 				overflow: visible;
 				border-radius: 5px;
 			}
 
-			.button+.desc span {
+			.button + .desc span {
 				display: block;
 				margin: 0;
 				padding: 7px 7px 0;
@@ -1623,14 +1614,14 @@ span.pure {
 				color: #fff;
 			}
 
-			.button+.desc p {
+			.button + .desc p {
 				margin: 0;
 				padding: 5px 7px 7px;
 				font-size: 14px;
 				color: #ddd;
 			}
 
-			.button+.desc .message {
+			.button + .desc .message {
 				margin: 0;
 				padding: 1px 7px 7px;
 				font-size: 14px;
@@ -1639,14 +1630,14 @@ span.pure {
 				font-style: italic;
 			}
 
-			.button+.desc .shortcut {
+			.button + .desc .shortcut {
 				font-size: 12px;
 				position: absolute;
 				right: 8px;
 				top: 8px;
 			}
 
-			.button+.desc .arrow {
+			.button + .desc .arrow {
 				height: 0;
 				left: -6px;
 				position: absolute;
@@ -1654,7 +1645,7 @@ span.pure {
 				width: 0;
 			}
 
-			.button+.desc .arrow:before {
+			.button + .desc .arrow:before {
 				content: '';
 				border-right: 6px solid black;
 				border-top: 8px solid transparent;
@@ -1664,18 +1655,17 @@ span.pure {
 				position: absolute;
 				width: 0;
 			}
-
-			.button+.desc .arrow {
+			.button + .desc .arrow {
 				right: 0;
 				left: auto;
 			}
 
-			.button+.desc .shortcut {
+			.button + .desc .shortcut {
 				left: 8px;
 				right: auto;
 			}
 
-			.button+.desc .arrow:before {
+			.button + .desc .arrow:before {
 				border-right: 0 solid transparent;
 				border-left: 6px solid black;
 			}
@@ -1728,7 +1718,7 @@ span.pure {
 				text-indent: -9999px;
 			}
 
-			.button+.desc {
+			.button + .desc {
 				// Tooltips are hard to read at regular opacity when appearing over white icons.
 				background: rgba(0, 0, 0, 0.85);
 			}
@@ -1895,23 +1885,18 @@ input {
 	#fullscreen {
 		transform: scale(0.55) translate(35px, -45px);
 	}
-
 	#version {
 		transform: scale(0.55) translate(35px, 46px);
 	}
-
 	#start {
 		transform: scale(0.55) translate(35px, -109px) !important;
 	}
-
 	#websiteButton {
 		transform: scale(0.6) translate(-35px, -48px);
 	}
-
 	#contribute {
 		transform: scale(0.5) translate(-70px, 95px);
 	}
-
 	.setupFrame {
 		transform: scale(0.6) translateY(-100px);
 	}
@@ -1921,23 +1906,18 @@ input {
 	#fullscreen {
 		transform: scale(0.8) translate(4px, -11px);
 	}
-
 	#version {
 		transform: scale(0.8) translate(4px, 7px);
 	}
-
 	#start {
 		transform: scale(0.8) translate(4px, -74px) !important;
 	}
-
 	#websiteButton {
 		transform: scale(1);
 	}
-
 	#contribute {
 		transform: scale(0.7) translate(-31px, 39px);
 	}
-
 	.setupFrame {
 		transform: scale(0.75) translateY(-27px);
 	}
@@ -1947,23 +1927,18 @@ input {
 	#fullscreen {
 		transform: scale(0.7) translate(17px, -23px);
 	}
-
 	#version {
 		transform: scale(0.7) translate(17px, 25px);
 	}
-
 	#start {
 		transform: scale(0.7) translate(17px, -83px) !important;
 	}
-
 	#websiteButton {
 		transform: scale(0.75) translate(-16px, -22px);
 	}
-
 	#contribute {
 		transform: scale(0.6) translate(-52px, 62px);
 	}
-
 	.setupFrame {
 		transform: scale(0.7) translateY(-27px);
 	}
@@ -1973,23 +1948,18 @@ input {
 	#fullscreen {
 		transform: scale(1);
 	}
-
 	#version {
 		transform: scale(1);
 	}
-
 	#start {
 		transform: scale(1) translateY(-58px) !important;
 	}
-
 	#websiteButton {
 		transform: scale(1);
 	}
-
 	#contribute {
 		transform: scale(0.9) translate(-15px, 10px);
 	}
-
 	.setupFrame {
 		transform: scale(0.85);
 	}
@@ -2002,23 +1972,18 @@ input {
 			transform: scale(0.55) translate(121px, -31px);
 		}
 	}
-
 	#queue {
 		transform: scale(0.55) translate(-335px, -40px);
 	}
-
 	#bottompanel {
 		transform: scale(0.55);
 	}
-
 	#leftpanel {
 		transform: scale(0.55) translate(-32px, -130px);
 	}
-
 	#rightpanel {
 		transform: scale(0.55) translate(48px, -212px);
 	}
-
 	#playerbutton {
 		transform: scale(0.55) translate(39px, -39px);
 	}
@@ -2032,16 +1997,13 @@ input {
 		position: relative;
 		margin: auto !important;
 		transform: scale(0.8);
-
 		// transpose the content of the scoreboard
 		tr {
 			display: block;
 			float: left;
-
 			td {
 				display: block;
 				padding: 5px !important;
-
 				.tooltiptext {
 					right: -25px !important;
 					bottom: 30px !important;
@@ -2049,7 +2011,6 @@ input {
 			}
 		}
 	}
-
 	#return {
 		height: 70px !important;
 		width: 70px !important;
@@ -2060,25 +2021,20 @@ input {
 	#queue {
 		transform: scale(0.7) translate(-174px, -20px);
 	}
-
 	#ui {
 		#fullscreen {
 			transform: scale(0.7) translate(63px, -16px);
 		}
 	}
-
 	#playerbutton {
 		transform: scale(0.7) translate(20px, -20px);
 	}
-
 	#leftpanel {
 		transform: scale(0.7) translate(-16px, -68px);
 	}
-
 	#rightpanel {
 		transform: scale(0.7) translate(25px, -111px);
 	}
-
 	#bottompanel {
 		transform: scale(0.7);
 	}
@@ -2092,12 +2048,10 @@ input {
 		transform: scale(0.9);
 		position: relative;
 		margin: auto !important;
-
 		// transpose the content of the scoreboard
 		tr {
 			display: block;
 			float: left;
-
 			td {
 				display: block;
 				padding: 6px !important;
@@ -2109,13 +2063,11 @@ input {
 			}
 		}
 	}
-
 	#return {
 		height: 80px !important;
 		width: 80px !important;
 	}
 }
-
 #banner {
 	font-size: 31px;
 	position: absolute;
