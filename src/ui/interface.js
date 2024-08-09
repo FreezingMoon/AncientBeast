@@ -1165,7 +1165,7 @@ export class UI {
 			$j('#card .sideA').addClass('disabled').off('click');
 
 			// OpenCollective Banner
-			let bannerTitles = ['sponsor', 'backer', 'helper'];
+			const bannerTitles = ['sponsor', 'backer', 'helper'];
 			$j('#opencollective_banner > object').attr(
 				'data',
 				`https://opencollective.com/ancientbeast/tiers/${
