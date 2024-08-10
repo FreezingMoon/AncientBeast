@@ -687,6 +687,7 @@ export class Creature {
 			},
 			// overwrite any fields of `defaultOptions` that were provided in `options`
 			o = $j.extend(defaultOptions, options);
+			
 			if (!o.isAbility) {
 				if (game.UI.selectedAbility !== -1) {
 					this.hint('Canceled', 'gamehintblack');
