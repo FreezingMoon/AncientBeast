@@ -687,17 +687,15 @@ export class Creature {
 			},
 			// overwrite any fields of `defaultOptions` that were provided in `options`
 			o = $j.extend(defaultOptions, options);
-
-		if (!o.isAbility) {
-			if (game.UI.selectedAbility != -1) {
-				this.hint('Canceled', 'gamehintblack');
-			}
-
+			if (!o.isAbility) {
+				if (game.UI.selectedAbility !== -1) {
+					this.hint('Canceled', 'gamehintblack');
+				}
 			$j('#abilities .ability').removeClass('active');
 			game.UI.selectAbility(-1);
 			game.UI.updateQueueDisplay();
 		}
-
+		
 		game.grid.orderCreatureZ();
 		this.facePlayerDefault();
 		this.updateHealth();
@@ -2048,7 +2046,57 @@ class CreatureSprite {
 		hint.data.hintType = hintType;
 		hint.data.tweenAlpha = null;
 		hint.data.tweenPos = null;
+		let visited = 0
+		if(hintType === 'gamehintblack')
+		{
+			const frame = this._phaser.add.sprite(0, 50, 'frame');
+			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
+			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
+			frameBackground.draw('frame', 0, 0);
 
+			const combinedSprite = this._phaser.add.sprite(0, 50, frameBackground);
+			combinedSprite.anchor.setTo(0.5, 0.175);
+			combinedSprite.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+			combinedSprite.alpha = 0;
+			combinedSprite.data = {
+				hintType: hintType,
+				tweenAlpha: null,
+				tweenPos: null
+			};
+
+			this._hintGrp.add(combinedSprite);
+
+			combinedSprite.data.tweenAlpha = this._phaser.add.tween(combinedSprite)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition, false, tooltipDisplaySpeed)
+				.start();
+
+			combinedSprite.data.tweenAlpha.onComplete.add(() => combinedSprite.destroy());
+
+			const cancelIcon = this._phaser.add.sprite(0, 50, 'cancel_icon');
+			cancelIcon.anchor.setTo(0.5, 0.7); // Give a bit more vertical space
+			cancelIcon.setScaleMinMax(0.63, 0.63, 0.63, 0.63);
+			cancelIcon.alpha = 0;
+			cancelIcon.data = {
+				hintType: hintType,
+				tweenAlpha: null,
+				tweenPos: null
+			};
+
+			this._hintGrp.add(cancelIcon);
+
+			// Create a fade-in tween for the skip turn icon
+			cancelIcon.data.tweenAlpha = this._phaser.add.tween(cancelIcon)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition, false, tooltipDisplaySpeed)
+				.start();
+
+			cancelIcon.data.tweenAlpha.onComplete.add(() => cancelIcon.destroy());
+
+		}
+
+		
 		if (hintType === 'confirm' || hintType === 'no_action') {
 			hint.data.tweenAlpha = this._phaser.add
 				.tween(hint)
