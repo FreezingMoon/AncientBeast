@@ -276,21 +276,35 @@ export class UI {
 								return false;
 							}
 
+							// Show cancel icon if the button is either diabled or hidden or noclick
+							if (['disabled', 'hidden', 'noclick'].includes(b.state)) {
+								b.cssTransition('cancelIcon', 500);
+							}
+
 							const ability = game.activeCreature.abilities[i];
 							// Passive ability icon can cycle between usable abilities
 							if (i == 0) {
+								// Show cancel icon first
+								b.cssTransition('cancelIcon', 500);
+
+								// Then, move to next icon
 								const selectedAbility = this.selectNextAbility();
-								if (selectedAbility > 0) {
+								setTimeout(() => {
+									if (selectedAbility > 0) {
 									b.cssTransition('nextIcon', 1000);
-								}
+								    }
+								}, 500);
 								return;
 							}
 							// Colored frame around selected ability
 							if (ability.require() == true && i != 0) {
 								this.selectAbility(i);
 							}
-							// Activate Ability
-							game.activeCreature.abilities[i].use();
+							// Activate Ability | Delay the use to make cancel and next icons detectable 
+							setTimeout(() => {
+								game.activeCreature.abilities[i].use();
+							}, 1000);
+
 						} else {
 							// Cancel Ability
 							this.closeDash();
