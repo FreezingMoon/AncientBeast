@@ -1574,7 +1574,7 @@ export default class Game {
 	}
 
 	resetGame() {
-		this.endGameSound.pause();
+		this.endGameSound;
 		this.UI.showGameSetup();
 		this.stopTimer();
 		this.players = [];
