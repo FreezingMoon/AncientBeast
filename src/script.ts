@@ -93,6 +93,12 @@ $j(() => {
 	const fullscreen = new Fullscreen(document.getElementById('fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' && document.fullscreenElement) {
+			event.preventDefault();
+		}
+	});
+
 	const startScreenHotkeys = {
 		Space: {
 			keyDownTest() {
