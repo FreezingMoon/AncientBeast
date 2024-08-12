@@ -270,10 +270,10 @@ export class UI {
 					$button: $j('.ability[ability="' + i + '"]'),
 					hasShortcut: true,
 					click: () => {
-						if(this.clickedAbility === -1)
-						{
+					
+						
 							this.clickedAbility = i;
-						}
+						
 						const game = this.game;
 						if (this.selectedAbility != i) {
 							if (this.dashopen) {
@@ -283,10 +283,26 @@ export class UI {
 							const ability = game.activeCreature.abilities[i];
 							// Passive ability icon can cycle between usable abilities
 							if (i == 0) {
+								// Joywin
 								const selectedAbility = this.selectNextAbility();
+								
 								if (selectedAbility > 0) {
 									b.cssTransition('nextIcon', 1000);
 								}
+								else if(selectedAbility === -1)
+								{
+									
+									const self = this;
+									self.abilitiesButtons.forEach((btn, index) => {
+									console.log(self.clickedAbility);
+									const creature = game.activeCreature;
+									if (self.clickedAbility === index) {
+										b.cssTransition('cancelIcon', 1000);
+										this.clickedAbility = -1;
+									}
+									});
+								}
+
 								return;
 							}
 							// Colored frame around selected ability
@@ -1524,40 +1540,8 @@ export class UI {
 		const game = this.game,
 			creature = game.activeCreature;
 
-		if (this.$dash.hasClass('active')) {
-            const self = this;
-        	self.abilitiesButtons.forEach((btn, index) => {
-            console.log(index);
-            console.log(self.clickedAbility);
-
-            if (self.clickedAbility === index) {
-				console.log("Clicked ability found");
-                const getImage = btn.css.normal['background-image'];
-                const btnNow = btn;
-                
-                // Set the initial background image
-                btnNow.css.normal = {
-                    'background-image': `url('${getUrl('icons/cancel')}')`
-                };
-
-                // Apply the initial background image to the button element
-                $j(btnNow).css('background-image', btnNow.css.normal['background-image']);
-                console.log($j(btnNow))
-                setTimeout(function() {
-                    
-                console.log(btnNow)
-                console.log(getImage);
-                    $j(btnNow.$button).css('background-image', `url('${getUrl(
-                            'units/abilities/' + creature.name + ' ' + index,
-                        )}')`);
-                    console.log($j(btnNow))
-                    console.log("Background image updated");
-                }, 1000);
-                
-                // Reset the clickedAbility property
-                self.clickedAbility = -1;
-            }
-        });
+			if (this.$dash.hasClass('active')) {
+			this.clickedAbility = -1;
 			this.closeDash();
 			return;
 		}
