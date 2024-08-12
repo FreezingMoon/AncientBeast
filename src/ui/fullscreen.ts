@@ -1,13 +1,12 @@
 export class Fullscreen {
 	private button: HTMLElement;
-	private fullscreenElementId = 'AncientBeast';
 
 	constructor(button: HTMLElement, isFullscreen = false) {
 		this.button = button;
 		if (isFullscreen) {
 			button.classList.add('fullscreenMode');
 		}
-		this.preventEscExit();
+		this.disableEscKey();
 	}
 
 	toggle() {
@@ -20,25 +19,15 @@ export class Fullscreen {
 		} else if (!isAppInNativeFullscreenMode() && window.innerHeight === screen.height) {
 			alert('Use F11 to exit fullscreen');
 		} else {
-			this.enterFullscreen();
+			this.button.classList.add('fullscreenMode');
+			this.button
+				.querySelectorAll('.fullscreen__title')
+				.forEach((el) => (el.textContent = 'Contract'));
+			document.getElementById('AncientBeast').requestFullscreen();
 		}
 	}
 
-	private enterFullscreen() {
-		this.button.classList.add('fullscreenMode');
-		this.button
-			.querySelectorAll('.fullscreen__title')
-			.forEach((el) => (el.textContent = 'Contract'));
-		document.getElementById(this.fullscreenElementId)?.requestFullscreen();
-	}
-
-	private preventEscExit() {
-		document.addEventListener('fullscreenchange', () => {
-			if (!isAppInNativeFullscreenMode()) {
-				this.enterFullscreen();
-			}
-		});
-
+	private disableEscKey() {
 		document.addEventListener('keydown', (event) => {
 			if (event.key === 'Escape' || event.key === 'Esc') {
 				event.preventDefault();
