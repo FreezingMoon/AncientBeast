@@ -12,10 +12,7 @@ import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 import { HEX_WIDTH_PX, hashOffsetCoords, offsetCoordsToPx, offsetNeighbors } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
-// Joywin
 import { UnitDisplayInfo, UnitSize } from './data/units';
-import { UI } from './ui/interface';
-import { getUrl } from './assets';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -254,6 +251,7 @@ export class Creature {
 			// Extra energy required for abilities
 			reqEnergy: 0,
 		};
+
 		this.stats = {
 			...this.baseStats,
 
@@ -690,29 +688,16 @@ export class Creature {
 			// overwrite any fields of `defaultOptions` that were provided in `options`
 			o = $j.extend(defaultOptions, options);
 
-			if (!o.isAbility) {
-				if (game.UI.selectedAbility !== -1) {
-					this.hint('Canceled', 'gamehintblack');
-				}
+		if (!o.isAbility) {
+			if (game.UI.selectedAbility != -1) {
+				this.hint('Canceled', 'gamehintblack');
+			}
+
 			$j('#abilities .ability').removeClass('active');
-			let abilitiesButtons = $j('#abilities .ability');
-console.log(abilitiesButtons); // Logs the jQuery object containing the elements
-
-abilitiesButtons.each(function(index, element) {
-
-    // $j(this).css('background-image', 'none !important');
-	$j(this).css('color', 'green');
-	$j(this).css('cursor', 'help');
-
-	console.log(this); // Logs the individual element
-
-
-    $j(this).css('background-image', `icons/cancel.svg`);
-});
 			game.UI.selectAbility(-1);
 			game.UI.updateQueueDisplay();
 		}
-		
+
 		game.grid.orderCreatureZ();
 		this.facePlayerDefault();
 		this.updateHealth();
@@ -1793,7 +1778,6 @@ class CreatureSprite {
 		this._phaser = phaser;
 		this._creatureSize = size;
 		this._creatureTeam = team;
-		// Joywin
 		this._frameInfo = { originX: display['offset-x'], originY: display['offset-y'] };
 
 		const group: Phaser.Group = phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
@@ -2064,13 +2048,7 @@ class CreatureSprite {
 		hint.data.hintType = hintType;
 		hint.data.tweenAlpha = null;
 		hint.data.tweenPos = null;
-		
-		const $abilitiesButtons = $j('#abilities .ability');
-		// Joywin
-		if(hintType ==='gamehintblack')
-		{
-			
-		}
+
 		if (hintType === 'confirm' || hintType === 'no_action') {
 			hint.data.tweenAlpha = this._phaser.add
 				.tween(hint)

@@ -272,14 +272,14 @@ export class UI {
 					click: () => {
 						if(this.clickedAbility === -1)
 						{
-						this.clickedAbility = i;
+							this.clickedAbility = i;
 						}
-						console.log("Click happened",i)
 						const game = this.game;
 						if (this.selectedAbility != i) {
 							if (this.dashopen) {
 								return false;
 							}
+
 							const ability = game.activeCreature.abilities[i];
 							// Passive ability icon can cycle between usable abilities
 							if (i == 0) {
@@ -291,7 +291,6 @@ export class UI {
 							}
 							// Colored frame around selected ability
 							if (ability.require() == true && i != 0) {
-								// Joywin2
 								this.selectAbility(i);
 							}
 							// Activate Ability
@@ -581,7 +580,6 @@ export class UI {
 		this.selectedPlayer = 0;
 		this.selectedAbility = -1;
 		this.clickedAbility = -1;
-
 		this.queueAnimSpeed = 500; // ms
 		this.dashAnimSpeed = 250; // ms
 
@@ -636,10 +634,7 @@ export class UI {
 	 * @param {object} payload Event payload.
 	 */
 	_handleUiEvent(message, payload) {
-		// Joywin2
 		if (message === 'toggleDash') {
-			
-			console.log("Hi")
 			this.toggleDash();
 			this.closeMusicPlayer();
 			this.closeScoreboard();
@@ -1526,49 +1521,43 @@ export class UI {
 	 * @param{boolean} [randomize] - True selects a random creature from the grid.
 	 */
 	toggleDash(randomize) {
-		
 		const game = this.game,
-			creature = game.activeCreature;		
+			creature = game.activeCreature;
+
 		if (this.$dash.hasClass('active')) {
-// 			let abilitiesButtons = $j('#abilities .ability');
-// console.log(abilitiesButtons); // Logs the jQuery object containing the elements
+            const self = this;
+        	self.abilitiesButtons.forEach((btn, index) => {
+            console.log(index);
+            console.log(self.clickedAbility);
 
-// Capture the context of 'this'
-const self = this;
-// Joywin
-self.abilitiesButtons.forEach((btn, index) => {
-    console.log(index);
-    console.log(self.clickedAbility);
+            if (self.clickedAbility === index) {
+				console.log("Clicked ability found");
+                const getImage = btn.css.normal['background-image'];
+                const btnNow = btn;
+                
+                // Set the initial background image
+                btnNow.css.normal = {
+                    'background-image': `url('${getUrl('icons/cancel')}')`
+                };
 
-    if (self.clickedAbility === index) {
-        const getImage = btn.css.normal['background-image'];
-        const btnNow = btn;
-        
-        // Set the initial background image
-        btnNow.css.normal = {
-            'background-image': `url('${getUrl('icons/cancel')}')`
-        };
-
-        // Apply the initial background image to the button element
-        $j(btnNow).css('background-image', btnNow.css.normal['background-image']);
-        console.log($j(btnNow))
-        setTimeout(function() {
-            
-          console.log(btnNow)
-		  console.log(getImage);
-            $j(btnNow.$button).css('background-image', `url('${getUrl(
-					'units/abilities/' + creature.name + ' ' + btn.abilityId,
-				)}')`);
-            console.log($j(btnNow))
-            console.log("Background image updated");
-        }, 1000);
-        
-        // Reset the clickedAbility property
-        self.clickedAbility = -1;
-    }
-});
-
-
+                // Apply the initial background image to the button element
+                $j(btnNow).css('background-image', btnNow.css.normal['background-image']);
+                console.log($j(btnNow))
+                setTimeout(function() {
+                    
+                console.log(btnNow)
+                console.log(getImage);
+                    $j(btnNow.$button).css('background-image', `url('${getUrl(
+                            'units/abilities/' + creature.name + ' ' + index,
+                        )}')`);
+                    console.log($j(btnNow))
+                    console.log("Background image updated");
+                }, 1000);
+                
+                // Reset the clickedAbility property
+                self.clickedAbility = -1;
+            }
+        });
 			this.closeDash();
 			return;
 		}
@@ -1827,19 +1816,15 @@ self.abilitiesButtons.forEach((btn, index) => {
 	/**
 	 * Change ability buttons and bind events
 	 */
-	changeAbilityButtons(intent = 'ok') {
-
-
+	changeAbilityButtons() {
 		const game = this.game,
 			creature = game.activeCreature;
 		this.abilitiesButtons.forEach((btn) => {
 			const ab = creature.abilities[btn.abilityId];
-			// Joywin
 			btn.css.normal = {
-			'background-image': `url('${getUrl(
+				'background-image': `url('${getUrl(
 					'units/abilities/' + creature.name + ' ' + btn.abilityId,
 				)}')`,
-		
 			};
 			const $desc = btn.$button.next('.desc');
 			$desc.find('span.title').text(ab.title);
