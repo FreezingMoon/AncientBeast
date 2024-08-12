@@ -146,7 +146,7 @@ module.exports = (env, argv) => {
 		},
 		devServer: {
 			static: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : './',
-			port: 8080,
+			port: 8090,
 			proxy: {
 				'/api': '159.65.232.104:7350',
 			},

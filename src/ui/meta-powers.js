@@ -83,6 +83,7 @@ export class MetaPowers {
 			{
 				$button: this.$els.closeModal,
 				click: () => this._toggleModal(),
+				// Joywin
 			},
 			this.game,
 		);

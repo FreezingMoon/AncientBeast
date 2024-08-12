@@ -12,7 +12,10 @@ import { Damage } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 import { HEX_WIDTH_PX, hashOffsetCoords, offsetCoordsToPx, offsetNeighbors } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
+// Joywin
 import { UnitDisplayInfo, UnitSize } from './data/units';
+import { UI } from './ui/interface';
+import { getUrl } from './assets';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -251,7 +254,6 @@ export class Creature {
 			// Extra energy required for abilities
 			reqEnergy: 0,
 		};
-
 		this.stats = {
 			...this.baseStats,
 
@@ -687,12 +689,26 @@ export class Creature {
 			},
 			// overwrite any fields of `defaultOptions` that were provided in `options`
 			o = $j.extend(defaultOptions, options);
-			
+
 			if (!o.isAbility) {
 				if (game.UI.selectedAbility !== -1) {
 					this.hint('Canceled', 'gamehintblack');
 				}
 			$j('#abilities .ability').removeClass('active');
+			let abilitiesButtons = $j('#abilities .ability');
+console.log(abilitiesButtons); // Logs the jQuery object containing the elements
+
+abilitiesButtons.each(function(index, element) {
+
+    // $j(this).css('background-image', 'none !important');
+	$j(this).css('color', 'green');
+	$j(this).css('cursor', 'help');
+
+	console.log(this); // Logs the individual element
+
+
+    $j(this).css('background-image', `icons/cancel.svg`);
+});
 			game.UI.selectAbility(-1);
 			game.UI.updateQueueDisplay();
 		}
@@ -1777,6 +1793,7 @@ class CreatureSprite {
 		this._phaser = phaser;
 		this._creatureSize = size;
 		this._creatureTeam = team;
+		// Joywin
 		this._frameInfo = { originX: display['offset-x'], originY: display['offset-y'] };
 
 		const group: Phaser.Group = phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
@@ -2047,57 +2064,13 @@ class CreatureSprite {
 		hint.data.hintType = hintType;
 		hint.data.tweenAlpha = null;
 		hint.data.tweenPos = null;
-		let visited = 0
-		if(hintType === 'gamehintblack')
-		{
-			const frame = this._phaser.add.sprite(0, 50, 'frame');
-			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
-			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
-			frameBackground.draw('frame', 0, 0);
-
-			const combinedSprite = this._phaser.add.sprite(0, 50, frameBackground);
-			combinedSprite.anchor.setTo(0.5, 0.175);
-			combinedSprite.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
-			combinedSprite.alpha = 0;
-			combinedSprite.data = {
-				hintType: hintType,
-				tweenAlpha: null,
-				tweenPos: null
-			};
-
-			this._hintGrp.add(combinedSprite);
-
-			combinedSprite.data.tweenAlpha = this._phaser.add.tween(combinedSprite)
-				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
-				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition, false, tooltipDisplaySpeed)
-				.start();
-
-			combinedSprite.data.tweenAlpha.onComplete.add(() => combinedSprite.destroy());
-
-			const cancelIcon = this._phaser.add.sprite(0, 50, 'cancel_icon');
-			cancelIcon.anchor.setTo(0.5, 0.7); // Give a bit more vertical space
-			cancelIcon.setScaleMinMax(0.63, 0.63, 0.63, 0.63);
-			cancelIcon.alpha = 0;
-			cancelIcon.data = {
-				hintType: hintType,
-				tweenAlpha: null,
-				tweenPos: null
-			};
-
-			this._hintGrp.add(cancelIcon);
-
-			// Create a fade-in tween for the skip turn icon
-			cancelIcon.data.tweenAlpha = this._phaser.add.tween(cancelIcon)
-				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
-				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition, false, tooltipDisplaySpeed)
-				.start();
-
-			cancelIcon.data.tweenAlpha.onComplete.add(() => cancelIcon.destroy());
-
-		}
-
 		
+		const $abilitiesButtons = $j('#abilities .ability');
+		// Joywin
+		if(hintType ==='gamehintblack')
+		{
+			
+		}
 		if (hintType === 'confirm' || hintType === 'no_action') {
 			hint.data.tweenAlpha = this._phaser.add
 				.tween(hint)
