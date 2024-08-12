@@ -285,23 +285,35 @@ export class UI {
 							if (i == 0) {
 								// Joywin
 								const selectedAbility = this.selectNextAbility();
+								const creature = game.activeCreature;
+
 								
 								if (selectedAbility > 0) {
-									b.cssTransition('nextIcon', 1000);
-								}
-								else if(selectedAbility === -1)
-								{
-									
-									const self = this;
-									self.abilitiesButtons.forEach((btn, index) => {
-									console.log(self.clickedAbility);
-									const creature = game.activeCreature;
-									if (self.clickedAbility === index) {
-										b.cssTransition('cancelIcon', 1000);
-										this.clickedAbility = -1;
-									}
+									this.abilitiesButtons.forEach((btn, index) => {
+										if (index === 0) {
+											btn.$button.removeClass('cancelIcon')
+											btn.$button.removeClass('nextIcon')
+
+											console.log(btn.$button);
+											this.clickedAbility = -1
+										}
 									});
+									b.cssTransition('nextIcon', 1000);
+								
+									
+								} else if (selectedAbility === -1) {
+									this.abilitiesButtons.forEach((btn, index) => {
+										console.log(this.clickedAbility);
+										if (index === 0) {
+											btn.$button.removeClass('nextIcon')
+											btn.$button.removeClass('cancelIcon')
+											this.clickedAbility = -1;
+										}
+									});
+									b.cssTransition('cancelIcon', 1000);
+
 								}
+								
 
 								return;
 							}
