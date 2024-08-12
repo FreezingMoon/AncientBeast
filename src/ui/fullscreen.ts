@@ -29,10 +29,24 @@ export class Fullscreen {
 
 	private disableEscKey() {
 		document.addEventListener('keydown', (event) => {
-			if (event.key === 'Escape' || event.key === 'Esc') {
+			if (event.key === 'Escape' && isAppInNativeFullscreenMode()) {
 				event.preventDefault();
 			}
 		});
+
+		document.addEventListener('fullscreenchange', () => {
+			if (isAppInNativeFullscreenMode()) {
+				document.addEventListener('keydown', this.preventEscKey);
+			} else {
+				document.removeEventListener('keydown', this.preventEscKey);
+			}
+		});
+	}
+
+	private preventEscKey(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+		}
 	}
 }
 
