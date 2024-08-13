@@ -270,10 +270,8 @@ export class UI {
 					$button: $j('.ability[ability="' + i + '"]'),
 					hasShortcut: true,
 					click: () => {
-					
-						
-							this.clickedAbility = i;
-						
+						this.clickedAbility = i;
+
 						const game = this.game;
 						if (this.selectedAbility != i) {
 							if (this.dashopen) {
@@ -287,33 +285,28 @@ export class UI {
 								const selectedAbility = this.selectNextAbility();
 								const creature = game.activeCreature;
 
-								
 								if (selectedAbility > 0) {
 									this.abilitiesButtons.forEach((btn, index) => {
 										if (index === 0) {
-											btn.$button.removeClass('cancelIcon')
-											btn.$button.removeClass('nextIcon')
+											btn.$button.removeClass('cancelIcon');
+											btn.$button.removeClass('nextIcon');
 
 											console.log(btn.$button);
-											this.clickedAbility = -1
+											this.clickedAbility = -1;
 										}
 									});
 									b.cssTransition('nextIcon', 1000);
-								
-									
 								} else if (selectedAbility === -1) {
 									this.abilitiesButtons.forEach((btn, index) => {
 										console.log(this.clickedAbility);
 										if (index === 0) {
-											btn.$button.removeClass('nextIcon')
-											btn.$button.removeClass('cancelIcon')
+											btn.$button.removeClass('nextIcon');
+											btn.$button.removeClass('cancelIcon');
 											this.clickedAbility = -1;
 										}
 									});
 									b.cssTransition('cancelIcon', 1000);
-
 								}
-								
 
 								return;
 							}
@@ -1552,7 +1545,7 @@ export class UI {
 		const game = this.game,
 			creature = game.activeCreature;
 
-			if (this.$dash.hasClass('active')) {
+		if (this.$dash.hasClass('active')) {
 			this.clickedAbility = -1;
 			this.closeDash();
 			return;
