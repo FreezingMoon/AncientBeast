@@ -270,6 +270,10 @@ export class UI {
 					$button: $j('.ability[ability="' + i + '"]'),
 					hasShortcut: true,
 					click: () => {
+					
+						
+							this.clickedAbility = i;
+						
 						const game = this.game;
 						if (this.selectedAbility != i) {
 							if (this.dashopen) {
@@ -279,10 +283,38 @@ export class UI {
 							const ability = game.activeCreature.abilities[i];
 							// Passive ability icon can cycle between usable abilities
 							if (i == 0) {
+								// Joywin
 								const selectedAbility = this.selectNextAbility();
+								const creature = game.activeCreature;
+
+								
 								if (selectedAbility > 0) {
+									this.abilitiesButtons.forEach((btn, index) => {
+										if (index === 0) {
+											btn.$button.removeClass('cancelIcon')
+											btn.$button.removeClass('nextIcon')
+
+											console.log(btn.$button);
+											this.clickedAbility = -1
+										}
+									});
 									b.cssTransition('nextIcon', 1000);
+								
+									
+								} else if (selectedAbility === -1) {
+									this.abilitiesButtons.forEach((btn, index) => {
+										console.log(this.clickedAbility);
+										if (index === 0) {
+											btn.$button.removeClass('nextIcon')
+											btn.$button.removeClass('cancelIcon')
+											this.clickedAbility = -1;
+										}
+									});
+									b.cssTransition('cancelIcon', 1000);
+
 								}
+								
+
 								return;
 							}
 							// Colored frame around selected ability
@@ -575,7 +607,7 @@ export class UI {
 		this.selectedCreature = '';
 		this.selectedPlayer = 0;
 		this.selectedAbility = -1;
-
+		this.clickedAbility = -1;
 		this.queueAnimSpeed = 500; // ms
 		this.dashAnimSpeed = 250; // ms
 
@@ -1517,9 +1549,11 @@ export class UI {
 	 * @param{boolean} [randomize] - True selects a random creature from the grid.
 	 */
 	toggleDash(randomize) {
-		const game = this.game;
+		const game = this.game,
+			creature = game.activeCreature;
 
-		if (this.$dash.hasClass('active')) {
+			if (this.$dash.hasClass('active')) {
+			this.clickedAbility = -1;
 			this.closeDash();
 			return;
 		}
