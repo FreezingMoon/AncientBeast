@@ -302,7 +302,7 @@
 	bottom: 0;
 	height: 0;
 	width: 100%;
-	z-index: 2;
+	z-index: 5;
 }
 
 #rightpanel {
@@ -315,7 +315,7 @@
 #leftpanel {
 	position: absolute;
 	left: 0;
-	z-index: 0;
+	z-index: 3;
 }
 
 .button:not(.togglescore) {
@@ -877,7 +877,7 @@ div.section.info {
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 1;
+	z-index: 3;
 }
 
 .vignette {
@@ -1982,7 +1982,7 @@ input {
 	#rightpanel {
 		transform: scale(0.55) translate(40px, -170px);
 	}
-	
+
 	#scoreboardTitle {
 		font-size: medium;
 		margin: 0px !important;
@@ -2066,32 +2066,58 @@ input {
 }
 
 #brandlogo {
-	display: block;
-	margin: auto 25%;
-	width: 50%;
-	opacity: 1;
-	z-index: 1;
-	position: absolute;
-	top: 105px;
-	transition: opacity 300ms cubic-bezier(0.39, 0.58, 0.57, 1);
-
-	div {
-		height: 125px;
-		background-image: url('~assets/interface/AncientBeast.png');
-		background-repeat: no-repeat;
-		display: block;
-		width: 555px;
-		max-width: 555px;
-		margin: 0 auto;
-	}
-
+	height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 	&.hide {
-		opacity: 0;
+		display: none;
 	}
 }
 
-@media (max-height: 700px) and (orientation: landscape) {
-	#brandlogo {
-		display: none;
+#brandlogoinner {
+	aspect-ratio: 16/9;
+	display: flex;
+	justify-content: center;
+
+	@media (min-aspect-ratio: 16 / 9) {
+		height: 100%;
+		width: auto;
+	}
+
+	@media (max-aspect-ratio: 16 / 9) {
+		width: 100%;
+		height: auto;
+	}
+	div {
+		background-image: url('~assets/interface/AncientBeast.png');
+		background-repeat: no-repeat;
+		background-position-x: center;
+		background-position-y: top;
+		background-size: 50%;
+		width: 50%;
+		height:250px;
+		max-width: 1000px;
+		margin-top:12%;
+
+		@media (max-aspect-ratio: 16/9) {
+			margin-top:10%;
+		}
+
+		@media (orientation:portrait) {
+			margin-top:5%;
+		}
+
+		@media screen and (min-height: 300px) {
+			background-size: 60%;
+			width: 60%;
+		}
+
+		@media screen and (min-height: 600px){
+			background-size: 70%;
+			width: 70%;
+			margin-top: 9%;
+		}
 	}
 }
