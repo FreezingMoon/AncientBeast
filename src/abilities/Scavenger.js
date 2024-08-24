@@ -5,6 +5,31 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 
+function getEscortUsableHexes(G, crea, trg) {
+	const trgIsInfront =
+		G.grid.getHexMap(
+			crea.x - matrices.inlinefront2hex.origin[0],
+			crea.y - matrices.inlinefront2hex.origin[1],
+			0,
+			false,
+			matrices.inlinefront2hex,
+		)[0].creature == trg;
+
+	const distance = crea.remainingMove;
+	const size = crea.size + trg.size;
+	const x = trgIsInfront ? crea.x + trg.size : crea.x;
+
+	const usableHexes = G.grid
+		.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
+		.filter(function (item) {
+			return (
+				crea.y == item.y && (trgIsInfront ? item.x < x : item.x > x - crea.size - trg.size + 1)
+			);
+		});
+
+	return { size, trgIsInfront, usableHexes };
+}
+
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
@@ -165,8 +190,9 @@ export default (G) => {
 					return false;
 				}
 
-				if (crea.remainingMove < trg.size) {
-					// Unit too tired
+				const { usableHexes } = getEscortUsableHexes(G, crea, trg);
+
+				if (!usableHexes.length) {
 					this.message = 'Not enough movement points.';
 					return false;
 				}
@@ -181,17 +207,7 @@ export default (G) => {
 				const hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
 				const trg = hexes[0].creature || hexes[1].creature;
 
-				const distance = Math.floor(crea.remainingMove / trg.size);
-				const size = crea.size + trg.size;
-
-				const trgIsInfront =
-					G.grid.getHexMap(
-						crea.x - matrices.inlinefront2hex.origin[0],
-						crea.y - matrices.inlinefront2hex.origin[1],
-						0,
-						false,
-						matrices.inlinefront2hex,
-					)[0].creature == trg;
+				const { size, trgIsInfront, usableHexes } = getEscortUsableHexes(G, crea, trg);
 
 				const select = (hex) => {
 					for (let i = 0; i < trg.hexagons.length; i++) {
@@ -229,8 +245,6 @@ export default (G) => {
 					}
 				};
 
-				const x = trgIsInfront ? crea.x + trg.size : crea.x;
-
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
 						G.grid.fadeOutTempCreature();
@@ -242,14 +256,7 @@ export default (G) => {
 					id: [crea.id, trg.id],
 					size: size,
 					flipped: crea.player.flipped,
-					hexes: G.grid
-						.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
-						.filter(function (item) {
-							return (
-								crea.y == item.y &&
-								(trgIsInfront ? item.x < x : item.x > x - crea.size - trg.size + 1)
-							);
-						}),
+					hexes: usableHexes,
 					args: {
 						trg: trg.id,
 						trgIsInfront: trgIsInfront,
