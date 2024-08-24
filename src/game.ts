@@ -23,7 +23,7 @@ import { Point, configure as configurePointFacade } from './utility/pointfacade'
 import { pretty as version } from './utility/version';
 import { Ability } from './ability';
 import { Effect } from './effect';
-import { GameConfig, adjustBrand } from './script';
+import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
@@ -1301,8 +1301,6 @@ export default class Game {
 
 	// Removed individual args from definition because we are using the arguments variable.
 	onStartOfRound(/* creature, callback */) {
-		// position brand when round starts
-		adjustBrand();
 		this.triggerDeleteEffect('onStartOfRound', 'all');
 	}
 

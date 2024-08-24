@@ -2,7 +2,6 @@ import * as $j from 'jquery';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
 import { Hotkeys, getHotKeys } from './hotkeys';
-import { adjustBrand } from '../script';
 
 import { Button, ButtonStateEnum } from './button';
 import { Chat } from './chat';
@@ -578,9 +577,6 @@ export class UI {
 
 			e.preventDefault();
 		});
-
-		// adjust brand logo on window resize
-		$j(window).on('resize', (ev) => adjustBrand());
 
 		this.$dash.find('.section.numbers .stat').on('mouseover', (event) => {
 			const $section = $j(event.target).closest('.section');

@@ -460,22 +460,3 @@ export function isEmpty(obj) {
 
 	return true;
 }
-
-/**
- * Method that resizes and positions brand logo
- * based on the arena
- */
-export function adjustBrand() {
-	// fix size
-	const arenaWidth = $j('#combatwrapper').innerWidth();
-	let scaledSize = (arenaWidth * 555) / 1070;
-	scaledSize = scaledSize > 555 ? 555 : scaledSize;
-	$j('#brandlogo div').css('background-size', scaledSize);
-	$j('#brandlogo div').css('width', scaledSize);
-
-	// fix position
-	const arenaMarginTopPx = $j('#combatwrapper canvas').css('margin-top');
-	const arenaMarginTop = Number(arenaMarginTopPx.slice(0, -2));
-	const offset = 125 - (19 * arenaMarginTop) / 65;
-	$j('#brandlogo').css('top', arenaMarginTop + offset);
-}
