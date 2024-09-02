@@ -44,25 +44,25 @@ If you wish to set-up a local copy of the game for your pleasure, read our repos
 Or dive right into development from your browser by using this button to set up the project: [![Setup Automated](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)  
 There are more ways you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide & help out!
 
-<a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/AncientBeast/contributors.svg?width=838&button=false" alt="Contributors"></a>
+<a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/ancientbeast/contributors.svg?width=838&button=false" alt="Contributors"></a>
 
 ### Sponsors
 
-To get your brand featured in-game as well, [become a sponsor](https://opencollective.com/AncientBeast/contribute/sponsor-8022) to greatly support this game project!
+To get your brand featured in-game as well, [become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022) to greatly support this game project!
 
-<a href="https://opencollective.com/AncientBeast/contribute/sponsor-8022"><img src="https://opencollective.com/AncientBeast/tiers/sponsor.svg?avatarHeight=70&width=838" alt="Backers"></a>
+<a href="https://opencollective.com/ancientbeast/contribute/sponsor-8022"><img src="https://opencollective.com/ancientbeast/tiers/sponsor.svg?avatarHeight=70&width=838" alt="Backers"></a>
 
 ### Backers
 
-You can [become a backer](https://opencollective.com/AncientBeast/contribute/backer-8021), supporting the development of this project financially on a monthly basis.
+You can [become a backer](https://opencollective.com/ancientbeast/contribute/backer-8021), supporting the development of this project financially on a monthly basis.
 
-<a href="https://opencollective.com/AncientBeast/contribute/backer-8021"><img src="https://opencollective.com/AncientBeast/tiers/backer.svg?avatarHeight=50&width=838" alt="Backers"></a>
+<a href="https://opencollective.com/ancientbeast/contribute/backer-8021"><img src="https://opencollective.com/ancientbeast/tiers/backer.svg?avatarHeight=50&width=838" alt="Backers"></a>
 
 ### Helpers
 
-It's easy to [become a helper](https://opencollective.com/AncientBeast/contribute/helper-59413), pitching every month just a little bit of your money.
+It's easy to [become a helper](https://opencollective.com/ancientbeast/contribute/helper-59413), pitching every month just a little bit of your money.
 
-<a href="https://opencollective.com/AncientBeast/contribute/helper-59413"><img src="https://opencollective.com/AncientBeast/tiers/helper.svg?avatarHeight=30&width=838" alt="Helpers"></a>
+<a href="https://opencollective.com/ancientbeast/contribute/helper-59413"><img src="https://opencollective.com/ancientbeast/tiers/helper.svg?avatarHeight=30&width=838" alt="Helpers"></a>
 
 ### License
 
