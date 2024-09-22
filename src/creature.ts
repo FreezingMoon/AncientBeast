@@ -2087,7 +2087,7 @@ class CreatureSprite {
 			// Add "Skip turn" icon
 			const skipTurnIcon = this._phaser.add.sprite(0, 50, 'skip');
 			skipTurnIcon.anchor.setTo(0.5, 0.7); // Give a bit more vertical space
-			skipTurnIcon.setScaleMinMax(0.63, 0.63, 0.63, 0.63);
+			skipTurnIcon.setScaleMinMax(0.15, 0.15, 0.15, 0.15);
 			skipTurnIcon.alpha = 0;
 			skipTurnIcon.data.hintType = hintType;
 			skipTurnIcon.data.tweenAlpha = null;
