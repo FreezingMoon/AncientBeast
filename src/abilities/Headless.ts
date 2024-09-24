@@ -1,5 +1,5 @@
 import { Damage } from '../damage';
-import { Team } from '../utility/team';
+import { isTeam, Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import { Effect } from '../effect';
 import Game from '../game';
@@ -272,7 +272,22 @@ export default (G: Game) => {
 				let destinationX = null;
 				let destinationTargetX = null;
 				const isOnLeft = headless.x < target.x;
-				if (target.size === 1) {
+
+				if (
+					target.isDarkPriest() &&
+					target.hasCreaturePlayerGotPlasma() &&
+					!isTeam(this.creature, target, Team.Ally)
+				) {
+					/* Target creature is a plasma fielded enemy dark priest 
+					blocking the ability and triggering a counter damage if upgraded field */
+					destinationTargetX = 0;
+					const d = {
+						slash: 1,
+					};
+					const damage = new Damage(ability.creature, d, 1, [], G);
+
+					target.takeDamage(damage);
+				} else if (target.size === 1) {
 					/* Small creature, pull target towards self landing it in the hex directly
 					in front of the Headless. */
 					destinationTargetX = isOnLeft ? headless.x + 1 : headless.x - 2;
