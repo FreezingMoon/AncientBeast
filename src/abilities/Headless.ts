@@ -278,7 +278,7 @@ export default (G: Game) => {
 					target.hasCreaturePlayerGotPlasma() &&
 					!isTeam(this.creature, target, Team.Ally)
 				) {
-					/* Target creature is a plasma fielded enemy dark priest 
+					/* Target creature is a plasma fielded enemy Dark Priest 
 					blocking the ability and triggering a counter damage if upgraded field */
 					destinationTargetX = 0;
 					const d = {
