@@ -19,7 +19,7 @@ The game takes place is a distopian future, where people have exceled in power t
 The game is designed to be lightweight and run on most devices out there as it adjusts on the fly thanks to various optimizations and it will be playable using pretty much any input method you can think of. So far you can play it using mouse, keyboard, touchscreens and pretty soon with gamepads, voice commands, AR/VR glasses and even brainwave headbands.
 
 ### Bottlenecks
-Besides the main bottleneck, it's creator, [Dread Knight](https://github.com/DreadKnight) (hence why development will transition to [Freezing Moon DAO](https://FreezingMoon.org)), the game is currently pre-alpha prototype and lacks some important features (for now), such as online multiplayer, bots and unit animations. Given time, with enough love and support all those major issues will be addressed and the game will be able to reach mainstream audiences.
+Besides the main bottleneck, it's creator, [Dread Knight](https://github.com/DreadKnight) (hence why development decisions will eventually transition to [Freezing Moon DAO](https://FreezingMoon.org)), the game is currently pre-alpha prototype and lacks some important features (for now), such as online multiplayer, bots and unit animations. Given time, with enough love and support all those major issues will be addressed and the game will be able to reach mainstream audiences.
 
 ### [Roadmap](https://github.com/FreezingMoon/AncientBeast/milestone/4)
 
