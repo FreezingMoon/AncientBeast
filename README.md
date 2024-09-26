@@ -16,7 +16,7 @@
 The game takes place is a distopian future, where people have exceled in power thanks to the use of technology, specifically advanced 3d printers. The world is split into 7 factions, based off the seven deadly sins (Avarice, Envy, Gluttony, Lust, Pride, Sloth, Wrath), fighting each other for resources, land and supremacy. This is not a chance based game; are you skilled enough to survive?
 
 ### Hardware
-The game is designed to be lightweight and run on most devices out there using pretty much any input method you can think of. So far you can play it using mouse, keyboard, touchscreens and pretty soon with gamepads, voice commands, AR/VR glasses and even brainwave headbands.
+The game is designed to be lightweight and run on most devices out there as it adjusts on the fly thanks to various optimizations and it will be playable using pretty much any input method you can think of. So far you can play it using mouse, keyboard, touchscreens and pretty soon with gamepads, voice commands, AR/VR glasses and even brainwave headbands.
 
 ### Bottlenecks
 Besides the main bottleneck, it's creator, [Dread Knight](https://github.com/DreadKnight) (hence why development will transition to [Freezing Moon DAO](https://FreezingMoon.org)), the game is currently pre-alpha prototype and lacks some important features (for now), such as online multiplayer, bots and unit animations. Given time, with enough love and support all those major issues will be addressed and the game will be able to reach mainstream audiences.
