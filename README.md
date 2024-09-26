@@ -12,6 +12,48 @@
 
 **Ancient Beast** is a turn based strategy indie game project played online against other people featuring a wide variety of creatures to acquire, putting them to use in order to defeat your opponents. This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 
+## About Game
+
+Ancient Beast takes place in the future. People have exceled in power, and the world had become a host to battles. There are 7 different group fighting each other for domination over land. Only those strong enough will survive.
+The player needs skill in order to win the game, as it does not rely on chance, such as a roll of dice.
+
+## User Input 
+The purpose of Ancient Beast is to be able to play it across a variety of devices. Here is a list of the different inputs that are taken:
+    * mouse
+    * keyboard: even without a mouse, game can be played with host keys
+        * mouse + keyboard: for those on a PC
+    * gamepad
+    * touchscreen
+    * smartphone
+
+## Modes and Realms
+
+The game will consist of 5 different modes:
+    * Arcade Mode
+    * Normal Mode
+    * Collector Mode
+    * Sinner Mode
+    * Hardcore Mode
+To read more about these and how they should be implemented [click here](https://ancientbeast.com/documentation/?id=modes)
+
+The game will consist of 7 differnt realms:
+    * Avarice
+    * Envy
+    * Gluttony
+    * Lust
+    * Pride
+    * Sloth
+    * Wrath
+To learn about the descriptions of the realms [click here](https://ancientbeast.com/documentation/?id=realms#focus)
+
+## Game features are still in progress
+
+* Allowing for players to play against other players online.
+* Practicing with bots
+* Being able to play game with no internet.
+* Town building
+* Implementing the input methods
+
 ### [Roadmap](https://github.com/FreezingMoon/AncientBeast/milestone/4)
 
 We're working hard on the next version - 0.4, codenamed `Bounty Hunter`.
