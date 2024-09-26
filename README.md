@@ -12,6 +12,15 @@
 
 **Ancient Beast** is a turn based strategy indie game project played online against other people featuring a wide variety of creatures to acquire, putting them to use in order to defeat your opponents. This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 
+## Lore
+The game takes place is a distopian future, where people have exceled in power thanks to the use of technology, specifically advanced 3d printers. The world is split into 7 factions, based off the seven deadly sins, fighting each other for resources, land and supremacy. This is not a chance based game; are you skilled enough to survive?
+
+## Hardware
+The game is designed to be lightweight and run on most devices out there using pretty much any input method you can think of.
+
+## Bottlenecks
+Besides the main bottleneck, it's creator, [Dread Knight](https://github.com/DreadKnight) (hence why development will transition to [Freezing Moon DAO](https://FreezingMoon.org)), the game is currently pre-alpha prototype and lacks some important features (for now), such as online multiplayer, bots and unit animations. Given time, with enough love and support all those major issues will be addressed and the game will be able to reach mainstream audiences.
+
 ### [Roadmap](https://github.com/FreezingMoon/AncientBeast/milestone/4)
 
 We're working hard on the next version - 0.4, codenamed `Bounty Hunter`.
