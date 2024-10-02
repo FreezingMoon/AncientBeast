@@ -21,9 +21,9 @@ The game is designed to be lightweight and run on most devices out there as it a
 ### Bottlenecks
 Besides the main bottleneck, it's creator, [Dread Knight](https://github.com/DreadKnight) (hence why development decisions will eventually transition to [Freezing Moon DAO](https://FreezingMoon.org)), the game is currently pre-alpha prototype and lacks some important features (for now), such as online multiplayer, bots and unit animations. Given time, with enough love and support all those major issues will be addressed and the game will be able to reach mainstream audiences.
 
-### [Roadmap](https://github.com/FreezingMoon/AncientBeast/milestone/4)
+### [Roadmap](https://github.com/FreezingMoon/AncientBeast/milestone/5)
 
-We're working hard on the next version - 0.4, codenamed `Bounty Hunter`.
+We're working hard on the next version - 0.5, codenamed `Chimera`.
 What we're aiming for are the following:
 
 - 3 new playable creatures
