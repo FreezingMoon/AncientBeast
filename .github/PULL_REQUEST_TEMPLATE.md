@@ -8,7 +8,7 @@ Please provide your ERC20 wallet address, especially if you're addressing an iss
 
 Warning: make sure that you're providing a *wallet* address and not deposit address to an exchange.
 
-Read more about our token (XatteR) here: https://github.com/FreezingMoon/AncientBeast/wiki/Token
+Read more about our token (XatteR) here: https://github.com/FreezingMoon/AncientBeast/wiki/XatteR
 
 Feel free to drop by our Discord server if you have any questions https://discord.me/AncientBeast
 
