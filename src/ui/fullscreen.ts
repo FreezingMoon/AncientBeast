@@ -6,6 +6,7 @@ export class Fullscreen {
 		if (isFullscreen) {
 			button.classList.add('fullscreenMode');
 		}
+		this.disableEscKey();
 	}
 
 	toggle() {
@@ -23,6 +24,28 @@ export class Fullscreen {
 				.querySelectorAll('.fullscreen__title')
 				.forEach((el) => (el.textContent = 'Contract'));
 			document.getElementById('AncientBeast').requestFullscreen();
+		}
+	}
+
+	private disableEscKey() {
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && isAppInNativeFullscreenMode()) {
+				event.preventDefault();
+			}
+		});
+
+		document.addEventListener('fullscreenchange', () => {
+			if (isAppInNativeFullscreenMode()) {
+				document.addEventListener('keydown', this.preventEscKey);
+			} else {
+				document.removeEventListener('keydown', this.preventEscKey);
+			}
+		});
+	}
+
+	private preventEscKey(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
 		}
 	}
 }
