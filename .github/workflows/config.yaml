@@ -18,7 +18,7 @@ jobs:
       env:
         PUBLIC_PATH: '/AncientBeast/'
     - name: Upload build artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: deploy
         path: deploy
@@ -39,7 +39,7 @@ jobs:
     - name: Static Code Analysis (ESLint)
       run: cat eslint-report.log
     - name: Archive ESLint Report
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
        name: eslint-report
        path: eslint-report.log
