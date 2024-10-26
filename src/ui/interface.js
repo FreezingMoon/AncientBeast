@@ -758,6 +758,21 @@ export class UI {
 				this.abilitiesButtons[i].triggerClick();
 				return i;
 			}
+
+			//If creature has no more available abilities to choose from, return -1
+			let creatureHaveAtleastOneAvailableAbility = false;
+			for(let y = i; y < 4; y++){
+				if(creature.abilities[y].require()){
+					creatureHaveAtleastOneAvailableAbility = true;
+					break;
+				}
+			}
+
+			if(!creatureHaveAtleastOneAvailableAbility){
+				game.activeCreature.queryMove();
+				this.selectAbility(-1);
+				return -1;
+			}
 		}
 	}
 
