@@ -874,7 +874,7 @@ export class HexGrid {
 			this.secondary_overlay.alpha = 0;
 		}
 
-		if(this._flickerTween){
+		if (this._flickerTween) {
 			this._flickerTween.stop(true);
 		}
 
@@ -1677,16 +1677,17 @@ export class HexGrid {
 		}
 
 		this._flickerTween = game.Phaser.add
-		.tween(preview).to(
-			{
-				alpha: 0.15,
-			},
-			777,
-			Phaser.Easing.Linear.None,
-		)
-		.yoyo(true)
-		.repeat(-1)
-		.start();
+			.tween(preview)
+			.to(
+				{
+					alpha: 0.15,
+				},
+				777,
+				Phaser.Easing.Linear.None,
+			)
+			.yoyo(true)
+			.repeat(-1)
+			.start();
 
 		for (let i = 0, size = creatureData.size; i < size; i++) {
 			const hexInstance = this.hexes[pos.y][pos.x - i];
