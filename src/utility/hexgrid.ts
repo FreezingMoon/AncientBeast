@@ -139,6 +139,7 @@ export class HexGrid {
 	materialize_overlay: any;
 	secondary_overlay: any;
 	lastQueryOpt: any;
+	_flickerTween: any;
 
 	get allhexes(): Hex[] {
 		return this.hexes.flat(1);
@@ -871,6 +872,10 @@ export class HexGrid {
 		}
 		if (this.secondary_overlay) {
 			this.secondary_overlay.alpha = 0;
+		}
+
+		if(this._flickerTween){
+			this._flickerTween.stop(true);
 		}
 
 		if (!o.ownCreatureHexShade) {
@@ -1670,6 +1675,18 @@ export class HexGrid {
 		} else {
 			preview.scale.setTo(1, 1);
 		}
+
+		this._flickerTween = game.Phaser.add
+		.tween(preview).to(
+			{
+				alpha: 0.1,
+			},
+			500,
+			Phaser.Easing.Linear.None,
+		)
+		.yoyo(true)
+		.repeat(-1)
+		.start();
 
 		for (let i = 0, size = creatureData.size; i < size; i++) {
 			const hexInstance = this.hexes[pos.y][pos.x - i];
