@@ -1679,9 +1679,9 @@ export class HexGrid {
 		this._flickerTween = game.Phaser.add
 		.tween(preview).to(
 			{
-				alpha: 0.1,
+				alpha: 0.15,
 			},
-			500,
+			777,
 			Phaser.Easing.Linear.None,
 		)
 		.yoyo(true)
