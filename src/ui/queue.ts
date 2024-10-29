@@ -86,7 +86,7 @@ export class Queue {
 		const is1stCreature = utils.trueIfFirstElseFalse();
 
 		const newCreatureVCurr = (c: Creature) =>
-			new CreatureVignette(c, turnNum, eventHandlers, is1stCreature());
+			new CreatureVignette(c, turnNum, eventHandlers, is1stCreature(), true);
 		const undelayedVsCurr = undelayedCsCurr.map(newCreatureVCurr);
 		const delayMarkerVCurr = hasDelayedCurr
 			? [new DelayMarkerVignette(turnNum, eventHandlers)]
@@ -96,7 +96,7 @@ export class Queue {
 		const turnEndMarkerV = [new TurnEndMarkerVignette(turnNum, eventHandlers)];
 
 		const newCreatureVNext = (c: Creature) =>
-			new CreatureVignette(c, turnNum + 1, eventHandlers, is1stCreature());
+			new CreatureVignette(c, turnNum + 1, eventHandlers, is1stCreature(), false);
 		const undelayedVsNext = undelayedCsNext.map(newCreatureVNext);
 		const delayMarkerVNext = hasDelayedNext
 			? [new DelayMarkerVignette(turnNum + 1, eventHandlers)]
@@ -431,7 +431,7 @@ class CreatureVignette extends Vignette {
 
 		this.el.style.zIndex = this.creature.temp ? '1000' : this.queuePosition + 1 + '';
 
-		const stats = this.creature.fatigueText;
+		const stats = this.turnNumberIsCurrentTurn ? this.creature.fatigueText : 'Queued';
 		const statsClasses = ['stats', utils.toClassName(stats)].join(' ');
 		const statsEl = this.el.querySelector('div.stats');
 		statsEl.className = statsClasses;
