@@ -95,8 +95,23 @@ export class Queue {
 
 		const turnEndMarkerV = [new TurnEndMarkerVignette(turnNum, eventHandlers)];
 
-		const newCreatureVNext = (c: Creature) =>
-			new CreatureVignette(c, turnNum + 1, eventHandlers, is1stCreature(), false);
+		const newCreatureVNext = (c: Creature) => {
+			let isCreatureAlreadyShown = false;
+			for (const oldC of creatures) {
+				if (oldC.id === c.id) {
+					isCreatureAlreadyShown = true;
+					break;
+				}
+			}
+			return new CreatureVignette(
+				c,
+				turnNum + 1,
+				eventHandlers,
+				is1stCreature(),
+				false,
+				isCreatureAlreadyShown,
+			);
+		};
 		const undelayedVsNext = undelayedCsNext.map(newCreatureVNext);
 		const delayMarkerVNext = hasDelayedNext
 			? [new DelayMarkerVignette(turnNum + 1, eventHandlers)]
@@ -359,6 +374,7 @@ class CreatureVignette extends Vignette {
 	creature: Creature;
 	isActiveCreature: boolean;
 	turnNumberIsCurrentTurn: boolean;
+	isAlreadyShown: boolean;
 
 	constructor(
 		creature: Creature,
@@ -366,6 +382,7 @@ class CreatureVignette extends Vignette {
 		eventHandlers: QueueEventHandlers,
 		isActiveCreature = false,
 		turnNumberIsCurrentTurn = true,
+		isAlreadyShown = false,
 	) {
 		super();
 		this.creature = creature;
@@ -373,6 +390,7 @@ class CreatureVignette extends Vignette {
 		this.eventHandlers = eventHandlers;
 		this.isActiveCreature = isActiveCreature;
 		this.turnNumberIsCurrentTurn = turnNumberIsCurrentTurn;
+		this.isAlreadyShown = isAlreadyShown;
 	}
 
 	getHash() {
@@ -431,7 +449,7 @@ class CreatureVignette extends Vignette {
 
 		this.el.style.zIndex = this.creature.temp ? '1000' : this.queuePosition + 1 + '';
 
-		const stats = this.turnNumberIsCurrentTurn ? this.creature.fatigueText : 'Queued';
+		const stats = this.isAlreadyShown ? 'Queued' : this.creature.fatigueText;
 		const statsClasses = ['stats', utils.toClassName(stats)].join(' ');
 		const statsEl = this.el.querySelector('div.stats');
 		statsEl.className = statsClasses;
