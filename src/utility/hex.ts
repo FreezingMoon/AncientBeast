@@ -87,6 +87,16 @@ export class Hex {
 	 */
 	displayPos: { x: number; y: number };
 
+	/**
+	 * Set to true if cursor is outside movement range.
+	 */
+	isSpinning: boolean;
+
+	/**
+	 * Store ID of animation frame request.
+	 */
+	spinRequest: number;
+
 	originalDisplayPos: { x: number; y: number };
 	tween: Phaser.Tween;
 	hitBox: Phaser.Sprite;
@@ -130,6 +140,9 @@ export class Hex {
 		this.displayPos = Const.offsetCoordsToPx({ x, y });
 
 		this.originalDisplayPos = $j.extend({}, this.displayPos);
+
+		this.isSpinning = false;
+		this.spinRequest = null;
 
 		this.tween = null;
 
@@ -499,7 +512,40 @@ export class Hex {
 		this.updateStyle();
 	}
 
+	/**
+	 * Start spin effect for the targeting cursor
+	 */
+	startSpinning() {
+		this.isSpinning = true;
+		const spinSpeed = 2;
+
+		const rotate = () => {
+			if (!this.isSpinning) return;
+			this.overlay.angle += spinSpeed;
+			this.spinRequest = requestAnimationFrame(rotate);
+		};
+
+		this.spinRequest = requestAnimationFrame(rotate);
+	}
+
+	/**
+	 * Stop spin effect for the targeting cursor
+	 */
+	stopSpinning() {
+		this.isSpinning = false;
+		if (this.spinRequest) {
+			cancelAnimationFrame(this.spinRequest);
+			this.spinRequest = null;
+			this.overlay.angle = 0;
+		}
+	}
+
 	updateStyle() {
+		// Reset spinning state
+		if (this.isSpinning) {
+			this.stopSpinning();
+		}
+
 		// Display Hex
 		let targetAlpha = this.reachable || Boolean(this.displayClasses.match(/creature/g));
 
@@ -587,6 +633,10 @@ export class Hex {
 			this.grid.overlayHexesGroup.bringToTop(this.overlay);
 		} else {
 			this.overlay.loadTexture('cancel');
+			this.overlay.anchor.set(0.5, 0.5);
+			if (!this.isSpinning) {
+				this.startSpinning();
+			}
 		}
 
 		this.overlay.alpha = targetAlpha ? 1 : 0;
