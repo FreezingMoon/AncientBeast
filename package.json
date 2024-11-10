@@ -25,7 +25,6 @@
 	"dependencies": {
 		"@heroiclabs/nakama-js": "^2.0.1",
 		"compression": "^1.7.4",
-		"express": "^4.21.1",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
 		"js-cookie": "^3.0.1",
