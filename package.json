@@ -76,7 +76,7 @@
 		"webpack-dev-server": "^4.11.1"
 	},
 	"engines": {
-		"node": "22.x"
+		"node": "20.x"
 	},
 	"scripts": {
 		"build": "webpack --mode=production",
