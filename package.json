@@ -20,7 +20,7 @@
 	],
 	"funding": {
 		"type": "Donate",
-		"url": "https://ancientbeast.com/contribute/#donate"
+		"url": "https://opencollective.com/AncientBeast"
 	},
 	"dependencies": {
 		"@heroiclabs/nakama-js": "^2.0.1",
