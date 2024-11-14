@@ -3394,7 +3394,7 @@ export const unitData = [
 			},
 			{
 				title: 'Hell Mouth',
-				desc: 'Either bites an adjacent foe or creates a trap out of spikes nearby on the ground.',
+				desc: 'Either bites an adjacent foe or creates a nasty spiky trap nearby on the ground.',
 				info: '16 pierce damage, -5 regrowth debuff.',
 				upgrade: 'Debuffs stack while fatigued.',
 			},
