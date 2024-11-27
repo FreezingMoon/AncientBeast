@@ -156,14 +156,14 @@ export default (G) => {
 
 				let hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
 
-				if (hexes.length < 2) {
-					// At the border of the map
-					return false;
+				// Allow the ability to work even if there is only one hex available
+				if (hexes.length < 1) {
+					return false; // No usable hexes
 				}
 
-				if (hexes[0].creature && hexes[1].creature) {
-					// Sandwiched
-					return false;
+				// Check if the target is sandwiched
+				if (hexes[0].creature && hexes[1]?.creature) {
+					return false; // Sandwiched
 				}
 
 				// Cannot escort large (size > 2) creatures unless ability is upgraded
@@ -183,21 +183,13 @@ export default (G) => {
 					return false;
 				}
 
-				const trg = hexes[0].creature || hexes[1].creature;
+				const trg = hexes[0].creature || hexes[1]?.creature;
 
 				if (!trg.stats.moveable) {
-					this.message = 'Target is not moveable.';
-					return false;
+					return false; // Target is not movable
 				}
 
-				const { usableHexes } = getEscortUsableHexes(G, crea, trg);
-
-				if (!usableHexes.length) {
-					this.message = 'Not enough movement points.';
-					return false;
-				}
-
-				return true;
+				return true; // Ability can be used
 			},
 
 			query: function () {
@@ -279,9 +271,7 @@ export default (G) => {
 				G.Phaser.camera.shake(0.01, 66, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const crea = this.creature;
-
 				const trg = G.creatures[args.trg];
-
 				const trgIF = args.trgIsInfront;
 
 				const creaDest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
@@ -299,8 +289,8 @@ export default (G) => {
 					}
 				}
 
-				// Substract from movement points
-				crea.remainingMove -= distance * trg.size;
+				// Subtract from movement points
+				crea.remainingMove -= Math.max(distance * trg.size, 1); // Ensure at least 1 point is deducted
 
 				crea.moveTo(creaDest, {
 					animation: 'fly',
