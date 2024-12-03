@@ -40,7 +40,7 @@ What we're aiming for are the following:
 - development workflow improvements
 - more project lore & documentation
 
-### ⭐ Star History
+### ⭐ Stars
 
 You can help out the project by hitting that ★ from the [upper right corner](#) & you can also pin it to your profile.  
 Here's a chart showing the project's growing popularity over time compared to some of the main competition:
