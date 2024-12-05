@@ -77,6 +77,10 @@
 	},
 	"engines": {
 		"node": "20.x"
+	"scripts": {
+  "build": "node generateAvatars.js && your-build-command"
+ }
+		
 	},
 	"scripts": {
 		"build": "webpack --mode=production",
