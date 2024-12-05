@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Avatar Grid</title>
+  <style>
+    /* Avatar grid styles */
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .vignette {
+      background-image: none
+      background-size: cover;
+      background-position: center;
+      width: 100px; 
+      height: 100px; 
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Hover effect for better interactivity */
+    .vignette:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center; font-family: Arial, sans-serif;">Dynamic Avatar Grid</h1>
+  <div id="avatar-grid" class="avatar-grid">
+    <!-- The grid will populate dynamically -->
+  </div>
+
+  <script>
+    // Sample list of types to dynamically populate the grid
+    const types = [
+      "typeA1",
+      "typeA2",
+      "typeA3",
+      "typeA4",
+      "typeA5",
+      "typeA6",
+      "typeE1",
+      "typeE2",
+      "typeE3"
+    ]; 
+
+
+    const avatarGrid = document.getElementById("avatar-grid");
+
+  
+    types.forEach(type => {
+      const vignette = document.createElement("div");
+      vignette.className = "vignette";
+      vignette.dataset.type = type;
+      avatarGrid.appendChild(vignette);
+    });
+
+    // Dynamically load avatars from avatars.json
+    fetch("./avatars.json") 
+      .then(response => response.json())
+      .then(avatars => {
+        e
+        document.querySelectorAll(".vignette").forEach(element => {
+          const type = element.dataset.type; 
+          const avatarUrl = avatars[type]; 
+          if (avatarUrl) {
+            element.style.setProperty("--avatar-url", `url('${avatarUrl}')`);
+            element.style.backgroundImage = `var(--avatar-url)`;
+          } else {
+            console.warn(`No avatar found for type: ${type}`);
+          }
+        });
+      })
+      .catch(error => console.error("Error loading avatars.json:", error));
+  </script>
+</body>
+</html>
