@@ -18,7 +18,7 @@ export default (G: Game) => {
 		// First Ability: Gooey Body
 		{
 			// Update stat buffs whenever health changes
-			trigger: 'onCreatureSummon onDamage onHeal',
+			trigger: 'onDeath',
 
 			require: function () {
 				// Always active
@@ -27,48 +27,47 @@ export default (G: Game) => {
 
 			activate: function () {
 				if (this.creature.dead) {
-					return;
-				}
-				// Attach a permanent effect that gives Gumble stat buffs
-				// Bonus points to pierce, slash and crush based on remaining health
-				const healthBonusDivisor = this.isUpgraded() ? 5 : 7;
-				const bonus = Math.floor((this.creature.health / healthBonusDivisor) * 3);
-				// Log whenever the bonus applied changes
-				const noLog = bonus == this._lastBonus;
-				this._lastBonus = bonus;
-				const statsToApplyBonus = ['pierce', 'slash', 'crush'];
-				const alterations = {};
-				for (let i = 0; i < statsToApplyBonus.length; i++) {
-					const key = statsToApplyBonus[i];
-					alterations[key] = bonus;
-				}
-				this.creature.replaceEffect(
-					new Effect(
-						'Gooey Body', // name
-						this.creature, // Caster
-						this.creature, // Target
-						'', // Trigger
+					const effect = new Effect(
+						'Gooey Body',
+						this.creature,
+						this.creature.hexagons[0],
+						'onStepIn',
 						{
-							alterations: alterations,
-							deleteTrigger: '',
-							stackable: false,
-							effectFn: () => {
-								if (bonus !== this._lastBonus) {
-									G.log('Effect ' + this.title + ' triggered');
+							requireFn: function (creature) {
+								if (this.isUpgraded() && creature.team === this.creature.team) {
+									return false;
 								}
+								return true;
 							},
+							effectFn: function (effect, creature) {
+								creature.remainingMove = 0;
+							},
+							alterations: {
+								moveable: false,
+							},
+							deleteTrigger: 'onStartPhase',
+							turnLifetime: 1,
 						},
 						G,
-					),
-				);
-				if (!noLog) {
-					G.log(
-						'%CreatureName' + this.creature.id + '% receives ' + bonus + ' pierce, slash and crush',
+						'trap_goey-body',
 					);
+
+					const trap = new Trap(
+						this.creature.x,
+						this.creature.y,
+						'trap_goey-body',
+						[effect],
+						this.creature.player,
+						{
+							ownerCreature: this.creature,
+							fullTurnLifetime: true,
+						},
+						G,
+					);
+
+					trap.hide();
 				}
 			},
-
-			_lastBonus: 0,
 		},
 
 		// Second Ability: Gummy Mallet
@@ -241,7 +240,7 @@ export default (G: Game) => {
 						'royal-seal',
 						[effect],
 						ability.creature.player,
-						{
+							{
 							ownerCreature: ability.creature,
 							fullTurnLifetime: true,
 						},
