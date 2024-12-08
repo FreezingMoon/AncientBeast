@@ -4,6 +4,7 @@ import { Creature } from '../creature';
 import { Effect } from '../effect';
 import * as arrayUtils from '../utility/arrayUtils';
 import { getPointFacade } from '../utility/pointfacade';
+import { isUndefined } from 'underscore';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -210,19 +211,37 @@ export default (G) => {
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
-			range: 6,
+			range: 3,
+			bonus_range: 0,
+			is_used: false,
+
+			_getbonusrange() {
+				if (this.isUpgraded()) {
+					if (this.is_used == false) {
+						this.bonus_range += 1;
+					}
+					else {
+						this.is_used = false;
+						this.bonus_range = 0;
+					}
+					return this.bonus_range;
+				}
+				return 0;
+			},
 			require() {
 				return this.testRequirements();
 			},
+
 			query() {
 				const ability = this;
 				const crea = this.creature;
+				this.bonus_range = ability._getbonusrange();
 
 				// Relocates to any hex within range except for the current hex
 				crea.queryMove({
 					noPath: true,
 					isAbility: true,
-					range: G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
+					range: G.grid.getFlyingRange(crea.x, crea.y, this.range + this.bonus_range, crea.size, crea.id),
 					callback: function (hex, args) {
 						if (hex.x == args.creature.x && hex.y == args.creature.y) {
 							// Prevent null movement
@@ -237,10 +256,6 @@ export default (G) => {
 			activate(hex) {
 				const ability = this;
 				ability.end();
-
-				if (this.isUpgraded()) {
-					this.range += 1;
-				}
 
 				const targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
@@ -308,6 +323,8 @@ export default (G) => {
 						G.activeCreature.queryMove();
 					},
 				});
+
+				this.is_used = true;
 			},
 		},
 		// Fourth Ability: Greater Pyre
