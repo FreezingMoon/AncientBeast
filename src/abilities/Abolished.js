@@ -210,7 +210,7 @@ export default (G) => {
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
-			range: 6,
+			range: 3,
 			require() {
 				return this.testRequirements();
 			},
