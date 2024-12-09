@@ -1535,6 +1535,11 @@ export default class Game {
 				break;
 			case 'ability': {
 				const args = $j.makeArray(o.args[1]);
+				const ability = this.activeCreature.abilities[o.id];
+
+				if (ability.title === 'Bonfire Spring') {
+      this.activeCreature.accumulatedTeleportRange = 0;
+    }
 
 				if (o.target.type == 'hex') {
 					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
