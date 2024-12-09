@@ -160,6 +160,7 @@ export class Creature {
 	oldEnergy: number;
 	remainingMove: number;
 	abilities: Ability[];
+	accumulatedTeleportRange: number = 0;
 
 	creatureSprite: CreatureSprite;
 
