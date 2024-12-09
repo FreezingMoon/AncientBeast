@@ -4,6 +4,7 @@ import { Creature } from '../creature';
 import { Effect } from '../effect';
 import * as arrayUtils from '../utility/arrayUtils';
 import { getPointFacade } from '../utility/pointfacade';
+import { isUndefined } from 'underscore';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -214,15 +215,20 @@ export default (G) => {
 			require() {
 				return this.testRequirements();
 			},
+
 			query() {
 				const ability = this;
 				const crea = this.creature;
+				let totalRange = this.range;
+				if (this.isUpgraded()) {
+					totalRange = this.range + this.creature.accumulatedTeleportRange - 1;
+				}
 
 				// Relocates to any hex within range except for the current hex
 				crea.queryMove({
 					noPath: true,
 					isAbility: true,
-					range: G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
+					range: G.grid.getFlyingRange(crea.x, crea.y, totalRange, crea.size, crea.id),
 					callback: function (hex, args) {
 						if (hex.x == args.creature.x && hex.y == args.creature.y) {
 							// Prevent null movement
@@ -237,10 +243,7 @@ export default (G) => {
 			activate(hex) {
 				const ability = this;
 				ability.end();
-
-				const totalRange = this.range + this.creature.accumulatedTeleportRange;
 				this.creature.accumulatedTeleportRange = 0;
-
 				const targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 				targets.forEach(function (item) {
@@ -307,6 +310,8 @@ export default (G) => {
 						G.activeCreature.queryMove();
 					},
 				});
+
+				this.is_used = true;
 			},
 		},
 		// Fourth Ability: Greater Pyre
