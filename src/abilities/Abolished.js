@@ -238,9 +238,8 @@ export default (G) => {
 				const ability = this;
 				ability.end();
 
-				if (this.isUpgraded()) {
-					this.range += 1;
-				}
+				const totalRange = this.range + this.creature.accumulatedTeleportRange;
+				this.creature.accumulatedTeleportRange = 0;
 
 				const targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
