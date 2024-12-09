@@ -1260,6 +1260,9 @@ export default class Game {
 	onStartPhase(/* creature, callback */) {
 		const creature = arguments[0],
 			totalTraps = this.traps.length;
+		if (creature.abilities.some(ability => ability.name === 'Bonfire Spring')) {
+    creature.accumulatedTeleportRange += 1;
+  }
 
 		let trap: Trap;
 
