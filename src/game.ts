@@ -322,7 +322,7 @@ export default class Game {
 		setupOpt: Partial<GameConfig>,
 		matchInitialized?: boolean,
 		matchid?: number,
-		onLoadCompleteFn = () => {},
+		onLoadCompleteFn = () => { },
 	) {
 		// Need to remove keydown listener before new game start
 		// to prevent memory leak and mixing hotkeys between start screen and game
@@ -902,7 +902,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: function () {},
+				callback: function () { },
 				noTooltip: false,
 				tooltip: 'Skipped',
 			},
@@ -963,7 +963,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: function () {},
+				callback: function () { },
 			},
 			o,
 		);
@@ -1260,10 +1260,9 @@ export default class Game {
 	onStartPhase(/* creature, callback */) {
 		const creature = arguments[0],
 			totalTraps = this.traps.length;
-		if (creature.abilities.some(ability => ability.name === 'Bonfire Spring')) {
-    creature.accumulatedTeleportRange += 1;
-  }
-
+		if (creature.abilities.some(ability => ability.title === 'Bonfire Spring')) {
+			creature.accumulatedTeleportRange += 1;
+		}
 		let trap: Trap;
 
 		for (let i = 0; i < totalTraps; i++) {
@@ -1506,7 +1505,7 @@ export default class Game {
 
 	action(o, opt) {
 		const defaultOpt = {
-			callback: function () {},
+			callback: function () { },
 		};
 
 		opt = $j.extend(defaultOpt, opt);
@@ -1536,10 +1535,9 @@ export default class Game {
 			case 'ability': {
 				const args = $j.makeArray(o.args[1]);
 				const ability = this.activeCreature.abilities[o.id];
-
 				if (ability.title === 'Bonfire Spring') {
-      this.activeCreature.accumulatedTeleportRange = 0;
-    }
+					this.activeCreature.accumulatedTeleportRange = 0;
+				}
 
 				if (o.target.type == 'hex') {
 					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
