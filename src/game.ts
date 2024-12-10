@@ -1537,6 +1537,7 @@ export default class Game {
 			case 'ability': {
 				const args = $j.makeArray(o.args[1]);
 				const ability = this.activeCreature.abilities[o.id];
+				// If Abolished used Bonfire Spring, reset the range
 				if (ability.title === 'Bonfire Spring') {
 					this.activeCreature.accumulatedTeleportRange = 0;
 				}
