@@ -4,7 +4,6 @@ import { Creature } from '../creature';
 import { Effect } from '../effect';
 import * as arrayUtils from '../utility/arrayUtils';
 import { getPointFacade } from '../utility/pointfacade';
-import { isUndefined } from 'underscore';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -211,24 +210,19 @@ export default (G) => {
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
-			range: 3,
+			range: 6,
 			require() {
 				return this.testRequirements();
 			},
-
 			query() {
 				const ability = this;
 				const crea = this.creature;
-				let totalRange = this.range;
-				if (this.isUpgraded()) {
-					totalRange = this.range + this.creature.accumulatedTeleportRange - 1;
-				}
 
 				// Relocates to any hex within range except for the current hex
 				crea.queryMove({
 					noPath: true,
 					isAbility: true,
-					range: G.grid.getFlyingRange(crea.x, crea.y, totalRange, crea.size, crea.id),
+					range: G.grid.getFlyingRange(crea.x, crea.y, this.range, crea.size, crea.id),
 					callback: function (hex, args) {
 						if (hex.x == args.creature.x && hex.y == args.creature.y) {
 							// Prevent null movement
@@ -243,7 +237,11 @@ export default (G) => {
 			activate(hex) {
 				const ability = this;
 				ability.end();
-				this.creature.accumulatedTeleportRange = 0;
+
+				if (this.isUpgraded()) {
+					this.range += 1;
+				}
+
 				const targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 				targets.forEach(function (item) {
