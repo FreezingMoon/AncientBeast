@@ -160,7 +160,7 @@ export class Creature {
 	oldEnergy: number;
 	remainingMove: number;
 	abilities: Ability[];
-	accumulatedTeleportRange: number = 0; // Only for Abolished's third ability for now
+	accumulatedTeleportRange: number = 0; // Used for Abolished's third ability
 
 	creatureSprite: CreatureSprite;
 
