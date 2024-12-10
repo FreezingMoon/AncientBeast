@@ -310,8 +310,6 @@ export default (G) => {
 						G.activeCreature.queryMove();
 					},
 				});
-
-				this.is_used = true;
 			},
 		},
 		// Fourth Ability: Greater Pyre
