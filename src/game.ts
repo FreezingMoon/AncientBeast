@@ -1260,9 +1260,7 @@ export default class Game {
 	onStartPhase(/* creature, callback */) {
 		const creature = arguments[0],
 			totalTraps = this.traps.length;
-		if (creature.abilities.some(ability => ability.title === 'Bonfire Spring')) {
-			creature.accumulatedTeleportRange += 1;
-		}
+		
 		let trap: Trap;
 
 		for (let i = 0; i < totalTraps; i++) {
@@ -1295,6 +1293,10 @@ export default class Game {
 	// Removed individual args from definition because we are using the arguments variable.
 	onEndPhase(/* creature, callback */) {
 		const creature = arguments[0];
+		// Check if Abolished used third ability
+		if (creature.abilities.some(ability => ability.title === 'Bonfire Spring')) {
+			creature.accumulatedTeleportRange += 1;
+		}
 
 		this.triggerDeleteEffect('onEndPhase', creature);
 		this.triggerAbility('onEndPhase', arguments);
