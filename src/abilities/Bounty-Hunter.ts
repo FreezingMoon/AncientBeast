@@ -146,8 +146,6 @@ export default (G: Game) => {
 				const targetOriginalHealth = target.health;
 
 				const ability = this;
-				ability.end();
-				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const damage = new Damage(
 					ability.creature, // Attacker
@@ -156,15 +154,22 @@ export default (G: Game) => {
 					[], // Effects
 					G,
 				);
-				target.takeDamage(damage);
+				ability.end();
+				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 				/** damage dealt is original health - current health
 				 * if current health is lower than damage dealt,
 				 * and the ability is upgraded,
 				 * make a second attack
 				 */
 				if (targetOriginalHealth - target.health >= target.health && this.isUpgraded()) {
-					target.takeDamage(damage);
-				}
+					// Added a delay for the second attack with a custom game log
+					setTimeout(() => {
+						G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+						ability.end(true);
+						target.takeDamage(damage);
+						G.log('%CreatureName' + ability.creature.id + '% used ' + ability.title + ' twice');
+					}, 1000);
+				} else target.takeDamage(damage); 
 			},
 		},
 
