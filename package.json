@@ -77,13 +77,9 @@
 	},
 	"engines": {
 		"node": "20.x"
-	"scripts": {
-  "build": "node generateAvatars.js && your-build-command"
- }
-		
 	},
 	"scripts": {
-		"build": "webpack --mode=production",
+		"build": "node generateAvatars.js && webpack --mode=production",
 		"build:dev": "webpack --mode=development",
 		"start": "cross-env NODE_ENV=production webpack-dev-server",
 		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
