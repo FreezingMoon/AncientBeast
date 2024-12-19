@@ -3,7 +3,6 @@ fetch('./avatars.json')
   .then(avatars => {
     document.querySelectorAll('.vignette').forEach(element => {
       const type = element.dataset.type;
-      const avatarUrl = avatars[type];
 			const fallbackUrl = 'assets/default-avatar.jpg';
       const avatarUrl = avatars[type] || fallbackUrl;
 
