@@ -66,7 +66,7 @@
     fetch("./avatars.json") 
       .then(response => response.json())
       .then(avatars => {
-        e
+        
         document.querySelectorAll(".vignette").forEach(element => {
           const type = element.dataset.type; 
           const avatarUrl = avatars[type]; 
