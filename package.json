@@ -23,7 +23,6 @@
 		"url": "https://opencollective.com/AncientBeast"
 	},
 	"dependencies": {
-		"@heroiclabs/nakama-js": "^2.0.1",
 		"compression": "^1.7.4",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
