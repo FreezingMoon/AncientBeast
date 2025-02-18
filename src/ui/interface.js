@@ -605,7 +605,9 @@ export class UI {
 				$j(which).removeClass('shown');
 				return;
 			}
-
+			//Remove 'selected' class from all vignettes cuz only want 1 active
+			this.$dash.find('.section.numbers .stat').removeClass('selected');
+			
 
 		});
 
