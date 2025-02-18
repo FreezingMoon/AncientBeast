@@ -578,17 +578,35 @@ export class UI {
 			e.preventDefault();
 		});
 
+		//Normal hovering functionality
 		this.$dash.find('.section.numbers .stat').on('mouseover', (event) => {
 			const $section = $j(event.target).closest('.section');
 			const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
 			$j(which).addClass('shown');
 		});
 
+		//Mouse leave will remove hover ONLY if it was not clicked before
 		this.$dash.find('.section.numbers .stat').on('mouseleave', (event) => {
 			const $section = $j(event.target).closest('.section');
 			const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
+			if (!$section.hasClass('selected')) { //Doesn't hide cuz clicked
+				const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
+				$j(which).removeClass('shown');
+			}
+		});
 
-			$j(which).removeClass('shown');
+		//Do same thing that hover does but when user left clicks and makes vignette name stay
+		this.$dash.find('.section.numbers .stat').on('click', (event) => {
+			const $section = $j(event.target).closest('.section');
+			//Deselect previous vignettes if selected (toggle)
+			if ($section.hasClass('selected')) {
+				$section.removeClass('selected');
+				const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
+				$j(which).removeClass('shown');
+				return;
+			}
+
+
 		});
 
 		this.$dash.children('#playertabswrapper').addClass('numplayer' + game.playerMode);
