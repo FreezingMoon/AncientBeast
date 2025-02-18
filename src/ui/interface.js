@@ -607,7 +607,11 @@ export class UI {
 			}
 			//Remove 'selected' class from all vignettes cuz only want 1 active
 			this.$dash.find('.section.numbers .stat').removeClass('selected');
-			
+			//Add 'selected' class to this clicked vignette
+			$section.addClass('selected');
+			//Makes name stays visible
+			const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
+			$j(which).addClass('shown');
 
 		});
 
