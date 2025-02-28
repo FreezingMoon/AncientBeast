@@ -68,6 +68,10 @@ export class MusicPlayer {
 			// Perform on beast click
 			this.beastAudio.play();
 		});
+		// slider
+		$j('#sfx').on('change', (e) => {
+			this.audio.volume = Number(e.target.value);
+		});
 	}
 
 	getCurrentTrackIndex() {
