@@ -4,15 +4,14 @@
 - [Getting Started](#getting-started)
 - [Basic Concepts](#basic-concepts)
 - [Game Flow](#game-flow)
-- [Combat](#combat)
 - [Advanced Tactics](#advanced-tactics)
 
 ## Getting Started
 
-### Playing Online
+### Web Play
 1. Visit [AncientBeast.com](https://AncientBeast.com)
-2. Click "Play Game" to start
-3. Choose your preferred game mode (1v1 or 2v2)
+2. Choose your preferred game mode (1v1 or 2v2)
+3. Click "Play Game" to start
 
 ### Playing Locally
 1. Clone the repository
@@ -23,8 +22,8 @@
 
 ### The Battlefield
 - The game takes place on a hexagonal grid
-- Each hex can contain one unit
-- Different terrain types may affect movement and abilities
+- Units can span up to 3 hexagons long
+- Some traps may alter unit movement
 
 ### Units
 - Each unit belongs to one of seven factions (based on the seven deadly sins)
@@ -32,13 +31,7 @@
   - Health Points (HP)
   - Energy Points
   - Movement Range
-  - Attack Range
   - Special Abilities
-
-### Resources
-- Energy: Used for abilities and special moves
-- Health: Represents unit survival
-- Action Points: Determines what you can do on your turn
 
 ## Game Flow
 
@@ -60,25 +53,23 @@
 
 ### Movement
 - Units can move within their movement range
-- Cannot move through occupied hexes
-- Some abilities may allow special movement
+- Usually you can't move through occupied hexes
+- Some abilities may allow special type of movement
 
 ### Combat
 - Units can attack enemies within their attack range
 - Different attacks may have different areas of effect
-- Consider positioning for maximum effectiveness
+- Consider careful positioning for maximum effectiveness
 
 ## Advanced Tactics
 
-### Army Building
-- Create balanced teams with complementary abilities
-- Consider unit synergies when building your army
-- Adapt your strategy based on opponent's faction
+### Squad Building
+- Create balanced squads with complementary abilities
+- Consider unit synergies when building your squad
+- Adapt your strategy based on opponent's units
 
-### Positioning
-- Use terrain to your advantage
-- Control key areas of the battlefield
-- Protect vulnerable units
+### Unit Positioning
+- Protect vulnerable units by shielding them
 - Set up combos with area-of-effect abilities
 
 ### Resource Management
@@ -86,7 +77,7 @@
 - Plan ahead for powerful abilities
 - Consider the action point cost of moves
 
-## Tips for Success
+## Basic Tips
 1. Learn your units' abilities thoroughly
 2. Plan several turns ahead
 3. Watch your positioning
@@ -106,8 +97,7 @@
 - Arrow keys: Navigate
 - Space: Confirm selection
 - ESC: Cancel action
-- 1-4: Select abilities
-- Tab: Cycle through units
+- QWER: Select abilities
 
 ## Game Modes
 
