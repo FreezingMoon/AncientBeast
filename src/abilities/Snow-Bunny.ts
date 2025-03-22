@@ -482,7 +482,6 @@ export default (G: Game) => {
 				);
 				const tween = projectileInstance[0];
 				const sprite = projectileInstance[1];
-
 				const dist = projectileInstance[2];
 
 				sprite.alpha = 0.4;
