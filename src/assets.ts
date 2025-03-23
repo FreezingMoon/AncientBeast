@@ -10,14 +10,33 @@ import { phaserAutoloadAssetPaths, assetPaths } from '../assets/index';
  */
 export function use(phaser: Phaser.Game): void {
 	const assets = Object.entries(phaserAutoloadAssetPaths ?? {});
-
 	const loadedKeys = new Set<string>();
 
 	for (const [path, url] of assets) {
-		if (!/\.(png|jpg|jpeg|svg)$/i.test(path)) continue; // Only load images
+		if (!/\.(png|jpg|jpeg|svg)$/i.test(path)) continue;
 
-		const key = getBasename(path);
+		let key = getBasename(path);
 
+		// Special rule for avatars: if in /units/avatars/, use "<name>_cardboard"
+		if (path.includes('/units/avatars/')) {
+			const baseKey = key;
+			const cardKey = baseKey + '_cardboard';
+
+			// Ensure both base and card keys are loaded
+			if (!loadedKeys.has(baseKey)) {
+				phaser.load.image(baseKey, url); // Load Wisp (or other creature)
+				loadedKeys.add(baseKey);
+			}
+
+			if (!loadedKeys.has(cardKey)) {
+				phaser.load.image(cardKey, url); // Load Wisp_cardboard
+				loadedKeys.add(cardKey);
+			}
+
+			continue;  // Skip to next asset, since avatar assets are handled above
+		}
+
+		// Regular asset handling (non-avatar)
 		if (loadedKeys.has(key)) {
 			console.warn(`[assets.ts] Duplicate key skipped: "${key}" from path: ${path}`);
 			continue;
@@ -27,6 +46,8 @@ export function use(phaser: Phaser.Game): void {
 		loadedKeys.add(key);
 	}
 }
+
+
 
 /**
  * Extract basename from a file path.
