@@ -742,15 +742,15 @@ export default class Game {
 			$j('.lobby-match-list').append(_matchBtn);
 		});
 	}
-/**
+	/**
 	 * Function to refresh the avatar UI
 	 */
 
 	refreshAvatarGrid() {
 		if (this.UI && typeof this.UI.refreshAvatarGrid === 'function') {
-		  this.UI.refreshAvatarGrid();
+			this.UI.refreshAvatarGrid();
 		}
-	  }
+	}
 	/**
 	 * Resize the combat frame
 	 */

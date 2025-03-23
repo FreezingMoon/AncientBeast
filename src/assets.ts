@@ -15,7 +15,7 @@ export function use(phaser: Phaser.Game): void {
 	for (const [path, url] of assets) {
 		if (!/\.(png|jpg|jpeg|svg)$/i.test(path)) continue;
 
-		let key = getBasename(path);
+		const key = getBasename(path);
 
 		// Special rule for avatars: if in /units/avatars/, use "<name>_cardboard"
 		if (path.includes('/units/avatars/')) {
@@ -33,7 +33,7 @@ export function use(phaser: Phaser.Game): void {
 				loadedKeys.add(cardKey);
 			}
 
-			continue;  // Skip to next asset, since avatar assets are handled above
+			continue; // Skip to next asset, since avatar assets are handled above
 		}
 
 		// Regular asset handling (non-avatar)
@@ -46,8 +46,6 @@ export function use(phaser: Phaser.Game): void {
 		loadedKeys.add(key);
 	}
 }
-
-
 
 /**
  * Extract basename from a file path.
