@@ -1604,7 +1604,8 @@ export class UI {
 		this.materializeToggled = false;
 	}
 
-	gridSelectUp() { // 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
+	gridSelectUp() {
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
 
 		const game = this.game;
 		const creatureType = this.selectedCreature;
@@ -1623,7 +1624,8 @@ export class UI {
 		}
 	}
 
-	gridSelectDown() {// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
+	gridSelectDown() {
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
 
 		const game = this.game;
 		const creatureType = this.selectedCreature;
@@ -1642,7 +1644,8 @@ export class UI {
 		}
 	}
 
-	gridSelectLeft() {// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
+	gridSelectLeft() {
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
 
 		const creatureType = this.selectedCreature === '--' ? 'A0' : this.selectedCreature;
 
@@ -1653,7 +1656,8 @@ export class UI {
 		this.showCreature(nextCreature, this.selectedPlayer);
 	}
 
-	gridSelectRight() {// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
+	gridSelectRight() {
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
 
 		const creatureType = this.selectedCreature === '--' ? 'A8' : this.selectedCreature;
 
