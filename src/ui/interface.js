@@ -875,6 +875,10 @@ export class UI {
 			.addClass('active');
 
 		this.selectedCreature = creatureType;
+		// Added: Visually highlight the selected creature on the grid
+		// This ensures the tile matches the active creature shown in the UI panel
+		this.$grid.find('.vignette').removeClass('active');
+		this.$grid.find(".vignette[creature='" + creatureType + "']").addClass('active');
 		const stats = game.retrieveCreatureStats(creatureType);
 		if (stats === undefined) return;
 
@@ -1601,75 +1605,67 @@ export class UI {
 	}
 
 	gridSelectUp() {
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
+
 		const game = this.game;
 		const creatureType = this.selectedCreature;
-		let nextCreature;
 
-		const isDarkPriest = creatureType === '--';
-		if (isDarkPriest) {
+		if (creatureType === '--') {
 			this.showCreature('W1', this.selectedPlayer);
 			return;
 		}
 
-		if (game.realms.indexOf(creatureType[0]) - 1 > -1) {
-			const realm = game.realms[game.realms.indexOf(creatureType[0]) - 1];
+		const currentRealmIndex = game.realms.indexOf(creatureType[0]);
+		const newRealm = game.realms[currentRealmIndex - 1];
 
-			if (realm === '-') {
-				return;
-			}
-			nextCreature = realm + creatureType[1];
-			this.lastViewedCreature = nextCreature;
+		if (newRealm && newRealm !== '-') {
+			const nextCreature = newRealm + creatureType[1];
 			this.showCreature(nextCreature, this.selectedPlayer);
 		}
 	}
 
 	gridSelectDown() {
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
+
 		const game = this.game;
 		const creatureType = this.selectedCreature;
-		let nextCreature;
 
-		const isDarkPriest = creatureType === '--';
-		if (isDarkPriest) {
+		if (creatureType === '--') {
 			this.showCreature('A1', this.selectedPlayer);
 			return;
 		}
 
-		if (game.realms.indexOf(creatureType[0]) + 1 < game.realms.length) {
-			const realm = game.realms[game.realms.indexOf(creatureType[0]) + 1];
-			nextCreature = realm + creatureType[1];
-			this.lastViewedCreature = nextCreature;
+		const currentRealmIndex = game.realms.indexOf(creatureType[0]);
+		const newRealm = game.realms[currentRealmIndex + 1];
+
+		if (newRealm) {
+			const nextCreature = newRealm + creatureType[1];
 			this.showCreature(nextCreature, this.selectedPlayer);
 		}
 	}
 
 	gridSelectLeft() {
-		const isDarkPriest = this.selectedCreature === '--';
-		const creatureType = isDarkPriest ? 'A0' : this.selectedCreature;
-		let nextCreature;
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
 
-		if (creatureType[1] - 1 < 1) {
-			// End of row
-			return;
-		} else {
-			nextCreature = creatureType[0] + (creatureType[1] - 1);
-			this.lastViewedCreature = nextCreature;
-			this.showCreature(nextCreature, this.selectedPlayer);
-		}
+		const creatureType = this.selectedCreature === '--' ? 'A0' : this.selectedCreature;
+
+		const col = parseInt(creatureType[1]);
+		if (col - 1 < 1) return;
+
+		const nextCreature = creatureType[0] + (col - 1);
+		this.showCreature(nextCreature, this.selectedPlayer);
 	}
 
 	gridSelectRight() {
-		const isDarkPriest = this.selectedCreature === '--';
-		const creatureType = isDarkPriest ? 'A8' : this.selectedCreature;
-		let nextCreature;
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
 
-		if (creatureType[1] - 0 + 1 > 7) {
-			// End of row
-			return;
-		} else {
-			nextCreature = creatureType[0] + (creatureType[1] - 0 + 1);
-			this.lastViewedCreature = nextCreature;
-			this.showCreature(nextCreature, this.selectedPlayer);
-		}
+		const creatureType = this.selectedCreature === '--' ? 'A8' : this.selectedCreature;
+
+		const col = parseInt(creatureType[1]);
+		if (col + 1 > 7) return;
+
+		const nextCreature = creatureType[0] + (col + 1);
+		this.showCreature(nextCreature, this.selectedPlayer);
 	}
 
 	gridSelectNext() {
