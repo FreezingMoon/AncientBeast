@@ -1,7 +1,7 @@
 const audioPlayer = document.querySelector('.audio-player-skin');
 const skin = new Audio();
 
-// show total duration when audio data is loaded
+// Show total duration when audio data is loaded
 skin.addEventListener(
 	'loadeddata',
 	() => {
@@ -15,7 +15,7 @@ skin.addEventListener(
 	false,
 );
 
-// click event for scrubbing
+// Click event for scrubbing
 if (audioPlayer) {
 	const timeline = audioPlayer.querySelector('.timeline-control');
 	if (timeline) {
@@ -50,7 +50,7 @@ if (audioPlayer) {
 	}
 }
 
-// song progress bar
+// Song progress bar
 setInterval(() => {
 	if (audioPlayer) {
 		const progressBar = audioPlayer.querySelector('.progress-music');
