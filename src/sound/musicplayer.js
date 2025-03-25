@@ -18,7 +18,7 @@ export class MusicPlayer {
 		$j('#genre-epic').addClass('active-text');
 		this.playlist.find('li').not('.epic').addClass('hidden');
 
-		// debug genre selection
+		// Debug genre selection
 		$j('.musicgenres__title')
 			.off('click')
 			.on('click', (e) => {
@@ -54,7 +54,7 @@ export class MusicPlayer {
 				activeTracks.removeClass('hidden'); // Make the active ones visible
 			});
 
-		// debug playlist track selection
+		// Debug playlist track selection
 		this.playlist
 			.find('li')
 			.off('click')
@@ -81,7 +81,7 @@ export class MusicPlayer {
 				this.beastAudio.play();
 			});
 
-		// volume sliders requested
+		// Volume sliders requested
 		$j('#vol')
 			.off('change')
 			.on('change', (e) => {
@@ -142,14 +142,14 @@ export class MusicPlayer {
 		this.audio.src = link.attr('href');
 		this.audio.load();
 
-		// debug play button state
+		// Debug play button state
 		const playBtn = document.querySelector('.controls .toggle-play');
 		if (playBtn) {
 			playBtn.classList.remove('play');
 			playBtn.classList.add('pause');
 		}
 
-		// play audio
+		// Play audio
 		this.audio.play().catch((error) => {
 			console.error('Error playing audio:', error);
 		});
