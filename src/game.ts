@@ -743,6 +743,15 @@ export default class Game {
 		});
 	}
 	/**
+	 * Function to refresh the avatar UI
+	 */
+
+	refreshAvatarGrid() {
+		if (this.UI && typeof this.UI.refreshAvatarGrid === 'function') {
+			this.UI.refreshAvatarGrid();
+		}
+	}
+	/**
 	 * Resize the combat frame
 	 */
 	resizeCombatFrame() {
@@ -794,7 +803,8 @@ export default class Game {
 
 					const last = this.activeCreature;
 					this.activeCreature = next; // Set new activeCreature
-
+					this.refreshAvatarGrid(); // trigger the grid refresh whenever a new creature becomes active
+					this.UI?.refreshAvatarGrid?.();
 					if (!last.dead) {
 						last.updateHealth(); // Update health display due to active creature change
 					}
