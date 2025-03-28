@@ -58,6 +58,29 @@ export class UI {
 		this.$grid = $j(this.#makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
+		//Share Replay Button Click Handler
+		$j('#shareReplay').on('click', () => {
+			try {
+				const replayData = JSON.stringify(this.game.gamelog.log, null, 2);
+
+				// Copy to clipboard
+				navigator.clipboard
+					.writeText(replayData)
+					.then(() => alert('Replay copied to clipboard!'))
+					.catch(() => alert('Could not copy replay, your browser may not support clipboard API.'));
+
+				//Trigger download
+				const blob = new Blob([replayData], { type: 'application/json' });
+				const a = document.createElement('a');
+				a.href = URL.createObjectURL(blob);
+				a.download = 'AncientBeast-Replay.json';
+				a.click();
+			} catch (e) {
+				console.error('Error exporting replay:', e);
+				alert('Something went wrong while exporting the replay.');
+			}
+		});
+
 		this.$brandlogo = $j('#brandlogo');
 		this.active = false;
 
