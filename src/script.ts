@@ -209,8 +209,43 @@ $j(() => {
 	$j('#startButton').trigger('focus');
 
 	const startGame = () => {
-		G.loadGame(getGameConfig());
+		const videoWrapper = document.getElementById('loading-video') as HTMLElement;
+		const video = document.getElementById('introVideo') as HTMLVideoElement;
+
+		if (videoWrapper && video) {
+			videoWrapper.style.display = 'block';
+			videoWrapper.style.position = 'fixed';
+			videoWrapper.style.zIndex = '9999';
+			videoWrapper.style.opacity = '1';
+			videoWrapper.style.transition = 'opacity 1s ease';
+
+			video.currentTime = 0;
+			video.play().catch((err) => {
+				console.warn('Video failed to play:', err);
+				finishLoading();
+			});
+
+			// Load the game in the background
+			G.loadGame(getGameConfig());
+
+			video.onended = () => finishLoading();
+
+			setTimeout(() => {
+				if (!video.ended) finishLoading();
+			}, 8000);
+		} else {
+			G.loadGame(getGameConfig());
+		}
 	};
+
+	function finishLoading() {
+		const videoWrapper = document.getElementById('loading-video') as HTMLElement;
+		videoWrapper.style.transition = 'opacity 1s ease';
+		videoWrapper.style.opacity = '0';
+		setTimeout(() => {
+			videoWrapper.remove();
+		}, 1000);
+	}
 
 	const restoreGameLog = (log) => {
 		G.gamelog.load(log);
