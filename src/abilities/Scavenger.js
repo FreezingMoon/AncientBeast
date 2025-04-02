@@ -27,20 +27,23 @@ function getEscortUsableHexes(G, crea, trg) {
 
 	for (let shift = 1; shift <= distance; shift++) {
 		const hoveredBlockStartX = blockStartX + (shift * dir);
-
+	
 		let blockFits = true;
+	
 		for (let i = 0; i < creaSize + trgSize; i++) {
-			const xToCheck = hoveredBlockStartX + i;
+			const xToCheck = hoveredBlockStartX + (i * dir);  // ← clearly fixed here
+	
 			if (!G.grid.hexExists({ x: xToCheck, y: crea.y })) {
 				blockFits = false;
 				break;
 			}
 		}
-
+	
 		if (blockFits) {
 			usableHexes.push(G.grid.hexes[crea.y][hoveredBlockStartX]);
 		}
 	}
+	
 
 	return { usableHexes, trgIsInfront, creaSize, trgSize, dir, blockStartX };
 }
