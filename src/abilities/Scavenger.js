@@ -19,34 +19,43 @@ function getEscortUsableHexes(G, crea, trg) {
 	const trgSize = trg.size;
 
 	const blockStartX = trgIsInfront ? trg.x : crea.x;
-	const blockEndX = blockStartX + creaSize + trgSize - 1;
+	const totalBlockSize = creaSize + trgSize;
 
 	const distance = crea.remainingMove;
+	const usableHexes = [];
 
-	let usableHexes = [];
-
+	// Loop through each potential tile in range clearly
 	for (let shift = 1; shift <= distance; shift++) {
-		const hoveredBlockStartX = blockStartX + (shift * dir);
-	
+		const hoveredBlockStartX = blockStartX + shift * dir;
+
 		let blockFits = true;
-	
-		for (let i = 0; i < creaSize + trgSize; i++) {
-			const xToCheck = hoveredBlockStartX + (i * dir);  // ← clearly fixed here
-	
+		for (let i = 0; i < totalBlockSize; i++) {
+			const xToCheck = hoveredBlockStartX + i * dir;
+
+			// Clearly ensure the hex exists
 			if (!G.grid.hexExists({ x: xToCheck, y: crea.y })) {
 				blockFits = false;
 				break;
 			}
+
+			const hexToCheck = G.grid.hexes[crea.y][xToCheck];
+
+			// Clearly ensure hex is unoccupied or occupied by current block creatures only
+			if (hexToCheck.creature && ![crea.id, trg.id].includes(hexToCheck.creature.id)) {
+				blockFits = false;
+				break;
+			}
 		}
-	
+
+		// If clearly fits, add as usable
 		if (blockFits) {
 			usableHexes.push(G.grid.hexes[crea.y][hoveredBlockStartX]);
 		}
 	}
-	
 
 	return { usableHexes, trgIsInfront, creaSize, trgSize, dir, blockStartX };
 }
+
 
 
 /** Creates the abilities
