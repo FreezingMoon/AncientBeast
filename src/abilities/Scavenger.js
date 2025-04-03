@@ -4,57 +4,57 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
-function getEscortUsableHexes(G, crea, trg) {
-	const trgIsInfront =
-		G.grid.getHexMap(
-			crea.x - matrices.inlinefront2hex.origin[0],
-			crea.y - matrices.inlinefront2hex.origin[1],
-			0,
-			false,
-			matrices.inlinefront2hex,
-		)[0].creature === trg;
+	function getEscortUsableHexes(G, crea, trg) {
+		const trgIsInfront =
+			G.grid.getHexMap(
+				crea.x - matrices.inlinefront2hex.origin[0],
+				crea.y - matrices.inlinefront2hex.origin[1],
+				0,
+				false,
+				matrices.inlinefront2hex,
+			)[0].creature === trg;
 
-	const dir = trgIsInfront ? -1 : 1;
-	const creaSize = crea.size;
-	const trgSize = trg.size;
+		const dir = trgIsInfront ? -1 : 1;
+		const creaSize = crea.size;
+		const trgSize = trg.size;
 
-	const blockStartX = trgIsInfront ? trg.x : crea.x;
-	const totalBlockSize = creaSize + trgSize;
+		const blockStartX = trgIsInfront ? trg.x : crea.x;
+		const totalBlockSize = creaSize + trgSize;
 
-	const distance = crea.remainingMove;
-	const usableHexes = [];
+		const distance = crea.remainingMove;
+		const usableHexes = [];
 
-	// Loop through each potential tile in range clearly
-	for (let shift = 1; shift <= distance; shift++) {
-		const hoveredBlockStartX = blockStartX + shift * dir;
+		// Loop through each potential tile in range clearly
+		for (let shift = 1; shift <= distance; shift++) {
+			const hoveredBlockStartX = blockStartX + shift * dir;
 
-		let blockFits = true;
-		for (let i = 0; i < totalBlockSize; i++) {
-			const xToCheck = hoveredBlockStartX + i * dir;
+			let blockFits = true;
+			for (let i = 0; i < totalBlockSize; i++) {
+				const xToCheck = hoveredBlockStartX + i * dir;
 
-			// Clearly ensure the hex exists
-			if (!G.grid.hexExists({ x: xToCheck, y: crea.y })) {
-				blockFits = false;
-				break;
+				// Clearly ensure the hex exists
+				if (!G.grid.hexExists({ x: xToCheck, y: crea.y })) {
+					blockFits = false;
+					break;
+				}
+
+				const hexToCheck = G.grid.hexes[crea.y][xToCheck];
+
+				// Clearly ensure hex is unoccupied or occupied by current block creatures only
+				if (hexToCheck.creature && ![crea.id, trg.id].includes(hexToCheck.creature.id)) {
+					blockFits = false;
+					break;
+				}
 			}
 
-			const hexToCheck = G.grid.hexes[crea.y][xToCheck];
-
-			// Clearly ensure hex is unoccupied or occupied by current block creatures only
-			if (hexToCheck.creature && ![crea.id, trg.id].includes(hexToCheck.creature.id)) {
-				blockFits = false;
-				break;
+			// If clearly fits, add as usable
+			if (blockFits) {
+				usableHexes.push(G.grid.hexes[crea.y][hoveredBlockStartX]);
 			}
 		}
 
-		// If clearly fits, add as usable
-		if (blockFits) {
-			usableHexes.push(G.grid.hexes[crea.y][hoveredBlockStartX]);
-		}
+		return { usableHexes, trgIsInfront, creaSize, trgSize, dir, blockStartX };
 	}
-
-	return { usableHexes, trgIsInfront, creaSize, trgSize, dir, blockStartX };
-}
 
 
 
