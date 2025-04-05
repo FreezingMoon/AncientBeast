@@ -250,7 +250,6 @@ export default (G) => {
 						G.grid.cleanHex(h);
 						h.displayVisualState('dashed');
 					});
-				
 					const hoveredBlockStartX = hex.x;
 					const shift = hoveredBlockStartX - blockStartX;
 				
