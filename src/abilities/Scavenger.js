@@ -4,57 +4,64 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
-	function getEscortUsableHexes(G, crea, trg) {
-		const trgIsInfront =
-			G.grid.getHexMap(
-				crea.x - matrices.inlinefront2hex.origin[0],
-				crea.y - matrices.inlinefront2hex.origin[1],
-				0,
-				false,
-				matrices.inlinefront2hex,
-			)[0].creature === trg;
+function getEscortUsableHexes(G, crea, trg) {
+	const trgIsInfront =
+		G.grid.getHexMap(
+			crea.x - matrices.inlinefront2hex.origin[0],
+			crea.y - matrices.inlinefront2hex.origin[1],
+			0,
+			false,
+			matrices.inlinefront2hex,
+		)[0].creature === trg;
 
-		const dir = trgIsInfront ? -1 : 1;
-		const creaSize = crea.size;
-		const trgSize = trg.size;
+	const dir = trgIsInfront ? -1 : 1;
+	const creaSize = crea.size;
+	const trgSize = trg.size;
+	const totalBlockSize = creaSize + trgSize;
+	const blockStartX = trgIsInfront ? trg.x : crea.x;
 
-		const blockStartX = trgIsInfront ? trg.x : crea.x;
-		const totalBlockSize = creaSize + trgSize;
+	const distance = crea.remainingMove;
+	const usableHexes = [];
 
-		const distance = crea.remainingMove;
-		const usableHexes = [];
+	// 1. Collect ALL hexes currently occupied by any OTHER creature
+	const reservedHexes = new Set();
+	for (const row of G.grid.hexes) {
+		for (const hex of row) {
+			if (hex.creature && ![crea.id, trg.id].includes(hex.creature.id)) {
+				reservedHexes.add(`${hex.x},${hex.y}`);
+			}
+		}
+	}
 
-		// Loop through each potential tile in range clearly
-		for (let shift = 1; shift <= distance; shift++) {
-			const hoveredBlockStartX = blockStartX + shift * dir;
+	// 2. Try shifts of 1, 2, ..., movement range
+	for (let shift = 1; shift <= distance; shift++) {
+		const hoveredBlockStartX = blockStartX + shift * dir;
+		let blockFits = true;
 
-			let blockFits = true;
-			for (let i = 0; i < totalBlockSize; i++) {
-				const xToCheck = hoveredBlockStartX + i * dir;
+		// Check full block (target first, then scavenger)
+		for (let i = 0; i < totalBlockSize; i++) {
+			const x = hoveredBlockStartX + i * dir;
+			const y = crea.y;
 
-				// Clearly ensure the hex exists
-				if (!G.grid.hexExists({ x: xToCheck, y: crea.y })) {
-					blockFits = false;
-					break;
-				}
-
-				const hexToCheck = G.grid.hexes[crea.y][xToCheck];
-
-				// Clearly ensure hex is unoccupied or occupied by current block creatures only
-				if (hexToCheck.creature && ![crea.id, trg.id].includes(hexToCheck.creature.id)) {
-					blockFits = false;
-					break;
-				}
+			if (!G.grid.hexExists({ x, y })) {
+				blockFits = false;
+				break;
 			}
 
-			// If clearly fits, add as usable
-			if (blockFits) {
-				usableHexes.push(G.grid.hexes[crea.y][hoveredBlockStartX]);
+			if (reservedHexes.has(`${x},${y}`)) {
+				blockFits = false;
+				break;
 			}
 		}
 
-		return { usableHexes, trgIsInfront, creaSize, trgSize, dir, blockStartX };
+		if (blockFits) {
+			usableHexes.push(G.grid.hexes[crea.y][hoveredBlockStartX]);
+		}
 	}
+
+	return { usableHexes, trgIsInfront, creaSize, trgSize, dir, blockStartX };
+}
+
 
 
 
@@ -323,37 +330,57 @@ export default (G) => {
 			
 				const crea = this.creature;
 				const trg = G.creatures[args.trg];
-				const { blockStartX } = getEscortUsableHexes(G, crea, trg);
+			
+				const {
+					blockStartX,
+					dir
+				} = getEscortUsableHexes(G, crea, trg); // Original logic preserved
 			
 				const hoveredBlockStartX = hex.x;
-				const finalShift = hoveredBlockStartX - blockStartX;
 			
+				// 👇 Compute how many hexes to shift
+				const finalShift = (hoveredBlockStartX - blockStartX);
+			
+				// 🔁 Apply shift to each hex
 				const creaDestX = crea.x + finalShift;
 				const trgDestX = trg.x + finalShift;
 			
 				const creaDest = G.grid.hexes[crea.y][creaDestX];
 				const trgDest = G.grid.hexes[trg.y][trgDestX];
 			
-				console.log('[FIXED ACTIVATE] Shift:', finalShift);
+				console.log('[ACTIVATE]', {
+					finalShift,
+					creaDestX,
+					trgDestX,
+					blockStartX,
+					dir,
+					hoveredBlockStartX,
+				});
 			
+				// ➖ Update move points
 				crea.remainingMove -= Math.abs(finalShift);
 			
+				// ✅ Move target first (important)
 				trg.moveTo(trgDest, {
 					animation: 'fly',
-					callback: () => crea.updateHex(),
+					callback: () => {
+						trg.updateHex(); // Update grid state
+					},
 					ignoreMovementPoint: true,
 				});
 			
+				// ✅ Move Scavenger
 				crea.moveTo(creaDest, {
 					animation: 'fly',
 					callback: () => {
-						trg.updateHex();
-						crea.queryMove();
+						crea.updateHex(); // Update grid
+						crea.queryMove(); // Let player move again
 					},
 					ignoreMovementPoint: true,
 					overrideSpeed: crea.animation.walk_speed,
 				});
 			}
+			
 			
 			
 			
