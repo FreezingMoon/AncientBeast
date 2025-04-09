@@ -27,7 +27,7 @@ import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
-
+import { setAudioMode } from './sound/soundsys'; // make sure this is imported
 /* eslint-disable prefer-rest-params */
 
 /* NOTES/TODOS
@@ -611,7 +611,7 @@ export default class Game {
 				this,
 			); // Create UI (not before because some functions require creatures to already exist)
 		}
-
+		setAudioMode('full', this.soundsys, this.UI);
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = 'playing';
 

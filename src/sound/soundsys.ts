@@ -4,7 +4,7 @@ import { MusicPlayer } from './musicplayer';
 import { clamp } from '../utility/math';
 
 
-export type AudioMode = 'full' | 'sfx-only' | 'muted';
+export type AudioMode = 'full' | 'sfx' | 'muted';
 let currentAudioMode: AudioMode = 'full';
 
 export function getAudioMode(): AudioMode {
@@ -219,7 +219,7 @@ export function setAudioMode(mode, soundSysInstance, uiInstance) {
 		soundSysInstance.heartbeatVolume = 0;
 		soundSysInstance.announcerVolume = 0;
 		soundSysInstance.stopMusic();
-	} else if (mode === 'sfx-only') {
+	} else if (mode === 'sfx') {
 		soundSysInstance.musicVolume = 0;
 		soundSysInstance.effectsVolume = 1;
 		soundSysInstance.heartbeatVolume = 1;
@@ -240,15 +240,13 @@ export function cycleAudioMode(soundSysInstance: SoundSys, uiInstance: any): Aud
 	let newMode: AudioMode;
 
 	if (currentAudioMode === 'full') {
-		newMode = 'sfx-only';
-	} else if (currentAudioMode === 'sfx-only') {
+		newMode = 'sfx';
+	} else if (currentAudioMode === 'sfx') {
 		newMode = 'muted';
 	} else {
 		newMode = 'full';
 	}
 
-	setAudioMode(newMode, soundSysInstance, uiInstance); // ✅ Now passing the UI too
+	setAudioMode(newMode, soundSysInstance, uiInstance);
 	return newMode;
 }
-
-

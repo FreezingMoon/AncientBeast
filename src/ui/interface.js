@@ -1907,17 +1907,17 @@ this.btnAudio.$button.on('contextmenu', (e) => {
 		}
 	}
 	updateAudioIcon(mode) {
-		let iconKey = 'icons/audio/music';
+		let iconKey = 'icons/audio/effects';
 		let tooltipText = 'Audio: Full';
 	
-		if (mode === 'sfx-only') {
-			iconKey = 'icons/audio/effects';
-			tooltipText = 'Audio: SFX Only';
+		if (mode === 'sfx') {
+			iconKey = 'icons/audio/music';
+			tooltipText = 'Audio: SFX';
 		} else if (mode === 'muted') {
 			iconKey = 'icons/audio/music-off';
 			tooltipText = 'Audio: Muted';
 		}
-	
+		
 		const iconUrl = getUrl(iconKey);
 		const $audioImg = $j('#audio img');
 		if ($audioImg.length) {
@@ -1928,7 +1928,7 @@ this.btnAudio.$button.on('contextmenu', (e) => {
 		if ($tooltip.length) {
 			$tooltip.text(tooltipText);
 		}
-	}
+	}			
 	updateAbilityUpgrades() {
 		const game = this.game,
 			creature = game.activeCreature;
