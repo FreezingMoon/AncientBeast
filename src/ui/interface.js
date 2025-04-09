@@ -124,27 +124,33 @@ export class UI {
 		);
 		this.buttons.push(this.btnFullscreen);
 
-		// Audio Button
-		this.btnAudio = new Button(
-			{
-				$button: $j('.toggle-music-player'),
-				hasShortcut: true,
-				click: () => {
-					this.game.signals.ui.dispatch('toggleMusicPlayer');
-				},
-				overridefreeze: true,
-			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
-		);
-		this.buttons.push(this.btnAudio);
+// Audio Button
+this.btnAudio = new Button(
+	{
+		$button: $j('.toggle-music-player'),
+		hasShortcut: true,
+		click: () => {
+			this.game.signals.ui.dispatch('toggleMusicPlayer');
+		},
+		overridefreeze: true,
+	},
+	{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+);
+this.buttons.push(this.btnAudio);
 
-		// Right-click audio button to cycle audio mode (full / sfx-only / muted)
+// Right-click audio button to cycle audio mode (full / sfx-only / muted)
 this.btnAudio.$button.on('contextmenu', (e) => {
 	e.preventDefault();
+	console.log('🎧 Right-click detected on audio button');
+
 	const newMode = cycleAudioMode(this.game.soundsys); // assumes soundsys instance is in game
+	console.log('🔁 Switched to audio mode:', newMode);
+
 	this.updateAudioIcon(newMode);
 });
+
 this.updateAudioIcon(getAudioMode());
+
 
 
 		// Skip Turn Button
@@ -1910,24 +1916,34 @@ this.updateAudioIcon(getAudioMode());
 			}
 		}
 	}
-	updateAudioIcon(mode) {
-		const $img = this.btnAudio.$button.find('img');
-	
+	updateAudioIcon(mode) {						
+		console.log('🎨 Updating audio icon for mode:', mode);
+
+		let iconKey = 'icons/audio/music'; // default
 		switch (mode) {
 			case 'full':
-				$img.attr('src', getUrl('icons/audio/music'));
-				this.btnAudio.$button.attr('title', 'Audio: Full (music + SFX)');
+				iconKey = 'icons/audio/music';
 				break;
 			case 'sfx-only':
-				$img.attr('src', getUrl('icons/audio/effects'));
-				this.btnAudio.$button.attr('title', 'Audio: SFX only (no music)');
+				iconKey = 'icons/audio/effects';
 				break;
 			case 'muted':
-				$img.attr('src', getUrl('icons/audio/music-off'));
-				this.btnAudio.$button.attr('title', 'Audio: Muted');
+				iconKey = 'icons/audio/music-off';
 				break;
 		}
+	
+		const iconUrl = getUrl(iconKey);
+		const $audioImg = $j('#audio img');
+	
+		if ($audioImg.length) {
+			$audioImg.attr('src', iconUrl);
+		} else {
+			console.warn('⚠️ Audio icon <img> not found!');
+		}
 	}
+	
+	
+	
 	
 	
 	

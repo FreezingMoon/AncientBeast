@@ -201,27 +201,36 @@ export function setAudioMode(mode: AudioMode, soundSysInstance: SoundSys) {
 		soundSysInstance.effectsVolume = 0;
 		soundSysInstance.heartbeatVolume = 0;
 		soundSysInstance.announcerVolume = 0;
+		soundSysInstance.stopMusic(); // ⛔️ Stop music when muted
 	} else if (mode === 'sfx-only') {
 		soundSysInstance.musicVolume = 0;
 		soundSysInstance.effectsVolume = 1;
 		soundSysInstance.heartbeatVolume = 1;
 		soundSysInstance.announcerVolume = 1;
+		soundSysInstance.stopMusic(); // ⛔️ Stop music in SFX mode
 	} else if (mode === 'full') {
 		soundSysInstance.musicVolume = 1;
 		soundSysInstance.effectsVolume = 1;
 		soundSysInstance.heartbeatVolume = 1;
 		soundSysInstance.announcerVolume = 1;
+		soundSysInstance.playMusic(); // ✅ Resume music in full mode
 	}
 }
+
 
 
 export function cycleAudioMode(soundSysInstance: SoundSys): AudioMode {
+	let newMode: AudioMode;
+
 	if (currentAudioMode === 'full') {
-		setAudioMode('sfx-only', soundSysInstance);
+		newMode = 'sfx-only';
 	} else if (currentAudioMode === 'sfx-only') {
-		setAudioMode('muted', soundSysInstance);
+		newMode = 'muted';
 	} else {
-		setAudioMode('full', soundSysInstance);
+		newMode = 'full';
 	}
-	return currentAudioMode;
+
+	setAudioMode(newMode, soundSysInstance);
+	return newMode;
 }
+
