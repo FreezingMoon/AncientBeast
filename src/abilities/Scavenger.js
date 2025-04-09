@@ -5,62 +5,75 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 function getEscortUsableHexes(G, crea, trg) {
-	const trgIsInfront =
-		G.grid.getHexMap(
-			crea.x - matrices.inlinefront2hex.origin[0],
-			crea.y - matrices.inlinefront2hex.origin[1],
-			0,
-			false,
-			matrices.inlinefront2hex,
-		)[0].creature === trg;
+    const trgIsInfront =
+        G.grid.getHexMap(
+            crea.x - matrices.inlinefront2hex.origin[0],
+            crea.y - matrices.inlinefront2hex.origin[1],
+            0,
+            false,
+            matrices.inlinefront2hex,
+        )[0].creature === trg;
 
-	const dir = trgIsInfront ? -1 : 1;
-	const creaSize = crea.size;
-	const trgSize = trg.size;
-	const totalBlockSize = creaSize + trgSize;
-	const blockStartX = trgIsInfront ? trg.x : crea.x;
+    const dir = trgIsInfront ? -1 : 1;  // Direction of movement
+    const creaSize = crea.size;
+    const trgSize = trg.size;
+    const totalBlockSize = creaSize + trgSize;
+    const blockStartX = trgIsInfront ? trg.x : crea.x;
 
-	const distance = crea.remainingMove;
-	const usableHexes = [];
+    const distance = crea.remainingMove;
+    const usableHexes = [];
 
-	// 1. Collect ALL hexes currently occupied by any OTHER creature
-	const reservedHexes = new Set();
-	for (const row of G.grid.hexes) {
-		for (const hex of row) {
-			if (hex.creature && ![crea.id, trg.id].includes(hex.creature.id)) {
-				reservedHexes.add(`${hex.x},${hex.y}`);
-			}
-		}
-	}
+    console.log(`Direction: ${dir}, Block Start X: ${blockStartX}, Remaining Move: ${distance}`);
 
-	// 2. Try shifts of 1, 2, ..., movement range
-	for (let shift = 1; shift <= distance; shift++) {
-		const hoveredBlockStartX = blockStartX + shift * dir;
-		let blockFits = true;
+    // 1. Collect all hexes occupied by any other creatures
+    const reservedHexes = new Set();
+    for (const row of G.grid.hexes) {
+        for (const hex of row) {
+            if (hex.creature && ![crea.id, trg.id].includes(hex.creature.id)) {
+                reservedHexes.add(`${hex.x},${hex.y}`);
+            }
+        }
+    }
 
-		// Check full block (target first, then scavenger)
-		for (let i = 0; i < totalBlockSize; i++) {
-			const x = hoveredBlockStartX + i * dir;
-			const y = crea.y;
+    // 2. Try shifts of 1, 2, ..., movement range
+    for (let shift = 1; shift <= distance; shift++) {
+        const hoveredBlockStartX = blockStartX + shift * dir;
+        console.log(`[SHIFT] Trying Shift: ${shift}, Hovered Start X: ${hoveredBlockStartX}`);
 
-			if (!G.grid.hexExists({ x, y })) {
-				blockFits = false;
-				break;
-			}
+        let blockFits = true;
 
-			if (reservedHexes.has(`${x},${y}`)) {
-				blockFits = false;
-				break;
-			}
-		}
+        // Check full block (target first, then scavenger)
+        for (let i = 0; i < totalBlockSize; i++) {
+            const x = hoveredBlockStartX + i * dir;
+            const y = crea.y;
 
-		if (blockFits) {
-			usableHexes.push(G.grid.hexes[crea.y][hoveredBlockStartX]);
-		}
-	}
+            // Check if hex exists and if it's occupied by another creature
+            if (!G.grid.hexExists({ x, y })) {
+                blockFits = false;
+                break;
+            }
 
-	return { usableHexes, trgIsInfront, creaSize, trgSize, dir, blockStartX };
+            if (reservedHexes.has(`${x},${y}`)) {
+                blockFits = false;
+                break;
+            }
+        }
+
+        // If the block fits, push it to usable hexes
+        if (blockFits) {
+            console.log(`[VALID BLOCK] Usable Hex at X: ${hoveredBlockStartX}`);
+            usableHexes.push(G.grid.hexes[crea.y][hoveredBlockStartX]);
+        } else {
+            console.log(`[INVALID BLOCK] Block does not fit at X: ${hoveredBlockStartX}`);
+        }
+    }
+
+    console.log("Final Usable Hexes: ", usableHexes);
+
+    return { usableHexes, trgIsInfront, creaSize, trgSize, dir, blockStartX };
 }
+
+
 
 
 
@@ -238,28 +251,33 @@ export default (G) => {
 			query: function () {
 				const ability = this;
 				const crea = this.creature;
-			
+				
 				// Retrieve creatures adjacent to Scavenger in a line (front and back)
 				const hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
 				const trg = hexes[0].creature || hexes[1].creature;
-			
+				
 				// Get data to determine usable hexes, block size, and whether target is in front
 				const { size, trgIsInfront, usableHexes } = getEscortUsableHexes(G, crea, trg);
 			
 				console.log("[QUERY] usableHexes initially calculated:", usableHexes);
 				console.log("[QUERY] Block size (Scavenger + Target):", size);
 				console.log("[QUERY] Target is in front of Scavenger:", trgIsInfront);
-			
-				const select = (hex) => {
-					const { trgIsInfront, creaSize, trgSize, dir, blockStartX } = getEscortUsableHexes(G, crea, trg);
 				
-					[...trg.hexagons, ...crea.hexagons].forEach(h => {
+				const select = (hex) => {
+					console.log(`[SELECT] Hovered Hex: ${hex.x}, ${hex.y}`);
+			
+					const { trgIsInfront, creaSize, trgSize, dir, blockStartX } = getEscortUsableHexes(G, crea, trg);
+					
+					[ ...trg.hexagons, ...crea.hexagons ].forEach(h => {
 						G.grid.cleanHex(h);
 						h.displayVisualState('dashed');
 					});
+			
 					const hoveredBlockStartX = hex.x;
 					const shift = hoveredBlockStartX - blockStartX;
-				
+					
+					console.log(`[SELECT] Calculated Shift: ${shift}`);
+					
 					for (let i = 0; i < trgSize; i++) {
 						const targetX = trg.x + shift;
 						if (G.grid.hexExists({ x: targetX + i, y: trg.y })) {
@@ -268,7 +286,7 @@ export default (G) => {
 							targetHex.displayVisualState('creature player' + trg.team);
 						}
 					}
-				
+					
 					for (let i = 0; i < creaSize; i++) {
 						const creaX = crea.x + shift;
 						if (G.grid.hexExists({ x: creaX + i, y: crea.y })) {
@@ -277,21 +295,17 @@ export default (G) => {
 							creaHex.displayVisualState('creature player' + crea.team);
 						}
 					}
-				
+			
 					const trgPreviewGridPos = { x: trg.x + shift, y: trg.y };
 					const creaPreviewGridPos = { x: crea.x + shift, y: crea.y };
-				
+			
 					console.log("[FIXED SELECT] Preview Target (grid):", trgPreviewGridPos);
 					console.log("[FIXED SELECT] Preview Scavenger (grid):", creaPreviewGridPos);
-				
+			
 					G.grid.previewCreature(trgPreviewGridPos, G.retrieveCreatureStats(trg.type), trg.player, true);
 					G.grid.previewCreature(creaPreviewGridPos, G.retrieveCreatureStats(crea.type), crea.player);
 				};
 				
-				
-				
-				  
-			
 				// Execute hex query with hover and confirm functionality
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
@@ -319,6 +333,7 @@ export default (G) => {
 					fillHexOnHover: false,
 				});
 			},
+			
 			
 
 
@@ -489,4 +504,4 @@ export default (G) => {
 			},
 		},
 	];
-};
+};	
