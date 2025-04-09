@@ -103,6 +103,23 @@ export class SoundSys {
 		}
 	}
 
+	get musicVolume() {
+		return this._musicVol;
+	}
+
+	get effectsVolume() {
+		return this._effectsVol;
+	}
+
+	get heartbeatVolume() {
+		return this._heartbeatVol;
+	}
+
+	get announcerVolume() {
+		return this._announcerVol;
+	}
+
+
 	set allEffectsMultiplier(level: number) {
 		if (this.envHasSound) {
 			this._allEffectsCoeff = clamp(level, 0, 1);
@@ -193,7 +210,7 @@ export function isNullAudioBufferSourcNode(o: any) {
 type SoundSysAudioBufferSourceNode = AudioBufferSourceNode | NullAudioBufferSourceNode;
 
 
-export function setAudioMode(mode: AudioMode, soundSysInstance: SoundSys) {
+export function setAudioMode(mode, soundSysInstance, uiInstance) {
 	currentAudioMode = mode;
 
 	if (mode === 'muted') {
@@ -201,25 +218,25 @@ export function setAudioMode(mode: AudioMode, soundSysInstance: SoundSys) {
 		soundSysInstance.effectsVolume = 0;
 		soundSysInstance.heartbeatVolume = 0;
 		soundSysInstance.announcerVolume = 0;
-		soundSysInstance.stopMusic(); // ⛔️ Stop music when muted
+		soundSysInstance.stopMusic();
 	} else if (mode === 'sfx-only') {
 		soundSysInstance.musicVolume = 0;
 		soundSysInstance.effectsVolume = 1;
 		soundSysInstance.heartbeatVolume = 1;
 		soundSysInstance.announcerVolume = 1;
-		soundSysInstance.stopMusic(); // ⛔️ Stop music in SFX mode
+		soundSysInstance.stopMusic();
 	} else if (mode === 'full') {
 		soundSysInstance.musicVolume = 1;
 		soundSysInstance.effectsVolume = 1;
 		soundSysInstance.heartbeatVolume = 1;
 		soundSysInstance.announcerVolume = 1;
-		soundSysInstance.playMusic(); // ✅ Resume music in full mode
+		soundSysInstance.playMusic();
+	}
+	if (uiInstance) {
+		uiInstance.updateAudioIcon(mode);
 	}
 }
-
-
-
-export function cycleAudioMode(soundSysInstance: SoundSys): AudioMode {
+export function cycleAudioMode(soundSysInstance: SoundSys, uiInstance: any): AudioMode {
 	let newMode: AudioMode;
 
 	if (currentAudioMode === 'full') {
@@ -230,7 +247,8 @@ export function cycleAudioMode(soundSysInstance: SoundSys): AudioMode {
 		newMode = 'full';
 	}
 
-	setAudioMode(newMode, soundSysInstance);
+	setAudioMode(newMode, soundSysInstance, uiInstance); // ✅ Now passing the UI too
 	return newMode;
 }
+
 
