@@ -183,12 +183,12 @@ export class Hex {
 			// Binding Events
 			this.hitBox.events.onInputOver.add(() => {
 				if (game.freezedInput || game.UI.dashopen) return;
-			
+
 				//  Show dashed overlay on current hexes of active creature
 				if (this.reachable && game.activeCreature) {
 					game.activeCreature.highlightCurrentHexesAsDashed();
 				}
-			
+
 				game.signals.hex.dispatch('over', { hex: this });
 				grid.selectedHex = this;
 				this.onSelectFn(this);
@@ -196,12 +196,12 @@ export class Hex {
 
 			this.hitBox.events.onInputOut.add((_, pointer) => {
 				if (game.freezedInput || game.UI.dashopen || !pointer.withinGame) return;
-			
+
 				//Clear dashed overlay when leaving a reachable hex
 				if (this.reachable && game.activeCreature) {
 					game.activeCreature.clearDashedOverlayOnHexes();
 				}
-			
+
 				game.signals.hex.dispatch('out', { hex: this });
 				grid.clearHexViewAlterations();
 				this.onHoverOffFn(this);
@@ -617,7 +617,7 @@ export class Hex {
 
 		if (this.overlayClasses.match(/0|1|2|3/)) {
 			const player = this.overlayClasses.match(/0|1|2|3/);
-		
+
 			if (this.overlayClasses.match(/reachable/)) {
 				targetAlpha = true;
 				this.overlay.loadTexture('hex_path');
@@ -635,10 +635,9 @@ export class Hex {
 			} else {
 				this.overlay.loadTexture(`hex_p${player}`);
 			}
-		
+
 			this.grid.overlayHexesGroup.bringToTop(this.overlay);
-		}
-		 else {
+		} else {
 			this.overlay.loadTexture('cancel');
 			this.overlay.anchor.set(0.5, 0.5);
 			if (!this.isSpinning) {

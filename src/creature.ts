@@ -807,20 +807,17 @@ export class Creature {
 		});
 	}
 
-highlightCurrentHexesAsDashed() {
-	this.hexagons.forEach((hex) => {
-		hex.display.loadTexture(`hex_dashed_p${this.player.id}`);
-	});
-}
+	highlightCurrentHexesAsDashed() {
+		this.hexagons.forEach((hex) => {
+			hex.display.loadTexture(`hex_dashed_p${this.player.id}`);
+		});
+	}
 
-
-clearDashedOverlayOnHexes() {
-	this.hexagons.forEach((hex) => {
-		hex.display.loadTexture(`hex_p${this.player.id}`);
-	});
-}
-
-	
+	clearDashedOverlayOnHexes() {
+		this.hexagons.forEach((hex) => {
+			hex.display.loadTexture(`hex_p${this.player.id}`);
+		});
+	}
 
 	/**
 	 * Face creature at given hex
