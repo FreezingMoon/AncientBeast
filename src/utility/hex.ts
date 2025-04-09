@@ -197,7 +197,7 @@ export class Hex {
 			this.hitBox.events.onInputOut.add((_, pointer) => {
 				if (game.freezedInput || game.UI.dashopen || !pointer.withinGame) return;
 
-				//Clear dashed overlay when leaving a reachable hex
+				// Clear dashed overlay when leaving a reachable hex
 				if (this.reachable && game.activeCreature) {
 					game.activeCreature.clearDashedOverlayOnHexes();
 				}
