@@ -12,10 +12,6 @@ o
 
 **Ancient Beast** is a turn based strategy indie game project played online against other people featuring a wide variety of creatures to acquire, putting them to use in order to defeat your opponents. This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
 
-### 🎮 Gameplay
-
-Create an army out of a variety of units, each with their own unique abilities and stats, and control them in 1v1 or 2v2 combat against bots or other players in this turn based strategy game. Alternate game modes allow for different rulesets to mix up matches to your preference, or to try playing in a new way. Refine your strategies and selection of units and become an adept tactician.
-
 ### 📜 Lore
 The game takes place in a dystopian future, where people have excelled in power thanks to the use of technology, specifically advanced 3d printers. The world is split into 7 factions, based off the seven deadly sins (Avarice, Envy, Gluttony, Lust, Pride, Sloth, Wrath), fighting each other for resources, land and supremacy. This is not a chance based game; are you skilled enough to survive?
 
