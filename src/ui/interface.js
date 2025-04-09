@@ -18,6 +18,9 @@ import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
 import { DEBUG_DISABLE_HOTKEYS } from '../debug';
 
+import { cycleAudioMode, getAudioMode, AudioMode } from '../sound/soundsys';
+
+
 /**
  * Class UI
  *
@@ -134,6 +137,15 @@ export class UI {
 			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
 		);
 		this.buttons.push(this.btnAudio);
+
+		// Right-click audio button to cycle audio mode (full / sfx-only / muted)
+this.btnAudio.$button.on('contextmenu', (e) => {
+	e.preventDefault();
+	const newMode = cycleAudioMode(this.game.soundsys); // assumes soundsys instance is in game
+	this.updateAudioIcon(newMode);
+});
+this.updateAudioIcon(getAudioMode());
+
 
 		// Skip Turn Button
 		this.btnSkipTurn = new Button(
@@ -1898,6 +1910,29 @@ export class UI {
 			}
 		}
 	}
+	updateAudioIcon(mode) {
+		const $img = this.btnAudio.$button.find('img');
+	
+		switch (mode) {
+			case 'full':
+				$img.attr('src', getUrl('icons/audio/music'));
+				this.btnAudio.$button.attr('title', 'Audio: Full (music + SFX)');
+				break;
+			case 'sfx-only':
+				$img.attr('src', getUrl('icons/audio/effects'));
+				this.btnAudio.$button.attr('title', 'Audio: SFX only (no music)');
+				break;
+			case 'muted':
+				$img.attr('src', getUrl('icons/audio/music-off'));
+				this.btnAudio.$button.attr('title', 'Audio: Muted');
+				break;
+		}
+	}
+	
+	
+	
+	
+	
 
 	updateAbilityUpgrades() {
 		const game = this.game,

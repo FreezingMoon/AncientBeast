@@ -3,6 +3,14 @@ import { getUrl } from '../assets';
 import { MusicPlayer } from './musicplayer';
 import { clamp } from '../utility/math';
 
+
+export type AudioMode = 'full' | 'sfx-only' | 'muted';
+let currentAudioMode: AudioMode = 'full';
+
+export function getAudioMode(): AudioMode {
+	return currentAudioMode;
+}
+
 type SoundSysConfig = {
 	musicVolume?: number;
 	effectsVolume?: number;
@@ -183,3 +191,37 @@ export function isNullAudioBufferSourcNode(o: any) {
 }
 
 type SoundSysAudioBufferSourceNode = AudioBufferSourceNode | NullAudioBufferSourceNode;
+
+
+export function setAudioMode(mode: AudioMode, soundSysInstance: SoundSys) {
+	currentAudioMode = mode;
+
+	if (mode === 'muted') {
+		soundSysInstance.musicVolume = 0;
+		soundSysInstance.effectsVolume = 0;
+		soundSysInstance.heartbeatVolume = 0;
+		soundSysInstance.announcerVolume = 0;
+	} else if (mode === 'sfx-only') {
+		soundSysInstance.musicVolume = 0;
+		soundSysInstance.effectsVolume = 1;
+		soundSysInstance.heartbeatVolume = 1;
+		soundSysInstance.announcerVolume = 1;
+	} else if (mode === 'full') {
+		soundSysInstance.musicVolume = 1;
+		soundSysInstance.effectsVolume = 1;
+		soundSysInstance.heartbeatVolume = 1;
+		soundSysInstance.announcerVolume = 1;
+	}
+}
+
+
+export function cycleAudioMode(soundSysInstance: SoundSys): AudioMode {
+	if (currentAudioMode === 'full') {
+		setAudioMode('sfx-only', soundSysInstance);
+	} else if (currentAudioMode === 'sfx-only') {
+		setAudioMode('muted', soundSysInstance);
+	} else {
+		setAudioMode('full', soundSysInstance);
+	}
+	return currentAudioMode;
+}
