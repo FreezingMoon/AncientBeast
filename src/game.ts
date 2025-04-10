@@ -27,7 +27,7 @@ import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
-import { setAudioMode } from './sound/soundsys'; // make sure this is imported
+import { setAudioMode } from './sound/soundsys';
 /* eslint-disable prefer-rest-params */
 
 /* NOTES/TODOS
