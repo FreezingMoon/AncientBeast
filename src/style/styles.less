@@ -12,6 +12,41 @@
 	user-select: none;
 }
 
+#shareReplay.button {
+	width: 64px;
+	height: 64px;
+	background-image: url('assets/interface/share.svg');
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	cursor: pointer;
+	margin: auto;
+  }
+  
+
+  .flee-style {
+	width: 128px;  /* Same size as the flee button */
+	height: 32px;  /* Match the height of the flee button */
+	background-color: #444; /* Default background color, adjust if necessary */
+	border-radius: 4px; /* Same rounded corners */
+	padding: 10px; /* Adjust padding if needed */
+	text-align: center;  /* Center the content */
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+  }
+  #shareReplayWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 0;
+  }
+  #shareReplay.button:hover {
+	filter: brightness(1.2);
+	transform: scale(1.05);
+  }  
+
 #combatwrapper canvas {
 	display: inline-block !important;
 	overflow: hidden;
@@ -2149,4 +2184,19 @@ input {
 			margin-top: 9%;
 		}
 	}
+}
+
+/* Shared button style for Flee and Share Replay */
+.flee-style {
+  width: 128px; /* Match the size of the 'Flee Match' button */
+  height: 32px;
+  background-color: #444; /* Default background color */
+  border-radius: 4px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
 }
