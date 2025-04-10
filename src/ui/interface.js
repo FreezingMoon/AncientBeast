@@ -1907,7 +1907,7 @@ this.btnAudio.$button.on('contextmenu', (e) => {
 		}
 	}
 	updateAudioIcon(mode) {
-		let iconKey = 'icons/audio/effects';
+		let iconKey = 'icons/audio';
 		let tooltipText = 'Audio: Full';
 	
 		if (mode === 'sfx') {
