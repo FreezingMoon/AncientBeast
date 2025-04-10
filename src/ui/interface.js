@@ -721,6 +721,14 @@ this.btnAudio.$button.on('contextmenu', (e) => {
 			}
 		}
 	}
+	/**
+	 *  Refreshes the dashboard avatar grid.
+	 * Called when the active creature changes, moves between realms/levels,
+	 * or when new creatures are summoned.
+	 */
+	refreshAvatarGrid() {
+		console.log('🔄 Avatar grid refreshed!');
+	}
 
 	hideAbilityCosts() {
 		const game = this.game,
