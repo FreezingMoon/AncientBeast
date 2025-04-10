@@ -1911,10 +1911,10 @@ this.btnAudio.$button.on('contextmenu', (e) => {
 		let tooltipText = 'Audio: Full';
 	
 		if (mode === 'sfx') {
-			iconKey = 'icons/audio/music';
+			iconKey = 'icons/SFX';
 			tooltipText = 'Audio: SFX';
 		} else if (mode === 'muted') {
-			iconKey = 'icons/audio/music-off';
+			iconKey = 'icons/muted';
 			tooltipText = 'Audio: Muted';
 		}
 		

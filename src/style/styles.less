@@ -324,15 +324,15 @@
 	height: 80px;
 	width: 80px;
 
-	// &:before {
-	// 	content: '';
-	// 	display: block;
-	// 	position: absolute;
-	// 	height: 80px;
-	// 	width: 80px;
-	// 	background-size: 100% 100%;
-	// 	background-image: url('~assets/interface/frame.png');
-	// }
+	&:before {
+		content: '';
+		display: block;
+		position: absolute;
+		height: 80px;
+		width: 80px;
+		background-size: 100% 100%;
+		background-image: url('~assets/interface/frame.png');
+	}
 
 	&.disabled {
 		opacity: 0.5;
@@ -341,11 +341,6 @@
 	&.hidden {
 		display: none;
 	}
-
-	// &.active:before {
-	// 	background-image: url('~assets/interface/frame_red.png');
-	// }
-
 	&.noclick:hover {
 		opacity: 0.5;
 	}
@@ -420,11 +415,6 @@
 		height: 100%;
 	}
 }
-
-// .button#audio {
-// 	background-image: url('~assets/icons/audio.svg');
-// }
-
 .button#skip {
 	background-image: url('~assets/autoload/phaser/interface/skip.svg');
 }
@@ -759,8 +749,8 @@ div.section.info {
 }
 
 #audio {
-	position: relative; /* ensures the tooltip is positioned relative to the icon */
-	z-index: 999; /* bring it to front */
+	position: relative;
+	z-index: 999;
 }
 #audio .tooltiptext {
 	visibility: hidden;
@@ -772,10 +762,10 @@ div.section.info {
 	background-color: rgba(0, 0, 0, 0.9);
 	color: #fff;
 	font-weight: bold;
-	padding: 4px 8px;             /* Smaller padding */
+	padding: 4px 8px;
 	border: 2px solid white;
 	border-radius: 8px;
-	font-size: 12px;              /* Smaller text */
+	font-size: 12px;
 	white-space: nowrap;
 	max-width: 100px;
 	box-shadow: 0 0 10px black;
