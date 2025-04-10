@@ -341,11 +341,6 @@
 	&.hidden {
 		display: none;
 	}
-
-	&.active:before {
-		background-image: url('~assets/interface/frame_red.png');
-	}
-
 	&.noclick:hover {
 		opacity: 0.5;
 	}
@@ -420,11 +415,6 @@
 		height: 100%;
 	}
 }
-
-.button#audio {
-	background-image: url('~assets/icons/audio.svg');
-}
-
 .button#skip {
 	background-image: url('~assets/autoload/phaser/interface/skip.svg');
 }
@@ -758,6 +748,50 @@ div.section.info {
 	color: white !important;
 }
 
+#audio {
+	position: relative;
+	z-index: 999;
+}
+#audio .tooltiptext {
+	visibility: hidden;
+	opacity: 0;
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: rgba(0, 0, 0, 0.9);
+	color: #fff;
+	font-weight: bold;
+	padding: 4px 8px;
+	border: 2px solid white;
+	border-radius: 8px;
+	font-size: 12px;
+	white-space: nowrap;
+	max-width: 100px;
+	box-shadow: 0 0 10px black;
+	z-index: 10000;
+	transition: opacity 0.2s;
+}
+
+
+#audio:hover .tooltiptext {
+	visibility: visible;
+	opacity: 1;
+}
+#audio img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: block;
+}
+.button#audio {
+	width: 80px;
+	height: 80px;
+	padding: 0;
+	margin: 0;
+	background: none;
+	border: none;
+}
 .audio-player-controls {
 	align-items: center;
 	display: flex;
@@ -766,7 +800,6 @@ div.section.info {
 	margin-bottom: 14px;
 	margin-top: 55px;
 }
-
 .audio-player-beast {
 	cursor: pointer;
 	position: relative;
@@ -953,11 +986,6 @@ div.section.info {
 #playeravatar.vignette {
 	height: 100px;
 	width: 100px;
-}
-
-.vignette .overlay_frame {
-	background-image: url('~assets/interface/frame_white.png');
-	opacity: 0;
 }
 
 .vignette.xray .overlay_frame {

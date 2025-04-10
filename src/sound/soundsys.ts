@@ -3,6 +3,14 @@ import { getUrl } from '../assets';
 import { MusicPlayer } from './musicplayer';
 import { clamp } from '../utility/math';
 
+
+export type AudioMode = 'full' | 'sfx' | 'muted';
+let currentAudioMode: AudioMode = 'full';
+
+export function getAudioMode(): AudioMode {
+	return currentAudioMode;
+}
+
 type SoundSysConfig = {
 	musicVolume?: number;
 	effectsVolume?: number;
@@ -95,6 +103,23 @@ export class SoundSys {
 		}
 	}
 
+	get musicVolume() {
+		return this._musicVol;
+	}
+
+	get effectsVolume() {
+		return this._effectsVol;
+	}
+
+	get heartbeatVolume() {
+		return this._heartbeatVol;
+	}
+
+	get announcerVolume() {
+		return this._announcerVol;
+	}
+
+
 	set allEffectsMultiplier(level: number) {
 		if (this.envHasSound) {
 			this._allEffectsCoeff = clamp(level, 0, 1);
@@ -183,3 +208,45 @@ export function isNullAudioBufferSourcNode(o: any) {
 }
 
 type SoundSysAudioBufferSourceNode = AudioBufferSourceNode | NullAudioBufferSourceNode;
+
+
+export function setAudioMode(mode, soundSysInstance, uiInstance) {
+	currentAudioMode = mode;
+
+	if (mode === 'muted') {
+		soundSysInstance.musicVolume = 0;
+		soundSysInstance.effectsVolume = 0;
+		soundSysInstance.heartbeatVolume = 0;
+		soundSysInstance.announcerVolume = 0;
+		soundSysInstance.stopMusic();
+	} else if (mode === 'sfx') {
+		soundSysInstance.musicVolume = 0;
+		soundSysInstance.effectsVolume = 1;
+		soundSysInstance.heartbeatVolume = 1;
+		soundSysInstance.announcerVolume = 1;
+		soundSysInstance.stopMusic();
+	} else if (mode === 'full') {
+		soundSysInstance.musicVolume = 1;
+		soundSysInstance.effectsVolume = 1;
+		soundSysInstance.heartbeatVolume = 1;
+		soundSysInstance.announcerVolume = 1;
+		soundSysInstance.playMusic();
+	}
+	if (uiInstance) {
+		uiInstance.updateAudioIcon(mode);
+	}
+}
+export function cycleAudioMode(soundSysInstance: SoundSys, uiInstance: any): AudioMode {
+	let newMode: AudioMode;
+
+	if (currentAudioMode === 'full') {
+		newMode = 'sfx';
+	} else if (currentAudioMode === 'sfx') {
+		newMode = 'muted';
+	} else {
+		newMode = 'full';
+	}
+
+	setAudioMode(newMode, soundSysInstance, uiInstance);
+	return newMode;
+}

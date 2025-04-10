@@ -18,6 +18,9 @@ import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
 import { DEBUG_DISABLE_HOTKEYS } from '../debug';
 
+import { cycleAudioMode, getAudioMode, AudioMode } from '../sound/soundsys';
+
+
 /**
  * Class UI
  *
@@ -46,7 +49,8 @@ export class UI {
 	 * Create attributes and default buttons
 	 * @constructor
 	 */
-	constructor(configuration, game) {
+	constructor(configuration, game, soundSysInstance) {
+		this.soundSys = soundSysInstance;
 		this.configuration = configuration;
 		this.game = game;
 		this.fullscreen = new Fullscreen(
@@ -121,20 +125,24 @@ export class UI {
 		);
 		this.buttons.push(this.btnFullscreen);
 
-		// Audio Button
-		this.btnAudio = new Button(
-			{
-				$button: $j('.toggle-music-player'),
-				hasShortcut: true,
-				click: () => {
-					this.game.signals.ui.dispatch('toggleMusicPlayer');
-				},
-				overridefreeze: true,
-			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
-		);
-		this.buttons.push(this.btnAudio);
-
+// Audio Button
+this.btnAudio = new Button(
+	{
+		$button: $j('.toggle-music-player'),
+		hasShortcut: true,
+		click: () => {
+			this.game.signals.ui.dispatch('toggleMusicPlayer');
+		},
+		overridefreeze: true,
+	},
+	{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+);
+this.buttons.push(this.btnAudio);
+this.btnAudio.$button.on('contextmenu', (e) => {
+	e.preventDefault();
+	const newMode = cycleAudioMode(this.game.soundsys);
+	this.updateAudioIcon(newMode); 
+});
 		// Skip Turn Button
 		this.btnSkipTurn = new Button(
 			{
@@ -1898,7 +1906,29 @@ export class UI {
 			}
 		}
 	}
-
+	updateAudioIcon(mode) {
+		let iconKey = 'icons/audio';
+		let tooltipText = 'Audio: Full';
+	
+		if (mode === 'sfx') {
+			iconKey = 'icons/SFX';
+			tooltipText = 'Audio: SFX';
+		} else if (mode === 'muted') {
+			iconKey = 'icons/muted';
+			tooltipText = 'Audio: Muted';
+		}
+		
+		const iconUrl = getUrl(iconKey);
+		const $audioImg = $j('#audio img');
+		if ($audioImg.length) {
+			$audioImg.attr('src', iconUrl);
+		}
+	
+		const $tooltip = $j('#audio-tooltip');
+		if ($tooltip.length) {
+			$tooltip.text(tooltipText);
+		}
+	}			
 	updateAbilityUpgrades() {
 		const game = this.game,
 			creature = game.activeCreature;
