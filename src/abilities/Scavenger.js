@@ -14,7 +14,7 @@ function getEscortUsableHexes(G, crea, trg) {
             matrices.inlinefront2hex,
         )[0].creature === trg;
 
-    const dir = trgIsInfront ? -1 : 1;  // Direction of movement
+    const dir = trgIsInfront ? -1 : 1; 
     const creaSize = crea.size;
     const trgSize = trg.size;
     const totalBlockSize = creaSize + trgSize;
@@ -35,7 +35,6 @@ function getEscortUsableHexes(G, crea, trg) {
         }
     }
 
-    // 2. Try shifts of 1, 2, ..., movement range
     for (let shift = 1; shift <= distance; shift++) {
         const hoveredBlockStartX = blockStartX + shift * dir;
         console.log(`[SHIFT] Trying Shift: ${shift}, Hovered Start X: ${hoveredBlockStartX}`);
@@ -349,14 +348,14 @@ export default (G) => {
 				const {
 					blockStartX,
 					dir
-				} = getEscortUsableHexes(G, crea, trg); // Original logic preserved
+				} = getEscortUsableHexes(G, crea, trg);
 			
 				const hoveredBlockStartX = hex.x;
 			
-				// 👇 Compute how many hexes to shift
+				// Compute how many hexes to shift
 				const finalShift = (hoveredBlockStartX - blockStartX);
 			
-				// 🔁 Apply shift to each hex
+				// Apply shift to each hex
 				const creaDestX = crea.x + finalShift;
 				const trgDestX = trg.x + finalShift;
 			
@@ -372,24 +371,22 @@ export default (G) => {
 					hoveredBlockStartX,
 				});
 			
-				// ➖ Update move points
 				crea.remainingMove -= Math.abs(finalShift);
 			
-				// ✅ Move target first (important)
 				trg.moveTo(trgDest, {
 					animation: 'fly',
 					callback: () => {
-						trg.updateHex(); // Update grid state
+						trg.updateHex();
 					},
 					ignoreMovementPoint: true,
 				});
 			
-				// ✅ Move Scavenger
+				// Move Scavenger
 				crea.moveTo(creaDest, {
 					animation: 'fly',
 					callback: () => {
-						crea.updateHex(); // Update grid
-						crea.queryMove(); // Let player move again
+						crea.updateHex();
+						crea.queryMove(); 
 					},
 					ignoreMovementPoint: true,
 					overrideSpeed: crea.animation.walk_speed,
