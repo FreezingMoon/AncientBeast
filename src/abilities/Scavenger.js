@@ -4,32 +4,72 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
-
 function getEscortUsableHexes(G, crea, trg) {
-	const trgIsInfront =
-		G.grid.getHexMap(
-			crea.x - matrices.inlinefront2hex.origin[0],
-			crea.y - matrices.inlinefront2hex.origin[1],
-			0,
-			false,
-			matrices.inlinefront2hex,
-		)[0].creature == trg;
+    const trgIsInfront =
+        G.grid.getHexMap(
+            crea.x - matrices.inlinefront2hex.origin[0],
+            crea.y - matrices.inlinefront2hex.origin[1],
+            0,
+            false,
+            matrices.inlinefront2hex,
+        )[0].creature === trg;
 
-	const distance = crea.remainingMove;
-	const size = crea.size + trg.size;
-	const x = trgIsInfront ? crea.x + trg.size : crea.x;
+    const dir = trgIsInfront ? -1 : 1;  // Direction of movement
+    const creaSize = crea.size;
+    const trgSize = trg.size;
+    const totalBlockSize = creaSize + trgSize;
+    const blockStartX = trgIsInfront ? trg.x : crea.x;
 
-	const usableHexes = G.grid
-		.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
-		.filter(function (item) {
-			return (
-				crea.y == item.y && (trgIsInfront ? item.x < x : item.x > x - crea.size - trg.size + 1)
-			);
-		});
+    const distance = crea.remainingMove;
+    const usableHexes = [];
 
-	return { size, trgIsInfront, usableHexes };
+    console.log(`Direction: ${dir}, Block Start X: ${blockStartX}, Remaining Move: ${distance}`);
+
+    // 1. Collect all hexes occupied by any other creatures
+    const reservedHexes = new Set();
+    for (const row of G.grid.hexes) {
+        for (const hex of row) {
+            if (hex.creature && ![crea.id, trg.id].includes(hex.creature.id)) {
+                reservedHexes.add(`${hex.x},${hex.y}`);
+            }
+        }
+    }
+
+    for (let shift = 1; shift <= distance; shift++) {
+        const hoveredBlockStartX = blockStartX + shift * dir;
+        console.log(`[SHIFT] Trying Shift: ${shift}, Hovered Start X: ${hoveredBlockStartX}`);
+
+        let blockFits = true;
+
+        // Check full block (target first, then scavenger)
+        for (let i = 0; i < totalBlockSize; i++) {
+            const x = hoveredBlockStartX + i * dir;
+            const y = crea.y;
+
+            // Check if hex exists and if it's occupied by another creature
+            if (!G.grid.hexExists({ x, y })) {
+                blockFits = false;
+                break;
+            }
+
+            if (reservedHexes.has(`${x},${y}`)) {
+                blockFits = false;
+                break;
+            }
+        }
+
+        // If the block fits, push it to usable hexes
+        if (blockFits) {
+            usableHexes.push(G.grid.hexes[crea.y][hoveredBlockStartX]);
+        } else {
+            console.log(`[INVALID BLOCK] Block does not fit at X: ${hoveredBlockStartX}`);
+        }
+    }
+
+    console.log("Final Usable Hexes: ", usableHexes);
+
+    return { usableHexes, trgIsInfront, creaSize, trgSize, dir, blockStartX };
 }
-
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
@@ -199,59 +239,64 @@ export default (G) => {
 
 				return true;
 			},
-
+			
 			query: function () {
 				const ability = this;
 				const crea = this.creature;
-
+				
+				// Retrieve creatures adjacent to Scavenger in a line (front and back)
 				const hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
 				const trg = hexes[0].creature || hexes[1].creature;
-
-				const { size, trgIsInfront, usableHexes } = getEscortUsableHexes(G, crea, trg);
-
+				
+				// Get data to determine usable hexes, block size, and whether target is in front
+				const { size, trgIsInfront, usableHexes } = getEscortUsableHexes(G, crea, trg);			
 				const select = (hex) => {
-					for (let i = 0; i < trg.hexagons.length; i++) {
-						G.grid.cleanHex(trg.hexagons[i]);
-						trg.hexagons[i].displayVisualState('dashed');
-					}
-					for (let i = 0; i < crea.hexagons.length; i++) {
-						G.grid.cleanHex(crea.hexagons[i]);
-						crea.hexagons[i].overlayVisualState('hover h_player' + crea.team);
-					}
-					for (let i = 0; i < size; i++) {
-						if (!G.grid.hexExists({ y: hex.y, x: hex.x - i })) {
-							continue;
-						}
-						const h = G.grid.hexes[hex.y][hex.x - i];
-						let color;
-						if (trgIsInfront) {
-							color = i < trg.size ? trg.team : crea.team;
-						} else {
-							color = i > 1 ? trg.team : crea.team;
-						}
+					console.log(`[SELECT] Hovered Hex: ${hex.x}, ${hex.y}`);
+			
+					const { trgIsInfront, creaSize, trgSize, dir, blockStartX } = getEscortUsableHexes(G, crea, trg);
+					
+					[ ...trg.hexagons, ...crea.hexagons ].forEach(h => {
 						G.grid.cleanHex(h);
-						h.overlayVisualState('active creature player' + color);
-						h.displayVisualState('creature player' + color);
-
-						const creatureData = G.retrieveCreatureStats(crea.type);
-						const targetData = G.retrieveCreatureStats(trg.type);
-						const creaPos = trgIsInfront ? { x: hex.pos.x - trg.size, y: hex.pos.y } : hex.pos;
-						const trgPos = trgIsInfront
-							? { x: hex.pos.x, y: hex.pos.y }
-							: { x: hex.pos.x - 2, y: hex.pos.y };
-
-						G.grid.previewCreature(creaPos, creatureData, crea.player);
-						G.grid.previewCreature(trgPos, targetData, trg.player, true);
+						h.displayVisualState('dashed');
+					});
+			
+					const hoveredBlockStartX = hex.x;
+					const shift = hoveredBlockStartX - blockStartX;
+					
+					console.log(`[SELECT] Calculated Shift: ${shift}`);
+					
+					for (let i = 0; i < trgSize; i++) {
+						const targetX = trg.x + shift;
+						if (G.grid.hexExists({ x: targetX + i, y: trg.y })) {
+							const targetHex = G.grid.hexes[trg.y][targetX + i];
+							targetHex.overlayVisualState('active creature player' + trg.team);
+							targetHex.displayVisualState('creature player' + trg.team);
+						}
 					}
+					
+					for (let i = 0; i < creaSize; i++) {
+						const creaX = crea.x + shift;
+						if (G.grid.hexExists({ x: creaX + i, y: crea.y })) {
+							const creaHex = G.grid.hexes[crea.y][creaX + i];
+							creaHex.overlayVisualState('active creature player' + crea.team);
+							creaHex.displayVisualState('creature player' + crea.team);
+						}
+					}
+			
+					const trgPreviewGridPos = { x: trg.x + shift, y: trg.y };
+					const creaPreviewGridPos = { x: crea.x + shift, y: crea.y }
+					G.grid.previewCreature(trgPreviewGridPos, G.retrieveCreatureStats(trg.type), trg.player, true);
+					G.grid.previewCreature(creaPreviewGridPos, G.retrieveCreatureStats(crea.type), crea.player);
 				};
-
+				
+				// Execute hex query with hover and confirm functionality
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
 						G.grid.fadeOutTempCreature();
 						G.grid.fadeOutTempCreature(G.grid.secondary_overlay);
 						ability.animation(...arguments);
-					}, // fnOnConfirm
-					fnOnSelect: select, // fnOnSelect,
+					},
+					fnOnSelect: select,
 					team: this._targetTeam,
 					id: [crea.id, trg.id],
 					size: size,
@@ -262,7 +307,7 @@ export default (G) => {
 						trgIsInfront: trgIsInfront,
 					},
 					callbackAfterQueryHexes: () => {
-						console.log('cleaning');
+						console.log('cleaning after query');
 						for (let i = 0; i < trg.hexagons.length; i++) {
 							G.grid.cleanHex(trg.hexagons[i]);
 							trg.hexagons[i].displayVisualState('dashed');
@@ -271,56 +316,62 @@ export default (G) => {
 					fillHexOnHover: false,
 				});
 			},
-
 			//	activate() :
 			activate: function (hex, args) {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 66, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
-
+			
 				const crea = this.creature;
-
 				const trg = G.creatures[args.trg];
-
-				const trgIF = args.trgIsInfront;
-
-				const creaDest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
-				const trgDest = G.grid.hexes[hex.y][trgIF ? hex.x : hex.x - crea.size];
-
-				// Determine distance
-				let distance = 0;
-				let k = 0;
-				const start = G.grid.hexes[crea.y][crea.x];
-				while (!distance) {
-					k++;
-
-					if (arrayUtils.findPos(start.adjacentHex(k), creaDest)) {
-						distance = k;
-					}
-				}
-
-				// Substract from movement points
-				crea.remainingMove -= distance * trg.size;
-
-				crea.moveTo(creaDest, {
+			
+				const {
+					blockStartX,
+					dir
+				} = getEscortUsableHexes(G, crea, trg);
+			
+				const hoveredBlockStartX = hex.x;
+			
+				//Compute how many hexes to shift
+				const finalShift = (hoveredBlockStartX - blockStartX);
+			
+				//Apply shift to each hex
+				const creaDestX = crea.x + finalShift;
+				const trgDestX = trg.x + finalShift;
+			
+				const creaDest = G.grid.hexes[crea.y][creaDestX];
+				const trgDest = G.grid.hexes[trg.y][trgDestX];
+			
+				console.log('[ACTIVATE]', {
+					finalShift,
+					creaDestX,
+					trgDestX,
+					blockStartX,
+					dir,
+					hoveredBlockStartX,
+				});
+			
+				//Update move points
+				crea.remainingMove -= Math.abs(finalShift);
+				trg.moveTo(trgDest, {
 					animation: 'fly',
-					callback: function () {
+					callback: () => {
 						trg.updateHex();
 					},
 					ignoreMovementPoint: true,
 				});
-
-				trg.moveTo(trgDest, {
+			
+				//Move Scavenger
+				crea.moveTo(creaDest, {
 					animation: 'fly',
-					callback: function () {
-						ability.creature.updateHex();
-						ability.creature.queryMove();
+					callback: () => {
+						crea.updateHex(); 
+						crea.queryMove(); 
 					},
-					ignoreFacing: true,
 					ignoreMovementPoint: true,
 					overrideSpeed: crea.animation.walk_speed,
 				});
-			},
+			}
 		},
 
 		// 	Fourth Ability: Deadly Toxin
@@ -418,4 +469,4 @@ export default (G) => {
 			},
 		},
 	];
-};
+};	
