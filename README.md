@@ -4,7 +4,7 @@
 [![OpenCollective Badge](https://opencollective.com/ancientbeast/tiers/badge.svg)](https://opencollective.com/AncientBeast)
 [![Discord](https://img.shields.io/discord/154868963132571649?logo=discord&label=Discord&color=5865F2)](https://discord.gg/CtqBsnF85z)
 
-o
+
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/multimedia/screenshots/v0.3%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** _Chuck Palahniuk_
 
