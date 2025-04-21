@@ -402,6 +402,42 @@
 	}
 }
 
+/* iOS fullscreen fallback styles */
+@media all and (device-width: 768px) and (device-height: 1024px) and (orientation:portrait), 
+       all and (device-width: 1024px) and (device-height: 768px) and (orientation:landscape),
+       all and (-webkit-min-device-pixel-ratio: 2) {
+	
+	html.ios-fullscreen {
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		position: fixed;
+	}
+	
+	html.ios-fullscreen body {
+		width: 100%;
+		height: 100%;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		overflow: hidden;
+	}
+	
+	html.ios-fullscreen #AncientBeast {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 9999;
+		background-color: black;
+	}
+}
+
 .button#fullscreen {
 	position: inherit;
 	width: 80px;
