@@ -512,7 +512,6 @@ export class Creature {
 	 */
 	deactivate(reason: 'wait' | 'turn-end') {
 		const game = this.game;
-		this.hasWait = this.isDelayed;
 		this.status.frozen = false;
 		this.status.cryostasis = false;
 		this.status.dizzy = false;
@@ -524,6 +523,7 @@ export class Creature {
 			// @ts-expect-error 2554
 			game.onEndPhase(this);
 		}
+		this.hasWait = this.isDelayed;
 	}
 
 	get isInCurrentQueue() {
