@@ -318,9 +318,6 @@ export class UI {
 								// After 2 seconds, revert UI to the currently selected ability
 								setTimeout(() => {
 									// Reselect the current active ability (re-applies highlight range)
-									console.log("HERE")
-									console.log(this.selectedAbility)
-									//this.abilitiesButtons[1].triggerClick();
 									game.activeCreature.queryMove();
 									this.selectAbility(-1);
 								}, 500);
