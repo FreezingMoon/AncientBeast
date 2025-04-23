@@ -6,7 +6,29 @@ export class Fullscreen {
 		if (isFullscreen) {
 			button.classList.add('fullscreenMode');
 		}
-		this.disableEscKey();
+
+		document.addEventListener('fullscreenchange', () => this.updateButtonState());
+		window.addEventListener('resize', () => this.updateButtonState());
+	}
+
+	updateButtonState() {
+		const isFullscreen = this.isFullscreenMode();
+
+		if (isFullscreen) {
+			this.button.classList.add('fullscreenMode');
+			this.button
+				.querySelectorAll('.fullscreen__title')
+				.forEach((el) => (el.textContent = 'Contract'));
+		} else {
+			this.button.classList.remove('fullscreenMode');
+			this.button
+				.querySelectorAll('.fullscreen__title')
+				.forEach((el) => (el.textContent = 'FullScreen'));
+		}
+	}
+
+	isFullscreenMode() {
+		return isAppInNativeFullscreenMode() || window.innerHeight === screen.height;
 	}
 
 	toggle() {
@@ -17,35 +39,19 @@ export class Fullscreen {
 				.forEach((el) => (el.textContent = 'FullScreen'));
 			document.exitFullscreen();
 		} else if (!isAppInNativeFullscreenMode() && window.innerHeight === screen.height) {
-			alert('Use F11 to exit fullscreen');
+			const f11Event = new KeyboardEvent('keydown', {
+				key: 'F11',
+				code: 'F11',
+				keyCode: 122,
+				which: 122,
+			});
+			window.dispatchEvent(f11Event);
 		} else {
 			this.button.classList.add('fullscreenMode');
 			this.button
 				.querySelectorAll('.fullscreen__title')
 				.forEach((el) => (el.textContent = 'Contract'));
 			document.getElementById('AncientBeast').requestFullscreen();
-		}
-	}
-
-	private disableEscKey() {
-		document.addEventListener('keydown', (event) => {
-			if (event.key === 'Escape' && isAppInNativeFullscreenMode()) {
-				event.preventDefault();
-			}
-		});
-
-		document.addEventListener('fullscreenchange', () => {
-			if (isAppInNativeFullscreenMode()) {
-				document.addEventListener('keydown', this.preventEscKey);
-			} else {
-				document.removeEventListener('keydown', this.preventEscKey);
-			}
-		});
-	}
-
-	private preventEscKey(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.preventDefault();
 		}
 	}
 }

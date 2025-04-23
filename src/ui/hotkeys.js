@@ -137,6 +137,14 @@ export class Hotkeys {
 	pressSpace() {
 		!this.ui.dashopen && this.ui.game.grid.confirmHex();
 	}
+
+	pressF11() {
+		if (this.ui.fullscreen) {
+			setTimeout(() => {
+				this.ui.fullscreen.updateButtonState();
+			}, 100);
+		}
+	}
 }
 export function getHotKeys(hk) {
 	const hotkeys = {
@@ -265,6 +273,11 @@ export function getHotKeys(hk) {
 		Space: {
 			onkeydown() {
 				hk.pressSpace();
+			},
+		},
+		F11: {
+			onkeydown() {
+				hk.pressF11();
 			},
 		},
 	};
