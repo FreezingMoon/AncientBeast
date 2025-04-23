@@ -18,9 +18,6 @@ import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
 import { DEBUG_DISABLE_HOTKEYS } from '../debug';
 
-import { cycleAudioMode, getAudioMode, AudioMode } from '../sound/soundsys';
-
-
 /**
  * Class UI
  *
@@ -49,8 +46,7 @@ export class UI {
 	 * Create attributes and default buttons
 	 * @constructor
 	 */
-	constructor(configuration, game, soundSysInstance) {
-		this.soundSys = soundSysInstance;
+	constructor(configuration, game) {
 		this.configuration = configuration;
 		this.game = game;
 		this.fullscreen = new Fullscreen(
@@ -125,24 +121,20 @@ export class UI {
 		);
 		this.buttons.push(this.btnFullscreen);
 
-// Audio Button
-this.btnAudio = new Button(
-	{
-		$button: $j('.toggle-music-player'),
-		hasShortcut: true,
-		click: () => {
-			this.game.signals.ui.dispatch('toggleMusicPlayer');
-		},
-		overridefreeze: true,
-	},
-	{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
-);
-this.buttons.push(this.btnAudio);
-this.btnAudio.$button.on('contextmenu', (e) => {
-	e.preventDefault();
-	const newMode = cycleAudioMode(this.game.soundsys);
-	this.updateAudioIcon(newMode); 
-});
+		// Audio Button
+		this.btnAudio = new Button(
+			{
+				$button: $j('.toggle-music-player'),
+				hasShortcut: true,
+				click: () => {
+					this.game.signals.ui.dispatch('toggleMusicPlayer');
+				},
+				overridefreeze: true,
+			},
+			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+		);
+		this.buttons.push(this.btnAudio);
+
 		// Skip Turn Button
 		this.btnSkipTurn = new Button(
 			{
@@ -317,12 +309,28 @@ this.btnAudio.$button.on('contextmenu', (e) => {
 
 								return;
 							}
+
 							// Colored frame around selected ability
-							if (ability.require() == true && i != 0) {
-								this.selectAbility(i);
+							if (!ability.require() || ability.used) {
+								// Show non-interactive preview
+								ability.query?.(true);
+							
+								// After 2 seconds, revert UI to the currently selected ability
+								setTimeout(() => {
+									// Reselect the current active ability (re-applies highlight range)
+									console.log("HERE")
+									console.log(this.selectedAbility)
+									//this.abilitiesButtons[1].triggerClick();
+									game.activeCreature.queryMove();
+									this.selectAbility(-1);
+								}, 500);
+								return; // Don't proceed to use()
 							}
-							// Activate Ability
-							game.activeCreature.abilities[i].use();
+					
+							// Normal selection and use
+							this.selectAbility(i);
+							ability.use();
+
 						} else {
 							// Cancel Ability
 							this.closeDash();
@@ -1906,29 +1914,7 @@ this.btnAudio.$button.on('contextmenu', (e) => {
 			}
 		}
 	}
-	updateAudioIcon(mode) {
-		let iconKey = 'icons/audio';
-		let tooltipText = 'Audio: Full';
-	
-		if (mode === 'sfx') {
-			iconKey = 'icons/SFX';
-			tooltipText = 'Audio: SFX';
-		} else if (mode === 'muted') {
-			iconKey = 'icons/muted';
-			tooltipText = 'Audio: Muted';
-		}
-		
-		const iconUrl = getUrl(iconKey);
-		const $audioImg = $j('#audio img');
-		if ($audioImg.length) {
-			$audioImg.attr('src', iconUrl);
-		}
-	
-		const $tooltip = $j('#audio-tooltip');
-		if ($tooltip.length) {
-			$tooltip.text(tooltipText);
-		}
-	}			
+
 	updateAbilityUpgrades() {
 		const game = this.game,
 			creature = game.activeCreature;
@@ -2049,7 +2035,7 @@ this.btnAudio.$button.on('contextmenu', (e) => {
 			) {
 				this.abilitiesButtons[i].changeState(ButtonStateEnum.noClick);
 			} else {
-				this.abilitiesButtons[i].changeState(ButtonStateEnum.disabled);
+				this.abilitiesButtons[i].changeState(ButtonStateEnum.noClick);
 			}
 
 			// Charge

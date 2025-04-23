@@ -160,11 +160,6 @@ export class Ability {
 	_findEnemyHexInFront: (hexWithEnemy: Hex) => Hex | undefined;
 	_getHopHex: () => Hex | undefined;
 	_getUsesPerTurn: () => 1 | 2;
-
-	resetTimesUsed(): void {
-		this.timesUsedThisTurn = 0;
-	}
-	
 	directions: [1, 1, 1, 1, 1, 1];
 	constructor(creature: Creature, abilityID: AbilitySlot, game: Game) {
 		this.creature = creature;
@@ -283,7 +278,7 @@ export class Ability {
 
 		if (this.used === true) {
 			game.log('Ability already used!');
-			return;
+			/*return;*/
 		}
 
 		game.clearOncePerDamageChain();

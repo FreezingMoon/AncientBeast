@@ -78,7 +78,8 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const creature = this.creature;
 				G.grid.queryCreature({
@@ -157,7 +158,8 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const creature = this.creature;
 
@@ -278,7 +280,8 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 
 				G.grid.queryCreature({

@@ -86,7 +86,8 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const dpriest = this.creature;
 
@@ -168,7 +169,8 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const dpriest = this.creature;
 
@@ -242,7 +244,8 @@ export default (G) => {
 			summonRange: 4,
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				if (this.isUpgraded()) {
 					this.summonRange = 6;
 				}

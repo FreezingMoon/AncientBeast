@@ -111,13 +111,6 @@ export class Hotkeys {
 			this.ui.selectAbility(-1);
 		}
 
-		// Check if we were in fullscreen mode and update button state accordingly
-		setTimeout(() => {
-			if (this.ui.fullscreen) {
-				this.ui.fullscreen.updateButtonState();
-			}
-		}, 100);
-
 		this.ui.game.signals.ui.dispatch('closeInterfaceScreens');
 	}
 
@@ -272,24 +265,6 @@ export function getHotKeys(hk) {
 		Space: {
 			onkeydown() {
 				hk.pressSpace();
-			},
-		},
-		F11: {
-			onkeydown() {
-				// Update UI state on F11 key press
-				setTimeout(() => {
-					const fullscreenButton =
-						document.querySelector('#fullscreen.button') || document.getElementById('fullscreen');
-					if (fullscreenButton && fullscreenButton.__proto__.constructor.name === 'HTMLElement') {
-						// Get the Fullscreen instance if possible
-						const game = window.G;
-						if (game && game.ui && game.ui.fullscreen) {
-							game.ui.fullscreen.updateButtonState();
-						} else if (window.fullscreen) {
-							window.fullscreen.updateButtonState();
-						}
-					}
-				}, 100);
 			},
 		},
 	};

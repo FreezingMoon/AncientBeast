@@ -146,7 +146,8 @@ export default (G: Game) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 
 				if (!this.isUpgraded()) {
@@ -324,8 +325,20 @@ export default (G: Game) => {
 				return true;
 			},
 
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
+
+				if (isPreview) {
+					let forward = G.grid.getHexMap(this.creature.x, this.creature.y, 0, false, matrices.straitrow)
+					G.grid.queryHexes({
+						hexes: forward,
+						id: this.creature.id,
+						size: this.creature.size,
+						flipped: this.creature.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				}
 
 				let o: Partial<QueryOptions> = {
 					fnOnConfirm: function () {
@@ -583,7 +596,8 @@ export default (G: Game) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 
 				G.grid.queryCreature({
