@@ -2152,6 +2152,24 @@ input {
 }
 
 // iOS fullscreen specific styles
+.ios-fullscreen-html {
+	overflow: hidden !important;
+	height: 100% !important;
+	position: fixed !important;
+	width: 100% !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.ios-fullscreen-body {
+	overflow: hidden !important;
+	position: fixed !important;
+	width: 100% !important;
+	height: 100% !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
 .ios-fullscreen {
 	position: fixed !important;
 	top: 0 !important;
@@ -2164,11 +2182,10 @@ input {
 	margin: 0 !important;
 	padding: 0 !important;
 	background-color: black !important;
-}
-
-.ios-fullscreen-body {
-	overflow: hidden !important;
-	position: fixed !important;
-	width: 100% !important;
-	height: 100% !important;
+	// Add safe area inset at the top for notched iOS devices
+	padding-top: env(safe-area-inset-top) !important;
+	// Prevent content from being hidden under the home indicator on newer iPhones
+	padding-bottom: env(safe-area-inset-bottom) !important;
+	// Fix for Safari iOS handling of 100vh
+	min-height: -webkit-fill-available !important;
 }
