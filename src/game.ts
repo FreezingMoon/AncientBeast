@@ -27,7 +27,7 @@ import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
-
+import { setAudioMode } from './sound/soundsys';
 /* eslint-disable prefer-rest-params */
 
 /* NOTES/TODOS
@@ -58,24 +58,24 @@ export default class Game {
 	 * and jQuery functions can be called directly from them.
 	 *
 	 * // jQuery attributes
-	 * $combatFrame :	Combat element containing all graphics except the UI
+	 * $combatFrame :   Combat element containing all graphics except the UI
 	 *
 	 * // Game elements
-	 * players :			Array :	Contains Player objects ordered by player ID (0 to 3)
-	 * creatures :			Array :	Contains Creature objects (creatures[creature.id]) start at index 1
-	 * traps :				Array : Contains Trap objects
+	 * players :            Array : Contains Player objects ordered by player ID (0 to 3)
+	 * creatures :          Array : Contains Creature objects (creatures[creature.id]) start at index 1
+	 * traps :              Array : Contains Trap objects
 	 *
-	 * grid :				Grid :	Grid object
-	 * UI :				UI :	UI object
+	 * grid :               Grid :  Grid object
+	 * UI :             UI :    UI object
 	 *
-	 * queue :				CreatureQueue :	queue of creatures to manage phase order
+	 * queue :              CreatureQueue : queue of creatures to manage phase order
 	 *
-	 * turn :				Integer :	Current's turn number
+	 * turn :               Integer :   Current's turn number
 	 *
 	 * // Normal attributes
-	 * playerMode :		Integer :	Number of players in the game
-	 * activeCreature :	Creature :	Current active creature object reference
-	 * creatureData :		Array :		Array containing all data for the creatures
+	 * playerMode :     Integer :   Number of players in the game
+	 * activeCreature : Creature :  Current active creature object reference
+	 * creatureData :       Array :     Array containing all data for the creatures
 	 *
 	 */
 	abilities: Array<Partial<Ability>[]>;
@@ -322,7 +322,7 @@ export default class Game {
 		setupOpt: Partial<GameConfig>,
 		matchInitialized?: boolean,
 		matchid?: number,
-		onLoadCompleteFn = () => { },
+		onLoadCompleteFn = () => {},
 	) {
 		// Need to remove keydown listener before new game start
 		// to prevent memory leak and mixing hotkeys between start screen and game
@@ -362,7 +362,14 @@ export default class Game {
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
 		this.Phaser.load.onLoadComplete.add(onLoadCompleteFn);
 
-		assetsUse(this.Phaser);
+		const assetsRaw = assetsUse(this.Phaser);
+		const assets = Array.isArray(assetsRaw) ? assetsRaw : [];
+
+		console.log('[DEBUG] Safe assets list:', assets);
+
+		assets.forEach((asset) => {
+			// safely process each asset here
+		});
 
 		// Ability SFX
 		this.Phaser.load.audio('MagmaSpawn0', getUrl('units/sfx/Infernal 0'));
@@ -604,7 +611,7 @@ export default class Game {
 				this,
 			); // Create UI (not before because some functions require creatures to already exist)
 		}
-
+		setAudioMode('full', this.soundsys, this.UI);
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = 'playing';
 
@@ -902,7 +909,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: function () { },
+				callback: function () {},
 				noTooltip: false,
 				tooltip: 'Skipped',
 			},
@@ -963,7 +970,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
-				callback: function () { },
+				callback: function () {},
 			},
 			o,
 		);
@@ -1100,7 +1107,7 @@ export default class Game {
 	}
 
 	/**
-	 * @param {CreatureType} type -	Creature's type (ex: "--" for Dark Priest)
+	 * @param {CreatureType} type - Creature's type (ex: "--" for Dark Priest)
 	 * Query the database for creature stats.
 	 * Additonaly, ensure that a `type` property exists on each creature.
 	 */
@@ -1260,7 +1267,7 @@ export default class Game {
 	onStartPhase(/* creature, callback */) {
 		const creature = arguments[0],
 			totalTraps = this.traps.length;
-		
+
 		let trap: Trap;
 
 		for (let i = 0; i < totalTraps; i++) {
@@ -1294,7 +1301,7 @@ export default class Game {
 	onEndPhase(/* creature, callback */) {
 		const creature = arguments[0];
 		// Check if Abolished used third ability
-		if (creature.abilities.some(ability => ability.title === 'Bonfire Spring')) {
+		if (creature.abilities.some((ability) => ability.title === 'Bonfire Spring')) {
 			creature.accumulatedTeleportRange += 1;
 		}
 
@@ -1507,7 +1514,7 @@ export default class Game {
 
 	action(o, opt) {
 		const defaultOpt = {
-			callback: function () { },
+			callback: function () {},
 		};
 
 		opt = $j.extend(defaultOpt, opt);

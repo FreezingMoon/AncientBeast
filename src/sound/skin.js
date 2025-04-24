@@ -1,47 +1,68 @@
 const audioPlayer = document.querySelector('.audio-player-skin');
 const skin = new Audio();
 
+// Show total duration when audio data is loaded
 skin.addEventListener(
 	'loadeddata',
 	() => {
-		audioPlayer.querySelector('.time .length').textContent = getTimeCodeFromNum(skin.duration);
-	},
-	false,
-);
-
-const timeline = audioPlayer.querySelector('.timeline-control');
-timeline.addEventListener(
-	'click',
-	(e) => {
-		const timelineWidth = window.getComputedStyle(timeline).width;
-		const timeToSeek = (e.offsetX / parseInt(timelineWidth)) * skin.duration;
-		skin.currentTime = timeToSeek;
-	},
-	false,
-);
-
-setInterval(() => {
-	const progressBar = audioPlayer.querySelector('.progress-music');
-	progressBar.style.width = (skin.currentTime / skin.duration) * 100 + '%';
-	audioPlayer.querySelector('.time .current').textContent = getTimeCodeFromNum(skin.currentTime);
-}, 500);
-
-const playBtn = audioPlayer.querySelector('.controls .toggle-play');
-playBtn.addEventListener(
-	'click',
-	() => {
-		if (skin.paused) {
-			playBtn.classList.remove('play');
-			playBtn.classList.add('pause');
-			skin.play();
-		} else {
-			playBtn.classList.remove('pause');
-			playBtn.classList.add('play');
-			skin.pause();
+		if (audioPlayer) {
+			const lengthElement = audioPlayer.querySelector('.time .length');
+			if (lengthElement) {
+				lengthElement.textContent = getTimeCodeFromNum(skin.duration);
+			}
 		}
 	},
 	false,
 );
+
+// Click event for scrubbing
+if (audioPlayer) {
+	const timeline = audioPlayer.querySelector('.timeline-control');
+	if (timeline) {
+		timeline.addEventListener(
+			'click',
+			(e) => {
+				const timelineWidth = window.getComputedStyle(timeline).width;
+				const timeToSeek = (e.offsetX / parseInt(timelineWidth)) * skin.duration;
+				skin.currentTime = timeToSeek;
+			},
+			false,
+		);
+	}
+
+	const playBtn = audioPlayer.querySelector('.controls .toggle-play');
+	if (playBtn) {
+		playBtn.addEventListener(
+			'click',
+			() => {
+				if (skin.paused) {
+					playBtn.classList.remove('play');
+					playBtn.classList.add('pause');
+					skin.play();
+				} else {
+					playBtn.classList.remove('pause');
+					playBtn.classList.add('play');
+					skin.pause();
+				}
+			},
+			false,
+		);
+	}
+}
+
+// Song progress bar
+setInterval(() => {
+	if (audioPlayer) {
+		const progressBar = audioPlayer.querySelector('.progress-music');
+		if (progressBar) {
+			progressBar.style.width = (skin.currentTime / skin.duration) * 100 + '%';
+		}
+		const currentTime = audioPlayer.querySelector('.time .current');
+		if (currentTime) {
+			currentTime.textContent = getTimeCodeFromNum(skin.currentTime);
+		}
+	}
+}, 500);
 
 function getTimeCodeFromNum(num) {
 	let seconds = parseInt(num);

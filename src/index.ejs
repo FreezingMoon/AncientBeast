@@ -614,16 +614,6 @@
 				
 					<div class="framed-modal__return">
 						<button class="toggle-music-player close-button"></button>
-						<div id="volumeSliders">
-						   <div>
-							SFX
-							</div>
-                            <div style="position:relative">
-                                <b style="position:absolute; right:43px; top:8px; color:grey;">+</b>
-							    <input id="sfx" class="slider" type="range" min="0" max="1" value="1" step="0.02">
-                                <b style="position:absolute; left:43px; top:8px; color:grey; rotate:90deg;">-</b>
-                            </div>
-						</div>
 					</div>
 					
 					<div class="audio-player-controls">
@@ -646,14 +636,22 @@
 								<div class="progress-music"></div>
 							</div>
 							<div class="controls">
-
 								<div class="play-container">
 									<div class="toggle-play pause">
 								</div>
 								</div>
-
 							</div>
 							
+							<div class="volumeSliders">
+								<div id="sfx-slider">
+									<div class="volume-label">SFX</div>
+									<input id="sfx" class="slider" type="range" min="0" max="1" value="1" step="0.02">
+								</div>
+								<div id="vol-slider">
+									<div class="volume-label">VOL</div>
+									<input id="vol" class="slider" type="range" min="0" max="1" value="0.25" step="0.02">
+								</div>
+							</div>
 						</div>
 					</div>
 					<div class="framed-modal framed-modal--fluid">
@@ -666,7 +664,6 @@
 					
 					</ul>
 				</div>
-				
 			</div>
 
 			<div id="toppanel">
@@ -702,8 +699,11 @@
 				</div>
 				
 					<div style="position:relative">
-						<div id="audio" class="toggle-music-player button"></div>
-						<div class="desc">
+						<div id="audio" class="toggle-music-player button">
+							<img id="audio-icon" src="" alt="audio icon" width="32" height="32" />
+							<div class="tooltiptext" id="audio-tooltip">Audio: Full</div>
+						</div>						
+												<div class="desc">
 							<div class="arrow"></div>
 							<div class="shortcut">hotkey Shift + A</div>
 							<span>Audio Player</span>

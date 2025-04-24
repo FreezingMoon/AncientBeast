@@ -18,42 +18,51 @@ export class MusicPlayer {
 		$j('#genre-epic').addClass('active-text');
 		this.playlist.find('li').not('.epic').addClass('hidden');
 
-		$j('.musicgenres__title').on('click', (e) => {
-			e.preventDefault();
+		// Debug genre selection
+		$j('.musicgenres__title')
+			.off('click')
+			.on('click', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
 
-			const clickedGenre = $j(e.target);
-			clickedGenre.toggleClass('active-text');
+				const clickedGenre = $j(e.target);
+				clickedGenre.toggleClass('active-text');
 
-			if (!clickedGenre.hasClass('active-text')) {
-				// The inner text is capitalized but the class name is not (e.g Epic vs epic).
-				// We must use toLowerCase so that it works correctly.
-				const clickedGenreClass = e.target.innerText.toLowerCase();
-				const unusedTracks = this.playlist.find(`li.${clickedGenreClass}`);
-				unusedTracks.addClass('hidden');
-			}
+				if (!clickedGenre.hasClass('active-text')) {
+					// The inner text is capitalized but the class name is not (e.g Epic vs epic).
+					// We must use toLowerCase so that it works correctly.
+					const clickedGenreClass = e.target.innerText.toLowerCase();
+					const unusedTracks = this.playlist.find(`li.${clickedGenreClass}`);
+					unusedTracks.addClass('hidden');
+				}
 
-			const activeGenres = clickedGenre.parent().find('.active-text');
-			const allGenres = clickedGenre.parent().find('.musicgenres__title'); // This will fetch all the genres
+				const activeGenres = clickedGenre.parent().find('.active-text');
+				const allGenres = clickedGenre.parent().find('.musicgenres__title'); // This will fetch all the genres
 
-			const activeGenresSelectors = Array.prototype.map.call(
-				activeGenres.length === 0 ? allGenres : activeGenres, // Here if no genre is active then all genres shall pass
-				(genreNode) => `li.${genreNode.innerText.toLowerCase()}`,
-			);
-			const allGenresSelectors = Array.prototype.map.call(
-				allGenres,
-				(genreNode) => `li.${genreNode.innerText.toLowerCase()}`,
-			);
-			const activeTracks = this.playlist.find(activeGenresSelectors.join());
-			const allTracks = this.playlist.find(allGenresSelectors.join()); // This will fetch all the tracks
+				const activeGenresSelectors = Array.prototype.map.call(
+					activeGenres.length === 0 ? allGenres : activeGenres, // Here if no genre is active then all genres shall pass
+					(genreNode) => `li.${genreNode.innerText.toLowerCase()}`,
+				);
+				const allGenresSelectors = Array.prototype.map.call(
+					allGenres,
+					(genreNode) => `li.${genreNode.innerText.toLowerCase()}`,
+				);
+				const activeTracks = this.playlist.find(activeGenresSelectors.join());
+				const allTracks = this.playlist.find(allGenresSelectors.join()); // This will fetch all the tracks
 
-			allTracks.addClass('hidden'); // First we will hide all the tracks and then
-			activeTracks.removeClass('hidden'); // Make the active ones visible
-		});
+				allTracks.addClass('hidden'); // First we will hide all the tracks and then
+				activeTracks.removeClass('hidden'); // Make the active ones visible
+			});
 
-		this.playlist.find('li').on('click', (e) => {
-			e.preventDefault();
-			this.run($j(e.currentTarget));
-		});
+		// Debug playlist track selection
+		this.playlist
+			.find('li')
+			.off('click')
+			.on('click', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				this.run($j(e.currentTarget));
+			});
 
 		this.audio.addEventListener('ended', () => {
 			// Check if tracks list exists, and if it does, play random track, else stop playback
@@ -64,10 +73,28 @@ export class MusicPlayer {
 			}
 		});
 
-		$j('.audio-player-beast').on('click', (e) => {
-			// Perform on beast click
-			this.beastAudio.play();
-		});
+		$j('.audio-player-beast')
+			.off('click')
+			.on('click', (e) => {
+				e.stopPropagation();
+				// Perform on beast click
+				this.beastAudio.play();
+			});
+
+		// Volume sliders requested
+		$j('#vol')
+			.off('change')
+			.on('change', (e) => {
+				this.audio.volume = Number(e.target.value);
+			});
+
+		$j('#sfx')
+			.off('change')
+			.on('change', (e) => {
+				if (window.game && window.game.soundsys) {
+					window.game.soundsys.allEffectsMultiplier = Number(e.target.value);
+				}
+			});
 	}
 
 	getCurrentTrackIndex() {
@@ -114,7 +141,18 @@ export class MusicPlayer {
 		track.addClass('active-text').siblings().removeClass('active-text');
 		this.audio.src = link.attr('href');
 		this.audio.load();
-		this.audio.play();
+
+		// Debug play button state
+		const playBtn = document.querySelector('.controls .toggle-play');
+		if (playBtn) {
+			playBtn.classList.remove('play');
+			playBtn.classList.add('pause');
+		}
+
+		// Play audio
+		this.audio.play().catch((error) => {
+			console.error('Error playing audio:', error);
+		});
 	}
 
 	stopMusic() {
